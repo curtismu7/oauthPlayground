@@ -8,7 +8,6 @@ import {
 	type PARAuthMethod,
 	type PARRequest,
 	type PARResponse,
-	PARService,
 } from '../../services/parService';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
@@ -292,7 +291,16 @@ const PARFlow: React.FC<PARFlowProps> = ({ credentials }) => {
 	const [response, setResponse] = useState<Record<string, unknown> | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [parResponse, setParResponse] = useState<PARResponse | null>(null);
-	const [parService] = useState(() => new PARService(formData.environmentId));
+	const [parService, setParService] = useState<typeof PARService | null>(null);
+
+	// Initialize PARService dynamically
+	useEffect(() => {
+		const initializePARService = async () => {
+			const { PARService } = await import('../../services/parService');
+			setParService(new PARService(formData.environmentId));
+		};
+		initializePARService();
+	}, [formData.environmentId]);
 
 	const generateState = useCallback(() => {
 		const state =
@@ -479,7 +487,7 @@ console.log('Authorization URL:', authorizationUrl);
 			execute: async () => {
 				logger.info('PARFlow', 'Generating authorization URL');
 
-				if (parResponse) {
+				if (parResponse && parService) {
 					const authUrl = parService.generateAuthorizationURL(parResponse.requestUri);
 					setResponse((prev) => ({
 						...prev,
@@ -516,7 +524,7 @@ console.log('✅ User redirected back with auth code');`,
 			execute: async () => {
 				logger.info('PARFlow', 'Simulating user redirect');
 
-				if (parResponse) {
+				if (parResponse && parService) {
 					const authUrl = parService.generateAuthorizationURL(parResponse.requestUri);
 					setResponse((prev) => ({
 						...prev,

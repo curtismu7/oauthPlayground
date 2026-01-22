@@ -1665,6 +1665,23 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		setIntrospectionResult(null);
 		setHasScrolledToTV(false);
 
+		// Clear any potential ConfigChecker-related state or cached data
+		try {
+			// Clear any comparison results or cached application data
+			sessionStorage.removeItem('config-checker-diffs');
+			sessionStorage.removeItem('config-checker-last-check');
+			sessionStorage.removeItem('pingone-app-cache');
+			localStorage.removeItem('pingone-applications-cache');
+			
+			// Clear any worker token related cache that might be used for pre-flight checks
+			sessionStorage.removeItem('worker-token-cache');
+			localStorage.removeItem('worker-apps-cache');
+			
+			console.log('🔄 [DeviceAuthorizationFlowV7] Reset: cleared ConfigChecker and pre-flight cache data');
+		} catch (error) {
+			console.warn('[DeviceAuthorizationFlowV7] Failed to clear cache data:', error);
+		}
+
 		// Clear Device Authorization Flow V7-specific storage with error handling
 		try {
 			FlowCredentialService.clearFlowState('device-authorization-v7');
@@ -3135,8 +3152,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				}}
 				hasUnsavedPingOneChanges={false}
 				isSavingPingOne={false}
-				// Config Checker props
-				showConfigChecker={true}
+				// Config Checker props - Disabled to remove pre-flight API calls
+				showConfigChecker={false}
 				workerToken={localStorage.getItem('worker_token') || ''}
 				region="NA"
 			/>

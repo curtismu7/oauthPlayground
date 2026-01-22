@@ -276,18 +276,12 @@ export const FIDODeviceExistsModalV8: React.FC<FIDODeviceExistsModalV8Props> = (
 
 		setIsDeleting(true);
 		try {
-			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDODeviceExistsModalV8.tsx:218',message:'Deleting FIDO2 device',data:{environmentId,username,deviceId,deviceNickname},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-			// #endregion
 			await MFAServiceV8.deleteDevice({
 				environmentId,
 				username,
 				deviceId,
 			});
 
-			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDODeviceExistsModalV8.tsx:228',message:'Device deleted successfully',data:{deviceId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-			// #endregion
 			toastV8.success('FIDO2 device deleted successfully. You can now register a new device.');
 			onClose();
 			if (onDeviceDeleted) {
@@ -295,9 +289,6 @@ export const FIDODeviceExistsModalV8: React.FC<FIDODeviceExistsModalV8Props> = (
 			}
 		} catch (error) {
 			console.error('[FIDODeviceExistsModal] Failed to delete device', error);
-			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDODeviceExistsModalV8.tsx:237',message:'Delete device failed',data:{error:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-			// #endregion
 			toastV8.error(
 				`Failed to delete device: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);

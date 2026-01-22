@@ -797,8 +797,27 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	// Auto-navigate from Step 1 to Step 3 for registration flow
 	// Use an interval to check if we're stuck on Step 1 (backup navigation)
 	React.useEffect(() => {
-		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TOTPFlowV8.tsx:604',message:'useEffect for Step 1 navigation - entry',data:{isConfigured,hasProps:!!step1PropsRef.current,propsStep:step1PropsRef.current?.nav?.currentStep},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+		// #region agent log - Use safe analytics fetch
+		(async () => {
+			try {
+				const { safeAnalyticsFetch } = await import('@/v8/utils/analyticsServerCheckV8');
+				await safeAnalyticsFetch({
+					location: 'TOTPFlowV8.tsx:604',
+					message: 'useEffect for Step 1 navigation - entry',
+					data: {
+						isConfigured,
+						hasProps: !!step1PropsRef.current,
+						propsStep: step1PropsRef.current?.nav?.currentStep
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'run1',
+					hypothesisId: 'E'
+				});
+			} catch {
+				// Silently ignore - analytics server not available
+			}
+		})();
 		// #endregion
 		
 		if (!isConfigured) return;

@@ -135,56 +135,10 @@ export class DeviceCodeIntegrationServiceV8 {
 				requestBody.scope = finalScopes;
 			}
 
-			// #region agent log - Debug instrumentation for 403 error
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'deviceCodeIntegrationServiceV8.ts:124',
-						message: 'Frontend building request body for device authorization',
-						data: {
-							environmentId: credentials.environmentId,
-							clientId: credentials.clientId
-								? `${credentials.clientId.substring(0, 10)}...`
-								: 'MISSING',
-							hasScope: !!finalScopes,
-							scopeValue: finalScopes || 'NONE',
-							requestBodyKeys: Object.keys(requestBody),
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'pre-fix',
-						hypothesisId: 'D',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
-
 			// Track API call for display (with timeout to prevent hanging)
 			let callId: string | undefined;
 			let startTime = Date.now();
 			try {
-				// #region agent log - Debug instrumentation before dynamic import
-				try {
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							location: 'deviceCodeIntegrationServiceV8.ts:163-BEFORE-IMPORT',
-							message: 'About to dynamically import apiCallTrackerService',
-							data: {
-								timestamp: Date.now(),
-							},
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'request-hang',
-							hypothesisId: 'BEFORE-IMPORT',
-						}),
-					}).catch(() => {});
-				} catch (_e) {}
-				// #endregion
-
 				// Add timeout to dynamic import (5 seconds max)
 				const importPromise = import('@/services/apiCallTrackerService');
 				const timeoutPromise = new Promise<never>((_, reject) => {
@@ -193,40 +147,19 @@ export class DeviceCodeIntegrationServiceV8 {
 
 				const { apiCallTrackerService } = await Promise.race([importPromise, timeoutPromise]);
 
-				// #region agent log - Debug instrumentation after dynamic import
-				try {
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							location: 'deviceCodeIntegrationServiceV8.ts:163-AFTER-IMPORT',
-							message: 'Dynamic import completed',
-							data: {
-								hasApiCallTrackerService: !!apiCallTrackerService,
-								timestamp: Date.now(),
-							},
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'request-hang',
-							hypothesisId: 'AFTER-IMPORT',
-						}),
-					}).catch(() => {});
-				} catch (_e) {}
-				// #endregion
-
-				startTime = Date.now();
+				// Track the API call
 				callId = apiCallTrackerService.trackApiCall({
-				method: 'POST',
-				url: deviceAuthEndpoint,
+					method: 'POST',
+					url: deviceAuthEndpoint,
 					actualPingOneUrl: deviceAuthEndpoint,
 					isProxy: false,
 					headers: {
 						'Content-Type': 'application/json',
 					},
-				body: requestBody,
-				step: 'unified-device-authorization',
+					body: requestBody,
+					step: 'unified-device-authorization',
 					flowType: 'unified',
-			});
+				});
 			} catch (importError) {
 				// If import fails or times out, continue without tracking (non-blocking)
 				console.warn(
@@ -235,31 +168,6 @@ export class DeviceCodeIntegrationServiceV8 {
 				);
 			}
 
-			// #region agent log - Debug instrumentation before pingOneFetch
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'deviceCodeIntegrationServiceV8.ts:172-BEFORE-PINGONEFETCH',
-						message: 'About to call pingOneFetch for device authorization',
-						data: {
-							endpoint: deviceAuthEndpoint,
-							hasRequestBody: !!requestBody,
-							requestBodyKeys: Object.keys(requestBody),
-							environmentId: credentials.environmentId,
-							clientId: `${credentials.clientId?.substring(0, 10)}...`,
-							timestamp: Date.now(),
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'request-hang',
-						hypothesisId: 'BEFORE-PINGONEFETCH',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
-
 			const response = await pingOneFetch(deviceAuthEndpoint, {
 				method: 'POST',
 				headers: {
@@ -267,30 +175,6 @@ export class DeviceCodeIntegrationServiceV8 {
 				},
 				body: JSON.stringify(requestBody),
 			});
-
-			// #region agent log - Debug instrumentation after pingOneFetch
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'deviceCodeIntegrationServiceV8.ts:172-AFTER-PINGONEFETCH',
-						message: 'pingOneFetch completed',
-						data: {
-							status: response.status,
-							statusText: response.statusText,
-							ok: response.ok,
-							hasBody: !!response.body,
-							timestamp: Date.now(),
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'request-hang',
-						hypothesisId: 'AFTER-PINGONEFETCH',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
 
 			// Parse response once (clone first to avoid consuming the body)
 			const responseClone = response.clone();
@@ -457,30 +341,6 @@ export class DeviceCodeIntegrationServiceV8 {
 
 			return deviceAuth;
 		} catch (error) {
-			// #region agent log - Debug instrumentation for catch block
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'deviceCodeIntegrationServiceV8.ts:385-CATCH',
-						message: 'Caught error in requestDeviceAuthorization',
-						data: {
-							errorMessage: error instanceof Error ? error.message : String(error),
-							errorType: error instanceof Error ? error.constructor.name : typeof error,
-							hasStack: error instanceof Error ? !!error.stack : false,
-							stackPreview: error instanceof Error ? error.stack?.substring(0, 300) : 'no stack',
-							timestamp: Date.now(),
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'request-hang',
-						hypothesisId: 'CATCH',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
-
 			console.error(`${MODULE_TAG} Error requesting device authorization`, { error });
 			throw error;
 		}

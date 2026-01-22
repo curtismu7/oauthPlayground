@@ -4218,7 +4218,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															setAuthState((prev) => ({ ...prev, isLoading: true }));
 
 															// Lookup userId if not already set
-															const userId = authState.userId;
+															let userId = authState.userId;
 															if (!userId && usernameInput.trim()) {
 																const user = await MFAServiceV8.lookupUserByUsername(
 																	credentials.environmentId,

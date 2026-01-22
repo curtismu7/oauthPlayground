@@ -233,11 +233,9 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	// Load FIDO2 policies function
 	const loadFido2Policies = useCallback(async () => {
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:205',message:'loadFido2Policies entry',data:{environmentId,hasToken:tokenStatus.isValid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
 			// #endregion
 			if (!environmentId || !tokenStatus.isValid) {
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:207',message:'Early return - missing prerequisites',data:{hasEnvironmentId:!!environmentId,hasToken:tokenStatus.isValid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
 				// #endregion
 				return;
 			}
@@ -248,7 +246,6 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 			try {
 				const workerToken = await workerTokenServiceV8.getToken();
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:214',message:'Worker token retrieved',data:{hasToken:!!workerToken,tokenLength:workerToken?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
 				// #endregion
 				if (!workerToken) {
 					throw new Error('Worker token not found');
@@ -264,7 +261,6 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				});
 				const apiUrl = `/api/pingone/mfa/fido2-policies?${params.toString()}`;
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:227',message:'Before API call',data:{url:apiUrl,environmentId,region},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
 				// #endregion
 
 				const response = await fetch(apiUrl, {
@@ -273,7 +269,6 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				});
 
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:232',message:'API response received',data:{status:response.status,statusText:response.statusText,ok:response.ok},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
 				// #endregion
 
 				if (!response.ok) {
@@ -283,7 +278,6 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						errorData.error ||
 						`Failed to load FIDO2 policies: ${response.status} ${response.statusText}`;
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:239',message:'API error response',data:{status:response.status,errorData},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
 					// #endregion
 					console.error(`${MODULE_TAG} API error:`, { status: response.status, errorData });
 					throw new Error(errorMessage);
@@ -291,7 +285,6 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 				const data = await response.json();
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:243',message:'Raw API response data',data:{hasData:!!data,dataKeys:Object.keys(data||{}),isArray:Array.isArray(data),hasEmbedded:!!data?._embedded,hasItems:!!data?.items},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
 				// #endregion
 				console.log(`${MODULE_TAG} FIDO2 policies response:`, data);
 				
@@ -302,30 +295,25 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					// Direct array response
 					policiesList = data;
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:250',message:'Parsed as direct array',data:{count:policiesList.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
 					// #endregion
 				} else if (data._embedded?.fido2Policies) {
 					// Paginated response with _embedded
 					policiesList = data._embedded.fido2Policies;
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:253',message:'Parsed as _embedded.fido2Policies',data:{count:policiesList.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
 					// #endregion
 				} else if (data._embedded && Array.isArray(data._embedded)) {
 					// Alternative embedded structure
 					policiesList = data._embedded;
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:256',message:'Parsed as _embedded array',data:{count:policiesList.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
 					// #endregion
 				} else if (data.items && Array.isArray(data.items)) {
 					// Items array
 					policiesList = data.items;
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:259',message:'Parsed as items array',data:{count:policiesList.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
 					// #endregion
 				} else {
 					console.warn(`${MODULE_TAG} Unexpected response structure:`, data);
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:262',message:'Unexpected response structure',data:{dataKeys:Object.keys(data||{}),rawData:JSON.stringify(data).substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
 					// #endregion
 					// Try to extract any array from the response
 					const keys = Object.keys(data);
@@ -338,7 +326,6 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				}
 
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:272',message:'Before setState',data:{policiesCount:policiesList.length,policyIds:policiesList.map(p=>p.id)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
 				// #endregion
 				setFido2Policies(policiesList);
 				setPoliciesError(null); // Clear any previous errors
@@ -358,7 +345,6 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				const errorMessage =
 					error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:290',message:'Error caught',data:{errorMessage,errorType:error?.constructor?.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
 				// #endregion
 				setPoliciesError(errorMessage);
 				setFido2Policies([]); // Clear policies on error
