@@ -432,8 +432,31 @@ export class CredentialsServiceV8 {
 	static saveCredentials(flowKey: string, credentials: Credentials): void {
 		try {
 			const storageKey = `${CredentialsServiceV8.STORAGE_PREFIX}${flowKey}`;
-			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'credentialsServiceV8.ts:423',message:'Saving credentials to storage',data:{flowKey,storageKey,hasRedirectUri:!!credentials.redirectUri,redirectUri:credentials.redirectUri,hasClientAuthMethod:!!credentials.clientAuthMethod,clientAuthMethod:credentials.clientAuthMethod,allKeys:Object.keys(credentials)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+			// #region agent log - Use safe analytics fetch
+			(async () => {
+				try {
+					const { safeAnalyticsFetch } = await import('@/v8/utils/analyticsServerCheckV8');
+					await safeAnalyticsFetch({
+						location: 'credentialsServiceV8.ts:423',
+						message: 'Saving credentials to storage',
+						data: {
+							flowKey,
+							storageKey,
+							hasRedirectUri: !!credentials.redirectUri,
+							redirectUri: credentials.redirectUri,
+							hasClientAuthMethod: !!credentials.clientAuthMethod,
+							clientAuthMethod: credentials.clientAuthMethod,
+							allKeys: Object.keys(credentials)
+						},
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						runId: 'run1',
+						hypothesisId: 'F'
+					});
+				} catch {
+					// Silently ignore - analytics server not available
+				}
+			})();
 			// #endregion
 
 			// PRIMARY STORAGE: Save to IndexedDB first (persists across browser restarts)

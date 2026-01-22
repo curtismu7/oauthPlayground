@@ -43,7 +43,6 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 		const newFlowType = event.target.value as FlowType;
 		
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FlowTypeSelector.tsx:42',message:'FlowTypeSelector - USER SELECTED FLOW',data:{specVersion,from:flowType,to:newFlowType},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'N'})}).catch(()=>{});
 		// #endregion
 		
 		console.log(`${MODULE_TAG} Flow type changed`, {

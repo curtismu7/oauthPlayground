@@ -13392,6 +13392,7 @@ app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 			hasWorkerToken: !!workerToken,
 			hasOtp: !!otp,
 			otpLength: otp ? String(otp).length : 0,
+			isAdminActivation: otp === 'ADMIN_ACTIVATION',
 		});
 
 		if (!environmentId || !userId || !deviceId || !workerToken || !otp) {
@@ -13405,6 +13406,12 @@ app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 					otp: !otp,
 				},
 			});
+		}
+
+		// Special handling for admin activation
+		const isAdminActivation = otp === 'ADMIN_ACTIVATION';
+		if (isAdminActivation) {
+			console.log('[MFA Activate Device] Admin activation requested - bypassing OTP validation');
 		}
 
 		// Clean and validate worker token
@@ -13427,28 +13434,43 @@ app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 			});
 		}
 
-		// PingOne API endpoint for SMS/EMAIL device activation
-		// Per rightOTP.md: Use the exact activation URI returned by PingOne if provided
-		// Otherwise use standard endpoint pattern (same as TOTP)
-		// Content-Type: application/vnd.pingidentity.device.activate+json
-		const activateEndpoint =
-			deviceActivateUri ||
-			`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`;
+		// For admin activation, we use a different approach - update device status directly
+		// This bypasses the OTP requirement entirely
+		const activateEndpoint = isAdminActivation
+			? `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`
+			: (deviceActivateUri ||
+				`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`);
 
 		// Build request body according to rightOTP.md
-		const requestBody = {
-			otp: String(otp).trim(),
-		};
+		// For admin activation, we update the device status to ACTIVE directly
+		const requestBody = isAdminActivation 
+			? { 
+				status: 'ACTIVE',
+				// Clear any activation requirements
+				links: {
+					device: {
+						href: `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`
+					}
+				}
+			}
+			: { 
+				otp: String(otp).trim(),
+			};
 
+		// For admin activation, use PATCH to update device status
+		// For regular activation, use POST with activation content type
+		const requestMethod = isAdminActivation ? 'PATCH' : 'POST';
 		const requestHeaders = {
-			'Content-Type': 'application/vnd.pingidentity.device.activate+json',
+			'Content-Type': isAdminActivation 
+				? 'application/json' 
+				: 'application/vnd.pingidentity.device.activate+json',
 			Authorization: `Bearer ${cleanToken}`,
 			Accept: 'application/json',
 		};
 
 		const startTime = Date.now();
 		const response = await global.fetch(activateEndpoint, {
-			method: 'POST',
+			method: requestMethod,
 			headers: requestHeaders,
 			body: JSON.stringify(requestBody),
 		});
@@ -17449,6 +17471,387 @@ app.post('/api/pingone/mfa/reset-mfa-settings', async (req, res) => {
 	} catch (error) {
 		console.error('[MFA Settings] Error:', error);
 		res.status(500).json({ error: 'Failed to reset MFA settings', message: error.message });
+	}
+});
+
+// ============================================================================
+// PINGONE MFA DATA EXPLORATIONS API (OFFICIAL REPORTING)
+// API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#reporting
+// ============================================================================
+
+/**
+ * POST /v1/environments/{envID}/dataExplorations
+ * Create a data exploration (report) with entries returned in response
+ * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-data-exploration---entries-in-response
+ */
+app.post('/api/pingone/mfa/dataExplorations', async (req, res) => {
+	try {
+		const {
+			environmentId,
+			workerToken,
+			fields,
+			filter,
+			deliverAs = 'ENTRIES', // Default to entries in response
+			expand = 'entries', // Default to expand entries
+			region,
+			customDomain
+		} = req.body;
+
+		if (!environmentId || !workerToken) {
+			return res.status(400).json({
+				error: 'missing_required_fields',
+				message: 'environmentId and workerToken are required'
+			});
+		}
+
+		// Clean and validate token
+		const cleanToken = workerToken.trim();
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => !part || part.length === 0)) {
+			return res.status(400).json({
+				error: 'invalid_token',
+				message: 'Invalid worker token format'
+			});
+		}
+
+		// Determine API base URL based on region
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'ap'
+					? 'https://api.pingone.asia'
+					: region === 'ca'
+						? 'https://api.pingone.ca'
+						: region === 'na'
+							? 'https://api.pingone.com'
+							: customDomain || 'https://api.pingone.com';
+
+		// Build the dataExplorations endpoint with expand parameter
+		const dataExplorationsEndpoint = `${apiBase}/v1/environments/${environmentId}/dataExplorations?expand=${expand}`;
+
+		// Build request body according to PingOne API spec
+		const requestBody = {
+			deliverAs,
+			fields: fields || [
+				{ name: 'userId' },
+				{ name: 'username' },
+				{ name: 'givenName' },
+				{ name: 'familyName' },
+				{ name: 'mfaEnabled' },
+				{ name: 'userCreatedAt' },
+				{ name: 'userUpdatedAt' },
+				{ name: 'deviceId' },
+				{ name: 'deviceOrder' },
+				{ name: 'deviceNickname' },
+				{ name: 'deviceType' },
+				{ name: 'deviceStatus' },
+				{ name: 'phone' },
+				{ name: 'email' },
+				{ name: 'deviceBlocked' },
+				{ name: 'blockedAt' },
+				{ name: 'deviceLocked' },
+				{ name: 'lockExpiration' },
+				{ name: 'fidoBackupEligibility' },
+				{ name: 'fidoBackupState' },
+				{ name: 'fidoUserVerification' },
+				{ name: 'deviceCreatedAt' },
+				{ name: 'deviceUpdatedAt' },
+				{ name: 'lastDeviceTrxTime' }
+			]
+		};
+
+		// Add filter if provided
+		if (filter) {
+			requestBody.filter = filter;
+		}
+
+		console.log('[MFA DataExplorations] Creating data exploration:', {
+			environmentId,
+			deliverAs,
+			expand,
+			hasFilter: !!filter,
+			fieldsCount: requestBody.fields.length,
+			apiBase
+		});
+
+		const response = await fetch(dataExplorationsEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+			body: JSON.stringify(requestBody),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA DataExplorations] Error:', {
+				status: response.status,
+				statusText: response.statusText,
+				error: errorData
+			});
+			return res.status(response.status).json(errorData);
+		}
+
+		const responseData = await response.json();
+		console.log('[MFA DataExplorations] Data exploration created successfully');
+		res.json(responseData);
+	} catch (error) {
+		console.error('[MFA DataExplorations] Error:', error);
+		res.status(500).json({ error: 'Failed to create data exploration', message: error.message });
+	}
+});
+
+/**
+ * POST /v1/environments/{envID}/dataExplorations (ASYNC_FILE)
+ * Create a data exploration (report) with results delivered as file
+ * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-data-exploration---results-in-file
+ */
+app.post('/api/pingone/mfa/dataExplorations-async', async (req, res) => {
+	try {
+		const {
+			environmentId,
+			workerToken,
+			fields,
+			filter,
+			deliverAs = 'ASYNC_FILE', // For file delivery
+			region,
+			customDomain
+		} = req.body;
+
+		if (!environmentId || !workerToken) {
+			return res.status(400).json({
+				error: 'missing_required_fields',
+				message: 'environmentId and workerToken are required'
+			});
+		}
+
+		// Clean and validate token
+		const cleanToken = workerToken.trim();
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => !part || part.length === 0)) {
+			return res.status(400).json({
+				error: 'invalid_token',
+				message: 'Invalid worker token format'
+			});
+		}
+
+		// Determine API base URL based on region
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'ap'
+					? 'https://api.pingone.asia'
+					: region === 'ca'
+						? 'https://api.pingone.ca'
+						: region === 'na'
+							? 'https://api.pingone.com'
+							: customDomain || 'https://api.pingone.com';
+
+		const dataExplorationsEndpoint = `${apiBase}/v1/environments/${environmentId}/dataExplorations`;
+
+		// Build request body for async file generation
+		const requestBody = {
+			deliverAs,
+			fields: fields || [
+				{ name: 'userId' },
+				{ name: 'username' },
+				{ name: 'givenName' },
+				{ name: 'familyName' },
+				{ name: 'mfaEnabled' },
+				{ name: 'deviceId' },
+				{ name: 'deviceType' },
+				{ name: 'deviceStatus' },
+				{ name: 'phone' },
+				{ name: 'email' },
+				{ name: 'deviceCreatedAt' }
+			]
+		};
+
+		// Add filter if provided
+		if (filter) {
+			requestBody.filter = filter;
+		}
+
+		console.log('[MFA DataExplorations Async] Creating async file report:', {
+			environmentId,
+			deliverAs,
+			hasFilter: !!filter,
+			fieldsCount: requestBody.fields.length,
+			apiBase
+		});
+
+		const response = await fetch(dataExplorationsEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+			body: JSON.stringify(requestBody),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA DataExplorations Async] Error:', {
+				status: response.status,
+				statusText: response.statusText,
+				error: errorData
+			});
+			return res.status(response.status).json(errorData);
+		}
+
+		const responseData = await response.json();
+		console.log('[MFA DataExplorations Async] Report creation initiated, status:', responseData.status);
+		res.json(responseData);
+	} catch (error) {
+		console.error('[MFA DataExplorations Async] Error:', error);
+		res.status(500).json({ error: 'Failed to create async data exploration', message: error.message });
+	}
+});
+
+/**
+ * GET /v1/environments/{envID}/dataExplorations/{dataExplorationID}
+ * Get data exploration status and results (for polling async reports)
+ * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#get-get-data-exploration
+ */
+app.post('/api/pingone/mfa/dataExplorations-status', async (req, res) => {
+	try {
+		const { environmentId, dataExplorationId, workerToken, region, customDomain } = req.body;
+
+		if (!environmentId || !dataExplorationId || !workerToken) {
+			return res.status(400).json({
+				error: 'missing_required_fields',
+				message: 'environmentId, dataExplorationId, and workerToken are required'
+			});
+		}
+
+		// Clean and validate token
+		const cleanToken = workerToken.trim();
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => !part || part.length === 0)) {
+			return res.status(400).json({
+				error: 'invalid_token',
+				message: 'Invalid worker token format'
+			});
+		}
+
+		// Determine API base URL based on region
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'ap'
+					? 'https://api.pingone.asia'
+					: region === 'ca'
+						? 'https://api.pingone.ca'
+						: region === 'na'
+							? 'https://api.pingone.com'
+							: customDomain || 'https://api.pingone.com';
+
+		const statusEndpoint = `${apiBase}/v1/environments/${environmentId}/dataExplorations/${dataExplorationId}`;
+
+		console.log('[MFA DataExplorations Status] Checking status:', {
+			environmentId,
+			dataExplorationId,
+			apiBase
+		});
+
+		const response = await fetch(statusEndpoint, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA DataExplorations Status] Error:', {
+				status: response.status,
+				statusText: response.statusText,
+				error: errorData
+			});
+			return res.status(response.status).json(errorData);
+		}
+
+		const responseData = await response.json();
+		console.log('[MFA DataExplorations Status] Status retrieved:', responseData.status);
+		res.json(responseData);
+	} catch (error) {
+		console.error('[MFA DataExplorations Status] Error:', error);
+		res.status(500).json({ error: 'Failed to get data exploration status', message: error.message });
+	}
+});
+
+/**
+ * GET /v1/environments/{envID}/dataExplorations/{dataExplorationID}/entries
+ * Get data exploration entries (for paginated results)
+ * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#get-get-data-exploration-entries
+ */
+app.post('/api/pingone/mfa/dataExplorations-entries', async (req, res) => {
+	try {
+		const { environmentId, dataExplorationId, workerToken, region, customDomain } = req.body;
+
+		if (!environmentId || !dataExplorationId || !workerToken) {
+			return res.status(400).json({
+				error: 'missing_required_fields',
+				message: 'environmentId, dataExplorationId, and workerToken are required'
+			});
+		}
+
+		// Clean and validate token
+		const cleanToken = workerToken.trim();
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => !part || part.length === 0)) {
+			return res.status(400).json({
+				error: 'invalid_token',
+				message: 'Invalid worker token format'
+			});
+		}
+
+		// Determine API base URL based on region
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'ap'
+					? 'https://api.pingone.asia'
+					: region === 'ca'
+						? 'https://api.pingone.ca'
+						: region === 'na'
+							? 'https://api.pingone.com'
+							: customDomain || 'https://api.pingone.com';
+
+		const entriesEndpoint = `${apiBase}/v1/environments/${environmentId}/dataExplorations/${dataExplorationId}/entries`;
+
+		console.log('[MFA DataExplorations Entries] Getting entries:', {
+			environmentId,
+			dataExplorationId,
+			apiBase
+		});
+
+		const response = await fetch(entriesEndpoint, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA DataExplorations Entries] Error:', {
+				status: response.status,
+				statusText: response.statusText,
+				error: errorData
+			});
+			return res.status(response.status).json(errorData);
+		}
+
+		const responseData = await response.json();
+		console.log('[MFA DataExplorations Entries] Entries retrieved successfully');
+		res.json(responseData);
+	} catch (error) {
+		console.error('[MFA DataExplorations Entries] Error:', error);
+		res.status(500).json({ error: 'Failed to get data exploration entries', message: error.message });
 	}
 });
 

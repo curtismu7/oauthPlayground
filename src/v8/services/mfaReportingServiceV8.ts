@@ -5,10 +5,12 @@
  * @version 8.0.0
  * @since 2024-11-19
  *
- * Implements PingOne MFA Reporting API:
+ * Implements PingOne MFA Reporting API using official dataExplorations endpoints:
  * - User authentication reports
  * - Device authentication reports
  * - FIDO2 device reports
+ * - Async file generation with polling
+ * - Paginated results
  *
  * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#reporting
  */
@@ -26,6 +28,30 @@ export interface ReportParams {
 	filter?: string;
 	region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'; // PingOne region
 	customDomain?: string; // Custom domain for PingOne API
+}
+
+export interface DataExplorationParams extends ReportParams {
+	fields?: Array<{ name: string }>;
+	deliverAs?: 'ENTRIES' | 'ASYNC_FILE';
+	expand?: string;
+}
+
+export interface DataExplorationResponse {
+	id: string;
+	status: 'IN_PROGRESS' | 'SUCCESS' | 'FAILED';
+	deliverAs: 'ENTRIES' | 'ASYNC_FILE';
+	_embedded?: {
+		entries: Array<Record<string, unknown>>;
+	};
+	_links?: {
+		self: { href: string };
+		next?: { href: string };
+		csv?: { href: string };
+		json?: { href: string };
+	};
+	password?: string; // For zip file extraction
+	createdAt: string;
+	updatedAt: string;
 }
 
 export interface UserAuthenticationReport {
@@ -96,6 +122,7 @@ export class MFAReportingServiceV8 {
 			grant_type: 'client_credentials',
 			client_id: credentials.clientId,
 			client_secret: credentials.clientSecret,
+			scope: 'p1:read:report p1:read:environment', // Required scopes for reporting endpoints
 		};
 
 		const response = await fetch(tokenEndpoint, {
@@ -939,9 +966,483 @@ export class MFAReportingServiceV8 {
 			console.log(`${MODULE_TAG} Retrieved ${devices.length} ${deviceType} devices`);
 			return devices;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Get ${deviceType} devices error`, error);
+			console.error(`${MODULE_TAG} Get devices by type error:`, error);
 			throw error;
 		}
+	}
+
+	// ============================================================================
+	// OFFICIAL DATA EXPLORATIONS API METHODS
+	// ============================================================================
+
+	/**
+	 * Create a data exploration with entries returned in response
+	 * @param params - Data exploration parameters
+	 * @returns Data exploration with embedded entries
+	 */
+	static async createDataExploration(
+		params: DataExplorationParams
+	): Promise<DataExplorationResponse> {
+		console.log(`${MODULE_TAG} Creating data exploration with entries`, params);
+
+		try {
+			const accessToken = await MFAReportingServiceV8.getWorkerToken();
+
+			const requestBody = {
+				environmentId: params.environmentId,
+				workerToken: accessToken,
+				fields: params.fields,
+				filter: params.filter,
+				deliverAs: params.deliverAs || 'ENTRIES',
+				expand: params.expand || 'entries',
+				region: params.region,
+				customDomain: params.customDomain,
+			};
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/dataExplorations',
+				body: {
+					...requestBody,
+					workerToken: '***REDACTED***',
+				},
+				step: 'Create Data Exploration',
+			});
+
+			const proxyEndpoint = '/api/pingone/mfa/dataExplorations';
+
+			let response: Response;
+			try {
+				response = await fetch(proxyEndpoint, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
+				});
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let explorationData: DataExplorationResponse;
+			try {
+				explorationData = await responseClone.json();
+			} catch {
+				explorationData = { error: 'Failed to parse response' } as DataExplorationResponse;
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: Object.fromEntries(response.headers.entries()),
+					body: explorationData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				throw new Error(
+					`Failed to create data exploration: ${response.status} ${response.statusText}`
+				);
+			}
+
+			console.log(`${MODULE_TAG} Data exploration created successfully`);
+			return explorationData;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Create data exploration error:`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Create a data exploration with results delivered as file
+	 * @param params - Data exploration parameters
+	 * @returns Data exploration ID for polling
+	 */
+	static async createAsyncDataExploration(
+		params: DataExplorationParams
+	): Promise<DataExplorationResponse> {
+		console.log(`${MODULE_TAG} Creating async data exploration`, params);
+
+		try {
+			const accessToken = await MFAReportingServiceV8.getWorkerToken();
+
+			const requestBody = {
+				environmentId: params.environmentId,
+				workerToken: accessToken,
+				fields: params.fields,
+				filter: params.filter,
+				deliverAs: 'ASYNC_FILE',
+				region: params.region,
+				customDomain: params.customDomain,
+			};
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/dataExplorations-async',
+				body: {
+					...requestBody,
+					workerToken: '***REDACTED***',
+				},
+				step: 'Create Async Data Exploration',
+			});
+
+			const proxyEndpoint = '/api/pingone/mfa/dataExplorations-async';
+
+			let response: Response;
+			try {
+				response = await fetch(proxyEndpoint, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
+				});
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let explorationData: DataExplorationResponse;
+			try {
+				explorationData = await responseClone.json();
+			} catch {
+				explorationData = { error: 'Failed to parse response' } as DataExplorationResponse;
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: Object.fromEntries(response.headers.entries()),
+					body: explorationData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				throw new Error(
+					`Failed to create async data exploration: ${response.status} ${response.statusText}`
+				);
+			}
+
+			console.log(`${MODULE_TAG} Async data exploration created successfully, status:`, explorationData.status);
+			return explorationData;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Create async data exploration error:`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Get data exploration status and results
+	 * @param params - Parameters including dataExplorationId
+	 * @returns Data exploration status and results
+	 */
+	static async getDataExplorationStatus(
+		params: ReportParams & { dataExplorationId: string }
+	): Promise<DataExplorationResponse> {
+		console.log(`${MODULE_TAG} Getting data exploration status`, params);
+
+		try {
+			const accessToken = await MFAReportingServiceV8.getWorkerToken();
+
+			const requestBody = {
+				environmentId: params.environmentId,
+				dataExplorationId: params.dataExplorationId,
+				workerToken: accessToken,
+				region: params.region,
+				customDomain: params.customDomain,
+			};
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/dataExplorations-status',
+				body: {
+					...requestBody,
+					workerToken: '***REDACTED***',
+				},
+				step: 'Get Data Exploration Status',
+			});
+
+			const proxyEndpoint = '/api/pingone/mfa/dataExplorations-status';
+
+			let response: Response;
+			try {
+				response = await fetch(proxyEndpoint, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
+				});
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let statusData: DataExplorationResponse;
+			try {
+				statusData = await responseClone.json();
+			} catch {
+				statusData = { error: 'Failed to parse response' } as DataExplorationResponse;
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: Object.fromEntries(response.headers.entries()),
+					body: statusData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				throw new Error(
+					`Failed to get data exploration status: ${response.status} ${response.statusText}`
+				);
+			}
+
+			console.log(`${MODULE_TAG} Data exploration status retrieved:`, statusData.status);
+			return statusData;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Get data exploration status error:`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Get data exploration entries (for paginated results)
+	 * @param params - Parameters including dataExplorationId
+	 * @returns Data exploration entries
+	 */
+	static async getDataExplorationEntries(
+		params: ReportParams & { dataExplorationId: string }
+	): Promise<{ _embedded: { entries: Array<Record<string, unknown>> }; _links?: any }> {
+		console.log(`${MODULE_TAG} Getting data exploration entries`, params);
+
+		try {
+			const accessToken = await MFAReportingServiceV8.getWorkerToken();
+
+			const requestBody = {
+				environmentId: params.environmentId,
+				dataExplorationId: params.dataExplorationId,
+				workerToken: accessToken,
+				region: params.region,
+				customDomain: params.customDomain,
+			};
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/dataExplorations-entries',
+				body: {
+					...requestBody,
+					workerToken: '***REDACTED***',
+				},
+				step: 'Get Data Exploration Entries',
+			});
+
+			const proxyEndpoint = '/api/pingone/mfa/dataExplorations-entries';
+
+			let response: Response;
+			try {
+				response = await fetch(proxyEndpoint, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
+				});
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let entriesData: { _embedded: { entries: Array<Record<string, unknown>> }; _links?: any };
+			try {
+				entriesData = await responseClone.json();
+			} catch {
+				entriesData = { _embedded: { entries: [] }, error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: Object.fromEntries(response.headers.entries()),
+					body: entriesData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				throw new Error(
+					`Failed to get data exploration entries: ${response.status} ${response.statusText}`
+				);
+			}
+
+			console.log(`${MODULE_TAG} Data exploration entries retrieved successfully`);
+			return entriesData;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Get data exploration entries error:`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Poll async data exploration until completion
+	 * @param params - Parameters including dataExplorationId
+	 * @param maxAttempts - Maximum polling attempts (default: 30)
+	 * @param pollInterval - Polling interval in milliseconds (default: 2000)
+	 * @returns Completed data exploration with download links
+	 */
+	static async pollAsyncDataExploration(
+		params: ReportParams & { dataExplorationId: string },
+		maxAttempts: number = 30,
+		pollInterval: number = 2000
+	): Promise<DataExplorationResponse> {
+		console.log(`${MODULE_TAG} Starting async data exploration polling`, {
+			dataExplorationId: params.dataExplorationId,
+			maxAttempts,
+			pollInterval,
+		});
+
+		for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+			try {
+				const status = await MFAReportingServiceV8.getDataExplorationStatus(params);
+				
+				console.log(`${MODULE_TAG} Poll attempt ${attempt}/${maxAttempts}, status:`, status.status);
+
+				if (status.status === 'SUCCESS') {
+					console.log(`${MODULE_TAG} Data exploration completed successfully`);
+					return status;
+				}
+
+				if (status.status === 'FAILED') {
+					throw new Error('Data exploration failed');
+				}
+
+				// Still IN_PROGRESS, wait and poll again
+				if (attempt < maxAttempts) {
+					await new Promise((resolve) => setTimeout(resolve, pollInterval));
+				}
+			} catch (error) {
+				console.error(`${MODULE_TAG} Poll attempt ${attempt} failed:`, error);
+				if (attempt === maxAttempts) {
+					throw error;
+				}
+				// Continue polling on error unless it's the last attempt
+				if (attempt < maxAttempts) {
+					await new Promise((resolve) => setTimeout(resolve, pollInterval));
+				}
+			}
+		}
+
+		throw new Error(`Data exploration polling timed out after ${maxAttempts} attempts`);
+	}
+
+	/**
+	 * Create MFA devices report using official dataExplorations API
+	 * @param params - Report parameters
+	 * @returns MFA devices report data
+	 */
+	static async createMFADevicesReport(
+		params: DataExplorationParams & {
+			deviceType?: string;
+			mfaEnabled?: boolean;
+		}
+	): Promise<DataExplorationResponse> {
+		console.log(`${MODULE_TAG} Creating MFA devices report`, params);
+
+		// Build filter based on parameters
+		let filter = '';
+		const filters = [];
+
+		if (params.deviceType) {
+			filters.push(`(deviceType eq "${params.deviceType}")`);
+		}
+
+		if (params.mfaEnabled !== undefined) {
+			filters.push(`(mfaEnabled eq "${params.mfaEnabled}")`);
+		}
+
+		if (params.filter) {
+			filters.push(params.filter);
+		}
+
+		if (filters.length > 0) {
+			filter = filters.join(' and ');
+		}
+
+		// Default fields for MFA devices report
+		const defaultFields = [
+			{ name: 'userId' },
+			{ name: 'username' },
+			{ name: 'givenName' },
+			{ name: 'familyName' },
+			{ name: 'mfaEnabled' },
+			{ name: 'deviceId' },
+			{ name: 'deviceType' },
+			{ name: 'deviceStatus' },
+			{ name: 'deviceNickname' },
+			{ name: 'phone' },
+			{ name: 'email' },
+			{ name: 'deviceCreatedAt' },
+			{ name: 'deviceUpdatedAt' },
+		];
+
+		return await MFAReportingServiceV8.createDataExploration({
+			...params,
+			fields: params.fields || defaultFields,
+			filter: filter || undefined,
+		});
 	}
 }
 

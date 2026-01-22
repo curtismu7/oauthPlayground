@@ -137,7 +137,6 @@ export class DeviceCodeIntegrationServiceV8 {
 
 			// #region agent log - Debug instrumentation for 403 error
 			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({
@@ -167,7 +166,6 @@ export class DeviceCodeIntegrationServiceV8 {
 			try {
 				// #region agent log - Debug instrumentation before dynamic import
 				try {
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({
@@ -195,7 +193,6 @@ export class DeviceCodeIntegrationServiceV8 {
 
 				// #region agent log - Debug instrumentation after dynamic import
 				try {
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({
@@ -237,7 +234,6 @@ export class DeviceCodeIntegrationServiceV8 {
 
 			// #region agent log - Debug instrumentation before pingOneFetch
 			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({
@@ -270,7 +266,6 @@ export class DeviceCodeIntegrationServiceV8 {
 
 			// #region agent log - Debug instrumentation after pingOneFetch
 			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({
@@ -459,7 +454,6 @@ export class DeviceCodeIntegrationServiceV8 {
 		} catch (error) {
 			// #region agent log - Debug instrumentation for catch block
 			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({

@@ -91,6 +91,25 @@ interface MenuGroup {
 	isOpen: boolean;
 }
 
+const SIDEBAR_MENU_VERSION = '2026-01-22-production-updates';
+
+const ensureSidebarStateVersion = (): void => {
+	if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+		return;
+	}
+
+	try {
+		const storedVersion = localStorage.getItem('sidebar.version');
+		if (storedVersion !== SIDEBAR_MENU_VERSION) {
+			localStorage.removeItem('nav.openSections');
+			localStorage.removeItem('sidebar.menuOrder');
+			localStorage.setItem('sidebar.version', SIDEBAR_MENU_VERSION);
+		}
+	} catch (error) {
+		console.warn('Failed to ensure sidebar version state:', error);
+	}
+};
+
 const SidebarContainer = styled.div<{ $isOpen: boolean; $width: number }>`
 	position: fixed;
 	top: 0;
@@ -379,6 +398,8 @@ const ResizeHandle = styled.div`
 `;
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+	ensureSidebarStateVersion();
+
 	const _location = useLocation();
 	// const _navigate = useNavigate(); // Unused - keeping for potential future use
 	const [sidebarWidth, setSidebarWidth] = useState(() => {
@@ -456,10 +477,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		} catch (error) {
 			console.warn('Failed to load navigation state from localStorage:', error);
 		}
-		// Default state - only Core Overview and V8 Flows open by default
+		// Default state - only Core Overview and Production open by default
 		return {
 			'Core Overview': true,
-			'V8 Flows (Latest)': true,
+			'Production': true,
+			'Production (Legacy)': false,
 			'OAuth 2.0 Flows': false,
 			'OpenID Connect': true,
 			PingOne: false,
@@ -486,7 +508,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		// Read openMenus state from localStorage for use in initializer
 		let openMenusState: Record<string, boolean> = {
 			'Core Overview': true,
-			'V8 Flows (Latest)': true,
+			'Production': true,
+			'Production (Legacy)': false,
 			'OAuth 2.0 Flows': false,
 			'OpenID Connect': true,
 			PingOne: false,
@@ -510,7 +533,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		return [
 			{
 				id: 'v8-flows-new',
-				label: 'V8 Flows - NEW',
+				label: 'Production',
 				icon: (
 					<ColoredIcon $color="#3b82f6">
 						<FiZap />
@@ -715,13 +738,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			},
 			{
 				id: 'v8-flows',
-				label: 'V8 Flows (Latest)',
+				label: 'Production (Legacy)',
 				icon: (
 					<ColoredIcon $color="#10b981">
 						<FiZap />
 					</ColoredIcon>
 				),
-				isOpen: openMenusState['V8 Flows (Latest)'] || true,
+				isOpen: openMenusState['Production (Legacy)'] || true,
 				items: [
 					{
 						id: 'mfa-v8',
@@ -780,6 +803,51 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						badge: (
 							<MigrationBadge title="V8: Spec-aware unified credentials form demo">
 								<FiCode />
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'enhanced-state-management',
+						path: '/v8u/enhanced-state-management',
+						label: '🔧 Enhanced State Management',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiDatabase />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Advanced state management with undo/redo, offline capabilities, and persistence">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'token-monitoring-dashboard',
+						path: '/v8u/token-monitoring',
+						label: '🔍 Token Monitoring Dashboard',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiEye />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Real-time token monitoring with countdowns, introspection, and management">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'flow-comparison-tool',
+						path: '/v8u/flow-comparison',
+						label: '📊 Flow Comparison Tool',
+						icon: (
+							<ColoredIcon $color="#3b82f6">
+								<FiBarChart2 />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Compare OAuth flows with detailed metrics and recommendations">
+								NEW
 							</MigrationBadge>
 						),
 					},

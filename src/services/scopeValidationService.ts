@@ -356,6 +356,25 @@ class ScopeValidationService {
 			result.warnings.push(`Using PingOne-specific scopes: ${pingOneScopes.join(', ')}`);
 		}
 
+		// Client Credentials specific validation
+		if (config.flowType === 'client-credentials') {
+			// Check for OIDC scopes (these don't work with client credentials)
+			const oidcScopes = ['openid', 'profile', 'email', 'address', 'phone'];
+			const foundOidcScopes = scopes.filter((scope) => oidcScopes.includes(scope));
+			if (foundOidcScopes.length > 0) {
+				result.errors.push(
+					`OIDC scopes (${foundOidcScopes.join(', ')}) are not compatible with Client Credentials flow. Use resource server scopes like "api:read", "api:write", or "ClaimScope" instead.`
+				);
+			}
+
+			// Check for PingOne management scopes (these don't work with client credentials)
+			if (pingOneScopes.length > 0) {
+				result.errors.push(
+					`PingOne management scopes (${pingOneScopes.join(', ')}) are not compatible with Client Credentials flow. Use resource server scopes like "api:read", "api:write", or "ClaimScope" instead.`
+				);
+			}
+		}
+
 		// Check for potentially problematic scopes
 		const problematicScopes = scopes.filter(
 			(scope) => scope.includes(' ') || scope.includes(',') || scope.includes(';')
@@ -373,19 +392,19 @@ class ScopeValidationService {
 	getRecommendedScopes(flowType: string): string[] {
 		switch (flowType) {
 			case 'oidc':
-				return ['openid'];
+				return ['openid', 'profile', 'email'];
 			case 'oauth':
-				return ['openid'];
+				return ['openid', 'profile', 'email'];
 			case 'device':
-				return ['openid'];
+				return ['openid', 'profile', 'email'];
 			case 'client-credentials':
-				return ['p1:read:user', 'p1:update:user'];
+				return ['api:read', 'api:write', 'ClaimScope'];
 			case 'implicit':
-				return ['openid'];
+				return ['openid', 'profile', 'email'];
 			case 'hybrid':
-				return ['openid'];
+				return ['openid', 'profile', 'email'];
 			default:
-				return ['openid'];
+				return ['openid', 'profile', 'email'];
 		}
 	}
 

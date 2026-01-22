@@ -1,0 +1,507 @@
+{
+  "id": "env-1769093599133-9h9mrll4d",
+  "name": "PingOne Complete Collection - Use Cases, Unified & MFA v9.0.0 Environment",
+  "values": [
+    {
+      "key": "authPath",
+      "value": "https://auth.pingone.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "envID",
+      "value": "b9817c16-9910-4415-b67e-4ac687da74d9",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "worker_client_id",
+      "value": "66a4686b-9222-4ad2-91b6-03113711c9aa",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "worker_client_secret",
+      "value": "3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "user_client_id",
+      "value": "a4f963ea-0736-456a-be72-b1fa4f63f81f",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_client_secret",
+      "value": "0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "workerToken",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "redirect_uri",
+      "value": "https://localhost:3000/postman-callback",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "scopes_oauth2",
+      "value": "profile email",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "scopes_oidc",
+      "value": "openid profile email",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "scopes_oidc21",
+      "value": "openid profile email offline_access",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "state",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "authorization_code",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "id_token",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "code_verifier",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "code_challenge",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "code_challenge_method",
+      "value": "S256",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "client_credentials_basic",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_client_credentials_basic",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "basic_auth",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "client_secret_jwt",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "client_assertion_jwt",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_client_assertion_jwt",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "private_key_jwt",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "client_assertion_jwt_private",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_client_assertion_jwt_private",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "pi_flow_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "request_uri",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "device_code",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_code",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "verification_uri",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "verification_uri_complete",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "device_code_expires_in",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "device_code_expires_at",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "device_code_interval",
+      "value": "5",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "nonce",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "response_mode",
+      "value": "query",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "redirectless_flowId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "redirectless_resumeUrl",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "redirectless_sessionId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "redirectless_status",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "username",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "password",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "otp_code",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "flowId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "interactionId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "interactionToken",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "apiPath",
+      "value": "https://api.pingone.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "current_password",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "new_password",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "newPassword",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userPassword",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "email",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "givenName",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "familyName",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "phone",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "populationId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "initialPassword",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "emailVerificationCode",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "recoveryCode",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "emailVerificationRequired",
+      "value": "false",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userToken",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "deviceId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "deviceAuthenticationPolicyId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "groupId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "deviceAuthenticationId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "facebook_client_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "facebook_client_secret",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "linkedin_client_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "linkedin_client_secret",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "azure_client_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "azure_client_secret",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "azure_tenant_id",
+      "value": "common",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "facebook_idp_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "linkedin_idp_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "azure_idp_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "riskPredictorId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "riskEvaluationId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "completionStatus",
+      "value": "SUCCESS",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "sessionId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2026-01-22T14:53:19.133Z",
+  "_postman_exported_using": "OAuth Playground"
+}

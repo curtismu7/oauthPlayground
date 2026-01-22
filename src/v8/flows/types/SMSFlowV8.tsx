@@ -1537,8 +1537,23 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						const config = MFAConfigurationServiceV8.loadConfiguration();
 						const silentApiRetrieval = config.workerToken.silentApiRetrieval || false;
 						const showTokenAtEnd = config.workerToken.showTokenAtEnd !== false;
-						// #region agent log
-						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SMSFlowV8.tsx:1510',message:'Calling handleShowWorkerTokenModal from error handler',data:{silentApiRetrieval,showTokenAtEnd},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+						// #region agent log - Use safe analytics fetch
+						(async () => {
+							try {
+								const { safeAnalyticsFetch } = await import('@/v8/utils/analyticsServerCheckV8');
+								await safeAnalyticsFetch({
+									location: 'SMSFlowV8.tsx:1510',
+									message: 'Calling handleShowWorkerTokenModal from error handler',
+									data: { silentApiRetrieval, showTokenAtEnd },
+									timestamp: Date.now(),
+									sessionId: 'debug-session',
+									runId: 'run1',
+									hypothesisId: 'D'
+								});
+							} catch {
+								// Silently ignore - analytics server not available
+							}
+						})();
 						// #endregion
 						await handleShowWorkerTokenModal(setShowWorkerTokenModal, undefined, silentApiRetrieval, showTokenAtEnd);
 					}

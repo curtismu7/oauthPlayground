@@ -2599,8 +2599,8 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 										subtitle="Configure your application settings and credentials"
 										showAdvancedConfig={true}
 										defaultCollapsed={false}
-										// Config Checker
-										showConfigChecker={true}
+										// Config Checker - Disabled to remove pre-flight API calls
+										showConfigChecker={false}
 										workerToken={workerToken}
 										region={'NA'}
 									/>
