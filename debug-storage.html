@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Storage Debug</title>
+</head>
+<body>
+    <h1>Storage Debug Tool</h1>
+    <button onclick="checkStorage()">Check All Storage</button>
+    <button onclick="checkWorkerToken()">Check Worker Token</button>
+    <button onclick="checkBackup()">Check Backup</button>
+    <pre id="output"></pre>
+
+    <script>
+        function checkStorage() {
+            const output = document.getElementById('output');
+            let result = '=== STORAGE DEBUG ===\n\n';
+            
+            // Check localStorage
+            result += 'LOCAL STORAGE:\n';
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                result += `${key}: ${value ? (value.length > 100 ? value.substring(0, 100) + '...' : value) : 'null'}\n`;
+            }
+            
+            result += '\n=== UNIFIED WORKER TOKEN ===\n';
+            const unifiedToken = localStorage.getItem('unified_worker_token');
+            if (unifiedToken) {
+                try {
+                    const parsed = JSON.parse(unifiedToken);
+                    result += `Found unified token:\n`;
+                    result += `- Has credentials: ${!!parsed.credentials}\n`;
+                    result += `- Has token: ${!!parsed.token}\n`;
+                    result += `- Environment ID: ${parsed.credentials?.environmentId || 'MISSING'}\n`;
+                    result += `- Client ID: ${parsed.credentials?.clientId || 'MISSING'}\n`;
+                    result += `- Client Secret: ${parsed.credentials?.clientSecret ? 'PRESENT' : 'MISSING'}\n`;
+                    result += `- Saved At: ${new Date(parsed.savedAt).toLocaleString()}\n`;
+                } catch (e) {
+                    result += `Error parsing unified token: ${e.message}\n`;
+                }
+            } else {
+                result += 'No unified worker token found\n';
+            }
+            
+            result += '\n=== LEGACY KEYS ===\n';
+            const legacyKeys = ['v8:worker_token', 'pingone_worker_token_credentials', 'worker_token', 'worker_credentials'];
+            legacyKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                result += `${key}: ${value ? 'FOUND' : 'NOT FOUND'}\n`;
+            });
+            
+            result += '\n=== BACKUP ===\n';
+            const backup = localStorage.getItem('oauth_playground_credential_backup');
+            if (backup) {
+                try {
+                    const parsed = JSON.parse(backup);
+                    result += `Found backup with ${Object.keys(parsed).length} entries:\n`;
+                    Object.keys(parsed).forEach(key => {
+                        result += `- ${key}: env=${parsed[key].environmentId}, client=${parsed[key].clientId}\n`;
+                    });
+                } catch (e) {
+                    result += `Error parsing backup: ${e.message}\n`;
+                }
+            } else {
+                result += 'No backup found\n';
+            }
+            
+            output.textContent = result;
+        }
+        
+        function checkWorkerToken() {
+            const output = document.getElementById('output');
+            let result = '=== WORKER TOKEN DEBUG ===\n\n';
+            
+            // Check unified service
+            if (window.unifiedWorkerTokenService) {
+                window.unifiedWorkerTokenService.loadCredentials().then(creds => {
+                    result += `Unified Service Credentials:\n`;
+                    result += `- Environment ID: ${creds?.environmentId || 'MISSING'}\n`;
+                    result += `- Client ID: ${creds?.clientId || 'MISSING'}\n`;
+                    result += `- Client Secret: ${creds?.clientSecret ? 'PRESENT' : 'MISSING'}\n`;
+                    result += `- Region: ${creds?.region || 'us'}\n`;
+                    result += `- App ID: ${creds?.appId || 'N/A'}\n`;
+                    
+                    window.unifiedWorkerTokenService.getStatus().then(status => {
+                        result += `\nStatus:\n`;
+                        result += `- Has Credentials: ${status.hasCredentials}\n`;
+                        result += `- Has Token: ${status.hasToken}\n`;
+                        result += `- Token Valid: ${status.tokenValid}\n`;
+                        result += `- Last Used: ${status.lastUsedAt ? new Date(status.lastUsedAt).toLocaleString() : 'Never'}\n`;
+                        
+                        output.textContent = result;
+                    });
+                }).catch(err => {
+                    result += `Error loading credentials: ${err.message}\n`;
+                    output.textContent = result;
+                });
+            } else {
+                result += 'Unified worker token service not available\n';
+                output.textContent = result;
+            }
+        }
+        
+        function checkBackup() {
+            const output = document.getElementById('output');
+            let result = '=== BACKUP DEBUG ===\n\n';
+            
+            // Check IndexedDB
+            if (window.indexedDB) {
+                const request = indexedDB.open('oauth_playground_unified', 1);
+                request.onsuccess = function(event) {
+                    const db = event.target.result;
+                    if (db.objectStoreNames.contains('unified_worker_tokens')) {
+                        const transaction = db.transaction(['unified_worker_tokens'], 'readonly');
+                        const store = transaction.objectStore('unified_worker_tokens');
+                        const getRequest = store.get('unified_worker_token');
+                        
+                        getRequest.onsuccess = function() {
+                            const data = getRequest.result;
+                            if (data) {
+                                result += 'Found IndexedDB backup:\n';
+                                result += `- Has credentials: ${!!data.credentials}\n`;
+                                result += `- Has token: ${!!data.token}\n`;
+                                result += `- Environment ID: ${data.credentials?.environmentId || 'MISSING'}\n`;
+                                result += `- Client ID: ${data.credentials?.clientId || 'MISSING'}\n`;
+                                result += `- Saved At: ${new Date(data.savedAt).toLocaleString()}\n`;
+                            } else {
+                                result += 'No IndexedDB backup found\n';
+                            }
+                            output.textContent = result;
+                        };
+                        
+                        getRequest.onerror = function() {
+                            result += `Error reading IndexedDB: ${getRequest.error?.message}\n`;
+                            output.textContent = result;
+                        };
+                    } else {
+                        result += 'No unified_worker_tokens store in IndexedDB\n';
+                        output.textContent = result;
+                    }
+                };
+                
+                request.onerror = function() {
+                    result += `Error opening IndexedDB: ${request.error?.message}\n`;
+                    output.textContent = result;
+                };
+            } else {
+                result += 'IndexedDB not available\n';
+                output.textContent = result;
+            }
+        }
+    </script>
+</body>
+</html>
