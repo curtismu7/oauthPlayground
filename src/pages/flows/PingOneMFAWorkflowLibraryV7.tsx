@@ -784,7 +784,8 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 										v4ToastManager.showError('Failed to save credentials');
 									}
 								}}
-								showConfigChecker={true}
+								// Config Checker - Disabled to remove pre-flight API calls
+								showConfigChecker={false}
 							/>
 						</CollapsibleHeader>
 

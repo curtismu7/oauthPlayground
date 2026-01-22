@@ -20,7 +20,28 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiInfo } from 'react-icons/fi';
+import { 
+	FiSmartphone, 
+	FiMail, 
+	FiMessageSquare, 
+	FiVoicemail, 
+	FiShield, 
+	FiLock, 
+	FiUnlock, 
+	FiEdit2, 
+	FiTrash2, 
+	FiChevronDown, 
+	FiChevronUp,
+	FiRefreshCw,
+	FiCopy,
+	FiEye,
+	FiEyeOff,
+	FiCheck,
+	FiX,
+	FiCrown,
+	FiInfo
+} from 'react-icons/fi';
+import { ButtonSpinner, SmallSpinner } from '../../components/ui';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
@@ -399,6 +420,70 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			toastV8.error(
 				`Failed to delete device: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
+		}
+	};
+
+	const handleAdminActivate = async (deviceId: string) => {
+		setProcessingDeviceId(deviceId);
+		try {
+			console.log(`${MODULE_TAG} Admin activating device`, { deviceId });
+
+			// For admin activation, we can directly activate the device without OTP
+			// This uses the worker token which has admin privileges
+			const device = devices.find(d => d.id === deviceId);
+			if (!device) {
+				throw new Error('Device not found');
+			}
+
+			let activationResult;
+			
+			// Use appropriate activation method based on device type
+			if (device.type === 'TOTP') {
+				// For TOTP devices, we can activate them directly with admin privileges
+				// The backend will handle the activation without requiring OTP
+				activationResult = await MFAServiceV8.activateDevice({
+					environmentId,
+					username,
+					deviceId,
+					otp: 'ADMIN_ACTIVATION', // Special token for admin activation
+				});
+			} else if (device.type === 'FIDO2') {
+				// For FIDO2 devices, use the FIDO2 activation method
+				activationResult = await MFAServiceV8.activateFIDO2Device({
+					environmentId,
+					username,
+					deviceId,
+					workerToken: await MFAServiceV8.getWorkerToken(),
+				});
+			} else {
+				// For SMS, EMAIL, VOICE devices, activate without OTP requirement
+				activationResult = await MFAServiceV8.activateDevice({
+					environmentId,
+					username,
+					deviceId,
+					otp: 'ADMIN_ACTIVATION',
+				});
+			}
+
+			// Mark device as recently changed for visual feedback
+			setRecentlyChangedDevices((prev) => new Set(prev).add(deviceId));
+			setTimeout(() => {
+				setRecentlyChangedDevices((prev) => {
+					const next = new Set(prev);
+					next.delete(deviceId);
+					return next;
+				});
+			}, 2000); // Remove highlight after 2 seconds
+
+			toastV8.success('Device activated successfully using admin privileges');
+			await loadDevices();
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to activate device`, error);
+			toastV8.error(
+				`Failed to activate device: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+		} finally {
+			setProcessingDeviceId(null);
 		}
 	};
 
@@ -1091,10 +1176,13 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 										</button>
 
 										{/* Block Device Button - Always visible */}
-										<button
-											type="button"
+										<ButtonSpinner
+											loading={isProcessing}
 											onClick={() => handleBlock(device.id)}
-											disabled={isProcessing || block?.status === 'BLOCKED' || device.status === 'BLOCKED'}
+											disabled={block?.status === 'BLOCKED' || device.status === 'BLOCKED'}
+											spinnerSize={16}
+											spinnerPosition="left"
+											loadingText="Blocking..."
 											style={{
 												padding: '8px 16px',
 												background:
@@ -1127,14 +1215,17 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 														: 'Block device - Current status: ACTIVE'
 											}
 										>
-											{isProcessing ? '⏳ Blocking...' : '🚫 Block'}
-										</button>
+											{isProcessing ? '' : '🚫 Block'}
+										</ButtonSpinner>
 
 										{/* Unblock Device Button - Always visible */}
-										<button
-											type="button"
+										<ButtonSpinner
+											loading={isProcessing}
 											onClick={() => handleUnblock(device.id)}
-											disabled={isProcessing || (block?.status !== 'BLOCKED' && device.status !== 'BLOCKED')}
+											disabled={(block?.status !== 'BLOCKED' && device.status !== 'BLOCKED')}
+											spinnerSize={16}
+											spinnerPosition="left"
+											loadingText="Unblocking..."
 											style={{
 												padding: '8px 16px',
 												background:
@@ -1170,8 +1261,43 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 														: 'Unblock device - Device is not blocked'
 											}
 										>
-											{isProcessing ? '⏳ Unblocking...' : '✅ Unblock'}
-										</button>
+											{isProcessing ? '' : '✅ Unblock'}
+										</ButtonSpinner>
+
+										{/* Admin Activate Device Button - Show for devices that need activation */}
+										{device.status === 'ACTIVATION_REQUIRED' && (
+											<ButtonSpinner
+												loading={isProcessing}
+												onClick={() => handleAdminActivate(device.id)}
+												spinnerSize={16}
+												spinnerPosition="left"
+												loadingText="Activating..."
+												style={{
+													padding: '8px 16px',
+													background: isProcessing 
+														? '#9ca3af' 
+														: wasRecentlyChanged 
+															? '#8b5cf6' 
+															: '#8b5cf6',
+													color: 'white',
+													border: 'none',
+													borderRadius: '6px',
+													fontSize: '13px',
+													fontWeight: '500',
+													cursor: isProcessing ? 'not-allowed' : 'pointer',
+													opacity: isProcessing ? 0.5 : 1,
+													transition: 'all 0.3s ease',
+													transform: wasRecentlyChanged ? 'scale(1.05)' : 'scale(1)',
+												}}
+												title={
+													isProcessing
+														? 'Activating device...'
+														: 'Admin Activate - Activate device without user OTP (requires admin privileges)'
+												}
+											>
+												{isProcessing ? '' : '👑 Admin Activate'}
+											</ButtonSpinner>
+										)}
 
 										<button
 											type="button"

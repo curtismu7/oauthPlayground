@@ -102,6 +102,23 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 		
 		// Clear API calls
 		apiCallTrackerService.clearApiCalls();
+		
+		// Clear any potential ConfigChecker-related state or cached data
+		try {
+			// Clear any comparison results or cached application data
+			sessionStorage.removeItem('config-checker-diffs');
+			sessionStorage.removeItem('config-checker-last-check');
+			sessionStorage.removeItem('pingone-app-cache');
+			localStorage.removeItem('pingone-applications-cache');
+			
+			// Clear any worker token related cache that might be used for pre-flight checks
+			sessionStorage.removeItem('worker-token-cache');
+			localStorage.removeItem('worker-apps-cache');
+			
+			console.log('🔄 [UnifiedNavigationV8U] Clearing flow state: cleared ConfigChecker and pre-flight cache data');
+		} catch (error) {
+			console.warn('[UnifiedNavigationV8U] Failed to clear cache data:', error);
+		}
 	};
 
 	const handleNavigateToFlow = (flowType: FlowType) => {

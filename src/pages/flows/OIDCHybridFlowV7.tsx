@@ -790,8 +790,8 @@ const OIDCHybridFlowV7: React.FC = () => {
 					requireClientSecret
 					showAdvancedConfig
 					defaultCollapsed={false}
-					// Config Checker
-					showConfigChecker={true}
+					// Config Checker - Disabled to remove pre-flight API calls
+					showConfigChecker={false}
 					workerToken={workerToken}
 					region={'NA'}
 				/>

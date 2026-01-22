@@ -6,6 +6,7 @@ import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
+import { ButtonSpinner, SmallSpinner } from '@/components/ui';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
@@ -165,16 +166,13 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 			});
 			if (confirmed) {
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFADeviceOrderingFlowV8.tsx:166',message:'User confirmed token removal, calling clearToken',data:{tokenStatusBefore:tokenStatus.isValid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
 				// #endregion
 				await workerTokenServiceV8.clearToken();
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFADeviceOrderingFlowV8.tsx:169',message:'clearToken completed, checking status',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
 				// #endregion
 				window.dispatchEvent(new Event('workerTokenUpdated'));
 				const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFADeviceOrderingFlowV8.tsx:173',message:'Status checked after clearToken',data:{isValid:newStatus.isValid,status:newStatus.status,message:newStatus.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
 				// #endregion
 				setTokenStatus(newStatus);
 				toastV8.success('Worker token removed');
@@ -837,9 +835,13 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 									</div>
 								)}
 								<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-									<button
-										type="button"
+									<ButtonSpinner
+										loading={isSavingOrder}
 										onClick={handleSaveOrder}
+										disabled={devices.length <= 1}
+										spinnerSize={16}
+										spinnerPosition="left"
+										loadingText="Saving..."
 										style={{
 											padding: '10px 20px',
 											background: '#3b82f6',
@@ -851,13 +853,15 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 											cursor: isSavingOrder ? 'wait' : 'pointer',
 											opacity: isSavingOrder ? 0.7 : 1,
 										}}
-										disabled={isSavingOrder || devices.length <= 1}
 									>
-										{isSavingOrder ? 'Saving...' : 'Save Order'}
-									</button>
-									<button
-										type="button"
+										{isSavingOrder ? '' : 'Save Order'}
+									</ButtonSpinner>
+									<ButtonSpinner
+										loading={isRemovingOrder}
 										onClick={handleRemoveOrder}
+										spinnerSize={16}
+										spinnerPosition="left"
+										loadingText="Removing..."
 										style={{
 											padding: '10px 20px',
 											background: '#f97316',
@@ -869,10 +873,9 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 											cursor: isRemovingOrder ? 'wait' : 'pointer',
 											opacity: isRemovingOrder ? 0.7 : 1,
 										}}
-										disabled={isRemovingOrder}
 									>
-										{isRemovingOrder ? 'Removing...' : 'Remove Ordering'}
-									</button>
+										{isRemovingOrder ? '' : 'Remove Ordering'}
+									</ButtonSpinner>
 								</div>
 							</div>
 
@@ -1073,10 +1076,12 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 																			ID: <code style={{ fontSize: '11px' }}>{device.id}</code>
 																		</div>
 																		{!isDefault && (
-																			<button
-																				type="button"
+																			<ButtonSpinner
+																				loading={isSavingOrder}
 																				onClick={() => handleSetAsDefault(device.id)}
-																				disabled={isSavingOrder}
+																				spinnerSize={12}
+																				spinnerPosition="left"
+																				loadingText="Setting..."
 																				style={{
 																					padding: '6px 12px',
 																					background: '#3b82f6',
@@ -1091,8 +1096,8 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 																				}}
 																				title="Set this device as the default (move to first position)"
 																			>
-																				Set as Default
-																			</button>
+																				{isSavingOrder ? '' : 'Set as Default'}
+																			</ButtonSpinner>
 																		)}
 																	</div>
 																</div>
