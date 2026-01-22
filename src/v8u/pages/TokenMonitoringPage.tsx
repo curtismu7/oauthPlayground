@@ -388,7 +388,7 @@ export const TokenMonitoringPage: React.FC = () => {
   };
 
   const handleClearAllTokens = () => {
-    tokenMonitoringService.clearTokens();
+    tokenMonitoringService.clearAllTokens();
     setMessage('All tokens cleared');
     setMessageType('info');
   };
