@@ -190,25 +190,41 @@ class UnifiedWorkerTokenService {
 	 * Load worker token credentials
 	 */
 	async loadCredentials(): Promise<UnifiedWorkerTokenCredentials | null> {
+		console.log(`${MODULE_TAG} 🔍 Loading credentials...`);
+		
 		// Try memory cache first
 		if (this.memoryCache) {
+			console.log(`${MODULE_TAG} ✅ Found credentials in memory cache`);
 			return this.memoryCache.credentials;
 		}
 
 		// Try localStorage (primary)
 		try {
 			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
+			console.log(`${MODULE_TAG} 🔍 localStorage check:`, { 
+				hasData: !!stored, 
+				key: BROWSER_STORAGE_KEY,
+				dataLength: stored?.length || 0 
+			});
+			
 			if (stored) {
 				const data: UnifiedWorkerTokenData = JSON.parse(stored);
 				this.memoryCache = data;
+				console.log(`${MODULE_TAG} ✅ Loaded credentials from localStorage`, {
+					hasEnvironmentId: !!data.credentials?.environmentId,
+					hasClientId: !!data.credentials?.clientId,
+					hasClientSecret: !!data.credentials?.clientSecret,
+					savedAt: new Date(data.savedAt).toISOString()
+				});
 				return data.credentials;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load from localStorage`, error);
+			console.error(`${MODULE_TAG} ❌ Failed to load from localStorage`, error);
 		}
 
 		// Try IndexedDB (backup)
 		try {
+			console.log(`${MODULE_TAG} 🔍 Trying IndexedDB backup...`);
 			const db = await this.initDB();
 			const transaction = db.transaction([INDEXEDDB_STORE_NAME], 'readonly');
 			const store = transaction.objectStore(INDEXEDDB_STORE_NAME);
@@ -221,19 +237,30 @@ class UnifiedWorkerTokenService {
 
 			if (data) {
 				this.memoryCache = data;
+				console.log(`${MODULE_TAG} ✅ Found credentials in IndexedDB backup`, {
+					hasEnvironmentId: !!data.credentials?.environmentId,
+					hasClientId: !!data.credentials?.clientId,
+					hasClientSecret: !!data.credentials?.clientSecret,
+					savedAt: new Date(data.savedAt).toISOString()
+				});
+				
 				// Restore to localStorage
 				try {
 					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
+					console.log(`${MODULE_TAG} 🔄 Restored IndexedDB data to localStorage`);
 				} catch (error) {
-					console.warn(`${MODULE_TAG} Failed to restore to localStorage`, error);
+					console.warn(`${MODULE_TAG} ⚠️ Failed to restore to localStorage`, error);
 				}
 				return data.credentials;
+			} else {
+				console.log(`${MODULE_TAG} ❌ No data found in IndexedDB`);
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load from IndexedDB`, error);
+			console.error(`${MODULE_TAG} ❌ Failed to load from IndexedDB`, error);
 		}
 
 		// Try legacy storage keys for migration
+		console.log(`${MODULE_TAG} 🔍 Trying legacy storage migration...`);
 		return await this.migrateLegacyCredentials();
 	}
 
@@ -248,11 +275,20 @@ class UnifiedWorkerTokenService {
 			'worker_credentials',
 		];
 
+		console.log(`${MODULE_TAG} 🔍 Checking ${legacyKeys.length} legacy keys...`);
+
 		for (const key of legacyKeys) {
 			try {
 				const stored = localStorage.getItem(key);
+				console.log(`${MODULE_TAG} 🔍 Legacy key ${key}:`, { hasData: !!stored });
+				
 				if (stored) {
 					const legacyData = JSON.parse(stored);
+					console.log(`${MODULE_TAG} 📦 Found legacy data in ${key}:`, {
+						hasEnvironmentId: !!legacyData.environmentId || !!legacyData.environment_id,
+						hasClientId: !!legacyData.clientId || !!legacyData.client_id,
+						hasClientSecret: !!legacyData.clientSecret || !!legacyData.client_secret,
+					});
 					
 					// Convert to unified format
 					const unifiedCredentials: UnifiedWorkerTokenCredentials = {
@@ -265,17 +301,33 @@ class UnifiedWorkerTokenService {
 						tokenEndpointAuthMethod: legacyData.tokenEndpointAuthMethod || legacyData.authMethod || 'client_secret_post',
 					};
 
+					// Validate we have the required fields
+					if (!unifiedCredentials.environmentId || !unifiedCredentials.clientId || !unifiedCredentials.clientSecret) {
+						console.warn(`${MODULE_TAG} ⚠️ Legacy data missing required fields, skipping`, {
+							key,
+							hasEnvironmentId: !!unifiedCredentials.environmentId,
+							hasClientId: !!unifiedCredentials.clientId,
+							hasClientSecret: !!unifiedCredentials.clientSecret,
+						});
+						continue;
+					}
+
 					// Save in unified format
 					await this.saveCredentials(unifiedCredentials);
 					
-					console.log(`${MODULE_TAG} 🔄 Migrated credentials from legacy key: ${key}`);
+					console.log(`${MODULE_TAG} 🔄 Successfully migrated credentials from legacy key: ${key}`, {
+						environmentId: unifiedCredentials.environmentId?.substring(0, 8) + '...',
+						clientId: unifiedCredentials.clientId?.substring(0, 8) + '...',
+						hasClientSecret: !!unifiedCredentials.clientSecret,
+					});
 					return unifiedCredentials;
 				}
 			} catch (error) {
-				console.warn(`${MODULE_TAG} Failed to migrate from legacy key ${key}:`, error);
+				console.warn(`${MODULE_TAG} ⚠️ Failed to migrate from legacy key ${key}:`, error);
 			}
 		}
 
+		console.log(`${MODULE_TAG} ❌ No valid legacy credentials found for migration`);
 		return null;
 	}
 
