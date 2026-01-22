@@ -515,14 +515,32 @@ export class MFAServiceV8 {
 				flowType: 'mfa',
 			});
 
-			const response = await pingOneFetch('/api/pingone/mfa/lookup-user', {
+			const response = await fetch('/api/pingone/mfa/lookup-user', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+					'Cache-Control': 'no-cache',
+					'Pragma': 'no-cache',
 				},
 				body: JSON.stringify(requestBody),
-				retry: { maxAttempts: 3 },
 			});
+
+			// Check if response is ok before parsing
+			if (!response.ok) {
+				console.error(`${MODULE_TAG} Lookup user failed:`, {
+					status: response.status,
+					statusText: response.statusText,
+					url: '/api/pingone/mfa/lookup-user',
+				});
+				throw new Error(`Failed to lookup user: ${response.status} ${response.statusText}`);
+			}
+
+			// Check if response has content
+			const contentLength = response.headers.get('content-length');
+			if (contentLength === '0') {
+				console.error(`${MODULE_TAG} Empty response received from lookup user`);
+				throw new Error('Empty response received from server');
+			}
 
 			const responseClone = response.clone();
 			let user: unknown;
@@ -876,6 +894,7 @@ export class MFAServiceV8 {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${trimmedToken}`,
 					},
 					body: JSON.stringify(requestBody),
 				});
@@ -3005,19 +3024,14 @@ export class MFAServiceV8 {
 				userId: user.id,
 				deviceId: params.deviceId,
 				workerToken: trimmedToken,
-				...(params.region && { region: params.region }),
-				...(params.customDomain && { customDomain: params.customDomain }),
 			};
 
-			console.log(`${MODULE_TAG} [RESEND] Request details:`, {
+			console.log(`${MODULE_TAG} [RESEND] Request body:`, {
 				environmentId: params.environmentId,
 				userId: user.id,
 				deviceId: params.deviceId,
-				username: params.username,
-				deviceStatus,
-				tokenValidated: true,
-				region: params.region,
-				customDomain: params.customDomain,
+				hasWorkerToken: !!trimmedToken,
+				workerTokenLength: trimmedToken.length,
 			});
 
 			const startTime = Date.now();
@@ -3026,6 +3040,7 @@ export class MFAServiceV8 {
 				url: '/api/pingone/mfa/resend-pairing-code',
 				headers: {
 					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${trimmedToken}`,
 				},
 				body: requestBody,
 				step: 'mfa-Resend Pairing Code',
@@ -3038,6 +3053,7 @@ export class MFAServiceV8 {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${trimmedToken}`,
 					},
 					body: JSON.stringify(requestBody),
 					retry: { maxAttempts: 3 },
@@ -3165,12 +3181,14 @@ export class MFAServiceV8 {
 				flowType: 'mfa',
 			});
 
-			// Use backend proxy to avoid CORS issues
-			const response = await pingOneFetch('/api/pingone/mfa/set-device-order', {
+			// Use regular fetch to avoid Accept header conflicts
+			const response = await fetch('/api/pingone/mfa/set-device-order', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					'X-Request-ID': requestId,
+					'Cache-Control': 'no-cache',
+					'Pragma': 'no-cache',
 				},
 				body: JSON.stringify({
 					environmentId,

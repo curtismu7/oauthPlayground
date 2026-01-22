@@ -1846,7 +1846,6 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -1904,7 +1903,6 @@ export class MfaAuthenticationServiceV8 {
 			const actualPingOneUrl = `${authPath}/${finalEnvironmentId}/deviceAuthentications/${deviceAuthId}`;
 
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -1969,7 +1967,6 @@ export class MfaAuthenticationServiceV8 {
 
 			// #region agent log
 			const stringifiedBody = JSON.stringify(backendRequestBody);
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({

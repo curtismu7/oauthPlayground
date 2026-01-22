@@ -92,6 +92,18 @@ export default defineConfig(({ mode }) => {
 				clientPort: 3000,
 			},
 			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)
+			// Force HTTPS redirect
+			setupMiddlewares: (middlewares, devServer) => {
+				middlewares.unshift((req, res, next) => {
+					if (req.headers['x-forwarded-proto'] === 'http' || req.url.startsWith('http://')) {
+						res.writeHead(301, { Location: `https://localhost:3000${req.url}` });
+						res.end();
+						return;
+					}
+					next();
+				});
+				return middlewares;
+			},
 			proxy: {
 				'/api': {
 					target: 'http://localhost:3001', // Backend server (HTTP, not HTTPS)

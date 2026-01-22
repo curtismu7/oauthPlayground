@@ -241,7 +241,6 @@ export class HybridFlowIntegrationServiceV8 {
 			codeVerifier = pkce.codeVerifier;
 			
 			// #region agent log - verify PKCE codes in authorization URL
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'hybridFlowIntegrationServiceV8.ts:242',message:'PKCE codes in authorization URL',data:{codeChallengeMethod:pkce.codeChallengeMethod,codeChallengeLength:pkce.codeChallenge?.length||0,codeVerifierLength:pkce.codeVerifier?.length||0,codeChallengePrefix:pkce.codeChallenge?.substring(0,20)||'none',codeVerifierPrefix:pkce.codeVerifier?.substring(0,20)||'none',hadProvidedPKCE:!!pkceCodes},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
 			// #endregion
 		}
 
@@ -385,7 +384,6 @@ export class HybridFlowIntegrationServiceV8 {
 			if (codeVerifier) {
 				bodyParams.code_verifier = codeVerifier;
 				// #region agent log - verify code verifier in token exchange
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'hybridFlowIntegrationServiceV8.ts:385',message:'Code verifier in token exchange',data:{codeVerifierLength:codeVerifier.length,codeVerifierPrefix:codeVerifier.substring(0,20)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
 				// #endregion
 			}
 
@@ -462,7 +460,6 @@ export class HybridFlowIntegrationServiceV8 {
 			bodyParams.client_auth_method = authMethod;
 
 			// #region agent log - log full request body before sending
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'hybridFlowIntegrationServiceV8.ts:455',message:'Token exchange request body before sending',data:{authMethod:authMethod,hasClientSecret:!!credentials.clientSecret,clientSecretLength:credentials.clientSecret?.length||0,bodyParamsKeys:Object.keys(bodyParams),hasClientAuthMethod:!!bodyParams.client_auth_method,clientAuthMethodValue:bodyParams.client_auth_method,hasClientAssertion:!!bodyParams.client_assertion,hasClientSecretInBody:!!bodyParams.client_secret},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
 			// #endregion
 
 			// Prepare request headers
@@ -486,7 +483,6 @@ export class HybridFlowIntegrationServiceV8 {
 			if (!response.ok) {
 				const errorData = await response.json();
 				// #region agent log - log error response details
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'hybridFlowIntegrationServiceV8.ts:477',message:'Token exchange error response',data:{status:response.status,statusText:response.statusText,error:errorData.error,errorDescription:errorData.error_description,correlationId:errorData.correlation_id,requestAuthMethod:authMethod,hasClientSecret:!!credentials.clientSecret},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
 				// #endregion
 				throw new Error(
 					`Token exchange failed: ${errorData.error} - ${errorData.error_description || ''}`

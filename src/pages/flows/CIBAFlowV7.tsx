@@ -2198,7 +2198,8 @@ grant_type=urn:openid:params:grant-type:ciba
 						}
 					}}
 					requireClientSecret={true}
-					showConfigChecker={true}
+					// Config Checker - Disabled to remove pre-flight API calls
+					showConfigChecker={false}
 					defaultCollapsed={false}
 					showLoginHint={false}
 					title="CIBA Flow Configuration"

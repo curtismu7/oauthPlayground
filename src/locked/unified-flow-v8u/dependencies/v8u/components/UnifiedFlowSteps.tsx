@@ -2373,7 +2373,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												<>
 													<strong>Client Secret:</strong> Required for token request
 													<br />
-													<strong>Scopes:</strong> Resource server scopes (e.g., ClaimScope, custom:read)
+													<strong>Scopes:</strong> Resource server scopes (e.g., api:read, ClaimScope, custom:read)
 													<br />
 													<strong>Environment ID:</strong> Must match your PingOne environment
 												</>
@@ -2389,7 +2389,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												<>
 													<strong>Client Secret:</strong> Required for token introspection and refresh
 													<br />
-													<strong>Scopes:</strong> Include "profile" scope for user info endpoint
+													<strong>Scopes:</strong> Include "openid profile email" for OIDC flows
 													<br />
 													<strong>Environment ID:</strong> Must match your PingOne environment
 												</>
@@ -7749,8 +7749,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										<div>
 											<InfoTitle>Resource Server Scopes Required</InfoTitle>
 											<InfoText>
-												Client Credentials flow requires resource server scopes (e.g., "ClaimScope",
-												"custom:read", "api:read"). OIDC scopes (openid, profile, email) and
+												Client Credentials flow requires resource server scopes (e.g., "api:read",
+												"ClaimScope", "custom:read", "api:write"). OIDC scopes (openid, profile, email) and
 												self-management scopes (p1:read:user) do not work with Client Credentials.
 											</InfoText>
 											<InfoList>
@@ -7763,7 +7763,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													add scopes, and associate it with your application
 												</li>
 												<li>
-													<strong>Example scopes:</strong> ClaimScope, custom:read, api:read,
+													<strong>Example scopes:</strong> api:read, ClaimScope, custom:read,
 													api:write
 												</li>
 											</InfoList>
