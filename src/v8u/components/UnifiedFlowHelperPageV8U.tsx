@@ -556,3 +556,5 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 		</PageContainer>
 	);
 };
+
+export default UnifiedFlowHelperPageV8U;

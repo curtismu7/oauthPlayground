@@ -337,6 +337,23 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 			v4ToastManager.showError('Failed to clear flow state. Please refresh the page.');
 		}
 
+		// Clear any potential ConfigChecker-related state or cached data
+		try {
+			// Clear any comparison results or cached application data
+			sessionStorage.removeItem('config-checker-diffs');
+			sessionStorage.removeItem('config-checker-last-check');
+			sessionStorage.removeItem('pingone-app-cache');
+			localStorage.removeItem('pingone-applications-cache');
+			
+			// Clear any worker token related cache that might be used for pre-flight checks
+			sessionStorage.removeItem('worker-token-cache');
+			localStorage.removeItem('worker-apps-cache');
+			
+			console.log('🔄 [Client Credentials V7] Reset: cleared ConfigChecker and pre-flight cache data');
+		} catch (error) {
+			console.warn('[Client Credentials V7] Failed to clear cache data:', error);
+		}
+
 		// Clear credential backup when flow is reset
 		try {
 			clearBackup();
@@ -491,7 +508,8 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 										</>
 									}
 									requireClientSecret={true}
-									showConfigChecker={true}
+									// Config Checker - Disabled to remove pre-flight API calls
+									showConfigChecker={false}
 									workerToken={localStorage.getItem('worker-token') || ''}
 									region="NA"
 								/>

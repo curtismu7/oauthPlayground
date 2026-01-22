@@ -95,7 +95,6 @@ export class ClientCredentialsIntegrationServiceV8 {
 			};
 
 			// #region agent log - log client_id being sent
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'clientCredentialsIntegrationServiceV8.ts:95',message:'Client ID being sent in request',data:{clientId:credentials.clientId,clientIdLength:credentials.clientId?.length,clientIdType:typeof credentials.clientId,expectedClientId:'4a275422-e580-4be6-84f2-3a624a849cbb',matchesExpected:credentials.clientId === '4a275422-e580-4be6-84f2-3a624a849cbb'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'CLIENT-ID-VERIFY'})}).catch(()=>{});
 			// #endregion
 
 			// Add scope - REQUIRED for client credentials flow
@@ -113,13 +112,11 @@ export class ClientCredentialsIntegrationServiceV8 {
 			// what scopes are enabled/granted to the application in the Resources tab.
 
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'clientCredentialsIntegrationServiceV8.ts:111',message:'Scopes before assignment',data:{scopesRaw:credentials.scopes,scopesType:typeof credentials.scopes,scopesLength:credentials.scopes?.length,scopesTrimmed:credentials.scopes?.trim()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
 			// #endregion
 
 			proxyRequestBody.scope = credentials.scopes;
 
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'clientCredentialsIntegrationServiceV8.ts:115',message:'Scope after assignment to proxyRequestBody',data:{scopeValue:proxyRequestBody.scope,scopeType:typeof proxyRequestBody.scope,scopeLength:proxyRequestBody.scope?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
 			// #endregion
 
 			// Apply client authentication method
@@ -250,7 +247,6 @@ export class ClientCredentialsIntegrationServiceV8 {
 			};
 
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'clientCredentialsIntegrationServiceV8.ts:240',message:'Full proxyRequest before sending',data:{proxyRequest:JSON.stringify(proxyRequest),scopeInBody:proxyRequest.body.scope,scopeType:typeof proxyRequest.body.scope,authMethod:proxyRequest.auth_method},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
 			// #endregion
 
 			// Add auth method and headers
@@ -290,7 +286,6 @@ export class ClientCredentialsIntegrationServiceV8 {
 			});
 
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'clientCredentialsIntegrationServiceV8.ts:278',message:'About to send request',data:{tokenEndpoint,requestBodyString:JSON.stringify(proxyRequest),scopeInRequest:proxyRequest.body.scope},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
 			// #endregion
 
 			const response = await pingOneFetch(tokenEndpoint, {
@@ -328,7 +323,6 @@ export class ClientCredentialsIntegrationServiceV8 {
 				const errorCode = (errorData.error || 'unknown_error') as string;
 
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'clientCredentialsIntegrationServiceV8.ts:310',message:'Error response received',data:{status:response.status,statusText:response.statusText,errorCode,errorMessage,fullErrorData:errorData,scopeSent:proxyRequestBody.scope},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
 				// #endregion
 
 				// Log the FULL error response for debugging
@@ -487,7 +481,6 @@ export class ClientCredentialsIntegrationServiceV8 {
 						errorMessage.toLowerCase().includes('not granted');
 
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'clientCredentialsIntegrationServiceV8.ts:475',message:'Invalid scope error analysis',data:{errorCode,errorMessage,scopesList,isScopeNotGranted,correlationId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'SCOPE-ERROR-ANALYSIS'})}).catch(()=>{});
 					// #endregion
 
 					if (isScopeNotGranted) {

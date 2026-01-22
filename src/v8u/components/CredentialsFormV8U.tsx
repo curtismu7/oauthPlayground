@@ -866,6 +866,15 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		const checkStatus = () => {
 			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			console.log(`${MODULE_TAG} Token status updated`, status);
+			console.log(`${MODULE_TAG} Raw token status check:`, {
+				isValid: status.isValid,
+				message: status.message,
+				status: status.status,
+				hasToken: !!status.token,
+				tokenLength: status.token?.length,
+				expiresAt: status.expiresAt,
+				isExpired: status.isExpired,
+			});
 			setTokenStatus(status);
 		};
 
@@ -3306,7 +3315,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										/>
 										<small>
 											{providedFlowType === 'client-credentials'
-												? 'Use resource server scopes (e.g., ClaimScope, custom:read, api:read). Space-separated. Must be enabled in PingOne app Resources tab under a resource server. Note: OIDC scopes (openid, profile, email) and self-management scopes (p1:read:user) do NOT work with client_credentials - you need resource server scopes like "ClaimScope".'
+												? 'Use resource server scopes (e.g., api:read, api:write, ClaimScope, custom:read). Space-separated. Must be enabled in PingOne app Resources tab under a resource server. Note: OIDC scopes (openid, profile, email) and self-management scopes (p1:read:user) do NOT work with client_credentials - you need resource server scopes like api:read or ClaimScope.'
 												: providedFlowType === 'device-code'
 													? 'OIDC scopes for user authentication (e.g., openid profile email offline_access) - Device Flow is for user authorization, not machine-to-machine'
 													: 'Type space-separated scopes (e.g., openid profile email). Custom scopes are allowed. Must be enabled in PingOne app.'}

@@ -920,7 +920,9 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 											</div>
 											<div style={{ fontSize: '18px', color: '#1f2937', fontWeight: '600' }}>
 												<strong>{call.method}</strong>{' '}
-												<span style={{ color: '#f97316' }}>{call.actualPingOneUrl || call.url}</span>
+												<span style={{ color: '#f97316' }}>
+													{call.actualPingOneUrl || call.url}
+												</span>
 											</div>
 										</div>
 										<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -953,10 +955,9 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 														}}
 													>
 														<code>
-															{typeof call.body === 'string' 
-																? call.body 
-																: JSON.stringify(call.body, null, 2)
-															}
+															{typeof call.body === 'string'
+																? call.body
+																: JSON.stringify(call.body, null, 2)}
 														</code>
 													</pre>
 												</div>
@@ -1047,7 +1048,9 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 											</div>
 											<div style={{ fontSize: '18px', color: '#1f2937', fontWeight: '600' }}>
 												<strong>{call.method}</strong>{' '}
-												<span style={{ color: '#f97316' }}>{call.actualPingOneUrl || call.url}</span>
+												<span style={{ color: '#f97316' }}>
+													{call.actualPingOneUrl || call.url}
+												</span>
 											</div>
 										</div>
 										<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1080,10 +1083,9 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 														}}
 													>
 														<code>
-															{typeof call.body === 'string' 
-																? call.body 
-																: JSON.stringify(call.body, null, 2)
-															}
+															{typeof call.body === 'string'
+																? call.body
+																: JSON.stringify(call.body, null, 2)}
 														</code>
 													</pre>
 												</div>

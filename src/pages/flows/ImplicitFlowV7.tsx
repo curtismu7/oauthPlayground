@@ -40,7 +40,6 @@ import {
 } from '../../services/oauthErrorHandlingService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import '../../utils/testImplicitConfigChecker'; // Auto-run config checker tests in development
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { LearningTooltip } from '../../components/LearningTooltip';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
@@ -631,10 +630,30 @@ const ImplicitFlowV7: React.FC = () => {
 							});
 					}}
 					onScopesChange={(value) => {
-						const updated = { ...credentials, scope: value, scopes: value };
+						// Filter out offline_access for Implicit flow since it never provides refresh tokens
+						const scopeArray = value.split(/\s+/).filter(scope => scope.trim());
+						const hasOfflineAccess = scopeArray.includes('offline_access');
+						
+						let filteredScopes = value;
+						if (hasOfflineAccess) {
+							filteredScopes = scopeArray.filter(scope => scope !== 'offline_access').join(' ');
+							
+							// Show warning to user
+							v4ToastManager.showWarning(
+								'offline_access removed - Implicit Flow never provides refresh tokens',
+								{
+									description: 'Use Authorization Code flow if you need refresh tokens for offline access.',
+									duration: 5000,
+								}
+							);
+							
+							console.log('[Implicit Flow V7] Removed offline_access scope - Implicit flow never provides refresh tokens');
+						}
+						
+						const updated = { ...credentials, scope: filteredScopes, scopes: filteredScopes };
 						setCredentials(updated);
 						controller.setCredentials(updated); // Sync with controller
-						console.log('[Implicit Flow V7] Scopes updated:', value);
+						console.log('[Implicit Flow V7] Scopes updated:', filteredScopes);
 					}}
 					onLoginHintChange={(value) => {
 						const updated = { ...credentials, loginHint: value };
@@ -830,8 +849,8 @@ const ImplicitFlowV7: React.FC = () => {
 							);
 						}
 					}}
-					// Config Checker
-					showConfigChecker={true}
+					// Config Checker - Disabled to remove pre-flight API calls
+					showConfigChecker={false}
 					workerToken={workerToken}
 					region={'NA'}
 				/>
@@ -1846,6 +1865,23 @@ const ImplicitFlowV7: React.FC = () => {
 								onStartNewFlow: () => {
 									setCurrentStep(0);
 									controller.resetFlow();
+									
+									// Clear any potential ConfigChecker-related state or cached data
+									try {
+										// Clear any comparison results or cached application data
+										sessionStorage.removeItem('config-checker-diffs');
+										sessionStorage.removeItem('config-checker-last-check');
+										sessionStorage.removeItem('pingone-app-cache');
+										localStorage.removeItem('pingone-applications-cache');
+										
+										// Clear any worker token related cache that might be used for pre-flight checks
+										sessionStorage.removeItem('worker-token-cache');
+										localStorage.removeItem('worker-apps-cache');
+										
+										console.log('🔄 [Implicit V7] Start New Flow: cleared ConfigChecker and pre-flight cache data');
+									} catch (error) {
+										console.warn('[Implicit V7] Failed to clear cache data:', error);
+									}
 								},
 							}}
 							collapsed={false}
@@ -1939,6 +1975,23 @@ const ImplicitFlowV7: React.FC = () => {
 						// Clear Implicit Flow V7-specific storage
 						FlowCredentialService.clearFlowState('implicit-v7');
 						console.log('🔧 [Implicit V7] Cleared flow-specific storage');
+
+						// Clear any potential ConfigChecker-related state or cached data
+						try {
+							// Clear any comparison results or cached application data
+							sessionStorage.removeItem('config-checker-diffs');
+							sessionStorage.removeItem('config-checker-last-check');
+							sessionStorage.removeItem('pingone-app-cache');
+							localStorage.removeItem('pingone-applications-cache');
+							
+							// Clear any worker token related cache that might be used for pre-flight checks
+							sessionStorage.removeItem('worker-token-cache');
+							localStorage.removeItem('worker-apps-cache');
+							
+							console.log('🔄 [Implicit V7] Reset: cleared ConfigChecker and pre-flight cache data');
+						} catch (error) {
+							console.warn('[Implicit V7] Failed to clear cache data:', error);
+						}
 
 						// Clear credential backup when flow is reset
 						clearBackup();

@@ -27,6 +27,7 @@ interface WorkerTokenRequestModalV8Props {
 		resolvedBody: string;
 	};
 	isExecuting: boolean;
+	setIsExecuting: (value: boolean) => void;
 	showTokenAtEnd?: boolean; // Whether to show token after generation
 }
 
@@ -36,12 +37,15 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 	onExecute,
 	requestDetails,
 	isExecuting,
+	setIsExecuting,
 	showTokenAtEnd = true,
 }) => {
 	const [showSecret, setShowSecret] = useState(false);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 	const [generatedToken, setGeneratedToken] = useState<string | null>(null);
 	const [isTokenStep, setIsTokenStep] = useState(false);
+	const [showPreflightModal, setShowPreflightModal] = useState(false);
+	const [preflightResult, setPreflightResult] = useState<{ success: boolean; message: string } | null>(null);
 
 	// Lock body scroll when modal is open
 	React.useEffect(() => {
@@ -77,12 +81,86 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 	};
 
 	const handleExecute = async () => {
-		const token = await onExecute();
-		if (token && showTokenAtEnd) {
-			setGeneratedToken(token);
-			setIsTokenStep(true);
-		} else {
-			onClose();
+		setIsExecuting(true);
+		
+		try {
+			// Pre-flight validation checks
+			if (!requestDetails.tokenEndpoint || !requestDetails.requestParams.client_id) {
+				setPreflightResult({ 
+					success: false, 
+					message: '❌ Missing required fields:\n• Token endpoint\n• Client ID\n\nPlease ensure all required fields are filled in the Worker Token modal.' 
+				});
+				setShowPreflightModal(true);
+				return;
+			}
+
+			if (requestDetails.authMethod === 'client_secret_post' && !requestDetails.requestParams.client_secret) {
+				setPreflightResult({ 
+					success: false, 
+					message: '❌ Client secret required:\n\nAuthentication method is set to "Client Secret Post" but no client secret was provided.\n\nPlease enter a client secret or switch to "Client Secret Basic" authentication.' 
+				});
+				setShowPreflightModal(true);
+				return;
+			}
+
+			// Validate token endpoint format
+			try {
+				new URL(requestDetails.tokenEndpoint);
+			} catch {
+				setPreflightResult({ 
+					success: false, 
+					message: '❌ Invalid token endpoint:\n\nThe token endpoint URL is malformed.\n\nExpected format: https://auth.pingone.com/{environment-id}/as/token' 
+				});
+				setShowPreflightModal(true);
+				return;
+			}
+
+			// Validate client ID format (basic check)
+			if (requestDetails.requestParams.client_id.length < 3) {
+				setPreflightResult({ 
+					success: false, 
+					message: '❌ Invalid client ID:\n\nClient ID appears to be too short.\n\nPlease verify the client ID from your PingOne application.' 
+				});
+				setShowPreflightModal(true);
+				return;
+			}
+
+			// Validate client secret format (basic check)
+			if (requestDetails.requestParams.client_secret && requestDetails.requestParams.client_secret.length < 8) {
+				setPreflightResult({ 
+					success: false, 
+					message: '⚠️ Client secret seems too short:\n\nClient secrets should typically be longer for security.\n\nPlease verify the client secret from your PingOne application.' 
+				});
+				setShowPreflightModal(true);
+				return;
+			}
+
+			// Validate scopes
+			if (!requestDetails.requestParams.scope || requestDetails.requestParams.scope.trim().length === 0) {
+				setPreflightResult({ 
+					success: false, 
+					message: '⚠️ No scopes specified:\n\nNo scopes were provided. The token request may fail or have limited permissions.\n\nCommon scopes: p1:read:user, p1:update:user, openid, profile, email' 
+				});
+				setShowPreflightModal(true);
+				return;
+			}
+
+			// All checks passed
+			setPreflightResult({ 
+				success: true, 
+				message: `✅ Pre-flight check passed!\n\nRequest details validated:\n• Token Endpoint: ${requestDetails.tokenEndpoint}\n• Client ID: ${requestDetails.requestParams.client_id}\n• Auth Method: ${requestDetails.authMethod}\n• Scopes: ${requestDetails.requestParams.scope}\n\nThe request format is valid. If you\'re still getting "Invalid client credentials" errors, please:\n1. Verify the client ID and secret in PingOne\n2. Check that the auth method matches your PingOne app settings\n3. Ensure the environment ID is correct\n4. Confirm the Worker app has client_credentials grant enabled` 
+			});
+			setShowPreflightModal(true);
+			
+		} catch (error) {
+			console.error('Pre-flight validation error:', error);
+			setPreflightResult({ 
+				success: false, 
+				message: `❌ Pre-flight validation error:\n\n${error instanceof Error ? error.message : 'Unknown error occurred'}\n\nPlease check the browser console for more details.` 
+			});
+			setShowPreflightModal(true);
+		} finally {
+			setIsExecuting(false);
 		}
 	};
 
@@ -728,6 +806,163 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 								>
 									{isExecuting ? '🔄 Executing...' : '▶️ Execute Request'}
 								</button>
+							</div>
+						</>
+					)}
+
+					{/* Pre-flight Validation Modal */}
+					{showPreflightModal && preflightResult && (
+						<>
+							{/* Backdrop */}
+							<div
+								style={{
+									position: 'fixed',
+									top: 0,
+									left: 0,
+									right: 0,
+									bottom: 0,
+									background: 'rgba(0, 0, 0, 0.6)',
+									zIndex: 1003,
+								}}
+								onClick={() => setShowPreflightModal(false)}
+							/>
+
+							{/* Modal */}
+							<div
+								style={{
+									position: 'fixed',
+									top: '50%',
+									left: '50%',
+									transform: 'translate(-50%, -50%)',
+									background: 'white',
+									borderRadius: '8px',
+									boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+									zIndex: 1004,
+									maxWidth: '600px',
+									width: '90%',
+									maxHeight: '80vh',
+									overflow: 'auto',
+								}}
+								onClick={(e) => e.stopPropagation()}
+							>
+								{/* Header */}
+								<div
+									style={{
+										background: preflightResult.success 
+											? 'linear-gradient(to right, #d1fae5 0%, #a7f3d0 100%)'
+											: 'linear-gradient(to right, #fee2e2 0%, #fecaca 100%)',
+										padding: '20px 24px',
+										borderBottom: preflightResult.success 
+											? '1px solid #6ee7b7'
+											: '1px solid #fca5a5',
+									}}
+								>
+									<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+										<div>
+											<h2
+												style={{
+													margin: '0 0 4px 0',
+													fontSize: '18px',
+													fontWeight: '700',
+													color: preflightResult.success ? '#065f46' : '#991b1b',
+												}}
+											>
+												{preflightResult.success ? '✅ Pre-flight Check Passed' : '❌ Pre-flight Check Failed'}
+											</h2>
+											<p
+												style={{
+													margin: 0,
+													fontSize: '14px',
+													color: preflightResult.success ? '#047857' : '#b91c1c',
+												}}
+											>
+												{preflightResult.success 
+													? 'Request format is valid and ready to execute'
+													: 'Issues found that need to be resolved'
+												}
+											</p>
+										</div>
+										<button
+											onClick={() => setShowPreflightModal(false)}
+											style={{
+												background: 'none',
+												border: 'none',
+												fontSize: '24px',
+												cursor: 'pointer',
+												color: preflightResult.success ? '#065f46' : '#991b1b',
+											}}
+										>
+											×
+										</button>
+									</div>
+								</div>
+
+								{/* Content */}
+								<div style={{ padding: '24px' }}>
+									<div
+										style={{
+											whiteSpace: 'pre-line',
+											fontFamily: 'monospace',
+											fontSize: '14px',
+											lineHeight: '1.6',
+											color: '#374151',
+											background: '#f9fafb',
+											padding: '16px',
+											borderRadius: '6px',
+											border: '1px solid #e5e7eb',
+										}}
+									>
+										{preflightResult.message}
+									</div>
+
+									{/* Actions */}
+									<div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+										<button
+											onClick={() => setShowPreflightModal(false)}
+											style={{
+												flex: 1,
+												padding: '12px 16px',
+												background: '#6b7280',
+												color: 'white',
+												border: 'none',
+												borderRadius: '6px',
+												fontSize: '14px',
+												fontWeight: '600',
+												cursor: 'pointer',
+											}}
+										>
+											Close
+										</button>
+										{preflightResult.success && (
+											<button
+												onClick={async () => {
+													setShowPreflightModal(false);
+													// Execute the actual request
+													const token = await onExecute();
+													if (token && showTokenAtEnd) {
+														setGeneratedToken(token);
+														setIsTokenStep(true);
+													} else {
+														onClose();
+													}
+												}}
+												style={{
+													flex: 1,
+													padding: '12px 16px',
+													background: '#10b981',
+													color: 'white',
+													border: 'none',
+													borderRadius: '6px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: 'pointer',
+												}}
+											>
+												Proceed with Request
+											</button>
+										)}
+									</div>
+								</div>
 							</div>
 						</>
 					)}

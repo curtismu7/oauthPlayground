@@ -92,7 +92,7 @@ describe('AppDiscoveryServiceV8', () => {
 				storedAt: Date.now() - 100000,
 				expiresAt: Date.now() - 1000, // Expired 1 second ago
 			};
-			localStorage.setItem('v8:worker_token', JSON.stringify(tokenInfo));
+			localStorage.setItem('unified_worker_token', JSON.stringify(tokenInfo));
 
 			const retrieved = await AppDiscoveryServiceV8.getStoredWorkerToken();
 
