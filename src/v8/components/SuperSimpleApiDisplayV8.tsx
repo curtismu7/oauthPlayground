@@ -411,8 +411,7 @@ const createPopOutWindow = (
 													<td style="padding: 12px; color: #1f2937; font-size: \${currentFontSize}px; word-break: break-all; white-space: normal; overflow-wrap: anywhere;">
 														\${isProxyCall(call) ? '<span style="padding: 2px 6px; background: #374151; color: #9ca3af; border-radius: 2px; font-size: ' + (currentFontSize - 2) + 'px; margin-right: 6px;">PROXY</span>' : ''}\${getShortUrl(call)}</td>
 													<td style="padding: 12px; color: #6b7280; font-size: \${currentFontSize}px;">\${new Date(call.timestamp).toLocaleTimeString()}</td>
-												</tr>
-												\${isExpanded ? \`
+												</tr>\` + (isExpanded ? \`
 													<tr class="expanded-row">
 														<td colspan="6" style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
 															<div style="display: grid; gap: 12px;">
@@ -422,38 +421,31 @@ const createPopOutWindow = (
 																		<button class="copy-btn \${copiedField === 'url-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${urlEscaped}', 'url-\${call.id}')">\${copiedField === 'url-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
 																	</div>
 																	<div style="color: #2563eb; font-size: 11px; word-break: break-all; white-space: normal; overflow-wrap: anywhere;">\${displayUrl}</div>
-																</div>
-																\${hasHeaders ? \`
-																	<div>
-																		<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-																			<div style="color: #6b7280; font-size: 10px; font-weight: 600;">REQUEST HEADERS:</div>
-																			<button class="copy-btn \${copiedField === 'headers-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${headersTextEscaped}', 'headers-\${call.id}')">\${copiedField === 'headers-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
-																		</div>
-																		<div class="json-display"><pre>\${headersText}</pre></div>
+																</div>\` + (hasHeaders ? \`
+																<div>
+																	<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+																		<div style="color: #6b7280; font-size: 10px; font-weight: 600;">REQUEST HEADERS:</div>
+																		<button class="copy-btn \${copiedField === 'headers-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${headersTextEscaped}', 'headers-\${call.id}')">\${copiedField === 'headers-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
 																	</div>
-																\` : ''}
-																\${hasBody ? \`
-																	<div>
-																		<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-																			<div style="color: #6b7280; font-size: 10px; font-weight: 600;">REQUEST BODY:</div>
-																			<button class="copy-btn \${copiedField === 'body-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${bodyTextEscaped}', 'body-\${call.id}')">\${copiedField === 'body-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
-																		</div>
-																		<div class="json-display"><pre>\${bodyText}</pre></div>
+																	<div class="json-display"><pre>\${headersText}</pre></div>
+																</div>\` : '') + (hasBody ? \`
+																<div>
+																	<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+																		<div style="color: #6b7280; font-size: 10px; font-weight: 600;">REQUEST BODY:</div>
+																		<button class="copy-btn \${copiedField === 'body-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${bodyTextEscaped}', 'body-\${call.id}')">\${copiedField === 'body-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
 																	</div>
-																\` : ''}
-																\${hasResponse ? \`
-																	<div style="padding: 8px 12px; background: #e0f2fe; border-radius: 4px; border: 1px solid #38bdf8; margin-top: 12px;">
-																		<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-																			<div style="color: #0369a1; font-size: 11px; font-weight: 700;">RESPONSE (for debugging):</div>
-																			<button class="copy-btn \${copiedField === 'response-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${responseTextEscaped}', 'response-\${call.id}')" style="padding: 4px 10px; background: \${copiedField === 'response-' + call.id ? '#10b981' : '#0ea5e9'}; color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: 600;">\${copiedField === 'response-' + call.id ? '✓ Copied' : '📋 Copy Response'}</button>
-																		</div>
-																		<div class="json-display"><pre>\${responseText}</pre></div>
+																	<div class="json-display"><pre>\${bodyText}</pre></div>
+																</div>\` : '') + (hasResponse ? \`
+																<div style="padding: 8px 12px; background: #e0f2fe; border-radius: 4px; border: 1px solid #38bdf8; margin-top: 12px;">
+																	<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+																		<div style="color: #0369a1; font-size: 11px; font-weight: 700;">RESPONSE (for debugging):</div>
+																		<button class="copy-btn \${copiedField === 'response-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${responseTextEscaped}', 'response-\${call.id}')" style="padding: 4px 10px; background: \${copiedField === 'response-' + call.id ? '#10b981' : '#0ea5e9'}; color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: 600;">\${copiedField === 'response-' + call.id ? '✓ Copied' : '📋 Copy Response'}</button>
 																	</div>
-																\` : ''}
+																	<div class="json-display"><pre>\${responseText}</pre></div>
+																</div>\` : '') + \`
 															</div>
 														</td>
-													</tr>
-												\` : ''}
+													</tr>\` : '')
 											\`;
 										}).join('')}
 									</tbody>
@@ -821,9 +813,20 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 			let backendCalls: ApiCall[] = [];
 			if (serverHealth.isOnline) {
 				try {
+					console.log('[SuperSimpleApiDisplayV8] Fetching API calls from server...');
 					const response = await fetch('/api/pingone/api-calls', {
 						signal: AbortSignal.timeout(5000), // 5 second timeout
+						headers: {
+							'Cache-Control': 'no-cache',
+							'Pragma': 'no-cache',
+						},
 					});
+					console.log('[SuperSimpleApiDisplayV8] API calls response:', {
+						status: response.status,
+						statusText: response.statusText,
+						ok: response.ok,
+					});
+					
 					if (response.ok) {
 						const data = (await response.json()) as {
 							calls: Array<{
@@ -843,6 +846,10 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 								isProxy?: boolean;
 							}>;
 						};
+						console.log('[SuperSimpleApiDisplayV8] API calls data:', {
+							hasCalls: !!data.calls,
+							callsLength: data.calls?.length,
+						});
 						if (data.calls && Array.isArray(data.calls)) {
 							backendCalls = data.calls.map((call) => ({
 								id: call.id,
@@ -866,9 +873,19 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						}
 					}
 				} catch (error) {
+					// Enhanced error logging for debugging
+					const errorMessage = error instanceof Error ? error.message : String(error);
+					console.error('[SuperSimpleApiDisplayV8] Failed to fetch API calls:', {
+						error,
+						errorMessage,
+						isConnectionError: errorMessage.includes('ERR_EMPTY_RESPONSE'),
+						isTimeout: errorMessage.includes('timeout'),
+						isAbortError: errorMessage.includes('AbortError'),
+						isNetworkError: errorMessage.includes('Failed to fetch'),
+					});
+					
 					// Silently fail - backend calls are optional
 					// Ignore connection errors (ERR_CONNECTION_REFUSED, ERR_EMPTY_RESPONSE, network errors)
-					const errorMessage = error instanceof Error ? error.message : String(error);
 					const isConnectionError =
 						errorMessage.includes('ERR_CONNECTION_REFUSED') ||
 						errorMessage.includes('ERR_EMPTY_RESPONSE') ||
@@ -1002,25 +1019,6 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					const isProxy = (call as { isProxy?: boolean }).isProxy;
 					const callHeaders = (call as { headers?: Record<string, string> }).headers;
 
-					// #region agent log - Debug headers mapping
-					if (
-						originalUrl.includes('check-fido2-assertion') ||
-						originalUrl.includes('select-device') ||
-						originalUrl.includes('validate-otp') ||
-						originalUrl.includes('initialize-device')
-					) {
-						console.log('[SuperSimpleApiDisplayV8] Mapping call with headers:', {
-							originalUrl,
-							hasHeaders: !!callHeaders,
-							headersType: typeof callHeaders,
-							headersKeys: callHeaders ? Object.keys(callHeaders) : [],
-							headers: callHeaders,
-							callId: call.id,
-							callType: typeof call,
-							callKeys: Object.keys(call),
-						});
-					}
-					// #endregion
 
 					const apiCall: ApiCall = {
 						id: String(call.id || ''),
@@ -1038,25 +1036,6 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						}),
 					};
 
-					// #region agent log - Debug headers after mapping
-					if (
-						originalUrl.includes('check-fido2-assertion') ||
-						originalUrl.includes('select-device') ||
-						originalUrl.includes('validate-otp') ||
-						originalUrl.includes('initialize-device')
-					) {
-						console.log('[SuperSimpleApiDisplayV8] Mapped API call with headers:', {
-							apiCallId: apiCall.id,
-							apiCallUrl: apiCall.url,
-							hasHeaders: !!(apiCall as { headers?: Record<string, string> }).headers,
-							headersType: typeof (apiCall as { headers?: Record<string, string> }).headers,
-							headersKeys: (apiCall as { headers?: Record<string, string> }).headers
-								? Object.keys((apiCall as { headers?: Record<string, string> }).headers!)
-								: [],
-							headers: (apiCall as { headers?: Record<string, string> }).headers,
-						});
-					}
-					// #endregion
 
 					if (call.response) {
 						apiCall.response = {
@@ -1998,58 +1977,8 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																	const headers = (call as { headers?: Record<string, string> })
 																		.headers;
 
-																	// #region agent log - Debug headers display
-																	if (
-																		call.url?.includes('check-fido2-assertion') ||
-																		call.url?.includes('select-device') ||
-																		call.url?.includes('validate-otp') ||
-																		call.url?.includes('initialize-device')
-																	) {
-																		console.log(
-																			'[SuperSimpleApiDisplayV8] Rendering headers section:',
-																			{
-																				callUrl: call.url,
-																				callId: call.id,
-																				hasHeaders: !!headers,
-																				headersType: typeof headers,
-																				headersIsNull: headers === null,
-																				headersIsUndefined: headers === undefined,
-																				headersKeys: headers ? Object.keys(headers) : [],
-																				headersKeysLength: headers
-																					? Object.keys(headers).length
-																					: 0,
-																				headers,
-																				callType: typeof call,
-																				callKeys: Object.keys(call),
-																				callHasHeadersProperty: 'headers' in call,
-																			}
-																		);
-																	}
-																	// #endregion
 
 																	if (!headers || Object.keys(headers).length === 0) {
-																		// #region agent log - Debug why headers are not shown
-																		if (
-																			call.url?.includes('check-fido2-assertion') ||
-																			call.url?.includes('select-device') ||
-																			call.url?.includes('validate-otp') ||
-																			call.url?.includes('initialize-device')
-																		) {
-																			console.warn(
-																				'[SuperSimpleApiDisplayV8] Headers section NOT rendered - headers missing or empty:',
-																				{
-																					callUrl: call.url,
-																					callId: call.id,
-																					hasHeaders: !!headers,
-																					headersType: typeof headers,
-																					headersValue: headers,
-																					headersKeysLength: headers
-																						? Object.keys(headers).length
-																						: 0,
-																				}
-																			);
-																		}
-																		// #endregion
 																		return null;
 																	}
 

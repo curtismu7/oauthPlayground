@@ -592,13 +592,19 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		});
 		const envId = storedCredentials.environmentId?.trim();
 		const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatus().isValid;
-		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:569',message:'fetchFido2Policies entry',data:{envId,hasToken:tokenValid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+		// #region agent log - Use safe analytics fetch
+		(async () => {
+			try {
+				const { log } = await import('@/v8/utils/analyticsHelperV8');
+				await log('FIDO2FlowV8.tsx:569', 'fetchFido2Policies entry', { envId, hasToken: tokenValid }, 'debug-session', 'run1', 'A');
+			} catch {
+				// Silently ignore - analytics server not available
+			}
+		})();
 		// #endregion
 		
 		if (!envId || !tokenValid) {
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:582',message:'Early return - missing prerequisites',data:{hasEnvId:!!envId,hasToken:tokenValid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
 			// #endregion
 			setFido2Policies([]);
 			setFido2PoliciesError(null);
@@ -609,7 +615,6 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		// Prevent duplicate calls
 		if (isFetchingFido2PoliciesRef.current || lastFetchedFido2EnvIdRef.current === envId) {
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:589',message:'Skipping duplicate call',data:{isFetching:isFetchingFido2PoliciesRef.current,lastEnvId:lastFetchedFido2EnvIdRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
 			// #endregion
 			return;
 		}
@@ -621,7 +626,6 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		try {
 			const workerToken = await workerTokenServiceV8.getToken();
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:598',message:'Worker token retrieved',data:{hasToken:!!workerToken,tokenLength:workerToken?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
 			// #endregion
 			if (!workerToken) {
 				throw new Error('Worker token not found');
@@ -637,7 +641,6 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			});
 			const apiUrl = `/api/pingone/mfa/fido2-policies?${params.toString()}`;
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:612',message:'Before API call',data:{url:apiUrl,envId,region},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
 			// #endregion
 
 			const response = await fetch(apiUrl, {
@@ -646,13 +649,11 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			});
 
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:617',message:'API response received',data:{status:response.status,statusText:response.statusText,ok:response.ok},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
 			// #endregion
 
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:622',message:'API error response',data:{status:response.status,errorData},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
 				// #endregion
 				throw new Error(
 					errorData.message ||
@@ -663,11 +664,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 			const data = await response.json();
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:626',message:'Raw API response data',data:{hasData:!!data,dataKeys:Object.keys(data||{}),isArray:Array.isArray(data),hasEmbedded:!!data?._embedded,hasFido2Policies:!!data?._embedded?.fido2Policies},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
 			// #endregion
 			const policiesList = data._embedded?.fido2Policies || [];
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:629',message:'Before setState',data:{policiesCount:policiesList.length,policyIds:policiesList.map(p=>p.id)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
 			// #endregion
 			lastFetchedFido2EnvIdRef.current = envId;
 			setFido2Policies(policiesList);
@@ -833,17 +832,14 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								onClick={async () => {
 									if (tokenStatus.isValid) {
 										// #region agent log
-										fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:637',message:'User clicked remove token, calling clearToken',data:{tokenStatusBefore:tokenStatus.isValid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
 										// #endregion
 										const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 										await workerTokenServiceV8.clearToken();
 										// #region agent log
-										fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:641',message:'clearToken completed, checking status',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
 										// #endregion
 										window.dispatchEvent(new Event('workerTokenUpdated'));
 										const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 										// #region agent log
-										fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:645',message:'Status checked after clearToken',data:{isValid:newStatus.isValid,status:newStatus.status,message:newStatus.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
 										// #endregion
 										toastV8.success('Worker token removed');
 									} else {
@@ -1271,7 +1267,6 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 							{(() => {
 								// #region agent log
-								fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:1257',message:'Rendering policy select condition',data:{policiesCount:fido2Policies.length,isLoading:isLoadingFido2Policies,hasError:!!fido2PoliciesError,willRenderSelect:fido2Policies.length>0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
 								// #endregion
 								return fido2Policies.length > 0 ? (
 									<select

@@ -58,9 +58,9 @@ export const checkWorkerTokenStatus = (
 		// Use workerTokenServiceV8 sync method
 		const credentials = workerTokenServiceV8.loadCredentialsSync();
 		if (credentials) {
-			// Try to get token from browser storage (service stores it there)
+			// Try to get token from browser storage (unified service stores it there)
 			try {
-				const stored = localStorage.getItem('v8:worker_token');
+				const stored = localStorage.getItem('unified_worker_token');
 				if (stored) {
 					const data = JSON.parse(stored) as { token?: string };
 					if (data.token) {
@@ -75,9 +75,9 @@ export const checkWorkerTokenStatus = (
 
 	// If expiry not provided, get from global storage
 	if (typeof expiresAt !== 'number') {
-		// Read from global service storage
+		// Read from unified service storage
 		try {
-			const stored = localStorage.getItem('v8:worker_token');
+			const stored = localStorage.getItem('unified_worker_token');
 			if (stored) {
 				const data = JSON.parse(stored) as { expiresAt?: number };
 				if (data.expiresAt) {

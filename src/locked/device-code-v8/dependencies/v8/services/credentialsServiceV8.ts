@@ -318,7 +318,6 @@ export class CredentialsServiceV8 {
 				const parsed = JSON.parse(stored);
 				debugLog(`${MODULE_TAG} Credentials loaded from storage`, { flowKey });
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'credentialsServiceV8.ts:310',message:'Credentials loaded from localStorage',data:{flowKey,storageKey,hasRedirectUri:!!parsed.redirectUri,redirectUri:parsed.redirectUri,hasClientAuthMethod:!!parsed.clientAuthMethod,clientAuthMethod:parsed.clientAuthMethod,allKeys:Object.keys(parsed)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
 				// #endregion
 				return parsed;
 			}
@@ -431,7 +430,6 @@ export class CredentialsServiceV8 {
 		try {
 			const storageKey = `${CredentialsServiceV8.STORAGE_PREFIX}${flowKey}`;
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'credentialsServiceV8.ts:423',message:'Saving credentials to storage',data:{flowKey,storageKey,hasRedirectUri:!!credentials.redirectUri,redirectUri:credentials.redirectUri,hasClientAuthMethod:!!credentials.clientAuthMethod,clientAuthMethod:credentials.clientAuthMethod,allKeys:Object.keys(credentials)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
 			// #endregion
 
 			// PRIMARY STORAGE: Save to IndexedDB first (persists across browser restarts)

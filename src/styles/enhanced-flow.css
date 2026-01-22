@@ -783,3 +783,67 @@
 		transition-duration: 0.01ms;
 	}
 }
+
+/* Spinner Animations */
+.spinner {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.spinner--spin svg {
+	animation: spin 1s linear infinite;
+}
+
+.spinner--pulse svg {
+	animation: pulse 1.5s ease-in-out infinite;
+}
+
+.spinner--dots svg {
+	animation: spin 1s steps(8) infinite;
+}
+
+@keyframes spin {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.5; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+	.spinner {
+		transform: scale(0.8);
+	}
+}
+
+/* Touch-friendly spinner areas */
+.spinner-container {
+	min-width: 44px;
+	min-height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* Button spinner positioning */
+.button-spinner {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.button-spinner--center {
+	justify-content: center;
+}
+
+.button-spinner--left {
+	justify-content: flex-start;
+}
+
+.button-spinner--right {
+	justify-content: flex-end;
+}

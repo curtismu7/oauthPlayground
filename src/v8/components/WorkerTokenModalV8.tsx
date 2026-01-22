@@ -280,6 +280,16 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 			// Track the API call
 			const startTime = Date.now();
+			console.log(`${MODULE_TAG} 🚀 Making token request:`, {
+				tokenEndpoint: requestDetails.tokenEndpoint,
+				authMethod: requestDetails.authMethod,
+				hasClientSecret: !!requestDetails.requestParams.client_secret,
+				clientIdLength: requestDetails.requestParams.client_id?.length,
+				clientSecretLength: requestDetails.requestParams.client_secret?.length,
+				headers: requestDetails.resolvedHeaders,
+				body: requestDetails.resolvedBody,
+			});
+
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: requestDetails.tokenEndpoint,
@@ -297,12 +307,21 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				body: requestDetails.resolvedBody,
 			});
 
+			console.log(`${MODULE_TAG} 📡 Token response:`, {
+				status: response.status,
+				statusText: response.statusText,
+				ok: response.ok,
+				headers: Object.fromEntries(response.headers.entries()),
+			});
+
 			let responseData: unknown;
 			try {
 				responseData = await response.json();
+				console.log(`${MODULE_TAG} 📄 Response data:`, responseData);
 			} catch {
 				const raw = await response.text();
 				responseData = raw ? { raw } : null;
+				console.log(`${MODULE_TAG} 📄 Raw response:`, raw);
 			}
 
 			// Update API call tracking
@@ -344,7 +363,9 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			await workerTokenServiceV8.saveToken(token, expiresAt);
 
 			// Dispatch event for status update
+			console.log(`${MODULE_TAG} 🔑 Dispatching workerTokenUpdated event`);
 			window.dispatchEvent(new Event('workerTokenUpdated'));
+			console.log(`${MODULE_TAG} 🔑 workerTokenUpdated event dispatched`);
 
 			toastV8.success('Worker token generated successfully!');
 
@@ -1281,6 +1302,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					onExecute={handleExecuteRequest}
 					requestDetails={requestDetails}
 					isExecuting={isGenerating}
+					setIsExecuting={setIsGenerating}
 					showTokenAtEnd={(() => {
 						try {
 							const {

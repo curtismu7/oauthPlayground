@@ -612,9 +612,26 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 		setCurrentStep(0);
 		setGeneratedJWT('');
 		setTokenResponse(null);
-		console.log('🔄 [JWTBearerTokenFlowV6] Starting over: cleared tokens/JWT, keeping credentials');
+		
+		// Clear any potential ConfigChecker-related state or cached data
+		try {
+			// Clear any comparison results or cached application data
+			sessionStorage.removeItem('config-checker-diffs');
+			sessionStorage.removeItem('config-checker-last-check');
+			sessionStorage.removeItem('pingone-app-cache');
+			localStorage.removeItem('pingone-applications-cache');
+			
+			// Clear any worker token related cache that might be used for pre-flight checks
+			sessionStorage.removeItem('worker-token-cache');
+			localStorage.removeItem('worker-apps-cache');
+			
+			console.log('🔄 [JWTBearerTokenFlowV6] Starting over: cleared tokens/JWT, ConfigChecker cache, keeping credentials');
+		} catch (error) {
+			console.warn('[JWTBearerTokenFlowV6] Failed to clear cache data:', error);
+		}
+		
 		v4ToastManager.showSuccess('Flow restarted', {
-			description: 'Tokens and JWT cleared. Credentials preserved.',
+			description: 'Tokens, JWT, and cache cleared. Credentials preserved.',
 		});
 	}, []);
 

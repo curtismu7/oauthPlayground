@@ -380,7 +380,6 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 						: null;
 
 					// #region agent log - log auth method comparison
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'preFlightValidationServiceV8.ts:373',message:'Auth method comparison during pre-flight validation',data:{pingOneRaw:appConfig.tokenEndpointAuthMethod,pingOneNormalized:pingOneAuthMethod,configuredRaw:credentials.clientAuthMethod,configuredNormalized:configuredAuthMethod,match:pingOneAuthMethod===configuredAuthMethod},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
 					// #endregion
 
 					console.log(`${MODULE_TAG} Comparing auth methods`, {

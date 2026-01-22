@@ -11,6 +11,7 @@
 import React from 'react';
 import { FiLoader } from 'react-icons/fi';
 import styled from 'styled-components';
+import ModalSpinnerServiceV8U from '@/v8/services/modalSpinnerServiceV8U';
 
 interface LoadingSpinnerModalV8UProps {
 	/** Whether to show the modal */
@@ -105,6 +106,32 @@ export const LoadingSpinnerModalV8U: React.FC<LoadingSpinnerModalV8UProps> = ({
 	icon,
 	theme = 'blue',
 }) => {
+	// Use service for consistent state management
+	const modalKey = 'loadingSpinnerModalV8U';
+	
+	// Initialize state if not exists
+	ModalSpinnerServiceV8U.getInstance(modalKey, {
+		show: false,
+		message: '',
+		theme: 'blue',
+	});
+
+	// Update state when props change
+	React.useEffect(() => {
+		ModalSpinnerServiceV8U.updateState(modalKey, {
+			show,
+			message,
+			theme,
+		});
+	}, [show, message, theme]);
+
+	// Cleanup on unmount
+	React.useEffect(() => {
+		return () => {
+			ModalSpinnerServiceV8U.cleanup(modalKey);
+		};
+	}, []);
+
 	if (!show) return null;
 
 	return (

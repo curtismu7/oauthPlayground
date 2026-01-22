@@ -2529,17 +2529,17 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 				)}
 				renderStep1={renderStep1WithSelection}
 				renderStep2={renderStep2Register}
-				renderStep3={createRenderStep3(
-					otpState.otpSent,
-					(v) => setOtpState({ ...otpState, otpSent: v }),
-					otpState.sendError,
-					(v) => setOtpState({ ...otpState, sendError: v }),
-					otpState.sendRetryCount,
+				renderStep3={createRenderStep4(
+					validationState.validationAttempts,
 					(v) =>
-						setOtpState({
-							...otpState,
-							sendRetryCount: typeof v === 'function' ? v(otpState.sendRetryCount) : v,
-						})
+						setValidationState({
+							...validationState,
+							validationAttempts: typeof v === 'function' ? v(validationState.validationAttempts) : v,
+						}),
+					validationState.validationError,
+					(v) => setValidationState({ ...validationState, validationError: v }),
+					validationState.showValidationModal,
+					setShowValidationModal
 				)}
 				renderStep4={createRenderStep4(
 					validationState.validationAttempts,
@@ -2562,7 +2562,11 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					}
 				)}
 				validateStep0={validateStep0}
-				stepLabels={['Configure', 'Select Device', 'Register Device', 'Send OTP', 'Validate']}
+				stepLabels={
+					mfaState.deviceStatus === 'ACTIVATION_REQUIRED' || mfaState.authenticationId
+						? ['Configure', 'Select Device', 'Register Device', 'Validate']
+						: ['Configure', 'Select Device', 'Register Device', 'Send OTP', 'Validate']
+				}
 				shouldHideNextButton={(props) => {
 					// Hide final button on success step (step 4) - we have our own "Start Again" button
 					if (props.nav.currentStep === 4) {

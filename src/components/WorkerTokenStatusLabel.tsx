@@ -62,9 +62,9 @@ export const WorkerTokenStatusLabel: React.FC<WorkerTokenStatusLabelProps> = ({
 				// Get expiration from service - need to check stored data
 				const credentials = await workerTokenServiceV8.loadCredentials();
 				if (credentials && tokenValue) {
-					// Try to get expiration from browser storage (service stores it there)
+					// Try to get expiration from browser storage (unified service stores it there)
 					try {
-						const stored = localStorage.getItem('v8:worker_token');
+						const stored = localStorage.getItem('unified_worker_token');
 						if (stored) {
 							const data = JSON.parse(stored);
 							setTokenState({

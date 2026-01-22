@@ -4,11 +4,9 @@
  * @description Check if analytics server is available before making calls
  * @version 1.0.0
  * 
- * This utility checks if the analytics server at 127.0.0.1:7242 is available
  * to prevent console spam from connection refused errors.
  */
 
-const ANALYTICS_SERVER_URL = 'http://127.0.0.1:7242';
 const CHECK_TIMEOUT = 100; // 100ms timeout for availability check
 const CACHE_DURATION = 300000; // Cache result for 5 minutes (reduce check frequency)
 const FAILED_CACHE_DURATION = 600000; // Cache failure for 10 minutes (once it fails, don't check often)
@@ -83,7 +81,6 @@ export async function safeAnalyticsFetch(data: Record<string, unknown>): Promise
 	}
 
 	try {
-		await fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(data),

@@ -48,6 +48,7 @@ import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServic
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { ButtonSpinner, LoadingOverlay } from '@/components/ui';
 import { PKCEStorageServiceV8U } from '../services/pkceStorageServiceV8U';
 import {
 	type UnifiedFlowCredentials,
@@ -599,6 +600,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [loadingMessage, setLoadingMessage] = useState('');
 	const [isPreFlightValidating, setIsPreFlightValidating] = useState(false);
 	const [preFlightStatus, setPreFlightStatus] = useState<string>('');
+	
+	// Spinner loading states for core flow operations
+	const [isGeneratingAuthUrl, setIsGeneratingAuthUrl] = useState(false);
+	const [isExchangingTokens, setIsExchangingTokens] = useState(false);
+	const [isFetchingUserInfo, setIsFetchingUserInfo] = useState(false);
+	const [isGeneratingPKCE, setIsGeneratingPKCE] = useState(false);
+	const [isRestartingFlow, setIsRestartingFlow] = useState(false);
+	const [isIntrospectingToken, setIsIntrospectingToken] = useState(false);
+	const [isRefreshingToken, setIsRefreshingToken] = useState(false);
+	const [isPollingDeviceCode, setIsPollingDeviceCode] = useState(false);
+	
 	const [error, setError] = useState<string | null>(null);
 	const [showUserInfoModal, setShowUserInfoModal] = useState(false);
 	const [showCallbackSuccessModal, setShowCallbackSuccessModal] = useState(false);
@@ -868,6 +880,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	 */
 	const fetchUserInfoWithDiscovery = useCallback(
 		async (accessToken: string, environmentId: string): Promise<Record<string, unknown> | null> => {
+			setIsFetchingUserInfo(true);
 			try {
 				/**
 				 * Step 1: Discover UserInfo endpoint using OIDC discovery
@@ -980,6 +993,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			} catch (err) {
 				console.warn(`${MODULE_TAG} Failed to fetch UserInfo`, err);
 				return null;
+			} finally {
+				setIsFetchingUserInfo(false);
 			}
 		},
 		[]
@@ -1632,7 +1647,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Then automatically parse and extract the code (and tokens for hybrid)
 	useEffect(() => {
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedFlowSteps.tsx:1622',message:'Step 3 useEffect triggered',data:{currentStep,flowType,isStep3:currentStep === 3,isHybridOrAuthz:(flowType === 'oauth-authz' || flowType === 'hybrid'),pathname:window.location.pathname,hash:window.location.hash.substring(0,100)},timestamp:Date.now(),sessionId:'debug-session',runId:'hybrid-redirect',hypothesisId:'STEP3_EFFECT'})}).catch(()=>{});
 		// #endregion
 		
 		// Only run on step 3 (callback handling step) for authorization code and hybrid flows
@@ -2585,7 +2599,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												<>
 													<strong>Client Secret:</strong> Required for token request
 													<br />
-													<strong>Scopes:</strong> Resource server scopes (e.g., ClaimScope, custom:read)
+													<strong>Scopes:</strong> Resource server scopes (e.g., api:read, ClaimScope, custom:read)
 													<br />
 													<strong>Environment ID:</strong> Must match your PingOne environment
 												</>
@@ -2601,7 +2615,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												<>
 													<strong>Client Secret:</strong> Required for token introspection and refresh
 													<br />
-													<strong>Scopes:</strong> Include "profile" scope for user info endpoint
+													<strong>Scopes:</strong> Include "openid profile email" for OIDC flows
 													<br />
 													<strong>Environment ID:</strong> Must match your PingOne environment
 												</>
@@ -3201,6 +3215,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		};
 
 		const handlePKCEGenerate = async () => {
+			setIsGeneratingPKCE(true);
 			console.log(`${MODULE_TAG} PKCE codes generated`);
 			// PKCE codes are already updated via handlePKCEChange, which uses bulletproof storage
 			// No need for additional save here - the service handles all 4 storage locations
@@ -3208,6 +3223,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				nav.markStepComplete();
 				toastV8.success('PKCE parameters generated successfully');
 			}
+			setIsGeneratingPKCE(false);
 		};
 
 		return (
@@ -3345,7 +3361,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					value={pkceCodes}
 					onChange={handlePKCEChange}
 					onGenerate={handlePKCEGenerate}
-					isGenerating={false}
+					isGenerating={isGeneratingPKCE}
 					showDetails={true}
 					title="Generate PKCE Parameters"
 					subtitle="Create secure code verifier and challenge for enhanced security"
@@ -4483,6 +4499,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				fullCredentials: currentCredentials,
 			});
 
+			// Set loading state for spinner
+			setIsGeneratingAuthUrl(true);
+			
 			// Debug: Check if redirectless mode (pi.flow) is enabled
 			const isRedirectless = currentCredentials.responseMode === 'pi.flow' || currentCredentials.useRedirectless;
 			if (isRedirectless) {
@@ -5046,11 +5065,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				setValidationErrors([message]);
 				toastV8.error(message);
 			} finally {
-				// CRITICAL: Always clear both loading states in finally block
+				// CRITICAL: Always clear all loading states in finally block
 				setIsPreFlightValidating(false);
 				setPreFlightStatus('');
 				setIsLoading(false);
 				setLoadingMessage('');
+				setIsGeneratingAuthUrl(false);
 			}
 		};
 
@@ -6162,11 +6182,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					</div>
 
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
-						<button
-							type="button"
-							className="btn btn-next"
+						<ButtonSpinner
+							loading={isGeneratingAuthUrl || isPreFlightValidating}
 							onClick={handleGenerateAuthUrl}
 							disabled={isLoading || isPreFlightValidating}
+							spinnerSize={16}
+							spinnerPosition="center"
+							loadingText={isPreFlightValidating ? 'Validating...' : 'Generating...'}
+							className="btn btn-next"
 							style={{
 								minWidth: '280px',
 								padding: '14px 28px',
@@ -6180,20 +6203,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						>
 							{isPreFlightValidating ? (
 								<>
-									<span
-										style={{
-											display: 'inline-block',
-											animation: 'spin 1s linear infinite',
-										}}
-									>
-										🔍
-									</span>
-									<span>Validating...</span>
+									<span>🔍</span>
 								</>
-							) : isLoading ? (
+							) : isGeneratingAuthUrl ? (
 								<>
-									<span>⏳</span>
-									<span>Generating...</span>
+									<span>🔗</span>
 								</>
 							) : (
 								<>
@@ -6201,7 +6215,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									<span>Generate Authorization URL</span>
 								</>
 							)}
-						</button>
+						</ButtonSpinner>
 						{isPreFlightValidating && preFlightStatus && (
 							<div
 								style={{
@@ -10048,8 +10062,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										<div>
 											<InfoTitle>Resource Server Scopes Required</InfoTitle>
 											<InfoText>
-												Client Credentials flow requires resource server scopes (e.g., "ClaimScope",
-												"custom:read", "api:read"). OIDC scopes (openid, profile, email) and
+												Client Credentials flow requires resource server scopes (e.g., "api:read",
+												"ClaimScope", "custom:read", "api:write"). OIDC scopes (openid, profile, email) and
 												self-management scopes (p1:read:user) do not work with Client Credentials.
 											</InfoText>
 											<InfoList>
@@ -10062,7 +10076,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													add scopes, and associate it with your application
 												</li>
 												<li>
-													<strong>Example scopes:</strong> ClaimScope, custom:read, api:read,
+													<strong>Example scopes:</strong> api:read, ClaimScope, custom:read,
 													api:write
 												</li>
 											</InfoList>
@@ -10525,6 +10539,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			setIsLoading(true);
+			setIsExchangingTokens(true);
 			setError(null);
 			setValidationErrors([]);
 
@@ -10669,6 +10684,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 			} finally {
 				setIsLoading(false);
+				setIsExchangingTokens(false);
 			}
 		};
 
@@ -10690,15 +10706,18 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						✅ Tokens already exchanged successfully! Authorization codes are single-use only.
 					</div>
 				) : flowState.authorizationCode ? (
-					<button
-						type="button"
-						className="btn btn-next"
+					<ButtonSpinner
+						loading={isExchangingTokens}
 						onClick={handleExchangeTokens}
 						disabled={isLoading}
+						spinnerSize={16}
+						spinnerPosition="center"
+						loadingText="Exchanging..."
+						className="btn btn-next"
 						style={{ marginBottom: '24px' }}
 					>
-						{isLoading ? 'Exchanging...' : 'Exchange Code for Tokens'}
-					</button>
+						{isExchangingTokens ? '' : '🔄 Exchange Code for Tokens'}
+					</ButtonSpinner>
 				) : (
 					<div
 						style={{

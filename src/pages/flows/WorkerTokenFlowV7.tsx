@@ -432,9 +432,9 @@ const WorkerTokenFlowV7: React.FC = () => {
 				showLoginHint={false}
 				showAdvancedConfig={false}
 				defaultCollapsed={false}
-				// Worker token and Config Checker
+				// Worker token and Config Checker - Disabled to remove pre-flight API calls
 				workerToken={workerToken}
-				showConfigChecker={true}
+				showConfigChecker={false}
 				region="NA"
 			/>
 

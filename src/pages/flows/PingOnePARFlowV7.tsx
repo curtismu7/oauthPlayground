@@ -1326,7 +1326,8 @@ const PingOnePARFlowV7: React.FC = () => {
 							onCredentialsChange={controller.setCredentials}
 							onDiscoveryComplete={() => {}}
 							requireClientSecret={true}
-							showConfigChecker={true}
+							// Config Checker - Disabled to remove pre-flight API calls
+							showConfigChecker={false}
 							showRedirectUri={true}
 							showPostLogoutRedirectUri={selectedVariant === 'oidc'}
 							showLoginHint={selectedVariant === 'oidc'}

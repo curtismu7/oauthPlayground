@@ -96,8 +96,15 @@ const HybridCallback: React.FC = () => {
 				const currentUrl = getValidatedCurrentUrl('HybridCallback');
 				logger.info('HybridCallback', 'Processing hybrid flow callback', { url: currentUrl });
 
-		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'HybridCallback.tsx:99',message:'BEFORE parsing - raw URL components',data:{href:window.location.href,search:window.location.search,hash:window.location.hash,pathname:window.location.pathname},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+		// #region agent log - Use safe analytics fetch
+		(async () => {
+			try {
+				const { log } = await import('@/v8/utils/analyticsHelperV8');
+				await log('HybridCallback.tsx:99', 'BEFORE parsing - raw URL components', { href: window.location.href, search: window.location.search, hash: window.location.hash, pathname: window.location.pathname }, 'debug-session', 'run1', 'A');
+			} catch {
+				// Silently ignore - analytics server not available
+			}
+		})();
 		// #endregion
 		
 		// Parse URL parameters for hybrid flow
@@ -105,14 +112,20 @@ const HybridCallback: React.FC = () => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const fragment = window.location.hash.substring(1);
 		
-		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'HybridCallback.tsx:105',message:'AFTER extracting fragment',data:{fragmentLength:fragment.length,fragmentExists:!!fragment,fragmentPreview:fragment.substring(0,100),queryStringLength:window.location.search.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+		// #region agent log - Use safe analytics fetch
+		(async () => {
+			try {
+				const { log } = await import('@/v8/utils/analyticsHelperV8');
+				await log('HybridCallback.tsx:105', 'AFTER extracting fragment', { fragmentLength: fragment.length, fragmentExists: !!fragment, fragmentPreview: fragment.substring(0, 100), queryStringLength: window.location.search.length }, 'debug-session', 'run1', 'A');
+			} catch {
+				// Silently ignore - analytics server not available
+			}
+		})();
 		// #endregion
 		
 		const fragmentParams = fragment ? new URLSearchParams(fragment) : null;
 		
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'HybridCallback.tsx:108',message:'AFTER creating URLSearchParams',data:{fragmentParamsExists:!!fragmentParams,urlParamsSize:urlParams.size,fragmentParamsSize:fragmentParams?.size||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
 		// #endregion
 		
 		// For hybrid flow, code can be in EITHER query string OR fragment (depends on response_mode)
@@ -125,11 +138,9 @@ const HybridCallback: React.FC = () => {
 		const errorDescription = fragmentParams?.get('error_description') || urlParams.get('error_description');
 		
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'HybridCallback.tsx:118',message:'AFTER fix - code extraction',data:{codeFromFragment:fragmentParams?.get('code')||null,codeFromQuery:urlParams.get('code'),finalCode:code,codeSource:fragmentParams?.get('code')?'fragment':'query'},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'FIX'})}).catch(()=>{});
 		// #endregion
 		
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'HybridCallback.tsx:115',message:'AFTER extracting all parameters',data:{hasCode:!!code,codeLength:code?.length||0,hasIdToken:!!idToken,idTokenLength:idToken?.length||0,hasAccessToken:!!accessToken,hasState:!!state,hasError:!!error,allQueryParams:Array.from(urlParams.keys()),allFragmentParams:fragmentParams?Array.from(fragmentParams.keys()):[]},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
 		// #endregion
 
 			// Log what we found for debugging
@@ -217,7 +228,6 @@ const HybridCallback: React.FC = () => {
 					sessionStorage.setItem('v8u_callback_data', JSON.stringify(callbackData));
 					
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'HybridCallback.tsx:200',message:'Stored unified flow callback data',data:{hasCode:!!code,hasIdToken:!!idToken,hasAccessToken:!!accessToken,flowType:'hybrid'},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'STORAGE'})}).catch(()=>{});
 					// #endregion
 				}
 
@@ -242,7 +252,6 @@ const HybridCallback: React.FC = () => {
 				let targetRoute: string;
 				
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'HybridCallback.tsx:239',message:'Determining redirect route',data:{state,isUnifiedFlow,stateStartsWithV8u:state?.startsWith('v8u-hybrid-')},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'REDIRECT'})}).catch(()=>{});
 				// #endregion
 				
 				if (isUnifiedFlow) {
@@ -268,14 +277,12 @@ const HybridCallback: React.FC = () => {
 				}
 				
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'HybridCallback.tsx:225',message:'Redirect route determined',data:{targetRoute,isUnifiedFlow},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'REDIRECT'})}).catch(()=>{});
 				// #endregion
 
 				// Redirect to the appropriate hybrid flow page
 				// For unified flow, preserve the fragment in the URL (tokens come in fragment)
 				setTimeout(() => {
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'HybridCallback.tsx:270',message:'BEFORE navigation',data:{targetRoute,isUnifiedFlow,hasFragment:!!window.location.hash,fragment:window.location.hash.substring(0,100)},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'NAVIGATION'})}).catch(()=>{});
 					// #endregion
 					
 					if (isUnifiedFlow && window.location.hash) {
@@ -286,14 +293,12 @@ const HybridCallback: React.FC = () => {
 						});
 						
 						// #region agent log
-						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'HybridCallback.tsx:278',message:'Calling window.location.replace',data:{redirectUrl:redirectUrl.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'NAVIGATION'})}).catch(()=>{});
 						// #endregion
 						
 						// Use window.location.replace to preserve fragment (React Router navigate doesn't preserve fragments reliably)
 						window.location.replace(redirectUrl);
 					} else {
 						// #region agent log
-						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'HybridCallback.tsx:283',message:'Calling navigate',data:{targetRoute},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'NAVIGATION'})}).catch(()=>{});
 						// #endregion
 						
 						navigate(targetRoute);
