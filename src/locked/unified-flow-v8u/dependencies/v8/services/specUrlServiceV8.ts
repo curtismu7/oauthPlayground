@@ -125,7 +125,6 @@ export class SpecUrlServiceV8 {
 		console.log(`${MODULE_TAG} Getting flow spec info for`, { flowType });
 		
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
@@ -233,7 +232,6 @@ export class SpecUrlServiceV8 {
 		versionSpecs: ReturnType<typeof SpecUrlServiceV8.getSpecUrls>
 	): void {
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({

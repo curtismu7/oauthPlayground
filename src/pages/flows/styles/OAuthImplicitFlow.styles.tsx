@@ -116,17 +116,13 @@ export const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 	}
 `;
 
-type CollapsibleToggleIconProps = Omit<
-	React.ComponentProps<typeof CollapsibleIcon>,
-	'isExpanded'
-> & {
+type CollapsibleToggleIconProps = Omit<React.ComponentProps<typeof CollapsibleIcon>, 'isExpanded'> & {
 	$collapsed?: boolean;
 };
 
-const CollapsibleToggleIconBase: React.FC<CollapsibleToggleIconProps> = ({
-	$collapsed,
-	...rest
-}) => <CollapsibleIcon isExpanded={!$collapsed} {...rest} />;
+const CollapsibleToggleIconBase: React.FC<CollapsibleToggleIconProps> = ({ $collapsed, ...rest }) => (
+	<CollapsibleIcon isExpanded={!$collapsed} {...rest} />
+);
 
 export const CollapsibleToggleIcon = styled(CollapsibleToggleIconBase)`
 	color: #ea580c;

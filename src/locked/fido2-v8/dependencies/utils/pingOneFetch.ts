@@ -200,7 +200,6 @@ export async function pingOneFetch(
 
 		// #region agent log - Debug instrumentation before fetch
 		try {
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -235,7 +234,6 @@ export async function pingOneFetch(
 
 			// #region agent log - Debug instrumentation after fetch
 			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({

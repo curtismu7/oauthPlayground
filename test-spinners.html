@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spinner Test</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            background: #3b82f6;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background: #2563eb;
+        }
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Unified Components Spinner Test</h1>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useCallback } = React;
+
+        // Mock ButtonSpinner component
+        const ButtonSpinner = ({ loading, children, disabled, spinnerSize = 16, spinnerPosition = 'left', loadingText, className = '', style = {}, ...buttonProps }) => {
+            const renderContent = () => {
+                if (!loading) return children;
+
+                if (spinnerPosition === 'center') {
+                    return (
+                        <>
+                            <span className="spinner" style={{ width: spinnerSize, height: spinnerSize }}></span>
+                            {loadingText && <span style={{ marginLeft: 8 }}>{loadingText}</span>}
+                        </>
+                    );
+                }
+
+                return (
+                    <>
+                        {spinnerPosition === 'left' && <span className="spinner" style={{ width: spinnerSize, height: spinnerSize }}></span>}
+                        {loadingText ? (
+                            <span style={{ marginLeft: spinnerPosition === 'left' ? 8 : 0 }}>
+                                {loadingText}
+                            </span>
+                        ) : (
+                            children
+                        )}
+                        {spinnerPosition === 'right' && <span className="spinner" style={{ width: spinnerSize, height: spinnerSize }}></span>}
+                    </>
+                );
+            };
+
+            return (
+                <button
+                    className={className}
+                    style={style}
+                    disabled={disabled || loading}
+                    {...buttonProps}
+                >
+                    {renderContent()}
+                </button>
+            );
+        };
+
+        // Test component
+        const SpinnerTest = () => {
+            const [isGeneratingAuthUrl, setIsGeneratingAuthUrl] = useState(false);
+            const [isExchangingTokens, setIsExchangingTokens] = useState(false);
+            const [isGeneratingPKCE, setIsGeneratingPKCE] = useState(false);
+            const [isFetchingUserInfo, setIsFetchingUserInfo] = useState(false);
+
+            const handleGenerateAuthUrl = async () => {
+                setIsGeneratingAuthUrl(true);
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate 2 second operation
+                setIsGeneratingAuthUrl(false);
+            };
+
+            const handleExchangeTokens = async () => {
+                setIsExchangingTokens(true);
+                await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate 3 second operation
+                setIsExchangingTokens(false);
+            };
+
+            const handleGeneratePKCE = async () => {
+                setIsGeneratingPKCE(true);
+                await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate 1.5 second operation
+                setIsGeneratingPKCE(false);
+            };
+
+            const handleFetchUserInfo = async () => {
+                setIsFetchingUserInfo(true);
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate 1 second operation
+                setIsFetchingUserInfo(false);
+            };
+
+            return (
+                <div>
+                    <h2>Testing Unified Flow Spinners</h2>
+                    
+                    <div className="test-section">
+                        <h3>Authorization URL Generation</h3>
+                        <ButtonSpinner
+                            loading={isGeneratingAuthUrl}
+                            onClick={handleGenerateAuthUrl}
+                            disabled={isGeneratingAuthUrl}
+                            spinnerSize={16}
+                            spinnerPosition="center"
+                            loadingText="Generating..."
+                            className="btn"
+                        >
+                            {isGeneratingAuthUrl ? '' : '🔗 Generate Authorization URL'}
+                        </ButtonSpinner>
+                    </div>
+
+                    <div className="test-section">
+                        <h3>Token Exchange</h3>
+                        <ButtonSpinner
+                            loading={isExchangingTokens}
+                            onClick={handleExchangeTokens}
+                            disabled={isExchangingTokens}
+                            spinnerSize={16}
+                            spinnerPosition="center"
+                            loadingText="Exchanging..."
+                            className="btn"
+                        >
+                            {isExchangingTokens ? '' : '🔄 Exchange Code for Tokens'}
+                        </ButtonSpinner>
+                    </div>
+
+                    <div className="test-section">
+                        <h3>PKCE Generation</h3>
+                        <ButtonSpinner
+                            loading={isGeneratingPKCE}
+                            onClick={handleGeneratePKCE}
+                            disabled={isGeneratingPKCE}
+                            spinnerSize={16}
+                            spinnerPosition="center"
+                            loadingText="Generating..."
+                            className="btn"
+                        >
+                            {isGeneratingPKCE ? '' : '🔑 Generate PKCE Parameters'}
+                        </ButtonSpinner>
+                    </div>
+
+                    <div className="test-section">
+                        <h3>UserInfo Fetching</h3>
+                        <ButtonSpinner
+                            loading={isFetchingUserInfo}
+                            onClick={handleFetchUserInfo}
+                            disabled={isFetchingUserInfo}
+                            spinnerSize={16}
+                            spinnerPosition="center"
+                            loadingText="Fetching..."
+                            className="btn"
+                        >
+                            {isFetchingUserInfo ? '' : '👤 Fetch UserInfo'}
+                        </ButtonSpinner>
+                    </div>
+
+                    <div className="test-section">
+                        <h3>Status Summary</h3>
+                        <ul>
+                            <li>Authorization URL: {isGeneratingAuthUrl ? '⏳ Loading...' : '✅ Ready'}</li>
+                            <li>Token Exchange: {isExchangingTokens ? '⏳ Loading...' : '✅ Ready'}</li>
+                            <li>PKCE Generation: {isGeneratingPKCE ? '⏳ Loading...' : '✅ Ready'}</li>
+                            <li>UserInfo Fetching: {isFetchingUserInfo ? '⏳ Loading...' : '✅ Ready'}</li>
+                        </ul>
+                    </div>
+                </div>
+            );
+        };
+
+        // Render the test component
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<SpinnerTest />);
+    </script>
+</body>
+</html>
