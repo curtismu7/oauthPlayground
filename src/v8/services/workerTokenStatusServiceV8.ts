@@ -6,7 +6,7 @@
  * @since 2024-11-16
  */
 
-import { workerTokenServiceV8 } from './workerTokenServiceV8';
+import { unifiedWorkerTokenServiceV2 } from '../../services/unifiedWorkerTokenServiceV2';
 
 const _MODULE_TAG = '[🔑 WORKER-TOKEN-STATUS-V8]';
 
@@ -18,6 +18,7 @@ export interface TokenStatusInfo {
 	isValid: boolean;
 	expiresAt?: number;
 	minutesRemaining?: number;
+	token?: string;
 }
 
 /**
@@ -45,103 +46,100 @@ export const formatTimeRemaining = (expiresAt: number): string => {
  * Check worker token status
  * Uses workerTokenServiceV8 as the single source of truth for worker token storage
  */
-export const checkWorkerTokenStatus = (
-	token?: string | null,
-	expiresAt?: number | null
-): TokenStatusInfo => {
-	// Get token from parameter or from workerTokenServiceV8 (global storage)
-	let resolvedToken = token ?? '';
-	let resolvedExpiry = typeof expiresAt === 'number' ? expiresAt : undefined;
-
-	// If token not provided, get from global storage (sync version for backwards compatibility)
-	if (!token) {
-		// Use workerTokenServiceV8 sync method
-		const credentials = workerTokenServiceV8.loadCredentialsSync();
-		if (credentials) {
-			// Try to get token from browser storage (unified service stores it there)
-			try {
-				const stored = localStorage.getItem('unified_worker_token');
-				if (stored) {
-					const data = JSON.parse(stored) as { token?: string };
-					if (data.token) {
-						resolvedToken = data.token;
-					}
+export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
+	console.log(`${_MODULE_TAG} 🔍 Checking worker token status using unified service V2`);
+	
+	try {
+		// Use the new unified worker token service V2
+		const status = await unifiedWorkerTokenServiceV2.getStatus();
+		const token = await unifiedWorkerTokenServiceV2.getToken();
+		
+		console.log(`${_MODULE_TAG} 🔍 Unified service status:`, status);
+		console.log(`${_MODULE_TAG} 🔍 Token available:`, !!token);
+		
+		if (!status.hasCredentials) {
+			return {
+				status: 'missing',
+				message: 'No worker token credentials. Click "Get Worker Token" to generate one.',
+				isValid: false,
+			};
+		}
+		
+		if (!status.hasToken) {
+			return {
+				status: 'missing',
+				message: 'No worker token. Click "Get Worker Token" to generate one.',
+				isValid: false,
+			};
+		}
+		
+		if (!status.tokenValid) {
+			if (status.tokenExpiresIn !== undefined && status.tokenExpiresIn <= 0) {
+				const result: TokenStatusInfo = {
+					status: 'expired',
+					message: 'Worker token expired. Click "Get Worker Token" to generate a new one.',
+					isValid: false,
+				};
+				if (status.lastFetchedAt) {
+					result.expiresAt = status.lastFetchedAt + (status.tokenExpiresIn * 1000);
 				}
-			} catch {
-				// Ignore errors
+				if (token) {
+					result.token = token;
+				}
+				return result;
+			} else {
+				const result: TokenStatusInfo = {
+					status: 'expiring-soon',
+					message: `Worker token expires in ${status.tokenExpiresIn} minutes.`,
+					isValid: true,
+				};
+				if (status.lastFetchedAt) {
+					result.expiresAt = status.lastFetchedAt + (status.tokenExpiresIn! * 1000);
+				}
+				if (status.tokenExpiresIn !== undefined) {
+					result.minutesRemaining = status.tokenExpiresIn;
+				}
+				if (token) {
+					result.token = token;
+				}
+				return result;
 			}
 		}
-	}
-
-	// If expiry not provided, get from global storage
-	if (typeof expiresAt !== 'number') {
-		// Read from unified service storage
-		try {
-			const stored = localStorage.getItem('unified_worker_token');
-			if (stored) {
-				const data = JSON.parse(stored) as { expiresAt?: number };
-				if (data.expiresAt) {
-					resolvedExpiry = data.expiresAt;
-				}
-			}
-		} catch {
-			// Ignore errors
+		
+		// Token is valid
+		const minutesRemaining = status.tokenExpiresIn;
+		let message = 'Worker token is valid.';
+		let tokenStatus: TokenStatus = 'valid';
+		
+		if (minutesRemaining !== undefined && minutesRemaining <= 5) {
+			message = `Worker token expires in ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''}.`;
+			tokenStatus = 'expiring-soon';
 		}
-	}
-
-	// No token
-	if (!resolvedToken) {
+		
+		const result: TokenStatusInfo = {
+			status: tokenStatus,
+			message,
+			isValid: true,
+		};
+		if (status.lastFetchedAt && status.tokenExpiresIn) {
+			result.expiresAt = status.lastFetchedAt + (status.tokenExpiresIn * 1000);
+		}
+		if (minutesRemaining !== undefined) {
+			result.minutesRemaining = minutesRemaining;
+		}
+		if (token) {
+			result.token = token;
+		}
+		return result;
+		
+	} catch (error) {
+		console.error(`${_MODULE_TAG} ❌ Error checking worker token status:`, error);
 		return {
 			status: 'missing',
-			message: 'No worker token. Click "Get Worker Token" to generate one.',
+			message: 'Error checking worker token status.',
 			isValid: false,
 		};
 	}
-
-	// Token exists but no expiry
-	if (!resolvedExpiry) {
-		return {
-			status: 'valid',
-			message: 'Worker token present (expiry unknown)',
-			isValid: true,
-		};
-	}
-
-	// Check if expired
-	const now = Date.now();
-	if (resolvedExpiry <= now) {
-		return {
-			status: 'expired',
-			message:
-				'Worker token expired. A valid worker token is required for MFA device registration and management operations.',
-			isValid: false,
-			expiresAt: resolvedExpiry,
-		};
-	}
-
-	// Calculate time remaining
-	const minutesRemaining = Math.floor((resolvedExpiry - now) / 60000);
-	const timeLabel = formatTimeRemaining(resolvedExpiry);
-
-	// Expiring soon (within 15 minutes)
-	if (minutesRemaining <= 15) {
-		return {
-			status: 'expiring-soon',
-			message: `Worker token expires in ${timeLabel}`,
-			isValid: true,
-			expiresAt: resolvedExpiry,
-			minutesRemaining,
-		};
-	}
-
-	// Valid
-	return {
-		status: 'valid',
-		message: `Worker token valid (${timeLabel} remaining)`,
-		isValid: true,
-		expiresAt: resolvedExpiry,
-		minutesRemaining,
-	};
 };
 
 /**
