@@ -12087,6 +12087,18 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					)}
 				</div>
 
+				{/* Debug logging for refresh token section */}
+				{(() => {
+					console.log(`${MODULE_TAG} [REFRESH TOKEN DEBUG]`, {
+						hasRefreshToken,
+						flowStateTokens: flowState.tokens,
+						refreshTokenValue: flowState.tokens?.refreshToken,
+						flowType,
+						currentStep,
+					});
+					return null;
+				})()}
+
 				{/* Token Refresh Section */}
 				{hasRefreshToken && (
 					<div
