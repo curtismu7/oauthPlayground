@@ -451,8 +451,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		method: string;
 		body: Record<string, unknown>;
 	} | null>(null);
-	const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
-const [preFlightValidationResult, setPreFlightValidationResult] = useState<{\
+const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
+const [preFlightValidationResult, setPreFlightValidationResult] = useState<{
 passed: boolean;
 		errors: string[];
 		warnings: string[];
@@ -6657,10 +6657,10 @@ passed: boolean;
 					<ErrorDisplayWithRetry
 						error={error}
 						onRetry={handleGenerateAuthUrl}
-						isLoading={isLoading}
-					/>
-				)}
-						</div>
+isLoading={isLoading}
+
+/>
+)})
 					</CollapsibleContent>
 				)}
 			</CollapsibleSection>
