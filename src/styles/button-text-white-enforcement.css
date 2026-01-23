@@ -119,7 +119,7 @@ button * {
 	color: inherit !important;
 }
 
-/* Disabled state - maintain contrast */
+/* Disabled state - maintain contrast and background color */
 .btn:disabled,
 .btn-primary:disabled,
 .btn-next:disabled,
@@ -132,6 +132,32 @@ button * {
 button:disabled {
 	opacity: 0.6;
 	cursor: not-allowed;
+}
+
+/* Ensure disabled buttons keep their intended background colors */
+.btn-next:disabled {
+	background: #10b981 !important;
+	color: #ffffff !important;
+}
+
+.btn-primary:disabled {
+	background: #3b82f6 !important;
+	color: #ffffff !important;
+}
+
+.btn-success:disabled {
+	background: #10b981 !important;
+	color: #ffffff !important;
+}
+
+.btn-token-none:disabled {
+	background: #ef4444 !important;
+	color: #ffffff !important;
+}
+
+.btn-token-has:disabled {
+	background: #10b981 !important;
+	color: #ffffff !important;
 }
 
 /**
