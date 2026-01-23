@@ -469,7 +469,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				addScope?: string;
 				responseType?: string;
 			};
-		};
+		}>;
 		appConfig?: {
 			tokenEndpointAuthMethod?: string;
 			pkceEnforced?: boolean;
