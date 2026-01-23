@@ -10943,10 +10943,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					break;
 			}
 
+			// Check for required credentials (client secret not required for public clients with PKCE)
 			if (
 				!credentials.environmentId ||
 				!credentials.clientId ||
-				!credentials.clientSecret ||
 				!tokenToIntrospect
 			) {
 				const errorMsg = `Missing required ${tokenName.toLowerCase()} for token introspection`;
@@ -10954,6 +10954,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					environmentId: credentials.environmentId,
 					clientId: credentials.clientId,
 					clientSecret: credentials.clientSecret ? 'present' : 'missing',
+					clientAuthMethod: credentials.clientAuthMethod,
 					tokenType,
 					tokenAvailable: !!tokenToIntrospect,
 				});
@@ -11013,6 +11014,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// Track API call for display
 				const { apiCallTrackerService: apiCallTrackerService5 } = await import('@/services/apiCallTrackerService');
 				const startTime5 = Date.now();
+				
 				const requestBody5 = {
 					token: '***REDACTED***',
 					token_type_hint:
@@ -11022,7 +11024,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								? 'id_token'
 								: 'access_token',
 					client_id: credentials.clientId,
-					client_secret: '***REDACTED***',
+					// Only include client_secret if it's available
+					...(credentials.clientSecret && { client_secret: '***REDACTED***' }),
 					introspection_endpoint: introspectionEndpoint,
 					token_auth_method: credentials.clientAuthMethod || 'client_secret_post',
 				};
@@ -11040,24 +11043,27 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					flowType: 'unified',
 				});
 
+				const requestBody = {
+					token: tokenToIntrospect,
+					token_type_hint:
+						tokenType === 'refresh'
+							? 'refresh_token'
+							: tokenType === 'id'
+								? 'id_token'
+								: 'access_token',
+					client_id: credentials.clientId,
+					// Only include client_secret if it's available
+					...(credentials.clientSecret && { client_secret: credentials.clientSecret }),
+					introspection_endpoint: introspectionEndpoint,
+					token_auth_method: credentials.clientAuthMethod || 'client_secret_post',
+				};
+
 				const response = await fetch(proxyEndpoint, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
-					body: JSON.stringify({
-						token: tokenToIntrospect,
-						token_type_hint:
-							tokenType === 'refresh'
-								? 'refresh_token'
-								: tokenType === 'id'
-									? 'id_token'
-									: 'access_token',
-						client_id: credentials.clientId,
-						client_secret: credentials.clientSecret,
-						introspection_endpoint: introspectionEndpoint,
-						token_auth_method: credentials.clientAuthMethod || 'client_secret_post',
-					}),
+					body: JSON.stringify(requestBody),
 				});
 
 				// Parse response once (clone first to avoid consuming the body)
