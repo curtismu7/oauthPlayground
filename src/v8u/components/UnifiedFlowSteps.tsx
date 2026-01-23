@@ -452,8 +452,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		body: Record<string, unknown>;
 	} | null>(null);
 	const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
-	const [preFlightValidationResult, setPreFlightValidationResult] = useState<{
-		passed: boolean;
+const [preFlightValidationResult, setPreFlightValidationResult] = useState<{\
+passed: boolean;
 		errors: string[];
 		warnings: string[];
 		fixableErrors?: Array<{
