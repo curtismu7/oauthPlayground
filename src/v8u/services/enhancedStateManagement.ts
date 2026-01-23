@@ -7,7 +7,7 @@ import React, {
 	type ReactNode,
 } from 'react';
 import { TokenMonitoringService, type ApiCall } from './tokenMonitoringService';
-import { workerTokenManager } from '../../services/workerTokenManager';
+import { unifiedWorkerTokenServiceV2 } from '../../services/unifiedWorkerTokenServiceV2';
 
 export type ThemePreference = 'light' | 'dark' | 'auto';
 
@@ -323,7 +323,7 @@ const getRealMetrics = async (): Promise<Partial<UnifiedFlowMetrics>> => {
 		};
 		
 		try {
-			const workerTokenStatus = await workerTokenManager.getStatus();
+			const workerTokenStatus = await unifiedWorkerTokenServiceV2.getStatus();
 			workerTokenMetrics = {
 				hasWorkerToken: workerTokenStatus.hasToken || false,
 				workerTokenValid: workerTokenStatus.tokenValid || false,
