@@ -3,7 +3,7 @@
 
 import type { FlowCredentials, WorkerTokenCredentials } from '../types/credentials';
 import { credentialStorageManager } from './credentialStorageManager';
-import { workerTokenManager } from './workerTokenManager';
+import { unifiedWorkerTokenServiceV2 } from './unifiedWorkerTokenServiceV2';
 
 export interface MigrationReport {
 	totalOldCredentials: number;
@@ -238,8 +238,9 @@ export class CredentialMigrationService {
 				if (!dryRun) {
 					// Save to new system
 					if (pattern.flowKey === 'worker-token-credentials') {
-						// Special handling for Worker Token
-						await workerTokenManager.saveCredentials(newCredentials as WorkerTokenCredentials);
+						// Special handling for Worker Token - use the optimized service
+						const workerTokenRepo = (await import('./workerTokenRepository')).WorkerTokenRepository.getInstance();
+						await workerTokenRepo.saveCredentials(newCredentials as WorkerTokenCredentials);
 					} else {
 						// Regular flow credentials
 						await credentialStorageManager.saveFlowCredentials(pattern.flowKey, newCredentials);
