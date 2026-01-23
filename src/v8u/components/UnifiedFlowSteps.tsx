@@ -1903,8 +1903,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						sessionStorage.removeItem('v8u_callback_data');
 					}
 
+					// Auto-navigate to next step after successful callback processing
+					setTimeout(() => {
+						goToNext();
+					}, 1000); // Give user time to see the success modal
+
 					console.log(
-						`${MODULE_TAG} Hybrid flow: Callback data extracted, success modal shown, step marked complete`
+						`${MODULE_TAG} Hybrid flow: Callback data extracted, success modal shown, step marked complete, auto-navigating to next step`
 					);
 					return;
 				} else {
@@ -1987,7 +1992,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						sessionStorage.removeItem('v8u_callback_data');
 					}
 
-					console.log(`${MODULE_TAG} Authorization code extracted - showing success modal`);
+					// Auto-navigate to next step after successful callback processing
+					setTimeout(() => {
+						goToNext();
+					}, 1000); // Give user time to see the success modal
+
+					console.log(`${MODULE_TAG} Authorization code extracted - showing success modal, auto-navigating to next step`);
 				} catch (err) {
 					console.error(`${MODULE_TAG} Failed to auto-parse callback URL`, err);
 					// If auto-parsing fails, just set the URL so user can manually parse
@@ -2144,6 +2154,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			nav.markStepComplete();
 			toastV8.tokenExchangeSuccess();
 			toastV8.stepCompleted(2);
+
+			// Auto-navigate to next step after successful fragment parsing
+			setTimeout(() => {
+				goToNext();
+			}, 1000); // Give user time to see the success modal
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Failed to parse callback fragment';
 			setError(message);
