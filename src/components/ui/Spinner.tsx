@@ -36,7 +36,8 @@ export const Spinner: React.FC<SpinnerProps> = ({
         color,
         display: 'inline-flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        background: 'transparent'
       }}
       role="status"
       aria-label={label}
