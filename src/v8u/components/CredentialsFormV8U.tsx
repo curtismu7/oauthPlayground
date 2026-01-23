@@ -65,7 +65,7 @@ import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { analytics } from '@/v8/utils/analyticsV8';
 import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
@@ -498,9 +498,11 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const [showAppDiscoveryModal, setShowAppDiscoveryModal] = useState(false);
 	const [hasDiscoveredApps, setHasDiscoveredApps] = useState(false);
 	const [highlightEmptyFields, setHighlightEmptyFields] = useState(false);
-	const [tokenStatus, setTokenStatus] = useState(() =>
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
-	);
+	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>(() => ({
+		status: 'missing',
+		message: 'Checking worker token status...',
+		isValid: false,
+	}));
 	
 	// Worker Token Settings
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
@@ -863,19 +865,28 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 	// Check token status and listen for updates
 	useEffect(() => {
-		const checkStatus = () => {
-			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			console.log(`${MODULE_TAG} Token status updated`, status);
-			console.log(`${MODULE_TAG} Raw token status check:`, {
-				isValid: status.isValid,
-				message: status.message,
-				status: status.status,
-				hasToken: !!status.token,
-				tokenLength: status.token?.length,
-				expiresAt: status.expiresAt,
-				isExpired: status.isExpired,
-			});
-			setTokenStatus(status);
+		const checkStatus = async () => {
+			try {
+				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				console.log(`${MODULE_TAG} Token status updated`, status);
+				console.log(`${MODULE_TAG} Raw token status check:`, {
+					isValid: status.isValid,
+					status: status.status,
+					message: status.message,
+					hasToken: !!status.token,
+					tokenLength: status.token?.length,
+				});
+				setTokenStatus(status);
+			} catch (error) {
+				console.error(`${MODULE_TAG} Error checking token status:`, error);
+				// Fallback to sync check for backwards compatibility
+				const fallbackStatus = {
+					status: 'missing' as const,
+					message: 'Error checking worker token status.',
+					isValid: false,
+				};
+				setTokenStatus(fallbackStatus);
+			}
 		};
 
 		// Check immediately
@@ -2050,7 +2061,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 														
 														// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 														if (newValue) {
-															const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+															const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 															if (!currentStatus.isValid) {
 																console.log('[CREDENTIALS-FORM-V8U] Silent API retrieval enabled, attempting to fetch token now...');
 																const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
@@ -4770,7 +4781,12 @@ Why it matters: Backend services communicate server-to-server without user conte
 						// Check if we should show token only (matches MFA pattern)
 						try {
 							const config = MFAConfigurationServiceV8.loadConfiguration();
-							const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+							// Use sync check for modal display (async will be too slow for UI)
+							const tokenStatus = {
+								status: 'missing' as const,
+								message: 'Checking worker token status...',
+								isValid: false,
+							};
 							
 							// Show token-only if showTokenAtEnd is ON and token is valid
 							const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
@@ -4781,16 +4797,15 @@ Why it matters: Backend services communicate server-to-server without user conte
 									onClose={() => {
 										setShowWorkerTokenModal(false);
 										// Refresh token status when modal closes (matches MFA pattern)
-										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+										WorkerTokenStatusServiceV8.checkWorkerTokenStatus().then(setTokenStatus);
 									}}
 						onTokenGenerated={() => {
 										// Match MFA pattern exactly
 										window.dispatchEvent(new Event('workerTokenUpdated'));
-								const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-								setTokenStatus(newStatus);
+								WorkerTokenStatusServiceV8.checkWorkerTokenStatus().then(setTokenStatus);
 										toastV8.success('Worker token generated and saved!');
 									}}
-									environmentId={credentials.environmentId}
+						environmentId={credentials.environmentId}
 									showTokenOnly={showTokenOnly}
 								/>
 							);
@@ -4800,16 +4815,15 @@ Why it matters: Backend services communicate server-to-server without user conte
 									isOpen={showWorkerTokenModal}
 									onClose={() => {
 										setShowWorkerTokenModal(false);
-										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+										WorkerTokenStatusServiceV8.checkWorkerTokenStatus().then(setTokenStatus);
 									}}
 									onTokenGenerated={() => {
 							window.dispatchEvent(new Event('workerTokenUpdated'));
-										const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-										setTokenStatus(newStatus);
+										WorkerTokenStatusServiceV8.checkWorkerTokenStatus().then(setTokenStatus);
 							toastV8.success('Worker token generated and saved!');
 						}}
 						environmentId={credentials.environmentId}
-					/>
+						/>
 							);
 						}
 					})()}
