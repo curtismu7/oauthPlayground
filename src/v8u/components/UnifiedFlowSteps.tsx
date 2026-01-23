@@ -315,6 +315,39 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Credentials received - no verbose logging needed
 
 	/**
+	 * Get the correct step index for displaying tokens based on flow type
+	 */
+	const getTokensStepIndex = (): number => {
+		switch (flowType) {
+			case 'client-credentials':
+				return 2; // Config → Token Request → **Tokens** → Introspection & UserInfo → Documentation
+			case 'device-code':
+				return 3; // Config → Device Auth → Poll → **Tokens** → Introspection & UserInfo → Documentation
+			case 'implicit':
+				return 3; // Config → Auth URL → Fragment → **Tokens** → Introspection & UserInfo → Documentation
+			case 'hybrid':
+				return 5; // Config → PKCE → Auth URL → Parse Callback → Exchange → **Tokens** → Introspection & UserInfo → Documentation
+			default:
+				// oauth-authz flow
+				return 5; // Config → PKCE → Auth URL → Handle Callback → Exchange → **Tokens** → Introspection & UserInfo → Documentation
+		}
+	};
+
+	/**
+	 * Get the correct step index for callback handling based on flow type
+	 */
+	const getCallbackStepIndex = (): number => {
+		switch (flowType) {
+			case 'oauth-authz':
+				return isPKCERequired ? 3 : 2; // Config → PKCE → **Callback** → Exchange → Tokens
+			case 'hybrid':
+				return 3; // Config → PKCE → Auth URL → **Parse Callback** → Exchange → Tokens
+			default:
+				return 2; // Default fallback
+		}
+	};
+
+	/**
 	 * Calculate total number of steps for the current flow type
 	 *
 	 * Step counts vary by flow type:
@@ -3768,9 +3801,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				toastV8.success('✅ Tokens obtained successfully via redirectless authentication!');
 
-				// Navigate to tokens step
-				// Find the tokens step index (varies by flow type)
-				const tokensStepIndex = totalSteps - 2; // Second to last step is tokens
+				// Navigate to tokens step using the correct index for this flow type
+				const tokensStepIndex = getTokensStepIndex();
 				navigateToStep(tokensStepIndex);
 			} catch (err) {
 				const message =
@@ -4032,8 +4064,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						setIsRedirectlessAuthenticating(false);
 						toastV8.success('✅ Authentication completed successfully! Tokens received.');
 
-						// Navigate to tokens step
-						const tokensStepIndex = totalSteps - 2;
+						// Navigate to tokens step using the correct index for this flow type
+						const tokensStepIndex = getTokensStepIndex();
 						navigateToStep(tokensStepIndex);
 					} else if (authCode) {
 						// Authorization code received - proceed to token exchange
@@ -4056,9 +4088,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							setIsRedirectlessAuthenticating(false);
 							toastV8.success('✅ Authorization code received! Proceeding to token exchange.');
 
-							// Navigate to callback step
-							const callbackStepIndex =
-								flowType === 'oauth-authz' || flowType === 'hybrid' ? (isPKCERequired ? 3 : 2) : 2;
+							// Navigate to callback step using the correct index for this flow type
+							const callbackStepIndex = getCallbackStepIndex();
 							navigateToStep(callbackStepIndex);
 						}
 					} else {
