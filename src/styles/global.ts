@@ -83,7 +83,7 @@ export const GlobalStyle = createGlobalStyle`
     font-family: ${({ theme }) => theme.fonts.body};
     line-height: 1.5;
     color: ${({ theme }) => theme.colors.gray900};
-    background-color: #f9fafb; /* Match Container background to prevent white bottom */
+    background-color: transparent; /* Changed from #f9fafb to transparent for modal spinner */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     height: 100%;
