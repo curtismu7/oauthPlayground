@@ -11407,27 +11407,34 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Step number varies by flow type
 	// ALWAYS SHOWS - even without tokens, to inform users what they can/cannot do
 	const renderStep6IntrospectionUserInfo = () => {
+		// Check if we have tokens (needed for actual operations)
+		const hasAccessToken = !!flowState.tokens?.accessToken;
+		const hasRefreshToken = !!flowState.tokens?.refreshToken;
+		const hasIdToken = !!flowState.tokens?.idToken;
+		
 		// Get operation rules to determine what's allowed
 		// Use the actual scopes that were sent (including offline_access if enableRefreshToken was true)
 		const scopesForRules = credentials.scopes || '';
 		const operationRules = TokenOperationsServiceV8.getOperationRules(flowType, scopesForRules);
 		
-		// Debug logging
-		console.log(`${MODULE_TAG} [INTROSPECTION] Operation rules check`, {
+		// Debug logging for button state
+		console.log(`${MODULE_TAG} [INTROSPECTION BUTTON DEBUG]`, {
 			flowType,
-			scopes: scopesForRules,
-			canIntrospectAccessToken: operationRules.canIntrospectAccessToken,
-			canIntrospectRefreshToken: operationRules.canIntrospectRefreshToken,
-			hasAccessToken: !!flowState.tokens?.accessToken,
-			hasRefreshToken: !!flowState.tokens?.refreshToken,
-			clientAuthMethod: credentials.clientAuthMethod,
-			introspectionReason: operationRules.introspectionReason,
+			scopes: credentials.scopes,
+			hasAccessToken,
+			hasRefreshToken,
+			hasIdToken,
+			selectedTokenType,
+			operationRules,
+			buttonDisabled: (selectedTokenType === 'access' &&
+				(!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
+				(selectedTokenType === 'refresh' &&
+					(!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
+				(selectedTokenType === 'id' &&
+					(!hasIdToken || !operationRules.canIntrospectIdToken)) ||
+				introspectionLoading,
+			introspectionLoading,
 		});
-
-		// Check if we have tokens (needed for actual operations)
-		const hasAccessToken = !!flowState.tokens?.accessToken;
-		const hasRefreshToken = !!flowState.tokens?.refreshToken;
-		const hasIdToken = !!flowState.tokens?.idToken;
 
 		// Determine step number dynamically based on flow type
 		const introspectionStepNumber = (() => {
