@@ -21,7 +21,7 @@ import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
 
@@ -78,7 +78,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				if (tokenStatus.isValid || showTokenOnly) {
 					const config = MFAConfigurationServiceV8.loadConfiguration();
 					if (config.workerToken.showTokenAtEnd || showTokenOnly) {
-						const token = await workerTokenServiceV8.getToken();
+						const token = await unifiedWorkerTokenServiceV2.getToken();
 						if (token) {
 							setCurrentToken(token);
 							setShowTokenDisplay(true);
@@ -123,8 +123,8 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	// Load saved credentials on mount
 	React.useEffect(() => {
 		if (isOpen) {
-			// Load from workerTokenServiceV8 (the correct storage location)
-			workerTokenServiceV8.loadCredentials().then((creds) => {
+			// Load from unifiedWorkerTokenService (the correct storage location)
+			unifiedWorkerTokenServiceV2.loadCredentials().then((creds: any) => {
 				if (creds) {
 					setEnvironmentId(creds.environmentId || propEnvironmentId);
 					setClientId(creds.clientId || '');
@@ -135,7 +135,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					setRegion(creds.region || 'us');
 					setCustomDomain(creds.customDomain || '');
 					setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');
-					console.log(`${MODULE_TAG} Loaded credentials from workerTokenServiceV8`);
+					console.log(`${MODULE_TAG} Loaded credentials from unifiedWorkerTokenService`);
 				} else {
 					// Fallback to old storage location for backwards compatibility
 					const saved = localStorage.getItem('worker_credentials_v8');
@@ -158,7 +158,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					}
 				}
 			}).catch((error) => {
-				console.error(`${MODULE_TAG} Failed to load credentials from workerTokenServiceV8:`, error);
+				console.error(`${MODULE_TAG} Failed to load credentials from unifiedWorkerTokenService:`, error);
 			});
 		}
 	}, [isOpen, propEnvironmentId]);
@@ -202,13 +202,13 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				tokenEndpointAuthMethod: authMethod,
 			};
 
-			await workerTokenServiceV8.saveCredentials(credentials);
+			await unifiedWorkerTokenServiceV2.saveCredentials(credentials);
 
 			// Run preflight validation
 			setLoadingMessage('✅ Validating configuration against PingOne...');
 			
 			const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
-			const workerToken = await workerTokenServiceV8.getToken();
+			const workerToken = await unifiedWorkerTokenServiceV2.getToken();
 			
 			if (!workerToken) {
 				throw new Error('No worker token available for preflight validation. Please ensure worker token credentials are properly saved.');
@@ -247,7 +247,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 			// Save credentials if checkbox is checked (already saved above, but keeping for consistency)
 			if (saveCredentials) {
-				console.log(`${MODULE_TAG} Credentials already saved to workerTokenServiceV8`);
+				console.log(`${MODULE_TAG} Credentials already saved to unifiedWorkerTokenService`);
 			}
 
 			// Build token endpoint - use custom domain if provided, otherwise use region-based domain
@@ -316,9 +316,8 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				.map((scope) => scope.trim())
 				.filter(Boolean);
 
-			// First, save credentials to workerTokenServiceV8
-			const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
-			await workerTokenServiceV8.saveCredentials({
+			// First, save credentials to unifiedWorkerTokenService
+			await unifiedWorkerTokenServiceV2.saveCredentials({
 				environmentId: environmentId.trim(),
 				clientId: clientId.trim(),
 				clientSecret: clientSecret.trim(),
@@ -408,9 +407,9 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				throw new Error('No access token received in response');
 			}
 
-			// Now store token using workerTokenServiceV8 (credentials are already saved)
+			// Now store token using unifiedWorkerTokenService (credentials are already saved)
 			const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
-			await workerTokenServiceV8.saveToken(token, expiresAt);
+			await unifiedWorkerTokenServiceV2.saveToken(token, expiresAt);
 
 			// Dispatch event for status update
 			console.log(`${MODULE_TAG} 🔑 Dispatching workerTokenUpdated event`);
@@ -585,7 +584,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											onClick={async () => {
 												if (currentToken) {
 													try {
-														await workerTokenServiceV8.saveToken(currentToken);
+														await unifiedWorkerTokenServiceV2.saveToken(currentToken);
 														toastV8.success('Token saved successfully!');
 													} catch (error) {
 														console.error(`${MODULE_TAG} Failed to save token:`, error);
@@ -682,7 +681,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											onClick={async () => {
 												if (currentToken) {
 													try {
-														await workerTokenServiceV8.saveToken(currentToken);
+														await unifiedWorkerTokenServiceV2.saveToken(currentToken);
 														toastV8.success('Token saved successfully!');
 													} catch (error) {
 														console.error(`${MODULE_TAG} Failed to save token:`, error);
