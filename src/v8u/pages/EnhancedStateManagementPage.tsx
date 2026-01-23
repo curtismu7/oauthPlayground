@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FiDatabase, FiRefreshCw, FiRotateCcw, FiDownload, FiUpload, FiTrash2, FiSettings, FiActivity, FiClock, FiWifi, FiCheckCircle, FiAlertTriangle, FiZap, FiBell, FiBellOff } from 'react-icons/fi';
-import { useUnifiedFlowState, stateUtils } from '../services/enhancedStateManagementV2';
-import { initialState } from '../services/enhancedStateManagementV2';
+import { useUnifiedFlowState, stateUtils } from '../services/enhancedStateManagement';
+import { TokenMonitoringService } from '../services/tokenMonitoringService';
 
 const PageContainer = styled.div`
   padding: 2rem;
@@ -348,35 +348,23 @@ const SuccessMessage = styled.div`
 `;
 
 export const EnhancedStateManagementPage: React.FC = () => {
-  const { state, dispatch } = useUnifiedFlowState();
+  const { state, actions } = useUnifiedFlowState();
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
   const [isExporting, setIsExporting] = useState(false);
-
-  // Helper functions for undo/redo
-  const canUndo = () => state.history.past.length > 0;
-  const canRedo = () => state.history.future.length > 0;
-  const undo = () => {
-    if (canUndo()) {
-      dispatch({ type: 'UNDO' });
-      return true;
-    }
-    return false;
-  };
-  const redo = () => {
-    if (canRedo()) {
-      dispatch({ type: 'REDO' });
-      return true;
-    }
-    return false;
-  };
   const [isImporting, setIsImporting] = useState(false);
+
+  // Auto-update real metrics on mount
+  useEffect(() => {
+    actions.updateRealMetrics();
+  }, [actions]);
 
   // Export state
   const handleExport = async () => {
+    console.log('handleExport called');
     try {
       setIsExporting(true);
-      const stateData = stateUtils.exportState(state);
+      const stateData = stateUtils.exportAllState();
       
       if (!stateData) {
         throw new Error('Failed to export state data');
@@ -399,7 +387,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
       setMessageType('success');
     } catch (error) {
       console.error('Failed to export state:', error);
-      setMessage('Failed to export state data');
+      setMessage(`Failed to export state: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setMessageType('error');
     } finally {
       setIsExporting(false);
@@ -414,10 +402,10 @@ export const EnhancedStateManagementPage: React.FC = () => {
     try {
       setIsImporting(true);
       const text = await file.text();
-      const importedState = stateUtils.importState(text);
+      const importedState = JSON.parse(text);
       
       if (importedState) {
-        dispatch({ type: 'LOAD_STATE', payload: importedState });
+        stateUtils.importAllState(importedState);
         setMessage('State imported successfully');
         setMessageType('success');
       }
@@ -427,45 +415,29 @@ export const EnhancedStateManagementPage: React.FC = () => {
     } finally {
       setIsImporting(false);
       // Clear the file input
-      event.target.value = '';
+      if (event.target) {
+        event.target.value = '';
+      }
     }
   };
 
   // Reset all state
   const handleResetAll = () => {
-    dispatch({ type: 'LOAD_STATE', payload: initialState });
+    console.log('handleResetAll called');
+    stateUtils.resetAllState();
     setMessage('All state has been reset to defaults');
     setMessageType('info');
   };
 
-  // Clear history
-  const handleClearHistory = () => {
-    dispatch({ type: 'LOAD_STATE', payload: { ...state, history: { past: [], present: [], future: [] } } });
-    setMessage('History cleared successfully');
-    setMessageType('info');
-  };
-
-  // Test undo/redo
-  const handleUndo = () => {
-    const success = undo();
-    setMessage(success ? 'Undo successful' : 'Nothing to undo');
-    setMessageType(success ? 'success' : 'info');
-  };
-
-  const handleRedo = () => {
-    const success = redo();
-    setMessage(success ? 'Redo successful' : 'Nothing to redo');
-    setMessageType(success ? 'success' : 'info');
-  };
-
-  // Get state statistics
-  const flowStats = stateUtils.getFlowStats(state.flows);
+  // Get real statistics
   const stats = {
-    ...flowStats,
-    unifiedFlow: { total: flowStats.total, active: flowStats.active },
-    performance: { renderTime: '2.3ms', memoryUsage: '12.4MB' },
-    history: { past: state.history.past.length, future: state.history.future.length },
-    offline: { enabled: true, synced: true, lastSync: new Date().toISOString() },
+    unifiedFlow: state.unifiedFlow,
+    performance: state.performance,
+    history: {
+      pastCount: 0, // Not tracking history in this version
+      futureCount: 0,
+    },
+    offline: state.offline,
   };
 
   return (
@@ -501,7 +473,25 @@ export const EnhancedStateManagementPage: React.FC = () => {
             <FiDatabase />
           </StatIcon>
           <StatValue>{stats?.unifiedFlow?.tokenCount || 0}</StatValue>
-          <StatLabel>Active Tokens</StatLabel>
+          <StatLabel>Total Tokens</StatLabel>
+        </StatCard>
+        
+        <StatCard>
+          <StatIcon $color="#8b5cf6">
+            <FiSettings />
+          </StatIcon>
+          <StatValue>
+            {(() => {
+              try {
+                const service = TokenMonitoringService.getInstance();
+                const tokens = service.getAllTokens();
+                return tokens.filter((t: any) => t.type === 'worker_token').length;
+              } catch {
+                return 0;
+              }
+            })()}
+          </StatValue>
+          <StatLabel>Worker Tokens</StatLabel>
         </StatCard>
         
         <StatCard>
@@ -530,10 +520,10 @@ export const EnhancedStateManagementPage: React.FC = () => {
         
         <StatCard>
           <StatIcon $color="#8b5cf6">
-            <FiRotateCcw />
+            <FiActivity />
           </StatIcon>
-          <StatValue>{stats?.history?.pastCount || 0}</StatValue>
-          <StatLabel>History States</StatLabel>
+          <StatValue>{stats?.unifiedFlow?.apiCallCount || 0}</StatValue>
+          <StatLabel>API Calls</StatLabel>
         </StatCard>
         
         <StatCard>
@@ -599,29 +589,146 @@ export const EnhancedStateManagementPage: React.FC = () => {
         )}
       </SectionContainer>
 
-      {/* History Management */}
+      {/* Worker Token Status */}
       <SectionContainer>
         <SectionHeader>
           <SectionIcon>
-            <FiRotateCcw />
+            <FiDatabase />
           </SectionIcon>
-          History Management
+          <SectionTitle>Worker Token Status</SectionTitle>
         </SectionHeader>
-        <div
-          style={{
-            color: '#64748b',
-            marginTop: '0.5rem',
-          }}
-        >
-          <p>
-            <strong>History Size:</strong> {stats?.history?.past || 0} states
-          </p>
-          <p>
-            <strong>Can Undo:</strong> {canUndo() ? 'Yes' : 'No'}
-          </p>
-          <p>
-            <strong>Can Redo:</strong> {canRedo() ? 'Yes' : 'No'}
-          </p>
+        
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '1rem',
+        }}>
+          <div style={{
+            padding: '1rem',
+            background: stats?.unifiedFlow?.workerTokenMetrics?.hasWorkerToken ? '#f0fdf4' : '#fef2f2',
+            border: `1px solid ${stats?.unifiedFlow?.workerTokenMetrics?.hasWorkerToken ? '#86efac' : '#fecaca'}`,
+            borderRadius: '8px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+              {stats?.unifiedFlow?.workerTokenMetrics?.hasWorkerToken ? 'Available' : 'None'}
+            </div>
+            <div style={{ fontSize: '0.875rem', color: '#64748b' }}>
+              Worker Token
+            </div>
+          </div>
+          
+          <div style={{
+            padding: '1rem',
+            background: stats?.unifiedFlow?.workerTokenMetrics?.workerTokenValid ? '#f0fdf4' : '#fef3c7',
+            border: `1px solid ${stats?.unifiedFlow?.workerTokenMetrics?.workerTokenValid ? '#86efac' : '#fbbf24'}`,
+            borderRadius: '8px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+              {stats?.unifiedFlow?.workerTokenMetrics?.workerTokenValid ? 'Valid' : 'Invalid'}
+            </div>
+            <div style={{ fontSize: '0.875rem', color: '#64748b' }}>
+              Token Status
+            </div>
+          </div>
+          
+          <div style={{
+            padding: '1rem',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+              {stats?.unifiedFlow?.workerTokenMetrics?.workerTokenExpiry 
+                ? new Date(stats.unifiedFlow.workerTokenMetrics.workerTokenExpiry).toLocaleTimeString()
+                : 'Never'
+              }
+            </div>
+            <div style={{ fontSize: '0.875rem', color: '#64748b' }}>
+              Expires At
+            </div>
+          </div>
+          
+          <div style={{
+            padding: '1rem',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+              {stats?.unifiedFlow?.workerTokenMetrics?.lastWorkerTokenRefresh 
+                ? new Date(stats.unifiedFlow.workerTokenMetrics.lastWorkerTokenRefresh).toLocaleTimeString()
+                : 'Never'
+              }
+            </div>
+            <div style={{ fontSize: '0.875rem', color: '#64748b' }}>
+              Last Refresh
+            </div>
+          </div>
+        </div>
+      </SectionContainer>
+
+      {/* Performance Metrics */}
+      <SectionContainer>
+        <SectionHeader>
+          <SectionIcon>
+            <FiActivity />
+          </SectionIcon>
+          <SectionTitle>Performance Metrics</SectionTitle>
+        </SectionHeader>
+        
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '1rem',
+        }}>
+          <div style={{
+            padding: '1rem',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+              {stats?.unifiedFlow?.performanceMetrics?.avgResponseTime || 0}ms
+            </div>
+            <div style={{ fontSize: '0.875rem', color: '#64748b' }}>
+              Avg Response Time
+            </div>
+          </div>
+          
+          <div style={{
+            padding: '1rem',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+              {stats?.unifiedFlow?.performanceMetrics?.successRate || 100}%
+            </div>
+            <div style={{ fontSize: '0.875rem', color: '#64748b' }}>
+              Success Rate
+            </div>
+          </div>
+          
+          <div style={{
+            padding: '1rem',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+              {stats?.unifiedFlow?.lastApiCall ? new Date(stats.unifiedFlow.lastApiCall).toLocaleTimeString() : 'Never'}
+            </div>
+            <div style={{ fontSize: '0.875rem', color: '#64748b' }}>
+              Last API Call
+            </div>
+          </div>
         </div>
       </SectionContainer>
 
@@ -719,22 +826,14 @@ export const EnhancedStateManagementPage: React.FC = () => {
             style={{ display: 'none' }}
             id="state-import-input"
           />
-          <label 
+          <ExportImportButton 
+            as="label" 
             htmlFor="state-import-input"
-            style={{
-              padding: '0.75rem 1.5rem',
-              borderRadius: '6px',
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              cursor: isImporting ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
+            disabled={isImporting}
+            style={{ cursor: isImporting ? 'not-allowed' : 'pointer' }}
           >
             <FiUpload /> {isImporting ? 'Importing...' : 'Import State'}
-          </label>
+          </ExportImportButton>
         </ExportImportControls>
         
         <div style={{
@@ -757,9 +856,16 @@ export const EnhancedStateManagementPage: React.FC = () => {
           <FiTrash2 /> Reset All State
         </ActionButton>
         <ActionButton onClick={() => {
-          actions.setTheme('auto');
-          setMessage('Theme set to auto');
-          setMessageType('info');
+          console.log('Theme reset button clicked');
+          try {
+            actions.setTheme('auto');
+            setMessage('Theme set to auto');
+            setMessageType('info');
+          } catch (error) {
+            console.error('Failed to reset theme:', error);
+            setMessage('Failed to reset theme');
+            setMessageType('error');
+          }
         }}>
           <FiSettings /> Reset Theme
         </ActionButton>
@@ -769,6 +875,13 @@ export const EnhancedStateManagementPage: React.FC = () => {
           setMessageType('info');
         }}>
           {state.notifications ? <FiBell /> : <FiBellOff />} Toggle Notifications
+        </ActionButton>
+        <ActionButton onClick={() => {
+          actions.updateRealMetrics();
+          setMessage('Real metrics updated');
+          setMessageType('success');
+        }}>
+          <FiRefreshCw /> Update Real Metrics
         </ActionButton>
       </ActionButtons>
     </PageContainer>

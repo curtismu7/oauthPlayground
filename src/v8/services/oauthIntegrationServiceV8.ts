@@ -272,11 +272,16 @@ export class OAuthIntegrationServiceV8 {
 		expectedState: string
 	): { code: string; state: string } {
 		try {
+			console.log(`[🔐 OAUTH-INTEGRATION-V8] Parsing callback URL:`, callbackUrl);
+			console.log(`[🔐 OAUTH-INTEGRATION-V8] Expected state:`, expectedState);
+			
 			const url = new URL(callbackUrl);
 			const code = url.searchParams.get('code');
 			const state = url.searchParams.get('state');
 			const error = url.searchParams.get('error');
 			const errorDescription = url.searchParams.get('error_description');
+
+			console.log(`[🔐 OAUTH-INTEGRATION-V8] URL params extracted:`, { code: code ? '***REDACTED***' : null, state, error, errorDescription });
 
 			// Check for error in callback
 			if (error) {
@@ -285,6 +290,11 @@ export class OAuthIntegrationServiceV8 {
 
 			// Validate code
 			if (!code) {
+				const allParams = {};
+				url.searchParams.forEach((value, key) => {
+					allParams[key] = value;
+				});
+				console.log(`[🔐 OAUTH-INTEGRATION-V8] All URL params:`, allParams);
 				throw new Error('Authorization code not found in callback URL');
 			}
 
@@ -297,11 +307,10 @@ export class OAuthIntegrationServiceV8 {
 				throw new Error('State parameter mismatch - possible CSRF attack');
 			}
 
-			console.log(`${MODULE_TAG} Callback URL parsed successfully`);
-
+			console.log(`[🔐 OAUTH-INTEGRATION-V8] Successfully parsed callback URL`);
 			return { code, state };
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error parsing callback URL`, { error });
+			console.error(`[🔐 OAUTH-INTEGRATION-V8] Error parsing callback URL`, error);
 			throw error;
 		}
 	}
