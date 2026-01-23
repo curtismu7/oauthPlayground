@@ -6254,17 +6254,48 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				</CollapsibleSection>
 			)}
 
-			{/* Action Section */}
-				<div
+			{/* Authorization URL Generator Section */}
+			<CollapsibleSection>
+				<CollapsibleHeaderButton
+					onClick={() => setAuthUrlGeneratorCollapsed(!authUrlGeneratorCollapsed)}
+					aria-expanded={!authUrlGeneratorCollapsed}
 					style={{
-						background: '#f9fafb',
-						border: '1px solid #e5e7eb',
+						background: flowState.authorizationUrl 
+							? 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)'
+							: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+						color: flowState.authorizationUrl ? '#059669' : '#1e40af',
+						border: flowState.authorizationUrl ? '2px solid #10b981' : '2px solid #3b82f6',
 						borderRadius: '12px',
-						padding: '32px',
+						boxShadow: flowState.authorizationUrl
+							? '0 2px 8px rgba(16, 185, 129, 0.15)'
+							: '0 2px 8px rgba(59, 130, 246, 0.15)',
 						marginBottom: '32px',
-						textAlign: 'center',
+						padding: '24px 32px',
 					}}
 				>
+					<CollapsibleTitle>
+						<span style={{ fontSize: '20px', marginRight: '8px' }}>
+							{flowState.authorizationUrl ? '✅' : '🔗'}
+						</span>
+						Authorization URL Generator
+					</CollapsibleTitle>
+					<CollapsibleToggleIcon $collapsed={authUrlGeneratorCollapsed}>
+						<FiChevronDown />
+					</CollapsibleToggleIcon>
+				</CollapsibleHeaderButton>
+				{!authUrlGeneratorCollapsed && (
+					<CollapsibleContent>
+						{/* Action Section */}
+						<div
+							style={{
+								background: '#f9fafb',
+								border: '1px solid #e5e7eb',
+								borderRadius: '12px',
+								padding: '32px',
+								marginBottom: '0',
+								textAlign: 'center',
+							}}
+						>
 					<div style={{ marginBottom: '16px' }}>
 						<div style={{ fontSize: '48px', marginBottom: '8px' }}>🔗</div>
 						<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
@@ -6593,6 +6624,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						isLoading={isLoading}
 					/>
 				)}
+						</div>
+					</CollapsibleContent>
+				)}
+			</CollapsibleSection>
 			</div>
 		);
 	};
