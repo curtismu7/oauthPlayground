@@ -6,7 +6,7 @@ import { PageStyleProvider } from './contexts/PageStyleContext';
 import { type UISettings, UISettingsProvider, useUISettings } from './contexts/UISettingsContext';
 import { theme as baseTheme, GlobalStyle } from './styles/global';
 import { FlowStateProvider } from './v8/contexts/FlowStateContext';
-import { UnifiedFlowProvider } from './v8u/services/enhancedStateManagementV2';
+import UnifiedFlowProvider from './v8u/services/enhancedStateManagement';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
 import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all buttons have white text
@@ -15,6 +15,7 @@ import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
 import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
 import { PromptModalV8 } from './v8/components/PromptModalV8';
+import { WorkerTokenModal } from './components/WorkerTokenModal';
 
 const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
 
@@ -71,7 +72,6 @@ import WorkerTokenCallback from './components/callbacks/WorkerTokenCallback';
 import ErrorBoundary from './components/ErrorBoundary';
 import GlobalErrorDisplay from './components/GlobalErrorDisplay';
 import LogoutCallback from './components/LogoutCallback';
-import { LoadingSpinnerModalV8U } from '@/v8u/components/LoadingSpinnerModalV8U';
 import ServerStatusProvider from './components/ServerStatusProvider';
 import { StartupWrapper } from './components/StartupWrapper';
 import About from './pages/About';
@@ -212,6 +212,7 @@ const UnifiedOAuthFlowV8U = lazy(() => import('./v8u/flows/UnifiedOAuthFlowV8U')
 const SpiffeSpireTokenDisplayV8U = lazy(() => import('./v8u/pages/SpiffeSpireTokenDisplayV8U'));
 const EnhancedStateManagementPage = lazy(() => import('./v8u/pages/EnhancedStateManagementPage'));
 const TokenMonitoringPage = lazy(() => import('./v8u/pages/TokenMonitoringPage'));
+const TokenApiDocumentationPage = lazy(() => import('./v8u/pages/TokenApiDocumentationPage'));
 const FlowComparisonPage = lazy(() => import('./v8u/pages/FlowComparisonPage'));
 
 // Import test pages
@@ -397,7 +398,6 @@ const AppRoutes: React.FC = () => {
 	}, []);
 
 	const [showCredentialModal, setShowCredentialModal] = useState(false);
-	const [showPageSpinner, setShowPageSpinner] = useState(false);
 	const { showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal } = useAuth();
 	const location = useLocation();
 
@@ -432,12 +432,7 @@ const AppRoutes: React.FC = () => {
 		setSidebarOpen(false);
 	}, []);
 
-	// Startup spinner
-	useEffect(() => {
-		setShowPageSpinner(true);
-		const timer = setTimeout(() => setShowPageSpinner(false), 800);
-		return () => clearTimeout(timer);
-	}, []);
+	// Removed startup spinner - not needed
 
 	// Initial credential check
 	useEffect(() => {
@@ -777,6 +772,17 @@ const AppRoutes: React.FC = () => {
 									<Suspense fallback={<ComponentLoader message="Loading Token Monitoring..." subtext="Initializing token monitoring service" />}>
 										<UnifiedFlowErrorBoundary>
 											<TokenMonitoringPage />
+										</UnifiedFlowErrorBoundary>
+									</Suspense>
+								} 
+							/>
+							{/* Token API Documentation */}
+							<Route 
+								path="/v8u/token-api-docs" 
+								element={
+									<Suspense fallback={<ComponentLoader message="Loading API Documentation..." subtext="Preparing API call documentation" />}>
+										<UnifiedFlowErrorBoundary>
+											<TokenApiDocumentationPage />
 										</UnifiedFlowErrorBoundary>
 									</Suspense>
 								} 
@@ -1132,12 +1138,7 @@ const AppRoutes: React.FC = () => {
 			<ConfirmationModalV8 />
 			<PromptModalV8 />
 
-			<LoadingSpinnerModalV8U
-				show={showPageSpinner}
-				message="Loading page..."
-				theme="blue"
-			/>
-		</>
+			</>
 	);
 };
 
@@ -1326,6 +1327,28 @@ function AppContent() {
 		};
 	}, []);
 
+	// Global Worker Token Modal State
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+
+	// Handle global worker token modal events
+	useEffect(() => {
+		console.log('[App] Setting up worker token modal event listener...');
+		
+		const handleWorkerTokenModalEvent = (event: CustomEvent) => {
+			console.log('[App] Opening worker token modal from:', event.detail?.source || 'unknown');
+			console.log('[App] Setting showWorkerTokenModal to true');
+			setShowWorkerTokenModal(true);
+		};
+
+		console.log('[App] Adding event listener for open-worker-token-modal');
+		window.addEventListener('open-worker-token-modal', handleWorkerTokenModalEvent as EventListener);
+
+		return () => {
+			console.log('[App] Cleaning up worker token modal event listener');
+			window.removeEventListener('open-worker-token-modal', handleWorkerTokenModalEvent as EventListener);
+		};
+	}, []);
+
 	return (
 		<ThemeProvider theme={theme}>
 			<ErrorBoundary>
@@ -1363,6 +1386,26 @@ function AppContent() {
 					})}
 					{...(urlValidationModalState.onFix && { onFix: urlValidationModalState.onFix })}
 				/>
+			)}
+
+			{/* Global Worker Token Modal */}
+			{showWorkerTokenModal && (
+				<>
+					{console.log('[App] Rendering WorkerTokenModal with isOpen:', showWorkerTokenModal)}
+					<WorkerTokenModal
+						isOpen={showWorkerTokenModal}
+						onClose={() => {
+							console.log('[App] WorkerTokenModal onClose called');
+							setShowWorkerTokenModal(false);
+						}}
+						onContinue={() => {
+							console.log('[App] Worker token modal closed');
+							setShowWorkerTokenModal(false);
+						}}
+						flowType="global"
+						environmentId=""
+					/>
+				</>
 			)}
 		</ThemeProvider>
 	);

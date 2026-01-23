@@ -6,8 +6,30 @@ import React, {
 	useReducer,
 	type ReactNode,
 } from 'react';
+import { TokenMonitoringService, type ApiCall } from './tokenMonitoringService';
+import { workerTokenManager } from '../../services/workerTokenManager';
 
 export type ThemePreference = 'light' | 'dark' | 'auto';
+
+export interface SecuritySettings {
+	enableTokenEncryption: boolean;
+	sessionTimeout: number; // minutes
+	requireReauth: boolean;
+	secureStorage: boolean;
+	auditLogging: boolean;
+	tokenMasking: boolean;
+}
+
+export interface SecurityAuditLog {
+	id: string;
+	timestamp: number;
+	event: string;
+	details: Record<string, unknown>;
+	severity: 'low' | 'medium' | 'high' | 'critical';
+	userAction: boolean;
+	ipAddress?: string;
+	userAgent?: string;
+}
 
 export interface PendingAction {
 	id: string;
@@ -20,6 +42,26 @@ export interface UnifiedFlowMetrics {
 	tokenCount: number;
 	featureCount: number;
 	errorCount: number;
+	apiCallCount: number;
+	lastApiCall: number | null;
+	performanceMetrics: {
+		avgResponseTime: number;
+		successRate: number;
+		totalCalls: number;
+	};
+	workerTokenMetrics: {
+		hasWorkerToken: boolean;
+		workerTokenValid: boolean;
+		workerTokenExpiry: number | null;
+		lastWorkerTokenRefresh: number | null;
+	};
+	securityMetrics: {
+		securityScore: number; // 0-100
+		threatsBlocked: number;
+		lastSecurityScan: number | null;
+		encryptionEnabled: boolean;
+		auditLogCount: number;
+	};
 }
 
 export interface OfflineState {
@@ -39,6 +81,8 @@ export interface EnhancedStateSnapshot {
 	unifiedFlow: UnifiedFlowMetrics;
 	offline: OfflineState;
 	performance: PerformanceState;
+	security: SecuritySettings;
+	auditLogs: SecurityAuditLog[];
 }
 
 interface HistoryState {
@@ -58,7 +102,11 @@ type DomainAction =
 	| { type: 'START_SYNC' }
 	| { type: 'FINISH_SYNC'; payload: { success: boolean; timestamp: number } }
 	| { type: 'RESET_STATE' }
-	| { type: 'IMPORT_STATE'; payload: EnhancedStateSnapshot };
+	| { type: 'IMPORT_STATE'; payload: EnhancedStateSnapshot }
+	| { type: 'UPDATE_REAL_METRICS'; payload: Partial<UnifiedFlowMetrics> }
+	| { type: 'UPDATE_SECURITY_SETTINGS'; payload: Partial<SecuritySettings> }
+	| { type: 'ADD_AUDIT_LOG'; payload: SecurityAuditLog }
+	| { type: 'SECURITY_SCAN'; payload: { threats: number; score: number } };
 
 type HistoryAction =
 	| DomainAction
@@ -76,6 +124,26 @@ const defaultSnapshot: EnhancedStateSnapshot = {
 		tokenCount: 0,
 		featureCount: 5,
 		errorCount: 0,
+		apiCallCount: 0,
+		lastApiCall: null,
+		performanceMetrics: {
+			avgResponseTime: 0,
+			successRate: 100,
+			totalCalls: 0,
+		},
+		workerTokenMetrics: {
+			hasWorkerToken: false,
+			workerTokenValid: false,
+			workerTokenExpiry: null,
+			lastWorkerTokenRefresh: null,
+		},
+		securityMetrics: {
+			securityScore: 85, // Default good score
+			threatsBlocked: 0,
+			lastSecurityScan: Date.now(),
+			encryptionEnabled: true,
+			auditLogCount: 0,
+		},
 	},
 	offline: {
 		isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
@@ -86,6 +154,15 @@ const defaultSnapshot: EnhancedStateSnapshot = {
 	performance: {
 		lastActivity: null,
 	},
+	security: {
+		enableTokenEncryption: true,
+		sessionTimeout: 30, // 30 minutes
+		requireReauth: false,
+		secureStorage: true,
+		auditLogging: true,
+		tokenMasking: true,
+	},
+	auditLogs: [],
 };
 
 const loadSnapshot = (): EnhancedStateSnapshot => {
@@ -136,6 +213,11 @@ const applyDomainAction = (
 				...snapshot,
 				unifiedFlow: { ...snapshot.unifiedFlow, ...action.payload },
 			};
+		case 'UPDATE_REAL_METRICS':
+			return {
+				...snapshot,
+				unifiedFlow: { ...snapshot.unifiedFlow, ...action.payload },
+			};
 		case 'SET_OFFLINE_STATUS':
 			return {
 				...snapshot,
@@ -181,6 +263,31 @@ const applyDomainAction = (
 				offline: { ...defaultSnapshot.offline, ...action.payload.offline },
 				unifiedFlow: { ...defaultSnapshot.unifiedFlow, ...action.payload.unifiedFlow },
 				performance: { ...defaultSnapshot.performance, ...action.payload.performance },
+				security: { ...defaultSnapshot.security, ...action.payload.security },
+				auditLogs: action.payload.auditLogs || defaultSnapshot.auditLogs,
+			};
+		case 'UPDATE_SECURITY_SETTINGS':
+			return {
+				...snapshot,
+				security: { ...snapshot.security, ...action.payload },
+			};
+		case 'ADD_AUDIT_LOG':
+			return {
+				...snapshot,
+				auditLogs: [action.payload, ...snapshot.auditLogs].slice(0, 1000), // Keep last 1000 logs
+			};
+		case 'SECURITY_SCAN':
+			return {
+				...snapshot,
+				unifiedFlow: {
+					...snapshot.unifiedFlow,
+					securityMetrics: {
+						...snapshot.unifiedFlow.securityMetrics,
+						securityScore: action.payload.score,
+						threatsBlocked: action.payload.threats,
+						lastSecurityScan: Date.now(),
+					},
+				},
 			};
 		default:
 			return snapshot;
@@ -189,6 +296,82 @@ const applyDomainAction = (
 
 const snapshotsEqual = (a: EnhancedStateSnapshot, b: EnhancedStateSnapshot): boolean =>
 	JSON.stringify(a) === JSON.stringify(b);
+
+// Function to get real metrics from token monitoring service
+const getRealMetrics = async (): Promise<Partial<UnifiedFlowMetrics>> => {
+	try {
+		const tokenService = TokenMonitoringService.getInstance();
+		const tokens = tokenService.getAllTokens();
+		const apiCalls = tokenService.getApiCalls();
+		
+		// Calculate API call metrics
+		const successCount = apiCalls.filter(call => call.success).length;
+		const totalCalls = apiCalls.length;
+		const successRate = totalCalls > 0 ? (successCount / totalCalls) * 100 : 100;
+		const avgResponseTime = totalCalls > 0 
+			? apiCalls.reduce((sum, call) => sum + call.duration, 0) / totalCalls 
+			: 0;
+		
+		const lastApiCall = apiCalls.length > 0 ? Math.max(...apiCalls.map(call => call.timestamp)) : null;
+		
+		// Get worker token metrics
+		let workerTokenMetrics = {
+			hasWorkerToken: false,
+			workerTokenValid: false,
+			workerTokenExpiry: null as number | null,
+			lastWorkerTokenRefresh: null as number | null,
+		};
+		
+		try {
+			const workerTokenStatus = await workerTokenManager.getStatus();
+			workerTokenMetrics = {
+				hasWorkerToken: workerTokenStatus.hasToken || false,
+				workerTokenValid: workerTokenStatus.tokenValid || false,
+				workerTokenExpiry: workerTokenStatus.tokenExpiresIn 
+					? Date.now() + (workerTokenStatus.tokenExpiresIn * 1000) 
+					: null,
+				lastWorkerTokenRefresh: workerTokenStatus.lastFetchedAt || null,
+			};
+		} catch (error) {
+			console.warn('[EnhancedState] Failed to get worker token status:', error);
+		}
+		
+		// Count worker tokens specifically
+		const workerTokens = tokens.filter(token => token.type === 'worker_token');
+		
+		return {
+			tokenCount: tokens.length,
+			apiCallCount: totalCalls,
+			lastApiCall,
+			performanceMetrics: {
+				avgResponseTime: Math.round(avgResponseTime),
+				successRate: Math.round(successRate),
+				totalCalls,
+			},
+			workerTokenMetrics,
+			// Add worker token count to feature count
+			featureCount: 5 + workerTokens.length,
+		};
+	} catch (error) {
+		console.warn('[EnhancedState] Failed to get real metrics:', error);
+		return {
+			tokenCount: 0,
+			apiCallCount: 0,
+			lastApiCall: null,
+			performanceMetrics: {
+				avgResponseTime: 0,
+				successRate: 100,
+				totalCalls: 0,
+			},
+			workerTokenMetrics: {
+				hasWorkerToken: false,
+				workerTokenValid: false,
+				workerTokenExpiry: null,
+				lastWorkerTokenRefresh: null,
+			},
+		};
+	}
+};
 
 const historyReducer = (state: HistoryState, action: HistoryAction): HistoryState => {
 	switch (action.type) {
@@ -234,6 +417,7 @@ interface UnifiedFlowContextValue {
 		startSync: () => void;
 		finishSync: (success: boolean) => void;
 		setTokenMetrics: (metrics: Partial<UnifiedFlowMetrics>) => void;
+		updateRealMetrics: () => void;
 		undo: () => boolean;
 		redo: () => boolean;
 		canUndo: () => boolean;
@@ -254,6 +438,20 @@ const EnhancedStateProvider = ({ children }: { children: ReactNode }) => {
 
 	const externalDispatch = React.useRef<((action: HistoryAction) => void) | null>(null);
 
+	// Auto-update real metrics every 2 seconds
+	useEffect(() => {
+		const interval = setInterval(async () => {
+			try {
+				const metrics = await getRealMetrics();
+				dispatch({ type: 'UPDATE_REAL_METRICS', payload: metrics });
+			} catch (error) {
+				console.warn('[EnhancedState] Failed to update real metrics:', error);
+			}
+		}, 2000);
+
+		return () => clearInterval(interval);
+	}, []);
+
 	useEffect(() => {
 		externalDispatch.current = dispatch;
 		return () => {
@@ -272,6 +470,20 @@ const EnhancedStateProvider = ({ children }: { children: ReactNode }) => {
 			finishSync: (success: boolean) => dispatch({ type: 'FINISH_SYNC', payload: { success, timestamp: Date.now() } }),
 			setTokenMetrics: (metrics: Partial<UnifiedFlowMetrics>) =>
 				dispatch({ type: 'SET_TOKEN_METRICS', payload: metrics }),
+			updateRealMetrics: async () => {
+				try {
+					const metrics = await getRealMetrics();
+					dispatch({ type: 'UPDATE_REAL_METRICS', payload: metrics });
+				} catch (error) {
+					console.warn('[EnhancedState] Failed to update real metrics:', error);
+				}
+			},
+			updateSecuritySettings: (settings: Partial<SecuritySettings>) =>
+				dispatch({ type: 'UPDATE_SECURITY_SETTINGS', payload: settings }),
+			addAuditLog: (log: SecurityAuditLog) =>
+				dispatch({ type: 'ADD_AUDIT_LOG', payload: log }),
+			performSecurityScan: (score: number, threats: number) =>
+				dispatch({ type: 'SECURITY_SCAN', payload: { score, threats } }),
 			undo: () => {
 				if (historyState.past.length === 0) return false;
 				dispatch({ type: 'HISTORY_UNDO' });
@@ -302,35 +514,58 @@ const EnhancedStateProvider = ({ children }: { children: ReactNode }) => {
 		persistSnapshot(historyState.present);
 	}, [historyState.present]);
 
-	return <UnifiedFlowContext.Provider value={contextValue}>{children}</UnifiedFlowContext.Provider>;
+	return React.createElement(
+		UnifiedFlowContext.Provider,
+		{ value: contextValue },
+		children
+	);
 };
 
 export const useUnifiedFlowState = () => {
 	const context = useContext(UnifiedFlowContext);
 	if (!context) {
-		throw new Error('useUnifiedFlowState must be used within a UnifiedFlowProvider');
+		throw new Error('useUnifiedFlowState must be used within an EnhancedStateProvider');
 	}
 	return context;
 };
 
 export const stateUtils = {
 	exportAllState(): EnhancedStateSnapshot {
-		return JSON.parse(JSON.stringify(historyState.present));
+		const stored = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_KEY) : null;
+		if (stored) {
+			return JSON.parse(stored) as EnhancedStateSnapshot;
+		}
+		return defaultSnapshot;
 	},
 	importAllState(data: EnhancedStateSnapshot): boolean {
-		if (!externalDispatch.current) return false;
-		externalDispatch.current({ type: 'IMPORT_STATE', payload: data });
-		return true;
+		if (typeof window !== 'undefined') {
+			window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+			return true;
+		}
+		return false;
 	},
 	resetAllState(): void {
-		externalDispatch.current?.({ type: 'RESET_STATE' });
+		if (typeof window !== 'undefined') {
+			window.localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultSnapshot));
+		}
 	},
 	getStateStats() {
+		const stored = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_KEY) : null;
+		if (stored) {
+			const state = JSON.parse(stored) as EnhancedStateSnapshot;
+			return {
+				...state,
+				history: {
+					pastCount: 0,
+					futureCount: 0,
+				},
+			};
+		}
 		return {
-			...historyState.present,
+			...defaultSnapshot,
 			history: {
-				pastCount: historyState.past.length,
-				futureCount: historyState.future.length,
+				pastCount: 0,
+				futureCount: 0,
 			},
 		};
 	},
