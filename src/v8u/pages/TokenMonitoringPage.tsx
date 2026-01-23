@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { FiEye, FiRefreshCw, FiTrash2, FiDownload, FiUpload, FiClock, FiActivity, FiCheckCircle, FiAlertTriangle, FiX, FiInfo, FiZap, FiDatabase, FiSettings } from 'react-icons/fi';
-import { useUnifiedFlowState, stateUtils } from '../services/enhancedStateManagementV2';
-import { tokenMonitoringService, type TokenInfo } from '../services/tokenMonitoringService';
+import { FiEye, FiRefreshCw, FiTrash2, FiDownload, FiClock, FiCheckCircle, FiAlertTriangle, FiX, FiInfo, FiDatabase, FiSettings, FiLogOut, FiUsers, FiShield } from 'react-icons/fi';
+import { TokenMonitoringService, type TokenInfo, type RevocationMethod } from '../services/tokenMonitoringService';
+import { workerTokenManager } from '../../services/workerTokenManager';
+import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
 
 const PageContainer = styled.div`
   padding: 2rem;
@@ -152,7 +153,7 @@ const TokenValue = styled.div`
   word-break: break-all;
 `;
 
-const TokenInfo = styled.div`
+const TokenInfoContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0.5rem;
@@ -226,6 +227,33 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
   }}
 `;
 
+const TestButton = styled.button`
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #3b82f6;
+  background: #3b82f6;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  }
+`;
+
 const SectionContainer = styled.div`
   background: white;
   border: 1px solid #e2e8f0;
@@ -275,43 +303,40 @@ const EmptyState = styled.div`
 `;
 
 export const TokenMonitoringPage: React.FC = () => {
-  const { state, actions } = useUnifiedFlowState();
   const [tokens, setTokens] = useState<TokenInfo[]>([]);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState<string>('');
   const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
+  const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+  const [revocationMethod, setRevocationMethod] = useState<RevocationMethod>('oauth_revoke');
+  const [showRevocationOptions, setShowRevocationOptions] = useState<string | null>(null);
 
   // Subscribe to token monitoring service
   useEffect(() => {
-    const unsubscribe = tokenMonitoringService.subscribe((newTokens) => {
+    // Reset service instance to ensure clean initialization on refresh
+    TokenMonitoringService.resetInstance();
+    
+    // Get fresh instance
+    const freshService = TokenMonitoringService.getInstance();
+    
+    // Get initial tokens immediately
+    const initialTokens = freshService.getAllTokens();
+    setTokens(initialTokens);
+    console.log(`[TokenMonitoringPage] Loaded ${initialTokens.length} initial tokens after reset`);
+
+    // Subscribe to future updates
+    const unsubscribe = freshService.subscribe((newTokens: TokenInfo[]) => {
       setTokens(newTokens);
+      console.log(`[TokenMonitoringPage] Updated tokens: ${newTokens.length} tokens`);
     });
 
-    // Add sample tokens if none exist
-    if (tokens.length === 0) {
-      const sampleAccessToken = tokenMonitoringService.addToken({
-        type: 'access_token',
-        value: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-        expiresAt: Date.now() + (60 * 60 * 1000), // 1 hour from now
-        issuedAt: Date.now() - (30 * 60 * 1000), // 30 minutes ago
-        scope: ['openid', 'profile', 'email', 'read'],
-      });
-
-      const sampleRefreshToken = tokenMonitoringService.addToken({
-        type: 'refresh_token',
-        value: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-        expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days from now
-        issuedAt: Date.now() - (1 * 60 * 60 * 1000), // 1 hour ago
-        scope: ['openid', 'profile', 'email', 'read'],
-      });
-
-      const sampleExpiringToken = tokenMonitoringService.addToken({
-        type: 'access_token',
-        value: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-        expiresAt: Date.now() + (5 * 60 * 1000), // 5 minutes from now
-        issuedAt: Date.now() - (55 * 60 * 1000), // 55 minutes ago
-        scope: ['openid', 'profile', 'email'],
-      });
-    }
+    // Also try to sync worker tokens if they exist
+    freshService.manualSyncWorkerToken();
+    
+    // Add a delay and try again to ensure worker token is picked up
+    setTimeout(() => {
+      console.log('[TokenMonitoringPage] Attempting second worker token sync...');
+      freshService.manualSyncWorkerToken();
+    }, 1000);
 
     return unsubscribe;
   }, []);
@@ -319,7 +344,8 @@ export const TokenMonitoringPage: React.FC = () => {
   // Token actions
   const handleRefreshToken = async (tokenId: string) => {
     try {
-      await tokenMonitoringService.refreshToken(tokenId);
+      const service = TokenMonitoringService.getInstance();
+      await service.refreshToken(tokenId);
       setMessage('Token refreshed successfully');
       setMessageType('success');
     } catch (error) {
@@ -329,11 +355,46 @@ export const TokenMonitoringPage: React.FC = () => {
     }
   };
 
-  const handleRevokeToken = async (tokenId: string) => {
+  const handleRevokeToken = async (tokenId: string, method: RevocationMethod = 'oauth_revoke') => {
     try {
-      await tokenMonitoringService.revokeToken(tokenId);
-      setMessage('Token revoked successfully');
+      const service = TokenMonitoringService.getInstance();
+      const options = { method };
+      
+      // For session deletion, we need additional parameters
+      if (method === 'session_delete') {
+        // In a real implementation, you'd get these from user input or token introspection
+        const userId = prompt('Enter User ID for session deletion:');
+        const sessionId = prompt('Enter Session ID for session deletion:');
+        
+        if (!userId || !sessionId) {
+          setMessage('User ID and Session ID required for session deletion');
+          setMessageType('error');
+          return;
+        }
+        
+        (options as any).userId = userId;
+        (options as any).sessionId = sessionId;
+      }
+      
+      // For ID token hint
+      if (method === 'sso_signoff') {
+        const token = tokens.find(t => t.id === tokenId);
+        if (token?.type === 'id_token') {
+          (options as any).idTokenHint = token.value;
+        }
+      }
+      
+      await service.revokeToken(tokenId, options);
+      
+      const methodNames = {
+        oauth_revoke: 'OAuth token revocation',
+        sso_signoff: 'SSO sign-off',
+        session_delete: 'Session deletion'
+      };
+      
+      setMessage(`Token revoked successfully via ${methodNames[method]}`);
       setMessageType('success');
+      setShowRevocationOptions(null);
     } catch (error) {
       console.error('Failed to revoke token:', error);
       setMessage('Failed to revoke token');
@@ -343,7 +404,8 @@ export const TokenMonitoringPage: React.FC = () => {
 
   const handleIntrospectToken = async (tokenId: string) => {
     try {
-      await tokenMonitoringService.introspectToken(tokenId);
+      const service = TokenMonitoringService.getInstance();
+      await service.introspectToken(tokenId);
       setMessage('Token introspection completed');
       setMessageType('success');
     } catch (error) {
@@ -356,7 +418,8 @@ export const TokenMonitoringPage: React.FC = () => {
   const handleToggleVisibility = (tokenId: string) => {
     const token = tokens.find(t => t.id === tokenId);
     if (token) {
-      tokenMonitoringService.updateToken(tokenId, { isVisible: !token.isVisible });
+      const service = TokenMonitoringService.getInstance();
+      service.updateToken(tokenId, { isVisible: !token.isVisible });
     }
   };
 
@@ -388,9 +451,51 @@ export const TokenMonitoringPage: React.FC = () => {
   };
 
   const handleClearAllTokens = () => {
-    tokenMonitoringService.clearAllTokens();
+    const service = TokenMonitoringService.getInstance();
+    service.clearAllTokens();
     setMessage('All tokens cleared');
     setMessageType('info');
+  };
+
+  const handleRefreshWorkerToken = async () => {
+    try {
+      await workerTokenManager.refreshToken();
+      setMessage('Worker token refreshed successfully');
+      setMessageType('success');
+    } catch (error) {
+      console.error('Failed to refresh worker token:', error);
+      setMessage('Failed to refresh worker token');
+      setMessageType('error');
+    }
+  };
+
+  const handleGetWorkerToken = async () => {
+    try {
+      console.log('🔧 [TokenMonitoringPage] Opening V8 worker token modal...');
+      
+      // Open V8 worker token modal directly
+      setShowWorkerTokenModal(true);
+      
+      setMessage('Opening V8 worker token configuration...');
+      setMessageType('info');
+    } catch (error) {
+      console.error('❌ [TokenMonitoringPage] Failed to open worker token modal:', error);
+      setMessage('Failed to open worker token modal');
+      setMessageType('error');
+    }
+  };
+
+  const handleImplicitLogin = async () => {
+    try {
+      console.log('🔧 [TokenMonitoringPage] Starting unified implicit flow...');
+      
+      // Navigate to unified implicit flow instead of old implicit flow
+      window.location.href = '/v8u/unified/implicit';
+    } catch (error) {
+      console.error('❌ [TokenMonitoringPage] Failed to start implicit login:', error);
+      setMessage('Failed to start implicit login');
+      setMessageType('error');
+    }
   };
 
   // Calculate statistics
@@ -402,14 +507,44 @@ export const TokenMonitoringPage: React.FC = () => {
     error: tokens.filter(t => t.status === 'error').length,
   };
 
+  // Debug logging
+  console.log(`[TokenMonitoringPage] Render state:`, {
+    tokensCount: tokens.length,
+    tokens: tokens.map(t => ({ id: t.id, type: t.type, status: t.status })),
+    stats
+  });
+
   return (
-    <PageContainer>
+    <>
+      <PageContainer>
       <PageHeader>
         <PageTitle>🔍 Token Monitoring Dashboard</PageTitle>
         <PageSubtitle>
           Real-time token monitoring with countdowns, introspection, and management
         </PageSubtitle>
       </PageHeader>
+
+      {/* Debug Section */}
+      <div style={{ 
+        background: '#f0f9ff', 
+        border: '1px solid #0ea5e9', 
+        borderRadius: '8px', 
+        padding: '1rem', 
+        marginBottom: '1rem' 
+      }}>
+        <h4 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e' }}>Debug Info</h4>
+        <p style={{ margin: '0', fontSize: '0.875rem', color: '#075985' }}>
+          Tokens: {tokens.length} | Active: {stats.active} | Expiring: {stats.expiring}
+        </p>
+        <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <TestButton onClick={handleGetWorkerToken}>
+            <FiDatabase /> Get WorkerToken
+          </TestButton>
+          <TestButton onClick={handleImplicitLogin}>
+            <FiShield /> Implicit Login
+          </TestButton>
+        </div>
+      </div>
 
       {message && (
         <div style={{
@@ -488,9 +623,10 @@ export const TokenMonitoringPage: React.FC = () => {
           {tokens.map((token) => (
             <TokenCard key={token.id} $status={token.status}>
               <TokenHeader>
-                <TokenType>{token.type}</TokenType>
+                <TokenType>{token.type.replace('_', ' ').toUpperCase()}</TokenType>
                 <TokenStatus $status={token.status}>
                   {token.status}
+                  {token.source === 'worker_token' && <span style={{ marginLeft: '0.5rem', fontSize: '0.6rem' }}>🏭 WORKER</span>}
                 </TokenStatus>
               </TokenHeader>
               
@@ -498,7 +634,7 @@ export const TokenMonitoringPage: React.FC = () => {
                 {token.isVisible ? token.value : '••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••'}
               </TokenValue>
               
-              <TokenInfo>
+              <TokenInfoContainer>
                 <InfoItem>
                   <strong>Expires:</strong> {token.expiresAt ? new Date(token.expiresAt).toLocaleString() : 'Never'}
                 </InfoItem>
@@ -511,7 +647,7 @@ export const TokenMonitoringPage: React.FC = () => {
                 <InfoItem>
                   <strong>ID:</strong> {token.id}
                 </InfoItem>
-              </TokenInfo>
+              </TokenInfoContainer>
               
               <TokenActions>
                 <ActionButton onClick={() => handleToggleVisibility(token.id)}>
@@ -520,12 +656,102 @@ export const TokenMonitoringPage: React.FC = () => {
                 <ActionButton onClick={() => handleIntrospectToken(token.id)}>
                   <FiInfo /> Introspect
                 </ActionButton>
-                <ActionButton onClick={() => handleRefreshToken(token.id)}>
-                  <FiRefreshCw /> Refresh
-                </ActionButton>
-                <ActionButton onClick={() => handleRevokeToken(token.id)} $variant="danger">
-                  <FiX /> Revoke
-                </ActionButton>
+                {(token.status === 'expired' || token.status === 'expiring') && token.type !== 'worker_token' && (
+                  <ActionButton onClick={() => handleRefreshToken(token.id)}>
+                    <FiRefreshCw /> Refresh
+                  </ActionButton>
+                )}
+                {token.type !== 'worker_token' && (
+                  <div style={{ position: 'relative' }}>
+                    <ActionButton 
+                      onClick={() => setShowRevocationOptions(showRevocationOptions === token.id ? null : token.id)} 
+                      $variant="danger"
+                    >
+                      <FiX /> Revoke
+                    </ActionButton>
+                    
+                    {showRevocationOptions === token.id && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '100%',
+                        right: 0,
+                        background: 'white',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '6px',
+                        padding: '0.5rem',
+                        marginTop: '0.25rem',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                        zIndex: 1000,
+                        minWidth: '200px'
+                      }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: '600', marginBottom: '0.5rem', color: '#374151' }}>
+                          Revocation Method:
+                        </div>
+                        <button
+                          style={{
+                            display: 'block',
+                            width: '100%',
+                            padding: '0.25rem 0.5rem',
+                            textAlign: 'left',
+                            border: 'none',
+                            background: 'transparent',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            borderRadius: '4px',
+                            marginBottom: '0.25rem'
+                          }}
+                          onClick={() => handleRevokeToken(token.id, 'oauth_revoke')}
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        >
+                          🔄 OAuth Token Revocation
+                        </button>
+                        <button
+                          style={{
+                            display: 'block',
+                            width: '100%',
+                            padding: '0.25rem 0.5rem',
+                            textAlign: 'left',
+                            border: 'none',
+                            background: 'transparent',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            borderRadius: '4px',
+                            marginBottom: '0.25rem'
+                          }}
+                          onClick={() => handleRevokeToken(token.id, 'sso_signoff')}
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        >
+                          🚪 SSO Sign-off
+                        </button>
+                        <button
+                          style={{
+                            display: 'block',
+                            width: '100%',
+                            padding: '0.25rem 0.5rem',
+                            textAlign: 'left',
+                            border: 'none',
+                            background: 'transparent',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            borderRadius: '4px'
+                          }}
+                          onClick={() => handleRevokeToken(token.id, 'session_delete')}
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        >
+                          👥 Delete Session
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {token.type === 'worker_token' && (
+                  <ActionButton onClick={() => handleRefreshWorkerToken()} $variant="primary">
+                    <FiRefreshCw /> Refresh Worker Token
+                  </ActionButton>
+                )}
               </TokenActions>
             </TokenCard>
           ))}
@@ -536,10 +762,42 @@ export const TokenMonitoringPage: React.FC = () => {
             <FiDatabase />
             <h3>No Tokens Found</h3>
             <p>Start adding tokens to monitor their status and expiration</p>
+            
+            {/* Test Buttons */}
+            <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <TestButton onClick={handleGetWorkerToken}>
+                <FiDatabase /> Get WorkerToken
+              </TestButton>
+              <TestButton onClick={handleImplicitLogin}>
+                <FiShield /> Implicit Login
+              </TestButton>
+            </div>
           </EmptyState>
         </SectionContainer>
       )}
     </PageContainer>
+    
+    {/* V8 Worker Token Modal */}
+    <WorkerTokenModalV8
+      isOpen={showWorkerTokenModal}
+      onClose={() => {
+        console.log('[TokenMonitoringPage] V8 WorkerTokenModal closed');
+        setShowWorkerTokenModal(false);
+        // Force a sync to update the display
+        const service = TokenMonitoringService.getInstance();
+        service.manualSyncWorkerToken();
+      }}
+      onTokenGenerated={() => {
+        console.log('[TokenMonitoringPage] V8 WorkerTokenModal token generated');
+        setShowWorkerTokenModal(false);
+        // Force a sync to update the display
+        const service = TokenMonitoringService.getInstance();
+        service.manualSyncWorkerToken();
+      }}
+      flowType="token-monitoring"
+      environmentId=""
+    />
+    </>
   );
 };
 
