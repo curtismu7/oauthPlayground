@@ -436,7 +436,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				addScope?: string;
 				responseType?: string;
 			};
-		}>;
+		};
 		appConfig?: {
 			tokenEndpointAuthMethod?: string;
 			pkceEnforced?: boolean;
@@ -1098,14 +1098,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		setValidationErrorsState([]);
 		setValidationWarningsState([]);
 		setCompletedSteps([]);
-		setPreFlightValidationResult({
-			passed: false,
-			errors: [],
-			warnings: [],
-			fixableErrors: [],
-		});
+		setPreFlightValidationResult(null);
 		setIsPreFlightValidating(false);
 		setPreFlightStatus('');
+		setPreflightValidationCollapsed(false); // Reset collapsed state
 
 		/**
 		 * Step 5: Notify parent to reload credentials
@@ -1142,14 +1138,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		setError(null);
 		setValidationErrors([]);
 		setValidationWarnings([]);
-		setPreFlightValidationResult({
-			passed: false,
-			errors: [],
-			warnings: [],
-			fixableErrors: [],
-		});
+		setPreFlightValidationResult(null);
 		setIsPreFlightValidating(false);
 		setPreFlightStatus('');
+		setPreflightValidationCollapsed(false); // Reset collapsed state on mount
 		// Only run on mount - empty dependency array is intentional
 		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run on mount to clear errors
 	}, []);
