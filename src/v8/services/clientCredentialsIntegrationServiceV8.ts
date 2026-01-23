@@ -107,6 +107,34 @@ export class ClientCredentialsIntegrationServiceV8 {
 				);
 			}
 
+			// Validate that scopes are appropriate for client credentials flow
+			// Client credentials flow should NOT use OpenID Connect scopes (openid, profile, email)
+			const scopesList = credentials.scopes.split(/\s+/).filter((s) => s.trim());
+			const invalidScopes = scopesList.filter((scope) => 
+				scope === 'openid' || 
+				scope === 'profile' || 
+				scope === 'email' || 
+				scope === 'address' || 
+				scope === 'phone'
+			);
+
+			if (invalidScopes.length > 0) {
+				console.error(`${MODULE_TAG} Invalid scopes for client credentials flow`, {
+					invalidScopes,
+					allScopes: scopesList,
+					message: 'OpenID Connect scopes cannot be used with client credentials flow'
+				});
+				
+				throw new Error(
+					`Invalid scope configuration: The scope(s) "${invalidScopes.join(', ')}" are OpenID Connect scopes and cannot be used with client credentials flow.\n\n` +
+					`Client credentials flow is for machine-to-machine authentication and should use resource server scopes like:\n` +
+					`• Management API: p1:read:user, p1:read:environments, p1:admin:user\n` +
+					`• Custom APIs: api:read, api:write, api:admin\n` +
+					`• Remove OpenID Connect scopes: openid, profile, email, address, phone\n\n` +
+					`See: https://apidocs.pingidentity.com/pingone/main/v1/api/#access-services-through-scopes-and-roles`
+				);
+			}
+
 			// Note: All scopes (including OIDC scopes like openid, profile, email, address, phone, offline_access)
 			// are allowed for client credentials flow. The actual validation is done by PingOne based on
 			// what scopes are enabled/granted to the application in the Resources tab.
