@@ -487,6 +487,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [deviceCodeOverviewCollapsed, setDeviceCodeOverviewCollapsed] = useState(false);
 	const [deviceCodeDetailsCollapsed, setDeviceCodeDetailsCollapsed] = useState(false);
 	const [clientCredentialsOverviewCollapsed, setClientCredentialsOverviewCollapsed] = useState(false);
+	const [configStatusCollapsed, setConfigStatusCollapsed] = useState(false);
+	const [pkceGeneratorCollapsed, setPkceGeneratorCollapsed] = useState(false);
+	const [authUrlGeneratorCollapsed, setAuthUrlGeneratorCollapsed] = useState(false);
 	const [clientCredentialsDetailsCollapsed, setClientCredentialsDetailsCollapsed] = useState(false);
 	const [authzCodeOverviewCollapsed, setAuthzCodeOverviewCollapsed] = useState(false);
 	const [authzCodeDetailsCollapsed, setAuthzCodeDetailsCollapsed] = useState(false);
@@ -2762,95 +2765,101 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				</CollapsibleSection>
 
 				{/* Credentials form is rendered by parent */}
-				<div
-					style={{
-						padding: '20px 24px',
-						background: '#ffffff',
-						border: allConfigured ? '2px solid #10b981' : '2px solid #3b82f6',
-						borderRadius: '8px',
-						boxShadow: allConfigured
-							? '0 2px 8px rgba(16, 185, 129, 0.15)'
-							: '0 2px 8px rgba(59, 130, 246, 0.15)',
-						marginBottom: '16px',
-					}}
-				>
-					<div
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setConfigStatusCollapsed(!configStatusCollapsed)}
+						aria-expanded={!configStatusCollapsed}
 						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '12px',
-							marginBottom: '12px',
+							background: allConfigured 
+								? 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)'
+								: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+							color: allConfigured ? '#059669' : '#1e40af',
+							border: allConfigured ? '2px solid #10b981' : '2px solid #3b82f6',
+							borderRadius: '8px',
+							boxShadow: allConfigured
+								? '0 2px 8px rgba(16, 185, 129, 0.15)'
+								: '0 2px 8px rgba(59, 130, 246, 0.15)',
+							marginBottom: '16px',
+							padding: '20px 24px',
 						}}
 					>
-						<span style={{ fontSize: '20px' }}>{allConfigured ? '✅' : '⚙️'}</span>
-						<h3
-							style={{
-								margin: 0,
-								fontSize: '16px',
-								fontWeight: '600',
-								color: allConfigured ? '#059669' : '#1e40af',
-							}}
-						>
+						<CollapsibleTitle>
+							<span style={{ fontSize: '20px', marginRight: '8px' }}>
+								{allConfigured ? '✅' : '⚙️'}
+							</span>
 							{allConfigured ? 'Configuration Complete' : 'Configuration Required'}
-						</h3>
-					</div>
-					{allConfigured ? (
-						<p
-							style={{
-								color: '#059669',
-								fontSize: '14px',
-								margin: 0,
-								lineHeight: '1.6',
-								fontWeight: '500',
-							}}
-						>
-							✓ All required fields are configured. You can proceed to the next step.
-						</p>
-					) : (
-						<>
-							<p
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={configStatusCollapsed}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!configStatusCollapsed && (
+						<CollapsibleContent>
+							<div
 								style={{
-									color: '#374151',
-									fontSize: '14px',
-									margin: '0 0 12px 0',
-									lineHeight: '1.6',
+									padding: '0 4px', // Padding inside the collapsible content
 								}}
 							>
-								Please configure the following required fields in the form above to begin the flow:
-							</p>
-							<ul
-								style={{
-									margin: 0,
-									paddingLeft: '24px',
-									fontSize: '14px',
-									lineHeight: '1.8',
-								}}
-							>
-								{missingFields.map((field, index) => (
-									<li key={index}>
-										<strong style={{ color: '#ef4444' }}>{field}</strong>
-									</li>
-								))}
-							</ul>
-						</>
+								{allConfigured ? (
+									<p
+										style={{
+											color: '#059669',
+											fontSize: '14px',
+											margin: '0',
+											lineHeight: '1.6',
+											fontWeight: '500',
+										}}
+									>
+										✓ All required fields are configured. You can proceed to the next step.
+									</p>
+								) : (
+									<>
+										<p
+											style={{
+												color: '#374151',
+												fontSize: '14px',
+												margin: '0 0 12px 0',
+												lineHeight: '1.6',
+											}}
+										>
+											Please configure the following required fields in the form above to begin the flow:
+										</p>
+										<ul
+											style={{
+												margin: '0',
+												paddingLeft: '24px',
+												fontSize: '14px',
+												lineHeight: '1.8',
+											}}
+										>
+											{missingFields.map((field, index) => (
+												<li key={index}>
+													<strong style={{ color: '#ef4444' }}>{field}</strong>
+												</li>
+											))}
+										</ul>
+									</>
+								)}
+								{needsClientSecret && flowType !== 'client-credentials' && !allConfigured && (
+									<div
+										style={{
+											marginTop: '12px',
+											padding: '10px 14px',
+											background: '#fef3c7',
+											border: '1px solid #fbbf24',
+											borderRadius: '6px',
+											fontSize: '13px',
+											color: '#92400e',
+										}}
+									>
+										<strong>Note:</strong> Client Secret is required for your selected authentication
+										method. Alternatively, you can enable PKCE for a public client flow.
+									</div>
+								)}
+							</div>
+						</CollapsibleContent>
 					)}
-					{needsClientSecret && flowType !== 'client-credentials' && !allConfigured && (
-						<div
-							style={{
-								marginTop: '12px',
-								padding: '10px 14px',
-								background: '#fef3c7',
-								border: '1px solid #fbbf24',
-								borderRadius: '6px',
-								fontSize: '13px',
-								color: '#92400e',
-							}}
-						>
-							<strong>Note:</strong> Client Secret is required for your selected authentication
-							method. Alternatively, you can enable PKCE for a public client flow.
-						</div>
-					)}
-				</div>
+				</CollapsibleSection>
 
 				{/* Pre-flight Validation Results Section - Collapsible and positioned after errors */}
 				{preFlightValidationResult && (
@@ -3425,38 +3434,74 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					)}
 				</CollapsibleSection>
 
-				<PKCEService
-					value={pkceCodes}
-					onChange={handlePKCEChange}
-					onGenerate={handlePKCEGenerate}
-					isGenerating={isGeneratingPKCE}
-					showDetails={true}
-					title="Generate PKCE Parameters"
-					subtitle="Create secure code verifier and challenge for enhanced security"
-				/>
-
-				{flowState.codeVerifier && flowState.codeChallenge && (
-					<div
+				{/* PKCE Generator Section */}
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setPkceGeneratorCollapsed(!pkceGeneratorCollapsed)}
+						aria-expanded={!pkceGeneratorCollapsed}
 						style={{
-							background: '#d1fae5',
-							border: '1px solid #22c55e',
+							background: flowState.codeVerifier && flowState.codeChallenge
+								? 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)'
+								: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+							color: flowState.codeVerifier && flowState.codeChallenge ? '#059669' : '#1e40af',
+							border: flowState.codeVerifier && flowState.codeChallenge ? '2px solid #10b981' : '2px solid #3b82f6',
 							borderRadius: '8px',
-							padding: '12px 16px',
-							marginTop: '16px',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
+							boxShadow: flowState.codeVerifier && flowState.codeChallenge
+								? '0 2px 8px rgba(16, 185, 129, 0.15)'
+								: '0 2px 8px rgba(59, 130, 246, 0.15)',
+							marginBottom: '16px',
+							padding: '16px 20px',
 						}}
 					>
-						<span style={{ fontSize: '20px' }}>✅</span>
-						<div>
-							<strong style={{ color: '#065f46' }}>PKCE parameters generated!</strong>
-							<p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#047857' }}>
-								You can now proceed to generate the authorization URL with PKCE protection.
-							</p>
-						</div>
-					</div>
-				)}
+						<CollapsibleTitle>
+							<span style={{ fontSize: '20px', marginRight: '8px' }}>
+								{flowState.codeVerifier && flowState.codeChallenge ? '✅' : '🔑'}
+							</span>
+							Generate PKCE Parameters
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={pkceGeneratorCollapsed}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!pkceGeneratorCollapsed && (
+						<CollapsibleContent>
+							<div style={{ padding: '0 4px' }}>
+								<PKCEService
+									value={pkceCodes}
+									onChange={handlePKCEChange}
+									onGenerate={handlePKCEGenerate}
+									isGenerating={isGeneratingPKCE}
+									showDetails={true}
+									title="Generate PKCE Parameters"
+									subtitle="Create secure code verifier and challenge for enhanced security"
+								/>
+
+								{flowState.codeVerifier && flowState.codeChallenge && (
+									<div
+										style={{
+											background: '#d1fae5',
+											border: '1px solid #22c55e',
+											borderRadius: '8px',
+											padding: '12px 16px',
+											marginTop: '16px',
+											display: 'flex',
+											alignItems: 'center',
+											gap: '8px',
+										}}
+									>
+										<span style={{ fontSize: '20px' }}>✅</span>
+										<div>
+											<strong style={{ color: '#065f46' }}>PKCE parameters generated!</strong>
+											<p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#047857' }}>
+												You can now proceed to generate the authorization URL with PKCE protection.
+											</p>
+										</div>
+									</div>
+								)}
+							</div>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
 			</div>
 		);
 	};
