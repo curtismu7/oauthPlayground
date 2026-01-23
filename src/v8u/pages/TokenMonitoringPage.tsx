@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FiEye, FiRefreshCw, FiTrash2, FiDownload, FiClock, FiCheckCircle, FiAlertTriangle, FiX, FiInfo, FiDatabase, FiSettings, FiLogOut, FiUsers, FiShield } from 'react-icons/fi';
 import { TokenMonitoringService, type TokenInfo, type RevocationMethod } from '../services/tokenMonitoringService';
-import { workerTokenManager } from '../../services/workerTokenManager';
+import { unifiedWorkerTokenServiceV2 } from '../../services/unifiedWorkerTokenServiceV2';
 import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
 
 const PageContainer = styled.div`
@@ -459,9 +459,24 @@ export const TokenMonitoringPage: React.FC = () => {
 
   const handleRefreshWorkerToken = async () => {
     try {
-      await workerTokenManager.refreshToken();
-      setMessage('Worker token refreshed successfully');
-      setMessageType('success');
+      console.log('🔧 [TokenMonitoringPage] Refreshing worker token with optimized service...');
+      
+      // Use the optimized unified worker token service V2
+      const status = await unifiedWorkerTokenServiceV2.getStatus();
+      console.log('🔧 [TokenMonitoringPage] Current status:', status);
+      
+      if (!status.hasCredentials) {
+        setMessage('No worker token credentials found. Please configure worker token first.');
+        setMessageType('error');
+        return;
+      }
+      
+      // For now, we'll clear the token and let user re-authenticate
+      // The optimized service doesn't have a direct "refresh" method like the old manager
+      await unifiedWorkerTokenServiceV2.clearToken();
+      
+      setMessage('Worker token cleared. Please re-authenticate to get a new token.');
+      setMessageType('info');
     } catch (error) {
       console.error('Failed to refresh worker token:', error);
       setMessage('Failed to refresh worker token');
