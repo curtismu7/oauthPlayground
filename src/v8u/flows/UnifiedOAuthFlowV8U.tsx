@@ -32,7 +32,7 @@ import {
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
@@ -673,7 +673,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			}
 
 			// Get the actual token from the service
-			const token = await workerTokenServiceV8.getToken();
+			const token = await unifiedWorkerTokenServiceV2.getToken();
 			if (!token) {
 				setAppConfig(null);
 				return;
