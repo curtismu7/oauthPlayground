@@ -789,6 +789,20 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
+	background: transparent;
+}
+
+/* Make spinners in buttons transparent */
+.btn .spinner,
+.btn-next .spinner,
+.btn-primary .spinner,
+.btn-success .spinner {
+	background: transparent;
+}
+
+/* Make spinner containers transparent */
+.spinner-container {
+	background: transparent;
 }
 
 .spinner--spin svg {
