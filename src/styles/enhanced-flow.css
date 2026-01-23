@@ -800,16 +800,6 @@
 	background: transparent;
 }
 
-/* Ensure disabled buttons don't get grey backgrounds */
-.btn:disabled,
-.btn-next:disabled,
-.btn-primary:disabled,
-.btn-success:disabled {
-	background: #10b981 !important;
-	color: #ffffff !important;
-	opacity: 0.6;
-}
-
 /* Make spinner containers transparent */
 .spinner-container {
 	background: transparent;
