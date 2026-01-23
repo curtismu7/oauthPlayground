@@ -6,7 +6,7 @@ import type {
 	WorkerTokenCredentials,
 	WorkerTokenStatus,
 } from '../types/credentials';
-import { CredentialStorageManager } from './credentialStorageManager';
+import { workerTokenRepository } from './workerTokenRepository';
 
 /**
  * Worker Token Manager
@@ -29,13 +29,10 @@ import { CredentialStorageManager } from './credentialStorageManager';
  */
 export class WorkerTokenManager {
 	private static instance: WorkerTokenManager;
-	private credentialStorage: CredentialStorageManager;
 	private tokenCache: WorkerAccessToken | null = null;
 	private fetchPromise: Promise<WorkerAccessToken> | null = null;
 
-	private constructor() {
-		this.credentialStorage = new CredentialStorageManager();
-	}
+	private constructor() {}
 
 	/**
 	 * Get singleton instance
@@ -94,7 +91,7 @@ export class WorkerTokenManager {
 			hasToken: !!token,
 			tokenValid: token ? this.isTokenValid(token) : false,
 			tokenExpiresIn: token ? this.getTokenExpiresIn(token) : undefined,
-			lastFetchedAt: token?.fetchedAt,
+			lastFetchedAt: token?.fetchedAt || undefined,
 		};
 	}
 
@@ -106,7 +103,7 @@ export class WorkerTokenManager {
 	async saveCredentials(credentials: WorkerTokenCredentials): Promise<void> {
 		console.log(`💾 [WorkerTokenManager] Saving Worker Token credentials`);
 
-		await this.credentialStorage.saveFlowCredentials('worker-token-credentials', credentials);
+		await workerTokenRepository.saveCredentials(credentials);
 
 		// Invalidate cached token when credentials change
 		this.tokenCache = null;
@@ -121,8 +118,18 @@ export class WorkerTokenManager {
 	 * @returns Worker Token credentials or null if not found
 	 */
 	async loadCredentials(): Promise<WorkerTokenCredentials | null> {
-		const result = await this.credentialStorage.loadFlowCredentials('worker-token-credentials');
-		return result.data as WorkerTokenCredentials | null;
+		const result = await workerTokenRepository.loadCredentials();
+		if (!result) return null;
+		
+		// Convert UnifiedWorkerTokenCredentials to WorkerTokenCredentials
+		return {
+			environmentId: result.environmentId,
+			clientId: result.clientId,
+			clientSecret: result.clientSecret,
+			scopes: result.scopes || [],
+			region: result.region || 'us',
+			tokenEndpoint: result.tokenEndpoint || '',
+		};
 	}
 
 	/**
@@ -150,8 +157,7 @@ export class WorkerTokenManager {
 	async clearAll(): Promise<void> {
 		console.log(`🗑️ [WorkerTokenManager] Clearing all Worker Token data`);
 		this.tokenCache = null;
-		await this.credentialStorage.clearFlowCredentials('worker-token-credentials');
-		await this.credentialStorage.clearFlowCredentials('worker-access-token');
+		await workerTokenRepository.clearCredentials();
 		console.log(`✅ Cleared all Worker Token data`);
 	}
 
@@ -271,22 +277,35 @@ export class WorkerTokenManager {
 	 * Save token to storage
 	 */
 	private async saveToken(token: WorkerAccessToken): Promise<void> {
-		await this.credentialStorage.saveFlowCredentials('worker-access-token', token);
+		await workerTokenRepository.saveToken(token.access_token, {
+			expiresIn: token.expires_in,
+			scope: token.scope,
+		});
 	}
 
 	/**
 	 * Load stored token
 	 */
 	private async loadStoredToken(): Promise<WorkerAccessToken | null> {
-		const result = await this.credentialStorage.loadFlowCredentials('worker-access-token');
-		return result.data as WorkerAccessToken | null;
+		const tokenString = await workerTokenRepository.getToken();
+		if (!tokenString) return null;
+		
+		// Create a WorkerAccessToken from the stored token string
+		return {
+			access_token: tokenString,
+			token_type: 'Bearer',
+			expires_in: 3600, // Default, will be updated if we have metadata
+			scope: 'worker',
+			fetchedAt: Date.now(),
+			expiresAt: Date.now() + (3600 * 1000),
+		};
 	}
 
 	/**
 	 * Clear stored token
 	 */
 	private async clearStoredToken(): Promise<void> {
-		await this.credentialStorage.clearFlowCredentials('worker-access-token');
+		await workerTokenRepository.clearToken();
 	}
 
 	/**
