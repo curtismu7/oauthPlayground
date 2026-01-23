@@ -13,6 +13,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
+import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 
 const MODULE_TAG = '[🔄 CALLBACK-HANDLER-V8U]';
 
@@ -383,58 +384,8 @@ export const CallbackHandlerV8U: React.FC = () => {
 		}
 	}, [searchParams, navigate]);
 
-	// Show a loading state while redirecting
-	return (
-		<div
-			style={{
-				display: 'flex',
-				flexDirection: 'column',
-				alignItems: 'center',
-				justifyContent: 'center',
-				minHeight: '100vh',
-				background: '#f8fafc',
-				padding: '2rem',
-			}}
-		>
-			<div
-				style={{
-					background: 'white',
-					padding: '2rem',
-					borderRadius: '12px',
-					boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-					textAlign: 'center',
-					maxWidth: '500px',
-				}}
-			>
-				<div
-					style={{
-						fontSize: '48px',
-						marginBottom: '1rem',
-					}}
-				>
-					🔄
-				</div>
-				<h2
-					style={{
-						margin: '0 0 0.5rem 0',
-						fontSize: '24px',
-						color: '#1f2937',
-					}}
-				>
-					Processing OAuth Callback
-				</h2>
-				<p
-					style={{
-						margin: 0,
-						color: '#6b7280',
-						fontSize: '14px',
-					}}
-				>
-					Redirecting you back to the flow...
-				</p>
-			</div>
-		</div>
-	);
+	// Show a modal loading spinner while redirecting
+	return <LoadingSpinnerModalV8U show={true} message="Processing OAuth Callback..." theme="blue" />;
 };
 
 export default CallbackHandlerV8U;

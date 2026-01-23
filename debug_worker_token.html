@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Worker Token Debug</title>
+</head>
+<body>
+    <h1>Worker Token Storage Debug</h1>
+    <div id="results"></div>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        // Check localStorage for worker tokens
+        console.log('=== Checking localStorage ===');
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.includes('worker') || key.includes('token'))) {
+                const value = localStorage.getItem(key);
+                console.log(`Found: ${key} = ${value ? value.substring(0, 100) + '...' : 'null'}`);
+                results.innerHTML += `<p><strong>${key}:</strong> ${value ? value.substring(0, 100) + '...' : 'null'}</p>`;
+            }
+        }
+        
+        // Check sessionStorage
+        console.log('=== Checking sessionStorage ===');
+        for (let i = 0; i < sessionStorage.length; i++) {
+            const key = sessionStorage.key(i);
+            if (key && (key.includes('worker') || key.includes('token'))) {
+                const value = sessionStorage.getItem(key);
+                console.log(`Found: ${key} = ${value ? value.substring(0, 100) + '...' : 'null'}`);
+                results.innerHTML += `<p><strong>${key} (session):</strong> ${value ? value.substring(0, 100) + '...' : 'null'}</p>`;
+            }
+        }
+        
+        // Check if workerTokenManager is available
+        if (typeof window !== 'undefined' && window.workerTokenManager) {
+            console.log('=== Worker Token Manager Available ===');
+            window.workerTokenManager.getStatus().then(status => {
+                console.log('Worker Token Status:', status);
+                results.innerHTML += `<h2>Worker Token Manager Status:</h2><pre>${JSON.stringify(status, null, 2)}</pre>`;
+            }).catch(err => {
+                console.error('Error getting worker token status:', err);
+                results.innerHTML += `<p>Error getting worker token status: ${err.message}</p>`;
+            });
+        } else {
+            console.log('Worker Token Manager not available');
+            results.innerHTML += '<p>Worker Token Manager not available</p>';
+        }
+    </script>
+</body>
+</html>
