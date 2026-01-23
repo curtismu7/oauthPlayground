@@ -490,6 +490,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [configStatusCollapsed, setConfigStatusCollapsed] = useState(false);
 	const [pkceGeneratorCollapsed, setPkceGeneratorCollapsed] = useState(false);
 	const [authUrlGeneratorCollapsed, setAuthUrlGeneratorCollapsed] = useState(false);
+	const [pkceStepOverviewCollapsed, setPkceStepOverviewCollapsed] = useState(false);
 	const [clientCredentialsDetailsCollapsed, setClientCredentialsDetailsCollapsed] = useState(false);
 	const [authzCodeOverviewCollapsed, setAuthzCodeOverviewCollapsed] = useState(false);
 	const [authzCodeDetailsCollapsed, setAuthzCodeDetailsCollapsed] = useState(false);
@@ -3305,11 +3306,46 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 		return (
 			<div className="step-content">
-				<h2>Step 1: Generate PKCE Parameters</h2>
-				<p>
-					Generate secure PKCE (Proof Key for Code Exchange) parameters to protect your
-					authorization flow.
-				</p>
+				{/* Step Overview Section */}
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setPkceStepOverviewCollapsed(!pkceStepOverviewCollapsed)}
+						aria-expanded={!pkceStepOverviewCollapsed}
+						style={{
+							background: flowState.codeVerifier && flowState.codeChallenge
+								? 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)'
+								: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+							color: flowState.codeVerifier && flowState.codeChallenge ? '#059669' : '#1e40af',
+							border: flowState.codeVerifier && flowState.codeChallenge ? '2px solid #10b981' : '2px solid #3b82f6',
+							borderRadius: '8px',
+							boxShadow: flowState.codeVerifier && flowState.codeChallenge
+								? '0 2px 8px rgba(16, 185, 129, 0.15)'
+								: '0 2px 8px rgba(59, 130, 246, 0.15)',
+							marginBottom: '16px',
+							padding: '16px 20px',
+						}}
+					>
+						<CollapsibleTitle>
+							<span style={{ fontSize: '20px', marginRight: '8px' }}>
+								{flowState.codeVerifier && flowState.codeChallenge ? '✅' : '🔑'}
+							</span>
+							Step 1: Generate PKCE Parameters
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={pkceStepOverviewCollapsed}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!pkceStepOverviewCollapsed && (
+						<CollapsibleContent>
+							<div style={{ padding: '0 4px' }}>
+								<p>
+									Generate secure PKCE (Proof Key for Code Exchange) parameters to protect your
+									authorization flow.
+								</p>
+							</div>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
 
 				{/* PKCE Educational Sections */}
 				<CollapsibleSection>
