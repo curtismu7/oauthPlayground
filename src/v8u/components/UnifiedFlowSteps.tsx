@@ -1785,6 +1785,21 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					});
 				} else if (callbackUrl && !flowState.authorizationCode && !detectedCode) {
 					// Fallback: Try to parse from callbackUrl if detectedCode is not available
+					// Validate that the callback URL actually contains OAuth parameters
+					const url = new URL(callbackUrl);
+					const hasCode = url.searchParams.has('code');
+					const hasState = url.searchParams.has('state');
+					
+					if (!hasCode || !hasState) {
+						console.warn(`${MODULE_TAG} Fallback callback URL does not contain required OAuth parameters`, { 
+							callbackUrl, 
+							hasCode, 
+							hasState,
+							allParams: Object.fromEntries(url.searchParams)
+						});
+						return; // Skip parsing if no OAuth params found
+					}
+					
 					try {
 						const parsed = UnifiedFlowIntegrationV8U.parseCallbackUrl(
 							callbackUrl,
@@ -1912,6 +1927,21 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				callbackUrl &&
 				!flowState.authorizationCode
 			) {
+				// Validate that the callback URL actually contains OAuth parameters
+				const url = new URL(callbackUrl);
+				const hasCode = url.searchParams.has('code');
+				const hasState = url.searchParams.has('state');
+				
+				if (!hasCode || !hasState) {
+					console.warn(`${MODULE_TAG} Callback URL does not contain required OAuth parameters`, { 
+						callbackUrl, 
+						hasCode, 
+						hasState,
+						allParams: Object.fromEntries(url.searchParams)
+					});
+					return; // Skip parsing if no OAuth params found
+				}
+				
 				console.log(`${MODULE_TAG} Auto-parsing callback URL and extracting code`, { callbackUrl });
 
 				try {
@@ -1924,7 +1954,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					console.log(`${MODULE_TAG} Successfully parsed callback`, { extractedCode: parsed.code });
 
 					// Extract all parameters from callback URL
-					const url = new URL(callbackUrl);
 					const allParams: Record<string, string> = {};
 					url.searchParams.forEach((value, key) => {
 						allParams[key] = value;
@@ -7032,6 +7061,24 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 					// Parse authorization code
 					const callbackUrlForParsing = flowState.authorizationCode || window.location.href;
+					
+					// Validate that the callback URL actually contains OAuth parameters
+					const url = new URL(callbackUrlForParsing);
+					const hasCode = url.searchParams.has('code');
+					const hasState = url.searchParams.has('state');
+					
+					if (!hasCode || !hasState) {
+						console.warn(`${MODULE_TAG} Manual parse callback URL does not contain required OAuth parameters`, { 
+							callbackUrl: callbackUrlForParsing, 
+							hasCode, 
+							hasState,
+							allParams: Object.fromEntries(url.searchParams)
+						});
+						setError('Callback URL does not contain required OAuth parameters (code and state)');
+						setIsLoading(false);
+						return;
+					}
+					
 					const parsed = UnifiedFlowIntegrationV8U.parseCallbackUrl(
 						callbackUrlForParsing,
 						flowState.state || ''
@@ -7084,6 +7131,27 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}
 				} else {
 					// Authorization code flow only
+					const callbackUrlForParsing = flowState.authorizationCode || '';
+					
+					// Validate that the callback URL actually contains OAuth parameters
+					if (callbackUrlForParsing) {
+						const url = new URL(callbackUrlForParsing);
+						const hasCode = url.searchParams.has('code');
+						const hasState = url.searchParams.has('state');
+						
+						if (!hasCode || !hasState) {
+							console.warn(`${MODULE_TAG} Authorization code flow callback URL does not contain required OAuth parameters`, { 
+								callbackUrl: callbackUrlForParsing, 
+								hasCode, 
+								hasState,
+								allParams: Object.fromEntries(url.searchParams)
+							});
+							setError('Callback URL does not contain required OAuth parameters (code and state)');
+							setIsLoading(false);
+							return;
+						}
+					}
+					
 					const parsed = UnifiedFlowIntegrationV8U.parseCallbackUrl(
 						flowState.authorizationCode || '',
 						flowState.state || ''
