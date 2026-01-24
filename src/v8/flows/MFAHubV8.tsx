@@ -245,10 +245,13 @@ export const MFAHubV8: React.FC = () => {
 	// Update configuration when checkboxes change
 	// Make checkboxes consistent: if Silent is ON, Show Token must be OFF (and vice versa)
 	const handleSilentApiRetrievalChange = async (value: boolean) => {
+		console.log('[MFA-HUB-V8] DEBUG - handleSilentApiRetrievalChange called with:', value);
 		const config = MFAConfigurationServiceV8.loadConfiguration();
+		console.log('[MFA-HUB-V8] DEBUG - Current config before change:', config.workerToken);
 		config.workerToken.silentApiRetrieval = value;
 		MFAConfigurationServiceV8.saveConfiguration(config);
 		setSilentApiRetrieval(value);
+		console.log('[MFA-HUB-V8] DEBUG - State set to:', value);
 		// Dispatch event to notify other components
 		window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
 		toastV8.info(`Silent API Token Retrieval set to: ${value}`);
@@ -256,6 +259,7 @@ export const MFAHubV8: React.FC = () => {
 		// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 		if (value) {
 			const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			console.log('[MFA-HUB-V8] DEBUG - Current token status:', currentStatus);
 			if (!currentStatus.isValid) {
 				console.log('[MFA-HUB-V8] Silent API retrieval enabled, attempting to fetch token now...');
 				await handleShowWorkerTokenModal(
