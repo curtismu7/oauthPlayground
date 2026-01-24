@@ -752,8 +752,9 @@ const AllFlowsApiTest: React.FC = () => {
 							<Select
 								value={selectedAppId || ''}
 								onChange={(e) => selectApp(e.target.value || null)}
+								disabled={!hasWorkerToken}
 							>
-								<option value="">Manual Configuration</option>
+								<option key="manual" value="">Manual Configuration</option>
 								{apps.map((app) => (
 									<option key={app.id} value={app.id}>
 										{app.name} ({app.clientId?.substring(0, 8)}...)
