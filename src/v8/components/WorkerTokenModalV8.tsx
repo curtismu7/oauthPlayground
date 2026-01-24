@@ -22,6 +22,7 @@ import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethod
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
+import { workerTokenCacheServiceV8 } from '@/v8/services/workerTokenCacheServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
 
@@ -208,39 +209,51 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			setLoadingMessage('✅ Validating configuration against PingOne...');
 			
 			const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
-			const workerToken = await unifiedWorkerTokenServiceV2.getToken();
 			
-			if (!workerToken) {
-				throw new Error('No worker token available for preflight validation. Please ensure worker token credentials are properly saved.');
-			}
+			// Try to get worker token from current or cached source
+			const tokenValidation = await workerTokenCacheServiceV8.getWorkerTokenForValidation(
+				environmentId.trim(),
+				clientId.trim()
+			);
+			
+			if (!tokenValidation.isValid || !tokenValidation.token) {
+				const errorMessage = tokenValidation.issues.join('; ');
+				console.warn(`${MODULE_TAG} Pre-flight validation error:`, errorMessage);
+				
+				// Show a warning instead of throwing an error - allow user to proceed
+				toastV8.warning(`Pre-flight validation skipped: ${errorMessage}. Proceeding with token generation...`);
+				setLoadingMessage('🔑 Preparing token request...');
+			} else {
+				console.log(`${MODULE_TAG} Using ${tokenValidation.source} token for pre-flight validation`);
+				
+				// For worker token generation, we only need to validate OAuth config (no redirect URI)
+				const oauthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
+					specVersion: 'oauth2.0' as const, // Worker tokens use OAuth 2.0
+					flowType: 'client-credentials' as const, // Worker tokens use client credentials flow
+					credentials: {
+						environmentId: environmentId.trim(),
+						clientId: clientId.trim(),
+						clientSecret: clientSecret.trim(),
+						redirectUri: '', // Not needed for worker tokens
+						postLogoutRedirectUri: '', // Not needed for worker tokens
+						scopes: normalizedScopes.join(' '), // Convert array to string
+						responseType: '', // Not needed for worker tokens
+						clientAuthMethod: authMethod,
+					},
+					workerToken: tokenValidation.token,
+				});
 
-			// For worker token generation, we only need to validate OAuth config (no redirect URI)
-			const oauthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
-				specVersion: 'oauth2.0' as const, // Worker tokens use OAuth 2.0
-				flowType: 'client-credentials' as const, // Worker tokens use client credentials flow
-				credentials: {
-					environmentId: environmentId.trim(),
-					clientId: clientId.trim(),
-					clientSecret: clientSecret.trim(),
-					redirectUri: '', // Not needed for worker tokens
-					postLogoutRedirectUri: '', // Not needed for worker tokens
-					scopes: normalizedScopes.join(' '), // Convert array to string
-					responseType: '', // Not needed for worker tokens
-					clientAuthMethod: authMethod,
-				},
-				workerToken,
-			});
+				if (!oauthConfigResult.passed) {
+					// Show validation errors
+					const errorMessage = oauthConfigResult.errors.join('; ');
+					throw new Error(`Pre-flight validation failed: ${errorMessage}`);
+				}
 
-			if (!oauthConfigResult.passed) {
-				// Show validation errors
-				const errorMessage = oauthConfigResult.errors.join('; ');
-				throw new Error(`Pre-flight validation failed: ${errorMessage}`);
-			}
-
-			// Show warnings if any
-			if (oauthConfigResult.warnings.length > 0) {
-				const warningMessage = oauthConfigResult.warnings.join('; ');
-				toastV8.warning(`Pre-flight warnings: ${warningMessage}`);
+				// Show warnings if any
+				if (oauthConfigResult.warnings.length > 0) {
+					const warningMessage = oauthConfigResult.warnings.join('; ');
+					toastV8.warning(`Pre-flight warnings: ${warningMessage}`);
+				}
 			}
 
 			setLoadingMessage('🔑 Preparing token request...');
@@ -410,6 +423,17 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			// Now store token using unifiedWorkerTokenService (credentials are already saved)
 			const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
 			await unifiedWorkerTokenServiceV2.saveToken(token, expiresAt);
+
+			// Cache the token for future preflight validation
+			const tokenScopes = scopeInput
+				.split(/\s+/)
+				.map((scope) => scope.trim())
+				.filter(Boolean);
+			await workerTokenCacheServiceV8.updateCacheOnTokenGeneration(
+				environmentId.trim(),
+				clientId.trim(),
+				tokenScopes
+			);
 
 			// Dispatch event for status update
 			console.log(`${MODULE_TAG} 🔑 Dispatching workerTokenUpdated event`);
