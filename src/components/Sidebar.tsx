@@ -654,7 +654,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="Comprehensive API testing for all OAuth flows">
+							<MigrationBadge title="Comprehensive API testing for all OAuth flows with worker token support">
 								NEW
 							</MigrationBadge>
 						),
