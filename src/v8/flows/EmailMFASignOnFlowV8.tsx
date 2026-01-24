@@ -439,10 +439,17 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 	// Check worker token status
 	useEffect(() => {
 		if (workerToken) {
-			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus(workerToken);
-			if (!status.isValid) {
-				toastV8.warning('Worker token is expired or invalid. Please generate a new token.');
-			}
+			const checkStatus = async () => {
+				try {
+					const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+					if (!status.isValid) {
+						toastV8.warning('Worker token is expired or invalid. Please generate a new token.');
+					}
+				} catch (error) {
+					console.error(`${MODULE_TAG} Error checking token status:`, error);
+				}
+			};
+			checkStatus();
 		}
 	}, [workerToken]);
 
