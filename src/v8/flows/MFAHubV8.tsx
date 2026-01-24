@@ -16,7 +16,7 @@
  */
 
 import React, { lazy, Suspense, useEffect, useState } from 'react';
-import { FiTrash2, FiPackage } from 'react-icons/fi';
+import { FiTrash2, FiPackage, FiChevronDown } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
@@ -35,6 +35,96 @@ import {
 	generateComprehensiveMFAPostmanCollection,
 	downloadPostmanCollectionWithEnvironment,
 } from '@/services/postmanCollectionGeneratorV8';
+import styled from 'styled-components';
+
+// Collapsible components
+const CollapsibleSection = styled.div`
+	margin-bottom: 1.5rem;
+	background-color: #ffffff;
+	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
+`;
+
+const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 1.5rem 1.75rem;
+	background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%);
+	border: 3px solid transparent;
+	border-radius: 1rem;
+	cursor: pointer;
+	font-size: 1.2rem;
+	font-weight: 700;
+	color: #14532d;
+	transition: all 0.3s ease;
+	position: relative;
+	box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
+
+	&:hover {
+		background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+		border-color: #86efac;
+		transform: translateY(-2px);
+		box-shadow: 0 8px 24px rgba(34, 197, 94, 0.2);
+	}
+
+	&:active {
+		transform: translateY(0);
+		box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+	}
+`;
+
+const CollapsibleTitle = styled.span`
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+`;
+
+const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 48px;
+	height: 48px;
+	border-radius: 12px;
+	background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+	border: 3px solid #3b82f6;
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	transition: all 0.3s ease;
+	cursor: pointer;
+	color: #3b82f6;
+	box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+
+	&:hover {
+		background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+		border-color: #2563eb;
+		color: #2563eb;
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
+		box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+	}
+
+	svg {
+		width: 24px;
+		height: 24px;
+		stroke-width: 3px;
+		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+	}
+`;
+
+const CollapsibleContent = styled.div`
+	padding: 1.5rem;
+	padding-top: 0;
+	animation: fadeIn 0.2s ease;
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+`;
 
 interface FeatureCard {
 	title: string;
@@ -67,6 +157,10 @@ export const MFAHubV8: React.FC = () => {
 	const navigate = useNavigate();
 	const [isClearingTokens, setIsClearingTokens] = useState(false);
 	const authContext = useAuth();
+	
+	// Collapsible sections state
+	const [featuresCollapsed, setFeaturesCollapsed] = useState(false);
+	const [infoCollapsed, setInfoCollapsed] = useState(false);
 	
 	// Worker token state
 	const [tokenStatus, setTokenStatus] = useState(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
@@ -764,68 +858,104 @@ export const MFAHubV8: React.FC = () => {
 					</div>
 				</div>
 
-				<div className="features-grid">
-					{features.map((feature) => (
-						<div
-							key={feature.path}
-							className="feature-card"
-							onClick={() => navigate(feature.path)}
-							style={{ borderTop: `4px solid ${feature.color}` }}
-						>
-							<div className="feature-icon" style={{ background: `${feature.color}20` }}>
-								<span style={{ fontSize: '48px' }}>{feature.icon}</span>
-							</div>
-							<h3 style={{ color: feature.color }}>{feature.title}</h3>
-							<p className="feature-description">{feature.description}</p>
-							<ul className="feature-list">
-								{feature.features.map((item, idx) => (
-									<li key={idx}>{item}</li>
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setFeaturesCollapsed(!featuresCollapsed)}
+						aria-expanded={!featuresCollapsed}
+					>
+						<CollapsibleTitle>
+							<span style={{ fontSize: '20px' }}>🚀</span>
+							MFA Features
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={featuresCollapsed}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!featuresCollapsed && (
+						<CollapsibleContent>
+							<div className="features-grid">
+								{features.map((feature) => (
+									<div
+										key={feature.path}
+										className="feature-card"
+										onClick={() => navigate(feature.path)}
+										style={{ borderTop: `4px solid ${feature.color}` }}
+									>
+										<div className="feature-icon" style={{ background: `${feature.color}20` }}>
+											<span style={{ fontSize: '48px' }}>{feature.icon}</span>
+										</div>
+										<h3 style={{ color: feature.color }}>{feature.title}</h3>
+										<p className="feature-description">{feature.description}</p>
+										<ul className="feature-list">
+											{feature.features.map((item, idx) => (
+												<li key={idx}>{item}</li>
+											))}
+										</ul>
+										<button
+											className="feature-button"
+											style={{ background: feature.color }}
+											onClick={(e) => {
+												e.stopPropagation();
+												navigate(feature.path);
+											}}
+										>
+											Open {feature.title}
+										</button>
+									</div>
 								))}
-							</ul>
-							<button
-								className="feature-button"
-								style={{ background: feature.color }}
-								onClick={(e) => {
-									e.stopPropagation();
-									navigate(feature.path);
-								}}
-							>
-								Open {feature.title}
-							</button>
-						</div>
-					))}
-				</div>
+							</div>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
 
-				<div className="info-section">
-					<h3>About PingOne MFA</h3>
-					<p>
-						PingOne MFA provides secure multi-factor authentication for your applications. This hub
-						gives you complete control over device registration, management, reporting, and
-						configuration.
-					</p>
-					<div className="info-grid">
-						<div className="info-card">
-							<span className="info-icon">🔐</span>
-							<h4>Secure</h4>
-							<p>Industry-standard MFA protocols including TOTP, SMS, and Email</p>
-						</div>
-						<div className="info-card">
-							<span className="info-icon">📱</span>
-							<h4>Flexible</h4>
-							<p>Support for multiple device types and authentication methods</p>
-						</div>
-						<div className="info-card">
-							<span className="info-icon">📊</span>
-							<h4>Insightful</h4>
-							<p>Comprehensive reporting and analytics for MFA usage</p>
-						</div>
-						<div className="info-card">
-							<span className="info-icon">⚡</span>
-							<h4>Fast</h4>
-							<p>Quick device registration and authentication flows</p>
-						</div>
-					</div>
-				</div>
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setInfoCollapsed(!infoCollapsed)}
+						aria-expanded={!infoCollapsed}
+					>
+						<CollapsibleTitle>
+							<span style={{ fontSize: '20px' }}>📚</span>
+							About PingOne MFA
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={infoCollapsed}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!infoCollapsed && (
+						<CollapsibleContent>
+							<div className="info-section">
+								<h3>About PingOne MFA</h3>
+								<p>
+									PingOne MFA provides secure multi-factor authentication for your applications. This hub
+									gives you complete control over device registration, management, reporting, and
+									configuration.
+								</p>
+								<div className="info-grid">
+									<div className="info-card">
+										<span className="info-icon">🔐</span>
+										<h4>Secure</h4>
+										<p>Industry-standard MFA protocols including TOTP, SMS, and Email</p>
+									</div>
+									<div className="info-card">
+										<span className="info-icon">📱</span>
+										<h4>Flexible</h4>
+										<p>Support for multiple device types and authentication methods</p>
+									</div>
+									<div className="info-card">
+										<span className="info-icon">📊</span>
+										<h4>Insightful</h4>
+										<p>Comprehensive reporting and analytics for MFA usage</p>
+									</div>
+									<div className="info-card">
+										<span className="info-icon">⚡</span>
+										<h4>Fast</h4>
+										<p>Quick device registration and authentication flows</p>
+									</div>
+								</div>
+							</div>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
 			</div>
 
 			<style>{`
