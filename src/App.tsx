@@ -221,6 +221,7 @@ const ImplicitFlowTest = lazy(() => import('./pages/test/ImplicitFlowTest'));
 const AllFlowsApiTest = lazy(() => import('./pages/test/AllFlowsApiTest'));
 const PARTest = lazy(() => import('./pages/test/PARTest'));
 const TestCallback = lazy(() => import('./pages/test/TestCallback'));
+const ProductionApiTestPageV8U = lazy(() => import('./v8u/pages/ProductionApiTestPageV8U'));
 
 // Import V7M pages
 const V7MOAuthAuthCode = lazy(() => import('./v7m/pages/V7MOAuthAuthCode'));
@@ -1095,6 +1096,14 @@ const AppRoutes: React.FC = () => {
 								element={
 									<Suspense fallback={<div>Loading...</div>}>
 										<PARTest />
+									</Suspense>
+								}
+							/>
+							<Route
+								path="/production/api-tests"
+								element={
+									<Suspense fallback={<div>Loading...</div>}>
+										<ProductionApiTestPageV8U />
 									</Suspense>
 								}
 							/>
