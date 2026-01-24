@@ -12,9 +12,14 @@
  * - Production group menu integration
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { FiPlay, FiRefreshCw, FiCheck, FiX, FiCode, FiDatabase, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 // Test interfaces
 interface ApiTest {
@@ -670,6 +675,90 @@ const ProductionApiTestPageV8U: React.FC = () => {
 	const [expandedResults, setExpandedResults] = useState<Set<string>>(new Set());
 	const [collapsedSections, setCollapsedSections] = useState<CollapsibleState>({});
 
+	// Worker Token Settings State
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+		try {
+			const config = MFAConfigurationServiceV8.loadConfiguration();
+			return config.workerToken.silentApiRetrieval;
+		} catch {
+			return false;
+		}
+	});
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+		try {
+			const config = MFAConfigurationServiceV8.loadConfiguration();
+			return config.workerToken.showTokenAtEnd;
+		} catch {
+			return false;
+		}
+	});
+	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
+		isValid: false,
+		status: 'missing',
+		message: 'Checking...',
+		expiresAt: null,
+		minutesRemaining: 0,
+	});
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+
+	// Initialize token status and listen for updates
+	useEffect(() => {
+		const initializeTokenStatus = async () => {
+			try {
+				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				setTokenStatus(status);
+			} catch (error) {
+				console.error('[PRODUCTION-API-TEST-V8U] Failed to check token status:', error);
+			}
+		};
+		initializeTokenStatus();
+
+		// Listen for configuration updates
+		const handleConfigUpdate = (event: Event) => {
+			const customEvent = event as CustomEvent<{ workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean } }>;
+			if (customEvent.detail?.workerToken) {
+				if (customEvent.detail.workerToken.silentApiRetrieval !== undefined) {
+					setSilentApiRetrieval(customEvent.detail.workerToken.silentApiRetrieval);
+				}
+				if (customEvent.detail.workerToken.showTokenAtEnd !== undefined) {
+					setShowTokenAtEnd(customEvent.detail.workerToken.showTokenAtEnd);
+				}
+			}
+		};
+
+		// Listen for token updates
+		const handleTokenUpdate = async () => {
+			try {
+				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				setTokenStatus(status);
+			} catch (error) {
+				console.error('[PRODUCTION-API-TEST-V8U] Failed to check token status in event handler:', error);
+			}
+		};
+
+		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		const interval = setInterval(handleTokenUpdate, 5000);
+
+		return () => {
+			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
+			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+			clearInterval(interval);
+		};
+	}, []);
+
+	// Handle worker token modal
+	const handleShowWorkerTokenModal = async () => {
+		const { handleShowWorkerTokenModal: showModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+		await showModal(
+			setShowWorkerTokenModal,
+			setTokenStatus,
+			silentApiRetrieval,
+			showTokenAtEnd,
+			true // Force show modal - user clicked button
+		);
+	};
+
 	// Toggle collapsible sections
 	const toggleSection = useCallback((sectionId: string) => {
 		setCollapsedSections(prev => ({
@@ -843,6 +932,160 @@ const ProductionApiTestPageV8U: React.FC = () => {
 					Comprehensive API testing for MFA and Unified flows with real PingOne APIs
 				</Subtitle>
 			</Header>
+
+			{/* Worker Token Configuration Section */}
+			<TestSuiteCard>
+				<TestSuiteHeader>
+					<TestSuiteTitle>
+						<FiShield />
+						Worker Token Configuration
+					</TestSuiteTitle>
+				</TestSuiteHeader>
+				<TestSuiteDescription>
+					Configure worker token settings for API testing. Many tests require a valid worker token for authentication.
+				</TestSuiteDescription>
+				
+				<div style={{ 
+					display: 'flex', 
+					flexDirection: 'column', 
+					gap: '16px',
+					padding: '16px 0'
+				}}>
+					{/* Token Status Display */}
+					<div style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '12px',
+						padding: '12px',
+						background: tokenStatus.isValid ? '#d1fae5' : '#fee2e2',
+						borderRadius: '8px',
+						border: `1px solid ${tokenStatus.isValid ? '#10b981' : '#ef4444'}`
+					}}>
+						<div style={{
+							width: '12px',
+							height: '12px',
+							borderRadius: '50%',
+							background: tokenStatus.isValid ? '#10b981' : '#ef4444'
+						}} />
+						<div>
+							<div style={{ 
+								fontWeight: '600', 
+								color: tokenStatus.isValid ? '#065f46' : '#991b1b',
+								fontSize: '14px'
+							}}>
+								Worker Token: {tokenStatus.isValid ? 'Valid' : tokenStatus.status === 'missing' ? 'Missing' : 'Expired'}
+							</div>
+							<div style={{ 
+								fontSize: '12px', 
+								color: tokenStatus.isValid ? '#065f46' : '#991b1b',
+								opacity: 0.8
+							}}>
+								{tokenStatus.message}
+								{tokenStatus.expiresAt && ` (expires in ${tokenStatus.minutesRemaining} min)`}
+							</div>
+						</div>
+					</div>
+
+					{/* Get Worker Token Button */}
+					<RunButton onClick={handleShowWorkerTokenModal}>
+						<FiShield />
+						Get Worker Token
+					</RunButton>
+
+					{/* Configuration Checkboxes */}
+					<div style={{ 
+						display: 'flex', 
+						flexDirection: 'column', 
+						gap: '16px',
+						padding: '16px',
+						background: '#f8fafc',
+						borderRadius: '8px',
+						border: '1px solid #e2e8f0'
+					}}>
+						{/* Silent API Retrieval Checkbox */}
+						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+							<input
+								type="checkbox"
+								checked={silentApiRetrieval}
+								onChange={async (e) => {
+									const newValue = e.target.checked;
+									setSilentApiRetrieval(newValue);
+									// Update config service immediately
+									const config = MFAConfigurationServiceV8.loadConfiguration();
+									config.workerToken.silentApiRetrieval = newValue;
+									MFAConfigurationServiceV8.saveConfiguration(config);
+									// Dispatch event to notify other components
+									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+									toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
+									
+									// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
+									if (newValue) {
+										const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										if (!currentStatus.isValid) {
+											console.log('[PRODUCTION-API-TEST-V8U] Silent API retrieval enabled, attempting to fetch token now...');
+											const { handleShowWorkerTokenModal: showModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+											await showModal(
+												setShowWorkerTokenModal,
+												setTokenStatus,
+												newValue,
+												showTokenAtEnd,
+												false // Not forced - respect silent setting
+											);
+										}
+									}
+								}}
+								style={{
+									width: '20px',
+									height: '20px',
+									marginTop: '2px',
+									cursor: 'pointer'
+								}}
+							/>
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+								<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+									Silent API Token Retrieval
+								</span>
+								<span style={{ fontSize: '12px', color: '#6b7280' }}>
+									Automatically fetch worker token in the background without showing modals
+								</span>
+							</div>
+						</div>
+
+						{/* Show Token After Generation Checkbox */}
+						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+							<input
+								type="checkbox"
+								checked={showTokenAtEnd}
+								onChange={(e) => {
+									const newValue = e.target.checked;
+									setShowTokenAtEnd(newValue);
+									// Update config service immediately
+									const config = MFAConfigurationServiceV8.loadConfiguration();
+									config.workerToken.showTokenAtEnd = newValue;
+									MFAConfigurationServiceV8.saveConfiguration(config);
+									// Dispatch event to notify other components
+									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+									toastV8.info(`Show Token After Generation set to: ${newValue}`);
+								}}
+								style={{
+									width: '20px',
+									height: '20px',
+									marginTop: '2px',
+									cursor: 'pointer'
+								}}
+							/>
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+								<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+									Show Token After Generation
+								</span>
+								<span style={{ fontSize: '12px', color: '#6b7280' }}>
+									Display the generated worker token in a modal after successful retrieval
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</TestSuiteCard>
 
 			<TestSuiteGrid>
 				{testSuites.map(suite => (
@@ -1095,6 +1338,39 @@ const ProductionApiTestPageV8U: React.FC = () => {
 					))}
 				</ResultsList>
 			</ResultsSection>
+
+			{/* Worker Token Modal */}
+			<WorkerTokenModalV8
+				isOpen={showWorkerTokenModal}
+				onClose={async () => {
+					setShowWorkerTokenModal(false);
+					// Refresh token status when modal closes
+					try {
+						const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+						setTokenStatus(newStatus);
+					} catch (error) {
+						console.error('[PRODUCTION-API-TEST-V8U] Failed to check token status after modal close:', error);
+					}
+				}}
+				showTokenOnly={(() => {
+					if (!showWorkerTokenModal) return false;
+					try {
+						const config = MFAConfigurationServiceV8.loadConfiguration();
+						// For showTokenOnly, we need to check synchronously for the modal display logic
+						// Use a simple status check that doesn't require async
+						const currentStatus = {
+							isValid: false,
+							status: 'missing' as const,
+							message: 'Checking...',
+							expiresAt: null as number | null,
+							minutesRemaining: 0,
+						};
+						return config.workerToken.showTokenAtEnd && currentStatus.isValid;
+					} catch {
+						return false;
+					}
+				})()}
+			/>
 		</PageContainer>
 	);
 };
