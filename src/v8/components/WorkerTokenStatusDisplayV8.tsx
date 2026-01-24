@@ -15,7 +15,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { FiKey, FiShield, FiClock, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiZap, FiActivity } from 'react-icons/fi';
 import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
@@ -102,7 +102,7 @@ const StatusContainer = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }
 			inset 0 1px 0 rgba(255, 255, 255, 0.3);
 	}
 
-	${props => props.$variant === 'valid' && `
+	${props => props.$variant === 'valid' && css`
 		animation: ${slideIn} 0.5s ease-out, ${glow} 3s ease-in-out infinite;
 	`}
 `;
