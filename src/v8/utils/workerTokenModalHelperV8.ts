@@ -179,6 +179,17 @@ export async function handleShowWorkerTokenModal(
 	// Use override values if provided (Hub page checkboxes take precedence), otherwise use config
 	const silentApiRetrieval = overrideSilentApiRetrieval !== undefined ? overrideSilentApiRetrieval : config.workerToken.silentApiRetrieval;
 	const showTokenAtEnd = overrideShowTokenAtEnd !== undefined ? overrideShowTokenAtEnd : config.workerToken.showTokenAtEnd;
+	
+	// DEBUG: Log all values for debugging
+	console.log(`${MODULE_TAG} DEBUG - handleShowWorkerTokenModal called with:`, {
+		overrideSilentApiRetrieval,
+		overrideShowTokenAtEnd,
+		forceShowModal,
+		configSilentApiRetrieval: config.workerToken.silentApiRetrieval,
+		configShowTokenAtEnd: config.workerToken.showTokenAtEnd,
+		finalSilentApiRetrieval: silentApiRetrieval,
+		finalShowTokenAtEnd: showTokenAtEnd,
+	});
 	// #region agent log
 	// #endregion
 	
