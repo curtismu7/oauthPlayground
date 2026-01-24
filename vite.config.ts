@@ -13,6 +13,25 @@ export default defineConfig(({ mode }) => {
 		env.PINGONE_APP_VERSION || env.VITE_APP_VERSION || packageJson.version || '0.0.0-dev';
 
 	return {
+		define: {
+			// Polyfill for global object in browser environment
+			global: 'globalThis',
+			// Expose environment variables to the client
+			__PINGONE_ENVIRONMENT_ID__: JSON.stringify(env.PINGONE_ENVIRONMENT_ID),
+			__PINGONE_CLIENT_ID__: JSON.stringify(env.PINGONE_CLIENT_ID),
+			__PINGONE_CLIENT_SECRET__: JSON.stringify(env.PINGONE_CLIENT_SECRET),
+			__PINGONE_REDIRECT_URI__: JSON.stringify(env.PINGONE_REDIRECT_URI),
+			__PINGONE_LOGOUT_REDIRECT_URI__: JSON.stringify(env.PINGONE_LOGOUT_REDIRECT_URI),
+			__PINGONE_API_URL__: JSON.stringify(env.PINGONE_API_URL),
+			__PINGONE_APP_TITLE__: JSON.stringify(env.PINGONE_APP_TITLE),
+			__PINGONE_APP_DESCRIPTION__: JSON.stringify(env.PINGONE_APP_DESCRIPTION),
+			__PINGONE_APP_VERSION__: JSON.stringify(appVersion),
+			__PINGONE_APP_DEFAULT_THEME__: JSON.stringify(env.PINGONE_APP_DEFAULT_THEME),
+			__PINGONE_DEV_SERVER_PORT__: JSON.stringify(env.PINGONE_DEV_SERVER_PORT),
+			__PINGONE_DEV_SERVER_HTTPS__: JSON.stringify(env.PINGONE_DEV_SERVER_HTTPS),
+			__PINGONE_FEATURE_DEBUG_MODE__: JSON.stringify(env.PINGONE_FEATURE_DEBUG_MODE),
+			__PINGONE_FEATURE_ANALYTICS__: JSON.stringify(env.PINGONE_FEATURE_ANALYTICS),
+		},
 		resolve: {
 			alias: {
 				'@': path.resolve(__dirname, './src'),
@@ -183,23 +202,6 @@ export default defineConfig(({ mode }) => {
 					drop_debugger: mode === 'production',
 				},
 			},
-		},
-		define: {
-			// Expose environment variables to the client
-			__PINGONE_ENVIRONMENT_ID__: JSON.stringify(env.PINGONE_ENVIRONMENT_ID),
-			__PINGONE_CLIENT_ID__: JSON.stringify(env.PINGONE_CLIENT_ID),
-			__PINGONE_CLIENT_SECRET__: JSON.stringify(env.PINGONE_CLIENT_SECRET),
-			__PINGONE_REDIRECT_URI__: JSON.stringify(env.PINGONE_REDIRECT_URI),
-			__PINGONE_LOGOUT_REDIRECT_URI__: JSON.stringify(env.PINGONE_LOGOUT_REDIRECT_URI),
-			__PINGONE_API_URL__: JSON.stringify(env.PINGONE_API_URL),
-			__PINGONE_APP_TITLE__: JSON.stringify(env.PINGONE_APP_TITLE),
-			__PINGONE_APP_DESCRIPTION__: JSON.stringify(env.PINGONE_APP_DESCRIPTION),
-			__PINGONE_APP_VERSION__: JSON.stringify(appVersion),
-			__PINGONE_APP_DEFAULT_THEME__: JSON.stringify(env.PINGONE_APP_DEFAULT_THEME),
-			__PINGONE_DEV_SERVER_PORT__: JSON.stringify(env.PINGONE_DEV_SERVER_PORT),
-			__PINGONE_DEV_SERVER_HTTPS__: JSON.stringify(env.PINGONE_DEV_SERVER_HTTPS),
-			__PINGONE_FEATURE_DEBUG_MODE__: JSON.stringify(env.PINGONE_FEATURE_DEBUG_MODE),
-			__PINGONE_FEATURE_ANALYTICS__: JSON.stringify(env.PINGONE_FEATURE_ANALYTICS),
 		},
 	};
 });
