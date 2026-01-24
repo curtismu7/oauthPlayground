@@ -23,6 +23,7 @@ import {
 	FiBook,
 	FiCheckCircle,
 	FiChevronDown,
+	FiCode,
 	FiCopy,
 	FiGlobe,
 	FiInfo,
@@ -13937,6 +13938,82 @@ passed: boolean;
 							<FiArrowRight size={16} style={{ marginLeft: '4px' }} />
 						</button>
 					)}
+				</div>
+			</div>
+
+			{/* API Test Button */}
+			<div
+				style={{
+					marginTop: '16px',
+					padding: '16px',
+					background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+					borderRadius: '12px',
+					border: '1px solid #bae6fd',
+					textAlign: 'center',
+				}}
+			>
+				<div style={{ marginBottom: '12px' }}>
+					<h3 style={{ 
+						margin: '0 0 8px 0', 
+						fontSize: '16px', 
+						fontWeight: '600', 
+						color: '#0369a1' 
+					}}>
+						🧪 API Testing Suite
+					</h3>
+					<p style={{ 
+						margin: '0 0 12px 0', 
+						fontSize: '14px', 
+						color: '#64748b',
+						lineHeight: '1.5'
+					}}>
+						Test comprehensive OAuth and MFA API endpoints with real-time validation. 
+						Includes all flow types: Authorization Code, Implicit, Hybrid, Device Auth, 
+						Client Credentials, and MFA device management.
+					</p>
+				</div>
+				
+				<button
+					type="button"
+					onClick={() => {
+						window.open('/test/all-flows-api', '_blank');
+					}}
+					style={{
+						display: 'inline-flex',
+						alignItems: 'center',
+						gap: '8px',
+						padding: '12px 24px',
+						background: '#3b82f6',
+						color: 'white',
+						border: 'none',
+						borderRadius: '8px',
+						fontSize: '15px',
+						fontWeight: '600',
+						cursor: 'pointer',
+						boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+						transition: 'all 0.2s ease',
+					}}
+					onMouseEnter={(e) => {
+						e.currentTarget.style.background = '#2563eb';
+						e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+					}}
+					onMouseLeave={(e) => {
+						e.currentTarget.style.background = '#3b82f6';
+						e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
+					}}
+					title="Open comprehensive OAuth and MFA API test suite in new tab"
+				>
+					<FiCode size={18} />
+					Open API Test Suite
+				</button>
+				
+				<div style={{ 
+					marginTop: '12px', 
+					fontSize: '12px', 
+					color: '#64748b',
+					fontStyle: 'italic'
+				}}>
+					Opens in new tab • Tests all OAuth flows and MFA device types
 				</div>
 			</div>
 
