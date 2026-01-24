@@ -14,13 +14,14 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
+import { FiAlertCircle, FiCheckCircle, FiKey, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
@@ -149,13 +150,35 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		errors: Array<{ deviceId: string; error: string }>;
 	} | null>(null);
 	const [selectedDeviceIds, setSelectedDeviceIds] = useState<Set<string>>(new Set());
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+
+	// Get worker token status
+	const [tokenStatus, setTokenStatus] = useState<any>({
+		isValid: false,
+		minutesRemaining: 0,
+	});
+
+	// Update token status periodically
+	useEffect(() => {
+		const updateTokenStatus = async () => {
+			try {
+				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				setTokenStatus(status);
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to check token status`, error);
+				setTokenStatus({ isValid: false, minutesRemaining: 0 });
+			}
+		};
+
+		updateTokenStatus();
+		const interval = setInterval(updateTokenStatus, 30000); // Update every 30 seconds
+
+		return () => clearInterval(interval);
+	}, []);
 
 	const selectedCount = devices.filter((device) =>
 		selectedDeviceIds.has(device.id as string)
 	).length;
-
-	// Get worker token status
-	const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 
 	// Persist form state when it changes
 	useEffect(() => {
@@ -514,19 +537,43 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							borderRadius: '6px',
 							display: 'flex',
 							alignItems: 'center',
+							justifyContent: 'space-between',
 							gap: '8px',
 						}}
 					>
-						{tokenStatus.isValid ? (
-							<FiCheckCircle style={{ color: '#16a34a', fontSize: '18px' }} />
-						) : (
-							<FiAlertCircle style={{ color: '#dc2626', fontSize: '18px' }} />
-						)}
-						<span style={{ fontSize: '14px', color: tokenStatus.isValid ? '#365314' : '#991b1b' }}>
-							{tokenStatus.isValid
-								? `Worker token is valid (${tokenStatus.minutesRemaining} minutes remaining)`
-								: 'Worker token is missing or invalid. Please configure it first.'}
-						</span>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+							{tokenStatus.isValid ? (
+								<FiCheckCircle style={{ color: '#16a34a', fontSize: '18px' }} />
+							) : (
+								<FiAlertCircle style={{ color: '#dc2626', fontSize: '18px' }} />
+							)}
+							<span style={{ fontSize: '14px', color: tokenStatus.isValid ? '#365314' : '#991b1b' }}>
+								{tokenStatus.isValid
+									? `Worker token is valid (${tokenStatus.minutesRemaining} minutes remaining)`
+									: 'Worker token is missing or invalid. Please configure it first.'}
+							</span>
+						</div>
+						<button
+							type="button"
+							onClick={() => setShowWorkerTokenModal(true)}
+							style={{
+								padding: '6px 12px',
+								border: '1px solid #d1d5db',
+								borderRadius: '4px',
+								background: 'white',
+								color: '#374151',
+								fontSize: '12px',
+								fontWeight: '500',
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '4px',
+							}}
+							title="Configure Worker Token"
+						>
+							<FiKey style={{ fontSize: '14px' }} />
+							Configure Token
+						</button>
 					</div>
 
 					{/* Load Devices Button */}
@@ -860,6 +907,26 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				you have the appropriate permissions and that the worker token has the necessary scopes.
 				Deleted devices cannot be recovered.
 			</div>
+
+			{/* Worker Token Modal */}
+			{showWorkerTokenModal && (
+				<WorkerTokenModalV8
+					isOpen={showWorkerTokenModal}
+					onClose={() => {
+						setShowWorkerTokenModal(false);
+						// Update token status after modal closes
+						setTimeout(async () => {
+							try {
+								const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+								setTokenStatus(status);
+							} catch (error) {
+								console.error(`${MODULE_TAG} Failed to check token status after modal`, error);
+								setTokenStatus({ isValid: false, minutesRemaining: 0 });
+							}
+						}, 500);
+					}}
+				/>
+			)}
 		</div>
 	);
 };
