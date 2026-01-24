@@ -792,6 +792,20 @@
 	background: transparent;
 }
 
+/* Make all spinners transparent */
+.spin,
+.animate-spin,
+[class*="spin"] {
+	background: transparent !important;
+}
+
+/* Make spinner SVG elements transparent */
+.spin svg,
+.animate-spin svg,
+[class*="spin"] svg {
+	background: transparent !important;
+}
+
 /* Make spinners in buttons transparent */
 .btn .spinner,
 .btn-next .spinner,
