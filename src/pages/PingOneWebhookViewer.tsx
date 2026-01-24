@@ -583,6 +583,24 @@ const PingOneWebhookViewer: React.FC = () => {
 						'Subscriptions endpoint not found. Please ensure the backend server is running and has been restarted to register the new routes.'
 					);
 				}
+				// Provide helpful error message for 403 (permissions issue)
+				if (response.status === 403) {
+					console.warn(
+						'[Webhook Viewer] Permission denied (403). Worker token may lack required scopes.'
+					);
+					throw new Error(
+						'Permission denied. Your worker token may lack the required scopes. Ensure your Worker App has the "p1:read:webhooks" and "p1:write:webhooks" scopes.'
+					);
+				}
+				// Check for HTML response (indicates auth error)
+				if (typeof responseData === 'string' && responseData.includes('<html>')) {
+					console.warn(
+						'[Webhook Viewer] Received HTML response - likely authentication error'
+					);
+					throw new Error(
+						'Authentication failed. Your worker token may be expired or invalid. Please generate a new worker token with the required scopes: p1:read:webhooks, p1:write:webhooks'
+					);
+				}
 				throw new Error(
 					responseData.error_description || `Failed to fetch subscriptions (${response.status})`
 				);
