@@ -16,8 +16,6 @@ export default defineConfig(({ mode }) => {
 		define: {
 			// Polyfill for global object in browser environment
 			global: 'globalThis',
-			// Ensure React is available globally for vendor bundles
-			React: 'React',
 			__PINGONE_ENVIRONMENT_ID__: JSON.stringify(env.PINGONE_ENVIRONMENT_ID),
 			__PINGONE_CLIENT_ID__: JSON.stringify(env.PINGONE_CLIENT_ID),
 			__PINGONE_CLIENT_SECRET__: JSON.stringify(env.PINGONE_CLIENT_SECRET),
