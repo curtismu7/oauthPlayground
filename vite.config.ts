@@ -165,6 +165,40 @@ export default defineConfig(({ mode }) => {
 						});
 					},
 				},
+				// Proxy for PingOne Auth APIs to avoid CORS issues
+				'/pingone-auth': {
+					target: 'https://auth.pingone.com',
+					changeOrigin: true,
+					secure: true,
+					timeout: 10000,
+					proxyTimeout: 10000,
+					rewrite: (path) => {
+						// Remove /pingone-auth prefix and forward to actual PingOne endpoint
+						return path.replace(/^\/pingone-auth/, '');
+					},
+					configure: (proxy) => {
+						proxy.on('error', (err) => {
+							console.log('PingOne Auth proxy error:', err.message);
+						});
+					},
+				},
+				// Proxy for PingOne API to avoid CORS issues
+				'/pingone-api': {
+					target: 'https://api.pingone.com',
+					changeOrigin: true,
+					secure: true,
+					timeout: 10000,
+					proxyTimeout: 10000,
+					rewrite: (path) => {
+						// Remove /pingone-api prefix and forward to actual PingOne API endpoint
+						return path.replace(/^\/pingone-api/, '');
+					},
+					configure: (proxy) => {
+						proxy.on('error', (err) => {
+							console.log('PingOne API proxy error:', err.message);
+						});
+					},
+				},
 			},
 		},
 		build: {
