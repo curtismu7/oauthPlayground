@@ -430,7 +430,7 @@ const testSuites: TestSuite[] = [
 				description: 'Fetch the OpenID Connect discovery document to get all OAuth/OIDC endpoints',
 				category: 'unified',
 				method: 'GET',
-				endpoint: 'https://auth.pingone.com/{{environmentId}}/.well-known/openid_configuration',
+				endpoint: '/pingone-auth/{{environmentId}}/.well-known/openid_configuration',
 				expectedStatus: 200
 			},
 			{
@@ -439,7 +439,7 @@ const testSuites: TestSuite[] = [
 				description: 'Retrieve the public keys used to verify JWT tokens from the authorization server',
 				category: 'unified',
 				method: 'GET',
-				endpoint: 'https://auth.pingone.com/{{environmentId}}/.well-known/jwks.json',
+				endpoint: '/pingone-auth/{{environmentId}}/.well-known/jwks.json',
 				expectedStatus: 200
 			},
 			{
@@ -448,7 +448,7 @@ const testSuites: TestSuite[] = [
 				description: 'Get the authenticated user\'s profile information using the access token',
 				category: 'unified',
 				method: 'GET',
-				endpoint: 'https://auth.pingone.com/{{environmentId}}/as/userinfo',
+				endpoint: '/pingone-auth/{{environmentId}}/as/userinfo',
 				headers: {
 					'Authorization': 'Bearer {{accessToken}}'
 				},
@@ -460,7 +460,7 @@ const testSuites: TestSuite[] = [
 				description: 'Validate and get metadata about an access token using client credentials',
 				category: 'unified',
 				method: 'POST',
-				endpoint: 'https://auth.pingone.com/{{environmentId}}/as/introspect',
+				endpoint: '/pingone-auth/{{environmentId}}/as/introspect',
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
 					'Authorization': 'Basic {{basicAuth}}'
@@ -477,7 +477,7 @@ const testSuites: TestSuite[] = [
 				description: 'Revoke an access token to invalidate it for future use',
 				category: 'unified',
 				method: 'POST',
-				endpoint: 'https://auth.pingone.com/{{environmentId}}/as/revoke',
+				endpoint: '/pingone-auth/{{environmentId}}/as/revoke',
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
 					'Authorization': 'Basic {{basicAuth}}'
@@ -618,7 +618,7 @@ const testSuites: TestSuite[] = [
 				description: 'Get a list of all PingOne environments accessible with the worker token',
 				category: 'common',
 				method: 'GET',
-				endpoint: 'https://api.pingone.com/v1/environments',
+				endpoint: '/pingone-api/v1/environments',
 				headers: {
 					'Authorization': 'Bearer {{workerToken}}'
 				},
@@ -630,7 +630,7 @@ const testSuites: TestSuite[] = [
 				description: 'Get all applications configured in a specific PingOne environment',
 				category: 'common',
 				method: 'GET',
-				endpoint: 'https://api.pingone.com/v1/environments/{{environmentId}}/applications',
+				endpoint: '/pingone-api/v1/environments/{{environmentId}}/applications',
 				headers: {
 					'Authorization': 'Bearer {{workerToken}}'
 				},
@@ -642,7 +642,7 @@ const testSuites: TestSuite[] = [
 				description: 'Get all users in a specific PingOne environment with pagination',
 				category: 'common',
 				method: 'GET',
-				endpoint: 'https://api.pingone.com/v1/environments/{{environmentId}}/users',
+				endpoint: '/pingone-api/v1/environments/{{environmentId}}/users',
 				headers: {
 					'Authorization': 'Bearer {{workerToken}}'
 				},
@@ -654,7 +654,7 @@ const testSuites: TestSuite[] = [
 				description: 'Get audit trail and activity logs for monitoring and compliance',
 				category: 'common',
 				method: 'GET',
-				endpoint: 'https://api.pingone.com/v1/environments/{{environmentId}}/activities',
+				endpoint: '/pingone-api/v1/environments/{{environmentId}}/activities',
 				headers: {
 					'Authorization': 'Bearer {{workerToken}}'
 				},
