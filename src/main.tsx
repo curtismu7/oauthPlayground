@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
@@ -22,18 +21,19 @@ console.warn = (...args) => {
 	originalWarn.apply(console, args);
 };
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-	<React.StrictMode>
-		<BrowserRouter
-			future={{
-				v7_startTransition: true,
-				v7_relativeSplatPath: true,
-			}}
-		>
-			<ThemeProvider theme={theme}>
-				<GlobalStyle />
-				<App />
-			</ThemeProvider>
-		</BrowserRouter>
-	</React.StrictMode>
+const root = document.getElementById('root');
+if (!root) throw new Error('Root element not found');
+
+ReactDOM.createRoot(root).render(
+	<BrowserRouter
+		future={{
+			v7_startTransition: true,
+			v7_relativeSplatPath: true,
+		}}
+	>
+		<ThemeProvider theme={theme}>
+			<GlobalStyle />
+			<App />
+		</ThemeProvider>
+	</BrowserRouter>
 );
