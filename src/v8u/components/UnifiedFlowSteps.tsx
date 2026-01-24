@@ -10950,18 +10950,19 @@ passed: boolean;
 						✅ Tokens already exchanged successfully! Authorization codes are single-use only.
 					</div>
 				) : flowState.authorizationCode ? (
-					<ButtonSpinner
-						loading={isExchangingTokens}
-						onClick={handleExchangeTokens}
-						disabled={isLoading}
-						spinnerSize={16}
-						spinnerPosition="center"
-						loadingText="Exchanging..."
-						className="btn btn-next"
-						style={{ marginBottom: '24px' }}
-					>
-						{isExchangingTokens ? '' : '🔄 Exchange Code for Tokens'}
-					</ButtonSpinner>
+					<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px' }}>
+						<ButtonSpinner
+							loading={isExchangingTokens}
+							onClick={handleExchangeTokens}
+							disabled={isLoading}
+							spinnerSize={16}
+							spinnerPosition="center"
+							loadingText="Exchanging..."
+							className="btn btn-next"
+						>
+							{isExchangingTokens ? '' : '🔄 Exchange Code for Tokens'}
+						</ButtonSpinner>
+					</div>
 				) : (
 					<div
 						style={{
