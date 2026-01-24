@@ -1,7 +1,7 @@
 # Unified Flow Main Page UI Documentation
 
-**Last Updated:** 2026-01-27  
-**Version:** 1.0.0  
+**Last Updated:** 2026-01-23  
+**Version:** 1.1.0  
 **Status:** ✅ IMPLEMENTED
 
 ---
@@ -11,12 +11,19 @@
 - [Unified Flow Main Page UI Contract](./unified-flow-main-page-ui-contract.md) - UI behavior contracts
 - [Unified Flow Main Page Restore Document](./unified-flow-main-page-restore.md) - Implementation details for restoration
 - [Unified Flow Architecture](../UNIFIED_FLOW_ARCHITECTURE.md) - Architecture overview
+- [Collapsible Sections Guide](../COLLAPSIBLE_SECTIONS_GUIDE.md) - Collapsible UI components guide
 
 ---
 
 ## Overview
 
 This document provides a complete reference for the UI structure, components, styling, and layout of the Unified OAuth/OIDC Flow main page (`UnifiedOAuthFlowV8U.tsx`). This page serves as the entry point for all Unified OAuth 2.0 and OpenID Connect flows, providing specification version selection, flow type selection, and educational content.
+
+**Recent Updates (v1.1.0):**
+- ✅ **Collapsible Sections**: All educational and setup sections now collapsible
+- ✅ **Enhanced Toggle Icons**: 48px prominent blue toggle icons with hover effects
+- ✅ **Step-Based Visibility**: Setup sections only shown on step 0 (configuration)
+- ✅ **Professional Styling**: Gradient backgrounds and smooth animations
 
 ---
 
@@ -59,6 +66,128 @@ This document provides a complete reference for the UI structure, components, st
 │  └─────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Collapsible Sections (NEW v1.1.0)
+
+### Overview
+
+All educational and setup sections on the main page are now collapsible with enhanced visibility and professional styling. This provides users with better control over their interface experience while maintaining easy access to important information.
+
+### Collapsible Components
+
+#### ✅ FlowGuidanceSystem
+- **Purpose**: Help users choose the right OAuth flow
+- **Location**: Step 0 (configuration page) only
+- **Features**:
+  - Use case selection cards
+  - Personalized recommendations  
+  - Educational guidance
+- **Toggle**: 48px blue chevron icon with gradient background
+
+#### ✅ SecurityScorecard  
+- **Purpose**: Visual security compliance feedback
+- **Location**: Step 0 (configuration page) only
+- **Features**:
+  - Security scoring (A-F grades)
+  - Compliance checks by category
+  - Recommendations for improvement
+- **Toggle**: 48px blue chevron icon with gradient background
+
+#### ✅ AdvancedOAuthFeatures
+- **Purpose**: Advanced OAuth 2.1 and OIDC features
+- **Location**: Step 0 (configuration page) only  
+- **Features**:
+  - PAR (Pushed Authorization Request)
+  - JAR (JWT Authorization Request)
+  - MTLS (Mutual TLS) support
+- **Toggle**: 48px blue chevron icon with gradient background
+
+### Step-Based Visibility
+
+**Step 0 (Configuration Page)** - All sections visible and collapsible:
+- ✅ FlowGuidanceSystem
+- ✅ SecurityScorecard  
+- ✅ AdvancedOAuthFeatures
+
+**Steps 1+ (Execution Steps)** - Focused interface:
+- ✅ Educational sections only (Spec Compliance, OIDC Tokens, etc.)
+- ❌ Setup sections hidden to maintain focus
+
+### Enhanced Toggle Icons
+
+#### Visual Design
+- **Size**: 48px × 48px (large and prominent)
+- **Border**: 3px solid blue (#3b82f6)
+- **Background**: White to light gray gradient
+- **Icon**: FiChevronDown (24px, stroke-width: 3px)
+- **Shadow**: Drop shadow for depth
+
+#### Interactive Effects
+- **Hover**: Scale to 1.1x, enhanced shadow, color change
+- **Active**: Scale to 0.95x, reduced shadow
+- **Rotation**: -90° when collapsed, 0° when expanded
+- **Animation**: Smooth 0.3s transitions
+
+#### Header Button Styling
+- **Background**: Green gradient (#f0fdf4 to #ecfdf3)
+- **Hover**: Enhanced green with elevation effect
+- **Text**: Dark green (#14532d), bold weight
+- **Border**: Transparent, shows green on hover
+- **Shadow**: Subtle shadow that enhances on hover
+
+### User Experience Benefits
+
+#### Progressive Disclosure
+- **Reduced Cognitive Load**: Users can hide sections they don't need
+- **Better Focus**: Show only relevant content for current task
+- **Clean Interface**: Less visual clutter when sections are collapsed
+
+#### Enhanced Visibility
+- **Easy to Find**: 48px icons are impossible to miss
+- **Clear Interaction**: Large click targets and hover feedback
+- **Professional Appearance**: Consistent styling across all sections
+
+#### Accessibility
+- **Keyboard Navigation**: Full keyboard support
+- **Screen Reader Support**: Proper ARIA attributes
+- **High Contrast**: Strong color differentiation
+- **Touch Friendly**: Large targets for mobile devices
+
+### Technical Implementation
+
+#### Component Structure
+```typescript
+<CollapsibleSection>
+  <CollapsibleHeaderButton onClick={() => setIsCollapsed(!isCollapsed)}>
+    <CollapsibleTitle>
+      <Icon />
+      Section Title
+    </CollapsibleTitle>
+    <CollapsibleToggleIcon $collapsed={isCollapsed}>
+      <FiChevronDown />
+    </CollapsibleToggleIcon>
+  </CollapsibleHeaderButton>
+  {!isCollapsed && (
+    <CollapsibleContent>
+      {/* Section content */}
+    </CollapsibleContent>
+  )}
+</CollapsibleSection>
+```
+
+#### State Management
+- **useState**: `const [isCollapsed, setIsCollapsed] = useState(false)`
+- **Conditional Rendering**: Content only shown when not collapsed
+- **Animation**: Fade-in effect when expanding
+
+#### Styled Components
+- **CollapsibleSection**: Container with white background and shadow
+- **CollapsibleHeaderButton**: Interactive header with gradient background
+- **CollapsibleTitle**: Title with icon and proper spacing
+- **CollapsibleToggleIcon**: Large, prominent toggle with rotation animation
+- **CollapsibleContent**: Content area with fade-in animation
 
 ---
 
