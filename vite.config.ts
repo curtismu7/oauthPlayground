@@ -137,9 +137,9 @@ export default defineConfig(({ mode }) => {
 			},
 			proxy: {
 				'/api': {
-					target: 'http://localhost:3002', // Backend server (HTTP, not HTTPS)
+					target: 'https://localhost:3002', // Backend server (HTTPS)
 					changeOrigin: true,
-					secure: false,
+					secure: false, // Allow self-signed certificates
 					timeout: 3000, // Shorter timeout for health checks
 					proxyTimeout: 3000,
 					rewrite: (path) => {
