@@ -495,6 +495,60 @@ export const EnhancedStateManagementPage: React.FC = () => {
         </StatCard>
         
         <StatCard>
+          <StatIcon $color="#3b82f6">
+            <FiKey />
+          </StatIcon>
+          <StatValue>
+            {(() => {
+              try {
+                const service = TokenMonitoringService.getInstance();
+                const tokens = service.getAllTokens();
+                return tokens.filter((t: any) => t.type === 'access_token').length;
+              } catch {
+                return 0;
+              }
+            })()}
+          </StatValue>
+          <StatLabel>Access Tokens</StatLabel>
+        </StatCard>
+        
+        <StatCard>
+          <StatIcon $color="#f59e0b">
+            <FiRotateCcw />
+          </StatIcon>
+          <StatValue>
+            {(() => {
+              try {
+                const service = TokenMonitoringService.getInstance();
+                const tokens = service.getAllTokens();
+                return tokens.filter((t: any) => t.type === 'refresh_token').length;
+              } catch {
+                return 0;
+              }
+            })()}
+          </StatValue>
+          <StatLabel>Refresh Tokens</StatLabel>
+        </StatCard>
+        
+        <StatCard>
+          <StatIcon $color="#10b981">
+            <FiCheckCircle />
+          </StatIcon>
+          <StatValue>
+            {(() => {
+              try {
+                const service = TokenMonitoringService.getInstance();
+                const tokens = service.getAllTokens();
+                return tokens.filter((t: any) => t.type === 'id_token').length;
+              } catch {
+                return 0;
+              }
+            })()}
+          </StatValue>
+          <StatLabel>ID Tokens</StatLabel>
+        </StatCard>
+        
+        <StatCard>
           <StatIcon $color="#10b981">
             <FiCheckCircle />
           </StatIcon>
@@ -668,6 +722,119 @@ export const EnhancedStateManagementPage: React.FC = () => {
               Last Refresh
             </div>
           </div>
+        </div>
+      </SectionContainer>
+
+      {/* All Token Status */}
+      <SectionContainer>
+        <SectionHeader>
+          <SectionIcon>
+            <FiDatabase />
+          </SectionIcon>
+          <SectionTitle>All Token Status</SectionTitle>
+        </SectionHeader>
+        
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '1rem',
+        }}>
+          {(() => {
+            try {
+              const service = TokenMonitoringService.getInstance();
+              const allTokens = service.getAllTokens();
+              const tokenTypes = ['access_token', 'refresh_token', 'id_token', 'worker_token'] as const;
+              
+              return tokenTypes.map(tokenType => {
+                const tokens = service.getTokensByType(tokenType);
+                const activeTokens = tokens.filter(t => t.status === 'active');
+                const expiringTokens = tokens.filter(t => t.status === 'expiring');
+                const expiredTokens = tokens.filter(t => t.status === 'expired');
+                
+                const getTokenIcon = (type: string) => {
+                  switch (type) {
+                    case 'access_token': return '🔑';
+                    case 'refresh_token': return '🔄';
+                    case 'id_token': return '🆔';
+                    case 'worker_token': return '👷';
+                    default: return '📄';
+                  }
+                };
+                
+                const getTokenColor = (type: string, hasActive: boolean) => {
+                  if (!hasActive) return '#fef2f2';
+                  switch (type) {
+                    case 'access_token': return '#dbeafe';
+                    case 'refresh_token': return '#fef3c7';
+                    case 'id_token': return '#f0fdf4';
+                    case 'worker_token': return '#ede9fe';
+                    default: return '#f8fafc';
+                  }
+                };
+                
+                const getBorderColor = (type: string, hasActive: boolean) => {
+                  if (!hasActive) return '#fecaca';
+                  switch (type) {
+                    case 'access_token': return '#93c5fd';
+                    case 'refresh_token': return '#fbbf24';
+                    case 'id_token': return '#86efac';
+                    case 'worker_token': return '#a78bfa';
+                    default: return '#e2e8f0';
+                  }
+                };
+                
+                return (
+                  <div key={tokenType} style={{
+                    padding: '1.5rem',
+                    background: getTokenColor(tokenType, activeTokens.length > 0),
+                    border: `1px solid ${getBorderColor(tokenType, activeTokens.length > 0)}`,
+                    borderRadius: '8px',
+                    textAlign: 'center',
+                    minHeight: '140px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                  }}>
+                    <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
+                      {getTokenIcon(tokenType)}
+                    </div>
+                    <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b', marginBottom: '0.5rem' }}>
+                      {activeTokens.length > 0 ? `${activeTokens.length} Active` : 'None'}
+                    </div>
+                    <div style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '0.5rem' }}>
+                      {tokenType.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </div>
+                    {(expiringTokens.length > 0 || expiredTokens.length > 0) && (
+                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                        {expiringTokens.length > 0 && <span style={{ color: '#d97706' }}>⚠️ {expiringTokens.length} expiring</span>}
+                        {expiredTokens.length > 0 && <span style={{ color: '#dc2626' }}>❌ {expiredTokens.length} expired</span>}
+                      </div>
+                    )}
+                    {activeTokens.length > 0 && activeTokens[0].expiresAt && (
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.5rem' }}>
+                        Expires: {new Date(activeTokens[0].expiresAt).toLocaleTimeString()}
+                      </div>
+                    )}
+                  </div>
+                );
+              });
+            } catch (error) {
+              return (
+                <div style={{
+                  padding: '1rem',
+                  background: '#fef2f2',
+                  border: '1px solid #fecaca',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  gridColumn: '1 / -1',
+                }}>
+                  <div style={{ fontSize: '1rem', color: '#dc2626' }}>
+                    Unable to load token information
+                  </div>
+                </div>
+              );
+            }
+          })()}
         </div>
       </SectionContainer>
 
