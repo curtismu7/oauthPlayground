@@ -16,7 +16,7 @@
  * ========================================================================
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiActivity,
 	FiAlertTriangle,
@@ -357,50 +357,32 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 		return orderedRestored;
 	};
 
-	const saveMenuGroups = (groups: MenuGroup[]) => {
+	// Handle automatic save with button feedback
+	const saveWithFeedback = useCallback((groups: MenuGroup[]) => {
+		// Save to localStorage without triggering toast during render
 		try {
 			const serializable = createSerializableGroups(groups);
 			localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
-			// Ensure menu version is also saved when menu is modified
 			localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
 			console.log('💾 Menu layout saved to localStorage:', serializable);
+			
+			// Update save button state
+			setSaveButtonState('saved');
 
-			// Show visual confirmation
-			v4ToastManager.showSuccess('Menu layout saved!', {}, { duration: 1500 });
+			// Reset to default after 1.5 seconds
+			setTimeout(() => {
+				setSaveButtonState('default');
+			}, 1500);
+
+			// Show toast in next tick to avoid setState during render
+			setTimeout(() => {
+				v4ToastManager.showSuccess('Menu layout saved!', {}, { duration: 1500 });
+			}, 0);
 		} catch (error) {
 			console.warn('❌ Failed to save menu layout:', error);
 			v4ToastManager.showError('Failed to save menu layout');
 		}
-	};
-
-	// Handle automatic save with button feedback
-	const saveWithFeedback = (groups: MenuGroup[]) => {
-		saveMenuGroups(groups);
-		setSaveButtonState('saved');
-
-		// Reset to default after 1.5 seconds
-		setTimeout(() => {
-			setSaveButtonState('default');
-		}, 1500);
-	};
-
-	// Handle manual save with button state management
-	const handleManualSave = async () => {
-		setSaveButtonState('saving');
-
-		try {
-			saveMenuGroups(menuGroups);
-			setSaveButtonState('saved');
-
-			// Reset to default after 2 seconds
-			setTimeout(() => {
-				setSaveButtonState('default');
-			}, 2000);
-		} catch (error) {
-			setSaveButtonState('default');
-			throw error;
-		}
-	};
+	}, [setSaveButtonState]);
 
 	// Initialize menu structure
 	const [menuGroups, setMenuGroups] = useState<MenuGroup[]>(() => {
@@ -1867,6 +1849,35 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 		return defaultGroups;
 	});
+
+	// Handle manual save with button state management
+	const handleManualSave = useCallback(async () => {
+		setSaveButtonState('saving');
+
+		try {
+			// Save to localStorage directly
+			const serializable = createSerializableGroups(menuGroups);
+			localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
+			localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
+			console.log('💾 Menu layout saved to localStorage:', serializable);
+			
+			setSaveButtonState('saved');
+
+			// Reset to default after 2 seconds
+			setTimeout(() => {
+				setSaveButtonState('default');
+			}, 2000);
+
+			// Show toast in next tick to avoid setState during render
+			setTimeout(() => {
+				v4ToastManager.showSuccess('Menu layout saved!', {}, { duration: 1500 });
+			}, 0);
+		} catch (error) {
+			console.warn('❌ Failed to save menu layout:', error);
+			setSaveButtonState('default');
+			v4ToastManager.showError('Failed to save menu layout');
+		}
+	}, [menuGroups, setSaveButtonState]);
 
 	// Persist menu layout whenever it changes
 	useEffect(() => {
