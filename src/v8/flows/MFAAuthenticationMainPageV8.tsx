@@ -42,6 +42,7 @@ import { oauthStorage } from '@/utils/storage';
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
 import { DeviceFailureModalV8, UnavailableDevice } from '@/v8/components/DeviceFailureModalV8';
 import { MFACooldownModalV8 } from '@/v8/components/MFACooldownModalV8';
+import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -1838,43 +1839,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						>
 							Get Worker Token
 						</button>
-						<div
-							style={{
-								flex: 1,
-								padding: '8px 12px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								background: tokenStatus.isValid ? '#f0fdf4' : '#fef2f2',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								fontSize: '14px',
-							}}
-						>
-							{tokenStatus.isValid ? (
-								<>
-									{tokenStatus.status === 'expiring-soon' ? (
-										<FiAlertCircle color="#f59e0b" />
-									) : (
-										<FiCheck color="#10b981" />
-									)}
-									<span
-										style={{
-											color: tokenStatus.status === 'expiring-soon' ? '#f59e0b' : '#059669',
-										}}
-									>
-										{tokenStatus.message || 'Worker token configured'}
-									</span>
-								</>
-							) : (
-								<>
-									<FiAlertCircle color="#dc2626" />
-									<span style={{ color: '#dc2626' }}>
-										{tokenStatus.message || 'Worker token missing'}
-									</span>
-								</>
-							)}
-						</div>
+
+						{/* Cool 3D Worker Token Status Display */}
+						<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={false} />
 					</div>
 					
 					{/* Worker Token Settings Checkboxes */}
