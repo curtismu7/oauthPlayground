@@ -45,6 +45,7 @@ import { ResponseTypeDropdownV8 } from '@/v8/components/ResponseTypeDropdownV8';
 import { TokenEndpointAuthMethodDropdownV8 } from '@/v8/components/TokenEndpointAuthMethodDropdownV8';
 import { TooltipV8 } from '@/v8/components/TooltipV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
@@ -1939,47 +1940,13 @@ Why it matters: Backend services communicate server-to-server without user conte
 										<small>Your PingOne environment identifier (saved globally once entered)</small>
 									</div>
 
-									{/* Worker Token Status */}
-									<div className="form-group">
-										<label>Worker Token Status</label>
-										<div
-											style={{
-												padding: '10px 14px',
-												background:
-													tokenStatus.status === 'valid'
-														? '#d1fae5'
-														: tokenStatus.status === 'expiring-soon' ||
-																tokenStatus.status === 'expired'
-															? '#fef3c7'
-															: '#fee2e2',
-												border: `1px solid ${WorkerTokenStatusServiceV8.getStatusColor(tokenStatus.status)}`,
-												borderRadius: '6px',
-												fontSize: '13px',
-												color:
-													tokenStatus.status === 'valid'
-														? '#065f46'
-														: tokenStatus.status === 'expiring-soon' ||
-																tokenStatus.status === 'expired'
-															? '#92400e'
-															: '#991b1b',
-												display: 'flex',
-												alignItems: 'center',
-												gap: '8px',
-												wordWrap: 'break-word',
-												overflowWrap: 'break-word',
-												minHeight: '38px',
-												marginBottom: '8px',
-											}}
-										>
-											<span style={{ fontSize: '16px', flexShrink: 0 }}>
-												{WorkerTokenStatusServiceV8.getStatusIcon(tokenStatus.status)}
-											</span>
-											<span style={{ flex: 1 }}>{tokenStatus.message}</span>
-										</div>
-										<small style={{ marginBottom: '8px', display: 'block' }}>
-											Worker token is required to discover applications
-										</small>
-										<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+									{/* Cool 3D Worker Token Status Display */}
+									<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
+									
+									<small style={{ marginBottom: '8px', display: 'block' }}>
+										Worker token is required to discover applications
+									</small>
+									<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
 											<button
 												type="button"
 												className={tokenStatus.isValid ? 'btn-token-has' : 'btn-token-none'}
