@@ -8,7 +8,7 @@
 
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-HELPER-V8]';
@@ -168,7 +168,7 @@ function shouldShowTokenModal(): boolean {
  */
 export async function handleShowWorkerTokenModal(
 	setShowModal: (show: boolean) => void,
-	setTokenStatus?: (status: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>) => void,
+	setTokenStatus?: (status: TokenStatusInfo) => void | Promise<void>,
 	overrideSilentApiRetrieval?: boolean,
 	overrideShowTokenAtEnd?: boolean,
 	forceShowModal: boolean = false // Default to false for automatic calls
@@ -240,8 +240,8 @@ export async function handleShowWorkerTokenModal(
 		if (silentRetrievalSucceeded) {
 			// Token was successfully retrieved silently
 			if (setTokenStatus) {
-				const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-				setTokenStatus(newStatus);
+				const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				await setTokenStatus(newStatus);
 			}
 
 			// Only show modal if showTokenAtEnd is also ON (to display the token)
