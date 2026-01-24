@@ -438,12 +438,13 @@ interface WebhookSubscription {
 const PingOneWebhookViewer: React.FC = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const [activeTab, setActiveTab] = useState<'subscriptions' | 'events'>('subscriptions');
+	const [activeTab, setActiveTab] = useState<'subscriptions' | 'events'>('events');
 	const [webhooks, setWebhooks] = useState<WebhookEvent[]>([]);
 	const [subscriptions, setSubscriptions] = useState<WebhookSubscription[]>([]);
 	const [filter, setFilter] = useState<string>('all');
 	const [typeFilter, setTypeFilter] = useState<string>('all');
 	const [timeFilter, setTimeFilter] = useState<string>('all');
+	const [displayFormat, setDisplayFormat] = useState<'json' | 'splunk' | 'ping-activity' | 'new-relic'>('json');
 	const [isActive, setIsActive] = useState(false);
 	const [isLoadingSubscriptions, setIsLoadingSubscriptions] = useState(false);
 	const [workerToken, setWorkerToken] = useState<string | null>(() => getAnyWorkerToken());
@@ -467,9 +468,9 @@ const PingOneWebhookViewer: React.FC = () => {
 	const [showCreateModal, setShowCreateModal] = useState(false);
 	const [editingSubscription, setEditingSubscription] = useState<WebhookSubscription | null>(null);
 	const [formData, setFormData] = useState({
-		name: '',
+		name: 'PingOne Webhook Viewer',
 		enabled: true,
-		destination: '',
+		destination: 'https://oauth-playground-pi.vercel.app/api/webhooks/pingone',
 		format: 'ACTIVITY',
 		topics: '',
 	});
@@ -575,6 +576,73 @@ const PingOneWebhookViewer: React.FC = () => {
 				message: `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`
 			};
 		}
+	};
+
+	// Format conversion functions for different display formats
+	const formatEventForDisplay = useCallback((event: WebhookEvent, format: string) => {
+		switch (format) {
+			case 'splunk':
+				return formatAsSplunk(event);
+			case 'ping-activity':
+				return formatAsPingActivity(event);
+			case 'new-relic':
+				return formatAsNewRelic(event);
+			case 'json':
+			default:
+				return JSON.stringify(event.data, null, 2);
+		}
+	}, []);
+
+	const formatAsSplunk = (event: WebhookEvent): string => {
+		const timestamp = event.timestamp.toISOString();
+		const eventType = event.type || 'unknown';
+		const eventData = event.data || {};
+		
+		// Splunk format: timestamp, log_level, source, event_type, message
+		return `${timestamp} INFO pingone-webhook ${eventType} ${JSON.stringify(eventData)}`;
+	};
+
+	const formatAsPingActivity = (event: WebhookEvent): string => {
+		// Ping Activity JSON format
+		const activity = {
+			timestamp: event.timestamp.toISOString(),
+			eventId: event.id,
+			eventType: event.type || 'unknown',
+			source: 'pingone-api',
+			actor: event.data?.actor || {},
+			action: event.data?.action || {},
+			resource: event.data?.resource || {},
+			result: event.data?.result || {},
+			metadata: {
+				environmentId: environmentId,
+				webhookId: event.id,
+				receivedAt: event.timestamp.toISOString(),
+			},
+		};
+		
+		return JSON.stringify(activity, null, 2);
+	};
+
+	const formatAsNewRelic = (event: WebhookEvent): string => {
+		// New Relic format for application monitoring
+		const newRelicEvent = {
+			eventType: 'PingOneWebhook',
+			timestamp: event.timestamp.getTime(),
+			attributes: {
+				eventId: event.id,
+				eventType: event.type || 'unknown',
+				source: 'pingone-api',
+				environmentId: environmentId,
+				actor: (event.data as any)?.actor?.id || 'unknown',
+				action: (event.data as any)?.action?.type || 'unknown',
+				resourceType: (event.data as any)?.resource?.type || 'unknown',
+				result: (event.data as any)?.result?.status || 'unknown',
+				userAgent: (event.data as any)?.userAgent || 'unknown',
+				ipAddress: (event.data as any)?.ipAddress || 'unknown',
+			},
+		};
+		
+		return JSON.stringify(newRelicEvent, null, 2);
 	};
 
 	// Fetch webhook subscriptions
@@ -1072,8 +1140,8 @@ const PingOneWebhookViewer: React.FC = () => {
 		}).format(timestamp);
 	};
 
-	const formatData = (data: Record<string, unknown>) => {
-		return JSON.stringify(data, null, 2);
+	const formatData = (data: Record<string, unknown>, webhook: WebhookEvent) => {
+		return formatEventForDisplay(webhook, displayFormat);
 	};
 
 	// Check for global token - use state for re-renders, but also check directly for accuracy
@@ -1542,6 +1610,16 @@ const PingOneWebhookViewer: React.FC = () => {
 										))}
 									</FilterSelect>
 								</FilterLabel>
+								<FilterLabel>
+									<FiTag />
+									Display Format:
+									<FilterSelect value={displayFormat} onChange={(e) => setDisplayFormat(e.target.value as any)}>
+										<option value="json">Raw JSON</option>
+										<option value="splunk">Splunk Format</option>
+										<option value="ping-activity">Ping Activity JSON</option>
+										<option value="new-relic">New Relic Format</option>
+									</FilterSelect>
+								</FilterLabel>
 								{(filter !== 'all' || typeFilter !== 'all' || timeFilter !== 'all') && (
 									<ClearFiltersButton onClick={handleClearFilters}>
 										<FiX />
@@ -1585,7 +1663,7 @@ const PingOneWebhookViewer: React.FC = () => {
 											</WebhookMeta>
 										</WebhookHeader>
 										<WebhookBody>
-											<pre>{formatData(webhook.data)}</pre>
+											<pre>{formatData(webhook.data, webhook)}</pre>
 										</WebhookBody>
 									</WebhookCard>
 								))
