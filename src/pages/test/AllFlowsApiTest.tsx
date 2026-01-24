@@ -3,9 +3,12 @@
 // Tests PingOne API implementations across Authorization Code, Implicit, Hybrid, Device Auth, etc.
 // Allows manual testing without auto-submission
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { FiPlay, FiRefreshCw, FiCheck, FiX, FiCode, FiDatabase, FiShield, FiKey } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
+import { useWorkerTokenState } from '../../services/workerTokenUIService';
+import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
 
 // Test Configuration for all flow types
 interface AllFlowsTestConfig {
@@ -273,6 +276,7 @@ const FlowTypeBadge = styled.span<{ flowtype: string }>`
 
 const AllFlowsApiTest: React.FC = () => {
 	const { apps, selectedAppId, selectApp, getActiveAppConfig } = useCredentialStoreV8();
+	const { hasValidToken: hasWorkerToken, showWorkerTokenModal, setShowWorkerTokenModal } = useWorkerTokenState();
 
 	const [config, setConfig] = useState<AllFlowsTestConfig>({
 		environmentId: '',
@@ -718,6 +722,25 @@ const AllFlowsApiTest: React.FC = () => {
 					Test ALL PingOne OAuth 2.0 and OpenID Connect flow types: Authorization Code, Implicit,
 					Hybrid, Device Code, Client Credentials
 				</Subtitle>
+				<ButtonGroup style={{ marginTop: '1rem' }}>
+					<Button
+						variant={hasWorkerToken ? 'secondary' : 'primary'}
+						onClick={() => setShowWorkerTokenModal(true)}
+					>
+						<FiKey />
+						{hasWorkerToken ? '✓ Worker Token Set' : 'Get Worker Token'}
+					</Button>
+					<Button
+						variant="secondary"
+						onClick={() => {
+							// Refresh apps by reloading the credential store state
+							window.location.reload();
+						}}
+					>
+						<FiRefreshCw />
+						Refresh Apps
+					</Button>
+				</ButtonGroup>
 			</Header>
 
 			<TestSection>
@@ -960,6 +983,14 @@ const AllFlowsApiTest: React.FC = () => {
 					</div>
 				)}
 			</ResultsContainer>
+
+			{/* Worker Token Modal */}
+			{showWorkerTokenModal && (
+				<WorkerTokenModalV8
+					isOpen={showWorkerTokenModal}
+					onClose={() => setShowWorkerTokenModal(false)}
+				/>
+			)}
 		</Container>
 	);
 };
