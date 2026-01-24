@@ -22,6 +22,7 @@
  */
 
 import { pingOneFetch } from '@/utils/pingOneFetch';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
 const MODULE_TAG = '[🔐 MFA-AUTHENTICATION-SERVICE-V8]';
@@ -279,9 +280,28 @@ export class MfaAuthenticationServiceV8 {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+					'Cache-Control': 'no-cache',
+					'Pragma': 'no-cache',
 				},
 				body: JSON.stringify(requestBody),
 			});
+
+			// Check if response is ok before parsing
+			if (!response.ok) {
+				console.error(`${MODULE_TAG} Initialize device authentication failed:`, {
+					status: response.status,
+					statusText: response.statusText,
+					url: '/api/pingone/mfa/initialize-device-authentication',
+				});
+				throw new Error(`Failed to initialize device authentication: ${response.status} ${response.statusText}`);
+			}
+
+			// Check if response has content
+			const contentLength = response.headers.get('content-length');
+			if (contentLength === '0') {
+				console.error(`${MODULE_TAG} Empty response received from initialize device authentication`);
+				throw new Error('Empty response received from server');
+			}
 
 			// Parse response once (clone first to avoid consuming the body)
 			const responseClone = response.clone();
@@ -408,21 +428,9 @@ export class MfaAuthenticationServiceV8 {
 							throw error;
 						}
 
-						// WhatsApp device selection not supported / INVALID_DATA "Could not find suitable content."
-						const invalidValueDetail = pingErrorDetails.find(
-							(d) =>
-								d.code === 'INVALID_VALUE' &&
-								typeof d.message === 'string' &&
-								d.message.toLowerCase().includes('could not find suitable content')
-						);
-
-						if (pingError.code === 'INVALID_DATA' && invalidValueDetail) {
-							const error = new Error(
-								'This WhatsApp device cannot be used for authentication with the current PingOne policy. Try another device (for example SMS or FIDO2), or update your PingOne Device Authentication Policy to allow WhatsApp for authentication.'
-							) as Error & { errorCode?: string };
-							error.errorCode = 'WHATSAPP_DEVICE_SELECTION_NOT_SUPPORTED';
-							throw error;
-						}
+						// TODO: Removed WhatsApp policy error detection - it was causing false positives
+						// The "Could not find suitable content" error does not reliably indicate policy issues
+						// If policy validation is needed, check the policy configuration directly, not error messages
 					}
 				}
 
@@ -445,7 +453,14 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error initializing device authentication`, error);
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				flowType: 'mfa' as any,
+				operation: 'initializeDeviceAuthentication',
+			}, {
+				logError: true,
+				showToast: false,
+			});
+			console.error(`${MODULE_TAG} Error initializing device authentication:`, parsed.userFriendlyMessage);
 			throw error;
 		}
 	}
@@ -577,7 +592,14 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error initializing one-time device authentication`, error);
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				flowType: 'mfa' as any,
+				operation: 'initializeOneTimeDeviceAuthentication',
+			}, {
+				logError: true,
+				showToast: false,
+			});
+			console.error(`${MODULE_TAG} Error initializing one-time device authentication:`, parsed.userFriendlyMessage);
 			throw error;
 		}
 	}
@@ -701,7 +723,14 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error reading device authentication`, error);
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				flowType: 'mfa' as any,
+				operation: 'readDeviceAuthentication',
+			}, {
+				logError: true,
+				showToast: false,
+			});
+			console.error(`${MODULE_TAG} Error reading device authentication:`, parsed.userFriendlyMessage);
 			throw error;
 		}
 	}
@@ -905,11 +934,11 @@ export class MfaAuthenticationServiceV8 {
 			);
 
 			if (!response.ok) {
-				// Log full error response for debugging
+				// Log full error response for debugging (including raw responseData to understand actual error)
 				console.error(`${MODULE_TAG} Device selection failed:`, {
 					status: response.status,
 					statusText: response.statusText,
-					responseData,
+					responseData: JSON.stringify(responseData, null, 2), // Stringify for full details
 					requestBody: {
 						environmentId: params.environmentId,
 						deviceAuthId: params.authenticationId,
@@ -1025,21 +1054,9 @@ export class MfaAuthenticationServiceV8 {
 							throw error;
 						}
 
-						// WhatsApp device selection not supported / INVALID_DATA "Could not find suitable content."
-						const invalidValueDetail = pingErrorDetails.find(
-							(d) =>
-								d.code === 'INVALID_VALUE' &&
-								typeof d.message === 'string' &&
-								d.message.toLowerCase().includes('could not find suitable content')
-						);
-
-						if (pingError.code === 'INVALID_DATA' && invalidValueDetail) {
-							const error = new Error(
-								'This WhatsApp device cannot be used for authentication with the current PingOne policy. Try another device (for example SMS or FIDO2), or update your PingOne Device Authentication Policy to allow WhatsApp for authentication.'
-							) as Error & { errorCode?: string };
-							error.errorCode = 'WHATSAPP_DEVICE_SELECTION_NOT_SUPPORTED';
-							throw error;
-						}
+						// TODO: Removed WhatsApp policy error detection - it was causing false positives
+						// The "Could not find suitable content" error does not reliably indicate policy issues
+						// If policy validation is needed, check the policy configuration directly, not error messages
 					}
 				}
 
@@ -1115,7 +1132,13 @@ export class MfaAuthenticationServiceV8 {
 
 			return result as DeviceAuthenticationResponse;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error selecting device for authentication`, error);
+			// For expected policy errors (like WhatsApp not allowed), use warn instead of error
+			const errorWithCode = error as Error & { errorCode?: string };
+			if (errorWithCode.errorCode === 'WHATSAPP_DEVICE_SELECTION_NOT_SUPPORTED') {
+				console.warn(`${MODULE_TAG} WhatsApp device selection not supported by policy:`, error);
+			} else {
+				console.error(`${MODULE_TAG} Error selecting device for authentication`, error);
+			}
 			throw error;
 		}
 	}
@@ -1136,7 +1159,7 @@ export class MfaAuthenticationServiceV8 {
 		const autoRenewalEnabled = config.workerToken.autoRenewal;
 		const renewalThreshold = config.workerToken.renewalThreshold; // seconds before expiry
 
-		const workerToken = await workerTokenServiceV8.getToken();
+		let workerToken = await workerTokenServiceV8.getToken();
 
 		// Decode JWT to check expiry
 		let tokenExpiry: number | null = null;
@@ -1845,29 +1868,6 @@ export class MfaAuthenticationServiceV8 {
 				);
 			}
 
-			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'mfaAuthenticationServiceV8.ts:1724',
-					message: 'Assertion body structure check',
-					data: {
-						assertionType: typeof assertionBody.assertion,
-						isString: typeof assertionBody.assertion === 'string',
-						isObject: typeof assertionBody.assertion === 'object',
-						hasId: !!assertionBody.assertion?.id,
-						hasRawId: !!assertionBody.assertion?.rawId,
-						hasResponse: !!assertionBody.assertion?.response,
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run1',
-					hypothesisId: 'A',
-				}),
-			}).catch(() => {});
-			// #endregion
-
 			// Build request body for backend proxy
 			// The backend will transform this into the PingOne API format
 			const backendRequestBody: {
@@ -1902,34 +1902,6 @@ export class MfaAuthenticationServiceV8 {
 			// Content-Type: application/vnd.pingidentity.assertion.check+json
 			// Note: The Content-Type header indicates this is an assertion check, not the URL path
 			const actualPingOneUrl = `${authPath}/${finalEnvironmentId}/deviceAuthentications/${deviceAuthId}`;
-
-			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'mfaAuthenticationServiceV8.ts:1774',
-					message: 'Request body before stringify',
-					data: {
-						requestBodyType: typeof backendRequestBody,
-						assertionType: typeof backendRequestBody.assertion,
-						isAssertionString: typeof backendRequestBody.assertion === 'string',
-						isAssertionObject:
-							typeof backendRequestBody.assertion === 'object' &&
-							backendRequestBody.assertion !== null,
-						assertionKeys:
-							typeof backendRequestBody.assertion === 'object' &&
-							backendRequestBody.assertion !== null
-								? Object.keys(backendRequestBody.assertion)
-								: [],
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run1',
-					hypothesisId: 'B',
-				}),
-			}).catch(() => {});
-			// #endregion
 
 			// Build the request body that will be sent to PingOne (via backend proxy)
 			// This matches the PingOne API spec: { origin, assertion (as JSON string), compatibility }
@@ -1967,29 +1939,7 @@ export class MfaAuthenticationServiceV8 {
 				flowType: 'mfa',
 			});
 
-			// #region agent log
 			const stringifiedBody = JSON.stringify(backendRequestBody);
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'mfaAuthenticationServiceV8.ts:1802',
-					message: 'Request body after stringify',
-					data: {
-						stringifiedLength: stringifiedBody.length,
-						stringifiedPreview: stringifiedBody.substring(0, 200),
-						hasAssertionString: stringifiedBody.includes('"assertion"'),
-						assertionIsStringified:
-							stringifiedBody.includes('"assertion":"') ||
-							stringifiedBody.includes('"assertion": "'),
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run1',
-					hypothesisId: 'C',
-				}),
-			}).catch(() => {});
-			// #endregion
 
 			const response = await pingOneFetch('/api/pingone/mfa/check-fido2-assertion', {
 				method: 'POST',
@@ -2040,6 +1990,144 @@ export class MfaAuthenticationServiceV8 {
 			return data;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error checking FIDO2 assertion`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Resend OTP for an ACTIVE device during authentication
+	 * This method attempts multiple strategies in order:
+	 * 1. Cancel the current authentication and re-initialize it (most reliable)
+	 * 2. Re-select the device (fallback, may not always trigger new OTP)
+	 * 
+	 * @param params - Parameters for resending OTP
+	 * @returns Updated device authentication response with new OTP sent
+	 */
+	static async resendOTPForActiveDevice(params: {
+		environmentId: string;
+		username: string;
+		userId?: string;
+		authenticationId: string;
+		deviceId: string;
+		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na';
+		customDomain?: string;
+	}): Promise<DeviceAuthenticationResponse> {
+		console.log(`${MODULE_TAG} Resending OTP for ACTIVE device`, {
+			authenticationId: params.authenticationId,
+			deviceId: params.deviceId,
+			username: params.username,
+		});
+
+		try {
+			// Lookup userId if not provided
+			let userId = params.userId;
+			if (!userId) {
+				const { MFAServiceV8 } = await import('./mfaServiceV8');
+				const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
+				userId = user.id as string;
+			}
+
+			// Strategy 1: Read current authentication to check for cancel link
+			let authData: DeviceAuthenticationResponse;
+			try {
+				authData = await MfaAuthenticationServiceV8.readDeviceAuthentication(
+					params.environmentId,
+					userId,
+					params.authenticationId,
+					{
+						isUserId: true,
+						region: params.region,
+						customDomain: params.customDomain,
+					}
+				);
+			} catch (readError) {
+				console.warn(`${MODULE_TAG} Could not read device authentication, proceeding with re-select:`, readError);
+				// Fall through to re-select strategy
+				authData = {} as DeviceAuthenticationResponse;
+			}
+
+			const links = MfaAuthenticationServiceV8.extractAvailableLinks(authData);
+
+			// Strategy 1: Cancel + Re-initialize (most reliable for triggering new OTP)
+			if (links.cancel) {
+				console.log(`${MODULE_TAG} Attempting cancel + re-initialize to resend OTP`);
+				try {
+					// Cancel the current authentication
+					await MfaAuthenticationServiceV8.cancelDeviceAuthentication(
+						params.environmentId,
+						params.username,
+						params.authenticationId,
+						params.region,
+						params.customDomain
+					);
+
+					// Re-initialize device authentication (this will trigger a new OTP)
+					const { MFAServiceV8 } = await import('./mfaServiceV8');
+					const newAuthResult = await MFAServiceV8.sendOTP({
+						environmentId: params.environmentId,
+						username: params.username,
+						deviceId: params.deviceId,
+						region: params.region,
+						customDomain: params.customDomain,
+					});
+
+					// Read the new authentication to get full response
+					const newAuthData = await MfaAuthenticationServiceV8.readDeviceAuthentication(
+						params.environmentId,
+						userId,
+						newAuthResult.deviceAuthId,
+						{
+							isUserId: true,
+							region: params.region,
+							customDomain: params.customDomain,
+						}
+					);
+
+					console.log(`${MODULE_TAG} Successfully resent OTP via cancel + re-initialize`);
+					return newAuthData;
+				} catch (cancelError) {
+					console.warn(
+						`${MODULE_TAG} Cancel + re-initialize failed, falling back to re-select:`,
+						cancelError
+					);
+					// Fall through to re-select strategy
+				}
+			}
+
+			// Strategy 2: Re-select device (fallback)
+			console.log(`${MODULE_TAG} Attempting re-select device to resend OTP`);
+			const reselectResult = await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
+				{
+					environmentId: params.environmentId,
+					username: params.username,
+					userId,
+					authenticationId: params.authenticationId,
+					deviceId: params.deviceId,
+					region: params.region,
+					customDomain: params.customDomain,
+				},
+				{ stepName: 'mfa-Resend OTP Code (Re-select)' }
+			);
+
+			// Read updated authentication to get full response
+			try {
+				const updatedAuthData = await MfaAuthenticationServiceV8.readDeviceAuthentication(
+					params.environmentId,
+					userId,
+					params.authenticationId,
+					{
+						isUserId: true,
+						region: params.region,
+						customDomain: params.customDomain,
+					}
+				);
+				return updatedAuthData;
+			} catch {
+				// If read fails, return the reselect result
+				return reselectResult;
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error resending OTP for ACTIVE device:`, error);
 			throw error;
 		}
 	}
