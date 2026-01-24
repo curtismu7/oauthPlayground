@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => {
 					enabled: false, // Disable service worker in development to prevent caching issues
 					type: 'module',
 				},
+				strategies: 'generateSW',
 				workbox: {
 					globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
 					maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB (increased from default 2 MB)
