@@ -660,6 +660,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 					},
 					{
+						id: 'api-tests-mfa-flows',
+						path: '/test/mfa-flows-api-test',
+						label: '🔐 MFA Flows API Tests',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiShield />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="MFA testing: OTP, TOTP, FIDO2 registration and Admin Authentication">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
 						id: 'mfa-device-auth-details-v8',
 						path: '/v8/mfa/device-authentication-details',
 						label: 'MFA Device Auth Details',
