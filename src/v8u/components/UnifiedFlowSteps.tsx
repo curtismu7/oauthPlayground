@@ -13779,7 +13779,7 @@ isLoading={isLoading}
 						<button
 							type="button"
 							className="btn btn-next"
-							onClick={() => navigateToStep(totalSteps - 1)}
+							onClick={() => navigateToStep(totalSteps - 2)}
 							style={{
 								display: 'flex',
 								alignItems: 'center',
