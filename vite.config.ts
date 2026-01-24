@@ -139,7 +139,7 @@ export default defineConfig(({ mode }) => {
 				'/api': {
 					target: 'http://localhost:3001', // Backend server (HTTP)
 					changeOrigin: true,
-					secure: false, // Allow self-signed certificates
+					secure: false, // Allow self-signed certificates and HTTP backend
 					timeout: 3000, // Shorter timeout for health checks
 					proxyTimeout: 3000,
 					rewrite: (path) => {
@@ -149,7 +149,7 @@ export default defineConfig(({ mode }) => {
 						}
 						return path;
 					},
-					configure: (proxy) => {
+					configure: (proxy, options) => {
 						// Add error handling
 						proxy.on('error', (err) => {
 							console.log('Proxy error:', err.message);
