@@ -2119,6 +2119,26 @@ passed: boolean;
 				if (resultWithToken.id_token) {
 					tokens.idToken = resultWithToken.id_token;
 				}
+
+				// Register tokens with TokenMonitoringService for state management visibility
+				try {
+					const { TokenMonitoringService } = await import('../services/tokenMonitoringService');
+					const tokenService = TokenMonitoringService.getInstance();
+					
+					// Create OAuth token object for the monitoring service
+					const oauthTokens = {
+						access_token: resultWithToken.access_token,
+						...(resultWithToken.id_token ? { id_token: resultWithToken.id_token } : {}),
+						expires_in: 3600,
+					};
+					
+					// Sync tokens to monitoring service
+					tokenService.syncTokensFromOAuthFlow(oauthTokens, 'unified-implicit-manual');
+					console.log(`${MODULE_TAG} ✅ Manual implicit flow tokens registered with TokenMonitoringService`);
+				} catch (error) {
+					console.warn(`${MODULE_TAG} ⚠️ Failed to register manual implicit flow tokens with TokenMonitoringService:`, error);
+				}
+
 				setFlowState((prev) => ({
 					...prev,
 					tokens,
@@ -2147,6 +2167,27 @@ passed: boolean;
 				if (resultWithToken.id_token) {
 					tokens.idToken = resultWithToken.id_token;
 				}
+
+				// Register tokens with TokenMonitoringService for state management visibility
+				try {
+					const { TokenMonitoringService } = await import('../services/tokenMonitoringService');
+					const tokenService = TokenMonitoringService.getInstance();
+					
+					// Create OAuth token object for the monitoring service
+					const oauthTokens = {
+						access_token: resultWithToken.access_token,
+						...(resultWithToken.id_token ? { id_token: resultWithToken.id_token } : {}),
+						...(resultWithToken.expires_in ? { expires_in: resultWithToken.expires_in } : {}),
+						...(resultWithToken.scope ? { scope: resultWithToken.scope } : {}),
+					};
+					
+					// Sync tokens to monitoring service
+					tokenService.syncTokensFromOAuthFlow(oauthTokens, 'unified-implicit-flow');
+					console.log(`${MODULE_TAG} ✅ Implicit flow tokens registered with TokenMonitoringService`);
+				} catch (error) {
+					console.warn(`${MODULE_TAG} ⚠️ Failed to register implicit flow tokens with TokenMonitoringService:`, error);
+				}
+
 				setFlowState((prev) => ({
 					...prev,
 					tokens,
@@ -3903,6 +3944,27 @@ passed: boolean;
 
 				const tokenData = responseData as Record<string, unknown>;
 				console.log(`${MODULE_TAG} 🔌 Token exchange successful`);
+
+				// Register tokens with TokenMonitoringService for state management visibility
+				try {
+					const { TokenMonitoringService } = await import('../services/tokenMonitoringService');
+					const tokenService = TokenMonitoringService.getInstance();
+					
+					// Create OAuth token object for the monitoring service
+					const oauthTokens = {
+						access_token: tokenData.access_token as string,
+						...(tokenData.id_token ? { id_token: tokenData.id_token as string } : {}),
+						...(tokenData.refresh_token ? { refresh_token: tokenData.refresh_token as string } : {}),
+						...(tokenData.expires_in ? { expires_in: tokenData.expires_in as number } : {}),
+						...(tokenData.scope ? { scope: tokenData.scope as string } : {}),
+					};
+					
+					// Sync tokens to monitoring service
+					tokenService.syncTokensFromOAuthFlow(oauthTokens, 'unified-oauth-flow');
+					console.log(`${MODULE_TAG} ✅ Tokens registered with TokenMonitoringService`);
+				} catch (error) {
+					console.warn(`${MODULE_TAG} ⚠️ Failed to register tokens with TokenMonitoringService:`, error);
+				}
 
 				// Store tokens in flow state (conditionally include optional properties)
 				const updatedState: FlowState = {
