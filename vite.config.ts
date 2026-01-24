@@ -18,18 +18,6 @@ export default defineConfig(({ mode }) => {
 			global: 'globalThis',
 			// Ensure React is available globally for vendor bundles
 			React: 'React',
-			'react-dom': 'ReactDOM',
-			'react/Children': 'React.Children',
-			'react/Component': 'React.Component',
-			'react/PureComponent': 'React.PureComponent',
-			'react/createElement': 'React.createElement',
-			'react/Fragment': 'React.Fragment',
-			'react/useState': 'React.useState',
-			'react/useEffect': 'React.useEffect',
-			'react/useRef': 'React.useRef',
-			'react/useCallback': 'React.useCallback',
-			'react/useMemo': 'React.useMemo',
-			// Expose environment variables to the client
 			__PINGONE_ENVIRONMENT_ID__: JSON.stringify(env.PINGONE_ENVIRONMENT_ID),
 			__PINGONE_CLIENT_ID__: JSON.stringify(env.PINGONE_CLIENT_ID),
 			__PINGONE_CLIENT_SECRET__: JSON.stringify(env.PINGONE_CLIENT_SECRET),
