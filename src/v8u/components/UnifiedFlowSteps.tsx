@@ -81,16 +81,37 @@ const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 	width: 100%;
 	padding: 1.25rem 1.5rem;
 	background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%);
-	border: none;
+	border: 2px solid transparent;
 	border-radius: 0.75rem;
 	cursor: pointer;
 	font-size: 1.1rem;
 	font-weight: 600;
 	color: #14532d;
-	transition: background 0.2s ease;
+	transition: all 0.2s ease;
+	position: relative;
 
 	&:hover {
-		background: linear-gradient(135deg, #dcfce7 0%, #ecfdf3 100%);
+		background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+		border-color: #86efac;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+	}
+
+	&:active {
+		transform: translateY(0);
+		box-shadow: 0 2px 4px rgba(34, 197, 94, 0.1);
+	}
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		border-radius: 0.75rem;
+		background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+		pointer-events: none;
 	}
 `;
 
@@ -104,15 +125,33 @@ const CollapsibleTitle = styled.span`
 
 const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 	display: inline-flex;
-	width: 32px;
-	height: 32px;
-	border-radius: 50%;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	border-radius: 8px;
+	background: #f8fafc;
+	border: 2px solid #e2e8f0;
 	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-	transition: transform 0.2s ease;
+	transition: all 0.2s ease;
+	cursor: pointer;
+	color: #64748b;
+
+	&:hover {
+		background: #f1f5f9;
+		border-color: #cbd5e1;
+		color: #475569;
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.05)' : 'rotate(0deg) scale(1.05)')};
+	}
+
+	&:active {
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(0.95)' : 'rotate(0deg) scale(0.95)')};
+	}
 
 	svg {
-		width: 16px;
-		height: 16px;
+		width: 20px;
+		height: 20px;
+		stroke-width: 2.5px;
 	}
 `;
 
