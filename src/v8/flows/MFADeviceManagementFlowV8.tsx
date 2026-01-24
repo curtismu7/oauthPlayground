@@ -26,8 +26,9 @@ import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 
 const MODULE_TAG = '[🔧 DEVICE-MGMT-FLOW-V8]';
 const FLOW_KEY = 'mfa-device-mgmt-v8';
@@ -71,15 +72,17 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 	});
 
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const [tokenStatus, setTokenStatus] = useState(() =>
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
-	);
+	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
+		status: 'missing',
+		message: 'Checking...',
+		isValid: false,
+	});
+	const [showTokenOnly, setShowTokenOnly] = useState(false);
 	const [isReady, setIsReady] = useState(false);
 
 	// Worker Token Settings - Load from config service
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
 		try {
-			const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
 			return MFAConfigurationServiceV8.loadConfiguration().workerToken.silentApiRetrieval || false;
 		} catch {
 			return false;
@@ -87,8 +90,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 	});
 	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
 		try {
-			const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
-			return MFAConfigurationServiceV8.loadConfiguration().workerToken.showTokenAtEnd || true;
+			return MFAConfigurationServiceV8.loadConfiguration().workerToken.showTokenAtEnd !== false;
 		} catch {
 			return true;
 		}
@@ -116,7 +118,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 		// #region agent log
 		// #endregion
 		const checkToken = async () => {
-			const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setTokenStatus(currentStatus);
 			// #region agent log
 			// #endregion
@@ -128,7 +130,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 				const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
 				await handleShowWorkerTokenModal(
 					setShowWorkerTokenModal,
-					setTokenStatus,
+					async (status) => setTokenStatus(await status),
 					silentApiRetrieval,  // Page checkbox value takes precedence
 					showTokenAtEnd       // Page checkbox value takes precedence
 				);
@@ -138,8 +140,8 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 		checkToken();
 
 		// Listen for token updates
-		const handleTokenUpdate = () => {
-			const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+		const handleTokenUpdate = async () => {
+			const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setTokenStatus(newStatus);
 		};
 
@@ -149,10 +151,24 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 		};
 	}, [silentApiRetrieval, showTokenAtEnd]); // Re-run when checkboxes change to trigger silent retrieval
 
-	// Check token status periodically (for status updates only, not for silent retrieval)
+	// Update showTokenOnly when modal opens or token status changes
 	useEffect(() => {
-		const checkStatus = () => {
-			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+		if (showWorkerTokenModal) {
+			const updateShowTokenOnly = async () => {
+				try {
+					const config = MFAConfigurationServiceV8.loadConfiguration();
+					const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+					setShowTokenOnly(config.workerToken.showTokenAtEnd && currentStatus.isValid);
+				} catch {
+					setShowTokenOnly(false);
+				}
+			};
+			updateShowTokenOnly();
+		}
+	}, [showWorkerTokenModal, tokenStatus.isValid]);
+	useEffect(() => {
+		const checkStatus = async () => {
+			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setTokenStatus(status);
 		};
 
@@ -205,7 +221,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 				// #region agent log
 				// #endregion
 				window.dispatchEvent(new Event('workerTokenUpdated'));
-				const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				// #region agent log
 				// #endregion
 				setTokenStatus(newStatus);
@@ -216,13 +232,13 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
 			// #region agent log
 			// #endregion
-			await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus, silentApiRetrieval, showTokenAtEnd);
+			await handleShowWorkerTokenModal(setShowWorkerTokenModal, async (status) => setTokenStatus(await status), silentApiRetrieval, showTokenAtEnd);
 		}
 	};
 
-	const handleWorkerTokenGenerated = () => {
+	const handleWorkerTokenGenerated = async () => {
 		window.dispatchEvent(new Event('workerTokenUpdated'));
-		const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+		const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 		setTokenStatus(newStatus);
 		toastV8.success('Worker token generated and saved!');
 	};
@@ -368,13 +384,13 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 											
 											// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 											if (newValue) {
-												const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+												const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 												if (!currentStatus.isValid) {
 													console.log('[DEVICE-MGMT-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...');
 													const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
 													await handleShowWorkerTokenModal(
 														setShowWorkerTokenModal,
-														setTokenStatus,
+														async (status) => setTokenStatus(await status),
 														newValue,  // Use new value
 														showTokenAtEnd,
 														false      // Not forced - respect silent setting
@@ -531,43 +547,20 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 			</div>
 
 			{/* Worker Token Modal */}
-			{showWorkerTokenModal && (() => {
-				// Check if we should show token only (matches MFA pattern)
-				try {
-					const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
-					const config = MFAConfigurationServiceV8.loadConfiguration();
-					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-					
-					// Show token-only if showTokenAtEnd is ON and token is valid
-					const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
-					
-					return (
-						<WorkerTokenModalV8
-							isOpen={showWorkerTokenModal}
-							onClose={() => {
-								setShowWorkerTokenModal(false);
-								// Refresh token status when modal closes (matches MFA pattern)
-								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-							}}
-							onTokenGenerated={handleWorkerTokenGenerated}
-							environmentId={credentials.environmentId}
-							showTokenOnly={showTokenOnly}
-						/>
-					);
-				} catch {
-					return (
-			<WorkerTokenModalV8
-				isOpen={showWorkerTokenModal}
-							onClose={() => {
-								setShowWorkerTokenModal(false);
-								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-							}}
-				onTokenGenerated={handleWorkerTokenGenerated}
-				environmentId={credentials.environmentId}
-			/>
-					);
-				}
-			})()}
+			{showWorkerTokenModal && (
+				<WorkerTokenModalV8
+					isOpen={showWorkerTokenModal}
+					onClose={async () => {
+						setShowWorkerTokenModal(false);
+						// Refresh token status when modal closes (matches MFA pattern)
+						const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+						setTokenStatus(newStatus);
+					}}
+					onTokenGenerated={handleWorkerTokenGenerated}
+					environmentId={credentials.environmentId}
+					showTokenOnly={showTokenOnly}
+				/>
+			)}
 
 			<style>{`
 				.mfa-device-mgmt-flow-v8 {
