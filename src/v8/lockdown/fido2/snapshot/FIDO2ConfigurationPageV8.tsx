@@ -31,6 +31,7 @@ import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
@@ -153,9 +154,38 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 		setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
 	};
 
-	// Load environment ID
+	// Load environment ID from multiple sources
 	useEffect(() => {
-		const envId = EnvironmentIdServiceV8.getEnvironmentId();
+		// Try EnvironmentIdServiceV8 first
+		let envId = EnvironmentIdServiceV8.getEnvironmentId();
+		
+		// Fallback to worker token credentials if not found
+		if (!envId) {
+			try {
+				const credentials = workerTokenServiceV8.loadCredentials();
+				envId = credentials?.environmentId?.trim() || '';
+			} catch {
+				// Ignore errors
+			}
+		}
+		
+		// Fallback to MFA flow credentials if still not found
+		if (!envId) {
+			try {
+				const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+					flowKey: 'mfa-flow-v8',
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+				envId = stored.environmentId?.trim() || '';
+			} catch {
+				// Ignore errors
+			}
+		}
+		
 		if (envId) {
 			setEnvironmentId(envId);
 		}
@@ -200,10 +230,13 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 		initializeWebAuthn();
 	}, []);
 
-	// Load FIDO2 policies
-	useEffect(() => {
-		const loadFido2Policies = async () => {
+	// Load FIDO2 policies function
+	const loadFido2Policies = useCallback(async () => {
+			// #region agent log
+			// #endregion
 			if (!environmentId || !tokenStatus.isValid) {
+				// #region agent log
+				// #endregion
 				return;
 			}
 
@@ -212,6 +245,8 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 			try {
 				const workerToken = await workerTokenServiceV8.getToken();
+				// #region agent log
+				// #endregion
 				if (!workerToken) {
 					throw new Error('Worker token not found');
 				}
@@ -224,24 +259,76 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					workerToken: workerToken.trim(),
 					region,
 				});
+				const apiUrl = `/api/pingone/mfa/fido2-policies?${params.toString()}`;
+				// #region agent log
+				// #endregion
 
-				const response = await fetch(`/api/pingone/mfa/fido2-policies?${params.toString()}`, {
+				const response = await fetch(apiUrl, {
 					method: 'GET',
 					headers: { 'Content-Type': 'application/json' },
 				});
 
+				// #region agent log
+				// #endregion
+
 				if (!response.ok) {
 					const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-					throw new Error(
+					const errorMessage =
 						errorData.message ||
-							errorData.error ||
-							`Failed to load FIDO2 policies: ${response.status}`
-					);
+						errorData.error ||
+						`Failed to load FIDO2 policies: ${response.status} ${response.statusText}`;
+					// #region agent log
+					// #endregion
+					console.error(`${MODULE_TAG} API error:`, { status: response.status, errorData });
+					throw new Error(errorMessage);
 				}
 
 				const data = await response.json();
-				const policiesList = data._embedded?.fido2Policies || [];
+				// #region agent log
+				// #endregion
+				console.log(`${MODULE_TAG} FIDO2 policies response:`, data);
+				
+				// Handle different response structures
+				let policiesList: Array<{ id: string; name: string; default?: boolean; description?: string }> = [];
+				
+				if (Array.isArray(data)) {
+					// Direct array response
+					policiesList = data;
+					// #region agent log
+					// #endregion
+				} else if (data._embedded?.fido2Policies) {
+					// Paginated response with _embedded
+					policiesList = data._embedded.fido2Policies;
+					// #region agent log
+					// #endregion
+				} else if (data._embedded && Array.isArray(data._embedded)) {
+					// Alternative embedded structure
+					policiesList = data._embedded;
+					// #region agent log
+					// #endregion
+				} else if (data.items && Array.isArray(data.items)) {
+					// Items array
+					policiesList = data.items;
+					// #region agent log
+					// #endregion
+				} else {
+					console.warn(`${MODULE_TAG} Unexpected response structure:`, data);
+					// #region agent log
+					// #endregion
+					// Try to extract any array from the response
+					const keys = Object.keys(data);
+					for (const key of keys) {
+						if (Array.isArray(data[key])) {
+							policiesList = data[key];
+							break;
+						}
+					}
+				}
+
+				// #region agent log
+				// #endregion
 				setFido2Policies(policiesList);
+				setPoliciesError(null); // Clear any previous errors
 
 				// Auto-select default policy
 				if (policiesList.length > 0) {
@@ -250,19 +337,27 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					if (defaultPolicy.id) {
 						setSelectedFido2PolicyId(defaultPolicy.id);
 					}
+				} else {
+					// No policies found - this is not an error, just empty result
+					console.log(`${MODULE_TAG} No FIDO2 policies found in environment ${environmentId}`);
 				}
 			} catch (error) {
 				const errorMessage =
 					error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
+				// #region agent log
+				// #endregion
 				setPoliciesError(errorMessage);
+				setFido2Policies([]); // Clear policies on error
 				console.error(`${MODULE_TAG} Failed to load FIDO2 policies:`, error);
 			} finally {
 				setIsLoadingPolicies(false);
 			}
-		};
+		}, [environmentId, tokenStatus.isValid]);
 
+	// Load FIDO2 policies on mount and when dependencies change
+	useEffect(() => {
 		void loadFido2Policies();
-	}, [environmentId, tokenStatus.isValid]);
+	}, [loadFido2Policies]);
 
 	// Load Device Authentication Policies
 	useEffect(() => {
@@ -1121,7 +1216,37 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 									marginBottom: '16px',
 								}}
 							>
-								<p style={{ margin: 0, fontSize: '14px', color: '#991b1b' }}>{policiesError}</p>
+								<p style={{ margin: 0, fontSize: '14px', color: '#991b1b', marginBottom: '8px' }}>
+									<strong>Error loading FIDO2 policies:</strong> {policiesError}
+								</p>
+								<p style={{ margin: 0, fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+									Please check:
+								</p>
+								<ul style={{ margin: '4px 0', paddingLeft: '20px', fontSize: '12px', color: '#6b7280' }}>
+									<li>Worker token is valid and has not expired</li>
+									<li>Worker token has permissions to read FIDO2 policies</li>
+									<li>Environment ID is correct</li>
+									<li>Check browser console for detailed error information</li>
+								</ul>
+								<button
+									type="button"
+									onClick={() => {
+										setPoliciesError(null);
+										void loadFido2Policies();
+									}}
+									style={{
+										padding: '6px 12px',
+										background: '#ef4444',
+										color: 'white',
+										border: 'none',
+										borderRadius: '4px',
+										fontSize: '12px',
+										cursor: 'pointer',
+										marginTop: '8px',
+									}}
+								>
+									Retry
+								</button>
 							</div>
 						) : fido2Policies.length === 0 ? (
 							<div
