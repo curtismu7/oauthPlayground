@@ -23,6 +23,7 @@ import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
@@ -589,53 +590,42 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						</select>
 					</div>
 
-					{/* Worker Token Status */}
-					<div
+					{/* Cool 3D Worker Token Status Display */}
+					<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
+
+					{/* Get Worker Token Button */}
+					<button
+						type="button"
+						onClick={handleShowWorkerTokenModal}
 						style={{
-							padding: '12px',
-							background: tokenStatus.isValid ? '#ecfccb' : '#fef2f2',
-							border: `1px solid ${tokenStatus.isValid ? '#bef264' : '#fecaca'}`,
-							borderRadius: '6px',
+							padding: '12px 24px',
+							border: 'none',
+							borderRadius: '8px',
+							background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+							color: 'white',
+							fontSize: '14px',
+							fontWeight: '600',
+							cursor: 'pointer',
 							display: 'flex',
 							alignItems: 'center',
-							justifyContent: 'space-between',
 							gap: '8px',
+							boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+							transition: 'all 0.2s ease',
+							marginBottom: '12px',
 						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = 'linear-gradient(135deg, #2563eb, #1d4ed8)';
+							e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+						}}
+						title="Get Worker Token for API Authentication"
 					>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-							{tokenStatus.isValid ? (
-								<FiCheckCircle style={{ color: '#16a34a', fontSize: '18px' }} />
-							) : (
-								<FiAlertCircle style={{ color: '#dc2626', fontSize: '18px' }} />
-							)}
-							<span style={{ fontSize: '14px', color: tokenStatus.isValid ? '#365314' : '#991b1b' }}>
-								{tokenStatus.isValid
-									? `Worker token is valid (${tokenStatus.minutesRemaining} minutes remaining)`
-									: 'Worker token is missing or invalid. Please configure it first.'}
-							</span>
-						</div>
-						<button
-							type="button"
-							onClick={handleShowWorkerTokenModal}
-							style={{
-								padding: '6px 12px',
-								border: '1px solid #d1d5db',
-								borderRadius: '4px',
-								background: 'white',
-								color: '#374151',
-								fontSize: '12px',
-								fontWeight: '500',
-								cursor: 'pointer',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '4px',
-							}}
-							title="Configure Worker Token"
-						>
-							<FiKey style={{ fontSize: '14px' }} />
-							Configure Token
-						</button>
-					</div>
+						<FiKey style={{ fontSize: '16px' }} />
+						Get Worker Token
+					</button>
 
 					{/* Worker Token Configuration Checkboxes */}
 					<div style={{ 
