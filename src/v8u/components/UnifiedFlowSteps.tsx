@@ -6406,7 +6406,7 @@ passed: boolean;
 						)}
 					</div>
 
-					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', justifyContent: 'center' }}>
 						<ButtonSpinner
 							loading={isGeneratingAuthUrl || isPreFlightValidating}
 							onClick={handleGenerateAuthUrl}
@@ -6704,10 +6704,9 @@ passed: boolean;
 					<ErrorDisplayWithRetry
 						error={error}
 						onRetry={handleGenerateAuthUrl}
-isLoading={isLoading}
-
-/>
-)})
+						isLoading={isLoading}
+					/>
+				)}
 					</CollapsibleContent>
 				)}
 			</CollapsibleSection>
