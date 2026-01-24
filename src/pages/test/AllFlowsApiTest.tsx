@@ -194,8 +194,9 @@ const ResultsContainer = styled.div`
 `;
 
 const ResultCard = styled.div<{ success: boolean }>`
-  padding: 1rem;
+  border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
+  padding: 1rem;
   margin-bottom: 1rem;
   border-left: 4px solid ${(props) => (props.success ? '#10b981' : '#ef4444')};
   background: ${(props) => (props.success ? '#f0fdf4' : '#fef2f2')};
@@ -208,7 +209,7 @@ const ResultHeader = styled.div`
   margin-bottom: 0.5rem;
 `;
 
-const ResultTitle = styled.h3`
+const ResultTitle = styled.h3<{ success: boolean }>`
   margin: 0;
   color: ${(props) => (props.success ? '#065f46' : '#991b1b')};
 `;
@@ -230,9 +231,9 @@ const CodeBlock = styled.pre`
   overflow-y: auto;
 `;
 
-const FlowTypeBadge = styled.span<{ flowType: string }>`
+const FlowTypeBadge = styled.span<{ flowtype: string }>`
   background: ${(props) => {
-		switch (props.flowType) {
+		switch (props.flowtype) {
 			case 'authorization_code':
 				return '#dbeafe';
 			case 'implicit':
@@ -248,7 +249,7 @@ const FlowTypeBadge = styled.span<{ flowType: string }>`
 		}
 	}};
   color: ${(props) => {
-		switch (props.flowType) {
+		switch (props.flowtype) {
 			case 'authorization_code':
 				return '#1e40af';
 			case 'implicit':
@@ -744,11 +745,11 @@ const AllFlowsApiTest: React.FC = () => {
 								value={config.flowType}
 								onChange={(e) => handleConfigChange('flowType', e.target.value)}
 							>
-								<option value="authorization_code">Authorization Code</option>
-								<option value="implicit">Implicit</option>
-								<option value="hybrid">Hybrid</option>
-								<option value="device_code">Device Code</option>
-								<option value="client_credentials">Client Credentials</option>
+								<option key="auth_code" value="authorization_code">Authorization Code</option>
+								<option key="implicit" value="implicit">Implicit</option>
+								<option key="hybrid" value="hybrid">Hybrid</option>
+								<option key="device_code" value="device_code">Device Code</option>
+								<option key="client_credentials" value="client_credentials">Client Credentials</option>
 							</Select>
 						</FormGroup>
 					</FormRow>
@@ -819,28 +820,24 @@ const AllFlowsApiTest: React.FC = () => {
 									value={config.responseType}
 									onChange={(e) => handleConfigChange('responseType', e.target.value)}
 								>
-									<option value="code">code</option>
-									<option value="token">token</option>
-									<option value="id_token token">id_token token</option>
-									<option value="code token">code token</option>
-									<option value="code id_token">code id_token</option>
-									<option value="code id_token token">code id_token token</option>
+									<option key="code" value="code">code</option>
+									<option key="token" value="token">token</option>
+									<option key="id_token token" value="id_token token">id_token token</option>
+									<option key="code token" value="code token">code token</option>
+									<option key="code id_token" value="code id_token">code id_token</option>
+									<option key="code id_token token" value="code id_token token">code id_token token</option>
 								</Select>
 							</FormGroup>
-						</FormRow>
-					)}
 
-					{config.flowType !== 'client_credentials' && (
-						<FormRow>
 							<FormGroup>
 								<Label>Response Mode:</Label>
 								<Select
 									value={config.responseMode}
 									onChange={(e) => handleConfigChange('responseMode', e.target.value)}
 								>
-									<option value="fragment">fragment</option>
-									<option value="form_post">form_post</option>
-									<option value="query">query</option>
+									<option key="fragment" value="fragment">fragment</option>
+									<option key="form_post" value="form_post">form_post</option>
+									<option key="query" value="query">query</option>
 								</Select>
 							</FormGroup>
 
@@ -930,7 +927,7 @@ const AllFlowsApiTest: React.FC = () => {
 								<ResultTitle success={result.success}>
 									{result.success ? '✅' : '❌'} {result.testName}
 								</ResultTitle>
-								<FlowTypeBadge flowType={result.flowType}>
+								<FlowTypeBadge flowtype={result.flowType}>
 									{result.flowType.replace('_', ' ')}
 								</FlowTypeBadge>
 							</div>
