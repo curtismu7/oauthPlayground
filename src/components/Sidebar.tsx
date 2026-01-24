@@ -645,6 +645,36 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 					},
 					{
+						id: 'api-tests-pingone',
+						path: '/test/pingone-api-test',
+						label: '🔧 PingOne API Tests',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiSettings />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Test PingOne API endpoints with real authentication">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'api-tests-all-flows',
+						path: '/test/all-flows-api-test',
+						label: '🧪 All Flows API Tests',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<FiZap />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Comprehensive API testing for all OAuth flows">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
 						id: 'mfa-device-auth-details-v8',
 						path: '/v8/mfa/device-authentication-details',
 						label: 'MFA Device Auth Details',
