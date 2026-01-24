@@ -198,6 +198,52 @@ const InfoBox = styled.div<{ $variant: 'info' | 'success' | 'warning' }>`
 	}}
 `;
 
+const OverviewSection = styled.div`
+	background: white;
+	border-radius: 1rem;
+	padding: 2rem;
+	margin-bottom: 2rem;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const OverviewTitle = styled.h2`
+	margin: 0 0 1rem 0;
+	color: #1f2937;
+	font-size: 1.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+`;
+
+const OverviewContent = styled.div`
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 2rem;
+	
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+		gap: 1rem;
+	}
+`;
+
+const QuickStartBox = styled.div`
+	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+	color: white;
+	padding: 1.5rem;
+	border-radius: 0.75rem;
+	
+	h4 {
+		margin: 0 0 0.5rem 0;
+		font-size: 1.125rem;
+	}
+	
+	p {
+		margin: 0;
+		opacity: 0.9;
+		line-height: 1.5;
+	}
+`;
+
 const StepList = styled.ol`
 	margin: 1rem 0;
 	padding-left: 1.5rem;
@@ -1920,6 +1966,45 @@ POST /resources/{resourceId}/attributes
 						Learn how to manage OAuth 2.0 resources, scopes, and custom token claims
 					</Subtitle>
 				</Header>
+
+				<OverviewSection>
+					<OverviewTitle>
+						<FiBook size={24} />
+						What is the Resources API?
+					</OverviewTitle>
+					<OverviewContent>
+						<div>
+							<h3>🎯 Purpose</h3>
+							<p>
+								The PingOne Resources API enables you to define and manage OAuth 2.0 resources, 
+								scopes, and custom claims for fine-grained access control in your applications.
+							</p>
+							
+							<h3>📚 What You'll Learn</h3>
+							<ul>
+								<li><strong>Resources:</strong> Define protected APIs and services that require authorization</li>
+								<li><strong>Scopes:</strong> Create granular permissions for different user roles</li>
+								<li><strong>Resource Attributes:</strong> Add custom claims to access tokens</li>
+								<li><strong>Integration:</strong> Use resources in OAuth 2.0 authorization flows</li>
+								<li><strong>Best Practices:</strong> Security considerations and design patterns</li>
+							</ul>
+							
+							<h3>🚀 Quick Start</h3>
+							<p>
+								Click on any card below to explore detailed guides and examples. 
+								Each topic includes step-by-step instructions with real-world scenarios.
+							</p>
+						</div>
+						
+						<QuickStartBox>
+							<h4>💡 Pro Tip</h4>
+							<p>
+								Start with the "Resources Overview" to understand the concepts, 
+								then follow the "Create a Resource" guide for hands-on experience.
+							</p>
+						</QuickStartBox>
+					</OverviewContent>
+				</OverviewSection>
 
 				<Grid>
 					{cards.map((card) => (
