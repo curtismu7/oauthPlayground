@@ -519,6 +519,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'Tools & Utilities': false,
 			Documentation: false,
 			Developers: false,
+			'Developer Tools': true,
 		};
 		try {
 			const saved = localStorage.getItem('nav.openSections');
