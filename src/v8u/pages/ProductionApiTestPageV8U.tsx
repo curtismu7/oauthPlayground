@@ -19,6 +19,7 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 // Test interfaces
@@ -951,40 +952,8 @@ const ProductionApiTestPageV8U: React.FC = () => {
 					gap: '16px',
 					padding: '16px 0'
 				}}>
-					{/* Token Status Display */}
-					<div style={{
-						display: 'flex',
-						alignItems: 'center',
-						gap: '12px',
-						padding: '12px',
-						background: tokenStatus.isValid ? '#d1fae5' : '#fee2e2',
-						borderRadius: '8px',
-						border: `1px solid ${tokenStatus.isValid ? '#10b981' : '#ef4444'}`
-					}}>
-						<div style={{
-							width: '12px',
-							height: '12px',
-							borderRadius: '50%',
-							background: tokenStatus.isValid ? '#10b981' : '#ef4444'
-						}} />
-						<div>
-							<div style={{ 
-								fontWeight: '600', 
-								color: tokenStatus.isValid ? '#065f46' : '#991b1b',
-								fontSize: '14px'
-							}}>
-								Worker Token: {tokenStatus.isValid ? 'Valid' : tokenStatus.status === 'missing' ? 'Missing' : 'Expired'}
-							</div>
-							<div style={{ 
-								fontSize: '12px', 
-								color: tokenStatus.isValid ? '#065f46' : '#991b1b',
-								opacity: 0.8
-							}}>
-								{tokenStatus.message}
-								{tokenStatus.expiresAt && ` (expires in ${tokenStatus.minutesRemaining} min)`}
-							</div>
-						</div>
-					</div>
+					{/* Cool 3D Worker Token Status Display */}
+					<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
 
 					{/* Get Worker Token Button */}
 					<RunButton onClick={handleShowWorkerTokenModal}>
