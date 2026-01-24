@@ -1,8 +1,15 @@
 import ReactDOM from 'react-dom/client';
+import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import App from './App';
 import { GlobalStyle, theme } from './styles/global';
+
+// Make React available globally for vendor bundles
+if (typeof window !== 'undefined') {
+	(window as unknown as { React: typeof React }).React = React;
+	(window as unknown as { ReactDOM: typeof ReactDOM }).ReactDOM = ReactDOM;
+}
 
 // Suppress defaultProps warnings from drag-and-drop libraries (library issue, not our code)
 // These warnings are harmless but noisy - some libraries haven't been updated for React 18
