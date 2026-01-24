@@ -437,11 +437,12 @@ export const useWorkerTokenFlowController = (
 				if (!credentials.clientId) missingFields.push('Client ID');
 				if (!credentials.clientSecret) missingFields.push('Client Secret');
 
+				const errorMessage = `Missing required fields: ${missingFields.join(', ')}. Please fill in all required fields to continue.`;
 				console.error(
 					'❌ [useWorkerTokenFlowController] Missing fields:',
 					missingFields.join(', ')
 				);
-				showGlobalError(`Missing required fields: ${missingFields.join(', ')} are required.`);
+				showGlobalError(errorMessage);
 				return;
 			}
 
