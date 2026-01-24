@@ -539,6 +539,44 @@ const PingOneWebhookViewer: React.FC = () => {
 		};
 	}, [environmentId, workerToken]);
 
+	// Validate worker token and provide helpful feedback
+	const validateWorkerToken = async (token: string, envId: string) => {
+		try {
+			// Test basic environment access
+			const testResponse = await fetch(`/api/pingone/subscriptions?environmentId=${envId}&workerToken=${token}&region=na`, {
+				method: 'GET',
+			});
+			
+			if (testResponse.ok) {
+				return { valid: true, message: 'Token is valid' };
+			}
+			
+			const errorText = await testResponse.text();
+			if (errorText.includes('<html>')) {
+				if (errorText.includes('Error. Page cannot be displayed')) {
+					return {
+						valid: false,
+						message: 'Token lacks webhook permissions or environment access. Please ensure your Worker App has p1:read:webhooks and p1:write:webhooks scopes.'
+					};
+				}
+				return {
+					valid: false,
+					message: 'Token authentication failed. The token may be expired or invalid.'
+				};
+			}
+			
+			return {
+				valid: false,
+				message: `API returned ${testResponse.status}: ${testResponse.statusText}`
+			};
+		} catch (error) {
+			return {
+				valid: false,
+				message: `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`
+			};
+		}
+	};
+
 	// Fetch webhook subscriptions
 	const fetchSubscriptions = useCallback(async () => {
 		const effectiveWorkerToken = getAnyWorkerToken();
@@ -597,6 +635,15 @@ const PingOneWebhookViewer: React.FC = () => {
 					console.warn(
 						'[Webhook Viewer] Received HTML response - likely authentication error'
 					);
+					if (responseData.includes('Error. Page cannot be displayed')) {
+						throw new Error(
+							'PingOne API access denied. This usually means:\n\n' +
+							'1. Your worker token lacks the required scopes (p1:read:webhooks, p1:write:webhooks)\n' +
+							'2. The environment ID is not accessible with this token\n' +
+							'3. Your PingOne account may not have webhook subscription permissions\n\n' +
+							'Please generate a new worker token with the proper webhook scopes and try again.'
+						);
+					}
 					throw new Error(
 						'Authentication failed. Your worker token may be expired or invalid. Please generate a new worker token with the required scopes: p1:read:webhooks, p1:write:webhooks'
 					);
