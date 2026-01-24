@@ -70,7 +70,7 @@ const DEFAULT_CONFIG: MFAConfiguration = {
 		retryAttempts: 3,
 		retryDelay: 1000, // 1 second
 		showTokenAtEnd: true, // show token after generation by default
-		silentApiRetrieval: false, // by default, show modals for token retrieval
+		silentApiRetrieval: true, // enable silent token retrieval by default
 	},
 	autoSelectDefaultPolicies: true,
 	autoSelectFirstDevice: true,
