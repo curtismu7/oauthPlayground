@@ -16,10 +16,10 @@
  */
 
 /**
- * NOTE: Worker token scopes are not required for MFA operations
- * The worker token itself provides the necessary permissions
+ * Required PingOne worker scopes for MFA operations.
+ * NOTE: Worker token requires "openid" scope for proper validation
  */
-export const PINGONE_WORKER_MFA_SCOPES = [] as const;
+export const PINGONE_WORKER_MFA_SCOPES = ['openid'] as const;
 
 /**
  * Space-delimited version of the required PingOne worker scopes for MFA.
