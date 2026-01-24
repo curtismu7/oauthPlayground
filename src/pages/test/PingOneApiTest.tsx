@@ -457,6 +457,242 @@ const PingOneApiTest: React.FC = () => {
 		[addResult]
 	);
 
+	// Test 2: Token Exchange (Authorization Code)
+	const testTokenExchange = useCallback(async () => {
+		const startTime = Date.now();
+
+		try {
+			console.log('🧪 Testing Token Exchange...');
+
+			if (!hasWorkerToken) {
+				throw new Error('Worker token required for token exchange test');
+			}
+
+			// For testing purposes, we'll use a mock authorization code
+			const testAuthCode = 'test_authorization_code_' + Date.now();
+
+			const requestBody = {
+				grant_type: 'authorization_code',
+				code: testAuthCode,
+				redirect_uri: config.redirectUri,
+				client_id: config.clientId,
+				client_secret: config.clientSecret,
+			};
+
+			if (config.usePkce) {
+				const codeVerifier = generateCodeVerifier();
+				(requestBody as any).code_verifier = codeVerifier;
+			}
+
+			const response = await fetch('/api/token-exchange', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody),
+			});
+
+			const duration = Date.now() - startTime;
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({}));
+				throw new Error(`Token exchange failed: ${response.status} - ${errorData.error_description || errorData.error || 'Unknown error'}`);
+			}
+
+			const tokenData = await response.json();
+
+			addResult({
+				testName: 'Token Exchange',
+				success: true,
+				request: {
+					method: 'POST',
+					url: '/api/token-exchange',
+					body: requestBody,
+				},
+				response: tokenData,
+				duration,
+			});
+		} catch (error) {
+			const duration = Date.now() - startTime;
+			addResult({
+				testName: 'Token Exchange',
+				success: false,
+				request: {
+					method: 'POST',
+					url: '/api/token-exchange',
+					body: {
+						grant_type: 'authorization_code',
+						code: '[TEST_AUTH_CODE]',
+						redirect_uri: config.redirectUri,
+						client_id: config.clientId,
+						client_secret: '[REDACTED]',
+						...(config.usePkce && { code_verifier: '[GENERATED]' }),
+					},
+				},
+				response: null,
+				error: error instanceof Error ? error.message : 'Unknown error',
+				duration,
+			});
+		}
+	}, [config, hasWorkerToken, addResult]);
+
+	// Test 3: User Info Endpoint
+	const testUserInfoEndpoint = useCallback(async () => {
+		const startTime = Date.now();
+
+		try {
+			console.log('🧪 Testing User Info Endpoint...');
+
+			if (!hasWorkerToken) {
+				throw new Error('Worker token required for user info test');
+			}
+
+			// Mock access token for testing
+			const testAccessToken = 'test_access_token_' + Date.now();
+
+			const response = await fetch(`/api/pingone/userinfo?access_token=${testAccessToken}`, {
+				method: 'GET',
+			});
+
+			const duration = Date.now() - startTime;
+
+			// This will likely fail with a real test, but that's expected
+			const responseData = await response.json().catch(() => ({ error: 'Response parsing failed' }));
+
+			addResult({
+				testName: 'User Info Endpoint',
+				success: response.ok,
+				request: {
+					method: 'GET',
+					url: `/api/pingone/userinfo?access_token=${testAccessToken}`,
+				},
+				response: responseData,
+				duration,
+			});
+		} catch (error) {
+			const duration = Date.now() - startTime;
+			addResult({
+				testName: 'User Info Endpoint',
+				success: false,
+				request: {
+					method: 'GET',
+					url: '/api/pingone/userinfo?access_token=[TEST_ACCESS_TOKEN]',
+				},
+				response: null,
+				error: error instanceof Error ? error.message : 'Unknown error',
+				duration,
+			});
+		}
+	}, [hasWorkerToken, addResult]);
+
+	// Test 4: Token Introspection
+	const testTokenIntrospection = useCallback(async () => {
+		const startTime = Date.now();
+
+		try {
+			console.log('🧪 Testing Token Introspection...');
+
+			if (!hasWorkerToken) {
+				throw new Error('Worker token required for token introspection test');
+			}
+
+			// Mock token for testing
+			const testToken = 'test_token_' + Date.now();
+
+			const requestBody = {
+				token: testToken,
+				token_type_hint: 'access_token',
+			};
+
+			const response = await fetch('/api/pingone/introspect', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: new URLSearchParams(requestBody),
+			});
+
+			const duration = Date.now() - startTime;
+
+			const responseData = await response.json().catch(() => ({ error: 'Response parsing failed' }));
+
+			addResult({
+				testName: 'Token Introspection',
+				success: response.ok,
+				request: {
+					method: 'POST',
+					url: '/api/pingone/introspect',
+					body: requestBody,
+				},
+				response: responseData,
+				duration,
+			});
+		} catch (error) {
+			const duration = Date.now() - startTime;
+			addResult({
+				testName: 'Token Introspection',
+				success: false,
+				request: {
+					method: 'POST',
+					url: '/api/pingone/introspect',
+					body: {
+						token: '[TEST_TOKEN]',
+						token_type_hint: 'access_token',
+					},
+				},
+				response: null,
+				error: error instanceof Error ? error.message : 'Unknown error',
+				duration,
+			});
+		}
+	}, [hasWorkerToken, addResult]);
+
+	// Test 5: JWKS Endpoint
+	const testJwksEndpoint = useCallback(async () => {
+		const startTime = Date.now();
+
+		try {
+			console.log('🧪 Testing JWKS Endpoint...');
+
+			if (!config.environmentId) {
+				throw new Error('Environment ID required for JWKS test');
+			}
+
+			const jwksUrl = `https://auth.pingone.com/${config.environmentId}/as/jwks`;
+			const response = await fetch(`/api/pingone/jwks?environmentId=${config.environmentId}`, {
+				method: 'GET',
+			});
+
+			const duration = Date.now() - startTime;
+
+			const responseData = await response.json().catch(() => ({ error: 'Response parsing failed' }));
+
+			addResult({
+				testName: 'JWKS Endpoint',
+				success: response.ok,
+				request: {
+					method: 'GET',
+					url: `/api/pingone/jwks?environmentId=${config.environmentId}`,
+				},
+				response: responseData,
+				duration,
+			});
+		} catch (error) {
+			const duration = Date.now() - startTime;
+			addResult({
+				testName: 'JWKS Endpoint',
+				success: false,
+				request: {
+					method: 'GET',
+					url: `/api/pingone/jwks?environmentId=${config.environmentId}`,
+				},
+				response: null,
+				error: error instanceof Error ? error.message : 'Unknown error',
+				duration,
+			});
+		}
+	}, [config.environmentId, addResult]);
+
 	// Run all tests
 	const runAllTests = useCallback(async () => {
 		setIsRunning(true);
@@ -467,12 +703,26 @@ const PingOneApiTest: React.FC = () => {
 
 			// Test 1: Authorization URL Generation
 			await testAuthUrlGeneration();
+
+			// Test 2: Token Exchange
+			await testTokenExchange();
+
+			// Test 3: User Info Endpoint
+			await testUserInfoEndpoint();
+
+			// Test 4: Token Introspection
+			await testTokenIntrospection();
+
+			// Test 5: JWKS Endpoint
+			await testJwksEndpoint();
+
+			console.log('✅ All PingOne API tests completed!');
 		} catch (error) {
 			console.error('❌ Test suite failed:', error);
 		} finally {
 			setIsRunning(false);
 		}
-	}, [testAuthUrlGeneration]);
+	}, [testAuthUrlGeneration, testTokenExchange, testUserInfoEndpoint, testTokenIntrospection, testJwksEndpoint]);
 
 	return (
 		<Container>
