@@ -16,6 +16,12 @@ export default defineConfig(({ mode }) => {
 		define: {
 			// Polyfill for global object in browser environment
 			global: 'globalThis',
+			// Ensure React is available globally for vendor bundles
+			// Use a safe approach that doesn't conflict with use-sync-external-store
+			React: 'window.React || {}',
+			// Also provide access to React.Children and other properties
+			'React.Children': 'window.React?.Children || {}',
+			'React.Component': 'window.React?.Component || {}',
 			__PINGONE_ENVIRONMENT_ID__: JSON.stringify(env.PINGONE_ENVIRONMENT_ID),
 			__PINGONE_CLIENT_ID__: JSON.stringify(env.PINGONE_CLIENT_ID),
 			__PINGONE_CLIENT_SECRET__: JSON.stringify(env.PINGONE_CLIENT_SECRET),
@@ -80,6 +86,9 @@ export default defineConfig(({ mode }) => {
 							},
 						},
 					],
+					// Skip waiting for service worker to avoid 401 errors
+					skipWaiting: true,
+					clientsClaim: true,
 				},
 				manifest: {
 					name: 'OAuth Playground',
@@ -88,6 +97,8 @@ export default defineConfig(({ mode }) => {
 					theme_color: '#3b82f6',
 					background_color: '#ffffff',
 					display: 'standalone',
+					start_url: '/',
+					scope: '/',
 					icons: [
 						{
 							src: '/favicon.ico',
@@ -95,6 +106,10 @@ export default defineConfig(({ mode }) => {
 							type: 'image/x-icon',
 						},
 					],
+				},
+				// Add injectManifest configuration to handle manifest properly
+				injectManifest: {
+					globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
 				},
 			}),
 		],
