@@ -1972,22 +1972,26 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			)}
 
 			{/* Security Scorecard - Visual compliance feedback */}
-			<SecurityScorecard
-				key={`${effectiveFlowType}-${specVersion}`}
-				flowType={effectiveFlowType}
-				specVersion={specVersion}
-				credentials={credentials}
-			/>
+			{currentStep === 0 && (
+				<SecurityScorecard
+					key={`${effectiveFlowType}-${specVersion}`}
+					flowType={effectiveFlowType}
+					specVersion={specVersion}
+					credentials={credentials}
+				/>
+			)}
 
 			{/* Advanced OAuth Features - PAR, JAR, MTLS support */}
-			<AdvancedOAuthFeatures
-				flowType={effectiveFlowType}
-				specVersion={specVersion}
-				onFeatureToggle={(featureId, enabled) => {
-					console.log(`${MODULE_TAG} 🔧 Advanced feature toggled`, { featureId, enabled });
-					// TODO: Save advanced feature preferences to settings service
-				}}
-			/>
+			{currentStep === 0 && (
+				<AdvancedOAuthFeatures
+					flowType={effectiveFlowType}
+					specVersion={specVersion}
+					onFeatureToggle={(featureId, enabled) => {
+						console.log(`${MODULE_TAG} 🔧 Advanced feature toggled`, { featureId, enabled });
+						// TODO: Save advanced feature preferences to settings service
+					}}
+				/>
+			)}
 
 			{/* Credentials Form - Collapsible */}
 			<div
