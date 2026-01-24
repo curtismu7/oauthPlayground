@@ -22,7 +22,7 @@ import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
@@ -40,7 +40,7 @@ export interface MFAFlowBaseProps {
 	renderStep4: (props: MFAFlowBaseRenderProps) => React.ReactNode;
 	validateStep0: (
 		credentials: MFACredentials,
-		tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
+		tokenStatus: TokenStatusInfo,
 		nav: ReturnType<typeof useStepNavigationV8>
 	) => boolean;
 	stepLabels?: string[];
@@ -186,9 +186,11 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
 	const [showWorkerTokenPromptModal, setShowWorkerTokenPromptModal] = useState(false);
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
-	const [tokenStatus, setTokenStatus] = useState(() =>
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
-	);
+	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
+		status: 'missing',
+		message: 'Checking...',
+		isValid: false,
+	});
 	const [isLoading, setIsLoading] = useState(false);
 	const [deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
 	const [isLoadingPolicies, setIsLoadingPolicies] = useState(false);
@@ -198,7 +200,8 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 	const fetchDeviceAuthPolicies = useCallback(async () => {
 		const envId = credentials.environmentId?.trim();
-		const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatus().isValid;
+		const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+		const tokenValid = currentStatus.isValid;
 		if (!envId || !tokenValid) {
 			setDeviceAuthPolicies([]);
 			setPoliciesError(null);
