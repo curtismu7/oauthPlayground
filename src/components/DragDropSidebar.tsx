@@ -374,13 +374,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				setSaveButtonState('default');
 			}, 1500);
 
-			// Show toast in next tick to avoid setState during render
-			setTimeout(() => {
-				v4ToastManager.showSuccess('Menu layout saved!', {}, { duration: 1500 });
-			}, 0);
+			// Removed toast to prevent setState during render
 		} catch (error) {
 			console.warn('❌ Failed to save menu layout:', error);
-			v4ToastManager.showError('Failed to save menu layout');
+			// Removed toast to prevent setState during render
 		}
 	}, [setSaveButtonState]);
 
@@ -1868,14 +1865,11 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				setSaveButtonState('default');
 			}, 2000);
 
-			// Show toast in next tick to avoid setState during render
-			setTimeout(() => {
-				v4ToastManager.showSuccess('Menu layout saved!', {}, { duration: 1500 });
-			}, 0);
+			// Removed toast to prevent setState during render
 		} catch (error) {
 			console.warn('❌ Failed to save menu layout:', error);
 			setSaveButtonState('default');
-			v4ToastManager.showError('Failed to save menu layout');
+			// Removed toast to prevent setState during render
 		}
 	}, [menuGroups, setSaveButtonState]);
 
