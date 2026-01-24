@@ -5,10 +5,14 @@ import { ThemeProvider } from 'styled-components';
 import App from './App';
 import { GlobalStyle, theme } from './styles/global';
 
-// Make React available globally for vendor bundles
+// Make React available globally for vendor bundles and any scripts that might need it
 if (typeof window !== 'undefined') {
-	(window as unknown as { React: typeof React }).React = React;
-	(window as unknown as { ReactDOM: typeof ReactDOM }).ReactDOM = ReactDOM;
+	(window as any).React = React;
+	(window as any).ReactDOM = ReactDOM;
+	
+	// Also make it available on globalThis for broader compatibility
+	(globalThis as any).React = React;
+	(globalThis as any).ReactDOM = ReactDOM;
 }
 
 // Suppress defaultProps warnings from drag-and-drop libraries (library issue, not our code)
