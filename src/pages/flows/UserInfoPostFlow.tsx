@@ -315,7 +315,12 @@ try {
 
 				try {
 					if (!formData.accessToken || !formData.environmentId) {
-						throw new Error('Access token and environment ID are required');
+						const missingFields = [];
+						if (!formData.accessToken) missingFields.push('Access Token');
+						if (!formData.environmentId) missingFields.push('Environment ID');
+						
+						const errorMessage = `Missing required fields: ${missingFields.join(' and ')}. Please fill in all required fields.`;
+						throw new Error(errorMessage);
 					}
 
 					const userInfoEndpoint = `https://auth.pingone.com/${formData.environmentId}/as/userinfo`;
@@ -488,7 +493,12 @@ const retryUserInfoRequest = async (retryCount = 0) => {
 			setError(null);
 
 			if (!formData.accessToken || !formData.environmentId) {
-				throw new Error('Access token and environment ID are required');
+				const missingFields = [];
+				if (!formData.accessToken) missingFields.push('Access Token');
+				if (!formData.environmentId) missingFields.push('Environment ID');
+				
+				const errorMessage = `Missing required fields: ${missingFields.join(' and ')}. Please fill in all required fields.`;
+				throw new Error(errorMessage);
 			}
 
 			const userInfoEndpoint = `https://auth.pingone.com/${formData.environmentId}/as/userinfo`;
