@@ -26,6 +26,7 @@ import {
 	FiKey,
 	FiLoader,
 	FiMail,
+	FiPackage,
 	FiPhone,
 	FiPlus,
 	FiShield,
@@ -45,7 +46,7 @@ import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { LoadingSpinnerModalV8U } from '@/v8u/components/LoadingSpinnerModalV8U';
+import { PageHeaderV8, PageHeaderGradients, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
@@ -57,8 +58,22 @@ import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthentic
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { PrimaryButton, SecondaryButton, SuccessButton, DangerButton } from '@/v8/components/shared/ActionButtonV8';
+import { useActionButton } from '@/v8/hooks/useActionButton';
+import {
+	generateComprehensiveMFAPostmanCollection,
+	generateCompletePostmanCollection,
+	downloadPostmanCollectionWithEnvironment,
+} from '@/services/postmanCollectionGeneratorV8';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import { MFAOTPInput } from './components/MFAOTPInput';
+import {
+	MFAPolicyInfoModal,
+	MFADeviceSelectionInfoModal,
+	MFAOTPInputModal,
+	MFAPushConfirmationModal,
+	MFAFIDO2ChallengeModal,
+} from './components/modals';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
@@ -138,6 +153,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const authContext = useAuth();
 	const [isClearingTokens, setIsClearingTokens] = useState(false);
 	const [showClearTokensModal, setShowClearTokensModal] = useState(false);
+	
+	// Action button hooks for consistent button state management
+	const startMFAAction = useActionButton();
+	const registerDeviceAction = useActionButton();
+	const usernamelessFIDO2Action = useActionButton();
+	const clearTokensAction = useActionButton();
+	
 	usePageScroll({ pageName: 'MFA Authentication', force: true });
 
 	// Check for OAuth callback code and redirect to the correct flow page
@@ -441,7 +463,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 						// Wait before retrying (exponential backoff)
 						if (attempt < retryAttempts) {
-							const delay = retryDelay * 2 ** (attempt - 1); // Exponential backoff
+							const delay = retryDelay * Math.pow(2, attempt - 1); // Exponential backoff
 							await new Promise((resolve) => setTimeout(resolve, delay));
 						}
 					}
@@ -1264,6 +1286,17 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const handleClearTokens = useCallback(async () => {
 		setShowClearTokensModal(false);
 		setIsClearingTokens(true);
+		
+		// Ensure spinner shows before starting async operations
+		await new Promise((resolve) => {
+			requestAnimationFrame(() => {
+				setTimeout(resolve, 100);
+			});
+		});
+		
+		const startTime = Date.now();
+		const minDisplayTime = 800; // Minimum time to show spinner (ms)
+		
 		try {
 			// End PingOne session first (if we have an ID token)
 			const tokens = oauthStorage.getTokens();
@@ -1304,8 +1337,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				console.warn('[MFA-AUTHN-MAIN-V8] Could not call auth context logout:', error);
 			}
 
-			// Clear worker token
-			await workerTokenServiceV8.clearCredentials();
+			// Clear worker token (preserve credentials)
+			await workerTokenServiceV8.clearToken();
 
 			// Clear OAuth tokens from auth context
 			try {
@@ -1333,9 +1366,27 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			console.error('[MFA-AUTHN-MAIN-V8] Failed to clear tokens:', error);
 			toastV8.error('Failed to clear tokens. Please try again.');
 		} finally {
+			// Ensure spinner shows for minimum time
+			const elapsed = Date.now() - startTime;
+			const remaining = Math.max(0, minDisplayTime - elapsed);
+			if (remaining > 0) {
+				await new Promise((resolve) => setTimeout(resolve, remaining));
+			}
 			setIsClearingTokens(false);
 		}
 	}, [authContext, credentials.environmentId, credentials.userToken, setCredentials]);
+
+	// Compute showTokenOnly for modal
+	const showTokenOnly = (() => {
+		if (!showWorkerTokenModal) return false;
+		try {
+			const config = MFAConfigurationServiceV8.loadConfiguration();
+			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			return config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+		} catch {
+			return false;
+		}
+	})();
 
 	return (
 		<div
@@ -1351,31 +1402,142 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			{/* Navigation Bar */}
 			<MFANavigationV8 currentPage="hub" showBackToMain={true} />
 
-			<LoadingSpinnerModalV8U
-				show={authState.isLoading && !!loadingMessage}
-				message={loadingMessage}
-				theme="blue"
-			/>
-
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 
 			{/* Page Header */}
+			<PageHeaderV8
+				title="🔐 MFA Authentication"
+				subtitle="Unified authentication flow for all MFA device types"
+				gradient={PageHeaderGradients.mfaAuth}
+				textColor={PageHeaderTextColors.white}
+			/>
+
+			{/* Postman Collection Download Buttons */}
 			<div
 				style={{
-					background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+					background: 'white',
 					borderRadius: '12px',
-					padding: '32px',
-					marginBottom: '32px',
-					color: 'white',
-					boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+					padding: '24px',
+					marginBottom: '24px',
+					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+					border: '1px solid #e5e7eb',
 				}}
 			>
-				<h1 style={{ margin: '0 0 8px 0', fontSize: '32px', fontWeight: '700', color: 'white' }}>
-					🔐 MFA Authentication
-				</h1>
-				<p style={{ margin: 0, fontSize: '16px', color: 'white', opacity: 0.9 }}>
-					Unified authentication flow for all MFA device types
-				</p>
+				<div
+					style={{
+						display: 'flex',
+						gap: '12px',
+						flexWrap: 'wrap',
+					}}
+				>
+					<button
+						type="button"
+						onClick={() => {
+							const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
+								flowKey: 'mfa-v8',
+								flowType: 'oauth' as const,
+								includeClientSecret: false,
+								includeScopes: false,
+								includeRedirectUri: false,
+								includeLogoutUri: false,
+							});
+							const collection = generateComprehensiveMFAPostmanCollection({
+								environmentId: credentials.environmentId,
+								username: mfaCreds?.username,
+							});
+							const date = new Date().toISOString().split('T')[0];
+							const filename = `pingone-mfa-flows-complete-${date}-collection.json`;
+							downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne MFA Flows Environment');
+							toastV8.success('Postman collection and environment downloaded! Import both into Postman to test all MFA flows.');
+						}}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							padding: '12px 24px',
+							background: '#8b5cf6',
+							color: 'white',
+							border: 'none',
+							borderRadius: '8px',
+							fontSize: '15px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#7c3aed';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.4)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = '#8b5cf6';
+							e.currentTarget.style.boxShadow = '0 2px 8px rgba(139, 92, 246, 0.3)';
+						}}
+						title="Download comprehensive Postman collection for all MFA device types (SMS, Email, OATH TOTP (RFC 6238), FIDO2, Mobile, WhatsApp) grouped by Registration and Authentication"
+					>
+						<FiPackage size={18} />
+						Download All MFA Flows Postman Collection
+					</button>
+					<button
+						type="button"
+						onClick={() => {
+							// Get Unified credentials for complete collection
+							const unifiedCreds = CredentialsServiceV8.loadCredentials('oauth-authz-v8u', {
+								flowKey: 'oauth-authz-v8u',
+								flowType: 'oauth-authz' as const,
+								includeClientSecret: true,
+								includeScopes: false,
+								includeRedirectUri: false,
+								includeLogoutUri: false,
+							});
+							const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
+								flowKey: 'mfa-v8',
+								flowType: 'oauth' as const,
+								includeClientSecret: false,
+								includeScopes: false,
+								includeRedirectUri: false,
+								includeLogoutUri: false,
+							});
+							const collection = generateCompletePostmanCollection({
+								environmentId: credentials.environmentId || unifiedCreds?.environmentId,
+								clientId: unifiedCreds?.clientId,
+								clientSecret: unifiedCreds?.clientSecret,
+								username: mfaCreds?.username,
+							});
+							const date = new Date().toISOString().split('T')[0];
+							const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
+							downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Complete Collection Environment');
+							toastV8.success('Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.');
+						}}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							padding: '12px 24px',
+							background: '#10b981',
+							color: 'white',
+							border: 'none',
+							borderRadius: '8px',
+							fontSize: '15px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#059669';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = '#10b981';
+							e.currentTarget.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
+						}}
+						title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
+					>
+						<FiPackage size={18} />
+						Download Complete Collection (Unified + MFA)
+					</button>
+				</div>
 			</div>
 
 			{/* 1. Authentication & Registration */}
@@ -3385,42 +3547,17 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			)}
 
 			{/* Modals */}
-			{showWorkerTokenModal && (() => {
-				// Check if we should show token only
-				// Token-only mode is shown when:
-				// 1. showTokenAtEnd is ON AND token is valid (regardless of silentApiRetrieval)
-				// 2. OR both silentApiRetrieval and showTokenAtEnd are ON AND token was just retrieved silently
-				try {
-					const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
-					const config = MFAConfigurationServiceV8.loadConfiguration();
-					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-					
-					// Show token-only if showTokenAtEnd is ON and token is valid
-					const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
-					
-					return (
-						<WorkerTokenModalV8
-							isOpen={showWorkerTokenModal}
-							onClose={() => {
-								setShowWorkerTokenModal(false);
-								// Refresh token status when modal closes
-								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-							}}
-							showTokenOnly={showTokenOnly}
-						/>
-					);
-				} catch {
-					return (
-						<WorkerTokenModalV8
-							isOpen={showWorkerTokenModal}
-							onClose={() => {
-								setShowWorkerTokenModal(false);
-								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-							}}
-						/>
-					);
-				}
-			})()}
+			{showWorkerTokenModal ? (
+				<WorkerTokenModalV8
+					isOpen={showWorkerTokenModal}
+					onClose={() => {
+						setShowWorkerTokenModal(false);
+						// Refresh token status when modal closes
+						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+					}}
+					showTokenOnly={showTokenOnly}
+				/>
+			) : null}
 
 			{/* Username Decision Modal */}
 			{showUsernameDecisionModal && (
@@ -4067,7 +4204,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															setAuthState((prev) => ({ ...prev, isLoading: true }));
 
 															// Lookup userId if not already set
-															const userId = authState.userId;
+															let userId = authState.userId;
 															if (!userId && usernameInput.trim()) {
 																const user = await MFAServiceV8.lookupUserByUsername(
 																	credentials.environmentId,
@@ -4465,1186 +4602,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				</div>
 			)}
 
-			{/* OTP Modal */}
-			{showOTPModal && (
-				<div
-					style={{
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						background: 'rgba(0, 0, 0, 0.5)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						zIndex: 1000,
-					}}
-					onClick={() => setShowOTPModal(false)}
-				>
-					<div
-						style={{
-							background: 'white',
-							borderRadius: '16px',
-							padding: '0',
-							maxWidth: '450px',
-							width: '90%',
-							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-							overflow: 'hidden',
-						}}
-						onClick={(e) => e.stopPropagation()}
-					>
-						{/* Header with Logo */}
-						<div
-							style={{
-								background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-								padding: '32px 32px 24px 32px',
-								textAlign: 'center',
-								position: 'relative',
-							}}
-						>
-							<button
-								type="button"
-								onClick={() => {
-									setShowOTPModal(false);
-									setOtpCode('');
-									setOtpError(null);
-								}}
-								style={{
-									position: 'absolute',
-									top: '16px',
-									right: '16px',
-									background: 'rgba(255, 255, 255, 0.2)',
-									border: 'none',
-									borderRadius: '50%',
-									width: '32px',
-									height: '32px',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									cursor: 'pointer',
-									color: 'white',
-								}}
-							>
-								<FiX size={18} />
-							</button>
-							<PingIdentityLogo size={48} />
-							<h3
-								style={{
-									margin: '0',
-									fontSize: '22px',
-									fontWeight: '600',
-									color: 'white',
-									textAlign: 'center',
-								}}
-							>
-								Enter verification code
-							</h3>
-						</div>
-						<div style={{ padding: '32px', textAlign: 'center' }}>
-							{(() => {
-								// Try to find device in authState.devices first, then fallback to userDevices
-								let selectedDevice = authState.devices.find(
-									(d) => d.id === authState.selectedDeviceId
-								);
-								if (!selectedDevice && authState.selectedDeviceId) {
-									selectedDevice = userDevices.find(
-										(d) => (d.id as string) === authState.selectedDeviceId
-									) as Device | undefined;
-								}
-
-								return (
-									<>
-										<p
-											style={{
-												margin: '0 0 8px 0',
-												color: '#6b7280',
-												fontSize: '15px',
-												lineHeight: '1.5',
-											}}
-										>
-											Enter the verification code sent to your device.
-										</p>
-										{selectedDevice && (selectedDevice.phone || selectedDevice.email) && (
-											<p
-												style={{
-													margin: '0 0 16px 0',
-													color: '#374151',
-													fontSize: '14px',
-													fontWeight: '500',
-													lineHeight: '1.5',
-												}}
-											>
-												{selectedDevice.phone
-													? `📱 Phone: ${selectedDevice.phone}`
-													: `📧 Email: ${selectedDevice.email}`}
-											</p>
-										)}
-									</>
-								);
-							})()}
-
-							{otpError && (
-								<div
-									style={{
-										padding: '12px',
-										background: '#fef2f2',
-										border: '1px solid #fecaca',
-										borderRadius: '6px',
-										color: '#991b1b',
-										fontSize: '14px',
-										marginBottom: '16px',
-										textAlign: 'center',
-									}}
-								>
-									{otpError}
-								</div>
-							)}
-
-							<div
-								style={{
-									marginBottom: '24px',
-									display: 'flex',
-									flexDirection: 'column',
-									alignItems: 'center',
-									gap: '16px',
-								}}
-							>
-								<MFAOTPInput
-									value={otpCode}
-									onChange={(value) => {
-										setOtpCode(value);
-										setOtpError(null);
-									}}
-									disabled={isValidatingOTP}
-									placeholder="123456"
-									maxLength={6}
-								/>
-								{(() => {
-									// Try to find device in authState.devices first, then fallback to userDevices
-									let selectedDevice = authState.devices.find(
-										(d) => d.id === authState.selectedDeviceId
-									);
-									if (!selectedDevice && authState.selectedDeviceId) {
-										selectedDevice = userDevices.find(
-											(d) => (d.id as string) === authState.selectedDeviceId
-										) as Device | undefined;
-									}
-									if (!selectedDevice || (!selectedDevice.phone && !selectedDevice.email))
-										return null;
-
-									return (
-										<p
-											style={{
-												margin: '0',
-												color: '#6b7280',
-												fontSize: '14px',
-												lineHeight: '1.5',
-												textAlign: 'center',
-												width: '100%',
-											}}
-										>
-											Enter the 6-digit code from{' '}
-											{selectedDevice.phone ? `your phone` : `your email`}
-										</p>
-									);
-								})()}
-							</div>
-
-							<div style={{ display: 'flex', gap: '12px' }}>
-								<button
-									type="button"
-									onClick={async () => {
-										if (otpCode.length !== 6) {
-											setOtpError('Please enter a 6-digit code');
-											return;
-										}
-
-										if (!authState.authenticationId) {
-											setOtpError('Authentication session not found');
-											return;
-										}
-
-										setIsValidatingOTP(true);
-										setOtpError(null);
-
-										try {
-											const otpCheckUrl = authState._links?.['otp.check']?.href;
-											if (!otpCheckUrl) {
-												throw new Error('OTP check URL not available');
-											}
-											const result = await MfaAuthenticationServiceV8.validateOTP({
-												environmentId: credentials.environmentId,
-												username: usernameInput.trim(),
-												authenticationId: authState.authenticationId,
-												otp: otpCode,
-												otpCheckUrl,
-											});
-
-											if (result.valid) {
-												// Update auth state with new links from OTP validation response
-												const newLinks = (result._links as Record<string, { href: string }>) || {};
-												const updatedLinks = { ...authState._links, ...newLinks };
-
-												// Complete authentication to get access token if complete link is available
-												let completionResult = null;
-												if (updatedLinks['complete']?.href) {
-													try {
-														completionResult =
-															await MfaAuthenticationServiceV8.completeAuthentication(
-																updatedLinks['complete'].href
-															);
-													} catch (completeError) {
-														console.warn(
-															`${MODULE_TAG} Failed to complete authentication:`,
-															completeError
-														);
-														// Continue even if completion fails - OTP was validated successfully
-													}
-												}
-
-												setShowOTPModal(false);
-												setOtpCode('');
-												setOtpError(null);
-
-												// Get selected device details
-												const selectedDevice = authState.devices.find(
-													(d) => d.id === authState.selectedDeviceId
-												);
-												const selectedPolicy = deviceAuthPolicies.find(
-													(p) => p.id === credentials.deviceAuthenticationPolicyId
-												);
-												const policyName = selectedPolicy?.name;
-												const deviceSelectionBehavior = selectedPolicy?.authentication
-													?.deviceSelection as string | undefined;
-
-												// Navigate to success page with completion result
-												navigate('/v8/mfa/authentication/success', {
-													state: {
-														completionResult: completionResult
-															? {
-																	...completionResult, // Include all fields from completion result
-																}
-															: null,
-														username: usernameInput.trim(),
-														userId: authState.userId,
-														environmentId: credentials.environmentId,
-														deviceType: selectedDevice?.type || 'OTP',
-														deviceId: authState.selectedDeviceId,
-														deviceDetails: selectedDevice
-															? {
-																	id: selectedDevice.id,
-																	type: selectedDevice.type,
-																	nickname: selectedDevice.nickname,
-																	name: selectedDevice.name,
-																	phone: selectedDevice.phone,
-																	email: selectedDevice.email,
-																	status: selectedDevice.status,
-																}
-															: null,
-														policyId: credentials.deviceAuthenticationPolicyId,
-														policyName: policyName,
-														authenticationId: authState.authenticationId,
-														challengeId: authState.challengeId,
-														timestamp: new Date().toISOString(),
-														deviceSelectionBehavior: deviceSelectionBehavior,
-													},
-												});
-											} else {
-												setOtpError(
-													result.message || 'Invalid verification code. Please try again.'
-												);
-												setOtpCode('');
-											}
-										} catch (error) {
-											console.error(`${MODULE_TAG} OTP validation failed:`, error);
-											setOtpError(
-												error instanceof Error ? error.message : 'Failed to validate code'
-											);
-											setOtpCode('');
-										} finally {
-											setIsValidatingOTP(false);
-										}
-									}}
-									disabled={isValidatingOTP || otpCode.length !== 6}
-									style={{
-										flex: 1,
-										padding: '10px 24px',
-										border: 'none',
-										borderRadius: '6px',
-										background: isValidatingOTP || otpCode.length !== 6 ? '#9ca3af' : '#3b82f6',
-										color: 'white',
-										fontSize: '16px',
-										fontWeight: '600',
-										cursor: isValidatingOTP || otpCode.length !== 6 ? 'not-allowed' : 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										gap: '8px',
-									}}
-								>
-									{isValidatingOTP ? (
-										<>
-											<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-											Validating...
-										</>
-									) : (
-										'Verify Code'
-									)}
-								</button>
-								<button
-									type="button"
-									onClick={async () => {
-										// Resend OTP by re-selecting the device
-										// According to cursor-optimized.md: Only use verified endpoints
-										// Re-selecting device triggers a new OTP via selectDeviceForAuthentication endpoint
-										if (!authState.authenticationId || !authState.selectedDeviceId) {
-											setOtpError('Authentication session or device not found');
-											return;
-										}
-
-										setIsValidatingOTP(true);
-										setOtpError(null);
-										setOtpCode(''); // Clear existing code
-
-										try {
-											// Get userId if not already available
-											const userId = authState.userId;
-											if (!userId) {
-												const user = await MFAServiceV8.lookupUserByUsername(
-													credentials.environmentId,
-													usernameInput.trim()
-												);
-												userId = user.id as string;
-												setAuthState((prev) => ({ ...prev, userId }));
-											}
-
-											// Re-select device to trigger new OTP
-											// According to cursor-optimized.md: Only use verified endpoints
-											// Re-selecting device triggers a new OTP via selectDeviceForAuthentication endpoint
-											const data = await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
-												{
-													environmentId: credentials.environmentId,
-													username: usernameInput.trim(),
-													userId,
-													authenticationId: authState.authenticationId,
-													deviceId: authState.selectedDeviceId,
-													region: credentials.region,
-													customDomain: credentials.customDomain,
-												},
-												{ stepName: 'mfa-Resend OTP Code' } // Custom step name for API display
-											);
-
-											// Read device authentication to get updated state
-											let authDetails: Record<string, unknown> | null = null;
-											try {
-												authDetails = await MfaAuthenticationServiceV8.readDeviceAuthentication(
-													credentials.environmentId,
-													userId || usernameInput.trim(),
-													authState.authenticationId,
-													{ isUserId: !!userId }
-												);
-											} catch (readError) {
-												console.warn(
-													`${MODULE_TAG} Failed to read device authentication after resend:`,
-													readError
-												);
-											}
-
-											// Update auth state with new links
-											const status = (authDetails?.status as string) || data.status || '';
-											const nextStep = (authDetails?.nextStep as string) || data.nextStep || '';
-											const links = (data._links as Record<string, { href: string }>) || {};
-
-											setAuthState((prev) => ({
-												...prev,
-												status,
-												nextStep,
-												_links: { ...prev._links, ...links },
-											}));
-
-											toastV8.success(
-												'New verification code has been sent. Please check your device.'
-											);
-										} catch (error) {
-											console.error(`${MODULE_TAG} Failed to resend OTP:`, error);
-											
-											// Check for LIMIT_EXCEEDED error (cooldown/lockout)
-											const errorWithCode = error as Error & {
-												errorCode?: string;
-												deliveryMethod?: string;
-												coolDownExpiresAt?: number;
-											};
-											
-											if (errorWithCode.errorCode === 'LIMIT_EXCEEDED') {
-												const errorMessage = error instanceof Error ? error.message : 'Authentication temporarily locked';
-												setCooldownError({
-													message: errorMessage,
-													...(errorWithCode.deliveryMethod ? { deliveryMethod: errorWithCode.deliveryMethod } : {}),
-													...(errorWithCode.coolDownExpiresAt ? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt } : {}),
-												});
-												toastV8.warning(errorMessage);
-											} else {
-												const errorMessage =
-													error instanceof Error ? error.message : 'Failed to resend code';
-												setOtpError(errorMessage);
-												toastV8.error(`Failed to resend code: ${errorMessage}`);
-											}
-										} finally {
-											setIsValidatingOTP(false);
-										}
-									}}
-									disabled={
-										isValidatingOTP || !authState.authenticationId || !authState.selectedDeviceId
-									}
-									style={{
-										padding: '10px 24px',
-										border: '1px solid #d1d5db',
-										borderRadius: '6px',
-										background:
-											isValidatingOTP || !authState.authenticationId || !authState.selectedDeviceId
-												? '#f3f4f6'
-												: 'white',
-										color:
-											isValidatingOTP || !authState.authenticationId || !authState.selectedDeviceId
-												? '#9ca3af'
-												: '#374151',
-										fontSize: '16px',
-										fontWeight: '500',
-										cursor:
-											isValidatingOTP || !authState.authenticationId || !authState.selectedDeviceId
-												? 'not-allowed'
-												: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										gap: '8px',
-									}}
-								>
-									{isValidatingOTP ? (
-										<>
-											<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-											Sending...
-										</>
-									) : (
-										<>🔄 Resend Code</>
-									)}
-								</button>
-								<button
-									type="button"
-									onClick={() => {
-										setShowOTPModal(false);
-										setOtpCode('');
-										setOtpError(null);
-									}}
-									style={{
-										padding: '10px 24px',
-										border: '1px solid #d1d5db',
-										borderRadius: '6px',
-										background: 'white',
-										color: '#6b7280',
-										fontSize: '16px',
-										fontWeight: '500',
-										cursor: 'pointer',
-									}}
-								>
-									Cancel
-								</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			)}
-
-			{/* FIDO2 Modal */}
-			{showFIDO2Modal && (
-				<div
-					style={{
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						background: 'rgba(0, 0, 0, 0.5)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						zIndex: 1000,
-					}}
-					onClick={() => setShowFIDO2Modal(false)}
-				>
-					<div
-						style={{
-							background: 'white',
-							borderRadius: '16px',
-							padding: '0',
-							maxWidth: '500px',
-							width: '90%',
-							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-							overflow: 'hidden',
-						}}
-						onClick={(e) => e.stopPropagation()}
-					>
-						{/* Header with Logo */}
-						<div
-							style={{
-								background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-								padding: '32px 32px 24px 32px',
-								textAlign: 'center',
-								position: 'relative',
-							}}
-						>
-							<button
-								type="button"
-								onClick={() => {
-									setShowFIDO2Modal(false);
-									setFido2Error(null);
-								}}
-								style={{
-									position: 'absolute',
-									top: '16px',
-									right: '16px',
-									background: 'rgba(255, 255, 255, 0.2)',
-									border: 'none',
-									borderRadius: '50%',
-									width: '32px',
-									height: '32px',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									cursor: 'pointer',
-									color: 'white',
-								}}
-							>
-								<FiX size={18} />
-							</button>
-							<PingIdentityLogo size={48} />
-							<h3
-								style={{
-									margin: '0',
-									fontSize: '22px',
-									fontWeight: '600',
-									color: 'white',
-									textAlign: 'center',
-								}}
-							>
-								{typeof navigator !== 'undefined' &&
-								navigator.platform.toLowerCase().includes('mac')
-									? 'Use your Passkey'
-									: 'Use your security key'}
-							</h3>
-						</div>
-						<div style={{ padding: '32px' }}>
-							<p
-								style={{
-									margin: '0 0 24px 0',
-									color: '#6b7280',
-									fontSize: '15px',
-									lineHeight: '1.5',
-									textAlign: 'center',
-								}}
-							>
-								{typeof navigator !== 'undefined' &&
-								navigator.platform.toLowerCase().includes('mac')
-									? 'Please use your Passkey (Touch ID or Face ID) to complete authentication.'
-									: 'Please use your security key, Touch ID, Face ID, or Windows Hello to complete authentication.'}
-							</p>
-
-							{fido2Error && (
-								<div
-									style={{
-										padding: '12px',
-										background: '#fef2f2',
-										border: '1px solid #fecaca',
-										borderRadius: '6px',
-										color: '#991b1b',
-										fontSize: '14px',
-										marginBottom: '16px',
-									}}
-								>
-									{fido2Error}
-								</div>
-							)}
-
-							{!WebAuthnAuthenticationServiceV8.isWebAuthnSupported() && (
-								<div
-									style={{
-										padding: '12px',
-										background: '#fef2f2',
-										border: '1px solid #fecaca',
-										borderRadius: '6px',
-										color: '#991b1b',
-										fontSize: '14px',
-										marginBottom: '16px',
-									}}
-								>
-									WebAuthn is not supported in this browser. Please use a modern browser.
-								</div>
-							)}
-
-							<div style={{ display: 'flex', gap: '12px' }}>
-								<button
-									type="button"
-									onClick={async () => {
-										// This modal is for username-based FIDO2 authentication
-										// It requires either challengeId OR publicKeyCredentialRequestOptions
-										if (!authState.authenticationId) {
-											console.error(`${MODULE_TAG} ❌ Missing authenticationId`);
-											setFido2Error(
-												'Authentication session not found. Please try selecting the device again.'
-											);
-											return;
-										}
-
-										// Check if we have either challengeId or publicKeyCredentialRequestOptions
-										const hasChallengeId = !!authState.challengeId;
-										const hasPublicKeyOptions = !!authState.publicKeyCredentialRequestOptions;
-
-										if (!hasChallengeId && !hasPublicKeyOptions) {
-											console.error(
-												`${MODULE_TAG} ❌ Missing both challengeId and publicKeyCredentialRequestOptions`
-											);
-											setFido2Error(
-												'WebAuthn challenge not found. Please try selecting the device again.'
-											);
-											return;
-										}
-
-										if (!WebAuthnAuthenticationServiceV8.isWebAuthnSupported()) {
-											console.error(`${MODULE_TAG} ❌ WebAuthn not supported`);
-											setFido2Error('WebAuthn is not supported in this browser');
-											return;
-										}
-
-										setIsAuthenticatingFIDO2(true);
-										setFido2Error(null);
-
-										try {
-											// Check for session cookies and native app context to prefer FIDO2 platform devices
-											// Per PingOne MFA API:
-											// 1. If session cookie exists, use FIDO2 platform device even if not default
-											// 2. If native app with device authorization, use native device
-											const {
-												shouldPreferFIDO2PlatformDevice,
-												getAuthenticatorSelectionPreferences,
-											} = await import('@/v8/services/fido2SessionCookieServiceV8');
-											const platformPreference = shouldPreferFIDO2PlatformDevice();
-											const authenticatorPrefs = getAuthenticatorSelectionPreferences();
-
-											// Detect if we're on macOS to prefer Passkeys (platform authenticators)
-											const isMac =
-												typeof navigator !== 'undefined' &&
-												navigator.platform.toLowerCase().includes('mac');
-
-											// Perform WebAuthn authentication
-											// If publicKeyCredentialRequestOptions is available, use it directly (preferred)
-											// Otherwise, fall back to challengeId
-											const webAuthnParams: Parameters<
-												typeof WebAuthnAuthenticationServiceV8.authenticateWithWebAuthn
-											>[0] = {
-												rpId: window.location.hostname,
-												userName: usernameInput.trim(),
-												userVerification: 'preferred',
-											};
-
-											// Use publicKeyCredentialRequestOptions if available (from PingOne response)
-											if (hasPublicKeyOptions) {
-												// Parse if it's a string, otherwise use as-is
-												let publicKeyOptions: PublicKeyCredentialRequestOptions;
-												if (typeof authState.publicKeyCredentialRequestOptions === 'string') {
-													try {
-														publicKeyOptions = JSON.parse(
-															authState.publicKeyCredentialRequestOptions
-														) as PublicKeyCredentialRequestOptions;
-													} catch (parseError) {
-														console.error(
-															`${MODULE_TAG} Failed to parse publicKeyCredentialRequestOptions:`,
-															parseError
-														);
-														throw new Error('Invalid publicKeyCredentialRequestOptions format');
-													}
-												} else {
-													publicKeyOptions =
-														authState.publicKeyCredentialRequestOptions as PublicKeyCredentialRequestOptions;
-												}
-
-												webAuthnParams.publicKeyOptions = publicKeyOptions;
-											} else if (hasChallengeId) {
-												// Fallback to challengeId
-												webAuthnParams.challengeId = authState.challengeId!;
-											}
-
-											// Prefer platform authenticators if:
-											// 1. Session cookie exists (FIDO2 platform device should be used even if not default)
-											// 2. Native app with device authorization enabled
-											// 3. macOS (Passkeys)
-											if (platformPreference.prefer || isMac) {
-												webAuthnParams.authenticatorSelection = {
-													authenticatorAttachment: 'platform',
-													userVerification: 'preferred',
-												};
-											}
-
-											const webAuthnResult =
-												await WebAuthnAuthenticationServiceV8.authenticateWithWebAuthn(
-													webAuthnParams
-												);
-
-											if (!webAuthnResult.success) {
-												throw new Error(webAuthnResult.error || 'WebAuthn authentication failed');
-											}
-
-											// Send assertion result to PingOne using check-assertion endpoint
-											// Build assertion object according to PingOne API spec
-											if (!authState.authenticationId) {
-												throw new Error('Missing authentication ID for assertion check');
-											}
-
-											const assertion = {
-												id: webAuthnResult.credentialId || '',
-												rawId: webAuthnResult.rawId || webAuthnResult.credentialId || '',
-												type: 'public-key',
-												response: {
-													clientDataJSON: webAuthnResult.clientDataJSON || '',
-													authenticatorData: webAuthnResult.authenticatorData || '',
-													signature: webAuthnResult.signature || '',
-													...(webAuthnResult.userHandle && {
-														userHandle: webAuthnResult.userHandle,
-													}),
-												},
-											};
-
-											// Call check-assertion endpoint
-											// Pass environmentId from credentials to avoid loading from storage
-											const assertionResult = await MfaAuthenticationServiceV8.checkFIDO2Assertion(
-												authState.authenticationId,
-												assertion,
-												credentials.environmentId,
-												credentials.region, // Pass region from credentials
-												credentials.customDomain, // Pass custom domain from credentials
-												window.location.origin // Pass origin for PingOne API
-											);
-
-											// Check if PingOne returned new publicKeyCredentialRequestOptions in the assertion check response
-											// This can happen if the assertion needs to be retried with different options
-											const newPublicKeyOptions = (
-												assertionResult as { publicKeyCredentialRequestOptions?: unknown }
-											).publicKeyCredentialRequestOptions;
-											if (newPublicKeyOptions) {
-												console.log(
-													`${MODULE_TAG} PingOne returned new publicKeyCredentialRequestOptions from assertion check response`
-												);
-												// Update auth state with new options for potential retry
-												setAuthState((prev) => ({
-													...prev,
-													publicKeyCredentialRequestOptions: newPublicKeyOptions,
-												}));
-											}
-
-											// After sending assertion, check status and complete authentication
-											// The assertion result may have a poll link or complete link
-											const assertionLinks =
-												(assertionResult._links as Record<string, { href: string }>) || {};
-
-											// Try to complete authentication if complete link is available
-											let completionResult = null;
-											if (
-												assertionLinks['complete']?.href ||
-												authState._links?.['complete']?.href
-											) {
-												try {
-													completionResult =
-														await MfaAuthenticationServiceV8.completeAuthentication(
-															assertionLinks['complete']?.href ||
-																authState._links!['complete']!.href
-														);
-												} catch (completeError) {
-													console.warn(
-														`${MODULE_TAG} Failed to complete FIDO2 authentication:`,
-														completeError
-													);
-													// Continue even if completion fails - authentication was successful
-												}
-											}
-
-											// If status is COMPLETED or we have a completion result, navigate to success
-											if (assertionResult.status === 'COMPLETED' || completionResult) {
-												setShowFIDO2Modal(false);
-												setFido2Error(null);
-
-												// Get selected device details
-												const selectedDevice = authState.devices.find(
-													(d) => d.id === authState.selectedDeviceId
-												);
-												const selectedPolicy = deviceAuthPolicies.find(
-													(p) => p.id === credentials.deviceAuthenticationPolicyId
-												);
-												const policyName = selectedPolicy?.name;
-												const deviceSelectionBehavior = selectedPolicy?.authentication
-													?.deviceSelection as string | undefined;
-
-												// Navigate to success page with completion result
-												navigate('/v8/mfa/authentication/success', {
-													state: {
-														completionResult: completionResult
-															? {
-																	...completionResult, // Include all fields from completion result
-																}
-															: null,
-														username: usernameInput.trim(),
-														userId: authState.userId,
-														environmentId: credentials.environmentId,
-														deviceType: selectedDevice?.type || 'FIDO2',
-														deviceId: authState.selectedDeviceId,
-														deviceDetails: selectedDevice
-															? {
-																	id: selectedDevice.id,
-																	type: selectedDevice.type,
-																	nickname: selectedDevice.nickname,
-																	name: selectedDevice.name,
-																	phone: selectedDevice.phone,
-																	email: selectedDevice.email,
-																	status: selectedDevice.status,
-																}
-															: null,
-														policyId: credentials.deviceAuthenticationPolicyId,
-														policyName: policyName,
-														authenticationId: authState.authenticationId,
-														challengeId: authState.challengeId,
-														timestamp: new Date().toISOString(),
-														deviceSelectionBehavior: deviceSelectionBehavior,
-													},
-												});
-											} else {
-												// If assertion check didn't complete, try polling if poll link is available
-												if (
-													assertionLinks['challenge.poll']?.href ||
-													authState._links?.['challenge.poll']?.href
-												) {
-													const pollResult =
-														await MfaAuthenticationServiceV8.pollAuthenticationStatus(
-															assertionLinks['challenge.poll']?.href ||
-																authState._links!['challenge.poll']!.href
-														);
-
-													if (pollResult.status === 'COMPLETED') {
-														// Complete authentication to get access token if complete link is available
-														let pollCompletionResult = null;
-														const pollLinks =
-															(pollResult._links as Record<string, { href: string }>) || {};
-														if (
-															pollLinks['complete']?.href ||
-															authState._links?.['complete']?.href
-														) {
-															try {
-																pollCompletionResult =
-																	await MfaAuthenticationServiceV8.completeAuthentication(
-																		pollLinks['complete']?.href ||
-																			authState._links!['complete']!.href
-																	);
-															} catch (completeError) {
-																console.warn(
-																	`${MODULE_TAG} Failed to complete FIDO2 authentication (via poll):`,
-																	completeError
-																);
-															}
-														}
-
-														setShowFIDO2Modal(false);
-														setFido2Error(null);
-
-														// Get selected device details
-														const selectedDevice = authState.devices.find(
-															(d) => d.id === authState.selectedDeviceId
-														);
-														const selectedPolicy = deviceAuthPolicies.find(
-															(p) => p.id === credentials.deviceAuthenticationPolicyId
-														);
-														const policyName = selectedPolicy?.name;
-														const deviceSelectionBehavior = selectedPolicy?.authentication
-															?.deviceSelection as string | undefined;
-
-														// Navigate to success page
-														navigate('/v8/mfa/authentication/success', {
-															state: {
-																completionResult: pollCompletionResult
-																	? {
-																			...pollCompletionResult,
-																		}
-																	: null,
-																username: usernameInput.trim(),
-																userId: authState.userId,
-																environmentId: credentials.environmentId,
-																deviceType: selectedDevice?.type || 'FIDO2',
-																deviceId: authState.selectedDeviceId,
-																deviceDetails: selectedDevice
-																	? {
-																			id: selectedDevice.id,
-																			type: selectedDevice.type,
-																			nickname: selectedDevice.nickname,
-																			name: selectedDevice.name,
-																			phone: selectedDevice.phone,
-																			email: selectedDevice.email,
-																			status: selectedDevice.status,
-																		}
-																	: null,
-																policyId: credentials.deviceAuthenticationPolicyId,
-																policyName: policyName,
-																authenticationId: authState.authenticationId,
-																challengeId: authState.challengeId,
-																timestamp: new Date().toISOString(),
-																deviceSelectionBehavior: deviceSelectionBehavior,
-															},
-														});
-													} else {
-														setFido2Error('Authentication is still pending. Please try again.');
-													}
-												} else {
-													// If no poll URL and assertion didn't complete, show error
-													setFido2Error(
-														'Authentication completed but status is unclear. Please try again.'
-													);
-												}
-											}
-										} catch (error) {
-											console.error(`${MODULE_TAG} FIDO2 authentication failed:`, error);
-											setFido2Error(
-												error instanceof Error
-													? error.message
-													: 'Failed to complete WebAuthn authentication'
-											);
-										} finally {
-											setIsAuthenticatingFIDO2(false);
-										}
-									}}
-									disabled={
-										isAuthenticatingFIDO2 ||
-										!WebAuthnAuthenticationServiceV8.isWebAuthnSupported() ||
-										(!authState.challengeId && !authState.publicKeyCredentialRequestOptions)
-									}
-									title={
-										!authState.challengeId && !authState.publicKeyCredentialRequestOptions
-											? 'WebAuthn challenge not found. Please try selecting the device again.'
-											: !WebAuthnAuthenticationServiceV8.isWebAuthnSupported()
-												? 'WebAuthn is not supported in this browser'
-												: isAuthenticatingFIDO2
-													? 'Authenticating...'
-													: 'Click to authenticate with your Passkey or security key'
-									}
-									style={{
-										flex: 1,
-										padding: '10px 24px',
-										border: 'none',
-										borderRadius: '6px',
-										background:
-											isAuthenticatingFIDO2 ||
-											(!authState.challengeId && !authState.publicKeyCredentialRequestOptions)
-												? '#9ca3af'
-												: '#3b82f6',
-										color: 'white',
-										fontSize: '16px',
-										fontWeight: '600',
-										cursor:
-											isAuthenticatingFIDO2 ||
-											(!authState.challengeId && !authState.publicKeyCredentialRequestOptions)
-												? 'not-allowed'
-												: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										gap: '8px',
-										transition: 'background 0.2s ease',
-									}}
-								>
-									{isAuthenticatingFIDO2 ? (
-										<>
-											<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-											Authenticating...
-										</>
-									) : (
-										<>
-											<FiKey />
-											{typeof navigator !== 'undefined' &&
-											navigator.platform.toLowerCase().includes('mac')
-												? 'Authenticate with Passkey'
-												: 'Authenticate with Security Key'}
-										</>
-									)}
-								</button>
-								<button
-									type="button"
-									onClick={() => {
-										setShowFIDO2Modal(false);
-										setFido2Error(null);
-									}}
-									style={{
-										padding: '10px 24px',
-										border: '1px solid #d1d5db',
-										borderRadius: '6px',
-										background: 'white',
-										color: '#6b7280',
-										fontSize: '16px',
-										fontWeight: '500',
-										cursor: 'pointer',
-									}}
-								>
-									Cancel
-								</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			)}
-
-			{/* Push Modal */}
-			{showPushModal && (
-				<div
-					style={{
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						background: 'rgba(0, 0, 0, 0.5)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						zIndex: 1000,
-					}}
-					onClick={() => setShowPushModal(false)}
-				>
-					<div
-						style={{
-							background: 'white',
-							borderRadius: '16px',
-							padding: '0',
-							maxWidth: '500px',
-							width: '90%',
-							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-							overflow: 'hidden',
-						}}
-						onClick={(e) => e.stopPropagation()}
-					>
-						{/* Header with Logo */}
-						<div
-							style={{
-								background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-								padding: '32px 32px 24px 32px',
-								textAlign: 'center',
-								position: 'relative',
-							}}
-						>
-							<button
-								type="button"
-								onClick={() => setShowPushModal(false)}
-								style={{
-									position: 'absolute',
-									top: '16px',
-									right: '16px',
-									background: 'rgba(255, 255, 255, 0.2)',
-									border: 'none',
-									borderRadius: '50%',
-									width: '32px',
-									height: '32px',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									cursor: 'pointer',
-									color: 'white',
-								}}
-							>
-								<FiX size={18} />
-							</button>
-							<PingIdentityLogo size={48} />
-							<h3
-								style={{
-									margin: '0',
-									fontSize: '22px',
-									fontWeight: '600',
-									color: 'white',
-									textAlign: 'center',
-								}}
-							>
-								Approve sign-in on your phone
-							</h3>
-						</div>
-						<div style={{ padding: '32px' }}>
-							<div style={{ textAlign: 'center', marginBottom: '24px' }}>
-								<div
-									style={{
-										width: '80px',
-										height: '80px',
-										borderRadius: '50%',
-										background: '#eff6ff',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										margin: '0 auto 16px',
-										fontSize: '40px',
-									}}
-								>
-									📱
-								</div>
-								<p
-									style={{
-										margin: '0 0 8px 0',
-										fontSize: '16px',
-										fontWeight: '500',
-										color: '#1f2937',
-									}}
-								>
-									Push notification sent
-								</p>
-								<p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
-									Please check your mobile device and approve the sign-in request.
-								</p>
-							</div>
-
-							<div
-								style={{
-									padding: '12px',
-									background: '#f0fdf4',
-									border: '1px solid #bbf7d0',
-									borderRadius: '6px',
-									marginBottom: '20px',
-									fontSize: '14px',
-									color: '#166534',
-								}}
-							>
-								<div
-									style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
-								>
-									<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-									<strong>Waiting for approval...</strong>
-								</div>
-								<p style={{ margin: 0, fontSize: '13px' }}>
-									We're checking your device for approval. This modal will close automatically when
-									you approve.
-								</p>
-							</div>
-
-							<button
-								type="button"
-								onClick={() => setShowPushModal(false)}
-								style={{
-									width: '100%',
-									padding: '12px 24px',
-									border: '1px solid #d1d5db',
-									borderRadius: '8px',
-									background: 'white',
-									color: '#6b7280',
-									fontSize: '16px',
-									fontWeight: '500',
-									cursor: 'pointer',
-								}}
-							>
-								Cancel
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
-
 			{/* Device Registration Modal */}
 			{showRegistrationModal && (
 				<div
@@ -5931,457 +4888,472 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			)}
 
 			{/* Device Selection Info Modal */}
-			{showDeviceSelectionInfoModal && (
-				<div
-					style={{
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						background: 'rgba(0, 0, 0, 0.5)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						zIndex: 10000,
-						padding: '20px',
-					}}
-					onClick={() => setShowDeviceSelectionInfoModal(false)}
-				>
-					<div
-						style={{
-							background: 'white',
-							borderRadius: '16px',
-							padding: '32px',
-							maxWidth: '700px',
-							width: '100%',
-							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-							maxHeight: '90vh',
-							overflowY: 'auto',
-						}}
-						onClick={(e) => e.stopPropagation()}
-					>
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'flex-start',
-								marginBottom: '24px',
-							}}
-						>
-							<h2 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#1f2937' }}>
-								Device Selection Behavior
-							</h2>
-							<button
-								type="button"
-								onClick={() => setShowDeviceSelectionInfoModal(false)}
-								style={{
-									background: 'rgba(0, 0, 0, 0.1)',
-									border: 'none',
-									borderRadius: '50%',
-									width: '32px',
-									height: '32px',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									cursor: 'pointer',
-									color: '#6b7280',
-								}}
-							>
-								<FiX size={20} />
-							</button>
-						</div>
-
-						<div style={{ fontSize: '16px', lineHeight: '1.6', color: '#374151' }}>
-							<p style={{ margin: '0 0 20px 0' }}>
-								The <strong>Device Selection</strong> setting controls how users interact with their
-								MFA devices during authentication. This setting determines whether devices are
-								automatically selected or if users are prompted to choose.
-							</p>
-
-							<h3
-								style={{
-									margin: '24px 0 12px 0',
-									fontSize: '18px',
-									fontWeight: '600',
-									color: '#1f2937',
-								}}
-							>
-								Available Options:
-							</h3>
-
-							{/* DEFAULT_TO_FIRST */}
-							<div
-								style={{
-									padding: '16px',
-									background: '#f0fdf4',
-									border: '1px solid #bbf7d0',
-									borderRadius: '8px',
-									marginBottom: '16px',
-								}}
-							>
-								<div
-									style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
-								>
-									<span
-										style={{
-											padding: '4px 12px',
-											background: '#10b981',
-											color: 'white',
-											borderRadius: '12px',
-											fontSize: '12px',
-											fontWeight: '600',
-										}}
-									>
-										DEFAULT_TO_FIRST
-									</span>
-								</div>
-								<p style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#166534' }}>
-									Automatic Device Selection
-								</p>
-								<p style={{ margin: 0, fontSize: '14px', color: '#166534' }}>
-									<strong>User Experience:</strong> The system automatically selects the first
-									available device for authentication. Users do not see a device selection screen.
-								</p>
-								<p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#166534' }}>
-									<strong>When to Use:</strong> Best for single-device users or when you want the
-									fastest authentication experience. Users with multiple devices will always use
-									their first device.
-								</p>
-							</div>
-
-							{/* PROMPT_TO_SELECT_DEVICE */}
-							<div
-								style={{
-									padding: '16px',
-									background: '#eff6ff',
-									border: '1px solid #bfdbfe',
-									borderRadius: '8px',
-									marginBottom: '16px',
-								}}
-							>
-								<div
-									style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
-								>
-									<span
-										style={{
-											padding: '4px 12px',
-											background: '#3b82f6',
-											color: 'white',
-											borderRadius: '12px',
-											fontSize: '12px',
-											fontWeight: '600',
-										}}
-									>
-										PROMPT_TO_SELECT_DEVICE
-									</span>
-								</div>
-								<p style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#1e40af' }}>
-									Smart Device Selection
-								</p>
-								<p style={{ margin: 0, fontSize: '14px', color: '#1e40af' }}>
-									<strong>User Experience:</strong> If the user has only one device, it is
-									automatically selected. If the user has multiple devices, they are shown a device
-									selection screen to choose which device to use.
-								</p>
-								<p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#1e40af' }}>
-									<strong>When to Use:</strong> Ideal for most scenarios. Provides convenience for
-									single-device users while giving choice to users with multiple devices.
-								</p>
-							</div>
-
-							{/* ALWAYS_DISPLAY_DEVICES */}
-							<div
-								style={{
-									padding: '16px',
-									background: '#fef3c7',
-									border: '1px solid #fde68a',
-									borderRadius: '8px',
-									marginBottom: '16px',
-								}}
-							>
-								<div
-									style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
-								>
-									<span
-										style={{
-											padding: '4px 12px',
-											background: '#f59e0b',
-											color: 'white',
-											borderRadius: '12px',
-											fontSize: '12px',
-											fontWeight: '600',
-										}}
-									>
-										ALWAYS_DISPLAY_DEVICES
-									</span>
-								</div>
-								<p style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#92400e' }}>
-									Always Show Device Selection
-								</p>
-								<p style={{ margin: 0, fontSize: '14px', color: '#92400e' }}>
-									<strong>User Experience:</strong> Users always see a device selection screen, even
-									if they only have one device. This gives users full visibility and control over
-									which device is used.
-								</p>
-								<p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#92400e' }}>
-									<strong>When to Use:</strong> Best for security-conscious environments or when you
-									want users to explicitly confirm their device choice. Also useful for testing and
-									debugging device selection flows.
-								</p>
-							</div>
-
-							<div
-								style={{
-									padding: '16px',
-									background: '#f9fafb',
-									border: '1px solid #e5e7eb',
-									borderRadius: '8px',
-									marginTop: '24px',
-								}}
-							>
-								<p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
-									<strong>💡 Tip:</strong> The device selection behavior is set in your Device
-									Authentication Policy. Changing this setting affects all users who authenticate
-									using that policy.
-								</p>
-							</div>
-						</div>
-					</div>
-				</div>
-			)}
-
-			{/* Device Authentication Policy Info Modal */}
-			{showPolicyInfoModal && (
-				<div
-					style={{
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						background: 'rgba(0, 0, 0, 0.5)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						zIndex: 10000,
-						padding: '20px',
-					}}
-					onClick={() => setShowPolicyInfoModal(false)}
-				>
-					<div
-						style={{
-							background: 'white',
-							borderRadius: '16px',
-							padding: '32px',
-							maxWidth: '700px',
-							width: '100%',
-							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-							maxHeight: '90vh',
-							overflowY: 'auto',
-						}}
-						onClick={(e) => e.stopPropagation()}
-					>
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'flex-start',
-								marginBottom: '24px',
-							}}
-						>
-							<h2 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#1f2937' }}>
-								What is a Device Authentication Policy?
-							</h2>
-							<button
-								type="button"
-								onClick={() => setShowPolicyInfoModal(false)}
-								style={{
-									background: 'rgba(0, 0, 0, 0.1)',
-									border: 'none',
-									borderRadius: '50%',
-									width: '32px',
-									height: '32px',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									cursor: 'pointer',
-									color: '#6b7280',
-								}}
-							>
-								<FiX size={20} />
-							</button>
-						</div>
-
-						<div style={{ fontSize: '16px', lineHeight: '1.6', color: '#374151' }}>
-							<p style={{ margin: '0 0 20px 0' }}>
-								A <strong>Device Authentication Policy</strong> is a configuration that controls how
-								multi-factor authentication (MFA) works for your users. It determines which device
-								types are allowed, how devices are selected during authentication, and what
-								authentication methods are required.
-							</p>
-
-							<h3
-								style={{
-									margin: '24px 0 12px 0',
-									fontSize: '18px',
-									fontWeight: '600',
-									color: '#1f2937',
-								}}
-							>
-								Key Features:
-							</h3>
-							<ul style={{ margin: '0 0 20px 0', paddingLeft: '24px' }}>
-								<li style={{ marginBottom: '8px' }}>
-									<strong>Device Selection Behavior:</strong> Controls how users select devices
-									during authentication (e.g., automatically select first device, prompt user to
-									choose, always display all devices).
-								</li>
-								<li style={{ marginBottom: '8px' }}>
-									<strong>Allowed Device Types:</strong> Specifies which device types (SMS, EMAIL,
-									FIDO2, TOTP, etc.) can be used for authentication and registration.
-								</li>
-								<li style={{ marginBottom: '8px' }}>
-									<strong>Authentication Requirements:</strong> Defines which device types are
-									required, optional, or excluded from the authentication flow.
-								</li>
-								<li style={{ marginBottom: '8px' }}>
-									<strong>Challenge Configuration:</strong> Sets up OTP requirements, challenge
-									timeouts, retry limits, and other security parameters.
-								</li>
-							</ul>
-
-							<h3
-								style={{
-									margin: '24px 0 12px 0',
-									fontSize: '18px',
-									fontWeight: '600',
-									color: '#1f2937',
-								}}
-							>
-								How It Works:
-							</h3>
-							<ol style={{ margin: '0 0 20px 0', paddingLeft: '24px' }}>
-								<li style={{ marginBottom: '8px' }}>
-									When you select a policy, it applies to{' '}
-									<strong>both authentication and device registration</strong> flows.
-								</li>
-								<li style={{ marginBottom: '8px' }}>
-									The policy determines which device types users can register and use for
-									authentication.
-								</li>
-								<li style={{ marginBottom: '8px' }}>
-									During authentication, the policy controls how devices are presented and selected.
-								</li>
-								<li style={{ marginBottom: '8px' }}>
-									The policy enforces security requirements like OTP length, challenge timeouts, and
-									retry limits.
-								</li>
-							</ol>
-
-							<div
-								style={{
-									padding: '16px',
-									background: '#eff6ff',
-									border: '1px solid #bfdbfe',
-									borderRadius: '8px',
-									marginTop: '24px',
-								}}
-							>
-								<p style={{ margin: 0, fontSize: '14px', color: '#1e40af' }}>
-									<strong>💡 Tip:</strong> The policy you select here will be used for all
-									authentication attempts and device registrations. Make sure the policy allows the
-									device types you want to test.
-								</p>
-							</div>
-
-							<button
-								type="button"
-								onClick={() => setShowPolicyInfoModal(false)}
-								style={{
-									width: '100%',
-									marginTop: '24px',
-									padding: '12px 24px',
-									border: 'none',
-									borderRadius: '8px',
-									background: '#3b82f6',
-									color: 'white',
-									fontSize: '16px',
-									fontWeight: '500',
-									cursor: 'pointer',
-								}}
-							>
-								Got it
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
-
-			{/* Device Failure Modal */}
-			<DeviceFailureModalV8
-				isOpen={showDeviceFailureModal}
-				onClose={() => {
-					setShowDeviceFailureModal(false);
-					setDeviceFailureError('');
-					setUnavailableDevices([]);
-				}}
-				errorMessage={deviceFailureError}
-				unavailableDevices={unavailableDevices}
-				onUnlockDevice={async (deviceId: string) => {
-					try {
-						// Get user ID from auth state or credentials
-						const userId = authState.userId || '';
-						if (!userId) {
-							toastV8.error('User ID not found. Please start authentication again.');
-							return;
-						}
-
-						await MFAServiceV8.unlockDevice(credentials.environmentId, userId, deviceId);
-						toastV8.success('Device unlocked successfully!');
-
-						// Close modal and retry
-						setShowDeviceFailureModal(false);
-						setDeviceFailureError('');
-						setUnavailableDevices([]);
-
-						// Retry authentication if we have a username
-						if (usernameInput.trim()) {
-							handleStartMFA();
-						}
-					} catch (error) {
-						console.error(`${MODULE_TAG} Failed to unlock device:`, error);
-						toastV8.error(error instanceof Error ? error.message : 'Failed to unlock device');
-					}
-				}}
-				onTryAnotherDevice={() => {
-					setShowDeviceFailureModal(false);
-					setDeviceFailureError('');
-					setUnavailableDevices([]);
-					// Show device selection modal
-					setShowDeviceSelectionModal(true);
-				}}
-				onRetry={() => {
-					setShowDeviceFailureModal(false);
-					setDeviceFailureError('');
-					setUnavailableDevices([]);
-					// Retry the last action
-					if (usernameInput.trim()) {
-						handleStartMFA();
-					} else {
-						handleUsernamelessFIDO2();
-					}
-				}}
+			{/* Device Selection Behavior Info Modal */}
+			<MFADeviceSelectionInfoModal
+				show={showDeviceSelectionInfoModal}
+				onClose={() => setShowDeviceSelectionInfoModal(false)}
 			/>
 
-			{/* Cooldown/Lockout Modal */}
-			<MFACooldownModalV8
-				isOpen={!!cooldownError}
-				onClose={() => setCooldownError(null)}
-				message={cooldownError?.message || 'Authentication temporarily locked'}
-				deliveryMethod={cooldownError?.deliveryMethod}
-				coolDownExpiresAt={cooldownError?.coolDownExpiresAt}
+			{/* OTP Input Modal */}
+			<MFAOTPInputModal
+				show={showOTPModal}
+				onClose={() => {
+					setShowOTPModal(false);
+					setOtpCode('');
+					setOtpError(null);
+				}}
+				otpCode={otpCode}
+				setOtpCode={setOtpCode}
+				otpError={otpError}
+				setOtpError={setOtpError}
+				isValidatingOTP={isValidatingOTP}
+				onVerifyCode={async () => {
+					if (otpCode.length !== 6) {
+						setOtpError('Please enter a 6-digit code');
+						return;
+					}
+
+					if (!authState.authenticationId) {
+						setOtpError('Authentication session not found');
+						return;
+					}
+
+					setIsValidatingOTP(true);
+					setOtpError(null);
+
+					try {
+						const otpCheckUrl = authState._links?.['otp.check']?.href;
+						if (!otpCheckUrl) {
+							throw new Error('OTP check URL not available');
+						}
+						const result = await MfaAuthenticationServiceV8.validateOTP({
+							environmentId: credentials.environmentId,
+							username: usernameInput.trim(),
+							authenticationId: authState.authenticationId,
+							otp: otpCode,
+							otpCheckUrl,
+						});
+
+						if (result.valid) {
+							// Update auth state with new links from OTP validation response
+							const newLinks = (result._links as Record<string, { href: string }>) || {};
+							const updatedLinks = { ...authState._links, ...newLinks };
+
+							// Complete authentication to get access token if complete link is available
+							let completionResult = null;
+							if (updatedLinks['complete']?.href) {
+								try {
+									completionResult =
+										await MfaAuthenticationServiceV8.completeAuthentication(
+											updatedLinks['complete'].href
+										);
+								} catch (completeError) {
+									console.warn(
+										`${MODULE_TAG} Failed to complete authentication:`,
+										completeError
+									);
+									// Continue even if completion fails - OTP was validated successfully
+								}
+							}
+
+							setShowOTPModal(false);
+							setOtpCode('');
+							setOtpError(null);
+
+							// Get selected device details
+							const selectedDevice = authState.devices.find(
+								(d) => d.id === authState.selectedDeviceId
+							);
+							const selectedPolicy = deviceAuthPolicies.find(
+								(p) => p.id === credentials.deviceAuthenticationPolicyId
+							);
+							const policyName = selectedPolicy?.name;
+							const deviceSelectionBehavior = selectedPolicy?.authentication
+								?.deviceSelection as string | undefined;
+
+							// Navigate to success page with completion result
+							navigate('/v8/mfa/authentication/success', {
+								state: {
+									completionResult: completionResult
+										? {
+												...completionResult, // Include all fields from completion result
+											}
+										: null,
+									username: usernameInput.trim(),
+									userId: authState.userId,
+									environmentId: credentials.environmentId,
+									deviceType: selectedDevice?.type || 'OTP',
+									deviceId: authState.selectedDeviceId,
+									deviceDetails: selectedDevice
+										? {
+												id: selectedDevice.id,
+												type: selectedDevice.type,
+												nickname: selectedDevice.nickname,
+												name: selectedDevice.name,
+												phone: selectedDevice.phone,
+												email: selectedDevice.email,
+												status: selectedDevice.status,
+											}
+										: null,
+									policyId: credentials.deviceAuthenticationPolicyId,
+									policyName: policyName,
+									authenticationId: authState.authenticationId,
+									challengeId: authState.challengeId,
+									timestamp: new Date().toISOString(),
+									deviceSelectionBehavior: deviceSelectionBehavior,
+								},
+							});
+						} else {
+							setOtpError(
+								result.message || 'Invalid verification code. Please try again.'
+							);
+							setOtpCode('');
+						}
+					} catch (error) {
+						console.error(`${MODULE_TAG} OTP validation failed:`, error);
+						setOtpError(
+							error instanceof Error ? error.message : 'Failed to validate code'
+						);
+						setOtpCode('');
+					} finally {
+						setIsValidatingOTP(false);
+					}
+				}}
+				onResendCode={async () => {
+					// Resend OTP by re-selecting the device
+					if (!authState.authenticationId || !authState.selectedDeviceId) {
+						setOtpError('Authentication session or device not found');
+						return;
+					}
+
+					setIsValidatingOTP(true);
+					setOtpError(null);
+					setOtpCode(''); // Clear existing code
+
+					try {
+						// Get userId if not already available
+						let userId = authState.userId;
+						if (!userId) {
+							const user = await MFAServiceV8.lookupUserByUsername(
+								credentials.environmentId,
+								usernameInput.trim()
+							);
+							userId = user.id as string;
+							setAuthState((prev) => ({ ...prev, userId }));
+						}
+
+						// Re-select device to trigger new OTP
+						const data = await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
+							{
+								environmentId: credentials.environmentId,
+								username: usernameInput.trim(),
+								userId,
+								authenticationId: authState.authenticationId,
+								deviceId: authState.selectedDeviceId,
+								region: credentials.region,
+								customDomain: credentials.customDomain,
+							},
+							{ stepName: 'mfa-Resend OTP Code' } // Custom step name for API display
+						);
+
+						// Read device authentication to get updated state
+						let authDetails: Record<string, unknown> | null = null;
+						try {
+							authDetails = await MfaAuthenticationServiceV8.readDeviceAuthentication(
+								credentials.environmentId,
+								userId || usernameInput.trim(),
+								authState.authenticationId,
+								{ isUserId: !!userId }
+							);
+						} catch (readError) {
+							console.warn(
+								`${MODULE_TAG} Failed to read device authentication after resend:`,
+								readError
+							);
+						}
+
+						// Update auth state with new links
+						const status = (authDetails?.status as string) || data.status || '';
+						const nextStep = (authDetails?.nextStep as string) || data.nextStep || '';
+						const links = (data._links as Record<string, { href: string }>) || {};
+
+						setAuthState((prev) => ({
+							...prev,
+							status,
+							nextStep,
+							_links: { ...prev._links, ...links },
+						}));
+
+						toastV8.success(
+							'New verification code has been sent. Please check your device.'
+						);
+					} catch (error) {
+						console.error(`${MODULE_TAG} Failed to resend OTP:`, error);
+						
+						// Check for LIMIT_EXCEEDED error (cooldown/lockout)
+						const errorWithCode = error as Error & {
+							errorCode?: string;
+							deliveryMethod?: string;
+							coolDownExpiresAt?: number;
+						};
+						
+						if (errorWithCode.errorCode === 'LIMIT_EXCEEDED') {
+							const errorMessage = error instanceof Error ? error.message : 'Authentication temporarily locked';
+							setCooldownError({
+								message: errorMessage,
+								...(errorWithCode.deliveryMethod ? { deliveryMethod: errorWithCode.deliveryMethod } : {}),
+								...(errorWithCode.coolDownExpiresAt ? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt } : {}),
+							});
+							toastV8.warning(errorMessage);
+						} else {
+							const errorMessage =
+								error instanceof Error ? error.message : 'Failed to resend code';
+							setOtpError(errorMessage);
+							toastV8.error(`Failed to resend code: ${errorMessage}`);
+						}
+					} finally {
+						setIsValidatingOTP(false);
+					}
+				}}
+				selectedDeviceInfo={(() => {
+					// Try to find device in authState.devices first, then fallback to userDevices
+					let selectedDevice = authState.devices.find(
+						(d) => d.id === authState.selectedDeviceId
+					);
+					if (!selectedDevice && authState.selectedDeviceId) {
+						selectedDevice = userDevices.find(
+							(d) => (d.id as string) === authState.selectedDeviceId
+						) as Device | undefined;
+					}
+					return selectedDevice && (selectedDevice.phone || selectedDevice.email)
+						? {
+								phone: selectedDevice.phone,
+								email: selectedDevice.email,
+							}
+						: null;
+				})()}
+			/>
+
+			{/* Push Confirmation Modal */}
+			<MFAPushConfirmationModal
+				show={showPushModal}
+				onClose={() => setShowPushModal(false)}
+			/>
+
+			{/* FIDO2/Passkey Authentication Modal */}
+			<MFAFIDO2ChallengeModal
+				show={showFIDO2Modal}
+				onClose={() => {
+					setShowFIDO2Modal(false);
+					setFido2Error(null);
+				}}
+				onAuthenticate={async () => {
+					if (!authState.challengeId && !authState.publicKeyCredentialRequestOptions) {
+						setFido2Error('WebAuthn challenge not found. Please try selecting the device again.');
+						return;
+					}
+
+					setIsAuthenticatingFIDO2(true);
+					setFido2Error(null);
+
+					try {
+						console.log(`${MODULE_TAG} Starting FIDO2 authentication...`);
+
+						// Get the WebAuthn credential
+						const assertion = await WebAuthnAuthenticationServiceV8.getWebAuthnAssertion(
+							authState.publicKeyCredentialRequestOptions
+						);
+
+						// Check assertion with PingOne
+						const assertionResult = await MfaAuthenticationServiceV8.checkAssertion(
+							authState.challengeId!,
+							assertion
+						);
+
+						// Handle new publicKeyCredentialRequestOptions if returned
+						const newPublicKeyOptions = (
+							assertionResult as { publicKeyCredentialRequestOptions?: unknown }
+						).publicKeyCredentialRequestOptions;
+						if (newPublicKeyOptions) {
+							console.log(
+								`${MODULE_TAG} PingOne returned new publicKeyCredentialRequestOptions from assertion check response`
+							);
+							setAuthState((prev) => ({
+								...prev,
+								publicKeyCredentialRequestOptions: newPublicKeyOptions,
+							}));
+						}
+
+						// After sending assertion, check status and complete authentication
+						const assertionLinks =
+							(assertionResult._links as Record<string, { href: string }>) || {};
+
+						// Try to complete authentication if complete link is available
+						let completionResult = null;
+						if (assertionLinks['complete']?.href || authState._links?.['complete']?.href) {
+							try {
+								completionResult = await MfaAuthenticationServiceV8.completeAuthentication(
+									assertionLinks['complete']?.href || authState._links!['complete']!.href
+								);
+							} catch (completeError) {
+								console.warn(
+									`${MODULE_TAG} Failed to complete FIDO2 authentication:`,
+									completeError
+								);
+							}
+						}
+
+						// If status is COMPLETED or we have a completion result, navigate to success
+						if (assertionResult.status === 'COMPLETED' || completionResult) {
+							setShowFIDO2Modal(false);
+							setFido2Error(null);
+
+							// Get selected device details
+							const selectedDevice = authState.devices.find(
+								(d) => d.id === authState.selectedDeviceId
+							);
+							const selectedPolicy = deviceAuthPolicies.find(
+								(p) => p.id === credentials.deviceAuthenticationPolicyId
+							);
+							const policyName = selectedPolicy?.name;
+							const deviceSelectionBehavior = selectedPolicy?.authentication
+								?.deviceSelection as string | undefined;
+
+							// Navigate to success page with completion result
+							navigate('/v8/mfa/authentication/success', {
+								state: {
+									completionResult: completionResult
+										? { ...completionResult }
+										: null,
+									username: usernameInput.trim(),
+									userId: authState.userId,
+									environmentId: credentials.environmentId,
+									deviceType: selectedDevice?.type || 'FIDO2',
+									deviceId: authState.selectedDeviceId,
+									deviceDetails: selectedDevice
+										? {
+												id: selectedDevice.id,
+												type: selectedDevice.type,
+												nickname: selectedDevice.nickname,
+												name: selectedDevice.name,
+												phone: selectedDevice.phone,
+												email: selectedDevice.email,
+												status: selectedDevice.status,
+											}
+										: null,
+									policyId: credentials.deviceAuthenticationPolicyId,
+									policyName: policyName,
+									authenticationId: authState.authenticationId,
+									challengeId: authState.challengeId,
+									timestamp: new Date().toISOString(),
+									deviceSelectionBehavior: deviceSelectionBehavior,
+								},
+							});
+						} else {
+							// If assertion check didn't complete, try polling if poll link is available
+							if (
+								assertionLinks['challenge.poll']?.href ||
+								authState._links?.['challenge.poll']?.href
+							) {
+								const pollResult = await MfaAuthenticationServiceV8.pollAuthenticationStatus(
+									assertionLinks['challenge.poll']?.href ||
+										authState._links!['challenge.poll']!.href
+								);
+
+								if (pollResult.status === 'COMPLETED') {
+									// Complete authentication to get access token if complete link is available
+									let pollCompletionResult = null;
+									const pollLinks =
+										(pollResult._links as Record<string, { href: string }>) || {};
+									if (
+										pollLinks['complete']?.href ||
+										authState._links?.['complete']?.href
+									) {
+										try {
+											pollCompletionResult =
+												await MfaAuthenticationServiceV8.completeAuthentication(
+													pollLinks['complete']?.href ||
+														authState._links!['complete']!.href
+												);
+										} catch (completeError) {
+											console.warn(
+												`${MODULE_TAG} Failed to complete FIDO2 authentication (via poll):`,
+												completeError
+											);
+										}
+									}
+
+									setShowFIDO2Modal(false);
+									setFido2Error(null);
+
+									// Get selected device details
+									const selectedDevice = authState.devices.find(
+										(d) => d.id === authState.selectedDeviceId
+									);
+									const selectedPolicy = deviceAuthPolicies.find(
+										(p) => p.id === credentials.deviceAuthenticationPolicyId
+									);
+									const policyName = selectedPolicy?.name;
+									const deviceSelectionBehavior = selectedPolicy?.authentication
+										?.deviceSelection as string | undefined;
+
+									// Navigate to success page
+									navigate('/v8/mfa/authentication/success', {
+										state: {
+											completionResult: pollCompletionResult
+												? { ...pollCompletionResult }
+												: null,
+											username: usernameInput.trim(),
+											userId: authState.userId,
+											environmentId: credentials.environmentId,
+											deviceType: selectedDevice?.type || 'FIDO2',
+											deviceId: authState.selectedDeviceId,
+											deviceDetails: selectedDevice
+												? {
+														id: selectedDevice.id,
+														type: selectedDevice.type,
+														nickname: selectedDevice.nickname,
+														name: selectedDevice.name,
+														phone: selectedDevice.phone,
+														email: selectedDevice.email,
+														status: selectedDevice.status,
+													}
+												: null,
+											policyId: credentials.deviceAuthenticationPolicyId,
+											policyName: policyName,
+											authenticationId: authState.authenticationId,
+											challengeId: authState.challengeId,
+											timestamp: new Date().toISOString(),
+											deviceSelectionBehavior: deviceSelectionBehavior,
+										},
+									});
+								} else {
+									setFido2Error('Authentication is still pending. Please try again.');
+								}
+							} else {
+								setFido2Error(
+									'Authentication completed but status is unclear. Please try again.'
+								);
+							}
+						}
+					} catch (error) {
+						console.error(`${MODULE_TAG} FIDO2 authentication failed:`, error);
+						setFido2Error(
+							error instanceof Error
+								? error.message
+								: 'Failed to complete WebAuthn authentication'
+						);
+					} finally {
+						setIsAuthenticatingFIDO2(false);
+					}
+				}}
+				fido2Error={fido2Error}
+				isAuthenticating={isAuthenticatingFIDO2}
+				isWebAuthnSupported={WebAuthnAuthenticationServiceV8.isWebAuthnSupported()}
+				hasChallengeData={!!authState.challengeId || !!authState.publicKeyCredentialRequestOptions}
 			/>
 		</div>
 	);
 };
+
+export default MFAAuthenticationMainPageV8;
