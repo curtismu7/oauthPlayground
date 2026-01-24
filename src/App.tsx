@@ -219,6 +219,7 @@ const FlowComparisonPage = lazy(() => import('./v8u/pages/FlowComparisonPage'));
 const PingOneApiTest = lazy(() => import('./pages/test/PingOneApiTest'));
 const ImplicitFlowTest = lazy(() => import('./pages/test/ImplicitFlowTest'));
 const AllFlowsApiTest = lazy(() => import('./pages/test/AllFlowsApiTest'));
+const MFAFlowsApiTest = lazy(() => import('./pages/test/MFAFlowsApiTest'));
 const PARTest = lazy(() => import('./pages/test/PARTest'));
 const TestCallback = lazy(() => import('./pages/test/TestCallback'));
 const ProductionApiTestPageV8U = lazy(() => import('./v8u/pages/ProductionApiTestPageV8U'));
@@ -1088,6 +1089,14 @@ const AppRoutes: React.FC = () => {
 								element={
 									<Suspense fallback={<div>Loading...</div>}>
 										<AllFlowsApiTest />
+									</Suspense>
+								}
+							/>
+							<Route
+								path="/test/mfa-flows-api-test"
+								element={
+									<Suspense fallback={<div>Loading...</div>}>
+										<MFAFlowsApiTest />
 									</Suspense>
 								}
 							/>
