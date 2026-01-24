@@ -1,8 +1,20 @@
 # MFA UI Documentation
 
+**Last Updated:** 2026-01-23  
+**Version:** 1.1.0  
+
 This folder contains all UI contracts, UI documentation, and restore/master documents for MFA components.
 
 > **📖 New to the documentation?** See the [Documentation Guide](../DOCUMENTATION_GUIDE.md) for an overview of all documentation types.
+> **🔄 Recent Changes:** See [Collapsible Sections Guide](../COLLAPSIBLE_SECTIONS_GUIDE.md) for new collapsible UI features.
+
+## Recent Updates (v1.1.0)
+
+- ✅ **Collapsible Sections**: MFA Hub sections now collapsible with enhanced visibility
+- ✅ **Enhanced Toggle Icons**: 48px prominent blue toggle icons with hover effects  
+- ✅ **Professional Styling**: Gradient backgrounds and smooth animations
+- ✅ **Consistent Design**: Same collapsible system as Unified flows
+- ✅ **Documentation Updated**: All MFA docs reflect new collapsible features
 
 ## Documentation Structure
 
@@ -14,16 +26,67 @@ Each MFA device type has three documentation files:
 
 ## Available Device Types
 
-| Device Type | UI Contract | UI Doc | Restore |
-|-------------|-------------|--------|---------|
-| SMS | ✅ | ✅ | ✅ |
-| Email | ✅ | ✅ | ✅ |
-| WhatsApp | ✅ | ✅ | ✅ |
-| TOTP | ✅ | ✅ | ✅ |
-| FIDO2 | ✅ | ✅ | ✅ |
-| Mobile | ✅ | ✅ | ✅ |
-| Config Page | ✅ | ✅ | ✅ |
-| Success Page | ✅ | ✅ | - |
+| Device Type | UI Contract | UI Doc | Restore | Collapsible Sections |
+|-------------|-------------|--------|---------|----------------------|
+| SMS | ✅ | ✅ | ✅ | ✅ (Documentation Page) |
+| Email | ✅ | ✅ | ✅ | ✅ (Documentation Page) |
+| WhatsApp | ✅ | ✅ | ✅ | ✅ (Documentation Page) |
+| TOTP | ✅ | ✅ | ✅ | ✅ (Documentation Page) |
+| FIDO2 | ✅ | ✅ | ✅ | ✅ (Documentation Page) |
+| Mobile | ✅ | ✅ | ✅ | ✅ (Documentation Page) |
+| Config Page | ✅ | ✅ | ✅ | ✅ (Hub Sections) |
+| Success Page | ✅ | ✅ | - | ✅ (Documentation Page) |
+
+## Collapsible Sections Implementation
+
+### MFA Hub Collapsible Sections
+
+#### ✅ MFA Features Section
+- **Location**: `src/v8/flows/MFAHubV8.tsx`
+- **Purpose**: Main navigation to MFA features
+- **Features**:
+  - Device Registration
+  - Device Management  
+  - MFA Reporting
+  - Settings
+- **Toggle**: 48px blue chevron icon with gradient background
+
+#### ✅ About PingOne MFA Section
+- **Location**: `src/v8/flows/MFAHubV8.tsx`
+- **Purpose**: Educational information about MFA capabilities
+- **Features**:
+  - Security overview
+  - Flexibility information
+  - Analytics insights
+  - Performance highlights
+- **Toggle**: 48px blue chevron icon with gradient background
+
+### MFA Documentation Page Collapsible Sections
+
+#### ✅ API Documentation Sections
+- **Location**: `src/v8/components/MFADocumentationPageV8.tsx`
+- **Purpose**: Detailed API call documentation
+- **Features**:
+  - MFA Flow API calls
+  - Pre-flight validation calls
+  - Real-time API tracking
+  - Download capabilities
+- **Toggle**: 20px chevron icons (smaller for dense content)
+
+### Enhanced Toggle Features
+
+#### Visual Design
+- **Size**: 48px × 48px (Hub sections), 20px (Documentation sections)
+- **Border**: 3px solid blue (#3b82f6)
+- **Background**: White to light gray gradient
+- **Icon**: FiChevronDown with proper stroke width
+- **Shadow**: Drop shadow for depth
+
+#### Interactive Effects
+- **Hover**: Scale to 1.1x, enhanced shadow, color change
+- **Active**: Scale to 0.95x, reduced shadow
+- **Rotation**: -90° when collapsed, 0° when expanded
+- **Animation**: Smooth 0.3s transitions
 
 ## Master Documents
 
