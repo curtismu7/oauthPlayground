@@ -538,6 +538,9 @@ passed: boolean;
 	const [implicitOverviewCollapsed, setImplicitOverviewCollapsed] = useState(false);
 	const [implicitDetailsCollapsed, setImplicitDetailsCollapsed] = useState(false);
 	const [preflightValidationCollapsed, setPreflightValidationCollapsed] = useState(false);
+	const [specComplianceCollapsed, setSpecComplianceCollapsed] = useState(false);
+	const [oidcTokenSetCollapsed, setOidcTokenSetCollapsed] = useState(false);
+	const [redirectlessWarningCollapsed, setRedirectlessWarningCollapsed] = useState(false);
 
 	// Navigation functions using React Router
 	const navigateToStep = useCallback(
@@ -7157,84 +7160,61 @@ isLoading={isLoading}
 					<h2>Step 2: Handle Callback</h2>
 
 					{/* Redirectless Mode Warning */}
-					<div
-						style={{
-							background: '#fef2f2',
-							border: '2px solid #ef4444',
-							borderRadius: '8px',
-							padding: '20px',
-							marginTop: '16px',
-						}}
-					>
-						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-							<span style={{ fontSize: '24px', flexShrink: 0 }}>⚠️</span>
-							<div style={{ flex: 1 }}>
-								<h3
-									style={{
-										margin: '0 0 8px 0',
-										fontSize: '16px',
-										fontWeight: '600',
-										color: '#991b1b',
-									}}
-								>
-									Redirectless Mode Detected
-								</h3>
-								<p
-									style={{
-										margin: '0 0 12px 0',
-										fontSize: '14px',
-										color: '#7f1d1d',
-										lineHeight: '1.6',
-									}}
-								>
-									You have <strong>redirectless mode enabled</strong>, which means there should be{' '}
-									<strong>no redirect</strong> to a callback URL. Instead, a login modal should have
-									appeared after generating the authorization URL.
-								</p>
-								<p
-									style={{
-										margin: '0 0 12px 0',
-										fontSize: '14px',
-										color: '#7f1d1d',
-										lineHeight: '1.6',
-									}}
-								>
-									<strong>What to do:</strong>
-								</p>
-								<ol
-									style={{
-										margin: '0 0 12px 0',
-										paddingLeft: '20px',
-										fontSize: '14px',
-										color: '#7f1d1d',
-										lineHeight: '1.6',
-									}}
-								>
-									<li>Go back to Step 1 (Generate Authorization URL)</li>
-									<li>Click "Generate Authorization URL" again</li>
-									<li>A login modal should appear for username/password input</li>
-									<li>If the modal doesn't appear, check the browser console for errors</li>
-								</ol>
-								<button
-									type="button"
-									className="btn btn-next"
-									onClick={() => {
-										// Navigate back to authorization URL step
-										const authUrlStep = isPKCERequired ? 2 : 1;
-										navigateToStep(authUrlStep);
-										toastV8.info(
-											'Navigate back to Authorization URL step and click "Generate Authorization URL" again'
-										);
-									}}
-									style={{
-										marginTop: '8px',
-									}}
-								>
-									Go Back to Authorization URL Step
-								</button>
-							</div>
-						</div>
-					</div>
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => setRedirectlessWarningCollapsed(!redirectlessWarningCollapsed)}
+							aria-expanded={!redirectlessWarningCollapsed}
+							style={{
+								background: 'linear-gradient(135deg, #fef2f2 0%, #fecaca 100%)',
+								border: '2px solid #ef4444',
+							}}
+						>
+							<CollapsibleTitle>
+								<span style={{ fontSize: '24px' }}>⚠️</span>
+								Redirectless Mode Detected
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={redirectlessWarningCollapsed}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!redirectlessWarningCollapsed && (
+							<CollapsibleContent>
+								<div>
+									<p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#7f1d1d', lineHeight: '1.6' }}>
+										You have <strong>redirectless mode enabled</strong>, which means there should be{' '}
+										<strong>no redirect</strong> to a callback URL. Instead, a login modal should have
+										appeared after generating the authorization URL.
+									</p>
+									<p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#7f1d1d', lineHeight: '1.6' }}>
+										<strong>What to do:</strong>
+									</p>
+									<ol style={{ margin: '0 0 12px 0', paddingLeft: '20px', fontSize: '14px', color: '#7f1d1d', lineHeight: '1.6' }}>
+										<li>Go back to Step 1 (Generate Authorization URL)</li>
+										<li>Click "Generate Authorization URL" again</li>
+										<li>A login modal should appear for username/password input</li>
+										<li>If the modal doesn't appear, check the browser console for errors</li>
+									</ol>
+									<button
+										type="button"
+										className="btn btn-next"
+										onClick={() => {
+											// Navigate back to authorization URL step
+											const authUrlStep = isPKCERequired ? 2 : 1;
+											navigateToStep(authUrlStep);
+											toastV8.info(
+												'Navigate back to Authorization URL step and click "Generate Authorization URL" again'
+											);
+										}}
+										style={{
+											marginTop: '8px',
+										}}
+									>
+										Go Back to Authorization URL Step
+									</button>
+								</div>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				</div>
 			);
 		}
@@ -11436,114 +11416,110 @@ isLoading={isLoading}
 			<div className="step-content">
 				{/* Spec Compliance Notice */}
 				{(specVersion === 'oauth2.0' || specVersion === 'oauth2.1') && (
-					<div
-						style={{
-							marginBottom: '16px',
-							padding: '12px 16px',
-							background: '#fef3c7', // Light yellow background
-							border: '2px solid #f59e0b',
-							borderRadius: '8px',
-						}}
-					>
-						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-							<span style={{ fontSize: '20px', flexShrink: 0 }}>📋</span>
-							<div>
-								<strong style={{ color: '#92400e', fontSize: '14px' }}>
-									Spec Compliance Notice
-								</strong>
-								<p
-									style={{
-										margin: '6px 0 0 0',
-										fontSize: '13px',
-										color: '#78350f',
-										lineHeight: '1.5',
-									}}
-								>
-									{specVersion === 'oauth2.0' && (
-										<>
-											<strong>OAuth 2.0</strong> only returns:{' '}
-											<code
-												style={{ background: '#fde68a', padding: '2px 6px', borderRadius: '3px' }}
-											>
-												access_token
-											</code>{' '}
-											and{' '}
-											<code
-												style={{ background: '#fde68a', padding: '2px 6px', borderRadius: '3px' }}
-											>
-												refresh_token
-											</code>
-										</>
-									)}
-									{specVersion === 'oauth2.1' && (
-										<>
-											<strong>OAuth 2.1 Authorization Framework (draft)</strong> only returns:{' '}
-											<code
-												style={{ background: '#fde68a', padding: '2px 6px', borderRadius: '3px' }}
-											>
-												access_token
-											</code>{' '}
-											and{' '}
-											<code
-												style={{ background: '#fde68a', padding: '2px 6px', borderRadius: '3px' }}
-											>
-												refresh_token
-											</code>
-										</>
-									)}
-								</p>
-								<p style={{ margin: '6px 0 0 0', fontSize: '12px', color: '#92400e' }}>
-									<strong>Note:</strong> PingOne may return an{' '}
-									<code style={{ background: '#fde68a', padding: '2px 4px', borderRadius: '3px' }}>
-										id_token
-									</code>
-									, but it's filtered out to follow the{' '}
-									{specVersion === 'oauth2.0' ? 'OAuth 2.0 Authorization Framework (RFC 6749)' : 'OAuth 2.1 Authorization Framework (draft)'} spec. ID tokens are only
-									part of <strong>OpenID Connect Core 1.0</strong>. Note: When OAuth 2.1 (draft) is combined with OpenID Connect Core 1.0, it means "OIDC Core 1.0 using OAuth 2.1 (draft) baseline" and includes id_token.
-								</p>
-							</div>
-						</div>
-					</div>
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => setSpecComplianceCollapsed(!specComplianceCollapsed)}
+							aria-expanded={!specComplianceCollapsed}
+							style={{
+								background: 'linear-gradient(135deg, #fef3c7 0%, #fef3c7 100%)',
+								border: '2px solid #f59e0b',
+							}}
+						>
+							<CollapsibleTitle>
+								<span style={{ fontSize: '20px' }}>📋</span>
+								Spec Compliance Notice
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={specComplianceCollapsed}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!specComplianceCollapsed && (
+							<CollapsibleContent>
+								<div>
+									<p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#78350f', lineHeight: '1.5' }}>
+										{specVersion === 'oauth2.0' && (
+											<>
+												<strong>OAuth 2.0</strong> only returns:{' '}
+												<code style={{ background: '#fde68a', padding: '2px 6px', borderRadius: '3px' }}>
+													access_token
+												</code>{' '}
+												and{' '}
+												<code style={{ background: '#fde68a', padding: '2px 6px', borderRadius: '3px' }}>
+													refresh_token
+												</code>
+											</>
+										)}
+										{specVersion === 'oauth2.1' && (
+											<>
+												<strong>OAuth 2.1 Authorization Framework (draft)</strong> only returns:{' '}
+												<code style={{ background: '#fde68a', padding: '2px 6px', borderRadius: '3px' }}>
+													access_token
+												</code>{' '}
+												and{' '}
+												<code style={{ background: '#fde68a', padding: '2px 6px', borderRadius: '3px' }}>
+													refresh_token
+												</code>
+											</>
+										)}
+									</p>
+									<p style={{ margin: '0', fontSize: '12px', color: '#92400e' }}>
+										<strong>Note:</strong> PingOne may return an{' '}
+										<code style={{ background: '#fde68a', padding: '2px 4px', borderRadius: '3px' }}>
+											id_token
+										</code>
+										, but it's filtered out to follow the{' '}
+										{specVersion === 'oauth2.0' ? 'OAuth 2.0 Authorization Framework (RFC 6749)' : 'OAuth 2.1 Authorization Framework (draft)'} spec. ID tokens are only
+										part of <strong>OpenID Connect Core 1.0</strong>. Note: When OAuth 2.1 (draft) is combined with OpenID Connect Core 1.0, it means "OIDC Core 1.0 using OAuth 2.1 (draft) baseline" and includes id_token.
+									</p>
+								</div>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				)}
 
 				{specVersion === 'oidc' && (
-					<div
-						style={{
-							marginBottom: '16px',
-							padding: '12px 16px',
-							background: '#dbeafe', // Light blue background
-							border: '2px solid #3b82f6',
-							borderRadius: '8px',
-						}}
-					>
-						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-							<span style={{ fontSize: '20px', flexShrink: 0 }}>🔐</span>
-							<div>
-								<strong style={{ color: '#1e40af', fontSize: '14px' }}>OIDC Token Set</strong>
-								<p
-									style={{
-										margin: '6px 0 0 0',
-										fontSize: '13px',
-										color: '#1e3a8a',
-										lineHeight: '1.5',
-									}}
-								>
-									<strong>OIDC Core 1.0</strong> returns:{' '}
-									<code style={{ background: '#bfdbfe', padding: '2px 6px', borderRadius: '3px' }}>
-										access_token
-									</code>
-									,{' '}
-									<code style={{ background: '#bfdbfe', padding: '2px 6px', borderRadius: '3px' }}>
-										id_token
-									</code>
-									, and{' '}
-									<code style={{ background: '#bfdbfe', padding: '2px 6px', borderRadius: '3px' }}>
-										refresh_token
-									</code>
-								</p>
-							</div>
-						</div>
-					</div>
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => setOidcTokenSetCollapsed(!oidcTokenSetCollapsed)}
+							aria-expanded={!oidcTokenSetCollapsed}
+							style={{
+								background: 'linear-gradient(135deg, #dbeafe 0%, #dbeafe 100%)',
+								border: '2px solid #3b82f6',
+							}}
+						>
+							<CollapsibleTitle>
+								<span style={{ fontSize: '20px' }}>🔐</span>
+								OIDC Token Set
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={oidcTokenSetCollapsed}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!oidcTokenSetCollapsed && (
+							<CollapsibleContent>
+								<div>
+									<p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#1e3a8a', lineHeight: '1.5' }}>
+										<strong>OIDC Core 1.0</strong> returns:{' '}
+										<code style={{ background: '#bfdbfe', padding: '2px 6px', borderRadius: '3px' }}>
+											access_token
+										</code>
+										,{' '}
+										<code style={{ background: '#bfdbfe', padding: '2px 6px', borderRadius: '3px' }}>
+											id_token
+										</code>
+										, and{' '}
+										<code style={{ background: '#bfdbfe', padding: '2px 6px', borderRadius: '3px' }}>
+											refresh_token
+										</code>
+										{flowState.tokens?.refreshToken ? ' (if requested)' : ' (not requested)'}
+									</p>
+									<p style={{ margin: '0', fontSize: '12px', color: '#1e40af' }}>
+										<strong>Note:</strong> ID tokens contain user identity information and can be validated locally using JWT verification without calling the introspection endpoint.
+									</p>
+								</div>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				)}
 
 				{/* Token Display Component with Decode */}
