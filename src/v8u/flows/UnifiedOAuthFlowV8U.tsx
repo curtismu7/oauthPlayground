@@ -56,7 +56,7 @@ import {
 	generateCompletePostmanCollection,
 	downloadPostmanCollectionWithEnvironment,
 } from '@/services/postmanCollectionGeneratorV8';
-import { FiBook, FiPackage } from 'react-icons/fi';
+import { FiBook, FiPackage, FiChevronDown } from 'react-icons/fi';
 import { PageHeaderV8, PageHeaderGradients, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 
 const MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
@@ -2015,41 +2015,82 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					}}
 					style={{
 						width: '100%',
-						padding: '16px 24px',
-						background: isCredentialsCollapsed ? '#f8fafc' : '#ffffff',
-						border: 'none',
-						borderBottom: isCredentialsCollapsed ? 'none' : '1px solid #e2e8f0',
-						borderRadius: isCredentialsCollapsed ? '12px' : '12px 12px 0 0',
+						padding: '1.5rem 1.75rem',
+						background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%)',
+						border: '3px solid transparent',
+						borderRadius: '1rem',
 						cursor: 'pointer',
+						fontSize: '1.2rem',
+						fontWeight: '700',
+						color: '#14532d',
+						transition: 'all 0.3s ease',
+						position: 'relative',
+						boxShadow: '0 2px 8px rgba(34, 197, 94, 0.1)',
 						display: 'flex',
 						alignItems: 'center',
 						justifyContent: 'space-between',
-						transition: 'all 0.2s ease',
+					}}
+					onMouseEnter={(e) => {
+						e.currentTarget.style.background = 'linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%)';
+						e.currentTarget.style.borderColor = '#86efac';
+						e.currentTarget.style.transform = 'translateY(-2px)';
+						e.currentTarget.style.boxShadow = '0 8px 24px rgba(34, 197, 94, 0.2)';
+					}}
+					onMouseLeave={(e) => {
+						e.currentTarget.style.background = 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%)';
+						e.currentTarget.style.borderColor = 'transparent';
+						e.currentTarget.style.transform = 'translateY(0)';
+						e.currentTarget.style.boxShadow = '0 2px 8px rgba(34, 197, 94, 0.1)';
 					}}
 				>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-						<span style={{ fontSize: '20px' }}>{isCredentialsCollapsed ? '▶️' : '🔽'}</span>
-						<div style={{ textAlign: 'left' }}>
-							<div style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
-								Configuration & Credentials
-							</div>
-							<div style={{ fontSize: '13px', color: '#6b7280', marginTop: '2px' }}>
-								{isCredentialsCollapsed ? 'Click to expand' : 'Click to collapse'}
-							</div>
-						</div>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+						<span style={{ fontSize: '20px' }}>🔧</span>
+						<span style={{ fontSize: '1.2rem', fontWeight: '700' }}>
+							Configuration & Credentials
+						</span>
 					</div>
-					<div
+					
+					{/* Enhanced Toggle Icon */}
+					<span
 						style={{
-							padding: '4px 12px',
-							background: isCredentialsCollapsed ? '#dbeafe' : '#f0fdf4',
-							borderRadius: '4px',
-							fontSize: '12px',
-							fontWeight: '600',
-							color: isCredentialsCollapsed ? '#1e40af' : '#166534',
+							display: 'inline-flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							width: '48px',
+							height: '48px',
+							borderRadius: '12px',
+							background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+							border: '3px solid #3b82f6',
+							transform: isCredentialsCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+							transition: 'all 0.3s ease',
+							cursor: 'pointer',
+							color: '#3b82f6',
+							boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)';
+							e.currentTarget.style.borderColor = '#2563eb';
+							e.currentTarget.style.color = '#2563eb';
+							e.currentTarget.style.transform = isCredentialsCollapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)';
+							e.currentTarget.style.boxShadow = '0 4px 16px rgba(59, 130, 246, 0.3)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+							e.currentTarget.style.borderColor = '#3b82f6';
+							e.currentTarget.style.color = '#3b82f6';
+							e.currentTarget.style.transform = isCredentialsCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+							e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.2)';
 						}}
 					>
-						{isCredentialsCollapsed ? 'Collapsed' : 'Expanded'}
-					</div>
+						<FiChevronDown 
+							style={{ 
+								width: '24px', 
+								height: '24px', 
+								strokeWidth: '3px',
+								filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))'
+							}} 
+						/>
+					</span>
 				</button>
 
 				{/* Credentials Form Content */}
