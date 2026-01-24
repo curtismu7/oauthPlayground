@@ -645,21 +645,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 					},
 					{
-						id: 'api-tests-pingone',
-						path: '/test/pingone-api-test',
-						label: '🔧 PingOne API Tests',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiSettings />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Test PingOne API endpoints with real authentication">
-								NEW
-							</MigrationBadge>
-						),
-					},
-					{
 						id: 'api-tests-all-flows',
 						path: '/test/all-flows-api-test',
 						label: '🧪 All Flows API Tests',
