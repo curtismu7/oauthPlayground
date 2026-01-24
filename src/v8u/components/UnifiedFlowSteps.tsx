@@ -2689,6 +2689,20 @@ passed: boolean;
 
 		return (
 			<div className="step-content">
+				{/* Step Guidance Section */}
+				<InfoBox $variant="info" style={{ marginBottom: '1.5rem' }}>
+					<FiInfo size={20} />
+					<div>
+						<strong>🎯 What should I do in this step?</strong>
+						<p style={{ margin: '0.5rem 0 0 0' }}>
+							Configure your OAuth 2.0/OIDC application credentials. You'll need your Client ID, Client Secret (if required), Environment ID, and Redirect URI from your PingOne application.
+						</p>
+						<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#64748b' }}>
+							💡 <strong>Next Steps:</strong> After configuring credentials, click "Next Step" to generate PKCE parameters (if required) or proceed to authorization URL generation.
+						</p>
+					</div>
+				</InfoBox>
+
 				{/* Quick Start & Overview - Educational Section */}
 				<CollapsibleSection>
 					<CollapsibleHeaderButton
@@ -3381,19 +3395,66 @@ passed: boolean;
 		};
 
 		const handlePKCEGenerate = async () => {
+			console.log(`${MODULE_TAG} 🔄 PKCE Generate button clicked`);
 			setIsGeneratingPKCE(true);
-			console.log(`${MODULE_TAG} PKCE codes generated`);
-			// PKCE codes are already updated via handlePKCEChange, which uses bulletproof storage
-			// No need for additional save here - the service handles all 4 storage locations
-			if (pkceCodes.codeVerifier && pkceCodes.codeChallenge) {
-				nav.markStepComplete();
-				toastV8.success('PKCE parameters generated successfully');
+			
+			try {
+				// The PKCE service will handle the actual generation
+				// We just need to wait for it to complete and update our state
+				await new Promise(resolve => setTimeout(resolve, 100)); // Small delay for visual feedback
+				
+				// Check if PKCE codes were generated
+				if (pkceCodes.codeVerifier && pkceCodes.codeChallenge) {
+					// Update flow state with the generated codes
+					setFlowState(prev => ({
+						...prev,
+						codeVerifier: pkceCodes.codeVerifier,
+						codeChallenge: pkceCodes.codeChallenge,
+						codeChallengeMethod: 'S256',
+					}));
+					
+					// Mark step as complete
+					nav.markStepComplete();
+					
+					// Show success message
+					toastV8.success('✅ PKCE parameters generated successfully!');
+					
+					console.log(`${MODULE_TAG} ✅ PKCE codes generated and stored in flow state`);
+				} else {
+					console.warn(`${MODULE_TAG} ⚠️ PKCE generation completed but no codes found`);
+				}
+			} catch (error) {
+				console.error(`${MODULE_TAG} ❌ PKCE generation failed:`, error);
+				toastV8.error('Failed to generate PKCE parameters');
+			} finally {
+				setIsGeneratingPKCE(false);
 			}
-			setIsGeneratingPKCE(false);
 		};
 
 		return (
 			<div className="step-content">
+				{/* Step Guidance Section */}
+				<InfoBox $variant="info" style={{ marginBottom: '1.5rem' }}>
+					<FiInfo size={20} />
+					<div>
+						<strong>🎯 What should I do in this step?</strong>
+						<p style={{ margin: '0.5rem 0 0 0' }}>
+							{flowType === 'oauth-authz' || flowType === 'hybrid' 
+								? 'Generate PKCE parameters to enhance security. This creates a code verifier and challenge that protect your authorization code exchange.'
+								: 'PKCE is not required for your selected flow type, but you can still generate codes for educational purposes.'}
+						</p>
+						{flowType === 'oauth-authz' || flowType === 'hybrid' ? (
+							<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#64748b' }}>
+								💡 <strong>Next Steps:</strong> After generating PKCE codes, click "Next Step" to generate your authorization URL.
+							</p>
+						) : (
+							<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#64748b' }}>
+								💡 <strong>Note:</strong> You can skip this step and go directly to authorization URL generation.
+							</p>
+						)}
+					</div>
+				</InfoBox>
+
 				{/* Step Overview Section */}
 				<CollapsibleSection>
 					<CollapsibleHeaderButton
