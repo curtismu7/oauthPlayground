@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { FiShield } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FIDO2Service } from '@/services/fido2Service';
@@ -24,6 +24,7 @@ import {
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
@@ -32,6 +33,18 @@ import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory'
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
+import { CollapsibleSectionV8 } from '@/v8/components/shared/CollapsibleSectionV8';
+import { 
+	MessageBoxV8, 
+	SuccessMessage, 
+	ErrorMessage, 
+	WarningMessage,
+	InfoMessage 
+} from '@/v8/components/shared/MessageBoxV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
+import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 
 const MODULE_TAG = '[🔑 FIDO2-FLOW-V8]';
 
@@ -290,6 +303,9 @@ const _extractFido2AssertionOptions = (
 const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	const location = useLocation();
 
+	// Initialize loading state manager
+	const loadingManager = useMFALoadingStateManager();
+
 	// Extended location state type to include policy IDs and FIDO2 config from configuration page
 	const locationState = location.state as {
 		deviceType?: string;
@@ -412,6 +428,13 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	const [credentialId, setCredentialId] = useState<string>('');
 	const [isRegistering, setIsRegistering] = useState(false);
 
+	// FIDO2 Policy state
+	const [fido2Policies, setFido2Policies] = useState<Array<{ id: string; name: string; default?: boolean; description?: string }>>([]);
+	const [isLoadingFido2Policies, setIsLoadingFido2Policies] = useState(false);
+	const [fido2PoliciesError, setFido2PoliciesError] = useState<string | null>(null);
+	const lastFetchedFido2EnvIdRef = useRef<string | null>(null);
+	const isFetchingFido2PoliciesRef = useRef(false);
+
 	// Worker Token Settings - Load from config service
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
 		try {
@@ -525,6 +548,10 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 	// Modal state for existing FIDO device
 	const [showFIDODeviceExistsModal, setShowFIDODeviceExistsModal] = useState(false);
+	const [existingFIDODevice, setExistingFIDODevice] = useState<{
+		id: string;
+		nickname?: string;
+	} | null>(null);
 
 	// Initialize WebAuthn support check
 	useEffect(() => {
@@ -552,6 +579,175 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 		initializeWebAuthn();
 	}, []);
+
+	// Load FIDO2 policies
+	const fetchFido2Policies = useCallback(async () => {
+		const storedCredentials = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+			flowKey: 'mfa-flow-v8',
+			flowType: 'oidc',
+			includeClientSecret: false,
+			includeRedirectUri: false,
+			includeLogoutUri: false,
+			includeScopes: false,
+		});
+		const envId = storedCredentials.environmentId?.trim();
+		const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatus().isValid;
+		// #region agent log - Use safe analytics fetch
+		(async () => {
+			try {
+				const { log } = await import('@/v8/utils/analyticsHelperV8');
+				await log('FIDO2FlowV8.tsx:569', 'fetchFido2Policies entry', { envId, hasToken: tokenValid }, 'debug-session', 'run1', 'A');
+			} catch {
+				// Silently ignore - analytics server not available
+			}
+		})();
+		// #endregion
+		
+		if (!envId || !tokenValid) {
+			// #region agent log
+			// #endregion
+			setFido2Policies([]);
+			setFido2PoliciesError(null);
+			lastFetchedFido2EnvIdRef.current = null;
+			return;
+		}
+
+		// Prevent duplicate calls
+		if (isFetchingFido2PoliciesRef.current || lastFetchedFido2EnvIdRef.current === envId) {
+			// #region agent log
+			// #endregion
+			return;
+		}
+
+		isFetchingFido2PoliciesRef.current = true;
+		setIsLoadingFido2Policies(true);
+		setFido2PoliciesError(null);
+
+		try {
+			const workerToken = await workerTokenServiceV8.getToken();
+			// #region agent log
+			// #endregion
+			if (!workerToken) {
+				throw new Error('Worker token not found');
+			}
+
+			const credentialsData = await workerTokenServiceV8.loadCredentials();
+			const region = credentialsData?.region || 'na';
+
+			const params = new URLSearchParams({
+				environmentId: envId,
+				workerToken: workerToken.trim(),
+				region,
+			});
+			const apiUrl = `/api/pingone/mfa/fido2-policies?${params.toString()}`;
+			// #region agent log
+			// #endregion
+
+			const response = await fetch(apiUrl, {
+				method: 'GET',
+				headers: { 'Content-Type': 'application/json' },
+			});
+
+			// #region agent log
+			// #endregion
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+				// #region agent log
+				// #endregion
+				throw new Error(
+					errorData.message ||
+						errorData.error ||
+						`Failed to load FIDO2 policies: ${response.status}`
+				);
+			}
+
+			const data = await response.json();
+			// #region agent log
+			// #endregion
+			const policiesList = data._embedded?.fido2Policies || [];
+			// #region agent log
+			// #endregion
+			lastFetchedFido2EnvIdRef.current = envId;
+			setFido2Policies(policiesList);
+
+			// Auto-select default policy if no policy is set
+			if (policiesList.length > 0) {
+				const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+					flowKey: 'mfa-flow-v8',
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+				const currentPolicyId = (stored as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId;
+				
+				if (!currentPolicyId) {
+					const defaultPolicy =
+						policiesList.find((p: { default?: boolean }) => p.default) || policiesList[0];
+					if (defaultPolicy.id) {
+						const updated = { ...stored, fido2PolicyId: defaultPolicy.id } as MFACredentials;
+						CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
+					}
+				}
+			}
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
+			setFido2PoliciesError(errorMessage);
+			console.error(`${MODULE_TAG} Failed to load FIDO2 policies:`, error);
+		} finally {
+			isFetchingFido2PoliciesRef.current = false;
+			setIsLoadingFido2Policies(false);
+		}
+	}, []);
+
+	// Fetch FIDO2 policies when environment and token are ready
+	useEffect(() => {
+		const storedCredentials = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+			flowKey: 'mfa-flow-v8',
+			flowType: 'oidc',
+			includeClientSecret: false,
+			includeRedirectUri: false,
+			includeLogoutUri: false,
+			includeScopes: false,
+		});
+		const envId = storedCredentials.environmentId?.trim();
+		const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatus().isValid;
+		
+		if (envId && tokenValid) {
+			void fetchFido2Policies();
+		}
+	}, [fetchFido2Policies]);
+
+	// Also fetch when token status changes
+	useEffect(() => {
+		const checkTokenAndFetch = () => {
+			const storedCredentials = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+				flowKey: 'mfa-flow-v8',
+				flowType: 'oidc',
+				includeClientSecret: false,
+				includeRedirectUri: false,
+				includeLogoutUri: false,
+				includeScopes: false,
+			});
+			const envId = storedCredentials.environmentId?.trim();
+			const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatus().isValid;
+			
+			if (envId && tokenValid && lastFetchedFido2EnvIdRef.current !== envId) {
+				void fetchFido2Policies();
+			}
+		};
+
+		const interval = setInterval(checkTokenAndFetch, 5000);
+		window.addEventListener('workerTokenUpdated', checkTokenAndFetch);
+		
+		return () => {
+			clearInterval(interval);
+			window.removeEventListener('workerTokenUpdated', checkTokenAndFetch);
+		};
+	}, [fetchFido2Policies]);
 
 	// Step 0: Configure Credentials (FIDO2-specific - no phone/email needed)
 	// NO HOOKS INSIDE - all hooks moved to component level
@@ -635,14 +831,17 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								type="button"
 								onClick={async () => {
 									if (tokenStatus.isValid) {
-										import('@/v8/services/workerTokenServiceV8').then(
-											({ workerTokenServiceV8 }) => {
-												workerTokenServiceV8.clearToken();
-												window.dispatchEvent(new Event('workerTokenUpdated'));
-												WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-												toastV8.success('Worker token removed');
-											}
-										);
+										// #region agent log
+										// #endregion
+										const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+										await workerTokenServiceV8.clearToken();
+										// #region agent log
+										// #endregion
+										window.dispatchEvent(new Event('workerTokenUpdated'));
+										const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										// #region agent log
+										// #endregion
+										toastV8.success('Worker token removed');
 									} else {
 										// Use helper to check silentApiRetrieval before showing modal
 										// Pass current checkbox values to override config (page checkboxes take precedence)
@@ -1005,6 +1204,153 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						</div>
 
 						<div className="form-group">
+							<label
+								htmlFor="fido2-policy-select"
+								style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+							>
+								FIDO2 Policy <span className="required">*</span>
+								<MFAInfoButtonV8 contentKey="device.fido2.policy" displayMode="modal" />
+							</label>
+
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									flexWrap: 'wrap',
+									marginBottom: '12px',
+								}}
+							>
+								<button
+									type="button"
+									onClick={() => void fetchFido2Policies()}
+									className="token-button"
+									style={{
+										padding: '8px 18px',
+										background: '#0284c7',
+										color: 'white',
+										border: 'none',
+										borderRadius: '999px',
+										fontSize: '13px',
+										fontWeight: '700',
+										cursor: isLoadingFido2Policies ? 'not-allowed' : 'pointer',
+										opacity: isLoadingFido2Policies ? 0.6 : 1,
+										boxShadow: '0 8px 18px rgba(2,132,199,0.25)',
+										transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+									}}
+									disabled={isLoadingFido2Policies || !tokenStatus.isValid || !credentials.environmentId}
+									onMouseEnter={(e) => {
+										if (!isLoadingFido2Policies) {
+											e.currentTarget.style.transform = 'translateY(-1px)';
+										}
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.transform = 'translateY(0)';
+									}}
+								>
+									{isLoadingFido2Policies ? 'Refreshing…' : 'Refresh Policies'}
+								</button>
+								<span style={{ fontSize: '13px', color: '#475569' }}>
+									Select which PingOne FIDO2 policy governs device registration.
+								</span>
+							</div>
+
+							{fido2PoliciesError && (
+								<div
+									className="info-box"
+									style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b' }}
+								>
+									<strong>Failed to load FIDO2 policies:</strong> {fido2PoliciesError}. Retry after verifying
+									access.
+								</div>
+							)}
+
+							{(() => {
+								// #region agent log
+								// #endregion
+								return fido2Policies.length > 0 ? (
+									<select
+										id="fido2-policy-select"
+										value={(credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId || ''}
+										onChange={(e) => {
+											const updated = {
+												...credentials,
+												fido2PolicyId: e.target.value,
+											} as MFACredentials & { fido2PolicyId?: string };
+											setCredentials(updated);
+											CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
+										}}
+										style={{
+											width: '100%',
+											padding: '10px',
+											border: '1px solid #d1d5db',
+											borderRadius: '6px',
+											fontSize: '14px',
+											background: 'white',
+										}}
+									>
+										<option value="">-- Select a FIDO2 policy --</option>
+										{fido2Policies.map((policy) => (
+											<option key={policy.id} value={policy.id}>
+												{policy.name} {policy.default ? '(Default)' : ''}
+											</option>
+										))}
+									</select>
+							) : (
+								<input
+									id="fido2-policy-select"
+									type="text"
+									value={(credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId || ''}
+									onChange={(e) => {
+										const updated = {
+											...credentials,
+											fido2PolicyId: e.target.value.trim(),
+										} as MFACredentials & { fido2PolicyId?: string };
+										setCredentials(updated);
+										CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
+									}}
+									placeholder="Enter a FIDO2 Policy ID"
+									style={{
+										width: '100%',
+										padding: '10px',
+										border: '1px solid #d1d5db',
+										borderRadius: '6px',
+										fontSize: '14px',
+									}}
+								/>
+							);
+							})()}
+
+							{(credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId && (
+								<div style={{ marginTop: '12px' }}>
+									{fido2Policies.find(
+										(p) => p.id === (credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId
+									)?.description && (
+										<p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>
+											{fido2Policies.find(
+												(p) => p.id === (credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId
+											)?.description}
+										</p>
+									)}
+								</div>
+							)}
+
+							<div
+								style={{
+									marginTop: '12px',
+									padding: '12px 14px',
+									background: '#f1f5f9',
+									borderRadius: '10px',
+									fontSize: '12px',
+									color: '#475569',
+									lineHeight: 1.5,
+								}}
+							>
+								FIDO2 policies are fetched from PingOne FIDO2 Policies API.
+							</div>
+						</div>
+
+						<div className="form-group">
 							<label htmlFor="mfa-username">
 								Username <span className="required">*</span>
 							</label>
@@ -1021,7 +1367,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				</div>
 			);
 		};
-	}, [isConfigured, webAuthnSupported, webAuthnCapabilities]);
+	}, [isConfigured, webAuthnSupported, webAuthnCapabilities, fido2Policies, isLoadingFido2Policies, fido2PoliciesError, fetchFido2Policies, location]);
 
 	// Ref to store pending trigger update (to avoid setState during render)
 	const pendingTriggerRef = React.useRef<{
@@ -1270,10 +1616,13 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						toastV8.success('Device selected successfully!');
 					}
 				} catch (error) {
-					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
-					nav.setValidationErrors([`Failed to authenticate: ${errorMessage}`]);
-					toastV8.error(`Authentication failed: ${errorMessage}`);
+					const formattedError = ValidationServiceV8.formatMFAError(error as Error, {
+						operation: 'authenticate',
+						deviceType: 'FIDO2',
+					});
+					nav.setValidationErrors([formattedError.userFriendlyMessage]);
+					toastV8.error(`Authentication failed: ${formattedError.userFriendlyMessage}`);
 				} finally {
 					setIsLoading(false);
 				}
@@ -1330,6 +1679,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					const hasExistingFIDODevice = existingDevices.length > 0;
 
 					if (hasExistingFIDODevice) {
+						const firstDevice = existingDevices[0] as Record<string, unknown>;
 						console.log(`${MODULE_TAG} User already has a FIDO device registered:`, {
 							deviceCount: existingDevices.length,
 							devices: existingDevices.map((d: Record<string, unknown>) => ({
@@ -1337,6 +1687,11 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								nickname: d.nickname || d.name,
 								status: d.status,
 							})),
+						});
+						// Store device info for the modal
+						setExistingFIDODevice({
+							id: firstDevice.id as string,
+							nickname: (firstDevice.nickname || firstDevice.name) as string | undefined,
 						});
 						setShowFIDODeviceExistsModal(true);
 						setIsLoading(false);
@@ -1986,8 +2341,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				)}
 
 				{mfaState.deviceId && (
-					<div className="success-box" style={{ marginTop: '20px' }}>
-						<h3>✅ Device Ready</h3>
+					<SuccessMessage title="Device Ready">
 						<p>
 							<strong>Device ID:</strong> {mfaState.deviceId}
 						</p>
@@ -2006,7 +2360,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								<strong>Credential ID:</strong> {credentialId.substring(0, 40)}...
 							</p>
 						)}
-					</div>
+					</SuccessMessage>
 				)}
 			</div>
 		);
@@ -2472,9 +2826,13 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 			<FIDODeviceExistsModalV8
 				isOpen={showFIDODeviceExistsModal}
-				onClose={() => setShowFIDODeviceExistsModal(false)}
+				onClose={() => {
+					setShowFIDODeviceExistsModal(false);
+					setExistingFIDODevice(null);
+				}}
 				onBackToSelection={() => {
 					setShowFIDODeviceExistsModal(false);
+					setExistingFIDODevice(null);
 					// Navigate back to device selection step
 					if (navRef.current) {
 						navRef.current.goToStep(1);
@@ -2484,8 +2842,29 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				}}
 				onBackToHub={() => {
 					setShowFIDODeviceExistsModal(false);
+					setExistingFIDODevice(null);
 					navigateToMfaHubWithCleanup(navigate);
 				}}
+				onDeviceDeleted={() => {
+					setShowFIDODeviceExistsModal(false);
+					setExistingFIDODevice(null);
+					// Refresh device list and allow registration
+					if (navRef.current) {
+						navRef.current.setValidationErrors([]);
+						navRef.current.setValidationWarnings([]);
+					}
+					// Trigger device reload by updating device selection state
+					setDeviceSelection((prev) => ({
+						...prev,
+						existingDevices: [],
+						selectedExistingDevice: 'new',
+						showRegisterForm: true,
+					}));
+				}}
+				environmentId={credentialsRef.current?.environmentId}
+				username={credentialsRef.current?.username}
+				deviceId={existingFIDODevice?.id}
+				deviceNickname={existingFIDODevice?.nickname}
 			/>
 		</div>
 	);
