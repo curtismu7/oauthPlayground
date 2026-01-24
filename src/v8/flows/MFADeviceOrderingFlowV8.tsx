@@ -12,7 +12,7 @@ import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[📋 DEVICE-ORDER-FLOW-V8]';
@@ -66,9 +66,11 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 	});
 
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const [tokenStatus, setTokenStatus] = useState(() =>
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
-	);
+	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
+		status: 'missing',
+		message: 'Checking...',
+		isValid: false,
+	});
 
 	// Worker Token Settings - Load from config service
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
