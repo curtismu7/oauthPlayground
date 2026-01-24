@@ -56,7 +56,7 @@ import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServi
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { PrimaryButton, SecondaryButton, SuccessButton, DangerButton } from '@/v8/components/shared/ActionButtonV8';
 import { useActionButton } from '@/v8/hooks/useActionButton';
@@ -237,10 +237,34 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		};
 	});
 
-	const [tokenStatus, setTokenStatus] = useState(() =>
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
-	);
+	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
+		isValid: false,
+		status: 'missing',
+		message: 'Checking...',
+		expiresAt: null,
+		minutesRemaining: 0,
+	});
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+
+	// Initialize token status
+	useEffect(() => {
+		const initializeTokenStatus = async () => {
+			try {
+				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				setTokenStatus(status);
+			} catch (error) {
+				console.error('[MFA-AUTHN-MAIN-V8] Failed to check token status:', error);
+				setTokenStatus({
+					isValid: false,
+					status: 'missing',
+					message: 'Failed to check token status',
+					expiresAt: null,
+					minutesRemaining: 0,
+				});
+			}
+		};
+		initializeTokenStatus();
+	}, []);
 	
 	// Worker Token Settings State - Load fresh from config service (no cache)
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
@@ -594,8 +618,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 	// Update token status
 	useEffect(() => {
-		const handleTokenUpdate = () => {
-			setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+		const handleTokenUpdate = async () => {
+			try {
+				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				setTokenStatus(status);
+			} catch (error) {
+				console.error('[MFA-AUTHN-MAIN-V8] Failed to check token status in event handler:', error);
+			}
 		};
 
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
