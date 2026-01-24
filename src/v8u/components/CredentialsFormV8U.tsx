@@ -2110,8 +2110,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 												</div>
 											</label>
 										</div>
-									</div>
-									</div>
 
 									{/* Client ID */}
 									<div className="form-group">
