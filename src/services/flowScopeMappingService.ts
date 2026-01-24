@@ -185,6 +185,14 @@ export const FLOW_SCOPE_MAPPINGS: Record<string, FlowScopeMapping> = {
 		description: 'PingOne User Profile Management (uses worker token)',
 		category: 'worker-token',
 	},
+	'pingone-webhook-viewer': {
+		flowType: 'pingone-webhook-viewer',
+		flowName: 'PingOne Webhook Viewer',
+		requiresOpenId: false,
+		defaultScopes: ['p1:read:webhooks', 'p1:write:webhooks', 'p1:read:environments'],
+		description: 'PingOne Webhook Subscriptions Management (uses worker token)',
+		category: 'worker-token',
+	},
 
 	// PingOne-specific flows that use Authorization Code with openid
 	pingone: {
