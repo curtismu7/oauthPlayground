@@ -21,6 +21,7 @@
  */
 
 import React, { useId, useState } from 'react';
+import { FiChevronDown } from 'react-icons/fi';
 import { StepValidationFeedbackProps } from '@/v8/types/stepNavigation';
 
 const MODULE_TAG = '[⚠️ VALIDATION-FEEDBACK-V8]';
@@ -74,7 +75,15 @@ export const StepValidationFeedbackV8U: React.FC<StepValidationFeedbackProps> = 
 						<span className="section-title">
 							{errors.length} {errors.length === 1 ? 'Error' : 'Errors'}
 						</span>
-						<span className="section-toggle">{expandedErrors ? '▼' : '▶'}</span>
+						<span className="section-toggle">
+							<FiChevronDown 
+								style={{ 
+									transform: expandedErrors ? 'rotate(0deg)' : 'rotate(-90deg)',
+									transition: 'transform 0.3s ease',
+									fontSize: '16px'
+								}} 
+							/>
+						</span>
 					</button>
 
 					{expandedErrors && (
@@ -106,7 +115,15 @@ export const StepValidationFeedbackV8U: React.FC<StepValidationFeedbackProps> = 
 						<span className="section-title">
 							{warnings.length} {warnings.length === 1 ? 'Warning' : 'Warnings'}
 						</span>
-						<span className="section-toggle">{expandedWarnings ? '▼' : '▶'}</span>
+						<span className="section-toggle">
+							<FiChevronDown 
+								style={{ 
+									transform: expandedWarnings ? 'rotate(0deg)' : 'rotate(-90deg)',
+									transition: 'transform 0.3s ease',
+									fontSize: '16px'
+								}} 
+							/>
+						</span>
 					</button>
 
 					{expandedWarnings && (
