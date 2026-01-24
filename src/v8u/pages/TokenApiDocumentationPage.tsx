@@ -380,9 +380,13 @@ export const TokenApiDocumentationPage: React.FC = () => {
       // Get all tracked calls including redirects from apiCallTrackerService
       const trackedCalls = apiCallTrackerService.getApiCalls();
       
-      // Filter for redirects (GET /authorize calls)
+      // Filter for redirects (GET /authorize calls, callback URLs, and other front-channel redirects)
       const redirectCalls = trackedCalls.filter(call => 
-        call.url?.includes('/authorize') && call.method === 'GET'
+        (call.url?.includes('/authorize') && call.method === 'GET') ||
+        (call.url?.includes('/callback') && call.method === 'GET') ||
+        (call.url?.includes('/resume') && call.method === 'GET') ||
+        (call.step?.includes('redirect')) ||
+        (call.flowType?.includes('redirect'))
       );
       
       setRedirects(redirectCalls);
@@ -433,6 +437,12 @@ export const TokenApiDocumentationPage: React.FC = () => {
       case 'session_delete': return '👥';
       case 'introspect': return '🔍';
       case 'worker_refresh': return '🏭';
+      case 'preflight-validation': return '✈️';
+      case 'token_exchange': return '🔄';
+      case 'userinfo': return '👤';
+      case 'par': return '📤';
+      case 'resume': return '▶️';
+      case 'device_auth': return '📱';
       default: return '📡';
     }
   };
@@ -444,7 +454,13 @@ export const TokenApiDocumentationPage: React.FC = () => {
       case 'session_delete': return 'Session Deletion';
       case 'introspect': return 'Token Introspection';
       case 'worker_refresh': return 'Worker Token Refresh';
-      default: return 'Unknown';
+      case 'preflight-validation': return 'Pre-flight Validation';
+      case 'token_exchange': return 'Token Exchange';
+      case 'userinfo': return 'User Info';
+      case 'par': return 'Pushed Authorization Request';
+      case 'resume': return 'Resume Flow';
+      case 'device_auth': return 'Device Authorization';
+      default: return type || 'Unknown';
     }
   };
 
@@ -509,6 +525,13 @@ export const TokenApiDocumentationPage: React.FC = () => {
           <option value="session_delete">Session Delete</option>
           <option value="introspect">Introspect</option>
           <option value="worker_refresh">Worker Refresh</option>
+          <option value="preflight-validation">Pre-flight Validation</option>
+          <option value="token_exchange">Token Exchange</option>
+          <option value="userinfo">User Info</option>
+          <option value="par">Pushed Authorization Request</option>
+          <option value="resume">Resume Flow</option>
+          <option value="device_auth">Device Authorization</option>
+          <option value="other">Other</option>
         </FilterSelect>
         
         <ActionButton onClick={() => window.location.reload()}>
@@ -536,29 +559,43 @@ export const TokenApiDocumentationPage: React.FC = () => {
             <p style={{ color: '#64748b', marginBottom: '1rem' }}>
               These are the browser redirects that happen during OAuth flows. The user's browser is redirected to these URLs.
             </p>
-            {redirects.map((redirect, index) => (
-              <RedirectCard key={`redirect-${index}`}>
-                <RedirectHeader>
-                  <RedirectTitle>
-                    <FiExternalLink /> Authorization Redirect
-                  </RedirectTitle>
-                  <RedirectInteractionType>
-                    Front-Channel
-                  </RedirectInteractionType>
-                </RedirectHeader>
-                <RedirectUrl>
-                  {redirect.actualPingOneUrl || redirect.url}
-                </RedirectUrl>
-                <RedirectDescription>
-                  <strong>Step 1:</strong> User browser is redirected to the authorization endpoint to authenticate and grant consent.
-                  This happens in the user's browser (front-channel).
-                </RedirectDescription>
-                <Timestamp>
-                  <FiClock />
-                  {redirect.timestamp ? new Date(redirect.timestamp).toLocaleString() : 'Unknown time'}
-                </Timestamp>
-              </RedirectCard>
-            ))}
+            {redirects.map((redirect, index) => {
+              // Determine redirect type based on URL
+              let redirectTitle = 'Authorization Redirect';
+              let redirectDescription = 'User browser is redirected to the authorization endpoint to authenticate and grant consent.';
+              
+              if (redirect.url?.includes('/callback')) {
+                redirectTitle = 'Authorization Callback';
+                redirectDescription = 'Authorization server redirects back to your application with authorization code or tokens.';
+              } else if (redirect.url?.includes('/resume')) {
+                redirectTitle = 'Flow Resume';
+                redirectDescription = 'Application resumes the OAuth flow after processing the authorization response.';
+              }
+              
+              return (
+                <RedirectCard key={`redirect-${index}`}>
+                  <RedirectHeader>
+                    <RedirectTitle>
+                      <FiExternalLink /> {redirectTitle}
+                    </RedirectTitle>
+                    <RedirectInteractionType>
+                      Front-Channel
+                    </RedirectInteractionType>
+                  </RedirectHeader>
+                  <RedirectUrl>
+                    {redirect.actualPingOneUrl || redirect.url}
+                  </RedirectUrl>
+                  <RedirectDescription>
+                    <strong>Step {redirect.url?.includes('/callback') ? '2' : redirect.url?.includes('/resume') ? '3' : '1'}:</strong> {redirectDescription}
+                    This happens in the user's browser (front-channel).
+                  </RedirectDescription>
+                  <Timestamp>
+                    <FiClock />
+                    {redirect.timestamp ? new Date(redirect.timestamp).toLocaleString() : 'Unknown time'}
+                  </Timestamp>
+                </RedirectCard>
+              );
+            })}
           </div>
 
           <div style={{ 
