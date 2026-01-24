@@ -28,7 +28,7 @@ import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import WorkerTokenStatusServiceV8 from '@/v8/services/workerTokenStatusServiceV8';
+import WorkerTokenStatusServiceV8, { type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import {
@@ -163,7 +163,11 @@ export const MFAHubV8: React.FC = () => {
 	const [infoCollapsed, setInfoCollapsed] = useState(false);
 	
 	// Worker token state
-	const [tokenStatus, setTokenStatus] = useState(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
+		status: 'missing',
+		message: 'Checking...',
+		isValid: false,
+	});
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	
 	// Initialize from config immediately (not in useEffect) so silent retrieval works on mount
@@ -193,7 +197,7 @@ export const MFAHubV8: React.FC = () => {
 			// #region agent log
 			// #endregion
 			const checkToken = async () => {
-				const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				setTokenStatus(currentStatus);
 				// #region agent log
 				// #endregion
@@ -204,8 +208,8 @@ export const MFAHubV8: React.FC = () => {
 					// #region agent log
 					// #endregion
 					await handleShowWorkerTokenModal(
-						setShowWorkerTokenModal, 
-						setTokenStatus,
+						setShowWorkerTokenModal,
+						async (status) => setTokenStatus(await status),
 						silentApiRetrieval,  // Hub page checkbox value takes precedence
 						showTokenAtEnd       // Hub page checkbox value takes precedence
 					);
@@ -215,8 +219,8 @@ export const MFAHubV8: React.FC = () => {
 			checkToken();
 
 		// Listen for token updates
-		const handleTokenUpdate = () => {
-			const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+		const handleTokenUpdate = async () => {
+			const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setTokenStatus(newStatus);
 		};
 
@@ -258,13 +262,13 @@ export const MFAHubV8: React.FC = () => {
 		
 		// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 		if (value) {
-			const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			console.log('[MFA-HUB-V8] DEBUG - Current token status:', currentStatus);
 			if (!currentStatus.isValid) {
 				console.log('[MFA-HUB-V8] Silent API retrieval enabled, attempting to fetch token now...');
 				await handleShowWorkerTokenModal(
 					setShowWorkerTokenModal,
-					setTokenStatus,
+					async (status) => setTokenStatus(await status),
 					value,  // Use new value
 					showTokenAtEnd,
 					false   // Not forced - respect silent setting
@@ -833,7 +837,7 @@ export const MFAHubV8: React.FC = () => {
 										// forceShowModal=true because user explicitly clicked the button - always show modal
 										await handleShowWorkerTokenModal(
 											setShowWorkerTokenModal, 
-											setTokenStatus,
+											async (status) => setTokenStatus(await status),
 											silentApiRetrieval,  // Hub page checkbox value takes precedence
 											showTokenAtEnd,      // Hub page checkbox value takes precedence
 											true                  // Force show modal - user clicked button
@@ -1156,13 +1160,13 @@ export const MFAHubV8: React.FC = () => {
 			{showWorkerTokenModal && (
 				<WorkerTokenModalWrapper
 					isOpen={showWorkerTokenModal}
-					onClose={() => {
+					onClose={async () => {
 						setShowWorkerTokenModal(false);
-						const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+						const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 						setTokenStatus(newStatus);
 					}}
-					onTokenGenerated={() => {
-						const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+					onTokenGenerated={async () => {
+						const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 						setTokenStatus(newStatus);
 					}}
 				/>
