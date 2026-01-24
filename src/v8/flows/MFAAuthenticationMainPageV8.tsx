@@ -22,15 +22,16 @@ import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheck,
-	FiInfo,
+	FiCode,
+	FiDownload,
 	FiKey,
 	FiLoader,
-	FiMail,
 	FiPackage,
-	FiPhone,
-	FiPlus,
+	FiRefreshCw,
+	FiSearch,
 	FiShield,
 	FiTrash2,
+	FiUser,
 	FiX,
 } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -1565,6 +1566,41 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					>
 						<FiPackage size={18} />
 						Download Complete Collection (Unified + MFA)
+					</button>
+					
+					{/* API Test Button */}
+					<button
+						type="button"
+						onClick={() => {
+							window.open('/test/all-flows-api', '_blank');
+						}}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							padding: '12px 24px',
+							background: '#3b82f6',
+							color: 'white',
+							border: 'none',
+							borderRadius: '8px',
+							fontSize: '15px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#2563eb';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = '#3b82f6';
+							e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
+						}}
+						title="Open comprehensive OAuth and MFA API test suite in new tab"
+					>
+						<FiCode size={18} />
+						OAuth & MFA API Test
 					</button>
 				</div>
 			</div>
