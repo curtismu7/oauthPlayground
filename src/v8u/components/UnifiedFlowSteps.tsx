@@ -79,27 +79,28 @@ const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 	align-items: center;
 	justify-content: space-between;
 	width: 100%;
-	padding: 1.25rem 1.5rem;
+	padding: 1.5rem 1.75rem;
 	background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%);
-	border: 2px solid transparent;
-	border-radius: 0.75rem;
+	border: 3px solid transparent;
+	border-radius: 1rem;
 	cursor: pointer;
-	font-size: 1.1rem;
-	font-weight: 600;
+	font-size: 1.2rem;
+	font-weight: 700;
 	color: #14532d;
-	transition: all 0.2s ease;
+	transition: all 0.3s ease;
 	position: relative;
+	box-shadow: 0 2px 8px rgba(34, 197, 94, 0.1);
 
 	&:hover {
 		background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
 		border-color: #86efac;
-		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+		transform: translateY(-2px);
+		box-shadow: 0 8px 24px rgba(34, 197, 94, 0.2);
 	}
 
 	&:active {
 		transform: translateY(0);
-		box-shadow: 0 2px 4px rgba(34, 197, 94, 0.1);
+		box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
 	}
 
 	&::before {
@@ -109,8 +110,8 @@ const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 		left: 0;
 		right: 0;
 		bottom: 0;
-		border-radius: 0.75rem;
-		background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+		border-radius: 1rem;
+		background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
 		pointer-events: none;
 	}
 `;
@@ -127,31 +128,35 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 40px;
-	height: 40px;
-	border-radius: 8px;
-	background: #f8fafc;
-	border: 2px solid #e2e8f0;
+	width: 48px;
+	height: 48px;
+	border-radius: 12px;
+	background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+	border: 3px solid #3b82f6;
 	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-	transition: all 0.2s ease;
+	transition: all 0.3s ease;
 	cursor: pointer;
-	color: #64748b;
+	color: #3b82f6;
+	box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
 
 	&:hover {
-		background: #f1f5f9;
-		border-color: #cbd5e1;
-		color: #475569;
-		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.05)' : 'rotate(0deg) scale(1.05)')};
+		background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+		border-color: #2563eb;
+		color: #2563eb;
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
+		box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
 	}
 
 	&:active {
 		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(0.95)' : 'rotate(0deg) scale(0.95)')};
+		box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 	}
 
 	svg {
-		width: 20px;
-		height: 20px;
-		stroke-width: 2.5px;
+		width: 24px;
+		height: 24px;
+		stroke-width: 3px;
+		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 	}
 `;
 
