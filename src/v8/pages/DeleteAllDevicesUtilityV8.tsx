@@ -341,7 +341,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			setTokenStatus,
 			silentApiRetrieval,
 			showTokenAtEnd,
-			!silentApiRetrieval // Force show modal only when silent is OFF
+			true // Force show modal - user clicked button
 		);
 	};
 
