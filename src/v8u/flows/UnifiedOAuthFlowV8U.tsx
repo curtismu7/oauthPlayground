@@ -1357,6 +1357,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		setCredentials(updatedCredentials as UnifiedFlowCredentials);
 	};
 
+	const handleTogglePKCE = (enabled: boolean) => {
+		setCredentials(prev => ({ ...prev, usePKCE: enabled }));
+	};
+
+	const handleToggleRefreshToken = (enabled: boolean) => {
+		setCredentials(prev => ({ ...prev, enableRefreshToken: enabled }));
+	};
+
+	const handleToggleScopes = (scopes: string[]) => {
+		setCredentials(prev => ({ ...prev, scopes }));
+	};
+
 	const handleSpecVersionChange = (newSpec: SpecVersion) => {
 
 		// Modal state removed - dropdown already filters flows
@@ -1977,7 +1989,14 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					key={`${effectiveFlowType}-${specVersion}`}
 					flowType={effectiveFlowType}
 					specVersion={specVersion}
-					credentials={credentials}
+					credentials={{
+						usePKCE: credentials.usePKCE || false,
+						enableRefreshToken: credentials.enableRefreshToken || false,
+						scopes: credentials.scopes ? credentials.scopes.split(' ') : []
+					}}
+					onTogglePKCE={handleTogglePKCE}
+					onToggleRefreshToken={handleToggleRefreshToken}
+					onToggleScopes={handleToggleScopes}
 				/>
 			)}
 
