@@ -45,7 +45,6 @@ import { ResponseTypeDropdownV8 } from '@/v8/components/ResponseTypeDropdownV8';
 import { TokenEndpointAuthMethodDropdownV8 } from '@/v8/components/TokenEndpointAuthMethodDropdownV8';
 import { TooltipV8 } from '@/v8/components/TooltipV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
@@ -2127,11 +2126,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 													</span>
 												</div>
 											</label>
-										</div>
-
-										{/* Cool 3D Worker Token Status Display - Moved below buttons */}
-										<div style={{ marginTop: '20px' }}>
-											<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
 										</div>
 
 									{/* Client ID */}
