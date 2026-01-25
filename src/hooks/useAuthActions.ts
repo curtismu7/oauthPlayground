@@ -17,6 +17,10 @@ import { generateCodeChallenge } from '../utils/oauth';
 import { safeJsonParse } from '../utils/secureJson';
 import { oauthStorage } from '../utils/storage';
 import { validateAndParseCallbackUrl } from '../utils/urlValidation';
+import { FeatureFlagService } from '../services/featureFlagService';
+import { StateManager } from '../services/stateManager';
+import { NonceManager } from '../services/nonceManager';
+import { PkceManager } from '../services/pkceManager';
 
 /**
  * Type-safe wrapper for oauthStorage.setTokens
@@ -118,20 +122,38 @@ const useAuthActions = ({
 
 				console.log(' [NewAuthContext] Configuration validated');
 
-				const state = Math.random().toString(36).substring(2, 15);
-				const nonce = Math.random().toString(36).substring(2, 15);
+				// Generate state, nonce, and PKCE using Phase 2 services or fallback to old method
+				const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
+				
+				const state = useNewOidcCore
+					? StateManager.generate()
+					: Math.random().toString(36).substring(2, 15);
+				
+				const nonce = useNewOidcCore
+					? NonceManager.generate()
+					: Math.random().toString(36).substring(2, 15);
 
 				console.log(' [NewAuthContext] Generated security parameters:', {
 					state: `${state.substring(0, 8)}...`,
 					nonce: `${nonce.substring(0, 8)}...`,
+					usingNewServices: useNewOidcCore,
 				});
 
-				const codeVerifier =
-					Math.random().toString(36).substring(2, 15) +
-					Math.random().toString(36).substring(2, 15) +
-					Math.random().toString(36).substring(2, 15) +
-					Math.random().toString(36).substring(2, 15);
-				const codeChallenge = await generateCodeChallenge(codeVerifier);
+				let codeVerifier: string;
+				let codeChallenge: string;
+				
+				if (useNewOidcCore) {
+					const pkce = await PkceManager.generateAsync();
+					codeVerifier = pkce.codeVerifier;
+					codeChallenge = pkce.codeChallenge;
+				} else {
+					codeVerifier =
+						Math.random().toString(36).substring(2, 15) +
+						Math.random().toString(36).substring(2, 15) +
+						Math.random().toString(36).substring(2, 15) +
+						Math.random().toString(36).substring(2, 15);
+					codeChallenge = await generateCodeChallenge(codeVerifier);
+				}
 
 				console.log(' [NewAuthContext] PKCE generation successful:', {
 					codeVerifier: `${codeVerifier.substring(0, 20)}...`,
@@ -140,9 +162,20 @@ const useAuthActions = ({
 					codeChallengeLength: codeChallenge.length,
 				});
 
-				sessionStorage.setItem('oauth_state', state);
-				sessionStorage.setItem('oauth_nonce', nonce);
-				sessionStorage.setItem('code_verifier', codeVerifier);
+				// Store security parameters using Phase 2 services or fallback to sessionStorage
+				const flowKey = 'auth-context-login';
+				
+				if (useNewOidcCore) {
+					StateManager.store(state, flowKey);
+					NonceManager.store(nonce, flowKey);
+					PkceManager.store({ codeVerifier, codeChallenge, codeChallengeMethod: 'S256' }, flowKey);
+				} else {
+					sessionStorage.setItem('oauth_state', state);
+					sessionStorage.setItem('oauth_nonce', nonce);
+					sessionStorage.setItem('code_verifier', codeVerifier);
+				}
+				
+				// Keep legacy storage keys for backward compatibility
 				sessionStorage.setItem('oauth_code_verifier', codeVerifier);
 				sessionStorage.setItem('authz_v3_code_verifier', codeVerifier);
 				sessionStorage.setItem('oauth2_v3_code_verifier', codeVerifier);
