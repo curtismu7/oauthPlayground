@@ -1805,7 +1805,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					>
 						Worker Token
 					</label>
-					<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-start' }}>
 						<button
 							type="button"
 							onClick={async () => {
