@@ -271,8 +271,8 @@ const LoadingOverlay = styled.div`
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: rgba(255, 255, 255, 0.9);
-	backdrop-filter: blur(2px);
+	background: rgba(255, 255, 255, 0.3);
+	backdrop-filter: blur(1px);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -285,6 +285,10 @@ const LoadingOverlay = styled.div`
 		align-items: center;
 		gap: 8px;
 		color: #374151;
+		background: rgba(255, 255, 255, 0.9);
+		padding: 12px 16px;
+		border-radius: 8px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	}
 
 	.loading-spinner {
