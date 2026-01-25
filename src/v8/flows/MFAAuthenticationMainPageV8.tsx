@@ -1424,7 +1424,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			style={{
 				padding: '32px 20px',
 				paddingBottom: paddingBottom !== '0' ? paddingBottom : '32px',
-				maxWidth: '1400px',
+				maxWidth: '1800px',
 				margin: '0 auto',
 				minHeight: '100vh',
 				transition: 'padding-bottom 0.3s ease',
