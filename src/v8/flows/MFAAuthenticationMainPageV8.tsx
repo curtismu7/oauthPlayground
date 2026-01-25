@@ -5389,6 +5389,147 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				isWebAuthnSupported={WebAuthnAuthenticationServiceV8.isWebAuthnSupported()}
 				hasChallengeData={!!authState.challengeId || !!authState.publicKeyCredentialRequestOptions}
 			/>
+
+			{/* Device Selection Modal */}
+			<MFADeviceSelectionModal
+				show={showDeviceSelectionModal}
+				onClose={() => setShowDeviceSelectionModal(false)}
+				devices={userDevices}
+				onDeviceSelect={async (deviceId) => {
+					setShowDeviceSelectionModal(false);
+					setAuthState((prev) => ({ ...prev, selectedDeviceId: deviceId }));
+					
+					// Start authentication with selected device
+					const selectedDevice = userDevices.find((d) => (d.id as string) === deviceId);
+					if (selectedDevice) {
+						await startMFAFlow(selectedDevice);
+					}
+				}}
+				searchQuery={deviceSearchQuery}
+				onSearchChange={setDeviceSearchQuery}
+				loading={authState.isLoading}
+			/>
+
+			{/* Device Selection Info Modal */}
+			<MFADeviceSelectionInfoModal
+				show={showDeviceSelectionInfoModal}
+				onClose={() => setShowDeviceSelectionInfoModal(false)}
+			/>
+
+			{/* Policy Info Modal */}
+			<MFAPolicyInfoModal
+				show={showPolicyInfoModal}
+				onClose={() => setShowPolicyInfoModal(false)}
+				policy={deviceAuthPolicies.find((p) => p.id === credentials.deviceAuthenticationPolicyId)}
+			/>
+
+			{/* Registration Modal */}
+			{showRegistrationModal && (
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						background: 'rgba(0, 0, 0, 0.5)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						zIndex: 1000,
+					}}
+					onClick={() => setShowRegistrationModal(false)}
+				>
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '16px',
+							padding: '32px',
+							maxWidth: '500px',
+							width: '90%',
+							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+						}}
+						onClick={(e) => e.stopPropagation()}
+					>
+						<h3 style={{ margin: '0 0 16px 0', fontSize: '20px', fontWeight: '600' }}>
+							Register New Device
+						</h3>
+						<p style={{ margin: '0 0 24px 0', color: '#666' }}>
+							Choose a device type to register for MFA authentication.
+						</p>
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+							{(['SMS', 'EMAIL', 'WHATSAPP', 'TOTP', 'FIDO2'] as const).map((deviceType) => (
+								<button
+									key={deviceType}
+									type="button"
+									onClick={() => {
+										setShowRegistrationModal(false);
+										// Navigate to the appropriate registration page
+										const registrationRoutes = {
+											SMS: '/v8/mfa/register/sms',
+											EMAIL: '/v8/mfa/register/email',
+											WHATSAPP: '/v8/mfa/register/whatsapp',
+											TOTP: '/v8/mfa/register/totp',
+											FIDO2: '/v8/mfa/register/fido2',
+										};
+										navigate(registrationRoutes[deviceType]);
+									}}
+									style={{
+										padding: '12px 24px',
+										border: '1px solid #ddd',
+										borderRadius: '8px',
+										background: 'white',
+										cursor: 'pointer',
+										textAlign: 'left',
+										fontSize: '16px',
+									}}
+								>
+									{deviceType}
+								</button>
+							))}
+						</div>
+						<button
+							type="button"
+							onClick={() => setShowRegistrationModal(false)}
+							style={{
+								marginTop: '16px',
+								padding: '12px 24px',
+								border: 'none',
+								borderRadius: '8px',
+								background: '#f3f4f6',
+								cursor: 'pointer',
+								width: '100%',
+							}}
+						>
+							Cancel
+						</button>
+					</div>
+				</div>
+			)}
+
+			{/* Device Failure Modal */}
+			{showDeviceFailureModal && (
+				<DeviceFailureModalV8
+					isOpen={showDeviceFailureModal}
+					onClose={() => {
+						setShowDeviceFailureModal(false);
+						setDeviceFailureError('');
+						setUnavailableDevices([]);
+					}}
+					errorMessage={deviceFailureError}
+					unavailableDevices={unavailableDevices}
+				/>
+			)}
+
+			{/* Cooldown/Lockout Modal */}
+			{cooldownError && (
+				<MFACooldownModalV8
+					isOpen={!!cooldownError}
+					onClose={() => setCooldownError(null)}
+					message={cooldownError.message}
+					deliveryMethod={cooldownError.deliveryMethod}
+				/>
+			)}
 		</div>
 	);
 };
