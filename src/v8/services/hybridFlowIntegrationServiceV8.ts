@@ -18,6 +18,10 @@
  */
 
 import { pingOneFetch } from '@/utils/pingOneFetch';
+import { FeatureFlagService } from '@/services/featureFlagService';
+import { StateManager } from '@/services/stateManager';
+import { NonceManager } from '@/services/nonceManager';
+import { PkceManager } from '@/services/pkceManager';
 
 const MODULE_TAG = '[🔀 HYBRID-FLOW-V8]';
 
@@ -107,11 +111,16 @@ export class HybridFlowIntegrationServiceV8 {
 		// Ensure 'openid' is always included for hybrid flow
 		const finalScopes = scopes.includes('openid') ? scopes : `openid ${scopes}`;
 
-		// Generate state parameter for CSRF protection
-		const state = HybridFlowIntegrationServiceV8.generateRandomString(32);
+		// Generate state and nonce using Phase 2 services or fallback
+		const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
+		
+		const state = useNewOidcCore
+			? StateManager.generate()
+			: HybridFlowIntegrationServiceV8.generateRandomString(32);
 
-		// Generate nonce for OIDC (required for id_token)
-		const nonce = HybridFlowIntegrationServiceV8.generateRandomString(32);
+		const nonce = useNewOidcCore
+			? NonceManager.generate()
+			: HybridFlowIntegrationServiceV8.generateRandomString(32);
 
 		// Build authorization endpoint URL
 		const authorizationEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
@@ -594,17 +603,26 @@ export class HybridFlowIntegrationServiceV8 {
 		codeChallenge: string;
 		codeChallengeMethod: 'S256';
 	}> {
-		// Generate random code verifier (43-128 characters)
-		const codeVerifier = HybridFlowIntegrationServiceV8.generateRandomString(128);
-
-		// Generate code challenge from verifier using SHA256 (properly async)
-		const codeChallenge = await HybridFlowIntegrationServiceV8.generateCodeChallenge(codeVerifier);
-
-		return {
-			codeVerifier,
-			codeChallenge,
-			codeChallengeMethod: 'S256',
-		};
+		const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
+		
+		if (useNewOidcCore) {
+			// Use Phase 2 PkceManager for RFC-compliant generation
+			const pkce = await PkceManager.generateAsync();
+			return {
+				codeVerifier: pkce.codeVerifier,
+				codeChallenge: pkce.codeChallenge,
+				codeChallengeMethod: 'S256',
+			};
+		} else {
+			// Fallback to old method
+			const codeVerifier = HybridFlowIntegrationServiceV8.generateRandomString(128);
+			const codeChallenge = await HybridFlowIntegrationServiceV8.generateCodeChallenge(codeVerifier);
+			return {
+				codeVerifier,
+				codeChallenge,
+				codeChallengeMethod: 'S256',
+			};
+		}
 	}
 
 	/**
