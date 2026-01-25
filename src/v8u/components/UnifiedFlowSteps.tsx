@@ -14400,7 +14400,6 @@ passed: boolean;
 				currentStep={currentStep}
 				onStepChange={navigateToStep}
 				onFlowReset={onFlowReset}
-				disabled={blockContent}
 				restartLabel="🔄 Restart Flow"
 				nextLabel="Next →"
 				previousLabel="← Previous"
