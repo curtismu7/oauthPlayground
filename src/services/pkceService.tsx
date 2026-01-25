@@ -13,6 +13,8 @@ import {
 import styled from 'styled-components';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
+import { FeatureFlagService } from './featureFlagService';
+import { PkceManager } from './pkceManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { CopyButtonVariants } from './copyButtonService';
 
@@ -398,8 +400,23 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 
 		setIsLocalGenerating(true);
 		try {
-			const codeVerifier = generateCodeVerifier();
-			const codeChallenge = await generateCodeChallenge(codeVerifier);
+			let codeVerifier: string;
+			let codeChallenge: string;
+
+			const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
+
+			if (useNewOidcCore) {
+				// Use Phase 2 PkceManager
+				console.log('🔐 [PKCE Service] Using Phase 2 PkceManager');
+				const pkce = await PkceManager.generateAsync();
+				codeVerifier = pkce.codeVerifier;
+				codeChallenge = pkce.codeChallenge;
+			} else {
+				// Fallback to old method
+				console.log('🔐 [PKCE Service] Using old PKCE generation');
+				codeVerifier = generateCodeVerifier();
+				codeChallenge = await generateCodeChallenge(codeVerifier);
+			}
 
 			const newCodes: PKCECodes = {
 				codeVerifier,
@@ -597,12 +614,27 @@ export default PKCEService;
 // Utility functions
 export const PKCEServiceUtils = {
 	generateCodes: async (): Promise<PKCECodes> => {
-		const codeVerifier = generateCodeVerifier();
-		const codeChallenge = await generateCodeChallenge(codeVerifier);
-		return {
-			codeVerifier,
-			codeChallenge,
-			codeChallengeMethod: 'S256',
+		const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
+
+		if (useNewOidcCore) {
+			// Use Phase 2 PkceManager
+			console.log('🔐 [PKCE Utils] Using Phase 2 PkceManager');
+			const pkce = await PkceManager.generateAsync();
+			return {
+				codeVerifier: pkce.codeVerifier,
+				codeChallenge: pkce.codeChallenge,
+				codeChallengeMethod: 'S256',
+			};
+		} else {
+			// Fallback to old method
+			console.log('🔐 [PKCE Utils] Using old PKCE generation');
+			const codeVerifier = generateCodeVerifier();
+			const codeChallenge = await generateCodeChallenge(codeVerifier);
+			return {
+				codeVerifier,
+				codeChallenge,
+				codeChallengeMethod: 'S256',
+			};
 		};
 	},
 

@@ -31,6 +31,10 @@ import FlowUIService from '../services/flowUIService';
 import { oidcDiscoveryService } from '../services/oidcDiscoveryService';
 
 import type { MfaCredentials, MfaDevice } from '../services/pingOneMfaService';
+import { FeatureFlagService } from '../services/featureFlagService';
+import { StateManager } from '../services/stateManager';
+import { NonceManager } from '../services/nonceManager';
+import { PkceManager } from '../services/pkceManager';
 
 // Extended credentials interface for the complete MFA flow
 interface CompleteMfaCredentials extends MfaCredentials {
@@ -860,38 +864,72 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			try {
 				console.log(`🔧 [MFA Flow V7] Making PingOne MFA API call with response=${responseType}`);
 
-				// Generate PKCE codes if not already present
+				// Phase 2: Generate PKCE codes and state using OIDC core services
 				let codeChallenge = '';
 				let codeVerifier = '';
+				let state = '';
+				let nonce = '';
 
 				try {
-					// Check if we have existing PKCE codes in sessionStorage
-					const existingPkce = sessionStorage.getItem('mfa-pkce-codes');
-					if (existingPkce) {
-						const pkceData = JSON.parse(existingPkce);
-						codeChallenge = pkceData.codeChallenge;
-						codeVerifier = pkceData.codeVerifier;
-						console.log('🔐 [MFA Flow V7] Using existing PKCE codes');
-					} else {
-						// Generate new PKCE codes
-						const { generateCodeVerifier, generateCodeChallenge } = await import('../utils/oauth');
-						codeVerifier = generateCodeVerifier();
-						codeChallenge = await generateCodeChallenge(codeVerifier);
+					const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
+					const flowKey = 'mfa-flow-v7';
 
-						// Store PKCE codes for token exchange
-						sessionStorage.setItem(
-							'mfa-pkce-codes',
-							JSON.stringify({
-								codeVerifier,
-								codeChallenge,
-								codeChallengeMethod: 'S256',
-							})
-						);
-						console.log('🔐 [MFA Flow V7] Generated new PKCE codes');
+					if (useNewOidcCore) {
+						// Use Phase 2 OIDC core services
+						console.log('🔐 [MFA Flow V7] Using Phase 2 OIDC core services');
+
+						// Generate PKCE codes
+						const pkce = await PkceManager.generateAsync();
+						codeVerifier = pkce.codeVerifier;
+						codeChallenge = pkce.codeChallenge;
+
+						// Store PKCE for token exchange
+						PkceManager.store(pkce, flowKey);
+
+						// Generate state
+						state = StateManager.generate();
+						StateManager.store(state, flowKey);
+
+						// Generate nonce for OIDC
+						nonce = NonceManager.generate();
+						NonceManager.store(nonce, flowKey);
+
+						console.log('🔐 [MFA Flow V7] Generated PKCE, state, and nonce using Phase 2 services');
+					} else {
+						// Fallback to old method
+						console.log('🔐 [MFA Flow V7] Using old PKCE generation method');
+
+						// Check if we have existing PKCE codes in sessionStorage
+						const existingPkce = sessionStorage.getItem('mfa-pkce-codes');
+						if (existingPkce) {
+							const pkceData = JSON.parse(existingPkce);
+							codeChallenge = pkceData.codeChallenge;
+							codeVerifier = pkceData.codeVerifier;
+							console.log('🔐 [MFA Flow V7] Using existing PKCE codes');
+						} else {
+							// Generate new PKCE codes
+							const { generateCodeVerifier, generateCodeChallenge } = await import('../utils/oauth');
+							codeVerifier = generateCodeVerifier();
+							codeChallenge = await generateCodeChallenge(codeVerifier);
+
+							// Store PKCE codes for token exchange
+							sessionStorage.setItem(
+								'mfa-pkce-codes',
+								JSON.stringify({
+									codeVerifier,
+									codeChallenge,
+									codeChallengeMethod: 'S256',
+								})
+							);
+							console.log('🔐 [MFA Flow V7] Generated new PKCE codes');
+						}
+
+						// Generate old-style state
+						state = `mfa-${responseType}-${Date.now()}`;
 					}
 				} catch (error) {
-					console.error('🔐 [MFA Flow V7] Failed to generate PKCE codes:', error);
-					v4ToastManager.showError('Failed to generate PKCE codes');
+					console.error('🔐 [MFA Flow V7] Failed to generate security parameters:', error);
+					v4ToastManager.showError('Failed to generate security parameters');
 					return;
 				}
 
@@ -902,12 +940,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					response_type: 'code',
 					scope: 'openid profile email p1:read:user p1:update:user',
 					redirect_uri: credentials.redirectUri || 'https://localhost:3000/authz-callback',
-					state: `mfa-${responseType}-${Date.now()}`,
+					state: state,
 					response_mode: responseType === 'pi.flow' ? 'pi.flow' : responseType,
 					prompt: 'login',
 					acr_values: 'mfa',
 					code_challenge: codeChallenge,
 					code_challenge_method: 'S256',
+					...(nonce && { nonce: nonce }), // Add nonce if generated (OIDC)
 				});
 
 				mfaUrl += params.toString();
