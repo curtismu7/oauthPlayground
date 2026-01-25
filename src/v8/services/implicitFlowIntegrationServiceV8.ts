@@ -16,6 +16,10 @@
  * const authUrl = service.generateAuthorizationUrl(credentials);
  */
 
+import { FeatureFlagService } from '@/services/featureFlagService';
+import { StateManager } from '@/services/stateManager';
+import { NonceManager } from '@/services/nonceManager';
+
 const MODULE_TAG = '[🔓 IMPLICIT-FLOW-V8]';
 
 export interface ImplicitFlowCredentials {
@@ -92,11 +96,16 @@ export class ImplicitFlowIntegrationServiceV8 {
 		// Ensure 'openid' is always included for implicit flow
 		const finalScopes = scopes.includes('openid') ? scopes : `openid ${scopes}`;
 
-		// Generate state parameter for CSRF protection
-		const state = ImplicitFlowIntegrationServiceV8.generateRandomString(32);
+		// Generate state and nonce using Phase 2 services or fallback
+		const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
+		
+		const state = useNewOidcCore
+			? StateManager.generate()
+			: ImplicitFlowIntegrationServiceV8.generateRandomString(32);
 
-		// Generate nonce for OIDC (if using id_token)
-		const nonce = ImplicitFlowIntegrationServiceV8.generateRandomString(32);
+		const nonce = useNewOidcCore
+			? NonceManager.generate()
+			: ImplicitFlowIntegrationServiceV8.generateRandomString(32);
 
 		// Build authorization endpoint URL
 		const authorizationEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
