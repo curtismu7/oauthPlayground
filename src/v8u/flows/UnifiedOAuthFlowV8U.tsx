@@ -46,7 +46,13 @@ import { MobileResponsiveWrapper, ResponsiveCard, ResponsiveGrid, ResponsiveSpac
 import { SpecVersionSelector } from '../components/SpecVersionSelector';
 import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
 import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
-import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
+import { 
+	FlowSettingsServiceV8U,
+	getAdvancedFeatures,
+	saveAdvancedFeatures,
+	toggleAdvancedFeature,
+	isAdvancedFeatureEnabled
+} from '../services/flowSettingsServiceV8U';
 import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,
@@ -2005,9 +2011,21 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				<AdvancedOAuthFeatures
 					flowType={effectiveFlowType}
 					specVersion={specVersion}
+					enabledFeatures={getAdvancedFeatures(effectiveFlowType)}
 					onFeatureToggle={(featureId, enabled) => {
 						console.log(`${MODULE_TAG} 🔧 Advanced feature toggled`, { featureId, enabled });
-						// TODO: Save advanced feature preferences to settings service
+						
+						// Save advanced feature preference to settings service
+						if (enabled) {
+							saveAdvancedFeatures(effectiveFlowType, [
+								...getAdvancedFeatures(effectiveFlowType),
+								featureId
+							]);
+						} else {
+							saveAdvancedFeatures(effectiveFlowType, 
+								getAdvancedFeatures(effectiveFlowType).filter((f: string) => f !== featureId)
+							);
+						}
 					}}
 				/>
 			)}
