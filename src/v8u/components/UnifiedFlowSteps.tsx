@@ -3189,7 +3189,11 @@ passed: boolean;
 															}
 															
 															const flowKey = `${specVersion}-${flowType}-v8u`;
-															CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
+															if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+																CredentialsRepository.setFlowCredentials(flowKey, updatedCredentials);
+															} else {
+																CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
+															}
 															
 															// Also save shared credentials (environmentId, clientId, clientAuthMethod) to backup storage
 															// This ensures fixes persist across all flows and browser restarts
@@ -5042,10 +5046,14 @@ passed: boolean;
 								}
 								
 								// Save updated credentials to flow-specific storage (IndexedDB, localStorage, backend)
-								const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
-								const flowKey = `${specVersion}-${flowType}-v8u`;
-								// updatedCredentials is compatible with Credentials interface
+							const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
+							const flowKey = `${specVersion}-${flowType}-v8u`;
+							// updatedCredentials is compatible with Credentials interface
+							if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+								CredentialsRepository.setFlowCredentials(flowKey, updatedCredentials);
+							} else {
 								CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
+							}
 								
 								// Also save shared credentials (environmentId, clientId, clientAuthMethod) to backup storage
 								// This ensures fixes persist across all flows and browser restarts
@@ -6414,12 +6422,16 @@ passed: boolean;
 												onCredentialsChange(updatedCredentials);
 												
 												// Save to storage
-												await CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials, {
-													flowType: flowType as 'oauth' | 'oidc',
-													includeClientSecret: true,
-													includeScopes: true,
-													includeRedirectUri: true,
-												});
+												if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+													CredentialsRepository.setFlowCredentials(flowKey, updatedCredentials);
+												} else {
+													await CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials, {
+														flowType: flowType as 'oauth' | 'oidc',
+														includeClientSecret: true,
+														includeScopes: true,
+														includeRedirectUri: true,
+													});
+												}
 												
 												// Save shared credentials
 												await SharedCredentialsServiceV8.saveCredentials({
