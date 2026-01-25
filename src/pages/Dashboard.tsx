@@ -718,7 +718,7 @@ const Dashboard = () => {
 							alignItems: 'center'
 						}}>
 							<FlowLink 
-								href="/v8u/unified/oauth-authz/0" 
+								href="/v8u/token-monitoring" 
 								$variant="primary" 
 								$palette="oauth"
 								style={{ 
