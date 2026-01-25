@@ -973,48 +973,126 @@ const ProductionApiTestPageV8U: React.FC = () => {
 						</div>
 					</div>
 
-					{/* Compact Configuration Checkboxes */}
-					<div style={{ 
-						display: 'flex', 
-						gap: '20px',
-						padding: '12px',
-						background: '#f8fafc',
-						borderRadius: '8px',
-						border: '1px solid #e2e8f0',
-						fontSize: '14px'
-					}}>
-						<label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+					{/* Detailed Worker Token Settings Checkboxes - Same as Main Page */}
+					<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+						<label
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '12px',
+								cursor: 'pointer',
+								userSelect: 'none',
+								padding: '8px',
+								borderRadius: '6px',
+								transition: 'background-color 0.2s ease',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.backgroundColor = '#f3f4f6';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.backgroundColor = 'transparent';
+							}}
+						>
 							<input
 								type="checkbox"
 								checked={silentApiRetrieval}
 								onChange={async (e) => {
-									const newConfig = MFAConfigurationServiceV8.loadConfiguration();
-									newConfig.workerToken.silentApiRetrieval = e.target.checked;
-									await MFAConfigurationServiceV8.saveConfiguration(newConfig);
-									setSilentApiRetrieval(e.target.checked);
-									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', {
-										detail: { workerToken: { silentApiRetrieval: e.target.checked } }
-									}));
+									const newValue = e.target.checked;
+									setSilentApiRetrieval(newValue);
+									// Update config service immediately (no cache)
+									const config = MFAConfigurationServiceV8.loadConfiguration();
+									config.workerToken.silentApiRetrieval = newValue;
+									MFAConfigurationServiceV8.saveConfiguration(config);
+									// Dispatch event to notify other components
+									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+									toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
+									
+									// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
+									if (newValue) {
+										try {
+											const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+											if (!currentStatus.isValid) {
+												console.log('[TOKEN-MONITORING-V8U] Silent API retrieval enabled, attempting to fetch token now...');
+												const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+												await handleShowWorkerTokenModal(
+													setShowWorkerTokenModal,
+													setTokenStatus,
+													newValue,  // Use new value
+													showTokenAtEnd,
+													false      // Not forced - respect silent setting
+												);
+											}
+										} catch (error) {
+											console.error('[TOKEN-MONITORING-V8U] Error in silent retrieval:', error);
+										}
+									}
+								}}
+								style={{
+									width: '20px',
+									height: '20px',
+									cursor: 'pointer',
+									accentColor: '#6366f1',
+									flexShrink: 0,
 								}}
 							/>
-							Silent API Retrieval
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+								<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+									Silent API Token Retrieval
+								</span>
+								<span style={{ fontSize: '12px', color: '#6b7280' }}>
+									Automatically fetch worker token in the background without showing modals
+								</span>
+							</div>
 						</label>
-						
-						<label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+
+						<label
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '12px',
+								cursor: 'pointer',
+								userSelect: 'none',
+								padding: '8px',
+								borderRadius: '6px',
+								transition: 'background-color 0.2s ease',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.backgroundColor = '#f3f4f6';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.backgroundColor = 'transparent';
+							}}
+						>
 							<input
 								type="checkbox"
 								checked={showTokenAtEnd}
-								onChange={async (e) => {
-									const newConfig = MFAConfigurationServiceV8.loadConfiguration();
-									newConfig.workerToken.showTokenAtEnd = e.target.checked;
-									await MFAConfigurationServiceV8.saveConfiguration(newConfig);
-									setShowTokenAtEnd(e.target.checked);
-									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', {
-										detail: { workerToken: { showTokenAtEnd: e.target.checked } }
-									}));
+								onChange={(e) => {
+									const newValue = e.target.checked;
+									setShowTokenAtEnd(newValue);
+									// Update config service immediately (no cache)
+									const config = MFAConfigurationServiceV8.loadConfiguration();
+									config.workerToken.showTokenAtEnd = newValue;
+									MFAConfigurationServiceV8.saveConfiguration(config);
+									// Dispatch event to notify other components
+									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+									toastV8.info(`Show Token After Generation set to: ${newValue}`);
+								}}
+								style={{
+									width: '20px',
+									height: '20px',
+									cursor: 'pointer',
+									accentColor: '#6366f1',
+									flexShrink: 0,
 								}}
 							/>
-							Show Token at End
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+								<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+									Show Token After Generation
+								</span>
+								<span style={{ fontSize: '12px', color: '#6b7280' }}>
+									Display the generated worker token in a modal after successful retrieval
+								</span>
+							</div>
 						</label>
 					</div>
 				</div>
