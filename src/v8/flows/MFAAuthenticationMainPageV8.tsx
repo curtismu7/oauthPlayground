@@ -313,7 +313,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const [isPasskeyRegistrationMode, setIsPasskeyRegistrationMode] = useState(false);
 
 	// Modals
-	const [showDeviceSelectionModal, setShowDeviceSelectionModal] = useState(false);
 	const [showOTPModal, setShowOTPModal] = useState(false);
 	const [showFIDO2Modal, setShowFIDO2Modal] = useState(false);
 	const [showPushModal, setShowPushModal] = useState(false);
@@ -804,10 +803,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		return () => clearTimeout(timeoutId);
 	}, [credentials.environmentId, usernameInput, tokenStatus.isValid]);
 
-	// Also load devices when device selection modal opens
+	// Load devices when credentials are available
 	useEffect(() => {
 		if (
-			showDeviceSelectionModal &&
 			credentials.environmentId &&
 			usernameInput.trim() &&
 			tokenStatus.isValid
@@ -840,13 +838,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						console.error(`${MODULE_TAG} Backend server is not running or unreachable`);
 						// Could show a toast here if needed
 					} else {
-						console.error(`${MODULE_TAG} Failed to load user devices for modal:`, error);
+						console.error(`${MODULE_TAG} Failed to load user devices:`, error);
 					}
 				}
 			};
 			void loadUserDevices();
 		}
-	}, [showDeviceSelectionModal, credentials.environmentId, usernameInput, tokenStatus.isValid]);
+	}, [credentials.environmentId, usernameInput, tokenStatus.isValid]);
 
 	// Track last fetched environment to prevent duplicate calls
 	const lastFetchedPolicyEnvIdRef = useRef<string | null>(null);
@@ -1279,20 +1277,17 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			setLoadingMessage('');
 
 			// Show appropriate modal
-			if (needsDeviceSelection) {
-				setShowDeviceSelectionModal(true);
-				toastV8.success('Please select a device to continue');
-			} else if (needsOTP) {
+			if (needsOTP) {
 				setShowOTPModal(true);
-				toastV8.success('OTP has been sent. Please check your device.');
-			} else if (needsAssertion) {
-				setShowFIDO2Modal(true);
-				toastV8.success('Please complete WebAuthn authentication.');
 			} else if (needsPush) {
 				setShowPushModal(true);
 				toastV8.success('Please approve the sign-in on your phone.');
+			} else if (needsAssertion) {
+				setShowFIDO2Modal(true);
 			} else if (status === 'COMPLETED') {
 				toastV8.success('Authentication completed successfully!');
+			} else {
+				toastV8.success('Authentication started successfully');
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to start authentication:`, error);
@@ -3828,8 +3823,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				</div>
 			)}
 
-			{/* Device Selection Modal */}
-			{showDeviceSelectionModal && (
+			{/* Device Registration Modal */}
+			{showRegistrationModal && (
 				<div
 					style={{
 						position: 'fixed',
@@ -3843,7 +3838,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						justifyContent: 'center',
 						zIndex: 1000,
 					}}
-					onClick={() => setShowDeviceSelectionModal(false)}
+					onClick={() => setShowRegistrationModal(false)}
 				>
 					<div
 						style={{
@@ -3871,7 +3866,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						>
 							<button
 								type="button"
-								onClick={() => setShowDeviceSelectionModal(false)}
+								onClick={() => setShowRegistrationModal(false)}
 								style={{
 									position: 'absolute',
 									top: '16px',
@@ -3900,7 +3895,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									textAlign: 'center',
 								}}
 							>
-								Choose how to verify
+								Register a new device
 							</h3>
 							{usernameInput.trim() && (
 								<p
@@ -4109,7 +4104,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											<button
 												type="button"
 												onClick={() => {
-													setShowDeviceSelectionModal(false);
+													setShowRegistrationModal(false);
 													setShowRegistrationModal(true);
 												}}
 												style={{
@@ -5388,26 +5383,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				isAuthenticating={isAuthenticatingFIDO2}
 				isWebAuthnSupported={WebAuthnAuthenticationServiceV8.isWebAuthnSupported()}
 				hasChallengeData={!!authState.challengeId || !!authState.publicKeyCredentialRequestOptions}
-			/>
-
-			{/* Device Selection Modal */}
-			<MFADeviceSelectionModal
-				show={showDeviceSelectionModal}
-				onClose={() => setShowDeviceSelectionModal(false)}
-				devices={userDevices}
-				onDeviceSelect={async (deviceId) => {
-					setShowDeviceSelectionModal(false);
-					setAuthState((prev) => ({ ...prev, selectedDeviceId: deviceId }));
-					
-					// Start authentication with selected device
-					const selectedDevice = userDevices.find((d) => (d.id as string) === deviceId);
-					if (selectedDevice) {
-						await startMFAFlow(selectedDevice);
-					}
-				}}
-				searchQuery={deviceSearchQuery}
-				onSearchChange={setDeviceSearchQuery}
-				loading={authState.isLoading}
 			/>
 
 			{/* Device Selection Info Modal */}
