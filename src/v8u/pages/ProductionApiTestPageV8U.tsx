@@ -20,6 +20,7 @@ import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
+import UserTokenStatusDisplayV8U from '@/v8u/components/UserTokenStatusDisplayV8U';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 // Test interfaces
@@ -949,124 +950,95 @@ const ProductionApiTestPageV8U: React.FC = () => {
 				<div style={{ 
 					display: 'flex', 
 					flexDirection: 'column', 
-					gap: '16px',
+					gap: '12px',
 					padding: '16px 0'
 				}}>
-					{/* Test div to verify rendering */}
-					<div style={{ 
-						border: '3px solid red', 
-						background: 'yellow', 
-						padding: '20px', 
-						margin: '10px 0',
-						fontSize: '18px',
-						fontWeight: 'bold'
-					}}>
-						TEST DIV - This should be visible
-					</div>
-
-					{/* Cool 3D Worker Token Status Display */}
-					<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
-
-					{/* Get Worker Token Button */}
-					<RunButton onClick={handleShowWorkerTokenModal}>
-						<FiShield />
-						Get Worker Token
-					</RunButton>
-
-					{/* Configuration Checkboxes */}
-					<div style={{ 
-						display: 'flex', 
-						flexDirection: 'column', 
+					{/* Compact Worker Token Section */}
+					<div style={{
+						display: 'flex',
+						alignItems: 'center',
 						gap: '16px',
-						padding: '16px',
+						padding: '12px',
 						background: '#f8fafc',
 						borderRadius: '8px',
 						border: '1px solid #e2e8f0'
 					}}>
-						{/* Silent API Retrieval Checkbox */}
-						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+						<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
+						
+						<div style={{ display: 'flex', gap: '8px' }}>
+							<RunButton onClick={handleShowWorkerTokenModal}>
+								<FiShield />
+								Get Worker Token
+							</RunButton>
+						</div>
+					</div>
+
+					{/* Compact Configuration Checkboxes */}
+					<div style={{ 
+						display: 'flex', 
+						gap: '20px',
+						padding: '12px',
+						background: '#f8fafc',
+						borderRadius: '8px',
+						border: '1px solid #e2e8f0',
+						fontSize: '14px'
+					}}>
+						<label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
 							<input
 								type="checkbox"
 								checked={silentApiRetrieval}
 								onChange={async (e) => {
-									const newValue = e.target.checked;
-									setSilentApiRetrieval(newValue);
-									// Update config service immediately
-									const config = MFAConfigurationServiceV8.loadConfiguration();
-									config.workerToken.silentApiRetrieval = newValue;
-									MFAConfigurationServiceV8.saveConfiguration(config);
-									// Dispatch event to notify other components
-									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
-									toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
-									
-									// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
-									if (newValue) {
-										const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-										if (!currentStatus.isValid) {
-											console.log('[PRODUCTION-API-TEST-V8U] Silent API retrieval enabled, attempting to fetch token now...');
-											const { handleShowWorkerTokenModal: showModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-											await showModal(
-												setShowWorkerTokenModal,
-												setTokenStatus,
-												newValue,
-												showTokenAtEnd,
-												false // Not forced - respect silent setting
-											);
-										}
-									}
-								}}
-								style={{
-									width: '20px',
-									height: '20px',
-									marginTop: '2px',
-									cursor: 'pointer'
+									const newConfig = MFAConfigurationServiceV8.loadConfiguration();
+									newConfig.workerToken.silentApiRetrieval = e.target.checked;
+									await MFAConfigurationServiceV8.saveConfiguration(newConfig);
+									setSilentApiRetrieval(e.target.checked);
+									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', {
+										detail: { workerToken: { silentApiRetrieval: e.target.checked } }
+									}));
 								}}
 							/>
-							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-								<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
-									Silent API Token Retrieval
-								</span>
-								<span style={{ fontSize: '12px', color: '#6b7280' }}>
-									Automatically fetch worker token in the background without showing modals
-								</span>
-							</div>
-						</div>
-
-						{/* Show Token After Generation Checkbox */}
-						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+							Silent API Retrieval
+						</label>
+						
+						<label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
 							<input
 								type="checkbox"
 								checked={showTokenAtEnd}
-								onChange={(e) => {
-									const newValue = e.target.checked;
-									setShowTokenAtEnd(newValue);
-									// Update config service immediately
-									const config = MFAConfigurationServiceV8.loadConfiguration();
-									config.workerToken.showTokenAtEnd = newValue;
-									MFAConfigurationServiceV8.saveConfiguration(config);
-									// Dispatch event to notify other components
-									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
-									toastV8.info(`Show Token After Generation set to: ${newValue}`);
-								}}
-								style={{
-									width: '20px',
-									height: '20px',
-									marginTop: '2px',
-									cursor: 'pointer'
+								onChange={async (e) => {
+									const newConfig = MFAConfigurationServiceV8.loadConfiguration();
+									newConfig.workerToken.showTokenAtEnd = e.target.checked;
+									await MFAConfigurationServiceV8.saveConfiguration(newConfig);
+									setShowTokenAtEnd(e.target.checked);
+									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', {
+										detail: { workerToken: { showTokenAtEnd: e.target.checked } }
+									}));
 								}}
 							/>
-							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-								<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
-									Show Token After Generation
-								</span>
-								<span style={{ fontSize: '12px', color: '#6b7280' }}>
-									Display the generated worker token in a modal after successful retrieval
-								</span>
-							</div>
-						</div>
+							Show Token at End
+						</label>
 					</div>
 				</div>
 			</TestSuiteCard>
+
+			{/* User Token Monitoring Section */}
+			<TestSuiteCard>
+				<TestSuiteHeader>
+					<TestSuiteTitle>
+						<FiUser />
+						User Token Monitoring
+					</TestSuiteTitle>
+				</TestSuiteHeader>
+				<TestSuiteDescription>
+					Monitor user authentication tokens (Access, ID, and Refresh tokens) from OAuth flows and unified authentication.
+				</TestSuiteDescription>
+				
+				<UserTokenStatusDisplayV8U showRefresh={true} refreshInterval={10} />
+			</TestSuiteCard>
+		</PageContainer>
+	);
+};
+
+export default ProductionApiTestPageV8U;
 
 			<TestSuiteGrid>
 				{testSuites.map(suite => (
