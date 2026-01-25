@@ -261,11 +261,55 @@ const RecommendationsTitle = styled.h4`
 `;
 
 const RecommendationList = styled.ul`
+  list-style: none;
+  padding: 0;
   margin: 0;
-  padding-left: 1.5rem;
-  color: #15803d;
-  font-size: 0.75rem;
+`;
+
+const RecommendationItem = styled.li`
+  padding: 0.5rem 0;
+  color: #374151;
+  font-size: 0.875rem;
   line-height: 1.5;
+  border-bottom: 1px solid #e5e7eb;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const ActionButton = styled.button<{ $enabled?: boolean }>`
+  padding: 0.25rem 0.75rem;
+  border: 1px solid ${props => props.$enabled === true ? '#10b981' : '#6b7280'};
+  border-radius: 0.375rem;
+  background: ${props => props.$enabled === true ? '#10b981' : '#f3f4f6'};
+  color: ${props => props.$enabled === true ? 'white' : '#374151'};
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+
+  &:hover {
+    background: ${props => props.$enabled === true ? '#059669' : '#e5e7eb'};
+    border-color: ${props => props.$enabled === true ? '#059669' : '#9ca3af'};
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const SecurityItemWithAction = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  
+  > span {
+    flex: 1;
+  }
 `;
 
 interface SecurityScorecardProps {
@@ -276,6 +320,9 @@ interface SecurityScorecardProps {
     enableRefreshToken?: boolean;
     scopes?: string[];
   };
+  onTogglePKCE?: (enabled: boolean) => void;
+  onToggleRefreshToken?: (enabled: boolean) => void;
+  onToggleScopes?: (scopes: string[]) => void;
 }
 
 interface SecurityCheck {
@@ -291,6 +338,9 @@ export const SecurityScorecard: React.FC<SecurityScorecardProps> = ({
   flowType,
   specVersion,
   credentials,
+  onTogglePKCE,
+  onToggleRefreshToken,
+  onToggleScopes,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -302,25 +352,36 @@ export const SecurityScorecard: React.FC<SecurityScorecardProps> = ({
   const getSecurityChecks = (): SecurityCheck[] => {
     const checks: SecurityCheck[] = [];
     
-    // PKCE Requirements
+    // PKCE Requirements - Only applicable to authorization code and hybrid flows
     const pkceItems = [
       {
         name: 'PKCE Required',
-        status: specVersion === 'oauth2.1' ? 'pass' as const : 'pass' as const,
-        description: specVersion === 'oauth2.1' 
-          ? 'OAuth 2.1 requires PKCE for all flows'
-          : 'PKCE is recommended for enhanced security'
+        status: specVersion === 'oauth2.1' && (flowType === 'oauth-authz' || flowType === 'hybrid') ? 'pass' as const : 
+               (flowType === 'oauth-authz' || flowType === 'hybrid') ? 'pass' as const : 'pass' as const,
+        description: specVersion === 'oauth2.1' && (flowType === 'oauth-authz' || flowType === 'hybrid')
+          ? 'OAuth 2.1 requires PKCE for authorization code and hybrid flows'
+          : (flowType === 'oauth-authz' || flowType === 'hybrid')
+          ? 'PKCE is recommended for enhanced security'
+          : flowType === 'implicit'
+          ? 'PKCE is not applicable to implicit flow'
+          : 'PKCE is not applicable to this flow type'
       },
       {
         name: 'PKCE Method',
-        status: credentials?.usePKCE ? 'pass' as const : 'warning' as const,
-        description: credentials?.usePKCE 
+        status: (flowType === 'implicit' || flowType === 'client-credentials' || flowType === 'device-code') ? 'pass' as const :
+               (credentials?.usePKCE && (flowType === 'oauth-authz' || flowType === 'hybrid')) ? 'pass' as const : 
+               (flowType === 'oauth-authz' || flowType === 'hybrid') ? 'warning' as const : 'pass' as const,
+        description: (flowType === 'implicit' || flowType === 'client-credentials' || flowType === 'device-code')
+          ? 'PKCE is not applicable to this flow type'
+          : (credentials?.usePKCE && (flowType === 'oauth-authz' || flowType === 'hybrid'))
           ? 'PKCE is enabled for this flow'
-          : 'Consider enabling PKCE for better security'
+          : (flowType === 'oauth-authz' || flowType === 'hybrid')
+          ? 'Consider enabling PKCE for better security'
+          : 'PKCE is not applicable to this flow type'
       },
     ];
     
-    if (flowType === 'oauth-authz' || flowType === 'implicit') {
+    if (flowType === 'oauth-authz' || flowType === 'hybrid' || flowType === 'implicit') {
       checks.push({ category: 'PKCE Security', items: pkceItems });
     }
 
@@ -503,14 +564,58 @@ export const SecurityScorecard: React.FC<SecurityScorecardProps> = ({
                   </CategoryTitle>
                 </CategoryHeader>
                 <CategoryItems>
-                  {check.items.map((item, itemIndex) => (
-                    <SecurityItem key={itemIndex} $status={item.status}>
-                      {getStatusIcon(item.status)}
-                      <span>
-                        <strong>{item.name}:</strong> {item.description}
-                      </span>
-                    </SecurityItem>
-                  ))}
+                  {check.items.map((item, itemIndex) => {
+                    // Determine if this item should have an action button
+                    const shouldShowPKCEButton = item.name === 'PKCE Method' && 
+                      (flowType === 'oauth-authz' || flowType === 'hybrid') && 
+                      onTogglePKCE;
+                    
+                    const shouldShowRefreshTokenButton = item.name === 'Refresh Token Usage' && 
+                      onToggleRefreshToken;
+
+                    if (shouldShowPKCEButton) {
+                      return (
+                        <SecurityItemWithAction key={itemIndex}>
+                          <span>
+                            {getStatusIcon(item.status)}
+                            <strong>{item.name}:</strong> {item.description}
+                          </span>
+                          <ActionButton 
+                            $enabled={!!credentials?.usePKCE}
+                            onClick={() => onTogglePKCE?.(!credentials?.usePKCE)}
+                          >
+                            {credentials?.usePKCE ? 'Disable' : 'Enable'} PKCE
+                          </ActionButton>
+                        </SecurityItemWithAction>
+                      );
+                    }
+
+                    if (shouldShowRefreshTokenButton) {
+                      return (
+                        <SecurityItemWithAction key={itemIndex}>
+                          <span>
+                            {getStatusIcon(item.status)}
+                            <strong>{item.name}:</strong> {item.description}
+                          </span>
+                          <ActionButton 
+                            $enabled={!!credentials?.enableRefreshToken}
+                            onClick={() => onToggleRefreshToken?.(!credentials?.enableRefreshToken)}
+                          >
+                            {credentials?.enableRefreshToken ? 'Disable' : 'Enable'} Refresh Token
+                          </ActionButton>
+                        </SecurityItemWithAction>
+                      );
+                    }
+
+                    return (
+                      <SecurityItem key={itemIndex} $status={item.status}>
+                        {getStatusIcon(item.status)}
+                        <span>
+                          <strong>{item.name}:</strong> {item.description}
+                        </span>
+                      </SecurityItem>
+                    );
+                  })}
                 </CategoryItems>
               </SecurityCategory>
             ))}
