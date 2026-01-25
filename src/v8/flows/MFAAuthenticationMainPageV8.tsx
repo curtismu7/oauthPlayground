@@ -1573,7 +1573,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					<button
 						type="button"
 						onClick={() => {
-							window.open('/test/all-flows-api', '_blank');
+							window.open('/v8u/unified/oauth-authz/0', '_blank');
 						}}
 						style={{
 							display: 'flex',
