@@ -43,6 +43,8 @@ import { PasswordChangeModal } from '@/components/PasswordChangeModal';
 import { type PKCECodes, PKCEService } from '@/services/pkceService';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { FeatureFlagService } from '@/services/featureFlagService';
+import { CredentialsRepository } from '@/services/credentialsRepository';
 import type { TokenResponse } from '@/v8/services/oauthIntegrationServiceV8';
 import { OidcDiscoveryServiceV8 } from '@/v8/services/oidcDiscoveryServiceV8';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
@@ -1311,10 +1313,18 @@ passed: boolean;
 
 	// Save credentials on change (validation removed per user request - was showing false positives)
 	useEffect(() => {
-		const credsForSave = credentials as unknown as Parameters<
-			typeof CredentialsServiceV8.saveCredentials
-		>[1];
-		CredentialsServiceV8.saveCredentials(`${flowType}-v8u`, credsForSave);
+		const flowKey = `${flowType}-v8u`;
+		
+		if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+			// Use new CredentialsRepository
+			CredentialsRepository.setFlowCredentials(flowKey, credentials);
+		} else {
+			// Use old CredentialsServiceV8
+			const credsForSave = credentials as unknown as Parameters<
+				typeof CredentialsServiceV8.saveCredentials
+			>[1];
+			CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+		}
 	}, [credentials, flowType]);
 
 	// Validate step 0 (credentials) and mark complete when all required fields are filled
