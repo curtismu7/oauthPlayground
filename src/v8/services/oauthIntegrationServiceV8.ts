@@ -18,6 +18,9 @@
 
 import { pingOneFetch } from '@/utils/pingOneFetch';
 import { AuthMethodServiceV8 } from './authMethodServiceV8';
+import { FeatureFlagService } from '@/services/featureFlagService';
+import { StateManager } from '@/services/stateManager';
+import { PkceManager } from '@/services/pkceManager';
 
 const MODULE_TAG = '[🔐 OAUTH-INTEGRATION-V8]';
 
@@ -98,17 +101,26 @@ export class OAuthIntegrationServiceV8 {
 	 * @returns PKCE codes (verifier and challenge)
 	 */
 	static async generatePKCECodes(): Promise<PKCECodes> {
-		// Generate random code verifier (43-128 characters)
-		const codeVerifier = OAuthIntegrationServiceV8.generateRandomString(128);
-
-		// Generate code challenge from verifier using SHA256 (properly async)
-		const codeChallenge = await OAuthIntegrationServiceV8.generateCodeChallenge(codeVerifier);
-
-		return {
-			codeVerifier,
-			codeChallenge,
-			codeChallengeMethod: 'S256',
-		};
+		const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
+		
+		if (useNewOidcCore) {
+			// Use Phase 2 PkceManager for RFC-compliant generation
+			const pkce = await PkceManager.generateAsync();
+			return {
+				codeVerifier: pkce.codeVerifier,
+				codeChallenge: pkce.codeChallenge,
+				codeChallengeMethod: 'S256',
+			};
+		} else {
+			// Fallback to old method
+			const codeVerifier = OAuthIntegrationServiceV8.generateRandomString(128);
+			const codeChallenge = await OAuthIntegrationServiceV8.generateCodeChallenge(codeVerifier);
+			return {
+				codeVerifier,
+				codeChallenge,
+				codeChallengeMethod: 'S256',
+			};
+		}
 	}
 
 	/**
@@ -154,8 +166,11 @@ export class OAuthIntegrationServiceV8 {
 		// Use provided PKCE codes or generate new ones (now async)
 		const pkce = pkceCodes || (await OAuthIntegrationServiceV8.generatePKCECodes());
 
-		// Generate state parameter for CSRF protection
-		const state = OAuthIntegrationServiceV8.generateRandomString(32);
+		// Generate state parameter for CSRF protection using Phase 2 services or fallback
+		const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
+		const state = useNewOidcCore
+			? StateManager.generate()
+			: OAuthIntegrationServiceV8.generateRandomString(32);
 
 		// Build authorization endpoint URL
 		const authorizationEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
