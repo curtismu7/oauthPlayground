@@ -19,6 +19,8 @@
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
 	FiAlertCircle,
+	FiAlertTriangle,
+	FiArrowLeft,
 	FiArrowRight,
 	FiBook,
 	FiCheckCircle,
@@ -28,6 +30,7 @@ import {
 	FiGlobe,
 	FiInfo,
 	FiKey,
+	FiRotateCcw,
 	FiShield,
 } from 'react-icons/fi';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -14914,6 +14917,143 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					nextLabel="Next →"
 					resetLabel="🔄 Restart"
 				/>
+
+				{/* Educational Sections - Always visible */}
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setIsQuickStartCollapsed(!isQuickStartCollapsed)}
+					>
+						<FiChevronDown
+							size={16}
+							style={{
+								transform: isQuickStartCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+								transition: 'transform 0.2s ease',
+							}}
+						/>
+						Quick Start Guide
+					</CollapsibleHeaderButton>
+					{!isQuickStartCollapsed && (
+						<CollapsibleContent>
+							<h4>Getting Started with OAuth 2.0</h4>
+							<p>
+								This interactive playground helps you understand OAuth 2.0 and OpenID Connect flows
+								through hands-on experimentation.
+							</p>
+							<ol style={{ paddingLeft: '1.5rem', margin: '1rem 0' }}>
+								<li>Configure your application credentials</li>
+								<li>Generate authorization requests</li>
+								<li>Handle callbacks and token exchanges</li>
+								<li>Make authenticated API calls</li>
+								<li>Explore token introspection</li>
+							</ol>
+							<InfoBox $variant="info">
+								<FiInfo size={20} />
+								<div>
+									<InfoTitle>Learning Objectives</InfoTitle>
+									<InfoText>
+										By the end of this tutorial, you'll understand how OAuth 2.0 flows work,
+										how to implement them securely, and best practices for token management.
+									</InfoText>
+								</div>
+							</InfoBox>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
+
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setPkceOverviewCollapsed(!pkceOverviewCollapsed)}
+					>
+						<FiChevronDown
+							size={16}
+							style={{
+								transform: pkceOverviewCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+								transition: 'transform 0.2s ease',
+							}}
+						/>
+						PKCE (Proof Key for Code Exchange)
+					</CollapsibleHeaderButton>
+					{!pkceOverviewCollapsed && (
+						<CollapsibleContent>
+							<h4>Understanding PKCE</h4>
+							<p>
+								PKCE (pronounced "pixy") is an extension to the Authorization Code flow that
+								prevents authorization code interception attacks.
+							</p>
+							<div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', margin: '1rem 0' }}>
+								<h5>How PKCE Works:</h5>
+								<ol style={{ paddingLeft: '1.5rem', margin: '0.5rem 0' }}>
+									<li><strong>Generate</strong> a code verifier (random string)</li>
+									<li><strong>Create</strong> a code challenge (hash of verifier)</li>
+									<li><strong>Send</strong> challenge in authorization request</li>
+									<li><strong>Prove</strong> possession of verifier in token exchange</li>
+								</ol>
+							</div>
+							<InfoBox $variant="warning">
+								<FiAlertTriangle size={20} />
+								<div>
+									<InfoTitle>Security Best Practice</InfoTitle>
+									<InfoText>
+										PKCE is now recommended for all OAuth 2.0 flows, even server-side applications,
+										as it provides additional security with minimal complexity.
+									</InfoText>
+								</div>
+							</InfoBox>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
+
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setPkceDetailsCollapsed(!pkceDetailsCollapsed)}
+					>
+						<FiChevronDown
+							size={16}
+							style={{
+								transform: pkceDetailsCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+								transition: 'transform 0.2s ease',
+							}}
+						/>
+						Token Security Best Practices
+					</CollapsibleHeaderButton>
+					{!pkceDetailsCollapsed && (
+						<CollapsibleContent>
+							<h4>Securing Your Tokens</h4>
+							<div style={{ display: 'grid', gap: '1rem', margin: '1rem 0' }}>
+								<div style={{ border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '0.5rem' }}>
+									<h5 style={{ margin: '0 0 0.5rem 0', color: '#059669' }}>✅ Do</h5>
+									<ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
+										<li>Store tokens in secure HTTP-only cookies</li>
+										<li>Use short-lived access tokens</li>
+										<li>Implement proper token revocation</li>
+										<li>Validate tokens on each use</li>
+										<li>Use HTTPS for all token requests</li>
+									</ul>
+								</div>
+								<div style={{ border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '0.5rem' }}>
+									<h5 style={{ margin: '0 0 0.5rem 0', color: '#dc2626' }}>❌ Don't</h5>
+									<ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
+										<li>Store tokens in localStorage</li>
+										<li>Include tokens in URLs</li>
+										<li>Use long-lived tokens</li>
+										<li>Ignore token expiration</li>
+										<li>Send tokens over HTTP</li>
+									</ul>
+								</div>
+							</div>
+							<InfoBox $variant="info">
+								<FiShield size={20} />
+								<div>
+									<InfoTitle>Defense in Depth</InfoTitle>
+									<InfoText>
+										Combine multiple security measures: PKCE, HTTPS, secure storage, and proper
+										token validation to create a robust OAuth implementation.
+									</InfoText>
+								</div>
+							</InfoBox>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
 			</>
 		);
 	};
