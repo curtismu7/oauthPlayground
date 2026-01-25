@@ -737,6 +737,14 @@ const AppRoutes: React.FC = () => {
 							/>
 							{/* V8U Unified Flow - Single UI for all flows with real PingOne APIs */}
 							<Route 
+								path="/v8u/unified/oauth-authz/:step?" 
+								element={
+									<Suspense fallback={<ComponentLoader message="Loading Production API Test..." subtext="Preparing test environment" />}>
+										<ProductionApiTestPageV8U />
+									</Suspense>
+								} 
+							/>
+							<Route 
 								path="/v8u/unified/:flowType?/:step?" 
 								element={
 									<Suspense fallback={<ComponentLoader message="Loading Unified OAuth Flow..." subtext="Preparing flow configuration" />}>
