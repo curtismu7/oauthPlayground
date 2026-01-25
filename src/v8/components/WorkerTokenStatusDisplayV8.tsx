@@ -16,9 +16,12 @@
 
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes, css } from 'styled-components';
-import { FiKey, FiShield, FiClock, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiZap, FiActivity } from 'react-icons/fi';
+import { FiKey, FiShield, FiClock, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiZap, FiActivity, FiInfo, FiGlobe, FiCpu, FiCalendar, FiTrendingUp } from 'react-icons/fi';
 import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
+import { workerTokenRepository } from '@/services/workerTokenRepository';
+import type { UnifiedWorkerTokenData, UnifiedWorkerTokenStatus } from '@/services/unifiedWorkerTokenService';
 
 // Animation keyframes
 const pulse = keyframes`
@@ -282,11 +285,26 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	});
 	const [config, setConfig] = useState(() => MFAConfigurationServiceV8.loadConfiguration());
 	const [isRefreshing, setIsRefreshing] = useState(false);
+	const [fullTokenData, setFullTokenData] = useState<UnifiedWorkerTokenData | null>(null);
+	const [tokenStatusInfo, setTokenStatusInfo] = useState<UnifiedWorkerTokenStatus | null>(null);
 
 	const updateTokenStatus = async () => {
 		try {
 			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setTokenStatus(status);
+			
+			// Fetch additional comprehensive data
+			try {
+				const [tokenData, statusInfo] = await Promise.all([
+					workerTokenRepository.loadTokenData(),
+					unifiedWorkerTokenServiceV2.getStatus()
+				]);
+				setFullTokenData(tokenData);
+				setTokenStatusInfo(statusInfo);
+			} catch (dataError) {
+				console.warn('[WorkerTokenStatusDisplayV8] Failed to fetch additional data:', dataError);
+				// Don't let additional data failure break the main status
+			}
 		} catch (error) {
 			console.error('[WorkerTokenStatusDisplayV8] Failed to check token status:', error);
 		}
@@ -363,6 +381,52 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 		if (tokenStatus.status === 'expired') return 'EXPIRED';
 		if (tokenStatus.status === 'missing') return 'MISSING';
 		return tokenStatus.status.toUpperCase();
+	};
+
+	// Helper functions for additional data
+	const formatTokenInfo = () => {
+		if (!fullTokenData) return null;
+		
+		const token = fullTokenData.token;
+		const tokenLength = token.length;
+		const tokenPrefix = token.substring(0, 8);
+		const tokenSuffix = token.substring(token.length - 8);
+		
+		return {
+			length: tokenLength,
+			prefix: tokenPrefix,
+			suffix: tokenSuffix,
+			masked: `${tokenPrefix}...${tokenSuffix}`,
+			type: fullTokenData.tokenType || 'Bearer',
+			scope: fullTokenData.scope || 'N/A'
+		};
+	};
+
+	const formatTimestamp = (timestamp?: number) => {
+		if (!timestamp) return 'N/A';
+		return new Date(timestamp).toLocaleString();
+	};
+
+	const formatDuration = (start: number, end?: number) => {
+		const now = end || Date.now();
+		const duration = now - start;
+		const minutes = Math.floor(duration / 60000);
+		const hours = Math.floor(minutes / 60);
+		const days = Math.floor(hours / 24);
+		
+		if (days > 0) return `${days}d ${hours % 24}h`;
+		if (hours > 0) return `${hours}h ${minutes % 60}m`;
+		return `${minutes}m`;
+	};
+
+	const getTokenAge = () => {
+		if (!fullTokenData?.savedAt) return 'N/A';
+		return formatDuration(fullTokenData.savedAt);
+	};
+
+	const getTimeSinceLastUsed = () => {
+		if (!fullTokenData?.lastUsedAt) return 'Never';
+		return `${formatDuration(fullTokenData.lastUsedAt)} ago`;
 	};
 
 	if (mode === 'minimal') {
@@ -451,6 +515,15 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			</StatusHeader>
 
 			<StatusDetails>
+				{/* Token Status */}
+				<StatusDetail>
+					<DetailLabel>
+						<FiActivity style={{ fontSize: '10px', marginRight: '2px' }} />
+						Status
+					</DetailLabel>
+					<DetailValue>{tokenStatus.message}</DetailValue>
+				</StatusDetail>
+				
 				<StatusDetail>
 					<DetailLabel>
 						<FiClock style={{ fontSize: '10px', marginRight: '2px' }} />
@@ -460,13 +533,86 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						{formatTimeRemaining()}
 					</DetailValue>
 				</StatusDetail>
-				<StatusDetail>
-					<DetailLabel>
-						<FiActivity style={{ fontSize: '10px', marginRight: '2px' }} />
-						Status
-					</DetailLabel>
-					<DetailValue>{tokenStatus.message}</DetailValue>
-				</StatusDetail>
+
+				{/* Token Information */}
+				{fullTokenData && (
+					<>
+						<StatusDetail>
+							<DetailLabel>
+								<FiKey style={{ fontSize: '10px', marginRight: '2px' }} />
+								Token
+							</DetailLabel>
+							<DetailValue>{formatTokenInfo()?.masked}</DetailValue>
+						</StatusDetail>
+						
+						<StatusDetail>
+							<DetailLabel>
+								<FiInfo style={{ fontSize: '10px', marginRight: '2px' }} />
+								Token Length
+							</DetailLabel>
+							<DetailValue>{formatTokenInfo()?.length} chars</DetailValue>
+						</StatusDetail>
+						
+						<StatusDetail>
+							<DetailLabel>
+								<FiShield style={{ fontSize: '10px', marginRight: '2px' }} />
+								Token Type
+							</DetailLabel>
+							<DetailValue>{formatTokenInfo()?.type}</DetailValue>
+						</StatusDetail>
+						
+						{formatTokenInfo()?.scope !== 'N/A' && (
+							<StatusDetail>
+								<DetailLabel>
+									<FiGlobe style={{ fontSize: '10px', marginRight: '2px' }} />
+									Scope
+								</DetailLabel>
+								<DetailValue>{formatTokenInfo()?.scope}</DetailValue>
+							</StatusDetail>
+						)}
+					</>
+				)}
+
+				{/* Timing Information */}
+				{fullTokenData && (
+					<>
+						<StatusDetail>
+							<DetailLabel>
+								<FiCalendar style={{ fontSize: '10px', marginRight: '2px' }} />
+								Token Age
+							</DetailLabel>
+							<DetailValue>{getTokenAge()}</DetailValue>
+						</StatusDetail>
+						
+						<StatusDetail>
+							<DetailLabel>
+								<FiTrendingUp style={{ fontSize: '10px', marginRight: '2px' }} />
+								Last Used
+							</DetailLabel>
+							<DetailValue>{getTimeSinceLastUsed()}</DetailValue>
+						</StatusDetail>
+						
+						<StatusDetail>
+							<DetailLabel>
+								<FiClock style={{ fontSize: '10px', marginRight: '2px' }} />
+								Saved At
+							</DetailLabel>
+							<DetailValue>{formatTimestamp(fullTokenData.savedAt)}</DetailValue>
+						</StatusDetail>
+						
+						{fullTokenData.expiresAt && (
+							<StatusDetail>
+								<DetailLabel>
+									<FiClock style={{ fontSize: '10px', marginRight: '2px' }} />
+									Expires At
+								</DetailLabel>
+								<DetailValue>{formatTimestamp(fullTokenData.expiresAt)}</DetailValue>
+							</StatusDetail>
+						)}
+					</>
+				)}
+
+				{/* Configuration */}
 				<StatusDetail>
 					<DetailLabel>
 						<FiZap style={{ fontSize: '10px', marginRight: '2px' }} />
@@ -476,6 +622,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						{config.workerToken.silentApiRetrieval ? 'ON' : 'OFF'}
 					</DetailValue>
 				</StatusDetail>
+				
 				<StatusDetail>
 					<DetailLabel>
 						<FiShield style={{ fontSize: '10px', marginRight: '2px' }} />
@@ -485,6 +632,62 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						{config.workerToken.showTokenAtEnd ? 'ON' : 'OFF'}
 					</DetailValue>
 				</StatusDetail>
+
+				{/* Application Information */}
+				{tokenStatusInfo?.appInfo && (
+					<>
+						{tokenStatusInfo.appInfo.appName && (
+							<StatusDetail>
+								<DetailLabel>
+									<FiCpu style={{ fontSize: '10px', marginRight: '2px' }} />
+									App Name
+								</DetailLabel>
+								<DetailValue>{tokenStatusInfo.appInfo.appName}</DetailValue>
+							</StatusDetail>
+						)}
+						
+						{tokenStatusInfo.appInfo.appVersion && (
+							<StatusDetail>
+								<DetailLabel>
+									<FiInfo style={{ fontSize: '10px', marginRight: '2px' }} />
+									App Version
+								</DetailLabel>
+								<DetailValue>{tokenStatusInfo.appInfo.appVersion}</DetailValue>
+							</StatusDetail>
+						)}
+					</>
+				)}
+
+				{/* Environment Information */}
+				{fullTokenData?.credentials && (
+					<>
+						<StatusDetail>
+							<DetailLabel>
+								<FiGlobe style={{ fontSize: '10px', marginRight: '2px' }} />
+								Environment ID
+							</DetailLabel>
+							<DetailValue>{fullTokenData.credentials.environmentId}</DetailValue>
+						</StatusDetail>
+						
+						<StatusDetail>
+							<DetailLabel>
+								<FiKey style={{ fontSize: '10px', marginRight: '2px' }} />
+								Client ID
+							</DetailLabel>
+							<DetailValue>{fullTokenData.credentials.clientId}</DetailValue>
+						</StatusDetail>
+						
+						{fullTokenData.credentials.region && (
+							<StatusDetail>
+								<DetailLabel>
+									<FiGlobe style={{ fontSize: '10px', marginRight: '2px' }} />
+									Region
+								</DetailLabel>
+								<DetailValue>{fullTokenData.credentials.region.toUpperCase()}</DetailValue>
+							</StatusDetail>
+						)}
+					</>
+				)}
 			</StatusDetails>
 
 			<ConfigInfo>
