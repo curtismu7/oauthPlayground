@@ -533,7 +533,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
 					// #region agent log
 					// #endregion
-					await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus, silentApiRetrieval, showTokenAtEnd);
+					await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus, silentApiRetrieval, showTokenAtEnd, false);
 				} catch (configError) {
 					console.error(`${MODULE_TAG} Failed to load MFA configuration:`, configError);
 					// Only show modal if config can't be loaded AND we can't determine showTokenAtEnd
