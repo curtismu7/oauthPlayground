@@ -16,7 +16,7 @@
 
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes, css } from 'styled-components';
-import { FiKey, FiShield, FiClock, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiZap, FiActivity, FiInfo, FiGlobe, FiCpu, FiCalendar, FiTrendingUp, FiLoader } from 'react-icons/fi';
+import { FiKey, FiShield, FiClock, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiZap, FiActivity, FiInfo, FiGlobe, FiCpu, FiCalendar, FiTrendingUp, FiLoader, FiSettings, FiLock, FiDatabase, FiCode } from 'react-icons/fi';
 import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
@@ -237,6 +237,216 @@ const ConfigInfo = styled.div`
 	color: #93c5fd;
 `;
 
+const ConfigButton = styled.button`
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 6px;
+	padding: 4px 8px;
+	color: #e5e7eb;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 11px;
+	transition: all 0.2s;
+	position: relative;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.2);
+		transform: scale(1.05);
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.tooltip {
+		position: absolute;
+		bottom: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		background: #1f2937;
+		color: white;
+		padding: 6px 8px;
+		border-radius: 4px;
+		font-size: 10px;
+		white-space: nowrap;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.2s;
+		margin-bottom: 4px;
+		z-index: 1000;
+	}
+
+	&:hover .tooltip {
+		opacity: 1;
+	}
+`;
+
+const ConfigModal = styled.div`
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+`;
+
+const ConfigModalContent = styled.div`
+	background: white;
+	border-radius: 12px;
+	padding: 24px;
+	max-width: 500px;
+	width: 90%;
+	max-height: 80vh;
+	overflow-y: auto;
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+`;
+
+const ConfigModalHeader = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 20px;
+`;
+
+const ConfigModalTitle = styled.h3`
+	margin: 0;
+	font-size: 18px;
+	font-weight: 700;
+	color: #1f2937;
+`;
+
+const ConfigModalClose = styled.button`
+	background: transparent;
+	border: none;
+	font-size: 20px;
+	cursor: pointer;
+	color: #6b7280;
+	padding: 4px;
+
+	&:hover {
+		color: #374151;
+	}
+`;
+
+const ConfigSection = styled.div`
+	margin-bottom: 20px;
+`;
+
+const ConfigSectionTitle = styled.h4`
+	margin: 0 0 12px 0;
+	font-size: 14px;
+	font-weight: 600;
+	color: #374151;
+`;
+
+const ConfigOption = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 0;
+	border-bottom: 1px solid #f3f4f6;
+
+	&:last-child {
+		border-bottom: none;
+	}
+`;
+
+const ConfigLabel = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+`;
+
+const ConfigName = styled.span`
+	font-size: 13px;
+	font-weight: 500;
+	color: #374151;
+`;
+
+const ConfigDescription = styled.span`
+	font-size: 11px;
+	color: #6b7280;
+`;
+
+const ConfigToggle = styled.label`
+	position: relative;
+	display: inline-block;
+	width: 44px;
+	height: 24px;
+`;
+
+const ConfigToggleInput = styled.input`
+	opacity: 0;
+	width: 0;
+	height: 0;
+
+	&:checked + .slider {
+		background-color: #3b82f6;
+	}
+
+	&:checked + .slider:before {
+		transform: translateX(20px);
+	}
+`;
+
+const ConfigSlider = styled.span`
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #ccc;
+	transition: .4s;
+	border-radius: 24px;
+
+	&:before {
+		position: absolute;
+		content: "";
+		height: 18px;
+		width: 18px;
+		left: 3px;
+		bottom: 3px;
+		background-color: white;
+		transition: .4s;
+		border-radius: 50%;
+	}
+`;
+
+const ConfigButtonGroup = styled.div`
+	display: flex;
+	gap: 8px;
+	margin-top: 16px;
+`;
+
+const ConfigActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
+	background: ${props => props.$variant === 'primary' ? '#3b82f6' : '#6b7280'};
+	color: white;
+	border: none;
+	border-radius: 6px;
+	padding: 8px 16px;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	&:hover {
+		background: ${props => props.$variant === 'primary' ? '#2563eb' : '#4b5563'};
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+`;
+
 const RefreshButton = styled.button`
 	background: transparent;
 	border: 1px solid rgba(255, 255, 255, 0.2);
@@ -312,6 +522,8 @@ export interface WorkerTokenStatusDisplayV8Props {
 	className?: string;
 	/** Auto-refresh interval in seconds */
 	refreshInterval?: number;
+	/** Show configuration buttons */
+	showConfig?: boolean;
 }
 
 export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Props> = ({
@@ -319,8 +531,9 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	showRefresh = true,
 	className = '',
 	refreshInterval = 5,
+	showConfig = false,
 }) => {
-	console.log('[WorkerTokenStatusDisplayV8] Component initialized with props:', { mode, showRefresh, className, refreshInterval });
+	console.log('[WorkerTokenStatusDisplayV8] Component initialized with props:', { mode, showRefresh, className, refreshInterval, showConfig });
 	
 	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
 		isValid: false,
@@ -334,6 +547,15 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	const [isLoading, setIsLoading] = useState(true); // Initial loading state
 	const [fullTokenData, setFullTokenData] = useState<UnifiedWorkerTokenData | null>(null);
 	const [tokenStatusInfo, setTokenStatusInfo] = useState<UnifiedWorkerTokenStatus | null>(null);
+	
+	// Configuration modal state
+	const [showConfigModal, setShowConfigModal] = useState(false);
+	const [oauthConfig, setOauthConfig] = useState({
+		pkceEnabled: false,
+		refreshTokenEnabled: false,
+		tokenStorage: 'localStorage' as 'localStorage' | 'sessionStorage' | 'memory',
+	});
+	const [isConfigLoading, setIsConfigLoading] = useState(false);
 
 	const updateTokenStatus = async () => {
 		try {
@@ -491,6 +713,121 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 		return `${formatDuration(fullTokenData.lastUsedAt)} ago`;
 	};
 
+	// Configuration functions
+	const handleOpenConfigModal = async () => {
+		setIsConfigLoading(true);
+		try {
+			// Fetch current OAuth configuration from PingOne if we have a worker token
+			if (tokenStatus.isValid) {
+				try {
+					// Make silent call to PingOne to get current OAuth settings
+					const response = await fetch('/api/oauth/config', {
+						method: 'GET',
+						headers: {
+							'Authorization': `Bearer ${fullTokenData?.token || ''}`,
+							'Content-Type': 'application/json',
+						},
+					});
+					
+					if (response.ok) {
+						const pingOneConfig = await response.json();
+						setOauthConfig({
+							pkceEnabled: pingOneConfig.pkceEnabled || false,
+							refreshTokenEnabled: pingOneConfig.refreshTokenEnabled || false,
+							tokenStorage: pingOneConfig.tokenStorage || 'localStorage',
+						});
+					}
+				} catch (error) {
+					console.warn('[WorkerTokenStatusDisplayV8] Failed to fetch PingOne config:', error);
+					// Use local config as fallback
+					const localConfig = MFAConfigurationServiceV8.loadConfiguration();
+					setOauthConfig({
+						pkceEnabled: localConfig.oauth?.pkceEnabled || false,
+						refreshTokenEnabled: localConfig.oauth?.refreshTokenEnabled || false,
+						tokenStorage: localConfig.oauth?.tokenStorage || 'localStorage',
+					});
+				}
+			} else {
+				// Use local config if no worker token
+				const localConfig = MFAConfigurationServiceV8.loadConfiguration();
+				setOauthConfig({
+					pkceEnabled: localConfig.oauth?.pkceEnabled || false,
+					refreshTokenEnabled: localConfig.oauth?.refreshTokenEnabled || false,
+					tokenStorage: localConfig.oauth?.tokenStorage || 'localStorage',
+				});
+			}
+		} finally {
+			setIsConfigLoading(false);
+			setShowConfigModal(true);
+		}
+	};
+
+	const handleSaveConfig = async () => {
+		setIsConfigLoading(true);
+		try {
+			// Save to local configuration
+			const newConfig = MFAConfigurationServiceV8.loadConfiguration();
+			if (!newConfig.oauth) {
+				newConfig.oauth = {};
+			}
+			newConfig.oauth.pkceEnabled = oauthConfig.pkceEnabled;
+			newConfig.oauth.refreshTokenEnabled = oauthConfig.refreshTokenEnabled;
+			newConfig.oauth.tokenStorage = oauthConfig.tokenStorage;
+			MFAConfigurationServiceV8.saveConfiguration(newConfig);
+
+			// If we have a worker token, try to sync with PingOne
+			if (tokenStatus.isValid && fullTokenData?.token) {
+				try {
+					const response = await fetch('/api/oauth/config', {
+						method: 'POST',
+						headers: {
+							'Authorization': `Bearer ${fullTokenData.token}`,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							pkceEnabled: oauthConfig.pkceEnabled,
+							refreshTokenEnabled: oauthConfig.refreshTokenEnabled,
+							tokenStorage: oauthConfig.tokenStorage,
+						}),
+					});
+
+					if (response.ok) {
+						toastV8.success('OAuth configuration saved to PingOne');
+					} else {
+						toastV8.warning('OAuth configuration saved locally, but failed to sync with PingOne');
+					}
+				} catch (error) {
+					console.warn('[WorkerTokenStatusDisplayV8] Failed to sync config with PingOne:', error);
+					toastV8.warning('OAuth configuration saved locally, but failed to sync with PingOne');
+				}
+			} else {
+				// No worker token, ask user to get one
+				toastV8.info('OAuth configuration saved locally. Get a worker token to sync with PingOne.');
+			}
+
+			// Dispatch event to notify other components
+			window.dispatchEvent(new CustomEvent('oauthConfigurationUpdated', { detail: oauthConfig }));
+		} catch (error) {
+			console.error('[WorkerTokenStatusDisplayV8] Failed to save config:', error);
+			toastV8.error('Failed to save OAuth configuration');
+		} finally {
+			setIsConfigLoading(false);
+			setShowConfigModal(false);
+		}
+	};
+
+	const handleGetWorkerTokenForConfig = async () => {
+		// Import and show worker token modal
+		const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+		await handleShowWorkerTokenModal(
+			() => {}, // setShowModal - not needed for config
+			() => {}, // setTokenStatus - not needed for config
+			false, // silentApiRetrieval - false for explicit user action
+			false, // showTokenAtEnd - false for config
+			true  // forceShowModal - always show for config
+		);
+	};
+
 	if (mode === 'minimal') {
 		return (
 			<StatusContainer $variant={getVariant()} className={className}>
@@ -530,56 +867,191 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 
 	if (mode === 'wide') {
 		return (
-			<StatusContainer 
-				$variant={getVariant()} 
-				className={className} 
-				style={{ 
-					minHeight: '60px', 
-					padding: '12px 16px',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'space-between'
-				}}
-			>
-				{/* Loading Overlay */}
-				{(isLoading || isRefreshing) && (
-					<LoadingOverlay>
-						<div className="loading-content">
-							<FiLoader className="loading-spinner" />
-							<div className="loading-text">
-								{isLoading ? 'Checking status...' : 'Refreshing...'}
+			<>
+				<StatusContainer 
+					$variant={getVariant()} 
+					className={className} 
+					style={{ 
+						minHeight: '60px', 
+						padding: '12px 16px',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'space-between'
+					}}
+				>
+					{/* Loading Overlay */}
+					{(isLoading || isRefreshing) && (
+						<LoadingOverlay>
+							<div className="loading-content">
+								<FiLoader className="loading-spinner" />
+								<div className="loading-text">
+									{isLoading ? 'Checking status...' : 'Refreshing...'}
+								</div>
 							</div>
+						</LoadingOverlay>
+					)}
+					
+					<div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+						<StatusIcon $variant={getVariant()}>
+							{getStatusIcon()}
+						</StatusIcon>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+							<StatusLabel style={{ margin: 0 }}>Worker Token</StatusLabel>
+							<StatusValue $variant={getVariant()} style={{ margin: 0 }}>
+								{getStatusText()}
+							</StatusValue>
+							{tokenStatus.expiresAt && (
+								<span style={{ 
+									fontSize: '12px', 
+									color: tokenStatus.isValid ? '#10b981' : '#ef4444',
+									marginLeft: '8px'
+								}}>
+									({formatTimeRemaining()})
+								</span>
+							)}
 						</div>
-					</LoadingOverlay>
-				)}
-				
-				<div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
-					<StatusIcon $variant={getVariant()}>
-						{getStatusIcon()}
-					</StatusIcon>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-						<StatusLabel style={{ margin: 0 }}>Worker Token</StatusLabel>
-						<StatusValue $variant={getVariant()} style={{ margin: 0 }}>
-							{getStatusText()}
-						</StatusValue>
-						{tokenStatus.expiresAt && (
-							<span style={{ 
-								fontSize: '12px', 
-								color: tokenStatus.isValid ? '#10b981' : '#ef4444',
-								marginLeft: '8px'
-							}}>
-								({formatTimeRemaining()})
-							</span>
+					</div>
+					
+					<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+						{showConfig && (
+							<>
+								<ConfigButton onClick={handleOpenConfigModal}>
+									<FiSettings />
+									<span className="tooltip">Configure OAuth Settings</span>
+								</ConfigButton>
+								<ConfigButton onClick={handleOpenConfigModal}>
+									<FiLock />
+									<span className="tooltip">PKCE Settings</span>
+								</ConfigButton>
+								<ConfigButton onClick={handleOpenConfigModal}>
+									<FiDatabase />
+									<span className="tooltip">Token Storage</span>
+								</ConfigButton>
+							</>
+						)}
+						{showRefresh && (
+							<RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
+								<FiRefreshCw className={isRefreshing ? 'spin' : ''} />
+							</RefreshButton>
 						)}
 					</div>
-				</div>
-				
-				{showRefresh && (
-					<RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
-						<FiRefreshCw className={isRefreshing ? 'spin' : ''} />
-					</RefreshButton>
+				</StatusContainer>
+
+				{/* Configuration Modal */}
+				{showConfigModal && (
+					<ConfigModal>
+						<ConfigModalContent>
+							<ConfigModalHeader>
+								<ConfigModalTitle>
+									<FiSettings style={{ marginRight: '8px' }} />
+									OAuth Configuration
+								</ConfigModalTitle>
+								<ConfigModalClose onClick={() => setShowConfigModal(false)}>
+									×
+								</ConfigModalClose>
+							</ConfigModalHeader>
+
+							<ConfigSection>
+								<ConfigSectionTitle>Security Settings</ConfigSectionTitle>
+								<ConfigOption>
+									<ConfigLabel>
+										<ConfigName>PKCE (Proof Key for Code Exchange)</ConfigName>
+										<ConfigDescription>Enable PKCE for enhanced OAuth security</ConfigDescription>
+									</ConfigLabel>
+									<ConfigToggle>
+										<ConfigToggleInput
+											type="checkbox"
+											checked={oauthConfig.pkceEnabled}
+											onChange={(e) => setOauthConfig(prev => ({ ...prev, pkceEnabled: e.target.checked }))}
+										/>
+										<span className="slider"></span>
+									</ConfigToggle>
+								</ConfigOption>
+								<ConfigOption>
+									<ConfigLabel>
+										<ConfigName>Refresh Tokens</ConfigName>
+										<ConfigDescription>Enable refresh token support for long-lived sessions</ConfigDescription>
+									</ConfigLabel>
+									<ConfigToggle>
+										<ConfigToggleInput
+											type="checkbox"
+											checked={oauthConfig.refreshTokenEnabled}
+											onChange={(e) => setOauthConfig(prev => ({ ...prev, refreshTokenEnabled: e.target.checked }))}
+										/>
+										<span className="slider"></span>
+									</ConfigToggle>
+								</ConfigOption>
+							</ConfigSection>
+
+							<ConfigSection>
+								<ConfigSectionTitle>Token Storage</ConfigSectionTitle>
+								<ConfigOption>
+									<ConfigLabel>
+										<ConfigName>Storage Location</ConfigName>
+										<ConfigDescription>Choose where tokens are stored</ConfigDescription>
+									</ConfigLabel>
+									<select
+										value={oauthConfig.tokenStorage}
+										onChange={(e) => setOauthConfig(prev => ({ 
+											...prev, 
+											tokenStorage: e.target.value as 'localStorage' | 'sessionStorage' | 'memory'
+										}))}
+										style={{
+											padding: '6px 8px',
+											border: '1px solid #d1d5db',
+											borderRadius: '4px',
+											fontSize: '13px'
+										}}
+									>
+										<option value="localStorage">localStorage (persistent)</option>
+										<option value="sessionStorage">sessionStorage (session)</option>
+										<option value="memory">memory (temporary)</option>
+									</select>
+								</ConfigOption>
+							</ConfigSection>
+
+							{!tokenStatus.isValid && (
+								<ConfigSection>
+									<ConfigSectionTitle>Worker Token Required</ConfigSectionTitle>
+									<div style={{ 
+										padding: '12px', 
+										background: '#fef3c7', 
+										border: '1px solid #f59e0b', 
+										borderRadius: '6px',
+										marginBottom: '12px'
+									}}>
+										<p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#92400e' }}>
+											<strong>Worker token required</strong> to sync OAuth settings with PingOne.
+										</p>
+										<p style={{ margin: 0, fontSize: '12px', color: '#78350f' }}>
+											Get a worker token to enable secure OAuth configuration synchronization.
+										</p>
+									</div>
+									<ConfigActionButton onClick={handleGetWorkerTokenForConfig}>
+										Get Worker Token
+									</ConfigActionButton>
+								</ConfigSection>
+							)}
+
+							<ConfigButtonGroup>
+								<ConfigActionButton 
+									onClick={handleSaveConfig}
+									disabled={isConfigLoading}
+									$variant="primary"
+								>
+									{isConfigLoading ? 'Saving...' : 'Save Configuration'}
+								</ConfigActionButton>
+								<ConfigActionButton 
+									onClick={() => setShowConfigModal(false)}
+									$variant="secondary"
+								>
+									Cancel
+								</ConfigActionButton>
+							</ConfigButtonGroup>
+						</ConfigModalContent>
+					</ConfigModal>
 				)}
-			</StatusContainer>
+			</>
 		);
 	}
 
