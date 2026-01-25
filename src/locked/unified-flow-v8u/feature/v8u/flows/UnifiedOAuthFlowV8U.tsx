@@ -20,6 +20,8 @@ import {
 } from '../../../dependencies/v8/components/SuperSimpleApiDisplayV8.tsx';
 import { ConfigCheckerServiceV8 } from '../../../dependencies/v8/services/configCheckerServiceV8.ts';
 import { CredentialsServiceV8 } from '../../../dependencies/v8/services/credentialsServiceV8.ts';
+import { FeatureFlagService } from '@/services/featureFlagService';
+import { CredentialsRepository } from '@/services/credentialsRepository';
 import { EnvironmentIdServiceV8 } from '../../../dependencies/v8/services/environmentIdServiceV8.ts';
 import {
 	type SharedCredentials,
@@ -854,10 +856,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					lastSavedCredsRef.current = credsString;
 
 					// Save flow-specific credentials (redirectUri, scopes, responseType, etc.)
-					const credsForSave = credentials as unknown as Parameters<
-						typeof CredentialsServiceV8.saveCredentials
-					>[1];
-					CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+					if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+						const credsForNew = {
+							...credentials,
+							scopes: typeof credentials.scopes === 'string' ? credentials.scopes.split(' ').filter(Boolean) : credentials.scopes
+						};
+						CredentialsRepository.setFlowCredentials(flowKey, credsForNew as any);
+					} else {
+						const credsForSave = credentials as unknown as Parameters<
+							typeof CredentialsServiceV8.saveCredentials
+						>[1];
+						CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+					}
 
 					// Save shared credentials (environmentId, clientId, clientSecret, etc.) to shared storage
 					// Important: Always save shared credentials if any shared field is present, including clientSecret
@@ -919,10 +929,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		try {
 			if (credentials.environmentId || credentials.clientId || credentials.clientSecret) {
 				// Save flow-specific credentials
-				const credsForSave = credentials as unknown as Parameters<
-					typeof CredentialsServiceV8.saveCredentials
-				>[1];
-				CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+				if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+					const credsForNew = {
+						...credentials,
+						scopes: typeof credentials.scopes === 'string' ? credentials.scopes.split(' ').filter(Boolean) : credentials.scopes
+					};
+					CredentialsRepository.setFlowCredentials(flowKey, credsForNew as any);
+				} else {
+					const credsForSave = credentials as unknown as Parameters<
+						typeof CredentialsServiceV8.saveCredentials
+					>[1];
+					CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+				}
 
 				// Save shared credentials
 				const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(
