@@ -320,6 +320,8 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	className = '',
 	refreshInterval = 5,
 }) => {
+	console.log('[WorkerTokenStatusDisplayV8] Component initialized with props:', { mode, showRefresh, className, refreshInterval });
+	
 	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
 		isValid: false,
 		status: 'missing',
@@ -577,8 +579,14 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 
 	// Detailed mode (default)
 	console.log('[WorkerTokenStatusDisplayV8] Render - mode:', mode, 'isLoading:', isLoading, 'tokenStatus:', tokenStatus);
+	console.log('[WorkerTokenStatusDisplayV8] Component should be visible now!');
 	return (
-		<StatusContainer $variant={getVariant()} className={className}>
+		<StatusContainer $variant={getVariant()} className={className} style={{ 
+			minHeight: '200px', 
+			border: '3px solid #10b981', 
+			background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.05))',
+			position: 'relative'
+		}}>
 			{/* Loading Overlay */}
 			{(isLoading || isRefreshing) && (
 				<LoadingOverlay>
