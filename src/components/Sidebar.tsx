@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-// import { DropResult } from 'react-beautiful-dnd';
+import { useLocation } from 'react-router-dom';
+import { Sidebar as ProSidebar } from 'react-pro-sidebar';
 import {
 	FiAlertTriangle,
 	FiBarChart2,
@@ -26,8 +27,6 @@ import {
 	FiX,
 	FiZap,
 } from 'react-icons/fi';
-import { Sidebar as ProSidebar } from 'react-pro-sidebar';
-import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import DragDropSidebar from './DragDropSidebar';

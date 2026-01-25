@@ -63,6 +63,7 @@ import { TokenDisplayV8U } from './TokenDisplayV8U';
 import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
 import { IDTokenValidationModalV8U } from './IDTokenValidationModalV8U';
+import { StepNavigationButtonsV8U } from './StepNavigationButtonsV8U';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
@@ -265,6 +266,7 @@ export interface UnifiedFlowStepsProps {
 				[key: string]: unknown;
 		  }
 		| undefined; // Optional app config to determine PKCE enforcement level
+	blockContent?: boolean; // Whether to block the main content but still show navigation
 }
 
 interface FlowState {
@@ -334,6 +336,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	onCompletedStepsChange,
 	onFlowReset,
 	appConfig: _appConfig, // Unused but kept for API compatibility
+	blockContent = false, // Default to false
 }) => {
 	// Generate flowKey dynamically (matches parent component's logic)
 	// Format: {flowType}_{specVersion}_{uniqueIdentifier}
@@ -14374,8 +14377,20 @@ passed: boolean;
 				environmentId={credentials.environmentId}
 				nonce={flowState.nonce}
 			/>
+		{/* Step Navigation Buttons - Always visible */}
+			<StepNavigationButtonsV8U
+				totalSteps={totalSteps}
+				currentStep={currentStep}
+				onStepChange={navigateToStep}
+				onFlowReset={onFlowReset}
+				disabled={blockContent}
+				restartLabel="🔄 Restart Flow"
+				nextLabel="Next →"
+				previousLabel="← Previous"
+			/>
 		</>
 	);
+};
 };
 
 export default UnifiedFlowSteps;

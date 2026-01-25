@@ -39,10 +39,11 @@ import styled, { css, keyframes } from 'styled-components';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8U, WORKER_TOKEN_STATUS_STYLES, type TokenStatusInfo } from '@/v8u/services/workerTokenStatusServiceV8U';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
-import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { workerTokenRepository } from '@/services/workerTokenRepository';
 import type { UnifiedWorkerTokenData, UnifiedWorkerTokenStatus } from '@/services/unifiedWorkerTokenService';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { silentWorkerTokenServiceV8 } from '@/v8/services/silentWorkerTokenServiceV8';
 
 // Animation keyframes
 const pulse = keyframes`
@@ -485,6 +486,53 @@ const RefreshButton = styled.button`
 	}
 `;
 
+// Silent Retrieval Controls
+const SilentRetrievalControls = styled.div`
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 8px;
+	padding: 16px;
+	margin-bottom: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+`;
+
+const ControlGroup = styled.div`
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+`;
+
+const ControlCheckbox = styled.input`
+	margin: 0;
+	margin-top: 2px;
+	width: 16px;
+	height: 16px;
+	accent-color: #3b82f6;
+	cursor: pointer;
+`;
+
+const ControlLabel = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	flex: 1;
+`;
+
+const ControlTitle = styled.div`
+	font-size: 14px;
+	font-weight: 500;
+	color: #f3f4f6;
+	line-height: 1.4;
+`;
+
+const ControlDescription = styled.div`
+	font-size: 12px;
+	color: #9ca3af;
+	line-height: 1.4;
+`;
+
 const LoadingOverlay = styled.div`
 	position: absolute;
 	top: 0;
@@ -570,6 +618,14 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	});
 	const [isConfigLoading, setIsConfigLoading] = useState(false);
 
+	// Silent retrieval settings
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+		return silentWorkerTokenServiceV8.getConfiguration().silentApiRetrieval;
+	});
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+		return silentWorkerTokenServiceV8.getConfiguration().showTokenAtEnd;
+	});
+
 	const updateTokenStatus = async () => {
 		try {
 			const v8Status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
@@ -591,7 +647,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			try {
 				const [tokenData, statusInfo] = await Promise.all([
 					workerTokenRepository.loadTokenData(),
-					unifiedWorkerTokenServiceV2.getStatus()
+					unifiedWorkerTokenService.getStatus()
 				]);
 				setFullTokenData(tokenData);
 				setTokenStatusInfo(statusInfo);
@@ -635,10 +691,17 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 
 		const handleConfigUpdate = () => {
 			setConfig(MFAConfigurationServiceV8.loadConfiguration());
+			};
+
+		const handleSilentConfigUpdate = () => {
+			const config = silentWorkerTokenServiceV8.getConfiguration();
+			setSilentApiRetrieval(config.silentApiRetrieval);
+			setShowTokenAtEnd(config.showTokenAtEnd);
 		};
 
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate);
+		window.addEventListener('mfaConfigurationUpdated', handleSilentConfigUpdate);
 
 		const interval = setInterval(updateTokenStatus, refreshInterval * 1000);
 
@@ -646,6 +709,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			clearTimeout(fallbackTimeout);
 			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
+			window.removeEventListener('mfaConfigurationUpdated', handleSilentConfigUpdate);
 			clearInterval(interval);
 		};
 	}, [refreshInterval]);
@@ -832,6 +896,48 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			false, // showTokenAtEnd - false for config
 			true  // forceShowModal - always show for config
 		);
+	};
+
+	const handleSilentRetrievalChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const newValue = e.target.checked;
+		setSilentApiRetrieval(newValue);
+		
+		// Update configuration immediately
+		silentWorkerTokenServiceV8.updateConfiguration(newValue, showTokenAtEnd);
+		
+		toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
+		
+		// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
+		if (newValue) {
+			try {
+				const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				if (!currentStatus.isValid) {
+					console.log('[WorkerTokenStatusDisplayV8] Silent API retrieval enabled, attempting to fetch token now...');
+					const result = await silentWorkerTokenServiceV8.attemptSilentRetrieval({
+						silentApiRetrieval: true,
+						showTokenAtEnd: false,
+						forceShowModal: false,
+						onStatusUpdate: updateTokenStatus,
+					});
+					
+					if (result.success && result.tokenRetrieved) {
+						toastV8.success('Worker token retrieved silently!');
+					}
+				}
+			} catch (error) {
+				console.error('[WorkerTokenStatusDisplayV8] Error in silent retrieval:', error);
+			}
+		}
+	};
+
+	const handleShowTokenAtEndChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const newValue = e.target.checked;
+		setShowTokenAtEnd(newValue);
+		
+		// Update configuration immediately
+		silentWorkerTokenServiceV8.updateConfiguration(silentApiRetrieval, newValue);
+		
+		toastV8.info(`Show Token at End set to: ${newValue}`);
 	};
 
 	if (mode === 'minimal') {
@@ -1155,6 +1261,32 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 					</RefreshButton>
 				)}
 			</StatusHeader>
+
+			{/* Silent Retrieval Controls */}
+			<SilentRetrievalControls>
+				<ControlGroup>
+					<ControlCheckbox
+						type="checkbox"
+						checked={silentApiRetrieval}
+						onChange={handleSilentRetrievalChange}
+					/>
+					<ControlLabel>
+						<ControlTitle>Silent API Token Retrieval</ControlTitle>
+						<ControlDescription>Automatically fetch worker token in background without showing modals</ControlDescription>
+					</ControlLabel>
+				</ControlGroup>
+				<ControlGroup>
+					<ControlCheckbox
+						type="checkbox"
+						checked={showTokenAtEnd}
+						onChange={handleShowTokenAtEndChange}
+					/>
+					<ControlLabel>
+						<ControlTitle>Show Token at End</ControlTitle>
+						<ControlDescription>Display token after successful retrieval</ControlDescription>
+					</ControlLabel>
+				</ControlGroup>
+			</SilentRetrievalControls>
 
 			<StatusDetails>
 				{/* Token Status */}

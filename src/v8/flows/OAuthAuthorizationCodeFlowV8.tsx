@@ -21,6 +21,7 @@ import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { RedirectlessServiceV8 } from '@/v8/services/redirectlessServiceV8';
 import { PKCEStorageServiceV8U } from '@/v8u/services/pkceStorageServiceV8U';
+import { useUnifiedSharedCredentials } from '@/hooks/useUnifiedSharedCredentials';
 
 const MODULE_TAG = '[🔐 OAUTH-AUTHZ-CODE-V8]';
 const FLOW_KEY = 'oauth-authz-v8';
@@ -63,6 +64,12 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 	const nav = useStepNavigationV8(4, {
 		onStepChange: (step) => console.log(`${MODULE_TAG} Step changed to`, { step }),
 	});
+
+	// Unified shared credentials - sync with global Environment ID and OAuth credentials
+	const {
+		saveEnvironmentId,
+		saveOAuthCredentials,
+	} = useUnifiedSharedCredentials();
 
 	const [credentials, setCredentials] = useState<Credentials>(() => {
 		return CredentialsServiceV8.loadCredentials('oauth-authz-v8', {
@@ -145,8 +152,34 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 		const result = CredentialsServiceV8.validateCredentials(credentials, 'oauth');
 		nav.setValidationErrors(result.errors.map((e) => e.message));
 		nav.setValidationWarnings(result.warnings.map((w) => w.message));
+		
+		// Save flow-specific credentials (existing behavior)
 		CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials);
-	}, [credentials, nav.setValidationErrors, nav.setValidationWarnings]);
+		
+		// Save to unified shared credentials for cross-flow sync
+		if (credentials.environmentId || credentials.clientId) {
+			// Save Environment ID separately
+			if (credentials.environmentId) {
+				saveEnvironmentId(credentials.environmentId, 'OAuthAuthorizationCodeFlowV8');
+			}
+			
+			// Save OAuth credentials
+			const oauthCreds: {
+				clientId?: string;
+				clientSecret?: string;
+				issuerUrl?: string;
+				clientAuthMethod?: string;
+			} = {};
+			
+			if (credentials.clientId) oauthCreds.clientId = credentials.clientId;
+			if (credentials.clientSecret) oauthCreds.clientSecret = credentials.clientSecret;
+			// V8 flows typically don't have issuerUrl/clientAuthMethod but we'll include them if present
+			if (credentials.issuerUrl) oauthCreds.issuerUrl = credentials.issuerUrl;
+			if (credentials.clientAuthMethod) oauthCreds.clientAuthMethod = credentials.clientAuthMethod;
+			
+			saveOAuthCredentials(oauthCreds, 'OAuthAuthorizationCodeFlowV8');
+		}
+	}, [credentials, nav.setValidationErrors, nav.setValidationWarnings, saveEnvironmentId, saveOAuthCredentials]);
 
 	useEffect(() => {
 		sessionStorage.setItem(`${FLOW_KEY}_use_redirectless`, useRedirectless.toString());

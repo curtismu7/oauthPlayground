@@ -26,6 +26,7 @@ import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { useUnifiedSharedCredentials } from '@/hooks/useUnifiedSharedCredentials';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';
 
 const MODULE_TAG = '[📱 MFA-FLOW-BASE-V8]';
@@ -111,6 +112,14 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	}, []);
 
 	usePageScroll({ pageName: 'MFA Flow V8', force: true });
+
+	// Unified shared credentials - sync with global Environment ID and OAuth credentials
+	const {
+		credentials: sharedCredentials,
+		saveEnvironmentId,
+		saveOAuthCredentials,
+		saveWorkerTokenCredentials,
+	} = useUnifiedSharedCredentials();
 
 	const totalSteps = stepLabels.length;
 
@@ -293,8 +302,33 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 	// Save credentials when they change
 	useEffect(() => {
+		// Save flow-specific credentials
 		CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials);
-	}, [credentials]);
+		
+		// Save to unified shared credentials if Environment ID or OAuth credentials are present
+		if (credentials.environmentId || credentials.clientId) {
+			// Save Environment ID separately
+			if (credentials.environmentId) {
+				saveEnvironmentId(credentials.environmentId, `MFAFlowV8-${deviceType}`);
+			}
+			
+			// Save OAuth credentials
+			const oauthCreds: {
+				clientId?: string;
+				clientSecret?: string;
+				issuerUrl?: string;
+				clientAuthMethod?: string;
+			} = {};
+			
+			if (credentials.clientId) oauthCreds.clientId = credentials.clientId;
+			if (credentials.clientSecret) oauthCreds.clientSecret = credentials.clientSecret;
+			// MFA flows typically don't have issuerUrl/clientAuthMethod but we'll include them if present
+			if (credentials.issuerUrl) oauthCreds.issuerUrl = credentials.issuerUrl;
+			if (credentials.clientAuthMethod) oauthCreds.clientAuthMethod = credentials.clientAuthMethod;
+			
+			saveOAuthCredentials(oauthCreds, `MFAFlowV8-${deviceType}`);
+		}
+	}, [credentials, deviceType, saveEnvironmentId, saveOAuthCredentials]);
 
 	/**
 	 * Backup sync function - safely syncs user token from user-login-v8 to mfa-flow-v8

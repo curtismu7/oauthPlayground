@@ -4,9 +4,10 @@
  * @version 1.0.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiAlertCircle, FiEye, FiEyeOff, FiLock, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
+import ModalSpinnerServiceV8U from '@/v8/services/modalSpinnerServiceV8U';
 
 const ModalOverlay = styled.div`
 	position: fixed;
@@ -218,6 +219,14 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
+	// Cleanup modal spinner on unmount
+	useEffect(() => {
+		const modalKey = 'passwordChangeModal';
+		return () => {
+			ModalSpinnerServiceV8U.cleanup(modalKey);
+		};
+	}, []);
+
 	if (!isOpen) return null;
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -245,7 +254,18 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 			return;
 		}
 
+		const modalKey = 'passwordChangeModal';
+		
+		// Initialize modal spinner
+		ModalSpinnerServiceV8U.getInstance(modalKey, {
+			show: false,
+			message: '',
+			theme: 'blue',
+		});
+		
 		setIsLoading(true);
+		ModalSpinnerServiceV8U.show(modalKey, 'Changing password...', 'blue');
+		
 		try {
 			await onPasswordChange(oldPassword, newPassword);
 			// Success - modal will be closed by parent component
@@ -253,6 +273,7 @@ export const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
 			setError(err instanceof Error ? err.message : 'Failed to change password');
 		} finally {
 			setIsLoading(false);
+			ModalSpinnerServiceV8U.hide(modalKey);
 		}
 	};
 
