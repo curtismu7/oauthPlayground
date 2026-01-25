@@ -1,7 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { FiCheck, FiX, FiInfo, FiShield, FiLock, FiKey, FiServer, FiChevronDown } from 'react-icons/fi';
-import { type FlowType, type SpecVersion } from '../../v8/services/specVersionServiceV8';
+import { FiChevronDown, FiInfo, FiCheckCircle, FiAlertTriangle, FiKey, FiLock, FiServer } from 'react-icons/fi';
+import { 
+	FlowSettingsServiceV8U,
+	getAdvancedFeatures,
+	saveAdvancedFeatures,
+	toggleAdvancedFeature,
+	isAdvancedFeatureEnabled
+} from '../services/flowSettingsServiceV8U';
+import FeatureEnableConfirmationModal from './FeatureEnableConfirmationModal';
+import { PingOneClientServiceV8U } from '../services/pingOneClientServiceV8U';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 // Collapsible components
 const CollapsibleSection = styled.div`
@@ -258,107 +267,181 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
   enabledFeatures = [],
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [features, setFeatures] = useState<AdvancedFeature[]>([
-    {
-      id: 'par',
-      name: 'Pushed Authorization Request (PAR)',
-      description: 'Send authorization request parameters via POST to prevent URL tampering and improve security',
-      icon: <FiShield />,
-      enabled: enabledFeatures.includes('par'),
-      supported: specVersion === 'oauth2.1' || specVersion === 'oidc',
-      requirements: [
-        'Authorization server must support PAR endpoint',
-        'Client must be capable of making POST requests',
-        'Request JWT must be signed and valid'
-      ],
-      benefits: [
-        'Prevents authorization request tampering',
-        'Reduces URL length limitations',
-        'Improves security for complex requests',
-        'Supports sensitive parameters in request body'
-      ],
-      specVersions: ['oauth2.1', 'oidc'],
-      flowTypes: ['oauth-authz', 'hybrid'],
-      expanded: false
-    },
-    {
-      id: 'jar',
-      name: 'JWT Secured Authorization Request (JAR)',
-      description: 'Secure authorization requests using signed JWTs to prevent parameter tampering',
-      icon: <FiKey />,
-      enabled: enabledFeatures.includes('jar'),
-      supported: specVersion === 'oauth2.1' || specVersion === 'oidc',
-      requirements: [
-        'Client must have signing keys',
-        'Authorization server must validate JWT signatures',
-        'Request JWT must include required claims'
-      ],
-      benefits: [
-        'Cryptographic integrity of request parameters',
-        'Prevents parameter injection attacks',
-        'Supports request authentication',
-        'Enhanced security for sensitive flows'
-      ],
-      specVersions: ['oauth2.1', 'oidc'],
-      flowTypes: ['oauth-authz', 'implicit', 'hybrid'],
-      expanded: false
-    },
-    {
-      id: 'mtls',
-      name: 'Mutual TLS (mTLS)',
-      description: 'Use client certificates for mutual authentication between client and authorization server',
-      icon: <FiLock />,
-      enabled: enabledFeatures.includes('mtls'),
-      supported: true, // mTLS can be supported across all versions
-      requirements: [
-        'Client must have X.509 certificate',
-        'Authorization server must support mTLS',
-        'TLS termination must be properly configured',
-        'Certificate validation infrastructure required'
-      ],
-      benefits: [
-        'Strong client authentication',
-        'Certificate-based identity verification',
-        'Enhanced security for token requests',
-        'Supports zero-trust architectures'
-      ],
-      specVersions: ['oauth2.0', 'oauth2.1', 'oidc'],
-      flowTypes: ['oauth-authz', 'client-credentials', 'hybrid'],
-      expanded: false
-    },
-    {
-      id: 'dpop',
-      name: 'Demonstration of Proof-of-Possession (DPoP)',
-      description: 'Bind tokens to a specific client using proof-of-possession keys',
-      icon: <FiServer />,
-      enabled: enabledFeatures.includes('dpop'),
-      supported: specVersion === 'oauth2.1' || specVersion === 'oidc',
-      requirements: [
-        'Client must generate DPoP keys',
-        'Authorization server must validate DPoP proofs',
-        'Resource servers must support DPoP validation'
-      ],
-      benefits: [
-        'Prevents token replay attacks',
-        'Binds tokens to specific client instances',
-        'Enhanced security for public clients',
-        'Supports token sender constraining'
-      ],
-      specVersions: ['oauth2.1', 'oidc'],
-      flowTypes: ['oauth-authz', 'client-credentials'],
-      expanded: false
-    }
-  ]);
+  const [features, setFeatures] = useState<AdvancedFeature[]>([]);
+  
+  // Modal state for confirmation
+  const [showModal, setShowModal] = useState(false);
+  const [pendingFeature, setPendingFeature] = useState<{
+    id: string;
+    name: string;
+    isEnabling: boolean;
+  } | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  useEffect(() => {
+    const initialFeatures: AdvancedFeature[] = [
+      {
+        id: 'par',
+        name: 'Pushed Authorization Request (PAR)',
+        description: 'Secure authorization requests by pushing them to the authorization server',
+        icon: <FiKey />,
+        enabled: enabledFeatures.includes('par'),
+        supported: specVersion === 'oauth2.1' || specVersion === 'oidc',
+        requirements: [
+          'Authorization server must support PAR endpoint',
+          'Client must be capable of making POST requests',
+          'Request JWT must be signed and valid'
+        ],
+        benefits: [
+          'Prevents authorization request tampering',
+          'Reduces URL length limitations',
+          'Enhanced security for sensitive parameters'
+        ],
+        specVersions: ['oauth2.1', 'oidc'],
+        flowTypes: ['oauth-authz'],
+        expanded: false
+      },
+      {
+        id: 'jar',
+        name: 'JWT Secured Authorization Request (JAR)',
+        description: 'Secure authorization requests using signed JWTs to prevent parameter tampering',
+        icon: <FiKey />,
+        enabled: enabledFeatures.includes('jar'),
+        supported: specVersion === 'oauth2.1' || specVersion === 'oidc',
+        requirements: [
+          'Client must have signing keys',
+          'Authorization server must validate JWT signatures',
+          'Request JWT must include required claims'
+        ],
+        benefits: [
+          'Cryptographic integrity of request parameters',
+          'Prevents parameter injection attacks',
+          'Supports request authentication',
+          'Enhanced security for sensitive flows'
+        ],
+        specVersions: ['oauth2.1', 'oidc'],
+        flowTypes: ['oauth-authz', 'implicit', 'hybrid'],
+        expanded: false
+      },
+      {
+        id: 'mtls',
+        name: 'Mutual TLS (mTLS)',
+        description: 'Use client certificates for mutual authentication between client and authorization server',
+        icon: <FiLock />,
+        enabled: enabledFeatures.includes('mtls'),
+        supported: true, // mTLS can be supported across all versions
+        requirements: [
+          'Client must have X.509 certificate',
+          'Authorization server must support mTLS',
+          'TLS termination must be properly configured',
+          'Certificate validation infrastructure required'
+        ],
+        benefits: [
+          'Strong client authentication',
+          'Certificate-based identity verification',
+          'Enhanced security for token requests',
+          'Supports zero-trust architectures'
+        ],
+        specVersions: ['oauth2.0', 'oauth2.1', 'oidc'],
+        flowTypes: ['oauth-authz', 'client-credentials', 'hybrid'],
+        expanded: false
+      },
+      {
+        id: 'dpop',
+        name: 'Demonstration of Proof-of-Possession (DPoP)',
+        description: 'Bind tokens to a specific client using proof-of-possession keys',
+        icon: <FiServer />,
+        enabled: enabledFeatures.includes('dpop'),
+        supported: specVersion === 'oauth2.1' || specVersion === 'oidc',
+        requirements: [
+          'Client must generate DPoP keys',
+          'Authorization server must validate DPoP proofs',
+          'Resource servers must support DPoP validation'
+        ],
+        benefits: [
+          'Prevents token replay attacks',
+          'Binds tokens to specific client instances',
+          'Enhanced security for public clients',
+          'Supports token sender constraining'
+        ],
+        specVersions: ['oauth2.1', 'oidc'],
+        flowTypes: ['oauth-authz', 'client-credentials'],
+        expanded: false
+      }
+    ];
+
+    setFeatures(initialFeatures);
+  }, [enabledFeatures, specVersion]);
 
   const toggleFeature = (featureId: string) => {
-    setFeatures(prev => prev.map(feature => {
-      if (feature.id === featureId && feature.supported) {
-        const newEnabled = !feature.enabled;
-        onFeatureToggle?.(featureId, newEnabled);
-        return { ...feature, enabled: newEnabled };
+    const feature = features.find(f => f.id === featureId);
+    if (!feature || !feature.supported) return;
+
+    const isEnabling = !feature.enabled;
+    
+    // Set pending feature for modal
+    setPendingFeature({
+      id: featureId,
+      name: feature.name,
+      isEnabling
+    });
+    
+    // Show confirmation modal
+    setShowModal(true);
+  };
+
+  const handleConfirmFeatureToggle = async () => {
+    if (!pendingFeature) return;
+
+    setIsUpdating(true);
+    
+    try {
+      // Generate change descriptions
+      const changes = PingOneClientServiceV8U.generateChangeDescriptions(
+        pendingFeature.id,
+        pendingFeature.name,
+        pendingFeature.isEnabling,
+        'OAuth Playground App'
+      );
+
+      // Update PingOne client and app configuration
+      const result = await PingOneClientServiceV8U.updateFeatureConfiguration(
+        'client-id-123', // This would come from current credentials
+        'OAuth Playground App',
+        pendingFeature.id,
+        pendingFeature.name,
+        pendingFeature.isEnabling
+      );
+
+      if (result.success) {
+        // Update local state
+        setFeatures(prev => prev.map(feature => {
+          if (feature.id === pendingFeature.id) {
+            return { ...feature, enabled: !feature.enabled };
+          }
+          return feature;
+        }));
+
+        // Call parent callback
+        onFeatureToggle?.(pendingFeature.id, !feature.enabled);
+
+        // Show success message
+        toastV8.success(
+          pendingFeature.isEnabling 
+            ? `${pendingFeature.name} enabled successfully!`
+            : `${pendingFeature.name} disabled successfully!`
+        );
+      } else {
+        toastV8.error(`Failed to update ${pendingFeature.name}: ${result.error}`);
       }
-      return feature;
-    }));
+    } catch (error) {
+      console.error('Failed to toggle feature:', error);
+      toastV8.error(`Failed to update ${pendingFeature.name}`);
+    } finally {
+      setIsUpdating(false);
+      setShowModal(false);
+      setPendingFeature(null);
+    }
   };
 
   const toggleFeatureExpanded = (featureId: string) => {
@@ -492,6 +575,29 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
         </CollapsibleContent>
       )}
     </CollapsibleSection>
+
+    {/* Confirmation Modal */}
+    {showModal && pendingFeature && (
+      <FeatureEnableConfirmationModal
+        isOpen={showModal}
+        onClose={() => {
+          setShowModal(false);
+          setPendingFeature(null);
+        }}
+        onConfirm={handleConfirmFeatureToggle}
+        featureName={pendingFeature.name}
+        featureId={pendingFeature.id}
+        isEnabling={pendingFeature.isEnabling}
+        appName="OAuth Playground App"
+        changes={PingOneClientServiceV8U.generateChangeDescriptions(
+          pendingFeature.id,
+          pendingFeature.name,
+          pendingFeature.isEnabling,
+          'OAuth Playground App'
+        )}
+        isLoading={isUpdating}
+      />
+    )}
   );
 };
 
