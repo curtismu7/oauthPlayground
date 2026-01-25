@@ -88,3 +88,36 @@ pingone-api.log
 *.dmg
 *.iso
 *.pkg
+
+# Test files and coverage (not needed in deployment)
+**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.test.js
+**/*.test.jsx
+**/*.spec.ts
+**/*.spec.tsx
+**/*.spec.js
+**/*.spec.jsx
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# Documentation (can be excluded from deployment)
+docs/
+*.md
+!README.md
+
+# Scripts (not needed in deployment)
+scripts/
+.husky/
+
+# Development tools
+.eslintrc*
+.prettierrc*
+biome.json
+tsconfig*.json
+vite.config.ts
+playwright.config.ts
+vitest.config.ts
