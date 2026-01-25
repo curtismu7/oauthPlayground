@@ -157,6 +157,7 @@ import PingOneMockFeatures from './pages/PingOneMockFeatures';
 import PingOneUserProfile from './pages/PingOneUserProfile';
 import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
 import { PostmanCollectionGenerator } from './pages/PostmanCollectionGenerator';
+import FeatureFlagsAdmin from './pages/admin/FeatureFlagsAdmin';
 import SDKSampleApp from './pages/SDKSampleApp';
 import ServiceTestRunner from './pages/ServiceTestRunner';
 import HelioMartPasswordReset from './pages/security/HelioMartPasswordReset';
@@ -533,6 +534,8 @@ const AppRoutes: React.FC = () => {
 							{/* Tools & Utilities Routes */}
 							<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
 							<Route path="/ultimate-token-display-demo" element={<UltimateTokenDisplayDemo />} />
+							{/* Admin Routes */}
+							<Route path="/admin/feature-flags" element={<FeatureFlagsAdmin />} />
 							{/* V7 OAuth/OIDC Flow Routes */}
 							<Route
 								path="/flows/oauth-authorization-code-v7"
