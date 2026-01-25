@@ -1573,7 +1573,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					<button
 						type="button"
 						onClick={() => {
-							window.open('/v8u/token-monitoring', '_blank');
+							window.open('/v8u/unified/oauth-authz/0', '_blank');
 						}}
 						style={{
 							display: 'flex',
@@ -1598,7 +1598,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							e.currentTarget.style.background = '#3b82f6';
 							e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
 						}}
-						title="Open comprehensive token monitoring dashboard in new tab"
+						title="Open unified OAuth flow app in new tab"
 					>
 						<FiCode size={18} />
 						OAuth & MFA API Test
