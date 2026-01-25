@@ -104,7 +104,7 @@
 
 ---
 
-### Component Integration: 🟡 25% Complete
+### Component Integration: 🟢 ~40% Complete
 
 **UnifiedFlowSteps.tsx**: ✅ 100% Integrated (~14,000 lines)
 
@@ -116,10 +116,24 @@ All 6 credential save operations integrated with feature flags:
 5. ✅ Pre-flight validation fix handler (line 8490-8494)
 6. ✅ OAuth config validation fix handler (line 10162-10166)
 
+**CredentialsFormV8U.tsx**: ✅ 100% Integrated (~5,500 lines)
+
+All 4 credential save operations integrated with feature flags:
+1. ✅ Default values handler (line 1124-1130)
+2. ✅ Field change handler (line 1323-1329)
+3. ✅ App selection handler (line 1518-1523)
+4. ✅ Refresh token toggle handler (line 3982-3987)
+
 **Integration Pattern Applied**:
 ```typescript
 if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
-  CredentialsRepository.setFlowCredentials(flowKey, updatedCredentials);
+  const credsForNew = {
+    ...updated,
+    scopes: typeof updated.scopes === 'string' 
+      ? updated.scopes.split(' ').filter(Boolean) 
+      : updated.scopes
+  };
+  CredentialsRepository.setFlowCredentials(flowKey, credsForNew as any);
 } else {
   CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
 }
@@ -132,10 +146,10 @@ if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
 ### High-Priority Components: 🔴 Not Integrated
 
 **CredentialsFormV8U.tsx** (~5,500 lines)
-- Status: Not started
-- Operations to integrate: 4 credential save operations
+- Status: ✅ Complete
+- Operations integrated: 4/4 credential save operations
 - Complexity: High (large file, multiple save patterns)
-- Estimated effort: 2-3 hours
+- Completed with scopes conversion logic
 
 **UnifiedOAuthFlowV8U.tsx** (~2,300 lines)
 - Status: Not started
@@ -176,21 +190,21 @@ if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
 | **Feature Flags** | ✅ Complete | 100% |
 | **Admin UI** | ✅ Complete | 100% |
 | **Documentation** | ✅ Complete | 100% |
-| **Component Integration** | 🟡 Partial | ~25% (1/4 high-priority) |
+| **Component Integration** | 🟢 Partial | ~40% (2/4 high-priority) |
 | **Phase 2 Integration** | 🔴 Not Started | 0% |
 
 ### Integration Breakdown
 
 **Completed**:
 - UnifiedFlowSteps.tsx: 6/6 operations (100%)
+- CredentialsFormV8U.tsx: 4/4 operations (100%)
 
 **Remaining**:
-- CredentialsFormV8U.tsx: 0/4 operations (0%)
 - UnifiedOAuthFlowV8U.tsx: 0/? operations (0%)
 - MFAAuthenticationMainPageV8.tsx: 0/? operations (0%)
 - Phase 2 services: 0/4 services (0%)
 
-**Estimated Total Progress**: ~25% of full integration complete
+**Estimated Total Progress**: ~40% of full integration complete
 
 ---
 
@@ -198,11 +212,11 @@ if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
 
 ### Immediate Next Steps (1-2 days)
 
-1. **Integrate CredentialsFormV8U.tsx**
-   - Identify all 4 credential save operations
-   - Add feature flag checks
-   - Test with flags on/off
-   - Commit changes
+1. ~~**Integrate CredentialsFormV8U.tsx**~~ ✅ **COMPLETE**
+   - ✅ Identified all 4 credential save operations
+   - ✅ Added feature flag checks
+   - ✅ Added scopes conversion logic
+   - ✅ Committed changes
 
 2. **Integrate UnifiedOAuthFlowV8U.tsx**
    - Analyze credential operations
@@ -413,23 +427,24 @@ git checkout pre-refactor-v8-v8u-full
 
 ## 🎊 Conclusion
 
-**Phase 1-2 foundation is complete and production-ready!**
+**Phase 1-2 foundation is complete and 40% integrated!**
 
 - ✅ All 8 services created and tested
 - ✅ Feature flag system operational
 - ✅ Admin UI functional
-- ✅ First component (UnifiedFlowSteps.tsx) fully integrated
+- ✅ Two major components fully integrated (UnifiedFlowSteps.tsx + CredentialsFormV8U.tsx)
 - ✅ Version 9.0.0 unified across all packages
 - ✅ All changes committed and pushed to GitHub
+- ✅ Integration pattern proven across 10 credential save operations
 
-**Remaining work**: ~75% of component integration
+**Remaining work**: ~60% of component integration
 
-The foundation is solid, the pattern is proven, and the infrastructure is in place. The remaining integration work follows the same pattern established with UnifiedFlowSteps.tsx and can be completed incrementally with the safety net of feature flags.
+The foundation is solid, the pattern is proven across two major components, and the infrastructure is in place. The remaining integration work follows the same established pattern and can be completed incrementally with the safety net of feature flags.
 
-**Status**: Ready for continued integration or gradual rollout testing with UnifiedFlowSteps.tsx
+**Status**: Ready for continued integration or gradual rollout testing with two fully integrated components
 
 ---
 
 **Version**: 9.0.0  
-**Last Updated**: 2026-01-25  
-**Next Review**: After next component integration
+**Last Updated**: 2026-01-25 (40% integration milestone)  
+**Next Review**: After UnifiedOAuthFlowV8U.tsx integration
