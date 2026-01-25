@@ -17,11 +17,17 @@ if (typeof window !== 'undefined') {
 	(globalThis as any).ReactDOM = ReactDOM;
 	
 	// Ensure React.Children and React.Component are available
+	// Add defensive checks to prevent "Cannot set properties of undefined" errors
 	if (React && typeof React === 'object') {
-		(window as any).ReactChildren = React.Children;
-		(window as any).ReactComponent = React.Component;
-		(globalThis as any).ReactChildren = React.Children;
-		(globalThis as any).ReactComponent = React.Component;
+		// Only set if the properties exist
+		if (React.Children) {
+			(window as any).ReactChildren = React.Children;
+			(globalThis as any).ReactChildren = React.Children;
+		}
+		if (React.Component) {
+			(window as any).ReactComponent = React.Component;
+			(globalThis as any).ReactComponent = React.Component;
+		}
 	}
 }
 
