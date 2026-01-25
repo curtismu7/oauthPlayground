@@ -374,6 +374,11 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	useEffect(() => {
 		updateTokenStatus();
 
+		// Fallback timeout to ensure loading state doesn't get stuck
+		const fallbackTimeout = setTimeout(() => {
+			setIsLoading(false);
+		}, 3000); // 3 seconds fallback
+
 		// Listen for token updates
 		const handleTokenUpdate = () => {
 			updateTokenStatus();
@@ -389,6 +394,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 		const interval = setInterval(updateTokenStatus, refreshInterval * 1000);
 
 		return () => {
+			clearTimeout(fallbackTimeout);
 			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
 			clearInterval(interval);
@@ -570,6 +576,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	}
 
 	// Detailed mode (default)
+	console.log('[WorkerTokenStatusDisplayV8] Render - mode:', mode, 'isLoading:', isLoading, 'tokenStatus:', tokenStatus);
 	return (
 		<StatusContainer $variant={getVariant()} className={className}>
 			{/* Loading Overlay */}
