@@ -245,11 +245,12 @@ export async function handleShowWorkerTokenModal(
 			}
 
 			// Only show modal if showTokenAtEnd is also ON (to display the token)
-			if (showTokenAtEnd) {
+			// AND user didn't explicitly click button (forceShowModal would be false for automatic calls)
+			if (showTokenAtEnd && !forceShowModal) {
 				console.log(`${MODULE_TAG} Silent retrieval succeeded, showing token display modal (showTokenAtEnd is ON)`);
 				setShowModal(true);
 			} else {
-				console.log(`${MODULE_TAG} Silent retrieval succeeded, not showing modal (showTokenAtEnd is OFF)`);
+				console.log(`${MODULE_TAG} Silent retrieval succeeded, not showing modal (showTokenAtEnd: ${showTokenAtEnd}, forceShowModal: ${forceShowModal})`);
 			}
 			return;
 		}
@@ -257,7 +258,7 @@ export async function handleShowWorkerTokenModal(
 		// Silent retrieval failed
 		// If user explicitly clicked button (forceShowModal), show modal to allow credential configuration
 		// If credentials are missing, show modal to allow configuration (even in silent mode)
-		// Otherwise, respect silentApiRetrieval setting
+		// Otherwise, respect silentApiRetrieval setting and don't show modal
 		if (forceShowModal) {
 			console.log(`${MODULE_TAG} Silent retrieval failed, but user clicked button - showing modal for credential configuration`);
 			setShowModal(true);
