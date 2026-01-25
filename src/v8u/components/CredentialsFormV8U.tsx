@@ -1952,14 +1952,15 @@ Why it matters: Backend services communicate server-to-server without user conte
 												className={tokenStatus.isValid ? 'btn-token-has' : 'btn-token-none'}
 												onClick={async () => {
 													// Pass current checkbox values to override config (page checkboxes take precedence)
-													// forceShowModal=true because user explicitly clicked the button - always show modal
+													// forceShowModal=false when silentApiRetrieval is ON (respect user's silent preference)
+													// forceShowModal=true when silentApiRetrieval is OFF (user wants modal interaction)
 													const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
 													await handleShowWorkerTokenModal(
 														setShowWorkerTokenModal,
 														setTokenStatus,
 														silentApiRetrieval,  // Page checkbox value takes precedence
 														showTokenAtEnd,      // Page checkbox value takes precedence
-														true                  // Force show modal - user clicked button
+														!silentApiRetrieval   // Force show modal only when silent is OFF
 													);
 												}}
 												title={
