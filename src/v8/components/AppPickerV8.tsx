@@ -74,9 +74,16 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 			// Show confirmation modal instead of system confirm
 			setShowConfirmModal(true);
 		} else {
+			// User explicitly clicked the button - always show modal
 			// Use helper to check silentApiRetrieval before showing modal
 			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-			await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus);
+			await handleShowWorkerTokenModal(
+				setShowWorkerTokenModal, 
+				setTokenStatus,
+				undefined, // Use default silentApiRetrieval from config
+				undefined, // Use default showTokenAtEnd from config
+				true      // Force show modal - user clicked button
+			);
 		}
 	};
 
