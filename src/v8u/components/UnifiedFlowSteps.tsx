@@ -14377,7 +14377,7 @@ passed: boolean;
 				environmentId={credentials.environmentId}
 				nonce={flowState.nonce}
 			/>
-		{/* Step Navigation Buttons - Always visible */}
+			{/* Step Navigation Buttons - Always visible */}
 			<StepNavigationButtonsV8U
 				totalSteps={totalSteps}
 				currentStep={currentStep}
