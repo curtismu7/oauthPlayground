@@ -26,6 +26,8 @@ import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { FeatureFlagService } from '@/services/featureFlagService';
+import { CredentialsRepository } from '@/services/credentialsRepository';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import WorkerTokenStatusServiceV8, { type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
@@ -311,14 +313,24 @@ export const MFAHubV8: React.FC = () => {
 				// Try to get from MFA flow credentials
 				try {
 					const mfaFlowKey = 'mfa-flow-v8';
-					const credentials = CredentialsServiceV8.loadCredentials(mfaFlowKey, {
-						flowKey: mfaFlowKey,
-						flowType: 'oidc',
-						includeClientSecret: false,
-						includeRedirectUri: false,
-						includeLogoutUri: false,
-						includeScopes: false,
-					});
+					const useNewCredentialsRepo = FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO');
+					
+					let credentials;
+					if (useNewCredentialsRepo) {
+						// Use Phase 1 CredentialsRepository
+						credentials = CredentialsRepository.getFlowCredentials(mfaFlowKey);
+					} else {
+						// Fallback to old method
+						credentials = CredentialsServiceV8.loadCredentials(mfaFlowKey, {
+							flowKey: mfaFlowKey,
+							flowType: 'oidc',
+							includeClientSecret: false,
+							includeRedirectUri: false,
+							includeLogoutUri: false,
+							includeScopes: false,
+						});
+					}
+					
 					if (credentials.environmentId) {
 						environmentId = credentials.environmentId;
 					}
@@ -377,21 +389,39 @@ export const MFAHubV8: React.FC = () => {
 			// Clear user tokens from MFA flow credentials
 			const mfaFlowKey = 'mfa-flow-v8';
 			try {
-				const credentials = CredentialsServiceV8.loadCredentials(mfaFlowKey, {
-					flowKey: mfaFlowKey,
-					flowType: 'oidc',
-					includeClientSecret: false,
-					includeRedirectUri: false,
-					includeLogoutUri: false,
-					includeScopes: false,
-				});
+				const useNewCredentialsRepo = FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO');
+				
+				let credentials;
+				if (useNewCredentialsRepo) {
+					// Use Phase 1 CredentialsRepository
+					credentials = CredentialsRepository.getFlowCredentials(mfaFlowKey);
+				} else {
+					// Fallback to old method
+					credentials = CredentialsServiceV8.loadCredentials(mfaFlowKey, {
+						flowKey: mfaFlowKey,
+						flowType: 'oidc',
+						includeClientSecret: false,
+						includeRedirectUri: false,
+						includeLogoutUri: false,
+						includeScopes: false,
+					});
+				}
 
 				if (credentials.userToken) {
-					CredentialsServiceV8.saveCredentials(mfaFlowKey, {
+					const updatedCredentials = {
 						...credentials,
 						userToken: undefined,
 						tokenType: undefined,
-					});
+					};
+					
+					if (useNewCredentialsRepo) {
+						// Use Phase 1 CredentialsRepository
+						CredentialsRepository.setFlowCredentials(mfaFlowKey, updatedCredentials);
+					} else {
+						// Fallback to old method
+						CredentialsServiceV8.saveCredentials(mfaFlowKey, updatedCredentials);
+					}
+					
 					console.log('[MFA-HUB-V8] User token cleared from MFA flow credentials');
 				}
 			} catch (error) {
