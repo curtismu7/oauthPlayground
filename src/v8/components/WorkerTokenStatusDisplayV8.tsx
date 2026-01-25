@@ -22,6 +22,7 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
 import { workerTokenRepository } from '@/services/workerTokenRepository';
 import type { UnifiedWorkerTokenData, UnifiedWorkerTokenStatus } from '@/services/unifiedWorkerTokenService';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 // Animation keyframes
 const pulse = keyframes`
@@ -312,9 +313,16 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 
 	const handleRefresh = async () => {
 		setIsRefreshing(true);
-		await updateTokenStatus();
-		setConfig(MFAConfigurationServiceV8.loadConfiguration());
-		setTimeout(() => setIsRefreshing(false), 500);
+		try {
+			await updateTokenStatus();
+			setConfig(MFAConfigurationServiceV8.loadConfiguration());
+			toastV8.success('Worker token status refreshed');
+		} catch (error) {
+			console.error('[WorkerTokenStatusDisplayV8] Failed to refresh token status:', error);
+			toastV8.error('Failed to refresh token status');
+		} finally {
+			setTimeout(() => setIsRefreshing(false), 500);
+		}
 	};
 
 	useEffect(() => {
