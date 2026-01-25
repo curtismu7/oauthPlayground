@@ -9,6 +9,7 @@ import {
 	FiCpu,
 	FiDatabase,
 	FiEye,
+	FiHome,
 	FiKey,
 	FiLayers,
 	FiLock,
@@ -496,6 +497,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 	// Initialize menu structure with drag and drop support
 	const [_menuGroups, _setMenuGroups] = useState<MenuGroup[]>(() => {
+		// TEMPORARY: Clear saved menu order to force new Core Overview group to appear at top
+		localStorage.removeItem('sidebar.menuOrder');
+		
 		const savedOrder = localStorage.getItem('sidebar.menuOrder');
 		if (savedOrder) {
 			try {
@@ -532,6 +536,38 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 		// Default menu structure
 		return [
+			{
+				id: 'core-overview',
+				label: 'Core Overview',
+				icon: (
+					<ColoredIcon $color="#3b82f6">
+						<FiHome />
+					</ColoredIcon>
+				),
+				isOpen: openMenusState['Core Overview'] || true,
+				items: [
+					{
+						id: 'dashboard',
+						path: '/',
+						label: '🏠 Dashboard',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiHome />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'getting-started',
+						path: '/getting-started',
+						label: '📖 Getting Started',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiBook />
+							</ColoredIcon>
+						),
+					},
+				],
+			},
 			{
 				id: 'v8-flows-new',
 				label: 'Production',

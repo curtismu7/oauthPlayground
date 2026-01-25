@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { FiChevronDown, FiInfo, FiCheckCircle, FiAlertTriangle, FiKey, FiLock, FiServer } from 'react-icons/fi';
+import { FiChevronDown, FiInfo, FiCheckCircle, FiAlertTriangle, FiKey, FiLock, FiServer, FiShield } from 'react-icons/fi';
 import { 
 	FlowSettingsServiceV8U,
 	getAdvancedFeatures,

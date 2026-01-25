@@ -548,6 +548,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const [showPrivateKeyJwtModal, setShowPrivateKeyJwtModal] = useState(false);
 	const [allowedScopes, setAllowedScopes] = useState<string[]>([]);
 	const [isLoadingScopes, setIsLoadingScopes] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
 	// Load environment ID from global storage on mount (only once)
 	useEffect(() => {
