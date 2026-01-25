@@ -869,24 +869,28 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		const checkStatus = async () => {
 			try {
 				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-				console.log(`${MODULE_TAG} Token status updated`, status);
-				console.log(`${MODULE_TAG} Raw token status check:`, {
-					isValid: status.isValid,
-					status: status.status,
-					message: status.message,
-					hasToken: !!status.token,
-					tokenLength: status.token?.length,
-				});
+				if (process.env.NODE_ENV === 'development') {
+					console.log(`${MODULE_TAG} Token status updated`, status);
+					console.log(`${MODULE_TAG} Raw token status check:`, {
+						isValid: status.isValid,
+						status: status.status,
+						message: status.message,
+						hasToken: status.token ? true : false,
+						tokenLength: status.token?.length || 0
+					});
+				}
 				setTokenStatus(status);
+				setIsLoading(false);
 			} catch (error) {
 				console.error(`${MODULE_TAG} Error checking token status:`, error);
-				// Fallback to sync check for backwards compatibility
-				const fallbackStatus = {
-					status: 'missing' as const,
-					message: 'Error checking worker token status.',
+				setTokenStatus({
 					isValid: false,
-				};
-				setTokenStatus(fallbackStatus);
+					status: 'missing',
+					message: 'Unable to check token status',
+					expiresAt: null,
+					minutesRemaining: 0,
+				});
+				setIsLoading(false);
 			}
 		};
 
@@ -898,11 +902,13 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 		// Listen for token updates
 		const handleTokenUpdate = () => {
-			console.log(`${MODULE_TAG} Token update event received`);
+			if (process.env.NODE_ENV === 'development') {
+				console.log(`${MODULE_TAG} Token update event received`);
+			}
 			// Use a small delay to ensure storage is fully written
 			setTimeout(() => {
 				checkStatus();
-			}, 50);
+			}, 100);
 		};
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 		window.addEventListener('storage', handleTokenUpdate);
