@@ -47,15 +47,19 @@ export const formatTimeRemaining = (expiresAt: number): string => {
  * Uses workerTokenServiceV8 as the single source of truth for worker token storage
  */
 export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
-	console.log(`${_MODULE_TAG} 🔍 Checking worker token status using unified service V2`);
+	if (process.env.NODE_ENV === 'development') {
+		console.log(`${_MODULE_TAG} 🔍 Checking worker token status using unified service V2`);
+	}
 	
 	try {
 		// Use the new unified worker token service V2
 		const status = await unifiedWorkerTokenServiceV2.getStatus();
 		const token = await unifiedWorkerTokenServiceV2.getToken();
 		
-		console.log(`${_MODULE_TAG} 🔍 Unified service status:`, status);
-		console.log(`${_MODULE_TAG} 🔍 Token available:`, !!token);
+		if (process.env.NODE_ENV === 'development') {
+			console.log(`${_MODULE_TAG} 🔍 Unified service status:`, status);
+			console.log(`${_MODULE_TAG} 🔍 Token available:`, !!token);
+		}
 		
 		if (!status.hasCredentials) {
 			return {
