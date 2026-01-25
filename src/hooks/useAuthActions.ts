@@ -564,18 +564,47 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					}
 				}
 
-				const storedState = sessionStorage.getItem('oauth_state');
-				if (storedState && state && storedState !== state) {
-					const errorMessage =
-						'State mismatch detected. Possible CSRF attack or stale session. Please restart the login process.';
+				// Phase 3: State validation using StateManager or fallback
+				const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
+			
+				if (state) {
+					if (useNewOidcCore) {
+						// Use Phase 2/3 StateManager validation
+						const flowKey = 'new-auth-context';
+						const isValid = StateManager.validate(state, flowKey);
+						
+						if (!isValid) {
+							const errorMessage =
+								'State validation failed. Possible CSRF attack or expired session. Please try logging in again.';
+						
+							logger.error('NewAuthContext', 'State validation failed (Phase 3)', {
+								returnedState: state,
+								flowKey,
+							});
 
-					logger.error('NewAuthContext', 'State mismatch detected', {
-						storedState,
-						returnedState: state,
-					});
+							updateState({ error: errorMessage, isLoading: false });
+							return { success: false, error: errorMessage };
+						}
+						
+						// State is automatically cleared by validate() method
+						logger.info('NewAuthContext', 'State validated successfully (Phase 3)', { flowKey });
+					} else {
+						// Fallback to old validation
+						const storedState = sessionStorage.getItem('oauth_state');
+						if (storedState && storedState !== state) {
+							const errorMessage =
+								'State mismatch detected. Possible CSRF attack or stale session. Please restart the login process.';
 
-					updateState({ error: errorMessage, isLoading: false });
-					return { success: false, error: errorMessage };
+							logger.error('NewAuthContext', 'State mismatch detected (old validation)', {
+								storedState,
+								returnedState: state,
+							});
+
+							updateState({ error: errorMessage, isLoading: false });
+							return { success: false, error: errorMessage };
+						}
+						sessionStorage.removeItem('oauth_state');
+					}
 				}
 
 				if (code) {
