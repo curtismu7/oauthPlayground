@@ -36,8 +36,8 @@ import {
 	FiDatabase
 } from 'react-icons/fi';
 import styled, { css, keyframes } from 'styled-components';
-import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
-import { WorkerTokenStatusServiceV8U, WORKER_TOKEN_STATUS_STYLES } from '@/v8u/services/workerTokenStatusServiceV8U';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenStatusServiceV8U, WORKER_TOKEN_STATUS_STYLES, type TokenStatusInfo } from '@/v8u/services/workerTokenStatusServiceV8U';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
 import { workerTokenRepository } from '@/services/workerTokenRepository';
@@ -561,8 +561,20 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 
 	const updateTokenStatus = async () => {
 		try {
-			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			setTokenStatus(status);
+			const v8Status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			
+			// Convert V8 TokenStatusInfo to V8U TokenStatusInfo
+			const convertedStatus: TokenStatusInfo = {
+				isValid: v8Status.isValid,
+				status: v8Status.status,
+				message: v8Status.message,
+				expiresAt: v8Status.expiresAt || null,
+				issuedAt: null, // V8 service doesn't provide this
+				minutesRemaining: v8Status.minutesRemaining || 0,
+				lastUsed: null // V8 service doesn't provide this
+			};
+			
+			setTokenStatus(convertedStatus);
 			
 			// Fetch additional comprehensive data
 			try {
@@ -628,27 +640,11 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	}, [refreshInterval]);
 
 	const getVariant = (): 'valid' | 'invalid' | 'warning' => {
-		if (tokenStatus.isValid) return 'valid';
-		if (tokenStatus.status === 'expired') return 'warning';
-		return 'invalid';
+		return WorkerTokenStatusServiceV8U.getVariant(tokenStatus);
 	};
 
 	const formatTimeRemaining = () => {
-		if (!tokenStatus.expiresAt) return 'N/A';
-		
-		const now = Date.now();
-		const expiresAt = tokenStatus.expiresAt;
-		const remaining = expiresAt - now;
-		
-		if (remaining <= 0) return 'Expired';
-		
-		const hours = Math.floor(remaining / (1000 * 60 * 60));
-		const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-		
-		if (hours > 0) {
-			return `${hours}h ${minutes}m`;
-		}
-		return `${minutes}m`;
+		return WorkerTokenStatusServiceV8U.formatTimeRemaining(tokenStatus);
 	};
 
 	const getStatusIcon = () => {
@@ -663,10 +659,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	};
 
 	const getStatusText = () => {
-		if (tokenStatus.isValid) return 'ACTIVE';
-		if (tokenStatus.status === 'expired') return 'EXPIRED';
-		if (tokenStatus.status === 'missing') return 'MISSING';
-		return tokenStatus.status.toUpperCase();
+		return WorkerTokenStatusServiceV8U.getText(tokenStatus);
 	};
 
 	// Helper functions for additional data
