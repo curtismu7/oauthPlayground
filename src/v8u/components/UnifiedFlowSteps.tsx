@@ -64,6 +64,7 @@ import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
 import { IDTokenValidationModalV8U } from './IDTokenValidationModalV8U';
 import { StepNavigationButtonsV8U } from './StepNavigationButtonsV8U';
+import { UserTokenStatusDisplayV8U } from './UserTokenStatusDisplayV8U';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
@@ -13868,6 +13869,22 @@ passed: boolean;
 				</div>
 
 				{/* Validation Feedback - Removed per user request (was showing false positives) */}
+
+				{/* User Token Status Display - Always visible */}
+				<UserTokenStatusDisplayV8U
+					flowType={flowType}
+					specVersion={specVersion}
+					credentials={credentials}
+					tokens={flowState.tokens}
+					onTokenRefresh={async () => {
+						// Handle token refresh if needed
+						console.log(`${MODULE_TAG} Token refresh requested`);
+					}}
+					onTokenRevoke={async (tokenType) => {
+						// Handle token revocation if needed
+						console.log(`${MODULE_TAG} Token revocation requested for:`, tokenType);
+					}}
+				/>
 
 				{/* Step Content */}
 				<div style={{ marginTop: '24px' }}>{renderStepContent()}</div>
