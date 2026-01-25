@@ -189,9 +189,10 @@ export async function handleShowWorkerTokenModal(
 		configShowTokenAtEnd: config.workerToken.showTokenAtEnd,
 		finalSilentApiRetrieval: silentApiRetrieval,
 		finalShowTokenAtEnd: showTokenAtEnd,
+		finalForceShowModal: forceShowModal,
 	});
-	// #region agent log
-	// #endregion
+	
+	console.log(`${MODULE_TAG} 🎯 SILENT MODE DEBUG: silentApiRetrieval=${silentApiRetrieval}, forceShowModal=${forceShowModal}, showTokenAtEnd=${showTokenAtEnd}`);
 	
 	// Log which values are being used (for debugging)
 	if (overrideSilentApiRetrieval !== undefined || overrideShowTokenAtEnd !== undefined) {
@@ -230,14 +231,17 @@ export async function handleShowWorkerTokenModal(
 	// Token is missing or expired
 	// If silentApiRetrieval is ON, attempt silent retrieval
 	if (silentApiRetrieval) {
-		console.log(`${MODULE_TAG} Silent API retrieval is enabled, attempting to fetch token silently...`);
+		console.log(`${MODULE_TAG} 🤫 Silent API retrieval is enabled, attempting to fetch token silently...`);
+		console.log(`${MODULE_TAG} 🎯 DEBUG: forceShowModal=${forceShowModal}, showTokenAtEnd=${showTokenAtEnd}`);
 		// #region agent log
 		// #endregion
 		const silentRetrievalSucceeded = await attemptSilentTokenRetrieval(silentApiRetrieval);
+		console.log(`${MODULE_TAG} 🎯 DEBUG: Silent retrieval result=${silentRetrievalSucceeded}`);
 		// #region agent log
 		// #endregion
 
 		if (silentRetrievalSucceeded) {
+			console.log(`${MODULE_TAG} ✅ Silent retrieval succeeded!`);
 			// Token was successfully retrieved silently
 			if (setTokenStatus) {
 				const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
@@ -247,19 +251,23 @@ export async function handleShowWorkerTokenModal(
 			// Only show modal if showTokenAtEnd is also ON (to display the token)
 			// AND user didn't explicitly click button (forceShowModal would be false for automatic calls)
 			if (showTokenAtEnd && !forceShowModal) {
+				console.log(`${MODULE_TAG} 🎯 DEBUG: Showing modal because showTokenAtEnd=true and forceShowModal=false`);
 				console.log(`${MODULE_TAG} Silent retrieval succeeded, showing token display modal (showTokenAtEnd is ON)`);
 				setShowModal(true);
 			} else {
+				console.log(`${MODULE_TAG} 🎯 DEBUG: NOT showing modal - showTokenAtEnd=${showTokenAtEnd}, forceShowModal=${forceShowModal}`);
 				console.log(`${MODULE_TAG} Silent retrieval succeeded, not showing modal (showTokenAtEnd: ${showTokenAtEnd}, forceShowModal: ${forceShowModal})`);
 			}
 			return;
 		}
 
+		console.log(`${MODULE_TAG} ❌ Silent retrieval failed!`);
 		// Silent retrieval failed
 		// If user explicitly clicked button (forceShowModal), show modal to allow credential configuration
 		// If credentials are missing, show modal to allow configuration (even in silent mode)
 		// Otherwise, respect silentApiRetrieval setting and don't show modal
 		if (forceShowModal) {
+			console.log(`${MODULE_TAG} 🎯 DEBUG: Showing modal because forceShowModal=true (user clicked button)`);
 			console.log(`${MODULE_TAG} Silent retrieval failed, but user clicked button - showing modal for credential configuration`);
 			setShowModal(true);
 			return;
@@ -268,6 +276,7 @@ export async function handleShowWorkerTokenModal(
 		// Check if failure was due to missing credentials
 		const credentialsCheck = await workerTokenServiceV8.loadCredentials();
 		if (!credentialsCheck) {
+			console.log(`${MODULE_TAG} 🎯 DEBUG: Showing modal because credentials are missing`);
 			// Credentials are missing - show modal to allow configuration
 			// This is helpful even in silent mode, as user needs to configure credentials first
 			console.log(`${MODULE_TAG} Silent retrieval failed due to missing credentials - showing modal for configuration`);
@@ -276,6 +285,7 @@ export async function handleShowWorkerTokenModal(
 		}
 		
 		// Silent retrieval failed for other reasons - but since silentApiRetrieval is ON and not forced, don't show modal
+		console.log(`${MODULE_TAG} 🎯 DEBUG: NOT showing modal - silentApiRetrieval=true and not forced`);
 		console.log(`${MODULE_TAG} Silent retrieval failed, but silentApiRetrieval is ON - not showing modal (truly silent)`);
 		return;
 	}
