@@ -535,7 +535,10 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	refreshInterval = 5,
 	showConfig = false,
 }) => {
-	console.log('[WorkerTokenStatusDisplayV8] Component initialized with props:', { mode, showRefresh, className, refreshInterval, showConfig });
+	// Reduced logging - only log in development mode
+	if (process.env.NODE_ENV === 'development') {
+		console.log('[WorkerTokenStatusDisplayV8] Component initialized with props:', { mode, showRefresh, className, refreshInterval, showConfig });
+	}
 	
 	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
 		isValid: false,
@@ -1103,8 +1106,9 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	}
 
 	// Detailed mode (default)
-	console.log('[WorkerTokenStatusDisplayV8] Render - mode:', mode, 'isLoading:', isLoading, 'tokenStatus:', tokenStatus);
-	console.log('[WorkerTokenStatusDisplayV8] Component should be visible now!');
+	if (process.env.NODE_ENV === 'development') {
+		console.log('[WorkerTokenStatusDisplayV8] Render - mode:', mode, 'isLoading:', isLoading, 'tokenStatus:', tokenStatus);
+	}
 	return (
 		<StatusContainer $variant={getVariant()} className={className} style={{ 
 			minHeight: '200px', 
