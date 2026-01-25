@@ -18,6 +18,17 @@ import styled, { keyframes, css } from 'styled-components';
 import { FiKey, FiShield, FiClock, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiZap, FiActivity, FiInfo, FiGlobe, FiUser, FiEye, FiEyeOff, FiCopy, FiTrash2 } from 'react-icons/fi';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
+// Flow types for dropdowns
+const FLOW_TYPES = [
+	{ value: 'oauth-authz', label: 'OAuth Authorization Code' },
+	{ value: 'implicit', label: 'OAuth Implicit' },
+	{ value: 'hybrid', label: 'OIDC Hybrid' },
+	{ value: 'client-credentials', label: 'Client Credentials' },
+	{ value: 'device-code', label: 'Device Code' },
+	{ value: 'ropc', label: 'Resource Owner Password' },
+	{ value: 'pkce', label: 'PKCE' }
+];
+
 // Animation keyframes
 const pulse = keyframes`
 	0%, 100% { transform: scale(1); opacity: 1; }
@@ -293,6 +304,41 @@ const RefreshButton = styled.button`
 	}
 `;
 
+const DropdownContainer = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin-bottom: 12px;
+`;
+
+const DropdownLabel = styled.label`
+	font-size: 12px;
+	font-weight: 600;
+	color: #374151;
+	margin-bottom: 4px;
+`;
+
+const DropdownSelect = styled.select`
+	padding: 8px 12px;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 13px;
+	color: #374151;
+	background: white;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+
+	&:hover {
+		border-color: #9ca3af;
+	}
+`;
+
 // Token interfaces
 export interface UserTokenInfo {
 	type: 'access_token' | 'id_token' | 'refresh_token';
@@ -324,6 +370,8 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 	const [tokens, setTokens] = useState<UserTokenInfo[]>([]);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [showTokens, setShowTokens] = useState<Record<string, boolean>>({});
+	const [selectedFlowType, setSelectedFlowType] = useState('oauth-authz');
+	const [selectedTokenType, setSelectedTokenType] = useState('access_token');
 
 	// Initialize tokens
 	useEffect(() => {
@@ -557,6 +605,35 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 					</RefreshButton>
 				)}
 			</SectionHeader>
+
+			{/* Flow Selection Dropdowns */}
+			<div style={{ display: 'flex', gap: '16px', marginBottom: '20px', flexWrap: 'wrap' }}>
+				<DropdownContainer>
+					<DropdownLabel>Flow Type</DropdownLabel>
+					<DropdownSelect
+						value={selectedFlowType}
+						onChange={(e) => setSelectedFlowType(e.target.value)}
+					>
+						{FLOW_TYPES.map((flow) => (
+							<option key={flow.value} value={flow.value}>
+								{flow.label}
+							</option>
+						))}
+					</DropdownSelect>
+				</DropdownContainer>
+
+				<DropdownContainer>
+					<DropdownLabel>Token Type</DropdownLabel>
+					<DropdownSelect
+						value={selectedTokenType}
+						onChange={(e) => setSelectedTokenType(e.target.value)}
+					>
+						<option value="access_token">Access Token</option>
+						<option value="id_token">ID Token</option>
+						<option value="refresh_token">Refresh Token</option>
+					</DropdownSelect>
+				</DropdownContainer>
+			</div>
 
 			{tokens.length === 0 ? (
 				<TokenContainer $variant="info">
