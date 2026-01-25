@@ -24,7 +24,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FiChevronDown, FiChevronUp, FiEye, FiEyeOff, FiInfo } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp, FiEye, FiEyeOff, FiInfo, FiLoader } from 'react-icons/fi';
 import { DraggableModal } from '@/components/DraggableModal';
 import { JWTConfigV8 } from '@/components/JWTConfigV8';
 import type { ResponseMode } from '@/services/responseModeService';
@@ -504,6 +504,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		message: 'Checking worker token status...',
 		isValid: false,
 	}));
+	const [isGettingWorkerToken, setIsGettingWorkerToken] = useState(false);
 	
 	// Worker Token Settings
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
@@ -1951,29 +1952,48 @@ Why it matters: Backend services communicate server-to-server without user conte
 												type="button"
 												className={tokenStatus.isValid ? 'btn-token-has' : 'btn-token-none'}
 												onClick={async () => {
-													// Pass current checkbox values to override config (page checkboxes take precedence)
-													// forceShowModal=false when silentApiRetrieval is ON (respect user's silent preference)
-													// forceShowModal=true when silentApiRetrieval is OFF (user wants modal interaction)
-													const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-													await handleShowWorkerTokenModal(
-														setShowWorkerTokenModal,
-														setTokenStatus,
-														silentApiRetrieval,  // Page checkbox value takes precedence
-														showTokenAtEnd,      // Page checkbox value takes precedence
-														!silentApiRetrieval   // Force show modal only when silent is OFF
-													);
+													setIsGettingWorkerToken(true);
+													try {
+														// Pass current checkbox values to override config (page checkboxes take precedence)
+														// forceShowModal=false when silentApiRetrieval is ON (respect user's silent preference)
+														// forceShowModal=true when silentApiRetrieval is OFF (user wants modal interaction)
+														const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+														await handleShowWorkerTokenModal(
+															setShowWorkerTokenModal,
+															setTokenStatus,
+															silentApiRetrieval,  // Page checkbox value takes precedence
+															showTokenAtEnd,      // Page checkbox value takes precedence
+															!silentApiRetrieval   // Force show modal only when silent is OFF
+														);
+													} finally {
+														setIsGettingWorkerToken(false);
+													}
 												}}
 												title={
 													tokenStatus.isValid
 														? 'Worker token is stored - click to manage'
 														: 'No worker token - click to get one'
 												}
+												disabled={isGettingWorkerToken}
 												style={{
 													flex: '1',
 													minWidth: '140px',
+													opacity: isGettingWorkerToken ? 0.7 : 1,
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+													gap: '8px',
 												}}
 											>
-												{tokenStatus.isValid ? '🔑 Manage Token' : '🔑 Get Worker Token'}
+												{isGettingWorkerToken && (
+													<FiLoader 
+														style={{ 
+															animation: 'spin 1s linear infinite',
+															fontSize: '14px'
+														}} 
+													/>
+												)}
+												{isGettingWorkerToken ? 'Getting Token...' : (tokenStatus.isValid ? '🔑 Manage Token' : '🔑 Get Worker Token')}
 											</button>
 											<button
 												type="button"
