@@ -84,30 +84,30 @@ export function getWorkerTokenStatusColors(variant: WorkerTokenStatusVariant): W
   switch (variant) {
     case 'valid':
       return {
-        primary: '#047857',
-        secondary: '#10b981',
-        background: 'rgba(16, 185, 129, 0.1)',
+        primary: '#022c22',
+        secondary: '#047857',
+        background: 'rgba(16, 185, 129, 0.15)',
         border: '#10b981',
-        text: '#047857',
-        shadow: 'rgba(16, 185, 129, 0.2)'
+        text: '#022c22',
+        shadow: 'rgba(16, 185, 129, 0.3)'
       };
     case 'warning':
       return {
-        primary: '#b45309',
-        secondary: '#f59e0b',
-        background: 'rgba(245, 158, 11, 0.1)',
+        primary: '#78350f',
+        secondary: '#b45309',
+        background: 'rgba(245, 158, 11, 0.15)',
         border: '#f59e0b',
-        text: '#b45309',
-        shadow: 'rgba(245, 158, 11, 0.2)'
+        text: '#78350f',
+        shadow: 'rgba(245, 158, 11, 0.3)'
       };
     case 'invalid':
       return {
-        primary: '#b91c1c',
-        secondary: '#ef4444',
-        background: 'rgba(239, 68, 68, 0.1)',
+        primary: '#7f1d1d',
+        secondary: '#b91c1c',
+        background: 'rgba(239, 68, 68, 0.15)',
         border: '#ef4444',
-        text: '#b91c1c',
-        shadow: 'rgba(239, 68, 68, 0.2)'
+        text: '#7f1d1d',
+        shadow: 'rgba(239, 68, 68, 0.3)'
       };
     default:
       return getWorkerTokenStatusColors('invalid');
@@ -229,34 +229,34 @@ export function shouldRefreshWorkerToken(tokenStatus: TokenStatusInfo): boolean 
  * Get status styling constants for CSS-in-JS
  */
 export const WORKER_TOKEN_STATUS_STYLES = {
-  // StatusValue component colors
+  // StatusValue component colors - MUCH DARKER AND BOLDER
   statusValue: {
-    valid: '#047857',
-    warning: '#b45309',
-    invalid: '#b91c1c'
+    valid: '#022c22',        // Very dark green
+    warning: '#78350f',      // Dark amber
+    invalid: '#7f1d1d'       // Dark red
   },
   
-  // DetailValue component colors
+  // DetailValue component colors - DARKER
   detailValue: {
-    normal: '#d1d5db',
-    highlight: '#047857'
+    normal: '#9ca3af',       // Medium gray (darker than before)
+    highlight: '#022c22'     // Dark green highlight
   },
   
   // StatusLabel colors
-  statusLabel: '#9ca3af',
+  statusLabel: '#6b7280',
   
-  // Common shadows
+  // Enhanced shadows for better readability
   shadows: {
-    text: '0 1px 2px rgba(0, 0, 0, 0.3)',
-    drop: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25))',
-    detail: '0 1px 2px rgba(0, 0, 0, 0.2)'
+    text: '0 2px 4px rgba(0, 0, 0, 0.5)',      // Much stronger shadow
+    drop: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4))', // Stronger drop shadow
+    detail: '0 2px 4px rgba(0, 0, 0, 0.3)'       // Strong detail shadow
   },
   
-  // Container backgrounds
+  // Container backgrounds - slightly darker for contrast
   backgrounds: {
-    valid: 'rgba(16, 185, 129, 0.1)',
-    warning: 'rgba(245, 158, 11, 0.1)',
-    invalid: 'rgba(239, 68, 68, 0.1)'
+    valid: 'rgba(16, 185, 129, 0.15)',
+    warning: 'rgba(245, 158, 11, 0.15)',
+    invalid: 'rgba(239, 68, 68, 0.15)'
   },
   
   // Border colors
