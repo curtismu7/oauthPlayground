@@ -2284,7 +2284,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						}
 					);
 				}}
-				blockContent={complianceErrors.length > 0}
 			/>
 
 			{/* Super Simple API Display - Toggleable, hidden by default - Only shows Unified flow calls */}
