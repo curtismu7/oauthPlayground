@@ -99,7 +99,8 @@ export class V7IDTokenValidationManager {
 				expectedIssuer,
 				expectedAudience,
 				expectedNonce,
-				jwksUri
+				jwksUri,
+				flowName // Use flowName as flowKey for Phase 3 validation
 			);
 
 			if (result.isValid) {
