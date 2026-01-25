@@ -1812,15 +1812,15 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								setIsGettingWorkerToken(true);
 								try {
 									const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+									// User explicitly clicked the button - always show modal
 									// Pass current checkbox values to override config (page checkboxes take precedence)
-									// forceShowModal=false when silentApiRetrieval is ON (respect user's silent preference)
-									// forceShowModal=true when silentApiRetrieval is OFF (user wants modal interaction)
+									// forceShowModal=true because user explicitly clicked the button
 									await handleShowWorkerTokenModal(
 										setShowWorkerTokenModal, 
 										setTokenStatus,
 										silentApiRetrieval,  // Page checkbox value takes precedence
 										showTokenAtEnd,      // Page checkbox value takes precedence
-										!silentApiRetrieval   // Force show modal only when silent is OFF
+										true                  // Always show modal when user clicks button
 									);
 								} finally {
 									setIsGettingWorkerToken(false);
