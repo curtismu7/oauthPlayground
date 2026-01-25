@@ -228,11 +228,16 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 				toastV8.success('Worker token removed');
 			}
 		} else {
+			// User explicitly clicked the button - always show modal
 			// Use helper to check silentApiRetrieval before showing modal
 			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-			// #region agent log
-			// #endregion
-			await handleShowWorkerTokenModal(setShowWorkerTokenModal, async (status) => setTokenStatus(await status), silentApiRetrieval, showTokenAtEnd);
+			await handleShowWorkerTokenModal(
+				setShowWorkerTokenModal, 
+				async (status) => setTokenStatus(await status), 
+				silentApiRetrieval, 
+				showTokenAtEnd,
+				true // Force show modal - user clicked button
+			);
 		}
 	};
 
