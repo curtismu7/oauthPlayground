@@ -159,6 +159,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const authContext = useAuth();
 	const [isClearingTokens, setIsClearingTokens] = useState(false);
 	const [showClearTokensModal, setShowClearTokensModal] = useState(false);
+	const [isGettingWorkerToken, setIsGettingWorkerToken] = useState(false);
 	
 	// Action button hooks for consistent button state management
 	const startMFAAction = useActionButton();
@@ -1808,18 +1809,24 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						<button
 							type="button"
 							onClick={async () => {
-								const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-								// Pass current checkbox values to override config (page checkboxes take precedence)
-								// forceShowModal=false when silentApiRetrieval is ON (respect user's silent preference)
-								// forceShowModal=true when silentApiRetrieval is OFF (user wants modal interaction)
-								await handleShowWorkerTokenModal(
-									setShowWorkerTokenModal, 
-									setTokenStatus,
-									silentApiRetrieval,  // Page checkbox value takes precedence
-									showTokenAtEnd,      // Page checkbox value takes precedence
-									!silentApiRetrieval   // Force show modal only when silent is OFF
-								);
+								setIsGettingWorkerToken(true);
+								try {
+									const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+									// Pass current checkbox values to override config (page checkboxes take precedence)
+									// forceShowModal=false when silentApiRetrieval is ON (respect user's silent preference)
+									// forceShowModal=true when silentApiRetrieval is OFF (user wants modal interaction)
+									await handleShowWorkerTokenModal(
+										setShowWorkerTokenModal, 
+										setTokenStatus,
+										silentApiRetrieval,  // Page checkbox value takes precedence
+										showTokenAtEnd,      // Page checkbox value takes precedence
+										!silentApiRetrieval   // Force show modal only when silent is OFF
+									);
+								} finally {
+									setIsGettingWorkerToken(false);
+								}
 							}}
+							disabled={isGettingWorkerToken}
 							style={{
 								padding: '8px 16px',
 								border: 'none',
@@ -1833,11 +1840,23 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								color: 'white',
 								fontSize: '14px',
 								fontWeight: '500',
-								cursor: 'pointer',
+								cursor: isGettingWorkerToken ? 'not-allowed' : 'pointer',
 								whiteSpace: 'nowrap',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								opacity: isGettingWorkerToken ? 0.7 : 1,
 							}}
 						>
-							Get Worker Token
+							{isGettingWorkerToken && (
+								<FiLoader 
+									style={{ 
+										animation: 'spin 1s linear infinite',
+										fontSize: '14px'
+									}} 
+								/>
+							)}
+							{isGettingWorkerToken ? 'Getting Token...' : 'Get Worker Token'}
 						</button>
 
 						{/* Cool 3D Worker Token Status Display */}
