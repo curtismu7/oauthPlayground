@@ -35,6 +35,8 @@ import {
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
+import { FeatureFlagService } from '@/services/featureFlagService';
+import { PkceManager } from '@/services/pkceManager';
 
 const MODULE_TAG = '[🔗 UNIFIED-FLOW-INTEGRATION-V8U]';
 
@@ -1175,12 +1177,50 @@ export class UnifiedFlowIntegrationV8U {
 				);
 			}
 
-			// Code verifier is only required when PKCE IS enabled
-			if (credentials.usePKCE && !codeVerifier) {
-				console.error(`${MODULE_TAG} ❌ PKCE enabled but code verifier missing`);
-				throw new Error(
-					'PKCE is enabled but the code verifier is missing. Please go back and generate PKCE parameters first.'
-				);
+			// Phase 3C: Enhanced PKCE validation using Phase 2 services or fallback
+			if (credentials.usePKCE) {
+				const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
+				
+				if (useNewOidcCore && !codeVerifier) {
+					// Try to retrieve PKCE from Phase 2 PkceManager
+					console.log(`${MODULE_TAG} 🔐 Attempting to retrieve PKCE from Phase 2 PkceManager`);
+					
+					try {
+						// Generate flow key for Phase 2 services
+						const flowKey = `${credentials.environmentId}-${credentials.clientId}`;
+						const storedPKCE = PkceManager.retrieve(flowKey);
+						
+						if (storedPKCE) {
+							codeVerifier = storedPKCE.codeVerifier;
+							console.log(`${MODULE_TAG} ✅ Retrieved PKCE from Phase 2 PkceManager`, {
+								flowKey,
+								verifierLength: codeVerifier.length,
+							});
+						} else {
+							console.error(`${MODULE_TAG} ❌ No PKCE found in Phase 2 PkceManager for flow: ${flowKey}`);
+							throw new Error(
+								'PKCE codes not found. Please go back and generate PKCE parameters first.'
+							);
+						}
+					} catch (error) {
+						console.error(`${MODULE_TAG} ❌ Failed to retrieve PKCE from Phase 2 PkceManager:`, error);
+						throw new Error(
+							'Failed to retrieve PKCE codes. Please go back and generate PKCE parameters again.'
+						);
+					}
+				} else if (!codeVerifier) {
+					// Fallback validation for old method or when Phase 2 disabled
+					console.error(`${MODULE_TAG} ❌ PKCE enabled but code verifier missing`);
+					throw new Error(
+						'PKCE is enabled but the code verifier is missing. Please go back and generate PKCE parameters first.'
+					);
+				}
+				
+				console.log(`${MODULE_TAG} ✅ PKCE validation passed`, {
+					hasCodeVerifier: !!codeVerifier,
+					verifierLength: codeVerifier?.length,
+					usingPhase2: useNewOidcCore,
+				});
 			}
 
 			console.log(`${MODULE_TAG} ✅ Validation passed, building OAuth credentials object`);
