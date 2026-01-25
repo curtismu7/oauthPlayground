@@ -1,6 +1,9 @@
 // src/utils/idTokenValidation.ts
 // Comprehensive ID token validation service for OIDC flows
 
+import { FeatureFlagService } from '../services/featureFlagService';
+import { NonceManager } from '../services/nonceManager';
+
 export interface IDTokenValidationResult {
 	isValid: boolean;
 	errors: string[];
@@ -47,7 +50,8 @@ export class IDTokenValidationService {
 		expectedIssuer: string,
 		expectedAudience: string,
 		expectedNonce?: string,
-		jwksUri?: string
+		jwksUri?: string,
+		flowKey?: string
 	): Promise<IDTokenValidationResult> {
 		const result: IDTokenValidationResult = {
 			isValid: true,
@@ -128,7 +132,8 @@ export class IDTokenValidationService {
 			if (expectedNonce) {
 				const nonceValid = IDTokenValidationService.validateNonce(
 					decoded.payload.nonce,
-					expectedNonce
+					expectedNonce,
+					flowKey
 				);
 				result.validationDetails.nonce = nonceValid;
 				if (!nonceValid) {
@@ -315,10 +320,40 @@ export class IDTokenValidationService {
 	}
 
 	/**
-	 * Validate nonce claim
+	 * Validate nonce claim using Phase 2 NonceManager or fallback
 	 */
-	private static validateNonce(actualNonce: string, expectedNonce: string): boolean {
-		return actualNonce === expectedNonce;
+	private static validateNonce(actualNonce: string, expectedNonce: string, flowKey?: string): boolean {
+		const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
+		
+		if (useNewOidcCore && flowKey) {
+			// Use Phase 2/3 NonceManager validation
+			const isValid = NonceManager.validate(actualNonce, flowKey);
+			
+			if (!isValid) {
+				console.error('[IDTokenValidation] Nonce validation failed (Phase 3)', {
+					receivedNonce: actualNonce,
+					flowKey,
+				});
+			} else {
+				console.log('[IDTokenValidation] Nonce validated successfully (Phase 3)', {
+					flowKey,
+				});
+			}
+			
+			return isValid;
+		} else {
+			// Fallback to old validation
+			const isValid = actualNonce === expectedNonce;
+			
+			if (!isValid) {
+				console.error('[IDTokenValidation] Nonce validation failed (old validation)', {
+					receivedNonce: actualNonce,
+					expectedNonce,
+				});
+			}
+			
+			return isValid;
+		}
 	}
 
 	/**
