@@ -48,6 +48,7 @@ import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServic
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { PKCEStorageServiceV8U } from '../services/pkceStorageServiceV8U';
 import {
 	type UnifiedFlowCredentials,
@@ -564,6 +565,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [showPollingTimeoutModal, setShowPollingTimeoutModal] = useState(false);
 	const [showWorkerTokenVsClientCredentialsModal, setShowWorkerTokenVsClientCredentialsModal] =
 		useState(false);
+	const [isWorkerTokenCollapsed, setIsWorkerTokenCollapsed] = useState(false);
 	const [callbackDetails, setCallbackDetails] = useState<{
 		url: string;
 		code?: string;
@@ -2183,6 +2185,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 	// Step 0: Configure Credentials (all flows)
 	const renderStep0 = () => {
+		console.log('🔥🔥🔥 RENDER STEP 0 CALLED! 🔥🔥🔥');
+		console.log('🔥🔥🔥 Worker token collapsed state:', isWorkerTokenCollapsed, '🔥🔥🔥');
+		
 		// Determine required fields based on flow type
 		const needsRedirectUri = ['oauth-authz', 'implicit', 'hybrid'].includes(flowType);
 		const needsClientSecret =
@@ -2303,6 +2308,113 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 		return (
 			<div className="step-content">
+				{/* DEBUG: Worker Token Section */}
+				{console.log('[DEBUG] Rendering worker token section, collapsed:', isWorkerTokenCollapsed)}
+				{/* Worker Token Status & Controls - Priority Section */}
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setIsWorkerTokenCollapsed(!isWorkerTokenCollapsed)}
+						aria-expanded={!isWorkerTokenCollapsed}
+					>
+						<CollapsibleTitle>
+							<FiShield />
+							<span>Worker Token Status & Controls</span>
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={isWorkerTokenCollapsed}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!isWorkerTokenCollapsed && (
+						<CollapsibleContent>
+							{/* Worker Token Status Display */}
+							<WorkerTokenStatusDisplayV8 
+								mode="compact" 
+								showRefresh={true}
+							/>
+							
+							{/* Worker Token Controls */}
+							<div
+								style={{
+									marginTop: '16px',
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '12px',
+								}}
+							>
+								{/* Get Worker Token Button */}
+								<button
+									type="button"
+									onClick={async () => {
+										try {
+											const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+											await workerTokenServiceV8.generateToken();
+											toastV8.success('Worker token generated successfully!');
+										} catch (error) {
+											toastV8.error('Failed to generate worker token');
+											console.error('Worker token generation error:', error);
+										}
+									}}
+									style={{
+										padding: '10px 16px',
+										background: '#10b981',
+										color: 'white',
+										border: 'none',
+										borderRadius: '6px',
+										fontSize: '14px',
+										fontWeight: '500',
+										cursor: 'pointer',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '8px',
+									}}
+								>
+									<FiShield />
+									Get Worker Token
+								</button>
+
+								{/* Worker Token Settings Checkboxes */}
+								<div
+									style={{
+										display: 'flex',
+										flexDirection: 'column',
+										gap: '8px',
+										padding: '12px',
+										background: '#f8fafc',
+										border: '1px solid #e2e8f0',
+										borderRadius: '6px',
+									}}
+								>
+									<label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+										<input
+											type="checkbox"
+											defaultChecked={true}
+											onChange={(e) => {
+												// Handle silent mode toggle
+												console.log('Silent mode:', e.target.checked);
+											}}
+											style={{ width: '16px', height: '16px' }}
+										/>
+										<span style={{ fontSize: '14px' }}>Silent Mode (Auto-retrieve token)</span>
+									</label>
+									
+									<label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+										<input
+											type="checkbox"
+											defaultChecked={true}
+											onChange={(e) => {
+												// Handle show token toggle
+												console.log('Show token:', e.target.checked);
+											}}
+											style={{ width: '16px', height: '16px' }}
+										/>
+										<span style={{ fontSize: '14px' }}>Show Token in Status</span>
+									</label>
+								</div>
+							</div>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
+
 				{/* Quick Start & Overview - Educational Section */}
 				<CollapsibleSection>
 					<CollapsibleHeaderButton
@@ -10143,109 +10255,99 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	 *
 	 * @returns {JSX.Element | null} The rendered step content, or null if step is invalid
 	 */
-	const renderStepContent = () => {
-		// Only log when step or flow type changes (not on every render)
-		if (prevStepRef.current !== currentStep || prevFlowTypeRef.current !== flowType) {
-		console.log(`${MODULE_TAG} [STEP ROUTING] Rendering step content`, {
-			currentStep,
-			flowType,
-			usePKCE: isPKCERequired,
-			pkceEnforcement: credentials.pkceEnforcement,
-			alwaysShowPKCE: flowType === 'oauth-authz' || flowType === 'hybrid',
-		});
-			prevStepRef.current = currentStep;
-			// Note: prevFlowTypeRef is updated in the useEffect above, so we don't update it here
-		}
+	const renderStepContent = (): JSX.Element | null => {
+		try {
+			console.log('🔥🔥🔥 renderStepContent FUNCTION CALLED! 🔥🔥🔥');
+			console.log('🔥🔥🔥 currentStep:', currentStep, '🔥🔥🔥');
+			
+			// Only log when step or flow type changes (not on every render)
+			if (prevStepRef.current !== currentStep || prevFlowTypeRef.current !== flowType) {
+				console.log(`${MODULE_TAG} [STEP ROUTING] Rendering step content`, {
+					currentStep,
+					flowType,
+					usePKCE: isPKCERequired,
+					pkceEnforcement: credentials.pkceEnforcement,
+					alwaysShowPKCE: flowType === 'oauth-authz' || flowType === 'hybrid',
+				});
+				prevStepRef.current = currentStep;
+				// Note: prevFlowTypeRef is updated in the useEffect above, so we don't update it here
+			}
 
-		switch (currentStep) {
-			case 0:
-				return renderStep0();
+			switch (currentStep) {
+				case 0:
+					console.log('🔥🔥🔥 SWITCH: CASE 0 - Calling renderStep0! 🔥🔥🔥');
+					return renderStep0();
 
-			case 1:
-				if (flowType === 'device-code') {
-					return renderStep1DeviceAuth();
-				}
-				if (flowType === 'client-credentials') {
-					return renderStep2RequestToken();
-				}
-				// For oauth-authz and hybrid, Step 1 is PKCE generation
-				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-					console.log(`${MODULE_TAG} [STEP ROUTING] Showing PKCE step (Step 1) for ${flowType}`);
-					return renderStep1PKCE();
-				}
-				// For implicit flow, show Authorization URL step
-				console.log(`${MODULE_TAG} [STEP ROUTING] Showing Auth URL step for ${flowType}`);
-				return renderStep1AuthUrl();
-
-			case 2:
-				// For oauth-authz and hybrid, Step 2 is Authorization URL (after PKCE)
-				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-					console.log(
-						`${MODULE_TAG} [STEP ROUTING] Showing Auth URL step (Step 2) for ${flowType}`
-					);
+				case 1:
+					console.log('🔥🔥🔥 SWITCH: CASE 1 🔥🔥🔥');
+					if (flowType === 'device-code') {
+						return renderStep1DeviceAuth();
+					}
+					if (flowType === 'client-credentials') {
+						return renderStep2RequestToken();
+					}
+					// For oauth-authz and hybrid, Step 1 is PKCE generation
+					if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+						console.log(`${MODULE_TAG} [STEP ROUTING] Showing PKCE step (Step 1) for ${flowType}`);
+						return renderStep1PKCE();
+					}
+					// For implicit flow, show Authorization URL step
+					console.log(`${MODULE_TAG} [STEP ROUTING] Showing Auth URL step for ${flowType}`);
 					return renderStep1AuthUrl();
-				}
-				// For other flows, Step 2 is callback/fragment handling
-				if (flowType === 'implicit') {
-					return renderStep2Fragment();
-				}
-				if (flowType === 'device-code') {
-					return renderStep2Poll();
-				}
-				// Client credentials - go to tokens
-				return renderStep3Tokens();
 
-			case 3:
-				// For oauth-authz and hybrid, Step 3 is callback handling (after Auth URL)
-				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-					return renderStep2Callback();
-				}
-				// For implicit and device-code, Step 3 is Tokens
-				if (flowType === 'implicit' || flowType === 'device-code') {
-					return renderStep3Tokens();
-				}
-				// Client credentials - Step 3 is Introspection & UserInfo (after Tokens at step 2)
-				if (flowType === 'client-credentials') {
-					return renderStep6IntrospectionUserInfo();
-				}
-				// All other flows - show tokens
-				return renderStep3Tokens();
+				case 2:
+					// For oauth-authz and hybrid, Step 2 is Authorization URL (after PKCE)
+					if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+						console.log(
+							`${MODULE_TAG} [STEP ROUTING] Showing Auth URL step (Step 2) for ${flowType}`
+						);
+						return renderStep1AuthUrl();
+					}
+					// For other flows, Step 2 is callback/fragment handling
+					if (flowType === 'implicit') {
+						return renderStep2Fragment();
+					}
 
-			case 4:
-				// For oauth-authz and hybrid, Step 4 is token exchange (after callback)
-				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-					return renderStep3ExchangeTokens();
-				}
-				// For implicit and device-code, Step 4 is Introspection & UserInfo (after Tokens at step 3)
-				if (flowType === 'implicit' || flowType === 'device-code') {
-					return renderStep6IntrospectionUserInfo();
-				}
-				// Client credentials - Step 4 is Documentation (after Introspection at step 3)
-				if (flowType === 'client-credentials') {
-					return renderStep7Documentation();
-				}
-				// All other flows - shouldn't reach here
-				return renderStep3Tokens();
+					case 2:
+						// For oauth-authz and hybrid, Step 2 is Authorization URL (after PKCE)
+						if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+							console.log(
+								`${MODULE_TAG} [STEP ROUTING] Showing Auth URL step (Step 2) for ${flowType}`
+							);
+							return renderStep1AuthUrl();
+						}
+						// For other flows, Step 2 is callback/fragment handling
+						if (flowType === 'implicit') {
+							return renderStep2Fragment();
+						}
+						if (flowType === 'device-code') {
+							return renderStep2Poll();
+						}
+						// Client credentials - go to tokens
+						return renderStep2Callback();
 
-			case 5:
-				// For oauth-authz and hybrid, Step 5 is display tokens (after exchange)
-				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-					return renderStep3Tokens();
-				}
-				// For implicit and device-code, Step 5 is Documentation (after Introspection at step 4)
-				if (flowType === 'implicit' || flowType === 'device-code') {
-					return renderStep7Documentation();
-				}
-				return renderStep3Tokens();
+					case 3:
+						// For implicit and device-code, Step 3 is Tokens
+						if (flowType === 'implicit' || flowType === 'device-code') {
+							return renderStep3Tokens();
+						}
+						// Client credentials - Step 3 is Introspection & UserInfo (after Tokens at step 2)
+						if (flowType === 'client-credentials') {
+							return renderStep6IntrospectionUserInfo();
+						}
+						// For oauth-authz and hybrid, Step 3 is callback/fragment handling
+						if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+							return renderStep2Callback();
+						}
+						return renderStep3ExchangeCode();
 
-			case 6:
-				// For oauth-authz and hybrid, Step 6 is introspection & userinfo
-				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-					return renderStep6IntrospectionUserInfo();
-				}
-				// Implicit and device-code only have 6 steps (0-5), so step 6 doesn't exist for them
-				// This case should not be reached for implicit/device-code flows
-				return renderStep6IntrospectionUserInfo();
+					case 4:
+						// For oauth-authz and hybrid, Step 4 is token exchange
+						if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+							return renderStep3ExchangeCode();
+						}
+						// For other flows, Step 4 is tokens
+						return renderStep3Tokens();
 
 			case 7:
 				// For oauth-authz and hybrid, Step 7 is documentation (after Introspection at step 6)
@@ -10459,7 +10561,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				{/* Validation Feedback - Removed per user request (was showing false positives) */}
 
 				{/* Step Content */}
-				<div style={{ marginTop: '24px' }}>{renderStepContent()}</div>
+				<div style={{ marginTop: '24px' }}>
+					{console.log('🔥🔥🔥 ABOUT TO CALL renderStepContent! 🔥🔥🔥')}
+					{renderStepContent()}
+				</div>
 
 				{/* Step Action Buttons with Restart Flow in the middle - All buttons same size and color scheme */}
 				<div
