@@ -63,7 +63,7 @@ import { TokenDisplayV8U } from './TokenDisplayV8U';
 import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
 import { IDTokenValidationModalV8U } from './IDTokenValidationModalV8U';
-import { StepNavigationButtonsV8U } from './StepNavigationButtonsV8U';
+import { StepNavigation } from './StepNavigation';
 import { UserTokenStatusDisplayV8U } from './UserTokenStatusDisplayV8U';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 
@@ -14394,15 +14394,14 @@ passed: boolean;
 				environmentId={credentials.environmentId}
 				nonce={flowState.nonce}
 			/>
-			{/* Step Navigation Buttons - Always visible */}
-			<StepNavigationButtonsV8U
+			{/* Step Navigation - Always visible */}
+			<StepNavigation
 				totalSteps={totalSteps}
 				currentStep={currentStep}
 				onStepChange={navigateToStep}
-				onFlowReset={onFlowReset}
-				restartLabel="🔄 Restart Flow"
-				nextLabel="Next →"
 				previousLabel="← Previous"
+				nextLabel="Next →"
+				resetLabel="🔄 Restart"
 			/>
 		</>
 	);
