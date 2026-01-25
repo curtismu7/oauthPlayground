@@ -264,8 +264,6 @@ const TokenStatusPageV8U: React.FC = () => {
 				</TokenStatusDescription>
 				
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-					<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
-					
 					<div style={{ display: 'flex', gap: '8px' }}>
 						<ActionButton onClick={handleShowWorkerTokenModal}>
 							<FiShield />
@@ -393,6 +391,9 @@ const TokenStatusPageV8U: React.FC = () => {
 							</div>
 						</label>
 					</div>
+
+					{/* Worker Token Status Display - Moved below buttons */}
+					<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
 				</div>
 			</TokenStatusCard>
 
