@@ -49,6 +49,8 @@ import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { FeatureFlagService } from '@/services/featureFlagService';
+import { CredentialsRepository } from '@/services/credentialsRepository';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { FlowOptionsServiceV8 } from '@/v8/services/flowOptionsServiceV8';
 import { OidcDiscoveryServiceV8 } from '@/v8/services/oidcDiscoveryServiceV8';
@@ -1119,10 +1121,19 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		if (hasChanges) {
 			// Save credentials directly to storage using V8U flowKey
 			try {
-				const credsForSave = updated as unknown as Parameters<
-					typeof CredentialsServiceV8.saveCredentials
-				>[1];
-				CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+				if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+					// Convert scopes string to array for new repository
+					const credsForNew = {
+						...updated,
+						scopes: typeof updated.scopes === 'string' ? updated.scopes.split(' ').filter(Boolean) : updated.scopes
+					};
+					CredentialsRepository.setFlowCredentials(flowKey, credsForNew as any);
+				} else {
+					const credsForSave = updated as unknown as Parameters<
+						typeof CredentialsServiceV8.saveCredentials
+					>[1];
+					CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+				}
 
 				// Save shared credentials (environmentId, clientId, clientSecret, etc.) to shared storage
 				const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(updated);
@@ -1309,10 +1320,21 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 			// Save credentials directly to storage using V8U flowKey
 			try {
-				const credsForSave = updated as unknown as Parameters<
-					typeof CredentialsServiceV8.saveCredentials
-				>[1];
-				CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+				if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+					// Convert scopes string to array for new repository
+					const credsForNew = {
+						...updated,
+						scopes: typeof updated.scopes === 'string' ? updated.scopes.split(' ').filter(Boolean) : updated.scopes
+					};
+					CredentialsRepository.setFlowCredentials(flowKey, credsForNew as any);
+				} else {
+					// Convert scopes string to array for new repository
+					const credsForSave = {
+						...updated,
+						scopes: typeof updated.scopes === 'string' ? updated.scopes.split(' ').filter(Boolean) : updated.scopes
+					};
+					CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+				}
 
 				// Save shared credentials (environmentId, clientId, clientSecret, etc.) to shared storage (async with disk)
 				const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(updated);
