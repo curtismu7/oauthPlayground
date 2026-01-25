@@ -222,7 +222,7 @@ const AllFlowsApiTest = lazy(() => import('./pages/test/AllFlowsApiTest'));
 const MFAFlowsApiTest = lazy(() => import('./pages/test/MFAFlowsApiTest'));
 const PARTest = lazy(() => import('./pages/test/PARTest'));
 const TestCallback = lazy(() => import('./pages/test/TestCallback'));
-const ProductionApiTestPageV8U = lazy(() => import('./v8u/pages/ProductionApiTestPageV8U'));
+const TokenStatusPageV8U = lazy(() => import('./v8u/pages/TokenStatusPageV8U'));
 
 // Import V7M pages
 const V7MOAuthAuthCode = lazy(() => import('./v7m/pages/V7MOAuthAuthCode'));
@@ -783,7 +783,7 @@ const AppRoutes: React.FC = () => {
 								element={
 									<Suspense fallback={<ComponentLoader message="Loading Token Monitoring..." subtext="Initializing token monitoring service" />}>
 										<UnifiedFlowErrorBoundary>
-											<TokenMonitoringPage />
+											<TokenStatusPageV8U />
 										</UnifiedFlowErrorBoundary>
 									</Suspense>
 								} 
@@ -1130,7 +1130,7 @@ const AppRoutes: React.FC = () => {
 								path="/production/api-tests"
 								element={
 									<Suspense fallback={<div>Loading...</div>}>
-										<ProductionApiTestPageV8U />
+										<TokenStatusPageV8U />
 									</Suspense>
 								}
 							/>
