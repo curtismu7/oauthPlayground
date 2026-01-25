@@ -1,18 +1,17 @@
 /**
- * @file ProductionApiTestPageV8U.tsx
+ * @file TokenStatusPageV8U.tsx
  * @module v8u/pages
- * @description Production API Test Page for v8 unified flows
+ * @description Token Status Monitoring Page for v8 unified flows
  * @version 8.0.0
  * @since 2024-11-16
  *
- * This page provides a comprehensive testing interface for production APIs
- * including MFA device management, unified OAuth flows, and PingOne platform APIs.
+ * This page provides a comprehensive token status monitoring interface for OAuth flows.
  * Features include:
- * - Test suite organization by category
- * - Detailed API request/response inspection
- * - Real-time test execution and results
- * - Worker token status monitoring
- * - User token monitoring
+ * - Worker token status monitoring with configuration
+ * - User token monitoring (Access, ID, and Refresh tokens)
+ * - Real-time token status updates
+ * - OAuth configuration management
+ * - Token refresh and validation
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
@@ -23,12 +22,12 @@ import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import UserTokenStatusDisplayV8U from '@/v8u/components/UserTokenStatusDisplayV8U';
 
-// Test interfaces
-interface ApiTest {
+// Token monitoring interfaces
+interface TokenStatus {
 	id: string;
 	name: string;
 	description: string;
-	category: 'mfa' | 'unified' | 'common';
+	category: 'worker' | 'user' | 'session';
 	method: 'GET' | 'POST' | 'PUT' | 'DELETE';
 	endpoint: string;
 	headers?: Record<string, string> | undefined;
@@ -37,8 +36,8 @@ interface ApiTest {
 	dependencies?: string[];
 }
 
-interface TestResult {
-	testId: string;
+interface TokenResult {
+	tokenId: string;
 	status: 'pending' | 'running' | 'success' | 'error';
 	duration?: number;
 	request?: {
@@ -82,7 +81,7 @@ const PageDescription = styled.p`
 	line-height: 1.6;
 `;
 
-const TestSuiteCard = styled.div`
+const TokenStatusCard = styled.div`
 	background: white;
 	border-radius: 12px;
 	padding: 24px;
@@ -91,11 +90,11 @@ const TestSuiteCard = styled.div`
 	border: 1px solid #e5e7eb;
 `;
 
-const TestSuiteHeader = styled.div`
+const TokenStatusHeader = styled.div`
 	margin-bottom: 16px;
 `;
 
-const TestSuiteTitle = styled.h2`
+const TokenStatusTitle = styled.h2`
 	font-size: 20px;
 	font-weight: 600;
 	color: #1f2937;
@@ -105,14 +104,14 @@ const TestSuiteTitle = styled.h2`
 	gap: 8px;
 `;
 
-const TestSuiteDescription = styled.p`
+const TokenStatusDescription = styled.p`
 	font-size: 14px;
 	color: #6b7280;
 	margin: 8px 0 0 0;
 	line-height: 1.5;
 `;
 
-const RunButton = styled.button`
+const ActionButton = styled.button`
 	background: #3b82f6;
 	color: white;
 	border: none;
@@ -138,29 +137,29 @@ const RunButton = styled.button`
 	}
 `;
 
-// Test suites data
-const testSuites: ApiTest[] = [
+// Token status data
+const tokenStatuses: TokenStatus[] = [
 	{
-		id: 'worker-token-monitoring',
-		name: 'Worker Token Monitoring',
+		id: 'worker-token-status',
+		name: 'Worker Token Status',
 		description: 'Monitor and manage worker tokens for API authentication',
-		category: 'common',
+		category: 'worker',
 		method: 'GET',
 		endpoint: '/api/worker-token/status',
 		expectedStatus: 200,
 	},
 	{
-		id: 'user-token-monitoring',
-		name: 'User Token Monitoring',
+		id: 'user-token-status',
+		name: 'User Token Status',
 		description: 'Monitor user authentication tokens from OAuth flows',
-		category: 'unified',
+		category: 'user',
 		method: 'GET',
 		endpoint: '/api/user-tokens/status',
 		expectedStatus: 200,
 	},
 ];
 
-const ProductionApiTestPageV8U: React.FC = () => {
+const TokenStatusPageV8U: React.FC = () => {
 	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
 		isValid: false,
 		status: 'missing',
@@ -188,7 +187,7 @@ const ProductionApiTestPageV8U: React.FC = () => {
 				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				setTokenStatus(status);
 			} catch (error) {
-				console.error('[PRODUCTION-API-TEST-V8U] Failed to check token status:', error);
+				console.error('[TOKEN-STATUS-V8U] Failed to check token status:', error);
 				setTokenStatus({
 					isValid: false,
 					status: 'error',
@@ -237,42 +236,41 @@ const ProductionApiTestPageV8U: React.FC = () => {
 				false
 			);
 		} catch (error) {
-			console.error('[PRODUCTION-API-TEST-V8U] Error showing worker token modal:', error);
+			console.error('[TOKEN-STATUS-V8U] Error showing worker token modal:', error);
 		}
 	};
 
 	return (
 		<PageContainer>
 			<PageHeader>
-				<PageTitle>Production API Test Suite</PageTitle>
+				<PageTitle>Token Status Monitoring</PageTitle>
 				<PageDescription>
-					Comprehensive testing interface for production APIs including MFA device management,
-					unified OAuth flows, and PingOne platform APIs. Monitor tokens, execute tests, and inspect
-					requests and responses in real-time.
+					Comprehensive token status monitoring for OAuth flows and API authentication.
+					Track worker tokens, user tokens, and manage OAuth configuration settings in real-time.
 				</PageDescription>
 			</PageHeader>
 
-			{/* Worker Token Monitoring Section */}
-			<TestSuiteCard>
-				<TestSuiteHeader>
-					<TestSuiteTitle>
+			{/* Worker Token Status Section */}
+			<TokenStatusCard>
+				<TokenStatusHeader>
+					<TokenStatusTitle>
 						<FiShield />
-						Worker Token Monitoring
-					</TestSuiteTitle>
-				</TestSuiteHeader>
-				<TestSuiteDescription>
+						Worker Token Status
+					</TokenStatusTitle>
+				</TokenStatusHeader>
+				<TokenStatusDescription>
 					Monitor the worker token used for API authentication and management operations.
 					Check token validity, expiration, and refresh status.
-				</TestSuiteDescription>
+				</TokenStatusDescription>
 				
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 					<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
 					
 					<div style={{ display: 'flex', gap: '8px' }}>
-						<RunButton onClick={handleShowWorkerTokenModal}>
+						<ActionButton onClick={handleShowWorkerTokenModal}>
 							<FiShield />
 							Get Worker Token
-						</RunButton>
+						</ActionButton>
 					</div>
 
 					{/* Detailed Worker Token Settings Checkboxes - Same as Main Page */}
@@ -313,7 +311,7 @@ const ProductionApiTestPageV8U: React.FC = () => {
 										try {
 											const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 											if (!currentStatus.isValid) {
-												console.log('[TOKEN-MONITORING-V8U] Silent API retrieval enabled, attempting to fetch token now...');
+												console.log('[TOKEN-STATUS-V8U] Silent API retrieval enabled, attempting to fetch token now...');
 												const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
 												await handleShowWorkerTokenModal(
 													setShowWorkerTokenModal,
@@ -324,7 +322,7 @@ const ProductionApiTestPageV8U: React.FC = () => {
 												);
 											}
 										} catch (error) {
-											console.error('[TOKEN-MONITORING-V8U] Error in silent retrieval:', error);
+											console.error('[TOKEN-STATUS-V8U] Error in silent retrieval:', error);
 										}
 									}
 								}}
@@ -396,24 +394,24 @@ const ProductionApiTestPageV8U: React.FC = () => {
 						</label>
 					</div>
 				</div>
-			</TestSuiteCard>
+			</TokenStatusCard>
 
-			{/* User Token Monitoring Section */}
-			<TestSuiteCard>
-				<TestSuiteHeader>
-					<TestSuiteTitle>
+			{/* User Token Status Section */}
+			<TokenStatusCard>
+				<TokenStatusHeader>
+					<TokenStatusTitle>
 						<FiCode />
-						User Token Monitoring
-					</TestSuiteTitle>
-				</TestSuiteHeader>
-				<TestSuiteDescription>
+						User Token Status
+					</TokenStatusTitle>
+				</TokenStatusHeader>
+				<TokenStatusDescription>
 					Monitor user authentication tokens (Access, ID, and Refresh tokens) from OAuth flows and unified authentication.
-				</TestSuiteDescription>
+				</TokenStatusDescription>
 				
 				<UserTokenStatusDisplayV8U showRefresh={true} refreshInterval={10} />
-			</TestSuiteCard>
+			</TokenStatusCard>
 		</PageContainer>
 	);
 };
 
-export default ProductionApiTestPageV8U;
+export default TokenStatusPageV8U;
