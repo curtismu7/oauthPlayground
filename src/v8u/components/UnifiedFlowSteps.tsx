@@ -13978,7 +13978,7 @@ passed: boolean;
 				<button
 					type="button"
 					onClick={() => {
-						window.open('/test/all-flows-api', '_blank');
+						window.open('/test/all-flows-api-test', '_blank');
 					}}
 					style={{
 						display: 'inline-flex',
