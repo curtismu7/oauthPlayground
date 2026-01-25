@@ -1812,6 +1812,17 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
+
+				{
+					id: 'ping-view-on-ai',
+					path: '/docs/ping-view-on-ai',
+					label: 'PingOne AI Perspective',
+					icon: (
+						<ColoredIcon $color="#16a34a">
+							<FiShield />
+						</ColoredIcon>
+					),
+					badge: (
 							<MigrationBadge title="PingOne's View on AI Identity">
 								<FiCheckCircle />
 							</MigrationBadge>
@@ -1819,9 +1830,64 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					},
 				],
 			},
-		];
-
-		// Menu structure version - increment when menu structure changes significantly
+			{
+				id: 'security-management',
+			label: 'Security & Management',
+			icon: (
+				<ColoredIcon $color="#3b82f6">
+					<FiShield />
+				</ColoredIcon>
+			),
+			isOpen: false,
+			items: [
+				{
+					id: 'feature-flags-admin',
+					path: '/admin/feature-flags',
+					label: '⚙️ Feature Flags Admin',
+					icon: (
+						<ColoredIcon $color="#3b82f6">
+							<FiSettings />
+						</ColoredIcon>
+					),
+					badge: (
+						<MigrationBadge title="Control Phase 1-3 OIDC services rollout">
+							NEW
+						</MigrationBadge>
+					),
+				},
+				{
+					id: 'token-monitoring-dashboard',
+					path: '/v8u/token-monitoring',
+					label: '🔍 Token Monitoring',
+					icon: (
+						<ColoredIcon $color="#10b981">
+							<FiEye />
+						</ColoredIcon>
+					),
+					badge: (
+						<MigrationBadge title="Real-time token monitoring and management">
+							NEW
+						</MigrationBadge>
+					),
+				},
+				{
+					id: 'security-audit-log',
+					path: '/admin/security-audit',
+					label: '📋 Security Audit Log',
+					icon: (
+						<ColoredIcon $color="#f59e0b">
+							<FiFileText />
+						</ColoredIcon>
+					),
+					badge: (
+						<MigrationBadge title="Security events and audit trail">
+							BETA
+						</MigrationBadge>
+					),
+				},
+			],
+		},
+	];
 		const MENU_VERSION = '2.3'; // Updated to add V8 Flows group at top
 		const savedVersion = localStorage.getItem('simpleDragDropSidebar.menuVersion');
 
