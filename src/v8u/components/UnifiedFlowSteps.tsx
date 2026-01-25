@@ -8487,7 +8487,11 @@ passed: boolean;
 						
 						const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
 						const flowKey = `${specVersion}-${flowType}-v8u`;
-						CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
+						if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+							CredentialsRepository.setFlowCredentials(flowKey, updatedCredentials);
+						} else {
+							CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
+						}
 						
 						if (onCredentialsChange) {
 							onCredentialsChange(updatedCredentials);
@@ -10155,7 +10159,11 @@ passed: boolean;
 								
 								const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
 								const flowKey = `${specVersion}-${flowType}-v8u`;
-								CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
+								if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+									CredentialsRepository.setFlowCredentials(flowKey, updatedCredentials);
+								} else {
+									CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
+								}
 								
 								if (onCredentialsChange) {
 									onCredentialsChange(updatedCredentials);
