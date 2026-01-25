@@ -1846,7 +1846,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						</button>
 
 						{/* Cool 3D Worker Token Status Display */}
-						<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={false} />
+						<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
 					</div>
 					
 					{/* Worker Token Settings Checkboxes */}
