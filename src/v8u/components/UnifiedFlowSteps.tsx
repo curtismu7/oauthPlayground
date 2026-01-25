@@ -44,6 +44,7 @@ import { type PKCECodes, PKCEService } from '@/services/pkceService';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { FeatureFlagService } from '@/services/featureFlagService';
+import { PkceManager } from '@/services/pkceManager';
 import { CredentialsRepository } from '@/services/credentialsRepository';
 import type { TokenResponse } from '@/v8/services/oauthIntegrationServiceV8';
 import { OidcDiscoveryServiceV8 } from '@/v8/services/oidcDiscoveryServiceV8';
@@ -10722,41 +10723,75 @@ passed: boolean;
 		const handleExchangeTokens = async () => {
 			console.log(`${MODULE_TAG} ========== TOKEN EXCHANGE DEBUG START ==========`);
 
-			// CRITICAL: ALWAYS use sessionStorage as source of truth for PKCE codes
-			// flowState can get lost during navigation, but sessionStorage persists
+			// Phase 3C: Enhanced PKCE retrieval using Phase 2 services or fallback
+			const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
+			
 			let effectiveCodeVerifier = flowState.codeVerifier;
 			let effectiveCodeChallenge = flowState.codeChallenge;
 			let effectiveCodeChallengeMethod: 'S256' | 'plain' = 'S256'; // Default to S256
 
-			// BULLETPROOF: Load PKCE codes from quadruple-redundant storage
-			// Try sync first (fast), then async (includes IndexedDB)
-			let storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
-
-			if (!storedPKCE) {
-				console.log(`${MODULE_TAG} 🔄 Sync load failed, trying async load (IndexedDB)...`);
-				storedPKCE = await PKCEStorageServiceV8U.loadPKCECodesAsync(flowKey);
-			}
-
-			if (storedPKCE) {
-				effectiveCodeVerifier = storedPKCE.codeVerifier;
-				effectiveCodeChallenge = storedPKCE.codeChallenge;
-				// CRITICAL: Always use 'S256' - if stored codes have 'plain', they're from an old version
-				// Using 'plain' would cause PKCE mismatch errors since we now always generate with S256
-				// If the stored method is 'plain', we should regenerate codes, but for now force S256 to avoid immediate errors
-				if (storedPKCE.codeChallengeMethod && storedPKCE.codeChallengeMethod !== 'S256') {
-					console.warn(
-						`${MODULE_TAG} ⚠️ Stored PKCE codes have codeChallengeMethod='${storedPKCE.codeChallengeMethod}' instead of 'S256'. ` +
-						`This may cause PKCE mismatch. Please regenerate PKCE codes in Step 1.`
+			if (useNewOidcCore) {
+				// Use Phase 2 PkceManager for retrieval
+				console.log(`${MODULE_TAG} 🔐 Using Phase 2 PkceManager for PKCE retrieval`);
+				
+				try {
+					const storedPKCE = PkceManager.retrieve(flowKey);
+					if (storedPKCE) {
+						effectiveCodeVerifier = storedPKCE.codeVerifier;
+						effectiveCodeChallenge = storedPKCE.codeChallenge;
+						effectiveCodeChallengeMethod = 'S256' as const; // Phase 2 always uses S256
+						
+						console.log(`${MODULE_TAG} ✅ Loaded PKCE codes from Phase 2 PkceManager`, {
+							codeVerifierLength: effectiveCodeVerifier.length,
+							codeChallengeLength: effectiveCodeChallenge.length,
+							flowKey,
+							usingMethod: effectiveCodeChallengeMethod,
+						});
+					} else {
+						console.error(`${MODULE_TAG} ❌ No PKCE codes found in Phase 2 PkceManager for flow: ${flowKey}`);
+						throw new Error(
+							'PKCE codes not found. Please go back and generate PKCE parameters first.'
+						);
+					}
+				} catch (error) {
+					console.error(`${MODULE_TAG} ❌ Failed to retrieve PKCE codes from Phase 2 PkceManager:`, error);
+					throw new Error(
+						'Failed to retrieve PKCE codes. Please go back and generate PKCE parameters again.'
 					);
 				}
-				effectiveCodeChallengeMethod = 'S256' as const;
-				console.log(`${MODULE_TAG} ✅ Loaded PKCE codes from bulletproof storage`, {
-					codeVerifierLength: effectiveCodeVerifier.length,
-					codeChallengeLength: effectiveCodeChallenge.length,
-					savedAt: new Date(storedPKCE.savedAt).toISOString(),
-					storedMethod: storedPKCE.codeChallengeMethod,
-					usingMethod: effectiveCodeChallengeMethod,
-				});
+			} else {
+				// Fallback to old storage method
+				console.log(`${MODULE_TAG} 🔐 Using old PKCE storage method`);
+				
+				// BULLETPROOF: Load PKCE codes from quadruple-redundant storage
+				// Try sync first (fast), then async (includes IndexedDB)
+				let storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
+
+				if (!storedPKCE) {
+					console.log(`${MODULE_TAG} 🔄 Sync load failed, trying async load (IndexedDB)...`);
+					storedPKCE = await PKCEStorageServiceV8U.loadPKCECodesAsync(flowKey);
+				}
+
+				if (storedPKCE) {
+					effectiveCodeVerifier = storedPKCE.codeVerifier;
+					effectiveCodeChallenge = storedPKCE.codeChallenge;
+					// CRITICAL: Always use 'S256' - if stored codes have 'plain', they're from an old version
+					// Using 'plain' would cause PKCE mismatch errors since we now always generate with S256
+					// If the stored method is 'plain', we should regenerate codes, but for now force S256 to avoid immediate errors
+					if (storedPKCE.codeChallengeMethod && storedPKCE.codeChallengeMethod !== 'S256') {
+						console.warn(
+							`${MODULE_TAG} ⚠️ Stored PKCE codes have codeChallengeMethod='${storedPKCE.codeChallengeMethod}' instead of 'S256'. ` +
+							`This may cause PKCE mismatch. Please regenerate PKCE codes in Step 1.`
+						);
+					}
+					effectiveCodeChallengeMethod = 'S256' as const;
+					console.log(`${MODULE_TAG} ✅ Loaded PKCE codes from bulletproof storage`, {
+						codeVerifierLength: effectiveCodeVerifier.length,
+						codeChallengeLength: effectiveCodeChallenge.length,
+						savedAt: new Date(storedPKCE.savedAt).toISOString(),
+						storedMethod: storedPKCE.codeChallengeMethod,
+						usingMethod: effectiveCodeChallengeMethod,
+					});
 
 				// Sync flowState
 				if (
