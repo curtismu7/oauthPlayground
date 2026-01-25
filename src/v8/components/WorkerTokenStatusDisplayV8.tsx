@@ -14,10 +14,30 @@
  * - Multiple display modes (compact, detailed, minimal)
  */
 
-import React, { useEffect, useState } from 'react';
-import styled, { keyframes, css } from 'styled-components';
-import { FiKey, FiShield, FiClock, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiZap, FiActivity, FiInfo, FiGlobe, FiCpu, FiCalendar, FiTrendingUp, FiLoader, FiSettings, FiLock, FiDatabase, FiCode } from 'react-icons/fi';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { 
+	FiCheckCircle, 
+	FiXCircle, 
+	FiClock, 
+	FiRefreshCw, 
+	FiSettings, 
+	FiShield, 
+	FiActivity,
+	FiKey,
+	FiInfo,
+	FiGlobe,
+	FiCalendar,
+	FiTrendingUp,
+	FiZap,
+	FiCpu,
+	FiAlertCircle,
+	FiLoader,
+	FiLock,
+	FiDatabase
+} from 'react-icons/fi';
+import styled, { css, keyframes } from 'styled-components';
 import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenStatusServiceV8U, WORKER_TOKEN_STATUS_STYLES } from '@/v8u/services/workerTokenStatusServiceV8U';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
 import { workerTokenRepository } from '@/services/workerTokenRepository';
@@ -168,13 +188,9 @@ const StatusLabel = styled.div`
 const StatusValue = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }>`
 	font-size: 16px;
 	font-weight: 700;
-	color: ${props => 
-		props.$variant === 'valid' ? '#047857' :
-		props.$variant === 'warning' ? '#b45309' :
-		'#b91c1c'
-	};
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-	filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+	color: ${props => WORKER_TOKEN_STATUS_STYLES.statusValue[props.$variant]};
+	text-shadow: ${WORKER_TOKEN_STATUS_STYLES.shadows.text};
+	filter: ${WORKER_TOKEN_STATUS_STYLES.shadows.drop};
 `;
 
 const StatusDetails = styled.div`
@@ -205,8 +221,8 @@ const DetailLabel = styled.div`
 const DetailValue = styled.div<{ $highlight?: boolean }>`
 	font-size: 14px;
 	font-weight: 600;
-	color: ${props => props.$highlight ? '#047857' : '#d1d5db'};
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+	color: ${props => props.$highlight ? WORKER_TOKEN_STATUS_STYLES.detailValue.highlight : WORKER_TOKEN_STATUS_STYLES.detailValue.normal};
+	text-shadow: ${WORKER_TOKEN_STATUS_STYLES.shadows.detail};
 `;
 
 const ConfigInfo = styled.div`
