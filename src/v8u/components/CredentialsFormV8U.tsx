@@ -1941,7 +1941,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 									</div>
 
 									{/* Cool 3D Worker Token Status Display */}
-									<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
+									<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
 									
 									<small style={{ marginBottom: '8px', display: 'block' }}>
 										Worker token is required to discover applications
