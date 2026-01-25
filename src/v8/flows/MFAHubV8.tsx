@@ -713,10 +713,13 @@ export const MFAHubV8: React.FC = () => {
 								alignItems: 'center',
 								gap: '24px',
 								flexWrap: 'wrap',
+								width: '100%',
 							}}
 						>
 							{/* New Worker Token Status Display - Wide Mode with Config */}
-							<WorkerTokenStatusDisplayV8 mode="wide" showRefresh={true} showConfig={true} />
+							<div style={{ width: '100%', flex: '1' }}>
+								<WorkerTokenStatusDisplayV8 mode="wide" showRefresh={true} showConfig={true} />
+							</div>
 
 							{/* Settings and Controls */}
 							<div style={{ flex: 1, minWidth: '300px' }}>
