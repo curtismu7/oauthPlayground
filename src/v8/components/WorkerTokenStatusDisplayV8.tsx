@@ -168,22 +168,13 @@ const StatusLabel = styled.div`
 const StatusValue = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }>`
 	font-size: 16px;
 	font-weight: 700;
-	background: linear-gradient(135deg, 
-		${props => 
-			props.$variant === 'valid' ? '#10b981' :
-			props.$variant === 'warning' ? '#f59e0b' :
-			'#ef4444'
-		},
-		${props => 
-			props.$variant === 'valid' ? '#059669' :
-			props.$variant === 'warning' ? '#d97706' :
-			'#dc2626'
-		});
-	-webkit-background-clip: text;
-	-webkit-text-fill-color: transparent;
-	background-clip: text;
-	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+	color: ${props => 
+		props.$variant === 'valid' ? '#059669' :
+		props.$variant === 'warning' ? '#d97706' :
+		'#dc2626'
+	};
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+	filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
 `;
 
 const StatusDetails = styled.div`
