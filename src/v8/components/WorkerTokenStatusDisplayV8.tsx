@@ -872,11 +872,14 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 					$variant={getVariant()} 
 					className={className} 
 					style={{ 
-						minHeight: '60px', 
-						padding: '12px 16px',
+						minHeight: '48px', 
+						maxHeight: '48px',
+						padding: '8px 16px',
 						display: 'flex',
 						alignItems: 'center',
-						justifyContent: 'space-between'
+						justifyContent: 'space-between',
+						width: '100%',
+						flex: '1'
 					}}
 				>
 					{/* Loading Overlay */}
@@ -891,20 +894,20 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						</LoadingOverlay>
 					)}
 					
-					<div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
 						<StatusIcon $variant={getVariant()}>
 							{getStatusIcon()}
 						</StatusIcon>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-							<StatusLabel style={{ margin: 0 }}>Worker Token</StatusLabel>
-							<StatusValue $variant={getVariant()} style={{ margin: 0 }}>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+							<StatusLabel style={{ margin: 0, fontSize: '13px' }}>Worker Token</StatusLabel>
+							<StatusValue $variant={getVariant()} style={{ margin: 0, fontSize: '13px' }}>
 								{getStatusText()}
 							</StatusValue>
 							{tokenStatus.expiresAt && (
 								<span style={{ 
-									fontSize: '12px', 
+									fontSize: '11px', 
 									color: tokenStatus.isValid ? '#10b981' : '#ef4444',
-									marginLeft: '8px'
+									marginLeft: '6px'
 								}}>
 									({formatTimeRemaining()})
 								</span>
@@ -912,7 +915,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						</div>
 					</div>
 					
-					<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
 						{showConfig && (
 							<>
 								<ConfigButton onClick={handleOpenConfigModal}>
