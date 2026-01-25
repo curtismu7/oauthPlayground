@@ -8,91 +8,7 @@
 
 import React from 'react';
 import { FiArrowLeft, FiArrowRight, FiRotateCcw } from 'react-icons/fi';
-import styled from 'styled-components';
 import { useStepNavigation } from '../hooks/useStepNavigation';
-
-const NavigationContainer = styled.div`
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 1rem;
-	border-top: 1px solid #e2e8f0;
-	background: #f8fafc;
-	margin-top: auto;
-	gap: 0.5rem;
-`;
-
-const ButtonGroup = styled.div`
-	display: flex;
-	gap: 0.5rem;
-	align-items: center;
-`;
-
-const StepIndicator = styled.div`
-	font-size: 0.875rem;
-	color: #6b7280;
-	font-weight: 500;
-	text-align: center;
-`;
-
-const NavigationButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 0.5rem;
-	padding: 0.5rem 1rem;
-	border: 1px solid #d1d5db;
-	border-radius: 0.375rem;
-	background: #ffffff;
-	color: #374151;
-	cursor: pointer;
-	font-size: 0.875rem;
-	font-weight: 500;
-	transition: all 0.2s ease;
-	min-height: 2.5rem;
-	min-width: 4rem;
-	
-	&:hover:not(:disabled) {
-		background: #f9fafb;
-		border-color: #9ca3af;
-	}
-	
-	&:disabled {
-		background: #f9fafb;
-		color: #9ca3af;
-		cursor: not-allowed;
-		border-color: #e5e7eb;
-	}
-	
-	${({ variant }) => {
-		switch (variant) {
-			case 'primary':
-				return `
-					background: #10b981;
-					color: white;
-					border-color: #10b981;
-					
-					&:hover:not(:disabled) {
-						background: #059669;
-						border-color: #059669;
-					}
-				`;
-			case 'danger':
-				return `
-					background: #ef4444;
-					color: white;
-					border-color: #ef4444;
-					
-					&:hover:not(:disabled) {
-						background: #dc2626;
-						border-color: #dc2626;
-					}
-				`;
-			default:
-				return '';
-		}
-	}}
-`;
 
 export interface StepNavigationProps {
 	/** Total number of steps */
@@ -150,52 +66,121 @@ export function StepNavigation({
 		navigation.reset();
 	};
 
+	const navigationContainerStyle: React.CSSProperties = {
+		display: 'flex',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		padding: '1rem',
+		borderTop: '1px solid #e2e8f0',
+		background: '#f8fafc',
+		marginTop: 'auto',
+		gap: '0.5rem',
+		...style,
+	};
+
+	const buttonGroupStyle: React.CSSProperties = {
+		display: 'flex',
+		gap: '0.5rem',
+		alignItems: 'center',
+	};
+
+	const stepIndicatorStyle: React.CSSProperties = {
+		fontSize: '0.875rem',
+		color: '#6b7280',
+		fontWeight: '500',
+		textAlign: 'center',
+	};
+
+	const buttonStyle: React.CSSProperties = {
+		display: 'inline-flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: '0.5rem',
+		padding: '0.5rem 1rem',
+		border: '1px solid #d1d5db',
+		borderRadius: '0.375rem',
+		background: '#ffffff',
+		color: '#374151',
+		cursor: 'pointer',
+		fontSize: '0.875rem',
+		fontWeight: '500',
+		transition: 'all 0.2s ease',
+		minHeight: '2.5rem',
+		minWidth: '4rem',
+	};
+
+	const primaryButtonStyle: React.CSSProperties = {
+		...buttonStyle,
+		background: '#10b981',
+		color: 'white',
+		borderColor: '#10b981',
+	};
+
+	const dangerButtonStyle: React.CSSProperties = {
+		...buttonStyle,
+		background: '#ef4444',
+		color: 'white',
+		borderColor: '#ef4444',
+	};
+
+	const disabledButtonStyle: React.CSSProperties = {
+		...buttonStyle,
+		background: '#f9fafb',
+		color: '#9ca3af',
+		cursor: 'not-allowed',
+		borderColor: '#e5e7eb',
+	};
+
 	return (
-		<NavigationContainer className={className} style={style}>
+		<div className={className} style={navigationContainerStyle}>
 			{/* Previous Button */}
 			{showPrevious && (
-				<NavigationButton
+				<button
 					onClick={handlePrevious}
 					disabled={!navigation.canGoPrevious}
 					title="Go to previous step"
+					style={!navigation.canGoPrevious ? disabledButtonStyle : buttonStyle}
 				>
 					<FiArrowLeft size={16} />
 					{previousLabel}
-				</NavigationButton>
+				</button>
 			)}
 
 			{/* Step Indicator */}
-			{showIndicator && <StepIndicator>{navigation.stepLabel}</StepIndicator>}
+			{showIndicator && (
+				<div style={stepIndicatorStyle}>
+					{navigation.stepLabel}
+				</div>
+			)}
 
 			{/* Next and Reset Buttons */}
-			<ButtonGroup>
+			<div style={buttonGroupStyle}>
 				{/* Reset Button */}
 				{showReset && (
-					<NavigationButton
+					<button
 						onClick={handleReset}
-						disabled={false}
-						variant="danger"
 						title="Reset to first step"
+						style={dangerButtonStyle}
 					>
 						<FiRotateCcw size={16} />
 						{resetLabel}
-					</NavigationButton>
+					</button>
 				)}
 
 				{/* Next Button */}
 				{showNext && (
-					<NavigationButton
+					<button
 						onClick={handleNext}
-						disabled={!navigation.canGoNext || navigation.isLoading}
-						variant="primary"
+						disabled={!navigation.canGoNext}
 						title="Go to next step"
+						style={!navigation.canGoNext ? disabledButtonStyle : primaryButtonStyle}
 					>
 						{nextLabel}
 						<FiArrowRight size={16} />
-					</NavigationButton>
+					</button>
 				)}
-			</ButtonGroup>
-		</NavigationContainer>
+			</div>
+		</div>
 	);
 }
 
