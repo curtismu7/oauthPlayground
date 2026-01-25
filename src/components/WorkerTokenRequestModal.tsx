@@ -1,7 +1,7 @@
 // src/components/WorkerTokenRequestModal.tsx
 // Educational modal showing worker token API request details
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	FiCheck,
 	FiCheckCircle,
@@ -17,6 +17,7 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
+import ModalSpinnerServiceV8U from '@/v8/services/modalSpinnerServiceV8U';
 
 // Helper function to decode JWT
 const decodeJWT = (token: string) => {
@@ -60,6 +61,15 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 	@keyframes fadeOut {
 		from { opacity: 1; transform: scale(1); }
 		to { opacity: 0; transform: scale(0.95); }
+	}
+
+	.animate-spin {
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		from { transform: rotate(0deg); }
+		to { transform: rotate(360deg); }
 	}
 `;
 
@@ -426,6 +436,14 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 	const [isTokenStep, setIsTokenStep] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
+	// Cleanup modal spinner on unmount
+	useEffect(() => {
+		const modalKey = 'workerTokenRequestModal';
+		return () => {
+			ModalSpinnerServiceV8U.cleanup(modalKey);
+		};
+	}, []);
+
 	const handleCopyCurl = () => {
 		const curlCommand = generateCurlCommand();
 		navigator.clipboard.writeText(curlCommand);
@@ -434,8 +452,19 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 	};
 
 	const handleSendRequest = async () => {
+		const modalKey = 'workerTokenRequestModal';
+		
+		// Initialize modal spinner
+		ModalSpinnerServiceV8U.getInstance(modalKey, {
+			show: false,
+			message: '',
+			theme: 'blue',
+		});
+		
 		try {
 			setIsLoading(true);
+			ModalSpinnerServiceV8U.show(modalKey, 'Generating worker token...', 'blue');
+			
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
 				headers: {
@@ -466,6 +495,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 			// Handle error (show toast or error message)
 		} finally {
 			setIsLoading(false);
+			ModalSpinnerServiceV8U.hide(modalKey);
 		}
 	};
 

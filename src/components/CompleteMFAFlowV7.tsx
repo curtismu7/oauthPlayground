@@ -22,6 +22,7 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import ModalSpinnerServiceV8U from '@/v8/services/modalSpinnerServiceV8U';
 import EnhancedFlowInfoCard from '../components/EnhancedFlowInfoCard';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
 import CollapsibleHeaderService from '../services/collapsibleHeaderService';
@@ -331,6 +332,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 	const [currentStepNumber, setCurrentStepNumber] = useState(1); // For V5Stepper
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	// Cleanup modal spinner on unmount
+	useEffect(() => {
+		return () => {
+			ModalSpinnerServiceV8U.cleanup('mfaWorkerToken');
+		};
+	}, []);
 	const [errorDetails, setErrorDetails] = useState<OAuthErrorDetails | null>(null);
 	const [retryCount, setRetryCount] = useState(0);
 	const [_isSaving, setIsSaving] = useState(false);
@@ -723,7 +731,18 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		window.addEventListener('wheel', preventScroll, { passive: false });
 		window.addEventListener('touchmove', preventScroll, { passive: false });
 
+		const modalKey = 'mfaWorkerToken';
+		
+		// Initialize modal spinner
+		ModalSpinnerServiceV8U.getInstance(modalKey, {
+			show: false,
+			message: '',
+			theme: 'blue',
+		});
+		
 		setIsLoading(true);
+		ModalSpinnerServiceV8U.show(modalKey, 'Requesting worker token...', 'blue');
+		
 		try {
 			console.log('🔑 [MFA Flow V7] Requesting worker token...');
 			console.log('🔍 [MFA Flow V7] Worker Token Credentials being used:', {
@@ -829,6 +848,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			console.groupEnd();
 		} finally {
 			setIsLoading(false);
+			ModalSpinnerServiceV8U.hide(modalKey);
 
 			// Remove scroll prevention listeners
 			window.removeEventListener('scroll', preventScroll);

@@ -14,10 +14,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
-import {
-	ApiDisplayCheckbox,
-	SuperSimpleApiDisplayV8,
-} from '@/v8/components/SuperSimpleApiDisplayV8';
+import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -32,28 +29,25 @@ import {
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
-import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
+import { useUnifiedSharedCredentials } from '@/hooks/useUnifiedSharedCredentials';
 import CredentialsFormV8U from '../components/CredentialsFormV8U';
 // FlowNotAvailableModal removed - dropdown already filters flows by spec version
 import { FlowTypeSelector } from '../components/FlowTypeSelector';
 import { FlowGuidanceSystem } from '../components/FlowGuidanceSystem';
 import { SecurityScorecard } from '../components/SecurityScorecard';
 import { AdvancedOAuthFeatures } from '../components/AdvancedOAuthFeatures';
-import { MobileResponsiveWrapper, ResponsiveCard, ResponsiveGrid, ResponsiveSpacer } from '../components/MobileResponsiveWrapper';
+import { MobileResponsiveWrapper } from '../components/MobileResponsiveWrapper';
 import { SpecVersionSelector } from '../components/SpecVersionSelector';
 import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
-import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
 import { 
 	FlowSettingsServiceV8U,
 	getAdvancedFeatures,
 	saveAdvancedFeatures,
-	toggleAdvancedFeature,
-	isAdvancedFeatureEnabled
 } from '../services/flowSettingsServiceV8U';
-import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,
@@ -105,6 +99,15 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	// Scroll to top on page load for better UX
 	usePageScroll({ pageName: 'Unified OAuth Flow V8U', force: true });
+
+	// Unified shared credentials - sync with global Environment ID and OAuth credentials
+	const {
+		credentials: sharedCredentials,
+		saveEnvironmentId,
+		saveOAuthCredentials,
+		saveWorkerTokenCredentials,
+		refreshCredentials,
+	} = useUnifiedSharedCredentials();
 
 	// Extract flow type and step from URL parameters
 	// URL format: /v8u/unified/:flowType/:step
@@ -500,9 +503,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		return currentStep > 0;
 	});
 
-	// Worker token status section collapsed state - collapsed by default
-	const [isWorkerTokenStatusCollapsed, setIsWorkerTokenStatusCollapsed] = useState(true);
-
+	
 	// Track previous step to detect step changes
 	const prevStepRef = useRef(currentStep);
 
@@ -676,14 +677,14 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			}
 
 			// Check worker token status
-			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const tokenStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			if (!tokenStatus.isValid) {
 				setAppConfig(null);
 				return;
 			}
 
 			// Get the actual token from the service
-			const token = await unifiedWorkerTokenServiceV2.getToken();
+			const token = await workerTokenServiceV8.getToken();
 			if (!token) {
 				setAppConfig(null);
 				return;
@@ -1013,8 +1014,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					// IMPORTANT: Load ALL advanced options to ensure they persist across flow type changes
 					...(flowSpecific.responseMode ? { responseMode: flowSpecific.responseMode } : {}),
 					...(flowSpecific.usePAR !== undefined ? { usePAR: flowSpecific.usePAR } : {}),
-					...(flowSpecific.maxAge !== undefined ? { maxAge: flowSpecific.maxAge } : {}),
-					...(flowSpecific.maxAge === null ? { maxAge: undefined } : {}), // Explicitly handle null
+					...(flowSpecific.maxAge !== undefined && flowSpecific.maxAge !== null ? { maxAge: flowSpecific.maxAge } : {}),
 					...(flowSpecific.display ? { display: flowSpecific.display } : {}),
 					...(flowSpecific.prompt ? { prompt: flowSpecific.prompt } : {}),
 					...(flowSpecific.loginHint?.trim() ? { loginHint: flowSpecific.loginHint.trim() } : {}),
@@ -1197,7 +1197,12 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					return;
 				}
 
-				if (credentials.environmentId || credentials.clientId || credentials.clientSecret) {
+				// Save credentials if any field has a value (more permissive than before)
+				const hasAnyValue = Object.values(credentials).some(value => 
+					value !== undefined && value !== null && value !== ''
+				);
+				
+				if (hasAnyValue) {
 					// Serialize credentials to check if they actually changed
 					const credsString = JSON.stringify(credentials);
 					if (credsString === lastSavedCredsRef.current) {
@@ -1218,19 +1223,38 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					// #endregion
 					CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
 
-					// Save shared credentials (environmentId, clientId, clientSecret, etc.) to shared storage
+					// Save shared credentials (environmentId, clientId, clientSecret, etc.) to unified shared storage
 					// Important: Always save shared credentials if any shared field is present, including clientSecret
-					// This ensures client secret persists across browser refreshes
-					const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(
-						credentials as unknown as Record<string, unknown>
-					);
 					if (
-						sharedCreds.environmentId ||
-						sharedCreds.clientId ||
-						sharedCreds.clientSecret !== undefined
+						credentials.environmentId ||
+						credentials.clientId ||
+						credentials.clientSecret ||
+						credentials.issuerUrl ||
+						credentials.clientAuthMethod
 					) {
-						await SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
+						// Save Environment ID separately
+						if (credentials.environmentId) {
+							await saveEnvironmentId(credentials.environmentId, `UnifiedOAuthFlowV8U-${flowKey}`);
+						}
+						
+						// Save OAuth credentials
+						const oauthCreds: {
+							clientId?: string;
+							clientSecret?: string;
+							issuerUrl?: string;
+							clientAuthMethod?: string;
+						} = {};
+						
+						if (credentials.clientId) oauthCreds.clientId = credentials.clientId;
+						if (credentials.clientSecret) oauthCreds.clientSecret = credentials.clientSecret;
+						if (credentials.issuerUrl) oauthCreds.issuerUrl = credentials.issuerUrl;
+						if (credentials.clientAuthMethod) oauthCreds.clientAuthMethod = credentials.clientAuthMethod;
+						
+						await saveOAuthCredentials(oauthCreds, `UnifiedOAuthFlowV8U-${flowKey}`);
 					}
+					
+					// Show success notification for credential save
+					toastV8.success('Configuration saved successfully');
 				}
 			};
 
@@ -1283,16 +1307,33 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				>[1];
 				CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
 
-				// Save shared credentials
-				const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(
-					credentials as unknown as Record<string, unknown>
-				);
+				// Save shared credentials using unified service
 				if (
-					sharedCreds.environmentId ||
-					sharedCreds.clientId ||
-					sharedCreds.clientSecret !== undefined
+					credentials.environmentId ||
+					credentials.clientId ||
+					credentials.clientSecret ||
+					credentials.issuerUrl ||
+					credentials.clientAuthMethod
 				) {
-					await SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
+					// Save Environment ID separately
+					if (credentials.environmentId) {
+						await saveEnvironmentId(credentials.environmentId, `UnifiedOAuthFlowV8U-manual-save`);
+					}
+					
+					// Save OAuth credentials
+					const oauthCreds: {
+						clientId?: string;
+						clientSecret?: string;
+						issuerUrl?: string;
+						clientAuthMethod?: string;
+					} = {};
+					
+					if (credentials.clientId) oauthCreds.clientId = credentials.clientId;
+					if (credentials.clientSecret) oauthCreds.clientSecret = credentials.clientSecret;
+					if (credentials.issuerUrl) oauthCreds.issuerUrl = credentials.issuerUrl;
+					if (credentials.clientAuthMethod) oauthCreds.clientAuthMethod = credentials.clientAuthMethod;
+					
+					await saveOAuthCredentials(oauthCreds, `UnifiedOAuthFlowV8U-manual-save`);
 				}
 
 				// Update last saved reference to prevent duplicate saves
@@ -1978,17 +2019,27 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					currentSpecVersion={specVersion}
 					onFlowSelect={(selectedFlowType, selectedSpecVersion) => {
 						console.log(`${MODULE_TAG} 🎯 User selected recommended flow`, { selectedFlowType, selectedSpecVersion });
+						console.log(`${MODULE_TAG} 🎯 Current state`, { currentFlowType: flowType, currentSpec: specVersion });
 						
 						// Update spec version if different
 						if (selectedSpecVersion !== specVersion) {
+							console.log(`${MODULE_TAG} 🎯 Updating spec version from ${specVersion} to ${selectedSpecVersion}`);
 							setSpecVersion(selectedSpecVersion);
 							FlowSettingsServiceV8U.saveSpecVersion(selectedFlowType, selectedSpecVersion);
+						} else {
+							console.log(`${MODULE_TAG} 🎯 Spec version already matches, no update needed`);
 						}
 						
 						// Update flow type if different
 						if (selectedFlowType !== flowType) {
+							console.log(`${MODULE_TAG} 🎯 Updating flow type from ${flowType} to ${selectedFlowType}`);
 							handleFlowTypeChange(selectedFlowType);
+						} else {
+							console.log(`${MODULE_TAG} 🎯 Flow type already matches, no update needed`);
 						}
+						
+						// Add user feedback
+						toastV8.success(`Applied recommendation: ${selectedFlowType} flow with ${selectedSpecVersion}`);
 					}}
 				/>
 			)}
@@ -2188,123 +2239,53 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				)}
 			</div>
 
-			{/* Worker Token Status Section - Collapsible */}
-			<div
-				style={{
-					background: '#ffffff',
-					borderRadius: '12px',
-					border: '1px solid #e2e8f0',
-					marginBottom: '32px',
-					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					overflow: 'hidden',
-				}}
-			>
-				<button
-					type="button"
-					onClick={() => setIsWorkerTokenStatusCollapsed(!isWorkerTokenStatusCollapsed)}
-					style={{
-						width: '100%',
-						padding: '16px 20px',
-						background: isWorkerTokenStatusCollapsed 
-							? 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' 
-							: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-						border: 'none',
-						borderBottom: isWorkerTokenStatusCollapsed ? '1px solid #e2e8f0' : 'none',
-						cursor: 'pointer',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-						fontSize: '16px',
-						fontWeight: '600',
-						color: '#374151',
-						transition: 'all 0.3s ease',
-					}}
-					onMouseEnter={(e) => {
-						e.currentTarget.style.background = 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)';
-						e.currentTarget.style.color = '#1f2937';
-					}}
-					onMouseLeave={(e) => {
-						e.currentTarget.style.background = isWorkerTokenStatusCollapsed 
-							? 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' 
-							: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
-						e.currentTarget.style.color = '#374151';
-					}}
-				>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-						<span style={{ 
-							fontSize: '20px',
-							color: '#3b82f6'
-						}}>
-							🔧
-						</span>
-						<span>Worker Token Status</span>
-					</div>
-					<span
-						style={{
-							fontSize: '16px',
-							color: '#6b7280',
-							transform: isWorkerTokenStatusCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
-							transition: 'all 0.3s ease',
-						}}
-					>
-						▼
-					</span>
-				</button>
+			
+			{/* Unified Flow Steps - Always show navigation, but block content if compliance errors exist */}
+			<UnifiedFlowSteps
+				specVersion={specVersion}
+				flowType={effectiveFlowType}
+				credentials={credentials}
+				onCredentialsChange={handleCredentialsChange}
+				appConfig={appConfig ?? undefined}
+				blockContent={complianceErrors.length > 0}
+				onFlowReset={() => {
+					// Flow reset - preserve credentials, spec version, and flow type
+					console.log(
+						`${MODULE_TAG} 🔄 Flow reset detected - preserving credentials, spec version, and flow type`,
+						{
+							specVersion,
+							flowType: effectiveFlowType,
+							flowKey,
+						}
+					);
 
-				{/* Worker Token Status Content */}
-				{!isWorkerTokenStatusCollapsed && (
-					<div style={{ padding: '20px' }}>
-						<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
-					</div>
-				)}
-			</div>
-
-			{/* Unified Flow Steps - Blocked if compliance errors exist */}
-			{complianceErrors.length === 0 && (
-				<UnifiedFlowSteps
-					specVersion={specVersion}
-					flowType={effectiveFlowType}
-					credentials={credentials}
-					onCredentialsChange={handleCredentialsChange}
-					appConfig={appConfig ?? undefined}
-					onFlowReset={() => {
-						// Flow reset - preserve credentials, spec version, and flow type
-						console.log(
-							`${MODULE_TAG} 🔄 Flow reset detected - preserving credentials, spec version, and flow type`,
-							{
-								specVersion,
-								flowType: effectiveFlowType,
-								flowKey,
-							}
-						);
-
-						// Use standardized credential reload service (now async)
-						reloadCredentialsAfterReset(flowKey).then((reloaded) => {
-							console.log(`${MODULE_TAG} ✅ Credentials reloaded after reset`, {
-								flowKey,
-								hasRedirectUri: !!reloaded.redirectUri,
-								redirectUri: reloaded.redirectUri,
-								hasClientAuthMethod: !!reloaded.clientAuthMethod,
-								clientAuthMethod: reloaded.clientAuthMethod,
-							});
-							setCredentials(reloaded);
-						}).catch((error) => {
-							console.error(`${MODULE_TAG} ❌ Error reloading credentials after reset`, { flowKey, error });
-							// Fall back to current credentials if reload fails
+					// Use standardized credential reload service (now async)
+					reloadCredentialsAfterReset(flowKey).then((reloaded) => {
+						console.log(`${MODULE_TAG} ✅ Credentials reloaded after reset`, {
+							flowKey,
+							hasRedirectUri: !!reloaded.redirectUri,
+							redirectUri: reloaded.redirectUri,
+							hasClientAuthMethod: !!reloaded.clientAuthMethod,
+							clientAuthMethod: reloaded.clientAuthMethod,
 						});
+						setCredentials(reloaded);
+					}).catch((error) => {
+						console.error(`${MODULE_TAG} ❌ Error reloading credentials after reset`, { flowKey, error });
+						// Fall back to current credentials if reload fails
+					});
 
-						// Spec version and flow type are already preserved in React state
-						// No need to do anything - they will remain as-is
-						console.log(
-							`${MODULE_TAG} ✅ Flow reset complete - spec version and flow type preserved`,
-							{
-								specVersion,
-								flowType: effectiveFlowType,
-							}
-						);
-					}}
-				/>
-			)}
+					// Spec version and flow type are already preserved in React state
+					// No need to do anything - they will remain as-is
+					console.log(
+						`${MODULE_TAG} ✅ Flow reset complete - spec version and flow type preserved`,
+						{
+							specVersion,
+							flowType: effectiveFlowType,
+						}
+					);
+				}}
+				blockContent={complianceErrors.length > 0}
+			/>
 
 			{/* Super Simple API Display - Toggleable, hidden by default - Only shows Unified flow calls */}
 			<SuperSimpleApiDisplayV8 flowFilter="unified" />

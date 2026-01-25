@@ -43,7 +43,7 @@ import {
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowV7Controller';
+import { useAuthorizationCodeFlowV7Controller } from '../../hooks/useAuthorizationCodeFlowV7ControllerUnified';
 import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { AuthenticationModalService } from '../../services/authenticationModalService';
@@ -793,7 +793,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	}, [controller.credentials]); // Only run once on mount
 
 	const manualAuthCodeId = useId();
-	const controller = useAuthorizationCodeFlowController({
+	const controller = useAuthorizationCodeFlowV7Controller({
 		flowKey: 'oauth-authorization-code-v7',
 		defaultFlowVariant: 'oauth', // V7 defaults to OAuth 2.0
 		enableDebugger: true,
