@@ -715,8 +715,8 @@ export const MFAHubV8: React.FC = () => {
 								flexWrap: 'wrap',
 							}}
 						>
-							{/* New Worker Token Status Display - Wide Mode */}
-							<WorkerTokenStatusDisplayV8 mode="wide" showRefresh={true} />
+							{/* New Worker Token Status Display - Wide Mode with Config */}
+							<WorkerTokenStatusDisplayV8 mode="wide" showRefresh={true} showConfig={true} />
 
 							{/* Settings and Controls */}
 							<div style={{ flex: 1, minWidth: '300px' }}>
