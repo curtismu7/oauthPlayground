@@ -591,7 +591,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					</div>
 
 					{/* Cool 3D Worker Token Status Display */}
-					<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
+					<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
 
 					{/* Get Worker Token Button */}
 					<button
