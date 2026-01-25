@@ -86,6 +86,9 @@ export default defineConfig(({ mode }) => {
 					// Skip waiting for service worker to avoid 401 errors
 					skipWaiting: true,
 					clientsClaim: true,
+					// Don't cache the manifest to avoid 401 errors
+					navigateFallback: null,
+					navigateFallbackAllowlist: [/^\/$/],
 				},
 				manifest: {
 					name: 'OAuth Playground',
