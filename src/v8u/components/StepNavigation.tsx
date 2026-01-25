@@ -1,6 +1,6 @@
 /**
  * @file StepNavigation.tsx
- * @description Clean, professional step navigation component
+ * @description Simple step navigation component
  * @author OAuth Playground Team
  * @version 1.0.0
  * @since 2026-01-25
@@ -134,21 +134,20 @@ export function StepNavigation({
 }: StepNavigationProps) {
 	const navigation = useStepNavigation({
 		totalSteps,
-		initialStep: currentStep ?? 0,
+		currentStep: currentStep ?? 0,
 		onStepChange: onStepChange || (() => {}),
-		autoInitialize: true,
 	});
 	
-	const handlePrevious = async () => {
-		await navigation.navigateToPrevious();
+	const handlePrevious = () => {
+		navigation.navigateToPrevious();
 	};
 	
-	const handleNext = async () => {
-		await navigation.navigateToNext();
+	const handleNext = () => {
+		navigation.navigateToNext();
 	};
 	
-	const handleReset = async () => {
-		await navigation.reset();
+	const handleReset = () => {
+		navigation.reset();
 	};
 	
 	return (
@@ -157,7 +156,7 @@ export function StepNavigation({
 			{showPrevious && (
 				<NavigationButton
 					onClick={handlePrevious}
-					disabled={!navigation.canGoPrevious || navigation.isLoading}
+					disabled={!navigation.canGoPrevious}
 					title="Go to previous step"
 				>
 					<FiArrowLeft size={16} />
@@ -178,7 +177,7 @@ export function StepNavigation({
 				{showReset && (
 					<NavigationButton
 						onClick={handleReset}
-						disabled={navigation.isLoading}
+						disabled={false}
 						variant="danger"
 						title="Reset to first step"
 					>

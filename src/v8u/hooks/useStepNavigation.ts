@@ -1,160 +1,79 @@
 /**
  * @file useStepNavigation.ts
- * @description React hook for StepNavigationService
+ * @description Simple React hook for step navigation
  * @author OAuth Playground Team
  * @version 1.0.0
  * @since 2026-01-25
  */
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { stepNavigationService, StepNavigationConfig, StepNavigationEvent, StepNavigationState } from '../services/StepNavigationService';
+import { useState, useCallback } from 'react';
 
-export interface UseStepNavigationOptions extends StepNavigationConfig {
-	/** Auto-initialize on mount */
-	autoInitialize?: boolean;
+export interface UseStepNavigationProps {
+	totalSteps: number;
+	currentStep?: number;
+	onStepChange?: (step: number) => void;
 }
 
-export interface UseStepNavigationReturn extends StepNavigationState {
-	/** Navigation methods */
-	navigateToStep: (step: number) => Promise<boolean>;
-	navigateToNext: () => Promise<boolean>;
-	navigateToPrevious: () => Promise<boolean>;
-	reset: () => Promise<boolean>;
-	
-	/** Utility methods */
+export interface UseStepNavigationReturn {
+	currentStep: number;
+	totalSteps: number;
+	navigateToStep: (step: number) => void;
+	navigateToNext: () => void;
+	navigateToPrevious: () => void;
+	reset: () => void;
 	canGoNext: boolean;
 	canGoPrevious: boolean;
 	isFirstStep: boolean;
 	isLastStep: boolean;
-	progress: number;
 	stepLabel: string;
-	
-	/** Actions */
-	clearError: () => void;
-	updateTotalSteps: (totalSteps: number) => void;
-	
-	/** Event handling */
-	isLoading: boolean;
 }
 
 /**
- * React hook for StepNavigationService
- * 
- * Provides reactive state and navigation methods with automatic cleanup.
+ * Simple React hook for step navigation
  */
-export function useStepNavigation(options: UseStepNavigationOptions): UseStepNavigationReturn {
-	const { autoInitialize = true, ...config } = options;
+export function useStepNavigation({ totalSteps, currentStep = 0, onStepChange }: UseStepNavigationProps): UseStepNavigationReturn {
+	const [step, setStep] = useState(currentStep);
 	
-	// State management
-	const [state, setState] = useState<StepNavigationState>(() => stepNavigationService.getState());
-	const [isLoading, setIsLoading] = useState(false);
-	
-	// Ref to track mounted state
-	const mountedRef = useRef(true);
-	
-	// Update state from service
-	const updateState = useCallback(() => {
-		if (mountedRef.current) {
-			setState(stepNavigationService.getState());
+	const navigateToStep = useCallback((targetStep: number) => {
+		if (targetStep >= 0 && targetStep < totalSteps) {
+			setStep(targetStep);
+			onStepChange?.(targetStep);
 		}
-	}, []);
+	}, [totalSteps, onStepChange]);
 	
-	// Handle navigation events
-	const handleNavigationEvent = useCallback((event: StepNavigationEvent) => {
-		if (!mountedRef.current) return;
-		
-		switch (event.type) {
-			case 'navigationStarted':
-				setIsLoading(true);
-				break;
-			case 'navigationEnded':
-				setIsLoading(false);
-				break;
-			case 'stepChanged':
-			case 'error':
-				updateState();
-				break;
+	const navigateToNext = useCallback(() => {
+		if (step < totalSteps - 1) {
+			navigateToStep(step + 1);
 		}
-	}, [updateState]);
+	}, [step, totalSteps, navigateToStep]);
 	
-	// Initialize service
-	const initialize = useCallback(() => {
-		stepNavigationService.initialize(config);
-		updateState();
-	}, [config, updateState]);
-	
-	// Navigation methods
-	const navigateToStep = useCallback(async (step: number) => {
-		return await stepNavigationService.navigateToStep(step);
-	}, []);
-	
-	const navigateToNext = useCallback(async () => {
-		return await stepNavigationService.navigateToNext();
-	}, []);
-	
-	const navigateToPrevious = useCallback(async () => {
-		return await stepNavigationService.navigateToPrevious();
-	}, []);
-	
-	const reset = useCallback(async () => {
-		return await stepNavigationService.reset();
-	}, []);
-	
-	// Utility methods
-	const clearError = useCallback(() => {
-		stepNavigationService.clearError();
-		updateState();
-	}, [updateState]);
-	
-	const updateTotalSteps = useCallback((totalSteps: number) => {
-		stepNavigationService.updateTotalSteps(totalSteps);
-		updateState();
-	}, [updateState]);
-	
-	// Computed values
-	const canGoNext = stepNavigationService.canGoNext();
-	const canGoPrevious = stepNavigationService.canGoPrevious();
-	const isFirstStep = stepNavigationService.isFirstStep();
-	const isLastStep = stepNavigationService.isLastStep();
-	const progress = stepNavigationService.getProgress();
-	const stepLabel = stepNavigationService.getStepLabel();
-	
-	// Setup effect
-	useEffect(() => {
-		// Initialize if requested
-		if (autoInitialize) {
-			initialize();
+	const navigateToPrevious = useCallback(() => {
+		if (step > 0) {
+			navigateToStep(step - 1);
 		}
-		
-		// Add event listener
-		const unsubscribe = stepNavigationService.addListener(handleNavigationEvent);
-		
-		// Cleanup
-		return () => {
-			unsubscribe();
-			mountedRef.current = false;
-		};
-	}, [autoInitialize, initialize, handleNavigationEvent]);
+	}, [step, navigateToStep]);
+	
+	const reset = useCallback(() => {
+		navigateToStep(0);
+	}, [navigateToStep]);
+	
+	const canGoNext = step < totalSteps - 1;
+	const canGoPrevious = step > 0;
+	const isFirstStep = step === 0;
+	const isLastStep = step === totalSteps - 1;
+	const stepLabel = `Step ${step + 1} of ${totalSteps}`;
 	
 	return {
-		// State
-		...state,
-		isLoading,
-		
-		// Navigation methods
+		currentStep: step,
+		totalSteps,
 		navigateToStep,
 		navigateToNext,
 		navigateToPrevious,
 		reset,
-		
-		// Utility methods
 		canGoNext,
 		canGoPrevious,
 		isFirstStep,
 		isLastStep,
-		progress,
 		stepLabel,
-		clearError,
-		updateTotalSteps,
 	};
 }
