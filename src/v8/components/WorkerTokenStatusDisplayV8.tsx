@@ -16,7 +16,7 @@
 
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes, css } from 'styled-components';
-import { FiKey, FiShield, FiClock, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiZap, FiActivity, FiInfo, FiGlobe, FiCpu, FiCalendar, FiTrendingUp } from 'react-icons/fi';
+import { FiKey, FiShield, FiClock, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiZap, FiActivity, FiInfo, FiGlobe, FiCpu, FiCalendar, FiTrendingUp, FiLoader } from 'react-icons/fi';
 import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
@@ -255,8 +255,47 @@ const RefreshButton = styled.button`
 		transform: scale(1.05);
 	}
 
-	&:active {
-		transform: scale(0.95);
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+	.spin {
+		animation: spin 1s linear infinite;
+	}
+`;
+
+const LoadingOverlay = styled.div`
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(255, 255, 255, 0.9);
+	backdrop-filter: blur(2px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 16px;
+	z-index: 10;
+
+	.loading-content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		color: #374151;
+	}
+
+	.loading-spinner {
+		animation: spin 1s linear infinite;
+		font-size: 20px;
+		color: #3b82f6;
+	}
+
+	.loading-text {
+		font-size: 12px;
+		font-weight: 500;
 	}
 `;
 
@@ -286,6 +325,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	});
 	const [config, setConfig] = useState(() => MFAConfigurationServiceV8.loadConfiguration());
 	const [isRefreshing, setIsRefreshing] = useState(false);
+	const [isLoading, setIsLoading] = useState(true); // Initial loading state
 	const [fullTokenData, setFullTokenData] = useState<UnifiedWorkerTokenData | null>(null);
 	const [tokenStatusInfo, setTokenStatusInfo] = useState<UnifiedWorkerTokenStatus | null>(null);
 
@@ -308,6 +348,8 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			}
 		} catch (error) {
 			console.error('[WorkerTokenStatusDisplayV8] Failed to check token status:', error);
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
@@ -440,6 +482,18 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	if (mode === 'minimal') {
 		return (
 			<StatusContainer $variant={getVariant()} className={className}>
+				{/* Loading Overlay */}
+				{(isLoading || isRefreshing) && (
+					<LoadingOverlay>
+						<div className="loading-content">
+							<FiLoader className="loading-spinner" />
+							<div className="loading-text">
+								{isLoading ? 'Checking status...' : 'Refreshing...'}
+							</div>
+						</div>
+					</LoadingOverlay>
+				)}
+				
 				<StatusHeader>
 					<StatusTitle>
 						<StatusIcon $variant={getVariant()}>
@@ -465,6 +519,18 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	if (mode === 'compact') {
 		return (
 			<StatusContainer $variant={getVariant()} className={className}>
+				{/* Loading Overlay */}
+				{(isLoading || isRefreshing) && (
+					<LoadingOverlay>
+						<div className="loading-content">
+							<FiLoader className="loading-spinner" />
+							<div className="loading-text">
+								{isLoading ? 'Checking status...' : 'Refreshing...'}
+							</div>
+						</div>
+					</LoadingOverlay>
+				)}
+				
 				<StatusHeader>
 					<StatusTitle>
 						<StatusIcon $variant={getVariant()}>
@@ -502,6 +568,18 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	// Detailed mode (default)
 	return (
 		<StatusContainer $variant={getVariant()} className={className}>
+			{/* Loading Overlay */}
+			{(isLoading || isRefreshing) && (
+				<LoadingOverlay>
+					<div className="loading-content">
+						<FiLoader className="loading-spinner" />
+						<div className="loading-text">
+							{isLoading ? 'Checking status...' : 'Refreshing...'}
+						</div>
+					</div>
+				</LoadingOverlay>
+			)}
+			
 			<StatusHeader>
 				<StatusTitle>
 					<StatusIcon $variant={getVariant()}>
