@@ -53,6 +53,7 @@ import {
 	toggleAdvancedFeature,
 	isAdvancedFeatureEnabled
 } from '../services/flowSettingsServiceV8U';
+import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,
@@ -498,6 +499,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// Initialize based on current step: expanded on step 0, collapsed on other steps
 		return currentStep > 0;
 	});
+
+	// Worker token status section collapsed state - collapsed by default
+	const [isWorkerTokenStatusCollapsed, setIsWorkerTokenStatusCollapsed] = useState(true);
 
 	// Track previous step to detect step changes
 	const prevStepRef = useRef(currentStep);
@@ -2180,6 +2184,77 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								}
 							}}
 						/>
+					</div>
+				)}
+			</div>
+
+			{/* Worker Token Status Section - Collapsible */}
+			<div
+				style={{
+					background: '#ffffff',
+					borderRadius: '12px',
+					border: '1px solid #e2e8f0',
+					marginBottom: '24px',
+					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+					overflow: 'hidden',
+				}}
+			>
+				<button
+					type="button"
+					onClick={() => setIsWorkerTokenStatusCollapsed(!isWorkerTokenStatusCollapsed)}
+					style={{
+						width: '100%',
+						padding: '16px 20px',
+						background: isWorkerTokenStatusCollapsed 
+							? 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' 
+							: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+						border: 'none',
+						borderBottom: isWorkerTokenStatusCollapsed ? '1px solid #e2e8f0' : 'none',
+						cursor: 'pointer',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'space-between',
+						fontSize: '16px',
+						fontWeight: '600',
+						color: '#374151',
+						transition: 'all 0.3s ease',
+					}}
+					onMouseEnter={(e) => {
+						e.currentTarget.style.background = 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)';
+						e.currentTarget.style.color = '#1f2937';
+					}}
+					onMouseLeave={(e) => {
+						e.currentTarget.style.background = isWorkerTokenStatusCollapsed 
+							? 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' 
+							: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+						e.currentTarget.style.color = '#374151';
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+						<span style={{ 
+							fontSize: '20px',
+							color: '#3b82f6'
+						}}>
+							🔧
+						</span>
+						<span>Worker Token Status</span>
+					</div>
+					<span
+						style={{
+							fontSize: '16px',
+							color: '#6b7280',
+							transform: isWorkerTokenStatusCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+							transition: 'all 0.3s ease',
+						}}
+					>
+						▼
+					</span>
+				</button>
+
+				{/* Worker Token Status Content */}
+				{!isWorkerTokenStatusCollapsed && (
+					<div style={{ padding: '20px' }}>
+						<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
 					</div>
 				)}
 			</div>
