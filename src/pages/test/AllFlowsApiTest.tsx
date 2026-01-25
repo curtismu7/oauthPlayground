@@ -1,6 +1,7 @@
 // src/pages/test/AllFlowsApiTest.tsx
-// Comprehensive test page for ALL OAuth/OIDC flow types
+// Comprehensive test page for ALL OAuth/OIDC flow types AND MFA flows
 // Tests PingOne API implementations across Authorization Code, Implicit, Hybrid, Device Auth, etc.
+// Tests MFA registration and authentication flows
 // Allows manual testing without auto-submission
 
 import React, { useState, useCallback, useEffect } from 'react';
@@ -17,7 +18,7 @@ interface AllFlowsTestConfig {
 	clientSecret: string;
 	redirectUri: string;
 	scopes: string;
-	flowType: 'authorization_code' | 'implicit' | 'hybrid' | 'device_code' | 'client_credentials';
+	flowType: 'authorization_code' | 'implicit' | 'hybrid' | 'device_code' | 'client_credentials' | 'mfa_registration' | 'mfa_authentication';
 	responseType?:
 		| 'code'
 		| 'token'
@@ -30,6 +31,8 @@ interface AllFlowsTestConfig {
 	usePar: boolean;
 	nonce?: string;
 	state?: string;
+	username?: string;
+	deviceType?: 'sms' | 'email' | 'totp' | 'fido2' | 'push';
 }
 
 // Test Result
@@ -678,6 +681,138 @@ const AllFlowsApiTest: React.FC = () => {
 		}
 	}, [config, addResult]);
 
+	// Test 5: MFA Device Registration
+	const testMFARegistration = useCallback(async () => {
+		const startTime = Date.now();
+
+		try {
+			console.log('🧪 Testing MFA Device Registration for:', config.deviceType);
+
+			if (!config.username || !config.deviceType) {
+				throw new Error('Username and device type are required for MFA registration');
+			}
+
+			const response = await fetch(`https://api.pingone.com/v1/environments/${config.environmentId}/users/${config.username}/devices`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${await getWorkerToken()}`,
+				},
+				body: JSON.stringify({
+					deviceType: config.deviceType,
+					deviceName: `Test Device - ${config.deviceType} - ${new Date().toISOString()}`,
+				}),
+			});
+
+			const duration = Date.now() - startTime;
+			const data = await response.json();
+
+			if (response.ok) {
+				addResult({
+					testName: 'MFA Device Registration',
+					flowType: config.flowType,
+					success: true,
+					input: config,
+					output: data,
+					duration,
+				});
+				console.log('✅ MFA Device Registration successful:', data);
+				return data;
+			} else {
+				throw new Error(data.message || 'MFA registration failed');
+			}
+		} catch (error) {
+			const duration = Date.now() - startTime;
+			addResult({
+				testName: 'MFA Device Registration',
+				flowType: config.flowType,
+				success: false,
+				input: config,
+				response: null,
+				error: error instanceof Error ? error.message : 'Unknown error',
+				duration,
+			});
+			console.error('❌ MFA Device Registration failed:', error);
+			return null;
+		}
+	}, [config, addResult]);
+
+	// Test 6: MFA Authentication
+	const testMFAAuthentication = useCallback(async () => {
+		const startTime = Date.now();
+
+		try {
+			console.log('🧪 Testing MFA Authentication for:', config.deviceType);
+
+			if (!config.username || !config.deviceType) {
+				throw new Error('Username and device type are required for MFA authentication');
+			}
+
+			// First, get available devices for the user
+			const devicesResponse = await fetch(`https://api.pingone.com/v1/environments/${config.environmentId}/users/${config.username}/devices`, {
+				headers: {
+					'Authorization': `Bearer ${await getWorkerToken()}`,
+				},
+			});
+
+			const devices = await devicesResponse.json();
+			const targetDevice = devices._embedded?.devices?.find((device: any) => device.type === config.deviceType);
+
+			if (!targetDevice) {
+				throw new Error(`No ${config.deviceType} device found for user ${config.username}`);
+			}
+
+			// Start MFA authentication
+			const authResponse = await fetch(`https://api.pingone.com/v1/environments/${config.environmentId}/users/${config.username}/devices/${targetDevice.id}/challenge`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${await getWorkerToken()}`,
+				},
+			});
+
+			const duration = Date.now() - startTime;
+			const authData = await authResponse.json();
+
+			if (authResponse.ok) {
+				addResult({
+					testName: 'MFA Authentication Challenge',
+					flowType: config.flowType,
+					success: true,
+					input: config,
+					output: authData,
+					duration,
+				});
+				console.log('✅ MFA Authentication Challenge successful:', authData);
+				return authData;
+			} else {
+				throw new Error(authData.message || 'MFA authentication failed');
+			}
+		} catch (error) {
+			const duration = Date.now() - startTime;
+			addResult({
+				testName: 'MFA Authentication Challenge',
+				flowType: config.flowType,
+				success: false,
+				input: config,
+				response: null,
+				error: error instanceof Error ? error.message : 'Unknown error',
+				duration,
+			});
+			console.error('❌ MFA Authentication Challenge failed:', error);
+			return null;
+		}
+	}, [config, addResult]);
+
+	// Helper function to get worker token
+	const getWorkerToken = async () => {
+		const token = localStorage.getItem('worker_token');
+		if (!token) {
+			throw new Error('No worker token available. Please generate a worker token first.');
+		}
+		return token;
+	};
+
 	// Run tests based on flow type
 	const runTests = useCallback(async () => {
 		setIsRunning(true);
@@ -703,6 +838,12 @@ const AllFlowsApiTest: React.FC = () => {
 				case 'device_code':
 					await testDeviceCode();
 					break;
+				case 'mfa_registration':
+					await testMFARegistration();
+					break;
+				case 'mfa_authentication':
+					await testMFAAuthentication();
+					break;
 				case 'implicit':
 					console.log('ℹ️ Implicit flow requires manual redirect - URL generated above');
 					break;
@@ -712,15 +853,15 @@ const AllFlowsApiTest: React.FC = () => {
 		} finally {
 			setIsRunning(false);
 		}
-	}, [config, testUrlGeneration, testTokenExchange, testClientCredentials, testDeviceCode]);
+	}, [config, testUrlGeneration, testTokenExchange, testClientCredentials, testDeviceCode, testMFARegistration, testMFAAuthentication]);
 
 	return (
 		<Container>
 			<Header>
-				<Title>Complete OAuth/OIDC Flow API Test Suite</Title>
+				<Title>Complete OAuth/OIDC & MFA Flow API Test Suite</Title>
 				<Subtitle>
-					Test ALL PingOne OAuth 2.0 and OpenID Connect flow types: Authorization Code, Implicit,
-					Hybrid, Device Code, Client Credentials
+					Test ALL PingOne OAuth 2.0, OpenID Connect, and MFA flows: Authorization Code, Implicit,
+					Hybrid, Device Code, Client Credentials, MFA Registration, MFA Authentication
 				</Subtitle>
 				<ButtonGroup style={{ marginTop: '1rem' }}>
 					<Button
@@ -774,6 +915,8 @@ const AllFlowsApiTest: React.FC = () => {
 								<option key="hybrid" value="hybrid">Hybrid</option>
 								<option key="device_code" value="device_code">Device Code</option>
 								<option key="client_credentials" value="client_credentials">Client Credentials</option>
+								<option key="mfa_registration" value="mfa_registration">MFA Device Registration</option>
+								<option key="mfa_authentication" value="mfa_authentication">MFA Authentication</option>
 							</Select>
 						</FormGroup>
 					</FormRow>
@@ -909,7 +1052,36 @@ const AllFlowsApiTest: React.FC = () => {
 								</FormGroup>
 							</FormRow>
 						)}
-				</Form>
+
+						{/* MFA-specific fields */}
+						{(config.flowType === 'mfa_registration' || config.flowType === 'mfa_authentication') && (
+							<FormRow>
+								<FormGroup>
+									<Label>Username:</Label>
+									<Input
+										type="text"
+										value={config.username || ''}
+										onChange={(e) => handleConfigChange('username', e.target.value)}
+										placeholder="User ID or username for MFA"
+									/>
+								</FormGroup>
+
+								<FormGroup>
+									<Label>Device Type:</Label>
+									<Select
+										value={config.deviceType || 'sms'}
+										onChange={(e) => handleConfigChange('deviceType', e.target.value)}
+									>
+										<option value="sms">SMS</option>
+										<option value="email">Email</option>
+										<option value="totp">TOTP</option>
+										<option value="fido2">FIDO2</option>
+										<option value="push">Push</option>
+									</Select>
+								</FormGroup>
+							</FormRow>
+						)}
+					</Form>
 
 				<ButtonGroup>
 					<Button variant="primary" onClick={runTests} disabled={isRunning}>
