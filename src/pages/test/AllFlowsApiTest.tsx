@@ -1072,11 +1072,11 @@ const AllFlowsApiTest: React.FC = () => {
 										value={config.deviceType || 'sms'}
 										onChange={(e) => handleConfigChange('deviceType', e.target.value)}
 									>
-										<option value="sms">SMS</option>
-										<option value="email">Email</option>
-										<option value="totp">TOTP</option>
-										<option value="fido2">FIDO2</option>
-										<option value="push">Push</option>
+										<option key="sms" value="sms">SMS</option>
+										<option key="email" value="email">Email</option>
+										<option key="totp" value="totp">TOTP</option>
+										<option key="fido2" value="fido2">FIDO2</option>
+										<option key="push" value="push">Push</option>
 									</Select>
 								</FormGroup>
 							</FormRow>
