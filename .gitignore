@@ -6,6 +6,10 @@ node_modules/
 .env.local
 .env.*.local
 .env copy
+.env.backup*
+.env.production-backup
+.env_copy
+.env.example
 
 # Build output
 dist/
@@ -60,6 +64,10 @@ restore-point-*.tar.gz
 *.tgz
 *.rar
 *.7z
+archives/
+backups/
+backup-*/
+*.backup
 
 # Logs directory (already covered by logs/ and *.log above, but explicit for clarity)
 logs/
