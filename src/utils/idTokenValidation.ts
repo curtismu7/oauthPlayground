@@ -3,6 +3,7 @@
 
 import { FeatureFlagService } from '../services/featureFlagService';
 import { NonceManager } from '../services/nonceManager';
+import { JWKSCacheService } from '../services/jwksCacheService';
 
 export interface IDTokenValidationResult {
 	isValid: boolean;
@@ -222,9 +223,12 @@ export class IDTokenValidationService {
 	 */
 	private static async validateSignature(token: string, jwksUri: string): Promise<boolean> {
 		try {
+			const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
+
 			// Get JWKS
 			const jwks = await IDTokenValidationService.getJWKS(jwksUri);
 			if (!jwks) {
+				console.error('[IDTokenValidation] Failed to retrieve JWKS');
 				return false;
 			}
 
@@ -236,46 +240,70 @@ export class IDTokenValidationService {
 			// Find matching key
 			const key = jwks.keys.find((k) => k.kid === kid);
 			if (!key) {
-				console.warn('No matching key found in JWKS');
+				console.warn('[IDTokenValidation] No matching key found in JWKS', { kid });
 				return false;
+			}
+
+			if (useNewOidcCore) {
+				// Phase 3D: Enhanced logging with JWKSCacheService
+				console.log('[IDTokenValidation] Phase 3D: Signature validation with enhanced JWKS caching', {
+					jwksUri,
+					keyId: kid,
+					keyType: key.kty,
+					algorithm: key.alg,
+					cacheService: 'JWKSCacheService',
+				});
 			}
 
 			// In a real implementation, you would validate the signature using the public key
 			// For now, we'll return true as a placeholder
-			console.log('Signature validation would be performed here with key:', key);
+			console.log('[IDTokenValidation] Signature validation would be performed here with key:', key);
 			return true;
 		} catch (error) {
-			console.error('Signature validation failed:', error);
+			console.error('[IDTokenValidation] Signature validation failed:', error);
 			return false;
 		}
 	}
 
 	/**
-	 * Get JWKS from URI
+	 * Get JWKS from URI using Phase 2 JWKSCacheService or fallback
 	 */
 	private static async getJWKS(jwksUri: string): Promise<JWKSSet | null> {
 		try {
-			// Check cache
-			const cached = IDTokenValidationService.jwksCache.get(jwksUri);
-			const expiry = IDTokenValidationService.jwksCacheExpiry.get(jwksUri);
+			const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
 
-			if (cached && expiry && Date.now() < expiry) {
-				return cached;
+			if (useNewOidcCore) {
+				// Use Phase 2 JWKSCacheService
+				console.log('🔐 [IDTokenValidation] Using Phase 2 JWKSCacheService');
+				const keys = await JWKSCacheService.getKeys(jwksUri);
+				const jwks: JWKSSet = { keys: keys as any[] };
+				return jwks;
+			} else {
+				// Fallback to old method
+				console.log('🔐 [IDTokenValidation] Using old JWKS caching method');
+				
+				// Check cache
+				const cached = IDTokenValidationService.jwksCache.get(jwksUri);
+				const expiry = IDTokenValidationService.jwksCacheExpiry.get(jwksUri);
+
+				if (cached && expiry && Date.now() < expiry) {
+					return cached;
+				}
+
+				// Fetch JWKS
+				const response = await fetch(jwksUri);
+				if (!response.ok) {
+					throw new Error(`Failed to fetch JWKS: ${response.status}`);
+				}
+
+				const jwks = (await response.json()) as JWKSSet;
+
+				// Cache JWKS for 1 hour
+				IDTokenValidationService.jwksCache.set(jwksUri, jwks);
+				IDTokenValidationService.jwksCacheExpiry.set(jwksUri, Date.now() + 60 * 60 * 1000);
+
+				return jwks;
 			}
-
-			// Fetch JWKS
-			const response = await fetch(jwksUri);
-			if (!response.ok) {
-				throw new Error(`Failed to fetch JWKS: ${response.status}`);
-			}
-
-			const jwks = (await response.json()) as JWKSSet;
-
-			// Cache JWKS for 1 hour
-			IDTokenValidationService.jwksCache.set(jwksUri, jwks);
-			IDTokenValidationService.jwksCacheExpiry.set(jwksUri, Date.now() + 60 * 60 * 1000);
-
-			return jwks;
 		} catch (error) {
 			console.error('Failed to get JWKS:', error);
 			return null;
