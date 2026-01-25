@@ -169,12 +169,12 @@ const StatusValue = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }>`
 	font-size: 16px;
 	font-weight: 700;
 	color: ${props => 
-		props.$variant === 'valid' ? '#059669' :
-		props.$variant === 'warning' ? '#d97706' :
-		'#dc2626'
+		props.$variant === 'valid' ? '#047857' :
+		props.$variant === 'warning' ? '#b45309' :
+		'#b91c1c'
 	};
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-	filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+	filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
 `;
 
 const StatusDetails = styled.div`
@@ -205,14 +205,8 @@ const DetailLabel = styled.div`
 const DetailValue = styled.div<{ $highlight?: boolean }>`
 	font-size: 14px;
 	font-weight: 600;
-	color: ${props => props.$highlight ? '#10b981' : '#e5e7eb'};
+	color: ${props => props.$highlight ? '#047857' : '#d1d5db'};
 	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-	${props => props.$highlight && `
-		background: linear-gradient(135deg, #10b981, #059669);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
-	`}
 `;
 
 const ConfigInfo = styled.div`
