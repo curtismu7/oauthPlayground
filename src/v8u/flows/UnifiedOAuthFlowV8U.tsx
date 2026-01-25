@@ -1735,7 +1735,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					background: '#ffffff',
 					borderRadius: '8px',
 					border: '1px solid #e2e8f0',
-					marginBottom: '24px',
+					marginBottom: '32px',
 				}}
 			>
 				<div
@@ -1895,7 +1895,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			{complianceErrors.length > 0 && (
 				<div
 					style={{
-						marginBottom: '24px',
+						marginBottom: '32px',
 						padding: '16px 20px',
 						background: '#fee2e2',
 						borderRadius: '8px',
@@ -1949,7 +1949,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			{complianceWarnings.length > 0 && !complianceErrors.length && (
 				<div
 					style={{
-						marginBottom: '24px',
+						marginBottom: '32px',
 						padding: '12px 16px',
 						background: '#fef3c7',
 						borderRadius: '8px',
@@ -2041,7 +2041,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					borderRadius: '12px',
 					border: '1px solid #e2e8f0',
 					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					marginBottom: '24px',
+					marginBottom: '32px',
 				}}
 			>
 				{/* Collapse/Expand Header */}
@@ -2194,7 +2194,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					background: '#ffffff',
 					borderRadius: '12px',
 					border: '1px solid #e2e8f0',
-					marginBottom: '24px',
+					marginBottom: '32px',
 					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 					overflow: 'hidden',
 				}}
