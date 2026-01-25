@@ -1515,10 +1515,18 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 			// Save credentials directly to storage using V8U flowKey
 			try {
-				const credsForSave = updated as unknown as Parameters<
-					typeof CredentialsServiceV8.saveCredentials
-				>[1];
-				CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+				if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+					const credsForNew = {
+						...updated,
+						scopes: typeof updated.scopes === 'string' ? updated.scopes.split(' ').filter(Boolean) : updated.scopes
+					};
+					CredentialsRepository.setFlowCredentials(flowKey, credsForNew as any);
+				} else {
+					const credsForSave = updated as unknown as Parameters<
+						typeof CredentialsServiceV8.saveCredentials
+					>[1];
+					CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+				}
 
 				// Save shared credentials (environmentId, clientId, clientSecret, etc.) to shared storage (async with disk)
 				const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(updated);
@@ -3971,10 +3979,18 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 														// SINGLE SAVE: Save to storage once with all changes
 														try {
-															const credsForSave = updatedCredentials as unknown as Parameters<
-																typeof CredentialsServiceV8.saveCredentials
-															>[1];
-															CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+															if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+																const credsForNew = {
+																	...updatedCredentials,
+																	scopes: typeof updatedCredentials.scopes === 'string' ? updatedCredentials.scopes.split(' ').filter(Boolean) : updatedCredentials.scopes
+																};
+																CredentialsRepository.setFlowCredentials(flowKey, credsForNew as any);
+															} else {
+																const credsForSave = updatedCredentials as unknown as Parameters<
+																	typeof CredentialsServiceV8.saveCredentials
+																>[1];
+																CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+															}
 
 															// Save shared credentials (non-blocking)
 															const sharedCreds =
