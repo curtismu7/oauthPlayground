@@ -739,9 +739,9 @@ const AppRoutes: React.FC = () => {
 							<Route 
 								path="/v8u/unified/oauth-authz/:step?" 
 								element={
-									<Suspense fallback={<ComponentLoader message="Loading Token Monitoring..." subtext="Initializing token monitoring service" />}>
+									<Suspense fallback={<ComponentLoader message="Loading Unified OAuth Flow..." subtext="Preparing flow configuration" />}>
 										<UnifiedFlowErrorBoundary>
-											<TokenMonitoringPage />
+											<UnifiedOAuthFlowV8U />
 										</UnifiedFlowErrorBoundary>
 									</Suspense>
 								} 
