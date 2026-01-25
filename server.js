@@ -1042,6 +1042,13 @@ app.get('/callback', (req, res) => {
 	res.redirect(`https://localhost:3001/callback?${req.url.split('?')[1] || ''}`);
 });
 
+// Redirect frontend routes from HTTPS backend to correct frontend port
+app.use('/v8u', (req, res) => {
+	const targetUrl = `https://localhost:3000${req.originalUrl}`;
+	console.log(`[Server] Redirecting frontend request from HTTPS backend to: ${targetUrl}`);
+	res.redirect(301, targetUrl);
+});
+
 // Favicon handler - return 204 No Content to prevent 404 errors
 app.get('/favicon.ico', (_req, res) => {
 	res.status(204).end();
