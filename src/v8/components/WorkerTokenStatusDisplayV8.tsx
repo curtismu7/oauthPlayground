@@ -305,7 +305,7 @@ const LoadingOverlay = styled.div`
 
 export interface WorkerTokenStatusDisplayV8Props {
 	/** Display mode */
-	mode?: 'compact' | 'detailed' | 'minimal';
+	mode?: 'compact' | 'detailed' | 'minimal' | 'wide';
 	/** Show refresh button */
 	showRefresh?: boolean;
 	/** Custom className */
@@ -524,6 +524,61 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						</RefreshButton>
 					)}
 				</StatusHeader>
+			</StatusContainer>
+		);
+	}
+
+	if (mode === 'wide') {
+		return (
+			<StatusContainer 
+				$variant={getVariant()} 
+				className={className} 
+				style={{ 
+					minHeight: '60px', 
+					padding: '12px 16px',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'space-between'
+				}}
+			>
+				{/* Loading Overlay */}
+				{(isLoading || isRefreshing) && (
+					<LoadingOverlay>
+						<div className="loading-content">
+							<FiLoader className="loading-spinner" />
+							<div className="loading-text">
+								{isLoading ? 'Checking status...' : 'Refreshing...'}
+							</div>
+						</div>
+					</LoadingOverlay>
+				)}
+				
+				<div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+					<StatusIcon $variant={getVariant()}>
+						{getStatusIcon()}
+					</StatusIcon>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+						<StatusLabel style={{ margin: 0 }}>Worker Token</StatusLabel>
+						<StatusValue $variant={getVariant()} style={{ margin: 0 }}>
+							{getStatusText()}
+						</StatusValue>
+						{tokenStatus.expiresAt && (
+							<span style={{ 
+								fontSize: '12px', 
+								color: tokenStatus.isValid ? '#10b981' : '#ef4444',
+								marginLeft: '8px'
+							}}>
+								({formatTimeRemaining()})
+							</span>
+						)}
+					</div>
+				</div>
+				
+				{showRefresh && (
+					<RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
+						<FiRefreshCw className={isRefreshing ? 'spin' : ''} />
+					</RefreshButton>
+				)}
 			</StatusContainer>
 		);
 	}
