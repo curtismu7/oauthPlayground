@@ -2405,8 +2405,8 @@ passed: boolean;
 					isProxy: false,
 					headers: {},
 					body: allParams,
-					step: 'unified-authorization-callback',
-					flowType: 'unified',
+					step: flowType === 'implicit' ? 'implicit-token-extraction' : 'unified-authorization-callback',
+					flowType: flowType,
 				});
 
 				// Update with callback response (tokens extracted)
@@ -2416,7 +2416,9 @@ passed: boolean;
 						status: 200,
 						statusText: 'OK',
 						data: {
-							note: 'PingOne redirected user back with tokens in URL fragment after successful authentication',
+							note: flowType === 'implicit' 
+								? 'PingOne redirected user back with tokens in URL fragment after successful Implicit flow authentication'
+								: 'PingOne redirected user back with tokens in URL fragment after successful Hybrid flow authentication',
 							access_token: resultWithToken.access_token ? '[REDACTED - view in tokens section]' : undefined,
 							id_token: resultWithToken.id_token ? '[REDACTED - view in tokens section]' : undefined,
 							token_type: resultWithToken.token_type,
@@ -13923,7 +13925,7 @@ passed: boolean;
 						<button
 							type="button"
 							className="btn btn-next"
-							onClick={() => navigateToStep(totalSteps - 2)}
+							onClick={() => navigateToStep(totalSteps - 1)}
 							style={{
 								display: 'flex',
 								alignItems: 'center',
@@ -13932,9 +13934,9 @@ passed: boolean;
 								minWidth: '120px',
 								marginLeft: '8px',
 							}}
-							title="Go to Token Introspection & UserInfo step"
+							title="Go to API Documentation step"
 						>
-							<span>View Introspection</span>
+							<span>View API Documentation</span>
 							<FiArrowRight size={16} style={{ marginLeft: '4px' }} />
 						</button>
 					)}
