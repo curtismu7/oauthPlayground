@@ -38,34 +38,34 @@ import DynamicDeviceFlow from '@/components/DynamicDeviceFlow';
 import EnhancedFlowInfoCard from '@/components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '@/components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '@/components/FlowSequenceDisplay';
-import RedirectlessLoginModal from '@/components/RedirectlessLoginModal';
 import { PasswordChangeModal } from '@/components/PasswordChangeModal';
-import { type PKCECodes, PKCEService } from '@/services/pkceService';
-import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import RedirectlessLoginModal from '@/components/RedirectlessLoginModal';
+import { ButtonSpinner } from '@/components/ui';
+import { CredentialsRepository } from '@/services/credentialsRepository';
 import { FeatureFlagService } from '@/services/featureFlagService';
 import { PkceManager } from '@/services/pkceManager';
-import { CredentialsRepository } from '@/services/credentialsRepository';
+import { type PKCECodes, PKCEService } from '@/services/pkceService';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import type { TokenResponse } from '@/v8/services/oauthIntegrationServiceV8';
 import { OidcDiscoveryServiceV8 } from '@/v8/services/oidcDiscoveryServiceV8';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { ButtonSpinner } from '@/components/ui';
 import { PKCEStorageServiceV8U } from '../services/pkceStorageServiceV8U';
 import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,
 } from '../services/unifiedFlowIntegrationV8U';
 import { ErrorDisplayWithRetry } from './ErrorDisplayWithRetry';
+import { IDTokenValidationModalV8U } from './IDTokenValidationModalV8U';
+import { StepNavigation } from './StepNavigation';
 import { TokenDisplayV8U } from './TokenDisplayV8U';
 import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
-import { IDTokenValidationModalV8U } from './IDTokenValidationModalV8U';
-import { StepNavigation } from './StepNavigation';
 import { UserTokenStatusDisplayV8U } from './UserTokenStatusDisplayV8U';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
 
@@ -503,9 +503,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		method: string;
 		body: Record<string, unknown>;
 	} | null>(null);
-const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
-const [preFlightValidationResult, setPreFlightValidationResult] = useState<{
-passed: boolean;
+	const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
+	const [preFlightValidationResult, setPreFlightValidationResult] = useState<{
+		passed: boolean;
 		errors: string[];
 		warnings: string[];
 		fixableErrors?: Array<{
@@ -538,7 +538,8 @@ passed: boolean;
 	const [authRequestDetailsCollapsed, setAuthRequestDetailsCollapsed] = useState(false);
 	const [deviceCodeOverviewCollapsed, setDeviceCodeOverviewCollapsed] = useState(false);
 	const [deviceCodeDetailsCollapsed, setDeviceCodeDetailsCollapsed] = useState(false);
-	const [clientCredentialsOverviewCollapsed, setClientCredentialsOverviewCollapsed] = useState(false);
+	const [clientCredentialsOverviewCollapsed, setClientCredentialsOverviewCollapsed] =
+		useState(false);
 	const [configStatusCollapsed, setConfigStatusCollapsed] = useState(false);
 	const [pkceGeneratorCollapsed, setPkceGeneratorCollapsed] = useState(false);
 	const [authUrlGeneratorCollapsed, setAuthUrlGeneratorCollapsed] = useState(false);
@@ -691,7 +692,7 @@ passed: boolean;
 	const [loadingMessage, setLoadingMessage] = useState('');
 	const [isPreFlightValidating, setIsPreFlightValidating] = useState(false);
 	const [preFlightStatus, setPreFlightStatus] = useState<string>('');
-	
+
 	// Spinner loading states for core flow operations
 	const [isGeneratingAuthUrl, setIsGeneratingAuthUrl] = useState(false);
 	const [isExchangingTokens, setIsExchangingTokens] = useState(false);
@@ -701,7 +702,7 @@ passed: boolean;
 	const [isIntrospectingToken, setIsIntrospectingToken] = useState(false);
 	const [isRefreshingToken, setIsRefreshingToken] = useState(false);
 	const [isPollingDeviceCode, setIsPollingDeviceCode] = useState(false);
-	
+
 	const [error, setError] = useState<string | null>(null);
 	const [showUserInfoModal, setShowUserInfoModal] = useState(false);
 	const [showCallbackSuccessModal, setShowCallbackSuccessModal] = useState(false);
@@ -1055,7 +1056,7 @@ passed: boolean;
 				let responseData: unknown;
 				try {
 					responseData = await responseClone.json();
-					} catch {
+				} catch {
 					responseData = { error: 'Failed to parse response' };
 				}
 
@@ -1269,11 +1270,11 @@ passed: boolean;
 				'v8u_hybrid_tokens', // Flow-specific key for hybrid (if not using shared key)
 				'v8u_callback_data',
 			];
-			
+
 			allPossibleTokenKeys.forEach((key) => {
 				sessionStorage.removeItem(key);
 			});
-			
+
 			// Also clear any flow-specific token keys using the pattern v8u_${flowType}_tokens
 			const flowTypes: FlowType[] = [
 				'oauth-authz',
@@ -1286,7 +1287,7 @@ passed: boolean;
 				const key = `v8u_${ft}_tokens`;
 				sessionStorage.removeItem(key);
 			});
-			
+
 			// Clear PKCE codes for the previous flow type
 			const prevFlowKey = `${prevFlowTypeRef.current}-${specVersion}-v8u`;
 			PKCEStorageServiceV8U.clearPKCECodes(prevFlowKey).catch((err) => {
@@ -1319,7 +1320,7 @@ passed: boolean;
 	// Save credentials on change (validation removed per user request - was showing false positives)
 	useEffect(() => {
 		const flowKey = `${flowType}-v8u`;
-		
+
 		if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
 			// Use new CredentialsRepository
 			CredentialsRepository.setFlowCredentials(flowKey, credentials);
@@ -1739,7 +1740,7 @@ passed: boolean;
 	useEffect(() => {
 		// #region agent log
 		// #endregion
-		
+
 		// Only run on step 3 (callback handling step) for authorization code and hybrid flows
 		if (currentStep === 3 && (flowType === 'oauth-authz' || flowType === 'hybrid')) {
 			console.log(`${MODULE_TAG} Step 3 mounted - checking for callback data`, { flowType });
@@ -1753,11 +1754,15 @@ passed: boolean;
 			// For hybrid flow, check fragment first (tokens come in fragment, code in query)
 			if (flowType === 'hybrid') {
 				const fragment = window.location.hash.substring(1);
-				const hasFragmentTokens = fragment && (fragment.includes('access_token') || fragment.includes('id_token'));
+				const hasFragmentTokens =
+					fragment && (fragment.includes('access_token') || fragment.includes('id_token'));
 				const hasQueryCode = window.location.search.includes('code=');
-				
+
 				// For hybrid flow, we need to parse the full callback URL which includes both query and fragment
-				if ((hasFragmentTokens || hasQueryCode) && (!flowState.tokens?.accessToken || !flowState.authorizationCode)) {
+				if (
+					(hasFragmentTokens || hasQueryCode) &&
+					(!flowState.tokens?.accessToken || !flowState.authorizationCode)
+				) {
 					console.log(`${MODULE_TAG} Hybrid flow: Parsing full callback URL`, {
 						hasFragmentTokens,
 						hasQueryCode,
@@ -1881,17 +1886,20 @@ passed: boolean;
 					const url = new URL(callbackUrl);
 					const hasCode = url.searchParams.has('code');
 					const hasState = url.searchParams.has('state');
-					
+
 					if (!hasCode || !hasState) {
-						console.warn(`${MODULE_TAG} Fallback callback URL does not contain required OAuth parameters`, { 
-							callbackUrl, 
-							hasCode, 
-							hasState,
-							allParams: Object.fromEntries(url.searchParams)
-						});
+						console.warn(
+							`${MODULE_TAG} Fallback callback URL does not contain required OAuth parameters`,
+							{
+								callbackUrl,
+								hasCode,
+								hasState,
+								allParams: Object.fromEntries(url.searchParams),
+							}
+						);
 						return; // Skip parsing if no OAuth params found
 					}
-					
+
 					try {
 						const parsed = UnifiedFlowIntegrationV8U.parseCallbackUrl(
 							callbackUrl,
@@ -1904,9 +1912,12 @@ passed: boolean;
 							updates.state = detectedState;
 						}
 						hasUpdates = true;
-						console.log(`${MODULE_TAG} Hybrid flow: Authorization code extracted from callbackUrl`, {
-							code: parsed.code,
-						});
+						console.log(
+							`${MODULE_TAG} Hybrid flow: Authorization code extracted from callbackUrl`,
+							{
+								code: parsed.code,
+							}
+						);
 					} catch (err) {
 						console.error(`${MODULE_TAG} Failed to parse authorization code for hybrid flow`, err);
 						// Don't set hasUpdates = true here - let the error be logged but don't fail the flow
@@ -1947,7 +1958,7 @@ passed: boolean;
 
 					// Extract all parameters from callback URL for success modal (similar to authorization code flow)
 					const allParams: Record<string, string> = {};
-					
+
 					// Extract from query string (authorization code)
 					if (callbackUrl) {
 						try {
@@ -1959,7 +1970,7 @@ passed: boolean;
 							console.warn(`${MODULE_TAG} Failed to parse callback URL for allParams`, err);
 						}
 					}
-					
+
 					// Extract from fragment (tokens)
 					if (fragmentTokens) {
 						if (fragmentTokens.access_token) {
@@ -1983,7 +1994,9 @@ passed: boolean;
 					setShowCallbackSuccessModal(true);
 
 					if (updates.authorizationCode && updates.tokens) {
-						toastV8.success('✅ Callback URL parsed automatically! Authorization code and tokens extracted.');
+						toastV8.success(
+							'✅ Callback URL parsed automatically! Authorization code and tokens extracted.'
+						);
 					} else if (updates.authorizationCode) {
 						toastV8.success('✅ Callback URL parsed automatically! Authorization code extracted.');
 					} else if (updates.tokens) {
@@ -2028,17 +2041,17 @@ passed: boolean;
 				const url = new URL(callbackUrl);
 				const hasCode = url.searchParams.has('code');
 				const hasState = url.searchParams.has('state');
-				
+
 				if (!hasCode || !hasState) {
-					console.warn(`${MODULE_TAG} Callback URL does not contain required OAuth parameters`, { 
-						callbackUrl, 
-						hasCode, 
+					console.warn(`${MODULE_TAG} Callback URL does not contain required OAuth parameters`, {
+						callbackUrl,
+						hasCode,
 						hasState,
-						allParams: Object.fromEntries(url.searchParams)
+						allParams: Object.fromEntries(url.searchParams),
 					});
 					return; // Skip parsing if no OAuth params found
 				}
-				
+
 				console.log(`${MODULE_TAG} Auto-parsing callback URL and extracting code`, { callbackUrl });
 
 				try {
@@ -2089,7 +2102,9 @@ passed: boolean;
 						goToNext();
 					}, 1000); // Give user time to see the success modal
 
-					console.log(`${MODULE_TAG} Authorization code extracted - showing success modal, auto-navigating to next step`);
+					console.log(
+						`${MODULE_TAG} Authorization code extracted - showing success modal, auto-navigating to next step`
+					);
 				} catch (err) {
 					console.error(`${MODULE_TAG} Failed to auto-parse callback URL`, err);
 					// If auto-parsing fails, just set the URL so user can manually parse
@@ -2140,19 +2155,24 @@ passed: boolean;
 				try {
 					const { TokenMonitoringService } = await import('../services/tokenMonitoringService');
 					const tokenService = TokenMonitoringService.getInstance();
-					
+
 					// Create OAuth token object for the monitoring service
 					const oauthTokens = {
 						access_token: resultWithToken.access_token,
 						...(resultWithToken.id_token ? { id_token: resultWithToken.id_token } : {}),
 						expires_in: 3600,
 					};
-					
+
 					// Sync tokens to monitoring service
 					tokenService.syncTokensFromOAuthFlow(oauthTokens, 'unified-implicit-manual');
-					console.log(`${MODULE_TAG} ✅ Manual implicit flow tokens registered with TokenMonitoringService`);
+					console.log(
+						`${MODULE_TAG} ✅ Manual implicit flow tokens registered with TokenMonitoringService`
+					);
 				} catch (error) {
-					console.warn(`${MODULE_TAG} ⚠️ Failed to register manual implicit flow tokens with TokenMonitoringService:`, error);
+					console.warn(
+						`${MODULE_TAG} ⚠️ Failed to register manual implicit flow tokens with TokenMonitoringService:`,
+						error
+					);
 				}
 
 				setFlowState((prev) => ({
@@ -2188,7 +2208,7 @@ passed: boolean;
 				try {
 					const { TokenMonitoringService } = await import('../services/tokenMonitoringService');
 					const tokenService = TokenMonitoringService.getInstance();
-					
+
 					// Create OAuth token object for the monitoring service
 					const oauthTokens = {
 						access_token: resultWithToken.access_token,
@@ -2196,12 +2216,17 @@ passed: boolean;
 						...(resultWithToken.expires_in ? { expires_in: resultWithToken.expires_in } : {}),
 						...(resultWithToken.scope ? { scope: resultWithToken.scope } : {}),
 					};
-					
+
 					// Sync tokens to monitoring service
 					tokenService.syncTokensFromOAuthFlow(oauthTokens, 'unified-implicit-flow');
-					console.log(`${MODULE_TAG} ✅ Implicit flow tokens registered with TokenMonitoringService`);
+					console.log(
+						`${MODULE_TAG} ✅ Implicit flow tokens registered with TokenMonitoringService`
+					);
 				} catch (error) {
-					console.warn(`${MODULE_TAG} ⚠️ Failed to register implicit flow tokens with TokenMonitoringService:`, error);
+					console.warn(
+						`${MODULE_TAG} ⚠️ Failed to register implicit flow tokens with TokenMonitoringService:`,
+						error
+					);
 				}
 
 				setFlowState((prev) => ({
@@ -2365,122 +2390,130 @@ passed: boolean;
 					hasState: !!restoredState,
 				});
 
-			// Use async IIFE to handle await inside useEffect
-			(async () => {
-				try {
-					const callbackStartTime = Date.now();
-					const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
-
-				// Auto-parse the fragment immediately using restored state from sessionStorage
-				// This avoids timing issues with React state updates
-				const result = UnifiedFlowIntegrationV8U.parseCallbackFragment(
-					flowType as 'implicit' | 'hybrid',
-					window.location.href,
-					restoredState || '',
-					flowState.nonce
-				);
-
-					const resultWithToken = result as {
-						access_token: string;
-						id_token?: string;
-						token_type?: string;
-						expires_in?: number;
-						scope?: string;
-						state?: string;
-					};
-					const tokens: NonNullable<FlowState['tokens']> = {
-						accessToken: resultWithToken.access_token,
-						expiresIn: resultWithToken.expires_in || 3600,
-					};
-					if (resultWithToken.id_token) {
-						tokens.idToken = resultWithToken.id_token;
-					}
-					setFlowState((prev) => {
-						const newState = resultWithToken.state || restoredState || prev.state;
-						return {
-							...prev,
-							tokens,
-							...(newState && { state: newState }),
-						};
-					});
-
-				// Extract all parameters from fragment for success modal
-			const fragmentParams = new URLSearchParams(fragment);
-			const allParams: Record<string, string> = {};
-			fragmentParams.forEach((value, key) => {
-				allParams[key] = value;
-			});
-
-			// Track callback as an API call for documentation
-			const callbackUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize/callback`;
-			const apiCallId = apiCallTrackerService.trackApiCall({
-					method: 'GET',
-					url: callbackUrl,
-					actualPingOneUrl: callbackUrl,
-					isProxy: false,
-					headers: {},
-					body: allParams,
-					step: flowType === 'implicit' ? 'implicit-token-extraction' : 'unified-authorization-callback',
-					flowType: flowType,
-				});
-
-				// Update with callback response (tokens extracted)
-				apiCallTrackerService.updateApiCallResponse(
-					apiCallId,
-					{
-						status: 200,
-						statusText: 'OK',
-						data: {
-							note: flowType === 'implicit' 
-								? 'PingOne redirected user back with tokens in URL fragment after successful Implicit flow authentication'
-								: 'PingOne redirected user back with tokens in URL fragment after successful Hybrid flow authentication',
-							access_token: resultWithToken.access_token ? '[REDACTED - view in tokens section]' : undefined,
-							id_token: resultWithToken.id_token ? '[REDACTED - view in tokens section]' : undefined,
-							token_type: resultWithToken.token_type,
-							expires_in: resultWithToken.expires_in,
-							scope: resultWithToken.scope,
-							state: resultWithToken.state,
-							flow: flowType === 'implicit' ? 'implicit' : 'hybrid',
-							received_in: 'URL Fragment (#access_token=...)',
-						},
-					},
-					Date.now() - callbackStartTime
-				);
-
-					// Set callback details for success modal
-					setCallbackDetails({
-						url: window.location.href,
-						code: '',
-						state: resultWithToken.state || restoredState || '',
-						sessionState: allParams.session_state || '',
-						allParams,
-					});
-
-					// Show success modal
-					setShowCallbackSuccessModal(true);
-
-					// Save tokens to sessionStorage
+				// Use async IIFE to handle await inside useEffect
+				(async () => {
 					try {
-						sessionStorage.setItem(
-							'v8u_implicit_tokens',
-							JSON.stringify({
-								...tokens,
-								extractedAt: Date.now(),
-							})
-						);
-					} catch (err) {
-						console.error(`${MODULE_TAG} Failed to save tokens to sessionStorage`, err);
-					}
+						const callbackStartTime = Date.now();
+						const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 
-				nav.markStepComplete();
-				toastV8.success('Tokens extracted automatically from URL fragment');
-			} catch (err) {
-				console.error(`${MODULE_TAG} ❌ Failed to auto-parse fragment`, err);
-				// Fall back to manual parsing via handleParseFragment
-				handleParseFragment();
-			}
-			})(); // End async IIFE
-		} else {
+						// Auto-parse the fragment immediately using restored state from sessionStorage
+						// This avoids timing issues with React state updates
+						const result = UnifiedFlowIntegrationV8U.parseCallbackFragment(
+							flowType as 'implicit' | 'hybrid',
+							window.location.href,
+							restoredState || '',
+							flowState.nonce
+						);
+
+						const resultWithToken = result as {
+							access_token: string;
+							id_token?: string;
+							token_type?: string;
+							expires_in?: number;
+							scope?: string;
+							state?: string;
+						};
+						const tokens: NonNullable<FlowState['tokens']> = {
+							accessToken: resultWithToken.access_token,
+							expiresIn: resultWithToken.expires_in || 3600,
+						};
+						if (resultWithToken.id_token) {
+							tokens.idToken = resultWithToken.id_token;
+						}
+						setFlowState((prev) => {
+							const newState = resultWithToken.state || restoredState || prev.state;
+							return {
+								...prev,
+								tokens,
+								...(newState && { state: newState }),
+							};
+						});
+
+						// Extract all parameters from fragment for success modal
+						const fragmentParams = new URLSearchParams(fragment);
+						const allParams: Record<string, string> = {};
+						fragmentParams.forEach((value, key) => {
+							allParams[key] = value;
+						});
+
+						// Track callback as an API call for documentation
+						const callbackUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize/callback`;
+						const apiCallId = apiCallTrackerService.trackApiCall({
+							method: 'GET',
+							url: callbackUrl,
+							actualPingOneUrl: callbackUrl,
+							isProxy: false,
+							headers: {},
+							body: allParams,
+							step:
+								flowType === 'implicit'
+									? 'implicit-token-extraction'
+									: 'unified-authorization-callback',
+							flowType: flowType,
+						});
+
+						// Update with callback response (tokens extracted)
+						apiCallTrackerService.updateApiCallResponse(
+							apiCallId,
+							{
+								status: 200,
+								statusText: 'OK',
+								data: {
+									note:
+										flowType === 'implicit'
+											? 'PingOne redirected user back with tokens in URL fragment after successful Implicit flow authentication'
+											: 'PingOne redirected user back with tokens in URL fragment after successful Hybrid flow authentication',
+									access_token: resultWithToken.access_token
+										? '[REDACTED - view in tokens section]'
+										: undefined,
+									id_token: resultWithToken.id_token
+										? '[REDACTED - view in tokens section]'
+										: undefined,
+									token_type: resultWithToken.token_type,
+									expires_in: resultWithToken.expires_in,
+									scope: resultWithToken.scope,
+									state: resultWithToken.state,
+									flow: flowType === 'implicit' ? 'implicit' : 'hybrid',
+									received_in: 'URL Fragment (#access_token=...)',
+								},
+							},
+							Date.now() - callbackStartTime
+						);
+
+						// Set callback details for success modal
+						setCallbackDetails({
+							url: window.location.href,
+							code: '',
+							state: resultWithToken.state || restoredState || '',
+							sessionState: allParams.session_state || '',
+							allParams,
+						});
+
+						// Show success modal
+						setShowCallbackSuccessModal(true);
+
+						// Save tokens to sessionStorage
+						try {
+							sessionStorage.setItem(
+								'v8u_implicit_tokens',
+								JSON.stringify({
+									...tokens,
+									extractedAt: Date.now(),
+								})
+							);
+						} catch (err) {
+							console.error(`${MODULE_TAG} Failed to save tokens to sessionStorage`, err);
+						}
+
+						nav.markStepComplete();
+						toastV8.success('Tokens extracted automatically from URL fragment');
+					} catch (err) {
+						console.error(`${MODULE_TAG} ❌ Failed to auto-parse fragment`, err);
+						// Fall back to manual parsing via handleParseFragment
+						handleParseFragment();
+					}
+				})(); // End async IIFE
+			} else {
 				// Check sessionStorage for previously extracted tokens
 				const storedTokens = sessionStorage.getItem('v8u_implicit_tokens');
 				if (storedTokens) {
@@ -2691,15 +2724,27 @@ passed: boolean;
 		const getPerfectFor = (): string[] => {
 			switch (flowType) {
 				case 'oauth-authz':
-					return ['Web apps with secure backends', 'SPAs using PKCE', 'Apps needing refresh tokens'];
+					return [
+						'Web apps with secure backends',
+						'SPAs using PKCE',
+						'Apps needing refresh tokens',
+					];
 				case 'implicit':
 					return ['Legacy SPAs (deprecated)', 'Simple token retrieval', 'No backend required'];
 				case 'client-credentials':
-					return ['API-to-API communication', 'Backend services', 'Scheduled jobs', 'Machine-to-machine'];
+					return [
+						'API-to-API communication',
+						'Backend services',
+						'Scheduled jobs',
+						'Machine-to-machine',
+					];
 				case 'device-code':
 					return ['Smart TVs', 'IoT devices', 'CLI tools', 'Devices without browsers'];
 				case 'hybrid':
-					return ['OIDC Core 1.0 flows needing immediate ID token', 'Combined front/back channel flows'];
+					return [
+						'OIDC Core 1.0 flows needing immediate ID token',
+						'Combined front/back channel flows',
+					];
 				default:
 					return ['Web applications'];
 			}
@@ -2713,10 +2758,13 @@ passed: boolean;
 					<div>
 						<strong>🎯 What should I do in this step?</strong>
 						<p style={{ margin: '0.5rem 0 0 0' }}>
-							Configure your OAuth 2.0/OIDC application credentials. You'll need your Client ID, Client Secret (if required), Environment ID, and Redirect URI from your PingOne application.
+							Configure your OAuth 2.0/OIDC application credentials. You'll need your Client ID,
+							Client Secret (if required), Environment ID, and Redirect URI from your PingOne
+							application.
 						</p>
 						<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#64748b' }}>
-							💡 <strong>Next Steps:</strong> After configuring credentials, click "Next Step" to generate PKCE parameters (if required) or proceed to authorization URL generation.
+							💡 <strong>Next Steps:</strong> After configuring credentials, click "Next Step" to
+							generate PKCE parameters (if required) or proceed to authorization URL generation.
 						</p>
 					</div>
 				</InfoBox>
@@ -2791,7 +2839,8 @@ passed: boolean;
 												<>
 													<strong>Client Secret:</strong> Required for token request
 													<br />
-													<strong>Scopes:</strong> Resource server scopes (e.g., api:read, ClaimScope, custom:read)
+													<strong>Scopes:</strong> Resource server scopes (e.g., api:read,
+													ClaimScope, custom:read)
 													<br />
 													<strong>Environment ID:</strong> Must match your PingOne environment
 												</>
@@ -2805,7 +2854,8 @@ passed: boolean;
 												</>
 											) : (
 												<>
-													<strong>Client Secret:</strong> Required for token introspection and refresh
+													<strong>Client Secret:</strong> Required for token introspection and
+													refresh
 													<br />
 													<strong>Scopes:</strong> Include "openid profile email" for OIDC flows
 													<br />
@@ -2891,7 +2941,7 @@ passed: boolean;
 						onClick={() => setConfigStatusCollapsed(!configStatusCollapsed)}
 						aria-expanded={!configStatusCollapsed}
 						style={{
-							background: allConfigured 
+							background: allConfigured
 								? 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)'
 								: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
 							color: allConfigured ? '#059669' : '#1e40af',
@@ -2943,7 +2993,8 @@ passed: boolean;
 												lineHeight: '1.6',
 											}}
 										>
-											Please configure the following required fields in the form above to begin the flow:
+											Please configure the following required fields in the form above to begin the
+											flow:
 										</p>
 										<ul
 											style={{
@@ -2973,8 +3024,9 @@ passed: boolean;
 											color: '#92400e',
 										}}
 									>
-										<strong>Note:</strong> Client Secret is required for your selected authentication
-										method. Alternatively, you can enable PKCE for a public client flow.
+										<strong>Note:</strong> Client Secret is required for your selected
+										authentication method. Alternatively, you can enable PKCE for a public client
+										flow.
 									</div>
 								)}
 							</div>
@@ -2989,11 +3041,12 @@ passed: boolean;
 							onClick={() => setPreflightValidationCollapsed(!preflightValidationCollapsed)}
 							aria-expanded={!preflightValidationCollapsed}
 							style={{
-								background: preFlightValidationResult.errors.length > 0
-									? 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)'
-									: preFlightValidationResult.warnings.length > 0
-										? 'linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%)'
-										: 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)',
+								background:
+									preFlightValidationResult.errors.length > 0
+										? 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)'
+										: preFlightValidationResult.warnings.length > 0
+											? 'linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%)'
+											: 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)',
 								color:
 									preFlightValidationResult.errors.length > 0
 										? '#991b1b'
@@ -3013,14 +3066,17 @@ passed: boolean;
 								🔍 Pre-flight Validation Results
 								{preFlightValidationResult.errors.length > 0 && (
 									<span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
-										({preFlightValidationResult.errors.length} error{preFlightValidationResult.errors.length !== 1 ? 's' : ''})
+										({preFlightValidationResult.errors.length} error
+										{preFlightValidationResult.errors.length !== 1 ? 's' : ''})
 									</span>
 								)}
-								{preFlightValidationResult.errors.length === 0 && preFlightValidationResult.warnings.length > 0 && (
-									<span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
-										({preFlightValidationResult.warnings.length} warning{preFlightValidationResult.warnings.length !== 1 ? 's' : ''})
-									</span>
-								)}
+								{preFlightValidationResult.errors.length === 0 &&
+									preFlightValidationResult.warnings.length > 0 && (
+										<span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
+											({preFlightValidationResult.warnings.length} warning
+											{preFlightValidationResult.warnings.length !== 1 ? 's' : ''})
+										</span>
+									)}
 							</CollapsibleTitle>
 							<CollapsibleToggleIcon $collapsed={preflightValidationCollapsed}>
 								<FiChevronDown />
@@ -3031,11 +3087,12 @@ passed: boolean;
 								<div
 									style={{
 										padding: '20px',
-										background: preFlightValidationResult.errors.length > 0
-											? '#fee2e2'
-											: preFlightValidationResult.warnings.length > 0
-												? '#fff7ed'
-												: '#f0fdf4',
+										background:
+											preFlightValidationResult.errors.length > 0
+												? '#fee2e2'
+												: preFlightValidationResult.warnings.length > 0
+													? '#fff7ed'
+													: '#f0fdf4',
 										border: `2px solid ${
 											preFlightValidationResult.errors.length > 0
 												? '#dc2626'
@@ -3048,325 +3105,411 @@ passed: boolean;
 										boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
 									}}
 								>
-						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '16px' }}>
-							<span style={{ fontSize: '24px', flexShrink: 0 }}>
-								{preFlightValidationResult.errors.length > 0
-									? '❌'
-									: preFlightValidationResult.warnings.length > 0
-										? '⚠️'
-										: '✅'}
-							</span>
-							<div style={{ flex: 1 }}>
-								<strong
-									style={{
-										color:
-											preFlightValidationResult.errors.length > 0
-												? '#991b1b'
-												: preFlightValidationResult.warnings.length > 0
-													? '#c2410c'
-													: '#166534',
-										fontSize: '18px',
-										display: 'block',
-										marginBottom: '12px',
-									}}
-								>
-									🔍 Pre-flight Validation Results
-								</strong>
-								
-								{/* Summary */}
-								<div style={{ marginBottom: '16px', fontSize: '14px', color: '#4b5563' }}>
-									{preFlightValidationResult.errors.length > 0 && (
-										<span style={{ color: '#991b1b', fontWeight: '600' }}>
-											{preFlightValidationResult.errors.length} error(s) found
-										</span>
-									)}
-									{preFlightValidationResult.errors.length > 0 && preFlightValidationResult.warnings.length > 0 && (
-										<span style={{ margin: '0 8px' }}>•</span>
-									)}
-									{preFlightValidationResult.warnings.length > 0 && (
-										<span style={{ color: '#c2410c', fontWeight: '600' }}>
-											{preFlightValidationResult.warnings.length} warning(s)
-										</span>
-									)}
-									{preFlightValidationResult.errors.length === 0 && preFlightValidationResult.warnings.length === 0 && (
-										<span style={{ color: '#166534', fontWeight: '600' }}>
-											All validations passed! Configuration matches PingOne settings.
-										</span>
-									)}
-								</div>
-
-								{/* Errors Section */}
-								{preFlightValidationResult.errors.length > 0 && (
 									<div
 										style={{
+											display: 'flex',
+											alignItems: 'flex-start',
+											gap: '16px',
 											marginBottom: '16px',
-											padding: '12px',
-											background: '#fee2e2',
-											border: '1px solid #dc2626',
-											borderRadius: '8px',
 										}}
 									>
-										<strong
-											style={{
-												color: '#991b1b',
-												fontSize: '15px',
-												display: 'block',
-												marginBottom: '8px',
-											}}
-										>
-											❌ ERRORS (must be fixed before proceeding):
-										</strong>
-										<div
-											style={{
-												color: '#991b1b',
-												fontSize: '14px',
-												lineHeight: '1.8',
-											}}
-										>
-											{preFlightValidationResult.errors.map((err, idx) => (
-												<div key={idx} style={{ marginTop: idx > 0 ? '8px' : '0', marginLeft: '8px' }}>
-													• {err}
-												</div>
-											))}
-										</div>
-										{preFlightValidationResult.fixableErrors && preFlightValidationResult.fixableErrors.length > 0 && (
-											<button
-												type="button"
-												onClick={async () => {
-													try {
-														setIsLoading(true);
-														setLoadingMessage('🔧 Fixing errors...');
-														
-														const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
-														const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
-														const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
-														const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
-														
-														const fixableErrors = preFlightValidationResult.fixableErrors || [];
-														const fixDescriptions = fixableErrors.map(fe => `  • ${fe.fixDescription}`).join('\n');
-														const fixableCount = fixableErrors.length;
-														const totalErrors = preFlightValidationResult.errors.length;
-														
-														let message = `Found ${fixableCount} fixable error(s) out of ${totalErrors} total error(s).\n\n`;
-														message += `The following can be automatically fixed:\n${fixDescriptions}\n\n`;
-														message += `Would you like to automatically fix all fixable errors?`;
-														
-														const confirmed = await uiNotificationServiceV8.confirm({
-															title: '🔧 Fix All Errors?',
-															message: message,
-															confirmText: 'Yes, Fix All',
-															cancelText: 'No, I\'ll Fix Manually',
-															severity: 'warning',
-														});
-														
-														if (confirmed) {
-															const updatedCredentials = { ...credentials };
-															const fixesApplied: string[] = [];
-															
-															for (const fixableError of fixableErrors) {
-																if (fixableError.fixData) {
-																	if (fixableError.fixData.redirectUri) {
-																		updatedCredentials.redirectUri = fixableError.fixData.redirectUri;
-																		fixesApplied.push(`Redirect URI: ${fixableError.fixData.redirectUri}`);
-																	}
-																	if (fixableError.fixData.enablePKCE) {
-																		updatedCredentials.usePKCE = true;
-																		fixesApplied.push('PKCE enabled');
-																	}
-																	if (fixableError.fixData.authMethod) {
-																		updatedCredentials.clientAuthMethod = fixableError.fixData.authMethod as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
-																		fixesApplied.push(`Auth method: ${fixableError.fixData.authMethod}`);
-																	}
-																	if (fixableError.fixData.addScope) {
-																		const currentScopes = updatedCredentials.scopes || '';
-																		if (!currentScopes.includes(fixableError.fixData.addScope)) {
-																			updatedCredentials.scopes = currentScopes.trim()
-																				? `${currentScopes.trim()} ${fixableError.fixData.addScope}`
-																				: fixableError.fixData.addScope;
-																			fixesApplied.push(`Added scope: ${fixableError.fixData.addScope}`);
-																		}
-																	}
-																	if (fixableError.fixData.responseType) {
-																		updatedCredentials.responseType = fixableError.fixData.responseType as 'code' | 'token' | 'id_token' | 'code token' | 'code id_token' | 'token id_token' | 'code token id_token';
-																		fixesApplied.push(`Response type: ${fixableError.fixData.responseType}`);
-																	}
-																}
-															}
-															
-															const flowKey = `${specVersion}-${flowType}-v8u`;
-															if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
-																CredentialsRepository.setFlowCredentials(flowKey, updatedCredentials);
-															} else {
-																CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
-															}
-															
-															// Also save shared credentials (environmentId, clientId, clientAuthMethod) to backup storage
-															// This ensures fixes persist across all flows and browser restarts
-															const { SharedCredentialsServiceV8 } = await import('@/v8/services/sharedCredentialsServiceV8');
-															const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(updatedCredentials);
-															if (sharedCreds.environmentId || sharedCreds.clientId || sharedCreds.clientAuthMethod) {
-																// Use sync version for immediate browser storage
-																SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
-																// Also save to disk asynchronously (non-blocking)
-																SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((err) => {
-																	console.warn(`[UnifiedFlowSteps] Background disk save failed (non-critical):`, err);
-																});
-															}
-															
-															if (onCredentialsChange) {
-																onCredentialsChange(updatedCredentials);
-															}
-															
-															toastV8.success(`Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`);
-															
-															// Re-run validation
-															setLoadingMessage('🔍 Re-validating configuration...');
-															const workerToken = await workerTokenServiceV8.getToken();
-															const newValidationResult = await PreFlightValidationServiceV8.validateBeforeAuthUrl({
-																specVersion,
-																flowType,
-																credentials: updatedCredentials,
-																...(workerToken && { workerToken }),
-															});
-															
-															setPreFlightValidationResult({
-																passed: newValidationResult.passed,
-																errors: newValidationResult.errors,
-																warnings: newValidationResult.warnings,
-																fixableErrors: newValidationResult.fixableErrors || [],
-																...(newValidationResult.appConfig && { appConfig: newValidationResult.appConfig }),
-															});
-															
-															if (newValidationResult.errors.length > 0) {
-																setValidationErrors(newValidationResult.errors);
-																setValidationWarnings([]);
-																toastV8.error('Some errors remain after fixes');
-															} else if (newValidationResult.warnings.length > 0) {
-																setValidationWarnings(newValidationResult.warnings);
-																setValidationErrors([]);
-																toastV8.warning('Pre-flight validation warnings remain');
-															} else {
-																setValidationWarnings([]);
-																setValidationErrors([]);
-																toastV8.success('✅ All errors fixed! Pre-flight validation passed!');
-															}
-														}
-													} catch (error) {
-														console.error(`${MODULE_TAG} Error fixing errors:`, error);
-														toastV8.error('Failed to fix errors');
-													} finally {
-														setIsLoading(false);
-														setLoadingMessage('');
-													}
-												}}
-												disabled={isLoading}
+										<span style={{ fontSize: '24px', flexShrink: 0 }}>
+											{preFlightValidationResult.errors.length > 0
+												? '❌'
+												: preFlightValidationResult.warnings.length > 0
+													? '⚠️'
+													: '✅'}
+										</span>
+										<div style={{ flex: 1 }}>
+											<strong
 												style={{
-													marginTop: '12px',
-													padding: '8px 16px',
-													background: '#dc2626',
-													border: 'none',
-													borderRadius: '6px',
-													color: 'white',
-													fontSize: '14px',
-													fontWeight: '500',
-													cursor: isLoading ? 'not-allowed' : 'pointer',
-													opacity: isLoading ? 0.6 : 1,
-													display: 'inline-flex',
-													alignItems: 'center',
-													gap: '6px',
+													color:
+														preFlightValidationResult.errors.length > 0
+															? '#991b1b'
+															: preFlightValidationResult.warnings.length > 0
+																? '#c2410c'
+																: '#166534',
+													fontSize: '18px',
+													display: 'block',
+													marginBottom: '12px',
 												}}
 											>
-												🔧 Fix All Errors
-											</button>
-										)}
-									</div>
-								)}
+												🔍 Pre-flight Validation Results
+											</strong>
 
-								{/* Warnings Section */}
-								{preFlightValidationResult.warnings.length > 0 && (
-									<div
-										style={{
-											marginBottom: '16px',
-											padding: '12px',
-											background: '#fff7ed',
-											border: '1px solid #fb923c',
-											borderRadius: '8px',
-										}}
-									>
-										<strong
-											style={{
-												color: '#c2410c',
-												fontSize: '15px',
-												display: 'block',
-												marginBottom: '8px',
-											}}
-										>
-											⚠️ WARNINGS (you can still proceed):
-										</strong>
-										<div
-											style={{
-												color: '#9a3412',
-												fontSize: '14px',
-												lineHeight: '1.8',
-											}}
-										>
-											{preFlightValidationResult.warnings.map((warn, idx) => (
-												<div key={idx} style={{ marginTop: idx > 0 ? '8px' : '0', marginLeft: '8px' }}>
-													• {warn}
-												</div>
-											))}
-										</div>
-									</div>
-								)}
-
-								{/* Success Section - Show what matched */}
-								{preFlightValidationResult.errors.length === 0 && preFlightValidationResult.warnings.length === 0 && (
-									<div
-										style={{
-											padding: '12px',
-											background: '#dcfce7',
-											border: '1px solid #22c55e',
-											borderRadius: '8px',
-										}}
-									>
-										<div
-											style={{
-												color: '#166534',
-												fontSize: '14px',
-												lineHeight: '1.8',
-												fontWeight: '500',
-											}}
-										>
-											✅ All pre-flight checks passed! Your configuration is valid and matches PingOne settings.
-										</div>
-										<div
-											style={{
-												marginTop: '12px',
-												padding: '10px',
-												background: 'white',
-												borderRadius: '6px',
-												fontSize: '13px',
-												color: '#166534',
-												lineHeight: '1.6',
-											}}
-										>
-											<strong>Validated:</strong>
-											<ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
-												<li>✓ Redirect URI matches PingOne configuration</li>
-												<li>✓ Client authentication method matches</li>
-												<li>✓ PKCE requirements satisfied</li>
-												<li>✓ Required scopes present</li>
-												<li>✓ Response type valid for flow</li>
-												{preFlightValidationResult.appConfig?.requireSignedRequestObject && (
-													<li>✓ JAR (signed request object) credentials configured</li>
+											{/* Summary */}
+											<div style={{ marginBottom: '16px', fontSize: '14px', color: '#4b5563' }}>
+												{preFlightValidationResult.errors.length > 0 && (
+													<span style={{ color: '#991b1b', fontWeight: '600' }}>
+														{preFlightValidationResult.errors.length} error(s) found
+													</span>
 												)}
-											</ul>
+												{preFlightValidationResult.errors.length > 0 &&
+													preFlightValidationResult.warnings.length > 0 && (
+														<span style={{ margin: '0 8px' }}>•</span>
+													)}
+												{preFlightValidationResult.warnings.length > 0 && (
+													<span style={{ color: '#c2410c', fontWeight: '600' }}>
+														{preFlightValidationResult.warnings.length} warning(s)
+													</span>
+												)}
+												{preFlightValidationResult.errors.length === 0 &&
+													preFlightValidationResult.warnings.length === 0 && (
+														<span style={{ color: '#166534', fontWeight: '600' }}>
+															All validations passed! Configuration matches PingOne settings.
+														</span>
+													)}
+											</div>
+
+											{/* Errors Section */}
+											{preFlightValidationResult.errors.length > 0 && (
+												<div
+													style={{
+														marginBottom: '16px',
+														padding: '12px',
+														background: '#fee2e2',
+														border: '1px solid #dc2626',
+														borderRadius: '8px',
+													}}
+												>
+													<strong
+														style={{
+															color: '#991b1b',
+															fontSize: '15px',
+															display: 'block',
+															marginBottom: '8px',
+														}}
+													>
+														❌ ERRORS (must be fixed before proceeding):
+													</strong>
+													<div
+														style={{
+															color: '#991b1b',
+															fontSize: '14px',
+															lineHeight: '1.8',
+														}}
+													>
+														{preFlightValidationResult.errors.map((err, idx) => (
+															<div
+																key={idx}
+																style={{ marginTop: idx > 0 ? '8px' : '0', marginLeft: '8px' }}
+															>
+																• {err}
+															</div>
+														))}
+													</div>
+													{preFlightValidationResult.fixableErrors &&
+														preFlightValidationResult.fixableErrors.length > 0 && (
+															<button
+																type="button"
+																onClick={async () => {
+																	try {
+																		setIsLoading(true);
+																		setLoadingMessage('🔧 Fixing errors...');
+
+																		const { uiNotificationServiceV8 } = await import(
+																			'@/v8/services/uiNotificationServiceV8'
+																		);
+																		const { PreFlightValidationServiceV8 } = await import(
+																			'@/v8/services/preFlightValidationServiceV8'
+																		);
+																		const { workerTokenServiceV8 } = await import(
+																			'@/v8/services/workerTokenServiceV8'
+																		);
+																		const { CredentialsServiceV8 } = await import(
+																			'@/v8/services/credentialsServiceV8'
+																		);
+
+																		const fixableErrors =
+																			preFlightValidationResult.fixableErrors || [];
+																		const fixDescriptions = fixableErrors
+																			.map((fe) => `  • ${fe.fixDescription}`)
+																			.join('\n');
+																		const fixableCount = fixableErrors.length;
+																		const totalErrors = preFlightValidationResult.errors.length;
+
+																		let message = `Found ${fixableCount} fixable error(s) out of ${totalErrors} total error(s).\n\n`;
+																		message += `The following can be automatically fixed:\n${fixDescriptions}\n\n`;
+																		message += `Would you like to automatically fix all fixable errors?`;
+
+																		const confirmed = await uiNotificationServiceV8.confirm({
+																			title: '🔧 Fix All Errors?',
+																			message: message,
+																			confirmText: 'Yes, Fix All',
+																			cancelText: "No, I'll Fix Manually",
+																			severity: 'warning',
+																		});
+
+																		if (confirmed) {
+																			const updatedCredentials = { ...credentials };
+																			const fixesApplied: string[] = [];
+
+																			for (const fixableError of fixableErrors) {
+																				if (fixableError.fixData) {
+																					if (fixableError.fixData.redirectUri) {
+																						updatedCredentials.redirectUri =
+																							fixableError.fixData.redirectUri;
+																						fixesApplied.push(
+																							`Redirect URI: ${fixableError.fixData.redirectUri}`
+																						);
+																					}
+																					if (fixableError.fixData.enablePKCE) {
+																						updatedCredentials.usePKCE = true;
+																						fixesApplied.push('PKCE enabled');
+																					}
+																					if (fixableError.fixData.authMethod) {
+																						updatedCredentials.clientAuthMethod = fixableError
+																							.fixData.authMethod as
+																							| 'none'
+																							| 'client_secret_basic'
+																							| 'client_secret_post'
+																							| 'client_secret_jwt'
+																							| 'private_key_jwt';
+																						fixesApplied.push(
+																							`Auth method: ${fixableError.fixData.authMethod}`
+																						);
+																					}
+																					if (fixableError.fixData.addScope) {
+																						const currentScopes = updatedCredentials.scopes || '';
+																						if (
+																							!currentScopes.includes(fixableError.fixData.addScope)
+																						) {
+																							updatedCredentials.scopes = currentScopes.trim()
+																								? `${currentScopes.trim()} ${fixableError.fixData.addScope}`
+																								: fixableError.fixData.addScope;
+																							fixesApplied.push(
+																								`Added scope: ${fixableError.fixData.addScope}`
+																							);
+																						}
+																					}
+																					if (fixableError.fixData.responseType) {
+																						updatedCredentials.responseType = fixableError.fixData
+																							.responseType as
+																							| 'code'
+																							| 'token'
+																							| 'id_token'
+																							| 'code token'
+																							| 'code id_token'
+																							| 'token id_token'
+																							| 'code token id_token';
+																						fixesApplied.push(
+																							`Response type: ${fixableError.fixData.responseType}`
+																						);
+																					}
+																				}
+																			}
+
+																			const flowKey = `${specVersion}-${flowType}-v8u`;
+																			if (
+																				FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')
+																			) {
+																				CredentialsRepository.setFlowCredentials(
+																					flowKey,
+																					updatedCredentials
+																				);
+																			} else {
+																				CredentialsServiceV8.saveCredentials(
+																					flowKey,
+																					updatedCredentials
+																				);
+																			}
+
+																			// Also save shared credentials (environmentId, clientId, clientAuthMethod) to backup storage
+																			// This ensures fixes persist across all flows and browser restarts
+																			const { SharedCredentialsServiceV8 } = await import(
+																				'@/v8/services/sharedCredentialsServiceV8'
+																			);
+																			const sharedCreds =
+																				SharedCredentialsServiceV8.extractSharedCredentials(
+																					updatedCredentials
+																				);
+																			if (
+																				sharedCreds.environmentId ||
+																				sharedCreds.clientId ||
+																				sharedCreds.clientAuthMethod
+																			) {
+																				// Use sync version for immediate browser storage
+																				SharedCredentialsServiceV8.saveSharedCredentialsSync(
+																					sharedCreds
+																				);
+																				// Also save to disk asynchronously (non-blocking)
+																				SharedCredentialsServiceV8.saveSharedCredentials(
+																					sharedCreds
+																				).catch((err) => {
+																					console.warn(
+																						`[UnifiedFlowSteps] Background disk save failed (non-critical):`,
+																						err
+																					);
+																				});
+																			}
+
+																			if (onCredentialsChange) {
+																				onCredentialsChange(updatedCredentials);
+																			}
+
+																			toastV8.success(
+																				`Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`
+																			);
+
+																			// Re-run validation
+																			setLoadingMessage('🔍 Re-validating configuration...');
+																			const workerToken = await workerTokenServiceV8.getToken();
+																			const newValidationResult =
+																				await PreFlightValidationServiceV8.validateBeforeAuthUrl({
+																					specVersion,
+																					flowType,
+																					credentials: updatedCredentials,
+																					...(workerToken && { workerToken }),
+																				});
+
+																			setPreFlightValidationResult({
+																				passed: newValidationResult.passed,
+																				errors: newValidationResult.errors,
+																				warnings: newValidationResult.warnings,
+																				fixableErrors: newValidationResult.fixableErrors || [],
+																				...(newValidationResult.appConfig && {
+																					appConfig: newValidationResult.appConfig,
+																				}),
+																			});
+
+																			if (newValidationResult.errors.length > 0) {
+																				setValidationErrors(newValidationResult.errors);
+																				setValidationWarnings([]);
+																				toastV8.error('Some errors remain after fixes');
+																			} else if (newValidationResult.warnings.length > 0) {
+																				setValidationWarnings(newValidationResult.warnings);
+																				setValidationErrors([]);
+																				toastV8.warning('Pre-flight validation warnings remain');
+																			} else {
+																				setValidationWarnings([]);
+																				setValidationErrors([]);
+																				toastV8.success(
+																					'✅ All errors fixed! Pre-flight validation passed!'
+																				);
+																			}
+																		}
+																	} catch (error) {
+																		console.error(`${MODULE_TAG} Error fixing errors:`, error);
+																		toastV8.error('Failed to fix errors');
+																	} finally {
+																		setIsLoading(false);
+																		setLoadingMessage('');
+																	}
+																}}
+																disabled={isLoading}
+																style={{
+																	marginTop: '12px',
+																	padding: '8px 16px',
+																	background: '#dc2626',
+																	border: 'none',
+																	borderRadius: '6px',
+																	color: 'white',
+																	fontSize: '14px',
+																	fontWeight: '500',
+																	cursor: isLoading ? 'not-allowed' : 'pointer',
+																	opacity: isLoading ? 0.6 : 1,
+																	display: 'inline-flex',
+																	alignItems: 'center',
+																	gap: '6px',
+																}}
+															>
+																🔧 Fix All Errors
+															</button>
+														)}
+												</div>
+											)}
+
+											{/* Warnings Section */}
+											{preFlightValidationResult.warnings.length > 0 && (
+												<div
+													style={{
+														marginBottom: '16px',
+														padding: '12px',
+														background: '#fff7ed',
+														border: '1px solid #fb923c',
+														borderRadius: '8px',
+													}}
+												>
+													<strong
+														style={{
+															color: '#c2410c',
+															fontSize: '15px',
+															display: 'block',
+															marginBottom: '8px',
+														}}
+													>
+														⚠️ WARNINGS (you can still proceed):
+													</strong>
+													<div
+														style={{
+															color: '#9a3412',
+															fontSize: '14px',
+															lineHeight: '1.8',
+														}}
+													>
+														{preFlightValidationResult.warnings.map((warn, idx) => (
+															<div
+																key={idx}
+																style={{ marginTop: idx > 0 ? '8px' : '0', marginLeft: '8px' }}
+															>
+																• {warn}
+															</div>
+														))}
+													</div>
+												</div>
+											)}
+
+											{/* Success Section - Show what matched */}
+											{preFlightValidationResult.errors.length === 0 &&
+												preFlightValidationResult.warnings.length === 0 && (
+													<div
+														style={{
+															padding: '12px',
+															background: '#dcfce7',
+															border: '1px solid #22c55e',
+															borderRadius: '8px',
+														}}
+													>
+														<div
+															style={{
+																color: '#166534',
+																fontSize: '14px',
+																lineHeight: '1.8',
+																fontWeight: '500',
+															}}
+														>
+															✅ All pre-flight checks passed! Your configuration is valid and
+															matches PingOne settings.
+														</div>
+														<div
+															style={{
+																marginTop: '12px',
+																padding: '10px',
+																background: 'white',
+																borderRadius: '6px',
+																fontSize: '13px',
+																color: '#166534',
+																lineHeight: '1.6',
+															}}
+														>
+															<strong>Validated:</strong>
+															<ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
+																<li>✓ Redirect URI matches PingOne configuration</li>
+																<li>✓ Client authentication method matches</li>
+																<li>✓ PKCE requirements satisfied</li>
+																<li>✓ Required scopes present</li>
+																<li>✓ Response type valid for flow</li>
+																{preFlightValidationResult.appConfig
+																	?.requireSignedRequestObject && (
+																	<li>✓ JAR (signed request object) credentials configured</li>
+																)}
+															</ul>
+														</div>
+													</div>
+												)}
 										</div>
 									</div>
-								)}
-							</div>
-						</div>
-					</div>
+								</div>
 							</CollapsibleContent>
 						)}
 					</CollapsibleSection>
@@ -3419,28 +3562,28 @@ passed: boolean;
 		const handlePKCEGenerate = async () => {
 			console.log(`${MODULE_TAG} 🔄 PKCE Generate button clicked`);
 			setIsGeneratingPKCE(true);
-			
+
 			try {
 				// The PKCE service will handle the actual generation
 				// We just need to wait for it to complete and update our state
-				await new Promise(resolve => setTimeout(resolve, 100)); // Small delay for visual feedback
-				
+				await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay for visual feedback
+
 				// Check if PKCE codes were generated
 				if (pkceCodes.codeVerifier && pkceCodes.codeChallenge) {
 					// Update flow state with the generated codes
-					setFlowState(prev => ({
+					setFlowState((prev) => ({
 						...prev,
 						codeVerifier: pkceCodes.codeVerifier,
 						codeChallenge: pkceCodes.codeChallenge,
 						codeChallengeMethod: 'S256',
 					}));
-					
+
 					// Mark step as complete
 					nav.markStepComplete();
-					
+
 					// Show success message
 					toastV8.success('✅ PKCE parameters generated successfully!');
-					
+
 					console.log(`${MODULE_TAG} ✅ PKCE codes generated and stored in flow state`);
 				} else {
 					console.warn(`${MODULE_TAG} ⚠️ PKCE generation completed but no codes found`);
@@ -3461,17 +3604,19 @@ passed: boolean;
 					<div>
 						<strong>🎯 What should I do in this step?</strong>
 						<p style={{ margin: '0.5rem 0 0 0' }}>
-							{flowType === 'oauth-authz' || flowType === 'hybrid' 
+							{flowType === 'oauth-authz' || flowType === 'hybrid'
 								? 'Generate PKCE parameters to enhance security. This creates a code verifier and challenge that protect your authorization code exchange.'
 								: 'PKCE is not required for your selected flow type, but you can still generate codes for educational purposes.'}
 						</p>
 						{flowType === 'oauth-authz' || flowType === 'hybrid' ? (
 							<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#64748b' }}>
-								💡 <strong>Next Steps:</strong> After generating PKCE codes, click "Next Step" to generate your authorization URL.
+								💡 <strong>Next Steps:</strong> After generating PKCE codes, click "Next Step" to
+								generate your authorization URL.
 							</p>
 						) : (
 							<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#64748b' }}>
-								💡 <strong>Note:</strong> You can skip this step and go directly to authorization URL generation.
+								💡 <strong>Note:</strong> You can skip this step and go directly to authorization
+								URL generation.
 							</p>
 						)}
 					</div>
@@ -3483,15 +3628,20 @@ passed: boolean;
 						onClick={() => setPkceStepOverviewCollapsed(!pkceStepOverviewCollapsed)}
 						aria-expanded={!pkceStepOverviewCollapsed}
 						style={{
-							background: flowState.codeVerifier && flowState.codeChallenge
-								? 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)'
-								: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+							background:
+								flowState.codeVerifier && flowState.codeChallenge
+									? 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)'
+									: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
 							color: flowState.codeVerifier && flowState.codeChallenge ? '#059669' : '#1e40af',
-							border: flowState.codeVerifier && flowState.codeChallenge ? '2px solid #10b981' : '2px solid #3b82f6',
+							border:
+								flowState.codeVerifier && flowState.codeChallenge
+									? '2px solid #10b981'
+									: '2px solid #3b82f6',
 							borderRadius: '8px',
-							boxShadow: flowState.codeVerifier && flowState.codeChallenge
-								? '0 2px 8px rgba(16, 185, 129, 0.15)'
-								: '0 2px 8px rgba(59, 130, 246, 0.15)',
+							boxShadow:
+								flowState.codeVerifier && flowState.codeChallenge
+									? '0 2px 8px rgba(16, 185, 129, 0.15)'
+									: '0 2px 8px rgba(59, 130, 246, 0.15)',
 							marginBottom: '16px',
 							padding: '16px 20px',
 						}}
@@ -3539,8 +3689,8 @@ passed: boolean;
 									<InfoTitle>PKCE (Proof Key for Code Exchange)</InfoTitle>
 									<InfoText>
 										PKCE is a security extension for OAuth 2.0 that prevents authorization code
-										interception attacks. It's required for public clients (like mobile apps)
-										and highly recommended for all OAuth flows.
+										interception attacks. It's required for public clients (like mobile apps) and
+										highly recommended for all OAuth flows.
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -3552,8 +3702,8 @@ passed: boolean;
 									<InfoText>
 										Without PKCE, if an attacker intercepts your authorization code (through app
 										redirects, network sniffing, or malicious apps), they could exchange it for
-										tokens. PKCE prevents this by requiring proof that the same client that
-										started the flow is finishing it.
+										tokens. PKCE prevents this by requiring proof that the same client that started
+										the flow is finishing it.
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -3581,9 +3731,9 @@ passed: boolean;
 									<div>
 										<InfoTitle>Code Verifier</InfoTitle>
 										<InfoText>
-											A high-entropy cryptographic random string (43-128 chars) that stays
-											secret in your app. Think of it as a temporary password that proves you're
-											the same client that started the OAuth flow.
+											A high-entropy cryptographic random string (43-128 chars) that stays secret in
+											your app. Think of it as a temporary password that proves you're the same
+											client that started the OAuth flow.
 										</InfoText>
 										<InfoList>
 											<li>Generated fresh for each OAuth request</li>
@@ -3599,9 +3749,9 @@ passed: boolean;
 									<div>
 										<InfoTitle>Code Challenge</InfoTitle>
 										<InfoText>
-											A SHA256 hash of the code verifier, encoded in base64url format. This is
-											sent publicly in the authorization URL but can't be reversed to get the
-											original verifier.
+											A SHA256 hash of the code verifier, encoded in base64url format. This is sent
+											publicly in the authorization URL but can't be reversed to get the original
+											verifier.
 										</InfoText>
 										<InfoList>
 											<li>Derived from: SHA256(code_verifier)</li>
@@ -3619,12 +3769,12 @@ passed: boolean;
 									<InfoTitle>Security Best Practices</InfoTitle>
 									<InfoList>
 										<li>
-											<strong>Generate Fresh Values:</strong> Create new PKCE parameters for
-											every authorization request
+											<strong>Generate Fresh Values:</strong> Create new PKCE parameters for every
+											authorization request
 										</li>
 										<li>
-											<strong>Secure Storage:</strong> Keep the code verifier in memory or
-											secure storage, never log it
+											<strong>Secure Storage:</strong> Keep the code verifier in memory or secure
+											storage, never log it
 										</li>
 										<li>
 											<strong>Use S256 Method:</strong> Always use SHA256 hashing
@@ -3647,15 +3797,20 @@ passed: boolean;
 						onClick={() => setPkceGeneratorCollapsed(!pkceGeneratorCollapsed)}
 						aria-expanded={!pkceGeneratorCollapsed}
 						style={{
-							background: flowState.codeVerifier && flowState.codeChallenge
-								? 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)'
-								: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+							background:
+								flowState.codeVerifier && flowState.codeChallenge
+									? 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)'
+									: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
 							color: flowState.codeVerifier && flowState.codeChallenge ? '#059669' : '#1e40af',
-							border: flowState.codeVerifier && flowState.codeChallenge ? '2px solid #10b981' : '2px solid #3b82f6',
+							border:
+								flowState.codeVerifier && flowState.codeChallenge
+									? '2px solid #10b981'
+									: '2px solid #3b82f6',
 							borderRadius: '8px',
-							boxShadow: flowState.codeVerifier && flowState.codeChallenge
-								? '0 2px 8px rgba(16, 185, 129, 0.15)'
-								: '0 2px 8px rgba(59, 130, 246, 0.15)',
+							boxShadow:
+								flowState.codeVerifier && flowState.codeChallenge
+									? '0 2px 8px rgba(16, 185, 129, 0.15)'
+									: '0 2px 8px rgba(59, 130, 246, 0.15)',
 							marginBottom: '16px',
 							padding: '16px 20px',
 						}}
@@ -4032,21 +4187,26 @@ passed: boolean;
 				try {
 					const { TokenMonitoringService } = await import('../services/tokenMonitoringService');
 					const tokenService = TokenMonitoringService.getInstance();
-					
+
 					// Create OAuth token object for the monitoring service
 					const oauthTokens = {
 						access_token: tokenData.access_token as string,
 						...(tokenData.id_token ? { id_token: tokenData.id_token as string } : {}),
-						...(tokenData.refresh_token ? { refresh_token: tokenData.refresh_token as string } : {}),
+						...(tokenData.refresh_token
+							? { refresh_token: tokenData.refresh_token as string }
+							: {}),
 						...(tokenData.expires_in ? { expires_in: tokenData.expires_in as number } : {}),
 						...(tokenData.scope ? { scope: tokenData.scope as string } : {}),
 					};
-					
+
 					// Sync tokens to monitoring service
 					tokenService.syncTokensFromOAuthFlow(oauthTokens, 'unified-oauth-flow');
 					console.log(`${MODULE_TAG} ✅ Tokens registered with TokenMonitoringService`);
 				} catch (error) {
-					console.warn(`${MODULE_TAG} ⚠️ Failed to register tokens with TokenMonitoringService:`, error);
+					console.warn(
+						`${MODULE_TAG} ⚠️ Failed to register tokens with TokenMonitoringService:`,
+						error
+					);
 				}
 
 				// Store tokens in flow state (conditionally include optional properties)
@@ -4117,7 +4277,9 @@ passed: boolean;
 				const flowApiUrl = `https://auth.pingone.com/${credentials.environmentId}/flows/${flowId}`;
 
 				// Track API call for display
-				const { apiCallTrackerService: apiCallTrackerService2 } = await import('@/services/apiCallTrackerService');
+				const { apiCallTrackerService: apiCallTrackerService2 } = await import(
+					'@/services/apiCallTrackerService'
+				);
 				const startTime2 = Date.now();
 				const requestBody2 = {
 					environmentId: credentials.environmentId,
@@ -4203,20 +4365,20 @@ passed: boolean;
 				// Handle MUST_CHANGE_PASSWORD status
 				if (status === 'MUST_CHANGE_PASSWORD') {
 					console.log(`${MODULE_TAG} 🔌 Password change required detected`);
-					
+
 					// Extract userId from response if available, otherwise we'll need to look it up
 					const credentialsDataTyped = credentialsData as {
 						userId?: string;
 						user?: { id?: string };
 						_embedded?: { user?: { id?: string } };
 					};
-					const userId = (credentialsDataTyped.userId || 
-						credentialsDataTyped.user?.id || 
+					const userId = (credentialsDataTyped.userId ||
+						credentialsDataTyped.user?.id ||
 						credentialsDataTyped._embedded?.user?.id) as string | undefined;
-					
+
 					// Store username for user lookup if needed
 					setPasswordChangeUsername(username);
-					
+
 					if (userId) {
 						setPasswordChangeUserId(userId);
 						setPasswordChangeFlowId(flowId);
@@ -4224,14 +4386,16 @@ passed: boolean;
 						setShowPasswordChangeModal(true);
 						setShowRedirectlessModal(false);
 						setIsRedirectlessAuthenticating(false);
-						toastV8.warning('⚠️ Password change is required. Please update your password to continue.');
+						toastV8.warning(
+							'⚠️ Password change is required. Please update your password to continue.'
+						);
 					} else {
 						// If userId is not available, try to look it up by username
 						try {
 							// Get worker token for user lookup
 							const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 							const workerToken = await workerTokenServiceV8.getToken();
-							
+
 							// Look up user by username
 							const lookupResponse = await fetch('/api/pingone/mfa/lookup-user', {
 								method: 'POST',
@@ -4244,7 +4408,7 @@ passed: boolean;
 									workerToken,
 								}),
 							});
-							
+
 							if (lookupResponse.ok) {
 								const userData = await lookupResponse.json();
 								const foundUserId = userData.id;
@@ -4255,7 +4419,9 @@ passed: boolean;
 									setShowPasswordChangeModal(true);
 									setShowRedirectlessModal(false);
 									setIsRedirectlessAuthenticating(false);
-									toastV8.warning('⚠️ Password change is required. Please update your password to continue.');
+									toastV8.warning(
+										'⚠️ Password change is required. Please update your password to continue.'
+									);
 								} else {
 									throw new Error('User ID not found in lookup response');
 								}
@@ -4264,7 +4430,8 @@ passed: boolean;
 							}
 						} catch (lookupError) {
 							console.error(`${MODULE_TAG} 🔌 Failed to lookup user:`, lookupError);
-							const errorMsg = 'Password change is required, but user ID could not be determined. Please contact your administrator.';
+							const errorMsg =
+								'Password change is required, but user ID could not be determined. Please contact your administrator.';
 							setRedirectlessAuthError(errorMsg);
 							toastV8.error(`❌ ${errorMsg}`);
 							setIsRedirectlessAuthenticating(false);
@@ -4453,17 +4620,17 @@ passed: boolean;
 				}
 
 				toastV8.success('✅ Password changed successfully!');
-				
+
 				// Close modal and clear state
 				setShowPasswordChangeModal(false);
 				setPasswordChangeUserId(null);
 				setPasswordChangeFlowId(null);
 				setPasswordChangeState(null);
 				setPasswordChangeUsername(null);
-				
+
 				// Show message to retry login
 				toastV8.info('Please try signing in again with your new password.');
-				
+
 				// Re-open the login modal so user can try again
 				setShowRedirectlessModal(true);
 			} catch (error) {
@@ -4471,7 +4638,12 @@ passed: boolean;
 				throw error; // Re-throw to let modal handle the error display
 			}
 		},
-		[passwordChangeUserId, passwordChangeUsername, credentials.environmentId, handleSubmitRedirectlessCredentials]
+		[
+			passwordChangeUserId,
+			passwordChangeUsername,
+			credentials.environmentId,
+			handleSubmitRedirectlessCredentials,
+		]
 	);
 
 	// Handler for starting redirectless authentication after URL is displayed
@@ -4645,7 +4817,9 @@ passed: boolean;
 			}
 
 			// Track API call for display
-			const { apiCallTrackerService: apiCallTrackerService3 } = await import('@/services/apiCallTrackerService');
+			const { apiCallTrackerService: apiCallTrackerService3 } = await import(
+				'@/services/apiCallTrackerService'
+			);
 			const startTime3 = Date.now();
 			const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 			const requestBody3 = {
@@ -4826,7 +5000,7 @@ passed: boolean;
 		const handleGenerateAuthUrl = async () => {
 			// Use a local variable to track current credentials (may be updated during auto-fix)
 			let currentCredentials = credentials;
-			
+
 			console.log(`${MODULE_TAG} Generating authorization URL`, {
 				flowType,
 				hasPKCE: !!(flowState.codeVerifier && flowState.codeChallenge),
@@ -4834,15 +5008,17 @@ passed: boolean;
 				environmentId: currentCredentials.environmentId,
 				clientId: currentCredentials.clientId,
 				responseMode:
-					currentCredentials.responseMode || (currentCredentials.useRedirectless ? 'pi.flow' : undefined),
+					currentCredentials.responseMode ||
+					(currentCredentials.useRedirectless ? 'pi.flow' : undefined),
 				fullCredentials: currentCredentials,
 			});
 
 			// Set loading state for spinner
 			setIsGeneratingAuthUrl(true);
-			
+
 			// Debug: Check if redirectless mode (pi.flow) is enabled
-			const isRedirectless = currentCredentials.responseMode === 'pi.flow' || currentCredentials.useRedirectless;
+			const isRedirectless =
+				currentCredentials.responseMode === 'pi.flow' || currentCredentials.useRedirectless;
 			if (isRedirectless) {
 				console.log(
 					`${MODULE_TAG} ✅ Redirectless mode (response_mode=pi.flow) is ENABLED - will generate URL first, then make POST request`
@@ -4918,16 +5094,20 @@ passed: boolean;
 				};
 			} | null = null;
 			try {
-				const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
+				const { PreFlightValidationServiceV8 } = await import(
+					'@/v8/services/preFlightValidationServiceV8'
+				);
 				const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
-				
+
 				setPreFlightStatus('🔑 Retrieving worker token...');
 				let workerToken = await workerTokenServiceV8.getToken();
-				
+
 				// If no worker token, try silent retrieval (will ask for credentials if missing)
 				if (!workerToken) {
 					try {
-						const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+						const { handleShowWorkerTokenModal } = await import(
+							'@/v8/utils/workerTokenModalHelperV8'
+						);
 						// Attempt silent retrieval (will show modal if credentials are missing)
 						await handleShowWorkerTokenModal(
 							setShowWorkerTokenModal,
@@ -4938,16 +5118,16 @@ passed: boolean;
 							setIsLoading // setIsLoading - for spinner during silent retrieval
 						);
 						// Try again after silent retrieval attempt
-						await new Promise(resolve => setTimeout(resolve, 500));
+						await new Promise((resolve) => setTimeout(resolve, 500));
 						workerToken = await workerTokenServiceV8.getToken();
 					} catch (error) {
 						console.warn(`${MODULE_TAG} Silent worker token retrieval failed:`, error);
 						// Continue without worker token - validation will show warnings
 					}
 				}
-				
+
 				setPreFlightStatus('✅ Validating configuration against PingOne...');
-				
+
 				// Add timeout to prevent hanging (30 seconds max)
 				const validationPromise = PreFlightValidationServiceV8.validateBeforeAuthUrl({
 					specVersion,
@@ -4955,11 +5135,14 @@ passed: boolean;
 					credentials: currentCredentials, // Use currentCredentials (may be updated by auto-fix)
 					...(workerToken && { workerToken }),
 				});
-				
+
 				const timeoutPromise = new Promise<never>((_, reject) => {
-					setTimeout(() => reject(new Error('Pre-flight validation timed out after 30 seconds')), 30000);
+					setTimeout(
+						() => reject(new Error('Pre-flight validation timed out after 30 seconds')),
+						30000
+					);
 				});
-				
+
 				validationResult = await Promise.race([validationPromise, timeoutPromise]);
 
 				if (!validationResult) {
@@ -4989,37 +5172,41 @@ passed: boolean;
 					if (validationResult.errors.length > 0) {
 						// Check if there are any fixable errors
 						const fixableErrors = validationResult.fixableErrors || [];
-						
+
 						// If there are fixable errors, offer to fix them
 						if (fixableErrors.length > 0) {
-							const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
-							
+							const { uiNotificationServiceV8 } = await import(
+								'@/v8/services/uiNotificationServiceV8'
+							);
+
 							// Build fix description message
-							const fixDescriptions = fixableErrors.map(fe => `  • ${fe.fixDescription}`).join('\n');
+							const fixDescriptions = fixableErrors
+								.map((fe) => `  • ${fe.fixDescription}`)
+								.join('\n');
 							const fixableCount = fixableErrors.length;
 							const totalErrors = validationResult.errors.length;
 							const nonFixableCount = totalErrors - fixableCount;
-							
+
 							let message = `Found ${fixableCount} fixable error(s) out of ${totalErrors} total error(s).\n\n`;
 							message += `The following can be automatically fixed:\n${fixDescriptions}\n\n`;
 							if (nonFixableCount > 0) {
 								message += `Note: ${nonFixableCount} error(s) cannot be auto-fixed and will need manual attention.\n\n`;
 							}
 							message += `Would you like to automatically fix all fixable errors?`;
-							
+
 							const confirmed = await uiNotificationServiceV8.confirm({
 								title: '🔧 Fix All Errors?',
 								message: message,
 								confirmText: 'Yes, Fix All',
-								cancelText: 'No, I\'ll Fix Manually',
+								cancelText: "No, I'll Fix Manually",
 								severity: 'warning',
 							});
-							
+
 							if (confirmed) {
 								// Apply all fixes
 								const updatedCredentials = { ...currentCredentials };
 								const fixesApplied: string[] = [];
-								
+
 								for (const fixableError of fixableErrors) {
 									if (fixableError.fixData) {
 										if (fixableError.fixData.redirectUri) {
@@ -5030,10 +5217,15 @@ passed: boolean;
 											updatedCredentials.usePKCE = true;
 											fixesApplied.push('PKCE enabled');
 										}
-									if (fixableError.fixData.authMethod) {
-										updatedCredentials.clientAuthMethod = fixableError.fixData.authMethod as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
-										fixesApplied.push(`Auth method: ${fixableError.fixData.authMethod}`);
-									}
+										if (fixableError.fixData.authMethod) {
+											updatedCredentials.clientAuthMethod = fixableError.fixData.authMethod as
+												| 'none'
+												| 'client_secret_basic'
+												| 'client_secret_post'
+												| 'client_secret_jwt'
+												| 'private_key_jwt';
+											fixesApplied.push(`Auth method: ${fixableError.fixData.authMethod}`);
+										}
 										if (fixableError.fixData.addScope) {
 											const currentScopes = updatedCredentials.scopes || '';
 											if (!currentScopes.includes(fixableError.fixData.addScope)) {
@@ -5043,79 +5235,101 @@ passed: boolean;
 												fixesApplied.push(`Added scope: ${fixableError.fixData.addScope}`);
 											}
 										}
-									if (fixableError.fixData.responseType) {
-										updatedCredentials.responseType = fixableError.fixData.responseType as 'code' | 'token' | 'id_token' | 'code token' | 'code id_token' | 'token id_token' | 'code token id_token';
-										fixesApplied.push(`Response type: ${fixableError.fixData.responseType}`);
-									}
+										if (fixableError.fixData.responseType) {
+											updatedCredentials.responseType = fixableError.fixData.responseType as
+												| 'code'
+												| 'token'
+												| 'id_token'
+												| 'code token'
+												| 'code id_token'
+												| 'token id_token'
+												| 'code token id_token';
+											fixesApplied.push(`Response type: ${fixableError.fixData.responseType}`);
+										}
 									}
 								}
-								
+
 								// Save updated credentials to flow-specific storage (IndexedDB, localStorage, backend)
-							const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
-							const flowKey = `${specVersion}-${flowType}-v8u`;
-							// updatedCredentials is compatible with Credentials interface
-							if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
-								CredentialsRepository.setFlowCredentials(flowKey, updatedCredentials);
-							} else {
-								CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
-							}
-								
+								const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
+								const flowKey = `${specVersion}-${flowType}-v8u`;
+								// updatedCredentials is compatible with Credentials interface
+								if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+									CredentialsRepository.setFlowCredentials(flowKey, updatedCredentials);
+								} else {
+									CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
+								}
+
 								// Also save shared credentials (environmentId, clientId, clientAuthMethod) to backup storage
 								// This ensures fixes persist across all flows and browser restarts
-								const { SharedCredentialsServiceV8 } = await import('@/v8/services/sharedCredentialsServiceV8');
-								const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(updatedCredentials);
-								if (sharedCreds.environmentId || sharedCreds.clientId || sharedCreds.clientAuthMethod) {
+								const { SharedCredentialsServiceV8 } = await import(
+									'@/v8/services/sharedCredentialsServiceV8'
+								);
+								const sharedCreds =
+									SharedCredentialsServiceV8.extractSharedCredentials(updatedCredentials);
+								if (
+									sharedCreds.environmentId ||
+									sharedCreds.clientId ||
+									sharedCreds.clientAuthMethod
+								) {
 									// Use sync version for immediate browser storage
 									SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 									// Also save to disk asynchronously (non-blocking)
 									SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((err) => {
-										console.warn(`[UnifiedFlowSteps] Background disk save failed (non-critical):`, err);
+										console.warn(
+											`[UnifiedFlowSteps] Background disk save failed (non-critical):`,
+											err
+										);
 									});
 								}
-								
+
 								// Update current credentials for URL generation
 								currentCredentials = updatedCredentials;
-								
+
 								// Update parent component's credentials
 								if (onCredentialsChange) {
 									onCredentialsChange(updatedCredentials);
 								}
-								
-								toastV8.success(`Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`);
-								
+
+								toastV8.success(
+									`Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`
+								);
+
 								// Re-run validation with updated credentials
 								setPreFlightStatus('🔍 Re-validating configuration...');
 								toastV8.info('🔍 Re-validating after fixes...');
-								const newValidationResult = await PreFlightValidationServiceV8.validateBeforeAuthUrl({
-									specVersion,
-									flowType,
-									credentials: updatedCredentials,
-									...(workerToken && { workerToken }),
-								});
-								
+								const newValidationResult =
+									await PreFlightValidationServiceV8.validateBeforeAuthUrl({
+										specVersion,
+										flowType,
+										credentials: updatedCredentials,
+										...(workerToken && { workerToken }),
+									});
+
 								// Update validation result state (include appConfig)
 								setPreFlightValidationResult({
 									passed: newValidationResult.passed,
 									errors: newValidationResult.errors,
 									warnings: newValidationResult.warnings,
 									fixableErrors: newValidationResult.fixableErrors || [],
-									...(newValidationResult.appConfig && { appConfig: newValidationResult.appConfig }),
+									...(newValidationResult.appConfig && {
+										appConfig: newValidationResult.appConfig,
+									}),
 								});
-								
+
 								// Update validation results
 								if (newValidationResult.errors.length > 0) {
 									const errorMessage = [
 										'🔍 Pre-flight Validation Results:',
 										'',
 										'❌ ERRORS (must be fixed before proceeding):',
-										...newValidationResult.errors.map(err => `  ${err}`),
+										...newValidationResult.errors.map((err) => `  ${err}`),
 										'',
 										'🔧 How to Fix:',
 										'1. Go to Step 0 (Configuration)',
 										'2. Review and fix the errors listed above',
 										'3. Try generating the authorization URL again',
 										'',
-										'⚠️ WARNING: If you proceed with errors, the authorization request will likely fail.'
+										'⚠️ WARNING: If you proceed with errors, the authorization request will likely fail.',
 									].join('\n');
 									setError(errorMessage);
 									setValidationErrors([errorMessage]);
@@ -5130,9 +5344,9 @@ passed: boolean;
 										'🔍 Pre-flight Validation Results:',
 										'',
 										'⚠️ WARNINGS (you can still proceed):',
-										...newValidationResult.warnings.map(warn => `  ${warn}`),
+										...newValidationResult.warnings.map((warn) => `  ${warn}`),
 										'',
-										'✅ You can continue with the flow, but be aware that some validations were skipped.'
+										'✅ You can continue with the flow, but be aware that some validations were skipped.',
 									].join('\n');
 									setValidationWarnings([warningMessage]);
 									setValidationErrors([]);
@@ -5144,7 +5358,9 @@ passed: boolean;
 									// No errors or warnings - validation passed
 									setValidationWarnings([]);
 									setValidationErrors([]);
-									toastV8.success(`✅ Pre-flight validation passed! Fixed ${fixesApplied.length} error(s).`);
+									toastV8.success(
+										`✅ Pre-flight validation passed! Fixed ${fixesApplied.length} error(s).`
+									);
 									setIsPreFlightValidating(false);
 									setPreFlightStatus('');
 									// Continue with flow generation using updated credentials
@@ -5155,14 +5371,14 @@ passed: boolean;
 									'🔍 Pre-flight Validation Results:',
 									'',
 									'❌ ERRORS (must be fixed before proceeding):',
-									...validationResult.errors.map(err => `  ${err}`),
+									...validationResult.errors.map((err) => `  ${err}`),
 									'',
 									'🔧 How to Fix:',
 									'1. Go to Step 0 (Configuration)',
 									'2. Review and fix the errors listed above',
 									'3. Try generating the authorization URL again',
 									'',
-									'⚠️ WARNING: If you proceed with errors, the authorization request will likely fail.'
+									'⚠️ WARNING: If you proceed with errors, the authorization request will likely fail.',
 								].join('\n');
 
 								setError(errorMessage);
@@ -5188,14 +5404,14 @@ passed: boolean;
 								'🔍 Pre-flight Validation Results:',
 								'',
 								'❌ ERRORS (must be fixed before proceeding):',
-								...validationResult.errors.map(err => `  ${err}`),
+								...validationResult.errors.map((err) => `  ${err}`),
 								'',
 								'🔧 How to Fix:',
 								'1. Go to Step 0 (Configuration)',
 								'2. Review and fix the errors listed above',
 								'3. Try generating the authorization URL again',
 								'',
-								'⚠️ WARNING: If you proceed with errors, the authorization request will likely fail.'
+								'⚠️ WARNING: If you proceed with errors, the authorization request will likely fail.',
 							].join('\n');
 
 							setError(errorMessage);
@@ -5216,16 +5432,16 @@ passed: boolean;
 							return;
 						}
 					}
-					
+
 					// Warnings only: Allow continuation, show with orange background
 					if (validationResult.warnings.length > 0) {
 						const warningMessage = [
 							'🔍 Pre-flight Validation Results:',
 							'',
 							'⚠️ WARNINGS (you can still proceed):',
-							...validationResult.warnings.map(warn => `  ${warn}`),
+							...validationResult.warnings.map((warn) => `  ${warn}`),
 							'',
-							'✅ You can continue with the flow, but be aware that some validations were skipped.'
+							'✅ You can continue with the flow, but be aware that some validations were skipped.',
 						].join('\n');
 
 						// Set warning (not error) - this will be displayed with orange background
@@ -5263,7 +5479,8 @@ passed: boolean;
 				}
 			} catch (validationError) {
 				console.error(`${MODULE_TAG} ⚠️ Pre-flight validation error:`, validationError);
-				const errorMessage = validationError instanceof Error ? validationError.message : 'Unknown error';
+				const errorMessage =
+					validationError instanceof Error ? validationError.message : 'Unknown error';
 				if (errorMessage.includes('timed out')) {
 					toastV8.error('Pre-flight validation timed out - continuing anyway');
 				} else {
@@ -5285,7 +5502,9 @@ passed: boolean;
 			} finally {
 				// Ensure spinner is always cleared, even if something unexpected happens
 				if (isPreFlightValidating) {
-					console.warn(`${MODULE_TAG} ⚠️ Pre-flight validation spinner still active in finally block - clearing it`);
+					console.warn(
+						`${MODULE_TAG} ⚠️ Pre-flight validation spinner still active in finally block - clearing it`
+					);
 					setIsPreFlightValidating(false);
 					setPreFlightStatus('');
 				}
@@ -5350,7 +5569,9 @@ passed: boolean;
 				// For flows that use PKCE (oauth-authz, hybrid), use existing PKCE codes from flowState
 				// For implicit flow, PKCE is not used
 				// Load PKCE codes from storage to get the correct codeChallengeMethod
-				let pkceCodesForUrl: { codeVerifier: string; codeChallenge: string; codeChallengeMethod: 'S256' | 'plain' } | undefined;
+				let pkceCodesForUrl:
+					| { codeVerifier: string; codeChallenge: string; codeChallengeMethod: 'S256' | 'plain' }
+					| undefined;
 				if (flowState.codeVerifier && flowState.codeChallenge) {
 					// Try to load from storage first to check if stored codes have 'plain' method (old version)
 					const storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
@@ -5359,7 +5580,7 @@ passed: boolean;
 					if (storedPKCE?.codeChallengeMethod && storedPKCE.codeChallengeMethod !== 'S256') {
 						console.warn(
 							`${MODULE_TAG} ⚠️ Stored PKCE codes have codeChallengeMethod='${storedPKCE.codeChallengeMethod}' instead of 'S256'. ` +
-							`Using 'S256' for authorization URL. If you get PKCE mismatch errors, please regenerate PKCE codes in Step 1.`
+								`Using 'S256' for authorization URL. If you get PKCE mismatch errors, please regenerate PKCE codes in Step 1.`
 						);
 					}
 					const codeChallengeMethod = 'S256' as const;
@@ -5503,30 +5724,55 @@ passed: boolean;
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
 							<span style={{ fontSize: '20px', flexShrink: 0 }}>⚠️</span>
 							<div style={{ flex: 1 }}>
-								<strong style={{ color: '#c2410c', fontSize: '15px', display: 'block', marginBottom: '8px' }}>
+								<strong
+									style={{
+										color: '#c2410c',
+										fontSize: '15px',
+										display: 'block',
+										marginBottom: '8px',
+									}}
+								>
 									Pre-flight Validation Warnings
 								</strong>
-								<div style={{ color: '#9a3412', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+								<div
+									style={{
+										color: '#9a3412',
+										fontSize: '14px',
+										lineHeight: '1.6',
+										whiteSpace: 'pre-wrap',
+									}}
+								>
 									{validationWarnings.map((warning, idx) => (
-										<div key={idx} style={{ marginBottom: idx < validationWarnings.length - 1 ? '8px' : '0' }}>
+										<div
+											key={idx}
+											style={{ marginBottom: idx < validationWarnings.length - 1 ? '8px' : '0' }}
+										>
 											{warning}
 										</div>
 									))}
 								</div>
 								{/* Check if any warning mentions worker token - show Get Worker Token button */}
-								{validationWarnings.some(warn => warn.toLowerCase().includes('worker token is not available')) && (
-									<div style={{ marginTop: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+								{validationWarnings.some((warn) =>
+									warn.toLowerCase().includes('worker token is not available')
+								) && (
+									<div
+										style={{ marginTop: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}
+									>
 										<button
 											type="button"
 											onClick={async () => {
 												try {
 													setIsLoading(true);
 													setLoadingMessage('🔑 Retrieving Worker Token...');
-													
+
 													// Import worker token modal helper
-													const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-													const { WorkerTokenStatusServiceV8 } = await import('@/v8/services/workerTokenStatusServiceV8');
-													
+													const { handleShowWorkerTokenModal } = await import(
+														'@/v8/utils/workerTokenModalHelperV8'
+													);
+													const { WorkerTokenStatusServiceV8 } = await import(
+														'@/v8/services/workerTokenStatusServiceV8'
+													);
+
 													// Attempt silent retrieval (silentApiRetrieval=true, forceShowModal=false)
 													await handleShowWorkerTokenModal(
 														setShowWorkerTokenModal,
@@ -5536,66 +5782,77 @@ passed: boolean;
 														false, // forceShowModal - allow silent retrieval
 														setIsLoading // setIsLoading - for spinner during silent retrieval
 													);
-													
+
 													// Wait a moment for token to be saved, then check if token is now available
-													await new Promise(resolve => setTimeout(resolve, 500));
+													await new Promise((resolve) => setTimeout(resolve, 500));
 													const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 													if (tokenStatus.isValid) {
 														toastV8.success('Worker token retrieved successfully');
-														
+
 														// Re-run pre-flight validation
 														setLoadingMessage('🔍 Re-validating Configuration...');
-														const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
-														const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
-														
+														const { PreFlightValidationServiceV8 } = await import(
+															'@/v8/services/preFlightValidationServiceV8'
+														);
+														const { workerTokenServiceV8 } = await import(
+															'@/v8/services/workerTokenServiceV8'
+														);
+
 														const newWorkerToken = await workerTokenServiceV8.getToken();
-														const newValidationResult = await PreFlightValidationServiceV8.validateBeforeAuthUrl({
-															specVersion,
-															flowType,
-															credentials,
-															...(newWorkerToken && { workerToken: newWorkerToken }),
-														});
-														
+														const newValidationResult =
+															await PreFlightValidationServiceV8.validateBeforeAuthUrl({
+																specVersion,
+																flowType,
+																credentials,
+																...(newWorkerToken && { workerToken: newWorkerToken }),
+															});
+
 														// Update preFlightValidationResult state (CRITICAL: include fixableErrors and appConfig for Fix button)
 														setPreFlightValidationResult({
 															passed: newValidationResult.passed,
 															errors: newValidationResult.errors,
 															warnings: newValidationResult.warnings,
 															fixableErrors: newValidationResult.fixableErrors || [],
-															...(newValidationResult.appConfig && { appConfig: newValidationResult.appConfig }),
+															...(newValidationResult.appConfig && {
+																appConfig: newValidationResult.appConfig,
+															}),
 														});
-														
+
 														// Update validation results
 														if (newValidationResult.errors.length > 0) {
 															const errorMessage = [
 																'🔍 Pre-flight Validation Results:',
 																'',
 																'❌ ERRORS (must be fixed before proceeding):',
-																...newValidationResult.errors.map(err => `  ${err}`),
+																...newValidationResult.errors.map((err) => `  ${err}`),
 																'',
 																'🔧 How to Fix:',
 																'1. Go to Step 0 (Configuration)',
 																'2. Review and fix the errors listed above',
 																'3. Try generating the authorization URL again',
 																'',
-																'⚠️ WARNING: If you proceed with errors, the authorization request will likely fail.'
+																'⚠️ WARNING: If you proceed with errors, the authorization request will likely fail.',
 															].join('\n');
 															setError(errorMessage);
 															setValidationErrors([errorMessage]);
 															setValidationWarnings([]);
-															toastV8.error('Pre-flight validation failed - check error details below');
+															toastV8.error(
+																'Pre-flight validation failed - check error details below'
+															);
 														} else if (newValidationResult.warnings.length > 0) {
 															const warningMessage = [
 																'🔍 Pre-flight Validation Results:',
 																'',
 																'⚠️ WARNINGS (you can still proceed):',
-																...newValidationResult.warnings.map(warn => `  ${warn}`),
+																...newValidationResult.warnings.map((warn) => `  ${warn}`),
 																'',
-																'✅ You can continue with the flow, but be aware that some validations were skipped.'
+																'✅ You can continue with the flow, but be aware that some validations were skipped.',
 															].join('\n');
 															setValidationWarnings([warningMessage]);
 															setValidationErrors([]);
-															toastV8.warning('Pre-flight validation warnings - check details below');
+															toastV8.warning(
+																'Pre-flight validation warnings - check details below'
+															);
 														} else {
 															// No errors or warnings - validation passed
 															setValidationWarnings([]);
@@ -5646,8 +5903,16 @@ passed: boolean;
 										</button>
 									</div>
 								)}
-								<p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#c2410c', fontWeight: '500' }}>
-									✅ You can continue with the flow, but be aware that some validations were skipped.
+								<p
+									style={{
+										margin: '12px 0 0 0',
+										fontSize: '13px',
+										color: '#c2410c',
+										fontWeight: '500',
+									}}
+								>
+									✅ You can continue with the flow, but be aware that some validations were
+									skipped.
 								</p>
 							</div>
 						</div>
@@ -5671,34 +5936,38 @@ passed: boolean;
 							</CollapsibleHeaderButton>
 							{!implicitOverviewCollapsed && (
 								<CollapsibleContent>
-					<InfoBox $variant="info">
-						<FiInfo size={20} />
-						<div>
-							<InfoTitle>OAuth 2.0 / OIDC Implicit Flow - Educational Purpose</InfoTitle>
-							<InfoText>
-								<strong>This flow is included for educational purposes.</strong> The Implicit Flow (RFC 6749 Section 4.2) is 
-								<strong> deprecated in OAuth 2.1</strong> (draft) and should not be used for new applications. 
-								However, it is <strong>still valid in OAuth 2.0 and OIDC Core 1.0</strong> specifications.
-								<br /><br />
-								<strong>Important:</strong> To use this flow, you must enable the <strong>Implicit grant type</strong> in your PingOne application settings. 
-								If not enabled, PingOne will reject the authorization request.
-							</InfoText>
-						</div>
-					</InfoBox>
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>OAuth 2.0 / OIDC Implicit Flow - Educational Purpose</InfoTitle>
+											<InfoText>
+												<strong>This flow is included for educational purposes.</strong> The
+												Implicit Flow (RFC 6749 Section 4.2) is
+												<strong> deprecated in OAuth 2.1</strong> (draft) and should not be used for
+												new applications. However, it is{' '}
+												<strong>still valid in OAuth 2.0 and OIDC Core 1.0</strong> specifications.
+												<br />
+												<br />
+												<strong>Important:</strong> To use this flow, you must enable the{' '}
+												<strong>Implicit grant type</strong> in your PingOne application settings.
+												If not enabled, PingOne will reject the authorization request.
+											</InfoText>
+										</div>
+									</InfoBox>
 
-					<InfoBox $variant="success">
-						<FiCheckCircle size={20} />
-						<div>
-							<InfoTitle>How Implicit Flow Works</InfoTitle>
-							<InfoText>
-								In the Implicit Flow, tokens are returned directly in the URL fragment
-								after user authorization. The client never receives an authorization code;
-								instead, the access token (and optionally ID token) is returned
-								immediately in the redirect URI fragment. This was designed for SPAs that
-								couldn't use a backend, but Authorization Code + PKCE is now the recommended approach.
-							</InfoText>
-						</div>
-					</InfoBox>
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>How Implicit Flow Works</InfoTitle>
+											<InfoText>
+												In the Implicit Flow, tokens are returned directly in the URL fragment after
+												user authorization. The client never receives an authorization code;
+												instead, the access token (and optionally ID token) is returned immediately
+												in the redirect URI fragment. This was designed for SPAs that couldn't use a
+												backend, but Authorization Code + PKCE is now the recommended approach.
+											</InfoText>
+										</div>
+									</InfoBox>
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
@@ -5731,11 +6000,14 @@ passed: boolean;
 													tokens, requiring users to re-authenticate frequently
 												</li>
 												<li>
-													<strong>Limited Security:</strong> No PKCE support, making it vulnerable to
-													authorization code interception attacks
+													<strong>Limited Security:</strong> No PKCE support, making it vulnerable
+													to authorization code interception attacks
 												</li>
 												<li>
-													<strong>OAuth 2.1 Authorization Framework (draft) Deprecation:</strong> Removed from OAuth 2.1 Authorization Framework (IETF draft-ietf-oauth-v2-1) due to security concerns. Note: OAuth 2.1 is still an Internet-Draft, not yet an RFC.
+													<strong>OAuth 2.1 Authorization Framework (draft) Deprecation:</strong>{' '}
+													Removed from OAuth 2.1 Authorization Framework (IETF
+													draft-ietf-oauth-v2-1) due to security concerns. Note: OAuth 2.1 is still
+													an Internet-Draft, not yet an RFC.
 												</li>
 											</InfoList>
 										</div>
@@ -5759,8 +6031,10 @@ passed: boolean;
 													sessions
 												</li>
 												<li>
-													<strong>OAuth 2.1 Authorization Framework (draft) Compliant:</strong> Recommended approach in current
-													specifications. When combined with OpenID Connect Core 1.0, this means "OIDC Core 1.0 using Authorization Code + PKCE (OAuth 2.1 (draft) baseline)".
+													<strong>OAuth 2.1 Authorization Framework (draft) Compliant:</strong>{' '}
+													Recommended approach in current specifications. When combined with OpenID
+													Connect Core 1.0, this means "OIDC Core 1.0 using Authorization Code +
+													PKCE (OAuth 2.1 (draft) baseline)".
 												</li>
 												<li>
 													<strong>Same Use Case:</strong> Works perfectly for SPAs and public
@@ -5775,18 +6049,33 @@ passed: boolean;
 										<div>
 											<InfoTitle>⚙️ PingOne Configuration Required</InfoTitle>
 											<InfoText>
-												<strong>Before using this flow:</strong> Ensure the <strong>Implicit grant type</strong> is enabled 
-												in your PingOne application configuration:
+												<strong>Before using this flow:</strong> Ensure the{' '}
+												<strong>Implicit grant type</strong> is enabled in your PingOne application
+												configuration:
 											</InfoText>
 											<InfoList style={{ fontSize: '13px', marginTop: '8px' }}>
 												<li>Log into PingOne Admin Console</li>
 												<li>Go to Applications → Your Application → Configuration</li>
-												<li>Under Grant Types, enable <strong>Implicit</strong></li>
-												<li>Ensure your Redirect URI is registered: <code style={{ background: '#fef3c7', padding: '2px 6px', borderRadius: '3px' }}>{credentials.redirectUri || `${window.location.origin}/authz-callback`}</code></li>
+												<li>
+													Under Grant Types, enable <strong>Implicit</strong>
+												</li>
+												<li>
+													Ensure your Redirect URI is registered:{' '}
+													<code
+														style={{
+															background: '#fef3c7',
+															padding: '2px 6px',
+															borderRadius: '3px',
+														}}
+													>
+														{credentials.redirectUri || `${window.location.origin}/authz-callback`}
+													</code>
+												</li>
 												<li>Save changes</li>
 											</InfoList>
 											<InfoText style={{ marginTop: '12px', color: '#dc2626', fontWeight: 600 }}>
-												❌ <strong>If Implicit is not enabled:</strong> PingOne will reject the request with a "grant type not enabled" or "deprecated" message.
+												❌ <strong>If Implicit is not enabled:</strong> PingOne will reject the
+												request with a "grant type not enabled" or "deprecated" message.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -5805,13 +6094,15 @@ passed: boolean;
 													OAuth history, and why Authorization Code + PKCE is now preferred
 												</li>
 												<li>
-													<strong>Learning:</strong> Comparing security models between old and new approaches
+													<strong>Learning:</strong> Comparing security models between old and new
+													approaches
 												</li>
 											</InfoList>
 											<InfoText style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>
-												<strong>Note:</strong> This flow is <strong>deprecated in OAuth 2.1</strong> (draft) but 
-												<strong> still valid in OAuth 2.0 and OIDC Core 1.0</strong>. 
-												For all new applications, use Authorization Code Flow with PKCE instead.
+												<strong>Note:</strong> This flow is <strong>deprecated in OAuth 2.1</strong>{' '}
+												(draft) but
+												<strong> still valid in OAuth 2.0 and OIDC Core 1.0</strong>. For all new
+												applications, use Authorization Code Flow with PKCE instead.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -5844,9 +6135,9 @@ passed: boolean;
 											<InfoTitle>Recommended OAuth 2.0 Flow</InfoTitle>
 											<InfoText>
 												The Authorization Code Flow (RFC 6749 Section 4.1) is the most secure and
-												recommended OAuth 2.0 flow for web applications, single-page applications (SPAs),
-												and mobile apps. It's the standard flow used by modern OAuth implementations
-												and is required for OAuth 2.1 / OIDC 2.1 compliance.
+												recommended OAuth 2.0 flow for web applications, single-page applications
+												(SPAs), and mobile apps. It's the standard flow used by modern OAuth
+												implementations and is required for OAuth 2.1 / OIDC 2.1 compliance.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -5857,8 +6148,8 @@ passed: boolean;
 											<InfoTitle>How Authorization Code Flow Works</InfoTitle>
 											<InfoText>
 												The Authorization Code Flow is a two-step process that separates the
-												authorization request from the token exchange. This design prevents tokens from
-												being exposed in URLs or browser history.
+												authorization request from the token exchange. This design prevents tokens
+												from being exposed in URLs or browser history.
 											</InfoText>
 											<InfoList>
 												<li>
@@ -5929,8 +6220,8 @@ passed: boolean;
 											<InfoTitle>PingOne-Specific Requirements</InfoTitle>
 											<InfoList>
 												<li>
-													<strong>openid Scope:</strong> PingOne requires the <code>openid</code> scope
-													even for pure OAuth 2.0 flows when using OIDC-enabled applications
+													<strong>openid Scope:</strong> PingOne requires the <code>openid</code>{' '}
+													scope even for pure OAuth 2.0 flows when using OIDC-enabled applications
 												</li>
 												<li>
 													<strong>PKCE Recommended:</strong> While optional in OAuth 2.0, PingOne
@@ -5938,7 +6229,8 @@ passed: boolean;
 												</li>
 												<li>
 													<strong>Token Endpoint Authentication:</strong> Supports multiple methods:
-													client_secret_basic, client_secret_post, client_secret_jwt, private_key_jwt
+													client_secret_basic, client_secret_post, client_secret_jwt,
+													private_key_jwt
 												</li>
 												<li>
 													<strong>Exact Redirect URI Match:</strong> The redirect_uri in the
@@ -5988,10 +6280,10 @@ passed: boolean;
 										<div>
 											<InfoTitle>How Hybrid Flow Works</InfoTitle>
 											<InfoText>
-												Hybrid Flow uses a <code>response_type</code> that includes both <code>code</code>{' '}
-												and <code>id_token</code>, allowing some tokens to be returned immediately in
-												the front channel (URL fragment or query) while others are obtained via secure
-												back-channel exchange.
+												Hybrid Flow uses a <code>response_type</code> that includes both{' '}
+												<code>code</code> and <code>id_token</code>, allowing some tokens to be
+												returned immediately in the front channel (URL fragment or query) while
+												others are obtained via secure back-channel exchange.
 											</InfoText>
 											<InfoList>
 												<li>
@@ -6000,7 +6292,8 @@ passed: boolean;
 												</li>
 												<li>
 													<strong>Step 2:</strong> PingOne redirects back with both an authorization
-													code AND an ID token (in URL fragment or query, depending on response_mode)
+													code AND an ID token (in URL fragment or query, depending on
+													response_mode)
 												</li>
 												<li>
 													<strong>Step 3:</strong> Your application can use the ID token immediately
@@ -6061,16 +6354,18 @@ passed: boolean;
 											<InfoTitle>Key Differences</InfoTitle>
 											<InfoList>
 												<li>
-													<strong>Response Type:</strong> Hybrid uses <code>code id_token</code> while
-													Authorization Code uses <code>code</code>
+													<strong>Response Type:</strong> Hybrid uses <code>code id_token</code>{' '}
+													while Authorization Code uses <code>code</code>
 												</li>
 												<li>
-													<strong>Immediate ID Token:</strong> Hybrid returns ID token immediately in
-													URL fragment/query, while Authorization Code requires token exchange first
+													<strong>Immediate ID Token:</strong> Hybrid returns ID token immediately
+													in URL fragment/query, while Authorization Code requires token exchange
+													first
 												</li>
 												<li>
 													<strong>Use Case:</strong> Hybrid is useful when you need immediate user
-													identification (ID token) while still getting access/refresh tokens securely
+													identification (ID token) while still getting access/refresh tokens
+													securely
 												</li>
 												<li>
 													<strong>OIDC Only:</strong> Hybrid Flow is an OIDC-specific flow (requires
@@ -6086,22 +6381,22 @@ passed: boolean;
 											<InfoTitle>When to Use Hybrid Flow</InfoTitle>
 											<InfoList>
 												<li>
-													<strong>OIDC Flows:</strong> When you need both user authentication (ID token)
-													and API authorization (access token)
+													<strong>OIDC Flows:</strong> When you need both user authentication (ID
+													token) and API authorization (access token)
 												</li>
 												<li>
 													<strong>Immediate User Info:</strong> When you need to identify the user
 													immediately without waiting for token exchange
 												</li>
 												<li>
-													<strong>SPAs with OIDC:</strong> Single-page applications that need ID token
-													for user session management
+													<strong>SPAs with OIDC:</strong> Single-page applications that need ID
+													token for user session management
 												</li>
 											</InfoList>
 											<InfoText style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>
-												<strong>Note:</strong> For most use cases, Authorization Code Flow with PKCE is
-												sufficient. Use Hybrid Flow only when you specifically need immediate ID token
-												access.
+												<strong>Note:</strong> For most use cases, Authorization Code Flow with PKCE
+												is sufficient. Use Hybrid Flow only when you specifically need immediate ID
+												token access.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -6131,8 +6426,8 @@ passed: boolean;
 								<div>
 									<InfoTitle>What is an Authorization Request?</InfoTitle>
 									<InfoText>
-										An authorization request redirects users to PingOne's authorization server
-										where they authenticate and consent to sharing their information with your
+										An authorization request redirects users to PingOne's authorization server where
+										they authenticate and consent to sharing their information with your
 										application. This is the first step in obtaining an authorization code.
 									</InfoText>
 								</div>
@@ -6144,16 +6439,16 @@ passed: boolean;
 									<InfoTitle>Critical Security Considerations</InfoTitle>
 									<InfoList>
 										<li>
-											<strong>State Parameter:</strong> Always include a unique state parameter
-											to prevent CSRF attacks
+											<strong>State Parameter:</strong> Always include a unique state parameter to
+											prevent CSRF attacks
 										</li>
 										<li>
 											<strong>HTTPS Only:</strong> Authorization requests must use HTTPS in
 											production
 										</li>
 										<li>
-											<strong>Validate Redirect URI:</strong> Ensure redirect_uri exactly
-											matches what's registered in PingOne
+											<strong>Validate Redirect URI:</strong> Ensure redirect_uri exactly matches
+											what's registered in PingOne
 										</li>
 										<li>
 											<strong>Scope Limitation:</strong> Only request the minimum scopes your
@@ -6195,12 +6490,11 @@ passed: boolean;
 														: 'Must be "code" for authorization code flow'}
 											</li>
 											<li>
-												<strong>client_id:</strong> Your application's unique identifier in
-												PingOne
+												<strong>client_id:</strong> Your application's unique identifier in PingOne
 											</li>
 											<li>
-												<strong>redirect_uri:</strong> Exact URL where PingOne sends the user
-												back after authorization
+												<strong>redirect_uri:</strong> Exact URL where PingOne sends the user back
+												after authorization
 											</li>
 											<li>
 												<strong>scope:</strong> Permissions you're requesting (openid, profile,
@@ -6216,8 +6510,8 @@ passed: boolean;
 										<InfoTitle>Security Parameters</InfoTitle>
 										<InfoList>
 											<li>
-												<strong>state:</strong> Random value to prevent CSRF attacks and
-												maintain session state
+												<strong>state:</strong> Random value to prevent CSRF attacks and maintain
+												session state
 											</li>
 											{(flowType === 'oauth-authz' || flowType === 'hybrid') && (
 												<>
@@ -6229,9 +6523,11 @@ passed: boolean;
 													</li>
 												</>
 											)}
-											{(flowType === 'hybrid' || (flowType === 'oauth-authz' && specVersion === 'oidc')) && (
+											{(flowType === 'hybrid' ||
+												(flowType === 'oauth-authz' && specVersion === 'oidc')) && (
 												<li>
-													<strong>nonce:</strong> Random value to prevent replay attacks on ID tokens
+													<strong>nonce:</strong> Random value to prevent replay attacks on ID
+													tokens
 												</li>
 											)}
 										</InfoList>
@@ -6249,16 +6545,15 @@ passed: boolean;
 											consent, select_account)
 										</li>
 										<li>
-											<strong>max_age:</strong> Maximum age of authentication session before
-											re-auth required
+											<strong>max_age:</strong> Maximum age of authentication session before re-auth
+											required
 										</li>
 										<li>
-											<strong>acr_values:</strong> Requested Authentication Context Class
-											Reference values
+											<strong>acr_values:</strong> Requested Authentication Context Class Reference
+											values
 										</li>
 										<li>
-											<strong>login_hint:</strong> Hint about the user identifier (email,
-											username)
+											<strong>login_hint:</strong> Hint about the user identifier (email, username)
 										</li>
 									</InfoList>
 								</div>
@@ -6267,602 +6562,662 @@ passed: boolean;
 					)}
 				</CollapsibleSection>
 
-			{(flowType === 'oauth-authz' || flowType === 'hybrid') &&
-				flowState.codeVerifier &&
-				flowState.codeChallenge && (
-					<div
-						style={{
-							background: '#dbeafe',
-							border: '1px solid #3b82f6',
-							borderRadius: '8px',
-							padding: '12px 16px',
-							marginBottom: '32px',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}
-					>
-						<span style={{ fontSize: '20px' }}>🔐</span>
-						<div>
-							<strong style={{ color: '#1e40af' }}>PKCE protection enabled</strong>
-							<p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#1e3a8a' }}>
-								Your authorization URL will include PKCE parameters for enhanced security.
-							</p>
+				{(flowType === 'oauth-authz' || flowType === 'hybrid') &&
+					flowState.codeVerifier &&
+					flowState.codeChallenge && (
+						<div
+							style={{
+								background: '#dbeafe',
+								border: '1px solid #3b82f6',
+								borderRadius: '8px',
+								padding: '12px 16px',
+								marginBottom: '32px',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+							}}
+						>
+							<span style={{ fontSize: '20px' }}>🔐</span>
+							<div>
+								<strong style={{ color: '#1e40af' }}>PKCE protection enabled</strong>
+								<p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#1e3a8a' }}>
+									Your authorization URL will include PKCE parameters for enhanced security.
+								</p>
+							</div>
 						</div>
-					</div>
+					)}
+
+				{/* Pre-flight Validation Results Section - Positioned before Action Section */}
+				{preFlightValidationResult && (
+					<CollapsibleSection style={{ marginBottom: '24px' }}>
+						<CollapsibleHeaderButton
+							onClick={() => setPreflightValidationCollapsed(!preflightValidationCollapsed)}
+							aria-expanded={!preflightValidationCollapsed}
+							style={{
+								background:
+									preFlightValidationResult.errors.length > 0
+										? 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)'
+										: preFlightValidationResult.warnings.length > 0
+											? 'linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%)'
+											: 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)',
+								color:
+									preFlightValidationResult.errors.length > 0
+										? '#991b1b'
+										: preFlightValidationResult.warnings.length > 0
+											? '#c2410c'
+											: '#166534',
+							}}
+						>
+							<CollapsibleTitle>
+								<span style={{ fontSize: '20px', marginRight: '8px' }}>
+									{preFlightValidationResult.errors.length > 0
+										? '❌'
+										: preFlightValidationResult.warnings.length > 0
+											? '⚠️'
+											: '✅'}
+								</span>
+								🔍 Pre-flight Validation Results
+								{preFlightValidationResult.errors.length > 0 && (
+									<span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
+										({preFlightValidationResult.errors.length} error
+										{preFlightValidationResult.errors.length !== 1 ? 's' : ''})
+									</span>
+								)}
+								{preFlightValidationResult.errors.length === 0 &&
+									preFlightValidationResult.warnings.length > 0 && (
+										<span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
+											({preFlightValidationResult.warnings.length} warning
+											{preFlightValidationResult.warnings.length !== 1 ? 's' : ''})
+										</span>
+									)}
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={preflightValidationCollapsed}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!preflightValidationCollapsed && (
+							<CollapsibleContent>
+								{/* Same content as in renderStep0 - errors, warnings, fix button */}
+								{preFlightValidationResult.errors.length > 0 && (
+									<div style={{ marginBottom: '16px' }}>
+										<strong
+											style={{
+												color: '#dc2626',
+												fontSize: '15px',
+												display: 'block',
+												marginBottom: '8px',
+											}}
+										>
+											❌ ERRORS (must be fixed before continuing):
+										</strong>
+										<ul style={{ margin: 0, paddingLeft: '24px', color: '#991b1b' }}>
+											{preFlightValidationResult.errors.map((error, index) => (
+												<li key={index} style={{ marginBottom: '8px', lineHeight: '1.6' }}>
+													{error}
+												</li>
+											))}
+										</ul>
+									</div>
+								)}
+								{preFlightValidationResult.warnings.length > 0 && (
+									<div style={{ marginBottom: '16px' }}>
+										<strong
+											style={{
+												color: '#ea580c',
+												fontSize: '15px',
+												display: 'block',
+												marginBottom: '8px',
+											}}
+										>
+											⚠️ WARNINGS (you can still proceed):
+										</strong>
+										<ul style={{ margin: 0, paddingLeft: '24px', color: '#c2410c' }}>
+											{preFlightValidationResult.warnings.map((warning, index) => (
+												<li key={index} style={{ marginBottom: '8px', lineHeight: '1.6' }}>
+													{warning}
+												</li>
+											))}
+										</ul>
+									</div>
+								)}
+								{preFlightValidationResult.fixableErrors &&
+									preFlightValidationResult.fixableErrors.length > 0 && (
+										<button
+											type="button"
+											onClick={async () => {
+												try {
+													setIsLoading(true);
+													setLoadingMessage('🔧 Fixing errors...');
+
+													const { uiNotificationServiceV8 } = await import(
+														'@/v8/services/uiNotificationServiceV8'
+													);
+													const { CredentialsServiceV8 } = await import(
+														'@/v8/services/credentialsServiceV8'
+													);
+													const { SharedCredentialsServiceV8 } = await import(
+														'@/v8/services/sharedCredentialsServiceV8'
+													);
+
+													const fixableErrors = preFlightValidationResult.fixableErrors || [];
+													const fixDescriptions = fixableErrors
+														.map((fe) => fe.fix || 'Fix error')
+														.join('\n  • ');
+													const fixableCount = fixableErrors.length;
+
+													const confirmed = await uiNotificationServiceV8.confirm({
+														title: '🔧 Fix All Errors?',
+														message: `Found ${fixableCount} fixable error(s).\n\nThe following will be fixed:\n  • ${fixDescriptions}\n\nWould you like to automatically fix all fixable errors?`,
+														confirmText: 'Yes, Fix All',
+														cancelText: "No, I'll Fix Manually",
+														severity: 'warning',
+													});
+
+													if (confirmed) {
+														const updatedCredentials = { ...credentials };
+														const fixesApplied: string[] = [];
+
+														for (const fixableError of fixableErrors) {
+															if (fixableError.autoFix) {
+																if (fixableError.autoFix.redirectUri) {
+																	updatedCredentials.redirectUri = fixableError.autoFix.redirectUri;
+																	fixesApplied.push(
+																		`Redirect URI: ${fixableError.autoFix.redirectUri}`
+																	);
+																}
+																if (fixableError.autoFix.enablePKCE) {
+																	updatedCredentials.usePKCE = true;
+																	fixesApplied.push('PKCE enabled');
+																}
+																if (fixableError.autoFix.authMethod) {
+																	updatedCredentials.clientAuthMethod =
+																		fixableError.autoFix.authMethod;
+																	fixesApplied.push(
+																		`Auth Method: ${fixableError.autoFix.authMethod}`
+																	);
+																}
+																if (fixableError.autoFix.responseType) {
+																	updatedCredentials.responseType =
+																		fixableError.autoFix.responseType;
+																	fixesApplied.push(
+																		`Response Type: ${fixableError.autoFix.responseType}`
+																	);
+																}
+																if (fixableError.autoFix.addScope) {
+																	const currentScopes = updatedCredentials.scopes || '';
+																	if (!currentScopes.includes(fixableError.autoFix.addScope)) {
+																		updatedCredentials.scopes = currentScopes
+																			? `${currentScopes} ${fixableError.autoFix.addScope}`
+																			: fixableError.autoFix.addScope;
+																		fixesApplied.push(
+																			`Added scope: ${fixableError.autoFix.addScope}`
+																		);
+																	}
+																}
+															}
+														}
+
+														// Apply fixes
+														onCredentialsChange(updatedCredentials);
+
+														// Save to storage
+														if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+															CredentialsRepository.setFlowCredentials(flowKey, updatedCredentials);
+														} else {
+															await CredentialsServiceV8.saveCredentials(
+																flowKey,
+																updatedCredentials,
+																{
+																	flowType: flowType as 'oauth' | 'oidc',
+																	includeClientSecret: true,
+																	includeScopes: true,
+																	includeRedirectUri: true,
+																}
+															);
+														}
+
+														// Save shared credentials
+														await SharedCredentialsServiceV8.saveCredentials({
+															environmentId: updatedCredentials.environmentId,
+															clientId: updatedCredentials.clientId,
+															clientSecret: updatedCredentials.clientSecret,
+															clientAuthMethod: updatedCredentials.clientAuthMethod,
+														});
+
+														// Clear pre-flight validation result to trigger re-validation
+														setPreFlightValidationResult(null);
+
+														toastV8.success(
+															`✅ Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`
+														);
+													}
+												} catch (error) {
+													console.error(`${MODULE_TAG} Error fixing errors:`, error);
+													toastV8.error(
+														`❌ Failed to fix errors: ${error instanceof Error ? error.message : 'Unknown error'}`
+													);
+												} finally {
+													setIsLoading(false);
+													setLoadingMessage('');
+												}
+											}}
+											disabled={isLoading}
+											style={{
+												marginTop: '16px',
+												padding: '12px 24px',
+												background: '#dc2626',
+												color: 'white',
+												border: 'none',
+												borderRadius: '6px',
+												fontSize: '14px',
+												fontWeight: '600',
+												cursor: isLoading ? 'not-allowed' : 'pointer',
+												opacity: isLoading ? 0.6 : 1,
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+											}}
+										>
+											<span>🔧</span>
+											<span>Fix All Errors Automatically</span>
+										</button>
+									)}
+								{preFlightValidationResult.errors.length === 0 &&
+									preFlightValidationResult.warnings.length === 0 && (
+										<div style={{ color: '#166534', fontSize: '14px' }}>
+											✅ All validation checks passed! You can proceed with confidence.
+										</div>
+									)}
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				)}
 
-			{/* Pre-flight Validation Results Section - Positioned before Action Section */}
-			{preFlightValidationResult && (
-				<CollapsibleSection style={{ marginBottom: '24px' }}>
+				{/* Authorization URL Generator Section */}
+				<CollapsibleSection>
 					<CollapsibleHeaderButton
-						onClick={() => setPreflightValidationCollapsed(!preflightValidationCollapsed)}
-						aria-expanded={!preflightValidationCollapsed}
+						onClick={() => setAuthUrlGeneratorCollapsed(!authUrlGeneratorCollapsed)}
+						aria-expanded={!authUrlGeneratorCollapsed}
 						style={{
-							background: preFlightValidationResult.errors.length > 0
-								? 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)'
-								: preFlightValidationResult.warnings.length > 0
-									? 'linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%)'
-									: 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)',
-							color:
-								preFlightValidationResult.errors.length > 0
-									? '#991b1b'
-									: preFlightValidationResult.warnings.length > 0
-										? '#c2410c'
-										: '#166534',
+							background: flowState.authorizationUrl
+								? 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)'
+								: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+							color: flowState.authorizationUrl ? '#059669' : '#1e40af',
+							border: flowState.authorizationUrl ? '2px solid #10b981' : '2px solid #3b82f6',
+							borderRadius: '12px',
+							boxShadow: flowState.authorizationUrl
+								? '0 2px 8px rgba(16, 185, 129, 0.15)'
+								: '0 2px 8px rgba(59, 130, 246, 0.15)',
+							marginBottom: '32px',
+							padding: '24px 32px',
 						}}
 					>
 						<CollapsibleTitle>
 							<span style={{ fontSize: '20px', marginRight: '8px' }}>
-								{preFlightValidationResult.errors.length > 0
-									? '❌'
-									: preFlightValidationResult.warnings.length > 0
-										? '⚠️'
-										: '✅'}
+								{flowState.authorizationUrl ? '✅' : '🔗'}
 							</span>
-							🔍 Pre-flight Validation Results
-							{preFlightValidationResult.errors.length > 0 && (
-								<span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
-									({preFlightValidationResult.errors.length} error{preFlightValidationResult.errors.length !== 1 ? 's' : ''})
-								</span>
-							)}
-							{preFlightValidationResult.errors.length === 0 && preFlightValidationResult.warnings.length > 0 && (
-								<span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
-									({preFlightValidationResult.warnings.length} warning{preFlightValidationResult.warnings.length !== 1 ? 's' : ''})
-								</span>
-							)}
+							Authorization URL Generator
 						</CollapsibleTitle>
-						<CollapsibleToggleIcon $collapsed={preflightValidationCollapsed}>
+						<CollapsibleToggleIcon $collapsed={authUrlGeneratorCollapsed}>
 							<FiChevronDown />
 						</CollapsibleToggleIcon>
 					</CollapsibleHeaderButton>
-					{!preflightValidationCollapsed && (
+					{!authUrlGeneratorCollapsed && (
 						<CollapsibleContent>
-							{/* Same content as in renderStep0 - errors, warnings, fix button */}
-							{preFlightValidationResult.errors.length > 0 && (
+							{/* Action Section */}
+							<div
+								style={{
+									background: '#f9fafb',
+									border: '1px solid #e5e7eb',
+									borderRadius: '12px',
+									padding: '32px',
+									marginBottom: '0',
+									textAlign: 'center',
+								}}
+							>
 								<div style={{ marginBottom: '16px' }}>
-									<strong style={{ color: '#dc2626', fontSize: '15px', display: 'block', marginBottom: '8px' }}>
-										❌ ERRORS (must be fixed before continuing):
-									</strong>
-									<ul style={{ margin: 0, paddingLeft: '24px', color: '#991b1b' }}>
-										{preFlightValidationResult.errors.map((error, index) => (
-											<li key={index} style={{ marginBottom: '8px', lineHeight: '1.6' }}>
-												{error}
-											</li>
-										))}
-									</ul>
+									<div style={{ fontSize: '48px', marginBottom: '8px' }}>🔗</div>
+									<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+										Ready to Generate Authorization URL
+									</h3>
+									<p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#6b7280' }}>
+										Click the button below to create your authorization URL
+									</p>
+									{credentials.usePAR && (
+										<div
+											style={{
+												marginTop: '12px',
+												padding: '12px',
+												background: '#fef3c7',
+												border: '1px solid #fbbf24',
+												borderRadius: '8px',
+												fontSize: '13px',
+												color: '#92400e',
+											}}
+										>
+											<strong>📤 PAR Enabled:</strong> This will push authorization parameters to
+											PingOne via PAR request first, then generate the authorization URL with{' '}
+											<code>request_uri</code>.
+										</div>
+									)}
 								</div>
-							)}
-							{preFlightValidationResult.warnings.length > 0 && (
-								<div style={{ marginBottom: '16px' }}>
-									<strong style={{ color: '#ea580c', fontSize: '15px', display: 'block', marginBottom: '8px' }}>
-										⚠️ WARNINGS (you can still proceed):
-									</strong>
-									<ul style={{ margin: 0, paddingLeft: '24px', color: '#c2410c' }}>
-										{preFlightValidationResult.warnings.map((warning, index) => (
-											<li key={index} style={{ marginBottom: '8px', lineHeight: '1.6' }}>
-												{warning}
-											</li>
-										))}
-									</ul>
-								</div>
-							)}
-							{preFlightValidationResult.fixableErrors && preFlightValidationResult.fixableErrors.length > 0 && (
-								<button
-									type="button"
-									onClick={async () => {
-										try {
-											setIsLoading(true);
-											setLoadingMessage('🔧 Fixing errors...');
-											
-											const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
-											const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
-											const { SharedCredentialsServiceV8 } = await import('@/v8/services/sharedCredentialsServiceV8');
-											
-											const fixableErrors = preFlightValidationResult.fixableErrors || [];
-											const fixDescriptions = fixableErrors.map(fe => fe.fix || 'Fix error').join('\n  • ');
-											const fixableCount = fixableErrors.length;
-											
-											const confirmed = await uiNotificationServiceV8.confirm({
-												title: '🔧 Fix All Errors?',
-												message: `Found ${fixableCount} fixable error(s).\n\nThe following will be fixed:\n  • ${fixDescriptions}\n\nWould you like to automatically fix all fixable errors?`,
-												confirmText: 'Yes, Fix All',
-												cancelText: 'No, I\'ll Fix Manually',
-												severity: 'warning',
-											});
-											
-											if (confirmed) {
-												const updatedCredentials = { ...credentials };
-												const fixesApplied: string[] = [];
-												
-												for (const fixableError of fixableErrors) {
-													if (fixableError.autoFix) {
-														if (fixableError.autoFix.redirectUri) {
-															updatedCredentials.redirectUri = fixableError.autoFix.redirectUri;
-															fixesApplied.push(`Redirect URI: ${fixableError.autoFix.redirectUri}`);
-														}
-														if (fixableError.autoFix.enablePKCE) {
-															updatedCredentials.usePKCE = true;
-															fixesApplied.push('PKCE enabled');
-														}
-														if (fixableError.autoFix.authMethod) {
-															updatedCredentials.clientAuthMethod = fixableError.autoFix.authMethod;
-															fixesApplied.push(`Auth Method: ${fixableError.autoFix.authMethod}`);
-														}
-														if (fixableError.autoFix.responseType) {
-															updatedCredentials.responseType = fixableError.autoFix.responseType;
-															fixesApplied.push(`Response Type: ${fixableError.autoFix.responseType}`);
-														}
-														if (fixableError.autoFix.addScope) {
-															const currentScopes = updatedCredentials.scopes || '';
-															if (!currentScopes.includes(fixableError.autoFix.addScope)) {
-																updatedCredentials.scopes = currentScopes ? `${currentScopes} ${fixableError.autoFix.addScope}` : fixableError.autoFix.addScope;
-																fixesApplied.push(`Added scope: ${fixableError.autoFix.addScope}`);
-															}
-														}
-													}
-												}
-												
-												// Apply fixes
-												onCredentialsChange(updatedCredentials);
-												
-												// Save to storage
-												if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
-													CredentialsRepository.setFlowCredentials(flowKey, updatedCredentials);
-												} else {
-													await CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials, {
-														flowType: flowType as 'oauth' | 'oidc',
-														includeClientSecret: true,
-														includeScopes: true,
-														includeRedirectUri: true,
-													});
-												}
-												
-												// Save shared credentials
-												await SharedCredentialsServiceV8.saveCredentials({
-													environmentId: updatedCredentials.environmentId,
-													clientId: updatedCredentials.clientId,
-													clientSecret: updatedCredentials.clientSecret,
-													clientAuthMethod: updatedCredentials.clientAuthMethod,
-												});
-												
-												// Clear pre-flight validation result to trigger re-validation
-												setPreFlightValidationResult(null);
-												
-												toastV8.success(`✅ Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`);
-											}
-										} catch (error) {
-											console.error(`${MODULE_TAG} Error fixing errors:`, error);
-											toastV8.error(`❌ Failed to fix errors: ${error instanceof Error ? error.message : 'Unknown error'}`);
-										} finally {
-											setIsLoading(false);
-											setLoadingMessage('');
-										}
-									}}
-									disabled={isLoading}
+
+								<div
 									style={{
-										marginTop: '16px',
-										padding: '12px 24px',
-										background: '#dc2626',
-										color: 'white',
-										border: 'none',
-										borderRadius: '6px',
-										fontSize: '14px',
-										fontWeight: '600',
-										cursor: isLoading ? 'not-allowed' : 'pointer',
-										opacity: isLoading ? 0.6 : 1,
 										display: 'flex',
-										alignItems: 'center',
+										flexDirection: 'column',
 										gap: '8px',
+										alignItems: 'center',
+										justifyContent: 'center',
 									}}
 								>
-									<span>🔧</span>
-									<span>Fix All Errors Automatically</span>
-								</button>
-							)}
-							{preFlightValidationResult.errors.length === 0 && preFlightValidationResult.warnings.length === 0 && (
-								<div style={{ color: '#166534', fontSize: '14px' }}>
-									✅ All validation checks passed! You can proceed with confidence.
+									<ButtonSpinner
+										loading={isGeneratingAuthUrl || isPreFlightValidating}
+										onClick={handleGenerateAuthUrl}
+										disabled={isLoading || isPreFlightValidating}
+										spinnerSize={16}
+										spinnerPosition="center"
+										loadingText={isPreFlightValidating ? 'Validating...' : 'Generating...'}
+										className="btn btn-next"
+										style={{
+											minWidth: '280px',
+											padding: '14px 28px',
+											fontSize: '16px',
+											fontWeight: '600',
+											display: 'inline-flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											gap: '8px',
+										}}
+									>
+										{isPreFlightValidating ? (
+											<>
+												<span>🔍</span>
+											</>
+										) : isGeneratingAuthUrl ? (
+											<>
+												<span>🔗</span>
+											</>
+										) : (
+											<>
+												<span>🔗</span>
+												<span>Generate Authorization URL</span>
+											</>
+										)}
+									</ButtonSpinner>
+									{isPreFlightValidating && preFlightStatus && (
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												padding: '8px 12px',
+												background: '#eff6ff',
+												border: '1px solid #3b82f6',
+												borderRadius: '6px',
+												fontSize: '13px',
+												color: '#1e40af',
+											}}
+										>
+											<span
+												style={{
+													display: 'inline-block',
+													animation: 'spin 1s linear infinite',
+													fontSize: '14px',
+												}}
+											>
+												🔍
+											</span>
+											<span>{preFlightStatus}</span>
+										</div>
+									)}
 								</div>
+							</div>
+
+							{flowState.authorizationUrl && (
+								<div style={{ marginTop: '24px' }}>
+									{/* PAR Information Display */}
+									{credentials.usePAR && flowState.parRequestUri && (
+										<div
+											style={{
+												background: '#ecfdf5',
+												border: '1px solid #10b981',
+												borderRadius: '8px',
+												padding: '16px',
+												marginBottom: '16px',
+											}}
+										>
+											<div
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													marginBottom: '12px',
+												}}
+											>
+												<span style={{ fontSize: '20px' }}>📤</span>
+												<strong style={{ color: '#065f46', fontSize: '15px' }}>
+													PAR Request Completed
+												</strong>
+											</div>
+											<div style={{ marginBottom: '12px' }}>
+												<div
+													style={{
+														fontSize: '13px',
+														color: '#047857',
+														marginBottom: '4px',
+														fontWeight: '500',
+													}}
+												>
+													PAR Request URI:
+												</div>
+												<div
+													style={{
+														background: 'white',
+														border: '1px solid #d1d5db',
+														borderRadius: '6px',
+														padding: '8px 12px',
+														fontFamily: 'monospace',
+														fontSize: '12px',
+														color: '#1f2937',
+														wordBreak: 'break-all',
+													}}
+												>
+													{flowState.parRequestUri}
+												</div>
+											</div>
+											{flowState.parExpiresIn && (
+												<div style={{ fontSize: '13px', color: '#047857' }}>
+													<strong>Expires in:</strong> {flowState.parExpiresIn} seconds
+												</div>
+											)}
+											<div style={{ marginTop: '8px', fontSize: '12px', color: '#059669' }}>
+												💡 The authorization URL below uses this <code>request_uri</code> instead of
+												individual parameters. Check the <strong>⚡ Show API Calls</strong> section
+												to see the full PAR request details.
+											</div>
+										</div>
+									)}
+
+									<ColoredUrlDisplay
+										url={flowState.authorizationUrl}
+										label="Authorization URL"
+										showCopyButton={true}
+										showInfoButton={true}
+										showOpenButton={false}
+										height="200px"
+										editable={true}
+										onChange={(newUrl) => {
+											console.log(`${MODULE_TAG} Authorization URL edited`, { newUrl });
+											setFlowState((prev) => ({
+												...prev,
+												authorizationUrl: newUrl,
+											}));
+										}}
+									/>
+
+									{/* Show different buttons based on redirectless mode */}
+									{credentials.responseMode === 'pi.flow' || credentials.useRedirectless ? (
+										// Redirectless mode: Show button to start redirectless authentication
+										<div
+											style={{
+												marginTop: '16px',
+												display: 'flex',
+												flexDirection: 'column',
+												gap: '12px',
+												alignItems: 'center',
+											}}
+										>
+											<div
+												style={{
+													background: '#fef3c7',
+													border: '1px solid #f59e0b',
+													borderRadius: '8px',
+													padding: '12px 16px',
+													marginBottom: '8px',
+													width: '100%',
+													maxWidth: '600px',
+												}}
+											>
+												<p style={{ margin: 0, fontSize: '14px', color: '#92400e' }}>
+													<strong>Redirectless Mode:</strong> This URL shows what would be used in
+													standard redirect mode. In redirectless mode, we'll make a POST request
+													instead of redirecting and add response_mode=pi.flow to the Authorization
+													URL.
+												</p>
+											</div>
+											<button
+												type="button"
+												className="btn btn-next"
+												onClick={handleStartRedirectlessAuth}
+												disabled={isLoading}
+												style={{
+													fontSize: '16px',
+													padding: '12px 24px',
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													minWidth: '280px',
+													justifyContent: 'center',
+												}}
+											>
+												{isLoading ? (
+													<>
+														<span>⏳</span>
+														<span>Starting Redirectless Authentication...</span>
+													</>
+												) : (
+													<>
+														<span>🚀</span>
+														<span>Start Redirectless Authentication</span>
+													</>
+												)}
+											</button>
+										</div>
+									) : (
+										// Standard mode: Show button to open URL in browser
+										<div
+											style={{
+												marginTop: '16px',
+												display: 'flex',
+												flexDirection: 'column',
+												gap: '12px',
+												alignItems: 'center',
+											}}
+										>
+											<button
+												type="button"
+												className="btn btn-next"
+												onClick={() => {
+													console.log(`${MODULE_TAG} Opening authorization URL for authentication`);
+													const urlToOpen = flowState.authorizationUrl || '';
+													if (urlToOpen) {
+														window.open(urlToOpen, '_blank', 'noopener,noreferrer');
+														// Mark step complete after opening PingOne
+														if (!completedSteps.includes(currentStep)) {
+															console.log(
+																`${MODULE_TAG} User opened PingOne - marking step complete`
+															);
+															nav.markStepComplete();
+															toastV8.success(
+																"PingOne opened! Complete authentication and you'll be redirected back."
+															);
+														}
+													}
+												}}
+												style={{
+													fontSize: '16px',
+													padding: '12px 24px',
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+												}}
+											>
+												<span style={{ fontSize: '20px' }}>🔐</span>
+												<span>Authenticate on PingOne</span>
+												<span style={{ fontSize: '16px' }}>→</span>
+											</button>
+											{completedSteps.includes(currentStep) && (
+												<div
+													style={{
+														padding: '12px',
+														background: '#d1fae5',
+														borderRadius: '6px',
+														color: '#065f46',
+														textAlign: 'center',
+													}}
+												>
+													✅ PingOne opened! Complete authentication there and you'll be redirected
+													back.
+												</div>
+											)}
+										</div>
+									)}
+
+									<div
+										style={{
+											marginTop: '16px',
+											padding: '12px 16px',
+											background: '#dbeafe',
+											border: '1px solid #3b82f6',
+											borderRadius: '8px',
+										}}
+									>
+										<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+											<span style={{ fontSize: '20px', flexShrink: 0 }}>ℹ️</span>
+											<div>
+												<strong style={{ color: '#1e40af' }}>What happens next:</strong>
+												<ol
+													style={{
+														margin: '8px 0 0 0',
+														paddingLeft: '20px',
+														fontSize: '14px',
+														color: '#1e3a8a',
+														lineHeight: '1.6',
+													}}
+												>
+													<li>Click the button above to open PingOne in a new tab</li>
+													<li>Sign in with your PingOne credentials</li>
+													<li>You'll be automatically redirected back to this app</li>
+													<li>The authorization code will be captured automatically</li>
+													<li>Then you can proceed to exchange it for tokens</li>
+												</ol>
+											</div>
+										</div>
+									</div>
+								</div>
+							)}
+
+							{error && (
+								<ErrorDisplayWithRetry
+									error={error}
+									onRetry={handleGenerateAuthUrl}
+									isLoading={isLoading}
+								/>
 							)}
 						</CollapsibleContent>
 					)}
 				</CollapsibleSection>
-			)}
-
-			{/* Authorization URL Generator Section */}
-			<CollapsibleSection>
-				<CollapsibleHeaderButton
-					onClick={() => setAuthUrlGeneratorCollapsed(!authUrlGeneratorCollapsed)}
-					aria-expanded={!authUrlGeneratorCollapsed}
-					style={{
-						background: flowState.authorizationUrl 
-							? 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)'
-							: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-						color: flowState.authorizationUrl ? '#059669' : '#1e40af',
-						border: flowState.authorizationUrl ? '2px solid #10b981' : '2px solid #3b82f6',
-						borderRadius: '12px',
-						boxShadow: flowState.authorizationUrl
-							? '0 2px 8px rgba(16, 185, 129, 0.15)'
-							: '0 2px 8px rgba(59, 130, 246, 0.15)',
-						marginBottom: '32px',
-						padding: '24px 32px',
-					}}
-				>
-					<CollapsibleTitle>
-						<span style={{ fontSize: '20px', marginRight: '8px' }}>
-							{flowState.authorizationUrl ? '✅' : '🔗'}
-						</span>
-						Authorization URL Generator
-					</CollapsibleTitle>
-					<CollapsibleToggleIcon $collapsed={authUrlGeneratorCollapsed}>
-						<FiChevronDown />
-					</CollapsibleToggleIcon>
-				</CollapsibleHeaderButton>
-				{!authUrlGeneratorCollapsed && (
-					<CollapsibleContent>
-						{/* Action Section */}
-						<div
-							style={{
-								background: '#f9fafb',
-								border: '1px solid #e5e7eb',
-								borderRadius: '12px',
-								padding: '32px',
-								marginBottom: '0',
-								textAlign: 'center',
-							}}
-						>
-					<div style={{ marginBottom: '16px' }}>
-						<div style={{ fontSize: '48px', marginBottom: '8px' }}>🔗</div>
-						<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-							Ready to Generate Authorization URL
-						</h3>
-						<p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#6b7280' }}>
-							Click the button below to create your authorization URL
-						</p>
-						{credentials.usePAR && (
-							<div
-								style={{
-									marginTop: '12px',
-									padding: '12px',
-									background: '#fef3c7',
-									border: '1px solid #fbbf24',
-									borderRadius: '8px',
-									fontSize: '13px',
-									color: '#92400e',
-								}}
-							>
-								<strong>📤 PAR Enabled:</strong> This will push authorization parameters to PingOne
-								via PAR request first, then generate the authorization URL with{' '}
-								<code>request_uri</code>.
-							</div>
-						)}
-					</div>
-
-					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', justifyContent: 'center' }}>
-						<ButtonSpinner
-							loading={isGeneratingAuthUrl || isPreFlightValidating}
-							onClick={handleGenerateAuthUrl}
-							disabled={isLoading || isPreFlightValidating}
-							spinnerSize={16}
-							spinnerPosition="center"
-							loadingText={isPreFlightValidating ? 'Validating...' : 'Generating...'}
-							className="btn btn-next"
-							style={{
-								minWidth: '280px',
-								padding: '14px 28px',
-								fontSize: '16px',
-								fontWeight: '600',
-								display: 'inline-flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								gap: '8px',
-							}}
-						>
-							{isPreFlightValidating ? (
-								<>
-									<span>🔍</span>
-								</>
-							) : isGeneratingAuthUrl ? (
-								<>
-									<span>🔗</span>
-								</>
-							) : (
-								<>
-									<span>🔗</span>
-									<span>Generate Authorization URL</span>
-								</>
-							)}
-						</ButtonSpinner>
-						{isPreFlightValidating && preFlightStatus && (
-							<div
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '8px',
-									padding: '8px 12px',
-									background: '#eff6ff',
-									border: '1px solid #3b82f6',
-									borderRadius: '6px',
-									fontSize: '13px',
-									color: '#1e40af',
-								}}
-							>
-								<span
-									style={{
-										display: 'inline-block',
-										animation: 'spin 1s linear infinite',
-										fontSize: '14px',
-									}}
-								>
-									🔍
-								</span>
-								<span>{preFlightStatus}</span>
-							</div>
-						)}
-					</div>
-				</div>
-
-				{flowState.authorizationUrl && (
-					<div style={{ marginTop: '24px' }}>
-						{/* PAR Information Display */}
-						{credentials.usePAR && flowState.parRequestUri && (
-							<div
-								style={{
-									background: '#ecfdf5',
-									border: '1px solid #10b981',
-									borderRadius: '8px',
-									padding: '16px',
-									marginBottom: '16px',
-								}}
-							>
-								<div
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: '8px',
-										marginBottom: '12px',
-									}}
-								>
-									<span style={{ fontSize: '20px' }}>📤</span>
-									<strong style={{ color: '#065f46', fontSize: '15px' }}>
-										PAR Request Completed
-									</strong>
-								</div>
-								<div style={{ marginBottom: '12px' }}>
-									<div
-										style={{
-											fontSize: '13px',
-											color: '#047857',
-											marginBottom: '4px',
-											fontWeight: '500',
-										}}
-									>
-										PAR Request URI:
-									</div>
-									<div
-										style={{
-											background: 'white',
-											border: '1px solid #d1d5db',
-											borderRadius: '6px',
-											padding: '8px 12px',
-											fontFamily: 'monospace',
-											fontSize: '12px',
-											color: '#1f2937',
-											wordBreak: 'break-all',
-										}}
-									>
-										{flowState.parRequestUri}
-									</div>
-								</div>
-								{flowState.parExpiresIn && (
-									<div style={{ fontSize: '13px', color: '#047857' }}>
-										<strong>Expires in:</strong> {flowState.parExpiresIn} seconds
-									</div>
-								)}
-								<div style={{ marginTop: '8px', fontSize: '12px', color: '#059669' }}>
-									💡 The authorization URL below uses this <code>request_uri</code> instead of
-									individual parameters. Check the <strong>⚡ Show API Calls</strong> section to see
-									the full PAR request details.
-								</div>
-							</div>
-						)}
-
-						<ColoredUrlDisplay
-							url={flowState.authorizationUrl}
-							label="Authorization URL"
-							showCopyButton={true}
-							showInfoButton={true}
-							showOpenButton={false}
-							height="200px"
-							editable={true}
-							onChange={(newUrl) => {
-								console.log(`${MODULE_TAG} Authorization URL edited`, { newUrl });
-								setFlowState((prev) => ({
-									...prev,
-									authorizationUrl: newUrl,
-								}));
-							}}
-						/>
-
-						{/* Show different buttons based on redirectless mode */}
-						{credentials.responseMode === 'pi.flow' || credentials.useRedirectless ? (
-							// Redirectless mode: Show button to start redirectless authentication
-							<div
-								style={{
-									marginTop: '16px',
-									display: 'flex',
-									flexDirection: 'column',
-									gap: '12px',
-									alignItems: 'center',
-								}}
-							>
-								<div
-									style={{
-										background: '#fef3c7',
-										border: '1px solid #f59e0b',
-										borderRadius: '8px',
-										padding: '12px 16px',
-										marginBottom: '8px',
-										width: '100%',
-										maxWidth: '600px',
-									}}
-								>
-									<p style={{ margin: 0, fontSize: '14px', color: '#92400e' }}>
-										<strong>Redirectless Mode:</strong> This URL shows what would be used in
-										standard redirect mode. In redirectless mode, we'll make a POST request instead
-										of redirecting and add response_mode=pi.flow to the Authorization URL.
-									</p>
-								</div>
-								<button
-									type="button"
-									className="btn btn-next"
-									onClick={handleStartRedirectlessAuth}
-									disabled={isLoading}
-									style={{
-										fontSize: '16px',
-										padding: '12px 24px',
-										display: 'flex',
-										alignItems: 'center',
-										gap: '8px',
-										minWidth: '280px',
-										justifyContent: 'center',
-									}}
-								>
-									{isLoading ? (
-										<>
-											<span>⏳</span>
-											<span>Starting Redirectless Authentication...</span>
-										</>
-									) : (
-										<>
-											<span>🚀</span>
-											<span>Start Redirectless Authentication</span>
-										</>
-									)}
-								</button>
-							</div>
-						) : (
-							// Standard mode: Show button to open URL in browser
-							<div
-								style={{
-									marginTop: '16px',
-									display: 'flex',
-									flexDirection: 'column',
-									gap: '12px',
-									alignItems: 'center',
-								}}
-							>
-								<button
-									type="button"
-									className="btn btn-next"
-									onClick={() => {
-										console.log(`${MODULE_TAG} Opening authorization URL for authentication`);
-										const urlToOpen = flowState.authorizationUrl || '';
-										if (urlToOpen) {
-											window.open(urlToOpen, '_blank', 'noopener,noreferrer');
-											// Mark step complete after opening PingOne
-											if (!completedSteps.includes(currentStep)) {
-												console.log(`${MODULE_TAG} User opened PingOne - marking step complete`);
-												nav.markStepComplete();
-												toastV8.success(
-													"PingOne opened! Complete authentication and you'll be redirected back."
-												);
-											}
-										}
-									}}
-									style={{
-										fontSize: '16px',
-										padding: '12px 24px',
-										display: 'flex',
-										alignItems: 'center',
-										gap: '8px',
-									}}
-								>
-									<span style={{ fontSize: '20px' }}>🔐</span>
-									<span>Authenticate on PingOne</span>
-									<span style={{ fontSize: '16px' }}>→</span>
-								</button>
-								{completedSteps.includes(currentStep) && (
-									<div
-										style={{
-											padding: '12px',
-											background: '#d1fae5',
-											borderRadius: '6px',
-											color: '#065f46',
-											textAlign: 'center',
-										}}
-									>
-										✅ PingOne opened! Complete authentication there and you'll be redirected back.
-									</div>
-								)}
-							</div>
-						)}
-
-						<div
-							style={{
-								marginTop: '16px',
-								padding: '12px 16px',
-								background: '#dbeafe',
-								border: '1px solid #3b82f6',
-								borderRadius: '8px',
-							}}
-						>
-							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-								<span style={{ fontSize: '20px', flexShrink: 0 }}>ℹ️</span>
-								<div>
-									<strong style={{ color: '#1e40af' }}>What happens next:</strong>
-									<ol
-										style={{
-											margin: '8px 0 0 0',
-											paddingLeft: '20px',
-											fontSize: '14px',
-											color: '#1e3a8a',
-											lineHeight: '1.6',
-										}}
-									>
-										<li>Click the button above to open PingOne in a new tab</li>
-										<li>Sign in with your PingOne credentials</li>
-										<li>You'll be automatically redirected back to this app</li>
-										<li>The authorization code will be captured automatically</li>
-										<li>Then you can proceed to exchange it for tokens</li>
-									</ol>
-								</div>
-							</div>
-						</div>
-					</div>
-				)}
-
-				{error && (
-					<ErrorDisplayWithRetry
-						error={error}
-						onRetry={handleGenerateAuthUrl}
-						isLoading={isLoading}
-					/>
-				)}
-					</CollapsibleContent>
-				)}
-			</CollapsibleSection>
 			</div>
 		);
 	};
@@ -6896,7 +7251,7 @@ passed: boolean;
 					<CollapsibleHeaderButton
 						onClick={() => setDeviceCodeOverviewCollapsed(!deviceCodeOverviewCollapsed)}
 						aria-expanded={!deviceCodeOverviewCollapsed}
-				>
+					>
 						<CollapsibleTitle>
 							<FiBook /> What is Device Authorization Flow?
 						</CollapsibleTitle>
@@ -6908,7 +7263,7 @@ passed: boolean;
 						<CollapsibleContent>
 							<InfoBox $variant="info">
 								<FiInfo size={20} />
-						<div>
+								<div>
 									<InfoTitle>Device Authorization Flow (RFC 8628)</InfoTitle>
 									<InfoText>
 										The Device Authorization Flow is designed for devices with limited input
@@ -6925,17 +7280,17 @@ passed: boolean;
 									<InfoTitle>How Device Code Flow Works</InfoTitle>
 									<InfoList>
 										<li>
-											<strong>Step 1 (this step):</strong> Device requests authorization and receives
-											a device code and user code
-									</li>
+											<strong>Step 1 (this step):</strong> Device requests authorization and
+											receives a device code and user code
+										</li>
 										<li>
 											<strong>Step 2:</strong> User enters the user code on a separate
-										device/browser to authorize
-									</li>
+											device/browser to authorize
+										</li>
 										<li>
 											<strong>Step 3:</strong> Device polls the token endpoint until authorization
 											completes
-									</li>
+										</li>
 									</InfoList>
 								</div>
 							</InfoBox>
@@ -6968,7 +7323,7 @@ passed: boolean;
 											<li>Device polls for tokens</li>
 											<li>Perfect for limited-input devices</li>
 										</InfoList>
-							</div>
+									</div>
 								</InfoBox>
 
 								<InfoBox $variant="success">
@@ -6981,7 +7336,7 @@ passed: boolean;
 											<li>Code exchanged for tokens immediately</li>
 											<li>Perfect for web and mobile apps</li>
 										</InfoList>
-						</div>
+									</div>
 								</InfoBox>
 							</ParameterGrid>
 
@@ -6998,14 +7353,13 @@ passed: boolean;
 											keyboards
 										</li>
 										<li>
-											<strong>CLI Tools:</strong> Command-line applications that can't open
-											browsers
+											<strong>CLI Tools:</strong> Command-line applications that can't open browsers
 										</li>
 										<li>
 											<strong>Printers & Scanners:</strong> Office equipment needing cloud access
 										</li>
 									</InfoList>
-					</div>
+								</div>
 							</InfoBox>
 						</CollapsibleContent>
 					)}
@@ -7337,15 +7691,37 @@ passed: boolean;
 						{!redirectlessWarningCollapsed && (
 							<CollapsibleContent>
 								<div>
-									<p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#7f1d1d', lineHeight: '1.6' }}>
+									<p
+										style={{
+											margin: '0 0 12px 0',
+											fontSize: '14px',
+											color: '#7f1d1d',
+											lineHeight: '1.6',
+										}}
+									>
 										You have <strong>redirectless mode enabled</strong>, which means there should be{' '}
-										<strong>no redirect</strong> to a callback URL. Instead, a login modal should have
-										appeared after generating the authorization URL.
+										<strong>no redirect</strong> to a callback URL. Instead, a login modal should
+										have appeared after generating the authorization URL.
 									</p>
-									<p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#7f1d1d', lineHeight: '1.6' }}>
+									<p
+										style={{
+											margin: '0 0 12px 0',
+											fontSize: '14px',
+											color: '#7f1d1d',
+											lineHeight: '1.6',
+										}}
+									>
 										<strong>What to do:</strong>
 									</p>
-									<ol style={{ margin: '0 0 12px 0', paddingLeft: '20px', fontSize: '14px', color: '#7f1d1d', lineHeight: '1.6' }}>
+									<ol
+										style={{
+											margin: '0 0 12px 0',
+											paddingLeft: '20px',
+											fontSize: '14px',
+											color: '#7f1d1d',
+											lineHeight: '1.6',
+										}}
+									>
 										<li>Go back to Step 1 (Generate Authorization URL)</li>
 										<li>Click "Generate Authorization URL" again</li>
 										<li>A login modal should appear for username/password input</li>
@@ -7391,24 +7767,27 @@ passed: boolean;
 
 					// Parse authorization code
 					const callbackUrlForParsing = flowState.authorizationCode || window.location.href;
-					
+
 					// Validate that the callback URL actually contains OAuth parameters
 					const url = new URL(callbackUrlForParsing);
 					const hasCode = url.searchParams.has('code');
 					const hasState = url.searchParams.has('state');
-					
+
 					if (!hasCode || !hasState) {
-						console.warn(`${MODULE_TAG} Manual parse callback URL does not contain required OAuth parameters`, { 
-							callbackUrl: callbackUrlForParsing, 
-							hasCode, 
-							hasState,
-							allParams: Object.fromEntries(url.searchParams)
-						});
+						console.warn(
+							`${MODULE_TAG} Manual parse callback URL does not contain required OAuth parameters`,
+							{
+								callbackUrl: callbackUrlForParsing,
+								hasCode,
+								hasState,
+								allParams: Object.fromEntries(url.searchParams),
+							}
+						);
 						setError('Callback URL does not contain required OAuth parameters (code and state)');
 						setIsLoading(false);
 						return;
 					}
-					
+
 					const parsed = UnifiedFlowIntegrationV8U.parseCallbackUrl(
 						callbackUrlForParsing,
 						flowState.state || ''
@@ -7462,26 +7841,29 @@ passed: boolean;
 				} else {
 					// Authorization code flow only
 					const callbackUrlForParsing = flowState.authorizationCode || '';
-					
+
 					// Validate that the callback URL actually contains OAuth parameters
 					if (callbackUrlForParsing) {
 						const url = new URL(callbackUrlForParsing);
 						const hasCode = url.searchParams.has('code');
 						const hasState = url.searchParams.has('state');
-						
+
 						if (!hasCode || !hasState) {
-							console.warn(`${MODULE_TAG} Authorization code flow callback URL does not contain required OAuth parameters`, { 
-								callbackUrl: callbackUrlForParsing, 
-								hasCode, 
-								hasState,
-								allParams: Object.fromEntries(url.searchParams)
-							});
+							console.warn(
+								`${MODULE_TAG} Authorization code flow callback URL does not contain required OAuth parameters`,
+								{
+									callbackUrl: callbackUrlForParsing,
+									hasCode,
+									hasState,
+									allParams: Object.fromEntries(url.searchParams),
+								}
+							);
 							setError('Callback URL does not contain required OAuth parameters (code and state)');
 							setIsLoading(false);
 							return;
 						}
 					}
-					
+
 					const parsed = UnifiedFlowIntegrationV8U.parseCallbackUrl(
 						flowState.authorizationCode || '',
 						flowState.state || ''
@@ -8311,11 +8693,11 @@ passed: boolean;
 			// Start countdown from when polling started
 			const startTime = flowState.pollingStatus.lastPolled || Date.now();
 			const currentInterval = flowState.deviceCodeInterval || 5; // Get current polling interval
-			
+
 			const updateTimers = () => {
 				const now = Date.now();
 				const elapsed = Math.floor((now - startTime) / 1000);
-				
+
 				// Calculate polling timeout remaining
 				const remaining = Math.max(0, pollingTimeoutSeconds - elapsed);
 				setPollingTimeoutRemaining(remaining > 0 ? remaining : null);
@@ -8356,8 +8738,6 @@ passed: boolean;
 
 	// Shared handler for device authorization requests (used in both Step 1 and Step 2)
 	const handleRequestDeviceAuth = useCallback(async () => {
-		
-
 		// Validate required fields before requesting device authorization
 		if (!credentials.environmentId?.trim()) {
 			setError('Please provide an Environment ID in the configuration above.');
@@ -8420,14 +8800,16 @@ passed: boolean;
 		} | null = null;
 
 		try {
-			const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
+			const { PreFlightValidationServiceV8 } = await import(
+				'@/v8/services/preFlightValidationServiceV8'
+			);
 			const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
-			
+
 			setPreFlightStatus('🔑 Retrieving worker token...');
 			const workerToken = await workerTokenServiceV8.getToken();
-			
+
 			setPreFlightStatus('✅ Validating configuration against PingOne...');
-			
+
 			// For device code, only validate OAuth config (no redirect URI needed)
 			const oauthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
 				specVersion,
@@ -8468,28 +8850,28 @@ passed: boolean;
 			// Handle errors and warnings
 			if (validationResult.errors.length > 0) {
 				const fixableErrors = validationResult.fixableErrors || [];
-				
+
 				if (fixableErrors.length > 0) {
 					const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
-					const fixDescriptions = fixableErrors.map(fe => `  • ${fe.fixDescription}`).join('\n');
+					const fixDescriptions = fixableErrors.map((fe) => `  • ${fe.fixDescription}`).join('\n');
 					const fixableCount = fixableErrors.length;
-					
+
 					let message = `Found ${fixableCount} fixable error(s).\n\n`;
 					message += `The following can be automatically fixed:\n${fixDescriptions}\n\n`;
 					message += `Would you like to automatically fix all fixable errors?`;
-					
+
 					const confirmed = await uiNotificationServiceV8.confirm({
 						title: '🔧 Fix All Errors?',
 						message: message,
 						confirmText: 'Yes, Fix All',
-						cancelText: 'No, I\'ll Fix Manually',
+						cancelText: "No, I'll Fix Manually",
 						severity: 'warning',
 					});
-					
+
 					if (confirmed) {
 						const updatedCredentials = { ...credentials };
 						const fixesApplied: string[] = [];
-						
+
 						for (const fixableError of fixableErrors) {
 							if (fixableError.fixData?.addScope) {
 								const currentScopes = updatedCredentials.scopes || '';
@@ -8501,7 +8883,7 @@ passed: boolean;
 								}
 							}
 						}
-						
+
 						const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
 						const flowKey = `${specVersion}-${flowType}-v8u`;
 						if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
@@ -8509,13 +8891,13 @@ passed: boolean;
 						} else {
 							CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
 						}
-						
+
 						if (onCredentialsChange) {
 							onCredentialsChange(updatedCredentials);
 						}
-						
+
 						toastV8.success(`Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`);
-						
+
 						// Re-run validation
 						setPreFlightStatus('🔍 Re-validating configuration...');
 						const newOAuthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
@@ -8524,21 +8906,26 @@ passed: boolean;
 							credentials: updatedCredentials,
 							...(workerToken && { workerToken }),
 						});
-						
-					const newFixableErrors = PreFlightValidationServiceV8.analyzeFixableErrors(
-						newOAuthConfigResult.errors,
-						{ specVersion, flowType, credentials: updatedCredentials, ...(workerToken && { workerToken }) },
-						undefined,
-						undefined
-					);
-						
+
+						const newFixableErrors = PreFlightValidationServiceV8.analyzeFixableErrors(
+							newOAuthConfigResult.errors,
+							{
+								specVersion,
+								flowType,
+								credentials: updatedCredentials,
+								...(workerToken && { workerToken }),
+							},
+							undefined,
+							undefined
+						);
+
 						setPreFlightValidationResult({
 							passed: newOAuthConfigResult.passed,
 							errors: newOAuthConfigResult.errors,
 							warnings: newOAuthConfigResult.warnings,
 							fixableErrors: newFixableErrors,
 						});
-						
+
 						if (newOAuthConfigResult.errors.length > 0) {
 							setValidationErrors(newOAuthConfigResult.errors);
 							setValidationWarnings([]);
@@ -8580,7 +8967,7 @@ passed: boolean;
 					return;
 				}
 			}
-			
+
 			// Warnings only
 			if (validationResult.warnings.length > 0) {
 				setValidationWarnings(validationResult.warnings);
@@ -8613,8 +9000,6 @@ passed: boolean;
 		setError(null);
 
 		try {
-			
-
 			// Add timeout to prevent infinite hanging (30 seconds max)
 			const timeoutPromise = new Promise<never>((_, reject) => {
 				setTimeout(() => {
@@ -8627,18 +9012,12 @@ passed: boolean;
 				timeoutPromise,
 			]);
 
-			
-
 			// CRITICAL: Update ref with new device code IMMEDIATELY (FIRST THING after receiving result)
 			// This must happen before ANY other operations to ensure polling uses the new device code
 			deviceCodeRef.current = result.device_code;
 
-			
-
 			// Calculate expiration timestamp
 			const expiresAt = Date.now() + result.expires_in * 1000;
-
-			
 
 			// CRITICAL: Clear old device code from sessionStorage after ref is updated
 			// This prevents stale device codes from being restored
@@ -8670,10 +9049,6 @@ passed: boolean;
 			// Clear any previous tokens
 			delete newState.tokens;
 
-			
-
-			
-
 			setFlowState(newState as FlowState);
 
 			// CRITICAL: Reset abort flag so new polling can start with the new device code
@@ -8689,31 +9064,21 @@ passed: boolean;
 				autoPollTriggeredRef.current = true;
 				autoPollInitiatedRef.current = false; // Reset so useEffect can trigger it
 			} else {
-			// Reset auto-poll trigger so it can trigger again when user navigates to step 2
-			autoPollTriggeredRef.current = false;
-			autoPollInitiatedRef.current = false;
+				// Reset auto-poll trigger so it can trigger again when user navigates to step 2
+				autoPollTriggeredRef.current = false;
+				autoPollInitiatedRef.current = false;
 			}
-
-			
 
 			nav.markStepComplete();
 			toastV8.success('Device authorization request successful');
 		} catch (err) {
-			
-
 			const message = err instanceof Error ? err.message : 'Failed to request device authorization';
 			setError(message);
 			setValidationErrors([message]);
 			toastV8.error(message);
 		} finally {
-			
-
-			
-
 			setIsLoading(false);
 			setLoadingMessage('');
-
-			
 
 			// Ensure flags are reset even on error
 			if (!flowState.deviceCode) {
@@ -8915,12 +9280,10 @@ passed: boolean;
 		};
 
 		const handlePollForTokens = async () => {
-			
-
 			// CRITICAL: Check abort flag FIRST - if polling was stopped, don't start new polling
 			if (pollingAbortRef.current) {
 				console.log(`${MODULE_TAG} Polling aborted - not starting new polling`);
-				
+
 				return;
 			}
 
@@ -8928,7 +9291,6 @@ passed: boolean;
 			// The ref is the source of truth and is updated synchronously, so we only check the ref
 			// State updates are asynchronous and may lag behind, causing race conditions
 			if (!deviceCodeRef.current) {
-				
 				setError(
 					'Please request a device code first by clicking the "Request Device Code" button above.'
 				);
@@ -8953,8 +9315,6 @@ passed: boolean;
 
 			// Mark as executing immediately to prevent race conditions
 			isPollingExecutingRef.current = true;
-
-			
 
 			console.log(`${MODULE_TAG} Starting polling for tokens`);
 			setIsLoading(true);
@@ -9003,8 +9363,6 @@ passed: boolean;
 						return null;
 					}
 
-					
-
 					// Validate device code before sending
 					if (!currentDeviceCode || currentDeviceCode === '') {
 						console.error(`${MODULE_TAG} Device code is missing or empty`, {
@@ -9048,13 +9406,13 @@ passed: boolean;
 						deviceCodePrefix: `${currentDeviceCode.substring(0, 10)}...`,
 					});
 
-					
-
 					pollCount++;
 					let response: Response;
 					try {
 						// Track API call for display
-						const { apiCallTrackerService: apiCallTrackerService4 } = await import('@/services/apiCallTrackerService');
+						const { apiCallTrackerService: apiCallTrackerService4 } = await import(
+							'@/services/apiCallTrackerService'
+						);
 						const startTime4 = Date.now();
 						const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 						const requestBodyForTracking = {
@@ -9098,15 +9456,13 @@ passed: boolean;
 						apiCallTrackerService4.updateApiCallResponse(
 							callId4,
 							{
-									status: response.status,
-									statusText: response.statusText,
+								status: response.status,
+								statusText: response.statusText,
 								data: responseData4,
 							},
 							Date.now() - startTime4
 						);
 					} catch (fetchError) {
-						
-
 						// Log to console with full details
 						console.error(`${MODULE_TAG} ❌ Fetch error during polling (attempt ${pollCount}):`, {
 							error: fetchError,
@@ -9117,8 +9473,6 @@ passed: boolean;
 
 						throw fetchError;
 					}
-
-					
 
 					// Update polling status
 					setFlowState((prev) => ({
@@ -9131,7 +9485,6 @@ passed: boolean;
 					}));
 
 					// CRITICAL DEBUG: Log response status before checking
-					
 
 					if (response.ok) {
 						console.log(`${MODULE_TAG} [DEBUG] Response is OK (200) - attempting to parse tokens`);
@@ -9139,20 +9492,14 @@ passed: boolean;
 						let responseText = '';
 						try {
 							responseText = await response.text();
-							
-							tokens = JSON.parse(responseText);
 
-							
+							tokens = JSON.parse(responseText);
 						} catch (parseError) {
-							
 							throw new Error(
 								`Failed to parse token response: ${parseError instanceof Error ? parseError.message : String(parseError)}`
 							);
 						}
 						console.log(`${MODULE_TAG} ✅ Tokens received successfully on attempt ${pollCount}`);
-						
-
-						
 
 						return tokens;
 					}
@@ -9162,11 +9509,10 @@ passed: boolean;
 					let responseText = '';
 					try {
 						responseText = await response.text();
-						
+
 						errorData = JSON.parse(responseText);
-					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+						// eslint-disable-next-line @typescript-eslint/no-unused-vars
 					} catch (_parseErr) {
-						
 						console.error(`${MODULE_TAG} Failed to parse error response:`, responseText);
 						throw new Error(`Token polling failed: HTTP ${response.status} ${response.statusText}`);
 					}
@@ -9180,7 +9526,6 @@ passed: boolean;
 						`${MODULE_TAG} [DEBUG] Full error response data:`,
 						JSON.stringify(errorData, null, 2)
 					);
-					
 
 					// Check for authorization_pending (user hasn't approved yet) - this is EXPECTED and normal
 					if (errorData.error === 'authorization_pending') {
@@ -9266,8 +9611,7 @@ passed: boolean;
 			// Start polling loop
 			const pollLoop = async () => {
 				// Do first poll immediately
-				
-				
+
 				for (let attempt = 0; attempt < maxAttempts; attempt++) {
 					// Check if polling was stopped (before each operation)
 					if (pollingAbortRef.current) {
@@ -9285,10 +9629,8 @@ passed: boolean;
 					}
 
 					console.log(`${MODULE_TAG} Polling attempt ${attempt + 1}/${maxAttempts}`);
-					
+
 					const tokens = await performPoll();
-					
-					
 
 					// Check again after async operation
 					if (pollingAbortRef.current) {
@@ -9305,12 +9647,9 @@ passed: boolean;
 						return;
 					}
 
-					
-
 					if (tokens) {
 						// Success! Tokens received
-						
-						
+
 						// Filter tokens based on spec version (OAuth 2.0 Authorization Framework (RFC 6749) / OAuth 2.1 Authorization Framework (draft) should not have id_token when used without OpenID Connect)
 						const filteredTokens = filterTokensBySpec(tokens);
 						const tokensWithExtras = filteredTokens;
@@ -9326,10 +9665,7 @@ passed: boolean;
 							tokenState.refreshToken = tokensWithExtras.refresh_token;
 						}
 
-						
-
 						setFlowState((prev) => {
-							
 							const newState = {
 								...prev,
 								tokens: tokenState,
@@ -9338,16 +9674,12 @@ passed: boolean;
 									: { isPolling: false, pollCount: 0 },
 							};
 
-							
-
 							return newState;
 						});
 
 						setIsLoading(false);
 						isPollingExecutingRef.current = false; // Reset execution flag
-						
-						
-						
+
 						nav.markStepComplete();
 						showTokenSuccessModal(tokensWithExtras);
 
@@ -9377,17 +9709,15 @@ passed: boolean;
 
 						toastV8.tokenExchangeSuccess();
 						toastV8.stepCompleted(2);
-						
+
 						// Show success modal for device code flow
 						setShowDeviceCodeSuccessModal(true);
-						
-						
+
 						return; // Exit polling loop
 					}
 
 					// Wait before next poll (but not after the last attempt)
 					if (attempt < maxAttempts - 1) {
-						
 						// Check abort before waiting
 						if (pollingAbortRef.current) {
 							console.log(`${MODULE_TAG} Polling stopped before wait`);
@@ -9428,8 +9758,7 @@ passed: boolean;
 				}
 
 				// Timeout
-				
-				
+
 				setIsLoading(false);
 				isPollingExecutingRef.current = false; // Reset execution flag
 				setError('Token polling timeout - user did not authorize within time limit');
@@ -9445,7 +9774,6 @@ passed: boolean;
 
 			// Start polling (non-blocking)
 			pollLoop().catch((err) => {
-				
 				const message = err instanceof Error ? err.message : 'Failed to poll for tokens';
 				setError(message);
 				setIsLoading(false);
@@ -9535,12 +9863,19 @@ passed: boolean;
 						<div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
 							<span style={{ fontSize: '20px' }}>🌐</span>
 							<div style={{ flex: 1, minWidth: '200px' }}>
-								<strong style={{ color: '#92400e', fontSize: '14px', display: 'block', marginBottom: '4px' }}>
+								<strong
+									style={{
+										color: '#92400e',
+										fontSize: '14px',
+										display: 'block',
+										marginBottom: '4px',
+									}}
+								>
 									Authorize Device in Browser
 								</strong>
 								<p style={{ margin: '0', fontSize: '13px', color: '#78350f' }}>
-									Click the button below to open the authorization page in a new browser tab.
-									Enter the user code shown below to authorize this device.
+									Click the button below to open the authorization page in a new browser tab. Enter
+									the user code shown below to authorize this device.
 								</p>
 							</div>
 							<a
@@ -9578,17 +9913,17 @@ passed: boolean;
 
 				{/* Start Polling Button - Above Device Display */}
 				{flowState.deviceCode && !isComplete && (
-							<button
-								type="button"
-								className="btn btn-next"
-								onClick={handlePollForTokens}
-								disabled={isLoading || flowState.pollingStatus?.isPolling}
-								style={{ marginTop: '16px', marginBottom: '24px' }}
-							>
-								{isLoading || flowState.pollingStatus?.isPolling
-									? 'Polling...'
-									: 'Start Polling for Tokens'}
-							</button>
+					<button
+						type="button"
+						className="btn btn-next"
+						onClick={handlePollForTokens}
+						disabled={isLoading || flowState.pollingStatus?.isPolling}
+						style={{ marginTop: '16px', marginBottom: '24px' }}
+					>
+						{isLoading || flowState.pollingStatus?.isPolling
+							? 'Polling...'
+							: 'Start Polling for Tokens'}
+					</button>
 				)}
 
 				{/* Device Type Selector */}
@@ -9609,60 +9944,56 @@ passed: boolean;
 				{flowState.deviceCode && flowState.userCode && (
 					<div style={{ marginTop: '24px', marginBottom: '24px' }}>
 						{(() => {
-							
-
 							try {
 								return (
-						<DynamicDeviceFlow
-							deviceType={selectedDeviceType}
-							state={{
+									<DynamicDeviceFlow
+										deviceType={selectedDeviceType}
+										state={{
 											deviceCode: flowState.deviceCode || '',
 											userCode: flowState.userCode || '',
-								verificationUri: flowState.verificationUri || '',
-								verificationUriComplete: flowState.verificationUriComplete || '',
-								expiresIn: flowState.deviceCodeExpiresIn || 0,
-								interval: 5,
+											verificationUri: flowState.verificationUri || '',
+											verificationUriComplete: flowState.verificationUriComplete || '',
+											expiresIn: flowState.deviceCodeExpiresIn || 0,
+											interval: 5,
 											expiresAt:
 												flowState.deviceCodeExpiresAt &&
 												typeof flowState.deviceCodeExpiresAt === 'number'
-									? new Date(flowState.deviceCodeExpiresAt)
-									: new Date(),
-								status: flowState.tokens?.accessToken
-									? 'authorized'
-									: flowState.pollingStatus?.isPolling
-										? 'pending'
-										: 'pending',
-								...(flowState.tokens?.accessToken && {
-									tokens: {
-										access_token: flowState.tokens.accessToken,
-										token_type: 'Bearer',
-										expires_in: flowState.tokens.expiresIn || 3600,
-										...(flowState.tokens.idToken && { id_token: flowState.tokens.idToken }),
-										...(flowState.tokens.refreshToken && {
-											refresh_token: flowState.tokens.refreshToken,
-										}),
-									},
-								}),
-								...(flowState.pollingStatus?.lastPolled && {
-									lastPolled: new Date(flowState.pollingStatus.lastPolled),
-								}),
-								pollCount: flowState.pollingStatus?.pollCount || 0,
-							}}
-							onStateUpdate={(newState: unknown) => {
-								console.log(`${MODULE_TAG} Device flow state updated`, newState);
-							}}
-							onComplete={(tokens: unknown) => {
-								console.log(`${MODULE_TAG} Device authorization completed`, tokens);
-							}}
-							onError={(error: string) => {
-								console.error(`${MODULE_TAG} Device authorization error`, error);
-								setError(error);
-							}}
-						/>
+													? new Date(flowState.deviceCodeExpiresAt)
+													: new Date(),
+											status: flowState.tokens?.accessToken
+												? 'authorized'
+												: flowState.pollingStatus?.isPolling
+													? 'pending'
+													: 'pending',
+											...(flowState.tokens?.accessToken && {
+												tokens: {
+													access_token: flowState.tokens.accessToken,
+													token_type: 'Bearer',
+													expires_in: flowState.tokens.expiresIn || 3600,
+													...(flowState.tokens.idToken && { id_token: flowState.tokens.idToken }),
+													...(flowState.tokens.refreshToken && {
+														refresh_token: flowState.tokens.refreshToken,
+													}),
+												},
+											}),
+											...(flowState.pollingStatus?.lastPolled && {
+												lastPolled: new Date(flowState.pollingStatus.lastPolled),
+											}),
+											pollCount: flowState.pollingStatus?.pollCount || 0,
+										}}
+										onStateUpdate={(newState: unknown) => {
+											console.log(`${MODULE_TAG} Device flow state updated`, newState);
+										}}
+										onComplete={(tokens: unknown) => {
+											console.log(`${MODULE_TAG} Device authorization completed`, tokens);
+										}}
+										onError={(error: string) => {
+											console.error(`${MODULE_TAG} Device authorization error`, error);
+											setError(error);
+										}}
+									/>
 								);
 							} catch (error) {
-								
-
 								console.error(`${MODULE_TAG} Error rendering DynamicDeviceFlow:`, error);
 								return (
 									<div
@@ -9726,7 +10057,7 @@ passed: boolean;
 										try {
 											await navigator.clipboard.writeText(flowState.userCode || '');
 											toastV8.success('User code copied to clipboard');
-										// eslint-disable-next-line @typescript-eslint/no-unused-vars
+											// eslint-disable-next-line @typescript-eslint/no-unused-vars
 										} catch (_err) {
 											toastV8.error('Failed to copy user code');
 										}
@@ -10024,9 +10355,7 @@ passed: boolean;
 				}
 				if (!credentials.scopes?.trim()) {
 					setError('Please provide at least one scope in the configuration above.');
-					setValidationErrors([
-						'Please provide at least one scope in the configuration above.',
-					]);
+					setValidationErrors(['Please provide at least one scope in the configuration above.']);
 					return;
 				}
 			}
@@ -10059,14 +10388,16 @@ passed: boolean;
 				} | null = null;
 
 				try {
-					const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
+					const { PreFlightValidationServiceV8 } = await import(
+						'@/v8/services/preFlightValidationServiceV8'
+					);
 					const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
-					
+
 					setPreFlightStatus('🔑 Retrieving worker token...');
 					const workerToken = await workerTokenServiceV8.getToken();
-					
+
 					setPreFlightStatus('✅ Validating configuration against PingOne...');
-					
+
 					// For client credentials, only validate OAuth config (no redirect URI needed)
 					const oauthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
 						specVersion,
@@ -10076,12 +10407,16 @@ passed: boolean;
 					});
 
 					// Fetch app config for fixable error analysis
-					let appConfig: {
-						tokenEndpointAuthMethod?: string;
-					} | undefined;
+					let appConfig:
+						| {
+								tokenEndpointAuthMethod?: string;
+						  }
+						| undefined;
 					if (workerToken && credentials.environmentId && credentials.clientId) {
 						try {
-							const { ConfigCheckerServiceV8 } = await import('@/v8/services/configCheckerServiceV8');
+							const { ConfigCheckerServiceV8 } = await import(
+								'@/v8/services/configCheckerServiceV8'
+							);
 							const fetchedConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 								credentials.environmentId,
 								credentials.clientId,
@@ -10093,7 +10428,10 @@ passed: boolean;
 								};
 							}
 						} catch (error) {
-							console.warn(`${MODULE_TAG} Could not fetch app config for fixable error analysis:`, error);
+							console.warn(
+								`${MODULE_TAG} Could not fetch app config for fixable error analysis:`,
+								error
+							);
 						}
 					}
 
@@ -10133,33 +10471,42 @@ passed: boolean;
 					// Handle errors and warnings
 					if (validationResult && validationResult.errors.length > 0) {
 						const fixableErrors = validationResult.fixableErrors || [];
-						
+
 						if (fixableErrors.length > 0) {
-							const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
-							const fixDescriptions = fixableErrors.map(fe => `  • ${fe.fixDescription}`).join('\n');
+							const { uiNotificationServiceV8 } = await import(
+								'@/v8/services/uiNotificationServiceV8'
+							);
+							const fixDescriptions = fixableErrors
+								.map((fe) => `  • ${fe.fixDescription}`)
+								.join('\n');
 							const fixableCount = fixableErrors.length;
 							const totalErrors = validationResult.errors.length;
-							
+
 							let message = `Found ${fixableCount} fixable error(s) out of ${totalErrors} total error(s).\n\n`;
 							message += `The following can be automatically fixed:\n${fixDescriptions}\n\n`;
 							message += `Would you like to automatically fix all fixable errors?`;
-							
+
 							const confirmed = await uiNotificationServiceV8.confirm({
 								title: '🔧 Fix All Errors?',
 								message: message,
 								confirmText: 'Yes, Fix All',
-								cancelText: 'No, I\'ll Fix Manually',
+								cancelText: "No, I'll Fix Manually",
 								severity: 'warning',
 							});
-							
+
 							if (confirmed) {
 								const updatedCredentials = { ...credentials };
 								const fixesApplied: string[] = [];
-								
+
 								for (const fixableError of fixableErrors) {
 									if (fixableError.fixData) {
 										if (fixableError.fixData.authMethod) {
-											updatedCredentials.clientAuthMethod = fixableError.fixData.authMethod as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+											updatedCredentials.clientAuthMethod = fixableError.fixData.authMethod as
+												| 'none'
+												| 'client_secret_basic'
+												| 'client_secret_post'
+												| 'client_secret_jwt'
+												| 'private_key_jwt';
 											fixesApplied.push(`Auth method: ${fixableError.fixData.authMethod}`);
 										}
 										if (fixableError.fixData.addScope) {
@@ -10173,7 +10520,7 @@ passed: boolean;
 										}
 									}
 								}
-								
+
 								const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
 								const flowKey = `${specVersion}-${flowType}-v8u`;
 								if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
@@ -10181,36 +10528,45 @@ passed: boolean;
 								} else {
 									CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
 								}
-								
+
 								if (onCredentialsChange) {
 									onCredentialsChange(updatedCredentials);
 								}
-								
-								toastV8.success(`Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`);
-								
+
+								toastV8.success(
+									`Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`
+								);
+
 								// Re-run validation
 								setPreFlightStatus('🔍 Re-validating configuration...');
-								const newOAuthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
-									specVersion,
-									flowType,
-									credentials: updatedCredentials,
-									...(workerToken && { workerToken }),
-								});
-								
+								const newOAuthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig(
+									{
+										specVersion,
+										flowType,
+										credentials: updatedCredentials,
+										...(workerToken && { workerToken }),
+									}
+								);
+
 								const newFixableErrors = PreFlightValidationServiceV8.analyzeFixableErrors(
 									newOAuthConfigResult.errors,
-									{ specVersion, flowType, credentials: updatedCredentials, ...(workerToken && { workerToken }) },
+									{
+										specVersion,
+										flowType,
+										credentials: updatedCredentials,
+										...(workerToken && { workerToken }),
+									},
 									undefined,
 									appConfig
 								);
-								
+
 								setPreFlightValidationResult({
 									passed: newOAuthConfigResult.passed,
 									errors: newOAuthConfigResult.errors,
 									warnings: newOAuthConfigResult.warnings,
 									fixableErrors: newFixableErrors,
 								});
-								
+
 								if (newOAuthConfigResult.errors.length > 0) {
 									setValidationErrors(newOAuthConfigResult.errors);
 									setValidationWarnings([]);
@@ -10256,7 +10612,7 @@ passed: boolean;
 							return;
 						}
 					}
-					
+
 					// Warnings only
 					if (validationResult && validationResult.warnings.length > 0) {
 						setValidationWarnings(validationResult.warnings);
@@ -10371,9 +10727,11 @@ passed: boolean;
 					<>
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
-								onClick={() => setClientCredentialsOverviewCollapsed(!clientCredentialsOverviewCollapsed)}
+								onClick={() =>
+									setClientCredentialsOverviewCollapsed(!clientCredentialsOverviewCollapsed)
+								}
 								aria-expanded={!clientCredentialsOverviewCollapsed}
-					>
+							>
 								<CollapsibleTitle>
 									<FiBook /> What is Client Credentials Flow?
 								</CollapsibleTitle>
@@ -10385,7 +10743,7 @@ passed: boolean;
 								<CollapsibleContent>
 									<InfoBox $variant="info">
 										<FiInfo size={20} />
-							<div>
+										<div>
 											<InfoTitle>Machine-to-Machine Authentication</InfoTitle>
 											<InfoText>
 												The Client Credentials Flow (RFC 6749 Section 4.4) is used for
@@ -10404,17 +10762,17 @@ passed: boolean;
 												<li>
 													<strong>Resources owned by the client:</strong> Access to data or services
 													belonging to the application itself
-										</li>
+												</li>
 												<li>
 													<strong>Resources belonging to multiple users:</strong> Batch operations,
 													aggregated data, or system-level access
-										</li>
+												</li>
 												<li>
 													<strong>No user context:</strong> Background jobs, scheduled tasks, or
 													automated processes
-										</li>
+												</li>
 											</InfoList>
-									</div>
+										</div>
 									</InfoBox>
 								</CollapsibleContent>
 							)}
@@ -10422,7 +10780,9 @@ passed: boolean;
 
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
-								onClick={() => setClientCredentialsDetailsCollapsed(!clientCredentialsDetailsCollapsed)}
+								onClick={() =>
+									setClientCredentialsDetailsCollapsed(!clientCredentialsDetailsCollapsed)
+								}
 								aria-expanded={!clientCredentialsDetailsCollapsed}
 							>
 								<CollapsibleTitle>
@@ -10445,7 +10805,7 @@ passed: boolean;
 													<li>Uses resource server scopes</li>
 													<li>Perfect for backend services</li>
 												</InfoList>
-								</div>
+											</div>
 										</InfoBox>
 
 										<InfoBox $variant="success">
@@ -10458,7 +10818,7 @@ passed: boolean;
 													<li>Uses OIDC scopes (openid, profile, email)</li>
 													<li>Perfect for user-facing applications</li>
 												</InfoList>
-							</div>
+											</div>
 										</InfoBox>
 									</ParameterGrid>
 
@@ -10468,8 +10828,9 @@ passed: boolean;
 											<InfoTitle>Resource Server Scopes Required</InfoTitle>
 											<InfoText>
 												Client Credentials flow requires resource server scopes (e.g., "api:read",
-												"ClaimScope", "custom:read", "api:write"). OIDC scopes (openid, profile, email) and
-												self-management scopes (p1:read:user) do not work with Client Credentials.
+												"ClaimScope", "custom:read", "api:write"). OIDC scopes (openid, profile,
+												email) and self-management scopes (p1:read:user) do not work with Client
+												Credentials.
 											</InfoText>
 											<InfoList>
 												<li>
@@ -10485,7 +10846,7 @@ passed: boolean;
 													api:write
 												</li>
 											</InfoList>
-						</div>
+										</div>
 									</InfoBox>
 
 									<InfoBox $variant="info">
@@ -10509,7 +10870,7 @@ passed: boolean;
 													automated workflows
 												</li>
 											</InfoList>
-					</div>
+										</div>
 									</InfoBox>
 								</CollapsibleContent>
 							)}
@@ -10729,7 +11090,7 @@ passed: boolean;
 
 			// Phase 3C: Enhanced PKCE retrieval using Phase 2 services or fallback
 			const useNewOidcCore = FeatureFlagService.isEnabled('USE_NEW_OIDC_CORE');
-			
+
 			let effectiveCodeVerifier = flowState.codeVerifier;
 			let effectiveCodeChallenge = flowState.codeChallenge;
 			let effectiveCodeChallengeMethod: 'S256' | 'plain' = 'S256'; // Default to S256
@@ -10737,14 +11098,14 @@ passed: boolean;
 			if (useNewOidcCore) {
 				// Use Phase 2 PkceManager for retrieval
 				console.log(`${MODULE_TAG} 🔐 Using Phase 2 PkceManager for PKCE retrieval`);
-				
+
 				try {
 					const storedPKCE = PkceManager.retrieve(flowKey);
 					if (storedPKCE) {
 						effectiveCodeVerifier = storedPKCE.codeVerifier;
 						effectiveCodeChallenge = storedPKCE.codeChallenge;
 						effectiveCodeChallengeMethod = 'S256' as const; // Phase 2 always uses S256
-						
+
 						console.log(`${MODULE_TAG} ✅ Loaded PKCE codes from Phase 2 PkceManager`, {
 							codeVerifierLength: effectiveCodeVerifier.length,
 							codeChallengeLength: effectiveCodeChallenge.length,
@@ -10752,13 +11113,18 @@ passed: boolean;
 							usingMethod: effectiveCodeChallengeMethod,
 						});
 					} else {
-						console.error(`${MODULE_TAG} ❌ No PKCE codes found in Phase 2 PkceManager for flow: ${flowKey}`);
+						console.error(
+							`${MODULE_TAG} ❌ No PKCE codes found in Phase 2 PkceManager for flow: ${flowKey}`
+						);
 						throw new Error(
 							'PKCE codes not found. Please go back and generate PKCE parameters first.'
 						);
 					}
 				} catch (error) {
-					console.error(`${MODULE_TAG} ❌ Failed to retrieve PKCE codes from Phase 2 PkceManager:`, error);
+					console.error(
+						`${MODULE_TAG} ❌ Failed to retrieve PKCE codes from Phase 2 PkceManager:`,
+						error
+					);
 					throw new Error(
 						'Failed to retrieve PKCE codes. Please go back and generate PKCE parameters again.'
 					);
@@ -10766,7 +11132,7 @@ passed: boolean;
 			} else {
 				// Fallback to old storage method
 				console.log(`${MODULE_TAG} 🔐 Using old PKCE storage method`);
-				
+
 				// BULLETPROOF: Load PKCE codes from quadruple-redundant storage
 				// Try sync first (fast), then async (includes IndexedDB)
 				let storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
@@ -10785,7 +11151,7 @@ passed: boolean;
 					if (storedPKCE.codeChallengeMethod && storedPKCE.codeChallengeMethod !== 'S256') {
 						console.warn(
 							`${MODULE_TAG} ⚠️ Stored PKCE codes have codeChallengeMethod='${storedPKCE.codeChallengeMethod}' instead of 'S256'. ` +
-							`This may cause PKCE mismatch. Please regenerate PKCE codes in Step 1.`
+								`This may cause PKCE mismatch. Please regenerate PKCE codes in Step 1.`
 						);
 					}
 					effectiveCodeChallengeMethod = 'S256' as const;
@@ -10797,268 +11163,307 @@ passed: boolean;
 						usingMethod: effectiveCodeChallengeMethod,
 					});
 
-				// Sync flowState
-				if (
-					flowState.codeVerifier !== effectiveCodeVerifier ||
-					flowState.codeChallenge !== effectiveCodeChallenge
-				) {
-					console.log(`${MODULE_TAG} 🔄 Syncing flowState with storage`);
-					setFlowState((prev) => ({
-						...prev,
-						...(effectiveCodeVerifier ? { codeVerifier: effectiveCodeVerifier } : {}),
-						...(effectiveCodeChallenge ? { codeChallenge: effectiveCodeChallenge } : {}),
-					}));
-				}
-			} else {
-				console.error(
-					`${MODULE_TAG} ❌ CRITICAL: No PKCE codes found in ANY of 4 storage locations!`
-				);
-				// If PKCE is enabled but codes are missing, this is a critical error
-				if (isPKCERequired) {
+					// Sync flowState
+					if (
+						flowState.codeVerifier !== effectiveCodeVerifier ||
+						flowState.codeChallenge !== effectiveCodeChallenge
+					) {
+						console.log(`${MODULE_TAG} 🔄 Syncing flowState with storage`);
+						setFlowState((prev) => ({
+							...prev,
+							...(effectiveCodeVerifier ? { codeVerifier: effectiveCodeVerifier } : {}),
+							...(effectiveCodeChallenge ? { codeChallenge: effectiveCodeChallenge } : {}),
+						}));
+					}
+				} else {
 					console.error(
-						`${MODULE_TAG} ❌ CRITICAL: PKCE enabled but no codes found in sessionStorage or flowState`
+						`${MODULE_TAG} ❌ CRITICAL: No PKCE codes found in ANY of 4 storage locations!`
 					);
-					console.error(
-						`${MODULE_TAG} User must either: 1) Go to Step 0 (Configuration) and generate PKCE codes in Advanced Options, or 2) Disable PKCE in configuration`
-					);
+					// If PKCE is enabled but codes are missing, this is a critical error
+					if (isPKCERequired) {
+						console.error(
+							`${MODULE_TAG} ❌ CRITICAL: PKCE enabled but no codes found in sessionStorage or flowState`
+						);
+						console.error(
+							`${MODULE_TAG} User must either: 1) Go to Step 0 (Configuration) and generate PKCE codes in Advanced Options, or 2) Disable PKCE in configuration`
+						);
+					}
 				}
-			}
 
-			console.log(`${MODULE_TAG} Flow State:`, {
-				authorizationCode: `${flowState.authorizationCode?.substring(0, 20)}...`,
-				codeVerifier: `${effectiveCodeVerifier?.substring(0, 20)}...`,
-				codeChallenge: `${effectiveCodeChallenge?.substring(0, 20)}...`,
-				hasAuthCode: !!flowState.authorizationCode,
-				hasCodeVerifier: !!effectiveCodeVerifier,
-				hasCodeChallenge: !!effectiveCodeChallenge,
-				fullCodeVerifierLength: effectiveCodeVerifier?.length,
-				fullCodeChallengeLength: effectiveCodeChallenge?.length,
-				pkceEnabled: isPKCERequired,
-				pkceEnforcement: credentials.pkceEnforcement,
-				pkceCodesMissing: isPKCERequired && !effectiveCodeVerifier,
-			});
-
-			console.log(`${MODULE_TAG} Credentials:`, {
-				environmentId: credentials.environmentId,
-				clientId: credentials.clientId,
-				hasClientSecret: !!credentials.clientSecret,
-				clientSecretLength: credentials.clientSecret?.length,
-				redirectUri: credentials.redirectUri,
-				usePKCE: isPKCERequired,
-				pkceEnforcement: credentials.pkceEnforcement,
-				scopes: credentials.scopes,
-				clientAuthMethod: credentials.clientAuthMethod,
-				responseType: credentials.responseType,
-			});
-
-			console.log(`${MODULE_TAG} Flow Type:`, flowType);
-			console.log(`${MODULE_TAG} Spec Version:`, specVersion);
-
-			// Validate required fields before attempting token exchange
-			if (!flowState.authorizationCode) {
-				console.error(`${MODULE_TAG} ❌ VALIDATION FAILED: Missing authorization code`);
-				setError('Authorization code is required. Please complete the callback step first.');
-				setValidationErrors(['Authorization code is required']);
-				return;
-			}
-
-			// CRITICAL: If PKCE is required, we MUST have a code verifier
-			// The service layer will reject the request if PKCE is required but no verifier is provided
-			if (isPKCERequired && !effectiveCodeVerifier) {
-				console.error(
-					`${MODULE_TAG} ❌ VALIDATION FAILED: PKCE required but code verifier missing`
-				);
-				const errorMsg = `PKCE is ${credentials.pkceEnforcement || 'REQUIRED'} but code verifier is missing. Please go back to Step 0 (Configuration) and generate PKCE codes in Advanced Options.`;
-				setError(errorMsg);
-				setValidationErrors([errorMsg]);
-				toastV8.error(errorMsg);
-				return;
-			}
-
-			if (isPKCERequired && effectiveCodeVerifier) {
-				console.log(
-					`${MODULE_TAG} ✅ PKCE required and code verifier present - will use PKCE flow`
-				);
-			}
-
-			// Validate credentials are present
-			if (!credentials.clientId || !credentials.clientId.trim()) {
-				console.error(`${MODULE_TAG} ❌ VALIDATION FAILED: Missing client ID`);
-				const errorMsg =
-					'Client ID is required for token exchange. Credentials may have been lost. Please check your configuration.';
-				setError(errorMsg);
-				setValidationErrors([errorMsg]);
-				console.error(`${MODULE_TAG} Missing clientId in credentials:`, {
-					credentials,
-					hasClientId: !!credentials.clientId,
-					clientIdValue: credentials.clientId,
+				console.log(`${MODULE_TAG} Flow State:`, {
+					authorizationCode: `${flowState.authorizationCode?.substring(0, 20)}...`,
+					codeVerifier: `${effectiveCodeVerifier?.substring(0, 20)}...`,
+					codeChallenge: `${effectiveCodeChallenge?.substring(0, 20)}...`,
+					hasAuthCode: !!flowState.authorizationCode,
+					hasCodeVerifier: !!effectiveCodeVerifier,
+					hasCodeChallenge: !!effectiveCodeChallenge,
+					fullCodeVerifierLength: effectiveCodeVerifier?.length,
+					fullCodeChallengeLength: effectiveCodeChallenge?.length,
+					pkceEnabled: isPKCERequired,
+					pkceEnforcement: credentials.pkceEnforcement,
+					pkceCodesMissing: isPKCERequired && !effectiveCodeVerifier,
 				});
-				return;
-			}
 
-			if (!credentials.environmentId || !credentials.environmentId.trim()) {
-				console.error(`${MODULE_TAG} ❌ VALIDATION FAILED: Missing environment ID`);
-				const errorMsg =
-					'Environment ID is required for token exchange. Please check your configuration.';
-				setError(errorMsg);
-				setValidationErrors([errorMsg]);
-				console.error(`${MODULE_TAG} Missing environmentId in credentials:`, {
-					credentials,
-					hasEnvironmentId: !!credentials.environmentId,
-				});
-				return;
-			}
-
-			// Redirect URI is only required when PKCE is NOT required
-			if (!isPKCERequired && (!credentials.redirectUri || !credentials.redirectUri.trim())) {
-				console.error(
-					`${MODULE_TAG} ❌ VALIDATION FAILED: PKCE not required and missing redirect URI`
-				);
-				const errorMsg =
-					'Redirect URI is required for token exchange when PKCE is not required. Please check your configuration.';
-				setError(errorMsg);
-				setValidationErrors([errorMsg]);
-				console.error(`${MODULE_TAG} Missing redirectUri in credentials (PKCE not required):`, {
-					credentials,
+				console.log(`${MODULE_TAG} Credentials:`, {
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
+					hasClientSecret: !!credentials.clientSecret,
+					clientSecretLength: credentials.clientSecret?.length,
+					redirectUri: credentials.redirectUri,
 					usePKCE: isPKCERequired,
 					pkceEnforcement: credentials.pkceEnforcement,
-					hasRedirectUri: !!credentials.redirectUri,
+					scopes: credentials.scopes,
+					clientAuthMethod: credentials.clientAuthMethod,
+					responseType: credentials.responseType,
 				});
-				return;
-			}
 
-			console.log(`${MODULE_TAG} ✅ All validations passed`);
-			console.log(`${MODULE_TAG} Preparing token exchange request with:`, {
-				flowType,
-				environmentId: credentials.environmentId,
-				clientId: credentials.clientId,
-				hasClientSecret: !!credentials.clientSecret,
-				redirectUri: credentials.redirectUri,
-				usePKCE: isPKCERequired,
-				pkceEnforcement: credentials.pkceEnforcement,
-				hasCodeVerifier: !!effectiveCodeVerifier,
-				authCodeLength: flowState.authorizationCode.length,
-				codeVerifierLength: effectiveCodeVerifier?.length,
-				clientAuthMethod: credentials.clientAuthMethod || 'client_secret_post (default)',
-			});
+				console.log(`${MODULE_TAG} Flow Type:`, flowType);
+				console.log(`${MODULE_TAG} Spec Version:`, specVersion);
 
-			// Final safety check: Ensure clientAuthMethod is synced from PingOne before token exchange
-			// This catches cases where app config wasn't fetched earlier or credentials were loaded before app config
-			let effectiveCredentials = credentials;
-			if (credentials.clientId && credentials.environmentId && (!credentials.clientAuthMethod || credentials.clientAuthMethod === 'client_secret_post')) {
-				try {
-					const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
-					const { ConfigCheckerServiceV8 } = await import('@/v8/services/configCheckerServiceV8');
-					const workerToken = await workerTokenServiceV8.getToken();
-					
-					if (workerToken) {
-						console.log(`${MODULE_TAG} 🔍 Final check: Fetching app config to ensure correct auth method...`);
-						const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
-							credentials.environmentId,
-							credentials.clientId,
-							workerToken
-						);
-						
-						if (appConfig?.tokenEndpointAuthMethod && credentials.clientAuthMethod !== appConfig.tokenEndpointAuthMethod) {
-							console.log(`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne before token exchange:`, {
-								from: credentials.clientAuthMethod || 'client_secret_post (default)',
-								to: appConfig.tokenEndpointAuthMethod,
-							});
-							// Create updated credentials with correct auth method from PingOne
-							effectiveCredentials = {
-								...credentials,
-								clientAuthMethod: appConfig.tokenEndpointAuthMethod as 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt' | 'none',
-							};
-						}
-					}
-				} catch (configError) {
-					console.warn(`${MODULE_TAG} ⚠️ Failed to fetch app config before token exchange (continuing with current auth method):`, configError);
-					// Continue with current auth method - don't fail token exchange
+				// Validate required fields before attempting token exchange
+				if (!flowState.authorizationCode) {
+					console.error(`${MODULE_TAG} ❌ VALIDATION FAILED: Missing authorization code`);
+					setError('Authorization code is required. Please complete the callback step first.');
+					setValidationErrors(['Authorization code is required']);
+					return;
 				}
-			}
 
-			setIsLoading(true);
-			setIsExchangingTokens(true);
-			setError(null);
-			setValidationErrors([]);
+				// CRITICAL: If PKCE is required, we MUST have a code verifier
+				// The service layer will reject the request if PKCE is required but no verifier is provided
+				if (isPKCERequired && !effectiveCodeVerifier) {
+					console.error(
+						`${MODULE_TAG} ❌ VALIDATION FAILED: PKCE required but code verifier missing`
+					);
+					const errorMsg = `PKCE is ${credentials.pkceEnforcement || 'REQUIRED'} but code verifier is missing. Please go back to Step 0 (Configuration) and generate PKCE codes in Advanced Options.`;
+					setError(errorMsg);
+					setValidationErrors([errorMsg]);
+					toastV8.error(errorMsg);
+					return;
+				}
 
-			try {
-				console.log(`${MODULE_TAG} 🚀 Calling UnifiedFlowIntegrationV8U.exchangeCodeForTokens...`);
-				console.log(`${MODULE_TAG} 🔑 Using code verifier:`, {
-					hasCodeVerifier: !!effectiveCodeVerifier,
-					codeVerifierLength: effectiveCodeVerifier?.length,
-					codeVerifierPreview: `${effectiveCodeVerifier?.substring(0, 20)}...`,
-				});
-				console.log(`${MODULE_TAG} 🔐 Using auth method:`, {
-					clientAuthMethod: effectiveCredentials.clientAuthMethod || 'client_secret_post (default)',
-					source: effectiveCredentials.clientAuthMethod !== credentials.clientAuthMethod ? 'from PingOne (just fetched)' : credentials.clientAuthMethod ? 'from credentials' : 'default',
-				});
-				const tokens = await UnifiedFlowIntegrationV8U.exchangeCodeForTokens(
-					flowType as 'oauth-authz' | 'hybrid',
-					effectiveCredentials, // Use effective credentials with correct auth method
-					flowState.authorizationCode,
-					effectiveCodeVerifier // Use the effective code verifier (from flowState or sessionStorage)
-				);
+				if (isPKCERequired && effectiveCodeVerifier) {
+					console.log(
+						`${MODULE_TAG} ✅ PKCE required and code verifier present - will use PKCE flow`
+					);
+				}
 
-				console.log(`${MODULE_TAG} ✅ Token exchange successful!`, {
-					hasAccessToken: !!tokens.access_token,
-					hasIdToken: !!tokens.id_token,
-					hasRefreshToken: !!tokens.refresh_token,
-					expiresIn: tokens.expires_in,
-					tokenType: tokens.token_type,
-					enableRefreshToken: credentials.enableRefreshToken,
-					scopesRequested: credentials.scopes,
-					refreshTokenInResponse: !!tokens.refresh_token,
-				});
-
-				// Warn if refresh token was expected but not received
-				if (credentials.enableRefreshToken && !tokens.refresh_token) {
-					console.warn(`${MODULE_TAG} ⚠️ Refresh token expected but not received`, {
-						enableRefreshToken: credentials.enableRefreshToken,
-						scopesRequested: credentials.scopes,
-						hasOfflineAccessScope: credentials.scopes?.includes('offline_access'),
-						note: 'Check that Refresh Token grant is enabled in PingOne application settings',
+				// Validate credentials are present
+				if (!credentials.clientId || !credentials.clientId.trim()) {
+					console.error(`${MODULE_TAG} ❌ VALIDATION FAILED: Missing client ID`);
+					const errorMsg =
+						'Client ID is required for token exchange. Credentials may have been lost. Please check your configuration.';
+					setError(errorMsg);
+					setValidationErrors([errorMsg]);
+					console.error(`${MODULE_TAG} Missing clientId in credentials:`, {
+						credentials,
+						hasClientId: !!credentials.clientId,
+						clientIdValue: credentials.clientId,
 					});
-					toastV8.warning('Refresh token not received. Ensure Refresh Token grant is enabled in PingOne and offline_access scope is in allowed scopes.');
+					return;
 				}
 
-				// Filter tokens based on spec version (OAuth 2.0/2.1 should not have id_token)
-				const filteredTokens = filterTokensBySpec(tokens as TokenResponse);
-				const tokensWithExtras = filteredTokens;
+				if (!credentials.environmentId || !credentials.environmentId.trim()) {
+					console.error(`${MODULE_TAG} ❌ VALIDATION FAILED: Missing environment ID`);
+					const errorMsg =
+						'Environment ID is required for token exchange. Please check your configuration.';
+					setError(errorMsg);
+					setValidationErrors([errorMsg]);
+					console.error(`${MODULE_TAG} Missing environmentId in credentials:`, {
+						credentials,
+						hasEnvironmentId: !!credentials.environmentId,
+					});
+					return;
+				}
 
-				const tokenState: NonNullable<FlowState['tokens']> = {
-					accessToken: tokensWithExtras.access_token,
-					expiresIn: tokensWithExtras.expires_in,
-				};
-				if (tokensWithExtras.id_token) {
-					tokenState.idToken = tokensWithExtras.id_token;
+				// Redirect URI is only required when PKCE is NOT required
+				if (!isPKCERequired && (!credentials.redirectUri || !credentials.redirectUri.trim())) {
+					console.error(
+						`${MODULE_TAG} ❌ VALIDATION FAILED: PKCE not required and missing redirect URI`
+					);
+					const errorMsg =
+						'Redirect URI is required for token exchange when PKCE is not required. Please check your configuration.';
+					setError(errorMsg);
+					setValidationErrors([errorMsg]);
+					console.error(`${MODULE_TAG} Missing redirectUri in credentials (PKCE not required):`, {
+						credentials,
+						usePKCE: isPKCERequired,
+						pkceEnforcement: credentials.pkceEnforcement,
+						hasRedirectUri: !!credentials.redirectUri,
+					});
+					return;
 				}
-				if (tokensWithExtras.refresh_token) {
-					tokenState.refreshToken = tokensWithExtras.refresh_token;
-				}
-				setFlowState({
-					...flowState,
-					tokens: tokenState,
+
+				console.log(`${MODULE_TAG} ✅ All validations passed`);
+				console.log(`${MODULE_TAG} Preparing token exchange request with:`, {
+					flowType,
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
+					hasClientSecret: !!credentials.clientSecret,
+					redirectUri: credentials.redirectUri,
+					usePKCE: isPKCERequired,
+					pkceEnforcement: credentials.pkceEnforcement,
+					hasCodeVerifier: !!effectiveCodeVerifier,
+					authCodeLength: flowState.authorizationCode.length,
+					codeVerifierLength: effectiveCodeVerifier?.length,
+					clientAuthMethod: credentials.clientAuthMethod || 'client_secret_post (default)',
 				});
-				nav.markStepComplete();
-				// Clear validation errors when tokens are successfully received
+
+				// Final safety check: Ensure clientAuthMethod is synced from PingOne before token exchange
+				// This catches cases where app config wasn't fetched earlier or credentials were loaded before app config
+				let effectiveCredentials = credentials;
+				if (
+					credentials.clientId &&
+					credentials.environmentId &&
+					(!credentials.clientAuthMethod || credentials.clientAuthMethod === 'client_secret_post')
+				) {
+					try {
+						const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+						const { ConfigCheckerServiceV8 } = await import('@/v8/services/configCheckerServiceV8');
+						const workerToken = await workerTokenServiceV8.getToken();
+
+						if (workerToken) {
+							console.log(
+								`${MODULE_TAG} 🔍 Final check: Fetching app config to ensure correct auth method...`
+							);
+							const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
+								credentials.environmentId,
+								credentials.clientId,
+								workerToken
+							);
+
+							if (
+								appConfig?.tokenEndpointAuthMethod &&
+								credentials.clientAuthMethod !== appConfig.tokenEndpointAuthMethod
+							) {
+								console.log(
+									`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne before token exchange:`,
+									{
+										from: credentials.clientAuthMethod || 'client_secret_post (default)',
+										to: appConfig.tokenEndpointAuthMethod,
+									}
+								);
+								// Create updated credentials with correct auth method from PingOne
+								effectiveCredentials = {
+									...credentials,
+									clientAuthMethod: appConfig.tokenEndpointAuthMethod as
+										| 'client_secret_basic'
+										| 'client_secret_post'
+										| 'client_secret_jwt'
+										| 'private_key_jwt'
+										| 'none',
+								};
+							}
+						}
+					} catch (configError) {
+						console.warn(
+							`${MODULE_TAG} ⚠️ Failed to fetch app config before token exchange (continuing with current auth method):`,
+							configError
+						);
+						// Continue with current auth method - don't fail token exchange
+					}
+				}
+
+				setIsLoading(true);
+				setIsExchangingTokens(true);
+				setError(null);
 				setValidationErrors([]);
 
-				// Fetch UserInfo if OIDC and access token available (using OIDC discovery)
-				if (specVersion === 'oidc' && tokens.access_token) {
-					try {
-						const userInfo = await fetchUserInfoWithDiscovery(
-							tokens.access_token,
-							credentials.environmentId
+				try {
+					console.log(
+						`${MODULE_TAG} 🚀 Calling UnifiedFlowIntegrationV8U.exchangeCodeForTokens...`
+					);
+					console.log(`${MODULE_TAG} 🔑 Using code verifier:`, {
+						hasCodeVerifier: !!effectiveCodeVerifier,
+						codeVerifierLength: effectiveCodeVerifier?.length,
+						codeVerifierPreview: `${effectiveCodeVerifier?.substring(0, 20)}...`,
+					});
+					console.log(`${MODULE_TAG} 🔐 Using auth method:`, {
+						clientAuthMethod:
+							effectiveCredentials.clientAuthMethod || 'client_secret_post (default)',
+						source:
+							effectiveCredentials.clientAuthMethod !== credentials.clientAuthMethod
+								? 'from PingOne (just fetched)'
+								: credentials.clientAuthMethod
+									? 'from credentials'
+									: 'default',
+					});
+					const tokens = await UnifiedFlowIntegrationV8U.exchangeCodeForTokens(
+						flowType as 'oauth-authz' | 'hybrid',
+						effectiveCredentials, // Use effective credentials with correct auth method
+						flowState.authorizationCode,
+						effectiveCodeVerifier // Use the effective code verifier (from flowState or sessionStorage)
+					);
+
+					console.log(`${MODULE_TAG} ✅ Token exchange successful!`, {
+						hasAccessToken: !!tokens.access_token,
+						hasIdToken: !!tokens.id_token,
+						hasRefreshToken: !!tokens.refresh_token,
+						expiresIn: tokens.expires_in,
+						tokenType: tokens.token_type,
+						enableRefreshToken: credentials.enableRefreshToken,
+						scopesRequested: credentials.scopes,
+						refreshTokenInResponse: !!tokens.refresh_token,
+					});
+
+					// Warn if refresh token was expected but not received
+					if (credentials.enableRefreshToken && !tokens.refresh_token) {
+						console.warn(`${MODULE_TAG} ⚠️ Refresh token expected but not received`, {
+							enableRefreshToken: credentials.enableRefreshToken,
+							scopesRequested: credentials.scopes,
+							hasOfflineAccessScope: credentials.scopes?.includes('offline_access'),
+							note: 'Check that Refresh Token grant is enabled in PingOne application settings',
+						});
+						toastV8.warning(
+							'Refresh token not received. Ensure Refresh Token grant is enabled in PingOne and offline_access scope is in allowed scopes.'
 						);
+					}
 
-						if (userInfo) {
-							setFlowState((prev) => ({ ...prev, userInfo }));
-							toastV8.userInfoFetched();
+					// Filter tokens based on spec version (OAuth 2.0/2.1 should not have id_token)
+					const filteredTokens = filterTokensBySpec(tokens as TokenResponse);
+					const tokensWithExtras = filteredTokens;
 
-							// Show success modal with user information
-							setShowUserInfoModal(true);
-						} else {
+					const tokenState: NonNullable<FlowState['tokens']> = {
+						accessToken: tokensWithExtras.access_token,
+						expiresIn: tokensWithExtras.expires_in,
+					};
+					if (tokensWithExtras.id_token) {
+						tokenState.idToken = tokensWithExtras.id_token;
+					}
+					if (tokensWithExtras.refresh_token) {
+						tokenState.refreshToken = tokensWithExtras.refresh_token;
+					}
+					setFlowState({
+						...flowState,
+						tokens: tokenState,
+					});
+					nav.markStepComplete();
+					// Clear validation errors when tokens are successfully received
+					setValidationErrors([]);
+
+					// Fetch UserInfo if OIDC and access token available (using OIDC discovery)
+					if (specVersion === 'oidc' && tokens.access_token) {
+						try {
+							const userInfo = await fetchUserInfoWithDiscovery(
+								tokens.access_token,
+								credentials.environmentId
+							);
+
+							if (userInfo) {
+								setFlowState((prev) => ({ ...prev, userInfo }));
+								toastV8.userInfoFetched();
+
+								// Show success modal with user information
+								setShowUserInfoModal(true);
+							} else {
+								toastV8.warning('UserInfo could not be fetched, but tokens were received');
+
+								// Still show modal if we have ID token with user info
+								if (tokensWithExtras.id_token) {
+									setShowUserInfoModal(true);
+								}
+							}
+						} catch (err) {
+							console.warn(`${MODULE_TAG} Failed to fetch UserInfo`, err);
 							toastV8.warning('UserInfo could not be fetched, but tokens were received');
 
 							// Still show modal if we have ID token with user info
@@ -11066,1445 +11471,928 @@ passed: boolean;
 								setShowUserInfoModal(true);
 							}
 						}
-					} catch (err) {
-						console.warn(`${MODULE_TAG} Failed to fetch UserInfo`, err);
-						toastV8.warning('UserInfo could not be fetched, but tokens were received');
-
-						// Still show modal if we have ID token with user info
-						if (tokensWithExtras.id_token) {
-							setShowUserInfoModal(true);
-						}
+					} else if (tokensWithExtras.id_token) {
+						// If we have ID token but no UserInfo, show modal with ID token data
+						setShowUserInfoModal(true);
 					}
-				} else if (tokensWithExtras.id_token) {
-					// If we have ID token but no UserInfo, show modal with ID token data
-					setShowUserInfoModal(true);
-				}
-				toastV8.tokenExchangeSuccess();
-				toastV8.stepCompleted(3);
-			} catch (err) {
-				const message = err instanceof Error ? err.message : 'Failed to exchange code for tokens';
+					toastV8.tokenExchangeSuccess();
+					toastV8.stepCompleted(3);
+				} catch (err) {
+					const message = err instanceof Error ? err.message : 'Failed to exchange code for tokens';
 
-				// Check for specific PKCE mismatch error with 'plain' code_challenge_method
-				// This happens when old PKCE codes with 'plain' method were used to generate the authorization URL
-				if (message.includes('plain code_challenge_method') || (message.includes('code_verifier') && message.includes('plain'))) {
-					console.error(`${MODULE_TAG} ❌ PKCE mismatch detected: Authorization URL was generated with 'plain' method`);
-					
-					// Automatically clear old PKCE codes with 'plain' method
-					try {
-						const storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
-						if (storedPKCE?.codeChallengeMethod === 'plain') {
-							console.log(`${MODULE_TAG} 🗑️ Clearing old PKCE codes with 'plain' method...`);
-							await PKCEStorageServiceV8U.clearPKCECodes(flowKey);
-							// Also clear from flowState by creating new state without PKCE properties
-							setFlowState((prev) => {
-								// eslint-disable-next-line @typescript-eslint/no-unused-vars
-								const { codeVerifier: _codeVerifier, codeChallenge: _codeChallenge, ...rest } = prev;
-								return rest;
-							});
-							console.log(`${MODULE_TAG} ✅ Old PKCE codes cleared`);
+					// Check for specific PKCE mismatch error with 'plain' code_challenge_method
+					// This happens when old PKCE codes with 'plain' method were used to generate the authorization URL
+					if (
+						message.includes('plain code_challenge_method') ||
+						(message.includes('code_verifier') && message.includes('plain'))
+					) {
+						console.error(
+							`${MODULE_TAG} ❌ PKCE mismatch detected: Authorization URL was generated with 'plain' method`
+						);
+
+						// Automatically clear old PKCE codes with 'plain' method
+						try {
+							const storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
+							if (storedPKCE?.codeChallengeMethod === 'plain') {
+								console.log(`${MODULE_TAG} 🗑️ Clearing old PKCE codes with 'plain' method...`);
+								await PKCEStorageServiceV8U.clearPKCECodes(flowKey);
+								// Also clear from flowState by creating new state without PKCE properties
+								setFlowState((prev) => {
+									// eslint-disable-next-line @typescript-eslint/no-unused-vars
+									const {
+										codeVerifier: _codeVerifier,
+										codeChallenge: _codeChallenge,
+										...rest
+									} = prev;
+									return rest;
+								});
+								console.log(`${MODULE_TAG} ✅ Old PKCE codes cleared`);
+							}
+						} catch (clearError) {
+							console.error(`${MODULE_TAG} Failed to clear old PKCE codes:`, clearError);
 						}
-					} catch (clearError) {
-						console.error(`${MODULE_TAG} Failed to clear old PKCE codes:`, clearError);
+
+						const enhancedMessage = `${message}\n\n🔧 FIX: Your authorization URL was generated with old PKCE codes using 'plain' method.\n\nPlease:\n1. Go back to Step 1 (Generate PKCE Parameters)\n2. Click "Generate PKCE Parameters" to create new codes with 'S256' method\n3. Go to Step 2 and click "Generate Authorization URL" again\n4. Complete authentication and try token exchange again\n\nNote: Old PKCE codes have been automatically cleared.`;
+						setError(enhancedMessage);
+						setValidationErrors([enhancedMessage]);
+						toastV8.error('PKCE method mismatch - old codes cleared, please regenerate');
+					} else if (message.includes('code_verifier') || message.includes('PKCE')) {
+						const enhancedMessage = `${message}\n\n💡 This error means your PingOne application requires PKCE. Please:\n1. Go back to Step 0 (Configuration)\n2. Open Advanced Options\n3. Generate PKCE parameters\n4. Start the flow again from Step 1`;
+						setError(enhancedMessage);
+						setValidationErrors([enhancedMessage]);
+						toastV8.error('PKCE required - please enable PKCE and restart the flow');
+					} else {
+						setError(message);
+						setValidationErrors([message]);
+						toastV8.error(message);
 					}
-					
-					const enhancedMessage = `${message}\n\n🔧 FIX: Your authorization URL was generated with old PKCE codes using 'plain' method.\n\nPlease:\n1. Go back to Step 1 (Generate PKCE Parameters)\n2. Click "Generate PKCE Parameters" to create new codes with 'S256' method\n3. Go to Step 2 and click "Generate Authorization URL" again\n4. Complete authentication and try token exchange again\n\nNote: Old PKCE codes have been automatically cleared.`;
-					setError(enhancedMessage);
-					setValidationErrors([enhancedMessage]);
-					toastV8.error('PKCE method mismatch - old codes cleared, please regenerate');
-				} else if (message.includes('code_verifier') || message.includes('PKCE')) {
-					const enhancedMessage = `${message}\n\n💡 This error means your PingOne application requires PKCE. Please:\n1. Go back to Step 0 (Configuration)\n2. Open Advanced Options\n3. Generate PKCE parameters\n4. Start the flow again from Step 1`;
-					setError(enhancedMessage);
-					setValidationErrors([enhancedMessage]);
-					toastV8.error('PKCE required - please enable PKCE and restart the flow');
-				} else {
-					setError(message);
-					setValidationErrors([message]);
-					toastV8.error(message);
+				} finally {
+					setIsLoading(false);
+					setIsExchangingTokens(false);
 				}
-			} finally {
-				setIsLoading(false);
-				setIsExchangingTokens(false);
 			}
+
+			return (
+				<div className="step-content">
+					<h2>Step 3: Exchange Code for Tokens</h2>
+					<p>Exchange the authorization code for access token and ID token.</p>
+
+					{flowState.tokens?.accessToken ? (
+						<div
+							style={{
+								padding: '16px',
+								background: '#d1fae5',
+								borderRadius: '6px',
+								color: '#065f46',
+								marginBottom: '24px',
+							}}
+						>
+							✅ Tokens already exchanged successfully! Authorization codes are single-use only.
+						</div>
+					) : flowState.authorizationCode ? (
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'center',
+								alignItems: 'center',
+								marginBottom: '24px',
+							}}
+						>
+							<ButtonSpinner
+								loading={isExchangingTokens}
+								onClick={handleExchangeTokens}
+								disabled={isLoading}
+								spinnerSize={16}
+								spinnerPosition="center"
+								loadingText="Exchanging..."
+								className="btn btn-next"
+							>
+								{isExchangingTokens ? '' : '🔄 Exchange Code for Tokens'}
+							</ButtonSpinner>
+						</div>
+					) : (
+						<div
+							style={{
+								padding: '12px',
+								background: '#fef3c7',
+								borderRadius: '6px',
+								color: '#92400e',
+								marginBottom: '24px',
+							}}
+						>
+							⚠️ Please complete the callback step first
+						</div>
+					)}
+
+					{error && !flowState.tokens?.accessToken && (
+						<ErrorDisplayWithRetry
+							error={error}
+							onRetry={handleExchangeTokens}
+							isLoading={isLoading}
+						/>
+					)}
+				</div>
+			);
 		};
 
-		return (
-			<div className="step-content">
-				<h2>Step 3: Exchange Code for Tokens</h2>
-				<p>Exchange the authorization code for access token and ID token.</p>
-
-				{flowState.tokens?.accessToken ? (
-					<div
-						style={{
-							padding: '16px',
-							background: '#d1fae5',
-							borderRadius: '6px',
-							color: '#065f46',
-							marginBottom: '24px',
-						}}
-					>
-						✅ Tokens already exchanged successfully! Authorization codes are single-use only.
-					</div>
-				) : flowState.authorizationCode ? (
-					<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '24px' }}>
-						<ButtonSpinner
-							loading={isExchangingTokens}
-							onClick={handleExchangeTokens}
-							disabled={isLoading}
-							spinnerSize={16}
-							spinnerPosition="center"
-							loadingText="Exchanging..."
-							className="btn btn-next"
-						>
-							{isExchangingTokens ? '' : '🔄 Exchange Code for Tokens'}
-						</ButtonSpinner>
-					</div>
-				) : (
-					<div
-						style={{
-							padding: '12px',
-							background: '#fef3c7',
-							borderRadius: '6px',
-							color: '#92400e',
-							marginBottom: '24px',
-						}}
-					>
-						⚠️ Please complete the callback step first
-					</div>
-				)}
-
-				{error && !flowState.tokens?.accessToken && (
-					<ErrorDisplayWithRetry
-						error={error}
-						onRetry={handleExchangeTokens}
-						isLoading={isLoading}
-					/>
-				)}
-			</div>
-		);
-	};
-
-	// Fetch UserInfo from OIDC endpoint (Step 6)
-	const handleFetchUserInfo = useCallback(async () => {
-		if (!credentials.environmentId || !flowState.tokens?.accessToken) {
-			return;
-		}
-
-		// Check if UserInfo is allowed for this flow
-		const canCallUserInfo = TokenOperationsServiceV8.isOperationAllowed(
-			flowType,
-			credentials.scopes,
-			'userinfo'
-		);
-
-		if (!canCallUserInfo) {
-			const rules = TokenOperationsServiceV8.getOperationRules(flowType, credentials.scopes);
-			const errorMsg = `UserInfo endpoint is not available. ${rules.userInfoReason}`;
-			console.warn(`${MODULE_TAG} ${errorMsg}`);
-			toastV8.error(errorMsg);
-			setUserInfoError(errorMsg);
-			return;
-		}
-
-		setUserInfoLoading(true);
-		setUserInfoError(null);
-
-		try {
-			const userInfo = await fetchUserInfoWithDiscovery(
-				flowState.tokens.accessToken,
-				credentials.environmentId
-			);
-
-			if (userInfo) {
-				setFlowState((prev) => ({ ...prev, userInfo }));
-				toastV8.success('UserInfo fetched successfully!');
-			} else {
-				throw new Error(
-					'Unable to fetch user information from the server. Please verify your access token is valid and has the required permissions.'
-				);
-			}
-		} catch (err) {
-			const message = err instanceof Error ? err.message : 'Failed to fetch UserInfo';
-			setUserInfoError(message);
-			toastV8.error(message);
-		} finally {
-			setUserInfoLoading(false);
-		}
-	}, [
-		credentials.environmentId,
-		credentials.scopes,
-		flowType,
-		flowState.tokens?.accessToken,
-		fetchUserInfoWithDiscovery,
-	]);
-
-	// Introspect token (access, refresh, or ID token)
-	const handleIntrospectToken = useCallback(
-		async (tokenType: 'access' | 'refresh' | 'id' = selectedTokenType) => {
-			console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION START ==========`);
-			console.log(`${MODULE_TAG} Introspecting ${tokenType} token`);
-			console.log(`${MODULE_TAG} Credentials check:`, {
-				hasEnvironmentId: !!credentials.environmentId,
-				hasClientId: !!credentials.clientId,
-				hasClientSecret: !!credentials.clientSecret,
-				hasAccessToken: !!flowState.tokens?.accessToken,
-				hasRefreshToken: !!flowState.tokens?.refreshToken,
-				hasIdToken: !!flowState.tokens?.idToken,
-				clientAuthMethod: credentials.clientAuthMethod,
-			});
-
-			// Check if introspection is allowed for this specific token type
-			let operation: 'introspect-access' | 'introspect-refresh' | 'introspect-id';
-			switch (tokenType) {
-				case 'access':
-					operation = 'introspect-access';
-					break;
-				case 'refresh':
-					operation = 'introspect-refresh';
-					break;
-				case 'id':
-					operation = 'introspect-id';
-					break;
+		// Fetch UserInfo from OIDC endpoint (Step 6)
+		const handleFetchUserInfo = useCallback(async () => {
+			if (!credentials.environmentId || !flowState.tokens?.accessToken) {
+				return;
 			}
 
-			const canIntrospect = TokenOperationsServiceV8.isOperationAllowed(
+			// Check if UserInfo is allowed for this flow
+			const canCallUserInfo = TokenOperationsServiceV8.isOperationAllowed(
 				flowType,
 				credentials.scopes,
-				operation
+				'userinfo'
 			);
 
-			if (!canIntrospect) {
+			if (!canCallUserInfo) {
 				const rules = TokenOperationsServiceV8.getOperationRules(flowType, credentials.scopes);
-				let errorMsg: string;
-				if (tokenType === 'refresh') {
-					errorMsg = `Refresh token introspection is not available for this flow. ${rules.introspectionReason}`;
-				} else if (tokenType === 'id') {
-					errorMsg = `ID token introspection is not recommended. ID tokens should be validated locally using JWT verification, not via the introspection endpoint.`;
-				} else {
-					errorMsg = `Access token introspection is not available for this flow. ${rules.introspectionReason}`;
-				}
+				const errorMsg = `UserInfo endpoint is not available. ${rules.userInfoReason}`;
 				console.warn(`${MODULE_TAG} ${errorMsg}`);
 				toastV8.error(errorMsg);
-				setIntrospectionError(errorMsg);
+				setUserInfoError(errorMsg);
 				return;
 			}
 
-			// Check for public client (no authentication)
-			if (credentials.clientAuthMethod === 'none') {
-				const errorMsg =
-					'Token introspection requires client authentication. Public clients (clientAuthMethod: "none") cannot authenticate to the introspection endpoint. To use introspection, configure your application with client_secret_basic or client_secret_post authentication.';
-				console.warn(`${MODULE_TAG} ${errorMsg}`);
-				toastV8.error(errorMsg);
-				setIntrospectionError(errorMsg);
-				return;
-			}
-
-			// Get the token to introspect based on token type
-			let tokenToIntrospect: string | undefined;
-			let tokenName: string;
-			switch (tokenType) {
-				case 'access':
-					tokenToIntrospect = flowState.tokens?.accessToken;
-					tokenName = 'Access Token';
-					break;
-				case 'refresh':
-					tokenToIntrospect = flowState.tokens?.refreshToken;
-					tokenName = 'Refresh Token';
-					break;
-				case 'id':
-					tokenToIntrospect = flowState.tokens?.idToken;
-					tokenName = 'ID Token';
-					break;
-			}
-
-			// Check for required credentials (client secret not required for public clients with PKCE)
-			if (
-				!credentials.environmentId ||
-				!credentials.clientId ||
-				!tokenToIntrospect
-			) {
-				const errorMsg = `Missing required ${tokenName.toLowerCase()} for token introspection`;
-				console.error(`${MODULE_TAG} ${errorMsg}`, {
-					environmentId: credentials.environmentId,
-					clientId: credentials.clientId,
-					clientSecret: credentials.clientSecret ? 'present' : 'missing',
-					clientAuthMethod: credentials.clientAuthMethod,
-					tokenType,
-					tokenAvailable: !!tokenToIntrospect,
-				});
-				toastV8.error(errorMsg);
-				return;
-			}
-
-			setIntrospectionLoading(true);
-			setIntrospectionError(null);
+			setUserInfoLoading(true);
+			setUserInfoError(null);
 
 			try {
-				// Discover the introspection endpoint from OIDC well-known configuration
-				const issuerUrl = `https://auth.pingone.com/${credentials.environmentId}`;
-				console.log(`${MODULE_TAG} Discovering endpoints from`, { issuerUrl });
-
-				const discoveryResult = await OidcDiscoveryServiceV8.discover(issuerUrl);
-				console.log(`${MODULE_TAG} Discovery result:`, {
-					success: discoveryResult.success,
-					hasIntrospectionEndpoint: !!discoveryResult.data?.introspectionEndpoint,
-					introspectionEndpoint: discoveryResult.data?.introspectionEndpoint,
-					discoveryError: discoveryResult.error,
-				});
-
-				let introspectionEndpoint: string;
-
-				// Fallback to standard endpoint if discovery fails or endpoint not found
-				if (!discoveryResult.success || !discoveryResult.data?.introspectionEndpoint) {
-					introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
-					console.warn(
-						`${MODULE_TAG} Discovery failed or no introspection endpoint, using fallback`,
-						{
-							introspectionEndpoint,
-							discoveryError: discoveryResult.error,
-						}
-					);
-				} else {
-					introspectionEndpoint = discoveryResult.data.introspectionEndpoint;
-				}
-
-				console.log(`${MODULE_TAG} Introspecting token at endpoint`, { introspectionEndpoint });
-
-				// Use backend proxy to avoid CORS issues
-				// Use relative URL in development to go through Vite proxy (avoids SSL errors)
-				const proxyEndpoint =
-					process.env.NODE_ENV === 'production'
-						? 'https://oauth-playground.vercel.app/api/introspect-token'
-						: '/api/introspect-token';
-
-				console.log(`${MODULE_TAG} Sending introspection request via proxy:`, {
-					tokenType,
-					tokenLength: tokenToIntrospect.length,
-					clientId: credentials.clientId,
-					introspectionEndpoint,
-					proxyEndpoint,
-				});
-
-				// Track API call for display
-				const { apiCallTrackerService: apiCallTrackerService5 } = await import('@/services/apiCallTrackerService');
-				const startTime5 = Date.now();
-				
-				const requestBody5 = {
-					token: '***REDACTED***',
-					token_type_hint:
-						tokenType === 'refresh'
-							? 'refresh_token'
-							: tokenType === 'id'
-								? 'id_token'
-								: 'access_token',
-					client_id: credentials.clientId,
-					// Only include client_secret if it's available
-					...(credentials.clientSecret && { client_secret: '***REDACTED***' }),
-					introspection_endpoint: introspectionEndpoint,
-					token_auth_method: credentials.clientAuthMethod || 'client_secret_post',
-				};
-
-				const callId5 = apiCallTrackerService5.trackApiCall({
-					method: 'POST',
-					url: proxyEndpoint,
-					actualPingOneUrl: introspectionEndpoint,
-					isProxy: true,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: requestBody5,
-					step: `unified-introspect-${tokenType}`,
-					flowType: 'unified',
-				});
-
-				const requestBody = {
-					token: tokenToIntrospect,
-					token_type_hint:
-						tokenType === 'refresh'
-							? 'refresh_token'
-							: tokenType === 'id'
-								? 'id_token'
-								: 'access_token',
-					client_id: credentials.clientId,
-					// Only include client_secret if it's available
-					...(credentials.clientSecret && { client_secret: credentials.clientSecret }),
-					introspection_endpoint: introspectionEndpoint,
-					token_auth_method: credentials.clientAuthMethod || 'client_secret_post',
-				};
-
-				const response = await fetch(proxyEndpoint, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify(requestBody),
-				});
-
-				// Parse response once (clone first to avoid consuming the body)
-				const responseClone5 = response.clone();
-				let responseData5: unknown;
-				try {
-					responseData5 = await responseClone5.json();
-				} catch {
-					responseData5 = { error: 'Failed to parse response' };
-				}
-
-				// Update API call with response
-				apiCallTrackerService5.updateApiCallResponse(
-					callId5,
-					{
-						status: response.status,
-						statusText: response.statusText,
-						data: responseData5,
-					},
-					Date.now() - startTime5
+				const userInfo = await fetchUserInfoWithDiscovery(
+					flowState.tokens.accessToken,
+					credentials.environmentId
 				);
 
-				console.log(`${MODULE_TAG} Introspection response status:`, {
-					status: response.status,
-					statusText: response.statusText,
-					ok: response.ok,
-				});
-
-				if (!response.ok) {
-					const errorData = responseData5 as { error?: string; message?: string };
-					const errorText = errorData.error || errorData.message || 'Unknown error';
-					console.error(`${MODULE_TAG} Introspection error response:`, errorText);
+				if (userInfo) {
+					setFlowState((prev) => ({ ...prev, userInfo }));
+					toastV8.success('UserInfo fetched successfully!');
+				} else {
 					throw new Error(
-						`Token introspection failed: ${response.status} ${response.statusText} - ${errorText}`
+						'Unable to fetch user information from the server. Please verify your access token is valid and has the required permissions.'
 					);
 				}
-
-				const data = responseData5 as Record<string, unknown>;
-				console.log(`${MODULE_TAG} Introspection data received:`, data);
-
-				setIntrospectionData(data);
-				setIntrospectionTokenType(tokenType);
-				toastV8.success(`${tokenName} introspected successfully!`);
-				console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION SUCCESS ==========`);
 			} catch (err) {
-				const message = err instanceof Error ? err.message : 'Failed to introspect token';
-				console.error(`${MODULE_TAG} Introspection error:`, err);
-				setIntrospectionError(message);
+				const message = err instanceof Error ? err.message : 'Failed to fetch UserInfo';
+				setUserInfoError(message);
 				toastV8.error(message);
-				console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION FAILED ==========`);
 			} finally {
-				setIntrospectionLoading(false);
+				setUserInfoLoading(false);
 			}
-		},
-		[
-			selectedTokenType,
+		}, [
+			credentials.environmentId,
+			credentials.scopes,
+			flowType,
+			flowState.tokens?.accessToken,
+			fetchUserInfoWithDiscovery,
+		]);
+
+		// Introspect token (access, refresh, or ID token)
+		const handleIntrospectToken = useCallback(
+			async (tokenType: 'access' | 'refresh' | 'id' = selectedTokenType) => {
+				console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION START ==========`);
+				console.log(`${MODULE_TAG} Introspecting ${tokenType} token`);
+				console.log(`${MODULE_TAG} Credentials check:`, {
+					hasEnvironmentId: !!credentials.environmentId,
+					hasClientId: !!credentials.clientId,
+					hasClientSecret: !!credentials.clientSecret,
+					hasAccessToken: !!flowState.tokens?.accessToken,
+					hasRefreshToken: !!flowState.tokens?.refreshToken,
+					hasIdToken: !!flowState.tokens?.idToken,
+					clientAuthMethod: credentials.clientAuthMethod,
+				});
+
+				// Check if introspection is allowed for this specific token type
+				let operation: 'introspect-access' | 'introspect-refresh' | 'introspect-id';
+				switch (tokenType) {
+					case 'access':
+						operation = 'introspect-access';
+						break;
+					case 'refresh':
+						operation = 'introspect-refresh';
+						break;
+					case 'id':
+						operation = 'introspect-id';
+						break;
+				}
+
+				const canIntrospect = TokenOperationsServiceV8.isOperationAllowed(
+					flowType,
+					credentials.scopes,
+					operation
+				);
+
+				if (!canIntrospect) {
+					const rules = TokenOperationsServiceV8.getOperationRules(flowType, credentials.scopes);
+					let errorMsg: string;
+					if (tokenType === 'refresh') {
+						errorMsg = `Refresh token introspection is not available for this flow. ${rules.introspectionReason}`;
+					} else if (tokenType === 'id') {
+						errorMsg = `ID token introspection is not recommended. ID tokens should be validated locally using JWT verification, not via the introspection endpoint.`;
+					} else {
+						errorMsg = `Access token introspection is not available for this flow. ${rules.introspectionReason}`;
+					}
+					console.warn(`${MODULE_TAG} ${errorMsg}`);
+					toastV8.error(errorMsg);
+					setIntrospectionError(errorMsg);
+					return;
+				}
+
+				// Check for public client (no authentication)
+				if (credentials.clientAuthMethod === 'none') {
+					const errorMsg =
+						'Token introspection requires client authentication. Public clients (clientAuthMethod: "none") cannot authenticate to the introspection endpoint. To use introspection, configure your application with client_secret_basic or client_secret_post authentication.';
+					console.warn(`${MODULE_TAG} ${errorMsg}`);
+					toastV8.error(errorMsg);
+					setIntrospectionError(errorMsg);
+					return;
+				}
+
+				// Get the token to introspect based on token type
+				let tokenToIntrospect: string | undefined;
+				let tokenName: string;
+				switch (tokenType) {
+					case 'access':
+						tokenToIntrospect = flowState.tokens?.accessToken;
+						tokenName = 'Access Token';
+						break;
+					case 'refresh':
+						tokenToIntrospect = flowState.tokens?.refreshToken;
+						tokenName = 'Refresh Token';
+						break;
+					case 'id':
+						tokenToIntrospect = flowState.tokens?.idToken;
+						tokenName = 'ID Token';
+						break;
+				}
+
+				// Check for required credentials (client secret not required for public clients with PKCE)
+				if (!credentials.environmentId || !credentials.clientId || !tokenToIntrospect) {
+					const errorMsg = `Missing required ${tokenName.toLowerCase()} for token introspection`;
+					console.error(`${MODULE_TAG} ${errorMsg}`, {
+						environmentId: credentials.environmentId,
+						clientId: credentials.clientId,
+						clientSecret: credentials.clientSecret ? 'present' : 'missing',
+						clientAuthMethod: credentials.clientAuthMethod,
+						tokenType,
+						tokenAvailable: !!tokenToIntrospect,
+					});
+					toastV8.error(errorMsg);
+					return;
+				}
+
+				setIntrospectionLoading(true);
+				setIntrospectionError(null);
+
+				try {
+					// Discover the introspection endpoint from OIDC well-known configuration
+					const issuerUrl = `https://auth.pingone.com/${credentials.environmentId}`;
+					console.log(`${MODULE_TAG} Discovering endpoints from`, { issuerUrl });
+
+					const discoveryResult = await OidcDiscoveryServiceV8.discover(issuerUrl);
+					console.log(`${MODULE_TAG} Discovery result:`, {
+						success: discoveryResult.success,
+						hasIntrospectionEndpoint: !!discoveryResult.data?.introspectionEndpoint,
+						introspectionEndpoint: discoveryResult.data?.introspectionEndpoint,
+						discoveryError: discoveryResult.error,
+					});
+
+					let introspectionEndpoint: string;
+
+					// Fallback to standard endpoint if discovery fails or endpoint not found
+					if (!discoveryResult.success || !discoveryResult.data?.introspectionEndpoint) {
+						introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
+						console.warn(
+							`${MODULE_TAG} Discovery failed or no introspection endpoint, using fallback`,
+							{
+								introspectionEndpoint,
+								discoveryError: discoveryResult.error,
+							}
+						);
+					} else {
+						introspectionEndpoint = discoveryResult.data.introspectionEndpoint;
+					}
+
+					console.log(`${MODULE_TAG} Introspecting token at endpoint`, { introspectionEndpoint });
+
+					// Use backend proxy to avoid CORS issues
+					// Use relative URL in development to go through Vite proxy (avoids SSL errors)
+					const proxyEndpoint =
+						process.env.NODE_ENV === 'production'
+							? 'https://oauth-playground.vercel.app/api/introspect-token'
+							: '/api/introspect-token';
+
+					console.log(`${MODULE_TAG} Sending introspection request via proxy:`, {
+						tokenType,
+						tokenLength: tokenToIntrospect.length,
+						clientId: credentials.clientId,
+						introspectionEndpoint,
+						proxyEndpoint,
+					});
+
+					// Track API call for display
+					const { apiCallTrackerService: apiCallTrackerService5 } = await import(
+						'@/services/apiCallTrackerService'
+					);
+					const startTime5 = Date.now();
+
+					const requestBody5 = {
+						token: '***REDACTED***',
+						token_type_hint:
+							tokenType === 'refresh'
+								? 'refresh_token'
+								: tokenType === 'id'
+									? 'id_token'
+									: 'access_token',
+						client_id: credentials.clientId,
+						// Only include client_secret if it's available
+						...(credentials.clientSecret && { client_secret: '***REDACTED***' }),
+						introspection_endpoint: introspectionEndpoint,
+						token_auth_method: credentials.clientAuthMethod || 'client_secret_post',
+					};
+
+					const callId5 = apiCallTrackerService5.trackApiCall({
+						method: 'POST',
+						url: proxyEndpoint,
+						actualPingOneUrl: introspectionEndpoint,
+						isProxy: true,
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: requestBody5,
+						step: `unified-introspect-${tokenType}`,
+						flowType: 'unified',
+					});
+
+					const requestBody = {
+						token: tokenToIntrospect,
+						token_type_hint:
+							tokenType === 'refresh'
+								? 'refresh_token'
+								: tokenType === 'id'
+									? 'id_token'
+									: 'access_token',
+						client_id: credentials.clientId,
+						// Only include client_secret if it's available
+						...(credentials.clientSecret && { client_secret: credentials.clientSecret }),
+						introspection_endpoint: introspectionEndpoint,
+						token_auth_method: credentials.clientAuthMethod || 'client_secret_post',
+					};
+
+					const response = await fetch(proxyEndpoint, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify(requestBody),
+					});
+
+					// Parse response once (clone first to avoid consuming the body)
+					const responseClone5 = response.clone();
+					let responseData5: unknown;
+					try {
+						responseData5 = await responseClone5.json();
+					} catch {
+						responseData5 = { error: 'Failed to parse response' };
+					}
+
+					// Update API call with response
+					apiCallTrackerService5.updateApiCallResponse(
+						callId5,
+						{
+							status: response.status,
+							statusText: response.statusText,
+							data: responseData5,
+						},
+						Date.now() - startTime5
+					);
+
+					console.log(`${MODULE_TAG} Introspection response status:`, {
+						status: response.status,
+						statusText: response.statusText,
+						ok: response.ok,
+					});
+
+					if (!response.ok) {
+						const errorData = responseData5 as { error?: string; message?: string };
+						const errorText = errorData.error || errorData.message || 'Unknown error';
+						console.error(`${MODULE_TAG} Introspection error response:`, errorText);
+						throw new Error(
+							`Token introspection failed: ${response.status} ${response.statusText} - ${errorText}`
+						);
+					}
+
+					const data = responseData5 as Record<string, unknown>;
+					console.log(`${MODULE_TAG} Introspection data received:`, data);
+
+					setIntrospectionData(data);
+					setIntrospectionTokenType(tokenType);
+					toastV8.success(`${tokenName} introspected successfully!`);
+					console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION SUCCESS ==========`);
+				} catch (err) {
+					const message = err instanceof Error ? err.message : 'Failed to introspect token';
+					console.error(`${MODULE_TAG} Introspection error:`, err);
+					setIntrospectionError(message);
+					toastV8.error(message);
+					console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION FAILED ==========`);
+				} finally {
+					setIntrospectionLoading(false);
+				}
+			},
+			[
+				selectedTokenType,
+				credentials.environmentId,
+				credentials.clientId,
+				credentials.clientSecret,
+				credentials.clientAuthMethod,
+				flowState.tokens?.accessToken,
+				flowState.tokens?.refreshToken,
+				flowState.tokens?.idToken,
+			]
+		);
+
+		// Handle token refresh
+		const handleRefreshToken = useCallback(async () => {
+			if (!flowState.tokens?.refreshToken) {
+				toastV8.error('Refresh token not available');
+				return;
+			}
+
+			if (!credentials.environmentId || !credentials.clientId) {
+				toastV8.error('Missing credentials required for token refresh');
+				return;
+			}
+
+			setRefreshLoading(true);
+			setRefreshError(null);
+			setRefreshResult(null);
+
+			try {
+				const { OAuthIntegrationServiceV8 } = await import(
+					'@/v8/services/oauthIntegrationServiceV8'
+				);
+
+				// Store old tokens for comparison
+				const oldTokens = {
+					...(flowState.tokens?.accessToken && { accessToken: flowState.tokens.accessToken }),
+					...(flowState.tokens?.refreshToken && { refreshToken: flowState.tokens.refreshToken }),
+				};
+
+				// Refresh the token
+				if (!flowState.tokens?.refreshToken) {
+					throw new Error('No refresh token available to refresh access token');
+				}
+
+				if (!credentials.redirectUri || !credentials.scopes) {
+					throw new Error('Redirect URI and scopes are required for token refresh');
+				}
+
+				const newTokenResponse = await OAuthIntegrationServiceV8.refreshAccessToken(
+					{
+						environmentId: credentials.environmentId,
+						clientId: credentials.clientId,
+						...(credentials.clientSecret && { clientSecret: credentials.clientSecret }),
+						redirectUri: credentials.redirectUri,
+						scopes: credentials.scopes,
+						clientAuthMethod: credentials.clientAuthMethod || 'client_secret_post',
+					},
+					flowState.tokens.refreshToken
+				);
+
+				// Update flow state with new tokens
+				const newTokens = {
+					accessToken: newTokenResponse.access_token,
+					refreshToken: newTokenResponse.refresh_token || flowState.tokens.refreshToken, // May reuse refresh token
+					expiresIn: newTokenResponse.expires_in,
+				};
+
+				// Update flow state
+				setFlowState((prev) => ({
+					...prev,
+					tokens: {
+						...prev.tokens,
+						...(newTokens.accessToken && { accessToken: newTokens.accessToken }),
+						...(newTokens.refreshToken && { refreshToken: newTokens.refreshToken }),
+						...(newTokenResponse.id_token && { idToken: newTokenResponse.id_token }),
+						...(newTokens.expiresIn && { expiresIn: newTokens.expiresIn }),
+					},
+				}));
+
+				// Store result for visualization
+				setRefreshResult({
+					oldTokens,
+					newTokens: {
+						...(newTokens.accessToken && { accessToken: newTokens.accessToken }),
+						...(newTokens.refreshToken && { refreshToken: newTokens.refreshToken }),
+					},
+				});
+
+				toastV8.success('Access token refreshed successfully!');
+				console.log(`${MODULE_TAG} ✅ Token refresh successful`, {
+					hasNewAccessToken: !!newTokens.accessToken,
+					hasNewRefreshToken: !!newTokens.refreshToken,
+					expiresIn: newTokens.expiresIn,
+				});
+			} catch (error) {
+				const message = error instanceof Error ? error.message : 'Failed to refresh token';
+				console.error(`${MODULE_TAG} ❌ Token refresh failed`, { error: message });
+				setRefreshError(message);
+				toastV8.error(message);
+			} finally {
+				setRefreshLoading(false);
+			}
+		}, [
+			flowState.tokens,
 			credentials.environmentId,
 			credentials.clientId,
 			credentials.clientSecret,
 			credentials.clientAuthMethod,
-			flowState.tokens?.accessToken,
-			flowState.tokens?.refreshToken,
-			flowState.tokens?.idToken,
-		]
-	);
+			setFlowState,
+		]);
 
-	// Handle token refresh
-	const handleRefreshToken = useCallback(async () => {
-		if (!flowState.tokens?.refreshToken) {
-			toastV8.error('Refresh token not available');
-			return;
-		}
-
-		if (!credentials.environmentId || !credentials.clientId) {
-			toastV8.error('Missing credentials required for token refresh');
-			return;
-		}
-
-		setRefreshLoading(true);
-		setRefreshError(null);
-		setRefreshResult(null);
-
-		try {
-			const { OAuthIntegrationServiceV8 } = await import('@/v8/services/oauthIntegrationServiceV8');
-
-			// Store old tokens for comparison
-			const oldTokens = {
-				...(flowState.tokens?.accessToken && { accessToken: flowState.tokens.accessToken }),
-				...(flowState.tokens?.refreshToken && { refreshToken: flowState.tokens.refreshToken }),
-			};
-
-			// Refresh the token
-			if (!flowState.tokens?.refreshToken) {
-				throw new Error('No refresh token available to refresh access token');
-			}
-			
-			if (!credentials.redirectUri || !credentials.scopes) {
-				throw new Error('Redirect URI and scopes are required for token refresh');
-			}
-
-			const newTokenResponse = await OAuthIntegrationServiceV8.refreshAccessToken(
-				{
-					environmentId: credentials.environmentId,
-					clientId: credentials.clientId,
-					...(credentials.clientSecret && { clientSecret: credentials.clientSecret }),
-					redirectUri: credentials.redirectUri,
-					scopes: credentials.scopes,
-					clientAuthMethod: credentials.clientAuthMethod || 'client_secret_post',
-				},
-				flowState.tokens.refreshToken
-			);
-
-			// Update flow state with new tokens
-			const newTokens = {
-				accessToken: newTokenResponse.access_token,
-				refreshToken: newTokenResponse.refresh_token || flowState.tokens.refreshToken, // May reuse refresh token
-				expiresIn: newTokenResponse.expires_in,
-			};
-
-			// Update flow state
-			setFlowState((prev) => ({
-				...prev,
-				tokens: {
-					...prev.tokens,
-					...(newTokens.accessToken && { accessToken: newTokens.accessToken }),
-					...(newTokens.refreshToken && { refreshToken: newTokens.refreshToken }),
-					...(newTokenResponse.id_token && { idToken: newTokenResponse.id_token }),
-					...(newTokens.expiresIn && { expiresIn: newTokens.expiresIn }),
-				},
-			}));
-
-			// Store result for visualization
-			setRefreshResult({
-				oldTokens,
-				newTokens: {
-					...(newTokens.accessToken && { accessToken: newTokens.accessToken }),
-					...(newTokens.refreshToken && { refreshToken: newTokens.refreshToken }),
-				},
-			});
-
-			toastV8.success('Access token refreshed successfully!');
-			console.log(`${MODULE_TAG} ✅ Token refresh successful`, {
-				hasNewAccessToken: !!newTokens.accessToken,
-				hasNewRefreshToken: !!newTokens.refreshToken,
-				expiresIn: newTokens.expiresIn,
-			});
-		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Failed to refresh token';
-			console.error(`${MODULE_TAG} ❌ Token refresh failed`, { error: message });
-			setRefreshError(message);
-			toastV8.error(message);
-		} finally {
-			setRefreshLoading(false);
-		}
-	}, [
-		flowState.tokens,
-		credentials.environmentId,
-		credentials.clientId,
-		credentials.clientSecret,
-		credentials.clientAuthMethod,
-		setFlowState,
-	]);
-
-	// Step 3: Display Tokens (all flows - final step)
-	const renderStep3Tokens = () => {
-		if (!flowState.tokens?.accessToken) {
-			return (
-				<div className="step-content">
-					<p style={{ color: '#6b7280', fontSize: '14px' }}>
-						No tokens received yet. Complete the previous steps to receive tokens.
-					</p>
-				</div>
-			);
-		}
-
-		return (
-			<div className="step-content">
-				{/* Spec Compliance Notice */}
-				{(specVersion === 'oauth2.0' || specVersion === 'oauth2.1') && (
-					<CollapsibleSection>
-						<CollapsibleHeaderButton
-							onClick={() => setSpecComplianceCollapsed(!specComplianceCollapsed)}
-							aria-expanded={!specComplianceCollapsed}
-							style={{
-								background: 'linear-gradient(135deg, #fef3c7 0%, #fef3c7 100%)',
-								border: '2px solid #f59e0b',
-							}}
-						>
-							<CollapsibleTitle>
-								<span style={{ fontSize: '20px' }}>📋</span>
-								Spec Compliance Notice
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={specComplianceCollapsed}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</CollapsibleHeaderButton>
-						{!specComplianceCollapsed && (
-							<CollapsibleContent>
-								<div>
-									<p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#78350f', lineHeight: '1.5' }}>
-										{specVersion === 'oauth2.0' && (
-											<>
-												<strong>OAuth 2.0</strong> only returns:{' '}
-												<code style={{ background: '#fde68a', padding: '2px 6px', borderRadius: '3px' }}>
-													access_token
-												</code>{' '}
-												and{' '}
-												<code style={{ background: '#fde68a', padding: '2px 6px', borderRadius: '3px' }}>
-													refresh_token
-												</code>
-											</>
-										)}
-										{specVersion === 'oauth2.1' && (
-											<>
-												<strong>OAuth 2.1 Authorization Framework (draft)</strong> only returns:{' '}
-												<code style={{ background: '#fde68a', padding: '2px 6px', borderRadius: '3px' }}>
-													access_token
-												</code>{' '}
-												and{' '}
-												<code style={{ background: '#fde68a', padding: '2px 6px', borderRadius: '3px' }}>
-													refresh_token
-												</code>
-											</>
-										)}
-									</p>
-									<p style={{ margin: '0', fontSize: '12px', color: '#92400e' }}>
-										<strong>Note:</strong> PingOne may return an{' '}
-										<code style={{ background: '#fde68a', padding: '2px 4px', borderRadius: '3px' }}>
-											id_token
-										</code>
-										, but it's filtered out to follow the{' '}
-										{specVersion === 'oauth2.0' ? 'OAuth 2.0 Authorization Framework (RFC 6749)' : 'OAuth 2.1 Authorization Framework (draft)'} spec. ID tokens are only
-										part of <strong>OpenID Connect Core 1.0</strong>. Note: When OAuth 2.1 (draft) is combined with OpenID Connect Core 1.0, it means "OIDC Core 1.0 using OAuth 2.1 (draft) baseline" and includes id_token.
-									</p>
-								</div>
-							</CollapsibleContent>
-						)}
-					</CollapsibleSection>
-				)}
-
-				{specVersion === 'oidc' && (
-					<CollapsibleSection>
-						<CollapsibleHeaderButton
-							onClick={() => setOidcTokenSetCollapsed(!oidcTokenSetCollapsed)}
-							aria-expanded={!oidcTokenSetCollapsed}
-							style={{
-								background: 'linear-gradient(135deg, #dbeafe 0%, #dbeafe 100%)',
-								border: '2px solid #3b82f6',
-							}}
-						>
-							<CollapsibleTitle>
-								<span style={{ fontSize: '20px' }}>🔐</span>
-								OIDC Token Set
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={oidcTokenSetCollapsed}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</CollapsibleHeaderButton>
-						{!oidcTokenSetCollapsed && (
-							<CollapsibleContent>
-								<div>
-									<p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#1e3a8a', lineHeight: '1.5' }}>
-										<strong>OIDC Core 1.0</strong> returns:{' '}
-										<code style={{ background: '#bfdbfe', padding: '2px 6px', borderRadius: '3px' }}>
-											access_token
-										</code>
-										,{' '}
-										<code style={{ background: '#bfdbfe', padding: '2px 6px', borderRadius: '3px' }}>
-											id_token
-										</code>
-										, and{' '}
-										<code style={{ background: '#bfdbfe', padding: '2px 6px', borderRadius: '3px' }}>
-											refresh_token
-										</code>
-										{flowState.tokens?.refreshToken ? ' (if requested)' : ' (not requested)'}
-									</p>
-									<p style={{ margin: '0', fontSize: '12px', color: '#1e40af' }}>
-										<strong>Note:</strong> ID tokens contain user identity information and can be validated locally using JWT verification without calling the introspection endpoint.
-									</p>
-								</div>
-							</CollapsibleContent>
-						)}
-					</CollapsibleSection>
-				)}
-
-				{/* Token Display Component with Decode */}
-				<TokenDisplayV8U
-					tokens={{
-						accessToken: flowState.tokens.accessToken,
-						...(flowState.tokens.idToken && { idToken: flowState.tokens.idToken }),
-						...(flowState.tokens.refreshToken && { refreshToken: flowState.tokens.refreshToken }),
-						...(flowState.tokens.expiresIn && { expiresIn: flowState.tokens.expiresIn }),
-					}}
-					showDecodeButtons={true}
-					showCopyButtons={true}
-				/>
-
-				{/* Info Box - Introspection and UserInfo moved to Step 6 */}
-				<div
-					style={{
-						marginTop: '24px',
-						padding: '12px 16px',
-						background: '#dbeafe',
-						border: '1px solid #3b82f6',
-						borderRadius: '8px',
-					}}
-				>
-					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-						<span style={{ fontSize: '20px', flexShrink: 0 }}>ℹ️</span>
-						<div>
-							<strong style={{ color: '#1e40af' }}>Next Step:</strong>
-							<p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#1e3a8a' }}>
-								Click "Next Step" or "View Introspection" to proceed to Token Introspection &
-								UserInfo step. The introspection step will show you what operations are available
-								for your flow, even if introspection or UserInfo cannot be used.
-							</p>
-						</div>
-					</div>
-				</div>
-			</div>
-		);
-	};
-
-	// UserInfo Success Modal - shown after successful authentication
-	const renderUserInfoModal = () => {
-		return (
-			<UserInfoSuccessModalV8U
-				isOpen={showUserInfoModal}
-				onClose={() => setShowUserInfoModal(false)}
-				{...(flowState.userInfo ? { userInfo: flowState.userInfo } : {})}
-				{...(flowState.tokens?.idToken ? { idToken: flowState.tokens.idToken } : {})}
-			/>
-		);
-	};
-
-	// Token Introspection & UserInfo (all flows - final step after tokens)
-	// Step number varies by flow type
-	// ALWAYS SHOWS - even without tokens, to inform users what they can/cannot do
-	const renderStep6IntrospectionUserInfo = () => {
-		// Check if we have tokens (needed for actual operations)
-		const hasAccessToken = !!flowState.tokens?.accessToken;
-		const hasRefreshToken = !!flowState.tokens?.refreshToken;
-		const hasIdToken = !!flowState.tokens?.idToken;
-		
-		// Get operation rules to determine what's allowed
-		// Use the actual scopes that were sent (including offline_access if enableRefreshToken was true)
-		const scopesForRules = credentials.scopes || '';
-		const operationRules = TokenOperationsServiceV8.getOperationRules(flowType, scopesForRules);
-		
-		// Debug logging for button state
-		console.log(`${MODULE_TAG} [INTROSPECTION BUTTON DEBUG]`, {
-			flowType,
-			scopes: credentials.scopes,
-			hasAccessToken,
-			hasRefreshToken,
-			hasIdToken,
-			selectedTokenType,
-			operationRules,
-			buttonDisabled: (selectedTokenType === 'access' &&
-				(!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
-				(selectedTokenType === 'refresh' &&
-					(!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
-				(selectedTokenType === 'id' &&
-					(!hasIdToken || !operationRules.canIntrospectIdToken)) ||
-				introspectionLoading,
-			introspectionLoading,
-		});
-
-		// Determine step number dynamically based on flow type
-		const introspectionStepNumber = (() => {
-			switch (flowType) {
-				case 'client-credentials':
-					return 3; // Step 4 (0-indexed: 0, 1, 2, 3)
-				case 'implicit':
-				case 'device-code':
-					return 4; // Step 5 (0-indexed: 0, 1, 2, 3, 4)
-				case 'hybrid':
-					return 5; // Step 6 (PKCE is in Advanced Options, not a separate step)
-				default:
-					return 5; // Step 6 (PKCE is in Advanced Options, not a separate step)
-			}
-		})();
-
-		return (
-			<div className="step-content">
-				<h2>Step {introspectionStepNumber + 1}: Token Introspection & UserInfo</h2>
-				<p>
-					Validate your access token and retrieve user information (optional). This step is always
-					available to show you what operations are supported for your flow type and configuration.
-				</p>
-
-				{/* Status indicator - show if tokens are missing */}
-				{!hasAccessToken && (
-					<div
-						style={{
-							marginTop: '16px',
-							padding: '12px 16px',
-							background: '#fef3c7',
-							border: '1px solid #f59e0b',
-							borderRadius: '8px',
-							color: '#92400e',
-						}}
-					>
-						<strong>⚠️ Tokens not yet available</strong>
-						<p style={{ margin: '4px 0 0 0', fontSize: '14px' }}>
-							Complete the previous steps to receive tokens. The buttons below will be enabled once
-							tokens are available.
+		// Step 3: Display Tokens (all flows - final step)
+		const renderStep3Tokens = () => {
+			if (!flowState.tokens?.accessToken) {
+				return (
+					<div className="step-content">
+						<p style={{ color: '#6b7280', fontSize: '14px' }}>
+							No tokens received yet. Complete the previous steps to receive tokens.
 						</p>
 					</div>
-				)}
+				);
+			}
 
-				{/* UserInfo Section - ALWAYS SHOWS with status and disabled buttons */}
-				<div
-					style={{
-						marginTop: '24px',
-						padding: '16px',
-						background: operationRules.canCallUserInfo ? '#f0f9ff' : '#f3f4f6', // Light blue if allowed, gray if not
-						borderRadius: '8px',
-						border: `1px solid ${operationRules.canCallUserInfo ? '#0ea5e9' : '#9ca3af'}`,
-					}}
-				>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-						<span style={{ fontSize: '24px' }}>👤</span>
-						<h3
-							style={{
-								margin: 0,
-								fontSize: '18px',
-								color: operationRules.canCallUserInfo ? '#1e40af' : '#6b7280',
-								flex: 1,
-							}}
-						>
-							UserInfo
-							{operationRules.canCallUserInfo ? (
-								<span
-									style={{
-										marginLeft: '8px',
-										fontSize: '14px',
-										color: '#22c55e',
-										fontWeight: 'normal',
-									}}
-								>
-									✅ Available
-								</span>
-							) : (
-								<span
-									style={{
-										marginLeft: '8px',
-										fontSize: '14px',
-										color: '#ef4444',
-										fontWeight: 'normal',
-									}}
-								>
-									❌ Not Available
-								</span>
-							)}
-						</h3>
-					</div>
-
-					{/* Status explanation */}
-					<div
-						style={{
-							padding: '12px',
-							background: operationRules.canCallUserInfo ? '#dbeafe' : '#fee2e2',
-							border: `1px solid ${operationRules.canCallUserInfo ? '#3b82f6' : '#ef4444'}`,
-							borderRadius: '6px',
-							marginBottom: '12px',
-							color: operationRules.canCallUserInfo ? '#1e3a8a' : '#991b1b',
-							fontSize: '14px',
-						}}
-					>
-						<strong>{operationRules.canCallUserInfo ? '✅ ' : '❌ '}</strong>
-						{operationRules.userInfoReason}
-						{operationRules.userInfoExplanation && (
-							<div style={{ marginTop: '8px', fontSize: '13px', opacity: 0.9 }}>
-								{operationRules.userInfoExplanation}
-							</div>
-						)}
-					</div>
-
-					<p
-						style={{
-							margin: '0 0 12px 0',
-							color: operationRules.canCallUserInfo ? '#1e3a8a' : '#6b7280',
-							fontSize: '14px',
-						}}
-					>
-						Retrieve authenticated user information using your access token.
-					</p>
-					{userInfoError && (
-						<div
-							style={{
-								padding: '12px',
-								background: '#fee2e2',
-								border: '1px solid #ef4444',
-								borderRadius: '6px',
-								color: '#991b1b',
-								marginBottom: '12px',
-							}}
-						>
-							❌ {userInfoError}
-						</div>
-					)}
-					{flowState.userInfo ? (
-						<>
-							<div
+			return (
+				<div className="step-content">
+					{/* Spec Compliance Notice */}
+					{(specVersion === 'oauth2.0' || specVersion === 'oauth2.1') && (
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setSpecComplianceCollapsed(!specComplianceCollapsed)}
+								aria-expanded={!specComplianceCollapsed}
 								style={{
-									padding: '12px',
-									background: '#d1fae5',
-									border: '1px solid #22c55e',
-									borderRadius: '6px',
-									color: '#065f46',
-									marginBottom: '12px',
+									background: 'linear-gradient(135deg, #fef3c7 0%, #fef3c7 100%)',
+									border: '2px solid #f59e0b',
 								}}
 							>
-								✅ UserInfo retrieved successfully
-							</div>
-							<div
-								style={{
-									padding: '16px',
-									background: '#ffffff',
-									border: '1px solid #e5e7eb',
-									borderRadius: '6px',
-									marginBottom: '12px',
-								}}
-							>
-								<div
-									style={{
-										fontWeight: '600',
-										marginBottom: '8px',
-										color: '#1f2937',
-										fontSize: '14px',
-									}}
-								>
-									UserInfo Data:
-								</div>
-								<pre
-									style={{
-										margin: 0,
-										padding: '12px',
-										background: '#f9fafb',
-										borderRadius: '4px',
-										border: '1px solid #e5e7eb',
-										fontSize: '12px',
-										fontFamily: 'monospace',
-										overflow: 'auto',
-										maxHeight: '300px',
-										color: '#1f2937',
-									}}
-								>
-									{JSON.stringify(flowState.userInfo, null, 2)}
-								</pre>
-							</div>
-						</>
-					) : (
-						<button
-							type="button"
-							onClick={handleFetchUserInfo}
-							disabled={!hasAccessToken || !operationRules.canCallUserInfo || userInfoLoading}
-							style={{
-								padding: '10px 16px',
-								background:
-									!hasAccessToken || !operationRules.canCallUserInfo ? '#9ca3af' : '#0ea5e9',
-								color: 'white',
-								border: 'none',
-								borderRadius: '6px',
-								cursor:
-									!hasAccessToken || !operationRules.canCallUserInfo ? 'not-allowed' : 'pointer',
-								fontSize: '14px',
-								fontWeight: '600',
-								opacity: !hasAccessToken || !operationRules.canCallUserInfo ? 0.6 : 1,
-							}}
-							title={
-								!hasAccessToken
-									? 'Access token required - complete previous steps first'
-									: !operationRules.canCallUserInfo
-										? operationRules.userInfoReason
-										: 'Fetch user information'
-							}
-						>
-							{userInfoLoading ? 'Fetching...' : 'Fetch UserInfo'}
-						</button>
-					)}
-				</div>
-
-				{/* Token Introspection Section - ALWAYS SHOWS with status and disabled buttons */}
-				<div
-					style={{
-						marginTop: '24px',
-						padding: '16px',
-						background: operationRules.canIntrospectAccessToken && hasAccessToken ? '#fef3c7' : '#f3f4f6', // Light yellow if allowed and token available, gray if not
-						borderRadius: '8px',
-						border: `1px solid ${operationRules.canIntrospectAccessToken && hasAccessToken ? '#f59e0b' : '#9ca3af'}`,
-					}}
-				>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-						<span style={{ fontSize: '24px' }}>🔍</span>
-						<h3
-							style={{
-								margin: 0,
-								fontSize: '18px',
-								color: operationRules.canIntrospectAccessToken && hasAccessToken ? '#92400e' : '#6b7280',
-								flex: 1,
-							}}
-						>
-							Token Introspection
-							{operationRules.canIntrospectAccessToken && hasAccessToken ? (
-								<span
-									style={{
-										marginLeft: '8px',
-										fontSize: '14px',
-										color: '#22c55e',
-										fontWeight: 'normal',
-									}}
-								>
-									✅ Available
-								</span>
-							) : (
-								<span
-									style={{
-										marginLeft: '8px',
-										fontSize: '14px',
-										color: '#ef4444',
-										fontWeight: 'normal',
-									}}
-								>
-									❌ {!hasAccessToken ? 'Access Token Required' : 'Not Available'}
-								</span>
-							)}
-						</h3>
-					</div>
-
-					{/* Status explanation */}
-					<div
-						style={{
-							padding: '12px',
-							background: operationRules.canIntrospectAccessToken && hasAccessToken ? '#fef3c7' : '#fee2e2',
-							border: `1px solid ${operationRules.canIntrospectAccessToken && hasAccessToken ? '#f59e0b' : '#ef4444'}`,
-							borderRadius: '6px',
-							marginBottom: '12px',
-							color: operationRules.canIntrospectAccessToken && hasAccessToken ? '#78350f' : '#991b1b',
-							fontSize: '14px',
-						}}
-					>
-						<strong>{operationRules.canIntrospectAccessToken && hasAccessToken ? '✅ ' : '❌ '}</strong>
-						{!hasAccessToken 
-							? 'Access token required - complete the token exchange step first'
-							: !operationRules.canIntrospectAccessToken
-								? operationRules.introspectionReason
-								: operationRules.introspectionReason
-						}
-						{operationRules.introspectionExplanation && (
-							<div style={{ marginTop: '8px', fontSize: '13px', opacity: 0.9 }}>
-								{operationRules.introspectionExplanation}
-								{!hasAccessToken && (
-									<div style={{ marginTop: '8px', fontWeight: '600' }}>
-										💡 Complete Step 3 (Exchange Code for Tokens) to receive an access token.
+								<CollapsibleTitle>
+									<span style={{ fontSize: '20px' }}>📋</span>
+									Spec Compliance Notice
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={specComplianceCollapsed}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!specComplianceCollapsed && (
+								<CollapsibleContent>
+									<div>
+										<p
+											style={{
+												margin: '0 0 12px 0',
+												fontSize: '13px',
+												color: '#78350f',
+												lineHeight: '1.5',
+											}}
+										>
+											{specVersion === 'oauth2.0' && (
+												<>
+													<strong>OAuth 2.0</strong> only returns:{' '}
+													<code
+														style={{
+															background: '#fde68a',
+															padding: '2px 6px',
+															borderRadius: '3px',
+														}}
+													>
+														access_token
+													</code>{' '}
+													and{' '}
+													<code
+														style={{
+															background: '#fde68a',
+															padding: '2px 6px',
+															borderRadius: '3px',
+														}}
+													>
+														refresh_token
+													</code>
+												</>
+											)}
+											{specVersion === 'oauth2.1' && (
+												<>
+													<strong>OAuth 2.1 Authorization Framework (draft)</strong> only returns:{' '}
+													<code
+														style={{
+															background: '#fde68a',
+															padding: '2px 6px',
+															borderRadius: '3px',
+														}}
+													>
+														access_token
+													</code>{' '}
+													and{' '}
+													<code
+														style={{
+															background: '#fde68a',
+															padding: '2px 6px',
+															borderRadius: '3px',
+														}}
+													>
+														refresh_token
+													</code>
+												</>
+											)}
+										</p>
+										<p style={{ margin: '0', fontSize: '12px', color: '#92400e' }}>
+											<strong>Note:</strong> PingOne may return an{' '}
+											<code
+												style={{ background: '#fde68a', padding: '2px 4px', borderRadius: '3px' }}
+											>
+												id_token
+											</code>
+											, but it's filtered out to follow the{' '}
+											{specVersion === 'oauth2.0'
+												? 'OAuth 2.0 Authorization Framework (RFC 6749)'
+												: 'OAuth 2.1 Authorization Framework (draft)'}{' '}
+											spec. ID tokens are only part of <strong>OpenID Connect Core 1.0</strong>.
+											Note: When OAuth 2.1 (draft) is combined with OpenID Connect Core 1.0, it
+											means "OIDC Core 1.0 using OAuth 2.1 (draft) baseline" and includes id_token.
+										</p>
 									</div>
-								)}
-							</div>
-						)}
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+					)}
 
-						{/* Show what tokens can be introspected */}
-						<div
-							style={{
-								marginTop: '12px',
-								fontSize: '13px',
-								paddingTop: '12px',
-								borderTop: '1px solid rgba(0,0,0,0.1)',
-							}}
-						>
-							<strong>What can be introspected:</strong>
-							<ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
-								<li style={{ marginTop: '4px' }}>
-									{operationRules.canIntrospectAccessToken ? '✅' : '❌'} Access Token
-								</li>
-								<li style={{ marginTop: '4px' }}>
-									{operationRules.canIntrospectRefreshToken ? '✅' : '❌'} Refresh Token
-									{hasRefreshToken ? ' (available)' : ' (not issued in this flow)'}
-								</li>
-							<li style={{ marginTop: '4px' }}>
-								{operationRules.canIntrospectIdToken ? '✅' : '❌'} ID Token
-								{hasIdToken ? ' (available)' : ' (not issued in this flow)'}
-								{!operationRules.canIntrospectIdToken && hasIdToken && (
-									<>
-										{' - '}
-										<span style={{ fontWeight: 600, color: '#dc2626' }}>
-											Do not introspect ID tokens
-										</span>
-										<div style={{ 
-											marginTop: '8px', 
-											marginLeft: '20px',
-											padding: '8px 12px',
-											background: '#fef3c7',
-											border: '1px solid #fbbf24',
-											borderRadius: '6px',
-											fontSize: '13px',
-											lineHeight: '1.6'
-										}}>
-											<strong>Why?</strong> ID tokens are JWTs designed to be validated locally by your application, not by calling the introspection endpoint.
-											<br /><br />
-											<strong>How to validate:</strong>
-											<ol style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
-												<li>Verify the JWT signature using the JWKS endpoint</li>
-												<li>Validate claims (iss, aud, exp, iat, nonce)</li>
-												<li>Check the token hasn't expired</li>
-											</ol>
-											<div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-												<button
-													type="button"
-													onClick={() => setShowIdTokenValidationModal(true)}
-													style={{
-														padding: '10px 16px',
-														background: '#667eea',
-														color: 'white',
-														border: 'none',
-														borderRadius: '6px',
-														fontSize: '13px',
-														fontWeight: '500',
-														cursor: 'pointer',
-														display: 'inline-flex',
-														alignItems: 'center',
-														gap: '6px',
-														alignSelf: 'flex-start',
-													}}
-												>
-													🔐 Validate ID Token Locally
-												</button>
-												<a 
-													href="https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation" 
-													target="_blank" 
-													rel="noopener noreferrer"
-													style={{ 
-														color: '#2563eb', 
-														textDecoration: 'underline',
-														fontWeight: 500,
-														fontSize: '13px'
-													}}
-												>
-													📖 Learn more: OIDC ID Token Validation Spec →
-												</a>
-											</div>
-										</div>
-									</>
-								)}
-							</li>
-							</ul>
-						</div>
-					</div>
+					{specVersion === 'oidc' && (
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setOidcTokenSetCollapsed(!oidcTokenSetCollapsed)}
+								aria-expanded={!oidcTokenSetCollapsed}
+								style={{
+									background: 'linear-gradient(135deg, #dbeafe 0%, #dbeafe 100%)',
+									border: '2px solid #3b82f6',
+								}}
+							>
+								<CollapsibleTitle>
+									<span style={{ fontSize: '20px' }}>🔐</span>
+									OIDC Token Set
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={oidcTokenSetCollapsed}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!oidcTokenSetCollapsed && (
+								<CollapsibleContent>
+									<div>
+										<p
+											style={{
+												margin: '0 0 12px 0',
+												fontSize: '13px',
+												color: '#1e3a8a',
+												lineHeight: '1.5',
+											}}
+										>
+											<strong>OIDC Core 1.0</strong> returns:{' '}
+											<code
+												style={{ background: '#bfdbfe', padding: '2px 6px', borderRadius: '3px' }}
+											>
+												access_token
+											</code>
+											,{' '}
+											<code
+												style={{ background: '#bfdbfe', padding: '2px 6px', borderRadius: '3px' }}
+											>
+												id_token
+											</code>
+											, and{' '}
+											<code
+												style={{ background: '#bfdbfe', padding: '2px 6px', borderRadius: '3px' }}
+											>
+												refresh_token
+											</code>
+											{flowState.tokens?.refreshToken ? ' (if requested)' : ' (not requested)'}
+										</p>
+										<p style={{ margin: '0', fontSize: '12px', color: '#1e40af' }}>
+											<strong>Note:</strong> ID tokens contain user identity information and can be
+											validated locally using JWT verification without calling the introspection
+											endpoint.
+										</p>
+									</div>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+					)}
 
-					<p
+					{/* Token Display Component with Decode */}
+					<TokenDisplayV8U
+						tokens={{
+							accessToken: flowState.tokens.accessToken,
+							...(flowState.tokens.idToken && { idToken: flowState.tokens.idToken }),
+							...(flowState.tokens.refreshToken && { refreshToken: flowState.tokens.refreshToken }),
+							...(flowState.tokens.expiresIn && { expiresIn: flowState.tokens.expiresIn }),
+						}}
+						showDecodeButtons={true}
+						showCopyButtons={true}
+					/>
+
+					{/* Info Box - Introspection and UserInfo moved to Step 6 */}
+					<div
 						style={{
-							margin: '0 0 12px 0',
-							color: operationRules.canIntrospectAccessToken ? '#78350f' : '#6b7280',
-							fontSize: '14px',
+							marginTop: '24px',
+							padding: '12px 16px',
+							background: '#dbeafe',
+							border: '1px solid #3b82f6',
+							borderRadius: '8px',
 						}}
 					>
-						Validate your tokens and retrieve their metadata.
+						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+							<span style={{ fontSize: '20px', flexShrink: 0 }}>ℹ️</span>
+							<div>
+								<strong style={{ color: '#1e40af' }}>Next Step:</strong>
+								<p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#1e3a8a' }}>
+									Click "Next Step" or "View Introspection" to proceed to Token Introspection &
+									UserInfo step. The introspection step will show you what operations are available
+									for your flow, even if introspection or UserInfo cannot be used.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			);
+		};
+
+		// UserInfo Success Modal - shown after successful authentication
+		const renderUserInfoModal = () => {
+			return (
+				<UserInfoSuccessModalV8U
+					isOpen={showUserInfoModal}
+					onClose={() => setShowUserInfoModal(false)}
+					{...(flowState.userInfo ? { userInfo: flowState.userInfo } : {})}
+					{...(flowState.tokens?.idToken ? { idToken: flowState.tokens.idToken } : {})}
+				/>
+			);
+		};
+
+		// Token Introspection & UserInfo (all flows - final step after tokens)
+		// Step number varies by flow type
+		// ALWAYS SHOWS - even without tokens, to inform users what they can/cannot do
+		const renderStep6IntrospectionUserInfo = () => {
+			// Check if we have tokens (needed for actual operations)
+			const hasAccessToken = !!flowState.tokens?.accessToken;
+			const hasRefreshToken = !!flowState.tokens?.refreshToken;
+			const hasIdToken = !!flowState.tokens?.idToken;
+
+			// Get operation rules to determine what's allowed
+			// Use the actual scopes that were sent (including offline_access if enableRefreshToken was true)
+			const scopesForRules = credentials.scopes || '';
+			const operationRules = TokenOperationsServiceV8.getOperationRules(flowType, scopesForRules);
+
+			// Debug logging for button state
+			console.log(`${MODULE_TAG} [INTROSPECTION BUTTON DEBUG]`, {
+				flowType,
+				scopes: credentials.scopes,
+				hasAccessToken,
+				hasRefreshToken,
+				hasIdToken,
+				selectedTokenType,
+				operationRules,
+				buttonDisabled:
+					(selectedTokenType === 'access' &&
+						(!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
+					(selectedTokenType === 'refresh' &&
+						(!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
+					(selectedTokenType === 'id' && (!hasIdToken || !operationRules.canIntrospectIdToken)) ||
+					introspectionLoading,
+				introspectionLoading,
+			});
+
+			// Determine step number dynamically based on flow type
+			const introspectionStepNumber = (() => {
+				switch (flowType) {
+					case 'client-credentials':
+						return 3; // Step 4 (0-indexed: 0, 1, 2, 3)
+					case 'implicit':
+					case 'device-code':
+						return 4; // Step 5 (0-indexed: 0, 1, 2, 3, 4)
+					case 'hybrid':
+						return 5; // Step 6 (PKCE is in Advanced Options, not a separate step)
+					default:
+						return 5; // Step 6 (PKCE is in Advanced Options, not a separate step)
+				}
+			})();
+
+			return (
+				<div className="step-content">
+					<h2>Step {introspectionStepNumber + 1}: Token Introspection & UserInfo</h2>
+					<p>
+						Validate your access token and retrieve user information (optional). This step is always
+						available to show you what operations are supported for your flow type and
+						configuration.
 					</p>
 
-					{/* Token Type Selector */}
-					<div
-						style={{
-							marginBottom: '12px',
-							display: 'flex',
-							gap: '8px',
-							flexWrap: 'wrap',
-						}}
-					>
-						<button
-							type="button"
-							onClick={() => {
-								setSelectedTokenType('access');
-								setIntrospectionData(null); // Clear previous introspection when switching
-								setIntrospectionTokenType(null);
-							}}
-							disabled={!hasAccessToken}
-							style={{
-								padding: '8px 16px',
-								background: selectedTokenType === 'access' ? '#f59e0b' : '#e5e7eb',
-								color: selectedTokenType === 'access' ? 'white' : '#6b7280',
-								border: `2px solid ${selectedTokenType === 'access' ? '#d97706' : '#d1d5db'}`,
-								borderRadius: '6px',
-								cursor: !hasAccessToken ? 'not-allowed' : 'pointer',
-								fontSize: '14px',
-								fontWeight: selectedTokenType === 'access' ? '600' : '400',
-								opacity: !hasAccessToken ? 0.5 : 1,
-							}}
-							title={!hasAccessToken ? 'Access token not available' : 'Select Access Token'}
-						>
-							Access Token {hasAccessToken && '✓'}
-						</button>
-						<button
-							type="button"
-							onClick={() => {
-								setSelectedTokenType('refresh');
-								setIntrospectionData(null);
-								setIntrospectionTokenType(null);
-							}}
-							disabled={!hasRefreshToken || !operationRules.canIntrospectRefreshToken}
-							style={{
-								padding: '8px 16px',
-								background: selectedTokenType === 'refresh' ? '#f59e0b' : '#e5e7eb',
-								color: selectedTokenType === 'refresh' ? 'white' : '#6b7280',
-								border: `2px solid ${selectedTokenType === 'refresh' ? '#d97706' : '#d1d5db'}`,
-								borderRadius: '6px',
-								cursor:
-									!hasRefreshToken || !operationRules.canIntrospectRefreshToken
-										? 'not-allowed'
-										: 'pointer',
-								fontSize: '14px',
-								fontWeight: selectedTokenType === 'refresh' ? '600' : '400',
-								opacity: !hasRefreshToken || !operationRules.canIntrospectRefreshToken ? 0.5 : 1,
-							}}
-							title={
-								!hasRefreshToken
-									? 'Refresh token not available'
-									: !operationRules.canIntrospectRefreshToken
-										? 'Refresh token introspection not supported'
-										: 'Select Refresh Token'
-							}
-						>
-							Refresh Token {hasRefreshToken && operationRules.canIntrospectRefreshToken && '✓'}
-						</button>
-						<button
-							type="button"
-							onClick={() => {
-								setSelectedTokenType('id');
-								setIntrospectionData(null);
-								setIntrospectionTokenType(null);
-							}}
-							disabled={!hasIdToken || !operationRules.canIntrospectIdToken}
-							style={{
-								padding: '8px 16px',
-								background: selectedTokenType === 'id' ? '#f59e0b' : '#e5e7eb',
-								color: selectedTokenType === 'id' ? 'white' : '#6b7280',
-								border: `2px solid ${selectedTokenType === 'id' ? '#d97706' : '#d1d5db'}`,
-								borderRadius: '6px',
-								cursor:
-									!hasIdToken || !operationRules.canIntrospectIdToken ? 'not-allowed' : 'pointer',
-								fontSize: '14px',
-								fontWeight: selectedTokenType === 'id' ? '600' : '400',
-								opacity: !hasIdToken || !operationRules.canIntrospectIdToken ? 0.5 : 1,
-							}}
-							title={
-								!hasIdToken
-									? 'ID token not available'
-									: !operationRules.canIntrospectIdToken
-										? 'ID token introspection not recommended - validate locally instead'
-										: 'Select ID Token'
-							}
-						>
-							ID Token {hasIdToken && operationRules.canIntrospectIdToken && '✓'}
-						</button>
-					</div>
-
-					{introspectionError && (
+					{/* Status indicator - show if tokens are missing */}
+					{!hasAccessToken && (
 						<div
 							style={{
-								padding: '12px',
-								background: '#fee2e2',
-								border: '1px solid #ef4444',
-								borderRadius: '6px',
-								color: '#991b1b',
-								marginBottom: '12px',
+								marginTop: '16px',
+								padding: '12px 16px',
+								background: '#fef3c7',
+								border: '1px solid #f59e0b',
+								borderRadius: '8px',
+								color: '#92400e',
 							}}
 						>
-							❌ {introspectionError}
+							<strong>⚠️ Tokens not yet available</strong>
+							<p style={{ margin: '4px 0 0 0', fontSize: '14px' }}>
+								Complete the previous steps to receive tokens. The buttons below will be enabled
+								once tokens are available.
+							</p>
 						</div>
 					)}
-					{introspectionData ? (
-						<>
-							<div
-								style={{
-									padding: '12px',
-									background: '#d1fae5',
-									border: '1px solid #22c55e',
-									borderRadius: '6px',
-									color: '#065f46',
-									marginBottom: '12px',
-								}}
-							>
-								✅{' '}
-								{introspectionTokenType === 'access'
-									? 'Access Token'
-									: introspectionTokenType === 'refresh'
-										? 'Refresh Token'
-										: 'ID Token'}{' '}
-								introspected successfully
-							</div>
-							{introspectionTokenType !== selectedTokenType && (
-								<div
-									style={{
-										padding: '8px 12px',
-										background: '#fef3c7',
-										border: '1px solid #f59e0b',
-										borderRadius: '6px',
-										color: '#78350f',
-										marginBottom: '12px',
-										fontSize: '13px',
-									}}
-								>
-									💡 Showing introspection for{' '}
-									{introspectionTokenType === 'access'
-										? 'Access Token'
-										: introspectionTokenType === 'refresh'
-											? 'Refresh Token'
-											: 'ID Token'}
-									. Select a different token type above to introspect it.
-								</div>
-							)}
-							<div
-								style={{
-									padding: '16px',
-									background: '#ffffff',
-									border: '1px solid #e5e7eb',
-									borderRadius: '6px',
-									marginBottom: '12px',
-								}}
-							>
-								<div
-									style={{
-										fontWeight: '600',
-										marginBottom: '8px',
-										color: '#1f2937',
-										fontSize: '14px',
-									}}
-								>
-									Introspection Data:
-								</div>
-								<pre
-									style={{
-										margin: 0,
-										padding: '12px',
-										background: '#f9fafb',
-										borderRadius: '4px',
-										border: '1px solid #e5e7eb',
-										fontSize: '12px',
-										fontFamily: 'monospace',
-										overflow: 'auto',
-										maxHeight: '300px',
-										color: '#1f2937',
-									}}
-								>
-									{JSON.stringify(introspectionData, null, 2)}
-								</pre>
-							</div>
-						</>
-					) : (
-						<button
-							type="button"
-							onClick={() => handleIntrospectToken(selectedTokenType)}
-							disabled={
-								(selectedTokenType === 'access' &&
-									(!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
-								(selectedTokenType === 'refresh' &&
-									(!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
-								(selectedTokenType === 'id' &&
-									(!hasIdToken || !operationRules.canIntrospectIdToken)) ||
-								introspectionLoading
-							}
-							style={{
-								padding: '10px 16px',
-								background:
-									(selectedTokenType === 'access' &&
-										(!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
-									(selectedTokenType === 'refresh' &&
-										(!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
-									(selectedTokenType === 'id' &&
-										(!hasIdToken || !operationRules.canIntrospectIdToken))
-										? '#9ca3af'
-										: '#22c55e', // Green color when enabled
-								color: 'white',
-								border: 'none',
-								borderRadius: '6px',
-								cursor:
-									(selectedTokenType === 'access' &&
-										(!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
-									(selectedTokenType === 'refresh' &&
-										(!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
-									(selectedTokenType === 'id' &&
-										(!hasIdToken || !operationRules.canIntrospectIdToken))
-										? 'not-allowed'
-										: 'pointer',
-								fontSize: '14px',
-								fontWeight: '600',
-								opacity:
-									(selectedTokenType === 'access' &&
-										(!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
-									(selectedTokenType === 'refresh' &&
-										(!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
-									(selectedTokenType === 'id' &&
-										(!hasIdToken || !operationRules.canIntrospectIdToken))
-										? 0.6
-										: 1,
-							}}
-							title={
-								selectedTokenType === 'access' && !hasAccessToken
-									? 'Access token required - complete previous steps first'
-									: selectedTokenType === 'refresh' && !hasRefreshToken
-										? 'Refresh token not available'
-										: selectedTokenType === 'id' && !hasIdToken
-											? 'ID token not available'
-											: selectedTokenType === 'access' && !operationRules.canIntrospectAccessToken
-												? operationRules.introspectionReason
-												: selectedTokenType === 'refresh' &&
-														!operationRules.canIntrospectRefreshToken
-													? 'Refresh token introspection not supported'
-													: selectedTokenType === 'id' && !operationRules.canIntrospectIdToken
-														? 'ID token introspection not recommended'
-														: `Introspect ${selectedTokenType === 'access' ? 'Access' : selectedTokenType === 'refresh' ? 'Refresh' : 'ID'} Token`
-							}
-						>
-							{introspectionLoading
-								? 'Introspecting...'
-								: `Introspect ${selectedTokenType === 'access' ? 'Access' : selectedTokenType === 'refresh' ? 'Refresh' : 'ID'} Token`}
-						</button>
-					)}
-				</div>
 
-				{/* Debug logging for refresh token section */}
-				{(() => {
-					console.log(`${MODULE_TAG} [REFRESH TOKEN DEBUG]`, {
-						hasRefreshToken,
-						flowStateTokens: flowState.tokens,
-						refreshTokenValue: flowState.tokens?.refreshToken,
-						flowType,
-						currentStep,
-					});
-					return null;
-				})()}
-
-				{/* Token Refresh Section */}
-				{hasRefreshToken && (
+					{/* UserInfo Section - ALWAYS SHOWS with status and disabled buttons */}
 					<div
 						style={{
-							marginTop: '32px',
+							marginTop: '24px',
 							padding: '16px',
-							background: '#f0f9ff',
+							background: operationRules.canCallUserInfo ? '#f0f9ff' : '#f3f4f6', // Light blue if allowed, gray if not
 							borderRadius: '8px',
-							border: '1px solid #0ea5e9',
+							border: `1px solid ${operationRules.canCallUserInfo ? '#0ea5e9' : '#9ca3af'}`,
 						}}
 					>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-							<span style={{ fontSize: '24px' }}>🔄</span>
+						<div
+							style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}
+						>
+							<span style={{ fontSize: '24px' }}>👤</span>
 							<h3
 								style={{
 									margin: 0,
 									fontSize: '18px',
-									color: '#0c4a6e',
+									color: operationRules.canCallUserInfo ? '#1e40af' : '#6b7280',
 									flex: 1,
 								}}
 							>
-								Token Refresh Flow
+								UserInfo
+								{operationRules.canCallUserInfo ? (
+									<span
+										style={{
+											marginLeft: '8px',
+											fontSize: '14px',
+											color: '#22c55e',
+											fontWeight: 'normal',
+										}}
+									>
+										✅ Available
+									</span>
+								) : (
+									<span
+										style={{
+											marginLeft: '8px',
+											fontSize: '14px',
+											color: '#ef4444',
+											fontWeight: 'normal',
+										}}
+									>
+										❌ Not Available
+									</span>
+								)}
 							</h3>
+						</div>
+
+						{/* Status explanation */}
+						<div
+							style={{
+								padding: '12px',
+								background: operationRules.canCallUserInfo ? '#dbeafe' : '#fee2e2',
+								border: `1px solid ${operationRules.canCallUserInfo ? '#3b82f6' : '#ef4444'}`,
+								borderRadius: '6px',
+								marginBottom: '12px',
+								color: operationRules.canCallUserInfo ? '#1e3a8a' : '#991b1b',
+								fontSize: '14px',
+							}}
+						>
+							<strong>{operationRules.canCallUserInfo ? '✅ ' : '❌ '}</strong>
+							{operationRules.userInfoReason}
+							{operationRules.userInfoExplanation && (
+								<div style={{ marginTop: '8px', fontSize: '13px', opacity: 0.9 }}>
+									{operationRules.userInfoExplanation}
+								</div>
+							)}
 						</div>
 
 						<p
 							style={{
 								margin: '0 0 12px 0',
-								color: '#0c4a6e',
+								color: operationRules.canCallUserInfo ? '#1e3a8a' : '#6b7280',
 								fontSize: '14px',
 							}}
 						>
-							Demonstrate token refresh: Use your refresh token to obtain a new access token without
-							requiring the user to authenticate again.
+							Retrieve authenticated user information using your access token.
 						</p>
-
-						{refreshError && (
+						{userInfoError && (
 							<div
 								style={{
 									padding: '12px',
@@ -12515,11 +12403,10 @@ passed: boolean;
 									marginBottom: '12px',
 								}}
 							>
-								❌ {refreshError}
+								❌ {userInfoError}
 							</div>
 						)}
-
-						{refreshResult ? (
+						{flowState.userInfo ? (
 							<>
 								<div
 									style={{
@@ -12531,557 +12418,814 @@ passed: boolean;
 										marginBottom: '12px',
 									}}
 								>
-									✅ Token refreshed successfully!
+									✅ UserInfo retrieved successfully
 								</div>
-
-								{/* Token Comparison */}
 								<div
 									style={{
-										display: 'grid',
-										gridTemplateColumns: '1fr 1fr',
-										gap: '12px',
+										padding: '16px',
+										background: '#ffffff',
+										border: '1px solid #e5e7eb',
+										borderRadius: '6px',
 										marginBottom: '12px',
 									}}
 								>
-									{/* Old Token */}
 									<div
 										style={{
+											fontWeight: '600',
+											marginBottom: '8px',
+											color: '#1f2937',
+											fontSize: '14px',
+										}}
+									>
+										UserInfo Data:
+									</div>
+									<pre
+										style={{
+											margin: 0,
 											padding: '12px',
+											background: '#f9fafb',
+											borderRadius: '4px',
+											border: '1px solid #e5e7eb',
+											fontSize: '12px',
+											fontFamily: 'monospace',
+											overflow: 'auto',
+											maxHeight: '300px',
+											color: '#1f2937',
+										}}
+									>
+										{JSON.stringify(flowState.userInfo, null, 2)}
+									</pre>
+								</div>
+							</>
+						) : (
+							<button
+								type="button"
+								onClick={handleFetchUserInfo}
+								disabled={!hasAccessToken || !operationRules.canCallUserInfo || userInfoLoading}
+								style={{
+									padding: '10px 16px',
+									background:
+										!hasAccessToken || !operationRules.canCallUserInfo ? '#9ca3af' : '#0ea5e9',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									cursor:
+										!hasAccessToken || !operationRules.canCallUserInfo ? 'not-allowed' : 'pointer',
+									fontSize: '14px',
+									fontWeight: '600',
+									opacity: !hasAccessToken || !operationRules.canCallUserInfo ? 0.6 : 1,
+								}}
+								title={
+									!hasAccessToken
+										? 'Access token required - complete previous steps first'
+										: !operationRules.canCallUserInfo
+											? operationRules.userInfoReason
+											: 'Fetch user information'
+								}
+							>
+								{userInfoLoading ? 'Fetching...' : 'Fetch UserInfo'}
+							</button>
+						)}
+					</div>
+
+					{/* Token Introspection Section - ALWAYS SHOWS with status and disabled buttons */}
+					<div
+						style={{
+							marginTop: '24px',
+							padding: '16px',
+							background:
+								operationRules.canIntrospectAccessToken && hasAccessToken ? '#fef3c7' : '#f3f4f6', // Light yellow if allowed and token available, gray if not
+							borderRadius: '8px',
+							border: `1px solid ${operationRules.canIntrospectAccessToken && hasAccessToken ? '#f59e0b' : '#9ca3af'}`,
+						}}
+					>
+						<div
+							style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}
+						>
+							<span style={{ fontSize: '24px' }}>🔍</span>
+							<h3
+								style={{
+									margin: 0,
+									fontSize: '18px',
+									color:
+										operationRules.canIntrospectAccessToken && hasAccessToken
+											? '#92400e'
+											: '#6b7280',
+									flex: 1,
+								}}
+							>
+								Token Introspection
+								{operationRules.canIntrospectAccessToken && hasAccessToken ? (
+									<span
+										style={{
+											marginLeft: '8px',
+											fontSize: '14px',
+											color: '#22c55e',
+											fontWeight: 'normal',
+										}}
+									>
+										✅ Available
+									</span>
+								) : (
+									<span
+										style={{
+											marginLeft: '8px',
+											fontSize: '14px',
+											color: '#ef4444',
+											fontWeight: 'normal',
+										}}
+									>
+										❌ {!hasAccessToken ? 'Access Token Required' : 'Not Available'}
+									</span>
+								)}
+							</h3>
+						</div>
+
+						{/* Status explanation */}
+						<div
+							style={{
+								padding: '12px',
+								background:
+									operationRules.canIntrospectAccessToken && hasAccessToken ? '#fef3c7' : '#fee2e2',
+								border: `1px solid ${operationRules.canIntrospectAccessToken && hasAccessToken ? '#f59e0b' : '#ef4444'}`,
+								borderRadius: '6px',
+								marginBottom: '12px',
+								color:
+									operationRules.canIntrospectAccessToken && hasAccessToken ? '#78350f' : '#991b1b',
+								fontSize: '14px',
+							}}
+						>
+							<strong>
+								{operationRules.canIntrospectAccessToken && hasAccessToken ? '✅ ' : '❌ '}
+							</strong>
+							{!hasAccessToken
+								? 'Access token required - complete the token exchange step first'
+								: !operationRules.canIntrospectAccessToken
+									? operationRules.introspectionReason
+									: operationRules.introspectionReason}
+							{operationRules.introspectionExplanation && (
+								<div style={{ marginTop: '8px', fontSize: '13px', opacity: 0.9 }}>
+									{operationRules.introspectionExplanation}
+									{!hasAccessToken && (
+										<div style={{ marginTop: '8px', fontWeight: '600' }}>
+											💡 Complete Step 3 (Exchange Code for Tokens) to receive an access token.
+										</div>
+									)}
+								</div>
+							)}
+
+							{/* Show what tokens can be introspected */}
+							<div
+								style={{
+									marginTop: '12px',
+									fontSize: '13px',
+									paddingTop: '12px',
+									borderTop: '1px solid rgba(0,0,0,0.1)',
+								}}
+							>
+								<strong>What can be introspected:</strong>
+								<ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
+									<li style={{ marginTop: '4px' }}>
+										{operationRules.canIntrospectAccessToken ? '✅' : '❌'} Access Token
+									</li>
+									<li style={{ marginTop: '4px' }}>
+										{operationRules.canIntrospectRefreshToken ? '✅' : '❌'} Refresh Token
+										{hasRefreshToken ? ' (available)' : ' (not issued in this flow)'}
+									</li>
+									<li style={{ marginTop: '4px' }}>
+										{operationRules.canIntrospectIdToken ? '✅' : '❌'} ID Token
+										{hasIdToken ? ' (available)' : ' (not issued in this flow)'}
+										{!operationRules.canIntrospectIdToken && hasIdToken && (
+											<>
+												{' - '}
+												<span style={{ fontWeight: 600, color: '#dc2626' }}>
+													Do not introspect ID tokens
+												</span>
+												<div
+													style={{
+														marginTop: '8px',
+														marginLeft: '20px',
+														padding: '8px 12px',
+														background: '#fef3c7',
+														border: '1px solid #fbbf24',
+														borderRadius: '6px',
+														fontSize: '13px',
+														lineHeight: '1.6',
+													}}
+												>
+													<strong>Why?</strong> ID tokens are JWTs designed to be validated locally
+													by your application, not by calling the introspection endpoint.
+													<br />
+													<br />
+													<strong>How to validate:</strong>
+													<ol style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
+														<li>Verify the JWT signature using the JWKS endpoint</li>
+														<li>Validate claims (iss, aud, exp, iat, nonce)</li>
+														<li>Check the token hasn't expired</li>
+													</ol>
+													<div
+														style={{
+															marginTop: '8px',
+															display: 'flex',
+															flexDirection: 'column',
+															gap: '8px',
+														}}
+													>
+														<button
+															type="button"
+															onClick={() => setShowIdTokenValidationModal(true)}
+															style={{
+																padding: '10px 16px',
+																background: '#667eea',
+																color: 'white',
+																border: 'none',
+																borderRadius: '6px',
+																fontSize: '13px',
+																fontWeight: '500',
+																cursor: 'pointer',
+																display: 'inline-flex',
+																alignItems: 'center',
+																gap: '6px',
+																alignSelf: 'flex-start',
+															}}
+														>
+															🔐 Validate ID Token Locally
+														</button>
+														<a
+															href="https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation"
+															target="_blank"
+															rel="noopener noreferrer"
+															style={{
+																color: '#2563eb',
+																textDecoration: 'underline',
+																fontWeight: 500,
+																fontSize: '13px',
+															}}
+														>
+															📖 Learn more: OIDC ID Token Validation Spec →
+														</a>
+													</div>
+												</div>
+											</>
+										)}
+									</li>
+								</ul>
+							</div>
+						</div>
+
+						<p
+							style={{
+								margin: '0 0 12px 0',
+								color: operationRules.canIntrospectAccessToken ? '#78350f' : '#6b7280',
+								fontSize: '14px',
+							}}
+						>
+							Validate your tokens and retrieve their metadata.
+						</p>
+
+						{/* Token Type Selector */}
+						<div
+							style={{
+								marginBottom: '12px',
+								display: 'flex',
+								gap: '8px',
+								flexWrap: 'wrap',
+							}}
+						>
+							<button
+								type="button"
+								onClick={() => {
+									setSelectedTokenType('access');
+									setIntrospectionData(null); // Clear previous introspection when switching
+									setIntrospectionTokenType(null);
+								}}
+								disabled={!hasAccessToken}
+								style={{
+									padding: '8px 16px',
+									background: selectedTokenType === 'access' ? '#f59e0b' : '#e5e7eb',
+									color: selectedTokenType === 'access' ? 'white' : '#6b7280',
+									border: `2px solid ${selectedTokenType === 'access' ? '#d97706' : '#d1d5db'}`,
+									borderRadius: '6px',
+									cursor: !hasAccessToken ? 'not-allowed' : 'pointer',
+									fontSize: '14px',
+									fontWeight: selectedTokenType === 'access' ? '600' : '400',
+									opacity: !hasAccessToken ? 0.5 : 1,
+								}}
+								title={!hasAccessToken ? 'Access token not available' : 'Select Access Token'}
+							>
+								Access Token {hasAccessToken && '✓'}
+							</button>
+							<button
+								type="button"
+								onClick={() => {
+									setSelectedTokenType('refresh');
+									setIntrospectionData(null);
+									setIntrospectionTokenType(null);
+								}}
+								disabled={!hasRefreshToken || !operationRules.canIntrospectRefreshToken}
+								style={{
+									padding: '8px 16px',
+									background: selectedTokenType === 'refresh' ? '#f59e0b' : '#e5e7eb',
+									color: selectedTokenType === 'refresh' ? 'white' : '#6b7280',
+									border: `2px solid ${selectedTokenType === 'refresh' ? '#d97706' : '#d1d5db'}`,
+									borderRadius: '6px',
+									cursor:
+										!hasRefreshToken || !operationRules.canIntrospectRefreshToken
+											? 'not-allowed'
+											: 'pointer',
+									fontSize: '14px',
+									fontWeight: selectedTokenType === 'refresh' ? '600' : '400',
+									opacity: !hasRefreshToken || !operationRules.canIntrospectRefreshToken ? 0.5 : 1,
+								}}
+								title={
+									!hasRefreshToken
+										? 'Refresh token not available'
+										: !operationRules.canIntrospectRefreshToken
+											? 'Refresh token introspection not supported'
+											: 'Select Refresh Token'
+								}
+							>
+								Refresh Token {hasRefreshToken && operationRules.canIntrospectRefreshToken && '✓'}
+							</button>
+							<button
+								type="button"
+								onClick={() => {
+									setSelectedTokenType('id');
+									setIntrospectionData(null);
+									setIntrospectionTokenType(null);
+								}}
+								disabled={!hasIdToken || !operationRules.canIntrospectIdToken}
+								style={{
+									padding: '8px 16px',
+									background: selectedTokenType === 'id' ? '#f59e0b' : '#e5e7eb',
+									color: selectedTokenType === 'id' ? 'white' : '#6b7280',
+									border: `2px solid ${selectedTokenType === 'id' ? '#d97706' : '#d1d5db'}`,
+									borderRadius: '6px',
+									cursor:
+										!hasIdToken || !operationRules.canIntrospectIdToken ? 'not-allowed' : 'pointer',
+									fontSize: '14px',
+									fontWeight: selectedTokenType === 'id' ? '600' : '400',
+									opacity: !hasIdToken || !operationRules.canIntrospectIdToken ? 0.5 : 1,
+								}}
+								title={
+									!hasIdToken
+										? 'ID token not available'
+										: !operationRules.canIntrospectIdToken
+											? 'ID token introspection not recommended - validate locally instead'
+											: 'Select ID Token'
+								}
+							>
+								ID Token {hasIdToken && operationRules.canIntrospectIdToken && '✓'}
+							</button>
+						</div>
+
+						{introspectionError && (
+							<div
+								style={{
+									padding: '12px',
+									background: '#fee2e2',
+									border: '1px solid #ef4444',
+									borderRadius: '6px',
+									color: '#991b1b',
+									marginBottom: '12px',
+								}}
+							>
+								❌ {introspectionError}
+							</div>
+						)}
+						{introspectionData ? (
+							<>
+								<div
+									style={{
+										padding: '12px',
+										background: '#d1fae5',
+										border: '1px solid #22c55e',
+										borderRadius: '6px',
+										color: '#065f46',
+										marginBottom: '12px',
+									}}
+								>
+									✅{' '}
+									{introspectionTokenType === 'access'
+										? 'Access Token'
+										: introspectionTokenType === 'refresh'
+											? 'Refresh Token'
+											: 'ID Token'}{' '}
+									introspected successfully
+								</div>
+								{introspectionTokenType !== selectedTokenType && (
+									<div
+										style={{
+											padding: '8px 12px',
 											background: '#fef3c7',
 											border: '1px solid #f59e0b',
 											borderRadius: '6px',
+											color: '#78350f',
+											marginBottom: '12px',
+											fontSize: '13px',
 										}}
 									>
-										<div
-											style={{
-												fontWeight: '600',
-												marginBottom: '8px',
-												color: '#78350f',
-												fontSize: '13px',
-											}}
-										>
-											Before Refresh:
-										</div>
-										<div style={{ fontSize: '12px', color: '#92400e', fontFamily: 'monospace' }}>
-											Access Token: {refreshResult.oldTokens.accessToken?.substring(0, 20)}...
-										</div>
+										💡 Showing introspection for{' '}
+										{introspectionTokenType === 'access'
+											? 'Access Token'
+											: introspectionTokenType === 'refresh'
+												? 'Refresh Token'
+												: 'ID Token'}
+										. Select a different token type above to introspect it.
 									</div>
+								)}
+								<div
+									style={{
+										padding: '16px',
+										background: '#ffffff',
+										border: '1px solid #e5e7eb',
+										borderRadius: '6px',
+										marginBottom: '12px',
+									}}
+								>
+									<div
+										style={{
+											fontWeight: '600',
+											marginBottom: '8px',
+											color: '#1f2937',
+											fontSize: '14px',
+										}}
+									>
+										Introspection Data:
+									</div>
+									<pre
+										style={{
+											margin: 0,
+											padding: '12px',
+											background: '#f9fafb',
+											borderRadius: '4px',
+											border: '1px solid #e5e7eb',
+											fontSize: '12px',
+											fontFamily: 'monospace',
+											overflow: 'auto',
+											maxHeight: '300px',
+											color: '#1f2937',
+										}}
+									>
+										{JSON.stringify(introspectionData, null, 2)}
+									</pre>
+								</div>
+							</>
+						) : (
+							<button
+								type="button"
+								onClick={() => handleIntrospectToken(selectedTokenType)}
+								disabled={
+									(selectedTokenType === 'access' &&
+										(!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
+									(selectedTokenType === 'refresh' &&
+										(!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
+									(selectedTokenType === 'id' &&
+										(!hasIdToken || !operationRules.canIntrospectIdToken)) ||
+									introspectionLoading
+								}
+								style={{
+									padding: '10px 16px',
+									background:
+										(selectedTokenType === 'access' &&
+											(!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
+										(selectedTokenType === 'refresh' &&
+											(!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
+										(selectedTokenType === 'id' &&
+											(!hasIdToken || !operationRules.canIntrospectIdToken))
+											? '#9ca3af'
+											: '#22c55e', // Green color when enabled
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									cursor:
+										(selectedTokenType === 'access' &&
+											(!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
+										(selectedTokenType === 'refresh' &&
+											(!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
+										(selectedTokenType === 'id' &&
+											(!hasIdToken || !operationRules.canIntrospectIdToken))
+											? 'not-allowed'
+											: 'pointer',
+									fontSize: '14px',
+									fontWeight: '600',
+									opacity:
+										(selectedTokenType === 'access' &&
+											(!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
+										(selectedTokenType === 'refresh' &&
+											(!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
+										(selectedTokenType === 'id' &&
+											(!hasIdToken || !operationRules.canIntrospectIdToken))
+											? 0.6
+											: 1,
+								}}
+								title={
+									selectedTokenType === 'access' && !hasAccessToken
+										? 'Access token required - complete previous steps first'
+										: selectedTokenType === 'refresh' && !hasRefreshToken
+											? 'Refresh token not available'
+											: selectedTokenType === 'id' && !hasIdToken
+												? 'ID token not available'
+												: selectedTokenType === 'access' && !operationRules.canIntrospectAccessToken
+													? operationRules.introspectionReason
+													: selectedTokenType === 'refresh' &&
+															!operationRules.canIntrospectRefreshToken
+														? 'Refresh token introspection not supported'
+														: selectedTokenType === 'id' && !operationRules.canIntrospectIdToken
+															? 'ID token introspection not recommended'
+															: `Introspect ${selectedTokenType === 'access' ? 'Access' : selectedTokenType === 'refresh' ? 'Refresh' : 'ID'} Token`
+								}
+							>
+								{introspectionLoading
+									? 'Introspecting...'
+									: `Introspect ${selectedTokenType === 'access' ? 'Access' : selectedTokenType === 'refresh' ? 'Refresh' : 'ID'} Token`}
+							</button>
+						)}
+					</div>
 
-									{/* New Token */}
+					{/* Debug logging for refresh token section */}
+					{(() => {
+						console.log(`${MODULE_TAG} [REFRESH TOKEN DEBUG]`, {
+							hasRefreshToken,
+							flowStateTokens: flowState.tokens,
+							refreshTokenValue: flowState.tokens?.refreshToken,
+							flowType,
+							currentStep,
+						});
+						return null;
+					})()}
+
+					{/* Token Refresh Section */}
+					{hasRefreshToken && (
+						<div
+							style={{
+								marginTop: '32px',
+								padding: '16px',
+								background: '#f0f9ff',
+								borderRadius: '8px',
+								border: '1px solid #0ea5e9',
+							}}
+						>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}
+							>
+								<span style={{ fontSize: '24px' }}>🔄</span>
+								<h3
+									style={{
+										margin: 0,
+										fontSize: '18px',
+										color: '#0c4a6e',
+										flex: 1,
+									}}
+								>
+									Token Refresh Flow
+								</h3>
+							</div>
+
+							<p
+								style={{
+									margin: '0 0 12px 0',
+									color: '#0c4a6e',
+									fontSize: '14px',
+								}}
+							>
+								Demonstrate token refresh: Use your refresh token to obtain a new access token
+								without requiring the user to authenticate again.
+							</p>
+
+							{refreshError && (
+								<div
+									style={{
+										padding: '12px',
+										background: '#fee2e2',
+										border: '1px solid #ef4444',
+										borderRadius: '6px',
+										color: '#991b1b',
+										marginBottom: '12px',
+									}}
+								>
+									❌ {refreshError}
+								</div>
+							)}
+
+							{refreshResult ? (
+								<>
 									<div
 										style={{
 											padding: '12px',
 											background: '#d1fae5',
 											border: '1px solid #22c55e',
 											borderRadius: '6px',
+											color: '#065f46',
+											marginBottom: '12px',
 										}}
 									>
+										✅ Token refreshed successfully!
+									</div>
+
+									{/* Token Comparison */}
+									<div
+										style={{
+											display: 'grid',
+											gridTemplateColumns: '1fr 1fr',
+											gap: '12px',
+											marginBottom: '12px',
+										}}
+									>
+										{/* Old Token */}
 										<div
 											style={{
-												fontWeight: '600',
-												marginBottom: '8px',
-												color: '#065f46',
-												fontSize: '13px',
+												padding: '12px',
+												background: '#fef3c7',
+												border: '1px solid #f59e0b',
+												borderRadius: '6px',
 											}}
 										>
-											After Refresh:
-										</div>
-										<div style={{ fontSize: '12px', color: '#047857', fontFamily: 'monospace' }}>
-											Access Token: {refreshResult.newTokens.accessToken?.substring(0, 20)}...
-										</div>
-										{refreshResult.newTokens.expiresIn && (
-											<div style={{ fontSize: '11px', color: '#047857', marginTop: '4px' }}>
-												Expires in: {refreshResult.newTokens.expiresIn} seconds
+											<div
+												style={{
+													fontWeight: '600',
+													marginBottom: '8px',
+													color: '#78350f',
+													fontSize: '13px',
+												}}
+											>
+												Before Refresh:
 											</div>
-										)}
+											<div style={{ fontSize: '12px', color: '#92400e', fontFamily: 'monospace' }}>
+												Access Token: {refreshResult.oldTokens.accessToken?.substring(0, 20)}...
+											</div>
+										</div>
+
+										{/* New Token */}
+										<div
+											style={{
+												padding: '12px',
+												background: '#d1fae5',
+												border: '1px solid #22c55e',
+												borderRadius: '6px',
+											}}
+										>
+											<div
+												style={{
+													fontWeight: '600',
+													marginBottom: '8px',
+													color: '#065f46',
+													fontSize: '13px',
+												}}
+											>
+												After Refresh:
+											</div>
+											<div style={{ fontSize: '12px', color: '#047857', fontFamily: 'monospace' }}>
+												Access Token: {refreshResult.newTokens.accessToken?.substring(0, 20)}...
+											</div>
+											{refreshResult.newTokens.expiresIn && (
+												<div style={{ fontSize: '11px', color: '#047857', marginTop: '4px' }}>
+													Expires in: {refreshResult.newTokens.expiresIn} seconds
+												</div>
+											)}
+										</div>
 									</div>
-								</div>
 
-								{/* Educational Info */}
-								<div
-									style={{
-										padding: '12px',
-										background: '#dbeafe',
-										border: '1px solid #3b82f6',
-										borderRadius: '6px',
-										fontSize: '13px',
-										color: '#1e3a8a',
-									}}
-								>
-									<strong>💡 Token Refresh Lifecycle:</strong>
-									<ul style={{ margin: '8px 0 0 0', paddingLeft: '20px', lineHeight: '1.6' }}>
-										<li>
-											Access tokens expire (typically 1 hour) and need to be refreshed
-										</li>
-										<li>
-											Refresh tokens are long-lived and used to obtain new access tokens
-										</li>
-										<li>
-											The refresh token may be rotated (new one issued) or reused depending on
-											server configuration
-										</li>
-										<li>
-											This allows users to stay authenticated without re-entering credentials
-										</li>
-									</ul>
-								</div>
+									{/* Educational Info */}
+									<div
+										style={{
+											padding: '12px',
+											background: '#dbeafe',
+											border: '1px solid #3b82f6',
+											borderRadius: '6px',
+											fontSize: '13px',
+											color: '#1e3a8a',
+										}}
+									>
+										<strong>💡 Token Refresh Lifecycle:</strong>
+										<ul style={{ margin: '8px 0 0 0', paddingLeft: '20px', lineHeight: '1.6' }}>
+											<li>Access tokens expire (typically 1 hour) and need to be refreshed</li>
+											<li>Refresh tokens are long-lived and used to obtain new access tokens</li>
+											<li>
+												The refresh token may be rotated (new one issued) or reused depending on
+												server configuration
+											</li>
+											<li>
+												This allows users to stay authenticated without re-entering credentials
+											</li>
+										</ul>
+									</div>
 
+									<button
+										type="button"
+										onClick={() => {
+											setRefreshResult(null);
+											setRefreshError(null);
+										}}
+										style={{
+											marginTop: '12px',
+											padding: '8px 16px',
+											background: '#6b7280',
+											color: 'white',
+											border: 'none',
+											borderRadius: '6px',
+											cursor: 'pointer',
+											fontSize: '13px',
+										}}
+									>
+										Clear Results
+									</button>
+								</>
+							) : (
 								<button
 									type="button"
-									onClick={() => {
-										setRefreshResult(null);
-										setRefreshError(null);
-									}}
+									onClick={handleRefreshToken}
+									disabled={refreshLoading || !hasRefreshToken}
 									style={{
-										marginTop: '12px',
-										padding: '8px 16px',
-										background: '#6b7280',
+										padding: '10px 16px',
+										background: refreshLoading || !hasRefreshToken ? '#9ca3af' : '#0ea5e9',
 										color: 'white',
 										border: 'none',
 										borderRadius: '6px',
-										cursor: 'pointer',
-										fontSize: '13px',
+										cursor: refreshLoading || !hasRefreshToken ? 'not-allowed' : 'pointer',
+										fontSize: '14px',
+										fontWeight: '600',
+										opacity: refreshLoading || !hasRefreshToken ? 0.6 : 1,
+									}}
+									title={
+										!hasRefreshToken
+											? 'Refresh token not available'
+											: refreshLoading
+												? 'Refreshing token...'
+												: 'Refresh access token using refresh token'
+									}
+								>
+									{refreshLoading ? '🔄 Refreshing...' : '🔄 Refresh Access Token'}
+								</button>
+							)}
+						</div>
+					)}
+
+					{/* Info Box */}
+					<div
+						style={{
+							marginTop: '24px',
+							padding: '12px 16px',
+							background: '#dbeafe',
+							border: '1px solid #3b82f6',
+							borderRadius: '8px',
+						}}
+					>
+						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+							<span style={{ fontSize: '20px', flexShrink: 0 }}>ℹ️</span>
+							<div>
+								<strong style={{ color: '#1e40af' }}>What's the difference?</strong>
+								<ul
+									style={{
+										margin: '8px 0 0 0',
+										paddingLeft: '20px',
+										fontSize: '14px',
+										color: '#1e3a8a',
+										lineHeight: '1.6',
 									}}
 								>
-									Clear Results
-								</button>
-							</>
-						) : (
-							<button
-								type="button"
-								onClick={handleRefreshToken}
-								disabled={refreshLoading || !hasRefreshToken}
-								style={{
-									padding: '10px 16px',
-									background: refreshLoading || !hasRefreshToken ? '#9ca3af' : '#0ea5e9',
-									color: 'white',
-									border: 'none',
-									borderRadius: '6px',
-									cursor: refreshLoading || !hasRefreshToken ? 'not-allowed' : 'pointer',
-									fontSize: '14px',
-									fontWeight: '600',
-									opacity: refreshLoading || !hasRefreshToken ? 0.6 : 1,
-								}}
-								title={
-									!hasRefreshToken
-										? 'Refresh token not available'
-										: refreshLoading
-											? 'Refreshing token...'
-											: 'Refresh access token using refresh token'
-								}
-							>
-								{refreshLoading ? '🔄 Refreshing...' : '🔄 Refresh Access Token'}
-							</button>
-						)}
-					</div>
-				)}
-
-				{/* Info Box */}
-				<div
-					style={{
-						marginTop: '24px',
-						padding: '12px 16px',
-						background: '#dbeafe',
-						border: '1px solid #3b82f6',
-						borderRadius: '8px',
-					}}
-				>
-					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-						<span style={{ fontSize: '20px', flexShrink: 0 }}>ℹ️</span>
-						<div>
-							<strong style={{ color: '#1e40af' }}>What's the difference?</strong>
-							<ul
-								style={{
-									margin: '8px 0 0 0',
-									paddingLeft: '20px',
-									fontSize: '14px',
-									color: '#1e3a8a',
-									lineHeight: '1.6',
-								}}
-							>
-								<li>
-									<strong>UserInfo:</strong> Returns user profile information (name, email, etc.)
-								</li>
-								<li>
-									<strong>Introspection:</strong> Returns token metadata (expiration, scopes, etc.)
-								</li>
-								<li>
-									<strong>Token Refresh:</strong> Obtains new access token using refresh token
-								</li>
-							</ul>
+									<li>
+										<strong>UserInfo:</strong> Returns user profile information (name, email, etc.)
+									</li>
+									<li>
+										<strong>Introspection:</strong> Returns token metadata (expiration, scopes,
+										etc.)
+									</li>
+									<li>
+										<strong>Token Refresh:</strong> Obtains new access token using refresh token
+									</li>
+								</ul>
+							</div>
 						</div>
 					</div>
-				</div>
 
-				{/* View Documentation Button - At bottom of introspection step */}
-				<div
-					style={{
-						marginTop: '32px',
-						padding: '20px',
-						background: '#f9fafb',
-						borderRadius: '8px',
-						border: '1px solid #e5e7eb',
-						textAlign: 'center',
-					}}
-				>
-					<p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280' }}>
-						View complete API call documentation with all requests and responses
-					</p>
-					<button
-						type="button"
-						onClick={() => {
-							// Navigate to documentation step
-							nav.goToStep(totalSteps - 1);
-						}}
-						style={{
-							display: 'inline-flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							gap: '8px',
-							padding: '12px 24px',
-							background: '#3b82f6',
-							color: 'white',
-							border: 'none',
-							borderRadius: '6px',
-							fontSize: '14px',
-							fontWeight: '600',
-							cursor: 'pointer',
-							transition: 'all 0.2s ease',
-						}}
-						onMouseEnter={(e) => {
-							e.currentTarget.style.background = '#2563eb';
-							e.currentTarget.style.transform = 'translateY(-1px)';
-							e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)';
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.background = '#3b82f6';
-							e.currentTarget.style.transform = 'translateY(0)';
-							e.currentTarget.style.boxShadow = 'none';
-						}}
-					>
-						<FiBook size={18} />
-						<span>View API Documentation</span>
-					</button>
-				</div>
-			</div>
-		);
-	};
-
-	// Step 7: API Documentation
-	const renderStep7Documentation = () => {
-		return (
-			<UnifiedFlowDocumentationPageV8U
-				flowType={flowType}
-				specVersion={specVersion}
-				credentials={credentials}
-				currentStep={currentStep}
-				totalSteps={totalSteps}
-			/>
-		);
-	};
-
-	// Polling Timeout Modal - shown when polling times out
-	const renderPollingTimeoutModal = () => {
-		if (!showPollingTimeoutModal) return null;
-
-		return (
-			<div
-				role="dialog"
-				aria-modal="true"
-				aria-labelledby="polling-timeout-title"
-				style={{
-					display: showPollingTimeoutModal ? 'flex' : 'none',
-					position: 'fixed',
-					top: 0,
-					left: 0,
-					right: 0,
-					bottom: 0,
-					backgroundColor: 'rgba(0, 0, 0, 0.6)',
-					alignItems: 'center',
-					justifyContent: 'center',
-					zIndex: 10000,
-					padding: '20px',
-				}}
-				onClick={() => setShowPollingTimeoutModal(false)}
-				onKeyDown={(e) => {
-					if (e.key === 'Escape') {
-						setShowPollingTimeoutModal(false);
-					}
-				}}
-			>
-				<div
-					style={{
-						backgroundColor: 'white',
-						borderRadius: '12px',
-						padding: '32px',
-						maxWidth: '500px',
-						width: '100%',
-						boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-						position: 'relative',
-					}}
-					onClick={(e) => e.stopPropagation()}
-					onKeyDown={(e) => e.stopPropagation()}
-				>
-					{/* Header */}
-					<div style={{ textAlign: 'center', marginBottom: '24px' }}>
-						<div style={{ fontSize: '64px', marginBottom: '16px' }}>⏱️</div>
-						<h2
-							id="polling-timeout-title"
-							style={{
-								margin: 0,
-								fontSize: '24px',
-								fontWeight: '700',
-								color: '#dc2626',
-							}}
-						>
-							Polling Timeout
-						</h2>
-					</div>
-
-					{/* Message */}
+					{/* View Documentation Button - At bottom of introspection step */}
 					<div
 						style={{
-							marginBottom: '24px',
+							marginTop: '32px',
 							padding: '20px',
-							background: '#fef2f2',
+							background: '#f9fafb',
 							borderRadius: '8px',
-							border: '2px solid #fecaca',
+							border: '1px solid #e5e7eb',
+							textAlign: 'center',
 						}}
 					>
-						<div
-							style={{
-								fontSize: '16px',
-								fontWeight: '600',
-								color: '#991b1b',
-								marginBottom: '12px',
-							}}
-						>
-							Authorization Timeout
-						</div>
-						<div
-							style={{
-								fontSize: '14px',
-								color: '#7f1d1d',
-								lineHeight: '1.6',
-							}}
-						>
-							The device authorization request has timed out. The user did not complete the
-							authorization within the allowed time limit.
-						</div>
-					</div>
-
-					{/* Details */}
-					<div
-						style={{
-							marginBottom: '24px',
-							padding: '16px',
-							background: '#f0f9ff',
-							borderRadius: '8px',
-							border: '1px solid #bfdbfe',
-						}}
-					>
-						<div
-							style={{
-								fontSize: '14px',
-								color: '#1e40af',
-								lineHeight: '1.6',
-							}}
-						>
-							<strong>What happened?</strong>
-							<br />
-							The device code expired before the user completed authorization. This can happen if:
-							<ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
-								<li>The user took too long to scan the QR code or enter the code</li>
-								<li>The user closed the authorization page without completing it</li>
-								<li>The device code expiration time was too short</li>
-							</ul>
-						</div>
-					</div>
-
-					{/* Actions */}
-					<div
-						style={{
-							display: 'flex',
-							gap: '12px',
-							justifyContent: 'flex-end',
-						}}
-					>
-						<button
-							type="button"
-							onClick={() => setShowPollingTimeoutModal(false)}
-							style={{
-								padding: '10px 20px',
-								background: '#6b7280',
-								color: 'white',
-								border: 'none',
-								borderRadius: '6px',
-								fontSize: '14px',
-								fontWeight: '500',
-								cursor: 'pointer',
-								transition: 'all 0.2s ease',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.background = '#4b5563';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.background = '#6b7280';
-							}}
-						>
-							Close
-						</button>
+						<p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280' }}>
+							View complete API call documentation with all requests and responses
+						</p>
 						<button
 							type="button"
 							onClick={() => {
-								setShowPollingTimeoutModal(false);
-								// Navigate back to step 1 to request a new device code
-								if (onStepChange) {
-									onStepChange(1);
-								}
+								// Navigate to documentation step
+								nav.goToStep(totalSteps - 1);
 							}}
 							style={{
-								padding: '10px 20px',
-								background: '#2196f3',
-								color: 'white',
-								border: 'none',
-								borderRadius: '6px',
-								fontSize: '14px',
-								fontWeight: '500',
-								cursor: 'pointer',
-								transition: 'all 0.2s ease',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.background = '#1976d2';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.background = '#2196f3';
-							}}
-						>
-							Request New Device Code
-						</button>
-					</div>
-				</div>
-			</div>
-		);
-	};
-
-	// Device Code Success Modal - shown after successful device authorization
-	const renderDeviceCodeSuccessModal = () => {
-		if (!showDeviceCodeSuccessModal || !flowState.tokens?.accessToken) return null;
-
-		return (
-			<div
-				role="dialog"
-				aria-modal="true"
-				aria-labelledby="device-code-success-title"
-				style={{
-					display: showDeviceCodeSuccessModal ? 'flex' : 'none',
-					position: 'fixed',
-					top: 0,
-					left: 0,
-					right: 0,
-					bottom: 0,
-					backgroundColor: 'rgba(0, 0, 0, 0.6)',
-					alignItems: 'center',
-					justifyContent: 'center',
-					zIndex: 10000,
-					padding: '20px',
-				}}
-				onClick={() => setShowDeviceCodeSuccessModal(false)}
-				onKeyDown={(e) => {
-					if (e.key === 'Escape') {
-						setShowDeviceCodeSuccessModal(false);
-					}
-				}}
-			>
-				<div
-					style={{
-						backgroundColor: 'white',
-						borderRadius: '12px',
-						padding: '32px',
-						maxWidth: '550px',
-						width: '100%',
-						boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-						position: 'relative',
-					}}
-					onClick={(e) => e.stopPropagation()}
-					onKeyDown={(e) => e.stopPropagation()}
-				>
-					{/* Header */}
-					<div style={{ textAlign: 'center', marginBottom: '24px' }}>
-						<div style={{ fontSize: '64px', marginBottom: '16px' }}>✅</div>
-						<h2
-							id="device-code-success-title"
-							style={{
-								margin: 0,
-								fontSize: '24px',
-								fontWeight: '700',
-								color: '#059669',
-							}}
-						>
-							Device Authorization Successful!
-						</h2>
-					</div>
-
-					{/* Success Message */}
-					<div
-						style={{
-							marginBottom: '24px',
-							padding: '20px',
-							background: '#d1fae5',
-							borderRadius: '8px',
-							border: '2px solid #10b981',
-						}}
-					>
-						<div
-							style={{
-								fontSize: '16px',
-								fontWeight: '600',
-								color: '#065f46',
-								marginBottom: '12px',
-							}}
-						>
-							🎉 Access Token Received
-						</div>
-						<div
-							style={{
-								fontSize: '14px',
-								color: '#047857',
-								lineHeight: '1.6',
-							}}
-						>
-							The device has been authorized successfully and tokens have been received. You can
-							now proceed to view your tokens and use them for API calls.
-						</div>
-						{flowState.tokens?.expiresIn && (
-							<div
-								style={{
-									marginTop: '12px',
-									padding: '8px 12px',
-									background: '#ecfdf5',
-									borderRadius: '6px',
-									fontSize: '13px',
-									color: '#047857',
-								}}
-							>
-								<strong>Token expires in:</strong> {flowState.tokens.expiresIn} seconds
-							</div>
-						)}
-					</div>
-
-					{/* Actions */}
-					<div
-						style={{
-							display: 'flex',
-							gap: '12px',
-							justifyContent: 'flex-end',
-						}}
-					>
-						<button
-							type="button"
-							onClick={() => setShowDeviceCodeSuccessModal(false)}
-							style={{
+								display: 'inline-flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								gap: '8px',
 								padding: '12px 24px',
-								background: '#10b981',
+								background: '#3b82f6',
 								color: 'white',
 								border: 'none',
 								borderRadius: '6px',
@@ -13091,602 +13235,953 @@ passed: boolean;
 								transition: 'all 0.2s ease',
 							}}
 							onMouseEnter={(e) => {
-								e.currentTarget.style.background = '#059669';
+								e.currentTarget.style.background = '#2563eb';
+								e.currentTarget.style.transform = 'translateY(-1px)';
+								e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)';
 							}}
 							onMouseLeave={(e) => {
-								e.currentTarget.style.background = '#10b981';
+								e.currentTarget.style.background = '#3b82f6';
+								e.currentTarget.style.transform = 'translateY(0)';
+								e.currentTarget.style.boxShadow = 'none';
 							}}
 						>
-							Continue to Tokens
+							<FiBook size={18} />
+							<span>View API Documentation</span>
 						</button>
 					</div>
 				</div>
-			</div>
-		);
-	};
+			);
+		};
 
-	// Callback Success Modal - shown after successful callback from PingOne
-	const renderCallbackSuccessModal = () => {
-		// Only render if modal should be shown and callback details exist
-		if (!showCallbackSuccessModal || !callbackDetails) {
-			return null;
-		}
+		// Step 7: API Documentation
+		const renderStep7Documentation = () => {
+			return (
+				<UnifiedFlowDocumentationPageV8U
+					flowType={flowType}
+					specVersion={specVersion}
+					credentials={credentials}
+					currentStep={currentStep}
+					totalSteps={totalSteps}
+				/>
+			);
+		};
 
-		return (
-			<div
-				role="dialog"
-				aria-modal="true"
-				aria-labelledby={callbackSuccessModalTitleId}
-				style={{
-					display: showCallbackSuccessModal ? 'flex' : 'none',
-					position: 'fixed',
-					top: 0,
-					left: 0,
-					right: 0,
-					bottom: 0,
-					backgroundColor: 'rgba(0, 0, 0, 0.5)',
-					alignItems: 'center',
-					justifyContent: 'center',
-					zIndex: 9999,
-				}}
-				onClick={() => setShowCallbackSuccessModal(false)}
-				onKeyDown={(e) => {
-					if (e.key === 'Escape') {
-						setShowCallbackSuccessModal(false);
-					}
-				}}
-			>
+		// Polling Timeout Modal - shown when polling times out
+		const renderPollingTimeoutModal = () => {
+			if (!showPollingTimeoutModal) return null;
+
+			return (
 				<div
+					role="dialog"
+					aria-modal="true"
+					aria-labelledby="polling-timeout-title"
 					style={{
-						backgroundColor: 'white',
-						borderRadius: '12px',
+						display: showPollingTimeoutModal ? 'flex' : 'none',
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						backgroundColor: 'rgba(0, 0, 0, 0.6)',
+						alignItems: 'center',
+						justifyContent: 'center',
+						zIndex: 10000,
 						padding: '20px',
-						maxWidth: '550px',
-						width: '90%',
-						maxHeight: '90vh',
-						display: 'flex',
-						flexDirection: 'column',
-						boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
 					}}
-					onClick={(e) => e.stopPropagation()}
-					onKeyDown={(e) => e.stopPropagation()}
+					onClick={() => setShowPollingTimeoutModal(false)}
+					onKeyDown={(e) => {
+						if (e.key === 'Escape') {
+							setShowPollingTimeoutModal(false);
+						}
+					}}
 				>
-					{/* Header - Compact */}
-					<div style={{ marginBottom: '16px', textAlign: 'center', flexShrink: 0 }}>
-						<div style={{ fontSize: '40px', marginBottom: '8px' }}>✅</div>
-						<h2
-							id={callbackSuccessModalTitleId}
-							style={{ margin: 0, fontSize: '20px', color: '#1f2937' }}
-						>
-							Authentication Successful!
-						</h2>
-						<p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '13px' }}>
-							PingOne has redirected you back successfully
-						</p>
-					</div>
+					<div
+						style={{
+							backgroundColor: 'white',
+							borderRadius: '12px',
+							padding: '32px',
+							maxWidth: '500px',
+							width: '100%',
+							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+							position: 'relative',
+						}}
+						onClick={(e) => e.stopPropagation()}
+						onKeyDown={(e) => e.stopPropagation()}
+					>
+						{/* Header */}
+						<div style={{ textAlign: 'center', marginBottom: '24px' }}>
+							<div style={{ fontSize: '64px', marginBottom: '16px' }}>⏱️</div>
+							<h2
+								id="polling-timeout-title"
+								style={{
+									margin: 0,
+									fontSize: '24px',
+									fontWeight: '700',
+									color: '#dc2626',
+								}}
+							>
+								Polling Timeout
+							</h2>
+						</div>
 
-					{/* Scrollable Content */}
-					<div style={{ flex: 1, overflowY: 'auto', marginBottom: '16px', minHeight: 0 }}>
-						{/* What was received (summary without showing tokens) */}
+						{/* Message */}
 						<div
 							style={{
-								background: '#d1fae5',
-								border: '1px solid #22c55e',
+								marginBottom: '24px',
+								padding: '20px',
+								background: '#fef2f2',
 								borderRadius: '8px',
-								padding: '12px',
-								marginBottom: '12px',
+								border: '2px solid #fecaca',
 							}}
 						>
 							<div
-								style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}
-							>
-								<span style={{ fontSize: '18px' }}>🎉</span>
-								<strong style={{ color: '#065f46', fontSize: '14px' }}>Callback Processed</strong>
-							</div>
-							<ul
 								style={{
-									margin: '4px 0 0 0',
-									paddingLeft: '20px',
-									color: '#047857',
-									fontSize: '13px',
-									lineHeight: '1.5',
+									fontSize: '16px',
+									fontWeight: '600',
+									color: '#991b1b',
+									marginBottom: '12px',
 								}}
 							>
-								{callbackDetails.code && <li>✅ Authorization code received</li>}
-								{callbackDetails.allParams.access_token && <li>✅ Access token received</li>}
-								{callbackDetails.allParams.id_token && <li>✅ ID token received</li>}
-								{callbackDetails.allParams.refresh_token && <li>✅ Refresh token received</li>}
-								{callbackDetails.state && <li>✅ State validated</li>}
-							</ul>
-						</div>
-
-						{/* User Info (if ID token available) */}
-						{(() => {
-							if (callbackDetails.allParams.id_token) {
-								const decoded = TokenDisplayServiceV8.decodeJWT(callbackDetails.allParams.id_token);
-								if (decoded?.payload) {
-									const payload = decoded.payload as Record<string, unknown>;
-									const username =
-										payload.preferred_username || payload.name || payload.email || payload.sub;
-									const sub = payload.sub;
-									const subStr = typeof sub === 'string' ? sub : String(sub || '');
-
-									return (
-										<div
-											style={{
-												background: '#d1fae5',
-												border: '1px solid #10b981',
-												borderRadius: '8px',
-												padding: '12px',
-												marginBottom: '12px',
-											}}
-										>
-											<div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-												<div
-													style={{
-														width: '36px',
-														height: '36px',
-														borderRadius: '50%',
-														background: '#10b981',
-														display: 'flex',
-														alignItems: 'center',
-														justifyContent: 'center',
-														fontSize: '18px',
-														flexShrink: 0,
-													}}
-												>
-													👤
-												</div>
-												<div style={{ flex: 1, minWidth: 0 }}>
-													<div
-														style={{
-															fontSize: '13px',
-															color: '#065f46',
-															fontWeight: '600',
-															marginBottom: '2px',
-														}}
-													>
-														👋 USERNAME
-													</div>
-													<div
-														style={{
-															fontSize: '14px',
-															color: '#047857',
-															fontWeight: '600',
-															wordBreak: 'break-word',
-														}}
-													>
-														{String(username)}
-													</div>
-													{subStr && (
-														<div
-															style={{
-																fontSize: '11px',
-																color: '#059669',
-																marginTop: '4px',
-																fontFamily: 'monospace',
-																wordBreak: 'break-all',
-															}}
-														>
-															# {subStr}
-														</div>
-													)}
-												</div>
-											</div>
-										</div>
-									);
-								}
-							}
-							return null;
-						})()}
-
-						{/* Info about where to see tokens */}
-						<div
-							style={{
-								background: '#dbeafe',
-								border: '1px solid #3b82f6',
-								borderRadius: '8px',
-								padding: '10px 12px',
-								fontSize: '13px',
-								color: '#1e3a8a',
-								marginBottom: '12px',
-							}}
-						>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-								<span>💡</span>
-								<span>View and decode tokens on the next step</span>
+								Authorization Timeout
+							</div>
+							<div
+								style={{
+									fontSize: '14px',
+									color: '#7f1d1d',
+									lineHeight: '1.6',
+								}}
+							>
+								The device authorization request has timed out. The user did not complete the
+								authorization within the allowed time limit.
 							</div>
 						</div>
 
-						{/* User Claims (from ID Token) */}
-						{(() => {
-							if (callbackDetails.allParams.id_token) {
-								const decoded = TokenDisplayServiceV8.decodeJWT(callbackDetails.allParams.id_token);
-								if (decoded?.payload) {
-									const payload = decoded.payload as Record<string, unknown>;
+						{/* Details */}
+						<div
+							style={{
+								marginBottom: '24px',
+								padding: '16px',
+								background: '#f0f9ff',
+								borderRadius: '8px',
+								border: '1px solid #bfdbfe',
+							}}
+						>
+							<div
+								style={{
+									fontSize: '14px',
+									color: '#1e40af',
+									lineHeight: '1.6',
+								}}
+							>
+								<strong>What happened?</strong>
+								<br />
+								The device code expired before the user completed authorization. This can happen if:
+								<ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
+									<li>The user took too long to scan the QR code or enter the code</li>
+									<li>The user closed the authorization page without completing it</li>
+									<li>The device code expiration time was too short</li>
+								</ul>
+							</div>
+						</div>
 
-									// Extract common user claims
-									const name =
-										payload.name || payload.given_name || payload.preferred_username || payload.sub;
-									const email = typeof payload.email === 'string' ? payload.email : undefined;
-									const username =
-										typeof payload.preferred_username === 'string'
-											? payload.preferred_username
-											: undefined;
+						{/* Actions */}
+						<div
+							style={{
+								display: 'flex',
+								gap: '12px',
+								justifyContent: 'flex-end',
+							}}
+						>
+							<button
+								type="button"
+								onClick={() => setShowPollingTimeoutModal(false)}
+								style={{
+									padding: '10px 20px',
+									background: '#6b7280',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '14px',
+									fontWeight: '500',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.background = '#4b5563';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.background = '#6b7280';
+								}}
+							>
+								Close
+							</button>
+							<button
+								type="button"
+								onClick={() => {
+									setShowPollingTimeoutModal(false);
+									// Navigate back to step 1 to request a new device code
+									if (onStepChange) {
+										onStepChange(1);
+									}
+								}}
+								style={{
+									padding: '10px 20px',
+									background: '#2196f3',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '14px',
+									fontWeight: '500',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.background = '#1976d2';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.background = '#2196f3';
+								}}
+							>
+								Request New Device Code
+							</button>
+						</div>
+					</div>
+				</div>
+			);
+		};
 
-									return (
-										<div style={{ marginBottom: '12px' }}>
-											{/* Basic User Info Card */}
+		// Device Code Success Modal - shown after successful device authorization
+		const renderDeviceCodeSuccessModal = () => {
+			if (!showDeviceCodeSuccessModal || !flowState.tokens?.accessToken) return null;
+
+			return (
+				<div
+					role="dialog"
+					aria-modal="true"
+					aria-labelledby="device-code-success-title"
+					style={{
+						display: showDeviceCodeSuccessModal ? 'flex' : 'none',
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						backgroundColor: 'rgba(0, 0, 0, 0.6)',
+						alignItems: 'center',
+						justifyContent: 'center',
+						zIndex: 10000,
+						padding: '20px',
+					}}
+					onClick={() => setShowDeviceCodeSuccessModal(false)}
+					onKeyDown={(e) => {
+						if (e.key === 'Escape') {
+							setShowDeviceCodeSuccessModal(false);
+						}
+					}}
+				>
+					<div
+						style={{
+							backgroundColor: 'white',
+							borderRadius: '12px',
+							padding: '32px',
+							maxWidth: '550px',
+							width: '100%',
+							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+							position: 'relative',
+						}}
+						onClick={(e) => e.stopPropagation()}
+						onKeyDown={(e) => e.stopPropagation()}
+					>
+						{/* Header */}
+						<div style={{ textAlign: 'center', marginBottom: '24px' }}>
+							<div style={{ fontSize: '64px', marginBottom: '16px' }}>✅</div>
+							<h2
+								id="device-code-success-title"
+								style={{
+									margin: 0,
+									fontSize: '24px',
+									fontWeight: '700',
+									color: '#059669',
+								}}
+							>
+								Device Authorization Successful!
+							</h2>
+						</div>
+
+						{/* Success Message */}
+						<div
+							style={{
+								marginBottom: '24px',
+								padding: '20px',
+								background: '#d1fae5',
+								borderRadius: '8px',
+								border: '2px solid #10b981',
+							}}
+						>
+							<div
+								style={{
+									fontSize: '16px',
+									fontWeight: '600',
+									color: '#065f46',
+									marginBottom: '12px',
+								}}
+							>
+								🎉 Access Token Received
+							</div>
+							<div
+								style={{
+									fontSize: '14px',
+									color: '#047857',
+									lineHeight: '1.6',
+								}}
+							>
+								The device has been authorized successfully and tokens have been received. You can
+								now proceed to view your tokens and use them for API calls.
+							</div>
+							{flowState.tokens?.expiresIn && (
+								<div
+									style={{
+										marginTop: '12px',
+										padding: '8px 12px',
+										background: '#ecfdf5',
+										borderRadius: '6px',
+										fontSize: '13px',
+										color: '#047857',
+									}}
+								>
+									<strong>Token expires in:</strong> {flowState.tokens.expiresIn} seconds
+								</div>
+							)}
+						</div>
+
+						{/* Actions */}
+						<div
+							style={{
+								display: 'flex',
+								gap: '12px',
+								justifyContent: 'flex-end',
+							}}
+						>
+							<button
+								type="button"
+								onClick={() => setShowDeviceCodeSuccessModal(false)}
+								style={{
+									padding: '12px 24px',
+									background: '#10b981',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '14px',
+									fontWeight: '600',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.background = '#059669';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.background = '#10b981';
+								}}
+							>
+								Continue to Tokens
+							</button>
+						</div>
+					</div>
+				</div>
+			);
+		};
+
+		// Callback Success Modal - shown after successful callback from PingOne
+		const renderCallbackSuccessModal = () => {
+			// Only render if modal should be shown and callback details exist
+			if (!showCallbackSuccessModal || !callbackDetails) {
+				return null;
+			}
+
+			return (
+				<div
+					role="dialog"
+					aria-modal="true"
+					aria-labelledby={callbackSuccessModalTitleId}
+					style={{
+						display: showCallbackSuccessModal ? 'flex' : 'none',
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						backgroundColor: 'rgba(0, 0, 0, 0.5)',
+						alignItems: 'center',
+						justifyContent: 'center',
+						zIndex: 9999,
+					}}
+					onClick={() => setShowCallbackSuccessModal(false)}
+					onKeyDown={(e) => {
+						if (e.key === 'Escape') {
+							setShowCallbackSuccessModal(false);
+						}
+					}}
+				>
+					<div
+						style={{
+							backgroundColor: 'white',
+							borderRadius: '12px',
+							padding: '20px',
+							maxWidth: '550px',
+							width: '90%',
+							maxHeight: '90vh',
+							display: 'flex',
+							flexDirection: 'column',
+							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+						}}
+						onClick={(e) => e.stopPropagation()}
+						onKeyDown={(e) => e.stopPropagation()}
+					>
+						{/* Header - Compact */}
+						<div style={{ marginBottom: '16px', textAlign: 'center', flexShrink: 0 }}>
+							<div style={{ fontSize: '40px', marginBottom: '8px' }}>✅</div>
+							<h2
+								id={callbackSuccessModalTitleId}
+								style={{ margin: 0, fontSize: '20px', color: '#1f2937' }}
+							>
+								Authentication Successful!
+							</h2>
+							<p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '13px' }}>
+								PingOne has redirected you back successfully
+							</p>
+						</div>
+
+						{/* Scrollable Content */}
+						<div style={{ flex: 1, overflowY: 'auto', marginBottom: '16px', minHeight: 0 }}>
+							{/* What was received (summary without showing tokens) */}
+							<div
+								style={{
+									background: '#d1fae5',
+									border: '1px solid #22c55e',
+									borderRadius: '8px',
+									padding: '12px',
+									marginBottom: '12px',
+								}}
+							>
+								<div
+									style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}
+								>
+									<span style={{ fontSize: '18px' }}>🎉</span>
+									<strong style={{ color: '#065f46', fontSize: '14px' }}>Callback Processed</strong>
+								</div>
+								<ul
+									style={{
+										margin: '4px 0 0 0',
+										paddingLeft: '20px',
+										color: '#047857',
+										fontSize: '13px',
+										lineHeight: '1.5',
+									}}
+								>
+									{callbackDetails.code && <li>✅ Authorization code received</li>}
+									{callbackDetails.allParams.access_token && <li>✅ Access token received</li>}
+									{callbackDetails.allParams.id_token && <li>✅ ID token received</li>}
+									{callbackDetails.allParams.refresh_token && <li>✅ Refresh token received</li>}
+									{callbackDetails.state && <li>✅ State validated</li>}
+								</ul>
+							</div>
+
+							{/* User Info (if ID token available) */}
+							{(() => {
+								if (callbackDetails.allParams.id_token) {
+									const decoded = TokenDisplayServiceV8.decodeJWT(
+										callbackDetails.allParams.id_token
+									);
+									if (decoded?.payload) {
+										const payload = decoded.payload as Record<string, unknown>;
+										const username =
+											payload.preferred_username || payload.name || payload.email || payload.sub;
+										const sub = payload.sub;
+										const subStr = typeof sub === 'string' ? sub : String(sub || '');
+
+										return (
 											<div
 												style={{
-													background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+													background: '#d1fae5',
+													border: '1px solid #10b981',
 													borderRadius: '8px',
-													padding: '14px',
+													padding: '12px',
 													marginBottom: '12px',
-													color: '#ffffff', // White text on dark background
 												}}
 											>
-												<div
-													style={{
-														display: 'flex',
-														alignItems: 'center',
-														gap: '10px',
-														marginBottom: '8px',
-													}}
-												>
+												<div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 													<div
 														style={{
-															width: '40px',
-															height: '40px',
+															width: '36px',
+															height: '36px',
 															borderRadius: '50%',
-															background: 'rgba(255, 255, 255, 0.2)',
+															background: '#10b981',
 															display: 'flex',
 															alignItems: 'center',
 															justifyContent: 'center',
-															fontSize: '20px',
+															fontSize: '18px',
+															flexShrink: 0,
 														}}
 													>
 														👤
 													</div>
-													<div style={{ flex: 1 }}>
+													<div style={{ flex: 1, minWidth: 0 }}>
 														<div
-															style={{ fontSize: '16px', fontWeight: '600', marginBottom: '2px' }}
+															style={{
+																fontSize: '13px',
+																color: '#065f46',
+																fontWeight: '600',
+																marginBottom: '2px',
+															}}
 														>
-															{String(name || 'User')}
+															👋 USERNAME
 														</div>
-														{email && (
-															<div style={{ fontSize: '12px', opacity: 0.9 }}>📧 {email}</div>
-														)}
-														{username && username !== email && (
-															<div style={{ fontSize: '12px', opacity: 0.9 }}>🔑 {username}</div>
+														<div
+															style={{
+																fontSize: '14px',
+																color: '#047857',
+																fontWeight: '600',
+																wordBreak: 'break-word',
+															}}
+														>
+															{String(username)}
+														</div>
+														{subStr && (
+															<div
+																style={{
+																	fontSize: '11px',
+																	color: '#059669',
+																	marginTop: '4px',
+																	fontFamily: 'monospace',
+																	wordBreak: 'break-all',
+																}}
+															>
+																# {subStr}
+															</div>
 														)}
 													</div>
 												</div>
 											</div>
+										);
+									}
+								}
+								return null;
+							})()}
 
-											{/* All Claims (Expandable) */}
-											<details style={{ marginTop: '8px' }}>
-												<summary
-													style={{
-														cursor: 'pointer',
-														fontWeight: '600',
-														marginBottom: '8px',
-														color: '#1f2937', // Dark text on light background
-														fontSize: '13px',
-														padding: '6px',
-														background: '#f3f4f6', // Light grey background
-														borderRadius: '4px',
-													}}
-												>
-													🔍 View All Claims
-												</summary>
+							{/* Info about where to see tokens */}
+							<div
+								style={{
+									background: '#dbeafe',
+									border: '1px solid #3b82f6',
+									borderRadius: '8px',
+									padding: '10px 12px',
+									fontSize: '13px',
+									color: '#1e3a8a',
+									marginBottom: '12px',
+								}}
+							>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+									<span>💡</span>
+									<span>View and decode tokens on the next step</span>
+								</div>
+							</div>
+
+							{/* User Claims (from ID Token) */}
+							{(() => {
+								if (callbackDetails.allParams.id_token) {
+									const decoded = TokenDisplayServiceV8.decodeJWT(
+										callbackDetails.allParams.id_token
+									);
+									if (decoded?.payload) {
+										const payload = decoded.payload as Record<string, unknown>;
+
+										// Extract common user claims
+										const name =
+											payload.name ||
+											payload.given_name ||
+											payload.preferred_username ||
+											payload.sub;
+										const email = typeof payload.email === 'string' ? payload.email : undefined;
+										const username =
+											typeof payload.preferred_username === 'string'
+												? payload.preferred_username
+												: undefined;
+
+										return (
+											<div style={{ marginBottom: '12px' }}>
+												{/* Basic User Info Card */}
 												<div
 													style={{
-														padding: '12px',
-														background: '#f8fafc', // Light background
-														borderRadius: '6px',
-														border: '1px solid #e2e8f0',
-														fontFamily: 'monospace',
-														fontSize: '11px',
-														maxHeight: '150px',
-														overflow: 'auto',
+														background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+														borderRadius: '8px',
+														padding: '14px',
+														marginBottom: '12px',
+														color: '#ffffff', // White text on dark background
 													}}
 												>
-													{Object.entries(payload).map(([key, value]) => (
-														<div key={key} style={{ marginBottom: '4px' }}>
-															<span style={{ color: '#6366f1', fontWeight: '600' }}>{key}</span>
-															<span style={{ color: '#6b7280' }}>: </span>
-															<span style={{ color: '#1f2937' }}>
-																{typeof value === 'object' ? JSON.stringify(value) : String(value)}
-															</span>
+													<div
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															gap: '10px',
+															marginBottom: '8px',
+														}}
+													>
+														<div
+															style={{
+																width: '40px',
+																height: '40px',
+																borderRadius: '50%',
+																background: 'rgba(255, 255, 255, 0.2)',
+																display: 'flex',
+																alignItems: 'center',
+																justifyContent: 'center',
+																fontSize: '20px',
+															}}
+														>
+															👤
 														</div>
-													))}
+														<div style={{ flex: 1 }}>
+															<div
+																style={{ fontSize: '16px', fontWeight: '600', marginBottom: '2px' }}
+															>
+																{String(name || 'User')}
+															</div>
+															{email && (
+																<div style={{ fontSize: '12px', opacity: 0.9 }}>📧 {email}</div>
+															)}
+															{username && username !== email && (
+																<div style={{ fontSize: '12px', opacity: 0.9 }}>🔑 {username}</div>
+															)}
+														</div>
+													</div>
 												</div>
-											</details>
+
+												{/* All Claims (Expandable) */}
+												<details style={{ marginTop: '8px' }}>
+													<summary
+														style={{
+															cursor: 'pointer',
+															fontWeight: '600',
+															marginBottom: '8px',
+															color: '#1f2937', // Dark text on light background
+															fontSize: '13px',
+															padding: '6px',
+															background: '#f3f4f6', // Light grey background
+															borderRadius: '4px',
+														}}
+													>
+														🔍 View All Claims
+													</summary>
+													<div
+														style={{
+															padding: '12px',
+															background: '#f8fafc', // Light background
+															borderRadius: '6px',
+															border: '1px solid #e2e8f0',
+															fontFamily: 'monospace',
+															fontSize: '11px',
+															maxHeight: '150px',
+															overflow: 'auto',
+														}}
+													>
+														{Object.entries(payload).map(([key, value]) => (
+															<div key={key} style={{ marginBottom: '4px' }}>
+																<span style={{ color: '#6366f1', fontWeight: '600' }}>{key}</span>
+																<span style={{ color: '#6b7280' }}>: </span>
+																<span style={{ color: '#1f2937' }}>
+																	{typeof value === 'object'
+																		? JSON.stringify(value)
+																		: String(value)}
+																</span>
+															</div>
+														))}
+													</div>
+												</details>
+											</div>
+										);
+									}
+								}
+								return null;
+							})()}
+
+							{/* Additional Parameters (Safe Only) */}
+							{(() => {
+								const safeParams = Object.entries(callbackDetails.allParams).filter(
+									([key]) =>
+										![
+											'access_token',
+											'id_token',
+											'refresh_token',
+											'code',
+											'state',
+											'session_state',
+										].includes(key)
+								);
+
+								if (safeParams.length > 0) {
+									return (
+										<div style={{ marginBottom: '20px' }}>
+											<div
+												style={{
+													fontWeight: '600',
+													marginBottom: '8px',
+													color: '#1f2937',
+													fontSize: '14px',
+												}}
+											>
+												📋 Additional Parameters
+											</div>
+											<div
+												style={{
+													padding: '12px',
+													background: '#f8fafc',
+													borderRadius: '6px',
+													border: '1px solid #e2e8f0',
+													fontFamily: 'monospace',
+													fontSize: '11px',
+													maxHeight: '150px',
+													overflow: 'auto',
+												}}
+											>
+												{safeParams.map(([key, value]) => (
+													<div key={key} style={{ marginBottom: '4px' }}>
+														<span style={{ color: '#6366f1', fontWeight: '600' }}>{key}</span>
+														<span style={{ color: '#6b7280' }}>: </span>
+														<span style={{ color: '#1f2937' }}>{value}</span>
+													</div>
+												))}
+											</div>
 										</div>
 									);
 								}
-							}
-							return null;
-						})()}
+								return null;
+							})()}
 
-						{/* Additional Parameters (Safe Only) */}
-						{(() => {
-							const safeParams = Object.entries(callbackDetails.allParams).filter(
-								([key]) =>
-									![
-										'access_token',
-										'id_token',
-										'refresh_token',
-										'code',
-										'state',
-										'session_state',
-									].includes(key)
-							);
+							{/* Next Steps */}
+							<div
+								style={{
+									padding: '12px',
+									background: '#dbeafe',
+									borderRadius: '6px',
+									marginBottom: '20px',
+									fontSize: '13px',
+									color: '#1e40af',
+								}}
+							>
+								<strong>Next Steps:</strong>
+								{callbackDetails.code ? (
+									<ol style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
+										<li>Click "Close" below to continue</li>
+										<li>Then click "Next Step" to proceed</li>
+										<li>Exchange the authorization code for tokens</li>
+									</ol>
+								) : (
+									<ol style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
+										<li>Click "Close" below to continue</li>
+										<li>Tokens have been automatically extracted!</li>
+										<li>Click "Next Step" to view and use your tokens</li>
+									</ol>
+								)}
+							</div>
+						</div>
 
-							if (safeParams.length > 0) {
-								return (
-									<div style={{ marginBottom: '20px' }}>
-										<div
-											style={{
-												fontWeight: '600',
-												marginBottom: '8px',
-												color: '#1f2937',
-												fontSize: '14px',
-											}}
-										>
-											📋 Additional Parameters
-										</div>
-										<div
-											style={{
-												padding: '12px',
-												background: '#f8fafc',
-												borderRadius: '6px',
-												border: '1px solid #e2e8f0',
-												fontFamily: 'monospace',
-												fontSize: '11px',
-												maxHeight: '150px',
-												overflow: 'auto',
-											}}
-										>
-											{safeParams.map(([key, value]) => (
-												<div key={key} style={{ marginBottom: '4px' }}>
-													<span style={{ color: '#6366f1', fontWeight: '600' }}>{key}</span>
-													<span style={{ color: '#6b7280' }}>: </span>
-													<span style={{ color: '#1f2937' }}>{value}</span>
-												</div>
-											))}
-										</div>
-									</div>
-								);
-							}
-							return null;
-						})()}
-
-						{/* Next Steps */}
-						<div
+						{/* Fixed Footer - Close Button */}
+						<button
+							type="button"
+							onClick={() => setShowCallbackSuccessModal(false)}
 							style={{
+								width: '100%',
 								padding: '12px',
-								background: '#dbeafe',
-								borderRadius: '6px',
-								marginBottom: '20px',
-								fontSize: '13px',
-								color: '#1e40af',
+								background: '#22c55e',
+								color: 'white', // White text on green background
+								border: 'none',
+								borderRadius: '8px',
+								fontSize: '16px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								flexShrink: 0,
 							}}
 						>
-							<strong>Next Steps:</strong>
-							{callbackDetails.code ? (
-								<ol style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
-									<li>Click "Close" below to continue</li>
-									<li>Then click "Next Step" to proceed</li>
-									<li>Exchange the authorization code for tokens</li>
-								</ol>
-							) : (
-								<ol style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
-									<li>Click "Close" below to continue</li>
-									<li>Tokens have been automatically extracted!</li>
-									<li>Click "Next Step" to view and use your tokens</li>
-								</ol>
-							)}
-						</div>
+							Close
+						</button>
 					</div>
-
-					{/* Fixed Footer - Close Button */}
-					<button
-						type="button"
-						onClick={() => setShowCallbackSuccessModal(false)}
-						style={{
-							width: '100%',
-							padding: '12px',
-							background: '#22c55e',
-							color: 'white', // White text on green background
-							border: 'none',
-							borderRadius: '8px',
-							fontSize: '16px',
-							fontWeight: '600',
-							cursor: 'pointer',
-							flexShrink: 0,
-						}}
-					>
-						Close
-					</button>
 				</div>
-			</div>
-		);
-	};
+			);
+		};
 
-	// Track previous step to only log when step changes (prevFlowTypeRef already exists above)
-	const prevStepRef = useRef<number>(-1);
+		// Track previous step to only log when step changes (prevFlowTypeRef already exists above)
+		const prevStepRef = useRef<number>(-1);
 
-	/**
-	 * Render step content based on current step and flow type
-	 *
-	 * This is the main routing function that determines which step UI to display.
-	 * The step number and flow type determine which render function is called.
-	 *
-	 * Step routing logic:
-	 * - Step 0: Always configuration (handled by parent component)
-	 * - Step 1+: Flow-specific steps (PKCE, Auth URL, Callback, Exchange, Tokens, etc.)
-	 *
-	 * Flow-specific step mappings:
-	 *
-	 * Client Credentials (4 steps):
-	 *   0: Config (parent)
-	 *   1: Request Token
-	 *   2: Display Tokens
-	 *   3: Introspection & UserInfo
-	 *
-	 * Device Code (5 steps):
-	 *   0: Config (parent)
-	 *   1: Request Device Authorization
-	 *   2: Poll for Tokens
-	 *   3: Display Tokens
-	 *   4: Introspection & UserInfo
-	 *
-	 * Implicit (5 steps):
-	 *   0: Config (parent)
-	 *   1: Generate Authorization URL
-	 *   2: Parse Fragment (extract tokens from URL)
-	 *   3: Display Tokens
-	 *   4: Introspection & UserInfo
-	 *
-	 * Authorization Code / Hybrid (6 steps - PKCE in Advanced Options):
-	 *   0: Config (parent) - PKCE configuration is in Advanced Options
-	 *   1: Generate Authorization URL (with or without PKCE based on setting)
-	 *   2: Handle Callback (extract authorization code)
-	 *   3: Exchange Code for Tokens (with or without code_verifier based on PKCE setting)
-	 *   4: Display Tokens
-	 *   5: Introspection & UserInfo
-	 *
-	 * @returns {JSX.Element | null} The rendered step content, or null if step is invalid
-	 */
-	const renderStepContent = () => {
-		// Only log when step or flow type changes (not on every render)
-		if (prevStepRef.current !== currentStep || prevFlowTypeRef.current !== flowType) {
-		console.log(`${MODULE_TAG} [STEP ROUTING] Rendering step content`, {
-			currentStep,
-			flowType,
-			usePKCE: isPKCERequired,
-			pkceEnforcement: credentials.pkceEnforcement,
-			alwaysShowPKCE: flowType === 'oauth-authz' || flowType === 'hybrid',
-		});
-			prevStepRef.current = currentStep;
-			// Note: prevFlowTypeRef is updated in the useEffect above, so we don't update it here
-		}
+		/**
+		 * Render step content based on current step and flow type
+		 *
+		 * This is the main routing function that determines which step UI to display.
+		 * The step number and flow type determine which render function is called.
+		 *
+		 * Step routing logic:
+		 * - Step 0: Always configuration (handled by parent component)
+		 * - Step 1+: Flow-specific steps (PKCE, Auth URL, Callback, Exchange, Tokens, etc.)
+		 *
+		 * Flow-specific step mappings:
+		 *
+		 * Client Credentials (4 steps):
+		 *   0: Config (parent)
+		 *   1: Request Token
+		 *   2: Display Tokens
+		 *   3: Introspection & UserInfo
+		 *
+		 * Device Code (5 steps):
+		 *   0: Config (parent)
+		 *   1: Request Device Authorization
+		 *   2: Poll for Tokens
+		 *   3: Display Tokens
+		 *   4: Introspection & UserInfo
+		 *
+		 * Implicit (5 steps):
+		 *   0: Config (parent)
+		 *   1: Generate Authorization URL
+		 *   2: Parse Fragment (extract tokens from URL)
+		 *   3: Display Tokens
+		 *   4: Introspection & UserInfo
+		 *
+		 * Authorization Code / Hybrid (6 steps - PKCE in Advanced Options):
+		 *   0: Config (parent) - PKCE configuration is in Advanced Options
+		 *   1: Generate Authorization URL (with or without PKCE based on setting)
+		 *   2: Handle Callback (extract authorization code)
+		 *   3: Exchange Code for Tokens (with or without code_verifier based on PKCE setting)
+		 *   4: Display Tokens
+		 *   5: Introspection & UserInfo
+		 *
+		 * @returns {JSX.Element | null} The rendered step content, or null if step is invalid
+		 */
+		const renderStepContent = () => {
+			// Only log when step or flow type changes (not on every render)
+			if (prevStepRef.current !== currentStep || prevFlowTypeRef.current !== flowType) {
+				console.log(`${MODULE_TAG} [STEP ROUTING] Rendering step content`, {
+					currentStep,
+					flowType,
+					usePKCE: isPKCERequired,
+					pkceEnforcement: credentials.pkceEnforcement,
+					alwaysShowPKCE: flowType === 'oauth-authz' || flowType === 'hybrid',
+				});
+				prevStepRef.current = currentStep;
+				// Note: prevFlowTypeRef is updated in the useEffect above, so we don't update it here
+			}
 
-		switch (currentStep) {
-			case 0:
-				return renderStep0();
+			switch (currentStep) {
+				case 0:
+					return renderStep0();
 
-			case 1:
-				if (flowType === 'device-code') {
-					return renderStep1DeviceAuth();
-				}
-				if (flowType === 'client-credentials') {
-					return renderStep2RequestToken();
-				}
-				// For oauth-authz and hybrid, Step 1 is PKCE generation
-				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-					console.log(`${MODULE_TAG} [STEP ROUTING] Showing PKCE step (Step 1) for ${flowType}`);
-					return renderStep1PKCE();
-				}
-				// For implicit flow, show Authorization URL step
-				console.log(`${MODULE_TAG} [STEP ROUTING] Showing Auth URL step for ${flowType}`);
-				return renderStep1AuthUrl();
-
-			case 2:
-				// For oauth-authz and hybrid, Step 2 is Authorization URL (after PKCE)
-				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-					console.log(
-						`${MODULE_TAG} [STEP ROUTING] Showing Auth URL step (Step 2) for ${flowType}`
-					);
+				case 1:
+					if (flowType === 'device-code') {
+						return renderStep1DeviceAuth();
+					}
+					if (flowType === 'client-credentials') {
+						return renderStep2RequestToken();
+					}
+					// For oauth-authz and hybrid, Step 1 is PKCE generation
+					if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+						console.log(`${MODULE_TAG} [STEP ROUTING] Showing PKCE step (Step 1) for ${flowType}`);
+						return renderStep1PKCE();
+					}
+					// For implicit flow, show Authorization URL step
+					console.log(`${MODULE_TAG} [STEP ROUTING] Showing Auth URL step for ${flowType}`);
 					return renderStep1AuthUrl();
-				}
-				// For other flows, Step 2 is callback/fragment handling
-				if (flowType === 'implicit') {
-					return renderStep2Fragment();
-				}
-				if (flowType === 'device-code') {
-					return renderStep2Poll();
-				}
-				// Client credentials - go to tokens
-				return renderStep3Tokens();
 
-			case 3:
-				// For oauth-authz and hybrid, Step 3 is callback handling (after Auth URL)
-				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-					return renderStep2Callback();
-				}
-				// For implicit and device-code, Step 3 is Tokens
-				if (flowType === 'implicit' || flowType === 'device-code') {
+				case 2:
+					// For oauth-authz and hybrid, Step 2 is Authorization URL (after PKCE)
+					if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+						console.log(
+							`${MODULE_TAG} [STEP ROUTING] Showing Auth URL step (Step 2) for ${flowType}`
+						);
+						return renderStep1AuthUrl();
+					}
+					// For other flows, Step 2 is callback/fragment handling
+					if (flowType === 'implicit') {
+						return renderStep2Fragment();
+					}
+					if (flowType === 'device-code') {
+						return renderStep2Poll();
+					}
+					// Client credentials - go to tokens
 					return renderStep3Tokens();
-				}
-				// Client credentials - Step 3 is Introspection & UserInfo (after Tokens at step 2)
-				if (flowType === 'client-credentials') {
-					return renderStep6IntrospectionUserInfo();
-				}
-				// All other flows - show tokens
-				return renderStep3Tokens();
 
-			case 4:
-				// For oauth-authz and hybrid, Step 4 is token exchange (after callback)
-				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-					return renderStep3ExchangeTokens();
-				}
-				// For implicit and device-code, Step 4 is Introspection & UserInfo (after Tokens at step 3)
-				if (flowType === 'implicit' || flowType === 'device-code') {
-					return renderStep6IntrospectionUserInfo();
-				}
-				// Client credentials - Step 4 is Documentation (after Introspection at step 3)
-				if (flowType === 'client-credentials') {
-					return renderStep7Documentation();
-				}
-				// All other flows - shouldn't reach here
-				return renderStep3Tokens();
-
-			case 5:
-				// For oauth-authz and hybrid, Step 5 is display tokens (after exchange)
-				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+				case 3:
+					// For oauth-authz and hybrid, Step 3 is callback handling (after Auth URL)
+					if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+						return renderStep2Callback();
+					}
+					// For implicit and device-code, Step 3 is Tokens
+					if (flowType === 'implicit' || flowType === 'device-code') {
+						return renderStep3Tokens();
+					}
+					// Client credentials - Step 3 is Introspection & UserInfo (after Tokens at step 2)
+					if (flowType === 'client-credentials') {
+						return renderStep6IntrospectionUserInfo();
+					}
+					// All other flows - show tokens
 					return renderStep3Tokens();
-				}
-				// For implicit and device-code, Step 5 is Documentation (after Introspection at step 4)
-				if (flowType === 'implicit' || flowType === 'device-code') {
-					return renderStep7Documentation();
-				}
-				return renderStep3Tokens();
 
-			case 6:
-				// For oauth-authz and hybrid, Step 6 is introspection & userinfo
-				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+				case 4:
+					// For oauth-authz and hybrid, Step 4 is token exchange (after callback)
+					if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+						return renderStep3ExchangeTokens();
+					}
+					// For implicit and device-code, Step 4 is Introspection & UserInfo (after Tokens at step 3)
+					if (flowType === 'implicit' || flowType === 'device-code') {
+						return renderStep6IntrospectionUserInfo();
+					}
+					// Client credentials - Step 4 is Documentation (after Introspection at step 3)
+					if (flowType === 'client-credentials') {
+						return renderStep7Documentation();
+					}
+					// All other flows - shouldn't reach here
+					return renderStep3Tokens();
+
+				case 5:
+					// For oauth-authz and hybrid, Step 5 is display tokens (after exchange)
+					if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+						return renderStep3Tokens();
+					}
+					// For implicit and device-code, Step 5 is Documentation (after Introspection at step 4)
+					if (flowType === 'implicit' || flowType === 'device-code') {
+						return renderStep7Documentation();
+					}
+					return renderStep3Tokens();
+
+				case 6:
+					// For oauth-authz and hybrid, Step 6 is introspection & userinfo
+					if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+						return renderStep6IntrospectionUserInfo();
+					}
+					// Implicit and device-code only have 6 steps (0-5), so step 6 doesn't exist for them
+					// This case should not be reached for implicit/device-code flows
 					return renderStep6IntrospectionUserInfo();
-				}
-				// Implicit and device-code only have 6 steps (0-5), so step 6 doesn't exist for them
-				// This case should not be reached for implicit/device-code flows
-				return renderStep6IntrospectionUserInfo();
 
-			case 7:
-				// For oauth-authz and hybrid, Step 7 is documentation (after Introspection at step 6)
-				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+				case 7:
+					// For oauth-authz and hybrid, Step 7 is documentation (after Introspection at step 6)
+					if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+						return renderStep7Documentation();
+					}
 					return renderStep7Documentation();
-				}
-				return renderStep7Documentation();
 
-			default:
-				// Check if we're on the documentation step (last step)
-				if (currentStep === totalSteps - 1) {
-					return renderStep7Documentation();
-				}
-				// Check if we're on the introspection step (second to last)
-				if (currentStep === totalSteps - 2) {
-					return renderStep6IntrospectionUserInfo();
-				}
-				return null;
-		}
-	};
+				default:
+					// Check if we're on the documentation step (last step)
+					if (currentStep === totalSteps - 1) {
+						return renderStep7Documentation();
+					}
+					// Check if we're on the introspection step (second to last)
+					if (currentStep === totalSteps - 2) {
+						return renderStep6IntrospectionUserInfo();
+					}
+					return null;
+			}
+		};
 
-	return (
-		<>
-			<style>{`
+		return (
+			<>
+				<style>{`
 				.unified-flow-steps-v8u .btn {
 					display: inline-flex;
 					align-items: center;
@@ -13769,643 +14264,659 @@ passed: boolean;
 					line-height: 1.5;
 				}
 			`}</style>
-			<div
-				className="unified-flow-steps-v8u"
-				style={{
-					padding: '24px',
-					background: '#ffffff',
-					borderRadius: '12px',
-					border: '1px solid #e2e8f0',
-					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					marginTop: '24px',
-				}}
-			>
-				{/* Modern Flow Step Breadcrumbs - Replaces old progress bar */}
 				<div
+					className="unified-flow-steps-v8u"
 					style={{
-						display: 'flex',
-						alignItems: 'center',
-						gap: '8px',
-						flexWrap: 'wrap',
-						padding: '16px',
-						background:
-							'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
+						padding: '24px',
+						background: '#ffffff',
 						borderRadius: '12px',
-						border: '1px solid rgba(102, 126, 234, 0.2)',
-						marginBottom: '24px',
-					}}
-				>
-					{stepLabels.map((label, index) => {
-						const isActive = index === nav.currentStep;
-						const isCompleted = nav.completedSteps.includes(index);
-						const isUpcoming = index > nav.currentStep;
-
-						return (
-							<React.Fragment key={index}>
-								<div
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: '8px',
-										padding: '8px 16px',
-										background: isCompleted
-											? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-											: isActive
-												? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-												: '#f3f4f6',
-										borderRadius: '20px',
-										fontSize: '14px',
-										fontWeight: isActive ? '600' : '500',
-										color: isCompleted || isActive ? '#ffffff' : '#6b7280',
-										opacity: isUpcoming ? 0.5 : 1,
-										boxShadow: isActive
-											? '0 4px 12px rgba(102, 126, 234, 0.3)'
-											: isCompleted
-												? '0 2px 8px rgba(16, 185, 129, 0.2)'
-												: 'none',
-										transition: 'all 0.3s ease',
-										cursor: isUpcoming ? 'not-allowed' : 'default',
-									}}
-								>
-									{isCompleted ? (
-										<span style={{ fontSize: '16px', fontWeight: 'bold' }}>✓</span>
-									) : (
-										<span
-											style={{
-												display: 'inline-flex',
-												alignItems: 'center',
-												justifyContent: 'center',
-												width: '22px',
-												height: '22px',
-												borderRadius: '50%',
-												background: isActive
-													? 'rgba(255, 255, 255, 0.25)'
-													: isCompleted
-														? 'rgba(255, 255, 255, 0.25)'
-														: 'rgba(107, 114, 128, 0.15)',
-												fontSize: '12px',
-												fontWeight: '700',
-											}}
-										>
-											{index + 1}
-										</span>
-									)}
-									<span>{label}</span>
-								</div>
-								{index < stepLabels.length - 1 && (
-									<span
-										style={{
-											fontSize: '18px',
-											color: isCompleted ? '#10b981' : '#9ca3af',
-											fontWeight: '300',
-										}}
-									>
-										→
-									</span>
-								)}
-							</React.Fragment>
-						);
-					})}
-				</div>
-
-				{/* Validation Feedback - Removed per user request (was showing false positives) */}
-
-				{/* User Token Status Display - Always visible */}
-				<UserTokenStatusDisplayV8U
-					flowType={flowType}
-					specVersion={specVersion}
-					credentials={credentials}
-					tokens={flowState.tokens}
-					onTokenRefresh={async () => {
-						// Handle token refresh if needed
-						console.log(`${MODULE_TAG} Token refresh requested`);
-					}}
-					onTokenRevoke={async (tokenType) => {
-						// Handle token revocation if needed
-						console.log(`${MODULE_TAG} Token revocation requested for:`, tokenType);
-					}}
-				/>
-
-				{/* Step Content */}
-				<div style={{ marginTop: '24px' }}>{renderStepContent()}</div>
-
-				{/* Step Action Buttons with Restart Flow in the middle - All buttons same size and color scheme */}
-				<div
-					style={{
-						display: 'flex',
-						gap: '12px',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-						padding: '16px 0',
+						border: '1px solid #e2e8f0',
+						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 						marginTop: '24px',
 					}}
 				>
-					{/* Previous Button */}
-					<button
-						type="button"
-						onClick={nav.goToPrevious}
-						disabled={!nav.canGoPrevious}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							gap: '8px',
-							padding: '10px 20px',
-							minWidth: '120px',
-							background: nav.canGoPrevious ? '#2196f3' : '#9ca3af',
-							color: 'white',
-							border: 'none',
-							borderRadius: '6px',
-							fontSize: '14px',
-							fontWeight: '500',
-							cursor: nav.canGoPrevious ? 'pointer' : 'not-allowed',
-							transition: 'all 0.2s ease',
-							opacity: nav.canGoPrevious ? 1 : 0.6,
-						}}
-						onMouseEnter={(e) => {
-							if (nav.canGoPrevious) {
-								e.currentTarget.style.background = '#1976d2';
-							}
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.background = nav.canGoPrevious ? '#2196f3' : '#9ca3af';
-						}}
-						title={nav.canGoPrevious ? 'Go to previous step' : 'Cannot go to previous step'}
-					>
-						<span>◀</span>
-						<span>Previous</span>
-					</button>
-
-					{/* Restart Flow Button - In the middle */}
-					<button
-						type="button"
-						onClick={handleRestartFlow}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							gap: '8px',
-							padding: '10px 20px',
-							minWidth: '120px',
-							background: '#2196f3',
-							color: 'white',
-							border: 'none',
-							borderRadius: '6px',
-							fontSize: '14px',
-							fontWeight: '500',
-							cursor: 'pointer',
-							transition: 'all 0.2s ease',
-						}}
-						onMouseEnter={(e) => {
-							e.currentTarget.style.background = '#1976d2';
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.background = '#2196f3';
-						}}
-						title="Clear OAuth tokens and flow state (credentials and worker token will be preserved)"
-					>
-						<span>🔄</span>
-						<span>Restart Flow</span>
-					</button>
-
-					{/* Next Button - Green with white text and arrow - Always show except on last step */}
-					{currentStep < totalSteps - 1 && (() => {
-						// Determine if we're on the token display step
-						let isTokenStep = false;
-						if (flowType === 'client-credentials') {
-							isTokenStep = currentStep === 2; // Step 3 (0-indexed: 0, 1, 2)
-						} else if (flowType === 'device-code' || flowType === 'implicit') {
-							isTokenStep = currentStep === 3; // Step 4 (0-indexed: 0, 1, 2, 3)
-						} else if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-							isTokenStep = currentStep === 5; // Step 6 (0-indexed: 0=Config, 1=PKCE, 2=AuthURL, 3=Callback, 4=Exchange, 5=Tokens)
-						}
-						
-						// Enable button if tokens are present on token step, or if no validation errors
-						const canProceed = isTokenStep && flowState.tokens?.accessToken 
-							? true 
-							: nav.canGoNext;
-						
-						return (
-						<button
-							type="button"
-							className="btn btn-next"
-							onClick={nav.goToNext}
-								disabled={!canProceed}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								gap: '8px',
-								minWidth: '120px',
-							}}
-								title={canProceed ? 'Proceed to next step' : 'Complete the current step first'}
-						>
-							<span>Next Step</span>
-							<FiArrowRight size={16} style={{ marginLeft: '4px' }} />
-						</button>
-						);
-					})()}
-					{/* Always show navigation to introspection step from tokens step, even if validation errors exist */}
-					{currentStep === totalSteps - 2 && flowState.tokens?.accessToken && (
-						<button
-							type="button"
-							className="btn btn-next"
-							onClick={() => navigateToStep(totalSteps - 1)}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								gap: '8px',
-								minWidth: '120px',
-								marginLeft: '8px',
-							}}
-							title="Go to API Documentation step"
-						>
-							<span>View API Documentation</span>
-							<FiArrowRight size={16} style={{ marginLeft: '4px' }} />
-						</button>
-					)}
-				</div>
-			</div>
-
-			{/* API Test Button */}
-			<div
-				style={{
-					marginTop: '16px',
-					padding: '16px',
-					background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-					borderRadius: '12px',
-					border: '1px solid #bae6fd',
-					textAlign: 'center',
-				}}
-			>
-				<div style={{ marginBottom: '12px' }}>
-					<h3 style={{ 
-						margin: '0 0 8px 0', 
-						fontSize: '16px', 
-						fontWeight: '600', 
-						color: '#0369a1' 
-					}}>
-						🧪 API Testing Suite
-					</h3>
-					<p style={{ 
-						margin: '0 0 12px 0', 
-						fontSize: '14px', 
-						color: '#64748b',
-						lineHeight: '1.5'
-					}}>
-						Test comprehensive OAuth and MFA API endpoints with real-time validation. 
-						Includes all flow types: Authorization Code, Implicit, Hybrid, Device Auth, 
-						Client Credentials, and MFA device management.
-					</p>
-				</div>
-				
-				<button
-					type="button"
-					onClick={() => {
-						window.open('/test/all-flows-api-test', '_blank');
-					}}
-					style={{
-						display: 'inline-flex',
-						alignItems: 'center',
-						gap: '8px',
-						padding: '12px 24px',
-						background: '#3b82f6',
-						color: 'white',
-						border: 'none',
-						borderRadius: '8px',
-						fontSize: '15px',
-						fontWeight: '600',
-						cursor: 'pointer',
-						boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
-						transition: 'all 0.2s ease',
-					}}
-					onMouseEnter={(e) => {
-						e.currentTarget.style.background = '#2563eb';
-						e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
-					}}
-					onMouseLeave={(e) => {
-						e.currentTarget.style.background = '#3b82f6';
-						e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
-					}}
-					title="Open comprehensive OAuth and MFA API test suite in new tab"
-				>
-					<FiCode size={18} />
-					Open API Test Suite
-				</button>
-				
-				<div style={{ 
-					marginTop: '12px', 
-					fontSize: '12px', 
-					color: '#64748b',
-					fontStyle: 'italic'
-				}}>
-					Opens in new tab • Tests all OAuth flows and MFA device types
-				</div>
-			</div>
-
-			{/* UserInfo Success Modal */}
-			{renderUserInfoModal()}
-
-			{/* Callback Success Modal */}
-			{renderCallbackSuccessModal()}
-
-			{/* Polling Timeout Modal */}
-			{renderPollingTimeoutModal()}
-
-			{/* Device Code Success Modal */}
-			{renderDeviceCodeSuccessModal()}
-
-			{/* PingOne Request Details Modal */}
-			{showPingOneRequestModal && pendingPingOneRequest && (
-				<div
-					style={{
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						backgroundColor: 'rgba(0, 0, 0, 0.5)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						zIndex: 10000,
-					}}
-					onClick={() => setShowPingOneRequestModal(false)}
-				>
+					{/* Modern Flow Step Breadcrumbs - Replaces old progress bar */}
 					<div
 						style={{
-							backgroundColor: 'white',
-							borderRadius: '8px',
-							padding: '24px',
-							maxWidth: '800px',
-							maxHeight: '90vh',
-							overflow: 'auto',
-							boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							flexWrap: 'wrap',
+							padding: '16px',
+							background:
+								'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
+							borderRadius: '12px',
+							border: '1px solid rgba(102, 126, 234, 0.2)',
+							marginBottom: '24px',
 						}}
-						onClick={(e) => e.stopPropagation()}
+					>
+						{stepLabels.map((label, index) => {
+							const isActive = index === nav.currentStep;
+							const isCompleted = nav.completedSteps.includes(index);
+							const isUpcoming = index > nav.currentStep;
+
+							return (
+								<React.Fragment key={index}>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '8px',
+											padding: '8px 16px',
+											background: isCompleted
+												? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+												: isActive
+													? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+													: '#f3f4f6',
+											borderRadius: '20px',
+											fontSize: '14px',
+											fontWeight: isActive ? '600' : '500',
+											color: isCompleted || isActive ? '#ffffff' : '#6b7280',
+											opacity: isUpcoming ? 0.5 : 1,
+											boxShadow: isActive
+												? '0 4px 12px rgba(102, 126, 234, 0.3)'
+												: isCompleted
+													? '0 2px 8px rgba(16, 185, 129, 0.2)'
+													: 'none',
+											transition: 'all 0.3s ease',
+											cursor: isUpcoming ? 'not-allowed' : 'default',
+										}}
+									>
+										{isCompleted ? (
+											<span style={{ fontSize: '16px', fontWeight: 'bold' }}>✓</span>
+										) : (
+											<span
+												style={{
+													display: 'inline-flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+													width: '22px',
+													height: '22px',
+													borderRadius: '50%',
+													background: isActive
+														? 'rgba(255, 255, 255, 0.25)'
+														: isCompleted
+															? 'rgba(255, 255, 255, 0.25)'
+															: 'rgba(107, 114, 128, 0.15)',
+													fontSize: '12px',
+													fontWeight: '700',
+												}}
+											>
+												{index + 1}
+											</span>
+										)}
+										<span>{label}</span>
+									</div>
+									{index < stepLabels.length - 1 && (
+										<span
+											style={{
+												fontSize: '18px',
+												color: isCompleted ? '#10b981' : '#9ca3af',
+												fontWeight: '300',
+											}}
+										>
+											→
+										</span>
+									)}
+								</React.Fragment>
+							);
+						})}
+					</div>
+
+					{/* Validation Feedback - Removed per user request (was showing false positives) */}
+
+					{/* User Token Status Display - Always visible */}
+					<UserTokenStatusDisplayV8U
+						flowType={flowType}
+						specVersion={specVersion}
+						credentials={credentials}
+						tokens={flowState.tokens}
+						onTokenRefresh={async () => {
+							// Handle token refresh if needed
+							console.log(`${MODULE_TAG} Token refresh requested`);
+						}}
+						onTokenRevoke={async (tokenType) => {
+							// Handle token revocation if needed
+							console.log(`${MODULE_TAG} Token revocation requested for:`, tokenType);
+						}}
+					/>
+
+					{/* Step Content */}
+					<div style={{ marginTop: '24px' }}>{renderStepContent()}</div>
+
+					{/* Step Action Buttons with Restart Flow in the middle - All buttons same size and color scheme */}
+					<div
+						style={{
+							display: 'flex',
+							gap: '12px',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							padding: '16px 0',
+							marginTop: '24px',
+						}}
+					>
+						{/* Previous Button */}
+						<button
+							type="button"
+							onClick={nav.goToPrevious}
+							disabled={!nav.canGoPrevious}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								gap: '8px',
+								padding: '10px 20px',
+								minWidth: '120px',
+								background: nav.canGoPrevious ? '#2196f3' : '#9ca3af',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								fontSize: '14px',
+								fontWeight: '500',
+								cursor: nav.canGoPrevious ? 'pointer' : 'not-allowed',
+								transition: 'all 0.2s ease',
+								opacity: nav.canGoPrevious ? 1 : 0.6,
+							}}
+							onMouseEnter={(e) => {
+								if (nav.canGoPrevious) {
+									e.currentTarget.style.background = '#1976d2';
+								}
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.background = nav.canGoPrevious ? '#2196f3' : '#9ca3af';
+							}}
+							title={nav.canGoPrevious ? 'Go to previous step' : 'Cannot go to previous step'}
+						>
+							<span>◀</span>
+							<span>Previous</span>
+						</button>
+
+						{/* Restart Flow Button - In the middle */}
+						<button
+							type="button"
+							onClick={handleRestartFlow}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								gap: '8px',
+								padding: '10px 20px',
+								minWidth: '120px',
+								background: '#2196f3',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								fontSize: '14px',
+								fontWeight: '500',
+								cursor: 'pointer',
+								transition: 'all 0.2s ease',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.background = '#1976d2';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.background = '#2196f3';
+							}}
+							title="Clear OAuth tokens and flow state (credentials and worker token will be preserved)"
+						>
+							<span>🔄</span>
+							<span>Restart Flow</span>
+						</button>
+
+						{/* Next Button - Green with white text and arrow - Always show except on last step */}
+						{currentStep < totalSteps - 1 &&
+							(() => {
+								// Determine if we're on the token display step
+								let isTokenStep = false;
+								if (flowType === 'client-credentials') {
+									isTokenStep = currentStep === 2; // Step 3 (0-indexed: 0, 1, 2)
+								} else if (flowType === 'device-code' || flowType === 'implicit') {
+									isTokenStep = currentStep === 3; // Step 4 (0-indexed: 0, 1, 2, 3)
+								} else if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+									isTokenStep = currentStep === 5; // Step 6 (0-indexed: 0=Config, 1=PKCE, 2=AuthURL, 3=Callback, 4=Exchange, 5=Tokens)
+								}
+
+								// Enable button if tokens are present on token step, or if no validation errors
+								const canProceed =
+									isTokenStep && flowState.tokens?.accessToken ? true : nav.canGoNext;
+
+								return (
+									<button
+										type="button"
+										className="btn btn-next"
+										onClick={nav.goToNext}
+										disabled={!canProceed}
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											gap: '8px',
+											minWidth: '120px',
+										}}
+										title={canProceed ? 'Proceed to next step' : 'Complete the current step first'}
+									>
+										<span>Next Step</span>
+										<FiArrowRight size={16} style={{ marginLeft: '4px' }} />
+									</button>
+								);
+							})()}
+						{/* Always show navigation to introspection step from tokens step, even if validation errors exist */}
+						{currentStep === totalSteps - 2 && flowState.tokens?.accessToken && (
+							<button
+								type="button"
+								className="btn btn-next"
+								onClick={() => navigateToStep(totalSteps - 1)}
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									gap: '8px',
+									minWidth: '120px',
+									marginLeft: '8px',
+								}}
+								title="Go to API Documentation step"
+							>
+								<span>View API Documentation</span>
+								<FiArrowRight size={16} style={{ marginLeft: '4px' }} />
+							</button>
+						)}
+					</div>
+				</div>
+
+				{/* API Test Button */}
+				<div
+					style={{
+						marginTop: '16px',
+						padding: '16px',
+						background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+						borderRadius: '12px',
+						border: '1px solid #bae6fd',
+						textAlign: 'center',
+					}}
+				>
+					<div style={{ marginBottom: '12px' }}>
+						<h3
+							style={{
+								margin: '0 0 8px 0',
+								fontSize: '16px',
+								fontWeight: '600',
+								color: '#0369a1',
+							}}
+						>
+							🧪 API Testing Suite
+						</h3>
+						<p
+							style={{
+								margin: '0 0 12px 0',
+								fontSize: '14px',
+								color: '#64748b',
+								lineHeight: '1.5',
+							}}
+						>
+							Test comprehensive OAuth and MFA API endpoints with real-time validation. Includes all
+							flow types: Authorization Code, Implicit, Hybrid, Device Auth, Client Credentials, and
+							MFA device management.
+						</p>
+					</div>
+
+					<button
+						type="button"
+						onClick={() => {
+							window.open('/test/all-flows-api-test', '_blank');
+						}}
+						style={{
+							display: 'inline-flex',
+							alignItems: 'center',
+							gap: '8px',
+							padding: '12px 24px',
+							background: '#3b82f6',
+							color: 'white',
+							border: 'none',
+							borderRadius: '8px',
+							fontSize: '15px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#2563eb';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = '#3b82f6';
+							e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
+						}}
+						title="Open comprehensive OAuth and MFA API test suite in new tab"
+					>
+						<FiCode size={18} />
+						Open API Test Suite
+					</button>
+
+					<div
+						style={{
+							marginTop: '12px',
+							fontSize: '12px',
+							color: '#64748b',
+							fontStyle: 'italic',
+						}}
+					>
+						Opens in new tab • Tests all OAuth flows and MFA device types
+					</div>
+				</div>
+
+				{/* UserInfo Success Modal */}
+				{renderUserInfoModal()}
+
+				{/* Callback Success Modal */}
+				{renderCallbackSuccessModal()}
+
+				{/* Polling Timeout Modal */}
+				{renderPollingTimeoutModal()}
+
+				{/* Device Code Success Modal */}
+				{renderDeviceCodeSuccessModal()}
+
+				{/* PingOne Request Details Modal */}
+				{showPingOneRequestModal && pendingPingOneRequest && (
+					<div
+						style={{
+							position: 'fixed',
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							backgroundColor: 'rgba(0, 0, 0, 0.5)',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							zIndex: 10000,
+						}}
+						onClick={() => setShowPingOneRequestModal(false)}
 					>
 						<div
 							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-								marginBottom: '16px',
+								backgroundColor: 'white',
+								borderRadius: '8px',
+								padding: '24px',
+								maxWidth: '800px',
+								maxHeight: '90vh',
+								overflow: 'auto',
+								boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
 							}}
+							onClick={(e) => e.stopPropagation()}
 						>
-							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
-								PingOne Authorization Request
-							</h2>
-							<button
-								type="button"
-								onClick={() => setShowPingOneRequestModal(false)}
-								style={{
-									background: 'none',
-									border: 'none',
-									fontSize: '24px',
-									cursor: 'pointer',
-									color: '#6b7280',
-								}}
-							>
-								×
-							</button>
-						</div>
-
-						<div
-							style={{
-								marginBottom: '16px',
-								padding: '12px',
-								backgroundColor: '#eff6ff',
-								borderRadius: '6px',
-							}}
-						>
-							<p style={{ margin: 0, fontSize: '14px', color: '#1e40af' }}>
-								<strong>What happens next?</strong> You're about to make a POST request to PingOne's
-								authorization endpoint. This modal shows the request details that will be sent.
-								After you click "Proceed", the request will be made and you may be prompted to enter
-								your credentials.
-							</p>
-						</div>
-
-						<div style={{ marginBottom: '16px' }}>
-							<h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
-								Request URL
-							</h3>
 							<div
 								style={{
-									padding: '12px',
-									backgroundColor: '#f3f4f6',
-									borderRadius: '6px',
-									fontFamily: 'monospace',
-									fontSize: '14px',
-									wordBreak: 'break-all',
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									marginBottom: '16px',
 								}}
 							>
-								{pendingPingOneRequest.method} {pendingPingOneRequest.url}
+								<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+									PingOne Authorization Request
+								</h2>
+								<button
+									type="button"
+									onClick={() => setShowPingOneRequestModal(false)}
+									style={{
+										background: 'none',
+										border: 'none',
+										fontSize: '24px',
+										cursor: 'pointer',
+										color: '#6b7280',
+									}}
+								>
+									×
+								</button>
 							</div>
-						</div>
 
-						<div style={{ marginBottom: '16px' }}>
-							<h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
-								Request Body
-							</h3>
 							<div
 								style={{
+									marginBottom: '16px',
 									padding: '12px',
-									backgroundColor: '#f3f4f6',
+									backgroundColor: '#eff6ff',
 									borderRadius: '6px',
-									fontFamily: 'monospace',
-									fontSize: '12px',
-									overflow: 'auto',
-									maxHeight: '400px',
 								}}
 							>
-								<pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-									{JSON.stringify(pendingPingOneRequest.body, null, 2)}
-								</pre>
+								<p style={{ margin: 0, fontSize: '14px', color: '#1e40af' }}>
+									<strong>What happens next?</strong> You're about to make a POST request to
+									PingOne's authorization endpoint. This modal shows the request details that will
+									be sent. After you click "Proceed", the request will be made and you may be
+									prompted to enter your credentials.
+								</p>
 							</div>
-						</div>
 
-						<div
-							style={{
-								display: 'flex',
-								gap: '12px',
-								justifyContent: 'flex-end',
-								marginTop: '24px',
-							}}
-						>
-							<button
-								type="button"
-								onClick={() => setShowPingOneRequestModal(false)}
+							<div style={{ marginBottom: '16px' }}>
+								<h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
+									Request URL
+								</h3>
+								<div
+									style={{
+										padding: '12px',
+										backgroundColor: '#f3f4f6',
+										borderRadius: '6px',
+										fontFamily: 'monospace',
+										fontSize: '14px',
+										wordBreak: 'break-all',
+									}}
+								>
+									{pendingPingOneRequest.method} {pendingPingOneRequest.url}
+								</div>
+							</div>
+
+							<div style={{ marginBottom: '16px' }}>
+								<h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
+									Request Body
+								</h3>
+								<div
+									style={{
+										padding: '12px',
+										backgroundColor: '#f3f4f6',
+										borderRadius: '6px',
+										fontFamily: 'monospace',
+										fontSize: '12px',
+										overflow: 'auto',
+										maxHeight: '400px',
+									}}
+								>
+									<pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+										{JSON.stringify(pendingPingOneRequest.body, null, 2)}
+									</pre>
+								</div>
+							</div>
+
+							<div
 								style={{
-									padding: '10px 20px',
-									background: '#6b7280',
-									color: 'white',
-									border: 'none',
-									borderRadius: '6px',
-									cursor: 'pointer',
-									fontSize: '14px',
-									fontWeight: '500',
+									display: 'flex',
+									gap: '12px',
+									justifyContent: 'flex-end',
+									marginTop: '24px',
 								}}
 							>
-								Cancel
-							</button>
-							<button
-								type="button"
-								onClick={handleProceedWithPingOneRequest}
-								style={{
-									padding: '10px 20px',
-									background: '#2196f3',
-									color: 'white',
-									border: 'none',
-									borderRadius: '6px',
-									cursor: 'pointer',
-									fontSize: '14px',
-									fontWeight: '500',
-								}}
-							>
-								Proceed to PingOne
-							</button>
+								<button
+									type="button"
+									onClick={() => setShowPingOneRequestModal(false)}
+									style={{
+										padding: '10px 20px',
+										background: '#6b7280',
+										color: 'white',
+										border: 'none',
+										borderRadius: '6px',
+										cursor: 'pointer',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
+									Cancel
+								</button>
+								<button
+									type="button"
+									onClick={handleProceedWithPingOneRequest}
+									style={{
+										padding: '10px 20px',
+										background: '#2196f3',
+										color: 'white',
+										border: 'none',
+										borderRadius: '6px',
+										cursor: 'pointer',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
+									Proceed to PingOne
+								</button>
+							</div>
 						</div>
 					</div>
-				</div>
-			)}
+				)}
 
-			{/* Redirectless Login Modal */}
-			<RedirectlessLoginModal
-				isOpen={showRedirectlessModal}
-				onClose={() => {
-					setShowRedirectlessModal(false);
-					setRedirectlessAuthError(null);
-					setIsRedirectlessAuthenticating(false);
-				}}
-				onLogin={handleSubmitRedirectlessCredentials}
-				title="PingOne Redirectless Authentication"
-				subtitle="Enter your credentials to continue with redirectless authentication"
-				isLoading={isRedirectlessAuthenticating}
-				error={redirectlessAuthError}
-			/>
-
-			{/* Worker Token vs Client Credentials Education Modal */}
-			<WorkerTokenVsClientCredentialsEducationModalV8
-				isOpen={showWorkerTokenVsClientCredentialsModal}
-				onClose={() => setShowWorkerTokenVsClientCredentialsModal(false)}
-				context={flowType === 'client-credentials' ? 'client-credentials' : 'general'}
-			/>
-
-			{/* Password Change Modal */}
-			{passwordChangeUserId && credentials.environmentId && (
-				<PasswordChangeModal
-					isOpen={showPasswordChangeModal}
+				{/* Redirectless Login Modal */}
+				<RedirectlessLoginModal
+					isOpen={showRedirectlessModal}
 					onClose={() => {
-						setShowPasswordChangeModal(false);
-						setPasswordChangeUserId(null);
-						setPasswordChangeFlowId(null);
-						setPasswordChangeState(null);
-						setPasswordChangeUsername(null);
+						setShowRedirectlessModal(false);
+						setRedirectlessAuthError(null);
+						setIsRedirectlessAuthenticating(false);
 					}}
-					onPasswordChange={handlePasswordChange}
-					userId={passwordChangeUserId}
-					environmentId={credentials.environmentId}
-					message="Your password must be changed before you can continue. Please enter your current password and choose a new one."
+					onLogin={handleSubmitRedirectlessCredentials}
+					title="PingOne Redirectless Authentication"
+					subtitle="Enter your credentials to continue with redirectless authentication"
+					isLoading={isRedirectlessAuthenticating}
+					error={redirectlessAuthError}
 				/>
-			)}
 
-			{/* Worker Token Modal */}
-			{showWorkerTokenModal && (
-				<WorkerTokenModalV8
-					isOpen={showWorkerTokenModal}
-					onClose={async () => {
-						setShowWorkerTokenModal(false);
-						// After modal closes, check if token is available and re-run validation
-						const { WorkerTokenStatusServiceV8 } = await import('@/v8/services/workerTokenStatusServiceV8');
-						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-						if (tokenStatus.isValid) {
-							// Re-run pre-flight validation
-							setIsLoading(true);
-							setLoadingMessage('🔍 Re-validating Configuration...');
-							try {
-								const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
-								const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
-								
-								const newWorkerToken = await workerTokenServiceV8.getToken();
-								const newValidationResult = await PreFlightValidationServiceV8.validateBeforeAuthUrl({
-									specVersion,
-									flowType,
-									credentials,
-									...(newWorkerToken && { workerToken: newWorkerToken }),
-								});
-								
-								// Update validation results
-								if (newValidationResult.errors.length > 0) {
-									const errorMessage = [
-										'🔍 Pre-flight Validation Results:',
-										'',
-										'❌ ERRORS (must be fixed before proceeding):',
-										...newValidationResult.errors.map(err => `  ${err}`),
-										'',
-										'🔧 How to Fix:',
-										'1. Go to Step 0 (Configuration)',
-										'2. Review and fix the errors listed above',
-										'3. Try generating the authorization URL again',
-										'',
-										'⚠️ WARNING: If you proceed with errors, the authorization request will likely fail.'
-									].join('\n');
-									setError(errorMessage);
-									setValidationErrors([errorMessage]);
-									setValidationWarnings([]);
-									toastV8.error('Pre-flight validation failed - check error details below');
-								} else if (newValidationResult.warnings.length > 0) {
-									const warningMessage = [
-										'🔍 Pre-flight Validation Results:',
-										'',
-										'⚠️ WARNINGS (you can still proceed):',
-										...newValidationResult.warnings.map(warn => `  ${warn}`),
-										'',
-										'✅ You can continue with the flow, but be aware that some validations were skipped.'
-									].join('\n');
-									setValidationWarnings([warningMessage]);
-									setValidationErrors([]);
-									toastV8.warning('Pre-flight validation warnings - check details below');
-								} else {
-									// No errors or warnings - validation passed
-									setValidationWarnings([]);
-									setValidationErrors([]);
-									toastV8.success('Pre-flight validation passed!');
+				{/* Worker Token vs Client Credentials Education Modal */}
+				<WorkerTokenVsClientCredentialsEducationModalV8
+					isOpen={showWorkerTokenVsClientCredentialsModal}
+					onClose={() => setShowWorkerTokenVsClientCredentialsModal(false)}
+					context={flowType === 'client-credentials' ? 'client-credentials' : 'general'}
+				/>
+
+				{/* Password Change Modal */}
+				{passwordChangeUserId && credentials.environmentId && (
+					<PasswordChangeModal
+						isOpen={showPasswordChangeModal}
+						onClose={() => {
+							setShowPasswordChangeModal(false);
+							setPasswordChangeUserId(null);
+							setPasswordChangeFlowId(null);
+							setPasswordChangeState(null);
+							setPasswordChangeUsername(null);
+						}}
+						onPasswordChange={handlePasswordChange}
+						userId={passwordChangeUserId}
+						environmentId={credentials.environmentId}
+						message="Your password must be changed before you can continue. Please enter your current password and choose a new one."
+					/>
+				)}
+
+				{/* Worker Token Modal */}
+				{showWorkerTokenModal && (
+					<WorkerTokenModalV8
+						isOpen={showWorkerTokenModal}
+						onClose={async () => {
+							setShowWorkerTokenModal(false);
+							// After modal closes, check if token is available and re-run validation
+							const { WorkerTokenStatusServiceV8 } = await import(
+								'@/v8/services/workerTokenStatusServiceV8'
+							);
+							const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+							if (tokenStatus.isValid) {
+								// Re-run pre-flight validation
+								setIsLoading(true);
+								setLoadingMessage('🔍 Re-validating Configuration...');
+								try {
+									const { PreFlightValidationServiceV8 } = await import(
+										'@/v8/services/preFlightValidationServiceV8'
+									);
+									const { workerTokenServiceV8 } = await import(
+										'@/v8/services/workerTokenServiceV8'
+									);
+
+									const newWorkerToken = await workerTokenServiceV8.getToken();
+									const newValidationResult =
+										await PreFlightValidationServiceV8.validateBeforeAuthUrl({
+											specVersion,
+											flowType,
+											credentials,
+											...(newWorkerToken && { workerToken: newWorkerToken }),
+										});
+
+									// Update validation results
+									if (newValidationResult.errors.length > 0) {
+										const errorMessage = [
+											'🔍 Pre-flight Validation Results:',
+											'',
+											'❌ ERRORS (must be fixed before proceeding):',
+											...newValidationResult.errors.map((err) => `  ${err}`),
+											'',
+											'🔧 How to Fix:',
+											'1. Go to Step 0 (Configuration)',
+											'2. Review and fix the errors listed above',
+											'3. Try generating the authorization URL again',
+											'',
+											'⚠️ WARNING: If you proceed with errors, the authorization request will likely fail.',
+										].join('\n');
+										setError(errorMessage);
+										setValidationErrors([errorMessage]);
+										setValidationWarnings([]);
+										toastV8.error('Pre-flight validation failed - check error details below');
+									} else if (newValidationResult.warnings.length > 0) {
+										const warningMessage = [
+											'🔍 Pre-flight Validation Results:',
+											'',
+											'⚠️ WARNINGS (you can still proceed):',
+											...newValidationResult.warnings.map((warn) => `  ${warn}`),
+											'',
+											'✅ You can continue with the flow, but be aware that some validations were skipped.',
+										].join('\n');
+										setValidationWarnings([warningMessage]);
+										setValidationErrors([]);
+										toastV8.warning('Pre-flight validation warnings - check details below');
+									} else {
+										// No errors or warnings - validation passed
+										setValidationWarnings([]);
+										setValidationErrors([]);
+										toastV8.success('Pre-flight validation passed!');
+									}
+								} catch (error) {
+									console.error(
+										`${MODULE_TAG} Error re-running validation after token retrieval:`,
+										error
+									);
+									toastV8.error('Failed to re-run validation. Please try again.');
+								} finally {
+									setIsLoading(false);
+									setLoadingMessage('');
 								}
-							} catch (error) {
-								console.error(`${MODULE_TAG} Error re-running validation after token retrieval:`, error);
-								toastV8.error('Failed to re-run validation. Please try again.');
-							} finally {
-								setIsLoading(false);
-								setLoadingMessage('');
 							}
-						}
-					}}
-				/>
-			)}
+						}}
+					/>
+				)}
 
-			{/* ID Token Validation Modal */}
-			<IDTokenValidationModalV8U
-				isOpen={showIdTokenValidationModal}
-				onClose={() => setShowIdTokenValidationModal(false)}
-				idToken={flowState.tokens?.idToken || ''}
-				clientId={credentials.clientId}
-				environmentId={credentials.environmentId}
-				nonce={flowState.nonce}
-			/>
-			{/* Step Navigation - Always visible */}
-			<StepNavigation
-				totalSteps={totalSteps}
-				currentStep={currentStep}
-				onStepChange={navigateToStep}
-				previousLabel="← Previous"
-				nextLabel="Next →"
-				resetLabel="🔄 Restart"
-			/>
-		</>
-	);
-};
+				{/* ID Token Validation Modal */}
+				<IDTokenValidationModalV8U
+					isOpen={showIdTokenValidationModal}
+					onClose={() => setShowIdTokenValidationModal(false)}
+					idToken={flowState.tokens?.idToken || ''}
+					clientId={credentials.clientId}
+					environmentId={credentials.environmentId}
+					nonce={flowState.nonce}
+				/>
+				{/* Step Navigation - Always visible */}
+				<StepNavigation
+					totalSteps={totalSteps}
+					currentStep={currentStep}
+					onStepChange={navigateToStep}
+					previousLabel="← Previous"
+					nextLabel="Next →"
+					resetLabel="🔄 Restart"
+				/>
+			</>
+		);
+	};
 };
 
 export default UnifiedFlowSteps;
