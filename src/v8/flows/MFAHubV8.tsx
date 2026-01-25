@@ -23,7 +23,7 @@ import { usePageScroll } from '@/hooks/usePageScroll';
 import { pingOneLogoutService } from '@/services/pingOneLogoutService';
 import { oauthStorage } from '@/utils/storage';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
-import { WorkerTokenGaugeV8 } from '@/v8/components/WorkerTokenGaugeV8';
+import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
@@ -715,21 +715,8 @@ export const MFAHubV8: React.FC = () => {
 								flexWrap: 'wrap',
 							}}
 						>
-							{/* Gauge */}
-							<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-								<WorkerTokenGaugeV8 tokenStatus={tokenStatus} size={120} />
-								<div
-									style={{
-										marginTop: '8px',
-										fontSize: '12px',
-										color: '#6b7280',
-										textAlign: 'center',
-										maxWidth: '120px',
-									}}
-								>
-									{tokenStatus.message}
-								</div>
-							</div>
+							{/* New Worker Token Status Display */}
+							<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
 
 							{/* Settings and Controls */}
 							<div style={{ flex: 1, minWidth: '300px' }}>
