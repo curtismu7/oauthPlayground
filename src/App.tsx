@@ -1103,6 +1103,14 @@ const AppRoutes: React.FC = () => {
 								}
 							/>
 							<Route
+								path="/test/all-flows-api"
+								element={
+									<Suspense fallback={<div>Loading...</div>}>
+										<AllFlowsApiTest />
+									</Suspense>
+								}
+							/>
+							<Route
 								path="/test/mfa-flows-api-test"
 								element={
 									<Suspense fallback={<div>Loading...</div>}>
