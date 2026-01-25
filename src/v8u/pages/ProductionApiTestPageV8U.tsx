@@ -952,6 +952,18 @@ const ProductionApiTestPageV8U: React.FC = () => {
 					gap: '16px',
 					padding: '16px 0'
 				}}>
+					{/* Test div to verify rendering */}
+					<div style={{ 
+						border: '3px solid red', 
+						background: 'yellow', 
+						padding: '20px', 
+						margin: '10px 0',
+						fontSize: '18px',
+						fontWeight: 'bold'
+					}}>
+						TEST DIV - This should be visible
+					</div>
+
 					{/* Cool 3D Worker Token Status Display */}
 					<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
 
