@@ -1941,9 +1941,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 										<small>Your PingOne environment identifier (saved globally once entered)</small>
 									</div>
 
-									{/* Cool 3D Worker Token Status Display */}
-									<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
-									
 									<small style={{ marginBottom: '8px', display: 'block' }}>
 										Worker token is required to discover applications
 									</small>
@@ -2130,6 +2127,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 													</span>
 												</div>
 											</label>
+										</div>
+
+										{/* Cool 3D Worker Token Status Display - Moved below buttons */}
+										<div style={{ marginTop: '20px' }}>
+											<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
 										</div>
 
 									{/* Client ID */}
