@@ -266,7 +266,7 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
   onFeatureToggle,
   enabledFeatures = [],
 }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true); // Collapsed by default
   const [features, setFeatures] = useState<AdvancedFeature[]>([]);
   
   // Modal state for confirmation
@@ -574,30 +574,30 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
           </AdvancedFeaturesContainer>
         </CollapsibleContent>
       )}
+      
+      {/* Confirmation Modal */}
+      {showModal && pendingFeature && (
+        <FeatureEnableConfirmationModal
+          isOpen={showModal}
+          onClose={() => {
+            setShowModal(false);
+            setPendingFeature(null);
+          }}
+          onConfirm={handleConfirmFeatureToggle}
+          featureName={pendingFeature.name}
+          featureId={pendingFeature.id}
+          isEnabling={pendingFeature.isEnabling}
+          appName="OAuth Playground App"
+          changes={PingOneClientServiceV8U.generateChangeDescriptions(
+            pendingFeature.id,
+            pendingFeature.name,
+            pendingFeature.isEnabling,
+            'OAuth Playground App'
+          )}
+          isLoading={isUpdating}
+        />
+      )}
     </CollapsibleSection>
-
-    {/* Confirmation Modal */}
-    {showModal && pendingFeature && (
-      <FeatureEnableConfirmationModal
-        isOpen={showModal}
-        onClose={() => {
-          setShowModal(false);
-          setPendingFeature(null);
-        }}
-        onConfirm={handleConfirmFeatureToggle}
-        featureName={pendingFeature.name}
-        featureId={pendingFeature.id}
-        isEnabling={pendingFeature.isEnabling}
-        appName="OAuth Playground App"
-        changes={PingOneClientServiceV8U.generateChangeDescriptions(
-          pendingFeature.id,
-          pendingFeature.name,
-          pendingFeature.isEnabling,
-          'OAuth Playground App'
-        )}
-        isLoading={isUpdating}
-      />
-    )}
   );
 };
 
