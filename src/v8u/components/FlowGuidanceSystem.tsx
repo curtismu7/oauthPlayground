@@ -313,9 +313,21 @@ export const FlowGuidanceSystem: React.FC<FlowGuidanceSystemProps> = ({
   };
 
   const handleApplyRecommendation = () => {
+    console.log('🎯 FlowGuidanceSystem: Apply Recommendation button clicked');
     const useCase = getSelectedUseCase();
+    console.log('🎯 FlowGuidanceSystem: Selected use case:', useCase);
+    
     if (useCase && onFlowSelect) {
+      console.log('🎯 FlowGuidanceSystem: Calling onFlowSelect with:', {
+        recommendedFlow: useCase.recommendedFlow,
+        recommendedSpec: useCase.recommendedSpec
+      });
       onFlowSelect(useCase.recommendedFlow, useCase.recommendedSpec);
+    } else {
+      console.log('🎯 FlowGuidanceSystem: No use case or onFlowSelect handler', {
+        useCase: !!useCase,
+        onFlowSelect: !!onFlowSelect
+      });
     }
   };
 

@@ -26,6 +26,7 @@ import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { UnifiedWorkerTokenServiceV8 } from '@/v8/services/unifiedWorkerTokenServiceV8';
 import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
@@ -295,27 +296,10 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 							<div
 								style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}
 							>
-								<button
-									type="button"
-									onClick={handleManageWorkerToken}
-									className="token-button"
-									style={{
-										padding: '10px 16px',
-										background: tokenStatus.isValid ? '#10b981' : '#ef4444',
-										color: 'white',
-										border: 'none',
-										borderRadius: '6px',
-										fontSize: '14px',
-										fontWeight: '600',
-										cursor: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										gap: '8px',
-									}}
-								>
-									<span>🔑</span>
-									<span>{tokenStatus.isValid ? 'Manage Token' : 'Add Token'}</span>
-								</button>
+								<UnifiedWorkerTokenServiceV8 
+									mode="minimal"
+									showRefresh={false}
+								/>
 
 								<div
 									style={{

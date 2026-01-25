@@ -6,9 +6,56 @@
  * @since 2024-11-16
  */
 
-import { unifiedWorkerTokenServiceV2 } from '../../services/unifiedWorkerTokenServiceV2';
+import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
 
 const _MODULE_TAG = '[🔑 WORKER-TOKEN-STATUS-V8]';
+const WORKER_TOKEN_SETTINGS_KEY = 'worker_token_settings_v8';
+
+/**
+ * Worker token settings interface
+ */
+export interface WorkerTokenSettings {
+	silentApiRetrieval: boolean;
+	showTokenAtEnd: boolean;
+}
+
+/**
+ * Default worker token settings
+ */
+const DEFAULT_WORKER_TOKEN_SETTINGS: WorkerTokenSettings = {
+	silentApiRetrieval: false,
+	showTokenAtEnd: false,
+};
+
+/**
+ * Load worker token settings from localStorage
+ */
+export const loadWorkerTokenSettings = (): WorkerTokenSettings => {
+	try {
+		const stored = localStorage.getItem(WORKER_TOKEN_SETTINGS_KEY);
+		if (stored) {
+			const parsed = JSON.parse(stored);
+			return { ...DEFAULT_WORKER_TOKEN_SETTINGS, ...parsed };
+		}
+	} catch (error) {
+		console.warn(`${_MODULE_TAG} Failed to load worker token settings:`, error);
+	}
+	return DEFAULT_WORKER_TOKEN_SETTINGS;
+};
+
+/**
+ * Save worker token settings to localStorage
+ */
+export const saveWorkerTokenSettings = (settings: Partial<WorkerTokenSettings>): void => {
+	try {
+		const currentSettings = loadWorkerTokenSettings();
+		const updatedSettings = { ...currentSettings, ...settings };
+		localStorage.setItem(WORKER_TOKEN_SETTINGS_KEY, JSON.stringify(updatedSettings));
+		console.log(`${_MODULE_TAG} ✅ Worker token settings saved:`, updatedSettings);
+	} catch (error) {
+		console.error(`${_MODULE_TAG} ❌ Failed to save worker token settings:`, error);
+	}
+};
 
 export type TokenStatus = 'valid' | 'expiring-soon' | 'expired' | 'missing';
 
@@ -19,6 +66,11 @@ export interface TokenStatusInfo {
 	expiresAt?: number;
 	minutesRemaining?: number;
 	token?: string;
+	// Worker token settings
+	settings: {
+		silentApiRetrieval: boolean;
+		showTokenAtEnd: boolean;
+	};
 }
 
 /**
@@ -51,6 +103,9 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 		console.log(`${_MODULE_TAG} 🔍 Checking worker token status using unified service V2`);
 	}
 	
+	// Load worker token settings
+	const settings = loadWorkerTokenSettings();
+	
 	try {
 		// Use the new unified worker token service V2
 		const status = await unifiedWorkerTokenServiceV2.getStatus();
@@ -66,6 +121,7 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 				status: 'missing',
 				message: 'No worker token credentials. Click "Get Worker Token" to generate one.',
 				isValid: false,
+				settings,
 			};
 		}
 		
@@ -74,6 +130,7 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 				status: 'missing',
 				message: 'No worker token. Click "Get Worker Token" to generate one.',
 				isValid: false,
+				settings,
 			};
 		}
 		
@@ -83,6 +140,7 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 					status: 'expired',
 					message: 'Worker token expired. Click "Get Worker Token" to generate a new one.',
 					isValid: false,
+					settings,
 				};
 				if (status.lastFetchedAt) {
 					result.expiresAt = status.lastFetchedAt + (status.tokenExpiresIn * 1000);
@@ -96,6 +154,7 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 					status: 'expiring-soon',
 					message: `Worker token expires in ${status.tokenExpiresIn} minutes.`,
 					isValid: true,
+					settings,
 				};
 				if (status.lastFetchedAt) {
 					result.expiresAt = status.lastFetchedAt + (status.tokenExpiresIn! * 1000);
@@ -124,6 +183,7 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 			status: tokenStatus,
 			message,
 			isValid: true,
+			settings,
 		};
 		if (status.lastFetchedAt && status.tokenExpiresIn) {
 			result.expiresAt = status.lastFetchedAt + (status.tokenExpiresIn * 1000);
@@ -142,6 +202,7 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 			status: 'missing',
 			message: 'Error checking worker token status.',
 			isValid: false,
+			settings,
 		};
 	}
 };
@@ -182,6 +243,8 @@ export const WorkerTokenStatusServiceV8 = {
 	formatTimeRemaining,
 	getStatusColor,
 	getStatusIcon,
+	loadWorkerTokenSettings,
+	saveWorkerTokenSettings,
 };
 
 export default WorkerTokenStatusServiceV8;

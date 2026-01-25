@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Form, Modal, Spinner } from 'react-bootstrap';
+import ModalSpinnerServiceV8U from '@/v8/services/modalSpinnerServiceV8U';
 import {
 	EnhancedPingOneMfaService,
 	type MfaDevice,
@@ -27,6 +28,13 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 	const [showAddModal, setShowAddModal] = useState(false);
 	const [verificationCode, setVerificationCode] = useState('');
 	const [activeDevice, setActiveDevice] = useState<MfaDevice | null>(null);
+
+	// Cleanup modal spinner on unmount
+	useEffect(() => {
+		return () => {
+			ModalSpinnerServiceV8U.cleanup('mfaDeviceManager');
+		};
+	}, []);
 	const [isActivating, setIsActivating] = useState(false);
 	const [isAdding, setIsAdding] = useState(false);
 	const [selectedDeviceType, setSelectedDeviceType] = useState<'SMS' | 'TOTP'>('TOTP');
@@ -40,8 +48,19 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 	}, [loadDevices]);
 
 	const loadDevices = async () => {
+		const modalKey = 'mfaDeviceManager';
+		
+		// Initialize modal spinner
+		ModalSpinnerServiceV8U.getInstance(modalKey, {
+			show: false,
+			message: '',
+			theme: 'blue',
+		});
+		
 		try {
 			setIsLoading(true);
+			ModalSpinnerServiceV8U.show(modalKey, 'Loading MFA devices...', 'blue');
+			
 			const deviceList = await EnhancedPingOneMfaService.getDevices(credentials);
 			setDevices(deviceList);
 		} catch (error) {
@@ -49,6 +68,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 			v4ToastManager.showError('Failed to load MFA devices');
 		} finally {
 			setIsLoading(false);
+			ModalSpinnerServiceV8U.hide(modalKey);
 		}
 	};
 

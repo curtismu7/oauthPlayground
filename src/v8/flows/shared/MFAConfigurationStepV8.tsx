@@ -14,7 +14,7 @@ import { FiLoader } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
-import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
+import { UnifiedWorkerTokenServiceV8 } from '@/v8/services/unifiedWorkerTokenServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -810,77 +810,10 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
 						{/* Worker Token Button - Always show, but optional when using User Token */}
 						{tokenType === 'worker' ? (
-							<>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-									{/* Worker Token Status Display */}
-									<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
-									
-									<button
-										type="button"
-										onClick={async () => {
-											if (tokenStatus.isValid) {
-												// #region agent log
-												// #endregion
-												const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
-												await workerTokenServiceV8.clearToken();
-												// #region agent log
-												// #endregion
-												window.dispatchEvent(new Event('workerTokenUpdated'));
-												const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-												// #region agent log
-												// #endregion
-												toastV8.success('Worker token removed');
-											} else {
-												// Use helper to check silentApiRetrieval before showing modal
-												// Pass current checkbox values to override config (page checkboxes take precedence)
-												// forceShowModal=true because user explicitly clicked the button - always show modal
-												const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-												await handleShowWorkerTokenModal(
-													setShowWorkerTokenModal,
-													undefined,
-													silentApiRetrieval,  // Page checkbox value takes precedence
-													showTokenAtEnd,      // Page checkbox value takes precedence
-													true,                 // Force show modal - user clicked button
-													setIsRetrievingWorkerToken
-												);
-											}
-										}}
-										className="token-button"
-										style={{
-											padding: '12px 20px',
-											background: tokenStatus.isValid ? '#10b981' : '#6366f1',
-											color: 'white',
-											border: 'none',
-											borderRadius: '6px',
-											fontSize: '14px',
-											fontWeight: '600',
-											cursor: 'pointer',
-											display: 'flex',
-											alignItems: 'center',
-											gap: '8px',
-											boxShadow: tokenStatus.isValid
-												? '0 2px 4px rgba(16, 185, 129, 0.2)'
-												: '0 2px 4px rgba(59, 130, 246, 0.2)',
-											transition: 'all 0.2s ease',
-										}}
-										onMouseEnter={(e) => {
-											e.currentTarget.style.transform = 'translateY(-1px)';
-											e.currentTarget.style.boxShadow = tokenStatus.isValid
-												? '0 4px 8px rgba(16, 185, 129, 0.3)'
-												: '0 4px 8px rgba(59, 130, 246, 0.3)';
-										}}
-										onMouseLeave={(e) => {
-											e.currentTarget.style.transform = 'translateY(0)';
-											e.currentTarget.style.boxShadow = tokenStatus.isValid
-												? '0 2px 4px rgba(16, 185, 129, 0.2)'
-												: '0 2px 4px rgba(59, 130, 246, 0.2)';
-										}}
-									>
-										<span>🔑</span>
-										<span>Get Worker Token</span>
-									</button>
-								</div>
-							</>
+							<UnifiedWorkerTokenServiceV8 
+								mode="compact"
+								showRefresh={true}
+							/>
 						) : null}
 						
 						{/* Worker Token Settings Checkboxes - Show when worker token is relevant (admin flow or tokenType is worker) */}
@@ -1258,76 +1191,10 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 
 						{/* Worker Token Button (Optional) - Show when using User Token for loading policies */}
 						{tokenType === 'user' && (
-							<button
-								type="button"
-								onClick={async () => {
-									if (tokenStatus.isValid) {
-										// #region agent log
-										// #endregion
-										const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
-										await workerTokenServiceV8.clearToken();
-										// #region agent log
-										// #endregion
-										window.dispatchEvent(new Event('workerTokenUpdated'));
-										const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-										// #region agent log
-										// #endregion
-										toastV8.success('Worker token removed');
-									} else {
-										// Use helper to check silentApiRetrieval before showing modal
-										// forceShowModal=true because user explicitly clicked the button - always show modal
-										const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-										await handleShowWorkerTokenModal(setShowWorkerTokenModal, undefined, undefined, undefined, true, setIsRetrievingWorkerToken);
-									}
-								}}
-								className="token-button"
-								style={{
-									padding: '12px 20px',
-									background: tokenStatus.isValid ? '#10b981' : '#6366f1',
-									color: 'white',
-									border: 'none',
-									borderRadius: '6px',
-									fontSize: '14px',
-									fontWeight: '600',
-									cursor: 'pointer',
-									display: 'flex',
-									alignItems: 'center',
-									gap: '8px',
-									boxShadow: tokenStatus.isValid
-										? '0 2px 4px rgba(16, 185, 129, 0.2)'
-										: '0 2px 4px rgba(99, 102, 241, 0.2)',
-									transition: 'all 0.2s ease',
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.transform = 'translateY(-1px)';
-									e.currentTarget.style.boxShadow = tokenStatus.isValid
-										? '0 4px 8px rgba(16, 185, 129, 0.3)'
-										: '0 4px 8px rgba(99, 102, 241, 0.3)';
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.transform = 'translateY(0)';
-									e.currentTarget.style.boxShadow = tokenStatus.isValid
-										? '0 2px 4px rgba(16, 185, 129, 0.2)'
-										: '0 2px 4px rgba(99, 102, 241, 0.2)';
-								}}
-								title={
-									tokenStatus.isValid
-										? 'Worker token is available for loading policies'
-										: 'Add worker token to load and select device authentication policies'
-								}
-							>
-								{isRetrievingWorkerToken ? (
-									<>
-										<FiLoader size={16} style={{ animation: 'spin 1s linear infinite' }} />
-										<span>Retrieving Token...</span>
-									</>
-								) : (
-									<>
-										<span>🔑</span>
-										<span>{tokenStatus.isValid ? 'Worker Token' : 'Add Worker Token (Optional)'}</span>
-									</>
-								)}
-							</button>
+							<UnifiedWorkerTokenServiceV8 
+								mode="minimal"
+								showRefresh={false}
+							/>
 						)}
 
 						<button

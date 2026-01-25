@@ -27,24 +27,63 @@ export const Spinner: React.FC<SpinnerProps> = ({
     }
   };
 
+  const getAnimationStyle = () => {
+    switch (variant) {
+      case 'spin':
+        return {
+          animation: 'spin 1s linear infinite',
+        };
+      case 'pulse':
+        return {
+          animation: 'pulse 1.5s ease-in-out infinite',
+        };
+      case 'dots':
+        return {
+          animation: 'dots 1.4s ease-in-out infinite',
+        };
+      default:
+        return {
+          animation: 'spin 1s linear infinite',
+        };
+    }
+  };
+
   return (
-    <div
-      className={`spinner spinner--${variant} ${className}`}
-      style={{ 
-        width: size, 
-        height: size,
-        color,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'transparent'
-      }}
-      role="status"
-      aria-label={label}
-      aria-live="polite"
-    >
-      {getIcon()}
-    </div>
+    <>
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+        @keyframes dots {
+          0%, 20% { opacity: 0; }
+          50% { opacity: 1; }
+          80%, 100% { opacity: 0; }
+        }
+      `}</style>
+      <div
+        className={`spinner spinner--${variant} ${className}`}
+        style={{ 
+          width: size, 
+          height: size,
+          color,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'transparent',
+          ...getAnimationStyle()
+        }}
+        role="status"
+        aria-label={label}
+        aria-live="polite"
+      >
+        {getIcon()}
+      </div>
+    </>
   );
 };
 

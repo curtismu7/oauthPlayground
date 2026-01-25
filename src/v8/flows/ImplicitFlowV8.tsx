@@ -13,9 +13,10 @@ import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
-import { ImplicitFlowIntegrationServiceV8 } from '@/v8/services/implicitFlowIntegrationServiceV8';
+import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { RedirectlessServiceV8 } from '@/v8/services/redirectlessServiceV8';
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
+import { PKCEStorageServiceV8U } from '@/v8u/services/pkceStorageServiceV8U';
+import { useUnifiedSharedCredentials } from '@/hooks/useUnifiedSharedCredentials';
 import { PrimaryButton, SecondaryButton, DangerButton } from '@/v8/components/shared/ActionButtonV8';
 import { useActionButton } from '@/v8/hooks/useActionButton';
 
@@ -56,6 +57,12 @@ export const ImplicitFlowV8: React.FC = () => {
 	const nav = useStepNavigationV8(4, {
 		onStepChange: (step) => console.log(`${MODULE_TAG} Step changed to`, { step }),
 	});
+
+	// Unified shared credentials - sync with global Environment ID and OAuth credentials
+	const {
+		saveEnvironmentId,
+		saveOAuthCredentials,
+	} = useUnifiedSharedCredentials();
 
 	const [credentials, setCredentials] = useState<Credentials>(() => {
 		return CredentialsServiceV8.loadCredentials('implicit-flow-v8', {
@@ -100,9 +107,34 @@ export const ImplicitFlowV8: React.FC = () => {
 		const result = ValidationServiceV8.validateCredentials(credentials, 'oauth');
 		nav.setValidationErrors(result.errors.map((e) => e.message));
 		nav.setValidationWarnings(result.warnings.map((w) => w.message));
+		
+		// Save flow-specific credentials (existing behavior)
 		CredentialsServiceV8.saveCredentials('implicit-flow-v8', credentials);
+		
+		// Save to unified shared credentials for cross-flow sync
+		if (credentials.environmentId || credentials.clientId) {
+			// Save Environment ID separately
+			if (credentials.environmentId) {
+				saveEnvironmentId(credentials.environmentId, 'ImplicitFlowV8');
+			}
+			
+			// Save OAuth credentials (no client secret for implicit flow)
+			const oauthCreds: {
+				clientId?: string;
+				clientSecret?: string;
+				issuerUrl?: string;
+				clientAuthMethod?: string;
+			} = {};
+			
+			if (credentials.clientId) oauthCreds.clientId = credentials.clientId;
+			// Implicit flow doesn't use client secret
+			if (credentials.issuerUrl) oauthCreds.issuerUrl = credentials.issuerUrl;
+			if (credentials.clientAuthMethod) oauthCreds.clientAuthMethod = credentials.clientAuthMethod;
+			
+			saveOAuthCredentials(oauthCreds, 'ImplicitFlowV8');
+		}
 		// biome-ignore lint/correctness/useExhaustiveDependencies: nav functions are stable from hook
-	}, [credentials, nav.setValidationErrors, nav.setValidationWarnings]);
+	}, [credentials, nav.setValidationErrors, nav.setValidationWarnings, saveEnvironmentId, saveOAuthCredentials]);
 
 	useEffect(() => {
 		sessionStorage.setItem(`${FLOW_KEY}_use_redirectless`, useRedirectless.toString());
