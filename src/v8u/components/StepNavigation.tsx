@@ -7,8 +7,8 @@
  */
 
 import React from 'react';
-import styled from 'styled-components';
 import { FiArrowLeft, FiArrowRight, FiRotateCcw } from 'react-icons/fi';
+import styled from 'styled-components';
 import { useStepNavigation } from '../hooks/useStepNavigation';
 
 const NavigationContainer = styled.div`
@@ -137,19 +137,19 @@ export function StepNavigation({
 		currentStep: currentStep ?? 0,
 		onStepChange: onStepChange || (() => {}),
 	});
-	
+
 	const handlePrevious = () => {
 		navigation.navigateToPrevious();
 	};
-	
+
 	const handleNext = () => {
 		navigation.navigateToNext();
 	};
-	
+
 	const handleReset = () => {
 		navigation.reset();
 	};
-	
+
 	return (
 		<NavigationContainer className={className} style={style}>
 			{/* Previous Button */}
@@ -163,14 +163,10 @@ export function StepNavigation({
 					{previousLabel}
 				</NavigationButton>
 			)}
-			
+
 			{/* Step Indicator */}
-			{showIndicator && (
-				<StepIndicator>
-					{navigation.stepLabel}
-				</StepIndicator>
-			)}
-			
+			{showIndicator && <StepIndicator>{navigation.stepLabel}</StepIndicator>}
+
 			{/* Next and Reset Buttons */}
 			<ButtonGroup>
 				{/* Reset Button */}
@@ -185,7 +181,7 @@ export function StepNavigation({
 						{resetLabel}
 					</NavigationButton>
 				)}
-				
+
 				{/* Next Button */}
 				{showNext && (
 					<NavigationButton
