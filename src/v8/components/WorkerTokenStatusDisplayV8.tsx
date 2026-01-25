@@ -187,10 +187,11 @@ const StatusLabel = styled.div`
 
 const StatusValue = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }>`
 	font-size: 16px;
-	font-weight: 700;
+	font-weight: 900; /* Much bolder */
 	color: ${props => WORKER_TOKEN_STATUS_STYLES.statusValue[props.$variant]};
 	text-shadow: ${WORKER_TOKEN_STATUS_STYLES.shadows.text};
 	filter: ${WORKER_TOKEN_STATUS_STYLES.shadows.drop};
+	letter-spacing: 0.5px; /* Add letter spacing for better readability */
 `;
 
 const StatusDetails = styled.div`
@@ -220,7 +221,7 @@ const DetailLabel = styled.div`
 
 const DetailValue = styled.div<{ $highlight?: boolean }>`
 	font-size: 14px;
-	font-weight: 600;
+	font-weight: 700; /* Bolder */
 	color: ${props => props.$highlight ? WORKER_TOKEN_STATUS_STYLES.detailValue.highlight : WORKER_TOKEN_STATUS_STYLES.detailValue.normal};
 	text-shadow: ${WORKER_TOKEN_STATUS_STYLES.shadows.detail};
 `;
