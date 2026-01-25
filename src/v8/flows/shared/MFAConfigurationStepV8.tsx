@@ -14,7 +14,7 @@ import { FiLoader } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
-import { WorkerTokenGaugeV8 } from '@/v8/components/WorkerTokenGaugeV8';
+import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -812,8 +812,8 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 						{tokenType === 'worker' ? (
 							<>
 								<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-									{/* Worker Token Status Gauge */}
-									<WorkerTokenGaugeV8 tokenStatus={tokenStatus} size={60} />
+									{/* Worker Token Status Display */}
+									<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
 									
 									<button
 										type="button"
