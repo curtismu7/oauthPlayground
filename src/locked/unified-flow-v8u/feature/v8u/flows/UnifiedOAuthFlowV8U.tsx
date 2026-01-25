@@ -316,7 +316,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				includeRedirectUri: true,
 				includeLogoutUri: false,
 			};
-			const flowSpecific = CredentialsServiceV8.loadCredentials(initialFlowKey, config);
+			const flowSpecific = FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')
+				? CredentialsRepository.getFlowCredentials(initialFlowKey)
+				: CredentialsServiceV8.loadCredentials(initialFlowKey, config);
 
 			// Load shared credentials synchronously (from localStorage)
 			const shared = SharedCredentialsServiceV8.loadSharedCredentialsSync();
@@ -360,7 +362,11 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				...(flowSpecific.postLogoutRedirectUri?.trim()
 					? { postLogoutRedirectUri: flowSpecific.postLogoutRedirectUri.trim() }
 					: {}),
-				scopes: (flowSpecific.scopes?.trim() || 'openid').trim(),
+				scopes: (
+					Array.isArray(flowSpecific?.scopes)
+						? flowSpecific.scopes.join(' ')
+						: (flowSpecific?.scopes as string)?.trim() || 'openid'
+				).trim(),
 				...(flowSpecific.responseType?.trim()
 					? { responseType: flowSpecific.responseType.trim() }
 					: {}),
@@ -610,15 +616,19 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 				// Load flow-specific credentials (does not depend on worker token)
 				// Try sync first for immediate results, then async with IndexedDB backup fallback
-				const flowSpecificSync = CredentialsServiceV8.loadCredentials(flowKey, config);
-				const flowSpecific = await CredentialsServiceV8.loadCredentialsWithBackup(flowKey, config)
-					.catch((err) => {
-						console.warn(
-							`${MODULE_TAG} Error loading flow-specific credentials with backup (using sync result)`,
-							err
-						);
-						return flowSpecificSync; // Use sync result as fallback
-					});
+				const flowSpecificSync = FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')
+					? CredentialsRepository.getFlowCredentials(flowKey)
+					: CredentialsServiceV8.loadCredentials(flowKey, config);
+				const flowSpecific = FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')
+					? flowSpecificSync
+					: await CredentialsServiceV8.loadCredentialsWithBackup(flowKey, config)
+						.catch((err) => {
+							console.warn(
+								`${MODULE_TAG} Error loading flow-specific credentials with backup (using sync result)`,
+								err
+							);
+							return flowSpecificSync; // Use sync result as fallback
+						});
 
 				// Load shared credentials (environmentId, clientId, clientSecret, etc.) - independent of worker token
 				// Try sync first for immediate results, then async for disk fallback
@@ -674,7 +684,11 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					...(flowSpecific.postLogoutRedirectUri?.trim()
 						? { postLogoutRedirectUri: flowSpecific.postLogoutRedirectUri.trim() }
 						: {}),
-					scopes: (flowSpecific.scopes?.trim() || 'openid').trim(),
+					scopes: (
+						Array.isArray(flowSpecific?.scopes)
+							? flowSpecific.scopes.join(' ')
+							: (flowSpecific?.scopes as string)?.trim() || 'openid'
+					).trim(),
 					...(flowSpecific.responseType?.trim()
 						? { responseType: flowSpecific.responseType.trim() }
 						: {}),
@@ -688,7 +702,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						? { useRedirectless: flowSpecific.useRedirectless }
 						: {}),
 				};
-
 
 				// Update credentials from storage if we have any data
 				// Always use storage data if it exists, as it's the source of truth
@@ -855,7 +868,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					}
 					lastSavedCredsRef.current = credsString;
 
-					// Save flow-specific credentials (redirectUri, scopes, responseType, etc.)
+					// Save flow-specific credentials
 					if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
 						const credsForNew = {
 							...credentials,
@@ -869,9 +882,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
 					}
 
-					// Save shared credentials (environmentId, clientId, clientSecret, etc.) to shared storage
-					// Important: Always save shared credentials if any shared field is present, including clientSecret
-					// This ensures client secret persists across browser refreshes
+					// Save shared credentials
 					const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(
 						credentials as unknown as Record<string, unknown>
 					);
@@ -882,6 +893,13 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					) {
 						await SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
 					}
+
+					// Update last saved reference to prevent duplicate saves
+					lastSavedCredsRef.current = JSON.stringify(credentials);
+
+					toastV8.success('Credentials saved successfully');
+				} else {
+					toastV8.warning('No credentials to save');
 				}
 			};
 
@@ -1308,14 +1326,16 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							type="button"
 							onClick={() => {
 								// Get MFA credentials
-								const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
-									flowKey: 'mfa-v8',
-									flowType: 'oauth' as const,
-									includeClientSecret: false,
-									includeScopes: false,
-									includeRedirectUri: false,
-									includeLogoutUri: false,
-								});
+						const mfaCreds = FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')
+							? CredentialsRepository.getFlowCredentials('mfa-v8')
+							: CredentialsServiceV8.loadCredentials('mfa-v8', {
+								flowKey: 'mfa-v8',
+								flowType: 'oauth' as const,
+								includeClientSecret: false,
+								includeScopes: false,
+								includeRedirectUri: false,
+								includeLogoutUri: false,
+							});
 								
 								const collection = generateCompletePostmanCollection({
 									environmentId: credentials.environmentId,
