@@ -453,7 +453,12 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
                       </RequirementList>
                     </FeatureRequirements>
                   </FeatureDetails>
-                  <FeatureToggle>
+                  <FeatureToggle 
+                    $enabled={feature.enabled}
+                    $supported={feature.supported}
+                    onClick={() => feature.supported && toggleFeature(feature.id)}
+                    disabled={!feature.supported}
+                  >
                     {feature.enabled ? 'Disable' : 'Enable'}
                   </FeatureToggle>
                 </FeatureCard>
