@@ -64,7 +64,7 @@ const StatusContainer = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }
 		0 4px 16px rgba(0, 0, 0, 0.05),
 		inset 0 1px 0 rgba(255, 255, 255, 0.2);
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	animation: ${slideIn} 0.5s ease-out;
+	animation: ${css`${slideIn} 0.5s ease-out`};
 
 	&::before {
 		content: '';
@@ -143,7 +143,7 @@ const StatusIcon = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }>`
 		inset 0 1px 0 rgba(255, 255, 255, 0.2);
 	color: white;
 	font-size: 18px;
-	animation: ${pulse} 2s ease-in-out infinite;
+	animation: ${css`${pulse} 2s ease-in-out infinite`};
 `;
 
 const StatusText = styled.div`
