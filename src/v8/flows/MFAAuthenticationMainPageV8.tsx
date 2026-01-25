@@ -57,6 +57,8 @@ import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { FeatureFlagService } from '@/services/featureFlagService';
+import { CredentialsRepository } from '@/services/credentialsRepository';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
@@ -229,14 +231,16 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 	// Control Panel State
 	const [credentials, setCredentials] = useState(() => {
-		const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-			flowKey: FLOW_KEY,
-			flowType: 'oidc',
-			includeClientSecret: false,
-			includeRedirectUri: false,
-			includeLogoutUri: false,
-			includeScopes: false,
-		});
+		const stored = FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')
+			? CredentialsRepository.getFlowCredentials(FLOW_KEY)
+			: CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+				flowKey: FLOW_KEY,
+				flowType: 'oidc',
+				includeClientSecret: false,
+				includeRedirectUri: false,
+				includeLogoutUri: false,
+				includeScopes: false,
+			});
 		return {
 			environmentId: stored.environmentId || '',
 			username: stored.username || '',
@@ -880,18 +884,26 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					deviceAuthenticationPolicyId: policies[0].id,
 				};
 				setCredentials(updatedCredentials);
-				const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-					flowKey: FLOW_KEY,
-					flowType: 'oidc',
-					includeClientSecret: false,
-					includeRedirectUri: false,
-					includeLogoutUri: false,
-					includeScopes: false,
-				});
-				CredentialsServiceV8.saveCredentials(FLOW_KEY, {
-					...stored,
-					deviceAuthenticationPolicyId: policies[0].id,
-				});
+				if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+					const stored = CredentialsRepository.getFlowCredentials(FLOW_KEY) || {};
+					CredentialsRepository.setFlowCredentials(FLOW_KEY, {
+						...stored,
+						deviceAuthenticationPolicyId: policies[0].id,
+					} as any);
+				} else {
+					const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+						flowKey: FLOW_KEY,
+						flowType: 'oidc',
+						includeClientSecret: false,
+						includeRedirectUri: false,
+						includeLogoutUri: false,
+						includeScopes: false,
+					});
+					CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+						...stored,
+						deviceAuthenticationPolicyId: policies[0].id,
+					});
+				}
 			}
 
 			return policies;
@@ -993,18 +1005,26 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				deviceAuthenticationPolicyId: policyId,
 			};
 			setCredentials(updatedCredentials);
-			const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-				flowKey: FLOW_KEY,
-				flowType: 'oidc',
-				includeClientSecret: false,
-				includeRedirectUri: false,
-				includeLogoutUri: false,
-				includeScopes: false,
-			});
-			CredentialsServiceV8.saveCredentials(FLOW_KEY, {
-				...stored,
-				deviceAuthenticationPolicyId: policyId,
-			});
+			if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+				const stored = CredentialsRepository.getFlowCredentials(FLOW_KEY) || {};
+				CredentialsRepository.setFlowCredentials(FLOW_KEY, {
+					...stored,
+					deviceAuthenticationPolicyId: policyId,
+				} as any);
+			} else {
+				const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+					flowKey: FLOW_KEY,
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+				CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+					...stored,
+					deviceAuthenticationPolicyId: policyId,
+				});
+			}
 
 			// Reload policies to get the latest data (including updated default flags)
 			const reloadedPolicies = await loadPolicies();
@@ -1387,6 +1407,28 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						userToken: undefined,
 						tokenType: undefined,
 					}));
+					if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+						const stored = CredentialsRepository.getFlowCredentials(FLOW_KEY) || {};
+						CredentialsRepository.setFlowCredentials(FLOW_KEY, {
+							...stored,
+							userToken: undefined,
+							tokenType: undefined,
+						} as any);
+					} else {
+						const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+							flowKey: FLOW_KEY,
+							flowType: 'oidc',
+							includeClientSecret: false,
+							includeRedirectUri: false,
+							includeLogoutUri: false,
+							includeScopes: false,
+						});
+						CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+							...stored,
+							userToken: undefined,
+							tokenType: undefined,
+						});
+					}
 				}
 			} catch (error) {
 				console.warn('[MFA-AUTHN-MAIN-V8] Could not clear user token from credentials:', error);
@@ -1464,14 +1506,16 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					<button
 						type="button"
 						onClick={() => {
-							const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
-								flowKey: 'mfa-v8',
-								flowType: 'oauth' as const,
-								includeClientSecret: false,
-								includeScopes: false,
-								includeRedirectUri: false,
-								includeLogoutUri: false,
-							});
+							const mfaCreds = FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')
+								? CredentialsRepository.getFlowCredentials('mfa-v8')
+								: CredentialsServiceV8.loadCredentials('mfa-v8', {
+									flowKey: 'mfa-v8',
+									flowType: 'oauth' as const,
+									includeClientSecret: false,
+									includeScopes: false,
+									includeRedirectUri: false,
+									includeLogoutUri: false,
+								});
 							const collection = generateComprehensiveMFAPostmanCollection({
 								environmentId: credentials.environmentId,
 								username: mfaCreds?.username,
@@ -1513,22 +1557,26 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						type="button"
 						onClick={() => {
 							// Get Unified credentials for complete collection
-							const unifiedCreds = CredentialsServiceV8.loadCredentials('oauth-authz-v8u', {
-								flowKey: 'oauth-authz-v8u',
-								flowType: 'oauth-authz' as const,
-								includeClientSecret: true,
-								includeScopes: false,
-								includeRedirectUri: false,
-								includeLogoutUri: false,
-							});
-							const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
-								flowKey: 'mfa-v8',
-								flowType: 'oauth' as const,
-								includeClientSecret: false,
-								includeScopes: false,
-								includeRedirectUri: false,
-								includeLogoutUri: false,
-							});
+							const unifiedCreds = FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')
+								? CredentialsRepository.getFlowCredentials('oauth-authz-v8u')
+								: CredentialsServiceV8.loadCredentials('oauth-authz-v8u', {
+									flowKey: 'oauth-authz-v8u',
+									flowType: 'oauth-authz' as const,
+									includeClientSecret: true,
+									includeScopes: false,
+									includeRedirectUri: false,
+									includeLogoutUri: false,
+								});
+							const mfaCreds = FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')
+								? CredentialsRepository.getFlowCredentials('mfa-v8')
+								: CredentialsServiceV8.loadCredentials('mfa-v8', {
+									flowKey: 'mfa-v8',
+									flowType: 'oauth' as const,
+									includeClientSecret: false,
+									includeScopes: false,
+									includeRedirectUri: false,
+									includeLogoutUri: false,
+								});
 							const collection = generateCompletePostmanCollection({
 								environmentId: credentials.environmentId || unifiedCreds?.environmentId,
 								clientId: unifiedCreds?.clientId,
@@ -2003,18 +2051,26 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							onChange={(e) => {
 								const updated = { ...credentials, environmentId: e.target.value };
 								setCredentials(updated);
-								const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-									flowKey: FLOW_KEY,
-									flowType: 'oidc',
-									includeClientSecret: false,
-									includeRedirectUri: false,
-									includeLogoutUri: false,
-									includeScopes: false,
-								});
-								CredentialsServiceV8.saveCredentials(FLOW_KEY, {
-									...stored,
-									environmentId: e.target.value,
-								});
+								if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+									const stored = CredentialsRepository.getFlowCredentials(FLOW_KEY) || {};
+									CredentialsRepository.setFlowCredentials(FLOW_KEY, {
+										...stored,
+										environmentId: e.target.value,
+									} as any);
+								} else {
+									const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+										flowKey: FLOW_KEY,
+										flowType: 'oidc',
+										includeClientSecret: false,
+										includeRedirectUri: false,
+										includeLogoutUri: false,
+										includeScopes: false,
+									});
+									CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+										...stored,
+										environmentId: e.target.value,
+									});
+								}
 							}}
 							placeholder="Enter environment ID"
 							style={{
@@ -2049,18 +2105,26 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								const newUsername = e.target.value;
 								setUsernameInput(newUsername);
 								setCredentials((prev) => ({ ...prev, username: newUsername }));
-								const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-									flowKey: FLOW_KEY,
-									flowType: 'oidc',
-									includeClientSecret: false,
-									includeRedirectUri: false,
-									includeLogoutUri: false,
-									includeScopes: false,
-								});
-								CredentialsServiceV8.saveCredentials(FLOW_KEY, {
-									...stored,
-									username: newUsername,
-								});
+								if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+									const stored = CredentialsRepository.getFlowCredentials(FLOW_KEY) || {};
+									CredentialsRepository.setFlowCredentials(FLOW_KEY, {
+										...stored,
+										username: newUsername,
+									} as any);
+								} else {
+									const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+										flowKey: FLOW_KEY,
+										flowType: 'oidc',
+										includeClientSecret: false,
+										includeRedirectUri: false,
+										includeLogoutUri: false,
+										includeScopes: false,
+									});
+									CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+										...stored,
+										username: newUsername,
+									});
+								}
 							}}
 							onKeyDown={(e) => {
 								if (e.key === 'Enter') {
@@ -3164,7 +3228,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						<div
 							style={{
 								display: 'grid',
-								gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+								gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
 								gap: '16px',
 							}}
 						>
@@ -3714,18 +3778,26 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											setUsernameInput(newUsername);
 											setCredentials((prev) => ({ ...prev, username: newUsername }));
 											// Save to storage immediately so it syncs to main UI
-											const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-												flowKey: FLOW_KEY,
-												flowType: 'oidc',
-												includeClientSecret: false,
-												includeRedirectUri: false,
-												includeLogoutUri: false,
-												includeScopes: false,
-											});
-											CredentialsServiceV8.saveCredentials(FLOW_KEY, {
-												...stored,
-												username: newUsername,
-											});
+											if (FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO')) {
+												const stored = CredentialsRepository.getFlowCredentials(FLOW_KEY) || {};
+												CredentialsRepository.setFlowCredentials(FLOW_KEY, {
+													...stored,
+													username: newUsername,
+												} as any);
+											} else {
+												const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+													flowKey: FLOW_KEY,
+													flowType: 'oidc',
+													includeClientSecret: false,
+													includeRedirectUri: false,
+													includeLogoutUri: false,
+													includeScopes: false,
+												});
+												CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+													...stored,
+													username: newUsername,
+												});
+											}
 										}}
 										placeholder="Search for a user..."
 										disabled={!credentials.environmentId}
