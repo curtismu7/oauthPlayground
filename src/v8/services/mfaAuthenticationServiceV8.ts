@@ -22,7 +22,7 @@
  */
 
 import { pingOneFetch } from '@/utils/pingOneFetch';
-import { UnifiedFlowErrorHandler } from '@/v8/utils/errorHandlingV8';
+import { UnifiedFlowErrorHandler } from '../../v8u/services/unifiedFlowErrorHandlerV8U';
 import type { FlowType } from './specVersionServiceV8';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
