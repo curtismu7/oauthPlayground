@@ -32,7 +32,7 @@ import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { pingOneFetch } from '@/utils/pingOneFetch';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
-import { UnifiedFlowErrorHandler } from '../v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowErrorHandler } from '../../v8u/services/unifiedFlowErrorHandlerV8U';
 import type { FlowType } from './specVersionServiceV8';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
