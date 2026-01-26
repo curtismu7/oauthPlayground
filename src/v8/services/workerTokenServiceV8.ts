@@ -4,13 +4,16 @@
  * @description V8 Worker Token Service - Wrapper for unified service
  * @version 8.0.0
  * @since 2025-01-20
- * 
+ *
  * This is a compatibility wrapper that delegates to the unified worker token service.
  * All new code should use the unified service directly.
  */
 
+import type {
+	UnifiedWorkerTokenCredentials,
+	UnifiedWorkerTokenData,
+} from '../../services/unifiedWorkerTokenService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
-import type { UnifiedWorkerTokenCredentials, UnifiedWorkerTokenData } from '../../services/unifiedWorkerTokenService';
 
 // Re-export types for backward compatibility
 export type { WorkerTokenStatus } from '../../services/unifiedWorkerTokenTypes';
@@ -51,7 +54,7 @@ export interface WorkerTokenCredentials {
 
 /**
  * V8 Worker Token Service - Compatibility Wrapper
- * 
+ *
  * This class provides backward compatibility for existing V8 code while
  * delegating all operations to the unified worker token service.
  */
@@ -67,7 +70,7 @@ class WorkerTokenServiceV8 {
 			appName: 'OAuth Playground V8',
 			appVersion: '8.0.0',
 		};
-		
+
 		await unifiedWorkerTokenService.saveCredentials(unifiedCredentials);
 	}
 
@@ -76,7 +79,7 @@ class WorkerTokenServiceV8 {
 	 */
 	async loadCredentials(): Promise<WorkerTokenCredentials | null> {
 		const unifiedCredentials = await unifiedWorkerTokenService.loadCredentials();
-		
+
 		if (!unifiedCredentials) {
 			return null;
 		}
@@ -142,12 +145,55 @@ class WorkerTokenServiceV8 {
 	 */
 	loadCredentialsSync(): WorkerTokenCredentials | null {
 		try {
+			// Try unified key first
 			const stored = localStorage.getItem('unified_worker_token');
 			if (stored) {
 				const data: UnifiedWorkerTokenData = JSON.parse(stored);
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const { appId, appName, appVersion, ...v8Credentials } = data.credentials;
 				return v8Credentials as WorkerTokenCredentials;
+			}
+
+			// Try legacy keys for migration (sync version)
+			const legacyKeys = [
+				'v8:worker_token',
+				'pingone_worker_token_credentials',
+				'worker_token',
+				'worker_credentials',
+			];
+
+			for (const key of legacyKeys) {
+				const legacyStored = localStorage.getItem(key);
+				if (legacyStored) {
+					console.log(`[WorkerTokenServiceV8] 🔄 Migrating legacy credentials from key: ${key}`);
+					const legacyData = JSON.parse(legacyStored);
+					
+					// Convert to unified format
+					const unifiedCredentials: UnifiedWorkerTokenCredentials = {
+						environmentId: legacyData.environmentId || legacyData.environment_id,
+						clientId: legacyData.clientId || legacyData.client_id,
+						clientSecret: legacyData.clientSecret || legacyData.client_secret,
+						scopes: legacyData.scopes || (legacyData.scope ? legacyData.scope.split(/\s+/) : undefined),
+						region: legacyData.region || 'us',
+						customDomain: legacyData.customDomain,
+						tokenEndpointAuthMethod: legacyData.tokenEndpointAuthMethod || legacyData.authMethod || 'client_secret_post',
+					};
+
+					// Validate required fields
+					if (unifiedCredentials.environmentId && unifiedCredentials.clientId && unifiedCredentials.clientSecret) {
+						// Save to unified format
+						const data: UnifiedWorkerTokenData = {
+							token: '',
+							credentials: unifiedCredentials,
+							savedAt: Date.now(),
+						};
+						localStorage.setItem('unified_worker_token', JSON.stringify(data));
+						
+						// Return V8 format
+						const { appId, appName, appVersion, ...v8Credentials } = unifiedCredentials;
+						return v8Credentials as WorkerTokenCredentials;
+					}
+				}
 			}
 		} catch (error) {
 			console.error('[WorkerTokenServiceV8] Failed to load credentials sync', error);
@@ -161,7 +207,8 @@ export const workerTokenServiceV8 = new WorkerTokenServiceV8();
 
 // Make available globally for debugging
 if (typeof window !== 'undefined') {
-	(window as unknown as { workerTokenServiceV8: WorkerTokenServiceV8 }).workerTokenServiceV8 = workerTokenServiceV8;
+	(window as unknown as { workerTokenServiceV8: WorkerTokenServiceV8 }).workerTokenServiceV8 =
+		workerTokenServiceV8;
 }
 
 export default workerTokenServiceV8;
