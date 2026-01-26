@@ -821,10 +821,11 @@ export class MFAServiceV8 {
 				// Always include notification object for educational completeness
 				// Include notification even if empty (only applicable when status is ACTIVATION_REQUIRED for SMS, Voice, Email)
 				// This shows users the complete data model structure
-				if (devicePayload.notification) {
+				if (devicePayload.notification && typeof devicePayload.notification === 'object') {
+					const notification = devicePayload.notification as { message?: string; variant?: string };
 					requestBody.notification = {
-						message: devicePayload.notification.message || '',
-						variant: devicePayload.notification.variant || '',
+						message: notification.message || '',
+						variant: notification.variant || '',
 					};
 				} else if (requestBody.status === 'ACTIVATION_REQUIRED') {
 					// Include empty notification object for educational purposes when status is ACTIVATION_REQUIRED
@@ -4876,13 +4877,7 @@ export class MFAServiceV8 {
 					return `https://${customDomain}`;
 				}
 				const tld =
-					region === 'eu'
-						? 'eu'
-						: region === 'ap' || region === 'asia'
-							? 'asia'
-							: region === 'ca'
-								? 'ca'
-								: 'com';
+					region === 'eu' ? 'eu' : region === 'ap' ? 'asia' : region === 'ca' ? 'ca' : 'com';
 				return `https://auth.pingone.${tld}`;
 			};
 			const actualPingOneUrl = `${getAuthBaseUrl(params.region, params.customDomain)}/${params.environmentId}/deviceAuthentications/${params.authenticationId}/device`;
