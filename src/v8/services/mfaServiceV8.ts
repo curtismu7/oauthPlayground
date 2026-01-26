@@ -32,7 +32,8 @@ import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { pingOneFetch } from '@/utils/pingOneFetch';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowErrorHandler } from '../v8u/services/unifiedFlowErrorHandlerV8U';
+import type { FlowType } from './specVersionServiceV8';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
 
@@ -41,6 +42,8 @@ const MODULE_TAG = '[📱 MFA-SERVICE-V8]';
 export interface MFACredentials {
 	environmentId: string;
 	username: string;
+	region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'; // PingOne region
+	customDomain?: string; // Custom domain for PingOne API
 }
 
 interface PingOneResponse {
@@ -331,13 +334,17 @@ export class MFAServiceV8 {
 
 			return data;
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(error, {
-				flowType: 'mfa' as any,
-				operation: 'allowMfaBypass',
-			}, {
-				logError: true,
-				showToast: false,
-			});
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'oauth-authz' as FlowType,
+					operation: 'allowMfaBypass',
+				},
+				{
+					logError: true,
+					showToast: false,
+				}
+			);
 			console.error(`${MODULE_TAG} Exception in allowMfaBypass:`, {
 				error: parsed.userFriendlyMessage,
 				requestId,
@@ -395,13 +402,17 @@ export class MFAServiceV8 {
 
 			return data;
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(error, {
-				flowType: 'mfa' as any,
-				operation: 'checkMfaBypassStatus',
-			}, {
-				logError: true,
-				showToast: false,
-			});
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'oauth-authz' as FlowType,
+					operation: 'checkMfaBypassStatus',
+				},
+				{
+					logError: true,
+					showToast: false,
+				}
+			);
 			console.error(`${MODULE_TAG} Exception in checkMfaBypassStatus:`, {
 				error: parsed.userFriendlyMessage,
 				requestId,
@@ -515,32 +526,14 @@ export class MFAServiceV8 {
 				flowType: 'mfa',
 			});
 
-			const response = await fetch('/api/pingone/mfa/lookup-user', {
+			const response = await pingOneFetch('/api/pingone/mfa/lookup-user', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'Cache-Control': 'no-cache',
-					'Pragma': 'no-cache',
 				},
 				body: JSON.stringify(requestBody),
+				retry: { maxAttempts: 3 },
 			});
-
-			// Check if response is ok before parsing
-			if (!response.ok) {
-				console.error(`${MODULE_TAG} Lookup user failed:`, {
-					status: response.status,
-					statusText: response.statusText,
-					url: '/api/pingone/mfa/lookup-user',
-				});
-				throw new Error(`Failed to lookup user: ${response.status} ${response.statusText}`);
-			}
-
-			// Check if response has content
-			const contentLength = response.headers.get('content-length');
-			if (contentLength === '0') {
-				console.error(`${MODULE_TAG} Empty response received from lookup user`);
-				throw new Error('Empty response received from server');
-			}
 
 			const responseClone = response.clone();
 			let user: unknown;
@@ -854,7 +847,7 @@ export class MFAServiceV8 {
 						// Convert string policy ID to object format
 						requestBody.policy = { id: String(params.policy) };
 					}
-					
+
 					// Log policy for TOTP devices to ensure it's being sent
 					if (params.type === 'TOTP') {
 						console.log(`${MODULE_TAG} 🔍 TOTP device registration - Policy included:`, {
@@ -894,7 +887,6 @@ export class MFAServiceV8 {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						'Authorization': `Bearer ${trimmedToken}`,
 					},
 					body: JSON.stringify(requestBody),
 				});
@@ -1083,28 +1075,27 @@ export class MFAServiceV8 {
 			const deviceActivateUri = dd._links?.['device.activate']?.href;
 
 			// FIDO2-specific: Log publicKeyCredentialCreationOptions for debugging
-			const _publicKeyOptionsLength = dd.publicKeyCredentialCreationOptions?.length || 0;
+			if (dd.publicKeyCredentialCreationOptions) {
+				const publicKeyOptions = dd.publicKeyCredentialCreationOptions;
+				const hasPublicKeyOptionsValue =
+					publicKeyOptions !== undefined && publicKeyOptions !== null && publicKeyOptions !== '';
 
-			// FIDO2-specific: Extract publicKeyCredentialCreationOptions from device response
-			// Per fido2-2.md: PingOne returns this as a JSON string in the device creation response
-			// This is required for WebAuthn registration ceremony
-			// Always include it if present (not just for FIDO2 type check, in case type is wrong)
-			const publicKeyOptions = dd.publicKeyCredentialCreationOptions;
-			const hasPublicKeyOptionsValue =
-				publicKeyOptions !== undefined && publicKeyOptions !== null && publicKeyOptions !== '';
-
-			if (hasPublicKeyOptionsValue && publicKeyOptions) {
-			} else {
-				console.warn(`${MODULE_TAG} ⚠️ publicKeyCredentialCreationOptions NOT found in response:`, {
-					deviceType: dd.type,
-					deviceId: dd.id,
-					status: dd.status,
-					availableKeys: Object.keys(dd),
-					hasRp: !!dd.rp,
-					rpId: dd.rp?.id,
-					publicKeyOptionsValue: publicKeyOptions,
-					publicKeyOptionsType: typeof publicKeyOptions,
-				});
+				if (hasPublicKeyOptionsValue && publicKeyOptions) {
+				} else {
+					console.warn(
+						`${MODULE_TAG} ⚠️ publicKeyCredentialCreationOptions NOT found in response:`,
+						{
+							deviceType: dd.type,
+							deviceId: dd.id,
+							status: dd.status,
+							availableKeys: Object.keys(dd),
+							hasRp: !!dd.rp,
+							rpId: dd.rp?.id,
+							publicKeyOptionsValue: publicKeyOptions,
+							publicKeyOptionsType: typeof publicKeyOptions,
+						}
+					);
+				}
 			}
 
 			// TOTP-specific: Extract secret and keyUri from properties
@@ -1119,19 +1110,19 @@ export class MFAServiceV8 {
 			//     "keyUri": "otpauth://totp/example:user@example.com?secret=BASE32SECRET..."
 			//   }
 			// }
-			
+
 			// Extract from properties (primary location per totp.md)
 			const secretFromProperties = dd.properties?.secret;
 			const keyUriFromProperties = dd.properties?.keyUri;
-			
+
 			// Also check root level as fallback (in case API structure differs)
 			const secretFromRoot = (dd as Record<string, unknown>).secret as string | undefined;
 			const keyUriFromRoot = (dd as Record<string, unknown>).keyUri as string | undefined;
-			
+
 			// Use properties first, fallback to root level
 			const secret = secretFromProperties || secretFromRoot;
 			const keyUri = keyUriFromProperties || keyUriFromRoot;
-			
+
 			// Log raw device data structure for TOTP devices to debug missing properties
 			if (dd.type === 'TOTP') {
 				console.error(`${MODULE_TAG} 🔍 TOTP device raw response structure (FULL DETAILS):`, {
@@ -1150,30 +1141,36 @@ export class MFAServiceV8 {
 					rawDeviceData: JSON.stringify(dd, null, 2),
 					note: 'Per totp.md: properties.secret and properties.keyUri should be present when status is ACTIVATION_REQUIRED',
 				});
-				
+
 				// Check alternative locations where secret/keyUri might be
 				if (secretFromRoot || keyUriFromRoot) {
-					console.warn(`${MODULE_TAG} ⚠️ Found secret/keyUri in alternative location (not in properties):`, {
-						hasSecretAtRoot: !!secretFromRoot,
-						hasKeyUriAtRoot: !!keyUriFromRoot,
-						secretValue: secretFromRoot ? `${secretFromRoot.substring(0, 20)}...` : 'none',
-						keyUriValue: keyUriFromRoot ? `${keyUriFromRoot.substring(0, 50)}...` : 'none',
-					});
+					console.warn(
+						`${MODULE_TAG} ⚠️ Found secret/keyUri in alternative location (not in properties):`,
+						{
+							hasSecretAtRoot: !!secretFromRoot,
+							hasKeyUriAtRoot: !!keyUriFromRoot,
+							secretValue: secretFromRoot ? `${secretFromRoot.substring(0, 20)}...` : 'none',
+							keyUriValue: keyUriFromRoot ? `${keyUriFromRoot.substring(0, 50)}...` : 'none',
+						}
+					);
 				}
 			}
-			
+
 			if (dd.type === 'TOTP' && dd.status === 'ACTIVATION_REQUIRED' && !secret && !keyUri) {
-				console.error(`${MODULE_TAG} ❌ CRITICAL: TOTP device with ACTIVATION_REQUIRED status missing secret and keyUri!`, {
-					deviceId: dd.id,
-					status: dd.status,
-					requestedStatus: params.status,
-					hasProperties: !!dd.properties,
-					checkedProperties: !!dd.properties?.secret || !!dd.properties?.keyUri,
-					checkedRoot: !!secretFromRoot || !!keyUriFromRoot,
-					allKeys: Object.keys(dd),
-					fullResponse: JSON.stringify(dd, null, 2),
-					note: 'This is required per totp.md. Check: 1) Status is ACTIVATION_REQUIRED, 2) Policy is included in request, 3) PingOne environment has TOTP enabled',
-				});
+				console.error(
+					`${MODULE_TAG} ❌ CRITICAL: TOTP device with ACTIVATION_REQUIRED status missing secret and keyUri!`,
+					{
+						deviceId: dd.id,
+						status: dd.status,
+						requestedStatus: params.status,
+						hasProperties: !!dd.properties,
+						checkedProperties: !!dd.properties?.secret || !!dd.properties?.keyUri,
+						checkedRoot: !!secretFromRoot || !!keyUriFromRoot,
+						allKeys: Object.keys(dd),
+						fullResponse: JSON.stringify(dd, null, 2),
+						note: 'This is required per totp.md. Check: 1) Status is ACTIVATION_REQUIRED, 2) Policy is included in request, 3) PingOne environment has TOTP enabled',
+					}
+				);
 			}
 
 			// Build return object - include publicKeyCredentialCreationOptions in initial construction
@@ -1197,17 +1194,17 @@ export class MFAServiceV8 {
 				...(keyUri ? { keyUri } : {}),
 				// FIDO2-specific: Include publicKeyCredentialCreationOptions if present
 				// Include it in the initial object construction to ensure it's not lost
-				...(hasPublicKeyOptionsValue && publicKeyOptions
-					? { publicKeyCredentialCreationOptions: publicKeyOptions }
+				...(hasPublicKeyInRaw && rawPublicKeyOptions
+					? { publicKeyCredentialCreationOptions: rawPublicKeyOptions }
 					: {}),
 			};
 
 			// Log confirmation that it's included
-			if (hasPublicKeyOptionsValue && publicKeyOptions) {
+			if (hasPublicKeyInRaw && rawPublicKeyOptions) {
 				console.log(
 					`${MODULE_TAG} ✅ Including publicKeyCredentialCreationOptions in return object:`,
 					{
-						length: publicKeyOptions.length,
+						length: rawPublicKeyOptions.length,
 						hasInResult: 'publicKeyCredentialCreationOptions' in result,
 						resultKeys: Object.keys(result),
 						resultValue: result.publicKeyCredentialCreationOptions?.substring(0, 50) || 'NOT FOUND',
@@ -1217,7 +1214,7 @@ export class MFAServiceV8 {
 					}
 				);
 			}
-			
+
 			// Log TOTP secret/keyUri confirmation
 			if (dd.type === 'TOTP') {
 				const resultSecret = (result as { secret?: string }).secret;
@@ -3024,14 +3021,19 @@ export class MFAServiceV8 {
 				userId: user.id,
 				deviceId: params.deviceId,
 				workerToken: trimmedToken,
+				...(params.region && { region: params.region }),
+				...(params.customDomain && { customDomain: params.customDomain }),
 			};
 
-			console.log(`${MODULE_TAG} [RESEND] Request body:`, {
+			console.log(`${MODULE_TAG} [RESEND] Request details:`, {
 				environmentId: params.environmentId,
 				userId: user.id,
 				deviceId: params.deviceId,
-				hasWorkerToken: !!trimmedToken,
-				workerTokenLength: trimmedToken.length,
+				username: params.username,
+				deviceStatus,
+				tokenValidated: true,
+				region: params.region,
+				customDomain: params.customDomain,
 			});
 
 			const startTime = Date.now();
@@ -3040,7 +3042,6 @@ export class MFAServiceV8 {
 				url: '/api/pingone/mfa/resend-pairing-code',
 				headers: {
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${trimmedToken}`,
 				},
 				body: requestBody,
 				step: 'mfa-Resend Pairing Code',
@@ -3053,7 +3054,6 @@ export class MFAServiceV8 {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						'Authorization': `Bearer ${trimmedToken}`,
 					},
 					body: JSON.stringify(requestBody),
 					retry: { maxAttempts: 3 },
@@ -3181,14 +3181,12 @@ export class MFAServiceV8 {
 				flowType: 'mfa',
 			});
 
-			// Use regular fetch to avoid Accept header conflicts
-			const response = await fetch('/api/pingone/mfa/set-device-order', {
+			// Use backend proxy to avoid CORS issues
+			const response = await pingOneFetch('/api/pingone/mfa/set-device-order', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					'X-Request-ID': requestId,
-					'Cache-Control': 'no-cache',
-					'Pragma': 'no-cache',
 				},
 				body: JSON.stringify({
 					environmentId,
@@ -3207,7 +3205,7 @@ export class MFAServiceV8 {
 				{
 					status: response.status,
 					statusText: response.statusText,
-					headers: Object.fromEntries(response.headers.entries()),
+					headers: response.headers ? Object.fromEntries(response.headers) : {},
 					data: response.ok ? data : { error: data.message || data.error },
 				},
 				duration
@@ -3303,7 +3301,7 @@ export class MFAServiceV8 {
 				{
 					status: response.status,
 					statusText: response.statusText,
-					headers: Object.fromEntries(response.headers.entries()),
+					headers: response.headers ? Object.fromEntries(response.headers) : {},
 					data: response.ok ? data : { error: data.message || data.error },
 				},
 				duration
@@ -3350,7 +3348,7 @@ export class MFAServiceV8 {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Check token status before attempting activation
-			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const tokenStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 
 			if (!tokenStatus.isValid || tokenStatus.status === 'expired') {
 				const errorMessage =
@@ -3516,7 +3514,7 @@ export class MFAServiceV8 {
 						// Check token status before providing error
 						let tokenStatusMessage = '';
 						try {
-							const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+							const tokenStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 							if (tokenStatus.status === 'expired' || !tokenStatus.isValid) {
 								tokenStatusMessage = '\n\n🔑 Your worker token has expired or is invalid.';
 								tokenStatusMessage += '\n\nTo fix this:';
@@ -4207,7 +4205,7 @@ export class MFAServiceV8 {
 				{
 					status: response.status,
 					statusText: response.statusText,
-					headers: Object.fromEntries(response.headers.entries()),
+					headers: response.headers ? Object.fromEntries(response.headers) : {},
 					data: responseData,
 				},
 				Date.now() - startTime
