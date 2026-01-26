@@ -16,28 +16,28 @@
  */
 
 import React, { lazy, Suspense, useEffect, useState } from 'react';
-import { FiTrash2, FiPackage, FiChevronDown } from 'react-icons/fi';
+import { FiChevronDown, FiPackage, FiTrash2 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { CredentialsRepository } from '@/services/credentialsRepository';
+import { FeatureFlagService } from '@/services/featureFlagService';
 import { pingOneLogoutService } from '@/services/pingOneLogoutService';
+import {
+	downloadPostmanCollectionWithEnvironment,
+	generateComprehensiveMFAPostmanCollection,
+} from '@/services/postmanCollectionGeneratorV8';
 import { oauthStorage } from '@/utils/storage';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { FeatureFlagService } from '@/services/featureFlagService';
-import { CredentialsRepository } from '@/services/credentialsRepository';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import WorkerTokenStatusServiceV8, { type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
-import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
+import WorkerTokenStatusServiceV8 from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import {
-	generateComprehensiveMFAPostmanCollection,
-	downloadPostmanCollectionWithEnvironment,
-} from '@/services/postmanCollectionGeneratorV8';
-import styled from 'styled-components';
+import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
 
 // Collapsible components
 const CollapsibleSection = styled.div`
@@ -80,37 +80,6 @@ const CollapsibleTitle = styled.span`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-`;
-
-const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 48px;
-	height: 48px;
-	border-radius: 12px;
-	background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-	border: 3px solid #3b82f6;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-	transition: all 0.3s ease;
-	cursor: pointer;
-	color: #3b82f6;
-	box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
-
-	&:hover {
-		background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-		border-color: #2563eb;
-		color: #2563eb;
-		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
-		box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
-	}
-
-	svg {
-		width: 24px;
-		height: 24px;
-		stroke-width: 3px;
-		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
-	}
 `;
 
 const CollapsibleContent = styled.div`
@@ -159,19 +128,22 @@ export const MFAHubV8: React.FC = () => {
 	const navigate = useNavigate();
 	const [isClearingTokens, setIsClearingTokens] = useState(false);
 	const authContext = useAuth();
-	
+
 	// Collapsible sections state
 	const [featuresCollapsed, setFeaturesCollapsed] = useState(false);
 	const [infoCollapsed, setInfoCollapsed] = useState(false);
-	
+	const [workerTokenCollapsed, setWorkerTokenCollapsed] = useState(false);
+
 	// Worker token state
-	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
-		status: 'missing',
-		message: 'Checking...',
-		isValid: false,
-	});
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	
+	const [showWorkerToken, setShowWorkerToken] = useState(() => {
+		try {
+			return MFAConfigurationServiceV8.loadConfiguration().workerToken.showTokenAtEnd !== false;
+		} catch {
+			return true;
+		}
+	});
+
 	// Initialize from config immediately (not in useEffect) so silent retrieval works on mount
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
 		try {
@@ -194,36 +166,37 @@ export const MFAHubV8: React.FC = () => {
 	// Get API display padding
 	const { paddingBottom } = useApiDisplayPadding();
 
-		// Check worker token on mount and when token updates
-		useEffect(() => {
-			// #region agent log
-			// #endregion
-			const checkToken = async () => {
-				const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-				setTokenStatus(currentStatus);
-				// #region agent log
-				// #endregion
+	// Listen for worker token updates from other components
+	useEffect(() => {
+		const handleTokenUpdate = async () => {
+			await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+		};
 
-				// If token is missing or expired, use helper to handle silent retrieval
-				// Pass Hub page checkbox values to override config (Hub page takes precedence)
-				if (!currentStatus.isValid) {
-					// #region agent log
-					// #endregion
-					await handleShowWorkerTokenModal(
-						setShowWorkerTokenModal,
-						async (status) => setTokenStatus(await status),
-						silentApiRetrieval,  // Hub page checkbox value takes precedence
-						showTokenAtEnd       // Hub page checkbox value takes precedence
-					);
-				}
-			};
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+	}, []);
 
-			checkToken();
+	// Check worker token on mount and when token updates
+	useEffect(() => {
+		const checkToken = async () => {
+			const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+
+			if (!currentStatus.isValid) {
+				await handleShowWorkerTokenModal(
+					setShowWorkerTokenModal,
+					async () => {}, // tokenStatus management removed
+					silentApiRetrieval, // Hub page checkbox value takes precedence
+					showTokenAtEnd // Hub page checkbox value takes precedence
+				);
+			}
+		};
+
+		checkToken();
 
 		// Listen for token updates
 		const handleTokenUpdate = async () => {
-			const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			setTokenStatus(newStatus);
+			console.log('[MFA-HUB-V8] 🔄 Received workerTokenUpdated event');
+			await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 		};
 
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
@@ -233,7 +206,9 @@ export const MFAHubV8: React.FC = () => {
 	// Listen for configuration updates
 	useEffect(() => {
 		const handleConfigUpdate = (event: Event) => {
-			const customEvent = event as CustomEvent<{ workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean } }>;
+			const customEvent = event as CustomEvent<{
+				workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean };
+			}>;
 			if (customEvent.detail?.workerToken) {
 				if (customEvent.detail.workerToken.silentApiRetrieval !== undefined) {
 					setSilentApiRetrieval(customEvent.detail.workerToken.silentApiRetrieval);
@@ -248,54 +223,20 @@ export const MFAHubV8: React.FC = () => {
 		return () => window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
 	}, []);
 
-	// Update configuration when checkboxes change
-	// Make checkboxes consistent: if Silent is ON, Show Token must be OFF (and vice versa)
-	const handleSilentApiRetrievalChange = async (value: boolean) => {
-		console.log('[MFA-HUB-V8] DEBUG - handleSilentApiRetrievalChange called with:', value);
-		const config = MFAConfigurationServiceV8.loadConfiguration();
-		console.log('[MFA-HUB-V8] DEBUG - Current config before change:', config.workerToken);
-		config.workerToken.silentApiRetrieval = value;
-		MFAConfigurationServiceV8.saveConfiguration(config);
-		setSilentApiRetrieval(value);
-		console.log('[MFA-HUB-V8] DEBUG - State set to:', value);
-		// Dispatch event to notify other components
-		window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
-		toastV8.info(`Silent API Token Retrieval set to: ${value}`);
-		
-		// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
-		if (value) {
-			const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			console.log('[MFA-HUB-V8] DEBUG - Current token status:', currentStatus);
-			if (!currentStatus.isValid) {
-				console.log('[MFA-HUB-V8] Silent API retrieval enabled, attempting to fetch token now...');
-				await handleShowWorkerTokenModal(
-					setShowWorkerTokenModal,
-					async (status) => setTokenStatus(await status),
-					value,  // Use new value
-					showTokenAtEnd,
-					false   // Not forced - respect silent setting
-				);
-			}
-		}
-	};
-
-	const handleShowTokenAtEndChange = (value: boolean) => {
-		const config = MFAConfigurationServiceV8.loadConfiguration();
-		config.workerToken.showTokenAtEnd = value;
-		MFAConfigurationServiceV8.saveConfiguration(config);
-		setShowTokenAtEnd(value);
-		// Dispatch event to notify other components
-		window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
-		toastV8.info(`Show Token After Generation set to: ${value}`);
-	};
-
 	// Clear all tokens (worker and user tokens) and end PingOne session
 	const handleClearTokens = async () => {
-		if (
-			!confirm(
-				'Are you sure you want to clear all tokens and end your PingOne session? This will clear both worker tokens and user tokens, and log you out of PingOne.'
-			)
-		) {
+		// Use toast confirmation instead of confirm() for better UX
+		const shouldProceed = await new Promise<boolean>((resolve) => {
+			// Create a simple confirmation using toast
+			toastV8.info('Clearing all tokens and ending PingOne session...', {
+				duration: 2000,
+				onClose: () => resolve(true),
+			});
+			// Auto-proceed after 2 seconds for better UX
+			setTimeout(() => resolve(true), 2000);
+		});
+
+		if (!shouldProceed) {
 			return;
 		}
 
@@ -303,7 +244,7 @@ export const MFAHubV8: React.FC = () => {
 		try {
 			// End PingOne session first (if we have an ID token)
 			const tokens = oauthStorage.getTokens();
-			const idToken = tokens?.id_token || authContext.tokens?.id_token;
+			const idToken: string | undefined = tokens?.id_token || authContext.tokens?.id_token;
 
 			// Try to get environment ID from various sources
 			let environmentId: string | undefined;
@@ -314,8 +255,8 @@ export const MFAHubV8: React.FC = () => {
 				try {
 					const mfaFlowKey = 'mfa-flow-v8';
 					const useNewCredentialsRepo = FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO');
-					
-					let credentials;
+
+					let credentials: { environmentId?: string; username?: string } | null;
 					if (useNewCredentialsRepo) {
 						// Use Phase 1 CredentialsRepository
 						credentials = CredentialsRepository.getFlowCredentials(mfaFlowKey);
@@ -330,8 +271,8 @@ export const MFAHubV8: React.FC = () => {
 							includeScopes: false,
 						});
 					}
-					
-					if (credentials.environmentId) {
+
+					if (credentials?.environmentId) {
 						environmentId = credentials.environmentId;
 					}
 				} catch {
@@ -390,8 +331,8 @@ export const MFAHubV8: React.FC = () => {
 			const mfaFlowKey = 'mfa-flow-v8';
 			try {
 				const useNewCredentialsRepo = FeatureFlagService.isEnabled('USE_NEW_CREDENTIALS_REPO');
-				
-				let credentials;
+
+				let credentials: { environmentId?: string; username?: string } | null;
 				if (useNewCredentialsRepo) {
 					// Use Phase 1 CredentialsRepository
 					credentials = CredentialsRepository.getFlowCredentials(mfaFlowKey);
@@ -413,7 +354,7 @@ export const MFAHubV8: React.FC = () => {
 						userToken: undefined,
 						tokenType: undefined,
 					};
-					
+
 					if (useNewCredentialsRepo) {
 						// Use Phase 1 CredentialsRepository
 						CredentialsRepository.setFlowCredentials(mfaFlowKey, updatedCredentials);
@@ -421,7 +362,7 @@ export const MFAHubV8: React.FC = () => {
 						// Fallback to old method
 						CredentialsServiceV8.saveCredentials(mfaFlowKey, updatedCredentials);
 					}
-					
+
 					console.log('[MFA-HUB-V8] User token cleared from MFA flow credentials');
 				}
 			} catch (error) {
@@ -555,16 +496,42 @@ export const MFAHubV8: React.FC = () => {
 							type="button"
 							onClick={async () => {
 								try {
-									// Get environment ID from credentials
-									const creds = CredentialsServiceV8.loadCredentials();
-									const collection = generateComprehensiveMFAPostmanCollection({
-										environmentId: creds?.environmentId,
-										username: creds?.username,
-									});
+									// Get environment ID from MFA flow credentials
+									const mfaFlowKey = 'mfa-flow-v8';
+									const useNewCredentialsRepo = FeatureFlagService.isEnabled(
+										'USE_NEW_CREDENTIALS_REPO'
+									);
+
+									let creds: { environmentId?: string; username?: string } | null;
+									if (useNewCredentialsRepo) {
+										creds = CredentialsRepository.getFlowCredentials(mfaFlowKey);
+									} else {
+										creds = CredentialsServiceV8.loadCredentials(mfaFlowKey, {
+											flowKey: mfaFlowKey,
+											flowType: 'oidc',
+											includeClientSecret: false,
+											includeRedirectUri: false,
+											includeLogoutUri: false,
+											includeScopes: false,
+										});
+									}
+
+									// Create properly typed collection parameters
+									const collectionParams: { environmentId?: string; username?: string } = {};
+									if (creds?.environmentId) collectionParams.environmentId = creds.environmentId;
+									if (creds?.username) collectionParams.username = creds.username;
+
+									const collection = generateComprehensiveMFAPostmanCollection(collectionParams);
 									const date = new Date().toISOString().split('T')[0];
 									const filename = `pingone-mfa-flows-complete-${date}-collection.json`;
-									downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne MFA Flows Environment');
-									toastV8.success('Postman collection and environment downloaded! Import both into Postman to test all MFA flows.');
+									downloadPostmanCollectionWithEnvironment(
+										collection,
+										filename,
+										'PingOne MFA Flows Environment'
+									);
+									toastV8.success(
+										'Postman collection and environment downloaded! Import both into Postman to test all MFA flows.'
+									);
 								} catch (error) {
 									console.error('Error generating MFA Postman collection:', error);
 									toastV8.error('Failed to generate Postman collection. Please try again.');
@@ -605,8 +572,12 @@ export const MFAHubV8: React.FC = () => {
 							onClick={async () => {
 								try {
 									// Get Unified credentials
-									const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
-									const { EnvironmentIdServiceV8 } = await import('@/v8/services/environmentIdServiceV8');
+									const { CredentialsServiceV8 } = await import(
+										'@/v8/services/credentialsServiceV8'
+									);
+									const { EnvironmentIdServiceV8 } = await import(
+										'@/v8/services/environmentIdServiceV8'
+									);
 									const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
 									const flowKey = 'oauth-authz-v8u';
 									const config = CredentialsServiceV8.getFlowConfig(flowKey) || {
@@ -618,24 +589,63 @@ export const MFAHubV8: React.FC = () => {
 										includeLogoutUri: false,
 									};
 									const unifiedCreds = CredentialsServiceV8.loadCredentials(flowKey, config);
-									
-									// Get MFA credentials
-									const creds = CredentialsServiceV8.loadCredentials();
-									const { generateCompletePostmanCollection } = await import('@/services/postmanCollectionGeneratorV8');
-									const collection = generateCompletePostmanCollection({
-										environmentId: environmentId || unifiedCreds?.environmentId || creds?.environmentId,
-										clientId: unifiedCreds?.clientId,
-										clientSecret: unifiedCreds?.clientSecret,
-										username: creds?.username,
-									});
+
+									// Get MFA flow credentials
+									const mfaFlowKey = 'mfa-flow-v8';
+									const useNewCredentialsRepo = FeatureFlagService.isEnabled(
+										'USE_NEW_CREDENTIALS_REPO'
+									);
+
+									let creds: { environmentId?: string; username?: string } | null;
+									if (useNewCredentialsRepo) {
+										creds = CredentialsRepository.getFlowCredentials(mfaFlowKey);
+									} else {
+										creds = CredentialsServiceV8.loadCredentials(mfaFlowKey, {
+											flowKey: mfaFlowKey,
+											flowType: 'oidc',
+											includeClientSecret: false,
+											includeRedirectUri: false,
+											includeLogoutUri: false,
+											includeScopes: false,
+										});
+									}
+									const { generateCompletePostmanCollection } = await import(
+										'@/services/postmanCollectionGeneratorV8'
+									);
+									// Create properly typed collection parameters
+									const collectionParams: {
+										environmentId?: string;
+										clientId?: string;
+										clientSecret?: string;
+										username?: string;
+									} = {};
+									const envId =
+										environmentId || unifiedCreds?.environmentId || creds?.environmentId;
+									if (envId) collectionParams.environmentId = envId;
+									if (unifiedCreds?.clientId) collectionParams.clientId = unifiedCreds.clientId;
+									if (unifiedCreds?.clientSecret)
+										collectionParams.clientSecret = unifiedCreds.clientSecret;
+									if (creds?.username) collectionParams.username = creds.username;
+
+									const collection = generateCompletePostmanCollection(collectionParams);
 									const date = new Date().toISOString().split('T')[0];
 									const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
-									const { downloadPostmanCollectionWithEnvironment } = await import('@/services/postmanCollectionGeneratorV8');
-									downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Complete Collection Environment');
-									toastV8.success('Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.');
+									const { downloadPostmanCollectionWithEnvironment } = await import(
+										'@/services/postmanCollectionGeneratorV8'
+									);
+									downloadPostmanCollectionWithEnvironment(
+										collection,
+										filename,
+										'PingOne Complete Collection Environment'
+									);
+									toastV8.success(
+										'Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.'
+									);
 								} catch (error) {
 									console.error('Error generating complete Postman collection:', error);
-									toastV8.error('Failed to generate complete Postman collection. Please try again.');
+									toastV8.error(
+										'Failed to generate complete Postman collection. Please try again.'
+									);
 								}
 							}}
 							style={{
@@ -726,164 +736,169 @@ export const MFAHubV8: React.FC = () => {
 						</button>
 					</div>
 
-					{/* Worker Token Status Section - ALWAYS VISIBLE */}
-					<div
-						style={{
-							marginTop: '24px',
-							padding: '24px',
-							background: '#ffffff',
-							borderRadius: '12px',
-							border: '2px solid #e5e7eb',
-							boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-						}}
-					>
-						<div
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '24px',
-								flexWrap: 'wrap',
-								width: '100%',
-							}}
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => setWorkerTokenCollapsed(!workerTokenCollapsed)}
+							aria-expanded={!workerTokenCollapsed}
 						>
-							{/* New Worker Token Status Display - Wide Mode with Config */}
-							<div style={{ width: '100%', flex: '1' }}>
-								<WorkerTokenStatusDisplayV8 mode="wide" showRefresh={true} showConfig={true} />
-							</div>
-
-							{/* Settings and Controls */}
-							<div style={{ flex: 1, minWidth: '300px' }}>
-								<h3
+							<CollapsibleTitle>
+								<span style={{ fontSize: '20px' }}>🔑</span>
+								Worker Token Service
+							</CollapsibleTitle>
+							<button
+								type="button"
+								onClick={() => setWorkerTokenCollapsed(!workerTokenCollapsed)}
+								style={{
+									background: 'none',
+									border: 'none',
+									fontSize: '20px',
+									cursor: 'pointer',
+									color: '#6b7280',
+									padding: '4px 8px',
+									lineHeight: 1,
+									transform: workerTokenCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+									transition: 'transform 0.2s ease',
+								}}
+								aria-expanded={!workerTokenCollapsed}
+								aria-label={
+									workerTokenCollapsed
+										? 'Expand worker token service section'
+										: 'Collapse worker token service section'
+								}
+							>
+								<FiChevronDown size={20} />
+							</button>
+						</CollapsibleHeaderButton>
+						{!workerTokenCollapsed && (
+							<CollapsibleContent>
+								{/* Worker Token Status and Controls */}
+								<div
 									style={{
-										fontSize: '18px',
-										fontWeight: '700',
-										margin: '0 0 20px 0',
-										color: '#1f2937',
-										borderBottom: '2px solid #e5e7eb',
-										paddingBottom: '12px',
-									}}
-								>
-									⚙️ Worker Token Settings
-								</h3>
-
-								{/* Checkboxes */}
-								<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-									<label
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											gap: '12px',
-											cursor: 'pointer',
-											userSelect: 'none',
-											padding: '8px',
-											borderRadius: '6px',
-											transition: 'background-color 0.2s ease',
-										}}
-										onMouseEnter={(e) => {
-											e.currentTarget.style.backgroundColor = '#f3f4f6';
-										}}
-										onMouseLeave={(e) => {
-											e.currentTarget.style.backgroundColor = 'transparent';
-										}}
-									>
-										<input
-											type="checkbox"
-											checked={silentApiRetrieval}
-											onChange={(e) => handleSilentApiRetrievalChange(e.target.checked)}
-											style={{
-												width: '20px',
-												height: '20px',
-												cursor: 'pointer',
-												accentColor: '#6366f1',
-												flexShrink: 0,
-											}}
-										/>
-										<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-											<span style={{ fontSize: '15px', color: '#374151', fontWeight: '500' }}>
-												Silent worker token API calls
-											</span>
-											<span style={{ fontSize: '12px', color: '#6b7280' }}>
-												Automatically fetch worker token in the background without showing modals
-											</span>
-										</div>
-									</label>
-
-									<label
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											gap: '12px',
-											cursor: 'pointer',
-											userSelect: 'none',
-											padding: '8px',
-											borderRadius: '6px',
-											transition: 'background-color 0.2s ease',
-										}}
-										onMouseEnter={(e) => {
-											e.currentTarget.style.backgroundColor = '#f3f4f6';
-										}}
-										onMouseLeave={(e) => {
-											e.currentTarget.style.backgroundColor = 'transparent';
-										}}
-									>
-										<input
-											type="checkbox"
-											checked={showTokenAtEnd}
-											onChange={(e) => handleShowTokenAtEndChange(e.target.checked)}
-											style={{
-												width: '20px',
-												height: '20px',
-												cursor: 'pointer',
-												accentColor: '#6366f1',
-												flexShrink: 0,
-											}}
-										/>
-										<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-											<span style={{ fontSize: '15px', color: '#374151', fontWeight: '500' }}>
-												Show worker token
-											</span>
-											<span style={{ fontSize: '12px', color: '#6b7280' }}>
-												Display the generated worker token in a modal after successful retrieval
-											</span>
-										</div>
-									</label>
-								</div>
-
-								{/* Refresh Button */}
-								<button
-									type="button"
-									onClick={async () => {
-										// Pass Hub page checkbox values to override config (Hub page takes precedence)
-										// forceShowModal=true because user explicitly clicked the button - always show modal
-										await handleShowWorkerTokenModal(
-											setShowWorkerTokenModal, 
-											async (status) => setTokenStatus(await status),
-											silentApiRetrieval,  // Hub page checkbox value takes precedence
-											showTokenAtEnd,      // Hub page checkbox value takes precedence
-											true                  // Force show modal - user clicked button
-										);
-									}}
-									style={{
-										marginTop: '16px',
-										padding: '8px 16px',
-										background: tokenStatus.isValid ? '#10b981' : '#6366f1',
-										color: 'white',
-										border: 'none',
-										borderRadius: '6px',
-										fontSize: '13px',
-										fontWeight: '600',
-										cursor: 'pointer',
 										display: 'flex',
-										alignItems: 'center',
-										gap: '6px',
+										flexDirection: 'column',
+										gap: '20px',
+										width: '100%',
 									}}
 								>
-									<span>🔑</span>
-									<span>Get Worker Token</span>
-								</button>
-							</div>
-						</div>
-					</div>
+									{/* Status Display */}
+									<div>
+										<WorkerTokenStatusDisplayV8 mode="wide" showRefresh={true} showConfig={true} />
+									</div>
+
+									{/* Settings and Controls */}
+									<div
+										style={{
+											padding: '20px',
+											background: '#f8fafc',
+											borderRadius: '8px',
+											border: '1px solid #e2e8f0',
+										}}
+									>
+										<h3
+											style={{
+												fontSize: '16px',
+												fontWeight: '600',
+												margin: '0 0 16px 0',
+												color: '#1f2937',
+											}}
+										>
+											⚙️ Worker Token Settings
+										</h3>
+
+										{/* Checkboxes */}
+										<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+											<label
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '12px',
+													cursor: 'pointer',
+												}}
+											>
+												<input
+													type="checkbox"
+													checked={silentApiRetrieval}
+													onChange={(e) => setSilentApiRetrieval(e.target.checked)}
+													style={{
+														width: '16px',
+														height: '16px',
+														flexShrink: 0,
+													}}
+												/>
+												<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+													<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+														Silent worker token API calls
+													</span>
+													<span style={{ fontSize: '12px', color: '#6b7280' }}>
+														Automatically fetch worker token in the background without showing
+														modals
+													</span>
+												</div>
+											</label>
+
+											<label
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '12px',
+													cursor: 'pointer',
+												}}
+											>
+												<input
+													type="checkbox"
+													checked={showWorkerToken}
+													onChange={(e) => setShowWorkerToken(e.target.checked)}
+													style={{
+														width: '16px',
+														height: '16px',
+														flexShrink: 0,
+													}}
+												/>
+												<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+													<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+														Show worker token
+													</span>
+													<span style={{ fontSize: '12px', color: '#6b7280' }}>
+														Display the generated worker token in a modal after successful retrieval
+													</span>
+												</div>
+											</label>
+										</div>
+
+										{/* Refresh Button */}
+										<button
+											type="button"
+											onClick={async () => {
+												// Pass Hub page checkbox values to override config (Hub page takes precedence)
+												await workerTokenServiceV8.getWorkerToken({
+													silentApiRetrieval,
+													showWorkerToken,
+												});
+												await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+											}}
+											style={{
+												marginTop: '16px',
+												padding: '8px 16px',
+												background: '#3b82f6',
+												color: 'white',
+												border: 'none',
+												borderRadius: '6px',
+												fontSize: '14px',
+												fontWeight: '600',
+												cursor: 'pointer',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '6px',
+											}}
+										>
+											<span>🔑</span>
+											<span>Get Worker Token</span>
+										</button>
+									</div>
+								</div>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				</div>
 
 				<CollapsibleSection>
@@ -895,16 +910,61 @@ export const MFAHubV8: React.FC = () => {
 							<span style={{ fontSize: '20px' }}>🚀</span>
 							MFA Features
 						</CollapsibleTitle>
-						<CollapsibleToggleIcon $collapsed={featuresCollapsed}>
-							<FiChevronDown />
-						</CollapsibleToggleIcon>
+						<button
+							type="button"
+							style={{
+								display: 'inline-flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								width: '48px',
+								height: '48px',
+								borderRadius: '12px',
+								background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+								border: '3px solid #3b82f6',
+								transform: featuresCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+								transition: 'all 0.3s ease',
+								cursor: 'pointer',
+								color: '#3b82f6',
+								boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.background =
+									'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)';
+								e.currentTarget.style.borderColor = '#2563eb';
+								e.currentTarget.style.color = '#2563eb';
+								e.currentTarget.style.transform = featuresCollapsed
+									? 'rotate(-90deg) scale(1.1)'
+									: 'rotate(0deg) scale(1.1)';
+								e.currentTarget.style.boxShadow = '0 4px 16px rgba(59, 130, 246, 0.3)';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.background =
+									'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+								e.currentTarget.style.borderColor = '#3b82f6';
+								e.currentTarget.style.color = '#3b82f6';
+								e.currentTarget.style.transform = featuresCollapsed
+									? 'rotate(-90deg)'
+									: 'rotate(0deg)';
+								e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.2)';
+							}}
+						>
+							<FiChevronDown
+								style={{
+									width: '24px',
+									height: '24px',
+									strokeWidth: '3px',
+									filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))',
+								}}
+							/>
+						</button>
 					</CollapsibleHeaderButton>
 					{!featuresCollapsed && (
 						<CollapsibleContent>
 							<div className="features-grid">
 								{features.map((feature) => (
-									<div
+									<button
 										key={feature.path}
+										type="button"
 										className="feature-card"
 										onClick={() => navigate(feature.path)}
 										style={{ borderTop: `4px solid ${feature.color}` }}
@@ -920,6 +980,7 @@ export const MFAHubV8: React.FC = () => {
 											))}
 										</ul>
 										<button
+											type="button"
 											className="feature-button"
 											style={{ background: feature.color }}
 											onClick={(e) => {
@@ -929,7 +990,7 @@ export const MFAHubV8: React.FC = () => {
 										>
 											Open {feature.title}
 										</button>
-									</div>
+									</button>
 								))}
 							</div>
 						</CollapsibleContent>
@@ -945,18 +1006,60 @@ export const MFAHubV8: React.FC = () => {
 							<span style={{ fontSize: '20px' }}>📚</span>
 							About PingOne MFA
 						</CollapsibleTitle>
-						<CollapsibleToggleIcon $collapsed={infoCollapsed}>
-							<FiChevronDown />
-						</CollapsibleToggleIcon>
+						<button
+							type="button"
+							style={{
+								display: 'inline-flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								width: '48px',
+								height: '48px',
+								borderRadius: '12px',
+								background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+								border: '3px solid #3b82f6',
+								transform: infoCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+								transition: 'all 0.3s ease',
+								cursor: 'pointer',
+								color: '#3b82f6',
+								boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.background =
+									'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)';
+								e.currentTarget.style.borderColor = '#2563eb';
+								e.currentTarget.style.color = '#2563eb';
+								e.currentTarget.style.transform = infoCollapsed
+									? 'rotate(-90deg) scale(1.1)'
+									: 'rotate(0deg) scale(1.1)';
+								e.currentTarget.style.boxShadow = '0 4px 16px rgba(59, 130, 246, 0.3)';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.background =
+									'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+								e.currentTarget.style.borderColor = '#3b82f6';
+								e.currentTarget.style.color = '#3b82f6';
+								e.currentTarget.style.transform = infoCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+								e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.2)';
+							}}
+						>
+							<FiChevronDown
+								style={{
+									width: '24px',
+									height: '24px',
+									strokeWidth: '3px',
+									filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))',
+								}}
+							/>
+						</button>
 					</CollapsibleHeaderButton>
 					{!infoCollapsed && (
 						<CollapsibleContent>
 							<div className="info-section">
 								<h3>About PingOne MFA</h3>
 								<p>
-									PingOne MFA provides secure multi-factor authentication for your applications. This hub
-									gives you complete control over device registration, management, reporting, and
-									configuration.
+									PingOne MFA provides secure multi-factor authentication for your applications.
+									This hub gives you complete control over device registration, management,
+									reporting, and configuration.
 								</p>
 								<div className="info-grid">
 									<div className="info-card">
@@ -1182,12 +1285,10 @@ export const MFAHubV8: React.FC = () => {
 					isOpen={showWorkerTokenModal}
 					onClose={async () => {
 						setShowWorkerTokenModal(false);
-						const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-						setTokenStatus(newStatus);
+						await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 					}}
 					onTokenGenerated={async () => {
-						const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-						setTokenStatus(newStatus);
+						await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 					}}
 				/>
 			)}
