@@ -83,6 +83,35 @@ import {
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
+
+// Add CSS animations for modern modal effects
+const style = document.createElement('style');
+style.textContent = `
+	@keyframes fadeIn {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+	
+	@keyframes slideUp {
+		from { 
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		to { 
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+	
+	@keyframes pulse {
+		0%, 100% { transform: scale(1); }
+		50% { transform: scale(1.05); }
+	}
+`;
+if (!document.head.querySelector('style[data-modal-animations]')) {
+	style.setAttribute('data-modal-animations', 'true');
+	document.head.appendChild(style);
+}
 import {
 	MFADeviceSelectionInfoModal,
 	MFAFIDO2ChallengeModal,
@@ -5506,125 +5535,233 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						left: 0,
 						right: 0,
 						bottom: 0,
-						background: 'rgba(0, 0, 0, 0.5)',
+						background: 'rgba(15, 23, 42, 0.8)',
+						backdropFilter: 'blur(8px)',
 						display: 'flex',
 						alignItems: 'center',
 						justifyContent: 'center',
 						zIndex: 1000,
+						animation: 'fadeIn 0.3s ease-out',
 					}}
 					onClick={() => setShowDeviceSelectionModal(false)}
 				>
 					<div
 						style={{
-							background: 'white',
-							borderRadius: '12px',
-							padding: '32px',
-							maxWidth: '600px',
+							background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+							borderRadius: '20px',
+							padding: '0',
+							maxWidth: '680px',
 							width: '90%',
-							maxHeight: '80vh',
-							overflow: 'auto',
+							maxHeight: '85vh',
+							overflow: 'hidden',
 							position: 'relative',
+							boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+							animation: 'slideUp 0.4s ease-out',
 						}}
 						onClick={(e) => e.stopPropagation()}
 					>
-						<button
-							type="button"
-							onClick={() => setShowDeviceSelectionModal(false)}
+						{/* Header */}
+						<div
 							style={{
-								position: 'absolute',
-								top: '16px',
-								right: '16px',
-								background: 'none',
-								border: 'none',
-								fontSize: '24px',
-								cursor: 'pointer',
-								color: '#6b7280',
+								background: 'rgba(255, 255, 255, 0.1)',
+								backdropFilter: 'blur(10px)',
+								borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+								padding: '24px 32px',
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
 							}}
 						>
-							×
-						</button>
-						<h2
+							<div>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '16px',
+									}}
+								>
+									<div
+										style={{
+											width: '48px',
+											height: '48px',
+											borderRadius: '12px',
+											background: 'rgba(255, 255, 255, 0.2)',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											fontSize: '24px',
+										}}
+								>
+										🔐
+									</div>
+									<div>
+										<h2
+											style={{
+												margin: '0',
+												fontSize: '24px',
+												fontWeight: '700',
+												color: 'white',
+												lineHeight: '1.2',
+											}}
+										>
+											Choose Your Device
+										</h2>
+										<p
+											style={{
+												margin: '4px 0 0 0',
+												fontSize: '14px',
+												color: 'rgba(255, 255, 255, 0.8)',
+												lineHeight: '1.4',
+											}}
+										>
+											Select a device to continue with authentication
+										</p>
+									</div>
+								</div>
+							</div>
+							<button
+								type="button"
+								onClick={() => setShowDeviceSelectionModal(false)}
+								style={{
+									background: 'rgba(255, 255, 255, 0.1)',
+									border: '1px solid rgba(255, 255, 255, 0.2)',
+									borderRadius: '8px',
+									color: 'white',
+									padding: '8px 12px',
+									fontSize: '18px',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+								}}
+								onMouseOver={(e) => {
+									e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+								}}
+								onMouseOut={(e) => {
+									e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+								}}
+							>
+								✕
+							</button>
+						</div>
+
+						{/* Device List */}
+						<div
 							style={{
-								margin: '0 0 24px 0',
-								fontSize: '24px',
-								fontWeight: '700',
-								color: '#1f2937',
+								padding: '32px',
+								maxHeight: '400px',
+								overflowY: 'auto',
 							}}
 						>
-							Select Device for Authentication
-						</h2>
-						<p
-							style={{
-								margin: '0 0 24px 0',
-								fontSize: '16px',
-								color: '#6b7280',
-							}}
-						>
-							Choose a device to continue with authentication
-						</p>
-						<MFADeviceSelector
-							devices={authState.devices}
-							loading={false}
-							selectedDeviceId={authState.selectedDeviceId}
-							onDeviceSelect={async (device) => {
-								console.log(`${MODULE_TAG} 🔥 Device selected from modal:`, device);
-								if (!authState.authenticationId || !authState.userId) {
-									toastV8.error('Authentication session not found');
-									return;
-								}
-
-								try {
-									setAuthState((prev) => ({ ...prev, isLoading: true }));
-
-									const data = await MfaAuthenticationServiceV8.selectDeviceForAuthentication({
-										environmentId: credentials.environmentId,
-										username: usernameInput.trim(),
-										userId: authState.userId,
-										authenticationId: authState.authenticationId,
-										deviceId: device.id,
-										region: credentials.region,
-										customDomain: credentials.customDomain,
-									});
-
-									const status = data.status || '';
-									const nextStep = data.nextStep || '';
-									const challengeId = (data.challengeId as string) || null;
-
-									setAuthState((prev) => ({
-										...prev,
-										isLoading: false,
-										status,
-										nextStep,
-										selectedDeviceId: device.id,
-										challengeId,
-										showDeviceSelection: false,
-									}));
-
-									setShowDeviceSelectionModal(false);
-
-									// Handle next step
-									if (status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED') {
-										setShowOTPModal(true);
-										toastV8.success('OTP has been sent');
-									} else if (status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED') {
-										setShowFIDO2Modal(true);
-									} else if (status === 'PUSH_CONFIRMATION_REQUIRED') {
-										setShowPushModal(true);
-									} else if (status === 'COMPLETED') {
-										toastV8.success('Authentication completed!');
+							<MFADeviceSelector
+								devices={authState.devices}
+								loading={false}
+								selectedDeviceId={authState.selectedDeviceId}
+								onDeviceSelect={async (device) => {
+									console.log(`${MODULE_TAG} 🔥 Device selected from modal:`, device);
+									if (!authState.authenticationId || !authState.userId) {
+										toastV8.error('Authentication session not found');
+										return;
 									}
-								} catch (error) {
-									console.error(`${MODULE_TAG} Failed to select device:`, error);
-									toastV8.error(error instanceof Error ? error.message : 'Failed to select device');
-								} finally {
-									setAuthState((prev) => ({ ...prev, isLoading: false }));
-								}
+
+									try {
+										setAuthState((prev) => ({ ...prev, isLoading: true }));
+
+										const data = await MfaAuthenticationServiceV8.selectDeviceForAuthentication({
+											environmentId: credentials.environmentId,
+											username: usernameInput.trim(),
+											userId: authState.userId,
+											authenticationId: authState.authenticationId,
+											deviceId: device.id,
+											region: credentials.region,
+											customDomain: credentials.customDomain,
+										});
+
+										const status = data.status || '';
+										const nextStep = data.nextStep || '';
+										const challengeId = (data.challengeId as string) || null;
+
+										setAuthState((prev) => ({
+											...prev,
+											isLoading: false,
+											status,
+											nextStep,
+											selectedDeviceId: device.id,
+											challengeId,
+											showDeviceSelection: false,
+										}));
+
+										setShowDeviceSelectionModal(false);
+
+										// Handle next step
+										if (status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED') {
+											setShowOTPModal(true);
+											toastV8.success('OTP has been sent');
+										} else if (status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED') {
+											setShowFIDO2Modal(true);
+										} else if (status === 'PUSH_CONFIRMATION_REQUIRED') {
+											setShowPushModal(true);
+										} else if (status === 'COMPLETED') {
+											toastV8.success('Authentication completed!');
+										}
+									} catch (error) {
+										console.error(`${MODULE_TAG} Failed to select device:`, error);
+										toastV8.error(error instanceof Error ? error.message : 'Failed to select device');
+									} finally {
+										setAuthState((prev) => ({ ...prev, isLoading: false }));
+									}
+								}}
+								onSelectNew={() => {
+									setShowDeviceSelectionModal(false);
+									setShowRegistrationModal(true);
+								}}
+							/>
+						</div>
+
+						{/* Footer */}
+						<div
+							style={{
+								background: 'rgba(255, 255, 255, 0.05)',
+								borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+								padding: '20px 32px',
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
 							}}
-							onSelectNew={() => {
-								setShowDeviceSelectionModal(false);
-								setShowRegistrationModal(true);
-							}}
-						/>
+						>
+							<div
+								style={{
+									fontSize: '12px',
+									color: 'rgba(255, 255, 255, 0.6)',
+								}}
+							>
+								{authState.devices.length} device{authState.devices.length !== 1 ? 's' : ''} available
+							</div>
+							<button
+								type="button"
+								onClick={() => setShowDeviceSelectionModal(false)}
+								style={{
+									background: 'rgba(255, 255, 255, 0.1)',
+									border: '1px solid rgba(255, 255, 255, 0.2)',
+									borderRadius: '8px',
+									color: 'white',
+									padding: '10px 20px',
+									fontSize: '14px',
+									fontWeight: '600',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+								}}
+								onMouseOver={(e) => {
+									e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+								}}
+								onMouseOut={(e) => {
+									e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+								}}
+							>
+								Cancel
+							</button>
+						</div>
 					</div>
 				</div>
 			)}
