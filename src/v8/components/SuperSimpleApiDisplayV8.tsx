@@ -151,14 +151,14 @@ const createPopOutWindow = (
 		<div id="root"></div>
 		<script>
 		(function() {
-			let currentApiCalls = ${JSON.stringify(apiCalls)};
-			let currentFontSize = ${fontSize};
+			let currentApiCalls = window.processedCalls || [];
+			let currentFontSize = window.initialFontSize || 12;
 			let expandedIds = new Set();
 			let copiedField = null;
-			let showP1OnlyFilter = ${JSON.stringify(showP1Only)};
-			const flowFilter = ${JSON.stringify(flowFilter)};
-			const excludePatterns = ${JSON.stringify(excludePatterns)};
-			const includePatterns = ${JSON.stringify(includePatterns)};
+			let showP1OnlyFilter = window.initialShowP1Only || false;
+			const flowFilter = window.initialFlowFilter || 'all';
+			const excludePatterns = window.initialExcludePatterns || [];
+			const includePatterns = window.initialIncludePatterns || [];
 
 			function getStatusDot(status) {
 				if (!status) return '⚪';
@@ -561,8 +561,13 @@ const createPopOutWindow = (
 </body>
 </html>`;
 
-	// Pass the processed data to the popout window BEFORE writing HTML
+	// Pass all initial data to the popout window BEFORE writing HTML
 	(newWindow as any).processedCalls = processedCalls;
+	(newWindow as any).initialFontSize = fontSize;
+	(newWindow as any).initialShowP1Only = showP1Only;
+	(newWindow as any).initialFlowFilter = flowFilter;
+	(newWindow as any).initialExcludePatterns = excludePatterns;
+	(newWindow as any).initialIncludePatterns = includePatterns;
 	console.log('Popout window created with processed calls:', processedCalls.length);
 
 	newWindow.document.write(html);
