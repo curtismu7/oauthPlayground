@@ -266,9 +266,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 	// Backward compatibility aliases for existing code
 	const tokenStatus = workerToken.tokenStatus;
-	const setTokenStatus = async (status: TokenStatusInfo | Promise<TokenStatusInfo>) => {
-		const resolvedStatus = await Promise.resolve(status);
-		workerTokenServiceV8.setTokenStatus(resolvedStatus);
+	// Note: setTokenStatus is no longer needed as the hook manages token status internally
+	// Keeping this as a no-op for backward compatibility with existing code
+	const setTokenStatus = async (_status: TokenStatusInfo | Promise<TokenStatusInfo>) => {
+		// No-op: Token status is now managed by useWorkerToken hook
+		// The hook automatically updates tokenStatus when the token changes
 	};
 
 	// Reload credentials when worker token status changes (in case credentials were updated)
