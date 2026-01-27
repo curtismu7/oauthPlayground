@@ -714,11 +714,12 @@ ${parRequest.prompt ? `,  "prompt": "${parRequest.prompt}"` : ''}
 														copyable={true}
 													/>
 
-													<Button onClick={generateAuthorizationUrl}>
-														<FiExternalLink />
-														Generate Authorization URL
-													</Button>
-												</div>
+													<div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+														<Button onClick={generateAuthorizationUrl}>
+															<FiExternalLink />
+															Generate Authorization URL
+														</Button>
+													</div>
 											) : null}
 										</div>
 									)}

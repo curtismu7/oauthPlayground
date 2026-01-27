@@ -168,7 +168,9 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 				</InfoText>
 			</InfoBox>
 
-			<Button>Generate OAuth 2.0 Authorization URL</Button>
+			<div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+				<Button>Generate OAuth 2.0 Authorization URL</Button>
+			</div>
 
 			<GeneratedContentBox>
 				<InfoTitle>OAuth 2.0 Authorization URL</InfoTitle>
@@ -430,7 +432,9 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 				</InfoText>
 			</InfoBox>
 
-			<Button>Generate OIDC Authorization URL</Button>
+			<div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+				<Button>Generate OIDC Authorization URL</Button>
+			</div>
 
 			<GeneratedContentBox>
 				<InfoTitle>OpenID Connect Authorization URL</InfoTitle>
