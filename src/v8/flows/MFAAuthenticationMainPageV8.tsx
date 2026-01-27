@@ -248,45 +248,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		};
 	});
 
-	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
-		isValid: false,
-		status: 'missing',
-		message: 'Checking...',
-		expiresAt: null,
-		minutesRemaining: 0,
-	});
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-
-	// Initialize token status
-	useEffect(() => {
-		const initializeTokenStatus = async () => {
-			try {
-				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-				setTokenStatus(status);
-			} catch (error) {
-				console.error('[MFA-AUTHN-MAIN-V8] Failed to check token status:', error);
-				setTokenStatus({
-					isValid: false,
-					status: 'missing',
-					message: 'Failed to check token status',
-					expiresAt: null,
-					minutesRemaining: 0,
-				});
-			}
-		};
-		initializeTokenStatus();
-	}, []);
-
-	// Worker Token Settings State - Load fresh from config service (no cache)
-	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
-		// Always load fresh from config service, don't rely on cached state
-		const config = MFAConfigurationServiceV8.loadConfiguration();
-		return config.workerToken.silentApiRetrieval;
-	});
-	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
-		// Always load fresh from config service, don't rely on cached state
-		const config = MFAConfigurationServiceV8.loadConfiguration();
-		return config.workerToken.showTokenAtEnd;
+	// V3 Integration: useWorkerToken hook replaces all worker token state and logic
+	const workerToken = useWorkerToken({
+		refreshInterval: 5000,
+		enableAutoRefresh: true,
 	});
 
 	// MFA Policy State
@@ -1432,11 +1397,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 	// Compute showTokenOnly for modal
 	const showTokenOnly = (() => {
-		if (!showWorkerTokenModal) return false;
+		if (!workerToken.showWorkerTokenModal) return false;
 		try {
 			const config = MFAConfigurationServiceV8.loadConfiguration();
-			// Use existing tokenStatus state instead of calling async function
-			return config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+			// Use workerToken hook state instead of old state
+			return config.workerToken.showTokenAtEnd && workerToken.tokenStatus.isValid;
 		} catch {
 			return false;
 		}
