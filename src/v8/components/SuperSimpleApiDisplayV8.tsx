@@ -61,6 +61,33 @@ const createPopOutWindow = (
 
 	if (!newWindow) return null;
 
+	// Pre-process the data to avoid complex JavaScript in HTML
+	const processedCalls = apiCalls.map(call => {
+		const status = call.response?.status || 0;
+		const statusColor = status >= 200 && status < 300 ? '#10b981' : status >= 400 ? '#ef4444' : '#f59e0b';
+		const methodColor = call.method === 'GET' ? '#3b82f6' : call.method === 'POST' ? '#10b981' : call.method === 'DELETE' ? '#ef4444' : '#6b7280';
+		const apiType = getApiTypeIcon(call);
+		const hasHeaders = call.headers && typeof call.headers === 'object' && Object.keys(call.headers).length > 0;
+		const hasBody = call.body && typeof call.body === 'object' && Object.keys(call.body).length > 0;
+		const hasResponse = call.response?.data !== undefined && call.response.data !== null;
+		const headersText = hasHeaders ? JSON.stringify(call.headers, null, 2) : '';
+		const bodyText = hasBody ? (typeof call.body === 'string' ? call.body : JSON.stringify(call.body, null, 2)) : '';
+		const responseText = hasResponse ? JSON.stringify(call.response.data, null, 2) : '';
+		
+		return {
+			...call,
+			statusColor,
+			methodColor,
+			apiType,
+			hasHeaders,
+			hasBody,
+			hasResponse,
+			headersText,
+			bodyText,
+			responseText
+		};
+	});
+
 	// Create a fully functional HTML page with JavaScript
 	const html = `<!DOCTYPE html>
 <html>
@@ -377,30 +404,17 @@ const createPopOutWindow = (
 										</tr>
 									</thead>
 									<tbody>
-										\${filteredCalls.map(call => {
-											const status = call.response?.status || 0;
-											const statusColor = status >= 200 && status < 300 ? '#10b981' : status >= 400 ? '#ef4444' : '#f59e0b';
-											const methodColor = call.method === 'GET' ? '#3b82f6' : call.method === 'POST' ? '#10b981' : call.method === 'DELETE' ? '#ef4444' : '#6b7280';
-											const apiType = getApiTypeIcon(call);
+										\${window.processedCalls ? window.processedCalls.map(call => {
 											const isExpanded = expandedIds.has(call.id);
-											const hasHeaders = call.headers && typeof call.headers === 'object' && Object.keys(call.headers).length > 0;
-											const hasBody = call.body && typeof call.body === 'object' && Object.keys(call.body).length > 0;
-											const hasResponse = call.response?.data !== undefined && call.response.data !== null;
-											const headersText = hasHeaders ? JSON.stringify(call.headers, null, 2) : '';
-											const bodyText = hasBody ? (typeof call.body === 'string' ? call.body : JSON.stringify(call.body, null, 2)) : '';
-											const responseText = hasResponse ? JSON.stringify(call.response.data, null, 2) : '';
-											const headersTextEscaped = hasHeaders ? escapeForJsString(headersText) : '';
-											const bodyTextEscaped = hasBody ? escapeForJsString(bodyText) : '';
-											const responseTextEscaped = hasResponse ? escapeForJsString(responseText) : '';
 											const displayUrl = call.actualPingOneUrl || call.url;
 											const urlEscaped = displayUrl.replace(/'/g, "\\\\'");
 											
 											return \`
 												<tr onclick="window.toggleExpand('\${call.id}')" style="cursor: pointer; background: \${isExpanded ? '#f3f4f6' : 'white'}; border-bottom: 1px solid #e5e7eb;" onmouseover="this.style.background='\${isExpanded ? '#f3f4f6' : '#f9fafb'}'" onmouseout="this.style.background='\${isExpanded ? '#f3f4f6' : 'white'}'">
-													<td style="padding: 12px; text-align: center; font-size: \${currentFontSize + 4}px;" title="\${apiType.label}">\${apiType.icon}</td>
-													<td style="padding: 12px; font-size: \${currentFontSize + 4}px;">\${getStatusDot(status)}</td>
-													<td style="padding: 12px;"><span style="padding: 4px 8px; background: \${methodColor}; color: white; border-radius: 3px; font-size: \${currentFontSize}px; font-weight: bold;">\${call.method}</span></td>
-													<td style="padding: 12px; color: \${statusColor}; font-weight: bold; font-size: \${currentFontSize}px;">\${status ? status + ' ' + getStatusLabel(status) : '...'}</td>
+													<td style="padding: 12px; text-align: center; font-size: \${currentFontSize + 4}px;" title="\${call.apiType.label}">\${call.apiType.icon}</td>
+													<td style="padding: 12px; font-size: \${currentFontSize + 4}px;">\${getStatusDot(call.response?.status || 0)}</td>
+													<td style="padding: 12px;"><span style="padding: 4px 8px; background: \${call.methodColor}; color: white; border-radius: 3px; font-size: \${currentFontSize}px; font-weight: bold;">\${call.method}</span></td>
+													<td style="padding: 12px; color: \${call.statusColor}; font-weight: bold; font-size: \${currentFontSize}px;">\${call.response?.status ? call.response.status + ' ' + getStatusLabel(call.response.status) : '...'}</td>
 													<td style="padding: 12px; color: #1f2937; font-size: \${currentFontSize}px; word-break: break-all; white-space: normal; overflow-wrap: anywhere;">
 														\${isProxyCall(call) ? '<span style="padding: 2px 6px; background: #374151; color: #9ca3af; border-radius: 2px; font-size: ' + (currentFontSize - 2) + 'px; margin-right: 6px;">PROXY</span>' : ''}\${getShortUrl(call)}</td>
 													<td style="padding: 12px; color: #6b7280; font-size: \${currentFontSize}px;">\${new Date(call.timestamp).toLocaleTimeString()}</td>
@@ -414,27 +428,27 @@ const createPopOutWindow = (
 																		<button class="copy-btn \${copiedField === 'url-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${urlEscaped}', 'url-\${call.id}')">\${copiedField === 'url-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
 																	</div>
 																	<div style="color: #2563eb; font-size: 11px; word-break: break-all; white-space: normal; overflow-wrap: anywhere;">\${displayUrl}</div>
-																</div>\` + (hasHeaders ? \`
+																</div>\` + (call.hasHeaders ? \`
 																<div>
 																	<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
 																		<div style="color: #6b7280; font-size: 10px; font-weight: 600;">REQUEST HEADERS:</div>
-																		<button class="copy-btn \${copiedField === 'headers-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${headersTextEscaped}', 'headers-\${call.id}')">\${copiedField === 'headers-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
+																		<button class="copy-btn \${copiedField === 'headers-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${escapeForJsString(call.headersText)}', 'headers-\${call.id}')">\${copiedField === 'headers-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
 																	</div>
-																	<div class="json-display"><pre>\${headersText}</pre></div>
-																</div>\` : '') + (hasBody ? \`
+																	<div class="json-display"><pre>\${call.headersText}</pre></div>
+																</div>\` : '') + (call.hasBody ? \`
 																<div>
 																	<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
 																		<div style="color: #6b7280; font-size: 10px; font-weight: 600;">REQUEST BODY:</div>
-																		<button class="copy-btn \${copiedField === 'body-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${bodyTextEscaped}', 'body-\${call.id}')">\${copiedField === 'body-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
+																		<button class="copy-btn \${copiedField === 'body-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${escapeForJsString(call.bodyText)}', 'body-\${call.id}')">\${copiedField === 'body-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
 																	</div>
-																	<div class="json-display"><pre>\${bodyText}</pre></div>
-																</div>\` : '') + (hasResponse ? \`
+																	<div class="json-display"><pre>\${call.bodyText}</pre></div>
+																</div>\` : '') + (call.hasResponse ? \`
 																<div style="padding: 8px 12px; background: #e0f2fe; border-radius: 4px; border: 1px solid #38bdf8; margin-top: 12px;">
 																	<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
 																		<div style="color: #0369a1; font-size: 11px; font-weight: 700;">RESPONSE (for debugging):</div>
-																		<button class="copy-btn \${copiedField === 'response-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${responseTextEscaped}', 'response-\${call.id}')" style="padding: 4px 10px; background: \${copiedField === 'response-' + call.id ? '#10b981' : '#0ea5e9'}; color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: 600;">\${copiedField === 'response-' + call.id ? '✓ Copied' : '📋 Copy Response'}</button>
+																		<button class="copy-btn \${copiedField === 'response-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${escapeForJsString(call.responseText)}', 'response-\${call.id}')" style="padding: 4px 10px; background: \${copiedField === 'response-' + call.id ? '#10b981' : '#0ea5e9'}; color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: 600;">\${copiedField === 'response-' + call.id ? '✓ Copied' : '📋 Copy Response'}</button>
 																	</div>
-																	<div class="json-display"><pre>\${responseText}</pre></div>
+																	<div class="json-display"><pre>\${call.responseText}</pre></div>
 																</div>\` : '') + \`
 															</div>
 														</td>
@@ -486,6 +500,32 @@ const createPopOutWindow = (
 				return JSON.stringify(text).slice(1, -1);
 			};
 
+			// Helper functions for display
+			const getStatusDot = (status) => {
+				if (status >= 200 && status < 300) return '🟢';
+				if (status >= 400) return '🔴';
+				return '🟡';
+			};
+
+			const getStatusLabel = (status) => {
+				if (status >= 200 && status < 300) return 'OK';
+				if (status >= 400 && status < 500) return 'Client Error';
+				if (status >= 500) return 'Server Error';
+				return 'Pending';
+			};
+
+			const isProxyCall = (call) => {
+				return call.url && call.url.includes('/pingone-auth/') && call.actualPingOneUrl;
+			};
+
+			const getShortUrl = (call) => {
+				const displayUrl = call.actualPingOneUrl || call.url;
+				if (displayUrl.length > 60) {
+					return displayUrl.substring(0, 30) + '...' + displayUrl.substring(displayUrl.length - 25);
+				}
+				return displayUrl;
+			};
+
 			// Initial render
 			render();
 		})();
@@ -495,6 +535,9 @@ const createPopOutWindow = (
 
 	newWindow.document.write(html);
 	newWindow.document.close();
+
+	// Pass the processed data to the popout window
+	(newWindow as any).processedCalls = processedCalls;
 
 	return newWindow;
 };
