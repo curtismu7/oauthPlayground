@@ -553,8 +553,35 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 
 			// 12. PKCE Code Verifier Format Validation (if PKCE is enabled)
 			if (credentials.usePKCE || credentials.pkceEnforcement) {
-				// Note: Code verifier/challenge are generated automatically, but we can validate the format if they exist
-				// This is mainly for informational purposes - PKCE codes are generated when needed
+				// Check for stored PKCE codes with deprecated 'plain' method
+				try {
+					// Try to load PKCE codes from storage (they might be from a previous session)
+					const { PKCEStorageServiceV8U } = await import('@/v8u/services/pkceStorageServiceV8U');
+					const flowKey = credentials.flowKey || 'default';
+					const storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
+					
+					if (storedPKCE) {
+						if (storedPKCE.codeChallengeMethod === 'plain') {
+							errors.push(
+								`❌ PKCE Method Mismatch: Your stored PKCE codes use the deprecated 'plain' method. This will cause token exchange to fail. Please: 1) Go back to Step 1 (Generate PKCE Parameters) 2) Click "Generate PKCE Parameters" to create new codes with 'S256' method 3) Go to Step 2 and click "Generate Authorization URL" again 4) Complete authentication and try token exchange again. Old PKCE codes have been automatically cleared.`
+							);
+							
+							// Auto-clear the problematic PKCE codes
+							await PKCEStorageServiceV8U.clearPKCECodes(flowKey);
+							console.log(`${MODULE_TAG} 🗑️ Auto-cleared PKCE codes with 'plain' method for flow: ${flowKey}`);
+						} else if (storedPKCE.codeChallengeMethod !== 'S256') {
+							warnings.push(
+								`⚠️ PKCE Method: Your stored PKCE codes use method '${storedPKCE.codeChallengeMethod}'. Only 'S256' is recommended for security.`
+							);
+						}
+					}
+				} catch (storageError) {
+					// If we can't check stored PKCE codes, add a warning but don't fail validation
+					warnings.push(
+						`⚠️ PKCE Storage Check: Unable to validate stored PKCE codes. Consider regenerating PKCE parameters if token exchange fails.`
+					);
+					console.warn(`${MODULE_TAG} Failed to check PKCE storage:`, storageError);
+				}
 			}
 
 			// 13. Environment ID Format Validation (UUID format)
@@ -795,12 +822,27 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 					options.workerToken
 				);
 				if (fetchedConfig) {
-					appConfig = {
-						tokenEndpointAuthMethod: fetchedConfig.tokenEndpointAuthMethod,
-						pkceEnforced: fetchedConfig.pkceEnforced,
-						pkceRequired: fetchedConfig.pkceRequired,
-						requireSignedRequestObject: fetchedConfig.requireSignedRequestObject,
-					};
+					const config: {
+						tokenEndpointAuthMethod?: string;
+						pkceEnforced?: boolean;
+						pkceRequired?: boolean;
+						requireSignedRequestObject?: boolean;
+					} = {};
+					
+					if (fetchedConfig.tokenEndpointAuthMethod) {
+						config.tokenEndpointAuthMethod = fetchedConfig.tokenEndpointAuthMethod;
+					}
+					if (fetchedConfig.pkceEnforced !== undefined) {
+						config.pkceEnforced = fetchedConfig.pkceEnforced;
+					}
+					if (fetchedConfig.pkceRequired !== undefined) {
+						config.pkceRequired = fetchedConfig.pkceRequired;
+					}
+					if (fetchedConfig.requireSignedRequestObject !== undefined) {
+						config.requireSignedRequestObject = fetchedConfig.requireSignedRequestObject;
+					}
+					
+					appConfig = config;
 				}
 			} catch (error) {
 				console.warn(`${MODULE_TAG} Could not fetch app config for fixable error analysis:`, error);
@@ -830,9 +872,9 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 			warnings,
 			redirectUriValidated: redirectUriResult.passed,
 			oauthConfigValidated: oauthConfigResult.passed,
-			redirectUris: redirectUriResult.redirectUris,
-			fixableErrors,
-			appConfig,
+			redirectUris: redirectUriResult.redirectUris || undefined,
+			fixableErrors: fixableErrors || undefined,
+			appConfig: appConfig || undefined,
 		};
 	}
 }
