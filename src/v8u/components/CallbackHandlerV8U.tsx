@@ -34,7 +34,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 			currentPath === '/user-mfa-login-callback' ||
 			currentPath.includes('user-mfa-login-callback');
 
-		logger.debug(Checking callback path:`, {
+		logger.debug(`Checking callback path:`, {
 			currentPath,
 			isUserLoginCallback,
 			searchParams: window.location.search,
