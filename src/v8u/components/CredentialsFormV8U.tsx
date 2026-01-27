@@ -500,7 +500,6 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	// App Discovery Modal
 	const [showAppDiscoveryModal, setShowAppDiscoveryModal] = useState(false);
-	const [hasDiscoveredApps, setHasDiscoveredApps] = useState(false);
 	const [highlightEmptyFields, setHighlightEmptyFields] = useState(false);
 	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>(() => ({
 		status: 'missing',
@@ -1532,7 +1531,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 	const handleAppSelected = useCallback(
 		async (app: DiscoveredApp) => {
 			console.log(`${MODULE_TAG} App selected`, { appId: app.id, appName: app.name });
-			setHasDiscoveredApps(true);
 			setHighlightEmptyFields(true); // Enable highlighting for empty required fields
 
 			// Fetch the application with its client secret from PingOne API
@@ -2319,7 +2317,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 									{/* Application Type */}
 									<div className="form-group">
-										<label>
+										<label htmlFor="app-type-select">
 											Application Type
 											<TooltipV8
 												title={`${TooltipContentServiceV8.APPLICATION_TYPE.title} - ${getAppTypeLabel(appType)}`}
@@ -2330,6 +2328,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											{/* Dropdown - Half Width */}
 											<div style={{ flex: '0 0 50%' }}>
 												<select
+													id="app-type-select"
 													value={appType}
 													onChange={(e) => {
 														const newAppType = e.target.value as AppType;
@@ -2427,10 +2426,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 									{/* Environment ID */}
 									<div className="form-group">
-										<label>
+										<label htmlFor="environment-id-input">
 											Environment ID <span className="required">*</span>
 										</label>
 										<input
+											id="environment-id-input"
 											type="text"
 											placeholder="12345678-1234-1234-1234-123456789012"
 											value={credentials.environmentId}
