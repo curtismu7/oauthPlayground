@@ -1400,6 +1400,17 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				return;
 			}
 
+			console.log(`${MODULE_TAG} Device authentication initialized`, {
+				authenticationId: response.id,
+				status: response.status,
+				nextStep: response.nextStep,
+				hasLinks: !!response._links,
+				devices: response.devices,
+				deviceCount: response.devices?.length || 0,
+				_embedded: response._embedded,
+				allKeys: Object.keys(response),
+			});
+
 			setAuthState({
 				isLoading: false,
 				authenticationId: response.id,
