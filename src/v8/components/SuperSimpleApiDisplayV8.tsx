@@ -511,37 +511,37 @@ const createPopOutWindow = (
 			});
 
 			// Helper function to escape text for JavaScript strings
-			const escapeForJsString = (text) => {
+			function escapeForJsString(text) {
 				// JSON.stringify will properly escape all special characters
 				// Remove the surrounding quotes that JSON.stringify adds
 				return JSON.stringify(text).slice(1, -1);
-			};
+			}
 
 			// Helper functions for display
-			const getStatusDot = (status) => {
+			function getStatusDot(status) {
 				if (status >= 200 && status < 300) return '🟢';
 				if (status >= 400) return '🔴';
 				return '🟡';
-			};
+			}
 
-			const getStatusLabel = (status) => {
+			function getStatusLabel(status) {
 				if (status >= 200 && status < 300) return 'OK';
 				if (status >= 400 && status < 500) return 'Client Error';
 				if (status >= 500) return 'Server Error';
 				return 'Pending';
-			};
+			}
 
-			const isProxyCall = (call) => {
+			function isProxyCall(call) {
 				return call.url && call.url.includes('/pingone-auth/') && call.actualPingOneUrl;
-			};
+			}
 
-			const getShortUrl = (call) => {
+			function getShortUrl(call) {
 				const displayUrl = call.actualPingOneUrl || call.url;
 				if (displayUrl.length > 60) {
 					return displayUrl.substring(0, 30) + '...' + displayUrl.substring(displayUrl.length - 25);
 				}
 				return displayUrl;
-			};
+			}
 
 			// Debug: Log that JavaScript is loading
 			console.log('Popout window JavaScript loading...');
