@@ -82,6 +82,7 @@ import {
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { createModuleLogger } from '@/utils/consoleMigrationHelper';
 import { environmentService } from '@/services/environmentService';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import {
 	MFADeviceSelectionInfoModal,
@@ -248,11 +249,23 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			includeScopes: false,
 		});
 		
-		// Use global environment service as primary source, fallback to stored credentials
+		// Use global environment service as primary source, fallback to stored credentials, then worker token
 		const globalEnvId = environmentService.getEnvironmentId();
 		
+		// Try worker token credentials as fallback
+		let workerTokenEnvId = '';
+		try {
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				workerTokenEnvId = data.credentials?.environmentId || '';
+			}
+		} catch (error) {
+			console.log('Failed to load environment ID from worker token:', error);
+		}
+		
 		return {
-			environmentId: globalEnvId || stored.environmentId || '',
+			environmentId: globalEnvId || stored.environmentId || workerTokenEnvId || '',
 			username: stored.username || '',
 			deviceAuthenticationPolicyId: stored.deviceAuthenticationPolicyId || '',
 		};
@@ -942,6 +955,29 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		}
 	}, [credentials.environmentId, tokenStatus.isValid]);
 
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId && !credentials.environmentId) {
+						setCredentials(prev => ({
+							...prev,
+							environmentId: data.credentials.environmentId
+						}));
+					}
+				}
+			} catch (error) {
+				console.log('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+	}, [credentials.environmentId]);
+
 	// Extract allowed device types from policy (shared function)
 	const extractAllowedDeviceTypes = useCallback(
 		(policy: DeviceAuthenticationPolicy): DeviceType[] => {
@@ -1383,7 +1419,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			setLoadingMessage('');
 
 			// Show appropriate modal
-			if (needsOTP) {
+			if (needsDeviceSelection) {
+				// Device selection is needed - the UI will show the device list automatically
+				// based on authState.showDeviceSelection being true
+				toastV8.success('Please select a device to continue');
+			} else if (needsOTP) {
 				setShowOTPModal(true);
 			} else if (needsPush) {
 				setShowPushModal(true);
