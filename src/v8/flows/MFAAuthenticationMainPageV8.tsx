@@ -3709,6 +3709,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						<div style={{background: 'purple', color: 'white', padding: '10px', margin: '0 0 10px 0'}}>
 							🔥 DEVICE MAPPING: {authState.devices.length} devices found
 						</div>
+						
+						{/* TEST: Simple button rendering */}
+						<button style={{background: 'blue', color: 'white', padding: '10px', margin: '0 0 10px 0'}}>
+							🔥 TEST BUTTON - If you see this, buttons work!
+						</button>
+						
 						{authState.devices.map((device, index) => {
 							console.log(`${MODULE_TAG} 🔥 Mapping device:`, {device, index});
 							return (

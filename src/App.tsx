@@ -1438,22 +1438,16 @@ function AppContent() {
 
 	// Handle global worker token modal events
 	useEffect(() => {
-		console.log('[App] Setting up worker token modal event listener...');
-
 		const handleWorkerTokenModalEvent = (event: CustomEvent) => {
-			console.log('[App] Opening worker token modal from:', event.detail?.source || 'unknown');
-			console.log('[App] Setting showWorkerTokenModal to true');
 			setShowWorkerTokenModal(true);
 		};
 
-		console.log('[App] Adding event listener for open-worker-token-modal');
 		window.addEventListener(
 			'open-worker-token-modal',
 			handleWorkerTokenModalEvent as EventListener
 		);
 
 		return () => {
-			console.log('[App] Cleaning up worker token modal event listener');
 			window.removeEventListener(
 				'open-worker-token-modal',
 				handleWorkerTokenModalEvent as EventListener
