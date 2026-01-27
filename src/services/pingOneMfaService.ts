@@ -353,7 +353,7 @@ export class PingOneMfaService {
 	static async validateChallenge(
 		credentials: MfaCredentials,
 		challengeId: string,
-		responseCode: string
+		_responseCode: string
 	): Promise<ValidationResult> {
 		try {
 			console.log(`[PingOneMfaService] Validating challenge: ${challengeId}`);
