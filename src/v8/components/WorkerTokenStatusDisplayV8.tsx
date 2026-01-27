@@ -36,9 +36,9 @@ import {
 } from 'react-icons/fi';
 import styled, { css, keyframes } from 'styled-components';
 import type {
+	UnifiedWorkerTokenCredentials,
 	UnifiedWorkerTokenData,
 	UnifiedWorkerTokenStatus,
-	UnifiedWorkerTokenCredentials,
 } from '@/services/unifiedWorkerTokenService';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
@@ -205,9 +205,21 @@ const StatusValue = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }>`
 
 const StatusDetails = styled.div`
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+	grid-template-columns: repeat(4, 1fr);
 	gap: 12px;
 	margin-top: 12px;
+
+	@media (max-width: 1024px) {
+		grid-template-columns: repeat(3, 1fr);
+	}
+
+	@media (max-width: 768px) {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	@media (max-width: 480px) {
+		grid-template-columns: 1fr;
+	}
 `;
 
 const StatusDetail = styled.div`
@@ -604,21 +616,23 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 					unifiedWorkerTokenService.getToken(),
 					unifiedWorkerTokenService.getStatus(),
 				]);
-				
+
 				// Create tokenData structure from the unified service response
-				const tokenData = token ? {
-					token,
-					credentials: {
-						environmentId: '', // Not needed for display
-						clientId: '',
-						clientSecret: '',
-					} as UnifiedWorkerTokenCredentials,
-					savedAt: status.lastFetchedAt || Date.now(),
-					lastUsedAt: undefined,
-					tokenType: 'Bearer',
-					expiresIn: status.tokenExpiresIn,
-					scope: undefined,
-				} : null;
+				const tokenData = token
+					? {
+							token,
+							credentials: {
+								environmentId: '', // Not needed for display
+								clientId: '',
+								clientSecret: '',
+							} as UnifiedWorkerTokenCredentials,
+							savedAt: status.lastFetchedAt || Date.now(),
+							lastUsedAt: undefined,
+							tokenType: 'Bearer',
+							expiresIn: status.tokenExpiresIn,
+							scope: undefined,
+						}
+					: null;
 				setFullTokenData(tokenData);
 				setTokenStatusInfo(status);
 			} catch (dataError) {
@@ -658,7 +672,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 		const handleTokenUpdate = async () => {
 			// Use sync version for immediate updates
 			const v8Status = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
-			
+
 			// Convert V8 TokenStatusInfo to V8U TokenStatusInfo
 			const convertedStatus: TokenStatusInfo = {
 				isValid: v8Status.isValid,
@@ -671,7 +685,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			};
 
 			setTokenStatus(convertedStatus);
-			
+
 			// Then do the full async update for additional data
 			await updateTokenStatus();
 		};
