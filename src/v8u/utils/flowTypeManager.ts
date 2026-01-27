@@ -10,6 +10,7 @@
  */
 
 import {
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 	type FlowType,
 	type SpecVersion,
 	SpecVersionServiceV8,
@@ -75,7 +76,7 @@ export function getEffectiveFlowType(
 		return requestedFlowType;
 	}
 
-	console.warn(`${MODULE_TAG} Flow type not available, using fallback`, {
+	logger.warn(Flow type not available, using fallback`, {
 		requested: requestedFlowType,
 		specVersion,
 		fallback: compatibility.fallbackFlowType,

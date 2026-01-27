@@ -1,6 +1,7 @@
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { unifiedWorkerTokenServiceV2 } from '../../services/unifiedWorkerTokenServiceV2';
 import type { WorkerAccessToken, WorkerTokenStatus } from '../../services/unifiedWorkerTokenTypes';
+import { logger } from './unifiedFlowLoggerServiceV8U';
 export interface TokenInfo {
 	id: string;
 	type: 'access_token' | 'refresh_token' | 'id_token' | 'worker_token';
@@ -78,7 +79,7 @@ export class TokenMonitoringService {
 		this.setupApiCallTrackerSync();
 
 		// Log initial state for debugging
-		console.log(`[TokenMonitoring] Service initialized with ${this.tokens.size} tokens`);
+		logger.debug(`[TokenMonitoring] Service initialized with ${this.tokens.size} tokens`);
 	}
 
 	static getInstance(config?: TokenMonitoringServiceConfig): TokenMonitoringService {
@@ -95,7 +96,7 @@ export class TokenMonitoringService {
 				clearInterval(TokenMonitoringService.instance.pollingTimer);
 			}
 			TokenMonitoringService.instance = null;
-			console.log('[TokenMonitoring] Service instance reset');
+			logger.debug('[TokenMonitoring] Service instance reset');
 		}
 	}
 
@@ -104,7 +105,7 @@ export class TokenMonitoringService {
 			// Clear token monitoring storage
 			window.localStorage.removeItem('v8u.tokenMonitoring.tokens');
 			window.localStorage.removeItem('v8u.tokenMonitoring.apiCalls');
-			console.log('[TokenMonitoring] Storage cleared');
+			logger.debug('[TokenMonitoring] Storage cleared');
 		}
 	}
 
@@ -220,7 +221,7 @@ export class TokenMonitoringService {
 				tokenData.forEach((token) => {
 					this.tokens.set(token.id, token);
 				});
-				console.log(`[TokenMonitoring] Loaded ${tokenData.length} tokens from storage`);
+				logger.debug(`[TokenMonitoring] Loaded ${tokenData.length} tokens from storage`);
 
 				// Notify listeners immediately after loading from storage
 				if (tokenData.length > 0) {
@@ -228,7 +229,7 @@ export class TokenMonitoringService {
 				}
 			}
 		} catch (error) {
-			console.warn('[TokenMonitoring] Failed to load tokens from storage:', error);
+			logger.warn('[TokenMonitoring] Failed to load tokens from storage:', error);
 		}
 	}
 
@@ -239,7 +240,7 @@ export class TokenMonitoringService {
 				window.localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tokenData));
 			}
 		} catch (error) {
-			console.warn('[TokenMonitoring] Failed to save tokens to storage:', error);
+			logger.warn('[TokenMonitoring] Failed to save tokens to storage:', error);
 		}
 	}
 
@@ -250,10 +251,10 @@ export class TokenMonitoringService {
 				typeof window !== 'undefined' ? window.localStorage.getItem(this.API_CALLS_KEY) : null;
 			if (stored) {
 				this.apiCalls = JSON.parse(stored) as ApiCall[];
-				console.log(`[TokenMonitoring] Loaded ${this.apiCalls.length} API calls from storage`);
+				logger.debug(`[TokenMonitoring] Loaded ${this.apiCalls.length} API calls from storage`);
 			}
 		} catch (error) {
-			console.warn('[TokenMonitoring] Failed to load API calls from storage:', error);
+			logger.warn('[TokenMonitoring] Failed to load API calls from storage:', error);
 			this.apiCalls = [];
 		}
 	}
@@ -264,7 +265,7 @@ export class TokenMonitoringService {
 				window.localStorage.setItem(this.API_CALLS_KEY, JSON.stringify(this.apiCalls));
 			}
 		} catch (error) {
-			console.warn('[TokenMonitoring] Failed to save API calls to storage:', error);
+			logger.warn('[TokenMonitoring] Failed to save API calls to storage:', error);
 		}
 	}
 
@@ -288,7 +289,7 @@ export class TokenMonitoringService {
 		}
 
 		this.saveApiCallsToStorage();
-		console.log(`[TokenMonitoring] Logged API call: ${call.method} ${call.url}`);
+		logger.debug(`[TokenMonitoring] Logged API call: ${call.method} ${call.url}`);
 	}
 
 	private generateApiCallId(): string {
@@ -302,7 +303,7 @@ export class TokenMonitoringService {
 	public clearApiCalls(): void {
 		this.apiCalls = [];
 		this.saveApiCallsToStorage();
-		console.log('[TokenMonitoring] Cleared API call history');
+		logger.debug('[TokenMonitoring] Cleared API call history');
 	}
 
 	// Token sync with OAuth flows
@@ -317,13 +318,13 @@ export class TokenMonitoringService {
 
 			// Listen for worker token updates
 			window.addEventListener('worker-token-refreshed', () => {
-				console.log('[TokenMonitoring] worker-token-refreshed event received');
+				logger.debug('[TokenMonitoring] worker-token-refreshed event received');
 				this.syncWorkerToken();
 			});
 
 			// Also listen for any other worker token events
 			window.addEventListener('workerTokenUpdated', () => {
-				console.log('[TokenMonitoring] workerTokenUpdated event received');
+				logger.debug('[TokenMonitoring] workerTokenUpdated event received');
 				this.syncWorkerToken();
 			});
 
@@ -395,7 +396,7 @@ export class TokenMonitoringService {
 				});
 			});
 		} catch (error) {
-			console.warn('[TokenMonitoring] Failed to setup API call tracker sync:', error);
+			logger.warn('[TokenMonitoring] Failed to setup API call tracker sync:', error);
 		}
 	}
 
@@ -420,12 +421,12 @@ export class TokenMonitoringService {
 				}
 			}
 		} catch (error) {
-			console.warn('[TokenMonitoring] Failed to sync tokens from flow context:', error);
+			logger.warn('[TokenMonitoring] Failed to sync tokens from flow context:', error);
 		}
 	}
 
 	private syncTokensFromOAuthFlow(oauthTokens: Record<string, string>, flowSource: string): void {
-		console.log('[TokenMonitoring] Syncing tokens from OAuth flow:', {
+		logger.debug('[TokenMonitoring] Syncing tokens from OAuth flow:', {
 			flowSource,
 			tokenTypes: Object.keys(oauthTokens),
 		});
@@ -504,24 +505,24 @@ export class TokenMonitoringService {
 		});
 
 		tokensToRemove.forEach((id) => this.removeToken(id));
-		console.log(`[TokenMonitoring] Cleared ${tokensToRemove.length} tokens of type: ${tokenType}`);
+		logger.debug(`[TokenMonitoring] Cleared ${tokensToRemove.length} tokens of type: ${tokenType}`);
 	}
 
 	public manualSyncWorkerToken(): void {
-		console.log('[TokenMonitoring] Manual worker token sync triggered');
+		logger.debug('[TokenMonitoring] Manual worker token sync triggered');
 		this.syncWorkerToken();
 	}
 
 	private async syncWorkerToken(): Promise<void> {
 		try {
-			console.log('[TokenMonitoring] Syncing worker token...');
+			logger.debug('[TokenMonitoring] Syncing worker token...');
 
 			// Get worker token status
 			const status = await unifiedWorkerTokenServiceV2.getStatus();
-			console.log('[TokenMonitoring] Worker token status:', status);
+			logger.debug('[TokenMonitoring] Worker token status:', status);
 
 			if (!status.hasToken || !status.tokenValid) {
-				console.log('[TokenMonitoring] No valid worker token, removing existing...');
+				logger.debug('[TokenMonitoring] No valid worker token, removing existing...');
 				// Remove existing worker token if it's invalid
 				this.removeWorkerToken();
 				return;
@@ -529,7 +530,7 @@ export class TokenMonitoringService {
 
 			// Get the actual worker token
 			const workerTokenString = await unifiedWorkerTokenServiceV2.getToken();
-			console.log(
+			logger.debug(
 				'[TokenMonitoring] Got worker token string:',
 				workerTokenString ? 'SUCCESS' : 'FAILED'
 			);
@@ -553,10 +554,10 @@ export class TokenMonitoringService {
 					source: 'worker_token',
 				});
 
-				console.log('[TokenMonitoring] Worker token added successfully');
+				logger.debug('[TokenMonitoring] Worker token added successfully');
 			}
 		} catch (error) {
-			console.error('[TokenMonitoring] Failed to sync worker token:', error);
+			logger.error('[TokenMonitoring] Failed to sync worker token:', error);
 		}
 	}
 
@@ -592,7 +593,7 @@ export class TokenMonitoringService {
 
 			return null;
 		} catch (error) {
-			console.warn('[TokenMonitoring] Failed to get stored worker token:', error);
+			logger.warn('[TokenMonitoring] Failed to get stored worker token:', error);
 			return null;
 		}
 	}
@@ -607,7 +608,7 @@ export class TokenMonitoringService {
 		);
 
 		if (existingTokensOfSameType.length > 0) {
-			console.log(
+			logger.debug(
 				`[TokenMonitoring] Found ${existingTokensOfSameType.length} existing tokens of type ${token.type}, removing them first`
 			);
 			// Remove existing tokens of the same type
@@ -642,7 +643,7 @@ export class TokenMonitoringService {
 		this.tokens.set(id, fullToken);
 		this.notifyListeners();
 
-		console.log(`[TokenMonitoring] Added new token: ${token.type} with ID: ${id}`);
+		logger.debug(`[TokenMonitoring] Added new token: ${token.type} with ID: ${id}`);
 		return id;
 	}
 
@@ -755,7 +756,7 @@ export class TokenMonitoringService {
 					// Update token with real introspection data
 					this.updateToken(tokenId, { introspectionData });
 
-					console.log(`[TokenMonitoring] Successfully introspected ${token.type} via API`);
+					logger.debug(`[TokenMonitoring] Successfully introspected ${token.type} via API`);
 					success = true;
 
 					// Log the API call
@@ -777,12 +778,12 @@ export class TokenMonitoringService {
 
 					return introspectionData;
 				} else {
-					console.warn(
+					logger.warn(
 						'[TokenMonitoring] No credentials available for real introspection, using mock'
 					);
 				}
 			} else {
-				console.warn('[TokenMonitoring] No flow context available, using mock introspection');
+				logger.warn('[TokenMonitoring] No flow context available, using mock introspection');
 			}
 
 			// Fallback to mock introspection
@@ -807,7 +808,7 @@ export class TokenMonitoringService {
 
 			return mockIntrospectionData;
 		} catch (error) {
-			console.error('[TokenMonitoring] Token introspection failed:', error);
+			logger.error('[TokenMonitoring] Token introspection failed:', error);
 
 			// Log failed API call if we attempted one
 			if (response) {
@@ -860,7 +861,7 @@ export class TokenMonitoringService {
 
 			return newTokenId;
 		} catch (error) {
-			console.error('Token refresh failed:', error);
+			logger.error('Token refresh failed:', error);
 			throw error;
 		}
 	}
@@ -891,7 +892,7 @@ export class TokenMonitoringService {
 			// Remove token from monitoring regardless of revocation method
 			this.removeToken(tokenId);
 		} catch (error) {
-			console.error('[TokenMonitoring] Token revocation failed:', error);
+			logger.error('[TokenMonitoring] Token revocation failed:', error);
 
 			// Still remove the token from monitoring even if revocation failed
 			this.removeToken(tokenId);
@@ -935,12 +936,12 @@ export class TokenMonitoringService {
 					throw new Error(`OAuth revocation failed: ${response.status} ${response.statusText}`);
 				}
 
-				console.log(`[TokenMonitoring] Successfully revoked ${token.type} via OAuth API`);
+				logger.debug(`[TokenMonitoring] Successfully revoked ${token.type} via OAuth API`);
 			} else {
-				console.warn('[TokenMonitoring] No credentials available for OAuth revocation');
+				logger.warn('[TokenMonitoring] No credentials available for OAuth revocation');
 			}
 		} else {
-			console.warn('[TokenMonitoring] No flow context available for OAuth revocation');
+			logger.warn('[TokenMonitoring] No flow context available for OAuth revocation');
 		}
 	}
 
@@ -976,12 +977,12 @@ export class TokenMonitoringService {
 					throw new Error(`SSO sign-off failed: ${response.status} ${response.statusText}`);
 				}
 
-				console.log(`[TokenMonitoring] Successfully performed SSO sign-off`);
+				logger.debug(`[TokenMonitoring] Successfully performed SSO sign-off`);
 			} else {
-				console.warn('[TokenMonitoring] No credentials available for SSO sign-off');
+				logger.warn('[TokenMonitoring] No credentials available for SSO sign-off');
 			}
 		} else {
-			console.warn('[TokenMonitoring] No flow context available for SSO sign-off');
+			logger.warn('[TokenMonitoring] No flow context available for SSO sign-off');
 		}
 	}
 
@@ -1021,17 +1022,17 @@ export class TokenMonitoringService {
 						throw new Error(`Session deletion failed: ${response.status} ${response.statusText}`);
 					}
 
-					console.log(
+					logger.debug(
 						`[TokenMonitoring] Successfully deleted session ${options.sessionId} for user ${options.userId}`
 					);
 				} else {
-					console.warn('[TokenMonitoring] No credentials available for session deletion');
+					logger.warn('[TokenMonitoring] No credentials available for session deletion');
 				}
 			} else {
-				console.warn('[TokenMonitoring] No flow context available for session deletion');
+				logger.warn('[TokenMonitoring] No flow context available for session deletion');
 			}
 		} catch (error) {
-			console.warn('[TokenMonitoring] Failed to get worker token for session deletion:', error);
+			logger.warn('[TokenMonitoring] Failed to get worker token for session deletion:', error);
 			throw error;
 		}
 	}
@@ -1078,7 +1079,7 @@ export class TokenMonitoringService {
 				});
 			});
 		} catch (error) {
-			console.error('Failed to import token data:', error);
+			logger.error('Failed to import token data:', error);
 			throw error;
 		}
 	}
