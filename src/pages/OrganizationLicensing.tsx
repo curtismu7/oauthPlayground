@@ -2,20 +2,9 @@
 // Organization Licensing: Get Worker Token & License Information
 
 import React, { useEffect, useState } from 'react';
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-} from 'react-icons/fi';
+import { FiAlertTriangle, FiInfo, FiKey, FiRefreshCw, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { StepNavigationButtons } from '../components/StepNavigationButtons';
-import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
-import { useAuth } from '../contexts/NewAuthContext';
 import { usePageScroll } from '../hooks/usePageScroll';
-import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
 	getAllLicenses,
@@ -29,6 +18,7 @@ import { credentialManager } from '../utils/credentialManager';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
+import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
 
 type CredentialsState = {
 	environmentId: string;
@@ -59,7 +49,7 @@ const StepContainer = styled.div`
 	margin-bottom: 20px;
 `;
 
-const StepTitle = styled.h2`
+const _StepTitle = styled.h2`
 	font-size: 24px;
 	font-weight: 600;
 	margin-bottom: 16px;
@@ -69,7 +59,7 @@ const StepTitle = styled.h2`
 	gap: 12px;
 `;
 
-const HelperText = styled.p`
+const _HelperText = styled.p`
 	color: #64748b;
 	font-size: 14px;
 	line-height: 1.6;
@@ -291,7 +281,6 @@ const ORGANIZATION_ID_STORAGE_KEY = 'organizationLicensing.organizationId';
 
 const OrganizationLicensingV2: React.FC = () => {
 	usePageScroll({ pageName: 'Organization Licensing', force: true });
-	const { tokens } = useAuth();
 
 	// Step management - only one step now (combined worker token + license info)
 	const [currentStep, setCurrentStep] = useState(0);
@@ -394,7 +383,7 @@ const OrganizationLicensingV2: React.FC = () => {
 			// Load saved credentials from credential manager
 			const savedCreds = credentialManager.getAllCredentials();
 			let envId = savedCreds?.environmentId || '';
-			
+
 			// Try worker token credentials as fallback
 			if (!envId) {
 				try {
@@ -407,7 +396,7 @@ const OrganizationLicensingV2: React.FC = () => {
 					console.log('Failed to load environment ID from worker token:', error);
 				}
 			}
-			
+
 			if (envId && savedCreds?.clientId) {
 				setCredentials({
 					environmentId: envId,
@@ -434,9 +423,9 @@ const OrganizationLicensingV2: React.FC = () => {
 				if (stored) {
 					const data = JSON.parse(stored);
 					if (data.credentials?.environmentId && !credentials.environmentId) {
-						setCredentials(prev => ({
+						setCredentials((prev) => ({
 							...prev,
-							environmentId: data.credentials.environmentId
+							environmentId: data.credentials.environmentId,
 						}));
 					}
 				}
@@ -468,7 +457,6 @@ const OrganizationLicensingV2: React.FC = () => {
 		}
 	};
 
-	
 	const persistOrganizationId = (value: string) => {
 		setOrganizationId(value);
 
@@ -584,8 +572,9 @@ const OrganizationLicensingV2: React.FC = () => {
 					<StepContent>
 						<StepDescription>
 							<p>
-								The unified worker token service provides comprehensive token management with real-time status
-								updates. The token needs the following scopes for organization licensing:
+								The unified worker token service provides comprehensive token management with
+								real-time status updates. The token needs the following scopes for organization
+								licensing:
 							</p>
 							<ScopeList>
 								<li>
@@ -596,7 +585,8 @@ const OrganizationLicensingV2: React.FC = () => {
 								</li>
 							</ScopeList>
 							<p>
-								The status display below shows token availability, expiration, and provides refresh capabilities.
+								The status display below shows token availability, expiration, and provides refresh
+								capabilities.
 							</p>
 						</StepDescription>
 
@@ -604,7 +594,7 @@ const OrganizationLicensingV2: React.FC = () => {
 					</StepContent>
 				</CollapsibleHeader>
 
-								<div style={{ marginBottom: '1rem' }}>
+				<div style={{ marginBottom: '1rem' }}>
 					<h3
 						style={{
 							margin: '0 0 0.75rem 0',
@@ -653,11 +643,7 @@ const OrganizationLicensingV2: React.FC = () => {
 
 				{/* Results */}
 				{orgInfo && (
-					<CollapsibleHeader
-						title="Organization Information"
-						icon={<FiInfo />}
-						theme="blue"
-					>
+					<CollapsibleHeader title="Organization Information" icon={<FiInfo />} theme="blue">
 						<LicenseGrid>
 							<LicenseCard $borderColor="#3b82f6">
 								<InfoRow>
