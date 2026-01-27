@@ -14,30 +14,17 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-	FiArrowRight,
-	FiBook,
-	FiCheckCircle,
-	FiInfo,
-	FiMessageSquare,
-	FiSettings,
-	FiShield,
-	FiX,
-} from 'react-icons/fi';
+import { FiArrowRight, FiBook, FiMessageSquare } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
-import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
@@ -114,7 +101,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 			console.log(`${MODULE_TAG} ✅ Auto-populating user token from auth context`, {
 				hasToken: !!authToken,
 				tokenLength: authToken.length,
-				tokenPreview: authToken.substring(0, 20) + '...',
+				tokenPreview: `${authToken.substring(0, 20)}...`,
 				currentTokenType: credentials.tokenType,
 				registrationFlowType: registrationFlowType,
 			});
@@ -266,7 +253,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 		if (code || error) {
 			processCallback();
 		}
-	}, [searchParams, showUserLoginModal, setCredentials]);
+	}, [searchParams, showUserLoginModal]);
 
 	// Bidirectional sync between Registration Flow Type and tokenType dropdown
 	// When Registration Flow Type changes, update tokenType dropdown
@@ -319,7 +306,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 				isSyncingRef.current = false;
 			}, 0);
 		}
-	}, [registrationFlowType, credentials.tokenType, setCredentials]);
+	}, [registrationFlowType, credentials.tokenType, credentials.userToken]);
 
 	// When tokenType dropdown changes, sync to Registration Flow Type
 	React.useEffect(() => {

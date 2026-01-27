@@ -250,7 +250,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 					const idToken = completionResult.idToken as string | undefined;
 					if (idToken) {
 						const decoded = decodeJWT(idToken);
-						if (decoded && decoded.sub) {
+						if (decoded?.sub) {
 							setUserInfo(decoded);
 							setIsLoadingUserInfo(false);
 							return;

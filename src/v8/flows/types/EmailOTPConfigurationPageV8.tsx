@@ -120,13 +120,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 		if (!isAuthenticated || !authToken || (!credentials.userToken && hasAutoPopulatedRef.current)) {
 			hasAutoPopulatedRef.current = false;
 		}
-	}, [
-		authContext.tokens?.access_token,
-		authContext.isAuthenticated,
-		credentials.userToken,
-		credentials.tokenType,
-		registrationFlowType,
-	]);
+	}, [authContext.tokens?.access_token, authContext.isAuthenticated, credentials.userToken]);
 
 	// Process callback code directly if modal isn't open (fallback processing)
 	const isProcessingCallbackRef = React.useRef(false);
@@ -256,7 +250,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 		if (code || error) {
 			processCallback();
 		}
-	}, [searchParams, showUserLoginModal, setCredentials]);
+	}, [searchParams, showUserLoginModal]);
 
 	// Bidirectional sync between Registration Flow Type and tokenType dropdown
 	// When Registration Flow Type changes, update tokenType dropdown
@@ -309,7 +303,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 				isSyncingRef.current = false;
 			}, 0);
 		}
-	}, [registrationFlowType, credentials.tokenType, setCredentials]);
+	}, [registrationFlowType, credentials.tokenType, credentials.userToken]);
 
 	// When tokenType dropdown changes, sync to Registration Flow Type
 	React.useEffect(() => {
