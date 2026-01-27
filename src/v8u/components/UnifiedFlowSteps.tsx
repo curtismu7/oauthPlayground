@@ -11416,7 +11416,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							await PKCEStorageServiceV8U.clearPKCECodes(flowKey);
 							// Also clear from flowState by creating new state without PKCE properties
 							setFlowState((prev) => {
-								// eslint-disable-next-line @typescript-eslint/no-unused-vars
 								const {
 									codeVerifier: _codeVerifier,
 									codeChallenge: _codeChallenge,
@@ -14521,6 +14520,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
 						}}
 						onClick={(e) => e.stopPropagation()}
+						onKeyDown={(e) => e.stopPropagation()}
+						role="dialog"
+						aria-modal="true"
+						aria-labelledby="pingone-request-title"
+						tabIndex={0}
 					>
 						<div
 							style={{
@@ -14530,7 +14534,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								marginBottom: '16px',
 							}}
 						>
-							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+							<h2 id="pingone-request-title" style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
 								PingOne Authorization Request
 							</h2>
 							<button
