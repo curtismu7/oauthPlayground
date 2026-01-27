@@ -205,12 +205,10 @@ export const getPostLogoutRedirectUriForFlow = (flowKey: string): string => {
 	const path = flowLogoutPaths[flowKey] || '/callback/logout';
 
 	if (!path) {
-		console.log(`${MODULE_TAG} No post-logout redirect URI for flow`, { flowKey });
 		return '';
 	}
 
 	const logoutUri = `${baseUrl}${path}`;
-	console.log(`${MODULE_TAG} Generated post-logout redirect URI`, { flowKey, logoutUri });
 	return logoutUri;
 };
 
@@ -240,12 +238,6 @@ export const initializeRedirectUris = (
 ): { redirectUri: string; postLogoutRedirectUri: string } => {
 	const redirectUri = currentRedirectUri || getRedirectUriForFlow(flowKey);
 	const postLogoutRedirectUri = currentPostLogoutUri || getPostLogoutRedirectUriForFlow(flowKey);
-
-	console.log(`${MODULE_TAG} Initialized redirect URIs`, {
-		flowKey,
-		redirectUri,
-		postLogoutRedirectUri,
-	});
 
 	return { redirectUri, postLogoutRedirectUri };
 };

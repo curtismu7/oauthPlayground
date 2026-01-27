@@ -44,8 +44,6 @@ export class SharedCredentialsServiceV8 {
 	 * @returns Shared credentials object
 	 */
 	static async loadSharedCredentials(): Promise<SharedCredentials> {
-		console.log(`${MODULE_TAG} Loading shared credentials from dual storage`);
-
 		const result = await DualStorageServiceV8.load<SharedCredentials>({
 			directory: DISK_DIRECTORY,
 			filename: DISK_FILENAME,
@@ -53,14 +51,9 @@ export class SharedCredentialsServiceV8 {
 		});
 
 		if (result.success && result.data) {
-			console.log(`${MODULE_TAG} Shared credentials loaded from ${result.source}`, {
-				hasEnvId: !!result.data.environmentId,
-				hasClientId: !!result.data.clientId,
-			});
 			return result.data;
 		}
 
-		console.log(`${MODULE_TAG} No shared credentials found`);
 		return {};
 	}
 
@@ -69,16 +62,10 @@ export class SharedCredentialsServiceV8 {
 	 * @returns Shared credentials object
 	 */
 	static loadSharedCredentialsSync(): SharedCredentials {
-		console.log(`${MODULE_TAG} Loading shared credentials from browser storage (sync)`);
-
 		try {
 			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
 			if (stored) {
 				const parsed = JSON.parse(stored) as SharedCredentials;
-				console.log(`${MODULE_TAG} Shared credentials loaded from browser`, {
-					hasEnvId: !!parsed.environmentId,
-					hasClientId: !!parsed.clientId,
-				});
 				return parsed;
 			}
 		} catch (error) {
@@ -118,9 +105,6 @@ export class SharedCredentialsServiceV8 {
 			// Save to browser storage only (includes client secret)
 			// Note: Disk storage is disabled for security - client secrets should never be on disk
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(merged));
-			console.log(
-				`${MODULE_TAG} Shared credentials saved to browser storage (client secret included)`
-			);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error saving shared credentials`, { error });
 		}
@@ -151,7 +135,6 @@ export class SharedCredentialsServiceV8 {
 			};
 
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(merged));
-			console.log(`${MODULE_TAG} Shared credentials saved to browser storage`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error saving shared credentials to browser`, { error });
 		}
@@ -239,14 +222,12 @@ export class SharedCredentialsServiceV8 {
 	 * Clear shared credentials from storage (both browser and disk)
 	 */
 	static async clearSharedCredentials(): Promise<void> {
-		console.log(`${MODULE_TAG} Clearing shared credentials from dual storage`);
 		try {
 			await DualStorageServiceV8.delete({
 				directory: DISK_DIRECTORY,
 				filename: DISK_FILENAME,
 				browserStorageKey: BROWSER_STORAGE_KEY,
 			});
-			console.log(`${MODULE_TAG} Shared credentials cleared successfully`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error clearing shared credentials`, { error });
 		}

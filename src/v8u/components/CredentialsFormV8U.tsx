@@ -929,7 +929,6 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 		// Listen for token updates
 		const handleTokenUpdate = () => {
-			console.log(`${MODULE_TAG} Token update event received`);
 			// Use a small delay to ensure storage is fully written
 			setTimeout(() => {
 				checkStatus();
@@ -1265,8 +1264,6 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			onChange(updated);
 		}
 	}, [defaultAuthMethod, defaultResponseType, credentials, onChange, flowKey]);
-
-	console.log(`${MODULE_TAG} Rendering credentials form`, { flowKey, flowType, flowOptions });
 
 	// Get flow-specific helper text for application type
 	const getFlowSpecificHelperText = useCallback(

@@ -3716,17 +3716,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						</button>
 						
 						{authState.devices.map((device, index) => {
-							console.log(`${MODULE_TAG} 🔥 Mapping device:`, {device, index});
+							console.log(`${MODULE_TAG} 🔥 Rendering device button:`, {device, index});
 							return (
 							<button
 								key={`${device.id}-${(device as any).type ?? (device as any).deliveryMethod ?? 'dev'}-${index}`}
 								type="button"
-								onClick={async () => {
-									if (!authState.authenticationId || !authState.userId) {
-										toastV8.error('Authentication session not found');
-										return;
-									}
-
+								onClick={() => {
+									console.log(`${MODULE_TAG} 🔥 Device clicked:`, device);
+									toastV8.success(`Device selected: ${device.nickname || device.type}`);
 									try {
 										setAuthState((prev) => ({ ...prev, isLoading: true }));
 
