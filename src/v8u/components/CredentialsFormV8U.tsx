@@ -1980,7 +1980,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 								</div>
 							</button>
 							{showGeneralSection && (
-								<div className="section-content">
+								<div id="general-section-content" className="section-content">
 									{/* Client Type - Educational Component */}
 									<div className="form-group" style={{ marginBottom: '16px' }}>
 										<ClientTypeRadioV8
@@ -4600,10 +4600,23 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 						{/* Advanced Options Section - Collapsible */}
 						<div className="form-section" data-section="advanced">
-							<div
+							<button
+								type="button"
 								className="section-header"
 								onClick={() => setShowAdvancedSection(!showAdvancedSection)}
-								style={{ cursor: 'pointer' }}
+								aria-expanded={showAdvancedSection}
+								aria-controls="advanced-section-content"
+								style={{
+									background: 'none',
+									border: 'none',
+									padding: 0,
+									margin: 0,
+									font: 'inherit',
+									color: 'inherit',
+									textAlign: 'left',
+									width: '100%',
+									cursor: 'pointer'
+								}}
 							>
 								<div
 									style={{
@@ -4624,9 +4637,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 										›
 									</span>
 								</div>
-							</div>
+							</button>
 							{showAdvancedSection && (
-								<div className="section-content">
+								<div id="advanced-section-content" className="section-content">
 									<div
 										style={{
 											padding: '12px',
