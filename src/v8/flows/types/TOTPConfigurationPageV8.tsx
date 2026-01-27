@@ -665,54 +665,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 					</small>
 				</div>
 
-				{/* Shared Configuration Step */}
-				<div
-					style={{
-						background: 'white',
-						borderRadius: '8px',
-						padding: '24px',
-						marginBottom: '24px',
-						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					}}
-				>
-					<MFAConfigurationStepV8
-						credentials={credentials}
-						setCredentials={setCredentials}
-						tokenStatus={tokenStatus}
-						deviceAuthPolicies={deviceAuthPolicies}
-						isLoadingPolicies={isLoadingPolicies}
-						registrationFlowType={registrationFlowType}
-						policiesError={policiesError}
-						refreshDeviceAuthPolicies={fetchDeviceAuthPolicies}
-						showWorkerTokenModal={showWorkerTokenModal}
-						setShowWorkerTokenModal={setShowWorkerTokenModal}
-						showUserLoginModal={showUserLoginModal}
-						setShowUserLoginModal={setShowUserLoginModal}
-						showSettingsModal={showSettingsModal}
-						setShowSettingsModal={setShowSettingsModal}
-						deviceType="TOTP"
-						deviceTypeLabel="TOTP"
-						policyDescription="Determines which PingOne policy governs TOTP MFA challenges."
-						mfaState={{ deviceId: '', otpCode: '', deviceStatus: '', verificationResult: null }}
-						setMfaState={() => {}}
-						isLoading={false}
-						setIsLoading={() => {}}
-						nav={
-							{
-								currentStep: 0,
-								goToNext: () => {},
-								goToPrevious: () => {},
-								goToStep: () => {},
-								reset: () => {},
-								setValidationErrors: () => {},
-								setValidationWarnings: () => {},
-							} as any
-						}
-						showDeviceLimitModal={false}
-						setShowDeviceLimitModal={() => {}}
-					/>
-				</div>
-
+	
 				{/* Clean Worker Token Section - Always show */}
 				<WorkerTokenSectionV8
 					environmentId={credentials.environmentId}
