@@ -651,8 +651,25 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 		}, 3000); // 3 seconds fallback
 
 		// Listen for token updates
-		const handleTokenUpdate = () => {
-			updateTokenStatus();
+		const handleTokenUpdate = async () => {
+			// Use sync version for immediate updates
+			const v8Status = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+			
+			// Convert V8 TokenStatusInfo to V8U TokenStatusInfo
+			const convertedStatus: TokenStatusInfo = {
+				isValid: v8Status.isValid,
+				status: v8Status.status,
+				message: v8Status.message,
+				expiresAt: v8Status.expiresAt || null,
+				issuedAt: null, // V8 service doesn't provide this
+				minutesRemaining: v8Status.minutesRemaining || 0,
+				lastUsed: null, // V8 service doesn't provide this
+			};
+
+			setTokenStatus(convertedStatus);
+			
+			// Then do the full async update for additional data
+			await updateTokenStatus();
 		};
 
 		const handleConfigUpdate = () => {
