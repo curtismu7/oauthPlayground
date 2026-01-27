@@ -51,14 +51,10 @@ export const DeviceList: React.FC<DeviceListProps> = ({ devices, onDelete, loadi
 								Type: {device.type} | Status: {device.status}
 							</div>
 							{device.phone && (
-								<div style={{ fontSize: '0.875rem', color: '#6c757d' }}>
-									Phone: {device.phone}
-								</div>
+								<div style={{ fontSize: '0.875rem', color: '#6c757d' }}>Phone: {device.phone}</div>
 							)}
 							{device.email && (
-								<div style={{ fontSize: '0.875rem', color: '#6c757d' }}>
-									Email: {device.email}
-								</div>
+								<div style={{ fontSize: '0.875rem', color: '#6c757d' }}>Email: {device.email}</div>
 							)}
 						</div>
 						{onDelete && (

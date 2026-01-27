@@ -191,10 +191,10 @@ export function saveAdvancedFeatures(flowType: FlowType, features: string[]): vo
 export function toggleAdvancedFeature(flowType: FlowType, featureId: string): void {
 	const currentFeatures = getAdvancedFeatures(flowType);
 	const isEnabled = currentFeatures.includes(featureId);
-	
+
 	if (isEnabled) {
 		// Remove feature
-		const updatedFeatures = currentFeatures.filter(f => f !== featureId);
+		const updatedFeatures = currentFeatures.filter((f) => f !== featureId);
 		saveAdvancedFeatures(flowType, updatedFeatures);
 	} else {
 		// Add feature

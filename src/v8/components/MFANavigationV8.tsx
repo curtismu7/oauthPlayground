@@ -17,8 +17,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { ApiDisplayCheckbox } from './SuperSimpleApiDisplayV8';
 import { MFADocumentationModalV8 } from './MFADocumentationModalV8';
+import { ApiDisplayCheckbox } from './SuperSimpleApiDisplayV8';
 
 interface MFANavigationV8Props {
 	/** Current page identifier for highlighting */
@@ -78,68 +78,68 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 				}}
 			>
-			<div
-				className="mfa-nav-links"
-				style={{
-					marginBottom: 0,
-					display: 'flex',
-					gap: '6px',
-					flex: 1,
-					alignItems: 'center',
-					width: '100%',
-				}}
-			>
-				<button
-					type="button"
-					onClick={() => navigateToMfaHubWithCleanup(navigate)}
-					className={`nav-link-btn nav-btn-hub ${currentPage === 'hub' ? 'active' : ''}`}
-					title="Go to MFA Hub"
+				<div
+					className="mfa-nav-links"
 					style={{
-						fontWeight: currentPage === 'hub' ? '600' : '500',
+						marginBottom: 0,
+						display: 'flex',
+						gap: '6px',
 						flex: 1,
-						background: '#3b82f6',
-						color: 'white',
-						border: '2px solid #3b82f6',
+						alignItems: 'center',
+						width: '100%',
 					}}
 				>
-					🏠 MFA Hub
-				</button>
-				<button
-					type="button"
-					onClick={() => navigate('/v8/mfa-device-management')}
-					className={`nav-link-btn nav-btn-management ${currentPage === 'management' ? 'active' : ''}`}
-					title="Manage MFA Devices"
-					style={{
-						fontWeight: currentPage === 'management' ? '600' : '500',
-						flex: 1,
-					}}
-				>
-					🔧 Device Management
-				</button>
-				<button
-					type="button"
-					onClick={() => navigate('/v8/mfa-device-ordering')}
-					className={`nav-link-btn nav-btn-ordering ${currentPage === 'ordering' ? 'active' : ''}`}
-					title="Configure MFA device ordering"
-					style={{
-						fontWeight: currentPage === 'ordering' ? '600' : '500',
-						flex: 1,
-					}}
-				>
-					📋 Device Ordering
-				</button>
-				<button
-					type="button"
-					onClick={() => navigate('/v8/mfa-reporting')}
-					className={`nav-link-btn nav-btn-reporting ${currentPage === 'reporting' ? 'active' : ''}`}
-					title="View MFA Reports"
-					style={{
-						fontWeight: currentPage === 'reporting' ? '600' : '500',
-						flex: 1,
-					}}
-				>
-					📊 Reporting
-				</button>
+					<button
+						type="button"
+						onClick={() => navigateToMfaHubWithCleanup(navigate)}
+						className={`nav-link-btn nav-btn-hub ${currentPage === 'hub' ? 'active' : ''}`}
+						title="Go to MFA Hub"
+						style={{
+							fontWeight: currentPage === 'hub' ? '600' : '500',
+							flex: 1,
+							background: '#3b82f6',
+							color: 'white',
+							border: '2px solid #3b82f6',
+						}}
+					>
+						🏠 MFA Hub
+					</button>
+					<button
+						type="button"
+						onClick={() => navigate('/v8/mfa-device-management')}
+						className={`nav-link-btn nav-btn-management ${currentPage === 'management' ? 'active' : ''}`}
+						title="Manage MFA Devices"
+						style={{
+							fontWeight: currentPage === 'management' ? '600' : '500',
+							flex: 1,
+						}}
+					>
+						🔧 Device Management
+					</button>
+					<button
+						type="button"
+						onClick={() => navigate('/v8/mfa-device-ordering')}
+						className={`nav-link-btn nav-btn-ordering ${currentPage === 'ordering' ? 'active' : ''}`}
+						title="Configure MFA device ordering"
+						style={{
+							fontWeight: currentPage === 'ordering' ? '600' : '500',
+							flex: 1,
+						}}
+					>
+						📋 Device Ordering
+					</button>
+					<button
+						type="button"
+						onClick={() => navigate('/v8/mfa-reporting')}
+						className={`nav-link-btn nav-btn-reporting ${currentPage === 'reporting' ? 'active' : ''}`}
+						title="View MFA Reports"
+						style={{
+							fontWeight: currentPage === 'reporting' ? '600' : '500',
+							flex: 1,
+						}}
+					>
+						📊 Reporting
+					</button>
 					<button
 						type="button"
 						onClick={() => navigate('/v8/mfa-config')}
@@ -197,15 +197,15 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 							🏠 Back to Main
 						</button>
 					)}
-					<div className="nav-link-btn api-display-wrapper" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+					<div
+						className="nav-link-btn api-display-wrapper"
+						style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+					>
 						<ApiDisplayCheckbox />
 					</div>
 				</div>
 			</div>
-			<MFADocumentationModalV8
-				isOpen={showDocsModal}
-				onClose={() => setShowDocsModal(false)}
-			/>
+			<MFADocumentationModalV8 isOpen={showDocsModal} onClose={() => setShowDocsModal(false)} />
 			<style>{`
 				.mfa-nav-links {
 					display: flex;

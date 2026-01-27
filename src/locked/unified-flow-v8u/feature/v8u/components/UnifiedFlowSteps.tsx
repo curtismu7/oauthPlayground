@@ -37,8 +37,8 @@ import DynamicDeviceFlow from '@/components/DynamicDeviceFlow';
 import EnhancedFlowInfoCard from '@/components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '@/components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '@/components/FlowSequenceDisplay';
-import RedirectlessLoginModal from '@/components/RedirectlessLoginModal';
 import { PasswordChangeModal } from '@/components/PasswordChangeModal';
+import RedirectlessLoginModal from '@/components/RedirectlessLoginModal';
 import { type PKCECodes, PKCEService } from '@/services/pkceService';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -54,9 +54,9 @@ import {
 	UnifiedFlowIntegrationV8U,
 } from '../services/unifiedFlowIntegrationV8U';
 import { ErrorDisplayWithRetry } from './ErrorDisplayWithRetry';
+import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 import { TokenDisplayV8U } from './TokenDisplayV8U';
 import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV8U';
-import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
 
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
@@ -419,7 +419,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [authRequestDetailsCollapsed, setAuthRequestDetailsCollapsed] = useState(false);
 	const [deviceCodeOverviewCollapsed, setDeviceCodeOverviewCollapsed] = useState(false);
 	const [deviceCodeDetailsCollapsed, setDeviceCodeDetailsCollapsed] = useState(false);
-	const [clientCredentialsOverviewCollapsed, setClientCredentialsOverviewCollapsed] = useState(false);
+	const [clientCredentialsOverviewCollapsed, setClientCredentialsOverviewCollapsed] =
+		useState(false);
 	const [clientCredentialsDetailsCollapsed, setClientCredentialsDetailsCollapsed] = useState(false);
 	const [implicitOverviewCollapsed, setImplicitOverviewCollapsed] = useState(false);
 	const [implicitDetailsCollapsed, setImplicitDetailsCollapsed] = useState(false);
@@ -896,7 +897,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				let responseData: unknown;
 				try {
 					responseData = await responseClone.json();
-					} catch {
+				} catch {
 					responseData = { error: 'Failed to parse response' };
 				}
 
@@ -1087,11 +1088,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				'v8u_hybrid_tokens', // Flow-specific key for hybrid (if not using shared key)
 				'v8u_callback_data',
 			];
-			
+
 			allPossibleTokenKeys.forEach((key) => {
 				sessionStorage.removeItem(key);
 			});
-			
+
 			// Also clear any flow-specific token keys using the pattern v8u_${flowType}_tokens
 			const flowTypes: FlowType[] = [
 				'oauth-authz',
@@ -1104,7 +1105,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const key = `v8u_${ft}_tokens`;
 				sessionStorage.removeItem(key);
 			});
-			
+
 			// Clear PKCE codes for the previous flow type
 			const prevFlowKey = `${prevFlowTypeRef.current}-${specVersion}-v8u`;
 			PKCEStorageServiceV8U.clearPKCECodes(prevFlowKey).catch((err) => {
@@ -2287,15 +2288,27 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		const getPerfectFor = (): string[] => {
 			switch (flowType) {
 				case 'oauth-authz':
-					return ['Web apps with secure backends', 'SPAs using PKCE', 'Apps needing refresh tokens'];
+					return [
+						'Web apps with secure backends',
+						'SPAs using PKCE',
+						'Apps needing refresh tokens',
+					];
 				case 'implicit':
 					return ['Legacy SPAs (deprecated)', 'Simple token retrieval', 'No backend required'];
 				case 'client-credentials':
-					return ['API-to-API communication', 'Backend services', 'Scheduled jobs', 'Machine-to-machine'];
+					return [
+						'API-to-API communication',
+						'Backend services',
+						'Scheduled jobs',
+						'Machine-to-machine',
+					];
 				case 'device-code':
 					return ['Smart TVs', 'IoT devices', 'CLI tools', 'Devices without browsers'];
 				case 'hybrid':
-					return ['OIDC Core 1.0 flows needing immediate ID token', 'Combined front/back channel flows'];
+					return [
+						'OIDC Core 1.0 flows needing immediate ID token',
+						'Combined front/back channel flows',
+					];
 				default:
 					return ['Web applications'];
 			}
@@ -2373,7 +2386,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												<>
 													<strong>Client Secret:</strong> Required for token request
 													<br />
-													<strong>Scopes:</strong> Resource server scopes (e.g., ClaimScope, custom:read)
+													<strong>Scopes:</strong> Resource server scopes (e.g., ClaimScope,
+													custom:read)
 													<br />
 													<strong>Environment ID:</strong> Must match your PingOne environment
 												</>
@@ -2387,7 +2401,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												</>
 											) : (
 												<>
-													<strong>Client Secret:</strong> Required for token introspection and refresh
+													<strong>Client Secret:</strong> Required for token introspection and
+													refresh
 													<br />
 													<strong>Scopes:</strong> Include "profile" scope for user info endpoint
 													<br />
@@ -2641,8 +2656,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									<InfoTitle>PKCE (Proof Key for Code Exchange)</InfoTitle>
 									<InfoText>
 										PKCE is a security extension for OAuth 2.0 that prevents authorization code
-										interception attacks. It's required for public clients (like mobile apps)
-										and highly recommended for all OAuth flows.
+										interception attacks. It's required for public clients (like mobile apps) and
+										highly recommended for all OAuth flows.
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -2654,8 +2669,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									<InfoText>
 										Without PKCE, if an attacker intercepts your authorization code (through app
 										redirects, network sniffing, or malicious apps), they could exchange it for
-										tokens. PKCE prevents this by requiring proof that the same client that
-										started the flow is finishing it.
+										tokens. PKCE prevents this by requiring proof that the same client that started
+										the flow is finishing it.
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -2683,9 +2698,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									<div>
 										<InfoTitle>Code Verifier</InfoTitle>
 										<InfoText>
-											A high-entropy cryptographic random string (43-128 chars) that stays
-											secret in your app. Think of it as a temporary password that proves you're
-											the same client that started the OAuth flow.
+											A high-entropy cryptographic random string (43-128 chars) that stays secret in
+											your app. Think of it as a temporary password that proves you're the same
+											client that started the OAuth flow.
 										</InfoText>
 										<InfoList>
 											<li>Generated fresh for each OAuth request</li>
@@ -2701,9 +2716,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									<div>
 										<InfoTitle>Code Challenge</InfoTitle>
 										<InfoText>
-											A SHA256 hash of the code verifier, encoded in base64url format. This is
-											sent publicly in the authorization URL but can't be reversed to get the
-											original verifier.
+											A SHA256 hash of the code verifier, encoded in base64url format. This is sent
+											publicly in the authorization URL but can't be reversed to get the original
+											verifier.
 										</InfoText>
 										<InfoList>
 											<li>Derived from: SHA256(code_verifier)</li>
@@ -2721,12 +2736,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									<InfoTitle>Security Best Practices</InfoTitle>
 									<InfoList>
 										<li>
-											<strong>Generate Fresh Values:</strong> Create new PKCE parameters for
-											every authorization request
+											<strong>Generate Fresh Values:</strong> Create new PKCE parameters for every
+											authorization request
 										</li>
 										<li>
-											<strong>Secure Storage:</strong> Keep the code verifier in memory or
-											secure storage, never log it
+											<strong>Secure Storage:</strong> Keep the code verifier in memory or secure
+											storage, never log it
 										</li>
 										<li>
 											<strong>Use S256 Method:</strong> Always use SHA256 hashing
@@ -3163,7 +3178,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const flowApiUrl = `https://auth.pingone.com/${credentials.environmentId}/flows/${flowId}`;
 
 				// Track API call for display
-				const { apiCallTrackerService: apiCallTrackerService2 } = await import('@/services/apiCallTrackerService');
+				const { apiCallTrackerService: apiCallTrackerService2 } = await import(
+					'@/services/apiCallTrackerService'
+				);
 				const startTime2 = Date.now();
 				const requestBody2 = {
 					environmentId: credentials.environmentId,
@@ -3249,15 +3266,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// Handle MUST_CHANGE_PASSWORD status
 				if (status === 'MUST_CHANGE_PASSWORD') {
 					console.log(`${MODULE_TAG} 🔌 Password change required detected`);
-					
+
 					// Extract userId from response if available, otherwise we'll need to look it up
-					const userId = (credentialsData.userId || 
-						credentialsData.user?.id || 
+					const userId = (credentialsData.userId ||
+						credentialsData.user?.id ||
 						credentialsData._embedded?.user?.id) as string | undefined;
-					
+
 					// Store username for user lookup if needed
 					setPasswordChangeUsername(username);
-					
+
 					if (userId) {
 						setPasswordChangeUserId(userId);
 						setPasswordChangeFlowId(flowId);
@@ -3265,14 +3282,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						setShowPasswordChangeModal(true);
 						setShowRedirectlessModal(false);
 						setIsRedirectlessAuthenticating(false);
-						toastV8.warning('⚠️ Password change is required. Please update your password to continue.');
+						toastV8.warning(
+							'⚠️ Password change is required. Please update your password to continue.'
+						);
 					} else {
 						// If userId is not available, try to look it up by username
 						try {
 							// Get worker token for user lookup
 							const { WorkerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 							const workerToken = await WorkerTokenServiceV8.getToken();
-							
+
 							// Look up user by username
 							const lookupResponse = await fetch('/api/pingone/mfa/lookup-user', {
 								method: 'POST',
@@ -3285,7 +3304,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									workerToken,
 								}),
 							});
-							
+
 							if (lookupResponse.ok) {
 								const userData = await lookupResponse.json();
 								const foundUserId = userData.id;
@@ -3296,7 +3315,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									setShowPasswordChangeModal(true);
 									setShowRedirectlessModal(false);
 									setIsRedirectlessAuthenticating(false);
-									toastV8.warning('⚠️ Password change is required. Please update your password to continue.');
+									toastV8.warning(
+										'⚠️ Password change is required. Please update your password to continue.'
+									);
 								} else {
 									throw new Error('User ID not found in lookup response');
 								}
@@ -3305,7 +3326,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							}
 						} catch (lookupError) {
 							console.error(`${MODULE_TAG} 🔌 Failed to lookup user:`, lookupError);
-							const errorMsg = 'Password change is required, but user ID could not be determined. Please contact your administrator.';
+							const errorMsg =
+								'Password change is required, but user ID could not be determined. Please contact your administrator.';
 							setRedirectlessAuthError(errorMsg);
 							toastV8.error(`❌ ${errorMsg}`);
 							setIsRedirectlessAuthenticating(false);
@@ -3495,17 +3517,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 
 				toastV8.success('✅ Password changed successfully!');
-				
+
 				// Close modal and clear state
 				setShowPasswordChangeModal(false);
 				setPasswordChangeUserId(null);
 				setPasswordChangeFlowId(null);
 				setPasswordChangeState(null);
 				setPasswordChangeUsername(null);
-				
+
 				// Show message to retry login
 				toastV8.info('Please try signing in again with your new password.');
-				
+
 				// Re-open the login modal so user can try again
 				setShowRedirectlessModal(true);
 			} catch (error) {
@@ -3513,7 +3535,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				throw error; // Re-throw to let modal handle the error display
 			}
 		},
-		[passwordChangeUserId, passwordChangeUsername, credentials.environmentId, handleSubmitRedirectlessCredentials]
+		[
+			passwordChangeUserId,
+			passwordChangeUsername,
+			credentials.environmentId,
+			handleSubmitRedirectlessCredentials,
+		]
 	);
 
 	// Handler for starting redirectless authentication after URL is displayed
@@ -3687,7 +3714,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			// Track API call for display
-			const { apiCallTrackerService: apiCallTrackerService3 } = await import('@/services/apiCallTrackerService');
+			const { apiCallTrackerService: apiCallTrackerService3 } = await import(
+				'@/services/apiCallTrackerService'
+			);
 			const startTime3 = Date.now();
 			const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 			const requestBody3 = {
@@ -4058,10 +4087,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										<div>
 											<InfoTitle>Deprecated Grant Type</InfoTitle>
 											<InfoText>
-												The Implicit Flow (RFC 6749 Section 4.2) is deprecated in OAuth 2.1 Authorization Framework (draft) and
-												should not be used for new applications. It was designed for browser-based
-												applications that couldn't securely store client secrets, but modern
-												alternatives provide better security. Note: OAuth 2.1 is still an Internet-Draft, not yet an RFC.
+												The Implicit Flow (RFC 6749 Section 4.2) is deprecated in OAuth 2.1
+												Authorization Framework (draft) and should not be used for new applications.
+												It was designed for browser-based applications that couldn't securely store
+												client secrets, but modern alternatives provide better security. Note: OAuth
+												2.1 is still an Internet-Draft, not yet an RFC.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -4071,10 +4101,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										<div>
 											<InfoTitle>How Implicit Flow Works</InfoTitle>
 											<InfoText>
-												In the Implicit Flow, tokens are returned directly in the URL fragment
-												after user authorization. The client never receives an authorization code;
-												instead, the access token (and optionally ID token) is returned
-												immediately in the redirect URI fragment.
+												In the Implicit Flow, tokens are returned directly in the URL fragment after
+												user authorization. The client never receives an authorization code;
+												instead, the access token (and optionally ID token) is returned immediately
+												in the redirect URI fragment.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -4110,11 +4140,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													tokens, requiring users to re-authenticate frequently
 												</li>
 												<li>
-													<strong>Limited Security:</strong> No PKCE support, making it vulnerable to
-													authorization code interception attacks
+													<strong>Limited Security:</strong> No PKCE support, making it vulnerable
+													to authorization code interception attacks
 												</li>
 												<li>
-													<strong>OAuth 2.1 Authorization Framework (draft) Deprecation:</strong> Removed from OAuth 2.1 Authorization Framework (IETF draft-ietf-oauth-v2-1) due to security concerns. Note: OAuth 2.1 is still an Internet-Draft, not yet an RFC.
+													<strong>OAuth 2.1 Authorization Framework (draft) Deprecation:</strong>{' '}
+													Removed from OAuth 2.1 Authorization Framework (IETF
+													draft-ietf-oauth-v2-1) due to security concerns. Note: OAuth 2.1 is still
+													an Internet-Draft, not yet an RFC.
 												</li>
 											</InfoList>
 										</div>
@@ -4138,8 +4171,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													sessions
 												</li>
 												<li>
-													<strong>OAuth 2.1 Authorization Framework (draft) Compliant:</strong> Recommended approach in current
-													specifications. When combined with OpenID Connect Core 1.0, this means "OIDC Core 1.0 using Authorization Code + PKCE (OAuth 2.1 (draft) baseline)".
+													<strong>OAuth 2.1 Authorization Framework (draft) Compliant:</strong>{' '}
+													Recommended approach in current specifications. When combined with OpenID
+													Connect Core 1.0, this means "OIDC Core 1.0 using Authorization Code +
+													PKCE (OAuth 2.1 (draft) baseline)".
 												</li>
 												<li>
 													<strong>Same Use Case:</strong> Works perfectly for SPAs and public
@@ -4159,8 +4194,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													yet
 												</li>
 												<li>
-													<strong>Educational Purposes:</strong> Understanding deprecated patterns and
-													OAuth history
+													<strong>Educational Purposes:</strong> Understanding deprecated patterns
+													and OAuth history
 												</li>
 												<li>
 													<strong>Specific Requirements:</strong> Only if you have a specific
@@ -4199,8 +4234,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								<div>
 									<InfoTitle>What is an Authorization Request?</InfoTitle>
 									<InfoText>
-										An authorization request redirects users to PingOne's authorization server
-										where they authenticate and consent to sharing their information with your
+										An authorization request redirects users to PingOne's authorization server where
+										they authenticate and consent to sharing their information with your
 										application. This is the first step in obtaining an authorization code.
 									</InfoText>
 								</div>
@@ -4212,16 +4247,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									<InfoTitle>Critical Security Considerations</InfoTitle>
 									<InfoList>
 										<li>
-											<strong>State Parameter:</strong> Always include a unique state parameter
-											to prevent CSRF attacks
+											<strong>State Parameter:</strong> Always include a unique state parameter to
+											prevent CSRF attacks
 										</li>
 										<li>
 											<strong>HTTPS Only:</strong> Authorization requests must use HTTPS in
 											production
 										</li>
 										<li>
-											<strong>Validate Redirect URI:</strong> Ensure redirect_uri exactly
-											matches what's registered in PingOne
+											<strong>Validate Redirect URI:</strong> Ensure redirect_uri exactly matches
+											what's registered in PingOne
 										</li>
 										<li>
 											<strong>Scope Limitation:</strong> Only request the minimum scopes your
@@ -4263,12 +4298,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														: 'Must be "code" for authorization code flow'}
 											</li>
 											<li>
-												<strong>client_id:</strong> Your application's unique identifier in
-												PingOne
+												<strong>client_id:</strong> Your application's unique identifier in PingOne
 											</li>
 											<li>
-												<strong>redirect_uri:</strong> Exact URL where PingOne sends the user
-												back after authorization
+												<strong>redirect_uri:</strong> Exact URL where PingOne sends the user back
+												after authorization
 											</li>
 											<li>
 												<strong>scope:</strong> Permissions you're requesting (openid, profile,
@@ -4284,8 +4318,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										<InfoTitle>Security Parameters</InfoTitle>
 										<InfoList>
 											<li>
-												<strong>state:</strong> Random value to prevent CSRF attacks and
-												maintain session state
+												<strong>state:</strong> Random value to prevent CSRF attacks and maintain
+												session state
 											</li>
 											{(flowType === 'oauth-authz' || flowType === 'hybrid') && (
 												<>
@@ -4297,9 +4331,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													</li>
 												</>
 											)}
-											{(flowType === 'hybrid' || (flowType === 'oauth-authz' && specVersion === 'oidc')) && (
+											{(flowType === 'hybrid' ||
+												(flowType === 'oauth-authz' && specVersion === 'oidc')) && (
 												<li>
-													<strong>nonce:</strong> Random value to prevent replay attacks on ID tokens
+													<strong>nonce:</strong> Random value to prevent replay attacks on ID
+													tokens
 												</li>
 											)}
 										</InfoList>
@@ -4317,16 +4353,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											consent, select_account)
 										</li>
 										<li>
-											<strong>max_age:</strong> Maximum age of authentication session before
-											re-auth required
+											<strong>max_age:</strong> Maximum age of authentication session before re-auth
+											required
 										</li>
 										<li>
-											<strong>acr_values:</strong> Requested Authentication Context Class
-											Reference values
+											<strong>acr_values:</strong> Requested Authentication Context Class Reference
+											values
 										</li>
 										<li>
-											<strong>login_hint:</strong> Hint about the user identifier (email,
-											username)
+											<strong>login_hint:</strong> Hint about the user identifier (email, username)
 										</li>
 									</InfoList>
 								</div>
@@ -4698,7 +4733,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					<CollapsibleHeaderButton
 						onClick={() => setDeviceCodeOverviewCollapsed(!deviceCodeOverviewCollapsed)}
 						aria-expanded={!deviceCodeOverviewCollapsed}
-				>
+					>
 						<CollapsibleTitle>
 							<FiBook /> What is Device Authorization Flow?
 						</CollapsibleTitle>
@@ -4710,7 +4745,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						<CollapsibleContent>
 							<InfoBox $variant="info">
 								<FiInfo size={20} />
-						<div>
+								<div>
 									<InfoTitle>Device Authorization Flow (RFC 8628)</InfoTitle>
 									<InfoText>
 										The Device Authorization Flow is designed for devices with limited input
@@ -4727,17 +4762,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									<InfoTitle>How Device Code Flow Works</InfoTitle>
 									<InfoList>
 										<li>
-											<strong>Step 1 (this step):</strong> Device requests authorization and receives
-											a device code and user code
-									</li>
+											<strong>Step 1 (this step):</strong> Device requests authorization and
+											receives a device code and user code
+										</li>
 										<li>
 											<strong>Step 2:</strong> User enters the user code on a separate
-										device/browser to authorize
-									</li>
+											device/browser to authorize
+										</li>
 										<li>
 											<strong>Step 3:</strong> Device polls the token endpoint until authorization
 											completes
-									</li>
+										</li>
 									</InfoList>
 								</div>
 							</InfoBox>
@@ -4770,7 +4805,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											<li>Device polls for tokens</li>
 											<li>Perfect for limited-input devices</li>
 										</InfoList>
-							</div>
+									</div>
 								</InfoBox>
 
 								<InfoBox $variant="success">
@@ -4783,7 +4818,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											<li>Code exchanged for tokens immediately</li>
 											<li>Perfect for web and mobile apps</li>
 										</InfoList>
-						</div>
+									</div>
 								</InfoBox>
 							</ParameterGrid>
 
@@ -4800,14 +4835,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											keyboards
 										</li>
 										<li>
-											<strong>CLI Tools:</strong> Command-line applications that can't open
-											browsers
+											<strong>CLI Tools:</strong> Command-line applications that can't open browsers
 										</li>
 										<li>
 											<strong>Printers & Scanners:</strong> Office equipment needing cloud access
 										</li>
 									</InfoList>
-					</div>
+								</div>
 							</InfoBox>
 						</CollapsibleContent>
 					)}
@@ -6111,11 +6145,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Start countdown from when polling started
 			const startTime = flowState.pollingStatus.lastPolled || Date.now();
 			const currentInterval = flowState.deviceCodeInterval || 5; // Get current polling interval
-			
+
 			const updateTimers = () => {
 				const now = Date.now();
 				const elapsed = Math.floor((now - startTime) / 1000);
-				
+
 				// Calculate polling timeout remaining
 				const remaining = Math.max(0, pollingTimeoutSeconds - elapsed);
 				setPollingTimeoutRemaining(remaining > 0 ? remaining : null);
@@ -6156,8 +6190,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 	// Shared handler for device authorization requests (used in both Step 1 and Step 2)
 	const handleRequestDeviceAuth = useCallback(async () => {
-		
-
 		// Validate required fields before requesting device authorization
 		if (!credentials.environmentId?.trim()) {
 			setError('Please provide an Environment ID in the configuration above.');
@@ -6201,13 +6233,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		setLoadingMessage('📱 Requesting Device Authorization...');
 		setError(null);
 
-		
-
-		
-
 		try {
-			
-
 			// Add timeout to prevent infinite hanging (30 seconds max)
 			const timeoutPromise = new Promise<never>((_, reject) => {
 				setTimeout(() => {
@@ -6220,18 +6246,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				timeoutPromise,
 			]);
 
-			
-
 			// CRITICAL: Update ref with new device code IMMEDIATELY (FIRST THING after receiving result)
 			// This must happen before ANY other operations to ensure polling uses the new device code
 			deviceCodeRef.current = result.device_code;
 
-			
-
 			// Calculate expiration timestamp
 			const expiresAt = Date.now() + result.expires_in * 1000;
-
-			
 
 			// CRITICAL: Clear old device code from sessionStorage after ref is updated
 			// This prevents stale device codes from being restored
@@ -6263,10 +6283,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Clear any previous tokens
 			delete newState.tokens;
 
-			
-
-			
-
 			setFlowState(newState as FlowState);
 
 			// CRITICAL: Reset abort flag so new polling can start with the new device code
@@ -6282,34 +6298,23 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				autoPollTriggeredRef.current = true;
 				autoPollInitiatedRef.current = false; // Reset so useEffect can trigger it
 			} else {
-			// Reset auto-poll trigger so it can trigger again when user navigates to step 2
-			autoPollTriggeredRef.current = false;
-			autoPollInitiatedRef.current = false;
+				// Reset auto-poll trigger so it can trigger again when user navigates to step 2
+				autoPollTriggeredRef.current = false;
+				autoPollInitiatedRef.current = false;
 			}
-
-			
 
 			nav.markStepComplete();
 			toastV8.success('Device authorization request successful');
 		} catch (err) {
-			
-
 			const message = err instanceof Error ? err.message : 'Failed to request device authorization';
 			setError(message);
 			nav.setValidationErrors([message]);
 			toastV8.error(message);
 		} finally {
-			
-
-			
-
 			// Use functional update to ensure we're setting it correctly regardless of closure
 			setIsLoading((prev) => {
-				
 				return false;
 			});
-
-			
 
 			// Ensure flags are reset even on error
 			if (!flowState.deviceCode) {
@@ -6511,12 +6516,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		};
 
 		const handlePollForTokens = async () => {
-			
-
 			// CRITICAL: Check abort flag FIRST - if polling was stopped, don't start new polling
 			if (pollingAbortRef.current) {
 				console.log(`${MODULE_TAG} Polling aborted - not starting new polling`);
-				
+
 				return;
 			}
 
@@ -6524,7 +6527,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// The ref is the source of truth and is updated synchronously, so we only check the ref
 			// State updates are asynchronous and may lag behind, causing race conditions
 			if (!deviceCodeRef.current) {
-				
 				setError(
 					'Please request a device code first by clicking the "Request Device Code" button above.'
 				);
@@ -6549,8 +6551,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// Mark as executing immediately to prevent race conditions
 			isPollingExecutingRef.current = true;
-
-			
 
 			console.log(`${MODULE_TAG} Starting polling for tokens`);
 			setIsLoading(true);
@@ -6599,8 +6599,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						return null;
 					}
 
-					
-
 					// Validate device code before sending
 					if (!currentDeviceCode || currentDeviceCode === '') {
 						console.error(`${MODULE_TAG} Device code is missing or empty`, {
@@ -6644,13 +6642,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						deviceCodePrefix: `${currentDeviceCode.substring(0, 10)}...`,
 					});
 
-					
-
 					pollCount++;
 					let response: Response;
 					try {
 						// Track API call for display
-						const { apiCallTrackerService: apiCallTrackerService4 } = await import('@/services/apiCallTrackerService');
+						const { apiCallTrackerService: apiCallTrackerService4 } = await import(
+							'@/services/apiCallTrackerService'
+						);
 						const startTime4 = Date.now();
 						const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 						const requestBodyForTracking = {
@@ -6694,15 +6692,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						apiCallTrackerService4.updateApiCallResponse(
 							callId4,
 							{
-									status: response.status,
-									statusText: response.statusText,
+								status: response.status,
+								statusText: response.statusText,
 								data: responseData4,
 							},
 							Date.now() - startTime4
 						);
 					} catch (fetchError) {
-						
-
 						// Log to console with full details
 						console.error(`${MODULE_TAG} ❌ Fetch error during polling (attempt ${pollCount}):`, {
 							error: fetchError,
@@ -6713,8 +6709,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						throw fetchError;
 					}
-
-					
 
 					// Update polling status
 					setFlowState((prev) => ({
@@ -6727,7 +6721,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}));
 
 					// CRITICAL DEBUG: Log response status before checking
-					
 
 					if (response.ok) {
 						console.log(`${MODULE_TAG} [DEBUG] Response is OK (200) - attempting to parse tokens`);
@@ -6735,20 +6728,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						let responseText = '';
 						try {
 							responseText = await response.text();
-							
-							tokens = JSON.parse(responseText);
 
-							
+							tokens = JSON.parse(responseText);
 						} catch (parseError) {
-							
 							throw new Error(
 								`Failed to parse token response: ${parseError instanceof Error ? parseError.message : String(parseError)}`
 							);
 						}
 						console.log(`${MODULE_TAG} ✅ Tokens received successfully on attempt ${pollCount}`);
-						
-
-						
 
 						return tokens;
 					}
@@ -6758,10 +6745,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					let responseText = '';
 					try {
 						responseText = await response.text();
-						
+
 						errorData = JSON.parse(responseText);
 					} catch (parseErr) {
-						
 						console.error(`${MODULE_TAG} Failed to parse error response:`, responseText);
 						throw new Error(`Token polling failed: HTTP ${response.status} ${response.statusText}`);
 					}
@@ -6775,7 +6761,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						`${MODULE_TAG} [DEBUG] Full error response data:`,
 						JSON.stringify(errorData, null, 2)
 					);
-					
 
 					// Check for authorization_pending (user hasn't approved yet) - this is EXPECTED and normal
 					if (errorData.error === 'authorization_pending') {
@@ -6861,8 +6846,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Start polling loop
 			const pollLoop = async () => {
 				// Do first poll immediately
-				
-				
+
 				for (let attempt = 0; attempt < maxAttempts; attempt++) {
 					// Check if polling was stopped (before each operation)
 					if (pollingAbortRef.current) {
@@ -6880,10 +6864,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}
 
 					console.log(`${MODULE_TAG} Polling attempt ${attempt + 1}/${maxAttempts}`);
-					
+
 					const tokens = await performPoll();
-					
-					
 
 					// Check again after async operation
 					if (pollingAbortRef.current) {
@@ -6900,12 +6882,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						return;
 					}
 
-					
-
 					if (tokens) {
 						// Success! Tokens received
-						
-						
+
 						// Filter tokens based on spec version (OAuth 2.0 Authorization Framework (RFC 6749) / OAuth 2.1 Authorization Framework (draft) should not have id_token when used without OpenID Connect)
 						const filteredTokens = filterTokensBySpec(tokens);
 						const tokensWithExtras = filteredTokens;
@@ -6921,10 +6900,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							tokenState.refreshToken = tokensWithExtras.refresh_token;
 						}
 
-						
-
 						setFlowState((prev) => {
-							
 							const newState = {
 								...prev,
 								tokens: tokenState,
@@ -6933,16 +6909,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									: { isPolling: false, pollCount: 0 },
 							};
 
-							
-
 							return newState;
 						});
 
 						setIsLoading(false);
 						isPollingExecutingRef.current = false; // Reset execution flag
-						
-						
-						
+
 						nav.markStepComplete();
 						showTokenSuccessModal(tokensWithExtras);
 
@@ -6972,15 +6944,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						toastV8.tokenExchangeSuccess();
 						toastV8.stepCompleted(2);
-						
-						
-						
+
 						return; // Exit polling loop
 					}
 
 					// Wait before next poll (but not after the last attempt)
 					if (attempt < maxAttempts - 1) {
-						
 						// Check abort before waiting
 						if (pollingAbortRef.current) {
 							console.log(`${MODULE_TAG} Polling stopped before wait`);
@@ -7021,8 +6990,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 
 				// Timeout
-				
-				
+
 				setIsLoading(false);
 				isPollingExecutingRef.current = false; // Reset execution flag
 				setError('Token polling timeout - user did not authorize within time limit');
@@ -7038,7 +7006,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// Start polling (non-blocking)
 			pollLoop().catch((err) => {
-				
 				const message = err instanceof Error ? err.message : 'Failed to poll for tokens';
 				setError(message);
 				setIsLoading(false);
@@ -7115,17 +7082,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				{/* Start Polling Button - Above Device Display */}
 				{flowState.deviceCode && !isComplete && (
-							<button
-								type="button"
-								className="btn btn-next"
-								onClick={handlePollForTokens}
-								disabled={isLoading || flowState.pollingStatus?.isPolling}
-								style={{ marginTop: '16px', marginBottom: '24px' }}
-							>
-								{isLoading || flowState.pollingStatus?.isPolling
-									? 'Polling...'
-									: 'Start Polling for Tokens'}
-							</button>
+					<button
+						type="button"
+						className="btn btn-next"
+						onClick={handlePollForTokens}
+						disabled={isLoading || flowState.pollingStatus?.isPolling}
+						style={{ marginTop: '16px', marginBottom: '24px' }}
+					>
+						{isLoading || flowState.pollingStatus?.isPolling
+							? 'Polling...'
+							: 'Start Polling for Tokens'}
+					</button>
 				)}
 
 				{/* Device Type Selector */}
@@ -7146,60 +7113,56 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				{flowState.deviceCode && flowState.userCode && (
 					<div style={{ marginTop: '24px', marginBottom: '24px' }}>
 						{(() => {
-							
-
 							try {
 								return (
-						<DynamicDeviceFlow
-							deviceType={selectedDeviceType}
-							state={{
+									<DynamicDeviceFlow
+										deviceType={selectedDeviceType}
+										state={{
 											deviceCode: flowState.deviceCode || '',
 											userCode: flowState.userCode || '',
-								verificationUri: flowState.verificationUri || '',
-								verificationUriComplete: flowState.verificationUriComplete || '',
-								expiresIn: flowState.deviceCodeExpiresIn || 0,
-								interval: 5,
+											verificationUri: flowState.verificationUri || '',
+											verificationUriComplete: flowState.verificationUriComplete || '',
+											expiresIn: flowState.deviceCodeExpiresIn || 0,
+											interval: 5,
 											expiresAt:
 												flowState.deviceCodeExpiresAt &&
 												typeof flowState.deviceCodeExpiresAt === 'number'
-									? new Date(flowState.deviceCodeExpiresAt)
-									: new Date(),
-								status: flowState.tokens?.accessToken
-									? 'authorized'
-									: flowState.pollingStatus?.isPolling
-										? 'pending'
-										: 'pending',
-								...(flowState.tokens?.accessToken && {
-									tokens: {
-										access_token: flowState.tokens.accessToken,
-										token_type: 'Bearer',
-										expires_in: flowState.tokens.expiresIn || 3600,
-										...(flowState.tokens.idToken && { id_token: flowState.tokens.idToken }),
-										...(flowState.tokens.refreshToken && {
-											refresh_token: flowState.tokens.refreshToken,
-										}),
-									},
-								}),
-								...(flowState.pollingStatus?.lastPolled && {
-									lastPolled: new Date(flowState.pollingStatus.lastPolled),
-								}),
-								pollCount: flowState.pollingStatus?.pollCount || 0,
-							}}
-							onStateUpdate={(newState: unknown) => {
-								console.log(`${MODULE_TAG} Device flow state updated`, newState);
-							}}
-							onComplete={(tokens: unknown) => {
-								console.log(`${MODULE_TAG} Device authorization completed`, tokens);
-							}}
-							onError={(error: string) => {
-								console.error(`${MODULE_TAG} Device authorization error`, error);
-								setError(error);
-							}}
-						/>
+													? new Date(flowState.deviceCodeExpiresAt)
+													: new Date(),
+											status: flowState.tokens?.accessToken
+												? 'authorized'
+												: flowState.pollingStatus?.isPolling
+													? 'pending'
+													: 'pending',
+											...(flowState.tokens?.accessToken && {
+												tokens: {
+													access_token: flowState.tokens.accessToken,
+													token_type: 'Bearer',
+													expires_in: flowState.tokens.expiresIn || 3600,
+													...(flowState.tokens.idToken && { id_token: flowState.tokens.idToken }),
+													...(flowState.tokens.refreshToken && {
+														refresh_token: flowState.tokens.refreshToken,
+													}),
+												},
+											}),
+											...(flowState.pollingStatus?.lastPolled && {
+												lastPolled: new Date(flowState.pollingStatus.lastPolled),
+											}),
+											pollCount: flowState.pollingStatus?.pollCount || 0,
+										}}
+										onStateUpdate={(newState: unknown) => {
+											console.log(`${MODULE_TAG} Device flow state updated`, newState);
+										}}
+										onComplete={(tokens: unknown) => {
+											console.log(`${MODULE_TAG} Device authorization completed`, tokens);
+										}}
+										onError={(error: string) => {
+											console.error(`${MODULE_TAG} Device authorization error`, error);
+											setError(error);
+										}}
+									/>
 								);
 							} catch (error) {
-								
-
 								console.error(`${MODULE_TAG} Error rendering DynamicDeviceFlow:`, error);
 								return (
 									<div
@@ -7653,9 +7616,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					<>
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
-								onClick={() => setClientCredentialsOverviewCollapsed(!clientCredentialsOverviewCollapsed)}
+								onClick={() =>
+									setClientCredentialsOverviewCollapsed(!clientCredentialsOverviewCollapsed)
+								}
 								aria-expanded={!clientCredentialsOverviewCollapsed}
-					>
+							>
 								<CollapsibleTitle>
 									<FiBook /> What is Client Credentials Flow?
 								</CollapsibleTitle>
@@ -7667,7 +7632,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								<CollapsibleContent>
 									<InfoBox $variant="info">
 										<FiInfo size={20} />
-							<div>
+										<div>
 											<InfoTitle>Machine-to-Machine Authentication</InfoTitle>
 											<InfoText>
 												The Client Credentials Flow (RFC 6749 Section 4.4) is used for
@@ -7686,17 +7651,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												<li>
 													<strong>Resources owned by the client:</strong> Access to data or services
 													belonging to the application itself
-										</li>
+												</li>
 												<li>
 													<strong>Resources belonging to multiple users:</strong> Batch operations,
 													aggregated data, or system-level access
-										</li>
+												</li>
 												<li>
 													<strong>No user context:</strong> Background jobs, scheduled tasks, or
 													automated processes
-										</li>
+												</li>
 											</InfoList>
-									</div>
+										</div>
 									</InfoBox>
 								</CollapsibleContent>
 							)}
@@ -7704,7 +7669,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
-								onClick={() => setClientCredentialsDetailsCollapsed(!clientCredentialsDetailsCollapsed)}
+								onClick={() =>
+									setClientCredentialsDetailsCollapsed(!clientCredentialsDetailsCollapsed)
+								}
 								aria-expanded={!clientCredentialsDetailsCollapsed}
 							>
 								<CollapsibleTitle>
@@ -7727,7 +7694,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													<li>Uses resource server scopes</li>
 													<li>Perfect for backend services</li>
 												</InfoList>
-								</div>
+											</div>
 										</InfoBox>
 
 										<InfoBox $variant="success">
@@ -7740,7 +7707,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													<li>Uses OIDC scopes (openid, profile, email)</li>
 													<li>Perfect for user-facing applications</li>
 												</InfoList>
-							</div>
+											</div>
 										</InfoBox>
 									</ParameterGrid>
 
@@ -7767,7 +7734,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													api:write
 												</li>
 											</InfoList>
-						</div>
+										</div>
 									</InfoBox>
 
 									<InfoBox $variant="info">
@@ -7791,7 +7758,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													automated workflows
 												</li>
 											</InfoList>
-					</div>
+										</div>
 									</InfoBox>
 								</CollapsibleContent>
 							)}
@@ -8178,34 +8145,54 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Final safety check: Ensure clientAuthMethod is synced from PingOne before token exchange
 			// This catches cases where app config wasn't fetched earlier or credentials were loaded before app config
 			let effectiveCredentials = credentials;
-			if (credentials.clientId && credentials.environmentId && (!credentials.clientAuthMethod || credentials.clientAuthMethod === 'client_secret_post')) {
+			if (
+				credentials.clientId &&
+				credentials.environmentId &&
+				(!credentials.clientAuthMethod || credentials.clientAuthMethod === 'client_secret_post')
+			) {
 				try {
 					const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 					const { ConfigCheckerServiceV8 } = await import('@/v8/services/configCheckerServiceV8');
 					const workerToken = await workerTokenServiceV8.getToken();
-					
+
 					if (workerToken) {
-						console.log(`${MODULE_TAG} 🔍 Final check: Fetching app config to ensure correct auth method...`);
+						console.log(
+							`${MODULE_TAG} 🔍 Final check: Fetching app config to ensure correct auth method...`
+						);
 						const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 							credentials.environmentId,
 							credentials.clientId,
 							workerToken
 						);
-						
-						if (appConfig?.tokenEndpointAuthMethod && credentials.clientAuthMethod !== appConfig.tokenEndpointAuthMethod) {
-							console.log(`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne before token exchange:`, {
-								from: credentials.clientAuthMethod || 'client_secret_post (default)',
-								to: appConfig.tokenEndpointAuthMethod,
-							});
+
+						if (
+							appConfig?.tokenEndpointAuthMethod &&
+							credentials.clientAuthMethod !== appConfig.tokenEndpointAuthMethod
+						) {
+							console.log(
+								`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne before token exchange:`,
+								{
+									from: credentials.clientAuthMethod || 'client_secret_post (default)',
+									to: appConfig.tokenEndpointAuthMethod,
+								}
+							);
 							// Create updated credentials with correct auth method from PingOne
 							effectiveCredentials = {
 								...credentials,
-								clientAuthMethod: appConfig.tokenEndpointAuthMethod as 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt' | 'none',
+								clientAuthMethod: appConfig.tokenEndpointAuthMethod as
+									| 'client_secret_basic'
+									| 'client_secret_post'
+									| 'client_secret_jwt'
+									| 'private_key_jwt'
+									| 'none',
 							};
 						}
 					}
 				} catch (configError) {
-					console.warn(`${MODULE_TAG} ⚠️ Failed to fetch app config before token exchange (continuing with current auth method):`, configError);
+					console.warn(
+						`${MODULE_TAG} ⚠️ Failed to fetch app config before token exchange (continuing with current auth method):`,
+						configError
+					);
 					// Continue with current auth method - don't fail token exchange
 				}
 			}
@@ -8223,7 +8210,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				});
 				console.log(`${MODULE_TAG} 🔐 Using auth method:`, {
 					clientAuthMethod: effectiveCredentials.clientAuthMethod || 'client_secret_post (default)',
-					source: effectiveCredentials.clientAuthMethod !== credentials.clientAuthMethod ? 'from PingOne (just fetched)' : credentials.clientAuthMethod ? 'from credentials' : 'default',
+					source:
+						effectiveCredentials.clientAuthMethod !== credentials.clientAuthMethod
+							? 'from PingOne (just fetched)'
+							: credentials.clientAuthMethod
+								? 'from credentials'
+								: 'default',
 				});
 				const tokens = await UnifiedFlowIntegrationV8U.exchangeCodeForTokens(
 					flowType as 'oauth-authz' | 'hybrid',
@@ -8571,7 +8563,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				});
 
 				// Track API call for display
-				const { apiCallTrackerService: apiCallTrackerService5 } = await import('@/services/apiCallTrackerService');
+				const { apiCallTrackerService: apiCallTrackerService5 } = await import(
+					'@/services/apiCallTrackerService'
+				);
 				const startTime5 = Date.now();
 				const requestBody5 = {
 					token: '***REDACTED***',
@@ -8764,8 +8758,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										id_token
 									</code>
 									, but it's filtered out to follow the{' '}
-									{specVersion === 'oauth2.0' ? 'OAuth 2.0 Authorization Framework (RFC 6749)' : 'OAuth 2.1 Authorization Framework (draft)'} spec. ID tokens are only
-									part of <strong>OpenID Connect Core 1.0</strong>. Note: When OAuth 2.1 (draft) is combined with OpenID Connect Core 1.0, it means "OIDC Core 1.0 using OAuth 2.1 (draft) baseline" and includes id_token.
+									{specVersion === 'oauth2.0'
+										? 'OAuth 2.0 Authorization Framework (RFC 6749)'
+										: 'OAuth 2.1 Authorization Framework (draft)'}{' '}
+									spec. ID tokens are only part of <strong>OpenID Connect Core 1.0</strong>. Note:
+									When OAuth 2.1 (draft) is combined with OpenID Connect Core 1.0, it means "OIDC
+									Core 1.0 using OAuth 2.1 (draft) baseline" and includes id_token.
 								</p>
 							</div>
 						</div>
@@ -10146,13 +10144,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const renderStepContent = () => {
 		// Only log when step or flow type changes (not on every render)
 		if (prevStepRef.current !== currentStep || prevFlowTypeRef.current !== flowType) {
-		console.log(`${MODULE_TAG} [STEP ROUTING] Rendering step content`, {
-			currentStep,
-			flowType,
-			usePKCE: isPKCERequired,
-			pkceEnforcement: credentials.pkceEnforcement,
-			alwaysShowPKCE: flowType === 'oauth-authz' || flowType === 'hybrid',
-		});
+			console.log(`${MODULE_TAG} [STEP ROUTING] Rendering step content`, {
+				currentStep,
+				flowType,
+				usePKCE: isPKCERequired,
+				pkceEnforcement: credentials.pkceEnforcement,
+				alwaysShowPKCE: flowType === 'oauth-authz' || flowType === 'hybrid',
+			});
 			prevStepRef.current = currentStep;
 			// Note: prevFlowTypeRef is updated in the useEffect above, so we don't update it here
 		}
@@ -10541,42 +10539,42 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					</button>
 
 					{/* Next Button - Green with white text and arrow - Always show except on last step */}
-					{currentStep < totalSteps - 1 && (() => {
-						// Determine if we're on the token display step
-						let isTokenStep = false;
-						if (flowType === 'client-credentials') {
-							isTokenStep = currentStep === 2; // Step 3 (0-indexed: 0, 1, 2)
-						} else if (flowType === 'device-code' || flowType === 'implicit') {
-							isTokenStep = currentStep === 3; // Step 4 (0-indexed: 0, 1, 2, 3)
-						} else if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-							isTokenStep = currentStep === 4; // Step 5 (0-indexed: 0, 1, 2, 3, 4)
-						}
-						
-						// Enable button if tokens are present on token step, or if no validation errors
-						const canProceed = isTokenStep && flowState.tokens?.accessToken 
-							? true 
-							: nav.canGoNext;
-						
-						return (
-						<button
-							type="button"
-							className="btn btn-next"
-							onClick={nav.goToNext}
-								disabled={!canProceed}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								gap: '8px',
-								minWidth: '120px',
-							}}
-								title={canProceed ? 'Proceed to next step' : 'Complete the current step first'}
-						>
-							<span>Next Step</span>
-							<FiArrowRight size={16} style={{ marginLeft: '4px' }} />
-						</button>
-						);
-					})()}
+					{currentStep < totalSteps - 1 &&
+						(() => {
+							// Determine if we're on the token display step
+							let isTokenStep = false;
+							if (flowType === 'client-credentials') {
+								isTokenStep = currentStep === 2; // Step 3 (0-indexed: 0, 1, 2)
+							} else if (flowType === 'device-code' || flowType === 'implicit') {
+								isTokenStep = currentStep === 3; // Step 4 (0-indexed: 0, 1, 2, 3)
+							} else if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+								isTokenStep = currentStep === 4; // Step 5 (0-indexed: 0, 1, 2, 3, 4)
+							}
+
+							// Enable button if tokens are present on token step, or if no validation errors
+							const canProceed =
+								isTokenStep && flowState.tokens?.accessToken ? true : nav.canGoNext;
+
+							return (
+								<button
+									type="button"
+									className="btn btn-next"
+									onClick={nav.goToNext}
+									disabled={!canProceed}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										gap: '8px',
+										minWidth: '120px',
+									}}
+									title={canProceed ? 'Proceed to next step' : 'Complete the current step first'}
+								>
+									<span>Next Step</span>
+									<FiArrowRight size={16} style={{ marginLeft: '4px' }} />
+								</button>
+							);
+						})()}
 					{/* Always show navigation to introspection step from tokens step, even if validation errors exist */}
 					{currentStep === totalSteps - 2 && flowState.tokens?.accessToken && (
 						<button

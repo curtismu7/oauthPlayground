@@ -180,7 +180,10 @@ export class ConfigCheckerServiceV8 {
 				type: rawApp.type || 'SINGLE_PAGE_APP',
 				grantTypes: rawApp.grantTypes || [],
 				responseTypes: rawApp.responseTypes || [],
-				tokenEndpointAuthMethod: rawApp.tokenEndpointAuthMethod || rawApp.token_endpoint_auth_method || 'client_secret_post',
+				tokenEndpointAuthMethod:
+					rawApp.tokenEndpointAuthMethod ||
+					rawApp.token_endpoint_auth_method ||
+					'client_secret_post',
 				redirectUris: rawApp.redirectUris || rawApp.redirect_uris || [],
 				allowedOrigins: rawApp.allowedOrigins || rawApp.allowed_origins,
 				postLogoutRedirectUris: rawApp.postLogoutRedirectUris || rawApp.post_logout_redirect_uris,

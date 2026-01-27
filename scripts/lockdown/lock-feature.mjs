@@ -1,26 +1,35 @@
 #!/usr/bin/env node
+
 /**
  * @file lock-feature.mjs
  * @description Feature Lockdown System - Isolates stable features with their own dependencies
  * @version 1.0.0
- * 
+ *
  * This script creates a complete isolated copy of a feature, including:
  * - All feature files
  * - All dependencies (services, utils, types, components)
  * - Updated imports to use isolated versions
  * - Manifest tracking locked features
- * 
+ *
  * Usage:
  *   node scripts/lockdown/lock-feature.mjs <feature-name> [--dry-run]
- * 
+ *
  * Example:
  *   node scripts/lockdown/lock-feature.mjs mfa-v8
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, cpSync, readdirSync, statSync } from 'node:fs';
-import { join, dirname, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
+import {
+	cpSync,
+	existsSync,
+	mkdirSync,
+	readdirSync,
+	readFileSync,
+	statSync,
+	writeFileSync,
+} from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -32,10 +41,7 @@ const FEATURE_CONFIGS = {
 		name: 'MFA V8',
 		description: 'Complete MFA V8 flow with all device types',
 		sourceDir: 'src/v8/flows/types',
-		includePatterns: [
-			'**/*FlowV8.tsx',
-			'**/*ConfigurationPageV8.tsx',
-		],
+		includePatterns: ['**/*FlowV8.tsx', '**/*ConfigurationPageV8.tsx'],
 		dependencies: [
 			'src/v8/services/mfaServiceV8.ts',
 			'src/v8/services/mfaAuthenticationServiceV8.ts',
@@ -67,15 +73,17 @@ function findFiles(dir, patterns, baseDir = dir) {
 	for (const entry of entries) {
 		const fullPath = join(dir, entry);
 		const stat = statSync(fullPath);
-		
+
 		if (stat.isDirectory()) {
 			files.push(...findFiles(fullPath, patterns, baseDir));
 		} else if (stat.isFile()) {
 			const relPath = relative(baseDir, fullPath);
-			if (patterns.some(pattern => {
-				const regex = new RegExp(pattern.replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*'));
-				return regex.test(relPath);
-			})) {
+			if (
+				patterns.some((pattern) => {
+					const regex = new RegExp(pattern.replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*'));
+					return regex.test(relPath);
+				})
+			) {
 				files.push(fullPath);
 			}
 		}
@@ -138,27 +146,21 @@ function findDependencies(file, visited = new Set(), allDeps = new Set()) {
  */
 function updateImports(content, lockedDir, originalDir) {
 	// Update @/ imports to use locked versions
-	content = content.replace(
-		/from\s+['"]@\/([^'"]+)['"]/g,
-		(match, path) => {
-			const lockedPath = join(lockedDir, 'dependencies', path);
-			if (existsSync(lockedPath)) {
-				const relPath = relative(originalDir, lockedPath).replace(/\\/g, '/');
-				return `from '${relPath.startsWith('.') ? relPath : './' + relPath}'`;
-			}
-			return match; // Keep original if not locked
+	content = content.replace(/from\s+['"]@\/([^'"]+)['"]/g, (match, path) => {
+		const lockedPath = join(lockedDir, 'dependencies', path);
+		if (existsSync(lockedPath)) {
+			const relPath = relative(originalDir, lockedPath).replace(/\\/g, '/');
+			return `from '${relPath.startsWith('.') ? relPath : './' + relPath}'`;
 		}
-	);
+		return match; // Keep original if not locked
+	});
 
 	// Update relative imports that point to locked dependencies
-	content = content.replace(
-		/from\s+['"](\.\.?\/[^'"]+)['"]/g,
-		(match, path) => {
-			// Check if this path resolves to a locked dependency
-			// This is simplified - you may need more sophisticated path resolution
-			return match;
-		}
-	);
+	content = content.replace(/from\s+['"](\.\.?\/[^'"]+)['"]/g, (match, path) => {
+		// Check if this path resolves to a locked dependency
+		// This is simplified - you may need more sophisticated path resolution
+		return match;
+	});
 
 	return content;
 }
@@ -201,7 +203,7 @@ async function lockFeature(featureName, dryRun = false) {
 
 	// Collect all dependencies
 	const allDeps = new Set();
-	
+
 	// Add explicit dependencies
 	for (const dep of config.dependencies) {
 		const depPath = join(PROJECT_ROOT, dep);
@@ -233,10 +235,10 @@ async function lockFeature(featureName, dryRun = false) {
 		const relPath = relative(join(PROJECT_ROOT, config.sourceDir), file);
 		const destPath = join(featureDir, relPath);
 		const content = readFileSync(file, 'utf8');
-		
+
 		// Update imports
 		const updatedContent = updateImports(content, lockedDir, dirname(destPath));
-		
+
 		if (!dryRun) {
 			mkdirSync(dirname(destPath), { recursive: true });
 			writeFileSync(destPath, updatedContent, 'utf8');
@@ -253,7 +255,7 @@ async function lockFeature(featureName, dryRun = false) {
 	for (const dep of allDeps) {
 		const relPath = relative(join(PROJECT_ROOT, 'src'), dep);
 		const destPath = join(depsDir, relPath);
-		
+
 		if (!dryRun) {
 			mkdirSync(dirname(destPath), { recursive: true });
 			cpSync(dep, destPath);

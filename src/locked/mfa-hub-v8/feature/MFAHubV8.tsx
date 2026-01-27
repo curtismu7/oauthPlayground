@@ -16,11 +16,15 @@
  */
 
 import React, { lazy, Suspense, useEffect, useState } from 'react';
-import { FiTrash2, FiPackage } from 'react-icons/fi';
+import { FiPackage, FiTrash2 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { pingOneLogoutService } from '../dependencies/services/pingOneLogoutService.ts';
+import {
+	downloadPostmanCollectionWithEnvironment,
+	generateComprehensiveMFAPostmanCollection,
+} from '../dependencies/services/postmanCollectionGeneratorV8.ts';
 import { oauthStorage } from '../dependencies/utils/storage.ts';
 import { MFAHeaderV8 } from '../dependencies/v8/components/MFAHeaderV8.tsx';
 import { WorkerTokenGaugeV8 } from '../dependencies/v8/components/WorkerTokenGaugeV8.tsx';
@@ -29,12 +33,8 @@ import { CredentialsServiceV8 } from '../dependencies/v8/services/credentialsSer
 import { MFAConfigurationServiceV8 } from '../dependencies/v8/services/mfaConfigurationServiceV8.ts';
 import { workerTokenServiceV8 } from '../dependencies/v8/services/workerTokenServiceV8.ts';
 import WorkerTokenStatusServiceV8 from '../dependencies/v8/services/workerTokenStatusServiceV8.ts';
-import { handleShowWorkerTokenModal } from '../dependencies/v8/utils/workerTokenModalHelperV8.ts';
 import { toastV8 } from '../dependencies/v8/utils/toastNotificationsV8.ts';
-import {
-	generateComprehensiveMFAPostmanCollection,
-	downloadPostmanCollectionWithEnvironment,
-} from '../dependencies/services/postmanCollectionGeneratorV8.ts';
+import { handleShowWorkerTokenModal } from '../dependencies/v8/utils/workerTokenModalHelperV8.ts';
 
 interface FeatureCard {
 	title: string;
@@ -67,11 +67,13 @@ export const MFAHubV8: React.FC = () => {
 	const navigate = useNavigate();
 	const [isClearingTokens, setIsClearingTokens] = useState(false);
 	const authContext = useAuth();
-	
+
 	// Worker token state
-	const [tokenStatus, setTokenStatus] = useState(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+	const [tokenStatus, setTokenStatus] = useState(
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+	);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	
+
 	// Initialize from config immediately (not in useEffect) so silent retrieval works on mount
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
 		try {
@@ -94,31 +96,31 @@ export const MFAHubV8: React.FC = () => {
 	// Get API display padding
 	const { paddingBottom } = useApiDisplayPadding();
 
-		// Check worker token on mount and when token updates
-		useEffect(() => {
+	// Check worker token on mount and when token updates
+	useEffect(() => {
+		// #region agent log
+		// #endregion
+		const checkToken = async () => {
+			const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			setTokenStatus(currentStatus);
 			// #region agent log
 			// #endregion
-			const checkToken = async () => {
-				const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-				setTokenStatus(currentStatus);
+
+			// If token is missing or expired, use helper to handle silent retrieval
+			// Pass Hub page checkbox values to override config (Hub page takes precedence)
+			if (!currentStatus.isValid) {
 				// #region agent log
 				// #endregion
+				await handleShowWorkerTokenModal(
+					setShowWorkerTokenModal,
+					setTokenStatus,
+					silentApiRetrieval, // Hub page checkbox value takes precedence
+					showTokenAtEnd // Hub page checkbox value takes precedence
+				);
+			}
+		};
 
-				// If token is missing or expired, use helper to handle silent retrieval
-				// Pass Hub page checkbox values to override config (Hub page takes precedence)
-				if (!currentStatus.isValid) {
-					// #region agent log
-					// #endregion
-					await handleShowWorkerTokenModal(
-						setShowWorkerTokenModal, 
-						setTokenStatus,
-						silentApiRetrieval,  // Hub page checkbox value takes precedence
-						showTokenAtEnd       // Hub page checkbox value takes precedence
-					);
-				}
-			};
-
-			checkToken();
+		checkToken();
 
 		// Listen for token updates
 		const handleTokenUpdate = () => {
@@ -133,7 +135,9 @@ export const MFAHubV8: React.FC = () => {
 	// Listen for configuration updates
 	useEffect(() => {
 		const handleConfigUpdate = (event: Event) => {
-			const customEvent = event as CustomEvent<{ workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean } }>;
+			const customEvent = event as CustomEvent<{
+				workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean };
+			}>;
 			if (customEvent.detail?.workerToken) {
 				if (customEvent.detail.workerToken.silentApiRetrieval !== undefined) {
 					setSilentApiRetrieval(customEvent.detail.workerToken.silentApiRetrieval);
@@ -156,9 +160,11 @@ export const MFAHubV8: React.FC = () => {
 		MFAConfigurationServiceV8.saveConfiguration(config);
 		setSilentApiRetrieval(value);
 		// Dispatch event to notify other components
-		window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+		window.dispatchEvent(
+			new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } })
+		);
 		toastV8.info(`Silent API Token Retrieval set to: ${value}`);
-		
+
 		// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 		if (value) {
 			const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
@@ -167,9 +173,9 @@ export const MFAHubV8: React.FC = () => {
 				await handleShowWorkerTokenModal(
 					setShowWorkerTokenModal,
 					setTokenStatus,
-					value,  // Use new value
+					value, // Use new value
 					showTokenAtEnd,
-					false   // Not forced - respect silent setting
+					false // Not forced - respect silent setting
 				);
 			}
 		}
@@ -181,7 +187,9 @@ export const MFAHubV8: React.FC = () => {
 		MFAConfigurationServiceV8.saveConfiguration(config);
 		setShowTokenAtEnd(value);
 		// Dispatch event to notify other components
-		window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+		window.dispatchEvent(
+			new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } })
+		);
 		toastV8.info(`Show Token After Generation set to: ${value}`);
 	};
 
@@ -431,8 +439,14 @@ export const MFAHubV8: React.FC = () => {
 									});
 									const date = new Date().toISOString().split('T')[0];
 									const filename = `pingone-mfa-flows-complete-${date}-collection.json`;
-									downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne MFA Flows Environment');
-									toastV8.success('Postman collection and environment downloaded! Import both into Postman to test all MFA flows.');
+									downloadPostmanCollectionWithEnvironment(
+										collection,
+										filename,
+										'PingOne MFA Flows Environment'
+									);
+									toastV8.success(
+										'Postman collection and environment downloaded! Import both into Postman to test all MFA flows.'
+									);
 								} catch (error) {
 									console.error('Error generating MFA Postman collection:', error);
 									toastV8.error('Failed to generate Postman collection. Please try again.');
@@ -473,8 +487,12 @@ export const MFAHubV8: React.FC = () => {
 							onClick={async () => {
 								try {
 									// Get Unified credentials
-									const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
-									const { EnvironmentIdServiceV8 } = await import('@/v8/services/environmentIdServiceV8');
+									const { CredentialsServiceV8 } = await import(
+										'@/v8/services/credentialsServiceV8'
+									);
+									const { EnvironmentIdServiceV8 } = await import(
+										'@/v8/services/environmentIdServiceV8'
+									);
 									const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
 									const flowKey = 'oauth-authz-v8u';
 									const config = CredentialsServiceV8.getFlowConfig(flowKey) || {
@@ -486,24 +504,37 @@ export const MFAHubV8: React.FC = () => {
 										includeLogoutUri: false,
 									};
 									const unifiedCreds = CredentialsServiceV8.loadCredentials(flowKey, config);
-									
+
 									// Get MFA credentials
 									const creds = CredentialsServiceV8.loadCredentials();
-									const { generateCompletePostmanCollection } = await import('@/services/postmanCollectionGeneratorV8');
+									const { generateCompletePostmanCollection } = await import(
+										'@/services/postmanCollectionGeneratorV8'
+									);
 									const collection = generateCompletePostmanCollection({
-										environmentId: environmentId || unifiedCreds?.environmentId || creds?.environmentId,
+										environmentId:
+											environmentId || unifiedCreds?.environmentId || creds?.environmentId,
 										clientId: unifiedCreds?.clientId,
 										clientSecret: unifiedCreds?.clientSecret,
 										username: creds?.username,
 									});
 									const date = new Date().toISOString().split('T')[0];
 									const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
-									const { downloadPostmanCollectionWithEnvironment } = await import('@/services/postmanCollectionGeneratorV8');
-									downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Complete Collection Environment');
-									toastV8.success('Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.');
+									const { downloadPostmanCollectionWithEnvironment } = await import(
+										'@/services/postmanCollectionGeneratorV8'
+									);
+									downloadPostmanCollectionWithEnvironment(
+										collection,
+										filename,
+										'PingOne Complete Collection Environment'
+									);
+									toastV8.success(
+										'Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.'
+									);
 								} catch (error) {
 									console.error('Error generating complete Postman collection:', error);
-									toastV8.error('Failed to generate complete Postman collection. Please try again.');
+									toastV8.error(
+										'Failed to generate complete Postman collection. Please try again.'
+									);
 								}
 							}}
 							style={{
@@ -734,11 +765,11 @@ export const MFAHubV8: React.FC = () => {
 										// Pass Hub page checkbox values to override config (Hub page takes precedence)
 										// forceShowModal=true because user explicitly clicked the button - always show modal
 										await handleShowWorkerTokenModal(
-											setShowWorkerTokenModal, 
+											setShowWorkerTokenModal,
 											setTokenStatus,
-											silentApiRetrieval,  // Hub page checkbox value takes precedence
-											showTokenAtEnd,      // Hub page checkbox value takes precedence
-											true                  // Force show modal - user clicked button
+											silentApiRetrieval, // Hub page checkbox value takes precedence
+											showTokenAtEnd, // Hub page checkbox value takes precedence
+											true // Force show modal - user clicked button
 										);
 									}}
 									style={{

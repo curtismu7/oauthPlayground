@@ -6,7 +6,7 @@
  * @since 2024-11-16
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FiDownload, FiUpload } from 'react-icons/fi';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import {
@@ -20,8 +20,8 @@ import pingOneFetch from '@/utils/pingOneFetch';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
 
@@ -123,42 +123,50 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	React.useEffect(() => {
 		if (isOpen) {
 			// Load from workerTokenServiceV8 (the correct storage location)
-			workerTokenServiceV8.loadCredentials().then((creds) => {
-				if (creds) {
-					setEnvironmentId(creds.environmentId || propEnvironmentId);
-					setClientId(creds.clientId || '');
-					setClientSecret(creds.clientSecret || '');
-					setScopeInput(
-						Array.isArray(creds.scopes) && creds.scopes.length ? creds.scopes.join(' ') : ''
-					);
-					setRegion(creds.region || 'us');
-					setCustomDomain(creds.customDomain || '');
-					setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');
-					console.log(`${MODULE_TAG} Loaded credentials from workerTokenServiceV8`);
-				} else {
-					// Fallback to old storage location for backwards compatibility
-					const saved = localStorage.getItem('worker_credentials_v8');
-					if (saved) {
-						try {
-							const parsed = JSON.parse(saved);
-							setEnvironmentId(parsed.environmentId || propEnvironmentId);
-							setClientId(parsed.clientId || '');
-							setClientSecret(parsed.clientSecret || '');
-							setScopeInput(
-								Array.isArray(parsed.scopes) && parsed.scopes.length ? parsed.scopes.join(' ') : ''
-							);
-							setRegion('us'); // Always default to 'us' (.com)
-							setCustomDomain(parsed.customDomain || '');
-							setAuthMethod(parsed.authMethod || 'client_secret_basic');
-							console.log(`${MODULE_TAG} Loaded credentials from legacy storage location`);
-						} catch (e) {
-							console.error(`${MODULE_TAG} Failed to load saved credentials`, e);
+			workerTokenServiceV8
+				.loadCredentials()
+				.then((creds) => {
+					if (creds) {
+						setEnvironmentId(creds.environmentId || propEnvironmentId);
+						setClientId(creds.clientId || '');
+						setClientSecret(creds.clientSecret || '');
+						setScopeInput(
+							Array.isArray(creds.scopes) && creds.scopes.length ? creds.scopes.join(' ') : ''
+						);
+						setRegion(creds.region || 'us');
+						setCustomDomain(creds.customDomain || '');
+						setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');
+						console.log(`${MODULE_TAG} Loaded credentials from workerTokenServiceV8`);
+					} else {
+						// Fallback to old storage location for backwards compatibility
+						const saved = localStorage.getItem('worker_credentials_v8');
+						if (saved) {
+							try {
+								const parsed = JSON.parse(saved);
+								setEnvironmentId(parsed.environmentId || propEnvironmentId);
+								setClientId(parsed.clientId || '');
+								setClientSecret(parsed.clientSecret || '');
+								setScopeInput(
+									Array.isArray(parsed.scopes) && parsed.scopes.length
+										? parsed.scopes.join(' ')
+										: ''
+								);
+								setRegion('us'); // Always default to 'us' (.com)
+								setCustomDomain(parsed.customDomain || '');
+								setAuthMethod(parsed.authMethod || 'client_secret_basic');
+								console.log(`${MODULE_TAG} Loaded credentials from legacy storage location`);
+							} catch (e) {
+								console.error(`${MODULE_TAG} Failed to load saved credentials`, e);
+							}
 						}
 					}
-				}
-			}).catch((error) => {
-				console.error(`${MODULE_TAG} Failed to load credentials from workerTokenServiceV8:`, error);
-			});
+				})
+				.catch((error) => {
+					console.error(
+						`${MODULE_TAG} Failed to load credentials from workerTokenServiceV8:`,
+						error
+					);
+				});
 		}
 	}, [isOpen, propEnvironmentId]);
 
@@ -200,10 +208,14 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					customDomain: customDomain.trim() || undefined,
 					tokenEndpointAuthMethod: authMethod,
 				});
-				console.log(`${MODULE_TAG} Credentials saved to workerTokenServiceV8 (checkbox was checked)`);
+				console.log(
+					`${MODULE_TAG} Credentials saved to workerTokenServiceV8 (checkbox was checked)`
+				);
 			} catch (error) {
 				console.error(`${MODULE_TAG} Failed to save credentials:`, error);
-				toastV8.error('Failed to save credentials. They will still be used for this token generation.');
+				toastV8.error(
+					'Failed to save credentials. They will still be used for this token generation.'
+				);
 			}
 		}
 
@@ -658,611 +670,642 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							{/* Info Box and Form - Only show if not in token-only mode */}
 							{!showTokenOnly && (
 								<>
-							{/* Info Box */}
-							<div
-								style={{
-									padding: '12px',
-									background: '#dbeafe',
-									borderRadius: '6px',
-									border: '1px solid #93c5fd',
-									marginBottom: '16px',
-									fontSize: '13px',
-									color: '#1e40af',
-									lineHeight: '1.5',
-								}}
-							>
-						<div style={{ marginBottom: '8px' }}>
-							<strong>ℹ️ What is a Worker Token?</strong>
-						</div>
-						<div style={{ marginBottom: '8px' }}>
-							Worker tokens are used for server-to-server API calls to discover applications and
-							access PingOne management APIs.
-						</div>
-						<div style={{ marginBottom: '8px' }}>
-							<strong>Requirements:</strong> A Worker application in PingOne with appropriate roles
-							(e.g., "Identity Data Read Only" or "Environment Admin").
-						</div>
-						<div
-							style={{
-								marginTop: '8px',
-								padding: '8px',
-								background: '#fef3c7',
-								borderRadius: '4px',
-								border: '1px solid #fcd34d',
-								color: '#92400e',
-							}}
-						>
-							<strong>⏰ Token Validity:</strong> Worker tokens are valid for{' '}
-							<strong>1 hour</strong> after generation. You will need to generate a new token after
-							it expires.
-						</div>
-						{(() => {
-							try {
-								const config = MFAConfigurationServiceV8.loadConfiguration();
-								const autoRenewal = config.workerToken.autoRenewal;
-								const renewalThreshold = config.workerToken.renewalThreshold;
-
-								return (
+									{/* Info Box */}
 									<div
 										style={{
-											marginTop: '8px',
-											padding: '8px',
-											background: autoRenewal ? '#d1fae5' : '#fee2e2',
-											borderRadius: '4px',
-											border: `1px solid ${autoRenewal ? '#86efac' : '#fca5a5'}`,
-											color: autoRenewal ? '#065f46' : '#991b1b',
+											padding: '12px',
+											background: '#dbeafe',
+											borderRadius: '6px',
+											border: '1px solid #93c5fd',
+											marginBottom: '16px',
+											fontSize: '13px',
+											color: '#1e40af',
+											lineHeight: '1.5',
 										}}
 									>
-										<strong>🔄 Auto-Renewal:</strong>{' '}
-										{autoRenewal ? (
-											<>
-												<strong>Enabled</strong> - Tokens will automatically renew{' '}
-												{renewalThreshold} seconds before expiry during MFA flows.
-											</>
-										) : (
-											<>
-												<strong>Disabled</strong> - You will need to manually generate new tokens
-												when they expire.
-											</>
-										)}{' '}
-										<a
-											href="/v8/mfa-config"
-											onClick={(e) => {
-												e.preventDefault();
-												window.location.href = '/v8/mfa-config';
-											}}
+										<div style={{ marginBottom: '8px' }}>
+											<strong>ℹ️ What is a Worker Token?</strong>
+										</div>
+										<div style={{ marginBottom: '8px' }}>
+											Worker tokens are used for server-to-server API calls to discover applications
+											and access PingOne management APIs.
+										</div>
+										<div style={{ marginBottom: '8px' }}>
+											<strong>Requirements:</strong> A Worker application in PingOne with
+											appropriate roles (e.g., "Identity Data Read Only" or "Environment Admin").
+										</div>
+										<div
 											style={{
-												color: 'inherit',
-												textDecoration: 'underline',
-												fontWeight: '600',
+												marginTop: '8px',
+												padding: '8px',
+												background: '#fef3c7',
+												borderRadius: '4px',
+												border: '1px solid #fcd34d',
+												color: '#92400e',
 											}}
 										>
-											Configure in MFA Settings
-										</a>
-									</div>
-								);
-							} catch {
-								return null;
-							}
-						})()}
-						<div
-							style={{
-								marginTop: '8px',
-								padding: '8px',
-								background: '#fff7ed',
-								borderRadius: '4px',
-								border: '1px solid #fdba74',
-								color: '#9a3412',
-							}}
-						>
-							<strong>✅ Recommended MFA scopes:</strong>
-							<div style={{ marginTop: '6px', fontFamily: 'monospace', fontSize: '12px' }}>
-								{PINGONE_WORKER_MFA_SCOPE_STRING}
-							</div>
-							<p style={{ marginTop: '6px', fontSize: '12px' }}>
-								You can adjust the scope list below to match your PingOne Worker application.
-							</p>
-						</div>
-					</div>
+											<strong>⏰ Token Validity:</strong> Worker tokens are valid for{' '}
+											<strong>1 hour</strong> after generation. You will need to generate a new
+											token after it expires.
+										</div>
+										{(() => {
+											try {
+												const config = MFAConfigurationServiceV8.loadConfiguration();
+												const autoRenewal = config.workerToken.autoRenewal;
+												const renewalThreshold = config.workerToken.renewalThreshold;
 
-					{/* How to Get Credentials */}
-					<div
-						style={{
-							padding: '12px',
-							background: '#f0fdf4',
-							borderRadius: '6px',
-							border: '1px solid #86efac',
-							marginBottom: '20px',
-							fontSize: '12px',
-							color: '#166534',
-							lineHeight: '1.5',
-						}}
-					>
-						<div style={{ marginBottom: '6px', fontWeight: '600' }}>
-							📝 How to get these credentials:
-						</div>
-						<ol style={{ margin: '0', paddingLeft: '20px' }}>
-							<li>Go to PingOne Console → Connections → Applications</li>
-							<li>Create or select a Worker application</li>
-							<li>Copy the Environment ID, Client ID, and Client Secret</li>
-							<li>Ensure the app has required roles assigned</li>
-							<li>
-								Set <strong>Token Endpoint Auth Method</strong> to match your Worker app. If you see
-								“client authentication failed”, try switching between <em>Client Secret Post</em>{' '}
-								and <em>Client Secret Basic</em>.
-							</li>
-						</ol>
-					</div>
-
-						{/* Form Fields */}
-						<form
-						onSubmit={(e) => {
-							e.preventDefault();
-							handleGenerate();
-						}}
-						style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
-					>
-						{/* Environment ID */}
-						<div>
-							<label
-								htmlFor="environmentId"
-								style={{
-									display: 'block',
-									fontWeight: '600',
-									fontSize: '13px',
-									color: '#374151',
-									marginBottom: '6px',
-								}}
-							>
-								Environment ID <span style={{ color: '#ef4444' }}>*</span>
-							</label>
-							<input
-								id="environmentId"
-								type="text"
-								value={environmentId}
-								onChange={(e) => setEnvironmentId(e.target.value)}
-								placeholder="12345678-1234-1234-1234-123456789012"
-								style={{
-									width: '100%',
-									padding: '10px 12px',
-									border: '1px solid #d1d5db',
-									borderRadius: '4px',
-									fontSize: '14px',
-									fontFamily: 'monospace',
-								}}
-							/>
-						</div>
-
-						{/* Client ID */}
-						<div>
-							<label
-								htmlFor="clientId"
-								style={{
-									display: 'block',
-									fontWeight: '600',
-									fontSize: '13px',
-									color: '#374151',
-									marginBottom: '6px',
-								}}
-							>
-								Client ID <span style={{ color: '#ef4444' }}>*</span>
-							</label>
-							<input
-								id="clientId"
-								type="text"
-								value={clientId}
-								onChange={(e) => setClientId(e.target.value)}
-								placeholder="abc123def456..."
-								style={{
-									width: '100%',
-									padding: '10px 12px',
-									border: '1px solid #d1d5db',
-									borderRadius: '4px',
-									fontSize: '14px',
-									fontFamily: 'monospace',
-								}}
-							/>
-						</div>
-
-						{/* Client Secret */}
-						<div>
-							<label
-								htmlFor="clientSecret"
-								style={{
-									display: 'block',
-									fontWeight: '600',
-									fontSize: '13px',
-									color: '#374151',
-									marginBottom: '6px',
-								}}
-							>
-								Client Secret <span style={{ color: '#ef4444' }}>*</span>
-							</label>
-							<div style={{ position: 'relative' }}>
-								<input
-									id="clientSecret"
-									type={showSecret ? 'text' : 'password'}
-									value={clientSecret}
-									onChange={(e) => setClientSecret(e.target.value)}
-									placeholder="••••••••••••••••"
-									style={{
-										width: '100%',
-										padding: '10px 12px',
-										paddingRight: '40px',
-										border: '1px solid #d1d5db',
-										borderRadius: '4px',
-										fontSize: '14px',
-										fontFamily: 'monospace',
-									}}
-								/>
-								<button
-									type="button"
-									onClick={() => setShowSecret(!showSecret)}
-									style={{
-										position: 'absolute',
-										right: '8px',
-										top: '50%',
-										transform: 'translateY(-50%)',
-										background: 'none',
-										border: 'none',
-										cursor: 'pointer',
-										color: '#6b7280',
-										fontSize: '18px',
-									}}
-								>
-									{showSecret ? '👁️' : '👁️‍🗨️'}
-								</button>
-							</div>
-						</div>
-
-						{/* Scopes */}
-						<div>
-							<label
-								htmlFor="scopes"
-								style={{
-									display: 'block',
-									fontWeight: '600',
-									fontSize: '13px',
-									color: '#374151',
-									marginBottom: '6px',
-								}}
-							>
-								Scopes <span style={{ color: '#ef4444' }}>*</span>
-							</label>
-							<textarea
-								id="scopes"
-								value={scopeInput}
-								onChange={(e) => setScopeInput(e.target.value)}
-								rows={3}
-								style={{
-									width: '100%',
-									padding: '10px 12px',
-									border: '1px solid #d1d5db',
-									borderRadius: '4px',
-									fontSize: '13px',
-									fontFamily: 'monospace',
-									resize: 'vertical',
-								}}
-							/>
-							<small
-								style={{ display: 'block', marginTop: '4px', color: '#6b7280', fontSize: '12px' }}
-							>
-								Space-separated list. Leave empty for default scopes.
-							</small>
-						</div>
-
-						{/* Region */}
-						<div>
-							<label
-								htmlFor="region"
-								style={{
-									display: 'block',
-									fontWeight: '600',
-									fontSize: '13px',
-									color: '#374151',
-									marginBottom: '6px',
-								}}
-							>
-								Region
-							</label>
-							<select
-								id="region"
-								value={region}
-								onChange={(e) => setRegion(e.target.value as 'us' | 'eu' | 'ap' | 'ca')}
-								style={{
-									width: '100%',
-									padding: '10px 12px',
-									border: '1px solid #d1d5db',
-									borderRadius: '4px',
-									fontSize: '14px',
-								}}
-							>
-								<option value="us">North America (US)</option>
-								<option value="eu">Europe (EU)</option>
-								<option value="ap">Asia Pacific (AP)</option>
-								<option value="ca">Canada (CA)</option>
-							</select>
-						</div>
-
-						{/* Custom Domain */}
-						<div>
-							<label
-								htmlFor="customDomain"
-								style={{
-									display: 'block',
-									fontWeight: '600',
-									fontSize: '13px',
-									color: '#374151',
-									marginBottom: '6px',
-								}}
-							>
-								Custom Domain (Optional)
-							</label>
-							<input
-								id="customDomain"
-								type="text"
-								value={customDomain}
-								onChange={(e) => setCustomDomain(e.target.value)}
-								placeholder="auth.yourcompany.com"
-								style={{
-									width: '100%',
-									padding: '10px 12px',
-									border: '1px solid #d1d5db',
-									borderRadius: '4px',
-									fontSize: '14px',
-								}}
-							/>
-							<small
-								style={{ display: 'block', marginTop: '4px', color: '#6b7280', fontSize: '12px' }}
-							>
-								Your custom PingOne domain (e.g., auth.yourcompany.com). If set, this overrides the
-								region-based domain. Leave empty to use the default region domain.
-							</small>
-						</div>
-
-						{/* Token Endpoint Authentication */}
-						<div>
-							<label
-								htmlFor="authMethod"
-								style={{
-									display: 'block',
-									fontWeight: '600',
-									fontSize: '13px',
-									color: '#374151',
-									marginBottom: '6px',
-								}}
-							>
-								Token Endpoint Authentication
-							</label>
-							<select
-								id="authMethod"
-								value={authMethod}
-								onChange={(e) => setAuthMethod(e.target.value as AuthMethodV8)}
-								style={{
-									width: '100%',
-									padding: '10px 12px',
-									border: '1px solid #d1d5db',
-									borderRadius: '4px',
-									fontSize: '14px',
-								}}
-							>
-								{AuthMethodServiceV8.getAvailableMethodsForFlow('client-credentials').map(
-									(method) => (
-										<option key={method} value={method}>
-											{AuthMethodServiceV8.getDisplayLabel(method)}
-										</option>
-									)
-								)}
-							</select>
-							<div style={{ marginTop: '6px', fontSize: '12px', color: '#6b7280' }}>
-								{AuthMethodServiceV8.getMethodConfig(authMethod).description}
-							</div>
-							</div>
-						</form>
-
-						{/* Save Credentials Checkbox */}
-					<div
-						style={{
-							marginTop: '16px',
-							padding: '12px',
-							background: '#f9fafb',
-							borderRadius: '6px',
-							border: '1px solid #e5e7eb',
-						}}
-					>
-						<label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-							<input
-								type="checkbox"
-								checked={saveCredentials}
-								onChange={(e) => setSaveCredentials(e.target.checked)}
-								style={{ cursor: 'pointer' }}
-							/>
-							<span style={{ fontSize: '13px', color: '#374151' }}>
-								💾 Save credentials for next time
-							</span>
-						</label>
-						<small
-							style={{
-								display: 'block',
-								marginTop: '4px',
-								marginLeft: '24px',
-								fontSize: '11px',
-								color: '#6b7280',
-							}}
-						>
-							Credentials are stored securely in your browser's local storage
-						</small>
-					</div>
-
-					{/* Actions */}
-					<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px' }}>
-						{/* Export/Import buttons */}
-						<div style={{ display: 'flex', gap: '8px' }}>
-							<button
-								type="button"
-								onClick={() => {
-									try {
-										if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim()) {
-											toastV8.error('Please fill in all required fields before exporting');
-											return;
-										}
-
-										const normalizedScopes = scopeInput
-											.split(/\s+/)
-											.map((scope) => scope.trim())
-											.filter(Boolean);
-
-										const credentials: WorkerTokenCredentials = {
-											environmentId: environmentId.trim(),
-											clientId: clientId.trim(),
-											clientSecret: clientSecret.trim(),
-											scopes:
-												normalizedScopes.length > 0
-													? normalizedScopes
-													: [PINGONE_WORKER_MFA_SCOPE_STRING],
-											region,
-											customDomain: customDomain.trim() || undefined,
-											authMethod:
-												authMethod === 'client_secret_basic' || authMethod === 'client_secret_post'
-													? authMethod
-													: 'client_secret_basic',
-										};
-
-										exportWorkerTokenCredentials(credentials);
-										toastV8.success('Worker token credentials exported successfully!');
-									} catch (error) {
-										console.error(`${MODULE_TAG} Export error:`, error);
-										toastV8.error(
-											error instanceof Error ? error.message : 'Failed to export credentials'
-										);
-									}
-								}}
-								disabled={isGenerating}
-								style={{
-									flex: 1,
-									padding: '8px 12px',
-									background: 'white',
-									color: '#3b82f6',
-									border: '1px solid #3b82f6',
-									borderRadius: '4px',
-									fontSize: '13px',
-									fontWeight: '500',
-									cursor: isGenerating ? 'not-allowed' : 'pointer',
-									opacity: isGenerating ? 0.65 : 1,
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									gap: '6px',
-								}}
-								title="Export credentials to JSON file"
-							>
-								<FiDownload size={14} />
-								Export
-							</button>
-							<button
-								type="button"
-								onClick={() => {
-									triggerFileImport(async (file) => {
-										try {
-											const imported = await importCredentials(file);
-
-											if (imported.workerToken) {
-												const wt = imported.workerToken;
-												setEnvironmentId(wt.environmentId || environmentId);
-												setClientId(wt.clientId || clientId);
-												setClientSecret(wt.clientSecret || clientSecret);
-												setScopeInput(
-													Array.isArray(wt.scopes) && wt.scopes.length > 0
-														? wt.scopes.join(' ')
-														: scopeInput
+												return (
+													<div
+														style={{
+															marginTop: '8px',
+															padding: '8px',
+															background: autoRenewal ? '#d1fae5' : '#fee2e2',
+															borderRadius: '4px',
+															border: `1px solid ${autoRenewal ? '#86efac' : '#fca5a5'}`,
+															color: autoRenewal ? '#065f46' : '#991b1b',
+														}}
+													>
+														<strong>🔄 Auto-Renewal:</strong>{' '}
+														{autoRenewal ? (
+															<>
+																<strong>Enabled</strong> - Tokens will automatically renew{' '}
+																{renewalThreshold} seconds before expiry during MFA flows.
+															</>
+														) : (
+															<>
+																<strong>Disabled</strong> - You will need to manually generate new
+																tokens when they expire.
+															</>
+														)}{' '}
+														<a
+															href="/v8/mfa-config"
+															onClick={(e) => {
+																e.preventDefault();
+																window.location.href = '/v8/mfa-config';
+															}}
+															style={{
+																color: 'inherit',
+																textDecoration: 'underline',
+																fontWeight: '600',
+															}}
+														>
+															Configure in MFA Settings
+														</a>
+													</div>
 												);
-												setRegion('us'); // Always default to 'us' (.com)
-												setCustomDomain(wt.customDomain || '');
-												if (
-													wt.authMethod &&
-													(wt.authMethod === 'client_secret_basic' ||
-														wt.authMethod === 'client_secret_post')
-												) {
-													setAuthMethod(wt.authMethod);
-												}
-
-												toastV8.success('Worker token credentials imported successfully!');
-											} else {
-												toastV8.error(
-													'The selected file does not contain worker token credentials'
-												);
+											} catch {
+												return null;
 											}
-										} catch (error) {
-											console.error(`${MODULE_TAG} Import error:`, error);
-											toastV8.error(
-												error instanceof Error ? error.message : 'Failed to import credentials'
-											);
-										}
-									});
-								}}
-								disabled={isGenerating}
-								style={{
-									flex: 1,
-									padding: '8px 12px',
-									background: 'white',
-									color: '#10b981',
-									border: '1px solid #10b981',
-									borderRadius: '4px',
-									fontSize: '13px',
-									fontWeight: '500',
-									cursor: isGenerating ? 'not-allowed' : 'pointer',
-									opacity: isGenerating ? 0.65 : 1,
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									gap: '6px',
-								}}
-								title="Import credentials from JSON file"
-							>
-								<FiUpload size={14} />
-								Import
-							</button>
-						</div>
+										})()}
+										<div
+											style={{
+												marginTop: '8px',
+												padding: '8px',
+												background: '#fff7ed',
+												borderRadius: '4px',
+												border: '1px solid #fdba74',
+												color: '#9a3412',
+											}}
+										>
+											<strong>✅ Recommended MFA scopes:</strong>
+											<div style={{ marginTop: '6px', fontFamily: 'monospace', fontSize: '12px' }}>
+												{PINGONE_WORKER_MFA_SCOPE_STRING}
+											</div>
+											<p style={{ marginTop: '6px', fontSize: '12px' }}>
+												You can adjust the scope list below to match your PingOne Worker
+												application.
+											</p>
+										</div>
+									</div>
 
-						{/* Main action buttons */}
-						<div style={{ display: 'flex', gap: '8px' }}>
-							<button
-								type="button"
-								onClick={onClose}
-								style={{
-									flex: 1,
-									padding: '10px 16px',
-									background: '#e5e7eb',
-									color: '#1f2937',
-									border: 'none',
-									borderRadius: '4px',
-									fontSize: '14px',
-									fontWeight: '600',
-									cursor: 'pointer',
-								}}
-							>
-								Cancel
-							</button>
-							<button
-								type="button"
-								onClick={handleGenerate}
-								disabled={isGenerating}
-								style={{
-									flex: 1,
-									padding: '10px 16px',
-									background: isGenerating ? '#9ca3af' : '#3b82f6',
-									color: 'white',
-									border: 'none',
-									borderRadius: '4px',
-									fontSize: '14px',
-									fontWeight: '600',
-									cursor: isGenerating ? 'not-allowed' : 'pointer',
-								}}
-							>
-								{isGenerating ? '🔄 Generating...' : '🔑 Generate Token'}
-							</button>
-						</div>
-					</div>
+									{/* How to Get Credentials */}
+									<div
+										style={{
+											padding: '12px',
+											background: '#f0fdf4',
+											borderRadius: '6px',
+											border: '1px solid #86efac',
+											marginBottom: '20px',
+											fontSize: '12px',
+											color: '#166534',
+											lineHeight: '1.5',
+										}}
+									>
+										<div style={{ marginBottom: '6px', fontWeight: '600' }}>
+											📝 How to get these credentials:
+										</div>
+										<ol style={{ margin: '0', paddingLeft: '20px' }}>
+											<li>Go to PingOne Console → Connections → Applications</li>
+											<li>Create or select a Worker application</li>
+											<li>Copy the Environment ID, Client ID, and Client Secret</li>
+											<li>Ensure the app has required roles assigned</li>
+											<li>
+												Set <strong>Token Endpoint Auth Method</strong> to match your Worker app. If
+												you see “client authentication failed”, try switching between{' '}
+												<em>Client Secret Post</em> and <em>Client Secret Basic</em>.
+											</li>
+										</ol>
+									</div>
+
+									{/* Form Fields */}
+									<form
+										onSubmit={(e) => {
+											e.preventDefault();
+											handleGenerate();
+										}}
+										style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+									>
+										{/* Environment ID */}
+										<div>
+											<label
+												htmlFor="environmentId"
+												style={{
+													display: 'block',
+													fontWeight: '600',
+													fontSize: '13px',
+													color: '#374151',
+													marginBottom: '6px',
+												}}
+											>
+												Environment ID <span style={{ color: '#ef4444' }}>*</span>
+											</label>
+											<input
+												id="environmentId"
+												type="text"
+												value={environmentId}
+												onChange={(e) => setEnvironmentId(e.target.value)}
+												placeholder="12345678-1234-1234-1234-123456789012"
+												style={{
+													width: '100%',
+													padding: '10px 12px',
+													border: '1px solid #d1d5db',
+													borderRadius: '4px',
+													fontSize: '14px',
+													fontFamily: 'monospace',
+												}}
+											/>
+										</div>
+
+										{/* Client ID */}
+										<div>
+											<label
+												htmlFor="clientId"
+												style={{
+													display: 'block',
+													fontWeight: '600',
+													fontSize: '13px',
+													color: '#374151',
+													marginBottom: '6px',
+												}}
+											>
+												Client ID <span style={{ color: '#ef4444' }}>*</span>
+											</label>
+											<input
+												id="clientId"
+												type="text"
+												value={clientId}
+												onChange={(e) => setClientId(e.target.value)}
+												placeholder="abc123def456..."
+												style={{
+													width: '100%',
+													padding: '10px 12px',
+													border: '1px solid #d1d5db',
+													borderRadius: '4px',
+													fontSize: '14px',
+													fontFamily: 'monospace',
+												}}
+											/>
+										</div>
+
+										{/* Client Secret */}
+										<div>
+											<label
+												htmlFor="clientSecret"
+												style={{
+													display: 'block',
+													fontWeight: '600',
+													fontSize: '13px',
+													color: '#374151',
+													marginBottom: '6px',
+												}}
+											>
+												Client Secret <span style={{ color: '#ef4444' }}>*</span>
+											</label>
+											<div style={{ position: 'relative' }}>
+												<input
+													id="clientSecret"
+													type={showSecret ? 'text' : 'password'}
+													value={clientSecret}
+													onChange={(e) => setClientSecret(e.target.value)}
+													placeholder="••••••••••••••••"
+													style={{
+														width: '100%',
+														padding: '10px 12px',
+														paddingRight: '40px',
+														border: '1px solid #d1d5db',
+														borderRadius: '4px',
+														fontSize: '14px',
+														fontFamily: 'monospace',
+													}}
+												/>
+												<button
+													type="button"
+													onClick={() => setShowSecret(!showSecret)}
+													style={{
+														position: 'absolute',
+														right: '8px',
+														top: '50%',
+														transform: 'translateY(-50%)',
+														background: 'none',
+														border: 'none',
+														cursor: 'pointer',
+														color: '#6b7280',
+														fontSize: '18px',
+													}}
+												>
+													{showSecret ? '👁️' : '👁️‍🗨️'}
+												</button>
+											</div>
+										</div>
+
+										{/* Scopes */}
+										<div>
+											<label
+												htmlFor="scopes"
+												style={{
+													display: 'block',
+													fontWeight: '600',
+													fontSize: '13px',
+													color: '#374151',
+													marginBottom: '6px',
+												}}
+											>
+												Scopes <span style={{ color: '#ef4444' }}>*</span>
+											</label>
+											<textarea
+												id="scopes"
+												value={scopeInput}
+												onChange={(e) => setScopeInput(e.target.value)}
+												rows={3}
+												style={{
+													width: '100%',
+													padding: '10px 12px',
+													border: '1px solid #d1d5db',
+													borderRadius: '4px',
+													fontSize: '13px',
+													fontFamily: 'monospace',
+													resize: 'vertical',
+												}}
+											/>
+											<small
+												style={{
+													display: 'block',
+													marginTop: '4px',
+													color: '#6b7280',
+													fontSize: '12px',
+												}}
+											>
+												Space-separated list. Leave empty for default scopes.
+											</small>
+										</div>
+
+										{/* Region */}
+										<div>
+											<label
+												htmlFor="region"
+												style={{
+													display: 'block',
+													fontWeight: '600',
+													fontSize: '13px',
+													color: '#374151',
+													marginBottom: '6px',
+												}}
+											>
+												Region
+											</label>
+											<select
+												id="region"
+												value={region}
+												onChange={(e) => setRegion(e.target.value as 'us' | 'eu' | 'ap' | 'ca')}
+												style={{
+													width: '100%',
+													padding: '10px 12px',
+													border: '1px solid #d1d5db',
+													borderRadius: '4px',
+													fontSize: '14px',
+												}}
+											>
+												<option value="us">North America (US)</option>
+												<option value="eu">Europe (EU)</option>
+												<option value="ap">Asia Pacific (AP)</option>
+												<option value="ca">Canada (CA)</option>
+											</select>
+										</div>
+
+										{/* Custom Domain */}
+										<div>
+											<label
+												htmlFor="customDomain"
+												style={{
+													display: 'block',
+													fontWeight: '600',
+													fontSize: '13px',
+													color: '#374151',
+													marginBottom: '6px',
+												}}
+											>
+												Custom Domain (Optional)
+											</label>
+											<input
+												id="customDomain"
+												type="text"
+												value={customDomain}
+												onChange={(e) => setCustomDomain(e.target.value)}
+												placeholder="auth.yourcompany.com"
+												style={{
+													width: '100%',
+													padding: '10px 12px',
+													border: '1px solid #d1d5db',
+													borderRadius: '4px',
+													fontSize: '14px',
+												}}
+											/>
+											<small
+												style={{
+													display: 'block',
+													marginTop: '4px',
+													color: '#6b7280',
+													fontSize: '12px',
+												}}
+											>
+												Your custom PingOne domain (e.g., auth.yourcompany.com). If set, this
+												overrides the region-based domain. Leave empty to use the default region
+												domain.
+											</small>
+										</div>
+
+										{/* Token Endpoint Authentication */}
+										<div>
+											<label
+												htmlFor="authMethod"
+												style={{
+													display: 'block',
+													fontWeight: '600',
+													fontSize: '13px',
+													color: '#374151',
+													marginBottom: '6px',
+												}}
+											>
+												Token Endpoint Authentication
+											</label>
+											<select
+												id="authMethod"
+												value={authMethod}
+												onChange={(e) => setAuthMethod(e.target.value as AuthMethodV8)}
+												style={{
+													width: '100%',
+													padding: '10px 12px',
+													border: '1px solid #d1d5db',
+													borderRadius: '4px',
+													fontSize: '14px',
+												}}
+											>
+												{AuthMethodServiceV8.getAvailableMethodsForFlow('client-credentials').map(
+													(method) => (
+														<option key={method} value={method}>
+															{AuthMethodServiceV8.getDisplayLabel(method)}
+														</option>
+													)
+												)}
+											</select>
+											<div style={{ marginTop: '6px', fontSize: '12px', color: '#6b7280' }}>
+												{AuthMethodServiceV8.getMethodConfig(authMethod).description}
+											</div>
+										</div>
+									</form>
+
+									{/* Save Credentials Checkbox */}
+									<div
+										style={{
+											marginTop: '16px',
+											padding: '12px',
+											background: '#f9fafb',
+											borderRadius: '6px',
+											border: '1px solid #e5e7eb',
+										}}
+									>
+										<label
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
+											<input
+												type="checkbox"
+												checked={saveCredentials}
+												onChange={(e) => setSaveCredentials(e.target.checked)}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '13px', color: '#374151' }}>
+												💾 Save credentials for next time
+											</span>
+										</label>
+										<small
+											style={{
+												display: 'block',
+												marginTop: '4px',
+												marginLeft: '24px',
+												fontSize: '11px',
+												color: '#6b7280',
+											}}
+										>
+											Credentials are stored securely in your browser's local storage
+										</small>
+									</div>
+
+									{/* Actions */}
+									<div
+										style={{
+											display: 'flex',
+											flexDirection: 'column',
+											gap: '12px',
+											marginTop: '20px',
+										}}
+									>
+										{/* Export/Import buttons */}
+										<div style={{ display: 'flex', gap: '8px' }}>
+											<button
+												type="button"
+												onClick={() => {
+													try {
+														if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim()) {
+															toastV8.error('Please fill in all required fields before exporting');
+															return;
+														}
+
+														const normalizedScopes = scopeInput
+															.split(/\s+/)
+															.map((scope) => scope.trim())
+															.filter(Boolean);
+
+														const credentials: WorkerTokenCredentials = {
+															environmentId: environmentId.trim(),
+															clientId: clientId.trim(),
+															clientSecret: clientSecret.trim(),
+															scopes:
+																normalizedScopes.length > 0
+																	? normalizedScopes
+																	: [PINGONE_WORKER_MFA_SCOPE_STRING],
+															region,
+															customDomain: customDomain.trim() || undefined,
+															authMethod:
+																authMethod === 'client_secret_basic' ||
+																authMethod === 'client_secret_post'
+																	? authMethod
+																	: 'client_secret_basic',
+														};
+
+														exportWorkerTokenCredentials(credentials);
+														toastV8.success('Worker token credentials exported successfully!');
+													} catch (error) {
+														console.error(`${MODULE_TAG} Export error:`, error);
+														toastV8.error(
+															error instanceof Error
+																? error.message
+																: 'Failed to export credentials'
+														);
+													}
+												}}
+												disabled={isGenerating}
+												style={{
+													flex: 1,
+													padding: '8px 12px',
+													background: 'white',
+													color: '#3b82f6',
+													border: '1px solid #3b82f6',
+													borderRadius: '4px',
+													fontSize: '13px',
+													fontWeight: '500',
+													cursor: isGenerating ? 'not-allowed' : 'pointer',
+													opacity: isGenerating ? 0.65 : 1,
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+													gap: '6px',
+												}}
+												title="Export credentials to JSON file"
+											>
+												<FiDownload size={14} />
+												Export
+											</button>
+											<button
+												type="button"
+												onClick={() => {
+													triggerFileImport(async (file) => {
+														try {
+															const imported = await importCredentials(file);
+
+															if (imported.workerToken) {
+																const wt = imported.workerToken;
+																setEnvironmentId(wt.environmentId || environmentId);
+																setClientId(wt.clientId || clientId);
+																setClientSecret(wt.clientSecret || clientSecret);
+																setScopeInput(
+																	Array.isArray(wt.scopes) && wt.scopes.length > 0
+																		? wt.scopes.join(' ')
+																		: scopeInput
+																);
+																setRegion('us'); // Always default to 'us' (.com)
+																setCustomDomain(wt.customDomain || '');
+																if (
+																	wt.authMethod &&
+																	(wt.authMethod === 'client_secret_basic' ||
+																		wt.authMethod === 'client_secret_post')
+																) {
+																	setAuthMethod(wt.authMethod);
+																}
+
+																toastV8.success('Worker token credentials imported successfully!');
+															} else {
+																toastV8.error(
+																	'The selected file does not contain worker token credentials'
+																);
+															}
+														} catch (error) {
+															console.error(`${MODULE_TAG} Import error:`, error);
+															toastV8.error(
+																error instanceof Error
+																	? error.message
+																	: 'Failed to import credentials'
+															);
+														}
+													});
+												}}
+												disabled={isGenerating}
+												style={{
+													flex: 1,
+													padding: '8px 12px',
+													background: 'white',
+													color: '#10b981',
+													border: '1px solid #10b981',
+													borderRadius: '4px',
+													fontSize: '13px',
+													fontWeight: '500',
+													cursor: isGenerating ? 'not-allowed' : 'pointer',
+													opacity: isGenerating ? 0.65 : 1,
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+													gap: '6px',
+												}}
+												title="Import credentials from JSON file"
+											>
+												<FiUpload size={14} />
+												Import
+											</button>
+										</div>
+
+										{/* Main action buttons */}
+										<div style={{ display: 'flex', gap: '8px' }}>
+											<button
+												type="button"
+												onClick={onClose}
+												style={{
+													flex: 1,
+													padding: '10px 16px',
+													background: '#e5e7eb',
+													color: '#1f2937',
+													border: 'none',
+													borderRadius: '4px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: 'pointer',
+												}}
+											>
+												Cancel
+											</button>
+											<button
+												type="button"
+												onClick={handleGenerate}
+												disabled={isGenerating}
+												style={{
+													flex: 1,
+													padding: '10px 16px',
+													background: isGenerating ? '#9ca3af' : '#3b82f6',
+													color: 'white',
+													border: 'none',
+													borderRadius: '4px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: isGenerating ? 'not-allowed' : 'pointer',
+												}}
+											>
+												{isGenerating ? '🔄 Generating...' : '🔑 Generate Token'}
+											</button>
+										</div>
+									</div>
 								</>
 							)}
 						</>

@@ -1,20 +1,21 @@
 #!/usr/bin/env node
+
 /**
  * @file lockdown.mjs
  * @description Lockdown verification and approval system for critical MFA flow files
  * @version 1.0.0
- * 
+ *
  * This script verifies that critical files have not been modified by comparing
  * their current content with snapshots stored in the lockdown directory.
- * 
+ *
  * Usage:
  *   node scripts/lockdown/lockdown.mjs verify <flow>  - Verify files match snapshots
  *   node scripts/lockdown/lockdown.mjs approve <flow> - Update snapshots with current files
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { join, dirname } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -134,7 +135,9 @@ function verify(flow) {
 
 	if (allMatch) {
 		console.log('');
-		console.log(`✅ ${flow.toUpperCase()} lockdown verification passed - all files match snapshots`);
+		console.log(
+			`✅ ${flow.toUpperCase()} lockdown verification passed - all files match snapshots`
+		);
 		process.exit(0);
 	} else {
 		console.log('');
@@ -249,4 +252,3 @@ if (command === 'verify') {
 	console.error('Use "verify" or "approve"');
 	process.exit(1);
 }
-

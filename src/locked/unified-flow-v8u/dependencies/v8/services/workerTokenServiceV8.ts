@@ -144,14 +144,34 @@ class WorkerTokenServiceV8 {
 	async loadCredentials(): Promise<WorkerTokenCredentials | null> {
 		// Import analytics utility once for this function
 		const { safeAnalyticsFetch } = await import('@/v8/utils/analyticsServerCheckV8');
-		
+
 		// #region agent log (only if analytics server is available)
-		safeAnalyticsFetch({location:'workerTokenServiceV8.ts:144',message:'loadCredentials called',data:{hasMemoryCache:!!this.memoryCache,storageKey:BROWSER_STORAGE_KEY},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
+		safeAnalyticsFetch({
+			location: 'workerTokenServiceV8.ts:144',
+			message: 'loadCredentials called',
+			data: { hasMemoryCache: !!this.memoryCache, storageKey: BROWSER_STORAGE_KEY },
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run2',
+			hypothesisId: 'C',
+		});
 		// #endregion
 		// Try memory cache first
 		if (this.memoryCache) {
 			// #region agent log (only if analytics server is available)
-			safeAnalyticsFetch({location:'workerTokenServiceV8.ts:147',message:'Using memory cache',data:{hasEnvironmentId:!!this.memoryCache.environmentId,hasClientId:!!this.memoryCache.clientId,hasClientSecret:!!this.memoryCache.clientSecret},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
+			safeAnalyticsFetch({
+				location: 'workerTokenServiceV8.ts:147',
+				message: 'Using memory cache',
+				data: {
+					hasEnvironmentId: !!this.memoryCache.environmentId,
+					hasClientId: !!this.memoryCache.clientId,
+					hasClientSecret: !!this.memoryCache.clientSecret,
+				},
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'run2',
+				hypothesisId: 'C',
+			});
 			// #endregion
 			return this.extractCredentials(this.memoryCache);
 		}
@@ -160,24 +180,70 @@ class WorkerTokenServiceV8 {
 		try {
 			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
 			// #region agent log (only if analytics server is available)
-			safeAnalyticsFetch({location:'workerTokenServiceV8.ts:152',message:'Checking browser storage',data:{hasStored:!!stored,storageKey:BROWSER_STORAGE_KEY,storedLength:stored?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
+			safeAnalyticsFetch({
+				location: 'workerTokenServiceV8.ts:152',
+				message: 'Checking browser storage',
+				data: {
+					hasStored: !!stored,
+					storageKey: BROWSER_STORAGE_KEY,
+					storedLength: stored?.length,
+				},
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'run2',
+				hypothesisId: 'C',
+			});
 			// #endregion
 			if (stored) {
 				const data: WorkerTokenData = JSON.parse(stored);
 				// #region agent log (only if analytics server is available)
-				safeAnalyticsFetch({location:'workerTokenServiceV8.ts:155',message:'Parsed storage data',data:{hasEnvironmentId:!!data.environmentId,hasClientId:!!data.clientId,hasClientSecret:!!data.clientSecret,hasScopes:!!data.scopes},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
+				safeAnalyticsFetch({
+					location: 'workerTokenServiceV8.ts:155',
+					message: 'Parsed storage data',
+					data: {
+						hasEnvironmentId: !!data.environmentId,
+						hasClientId: !!data.clientId,
+						hasClientSecret: !!data.clientSecret,
+						hasScopes: !!data.scopes,
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'run2',
+					hypothesisId: 'C',
+				});
 				// #endregion
 				this.memoryCache = data;
 				const extracted = this.extractCredentials(data);
 				// #region agent log (only if analytics server is available)
-				safeAnalyticsFetch({location:'workerTokenServiceV8.ts:157',message:'Extracted credentials',data:{hasExtracted:!!extracted,hasExtractedEnvId:!!extracted?.environmentId,hasExtractedClientId:!!extracted?.clientId,hasExtractedClientSecret:!!extracted?.clientSecret},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
+				safeAnalyticsFetch({
+					location: 'workerTokenServiceV8.ts:157',
+					message: 'Extracted credentials',
+					data: {
+						hasExtracted: !!extracted,
+						hasExtractedEnvId: !!extracted?.environmentId,
+						hasExtractedClientId: !!extracted?.clientId,
+						hasExtractedClientSecret: !!extracted?.clientSecret,
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'run2',
+					hypothesisId: 'C',
+				});
 				// #endregion
 				return extracted;
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load from browser storage`, error);
 			// #region agent log (only if analytics server is available)
-			safeAnalyticsFetch({location:'workerTokenServiceV8.ts:160',message:'Error loading from browser storage',data:{errorMessage:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
+			safeAnalyticsFetch({
+				location: 'workerTokenServiceV8.ts:160',
+				message: 'Error loading from browser storage',
+				data: { errorMessage: error instanceof Error ? error.message : String(error) },
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'run2',
+				hypothesisId: 'C',
+			});
 			// #endregion
 		}
 
@@ -211,7 +277,15 @@ class WorkerTokenServiceV8 {
 		try {
 			const legacyStored = localStorage.getItem('worker_credentials');
 			// #region agent log (only if analytics server is available)
-			safeAnalyticsFetch({location:'workerTokenServiceV8.ts:188',message:'Checking legacy storage key',data:{hasLegacyStored:!!legacyStored},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
+			safeAnalyticsFetch({
+				location: 'workerTokenServiceV8.ts:188',
+				message: 'Checking legacy storage key',
+				data: { hasLegacyStored: !!legacyStored },
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'run2',
+				hypothesisId: 'C',
+			});
 			// #endregion
 			if (legacyStored) {
 				const legacyData = JSON.parse(legacyStored);
@@ -221,13 +295,30 @@ class WorkerTokenServiceV8 {
 					environmentId: legacyData.environmentId,
 					clientId: legacyData.clientId,
 					clientSecret: legacyData.clientSecret,
-					scopes: legacyData.scopes ? (Array.isArray(legacyData.scopes) ? legacyData.scopes : legacyData.scopes.split(/\s+/).filter(Boolean)) : [],
+					scopes: legacyData.scopes
+						? Array.isArray(legacyData.scopes)
+							? legacyData.scopes
+							: legacyData.scopes.split(/\s+/).filter(Boolean)
+						: [],
 					region: legacyData.region || 'us',
-					tokenEndpointAuthMethod: legacyData.authMethod || legacyData.tokenEndpointAuthMethod || 'client_secret_post',
+					tokenEndpointAuthMethod:
+						legacyData.authMethod || legacyData.tokenEndpointAuthMethod || 'client_secret_post',
 					savedAt: Date.now(),
 				};
 				// #region agent log (only if analytics server is available)
-				safeAnalyticsFetch({location:'workerTokenServiceV8.ts:200',message:'Found legacy credentials, converting',data:{hasEnvironmentId:!!convertedData.environmentId,hasClientId:!!convertedData.clientId,hasClientSecret:!!convertedData.clientSecret},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
+				safeAnalyticsFetch({
+					location: 'workerTokenServiceV8.ts:200',
+					message: 'Found legacy credentials, converting',
+					data: {
+						hasEnvironmentId: !!convertedData.environmentId,
+						hasClientId: !!convertedData.clientId,
+						hasClientSecret: !!convertedData.clientSecret,
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'run2',
+					hypothesisId: 'C',
+				});
 				// #endregion
 				// Save to new format and cache
 				this.memoryCache = convertedData;
@@ -241,7 +332,15 @@ class WorkerTokenServiceV8 {
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load from legacy storage`, error);
 			// #region agent log (only if analytics server is available)
-			safeAnalyticsFetch({location:'workerTokenServiceV8.ts:212',message:'Error loading legacy credentials',data:{errorMessage:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
+			safeAnalyticsFetch({
+				location: 'workerTokenServiceV8.ts:212',
+				message: 'Error loading legacy credentials',
+				data: { errorMessage: error instanceof Error ? error.message : String(error) },
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'run2',
+				hypothesisId: 'C',
+			});
 			// #endregion
 		}
 
@@ -280,9 +379,14 @@ class WorkerTokenServiceV8 {
 					environmentId: legacyData.environmentId,
 					clientId: legacyData.clientId,
 					clientSecret: legacyData.clientSecret,
-					scopes: legacyData.scopes ? (Array.isArray(legacyData.scopes) ? legacyData.scopes : legacyData.scopes.split(/\s+/).filter(Boolean)) : [],
+					scopes: legacyData.scopes
+						? Array.isArray(legacyData.scopes)
+							? legacyData.scopes
+							: legacyData.scopes.split(/\s+/).filter(Boolean)
+						: [],
 					region: legacyData.region || 'us',
-					tokenEndpointAuthMethod: legacyData.authMethod || legacyData.tokenEndpointAuthMethod || 'client_secret_post',
+					tokenEndpointAuthMethod:
+						legacyData.authMethod || legacyData.tokenEndpointAuthMethod || 'client_secret_post',
 					savedAt: Date.now(),
 				};
 				// Save to new format and cache
@@ -290,7 +394,10 @@ class WorkerTokenServiceV8 {
 				try {
 					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(convertedData));
 				} catch (error) {
-					console.warn(`${MODULE_TAG} Failed to migrate legacy credentials to new storage (sync)`, error);
+					console.warn(
+						`${MODULE_TAG} Failed to migrate legacy credentials to new storage (sync)`,
+						error
+					);
 				}
 				return this.extractCredentials(convertedData);
 			}
@@ -465,11 +572,26 @@ class WorkerTokenServiceV8 {
 		// #region agent log (only if analytics server is available)
 		// Note: This is a synchronous method, so we can't await the check
 		// Use fire-and-forget pattern to avoid blocking
-		import('@/v8/utils/analyticsServerCheckV8').then(({ safeAnalyticsFetch }) => {
-			safeAnalyticsFetch({location:'workerTokenServiceV8.ts:394',message:'extractCredentials called',data:{hasData:!!data,hasEnvironmentId:!!data?.environmentId,hasClientId:!!data?.clientId,hasClientSecret:!!data?.clientSecret},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
-		}).catch(() => {
-			// Silently ignore import or fetch errors
-		});
+		import('@/v8/utils/analyticsServerCheckV8')
+			.then(({ safeAnalyticsFetch }) => {
+				safeAnalyticsFetch({
+					location: 'workerTokenServiceV8.ts:394',
+					message: 'extractCredentials called',
+					data: {
+						hasData: !!data,
+						hasEnvironmentId: !!data?.environmentId,
+						hasClientId: !!data?.clientId,
+						hasClientSecret: !!data?.clientSecret,
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'run2',
+					hypothesisId: 'C',
+				});
+			})
+			.catch(() => {
+				// Silently ignore import or fetch errors
+			});
 		// #endregion
 		return {
 			environmentId: data.environmentId,

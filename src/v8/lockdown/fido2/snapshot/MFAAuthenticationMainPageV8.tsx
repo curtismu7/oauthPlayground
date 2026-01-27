@@ -37,6 +37,11 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { pingOneLogoutService } from '@/services/pingOneLogoutService';
+import {
+	downloadPostmanCollectionWithEnvironment,
+	generateCompletePostmanCollection,
+	generateComprehensiveMFAPostmanCollection,
+} from '@/services/postmanCollectionGeneratorV8';
 import { oauthStorage } from '@/utils/storage';
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
 import { DeviceFailureModalV8, UnavailableDevice } from '@/v8/components/DeviceFailureModalV8';
@@ -44,35 +49,39 @@ import { MFACooldownModalV8 } from '@/v8/components/MFACooldownModalV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import {
+	DangerButton,
+	PrimaryButton,
+	SecondaryButton,
+	SuccessButton,
+} from '@/v8/components/shared/ActionButtonV8';
+import {
+	PageHeaderGradients,
+	PageHeaderTextColors,
+	PageHeaderV8,
+} from '@/v8/components/shared/PageHeaderV8';
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { PageHeaderV8, PageHeaderGradients, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
-import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
+import { useActionButton } from '@/v8/hooks/useActionButton';
+import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { PrimaryButton, SecondaryButton, SuccessButton, DangerButton } from '@/v8/components/shared/ActionButtonV8';
-import { useActionButton } from '@/v8/hooks/useActionButton';
-import {
-	generateComprehensiveMFAPostmanCollection,
-	generateCompletePostmanCollection,
-	downloadPostmanCollectionWithEnvironment,
-} from '@/services/postmanCollectionGeneratorV8';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import { MFAOTPInput } from './components/MFAOTPInput';
 import {
-	MFAPolicyInfoModal,
 	MFADeviceSelectionInfoModal,
-	MFAOTPInputModal,
-	MFAPushConfirmationModal,
 	MFAFIDO2ChallengeModal,
+	MFAOTPInputModal,
+	MFAPolicyInfoModal,
+	MFAPushConfirmationModal,
 } from './components/modals';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V8]';
@@ -153,13 +162,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const authContext = useAuth();
 	const [isClearingTokens, setIsClearingTokens] = useState(false);
 	const [showClearTokensModal, setShowClearTokensModal] = useState(false);
-	
+
 	// Action button hooks for consistent button state management
 	const startMFAAction = useActionButton();
 	const registerDeviceAction = useActionButton();
 	const usernamelessFIDO2Action = useActionButton();
 	const clearTokensAction = useActionButton();
-	
+
 	usePageScroll({ pageName: 'MFA Authentication', force: true });
 
 	// Check for OAuth callback code and redirect to the correct flow page
@@ -241,7 +250,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
 	);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	
+
 	// Worker Token Settings State - Load fresh from config service (no cache)
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
 		// Always load fresh from config service, don't rely on cached state
@@ -440,13 +449,15 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 								await workerTokenServiceV8.saveToken(data.access_token, expiresAt);
 
-								console.log(`${MODULE_TAG} ✅ Worker token auto-refreshed successfully (attempt ${attempt})`);
+								console.log(
+									`${MODULE_TAG} ✅ Worker token auto-refreshed successfully (attempt ${attempt})`
+								);
 								window.dispatchEvent(new Event('workerTokenUpdated'));
-								
+
 								// Update token status
 								const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 								setTokenStatus(newStatus);
-								
+
 								toastV8.success('Worker token automatically refreshed!');
 								return; // Success, exit retry loop
 							}
@@ -463,7 +474,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 						// Wait before retrying (exponential backoff)
 						if (attempt < retryAttempts) {
-							const delay = retryDelay * Math.pow(2, attempt - 1); // Exponential backoff
+							const delay = retryDelay * 2 ** (attempt - 1); // Exponential backoff
 							await new Promise((resolve) => setTimeout(resolve, delay));
 						}
 					}
@@ -579,7 +590,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 		// Listen for config updates
 		const handleConfigUpdate = (event: Event) => {
-			const customEvent = event as CustomEvent<{ workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean } }>;
+			const customEvent = event as CustomEvent<{
+				workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean };
+			}>;
 			// Always reload fresh from config service when event fires (no cache)
 			const config = MFAConfigurationServiceV8.loadConfiguration();
 			setSilentApiRetrieval(config.workerToken.silentApiRetrieval);
@@ -608,7 +621,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			clearInterval(interval);
 		};
 	}, []);
-
 
 	// Poll Push authentication status
 	useEffect(() => {
@@ -1286,17 +1298,17 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const handleClearTokens = useCallback(async () => {
 		setShowClearTokensModal(false);
 		setIsClearingTokens(true);
-		
+
 		// Ensure spinner shows before starting async operations
 		await new Promise((resolve) => {
 			requestAnimationFrame(() => {
 				setTimeout(resolve, 100);
 			});
 		});
-		
+
 		const startTime = Date.now();
 		const minDisplayTime = 800; // Minimum time to show spinner (ms)
-		
+
 		try {
 			// End PingOne session first (if we have an ID token)
 			const tokens = oauthStorage.getTokens();
@@ -1447,8 +1459,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							});
 							const date = new Date().toISOString().split('T')[0];
 							const filename = `pingone-mfa-flows-complete-${date}-collection.json`;
-							downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne MFA Flows Environment');
-							toastV8.success('Postman collection and environment downloaded! Import both into Postman to test all MFA flows.');
+							downloadPostmanCollectionWithEnvironment(
+								collection,
+								filename,
+								'PingOne MFA Flows Environment'
+							);
+							toastV8.success(
+								'Postman collection and environment downloaded! Import both into Postman to test all MFA flows.'
+							);
 						}}
 						style={{
 							display: 'flex',
@@ -1506,8 +1524,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							});
 							const date = new Date().toISOString().split('T')[0];
 							const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
-							downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Complete Collection Environment');
-							toastV8.success('Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.');
+							downloadPostmanCollectionWithEnvironment(
+								collection,
+								filename,
+								'PingOne Complete Collection Environment'
+							);
+							toastV8.success(
+								'Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.'
+							);
 						}}
 						style={{
 							display: 'flex',
@@ -1743,15 +1767,17 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						<button
 							type="button"
 							onClick={async () => {
-								const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+								const { handleShowWorkerTokenModal } = await import(
+									'@/v8/utils/workerTokenModalHelperV8'
+								);
 								// Pass current checkbox values to override config (page checkboxes take precedence)
 								// forceShowModal=true because user explicitly clicked the button - always show modal
 								await handleShowWorkerTokenModal(
-									setShowWorkerTokenModal, 
+									setShowWorkerTokenModal,
 									setTokenStatus,
-									silentApiRetrieval,  // Page checkbox value takes precedence
-									showTokenAtEnd,      // Page checkbox value takes precedence
-									true                  // Force show modal - user clicked button
+									silentApiRetrieval, // Page checkbox value takes precedence
+									showTokenAtEnd, // Page checkbox value takes precedence
+									true // Force show modal - user clicked button
 								);
 							}}
 							style={{
@@ -1811,7 +1837,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							)}
 						</div>
 					</div>
-					
+
 					{/* Worker Token Settings Checkboxes */}
 					<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 						<label
@@ -1843,21 +1869,29 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									config.workerToken.silentApiRetrieval = newValue;
 									MFAConfigurationServiceV8.saveConfiguration(config);
 									// Dispatch event to notify other components
-									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+									window.dispatchEvent(
+										new CustomEvent('mfaConfigurationUpdated', {
+											detail: { workerToken: config.workerToken },
+										})
+									);
 									toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
-									
+
 									// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 									if (newValue) {
 										const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 										if (!currentStatus.isValid) {
-											console.log('[MFA-AUTHN-MAIN-V8] Silent API retrieval enabled, attempting to fetch token now...');
-											const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+											console.log(
+												'[MFA-AUTHN-MAIN-V8] Silent API retrieval enabled, attempting to fetch token now...'
+											);
+											const { handleShowWorkerTokenModal } = await import(
+												'@/v8/utils/workerTokenModalHelperV8'
+											);
 											await handleShowWorkerTokenModal(
 												setShowWorkerTokenModal,
 												setTokenStatus,
-												newValue,  // Use new value
+												newValue, // Use new value
 												showTokenAtEnd,
-												false      // Not forced - respect silent setting
+												false // Not forced - respect silent setting
 											);
 										}
 									}
@@ -1909,7 +1943,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									config.workerToken.showTokenAtEnd = newValue;
 									MFAConfigurationServiceV8.saveConfiguration(config);
 									// Dispatch event to notify other components
-									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+									window.dispatchEvent(
+										new CustomEvent('mfaConfigurationUpdated', {
+											detail: { workerToken: config.workerToken },
+										})
+									);
 									toastV8.info(`Show Token After Generation set to: ${newValue}`);
 								}}
 								style={{
@@ -4462,20 +4500,27 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															}
 														} catch (error) {
 															console.error(`${MODULE_TAG} Failed to select device:`, error);
-															
+
 															// Check for LIMIT_EXCEEDED error (cooldown/lockout)
 															const errorWithCode = error as Error & {
 																errorCode?: string;
 																deliveryMethod?: string;
 																coolDownExpiresAt?: number;
 															};
-															
+
 															if (errorWithCode.errorCode === 'LIMIT_EXCEEDED') {
-																const errorMessage = error instanceof Error ? error.message : 'Authentication temporarily locked';
+																const errorMessage =
+																	error instanceof Error
+																		? error.message
+																		: 'Authentication temporarily locked';
 																setCooldownError({
 																	message: errorMessage,
-																	...(errorWithCode.deliveryMethod ? { deliveryMethod: errorWithCode.deliveryMethod } : {}),
-																	...(errorWithCode.coolDownExpiresAt ? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt } : {}),
+																	...(errorWithCode.deliveryMethod
+																		? { deliveryMethod: errorWithCode.deliveryMethod }
+																		: {}),
+																	...(errorWithCode.coolDownExpiresAt
+																		? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt }
+																		: {}),
 																});
 																toastV8.warning(errorMessage);
 															} else {
@@ -4943,15 +4988,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							let completionResult = null;
 							if (updatedLinks['complete']?.href) {
 								try {
-									completionResult =
-										await MfaAuthenticationServiceV8.completeAuthentication(
-											updatedLinks['complete'].href
-										);
-								} catch (completeError) {
-									console.warn(
-										`${MODULE_TAG} Failed to complete authentication:`,
-										completeError
+									completionResult = await MfaAuthenticationServiceV8.completeAuthentication(
+										updatedLinks['complete'].href
 									);
+								} catch (completeError) {
+									console.warn(`${MODULE_TAG} Failed to complete authentication:`, completeError);
 									// Continue even if completion fails - OTP was validated successfully
 								}
 							}
@@ -4968,8 +5009,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								(p) => p.id === credentials.deviceAuthenticationPolicyId
 							);
 							const policyName = selectedPolicy?.name;
-							const deviceSelectionBehavior = selectedPolicy?.authentication
-								?.deviceSelection as string | undefined;
+							const deviceSelectionBehavior = selectedPolicy?.authentication?.deviceSelection as
+								| string
+								| undefined;
 
 							// Navigate to success page with completion result
 							navigate('/v8/mfa/authentication/success', {
@@ -5004,16 +5046,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								},
 							});
 						} else {
-							setOtpError(
-								result.message || 'Invalid verification code. Please try again.'
-							);
+							setOtpError(result.message || 'Invalid verification code. Please try again.');
 							setOtpCode('');
 						}
 					} catch (error) {
 						console.error(`${MODULE_TAG} OTP validation failed:`, error);
-						setOtpError(
-							error instanceof Error ? error.message : 'Failed to validate code'
-						);
+						setOtpError(error instanceof Error ? error.message : 'Failed to validate code');
 						setOtpCode('');
 					} finally {
 						setIsValidatingOTP(false);
@@ -5084,30 +5122,32 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							_links: { ...prev._links, ...links },
 						}));
 
-						toastV8.success(
-							'New verification code has been sent. Please check your device.'
-						);
+						toastV8.success('New verification code has been sent. Please check your device.');
 					} catch (error) {
 						console.error(`${MODULE_TAG} Failed to resend OTP:`, error);
-						
+
 						// Check for LIMIT_EXCEEDED error (cooldown/lockout)
 						const errorWithCode = error as Error & {
 							errorCode?: string;
 							deliveryMethod?: string;
 							coolDownExpiresAt?: number;
 						};
-						
+
 						if (errorWithCode.errorCode === 'LIMIT_EXCEEDED') {
-							const errorMessage = error instanceof Error ? error.message : 'Authentication temporarily locked';
+							const errorMessage =
+								error instanceof Error ? error.message : 'Authentication temporarily locked';
 							setCooldownError({
 								message: errorMessage,
-								...(errorWithCode.deliveryMethod ? { deliveryMethod: errorWithCode.deliveryMethod } : {}),
-								...(errorWithCode.coolDownExpiresAt ? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt } : {}),
+								...(errorWithCode.deliveryMethod
+									? { deliveryMethod: errorWithCode.deliveryMethod }
+									: {}),
+								...(errorWithCode.coolDownExpiresAt
+									? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt }
+									: {}),
 							});
 							toastV8.warning(errorMessage);
 						} else {
-							const errorMessage =
-								error instanceof Error ? error.message : 'Failed to resend code';
+							const errorMessage = error instanceof Error ? error.message : 'Failed to resend code';
 							setOtpError(errorMessage);
 							toastV8.error(`Failed to resend code: ${errorMessage}`);
 						}
@@ -5117,9 +5157,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				}}
 				selectedDeviceInfo={(() => {
 					// Try to find device in authState.devices first, then fallback to userDevices
-					let selectedDevice = authState.devices.find(
-						(d) => d.id === authState.selectedDeviceId
-					);
+					let selectedDevice = authState.devices.find((d) => d.id === authState.selectedDeviceId);
 					if (!selectedDevice && authState.selectedDeviceId) {
 						selectedDevice = userDevices.find(
 							(d) => (d.id as string) === authState.selectedDeviceId
@@ -5135,10 +5173,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			/>
 
 			{/* Push Confirmation Modal */}
-			<MFAPushConfirmationModal
-				show={showPushModal}
-				onClose={() => setShowPushModal(false)}
-			/>
+			<MFAPushConfirmationModal show={showPushModal} onClose={() => setShowPushModal(false)} />
 
 			{/* FIDO2/Passkey Authentication Modal */}
 			<MFAFIDO2ChallengeModal
@@ -5216,15 +5251,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								(p) => p.id === credentials.deviceAuthenticationPolicyId
 							);
 							const policyName = selectedPolicy?.name;
-							const deviceSelectionBehavior = selectedPolicy?.authentication
-								?.deviceSelection as string | undefined;
+							const deviceSelectionBehavior = selectedPolicy?.authentication?.deviceSelection as
+								| string
+								| undefined;
 
 							// Navigate to success page with completion result
 							navigate('/v8/mfa/authentication/success', {
 								state: {
-									completionResult: completionResult
-										? { ...completionResult }
-										: null,
+									completionResult: completionResult ? { ...completionResult } : null,
 									username: usernameInput.trim(),
 									userId: authState.userId,
 									environmentId: credentials.environmentId,
@@ -5263,17 +5297,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								if (pollResult.status === 'COMPLETED') {
 									// Complete authentication to get access token if complete link is available
 									let pollCompletionResult = null;
-									const pollLinks =
-										(pollResult._links as Record<string, { href: string }>) || {};
-									if (
-										pollLinks['complete']?.href ||
-										authState._links?.['complete']?.href
-									) {
+									const pollLinks = (pollResult._links as Record<string, { href: string }>) || {};
+									if (pollLinks['complete']?.href || authState._links?.['complete']?.href) {
 										try {
 											pollCompletionResult =
 												await MfaAuthenticationServiceV8.completeAuthentication(
-													pollLinks['complete']?.href ||
-														authState._links!['complete']!.href
+													pollLinks['complete']?.href || authState._links!['complete']!.href
 												);
 										} catch (completeError) {
 											console.warn(
@@ -5294,15 +5323,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										(p) => p.id === credentials.deviceAuthenticationPolicyId
 									);
 									const policyName = selectedPolicy?.name;
-									const deviceSelectionBehavior = selectedPolicy?.authentication
-										?.deviceSelection as string | undefined;
+									const deviceSelectionBehavior = selectedPolicy?.authentication?.deviceSelection as
+										| string
+										| undefined;
 
 									// Navigate to success page
 									navigate('/v8/mfa/authentication/success', {
 										state: {
-											completionResult: pollCompletionResult
-												? { ...pollCompletionResult }
-												: null,
+											completionResult: pollCompletionResult ? { ...pollCompletionResult } : null,
 											username: usernameInput.trim(),
 											userId: authState.userId,
 											environmentId: credentials.environmentId,
@@ -5331,17 +5359,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									setFido2Error('Authentication is still pending. Please try again.');
 								}
 							} else {
-								setFido2Error(
-									'Authentication completed but status is unclear. Please try again.'
-								);
+								setFido2Error('Authentication completed but status is unclear. Please try again.');
 							}
 						}
 					} catch (error) {
 						console.error(`${MODULE_TAG} FIDO2 authentication failed:`, error);
 						setFido2Error(
-							error instanceof Error
-								? error.message
-								: 'Failed to complete WebAuthn authentication'
+							error instanceof Error ? error.message : 'Failed to complete WebAuthn authentication'
 						);
 					} finally {
 						setIsAuthenticatingFIDO2(false);

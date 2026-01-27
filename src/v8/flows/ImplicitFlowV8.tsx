@@ -10,14 +10,18 @@ import React, { useEffect, useState } from 'react';
 import CredentialsFormV8 from '@/v8/components/CredentialsFormV8';
 import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
 import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
+import {
+	DangerButton,
+	PrimaryButton,
+	SecondaryButton,
+} from '@/v8/components/shared/ActionButtonV8';
+import { useActionButton } from '@/v8/hooks/useActionButton';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
 import { ImplicitFlowIntegrationServiceV8 } from '@/v8/services/implicitFlowIntegrationServiceV8';
 import { RedirectlessServiceV8 } from '@/v8/services/redirectlessServiceV8';
 import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
-import { PrimaryButton, SecondaryButton, DangerButton } from '@/v8/components/shared/ActionButtonV8';
-import { useActionButton } from '@/v8/hooks/useActionButton';
 
 const MODULE_TAG = '[🔓 IMPLICIT-FLOW-V8]';
 const FLOW_KEY = 'implicit-flow-v8';
@@ -421,7 +425,10 @@ export const ImplicitFlowV8: React.FC = () => {
 										);
 										console.log(`${MODULE_TAG} Decoded token:`, decoded.payload);
 									} catch (error) {
-										console.error(`${MODULE_TAG} Error decoding token:`, error instanceof Error ? error.message : 'Unknown error');
+										console.error(
+											`${MODULE_TAG} Error decoding token:`,
+											error instanceof Error ? error.message : 'Unknown error'
+										);
 									}
 								}}
 							>
@@ -458,7 +465,10 @@ export const ImplicitFlowV8: React.FC = () => {
 											);
 											console.log(`${MODULE_TAG} Decoded token:`, decoded.payload);
 										} catch (error) {
-											console.error(`${MODULE_TAG} Error decoding token:`, error instanceof Error ? error.message : 'Unknown error');
+											console.error(
+												`${MODULE_TAG} Error decoding token:`,
+												error instanceof Error ? error.message : 'Unknown error'
+											);
 										}
 									}}
 								>

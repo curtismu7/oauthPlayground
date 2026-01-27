@@ -114,7 +114,7 @@ export const DeviceCodePollingModalV8U: React.FC<DeviceCodePollingModalProps> = 
 }) => {
 	// Use service for consistent state management
 	const modalKey = 'deviceCodePollingModalV8U';
-	
+
 	// Initialize state if not exists
 	ModalSpinnerServiceV8U.getInstance(modalKey, {
 		show: false,
@@ -147,10 +147,10 @@ export const DeviceCodePollingModalV8U: React.FC<DeviceCodePollingModalProps> = 
 				<StatusText>Waiting for device authorization...</StatusText>
 				<StatusText>Status: {status}</StatusText>
 				<ProgressBar $progress={(attempts / maxAttempts) * 100} />
-				<StatusText>Attempt {attempts} of {maxAttempts}</StatusText>
-				<CancelButton onClick={onCancel}>
-					Cancel Polling
-				</CancelButton>
+				<StatusText>
+					Attempt {attempts} of {maxAttempts}
+				</StatusText>
+				<CancelButton onClick={onCancel}>Cancel Polling</CancelButton>
 			</ModalContent>
 		</Modal>
 	);

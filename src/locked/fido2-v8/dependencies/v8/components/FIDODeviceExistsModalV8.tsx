@@ -375,11 +375,7 @@ export const FIDODeviceExistsModalV8: React.FC<FIDODeviceExistsModalV8Props> = (
 						</SecondaryButton>
 					)}
 					{environmentId && username && deviceId && (
-						<DangerButton
-							type="button"
-							onClick={handleDeleteDevice}
-							disabled={isDeleting}
-						>
+						<DangerButton type="button" onClick={handleDeleteDevice} disabled={isDeleting}>
 							<FiTrash2 size={16} />
 							{isDeleting ? 'Deleting...' : 'Delete Device'}
 						</DangerButton>

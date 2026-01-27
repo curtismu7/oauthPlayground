@@ -38,21 +38,21 @@ const LoadingSubtext = styled.div`
 `;
 
 interface ComponentLoaderProps {
-  message?: string;
-  subtext?: string;
+	message?: string;
+	subtext?: string;
 }
 
-export const ComponentLoader: React.FC<ComponentLoaderProps> = ({ 
-  message = 'Loading component...', 
-  subtext = 'Please wait a moment' 
+export const ComponentLoader: React.FC<ComponentLoaderProps> = ({
+	message = 'Loading component...',
+	subtext = 'Please wait a moment',
 }) => {
-  return (
-    <LoadingContainer>
-      <Spinner />
-      <LoadingText>{message}</LoadingText>
-      <LoadingSubtext>{subtext}</LoadingSubtext>
-    </LoadingContainer>
-  );
+	return (
+		<LoadingContainer>
+			<Spinner />
+			<LoadingText>{message}</LoadingText>
+			<LoadingSubtext>{subtext}</LoadingSubtext>
+		</LoadingContainer>
+	);
 };
 
 export default ComponentLoader;

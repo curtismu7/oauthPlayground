@@ -206,7 +206,9 @@ export const CreatePolicyModalV8: React.FC<CreatePolicyModalV8Props> = ({
 										e.currentTarget.style.borderColor = '#d1d5db';
 									}}
 								/>
-								<small style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}>
+								<small
+									style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
+								>
 									A descriptive name for this policy
 								</small>
 							</div>
@@ -252,7 +254,9 @@ export const CreatePolicyModalV8: React.FC<CreatePolicyModalV8Props> = ({
 										e.currentTarget.style.borderColor = '#d1d5db';
 									}}
 								/>
-								<small style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}>
+								<small
+									style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
+								>
 									Optional description to help identify this policy
 								</small>
 							</div>
@@ -322,4 +326,3 @@ export const CreatePolicyModalV8: React.FC<CreatePolicyModalV8Props> = ({
 		</>
 	);
 };
-

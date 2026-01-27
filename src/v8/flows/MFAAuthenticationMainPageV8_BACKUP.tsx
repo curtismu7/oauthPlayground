@@ -34,48 +34,48 @@ import {
 	FiX,
 } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ButtonSpinner, LoadingOverlay, SmallSpinner } from '@/components/ui';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { pingOneLogoutService } from '@/services/pingOneLogoutService';
+import {
+	downloadPostmanCollectionWithEnvironment,
+	generateCompletePostmanCollection,
+	generateComprehensiveMFAPostmanCollection,
+} from '@/services/postmanCollectionGeneratorV8';
 import { oauthStorage } from '@/utils/storage';
-import { ButtonSpinner, LoadingOverlay, SmallSpinner } from '@/components/ui';
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
+import { DeviceCodePollingModalV8U } from '@/v8/components/DeviceCodePollingModalV8U';
 import { DeviceFailureModalV8, UnavailableDevice } from '@/v8/components/DeviceFailureModalV8';
 import { MFACooldownModalV8 } from '@/v8/components/MFACooldownModalV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { DangerButton, PrimaryButton, SecondaryButton, SuccessButton } from '@/v8/components/shared/ActionButtonV8';
+import { PageHeaderGradients, PageHeaderTextColors, PageHeaderV8 } from '@/v8/components/shared/PageHeaderV8';
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { DeviceCodePollingModalV8U } from '@/v8/components/DeviceCodePollingModalV8U';
-import { PageHeaderV8, PageHeaderGradients, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
-import { LoadingSpinnerModalV8U } from '@/v8u/components/LoadingSpinnerModalV8U';
-import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
+import { useActionButton } from '@/v8/hooks/useActionButton';
+import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { PrimaryButton, SecondaryButton, SuccessButton, DangerButton } from '@/v8/components/shared/ActionButtonV8';
-import { useActionButton } from '@/v8/hooks/useActionButton';
-import {
-	generateComprehensiveMFAPostmanCollection,
-	generateCompletePostmanCollection,
-	downloadPostmanCollectionWithEnvironment,
-} from '@/services/postmanCollectionGeneratorV8';
+import { LoadingSpinnerModalV8U } from '@/v8u/components/LoadingSpinnerModalV8U';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import { MFAOTPInput } from './components/MFAOTPInput';
 import {
-	MFAPolicyInfoModal,
 	MFADeviceSelectionInfoModal,
-	MFAOTPInputModal,
-	MFAPushConfirmationModal,
 	MFAFIDO2ChallengeModal,
+	MFAOTPInputModal,
+	MFAPolicyInfoModal,
+	MFAPushConfirmationModal,
 } from './components/modals';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V8]';

@@ -1,26 +1,35 @@
 #!/usr/bin/env node
+
 /**
  * @file lock-fido2.mjs
  * @description Lock FIDO2 V8 feature - Create isolated copy with all dependencies
  * @version 1.0.0
- * 
+ *
  * This script creates a complete isolated copy of FIDO2 V8, including:
  * - All FIDO2 flow files
  * - All dependencies (services, utils, types, components)
  * - Updated imports to use isolated versions
  * - Manifest tracking locked files
- * 
+ *
  * Usage:
  *   node scripts/lockdown/lock-fido2.mjs [--dry-run]
- * 
+ *
  * After locking, FIDO2 will be in src/locked/fido2-v8/ and will never break
  * when shared services are updated.
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, cpSync, readdirSync, statSync } from 'node:fs';
-import { join, dirname, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
+import {
+	cpSync,
+	existsSync,
+	mkdirSync,
+	readdirSync,
+	readFileSync,
+	statSync,
+	writeFileSync,
+} from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -88,13 +97,13 @@ function findDependencies(filePath, visited = new Set()) {
 
 	const deps = [];
 	const content = readFileSync(filePath, 'utf8');
-	
+
 	// Extract imports
 	const importRegex = /from\s+['"]([^'"]+)['"]|import\s+['"]([^'"]+)['"]/g;
 	let match;
 	while ((match = importRegex.exec(content)) !== null) {
 		const importPath = match[1] || match[2];
-		
+
 		// Skip node_modules and external packages
 		if (importPath.startsWith('.') || importPath.startsWith('@/')) {
 			let resolved;
@@ -129,21 +138,18 @@ function findDependencies(filePath, visited = new Set()) {
  */
 function updateImports(content, filePath, lockedDepsMap) {
 	let updated = content;
-	
+
 	// Update @/ imports to use locked versions
-	updated = updated.replace(
-		/from\s+['"]@\/([^'"]+)['"]/g,
-		(match, path) => {
-			// Check if this dependency is locked
-			for (const [originalPath, lockedPath] of Object.entries(lockedDepsMap)) {
-				if (originalPath.includes(path)) {
-					const relPath = relative(dirname(filePath), lockedPath).replace(/\\/g, '/');
-					return `from '${relPath.startsWith('.') ? relPath : './' + relPath}'`;
-				}
+	updated = updated.replace(/from\s+['"]@\/([^'"]+)['"]/g, (match, path) => {
+		// Check if this dependency is locked
+		for (const [originalPath, lockedPath] of Object.entries(lockedDepsMap)) {
+			if (originalPath.includes(path)) {
+				const relPath = relative(dirname(filePath), lockedPath).replace(/\\/g, '/');
+				return `from '${relPath.startsWith('.') ? relPath : './' + relPath}'`;
 			}
-			return match; // Keep original if not locked
 		}
-	);
+		return match; // Keep original if not locked
+	});
 
 	return updated;
 }
@@ -163,7 +169,7 @@ async function lockFIDO2(dryRun = false) {
 
 	// Collect all dependencies
 	const allDeps = new Set();
-	
+
 	// Add critical dependencies
 	for (const dep of CRITICAL_DEPS) {
 		const depPath = join(PROJECT_ROOT, dep);
@@ -171,7 +177,7 @@ async function lockFIDO2(dryRun = false) {
 			allDeps.add(depPath);
 			// Find transitive dependencies
 			const transitive = findDependencies(depPath);
-			transitive.forEach(d => allDeps.add(d));
+			transitive.forEach((d) => allDeps.add(d));
 		}
 	}
 
@@ -180,7 +186,7 @@ async function lockFIDO2(dryRun = false) {
 		const filePath = join(PROJECT_ROOT, file);
 		if (existsSync(filePath)) {
 			const deps = findDependencies(filePath);
-			deps.forEach(d => allDeps.add(d));
+			deps.forEach((d) => allDeps.add(d));
 		}
 	}
 
@@ -208,7 +214,7 @@ async function lockFIDO2(dryRun = false) {
 	for (const dep of allDeps) {
 		const relPath = relative(join(PROJECT_ROOT, 'src'), dep);
 		const destPath = join(DEPS_DIR, relPath);
-		
+
 		if (!dryRun) {
 			mkdirSync(dirname(destPath), { recursive: true });
 			cpSync(dep, destPath);
@@ -236,10 +242,10 @@ async function lockFIDO2(dryRun = false) {
 
 		const relPath = relative('src/v8/flows', file);
 		const destPath = join(FEATURE_DIR, relPath);
-		
+
 		const content = readFileSync(filePath, 'utf8');
 		const updatedContent = updateImports(content, destPath, lockedDepsMap);
-		
+
 		if (!dryRun) {
 			mkdirSync(dirname(destPath), { recursive: true });
 			writeFileSync(destPath, updatedContent, 'utf8');
@@ -258,7 +264,9 @@ async function lockFIDO2(dryRun = false) {
 		console.log(`\n✅ FIDO2 V8 locked successfully!`);
 		console.log(`📁 Locked directory: ${LOCKED_DIR}`);
 		console.log(`📋 Manifest: ${MANIFEST_PATH}`);
-		console.log(`\n🔒 FIDO2 is now isolated and will never break when shared services are updated.`);
+		console.log(
+			`\n🔒 FIDO2 is now isolated and will never break when shared services are updated.`
+		);
 	} else {
 		console.log(`\n🔍 DRY RUN - Would lock:`);
 		console.log(`   Feature files: ${FIDO2_FILES.length}`);

@@ -18,16 +18,35 @@ import { FiInfo, FiX } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { CollapsibleSectionV8 } from '@/v8/components/shared/CollapsibleSectionV8';
+import {
+	ErrorMessage,
+	InfoMessage,
+	MessageBoxV8,
+	SuccessMessage,
+	WarningMessage,
+} from '@/v8/components/shared/MessageBoxV8';
 import { TOTPExpiredModalV8 } from '@/v8/components/TOTPExpiredModalV8';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { MFAConfigurationServiceV8, type MFAConfiguration } from '@/v8/services/mfaConfigurationServiceV8';
-import { MFAServiceV8, type SendOTPParams, type DeviceRegistrationResult } from '@/v8/services/mfaServiceV8';
+import {
+	type MFAConfiguration,
+	MFAConfigurationServiceV8,
+} from '@/v8/services/mfaConfigurationServiceV8';
+import {
+	type DeviceRegistrationResult,
+	MFAServiceV8,
+	type SendOTPParams,
+} from '@/v8/services/mfaServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
+import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
@@ -35,18 +54,6 @@ import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { DeviceType, MFACredentials, MFAState } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
-import { CollapsibleSectionV8 } from '@/v8/components/shared/CollapsibleSectionV8';
-import { 
-	MessageBoxV8, 
-	SuccessMessage, 
-	ErrorMessage, 
-	WarningMessage,
-	InfoMessage 
-} from '@/v8/components/shared/MessageBoxV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
-import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
-import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 
 const MODULE_TAG = '[🔐 TOTP-FLOW-V8]';
 
@@ -517,12 +524,25 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 	// Store credentials, tokenStatus, and mfaState in refs for use in expired modal handlers
 	const credentialsRef = React.useRef<MFACredentials | null>(null);
-	const tokenStatusRef = React.useRef<ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus> | null>(null);
-	const mfaStateRef = React.useRef<{ deviceId?: string; deviceStatus?: string; createdAt?: string; qrCodeUrl?: string; totpSecret?: string; keyUri?: string; secret?: string } | null>(null);
+	const tokenStatusRef = React.useRef<ReturnType<
+		typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus
+	> | null>(null);
+	const mfaStateRef = React.useRef<{
+		deviceId?: string;
+		deviceStatus?: string;
+		createdAt?: string;
+		qrCodeUrl?: string;
+		totpSecret?: string;
+		keyUri?: string;
+		secret?: string;
+	} | null>(null);
 	// Track current step for expiration check
 	const currentStepRef = React.useRef<number>(0);
 	// Track if we need to auto-navigate (for config page flow)
-	const autoNavigateRef = React.useRef<{ step: number; triggered: boolean }>({ step: 0, triggered: false });
+	const autoNavigateRef = React.useRef<{ step: number; triggered: boolean }>({
+		step: 0,
+		triggered: false,
+	});
 	// Store Step 1 props for parent-level useEffect hooks to access
 	const step1PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
 	// Track if user explicitly closed QR modal (to prevent auto-reopening)
@@ -570,37 +590,40 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	const [showValidationModal, setShowValidationModal] = useState(true);
 
 	// Helper function for safe navigation with fallback to hub
-	const navigateSafely = useCallback((nav: ReturnType<typeof useStepNavigationV8>, targetStep: number | 'previous' | 'hub') => {
-		try {
-			if (targetStep === 'hub') {
-				navigateToMfaHubWithCleanup(navigate);
-				return;
-			}
-			
-			if (targetStep === 'previous') {
-				if (nav.canGoPrevious) {
-					nav.goToPrevious();
+	const navigateSafely = useCallback(
+		(nav: ReturnType<typeof useStepNavigationV8>, targetStep: number | 'previous' | 'hub') => {
+			try {
+				if (targetStep === 'hub') {
+					navigateToMfaHubWithCleanup(navigate);
+					return;
+				}
+
+				if (targetStep === 'previous') {
+					if (nav.canGoPrevious) {
+						nav.goToPrevious();
+					} else {
+						// No valid previous step, go to hub
+						console.log(`${MODULE_TAG} No valid previous step, navigating to hub`);
+						navigateToMfaHubWithCleanup(navigate);
+					}
+					return;
+				}
+
+				// Navigate to specific step
+				if (targetStep >= 0 && targetStep < 5) {
+					nav.goToStep(targetStep);
 				} else {
-					// No valid previous step, go to hub
-					console.log(`${MODULE_TAG} No valid previous step, navigating to hub`);
+					// Invalid step, go to hub
+					console.warn(`${MODULE_TAG} Invalid target step ${targetStep}, navigating to hub`);
 					navigateToMfaHubWithCleanup(navigate);
 				}
-				return;
-			}
-			
-			// Navigate to specific step
-			if (targetStep >= 0 && targetStep < 5) {
-				nav.goToStep(targetStep);
-			} else {
-				// Invalid step, go to hub
-				console.warn(`${MODULE_TAG} Invalid target step ${targetStep}, navigating to hub`);
+			} catch (error) {
+				console.error(`${MODULE_TAG} Navigation error, falling back to hub:`, error);
 				navigateToMfaHubWithCleanup(navigate);
 			}
-		} catch (error) {
-			console.error(`${MODULE_TAG} Navigation error, falling back to hub:`, error);
-			navigateToMfaHubWithCleanup(navigate);
-		}
-	}, [navigate]);
+		},
+		[navigate]
+	);
 
 	// Handle ESC key to close modals and navigate back
 	useEffect(() => {
@@ -609,7 +632,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				// Get current nav from refs (updated in render functions)
 				const currentNav = step1PropsRef.current?.nav;
 				if (!currentNav) return;
-				
+
 				if (showValidationModal) {
 					setShowValidationModal(false);
 					// Step 4: Navigate back to Step 3
@@ -647,7 +670,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	const [showActivationModal, setShowActivationModal] = useState(false);
 	// Loading state for activation modal
 	const [isActivating, setIsActivating] = useState(false);
-	
+
 	// Ref to store latest props for activation handler
 	const activationPropsRef = React.useRef<{
 		credentials: MFACredentials;
@@ -656,7 +679,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		nav: ReturnType<typeof useStepNavigationV8>;
 		setIsLoading: (loading: boolean) => void;
 	} | null>(null);
-	
+
 	// Activation handler (accessible from modal)
 	const handleActivateDevice = useCallback(async () => {
 		const props = activationPropsRef.current;
@@ -664,7 +687,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			console.error(`${MODULE_TAG} Activation props not available`);
 			return;
 		}
-		
+
 		if (!activationOtp || activationOtp.length !== otpLength) {
 			setActivationError(`Please enter a valid ${otpLength}-digit code`);
 			return;
@@ -708,7 +731,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 			// CRITICAL: Prevent QR modal from reopening after successful activation
 			userClosedQrModalRef.current = true;
-			
+
 			// Close QR modal if it's still open
 			setShowQrModal(false);
 
@@ -716,9 +739,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			// Step 4 will render the success page when deviceStatus is ACTIVE
 			props.nav.markStepComplete();
 			props.nav.goToStep(4);
-			
+
 			toastV8.success('TOTP device activated successfully!');
-			
+
 			// Success page will render automatically when:
 			// 1. deviceStatus is ACTIVE
 			// 2. Both modals are closed (!showQrModal && !showActivationModal)
@@ -729,9 +752,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			// Don't close modal, don't navigate away
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			console.error(`${MODULE_TAG} Failed to activate TOTP device:`, error);
-			
+
 			// Normalize error message for better UX
-			const normalizedError = 
+			const normalizedError =
 				errorMessage.toLowerCase().includes('invalid') ||
 				errorMessage.toLowerCase().includes('incorrect') ||
 				errorMessage.toLowerCase().includes('wrong') ||
@@ -739,10 +762,10 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				errorMessage.toLowerCase().includes('bad request')
 					? 'Invalid OTP code. Please try again.'
 					: errorMessage;
-			
+
 			setActivationError(normalizedError);
 			toastV8.error(`Activation failed: ${normalizedError}`);
-			
+
 			// Clear OTP input so user can try again
 			setActivationOtp('');
 		} finally {
@@ -807,36 +830,36 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					data: {
 						isConfigured,
 						hasProps: !!step1PropsRef.current,
-						propsStep: step1PropsRef.current?.nav?.currentStep
+						propsStep: step1PropsRef.current?.nav?.currentStep,
 					},
 					timestamp: Date.now(),
 					sessionId: 'debug-session',
 					runId: 'run1',
-					hypothesisId: 'E'
+					hypothesisId: 'E',
 				});
 			} catch {
 				// Silently ignore - analytics server not available
 			}
 		})();
 		// #endregion
-		
+
 		if (!isConfigured) return;
-		
+
 		const checkAndNavigate = () => {
 			// CRITICAL: Use currentStepRef instead of props.nav.currentStep to avoid stale ref issues
 			// currentStepRef is updated in renderStep3QrCode when nav.currentStep changes
 			const currentStep = currentStepRef.current;
-			
+
 			// If we're already on Step 3, stop checking (navigation succeeded)
 			if (currentStep === 3) {
 				return;
 			}
-			
+
 			// Don't navigate if user explicitly closed the QR modal
 			if (userClosedQrModalRef.current) {
 				return;
 			}
-			
+
 			// Only navigate if we're on Step 1 and haven't already triggered navigation
 			// CRITICAL: Don't retry if already triggered - that causes infinite loops
 			if (currentStep === 1 && !autoNavigateRef.current.triggered) {
@@ -844,9 +867,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					currentStep,
 					userClosedQrModal: userClosedQrModalRef.current,
 				});
-				
+
 				autoNavigateRef.current = { step: 3, triggered: true };
-				
+
 				// Get nav from props ref if available
 				const props = step1PropsRef.current;
 				if (props) {
@@ -854,13 +877,13 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				}
 			}
 		};
-		
+
 		// Check after a short delay to let render function try first
 		const timeout = setTimeout(checkAndNavigate, 100);
-		
+
 		// Also check once more after a longer delay as backup (but only once, not in interval)
 		const backupTimeout = setTimeout(checkAndNavigate, 500);
-		
+
 		return () => {
 			clearTimeout(timeout);
 			clearTimeout(backupTimeout);
@@ -912,10 +935,10 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	useEffect(() => {
 		const props = step1PropsRef.current;
 		if (!props) return;
-		
+
 		const currentStep = typeof props.nav?.currentStep === 'number' ? props.nav.currentStep : 0;
 		const isConfiguredValue = Boolean(isConfigured);
-		
+
 		if (isConfiguredValue && currentStep === 1 && !autoNavigateRef.current.triggered) {
 			autoNavigateRef.current = { step: 2, triggered: true };
 			props.nav.goToStep(2);
@@ -928,13 +951,13 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	useEffect(() => {
 		const props = step1PropsRef.current;
 		if (!props) return;
-		
+
 		const currentStep = typeof props.nav?.currentStep === 'number' ? props.nav.currentStep : 0;
 		const envId = props.credentials?.environmentId || '';
 		const username = props.credentials?.username || '';
 		const tokenValid = Boolean(props.tokenStatus?.isValid);
 		const isConfiguredValue = Boolean(isConfigured);
-		
+
 		if (!isConfiguredValue && currentStep === 1) {
 			const newTrigger = {
 				currentStep: currentStep,
@@ -1026,16 +1049,13 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 	// Step 1: Device Selection (ONLY for authentication flow, completely skipped for registration)
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
-		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading } =
-			props;
-
+		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading } = props;
 
 		// Store props in ref for parent-level useEffect hooks to access
 		step1PropsRef.current = props;
 
 		// Extract values for logic (not for hooks - hooks are in parent component)
 		const isConfiguredValue = Boolean(isConfigured);
-
 
 		// CRITICAL: During registration flow, Step 1 is completely skipped
 		// Registration flow goes: Config -> Register (Step 2) -> QR (Step 3) -> OTP (Step 4) -> Success
@@ -1049,25 +1069,27 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					currentStep: nav.currentStep,
 					alreadyTriggered: autoNavigateRef.current.triggered,
 				});
-				
+
 				// Navigate immediately - don't wait
 				if (!autoNavigateRef.current.triggered) {
 					autoNavigateRef.current = { step: 3, triggered: true };
 					console.log(`${MODULE_TAG} [Step 1] Calling nav.goToStep(3)`);
-					
+
 					// Try multiple approaches to ensure navigation happens
 					nav.goToStep(3); // Direct call
-					
+
 					// Also try with setTimeout as backup
 					setTimeout(() => {
 						if (nav.currentStep === 1) {
-							console.warn(`${MODULE_TAG} [Step 1] Still on step 1 after direct call, retrying navigation`);
+							console.warn(
+								`${MODULE_TAG} [Step 1] Still on step 1 after direct call, retrying navigation`
+							);
 							nav.goToStep(3);
 						}
 					}, 50);
 				}
 			}
-			
+
 			// CRITICAL: Return null immediately - do NOT show device selection UI during registration
 			return null;
 		}
@@ -1162,14 +1184,22 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
-					
+
 					// Check for LIMIT_EXCEEDED error
-					const errorWithCode = error as Error & { errorCode?: string; deliveryMethod?: string; coolDownExpiresAt?: number };
+					const errorWithCode = error as Error & {
+						errorCode?: string;
+						deliveryMethod?: string;
+						coolDownExpiresAt?: number;
+					};
 					if (errorWithCode.errorCode === 'LIMIT_EXCEEDED') {
 						setLimitExceededError({
 							message: errorMessage,
-							...(errorWithCode.deliveryMethod ? { deliveryMethod: errorWithCode.deliveryMethod } : {}),
-							...(errorWithCode.coolDownExpiresAt ? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt } : {}),
+							...(errorWithCode.deliveryMethod
+								? { deliveryMethod: errorWithCode.deliveryMethod }
+								: {}),
+							...(errorWithCode.coolDownExpiresAt
+								? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt }
+								: {}),
 						});
 					} else {
 						const formattedError = ValidationServiceV8.formatMFAError(error as Error, {
@@ -1312,10 +1342,10 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					const deviceStatus =
 						registrationFlowType === 'user' ? 'ACTIVATION_REQUIRED' : adminDeviceStatus;
 
-					const result = await controller.registerDevice(
+					const result = (await controller.registerDevice(
 						registrationCredentials,
 						controller.getDeviceRegistrationParams(registrationCredentials, deviceStatus)
-					) as DeviceRegistrationResult;
+					)) as DeviceRegistrationResult;
 
 					// Log full registration response for debugging
 					console.log(`${MODULE_TAG} 📋 Full registration response:`, {
@@ -1355,7 +1385,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					let finalKeyUri = keyUri;
 
 					if (!secret && !keyUri && result.deviceId) {
-						console.log(`${MODULE_TAG} ⚠️ Secret/keyUri not in registration response, fetching device details...`);
+						console.log(
+							`${MODULE_TAG} ⚠️ Secret/keyUri not in registration response, fetching device details...`
+						);
 						try {
 							const deviceDetails = await MFAServiceV8.getDevice({
 								...credentials,
@@ -1366,16 +1398,20 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								deviceId: (deviceDetails as { id?: string }).id,
 								status: (deviceDetails as { status?: string }).status,
 								hasProperties: !!(deviceDetails as { properties?: unknown }).properties,
-								propertiesKeys: (deviceDetails as { properties?: Record<string, unknown> }).properties
-									? Object.keys((deviceDetails as { properties: Record<string, unknown> }).properties)
+								propertiesKeys: (deviceDetails as { properties?: Record<string, unknown> })
+									.properties
+									? Object.keys(
+											(deviceDetails as { properties: Record<string, unknown> }).properties
+										)
 									: [],
 								allKeys: Object.keys(deviceDetails as Record<string, unknown>),
 								fullResponse: deviceDetails,
 							});
 
 							// Extract from device details (properties.secret and properties.keyUri)
-							const deviceProperties = (deviceDetails as { properties?: { secret?: string; keyUri?: string } })
-								.properties;
+							const deviceProperties = (
+								deviceDetails as { properties?: { secret?: string; keyUri?: string } }
+							).properties;
 							if (deviceProperties) {
 								finalSecret = deviceProperties.secret || finalSecret;
 								finalKeyUri = deviceProperties.keyUri || finalKeyUri;
@@ -1410,7 +1446,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							hasSecret: 'secret' in result,
 							hasKeyUri: 'keyUri' in result,
 							hasTotpResult: 'totpResult' in result,
-							totpResultKeys: resultWithTotp.totpResult ? Object.keys(resultWithTotp.totpResult) : [],
+							totpResultKeys: resultWithTotp.totpResult
+								? Object.keys(resultWithTotp.totpResult)
+								: [],
 						});
 					} else {
 						console.log(`${MODULE_TAG} ✅ TOTP QR code data extracted:`, {
@@ -1442,7 +1480,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						// Store device creation time for expiration check
 						...(result.createdAt ? { createdAt: result.createdAt } : {}),
 					};
-					
+
 					// Update mfaState ref immediately so it's available for render
 					// Store keyUri and secret in ref for internal use (not in MFAState type)
 					mfaStateRef.current = {
@@ -1455,7 +1493,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						...(finalKeyUri ? { keyUri: finalKeyUri } : {}),
 						...(finalSecret ? { secret: finalSecret } : {}),
 					};
-					
+
 					setMfaState(updatedMfaState);
 
 					// Ensure QR code modal is visible
@@ -1474,11 +1512,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					// CRITICAL: ALWAYS show QR code modal (Step 3) after registration
 					// Navigate to Step 3 regardless of device status
 					nav.markStepComplete();
-					
+
 					// Close Step 2 modal and open Step 3 modal
 					setShowModal(false);
 					setShowQrModal(true);
-					
+
 					// Log state before navigation
 					console.log(`${MODULE_TAG} Navigating to Step 3 with QR code data:`, {
 						hasDeviceId: !!result.deviceId,
@@ -1491,7 +1529,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						mfaStateQrCodeUrl: mfaState.qrCodeUrl,
 						showQrModal: true,
 					});
-					
+
 					// Navigate to Step 3 after a brief delay to ensure modals are updated
 					// Use setTimeout to ensure state updates complete before navigation
 					setTimeout(() => {
@@ -1579,17 +1617,15 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 			const hasPosition =
 				step2ModalDrag.modalPosition.x !== 0 || step2ModalDrag.modalPosition.y !== 0;
-			
+
 			// Get selected policy to check promptForNicknameOnPairing
 			const selectedPolicy = props.deviceAuthPolicies?.find(
 				(p) => p.id === credentials.deviceAuthenticationPolicyId
 			);
 			const shouldPromptForNickname = selectedPolicy?.promptForNicknameOnPairing === true;
-			
+
 			// Form is valid if nickname is provided when required, or if nickname is not required
-			const isValidForm = shouldPromptForNickname
-				? credentials.deviceName?.trim()
-				: true; // If not prompting, form is always valid (device name will be set automatically)
+			const isValidForm = shouldPromptForNickname ? credentials.deviceName?.trim() : true; // If not prompting, form is always valid (device name will be set automatically)
 
 			return (
 				<>
@@ -1636,7 +1672,10 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								overflow: 'hidden',
 								...step2ModalDrag.modalStyle,
 								pointerEvents: 'auto',
-								position: step2ModalDrag.modalPosition.x !== 0 || step2ModalDrag.modalPosition.y !== 0 ? 'fixed' : 'relative',
+								position:
+									step2ModalDrag.modalPosition.x !== 0 || step2ModalDrag.modalPosition.y !== 0
+										? 'fixed'
+										: 'relative',
 							}}
 							onClick={(e) => e.stopPropagation()}
 						>
@@ -1751,7 +1790,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									const selectedPolicy = props.deviceAuthPolicies?.find(
 										(p) => p.id === credentials.deviceAuthenticationPolicyId
 									);
-									const shouldPromptForNickname = selectedPolicy?.promptForNicknameOnPairing === true;
+									const shouldPromptForNickname =
+										selectedPolicy?.promptForNicknameOnPairing === true;
 
 									return shouldPromptForNickname === false ? (
 										<div style={{ marginBottom: '12px' }}>
@@ -1770,7 +1810,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 											>
 												<FiInfo size={16} color="#6b7280" />
 												<span>
-													Device name will be set automatically during registration. You can rename this device later through device management.
+													Device name will be set automatically during registration. You can rename
+													this device later through device management.
 													<MFAInfoButtonV8
 														contentKey="policy.promptForNicknameOnPairing.explanation"
 														displayMode="tooltip"
@@ -1854,7 +1895,6 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										</span>
 									</div>
 								</div>
-
 							</div>
 
 							{/* Action Buttons - Sticky Footer */}
@@ -1910,9 +1950,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										fontSize: '15px',
 										fontWeight: '600',
 										cursor:
-											isValidForm && !isLoading && tokenStatus.isValid
-												? 'pointer'
-												: 'not-allowed',
+											isValidForm && !isLoading && tokenStatus.isValid ? 'pointer' : 'not-allowed',
 										boxShadow:
 											isValidForm && !isLoading && tokenStatus.isValid
 												? '0 4px 12px rgba(16, 185, 129, 0.3)'
@@ -1928,19 +1966,29 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				</>
 			);
 		},
-		[showModal, step2ModalDrag, controller, navigate, registrationFlowType, adminDeviceStatus, isConfigured, navigateSafely]
+		[
+			showModal,
+			step2ModalDrag,
+			controller,
+			navigate,
+			registrationFlowType,
+			adminDeviceStatus,
+			isConfigured,
+			navigateSafely,
+		]
 	);
 
 	// Step 3: Scan QR Code & Activate (Modal - ALWAYS shown, activation OTP only if ACTIVATION_REQUIRED)
 	// For registration flow, device registration happens automatically when this step opens
-		const renderStep3QrCode = useCallback(
+	const renderStep3QrCode = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
-			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading, tokenStatus } = props;
+			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading, tokenStatus } =
+				props;
 
 			// Update refs FIRST so they're available for QR code data lookup and auto-registration
 			credentialsRef.current = credentials;
 			tokenStatusRef.current = tokenStatus;
-			
+
 			// Update activation props ref for activation handler
 			activationPropsRef.current = {
 				credentials,
@@ -1949,7 +1997,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				nav,
 				setIsLoading,
 			};
-			
+
 			// Auto-register device if in registration flow and device not yet registered
 			// This allows skipping Step 2 (Register Device) and going directly to QR code page
 			if (
@@ -1962,7 +2010,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				tokenStatus?.isValid
 			) {
 				autoRegistrationTriggeredRef.current = true;
-				
+
 				// Trigger auto-registration asynchronously
 				Promise.resolve().then(async () => {
 					try {
@@ -1970,17 +2018,21 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						const selectedPolicy = props.deviceAuthPolicies?.find(
 							(p) => p.id === credentials.deviceAuthenticationPolicyId
 						);
-						
+
 						// Check if pairing is disabled in the policy
 						if (selectedPolicy?.pairingDisabled === true) {
-							console.warn(`${MODULE_TAG} Auto-registration blocked: pairing is disabled for policy ${selectedPolicy.id}`);
-							toastV8.error('Device pairing is disabled for this policy. Please select a different policy.');
+							console.warn(
+								`${MODULE_TAG} Auto-registration blocked: pairing is disabled for policy ${selectedPolicy.id}`
+							);
+							toastV8.error(
+								'Device pairing is disabled for this policy. Please select a different policy.'
+							);
 							autoRegistrationTriggeredRef.current = false; // Allow retry
 							return;
 						}
 
 						const shouldPromptForNickname = selectedPolicy?.promptForNicknameOnPairing === true;
-						
+
 						// Use device name from credentials if prompted, otherwise use default
 						const deviceName = shouldPromptForNickname
 							? credentials.deviceName?.trim() || 'TOTP'
@@ -1999,10 +2051,10 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						};
 
 						setIsLoading(true);
-						const result = await controller.registerDevice(
+						const result = (await controller.registerDevice(
 							registrationCredentials,
 							registrationParams
-						) as DeviceRegistrationResult;
+						)) as DeviceRegistrationResult;
 
 						// Extract secret and keyUri (same logic as Step 2)
 						const resultWithTotp = result as {
@@ -2036,8 +2088,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									deviceId: result.deviceId,
 								} as SendOTPParams);
 
-								const deviceProperties = (deviceDetails as { properties?: { secret?: string; keyUri?: string } })
-									.properties;
+								const deviceProperties = (
+									deviceDetails as { properties?: { secret?: string; keyUri?: string } }
+								).properties;
 								if (deviceProperties) {
 									finalSecret = deviceProperties.secret || finalSecret;
 									finalKeyUri = deviceProperties.keyUri || finalKeyUri;
@@ -2078,16 +2131,19 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						// Update state - this will trigger a re-render and show the QR code
 						setMfaState(updatedMfaState);
 						setShowQrModal(true);
-						
+
 						// Log success for debugging
-						console.log(`${MODULE_TAG} ✅ Auto-registration complete, QR code should now be visible:`, {
-							deviceId: result.deviceId,
-							hasSecret: !!finalSecret,
-							hasKeyUri: !!finalKeyUri,
-							secretLength: finalSecret?.length,
-							keyUriLength: finalKeyUri?.length,
-						});
-						
+						console.log(
+							`${MODULE_TAG} ✅ Auto-registration complete, QR code should now be visible:`,
+							{
+								deviceId: result.deviceId,
+								hasSecret: !!finalSecret,
+								hasKeyUri: !!finalKeyUri,
+								secretLength: finalSecret?.length,
+								keyUriLength: finalKeyUri?.length,
+							}
+						);
+
 						toastV8.info('Device registered. Scan the QR code to complete setup.');
 					} catch (error) {
 						const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -2109,25 +2165,26 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				keyUri?: string;
 				secret?: string;
 			} = {};
-			
+
 			// Copy existing ref values
 			if (mfaStateRef.current) {
 				if (mfaStateRef.current.deviceId) updatedRef.deviceId = mfaStateRef.current.deviceId;
-				if (mfaStateRef.current.deviceStatus) updatedRef.deviceStatus = mfaStateRef.current.deviceStatus;
+				if (mfaStateRef.current.deviceStatus)
+					updatedRef.deviceStatus = mfaStateRef.current.deviceStatus;
 				if (mfaStateRef.current.createdAt) updatedRef.createdAt = mfaStateRef.current.createdAt;
 				if (mfaStateRef.current.qrCodeUrl) updatedRef.qrCodeUrl = mfaStateRef.current.qrCodeUrl;
 				if (mfaStateRef.current.totpSecret) updatedRef.totpSecret = mfaStateRef.current.totpSecret;
 				if (mfaStateRef.current.keyUri) updatedRef.keyUri = mfaStateRef.current.keyUri;
 				if (mfaStateRef.current.secret) updatedRef.secret = mfaStateRef.current.secret;
 			}
-			
+
 			// Update with mfaState values (overwrite ref values)
 			if (mfaState.deviceId) updatedRef.deviceId = mfaState.deviceId;
 			if (mfaState.deviceStatus) updatedRef.deviceStatus = mfaState.deviceStatus;
 			if (mfaState.createdAt) updatedRef.createdAt = mfaState.createdAt;
 			if (mfaState.qrCodeUrl) updatedRef.qrCodeUrl = mfaState.qrCodeUrl;
 			if (mfaState.totpSecret) updatedRef.totpSecret = mfaState.totpSecret;
-			
+
 			mfaStateRef.current = updatedRef;
 			currentStepRef.current = nav.currentStep;
 			// Note: State updates moved to useEffect to avoid setState during render
@@ -2135,18 +2192,10 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			// CRITICAL: ALWAYS show QR code modal if we have device ID and QR code/secret
 			// Check multiple sources: local state, mfaState prop, and ref (in that order)
 			const refMfaState = mfaStateRef.current;
-			const currentQrCodeUrl = 
-				qrCodeUrl || 
-				mfaState.qrCodeUrl || 
-				refMfaState?.qrCodeUrl || 
-				refMfaState?.keyUri || 
-				'';
-			const currentTotpSecret = 
-				totpSecret || 
-				mfaState.totpSecret || 
-				refMfaState?.totpSecret || 
-				refMfaState?.secret || 
-				'';
+			const currentQrCodeUrl =
+				qrCodeUrl || mfaState.qrCodeUrl || refMfaState?.qrCodeUrl || refMfaState?.keyUri || '';
+			const currentTotpSecret =
+				totpSecret || mfaState.totpSecret || refMfaState?.totpSecret || refMfaState?.secret || '';
 			const shouldShowQrCode = mfaState.deviceId && (currentQrCodeUrl || currentTotpSecret);
 			const isActivationRequired = mfaState.deviceStatus === 'ACTIVATION_REQUIRED';
 
@@ -2175,10 +2224,10 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				// Close QR modal
 				setShowQrModal(false);
 				userClosedQrModalRef.current = true;
-				
+
 				// Mark step complete
 				nav.markStepComplete();
-				
+
 				// For ACTIVE devices, success page will be shown automatically
 				// when deviceStatus is ACTIVE and !showQrModal (see logic at line 2078)
 			};
@@ -2191,7 +2240,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			// 3. User has had time to scan (we auto-advance after a brief delay)
 			const isRegistrationFlow = Boolean(isConfigured);
 			const deviceIsActive = mfaState.deviceStatus === 'ACTIVE';
-			
+
 			// For registration flow: If device is ACTIVE and modals are closed, show success page
 			// This happens after device activation in Step 3 or after user clicks Continue
 			if (
@@ -2240,7 +2289,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			if (nav.currentStep === 3 && !showQrModal) {
 				// Auto-open QR modal if we have device ID and QR code data
 				// Don't reopen if user explicitly closed it
-				if (mfaState.deviceId && (currentQrCodeUrl || currentTotpSecret) && !userClosedQrModalRef.current) {
+				if (
+					mfaState.deviceId &&
+					(currentQrCodeUrl || currentTotpSecret) &&
+					!userClosedQrModalRef.current
+				) {
 					// Use setTimeout to avoid state updates during render
 					setTimeout(() => {
 						setShowQrModal(true);
@@ -2359,7 +2412,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										// Always allow closing the modal
 										setShowQrModal(false);
 										userClosedQrModalRef.current = true;
-										
+
 										// Step 3: Navigate back to previous step or hub
 										if (isConfigured) {
 											// Registration flow: Step 0 and 1 are skipped, go to hub
@@ -2498,8 +2551,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 												margin: '0 0 20px 0',
 											}}
 										>
-											Unable to display QR code. The device was registered but the secret/keyUri were not returned.
-											Please check the device details or try registering again.
+											Unable to display QR code. The device was registered but the secret/keyUri
+											were not returned. Please check the device details or try registering again.
 										</p>
 										<button
 											type="button"
@@ -2593,7 +2646,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 												color: '#6b7280',
 											}}
 										>
-											Can't scan the QR code? Enter this secret manually into your authenticator app:
+											Can't scan the QR code? Enter this secret manually into your authenticator
+											app:
 										</p>
 										<div
 											style={{
@@ -2650,9 +2704,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 											</button>
 										</div>
 										<div style={{ marginTop: '8px', fontSize: '10px', color: '#6b7280' }}>
-											<p style={{ margin: '0 0 2px 0' }}>
-												Instructions:
-											</p>
+											<p style={{ margin: '0 0 2px 0' }}>Instructions:</p>
 											<ol style={{ margin: '0 0 0 16px', padding: 0 }}>
 												<li>Open authenticator app</li>
 												<li>Select "Add account"</li>
@@ -2722,211 +2774,220 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								</p>
 
 								{/* Stuck Device Warning - Show when device is in ACTIVATION_REQUIRED status and missing QR data */}
-								{mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && 
-								 mfaState.deviceId && 
-								 !currentQrCodeUrl && 
-								 !currentTotpSecret && (
-									<div
-										style={{
-											marginTop: '20px',
-											padding: '16px',
-											background: '#fef2f2',
-											border: '1px solid #fecaca',
-											borderRadius: '6px',
-										}}
-									>
+								{mfaState.deviceStatus === 'ACTIVATION_REQUIRED' &&
+									mfaState.deviceId &&
+									!currentQrCodeUrl &&
+									!currentTotpSecret && (
 										<div
 											style={{
-												display: 'flex',
-												alignItems: 'flex-start',
-												gap: '12px',
-												marginBottom: '12px',
+												marginTop: '20px',
+												padding: '16px',
+												background: '#fef2f2',
+												border: '1px solid #fecaca',
+												borderRadius: '6px',
 											}}
 										>
-											<span style={{ fontSize: '20px', flexShrink: 0 }}>⚠️</span>
-											<div style={{ flex: 1 }}>
-												<p
-													style={{
-														margin: '0 0 8px 0',
-														fontSize: '14px',
-														fontWeight: '600',
-														color: '#991b1b',
-													}}
-												>
-													Device Stuck in Activation Required
-												</p>
-												<p
-													style={{
-														margin: '0 0 12px 0',
-														fontSize: '13px',
-														color: '#7f1d1d',
-														lineHeight: '1.5',
-													}}
-												>
-													This device is stuck in "ACTIVATION_REQUIRED" status and needs to be removed before you can start over. 
-													Delete this device to return to the hub and register a new one.
-												</p>
-												<p
-													style={{
-														margin: '0 0 12px 0',
-														fontSize: '12px',
-														color: '#991b1b',
-														fontStyle: 'italic',
-													}}
-												>
-													💡 <strong>Tip:</strong> If you need to delete multiple devices, use the "Delete All Devices" button below.
-												</p>
+											<div
+												style={{
+													display: 'flex',
+													alignItems: 'flex-start',
+													gap: '12px',
+													marginBottom: '12px',
+												}}
+											>
+												<span style={{ fontSize: '20px', flexShrink: 0 }}>⚠️</span>
+												<div style={{ flex: 1 }}>
+													<p
+														style={{
+															margin: '0 0 8px 0',
+															fontSize: '14px',
+															fontWeight: '600',
+															color: '#991b1b',
+														}}
+													>
+														Device Stuck in Activation Required
+													</p>
+													<p
+														style={{
+															margin: '0 0 12px 0',
+															fontSize: '13px',
+															color: '#7f1d1d',
+															lineHeight: '1.5',
+														}}
+													>
+														This device is stuck in "ACTIVATION_REQUIRED" status and needs to be
+														removed before you can start over. Delete this device to return to the
+														hub and register a new one.
+													</p>
+													<p
+														style={{
+															margin: '0 0 12px 0',
+															fontSize: '12px',
+															color: '#991b1b',
+															fontStyle: 'italic',
+														}}
+													>
+														💡 <strong>Tip:</strong> If you need to delete multiple devices, use the
+														"Delete All Devices" button below.
+													</p>
+												</div>
 											</div>
-										</div>
-										<div
-											style={{
-												display: 'flex',
-												gap: '8px',
-												flexWrap: 'wrap',
-											}}
-										>
-											<button
-												type="button"
-												onClick={async () => {
-													if (!mfaState.deviceId || !credentials.username || !credentials.environmentId) {
-														toastV8.error('Missing device information. Cannot delete device.');
-														return;
-													}
+											<div
+												style={{
+													display: 'flex',
+													gap: '8px',
+													flexWrap: 'wrap',
+												}}
+											>
+												<button
+													type="button"
+													onClick={async () => {
+														if (
+															!mfaState.deviceId ||
+															!credentials.username ||
+															!credentials.environmentId
+														) {
+															toastV8.error('Missing device information. Cannot delete device.');
+															return;
+														}
 
-													const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
-													const confirmed = await uiNotificationServiceV8.confirm({
-														title: 'Delete Device',
-														message: 'Are you sure you want to delete this device? You can then register a new device.',
-														confirmText: 'Delete Device',
-														cancelText: 'Cancel',
-														severity: 'danger',
-													});
-
-													if (!confirmed) {
-														return;
-													}
-
-													setIsLoading(true);
-													try {
-														await MFAServiceV8.deleteDevice({
-															environmentId: credentials.environmentId,
-															username: credentials.username,
-															deviceId: mfaState.deviceId,
+														const { uiNotificationServiceV8 } = await import(
+															'@/v8/services/uiNotificationServiceV8'
+														);
+														const confirmed = await uiNotificationServiceV8.confirm({
+															title: 'Delete Device',
+															message:
+																'Are you sure you want to delete this device? You can then register a new device.',
+															confirmText: 'Delete Device',
+															cancelText: 'Cancel',
+															severity: 'danger',
 														});
 
-														toastV8.success('Device deleted successfully. You can now register a new device.');
-														
-														// Clear device state to allow new registration
-														setMfaState((prev) => ({
-															...prev,
-															deviceId: '',
-															deviceStatus: '',
-															totpSecret: '',
-															qrCodeUrl: '',
-														}));
-														
-														// Reset auto-registration trigger so new device can be registered
-														autoRegistrationTriggeredRef.current = false;
-														
-														// Clear QR code state variables
-														setQrCodeUrl('');
-														setTotpSecret('');
-														
-														// Reset modal close flag so QR modal can open again for new device
-														userClosedQrModalRef.current = false;
-														
-														// Close QR modal and navigate to Step 2 to register a new device
-														setShowQrModal(false);
-														nav.goToStep(2);
-													} catch (error) {
-														console.error(`${MODULE_TAG} Failed to delete device:`, error);
-														toastV8.error(
-															`Failed to delete device: ${error instanceof Error ? error.message : 'Unknown error'}`
-														);
-													} finally {
-														setIsLoading(false);
-													}
-												}}
-												disabled={isLoading}
-												style={{
-													flex: 1,
-													minWidth: '140px',
-													padding: '10px 16px',
-													background: isLoading ? '#d1d5db' : '#dc2626',
-													color: 'white',
-													border: 'none',
-													borderRadius: '6px',
-													fontSize: '13px',
-													fontWeight: '600',
-													cursor: isLoading ? 'not-allowed' : 'pointer',
-													display: 'flex',
-													alignItems: 'center',
-													justifyContent: 'center',
-													gap: '6px',
-												}}
-											>
-												{isLoading ? (
-													<>
-														<span
-															style={{
-																display: 'inline-block',
-																width: '12px',
-																height: '12px',
-																border: '2px solid rgba(255, 255, 255, 0.3)',
-																borderTop: '2px solid white',
-																borderRadius: '50%',
-																animation: 'spin 0.8s linear infinite',
-															}}
-														/>
-														Deleting...
-													</>
-												) : (
-													<>
-														🗑️ Delete Device
-													</>
-												)}
-											</button>
-											<button
-												type="button"
-												onClick={() => {
-													// Navigate to delete all devices page with pre-filled credentials
-													navigate('/v8/delete-all-devices', {
-														state: {
-															environmentId: credentials.environmentId,
-															username: credentials.username,
-															deviceType: 'TOTP',
-															deviceStatus: 'ACTIVATION_REQUIRED',
-														},
-													});
-												}}
-												style={{
-													flex: 1,
-													minWidth: '140px',
-													padding: '10px 16px',
-													background: '#f59e0b',
-													color: 'white',
-													border: 'none',
-													borderRadius: '6px',
-													fontSize: '13px',
-													fontWeight: '600',
-													cursor: 'pointer',
-													display: 'flex',
-													alignItems: 'center',
-													justifyContent: 'center',
-													gap: '6px',
-												}}
-											>
-												🗑️ Delete All Devices
-											</button>
-										</div>
-										<style>
-											{`@keyframes spin {
+														if (!confirmed) {
+															return;
+														}
+
+														setIsLoading(true);
+														try {
+															await MFAServiceV8.deleteDevice({
+																environmentId: credentials.environmentId,
+																username: credentials.username,
+																deviceId: mfaState.deviceId,
+															});
+
+															toastV8.success(
+																'Device deleted successfully. You can now register a new device.'
+															);
+
+															// Clear device state to allow new registration
+															setMfaState((prev) => ({
+																...prev,
+																deviceId: '',
+																deviceStatus: '',
+																totpSecret: '',
+																qrCodeUrl: '',
+															}));
+
+															// Reset auto-registration trigger so new device can be registered
+															autoRegistrationTriggeredRef.current = false;
+
+															// Clear QR code state variables
+															setQrCodeUrl('');
+															setTotpSecret('');
+
+															// Reset modal close flag so QR modal can open again for new device
+															userClosedQrModalRef.current = false;
+
+															// Close QR modal and navigate to Step 2 to register a new device
+															setShowQrModal(false);
+															nav.goToStep(2);
+														} catch (error) {
+															console.error(`${MODULE_TAG} Failed to delete device:`, error);
+															toastV8.error(
+																`Failed to delete device: ${error instanceof Error ? error.message : 'Unknown error'}`
+															);
+														} finally {
+															setIsLoading(false);
+														}
+													}}
+													disabled={isLoading}
+													style={{
+														flex: 1,
+														minWidth: '140px',
+														padding: '10px 16px',
+														background: isLoading ? '#d1d5db' : '#dc2626',
+														color: 'white',
+														border: 'none',
+														borderRadius: '6px',
+														fontSize: '13px',
+														fontWeight: '600',
+														cursor: isLoading ? 'not-allowed' : 'pointer',
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'center',
+														gap: '6px',
+													}}
+												>
+													{isLoading ? (
+														<>
+															<span
+																style={{
+																	display: 'inline-block',
+																	width: '12px',
+																	height: '12px',
+																	border: '2px solid rgba(255, 255, 255, 0.3)',
+																	borderTop: '2px solid white',
+																	borderRadius: '50%',
+																	animation: 'spin 0.8s linear infinite',
+																}}
+															/>
+															Deleting...
+														</>
+													) : (
+														<>🗑️ Delete Device</>
+													)}
+												</button>
+												<button
+													type="button"
+													onClick={() => {
+														// Navigate to delete all devices page with pre-filled credentials
+														navigate('/v8/delete-all-devices', {
+															state: {
+																environmentId: credentials.environmentId,
+																username: credentials.username,
+																deviceType: 'TOTP',
+																deviceStatus: 'ACTIVATION_REQUIRED',
+															},
+														});
+													}}
+													style={{
+														flex: 1,
+														minWidth: '140px',
+														padding: '10px 16px',
+														background: '#f59e0b',
+														color: 'white',
+														border: 'none',
+														borderRadius: '6px',
+														fontSize: '13px',
+														fontWeight: '600',
+														cursor: 'pointer',
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'center',
+														gap: '6px',
+													}}
+												>
+													🗑️ Delete All Devices
+												</button>
+											</div>
+											<style>
+												{`@keyframes spin {
 												0% { transform: rotate(0deg); }
 												100% { transform: rotate(360deg); }
 											}`}
-										</style>
-									</div>
-								)}
+											</style>
+										</div>
+									)}
 							</div>
 
 							{/* Action Buttons - Sticky Footer */}
@@ -2962,45 +3023,45 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									{isActivationRequired ? 'Cancel' : 'Close'}
 								</button>
 								{!isActivationRequired && (
-										<button
-											type="button"
-											onClick={handleContinue}
-											style={{
-												width: '100%',
-												padding: '8px 16px',
-												background: '#10b981',
-												color: 'white',
-												border: 'none',
-												borderRadius: '6px',
-												fontSize: '15px',
-												fontWeight: '600',
-												cursor: 'pointer',
-												boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-											}}
-										>
-											Continue →
-										</button>
-									)}
-								</div>
+									<button
+										type="button"
+										onClick={handleContinue}
+										style={{
+											width: '100%',
+											padding: '8px 16px',
+											background: '#10b981',
+											color: 'white',
+											border: 'none',
+											borderRadius: '6px',
+											fontSize: '15px',
+											fontWeight: '600',
+											cursor: 'pointer',
+											boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+										}}
+									>
+										Continue →
+									</button>
+								)}
+							</div>
 						</div>
 					</div>
 				</>
 			);
 		},
 		[
-			showQrModal, 
+			showQrModal,
 			// Only include primitive values from step3ModalDrag that actually change
 			// modalRef is stable (ref object), so we don't need it in deps
 			// modalPosition.x and .y are primitives that change when dragging
-			step3ModalDrag.modalPosition.x, 
-			step3ModalDrag.modalPosition.y, 
+			step3ModalDrag.modalPosition.x,
+			step3ModalDrag.modalPosition.y,
 			step3ModalDrag.isDragging,
 			// handleMouseDown is a useCallback, should be stable, but include it to be safe
 			step3ModalDrag.handleMouseDown,
 			// Note: step3ModalDrag.modalStyle is intentionally NOT in dependencies
 			// because it's a new object on every render, which would cause infinite loops
-			qrCodeUrl, 
-			totpSecret, 
+			qrCodeUrl,
+			totpSecret,
 			secretCopied,
 			showActivationModal,
 			handleActivateDevice,
@@ -3020,7 +3081,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 	// Step 4: Validate OTP (Modal - for authentication after device is activated)
 	// NOTE: For registration flow, Step 4 should never be shown - success page is shown after activation in Step 3
-		const renderStep4Validate = useCallback(
+	const renderStep4Validate = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading, tokenStatus } =
 				props;
@@ -3406,8 +3467,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										} catch (error) {
 											// Ensure error is displayed in the modal
 											// Normalize error messages per MFA_OTP_TOTP_MASTER.md
-											const rawErrorMessage = error instanceof Error ? error.message : 'Invalid OTP code entered';
-											const normalizedError = 
+											const rawErrorMessage =
+												error instanceof Error ? error.message : 'Invalid OTP code entered';
+											const normalizedError =
 												rawErrorMessage.toLowerCase().includes('invalid') ||
 												rawErrorMessage.toLowerCase().includes('incorrect') ||
 												rawErrorMessage.toLowerCase().includes('wrong') ||
@@ -3415,7 +3477,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 												rawErrorMessage.toLowerCase().includes('bad request')
 													? 'OTP code invalid'
 													: rawErrorMessage;
-											
+
 											setValidationState({
 												validationAttempts: validationState.validationAttempts + 1,
 												lastValidationError: normalizedError,
@@ -3565,7 +3627,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 		return () => clearTimeout(timeoutId);
 	}, [totpSecret, qrCodeUrl, secretReceivedAt]); // Trigger when secret data changes
-	
+
 	// Also sync when mfaState changes (passed from MFAFlowBaseV8)
 	// This ensures we catch updates that happen via setMfaState
 	React.useEffect(() => {
@@ -3593,14 +3655,14 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	// This ensures the QR code page always shows when Step 3 is reached
 	// But respect user's choice to close it during registration flow
 	const [userClosedQrModal, setUserClosedQrModal] = React.useState(false);
-	
+
 	React.useEffect(() => {
 		// Reset closed flag when step changes away from 3
 		if (currentStepRef.current !== 3) {
 			setUserClosedQrModal(false);
 			userClosedQrModalRef.current = false; // Also reset ref
 		}
-		
+
 		// Auto-open only if:
 		// 1. We're on Step 3
 		// 2. Modal is closed
@@ -3608,8 +3670,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		// Note: We do NOT auto-open if userClosedQrModal is true, even if deviceId exists
 		// This prevents the modal from re-opening after user closes it
 		if (
-			currentStepRef.current === 3 && 
-			!showQrModal && 
+			currentStepRef.current === 3 &&
+			!showQrModal &&
 			!userClosedQrModal // Only auto-open if user hasn't explicitly closed it
 		) {
 			setShowQrModal(true);
@@ -3622,7 +3684,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	// Also reads from refs as fallback to handle cases where state hasn't synced yet
 	useEffect(() => {
 		// Use state if available, otherwise fall back to refs
-		const currentStep = currentStepForExpiration !== undefined ? currentStepForExpiration : currentStepRef.current;
+		const currentStep =
+			currentStepForExpiration !== undefined ? currentStepForExpiration : currentStepRef.current;
 		const mfaState = mfaStateForExpiration || mfaStateRef.current;
 
 		// Only check expiration when on Step 3 and we have a device ID
@@ -3714,7 +3777,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								'Scan QR Code',
 								// Step 4: OTP/Activate -> Success
 								'Activate Device',
-						  ]
+							]
 						: [
 								// Authentication flow: Include device selection
 								'Configure',
@@ -3722,7 +3785,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								'Register Device',
 								'Scan QR Code & Activate',
 								'Validate',
-						  ]
+							]
 				}
 				shouldHideNextButton={(props) => {
 					// For registration flow, hide Next button on steps with modals
@@ -3865,7 +3928,10 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							setQrCodeUrl('');
 							setSecretReceivedAt(null);
 							// Refresh device list
-							const devices = await controller.loadExistingDevices(currentCredentials, currentTokenStatus);
+							const devices = await controller.loadExistingDevices(
+								currentCredentials,
+								currentTokenStatus
+							);
 							setDeviceSelection((prev) => ({
 								...prev,
 								existingDevices: devices,
@@ -3886,230 +3952,230 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			/>
 
 			{/* Activation OTP Modal (separate from QR modal) */}
-			{showActivationModal && activationPropsRef.current?.mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && (
-				<div
-					style={{
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						background: 'rgba(0, 0, 0, 0.5)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						zIndex: 1001,
-						padding: '20px',
-					}}
-					onClick={() => {
-						// Don't close on backdrop click - require explicit cancel
-					}}
-				>
+			{showActivationModal &&
+				activationPropsRef.current?.mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && (
 					<div
 						style={{
-							background: 'white',
-							borderRadius: '16px',
-							padding: '0',
-							maxWidth: '500px',
-							width: '100%',
-							maxHeight: '85vh',
+							position: 'fixed',
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							background: 'rgba(0, 0, 0, 0.5)',
 							display: 'flex',
-							flexDirection: 'column',
-							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-							overflow: 'hidden',
+							alignItems: 'center',
+							justifyContent: 'center',
+							zIndex: 1001,
+							padding: '20px',
 						}}
-						onClick={(e) => e.stopPropagation()}
+						onClick={() => {
+							// Don't close on backdrop click - require explicit cancel
+						}}
 					>
-						{/* Header */}
 						<div
 							style={{
-								background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-								padding: '20px 24px',
-								textAlign: 'center',
-								position: 'relative',
+								background: 'white',
+								borderRadius: '16px',
+								padding: '0',
+								maxWidth: '500px',
+								width: '100%',
+								maxHeight: '85vh',
+								display: 'flex',
+								flexDirection: 'column',
+								boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+								overflow: 'hidden',
 							}}
+							onClick={(e) => e.stopPropagation()}
 						>
-							<button
-								type="button"
-								onClick={() => {
-									setShowActivationModal(false);
-									setActivationOtp('');
-									setActivationError(null);
-								}}
-								style={{
-									position: 'absolute',
-									top: '10px',
-									right: '10px',
-									background: 'rgba(255, 255, 255, 0.2)',
-									border: 'none',
-									borderRadius: '50%',
-									width: '28px',
-									height: '28px',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									cursor: 'pointer',
-									color: 'white',
-									fontSize: '16px',
-								}}
-							>
-								<FiX />
-							</button>
-							<h2
-								style={{
-									margin: '0 0 8px 0',
-									fontSize: '24px',
-									fontWeight: '700',
-									color: 'white',
-								}}
-							>
-								Activate TOTP Device
-							</h2>
-							<p
-								style={{
-									margin: 0,
-									fontSize: '14px',
-									color: 'rgba(255, 255, 255, 0.9)',
-								}}
-							>
-								Enter the 6-digit code from your authenticator app
-							</p>
-						</div>
-
-						{/* Modal Body */}
-						<div
-							style={{
-								padding: '24px',
-								overflowY: 'auto',
-								flex: 1,
-								minHeight: 0,
-							}}
-						>
-							<div style={{ marginBottom: '20px' }}>
-								<label
-									htmlFor="activation-otp-input"
-									style={{
-										display: 'block',
-										marginBottom: '12px',
-										fontSize: '15px',
-										fontWeight: '600',
-										color: '#374151',
-									}}
-								>
-									OTP Code <span style={{ color: '#ef4444' }}>*</span>
-									<MFAInfoButtonV8 contentKey="otp.validation" displayMode="tooltip" />
-								</label>
-								<MFAOTPInput
-									value={activationOtp}
-									onChange={setActivationOtp}
-									maxLength={otpLength}
-									placeholder={'0'.repeat(otpLength)}
-									disabled={isActivating}
-								/>
-								{activationError && (
-									<div
-										style={{
-											marginTop: '8px',
-											padding: '8px',
-											background: '#fef2f2',
-											border: '1px solid #fecaca',
-											borderRadius: '6px',
-											color: '#991b1b',
-											fontSize: '14px',
-										}}
-									>
-										<strong>Error:</strong> {activationError}
-									</div>
-								)}
-							</div>
-
-							{/* Info */}
+							{/* Header */}
 							<div
 								style={{
-									padding: '8px',
-									background: '#eff6ff',
-									border: '1px solid #bfdbfe',
-									borderRadius: '6px',
-									marginBottom: '20px',
+									background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+									padding: '20px 24px',
+									textAlign: 'center',
+									position: 'relative',
 								}}
 							>
+								<button
+									type="button"
+									onClick={() => {
+										setShowActivationModal(false);
+										setActivationOtp('');
+										setActivationError(null);
+									}}
+									style={{
+										position: 'absolute',
+										top: '10px',
+										right: '10px',
+										background: 'rgba(255, 255, 255, 0.2)',
+										border: 'none',
+										borderRadius: '50%',
+										width: '28px',
+										height: '28px',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										cursor: 'pointer',
+										color: 'white',
+										fontSize: '16px',
+									}}
+								>
+									<FiX />
+								</button>
+								<h2
+									style={{
+										margin: '0 0 8px 0',
+										fontSize: '24px',
+										fontWeight: '700',
+										color: 'white',
+									}}
+								>
+									Activate TOTP Device
+								</h2>
 								<p
 									style={{
 										margin: 0,
-										fontSize: '13px',
-										color: '#1e40af',
-										lineHeight: '1.5',
+										fontSize: '14px',
+										color: 'rgba(255, 255, 255, 0.9)',
 									}}
 								>
-									💡 <strong>Tip:</strong> Open your authenticator app (Google Authenticator, Authy, etc.) and enter the 6-digit code shown there.
+									Enter the 6-digit code from your authenticator app
 								</p>
 							</div>
-						</div>
 
-						{/* Action Buttons - Sticky Footer */}
-						<div
-							style={{
-								display: 'flex',
-								gap: '12px',
-								padding: '16px 24px',
-								background: 'white',
-								borderTop: '1px solid #e5e7eb',
-								flexShrink: 0,
-							}}
-						>
-							<button
-								type="button"
-								onClick={() => {
-									setShowActivationModal(false);
-									setActivationOtp('');
-									setActivationError(null);
-								}}
+							{/* Modal Body */}
+							<div
 								style={{
+									padding: '24px',
+									overflowY: 'auto',
 									flex: 1,
-									padding: '8px 16px',
-									background: '#f3f4f6',
-									color: '#374151',
-									border: '1px solid #d1d5db',
-									borderRadius: '6px',
-									fontSize: '15px',
-									fontWeight: '600',
-									cursor: 'pointer',
+									minHeight: 0,
 								}}
 							>
-								Cancel
-							</button>
-							<button
-								type="button"
-								disabled={isActivating || activationOtp.length !== otpLength}
-								onClick={handleActivateDevice}
+								<div style={{ marginBottom: '20px' }}>
+									<label
+										htmlFor="activation-otp-input"
+										style={{
+											display: 'block',
+											marginBottom: '12px',
+											fontSize: '15px',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
+										OTP Code <span style={{ color: '#ef4444' }}>*</span>
+										<MFAInfoButtonV8 contentKey="otp.validation" displayMode="tooltip" />
+									</label>
+									<MFAOTPInput
+										value={activationOtp}
+										onChange={setActivationOtp}
+										maxLength={otpLength}
+										placeholder={'0'.repeat(otpLength)}
+										disabled={isActivating}
+									/>
+									{activationError && (
+										<div
+											style={{
+												marginTop: '8px',
+												padding: '8px',
+												background: '#fef2f2',
+												border: '1px solid #fecaca',
+												borderRadius: '6px',
+												color: '#991b1b',
+												fontSize: '14px',
+											}}
+										>
+											<strong>Error:</strong> {activationError}
+										</div>
+									)}
+								</div>
+
+								{/* Info */}
+								<div
+									style={{
+										padding: '8px',
+										background: '#eff6ff',
+										border: '1px solid #bfdbfe',
+										borderRadius: '6px',
+										marginBottom: '20px',
+									}}
+								>
+									<p
+										style={{
+											margin: 0,
+											fontSize: '13px',
+											color: '#1e40af',
+											lineHeight: '1.5',
+										}}
+									>
+										💡 <strong>Tip:</strong> Open your authenticator app (Google Authenticator,
+										Authy, etc.) and enter the 6-digit code shown there.
+									</p>
+								</div>
+							</div>
+
+							{/* Action Buttons - Sticky Footer */}
+							<div
 								style={{
-									flex: 2,
-									padding: '8px 16px',
-									background:
-										activationOtp.length === otpLength && !isActivating
-											? '#10b981'
-											: '#d1d5db',
-									color: 'white',
-									border: 'none',
-									borderRadius: '6px',
-									fontSize: '15px',
-									fontWeight: '600',
-									cursor:
-										activationOtp.length === otpLength && !isActivating
-											? 'pointer'
-											: 'not-allowed',
-									boxShadow:
-										activationOtp.length === otpLength && !isActivating
-											? '0 4px 12px rgba(16, 185, 129, 0.3)'
-											: 'none',
+									display: 'flex',
+									gap: '12px',
+									padding: '16px 24px',
+									background: 'white',
+									borderTop: '1px solid #e5e7eb',
+									flexShrink: 0,
 								}}
 							>
-								{isActivating ? '🔄 Activating...' : 'Activate Device →'}
-							</button>
+								<button
+									type="button"
+									onClick={() => {
+										setShowActivationModal(false);
+										setActivationOtp('');
+										setActivationError(null);
+									}}
+									style={{
+										flex: 1,
+										padding: '8px 16px',
+										background: '#f3f4f6',
+										color: '#374151',
+										border: '1px solid #d1d5db',
+										borderRadius: '6px',
+										fontSize: '15px',
+										fontWeight: '600',
+										cursor: 'pointer',
+									}}
+								>
+									Cancel
+								</button>
+								<button
+									type="button"
+									disabled={isActivating || activationOtp.length !== otpLength}
+									onClick={handleActivateDevice}
+									style={{
+										flex: 2,
+										padding: '8px 16px',
+										background:
+											activationOtp.length === otpLength && !isActivating ? '#10b981' : '#d1d5db',
+										color: 'white',
+										border: 'none',
+										borderRadius: '6px',
+										fontSize: '15px',
+										fontWeight: '600',
+										cursor:
+											activationOtp.length === otpLength && !isActivating
+												? 'pointer'
+												: 'not-allowed',
+										boxShadow:
+											activationOtp.length === otpLength && !isActivating
+												? '0 4px 12px rgba(16, 185, 129, 0.3)'
+												: 'none',
+									}}
+								>
+									{isActivating ? '🔄 Activating...' : 'Activate Device →'}
+								</button>
+							</div>
 						</div>
 					</div>
-				</div>
-			)}
+				)}
 		</div>
 	);
 };

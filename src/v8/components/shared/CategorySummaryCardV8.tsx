@@ -56,10 +56,7 @@ export const CategorySummaryCardV8: React.FC<CategorySummaryCardProps> = ({
 				{showProgress && (
 					<div className="progress-container">
 						<div className="progress-bar">
-							<div 
-								className="progress-fill" 
-								style={{ width: `${getProgressPercentage()}%` }}
-							/>
+							<div className="progress-fill" style={{ width: `${getProgressPercentage()}%` }} />
 						</div>
 						<span className="progress-text">
 							{progressValue} / {progressMax}
@@ -78,8 +75,8 @@ export const CategorySummaryCardV8: React.FC<CategorySummaryCardProps> = ({
 								<span className="item-value">{item.value}</span>
 							</div>
 							{variant === 'detailed' && (
-								<div 
-									className="status-indicator" 
+								<div
+									className="status-indicator"
 									style={{ backgroundColor: getStatusColor(item.status) }}
 								/>
 							)}

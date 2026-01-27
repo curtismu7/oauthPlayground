@@ -565,7 +565,7 @@ console.log('Implicit tokens stored:', tokens);`,
 					setResponse(null);
 					setError(null);
 					setRequestUri('');
-					
+
 					// Clear any potential ConfigChecker-related state or cached data
 					try {
 						// Clear any comparison results or cached application data
@@ -573,12 +573,14 @@ console.log('Implicit tokens stored:', tokens);`,
 						sessionStorage.removeItem('config-checker-last-check');
 						sessionStorage.removeItem('pingone-app-cache');
 						localStorage.removeItem('pingone-applications-cache');
-						
+
 						// Clear any worker token related cache that might be used for pre-flight checks
 						sessionStorage.removeItem('worker-token-cache');
 						localStorage.removeItem('worker-apps-cache');
-						
-						console.log('🔄 [ImplicitRequestURIFlow] Reset: cleared ConfigChecker and pre-flight cache data');
+
+						console.log(
+							'🔄 [ImplicitRequestURIFlow] Reset: cleared ConfigChecker and pre-flight cache data'
+						);
 					} catch (error) {
 						console.warn('[ImplicitRequestURIFlow] Failed to clear cache data:', error);
 					}

@@ -370,7 +370,10 @@ export class AppDiscoveryServiceV8 {
 				grantTypes: rawApp.grantTypes || [],
 				responseTypes: rawApp.responseTypes || [],
 				redirectUris: rawApp.redirectUris || rawApp.redirect_uris || [],
-				tokenEndpointAuthMethod: rawApp.tokenEndpointAuthMethod || rawApp.token_endpoint_auth_method || 'client_secret_post',
+				tokenEndpointAuthMethod:
+					rawApp.tokenEndpointAuthMethod ||
+					rawApp.token_endpoint_auth_method ||
+					'client_secret_post',
 				clientSecret: undefined, // Not available in list endpoint - use fetchApplicationWithSecret() for individual app
 				pkceRequired: rawApp.pkceRequired,
 				pkceEnforced: rawApp.pkceEnforced,
@@ -380,7 +383,8 @@ export class AppDiscoveryServiceV8 {
 			}));
 
 			console.log(`${MODULE_TAG} Discovered ${applications.length} applications`, {
-				applicationsWithTokenAuthMethod: applications.filter((app) => app.tokenEndpointAuthMethod).length,
+				applicationsWithTokenAuthMethod: applications.filter((app) => app.tokenEndpointAuthMethod)
+					.length,
 			});
 
 			return applications;

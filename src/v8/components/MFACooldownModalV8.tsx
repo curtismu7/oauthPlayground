@@ -310,8 +310,13 @@ export const MFACooldownModalV8: React.FC<MFACooldownModalV8Props> = ({
 								{deliveryMethod && deliveryMethod !== 'TOTP' && (
 									<InfoListItem>
 										<strong>Try a different device:</strong> If you have other registered devices
-										(e.g., {deliveryMethod === 'SMS' ? 'Email or TOTP' : deliveryMethod === 'EMAIL' ? 'SMS or TOTP' : 'SMS or Email'}),
-										you can use them instead.
+										(e.g.,{' '}
+										{deliveryMethod === 'SMS'
+											? 'Email or TOTP'
+											: deliveryMethod === 'EMAIL'
+												? 'SMS or TOTP'
+												: 'SMS or Email'}
+										), you can use them instead.
 									</InfoListItem>
 								)}
 								<InfoListItem>
@@ -331,4 +336,3 @@ export const MFACooldownModalV8: React.FC<MFACooldownModalV8Props> = ({
 		</ModalOverlay>
 	);
 };
-

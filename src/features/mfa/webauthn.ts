@@ -117,9 +117,7 @@ export function jsonToCreationOptions(
 	if (Array.isArray(options.excludeCredentials)) {
 		options.excludeCredentials = options.excludeCredentials.map((cred) => ({
 			...cred,
-			id: Array.isArray(cred.id)
-				? (numberArrayToUint8Array(cred.id) as BufferSource)
-				: cred.id,
+			id: Array.isArray(cred.id) ? (numberArrayToUint8Array(cred.id) as BufferSource) : cred.id,
 		})) as PublicKeyCredentialDescriptor[];
 	}
 
@@ -148,9 +146,7 @@ export function jsonToRequestOptions(
 	if (Array.isArray(options.allowCredentials)) {
 		options.allowCredentials = options.allowCredentials.map((cred) => ({
 			...cred,
-			id: Array.isArray(cred.id)
-				? (numberArrayToUint8Array(cred.id) as BufferSource)
-				: cred.id,
+			id: Array.isArray(cred.id) ? (numberArrayToUint8Array(cred.id) as BufferSource) : cred.id,
 		})) as PublicKeyCredentialDescriptor[];
 	}
 

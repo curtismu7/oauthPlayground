@@ -11,29 +11,29 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { CollapsibleSectionV8 } from '@/v8/components/shared/CollapsibleSectionV8';
+import {
+	ErrorMessage,
+	InfoMessage,
+	MessageBoxV8,
+	SuccessMessage,
+	WarningMessage,
+} from '@/v8/components/shared/MessageBoxV8';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { fetchPhoneFromPingOne } from '@/v8/services/phoneAutoPopulationServiceV8';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { isValidPhoneFormat, validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { CollapsibleSectionV8 } from '@/v8/components/shared/CollapsibleSectionV8';
-import { 
-	MessageBoxV8, 
-	SuccessMessage, 
-	ErrorMessage, 
-	WarningMessage,
-	InfoMessage 
-} from '@/v8/components/shared/MessageBoxV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
-import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 import { type Device, MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { getFullPhoneNumber } from '../controllers/SMSFlowController';
@@ -76,7 +76,9 @@ interface DeviceSelectionStepProps extends MFAFlowBaseRenderProps {
 	updateOtpState: (update: Partial<OTPState> | ((prev: OTPState) => Partial<OTPState>)) => void;
 }
 
-const MobileDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigured?: boolean }> = ({
+const MobileDeviceSelectionStep: React.FC<
+	DeviceSelectionStepProps & { isConfigured?: boolean }
+> = ({
 	controller,
 	deviceSelection,
 	setDeviceSelection,
@@ -216,7 +218,9 @@ const MobileDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigu
 						});
 						nav.markStepComplete();
 						nav.goToStep(3);
-						toastV8.success('Device selected for authentication. Follow the next step to continue.');
+						toastV8.success(
+							'Device selected for authentication. Follow the next step to continue.'
+						);
 				}
 			} catch (error) {
 				const message = error instanceof Error ? error.message : 'Unknown error';
@@ -1200,7 +1204,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 				const selectedPolicy = props.deviceAuthPolicies?.find(
 					(p) => p.id === credentials.deviceAuthenticationPolicyId
 				);
-				
+
 				// Check if pairing is disabled in the policy
 				if (selectedPolicy?.pairingDisabled === true) {
 					nav.setValidationErrors([
@@ -1523,7 +1527,9 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 						toastV8.error('Device limit exceeded. Please delete an existing device first.');
 					} else if (isWorkerTokenError) {
 						// Use helper to show worker token modal (respects silent API retrieval setting)
-						const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+						const { handleShowWorkerTokenModal } = await import(
+							'@/v8/utils/workerTokenModalHelperV8'
+						);
 						// Get current checkbox values from config
 						const config = MFAConfigurationServiceV8.loadConfiguration();
 						const silentApiRetrieval = config.workerToken.silentApiRetrieval || false;
@@ -1539,14 +1545,19 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 									timestamp: Date.now(),
 									sessionId: 'debug-session',
 									runId: 'run1',
-									hypothesisId: 'D'
+									hypothesisId: 'D',
 								});
 							} catch {
 								// Silently ignore - analytics server not available
 							}
 						})();
 						// #endregion
-						await handleShowWorkerTokenModal(setShowWorkerTokenModal, undefined, silentApiRetrieval, showTokenAtEnd);
+						await handleShowWorkerTokenModal(
+							setShowWorkerTokenModal,
+							undefined,
+							silentApiRetrieval,
+							showTokenAtEnd
+						);
 						nav.setValidationErrors([`Registration failed: ${errorMessage}`]);
 						toastV8.error(`Registration failed: ${errorMessage}`);
 					} else {
@@ -1755,7 +1766,10 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 							overflow: 'hidden',
 							...step2ModalDrag.modalStyle,
 							pointerEvents: 'auto',
-							position: step2ModalDrag.modalPosition.x !== 0 || step2ModalDrag.modalPosition.y !== 0 ? 'fixed' : 'relative',
+							position:
+								step2ModalDrag.modalPosition.x !== 0 || step2ModalDrag.modalPosition.y !== 0
+									? 'fixed'
+									: 'relative',
 						}}
 						onClick={(e) => e.stopPropagation()}
 					>
@@ -2138,10 +2152,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 										>
 											Device Name <span style={{ color: '#ef4444' }}>*</span>
 										</label>
-										<MFAInfoButtonV8
-											contentKey="device.nickname"
-											displayMode="tooltip"
-										/>
+										<MFAInfoButtonV8 contentKey="device.nickname" displayMode="tooltip" />
 									</div>
 									<input
 										id="mfa-device-name-register"
@@ -2186,7 +2197,12 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 										}}
 									/>
 									<small
-										style={{ display: 'block', marginTop: '4px', fontSize: '11px', color: '#6b7280' }}
+										style={{
+											display: 'block',
+											marginTop: '4px',
+											fontSize: '11px',
+											color: '#6b7280',
+										}}
 									>
 										Enter a friendly name to identify this device (e.g., "My Work Phone", "Personal
 										Email")
@@ -2219,8 +2235,10 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 										/>
 									</div>
 									<p style={{ margin: 0, fontSize: '12px', color: '#6b7280', lineHeight: '1.5' }}>
-										Device name will be set automatically during registration. Your policy's "Prompt for Nickname on
-										Pairing" setting is disabled, so you cannot enter a custom nickname at this time. You can rename this device later through device management.
+										Device name will be set automatically during registration. Your policy's "Prompt
+										for Nickname on Pairing" setting is disabled, so you cannot enter a custom
+										nickname at this time. You can rename this device later through device
+										management.
 									</p>
 								</div>
 							)}
@@ -2264,16 +2282,18 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 											const config = MFAConfigurationServiceV8.loadConfiguration();
 											const silentApiRetrieval = config.workerToken.silentApiRetrieval || false;
 											const showTokenAtEnd = config.workerToken.showTokenAtEnd !== false;
-											
+
 											// Pass current checkbox values to override config (page checkboxes take precedence)
 											// forceShowModal=true because user explicitly clicked the button - always show modal
-											const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+											const { handleShowWorkerTokenModal } = await import(
+												'@/v8/utils/workerTokenModalHelperV8'
+											);
 											await handleShowWorkerTokenModal(
 												setShowWorkerTokenModal,
 												undefined,
-												silentApiRetrieval,  // Config value
-												showTokenAtEnd,      // Config value
-												true                  // Force show modal - user clicked button
+												silentApiRetrieval, // Config value
+												showTokenAtEnd, // Config value
+												true // Force show modal - user clicked button
 											);
 										}}
 										style={{
@@ -2302,9 +2322,16 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 								const config = MFAConfigurationServiceV8.loadConfiguration();
 								const silentApiRetrieval = config.workerToken.silentApiRetrieval || false;
 								const showTokenAtEnd = config.workerToken.showTokenAtEnd !== false;
-								
+
 								return (
-									<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+									<div
+										style={{
+											marginTop: '16px',
+											display: 'flex',
+											flexDirection: 'column',
+											gap: '12px',
+										}}
+									>
 										<label
 											style={{
 												display: 'flex',
@@ -2333,21 +2360,30 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 													config.workerToken.silentApiRetrieval = newValue;
 													MFAConfigurationServiceV8.saveConfiguration(config);
 													// Dispatch event to notify other components
-													window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+													window.dispatchEvent(
+														new CustomEvent('mfaConfigurationUpdated', {
+															detail: { workerToken: config.workerToken },
+														})
+													);
 													toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
-													
+
 													// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 													if (newValue) {
-														const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+														const currentStatus =
+															WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 														if (!currentStatus.isValid) {
-															console.log('[MOBILE-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...');
-															const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+															console.log(
+																'[MOBILE-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
+															);
+															const { handleShowWorkerTokenModal } = await import(
+																'@/v8/utils/workerTokenModalHelperV8'
+															);
 															await handleShowWorkerTokenModal(
 																setShowWorkerTokenModal,
 																undefined,
-																newValue,  // Use new value
+																newValue, // Use new value
 																showTokenAtEnd,
-																false      // Not forced - respect silent setting
+																false // Not forced - respect silent setting
 															);
 														}
 													}
@@ -2398,7 +2434,11 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 													config.workerToken.showTokenAtEnd = newValue;
 													MFAConfigurationServiceV8.saveConfiguration(config);
 													// Dispatch event to notify other components
-													window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+													window.dispatchEvent(
+														new CustomEvent('mfaConfigurationUpdated', {
+															detail: { workerToken: config.workerToken },
+														})
+													);
 													toastV8.info(`Show Token After Generation set to: ${newValue}`);
 												}}
 												style={{
@@ -2471,7 +2511,6 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 									<span>Show API Display</span>
 								</label>
 							</div>
-
 						</div>
 
 						{/* Action Buttons - Sticky Footer */}
@@ -2785,7 +2824,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading, tokenStatus } =
 				props;
-			
+
 			// Store nav in ref for ESC key handler
 			navRef.current = nav;
 
@@ -3280,9 +3319,11 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 										try {
 											// For authentication flow (when authenticationId exists), use selectDeviceForAuthentication
 											if (mfaState.authenticationId && mfaState.deviceId) {
-												const { MfaAuthenticationServiceV8 } = await import('@/v8/services/mfaAuthenticationServiceV8');
+												const { MfaAuthenticationServiceV8 } = await import(
+													'@/v8/services/mfaAuthenticationServiceV8'
+												);
 												const { MFAServiceV8 } = await import('@/v8/services/mfaServiceV8');
-												
+
 												// Get userId if not already available
 												let userId = mfaState.userId;
 												if (!userId) {
@@ -3306,7 +3347,10 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 												toastV8.success('OTP code resent successfully!');
 											}
 											// For registration flow with ACTIVATION_REQUIRED devices, use resendPairingCode
-											else if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && mfaState.deviceId) {
+											else if (
+												mfaState.deviceStatus === 'ACTIVATION_REQUIRED' &&
+												mfaState.deviceId
+											) {
 												await MFAServiceV8.resendPairingCode({
 													environmentId: credentials.environmentId,
 													username: credentials.username,

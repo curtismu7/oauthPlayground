@@ -770,14 +770,14 @@ export class ValidationServiceV8 {
 		}
 
 		// Remove common formatting characters
-		const cleanNumber = phoneNumber.replace(/[\s\-\(\)]+/g, '');
-		
+		const cleanNumber = phoneNumber.replace(/[\s\-()]+/g, '');
+
 		// International format: + followed by 7-15 digits
 		const internationalPattern = /^\+\d{7,15}$/;
-		
+
 		// US format: 10 digits
 		const usPattern = /^\d{10}$/;
-		
+
 		return internationalPattern.test(cleanNumber) || usPattern.test(cleanNumber);
 	}
 
@@ -793,10 +793,10 @@ export class ValidationServiceV8 {
 
 		// Basic email validation regex
 		const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		
+
 		// More comprehensive validation
 		const comprehensivePattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-		
+
 		return comprehensivePattern.test(email) && emailPattern.test(email);
 	}
 
@@ -859,7 +859,7 @@ export class ValidationServiceV8 {
 						suggestion: 'Please enter a valid phone number',
 						code: 'PHONE_NUMBER_REQUIRED',
 					});
-				} else if (!this.validatePhoneNumber(params.phoneNumber)) {
+				} else if (!ValidationServiceV8.validatePhoneNumber(params.phoneNumber)) {
 					errors.push({
 						field: 'phoneNumber',
 						message: 'Invalid phone number format',
@@ -878,7 +878,7 @@ export class ValidationServiceV8 {
 						suggestion: 'Please enter a valid email address',
 						code: 'EMAIL_ADDRESS_REQUIRED',
 					});
-				} else if (!this.validateEmail(params.emailAddress)) {
+				} else if (!ValidationServiceV8.validateEmail(params.emailAddress)) {
 					errors.push({
 						field: 'emailAddress',
 						message: 'Invalid email address format',
@@ -968,7 +968,10 @@ export class ValidationServiceV8 {
 		const { operation, deviceType } = context;
 
 		// Common error patterns
-		if (errorMessage.toLowerCase().includes('limit') || errorMessage.toLowerCase().includes('exceed')) {
+		if (
+			errorMessage.toLowerCase().includes('limit') ||
+			errorMessage.toLowerCase().includes('exceed')
+		) {
 			return {
 				userFriendlyMessage: `Device limit exceeded for ${deviceType}`,
 				technicalDetails: errorMessage,
@@ -980,7 +983,10 @@ export class ValidationServiceV8 {
 			};
 		}
 
-		if (errorMessage.toLowerCase().includes('invalid') && errorMessage.toLowerCase().includes('code')) {
+		if (
+			errorMessage.toLowerCase().includes('invalid') &&
+			errorMessage.toLowerCase().includes('code')
+		) {
 			return {
 				userFriendlyMessage: 'Invalid verification code',
 				technicalDetails: errorMessage,
@@ -1094,7 +1100,7 @@ export class ValidationServiceV8 {
 		fields: Record<string, { message: string; suggestion?: string; code?: string }>
 	): ValidationError[] {
 		return Object.entries(fields).map(([field, error]) =>
-			this.createValidationError(field, error.message, error.suggestion, error.code)
+			ValidationServiceV8.createValidationError(field, error.message, error.suggestion, error.code)
 		);
 	}
 
@@ -1119,8 +1125,10 @@ export class ValidationServiceV8 {
 		errors: ValidationError[],
 		includeBlocking: boolean = true
 	): ValidationError[] {
-		return errors.filter(error => 
-			includeBlocking ? this.isBlockingError(error) : !this.isBlockingError(error)
+		return errors.filter((error) =>
+			includeBlocking
+				? ValidationServiceV8.isBlockingError(error)
+				: !ValidationServiceV8.isBlockingError(error)
 		);
 	}
 }

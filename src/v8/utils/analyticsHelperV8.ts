@@ -12,7 +12,7 @@
 /**
  * Safe analytics logging function that replaces hardcoded fetch calls
  * This function will silently fail if the analytics server is not available
- * 
+ *
  * @param location - Code location identifier (e.g., 'FileName.tsx:123')
  * @param message - Log message
  * @param data - Additional data to log

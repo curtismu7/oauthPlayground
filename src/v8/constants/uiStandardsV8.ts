@@ -1,6 +1,6 @@
 /**
  * UI Standards Constants for V8 Components
- * 
+ *
  * Centralizes all UI/UX standards including colors, typography, spacing, and animations.
  * This file ensures consistency across all V8 components.
  */

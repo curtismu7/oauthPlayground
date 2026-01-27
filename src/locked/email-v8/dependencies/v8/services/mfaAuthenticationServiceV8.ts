@@ -1847,24 +1847,22 @@ export class MfaAuthenticationServiceV8 {
 
 			// #region agent log
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
+				headers: 'Content-Type': 'application/json' ,
+				body: JSON.stringify(
 					location: 'mfaAuthenticationServiceV8.ts:1724',
 					message: 'Assertion body structure check',
-					data: {
+					data: 
 						assertionType: typeof assertionBody.assertion,
 						isString: typeof assertionBody.assertion === 'string',
 						isObject: typeof assertionBody.assertion === 'object',
 						hasId: !!assertionBody.assertion?.id,
 						hasRawId: !!assertionBody.assertion?.rawId,
-						hasResponse: !!assertionBody.assertion?.response,
-					},
+						hasResponse: !!assertionBody.assertion?.response,,
 					timestamp: Date.now(),
 					sessionId: 'debug-session',
 					runId: 'run1',
-					hypothesisId: 'A',
-				}),
-			}).catch(() => {});
+					hypothesisId: 'A',),
+			}).catch(() => );
 			// #endregion
 
 			// Build request body for backend proxy
@@ -1904,11 +1902,11 @@ export class MfaAuthenticationServiceV8 {
 
 			// #region agent log
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
+				headers: 'Content-Type': 'application/json' ,
+				body: JSON.stringify(
 					location: 'mfaAuthenticationServiceV8.ts:1774',
 					message: 'Request body before stringify',
-					data: {
+					data: 
 						requestBodyType: typeof backendRequestBody,
 						assertionType: typeof backendRequestBody.assertion,
 						isAssertionString: typeof backendRequestBody.assertion === 'string',
@@ -1919,13 +1917,11 @@ export class MfaAuthenticationServiceV8 {
 							typeof backendRequestBody.assertion === 'object' &&
 							backendRequestBody.assertion !== null
 								? Object.keys(backendRequestBody.assertion)
-								: [],
-					},
+								: [],,
 					timestamp: Date.now(),
 					sessionId: 'debug-session',
 					runId: 'run1',
-					hypothesisId: 'B',
-				}),
+					hypothesisId: 'B',),
 			}).catch(() => {});
 			// #endregion
 
@@ -1972,14 +1968,13 @@ export class MfaAuthenticationServiceV8 {
 				body: JSON.stringify({
 					location: 'mfaAuthenticationServiceV8.ts:1802',
 					message: 'Request body after stringify',
-					data: {
+					data: 
 						stringifiedLength: stringifiedBody.length,
 						stringifiedPreview: stringifiedBody.substring(0, 200),
 						hasAssertionString: stringifiedBody.includes('"assertion"'),
 						assertionIsStringified:
 							stringifiedBody.includes('"assertion":"') ||
-							stringifiedBody.includes('"assertion": "'),
-					},
+							stringifiedBody.includes('"assertion": "'),,
 					timestamp: Date.now(),
 					sessionId: 'debug-session',
 					runId: 'run1',

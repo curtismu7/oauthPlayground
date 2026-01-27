@@ -1,673 +1,673 @@
 {
-  "feature": "unified-flow-v8u",
-  "version": "1.0.0",
-  "lockedAt": "2026-01-17T09:41:27.374Z",
-  "files": {
-    "src/v8u/flows/UnifiedOAuthFlowV8U.tsx": {
-      "lockedPath": "feature/v8u/flows/UnifiedOAuthFlowV8U.tsx",
-      "hash": "2b73df8fe9e472f3f63e7f2ca27a9ab698024e3e891aa3349faae6e29f94e7e2",
-      "type": "feature"
-    },
-    "src/v8u/components/UnifiedFlowSteps.tsx": {
-      "lockedPath": "dependencies/v8u/components/UnifiedFlowSteps.tsx",
-      "hash": "f6b74090c9ddf53bdab312e0320b95f68df02e5137a6ca3b2a7030545c204dd3",
-      "type": "transitive"
-    },
-    "src/v8u/components/CredentialsFormV8U.tsx": {
-      "lockedPath": "dependencies/v8u/components/CredentialsFormV8U.tsx",
-      "hash": "1e851f3236983e582f89a61343e6b521139cd8fe4cf464aaec7f1d721321ee78",
-      "type": "transitive"
-    },
-    "src/v8u/components/FlowTypeSelector.tsx": {
-      "lockedPath": "dependencies/v8u/components/FlowTypeSelector.tsx",
-      "hash": "56d37a3fcfc95f7dafe4f6347be934fcca5d9e9ec03564edc0a4582fe21a9abd",
-      "type": "transitive"
-    },
-    "src/v8u/components/SpecVersionSelector.tsx": {
-      "lockedPath": "dependencies/v8u/components/SpecVersionSelector.tsx",
-      "hash": "2922ce055b860ca7aba0db82a9fc4caeeefeeff18de7418fa118180b9667b56a",
-      "type": "transitive"
-    },
-    "src/v8u/components/UnifiedNavigationV8U.tsx": {
-      "lockedPath": "dependencies/v8u/components/UnifiedNavigationV8U.tsx",
-      "hash": "f99cabb2ea9f216d02c0742c393a81f81d5034a4e66f47cd9bd67a4b696d1655",
-      "type": "transitive"
-    },
-    "src/v8u/components/CallbackHandlerV8U.tsx": {
-      "lockedPath": "feature/v8u/components/CallbackHandlerV8U.tsx",
-      "hash": "1954e3f246f76724343ce26af50aadd03fd60de102c9f637f502eda3c11d72a8",
-      "type": "feature"
-    },
-    "src/v8u/services/unifiedFlowIntegrationV8U.ts": {
-      "lockedPath": "dependencies/v8u/services/unifiedFlowIntegrationV8U.ts",
-      "hash": "d810aa7d9d018b6dadc001e0f54bc2e70298656d9aa906ff84e59f2b26e2c2d2",
-      "type": "transitive"
-    },
-    "src/v8u/services/authorizationUrlBuilderServiceV8U.ts": {
-      "lockedPath": "feature/v8u/services/authorizationUrlBuilderServiceV8U.ts",
-      "hash": "74573c98754722cbfb905a9b31e4c61e7e2ae5ea377065bbba53ebafc7c578b8",
-      "type": "feature"
-    },
-    "src/v8u/services/credentialReloadServiceV8U.ts": {
-      "lockedPath": "dependencies/v8u/services/credentialReloadServiceV8U.ts",
-      "hash": "6403e36d55d90aa47beea10cbbdbbe5d65e9d65a51827db18d778da80ea862e2",
-      "type": "transitive"
-    },
-    "src/v8u/services/flowSettingsServiceV8U.ts": {
-      "lockedPath": "dependencies/v8u/services/flowSettingsServiceV8U.ts",
-      "hash": "751c410ed65401a7bdca6593f79fb929f123f59342cf6c21d9d670acbc216970",
-      "type": "transitive"
-    },
-    "src/v8u/services/pkceStorageServiceV8U.ts": {
-      "lockedPath": "dependencies/v8u/services/pkceStorageServiceV8U.ts",
-      "hash": "a71aebe0963bca37028551c77fb91b0cf092cd56b35b54a7d12d84bd56735029",
-      "type": "transitive"
-    },
-    "src/v8u/services/unifiedFlowErrorHandlerV8U.ts": {
-      "lockedPath": "feature/v8u/services/unifiedFlowErrorHandlerV8U.ts",
-      "hash": "947c9262cdf02a2e192d4332e22f43702b28a981fd1f939d9afcccd1c9611561",
-      "type": "feature"
-    },
-    "src/v8u/services/unifiedFlowLoggerServiceV8U.ts": {
-      "lockedPath": "dependencies/v8u/services/unifiedFlowLoggerServiceV8U.ts",
-      "hash": "9544057833f1fa0bf5d20af67ed82e404d5d15fd0d239682d0255c779cecb57c",
-      "type": "transitive"
-    },
-    "src/v8u/services/unifiedFlowDocumentationServiceV8U.ts": {
-      "lockedPath": "feature/v8u/services/unifiedFlowDocumentationServiceV8U.ts",
-      "hash": "2c82a953bf298af051886fd8689eb1560f86e0aa4d54a564bbfdd4a8a882b066",
-      "type": "feature"
-    },
-    "src/v8u/services/parRarIntegrationServiceV8U.ts": {
-      "lockedPath": "feature/v8u/services/parRarIntegrationServiceV8U.ts",
-      "hash": "4e8c31c5e2ca0f723945b6bd2c830a1dc52203e5a8159ca881b33306e3411cb4",
-      "type": "feature"
-    },
-    "src/v8u/components/AppDiscoveryModalV8U.tsx": {
-      "lockedPath": "dependencies/v8u/components/AppDiscoveryModalV8U.tsx",
-      "hash": "9c3708be8488451b81de0891f24ba2ddbe0bc74bfd6d9b1535f3619a2104402f",
-      "type": "transitive"
-    },
-    "src/v8u/components/CompactAppPickerV8U.tsx": {
-      "lockedPath": "feature/v8u/components/CompactAppPickerV8U.tsx",
-      "hash": "ca64bba70ccbbdd5c24c63caa96c461178e0ff6ca2572e5a8b4f6f523f92d4ba",
-      "type": "feature"
-    },
-    "src/v8u/hooks/useStepNavigationV8U.ts": {
-      "lockedPath": "feature/v8u/hooks/useStepNavigationV8U.ts",
-      "hash": "b01a22ea9adede39e287c4f6ae2dd56ebeabda4257e2928180a3d2b5cddbefb2",
-      "type": "feature"
-    },
-    "src/v8/services/credentialsServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/credentialsServiceV8.ts",
-      "hash": "d2a2842a4aab51828476b8c9f379ea745421a01bf0f8356ad22e6a4a5d2fa691",
-      "type": "dependency"
-    },
-    "src/v8/services/sharedCredentialsServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/sharedCredentialsServiceV8.ts",
-      "hash": "7f5954536550497dfa4746f54ba5d311693c5154cb9269bc4a12459bdd849e1e",
-      "type": "dependency"
-    },
-    "src/v8/services/environmentIdServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/environmentIdServiceV8.ts",
-      "hash": "ab27131e590b3dc4ad52c81a121eb885b6465cbdc38e1fa50232af180abd0962",
-      "type": "dependency"
-    },
-    "src/v8/services/workerTokenServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/workerTokenServiceV8.ts",
-      "hash": "ca5d9d9ba969d2343850588f13aaeb1441eee948a468fd98f3b7382739bba23f",
-      "type": "dependency"
-    },
-    "src/v8/services/workerTokenStatusServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/workerTokenStatusServiceV8.ts",
-      "hash": "e28efc0e70a774b7eea41ed900cd47dde0ba5c0423dc144bc82169e98562fb89",
-      "type": "dependency"
-    },
-    "src/v8/services/configCheckerServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/configCheckerServiceV8.ts",
-      "hash": "cdac8caa9a552f4dcb3d0c0c88757a7b1747a6ef1695aed89555c3abb58c0820",
-      "type": "dependency"
-    },
-    "src/v8/services/appDiscoveryServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/appDiscoveryServiceV8.ts",
-      "hash": "50212956ca8cddd607c6780546026328940b559253a491ed6d0cb3c5848723be",
-      "type": "dependency"
-    },
-    "src/v8/services/redirectUriServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/redirectUriServiceV8.ts",
-      "hash": "b1b3e0b044e2705c1f4a659f2e25a8a69f3f5cadcfe5915fcd828a4275e6bfe2",
-      "type": "dependency"
-    },
-    "src/v8/services/specVersionServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/specVersionServiceV8.ts",
-      "hash": "968bdb0f2bfedb4c0e92a2c77a2187f397d107e9a32490a8a40d82d2eb2621e2",
-      "type": "dependency"
-    },
-    "src/v8/services/specUrlServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/specUrlServiceV8.ts",
-      "hash": "75b39f27c38f1460f1cf8f043f447ac51751f82e05c9563d2a281e07a97afdf7",
-      "type": "dependency"
-    },
-    "src/v8/services/oidcDiscoveryServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/oidcDiscoveryServiceV8.ts",
-      "hash": "69cc1bd50e00740f0b694f6ba07b5d86a2efa001a50a6cfacb62048935d95ab6",
-      "type": "dependency"
-    },
-    "src/v8/services/oauthIntegrationServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/oauthIntegrationServiceV8.ts",
-      "hash": "c978fe5ac21bf90c052b5612146b7e4686da8bfa7e6ff1bd5e9d8c7b39b15a19",
-      "type": "dependency"
-    },
-    "src/v8/services/implicitFlowIntegrationServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/implicitFlowIntegrationServiceV8.ts",
-      "hash": "2ac873eac76f4ca15f91e3b46b80d4bd8960568fa0f66de0a16fd694e7c95505",
-      "type": "dependency"
-    },
-    "src/v8/services/clientCredentialsIntegrationServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/clientCredentialsIntegrationServiceV8.ts",
-      "hash": "0571a8ace8cbef61db5b1e061f9526dbd43946a98c5fb003b20320460b5b2b5a",
-      "type": "dependency"
-    },
-    "src/v8/services/deviceCodeIntegrationServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/deviceCodeIntegrationServiceV8.ts",
-      "hash": "899c7ec5bf6bd61d38683b5bc3f8b8b5411688dade3757f52a2ae890fa5d0534",
-      "type": "dependency"
-    },
-    "src/v8/services/hybridFlowIntegrationServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/hybridFlowIntegrationServiceV8.ts",
-      "hash": "986e35d965fdc983c35e23afc1460f5c7beb77d9b48426197b8ae433d7212edb",
-      "type": "dependency"
-    },
-    "src/v8/services/unifiedFlowOptionsServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/unifiedFlowOptionsServiceV8.ts",
-      "hash": "bc30046515b7b1e6ee9a3b15f6d245eb5173c6c998ed0fde466678fced406bca",
-      "type": "dependency"
-    },
-    "src/v8/components/SuperSimpleApiDisplayV8.tsx": {
-      "lockedPath": "dependencies/v8/components/SuperSimpleApiDisplayV8.tsx",
-      "hash": "4b8607d67865833410d7355b69c462f6fd0d30ccd424b9c80fd4ffdab57666b5",
-      "type": "dependency"
-    },
-    "src/v8/utils/toastNotificationsV8.ts": {
-      "lockedPath": "dependencies/v8/utils/toastNotificationsV8.ts",
-      "hash": "44389157150ac4c223b84aa2a5ccfd47050bed50d2b4bdfdecd39a91c61359f1",
-      "type": "dependency"
-    },
-    "src/v8/utils/analyticsServerCheckV8.ts": {
-      "lockedPath": "dependencies/v8/utils/analyticsServerCheckV8.ts",
-      "hash": "4d39cc15a238ef67dab1ab67bfc6c06b64bb27722226267a21ac4dfe46e8b8e3",
-      "type": "dependency"
-    },
-    "src/services/postmanCollectionGeneratorV8.ts": {
-      "lockedPath": "dependencies/services/postmanCollectionGeneratorV8.ts",
-      "hash": "7eeb53626f22d05e543533ae09e45a7435bc3cce45deccc05d1bb13820236a3f",
-      "type": "dependency"
-    },
-    "src/services/pkceService.tsx": {
-      "lockedPath": "dependencies/services/pkceService.tsx",
-      "hash": "c21673cfa6af77780f76ab681aa6423ac51c2c5505a3d35a2914339f5ec203c9",
-      "type": "dependency"
-    },
-    "src/utils/storage.ts": {
-      "lockedPath": "dependencies/utils/storage.ts",
-      "hash": "d433bc60119aa32d292e7d36e03694b7ae5cd7ef179a050f3b7deab48091468a",
-      "type": "dependency"
-    },
-    "src/utils/scrollManager.ts": {
-      "lockedPath": "dependencies/utils/scrollManager.ts",
-      "hash": "60da2e4cb0b53f09ddabf4b0059a249c107c37e2c16f1e83f4828bfe6d57e15f",
-      "type": "transitive"
-    },
-    "src/services/apiCallTrackerService.ts": {
-      "lockedPath": "dependencies/services/apiCallTrackerService.ts",
-      "hash": "788455ff8e62f07050a5cf74524589f9b6f8d747fd75593c7c009ee0e9b1a62c",
-      "type": "transitive"
-    },
-    "src/v8/services/apiDisplayServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/apiDisplayServiceV8.ts",
-      "hash": "1626ab4729b176971be98cf36356e7b1d1cfc1c0d5c7572515d7aaad16e63e14",
-      "type": "transitive"
-    },
-    "src/v8/services/dualStorageServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/dualStorageServiceV8.ts",
-      "hash": "5d0d05aabfec0318033a6b0eee7e93616724555e1c9a06b692c896882d0b4d31",
-      "type": "transitive"
-    },
-    "src/utils/fileStorageUtil.ts": {
-      "lockedPath": "dependencies/utils/fileStorageUtil.ts",
-      "hash": "643b0ee7b0fea0055e5aa27dcdbae9ca9f038fa19134e654acb94897193d0d68",
-      "type": "transitive"
-    },
-    "src/v8/services/uiNotificationServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/uiNotificationServiceV8.ts",
-      "hash": "5f0efcec38bfc667badbeac215ff8124c1f65145fa6caf6e00673b506a5e1dd3",
-      "type": "transitive"
-    },
-    "src/utils/v4ToastMessages.ts": {
-      "lockedPath": "dependencies/utils/v4ToastMessages.ts",
-      "hash": "bbbf768942fa4ddf68993e172dc94e2e524afd90411ec04a7c020f108d79e054",
-      "type": "transitive"
-    },
-    "src/services/responseModeService.ts": {
-      "lockedPath": "dependencies/services/responseModeService.ts",
-      "hash": "52130654a7de0b979a1a96c4f5fad107c339cc7c210bdb0e0c90ccfe03eff183",
-      "type": "transitive"
-    },
-    "src/utils/pingOneFetch.ts": {
-      "lockedPath": "dependencies/utils/pingOneFetch.ts",
-      "hash": "38393594c69fd122cea5dae5225e474bdf018112b8d35c573617fdbdbc2314ca",
-      "type": "transitive"
-    },
-    "src/v8/services/flowOptionsServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/flowOptionsServiceV8.ts",
-      "hash": "c1de58f221dd87ef4596768c15311b6727e7302591bcdb989de5269f322c68c4",
-      "type": "transitive"
-    },
-    "src/components/DraggableModal.tsx": {
-      "lockedPath": "dependencies/components/DraggableModal.tsx",
-      "hash": "da58030c4fdfd0ec6065eafbcfa6f3623a6d112c2235fc7557ad951caedaca1c",
-      "type": "transitive"
-    },
-    "src/components/JWTConfigV8.tsx": {
-      "lockedPath": "dependencies/components/JWTConfigV8.tsx",
-      "hash": "6dd7300fe512a201f778e9ce7d71ac7cb97bce1b1374833935ce158bb53d003a",
-      "type": "transitive"
-    },
-    "src/services/jwtAuthServiceV8.ts": {
-      "lockedPath": "dependencies/services/jwtAuthServiceV8.ts",
-      "hash": "f4e39d70db584ca01c3c5ab496d742ce1ca0d7c47e0d3d6d7bca905cae630542",
-      "type": "transitive"
-    },
-    "src/utils/clientAuthentication.ts": {
-      "lockedPath": "dependencies/utils/clientAuthentication.ts",
-      "hash": "3cdfcdc49e7330fb3370dca995ba85e9ab3186f3ff291c5f0a6cb148ff1c122d",
-      "type": "transitive"
-    },
-    "src/utils/keyGeneration.ts": {
-      "lockedPath": "dependencies/utils/keyGeneration.ts",
-      "hash": "d9e56c4666d4ff59ff9483bd11bcc011564c42e043efb8f77bf3edd16b35b05f",
-      "type": "transitive"
-    },
-    "src/v8/components/AppPickerV8.tsx": {
-      "lockedPath": "dependencies/v8/components/AppPickerV8.tsx",
-      "hash": "28882b2ccdeff562dcadeb1f4264533417bbf259e38a5a209ca9dcbfee589c41",
-      "type": "transitive"
-    },
-    "src/v8/components/ConfirmModalV8.tsx": {
-      "lockedPath": "dependencies/v8/components/ConfirmModalV8.tsx",
-      "hash": "d9061d408148f3386d0089aa013f01ca9dd02ad9b28e61b5a1c75c49f9c3e6c1",
-      "type": "transitive"
-    },
-    "src/v8/components/WorkerTokenModalV8.tsx": {
-      "lockedPath": "dependencies/v8/components/WorkerTokenModalV8.tsx",
-      "hash": "99e02c2b190eb9c503caaacd6e769c082b9e5bbfd45b1fb14c012396e9cde2db",
-      "type": "transitive"
-    },
-    "src/services/credentialExportImportService.ts": {
-      "lockedPath": "dependencies/services/credentialExportImportService.ts",
-      "hash": "90ca5760f3794d785fbb7db52af79787306ea5782789de4ca9391bf512d635c5",
-      "type": "transitive"
-    },
-    "src/services/unifiedTokenDisplayService.tsx": {
-      "lockedPath": "dependencies/services/unifiedTokenDisplayService.tsx",
-      "hash": "ad2cbd1a751ff6b89cf28bbe875663e5ffd6056b1ab555a96c6edbac1971db9b",
-      "type": "transitive"
-    },
-    "src/services/tokenDisplayService.ts": {
-      "lockedPath": "dependencies/services/tokenDisplayService.ts",
-      "hash": "442dcda4c513a17caadedf243ed73d62f8cbd45a6fbc1effcdbe23b167c58dd0",
-      "type": "transitive"
-    },
-    "src/v8/config/constants.ts": {
-      "lockedPath": "dependencies/v8/config/constants.ts",
-      "hash": "d29d26677bf20d0c4e7159c742cb73fa786b16e0032d5bf189f3dd08a5224f9b",
-      "type": "transitive"
-    },
-    "src/v8/services/authMethodServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/authMethodServiceV8.ts",
-      "hash": "f09a89c7f3da472bef473bfcb4aac46b6c9438bea43f2fe5af11eb731339a178",
-      "type": "transitive"
-    },
-    "src/v8/services/mfaConfigurationServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/mfaConfigurationServiceV8.ts",
-      "hash": "5e9d5bda21c5d6cd32bafee1e0131345465e6c661369563e104d9bd294d0af95",
-      "type": "transitive"
-    },
-    "src/v8/components/WorkerTokenRequestModalV8.tsx": {
-      "lockedPath": "dependencies/v8/components/WorkerTokenRequestModalV8.tsx",
-      "hash": "c3b7cdc7524f1085363acf2f03873821178ffdc5052d67ee6155aa0967ab4363",
-      "type": "transitive"
-    },
-    "src/v8/components/ClientTypeRadioV8.tsx": {
-      "lockedPath": "dependencies/v8/components/ClientTypeRadioV8.tsx",
-      "hash": "6968d8fa1542759843f80b01a367c9ea1fb360f744d84eb477b52fed8a8aeb4e",
-      "type": "transitive"
-    },
-    "src/v8/components/DisplayModeDropdownV8.tsx": {
-      "lockedPath": "dependencies/v8/components/DisplayModeDropdownV8.tsx",
-      "hash": "7182cd179c84fe33c05bc201faeb52ec63bbb02333698b7fd44bea82d2fb5043",
-      "type": "transitive"
-    },
-    "src/v8/components/IssuerURLInputV8.tsx": {
-      "lockedPath": "dependencies/v8/components/IssuerURLInputV8.tsx",
-      "hash": "9490be607b388ece087e198220e565c41d2d056b57d19d026102916410c44da6",
-      "type": "transitive"
-    },
-    "src/v8/components/LoginHintInputV8.tsx": {
-      "lockedPath": "dependencies/v8/components/LoginHintInputV8.tsx",
-      "hash": "a60f0b591dc92fc1bf924828973980e700858069ff6952f0d5080e6f031b58c7",
-      "type": "transitive"
-    },
-    "src/v8/components/MaxAgeInputV8.tsx": {
-      "lockedPath": "dependencies/v8/components/MaxAgeInputV8.tsx",
-      "hash": "f203e25e6f15c88572b888cb3f4af22551861c82e99d6401f06546da9a51e8e2",
-      "type": "transitive"
-    },
-    "src/v8/components/OidcDiscoveryModalV8.tsx": {
-      "lockedPath": "dependencies/v8/components/OidcDiscoveryModalV8.tsx",
-      "hash": "23e962c3a1565d2e705ab4d3bf61a0b56bd8e615da03513fcd3f3cdf49e0db6b",
-      "type": "transitive"
-    },
-    "src/v8/components/PKCEEnforcementDropdownV8.tsx": {
-      "lockedPath": "dependencies/v8/components/PKCEEnforcementDropdownV8.tsx",
-      "hash": "b6427bff9c5db29d1790cbcd9e2515117c921c20ba3d0617fc4ec263c2651a66",
-      "type": "transitive"
-    },
-    "src/v8/components/PKCEInputV8.tsx": {
-      "lockedPath": "dependencies/v8/components/PKCEInputV8.tsx",
-      "hash": "4108ec9715ef604e7f04b96e5b935ee73d85c9664d8e0a7fbb354f6ab5e7eb71",
-      "type": "transitive"
-    },
-    "src/v8/components/ResponseModeDropdownV8.tsx": {
-      "lockedPath": "dependencies/v8/components/ResponseModeDropdownV8.tsx",
-      "hash": "93ae8a5b16e728ca28166b4825a79634ae79c16aa7cbd46ce99c7b1a7a73ce0d",
-      "type": "transitive"
-    },
-    "src/v8/components/ResponseTypeDropdownV8.tsx": {
-      "lockedPath": "dependencies/v8/components/ResponseTypeDropdownV8.tsx",
-      "hash": "a21b385a7b8c3cb1c1839ed6322321c445dc56bf896eca6306fd6f1539f3ba02",
-      "type": "transitive"
-    },
-    "src/v8/components/TokenEndpointAuthMethodDropdownV8.tsx": {
-      "lockedPath": "dependencies/v8/components/TokenEndpointAuthMethodDropdownV8.tsx",
-      "hash": "3415c47342a3b882cf6563b2f4edb30b1de4ac55bc569ce4b2b2edf9ed8ce449",
-      "type": "transitive"
-    },
-    "src/v8/services/tokenEndpointAuthMethodServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/tokenEndpointAuthMethodServiceV8.ts",
-      "hash": "fee0c8f0c2152b5e0e0328741a891028f8810f77701adb77b03e64885d7331c7",
-      "type": "transitive"
-    },
-    "src/v8/components/TooltipV8.tsx": {
-      "lockedPath": "dependencies/v8/components/TooltipV8.tsx",
-      "hash": "a4fb7dffc538bea05feaf5d5ff9296d66e97db81526bad3ce9c51445f9185ba5",
-      "type": "transitive"
-    },
-    "src/v8/components/WorkerTokenVsClientCredentialsEducationModalV8.tsx": {
-      "lockedPath": "dependencies/v8/components/WorkerTokenVsClientCredentialsEducationModalV8.tsx",
-      "hash": "4d689be9c931046e342313c2bb021040497650c653c5a5ee71eaf6d0be0117b1",
-      "type": "transitive"
-    },
-    "src/v8/services/responseTypeServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/responseTypeServiceV8.ts",
-      "hash": "5d3d59f3224728f236c019e2331097788393a1a8f2ae2e89f0594299a5ff605c",
-      "type": "transitive"
-    },
-    "src/v8/services/tooltipContentServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/tooltipContentServiceV8.ts",
-      "hash": "719da7045ac3978dcddab9c806d0becdc9b08f284f67edd73dc892ad10fed2ae",
-      "type": "transitive"
-    },
-    "src/components/ColoredUrlDisplay.tsx": {
-      "lockedPath": "dependencies/components/ColoredUrlDisplay.tsx",
-      "hash": "1875dc89356e9cdfbc27157b864f48b3adff10c77090071706cc5b90fe7b038d",
-      "type": "transitive"
-    },
-    "src/services/copyButtonService.tsx": {
-      "lockedPath": "dependencies/services/copyButtonService.tsx",
-      "hash": "6d4b9fdc74a5bf1c04c65d2d0d992578ab9eea78f7625a080853e43fef9422ac",
-      "type": "transitive"
-    },
-    "src/components/DeviceTypeSelector.tsx": {
-      "lockedPath": "dependencies/components/DeviceTypeSelector.tsx",
-      "hash": "7b63252f6a2bb2d72c1307cbbfc4072199f7373af9ef13ab9994250042592077",
-      "type": "transitive"
-    },
-    "src/components/DynamicDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/DynamicDeviceFlow.tsx",
-      "hash": "08e886a79cbdb6265ac3dab0ff4ff9b392344173d48137605a2ae27950bae2ed",
-      "type": "transitive"
-    },
-    "src/services/deviceFlowService.ts": {
-      "lockedPath": "dependencies/services/deviceFlowService.ts",
-      "hash": "6697aa7b422df5cf66d22183463e3ca1a5b37514e9fb98055cdadce35b23ddf6",
-      "type": "transitive"
-    },
-    "src/utils/logger.ts": {
-      "lockedPath": "dependencies/utils/logger.ts",
-      "hash": "546b738d1568593b526cdb2c526385a3d31c776ac735b1765f889fad6e68973e",
-      "type": "transitive"
-    },
-    "src/components/AIAgentDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/AIAgentDeviceFlow.tsx",
-      "hash": "4f1407177fa7327ac393a9b8732f56f05a8bf21318d68b43dd627e8c09ef30e1",
-      "type": "transitive"
-    },
-    "src/components/StandardizedTokenDisplay.tsx": {
-      "lockedPath": "dependencies/components/StandardizedTokenDisplay.tsx",
-      "hash": "3cf1d3600539b9b787227f75424bb14fb67aa2a65b05624dfa6f8b297c074961",
-      "type": "transitive"
-    },
-    "src/components/InlineTokenDisplay.tsx": {
-      "lockedPath": "dependencies/components/InlineTokenDisplay.tsx",
-      "hash": "fffeab87b7dc629001c3cbe74af42b4ff1c5d19c20b7c4c8d490e1696dc90f54",
-      "type": "transitive"
-    },
-    "src/components/AirportKioskDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/AirportKioskDeviceFlow.tsx",
-      "hash": "3d8b06e547ae0b7edf642099b8b6b65af3c1720798d64bc59432b5d601f3e5dc",
-      "type": "transitive"
-    },
-    "src/components/AmazonEchoShowDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/AmazonEchoShowDeviceFlow.tsx",
-      "hash": "bc4cf61bb3b09d1fc68187b92081ce39f323d34b140a9de7c40d25189421a42f",
-      "type": "transitive"
-    },
-    "src/components/AppleTVDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/AppleTVDeviceFlow.tsx",
-      "hash": "61c22c20f8c952b861903686db6dc9ef363010c2ff25910cff41136966f23452",
-      "type": "transitive"
-    },
-    "src/components/BoseSmartSpeakerDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/BoseSmartSpeakerDeviceFlow.tsx",
-      "hash": "12fbb731b8db2998cf9a9f9d4adf73bfe78aeaf6f634443fc2d0ce5767a47486",
-      "type": "transitive"
-    },
-    "src/components/FitnessTrackerDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/FitnessTrackerDeviceFlow.tsx",
-      "hash": "3e73a69851306166d976b1323e060f97e339326d1bbf5f74c514d625e534d049",
-      "type": "transitive"
-    },
-    "src/components/GamingConsoleDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/GamingConsoleDeviceFlow.tsx",
-      "hash": "e90947a3ff68852acf12f5bdc962397724794dda15795bf47cbdfe1863164ce4",
-      "type": "transitive"
-    },
-    "src/components/GasPumpDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/GasPumpDeviceFlow.tsx",
-      "hash": "61cb60f8d438152e9db99daacd94b21f6357cc6f08aceb4d52b787699252a932",
-      "type": "transitive"
-    },
-    "src/components/IndustrialIoTControllerDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/IndustrialIoTControllerDeviceFlow.tsx",
-      "hash": "3763871274e53bba4eb1c0b955e0d6ad4ac2f667e4044dd06d6c30f86e7b28dc",
-      "type": "transitive"
-    },
-    "src/components/MCPServerDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/MCPServerDeviceFlow.tsx",
-      "hash": "0b92176ff0f3ef1ba6f56a1cf5def6e10a9fd9bfef92319f5c9a1d9643cc48bc",
-      "type": "transitive"
-    },
-    "src/components/MobilePhoneDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/MobilePhoneDeviceFlow.tsx",
-      "hash": "29e22b2ccf99ab27697823f1c71c55e5f8ac954890ab4cc4cea717e47d92cd8b",
-      "type": "transitive"
-    },
-    "src/components/POSTerminalDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/POSTerminalDeviceFlow.tsx",
-      "hash": "81a48a8b960e2d17a730d73c9d900eceb862ae2f9c2625bbe04eef28ac539130",
-      "type": "transitive"
-    },
-    "src/components/RingDoorbellDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/RingDoorbellDeviceFlow.tsx",
-      "hash": "b898cabf4164a99500326a95dbf93cc7b0fde4cfd358647e697da718a4dd4b80",
-      "type": "transitive"
-    },
-    "src/components/SmartPrinterDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/SmartPrinterDeviceFlow.tsx",
-      "hash": "799745e3447a1fbac268d99db102c02bcbcbb25dc88f30b10871e5c273acf2a1",
-      "type": "transitive"
-    },
-    "src/components/SmartSpeakerDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/SmartSpeakerDeviceFlow.tsx",
-      "hash": "4cae8268c0cddb2e7324f7657ff5935d300582f78b0508e1f88489abe50c7600",
-      "type": "transitive"
-    },
-    "src/components/SmartTVDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/SmartTVDeviceFlow.tsx",
-      "hash": "8e01c89536c7518eb0381c1e9363ffaeef29c16311f248638c12aed9b4d3ab11",
-      "type": "transitive"
-    },
-    "src/components/SmartVehicleDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/SmartVehicleDeviceFlow.tsx",
-      "hash": "92cb1b4b8d86f8535c4792bf99342986b89e0d65ab2828eb413f8d76dd3b7d47",
-      "type": "transitive"
-    },
-    "src/components/SonyGameControllerDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/SonyGameControllerDeviceFlow.tsx",
-      "hash": "3fcf6034c3a5fe2245cc5ce233d12ce04e988a63e458b43ecae6f0d4034f60a4",
-      "type": "transitive"
-    },
-    "src/components/SquarePOSDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/SquarePOSDeviceFlow.tsx",
-      "hash": "85eb4baa22386e56efdc1c9a3e87c018302f4977b51bdf3b6285a3552d52610c",
-      "type": "transitive"
-    },
-    "src/components/TeslaCarDisplayDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/TeslaCarDisplayDeviceFlow.tsx",
-      "hash": "675b2c087c43977ce60ae3574e2249ecfe41a4091d687f6c20b100bf0cb66877",
-      "type": "transitive"
-    },
-    "src/components/VizioTVDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/VizioTVDeviceFlow.tsx",
-      "hash": "c9fc32872c7ce34826e4c51cc23842d3c4b5a4bc738910c24ec3ed5dfb06296e",
-      "type": "transitive"
-    },
-    "src/components/EnhancedFlowInfoCard.tsx": {
-      "lockedPath": "dependencies/components/EnhancedFlowInfoCard.tsx",
-      "hash": "9b600e931df2ee89d6a25a668604aa7fd686b530f9e5cd5cc3054d3b2cbcabbe",
-      "type": "transitive"
-    },
-    "src/services/FlowInfoService.ts": {
-      "lockedPath": "dependencies/services/FlowInfoService.ts",
-      "hash": "1d4582c224a92584c7a4f112fac214a445e7f7bd5acaf49d8d29a89afdba0ce8",
-      "type": "transitive"
-    },
-    "src/components/FlowInfoCard.tsx": {
-      "lockedPath": "dependencies/components/FlowInfoCard.tsx",
-      "hash": "88d2729d53dd9b4ed085f38476408c433127b170ce5bdd671105eaee6d4ff385",
-      "type": "transitive"
-    },
-    "src/components/FlowConfigurationRequirements.tsx": {
-      "lockedPath": "dependencies/components/FlowConfigurationRequirements.tsx",
-      "hash": "fb8a5448c0b33f9afd62f628d040f510be78da06316e2a32dae34185a2f9dd7e",
-      "type": "transitive"
-    },
-    "src/components/FlowSequenceDisplay.tsx": {
-      "lockedPath": "dependencies/components/FlowSequenceDisplay.tsx",
-      "hash": "bcc167e15dc3c2eeb384270a33576346792d862ef472f1376489d24ec6347e04",
-      "type": "transitive"
-    },
-    "src/services/flowSequenceService.ts": {
-      "lockedPath": "dependencies/services/flowSequenceService.ts",
-      "hash": "95f7e63a70e7d719f70f8785bbc80f2416eb21ee5124449aeb10b8cec501eea3",
-      "type": "transitive"
-    },
-    "src/services/themeService.ts": {
-      "lockedPath": "dependencies/services/themeService.ts",
-      "hash": "8e6edf54bdf95db12172420bace13147a07382b2c886eda6ba011511efd9e805",
-      "type": "transitive"
-    },
-    "src/components/RedirectlessLoginModal.tsx": {
-      "lockedPath": "dependencies/components/RedirectlessLoginModal.tsx",
-      "hash": "7edb461e27813c8b7ba714115976e6093962213e779a22f1122cd1e933973ec9",
-      "type": "transitive"
-    },
-    "src/components/PasswordChangeModal.tsx": {
-      "lockedPath": "dependencies/components/PasswordChangeModal.tsx",
-      "hash": "ee1d8e8e2b465b4d4bfed4d129d4561bf7927fd2cf68a37441054dceb74fbdb4",
-      "type": "transitive"
-    },
-    "src/utils/oauth.ts": {
-      "lockedPath": "dependencies/utils/oauth.ts",
-      "hash": "80f899fb1d68e7bcd052374645c993fb25b3d77ce5e8367eebb18ccfd2d47a57",
-      "type": "transitive"
-    },
-    "src/v8/services/tokenDisplayServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/tokenDisplayServiceV8.ts",
-      "hash": "cfd0cd5b032d3fbde7b5921e81bc9d2f59b3a938e9e60e78e6f5f5f9634fe6fe",
-      "type": "transitive"
-    },
-    "src/v8/services/tokenOperationsServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/tokenOperationsServiceV8.ts",
-      "hash": "2c5f3107ca1299a7644f6bee83f764f39fe779fbfa9a64ef70417b295e10ab6f",
-      "type": "transitive"
-    },
-    "src/v8u/components/ErrorDisplayWithRetry.tsx": {
-      "lockedPath": "dependencies/v8u/components/ErrorDisplayWithRetry.tsx",
-      "hash": "d203c40439a2d74e210b1266d0e637ac5e39638ee84c893359d92b0452b4c7a2",
-      "type": "transitive"
-    },
-    "src/v8/services/oauthErrorCodesServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/oauthErrorCodesServiceV8.ts",
-      "hash": "c47226f06264b619bdee200e739e2ac7479f14e64e0bc3253c63287ff6cca729",
-      "type": "transitive"
-    },
-    "src/v8u/components/TokenDisplayV8U.tsx": {
-      "lockedPath": "dependencies/v8u/components/TokenDisplayV8U.tsx",
-      "hash": "d8e4dd322e54abd0d6a497cfb6046c5433e939fbd9c875a2b8864229a8f69b67",
-      "type": "transitive"
-    },
-    "src/v8u/components/UnifiedFlowDocumentationPageV8U.tsx": {
-      "lockedPath": "dependencies/v8u/components/UnifiedFlowDocumentationPageV8U.tsx",
-      "hash": "e633583008900a4a2b56c39f2b91cc5e2261538fe6b1cc75886c2b339af0d053",
-      "type": "transitive"
-    },
-    "src/v8u/components/LoadingSpinnerModalV8U.tsx": {
-      "lockedPath": "dependencies/v8u/components/LoadingSpinnerModalV8U.tsx",
-      "hash": "09ca511b25156a48617a67fa0b0937d07b61c66707fea6ecdbfa416289a209a1",
-      "type": "transitive"
-    },
-    "src/v8u/components/UserInfoSuccessModalV8U.tsx": {
-      "lockedPath": "dependencies/v8u/components/UserInfoSuccessModalV8U.tsx",
-      "hash": "54d6561e5503e12958d4ace2cae189822c20f0112ab5cd04ad516ac97e3dd10f",
-      "type": "transitive"
-    },
-    "src/v8u/components/UnifiedDocumentationModalV8U.tsx": {
-      "lockedPath": "dependencies/v8u/components/UnifiedDocumentationModalV8U.tsx",
-      "hash": "3fa53d9caaf3b12704171a35829072b0a0e4b805845d02063647f38edee51ab0",
-      "type": "transitive"
-    },
-    "src/v8/utils/analyticsLoggerV8.ts": {
-      "lockedPath": "dependencies/v8/utils/analyticsLoggerV8.ts",
-      "hash": "7f00ccfc2fd93a0753051788db23e4081e7a884927a73033971e729cf4415929",
-      "type": "transitive"
-    }
-  },
-  "summary": {
-    "totalFiles": 132,
-    "featureFiles": 8,
-    "dependencyFiles": 23,
-    "transitiveFiles": 101
-  }
+	"feature": "unified-flow-v8u",
+	"version": "1.0.0",
+	"lockedAt": "2026-01-17T09:41:27.374Z",
+	"files": {
+		"src/v8u/flows/UnifiedOAuthFlowV8U.tsx": {
+			"lockedPath": "feature/v8u/flows/UnifiedOAuthFlowV8U.tsx",
+			"hash": "2b73df8fe9e472f3f63e7f2ca27a9ab698024e3e891aa3349faae6e29f94e7e2",
+			"type": "feature"
+		},
+		"src/v8u/components/UnifiedFlowSteps.tsx": {
+			"lockedPath": "dependencies/v8u/components/UnifiedFlowSteps.tsx",
+			"hash": "f6b74090c9ddf53bdab312e0320b95f68df02e5137a6ca3b2a7030545c204dd3",
+			"type": "transitive"
+		},
+		"src/v8u/components/CredentialsFormV8U.tsx": {
+			"lockedPath": "dependencies/v8u/components/CredentialsFormV8U.tsx",
+			"hash": "1e851f3236983e582f89a61343e6b521139cd8fe4cf464aaec7f1d721321ee78",
+			"type": "transitive"
+		},
+		"src/v8u/components/FlowTypeSelector.tsx": {
+			"lockedPath": "dependencies/v8u/components/FlowTypeSelector.tsx",
+			"hash": "56d37a3fcfc95f7dafe4f6347be934fcca5d9e9ec03564edc0a4582fe21a9abd",
+			"type": "transitive"
+		},
+		"src/v8u/components/SpecVersionSelector.tsx": {
+			"lockedPath": "dependencies/v8u/components/SpecVersionSelector.tsx",
+			"hash": "2922ce055b860ca7aba0db82a9fc4caeeefeeff18de7418fa118180b9667b56a",
+			"type": "transitive"
+		},
+		"src/v8u/components/UnifiedNavigationV8U.tsx": {
+			"lockedPath": "dependencies/v8u/components/UnifiedNavigationV8U.tsx",
+			"hash": "f99cabb2ea9f216d02c0742c393a81f81d5034a4e66f47cd9bd67a4b696d1655",
+			"type": "transitive"
+		},
+		"src/v8u/components/CallbackHandlerV8U.tsx": {
+			"lockedPath": "feature/v8u/components/CallbackHandlerV8U.tsx",
+			"hash": "1954e3f246f76724343ce26af50aadd03fd60de102c9f637f502eda3c11d72a8",
+			"type": "feature"
+		},
+		"src/v8u/services/unifiedFlowIntegrationV8U.ts": {
+			"lockedPath": "dependencies/v8u/services/unifiedFlowIntegrationV8U.ts",
+			"hash": "d810aa7d9d018b6dadc001e0f54bc2e70298656d9aa906ff84e59f2b26e2c2d2",
+			"type": "transitive"
+		},
+		"src/v8u/services/authorizationUrlBuilderServiceV8U.ts": {
+			"lockedPath": "feature/v8u/services/authorizationUrlBuilderServiceV8U.ts",
+			"hash": "74573c98754722cbfb905a9b31e4c61e7e2ae5ea377065bbba53ebafc7c578b8",
+			"type": "feature"
+		},
+		"src/v8u/services/credentialReloadServiceV8U.ts": {
+			"lockedPath": "dependencies/v8u/services/credentialReloadServiceV8U.ts",
+			"hash": "6403e36d55d90aa47beea10cbbdbbe5d65e9d65a51827db18d778da80ea862e2",
+			"type": "transitive"
+		},
+		"src/v8u/services/flowSettingsServiceV8U.ts": {
+			"lockedPath": "dependencies/v8u/services/flowSettingsServiceV8U.ts",
+			"hash": "751c410ed65401a7bdca6593f79fb929f123f59342cf6c21d9d670acbc216970",
+			"type": "transitive"
+		},
+		"src/v8u/services/pkceStorageServiceV8U.ts": {
+			"lockedPath": "dependencies/v8u/services/pkceStorageServiceV8U.ts",
+			"hash": "a71aebe0963bca37028551c77fb91b0cf092cd56b35b54a7d12d84bd56735029",
+			"type": "transitive"
+		},
+		"src/v8u/services/unifiedFlowErrorHandlerV8U.ts": {
+			"lockedPath": "feature/v8u/services/unifiedFlowErrorHandlerV8U.ts",
+			"hash": "947c9262cdf02a2e192d4332e22f43702b28a981fd1f939d9afcccd1c9611561",
+			"type": "feature"
+		},
+		"src/v8u/services/unifiedFlowLoggerServiceV8U.ts": {
+			"lockedPath": "dependencies/v8u/services/unifiedFlowLoggerServiceV8U.ts",
+			"hash": "9544057833f1fa0bf5d20af67ed82e404d5d15fd0d239682d0255c779cecb57c",
+			"type": "transitive"
+		},
+		"src/v8u/services/unifiedFlowDocumentationServiceV8U.ts": {
+			"lockedPath": "feature/v8u/services/unifiedFlowDocumentationServiceV8U.ts",
+			"hash": "2c82a953bf298af051886fd8689eb1560f86e0aa4d54a564bbfdd4a8a882b066",
+			"type": "feature"
+		},
+		"src/v8u/services/parRarIntegrationServiceV8U.ts": {
+			"lockedPath": "feature/v8u/services/parRarIntegrationServiceV8U.ts",
+			"hash": "4e8c31c5e2ca0f723945b6bd2c830a1dc52203e5a8159ca881b33306e3411cb4",
+			"type": "feature"
+		},
+		"src/v8u/components/AppDiscoveryModalV8U.tsx": {
+			"lockedPath": "dependencies/v8u/components/AppDiscoveryModalV8U.tsx",
+			"hash": "9c3708be8488451b81de0891f24ba2ddbe0bc74bfd6d9b1535f3619a2104402f",
+			"type": "transitive"
+		},
+		"src/v8u/components/CompactAppPickerV8U.tsx": {
+			"lockedPath": "feature/v8u/components/CompactAppPickerV8U.tsx",
+			"hash": "ca64bba70ccbbdd5c24c63caa96c461178e0ff6ca2572e5a8b4f6f523f92d4ba",
+			"type": "feature"
+		},
+		"src/v8u/hooks/useStepNavigationV8U.ts": {
+			"lockedPath": "feature/v8u/hooks/useStepNavigationV8U.ts",
+			"hash": "b01a22ea9adede39e287c4f6ae2dd56ebeabda4257e2928180a3d2b5cddbefb2",
+			"type": "feature"
+		},
+		"src/v8/services/credentialsServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/credentialsServiceV8.ts",
+			"hash": "d2a2842a4aab51828476b8c9f379ea745421a01bf0f8356ad22e6a4a5d2fa691",
+			"type": "dependency"
+		},
+		"src/v8/services/sharedCredentialsServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/sharedCredentialsServiceV8.ts",
+			"hash": "7f5954536550497dfa4746f54ba5d311693c5154cb9269bc4a12459bdd849e1e",
+			"type": "dependency"
+		},
+		"src/v8/services/environmentIdServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/environmentIdServiceV8.ts",
+			"hash": "ab27131e590b3dc4ad52c81a121eb885b6465cbdc38e1fa50232af180abd0962",
+			"type": "dependency"
+		},
+		"src/v8/services/workerTokenServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/workerTokenServiceV8.ts",
+			"hash": "ca5d9d9ba969d2343850588f13aaeb1441eee948a468fd98f3b7382739bba23f",
+			"type": "dependency"
+		},
+		"src/v8/services/workerTokenStatusServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/workerTokenStatusServiceV8.ts",
+			"hash": "e28efc0e70a774b7eea41ed900cd47dde0ba5c0423dc144bc82169e98562fb89",
+			"type": "dependency"
+		},
+		"src/v8/services/configCheckerServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/configCheckerServiceV8.ts",
+			"hash": "cdac8caa9a552f4dcb3d0c0c88757a7b1747a6ef1695aed89555c3abb58c0820",
+			"type": "dependency"
+		},
+		"src/v8/services/appDiscoveryServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/appDiscoveryServiceV8.ts",
+			"hash": "50212956ca8cddd607c6780546026328940b559253a491ed6d0cb3c5848723be",
+			"type": "dependency"
+		},
+		"src/v8/services/redirectUriServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/redirectUriServiceV8.ts",
+			"hash": "b1b3e0b044e2705c1f4a659f2e25a8a69f3f5cadcfe5915fcd828a4275e6bfe2",
+			"type": "dependency"
+		},
+		"src/v8/services/specVersionServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/specVersionServiceV8.ts",
+			"hash": "968bdb0f2bfedb4c0e92a2c77a2187f397d107e9a32490a8a40d82d2eb2621e2",
+			"type": "dependency"
+		},
+		"src/v8/services/specUrlServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/specUrlServiceV8.ts",
+			"hash": "75b39f27c38f1460f1cf8f043f447ac51751f82e05c9563d2a281e07a97afdf7",
+			"type": "dependency"
+		},
+		"src/v8/services/oidcDiscoveryServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/oidcDiscoveryServiceV8.ts",
+			"hash": "69cc1bd50e00740f0b694f6ba07b5d86a2efa001a50a6cfacb62048935d95ab6",
+			"type": "dependency"
+		},
+		"src/v8/services/oauthIntegrationServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/oauthIntegrationServiceV8.ts",
+			"hash": "c978fe5ac21bf90c052b5612146b7e4686da8bfa7e6ff1bd5e9d8c7b39b15a19",
+			"type": "dependency"
+		},
+		"src/v8/services/implicitFlowIntegrationServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/implicitFlowIntegrationServiceV8.ts",
+			"hash": "2ac873eac76f4ca15f91e3b46b80d4bd8960568fa0f66de0a16fd694e7c95505",
+			"type": "dependency"
+		},
+		"src/v8/services/clientCredentialsIntegrationServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/clientCredentialsIntegrationServiceV8.ts",
+			"hash": "0571a8ace8cbef61db5b1e061f9526dbd43946a98c5fb003b20320460b5b2b5a",
+			"type": "dependency"
+		},
+		"src/v8/services/deviceCodeIntegrationServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/deviceCodeIntegrationServiceV8.ts",
+			"hash": "899c7ec5bf6bd61d38683b5bc3f8b8b5411688dade3757f52a2ae890fa5d0534",
+			"type": "dependency"
+		},
+		"src/v8/services/hybridFlowIntegrationServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/hybridFlowIntegrationServiceV8.ts",
+			"hash": "986e35d965fdc983c35e23afc1460f5c7beb77d9b48426197b8ae433d7212edb",
+			"type": "dependency"
+		},
+		"src/v8/services/unifiedFlowOptionsServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/unifiedFlowOptionsServiceV8.ts",
+			"hash": "bc30046515b7b1e6ee9a3b15f6d245eb5173c6c998ed0fde466678fced406bca",
+			"type": "dependency"
+		},
+		"src/v8/components/SuperSimpleApiDisplayV8.tsx": {
+			"lockedPath": "dependencies/v8/components/SuperSimpleApiDisplayV8.tsx",
+			"hash": "4b8607d67865833410d7355b69c462f6fd0d30ccd424b9c80fd4ffdab57666b5",
+			"type": "dependency"
+		},
+		"src/v8/utils/toastNotificationsV8.ts": {
+			"lockedPath": "dependencies/v8/utils/toastNotificationsV8.ts",
+			"hash": "44389157150ac4c223b84aa2a5ccfd47050bed50d2b4bdfdecd39a91c61359f1",
+			"type": "dependency"
+		},
+		"src/v8/utils/analyticsServerCheckV8.ts": {
+			"lockedPath": "dependencies/v8/utils/analyticsServerCheckV8.ts",
+			"hash": "4d39cc15a238ef67dab1ab67bfc6c06b64bb27722226267a21ac4dfe46e8b8e3",
+			"type": "dependency"
+		},
+		"src/services/postmanCollectionGeneratorV8.ts": {
+			"lockedPath": "dependencies/services/postmanCollectionGeneratorV8.ts",
+			"hash": "7eeb53626f22d05e543533ae09e45a7435bc3cce45deccc05d1bb13820236a3f",
+			"type": "dependency"
+		},
+		"src/services/pkceService.tsx": {
+			"lockedPath": "dependencies/services/pkceService.tsx",
+			"hash": "c21673cfa6af77780f76ab681aa6423ac51c2c5505a3d35a2914339f5ec203c9",
+			"type": "dependency"
+		},
+		"src/utils/storage.ts": {
+			"lockedPath": "dependencies/utils/storage.ts",
+			"hash": "d433bc60119aa32d292e7d36e03694b7ae5cd7ef179a050f3b7deab48091468a",
+			"type": "dependency"
+		},
+		"src/utils/scrollManager.ts": {
+			"lockedPath": "dependencies/utils/scrollManager.ts",
+			"hash": "60da2e4cb0b53f09ddabf4b0059a249c107c37e2c16f1e83f4828bfe6d57e15f",
+			"type": "transitive"
+		},
+		"src/services/apiCallTrackerService.ts": {
+			"lockedPath": "dependencies/services/apiCallTrackerService.ts",
+			"hash": "788455ff8e62f07050a5cf74524589f9b6f8d747fd75593c7c009ee0e9b1a62c",
+			"type": "transitive"
+		},
+		"src/v8/services/apiDisplayServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/apiDisplayServiceV8.ts",
+			"hash": "1626ab4729b176971be98cf36356e7b1d1cfc1c0d5c7572515d7aaad16e63e14",
+			"type": "transitive"
+		},
+		"src/v8/services/dualStorageServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/dualStorageServiceV8.ts",
+			"hash": "5d0d05aabfec0318033a6b0eee7e93616724555e1c9a06b692c896882d0b4d31",
+			"type": "transitive"
+		},
+		"src/utils/fileStorageUtil.ts": {
+			"lockedPath": "dependencies/utils/fileStorageUtil.ts",
+			"hash": "643b0ee7b0fea0055e5aa27dcdbae9ca9f038fa19134e654acb94897193d0d68",
+			"type": "transitive"
+		},
+		"src/v8/services/uiNotificationServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/uiNotificationServiceV8.ts",
+			"hash": "5f0efcec38bfc667badbeac215ff8124c1f65145fa6caf6e00673b506a5e1dd3",
+			"type": "transitive"
+		},
+		"src/utils/v4ToastMessages.ts": {
+			"lockedPath": "dependencies/utils/v4ToastMessages.ts",
+			"hash": "bbbf768942fa4ddf68993e172dc94e2e524afd90411ec04a7c020f108d79e054",
+			"type": "transitive"
+		},
+		"src/services/responseModeService.ts": {
+			"lockedPath": "dependencies/services/responseModeService.ts",
+			"hash": "52130654a7de0b979a1a96c4f5fad107c339cc7c210bdb0e0c90ccfe03eff183",
+			"type": "transitive"
+		},
+		"src/utils/pingOneFetch.ts": {
+			"lockedPath": "dependencies/utils/pingOneFetch.ts",
+			"hash": "38393594c69fd122cea5dae5225e474bdf018112b8d35c573617fdbdbc2314ca",
+			"type": "transitive"
+		},
+		"src/v8/services/flowOptionsServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/flowOptionsServiceV8.ts",
+			"hash": "c1de58f221dd87ef4596768c15311b6727e7302591bcdb989de5269f322c68c4",
+			"type": "transitive"
+		},
+		"src/components/DraggableModal.tsx": {
+			"lockedPath": "dependencies/components/DraggableModal.tsx",
+			"hash": "da58030c4fdfd0ec6065eafbcfa6f3623a6d112c2235fc7557ad951caedaca1c",
+			"type": "transitive"
+		},
+		"src/components/JWTConfigV8.tsx": {
+			"lockedPath": "dependencies/components/JWTConfigV8.tsx",
+			"hash": "6dd7300fe512a201f778e9ce7d71ac7cb97bce1b1374833935ce158bb53d003a",
+			"type": "transitive"
+		},
+		"src/services/jwtAuthServiceV8.ts": {
+			"lockedPath": "dependencies/services/jwtAuthServiceV8.ts",
+			"hash": "f4e39d70db584ca01c3c5ab496d742ce1ca0d7c47e0d3d6d7bca905cae630542",
+			"type": "transitive"
+		},
+		"src/utils/clientAuthentication.ts": {
+			"lockedPath": "dependencies/utils/clientAuthentication.ts",
+			"hash": "3cdfcdc49e7330fb3370dca995ba85e9ab3186f3ff291c5f0a6cb148ff1c122d",
+			"type": "transitive"
+		},
+		"src/utils/keyGeneration.ts": {
+			"lockedPath": "dependencies/utils/keyGeneration.ts",
+			"hash": "d9e56c4666d4ff59ff9483bd11bcc011564c42e043efb8f77bf3edd16b35b05f",
+			"type": "transitive"
+		},
+		"src/v8/components/AppPickerV8.tsx": {
+			"lockedPath": "dependencies/v8/components/AppPickerV8.tsx",
+			"hash": "28882b2ccdeff562dcadeb1f4264533417bbf259e38a5a209ca9dcbfee589c41",
+			"type": "transitive"
+		},
+		"src/v8/components/ConfirmModalV8.tsx": {
+			"lockedPath": "dependencies/v8/components/ConfirmModalV8.tsx",
+			"hash": "d9061d408148f3386d0089aa013f01ca9dd02ad9b28e61b5a1c75c49f9c3e6c1",
+			"type": "transitive"
+		},
+		"src/v8/components/WorkerTokenModalV8.tsx": {
+			"lockedPath": "dependencies/v8/components/WorkerTokenModalV8.tsx",
+			"hash": "99e02c2b190eb9c503caaacd6e769c082b9e5bbfd45b1fb14c012396e9cde2db",
+			"type": "transitive"
+		},
+		"src/services/credentialExportImportService.ts": {
+			"lockedPath": "dependencies/services/credentialExportImportService.ts",
+			"hash": "90ca5760f3794d785fbb7db52af79787306ea5782789de4ca9391bf512d635c5",
+			"type": "transitive"
+		},
+		"src/services/unifiedTokenDisplayService.tsx": {
+			"lockedPath": "dependencies/services/unifiedTokenDisplayService.tsx",
+			"hash": "ad2cbd1a751ff6b89cf28bbe875663e5ffd6056b1ab555a96c6edbac1971db9b",
+			"type": "transitive"
+		},
+		"src/services/tokenDisplayService.ts": {
+			"lockedPath": "dependencies/services/tokenDisplayService.ts",
+			"hash": "442dcda4c513a17caadedf243ed73d62f8cbd45a6fbc1effcdbe23b167c58dd0",
+			"type": "transitive"
+		},
+		"src/v8/config/constants.ts": {
+			"lockedPath": "dependencies/v8/config/constants.ts",
+			"hash": "d29d26677bf20d0c4e7159c742cb73fa786b16e0032d5bf189f3dd08a5224f9b",
+			"type": "transitive"
+		},
+		"src/v8/services/authMethodServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/authMethodServiceV8.ts",
+			"hash": "f09a89c7f3da472bef473bfcb4aac46b6c9438bea43f2fe5af11eb731339a178",
+			"type": "transitive"
+		},
+		"src/v8/services/mfaConfigurationServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/mfaConfigurationServiceV8.ts",
+			"hash": "5e9d5bda21c5d6cd32bafee1e0131345465e6c661369563e104d9bd294d0af95",
+			"type": "transitive"
+		},
+		"src/v8/components/WorkerTokenRequestModalV8.tsx": {
+			"lockedPath": "dependencies/v8/components/WorkerTokenRequestModalV8.tsx",
+			"hash": "c3b7cdc7524f1085363acf2f03873821178ffdc5052d67ee6155aa0967ab4363",
+			"type": "transitive"
+		},
+		"src/v8/components/ClientTypeRadioV8.tsx": {
+			"lockedPath": "dependencies/v8/components/ClientTypeRadioV8.tsx",
+			"hash": "6968d8fa1542759843f80b01a367c9ea1fb360f744d84eb477b52fed8a8aeb4e",
+			"type": "transitive"
+		},
+		"src/v8/components/DisplayModeDropdownV8.tsx": {
+			"lockedPath": "dependencies/v8/components/DisplayModeDropdownV8.tsx",
+			"hash": "7182cd179c84fe33c05bc201faeb52ec63bbb02333698b7fd44bea82d2fb5043",
+			"type": "transitive"
+		},
+		"src/v8/components/IssuerURLInputV8.tsx": {
+			"lockedPath": "dependencies/v8/components/IssuerURLInputV8.tsx",
+			"hash": "9490be607b388ece087e198220e565c41d2d056b57d19d026102916410c44da6",
+			"type": "transitive"
+		},
+		"src/v8/components/LoginHintInputV8.tsx": {
+			"lockedPath": "dependencies/v8/components/LoginHintInputV8.tsx",
+			"hash": "a60f0b591dc92fc1bf924828973980e700858069ff6952f0d5080e6f031b58c7",
+			"type": "transitive"
+		},
+		"src/v8/components/MaxAgeInputV8.tsx": {
+			"lockedPath": "dependencies/v8/components/MaxAgeInputV8.tsx",
+			"hash": "f203e25e6f15c88572b888cb3f4af22551861c82e99d6401f06546da9a51e8e2",
+			"type": "transitive"
+		},
+		"src/v8/components/OidcDiscoveryModalV8.tsx": {
+			"lockedPath": "dependencies/v8/components/OidcDiscoveryModalV8.tsx",
+			"hash": "23e962c3a1565d2e705ab4d3bf61a0b56bd8e615da03513fcd3f3cdf49e0db6b",
+			"type": "transitive"
+		},
+		"src/v8/components/PKCEEnforcementDropdownV8.tsx": {
+			"lockedPath": "dependencies/v8/components/PKCEEnforcementDropdownV8.tsx",
+			"hash": "b6427bff9c5db29d1790cbcd9e2515117c921c20ba3d0617fc4ec263c2651a66",
+			"type": "transitive"
+		},
+		"src/v8/components/PKCEInputV8.tsx": {
+			"lockedPath": "dependencies/v8/components/PKCEInputV8.tsx",
+			"hash": "4108ec9715ef604e7f04b96e5b935ee73d85c9664d8e0a7fbb354f6ab5e7eb71",
+			"type": "transitive"
+		},
+		"src/v8/components/ResponseModeDropdownV8.tsx": {
+			"lockedPath": "dependencies/v8/components/ResponseModeDropdownV8.tsx",
+			"hash": "93ae8a5b16e728ca28166b4825a79634ae79c16aa7cbd46ce99c7b1a7a73ce0d",
+			"type": "transitive"
+		},
+		"src/v8/components/ResponseTypeDropdownV8.tsx": {
+			"lockedPath": "dependencies/v8/components/ResponseTypeDropdownV8.tsx",
+			"hash": "a21b385a7b8c3cb1c1839ed6322321c445dc56bf896eca6306fd6f1539f3ba02",
+			"type": "transitive"
+		},
+		"src/v8/components/TokenEndpointAuthMethodDropdownV8.tsx": {
+			"lockedPath": "dependencies/v8/components/TokenEndpointAuthMethodDropdownV8.tsx",
+			"hash": "3415c47342a3b882cf6563b2f4edb30b1de4ac55bc569ce4b2b2edf9ed8ce449",
+			"type": "transitive"
+		},
+		"src/v8/services/tokenEndpointAuthMethodServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/tokenEndpointAuthMethodServiceV8.ts",
+			"hash": "fee0c8f0c2152b5e0e0328741a891028f8810f77701adb77b03e64885d7331c7",
+			"type": "transitive"
+		},
+		"src/v8/components/TooltipV8.tsx": {
+			"lockedPath": "dependencies/v8/components/TooltipV8.tsx",
+			"hash": "a4fb7dffc538bea05feaf5d5ff9296d66e97db81526bad3ce9c51445f9185ba5",
+			"type": "transitive"
+		},
+		"src/v8/components/WorkerTokenVsClientCredentialsEducationModalV8.tsx": {
+			"lockedPath": "dependencies/v8/components/WorkerTokenVsClientCredentialsEducationModalV8.tsx",
+			"hash": "4d689be9c931046e342313c2bb021040497650c653c5a5ee71eaf6d0be0117b1",
+			"type": "transitive"
+		},
+		"src/v8/services/responseTypeServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/responseTypeServiceV8.ts",
+			"hash": "5d3d59f3224728f236c019e2331097788393a1a8f2ae2e89f0594299a5ff605c",
+			"type": "transitive"
+		},
+		"src/v8/services/tooltipContentServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/tooltipContentServiceV8.ts",
+			"hash": "719da7045ac3978dcddab9c806d0becdc9b08f284f67edd73dc892ad10fed2ae",
+			"type": "transitive"
+		},
+		"src/components/ColoredUrlDisplay.tsx": {
+			"lockedPath": "dependencies/components/ColoredUrlDisplay.tsx",
+			"hash": "1875dc89356e9cdfbc27157b864f48b3adff10c77090071706cc5b90fe7b038d",
+			"type": "transitive"
+		},
+		"src/services/copyButtonService.tsx": {
+			"lockedPath": "dependencies/services/copyButtonService.tsx",
+			"hash": "6d4b9fdc74a5bf1c04c65d2d0d992578ab9eea78f7625a080853e43fef9422ac",
+			"type": "transitive"
+		},
+		"src/components/DeviceTypeSelector.tsx": {
+			"lockedPath": "dependencies/components/DeviceTypeSelector.tsx",
+			"hash": "7b63252f6a2bb2d72c1307cbbfc4072199f7373af9ef13ab9994250042592077",
+			"type": "transitive"
+		},
+		"src/components/DynamicDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/DynamicDeviceFlow.tsx",
+			"hash": "08e886a79cbdb6265ac3dab0ff4ff9b392344173d48137605a2ae27950bae2ed",
+			"type": "transitive"
+		},
+		"src/services/deviceFlowService.ts": {
+			"lockedPath": "dependencies/services/deviceFlowService.ts",
+			"hash": "6697aa7b422df5cf66d22183463e3ca1a5b37514e9fb98055cdadce35b23ddf6",
+			"type": "transitive"
+		},
+		"src/utils/logger.ts": {
+			"lockedPath": "dependencies/utils/logger.ts",
+			"hash": "546b738d1568593b526cdb2c526385a3d31c776ac735b1765f889fad6e68973e",
+			"type": "transitive"
+		},
+		"src/components/AIAgentDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/AIAgentDeviceFlow.tsx",
+			"hash": "4f1407177fa7327ac393a9b8732f56f05a8bf21318d68b43dd627e8c09ef30e1",
+			"type": "transitive"
+		},
+		"src/components/StandardizedTokenDisplay.tsx": {
+			"lockedPath": "dependencies/components/StandardizedTokenDisplay.tsx",
+			"hash": "3cf1d3600539b9b787227f75424bb14fb67aa2a65b05624dfa6f8b297c074961",
+			"type": "transitive"
+		},
+		"src/components/InlineTokenDisplay.tsx": {
+			"lockedPath": "dependencies/components/InlineTokenDisplay.tsx",
+			"hash": "fffeab87b7dc629001c3cbe74af42b4ff1c5d19c20b7c4c8d490e1696dc90f54",
+			"type": "transitive"
+		},
+		"src/components/AirportKioskDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/AirportKioskDeviceFlow.tsx",
+			"hash": "3d8b06e547ae0b7edf642099b8b6b65af3c1720798d64bc59432b5d601f3e5dc",
+			"type": "transitive"
+		},
+		"src/components/AmazonEchoShowDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/AmazonEchoShowDeviceFlow.tsx",
+			"hash": "bc4cf61bb3b09d1fc68187b92081ce39f323d34b140a9de7c40d25189421a42f",
+			"type": "transitive"
+		},
+		"src/components/AppleTVDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/AppleTVDeviceFlow.tsx",
+			"hash": "61c22c20f8c952b861903686db6dc9ef363010c2ff25910cff41136966f23452",
+			"type": "transitive"
+		},
+		"src/components/BoseSmartSpeakerDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/BoseSmartSpeakerDeviceFlow.tsx",
+			"hash": "12fbb731b8db2998cf9a9f9d4adf73bfe78aeaf6f634443fc2d0ce5767a47486",
+			"type": "transitive"
+		},
+		"src/components/FitnessTrackerDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/FitnessTrackerDeviceFlow.tsx",
+			"hash": "3e73a69851306166d976b1323e060f97e339326d1bbf5f74c514d625e534d049",
+			"type": "transitive"
+		},
+		"src/components/GamingConsoleDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/GamingConsoleDeviceFlow.tsx",
+			"hash": "e90947a3ff68852acf12f5bdc962397724794dda15795bf47cbdfe1863164ce4",
+			"type": "transitive"
+		},
+		"src/components/GasPumpDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/GasPumpDeviceFlow.tsx",
+			"hash": "61cb60f8d438152e9db99daacd94b21f6357cc6f08aceb4d52b787699252a932",
+			"type": "transitive"
+		},
+		"src/components/IndustrialIoTControllerDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/IndustrialIoTControllerDeviceFlow.tsx",
+			"hash": "3763871274e53bba4eb1c0b955e0d6ad4ac2f667e4044dd06d6c30f86e7b28dc",
+			"type": "transitive"
+		},
+		"src/components/MCPServerDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/MCPServerDeviceFlow.tsx",
+			"hash": "0b92176ff0f3ef1ba6f56a1cf5def6e10a9fd9bfef92319f5c9a1d9643cc48bc",
+			"type": "transitive"
+		},
+		"src/components/MobilePhoneDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/MobilePhoneDeviceFlow.tsx",
+			"hash": "29e22b2ccf99ab27697823f1c71c55e5f8ac954890ab4cc4cea717e47d92cd8b",
+			"type": "transitive"
+		},
+		"src/components/POSTerminalDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/POSTerminalDeviceFlow.tsx",
+			"hash": "81a48a8b960e2d17a730d73c9d900eceb862ae2f9c2625bbe04eef28ac539130",
+			"type": "transitive"
+		},
+		"src/components/RingDoorbellDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/RingDoorbellDeviceFlow.tsx",
+			"hash": "b898cabf4164a99500326a95dbf93cc7b0fde4cfd358647e697da718a4dd4b80",
+			"type": "transitive"
+		},
+		"src/components/SmartPrinterDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/SmartPrinterDeviceFlow.tsx",
+			"hash": "799745e3447a1fbac268d99db102c02bcbcbb25dc88f30b10871e5c273acf2a1",
+			"type": "transitive"
+		},
+		"src/components/SmartSpeakerDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/SmartSpeakerDeviceFlow.tsx",
+			"hash": "4cae8268c0cddb2e7324f7657ff5935d300582f78b0508e1f88489abe50c7600",
+			"type": "transitive"
+		},
+		"src/components/SmartTVDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/SmartTVDeviceFlow.tsx",
+			"hash": "8e01c89536c7518eb0381c1e9363ffaeef29c16311f248638c12aed9b4d3ab11",
+			"type": "transitive"
+		},
+		"src/components/SmartVehicleDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/SmartVehicleDeviceFlow.tsx",
+			"hash": "92cb1b4b8d86f8535c4792bf99342986b89e0d65ab2828eb413f8d76dd3b7d47",
+			"type": "transitive"
+		},
+		"src/components/SonyGameControllerDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/SonyGameControllerDeviceFlow.tsx",
+			"hash": "3fcf6034c3a5fe2245cc5ce233d12ce04e988a63e458b43ecae6f0d4034f60a4",
+			"type": "transitive"
+		},
+		"src/components/SquarePOSDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/SquarePOSDeviceFlow.tsx",
+			"hash": "85eb4baa22386e56efdc1c9a3e87c018302f4977b51bdf3b6285a3552d52610c",
+			"type": "transitive"
+		},
+		"src/components/TeslaCarDisplayDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/TeslaCarDisplayDeviceFlow.tsx",
+			"hash": "675b2c087c43977ce60ae3574e2249ecfe41a4091d687f6c20b100bf0cb66877",
+			"type": "transitive"
+		},
+		"src/components/VizioTVDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/VizioTVDeviceFlow.tsx",
+			"hash": "c9fc32872c7ce34826e4c51cc23842d3c4b5a4bc738910c24ec3ed5dfb06296e",
+			"type": "transitive"
+		},
+		"src/components/EnhancedFlowInfoCard.tsx": {
+			"lockedPath": "dependencies/components/EnhancedFlowInfoCard.tsx",
+			"hash": "9b600e931df2ee89d6a25a668604aa7fd686b530f9e5cd5cc3054d3b2cbcabbe",
+			"type": "transitive"
+		},
+		"src/services/FlowInfoService.ts": {
+			"lockedPath": "dependencies/services/FlowInfoService.ts",
+			"hash": "1d4582c224a92584c7a4f112fac214a445e7f7bd5acaf49d8d29a89afdba0ce8",
+			"type": "transitive"
+		},
+		"src/components/FlowInfoCard.tsx": {
+			"lockedPath": "dependencies/components/FlowInfoCard.tsx",
+			"hash": "88d2729d53dd9b4ed085f38476408c433127b170ce5bdd671105eaee6d4ff385",
+			"type": "transitive"
+		},
+		"src/components/FlowConfigurationRequirements.tsx": {
+			"lockedPath": "dependencies/components/FlowConfigurationRequirements.tsx",
+			"hash": "fb8a5448c0b33f9afd62f628d040f510be78da06316e2a32dae34185a2f9dd7e",
+			"type": "transitive"
+		},
+		"src/components/FlowSequenceDisplay.tsx": {
+			"lockedPath": "dependencies/components/FlowSequenceDisplay.tsx",
+			"hash": "bcc167e15dc3c2eeb384270a33576346792d862ef472f1376489d24ec6347e04",
+			"type": "transitive"
+		},
+		"src/services/flowSequenceService.ts": {
+			"lockedPath": "dependencies/services/flowSequenceService.ts",
+			"hash": "95f7e63a70e7d719f70f8785bbc80f2416eb21ee5124449aeb10b8cec501eea3",
+			"type": "transitive"
+		},
+		"src/services/themeService.ts": {
+			"lockedPath": "dependencies/services/themeService.ts",
+			"hash": "8e6edf54bdf95db12172420bace13147a07382b2c886eda6ba011511efd9e805",
+			"type": "transitive"
+		},
+		"src/components/RedirectlessLoginModal.tsx": {
+			"lockedPath": "dependencies/components/RedirectlessLoginModal.tsx",
+			"hash": "7edb461e27813c8b7ba714115976e6093962213e779a22f1122cd1e933973ec9",
+			"type": "transitive"
+		},
+		"src/components/PasswordChangeModal.tsx": {
+			"lockedPath": "dependencies/components/PasswordChangeModal.tsx",
+			"hash": "ee1d8e8e2b465b4d4bfed4d129d4561bf7927fd2cf68a37441054dceb74fbdb4",
+			"type": "transitive"
+		},
+		"src/utils/oauth.ts": {
+			"lockedPath": "dependencies/utils/oauth.ts",
+			"hash": "80f899fb1d68e7bcd052374645c993fb25b3d77ce5e8367eebb18ccfd2d47a57",
+			"type": "transitive"
+		},
+		"src/v8/services/tokenDisplayServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/tokenDisplayServiceV8.ts",
+			"hash": "cfd0cd5b032d3fbde7b5921e81bc9d2f59b3a938e9e60e78e6f5f5f9634fe6fe",
+			"type": "transitive"
+		},
+		"src/v8/services/tokenOperationsServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/tokenOperationsServiceV8.ts",
+			"hash": "2c5f3107ca1299a7644f6bee83f764f39fe779fbfa9a64ef70417b295e10ab6f",
+			"type": "transitive"
+		},
+		"src/v8u/components/ErrorDisplayWithRetry.tsx": {
+			"lockedPath": "dependencies/v8u/components/ErrorDisplayWithRetry.tsx",
+			"hash": "d203c40439a2d74e210b1266d0e637ac5e39638ee84c893359d92b0452b4c7a2",
+			"type": "transitive"
+		},
+		"src/v8/services/oauthErrorCodesServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/oauthErrorCodesServiceV8.ts",
+			"hash": "c47226f06264b619bdee200e739e2ac7479f14e64e0bc3253c63287ff6cca729",
+			"type": "transitive"
+		},
+		"src/v8u/components/TokenDisplayV8U.tsx": {
+			"lockedPath": "dependencies/v8u/components/TokenDisplayV8U.tsx",
+			"hash": "d8e4dd322e54abd0d6a497cfb6046c5433e939fbd9c875a2b8864229a8f69b67",
+			"type": "transitive"
+		},
+		"src/v8u/components/UnifiedFlowDocumentationPageV8U.tsx": {
+			"lockedPath": "dependencies/v8u/components/UnifiedFlowDocumentationPageV8U.tsx",
+			"hash": "e633583008900a4a2b56c39f2b91cc5e2261538fe6b1cc75886c2b339af0d053",
+			"type": "transitive"
+		},
+		"src/v8u/components/LoadingSpinnerModalV8U.tsx": {
+			"lockedPath": "dependencies/v8u/components/LoadingSpinnerModalV8U.tsx",
+			"hash": "09ca511b25156a48617a67fa0b0937d07b61c66707fea6ecdbfa416289a209a1",
+			"type": "transitive"
+		},
+		"src/v8u/components/UserInfoSuccessModalV8U.tsx": {
+			"lockedPath": "dependencies/v8u/components/UserInfoSuccessModalV8U.tsx",
+			"hash": "54d6561e5503e12958d4ace2cae189822c20f0112ab5cd04ad516ac97e3dd10f",
+			"type": "transitive"
+		},
+		"src/v8u/components/UnifiedDocumentationModalV8U.tsx": {
+			"lockedPath": "dependencies/v8u/components/UnifiedDocumentationModalV8U.tsx",
+			"hash": "3fa53d9caaf3b12704171a35829072b0a0e4b805845d02063647f38edee51ab0",
+			"type": "transitive"
+		},
+		"src/v8/utils/analyticsLoggerV8.ts": {
+			"lockedPath": "dependencies/v8/utils/analyticsLoggerV8.ts",
+			"hash": "7f00ccfc2fd93a0753051788db23e4081e7a884927a73033971e729cf4415929",
+			"type": "transitive"
+		}
+	},
+	"summary": {
+		"totalFiles": 132,
+		"featureFiles": 8,
+		"dependencyFiles": 23,
+		"transitiveFiles": 101
+	}
 }

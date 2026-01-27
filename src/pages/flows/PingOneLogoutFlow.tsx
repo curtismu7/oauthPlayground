@@ -14,15 +14,15 @@
 
 import type React from 'react';
 import { useCallback, useState } from 'react';
+import { FiCopy, FiExternalLink, FiInfo, FiLogOut } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiLogOut, FiInfo, FiCopy, FiExternalLink } from 'react-icons/fi';
+import { ColoredUrlDisplay } from '../../components/ColoredUrlDisplay';
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
+import { pingOneLogoutService } from '../../services/pingOneLogoutService';
 import { logger } from '../../utils/logger';
 import { buildPingOneLogoutUrl, generateState } from '../../utils/pingone-url-builders';
-import { pingOneLogoutService } from '../../services/pingOneLogoutService';
-import { ColoredUrlDisplay } from '../../components/ColoredUrlDisplay';
 
 const FlowContainer = styled.div`
 	max-width: 1200px;
@@ -526,8 +526,8 @@ if (idToken) {
 		<FlowContainer>
 			<FlowTitle>🚪 PingOne Logout Flow</FlowTitle>
 			<FlowDescription>
-				This flow demonstrates how to implement logout with PingOne SSO. Learn how to build
-				logout URLs, initiate session termination, and handle post-logout redirects.
+				This flow demonstrates how to implement logout with PingOne SSO. Learn how to build logout
+				URLs, initiate session termination, and handle post-logout redirects.
 			</FlowDescription>
 
 			<InfoContainer>
@@ -550,8 +550,8 @@ if (idToken) {
 				<h4 style={{ marginTop: 0 }}>⚠️ Important Requirements</h4>
 				<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
 					<li>
-						<strong>ID Token Required:</strong> You must have an ID token from the
-						authentication session to initiate logout
+						<strong>ID Token Required:</strong> You must have an ID token from the authentication
+						session to initiate logout
 					</li>
 					<li>
 						<strong>Post-Logout Redirect URI:</strong> Must be registered in your PingOne
@@ -636,9 +636,7 @@ if (idToken) {
 						<Input
 							type="text"
 							value={formData.environmentId}
-							onChange={(e) =>
-								setFormData((prev) => ({ ...prev, environmentId: e.target.value }))
-							}
+							onChange={(e) => setFormData((prev) => ({ ...prev, environmentId: e.target.value }))}
 							placeholder="12345678-1234-1234-1234-123456789abc"
 						/>
 					</FormGroup>
@@ -648,9 +646,7 @@ if (idToken) {
 						<Input
 							type="text"
 							value={formData.clientId}
-							onChange={(e) =>
-								setFormData((prev) => ({ ...prev, clientId: e.target.value }))
-							}
+							onChange={(e) => setFormData((prev) => ({ ...prev, clientId: e.target.value }))}
 							placeholder="Enter your client ID"
 						/>
 					</FormGroup>
@@ -660,9 +656,7 @@ if (idToken) {
 					<Label>ID Token (Required)</Label>
 					<TextArea
 						value={formData.idToken}
-						onChange={(e) =>
-							setFormData((prev) => ({ ...prev, idToken: e.target.value }))
-						}
+						onChange={(e) => setFormData((prev) => ({ ...prev, idToken: e.target.value }))}
 						placeholder="Paste your ID token here (from authentication response)"
 					/>
 					<small style={{ color: '#6b7280', display: 'block', marginTop: '0.5rem' }}>
@@ -690,9 +684,7 @@ if (idToken) {
 					<Input
 						type="text"
 						value={formData.state}
-						onChange={(e) =>
-							setFormData((prev) => ({ ...prev, state: e.target.value }))
-						}
+						onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value }))}
 						placeholder="Random state value"
 					/>
 					<small style={{ color: '#6b7280', display: 'block', marginTop: '0.5rem' }}>
@@ -725,4 +717,3 @@ if (idToken) {
 };
 
 export default PingOneLogoutFlow;
-

@@ -12,7 +12,7 @@ import React from 'react';
  */
 export const MFAReportingFlowV8: React.FC = () => {
 	return (
-<div style={{ padding: '20px', textAlign: 'center' }}>
+		<div style={{ padding: '20px', textAlign: 'center' }}>
 			<h2>MFA Reporting Flow</h2>
 			<p>MFA reporting functionality is temporarily disabled.</p>
 			<p>The modal spinner implementation is complete and working.</p>

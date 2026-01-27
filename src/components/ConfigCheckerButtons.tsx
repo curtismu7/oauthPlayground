@@ -498,7 +498,10 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 	const [showCreateModal, setShowCreateModal] = useState(false);
 	const [showAuthErrorModal, setShowAuthErrorModal] = useState(false);
 	const [showCreationResultModal, setShowCreationResultModal] = useState(false);
-	const [creationResult, setCreationResult] = useState<{ success: boolean; [key: string]: unknown } | null>(null);
+	const [creationResult, setCreationResult] = useState<{
+		success: boolean;
+		[key: string]: unknown;
+	} | null>(null);
 	const [isUpdating, setIsUpdating] = useState(false);
 	const [lastCheckTime, setLastCheckTime] = useState<number | null>(null);
 	const [selectedDiffs, setSelectedDiffs] = useState<Set<string>>(new Set());

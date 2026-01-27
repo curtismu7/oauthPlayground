@@ -6,11 +6,11 @@
  */
 
 import React, { useState } from 'react';
-import { P1MFASDK, type P1MFAConfig, type Device } from '@/sdk/p1mfa';
+import { type Device, type P1MFAConfig, P1MFASDK } from '@/sdk/p1mfa';
 import { CredentialsForm } from '../shared/CredentialsForm';
 import { DeviceList } from '../shared/DeviceList';
-import { RegistrationFlow } from './RegistrationFlow';
 import { AuthenticationFlow } from './AuthenticationFlow';
+import { RegistrationFlow } from './RegistrationFlow';
 
 type Tab = 'credentials' | 'registration' | 'authentication' | 'devices';
 
@@ -66,7 +66,14 @@ export const SMSSampleApp: React.FC = () => {
 			<h1 style={{ marginBottom: '2rem' }}>P1MFA SDK - SMS Sample App</h1>
 
 			{/* Tabs */}
-			<div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '2px solid #ddd' }}>
+			<div
+				style={{
+					display: 'flex',
+					gap: '1rem',
+					marginBottom: '2rem',
+					borderBottom: '2px solid #ddd',
+				}}
+			>
 				<button
 					onClick={() => setActiveTab('credentials')}
 					style={{
@@ -231,11 +238,7 @@ export const SMSSampleApp: React.FC = () => {
 							</button>
 						</div>
 					</div>
-					<DeviceList
-						devices={devices}
-						onDelete={handleDeleteDevice}
-						loading={loadingDevices}
-					/>
+					<DeviceList devices={devices} onDelete={handleDeleteDevice} loading={loadingDevices} />
 				</div>
 			)}
 		</div>
