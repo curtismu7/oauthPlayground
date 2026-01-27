@@ -112,7 +112,7 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 	justify-content: center;
 	width: 32px;
 	height: 32px;
-	background-color: transparent;
+	background-color: #ffffff;
 	border-radius: 6px;
 	border: 2px solid #3b82f6;
 	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};

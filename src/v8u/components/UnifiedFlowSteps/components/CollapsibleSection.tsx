@@ -60,7 +60,7 @@ const CollapsibleToggleIcon = styled.div<{ $collapsed?: boolean }>`
 	justify-content: center;
 	width: 32px;
 	height: 32px;
-	background-color: transparent;
+	background-color: #ffffff;
 	border-radius: 6px;
 	border: 2px solid #3b82f6;
 	transition: all 0.2s ease;
