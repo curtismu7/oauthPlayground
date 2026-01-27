@@ -120,7 +120,7 @@ export class WorkerTokenManager {
 	async loadCredentials(): Promise<WorkerTokenCredentials | null> {
 		const result = await workerTokenRepository.loadCredentials();
 		if (!result) return null;
-		
+
 		// Convert UnifiedWorkerTokenCredentials to WorkerTokenCredentials
 		return {
 			environmentId: result.environmentId,
@@ -289,7 +289,7 @@ export class WorkerTokenManager {
 	private async loadStoredToken(): Promise<WorkerAccessToken | null> {
 		const tokenString = await workerTokenRepository.getToken();
 		if (!tokenString) return null;
-		
+
 		// Create a WorkerAccessToken from the stored token string
 		return {
 			access_token: tokenString,
@@ -297,7 +297,7 @@ export class WorkerTokenManager {
 			expires_in: 3600, // Default, will be updated if we have metadata
 			scope: 'worker',
 			fetchedAt: Date.now(),
-			expiresAt: Date.now() + (3600 * 1000),
+			expiresAt: Date.now() + 3600 * 1000,
 		};
 	}
 
