@@ -374,6 +374,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const [showRegistrationModal, setShowRegistrationModal] = useState(false);
 	const [showPolicyInfoModal, setShowPolicyInfoModal] = useState(false);
 	const [showDeviceSelectionInfoModal, setShowDeviceSelectionInfoModal] = useState(false);
+	const [showDeviceSelectionModal, setShowDeviceSelectionModal] = useState(false);
 	const [deviceSearchQuery, setDeviceSearchQuery] = useState('');
 
 	// Device failure modal state
