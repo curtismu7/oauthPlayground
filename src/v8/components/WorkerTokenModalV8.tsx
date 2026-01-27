@@ -24,6 +24,7 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { workerTokenCacheServiceV8 } from '@/v8/services/workerTokenCacheServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { environmentService } from '@/services/environmentService';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-V8]';
@@ -437,6 +438,15 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			// Now store token using unifiedWorkerTokenService (credentials are already saved)
 			const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
 			await unifiedWorkerTokenService.saveToken(token, expiresAt);
+
+			// Save to global environment service
+			const options: { region: 'us' | 'eu' | 'ap' | 'ca'; customDomain?: string } = {
+				region: region as 'us' | 'eu' | 'ap' | 'ca',
+			};
+			if (customDomain?.trim()) {
+				options.customDomain = customDomain.trim();
+			}
+			environmentService.setEnvironmentId(environmentId.trim(), options);
 
 			// Also save credentials to MFA flow for MFA Hub compatibility
 			try {
