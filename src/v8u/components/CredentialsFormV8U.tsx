@@ -1911,23 +1911,53 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 	return (
 		<div className="credentials-form-v8">
-			<div className="collapsible-header" onClick={() => setIsExpanded(!isExpanded)}>
+			<button 
+				type="button"
+				className="collapsible-header" 
+				onClick={() => setIsExpanded(!isExpanded)}
+				aria-expanded={isExpanded}
+				aria-controls="collapsible-content"
+				style={{
+					background: 'none',
+					border: 'none',
+					padding: 0,
+					margin: 0,
+					font: 'inherit',
+					color: 'inherit',
+					textAlign: 'left',
+					width: '100%',
+					cursor: 'pointer'
+				}}
+			>
 				<div className="header-content">
 					<h2>{defaultTitle}</h2>
 					<span className={`chevron ${isExpanded ? 'open' : ''}`}>›</span>
 				</div>
 				{defaultSubtitle && <p>{defaultSubtitle}</p>}
-			</div>
+			</button>
 
 			{isExpanded && (
 				<>
-					<form id="credentials-form-v8u" className="form-sections">
+					<form id="collapsible-content" className="form-sections">
 						{/* GENERAL SECTION - Matches PingOne Console */}
 						<div className="form-section" data-section="general">
-							<div
+							<button
+								type="button"
 								className="section-header"
 								onClick={() => setShowGeneralSection(!showGeneralSection)}
-								style={{ cursor: 'pointer' }}
+								aria-expanded={showGeneralSection}
+								aria-controls="general-section-content"
+								style={{
+									background: 'none',
+									border: 'none',
+									padding: 0,
+									margin: 0,
+									font: 'inherit',
+									color: 'inherit',
+									textAlign: 'left',
+									width: '100%',
+									cursor: 'pointer'
+								}}
 							>
 								<div
 									style={{
@@ -1948,7 +1978,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										›
 									</span>
 								</div>
-							</div>
+							</button>
 							{showGeneralSection && (
 								<div className="section-content">
 									{/* Client Type - Educational Component */}
@@ -5188,6 +5218,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
+								type="button"
 								onClick={() => setShowPromptInfoModal(false)}
 								style={{
 									marginTop: '24px',
@@ -5551,6 +5582,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
+								type="button"
 								onClick={() => setShowPARInfoModal(false)}
 								style={{
 									marginTop: '24px',
@@ -6024,6 +6056,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
+								type="button"
 								onClick={() => setShowJARInfoModal(false)}
 								style={{
 									marginTop: '24px',
