@@ -444,7 +444,9 @@ const PingOneWebhookViewer: React.FC = () => {
 	const [filter, setFilter] = useState<string>('all');
 	const [typeFilter, setTypeFilter] = useState<string>('all');
 	const [timeFilter, setTimeFilter] = useState<string>('all');
-	const [displayFormat, setDisplayFormat] = useState<'json' | 'splunk' | 'ping-activity' | 'new-relic'>('json');
+	const [displayFormat, setDisplayFormat] = useState<
+		'json' | 'splunk' | 'ping-activity' | 'new-relic'
+	>('json');
 	const [isActive, setIsActive] = useState(false);
 	const [isLoadingSubscriptions, setIsLoadingSubscriptions] = useState(false);
 	const [workerToken, setWorkerToken] = useState<string | null>(() => getAnyWorkerToken());
@@ -544,36 +546,40 @@ const PingOneWebhookViewer: React.FC = () => {
 	const validateWorkerToken = async (token: string, envId: string) => {
 		try {
 			// Test basic environment access
-			const testResponse = await fetch(`/api/pingone/subscriptions?environmentId=${envId}&workerToken=${token}&region=na`, {
-				method: 'GET',
-			});
-			
+			const testResponse = await fetch(
+				`/api/pingone/subscriptions?environmentId=${envId}&workerToken=${token}&region=na`,
+				{
+					method: 'GET',
+				}
+			);
+
 			if (testResponse.ok) {
 				return { valid: true, message: 'Token is valid' };
 			}
-			
+
 			const errorText = await testResponse.text();
 			if (errorText.includes('<html>')) {
 				if (errorText.includes('Error. Page cannot be displayed')) {
 					return {
 						valid: false,
-						message: 'Token lacks webhook permissions or environment access. Please ensure your Worker App has p1:read:webhooks and p1:write:webhooks scopes.'
+						message:
+							'Token lacks webhook permissions or environment access. Please ensure your Worker App has p1:read:webhooks and p1:write:webhooks scopes.',
 					};
 				}
 				return {
 					valid: false,
-					message: 'Token authentication failed. The token may be expired or invalid.'
+					message: 'Token authentication failed. The token may be expired or invalid.',
 				};
 			}
-			
+
 			return {
 				valid: false,
-				message: `API returned ${testResponse.status}: ${testResponse.statusText}`
+				message: `API returned ${testResponse.status}: ${testResponse.statusText}`,
 			};
 		} catch (error) {
 			return {
 				valid: false,
-				message: `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`
+				message: `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`,
 			};
 		}
 	};
@@ -597,7 +603,7 @@ const PingOneWebhookViewer: React.FC = () => {
 		const timestamp = event.timestamp.toISOString();
 		const eventType = event.type || 'unknown';
 		const eventData = event.data || {};
-		
+
 		// Splunk format: timestamp, log_level, source, event_type, message
 		return `${timestamp} INFO pingone-webhook ${eventType} ${JSON.stringify(eventData)}`;
 	};
@@ -619,7 +625,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				receivedAt: event.timestamp.toISOString(),
 			},
 		};
-		
+
 		return JSON.stringify(activity, null, 2);
 	};
 
@@ -641,7 +647,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				ipAddress: (event.data as any)?.ipAddress || 'unknown',
 			},
 		};
-		
+
 		return JSON.stringify(newRelicEvent, null, 2);
 	};
 
@@ -700,16 +706,14 @@ const PingOneWebhookViewer: React.FC = () => {
 				}
 				// Check for HTML response (indicates auth error)
 				if (typeof responseData === 'string' && responseData.includes('<html>')) {
-					console.warn(
-						'[Webhook Viewer] Received HTML response - likely authentication error'
-					);
+					console.warn('[Webhook Viewer] Received HTML response - likely authentication error');
 					if (responseData.includes('Error. Page cannot be displayed')) {
 						throw new Error(
 							'PingOne API access denied. This usually means:\n\n' +
-							'1. Your worker token lacks the required scopes (p1:read:webhooks, p1:write:webhooks)\n' +
-							'2. The environment ID is not accessible with this token\n' +
-							'3. Your PingOne account may not have webhook subscription permissions\n\n' +
-							'Please generate a new worker token with the proper webhook scopes and try again.'
+								'1. Your worker token lacks the required scopes (p1:read:webhooks, p1:write:webhooks)\n' +
+								'2. The environment ID is not accessible with this token\n' +
+								'3. Your PingOne account may not have webhook subscription permissions\n\n' +
+								'Please generate a new worker token with the proper webhook scopes and try again.'
 						);
 					}
 					throw new Error(
@@ -1613,7 +1617,10 @@ const PingOneWebhookViewer: React.FC = () => {
 								<FilterLabel>
 									<FiTag />
 									Display Format:
-									<FilterSelect value={displayFormat} onChange={(e) => setDisplayFormat(e.target.value as any)}>
+									<FilterSelect
+										value={displayFormat}
+										onChange={(e) => setDisplayFormat(e.target.value as any)}
+									>
 										<option value="json">Raw JSON</option>
 										<option value="splunk">Splunk Format</option>
 										<option value="ping-activity">Ping Activity JSON</option>

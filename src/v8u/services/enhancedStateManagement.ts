@@ -1,13 +1,13 @@
 import React, {
 	createContext,
+	type ReactNode,
 	useContext,
 	useEffect,
 	useMemo,
 	useReducer,
-	type ReactNode,
 } from 'react';
-import { TokenMonitoringService, type ApiCall } from './tokenMonitoringService';
 import { unifiedWorkerTokenServiceV2 } from '../../services/unifiedWorkerTokenServiceV2';
+import { type ApiCall, TokenMonitoringService } from './tokenMonitoringService';
 
 export type ThemePreference = 'light' | 'dark' | 'auto';
 
@@ -237,7 +237,9 @@ const applyDomainAction = (
 				...snapshot,
 				offline: {
 					...snapshot.offline,
-					pendingActions: snapshot.offline.pendingActions.filter((item) => item.id !== action.payload),
+					pendingActions: snapshot.offline.pendingActions.filter(
+						(item) => item.id !== action.payload
+					),
 				},
 			};
 		case 'START_SYNC':
@@ -303,17 +305,17 @@ const getRealMetrics = async (): Promise<Partial<UnifiedFlowMetrics>> => {
 		const tokenService = TokenMonitoringService.getInstance();
 		const tokens = tokenService.getAllTokens();
 		const apiCalls = tokenService.getApiCalls();
-		
+
 		// Calculate API call metrics
-		const successCount = apiCalls.filter(call => call.success).length;
+		const successCount = apiCalls.filter((call) => call.success).length;
 		const totalCalls = apiCalls.length;
 		const successRate = totalCalls > 0 ? (successCount / totalCalls) * 100 : 100;
-		const avgResponseTime = totalCalls > 0 
-			? apiCalls.reduce((sum, call) => sum + call.duration, 0) / totalCalls 
-			: 0;
-		
-		const lastApiCall = apiCalls.length > 0 ? Math.max(...apiCalls.map(call => call.timestamp)) : null;
-		
+		const avgResponseTime =
+			totalCalls > 0 ? apiCalls.reduce((sum, call) => sum + call.duration, 0) / totalCalls : 0;
+
+		const lastApiCall =
+			apiCalls.length > 0 ? Math.max(...apiCalls.map((call) => call.timestamp)) : null;
+
 		// Get worker token metrics
 		let workerTokenMetrics = {
 			hasWorkerToken: false,
@@ -321,24 +323,24 @@ const getRealMetrics = async (): Promise<Partial<UnifiedFlowMetrics>> => {
 			workerTokenExpiry: null as number | null,
 			lastWorkerTokenRefresh: null as number | null,
 		};
-		
+
 		try {
 			const workerTokenStatus = await unifiedWorkerTokenServiceV2.getStatus();
 			workerTokenMetrics = {
 				hasWorkerToken: workerTokenStatus.hasToken || false,
 				workerTokenValid: workerTokenStatus.tokenValid || false,
-				workerTokenExpiry: workerTokenStatus.tokenExpiresIn 
-					? Date.now() + (workerTokenStatus.tokenExpiresIn * 1000) 
+				workerTokenExpiry: workerTokenStatus.tokenExpiresIn
+					? Date.now() + workerTokenStatus.tokenExpiresIn * 1000
 					: null,
 				lastWorkerTokenRefresh: workerTokenStatus.lastFetchedAt || null,
 			};
 		} catch (error) {
 			console.warn('[EnhancedState] Failed to get worker token status:', error);
 		}
-		
+
 		// Count worker tokens specifically
-		const workerTokens = tokens.filter(token => token.type === 'worker_token');
-		
+		const workerTokens = tokens.filter((token) => token.type === 'worker_token');
+
 		return {
 			tokenCount: tokens.length,
 			apiCallCount: totalCalls,
@@ -464,10 +466,13 @@ const EnhancedStateProvider = ({ children }: { children: ReactNode }) => {
 			setTheme: (theme: ThemePreference) => dispatch({ type: 'SET_THEME', payload: theme }),
 			toggleNotifications: () => dispatch({ type: 'TOGGLE_NOTIFICATIONS' }),
 			recordActivity: () => dispatch({ type: 'RECORD_ACTIVITY' }),
-			queueOfflineAction: (pending: PendingAction) => dispatch({ type: 'QUEUE_OFFLINE_ACTION', payload: pending }),
-			completeOfflineAction: (actionId: string) => dispatch({ type: 'COMPLETE_OFFLINE_ACTION', payload: actionId }),
+			queueOfflineAction: (pending: PendingAction) =>
+				dispatch({ type: 'QUEUE_OFFLINE_ACTION', payload: pending }),
+			completeOfflineAction: (actionId: string) =>
+				dispatch({ type: 'COMPLETE_OFFLINE_ACTION', payload: actionId }),
 			startSync: () => dispatch({ type: 'START_SYNC' }),
-			finishSync: (success: boolean) => dispatch({ type: 'FINISH_SYNC', payload: { success, timestamp: Date.now() } }),
+			finishSync: (success: boolean) =>
+				dispatch({ type: 'FINISH_SYNC', payload: { success, timestamp: Date.now() } }),
 			setTokenMetrics: (metrics: Partial<UnifiedFlowMetrics>) =>
 				dispatch({ type: 'SET_TOKEN_METRICS', payload: metrics }),
 			updateRealMetrics: async () => {
@@ -480,8 +485,7 @@ const EnhancedStateProvider = ({ children }: { children: ReactNode }) => {
 			},
 			updateSecuritySettings: (settings: Partial<SecuritySettings>) =>
 				dispatch({ type: 'UPDATE_SECURITY_SETTINGS', payload: settings }),
-			addAuditLog: (log: SecurityAuditLog) =>
-				dispatch({ type: 'ADD_AUDIT_LOG', payload: log }),
+			addAuditLog: (log: SecurityAuditLog) => dispatch({ type: 'ADD_AUDIT_LOG', payload: log }),
 			performSecurityScan: (score: number, threats: number) =>
 				dispatch({ type: 'SECURITY_SCAN', payload: { score, threats } }),
 			undo: () => {
@@ -514,11 +518,7 @@ const EnhancedStateProvider = ({ children }: { children: ReactNode }) => {
 		persistSnapshot(historyState.present);
 	}, [historyState.present]);
 
-	return React.createElement(
-		UnifiedFlowContext.Provider,
-		{ value: contextValue },
-		children
-	);
+	return React.createElement(UnifiedFlowContext.Provider, { value: contextValue }, children);
 };
 
 export const useUnifiedFlowState = () => {

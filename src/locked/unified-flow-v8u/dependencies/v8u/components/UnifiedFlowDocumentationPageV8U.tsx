@@ -19,15 +19,15 @@ import {
 	FiPackage,
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import type { FlowType, SpecVersion } from '../../v8/services/specVersionServiceV8.ts';
-import { SpecVersionServiceV8 } from '../../v8/services/specVersionServiceV8.ts';
-import { SpecUrlServiceV8 } from '../../v8/services/specUrlServiceV8.ts';
-import type { UnifiedFlowCredentials } from '../services/unifiedFlowIntegrationV8U';
 import { apiCallTrackerService, type ApiCall as TrackedApiCall } from '../../services/apiCallTrackerService.ts';
 import {
-	generatePostmanCollection,
 	downloadPostmanCollectionWithEnvironment,
+	generatePostmanCollection,
 } from '../../services/postmanCollectionGeneratorV8.ts';
+import { SpecUrlServiceV8 } from '../../v8/services/specUrlServiceV8.ts';
+import type { FlowType, SpecVersion } from '../../v8/services/specVersionServiceV8.ts';
+import { SpecVersionServiceV8 } from '../../v8/services/specVersionServiceV8.ts';
+import type { UnifiedFlowCredentials } from '../services/unifiedFlowIntegrationV8U';
 
 interface UnifiedFlowDocumentationPageV8UProps {
 	flowType: FlowType;
@@ -135,15 +135,14 @@ const getApiDocsUrlForFlow = (flowType: FlowType): string => {
 	
 	// #region agent log
 		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
+		headers: 'Content-Type': 'application/json' ,
+		body: JSON.stringify(
 			location: 'UnifiedFlowDocumentationPageV8U.tsx:132',
 			message: 'Getting PingOne API docs URL for flow',
-			data: { flowType, baseUrl },
+			data: flowType, baseUrl ,
 			timestamp: Date.now(),
 			sessionId: 'debug-session',
-			hypothesisId: 'F',
-		}),
+			hypothesisId: 'F',),
 	}).catch(() => {});
 	// #endregion
 
@@ -174,7 +173,7 @@ const getApiDocsUrlForFlow = (flowType: FlowType): string => {
 		body: JSON.stringify({
 			location: 'UnifiedFlowDocumentationPageV8U.tsx:153',
 			message: 'Generated PingOne API docs URL',
-			data: { flowType, url, hasAnchor: url.includes('#'), anchor: url.includes('#') ? url.split('#')[1] : null },
+			data: flowType, url, hasAnchor: url.includes('#'), anchor: url.includes('#') ? url.split('#')[1] : null ,
 			timestamp: Date.now(),
 			sessionId: 'debug-session',
 			hypothesisId: 'F',
@@ -274,23 +273,21 @@ export const generateUnifiedFlowMarkdown = (
 	
 	// #region agent log
 		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
+		headers: 'Content-Type': 'application/json' ,
+		body: JSON.stringify(
 			location: 'UnifiedFlowDocumentationPageV8U.tsx:231',
 			message: 'Generating documentation references',
-			data: {
+			data: 
 				flowType,
 				specVersion,
 				flowPrimarySpec: flowSpecs.primarySpec,
-				flowRelatedSpecs: flowSpecs.relatedSpecs?.map((s) => ({ label: s.label, url: s.url })),
+				flowRelatedSpecs: flowSpecs.relatedSpecs?.map((s) => (label: s.label, url: s.url )),
 				combinedPrimaryUrl: specUrls.primary,
 				combinedPrimaryLabel: specUrls.primaryLabel,
-				combinedAllSpecs: specUrls.allSpecs.map((s) => ({ label: s.label, url: s.url, isPrimary: s.isPrimary })),
-			},
+				combinedAllSpecs: specUrls.allSpecs.map((s) => (label: s.label, url: s.url, isPrimary: s.isPrimary )),,
 			timestamp: Date.now(),
 			sessionId: 'debug-session',
-			hypothesisId: 'E',
-		}),
+			hypothesisId: 'E',),
 	}).catch(() => {});
 	// #endregion
 	
@@ -321,7 +318,7 @@ export const generateUnifiedFlowMarkdown = (
 		body: JSON.stringify({
 			location: 'UnifiedFlowDocumentationPageV8U.tsx:257',
 			message: 'Adding PingOne API documentation link',
-			data: { flowType, apiDocsUrl, hasAnchor: apiDocsUrl.includes('#') },
+			data: flowType, apiDocsUrl, hasAnchor: apiDocsUrl.includes('#') ,
 			timestamp: Date.now(),
 			sessionId: 'debug-session',
 			hypothesisId: 'E',

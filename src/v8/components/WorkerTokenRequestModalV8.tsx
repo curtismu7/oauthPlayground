@@ -45,7 +45,10 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 	const [generatedToken, setGeneratedToken] = useState<string | null>(null);
 	const [isTokenStep, setIsTokenStep] = useState(false);
 	const [showPreflightModal, setShowPreflightModal] = useState(false);
-	const [preflightResult, setPreflightResult] = useState<{ success: boolean; message: string } | null>(null);
+	const [preflightResult, setPreflightResult] = useState<{
+		success: boolean;
+		message: string;
+	} | null>(null);
 
 	// Lock body scroll when modal is open
 	React.useEffect(() => {
@@ -82,22 +85,27 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 
 	const handleExecute = async () => {
 		setIsExecuting(true);
-		
+
 		try {
 			// Pre-flight validation checks
 			if (!requestDetails.tokenEndpoint || !requestDetails.requestParams.client_id) {
-				setPreflightResult({ 
-					success: false, 
-					message: '❌ Missing required fields:\n• Token endpoint\n• Client ID\n\nPlease ensure all required fields are filled in the Worker Token modal.' 
+				setPreflightResult({
+					success: false,
+					message:
+						'❌ Missing required fields:\n• Token endpoint\n• Client ID\n\nPlease ensure all required fields are filled in the Worker Token modal.',
 				});
 				setShowPreflightModal(true);
 				return;
 			}
 
-			if (requestDetails.authMethod === 'client_secret_post' && !requestDetails.requestParams.client_secret) {
-				setPreflightResult({ 
-					success: false, 
-					message: '❌ Client secret required:\n\nAuthentication method is set to "Client Secret Post" but no client secret was provided.\n\nPlease enter a client secret or switch to "Client Secret Basic" authentication.' 
+			if (
+				requestDetails.authMethod === 'client_secret_post' &&
+				!requestDetails.requestParams.client_secret
+			) {
+				setPreflightResult({
+					success: false,
+					message:
+						'❌ Client secret required:\n\nAuthentication method is set to "Client Secret Post" but no client secret was provided.\n\nPlease enter a client secret or switch to "Client Secret Basic" authentication.',
 				});
 				setShowPreflightModal(true);
 				return;
@@ -107,9 +115,10 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 			try {
 				new URL(requestDetails.tokenEndpoint);
 			} catch {
-				setPreflightResult({ 
-					success: false, 
-					message: '❌ Invalid token endpoint:\n\nThe token endpoint URL is malformed.\n\nExpected format: https://auth.pingone.com/{environment-id}/as/token' 
+				setPreflightResult({
+					success: false,
+					message:
+						'❌ Invalid token endpoint:\n\nThe token endpoint URL is malformed.\n\nExpected format: https://auth.pingone.com/{environment-id}/as/token',
 				});
 				setShowPreflightModal(true);
 				return;
@@ -117,46 +126,54 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 
 			// Validate client ID format (basic check)
 			if (requestDetails.requestParams.client_id.length < 3) {
-				setPreflightResult({ 
-					success: false, 
-					message: '❌ Invalid client ID:\n\nClient ID appears to be too short.\n\nPlease verify the client ID from your PingOne application.' 
+				setPreflightResult({
+					success: false,
+					message:
+						'❌ Invalid client ID:\n\nClient ID appears to be too short.\n\nPlease verify the client ID from your PingOne application.',
 				});
 				setShowPreflightModal(true);
 				return;
 			}
 
 			// Validate client secret format (basic check)
-			if (requestDetails.requestParams.client_secret && requestDetails.requestParams.client_secret.length < 8) {
-				setPreflightResult({ 
-					success: false, 
-					message: '⚠️ Client secret seems too short:\n\nClient secrets should typically be longer for security.\n\nPlease verify the client secret from your PingOne application.' 
+			if (
+				requestDetails.requestParams.client_secret &&
+				requestDetails.requestParams.client_secret.length < 8
+			) {
+				setPreflightResult({
+					success: false,
+					message:
+						'⚠️ Client secret seems too short:\n\nClient secrets should typically be longer for security.\n\nPlease verify the client secret from your PingOne application.',
 				});
 				setShowPreflightModal(true);
 				return;
 			}
 
 			// Validate scopes
-			if (!requestDetails.requestParams.scope || requestDetails.requestParams.scope.trim().length === 0) {
-				setPreflightResult({ 
-					success: false, 
-					message: '⚠️ No scopes specified:\n\nNo scopes were provided. The token request may fail or have limited permissions.\n\nCommon scopes: p1:read:user, p1:update:user, openid, profile, email' 
+			if (
+				!requestDetails.requestParams.scope ||
+				requestDetails.requestParams.scope.trim().length === 0
+			) {
+				setPreflightResult({
+					success: false,
+					message:
+						'⚠️ No scopes specified:\n\nNo scopes were provided. The token request may fail or have limited permissions.\n\nCommon scopes: p1:read:user, p1:update:user, openid, profile, email',
 				});
 				setShowPreflightModal(true);
 				return;
 			}
 
 			// All checks passed
-			setPreflightResult({ 
-				success: true, 
-				message: `✅ Pre-flight check passed!\n\nRequest details validated:\n• Token Endpoint: ${requestDetails.tokenEndpoint}\n• Client ID: ${requestDetails.requestParams.client_id}\n• Auth Method: ${requestDetails.authMethod}\n• Scopes: ${requestDetails.requestParams.scope}\n\nThe request format is valid. If you\'re still getting "Invalid client credentials" errors, please:\n1. Verify the client ID and secret in PingOne\n2. Check that the auth method matches your PingOne app settings\n3. Ensure the environment ID is correct\n4. Confirm the Worker app has client_credentials grant enabled` 
+			setPreflightResult({
+				success: true,
+				message: `✅ Pre-flight check passed!\n\nRequest details validated:\n• Token Endpoint: ${requestDetails.tokenEndpoint}\n• Client ID: ${requestDetails.requestParams.client_id}\n• Auth Method: ${requestDetails.authMethod}\n• Scopes: ${requestDetails.requestParams.scope}\n\nThe request format is valid. If you're still getting "Invalid client credentials" errors, please:\n1. Verify the client ID and secret in PingOne\n2. Check that the auth method matches your PingOne app settings\n3. Ensure the environment ID is correct\n4. Confirm the Worker app has client_credentials grant enabled`,
 			});
 			setShowPreflightModal(true);
-			
 		} catch (error) {
 			console.error('Pre-flight validation error:', error);
-			setPreflightResult({ 
-				success: false, 
-				message: `❌ Pre-flight validation error:\n\n${error instanceof Error ? error.message : 'Unknown error occurred'}\n\nPlease check the browser console for more details.` 
+			setPreflightResult({
+				success: false,
+				message: `❌ Pre-flight validation error:\n\n${error instanceof Error ? error.message : 'Unknown error occurred'}\n\nPlease check the browser console for more details.`,
 			});
 			setShowPreflightModal(true);
 		} finally {
@@ -309,7 +326,9 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 									onClick={async () => {
 										if (generatedToken) {
 											try {
-												const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+												const { workerTokenServiceV8 } = await import(
+													'@/v8/services/workerTokenServiceV8'
+												);
 												await workerTokenServiceV8.saveToken(generatedToken);
 												const { toastV8 } = await import('@/v8/utils/toastNotificationsV8');
 												toastV8.success('Token saved successfully!');
@@ -848,16 +867,22 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 								{/* Header */}
 								<div
 									style={{
-										background: preflightResult.success 
+										background: preflightResult.success
 											? 'linear-gradient(to right, #d1fae5 0%, #a7f3d0 100%)'
 											: 'linear-gradient(to right, #fee2e2 0%, #fecaca 100%)',
 										padding: '20px 24px',
-										borderBottom: preflightResult.success 
+										borderBottom: preflightResult.success
 											? '1px solid #6ee7b7'
 											: '1px solid #fca5a5',
 									}}
 								>
-									<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'space-between',
+										}}
+									>
 										<div>
 											<h2
 												style={{
@@ -867,7 +892,9 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 													color: preflightResult.success ? '#065f46' : '#991b1b',
 												}}
 											>
-												{preflightResult.success ? '✅ Pre-flight Check Passed' : '❌ Pre-flight Check Failed'}
+												{preflightResult.success
+													? '✅ Pre-flight Check Passed'
+													: '❌ Pre-flight Check Failed'}
 											</h2>
 											<p
 												style={{
@@ -876,10 +903,9 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 													color: preflightResult.success ? '#047857' : '#b91c1c',
 												}}
 											>
-												{preflightResult.success 
+												{preflightResult.success
 													? 'Request format is valid and ready to execute'
-													: 'Issues found that need to be resolved'
-												}
+													: 'Issues found that need to be resolved'}
 											</p>
 										</div>
 										<button

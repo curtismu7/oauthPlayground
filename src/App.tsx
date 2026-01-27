@@ -13,9 +13,9 @@ import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all bu
 import { lazy, Suspense } from 'react';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
+import { WorkerTokenModal } from './components/WorkerTokenModal';
 import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
 import { PromptModalV8 } from './v8/components/PromptModalV8';
-import { WorkerTokenModal } from './components/WorkerTokenModal';
 
 const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
 
@@ -62,6 +62,7 @@ declare global {
 
 import AuthErrorBoundary from './components/AuthErrorBoundary';
 import AuthorizationRequestModal from './components/AuthorizationRequestModal';
+import ComponentLoader from './components/ComponentLoader';
 // Import callback components
 import AuthzCallback from './components/callbacks/AuthzCallback';
 import DashboardCallback from './components/callbacks/DashboardCallback';
@@ -203,8 +204,8 @@ import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
 import { WhatsAppRegistrationDocsPageV8 } from './v8/pages/WhatsAppRegistrationDocsPageV8';
 import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
-import ComponentLoader from './components/ComponentLoader';
 import UnifiedFlowErrorBoundary from './v8u/components/UnifiedFlowErrorBoundary';
+
 // Lazy load heavy V8U components for better performance
 const UnifiedFlowHelperPageV8U = lazy(() => import('./v8u/components/UnifiedFlowHelperPageV8U'));
 const SpiffeSpireFlowV8U = lazy(() => import('./v8u/flows/SpiffeSpireFlowV8U'));
@@ -736,79 +737,128 @@ const AppRoutes: React.FC = () => {
 								element={<UnifiedCredentialsMockupV8 />}
 							/>
 							{/* V8U Unified Flow - Single UI for all flows with real PingOne APIs */}
-							<Route 
-								path="/v8u/unified/oauth-authz/:step?" 
+							<Route
+								path="/v8u/unified/oauth-authz/:step?"
 								element={
-									<Suspense fallback={<ComponentLoader message="Loading Unified OAuth Flow..." subtext="Preparing flow configuration" />}>
+									<Suspense
+										fallback={
+											<ComponentLoader
+												message="Loading Unified OAuth Flow..."
+												subtext="Preparing flow configuration"
+											/>
+										}
+									>
 										<UnifiedFlowErrorBoundary>
 											<UnifiedOAuthFlowV8U />
 										</UnifiedFlowErrorBoundary>
 									</Suspense>
-								} 
+								}
 							/>
-							<Route 
-								path="/v8u/unified/:flowType?/:step?" 
+							<Route
+								path="/v8u/unified/:flowType?/:step?"
 								element={
-									<Suspense fallback={<ComponentLoader message="Loading Unified OAuth Flow..." subtext="Preparing flow configuration" />}>
+									<Suspense
+										fallback={
+											<ComponentLoader
+												message="Loading Unified OAuth Flow..."
+												subtext="Preparing flow configuration"
+											/>
+										}
+									>
 										<UnifiedFlowErrorBoundary>
 											<UnifiedOAuthFlowV8U />
 										</UnifiedFlowErrorBoundary>
 									</Suspense>
-								} 
+								}
 							/>
-							<Route 
-								path="/v8u/unified/helper" 
+							<Route
+								path="/v8u/unified/helper"
 								element={
-									<Suspense fallback={<ComponentLoader message="Loading Flow Helper..." subtext="Preparing guidance documentation" />}>
+									<Suspense
+										fallback={
+											<ComponentLoader
+												message="Loading Flow Helper..."
+												subtext="Preparing guidance documentation"
+											/>
+										}
+									>
 										<UnifiedFlowErrorBoundary>
 											<UnifiedFlowHelperPageV8U />
 										</UnifiedFlowErrorBoundary>
 									</Suspense>
-								} 
+								}
 							/>
 							{/* Enhanced State Management */}
-							<Route 
-								path="/v8u/enhanced-state-management" 
+							<Route
+								path="/v8u/enhanced-state-management"
 								element={
-									<Suspense fallback={<ComponentLoader message="Loading Enhanced State Management..." subtext="Initializing state management system" />}>
+									<Suspense
+										fallback={
+											<ComponentLoader
+												message="Loading Enhanced State Management..."
+												subtext="Initializing state management system"
+											/>
+										}
+									>
 										<UnifiedFlowErrorBoundary>
 											<EnhancedStateManagementPage />
 										</UnifiedFlowErrorBoundary>
 									</Suspense>
-								} 
+								}
 							/>
 							{/* Token Monitoring Dashboard */}
-							<Route 
-								path="/v8u/token-monitoring" 
+							<Route
+								path="/v8u/token-monitoring"
 								element={
-									<Suspense fallback={<ComponentLoader message="Loading Token Monitoring..." subtext="Initializing token monitoring service" />}>
+									<Suspense
+										fallback={
+											<ComponentLoader
+												message="Loading Token Monitoring..."
+												subtext="Initializing token monitoring service"
+											/>
+										}
+									>
 										<UnifiedFlowErrorBoundary>
 											<TokenStatusPageV8U />
 										</UnifiedFlowErrorBoundary>
 									</Suspense>
-								} 
+								}
 							/>
 							{/* Token API Documentation */}
-							<Route 
-								path="/v8u/token-api-docs" 
+							<Route
+								path="/v8u/token-api-docs"
 								element={
-									<Suspense fallback={<ComponentLoader message="Loading API Documentation..." subtext="Preparing API call documentation" />}>
+									<Suspense
+										fallback={
+											<ComponentLoader
+												message="Loading API Documentation..."
+												subtext="Preparing API call documentation"
+											/>
+										}
+									>
 										<UnifiedFlowErrorBoundary>
 											<TokenApiDocumentationPage />
 										</UnifiedFlowErrorBoundary>
 									</Suspense>
-								} 
+								}
 							/>
 							{/* Flow Comparison Tool */}
-							<Route 
-								path="/v8u/flow-comparison" 
+							<Route
+								path="/v8u/flow-comparison"
 								element={
-									<Suspense fallback={<ComponentLoader message="Loading Flow Comparison..." subtext="Preparing comparison analysis" />}>
+									<Suspense
+										fallback={
+											<ComponentLoader
+												message="Loading Flow Comparison..."
+												subtext="Preparing comparison analysis"
+											/>
+										}
+									>
 										<UnifiedFlowErrorBoundary>
 											<FlowComparisonPage />
 										</UnifiedFlowErrorBoundary>
 									</Suspense>
-								} 
+								}
 							/>
 							{/* V8 Utilities */}
 							<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
@@ -817,37 +867,65 @@ const AppRoutes: React.FC = () => {
 								path="/v8u/spiffe-spire"
 								element={<Navigate to="/v8u/spiffe-spire/attest" replace />}
 							/>
-							<Route 
-								path="/v8u/spiffe-spire/attest" 
+							<Route
+								path="/v8u/spiffe-spire/attest"
 								element={
-									<Suspense fallback={<ComponentLoader message="Loading SPIFFE/SPIRE Flow..." subtext="Preparing attestation workflow" />}>
+									<Suspense
+										fallback={
+											<ComponentLoader
+												message="Loading SPIFFE/SPIRE Flow..."
+												subtext="Preparing attestation workflow"
+											/>
+										}
+									>
 										<SpiffeSpireFlowV8U />
 									</Suspense>
-								} 
+								}
 							/>
-							<Route 
-								path="/v8u/spiffe-spire/svid" 
+							<Route
+								path="/v8u/spiffe-spire/svid"
 								element={
-									<Suspense fallback={<ComponentLoader message="Loading SPIFFE/SPIRE Flow..." subtext="Preparing SVID workflow" />}>
+									<Suspense
+										fallback={
+											<ComponentLoader
+												message="Loading SPIFFE/SPIRE Flow..."
+												subtext="Preparing SVID workflow"
+											/>
+										}
+									>
 										<SpiffeSpireFlowV8U />
 									</Suspense>
-								} 
+								}
 							/>
-							<Route 
-								path="/v8u/spiffe-spire/validate" 
+							<Route
+								path="/v8u/spiffe-spire/validate"
 								element={
-									<Suspense fallback={<ComponentLoader message="Loading SPIFFE/SPIRE Flow..." subtext="Preparing validation workflow" />}>
+									<Suspense
+										fallback={
+											<ComponentLoader
+												message="Loading SPIFFE/SPIRE Flow..."
+												subtext="Preparing validation workflow"
+											/>
+										}
+									>
 										<SpiffeSpireFlowV8U />
 									</Suspense>
-								} 
+								}
 							/>
-							<Route 
-								path="/v8u/spiffe-spire/tokens" 
+							<Route
+								path="/v8u/spiffe-spire/tokens"
 								element={
-									<Suspense fallback={<ComponentLoader message="Loading Token Display..." subtext="Preparing SPIFFE/SPIRE tokens" />}>
+									<Suspense
+										fallback={
+											<ComponentLoader
+												message="Loading Token Display..."
+												subtext="Preparing SPIFFE/SPIRE tokens"
+											/>
+										}
+									>
 										<SpiffeSpireTokenDisplayV8U />
 									</Suspense>
-								} 
+								}
 							/>
 							<Route
 								path="/flows/oidc-implicit-v6"
@@ -1173,8 +1251,7 @@ const AppRoutes: React.FC = () => {
 			{/* Global Confirmation and Prompt Modals - Replace system modals */}
 			<ConfirmationModalV8 />
 			<PromptModalV8 />
-
-			</>
+		</>
 	);
 };
 
@@ -1369,7 +1446,7 @@ function AppContent() {
 	// Handle global worker token modal events
 	useEffect(() => {
 		console.log('[App] Setting up worker token modal event listener...');
-		
+
 		const handleWorkerTokenModalEvent = (event: CustomEvent) => {
 			console.log('[App] Opening worker token modal from:', event.detail?.source || 'unknown');
 			console.log('[App] Setting showWorkerTokenModal to true');
@@ -1377,11 +1454,17 @@ function AppContent() {
 		};
 
 		console.log('[App] Adding event listener for open-worker-token-modal');
-		window.addEventListener('open-worker-token-modal', handleWorkerTokenModalEvent as EventListener);
+		window.addEventListener(
+			'open-worker-token-modal',
+			handleWorkerTokenModalEvent as EventListener
+		);
 
 		return () => {
 			console.log('[App] Cleaning up worker token modal event listener');
-			window.removeEventListener('open-worker-token-modal', handleWorkerTokenModalEvent as EventListener);
+			window.removeEventListener(
+				'open-worker-token-modal',
+				handleWorkerTokenModalEvent as EventListener
+			);
 		};
 	}, []);
 

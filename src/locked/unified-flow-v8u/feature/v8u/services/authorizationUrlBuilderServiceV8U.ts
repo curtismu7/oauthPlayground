@@ -11,7 +11,10 @@
 
 import type { ResponseMode } from '../../../dependencies/services/responseModeService.ts';
 import { RedirectUriServiceV8 } from '../../../dependencies/v8/services/redirectUriServiceV8.ts';
-import type { FlowType, SpecVersion } from '../../../dependencies/v8/services/specVersionServiceV8.ts';
+import type {
+	FlowType,
+	SpecVersion,
+} from '../../../dependencies/v8/services/specVersionServiceV8.ts';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 
@@ -47,7 +50,7 @@ export interface AuthorizationUrlResult {
 export class AuthorizationUrlBuilderService {
 	/**
 	 * Get the correct redirect URI for the flow type
-	 * 
+	 *
 	 * Prioritizes user's configured redirect URI (matches PingOne config) over auto-generated default.
 	 * Only falls back to auto-generated URI if credentials.redirectUri is empty.
 	 */

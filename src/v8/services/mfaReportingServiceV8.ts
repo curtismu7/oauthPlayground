@@ -1150,7 +1150,10 @@ export class MFAReportingServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} Async data exploration created successfully, status:`, explorationData.status);
+			console.log(
+				`${MODULE_TAG} Async data exploration created successfully, status:`,
+				explorationData.status
+			);
 			return explorationData;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Create async data exploration error:`, error);
@@ -1357,7 +1360,7 @@ export class MFAReportingServiceV8 {
 		for (let attempt = 1; attempt <= maxAttempts; attempt++) {
 			try {
 				const status = await MFAReportingServiceV8.getDataExplorationStatus(params);
-				
+
 				console.log(`${MODULE_TAG} Poll attempt ${attempt}/${maxAttempts}, status:`, status.status);
 
 				if (status.status === 'SUCCESS') {

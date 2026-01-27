@@ -28,7 +28,7 @@ export interface PageHeaderProps {
 
 /**
  * Shared page header component with gradient background
- * 
+ *
  * @example
  * // Unified Flow
  * <PageHeaderV8
@@ -37,7 +37,7 @@ export interface PageHeaderProps {
  *   gradient="linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)"
  *   textColor="#0c4a6e"
  * />
- * 
+ *
  * @example
  * // MFA Flow
  * <PageHeaderV8
@@ -67,9 +67,7 @@ export const PageHeaderV8: React.FC<PageHeaderProps> = ({
 				color: textColor,
 				position: 'relative',
 				overflow: 'hidden',
-				boxShadow: textColor === 'white' 
-					? '0 4px 12px rgba(59, 130, 246, 0.3)' 
-					: undefined,
+				boxShadow: textColor === 'white' ? '0 4px 12px rgba(59, 130, 246, 0.3)' : undefined,
 				...style,
 			}}
 		>
@@ -92,11 +90,7 @@ export const PageHeaderV8: React.FC<PageHeaderProps> = ({
 			{/* Content */}
 			<div style={{ position: 'relative', zIndex: 1 }}>
 				{/* Optional children (e.g., breadcrumbs) */}
-				{children && (
-					<div style={{ marginBottom: '16px' }}>
-						{children}
-					</div>
-				)}
+				{children && <div style={{ marginBottom: '16px' }}>{children}</div>}
 
 				{/* Title */}
 				<h1

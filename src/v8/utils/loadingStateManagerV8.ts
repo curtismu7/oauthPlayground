@@ -14,7 +14,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-export type LoadingOperation = 
+export type LoadingOperation =
 	| 'authenticate'
 	| 'register-device'
 	| 'load-devices'
@@ -51,10 +51,10 @@ export interface LoadingManagerOptions {
 
 /**
  * Loading State Manager Hook
- * 
+ *
  * Provides unified loading state management for flows with operation-specific
  * tracking, automatic timeouts, and consistent patterns.
- * 
+ *
  * @example
  * ```typescript
  * const { loadingState, startLoading, stopLoading, withLoading } = useLoadingStateManager({
@@ -63,13 +63,13 @@ export interface LoadingManagerOptions {
  *     'register-device': 'Registering device...',
  *   }
  * });
- * 
+ *
  * // Start loading
  * startLoading('authenticate', 'Verifying credentials');
- * 
+ *
  * // Stop loading
  * stopLoading();
- * 
+ *
  * // Wrap async operation
  * await withLoading('register-device', async () => {
  *   await registerDevice(params);
@@ -108,96 +108,109 @@ export const useLoadingStateManager = (options: LoadingManagerOptions = {}) => {
 	/**
 	 * Start loading for a specific operation
 	 */
-	const startLoading = useCallback((
-		operation: LoadingOperation,
-		customMessage?: string,
-		initialProgress?: number
-	) => {
-		// Clear any existing timeout
-		clearTimeout();
+	const startLoading = useCallback(
+		(operation: LoadingOperation, customMessage?: string, initialProgress?: number) => {
+			// Clear any existing timeout
+			clearTimeout();
 
-		// Set timeout for this operation
-		if (timeoutMs > 0) {
-			timeoutRef.current = setTimeout(() => {
-				setLoadingState(prev => ({
-					...prev,
-					isLoading: false,
-					operation: null,
-					message: timeoutMessage,
-				}));
-				clearTimeout();
-			}, timeoutMs);
-		}
+			// Set timeout for this operation
+			if (timeoutMs > 0) {
+				timeoutRef.current = setTimeout(() => {
+					setLoadingState((prev) => ({
+						...prev,
+						isLoading: false,
+						operation: null,
+						message: timeoutMessage,
+					}));
+					clearTimeout();
+				}, timeoutMs);
+			}
 
-		// Update loading state
-		operationRef.current = operation;
-		setLoadingState({
-			isLoading: true,
-			operation,
-			message: customMessage || messages[operation] || getDefaultMessage(operation),
-			progress: enableProgress ? (initialProgress ?? 0) : undefined,
-			startTime: Date.now(),
-		});
-	}, [timeoutMs, timeoutMessage, enableProgress, messages, clearTimeout]);
+			// Update loading state
+			operationRef.current = operation;
+			setLoadingState({
+				isLoading: true,
+				operation,
+				message: customMessage || messages[operation] || getDefaultMessage(operation),
+				progress: enableProgress ? (initialProgress ?? 0) : undefined,
+				startTime: Date.now(),
+			});
+		},
+		[timeoutMs, timeoutMessage, enableProgress, messages, clearTimeout]
+	);
 
 	/**
 	 * Stop loading
 	 */
-	const stopLoading = useCallback((finalMessage?: string) => {
-		clearTimeout();
-		operationRef.current = null;
-		setLoadingState(prev => ({
-			...prev,
-			isLoading: false,
-			operation: null,
-			message: finalMessage,
-			progress: undefined,
-		}));
-	}, [clearTimeout]);
+	const stopLoading = useCallback(
+		(finalMessage?: string) => {
+			clearTimeout();
+			operationRef.current = null;
+			setLoadingState((prev) => ({
+				...prev,
+				isLoading: false,
+				operation: null,
+				message: finalMessage,
+				progress: undefined,
+			}));
+		},
+		[clearTimeout]
+	);
 
 	/**
 	 * Update loading progress (if enabled)
 	 */
-	const updateProgress = useCallback((progress: number, message?: string) => {
-		if (enableProgress && loadingState.isLoading) {
-			setLoadingState(prev => ({
-				...prev,
-				progress: Math.max(0, Math.min(100, progress)),
-				message: message || prev.message,
-			}));
-		}
-	}, [enableProgress, loadingState.isLoading]);
+	const updateProgress = useCallback(
+		(progress: number, message?: string) => {
+			if (enableProgress && loadingState.isLoading) {
+				setLoadingState((prev) => ({
+					...prev,
+					progress: Math.max(0, Math.min(100, progress)),
+					message: message || prev.message,
+				}));
+			}
+		},
+		[enableProgress, loadingState.isLoading]
+	);
 
 	/**
 	 * Update loading message
 	 */
-	const updateMessage = useCallback((message: string) => {
-		if (loadingState.isLoading) {
-			setLoadingState(prev => ({
-				...prev,
-				message,
-			}));
-		}
-	}, [loadingState.isLoading]);
+	const updateMessage = useCallback(
+		(message: string) => {
+			if (loadingState.isLoading) {
+				setLoadingState((prev) => ({
+					...prev,
+					message,
+				}));
+			}
+		},
+		[loadingState.isLoading]
+	);
 
 	/**
 	 * Wrap an async operation with loading state management
 	 */
-	const withLoading = useCallback(async <T>(
-		operation: LoadingOperation,
-		asyncFn: () => Promise<T>,
-		customMessage?: string
-	): Promise<T> => {
-		try {
-			startLoading(operation, customMessage);
-			const result = await asyncFn();
-			stopLoading();
-			return result;
-		} catch (error) {
-			stopLoading(`Operation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-			throw error;
-		}
-	}, [startLoading, stopLoading]);
+	const withLoading = useCallback(
+		async <T>(
+			operation: LoadingOperation,
+			asyncFn: () => Promise<T>,
+			customMessage?: string
+		): Promise<T> => {
+			try {
+				startLoading(operation, customMessage);
+				const result = await asyncFn();
+				stopLoading();
+				return result;
+			} catch (error) {
+				stopLoading(
+					`Operation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+				);
+				throw error;
+			}
+		},
+		[startLoading, stopLoading]
+	);
 
 	/**
 	 * Get loading duration in milliseconds
@@ -210,9 +223,12 @@ export const useLoadingStateManager = (options: LoadingManagerOptions = {}) => {
 	/**
 	 * Check if currently loading a specific operation
 	 */
-	const isLoadingOperation = useCallback((operation: LoadingOperation) => {
-		return loadingState.isLoading && loadingState.operation === operation;
-	}, [loadingState]);
+	const isLoadingOperation = useCallback(
+		(operation: LoadingOperation) => {
+			return loadingState.isLoading && loadingState.operation === operation;
+		},
+		[loadingState]
+	);
 
 	/**
 	 * Force stop loading (for cleanup)
@@ -237,19 +253,19 @@ export const useLoadingStateManager = (options: LoadingManagerOptions = {}) => {
 	return {
 		// State
 		loadingState,
-		
+
 		// Actions
 		startLoading,
 		stopLoading,
 		updateProgress,
 		updateMessage,
 		withLoading,
-		
+
 		// Utilities
 		getDuration,
 		isLoadingOperation,
 		forceStop,
-		
+
 		// Quick checks
 		isLoading: loadingState.isLoading,
 		currentOperation: loadingState.operation,
@@ -303,7 +319,7 @@ export const useMFALoadingStateManager = () => {
 	return useLoadingStateManager({
 		timeoutMs: 45000, // MFA operations can take longer
 		messages: {
-			'authenticate': 'Verifying identity...',
+			authenticate: 'Verifying identity...',
 			'register-device': 'Registering MFA device...',
 			'load-devices': 'Loading your MFA devices...',
 			'send-otp': 'Sending verification code...',
@@ -323,8 +339,8 @@ export const useUnifiedFlowLoadingStateManager = () => {
 			'save-credentials': 'Saving OAuth credentials...',
 			'load-credentials': 'Loading OAuth credentials...',
 			'token-exchange': 'Exchanging authorization code...',
-			'authorization': 'Authorizing with PingOne...',
-			'discovery': 'Discovering PingOne configuration...',
+			authorization: 'Authorizing with PingOne...',
+			discovery: 'Discovering PingOne configuration...',
 			'flow-initialization': 'Initializing OAuth flow...',
 		},
 	});
