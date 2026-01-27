@@ -612,20 +612,21 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 
 			// Fetch additional comprehensive data
 			try {
-				const [token, status] = await Promise.all([
+				const [token, status, credentials] = await Promise.all([
 					unifiedWorkerTokenService.getToken(),
 					unifiedWorkerTokenService.getStatus(),
+					unifiedWorkerTokenService.loadCredentials(),
 				]);
 
 				// Create tokenData structure from the unified service response
 				const tokenData = token
 					? {
 							token,
-							credentials: {
-								environmentId: '', // Not needed for display
+							credentials: credentials || {
+								environmentId: '',
 								clientId: '',
 								clientSecret: '',
-							} as UnifiedWorkerTokenCredentials,
+							},
 							savedAt: status.lastFetchedAt || Date.now(),
 							lastUsedAt: undefined,
 							tokenType: 'Bearer',
