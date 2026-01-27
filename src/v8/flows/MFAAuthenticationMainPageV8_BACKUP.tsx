@@ -18,7 +18,7 @@
  * - Dashboard features (device list, policy summary)
  */
 
-import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
+import React from 'react';
 import {
 	FiAlertCircle,
 	FiCheck,
@@ -33,48 +33,32 @@ import {
 	FiTrash2,
 	FiX,
 } from 'react-icons/fi';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ButtonSpinner, LoadingOverlay, SmallSpinner } from '@/components/ui';
-import { useAuth } from '@/contexts/NewAuthContext';
-import { usePageScroll } from '@/hooks/usePageScroll';
-import { pingOneLogoutService } from '@/services/pingOneLogoutService';
+import { LoadingOverlay, } from '@/components/ui';
 import {
 	downloadPostmanCollectionWithEnvironment,
 	generateCompletePostmanCollection,
 	generateComprehensiveMFAPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
-import { oauthStorage } from '@/utils/storage';
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
-import { DeviceCodePollingModalV8U } from '@/v8/components/DeviceCodePollingModalV8U';
-import { DeviceFailureModalV8, UnavailableDevice } from '@/v8/components/DeviceFailureModalV8';
-import { MFACooldownModalV8 } from '@/v8/components/MFACooldownModalV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
-import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { DangerButton, PrimaryButton, SecondaryButton, SuccessButton } from '@/v8/components/shared/ActionButtonV8';
 import { PageHeaderGradients, PageHeaderTextColors, PageHeaderV8 } from '@/v8/components/shared/PageHeaderV8';
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
-import { useActionButton } from '@/v8/hooks/useActionButton';
-import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
-import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
+import type { DeviceType } from '@/v8/flows/shared/MFATypes';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { LoadingSpinnerModalV8U } from '@/v8u/components/LoadingSpinnerModalV8U';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
-import { MFAOTPInput } from './components/MFAOTPInput';
 import {
 	MFADeviceSelectionInfoModal,
 	MFAFIDO2ChallengeModal,
 	MFAOTPInputModal,
-	MFAPolicyInfoModal,
 	MFAPushConfirmationModal,
 } from './components/modals';
 
@@ -3055,7 +3039,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							display: 'flex',
 							justifyContent: 'space-between',
 							alignItems: 'center',
-							marginBottom: '20px',
 							background: 'white',
 							borderRadius: '12px',
 							padding: '24px',
@@ -4174,7 +4157,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															setAuthState((prev) => ({ ...prev, isLoading: true }));
 
 															// Lookup userId if not already set
-															const userId = authState.userId;
+															let userId = authState.userId;
 															if (!userId && usernameInput.trim()) {
 																const user = await MFAServiceV8.lookupUserByUsername(
 																	credentials.environmentId,
@@ -4213,7 +4196,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 															// For FIDO2, check if publicKeyCredentialRequestOptions is provided
 															// This contains the WebAuthn challenge, but we still need challengeId to identify it
-															const hasPublicKeyOptions = !!(
+															const _hasPublicKeyOptions = !!(
 																data as { publicKeyCredentialRequestOptions?: unknown }
 															).publicKeyCredentialRequestOptions;
 
@@ -4227,7 +4210,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																	// Try to extract challengeId from URL (format: /.../challenges/{challengeId}/poll or /.../challenges/{challengeId}/check)
 																	const challengeMatch =
 																		challengePollUrl.match(/\/challenges\/([^/]+)/);
-																	if (challengeMatch && challengeMatch[1]) {
+																	if (challengeMatch?.[1]) {
 																		challengeId = challengeMatch[1];
 																	} else {
 																		console.warn(
@@ -4304,7 +4287,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																		if (challengePollUrl) {
 																			const challengeMatch =
 																				challengePollUrl.match(/\/challenges\/([^/]+)/);
-																			if (challengeMatch && challengeMatch[1]) {
+																			if (challengeMatch?.[1]) {
 																				challengeId = challengeMatch[1];
 																			}
 																		}
@@ -4533,7 +4516,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															return;
 														}
 
-														const deviceType =
+														const _deviceType =
 															(selectedDevice.type as string)?.toUpperCase() || 'UNKNOWN';
 
 														// Validate required fields

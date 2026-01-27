@@ -27,7 +27,7 @@ import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { MFACredentials } from '../shared/MFATypes';
 
-const MODULE_TAG = '[⏱️ TOTP-CONFIG-V8]';
+const _MODULE_TAG = '[⏱️ TOTP-CONFIG-V8]';
 
 export const TOTPConfigurationPageV8: React.FC = () => {
 	const navigate = useNavigate();
@@ -81,9 +81,9 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 	const isSyncingRef = React.useRef(false);
 
 	// Policy state
-	const [deviceAuthPolicies, setDeviceAuthPolicies] = useState([]);
-	const [isLoadingPolicies, setIsLoadingPolicies] = useState(false);
-	const [policiesError, setPoliciesError] = useState<string | null>(null);
+	const [deviceAuthPolicies, _setDeviceAuthPolicies] = useState([]);
+	const [isLoadingPolicies, _setIsLoadingPolicies] = useState(false);
+	const [policiesError, _setPoliciesError] = useState<string | null>(null);
 
 	// API display visibility
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);
@@ -127,13 +127,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 		if (!isAuthenticated || !authToken || (!credentials.userToken && hasAutoPopulatedRef.current)) {
 			hasAutoPopulatedRef.current = false;
 		}
-	}, [
-		authContext.tokens?.access_token,
-		authContext.isAuthenticated,
-		credentials.userToken,
-		credentials.tokenType,
-		registrationFlowType,
-	]);
+	}, [authContext.tokens?.access_token, authContext.isAuthenticated, credentials.userToken]);
 
 	// Process callback code directly if modal isn't open (fallback processing)
 	const isProcessingCallbackRef = React.useRef(false);
@@ -238,7 +232,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 						}
 					}
 
-					const tokenResponse = await OAuthIntegrationServiceV8.exchangeCodeForTokens(
+					const _tokenResponse = await OAuthIntegrationServiceV8.exchangeCodeForTokens(
 						{
 							environmentId: effectiveCredentials.environmentId,
 							clientId: effectiveCredentials.clientId,
@@ -322,7 +316,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 				isSyncingRef.current = false;
 			}, 0);
 		}
-	}, [registrationFlowType, credentials.tokenType, credentials.userToken]);
+	}, [registrationFlowType, credentials.tokenType]);
 
 	// When tokenType dropdown changes, sync to Registration Flow Type
 	React.useEffect(() => {

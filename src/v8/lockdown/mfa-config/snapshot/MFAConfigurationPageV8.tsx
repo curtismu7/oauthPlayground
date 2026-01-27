@@ -16,7 +16,6 @@ import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
-import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import {
 	type MFAConfiguration,
 	MFAConfigurationServiceV8,
@@ -66,10 +65,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 	const [isLoadingPolicy, setIsLoadingPolicy] = useState(false);
 	const [isSavingPolicy, setIsSavingPolicy] = useState(false);
 	const [hasPolicyChanges, setHasPolicyChanges] = useState(false);
-	const [showCreatePolicyModal, setShowCreatePolicyModal] = useState(false);
-	const [newPolicyName, setNewPolicyName] = useState('');
-	const [newPolicyDescription, setNewPolicyDescription] = useState('');
-	const [isCreatingPolicy, setIsCreatingPolicy] = useState(false);
+	const [_showCreatePolicyModal, setShowCreatePolicyModal] = useState(false);
+	const [_newPolicyName, _setNewPolicyName] = useState('');
+	const [_newPolicyDescription, _setNewPolicyDescription] = useState('');
+	const [_isCreatingPolicy, _setIsCreatingPolicy] = useState(false);
 
 	// Get return path from location state
 	const locationState = location.state as { returnPath?: string; returnState?: unknown } | null;

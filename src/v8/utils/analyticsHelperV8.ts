@@ -21,12 +21,12 @@
  * @param hypothesisId - Hypothesis identifier (optional)
  */
 export async function logAnalytics(
-	location: string,
-	message: string,
-	data: Record<string, unknown> = {},
-	sessionId: string = 'debug-session',
-	runId: string = 'run1',
-	hypothesisId?: string
+	_location: string,
+	_message: string,
+	_data: Record<string, unknown> = {},
+	_sessionId: string = 'debug-session',
+	_runId: string = 'run1',
+	_hypothesisId?: string
 ): Promise<void> {
 	// Completely silent - no analytics calls to prevent connection errors
 	// This eliminates all ERR_CONNECTION_REFUSED errors from analytics
