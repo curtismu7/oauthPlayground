@@ -732,6 +732,164 @@ export class CredentialsServiceV8 {
 			return false;
 		}
 	}
+
+	// ============================================================================
+	// NEW METHODS - Phase 1 Enhancements (Additive Only, Non-Breaking)
+	// ============================================================================
+
+	/**
+	 * Sanitize credentials for logging (removes secrets)
+	 * Safe to log without exposing sensitive data
+	 * 
+	 * @param credentials - Credentials to sanitize
+	 * @returns Sanitized object safe for logging
+	 * 
+	 * @example
+	 * const sanitized = CredentialsServiceV8.sanitizeForLogging(credentials);
+	 * console.log('Credentials:', sanitized);
+	 * // Output: { environmentId: '...', clientId: '...', hasClientSecret: true, ... }
+	 */
+	static sanitizeForLogging(credentials: Credentials): Record<string, unknown> {
+		if (!credentials) {
+			return { error: 'No credentials provided' };
+		}
+
+		return {
+			environmentId: credentials.environmentId || '(empty)',
+			clientId: credentials.clientId || '(empty)',
+			// Secret indicators (never log actual values)
+			hasClientSecret: !!credentials.clientSecret,
+			clientSecretLength: credentials.clientSecret?.length || 0,
+			hasPrivateKey: !!(credentials as any).privateKey,
+			// Safe fields
+			redirectUri: credentials.redirectUri || '(empty)',
+			postLogoutRedirectUri: credentials.postLogoutRedirectUri || '(empty)',
+			scopes: credentials.scopes || '(empty)',
+			clientAuthMethod: credentials.clientAuthMethod || 'none',
+			responseMode: credentials.responseMode || 'query',
+			// Metadata
+			fieldCount: Object.keys(credentials).length,
+			timestamp: new Date().toISOString(),
+		};
+	}
+
+	/**
+	 * Compare two credential objects to detect changes
+	 * Useful for determining if save is needed
+	 * 
+	 * @param oldCreds - Previous credentials
+	 * @param newCreds - New credentials
+	 * @param ignoreFields - Fields to ignore in comparison (e.g., timestamps)
+	 * @returns True if credentials have changed
+	 * 
+	 * @example
+	 * if (CredentialsServiceV8.hasCredentialsChanged(oldCreds, newCreds)) {
+	 *   // Save is needed
+	 *   CredentialsServiceV8.saveCredentials(flowKey, newCreds);
+	 * }
+	 */
+	static hasCredentialsChanged(
+		oldCreds: Credentials,
+		newCreds: Credentials,
+		ignoreFields: string[] = []
+	): boolean {
+		if (!oldCreds || !newCreds) {
+			return true; // Consider it changed if either is missing
+		}
+
+		// Core fields to compare
+		const fieldsToCompare = [
+			'environmentId',
+			'clientId',
+			'clientSecret',
+			'redirectUri',
+			'postLogoutRedirectUri',
+			'logoutUri',
+			'scopes',
+			'clientAuthMethod',
+			'responseMode',
+			'maxAge',
+			'display',
+			'prompt',
+			'loginHint',
+			'responseType',
+			'issuerUrl',
+		];
+
+		// Check each field
+		for (const field of fieldsToCompare) {
+			if (ignoreFields.includes(field)) {
+				continue; // Skip ignored fields
+			}
+
+			const oldValue = oldCreds[field];
+			const newValue = newCreds[field];
+
+			// Normalize empty values (undefined, null, '') to empty string
+			const normalizedOld = oldValue ?? '';
+			const normalizedNew = newValue ?? '';
+
+			if (normalizedOld !== normalizedNew) {
+				debugLog(`${MODULE_TAG} Field changed: ${field}`, {
+					old: normalizedOld,
+					new: normalizedNew,
+				});
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get a human-readable summary of credentials
+	 * Useful for debugging and status displays
+	 * 
+	 * @param credentials - Credentials to summarize
+	 * @returns Human-readable summary
+	 * 
+	 * @example
+	 * const summary = CredentialsServiceV8.getCredentialsSummary(credentials);
+	 * console.log(summary);
+	 * // "Environment: abc-123, Client: xyz-789, Auth: client_secret_basic, Scopes: 3"
+	 */
+	static getCredentialsSummary(credentials: Credentials): string {
+		if (!credentials) {
+			return 'No credentials';
+		}
+
+		const parts: string[] = [];
+
+		// Environment
+		if (credentials.environmentId) {
+			const shortEnv = credentials.environmentId.substring(0, 8);
+			parts.push(`Env: ${shortEnv}...`);
+		}
+
+		// Client
+		if (credentials.clientId) {
+			const shortClient = credentials.clientId.substring(0, 8);
+			parts.push(`Client: ${shortClient}...`);
+		}
+
+		// Auth method
+		if (credentials.clientAuthMethod) {
+			parts.push(`Auth: ${credentials.clientAuthMethod}`);
+		}
+
+		// Scopes
+		if (credentials.scopes) {
+			const scopeCount = credentials.scopes.split(' ').filter((s) => s.trim()).length;
+			parts.push(`Scopes: ${scopeCount}`);
+		}
+
+		// Secrets
+		if (credentials.clientSecret) {
+			parts.push('Has Secret');
+		}
+
+		return parts.join(', ') || 'Empty credentials';
+	}
 }
 
 export default CredentialsServiceV8;
