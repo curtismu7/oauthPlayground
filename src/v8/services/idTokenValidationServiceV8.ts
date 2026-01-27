@@ -64,6 +64,14 @@ export class IDTokenValidationServiceV8 {
 			authorizedPartyValid: undefined as boolean | undefined,
 		};
 
+		console.log(`${MODULE_TAG} 🔍 Starting ID token validation with:`, {
+			hasIdToken: !!idToken,
+			idTokenLength: idToken?.length,
+			clientId,
+			issuer,
+			hasNonce: !!nonce,
+		});
+
 		try {
 			// Step 1: Decode JWT to get header and payload
 			const decoded = decodeJwt(idToken);
@@ -201,6 +209,11 @@ export class IDTokenValidationServiceV8 {
 
 			// Step 5: Validate claims
 			// 5.1: Issuer (iss)
+			console.log(`${MODULE_TAG} 🔍 Validating issuer:`, {
+				expected: issuer,
+				actual: decoded.iss,
+				match: decoded.iss === issuer,
+			});
 			if (decoded.iss !== issuer) {
 				errors.push(
 					`Issuer mismatch: expected "${issuer}", got "${decoded.iss}". The ID token was not issued by the expected authorization server.`
@@ -211,6 +224,12 @@ export class IDTokenValidationServiceV8 {
 
 			// 5.2: Audience (aud)
 			const audience = Array.isArray(decoded.aud) ? decoded.aud : [decoded.aud];
+			console.log(`${MODULE_TAG} 🔍 Validating audience:`, {
+				expected: clientId,
+				actual: audience,
+				isArray: Array.isArray(decoded.aud),
+				includes: audience.includes(clientId),
+			});
 			if (!audience.includes(clientId)) {
 				errors.push(
 					`Audience mismatch: client ID "${clientId}" not in audience "${audience.join(', ')}". The ID token was not issued for this client.`
@@ -221,6 +240,12 @@ export class IDTokenValidationServiceV8 {
 
 			// 5.3: Expiration (exp)
 			const now = Math.floor(Date.now() / 1000);
+			console.log(`${MODULE_TAG} 🔍 Validating expiration:`, {
+				exp: decoded.exp,
+				now,
+				expDate: decoded.exp ? new Date(decoded.exp * 1000).toISOString() : 'missing',
+				isExpired: decoded.exp ? decoded.exp < now : 'missing',
+			});
 			if (decoded.exp && decoded.exp < now) {
 				errors.push(
 					`Token expired: expiration time ${new Date(decoded.exp * 1000).toISOString()} is in the past. Current time: ${new Date().toISOString()}`
@@ -247,6 +272,11 @@ export class IDTokenValidationServiceV8 {
 
 			// 5.5: Nonce (if provided)
 			if (nonce) {
+				console.log(`${MODULE_TAG} 🔍 Validating nonce:`, {
+					expected: nonce,
+					actual: decoded.nonce,
+					match: decoded.nonce === nonce,
+				});
 				if (decoded.nonce !== nonce) {
 					errors.push(
 						`Nonce mismatch: expected "${nonce}", got "${decoded.nonce}". This may indicate a replay attack.`
@@ -254,6 +284,8 @@ export class IDTokenValidationServiceV8 {
 				} else {
 					validationDetails.nonceValid = true;
 				}
+			} else {
+				console.log(`${MODULE_TAG} 🔍 No nonce provided for validation`);
 			}
 
 			// 5.6: Authorized Party (azp) - if multiple audiences
@@ -272,6 +304,15 @@ export class IDTokenValidationServiceV8 {
 			}
 
 			const valid = errors.length === 0;
+
+			console.log(`${MODULE_TAG} 📊 Validation summary:`, {
+				valid,
+				errorCount: errors.length,
+				warningCount: warnings.length,
+				errors,
+				warnings,
+				validationDetails,
+			});
 
 			if (valid) {
 				console.log(`${MODULE_TAG} ✅ ID token validation passed`, {
