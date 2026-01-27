@@ -30,6 +30,8 @@ import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
+import { SpiffeSpireService } from '@/v8u/services/spiffeSpireService';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 
 const MODULE_TAG = '[🔐 SPIFFE-SPIRE-FLOW-V8U]';
 
@@ -755,7 +757,23 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 			setEnvironmentId(storedEnvId);
 			console.log(`${MODULE_TAG} Loaded environment ID from storage`);
 		}
-	}, []);
+
+		// Try to auto-populate from worker token credentials if still empty
+		if (!environmentId) {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId) {
+						setEnvironmentId(data.credentials.environmentId);
+						console.log(`${MODULE_TAG} Auto-populated environment ID from worker token`);
+					}
+				}
+			} catch (error) {
+				console.log('Failed to auto-populate environment ID from worker token:', error);
+			}
+		}
+	}, [environmentId]);
 
 	// Listen for environment ID updates
 	useEffect(() => {
@@ -768,6 +786,27 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 		};
 		window.addEventListener('environmentIdUpdated', handleEnvIdUpdate);
 		return () => window.removeEventListener('environmentIdUpdated', handleEnvIdUpdate);
+	}, [environmentId]);
+
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId && !environmentId) {
+						setEnvironmentId(data.credentials.environmentId);
+						console.log(`${MODULE_TAG} Auto-populated environment ID from worker token update`);
+					}
+				}
+			} catch (error) {
+				console.log('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 	}, [environmentId]);
 
 	// Step 1: Generate SVID
