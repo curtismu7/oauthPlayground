@@ -6770,7 +6770,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									? 'https://oauth-playground.vercel.app'
 									: 'https://localhost:3001';
 							// Use PingOne auth proxy to avoid CORS issues
-							const deviceAuthEndpoint = `/pingone-auth/${credentials.environmentId}/as/device_authorization`;
+							const deviceAuthEndpoint = `${window.location.origin}/pingone-auth/${credentials.environmentId}/as/device_authorization`;
 							const authMethod =
 								credentials.clientAuthMethod ||
 								(credentials.clientSecret ? 'client_secret_basic' : 'none');
