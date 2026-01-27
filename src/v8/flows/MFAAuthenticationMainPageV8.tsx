@@ -288,6 +288,17 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		enableAutoRefresh: true,
 	});
 
+	// Debug: Track authState changes
+	useEffect(() => {
+		console.log(`${MODULE_TAG} 🔥 authState changed:`, {
+			showDeviceSelection: authState.showDeviceSelection,
+			devicesLength: authState.devices.length,
+			authenticationId: authState.authenticationId,
+			status: authState.status,
+			nextStep: authState.nextStep,
+		});
+	}, [authState.showDeviceSelection, authState.devices.length, authState.authenticationId]);
+
 	// Backward compatibility: provide setTokenStatus function
 	const setTokenStatus = async (_status: TokenStatusInfo | Promise<TokenStatusInfo>) => {
 		// No-op: The hook manages token status internally
