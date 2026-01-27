@@ -160,7 +160,6 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	onAppTypeChange,
 }) => {
 	// UI state - controls section visibility
-	const [isExpanded, setIsExpanded] = useState(true);
 	const [showHeaderSection, setShowHeaderSection] = useState(true);
 	const [showAdvancedSection, setShowAdvancedSection] = useState(true);
 	const [showGeneralSection, setShowGeneralSection] = useState(true);
@@ -1962,9 +1961,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 				)}
 			</div>
 
-			{isExpanded && (
-				<>
-					<form id="collapsible-content" className="form-sections">
+			<form id="collapsible-content" className="form-sections">
 						{/* GENERAL SECTION - Matches PingOne Console */}
 						<div className="form-section" data-section="general">
 							<button
