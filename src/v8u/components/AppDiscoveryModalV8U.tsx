@@ -36,7 +36,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 	const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [tokenStatus, setTokenStatus] = useState(() =>
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
 	);
 
 	// Lock body scroll when modal is open
@@ -59,7 +59,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 		if (!isOpen) return;
 
 		const checkStatus = () => {
-			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 			setTokenStatus(status);
 		};
 

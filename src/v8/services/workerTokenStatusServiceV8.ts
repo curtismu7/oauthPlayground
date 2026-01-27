@@ -6,7 +6,7 @@
  * @since 2024-11-16
  */
 
-import { unifiedWorkerTokenServiceV2 } from '../../services/unifiedWorkerTokenServiceV2';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
 const _MODULE_TAG = '[🔑 WORKER-TOKEN-STATUS-V8]';
 
@@ -48,13 +48,13 @@ export const formatTimeRemaining = (expiresAt: number): string => {
  */
 export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 	if (process.env.NODE_ENV === 'development') {
-		console.log(`${_MODULE_TAG} 🔍 Checking worker token status using unified service V2`);
+		console.log(`${_MODULE_TAG} 🔍 Checking worker token status using unified service`);
 	}
 
 	try {
-		// Use the new unified worker token service V2
-		const status = await unifiedWorkerTokenServiceV2.getStatus();
-		const token = await unifiedWorkerTokenServiceV2.getToken();
+		// Use the unified worker token service
+		const status = await unifiedWorkerTokenService.getStatus();
+		const token = await unifiedWorkerTokenService.getToken();
 
 		if (process.env.NODE_ENV === 'development') {
 			console.log(`${_MODULE_TAG} 🔍 Unified service status:`, status);
@@ -137,6 +137,70 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 		return result;
 	} catch (error) {
 		console.error(`${_MODULE_TAG} ❌ Error checking worker token status:`, error);
+		return {
+			status: 'missing',
+			message: 'Error checking worker token status.',
+			isValid: false,
+		};
+	}
+};
+
+/**
+ * Synchronous check worker token status (for backward compatibility)
+ * Uses memory cache only - may be stale but is fast
+ */
+export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
+	if (process.env.NODE_ENV === 'development') {
+		console.log(`${_MODULE_TAG} 🔍 Checking worker token status (sync) using memory cache`);
+	}
+
+	try {
+		// Quick synchronous check using localStorage only
+		const stored = localStorage.getItem('unified_worker_token');
+		if (!stored) {
+			return {
+				status: 'missing',
+				message: 'No worker token data found.',
+				isValid: false,
+			};
+		}
+
+		const data = JSON.parse(stored);
+		if (!data.token) {
+			return {
+				status: 'missing',
+				message: 'No worker token found.',
+				isValid: false,
+			};
+		}
+
+		// Check expiration
+		const now = Date.now();
+		const expiresAt = data.expiresAt || (data.savedAt + 3600 * 1000); // Default 1 hour
+		const isExpired = now >= expiresAt;
+		const minutesRemaining = Math.max(0, Math.floor((expiresAt - now) / 60000));
+
+		let tokenStatus: TokenStatus = 'valid';
+		let message = 'Worker token is valid and ready to use.';
+
+		if (isExpired) {
+			tokenStatus = 'expired';
+			message = 'Worker token has expired. Please generate a new one.';
+		} else if (minutesRemaining < 5) {
+			tokenStatus = 'expiring-soon';
+			message = `Worker token expires in ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''}.`;
+		}
+
+		return {
+			status: tokenStatus,
+			message,
+			isValid: !isExpired,
+			expiresAt,
+			minutesRemaining,
+			token: data.token,
+		};
+	} catch (error) {
+		console.error(`${_MODULE_TAG} ❌ Error checking worker token status (sync):`, error);
 		return {
 			status: 'missing',
 			message: 'Error checking worker token status.',
@@ -326,6 +390,7 @@ export const getHealthCheck = async (): Promise<{
 
 export const WorkerTokenStatusServiceV8 = {
 	checkWorkerTokenStatus,
+	checkWorkerTokenStatusSync,
 	formatTimeRemaining,
 	getStatusColor,
 	getStatusIcon,
