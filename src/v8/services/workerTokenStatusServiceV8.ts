@@ -151,7 +151,10 @@ export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 		}
 
 		const data = JSON.parse(stored);
-		if (!data.token) {
+		
+		// Handle unified service data structure
+		const token = data.token || data.data?.token;
+		if (!token) {
 			return {
 				status: 'missing',
 				message: 'No worker token found.',
@@ -159,9 +162,9 @@ export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 			};
 		}
 
-		// Check expiration
+		// Check expiration - handle both old and new data structures
 		const now = Date.now();
-		const expiresAt = data.expiresAt || (data.savedAt + 3600 * 1000); // Default 1 hour
+		const expiresAt = data.expiresAt || data.data?.expiresAt || (data.savedAt || data.data?.savedAt || 0) + 3600 * 1000; // Default 1 hour
 		const isExpired = now >= expiresAt;
 		const minutesRemaining = Math.max(0, Math.floor((expiresAt - now) / 60000));
 
@@ -182,7 +185,7 @@ export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 			isValid: !isExpired,
 			expiresAt,
 			minutesRemaining,
-			token: data.token,
+			token: token, // Use the extracted token from either old or new structure
 		};
 	} catch (error) {
 		console.error('Error checking worker token status (sync):', error);
