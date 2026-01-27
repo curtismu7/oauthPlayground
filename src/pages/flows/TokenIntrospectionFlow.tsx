@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
@@ -10,6 +10,7 @@ import {
 	TokenManagementService,
 } from '../../services/tokenManagementService';
 import { logger } from '../../utils/logger';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -265,23 +266,60 @@ const TokenIntrospectionFlow: React.FC<TokenIntrospectionFlowProps> = ({ credent
 	>('access_token');
 	const [activeAuthMethod, setActiveAuthMethod] =
 		useState<TokenAuthMethod['type']>('CLIENT_SECRET_BASIC');
-	const [formData, setFormData] = useState({
-		clientId: credentials?.clientId || '',
-		clientSecret: credentials?.clientSecret || '',
-		environmentId: credentials?.environmentId || '',
-		tokenToIntrospect: 'mock_access_token_to_introspect_example_abcdef123456',
-		tokenTypeHint: 'access_token' as 'access_token' | 'id_token' | 'refresh_token',
-		resourceId: '',
-		resourceSecret: '',
-		privateKey: '',
-		keyId: '',
-		jwksUri: '',
+	const [formData, setFormData] = useState(() => {
+		// Try to auto-populate environment ID from worker token credentials
+		let workerTokenEnvId = '';
+		try {
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				workerTokenEnvId = data.credentials?.environmentId || '';
+			}
+		} catch (error) {
+			console.log('Failed to load environment ID from worker token:', error);
+		}
+
+		return {
+			clientId: credentials?.clientId || '',
+			clientSecret: credentials?.clientSecret || '',
+			environmentId: credentials?.environmentId || workerTokenEnvId || '',
+			tokenToIntrospect: 'mock_access_token_to_introspect_example_abcdef123456',
+			tokenTypeHint: 'access_token' as 'access_token' | 'id_token' | 'refresh_token',
+			resourceId: '',
+			resourceSecret: '',
+			privateKey: '',
+			keyId: '',
+			jwksUri: '',
+		};
 	});
 	const [response, setResponse] = useState<Record<string, unknown> | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [introspectionResponse, setIntrospectionResponse] =
 		useState<TokenIntrospectionResponse | null>(null);
 	const [_tokenService] = useState(() => new TokenManagementService(formData.environmentId));
+
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId && !formData.environmentId) {
+						setFormData(prev => ({
+							...prev,
+							environmentId: data.credentials.environmentId
+						}));
+					}
+				}
+			} catch (error) {
+				console.log('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+	}, [formData.environmentId]);
 
 	const steps = [
 		{
