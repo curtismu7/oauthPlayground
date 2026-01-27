@@ -5475,6 +5475,138 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				onClose={() => setShowDeviceSelectionInfoModal(false)}
 			/>
 
+			{/* Device Selection Modal */}
+			{showDeviceSelectionModal && (
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						background: 'rgba(0, 0, 0, 0.5)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						zIndex: 1000,
+					}}
+					onClick={() => setShowDeviceSelectionModal(false)}
+				>
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '12px',
+							padding: '32px',
+							maxWidth: '600px',
+							width: '90%',
+							maxHeight: '80vh',
+							overflow: 'auto',
+							position: 'relative',
+						}}
+						onClick={(e) => e.stopPropagation()}
+					>
+						<button
+							type="button"
+							onClick={() => setShowDeviceSelectionModal(false)}
+							style={{
+								position: 'absolute',
+								top: '16px',
+								right: '16px',
+								background: 'none',
+								border: 'none',
+								fontSize: '24px',
+								cursor: 'pointer',
+								color: '#6b7280',
+							}}
+						>
+							×
+						</button>
+						<h2
+							style={{
+								margin: '0 0 24px 0',
+								fontSize: '24px',
+								fontWeight: '700',
+								color: '#1f2937',
+							}}
+						>
+							Select Device for Authentication
+						</h2>
+						<p
+							style={{
+								margin: '0 0 24px 0',
+								fontSize: '16px',
+								color: '#6b7280',
+							}}
+						>
+							Choose a device to continue with authentication
+						</p>
+						<MFADeviceSelector
+							devices={authState.devices}
+							loading={false}
+							selectedDeviceId={authState.selectedDeviceId}
+							onDeviceSelect={async (device) => {
+								console.log(`${MODULE_TAG} 🔥 Device selected from modal:`, device);
+								if (!authState.authenticationId || !authState.userId) {
+									toastV8.error('Authentication session not found');
+									return;
+								}
+
+								try {
+									setAuthState((prev) => ({ ...prev, isLoading: true }));
+
+									const data = await MfaAuthenticationServiceV8.selectDeviceForAuthentication({
+										environmentId: credentials.environmentId,
+										username: usernameInput.trim(),
+										userId: authState.userId,
+										authenticationId: authState.authenticationId,
+										deviceId: device.id,
+										region: credentials.region,
+										customDomain: credentials.customDomain,
+									});
+
+									const status = data.status || '';
+									const nextStep = data.nextStep || '';
+									const challengeId = (data.challengeId as string) || null;
+
+									setAuthState((prev) => ({
+										...prev,
+										isLoading: false,
+										status,
+										nextStep,
+										selectedDeviceId: device.id,
+										challengeId,
+										showDeviceSelection: false,
+									}));
+
+									setShowDeviceSelectionModal(false);
+
+									// Handle next step
+									if (status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED') {
+										setShowOTPModal(true);
+										toastV8.success('OTP has been sent');
+									} else if (status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED') {
+										setShowFIDO2Modal(true);
+									} else if (status === 'PUSH_CONFIRMATION_REQUIRED') {
+										setShowPushModal(true);
+									} else if (status === 'COMPLETED') {
+										toastV8.success('Authentication completed!');
+									}
+								} catch (error) {
+									console.error(`${MODULE_TAG} Failed to select device:`, error);
+									toastV8.error(error instanceof Error ? error.message : 'Failed to select device');
+								} finally {
+									setAuthState((prev) => ({ ...prev, isLoading: false }));
+								}
+							}}
+							onSelectNew={() => {
+								setShowDeviceSelectionModal(false);
+								setShowRegistrationModal(true);
+							}}
+						/>
+					</div>
+				</div>
+			)}
+
 			{/* OTP Input Modal */}
 			<MFAOTPInputModal
 				show={showOTPModal}
