@@ -41,7 +41,6 @@ export class ToastNotificationsV8 {
 	 * toastV8.success('Configuration saved successfully');
 	 */
 	static success(message: string, options?: { duration?: number }): void {
-		console.log(`${ToastNotificationsV8.MODULE_TAG} Success:`, message);
 		v4ToastManager.showSuccess(message, {}, options);
 	}
 
@@ -80,7 +79,6 @@ export class ToastNotificationsV8 {
 	 * toastV8.error('Failed to validate credentials');
 	 */
 	static error(message: string, _options?: { duration?: number }): void {
-		console.log(`${ToastNotificationsV8.MODULE_TAG} Error:`, message);
 		const shortMessage = ToastNotificationsV8.extractShortSummary(message);
 		v4ToastManager.showError(shortMessage);
 	}
@@ -93,7 +91,6 @@ export class ToastNotificationsV8 {
 	 * toastV8.warning('Please fill in all required fields');
 	 */
 	static warning(message: string, _options?: { duration?: number }): void {
-		console.log(`${ToastNotificationsV8.MODULE_TAG} Warning:`, message);
 		v4ToastManager.showWarning(message);
 	}
 
@@ -105,7 +102,6 @@ export class ToastNotificationsV8 {
 	 * toastV8.info('Authorization URL copied to clipboard');
 	 */
 	static info(message: string, _options?: { duration?: number }): void {
-		console.log(`${ToastNotificationsV8.MODULE_TAG} Info:`, message);
 		v4ToastManager.showInfo(message);
 	}
 

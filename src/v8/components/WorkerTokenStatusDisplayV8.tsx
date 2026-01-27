@@ -1190,17 +1190,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 		);
 	}
 
-	// Detailed mode (default)
-	if (process.env.NODE_ENV === 'development') {
-		console.log(
-			'[WorkerTokenStatusDisplayV8] Render - mode:',
-			mode,
-			'isLoading:',
-			isLoading,
-			'tokenStatus:',
-			tokenStatus
-		);
-	}
+	// Detailed mode (default) - logging removed for performance
 	return (
 		<StatusContainer
 			$variant={getVariant()}
