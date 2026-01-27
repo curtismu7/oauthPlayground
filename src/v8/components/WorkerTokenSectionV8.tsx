@@ -24,6 +24,10 @@ interface WorkerTokenSectionV8Props {
 	onTokenUpdated?: (token: string) => void;
 	compact?: boolean;
 	showSettings?: boolean;
+	silentApiRetrieval?: boolean;
+	onSilentApiRetrievalChange?: (value: boolean) => void;
+	showTokenAtEnd?: boolean;
+	onShowTokenAtEndChange?: (value: boolean) => void;
 }
 
 export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
@@ -31,6 +35,10 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 	onTokenUpdated,
 	compact = false,
 	showSettings = true,
+	silentApiRetrieval = false,
+	onSilentApiRetrievalChange,
+	showTokenAtEnd = false,
+	onShowTokenAtEndChange,
 }) => {
 	const [showModal, setShowModal] = useState(false);
 	const [isRefreshing, setIsRefreshing] = useState(false);
@@ -277,6 +285,60 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 						</>
 					)}
 				</div>
+
+				{/* Worker Token Settings Checkboxes */}
+				{showSettings && (
+					<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+						<label
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								cursor: 'pointer',
+								fontSize: '14px',
+								color: '#374151',
+							}}
+						>
+							<input
+								type="checkbox"
+								checked={silentApiRetrieval}
+								onChange={(e) => onSilentApiRetrievalChange?.(e.target.checked)}
+								style={{
+									width: '16px',
+									height: '16px',
+									cursor: 'pointer',
+								}}
+							/>
+							<span>
+								<strong>Silent API Retrieval</strong> - Automatically fetch worker token without showing modal
+							</span>
+						</label>
+						<label
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								cursor: 'pointer',
+								fontSize: '14px',
+								color: '#374151',
+							}}
+						>
+							<input
+								type="checkbox"
+								checked={showTokenAtEnd}
+								onChange={(e) => onShowTokenAtEndChange?.(e.target.checked)}
+								style={{
+									width: '16px',
+									height: '16px',
+									cursor: 'pointer',
+								}}
+							/>
+							<span>
+								<strong>Show Token at End</strong> - Display the worker token after successful retrieval
+							</span>
+						</label>
+					</div>
+				)}
 			</div>
 
 			{/* Worker Token Modal */}
