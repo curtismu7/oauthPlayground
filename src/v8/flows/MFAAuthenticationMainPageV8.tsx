@@ -364,6 +364,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const [isAuthenticatingFIDO2, setIsAuthenticatingFIDO2] = useState(false);
 	const [fido2Error, setFido2Error] = useState<string | null>(null);
 
+	// Authorization API state
+	const [isAuthorizing, setIsAuthorizing] = useState(false);
+	const [authorizationError, setAuthorizationError] = useState<string | null>(null);
+
 	// Device list state (for dashboard)
 	const [userDevices, setUserDevices] = useState<Array<Record<string, unknown>>>([]);
 	const [isLoadingDevices, setIsLoadingDevices] = useState(false);
@@ -1150,6 +1154,106 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		handleDeviceFailureError,
 	]);
 
+	// Handle Authorization API Call (Browser-based OAuth)
+	const handleAuthorizationApi = useCallback(async () => {
+		if (!tokenStatus.isValid) {
+			toastV8.error('Please configure worker token first');
+			return;
+		}
+
+		if (!credentials.environmentId) {
+			toastV8.error('Please configure environment ID first');
+			return;
+		}
+
+		if (!credentials.clientId) {
+			toastV8.error('Please configure client ID first');
+			return;
+		}
+
+		setIsAuthorizing(true);
+		setAuthorizationError(null);
+
+		try {
+			// Get region and build authorization URL
+			const region = credentials.region || 'us';
+			const apiBase = 
+				region === 'eu'
+					? 'https://auth.pingone.eu'
+					: region === 'ap'
+						? 'https://auth.pingone.asia'
+						: region === 'ca'
+							? 'https://auth.pingone.ca'
+							: 'https://auth.pingone.com';
+
+			// Build OAuth authorization URL
+			const authUrl = `${apiBase}/${credentials.environmentId}/as/authorize`;
+			const params = new URLSearchParams({
+				response_type: 'code',
+				client_id: credentials.clientId,
+				redirect_uri: credentials.redirectUri || window.location.origin + '/v8/mfa/callback',
+				scope: credentials.scopes || 'openid profile email',
+				state: `mfa-auth-${Date.now()}`,
+			});
+
+			// Add PKCE parameters if available
+			if (credentials.usePKCE) {
+				// Generate PKCE codes
+				const codeVerifier = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+					.map(b => b.toString(16).padStart(2, '0'))
+					.join('');
+				const encoder = new TextEncoder();
+				const data = encoder.encode(codeVerifier);
+				const hash = await crypto.subtle.digest('SHA-256', data);
+				const challenge = btoa(String.fromCharCode(...new Uint8Array(hash)))
+					.replace(/\+/g, '-')
+					.replace(/\//g, '_')
+					.replace(/=+$/, '');
+
+				params.set('code_challenge', challenge);
+				params.set('code_challenge_method', 'S256');
+				
+				// Store code verifier for token exchange
+				sessionStorage.setItem('mfa_auth_code_verifier', codeVerifier);
+			}
+
+			// Store state for verification
+			sessionStorage.setItem('mfa_auth_state', params.get('state') || '');
+			sessionStorage.setItem('mfa_auth_return_path', window.location.pathname);
+
+			// Open authorization in popup or same window
+			const authorizationUrl = `${authUrl}?${params.toString()}`;
+			
+			// Store current context for callback
+			sessionStorage.setItem('mfa_auth_context', JSON.stringify({
+				flowType: 'mfa-authorization',
+				timestamp: Date.now(),
+				environmentId: credentials.environmentId,
+			}));
+
+			toastV8.info('🔐 Opening authorization page...');
+			
+			// Open in same window for better UX
+			window.location.href = authorizationUrl;
+
+		} catch (error) {
+			console.error(`${MODULE_TAG} Authorization API call failed:`, error);
+			const errorMessage = error instanceof Error ? error.message : 'Failed to initiate authorization';
+			setAuthorizationError(errorMessage);
+			toastV8.error(`Authorization failed: ${errorMessage}`);
+		} finally {
+			setIsAuthorizing(false);
+		}
+	}, [
+		tokenStatus.isValid,
+		credentials.environmentId,
+		credentials.clientId,
+		credentials.redirectUri,
+		credentials.scopes,
+		credentials.usePKCE,
+		credentials.region,
+	]);
+
 	// Handle Start MFA (Username-based)
 	const handleStartMFA = useCallback(async () => {
 		if (!tokenStatus.isValid) {
@@ -1780,6 +1884,50 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					>
 						<FiKey />
 						Use Passkey / FaceID (username-less)
+					</button>
+
+					{/* Authorization API Button - Browser-based OAuth */}
+					<button
+						type="button"
+						onClick={handleAuthorizationApi}
+						disabled={
+							isAuthorizing ||
+							!tokenStatus.isValid ||
+							!credentials.environmentId ||
+							!credentials.clientId
+						}
+						style={{
+							padding: '10px 24px',
+							border: '2px solid #8b5cf6',
+							borderRadius: '6px',
+							background: 'white',
+							color: '#8b5cf6',
+							fontSize: '16px',
+							fontWeight: '600',
+							cursor:
+								!isAuthorizing &&
+								tokenStatus.isValid &&
+								credentials.environmentId &&
+								credentials.clientId
+									? 'pointer'
+									: 'not-allowed',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+						}}
+						title="Authenticate directly in browser using OAuth authorization API (no QR codes)"
+					>
+						{isAuthorizing ? (
+							<>
+								<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
+								Authorizing...
+							</>
+						) : (
+							<>
+								<FiCode />
+								Authorization API (Browser)
+							</>
+						)}
 					</button>
 
 					{/* Clear Tokens & Session Button */}
@@ -3726,6 +3874,47 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					showTokenOnly={showTokenOnly}
 				/>
 			) : null}
+
+			{/* Authorization API Error Display */}
+			{authorizationError && (
+				<div
+					style={{
+						background: '#fef2f2',
+						border: '1px solid #fecaca',
+						borderRadius: '8px',
+						padding: '16px',
+						marginBottom: '24px',
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+						<FiAlertCircle style={{ color: '#ef4444', marginTop: '2px', flexShrink: 0 }} />
+						<div style={{ flex: 1 }}>
+							<h4 style={{ margin: '0 0 8px 0', color: '#dc2626', fontSize: '16px', fontWeight: '600' }}>
+								Authorization API Error
+							</h4>
+							<p style={{ margin: '0', color: '#7f1d1d', fontSize: '14px', lineHeight: '1.5' }}>
+								{authorizationError}
+							</p>
+							<button
+								type="button"
+								onClick={() => setAuthorizationError(null)}
+								style={{
+									marginTop: '12px',
+									padding: '6px 12px',
+									border: '1px solid #fecaca',
+									borderRadius: '4px',
+									background: 'white',
+									color: '#dc2626',
+									fontSize: '14px',
+									cursor: 'pointer',
+								}}
+							>
+								Dismiss
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 
 			{/* Username Decision Modal */}
 			{showUsernameDecisionModal && (
