@@ -104,11 +104,11 @@ export const PerformanceMonitorV8: React.FC<PerformanceMonitorV8Props> = ({
 		const k = 1024;
 		const sizes = ['B', 'KB', 'MB', 'GB'];
 		const i = Math.floor(Math.log(bytes) / Math.log(k));
-		return parseFloat((bytes / k ** i).toFixed(2)) + ' ' + sizes[i];
+		return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 	};
 
-	const formatTime = (ms: number) => {
-		return (ms / 1000).toFixed(2) + 's';
+	const _formatTime = (ms: number) => {
+		return `${(ms / 1000).toFixed(2)}s`;
 	};
 
 	const getPerformanceGrade = () => {
@@ -204,7 +204,7 @@ export const PerformanceMonitorV8: React.FC<PerformanceMonitorV8Props> = ({
 				<div className="metrics-history">
 					<h4>📈 Performance History</h4>
 					<div className="history-chart">
-						{metrics.slice(-10).map((metric, index) => (
+						{metrics.slice(-10).map((metric, _index) => (
 							<div key={metric.timestamp} className="history-item">
 								<div className="history-time">
 									{new Date(metric.timestamp).toLocaleTimeString()}

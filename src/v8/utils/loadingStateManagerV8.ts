@@ -12,7 +12,7 @@
  * - TypeScript support with proper typing
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 
 export type LoadingOperation =
 	| 'authenticate'

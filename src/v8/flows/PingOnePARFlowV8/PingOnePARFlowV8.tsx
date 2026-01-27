@@ -245,7 +245,7 @@ export const PingOnePARFlowV8: React.FC = () => {
 			state.setCurrentStep(4);
 		}
 		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount to prevent infinite loop
-	}, []);
+	}, [state.flowState.authCode, state.markStepCompleted, state.setAuthCode, state.setCurrentStep]);
 
 	// Handle PKCE generation
 	const handleGeneratePKCE = useCallback(async () => {
