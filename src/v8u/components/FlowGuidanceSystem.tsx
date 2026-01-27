@@ -310,8 +310,7 @@ interface FlowGuidanceSystemProps {
 export const FlowGuidanceSystem: React.FC<FlowGuidanceSystemProps> = ({
 	currentFlowType,
 	currentSpecVersion,
-	onFlowChange,
-	onSpecChange,
+	onFlowSelect,
 }) => {
 	const [selectedUseCase, setSelectedUseCase] = useState<string | null>(null);
 	const [showRecommendation, setShowRecommendation] = useState(false);
