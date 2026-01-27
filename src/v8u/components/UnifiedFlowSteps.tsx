@@ -4623,9 +4623,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							setShowWorkerTokenModal,
 							undefined, // setTokenStatus
 							true, // silentApiRetrieval - enable silent retrieval
-							false, // showTokenAtEnd
-							false, // forceShowModal - allow silent retrieval (will show modal if credentials needed)
-							setIsLoading // setIsLoading - for spinner during silent retrieval
+							false, // showTokenAtEnd - don't show modal, just get token
+							false, // forceShowModal - not forced, automatic call
+							setSilentLoading // setSilentLoading - for spinner during silent retrieval
 						);
 						// Try again after silent retrieval attempt
 						await new Promise(resolve => setTimeout(resolve, 500));
@@ -5217,8 +5217,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													await handleShowWorkerTokenModal(
 														setShowWorkerTokenModal,
 														undefined, // setTokenStatus
-														true, // silentApiRetrieval - enable silent retrieval
-														false, // showTokenAtEnd - don't show modal, just get token
+														true, // overrideSilentApiRetrieval - enable silent retrieval
+														false, // overrideShowTokenAtEnd - don't show modal, just get token
 														false, // forceShowModal - not forced, automatic call
 														setIsSilentLoading // loading state for spinner
 													);
