@@ -3,11 +3,7 @@
 import type { ApiCall as TrackedApiCall } from '../apiCallTrackerService';
 import type { PostmanCollection, PostmanCollectionItem } from '../postmanTypes';
 import { extractVariablesFromItem } from './scriptUtils';
-import {
-	formatHeaderValue,
-	formatJsonBodyValue,
-	formatUrlEncodedValue,
-} from './valueFormatters';
+import { formatHeaderValue, formatJsonBodyValue, formatUrlEncodedValue } from './valueFormatters';
 
 /**
  * Convert request body to Postman format.
@@ -210,9 +206,7 @@ const enhanceItemDescription = (item: PostmanCollectionItem): PostmanCollectionI
 /**
  * Helper function to enhance all items in a Postman collection with Variables Saved information.
  */
-export const enhanceCollectionDescriptions = (
-	collection: PostmanCollection
-): PostmanCollection => {
+export const enhanceCollectionDescriptions = (collection: PostmanCollection): PostmanCollection => {
 	if (collection.item && Array.isArray(collection.item)) {
 		collection.item = collection.item.map((item) => enhanceItemDescription(item));
 	}
