@@ -3746,9 +3746,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							gap: '16px',
 						}}
 					>
-						{authState.devices.map((device) => (
+						{authState.devices.map((device, index) => (
 							<button
-								key={device.id}
+								key={`${device.id}-${index}`}
 								type="button"
 								onClick={async () => {
 									if (!authState.authenticationId || !authState.userId) {
