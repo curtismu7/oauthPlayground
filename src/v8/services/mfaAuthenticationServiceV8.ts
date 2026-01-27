@@ -281,7 +281,7 @@ export class MfaAuthenticationServiceV8 {
 				headers: {
 					'Content-Type': 'application/json',
 					'Cache-Control': 'no-cache',
-					'Pragma': 'no-cache',
+					Pragma: 'no-cache',
 				},
 				body: JSON.stringify(requestBody),
 			});
@@ -293,13 +293,17 @@ export class MfaAuthenticationServiceV8 {
 					statusText: response.statusText,
 					url: '/api/pingone/mfa/initialize-device-authentication',
 				});
-				throw new Error(`Failed to initialize device authentication: ${response.status} ${response.statusText}`);
+				throw new Error(
+					`Failed to initialize device authentication: ${response.status} ${response.statusText}`
+				);
 			}
 
 			// Check if response has content
 			const contentLength = response.headers.get('content-length');
 			if (contentLength === '0') {
-				console.error(`${MODULE_TAG} Empty response received from initialize device authentication`);
+				console.error(
+					`${MODULE_TAG} Empty response received from initialize device authentication`
+				);
 				throw new Error('Empty response received from server');
 			}
 
@@ -388,7 +392,7 @@ export class MfaAuthenticationServiceV8 {
 						if (limitExceededDetail) {
 							const deliveryMethod = limitExceededDetail.innerError.deliveryMethod.toUpperCase();
 							const expiresAt = limitExceededDetail.innerError?.coolDownExpiresAt;
-							
+
 							// Get device type display name
 							const getDeviceTypeName = (method: string): string => {
 								const methodMap: Record<string, string> = {
@@ -400,10 +404,10 @@ export class MfaAuthenticationServiceV8 {
 								};
 								return methodMap[method] || method;
 							};
-							
+
 							const deviceTypeName = getDeviceTypeName(deliveryMethod);
 							let friendlyMessage = `${deviceTypeName} authentication is temporarily locked due to too many recent attempts. Please wait a few minutes and try again.`;
-							
+
 							if (expiresAt && typeof expiresAt === 'number') {
 								try {
 									const lockUntil = new Date(expiresAt);
@@ -416,8 +420,8 @@ export class MfaAuthenticationServiceV8 {
 									// If date conversion fails, fall back to generic message
 								}
 							}
-							
-							const error = new Error(friendlyMessage) as Error & { 
+
+							const error = new Error(friendlyMessage) as Error & {
 								errorCode?: string;
 								deliveryMethod?: string;
 								coolDownExpiresAt?: number;
@@ -453,14 +457,21 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(error, {
-				flowType: 'mfa' as any,
-				operation: 'initializeDeviceAuthentication',
-			}, {
-				logError: true,
-				showToast: false,
-			});
-			console.error(`${MODULE_TAG} Error initializing device authentication:`, parsed.userFriendlyMessage);
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'mfa' as any,
+					operation: 'initializeDeviceAuthentication',
+				},
+				{
+					logError: true,
+					showToast: false,
+				}
+			);
+			console.error(
+				`${MODULE_TAG} Error initializing device authentication:`,
+				parsed.userFriendlyMessage
+			);
 			throw error;
 		}
 	}
@@ -592,14 +603,21 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(error, {
-				flowType: 'mfa' as any,
-				operation: 'initializeOneTimeDeviceAuthentication',
-			}, {
-				logError: true,
-				showToast: false,
-			});
-			console.error(`${MODULE_TAG} Error initializing one-time device authentication:`, parsed.userFriendlyMessage);
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'mfa' as any,
+					operation: 'initializeOneTimeDeviceAuthentication',
+				},
+				{
+					logError: true,
+					showToast: false,
+				}
+			);
+			console.error(
+				`${MODULE_TAG} Error initializing one-time device authentication:`,
+				parsed.userFriendlyMessage
+			);
 			throw error;
 		}
 	}
@@ -723,14 +741,21 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(error, {
-				flowType: 'mfa' as any,
-				operation: 'readDeviceAuthentication',
-			}, {
-				logError: true,
-				showToast: false,
-			});
-			console.error(`${MODULE_TAG} Error reading device authentication:`, parsed.userFriendlyMessage);
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'mfa' as any,
+					operation: 'readDeviceAuthentication',
+				},
+				{
+					logError: true,
+					showToast: false,
+				}
+			);
+			console.error(
+				`${MODULE_TAG} Error reading device authentication:`,
+				parsed.userFriendlyMessage
+			);
 			throw error;
 		}
 	}
@@ -1014,7 +1039,7 @@ export class MfaAuthenticationServiceV8 {
 						if (limitExceededDetail) {
 							const deliveryMethod = limitExceededDetail.innerError.deliveryMethod.toUpperCase();
 							const expiresAt = limitExceededDetail.innerError?.coolDownExpiresAt;
-							
+
 							// Get device type display name
 							const getDeviceTypeName = (method: string): string => {
 								const methodMap: Record<string, string> = {
@@ -1026,10 +1051,10 @@ export class MfaAuthenticationServiceV8 {
 								};
 								return methodMap[method] || method;
 							};
-							
+
 							const deviceTypeName = getDeviceTypeName(deliveryMethod);
 							let friendlyMessage = `${deviceTypeName} authentication is temporarily locked due to too many recent attempts. Please wait a few minutes and try again.`;
-							
+
 							if (expiresAt && typeof expiresAt === 'number') {
 								try {
 									const lockUntil = new Date(expiresAt);
@@ -1042,8 +1067,8 @@ export class MfaAuthenticationServiceV8 {
 									// If date conversion fails, fall back to generic message
 								}
 							}
-							
-							const error = new Error(friendlyMessage) as Error & { 
+
+							const error = new Error(friendlyMessage) as Error & {
 								errorCode?: string;
 								deliveryMethod?: string;
 								coolDownExpiresAt?: number;
@@ -1379,21 +1404,21 @@ export class MfaAuthenticationServiceV8 {
 				console.log(`${MODULE_TAG} Using otp.check URL from _links:`, endpoint);
 			} else {
 				// Get userId - use provided userId or look up by username
-				let userId: string;
+				let _userId: string;
 				if (params.userId) {
-					userId = params.userId;
+					_userId = params.userId;
 				} else if (params.username) {
 					const { MFAServiceV8 } = await import('./mfaServiceV8');
 					const user = await MFAServiceV8.lookupUserByUsername(
 						params.environmentId,
 						params.username
 					);
-					userId = user.id as string;
+					_userId = user.id as string;
 				} else {
 					// No-username variant: Initialize device authentication without username/userId
 					// This requires a special request body structure
 					console.log(`${MODULE_TAG} Using no-username variant for device authentication`);
-					userId = ''; // Will be omitted from request body
+					_userId = ''; // Will be omitted from request body
 				}
 
 				// Fallback to direct endpoint - use custom domain if provided
@@ -1999,7 +2024,7 @@ export class MfaAuthenticationServiceV8 {
 	 * This method attempts multiple strategies in order:
 	 * 1. Cancel the current authentication and re-initialize it (most reliable)
 	 * 2. Re-select the device (fallback, may not always trigger new OTP)
-	 * 
+	 *
 	 * @param params - Parameters for resending OTP
 	 * @returns Updated device authentication response with new OTP sent
 	 */
@@ -2041,7 +2066,10 @@ export class MfaAuthenticationServiceV8 {
 					}
 				);
 			} catch (readError) {
-				console.warn(`${MODULE_TAG} Could not read device authentication, proceeding with re-select:`, readError);
+				console.warn(
+					`${MODULE_TAG} Could not read device authentication, proceeding with re-select:`,
+					readError
+				);
 				// Fall through to re-select strategy
 				authData = {} as DeviceAuthenticationResponse;
 			}
