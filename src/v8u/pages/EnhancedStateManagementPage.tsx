@@ -451,7 +451,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 	};
 
 	// Get real statistics
-	const stats = {
+	const stats = useMemo(() => ({
 		unifiedFlow: state.unifiedFlow,
 		performance: state.performance,
 		history: {
@@ -459,7 +459,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 			futureCount: 0,
 		},
 		offline: state.offline,
-	};
+	}), [state.unifiedFlow, state.performance, state.offline]);
 
 	return (
 		<PageContainer>

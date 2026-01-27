@@ -35,8 +35,8 @@ const getMinimumLogLevel = (): LogLevel => {
 	if (import.meta.env.PROD) {
 		return 'error';
 	}
-	// In development, show all logs
-	return 'debug';
+	// In development, show warnings and errors only (reduce chatter)
+	return 'warn';
 };
 
 export interface LogContext {
