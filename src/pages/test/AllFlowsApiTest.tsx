@@ -17,8 +17,8 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
-import { useWorkerTokenState } from '../../services/workerTokenUIService';
-import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
+import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
 // Test Configuration for all flow types
 interface AllFlowsTestConfig {
@@ -295,23 +295,35 @@ const FlowTypeBadge = styled.span<{ flowtype: string }>`
 
 const AllFlowsApiTest: React.FC = () => {
 	const { apps, selectedAppId, selectApp, getActiveAppConfig } = useCredentialStoreV8();
-	const {
-		hasValidToken: hasWorkerToken,
-		showWorkerTokenModal,
-		setShowWorkerTokenModal,
-	} = useWorkerTokenState();
 
-	const [config, setConfig] = useState<AllFlowsTestConfig>({
-		environmentId: '',
-		clientId: '',
-		clientSecret: '',
-		redirectUri: 'http://localhost:3000/test-callback',
-		scopes: 'openid profile email',
-		flowType: 'authorization_code',
-		responseType: 'code',
-		responseMode: 'fragment',
-		usePkce: true,
-		usePar: false,
+	// Get worker token status from unified service
+	const hasWorkerToken = unifiedWorkerTokenService.hasValidToken();
+
+	const [config, setConfig] = useState<AllFlowsTestConfig>(() => {
+		// Try to get environment ID from worker token credentials first
+		let envId = '';
+		try {
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				envId = data.credentials?.environmentId || '';
+			}
+		} catch (error) {
+			console.log('Failed to load environment ID from worker token:', error);
+		}
+
+		return {
+			environmentId: envId,
+			clientId: '',
+			clientSecret: '',
+			redirectUri: 'http://localhost:3000/test-callback',
+			scopes: 'openid profile email',
+			flowType: 'authorization_code',
+			responseType: 'code',
+			responseMode: 'fragment',
+			usePkce: true,
+			usePar: false,
+		};
 	});
 
 	const [results, setResults] = useState<TestResult[]>([]);
@@ -332,6 +344,45 @@ const AllFlowsApiTest: React.FC = () => {
 			}));
 		}
 	}, [getActiveAppConfig]);
+
+	// Listen for worker token updates and update environment ID
+	useEffect(() => {
+		const handleWorkerTokenUpdate = () => {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					const workerTokenEnvId = data.credentials?.environmentId || '';
+					
+					// Update environment ID if worker token has one and config doesn't
+					if (workerTokenEnvId && !config.environmentId) {
+						setConfig((prev) => ({
+							...prev,
+							environmentId: workerTokenEnvId,
+						}));
+					}
+				}
+			} catch (error) {
+				console.log('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		// Listen for storage events (worker token updates from other tabs)
+		const handleStorageChange = (e: StorageEvent) => {
+			if (e.key === 'unified_worker_token') {
+				handleWorkerTokenUpdate();
+			}
+		};
+
+		window.addEventListener('storage', handleStorageChange);
+		
+		// Also check immediately in case worker token was set before this effect ran
+		handleWorkerTokenUpdate();
+
+		return () => {
+			window.removeEventListener('storage', handleStorageChange);
+		};
+	}, [config.environmentId]);
 
 	const addResult = useCallback((result: Omit<TestResult, 'timestamp'>) => {
 		setResults((prev) => [...prev, { ...result, timestamp: new Date() }]);
@@ -902,25 +953,9 @@ const AllFlowsApiTest: React.FC = () => {
 					Test ALL PingOne OAuth 2.0, OpenID Connect, and MFA flows: Authorization Code, Implicit,
 					Hybrid, Device Code, Client Credentials, MFA Registration, MFA Authentication
 				</Subtitle>
-				<ButtonGroup style={{ marginTop: '1rem' }}>
-					<Button
-						variant={hasWorkerToken ? 'secondary' : 'primary'}
-						onClick={() => setShowWorkerTokenModal(true)}
-					>
-						<FiKey />
-						{hasWorkerToken ? '✓ Worker Token Set' : 'Get Worker Token'}
-					</Button>
-					<Button
-						variant="secondary"
-						onClick={() => {
-							// Refresh apps by reloading the credential store state
-							window.location.reload();
-						}}
-					>
-						<FiRefreshCw />
-						Refresh Apps
-					</Button>
-				</ButtonGroup>
+				<div style={{ marginTop: '1rem' }}>
+					<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
+				</div>
 			</Header>
 
 			<TestSection>
@@ -978,22 +1013,44 @@ const AllFlowsApiTest: React.FC = () => {
 
 					<FormRow>
 						<FormGroup>
-							<Label>Environment ID:</Label>
+							<Label>
+								Environment ID:
+								{config.environmentId && hasWorkerToken && (
+									<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+										✓ Auto-populated from worker token
+									</span>
+								)}
+							</Label>
 							<Input
 								type="text"
 								value={config.environmentId}
 								onChange={(e) => handleConfigChange('environmentId', e.target.value)}
 								placeholder="e.g. f9d1e21a-54dc-4b3d-990e-fa36191730d4"
+								style={{
+									backgroundColor: config.environmentId && hasWorkerToken ? '#f0fdf4' : 'white',
+									borderColor: config.environmentId && hasWorkerToken ? '#10b981' : '#d1d5db',
+								}}
 							/>
 						</FormGroup>
 
 						<FormGroup>
-							<Label>Client ID:</Label>
+							<Label>
+								Client ID:
+								{config.clientId && selectedAppId && (
+									<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+										✓ From {apps.find(app => app.id === selectedAppId)?.name}
+									</span>
+								)}
+							</Label>
 							<Input
 								type="text"
 								value={config.clientId}
 								onChange={(e) => handleConfigChange('clientId', e.target.value)}
 								placeholder="e.g. a1b2c3d4..."
+								style={{
+									backgroundColor: config.clientId && selectedAppId ? '#f0fdf4' : 'white',
+									borderColor: config.clientId && selectedAppId ? '#10b981' : '#d1d5db',
+								}}
 							/>
 						</FormGroup>
 					</FormRow>
@@ -1003,12 +1060,23 @@ const AllFlowsApiTest: React.FC = () => {
 						config.flowType === 'client_credentials') && (
 						<FormRow>
 							<FormGroup>
-								<Label>Client Secret:</Label>
+								<Label>
+									Client Secret:
+									{config.clientSecret && selectedAppId && (
+										<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+											✓ From {apps.find(app => app.id === selectedAppId)?.name}
+										</span>
+									)}
+								</Label>
 								<Input
 									type="password"
 									value={config.clientSecret}
 									onChange={(e) => handleConfigChange('clientSecret', e.target.value)}
 									placeholder="Required for confidential clients"
+									style={{
+										backgroundColor: config.clientSecret && selectedAppId ? '#f0fdf4' : 'white',
+										borderColor: config.clientSecret && selectedAppId ? '#10b981' : '#d1d5db',
+									}}
 								/>
 							</FormGroup>
 
@@ -1239,14 +1307,6 @@ const AllFlowsApiTest: React.FC = () => {
 					</div>
 				)}
 			</ResultsContainer>
-
-			{/* Worker Token Modal */}
-			{showWorkerTokenModal && (
-				<WorkerTokenModalV8
-					isOpen={showWorkerTokenModal}
-					onClose={() => setShowWorkerTokenModal(false)}
-				/>
-			)}
 		</Container>
 	);
 };
