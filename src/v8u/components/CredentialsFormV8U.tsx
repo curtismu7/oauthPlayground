@@ -50,6 +50,7 @@ import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { FlowOptionsServiceV8 } from '@/v8/services/flowOptionsServiceV8';
 import { OidcDiscoveryServiceV8 } from '@/v8/services/oidcDiscoveryServiceV8';
 import { RedirectUriServiceV8 } from '@/v8/services/redirectUriServiceV8';
@@ -558,6 +559,22 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			const updated = { ...credentials, environmentId: storedEnvId };
 			onChange(updated);
 		}
+
+		// Try to auto-populate from worker token credentials if still empty
+		if (!credentials.environmentId) {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId) {
+						const updated = { ...credentials, environmentId: data.credentials.environmentId };
+						onChange(updated);
+					}
+				}
+			} catch (error) {
+				console.log('Failed to auto-populate environment ID from worker token:', error);
+			}
+		}
 		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount to prevent infinite loop
 	}, []);
 
@@ -858,6 +875,32 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		};
 		window.addEventListener('environmentIdUpdated', handleEnvIdUpdate);
 		return () => window.removeEventListener('environmentIdUpdated', handleEnvIdUpdate);
+		// biome-ignore lint/correctness/useExhaustiveDependencies: onChange uses functional update to prevent loops
+	}, [credentials.environmentId]);
+
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId && !credentials.environmentId) {
+						onChange((prev: typeof credentials) => {
+							if (prev.environmentId !== data.credentials.environmentId) {
+								return { ...prev, environmentId: data.credentials.environmentId };
+							}
+							return prev;
+						});
+					}
+				}
+			} catch (error) {
+				console.log('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 		// biome-ignore lint/correctness/useExhaustiveDependencies: onChange uses functional update to prevent loops
 	}, [credentials.environmentId]);
 
