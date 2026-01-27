@@ -6935,7 +6935,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				{/* Request Device Authorization Button */}
 				{!isComplete && (
-					<div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px', marginBottom: '20px' }}>
+					<div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px', marginBottom: '32px' }}>
 						<button
 							type="button"
 							className="btn btn-next"
