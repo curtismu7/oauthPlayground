@@ -6935,15 +6935,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				{/* Request Device Authorization Button */}
 				{!isComplete && (
-					<button
-						type="button"
-						className="btn btn-next"
-						onClick={handleRequestDeviceAuth}
-						disabled={isLoading || !isValid}
-						style={{ marginTop: '16px', marginBottom: '20px' }}
-					>
-						{isLoading ? 'Requesting...' : 'Request Device Authorization'}
-					</button>
+					<div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px', marginBottom: '20px' }}>
+						<button
+							type="button"
+							className="btn btn-next"
+							onClick={handleRequestDeviceAuth}
+							disabled={isLoading || !isValid}
+						>
+							{isLoading ? 'Requesting...' : 'Request Device Authorization'}
+						</button>
+					</div>
 				)}
 
 				{error && (
@@ -10377,15 +10378,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				{/* Request Device Authorization Button */}
 				{!isComplete && (
-					<button
-						type="button"
-						className="btn btn-next"
-						onClick={handleRequestToken}
-						disabled={isLoading || !canRequest}
-						style={{ marginTop: '16px' }}
-					>
-						{isLoading ? 'Requesting...' : 'Request Access Token'}
-					</button>
+					<div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
+						<button
+							type="button"
+							className="btn btn-next"
+							onClick={handleRequestToken}
+							disabled={isLoading || !canRequest}
+						>
+							{isLoading ? 'Requesting...' : 'Request Access Token'}
+						</button>
+					</div>
 				)}
 
 				{error && (
