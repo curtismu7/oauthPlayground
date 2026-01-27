@@ -9,6 +9,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import {
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 	AppDiscoveryServiceV8,
 	type DiscoveredApplication,
 } from '@/v8/services/appDiscoveryServiceV8';
@@ -68,7 +69,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				setTokenStatus(status);
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to check token status:`, error);
+				logger.error(Failed to check token status:`, error);
 				setTokenStatus({
 					status: 'missing',
 					message: 'Failed to check token status',
@@ -89,18 +90,18 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 
 	// Memoized handleDiscover to prevent infinite loops
 	const handleDiscover = useCallback(async () => {
-		console.log(`${MODULE_TAG} Starting application discovery...`);
+		logger.debug(Starting application discovery...`);
 
 		// Validate environment ID
 		if (!environmentId.trim()) {
-			console.error(`${MODULE_TAG} Missing environment ID`);
+			logger.error(Missing environment ID`);
 			toastV8.error('Environment ID is required');
 			return;
 		}
 
 		// Validate worker token status
 		if (!tokenStatus.isValid) {
-			console.error(`${MODULE_TAG} Invalid worker token status:`, tokenStatus);
+			logger.error(Invalid worker token status:`, tokenStatus);
 			toastV8.error(`Worker token issue: ${tokenStatus.message}`);
 			return;
 		}
@@ -109,13 +110,13 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 		setApps([]);
 
 		try {
-			console.log(`${MODULE_TAG} Getting worker token from global service...`);
+			logger.debug(Getting worker token from global service...`);
 
 			// Get worker token directly from global service
 			const workerToken = await workerTokenServiceV8.getToken();
 
 			// Enhanced debug logging
-			console.log(`${MODULE_TAG} Worker token retrieved:`, {
+			logger.debug(Worker token retrieved:`, {
 				hasToken: !!workerToken,
 				tokenType: typeof workerToken,
 				tokenLength: workerToken ? workerToken.length : 0,
@@ -124,7 +125,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 			});
 
 			if (!workerToken || typeof workerToken !== 'string' || !workerToken.trim()) {
-				console.error(`${MODULE_TAG} Invalid worker token:`, {
+				logger.error(Invalid worker token:`, {
 					token: workerToken,
 					type: typeof workerToken,
 					isString: typeof workerToken === 'string',
@@ -134,14 +135,14 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 				return;
 			}
 
-			console.log(`${MODULE_TAG} Calling AppDiscoveryServiceV8.discoverApplications...`);
+			logger.debug(Calling AppDiscoveryServiceV8.discoverApplications...`);
 
 			const discovered = await AppDiscoveryServiceV8.discoverApplications(
 				environmentId.trim(),
 				workerToken.trim()
 			);
 
-			console.log(`${MODULE_TAG} Discovery result:`, {
+			logger.debug(Discovery result:`, {
 				hasData: !!discovered,
 				isArray: Array.isArray(discovered),
 				length: discovered?.length || 0,
@@ -162,11 +163,11 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 					})
 				);
 
-				console.log(`${MODULE_TAG} Successfully mapped ${mappedApps.length} applications`);
+				logger.debug(Successfully mapped ${mappedApps.length} applications`);
 				setApps(mappedApps);
 				toastV8.success(`Found ${mappedApps.length} application(s)`);
 			} else {
-				console.warn(`${MODULE_TAG} No applications found`, {
+				logger.warn(No applications found`, {
 					discovered,
 					environmentId,
 					tokenValid: tokenStatus.isValid,
@@ -174,7 +175,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 				toastV8.warning('No applications found in this environment');
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Discovery failed:`, {
+			logger.error(Discovery failed:`, {
 				error: error,
 				message: error instanceof Error ? error.message : 'Unknown error',
 				stack: error instanceof Error ? error.stack : 'No stack trace',

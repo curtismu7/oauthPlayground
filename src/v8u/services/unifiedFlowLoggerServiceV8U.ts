@@ -20,6 +20,25 @@ const MODULE_TAG = '[📊 UNIFIED-FLOW-LOGGER-V8U]';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'success';
 
+// Log level priority (higher number = higher priority)
+const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
+	debug: 0,
+	info: 1,
+	success: 1,
+	warn: 2,
+	error: 3,
+};
+
+// Determine minimum log level based on environment
+const getMinimumLogLevel = (): LogLevel => {
+	// In production, only show errors
+	if (import.meta.env.PROD) {
+		return 'error';
+	}
+	// In development, show all logs
+	return 'debug';
+};
+
 export interface LogContext {
 	flowType?: FlowType;
 	specVersion?: SpecVersion;
@@ -52,6 +71,23 @@ export class UnifiedFlowLoggerService {
 		timestamp: number;
 	}> = [];
 	private static maxHistory = 200;
+	private static minimumLogLevel: LogLevel = getMinimumLogLevel();
+
+	/**
+	 * Set minimum log level (useful for debugging)
+	 */
+	static setMinimumLogLevel(level: LogLevel): void {
+		UnifiedFlowLoggerService.minimumLogLevel = level;
+	}
+
+	/**
+	 * Check if a log level should be output
+	 */
+	private static shouldLog(level: LogLevel): boolean {
+		return (
+			LOG_LEVEL_PRIORITY[level] >= LOG_LEVEL_PRIORITY[UnifiedFlowLoggerService.minimumLogLevel]
+		);
+	}
 
 	/**
 	 * Sanitize credentials for logging (remove secrets)
@@ -110,6 +146,11 @@ export class UnifiedFlowLoggerService {
 	 * Log a message with context
 	 */
 	static log(level: LogLevel, message: string, context: LogContext = {}): void {
+		// Check if this log level should be output
+		if (!UnifiedFlowLoggerService.shouldLog(level)) {
+			return;
+		}
+
 		// Sanitize credentials in context
 		const sanitizedContext = {
 			...context,
@@ -123,7 +164,7 @@ export class UnifiedFlowLoggerService {
 			sanitizedContext
 		);
 
-		// Add to history
+		// Add to history (always track, even if not logged to console)
 		UnifiedFlowLoggerService.logHistory.push({
 			level,
 			message,
@@ -277,4 +318,12 @@ export class UnifiedFlowLoggerService {
 			2
 		);
 	}
+}
+
+// Export singleton instance for convenience
+export const logger = UnifiedFlowLoggerService;
+
+// Make available globally for debugging
+if (typeof window !== 'undefined') {
+	(window as { UnifiedFlowLoggerService?: typeof UnifiedFlowLoggerService }).UnifiedFlowLoggerService = UnifiedFlowLoggerService;
 }

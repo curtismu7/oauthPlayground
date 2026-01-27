@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 	FiActivity,
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -350,7 +351,7 @@ export const SecurityDashboardPage: React.FC = () => {
 				},
 			});
 		} catch (error) {
-			console.error('Security scan failed:', error);
+			logger.error('Security scan failed:', error);
 		} finally {
 			setIsScanning(false);
 		}
