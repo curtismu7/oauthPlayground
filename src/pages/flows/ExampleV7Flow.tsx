@@ -168,7 +168,9 @@ const ExampleV7Flow: React.FC = () => {
 					</InfoText>
 				</InfoBox>
 
-				<Button onClick={generateAuthUrl}>Generate Authorization URL</Button>
+				<div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+					<Button onClick={generateAuthUrl}>Generate Authorization URL</Button>
+				</div>
 
 				{authUrl && (
 					<GeneratedContentBox>

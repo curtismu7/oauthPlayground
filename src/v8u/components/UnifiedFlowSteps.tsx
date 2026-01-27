@@ -6221,7 +6221,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						)}
 					</div>
 
-					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
 						<ButtonSpinner
 							loading={isGeneratingAuthUrl || isPreFlightValidating}
 							onClick={handleGenerateAuthUrl}
