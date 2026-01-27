@@ -48,6 +48,10 @@ import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServic
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { createModuleLogger } from '@/utils/consoleMigrationHelper';
+
+// Create module-specific logger
+const log = createModuleLogger('src/v8u/components/UnifiedFlowSteps.tsx');
 import { ButtonSpinner } from '@/components/ui';
 import { PKCEStorageServiceV8U } from '../services/pkceStorageServiceV8U';
 import {
@@ -468,7 +472,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const navigateToStep = useCallback(
 		(step: number) => {
 			if (step < 0 || step >= totalSteps) {
-				console.warn(`${MODULE_TAG} Invalid step`, { step, totalSteps });
+				log.warn('Invalid step', { step, totalSteps });
 				return;
 			}
 			const path = `/v8u/unified/${flowType}/${step}`;
@@ -560,7 +564,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					const tokens = JSON.parse(storedTokens);
 					initialState.tokens = tokens;
 				} catch (err) {
-					console.error(`${MODULE_TAG} Failed to parse stored ${flowType} tokens`, err);
+					log.error('Failed to parse stored ' + flowType + ' tokens', err);
 				}
 			}
 		} else if (flowType === 'client-credentials') {
@@ -571,7 +575,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					// Restored client-credentials tokens from sessionStorage
 					initialState.tokens = tokens;
 				} catch (err) {
-					console.error(`${MODULE_TAG} Failed to parse stored client-credentials tokens`, err);
+					log.error('Failed to parse stored client-credentials tokens', err);
 				}
 			}
 		} else if (flowType === 'device-code') {
@@ -589,7 +593,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					// CRITICAL: Initialize ref with restored device code
 					deviceCodeRef.current = deviceData.deviceCode;
 				} catch (err) {
-					console.error(`${MODULE_TAG} Failed to parse stored device code data`, err);
+					log.error('Failed to parse stored device code data', err);
 				}
 			}
 		}
@@ -698,8 +702,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			isPKCERequired &&
 			(!flowState.codeVerifier || !flowState.codeChallenge)
 		) {
-			console.log(
-				`${MODULE_TAG} [PKCE VALIDATION] PKCE codes required but missing - redirecting to PKCE step`,
+			log(
+				'[PKCE VALIDATION] PKCE codes required but missing - redirecting to PKCE step',
 				{
 					currentStep,
 					hasCodeVerifier: !!flowState.codeVerifier,
@@ -816,7 +820,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Helper function to handle token success - skip modal and proceed to next step
 	const showTokenSuccessModal = useCallback(
 		(tokens: TokenResponse) => {
-			console.log(`${MODULE_TAG} ✅ Tokens received - proceeding to next step`);
+			log('✅ Tokens received - proceeding to next step');
 
 			// Filter tokens based on spec version
 			const filteredTokens = filterTokensBySpec(tokens);
@@ -905,13 +909,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					// Fallback to standard PingOne UserInfo endpoint format
 					// This is the default endpoint format for PingOne environments
 					userInfoEndpoint = `https://auth.pingone.com/${environmentId}/as/userinfo`;
-					console.warn(`${MODULE_TAG} Discovery failed, using fallback UserInfo endpoint`, {
+					log.warn('Discovery failed, using fallback UserInfo endpoint', {
 						userInfoEndpoint,
 						discoveryError: discoveryResult.error,
 					});
 				} else {
 					userInfoEndpoint = discoveryResult.data.userInfoEndpoint;
-					console.log(`${MODULE_TAG} Fetching UserInfo via backend proxy`, { userInfoEndpoint });
+					log('Fetching UserInfo via backend proxy', { userInfoEndpoint });
 				}
 
 				/**
