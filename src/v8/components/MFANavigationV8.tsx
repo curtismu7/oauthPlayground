@@ -97,9 +97,10 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 						style={{
 							fontWeight: currentPage === 'hub' ? '600' : '500',
 							flex: 1,
-							background: '#3b82f6',
-							color: 'white',
+							background: currentPage === 'hub' ? '#3b82f6' : '#f3f4f6',
+							color: currentPage === 'hub' ? 'white' : '#1f2937',
 							border: '2px solid #3b82f6',
+							boxShadow: currentPage === 'hub' ? '0 0 0 3px rgba(59, 130, 246, 0.3)' : 'none',
 						}}
 					>
 						🏠 MFA Hub
@@ -112,6 +113,10 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 						style={{
 							fontWeight: currentPage === 'management' ? '600' : '500',
 							flex: 1,
+							background: currentPage === 'management' ? '#10b981' : '#f3f4f6',
+							color: currentPage === 'management' ? 'white' : '#1f2937',
+							border: '2px solid #10b981',
+							boxShadow: currentPage === 'management' ? '0 0 0 3px rgba(16, 185, 129, 0.3)' : 'none',
 						}}
 					>
 						🔧 Device Management
@@ -124,6 +129,10 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 						style={{
 							fontWeight: currentPage === 'ordering' ? '600' : '500',
 							flex: 1,
+							background: currentPage === 'ordering' ? '#f59e0b' : '#f3f4f6',
+							color: currentPage === 'ordering' ? 'white' : '#1f2937',
+							border: '2px solid #f59e0b',
+							boxShadow: currentPage === 'ordering' ? '0 0 0 3px rgba(245, 158, 11, 0.3)' : 'none',
 						}}
 					>
 						📋 Device Ordering
@@ -136,6 +145,10 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 						style={{
 							fontWeight: currentPage === 'reporting' ? '600' : '500',
 							flex: 1,
+							background: currentPage === 'reporting' ? '#8b5cf6' : '#f3f4f6',
+							color: currentPage === 'reporting' ? 'white' : '#1f2937',
+							border: '2px solid #8b5cf6',
+							boxShadow: currentPage === 'reporting' ? '0 0 0 3px rgba(139, 92, 246, 0.3)' : 'none',
 						}}
 					>
 						📊 Reporting
@@ -148,6 +161,10 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 						style={{
 							fontWeight: currentPage === 'settings' ? '600' : '500',
 							flex: 1,
+							background: currentPage === 'settings' ? '#06b6d4' : '#f3f4f6',
+							color: currentPage === 'settings' ? 'white' : '#1f2937',
+							border: '2px solid #06b6d4',
+							boxShadow: currentPage === 'settings' ? '0 0 0 3px rgba(6, 182, 212, 0.3)' : 'none',
 						}}
 					>
 						⚙️ MFA Config
