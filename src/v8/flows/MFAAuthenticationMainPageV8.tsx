@@ -3715,6 +3715,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							🔥 TEST BUTTON - If you see this, buttons work!
 						</button>
 						
+						{/* TEST: Static device buttons */}
+						<button style={{background: 'orange', color: 'white', padding: '10px', margin: '5px'}}>
+							🔥 STATIC DEVICE 1 (EMAIL)
+						</button>
+						<button style={{background: 'orange', color: 'white', padding: '10px', margin: '5px'}}>
+							🔥 STATIC DEVICE 2 (FIDO2)
+						</button>
+						
 						{authState.devices.map((device, index) => {
 							console.log(`${MODULE_TAG} 🔥 Rendering device button:`, {device, index});
 							return (
