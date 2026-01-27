@@ -389,13 +389,6 @@ const createPopOutWindow = (
 											const headersText = hasHeaders ? JSON.stringify(call.headers, null, 2) : '';
 											const bodyText = hasBody ? (typeof call.body === 'string' ? call.body : JSON.stringify(call.body, null, 2)) : '';
 											const responseText = hasResponse ? JSON.stringify(call.response.data, null, 2) : '';
-											// Escape for use in JavaScript strings within HTML onclick attributes
-											// Use JSON.stringify to properly escape the text for JavaScript
-											const escapeForJsString = (text) => {
-												// JSON.stringify will properly escape all special characters
-												// Remove the surrounding quotes that JSON.stringify adds
-												return JSON.stringify(text).slice(1, -1);
-											};
 											const headersTextEscaped = hasHeaders ? escapeForJsString(headersText) : '';
 											const bodyTextEscaped = hasBody ? escapeForJsString(bodyText) : '';
 											const responseTextEscaped = hasResponse ? escapeForJsString(responseText) : '';
@@ -485,6 +478,13 @@ const createPopOutWindow = (
 					render();
 				}
 			});
+
+			// Helper function to escape text for JavaScript strings
+			const escapeForJsString = (text) => {
+				// JSON.stringify will properly escape all special characters
+				// Remove the surrounding quotes that JSON.stringify adds
+				return JSON.stringify(text).slice(1, -1);
+			};
 
 			// Initial render
 			render();
