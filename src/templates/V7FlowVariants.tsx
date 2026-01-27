@@ -481,7 +481,9 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 				</InfoText>
 			</InfoBox>
 
-			<Button>Exchange Code for Tokens</Button>
+			<div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+				<Button>Exchange Code for Tokens</Button>
+			</div>
 
 			<GeneratedContentBox>
 				<InfoTitle>OpenID Connect Token Response</InfoTitle>
