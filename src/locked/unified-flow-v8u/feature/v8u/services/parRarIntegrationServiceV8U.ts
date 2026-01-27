@@ -13,7 +13,10 @@
  */
 
 import { apiCallTrackerService } from '../../../dependencies/services/apiCallTrackerService.ts';
-import type { FlowType, SpecVersion } from '../../../dependencies/v8/services/specVersionServiceV8.ts';
+import type {
+	FlowType,
+	SpecVersion,
+} from '../../../dependencies/v8/services/specVersionServiceV8.ts';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 

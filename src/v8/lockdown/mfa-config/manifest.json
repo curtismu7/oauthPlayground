@@ -1,45 +1,44 @@
 {
-  "name": "MFA Configuration Page Lockdown",
-  "version": "1.0.0",
-  "description": "Lockdown checkpoint for MFA Configuration Page (MFAConfigurationPageV8.tsx)",
-  "checkpointDate": "2026-01-06",
-  "purpose": "Stable reference point for the MFA configuration page implementation. This checkpoint preserves the state of the configuration page that includes:",
-  "features": [
-    "Worker Token Settings (auto-renewal, silent API retrieval, show token at end)",
-    "Device Authentication Policy Settings (PingOne policy editor with dropdown selector)",
-    "Create New Policy functionality",
-    "OTP Settings (code length, auto-focus, auto-submit, validation timeout, resend delay)",
-    "PingOne MFA Settings (environment-level settings)",
-    "Policy settings: pairingDisabled, promptForNicknameOnPairing, skipUserLockVerification",
-    "OTP failure cooldown settings (duration, timeUnit)",
-    "Authentication device selection settings",
-    "Clear separation between Runtime Configuration and PingOne Policy settings"
-  ],
-  "files": [
-    {
-      "path": "snapshot/MFAConfigurationPageV8.tsx",
-      "description": "Main MFA configuration page component",
-      "version": "8.0.0"
-    },
-    {
-      "path": "snapshot/CHECKPOINT_INFO.txt",
-      "description": "Checkpoint creation timestamp and metadata"
-    }
-  ],
-  "dependencies": [
-    "MFAConfigurationServiceV8",
-    "MFAServiceV8",
-    "workerTokenServiceV8",
-    "WorkerTokenStatusServiceV8",
-    "DeviceAuthenticationPolicy type",
-    "MFAConfiguration type",
-    "MFASettings type"
-  ],
-  "notes": [
-    "This checkpoint was created after implementing pairingDisabled checks across all device registration flows",
-    "The page now properly honors all MFA policy settings including pairingDisabled, promptForNicknameOnPairing, skipUserLockVerification",
-    "Policy update now includes all required device type fields (email, totp, mobile, name, voice, sms) to satisfy PingOne validation",
-    "Runtime configuration (worker token settings) is clearly separated from PingOne policy settings"
-  ]
+	"name": "MFA Configuration Page Lockdown",
+	"version": "1.0.0",
+	"description": "Lockdown checkpoint for MFA Configuration Page (MFAConfigurationPageV8.tsx)",
+	"checkpointDate": "2026-01-06",
+	"purpose": "Stable reference point for the MFA configuration page implementation. This checkpoint preserves the state of the configuration page that includes:",
+	"features": [
+		"Worker Token Settings (auto-renewal, silent API retrieval, show token at end)",
+		"Device Authentication Policy Settings (PingOne policy editor with dropdown selector)",
+		"Create New Policy functionality",
+		"OTP Settings (code length, auto-focus, auto-submit, validation timeout, resend delay)",
+		"PingOne MFA Settings (environment-level settings)",
+		"Policy settings: pairingDisabled, promptForNicknameOnPairing, skipUserLockVerification",
+		"OTP failure cooldown settings (duration, timeUnit)",
+		"Authentication device selection settings",
+		"Clear separation between Runtime Configuration and PingOne Policy settings"
+	],
+	"files": [
+		{
+			"path": "snapshot/MFAConfigurationPageV8.tsx",
+			"description": "Main MFA configuration page component",
+			"version": "8.0.0"
+		},
+		{
+			"path": "snapshot/CHECKPOINT_INFO.txt",
+			"description": "Checkpoint creation timestamp and metadata"
+		}
+	],
+	"dependencies": [
+		"MFAConfigurationServiceV8",
+		"MFAServiceV8",
+		"workerTokenServiceV8",
+		"WorkerTokenStatusServiceV8",
+		"DeviceAuthenticationPolicy type",
+		"MFAConfiguration type",
+		"MFASettings type"
+	],
+	"notes": [
+		"This checkpoint was created after implementing pairingDisabled checks across all device registration flows",
+		"The page now properly honors all MFA policy settings including pairingDisabled, promptForNicknameOnPairing, skipUserLockVerification",
+		"Policy update now includes all required device type fields (email, totp, mobile, name, voice, sms) to satisfy PingOne validation",
+		"Runtime configuration (worker token settings) is clearly separated from PingOne policy settings"
+	]
 }
-

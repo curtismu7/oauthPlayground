@@ -26,11 +26,11 @@ export const WorkerTokenGaugeV8: React.FC<WorkerTokenGaugeV8Props> = ({
 	// Calculate percentage and color based on minutes remaining
 	const getGaugeData = () => {
 		if (!tokenStatus.isValid || !tokenStatus.minutesRemaining) {
-		return {
-			percentage: 0,
-			color: '#ef4444', // Red
-			label: 'No Token',
-		};
+			return {
+				percentage: 0,
+				color: '#ef4444', // Red
+				label: 'No Token',
+			};
 		}
 
 		const minutes = tokenStatus.minutesRemaining;
@@ -65,7 +65,7 @@ export const WorkerTokenGaugeV8: React.FC<WorkerTokenGaugeV8Props> = ({
 	const gaugeData = getGaugeData();
 	const radius = 45;
 	const circumference = 2 * Math.PI * radius;
-	
+
 	// Calculate stroke-dashoffset for the progress arc
 	const strokeDashoffset = circumference - (gaugeData.percentage / 100) * circumference;
 
@@ -213,4 +213,3 @@ export const WorkerTokenGaugeV8: React.FC<WorkerTokenGaugeV8Props> = ({
 		</div>
 	);
 };
-

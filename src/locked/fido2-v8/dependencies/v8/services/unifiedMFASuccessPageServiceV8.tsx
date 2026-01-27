@@ -34,8 +34,8 @@ import {
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { DeviceType } from '../flows/shared/MFATypes';
 
 export interface UnifiedMFASuccessPageData {
@@ -340,10 +340,13 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 	// Normalize deviceType to string for comparison
 	const deviceTypeStr = String(deviceType || '').toUpperCase();
 	const hasDocumentation =
-		deviceTypeStr && ['SMS', 'EMAIL', 'WHATSAPP', 'VOICE', 'FIDO2', 'TOTP', 'MOBILE'].includes(deviceTypeStr);
+		deviceTypeStr &&
+		['SMS', 'EMAIL', 'WHATSAPP', 'VOICE', 'FIDO2', 'TOTP', 'MOBILE'].includes(deviceTypeStr);
 	// Show button for registration flows OR FIDO2 authentication flows
-	const showDocumentationButton = hasDocumentation && (flowType === 'registration' || (flowType === 'authentication' && deviceTypeStr === 'FIDO2'));
-	
+	const showDocumentationButton =
+		hasDocumentation &&
+		(flowType === 'registration' || (flowType === 'authentication' && deviceTypeStr === 'FIDO2'));
+
 	// Debug logging for FIDO2 documentation button
 	if (deviceTypeStr === 'FIDO2' || deviceType === 'FIDO2') {
 		console.log('[UnifiedMFASuccessPageV8] FIDO2 documentation button check:', {
@@ -370,7 +373,14 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 			}}
 		>
 			{/* Top Navigation - Back to Hub Button */}
-			<div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+			<div
+				style={{
+					marginBottom: '24px',
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+				}}
+			>
 				<button
 					type="button"
 					onClick={handleGoHome}
@@ -502,9 +512,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 							</div>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 								<FiCheck size={16} color="#10b981" />
-								<span style={{ fontSize: '14px', color: '#166534' }}>
-									Access token received
-								</span>
+								<span style={{ fontSize: '14px', color: '#166534' }}>Access token received</span>
 							</div>
 						</div>
 					</div>
@@ -784,91 +792,91 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 								marginBottom: '16px',
 							}}
 						>
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-								marginBottom: '12px',
-							}}
-						>
-							<strong style={{ color: '#374151', fontSize: '14px' }}>Access Token</strong>
-							<button
-								type="button"
-								onClick={handleCopyToken}
+							<div
 								style={{
 									display: 'flex',
+									justifyContent: 'space-between',
 									alignItems: 'center',
-									gap: '6px',
-									padding: '6px 12px',
-									background: tokenCopied ? '#10b981' : '#3b82f6',
-									color: 'white',
-									border: 'none',
-									borderRadius: '6px',
-									cursor: 'pointer',
-									fontSize: '12px',
-									fontWeight: '600',
-									transition: 'background 0.2s',
-								}}
-								onMouseEnter={(e) => {
-									if (!tokenCopied) {
-										e.currentTarget.style.background = '#2563eb';
-									}
-								}}
-								onMouseLeave={(e) => {
-									if (!tokenCopied) {
-										e.currentTarget.style.background = '#3b82f6';
-									}
+									marginBottom: '12px',
 								}}
 							>
-								<FiCopy size={14} />
-								{tokenCopied ? '✓ Copied!' : 'Copy Token'}
-							</button>
-						</div>
-						<div
-							style={{
-								fontSize: '12px',
-								color: '#1f2937',
-								fontFamily: 'monospace',
-								wordBreak: 'break-all',
-								background: 'white',
-								padding: '12px',
-								borderRadius: '6px',
-								border: '1px solid #d1d5db',
-								maxHeight: '150px',
-								overflowY: 'auto',
-								lineHeight: '1.5',
-							}}
-						>
-							{completionResult.accessToken}
-						</div>
-						{TokenDisplayServiceV8.isJWT(completionResult.accessToken) && (
-							<button
-								type="button"
-								onClick={() => {
-									const decoded = TokenDisplayServiceV8.decodeJWT(completionResult.accessToken!);
-									if (decoded) {
-										const payload = JSON.stringify(decoded.payload, null, 2);
-										alert(`Token Payload:\n\n${payload}`);
-									} else {
-										toastV8.error('Failed to decode token');
-									}
-								}}
+								<strong style={{ color: '#374151', fontSize: '14px' }}>Access Token</strong>
+								<button
+									type="button"
+									onClick={handleCopyToken}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '6px',
+										padding: '6px 12px',
+										background: tokenCopied ? '#10b981' : '#3b82f6',
+										color: 'white',
+										border: 'none',
+										borderRadius: '6px',
+										cursor: 'pointer',
+										fontSize: '12px',
+										fontWeight: '600',
+										transition: 'background 0.2s',
+									}}
+									onMouseEnter={(e) => {
+										if (!tokenCopied) {
+											e.currentTarget.style.background = '#2563eb';
+										}
+									}}
+									onMouseLeave={(e) => {
+										if (!tokenCopied) {
+											e.currentTarget.style.background = '#3b82f6';
+										}
+									}}
+								>
+									<FiCopy size={14} />
+									{tokenCopied ? '✓ Copied!' : 'Copy Token'}
+								</button>
+							</div>
+							<div
 								style={{
-									marginTop: '8px',
-									padding: '6px 12px',
-									background: '#f3f4f6',
-									color: '#374151',
-									border: '1px solid #d1d5db',
-									borderRadius: '6px',
-									cursor: 'pointer',
 									fontSize: '12px',
-									fontWeight: '600',
+									color: '#1f2937',
+									fontFamily: 'monospace',
+									wordBreak: 'break-all',
+									background: 'white',
+									padding: '12px',
+									borderRadius: '6px',
+									border: '1px solid #d1d5db',
+									maxHeight: '150px',
+									overflowY: 'auto',
+									lineHeight: '1.5',
 								}}
 							>
-								🔍 Decode Token
-							</button>
-						)}
+								{completionResult.accessToken}
+							</div>
+							{TokenDisplayServiceV8.isJWT(completionResult.accessToken) && (
+								<button
+									type="button"
+									onClick={() => {
+										const decoded = TokenDisplayServiceV8.decodeJWT(completionResult.accessToken!);
+										if (decoded) {
+											const payload = JSON.stringify(decoded.payload, null, 2);
+											alert(`Token Payload:\n\n${payload}`);
+										} else {
+											toastV8.error('Failed to decode token');
+										}
+									}}
+									style={{
+										marginTop: '8px',
+										padding: '6px 12px',
+										background: '#f3f4f6',
+										color: '#374151',
+										border: '1px solid #d1d5db',
+										borderRadius: '6px',
+										cursor: 'pointer',
+										fontSize: '12px',
+										fontWeight: '600',
+									}}
+								>
+									🔍 Decode Token
+								</button>
+							)}
 						</div>
 
 						{/* Token Metadata */}
@@ -892,9 +900,11 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 										{completionResult.expiresIn} seconds
 										{timestamp && (
 											<span style={{ display: 'block', fontSize: '12px', marginTop: '4px' }}>
-												({new Date(
+												(
+												{new Date(
 													new Date(timestamp).getTime() + completionResult.expiresIn * 1000
-												).toLocaleString()})
+												).toLocaleString()}
+												)
 											</span>
 										)}
 									</span>

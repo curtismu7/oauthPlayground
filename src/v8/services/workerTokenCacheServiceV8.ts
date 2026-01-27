@@ -32,7 +32,7 @@ interface CacheValidationResult {
 
 /**
  * Worker Token Cache Service V8
- * 
+ *
  * Provides caching functionality for worker tokens to enable
  * preflight validation when fresh tokens aren't available.
  */
@@ -53,7 +53,12 @@ export class WorkerTokenCacheServiceV8 {
 	/**
 	 * Cache a worker token for future validation use
 	 */
-	async cacheWorkerToken(token: string, environmentId: string, clientId: string, scopes: string[]): Promise<void> {
+	async cacheWorkerToken(
+		token: string,
+		environmentId: string,
+		clientId: string,
+		scopes: string[]
+	): Promise<void> {
 		console.log(`${MODULE_TAG} Caching worker token for validation`);
 
 		const cachedToken: CachedWorkerToken = {
@@ -63,7 +68,7 @@ export class WorkerTokenCacheServiceV8 {
 			lastUsedAt: Date.now(),
 			environmentId,
 			clientId,
-			scopes
+			scopes,
 		};
 
 		try {
@@ -78,7 +83,10 @@ export class WorkerTokenCacheServiceV8 {
 	 * Get a valid worker token for preflight validation
 	 * Priority: 1) Current token, 2) Cached token, 3) null
 	 */
-	async getWorkerTokenForValidation(environmentId?: string, clientId?: string): Promise<CacheValidationResult> {
+	async getWorkerTokenForValidation(
+		environmentId?: string,
+		clientId?: string
+	): Promise<CacheValidationResult> {
 		console.log(`${MODULE_TAG} Getting worker token for validation`);
 
 		// Try to get current token first
@@ -89,7 +97,7 @@ export class WorkerTokenCacheServiceV8 {
 				isValid: true,
 				token: currentToken,
 				source: 'current',
-				issues: []
+				issues: [],
 			};
 		}
 
@@ -101,7 +109,7 @@ export class WorkerTokenCacheServiceV8 {
 				isValid: true,
 				token: cachedToken.token,
 				source: 'cache',
-				issues: []
+				issues: [],
 			};
 		}
 
@@ -110,14 +118,18 @@ export class WorkerTokenCacheServiceV8 {
 			isValid: false,
 			token: null,
 			source: 'none',
-			issues: ['No worker token available. Please generate a worker token first.']
+			issues: ['No worker token available. Please generate a worker token first.'],
 		};
 	}
 
 	/**
 	 * Update the cache when a new token is generated
 	 */
-	async updateCacheOnTokenGeneration(environmentId: string, clientId: string, scopes: string[]): Promise<void> {
+	async updateCacheOnTokenGeneration(
+		environmentId: string,
+		clientId: string,
+		scopes: string[]
+	): Promise<void> {
 		console.log(`${MODULE_TAG} Updating cache after token generation`);
 
 		const token = await unifiedWorkerTokenServiceV2.getToken();
@@ -160,7 +172,7 @@ export class WorkerTokenCacheServiceV8 {
 				cacheAge: null,
 				cacheExpiresAt: null,
 				environmentId: null,
-				clientId: null
+				clientId: null,
 			};
 		}
 
@@ -170,7 +182,7 @@ export class WorkerTokenCacheServiceV8 {
 			cacheAge: now - cachedToken.createdAt,
 			cacheExpiresAt: cachedToken.expiresAt,
 			environmentId: cachedToken.environmentId,
-			clientId: cachedToken.clientId
+			clientId: cachedToken.clientId,
 		};
 	}
 
@@ -230,7 +242,10 @@ export class WorkerTokenCacheServiceV8 {
 	/**
 	 * Get cached token with validation
 	 */
-	private async getCachedToken(environmentId?: string, clientId?: string): Promise<CachedWorkerToken | null> {
+	private async getCachedToken(
+		environmentId?: string,
+		clientId?: string
+	): Promise<CachedWorkerToken | null> {
 		const token = await this.loadCachedToken();
 		if (!token) return null;
 

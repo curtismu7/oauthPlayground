@@ -40,8 +40,8 @@ import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationService
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
@@ -240,14 +240,18 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 
 					toastV8.success('User token received and saved!');
 				} catch (error) {
-					UnifiedFlowErrorHandler.handleError(error, {
-						flowType: 'mfa' as any,
-						deviceType: 'WHATSAPP',
-						operation: 'processCallback',
-					}, {
-						showToast: true,
-						logError: true,
-					});
+					UnifiedFlowErrorHandler.handleError(
+						error,
+						{
+							flowType: 'mfa' as any,
+							deviceType: 'WHATSAPP',
+							operation: 'processCallback',
+						},
+						{
+							showToast: true,
+							logError: true,
+						}
+					);
 
 					sessionStorage.removeItem('user_login_state_v8');
 					sessionStorage.removeItem('user_login_code_verifier_v8');
@@ -379,14 +383,18 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 			);
 			setDeviceAuthPolicies(policies);
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(error, {
-				flowType: 'mfa' as any,
-				deviceType: 'WHATSAPP',
-				operation: 'loadPolicies',
-			}, {
-				showToast: tokenStatus.isValid, // Only show toast if worker token is valid
-				logError: true,
-			});
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'mfa' as any,
+					deviceType: 'WHATSAPP',
+					operation: 'loadPolicies',
+				},
+				{
+					showToast: tokenStatus.isValid, // Only show toast if worker token is valid
+					logError: true,
+				}
+			);
 			setPoliciesError(parsed.userFriendlyMessage);
 		} finally {
 			setIsLoadingPolicies(false);
@@ -948,38 +956,41 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 			</div>
 
 			{/* Worker Token Modal */}
-			{showWorkerTokenModal && (() => {
-				// Check if we should show token only (matches MFA pattern)
-				try {
-					const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
-					const config = MFAConfigurationServiceV8.loadConfiguration();
-					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-					
-					// Show token-only if showTokenAtEnd is ON and token is valid
-					const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
-					
-					return (
-				<WorkerTokenModalV8
-					isOpen={showWorkerTokenModal}
-					onClose={() => {
-						setShowWorkerTokenModal(false);
-						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-					}}
-							showTokenOnly={showTokenOnly}
-						/>
-					);
-				} catch {
-					return (
-						<WorkerTokenModalV8
-							isOpen={showWorkerTokenModal}
-							onClose={() => {
-								setShowWorkerTokenModal(false);
-								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-							}}
-						/>
-					);
-				}
-			})()}
+			{showWorkerTokenModal &&
+				(() => {
+					// Check if we should show token only (matches MFA pattern)
+					try {
+						const {
+							MFAConfigurationServiceV8,
+						} = require('@/v8/services/mfaConfigurationServiceV8');
+						const config = MFAConfigurationServiceV8.loadConfiguration();
+						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+
+						// Show token-only if showTokenAtEnd is ON and token is valid
+						const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+
+						return (
+							<WorkerTokenModalV8
+								isOpen={showWorkerTokenModal}
+								onClose={() => {
+									setShowWorkerTokenModal(false);
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+								}}
+								showTokenOnly={showTokenOnly}
+							/>
+						);
+					} catch {
+						return (
+							<WorkerTokenModalV8
+								isOpen={showWorkerTokenModal}
+								onClose={() => {
+									setShowWorkerTokenModal(false);
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+								}}
+							/>
+						);
+					}
+				})()}
 
 			{/* User Login Modal */}
 			{showUserLoginModal && (

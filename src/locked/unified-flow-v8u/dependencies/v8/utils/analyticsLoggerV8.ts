@@ -6,7 +6,7 @@
  *
  * configured for CORS requests from https://localhost:3000. This causes console spam with
  * CORS policy errors that cannot be suppressed programmatically.
- * 
+ *
  * To re-enable analytics, fix the CORS configuration on the analytics server first.
  */
 

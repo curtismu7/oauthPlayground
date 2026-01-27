@@ -158,7 +158,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	useEffect(() => {
 		// Try EnvironmentIdServiceV8 first
 		let envId = EnvironmentIdServiceV8.getEnvironmentId();
-		
+
 		// Fallback to worker token credentials if not found
 		if (!envId) {
 			try {
@@ -168,7 +168,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				// Ignore errors
 			}
 		}
-		
+
 		// Fallback to MFA flow credentials if still not found
 		if (!envId) {
 			try {
@@ -185,7 +185,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				// Ignore errors
 			}
 		}
-		
+
 		if (envId) {
 			setEnvironmentId(envId);
 		}
@@ -232,127 +232,131 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 	// Load FIDO2 policies function
 	const loadFido2Policies = useCallback(async () => {
+		// #region agent log
+		// #endregion
+		if (!environmentId || !tokenStatus.isValid) {
 			// #region agent log
 			// #endregion
-			if (!environmentId || !tokenStatus.isValid) {
-				// #region agent log
-				// #endregion
-				return;
+			return;
+		}
+
+		setIsLoadingPolicies(true);
+		setPoliciesError(null);
+
+		try {
+			const workerToken = await workerTokenServiceV8.getToken();
+			// #region agent log
+			// #endregion
+			if (!workerToken) {
+				throw new Error('Worker token not found');
 			}
 
-			setIsLoadingPolicies(true);
-			setPoliciesError(null);
+			const credentialsData = await workerTokenServiceV8.loadCredentials();
+			const region = credentialsData?.region || 'na';
 
-			try {
-				const workerToken = await workerTokenServiceV8.getToken();
-				// #region agent log
-				// #endregion
-				if (!workerToken) {
-					throw new Error('Worker token not found');
-				}
+			const params = new URLSearchParams({
+				environmentId,
+				workerToken: workerToken.trim(),
+				region,
+			});
+			const apiUrl = `/api/pingone/mfa/fido2-policies?${params.toString()}`;
+			// #region agent log
+			// #endregion
 
-				const credentialsData = await workerTokenServiceV8.loadCredentials();
-				const region = credentialsData?.region || 'na';
+			const response = await fetch(apiUrl, {
+				method: 'GET',
+				headers: { 'Content-Type': 'application/json' },
+			});
 
-				const params = new URLSearchParams({
-					environmentId,
-					workerToken: workerToken.trim(),
-					region,
-				});
-				const apiUrl = `/api/pingone/mfa/fido2-policies?${params.toString()}`;
-				// #region agent log
-				// #endregion
+			// #region agent log
+			// #endregion
 
-				const response = await fetch(apiUrl, {
-					method: 'GET',
-					headers: { 'Content-Type': 'application/json' },
-				});
-
-				// #region agent log
-				// #endregion
-
-				if (!response.ok) {
-					const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-					const errorMessage =
-						errorData.message ||
-						errorData.error ||
-						`Failed to load FIDO2 policies: ${response.status} ${response.statusText}`;
-					// #region agent log
-					// #endregion
-					console.error(`${MODULE_TAG} API error:`, { status: response.status, errorData });
-					throw new Error(errorMessage);
-				}
-
-				const data = await response.json();
-				// #region agent log
-				// #endregion
-				console.log(`${MODULE_TAG} FIDO2 policies response:`, data);
-				
-				// Handle different response structures
-				let policiesList: Array<{ id: string; name: string; default?: boolean; description?: string }> = [];
-				
-				if (Array.isArray(data)) {
-					// Direct array response
-					policiesList = data;
-					// #region agent log
-					// #endregion
-				} else if (data._embedded?.fido2Policies) {
-					// Paginated response with _embedded
-					policiesList = data._embedded.fido2Policies;
-					// #region agent log
-					// #endregion
-				} else if (data._embedded && Array.isArray(data._embedded)) {
-					// Alternative embedded structure
-					policiesList = data._embedded;
-					// #region agent log
-					// #endregion
-				} else if (data.items && Array.isArray(data.items)) {
-					// Items array
-					policiesList = data.items;
-					// #region agent log
-					// #endregion
-				} else {
-					console.warn(`${MODULE_TAG} Unexpected response structure:`, data);
-					// #region agent log
-					// #endregion
-					// Try to extract any array from the response
-					const keys = Object.keys(data);
-					for (const key of keys) {
-						if (Array.isArray(data[key])) {
-							policiesList = data[key];
-							break;
-						}
-					}
-				}
-
-				// #region agent log
-				// #endregion
-				setFido2Policies(policiesList);
-				setPoliciesError(null); // Clear any previous errors
-
-				// Auto-select default policy
-				if (policiesList.length > 0) {
-					const defaultPolicy =
-						policiesList.find((p: { default?: boolean }) => p.default) || policiesList[0];
-					if (defaultPolicy.id) {
-						setSelectedFido2PolicyId(defaultPolicy.id);
-					}
-				} else {
-					// No policies found - this is not an error, just empty result
-					console.log(`${MODULE_TAG} No FIDO2 policies found in environment ${environmentId}`);
-				}
-			} catch (error) {
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
 				const errorMessage =
-					error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
+					errorData.message ||
+					errorData.error ||
+					`Failed to load FIDO2 policies: ${response.status} ${response.statusText}`;
 				// #region agent log
 				// #endregion
-				setPoliciesError(errorMessage);
-				setFido2Policies([]); // Clear policies on error
-				console.error(`${MODULE_TAG} Failed to load FIDO2 policies:`, error);
-			} finally {
-				setIsLoadingPolicies(false);
+				console.error(`${MODULE_TAG} API error:`, { status: response.status, errorData });
+				throw new Error(errorMessage);
 			}
-		}, [environmentId, tokenStatus.isValid]);
+
+			const data = await response.json();
+			// #region agent log
+			// #endregion
+			console.log(`${MODULE_TAG} FIDO2 policies response:`, data);
+
+			// Handle different response structures
+			let policiesList: Array<{
+				id: string;
+				name: string;
+				default?: boolean;
+				description?: string;
+			}> = [];
+
+			if (Array.isArray(data)) {
+				// Direct array response
+				policiesList = data;
+				// #region agent log
+				// #endregion
+			} else if (data._embedded?.fido2Policies) {
+				// Paginated response with _embedded
+				policiesList = data._embedded.fido2Policies;
+				// #region agent log
+				// #endregion
+			} else if (data._embedded && Array.isArray(data._embedded)) {
+				// Alternative embedded structure
+				policiesList = data._embedded;
+				// #region agent log
+				// #endregion
+			} else if (data.items && Array.isArray(data.items)) {
+				// Items array
+				policiesList = data.items;
+				// #region agent log
+				// #endregion
+			} else {
+				console.warn(`${MODULE_TAG} Unexpected response structure:`, data);
+				// #region agent log
+				// #endregion
+				// Try to extract any array from the response
+				const keys = Object.keys(data);
+				for (const key of keys) {
+					if (Array.isArray(data[key])) {
+						policiesList = data[key];
+						break;
+					}
+				}
+			}
+
+			// #region agent log
+			// #endregion
+			setFido2Policies(policiesList);
+			setPoliciesError(null); // Clear any previous errors
+
+			// Auto-select default policy
+			if (policiesList.length > 0) {
+				const defaultPolicy =
+					policiesList.find((p: { default?: boolean }) => p.default) || policiesList[0];
+				if (defaultPolicy.id) {
+					setSelectedFido2PolicyId(defaultPolicy.id);
+				}
+			} else {
+				// No policies found - this is not an error, just empty result
+				console.log(`${MODULE_TAG} No FIDO2 policies found in environment ${environmentId}`);
+			}
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
+			// #region agent log
+			// #endregion
+			setPoliciesError(errorMessage);
+			setFido2Policies([]); // Clear policies on error
+			console.error(`${MODULE_TAG} Failed to load FIDO2 policies:`, error);
+		} finally {
+			setIsLoadingPolicies(false);
+		}
+	}, [environmentId, tokenStatus.isValid]);
 
 	// Load FIDO2 policies on mount and when dependencies change
 	useEffect(() => {
@@ -514,13 +518,15 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							onClick={async () => {
 								// Pass current checkbox values to override config (page checkboxes take precedence)
 								// forceShowModal=true because user explicitly clicked the button - always show modal
-								const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+								const { handleShowWorkerTokenModal } = await import(
+									'@/v8/utils/workerTokenModalHelperV8'
+								);
 								await handleShowWorkerTokenModal(
 									setShowWorkerTokenModal,
 									setTokenStatus,
-									silentApiRetrieval,  // Page checkbox value takes precedence
-									showTokenAtEnd,      // Page checkbox value takes precedence
-									true                  // Force show modal - user clicked button
+									silentApiRetrieval, // Page checkbox value takes precedence
+									showTokenAtEnd, // Page checkbox value takes precedence
+									true // Force show modal - user clicked button
 								);
 							}}
 							style={{
@@ -536,9 +542,11 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						>
 							Get Worker Token
 						</button>
-						
+
 						{/* Worker Token Settings Checkboxes */}
-						<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+						<div
+							style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}
+						>
 							<label
 								style={{
 									display: 'flex',
@@ -568,21 +576,29 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 										config.workerToken.silentApiRetrieval = newValue;
 										MFAConfigurationServiceV8.saveConfiguration(config);
 										// Dispatch event to notify other components
-										window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+										window.dispatchEvent(
+											new CustomEvent('mfaConfigurationUpdated', {
+												detail: { workerToken: config.workerToken },
+											})
+										);
 										toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
-										
+
 										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 										if (newValue) {
 											const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 											if (!currentStatus.isValid) {
-												console.log('[FIDO2-CONFIG-V8] Silent API retrieval enabled, attempting to fetch token now...');
-												const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+												console.log(
+													'[FIDO2-CONFIG-V8] Silent API retrieval enabled, attempting to fetch token now...'
+												);
+												const { handleShowWorkerTokenModal } = await import(
+													'@/v8/utils/workerTokenModalHelperV8'
+												);
 												await handleShowWorkerTokenModal(
 													setShowWorkerTokenModal,
 													setTokenStatus,
-													newValue,  // Use new value
+													newValue, // Use new value
 													showTokenAtEnd,
-													false      // Not forced - respect silent setting
+													false // Not forced - respect silent setting
 												);
 											}
 										}
@@ -634,7 +650,11 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 										config.workerToken.showTokenAtEnd = newValue;
 										MFAConfigurationServiceV8.saveConfiguration(config);
 										// Dispatch event to notify other components
-										window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+										window.dispatchEvent(
+											new CustomEvent('mfaConfigurationUpdated', {
+												detail: { workerToken: config.workerToken },
+											})
+										);
 										toastV8.info(`Show Token After Generation set to: ${newValue}`);
 									}}
 									style={{
@@ -1222,7 +1242,14 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								<p style={{ margin: 0, fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
 									Please check:
 								</p>
-								<ul style={{ margin: '4px 0', paddingLeft: '20px', fontSize: '12px', color: '#6b7280' }}>
+								<ul
+									style={{
+										margin: '4px 0',
+										paddingLeft: '20px',
+										fontSize: '12px',
+										color: '#6b7280',
+									}}
+								>
 									<li>Worker token is valid and has not expired</li>
 									<li>Worker token has permissions to read FIDO2 policies</li>
 									<li>Environment ID is correct</li>
@@ -2039,38 +2066,39 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 			</div>
 
 			{/* Worker Token Modal */}
-			{showWorkerTokenModal && (() => {
-				// Check if we should show token only (matches MFA pattern)
-				try {
-					const config = MFAConfigurationServiceV8.loadConfiguration();
-					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-					
-					// Show token-only if showTokenAtEnd is ON and token is valid
-					const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
-					
-					return (
-						<WorkerTokenModalV8
-							isOpen={showWorkerTokenModal}
-							onClose={() => {
-								setShowWorkerTokenModal(false);
-								// Refresh token status when modal closes (matches MFA pattern)
-								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-							}}
-							showTokenOnly={showTokenOnly}
-						/>
-					);
-				} catch {
-					return (
-						<WorkerTokenModalV8
-							isOpen={showWorkerTokenModal}
-							onClose={() => {
-								setShowWorkerTokenModal(false);
-								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-							}}
-						/>
-					);
-				}
-			})()}
+			{showWorkerTokenModal &&
+				(() => {
+					// Check if we should show token only (matches MFA pattern)
+					try {
+						const config = MFAConfigurationServiceV8.loadConfiguration();
+						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+
+						// Show token-only if showTokenAtEnd is ON and token is valid
+						const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+
+						return (
+							<WorkerTokenModalV8
+								isOpen={showWorkerTokenModal}
+								onClose={() => {
+									setShowWorkerTokenModal(false);
+									// Refresh token status when modal closes (matches MFA pattern)
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+								}}
+								showTokenOnly={showTokenOnly}
+							/>
+						);
+					} catch {
+						return (
+							<WorkerTokenModalV8
+								isOpen={showWorkerTokenModal}
+								onClose={() => {
+									setShowWorkerTokenModal(false);
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+								}}
+							/>
+						);
+					}
+				})()}
 		</div>
 	);
 };

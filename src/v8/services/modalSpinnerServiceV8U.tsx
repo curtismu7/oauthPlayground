@@ -5,7 +5,7 @@
  * @version 8.0.0
  */
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 export interface ModalSpinnerState {
 	show: boolean;
@@ -29,24 +29,24 @@ class ModalSpinnerServiceV8U {
 	 * Get or create a modal spinner instance
 	 */
 	static getInstance(key: string, initialState?: Partial<ModalSpinnerState>): ModalSpinnerState {
-		if (!this.instances.has(key)) {
-			this.instances.set(key, {
+		if (!ModalSpinnerServiceV8U.instances.has(key)) {
+			ModalSpinnerServiceV8U.instances.set(key, {
 				show: false,
 				message: '',
 				theme: 'blue',
 				...initialState,
 			});
 		}
-		return this.instances.get(key)!;
+		return ModalSpinnerServiceV8U.instances.get(key)!;
 	}
 
 	/**
 	 * Update modal spinner state
 	 */
 	static updateState(key: string, updates: Partial<ModalSpinnerState>): void {
-		const current = this.instances.get(key);
+		const current = ModalSpinnerServiceV8U.instances.get(key);
 		if (current) {
-			this.instances.set(key, { ...current, ...updates });
+			ModalSpinnerServiceV8U.instances.set(key, { ...current, ...updates });
 		}
 	}
 
@@ -54,35 +54,35 @@ class ModalSpinnerServiceV8U {
 	 * Show modal spinner
 	 */
 	static show(key: string, message: string, theme?: ModalSpinnerState['theme']): void {
-		this.updateState(key, { show: true, message, theme });
+		ModalSpinnerServiceV8U.updateState(key, { show: true, message, theme });
 	}
 
 	/**
 	 * Hide modal spinner
 	 */
 	static hide(key: string): void {
-		this.updateState(key, { show: false, message: '' });
+		ModalSpinnerServiceV8U.updateState(key, { show: false, message: '' });
 	}
 
 	/**
 	 * Update message
 	 */
 	static updateMessage(key: string, message: string): void {
-		this.updateState(key, { message });
+		ModalSpinnerServiceV8U.updateState(key, { message });
 	}
 
 	/**
 	 * Get current state
 	 */
 	static getState(key: string): ModalSpinnerState | undefined {
-		return this.instances.get(key);
+		return ModalSpinnerServiceV8U.instances.get(key);
 	}
 
 	/**
 	 * Clean up instance
 	 */
 	static cleanup(key: string): void {
-		this.instances.delete(key);
+		ModalSpinnerServiceV8U.instances.delete(key);
 	}
 
 	/**
@@ -90,7 +90,7 @@ class ModalSpinnerServiceV8U {
 	 */
 	static getAllActive(): Map<string, ModalSpinnerState> {
 		const active = new Map<string, ModalSpinnerState>();
-		for (const [key, state] of this.instances) {
+		for (const [key, state] of ModalSpinnerServiceV8U.instances) {
 			if (state.show) {
 				active.set(key, state);
 			}
@@ -102,8 +102,8 @@ class ModalSpinnerServiceV8U {
 	 * Hide all modal spinners
 	 */
 	static hideAll(): void {
-		for (const [key] of this.instances.keys()) {
-			this.hide(key);
+		for (const [key] of ModalSpinnerServiceV8U.instances.keys()) {
+			ModalSpinnerServiceV8U.hide(key);
 		}
 	}
 }

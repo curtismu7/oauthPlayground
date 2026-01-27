@@ -537,7 +537,9 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 							marginBottom: '20px',
 						}}
 					>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+						<div
+							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
+						>
 							<FiShield size={20} color="#3b82f6" />
 							<h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1e40af' }}>
 								ID Token (OIDC)

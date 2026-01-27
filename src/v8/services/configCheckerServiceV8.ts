@@ -129,56 +129,56 @@ export class ConfigCheckerServiceV8 {
 				workerToken: workerToken,
 			});
 
-		const proxyUrl = `/api/pingone/applications?${searchParams.toString()}`;
-		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/applications`;
+			const proxyUrl = `/api/pingone/applications?${searchParams.toString()}`;
+			const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/applications`;
 
-		console.log(`${MODULE_TAG} Fetching app config via backend proxy`, { proxyUrl });
+			console.log(`${MODULE_TAG} Fetching app config via backend proxy`, { proxyUrl });
 
-		// Track API call for documentation
-		const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
-		const startTime = Date.now();
-		const callId = apiCallTrackerService.trackApiCall({
-			method: 'GET',
-			url: proxyUrl,
-			actualPingOneUrl: actualPingOneUrl,
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: 'Bearer [WORKER_TOKEN]',
-			},
-			step: 'preflight-validation-fetch-config',
-			flowType: 'preflight-validation',
-			isProxy: true,
-		});
-
-		// Fetch from backend proxy
-		const response = await fetch(proxyUrl, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-		});
-
-		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({}));
-			console.error(`${MODULE_TAG} Failed to fetch app config`, {
-				status: response.status,
-				statusText: response.statusText,
-				error: errorData,
+			// Track API call for documentation
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'GET',
+				url: proxyUrl,
+				actualPingOneUrl: actualPingOneUrl,
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: 'Bearer [WORKER_TOKEN]',
+				},
+				step: 'preflight-validation-fetch-config',
+				flowType: 'preflight-validation',
+				isProxy: true,
 			});
 
-			// Update API call tracking with error
-			apiCallTrackerService.updateApiCallResponse(
-				callId,
-				{
+			// Fetch from backend proxy
+			const response = await fetch(proxyUrl, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({}));
+				console.error(`${MODULE_TAG} Failed to fetch app config`, {
 					status: response.status,
 					statusText: response.statusText,
-					data: errorData,
-				},
-				Date.now() - startTime
-			);
+					error: errorData,
+				});
 
-			return null;
-		}
+				// Update API call tracking with error
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: response.status,
+						statusText: response.statusText,
+						data: errorData,
+					},
+					Date.now() - startTime
+				);
+
+				return null;
+			}
 
 			const data = await response.json();
 
@@ -204,8 +204,11 @@ export class ConfigCheckerServiceV8 {
 			// Normalize tokenEndpointAuthMethod to lowercase with underscores
 			// PingOne API may return CLIENT_SECRET_POST, CLIENT_SECRET_BASIC, etc. (uppercase)
 			// But UI expects client_secret_post, client_secret_basic, etc. (lowercase)
-			const rawTokenEndpointAuthMethod = rawApp.tokenEndpointAuthMethod || rawApp.token_endpoint_auth_method || 'client_secret_post';
-			const normalizedTokenEndpointAuthMethod = rawTokenEndpointAuthMethod.toLowerCase().replace(/-/g, '_');
+			const rawTokenEndpointAuthMethod =
+				rawApp.tokenEndpointAuthMethod || rawApp.token_endpoint_auth_method || 'client_secret_post';
+			const normalizedTokenEndpointAuthMethod = rawTokenEndpointAuthMethod
+				.toLowerCase()
+				.replace(/-/g, '_');
 
 			const app: PingOneApplication = {
 				id: rawApp.id,
@@ -229,37 +232,37 @@ export class ConfigCheckerServiceV8 {
 				updatedAt: rawApp.updatedAt || rawApp.updated_at || new Date().toISOString(),
 			};
 
-		console.log(`${MODULE_TAG} App config fetched successfully`, {
-			appId: app.id,
-			appName: app.name,
-			grantTypes: app.grantTypes,
-			responseTypes: app.responseTypes,
-			tokenEndpointAuthMethod: app.tokenEndpointAuthMethod,
-		});
+			console.log(`${MODULE_TAG} App config fetched successfully`, {
+				appId: app.id,
+				appName: app.name,
+				grantTypes: app.grantTypes,
+				responseTypes: app.responseTypes,
+				tokenEndpointAuthMethod: app.tokenEndpointAuthMethod,
+			});
 
-		// Update API call tracking with success
-		apiCallTrackerService.updateApiCallResponse(
-			callId,
-			{
-				status: response.status,
-				statusText: response.statusText,
-				data: {
-					note: 'Application configuration fetched successfully for pre-flight validation',
-					appId: app.id,
-					appName: app.name,
-					grantTypes: app.grantTypes,
-					responseTypes: app.responseTypes,
-					tokenEndpointAuthMethod: app.tokenEndpointAuthMethod,
-					redirectUris: app.redirectUris,
-					pkceEnforced: app.pkceEnforced,
-					pkceRequired: app.pkceRequired,
-					requireSignedRequestObject: app.requireSignedRequestObject,
+			// Update API call tracking with success
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data: {
+						note: 'Application configuration fetched successfully for pre-flight validation',
+						appId: app.id,
+						appName: app.name,
+						grantTypes: app.grantTypes,
+						responseTypes: app.responseTypes,
+						tokenEndpointAuthMethod: app.tokenEndpointAuthMethod,
+						redirectUris: app.redirectUris,
+						pkceEnforced: app.pkceEnforced,
+						pkceRequired: app.pkceRequired,
+						requireSignedRequestObject: app.requireSignedRequestObject,
+					},
 				},
-			},
-			Date.now() - startTime
-		);
+				Date.now() - startTime
+			);
 
-		return app;
+			return app;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error fetching app config`, {
 				error: error instanceof Error ? error.message : String(error),

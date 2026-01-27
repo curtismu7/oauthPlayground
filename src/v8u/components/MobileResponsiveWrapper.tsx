@@ -2,8 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 interface MobileResponsiveWrapperProps {
-  children: React.ReactNode;
-  className?: string;
+	children: React.ReactNode;
+	className?: string;
 }
 
 const ResponsiveContainer = styled.div`
@@ -42,13 +42,13 @@ const ResponsiveGrid = styled.div`
 
 const ResponsiveFlex = styled.div<{ $direction?: 'row' | 'column'; $wrap?: boolean }>`
   display: flex;
-  flex-direction: ${props => props.$direction || 'row'};
-  flex-wrap: ${props => props.$wrap ? 'wrap' : 'nowrap'};
+  flex-direction: ${(props) => props.$direction || 'row'};
+  flex-wrap: ${(props) => (props.$wrap ? 'wrap' : 'nowrap')};
   gap: 1rem;
-  align-items: ${props => props.$direction === 'column' ? 'stretch' : 'flex-start'};
+  align-items: ${(props) => (props.$direction === 'column' ? 'stretch' : 'flex-start')};
   
   @media (max-width: 768px) {
-    flex-direction: ${props => props.$direction === 'column' ? 'column' : 'column'};
+    flex-direction: ${(props) => (props.$direction === 'column' ? 'column' : 'column')};
     gap: 0.75rem;
   }
   
@@ -63,7 +63,7 @@ const ResponsiveCard = styled.div<{ $fullWidth?: boolean }>`
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  width: ${props => props.$fullWidth ? '100%' : 'auto'};
+  width: ${(props) => (props.$fullWidth ? '100%' : 'auto')};
   
   @media (max-width: 768px) {
     padding: 1rem;
@@ -76,20 +76,23 @@ const ResponsiveCard = styled.div<{ $fullWidth?: boolean }>`
   }
 `;
 
-const ResponsiveButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'outline'; $fullWidth?: boolean }>`
+const ResponsiveButton = styled.button<{
+	$variant?: 'primary' | 'secondary' | 'outline';
+	$fullWidth?: boolean;
+}>`
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   border: 2px solid;
-  width: ${props => props.$fullWidth ? '100%' : 'auto'};
+  width: ${(props) => (props.$fullWidth ? '100%' : 'auto')};
   font-size: 0.875rem;
   
-  ${props => {
-    switch (props.$variant) {
-      case 'primary':
-        return `
+  ${(props) => {
+		switch (props.$variant) {
+			case 'primary':
+				return `
           background: #3b82f6;
           border-color: #3b82f6;
           color: white;
@@ -99,8 +102,8 @@ const ResponsiveButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'o
             border-color: #2563eb;
           }
         `;
-      case 'secondary':
-        return `
+			case 'secondary':
+				return `
           background: #6b7280;
           border-color: #6b7280;
           color: white;
@@ -110,9 +113,9 @@ const ResponsiveButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'o
             border-color: #4b5563;
           }
         `;
-      case 'outline':
-      default:
-        return `
+			case 'outline':
+			default:
+				return `
           background: transparent;
           border-color: #3b82f6;
           color: #3b82f6;
@@ -123,8 +126,8 @@ const ResponsiveButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'o
             color: #2563eb;
           }
         `;
-    }
-  }}
+		}
+	}}
   
   @media (max-width: 768px) {
     padding: 0.625rem 1.25rem;
@@ -139,127 +142,142 @@ const ResponsiveButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'o
   }
 `;
 
-const ResponsiveText = styled.div<{ $size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'; $weight?: 'normal' | 'medium' | 'semibold' | 'bold' }>`
+const ResponsiveText = styled.div<{
+	$size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+	$weight?: 'normal' | 'medium' | 'semibold' | 'bold';
+}>`
   color: #1e293b;
   line-height: 1.5;
   
-  ${props => {
-    switch (props.$size) {
-      case 'xs':
-        return 'font-size: 0.75rem;';
-      case 'sm':
-        return 'font-size: 0.875rem;';
-      case 'md':
-        return 'font-size: 1rem;';
-      case 'lg':
-        return 'font-size: 1.125rem;';
-      case 'xl':
-        return 'font-size: 1.25rem;';
-      default:
-        return 'font-size: 0.875rem;';
-    }
-  }}
+  ${(props) => {
+		switch (props.$size) {
+			case 'xs':
+				return 'font-size: 0.75rem;';
+			case 'sm':
+				return 'font-size: 0.875rem;';
+			case 'md':
+				return 'font-size: 1rem;';
+			case 'lg':
+				return 'font-size: 1.125rem;';
+			case 'xl':
+				return 'font-size: 1.25rem;';
+			default:
+				return 'font-size: 0.875rem;';
+		}
+	}}
   
-  ${props => {
-    switch (props.$weight) {
-      case 'normal':
-        return 'font-weight: 400;';
-      case 'medium':
-        return 'font-weight: 500;';
-      case 'semibold':
-        return 'font-weight: 600;';
-      case 'bold':
-        return 'font-weight: 700;';
-      default:
-        return 'font-weight: 500;';
-    }
-  }}
+  ${(props) => {
+		switch (props.$weight) {
+			case 'normal':
+				return 'font-weight: 400;';
+			case 'medium':
+				return 'font-weight: 500;';
+			case 'semibold':
+				return 'font-weight: 600;';
+			case 'bold':
+				return 'font-weight: 700;';
+			default:
+				return 'font-weight: 500;';
+		}
+	}}
   
   @media (max-width: 768px) {
-    ${props => {
-      switch (props.$size) {
-        case 'xl':
-          return 'font-size: 1.125rem;';
-        case 'lg':
-          return 'font-size: 1rem;';
-        case 'md':
-          return 'font-size: 0.875rem;';
-        case 'sm':
-          return 'font-size: 0.75rem;';
-        case 'xs':
-        default:
-          return 'font-size: 0.6875rem;';
-      }
-    }}
+    ${(props) => {
+			switch (props.$size) {
+				case 'xl':
+					return 'font-size: 1.125rem;';
+				case 'lg':
+					return 'font-size: 1rem;';
+				case 'md':
+					return 'font-size: 0.875rem;';
+				case 'sm':
+					return 'font-size: 0.75rem;';
+				case 'xs':
+				default:
+					return 'font-size: 0.6875rem;';
+			}
+		}}
   }
   
   @media (max-width: 480px) {
-    ${props => {
-      switch (props.$size) {
-        case 'xl':
-          return 'font-size: 1rem;';
-        case 'lg':
-          return 'font-size: 0.875rem;';
-        case 'md':
-          return 'font-size: 0.75rem;';
-        case 'sm':
-          return 'font-size: 0.6875rem;';
-        case 'xs':
-        default:
-          return 'font-size: 0.625rem;';
-      }
-    }}
+    ${(props) => {
+			switch (props.$size) {
+				case 'xl':
+					return 'font-size: 1rem;';
+				case 'lg':
+					return 'font-size: 0.875rem;';
+				case 'md':
+					return 'font-size: 0.75rem;';
+				case 'sm':
+					return 'font-size: 0.6875rem;';
+				case 'xs':
+				default:
+					return 'font-size: 0.625rem;';
+			}
+		}}
   }
 `;
 
 const ResponsiveSpacer = styled.div<{ $size?: 'sm' | 'md' | 'lg' }>`
-  height: ${props => {
-    switch (props.$size) {
-      case 'sm': return '0.5rem';
-      case 'md': return '1rem';
-      case 'lg': return '1.5rem';
-      default: return '1rem';
-    }
-  }};
+  height: ${(props) => {
+		switch (props.$size) {
+			case 'sm':
+				return '0.5rem';
+			case 'md':
+				return '1rem';
+			case 'lg':
+				return '1.5rem';
+			default:
+				return '1rem';
+		}
+	}};
   
   @media (max-width: 768px) {
-    height: ${props => {
-      switch (props.$size) {
-        case 'sm': return '0.375rem';
-        case 'md': return '0.75rem';
-        case 'lg': return '1.125rem';
-        default: return '0.75rem';
-      }
-    }};
+    height: ${(props) => {
+			switch (props.$size) {
+				case 'sm':
+					return '0.375rem';
+				case 'md':
+					return '0.75rem';
+				case 'lg':
+					return '1.125rem';
+				default:
+					return '0.75rem';
+			}
+		}};
   }
   
   @media (max-width: 480px) {
-    height: ${props => {
-      switch (props.$size) {
-        case 'sm': return '0.25rem';
-        case 'md': return '0.5rem';
-        case 'lg': return '0.75rem';
-        default: return '0.5rem';
-      }
-    }};
+    height: ${(props) => {
+			switch (props.$size) {
+				case 'sm':
+					return '0.25rem';
+				case 'md':
+					return '0.5rem';
+				case 'lg':
+					return '0.75rem';
+				default:
+					return '0.5rem';
+			}
+		}};
   }
 `;
 
-export const MobileResponsiveWrapper: React.FC<MobileResponsiveWrapperProps> = ({ 
-  children, 
-  className 
+export const MobileResponsiveWrapper: React.FC<MobileResponsiveWrapperProps> = ({
+	children,
+	className,
 }) => {
-  return <ResponsiveContainer className={className}>{children}</ResponsiveContainer>;
+	return <ResponsiveContainer className={className}>{children}</ResponsiveContainer>;
 };
 
 export {
-  ResponsiveContainer,
-  ResponsiveGrid,
-  ResponsiveFlex,
-  ResponsiveCard,
-  ResponsiveButton,
-  ResponsiveText,
-  ResponsiveSpacer,
+	ResponsiveContainer,
+	ResponsiveGrid,
+	ResponsiveFlex,
+	ResponsiveCard,
+	ResponsiveButton,
+	ResponsiveText,
+	ResponsiveSpacer,
 };
 
 export default MobileResponsiveWrapper;

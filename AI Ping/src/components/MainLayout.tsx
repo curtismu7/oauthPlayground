@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useSidebar } from '../contexts/SidebarContext';
 
 const MainContainer = styled.div<{ sidebarWidth: number }>`
-	margin-left: ${props => props.sidebarWidth}px;
+	margin-left: ${(props) => props.sidebarWidth}px;
 	min-height: 100vh;
 	background: #f8fafc;
 	transition: margin-left 0.3s ease;
@@ -25,9 +25,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
 	return (
 		<MainContainer sidebarWidth={sidebarWidth}>
-			<ContentWrapper>
-				{children}
-			</ContentWrapper>
+			<ContentWrapper>{children}</ContentWrapper>
 		</MainContainer>
 	);
 };

@@ -699,115 +699,139 @@ const Dashboard = () => {
 				>
 					<ContentCard>
 						<div style={{ marginBottom: '16px' }}>
-							<p style={{ 
-								margin: '0 0 16px 0', 
-								color: '#666', 
-								fontSize: '14px',
-								lineHeight: '1.5'
-							}}>
-								Test all OAuth and MFA flows with comprehensive API validation. 
-								Includes authorization code, implicit, hybrid, device authorization, 
-								client credentials, and MFA device management.
+							<p
+								style={{
+									margin: '0 0 16px 0',
+									color: '#666',
+									fontSize: '14px',
+									lineHeight: '1.5',
+								}}
+							>
+								Test all OAuth and MFA flows with comprehensive API validation. Includes
+								authorization code, implicit, hybrid, device authorization, client credentials, and
+								MFA device management.
 							</p>
 						</div>
-						
-						<div style={{ 
-							display: 'flex', 
-							gap: '12px', 
-							flexWrap: 'wrap',
-							alignItems: 'center'
-						}}>
-							<FlowLink 
-								href="/v8u/unified/oauth-authz/0" 
-								$variant="primary" 
+
+						<div
+							style={{
+								display: 'flex',
+								gap: '12px',
+								flexWrap: 'wrap',
+								alignItems: 'center',
+							}}
+						>
+							<FlowLink
+								href="/v8u/unified/oauth-authz/0"
+								$variant="primary"
 								$palette="oauth"
-								style={{ 
-									display: 'flex', 
-									alignItems: 'center', 
+								style={{
+									display: 'flex',
+									alignItems: 'center',
 									gap: '8px',
-									textDecoration: 'none'
+									textDecoration: 'none',
 								}}
 							>
 								<FiCode size={16} />
 								OAuth & MFA API Test
 							</FlowLink>
-							
-							<div style={{ 
-								fontSize: '12px', 
-								color: '#888',
-								fontStyle: 'italic'
-							}}>
+
+							<div
+								style={{
+									fontSize: '12px',
+									color: '#888',
+									fontStyle: 'italic',
+								}}
+							>
 								Comprehensive testing for all flow types
 							</div>
 						</div>
-						
-						<div style={{ 
-							marginTop: '16px', 
-							padding: '12px',
-							background: '#f8fafc',
-							borderRadius: '6px',
-							border: '1px solid #e2e8f0'
-						}}>
-							<div style={{ 
-								fontSize: '12px', 
-								color: '#666',
-								marginBottom: '8px',
-								fontWeight: '600'
-							}}>
+
+						<div
+							style={{
+								marginTop: '16px',
+								padding: '12px',
+								background: '#f8fafc',
+								borderRadius: '6px',
+								border: '1px solid #e2e8f0',
+							}}
+						>
+							<div
+								style={{
+									fontSize: '12px',
+									color: '#666',
+									marginBottom: '8px',
+									fontWeight: '600',
+								}}
+							>
 								Test Coverage:
 							</div>
-							<div style={{ 
-								display: 'flex', 
-								flexWrap: 'wrap', 
-								gap: '8px',
-								fontSize: '11px'
-							}}>
-								<span style={{ 
-									background: '#e0f2fe', 
-									color: '#0369a1', 
-									padding: '2px 6px', 
-									borderRadius: '4px' 
-								}}>
+							<div
+								style={{
+									display: 'flex',
+									flexWrap: 'wrap',
+									gap: '8px',
+									fontSize: '11px',
+								}}
+							>
+								<span
+									style={{
+										background: '#e0f2fe',
+										color: '#0369a1',
+										padding: '2px 6px',
+										borderRadius: '4px',
+									}}
+								>
 									Authorization Code
 								</span>
-								<span style={{ 
-									background: '#fef3c7', 
-									color: '#92400e', 
-									padding: '2px 6px', 
-									borderRadius: '4px' 
-								}}>
+								<span
+									style={{
+										background: '#fef3c7',
+										color: '#92400e',
+										padding: '2px 6px',
+										borderRadius: '4px',
+									}}
+								>
 									Implicit
 								</span>
-								<span style={{ 
-									background: '#f3e8ff', 
-									color: '#7c3aed', 
-									padding: '2px 6px', 
-									borderRadius: '4px' 
-								}}>
+								<span
+									style={{
+										background: '#f3e8ff',
+										color: '#7c3aed',
+										padding: '2px 6px',
+										borderRadius: '4px',
+									}}
+								>
 									Hybrid
 								</span>
-								<span style={{ 
-									background: '#dcfce7', 
-									color: '#166534', 
-									padding: '2px 6px', 
-									borderRadius: '4px' 
-								}}>
+								<span
+									style={{
+										background: '#dcfce7',
+										color: '#166534',
+										padding: '2px 6px',
+										borderRadius: '4px',
+									}}
+								>
 									Device Auth
 								</span>
-								<span style={{ 
-									background: '#fee2e2', 
-									color: '#dc2626', 
-									padding: '2px 6px', 
-									borderRadius: '4px' 
-								}}>
+								<span
+									style={{
+										background: '#fee2e2',
+										color: '#dc2626',
+										padding: '2px 6px',
+										borderRadius: '4px',
+									}}
+								>
 									Client Credentials
 								</span>
-								<span style={{ 
-									background: '#f0f9ff', 
-									color: '#0369a1', 
-									padding: '2px 6px', 
-									borderRadius: '4px' 
-								}}>
+								<span
+									style={{
+										background: '#f0f9ff',
+										color: '#0369a1',
+										padding: '2px 6px',
+										borderRadius: '4px',
+									}}
+								>
 									MFA Device Management
 								</span>
 							</div>
@@ -877,21 +901,13 @@ const Dashboard = () => {
 									for public clients).
 								</p>
 								<FlowButtonsContainer>
-									<FlowLink
-										href="/v8u/unified/oauth-authz"
-										$variant="primary"
-										$palette="oauth"
-									>
+									<FlowLink href="/v8u/unified/oauth-authz" $variant="primary" $palette="oauth">
 										Authorization Code
 									</FlowLink>
 									<FlowLink href="/v8u/unified/implicit" $variant="secondary" $palette="oauth">
 										Implicit Flow
 									</FlowLink>
-									<FlowLink
-										href="/v8u/unified/device-code"
-										$variant="secondary"
-										$palette="oauth"
-									>
+									<FlowLink href="/v8u/unified/device-code" $variant="secondary" $palette="oauth">
 										Device Authorization
 									</FlowLink>
 									<FlowLink
@@ -908,11 +924,7 @@ const Dashboard = () => {
 								<h3>OpenID Connect</h3>
 								<p>Identity layer on top of OAuth 2.0.</p>
 								<FlowButtonsContainer>
-									<FlowLink
-										href="/v8u/unified/oauth-authz"
-										$variant="primary"
-										$palette="oidc"
-									>
+									<FlowLink href="/v8u/unified/oauth-authz" $variant="primary" $palette="oidc">
 										Authorization Code
 									</FlowLink>
 									<FlowLink href="/v8u/unified/hybrid" $variant="secondary" $palette="oidc">

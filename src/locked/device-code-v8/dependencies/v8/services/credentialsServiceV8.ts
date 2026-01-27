@@ -347,7 +347,9 @@ export class CredentialsServiceV8 {
 				);
 
 				if (stored) {
-					debugLog(`${MODULE_TAG} ✅ Credentials loaded from IndexedDB (primary storage)`, { flowKey });
+					debugLog(`${MODULE_TAG} ✅ Credentials loaded from IndexedDB (primary storage)`, {
+						flowKey,
+					});
 					// Cache to localStorage for fast access
 					try {
 						localStorage.setItem(storageKey, JSON.stringify(stored));
@@ -369,7 +371,9 @@ export class CredentialsServiceV8 {
 				debugLog(`${MODULE_TAG} ✅ Credentials loaded from localStorage cache`, { flowKey });
 				// Migrate to IndexedDB if not already there
 				if (typeof window !== 'undefined' && (window as any).IndexedDBBackupServiceV8U) {
-					(window as any).IndexedDBBackupServiceV8U.save(storageKey, parsed, 'credentials').catch(() => {});
+					(window as any).IndexedDBBackupServiceV8U.save(storageKey, parsed, 'credentials').catch(
+						() => {}
+					);
 				}
 				return parsed;
 			}
@@ -399,9 +403,11 @@ export class CredentialsServiceV8 {
 							localStorage.setItem(storageKey, JSON.stringify(result.data));
 						} catch {}
 						if ((window as any).IndexedDBBackupServiceV8U) {
-							(window as any).IndexedDBBackupServiceV8U
-								.save(storageKey, result.data, 'credentials')
-								.catch(() => {});
+							(window as any).IndexedDBBackupServiceV8U.save(
+								storageKey,
+								result.data,
+								'credentials'
+							).catch(() => {});
 						}
 						return result.data;
 					}
@@ -436,7 +442,9 @@ export class CredentialsServiceV8 {
 			if (typeof window !== 'undefined' && (window as any).IndexedDBBackupServiceV8U) {
 				(window as any).IndexedDBBackupServiceV8U.save(storageKey, credentials, 'credentials')
 					.then(() => {
-						debugLog(`${MODULE_TAG} ✅ Credentials saved to IndexedDB (primary storage)`, { flowKey });
+						debugLog(`${MODULE_TAG} ✅ Credentials saved to IndexedDB (primary storage)`, {
+							flowKey,
+						});
 					})
 					.catch((err: Error) => {
 						console.warn(`${MODULE_TAG} ⚠️ IndexedDB save failed, falling back to localStorage`, {
@@ -451,7 +459,10 @@ export class CredentialsServiceV8 {
 				localStorage.setItem(storageKey, JSON.stringify(credentials));
 				debugLog(`${MODULE_TAG} ✅ Credentials cached to localStorage`, { flowKey });
 			} catch (err) {
-				console.warn(`${MODULE_TAG} ⚠️ localStorage cache failed (non-critical)`, { flowKey, error: err });
+				console.warn(`${MODULE_TAG} ⚠️ localStorage cache failed (non-critical)`, {
+					flowKey,
+					error: err,
+				});
 			}
 
 			// BACKUP 2: Save to backend (file-based storage, persistent across browsers/machines)
@@ -476,7 +487,10 @@ export class CredentialsServiceV8 {
 					.then((response) => response.json())
 					.then((result) => {
 						if (result.success) {
-							debugLog(`${MODULE_TAG} ✅ Credentials backed up to server`, { flowKey, path: result.path });
+							debugLog(`${MODULE_TAG} ✅ Credentials backed up to server`, {
+								flowKey,
+								path: result.path,
+							});
 						} else {
 							console.warn(`${MODULE_TAG} ⚠️ Server backup failed (non-critical)`, {
 								flowKey,

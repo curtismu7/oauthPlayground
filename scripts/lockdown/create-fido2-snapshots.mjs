@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { join, dirname } from 'node:path';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -25,11 +25,11 @@ const updatedFiles = manifest.files.map((fileEntry) => {
 	try {
 		const content = readFileSync(fullPath, 'utf8');
 		const hash = createHash('sha256').update(content, 'utf8').digest('hex');
-		
+
 		writeFileSync(snapshotPath, content, 'utf8');
-		
+
 		console.log(`✅ ${filePath} (${hash.substring(0, 16)}...)`);
-		
+
 		return {
 			path: filePath,
 			hash,
@@ -48,4 +48,3 @@ writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
 
 console.log(`\n✅ Created ${updatedFiles.length} snapshots`);
 console.log(`   Manifest updated: ${manifestPath}`);
-

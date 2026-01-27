@@ -73,9 +73,9 @@ export class WebAuthnAuthenticationServiceV8 {
 			}
 
 			// Perform WebAuthn get() call
-			const credential = await navigator.credentials.get({
+			const credential = (await navigator.credentials.get({
 				publicKey: publicKeyOptions,
-			}) as PublicKeyCredential;
+			})) as PublicKeyCredential;
 
 			console.log(`${MODULE_TAG} WebAuthn assertion successful`, {
 				credentialId: credential.id,
@@ -86,7 +86,7 @@ export class WebAuthnAuthenticationServiceV8 {
 
 			// Extract assertion data
 			const response = credential.response as AuthenticatorAssertionResponse;
-			
+
 			// Convert ArrayBuffer to base64 strings
 			const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
 				const bytes = new Uint8Array(buffer);
@@ -96,7 +96,7 @@ export class WebAuthnAuthenticationServiceV8 {
 				}
 				return btoa(binary);
 			};
-			
+
 			return {
 				success: true,
 				credentialId: credential.id,
@@ -106,10 +106,9 @@ export class WebAuthnAuthenticationServiceV8 {
 				clientDataJSON: arrayBufferToBase64(response.clientDataJSON),
 				authenticatorData: arrayBufferToBase64(response.authenticatorData),
 			};
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} WebAuthn assertion failed:`, error);
-			
+
 			// Handle different error types
 			if (error instanceof Error) {
 				if (error.name === 'NotAllowedError') {

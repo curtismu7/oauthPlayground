@@ -144,7 +144,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					includeScopes: false,
 				});
 				if (userLoginCreds?.userToken && userLoginCreds?.tokenType === 'user') {
-					console.log(`${MODULE_TAG} ✅ Initial sync: User token from user-login-v8 to mfa-flow-v8`);
+					console.log(
+						`${MODULE_TAG} ✅ Initial sync: User token from user-login-v8 to mfa-flow-v8`
+					);
 					// Update stored to include the user token
 					stored.userToken = userLoginCreds.userToken;
 					stored.tokenType = 'user';
@@ -303,11 +305,13 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					includeLogoutUri: false,
 					includeScopes: false,
 				});
-				
+
 				// If user-login-v8 has a user token and we don't, or if it's different, sync it
 				if (userLoginCreds?.userToken && userLoginCreds?.tokenType === 'user') {
 					if (!credentials.userToken || credentials.userToken !== userLoginCreds.userToken) {
-						console.log(`${MODULE_TAG} 🔄 Backup sync: Syncing user token from user-login-v8 to mfa-flow-v8`);
+						console.log(
+							`${MODULE_TAG} 🔄 Backup sync: Syncing user token from user-login-v8 to mfa-flow-v8`
+						);
 						setCredentials((prev) => ({
 							...prev,
 							userToken: userLoginCreds.userToken,
@@ -521,10 +525,17 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					});
 
 					// Use helper function to attempt silent retrieval (respects silentApiRetrieval setting)
-					const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+					const { handleShowWorkerTokenModal } = await import(
+						'@/v8/utils/workerTokenModalHelperV8'
+					);
 					// #region agent log
 					// #endregion
-					await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus, silentApiRetrieval, showTokenAtEnd);
+					await handleShowWorkerTokenModal(
+						setShowWorkerTokenModal,
+						setTokenStatus,
+						silentApiRetrieval,
+						showTokenAtEnd
+					);
 				} catch (configError) {
 					console.error(`${MODULE_TAG} Failed to load MFA configuration:`, configError);
 					// Only show modal if config can't be loaded AND we can't determine showTokenAtEnd
@@ -623,7 +634,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					includeScopes: false,
 				});
 				effectiveUserToken = currentCreds.userToken || credentials.userToken;
-				
+
 				// Final backup: if still no token, try one more sync from user-login-v8
 				if (!effectiveUserToken && tokenType === 'user') {
 					const userLoginCreds = CredentialsServiceV8.loadCredentials('user-login-v8', {
@@ -857,14 +868,14 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					onPrevious={() => {
 						nav.setValidationErrors([]);
 						nav.setValidationWarnings([]);
-						
+
 						// For TOTP, close modals before navigating
 						if (deviceType === 'TOTP') {
 							// Close any open modals first
 							// Note: Modal state is managed in TOTPFlowV8, so we just navigate
 							// The modal close handlers will handle cleanup
 						}
-						
+
 						// Navigate to previous step
 						if (nav.canGoPrevious) {
 							nav.goToPrevious();
@@ -924,12 +935,14 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							// Check if this is a registration flow (configured flag in location state)
 							const locationState = location.state as { configured?: boolean } | undefined;
 							const isRegistrationFlow = locationState?.configured === true;
-							
+
 							if (isRegistrationFlow) {
 								// For registration flow, don't navigate to Step 4
 								// The QR code page (Step 3) should stay on Step 3
 								// Success page will be shown after device activation
-								console.log(`${MODULE_TAG} TOTP registration flow: Preventing navigation from Step 3 to Step 4`);
+								console.log(
+									`${MODULE_TAG} TOTP registration flow: Preventing navigation from Step 3 to Step 4`
+								);
 								return;
 							}
 							// For authentication flow, allow navigation to Step 4
@@ -963,46 +976,59 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				}}
 				onGetToken={async () => {
 					// Use helper to show worker token modal (respects silent API retrieval setting)
-					const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+					const { handleShowWorkerTokenModal } = await import(
+						'@/v8/utils/workerTokenModalHelperV8'
+					);
 					// Load config to get silentApiRetrieval and showTokenAtEnd
-					const { MFAConfigurationServiceV8 } = await import('@/v8/services/mfaConfigurationServiceV8');
+					const { MFAConfigurationServiceV8 } = await import(
+						'@/v8/services/mfaConfigurationServiceV8'
+					);
 					const config = MFAConfigurationServiceV8.loadConfiguration();
 					const silentApiRetrieval = config.workerToken.silentApiRetrieval || false;
 					const showTokenAtEnd = config.workerToken.showTokenAtEnd !== false;
 					// #region agent log
 					// #endregion
-					await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus, silentApiRetrieval, showTokenAtEnd, true);
+					await handleShowWorkerTokenModal(
+						setShowWorkerTokenModal,
+						setTokenStatus,
+						silentApiRetrieval,
+						showTokenAtEnd,
+						true
+					);
 				}}
 			/>
 
-			{showWorkerTokenModal && (() => {
-				// Check if we should show token only (matches MFA pattern)
-				try {
-					const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
-					const config = MFAConfigurationServiceV8.loadConfiguration();
-					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-					
-					// Show token-only if showTokenAtEnd is ON and token is valid
-					const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
-					
-					return (
-				<WorkerTokenModalV8
-					isOpen={showWorkerTokenModal}
-					onClose={() => setShowWorkerTokenModal(false)}
-					onTokenGenerated={handleWorkerTokenGenerated}
-							showTokenOnly={showTokenOnly}
-						/>
-					);
-				} catch {
-					return (
-						<WorkerTokenModalV8
-							isOpen={showWorkerTokenModal}
-							onClose={() => setShowWorkerTokenModal(false)}
-							onTokenGenerated={handleWorkerTokenGenerated}
-						/>
-					);
-				}
-			})()}
+			{showWorkerTokenModal &&
+				(() => {
+					// Check if we should show token only (matches MFA pattern)
+					try {
+						const {
+							MFAConfigurationServiceV8,
+						} = require('@/v8/services/mfaConfigurationServiceV8');
+						const config = MFAConfigurationServiceV8.loadConfiguration();
+						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+
+						// Show token-only if showTokenAtEnd is ON and token is valid
+						const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+
+						return (
+							<WorkerTokenModalV8
+								isOpen={showWorkerTokenModal}
+								onClose={() => setShowWorkerTokenModal(false)}
+								onTokenGenerated={handleWorkerTokenGenerated}
+								showTokenOnly={showTokenOnly}
+							/>
+						);
+					} catch {
+						return (
+							<WorkerTokenModalV8
+								isOpen={showWorkerTokenModal}
+								onClose={() => setShowWorkerTokenModal(false)}
+								onTokenGenerated={handleWorkerTokenGenerated}
+							/>
+						);
+					}
+				})()}
 
 			{showUserLoginModal && (
 				<UserLoginModalV8

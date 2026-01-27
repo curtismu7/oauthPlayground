@@ -17,9 +17,9 @@ export const StepIndicatorV8: React.FC<StepIndicatorProps> = ({
 	return (
 		<div className={`step-indicator-v8 ${className}`}>
 			<div className="step-indicator-bar">
-				<div 
-					className="step-progress" 
-					style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }} 
+				<div
+					className="step-progress"
+					style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
 				/>
 			</div>
 			<div className="step-numbers">
@@ -34,9 +34,7 @@ export const StepIndicatorV8: React.FC<StepIndicatorProps> = ({
 							key={stepNumber}
 							className={`step-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}
 						>
-							<div className="step-circle">
-								{isCompleted ? '✓' : stepNumber}
-							</div>
+							<div className="step-circle">{isCompleted ? '✓' : stepNumber}</div>
 							<span className="step-label">{label}</span>
 						</div>
 					);

@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import { P1MFASDK, SMSHelper, type DeviceRegistrationResult } from '@/sdk/p1mfa';
+import { type DeviceRegistrationResult, P1MFASDK, SMSHelper } from '@/sdk/p1mfa';
 import { StatusDisplay } from '../shared/StatusDisplay';
 
 interface RegistrationFlowProps {

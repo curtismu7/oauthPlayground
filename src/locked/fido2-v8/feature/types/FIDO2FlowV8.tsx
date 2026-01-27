@@ -21,10 +21,10 @@ import {
 	type DeviceAuthenticationResponse,
 	MfaAuthenticationServiceV8,
 } from '../../dependencies/v8/services/mfaAuthenticationServiceV8.ts';
-import { WebAuthnAuthenticationServiceV8 } from '../../dependencies/v8/services/webAuthnAuthenticationServiceV8.ts';
 import { MFAConfigurationServiceV8 } from '../../dependencies/v8/services/mfaConfigurationServiceV8.ts';
-import { WorkerTokenStatusServiceV8 } from '../../dependencies/v8/services/workerTokenStatusServiceV8.ts';
+import { WebAuthnAuthenticationServiceV8 } from '../../dependencies/v8/services/webAuthnAuthenticationServiceV8.ts';
 import { workerTokenServiceV8 } from '../../dependencies/v8/services/workerTokenServiceV8.ts';
+import { WorkerTokenStatusServiceV8 } from '../../dependencies/v8/services/workerTokenStatusServiceV8.ts';
 import { navigateToMfaHubWithCleanup } from '../../dependencies/v8/utils/mfaFlowCleanupV8.ts';
 import { toastV8 } from '../../dependencies/v8/utils/toastNotificationsV8.ts';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
@@ -414,7 +414,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	const [isRegistering, setIsRegistering] = useState(false);
 
 	// FIDO2 Policy state
-	const [fido2Policies, setFido2Policies] = useState<Array<{ id: string; name: string; default?: boolean; description?: string }>>([]);
+	const [fido2Policies, setFido2Policies] = useState<
+		Array<{ id: string; name: string; default?: boolean; description?: string }>
+	>([]);
 	const [isLoadingFido2Policies, setIsLoadingFido2Policies] = useState(false);
 	const [fido2PoliciesError, setFido2PoliciesError] = useState<string | null>(null);
 	const lastFetchedFido2EnvIdRef = useRef<string | null>(null);
@@ -579,7 +581,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatus().isValid;
 		// #region agent log
 		// #endregion
-		
+
 		if (!envId || !tokenValid) {
 			// #region agent log
 			// #endregion
@@ -658,8 +660,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					includeLogoutUri: false,
 					includeScopes: false,
 				});
-				const currentPolicyId = (stored as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId;
-				
+				const currentPolicyId = (stored as MFACredentials & { fido2PolicyId?: string })
+					.fido2PolicyId;
+
 				if (!currentPolicyId) {
 					const defaultPolicy =
 						policiesList.find((p: { default?: boolean }) => p.default) || policiesList[0];
@@ -670,8 +673,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				}
 			}
 		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
+			const errorMessage = error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
 			setFido2PoliciesError(errorMessage);
 			console.error(`${MODULE_TAG} Failed to load FIDO2 policies:`, error);
 		} finally {
@@ -692,7 +694,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		});
 		const envId = storedCredentials.environmentId?.trim();
 		const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatus().isValid;
-		
+
 		if (envId && tokenValid) {
 			void fetchFido2Policies();
 		}
@@ -711,7 +713,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			});
 			const envId = storedCredentials.environmentId?.trim();
 			const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatus().isValid;
-			
+
 			if (envId && tokenValid && lastFetchedFido2EnvIdRef.current !== envId) {
 				void fetchFido2Policies();
 			}
@@ -719,7 +721,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 		const interval = setInterval(checkTokenAndFetch, 5000);
 		window.addEventListener('workerTokenUpdated', checkTokenAndFetch);
-		
+
 		return () => {
 			clearInterval(interval);
 			window.removeEventListener('workerTokenUpdated', checkTokenAndFetch);
@@ -803,14 +805,16 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						>
 							{/* Worker Token Status Gauge */}
 							<WorkerTokenGaugeV8 tokenStatus={tokenStatus} size={60} />
-							
+
 							<button
 								type="button"
 								onClick={async () => {
 									if (tokenStatus.isValid) {
 										// #region agent log
 										// #endregion
-										const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+										const { workerTokenServiceV8 } = await import(
+											'@/v8/services/workerTokenServiceV8'
+										);
 										await workerTokenServiceV8.clearToken();
 										// #region agent log
 										// #endregion
@@ -823,13 +827,15 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 										// Use helper to check silentApiRetrieval before showing modal
 										// Pass current checkbox values to override config (page checkboxes take precedence)
 										// forceShowModal=true because user explicitly clicked the button - always show modal
-										const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+										const { handleShowWorkerTokenModal } = await import(
+											'@/v8/utils/workerTokenModalHelperV8'
+										);
 										await handleShowWorkerTokenModal(
 											props.setShowWorkerTokenModal,
 											undefined,
-											silentApiRetrieval,  // Page checkbox value takes precedence
-											showTokenAtEnd,      // Page checkbox value takes precedence
-											true                  // Force show modal - user clicked button
+											silentApiRetrieval, // Page checkbox value takes precedence
+											showTokenAtEnd, // Page checkbox value takes precedence
+											true // Force show modal - user clicked button
 										);
 									}
 								}}
@@ -935,9 +941,11 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								</p>
 							</div>
 						)}
-						
+
 						{/* Worker Token Settings Checkboxes */}
-						<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+						<div
+							style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}
+						>
 							<label
 								style={{
 									display: 'flex',
@@ -967,21 +975,29 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 										config.workerToken.silentApiRetrieval = newValue;
 										MFAConfigurationServiceV8.saveConfiguration(config);
 										// Dispatch event to notify other components
-										window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+										window.dispatchEvent(
+											new CustomEvent('mfaConfigurationUpdated', {
+												detail: { workerToken: config.workerToken },
+											})
+										);
 										toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
-										
+
 										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 										if (newValue) {
 											const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 											if (!currentStatus.isValid) {
-												console.log('[FIDO2-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...');
-												const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+												console.log(
+													'[FIDO2-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
+												);
+												const { handleShowWorkerTokenModal } = await import(
+													'@/v8/utils/workerTokenModalHelperV8'
+												);
 												await handleShowWorkerTokenModal(
 													props.setShowWorkerTokenModal,
 													undefined,
-													newValue,  // Use new value
+													newValue, // Use new value
 													showTokenAtEnd,
-													false      // Not forced - respect silent setting
+													false // Not forced - respect silent setting
 												);
 											}
 										}
@@ -1033,7 +1049,11 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 										config.workerToken.showTokenAtEnd = newValue;
 										MFAConfigurationServiceV8.saveConfiguration(config);
 										// Dispatch event to notify other components
-										window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+										window.dispatchEvent(
+											new CustomEvent('mfaConfigurationUpdated', {
+												detail: { workerToken: config.workerToken },
+											})
+										);
 										toastV8.info(`Show Token After Generation set to: ${newValue}`);
 									}}
 									style={{
@@ -1215,7 +1235,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 										boxShadow: '0 8px 18px rgba(2,132,199,0.25)',
 										transition: 'transform 0.15s ease, box-shadow 0.15s ease',
 									}}
-									disabled={isLoadingFido2Policies || !tokenStatus.isValid || !credentials.environmentId}
+									disabled={
+										isLoadingFido2Policies || !tokenStatus.isValid || !credentials.environmentId
+									}
 									onMouseEnter={(e) => {
 										if (!isLoadingFido2Policies) {
 											e.currentTarget.style.transform = 'translateY(-1px)';
@@ -1237,8 +1259,8 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 									className="info-box"
 									style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b' }}
 								>
-									<strong>Failed to load FIDO2 policies:</strong> {fido2PoliciesError}. Retry after verifying
-									access.
+									<strong>Failed to load FIDO2 policies:</strong> {fido2PoliciesError}. Retry after
+									verifying access.
 								</div>
 							)}
 
@@ -1248,7 +1270,10 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								return fido2Policies.length > 0 ? (
 									<select
 										id="fido2-policy-select"
-										value={(credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId || ''}
+										value={
+											(credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId ||
+											''
+										}
 										onChange={(e) => {
 											const updated = {
 												...credentials,
@@ -1273,40 +1298,50 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 											</option>
 										))}
 									</select>
-							) : (
-								<input
-									id="fido2-policy-select"
-									type="text"
-									value={(credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId || ''}
-									onChange={(e) => {
-										const updated = {
-											...credentials,
-											fido2PolicyId: e.target.value.trim(),
-										} as MFACredentials & { fido2PolicyId?: string };
-										setCredentials(updated);
-										CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
-									}}
-									placeholder="Enter a FIDO2 Policy ID"
-									style={{
-										width: '100%',
-										padding: '10px',
-										border: '1px solid #d1d5db',
-										borderRadius: '6px',
-										fontSize: '14px',
-									}}
-								/>
-							);
+								) : (
+									<input
+										id="fido2-policy-select"
+										type="text"
+										value={
+											(credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId ||
+											''
+										}
+										onChange={(e) => {
+											const updated = {
+												...credentials,
+												fido2PolicyId: e.target.value.trim(),
+											} as MFACredentials & { fido2PolicyId?: string };
+											setCredentials(updated);
+											CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
+										}}
+										placeholder="Enter a FIDO2 Policy ID"
+										style={{
+											width: '100%',
+											padding: '10px',
+											border: '1px solid #d1d5db',
+											borderRadius: '6px',
+											fontSize: '14px',
+										}}
+									/>
+								);
 							})()}
 
 							{(credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId && (
 								<div style={{ marginTop: '12px' }}>
 									{fido2Policies.find(
-										(p) => p.id === (credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId
+										(p) =>
+											p.id ===
+											(credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId
 									)?.description && (
 										<p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>
-											{fido2Policies.find(
-												(p) => p.id === (credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId
-											)?.description}
+											{
+												fido2Policies.find(
+													(p) =>
+														p.id ===
+														(credentials as MFACredentials & { fido2PolicyId?: string })
+															.fido2PolicyId
+												)?.description
+											}
 										</p>
 									)}
 								</div>
@@ -1344,7 +1379,16 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				</div>
 			);
 		};
-	}, [isConfigured, webAuthnSupported, webAuthnCapabilities, fido2Policies, isLoadingFido2Policies, fido2PoliciesError, fetchFido2Policies, location]);
+	}, [
+		isConfigured,
+		webAuthnSupported,
+		webAuthnCapabilities,
+		fido2Policies,
+		isLoadingFido2Policies,
+		fido2PoliciesError,
+		fetchFido2Policies,
+		location,
+	]);
 
 	// Ref to store pending trigger update (to avoid setState during render)
 	const pendingTriggerRef = React.useRef<{
@@ -2675,10 +2719,10 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				'ACTIVE',
 				credentials.tokenType || 'worker'
 			);
-			
+
 			// Ensure successData has FIDO2 deviceType explicitly set
 			successData.deviceType = 'FIDO2' as DeviceType;
-			
+
 			// Debug logging to verify data is being passed correctly
 			console.log('[FIDO2FlowV8] renderStep3 - Success page data:', {
 				deviceId: successData.deviceId,
@@ -2688,7 +2732,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				username: successData.username,
 				userId: successData.userId,
 			});
-			
+
 			// Pass modified credentials with deviceType to ensure documentation button shows
 			// The original credentials from props might not have deviceType set
 			return (
