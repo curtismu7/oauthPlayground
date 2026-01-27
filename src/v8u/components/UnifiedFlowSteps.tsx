@@ -702,7 +702,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			isPKCERequired &&
 			(!flowState.codeVerifier || !flowState.codeChallenge)
 		) {
-			log(
+			log.warn(
 				'[PKCE VALIDATION] PKCE codes required but missing - redirecting to PKCE step',
 				{
 					currentStep,
@@ -820,7 +820,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Helper function to handle token success - skip modal and proceed to next step
 	const showTokenSuccessModal = useCallback(
 		(tokens: TokenResponse) => {
-			log('✅ Tokens received - proceeding to next step');
+			log.info('✅ Tokens received - proceeding to next step');
 
 			// Filter tokens based on spec version
 			const filteredTokens = filterTokensBySpec(tokens);
@@ -915,7 +915,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					});
 				} else {
 					userInfoEndpoint = discoveryResult.data.userInfoEndpoint;
-					log('Fetching UserInfo via backend proxy', { userInfoEndpoint });
+					log.info('Fetching UserInfo via backend proxy', { userInfoEndpoint });
 				}
 
 				/**
