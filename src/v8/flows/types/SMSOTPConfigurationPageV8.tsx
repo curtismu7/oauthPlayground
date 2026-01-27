@@ -29,6 +29,8 @@ import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
+import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
+import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
 const _MODULE_TAG = '[📱 SMS-OTP-CONFIG-V8]';
@@ -1053,6 +1055,37 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 						setShowDeviceLimitModal={() => {}}
 					/>
 				</div>
+
+				{/* Clean Worker Token Section - Always show */}
+				<WorkerTokenSectionV8
+					environmentId={credentials.environmentId}
+					onTokenUpdated={(token) => {
+						// Update credentials when worker token is generated
+						setCredentials(prev => ({
+							...prev,
+							workerToken: token,
+							tokenType: 'worker' as const,
+						}));
+					}}
+					compact={false}
+					showSettings={true}
+				/>
+
+				{/* Clean User Login Section - Only show for user flow */}
+				{registrationFlowType === 'user' && (
+					<UserLoginSectionV8
+						onTokenUpdated={(token) => {
+							// Update credentials when user token is received
+							setCredentials(prev => ({
+								...prev,
+								userToken: token,
+								tokenType: 'user' as const,
+							}));
+						}}
+						compact={false}
+						showUserInfo={true}
+					/>
+				)}
 
 				{/* Education Section */}
 				<div
