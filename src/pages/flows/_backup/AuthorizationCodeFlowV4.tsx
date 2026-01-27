@@ -1907,7 +1907,7 @@ const AuthorizationCodeFlowV4 = () => {
 								<FiRefreshCw /> Start New Flow
 							</Button>
 							<Button onClick={navigateToTokenManagement} $variant="primary">
-								<FiKey /> Manage Tokens
+								<FiKey /> Get worker token
 							</Button>
 						</div>
 					</>

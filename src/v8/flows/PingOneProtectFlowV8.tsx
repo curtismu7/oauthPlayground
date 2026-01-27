@@ -580,7 +580,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 							fontWeight: '600',
 						}}
 					>
-						{tokenStatus.isValid ? 'Manage Token' : 'Generate Token'}
+						Get worker token
 					</button>
 				</div>
 
