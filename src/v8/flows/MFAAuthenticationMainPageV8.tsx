@@ -1411,7 +1411,15 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				devices: response.devices,
 				deviceCount: response.devices?.length || 0,
 				_embedded: response._embedded,
+				embeddedDevices: response._embedded?.devices,
+				embeddedDeviceCount: response._embedded?.devices?.length || 0,
 				allKeys: Object.keys(response),
+				authDevices: authDevices,
+				authDeviceCount: authDevices.length,
+				needsDeviceSelection,
+				deviceSelectionBehavior,
+				username: usernameInput.trim(),
+				userId: user.id,
 			});
 
 			setAuthState({
@@ -3686,7 +3694,18 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			)}
 
 			{/* Device Selection Section - Show when authentication requires device selection */}
-			{authState.showDeviceSelection && authState.devices.length > 0 && (
+			{(() => {
+				console.log(`${MODULE_TAG} Device Selection UI Check:`, {
+					showDeviceSelection: authState.showDeviceSelection,
+					devicesLength: authState.devices.length,
+					devices: authState.devices,
+					authenticationId: authState.authenticationId,
+					status: authState.status,
+					nextStep: authState.nextStep,
+					shouldShow: authState.showDeviceSelection && authState.devices.length > 0,
+				});
+				return authState.showDeviceSelection && authState.devices.length > 0;
+			})() && (
 				<div
 					style={{
 						background: 'white',
