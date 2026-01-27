@@ -9264,22 +9264,23 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				{/* Start Polling Button - Above Device Display */}
 				{flowState.deviceCode && !isComplete && (
-							<button
-								type="button"
-								className="btn btn-next"
-								onClick={handlePollForTokens}
-								disabled={isLoading || flowState.pollingStatus?.isPolling}
-								style={{ marginTop: '16px', marginBottom: '24px' }}
-							>
-								{isLoading || flowState.pollingStatus?.isPolling
-									? 'Polling...'
-									: 'Start Polling for Tokens'}
-							</button>
+					<div style={{ display: 'flex', justifyContent: 'center', marginTop: '24px', marginBottom: '32px' }}>
+						<button
+							type="button"
+							className="btn btn-next"
+							onClick={handlePollForTokens}
+							disabled={isLoading || flowState.pollingStatus?.isPolling}
+						>
+							{isLoading || flowState.pollingStatus?.isPolling
+								? 'Polling...'
+								: 'Start Polling for Tokens'}
+						</button>
+					</div>
 				)}
 
 				{/* Device Type Selector */}
 				{flowState.deviceCode && (
-					<div style={{ marginTop: '24px', marginBottom: '24px' }}>
+					<div style={{ marginTop: '32px', marginBottom: '32px' }}>
 						<DeviceTypeSelector
 							selectedDevice={selectedDeviceType}
 							onDeviceChange={(deviceType) => {
@@ -9293,7 +9294,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				{/* Dynamic Device Display */}
 				{flowState.deviceCode && flowState.userCode && (
-					<div style={{ marginTop: '24px', marginBottom: '24px' }}>
+					<div style={{ marginTop: '32px', marginBottom: '32px' }}>
 						{(() => {
 							
 
