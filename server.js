@@ -14987,13 +14987,19 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 			}
 		}
 
+		// Extract devices from both authData.devices and authData._embedded.devices
+		const allDevices = [
+			...(authData.devices || []),
+			...(authData._embedded?.devices || []),
+		];
+
 		// Log devices returned from PingOne
-		if (authData.devices && Array.isArray(authData.devices)) {
+		if (allDevices.length > 0) {
 			console.log('[MFA Initialize Device Auth] 📋 Devices returned from PingOne:', {
 				userId: resolvedUserId,
 				username: username || 'N/A',
-				deviceCount: authData.devices.length,
-				devices: authData.devices.map((d) => ({
+				deviceCount: allDevices.length,
+				devices: allDevices.map((d) => ({
 					id: d.id,
 					type: d.type,
 					nickname: d.nickname || d.name,
@@ -15003,14 +15009,26 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 					userName: d.user?.name || 'N/A',
 					allKeys: Object.keys(d),
 				})),
+				sources: {
+					hasDirectDevices: !!(authData.devices && Array.isArray(authData.devices)),
+					hasEmbeddedDevices: !!(authData._embedded?.devices && Array.isArray(authData._embedded.devices)),
+					directDeviceCount: (authData.devices || []).length,
+					embeddedDeviceCount: (authData._embedded?.devices || []).length,
+				},
 			});
 		} else {
 			console.log(
-				'[MFA Initialize Device Auth] No devices in response or devices is not an array',
+				'[MFA Initialize Device Auth] No devices found in response or devices is not an array',
 				{
-					hasDevices: !!authData.devices,
-					devicesType: typeof authData.devices,
-					isArray: Array.isArray(authData.devices),
+					hasDirectDevices: !!(authData.devices && Array.isArray(authData.devices)),
+					hasEmbeddedDevices: !!(authData._embedded?.devices && Array.isArray(authData._embedded.devices)),
+					directDevicesType: typeof authData.devices,
+					embeddedDevicesType: typeof authData._embedded?.devices,
+					isDirectArray: Array.isArray(authData.devices),
+					isEmbeddedArray: Array.isArray(authData._embedded?.devices),
+					allKeys: Object.keys(authData),
+					hasEmbedded: !!authData._embedded,
+					embeddedKeys: authData._embedded ? Object.keys(authData._embedded) : [],
 				}
 			);
 		}
@@ -15063,10 +15081,19 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 		console.log('[MFA Initialize Device Auth] ✅ Success - returning auth data with devices', {
 			userId: resolvedUserId,
 			username: username || 'N/A',
-			deviceCount: authData.devices?.length || 0,
+			deviceCount: allDevices.length,
+			directDeviceCount: (authData.devices || []).length,
+			embeddedDeviceCount: (authData._embedded?.devices || []).length,
+			hasDevices: allDevices.length > 0,
 		});
 
-		return res.json(authData);
+		// Ensure the response includes devices from both locations
+		const responseWithDevices = {
+			...authData,
+			devices: allDevices.length > 0 ? allDevices : authData.devices,
+		};
+
+		return res.json(responseWithDevices);
 	} catch (error) {
 		console.error('[MFA Initialize Device Auth] Error:', error);
 		res
