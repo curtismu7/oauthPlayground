@@ -1,4 +1,4 @@
-import { useCallback, useId, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
@@ -11,6 +11,7 @@ import {
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -318,7 +319,15 @@ interface CommandResult {
 
 const JWKSTroubleshooting: React.FC = () => {
 	const environmentInputId = useId();
-	const [environmentId, setEnvironmentId] = useState('');
+	const [environmentId, setEnvironmentId] = useState(() => {
+		// Auto-populate from worker token credentials
+		try {
+			const credentials = unifiedWorkerTokenService.loadCredentials();
+			return credentials?.environmentId || '';
+		} catch {
+			return '';
+		}
+	});
 	const [commandResults, setCommandResults] = useState<CommandResult[]>([]);
 	const [expandedOutputs, setExpandedOutputs] = useState<Set<string>>(new Set());
 	const [runningCommands, setRunningCommands] = useState<Set<string>>(new Set());
@@ -347,6 +356,25 @@ const JWKSTroubleshooting: React.FC = () => {
 			v4ToastManager.showCopyError(label);
 		}
 	}, []);
+
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const credentials = unifiedWorkerTokenService.loadCredentials();
+				if (credentials?.environmentId && !environmentId.trim()) {
+					setEnvironmentId(credentials.environmentId);
+				}
+			} catch (error) {
+				console.error('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => {
+			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+		};
+	}, [environmentId]);
 
 	const executeRequest = useCallback(
 		async (url: string, _description: string) => {
