@@ -927,9 +927,19 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				errorMessage.toLowerCase().includes('connection refused') ||
 				errorMessage.toLowerCase().includes('econnrefused');
 
+			// Check if this is a worker token error
+			const isWorkerTokenError =
+				errorMessage.toLowerCase().includes('worker token') ||
+				errorMessage.toLowerCase().includes('not available') ||
+				errorMessage.toLowerCase().includes('has expired');
+
 			if (isServerError) {
 				setPoliciesError(
 					'⚠️ Backend server is not running or unreachable. Please ensure the server is running on port 3001 and try again.'
+				);
+			} else if (isWorkerTokenError) {
+				setPoliciesError(
+					'⚠️ Worker token is required to load device authentication policies. Please generate a worker token using the "Get Worker Token" button above.'
 				);
 			} else {
 				setPoliciesError(errorMessage);
@@ -957,7 +967,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		if (envId && tokenStatus.isValid && lastFetchedPolicyEnvIdRef.current !== envId) {
 			void loadPolicies();
 		}
-	}, [credentials.environmentId, tokenStatus.isValid, loadPolicies]);
+	}, [credentials.environmentId, tokenStatus.isValid]);
 
 	// Extract allowed device types from policy (shared function)
 	const extractAllowedDeviceTypes = useCallback(
