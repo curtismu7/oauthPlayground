@@ -16,7 +16,7 @@ import {
 	type WorkerTokenCredentials,
 } from '@/services/credentialExportImportService';
 import { UnifiedTokenDisplayService } from '@/services/unifiedTokenDisplayService';
-import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import pingOneFetch from '@/utils/pingOneFetch';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
@@ -79,7 +79,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				if (tokenStatus.isValid || showTokenOnly) {
 					const config = MFAConfigurationServiceV8.loadConfiguration();
 					if (config.workerToken.showTokenAtEnd || showTokenOnly) {
-						const token = await unifiedWorkerTokenServiceV2.getToken();
+						const token = await unifiedWorkerTokenService.getToken();
 						if (token) {
 							setCurrentToken(token);
 							setShowTokenDisplay(true);
@@ -125,7 +125,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	React.useEffect(() => {
 		if (isOpen) {
 			// Load from unifiedWorkerTokenService (the correct storage location)
-			unifiedWorkerTokenServiceV2
+			unifiedWorkerTokenService
 				.loadCredentials()
 				.then((creds: any) => {
 					if (creds) {
@@ -211,7 +211,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				tokenEndpointAuthMethod: authMethod,
 			};
 
-			await unifiedWorkerTokenServiceV2.saveCredentials(credentials);
+			await unifiedWorkerTokenService.saveCredentials(credentials);
 
 			// Run preflight validation
 			setLoadingMessage('✅ Validating configuration against PingOne...');
@@ -344,7 +344,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				.filter(Boolean);
 
 			// First, save credentials to unifiedWorkerTokenService
-			await unifiedWorkerTokenServiceV2.saveCredentials({
+			await unifiedWorkerTokenService.saveCredentials({
 				environmentId: environmentId.trim(),
 				clientId: clientId.trim(),
 				clientSecret: clientSecret.trim(),
@@ -436,7 +436,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 			// Now store token using unifiedWorkerTokenService (credentials are already saved)
 			const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
-			await unifiedWorkerTokenServiceV2.saveToken(token, expiresAt);
+			await unifiedWorkerTokenService.saveToken(token, expiresAt);
 
 			// Cache the token for future preflight validation
 			const tokenScopes = scopeInput
@@ -622,7 +622,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											onClick={async () => {
 												if (currentToken) {
 													try {
-														await unifiedWorkerTokenServiceV2.saveToken(currentToken);
+														await unifiedWorkerTokenService.saveToken(currentToken);
 														toastV8.success('Token saved successfully!');
 													} catch (error) {
 														console.error(`${MODULE_TAG} Failed to save token:`, error);
@@ -719,7 +719,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											onClick={async () => {
 												if (currentToken) {
 													try {
-														await unifiedWorkerTokenServiceV2.saveToken(currentToken);
+														await unifiedWorkerTokenService.saveToken(currentToken);
 														toastV8.success('Token saved successfully!');
 													} catch (error) {
 														console.error(`${MODULE_TAG} Failed to save token:`, error);
