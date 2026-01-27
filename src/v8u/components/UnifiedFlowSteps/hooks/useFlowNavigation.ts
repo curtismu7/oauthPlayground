@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { NavigationState } from '../types';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 export const useFlowNavigation = (
 	flowType: string,
@@ -31,7 +32,7 @@ export const useFlowNavigation = (
 	const navigateToStep = useCallback(
 		(step: number) => {
 			if (step < 0 || step >= totalSteps) {
-				console.warn('Invalid step', { step, totalSteps });
+				logger.warn('Invalid step', { step, totalSteps });
 				return;
 			}
 			navigate(`/v8u/unified/${flowType}/${step}`, { replace: true });
