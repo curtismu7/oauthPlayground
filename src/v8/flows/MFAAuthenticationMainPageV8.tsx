@@ -308,6 +308,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	// Loading message state for spinner modal
 	const [_loadingMessage, setLoadingMessage] = useState('');
 
+	// Collapsible section state
+	const [isWorkerTokenConfigCollapsed, setIsWorkerTokenConfigCollapsed] = useState(false);
+
 	// Username input state
 	const [usernameInput, setUsernameInput] = useState(credentials.username || '');
 	const [showUsernameDecisionModal, setShowUsernameDecisionModal] = useState(false);
@@ -1805,7 +1808,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				onCancel={() => setShowClearTokensModal(false)}
 			/>
 
-			{/* 2. Control Panel: Environment + Worker Token + MFA Policy */}
+			{/* 2. Worker Token Configuration - Collapsible */}
 			<div
 				style={{
 					background: 'white',
@@ -1816,11 +1819,63 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					border: '1px solid #e5e7eb',
 				}}
 			>
-				<h2 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-					Worker Token & Configuration
-				</h2>
+				{/* Collapsible Header */}
+				<button
+					type="button"
+					onClick={() => setIsWorkerTokenConfigCollapsed(!isWorkerTokenConfigCollapsed)}
+					style={{
+						width: '100%',
+						padding: '16px 20px',
+						background: isWorkerTokenConfigCollapsed
+							? 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
+							: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+						border: 'none',
+						borderBottom: isWorkerTokenConfigCollapsed ? '1px solid #e2e8f0' : 'none',
+						cursor: 'pointer',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'space-between',
+						transition: 'all 0.3s ease',
+						marginBottom: isWorkerTokenConfigCollapsed ? '0' : '20px',
+					}}
+					onMouseEnter={(e) => {
+						e.currentTarget.style.color = '#1f2937';
+					}}
+					onMouseLeave={(e) => {
+						e.currentTarget.style.color = '#374151';
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+						<span
+							style={{
+								fontSize: '24px',
+								color: '#3b82f6',
+								transform: isWorkerTokenConfigCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+								transition: 'all 0.3s ease',
+							}}
+						>
+							▶
+						</span>
+						<span style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+							🔧 Worker Token Configuration
+						</span>
+					</div>
+					<span
+						style={{
+							fontSize: '16px',
+							color: '#6b7280',
+							transform: isWorkerTokenConfigCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+							transition: 'all 0.3s ease',
+						}}
+					>
+						▶
+					</span>
+				</button>
 
-				{/* Worker Token Status & Actions */}
+				{/* Worker Token Content */}
+				{!isWorkerTokenConfigCollapsed && (
+					<div>
+						{/* Worker Token Status & Actions */}
 				<div style={{ marginBottom: '24px' }}>
 					<div
 						style={{
@@ -2173,6 +2228,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						</select>
 					)}
 				</div>
+					</div>
+				)}
 			</div>
 
 			{/* 3. Dashboard Features (Merged) */}
