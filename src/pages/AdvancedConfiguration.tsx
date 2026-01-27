@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
 	FiCheckCircle,
 	FiCopy,
@@ -18,6 +18,7 @@ import JsonEditor from '../components/JsonEditor';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
 
 const _Container = styled.div`
@@ -319,7 +320,27 @@ const AdvancedConfiguration = () => {
 	// Load defaults from credentialManager
 	const currentDefaults = credentialManager.loadAuthzFlowCredentials();
 
-	const [environmentId, setEnvironmentId] = useState(currentDefaults.environmentId || '');
+	const [environmentId, setEnvironmentId] = useState(() => {
+		// Use credentialManager as primary source
+		const credentialManagerEnvId = currentDefaults.environmentId || '';
+		
+		// Try worker token credentials as fallback
+		if (!credentialManagerEnvId) {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId) {
+						return data.credentials.environmentId;
+					}
+				}
+			} catch (error) {
+				console.log('Failed to load environment ID from worker token:', error);
+			}
+		}
+		
+		return credentialManagerEnvId;
+	});
 	const [redirectUri, setRedirectUri] = useState(
 		currentDefaults.redirectUri || 'https://localhost:3000/authz-callback'
 	);
@@ -526,6 +547,26 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 	];
 
 	const _allClaims = [...standardClaims, ...customClaims.filter((claim) => claim.trim() !== '')];
+
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId && !environmentId) {
+						setEnvironmentId(data.credentials.environmentId);
+					}
+				}
+			} catch (error) {
+				console.log('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+	}, [environmentId]);
 
 	// Check current credentials status
 	const currentCredentials = credentialManager.loadAuthzFlowCredentials();
