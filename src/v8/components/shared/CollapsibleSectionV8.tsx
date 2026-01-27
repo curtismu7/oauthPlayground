@@ -177,7 +177,7 @@ export const CollapsibleSectionV8: React.FC<CollapsibleSectionProps> = ({
 						justifyContent: 'center',
 						width: '32px',
 						height: '32px',
-						backgroundColor: 'transparent',
+						backgroundColor: '#ffffff',
 						borderRadius: '6px',
 						border: '2px solid #3b82f6',
 						transition: 'all 0.2s ease',
