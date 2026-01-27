@@ -83,6 +83,20 @@ const StepContent = styled.div`
 	border: 1px solid #e5e7eb;
 `;
 
+const StepDescription = styled.div`
+	margin-bottom: 1.5rem;
+	
+	p {
+		margin-bottom: 1rem;
+		line-height: 1.6;
+		color: #374151;
+	}
+	
+	&:last-child {
+		margin-bottom: 0;
+	}
+`;
+
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 0.5rem;
