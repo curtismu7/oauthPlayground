@@ -3,7 +3,7 @@
 
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
-import { FiAlertTriangle, FiCheckCircle, FiCopy, FiXCircle } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiCopy, FiExternalLink, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
 import {
 	DeviceFlowState,
@@ -480,6 +480,11 @@ const AppleTVDeviceFlow: React.FC<AppleTVDeviceFlowProps> = ({
 		logger.info('AppleTVDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
+	const handleOpenVerificationUri = () => {
+		window.open(state.verificationUriComplete, '_blank');
+		logger.info('AppleTVDeviceFlow', 'Verification URI opened in new tab');
+	};
+
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
@@ -607,6 +612,9 @@ const AppleTVDeviceFlow: React.FC<AppleTVDeviceFlowProps> = ({
 
 						{/* Control Buttons */}
 						<ControlButtons>
+							<ControlButton $variant="primary" onClick={handleOpenVerificationUri}>
+								<FiExternalLink size={12} /> Open in Browser
+							</ControlButton>
 							<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
 								<FiCopy size={12} /> Copy Code
 							</ControlButton>
