@@ -208,7 +208,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 		const errorDescription =
 			fragmentParams?.get('error_description') || searchParams.get('error_description');
 
-		logger.debug(Callback received`, {
+		logger.debug(`Callback received`, {
 			url: window.location.href,
 			hasCode: searchParams.has('code'),
 			hasState: searchParams.has('state'),
