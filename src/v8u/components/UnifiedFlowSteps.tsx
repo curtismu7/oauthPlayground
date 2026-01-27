@@ -13494,7 +13494,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				role="dialog"
 				aria-modal="true"
 				aria-labelledby={callbackSuccessModalTitleId}
-				tabIndex={0}
 				style={{
 					display: showCallbackSuccessModal ? 'flex' : 'none',
 					position: 'fixed',
