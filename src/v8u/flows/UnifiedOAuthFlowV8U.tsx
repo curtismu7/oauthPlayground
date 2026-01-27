@@ -714,7 +714,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			}
 
 			// Check worker token status
-			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 			if (!tokenStatus.isValid) {
 				setAppConfig(null);
 				return;
