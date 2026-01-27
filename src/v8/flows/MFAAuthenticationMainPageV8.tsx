@@ -1431,6 +1431,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 			// Show appropriate modal
 			if (needsDeviceSelection) {
+				setShowDeviceSelectionModal(true);
 				toastV8.success('Please select a device to continue');
 			} else if (needsOTP) {
 				setShowOTPModal(true);
