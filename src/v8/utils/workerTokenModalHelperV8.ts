@@ -50,6 +50,37 @@ async function attemptSilentTokenRetrieval(silentApiRetrievalOverride?: boolean)
 		const credentials = await workerTokenServiceV8.loadCredentials();
 		// #region agent log
 		// #endregion
+		
+		// Debug: Check what's in localStorage
+		console.log(`${MODULE_TAG} 🔍 DEBUG: Checking localStorage...`);
+		const allKeys = Object.keys(localStorage);
+		console.log(`${MODULE_TAG} 🔍 DEBUG: All localStorage keys:`, allKeys);
+		const unifiedToken = localStorage.getItem('unified_worker_token');
+		console.log(`${MODULE_TAG} 🔍 DEBUG: unified_worker_token exists:`, !!unifiedToken);
+		if (unifiedToken) {
+			try {
+				const parsed = JSON.parse(unifiedToken);
+				console.log(`${MODULE_TAG} 🔍 DEBUG: unified_worker_token structure:`, {
+					hasCredentials: !!parsed.credentials,
+					hasToken: !!parsed.token,
+					hasEnvironmentId: !!parsed.credentials?.environmentId,
+					hasClientId: !!parsed.credentials?.clientId,
+					hasClientSecret: !!parsed.credentials?.clientSecret
+				});
+			} catch (e) {
+				console.log(`${MODULE_TAG} 🔍 DEBUG: Failed to parse unified_worker_token:`, e);
+			}
+		}
+		
+		console.log(`${MODULE_TAG} 🔍 DEBUG: Credentials from service:`, !!credentials);
+		if (credentials) {
+			console.log(`${MODULE_TAG} 🔍 DEBUG: Credentials structure:`, {
+				hasEnvironmentId: !!credentials.environmentId,
+				hasClientId: !!credentials.clientId,
+				hasClientSecret: !!credentials.clientSecret
+			});
+		}
+		
 		if (!credentials) {
 			console.warn(
 				`${MODULE_TAG} No stored credentials for silent API retrieval - user needs to configure credentials first`
