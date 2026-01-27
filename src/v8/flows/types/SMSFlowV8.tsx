@@ -2323,7 +2323,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 										}}
 									>
 										<span>🔑</span>
-										<span>{tokenStatus.isValid ? 'Manage Token' : 'Get Token'}</span>
+										<span>Get worker token</span>
 									</button>
 								</div>
 							</div>
