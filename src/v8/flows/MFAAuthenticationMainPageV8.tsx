@@ -1431,7 +1431,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		if (!showWorkerTokenModal) return false;
 		try {
 			const config = MFAConfigurationServiceV8.loadConfiguration();
-			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			// Use existing tokenStatus state instead of calling async function
 			return config.workerToken.showTokenAtEnd && tokenStatus.isValid;
 		} catch {
 			return false;
