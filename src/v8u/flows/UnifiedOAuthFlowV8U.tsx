@@ -20,7 +20,7 @@ import {
 	generateCompletePostmanCollection,
 	generateComprehensiveUnifiedPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
-import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import {
 	ApiDisplayCheckbox,
 	SuperSimpleApiDisplayV8,
@@ -721,7 +721,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			}
 
 			// Get the actual token from the service
-			const token = await unifiedWorkerTokenServiceV2.getToken();
+			const token = await unifiedWorkerTokenService.getToken();
 			if (!token) {
 				setAppConfig(null);
 				return;

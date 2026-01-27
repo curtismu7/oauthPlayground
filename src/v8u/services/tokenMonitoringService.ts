@@ -1,5 +1,5 @@
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
-import { unifiedWorkerTokenServiceV2 } from '../../services/unifiedWorkerTokenServiceV2';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import type { WorkerAccessToken, WorkerTokenStatus } from '../../services/unifiedWorkerTokenTypes';
 import { logger } from './unifiedFlowLoggerServiceV8U';
 export interface TokenInfo {
@@ -518,7 +518,7 @@ export class TokenMonitoringService {
 			logger.debug('[TokenMonitoring] Syncing worker token...');
 
 			// Get worker token status
-			const status = await unifiedWorkerTokenServiceV2.getStatus();
+			const status = await unifiedWorkerTokenService.getStatus();
 			logger.debug('[TokenMonitoring] Worker token status:', status);
 
 			if (!status.hasToken || !status.tokenValid) {
@@ -529,7 +529,7 @@ export class TokenMonitoringService {
 			}
 
 			// Get the actual worker token
-			const workerTokenString = await unifiedWorkerTokenServiceV2.getToken();
+			const workerTokenString = await unifiedWorkerTokenService.getToken();
 			logger.debug(
 				'[TokenMonitoring] Got worker token string:',
 				workerTokenString ? 'SUCCESS' : 'FAILED'
@@ -577,7 +577,7 @@ export class TokenMonitoringService {
 		try {
 			// This is a simplified approach - in a real implementation, we might need
 			// to access the worker token manager's internal storage or add a method to expose it
-			const status = await unifiedWorkerTokenServiceV2.getStatus();
+			const status = await unifiedWorkerTokenService.getStatus();
 
 			if (status.hasToken && status.lastFetchedAt) {
 				// Create a minimal WorkerAccessToken-like object
@@ -996,7 +996,7 @@ export class TokenMonitoringService {
 
 		// Get worker token for Management API
 		try {
-			const workerToken = await unifiedWorkerTokenServiceV2.getToken();
+			const workerToken = await unifiedWorkerTokenService.getToken();
 			const flowContext =
 				typeof window !== 'undefined'
 					? window.sessionStorage.getItem('tokenManagementFlowContext')
