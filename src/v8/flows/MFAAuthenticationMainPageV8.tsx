@@ -85,8 +85,8 @@ import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 
 // Add CSS animations for modern modal effects
-const style = document.createElement('style');
-style.textContent = `
+const modalStyle = document.createElement('style');
+modalStyle.textContent = `
 	@keyframes fadeIn {
 		from { opacity: 0; }
 		to { opacity: 1; }
@@ -102,15 +102,10 @@ style.textContent = `
 			transform: translateY(0);
 		}
 	}
-	
-	@keyframes pulse {
-		0%, 100% { transform: scale(1); }
-		50% { transform: scale(1.05); }
-	}
 `;
 if (!document.head.querySelector('style[data-modal-animations]')) {
-	style.setAttribute('data-modal-animations', 'true');
-	document.head.appendChild(style);
+	modalStyle.setAttribute('data-modal-animations', 'true');
+	document.head.appendChild(modalStyle);
 }
 import {
 	MFADeviceSelectionInfoModal,
