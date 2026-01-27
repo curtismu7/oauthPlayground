@@ -74,6 +74,18 @@ export const GlobalStyle = createGlobalStyle`
     padding: 0;
   }
 
+  html, body {
+    text-align: left;
+    direction: ltr;
+    font-family: ${({ theme }) => theme.fonts.body};
+  }
+
+  body {
+    background-color: ${({ theme }) => theme.colors.gray100};
+    color: ${({ theme }) => theme.colors.gray900};
+    line-height: 1.6;
+  }
+
   html {
     font-size: 16px;
     height: 100%;
