@@ -108,15 +108,25 @@ const CollapsibleTitle = styled.span`
 
 const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	width: 32px;
 	height: 32px;
-	border-radius: 50%;
+	background-color: #3b82f6;
+	border-radius: 6px;
+	border: 1px solid #2563eb;
 	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-	transition: transform 0.2s ease;
+	transition: all 0.2s ease;
 
 	svg {
 		width: 16px;
 		height: 16px;
+		color: #ffffff;
+	}
+
+	&:hover {
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')} scale(1.05);
+		background-color: #2563eb;
 	}
 `;
 
