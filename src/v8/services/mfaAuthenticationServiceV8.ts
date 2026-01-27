@@ -1403,24 +1403,6 @@ export class MfaAuthenticationServiceV8 {
 				contentType = 'application/vnd.pingidentity.otp.check+json';
 				console.log(`${MODULE_TAG} Using otp.check URL from _links:`, endpoint);
 			} else {
-				// Get userId - use provided userId or look up by username
-				let _userId: string;
-				if (params.userId) {
-					_userId = params.userId;
-				} else if (params.username) {
-					const { MFAServiceV8 } = await import('./mfaServiceV8');
-					const user = await MFAServiceV8.lookupUserByUsername(
-						params.environmentId,
-						params.username
-					);
-					_userId = user.id as string;
-				} else {
-					// No-username variant: Initialize device authentication without username/userId
-					// This requires a special request body structure
-					console.log(`${MODULE_TAG} Using no-username variant for device authentication`);
-					_userId = ''; // Will be omitted from request body
-				}
-
 				// Fallback to direct endpoint - use custom domain if provided
 				// Per PingOne API: POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}/otp
 				// API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-validate-otp-for-device
