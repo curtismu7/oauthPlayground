@@ -37,7 +37,6 @@ export const FlowProgressTrackerV8: React.FC<FlowProgressTrackerV8Props> = ({
 				return UI_STANDARDS.colors.focus;
 			case 'error':
 				return UI_STANDARDS.messageColors.error.border;
-			case 'pending':
 			default:
 				return UI_STANDARDS.colors.default;
 		}
@@ -53,7 +52,6 @@ export const FlowProgressTrackerV8: React.FC<FlowProgressTrackerV8Props> = ({
 				return '⚡';
 			case 'error':
 				return '⚠';
-			case 'pending':
 			default:
 				return '○';
 		}
@@ -135,7 +133,7 @@ export const FlowProgressTrackerV8: React.FC<FlowProgressTrackerV8Props> = ({
 				key={step.id}
 				className={`flow-step compact ${isActive ? 'active' : ''} ${isClickable ? 'clickable' : ''}`}
 				onClick={() => handleStepClick(step.id)}
-				title={`${step.label}${step.description ? ': ' + step.description : ''}`}
+				title={`${step.label}${step.description ? `: ${step.description}` : ''}`}
 			>
 				<div className="step-dot" style={{ backgroundColor: getStepColor(step.status) }}>
 					<span className="step-icon">{getStepIcon(step.status, step.icon)}</span>

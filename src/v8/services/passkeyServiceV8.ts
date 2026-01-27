@@ -245,7 +245,7 @@ export class PasskeyServiceV8 {
 
 			console.log(`${MODULE_TAG} WebAuthn authentication successful, userHandle extracted`, {
 				userHandleLength: userHandle.length,
-				credentialId: credential.id.substring(0, 20) + '...',
+				credentialId: `${credential.id.substring(0, 20)}...`,
 			});
 
 			// Step 4: Verify authentication with backend

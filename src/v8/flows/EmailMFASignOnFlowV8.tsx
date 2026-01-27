@@ -16,7 +16,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
-	FiBook,
 	FiCheckCircle,
 	FiKey,
 	FiLoader,
@@ -31,7 +30,6 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
-import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EmailMFASignOnFlowServiceV8 } from '@/v8/services/emailMfaSignOnFlowServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
@@ -339,7 +337,7 @@ interface StepState {
 }
 
 export const EmailMFASignOnFlowV8: React.FC = () => {
-	const navigate = useNavigate();
+	const _navigate = useNavigate();
 	usePageScroll({ pageName: 'Email MFA Sign-On Flow V8', force: true });
 
 	// Credentials state
@@ -374,14 +372,14 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 
 	// Application data
 	const [applicationData, setApplicationData] = useState<Record<string, unknown>>({});
-	const [resourceData, setResourceData] = useState<Record<string, unknown>>({});
-	const [signOnPolicyData, setSignOnPolicyData] = useState<Record<string, unknown>>({});
-	const [populationData, setPopulationData] = useState<Record<string, unknown>>({});
+	const [_resourceData, setResourceData] = useState<Record<string, unknown>>({});
+	const [_signOnPolicyData, setSignOnPolicyData] = useState<Record<string, unknown>>({});
+	const [_populationData, setPopulationData] = useState<Record<string, unknown>>({});
 	const [userData, setUserData] = useState<Record<string, unknown>>({});
-	const [deviceAuthPolicyData, setDeviceAuthPolicyData] = useState<Record<string, unknown>>({});
-	const [deviceData, setDeviceData] = useState<Record<string, unknown>>({});
+	const [_deviceAuthPolicyData, setDeviceAuthPolicyData] = useState<Record<string, unknown>>({});
+	const [_deviceData, setDeviceData] = useState<Record<string, unknown>>({});
 	const [flowData, setFlowData] = useState<Record<string, unknown>>({});
-	const [tokenData, setTokenData] = useState<Record<string, unknown>>({});
+	const [_tokenData, setTokenData] = useState<Record<string, unknown>>({});
 
 	// Form inputs
 	const [appName, setAppName] = useState('Email MFA Test App');

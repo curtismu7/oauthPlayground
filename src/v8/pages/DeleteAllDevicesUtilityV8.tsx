@@ -14,7 +14,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiKey, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
+import { FiAlertCircle, FiKey, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';

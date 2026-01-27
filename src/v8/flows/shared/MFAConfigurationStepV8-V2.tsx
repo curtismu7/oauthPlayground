@@ -12,8 +12,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
+import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import type { DeviceType } from './MFATypes';
@@ -52,7 +52,9 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 	useEffect(() => {
 		const loadSettings = async () => {
 			try {
-				const { MFAConfigurationServiceV8 } = await import('@/v8/services/mfaConfigurationServiceV8');
+				const { MFAConfigurationServiceV8 } = await import(
+					'@/v8/services/mfaConfigurationServiceV8'
+				);
 				const config = MFAConfigurationServiceV8.loadConfiguration();
 				setSilentApiRetrieval(config.workerToken.silentApiRetrieval || false);
 				setShowTokenAtEnd(config.workerToken.showTokenAtEnd !== false);
@@ -116,18 +118,21 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 						border: '1px solid #bae6fd',
 					}}
 				>
-					<h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#1e40af' }}>
+					<h3
+						style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#1e40af' }}
+					>
 						Admin Flow vs User Flow
 					</h3>
 					<div style={{ fontSize: '14px', color: '#1e3a8a', lineHeight: '1.6' }}>
 						<p style={{ margin: '0 0 12px 0' }}>
-							<strong>Admin Flow:</strong> Uses a <strong>Worker Token</strong> (service account token)
-							for administrative operations. Devices can be created as ACTIVE or ACTIVATION_REQUIRED.
+							<strong>Admin Flow:</strong> Uses a <strong>Worker Token</strong> (service account
+							token) for administrative operations. Devices can be created as ACTIVE or
+							ACTIVATION_REQUIRED.
 						</p>
 						<p style={{ margin: '0' }}>
-							<strong>User Flow:</strong> Uses a <strong>User Token</strong> (access token from OAuth
-							Authorization Code Flow) for user-initiated device registration. Devices are always created
-							with ACTIVATION_REQUIRED status.
+							<strong>User Flow:</strong> Uses a <strong>User Token</strong> (access token from
+							OAuth Authorization Code Flow) for user-initiated device registration. Devices are
+							always created with ACTIVATION_REQUIRED status.
 						</p>
 					</div>
 				</div>
@@ -163,7 +168,9 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 							<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 								<span style={{ fontSize: '20px' }}>🔑</span>
 								<div>
-									<h3 style={{ margin: '0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+									<h3
+										style={{ margin: '0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}
+									>
 										Worker Token
 									</h3>
 									<p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#6b7280' }}>
@@ -185,7 +192,14 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 						{showWorkerTokenSection && (
 							<div style={{ padding: '0 20px 20px' }}>
 								<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
-								<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+								<div
+									style={{
+										marginTop: '16px',
+										display: 'flex',
+										flexDirection: 'column',
+										gap: '12px',
+									}}
+								>
 									<label
 										style={{
 											display: 'flex',
@@ -330,7 +344,9 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 							<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 								<span style={{ fontSize: '20px' }}>👤</span>
 								<div>
-									<h3 style={{ margin: '0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+									<h3
+										style={{ margin: '0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}
+									>
 										User Token
 									</h3>
 									<p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#6b7280' }}>
@@ -360,12 +376,25 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 										borderRadius: '6px',
 									}}
 								>
-									<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '8px',
+											marginBottom: '8px',
+										}}
+									>
 										<strong style={{ color: userToken ? '#166534' : '#dc2626' }}>
 											Status: {userToken ? 'AVAILABLE' : 'MISSING'}
 										</strong>
 									</div>
-									<p style={{ margin: '0', fontSize: '13px', color: userToken ? '#15803d' : '#991b1b' }}>
+									<p
+										style={{
+											margin: '0',
+											fontSize: '13px',
+											color: userToken ? '#15803d' : '#991b1b',
+										}}
+									>
 										{userToken
 											? 'PingOne access token is available for user authentication'
 											: 'No PingOne access token - user authentication required'}
@@ -376,7 +405,9 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 										</p>
 									)}
 								</div>
-								<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
+								<div
+									style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}
+								>
 									<button
 										type="button"
 										onClick={() => {
@@ -427,8 +458,8 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 								</div>
 								<div style={{ fontSize: '14px', color: '#6b7280', lineHeight: 1.5 }}>
 									<p style={{ margin: '0 0 12px 0' }}>
-										<strong>PingOne Access Token</strong> represents the authenticated user's identity and
-										permissions obtained through the Authorization Code Flow.
+										<strong>PingOne Access Token</strong> represents the authenticated user's
+										identity and permissions obtained through the Authorization Code Flow.
 									</p>
 									<ul style={{ margin: '0', paddingLeft: '20px' }}>
 										<li>Contains user identity claims (subject, name, email)</li>
@@ -474,7 +505,9 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 							style={{
 								width: '100%',
 								padding: '12px 14px',
-								border: credentials.environmentId?.trim() ? '1px solid #d1d5db' : '2px solid #ef4444',
+								border: credentials.environmentId?.trim()
+									? '1px solid #d1d5db'
+									: '2px solid #ef4444',
 								borderRadius: '6px',
 								fontSize: '14px',
 								background: credentials.environmentId?.trim() ? 'white' : '#fef2f2',
@@ -485,10 +518,14 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 								e.target.style.borderColor = '#3b82f6';
 							}}
 							onBlur={(e) => {
-								e.target.style.borderColor = credentials.environmentId?.trim() ? '#d1d5db' : '#ef4444';
+								e.target.style.borderColor = credentials.environmentId?.trim()
+									? '#d1d5db'
+									: '#ef4444';
 							}}
 						/>
-						<small style={{ display: 'block', marginTop: '6px', fontSize: '12px', color: '#6b7280' }}>
+						<small
+							style={{ display: 'block', marginTop: '6px', fontSize: '12px', color: '#6b7280' }}
+						>
 							PingOne environment ID
 						</small>
 					</div>
@@ -539,7 +576,9 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 							<option value="ap">AP (Asia Pacific) - auth.pingone.asia</option>
 							<option value="ca">CA (Canada) - auth.pingone.ca</option>
 						</select>
-						<small style={{ display: 'block', marginTop: '6px', fontSize: '12px', color: '#6b7280' }}>
+						<small
+							style={{ display: 'block', marginTop: '6px', fontSize: '12px', color: '#6b7280' }}
+						>
 							The region where your PingOne environment is hosted
 						</small>
 					</div>
@@ -587,7 +626,9 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 								e.target.style.borderColor = '#d1d5db';
 							}}
 						/>
-						<small style={{ display: 'block', marginTop: '6px', fontSize: '12px', color: '#6b7280' }}>
+						<small
+							style={{ display: 'block', marginTop: '6px', fontSize: '12px', color: '#6b7280' }}
+						>
 							Your custom PingOne domain (e.g., auth.yourcompany.com). If set, this overrides the
 							region-based domain.
 						</small>
@@ -625,7 +666,9 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 											? 'not-allowed'
 											: 'pointer',
 									opacity:
-										isLoadingPolicies || !tokenStatus.isValid || !credentials.environmentId ? 0.6 : 1,
+										isLoadingPolicies || !tokenStatus.isValid || !credentials.environmentId
+											? 0.6
+											: 1,
 									boxShadow: '0 2px 4px rgba(2,132,199,0.2)',
 									transition: 'all 0.2s ease',
 									display: 'flex',
@@ -745,7 +788,8 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 								border: '1px solid #e2e8f0',
 							}}
 						>
-							{policyDescription || `Determines which PingOne policy governs ${deviceTypeLabel} challenges.`}
+							{policyDescription ||
+								`Determines which PingOne policy governs ${deviceTypeLabel} challenges.`}
 						</small>
 					</div>
 
@@ -786,7 +830,9 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 								e.target.style.borderColor = credentials.username?.trim() ? '#d1d5db' : '#ef4444';
 							}}
 						/>
-						<small style={{ display: 'block', marginTop: '6px', fontSize: '12px', color: '#6b7280' }}>
+						<small
+							style={{ display: 'block', marginTop: '6px', fontSize: '12px', color: '#6b7280' }}
+						>
 							PingOne username to register MFA device for
 						</small>
 					</div>

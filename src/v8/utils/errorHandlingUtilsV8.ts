@@ -192,7 +192,7 @@ export function formatErrorForUser(
 
 	// Truncate if too long
 	if (message.length > maxLength) {
-		message = message.substring(0, maxLength - 3) + '...';
+		message = `${message.substring(0, maxLength - 3)}...`;
 	}
 
 	return message;

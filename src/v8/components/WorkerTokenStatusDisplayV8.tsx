@@ -14,7 +14,7 @@
  * - Multiple display modes (compact, detailed, minimal)
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	FiActivity,
 	FiAlertCircle,
@@ -32,7 +32,6 @@ import {
 	FiSettings,
 	FiShield,
 	FiTrendingUp,
-	FiXCircle,
 	FiZap,
 } from 'react-icons/fi';
 import styled, { css, keyframes } from 'styled-components';
@@ -408,7 +407,7 @@ const ConfigToggleInput = styled.input`
 	}
 `;
 
-const ConfigSlider = styled.span`
+const _ConfigSlider = styled.span`
 	position: absolute;
 	cursor: pointer;
 	top: 0;
@@ -656,7 +655,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
 			clearInterval(interval);
 		};
-	}, [refreshInterval]);
+	}, [refreshInterval, updateTokenStatus]);
 
 	const getVariant = (): 'valid' | 'invalid' | 'warning' => {
 		return WorkerTokenStatusServiceV8U.getVariant(tokenStatus);

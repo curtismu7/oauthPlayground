@@ -75,27 +75,27 @@ export const ComponentTestSuiteV8: React.FC<ComponentTestSuiteV8Props> = ({
 	};
 
 	// Mock test functions
-	const testComponentRender = async (component: string): Promise<boolean> => {
+	const testComponentRender = async (_component: string): Promise<boolean> => {
 		await new Promise((resolve) => setTimeout(resolve, 100));
 		return Math.random() > 0.1; // 90% pass rate
 	};
 
-	const testComponentProps = async (component: string): Promise<boolean> => {
+	const testComponentProps = async (_component: string): Promise<boolean> => {
 		await new Promise((resolve) => setTimeout(resolve, 50));
 		return Math.random() > 0.15; // 85% pass rate
 	};
 
-	const testComponentAccessibility = async (component: string): Promise<boolean> => {
+	const testComponentAccessibility = async (_component: string): Promise<boolean> => {
 		await new Promise((resolve) => setTimeout(resolve, 75));
 		return Math.random() > 0.05; // 95% pass rate
 	};
 
-	const testComponentPerformance = async (component: string): Promise<boolean> => {
+	const testComponentPerformance = async (_component: string): Promise<boolean> => {
 		await new Promise((resolve) => setTimeout(resolve, 200));
 		return Math.random() > 0.2; // 80% pass rate
 	};
 
-	const testComponentResponsive = async (component: string): Promise<boolean> => {
+	const testComponentResponsive = async (_component: string): Promise<boolean> => {
 		await new Promise((resolve) => setTimeout(resolve, 60));
 		return Math.random() > 0.1; // 90% pass rate
 	};

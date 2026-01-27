@@ -5,8 +5,6 @@
  * @version 8.0.0
  */
 
-import { useCallback, useState } from 'react';
-
 export interface ModalSpinnerState {
 	show: boolean;
 	message: string;

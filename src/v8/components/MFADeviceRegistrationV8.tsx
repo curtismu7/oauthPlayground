@@ -444,7 +444,10 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 							onChange={(e) =>
 								setDeviceConfig({
 									...deviceConfig,
-									totpConfig: { ...deviceConfig.totpConfig, qrCodeSize: parseInt(e.target.value) },
+									totpConfig: {
+										...deviceConfig.totpConfig,
+										qrCodeSize: parseInt(e.target.value, 10),
+									},
 								})
 							}
 							style={{

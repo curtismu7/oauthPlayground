@@ -43,7 +43,7 @@ export const EmailRegistrationDocsPageV8: React.FC = () => {
 			if (stored) {
 				storedFlowData = JSON.parse(stored);
 			}
-		} catch (e) {
+		} catch (_e) {
 			// Ignore parse errors
 		}
 	}

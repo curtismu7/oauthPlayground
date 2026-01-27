@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { ModalSpinnerServiceV8U } from '@/v8/services/modalSpinnerServiceV8U';
 
 interface DeviceCodePollingModalProps {
@@ -94,7 +94,7 @@ const CancelButton = styled.button`
 	}
 `;
 
-const fadeIn = styled.keyframes`
+const _fadeIn = styled.keyframes`
 	from {
 		opacity: 0;
 		transform: scale(0.9);
@@ -129,7 +129,7 @@ export const DeviceCodePollingModalV8U: React.FC<DeviceCodePollingModalProps> = 
 			message: `Waiting for device authorization... (${attempts}/${maxAttempts})`,
 			theme: 'blue',
 		});
-	}, [show, status, attempts, maxAttempts]);
+	}, [show, attempts, maxAttempts]);
 
 	// Cleanup on unmount
 	React.useEffect(() => {

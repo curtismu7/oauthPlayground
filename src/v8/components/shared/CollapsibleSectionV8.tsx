@@ -82,7 +82,7 @@ export const CollapsibleSectionV8: React.FC<CollapsibleSectionProps> = ({
 				setContentHeight(0);
 			}
 		}
-	}, [isExpanded, children]);
+	}, [isExpanded]);
 
 	// Recalculate height when window resizes
 	useEffect(() => {
