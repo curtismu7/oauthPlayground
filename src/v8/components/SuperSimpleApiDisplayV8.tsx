@@ -1358,23 +1358,23 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					className="super-simple-api-display"
 					style={{
 						position: 'fixed',
-						bottom: 0,
+						bottom: '20px', // Add space from bottom to avoid covering buttons
 						left: `${sidebarWidth}px`,
 						right: '20px',
 						// Start smaller when there are no API calls so we don't hide key buttons
 						height: `${apiCalls.length === 0 ? 140 : Math.min(height, 400)}px`,
-						maxHeight: apiCalls.length === 0 ? '180px' : 'calc(50vh - 20px)',
+						maxHeight: apiCalls.length === 0 ? '180px' : 'calc(50vh - 40px)', // Account for bottom spacing
 						background: 'white',
 						borderTop: '3px solid #10b981',
 						borderLeft: '1px solid #e5e7eb',
 						borderRight: '1px solid #e5e7eb',
+						borderRadius: '8px 8px 0 0', // Add rounded top corners
 						display: 'flex',
 						flexDirection: 'column',
 						zIndex: 100,
 						fontFamily: 'monospace',
 						fontSize: `${fontSize}px`,
 						boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.15)',
-						borderRadius: '8px 8px 0 0',
 						transition: 'left 0.3s ease',
 					}}
 				>
