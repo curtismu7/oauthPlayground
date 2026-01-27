@@ -24,8 +24,9 @@ import { Card, CardBody, CardHeader } from '../components/Card';
 import ConfirmationModal from '../components/ConfirmationModal';
 import StandardMessage from '../components/StandardMessage';
 import { TokenSurface } from '../components/TokenSurface';
-import { useAuth } from '../contexts/NewAuthContext';
+import { useAuth } from '@/contexts/NewAuthContext';
 import { useErrorDiagnosis } from '../hooks/useErrorDiagnosis';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { useTokenAnalysis } from '../hooks/useTokenAnalysis';
 import PageLayoutService from '../services/pageLayoutService';
@@ -1418,6 +1419,22 @@ const TokenManagement = () => {
 				if (configCredentials.environmentId && configCredentials.clientId) {
 					allCredentials = { ...allCredentials, ...configCredentials };
 					console.log(' [TokenManagement] Merged config credentials with flow credentials');
+				}
+			}
+
+			// Try worker token credentials as final fallback for environment ID
+			if (!allCredentials.environmentId) {
+				try {
+					const stored = localStorage.getItem('unified_worker_token');
+					if (stored) {
+						const data = JSON.parse(stored);
+						if (data.credentials?.environmentId) {
+							allCredentials.environmentId = data.credentials.environmentId;
+							console.log(' [TokenManagement] Auto-populated environment ID from worker token');
+						}
+					}
+				} catch (error) {
+					console.log(' [TokenManagement] Failed to load environment ID from worker token:', error);
 				}
 			}
 
