@@ -20,6 +20,7 @@ import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { apiRequestModalService } from '../services/apiRequestModalService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 
@@ -497,12 +498,21 @@ const PingOneIdentityMetrics: React.FC = () => {
 
 	// Execute the actual API call (called after user confirms in modal)
 	const executeApiCall = useCallback(async () => {
-		// Load credentials from worker_credentials (the same key WorkerTokenModal uses)
-		const workerCredsStr = localStorage.getItem('worker_credentials');
-		const workerCreds = workerCredsStr ? JSON.parse(workerCredsStr) : null;
-		const environmentId = workerCreds?.environmentId || '';
-		const region = (workerCreds?.region as string) || 'us';
+		// Load credentials from unified worker token service
+		let environmentId = '';
+		let region = 'us';
 		const effectiveWorkerToken = getAnyWorkerToken() || '';
+		
+		try {
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				environmentId = data.credentials?.environmentId || '';
+				region = data.credentials?.region || 'us';
+			}
+		} catch (error) {
+			console.log('Failed to load credentials from unified worker token:', error);
+		}
 
 		setLoading(true);
 		setError(null);
@@ -566,11 +576,20 @@ const PingOneIdentityMetrics: React.FC = () => {
 
 	// Show educational modal before making the API call
 	const handleFetch = useCallback(async () => {
-		// Load credentials from worker_credentials (the same key WorkerTokenModal uses)
-		const workerCredsStr = localStorage.getItem('worker_credentials');
-		const workerCreds = workerCredsStr ? JSON.parse(workerCredsStr) : null;
-		const environmentId = workerCreds?.environmentId || '';
-		const region = (workerCreds?.region as string) || 'us';
+		// Load credentials from unified worker token service
+		let environmentId = '';
+		let region = 'us';
+		
+		try {
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				environmentId = data.credentials?.environmentId || '';
+				region = data.credentials?.region || 'us';
+			}
+		} catch (error) {
+			console.log('Failed to load credentials from unified worker token:', error);
+		}
 
 		if (!environmentId.trim()) {
 			setError('Environment ID is required. Please generate a worker token first.');
@@ -1085,20 +1104,35 @@ const PingOneIdentityMetrics: React.FC = () => {
 				}}
 				flowType="pingone-identity-metrics"
 				environmentId={(() => {
-					const creds = localStorage.getItem('worker_credentials');
-					return creds ? JSON.parse(creds).environmentId : '';
+					try {
+						const stored = localStorage.getItem('unified_worker_token');
+						if (stored) {
+							const data = JSON.parse(stored);
+							return data.credentials?.environmentId || '';
+						}
+					} catch (error) {
+						console.log('Failed to load environment ID from unified worker token:', error);
+					}
+					return '';
 				})()}
 				skipCredentialsStep={true}
 				prefillCredentials={(() => {
-					const credsStr = localStorage.getItem('worker_credentials');
-					const creds = credsStr ? JSON.parse(credsStr) : null;
-					return {
-						environmentId: creds?.environmentId || '',
-						clientId: creds?.clientId || '',
-						clientSecret: creds?.clientSecret || '',
-						region: (creds?.region as string) || 'us',
-						scopes: 'p1:read:users', // Metrics API uses roles (Environment Admin/Identity Data Admin), not scopes
-					};
+					try {
+						const stored = localStorage.getItem('unified_worker_token');
+						if (stored) {
+							const data = JSON.parse(stored);
+							return {
+								environmentId: data.credentials?.environmentId || '',
+								clientId: data.credentials?.clientId || '',
+								clientSecret: data.credentials?.clientSecret || '',
+								region: data.credentials?.region || 'us',
+								scopes: 'p1:read:users', // Metrics API uses roles (Environment Admin/Identity Data Admin), not scopes
+							};
+						}
+					} catch (error) {
+						console.log('Failed to load credentials from unified worker token:', error);
+					}
+					return {};
 				})()}
 				tokenStorageKey="worker_token_metrics"
 				tokenExpiryKey="worker_token_metrics_expires_at"
