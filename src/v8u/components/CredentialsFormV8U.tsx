@@ -4819,6 +4819,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 						onClose={() => setShowAppDiscoveryModal(false)}
 						environmentId={credentials.environmentId}
 						onAppSelected={handleAppSelected}
+						flowType={flowType}
+						specVersion={specVersion}
 					/>
 
 					{/* Prompt Info Modal */}

@@ -23,6 +23,8 @@ interface AppDiscoveryModalV8UProps {
 	onClose: () => void;
 	environmentId: string;
 	onAppSelected: (app: DiscoveredApp) => void;
+	flowType?: string;
+	specVersion?: string;
 }
 
 export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
@@ -30,6 +32,8 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 	onClose,
 	environmentId,
 	onAppSelected,
+	flowType,
+	specVersion,
 }) => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [apps, setApps] = useState<(DiscoveredApp & { fullApp?: DiscoveredApplication })[]>([]);
@@ -281,6 +285,50 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 
 					{/* Content */}
 					<div style={{ padding: '24px' }}>
+						{/* Flow Type Display */}
+						{(flowType || specVersion) && (
+							<div
+								style={{
+									padding: '16px',
+									marginBottom: '20px',
+									background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+									borderRadius: '8px',
+									textAlign: 'center',
+								}}
+							>
+								<div
+									style={{
+										fontSize: '16px',
+										fontWeight: '700',
+										color: 'white',
+										marginBottom: '4px',
+										textTransform: 'uppercase',
+										letterSpacing: '0.5px',
+									}}
+								>
+									{specVersion === 'oidc' && 'OpenID Connect (OIDC)'}
+									{specVersion === 'oauth2.0' && 'OAuth 2.0'}
+									{specVersion === 'oauth2.1' && 'OAuth 2.1'}
+									{!specVersion && 'OAuth Flow'}
+								</div>
+								<div
+									style={{
+										fontSize: '14px',
+										color: 'rgba(255, 255, 255, 0.9)',
+										fontWeight: '500',
+									}}
+								>
+									{flowType === 'oauth-authz' && 'Authorization Code Flow'}
+									{flowType === 'implicit' && 'Implicit Flow'}
+									{flowType === 'hybrid' && 'Hybrid Flow'}
+									{flowType === 'client-credentials' && 'Client Credentials Flow'}
+									{flowType === 'device-code' && 'Device Code Flow'}
+									{flowType === 'ropc' && 'Resource Owner Password Credentials Flow'}
+									{!flowType && 'Select an application that matches your flow type'}
+								</div>
+							</div>
+						)}
+
 						{/* Token Status */}
 						<div
 							style={{

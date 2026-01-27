@@ -49,6 +49,7 @@ import {
 	WORKER_TOKEN_STATUS_STYLES,
 	WorkerTokenStatusServiceV8U,
 } from '@/v8u/services/workerTokenStatusServiceV8U';
+import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
 
 // Animation keyframes
 const pulse = keyframes`
