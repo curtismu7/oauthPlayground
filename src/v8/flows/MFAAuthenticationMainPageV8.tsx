@@ -3999,6 +3999,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				</div>
 			)}
 
+			{/* TEST: Show device selection status */}
+			{authState.showDeviceSelection && (
+				<div style={{background: 'orange', color: 'white', padding: '10px', margin: '10px 0'}}>
+					🔥 TEST: Device selection should be showing! Devices: {authState.devices.length}
+				</div>
+			)}
+
 			{/* Authentication Status */}
 			{authState.authenticationId && (
 				<div
