@@ -26,6 +26,7 @@
  */
 
 import { useCallback, useState } from 'react';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const MODULE_TAG = '[🪝 STEP-HOOK-V8U]';
 
@@ -112,11 +113,11 @@ export const useStepNavigationV8U = (
 	const goToStep = useCallback(
 		(step: number) => {
 			if (step < 0 || step >= totalSteps) {
-				console.warn(`${MODULE_TAG} Invalid step`, { step, totalSteps });
+				logger.warn(Invalid step`, { step, totalSteps });
 				return;
 			}
 
-			console.log(`${MODULE_TAG} Going to step`, { from: currentStep, to: step });
+			logger.debug(Going to step`, { from: currentStep, to: step });
 
 			// Mark current step as completed when leaving it
 			if (currentStep < step && !completedSteps.includes(currentStep)) {
@@ -135,7 +136,7 @@ export const useStepNavigationV8U = (
 	// Go to next step
 	const goToNext = useCallback(() => {
 		if (!canGoNext) {
-			console.warn(`${MODULE_TAG} Cannot go to next step - validation errors present`);
+			logger.warn(Cannot go to next step - validation errors present`);
 			return;
 		}
 
@@ -154,7 +155,7 @@ export const useStepNavigationV8U = (
 	// Mark current step as completed
 	const markStepComplete = useCallback(() => {
 		if (!completedSteps.includes(currentStep)) {
-			console.log(`${MODULE_TAG} Marking step as complete`, { step: currentStep });
+			logger.debug(Marking step as complete`, { step: currentStep });
 			setCompletedSteps((prev) => [...prev, currentStep]);
 		}
 	}, [currentStep, completedSteps]);
@@ -162,7 +163,7 @@ export const useStepNavigationV8U = (
 	// Set validation errors
 	const setValidationErrors = useCallback(
 		(errors: string[]) => {
-			console.log(`${MODULE_TAG} Setting validation errors`, {
+			logger.debug(Setting validation errors`, {
 				errorCount: errors.length,
 			});
 			setValidationErrorsState(errors);
@@ -173,7 +174,7 @@ export const useStepNavigationV8U = (
 
 	// Set validation warnings
 	const setValidationWarnings = useCallback((warnings: string[]) => {
-		console.log(`${MODULE_TAG} Setting validation warnings`, {
+		logger.debug(Setting validation warnings`, {
 			warningCount: warnings.length,
 		});
 		setValidationWarningsState(warnings);
@@ -181,7 +182,7 @@ export const useStepNavigationV8U = (
 
 	// Reset to first step
 	const reset = useCallback(() => {
-		console.log(`${MODULE_TAG} Resetting navigation`);
+		logger.debug(Resetting navigation`);
 
 		setCurrentStep(initialStep);
 		setCompletedSteps([]);

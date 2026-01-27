@@ -13,6 +13,8 @@
  * - Async API (doesn't block UI)
  */
 
+import { logger } from './unifiedFlowLoggerServiceV8U';
+
 const MODULE_TAG = '[💾 INDEXEDDB-BACKUP-V8U]';
 
 export interface BackupData {
@@ -39,12 +41,12 @@ async function initDB(): Promise<IDBDatabase> {
 		const request = indexedDB.open(DB_NAME, DB_VERSION);
 
 		request.onerror = () => {
-			console.error(`${MODULE_TAG} Failed to open database:`, request.error);
+			logger.error('Failed to open database', { error: request.error });
 			reject(request.error);
 		};
 
 		request.onsuccess = () => {
-			console.log(`${MODULE_TAG} ✅ Database opened successfully`);
+			logger.debug('Database opened successfully');
 			resolve(request.result);
 		};
 
@@ -58,7 +60,7 @@ async function initDB(): Promise<IDBDatabase> {
 				});
 				store.createIndex('type', 'type', { unique: false });
 				store.createIndex('savedAt', 'savedAt', { unique: false });
-				console.log(`${MODULE_TAG} ✅ Object store created with indexes`);
+				logger.debug('Object store created with indexes');
 			}
 		};
 	});
@@ -94,12 +96,12 @@ export async function save(
 				resolve();
 			};
 			transaction.onerror = () => {
-				console.error(`${MODULE_TAG} ❌ Transaction failed:`, transaction.error);
+				logger.error('Transaction failed', { error: transaction.error });
 				reject(transaction.error);
 			};
 		});
 	} catch (err) {
-		console.error(`${MODULE_TAG} ❌ Failed to save backup`, { key, type, error: err });
+		logger.error('Failed to save backup', { key, type, error: err });
 		throw err;
 	}
 }
@@ -118,24 +120,24 @@ export async function load<T = unknown>(key: string): Promise<T | null> {
 			request.onsuccess = () => {
 				const result = request.result as BackupData | undefined;
 				if (result) {
-					console.log(`${MODULE_TAG} ✅ Loaded backup`, {
+					logger.debug('Loaded backup', {
 						key,
 						type: result.type,
 						age: Date.now() - result.savedAt,
 					});
 					resolve(result.data as T);
 				} else {
-					console.log(`${MODULE_TAG} ⚠️ No backup found`, { key });
+					logger.warn('No backup found', { key });
 					resolve(null);
 				}
 			};
 			request.onerror = () => {
-				console.error(`${MODULE_TAG} ❌ Failed to load:`, request.error);
+				logger.error('Failed to load', { error: request.error });
 				reject(request.error);
 			};
 		});
 	} catch (err) {
-		console.error(`${MODULE_TAG} ❌ Failed to load backup`, { key, error: err });
+		logger.error('Failed to load backup', { key, error: err });
 		return null;
 	}
 }
@@ -152,13 +154,13 @@ export async function deleteBackup(key: string): Promise<void> {
 
 		await new Promise<void>((resolve, reject) => {
 			transaction.oncomplete = () => {
-				console.log(`${MODULE_TAG} ✅ Deleted backup`, { key });
+				logger.debug('Deleted backup', { key });
 				resolve();
 			};
 			transaction.onerror = () => reject(transaction.error);
 		});
 	} catch (err) {
-		console.error(`${MODULE_TAG} ❌ Failed to delete backup`, { key, error: err });
+		logger.error('Failed to delete backup', { key, error: err });
 	}
 }
 
@@ -177,13 +179,13 @@ export async function listByType(
 
 		return new Promise((resolve, reject) => {
 			request.onsuccess = () => {
-				console.log(`${MODULE_TAG} ✅ Listed backups`, { type, count: request.result.length });
+				logger.debug('Listed backups', { type, count: request.result.length });
 				resolve(request.result);
 			};
 			request.onerror = () => reject(request.error);
 		});
 	} catch (err) {
-		console.error(`${MODULE_TAG} ❌ Failed to list backups`, { type, error: err });
+		logger.error('Failed to list backups', { type, error: err });
 		return [];
 	}
 }
@@ -200,13 +202,13 @@ export async function clearAll(): Promise<void> {
 
 		await new Promise<void>((resolve, reject) => {
 			transaction.oncomplete = () => {
-				console.log(`${MODULE_TAG} ✅ Cleared all backups`);
+				logger.debug('Cleared all backups');
 				resolve();
 			};
 			transaction.onerror = () => reject(transaction.error);
 		});
 	} catch (err) {
-		console.error(`${MODULE_TAG} ❌ Failed to clear backups`, err);
+		logger.error('Failed to clear backups', { error: err });
 	}
 }
 
@@ -234,7 +236,7 @@ export async function getStats(): Promise<{ total: number; byType: Record<string
 			request.onerror = () => reject(request.error);
 		});
 	} catch (err) {
-		console.error(`${MODULE_TAG} ❌ Failed to get stats`, err);
+		logger.error('Failed to get stats', { error: err });
 		return { total: 0, byType: {} };
 	}
 }

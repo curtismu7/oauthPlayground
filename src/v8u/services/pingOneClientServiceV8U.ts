@@ -14,6 +14,8 @@
  * - Change tracking and validation
  */
 
+import { logger } from './unifiedFlowLoggerServiceV8U';
+
 const MODULE_TAG = '[🔧 PINGONE-CLIENT-V8U]';
 
 // Feature configuration mappings
@@ -183,7 +185,7 @@ export async function updatePingOneClient(
 	isEnabling: boolean
 ): Promise<{ success: boolean; error?: string }> {
 	try {
-		console.log(`${MODULE_TAG} Updating PingOne client`, {
+		logger.debug(Updating PingOne client`, {
 			clientId,
 			featureId,
 			featureName,
@@ -195,11 +197,11 @@ export async function updatePingOneClient(
 
 		// In real implementation, this would call PingOne API
 		// For now, we simulate success
-		console.log(`${MODULE_TAG} PingOne client updated successfully`);
+		logger.debug(PingOne client updated successfully`);
 
 		return { success: true };
 	} catch (error) {
-		console.error(`${MODULE_TAG} Failed to update PingOne client:`, error);
+		logger.error(Failed to update PingOne client:`, error);
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -217,7 +219,7 @@ export async function updateApplicationConfig(
 	isEnabling: boolean
 ): Promise<{ success: boolean; error?: string }> {
 	try {
-		console.log(`${MODULE_TAG} Updating application configuration`, {
+		logger.debug(Updating application configuration`, {
 			appName,
 			featureId,
 			featureName,
@@ -229,11 +231,11 @@ export async function updateApplicationConfig(
 
 		// In real implementation, this would update app configuration
 		// For now, we simulate success
-		console.log(`${MODULE_TAG} Application configuration updated successfully`);
+		logger.debug(Application configuration updated successfully`);
 
 		return { success: true };
 	} catch (error) {
-		console.error(`${MODULE_TAG} Failed to update application configuration:`, error);
+		logger.error(Failed to update application configuration:`, error);
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -301,7 +303,7 @@ export async function updateFeatureConfiguration(
 			};
 		}
 
-		console.log(`${MODULE_TAG} Feature configuration updated successfully`, {
+		logger.debug(Feature configuration updated successfully`, {
 			featureId,
 			featureName,
 			isEnabling,
@@ -315,7 +317,7 @@ export async function updateFeatureConfiguration(
 			clientId,
 		};
 	} catch (error) {
-		console.error(`${MODULE_TAG} Failed to update feature configuration:`, error);
+		logger.error(Failed to update feature configuration:`, error);
 		return {
 			success: false,
 			changes,

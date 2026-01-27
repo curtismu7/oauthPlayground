@@ -18,6 +18,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FiCheck, FiCode, FiDatabase, FiPlay, FiRefreshCw, FiShield, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import {
 	type TokenStatusInfo,
@@ -190,7 +191,7 @@ const TokenStatusPageV8U: React.FC = () => {
 				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				setTokenStatus(status);
 			} catch (error) {
-				console.error('[TOKEN-STATUS-V8U] Failed to check token status:', error);
+				logger.error('[TOKEN-STATUS-V8U] Failed to check token status:', error);
 				setTokenStatus({
 					isValid: false,
 					status: 'error',
@@ -239,7 +240,7 @@ const TokenStatusPageV8U: React.FC = () => {
 				false
 			);
 		} catch (error) {
-			console.error('[TOKEN-STATUS-V8U] Error showing worker token modal:', error);
+			logger.error('[TOKEN-STATUS-V8U] Error showing worker token modal:', error);
 		}
 	};
 
@@ -317,7 +318,7 @@ const TokenStatusPageV8U: React.FC = () => {
 											const currentStatus =
 												await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 											if (!currentStatus.isValid) {
-												console.log(
+												logger.debug(
 													'[TOKEN-STATUS-V8U] Silent API retrieval enabled, attempting to fetch token now...'
 												);
 												const { handleShowWorkerTokenModal } = await import(
@@ -332,7 +333,7 @@ const TokenStatusPageV8U: React.FC = () => {
 												);
 											}
 										} catch (error) {
-											console.error('[TOKEN-STATUS-V8U] Error in silent retrieval:', error);
+											logger.error('[TOKEN-STATUS-V8U] Error in silent retrieval:', error);
 										}
 									}
 								}}

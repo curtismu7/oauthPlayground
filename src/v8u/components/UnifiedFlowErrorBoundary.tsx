@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import ErrorBoundary from '../../components/ErrorBoundary';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 interface UnifiedFlowErrorBoundaryProps {
 	children: ReactNode;
@@ -22,7 +23,7 @@ export class UnifiedFlowErrorBoundary extends Component<UnifiedFlowErrorBoundary
 
 	private handleError = (error: Error, errorInfo: ErrorInfo) => {
 		// Log flow-specific errors
-		console.error(`Unified Flow Error [${this.getFlowContext()}]:`, error, errorInfo);
+		logger.error(`Unified Flow Error [${this.getFlowContext()}]:`, error, errorInfo);
 
 		// Try to preserve user's current state before reload
 		try {
@@ -38,7 +39,7 @@ export class UnifiedFlowErrorBoundary extends Component<UnifiedFlowErrorBoundary
 
 			sessionStorage.setItem('unifiedFlowErrorRecovery', JSON.stringify(currentState));
 		} catch (e) {
-			console.warn('Could not save error recovery state:', e);
+			logger.warn('Could not save error recovery state:', e);
 		}
 	};
 

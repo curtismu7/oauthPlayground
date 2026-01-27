@@ -1,4 +1,5 @@
 import React, { createContext, ReactNode, useCallback, useContext, useReducer } from 'react';
+import { logger } from './unifiedFlowLoggerServiceV8U';
 
 // Types
 export interface FlowState {
@@ -221,7 +222,7 @@ export const stateUtils = {
 				ui: { ...initialState.ui, ...parsed.ui },
 			};
 		} catch (error) {
-			console.error('Failed to import state:', error);
+			logger.error('Failed to import state:', error);
 			return {};
 		}
 	},

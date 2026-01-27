@@ -76,7 +76,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const newSpec = event.target.value as SpecVersion;
-		console.log(`${MODULE_TAG} Spec version changed`, { from: specVersion, to: newSpec });
+		logger.debug(Spec version changed`, { from: specVersion, to: newSpec });
 		onChange(newSpec);
 	};
 

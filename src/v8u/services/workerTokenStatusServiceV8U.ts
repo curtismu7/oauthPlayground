@@ -31,6 +31,8 @@ export interface TokenStatusInfo {
 	lastUsed?: number | null;
 }
 
+import { logger } from './unifiedFlowLoggerServiceV8U';
+
 const MODULE_TAG = '[🔧 WORKER-TOKEN-STATUS-V8U]';
 
 // Status types for consistent typing
@@ -277,7 +279,7 @@ export const WORKER_TOKEN_STATUS_STYLES = {
 export function debugWorkerTokenStatus(tokenStatus: TokenStatusInfo, context?: string): void {
 	const config = getWorkerTokenStatusConfig(tokenStatus);
 	const contextStr = context ? ` (${context})` : '';
-	console.log(`${MODULE_TAG} Status Debug${contextStr}`, {
+	logger.debug(`Status Debug${contextStr}`, {
 		status: tokenStatus.status,
 		isValid: tokenStatus.isValid,
 		variant: config.variant,
