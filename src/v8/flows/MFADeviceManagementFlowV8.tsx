@@ -26,11 +26,8 @@ import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import {
-	type TokenStatusInfo,
-	WorkerTokenStatusServiceV8,
-} from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔧 DEVICE-MGMT-FLOW-V8]';
@@ -75,11 +72,8 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 	});
 
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
-		status: 'missing',
-		message: 'Checking...',
-		isValid: false,
-	});
+	// Use unified worker token service for token status
+	const tokenStatus = unifiedWorkerTokenService.getTokenStatus();
 	const [showTokenOnly, setShowTokenOnly] = useState(false);
 	const [isReady, setIsReady] = useState(false);
 
@@ -120,34 +114,20 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 	useEffect(() => {
 		// #region agent log
 		// #endregion
-		const checkToken = async () => {
-			const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			setTokenStatus(currentStatus);
-			// #region agent log
-			// #endregion
+		const checkToken = () => {
+			// Force re-render to get updated token status from unified service
+			setIsReady(true);
+		};
 
-			// If token is missing or expired, use helper to handle silent retrieval
-			if (!currentStatus.isValid) {
-				// #region agent log
-				// #endregion
-				const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-				await handleShowWorkerTokenModal(
-					setShowWorkerTokenModal,
-					async (status) => setTokenStatus(await status),
-					silentApiRetrieval, // Page checkbox value takes precedence
-					showTokenAtEnd // Page checkbox value takes precedence
-				);
-			}
+		// Listen for token updates
+		const handleTokenUpdate = () => {
+			// Force re-render to get updated token status from unified service
+			setShowWorkerTokenModal(prev => !prev);
 		};
 
 		checkToken();
 
 		// Listen for token updates
-		const handleTokenUpdate = async () => {
-			const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			setTokenStatus(newStatus);
-		};
-
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 		return () => {
 			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
@@ -157,10 +137,10 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 	// Update showTokenOnly when modal opens or token status changes
 	useEffect(() => {
 		if (showWorkerTokenModal) {
-			const updateShowTokenOnly = async () => {
+			const updateShowTokenOnly = () => {
 				try {
 					const config = MFAConfigurationServiceV8.loadConfiguration();
-					const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+					const currentStatus = unifiedWorkerTokenService.getTokenStatus();
 					setShowTokenOnly(config.workerToken.showTokenAtEnd && currentStatus.isValid);
 				} catch {
 					setShowTokenOnly(false);
@@ -170,22 +150,16 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 		}
 	}, [showWorkerTokenModal]);
 	useEffect(() => {
-		const checkStatus = async () => {
-			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			setTokenStatus(status);
+		// Listen for unified worker token updates
+		const handleStorageChange = (e: StorageEvent) => {
+			if (e.key === 'unified_worker_token') {
+				// Force re-render to get updated token status
+				setShowWorkerTokenModal(prev => !prev);
+			}
 		};
 
-		const interval = setInterval(checkStatus, 30000);
-
-		const handleStorageChange = () => {
-			checkStatus();
-		};
 		window.addEventListener('storage', handleStorageChange);
-
-		return () => {
-			clearInterval(interval);
-			window.removeEventListener('storage', handleStorageChange);
-		};
+		return () => window.removeEventListener('storage', handleStorageChange);
 	}, []);
 
 	// Clear API calls on mount
@@ -224,10 +198,8 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 				// #region agent log
 				// #endregion
 				window.dispatchEvent(new Event('workerTokenUpdated'));
-				const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-				// #region agent log
-				// #endregion
-				setTokenStatus(newStatus);
+				// Force re-render to get updated token status from unified service
+				setShowWorkerTokenModal(prev => !prev);
 				toastV8.success('Worker token removed');
 			}
 		} else {
@@ -244,10 +216,10 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 		}
 	};
 
-	const handleWorkerTokenGenerated = async () => {
+	const handleWorkerTokenGenerated = () => {
 		window.dispatchEvent(new Event('workerTokenUpdated'));
-		const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-		setTokenStatus(newStatus);
+		// Force re-render to get updated token status from unified service
+		setShowWorkerTokenModal(prev => !prev);
 		toastV8.success('Worker token generated and saved!');
 	};
 
@@ -329,7 +301,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 												? '#fef3c7'
 												: '#d1fae5'
 											: '#fee2e2',
-										border: `1px solid ${WorkerTokenStatusServiceV8.getStatusColor(tokenStatus.status)}`,
+										border: `1px solid ${tokenStatus.isValid ? '#10b981' : '#ef4444'}`,
 										borderRadius: '4px',
 										fontSize: '12px',
 										fontWeight: '500',
@@ -340,7 +312,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 											: '#991b1b',
 									}}
 								>
-									<span>{WorkerTokenStatusServiceV8.getStatusIcon(tokenStatus.status)}</span>
+									<span>{tokenStatus.isValid ? '✅' : '❌'}</span>
 									<span style={{ marginLeft: '6px' }}>{tokenStatus.message}</span>
 								</div>
 							</div>
@@ -400,8 +372,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 
 											// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 											if (newValue) {
-												const currentStatus =
-													await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+												const currentStatus = unifiedWorkerTokenService.getTokenStatus();
 												if (!currentStatus.isValid) {
 													console.log(
 														'[DEVICE-MGMT-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
@@ -577,11 +548,10 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 			{showWorkerTokenModal && (
 				<WorkerTokenModalV8
 					isOpen={showWorkerTokenModal}
-					onClose={async () => {
+					onClose={() => {
 						setShowWorkerTokenModal(false);
-						// Refresh token status when modal closes (matches MFA pattern)
-						const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-						setTokenStatus(newStatus);
+						// Force re-render to get updated token status from unified service
+						setShowWorkerTokenModal(prev => !prev);
 					}}
 					onTokenGenerated={handleWorkerTokenGenerated}
 					environmentId={credentials.environmentId}

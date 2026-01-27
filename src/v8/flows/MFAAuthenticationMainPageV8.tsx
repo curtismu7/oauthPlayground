@@ -68,7 +68,7 @@ import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { useMFAAuthentication } from '@/v8/hooks/useMFAAuthentication';
 import { useMFADevices } from '@/v8/hooks/useMFADevices';
 import { useMFAPolicies } from '@/v8/hooks/useMFAPolicies';
-import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
@@ -271,20 +271,36 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		};
 	});
 
-	// V3 Integration: useWorkerToken hook replaces all worker token state and logic
-	const workerToken = useWorkerToken({
-		refreshInterval: 5000,
-		enableAutoRefresh: true,
-	});
-
-	// Backward compatibility aliases for existing code
-	const tokenStatus = workerToken.tokenStatus;
-	// Note: setTokenStatus is no longer needed as the hook manages token status internally
+	// Use unified worker token service for token status
+	const tokenStatus = unifiedWorkerTokenService.getTokenStatus();
+	
+	// Note: setTokenStatus is no longer needed as the unified service manages token status internally
 	// Keeping this as a no-op for backward compatibility with existing code
 	const setTokenStatus = async (_status: TokenStatusInfo | Promise<TokenStatusInfo>) => {
-		// No-op: Token status is now managed by useWorkerToken hook
-		// The hook automatically updates tokenStatus when the token changes
+		// No-op: Token status is now managed by unifiedWorkerTokenService
+		// The service automatically updates token status when the token changes
 	};
+
+	// Listen for unified worker token updates
+	useEffect(() => {
+		const handleWorkerTokenUpdate = () => {
+			// Force re-render by updating a dummy state
+			setCredentials(prev => ({ ...prev }));
+		};
+
+		// Listen for storage events (worker token updates from other tabs)
+		const handleStorageChange = (e: StorageEvent) => {
+			if (e.key === 'unified_worker_token') {
+				handleWorkerTokenUpdate();
+			}
+		};
+
+		window.addEventListener('storage', handleStorageChange);
+		
+		return () => {
+			window.removeEventListener('storage', handleStorageChange);
+		};
+	}, []);
 
 	// Reload credentials when worker token status changes (in case credentials were updated)
 	useEffect(() => {
@@ -305,12 +321,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		}
 	}, [tokenStatus.isValid]);
 
-	const showWorkerTokenModal = workerToken.showWorkerTokenModal;
-	const setShowWorkerTokenModal = workerToken.setShowWorkerTokenModal;
-	const silentApiRetrieval = workerToken.silentApiRetrieval;
-	const setSilentApiRetrieval = workerToken.setSilentApiRetrieval;
-	const showTokenAtEnd = workerToken.showTokenAtEnd;
-	const setShowTokenAtEnd = workerToken.setShowTokenAtEnd;
+	// Modal state management - using unified service
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(false);
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(false);
 
 	// MFA Policy State
 	const [deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
