@@ -6,8 +6,6 @@
  * @since 2024-11-18
  */
 
-import { logger } from './unifiedFlowLoggerServiceV8U';
-
 const MODULE_TAG = '[🔐 PKCE-STORAGE-V8U]';
 
 export interface PKCECodes {
@@ -44,12 +42,12 @@ export class PKCEStorageServiceV8U {
 			const request = indexedDB.open(PKCEStorageServiceV8U.DB_NAME, 1);
 
 			request.onerror = () => {
-				logger.error(`IndexedDB error:`, request.error);
+				console.error(`${MODULE_TAG} IndexedDB error:`, request.error);
 				reject(request.error);
 			};
 
 			request.onsuccess = () => {
-				logger.debug(`IndexedDB opened successfully`);
+				console.log(`${MODULE_TAG} IndexedDB opened successfully`);
 				resolve(request.result);
 			};
 
@@ -57,7 +55,7 @@ export class PKCEStorageServiceV8U {
 				const db = (event.target as IDBOpenDBRequest).result;
 				if (!db.objectStoreNames.contains(PKCEStorageServiceV8U.STORE_NAME)) {
 					db.createObjectStore(PKCEStorageServiceV8U.STORE_NAME, { keyPath: 'flowKey' });
-					logger.debug(`IndexedDB object store created`);
+					console.log(`${MODULE_TAG} IndexedDB object store created`);
 				}
 			};
 		});
@@ -80,9 +78,9 @@ export class PKCEStorageServiceV8U {
 				transaction.onerror = () => reject(transaction.error);
 			});
 
-			logger.debug(✅ Saved to IndexedDB`, { flowKey });
+			console.log(`${MODULE_TAG} ✅ Saved to IndexedDB`, { flowKey });
 		} catch (err) {
-			logger.error(❌ Failed to save to IndexedDB`, err);
+			console.error(`${MODULE_TAG} ❌ Failed to save to IndexedDB`, err);
 		}
 	}
 
@@ -105,7 +103,7 @@ export class PKCEStorageServiceV8U {
 				};
 			});
 		} catch (err) {
-			logger.error(❌ Failed to load from IndexedDB`, err);
+			console.error(`${MODULE_TAG} ❌ Failed to load from IndexedDB`, err);
 			return null;
 		}
 	}
@@ -131,29 +129,29 @@ export class PKCEStorageServiceV8U {
 		try {
 			sessionStorage.setItem(`v8u_pkce_${flowKey}`, jsonData);
 			sessionStorage.setItem('v8u_pkce_codes', jsonData); // Legacy key for compatibility
-			logger.debug(✅ Saved to sessionStorage`, { flowKey });
+			console.log(`${MODULE_TAG} ✅ Saved to sessionStorage`, { flowKey });
 		} catch (err) {
-			logger.error(❌ Failed to save to sessionStorage`, err);
+			console.error(`${MODULE_TAG} ❌ Failed to save to sessionStorage`, err);
 		}
 
 		// 2. Save to localStorage (backup)
 		try {
 			localStorage.setItem(`v8u_pkce_${flowKey}`, jsonData);
-			logger.debug(✅ Saved to localStorage (backup)`, { flowKey });
+			console.log(`${MODULE_TAG} ✅ Saved to localStorage (backup)`, { flowKey });
 		} catch (err) {
-			logger.error(❌ Failed to save to localStorage`, err);
+			console.error(`${MODULE_TAG} ❌ Failed to save to localStorage`, err);
 		}
 
 		// 3. Save to IndexedDB (async, most persistent)
 		PKCEStorageServiceV8U.saveToIndexedDB(flowKey, pkceData).catch((err) => {
-			logger.error(IndexedDB save failed (non-critical)`, err);
+			console.error(`${MODULE_TAG} IndexedDB save failed (non-critical)`, err);
 		});
 
 		// 4. Save to memory cache
 		PKCEStorageServiceV8U.memoryCache.set(flowKey, pkceData);
-		logger.debug(✅ Saved to memory cache`, { flowKey });
+		console.log(`${MODULE_TAG} ✅ Saved to memory cache`, { flowKey });
 
-		logger.debug(🎯 PKCE codes saved with QUADRUPLE redundancy`, {
+		console.log(`${MODULE_TAG} 🎯 PKCE codes saved with QUADRUPLE redundancy`, {
 			flowKey,
 			verifierLength: codes.codeVerifier.length,
 			challengeLength: codes.codeChallenge.length,
@@ -167,12 +165,12 @@ export class PKCEStorageServiceV8U {
 	 * Tries: memory → sessionStorage → localStorage → IndexedDB
 	 */
 	static async loadPKCECodesAsync(flowKey: string): Promise<PKCECodes | null> {
-		logger.debug(🔍 Loading PKCE codes (async)`, { flowKey });
+		console.log(`${MODULE_TAG} 🔍 Loading PKCE codes (async)`, { flowKey });
 
 		// 1. Try memory cache first (fastest)
 		const memoryData = PKCEStorageServiceV8U.memoryCache.get(flowKey);
 		if (memoryData) {
-			logger.debug(✅ Found in memory cache`, { flowKey });
+			console.log(`${MODULE_TAG} ✅ Found in memory cache`, { flowKey });
 			return memoryData;
 		}
 
@@ -182,12 +180,12 @@ export class PKCEStorageServiceV8U {
 				sessionStorage.getItem(`v8u_pkce_${flowKey}`) || sessionStorage.getItem('v8u_pkce_codes');
 			if (sessionData) {
 				const parsed = JSON.parse(sessionData) as PKCECodes;
-				logger.debug(✅ Found in sessionStorage`, { flowKey });
+				console.log(`${MODULE_TAG} ✅ Found in sessionStorage`, { flowKey });
 				PKCEStorageServiceV8U.memoryCache.set(flowKey, parsed);
 				return parsed;
 			}
 		} catch (err) {
-			logger.error(❌ Failed to load from sessionStorage`, err);
+			console.error(`${MODULE_TAG} ❌ Failed to load from sessionStorage`, err);
 		}
 
 		// 3. Try localStorage
@@ -195,7 +193,7 @@ export class PKCEStorageServiceV8U {
 			const localData = localStorage.getItem(`v8u_pkce_${flowKey}`);
 			if (localData) {
 				const parsed = JSON.parse(localData) as PKCECodes;
-				logger.debug(✅ Found in localStorage`, { flowKey });
+				console.log(`${MODULE_TAG} ✅ Found in localStorage`, { flowKey });
 				PKCEStorageServiceV8U.memoryCache.set(flowKey, parsed);
 				try {
 					sessionStorage.setItem(`v8u_pkce_${flowKey}`, localData);
@@ -203,14 +201,14 @@ export class PKCEStorageServiceV8U {
 				return parsed;
 			}
 		} catch (err) {
-			logger.error(❌ Failed to load from localStorage`, err);
+			console.error(`${MODULE_TAG} ❌ Failed to load from localStorage`, err);
 		}
 
 		// 4. Try IndexedDB (last resort, most persistent)
 		try {
 			const indexedData = await PKCEStorageServiceV8U.loadFromIndexedDB(flowKey);
 			if (indexedData) {
-				logger.debug(✅ Found in IndexedDB (ultimate backup)`, { flowKey });
+				console.log(`${MODULE_TAG} ✅ Found in IndexedDB (ultimate backup)`, { flowKey });
 				// Restore to all other storages
 				PKCEStorageServiceV8U.memoryCache.set(flowKey, indexedData);
 				try {
@@ -221,10 +219,10 @@ export class PKCEStorageServiceV8U {
 				return indexedData;
 			}
 		} catch (err) {
-			logger.error(❌ Failed to load from IndexedDB`, err);
+			console.error(`${MODULE_TAG} ❌ Failed to load from IndexedDB`, err);
 		}
 
-		logger.warn(⚠️ No PKCE codes found in any storage`, { flowKey });
+		console.warn(`${MODULE_TAG} ⚠️ No PKCE codes found in any storage`, { flowKey });
 		return null;
 	}
 
@@ -232,12 +230,12 @@ export class PKCEStorageServiceV8U {
 	 * Synchronous load (tries memory, sessionStorage, localStorage only)
 	 */
 	static loadPKCECodes(flowKey: string): PKCECodes | null {
-		logger.debug(🔍 Loading PKCE codes (sync)`, { flowKey });
+		console.log(`${MODULE_TAG} 🔍 Loading PKCE codes (sync)`, { flowKey });
 
 		// 1. Try memory cache
 		const memoryData = PKCEStorageServiceV8U.memoryCache.get(flowKey);
 		if (memoryData) {
-			logger.debug(✅ Found in memory cache`, { flowKey });
+			console.log(`${MODULE_TAG} ✅ Found in memory cache`, { flowKey });
 			return memoryData;
 		}
 
@@ -247,12 +245,12 @@ export class PKCEStorageServiceV8U {
 				sessionStorage.getItem(`v8u_pkce_${flowKey}`) || sessionStorage.getItem('v8u_pkce_codes');
 			if (sessionData) {
 				const parsed = JSON.parse(sessionData) as PKCECodes;
-				logger.debug(✅ Found in sessionStorage`, { flowKey });
+				console.log(`${MODULE_TAG} ✅ Found in sessionStorage`, { flowKey });
 				PKCEStorageServiceV8U.memoryCache.set(flowKey, parsed);
 				return parsed;
 			}
 		} catch (err) {
-			logger.error(❌ Failed to load from sessionStorage`, err);
+			console.error(`${MODULE_TAG} ❌ Failed to load from sessionStorage`, err);
 		}
 
 		// 3. Try localStorage
@@ -260,7 +258,7 @@ export class PKCEStorageServiceV8U {
 			const localData = localStorage.getItem(`v8u_pkce_${flowKey}`);
 			if (localData) {
 				const parsed = JSON.parse(localData) as PKCECodes;
-				logger.debug(✅ Found in localStorage`, { flowKey });
+				console.log(`${MODULE_TAG} ✅ Found in localStorage`, { flowKey });
 				PKCEStorageServiceV8U.memoryCache.set(flowKey, parsed);
 				try {
 					sessionStorage.setItem(`v8u_pkce_${flowKey}`, localData);
@@ -268,10 +266,11 @@ export class PKCEStorageServiceV8U {
 				return parsed;
 			}
 		} catch (err) {
-			logger.error(❌ Failed to load from localStorage`, err);
+			console.error(`${MODULE_TAG} ❌ Failed to load from localStorage`, err);
 		}
 
-		logger.warn(⚠️ No PKCE codes found in sync storage (try async load for IndexedDB)`,
+		console.warn(
+			`${MODULE_TAG} ⚠️ No PKCE codes found in sync storage (try async load for IndexedDB)`,
 			{ flowKey }
 		);
 		return null;
@@ -281,7 +280,7 @@ export class PKCEStorageServiceV8U {
 	 * Clear PKCE codes from all storage locations
 	 */
 	static async clearPKCECodes(flowKey: string): Promise<void> {
-		logger.debug(🗑️ Clearing PKCE codes`, { flowKey });
+		console.log(`${MODULE_TAG} 🗑️ Clearing PKCE codes`, { flowKey });
 
 		// Clear from all locations
 		PKCEStorageServiceV8U.memoryCache.delete(flowKey);
@@ -301,12 +300,12 @@ export class PKCEStorageServiceV8U {
 			const transaction = db.transaction([PKCEStorageServiceV8U.STORE_NAME], 'readwrite');
 			const store = transaction.objectStore(PKCEStorageServiceV8U.STORE_NAME);
 			store.delete(flowKey);
-			logger.debug(✅ Cleared from IndexedDB`, { flowKey });
+			console.log(`${MODULE_TAG} ✅ Cleared from IndexedDB`, { flowKey });
 		} catch (err) {
-			logger.error(❌ Failed to clear from IndexedDB`, err);
+			console.error(`${MODULE_TAG} ❌ Failed to clear from IndexedDB`, err);
 		}
 
-		logger.debug(✅ PKCE codes cleared from all 4 storage locations`, { flowKey });
+		console.log(`${MODULE_TAG} ✅ PKCE codes cleared from all 4 storage locations`, { flowKey });
 	}
 
 	/**
