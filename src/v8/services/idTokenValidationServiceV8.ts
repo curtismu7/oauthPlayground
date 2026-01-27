@@ -54,14 +54,12 @@ export class IDTokenValidationServiceV8 {
 		const { idToken, clientId, issuer, nonce, jwksUri } = options;
 		const errors: string[] = [];
 		const warnings: string[] = [];
-		const validationDetails = {
+		const validationDetails: IDTokenValidationResult['validationDetails'] = {
 			signatureVerified: false,
 			issuerValid: false,
 			audienceValid: false,
 			expirationValid: false,
 			issuedAtValid: false,
-			nonceValid: undefined as boolean | undefined,
-			authorizedPartyValid: undefined as boolean | undefined,
 		};
 
 		console.log(`${MODULE_TAG} 🔍 Starting ID token validation with:`, {
@@ -80,7 +78,7 @@ export class IDTokenValidationServiceV8 {
 				aud: decoded.aud,
 				exp: decoded.exp,
 				iat: decoded.iat,
-				kid: (decoded as any).header?.kid,
+				kid: (decoded as JWTPayload & { header?: { kid?: string } }).header?.kid,
 			});
 
 			// Step 2: Get JWKS URI (from options or discovery)
@@ -191,7 +189,7 @@ export class IDTokenValidationServiceV8 {
 			// Step 4: Verify signature
 			try {
 				const { importJWK } = await import('jose');
-				const publicKey = await importJWK(signingKey as any);
+				const publicKey = await importJWK(signingKey as Parameters<typeof importJWK>[0]);
 				await jwtVerify(idToken, publicKey);
 				validationDetails.signatureVerified = true;
 				console.log(`${MODULE_TAG} ✅ Signature verified`);
