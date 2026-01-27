@@ -3375,7 +3375,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								}}
 							>
 								<div
-									style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}
+									style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}
 								>
 									<Button
 										onClick={handleRequestDeviceCode}
