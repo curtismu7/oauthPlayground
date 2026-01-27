@@ -19,6 +19,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Large files and archives
+*.dmg
+*.iso
+*.zip
+*.tar.gz
+archives/
+backups/
+biome-report.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
