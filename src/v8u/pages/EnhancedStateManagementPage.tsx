@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 	FiActivity,
 	FiAlertTriangle,
 	FiBell,
@@ -379,7 +380,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 	// Export state
 	const handleExport = async () => {
-		console.log('handleExport called');
+		logger.debug('handleExport called');
 		try {
 			setIsExporting(true);
 			const stateData = stateUtils.exportAllState();
@@ -404,7 +405,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 			setMessage('State exported successfully!');
 			setMessageType('success');
 		} catch (error) {
-			console.error('Failed to export state:', error);
+			logger.error('Failed to export state:', error);
 			setMessage(
 				`Failed to export state: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -443,7 +444,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 	// Reset all state
 	const handleResetAll = () => {
-		console.log('handleResetAll called');
+		logger.debug('handleResetAll called');
 		stateUtils.resetAllState();
 		setMessage('All state has been reset to defaults');
 		setMessageType('info');
@@ -1111,13 +1112,13 @@ export const EnhancedStateManagementPage: React.FC = () => {
 				</ActionButton>
 				<ActionButton
 					onClick={() => {
-						console.log('Theme reset button clicked');
+						logger.debug('Theme reset button clicked');
 						try {
 							actions.setTheme('auto');
 							setMessage('Theme set to auto');
 							setMessageType('info');
 						} catch (error) {
-							console.error('Failed to reset theme:', error);
+							logger.error('Failed to reset theme:', error);
 							setMessage('Failed to reset theme');
 							setMessageType('error');
 						}
