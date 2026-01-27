@@ -32,8 +32,8 @@ import { usePageScroll } from '@/hooks/usePageScroll';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EmailMFASignOnFlowServiceV8 } from '@/v8/services/emailMfaSignOnFlowServiceV8';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[📧 EMAIL-MFA-SIGNON-FLOW-V8]';
@@ -437,9 +437,9 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 	// Check worker token status
 	useEffect(() => {
 		if (workerToken) {
-			const checkStatus = async () => {
+			const checkStatus = () => {
 				try {
-					const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+					const status = unifiedWorkerTokenService.getTokenStatus();
 					if (!status.isValid) {
 						toastV8.warning('Worker token is expired or invalid. Please generate a new token.');
 					}
