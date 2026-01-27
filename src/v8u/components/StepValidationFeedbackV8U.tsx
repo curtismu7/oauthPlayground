@@ -23,6 +23,7 @@
 import React, { useId, useState } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import { StepValidationFeedbackProps } from '@/v8/types/stepNavigation';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const MODULE_TAG = '[⚠️ VALIDATION-FEEDBACK-V8]';
 
@@ -54,7 +55,7 @@ export const StepValidationFeedbackV8U: React.FC<StepValidationFeedbackProps> = 
 		return null;
 	}
 
-	console.log(`${MODULE_TAG} Rendering feedback`, {
+	logger.debug(Rendering feedback`, {
 		errorCount: errors.length,
 		warningCount: warnings.length,
 	});

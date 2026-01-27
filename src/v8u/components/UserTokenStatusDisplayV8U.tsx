@@ -15,6 +15,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 	FiActivity,
 	FiAlertCircle,
 	FiCheckCircle,
@@ -426,7 +427,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 			const resolvedTokens = await Promise.all(tokenPromises);
 			setTokens(resolvedTokens.filter(Boolean) as UserTokenInfo[]);
 		} catch (error) {
-			console.error('[UserTokenStatusDisplayV8U] Failed to update token status:', error);
+			logger.error('[UserTokenStatusDisplayV8U] Failed to update token status:', error);
 		}
 	}, []);
 
@@ -457,7 +458,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				status: !isValid ? 'expired' : isExpiringSoon ? 'expiring-soon' : 'valid',
 			};
 		} catch (error) {
-			console.error('[UserTokenStatusDisplayV8U] Error checking access token:', error);
+			logger.error('[UserTokenStatusDisplayV8U] Error checking access token:', error);
 			return null;
 		}
 	};
@@ -485,7 +486,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				status: !isValid ? 'expired' : isExpiringSoon ? 'expiring-soon' : 'valid',
 			};
 		} catch (error) {
-			console.error('[UserTokenStatusDisplayV8U] Error checking ID token:', error);
+			logger.error('[UserTokenStatusDisplayV8U] Error checking ID token:', error);
 			return null;
 		}
 	};
@@ -503,7 +504,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				status: 'valid',
 			};
 		} catch (error) {
-			console.error('[UserTokenStatusDisplayV8U] Error checking refresh token:', error);
+			logger.error('[UserTokenStatusDisplayV8U] Error checking refresh token:', error);
 			return null;
 		}
 	};
@@ -514,7 +515,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 			const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
 			return JSON.parse(window.atob(base64));
 		} catch (error) {
-			console.error('[UserTokenStatusDisplayV8U] Error parsing JWT:', error);
+			logger.error('[UserTokenStatusDisplayV8U] Error parsing JWT:', error);
 			return {};
 		}
 	};
