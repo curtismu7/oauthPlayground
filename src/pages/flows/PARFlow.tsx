@@ -4,11 +4,7 @@ import styled from 'styled-components';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import FlowCredentials from '../../components/FlowCredentials';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
-import {
-	type PARAuthMethod,
-	type PARRequest,
-	type PARResponse,
-} from '../../services/parService';
+import { type PARAuthMethod, type PARRequest, type PARResponse } from '../../services/parService';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 

@@ -45,7 +45,7 @@ export const FlowProgressTrackerV8: React.FC<FlowProgressTrackerV8Props> = ({
 
 	const getStepIcon = (status: FlowStep['status'], customIcon?: string) => {
 		if (customIcon) return customIcon;
-		
+
 		switch (status) {
 			case 'completed':
 				return '✓';
@@ -60,7 +60,7 @@ export const FlowProgressTrackerV8: React.FC<FlowProgressTrackerV8Props> = ({
 	};
 
 	const getProgressPercentage = () => {
-		const completedSteps = steps.filter(step => step.status === 'completed').length;
+		const completedSteps = steps.filter((step) => step.status === 'completed').length;
 		return (completedSteps / steps.length) * 100;
 	};
 
@@ -73,9 +73,9 @@ export const FlowProgressTrackerV8: React.FC<FlowProgressTrackerV8Props> = ({
 	const renderHorizontalStep = (step: FlowStep, index: number) => {
 		const isActive = step.id === currentStep;
 		const isClickable = onStepClick && step.id <= currentStep;
-		
+
 		return (
-			<div 
+			<div
 				key={step.id}
 				className={`flow-step ${isActive ? 'active' : ''} ${isClickable ? 'clickable' : ''}`}
 				onClick={() => handleStepClick(step.id)}
@@ -85,9 +85,7 @@ export const FlowProgressTrackerV8: React.FC<FlowProgressTrackerV8Props> = ({
 				</div>
 				<div className="step-content">
 					<div className="step-label">{step.label}</div>
-					{step.description && (
-						<div className="step-description">{step.description}</div>
-					)}
+					{step.description && <div className="step-description">{step.description}</div>}
 					{showTimeEstimates && step.estimatedTime && (
 						<div className="step-time">{step.estimatedTime}</div>
 					)}
@@ -102,9 +100,9 @@ export const FlowProgressTrackerV8: React.FC<FlowProgressTrackerV8Props> = ({
 	const renderVerticalStep = (step: FlowStep, index: number) => {
 		const isActive = step.id === currentStep;
 		const isClickable = onStepClick && step.id <= currentStep;
-		
+
 		return (
-			<div 
+			<div
 				key={step.id}
 				className={`flow-step vertical ${isActive ? 'active' : ''} ${isClickable ? 'clickable' : ''}`}
 				onClick={() => handleStepClick(step.id)}
@@ -114,15 +112,15 @@ export const FlowProgressTrackerV8: React.FC<FlowProgressTrackerV8Props> = ({
 				</div>
 				<div className="step-content">
 					<div className="step-label">{step.label}</div>
-					{step.description && (
-						<div className="step-description">{step.description}</div>
-					)}
+					{step.description && <div className="step-description">{step.description}</div>}
 					{showTimeEstimates && step.estimatedTime && (
 						<div className="step-time">{step.estimatedTime}</div>
 					)}
 				</div>
 				{index < steps.length - 1 && (
-					<div className={`step-connector vertical ${step.status === 'completed' ? 'completed' : ''}`} />
+					<div
+						className={`step-connector vertical ${step.status === 'completed' ? 'completed' : ''}`}
+					/>
 				)}
 			</div>
 		);
@@ -131,18 +129,15 @@ export const FlowProgressTrackerV8: React.FC<FlowProgressTrackerV8Props> = ({
 	const renderCompactStep = (step: FlowStep) => {
 		const isActive = step.id === currentStep;
 		const isClickable = onStepClick && step.id <= currentStep;
-		
+
 		return (
-			<div 
+			<div
 				key={step.id}
 				className={`flow-step compact ${isActive ? 'active' : ''} ${isClickable ? 'clickable' : ''}`}
 				onClick={() => handleStepClick(step.id)}
 				title={`${step.label}${step.description ? ': ' + step.description : ''}`}
 			>
-				<div 
-					className="step-dot" 
-					style={{ backgroundColor: getStepColor(step.status) }}
-				>
+				<div className="step-dot" style={{ backgroundColor: getStepColor(step.status) }}>
 					<span className="step-icon">{getStepIcon(step.status, step.icon)}</span>
 				</div>
 			</div>
@@ -154,14 +149,9 @@ export const FlowProgressTrackerV8: React.FC<FlowProgressTrackerV8Props> = ({
 			{showProgress && (
 				<div className="progress-header">
 					<div className="progress-bar">
-						<div 
-							className="progress-fill" 
-							style={{ width: `${getProgressPercentage()}%` }}
-						/>
+						<div className="progress-fill" style={{ width: `${getProgressPercentage()}%` }} />
 					</div>
-					<div className="progress-text">
-						{Math.round(getProgressPercentage())}% Complete
-					</div>
+					<div className="progress-text">{Math.round(getProgressPercentage())}% Complete</div>
 				</div>
 			)}
 

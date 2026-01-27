@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import { P1MFASDK, FIDO2Helper, type AuthenticationResult } from '@/sdk/p1mfa';
+import { type AuthenticationResult, FIDO2Helper, P1MFASDK } from '@/sdk/p1mfa';
 import { StatusDisplay } from '../shared/StatusDisplay';
 
 interface AuthenticationFlowProps {

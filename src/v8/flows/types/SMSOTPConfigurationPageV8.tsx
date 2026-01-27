@@ -28,8 +28,8 @@ import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
@@ -160,11 +160,15 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 		// Backup: Clean up malformed URLs with multiple query parameter sets
 		// This handles cases where OAuth redirects accumulate in the URL
 		const currentSearch = window.location.search;
-		if (currentSearch && currentSearch.includes('?code=') && currentSearch.split('?code=').length > 2) {
+		if (
+			currentSearch &&
+			currentSearch.includes('?code=') &&
+			currentSearch.split('?code=').length > 2
+		) {
 			// URL has multiple code parameters - extract only the first valid pair
 			const firstCodeMatch = currentSearch.match(/[?&]code=([^&?]+)/);
 			const firstStateMatch = currentSearch.match(/[?&]state=([^&?]+)/);
-			
+
 			if (firstCodeMatch && firstStateMatch) {
 				// Reconstruct clean URL with only the first code/state pair
 				const cleanUrl = `${window.location.pathname}?code=${firstCodeMatch[1]}&state=${firstStateMatch[1]}`;
@@ -213,14 +217,14 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 		const processCallback = async () => {
 			// Get stored state fresh (may have been cleared by another component)
 			const storedState = sessionStorage.getItem('user_login_state_v8');
-			
+
 			// If no stored state but we have code/state in URL, this was already processed by another component
 			// Clean up URL silently and return
 			if (!storedState && (code || state)) {
 				window.history.replaceState({}, document.title, window.location.pathname);
 				return;
 			}
-			
+
 			// If no stored state and no code/error, nothing to do
 			if (!storedState) return;
 
@@ -278,7 +282,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					window.history.replaceState({}, document.title, window.location.pathname);
 					return;
 				}
-				
+
 				// If we have code but no stored state, another component already processed it - clean up URL silently
 				if (!storedState) {
 					window.history.replaceState({}, document.title, window.location.pathname);
@@ -395,14 +399,18 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					});
 					// #endregion
 
-					UnifiedFlowErrorHandler.handleError(error, {
-						flowType: 'mfa' as any,
-						deviceType: 'SMS',
-						operation: 'processCallback',
-					}, {
-						showToast: true,
-						logError: true,
-					});
+					UnifiedFlowErrorHandler.handleError(
+						error,
+						{
+							flowType: 'mfa' as any,
+							deviceType: 'SMS',
+							operation: 'processCallback',
+						},
+						{
+							showToast: true,
+							logError: true,
+						}
+					);
 
 					sessionStorage.removeItem('user_login_state_v8');
 					sessionStorage.removeItem('user_login_code_verifier_v8');
@@ -534,14 +542,18 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			);
 			setDeviceAuthPolicies(policies);
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(error, {
-				flowType: 'mfa' as any,
-				deviceType: 'SMS',
-				operation: 'loadPolicies',
-			}, {
-				showToast: tokenStatus.isValid, // Only show toast if worker token is valid
-				logError: true,
-			});
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'mfa' as any,
+					deviceType: 'SMS',
+					operation: 'loadPolicies',
+				},
+				{
+					showToast: tokenStatus.isValid, // Only show toast if worker token is valid
+					logError: true,
+				}
+			);
 			setPoliciesError(parsed.userFriendlyMessage);
 		} finally {
 			setIsLoadingPolicies(false);
@@ -1150,38 +1162,41 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			</div>
 
 			{/* Worker Token Modal */}
-			{showWorkerTokenModal && (() => {
-				// Check if we should show token only (matches MFA pattern)
-				try {
-					const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
-					const config = MFAConfigurationServiceV8.loadConfiguration();
-					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-					
-					// Show token-only if showTokenAtEnd is ON and token is valid
-					const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
-					
-					return (
-				<WorkerTokenModalV8
-					isOpen={showWorkerTokenModal}
-					onClose={() => {
-						setShowWorkerTokenModal(false);
-						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-					}}
-							showTokenOnly={showTokenOnly}
-						/>
-					);
-				} catch {
-					return (
-						<WorkerTokenModalV8
-							isOpen={showWorkerTokenModal}
-							onClose={() => {
-								setShowWorkerTokenModal(false);
-								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-							}}
-						/>
-					);
-				}
-			})()}
+			{showWorkerTokenModal &&
+				(() => {
+					// Check if we should show token only (matches MFA pattern)
+					try {
+						const {
+							MFAConfigurationServiceV8,
+						} = require('@/v8/services/mfaConfigurationServiceV8');
+						const config = MFAConfigurationServiceV8.loadConfiguration();
+						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+
+						// Show token-only if showTokenAtEnd is ON and token is valid
+						const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+
+						return (
+							<WorkerTokenModalV8
+								isOpen={showWorkerTokenModal}
+								onClose={() => {
+									setShowWorkerTokenModal(false);
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+								}}
+								showTokenOnly={showTokenOnly}
+							/>
+						);
+					} catch {
+						return (
+							<WorkerTokenModalV8
+								isOpen={showWorkerTokenModal}
+								onClose={() => {
+									setShowWorkerTokenModal(false);
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+								}}
+							/>
+						);
+					}
+				})()}
 
 			{/* User Login Modal */}
 			{showUserLoginModal && (

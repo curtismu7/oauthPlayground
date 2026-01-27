@@ -1,10 +1,10 @@
 // src/v8/services/jarRequestObjectServiceV8.ts
 /**
  * JAR (JWT-secured Authorization Request) Service V8
- * 
+ *
  * Implements RFC 9101 - JWT-secured Authorization Request (JAR)
  * Converts OAuth authorization request parameters into signed JWT request objects
- * 
+ *
  * @see https://datatracker.ietf.org/doc/html/rfc9101
  */
 
@@ -146,7 +146,7 @@ export interface RequestObjectResult {
 
 /**
  * JAR Request Object Service V8
- * 
+ *
  * Generates RFC 9101-compliant signed request objects for JWT-secured Authorization Requests
  */
 export class JARRequestObjectServiceV8 {
@@ -162,7 +162,7 @@ export class JARRequestObjectServiceV8 {
 	/**
 	 * Build request object payload from OAuth parameters
 	 * Converts OAuth query parameters into RFC 9101-compliant JWT claims
-	 * 
+	 *
 	 * @param params - OAuth authorization request parameters
 	 * @param config - JAR signing configuration
 	 * @returns Request object payload
@@ -225,7 +225,7 @@ export class JARRequestObjectServiceV8 {
 
 	/**
 	 * Sign request object using HS256 (HMAC-SHA256) with client secret
-	 * 
+	 *
 	 * @param payload - Request object payload
 	 * @param clientSecret - Client secret for signing
 	 * @param keyId - Optional key ID for JWT header
@@ -255,9 +255,7 @@ export class JARRequestObjectServiceV8 {
 			const payloadObj: Record<string, unknown> = { ...payload };
 			const secretKey = new TextEncoder().encode(clientSecret);
 
-			const jwt = await new SignJWT(payloadObj)
-				.setProtectedHeader(header)
-				.sign(secretKey);
+			const jwt = await new SignJWT(payloadObj).setProtectedHeader(header).sign(secretKey);
 
 			console.log(`${MODULE_TAG} Request object signed with HS256`, {
 				jti: payload.jti,
@@ -275,7 +273,7 @@ export class JARRequestObjectServiceV8 {
 
 	/**
 	 * Sign request object using RS256 (RSA-SHA256) with private key
-	 * 
+	 *
 	 * @param payload - Request object payload
 	 * @param privateKey - Private key in PKCS#8 format
 	 * @param keyId - Optional key ID for JWT header
@@ -305,9 +303,7 @@ export class JARRequestObjectServiceV8 {
 			// Convert payload to plain object (remove type assertion to avoid issues)
 			const payloadObj: Record<string, unknown> = { ...payload };
 
-			const jwt = await new SignJWT(payloadObj)
-				.setProtectedHeader(header)
-				.sign(key);
+			const jwt = await new SignJWT(payloadObj).setProtectedHeader(header).sign(key);
 
 			console.log(`${MODULE_TAG} Request object signed with RS256`, {
 				jti: payload.jti,
@@ -333,7 +329,7 @@ export class JARRequestObjectServiceV8 {
 
 	/**
 	 * Sign request object using the specified algorithm
-	 * 
+	 *
 	 * @param payload - Request object payload
 	 * @param config - JAR signing configuration
 	 * @returns Signed request object JWT
@@ -359,14 +355,14 @@ export class JARRequestObjectServiceV8 {
 
 	/**
 	 * Generate a signed request object JWT from OAuth parameters
-	 * 
+	 *
 	 * Main entry point for JAR request object generation.
 	 * Converts OAuth parameters to RFC 9101-compliant signed JWT.
-	 * 
+	 *
 	 * @param params - OAuth authorization request parameters
 	 * @param config - JAR signing configuration
 	 * @returns Request object result with signed JWT or error
-	 * 
+	 *
 	 * @example
 	 * ```typescript
 	 * const result = await jarService.generateRequestObjectJWT(
@@ -384,7 +380,7 @@ export class JARRequestObjectServiceV8 {
 	 *     audience: 'https://auth.pingone.com/env-id/as/authorize',
 	 *   }
 	 * );
-	 * 
+	 *
 	 * if (result.success) {
 	 *   // Use result.requestObject in authorization URL as 'request' parameter
 	 *   const authUrl = `https://auth.pingone.com/env-id/as/authorize?client_id=client-123&request=${result.requestObject}`;

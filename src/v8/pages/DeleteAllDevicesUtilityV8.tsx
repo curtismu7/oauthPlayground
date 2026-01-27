@@ -16,14 +16,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { FiAlertCircle, FiCheckCircle, FiKey, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
@@ -192,7 +192,9 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 
 		// Listen for configuration updates
 		const handleConfigUpdate = (event: Event) => {
-			const customEvent = event as CustomEvent<{ workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean } }>;
+			const customEvent = event as CustomEvent<{
+				workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean };
+			}>;
 			if (customEvent.detail?.workerToken) {
 				if (customEvent.detail.workerToken.silentApiRetrieval !== undefined) {
 					setSilentApiRetrieval(customEvent.detail.workerToken.silentApiRetrieval);
@@ -335,7 +337,9 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 
 	// Handle worker token modal
 	const handleShowWorkerTokenModal = async () => {
-		const { handleShowWorkerTokenModal: showModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+		const { handleShowWorkerTokenModal: showModal } = await import(
+			'@/v8/utils/workerTokenModalHelperV8'
+		);
 		await showModal(
 			setShowWorkerTokenModal,
 			setTokenStatus,
@@ -628,15 +632,24 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					</button>
 
 					{/* Worker Token Configuration Checkboxes */}
-					<div style={{ 
-						marginTop: '12px',
-						padding: '12px',
-						background: '#f8fafc',
-						borderRadius: '6px',
-						border: '1px solid #e2e8f0'
-					}}>
+					<div
+						style={{
+							marginTop: '12px',
+							padding: '12px',
+							background: '#f8fafc',
+							borderRadius: '6px',
+							border: '1px solid #e2e8f0',
+						}}
+					>
 						{/* Silent API Retrieval Checkbox */}
-						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '12px' }}>
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'flex-start',
+								gap: '8px',
+								marginBottom: '12px',
+							}}
+						>
 							<input
 								type="checkbox"
 								checked={silentApiRetrieval}
@@ -648,16 +661,25 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 									config.workerToken.silentApiRetrieval = newValue;
 									MFAConfigurationServiceV8.saveConfiguration(config);
 									// Dispatch event to notify other components
-									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+									window.dispatchEvent(
+										new CustomEvent('mfaConfigurationUpdated', {
+											detail: { workerToken: config.workerToken },
+										})
+									);
 									toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
-									
+
 									// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 									if (newValue) {
 										try {
-											const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+											const currentStatus =
+												await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 											if (!currentStatus.isValid) {
-												console.log('[DELETE-DEVICES-V8] Silent API retrieval enabled, attempting to fetch token now...');
-												const { handleShowWorkerTokenModal: showModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+												console.log(
+													'[DELETE-DEVICES-V8] Silent API retrieval enabled, attempting to fetch token now...'
+												);
+												const { handleShowWorkerTokenModal: showModal } = await import(
+													'@/v8/utils/workerTokenModalHelperV8'
+												);
 												await showModal(
 													setShowWorkerTokenModal,
 													setTokenStatus,
@@ -675,7 +697,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 									width: '16px',
 									height: '16px',
 									marginTop: '2px',
-									cursor: 'pointer'
+									cursor: 'pointer',
 								}}
 							/>
 							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -701,14 +723,18 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 									config.workerToken.showTokenAtEnd = newValue;
 									MFAConfigurationServiceV8.saveConfiguration(config);
 									// Dispatch event to notify other components
-									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+									window.dispatchEvent(
+										new CustomEvent('mfaConfigurationUpdated', {
+											detail: { workerToken: config.workerToken },
+										})
+									);
 									toastV8.info(`Show Token After Generation set to: ${newValue}`);
 								}}
 								style={{
 									width: '16px',
 									height: '16px',
 									marginTop: '2px',
-									cursor: 'pointer'
+									cursor: 'pointer',
 								}}
 							/>
 							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>

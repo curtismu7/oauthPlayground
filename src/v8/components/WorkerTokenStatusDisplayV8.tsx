@@ -14,35 +14,42 @@
  * - Multiple display modes (compact, detailed, minimal)
  */
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { 
-	FiCheckCircle, 
-	FiXCircle, 
-	FiClock, 
-	FiRefreshCw, 
-	FiSettings, 
-	FiShield, 
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
 	FiActivity,
-	FiKey,
-	FiInfo,
-	FiGlobe,
-	FiCalendar,
-	FiTrendingUp,
-	FiZap,
-	FiCpu,
 	FiAlertCircle,
+	FiCalendar,
+	FiCheckCircle,
+	FiClock,
+	FiCpu,
+	FiDatabase,
+	FiGlobe,
+	FiInfo,
+	FiKey,
 	FiLoader,
 	FiLock,
-	FiDatabase
+	FiRefreshCw,
+	FiSettings,
+	FiShield,
+	FiTrendingUp,
+	FiXCircle,
+	FiZap,
 } from 'react-icons/fi';
 import styled, { css, keyframes } from 'styled-components';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { WorkerTokenStatusServiceV8U, WORKER_TOKEN_STATUS_STYLES, type TokenStatusInfo } from '@/v8u/services/workerTokenStatusServiceV8U';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import type {
+	UnifiedWorkerTokenData,
+	UnifiedWorkerTokenStatus,
+} from '@/services/unifiedWorkerTokenService';
 import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
 import { workerTokenRepository } from '@/services/workerTokenRepository';
-import type { UnifiedWorkerTokenData, UnifiedWorkerTokenStatus } from '@/services/unifiedWorkerTokenService';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import {
+	type TokenStatusInfo,
+	WORKER_TOKEN_STATUS_STYLES,
+	WorkerTokenStatusServiceV8U,
+} from '@/v8u/services/workerTokenStatusServiceV8U';
 
 // Animation keyframes
 const pulse = keyframes`
@@ -63,21 +70,20 @@ const slideIn = keyframes`
 // Styled components with 3D effects
 const StatusContainer = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }>`
 	background: linear-gradient(135deg, 
-		${props => 
-			props.$variant === 'valid' ? 'rgba(16, 185, 129, 0.1)' :
-			props.$variant === 'warning' ? 'rgba(245, 158, 11, 0.1)' :
-			'rgba(239, 68, 68, 0.1)'
-		},
-		${props => 
-			props.$variant === 'valid' ? 'rgba(34, 197, 94, 0.05)' :
-			props.$variant === 'warning' ? 'rgba(251, 191, 36, 0.05)' :
-			'rgba(248, 113, 113, 0.05)'
-		});
-	border: 2px solid ${props => 
-		props.$variant === 'valid' ? '#10b981' :
-		props.$variant === 'warning' ? '#f59e0b' :
-		'#ef4444'
-	};
+		${(props) =>
+			props.$variant === 'valid'
+				? 'rgba(16, 185, 129, 0.1)'
+				: props.$variant === 'warning'
+					? 'rgba(245, 158, 11, 0.1)'
+					: 'rgba(239, 68, 68, 0.1)'},
+		${(props) =>
+			props.$variant === 'valid'
+				? 'rgba(34, 197, 94, 0.05)'
+				: props.$variant === 'warning'
+					? 'rgba(251, 191, 36, 0.05)'
+					: 'rgba(248, 113, 113, 0.05)'});
+	border: 2px solid ${(props) =>
+		props.$variant === 'valid' ? '#10b981' : props.$variant === 'warning' ? '#f59e0b' : '#ef4444'};
 	border-radius: 16px;
 	padding: 16px 20px;
 	position: relative;
@@ -126,7 +132,9 @@ const StatusContainer = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }
 			inset 0 1px 0 rgba(255, 255, 255, 0.3);
 	}
 
-	${props => props.$variant === 'valid' && css`
+	${(props) =>
+		props.$variant === 'valid' &&
+		css`
 		animation: ${slideIn} 0.5s ease-out, ${glow} 3s ease-in-out infinite;
 	`}
 `;
@@ -152,16 +160,18 @@ const StatusIcon = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }>`
 	align-items: center;
 	justify-content: center;
 	background: linear-gradient(135deg, 
-		${props => 
-			props.$variant === 'valid' ? '#10b981' :
-			props.$variant === 'warning' ? '#f59e0b' :
-			'#ef4444'
-		},
-		${props => 
-			props.$variant === 'valid' ? '#059669' :
-			props.$variant === 'warning' ? '#d97706' :
-			'#dc2626'
-		});
+		${(props) =>
+			props.$variant === 'valid'
+				? '#10b981'
+				: props.$variant === 'warning'
+					? '#f59e0b'
+					: '#ef4444'},
+		${(props) =>
+			props.$variant === 'valid'
+				? '#059669'
+				: props.$variant === 'warning'
+					? '#d97706'
+					: '#dc2626'});
 	box-shadow: 
 		0 4px 12px rgba(0, 0, 0, 0.15),
 		inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -188,7 +198,7 @@ const StatusLabel = styled.div`
 const StatusValue = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' }>`
 	font-size: 16px;
 	font-weight: 900; /* Much bolder */
-	color: ${props => WORKER_TOKEN_STATUS_STYLES.statusValue[props.$variant]};
+	color: ${(props) => WORKER_TOKEN_STATUS_STYLES.statusValue[props.$variant]};
 	text-shadow: ${WORKER_TOKEN_STATUS_STYLES.shadows.text};
 	filter: ${WORKER_TOKEN_STATUS_STYLES.shadows.drop};
 	letter-spacing: 0.5px; /* Add letter spacing for better readability */
@@ -222,7 +232,7 @@ const DetailLabel = styled.div`
 const DetailValue = styled.div<{ $highlight?: boolean }>`
 	font-size: 14px;
 	font-weight: 700; /* Bolder */
-	color: ${props => props.$highlight ? WORKER_TOKEN_STATUS_STYLES.detailValue.highlight : WORKER_TOKEN_STATUS_STYLES.detailValue.normal};
+	color: ${(props) => (props.$highlight ? WORKER_TOKEN_STATUS_STYLES.detailValue.highlight : WORKER_TOKEN_STATUS_STYLES.detailValue.normal)};
 	text-shadow: ${WORKER_TOKEN_STATUS_STYLES.shadows.detail};
 `;
 
@@ -429,7 +439,7 @@ const ConfigButtonGroup = styled.div`
 `;
 
 const ConfigActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-	background: ${props => props.$variant === 'primary' ? '#3b82f6' : '#6b7280'};
+	background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
 	color: white;
 	border: none;
 	border-radius: 6px;
@@ -440,7 +450,7 @@ const ConfigActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>
 	transition: all 0.2s;
 
 	&:hover {
-		background: ${props => props.$variant === 'primary' ? '#2563eb' : '#4b5563'};
+		background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#4b5563')};
 	}
 
 	&:disabled {
@@ -537,9 +547,15 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 }) => {
 	// Reduced logging - only log in development mode
 	if (process.env.NODE_ENV === 'development') {
-		console.log('[WorkerTokenStatusDisplayV8] Component initialized with props:', { mode, showRefresh, className, refreshInterval, showConfig });
+		console.log('[WorkerTokenStatusDisplayV8] Component initialized with props:', {
+			mode,
+			showRefresh,
+			className,
+			refreshInterval,
+			showConfig,
+		});
 	}
-	
+
 	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
 		isValid: false,
 		status: 'missing',
@@ -552,7 +568,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	const [isLoading, setIsLoading] = useState(true); // Initial loading state
 	const [fullTokenData, setFullTokenData] = useState<UnifiedWorkerTokenData | null>(null);
 	const [tokenStatusInfo, setTokenStatusInfo] = useState<UnifiedWorkerTokenStatus | null>(null);
-	
+
 	// Configuration modal state
 	const [showConfigModal, setShowConfigModal] = useState(false);
 	const [oauthConfig, setOauthConfig] = useState({
@@ -565,7 +581,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	const updateTokenStatus = async () => {
 		try {
 			const v8Status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			
+
 			// Convert V8 TokenStatusInfo to V8U TokenStatusInfo
 			const convertedStatus: TokenStatusInfo = {
 				isValid: v8Status.isValid,
@@ -574,16 +590,16 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 				expiresAt: v8Status.expiresAt || null,
 				issuedAt: null, // V8 service doesn't provide this
 				minutesRemaining: v8Status.minutesRemaining || 0,
-				lastUsed: null // V8 service doesn't provide this
+				lastUsed: null, // V8 service doesn't provide this
 			};
-			
+
 			setTokenStatus(convertedStatus);
-			
+
 			// Fetch additional comprehensive data
 			try {
 				const [tokenData, statusInfo] = await Promise.all([
 					workerTokenRepository.loadTokenData(),
-					unifiedWorkerTokenServiceV2.getStatus()
+					unifiedWorkerTokenServiceV2.getStatus(),
 				]);
 				setFullTokenData(tokenData);
 				setTokenStatusInfo(statusInfo);
@@ -668,19 +684,19 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	// Helper functions for additional data
 	const formatTokenInfo = () => {
 		if (!fullTokenData) return null;
-		
+
 		const token = fullTokenData.token;
 		const tokenLength = token.length;
 		const tokenPrefix = token.substring(0, 8);
 		const tokenSuffix = token.substring(token.length - 8);
-		
+
 		return {
 			length: tokenLength,
 			prefix: tokenPrefix,
 			suffix: tokenSuffix,
 			masked: `${tokenPrefix}...${tokenSuffix}`,
 			type: fullTokenData.tokenType || 'Bearer',
-			scope: fullTokenData.scope || 'N/A'
+			scope: fullTokenData.scope || 'N/A',
 		};
 	};
 
@@ -695,7 +711,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 		const minutes = Math.floor(duration / 60000);
 		const hours = Math.floor(minutes / 60);
 		const days = Math.floor(hours / 24);
-		
+
 		if (days > 0) return `${days}d ${hours % 24}h`;
 		if (hours > 0) return `${hours}h ${minutes % 60}m`;
 		return `${minutes}m`;
@@ -722,11 +738,11 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 					const response = await fetch('/api/oauth/config', {
 						method: 'GET',
 						headers: {
-							'Authorization': `Bearer ${fullTokenData?.token || ''}`,
+							Authorization: `Bearer ${fullTokenData?.token || ''}`,
 							'Content-Type': 'application/json',
 						},
 					});
-					
+
 					if (response.ok) {
 						const pingOneConfig = await response.json();
 						setOauthConfig({
@@ -779,7 +795,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 					const response = await fetch('/api/oauth/config', {
 						method: 'POST',
 						headers: {
-							'Authorization': `Bearer ${fullTokenData.token}`,
+							Authorization: `Bearer ${fullTokenData.token}`,
 							'Content-Type': 'application/json',
 						},
 						body: JSON.stringify({
@@ -822,7 +838,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			() => {}, // setTokenStatus - not needed for config
 			false, // silentApiRetrieval - false for explicit user action
 			false, // showTokenAtEnd - false for config
-			true  // forceShowModal - always show for config
+			true // forceShowModal - always show for config
 		);
 	};
 
@@ -840,17 +856,13 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						</div>
 					</LoadingOverlay>
 				)}
-				
+
 				<StatusHeader>
 					<StatusTitle>
-						<StatusIcon $variant={getVariant()}>
-							{getStatusIcon()}
-						</StatusIcon>
+						<StatusIcon $variant={getVariant()}>{getStatusIcon()}</StatusIcon>
 						<StatusText>
 							<StatusLabel>Worker Token</StatusLabel>
-							<StatusValue $variant={getVariant()}>
-								{getStatusText()}
-							</StatusValue>
+							<StatusValue $variant={getVariant()}>{getStatusText()}</StatusValue>
 						</StatusText>
 					</StatusTitle>
 					{showRefresh && (
@@ -866,18 +878,18 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	if (mode === 'wide') {
 		return (
 			<>
-				<StatusContainer 
-					$variant={getVariant()} 
-					className={className} 
-					style={{ 
-						minHeight: '48px', 
+				<StatusContainer
+					$variant={getVariant()}
+					className={className}
+					style={{
+						minHeight: '48px',
 						maxHeight: '48px',
 						padding: '8px 16px',
 						display: 'flex',
 						alignItems: 'center',
 						justifyContent: 'space-between',
 						width: '100%',
-						flex: '1'
+						flex: '1',
 					}}
 				>
 					{/* Loading Overlay */}
@@ -891,28 +903,28 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 							</div>
 						</LoadingOverlay>
 					)}
-					
+
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-						<StatusIcon $variant={getVariant()}>
-							{getStatusIcon()}
-						</StatusIcon>
+						<StatusIcon $variant={getVariant()}>{getStatusIcon()}</StatusIcon>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
 							<StatusLabel style={{ margin: 0, fontSize: '13px' }}>Worker Token</StatusLabel>
 							<StatusValue $variant={getVariant()} style={{ margin: 0, fontSize: '13px' }}>
 								{getStatusText()}
 							</StatusValue>
 							{tokenStatus.expiresAt && (
-								<span style={{ 
-									fontSize: '11px', 
-									color: tokenStatus.isValid ? '#10b981' : '#ef4444',
-									marginLeft: '6px'
-								}}>
+								<span
+									style={{
+										fontSize: '11px',
+										color: tokenStatus.isValid ? '#10b981' : '#ef4444',
+										marginLeft: '6px',
+									}}
+								>
 									({formatTimeRemaining()})
 								</span>
 							)}
 						</div>
 					</div>
-					
+
 					<div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
 						{showConfig && (
 							<>
@@ -947,9 +959,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 									<FiSettings style={{ marginRight: '8px' }} />
 									OAuth Configuration
 								</ConfigModalTitle>
-								<ConfigModalClose onClick={() => setShowConfigModal(false)}>
-									×
-								</ConfigModalClose>
+								<ConfigModalClose onClick={() => setShowConfigModal(false)}>×</ConfigModalClose>
 							</ConfigModalHeader>
 
 							<ConfigSection>
@@ -963,7 +973,9 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 										<ConfigToggleInput
 											type="checkbox"
 											checked={oauthConfig.pkceEnabled}
-											onChange={(e) => setOauthConfig(prev => ({ ...prev, pkceEnabled: e.target.checked }))}
+											onChange={(e) =>
+												setOauthConfig((prev) => ({ ...prev, pkceEnabled: e.target.checked }))
+											}
 										/>
 										<span className="slider"></span>
 									</ConfigToggle>
@@ -971,13 +983,20 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 								<ConfigOption>
 									<ConfigLabel>
 										<ConfigName>Refresh Tokens</ConfigName>
-										<ConfigDescription>Enable refresh token support for long-lived sessions</ConfigDescription>
+										<ConfigDescription>
+											Enable refresh token support for long-lived sessions
+										</ConfigDescription>
 									</ConfigLabel>
 									<ConfigToggle>
 										<ConfigToggleInput
 											type="checkbox"
 											checked={oauthConfig.refreshTokenEnabled}
-											onChange={(e) => setOauthConfig(prev => ({ ...prev, refreshTokenEnabled: e.target.checked }))}
+											onChange={(e) =>
+												setOauthConfig((prev) => ({
+													...prev,
+													refreshTokenEnabled: e.target.checked,
+												}))
+											}
 										/>
 										<span className="slider"></span>
 									</ConfigToggle>
@@ -993,15 +1012,20 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 									</ConfigLabel>
 									<select
 										value={oauthConfig.tokenStorage}
-										onChange={(e) => setOauthConfig(prev => ({ 
-											...prev, 
-											tokenStorage: e.target.value as 'localStorage' | 'sessionStorage' | 'memory'
-										}))}
+										onChange={(e) =>
+											setOauthConfig((prev) => ({
+												...prev,
+												tokenStorage: e.target.value as
+													| 'localStorage'
+													| 'sessionStorage'
+													| 'memory',
+											}))
+										}
 										style={{
 											padding: '6px 8px',
 											border: '1px solid #d1d5db',
 											borderRadius: '4px',
-											fontSize: '13px'
+											fontSize: '13px',
 										}}
 									>
 										<option value="localStorage">localStorage (persistent)</option>
@@ -1014,13 +1038,15 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 							{!tokenStatus.isValid && (
 								<ConfigSection>
 									<ConfigSectionTitle>Worker Token Required</ConfigSectionTitle>
-									<div style={{ 
-										padding: '12px', 
-										background: '#fef3c7', 
-										border: '1px solid #f59e0b', 
-										borderRadius: '6px',
-										marginBottom: '12px'
-									}}>
+									<div
+										style={{
+											padding: '12px',
+											background: '#fef3c7',
+											border: '1px solid #f59e0b',
+											borderRadius: '6px',
+											marginBottom: '12px',
+										}}
+									>
 										<p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#92400e' }}>
 											<strong>Worker token required</strong> to sync OAuth settings with PingOne.
 										</p>
@@ -1035,17 +1061,14 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 							)}
 
 							<ConfigButtonGroup>
-								<ConfigActionButton 
+								<ConfigActionButton
 									onClick={handleSaveConfig}
 									disabled={isConfigLoading}
 									$variant="primary"
 								>
 									{isConfigLoading ? 'Saving...' : 'Save Configuration'}
 								</ConfigActionButton>
-								<ConfigActionButton 
-									onClick={() => setShowConfigModal(false)}
-									$variant="secondary"
-								>
+								<ConfigActionButton onClick={() => setShowConfigModal(false)} $variant="secondary">
 									Cancel
 								</ConfigActionButton>
 							</ConfigButtonGroup>
@@ -1070,17 +1093,13 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						</div>
 					</LoadingOverlay>
 				)}
-				
+
 				<StatusHeader>
 					<StatusTitle>
-						<StatusIcon $variant={getVariant()}>
-							{getStatusIcon()}
-						</StatusIcon>
+						<StatusIcon $variant={getVariant()}>{getStatusIcon()}</StatusIcon>
 						<StatusText>
 							<StatusLabel>Worker Token Status</StatusLabel>
-							<StatusValue $variant={getVariant()}>
-								{getStatusText()}
-							</StatusValue>
+							<StatusValue $variant={getVariant()}>{getStatusText()}</StatusValue>
 						</StatusText>
 					</StatusTitle>
 					{showRefresh && (
@@ -1092,9 +1111,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 				<StatusDetails>
 					<StatusDetail>
 						<DetailLabel>Time Remaining</DetailLabel>
-						<DetailValue $highlight={tokenStatus.isValid}>
-							{formatTimeRemaining()}
-						</DetailValue>
+						<DetailValue $highlight={tokenStatus.isValid}>{formatTimeRemaining()}</DetailValue>
 					</StatusDetail>
 					<StatusDetail>
 						<DetailLabel>Status</DetailLabel>
@@ -1107,37 +1124,42 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 
 	// Detailed mode (default)
 	if (process.env.NODE_ENV === 'development') {
-		console.log('[WorkerTokenStatusDisplayV8] Render - mode:', mode, 'isLoading:', isLoading, 'tokenStatus:', tokenStatus);
+		console.log(
+			'[WorkerTokenStatusDisplayV8] Render - mode:',
+			mode,
+			'isLoading:',
+			isLoading,
+			'tokenStatus:',
+			tokenStatus
+		);
 	}
 	return (
-		<StatusContainer $variant={getVariant()} className={className} style={{ 
-			minHeight: '200px', 
-			border: '3px solid #10b981', 
-			background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.05))',
-			position: 'relative'
-		}}>
+		<StatusContainer
+			$variant={getVariant()}
+			className={className}
+			style={{
+				minHeight: '200px',
+				border: '3px solid #10b981',
+				background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.05))',
+				position: 'relative',
+			}}
+		>
 			{/* Loading Overlay */}
 			{(isLoading || isRefreshing) && (
 				<LoadingOverlay>
 					<div className="loading-content">
 						<FiLoader className="loading-spinner" />
-						<div className="loading-text">
-							{isLoading ? 'Checking status...' : 'Refreshing...'}
-						</div>
+						<div className="loading-text">{isLoading ? 'Checking status...' : 'Refreshing...'}</div>
 					</div>
 				</LoadingOverlay>
 			)}
-			
+
 			<StatusHeader>
 				<StatusTitle>
-					<StatusIcon $variant={getVariant()}>
-						{getStatusIcon()}
-					</StatusIcon>
+					<StatusIcon $variant={getVariant()}>{getStatusIcon()}</StatusIcon>
 					<StatusText>
 						<StatusLabel>Worker Token Status</StatusLabel>
-						<StatusValue $variant={getVariant()}>
-							{getStatusText()}
-						</StatusValue>
+						<StatusValue $variant={getVariant()}>{getStatusText()}</StatusValue>
 					</StatusText>
 				</StatusTitle>
 				{showRefresh && (
@@ -1157,15 +1179,13 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 					</DetailLabel>
 					<DetailValue>{tokenStatus.message}</DetailValue>
 				</StatusDetail>
-				
+
 				<StatusDetail>
 					<DetailLabel>
 						<FiClock style={{ fontSize: '10px', marginRight: '2px' }} />
 						Time Remaining
 					</DetailLabel>
-					<DetailValue $highlight={tokenStatus.isValid}>
-						{formatTimeRemaining()}
-					</DetailValue>
+					<DetailValue $highlight={tokenStatus.isValid}>{formatTimeRemaining()}</DetailValue>
 				</StatusDetail>
 
 				{/* Token Information */}
@@ -1178,7 +1198,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 							</DetailLabel>
 							<DetailValue>{formatTokenInfo()?.masked}</DetailValue>
 						</StatusDetail>
-						
+
 						<StatusDetail>
 							<DetailLabel>
 								<FiInfo style={{ fontSize: '10px', marginRight: '2px' }} />
@@ -1186,7 +1206,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 							</DetailLabel>
 							<DetailValue>{formatTokenInfo()?.length} chars</DetailValue>
 						</StatusDetail>
-						
+
 						<StatusDetail>
 							<DetailLabel>
 								<FiShield style={{ fontSize: '10px', marginRight: '2px' }} />
@@ -1194,7 +1214,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 							</DetailLabel>
 							<DetailValue>{formatTokenInfo()?.type}</DetailValue>
 						</StatusDetail>
-						
+
 						{formatTokenInfo()?.scope !== 'N/A' && (
 							<StatusDetail>
 								<DetailLabel>
@@ -1217,7 +1237,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 							</DetailLabel>
 							<DetailValue>{getTokenAge()}</DetailValue>
 						</StatusDetail>
-						
+
 						<StatusDetail>
 							<DetailLabel>
 								<FiTrendingUp style={{ fontSize: '10px', marginRight: '2px' }} />
@@ -1225,7 +1245,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 							</DetailLabel>
 							<DetailValue>{getTimeSinceLastUsed()}</DetailValue>
 						</StatusDetail>
-						
+
 						<StatusDetail>
 							<DetailLabel>
 								<FiClock style={{ fontSize: '10px', marginRight: '2px' }} />
@@ -1233,7 +1253,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 							</DetailLabel>
 							<DetailValue>{formatTimestamp(fullTokenData.savedAt)}</DetailValue>
 						</StatusDetail>
-						
+
 						{fullTokenData.expiresAt && (
 							<StatusDetail>
 								<DetailLabel>
@@ -1256,7 +1276,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						{config.workerToken.silentApiRetrieval ? 'ON' : 'OFF'}
 					</DetailValue>
 				</StatusDetail>
-				
+
 				<StatusDetail>
 					<DetailLabel>
 						<FiShield style={{ fontSize: '10px', marginRight: '2px' }} />
@@ -1279,7 +1299,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 								<DetailValue>{tokenStatusInfo.appInfo.appName}</DetailValue>
 							</StatusDetail>
 						)}
-						
+
 						{tokenStatusInfo.appInfo.appVersion && (
 							<StatusDetail>
 								<DetailLabel>
@@ -1302,7 +1322,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 							</DetailLabel>
 							<DetailValue>{fullTokenData.credentials.environmentId}</DetailValue>
 						</StatusDetail>
-						
+
 						<StatusDetail>
 							<DetailLabel>
 								<FiKey style={{ fontSize: '10px', marginRight: '2px' }} />
@@ -1310,7 +1330,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 							</DetailLabel>
 							<DetailValue>{fullTokenData.credentials.clientId}</DetailValue>
 						</StatusDetail>
-						
+
 						{fullTokenData.credentials.region && (
 							<StatusDetail>
 								<DetailLabel>
@@ -1327,8 +1347,8 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			<ConfigInfo>
 				<FiKey style={{ fontSize: '12px' }} />
 				<span>
-					Silent Retrieval: {config.workerToken.silentApiRetrieval ? 'Enabled' : 'Disabled'} | 
-					Show Token: {config.workerToken.showTokenAtEnd ? 'Enabled' : 'Disabled'}
+					Silent Retrieval: {config.workerToken.silentApiRetrieval ? 'Enabled' : 'Disabled'} | Show
+					Token: {config.workerToken.showTokenAtEnd ? 'Enabled' : 'Disabled'}
 				</span>
 			</ConfigInfo>
 		</StatusContainer>

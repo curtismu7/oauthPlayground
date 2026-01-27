@@ -139,7 +139,12 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
 					id="region"
 					value={formData.region}
 					onChange={(e) => handleChange('region', e.target.value)}
-					style={{ width: '100%', padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
+					style={{
+						width: '100%',
+						padding: '0.5rem',
+						border: '1px solid #ccc',
+						borderRadius: '4px',
+					}}
 				>
 					<option value="us">US (North America)</option>
 					<option value="eu">EU (Europe)</option>

@@ -6,10 +6,10 @@
  */
 
 import React, { useState } from 'react';
-import { P1MFASDK, FIDO2Helper, type AuthenticationResult } from '@/sdk/p1mfa';
 import { DebugPanel } from '@/samples/p1mfa/shared/DebugPanel';
 import { StatusDisplay } from '@/samples/p1mfa/shared/StatusDisplay';
-import { jsonToRequestOptions, credentialToJson } from './webauthn';
+import { type AuthenticationResult, FIDO2Helper, P1MFASDK } from '@/sdk/p1mfa';
+import { credentialToJson, jsonToRequestOptions } from './webauthn';
 
 interface AuthFido2Props {
 	sdk: P1MFASDK;
@@ -19,9 +19,9 @@ interface AuthFido2Props {
 }
 
 export const AuthFido2: React.FC<AuthFido2Props> = ({ sdk, userId, policyId, deviceId }) => {
-	const [step, setStep] = useState<'input' | 'initializing' | 'webauthn' | 'completing' | 'success'>(
-		'input'
-	);
+	const [step, setStep] = useState<
+		'input' | 'initializing' | 'webauthn' | 'completing' | 'success'
+	>('input');
 	const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 	const [message, setMessage] = useState<string>();
 	const [request, setRequest] = useState<unknown>();
@@ -161,12 +161,14 @@ export const AuthFido2: React.FC<AuthFido2Props> = ({ sdk, userId, policyId, dev
 			<div>
 				<StatusDisplay status={status} message={message} request={request} response={response} />
 				<DebugPanel
-					request={request as {
-						method?: string;
-						url?: string;
-						headers?: Record<string, string>;
-						body?: unknown;
-					}}
+					request={
+						request as {
+							method?: string;
+							url?: string;
+							headers?: Record<string, string>;
+							body?: unknown;
+						}
+					}
 					response={response}
 					correlationId={correlationId}
 					stateMachineStatus={stateMachineStatus}
@@ -208,12 +210,14 @@ export const AuthFido2: React.FC<AuthFido2Props> = ({ sdk, userId, policyId, dev
 				<div>
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					<DebugPanel
-						request={request as {
-							method?: string;
-							url?: string;
-							headers?: Record<string, string>;
-							body?: unknown;
-						}}
+						request={
+							request as {
+								method?: string;
+								url?: string;
+								headers?: Record<string, string>;
+								body?: unknown;
+							}
+						}
 						response={response}
 						correlationId={correlationId}
 						stateMachineStatus={stateMachineStatus}
@@ -229,12 +233,14 @@ export const AuthFido2: React.FC<AuthFido2Props> = ({ sdk, userId, policyId, dev
 				<div>
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					<DebugPanel
-						request={request as {
-							method?: string;
-							url?: string;
-							headers?: Record<string, string>;
-							body?: unknown;
-						}}
+						request={
+							request as {
+								method?: string;
+								url?: string;
+								headers?: Record<string, string>;
+								body?: unknown;
+							}
+						}
 						response={response}
 						correlationId={correlationId}
 						stateMachineStatus={stateMachineStatus}
@@ -264,12 +270,14 @@ export const AuthFido2: React.FC<AuthFido2Props> = ({ sdk, userId, policyId, dev
 				<div>
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					<DebugPanel
-						request={request as {
-							method?: string;
-							url?: string;
-							headers?: Record<string, string>;
-							body?: unknown;
-						}}
+						request={
+							request as {
+								method?: string;
+								url?: string;
+								headers?: Record<string, string>;
+								body?: unknown;
+							}
+						}
 						response={response}
 						correlationId={correlationId}
 						stateMachineStatus={stateMachineStatus}

@@ -15,8 +15,8 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { FlowType } from '../../v8/services/specVersionServiceV8.ts';
 import { ApiDisplayCheckbox } from '../../v8/components/SuperSimpleApiDisplayV8.tsx';
+import type { FlowType } from '../../v8/services/specVersionServiceV8.ts';
 import { UnifiedDocumentationModalV8U } from './UnifiedDocumentationModalV8U';
 
 interface UnifiedNavigationV8UProps {
@@ -76,16 +76,18 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 			sessionStorage.removeItem('config-checker-last-check');
 			sessionStorage.removeItem('pingone-app-cache');
 			localStorage.removeItem('pingone-applications-cache');
-			
+
 			// Clear any worker token related cache that might be used for pre-flight checks
 			sessionStorage.removeItem('worker-token-cache');
 			localStorage.removeItem('worker-apps-cache');
-			
-			console.log('🔄 [UnifiedNavigationV8U-locked] Back to main: cleared ConfigChecker and pre-flight cache data');
+
+			console.log(
+				'🔄 [UnifiedNavigationV8U-locked] Back to main: cleared ConfigChecker and pre-flight cache data'
+			);
 		} catch (error) {
 			console.warn('[UnifiedNavigationV8U-locked] Failed to clear cache data:', error);
 		}
-		
+
 		navigate('/v8u/unified');
 	};
 
@@ -220,7 +222,10 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 							🏠 Back to Main
 						</button>
 					)}
-					<div className="nav-link-btn api-display-wrapper" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+					<div
+						className="nav-link-btn api-display-wrapper"
+						style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+					>
 						<ApiDisplayCheckbox />
 					</div>
 				</div>

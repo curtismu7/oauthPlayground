@@ -98,7 +98,8 @@ export class MFAEducationServiceV8 {
 			description:
 				'OATH TOTP (Time-based One-Time Password, RFC 6238) uses authenticator apps like Google Authenticator, Authy, or Microsoft Authenticator to generate time-based codes. More secure than SMS because codes are generated locally on your device.',
 			securityLevel: 'high',
-			securityNote: "OATH TOTP (RFC 6238) is phishing-resistant and doesn't rely on network connectivity.",
+			securityNote:
+				"OATH TOTP (RFC 6238) is phishing-resistant and doesn't rely on network connectivity.",
 			learnMoreUrl: 'https://docs.pingidentity.com/r/en-us/pingone/p1_c_mfa_totp',
 		},
 
@@ -296,7 +297,8 @@ The policy must be configured in PingOne before you can register devices.`,
 
 **Always display devices (ALWAYS_DISPLAY_DEVICES):** PingOne always displays a list of available devices for the user to choose from, even if only one device exists.`,
 			securityLevel: 'low',
-			learnMoreUrl: 'https://apidocs.pingidentity.com/pingone/mfa/v1/api/#device-authentication-policies',
+			learnMoreUrl:
+				'https://apidocs.pingidentity.com/pingone/mfa/v1/api/#device-authentication-policies',
 		},
 
 		'device.order': {
@@ -430,11 +432,12 @@ Each device type (email, totp, sms, voice, mobile, fido2, whatsapp, name) is rep
 - \`pairingDisabled\`: Whether pairing is disabled for this device type
 - Other device-specific configuration options`,
 			securityLevel: 'low',
-			learnMoreUrl: 'https://apidocs.pingidentity.com/pingone/mfa/v1/api/#device-authentication-policies',
+			learnMoreUrl:
+				'https://apidocs.pingidentity.com/pingone/mfa/v1/api/#device-authentication-policies',
 		},
 
 		'policy.promptForNicknameOnPairing.explanation': {
-			title: 'Why Can I (or Can\'t I) Update the Device Nickname?',
+			title: "Why Can I (or Can't I) Update the Device Nickname?",
 			description: `The ability to set a custom device nickname during registration depends on your Device Authentication Policy setting.
 
 **When \`promptForNicknameOnPairing\` is \`true\`:**
@@ -524,7 +527,8 @@ Each device type (email, totp, sms, voice, mobile, fido2, whatsapp, name) is rep
 			title: 'OATH TOTP (RFC 6238) Secret Key',
 			description:
 				"If you can't scan the QR code, manually enter this secret key into your authenticator app. Keep this secret secure - anyone with this key can generate valid codes for OATH TOTP (RFC 6238).",
-			securityNote: 'Never share your OATH TOTP (RFC 6238) secret key. Store it securely as a backup.',
+			securityNote:
+				'Never share your OATH TOTP (RFC 6238) secret key. Store it securely as a backup.',
 		},
 
 		'totp.verification': {

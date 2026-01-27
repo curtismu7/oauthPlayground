@@ -126,15 +126,14 @@ export class SpecUrlServiceV8 {
 		
 		// #region agent log
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
+			headers: 'Content-Type': 'application/json' ,
+			body: JSON.stringify(
 				location: 'specUrlServiceV8.ts:124',
 				message: 'Getting flow-specific specification info',
-				data: { flowType },
+				data: flowType ,
 				timestamp: Date.now(),
 				sessionId: 'debug-session',
-				hypothesisId: 'C',
-			}),
+				hypothesisId: 'C',),
 		}).catch(() => {});
 		// #endregion
 
@@ -233,24 +232,22 @@ export class SpecUrlServiceV8 {
 	): void {
 		// #region agent log
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
+			headers: 'Content-Type': 'application/json' ,
+			body: JSON.stringify(
 				location: 'specUrlServiceV8.ts:205',
 				message: 'Specification URL results',
-				data: {
+				data: 
 					specVersion,
 					flowType,
 					flowPrimarySpec: flowSpecs.primarySpec,
 					flowSpecLabel: flowSpecs.specLabel,
-					flowRelatedSpecs: flowSpecs.relatedSpecs?.map((s) => ({ label: s.label, url: s.url })),
+					flowRelatedSpecs: flowSpecs.relatedSpecs?.map((s) => (label: s.label, url: s.url )),
 					versionPrimarySpec: versionSpecs.primary,
 					versionPrimaryLabel: versionSpecs.primaryLabel,
-					versionRelatedSpecs: versionSpecs.related.map((s) => ({ label: s.label, url: s.url })),
-				},
+					versionRelatedSpecs: versionSpecs.related.map((s) => (label: s.label, url: s.url )),,
 				timestamp: Date.now(),
 				sessionId: 'debug-session',
-				hypothesisId: 'D',
-			}),
+				hypothesisId: 'D',),
 		}).catch(() => {});
 		// #endregion
 	}

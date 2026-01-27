@@ -4551,7 +4551,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					requireClientSecret={true}
 					showRedirectUri={true}
 					// Config Checker - Disabled to remove pre-flight API calls
-							showConfigChecker={false}
+					showConfigChecker={false}
 					defaultCollapsed={false}
 					title="PingOne Complete MFA Flow Configuration"
 					subtitle="Configure your PingOne environment and client credentials for MFA authentication"

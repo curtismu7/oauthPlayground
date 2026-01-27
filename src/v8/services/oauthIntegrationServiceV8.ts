@@ -27,19 +27,19 @@ const MODULE_TAG = '[🔐 OAUTH-INTEGRATION-V8]';
  */
 function formatAuthMethodForDisplay(method: string | undefined | null): string {
 	if (!method) return 'NOT PROVIDED';
-	
+
 	// Normalize the method to handle different formats
 	const normalized = method.toLowerCase().replace(/-/g, '_');
-	
+
 	// Map to display labels
 	const displayMap: Record<string, string> = {
-		'client_secret_basic': 'Client Secret Basic',
-		'client_secret_post': 'Client Secret Post',
-		'client_secret_jwt': 'Client Secret JWT',
-		'private_key_jwt': 'Private Key JWT',
-		'none': 'None (Public Client)',
+		client_secret_basic: 'Client Secret Basic',
+		client_secret_post: 'Client Secret Post',
+		client_secret_jwt: 'Client Secret JWT',
+		private_key_jwt: 'Private Key JWT',
+		none: 'None (Public Client)',
 	};
-	
+
 	return displayMap[normalized] || method;
 }
 
@@ -274,14 +274,19 @@ export class OAuthIntegrationServiceV8 {
 		try {
 			console.log(`[🔐 OAUTH-INTEGRATION-V8] Parsing callback URL:`, callbackUrl);
 			console.log(`[🔐 OAUTH-INTEGRATION-V8] Expected state:`, expectedState);
-			
+
 			const url = new URL(callbackUrl);
 			const code = url.searchParams.get('code');
 			const state = url.searchParams.get('state');
 			const error = url.searchParams.get('error');
 			const errorDescription = url.searchParams.get('error_description');
 
-			console.log(`[🔐 OAUTH-INTEGRATION-V8] URL params extracted:`, { code: code ? '***REDACTED***' : null, state, error, errorDescription });
+			console.log(`[🔐 OAUTH-INTEGRATION-V8] URL params extracted:`, {
+				code: code ? '***REDACTED***' : null,
+				state,
+				error,
+				errorDescription,
+			});
 
 			// Check for error in callback
 			if (error) {
@@ -340,7 +345,7 @@ export class OAuthIntegrationServiceV8 {
 				redirect_uri: credentials.redirectUri,
 				environment_id: credentials.environmentId,
 			};
-			
+
 			// Always include client_id in body (required by OAuth 2.0 spec)
 			// The backend will handle authentication method (Basic, POST, JWT) based on client_auth_method
 			bodyParams.client_id = credentials.clientId;
@@ -478,18 +483,19 @@ export class OAuthIntegrationServiceV8 {
 				Date.now() - startTime
 			);
 
-
 			if (!response.ok) {
 				console.error(`${MODULE_TAG} ❌ Token exchange failed with status ${response.status}`);
 				const errorData = responseData as Record<string, unknown>;
 				console.error(`${MODULE_TAG} Error response:`, errorData);
-				
+
 				// Check for MUST_CHANGE_PASSWORD requirement
 				const requiresPasswordChange =
 					errorData.requires_password_change === true ||
 					errorData.password_change_required === true ||
 					(errorData.error_description as string)?.toLowerCase().includes('must_change_password') ||
-					(errorData.error_description as string)?.toLowerCase().includes('password change required') ||
+					(errorData.error_description as string)
+						?.toLowerCase()
+						.includes('password change required') ||
 					(errorData.error_description as string)?.toLowerCase().includes('must change password');
 
 				if (requiresPasswordChange) {
@@ -501,18 +507,18 @@ export class OAuthIntegrationServiceV8 {
 					(passwordChangeError as any).errorData = errorData;
 					throw passwordChangeError;
 				}
-				
+
 				const errorCode = (errorData.error as string) || 'unknown_error';
 				const errorDescription = (errorData.error_description as string) || '';
 				const correlationId = (errorData.correlation_id as string) || '';
-				
+
 				// Enhanced error message for invalid_client
 				if (errorCode === 'invalid_client') {
 					const authMethod = credentials.clientAuthMethod || 'client_secret_post';
 					const clientIdPreview = credentials.clientId
 						? `${credentials.clientId.substring(0, 8)}...`
 						: 'NOT PROVIDED';
-					
+
 					// Helper function to mask client secret
 					const maskSecret = (secret: string | undefined): string => {
 						if (!secret) return 'NOT PROVIDED';
@@ -521,13 +527,17 @@ export class OAuthIntegrationServiceV8 {
 					};
 
 					// ALWAYS show comparison section - fetch PingOne config if possible, but show what we have regardless
-					let pingOneConfig: { clientId?: string; clientSecret?: string; tokenEndpointAuthMethod?: string } | null = null;
+					let pingOneConfig: {
+						clientId?: string;
+						clientSecret?: string;
+						tokenEndpointAuthMethod?: string;
+					} | null = null;
 					let pingOneConfigError: string | null = null;
-					
+
 					try {
 						const { ConfigCheckerServiceV8 } = await import('@/v8/services/configCheckerServiceV8');
 						const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
-						
+
 						if (credentials.environmentId && credentials.clientId) {
 							const workerToken = await workerTokenServiceV8.getToken();
 							if (workerToken) {
@@ -537,53 +547,64 @@ export class OAuthIntegrationServiceV8 {
 									credentials.clientId,
 									workerToken
 								);
-								
+
 								if (appConfig) {
 									// Fetch client secret if available
 									try {
-										const { appDiscoveryServiceV8 } = await import('@/v8/services/appDiscoveryServiceV8');
+										const { appDiscoveryServiceV8 } = await import(
+											'@/v8/services/appDiscoveryServiceV8'
+										);
 										console.log(`${MODULE_TAG} 🔍 Attempting to fetch application with secret...`, {
 											environmentId: credentials.environmentId,
 											clientId: credentials.clientId,
 											hasWorkerToken: !!workerToken,
 										});
-										
+
 										const appWithSecret = await appDiscoveryServiceV8.fetchApplicationWithSecret(
 											credentials.environmentId,
 											credentials.clientId,
 											workerToken
 										);
-										
+
 										console.log(`${MODULE_TAG} 📦 Application with secret response:`, {
 											hasAppWithSecret: !!appWithSecret,
 											hasClientSecret: !!appWithSecret?.clientSecret,
 											clientSecretType: typeof appWithSecret?.clientSecret,
 											clientSecretLength: appWithSecret?.clientSecret?.length || 0,
-											tokenEndpointAuthMethod: appWithSecret?.tokenEndpointAuthMethod || appConfig.tokenEndpointAuthMethod,
+											tokenEndpointAuthMethod:
+												appWithSecret?.tokenEndpointAuthMethod || appConfig.tokenEndpointAuthMethod,
 										});
-										
+
 										pingOneConfig = {
 											clientId: appConfig.id,
 											clientSecret: appWithSecret?.clientSecret || undefined, // Explicitly set to undefined if not present
-											tokenEndpointAuthMethod: appWithSecret?.tokenEndpointAuthMethod || appConfig.tokenEndpointAuthMethod,
+											tokenEndpointAuthMethod:
+												appWithSecret?.tokenEndpointAuthMethod || appConfig.tokenEndpointAuthMethod,
 										};
-										
+
 										if (pingOneConfig.clientSecret) {
-											console.log(`${MODULE_TAG} ✅ PingOne config fetched with client secret for comparison`);
+											console.log(
+												`${MODULE_TAG} ✅ PingOne config fetched with client secret for comparison`
+											);
 										} else {
-											console.warn(`${MODULE_TAG} ⚠️ PingOne config fetched but client secret not available (may be a public client or secret not returned by API)`);
+											console.warn(
+												`${MODULE_TAG} ⚠️ PingOne config fetched but client secret not available (may be a public client or secret not returned by API)`
+											);
 										}
 									} catch (secretError) {
 										// Got app config but couldn't fetch secret - still use what we have
 										console.error(`${MODULE_TAG} ❌ Error fetching application with secret:`, {
-											error: secretError instanceof Error ? secretError.message : String(secretError),
+											error:
+												secretError instanceof Error ? secretError.message : String(secretError),
 											stack: secretError instanceof Error ? secretError.stack : undefined,
 										});
 										pingOneConfig = {
 											clientId: appConfig.id,
 											tokenEndpointAuthMethod: appConfig.tokenEndpointAuthMethod,
 										};
-										console.warn(`${MODULE_TAG} ⚠️ Could not fetch client secret, but have app config`);
+										console.warn(
+											`${MODULE_TAG} ⚠️ Could not fetch client secret, but have app config`
+										);
 									}
 								} else {
 									pingOneConfigError = 'Application not found in PingOne';
@@ -595,7 +616,8 @@ export class OAuthIntegrationServiceV8 {
 							pingOneConfigError = 'Missing environmentId or clientId';
 						}
 					} catch (configError) {
-						pingOneConfigError = configError instanceof Error ? configError.message : 'Unknown error';
+						pingOneConfigError =
+							configError instanceof Error ? configError.message : 'Unknown error';
 						console.warn(`${MODULE_TAG} ⚠️ Could not fetch PingOne config:`, configError);
 					}
 
@@ -616,17 +638,19 @@ export class OAuthIntegrationServiceV8 {
 
 					if (pingOneConfig) {
 						const clientIdMatch = pingOneConfig.clientId === credentials.clientId;
-						
+
 						// Normalize auth methods for comparison (handle case differences)
 						const normalizeAuthMethod = (method: string | undefined): string => {
 							if (!method) return '';
 							return method.toLowerCase().replace(/-/g, '_');
 						};
-						
-						const normalizedPingOneMethod = normalizeAuthMethod(pingOneConfig.tokenEndpointAuthMethod);
+
+						const normalizedPingOneMethod = normalizeAuthMethod(
+							pingOneConfig.tokenEndpointAuthMethod
+						);
 						const normalizedConfiguredMethod = normalizeAuthMethod(authMethod);
 						const authMethodMatch = normalizedPingOneMethod === normalizedConfiguredMethod;
-						
+
 						console.log(`${MODULE_TAG} Comparing auth methods for error display`, {
 							pingOneRaw: pingOneConfig.tokenEndpointAuthMethod,
 							pingOneNormalized: normalizedPingOneMethod,
@@ -634,7 +658,7 @@ export class OAuthIntegrationServiceV8 {
 							configuredNormalized: normalizedConfiguredMethod,
 							match: authMethodMatch,
 						});
-						
+
 						comparisonSection += `
 │ Client ID:        ${(pingOneConfig.clientId || 'NOT FOUND').padEnd(40)} │
 │ Client Secret:    ${maskSecret(pingOneConfig.clientSecret).padEnd(40)} │
@@ -664,7 +688,7 @@ ${credentials.clientSecret && !pingOneConfig.clientSecret ? '⚠️  Client Secr
 
 `;
 					}
-					
+
 					const enhancedMessage = `Token exchange failed: invalid_client - ${errorDescription}
 
 📋 Root Cause:
@@ -714,7 +738,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 
 					throw new Error(enhancedMessage);
 				}
-				
+
 				// Standard error message for other errors
 				throw new Error(
 					`Token exchange failed: ${errorCode} - ${errorDescription}${correlationId ? ` (Correlation ID: ${correlationId})` : ''}`

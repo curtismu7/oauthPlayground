@@ -82,11 +82,9 @@ export async function safeAnalyticsFetch(data: Record<string, unknown>): Promise
 
 	try {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
+			headers: 'Content-Type': 'application/json' ,
 			body: JSON.stringify(data),
-		}).catch(() => {
-			// Silently ignore fetch errors
-		});
+		}).catch(() => );
 	} catch {
 		// Silently ignore all errors
 	}

@@ -3,14 +3,14 @@
  * @module v8/utils
  * @description Professional analytics utility - fire-and-forget, completely silent
  * @version 2.0.0
- * 
+ *
  * This is a clean, professional analytics implementation that:
  * - Never logs errors to console
  * - Never checks availability (just tries and fails silently)
  * - Uses fire-and-forget pattern (non-blocking)
  * - Can be easily disabled via environment/config
  * - Centralizes all analytics logic
- * 
+ *
  * Usage:
  *   import { analytics } from '@/v8/utils/analyticsV8';
  *   analytics.log({ location: 'MyComponent.tsx:42', message: 'User clicked button' });
@@ -31,12 +31,15 @@ function shouldSendAnalytics(): boolean {
 	if (!analyticsEnabled) {
 		return false;
 	}
-	
+
 	// Optionally check for environment variable
-	if (typeof window !== 'undefined' && (window as unknown as { __DISABLE_ANALYTICS__?: boolean }).__DISABLE_ANALYTICS__) {
+	if (
+		typeof window !== 'undefined' &&
+		(window as unknown as { __DISABLE_ANALYTICS__?: boolean }).__DISABLE_ANALYTICS__
+	) {
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -55,7 +58,7 @@ function sendAnalytics(data: Record<string, unknown>): void {
 
 /**
  * Professional Analytics API
- * 
+ *
  * All methods are fire-and-forget and completely silent.
  * They never throw errors or log to console.
  */

@@ -12,10 +12,10 @@ import React, { useState } from 'react';
 import { FiBook, FiDownload, FiFileText, FiX } from 'react-icons/fi';
 import type { DeviceType } from '../flows/shared/MFATypes';
 import {
-	getApiCalls,
-	generateMarkdown,
 	downloadAsMarkdown,
 	downloadAsPDF,
+	generateMarkdown,
+	getApiCalls,
 } from './MFADocumentationPageV8';
 
 interface UseCase {
@@ -75,7 +75,9 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 		if (category === 'all') {
 			setSelectedUseCases(new Set(USE_CASES.map((uc) => uc.id)));
 		} else if (category === 'registration') {
-			setSelectedUseCases(new Set(USE_CASES.filter((uc) => uc.flowType === 'registration').map((uc) => uc.id)));
+			setSelectedUseCases(
+				new Set(USE_CASES.filter((uc) => uc.flowType === 'registration').map((uc) => uc.id))
+			);
 		} else if (category === 'authentication') {
 			setSelectedUseCases(
 				new Set(USE_CASES.filter((uc) => uc.flowType === 'authentication').map((uc) => uc.id))
@@ -367,7 +369,8 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 												marginTop: '4px',
 											}}
 										>
-											{useCase.deviceType} • {useCase.flowType === 'registration' ? 'Registration' : 'Authentication'}
+											{useCase.deviceType} •{' '}
+											{useCase.flowType === 'registration' ? 'Registration' : 'Authentication'}
 										</div>
 									</div>
 								</label>
@@ -451,8 +454,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 							padding: '12px 24px',
 							border: 'none',
 							borderRadius: '8px',
-							background:
-								selectedUseCases.size === 0 ? '#9ca3af' : '#3b82f6',
+							background: selectedUseCases.size === 0 ? '#9ca3af' : '#3b82f6',
 							color: 'white',
 							fontSize: '14px',
 							fontWeight: '600',
@@ -470,4 +472,3 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 		</div>
 	);
 };
-

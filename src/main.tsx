@@ -1,5 +1,5 @@
-import ReactDOM from 'react-dom/client';
 import React from 'react';
+import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import App from './App';
@@ -11,14 +11,14 @@ if (typeof window !== 'undefined') {
 	// Set React on window object
 	(window as any).React = React;
 	(window as any).ReactDOM = ReactDOM;
-	
+
 	// Also make it available on globalThis for broader compatibility
 	// Ensure globalThis exists before using it
 	if (typeof globalThis !== 'undefined') {
 		(globalThis as any).React = React;
 		(globalThis as any).ReactDOM = ReactDOM;
 	}
-	
+
 	// Ensure React.Children and React.Component are available
 	// Add defensive checks to prevent "Cannot set properties of undefined" errors
 	if (React && typeof React === 'object') {

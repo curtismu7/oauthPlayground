@@ -15,8 +15,8 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { FlowType } from '@/v8/services/specVersionServiceV8';
 import { ApiDisplayCheckbox } from '@/v8/components/SuperSimpleApiDisplayV8';
+import type { FlowType } from '@/v8/services/specVersionServiceV8';
 import { UnifiedDocumentationModalV8U } from './UnifiedDocumentationModalV8U';
 
 interface UnifiedNavigationV8UProps {
@@ -203,7 +203,10 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 							🏠 Back to Main
 						</button>
 					)}
-					<div className="nav-link-btn api-display-wrapper" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+					<div
+						className="nav-link-btn api-display-wrapper"
+						style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+					>
 						<ApiDisplayCheckbox />
 					</div>
 				</div>

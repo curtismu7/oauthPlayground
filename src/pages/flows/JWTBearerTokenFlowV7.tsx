@@ -612,7 +612,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 		setCurrentStep(0);
 		setGeneratedJWT('');
 		setTokenResponse(null);
-		
+
 		// Clear any potential ConfigChecker-related state or cached data
 		try {
 			// Clear any comparison results or cached application data
@@ -620,16 +620,18 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 			sessionStorage.removeItem('config-checker-last-check');
 			sessionStorage.removeItem('pingone-app-cache');
 			localStorage.removeItem('pingone-applications-cache');
-			
+
 			// Clear any worker token related cache that might be used for pre-flight checks
 			sessionStorage.removeItem('worker-token-cache');
 			localStorage.removeItem('worker-apps-cache');
-			
-			console.log('🔄 [JWTBearerTokenFlowV6] Starting over: cleared tokens/JWT, ConfigChecker cache, keeping credentials');
+
+			console.log(
+				'🔄 [JWTBearerTokenFlowV6] Starting over: cleared tokens/JWT, ConfigChecker cache, keeping credentials'
+			);
 		} catch (error) {
 			console.warn('[JWTBearerTokenFlowV6] Failed to clear cache data:', error);
 		}
-		
+
 		v4ToastManager.showSuccess('Flow restarted', {
 			description: 'Tokens, JWT, and cache cleared. Credentials preserved.',
 		});
