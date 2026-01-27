@@ -93,6 +93,10 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
 
+	// Worker token settings
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(false);
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(false);
+
 	// Registration flow type state
 	const [registrationFlowType, setRegistrationFlowType] = useState<'admin' | 'user'>('user');
 	const [adminDeviceStatus, setAdminDeviceStatus] = useState<'ACTIVE' | 'ACTIVATION_REQUIRED'>(
@@ -1021,6 +1025,10 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					}}
 					compact={false}
 					showSettings={true}
+					silentApiRetrieval={silentApiRetrieval}
+					onSilentApiRetrievalChange={setSilentApiRetrieval}
+					showTokenAtEnd={showTokenAtEnd}
+					onShowTokenAtEndChange={setShowTokenAtEnd}
 				/>
 
 				{/* Clean User Login Section - Only show for user flow */}

@@ -76,6 +76,10 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
 
+	// Worker token settings
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(false);
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(false);
+
 	// Registration flow type state
 	const [registrationFlowType, setRegistrationFlowType] = useState<'admin' | 'user'>(() => {
 		const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
@@ -813,6 +817,10 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 					}}
 					compact={false}
 					showSettings={true}
+					silentApiRetrieval={silentApiRetrieval}
+					onSilentApiRetrievalChange={setSilentApiRetrieval}
+					showTokenAtEnd={showTokenAtEnd}
+					onShowTokenAtEndChange={setShowTokenAtEnd}
 				/>
 
 				{/* Clean User Login Section - Only show for user flow */}
