@@ -196,7 +196,8 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		}
 
 		try {
-			const deviceAuthEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/device_authorization`;
+			// Use backend proxy to avoid CORS issues
+			const deviceAuthEndpoint = `/pingone-auth/${credentials.environmentId}/as/device_authorization`;
 
 			// Use centralized scope validation service
 			const scopeValidation = scopeValidationService.validateForAuthorizationUrl(
@@ -327,7 +328,8 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			return false;
 		}
 
-		const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+		// Use backend proxy to avoid CORS issues
+		const tokenEndpoint = `/pingone-auth/${credentials.environmentId}/as/token`;
 
 		// Prepare request params outside try block to ensure availability in catch block
 		const params = new URLSearchParams({
