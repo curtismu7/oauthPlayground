@@ -433,8 +433,12 @@ const _ConfigSlider = styled.span`
 
 const ConfigButtonGroup = styled.div`
 	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
 	gap: 8px;
 	margin-top: 16px;
+	flex-wrap: nowrap;
 `;
 
 const ConfigActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
