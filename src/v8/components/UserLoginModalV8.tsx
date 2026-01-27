@@ -79,10 +79,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	});
 	// Pre-flight validation state
 	const [isValidating, setIsValidating] = useState(false);
+	const [isFixing, setIsFixing] = useState(false);
 	const [validationResult, setValidationResult] = useState<{
 		passed: boolean;
 		errors: string[];
 		warnings: string[];
+		fixableErrors: Array<{ error: string; fix: () => Promise<void> }>;
 	} | null>(null);
 	// Use different default redirect URI for MFA flows
 	const defaultRedirectUri = isMfaFlow
@@ -120,6 +122,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					passed: false,
 					errors: ['Could not fetch application configuration from PingOne'],
 					warnings: [],
+					fixableErrors: [],
 				});
 				setIsValidating(false);
 				return;
@@ -127,22 +130,84 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			const errors: string[] = [];
 			const warnings: string[] = [];
+			const fixableErrors: Array<{ error: string; fix: () => Promise<void> }> = [];
 
 			// Check if app is enabled
 			if (!appConfig.enabled) {
 				errors.push('Application is disabled in PingOne');
+				fixableErrors.push({
+					error: 'Application is disabled in PingOne',
+					fix: async () => {
+						const workerToken = await workerTokenServiceV8.getToken();
+						if (!workerToken) return;
+						
+						await OAuthIntegrationServiceV8.updateApplicationEnabled(
+							environmentId.trim(),
+							clientId.trim(),
+							true,
+							workerToken
+						);
+						toastV8.success('Application enabled in PingOne');
+					}
+				});
 			}
 
 			// Check grant types
 			if (!appConfig.grantTypes.includes('authorization_code')) {
 				errors.push('Authorization Code grant type is not enabled');
+				fixableErrors.push({
+					error: 'Authorization Code grant type is not enabled',
+					fix: async () => {
+						const workerToken = await workerTokenServiceV8.getToken();
+						if (!workerToken) return;
+						
+						const updatedGrantTypes = [...appConfig.grantTypes, 'authorization_code'];
+						await OAuthIntegrationServiceV8.updateApplicationGrantTypes(
+							environmentId.trim(),
+							clientId.trim(),
+							updatedGrantTypes,
+							workerToken
+						);
+						toastV8.success('Authorization Code grant type enabled');
+					}
+				});
 			}
 
 			// Check redirect URIs
 			if (!appConfig.redirectUris || appConfig.redirectUris.length === 0) {
 				errors.push('No redirect URIs configured');
+				fixableErrors.push({
+					error: 'No redirect URIs configured',
+					fix: async () => {
+						const workerToken = await workerTokenServiceV8.getToken();
+						if (!workerToken) return;
+						
+						await OAuthIntegrationServiceV8.addRedirectUri(
+							environmentId.trim(),
+							clientId.trim(),
+							redirectUri,
+							workerToken
+						);
+						toastV8.success('Redirect URI added to application');
+					}
+				});
 			} else if (!appConfig.redirectUris.includes(redirectUri)) {
 				warnings.push(`Redirect URI "${redirectUri}" is not in the configured list`);
+				fixableErrors.push({
+					error: `Redirect URI "${redirectUri}" is not in the configured list`,
+					fix: async () => {
+						const workerToken = await workerTokenServiceV8.getToken();
+						if (!workerToken) return;
+						
+						await OAuthIntegrationServiceV8.addRedirectUri(
+							environmentId.trim(),
+							clientId.trim(),
+							redirectUri,
+							workerToken
+						);
+						toastV8.success('Redirect URI added to application');
+					}
+				});
 			}
 
 			// Check PKCE
@@ -156,6 +221,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				passed: errors.length === 0,
 				errors,
 				warnings,
+				fixableErrors,
 			});
 
 			if (errors.length === 0 && warnings.length === 0) {
@@ -169,12 +235,38 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			console.error(`${MODULE_TAG} Pre-flight validation error:`, error);
 			setValidationResult({
 				passed: false,
-				errors: ['Failed to validate configuration: ' + (error instanceof Error ? error.message : 'Unknown error')],
+				errors: [`Failed to validate configuration: ${error instanceof Error ? error.message : 'Unknown error'}`],
 				warnings: [],
+				fixableErrors: [],
 			});
 			toastV8.error('Pre-flight validation failed');
 		} finally {
 			setIsValidating(false);
+		}
+	};
+
+	// Auto-fix configuration errors
+	const handleFixConfiguration = async () => {
+		if (!validationResult || validationResult.fixableErrors.length === 0) return;
+
+		setIsFixing(true);
+		try {
+			console.log(`${MODULE_TAG} Fixing ${validationResult.fixableErrors.length} configuration error(s)...`);
+			
+			// Run all fixes
+			for (const fixableError of validationResult.fixableErrors) {
+				await fixableError.fix();
+			}
+
+			toastV8.success('✅ Configuration fixed! Re-running validation...');
+			
+			// Re-run validation to confirm fixes
+			await handlePreFlightValidation();
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error fixing configuration:`, error);
+			toastV8.error(`Failed to fix configuration: ${error instanceof Error ? error.message : 'Unknown error'}`);
+		} finally {
+			setIsFixing(false);
 		}
 	};
 
@@ -1946,6 +2038,34 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 													))}
 												</ul>
 											</div>
+										)}
+
+										{/* Fix Configuration Button */}
+										{validationResult.fixableErrors.length > 0 && (
+											<button
+												type="button"
+												onClick={handleFixConfiguration}
+												disabled={isFixing}
+												style={{
+													marginTop: '16px',
+													width: '100%',
+													padding: '12px',
+													background: isFixing ? '#9ca3af' : '#f59e0b',
+													color: 'white',
+													border: 'none',
+													borderRadius: '6px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: isFixing ? 'not-allowed' : 'pointer',
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+													gap: '8px',
+													transition: 'all 0.2s ease',
+												}}
+											>
+												{isFixing ? '🔧 Fixing Configuration...' : '🔧 Fix Configuration Automatically'}
+											</button>
 										)}
 									</div>
 								</div>
