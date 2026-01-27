@@ -37,12 +37,15 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { environmentService } from '@/services/environmentService';
 import { pingOneLogoutService } from '@/services/pingOneLogoutService';
 import {
 	downloadPostmanCollectionWithEnvironment,
 	generateCompletePostmanCollection,
 	generateComprehensiveMFAPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import { createModuleLogger } from '@/utils/consoleMigrationHelper';
 import { oauthStorage } from '@/utils/storage';
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
 import { DeviceFailureModalV8, UnavailableDevice } from '@/v8/components/DeviceFailureModalV8';
@@ -68,7 +71,6 @@ import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { useMFAAuthentication } from '@/v8/hooks/useMFAAuthentication';
 import { useMFADevices } from '@/v8/hooks/useMFADevices';
 import { useMFAPolicies } from '@/v8/hooks/useMFAPolicies';
-import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
@@ -80,9 +82,6 @@ import {
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { createModuleLogger } from '@/utils/consoleMigrationHelper';
-import { environmentService } from '@/services/environmentService';
-import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import {
 	MFADeviceSelectionInfoModal,
@@ -1204,7 +1203,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			const params = new URLSearchParams({
 				response_type: 'code',
 				client_id: credentials.clientId,
-				redirect_uri: credentials.redirectUri || window.location.origin + '/v8/mfa/callback',
+				redirect_uri: credentials.redirectUri || `${window.location.origin}/v8/mfa/callback`,
 				scope: credentials.scopes || 'openid profile email',
 				state: `mfa-auth-${Date.now()}`,
 			});
@@ -2285,6 +2284,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							{/* Environment ID */}
 							<div>
 								<label
+									htmlFor="environment-id"
 									style={{
 										display: 'block',
 										marginBottom: '8px',
@@ -2296,6 +2296,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									Environment ID
 								</label>
 								<input
+									id="environment-id"
 									type="text"
 									value={credentials.environmentId}
 									onChange={(e) => {
@@ -5943,7 +5944,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						justifyContent: 'center',
 						zIndex: 1000,
 					}}
-					onClick={() => setShowRegistrationModal(false)}
+					role="dialog"
+					aria-modal="true"
+					aria-labelledby="registration-modal-title"
 				>
 					<div
 						style={{
@@ -5954,11 +5957,35 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							width: '90%',
 							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
 						}}
-						onClick={(e) => e.stopPropagation()}
 					>
-						<h3 style={{ margin: '0 0 16px 0', fontSize: '20px', fontWeight: '600' }}>
-							Register New Device
-						</h3>
+						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+							<h3 id="registration-modal-title" style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+								Register New Device
+							</h3>
+							<button
+								type="button"
+								onClick={() => setShowRegistrationModal(false)}
+								onKeyDown={(e) => {
+									if (e.key === 'Escape') {
+										setShowRegistrationModal(false);
+									}
+								}}
+								style={{
+									background: 'none',
+									border: 'none',
+									fontSize: '24px',
+									cursor: 'pointer',
+									padding: '0',
+									width: '32px',
+									height: '32px',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+								}}
+								aria-label="Close registration modal"
+							>
+								×
+							</button>
 						<p style={{ margin: '0 0 24px 0', color: '#666' }}>
 							Choose a device type to register for MFA authentication.
 						</p>
