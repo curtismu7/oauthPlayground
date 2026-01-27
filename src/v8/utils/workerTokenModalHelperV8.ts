@@ -7,6 +7,7 @@
  */
 
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import {
 	type TokenStatusInfo,
@@ -47,6 +48,20 @@ async function attemptSilentTokenRetrieval(silentApiRetrievalOverride?: boolean)
 		);
 		// #endregion
 
+		// Debug: First check what the unified service returns directly
+		console.log(`${MODULE_TAG} 🔍 DEBUG: Checking unified service directly...`);
+		const unifiedCreds = await unifiedWorkerTokenService.loadCredentials();
+		console.log(`${MODULE_TAG} 🔍 DEBUG: Unified service credentials:`, !!unifiedCreds);
+		if (unifiedCreds) {
+			console.log(`${MODULE_TAG} 🔍 DEBUG: Unified credentials structure:`, {
+				hasEnvironmentId: !!unifiedCreds.environmentId,
+				hasClientId: !!unifiedCreds.clientId,
+				hasClientSecret: !!unifiedCreds.clientSecret,
+				envId: unifiedCreds.environmentId,
+				clientId: unifiedCreds.clientId?.substring(0, 8) + '...',
+			});
+		}
+		
 		const credentials = await workerTokenServiceV8.loadCredentials();
 		// #region agent log
 		// #endregion
