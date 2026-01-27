@@ -8698,25 +8698,21 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						`${MODULE_TAG} [DEBUG] Using device code for poll: ${currentDeviceCode.substring(0, 20)}... (length: ${currentDeviceCode.length})`
 					);
 
-					// Build request body for backend proxy (JSON format)
+					// Build request body for PingOne auth proxy (form-encoded format)
 					// CRITICAL: Use currentDeviceCode (from latest state) not flowState.deviceCode (from closure)
-					const requestBody: Record<string, string> = {
+					const params = new URLSearchParams({
 						grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
 						client_id: credentials.clientId,
 						device_code: currentDeviceCode!, // Use the device code from latest state
-						environment_id: credentials.environmentId,
-					};
+					});
 
 					// Handle Client Authentication
 					if (credentials.clientSecret) {
 						const authMethod = credentials.clientAuthMethod || 'client_secret_basic';
-						if (authMethod === 'client_secret_basic') {
-							requestBody.client_secret = credentials.clientSecret;
-							requestBody.client_auth_method = 'client_secret_basic';
-						} else if (authMethod === 'client_secret_post') {
-							requestBody.client_secret = credentials.clientSecret;
-							requestBody.client_auth_method = 'client_secret_post';
+						if (authMethod === 'client_secret_post') {
+							params.append('client_secret', credentials.clientSecret);
 						}
+						// For client_secret_basic, we don't include secret in body
 					}
 
 					console.log(`${MODULE_TAG} Polling request via backend proxy`, {
@@ -8736,7 +8732,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						const startTime4 = Date.now();
 						const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 						const requestBodyForTracking = {
-							...requestBody,
+							grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+							client_id: credentials.clientId,
 							device_code: '***REDACTED***',
 						};
 
@@ -8746,7 +8743,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							actualPingOneUrl,
 							isProxy: true,
 							headers: {
-								'Content-Type': 'application/json',
+								'Content-Type': 'application/x-www-form-urlencoded',
 								Accept: 'application/json',
 							},
 							body: requestBodyForTracking,
@@ -8757,10 +8754,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						response = await fetch(tokenEndpoint, {
 							method: 'POST',
 							headers: {
-								'Content-Type': 'application/json',
-								Accept: 'application/json',
+								'Content-Type': 'application/x-www-form-urlencoded',
 							},
-							body: JSON.stringify(requestBody),
+							body: params.toString(),
 						});
 
 						// Parse response once (clone first to avoid consuming the body)
