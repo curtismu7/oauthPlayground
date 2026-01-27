@@ -3961,12 +3961,18 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								</CountdownTimer>
 							)}
 
-							{/* Cancel Polling Button */}
-							{deviceFlow.pollingStatus.isPolling && (
-								<ActionRow style={{ justifyContent: 'center', marginTop: '1.5rem' }}>
-									<Button onClick={deviceFlow.stopPolling} $variant="danger">
-										<FiX /> Cancel Polling
-									</Button>
+							{/* Polling Control Buttons */}
+							{deviceFlow.deviceCodeData && !deviceFlow.tokens && (
+								<ActionRow style={{ justifyContent: 'center', marginTop: '1.5rem', gap: '0.75rem' }}>
+									{deviceFlow.pollingStatus.isPolling ? (
+										<Button onClick={deviceFlow.stopPolling} $variant="danger">
+											<FiX /> Cancel Polling
+										</Button>
+									) : (
+										<Button onClick={deviceFlow.refreshAuthorizationStatus} $variant="primary">
+											<FiRefreshCw /> Check Authorization Status
+										</Button>
+									)}
 								</ActionRow>
 							)}
 						</CollapsibleContent>
