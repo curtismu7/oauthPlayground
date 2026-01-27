@@ -65,6 +65,10 @@ import { useMFAAuthentication } from '@/v8/hooks/useMFAAuthentication';
 import { useMFADevices } from '@/v8/hooks/useMFADevices';
 import { useMFAPolicies } from '@/v8/hooks/useMFAPolicies';
 import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
+import { WorkerTokenSectionV8 } from '@/v8/components/sections/WorkerTokenSectionV8';
+import { AuthenticationSectionV8 } from '@/v8/components/sections/AuthenticationSectionV8';
+import { DeviceManagementSectionV8 } from '@/v8/components/sections/DeviceManagementSectionV8';
+import { PolicySectionV8 } from '@/v8/components/sections/PolicySectionV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
@@ -448,7 +452,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								window.dispatchEvent(new Event('workerTokenUpdated'));
 
 								// Update token status
-								await workerToken.refreshTokenStatus();
+								const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+								setTokenStatus(newStatus);
 
 								toastV8.success('Worker token automatically refreshed!');
 								return; // Success, exit retry loop
@@ -574,8 +579,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		const loadConfig = () => {
 			// Always load fresh from config service to avoid cache issues
 			const config = MFAConfigurationServiceV8.loadConfiguration();
-			workerToken.setSilentApiRetrieval(config.workerToken.silentApiRetrieval);
-			workerToken.setShowTokenAtEnd(config.workerToken.showTokenAtEnd);
+			setSilentApiRetrieval(config.workerToken.silentApiRetrieval);
+			setShowTokenAtEnd(config.workerToken.showTokenAtEnd);
 		};
 
 		loadConfig();
@@ -587,8 +592,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			}>;
 			// Always reload fresh from config service when event fires (no cache)
 			const config = MFAConfigurationServiceV8.loadConfiguration();
-			workerToken.setSilentApiRetrieval(config.workerToken.silentApiRetrieval);
-			workerToken.setShowTokenAtEnd(config.workerToken.showTokenAtEnd);
+			setSilentApiRetrieval(config.workerToken.silentApiRetrieval);
+			setShowTokenAtEnd(config.workerToken.showTokenAtEnd);
 		};
 
 		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
@@ -721,7 +726,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	// Load user devices for dashboard - debounced to prevent blinking while typing
 	useEffect(() => {
 		const loadUserDevices = async () => {
-			if (!credentials.environmentId || !usernameInput.trim() || !workerToken.tokenStatus.isValid) {
+			if (!credentials.environmentId || !usernameInput.trim() || !tokenStatus.isValid) {
 				setUserDevices([]);
 				lastLoadedDevicesRef.current = null;
 				return;
@@ -789,11 +794,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		}, 500); // Wait 500ms after user stops typing
 
 		return () => clearTimeout(timeoutId);
-	}, [credentials.environmentId, usernameInput, workerToken.tokenStatus.isValid]);
+	}, [credentials.environmentId, usernameInput, tokenStatus.isValid]);
 
 	// Load devices when credentials are available
 	useEffect(() => {
-		if (credentials.environmentId && usernameInput.trim() && workerToken.tokenStatus.isValid) {
+		if (credentials.environmentId && usernameInput.trim() && tokenStatus.isValid) {
 			const loadUserDevices = async () => {
 				const currentUsername = usernameInput.trim();
 				try {
@@ -828,7 +833,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			};
 			void loadUserDevices();
 		}
-	}, [credentials.environmentId, usernameInput, workerToken.tokenStatus.isValid]);
+	}, [credentials.environmentId, usernameInput, tokenStatus.isValid]);
 
 	// Track last fetched environment to prevent duplicate calls
 	const lastFetchedPolicyEnvIdRef = useRef<string | null>(null);
@@ -838,7 +843,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const loadPolicies = useCallback(async (): Promise<DeviceAuthenticationPolicy[]> => {
 		const envId = credentials.environmentId?.trim();
 
-		if (!envId || !workerToken.tokenStatus.isValid) {
+		if (!envId || !tokenStatus.isValid) {
 			return [];
 		}
 
@@ -906,7 +911,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	}, [
 		credentials.environmentId,
 		credentials.deviceAuthenticationPolicyId,
-		workerToken.tokenStatus.isValid,
+		tokenStatus.isValid,
 		deviceAuthPolicies,
 		credentials,
 	]);
@@ -916,10 +921,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		const envId = credentials.environmentId?.trim();
 
 		// Only fetch if environment changed or we haven't fetched yet
-		if (envId && workerToken.tokenStatus.isValid && lastFetchedPolicyEnvIdRef.current !== envId) {
+		if (envId && tokenStatus.isValid && lastFetchedPolicyEnvIdRef.current !== envId) {
 			void loadPolicies();
 		}
-	}, [credentials.environmentId, workerToken.tokenStatus.isValid, loadPolicies]);
+	}, [credentials.environmentId, tokenStatus.isValid, loadPolicies]);
 
 	// Extract allowed device types from policy (shared function)
 	const extractAllowedDeviceTypes = useCallback(
@@ -1009,7 +1014,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 	// Handle Username-less FIDO2 Authentication
 	const handleUsernamelessFIDO2 = useCallback(async () => {
-		if (!workerToken.tokenStatus.isValid) {
+		if (!tokenStatus.isValid) {
 			toastV8.error('Please configure worker token first');
 			return;
 		}
@@ -1090,7 +1095,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			setAuthState((prev) => ({ ...prev, isLoading: false }));
 		}
 	}, [
-		workerToken.tokenStatus.isValid,
+		tokenStatus.isValid,
 		credentials.environmentId,
 		credentials.deviceAuthenticationPolicyId,
 		handleDeviceFailureError,
@@ -1098,7 +1103,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 	// Handle Start MFA (Username-based)
 	const handleStartMFA = useCallback(async () => {
-		if (!workerToken.tokenStatus.isValid) {
+		if (!tokenStatus.isValid) {
 			toastV8.error('Please configure worker token first');
 			return;
 		}
@@ -1290,7 +1295,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			setLoadingMessage('');
 		}
 	}, [
-		workerToken.tokenStatus.isValid,
+		tokenStatus.isValid,
 		credentials.environmentId,
 		credentials.deviceAuthenticationPolicyId,
 		usernameInput,
@@ -1396,11 +1401,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 	// Compute showTokenOnly for modal
 	const showTokenOnly = (() => {
-		if (!workerToken.showWorkerTokenModal) return false;
+		if (!showWorkerTokenModal) return false;
 		try {
 			const config = MFAConfigurationServiceV8.loadConfiguration();
-			// Use workerToken hook state instead of old state
-			return config.workerToken.showTokenAtEnd && workerToken.tokenStatus.isValid;
+			// Use existing tokenStatus state instead of calling async function
+			return config.workerToken.showTokenAtEnd && tokenStatus.isValid;
 		} catch {
 			return false;
 		}
@@ -1627,7 +1632,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						onClick={handleStartMFA}
 						disabled={
 							authState.isLoading ||
-							!workerToken.tokenStatus.isValid ||
+							!tokenStatus.isValid ||
 							!credentials.environmentId ||
 							!credentials.deviceAuthenticationPolicyId
 						}
@@ -1636,7 +1641,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							border: 'none',
 							borderRadius: '6px',
 							background:
-								workerToken.tokenStatus.isValid &&
+								tokenStatus.isValid &&
 								credentials.environmentId &&
 								credentials.deviceAuthenticationPolicyId
 									? '#3b82f6'
@@ -1645,7 +1650,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							fontSize: '16px',
 							fontWeight: '600',
 							cursor:
-								workerToken.tokenStatus.isValid &&
+								tokenStatus.isValid &&
 								credentials.environmentId &&
 								credentials.deviceAuthenticationPolicyId
 									? 'pointer'
@@ -1673,7 +1678,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						type="button"
 						onClick={() => setShowRegistrationModal(true)}
 						disabled={
-							!workerToken.tokenStatus.isValid ||
+							!tokenStatus.isValid ||
 							!credentials.environmentId ||
 							!credentials.deviceAuthenticationPolicyId
 						}
@@ -1682,7 +1687,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							border: 'none',
 							borderRadius: '6px',
 							background:
-								workerToken.tokenStatus.isValid &&
+								tokenStatus.isValid &&
 								credentials.environmentId &&
 								credentials.deviceAuthenticationPolicyId
 									? '#10b981'
@@ -1691,7 +1696,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							fontSize: '16px',
 							fontWeight: '600',
 							cursor:
-								workerToken.tokenStatus.isValid &&
+								tokenStatus.isValid &&
 								credentials.environmentId &&
 								credentials.deviceAuthenticationPolicyId
 									? 'pointer'
@@ -1709,7 +1714,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					<button
 						type="button"
 						onClick={handleUsernamelessFIDO2}
-						disabled={authState.isLoading || !workerToken.tokenStatus.isValid || !credentials.environmentId}
+						disabled={authState.isLoading || !tokenStatus.isValid || !credentials.environmentId}
 						style={{
 							padding: '10px 24px',
 							border: '2px solid #3b82f6',
@@ -1718,7 +1723,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							color: '#3b82f6',
 							fontSize: '16px',
 							fontWeight: '600',
-							cursor: workerToken.tokenStatus.isValid && credentials.environmentId ? 'pointer' : 'not-allowed',
+							cursor: tokenStatus.isValid && credentials.environmentId ? 'pointer' : 'not-allowed',
 							display: 'flex',
 							alignItems: 'center',
 							gap: '8px',
@@ -1859,10 +1864,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									// Pass current checkbox values to override config (page checkboxes take precedence)
 									// forceShowModal=true because user explicitly clicked the button
 									await handleShowWorkerTokenModal(
-										workerToken.setShowWorkerTokenModal,
+										setShowWorkerTokenModal,
 										setTokenStatus,
-										workerToken.silentApiRetrieval, // Page checkbox value takes precedence
-										workerToken.showTokenAtEnd, // Page checkbox value takes precedence
+										silentApiRetrieval, // Page checkbox value takes precedence
+										showTokenAtEnd, // Page checkbox value takes precedence
 										true // Always show modal when user clicks button
 									);
 								} finally {
@@ -1875,9 +1880,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								border: 'none',
 								borderRadius: '6px',
 								background:
-									workerToken.tokenStatus.status === 'expiring-soon'
+									tokenStatus.status === 'expiring-soon'
 										? '#f59e0b'
-										: workerToken.tokenStatus.isValid
+										: tokenStatus.isValid
 											? '#10b981'
 											: '#dc2626',
 								color: 'white',
@@ -1928,13 +1933,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						>
 							<input
 								type="checkbox"
-								checked={workerToken.silentApiRetrieval}
+								checked={silentApiRetrieval}
 								onChange={async (e) => {
 									const newValue = e.target.checked;
-									workerToken.setSilentApiRetrieval(newValue);
+									setSilentApiRetrieval(newValue);
 									// Update config service immediately (no cache)
 									const config = MFAConfigurationServiceV8.loadConfiguration();
-									config.workerToken.workerToken.silentApiRetrieval = newValue;
+									config.workerToken.silentApiRetrieval = newValue;
 									MFAConfigurationServiceV8.saveConfiguration(config);
 									// Dispatch event to notify other components
 									window.dispatchEvent(
@@ -1955,10 +1960,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												'@/v8/utils/workerTokenModalHelperV8'
 											);
 											await handleShowWorkerTokenModal(
-												workerToken.setShowWorkerTokenModal,
+												setShowWorkerTokenModal,
 												setTokenStatus,
 												newValue, // Use new value
-												workerToken.showTokenAtEnd,
+												showTokenAtEnd,
 												false // Not forced - respect silent setting
 											);
 										}
@@ -2002,13 +2007,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						>
 							<input
 								type="checkbox"
-								checked={workerToken.showTokenAtEnd}
+								checked={showTokenAtEnd}
 								onChange={(e) => {
 									const newValue = e.target.checked;
-									workerToken.setShowTokenAtEnd(newValue);
+									setShowTokenAtEnd(newValue);
 									// Update config service immediately (no cache)
 									const config = MFAConfigurationServiceV8.loadConfiguration();
-									config.workerToken.workerToken.showTokenAtEnd = newValue;
+									config.workerToken.showTokenAtEnd = newValue;
 									MFAConfigurationServiceV8.saveConfiguration(config);
 									// Dispatch event to notify other components
 									window.dispatchEvent(
@@ -2162,7 +2167,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							id={policySelectId}
 							value={credentials.deviceAuthenticationPolicyId}
 							onChange={(e) => handlePolicySelect(e.target.value)}
-							disabled={!workerToken.tokenStatus.isValid || deviceAuthPolicies.length === 0}
+							disabled={!tokenStatus.isValid || deviceAuthPolicies.length === 0}
 							style={{
 								width: '100%',
 								padding: '8px 12px',
@@ -2171,12 +2176,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								fontSize: '14px',
 								background: 'white',
 								cursor:
-									workerToken.tokenStatus.isValid && deviceAuthPolicies.length > 0 ? 'pointer' : 'not-allowed',
-								opacity: !workerToken.tokenStatus.isValid || deviceAuthPolicies.length === 0 ? 0.6 : 1,
+									tokenStatus.isValid && deviceAuthPolicies.length > 0 ? 'pointer' : 'not-allowed',
+								opacity: !tokenStatus.isValid || deviceAuthPolicies.length === 0 ? 0.6 : 1,
 							}}
 						>
 							<option value="">
-								{!workerToken.tokenStatus.isValid
+								{!tokenStatus.isValid
 									? 'Get Worker Token first to load policies'
 									: deviceAuthPolicies.length === 0
 										? 'No policies available'
@@ -3123,7 +3128,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			)}
 
 			{/* Device List */}
-			{usernameInput.trim() && credentials.environmentId && workerToken.tokenStatus.isValid && (
+			{usernameInput.trim() && credentials.environmentId && tokenStatus.isValid && (
 				<div
 					style={{
 						background: 'white',
@@ -3148,7 +3153,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						<button
 							type="button"
 							onClick={async () => {
-								if (!credentials.environmentId || !usernameInput.trim() || !workerToken.tokenStatus.isValid)
+								if (!credentials.environmentId || !usernameInput.trim() || !tokenStatus.isValid)
 									return;
 								setIsLoadingDevices(true);
 								setDevicesError(null);
@@ -3231,7 +3236,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									type="button"
 									onClick={async () => {
 										// Start authentication with this specific device (for all device types)
-										if (!workerToken.tokenStatus.isValid) {
+										if (!tokenStatus.isValid) {
 											toastV8.error('Please configure worker token first');
 											return;
 										}
@@ -3655,11 +3660,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			)}
 
 			{/* Modals */}
-			{workerToken.showWorkerTokenModal ? (
+			{showWorkerTokenModal ? (
 				<WorkerTokenModalV8
-					isOpen={workerToken.showWorkerTokenModal}
+					isOpen={showWorkerTokenModal}
 					onClose={() => {
-						workerToken.setShowWorkerTokenModal(false);
+						setShowWorkerTokenModal(false);
 						// Refresh token status when modal closes
 						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
 					}}
