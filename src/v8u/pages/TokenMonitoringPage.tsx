@@ -17,7 +17,7 @@ import {
 	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { unifiedWorkerTokenServiceV2 } from '../../services/unifiedWorkerTokenServiceV2';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
 import {
 	type RevocationMethod,
@@ -487,7 +487,7 @@ export const TokenMonitoringPage: React.FC = () => {
 			logger.debug('🔧 [TokenMonitoringPage] Refreshing worker token with optimized service...');
 
 			// Use the optimized unified worker token service V2
-			const status = await unifiedWorkerTokenServiceV2.getStatus();
+			const status = await unifiedWorkerTokenService.getStatus();
 			logger.debug('🔧 [TokenMonitoringPage] Current status:', status);
 
 			if (!status.hasCredentials) {
@@ -498,7 +498,7 @@ export const TokenMonitoringPage: React.FC = () => {
 
 			// For now, we'll clear the token and let user re-authenticate
 			// The optimized service doesn't have a direct "refresh" method like the old manager
-			await unifiedWorkerTokenServiceV2.clearToken();
+			await unifiedWorkerTokenService.clearToken();
 
 			setMessage('Worker token cleared. Please re-authenticate to get a new token.');
 			setMessageType('info');

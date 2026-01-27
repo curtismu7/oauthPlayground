@@ -6,7 +6,7 @@ import React, {
 	useMemo,
 	useReducer,
 } from 'react';
-import { unifiedWorkerTokenServiceV2 } from '../../services/unifiedWorkerTokenServiceV2';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import { type ApiCall, TokenMonitoringService } from './tokenMonitoringService';
 import { logger } from './unifiedFlowLoggerServiceV8U';
 
@@ -326,7 +326,7 @@ const getRealMetrics = async (): Promise<Partial<UnifiedFlowMetrics>> => {
 		};
 
 		try {
-			const workerTokenStatus = await unifiedWorkerTokenServiceV2.getStatus();
+			const workerTokenStatus = await unifiedWorkerTokenService.getStatus();
 			workerTokenMetrics = {
 				hasWorkerToken: workerTokenStatus.hasToken || false,
 				workerTokenValid: workerTokenStatus.tokenValid || false,
