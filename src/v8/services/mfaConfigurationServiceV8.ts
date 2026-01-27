@@ -163,7 +163,7 @@ export class MFAConfigurationServiceV8 {
 	static saveConfiguration(config: MFAConfiguration): void {
 		try {
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-			console.log(`${MODULE_TAG} Configuration saved to localStorage`);
+			
 
 			// Dispatch custom event to notify other components
 			window.dispatchEvent(
@@ -183,7 +183,7 @@ export class MFAConfigurationServiceV8 {
 	static resetToDefaults(): void {
 		try {
 			localStorage.removeItem(STORAGE_KEY);
-			console.log(`${MODULE_TAG} Configuration reset to defaults`);
+			
 
 			// Dispatch custom event with default config
 			window.dispatchEvent(
@@ -237,7 +237,7 @@ export class MFAConfigurationServiceV8 {
 			}
 
 			MFAConfigurationServiceV8.saveConfiguration(config);
-			console.log(`${MODULE_TAG} Configuration imported successfully`);
+			
 			return true;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to import configuration:`, error);

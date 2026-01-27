@@ -59,11 +59,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 	 * @returns Token response
 	 */
 	static async requestToken(credentials: ClientCredentialsCredentials): Promise<TokenResponse> {
-		console.log(`${MODULE_TAG} Requesting access token`, {
-			environmentId: credentials.environmentId,
-			clientId: credentials.clientId,
-			clientAuthMethod: credentials.clientAuthMethod || 'client_secret_post',
-		});
+		
 
 		try {
 			// Use backend proxy to avoid CORS issues
@@ -189,7 +185,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 						proxyRequestBody.client_assertion_type =
 							'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 						proxyRequestBody.client_assertion = assertion;
-						console.log(`${MODULE_TAG} Using Client Secret JWT assertion authentication`);
+						
 					} catch (error) {
 						console.error(`${MODULE_TAG} Failed to generate client secret JWT assertion`, {
 							error,
@@ -220,7 +216,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 						proxyRequestBody.client_assertion_type =
 							'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 						proxyRequestBody.client_assertion = assertion;
-						console.log(`${MODULE_TAG} Using Private Key JWT assertion authentication`);
+						
 					} catch (error) {
 						console.error(`${MODULE_TAG} Failed to generate private key JWT assertion`, { error });
 						throw new Error(
@@ -622,11 +618,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 
 			const tokens: TokenResponse = responseData as TokenResponse;
 
-			console.log(`${MODULE_TAG} Access token received successfully`, {
-				hasAccessToken: !!tokens.access_token,
-				expiresIn: tokens.expires_in,
-				scope: tokens.scope,
-			});
+			
 
 			return tokens;
 		} catch (error) {
@@ -657,7 +649,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		console.log(`${MODULE_TAG} Decoding JWT token`);
+		
 
 		try {
 			const parts = token.split('.');
@@ -670,7 +662,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 			const payload = JSON.parse(ClientCredentialsIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			console.log(`${MODULE_TAG} Token decoded successfully`);
+			
 
 			return { header, payload, signature };
 		} catch (error) {

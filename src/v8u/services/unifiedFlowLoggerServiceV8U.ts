@@ -185,7 +185,7 @@ export class UnifiedFlowLoggerService {
 				console.debug(formattedMessage, logData || '');
 				break;
 			case 'info':
-				console.log(formattedMessage, logData || '');
+				
 				break;
 			case 'warn':
 				console.warn(formattedMessage, logData || '');
@@ -194,7 +194,7 @@ export class UnifiedFlowLoggerService {
 				console.error(formattedMessage, logData || '');
 				break;
 			case 'success':
-				console.log(formattedMessage, logData || '');
+				
 				break;
 		}
 	}

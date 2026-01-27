@@ -101,9 +101,7 @@ export class PasskeyServiceV8 {
 	 * 5. Complete authentication with PingOne
 	 */
 	static async authenticateUsernameless(options: PasskeyAuthOptions): Promise<PasskeyAuthResult> {
-		console.log(`${MODULE_TAG} Starting username-less passkey authentication`, {
-			environmentId: options.environmentId,
-		});
+		
 
 		try {
 			// Check WebAuthn support
@@ -243,7 +241,6 @@ export class PasskeyServiceV8 {
 				};
 			}
 
-			console.log(`${MODULE_TAG} WebAuthn authentication successful, userHandle extracted`, {
 				userHandleLength: userHandle.length,
 				credentialId: `${credential.id.substring(0, 20)}...`,
 			});
@@ -305,10 +302,7 @@ export class PasskeyServiceV8 {
 			}
 
 			const verifyData = await verifyResponse.json();
-			console.log(`${MODULE_TAG} Authentication verified successfully`, {
-				userId: verifyData.userId,
-				username: verifyData.username,
-			});
+			
 
 			return {
 				success: true,
@@ -362,10 +356,7 @@ export class PasskeyServiceV8 {
 	static async registerPasskey(
 		options: PasskeyRegistrationOptions
 	): Promise<PasskeyRegistrationResult> {
-		console.log(`${MODULE_TAG} Starting passkey registration`, {
-			environmentId: options.environmentId,
-			username: options.username,
-		});
+		
 
 		try {
 			// Check WebAuthn support
@@ -530,10 +521,7 @@ export class PasskeyServiceV8 {
 			}
 
 			const verifyData = await verifyResponse.json();
-			console.log(`${MODULE_TAG} Passkey registered successfully`, {
-				deviceId: verifyData.deviceId,
-				userId: verifyData.userId,
-			});
+			
 
 			return {
 				success: true,

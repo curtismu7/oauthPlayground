@@ -101,7 +101,6 @@ export class SpecVersionServiceV8 {
 	 * @returns Array of available flow types
 	 */
 	static getAvailableFlows(specVersion: SpecVersion): FlowType[] {
-		console.log(`${MODULE_TAG} Getting available flows for`, { specVersion });
 		return SPEC_CONFIGS[specVersion].supportedFlows;
 	}
 
@@ -113,7 +112,6 @@ export class SpecVersionServiceV8 {
 	 */
 	static isFlowAvailable(specVersion: SpecVersion, flowType: FlowType): boolean {
 		const available = SpecVersionServiceV8.getAvailableFlows(specVersion).includes(flowType);
-		console.log(`${MODULE_TAG} Flow availability check`, { specVersion, flowType, available });
 		return available;
 	}
 
@@ -156,7 +154,6 @@ export class SpecVersionServiceV8 {
 		flowType: FlowType,
 		config: any
 	): ValidationResult {
-		console.log(`${MODULE_TAG} Validating configuration`, { specVersion, flowType });
 
 		const errors: string[] = [];
 		const warnings: string[] = [];
@@ -202,7 +199,6 @@ export class SpecVersionServiceV8 {
 		}
 
 		const valid = errors.length === 0;
-		console.log(`${MODULE_TAG} Validation complete`, {
 			valid,
 			errorCount: errors.length,
 			warningCount: warnings.length,

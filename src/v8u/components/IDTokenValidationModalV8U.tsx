@@ -46,7 +46,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 	}, [isOpen, idToken]);
 
 	const handleValidate = async () => {
-		console.log(`${MODULE_TAG} Starting ID token validation`);
+		
 		setIsValidating(true);
 		setValidationResult(null);
 
@@ -59,7 +59,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 				nonce,
 			});
 
-			console.log(`${MODULE_TAG} Validation complete`, { valid: result.valid });
+			
 			setValidationResult(result);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Validation failed`, error);

@@ -58,7 +58,7 @@ export class FlowResetServiceV8 {
 	 * FlowResetServiceV8.resetFlow('authz-code');
 	 */
 	static resetFlow(flowKey: string, keepWorkerToken = true): ResetResult {
-		console.log(`${MODULE_TAG} Resetting flow`, { flowKey, keepWorkerToken });
+		
 
 		const cleared: string[] = [];
 		const kept: string[] = [];
@@ -93,11 +93,7 @@ export class FlowResetServiceV8 {
 				kept.push('worker_token');
 			}
 
-			console.log(`${MODULE_TAG} Flow reset complete`, {
-				flowKey,
-				cleared: cleared.length,
-				kept: kept.length,
-			});
+			
 
 			return {
 				success: true,
@@ -128,7 +124,7 @@ export class FlowResetServiceV8 {
 	 * FlowResetServiceV8.fullReset('authz-code');
 	 */
 	static fullReset(flowKey: string): ResetResult {
-		console.log(`${MODULE_TAG} Full reset requested`, { flowKey });
+		
 
 		const cleared: string[] = [];
 		const kept: string[] = [];
@@ -152,10 +148,7 @@ export class FlowResetServiceV8 {
 				cleared.push('step_progress');
 			}
 
-			console.log(`${MODULE_TAG} Full reset complete`, {
-				flowKey,
-				cleared: cleared.length,
-			});
+			
 
 			return {
 				success: true,
@@ -186,7 +179,7 @@ export class FlowResetServiceV8 {
 	 * FlowResetServiceV8.clearTokens('authz-code');
 	 */
 	static clearTokens(flowKey: string): ResetResult {
-		console.log(`${MODULE_TAG} Clearing tokens`, { flowKey });
+		
 
 		const cleared: string[] = [];
 		const kept: string[] = [];
@@ -197,7 +190,7 @@ export class FlowResetServiceV8 {
 				cleared.push('tokens');
 			}
 
-			console.log(`${MODULE_TAG} Tokens cleared`, { flowKey });
+			
 
 			return {
 				success: true,
@@ -228,7 +221,7 @@ export class FlowResetServiceV8 {
 	 * FlowResetServiceV8.clearSession('authz-code');
 	 */
 	static clearSession(flowKey: string): ResetResult {
-		console.log(`${MODULE_TAG} Clearing session`, { flowKey });
+		
 
 		const cleared: string[] = [];
 		const kept: string[] = [];
@@ -252,10 +245,7 @@ export class FlowResetServiceV8 {
 				}
 			});
 
-			console.log(`${MODULE_TAG} Session cleared`, {
-				flowKey,
-				cleared: cleared.length,
-			});
+			
 
 			return {
 				success: true,
@@ -286,7 +276,7 @@ export class FlowResetServiceV8 {
 	 * FlowResetServiceV8.clearProgress('authz-code');
 	 */
 	static clearProgress(flowKey: string): ResetResult {
-		console.log(`${MODULE_TAG} Clearing progress`, { flowKey });
+		
 
 		const cleared: string[] = [];
 
@@ -296,7 +286,7 @@ export class FlowResetServiceV8 {
 				cleared.push('step_progress');
 			}
 
-			console.log(`${MODULE_TAG} Progress cleared`, { flowKey });
+			
 
 			return {
 				success: true,
@@ -328,7 +318,7 @@ export class FlowResetServiceV8 {
 	 * FlowResetServiceV8.clearPingOneSession('authz-code');
 	 */
 	static clearPingOneSession(flowKey: string): ResetResult {
-		console.log(`${MODULE_TAG} Clearing PingOne session`, { flowKey });
+		
 
 		const cleared: string[] = [];
 
@@ -345,10 +335,7 @@ export class FlowResetServiceV8 {
 				cleared.push('preferences');
 			}
 
-			console.log(`${MODULE_TAG} PingOne session cleared`, {
-				flowKey,
-				cleared: cleared.length,
-			});
+			
 
 			return {
 				success: true,

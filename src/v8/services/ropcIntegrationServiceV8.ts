@@ -58,11 +58,7 @@ export class ROPCIntegrationServiceV8 {
 		username: string,
 		password: string
 	): Promise<TokenResponse> {
-		console.log(`${MODULE_TAG} Requesting access token`, {
-			environmentId: credentials.environmentId,
-			clientId: credentials.clientId,
-			username, // Don't log password
-		});
+		
 
 		try {
 			// Use backend proxy to avoid CORS issues
@@ -103,13 +99,7 @@ export class ROPCIntegrationServiceV8 {
 
 			const tokens: TokenResponse = await response.json();
 
-			console.log(`${MODULE_TAG} Access token received successfully`, {
-				hasAccessToken: !!tokens.access_token,
-				hasIdToken: !!tokens.id_token,
-				hasRefreshToken: !!tokens.refresh_token,
-				expiresIn: tokens.expires_in,
-				scope: tokens.scope,
-			});
+			
 
 			return tokens;
 		} catch (error) {
@@ -124,7 +114,7 @@ export class ROPCIntegrationServiceV8 {
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		console.log(`${MODULE_TAG} Decoding JWT token`);
+		
 
 		try {
 			const parts = token.split('.');
@@ -137,7 +127,7 @@ export class ROPCIntegrationServiceV8 {
 			const payload = JSON.parse(ROPCIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			console.log(`${MODULE_TAG} Token decoded successfully`);
+			
 
 			return { header, payload, signature };
 		} catch (error) {

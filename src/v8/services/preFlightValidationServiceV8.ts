@@ -396,21 +396,11 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 					// #region agent log - log auth method comparison
 					// #endregion
 
-					console.log(`${MODULE_TAG} Comparing auth methods`, {
-						pingOneRaw: appConfig.tokenEndpointAuthMethod,
-						pingOneNormalized: pingOneAuthMethod,
-						configuredRaw: credentials.clientAuthMethod,
-						configuredNormalized: configuredAuthMethod,
-						match: pingOneAuthMethod === configuredAuthMethod,
-					});
+					
 
 					if (configuredAuthMethod && pingOneAuthMethod !== configuredAuthMethod) {
 						const errorMsg = `❌ Token Endpoint Auth Method Mismatch: Your configuration uses "${credentials.clientAuthMethod}", but PingOne is configured with "${appConfig.tokenEndpointAuthMethod}". Please update your configuration in Step 0 to match PingOne, or update PingOne to match your configuration.`;
-						console.log(`${MODULE_TAG} Auth method mismatch detected`, {
-							errorMsg,
-							pingOneMethod: appConfig.tokenEndpointAuthMethod,
-							configuredMethod: credentials.clientAuthMethod,
-						});
+						
 						errors.push(errorMsg);
 					}
 				}
@@ -568,7 +558,7 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 							
 							// Auto-clear the problematic PKCE codes
 							await PKCEStorageServiceV8U.clearPKCECodes(flowKey);
-							console.log(`${MODULE_TAG} 🗑️ Auto-cleared PKCE codes with 'plain' method for flow: ${flowKey}`);
+							
 						} else if (storedPKCE.codeChallengeMethod !== 'S256') {
 							warnings.push(
 								`⚠️ PKCE Method: Your stored PKCE codes use method '${storedPKCE.codeChallengeMethod}'. Only 'S256' is recommended for security.`
@@ -632,7 +622,6 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 		errors.forEach((error, index) => {
 			const errorLower = error.toLowerCase();
 
-			console.log(`${MODULE_TAG} Analyzing error for fixability`, {
 				index,
 				error,
 				errorLower,
@@ -690,13 +679,7 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 
 				const normalizedMethod = normalizeForUI(appConfig.tokenEndpointAuthMethod);
 
-				console.log(`${MODULE_TAG} ✅ Found fixable auth method mismatch`, {
-					errorIndex: index,
-					pingOneMethod: appConfig.tokenEndpointAuthMethod,
-					normalizedMethod,
-					errorMessage: error,
-					willBeFixed: true,
-				});
+				
 
 				fixableErrors.push({
 					errorIndex: index,
@@ -773,11 +756,7 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 	static async validateBeforeAuthUrl(
 		options: PreFlightValidationOptions
 	): Promise<PreFlightValidationResult> {
-		console.log(`${MODULE_TAG} Starting pre-flight validation`, {
-			specVersion: options.specVersion,
-			flowType: options.flowType,
-			hasWorkerToken: !!options.workerToken,
-		});
+		
 
 		// 1. Validate redirect URI
 		const redirectUriResult = await PreFlightValidationServiceV8.validateRedirectUri(
@@ -857,14 +836,7 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 			appConfig
 		);
 
-		console.log(`${MODULE_TAG} Pre-flight validation complete`, {
-			passed,
-			errorCount: errors.length,
-			warningCount: warnings.length,
-			fixableErrorCount: fixableErrors.length,
-			redirectUriValidated: redirectUriResult.passed,
-			oauthConfigValidated: oauthConfigResult.passed,
-		});
+		
 
 		return {
 			passed,

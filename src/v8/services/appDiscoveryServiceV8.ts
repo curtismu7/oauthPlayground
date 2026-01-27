@@ -164,7 +164,6 @@ export class AppDiscoveryServiceV8 {
 				return null;
 			}
 
-			console.log(`${MODULE_TAG} Retrieved stored worker token from global service (sync)`);
 			return data.token;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to get stored worker token (sync)`, {
@@ -200,7 +199,6 @@ export class AppDiscoveryServiceV8 {
 			// Save token using global service
 			await workerTokenServiceV8.saveToken(token, expiresAt);
 
-			console.log(`${MODULE_TAG} Worker token stored to global service`, {
 				expiresIn: `${expiresIn / 1000 / 60 / 60} hours`,
 				expiresAt: new Date(expiresAt).toISOString(),
 			});
@@ -253,7 +251,6 @@ export class AppDiscoveryServiceV8 {
 				localStorage.setItem('unified_worker_token', JSON.stringify(data));
 			}
 
-			console.log(`${MODULE_TAG} Worker token stored to browser storage (sync)`, {
 				expiresIn: `${expiresIn / 1000 / 60 / 60} hours`,
 				expiresAt: new Date(expiresAt).toISOString(),
 			});
@@ -271,7 +268,7 @@ export class AppDiscoveryServiceV8 {
 	static async clearWorkerToken(): Promise<void> {
 		try {
 			await workerTokenServiceV8.clearToken();
-			console.log(`${MODULE_TAG} Worker token cleared from global service`);
+			
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to clear worker token`, {
 				error: error instanceof Error ? error.message : String(error),
@@ -317,7 +314,6 @@ export class AppDiscoveryServiceV8 {
 				throw new Error('Invalid worker token: must be a non-empty string');
 			}
 
-			console.log(`${MODULE_TAG} Discovering applications`, {
 				environmentId,
 				tokenPreview: `${workerToken.substring(0, 20)}...`,
 				tokenType: typeof workerToken,
@@ -422,7 +418,6 @@ export class AppDiscoveryServiceV8 {
 				tokenFormat: rawApp.tokenFormat,
 			}));
 
-			console.log(`${MODULE_TAG} Discovered ${applications.length} applications`, {
 				applicationsWithTokenAuthMethod: applications.filter((app) => app.tokenEndpointAuthMethod)
 					.length,
 			});
@@ -444,7 +439,7 @@ export class AppDiscoveryServiceV8 {
 	 * const config = AppDiscoveryServiceV8.getAppConfig(app);
 	 */
 	static getAppConfig(app: DiscoveredApplication): AppConfig {
-		console.log(`${MODULE_TAG} Getting app config`, { appId: app.id, appName: app.name });
+		
 
 		// Determine best grant type (with null safety)
 		const grantType = app.grantTypes?.includes('authorization_code')
@@ -478,12 +473,7 @@ export class AppDiscoveryServiceV8 {
 			tokenFormat: app.tokenFormat || 'OPAQUE',
 		};
 
-		console.log(`${MODULE_TAG} App config prepared`, {
-			clientId: config.clientId,
-			grantType: config.grantType,
-			responseType: config.responseType,
-			usePkce: config.usePkce,
-		});
+		
 
 		return config;
 	}
@@ -539,11 +529,7 @@ export class AppDiscoveryServiceV8 {
 		region: string = 'na'
 	): Promise<DiscoveredApplication | null> {
 		try {
-			console.log(`${MODULE_TAG} Fetching application with secret`, {
-				environmentId,
-				appId,
-				region,
-			});
+			
 
 			// Use backend proxy to avoid CORS
 			const searchParams = new URLSearchParams({
@@ -555,7 +541,7 @@ export class AppDiscoveryServiceV8 {
 			const proxyUrl = `/api/pingone/applications/${appId}?${searchParams.toString()}`;
 			const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/applications/${appId}`;
 
-			console.log(`${MODULE_TAG} Fetching via backend proxy: ${proxyUrl}`);
+			
 
 			// Track API call for documentation
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
@@ -631,7 +617,6 @@ export class AppDiscoveryServiceV8 {
 			);
 
 			// Log the full response to debug clientSecret availability
-			console.log(`${MODULE_TAG} Application response received`, {
 				appId: app.id,
 				appName: app.name,
 				hasClientSecret: 'clientSecret' in app,
@@ -675,15 +660,7 @@ export class AppDiscoveryServiceV8 {
 				typeof clientSecretValue === 'string' &&
 				clientSecretValue.trim().length > 0;
 
-			console.log(`${MODULE_TAG} Processing client secret`, {
-				hasClientSecretField: 'clientSecret' in app,
-				hasSecretField: 'secret' in app,
-				clientSecretValue: clientSecretValue,
-				clientSecretType: typeof clientSecretValue,
-				clientSecretIsNull: clientSecretValue === null,
-				hasValidClientSecret,
-				willIncludeSecret: hasValidClientSecret,
-			});
+			
 
 			// Normalize tokenEndpointAuthMethod to lowercase with underscores
 			// PingOne API may return CLIENT_SECRET_POST, CLIENT_SECRET_BASIC, etc. (uppercase)
@@ -694,12 +671,7 @@ export class AppDiscoveryServiceV8 {
 				.toLowerCase()
 				.replace(/-/g, '_');
 
-			console.log(`${MODULE_TAG} Normalizing tokenEndpointAuthMethod in discoveredApp`, {
-				raw: rawTokenEndpointAuthMethod,
-				normalized: normalizedTokenEndpointAuthMethod,
-				fromTokenEndpointAuthMethod: app.tokenEndpointAuthMethod,
-				fromTokenEndpointAuthMethodSnake: app.token_endpoint_auth_method,
-			});
+			
 
 			const discoveredApp: DiscoveredApplication = {
 				id: app.id,
@@ -719,7 +691,6 @@ export class AppDiscoveryServiceV8 {
 				tokenFormat: app.tokenFormat,
 			};
 
-			console.log(`${MODULE_TAG} ✅ Application with secret fetched`, {
 				appId: discoveredApp.id,
 				appName: discoveredApp.name,
 				hasSecret: !!discoveredApp.clientSecret,
@@ -790,7 +761,7 @@ export class AppDiscoveryServiceV8 {
 	 * @returns New worker token or null
 	 */
 	static async refreshWorkerToken(): Promise<string | null> {
-		console.log(`${MODULE_TAG} Refreshing worker token`);
+		
 
 		AppDiscoveryServiceV8.clearWorkerToken();
 		return AppDiscoveryServiceV8.getWorkerToken();
@@ -804,7 +775,6 @@ export class AppDiscoveryServiceV8 {
 	 * const apps = await AppDiscoveryServiceV8.discoverApps('12345678-1234-1234-1234-123456789012');
 	 */
 	static async discoverApps(environmentId: string): Promise<DiscoveredApplication[]> {
-		console.log(`${MODULE_TAG} Discovering apps (convenience method)`, { environmentId });
 
 		// Get worker token from global service
 		const workerToken = await AppDiscoveryServiceV8.getStoredWorkerToken();

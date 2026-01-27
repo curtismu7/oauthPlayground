@@ -178,7 +178,7 @@ export class EmailMFASignOnFlowServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} Application created successfully`, responseData);
+			
 			return responseData as Record<string, unknown>;
 		} catch (error) {
 			apiCallTrackerService.updateApiCallResponse(

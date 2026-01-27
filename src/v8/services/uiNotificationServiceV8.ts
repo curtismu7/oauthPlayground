@@ -94,7 +94,7 @@ class UINotificationServiceV8 {
 	 */
 	showSuccess(message: string, options?: NotificationOptions): void {
 		this.log('toast', 'success', message);
-		console.log(`${MODULE_TAG} ✅ Success:`, message);
+		
 		v4ToastManager.showSuccess(message, {}, options);
 	}
 
@@ -121,7 +121,7 @@ class UINotificationServiceV8 {
 	 */
 	showInfo(message: string, _options?: NotificationOptions): void {
 		this.log('toast', 'info', message);
-		console.log(`${MODULE_TAG} ℹ️ Info:`, message);
+		
 		v4ToastManager.showInfo(message);
 	}
 
@@ -133,7 +133,7 @@ class UINotificationServiceV8 {
 		const confirmOptions: ConfirmOptions =
 			typeof options === 'string' ? { message: options } : options;
 
-		console.log(`${MODULE_TAG} 🤔 Confirm requested:`, confirmOptions.message);
+		
 
 		if (!this.confirmCallback) {
 			console.error(`${MODULE_TAG} No confirmation handler registered! Falling back to console.`);
@@ -145,7 +145,7 @@ class UINotificationServiceV8 {
 		try {
 			const result = await this.confirmCallback(confirmOptions);
 			this.log('confirm', 'confirm', confirmOptions.message, result);
-			console.log(`${MODULE_TAG} Confirm result:`, result);
+			
 			return result;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Confirmation error:`, error);
@@ -161,7 +161,7 @@ class UINotificationServiceV8 {
 		const promptOptions: PromptOptions =
 			typeof options === 'string' ? { message: options } : options;
 
-		console.log(`${MODULE_TAG} 📝 Prompt requested:`, promptOptions.message);
+		
 
 		if (!this.promptCallback) {
 			console.error(`${MODULE_TAG} No prompt handler registered! Falling back to console.`);
@@ -173,7 +173,7 @@ class UINotificationServiceV8 {
 		try {
 			const result = await this.promptCallback(promptOptions);
 			this.log('prompt', 'prompt', promptOptions.message, result);
-			console.log(`${MODULE_TAG} Prompt result:`, result ? `"${result}"` : 'cancelled');
+			
 			return result;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Prompt error:`, error);
@@ -217,7 +217,7 @@ class UINotificationServiceV8 {
 	 * Clear notification logs
 	 */
 	clearLogs(): void {
-		console.log(`${MODULE_TAG} Clearing notification logs`);
+		
 		this.logs = [];
 	}
 

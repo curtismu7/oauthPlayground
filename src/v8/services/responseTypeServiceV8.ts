@@ -45,7 +45,6 @@ export class ResponseTypeServiceV8 {
 	 * @returns Array of valid response types
 	 */
 	static getResponseTypes(flowType: FlowType, specVersion: SpecVersion): ResponseType[] {
-		console.log(`${MODULE_TAG} Getting response types`, { flowType, specVersion });
 
 		// Authorization Code Flow
 		if (flowType === 'oauth-authz') {

@@ -83,12 +83,7 @@ export class HybridFlowIntegrationServiceV8 {
 		},
 		appConfig?: { requireSignedRequestObject?: boolean }
 	): Promise<HybridAuthorizationUrlParams> {
-		console.log(`${MODULE_TAG} Generating authorization URL`, {
-			environmentId: credentials.environmentId,
-			clientId: credentials.clientId,
-			responseType: credentials.responseType,
-			hasPKCE: !!pkceCodes,
-		});
+		
 
 		// Ensure scopes default to 'openid' for user authentication flows
 		// Hybrid flow MUST include 'openid' for OIDC (to get id_token)
@@ -124,7 +119,7 @@ export class HybridFlowIntegrationServiceV8 {
 
 		if (requiresJAR) {
 			// Generate JAR request object
-			console.log(`${MODULE_TAG} 🔐 JAR required - generating signed request object...`);
+			
 
 			try {
 				const { jarRequestObjectServiceV8 } = await import('./jarRequestObjectServiceV8');
@@ -182,10 +177,7 @@ export class HybridFlowIntegrationServiceV8 {
 					);
 				}
 
-				console.log(`${MODULE_TAG} ✅ JAR request object generated successfully`, {
-					algorithm,
-					jti: jarResult.payload?.jti,
-				});
+				
 
 				// Build JAR authorization URL (RFC 9101: client_id must remain in query, request parameter contains JWT)
 				const params = new URLSearchParams({
@@ -246,7 +238,6 @@ export class HybridFlowIntegrationServiceV8 {
 
 		const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
-		console.log(`${MODULE_TAG} Authorization URL generated`, {
 			url: `${authorizationUrl.substring(0, 100)}...`,
 			responseType,
 		});
@@ -279,7 +270,7 @@ export class HybridFlowIntegrationServiceV8 {
 		callbackUrl: string,
 		expectedState: string
 	): { code?: string; access_token?: string; id_token?: string; state: string } {
-		console.log(`${MODULE_TAG} Parsing callback fragment for hybrid flow`);
+		
 
 		try {
 			const url = new URL(callbackUrl);
@@ -324,13 +315,7 @@ export class HybridFlowIntegrationServiceV8 {
 				throw new Error('No authorization code or ID token found in callback URL');
 			}
 
-			console.log(`${MODULE_TAG} Callback parsed successfully`, {
-				hasCode: !!code,
-				hasAccessToken: !!accessToken,
-				hasIdToken: !!idToken,
-				codeSource: code ? 'query' : 'none',
-				tokenSource: accessToken || idToken ? 'fragment' : 'none',
-			});
+			
 
 			const result: { code?: string; access_token?: string; id_token?: string; state: string } = {
 				state,
@@ -359,10 +344,7 @@ export class HybridFlowIntegrationServiceV8 {
 		code: string,
 		codeVerifier?: string
 	): Promise<TokenResponse> {
-		console.log(`${MODULE_TAG} Exchanging authorization code for tokens`, {
-			environmentId: credentials.environmentId,
-			clientId: credentials.clientId,
-		});
+		
 
 		try {
 			// Use backend proxy to avoid CORS issues
@@ -390,7 +372,7 @@ export class HybridFlowIntegrationServiceV8 {
 
 			// Handle client authentication based on method
 			const authMethod = credentials.clientAuthMethod || 'client_secret_post';
-			console.log(`${MODULE_TAG} 🔐 Using client authentication method: ${authMethod}`);
+			
 
 			if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
 				// JWT assertion authentication
@@ -425,7 +407,6 @@ export class HybridFlowIntegrationServiceV8 {
 					bodyParams.client_assertion_type =
 						'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 					bodyParams.client_assertion = assertion;
-					console.log(`${MODULE_TAG} ✅ Using JWT assertion authentication (${authMethod})`);
 				} catch (error) {
 					console.error(`${MODULE_TAG} Failed to generate JWT assertion`, { error });
 					throw new Error(
@@ -441,21 +422,17 @@ export class HybridFlowIntegrationServiceV8 {
 						bodyParams.client_secret = credentials.clientSecret;
 
 						if (authMethod === 'client_secret_post') {
-							console.log(
 								`${MODULE_TAG} ✅ Including client_secret in request (client_secret_post)`
 							);
 						} else {
 							// client_secret_basic - backend will reconstruct Authorization header from client_secret in body
-							console.log(
-								`${MODULE_TAG} ✅ Including client_secret in body for backend to construct Basic auth`
-							);
+							
 						}
 					} else {
 						throw new Error(`Client secret is required for ${authMethod} authentication`);
 					}
 				} else {
 					// none - public client, no authentication
-					console.log(`${MODULE_TAG} ⚠️ No client authentication (public client)`);
 				}
 			}
 
@@ -474,7 +451,6 @@ export class HybridFlowIntegrationServiceV8 {
 			if (authMethod === 'client_secret_basic' && credentials.clientSecret) {
 				const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
 				headers.Authorization = `Basic ${basicAuth}`;
-				console.log(`${MODULE_TAG} ✅ Added Authorization header (client_secret_basic)`);
 			}
 
 			const response = await pingOneFetch(tokenEndpoint, {
@@ -494,12 +470,7 @@ export class HybridFlowIntegrationServiceV8 {
 
 			const tokens: TokenResponse = await response.json();
 
-			console.log(`${MODULE_TAG} Tokens received successfully`, {
-				hasAccessToken: !!tokens.access_token,
-				hasIdToken: !!tokens.id_token,
-				hasRefreshToken: !!tokens.refresh_token,
-				expiresIn: tokens.expires_in,
-			});
+			
 
 			return tokens;
 		} catch (error) {
@@ -514,7 +485,7 @@ export class HybridFlowIntegrationServiceV8 {
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		console.log(`${MODULE_TAG} Decoding JWT token`);
+		
 
 		try {
 			const parts = token.split('.');
@@ -527,7 +498,7 @@ export class HybridFlowIntegrationServiceV8 {
 			const payload = JSON.parse(HybridFlowIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			console.log(`${MODULE_TAG} Token decoded successfully`);
+			
 
 			return { header, payload, signature };
 		} catch (error) {

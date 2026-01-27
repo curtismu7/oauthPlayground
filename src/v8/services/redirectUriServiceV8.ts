@@ -165,16 +165,12 @@ export const getRedirectUriForFlow = (flowKey: string): string => {
 	const config = getFlowConfig(flowKey);
 
 	if (!config || !config.requiresRedirectUri) {
-		console.log(`${MODULE_TAG} No redirect URI for flow`, { flowKey });
+		
 		return '';
 	}
 
 	const redirectUri = `${baseUrl}/${config.callbackPath}`;
-	console.log(`${MODULE_TAG} Generated redirect URI`, {
-		flowKey,
-		redirectUri,
-		spec: config.specification,
-	});
+	
 	return redirectUri;
 };
 

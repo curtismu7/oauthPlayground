@@ -58,7 +58,6 @@ export class FlowOptionsServiceV8 {
 	static getOptionsForFlow(flowKey: string): FlowOptions {
 		const normalized = flowKey.toLowerCase().replace(/[-_]/g, '-');
 
-		console.log(`${MODULE_TAG} Getting options for flow`, { flowKey, normalized });
 
 		// Authorization Code Flow
 		if (normalized.includes('oauth-authz') || normalized.includes('authorization-code')) {

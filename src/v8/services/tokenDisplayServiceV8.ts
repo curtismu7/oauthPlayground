@@ -73,8 +73,8 @@ export class TokenDisplayServiceV8 {
 	 * @example
 	 * const decoded = TokenDisplayServiceV8.decodeJWT(token);
 	 * if (decoded) {
-	 *   console.log('Header:', decoded.header);
-	 *   console.log('Payload:', decoded.payload);
+	 *   
+	 *   
 	 * }
 	 */
 	public static decodeJWT(token: string): DecodedJWT | null {
@@ -91,7 +91,7 @@ export class TokenDisplayServiceV8 {
 			// Base64 URL decode payload
 			const payload = JSON.parse(TokenDisplayServiceV8.base64UrlDecode(parts[1]));
 
-			console.log(`${MODULE_TAG} Token decoded successfully`);
+			
 
 			return {
 				header,
@@ -143,7 +143,7 @@ export class TokenDisplayServiceV8 {
 		try {
 			await navigator.clipboard.writeText(text);
 			if (label) {
-				console.log(`${MODULE_TAG} Copied ${label} to clipboard`);
+				
 			}
 			return true;
 		} catch (error) {
@@ -163,7 +163,6 @@ export class TokenDisplayServiceV8 {
 				document.body.removeChild(textArea);
 
 				if (successful && label) {
-					console.log(`${MODULE_TAG} Copied ${label} to clipboard (fallback method)`);
 				}
 
 				return successful;

@@ -21,7 +21,6 @@ export class EnvironmentIdServiceV8 {
 		try {
 			const stored = localStorage.getItem(STORAGE_KEY);
 			if (stored) {
-				console.log(`${MODULE_TAG} Retrieved stored environment ID`);
 				return stored;
 			}
 		} catch (error) {
@@ -43,7 +42,6 @@ export class EnvironmentIdServiceV8 {
 		try {
 			const trimmed = environmentId.trim();
 			localStorage.setItem(STORAGE_KEY, trimmed);
-			console.log(`${MODULE_TAG} Saved environment ID`);
 
 			// Add to history (new feature)
 			this.addToHistory(trimmed);
@@ -61,7 +59,6 @@ export class EnvironmentIdServiceV8 {
 	static clearEnvironmentId(): void {
 		try {
 			localStorage.removeItem(STORAGE_KEY);
-			console.log(`${MODULE_TAG} Cleared environment ID`);
 			window.dispatchEvent(new Event('environmentIdUpdated'));
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to clear environment ID`, error);
@@ -182,7 +179,6 @@ export class EnvironmentIdServiceV8 {
 			const updated = [envId, ...filtered].slice(0, 10);
 
 			localStorage.setItem('v8:env_id_history', JSON.stringify(updated));
-			console.log(`${MODULE_TAG} Added to history (total: ${updated.length})`);
 		} catch (error) {
 			// Silent fail - history is not critical
 			console.warn(`${MODULE_TAG} Failed to update history`, error);
@@ -195,7 +191,6 @@ export class EnvironmentIdServiceV8 {
 	static clearHistory(): void {
 		try {
 			localStorage.removeItem('v8:env_id_history');
-			console.log(`${MODULE_TAG} Cleared environment ID history`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to clear history`, error);
 		}

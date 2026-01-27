@@ -92,12 +92,7 @@ export class StorageServiceV8 {
 			const serialized = JSON.stringify(storageData);
 			localStorage.setItem(key, serialized);
 
-			console.log(`${MODULE_TAG} Data saved`, {
-				key,
-				version,
-				flowKey,
-				size: serialized.length,
-			});
+			
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to save data`, {
 				key,
@@ -119,7 +114,7 @@ export class StorageServiceV8 {
 		try {
 			const serialized = localStorage.getItem(key);
 			if (!serialized) {
-				console.log(`${MODULE_TAG} No data found`, { key });
+				
 				return null;
 			}
 
@@ -131,11 +126,7 @@ export class StorageServiceV8 {
 				const targetVersion = Math.max(...migrations.map((m) => m.toVersion));
 
 				if (currentVersion < targetVersion) {
-					console.log(`${MODULE_TAG} Migrating data`, {
-						key,
-						from: currentVersion,
-						to: targetVersion,
-					});
+					
 
 					storageData = StorageServiceV8.applyMigrations(storageData, migrations);
 
@@ -144,7 +135,6 @@ export class StorageServiceV8 {
 				}
 			}
 
-			console.log(`${MODULE_TAG} Data loaded`, {
 				key,
 				version: storageData.version,
 				age: Date.now() - storageData.timestamp,
@@ -178,10 +168,7 @@ export class StorageServiceV8 {
 
 		for (const migration of sortedMigrations) {
 			if (currentVersion === migration.fromVersion) {
-				console.log(`${MODULE_TAG} Applying migration`, {
-					from: migration.fromVersion,
-					to: migration.toVersion,
-				});
+				
 
 				currentData = migration.migrate(currentData) as T;
 				currentVersion = migration.toVersion;
@@ -205,7 +192,7 @@ export class StorageServiceV8 {
 	static clear(key: string): void {
 		try {
 			localStorage.removeItem(key);
-			console.log(`${MODULE_TAG} Data cleared`, { key });
+			
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to clear data`, {
 				key,
@@ -229,7 +216,7 @@ export class StorageServiceV8 {
 				cleared++;
 			});
 
-			console.log(`${MODULE_TAG} All V8 data cleared`, { count: cleared });
+			
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to clear all data`, {
 				error: error instanceof Error ? error.message : String(error),
@@ -286,10 +273,7 @@ export class StorageServiceV8 {
 
 			const exported = JSON.stringify(exportData, null, 2);
 
-			console.log(`${MODULE_TAG} Data exported`, {
-				keyCount: keys.length,
-				size: exported.length,
-			});
+			
 
 			return exported;
 		} catch (error) {
@@ -321,7 +305,7 @@ export class StorageServiceV8 {
 			Object.entries(exportData.data).forEach(([key, storageData]) => {
 				// Check if key already exists
 				if (!overwrite && localStorage.getItem(key)) {
-					console.log(`${MODULE_TAG} Skipping existing key`, { key });
+					
 					skipped++;
 					return;
 				}
@@ -331,7 +315,6 @@ export class StorageServiceV8 {
 				imported++;
 			});
 
-			console.log(`${MODULE_TAG} Data imported`, {
 				imported,
 				skipped,
 				total: Object.keys(exportData.data).length,
@@ -349,7 +332,7 @@ export class StorageServiceV8 {
 	 * @returns Total size of V8 storage in bytes
 	 * @example
 	 * const size = StorageServiceV8.getSize();
-	 * console.log(`Storage size: ${size} bytes`);
+	 * 
 	 */
 	static getSize(): number {
 		try {
@@ -364,7 +347,6 @@ export class StorageServiceV8 {
 				}
 			});
 
-			console.log(`${MODULE_TAG} Storage size calculated`, {
 				bytes: totalSize,
 				kb: (totalSize / 1024).toFixed(2),
 				keyCount: keys.length,
@@ -413,7 +395,6 @@ export class StorageServiceV8 {
 				const available = quota - usage;
 				const percentUsed = quota > 0 ? (usage / quota) * 100 : 0;
 
-				console.log(`${MODULE_TAG} Storage quota`, {
 					usage,
 					quota,
 					available,
@@ -491,10 +472,7 @@ export class StorageServiceV8 {
 				}
 			});
 
-			console.log(`${MODULE_TAG} Expired data cleaned up`, {
-				cleaned,
-				maxAge,
-			});
+			
 
 			return cleaned;
 		} catch (error) {
@@ -529,10 +507,7 @@ export class StorageServiceV8 {
 				}
 			});
 
-			console.log(`${MODULE_TAG} Flow data retrieved`, {
-				flowKey,
-				count: flowData.length,
-			});
+			
 
 			return flowData;
 		} catch (error) {
@@ -559,10 +534,7 @@ export class StorageServiceV8 {
 				cleared++;
 			});
 
-			console.log(`${MODULE_TAG} Flow data cleared`, {
-				flowKey,
-				cleared,
-			});
+			
 
 			return cleared;
 		} catch (error) {

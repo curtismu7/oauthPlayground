@@ -211,7 +211,6 @@ export class JARRequestObjectServiceV8 {
 			...(params.requestUri && { request_uri: params.requestUri }),
 		};
 
-		console.log(`${MODULE_TAG} Request object payload built`, {
 			iss: payload.iss,
 			aud: payload.aud,
 			response_type: payload.response_type,
@@ -257,10 +256,7 @@ export class JARRequestObjectServiceV8 {
 
 			const jwt = await new SignJWT(payloadObj).setProtectedHeader(header).sign(secretKey);
 
-			console.log(`${MODULE_TAG} Request object signed with HS256`, {
-				jti: payload.jti,
-				hasKeyId: !!keyId,
-			});
+			
 
 			return jwt;
 		} catch (error) {
@@ -305,10 +301,7 @@ export class JARRequestObjectServiceV8 {
 
 			const jwt = await new SignJWT(payloadObj).setProtectedHeader(header).sign(key);
 
-			console.log(`${MODULE_TAG} Request object signed with RS256`, {
-				jti: payload.jti,
-				hasKeyId: !!keyId,
-			});
+			
 
 			return jwt;
 		} catch (error) {
@@ -430,11 +423,7 @@ export class JARRequestObjectServiceV8 {
 				// Ignore header decode errors
 			}
 
-			console.log(`${MODULE_TAG} ✅ Request object JWT generated successfully`, {
-				algorithm: config.algorithm,
-				jti: payload.jti,
-				length: requestObject.length,
-			});
+			
 
 			return {
 				success: true,

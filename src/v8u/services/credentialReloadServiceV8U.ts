@@ -184,7 +184,7 @@ function mergeAllCredentialFields(
 export async function reloadCredentialsAfterReset(
 	flowKey: string
 ): Promise<UnifiedFlowCredentials> {
-	console.log(`${MODULE_TAG} Reloading credentials from storage for flow reset`, { flowKey });
+	
 
 	// Debug: Check what's actually in localStorage for this flowKey
 	try {
@@ -192,7 +192,6 @@ export async function reloadCredentialsAfterReset(
 		const rawStored = localStorage.getItem(storageKey);
 		if (rawStored) {
 			const parsedStored = JSON.parse(rawStored);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Raw localStorage data for flowKey`, {
 				flowKey,
 				storageKey,
 				hasRedirectUri: !!parsedStored.redirectUri,
@@ -258,7 +257,6 @@ export async function reloadCredentialsAfterReset(
 		}
 
 		// Debug: Log what was loaded to verify redirectUri and clientAuthMethod are present
-		console.log(`${MODULE_TAG} 🔍 Loaded flow-specific credentials`, {
 			flowKey,
 			hasRedirectUri: !!flowSpecific.redirectUri,
 			redirectUri: flowSpecific.redirectUri,
@@ -325,7 +323,6 @@ export async function reloadCredentialsAfterReset(
 			storedEnvId
 		);
 
-		console.log(`${MODULE_TAG} ✅ Credentials reloaded from storage`, {
 			flowKey,
 			hasEnvId: !!merged.environmentId?.trim(),
 			hasClientId: !!merged.clientId?.trim(),
@@ -408,7 +405,7 @@ export function saveCredentialsBeforeReset(
 	flowKey: string,
 	credentials: UnifiedFlowCredentials
 ): void {
-	console.log(`${MODULE_TAG} Saving credentials before flow reset`, { flowKey });
+	
 
 	try {
 		// Save flow-specific credentials
@@ -435,7 +432,7 @@ export function saveCredentialsBeforeReset(
 		};
 		SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
 
-		console.log(`${MODULE_TAG} ✅ Credentials saved before reset`);
+		
 	} catch (error) {
 		console.error(`${MODULE_TAG} ❌ Error saving credentials before reset`, {
 			flowKey,

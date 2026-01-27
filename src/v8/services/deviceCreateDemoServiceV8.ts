@@ -98,7 +98,7 @@ export async function sendCreateDeviceRequest(
 			);
 		}
 
-		console.log(`${MODULE_TAG} Device created successfully for user ${trimmedUserId}`);
+		
 		return (responseData as Record<string, unknown>) ?? {};
 	} catch (error) {
 		console.error(`${MODULE_TAG} Create device request failed`, error);

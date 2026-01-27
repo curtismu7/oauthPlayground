@@ -141,7 +141,7 @@ export class ValidationServiceV8 {
 		credentials: Partial<Record<string, unknown>>,
 		flowType: 'oauth' | 'oidc'
 	): ValidationResult {
-		console.log(`${MODULE_TAG} Validating credentials`, { flowType });
+		
 
 		const errors: ValidationError[] = [];
 		const warnings: ValidationWarning[] = [];
@@ -241,12 +241,7 @@ export class ValidationServiceV8 {
 		const valid = errors.length === 0;
 		const canProceed = valid && warnings.filter((w) => !w.canProceed).length === 0;
 
-		console.log(`${MODULE_TAG} Validation complete`, {
-			valid,
-			canProceed,
-			errorCount: errors.length,
-			warningCount: warnings.length,
-		});
+		
 
 		return {
 			valid,

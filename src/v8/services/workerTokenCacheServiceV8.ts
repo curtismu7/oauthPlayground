@@ -59,7 +59,7 @@ export class WorkerTokenCacheServiceV8 {
 		clientId: string,
 		scopes: string[]
 	): Promise<void> {
-		console.log(`${MODULE_TAG} Caching worker token for validation`);
+		
 
 		const cachedToken: CachedWorkerToken = {
 			token,
@@ -73,7 +73,7 @@ export class WorkerTokenCacheServiceV8 {
 
 		try {
 			await this.saveCachedToken(cachedToken);
-			console.log(`${MODULE_TAG} ✅ Worker token cached successfully`);
+			
 		} catch (error) {
 			console.error(`${MODULE_TAG} ❌ Failed to cache worker token:`, error);
 		}
@@ -87,12 +87,12 @@ export class WorkerTokenCacheServiceV8 {
 		environmentId?: string,
 		clientId?: string
 	): Promise<CacheValidationResult> {
-		console.log(`${MODULE_TAG} Getting worker token for validation`);
+		
 
 		// Try to get current token first
 		const currentToken = await unifiedWorkerTokenService.getToken();
 		if (currentToken) {
-			console.log(`${MODULE_TAG} ✅ Using current worker token`);
+			
 			return {
 				isValid: true,
 				token: currentToken,
@@ -104,7 +104,7 @@ export class WorkerTokenCacheServiceV8 {
 		// Try to get cached token
 		const cachedToken = await this.getCachedToken(environmentId, clientId);
 		if (cachedToken) {
-			console.log(`${MODULE_TAG} ✅ Using cached worker token`);
+			
 			return {
 				isValid: true,
 				token: cachedToken.token,
@@ -113,7 +113,7 @@ export class WorkerTokenCacheServiceV8 {
 			};
 		}
 
-		console.log(`${MODULE_TAG} ❌ No worker token available for validation`);
+		
 		return {
 			isValid: false,
 			token: null,
@@ -130,7 +130,7 @@ export class WorkerTokenCacheServiceV8 {
 		clientId: string,
 		scopes: string[]
 	): Promise<void> {
-		console.log(`${MODULE_TAG} Updating cache after token generation`);
+		
 
 		const token = await unifiedWorkerTokenService.getToken();
 		if (token) {
@@ -144,11 +144,11 @@ export class WorkerTokenCacheServiceV8 {
 	 * Clear the cached token
 	 */
 	async clearCache(): Promise<void> {
-		console.log(`${MODULE_TAG} Clearing worker token cache`);
+		
 
 		try {
 			await this.saveCachedToken(null);
-			console.log(`${MODULE_TAG} ✅ Cache cleared`);
+			
 		} catch (error) {
 			console.error(`${MODULE_TAG} ❌ Failed to clear cache:`, error);
 		}
@@ -190,12 +190,12 @@ export class WorkerTokenCacheServiceV8 {
 	 * Clean up expired cache entries
 	 */
 	async cleanupExpiredCache(): Promise<void> {
-		console.log(`${MODULE_TAG} Cleaning up expired cache entries`);
+		
 
 		const cachedToken = await this.getCachedToken();
 		if (cachedToken && Date.now() > cachedToken.expiresAt) {
 			await this.clearCache();
-			console.log(`${MODULE_TAG} ✅ Expired cache entry removed`);
+			
 		}
 	}
 
@@ -251,20 +251,20 @@ export class WorkerTokenCacheServiceV8 {
 
 		// Check expiration
 		if (Date.now() > token.expiresAt) {
-			console.log(`${MODULE_TAG} Cached token expired, removing`);
+			
 			await this.clearCache();
 			return null;
 		}
 
 		// Check environment and client ID match if provided
 		if (environmentId && token.environmentId !== environmentId) {
-			console.log(`${MODULE_TAG} Cached token environment mismatch, removing`);
+			
 			await this.clearCache();
 			return null;
 		}
 
 		if (clientId && token.clientId !== clientId) {
-			console.log(`${MODULE_TAG} Cached token client ID mismatch, removing`);
+			
 			await this.clearCache();
 			return null;
 		}

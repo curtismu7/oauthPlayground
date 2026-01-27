@@ -43,7 +43,7 @@ async function initDB(): Promise<IDBDatabase> {
 		};
 
 		request.onsuccess = () => {
-			console.log(`${MODULE_TAG} ✅ JWKS cache database opened`);
+			
 			resolve(request.result);
 		};
 
@@ -57,7 +57,7 @@ async function initDB(): Promise<IDBDatabase> {
 				store.createIndex('jwksUri', 'jwksUri', { unique: false });
 				store.createIndex('issuer', 'issuer', { unique: false });
 				store.createIndex('expiresAt', 'expiresAt', { unique: false });
-				console.log(`${MODULE_TAG} ✅ JWKS cache object store created`);
+				
 			}
 		};
 	});
@@ -99,7 +99,7 @@ export async function cacheJWKS(
 		await new Promise<void>((resolve, reject) => {
 			const request = store.put({ cacheKey, ...cached });
 			request.onsuccess = () => {
-				console.log(`${MODULE_TAG} ✅ JWKS cached`, { jwksUri, keyCount: keys.length });
+				
 				resolve();
 			};
 			request.onerror = () => reject(request.error);
@@ -129,14 +129,13 @@ export async function getCachedJWKS(
 				const result = request.result as (CachedJWKS & { cacheKey: string }) | undefined;
 
 				if (!result) {
-					console.log(`${MODULE_TAG} ⚠️ No cached JWKS found`, { jwksUri });
+					
 					resolve(null);
 					return;
 				}
 
 				// Check if expired
 				if (Date.now() > result.expiresAt) {
-					console.log(`${MODULE_TAG} ⚠️ Cached JWKS expired`, {
 						jwksUri,
 						age: Date.now() - result.cachedAt,
 					});
@@ -146,7 +145,6 @@ export async function getCachedJWKS(
 					return;
 				}
 
-				console.log(`${MODULE_TAG} ✅ Using cached JWKS`, {
 					jwksUri,
 					keyCount: result.keys.length,
 					age: Date.now() - result.cachedAt,
@@ -202,7 +200,7 @@ export async function clearExpiredCache(): Promise<void> {
 					cursor.delete();
 					cursor.continue();
 				} else {
-					console.log(`${MODULE_TAG} ✅ Expired JWKS cache entries cleared`);
+					
 					resolve();
 				}
 			};
@@ -226,7 +224,7 @@ export async function clearAllCache(): Promise<void> {
 		await new Promise<void>((resolve, reject) => {
 			const request = store.clear();
 			request.onsuccess = () => {
-				console.log(`${MODULE_TAG} ✅ All JWKS cache cleared`);
+				
 				resolve();
 			};
 			request.onerror = () => reject(request.error);

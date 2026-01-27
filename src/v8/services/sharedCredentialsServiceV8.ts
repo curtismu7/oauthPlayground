@@ -82,11 +82,7 @@ export class SharedCredentialsServiceV8 {
 	 * @param credentials - Shared credentials to save
 	 */
 	static async saveSharedCredentials(credentials: SharedCredentials): Promise<void> {
-		console.log(`${MODULE_TAG} Saving shared credentials to browser storage`, {
-			hasEnvId: !!credentials.environmentId,
-			hasClientId: !!credentials.clientId,
-			hasClientSecret: !!credentials.clientSecret,
-		});
+		
 
 		try {
 			// Load existing shared credentials (sync for merge)
@@ -115,7 +111,6 @@ export class SharedCredentialsServiceV8 {
 	 * @param credentials - Shared credentials to save
 	 */
 	static saveSharedCredentialsSync(credentials: SharedCredentials): void {
-		console.log(`${MODULE_TAG} Saving shared credentials to browser storage (sync)`, {
 			hasEnvId: !!credentials.environmentId,
 			hasClientId: !!credentials.clientId,
 		});

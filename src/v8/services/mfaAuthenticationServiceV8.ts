@@ -200,7 +200,6 @@ export class MfaAuthenticationServiceV8 {
 					console.warn(`${MODULE_TAG} Could not verify user lock status, continuing:`, error);
 				}
 			} else {
-				console.log(
 					`${MODULE_TAG} Skipping user lock verification (skipUserLockVerification=true or no username)`
 				);
 			}
@@ -490,7 +489,7 @@ export class MfaAuthenticationServiceV8 {
 			} else {
 				// No-username variant: Initialize device authentication without username/userId
 				// This requires a special request body structure
-				console.log(`${MODULE_TAG} Using no-username variant for device authentication`);
+				
 				userId = ''; // Will be omitted from request body
 			}
 
@@ -1132,9 +1131,7 @@ export class MfaAuthenticationServiceV8 {
 
 		if (needsRenewal) {
 			if (!autoRenewalEnabled) {
-				console.log(
-					`${MODULE_TAG} Token needs renewal but auto-renewal is disabled in MFA configuration`
-				);
+				
 				if (!workerToken || isExpired) {
 					throw new Error('Worker token not found or expired. Please generate a new worker token.');
 				}
@@ -1143,7 +1140,6 @@ export class MfaAuthenticationServiceV8 {
 					`${MODULE_TAG} Worker token is about to expire (${timeRemainingSeconds}s remaining, threshold: ${renewalThreshold}s), but auto-renewal is disabled`
 				);
 			} else {
-				console.log(
 					`${MODULE_TAG} Token needs renewal (${timeRemainingSeconds}s remaining, threshold: ${renewalThreshold}s), attempting automatic renewal (auto-renewal enabled)...`
 				);
 				const credentials = await workerTokenServiceV8.loadCredentials();
@@ -1210,7 +1206,7 @@ export class MfaAuthenticationServiceV8 {
 						flowType: 'mfa',
 					});
 
-					console.log(`${MODULE_TAG} Renewing worker token...`);
+					
 					let response: Response;
 					try {
 						response = await fetch(proxyEndpoint, {
@@ -1273,7 +1269,7 @@ export class MfaAuthenticationServiceV8 {
 						: undefined;
 
 					await workerTokenServiceV8.saveToken(newToken, expiresAt);
-					console.log(`${MODULE_TAG} Worker token renewed successfully`);
+					
 
 					// Dispatch event for status update
 					window.dispatchEvent(new Event('workerTokenUpdated'));
@@ -1306,7 +1302,7 @@ export class MfaAuthenticationServiceV8 {
 				// Use the URL from PingOne's _links response
 				endpoint = params.otpCheckUrl;
 				contentType = 'application/vnd.pingidentity.otp.check+json';
-				console.log(`${MODULE_TAG} Using otp.check URL from _links:`, endpoint);
+				
 			} else {
 				// Fallback to direct endpoint - use custom domain if provided
 				// Per PingOne API: POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}/otp
@@ -1416,11 +1412,7 @@ export class MfaAuthenticationServiceV8 {
 				...(data._links && { _links: data._links }),
 			};
 
-			console.log(`${MODULE_TAG} OTP validation result`, {
-				valid: result.valid,
-				status: result.status,
-				hasLinks: !!result._links,
-			});
+			
 
 			return result;
 		} catch (error) {
@@ -1434,7 +1426,7 @@ export class MfaAuthenticationServiceV8 {
 	 * Used for Push notifications and WebAuthn challenges
 	 */
 	static async pollAuthenticationStatus(pollUrl: string): Promise<DeviceAuthenticationResponse> {
-		console.log(`${MODULE_TAG} Polling authentication status`, { pollUrl });
+		
 
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
@@ -1454,10 +1446,7 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const data = await response.json();
-			console.log(`${MODULE_TAG} Authentication status polled`, {
-				status: data.status,
-				nextStep: data.nextStep,
-			});
+			
 
 			return data;
 		} catch (error) {
@@ -1473,7 +1462,7 @@ export class MfaAuthenticationServiceV8 {
 	static async completeAuthentication(
 		completeUrl: string
 	): Promise<AuthenticationCompletionResult> {
-		console.log(`${MODULE_TAG} Completing authentication`, { completeUrl });
+		
 
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
@@ -1540,11 +1529,7 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const data = responseData as Record<string, unknown>;
-			console.log(`${MODULE_TAG} Authentication completed`, {
-				hasAccessToken: !!data.access_token,
-				tokenType: data.token_type,
-				expiresIn: data.expires_in,
-			});
+			
 
 			const result: AuthenticationCompletionResult = {
 				status: 'COMPLETED',
@@ -1591,7 +1576,7 @@ export class MfaAuthenticationServiceV8 {
 		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na',
 		customDomain?: string
 	): Promise<{ status: string; [key: string]: unknown }> {
-		console.log(`${MODULE_TAG} Canceling device authentication`, { authenticationId });
+		
 
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
@@ -1659,7 +1644,7 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const result = data as { status: string; [key: string]: unknown };
-			console.log(`${MODULE_TAG} Device authentication canceled`, { status: result.status });
+			
 
 			return result;
 		} catch (error) {
@@ -1698,10 +1683,7 @@ export class MfaAuthenticationServiceV8 {
 		customDomain?: string,
 		origin?: string
 	): Promise<{ status: string; nextStep?: string; [key: string]: unknown }> {
-		console.log(`${MODULE_TAG} Checking FIDO2 assertion`, {
-			deviceAuthId,
-			hasAssertion: !!assertion,
-		});
+		
 
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
@@ -1894,10 +1876,7 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const data = responseData as { status: string; nextStep?: string; [key: string]: unknown };
-			console.log(`${MODULE_TAG} FIDO2 assertion checked`, {
-				status: data.status,
-				nextStep: data.nextStep,
-			});
+			
 
 			return data;
 		} catch (error) {
@@ -1924,11 +1903,7 @@ export class MfaAuthenticationServiceV8 {
 		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na';
 		customDomain?: string;
 	}): Promise<DeviceAuthenticationResponse> {
-		console.log(`${MODULE_TAG} Resending OTP for ACTIVE device`, {
-			authenticationId: params.authenticationId,
-			deviceId: params.deviceId,
-			username: params.username,
-		});
+		
 
 		try {
 			// Lookup userId if not provided
@@ -1965,7 +1940,7 @@ export class MfaAuthenticationServiceV8 {
 
 			// Strategy 1: Cancel + Re-initialize (most reliable for triggering new OTP)
 			if (links.cancel) {
-				console.log(`${MODULE_TAG} Attempting cancel + re-initialize to resend OTP`);
+				
 				try {
 					// Cancel the current authentication
 					await MfaAuthenticationServiceV8.cancelDeviceAuthentication(
@@ -1998,7 +1973,7 @@ export class MfaAuthenticationServiceV8 {
 						}
 					);
 
-					console.log(`${MODULE_TAG} Successfully resent OTP via cancel + re-initialize`);
+					
 					return newAuthData;
 				} catch (cancelError) {
 					console.warn(
@@ -2010,7 +1985,7 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			// Strategy 2: Re-select device (fallback)
-			console.log(`${MODULE_TAG} Attempting re-select device to resend OTP`);
+			
 			const reselectResult = await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
 				{
 					environmentId: params.environmentId,

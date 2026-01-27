@@ -45,12 +45,7 @@ export class TokenOperationsServiceV8 {
 		const normalizedFlow = flowType.toLowerCase().replace(/[-_]/g, '-');
 		const hasOpenIdScope = scopes?.toLowerCase().includes('openid') || false;
 
-		console.log(`${MODULE_TAG} Getting operation rules`, {
-			flowType,
-			normalizedFlow,
-			scopes,
-			hasOpenIdScope,
-		});
+		
 
 		// Authorization Code Flow
 		if (normalizedFlow.includes('oauth-authz') || normalizedFlow.includes('authorization-code')) {

@@ -70,10 +70,7 @@ export class ImplicitFlowIntegrationServiceV8 {
 		credentials: ImplicitFlowCredentials,
 		appConfig?: { requireSignedRequestObject?: boolean }
 	): Promise<ImplicitAuthorizationUrlParams> {
-		console.log(`${MODULE_TAG} Generating authorization URL`, {
-			environmentId: credentials.environmentId,
-			clientId: credentials.clientId,
-		});
+		
 
 		// Ensure scopes default to 'openid' for user authentication flows
 		// Implicit flow MUST include 'openid' for OIDC (to get id_token)
@@ -106,7 +103,7 @@ export class ImplicitFlowIntegrationServiceV8 {
 
 		if (requiresJAR) {
 			// Generate JAR request object
-			console.log(`${MODULE_TAG} 🔐 JAR required - generating signed request object...`);
+			
 
 			try {
 				const { jarRequestObjectServiceV8 } = await import('./jarRequestObjectServiceV8');
@@ -150,10 +147,7 @@ export class ImplicitFlowIntegrationServiceV8 {
 					);
 				}
 
-				console.log(`${MODULE_TAG} ✅ JAR request object generated successfully`, {
-					algorithm,
-					jti: jarResult.payload?.jti,
-				});
+				
 
 				// Build JAR authorization URL (RFC 9101: client_id must remain in query, request parameter contains JWT)
 				const params = new URLSearchParams({
@@ -163,7 +157,6 @@ export class ImplicitFlowIntegrationServiceV8 {
 
 				const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
-				console.log(`${MODULE_TAG} ✅ Authorization URL generated for IMPLICIT FLOW (JAR)`, {
 					url: `${authorizationUrl.substring(0, 150)}...`,
 					response_type: 'token id_token',
 					response_mode: 'fragment',
@@ -197,7 +190,6 @@ export class ImplicitFlowIntegrationServiceV8 {
 
 		const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
-		console.log(`${MODULE_TAG} ✅ Authorization URL generated for IMPLICIT FLOW`, {
 			url: `${authorizationUrl.substring(0, 150)}...`,
 			response_type: 'token id_token',
 			response_mode: 'fragment',
@@ -218,7 +210,7 @@ export class ImplicitFlowIntegrationServiceV8 {
 	 * @returns Parsed tokens
 	 */
 	static parseCallbackFragment(callbackUrl: string, expectedState: string): ImplicitTokenResponse {
-		console.log(`${MODULE_TAG} Parsing callback fragment`);
+		
 
 		try {
 			const url = new URL(callbackUrl);
@@ -255,7 +247,7 @@ export class ImplicitFlowIntegrationServiceV8 {
 				throw new Error('State parameter mismatch - possible CSRF attack');
 			}
 
-			console.log(`${MODULE_TAG} Callback fragment parsed successfully`);
+			
 
 			return {
 				access_token: accessToken,
@@ -277,7 +269,7 @@ export class ImplicitFlowIntegrationServiceV8 {
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		console.log(`${MODULE_TAG} Decoding JWT token`);
+		
 
 		try {
 			const parts = token.split('.');
@@ -290,7 +282,7 @@ export class ImplicitFlowIntegrationServiceV8 {
 			const payload = JSON.parse(ImplicitFlowIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			console.log(`${MODULE_TAG} Token decoded successfully`);
+			
 
 			return { header, payload, signature };
 		} catch (error) {

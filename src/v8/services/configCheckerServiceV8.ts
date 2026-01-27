@@ -119,7 +119,6 @@ export class ConfigCheckerServiceV8 {
 		workerToken: string
 	): Promise<PingOneApplication | null> {
 		try {
-			console.log(`${MODULE_TAG} Fetching app config`, { environmentId, clientId });
 
 			// Use backend proxy to avoid CORS issues
 			// The backend endpoint /api/pingone/applications returns all apps, so we'll filter by clientId
@@ -132,7 +131,6 @@ export class ConfigCheckerServiceV8 {
 			const proxyUrl = `/api/pingone/applications?${searchParams.toString()}`;
 			const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/applications`;
 
-			console.log(`${MODULE_TAG} Fetching app config via backend proxy`, { proxyUrl });
 
 			// Track API call for documentation
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
@@ -232,7 +230,6 @@ export class ConfigCheckerServiceV8 {
 				updatedAt: rawApp.updatedAt || rawApp.updated_at || new Date().toISOString(),
 			};
 
-			console.log(`${MODULE_TAG} App config fetched successfully`, {
 				appId: app.id,
 				appName: app.name,
 				grantTypes: app.grantTypes,
@@ -290,7 +287,6 @@ export class ConfigCheckerServiceV8 {
 		},
 		pingOneConfig: PingOneApplication
 	): ConfigComparison {
-		console.log(`${MODULE_TAG} Comparing configurations`);
 
 		const comparison: ConfigComparison = {
 			clientId: { match: userConfig.clientId === pingOneConfig.id },
@@ -378,7 +374,6 @@ export class ConfigCheckerServiceV8 {
 			message: `Token format: ${pingOneTokenFormat}`,
 		};
 
-		console.log(`${MODULE_TAG} Configuration comparison complete`, {
 			matches: Object.values(comparison).filter((c) => c.match).length,
 			total: Object.keys(comparison).length,
 		});
@@ -465,7 +460,6 @@ export class ConfigCheckerServiceV8 {
 			});
 		}
 
-		console.log(`${MODULE_TAG} Generated ${suggestions.length} fix suggestions`);
 
 		return suggestions;
 	}

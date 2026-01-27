@@ -80,10 +80,7 @@ export class RedirectlessServiceV8 {
 	 * Start redirectless authorization flow
 	 */
 	static async startFlow(config: RedirectlessConfig): Promise<RedirectlessFlowResponse> {
-		console.log(`${MODULE_TAG} Starting redirectless flow`, {
-			flowType: config.flowType,
-			flowKey: config.flowKey,
-		});
+		
 
 		const { credentials, flowType, codeChallenge, codeChallengeMethod, responseType } = config;
 
@@ -125,7 +122,6 @@ export class RedirectlessServiceV8 {
 			requestBody.redirectUri = credentials.redirectUri;
 		}
 
-		console.log(`${MODULE_TAG} Request details`, {
 			environmentId: credentials.environmentId,
 			clientId: `${credentials.clientId.substring(0, 8)}...`,
 			responseType: requestBody.responseType,
@@ -173,7 +169,6 @@ export class RedirectlessServiceV8 {
 		}
 
 		const flowData: RedirectlessFlowResponse = await response.json();
-		console.log(`${MODULE_TAG} Authorization response`, {
 			flowId: flowData.flowId,
 			status: flowData.status,
 			hasResumeUrl: !!flowData.resumeUrl,
@@ -212,11 +207,7 @@ export class RedirectlessServiceV8 {
 		clientId?: string;
 		clientSecret?: string;
 	}): Promise<RedirectlessFlowResponse> {
-		console.log(`${MODULE_TAG} Submitting credentials`, {
-			flowKey: params.flowKey,
-			flowId: params.flowId,
-			hasSessionId: !!params.sessionId,
-		});
+		
 
 		const flowUrl = `https://auth.pingone.com/${params.environmentId}/flows/${params.flowId}`;
 		const payload: Record<string, unknown> = {
@@ -281,7 +272,7 @@ export class RedirectlessServiceV8 {
 		tokens?: RedirectlessTokens;
 		state: string;
 	} | null> {
-		console.log(`${MODULE_TAG} Resuming flow`, { flowKey: config.flowKey });
+		
 
 		const pendingRaw = sessionStorage.getItem(`${config.flowKey}_redirectless_pending`);
 		if (!pendingRaw) {
@@ -359,11 +350,7 @@ export class RedirectlessServiceV8 {
 		}
 
 		const resumeResult: RedirectlessFlowResponse = await response.json();
-		console.log(`${MODULE_TAG} Resume response`, {
-			hasCode: !!resumeResult.authorizeResponse?.code,
-			hasAccessToken: !!resumeResult.authorizeResponse?.access_token,
-			status: resumeResult.status,
-		});
+		
 
 		// Extract code or tokens based on flow type
 		const authResponse = resumeResult.authorizeResponse;

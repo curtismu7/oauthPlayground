@@ -94,7 +94,6 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 			const workerToken = await workerTokenServiceV8.getToken();
 
 			// Debug logging
-			console.log(`${MODULE_TAG} Worker token retrieved from global service:`, {
 				token: workerToken ? `${workerToken.substring(0, 20)}...` : 'null',
 				type: typeof workerToken,
 				hasValue: !!workerToken,

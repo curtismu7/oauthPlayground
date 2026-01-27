@@ -55,12 +55,10 @@ export function loadSettings(flowType: FlowType): FlowSettings | null {
 		const stored = localStorage.getItem(key);
 
 		if (!stored) {
-			console.log(`${MODULE_TAG} No settings found for flow`, { flowType });
 			return null;
 		}
 
 		const settings = JSON.parse(stored) as FlowSettings;
-		console.log(`${MODULE_TAG} Loaded settings for flow`, { flowType, settings });
 		return settings;
 	} catch (err) {
 		console.error(`${MODULE_TAG} Error loading settings for flow`, { flowType, err });
@@ -88,7 +86,6 @@ export function saveSettings(flowType: FlowType, settings: Partial<FlowSettings>
 		};
 
 		localStorage.setItem(key, JSON.stringify(updated));
-		console.log(`${MODULE_TAG} Saved settings for flow`, { flowType, updated });
 	} catch (err) {
 		console.error(`${MODULE_TAG} Error saving settings for flow`, { flowType, err });
 	}
@@ -127,7 +124,6 @@ export function getAllSettings(): Record<FlowType, FlowSettings | null> {
 		allSettings[flowType] = loadSettings(flowType);
 	}
 
-	console.log(`${MODULE_TAG} All flow settings`, allSettings);
 	return allSettings as Record<FlowType, FlowSettings | null>;
 }
 
@@ -138,7 +134,6 @@ export function clearSettings(flowType: FlowType): void {
 	try {
 		const key = getStorageKey(flowType);
 		localStorage.removeItem(key);
-		console.log(`${MODULE_TAG} Cleared settings for flow`, { flowType });
 	} catch (err) {
 		console.error(`${MODULE_TAG} Error clearing settings for flow`, { flowType, err });
 	}
@@ -161,7 +156,6 @@ export function clearAllSettings(): void {
 		clearSettings(flowType);
 	}
 
-	console.log(`${MODULE_TAG} Cleared all flow settings`);
 }
 
 /**
@@ -182,7 +176,6 @@ export function getMostRecentFlow(): FlowType | null {
 		}
 	}
 
-	console.log(`${MODULE_TAG} Most recent flow`, mostRecent);
 	return mostRecent?.flowType || null;
 }
 

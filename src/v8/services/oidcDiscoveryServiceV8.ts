@@ -13,7 +13,7 @@
  * @example
  * const result = await OidcDiscoveryServiceV8.discover('https://auth.example.com');
  * if (result.success) {
- *   console.log('Discovered endpoints:', result.data);
+ *   
  * }
  */
 
@@ -45,7 +45,7 @@ export class OidcDiscoveryServiceV8 {
 	 * const result = await OidcDiscoveryServiceV8.discover('https://auth.example.com');
 	 */
 	static async discover(issuerUrl: string, environmentId?: string): Promise<DiscoveryResult> {
-		console.log(`${MODULE_TAG} Starting OIDC discovery`, { issuerUrl, environmentId });
+		
 
 		try {
 			// Normalize issuer URL
@@ -57,9 +57,7 @@ export class OidcDiscoveryServiceV8 {
 					const { getCachedDiscoveryDocument } = await import('./discoveryCacheServiceV8');
 					const cached = await getCachedDiscoveryDocument(normalized, environmentId);
 					if (cached) {
-						console.log(`${MODULE_TAG} ✅ Using cached discovery document`, {
-							issuerUrl: normalized,
-						});
+						
 						return {
 							success: true,
 							data: cached as DiscoveryResult['data'],
@@ -70,7 +68,7 @@ export class OidcDiscoveryServiceV8 {
 				}
 			}
 
-			console.log(`${MODULE_TAG} Using backend proxy for discovery`, { issuerUrl: normalized });
+			
 
 			// Track API call for documentation
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
@@ -150,7 +148,7 @@ Original error: ${errorMessage}`;
 
 			const data = await response.json();
 
-			console.log(`${MODULE_TAG} Discovery successful`, { issuer: data.issuer });
+			
 
 			// Update API call tracking with success
 			apiCallTrackerService.updateApiCallResponse(
@@ -263,11 +261,11 @@ Original error: ${errorMessage}`;
 	 * @returns Discovery result
 	 */
 	static async discoverFromInput(input: string): Promise<DiscoveryResult> {
-		console.log(`${MODULE_TAG} Attempting discovery from input`, { input });
+		
 
 		// Check if it's an environment ID (UUID)
 		if (OidcDiscoveryServiceV8.isValidEnvironmentId(input)) {
-			console.log(`${MODULE_TAG} Input appears to be environment ID, constructing PingOne URL`);
+			
 			// Construct PingOne issuer URL from environment ID
 			const issuerUrl = `https://auth.pingone.com/${input}/as`;
 			return OidcDiscoveryServiceV8.discover(issuerUrl);

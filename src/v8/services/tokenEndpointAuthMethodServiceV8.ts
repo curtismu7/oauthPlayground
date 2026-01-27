@@ -48,7 +48,6 @@ export class TokenEndpointAuthMethodServiceV8 {
 		specVersion: SpecVersion,
 		usePKCE: boolean = false
 	): TokenEndpointAuthMethod[] {
-		console.log(`${MODULE_TAG} Getting auth methods`, { flowType, specVersion, usePKCE });
 
 		// Authorization Code Flow
 		if (flowType === 'oauth-authz') {

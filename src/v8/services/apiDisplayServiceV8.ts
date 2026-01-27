@@ -23,7 +23,7 @@
  *
  * // Subscribe to changes
  * const unsubscribe = apiDisplayServiceV8.subscribe((isVisible) => {
- *   console.log('Visibility changed:', isVisible);
+ *   
  * });
  */
 

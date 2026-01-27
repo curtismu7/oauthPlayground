@@ -3756,29 +3756,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							gap: '16px',
 						}}
 					>
-						{/* TEST: Device mapping check */}
-						<div style={{background: 'purple', color: 'white', padding: '10px', margin: '0 0 10px 0'}}>
-							🔥 DEVICE MAPPING: {authState.devices.length} devices found
-						</div>
-						
-						{/* TEST: Simple button rendering */}
-						<button style={{background: 'blue', color: 'white', padding: '10px', margin: '0 0 10px 0'}}>
-							🔥 TEST BUTTON - If you see this, buttons work!
-						</button>
-						
-						{/* TEST: Static device buttons */}
-						<button style={{background: 'orange', color: 'white', padding: '10px', margin: '5px'}}>
-							🔥 STATIC DEVICE 1 (EMAIL)
-						</button>
-						<button style={{background: 'orange', color: 'white', padding: '10px', margin: '5px'}}>
-							🔥 STATIC DEVICE 2 (FIDO2)
-						</button>
-						
+												
 													<button
 								key={`${device.id}-${(device as any).type ?? (device as any).deliveryMethod ?? 'dev'}-${index}`}
 								type="button"
 								onClick={async () => {
-									console.log(`${MODULE_TAG} 🔥 Device clicked:`, device);
 									toastV8.success(`Device selected: ${device.nickname || device.type}`);
 									try {
 										setAuthState((prev) => ({ ...prev, isLoading: true }));
@@ -3889,24 +3871,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				</div>
 			)}
 
-			{/* TEST: Show device selection status */}
-			{authState.showDeviceSelection && (
-				<div style={{
-					position: 'fixed',
-					top: '10px',
-					right: '10px',
-					background: 'red',
-					color: 'white',
-					padding: '20px',
-					border: '3px solid yellow',
-					zIndex: 9999,
-					fontSize: '16px',
-					fontWeight: 'bold'
-				}}>
-					🔥 TEST: Device selection ACTIVE! Devices: {authState.devices.length}
-				</div>
-			)}
-
+			
 			{/* Authentication Status */}
 			{authState.authenticationId && (
 				<div
@@ -5654,7 +5619,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								loading={false}
 								selectedDeviceId={authState.selectedDeviceId}
 								onDeviceSelect={async (device) => {
-									console.log(`${MODULE_TAG} 🔥 Device selected from modal:`, device);
 									if (!authState.authenticationId || !authState.userId) {
 										toastV8.error('Authentication session not found');
 										return;

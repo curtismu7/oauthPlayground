@@ -29,7 +29,7 @@ import { safeAnalyticsFetch } from '@/v8/utils/analyticsServerCheckV8';
 
 const debugLog = (...args: unknown[]): void => {
 	if (!ENABLE_CREDENTIALS_DEBUG_LOGGING) return;
-	console.log(...args);
+	
 };
 
 export interface Credentials {
@@ -746,7 +746,7 @@ export class CredentialsServiceV8 {
 	 * 
 	 * @example
 	 * const sanitized = CredentialsServiceV8.sanitizeForLogging(credentials);
-	 * console.log('Credentials:', sanitized);
+	 * 
 	 * // Output: { environmentId: '...', clientId: '...', hasClientSecret: true, ... }
 	 */
 	static sanitizeForLogging(credentials: Credentials): Record<string, unknown> {
@@ -850,7 +850,7 @@ export class CredentialsServiceV8 {
 	 * 
 	 * @example
 	 * const summary = CredentialsServiceV8.getCredentialsSummary(credentials);
-	 * console.log(summary);
+	 * 
 	 * // "Environment: abc-123, Client: xyz-789, Auth: client_secret_basic, Scopes: 3"
 	 */
 	static getCredentialsSummary(credentials: Credentials): string {

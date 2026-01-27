@@ -164,7 +164,7 @@ export class OAuthIntegrationServiceV8 {
 
 		if (requiresJAR) {
 			// Generate JAR request object
-			console.log(`${MODULE_TAG} 🔐 JAR required - generating signed request object...`);
+			
 
 			try {
 				const { jarRequestObjectServiceV8 } = await import('./jarRequestObjectServiceV8');
@@ -209,10 +209,7 @@ export class OAuthIntegrationServiceV8 {
 					);
 				}
 
-				console.log(`${MODULE_TAG} ✅ JAR request object generated successfully`, {
-					algorithm,
-					jti: jarResult.payload?.jti,
-				});
+				
 
 				// Build JAR authorization URL (RFC 9101: client_id must remain in query, request parameter contains JWT)
 				const params = new URLSearchParams({
@@ -271,8 +268,8 @@ export class OAuthIntegrationServiceV8 {
 		expectedState: string
 	): { code: string; state: string } {
 		try {
-			console.log(`[🔐 OAUTH-INTEGRATION-V8] Parsing callback URL:`, callbackUrl);
-			console.log(`[🔐 OAUTH-INTEGRATION-V8] Expected state:`, expectedState);
+			
+			
 
 			const url = new URL(callbackUrl);
 			const code = url.searchParams.get('code');
@@ -280,12 +277,7 @@ export class OAuthIntegrationServiceV8 {
 			const error = url.searchParams.get('error');
 			const errorDescription = url.searchParams.get('error_description');
 
-			console.log(`[🔐 OAUTH-INTEGRATION-V8] URL params extracted:`, {
-				code: code ? '***REDACTED***' : null,
-				state,
-				error,
-				errorDescription,
-			});
+			
 
 			// Check for error in callback
 			if (error) {
@@ -298,7 +290,7 @@ export class OAuthIntegrationServiceV8 {
 				url.searchParams.forEach((value, key) => {
 					allParams[key] = value;
 				});
-				console.log(`[🔐 OAUTH-INTEGRATION-V8] All URL params:`, allParams);
+				
 				throw new Error('Authorization code not found in callback URL');
 			}
 
@@ -311,7 +303,7 @@ export class OAuthIntegrationServiceV8 {
 				throw new Error('State parameter mismatch - possible CSRF attack');
 			}
 
-			console.log(`[🔐 OAUTH-INTEGRATION-V8] Successfully parsed callback URL`);
+			
 			return { code, state };
 		} catch (error) {
 			console.error(`[🔐 OAUTH-INTEGRATION-V8] Error parsing callback URL`, error);
@@ -498,7 +490,7 @@ export class OAuthIntegrationServiceV8 {
 					(errorData.error_description as string)?.toLowerCase().includes('must change password');
 
 				if (requiresPasswordChange) {
-					console.log(`${MODULE_TAG} 🔐 Password change required detected`);
+					
 					const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
 					(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
 					(passwordChangeError as any).requiresPasswordChange = true;
@@ -540,7 +532,7 @@ export class OAuthIntegrationServiceV8 {
 						if (credentials.environmentId && credentials.clientId) {
 							const workerToken = await workerTokenServiceV8.getToken();
 							if (workerToken) {
-								console.log(`${MODULE_TAG} 🔍 Fetching PingOne app config for error comparison...`);
+								
 								const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 									credentials.environmentId,
 									credentials.clientId,
@@ -553,11 +545,7 @@ export class OAuthIntegrationServiceV8 {
 										const { appDiscoveryServiceV8 } = await import(
 											'@/v8/services/appDiscoveryServiceV8'
 										);
-										console.log(`${MODULE_TAG} 🔍 Attempting to fetch application with secret...`, {
-											environmentId: credentials.environmentId,
-											clientId: credentials.clientId,
-											hasWorkerToken: !!workerToken,
-										});
+										
 
 										const appWithSecret = await appDiscoveryServiceV8.fetchApplicationWithSecret(
 											credentials.environmentId,
@@ -565,14 +553,7 @@ export class OAuthIntegrationServiceV8 {
 											workerToken
 										);
 
-										console.log(`${MODULE_TAG} 📦 Application with secret response:`, {
-											hasAppWithSecret: !!appWithSecret,
-											hasClientSecret: !!appWithSecret?.clientSecret,
-											clientSecretType: typeof appWithSecret?.clientSecret,
-											clientSecretLength: appWithSecret?.clientSecret?.length || 0,
-											tokenEndpointAuthMethod:
-												appWithSecret?.tokenEndpointAuthMethod || appConfig.tokenEndpointAuthMethod,
-										});
+										
 
 										pingOneConfig = {
 											clientId: appConfig.id,
@@ -582,9 +563,7 @@ export class OAuthIntegrationServiceV8 {
 										};
 
 										if (pingOneConfig.clientSecret) {
-											console.log(
-												`${MODULE_TAG} ✅ PingOne config fetched with client secret for comparison`
-											);
+											
 										} else {
 											console.warn(
 												`${MODULE_TAG} ⚠️ PingOne config fetched but client secret not available (may be a public client or secret not returned by API)`
@@ -650,13 +629,7 @@ export class OAuthIntegrationServiceV8 {
 						const normalizedConfiguredMethod = normalizeAuthMethod(authMethod);
 						const authMethodMatch = normalizedPingOneMethod === normalizedConfiguredMethod;
 
-						console.log(`${MODULE_TAG} Comparing auth methods for error display`, {
-							pingOneRaw: pingOneConfig.tokenEndpointAuthMethod,
-							pingOneNormalized: normalizedPingOneMethod,
-							configuredRaw: authMethod,
-							configuredNormalized: normalizedConfiguredMethod,
-							match: authMethodMatch,
-						});
+						
 
 						comparisonSection += `
 │ Client ID:        ${(pingOneConfig.clientId || 'NOT FOUND').padEnd(40)} │
@@ -761,7 +734,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 							payload.password_state || payload.password_status || payload.pwd_state;
 
 						if (passwordState === 'MUST_CHANGE_PASSWORD') {
-							console.log(`${MODULE_TAG} 🔐 Password change required detected in ID token`);
+							
 							const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
 							(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
 							(passwordChangeError as any).requiresPasswordChange = true;
@@ -774,7 +747,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 				} catch (_parseError) {
 					// If parsing fails, check response metadata
 					if (requiresPasswordChange) {
-						console.log(`${MODULE_TAG} 🔐 Password change required detected in response metadata`);
+						
 						const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
 						(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
 						(passwordChangeError as any).requiresPasswordChange = true;
@@ -786,17 +759,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 				}
 			}
 
-			console.log(`${MODULE_TAG} ✅ Tokens received successfully!`, {
-				hasAccessToken: !!tokens.access_token,
-				accessTokenLength: tokens.access_token?.length,
-				hasIdToken: !!tokens.id_token,
-				idTokenLength: tokens.id_token?.length,
-				hasRefreshToken: !!tokens.refresh_token,
-				refreshTokenLength: tokens.refresh_token?.length,
-				expiresIn: tokens.expires_in,
-				tokenType: tokens.token_type,
-				scope: tokens.scope,
-			});
+			
 
 			return tokens;
 		} catch (error) {
@@ -819,10 +782,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 		credentials: OAuthCredentials,
 		refreshToken: string
 	): Promise<TokenResponse> {
-		console.log(`${MODULE_TAG} Refreshing access token`, {
-			environmentId: credentials.environmentId,
-			clientId: credentials.clientId,
-		});
+		
 
 		try {
 			// Use backend proxy to avoid CORS issues
@@ -859,7 +819,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 
 			const tokens: TokenResponse = await response.json();
 
-			console.log(`${MODULE_TAG} Access token refreshed successfully`);
+			
 
 			return tokens;
 		} catch (error) {
@@ -874,7 +834,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		console.log(`${MODULE_TAG} Decoding JWT token`);
+		
 
 		try {
 			const parts = token.split('.');
@@ -887,7 +847,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 			const payload = JSON.parse(OAuthIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			console.log(`${MODULE_TAG} Token decoded successfully`);
+			
 
 			return { header, payload, signature };
 		} catch (error) {

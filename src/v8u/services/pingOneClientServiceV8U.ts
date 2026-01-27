@@ -183,19 +183,14 @@ export async function updatePingOneClient(
 	isEnabling: boolean
 ): Promise<{ success: boolean; error?: string }> {
 	try {
-		console.log(`${MODULE_TAG} Updating PingOne client`, {
-			clientId,
-			featureId,
-			featureName,
-			isEnabling,
-		});
+		
 
 		// Simulate API call delay
 		await new Promise((resolve) => setTimeout(resolve, 1500));
 
 		// In real implementation, this would call PingOne API
 		// For now, we simulate success
-		console.log(`${MODULE_TAG} PingOne client updated successfully`);
+		
 
 		return { success: true };
 	} catch (error) {
@@ -217,19 +212,14 @@ export async function updateApplicationConfig(
 	isEnabling: boolean
 ): Promise<{ success: boolean; error?: string }> {
 	try {
-		console.log(`${MODULE_TAG} Updating application configuration`, {
-			appName,
-			featureId,
-			featureName,
-			isEnabling,
-		});
+		
 
 		// Simulate configuration update delay
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 
 		// In real implementation, this would update app configuration
 		// For now, we simulate success
-		console.log(`${MODULE_TAG} Application configuration updated successfully`);
+		
 
 		return { success: true };
 	} catch (error) {
@@ -301,12 +291,7 @@ export async function updateFeatureConfiguration(
 			};
 		}
 
-		console.log(`${MODULE_TAG} Feature configuration updated successfully`, {
-			featureId,
-			featureName,
-			isEnabling,
-			changesCount: changes.length,
-		});
+		
 
 		return {
 			success: true,

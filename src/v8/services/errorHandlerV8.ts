@@ -148,7 +148,7 @@ export class ErrorHandlerV8 implements IErrorHandlerService {
 		};
 
 		ErrorHandlerV8.addLogEntry(entry);
-		console.log(`${MODULE_TAG} ${message}`, context);
+		
 	}
 
 	/**
@@ -202,7 +202,7 @@ export class ErrorHandlerV8 implements IErrorHandlerService {
 	 */
 	static clearLogHistory(): void {
 		ErrorHandlerV8.logHistory = [];
-		console.log(`${MODULE_TAG} Log history cleared`);
+		
 	}
 
 	/**

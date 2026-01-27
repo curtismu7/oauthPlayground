@@ -38,7 +38,7 @@ export class MFAEducationServiceV8 {
 	 *
 	 * @example
 	 * const content = MFAEducationServiceV8.getContent('factor.sms');
-	 * console.log(content.title); // "SMS Authentication"
+	 *  // "SMS Authentication"
 	 */
 	static getContent(key: string): MFAEducationContent {
 		const content = MFAEducationServiceV8.educationContent[key];
