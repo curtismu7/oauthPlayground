@@ -3721,7 +3721,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							<button
 								key={`${device.id}-${(device as any).type ?? (device as any).deliveryMethod ?? 'dev'}-${index}`}
 								type="button"
-								onClick={() => {
+								onClick={async () => {
 									console.log(`${MODULE_TAG} 🔥 Device clicked:`, device);
 									toastV8.success(`Device selected: ${device.nickname || device.type}`);
 									try {
