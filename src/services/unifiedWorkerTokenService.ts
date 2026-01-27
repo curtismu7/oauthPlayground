@@ -195,32 +195,18 @@ class UnifiedWorkerTokenService {
 	 * Load worker token credentials
 	 */
 	async loadCredentials(): Promise<UnifiedWorkerTokenCredentials | null> {
-		console.log(`${MODULE_TAG} 🔍 Loading credentials...`);
-
 		// Try memory cache first
 		if (this.memoryCache) {
-			console.log(`${MODULE_TAG} ✅ Found credentials in memory cache`);
 			return this.memoryCache.credentials;
 		}
 
 		// Try localStorage (primary)
 		try {
 			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
-			console.log(`${MODULE_TAG} 🔍 localStorage check:`, {
-				hasData: !!stored,
-				key: BROWSER_STORAGE_KEY,
-				dataLength: stored?.length || 0,
-			});
 
 			if (stored) {
 				const data: UnifiedWorkerTokenData = JSON.parse(stored);
 				this.memoryCache = data;
-				console.log(`${MODULE_TAG} ✅ Loaded credentials from localStorage`, {
-					hasEnvironmentId: !!data.credentials?.environmentId,
-					hasClientId: !!data.credentials?.clientId,
-					hasClientSecret: !!data.credentials?.clientSecret,
-					savedAt: new Date(data.savedAt).toISOString(),
-				});
 				return data.credentials;
 			}
 		} catch (error) {
@@ -229,7 +215,6 @@ class UnifiedWorkerTokenService {
 
 		// Try IndexedDB (backup)
 		try {
-			console.log(`${MODULE_TAG} 🔍 Trying IndexedDB backup...`);
 			const db = await this.initDB();
 			const transaction = db.transaction([INDEXEDDB_STORE_NAME], 'readonly');
 			const store = transaction.objectStore(INDEXEDDB_STORE_NAME);
@@ -242,17 +227,10 @@ class UnifiedWorkerTokenService {
 
 			if (data) {
 				this.memoryCache = data;
-				console.log(`${MODULE_TAG} ✅ Found credentials in IndexedDB backup`, {
-					hasEnvironmentId: !!data.credentials?.environmentId,
-					hasClientId: !!data.credentials?.clientId,
-					hasClientSecret: !!data.credentials?.clientSecret,
-					savedAt: new Date(data.savedAt).toISOString(),
-				});
 
 				// Restore to localStorage
 				try {
 					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
-					console.log(`${MODULE_TAG} 🔄 Restored IndexedDB data to localStorage`);
 				} catch (error) {
 					console.warn(`${MODULE_TAG} ⚠️ Failed to restore to localStorage`, error);
 				}
