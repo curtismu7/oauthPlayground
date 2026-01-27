@@ -262,8 +262,28 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const tokenStatus = workerToken.tokenStatus;
 	const setTokenStatus = async (status: TokenStatusInfo | Promise<TokenStatusInfo>) => {
 		const resolvedStatus = await Promise.resolve(status);
-		workerToken.refreshTokenStatus();
+		workerToken.setTokenStatus(resolvedStatus);
 	};
+
+	// Reload credentials when worker token status changes (in case credentials were updated)
+	useEffect(() => {
+		if (tokenStatus.isValid) {
+			const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+				flowKey: FLOW_KEY,
+				flowType: 'oidc',
+				includeClientSecret: false,
+				includeRedirectUri: false,
+				includeLogoutUri: false,
+				includeScopes: false,
+			});
+			setCredentials({
+				environmentId: stored.environmentId || '',
+				username: stored.username || '',
+				deviceAuthenticationPolicyId: stored.deviceAuthenticationPolicyId || '',
+			});
+		}
+	}, [tokenStatus.isValid, tokenStatus.lastUpdated]);
+
 	const showWorkerTokenModal = workerToken.showWorkerTokenModal;
 	const setShowWorkerTokenModal = workerToken.setShowWorkerTokenModal;
 	const silentApiRetrieval = workerToken.silentApiRetrieval;
