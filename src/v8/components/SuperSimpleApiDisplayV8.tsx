@@ -813,18 +813,12 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 			let backendCalls: ApiCall[] = [];
 			if (serverHealth.isOnline) {
 				try {
-					console.log('[SuperSimpleApiDisplayV8] Fetching API calls from server...');
 					const response = await fetch('/api/pingone/api-calls', {
 						signal: AbortSignal.timeout(5000), // 5 second timeout
 						headers: {
 							'Cache-Control': 'no-cache',
 							Pragma: 'no-cache',
 						},
-					});
-					console.log('[SuperSimpleApiDisplayV8] API calls response:', {
-						status: response.status,
-						statusText: response.statusText,
-						ok: response.ok,
 					});
 
 					if (response.ok) {
@@ -846,11 +840,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 								isProxy?: boolean;
 							}>;
 						};
-						console.log('[SuperSimpleApiDisplayV8] API calls data:', {
-							hasCalls: !!data.calls,
-							callsLength: data.calls?.length,
-						});
-						if (data.calls && Array.isArray(data.calls)) {
+												if (data.calls && Array.isArray(data.calls)) {
 							backendCalls = data.calls.map((call) => ({
 								id: call.id,
 								method: call.method as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
@@ -1056,7 +1046,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		// Note: excludePatterns and includePatterns are NOT in dependencies because
 		// the function uses excludePatternsRef.current and includePatternsRef.current internally.
 		// The refs are updated in a separate useEffect that triggers updateCalls when they change.
-	}, [flowFilter, showP1Only, serverHealth.isOnline, previousCallCount]);
+	}, [flowFilter, showP1Only, serverHealth.isOnline]);
 
 	// Store updateCalls in ref so it can be called from other effects
 	updateCallsRef.current = updateCalls;
