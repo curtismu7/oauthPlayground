@@ -76,6 +76,13 @@ const HelperText = styled.p`
 	margin-bottom: 20px;
 `;
 
+const StepContent = styled.div`
+	padding: 1.5rem;
+	background: white;
+	border-radius: 0.75rem;
+	border: 1px solid #e5e7eb;
+`;
+
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 0.5rem;
