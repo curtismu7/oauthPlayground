@@ -89,7 +89,7 @@ const Subtitle = styled.p`
 const ChevronIcon = styled.div.withConfig({
 	shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed',
 })<{ $collapsed: boolean }>`
-	color: #ffffff;
+	color: #3b82f6;
 	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
 	transition: transform 0.2s ease;
 	display: flex;
@@ -97,21 +97,22 @@ const ChevronIcon = styled.div.withConfig({
 	justify-content: center;
 	width: 32px;
 	height: 32px;
-	background-color: #3b82f6;
+	background-color: transparent;
 	border-radius: 6px;
-	border: 1px solid #2563eb;
+	border: 2px solid #3b82f6;
 	transition: all 0.2s ease;
 
 	svg {
-		color: #ffffff;
+		color: #3b82f6;
 	}
 
 	&:hover {
 		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')} scale(1.05);
-		background-color: #2563eb;
+		border-color: #2563eb;
 	}
 	&:active {
 		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')} scale(1.05);
+		border-color: #2563eb;
 	}
 `;
 
