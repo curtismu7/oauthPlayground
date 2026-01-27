@@ -29,6 +29,7 @@
  */
 
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { createModuleLogger } from '@/utils/consoleMigrationHelper';
 import { pingOneFetch } from '@/utils/pingOneFetch';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
@@ -37,6 +38,9 @@ import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
 
 const MODULE_TAG = '[📱 MFA-SERVICE-V8]';
+
+// Create module-specific logger
+const log = createModuleLogger('src/v8/services/mfaServiceV8.ts');
 
 export interface MFACredentials {
 	environmentId: string;
@@ -277,7 +281,7 @@ export class MFAServiceV8 {
 			}
 			return scopes;
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Unable to decode token payload to extract scopes`, error);
+			log.warn('Unable to decode token payload to extract scopes', error);
 			return [];
 		}
 	}
@@ -316,7 +320,7 @@ export class MFAServiceV8 {
 					(data as PingOneResponse).message ||
 					(data as PingOneResponse).error ||
 					'Failed to allow MFA bypass';
-				console.error(`${MODULE_TAG} Error allowing MFA bypass:`, {
+				log.error('Error allowing MFA bypass:', {
 					status: response.status,
 					error: errorMsg,
 					requestId,
@@ -324,7 +328,7 @@ export class MFAServiceV8 {
 				throw new Error(errorMsg);
 			}
 
-			console.log(`${MODULE_TAG} Successfully allowed MFA bypass`, {
+			log.info('Successfully allowed MFA bypass', {
 				userId,
 				requestId,
 			});
@@ -342,7 +346,7 @@ export class MFAServiceV8 {
 					showToast: false,
 				}
 			);
-			console.error(`${MODULE_TAG} Exception in allowMfaBypass:`, {
+			log.error('Exception in allowMfaBypass:', {
 				error: parsed.userFriendlyMessage,
 				requestId,
 			});
@@ -384,7 +388,7 @@ export class MFAServiceV8 {
 					(data as PingOneResponse).message ||
 					(data as PingOneResponse).error ||
 					'Failed to check MFA bypass status';
-				console.error(`${MODULE_TAG} Error checking MFA bypass:`, {
+				log.error('Error checking MFA bypass:', {
 					status: response.status,
 					error: errorMsg,
 					requestId,
@@ -392,7 +396,7 @@ export class MFAServiceV8 {
 				throw new Error(errorMsg);
 			}
 
-			console.log(`${MODULE_TAG} Successfully checked MFA bypass status`, {
+			log.info('Successfully checked MFA bypass status', {
 				userId,
 				requestId,
 			});
@@ -410,7 +414,7 @@ export class MFAServiceV8 {
 					showToast: false,
 				}
 			);
-			console.error(`${MODULE_TAG} Exception in checkMfaBypassStatus:`, {
+			log.error('Exception in checkMfaBypassStatus:', {
 				error: parsed.userFriendlyMessage,
 				requestId,
 			});
@@ -438,7 +442,7 @@ export class MFAServiceV8 {
 					const padded = normalized + '='.repeat((4 - (normalized.length % 4 || 4)) % 4);
 					return JSON.parse(atob(padded));
 				} catch (error) {
-					console.warn(`${MODULE_TAG} Unable to decode worker token payload`, error);
+					log.warn('Unable to decode worker token payload', error);
 					return null;
 				}
 			};
@@ -470,23 +474,20 @@ export class MFAServiceV8 {
 							scopes.push(...credentials.scopes);
 						}
 					} catch (credError) {
-						console.warn(
-							`${MODULE_TAG} Unable to inspect worker token credentials scopes`,
-							credError
-						);
+						log.warn('Unable to inspect worker token credentials scopes', credError);
 					}
 				}
 
 				// NOTE: MFA scope requirements removed - worker token provides necessary permissions
 			}
 
-			console.log(`${MODULE_TAG} Using worker token from WorkerTokenServiceV8`, {
+			log.info('Using worker token from WorkerTokenServiceV8', {
 				tokenLength: token.length,
 				tokenPrefix: token.substring(0, 20),
 			});
 			return token;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to get worker token from WorkerTokenServiceV8`, error);
+			log.error('Failed to get worker token from WorkerTokenServiceV8', error);
 			throw error instanceof Error ? error : new Error(String(error));
 		}
 	}
@@ -535,7 +536,7 @@ export class MFAServiceV8 {
 
 			// Check if response is ok before parsing
 			if (!response.ok) {
-				console.error(`${MODULE_TAG} Lookup user failed:`, {
+				log.error('Lookup user failed:', {
 					status: response.status,
 					statusText: response.statusText,
 					url: '/api/pingone/mfa/lookup-user',
@@ -546,7 +547,7 @@ export class MFAServiceV8 {
 			// Check if response has content
 			const contentLength = response.headers.get('content-length');
 			if (contentLength === '0') {
-				console.error(`${MODULE_TAG} Empty response received from lookup user`);
+				log.error('Empty response received from lookup user');
 				throw new Error('Empty response received from server');
 			}
 
@@ -584,14 +585,14 @@ export class MFAServiceV8 {
 
 			const userData = user as PingOneResponse;
 
-			console.log(`${MODULE_TAG} User found`, {
+			log.info('User found', {
 				userId: userData.id,
 				username: userData.username,
 			});
 
 			return userData as unknown as UserLookupResult;
 		} catch (error) {
-			console.error(`${MODULE_TAG} User lookup error`, error);
+			log.error('User lookup error', error);
 			throw error;
 		}
 	}
@@ -646,7 +647,7 @@ export class MFAServiceV8 {
 			const data = await response.json();
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} List users error`, error);
+			log.error('List users error', error);
 			throw error;
 		}
 	}
@@ -657,7 +658,7 @@ export class MFAServiceV8 {
 	 * @returns Device registration result
 	 */
 	static async registerDevice(params: RegisterDeviceParams): Promise<DeviceRegistrationResult> {
-		console.log(`${MODULE_TAG} Registering ${params.type} device`, {
+		log.info('Registering ' + params.type + ' device', {
 			username: params.username,
 			type: params.type,
 		});
@@ -761,7 +762,7 @@ export class MFAServiceV8 {
 			}
 
 			// Register device via backend proxy
-			console.log(`${MODULE_TAG} Calling device registration endpoint`, {
+			log.info('Calling device registration endpoint', {
 				type: params.type,
 				userId: user.id,
 				nickname: devicePayload.nickname || params.nickname || params.name,
