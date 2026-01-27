@@ -14,7 +14,7 @@
  * - Multiple display modes (compact, detailed, minimal)
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiActivity,
 	FiAlertCircle,
@@ -594,7 +594,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	});
 	const [isConfigLoading, setIsConfigLoading] = useState(false);
 
-	const updateTokenStatus = async () => {
+	const updateTokenStatus = useCallback(async () => {
 		try {
 			const v8Status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 
@@ -672,7 +672,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, []);
 
 	const handleRefresh = async () => {
 		setIsRefreshing(true);
