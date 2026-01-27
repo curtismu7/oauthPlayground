@@ -11,7 +11,7 @@
  * - Educational value: Teaches cryptographic verification
  */
 
-import { decodeJwt, type JWTPayload, jwtVerify } from 'jose';
+import { decodeJwt, type JWTPayload, jwtVerify, type JWK } from 'jose';
 import { JWKSCacheServiceV8 } from './jwksCacheServiceV8';
 
 const MODULE_TAG = '[✅ ID-TOKEN-VALIDATION-V8]';
@@ -189,7 +189,7 @@ export class IDTokenValidationServiceV8 {
 			// Step 4: Verify signature
 			try {
 				const { importJWK } = await import('jose');
-				const publicKey = await importJWK(signingKey as unknown);
+				const publicKey = await importJWK(signingKey as JWK);
 				await jwtVerify(idToken, publicKey);
 				validationDetails.signatureVerified = true;
 				console.log(`${MODULE_TAG} ✅ Signature verified`);
