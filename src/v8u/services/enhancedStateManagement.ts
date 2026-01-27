@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { unifiedWorkerTokenServiceV2 } from '../../services/unifiedWorkerTokenServiceV2';
 import { type ApiCall, TokenMonitoringService } from './tokenMonitoringService';
+import { logger } from './unifiedFlowLoggerServiceV8U';
 
 export type ThemePreference = 'light' | 'dark' | 'auto';
 
@@ -179,7 +180,7 @@ const loadSnapshot = (): EnhancedStateSnapshot => {
 			};
 		}
 	} catch (error) {
-		console.warn('[EnhancedState] Failed to load snapshot', error);
+		logger.warn('[EnhancedState] Failed to load snapshot', error);
 	}
 	return defaultSnapshot;
 };
@@ -190,7 +191,7 @@ const persistSnapshot = (snapshot: EnhancedStateSnapshot) => {
 			window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
 		}
 	} catch (error) {
-		console.warn('[EnhancedState] Failed to persist snapshot', error);
+		logger.warn('[EnhancedState] Failed to persist snapshot', error);
 	}
 };
 
@@ -335,7 +336,7 @@ const getRealMetrics = async (): Promise<Partial<UnifiedFlowMetrics>> => {
 				lastWorkerTokenRefresh: workerTokenStatus.lastFetchedAt || null,
 			};
 		} catch (error) {
-			console.warn('[EnhancedState] Failed to get worker token status:', error);
+			logger.warn('[EnhancedState] Failed to get worker token status:', error);
 		}
 
 		// Count worker tokens specifically
@@ -355,7 +356,7 @@ const getRealMetrics = async (): Promise<Partial<UnifiedFlowMetrics>> => {
 			featureCount: 5 + workerTokens.length,
 		};
 	} catch (error) {
-		console.warn('[EnhancedState] Failed to get real metrics:', error);
+		logger.warn('[EnhancedState] Failed to get real metrics:', error);
 		return {
 			tokenCount: 0,
 			apiCallCount: 0,
@@ -447,7 +448,7 @@ const EnhancedStateProvider = ({ children }: { children: ReactNode }) => {
 				const metrics = await getRealMetrics();
 				dispatch({ type: 'UPDATE_REAL_METRICS', payload: metrics });
 			} catch (error) {
-				console.warn('[EnhancedState] Failed to update real metrics:', error);
+				logger.warn('[EnhancedState] Failed to update real metrics:', error);
 			}
 		}, 2000);
 
@@ -480,7 +481,7 @@ const EnhancedStateProvider = ({ children }: { children: ReactNode }) => {
 					const metrics = await getRealMetrics();
 					dispatch({ type: 'UPDATE_REAL_METRICS', payload: metrics });
 				} catch (error) {
-					console.warn('[EnhancedState] Failed to update real metrics:', error);
+					logger.warn('[EnhancedState] Failed to update real metrics:', error);
 				}
 			},
 			updateSecuritySettings: (settings: Partial<SecuritySettings>) =>

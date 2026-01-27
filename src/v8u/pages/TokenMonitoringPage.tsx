@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 	FiAlertTriangle,
 	FiCheckCircle,
 	FiClock,
@@ -345,12 +346,12 @@ export const TokenMonitoringPage: React.FC = () => {
 		// Get initial tokens immediately
 		const initialTokens = freshService.getAllTokens();
 		setTokens(initialTokens);
-		console.log(`[TokenMonitoringPage] Loaded ${initialTokens.length} initial tokens after reset`);
+		logger.debug(`[TokenMonitoringPage] Loaded ${initialTokens.length} initial tokens after reset`);
 
 		// Subscribe to future updates
 		const unsubscribe = freshService.subscribe((newTokens: TokenInfo[]) => {
 			setTokens(newTokens);
-			console.log(`[TokenMonitoringPage] Updated tokens: ${newTokens.length} tokens`);
+			logger.debug(`[TokenMonitoringPage] Updated tokens: ${newTokens.length} tokens`);
 		});
 
 		// Also try to sync worker tokens if they exist
@@ -358,7 +359,7 @@ export const TokenMonitoringPage: React.FC = () => {
 
 		// Add a delay and try again to ensure worker token is picked up
 		setTimeout(() => {
-			console.log('[TokenMonitoringPage] Attempting second worker token sync...');
+			logger.debug('[TokenMonitoringPage] Attempting second worker token sync...');
 			freshService.manualSyncWorkerToken();
 		}, 1000);
 
@@ -373,7 +374,7 @@ export const TokenMonitoringPage: React.FC = () => {
 			setMessage('Token refreshed successfully');
 			setMessageType('success');
 		} catch (error) {
-			console.error('Failed to refresh token:', error);
+			logger.error('Failed to refresh token:', error);
 			setMessage('Failed to refresh token');
 			setMessageType('error');
 		}
@@ -420,7 +421,7 @@ export const TokenMonitoringPage: React.FC = () => {
 			setMessageType('success');
 			setShowRevocationOptions(null);
 		} catch (error) {
-			console.error('Failed to revoke token:', error);
+			logger.error('Failed to revoke token:', error);
 			setMessage('Failed to revoke token');
 			setMessageType('error');
 		}
@@ -433,7 +434,7 @@ export const TokenMonitoringPage: React.FC = () => {
 			setMessage('Token introspection completed');
 			setMessageType('success');
 		} catch (error) {
-			console.error('Failed to introspect token:', error);
+			logger.error('Failed to introspect token:', error);
 			setMessage('Failed to introspect token');
 			setMessageType('error');
 		}
@@ -483,11 +484,11 @@ export const TokenMonitoringPage: React.FC = () => {
 
 	const handleRefreshWorkerToken = async () => {
 		try {
-			console.log('🔧 [TokenMonitoringPage] Refreshing worker token with optimized service...');
+			logger.debug('🔧 [TokenMonitoringPage] Refreshing worker token with optimized service...');
 
 			// Use the optimized unified worker token service V2
 			const status = await unifiedWorkerTokenServiceV2.getStatus();
-			console.log('🔧 [TokenMonitoringPage] Current status:', status);
+			logger.debug('🔧 [TokenMonitoringPage] Current status:', status);
 
 			if (!status.hasCredentials) {
 				setMessage('No worker token credentials found. Please configure worker token first.');
@@ -502,7 +503,7 @@ export const TokenMonitoringPage: React.FC = () => {
 			setMessage('Worker token cleared. Please re-authenticate to get a new token.');
 			setMessageType('info');
 		} catch (error) {
-			console.error('Failed to refresh worker token:', error);
+			logger.error('Failed to refresh worker token:', error);
 			setMessage('Failed to refresh worker token');
 			setMessageType('error');
 		}
@@ -510,7 +511,7 @@ export const TokenMonitoringPage: React.FC = () => {
 
 	const handleGetWorkerToken = async () => {
 		try {
-			console.log('🔧 [TokenMonitoringPage] Opening V8 worker token modal...');
+			logger.debug('🔧 [TokenMonitoringPage] Opening V8 worker token modal...');
 
 			// Open V8 worker token modal directly
 			setShowWorkerTokenModal(true);
@@ -518,7 +519,7 @@ export const TokenMonitoringPage: React.FC = () => {
 			setMessage('Opening V8 worker token configuration...');
 			setMessageType('info');
 		} catch (error) {
-			console.error('❌ [TokenMonitoringPage] Failed to open worker token modal:', error);
+			logger.error('❌ [TokenMonitoringPage] Failed to open worker token modal:', error);
 			setMessage('Failed to open worker token modal');
 			setMessageType('error');
 		}
@@ -526,12 +527,12 @@ export const TokenMonitoringPage: React.FC = () => {
 
 	const handleImplicitLogin = async () => {
 		try {
-			console.log('🔧 [TokenMonitoringPage] Starting unified implicit flow...');
+			logger.debug('🔧 [TokenMonitoringPage] Starting unified implicit flow...');
 
 			// Navigate to unified implicit flow instead of old implicit flow
 			window.location.href = '/v8u/unified/implicit';
 		} catch (error) {
-			console.error('❌ [TokenMonitoringPage] Failed to start implicit login:', error);
+			logger.error('❌ [TokenMonitoringPage] Failed to start implicit login:', error);
 			setMessage('Failed to start implicit login');
 			setMessageType('error');
 		}
@@ -547,7 +548,7 @@ export const TokenMonitoringPage: React.FC = () => {
 	};
 
 	// Debug logging
-	console.log(`[TokenMonitoringPage] Render state:`, {
+	logger.debug(`[TokenMonitoringPage] Render state:`, {
 		tokensCount: tokens.length,
 		tokens: tokens.map((t) => ({ id: t.id, type: t.type, status: t.status })),
 		stats,
@@ -864,14 +865,14 @@ export const TokenMonitoringPage: React.FC = () => {
 			<WorkerTokenModalV8
 				isOpen={showWorkerTokenModal}
 				onClose={() => {
-					console.log('[TokenMonitoringPage] V8 WorkerTokenModal closed');
+					logger.debug('[TokenMonitoringPage] V8 WorkerTokenModal closed');
 					setShowWorkerTokenModal(false);
 					// Force a sync to update the display
 					const service = TokenMonitoringService.getInstance();
 					service.manualSyncWorkerToken();
 				}}
 				onTokenGenerated={() => {
-					console.log('[TokenMonitoringPage] V8 WorkerTokenModal token generated');
+					logger.debug('[TokenMonitoringPage] V8 WorkerTokenModal token generated');
 					setShowWorkerTokenModal(false);
 					// Force a sync to update the display
 					const service = TokenMonitoringService.getInstance();
