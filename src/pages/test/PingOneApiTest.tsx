@@ -5,9 +5,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ClientCredentialManager from '../../components/ClientCredentialManager';
-import { WorkerTokenModal } from '../../components/WorkerTokenModal';
+import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
-import { useWorkerTokenState } from '../../services/workerTokenUIService';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
 // Test Configuration Interface
 interface TestConfig {
@@ -198,11 +198,9 @@ const CodeBlock = styled.pre`
 
 const PingOneApiTest: React.FC = () => {
 	const { apps, selectedAppId, selectApp, getActiveAppConfig } = useCredentialStoreV8();
-	const {
-		hasValidToken: hasWorkerToken,
-		showWorkerTokenModal,
-		setShowWorkerTokenModal,
-	} = useWorkerTokenState();
+
+	// Get worker token status from unified service
+	const hasWorkerToken = unifiedWorkerTokenService.hasValidToken();
 
 	const [config, setConfig] = useState<TestConfig>({
 		environmentId: '',
@@ -746,14 +744,9 @@ const PingOneApiTest: React.FC = () => {
 					Test real PingOne OAuth 2.0 and OpenID Connect API calls for Authorization Code and
 					Implicit flows
 				</Subtitle>
-				<ButtonGroup style={{ marginTop: '1rem' }}>
-					<Button
-						variant={hasWorkerToken ? 'secondary' : 'primary'}
-						onClick={() => setShowWorkerTokenModal(true)}
-					>
-						{hasWorkerToken ? '✓ Worker Token Set' : 'Set Worker Token'}
-					</Button>
-				</ButtonGroup>
+				<div style={{ marginTop: '1rem' }}>
+					<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
+				</div>
 			</Header>
 
 			<TestSection>
@@ -941,12 +934,6 @@ const PingOneApiTest: React.FC = () => {
 					</div>
 				)}
 			</ResultsContainer>
-
-			<WorkerTokenModal
-				isOpen={showWorkerTokenModal}
-				onClose={() => setShowWorkerTokenModal(false)}
-				onContinue={() => setShowWorkerTokenModal(false)}
-			/>
 		</Container>
 	);
 };
