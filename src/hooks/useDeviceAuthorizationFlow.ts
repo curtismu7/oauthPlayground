@@ -147,11 +147,25 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			return;
 		}
 
+		// Stop countdown if authorization is completed (tokens received)
+		if (tokens) {
+			console.log(`${LOG_PREFIX} [INFO] Authorization completed - stopping countdown timer`);
+			setTimeRemaining(0);
+			return;
+		}
+
 		let hasExpired = false; // Flag to prevent multiple expiration calls
 
 		const interval = setInterval(() => {
 			const remaining = Math.max(0, expiresAt - Date.now());
 			setTimeRemaining(remaining);
+
+			// Stop if tokens are received during countdown
+			if (tokens) {
+				console.log(`${LOG_PREFIX} [INFO] Authorization completed during countdown - stopping timer`);
+				setTimeRemaining(0);
+				return;
+			}
 
 			if (remaining === 0 && !hasExpired) {
 				hasExpired = true; // Set flag to prevent multiple calls
@@ -167,7 +181,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		}, 1000);
 
 		return () => clearInterval(interval);
-	}, [expiresAt, stopPolling]);
+	}, [expiresAt, tokens, stopPolling]);
 
 	// Format time remaining as MM:SS
 	const formatTimeRemaining = useCallback((ms: number): string => {
