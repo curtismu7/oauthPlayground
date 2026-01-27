@@ -8,8 +8,6 @@
 
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
-const _MODULE_TAG = '[🔑 WORKER-TOKEN-STATUS-V8]';
-
 export type TokenStatus = 'valid' | 'expiring-soon' | 'expired' | 'missing';
 
 export interface TokenStatusInfo {
@@ -47,19 +45,10 @@ export const formatTimeRemaining = (expiresAt: number): string => {
  * Uses workerTokenServiceV8 as the single source of truth for worker token storage
  */
 export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
-	if (process.env.NODE_ENV === 'development') {
-		console.log(`${_MODULE_TAG} 🔍 Checking worker token status using unified service`);
-	}
-
 	try {
 		// Use the unified worker token service
 		const status = await unifiedWorkerTokenService.getStatus();
 		const token = await unifiedWorkerTokenService.getToken();
-
-		if (process.env.NODE_ENV === 'development') {
-			console.log(`${_MODULE_TAG} 🔍 Unified service status:`, status);
-			console.log(`${_MODULE_TAG} 🔍 Token available:`, !!token);
-		}
 
 		if (!status.hasCredentials) {
 			return {
@@ -136,7 +125,7 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 		}
 		return result;
 	} catch (error) {
-		console.error(`${_MODULE_TAG} ❌ Error checking worker token status:`, error);
+		console.error('Error checking worker token status:', error);
 		return {
 			status: 'missing',
 			message: 'Error checking worker token status.',
@@ -150,10 +139,6 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
  * Uses memory cache only - may be stale but is fast
  */
 export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
-	if (process.env.NODE_ENV === 'development') {
-		console.log(`${_MODULE_TAG} 🔍 Checking worker token status (sync) using memory cache`);
-	}
-
 	try {
 		// Quick synchronous check using localStorage only
 		const stored = localStorage.getItem('unified_worker_token');
@@ -200,7 +185,7 @@ export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 			token: data.token,
 		};
 	} catch (error) {
-		console.error(`${_MODULE_TAG} ❌ Error checking worker token status (sync):`, error);
+		console.error('Error checking worker token status (sync):', error);
 		return {
 			status: 'missing',
 			message: 'Error checking worker token status.',
