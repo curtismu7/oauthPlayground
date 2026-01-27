@@ -8997,7 +8997,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					
 
 					if (tokens) {
-						// Success! Tokens received
+						// Success! Tokens received - STOP POLLING IMMEDIATELY
+						pollingAbortRef.current = true; // CRITICAL: Stop the polling loop!
+						
+						// Clear any pending timeouts
+						if (pollingTimeoutRef.current) {
+							clearTimeout(pollingTimeoutRef.current);
+							pollingTimeoutRef.current = null;
+						}
+						
 						console.log(`${MODULE_TAG} 🎉 AUTHORIZATION COMPLETE! Tokens received:`, {
 							hasAccessToken: !!tokens.access_token,
 							hasIdToken: !!tokens.id_token,
