@@ -148,8 +148,8 @@ const createPopOutWindow = (
 	</style>
 </head>
 <body>
-	<div id="api-display-root"></div>
-	<script>
+		<div id="root"></div>
+		<script>
 		(function() {
 			let currentApiCalls = ${JSON.stringify(apiCalls)};
 			let currentFontSize = ${fontSize};
@@ -548,6 +548,12 @@ const createPopOutWindow = (
 			console.log('Processed calls available:', !!window.processedCalls);
 			console.log('Processed calls count:', window.processedCalls?.length || 0);
 
+			// Fallback: Use inline data if window.processedCalls is not available
+			if (!window.processedCalls) {
+				console.log('No processed calls found, using fallback data');
+				window.processedCalls = [];
+			}
+
 			// Initial render
 			render();
 		})();
@@ -555,12 +561,12 @@ const createPopOutWindow = (
 </body>
 </html>`;
 
-	newWindow.document.write(html);
-	newWindow.document.close();
-
-	// Pass the processed data to the popout window
+	// Pass the processed data to the popout window BEFORE writing HTML
 	(newWindow as any).processedCalls = processedCalls;
 	console.log('Popout window created with processed calls:', processedCalls.length);
+
+	newWindow.document.write(html);
+	newWindow.document.close();
 
 	return newWindow;
 };
