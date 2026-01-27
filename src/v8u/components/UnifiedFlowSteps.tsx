@@ -9148,7 +9148,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 		// Check if tokens were already received
 		const hasTokens = !!flowState.tokens?.accessToken;
-		const isComplete = hasTokens && completedSteps.includes(currentStep);
+		const isComplete = hasTokens; // Show success when tokens are present, regardless of step completion status
 
 		return (
 			<div className="step-content">
