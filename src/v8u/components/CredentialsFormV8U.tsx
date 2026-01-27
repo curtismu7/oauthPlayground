@@ -499,7 +499,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const [hasDiscoveredApps, setHasDiscoveredApps] = useState(false);
 	const [highlightEmptyFields, setHighlightEmptyFields] = useState(false);
 	const [tokenStatus, setTokenStatus] = useState(() =>
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
 	);
 	
 	// Worker Token Settings
@@ -864,7 +864,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	// Check token status and listen for updates
 	useEffect(() => {
 		const checkStatus = () => {
-			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 			console.log(`${MODULE_TAG} Token status updated`, status);
 			console.log(`${MODULE_TAG} Raw token status check:`, {
 				isValid: status.isValid,
