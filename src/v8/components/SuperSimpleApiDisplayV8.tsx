@@ -61,6 +61,26 @@ const createPopOutWindow = (
 
 	if (!newWindow) return null;
 
+	// Helper function for API type icons
+	const getApiTypeIcon = (call: { url?: string; actualPingOneUrl?: string; isProxy?: boolean }) => {
+		const url = call.url || '';
+		const isProxy = call.isProxy || (call.actualPingOneUrl && url.includes('/pingone-auth/'));
+		
+		if (isProxy) {
+			return { icon: '🔗', label: 'PingOne API (Proxy)' };
+		}
+		
+		if (url.includes('/pingone-auth/')) {
+			return { icon: '🔐', label: 'PingOne Auth API' };
+		}
+		
+		if (url.includes('/pingone/')) {
+			return { icon: '⚡', label: 'PingOne API' };
+		}
+		
+		return { icon: '🌐', label: 'External API' };
+	};
+
 	// Pre-process the data to avoid complex JavaScript in HTML
 	const processedCalls = apiCalls.map(call => {
 		const status = call.response?.status || 0;
