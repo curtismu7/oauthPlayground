@@ -141,12 +141,6 @@ export class MfaAuthenticationServiceV8 {
 	static async initializeDeviceAuthentication(
 		params: DeviceAuthenticationInitParams
 	): Promise<DeviceAuthenticationResponse> {
-		console.log(`${MODULE_TAG} Initializing device authentication`, {
-			username: params.username,
-			policyId: params.deviceAuthenticationPolicyId,
-			deviceId: params.deviceId,
-		});
-
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
 
@@ -159,10 +153,6 @@ export class MfaAuthenticationServiceV8 {
 						params.environmentId,
 						params.deviceAuthenticationPolicyId
 					);
-					console.log(`${MODULE_TAG} Policy loaded for lock verification check:`, {
-						policyId: params.deviceAuthenticationPolicyId,
-						skipUserLockVerification: policy.skipUserLockVerification,
-					});
 				} catch (error) {
 					console.warn(
 						`${MODULE_TAG} Failed to read policy for lock verification, continuing:`,
@@ -448,13 +438,6 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const data = responseData as DeviceAuthenticationResponse;
-			console.log(`${MODULE_TAG} Device authentication initialized`, {
-				authenticationId: data.id,
-				status: data.status,
-				nextStep: data.nextStep,
-				hasLinks: !!data._links,
-			});
-
 			return data;
 		} catch (error) {
 			const parsed = UnifiedFlowErrorHandler.handleError(
@@ -485,14 +468,6 @@ export class MfaAuthenticationServiceV8 {
 	static async initializeOneTimeDeviceAuthentication(
 		params: OneTimeDeviceAuthenticationParams
 	): Promise<DeviceAuthenticationResponse> {
-		console.log(`${MODULE_TAG} Initializing one-time device authentication (Phase 2)`, {
-			username: params.username,
-			policyId: params.deviceAuthenticationPolicyId,
-			type: params.type,
-			hasEmail: !!params.email,
-			hasPhone: !!params.phone,
-		});
-
 		// Validate required fields based on type
 		if (params.type === 'EMAIL' && !params.email) {
 			throw new Error('Email is required for EMAIL type one-time device authentication');
@@ -594,13 +569,6 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const data = responseData as DeviceAuthenticationResponse;
-			console.log(`${MODULE_TAG} One-time device authentication initialized`, {
-				authenticationId: data.id,
-				status: data.status,
-				nextStep: data.nextStep,
-				hasLinks: !!data._links,
-			});
-
 			return data;
 		} catch (error) {
 			const parsed = UnifiedFlowErrorHandler.handleError(
@@ -636,11 +604,6 @@ export class MfaAuthenticationServiceV8 {
 			customDomain?: string;
 		}
 	): Promise<DeviceAuthenticationResponse> {
-		console.log(`${MODULE_TAG} Reading device authentication status`, {
-			authenticationId,
-			isUserId: options?.isUserId,
-		});
-
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
 
@@ -734,11 +697,6 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const data = responseData as DeviceAuthenticationResponse;
-			console.log(`${MODULE_TAG} Device authentication status read`, {
-				status: data.status,
-				nextStep: data.nextStep,
-			});
-
 			return data;
 		} catch (error) {
 			const parsed = UnifiedFlowErrorHandler.handleError(
@@ -770,16 +728,6 @@ export class MfaAuthenticationServiceV8 {
 		params: DeviceSelectionParams,
 		options?: { stepName?: string }
 	): Promise<DeviceAuthenticationResponse> {
-		console.log(`${MODULE_TAG} Selecting device for authentication`, {
-			authenticationId: params.authenticationId,
-			deviceId: params.deviceId,
-			username: params.username,
-			userId: params.userId,
-			environmentId: params.environmentId,
-			region: params.region,
-			customDomain: params.customDomain,
-		});
-
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
 
@@ -789,10 +737,6 @@ export class MfaAuthenticationServiceV8 {
 				const { MFAServiceV8 } = await import('./mfaServiceV8');
 				const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 				userId = user.id as string;
-				console.log(`${MODULE_TAG} Looked up userId for username:`, {
-					username: params.username,
-					userId,
-				});
 			}
 
 			if (!userId) {
@@ -827,12 +771,6 @@ export class MfaAuthenticationServiceV8 {
 							| Array<{ id: string; type?: string; nickname?: string }>
 							| undefined) ||
 						[];
-
-					console.log(`${MODULE_TAG} Validating device selection:`, {
-						selectedDeviceId: params.deviceId,
-						allowedDeviceIds: allowedDevices.map((d) => d.id),
-						allowedDeviceCount: allowedDevices.length,
-					});
 
 					// Check if selected device is in the allowed list
 					const isDeviceAllowed = allowedDevices.some((device) => device.id === params.deviceId);
@@ -918,15 +856,6 @@ export class MfaAuthenticationServiceV8 {
 				},
 				step: options?.stepName || 'mfa-Select Device for Authentication',
 				flowType: 'mfa',
-			});
-
-			// Log request details for debugging
-			console.log(`${MODULE_TAG} Sending device selection request:`, {
-				url: '/api/pingone/mfa/select-device',
-				requestBody: {
-					...requestBody,
-					workerToken: cleanToken ? `${cleanToken.substring(0, 20)}...` : 'MISSING',
-				},
 			});
 
 			const response = await pingOneFetch('/api/pingone/mfa/select-device', {
@@ -1141,15 +1070,6 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const result = responseData as Partial<DeviceAuthenticationResponse>;
-			// PingOne response may include selectedDevice object with id property
-			const selectedDeviceId = (result as { selectedDevice?: { id?: string } })?.selectedDevice?.id;
-			console.log(`${MODULE_TAG} Device selected for authentication`, {
-				status: result.status,
-				nextStep: result.nextStep,
-				selectedDeviceId: selectedDeviceId || 'not in response',
-				requestedDeviceId: params.deviceId,
-			});
-
 			// Ensure required fields exist
 			if (!result.id || !result.status) {
 				throw new Error('Invalid response from device selection API: missing required fields');
@@ -1209,16 +1129,6 @@ export class MfaAuthenticationServiceV8 {
 		const timeRemainingSeconds = Math.floor(timeRemaining / 1000);
 		const isAboutToExpire = tokenExpiry && timeRemaining <= renewalThreshold * 1000;
 		const needsRenewal = !workerToken || isExpired || isAboutToExpire;
-
-		console.log(`${MODULE_TAG} Worker token check:`, {
-			hasToken: !!workerToken,
-			timeRemainingSeconds,
-			renewalThreshold,
-			isExpired,
-			isAboutToExpire,
-			needsRenewal,
-			autoRenewalEnabled,
-		});
 
 		if (needsRenewal) {
 			if (!autoRenewalEnabled) {
@@ -1386,11 +1296,6 @@ export class MfaAuthenticationServiceV8 {
 	}
 
 	static async validateOTP(params: OTPValidationParams): Promise<OTPValidationResult> {
-		console.log(`${MODULE_TAG} Validating OTP`, {
-			authenticationId: params.authenticationId,
-			hasOtpCheckUrl: !!params.otpCheckUrl,
-		});
-
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
 

@@ -3853,6 +3853,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						border: '2px solid #3b82f6',
 					}}
 				>
+					{/* TEST: Device selection section rendering */}
+					<div style={{background: 'green', color: 'white', padding: '10px', margin: '0 0 20px 0'}}>
+						🔥 DEVICE SELECTION SECTION IS RENDERING! Found {authState.devices.length} devices
+					</div>
 					<h2
 						style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}
 					>
