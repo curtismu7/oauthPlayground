@@ -170,25 +170,47 @@ export const CollapsibleSectionV8: React.FC<CollapsibleSectionProps> = ({
 				</div>
 
 				{/* Chevron indicator */}
-				<svg
-					width="20"
-					height="20"
-					viewBox="0 0 20 20"
-					fill="none"
-					xmlns="http://www.w3.org/2000/svg"
+				<div
 					style={{
-						transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-						transition: 'transform 0.3s ease',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						width: '32px',
+						height: '32px',
+						backgroundColor: '#3b82f6',
+						borderRadius: '6px',
+						border: '1px solid #2563eb',
+						transition: 'all 0.2s ease',
+					}}
+					onMouseEnter={(e) => {
+						e.currentTarget.style.backgroundColor = '#2563eb';
+						e.currentTarget.style.transform = 'scale(1.05)';
+					}}
+					onMouseLeave={(e) => {
+						e.currentTarget.style.backgroundColor = '#3b82f6';
+						e.currentTarget.style.transform = 'scale(1)';
 					}}
 				>
-					<path
-						d="M5 7.5L10 12.5L15 7.5"
-						stroke="#64748b"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					/>
-				</svg>
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 20 20"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+						style={{
+							transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+							transition: 'transform 0.3s ease',
+						}}
+					>
+						<path
+							d="M5 7.5L10 12.5L15 7.5"
+							stroke="#ffffff"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						/>
+					</svg>
+				</div>
 			</div>
 
 			{/* Content */}
