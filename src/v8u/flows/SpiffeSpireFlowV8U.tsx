@@ -722,7 +722,7 @@ const generatePingOneToken = (svid: SVID, environmentId: string): PingOneToken =
 };
 
 export const SpiffeSpireFlowV8U: React.FC = () => {
-	logger.debug(Initializing SPIFFE/SPIRE mock flow`);
+	logger.debug(`Initializing SPIFFE/SPIRE mock flow`);
 	const navigate = useNavigate();
 
 	// State
