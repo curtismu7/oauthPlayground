@@ -10,6 +10,7 @@ import React from 'react';
 import { PKCECodes, PKCEService } from '../../../services/pkceService';
 import { useUnifiedFlowStore } from '../../services/UnifiedFlowStateManager';
 import { BaseUnifiedStep } from './BaseUnifiedStep';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 export const PKCEStep: React.FC<{ isCompleted?: boolean; isActive?: boolean }> = ({
 	isCompleted = false,
@@ -24,7 +25,7 @@ export const PKCEStep: React.FC<{ isCompleted?: boolean; isActive?: boolean }> =
 			setPKCECodes(codes.codeVerifier, codes.codeChallenge, codes.codeChallengeMethod);
 			setLocalPKCECodes(codes);
 		} catch (error) {
-			console.error('Failed to generate PKCE codes:', error);
+			logger.error('Failed to generate PKCE codes:', error);
 		}
 	};
 
