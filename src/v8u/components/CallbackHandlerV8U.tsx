@@ -57,15 +57,15 @@ export const CallbackHandlerV8U: React.FC = () => {
 			});
 			// #endregion
 
-			logger.debug(✅ User login callback detected - redirecting back to MFA flow`);
-			logger.debug(🔍 DEBUG: Current URL:`, window.location.href);
-			logger.debug(🔍 DEBUG: Current pathname:`, window.location.pathname);
-			logger.debug(🔍 DEBUG: Current search:`, window.location.search);
+			logger.debug(`✅ User login callback detected - redirecting back to MFA flow`);
+			logger.debug(`🔍 DEBUG: Current URL:`, window.location.href);
+			logger.debug(`🔍 DEBUG: Current pathname:`, window.location.pathname);
+			logger.debug(`🔍 DEBUG: Current search:`, window.location.search);
 
 			// DEBUG: Log all sessionStorage keys to help diagnose cache issues
 			const allKeys = Object.keys(sessionStorage);
-			logger.debug(🔍 DEBUG: All sessionStorage keys (${allKeys.length}):`, allKeys);
-			logger.debug(🔍 DEBUG: Checking for user_login_return_to_mfa...`);
+			logger.debug(`🔍 DEBUG: All sessionStorage keys (${allKeys.length}):`, allKeys);
+			logger.debug(`🔍 DEBUG: Checking for user_login_return_to_mfa...`);
 
 			// Check if we have a stored return path
 			const returnToMfaFlow = sessionStorage.getItem('user_login_return_to_mfa');
@@ -82,28 +82,23 @@ export const CallbackHandlerV8U: React.FC = () => {
 			});
 			// #endregion
 
-			logger.debug(🔍 DEBUG: Return path value:`, returnToMfaFlow);
-			logger.debug(🔍 DEBUG: Return path type:`, typeof returnToMfaFlow);
-			logger.debug(🔍 DEBUG: Return path exists:`, !!returnToMfaFlow);
+			logger.debug(`🔍 DEBUG: Return path value:`, returnToMfaFlow);
+			logger.debug(`🔍 DEBUG: Return path type:`, typeof returnToMfaFlow);
+			logger.debug(`🔍 DEBUG: Return path exists:`, !!returnToMfaFlow);
 
 			// DEBUG: Check for other related keys
-			logger.debug(🔍 DEBUG: user_login_state_v8:`,
-				sessionStorage.getItem('user_login_state_v8') ? 'EXISTS' : 'MISSING'
-			);
-			logger.debug(🔍 DEBUG: user_login_redirect_uri_v8:`,
-				sessionStorage.getItem('user_login_redirect_uri_v8')
-			);
+			logger.debug(`🔍 DEBUG: user_login_state_v8:`, sessionStorage.getItem('user_login_state_v8') ? 'EXISTS' : 'MISSING');
+			logger.debug(`🔍 DEBUG: user_login_redirect_uri_v8:`, sessionStorage.getItem('user_login_redirect_uri_v8'));
 
 			if (returnToMfaFlow) {
 				try {
 					// Path is stored as a plain string (no JSON parsing needed)
 					const mfaPath = returnToMfaFlow.trim();
-					logger.debug(✅ Found stored return path: ${mfaPath}`);
+					logger.debug(`✅ Found stored return path: ${mfaPath}`);
 
 					// Validate that the path looks correct
 					if (!mfaPath.startsWith('/v8/mfa')) {
-						logger.error(❌ Invalid return path (doesn't start with /v8/mfa): ${mfaPath}`
-						);
+						logger.error(`❌ Invalid path - doesn't start with /v8/mfa:`, mfaPath);
 						throw new Error(`Invalid return path: ${mfaPath}`);
 					}
 
@@ -120,9 +115,8 @@ export const CallbackHandlerV8U: React.FC = () => {
 					// Use absolute URL to ensure redirect works reliably
 					const redirectUrl = `${window.location.origin}${redirectPath}`;
 
-					logger.debug(🚀 Redirecting to MFA flow: ${redirectUrl}`);
-					logger.debug(✅ Set mfa_oauth_callback_return marker for state restoration`
-					);
+					logger.debug(`🚀 Redirecting to MFA flow:`, { redirectUrl });
+					logger.debug(`✅ Set mfa_oauth_callback_return marker for state restoration`);
 
 					// #region agent log
 					sendAnalyticsLog({
@@ -171,34 +165,32 @@ export const CallbackHandlerV8U: React.FC = () => {
 							hypothesisId: 'B',
 						});
 						// #endregion
-						logger.error(❌ CRITICAL: window.location.replace did not navigate - still on page after redirect attempt`
-						);
+						logger.error(`❌ CRITICAL: window.location.replace did not navigate - still on page after redirect attempt`);
 					}, 100);
 
 					return; // CRITICAL: Exit early to prevent unified flow logic
 				} catch (error) {
-					logger.error(❌ Failed to process return path:`, error);
-					logger.error(❌ Return path value that failed:`, returnToMfaFlow);
+					logger.error(`❌ Failed to process return path:`, error);
+					logger.debug(`⚠️ Return path value that failed:`, returnToMfaFlow);
 					// Fall through to MFA hub redirect
 				}
 			}
 
 			// If no return path, redirect to MFA hub as fallback
-			logger.warn(⚠️ No return path found in sessionStorage!`);
-			logger.warn(⚠️ This might indicate a cache issue or the return path was cleared prematurely.`
-			);
-			logger.warn(⚠️ Redirecting to MFA hub as fallback`);
+			logger.warn(`⚠️ No return path found in sessionStorage!`);
+			logger.error(`⚠️ This might indicate a cache issue or the path 'user_login_return_to_mfa' was cleared prematurely`);
+			logger.warn(`⚠️ Redirecting to MFA hub as fallback`);
 			const callbackParams = new URLSearchParams(window.location.search);
 			const redirectUrl = callbackParams.toString()
 				? `/v8/mfa-hub?${callbackParams.toString()}`
 				: '/v8/mfa-hub';
-			logger.debug(🚀 Redirecting to MFA hub: ${redirectUrl}`);
+			logger.debug(`✅ Redirecting to MFA hub:`, { redirectUrl });
 			window.location.replace(redirectUrl);
 			return; // CRITICAL: Exit early to prevent unified flow logic
 		}
 
 		// If we reach here, this is NOT a user-login-callback, continue with unified flow logic
-		logger.debug(Not a user-login-callback, proceeding with unified flow logic`);
+		logger.debug(`Not a user-login-callback, proceeding with unified flow logic`);
 
 		// Check for both query parameters (authorization code flow) and fragment (implicit/hybrid flow)
 		const fragment = window.location.hash.substring(1);
