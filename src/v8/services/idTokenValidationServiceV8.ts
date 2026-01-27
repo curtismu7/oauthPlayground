@@ -189,7 +189,13 @@ export class IDTokenValidationServiceV8 {
 			// Step 4: Verify signature
 			try {
 				const { importJWK } = await import('jose');
-				const publicKey = await importJWK(signingKey as JWK);
+				
+				// Validate that signingKey has required JWK properties before type assertion
+				if (!signingKey || typeof signingKey !== 'object' || !('kty' in signingKey)) {
+					throw new Error('Invalid signing key: missing required JWK properties');
+				}
+				
+				const publicKey = await importJWK(signingKey as Record<string, unknown>);
 				await jwtVerify(idToken, publicKey);
 				validationDetails.signatureVerified = true;
 				console.log(`${MODULE_TAG} ✅ Signature verified`);
