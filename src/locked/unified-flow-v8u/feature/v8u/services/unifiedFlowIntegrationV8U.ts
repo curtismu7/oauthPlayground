@@ -240,7 +240,7 @@ export class UnifiedFlowIntegrationV8U {
 			// Parse the generated URL to extract the redirect_uri that was actually used
 			const generatedUrl = new URL(result.authorizationUrl);
 			const redirectUriFromUrl = generatedUrl.searchParams.get('redirect_uri') || '';
-			
+
 			console.log(`${MODULE_TAG} Using redirect_uri from generated URL:`, {
 				redirectUriFromUrl,
 				redirectUriToUse,
@@ -250,7 +250,7 @@ export class UnifiedFlowIntegrationV8U {
 
 			// Prefix state with flow type for callback routing
 			const prefixedState = `v8u-implicit-${result.state}`;
-			
+
 			// Rebuild URL using ALL params from generated URL, then update only state
 			// This preserves the exact redirect_uri and all other params from the generated URL
 			const authorizationEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
@@ -1065,7 +1065,9 @@ export class UnifiedFlowIntegrationV8U {
 				scopes: oauthCredentials.scopes,
 				hasClientSecret: !!oauthCredentials.clientSecret,
 				clientAuthMethod: oauthCredentials.clientAuthMethod,
-				authMethodSource: credentials.clientAuthMethod ? 'from credentials' : 'default (client_secret_post)',
+				authMethodSource: credentials.clientAuthMethod
+					? 'from credentials'
+					: 'default (client_secret_post)',
 			});
 
 			console.log(`${MODULE_TAG} 🚀 Calling OAuthIntegrationServiceV8.exchangeCodeForTokens...`);

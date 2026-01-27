@@ -20,31 +20,31 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { 
-	FiSmartphone, 
-	FiMail, 
-	FiMessageSquare, 
-	FiVoicemail, 
-	FiShield, 
-	FiLock, 
-	FiUnlock, 
-	FiEdit2, 
-	FiTrash2, 
-	FiChevronDown, 
+import {
+	FiCheck,
+	FiChevronDown,
 	FiChevronUp,
-	FiRefreshCw,
 	FiCopy,
+	FiCrown,
+	FiEdit2,
 	FiEye,
 	FiEyeOff,
-	FiCheck,
+	FiInfo,
+	FiLock,
+	FiMail,
+	FiMessageSquare,
+	FiRefreshCw,
+	FiShield,
+	FiSmartphone,
+	FiTrash2,
+	FiUnlock,
+	FiVoicemail,
 	FiX,
-	FiCrown,
-	FiInfo
 } from 'react-icons/fi';
-import { ButtonSpinner, SmallSpinner } from '../../components/ui';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { ButtonSpinner, SmallSpinner } from '../../components/ui';
 
 const MODULE_TAG = '[🔧 DEVICE-MANAGER-V8]';
 
@@ -430,13 +430,13 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 
 			// For admin activation, we can directly activate the device without OTP
 			// This uses the worker token which has admin privileges
-			const device = devices.find(d => d.id === deviceId);
+			const device = devices.find((d) => d.id === deviceId);
 			if (!device) {
 				throw new Error('Device not found');
 			}
 
 			let activationResult;
-			
+
 			// Use appropriate activation method based on device type
 			if (device.type === 'TOTP') {
 				// For TOTP devices, we can activate them directly with admin privileges
@@ -1158,9 +1158,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 												fontSize: '13px',
 												fontWeight: '500',
 												cursor:
-													isProcessing || lock?.status !== 'LOCKED'
-														? 'not-allowed'
-														: 'pointer',
+													isProcessing || lock?.status !== 'LOCKED' ? 'not-allowed' : 'pointer',
 												opacity: isProcessing || lock?.status !== 'LOCKED' ? 0.5 : 1,
 												transition: 'all 0.3s ease',
 											}}
@@ -1222,7 +1220,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 										<ButtonSpinner
 											loading={isProcessing}
 											onClick={() => handleUnblock(device.id)}
-											disabled={(block?.status !== 'BLOCKED' && device.status !== 'BLOCKED')}
+											disabled={block?.status !== 'BLOCKED' && device.status !== 'BLOCKED'}
 											spinnerSize={16}
 											spinnerPosition="left"
 											loadingText="Unblocking..."
@@ -1274,10 +1272,10 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 												loadingText="Activating..."
 												style={{
 													padding: '8px 16px',
-													background: isProcessing 
-														? '#9ca3af' 
-														: wasRecentlyChanged 
-															? '#8b5cf6' 
+													background: isProcessing
+														? '#9ca3af'
+														: wasRecentlyChanged
+															? '#8b5cf6'
 															: '#8b5cf6',
 													color: 'white',
 													border: 'none',

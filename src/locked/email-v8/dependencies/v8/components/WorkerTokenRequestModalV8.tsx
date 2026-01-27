@@ -231,7 +231,9 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 									onClick={async () => {
 										if (generatedToken) {
 											try {
-												const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+												const { workerTokenServiceV8 } = await import(
+													'@/v8/services/workerTokenServiceV8'
+												);
 												await workerTokenServiceV8.saveToken(generatedToken);
 												const { toastV8 } = await import('@/v8/utils/toastNotificationsV8');
 												toastV8.success('Token saved successfully!');

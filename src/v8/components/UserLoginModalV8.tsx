@@ -13,7 +13,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiEye, FiEyeOff, FiInfo } from 'react-icons/fi';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
-import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
@@ -23,6 +22,7 @@ import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationService
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
 import {
 	type SessionInfo,
 	UserAuthenticationSuccessPageV8,
@@ -218,7 +218,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 	// Check for callback authorization code on mount and when URL changes
 	useEffect(() => {
-
 		// #region agent log
 		sendAnalyticsLog({
 			location: 'UserLoginModalV8.tsx:189',
@@ -367,17 +366,22 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						try {
 							const workerToken = await workerTokenServiceV8.getToken();
 							if (workerToken) {
-								console.log(`${MODULE_TAG} Fetching app config from PingOne before token exchange...`);
+								console.log(
+									`${MODULE_TAG} Fetching app config from PingOne before token exchange...`
+								);
 								const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 									credentials.environmentId,
 									credentials.clientId,
 									workerToken
 								);
-								
+
 								if (appConfig?.tokenEndpointAuthMethod) {
 									const pingOneAuthMethod = appConfig.tokenEndpointAuthMethod;
-									const currentAuthMethod = credentials.clientAuthMethod || credentials.tokenEndpointAuthMethod || 'client_secret_post';
-									
+									const currentAuthMethod =
+										credentials.clientAuthMethod ||
+										credentials.tokenEndpointAuthMethod ||
+										'client_secret_post';
+
 									if (currentAuthMethod !== pingOneAuthMethod) {
 										console.log(`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne:`, {
 											from: currentAuthMethod,
@@ -392,7 +396,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								}
 							}
 						} catch (configError) {
-							console.warn(`${MODULE_TAG} ⚠️ Failed to fetch app config (continuing with stored auth method):`, configError);
+							console.warn(
+								`${MODULE_TAG} ⚠️ Failed to fetch app config (continuing with stored auth method):`,
+								configError
+							);
 							// Continue with stored credentials - don't fail token exchange
 						}
 					}
@@ -676,17 +683,22 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							try {
 								const workerToken = await workerTokenServiceV8.getToken();
 								if (workerToken) {
-									console.log(`${MODULE_TAG} Fetching app config from PingOne before token exchange...`);
+									console.log(
+										`${MODULE_TAG} Fetching app config from PingOne before token exchange...`
+									);
 									const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 										credentials.environmentId,
 										credentials.clientId,
 										workerToken
 									);
-									
+
 									if (appConfig?.tokenEndpointAuthMethod) {
 										const pingOneAuthMethod = appConfig.tokenEndpointAuthMethod;
-										const currentAuthMethod = credentials.clientAuthMethod || credentials.tokenEndpointAuthMethod || 'client_secret_post';
-										
+										const currentAuthMethod =
+											credentials.clientAuthMethod ||
+											credentials.tokenEndpointAuthMethod ||
+											'client_secret_post';
+
 										if (currentAuthMethod !== pingOneAuthMethod) {
 											console.log(`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne:`, {
 												from: currentAuthMethod,
@@ -701,7 +713,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									}
 								}
 							} catch (configError) {
-								console.warn(`${MODULE_TAG} ⚠️ Failed to fetch app config (continuing with stored auth method):`, configError);
+								console.warn(
+									`${MODULE_TAG} ⚠️ Failed to fetch app config (continuing with stored auth method):`,
+									configError
+								);
 								// Continue with stored credentials - don't fail token exchange
 							}
 						}
@@ -1061,7 +1076,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	// This ensures the success page can render even if isOpen becomes false
 	// Show success page if authentication was successful
 	if (showSuccessPage && sessionInfo) {
-
 		return (
 			<div
 				style={{
@@ -1350,7 +1364,14 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 						{/* Client ID */}
 						<div>
-							<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
+									marginBottom: '6px',
+								}}
+							>
 								<label
 									htmlFor="user-login-client-id"
 									style={{
@@ -1378,35 +1399,47 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 											environmentId={environmentId}
 											onAppSelected={async (app: DiscoveredApp) => {
 												try {
-													console.log(`${MODULE_TAG} App selected:`, { appId: app.id, appName: app.name });
-												
+													console.log(`${MODULE_TAG} App selected:`, {
+														appId: app.id,
+														appName: app.name,
+													});
+
 													// Fetch the application with its client secret from PingOne API
 													let appWithSecret = app;
 													if (environmentId.trim()) {
 														try {
 															const workerToken = await workerTokenServiceV8.getToken();
 															if (workerToken) {
-																console.log(`${MODULE_TAG} Fetching application secret from PingOne API...`);
-																const fetchedApp = await AppDiscoveryServiceV8.fetchApplicationWithSecret(
-																	environmentId.trim(),
-																	app.id,
-																	workerToken
+																console.log(
+																	`${MODULE_TAG} Fetching application secret from PingOne API...`
 																);
+																const fetchedApp =
+																	await AppDiscoveryServiceV8.fetchApplicationWithSecret(
+																		environmentId.trim(),
+																		app.id,
+																		workerToken
+																	);
 																if (fetchedApp && fetchedApp.clientSecret) {
 																	appWithSecret = fetchedApp;
 																	toastV8.success('Application secret retrieved from PingOne');
 																}
 															}
 														} catch (error) {
-															console.warn(`${MODULE_TAG} Could not fetch app secret, continuing with app data:`, error);
+															console.warn(
+																`${MODULE_TAG} Could not fetch app secret, continuing with app data:`,
+																error
+															);
 														}
 													}
 
 													// Populate all fields from the selected app
 													setClientId(appWithSecret.id);
-													
+
 													// Set client secret if available
-													if (appWithSecret.clientSecret && typeof appWithSecret.clientSecret === 'string') {
+													if (
+														appWithSecret.clientSecret &&
+														typeof appWithSecret.clientSecret === 'string'
+													) {
 														setClientSecret(appWithSecret.clientSecret);
 													}
 
@@ -1440,30 +1473,30 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 													toastV8.error('Failed to load application details');
 												}
 											}}
-									/>
+										/>
 									</div>
 								)}
 							</div>
-						<input
-							id="user-login-client-id"
-							type="text"
-							value={clientId}
-							onChange={(e) => setClientId(e.target.value)}
-							placeholder="Your OAuth client ID"
-							style={{
-								width: '100%',
-								padding: '10px 12px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '14px',
-							}}
-						/>
-						<small
-							style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
-						>
-							OAuth client ID configured for Authorization Code Flow
-						</small>
-					</div>
+							<input
+								id="user-login-client-id"
+								type="text"
+								value={clientId}
+								onChange={(e) => setClientId(e.target.value)}
+								placeholder="Your OAuth client ID"
+								style={{
+									width: '100%',
+									padding: '10px 12px',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									fontSize: '14px',
+								}}
+							/>
+							<small
+								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
+							>
+								OAuth client ID configured for Authorization Code Flow
+							</small>
+						</div>
 
 						{/* Client Secret */}
 						<div>
@@ -1560,7 +1593,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							<small
 								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
 							>
-								{AuthMethodServiceV8.getMethodConfig(authMethod)?.description || 'Token endpoint authentication method'}
+								{AuthMethodServiceV8.getMethodConfig(authMethod)?.description ||
+									'Token endpoint authentication method'}
 							</small>
 						</div>
 

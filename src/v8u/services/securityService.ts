@@ -62,7 +62,7 @@ export class SecurityService {
 		}
 		const start = token.substring(0, visibleChars);
 		const end = token.substring(token.length - visibleChars);
-		const middle = '*'.repeat(token.length - (visibleChars * 2));
+		const middle = '*'.repeat(token.length - visibleChars * 2);
 		return `${start}${middle}${end}`;
 	}
 
@@ -72,9 +72,7 @@ export class SecurityService {
 		const key = 'oauth-playground-2024';
 		let encrypted = '';
 		for (let i = 0; i < token.length; i++) {
-			encrypted += String.fromCharCode(
-				token.charCodeAt(i) ^ key.charCodeAt(i % key.length)
-			);
+			encrypted += String.fromCharCode(token.charCodeAt(i) ^ key.charCodeAt(i % key.length));
 		}
 		return btoa(encrypted);
 	}
@@ -85,9 +83,7 @@ export class SecurityService {
 			const decoded = atob(encryptedToken);
 			let decrypted = '';
 			for (let i = 0; i < decoded.length; i++) {
-				decrypted += String.fromCharCode(
-					decoded.charCodeAt(i) ^ key.charCodeAt(i % key.length)
-				);
+				decrypted += String.fromCharCode(decoded.charCodeAt(i) ^ key.charCodeAt(i % key.length));
 			}
 			return decrypted;
 		} catch (error) {
@@ -99,7 +95,7 @@ export class SecurityService {
 	// Security Scanning
 	async performSecurityScan(): Promise<SecurityScan> {
 		console.log('[Security] Performing security scan...');
-		
+
 		const threats: SecurityThreat[] = [];
 		const scanId = this.generateId();
 
@@ -111,7 +107,7 @@ export class SecurityService {
 
 		// Calculate security score
 		const score = this.calculateSecurityScore(threats);
-		
+
 		// Generate recommendations
 		const recommendations = this.generateRecommendations(threats);
 
@@ -125,25 +121,28 @@ export class SecurityService {
 
 		this.lastScan = scan;
 		this.threats = threats;
-		
+
 		// Log the scan
-		this.logSecurityEvent('security_scan', {
-			scanId,
-			score,
-			threatsFound: threats.length,
-		}, 'low');
+		this.logSecurityEvent(
+			'security_scan',
+			{
+				scanId,
+				score,
+				threatsFound: threats.length,
+			},
+			'low'
+		);
 
 		return scan;
 	}
 
 	private checkTokenLeakage(): SecurityThreat[] {
 		const threats: SecurityThreat[] = [];
-		
+
 		// Check if tokens are exposed in localStorage
 		const keys = Object.keys(localStorage);
-		const tokenKeys = keys.filter(key => 
-			key.toLowerCase().includes('token') || 
-			key.toLowerCase().includes('auth')
+		const tokenKeys = keys.filter(
+			(key) => key.toLowerCase().includes('token') || key.toLowerCase().includes('auth')
 		);
 
 		if (tokenKeys.length > 0) {
@@ -162,7 +161,7 @@ export class SecurityService {
 
 	private checkRedirectValidation(): SecurityThreat[] {
 		const threats: SecurityThreat[] = [];
-		
+
 		// Check for open redirect vulnerabilities
 		const currentUrl = window.location.href;
 		if (currentUrl.includes('redirect=') && !currentUrl.includes('validate-redirect')) {
@@ -182,10 +181,11 @@ export class SecurityService {
 
 	private checkXssVulnerabilities(): SecurityThreat[] {
 		const threats: SecurityThreat[] = [];
-		
+
 		// Check for unsafe innerHTML usage (simplified check)
 		const scripts = document.querySelectorAll('script');
-		if (scripts.length > 5) { // Arbitrary threshold
+		if (scripts.length > 5) {
+			// Arbitrary threshold
 			threats.push({
 				id: this.generateId(),
 				type: 'xss',
@@ -201,14 +201,14 @@ export class SecurityService {
 
 	private checkCSRFProtection(): SecurityThreat[] {
 		const threats: SecurityThreat[] = [];
-		
+
 		// Check for CSRF tokens in forms (simplified)
 		const forms = document.querySelectorAll('form');
-		const formsWithoutCSRF = Array.from(forms).filter(form => {
+		const formsWithoutCSRF = Array.from(forms).filter((form) => {
 			const inputs = form.querySelectorAll('input');
-			return !Array.from(inputs).some(input => 
-				input.name.toLowerCase().includes('csrf') || 
-				input.name.toLowerCase().includes('token')
+			return !Array.from(inputs).some(
+				(input) =>
+					input.name.toLowerCase().includes('csrf') || input.name.toLowerCase().includes('token')
 			);
 		});
 
@@ -228,8 +228,8 @@ export class SecurityService {
 
 	private calculateSecurityScore(threats: SecurityThreat[]): number {
 		let score = 100;
-		
-		threats.forEach(threat => {
+
+		threats.forEach((threat) => {
 			switch (threat.severity) {
 				case 'critical':
 					score -= 25;
@@ -251,25 +251,25 @@ export class SecurityService {
 
 	private generateRecommendations(threats: SecurityThreat[]): string[] {
 		const recommendations: string[] = [];
-		
-		const threatTypes = new Set(threats.map(t => t.type));
-		
+
+		const threatTypes = new Set(threats.map((t) => t.type));
+
 		if (threatTypes.has('token_leak')) {
 			recommendations.push('Use secure storage mechanisms for sensitive tokens');
 		}
-		
+
 		if (threatTypes.has('invalid_redirect')) {
 			recommendations.push('Implement proper URL validation for redirects');
 		}
-		
+
 		if (threatTypes.has('xss')) {
 			recommendations.push('Sanitize user input and use textContent instead of innerHTML');
 		}
-		
+
 		if (threatTypes.has('csrf')) {
 			recommendations.push('Implement CSRF tokens for all state-changing forms');
 		}
-		
+
 		if (threatTypes.has('weak_crypto')) {
 			recommendations.push('Use strong encryption algorithms for sensitive data');
 		}
@@ -282,7 +282,11 @@ export class SecurityService {
 	}
 
 	// Audit Logging
-	logSecurityEvent(event: string, details: Record<string, unknown>, severity: 'low' | 'medium' | 'high' | 'critical' = 'low'): void {
+	logSecurityEvent(
+		event: string,
+		details: Record<string, unknown>,
+		severity: 'low' | 'medium' | 'high' | 'critical' = 'low'
+	): void {
 		const log = {
 			id: this.generateId(),
 			timestamp: Date.now(),

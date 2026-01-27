@@ -48,46 +48,48 @@ export interface ClientUpdateResult {
  */
 export function getFeatureConfiguration(featureId: string): FeatureConfiguration {
 	const configurations: Record<string, FeatureConfiguration> = {
-		'par': {
+		par: {
 			grantTypes: ['authorization_code', 'urn:ietf:params:oauth:grant-type:jwt-bearer'],
 			redirectUris: undefined, // No change to redirect URIs
 			scopes: undefined, // No change to scopes
-			tokenEndpointAuthMethod: 'client_secret_post'
+			tokenEndpointAuthMethod: 'client_secret_post',
 		},
-		'jar': {
+		jar: {
 			grantTypes: ['authorization_code'],
 			redirectUris: undefined,
 			scopes: undefined,
 			responseTypes: ['code'],
-			tokenEndpointAuthMethod: 'client_secret_post'
+			tokenEndpointAuthMethod: 'client_secret_post',
 		},
-		'mtls': {
+		mtls: {
 			grantTypes: ['authorization_code', 'client_credentials'],
 			redirectUris: undefined,
 			scopes: undefined,
-			tokenEndpointAuthMethod: 'client_secret_tls_client_auth'
+			tokenEndpointAuthMethod: 'client_secret_tls_client_auth',
 		},
-		'dpop': {
+		dpop: {
 			grantTypes: ['authorization_code', 'refresh_token'],
 			redirectUris: undefined,
 			scopes: ['dpop'],
-			tokenEndpointAuthMethod: 'client_secret_post'
+			tokenEndpointAuthMethod: 'client_secret_post',
 		},
 		'fapi-rw': {
 			grantTypes: ['authorization_code'],
 			redirectUris: undefined,
 			scopes: ['openid', 'profile', 'email'],
 			responseTypes: ['code'],
-			tokenEndpointAuthMethod: 'client_secret_post'
-		}
+			tokenEndpointAuthMethod: 'client_secret_post',
+		},
 	};
 
-	return configurations[featureId] || {
-		grantTypes: [],
-		redirectUris: [],
-		scopes: [],
-		tokenEndpointAuthMethod: 'client_secret_post'
-	};
+	return (
+		configurations[featureId] || {
+			grantTypes: [],
+			redirectUris: [],
+			scopes: [],
+			tokenEndpointAuthMethod: 'client_secret_post',
+		}
+	);
 }
 
 /**
@@ -100,14 +102,16 @@ export function generateChangeDescriptions(
 	appName: string
 ): { pingOneChanges: string[]; appChanges: string[] } {
 	const config = getFeatureConfiguration(featureId);
-	
+
 	const pingOneChanges: string[] = [];
 	const appChanges: string[] = [];
 
 	if (isEnabling) {
 		// PingOne client changes
 		if (config.grantTypes.length > 0) {
-			pingOneChanges.push(`Add grant_types: [${config.grantTypes.join(', ')}] to client configuration`);
+			pingOneChanges.push(
+				`Add grant_types: [${config.grantTypes.join(', ')}] to client configuration`
+			);
 		}
 		if (config.redirectUris) {
 			pingOneChanges.push(`Update redirect_uris for ${featureName} support`);
@@ -127,7 +131,7 @@ export function generateChangeDescriptions(
 		appChanges.push(`Update OAuth flow to support ${featureName}`);
 		appChanges.push(`Add ${featureName} validation and processing logic`);
 		appChanges.push(`Update token validation for ${featureName} requirements`);
-		
+
 		if (featureId === 'par') {
 			appChanges.push('Enable Pushed Authorization Request (PAR) endpoint');
 			appChanges.push('Update authorization request to use PAR');
@@ -147,7 +151,9 @@ export function generateChangeDescriptions(
 	} else {
 		// Disabling changes
 		if (config.grantTypes.length > 0) {
-			pingOneChanges.push(`Remove grant_types: [${config.grantTypes.join(', ')}] from client configuration`);
+			pingOneChanges.push(
+				`Remove grant_types: [${config.grantTypes.join(', ')}] from client configuration`
+			);
 		}
 		if (config.scopes) {
 			pingOneChanges.push(`Remove scopes: [${config.scopes.join(', ')}] from client`);
@@ -181,22 +187,22 @@ export async function updatePingOneClient(
 			clientId,
 			featureId,
 			featureName,
-			isEnabling
+			isEnabling,
 		});
 
 		// Simulate API call delay
-		await new Promise(resolve => setTimeout(resolve, 1500));
+		await new Promise((resolve) => setTimeout(resolve, 1500));
 
 		// In real implementation, this would call PingOne API
 		// For now, we simulate success
 		console.log(`${MODULE_TAG} PingOne client updated successfully`);
-		
+
 		return { success: true };
 	} catch (error) {
 		console.error(`${MODULE_TAG} Failed to update PingOne client:`, error);
-		return { 
-			success: false, 
-			error: error instanceof Error ? error.message : 'Unknown error occurred' 
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error occurred',
 		};
 	}
 }
@@ -215,22 +221,22 @@ export async function updateApplicationConfig(
 			appName,
 			featureId,
 			featureName,
-			isEnabling
+			isEnabling,
 		});
 
 		// Simulate configuration update delay
-		await new Promise(resolve => setTimeout(resolve, 1000));
+		await new Promise((resolve) => setTimeout(resolve, 1000));
 
 		// In real implementation, this would update app configuration
 		// For now, we simulate success
 		console.log(`${MODULE_TAG} Application configuration updated successfully`);
-		
+
 		return { success: true };
 	} catch (error) {
 		console.error(`${MODULE_TAG} Failed to update application configuration:`, error);
-		return { 
-			success: false, 
-			error: error instanceof Error ? error.message : 'Unknown error occurred' 
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error occurred',
 		};
 	}
 }
@@ -246,7 +252,7 @@ export async function updateFeatureConfiguration(
 	isEnabling: boolean
 ): Promise<ClientUpdateResult> {
 	const changes: ConfigurationChange[] = [];
-	
+
 	try {
 		// Generate change descriptions
 		const { pingOneChanges, appChanges } = generateChangeDescriptions(
@@ -257,17 +263,17 @@ export async function updateFeatureConfiguration(
 		);
 
 		// Track changes
-		pingOneChanges.forEach(change => {
+		pingOneChanges.forEach((change) => {
 			changes.push({
 				type: 'pingone',
-				description: change
+				description: change,
 			});
 		});
 
-		appChanges.forEach(change => {
+		appChanges.forEach((change) => {
 			changes.push({
 				type: 'application',
-				description: change
+				description: change,
 			});
 		});
 
@@ -279,7 +285,7 @@ export async function updateFeatureConfiguration(
 				changes,
 				appName,
 				clientId,
-				error: `PingOne client update failed: ${pingOneResult.error}`
+				error: `PingOne client update failed: ${pingOneResult.error}`,
 			};
 		}
 
@@ -291,7 +297,7 @@ export async function updateFeatureConfiguration(
 				changes,
 				appName,
 				clientId,
-				error: `Application configuration update failed: ${appResult.error}`
+				error: `Application configuration update failed: ${appResult.error}`,
 			};
 		}
 
@@ -299,16 +305,15 @@ export async function updateFeatureConfiguration(
 			featureId,
 			featureName,
 			isEnabling,
-			changesCount: changes.length
+			changesCount: changes.length,
 		});
 
 		return {
 			success: true,
 			changes,
 			appName,
-			clientId
+			clientId,
 		};
-
 	} catch (error) {
 		console.error(`${MODULE_TAG} Failed to update feature configuration:`, error);
 		return {
@@ -316,7 +321,7 @@ export async function updateFeatureConfiguration(
 			changes,
 			appName,
 			clientId,
-			error: error instanceof Error ? error.message : 'Unknown error occurred'
+			error: error instanceof Error ? error.message : 'Unknown error occurred',
 		};
 	}
 }
@@ -327,7 +332,7 @@ export const PingOneClientServiceV8U = {
 	generateChangeDescriptions,
 	updatePingOneClient,
 	updateApplicationConfig,
-	updateFeatureConfiguration
+	updateFeatureConfiguration,
 } as const;
 
 export default PingOneClientServiceV8U;

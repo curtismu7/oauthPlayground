@@ -485,7 +485,7 @@ try {
 					setDemoStatus('idle');
 					setResponse(null);
 					setError(null);
-					
+
 					// Clear any potential ConfigChecker-related state or cached data
 					try {
 						// Clear any comparison results or cached application data
@@ -493,12 +493,14 @@ try {
 						sessionStorage.removeItem('config-checker-last-check');
 						sessionStorage.removeItem('pingone-app-cache');
 						localStorage.removeItem('pingone-applications-cache');
-						
+
 						// Clear any worker token related cache that might be used for pre-flight checks
 						sessionStorage.removeItem('worker-token-cache');
 						localStorage.removeItem('worker-apps-cache');
-						
-						console.log('🔄 [AuthorizationCodePostFlow] Reset: cleared ConfigChecker and pre-flight cache data');
+
+						console.log(
+							'🔄 [AuthorizationCodePostFlow] Reset: cleared ConfigChecker and pre-flight cache data'
+						);
 					} catch (error) {
 						console.warn('[AuthorizationCodePostFlow] Failed to clear cache data:', error);
 					}

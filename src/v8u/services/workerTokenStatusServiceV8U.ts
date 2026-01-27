@@ -22,13 +22,13 @@
 
 // Local interface for TokenStatusInfo to avoid circular dependencies
 export interface TokenStatusInfo {
-  isValid: boolean;
-  status: 'valid' | 'expired' | 'missing' | 'invalid' | string;
-  message: string;
-  expiresAt: number | null;
-  issuedAt?: number | null;
-  minutesRemaining?: number;
-  lastUsed?: number | null;
+	isValid: boolean;
+	status: 'valid' | 'expired' | 'missing' | 'invalid' | string;
+	message: string;
+	expiresAt: number | null;
+	issuedAt?: number | null;
+	minutesRemaining?: number;
+	lastUsed?: number | null;
 }
 
 const MODULE_TAG = '[🔧 WORKER-TOKEN-STATUS-V8U]';
@@ -41,260 +41,264 @@ export type WorkerTokenStatusVariant = 'valid' | 'invalid' | 'warning';
 
 // Color scheme for status display
 export interface WorkerTokenStatusColors {
-  primary: string;
-  secondary: string;
-  background: string;
-  border: string;
-  text: string;
-  shadow: string;
+	primary: string;
+	secondary: string;
+	background: string;
+	border: string;
+	text: string;
+	shadow: string;
 }
 
 // Status display configuration
 export interface WorkerTokenStatusConfig {
-  text: string;
-  variant: WorkerTokenStatusVariant;
-  colors: WorkerTokenStatusColors;
-  icon: string;
-  description: string;
+	text: string;
+	variant: WorkerTokenStatusVariant;
+	colors: WorkerTokenStatusColors;
+	icon: string;
+	description: string;
 }
 
 /**
  * Get status variant from token status
  */
-export function getWorkerTokenStatusVariant(tokenStatus: TokenStatusInfo): WorkerTokenStatusVariant {
-  if (tokenStatus.isValid) return 'valid';
-  if (tokenStatus.status === 'expired') return 'warning';
-  return 'invalid';
+export function getWorkerTokenStatusVariant(
+	tokenStatus: TokenStatusInfo
+): WorkerTokenStatusVariant {
+	if (tokenStatus.isValid) return 'valid';
+	if (tokenStatus.status === 'expired') return 'warning';
+	return 'invalid';
 }
 
 /**
  * Get status text from token status
  */
 export function getWorkerTokenStatusText(tokenStatus: TokenStatusInfo): string {
-  if (tokenStatus.isValid) return 'ACTIVE';
-  if (tokenStatus.status === 'expired') return 'EXPIRED';
-  if (tokenStatus.status === 'missing') return 'MISSING';
-  return tokenStatus.status?.toUpperCase() || 'UNKNOWN';
+	if (tokenStatus.isValid) return 'ACTIVE';
+	if (tokenStatus.status === 'expired') return 'EXPIRED';
+	if (tokenStatus.status === 'missing') return 'MISSING';
+	return tokenStatus.status?.toUpperCase() || 'UNKNOWN';
 }
 
 /**
  * Get color scheme for status variant
  */
-export function getWorkerTokenStatusColors(variant: WorkerTokenStatusVariant): WorkerTokenStatusColors {
-  switch (variant) {
-    case 'valid':
-      return {
-        primary: '#022c22',
-        secondary: '#047857',
-        background: 'rgba(16, 185, 129, 0.15)',
-        border: '#10b981',
-        text: '#022c22',
-        shadow: 'rgba(16, 185, 129, 0.3)'
-      };
-    case 'warning':
-      return {
-        primary: '#78350f',
-        secondary: '#b45309',
-        background: 'rgba(245, 158, 11, 0.15)',
-        border: '#f59e0b',
-        text: '#78350f',
-        shadow: 'rgba(245, 158, 11, 0.3)'
-      };
-    case 'invalid':
-      return {
-        primary: '#7f1d1d',
-        secondary: '#b91c1c',
-        background: 'rgba(239, 68, 68, 0.15)',
-        border: '#ef4444',
-        text: '#7f1d1d',
-        shadow: 'rgba(239, 68, 68, 0.3)'
-      };
-    default:
-      return getWorkerTokenStatusColors('invalid');
-  }
+export function getWorkerTokenStatusColors(
+	variant: WorkerTokenStatusVariant
+): WorkerTokenStatusColors {
+	switch (variant) {
+		case 'valid':
+			return {
+				primary: '#022c22',
+				secondary: '#047857',
+				background: 'rgba(16, 185, 129, 0.15)',
+				border: '#10b981',
+				text: '#022c22',
+				shadow: 'rgba(16, 185, 129, 0.3)',
+			};
+		case 'warning':
+			return {
+				primary: '#78350f',
+				secondary: '#b45309',
+				background: 'rgba(245, 158, 11, 0.15)',
+				border: '#f59e0b',
+				text: '#78350f',
+				shadow: 'rgba(245, 158, 11, 0.3)',
+			};
+		case 'invalid':
+			return {
+				primary: '#7f1d1d',
+				secondary: '#b91c1c',
+				background: 'rgba(239, 68, 68, 0.15)',
+				border: '#ef4444',
+				text: '#7f1d1d',
+				shadow: 'rgba(239, 68, 68, 0.3)',
+			};
+		default:
+			return getWorkerTokenStatusColors('invalid');
+	}
 }
 
 /**
  * Get complete status configuration
  */
 export function getWorkerTokenStatusConfig(tokenStatus: TokenStatusInfo): WorkerTokenStatusConfig {
-  const variant = getWorkerTokenStatusVariant(tokenStatus);
-  const colors = getWorkerTokenStatusColors(variant);
-  const text = getWorkerTokenStatusText(tokenStatus);
+	const variant = getWorkerTokenStatusVariant(tokenStatus);
+	const colors = getWorkerTokenStatusColors(variant);
+	const text = getWorkerTokenStatusText(tokenStatus);
 
-  return {
-    text,
-    variant,
-    colors,
-    icon: getStatusIcon(variant),
-    description: getStatusDescription(tokenStatus)
-  };
+	return {
+		text,
+		variant,
+		colors,
+		icon: getStatusIcon(variant),
+		description: getStatusDescription(tokenStatus),
+	};
 }
 
 /**
  * Get icon name for status variant
  */
 function getStatusIcon(variant: WorkerTokenStatusVariant): string {
-  switch (variant) {
-    case 'valid':
-      return 'FiCheckCircle';
-    case 'warning':
-      return 'FiClock';
-    case 'invalid':
-      return 'FiXCircle';
-    default:
-      return 'FiXCircle';
-  }
+	switch (variant) {
+		case 'valid':
+			return 'FiCheckCircle';
+		case 'warning':
+			return 'FiClock';
+		case 'invalid':
+			return 'FiXCircle';
+		default:
+			return 'FiXCircle';
+	}
 }
 
 /**
  * Get status description
  */
 function getStatusDescription(tokenStatus: TokenStatusInfo): string {
-  if (tokenStatus.isValid) {
-    return 'Worker token is valid and ready for use';
-  }
-  
-  switch (tokenStatus.status) {
-    case 'expired':
-      return 'Worker token has expired and needs renewal';
-    case 'missing':
-      return 'No worker token available - please obtain one';
-    case 'invalid':
-      return 'Worker token is invalid or corrupted';
-    default:
-      return 'Worker token status unknown';
-  }
+	if (tokenStatus.isValid) {
+		return 'Worker token is valid and ready for use';
+	}
+
+	switch (tokenStatus.status) {
+		case 'expired':
+			return 'Worker token has expired and needs renewal';
+		case 'missing':
+			return 'No worker token available - please obtain one';
+		case 'invalid':
+			return 'Worker token is invalid or corrupted';
+		default:
+			return 'Worker token status unknown';
+	}
 }
 
 /**
  * Format time remaining for display
  */
 export function formatWorkerTokenTimeRemaining(tokenStatus: TokenStatusInfo): string {
-  if (!tokenStatus.expiresAt) return 'No expiration';
-  
-  const now = Date.now();
-  const remaining = tokenStatus.expiresAt - now;
-  
-  if (remaining <= 0) return 'Expired';
-  
-  const hours = Math.floor(remaining / (1000 * 60 * 60));
-  const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-  
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`;
-  }
-  
-  return `${minutes}m`;
+	if (!tokenStatus.expiresAt) return 'No expiration';
+
+	const now = Date.now();
+	const remaining = tokenStatus.expiresAt - now;
+
+	if (remaining <= 0) return 'Expired';
+
+	const hours = Math.floor(remaining / (1000 * 60 * 60));
+	const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+
+	if (hours > 0) {
+		return `${hours}h ${minutes}m`;
+	}
+
+	return `${minutes}m`;
 }
 
 /**
  * Get token age for display
  */
 export function getWorkerTokenAge(tokenStatus: TokenStatusInfo): string {
-  if (!tokenStatus.issuedAt) return 'Unknown';
-  
-  const now = Date.now();
-  const age = now - tokenStatus.issuedAt;
-  
-  const hours = Math.floor(age / (1000 * 60 * 60));
-  const minutes = Math.floor((age % (1000 * 60 * 60)) / (1000 * 60));
-  
-  if (hours > 24) {
-    const days = Math.floor(hours / 24);
-    return `${days}d ${hours % 24}h`;
-  }
-  
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`;
-  }
-  
-  return `${minutes}m`;
+	if (!tokenStatus.issuedAt) return 'Unknown';
+
+	const now = Date.now();
+	const age = now - tokenStatus.issuedAt;
+
+	const hours = Math.floor(age / (1000 * 60 * 60));
+	const minutes = Math.floor((age % (1000 * 60 * 60)) / (1000 * 60));
+
+	if (hours > 24) {
+		const days = Math.floor(hours / 24);
+		return `${days}d ${hours % 24}h`;
+	}
+
+	if (hours > 0) {
+		return `${hours}h ${minutes}m`;
+	}
+
+	return `${minutes}m`;
 }
 
 /**
  * Check if token needs refresh
  */
 export function shouldRefreshWorkerToken(tokenStatus: TokenStatusInfo): boolean {
-  if (!tokenStatus.isValid || !tokenStatus.expiresAt) return true;
-  
-  const now = Date.now();
-  const remaining = tokenStatus.expiresAt - now;
-  
-  // Refresh if less than 5 minutes remaining
-  return remaining < 5 * 60 * 1000;
+	if (!tokenStatus.isValid || !tokenStatus.expiresAt) return true;
+
+	const now = Date.now();
+	const remaining = tokenStatus.expiresAt - now;
+
+	// Refresh if less than 5 minutes remaining
+	return remaining < 5 * 60 * 1000;
 }
 
 /**
  * Get status styling constants for CSS-in-JS
  */
 export const WORKER_TOKEN_STATUS_STYLES = {
-  // StatusValue component colors - MUCH DARKER AND BOLDER
-  statusValue: {
-    valid: '#022c22',        // Very dark green
-    warning: '#78350f',      // Dark amber
-    invalid: '#7f1d1d'       // Dark red
-  },
-  
-  // DetailValue component colors - DARKER
-  detailValue: {
-    normal: '#9ca3af',       // Medium gray (darker than before)
-    highlight: '#022c22'     // Dark green highlight
-  },
-  
-  // StatusLabel colors
-  statusLabel: '#6b7280',
-  
-  // Enhanced shadows for better readability
-  shadows: {
-    text: '0 2px 4px rgba(0, 0, 0, 0.5)',      // Much stronger shadow
-    drop: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4))', // Stronger drop shadow
-    detail: '0 2px 4px rgba(0, 0, 0, 0.3)'       // Strong detail shadow
-  },
-  
-  // Container backgrounds - slightly darker for contrast
-  backgrounds: {
-    valid: 'rgba(16, 185, 129, 0.15)',
-    warning: 'rgba(245, 158, 11, 0.15)',
-    invalid: 'rgba(239, 68, 68, 0.15)'
-  },
-  
-  // Border colors
-  borders: {
-    valid: '#10b981',
-    warning: '#f59e0b',
-    invalid: '#ef4444'
-  }
+	// StatusValue component colors - MUCH DARKER AND BOLDER
+	statusValue: {
+		valid: '#022c22', // Very dark green
+		warning: '#78350f', // Dark amber
+		invalid: '#7f1d1d', // Dark red
+	},
+
+	// DetailValue component colors - DARKER
+	detailValue: {
+		normal: '#9ca3af', // Medium gray (darker than before)
+		highlight: '#022c22', // Dark green highlight
+	},
+
+	// StatusLabel colors
+	statusLabel: '#6b7280',
+
+	// Enhanced shadows for better readability
+	shadows: {
+		text: '0 2px 4px rgba(0, 0, 0, 0.5)', // Much stronger shadow
+		drop: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4))', // Stronger drop shadow
+		detail: '0 2px 4px rgba(0, 0, 0, 0.3)', // Strong detail shadow
+	},
+
+	// Container backgrounds - slightly darker for contrast
+	backgrounds: {
+		valid: 'rgba(16, 185, 129, 0.15)',
+		warning: 'rgba(245, 158, 11, 0.15)',
+		invalid: 'rgba(239, 68, 68, 0.15)',
+	},
+
+	// Border colors
+	borders: {
+		valid: '#10b981',
+		warning: '#f59e0b',
+		invalid: '#ef4444',
+	},
 } as const;
 
 /**
  * Debug utility to log status information
  */
 export function debugWorkerTokenStatus(tokenStatus: TokenStatusInfo, context?: string): void {
-  const config = getWorkerTokenStatusConfig(tokenStatus);
-  const contextStr = context ? ` (${context})` : '';
-  console.log(`${MODULE_TAG} Status Debug${contextStr}`, {
-    status: tokenStatus.status,
-    isValid: tokenStatus.isValid,
-    variant: config.variant,
-    text: config.text,
-    colors: config.colors,
-    expiresAt: tokenStatus.expiresAt ? new Date(tokenStatus.expiresAt).toISOString() : null,
-    issuedAt: tokenStatus.issuedAt ? new Date(tokenStatus.issuedAt).toISOString() : null
-  });
+	const config = getWorkerTokenStatusConfig(tokenStatus);
+	const contextStr = context ? ` (${context})` : '';
+	console.log(`${MODULE_TAG} Status Debug${contextStr}`, {
+		status: tokenStatus.status,
+		isValid: tokenStatus.isValid,
+		variant: config.variant,
+		text: config.text,
+		colors: config.colors,
+		expiresAt: tokenStatus.expiresAt ? new Date(tokenStatus.expiresAt).toISOString() : null,
+		issuedAt: tokenStatus.issuedAt ? new Date(tokenStatus.issuedAt).toISOString() : null,
+	});
 }
 
 // Export default service object for convenience
 export const WorkerTokenStatusServiceV8U = {
-  getVariant: getWorkerTokenStatusVariant,
-  getText: getWorkerTokenStatusText,
-  getColors: getWorkerTokenStatusColors,
-  getConfig: getWorkerTokenStatusConfig,
-  formatTimeRemaining: formatWorkerTokenTimeRemaining,
-  getAge: getWorkerTokenAge,
-  shouldRefresh: shouldRefreshWorkerToken,
-  debug: debugWorkerTokenStatus,
-  styles: WORKER_TOKEN_STATUS_STYLES
+	getVariant: getWorkerTokenStatusVariant,
+	getText: getWorkerTokenStatusText,
+	getColors: getWorkerTokenStatusColors,
+	getConfig: getWorkerTokenStatusConfig,
+	formatTimeRemaining: formatWorkerTokenTimeRemaining,
+	getAge: getWorkerTokenAge,
+	shouldRefresh: shouldRefreshWorkerToken,
+	debug: debugWorkerTokenStatus,
+	styles: WORKER_TOKEN_STATUS_STYLES,
 } as const;
 
 export default WorkerTokenStatusServiceV8U;

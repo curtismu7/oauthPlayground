@@ -362,18 +362,19 @@ export class OAuthIntegrationServiceV8 {
 				Date.now() - startTime
 			);
 
-
 			if (!response.ok) {
 				console.error(`${MODULE_TAG} ❌ Token exchange failed with status ${response.status}`);
 				const errorData = responseData as Record<string, unknown>;
 				console.error(`${MODULE_TAG} Error response:`, errorData);
-				
+
 				// Check for MUST_CHANGE_PASSWORD requirement
 				const requiresPasswordChange =
 					errorData.requires_password_change === true ||
 					errorData.password_change_required === true ||
 					(errorData.error_description as string)?.toLowerCase().includes('must_change_password') ||
-					(errorData.error_description as string)?.toLowerCase().includes('password change required') ||
+					(errorData.error_description as string)
+						?.toLowerCase()
+						.includes('password change required') ||
 					(errorData.error_description as string)?.toLowerCase().includes('must change password');
 
 				if (requiresPasswordChange) {
@@ -385,18 +386,18 @@ export class OAuthIntegrationServiceV8 {
 					(passwordChangeError as any).errorData = errorData;
 					throw passwordChangeError;
 				}
-				
+
 				const errorCode = (errorData.error as string) || 'unknown_error';
 				const errorDescription = (errorData.error_description as string) || '';
 				const correlationId = (errorData.correlation_id as string) || '';
-				
+
 				// Enhanced error message for invalid_client
 				if (errorCode === 'invalid_client') {
 					const authMethod = credentials.clientAuthMethod || 'client_secret_post';
 					const clientIdPreview = credentials.clientId
 						? `${credentials.clientId.substring(0, 8)}...`
 						: 'NOT PROVIDED';
-					
+
 					const enhancedMessage = `Token exchange failed: invalid_client - ${errorDescription}
 
 📋 Root Cause:
@@ -446,7 +447,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 
 					throw new Error(enhancedMessage);
 				}
-				
+
 				// Standard error message for other errors
 				throw new Error(
 					`Token exchange failed: ${errorCode} - ${errorDescription}${correlationId ? ` (Correlation ID: ${correlationId})` : ''}`

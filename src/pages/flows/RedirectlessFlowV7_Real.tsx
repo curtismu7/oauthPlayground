@@ -22,6 +22,7 @@ import styled from 'styled-components';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import { PasswordChangeModal } from '../../components/PasswordChangeModal';
 import {
 	HelperText,
 	ResultsHeading,
@@ -47,7 +48,6 @@ import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplaySe
 import { V7StepperService } from '../../services/v7StepperService';
 import { v4ToastManager } from '../../utils/v4ToastManager';
 import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U';
-import { PasswordChangeModal } from '../../components/PasswordChangeModal';
 
 // Import config
 import { STEP_METADATA } from './config/RedirectlessFlow.config';
@@ -518,14 +518,20 @@ const RedirectlessFlowV7Real: React.FC = () => {
 						string,
 						unknown
 					>;
-					
+
 					// Check for MUST_CHANGE_PASSWORD requirement
 					const requiresPasswordChange =
 						errorData.requires_password_change === true ||
 						errorData.password_change_required === true ||
-						String(errorData.error_description || '').toLowerCase().includes('must_change_password') ||
-						String(errorData.error_description || '').toLowerCase().includes('password change required') ||
-						String(errorData.error_description || '').toLowerCase().includes('must change password');
+						String(errorData.error_description || '')
+							.toLowerCase()
+							.includes('must_change_password') ||
+						String(errorData.error_description || '')
+							.toLowerCase()
+							.includes('password change required') ||
+						String(errorData.error_description || '')
+							.toLowerCase()
+							.includes('must change password');
 
 					if (requiresPasswordChange) {
 						console.log('🔐 [Redirectless V7] Password change required detected');
@@ -546,7 +552,7 @@ const RedirectlessFlowV7Real: React.FC = () => {
 				}
 
 				const tokenData = (await tokenResponse.json()) as Record<string, unknown>;
-				
+
 				// Check for MUST_CHANGE_PASSWORD in successful response (from ID token)
 				const requiresPasswordChange =
 					tokenData.requires_password_change === true ||
@@ -574,7 +580,9 @@ const RedirectlessFlowV7Real: React.FC = () => {
 					} catch (parseError) {
 						// If parsing fails but requiresPasswordChange is true, still throw
 						if (requiresPasswordChange) {
-							console.log('🔐 [Redirectless V7] Password change required detected in response metadata');
+							console.log(
+								'🔐 [Redirectless V7] Password change required detected in response metadata'
+							);
 							const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
 							(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
 							(passwordChangeError as any).requiresPasswordChange = true;
@@ -774,7 +782,7 @@ const RedirectlessFlowV7Real: React.FC = () => {
 					} else {
 						errorMessage = JSON.stringify(errorData);
 					}
-					
+
 					// Check for MUST_CHANGE_PASSWORD in error response
 					const errorText = JSON.stringify(errorData).toLowerCase();
 					if (
@@ -782,10 +790,13 @@ const RedirectlessFlowV7Real: React.FC = () => {
 						errorText.includes('password change required') ||
 						errorText.includes('must change password')
 					) {
-						console.log('🔐 [Redirectless V7] Password change required detected in credentials check');
+						console.log(
+							'🔐 [Redirectless V7] Password change required detected in credentials check'
+						);
 						// We can't change password here since we don't have userId yet
 						// But we can show a helpful message
-						errorMessage = 'Password change is required. Please contact your administrator or use the password reset flow.';
+						errorMessage =
+							'Password change is required. Please contact your administrator or use the password reset flow.';
 					}
 				} catch {
 					// If JSON parsing fails, try text
@@ -1850,9 +1861,7 @@ const RedirectlessFlowV7Real: React.FC = () => {
 					if (!response.ok) {
 						const errorData = await response.json().catch(() => ({}));
 						throw new Error(
-							errorData.error_description ||
-								errorData.message ||
-								'Failed to change password'
+							errorData.error_description || errorData.message || 'Failed to change password'
 						);
 					}
 

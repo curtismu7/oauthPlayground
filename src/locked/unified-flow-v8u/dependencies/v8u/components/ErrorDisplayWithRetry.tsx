@@ -39,10 +39,10 @@ const FormattedErrorMessage: React.FC<{ error: string }> = ({ error }) => {
 
 				// Check if this is a heading (starts with emoji and bold text)
 				const isHeading = /^[📋💡⚠️🔧📝📚🔍]/u.test(trimmed);
-				
+
 				// Check if this is a bullet list item
 				const isBulletItem = /^[•\-*]\s/.test(trimmed);
-				
+
 				// Check if this is a numbered list item
 				const isNumberedItem = /^\d+\.\s/.test(trimmed);
 

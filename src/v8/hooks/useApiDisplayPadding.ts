@@ -22,7 +22,7 @@ export function useApiDisplayPadding() {
 		const checkVisibility = () => {
 			const visible = apiDisplayServiceV8.isVisible();
 			setIsVisible(visible);
-			
+
 			// Get actual height from DOM element using getBoundingClientRect for accurate measurement
 			if (visible) {
 				const apiDisplay = document.querySelector('.super-simple-api-display') as HTMLElement;
@@ -80,4 +80,3 @@ export function useApiDisplayPadding() {
 		paddingBottom,
 	};
 }
-

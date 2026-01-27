@@ -696,18 +696,22 @@ console.log('Token validation result:', validation);`,
 					Resource-based
 				</Tab>
 			</TabContainer>
-			
+
 			{/* Educational Note about ID Tokens */}
-			<div style={{
-				padding: '12px 16px',
-				background: '#fef3c7',
-				border: '1px solid #f59e0b',
-				borderRadius: '6px',
-				marginBottom: '1rem',
-				fontSize: '14px',
-				color: '#92400e'
-			}}>
-				<strong>ℹ️ Note:</strong> ID tokens should be validated locally (verify signature, issuer, audience, expiration) rather than using the introspection endpoint. The introspection endpoint is designed for opaque access tokens and refresh tokens.
+			<div
+				style={{
+					padding: '12px 16px',
+					background: '#fef3c7',
+					border: '1px solid #f59e0b',
+					borderRadius: '6px',
+					marginBottom: '1rem',
+					fontSize: '14px',
+					color: '#92400e',
+				}}
+			>
+				<strong>ℹ️ Note:</strong> ID tokens should be validated locally (verify signature, issuer,
+				audience, expiration) rather than using the introspection endpoint. The introspection
+				endpoint is designed for opaque access tokens and refresh tokens.
 			</div>
 
 			<div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -737,7 +741,7 @@ console.log('Token validation result:', validation);`,
 					setResponse(null);
 					setError(null);
 					setIntrospectionResponse(null);
-					
+
 					// Clear any potential ConfigChecker-related state or cached data
 					try {
 						// Clear any comparison results or cached application data
@@ -745,12 +749,14 @@ console.log('Token validation result:', validation);`,
 						sessionStorage.removeItem('config-checker-last-check');
 						sessionStorage.removeItem('pingone-app-cache');
 						localStorage.removeItem('pingone-applications-cache');
-						
+
 						// Clear any worker token related cache that might be used for pre-flight checks
 						sessionStorage.removeItem('worker-token-cache');
 						localStorage.removeItem('worker-apps-cache');
-						
-						console.log('🔄 [TokenIntrospectionFlow] Reset: cleared ConfigChecker and pre-flight cache data');
+
+						console.log(
+							'🔄 [TokenIntrospectionFlow] Reset: cleared ConfigChecker and pre-flight cache data'
+						);
 					} catch (error) {
 						console.warn('[TokenIntrospectionFlow] Failed to clear cache data:', error);
 					}

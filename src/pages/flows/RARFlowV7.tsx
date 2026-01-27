@@ -544,7 +544,7 @@ const RARFlowV7: React.FC = () => {
 
 	const handleStartOver = useCallback(() => {
 		handleReset();
-		
+
 		// Clear any potential ConfigChecker-related state or cached data
 		try {
 			// Clear any comparison results or cached application data
@@ -552,16 +552,16 @@ const RARFlowV7: React.FC = () => {
 			sessionStorage.removeItem('config-checker-last-check');
 			sessionStorage.removeItem('pingone-app-cache');
 			localStorage.removeItem('pingone-applications-cache');
-			
+
 			// Clear any worker token related cache that might be used for pre-flight checks
 			sessionStorage.removeItem('worker-token-cache');
 			localStorage.removeItem('worker-apps-cache');
-			
+
 			console.log('🔄 [RARFlowV7] Starting over: cleared ConfigChecker and pre-flight cache data');
 		} catch (error) {
 			console.warn('[RARFlowV7] Failed to clear cache data:', error);
 		}
-		
+
 		v4ToastManager.showInfo('RAR flow reset to beginning');
 	}, [handleReset]);
 

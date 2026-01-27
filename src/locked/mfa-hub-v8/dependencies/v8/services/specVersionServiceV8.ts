@@ -52,7 +52,8 @@ export interface ValidationResult {
 const SPEC_CONFIGS: Record<SpecVersion, SpecConfig> = {
 	'oauth2.0': {
 		name: 'OAuth 2.0 Authorization Framework (RFC 6749)',
-		description: 'Baseline OAuth framework standard (RFC 6749). Provides authorization without authentication. Supports all flow types including Implicit.',
+		description:
+			'Baseline OAuth framework standard (RFC 6749). Provides authorization without authentication. Supports all flow types including Implicit.',
 		supportedFlows: ['oauth-authz', 'implicit', 'client-credentials', 'device-code'],
 		complianceRules: {
 			requirePKCE: false,
@@ -65,7 +66,8 @@ const SPEC_CONFIGS: Record<SpecVersion, SpecConfig> = {
 	},
 	'oauth2.1': {
 		name: 'OAuth 2.1 Authorization Framework (draft)',
-		description: 'Consolidated OAuth specification (IETF draft-ietf-oauth-v2-1). Removes deprecated flows (Implicit, ROPC) and enforces modern security practices (PKCE required, HTTPS enforced). Note: Still an Internet-Draft, not yet an RFC.',
+		description:
+			'Consolidated OAuth specification (IETF draft-ietf-oauth-v2-1). Removes deprecated flows (Implicit, ROPC) and enforces modern security practices (PKCE required, HTTPS enforced). Note: Still an Internet-Draft, not yet an RFC.',
 		supportedFlows: ['oauth-authz', 'client-credentials', 'device-code'],
 		complianceRules: {
 			requirePKCE: true,
@@ -78,7 +80,8 @@ const SPEC_CONFIGS: Record<SpecVersion, SpecConfig> = {
 	},
 	oidc: {
 		name: 'OpenID Connect Core 1.0',
-		description: 'Authentication layer on top of OAuth 2.0 (OpenID Connect Core 1.0). Adds identity layer with ID Tokens, openid scope, UserInfo endpoint, and user authentication.',
+		description:
+			'Authentication layer on top of OAuth 2.0 (OpenID Connect Core 1.0). Adds identity layer with ID Tokens, openid scope, UserInfo endpoint, and user authentication.',
 		supportedFlows: ['oauth-authz', 'implicit', 'hybrid', 'device-code'],
 		complianceRules: {
 			requirePKCE: false,

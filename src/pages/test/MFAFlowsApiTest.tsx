@@ -2,8 +2,20 @@
 // Comprehensive test page for MFA flows: OTP, TOTP, FIDO registration
 // Tests PingOne MFA API implementations and Admin Authentication scenarios
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { FiPlay, FiRefreshCw, FiCheck, FiX, FiCode, FiDatabase, FiShield, FiKey, FiSmartphone, FiLock, FiUser } from 'react-icons/fi';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+	FiCheck,
+	FiCode,
+	FiDatabase,
+	FiKey,
+	FiLock,
+	FiPlay,
+	FiRefreshCw,
+	FiShield,
+	FiSmartphone,
+	FiUser,
+	FiX,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { useWorkerTokenState } from '../../services/workerTokenUIService';
@@ -236,7 +248,11 @@ const CodeBlock = styled.pre`
 
 const MFAFlowsApiTest: React.FC = () => {
 	const { apps, selectedAppId, selectApp, getActiveAppConfig } = useCredentialStoreV8();
-	const { hasValidToken: hasWorkerToken, showWorkerTokenModal, setShowWorkerTokenModal } = useWorkerTokenState();
+	const {
+		hasValidToken: hasWorkerToken,
+		showWorkerTokenModal,
+		setShowWorkerTokenModal,
+	} = useWorkerTokenState();
 
 	const [config, setConfig] = useState<MFATestConfig>({
 		environmentId: '',
@@ -299,13 +315,15 @@ const MFAFlowsApiTest: React.FC = () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'Authorization': 'Bearer ' + (await getWorkerToken()),
+					Authorization: 'Bearer ' + (await getWorkerToken()),
 				},
 				body: JSON.stringify(requestBody),
 			});
 
 			const duration = Date.now() - startTime;
-			const responseData = await response.json().catch(() => ({ error: 'Response parsing failed' }));
+			const responseData = await response
+				.json()
+				.catch(() => ({ error: 'Response parsing failed' }));
 
 			addResult({
 				testName: 'OTP Registration',
@@ -363,13 +381,15 @@ const MFAFlowsApiTest: React.FC = () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'Authorization': 'Bearer ' + (await getWorkerToken()),
+					Authorization: 'Bearer ' + (await getWorkerToken()),
 				},
 				body: JSON.stringify(requestBody),
 			});
 
 			const duration = Date.now() - startTime;
-			const responseData = await response.json().catch(() => ({ error: 'Response parsing failed' }));
+			const responseData = await response
+				.json()
+				.catch(() => ({ error: 'Response parsing failed' }));
 
 			addResult({
 				testName: 'OTP Verification',
@@ -426,13 +446,15 @@ const MFAFlowsApiTest: React.FC = () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'Authorization': 'Bearer ' + (await getWorkerToken()),
+					Authorization: 'Bearer ' + (await getWorkerToken()),
 				},
 				body: JSON.stringify(requestBody),
 			});
 
 			const duration = Date.now() - startTime;
-			const responseData = await response.json().catch(() => ({ error: 'Response parsing failed' }));
+			const responseData = await response
+				.json()
+				.catch(() => ({ error: 'Response parsing failed' }));
 
 			addResult({
 				testName: 'TOTP Registration',
@@ -489,13 +511,15 @@ const MFAFlowsApiTest: React.FC = () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'Authorization': 'Bearer ' + (await getWorkerToken()),
+					Authorization: 'Bearer ' + (await getWorkerToken()),
 				},
 				body: JSON.stringify(requestBody),
 			});
 
 			const duration = Date.now() - startTime;
-			const responseData = await response.json().catch(() => ({ error: 'Response parsing failed' }));
+			const responseData = await response
+				.json()
+				.catch(() => ({ error: 'Response parsing failed' }));
 
 			addResult({
 				testName: 'TOTP Verification',
@@ -553,13 +577,15 @@ const MFAFlowsApiTest: React.FC = () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'Authorization': 'Bearer ' + (await getWorkerToken()),
+					Authorization: 'Bearer ' + (await getWorkerToken()),
 				},
 				body: JSON.stringify(requestBody),
 			});
 
 			const duration = Date.now() - startTime;
-			const responseData = await response.json().catch(() => ({ error: 'Response parsing failed' }));
+			const responseData = await response
+				.json()
+				.catch(() => ({ error: 'Response parsing failed' }));
 
 			addResult({
 				testName: 'FIDO2 Registration',
@@ -617,13 +643,15 @@ const MFAFlowsApiTest: React.FC = () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'Authorization': 'Bearer ' + (await getWorkerToken()),
+					Authorization: 'Bearer ' + (await getWorkerToken()),
 				},
 				body: JSON.stringify(requestBody),
 			});
 
 			const duration = Date.now() - startTime;
-			const responseData = await response.json().catch(() => ({ error: 'Response parsing failed' }));
+			const responseData = await response
+				.json()
+				.catch(() => ({ error: 'Response parsing failed' }));
 
 			// Simulate "activation required" success response
 			const mockResponse = {
@@ -697,7 +725,13 @@ const MFAFlowsApiTest: React.FC = () => {
 		} finally {
 			setIsRunning(false);
 		}
-	}, [testOTPRegistration, testOTPVerification, testTOTPRegistration, testTOTPVerification, testFIDO2Registration]);
+	}, [
+		testOTPRegistration,
+		testOTPVerification,
+		testTOTPRegistration,
+		testTOTPVerification,
+		testFIDO2Registration,
+	]);
 
 	// Run Admin Authentication Tests
 	const runAdminAuthTests = useCallback(async () => {
@@ -729,7 +763,8 @@ const MFAFlowsApiTest: React.FC = () => {
 			<Header>
 				<Title>🔐 MFA Flows API Test Suite</Title>
 				<Subtitle>
-					Test PingOne MFA flows: OTP, TOTP, FIDO2 registration, and Admin Authentication with activation scenarios
+					Test PingOne MFA flows: OTP, TOTP, FIDO2 registration, and Admin Authentication with
+					activation scenarios
 				</Subtitle>
 				<ButtonGroup style={{ marginTop: '1rem' }}>
 					<Button

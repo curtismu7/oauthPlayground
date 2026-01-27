@@ -6,7 +6,7 @@
  *
  * This page displays the complete API documentation for Mobile device registration,
  * showing all PingOne API calls in the correct order with full request/response details.
- * 
+ *
  * Mobile MFA follows the same pattern as SMS but with mobile-specific UI/UX.
  * Based on MFA_MOBILE_MASTER.md
  */
@@ -90,4 +90,3 @@ export const MobileRegistrationDocsPageV8: React.FC = () => {
 		/>
 	);
 };
-

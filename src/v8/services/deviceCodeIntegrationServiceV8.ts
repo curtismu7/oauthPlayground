@@ -137,7 +137,7 @@ export class DeviceCodeIntegrationServiceV8 {
 
 			// Track API call for display (with timeout to prevent hanging)
 			let callId: string | undefined;
-			let startTime = Date.now();
+			const startTime = Date.now();
 			try {
 				// Add timeout to dynamic import (5 seconds max)
 				const importPromise = import('@/services/apiCallTrackerService');
@@ -189,15 +189,15 @@ export class DeviceCodeIntegrationServiceV8 {
 			if (callId) {
 				try {
 					const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
-			apiCallTrackerService.updateApiCallResponse(
-				callId,
-				{
-					status: response.status,
-					statusText: response.statusText,
-					data: responseData,
-				},
-				Date.now() - startTime
-			);
+					apiCallTrackerService.updateApiCallResponse(
+						callId,
+						{
+							status: response.status,
+							statusText: response.statusText,
+							data: responseData,
+						},
+						Date.now() - startTime
+					);
 				} catch (e) {
 					// Ignore tracking errors - non-blocking
 					console.warn(`${MODULE_TAG} Failed to update API call tracking:`, e);
@@ -215,8 +215,8 @@ export class DeviceCodeIntegrationServiceV8 {
 
 				// Extract correlation ID from error data or error message
 				// Check multiple possible field names and locations
-				let correlationId: string | undefined = 
-					(errorData.correlation_id as string) || 
+				let correlationId: string | undefined =
+					(errorData.correlation_id as string) ||
 					(errorData.correlationId as string) ||
 					(errorData['correlation-id'] as string) ||
 					(errorData['correlationId'] as string) ||
@@ -224,7 +224,7 @@ export class DeviceCodeIntegrationServiceV8 {
 
 				// Also check response headers
 				if (!correlationId && response.headers) {
-					const headerCorrelationId = 
+					const headerCorrelationId =
 						response.headers.get('X-Correlation-ID') ||
 						response.headers.get('x-correlation-id') ||
 						response.headers.get('Correlation-ID') ||
@@ -380,30 +380,30 @@ export class DeviceCodeIntegrationServiceV8 {
 
 		for (let attempt = 0; attempt < calculatedMaxAttempts; attempt++) {
 			try {
-			// Build request body for backend proxy (JSON format)
-			// RFC 8628 Section 3.4: Token request includes grant_type, device_code, and client_id
-			// Client authentication happens at token endpoint (handled by backend)
-			const requestBody: Record<string, string> = {
-				grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
-				client_id: credentials.clientId,
-				device_code: deviceCode,
-				environment_id: credentials.environmentId,
-			};
+				// Build request body for backend proxy (JSON format)
+				// RFC 8628 Section 3.4: Token request includes grant_type, device_code, and client_id
+				// Client authentication happens at token endpoint (handled by backend)
+				const requestBody: Record<string, string> = {
+					grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+					client_id: credentials.clientId,
+					device_code: deviceCode,
+					environment_id: credentials.environmentId,
+				};
 
-			// Handle Client Authentication - pass to backend proxy
-			// RFC 8628: Client authentication is performed at token endpoint using standard OAuth 2.0 methods
-			if (credentials.clientSecret) {
-				requestBody.client_secret = credentials.clientSecret;
-				requestBody.client_auth_method = credentials.clientAuthMethod || 'client_secret_post';
-			} else if (credentials.clientAuthMethod === 'none') {
-				// Explicitly set to 'none' for public clients
-				requestBody.client_auth_method = 'none';
-			}
+				// Handle Client Authentication - pass to backend proxy
+				// RFC 8628: Client authentication is performed at token endpoint using standard OAuth 2.0 methods
+				if (credentials.clientSecret) {
+					requestBody.client_secret = credentials.clientSecret;
+					requestBody.client_auth_method = credentials.clientAuthMethod || 'client_secret_post';
+				} else if (credentials.clientAuthMethod === 'none') {
+					// Explicitly set to 'none' for public clients
+					requestBody.client_auth_method = 'none';
+				}
 
-			// Add scope if provided (optional per RFC 8628)
-			if (credentials.scopes?.trim()) {
-				requestBody.scope = credentials.scopes.trim();
-			}
+				// Add scope if provided (optional per RFC 8628)
+				if (credentials.scopes?.trim()) {
+					requestBody.scope = credentials.scopes.trim();
+				}
 
 				// Track API call for display
 				const pollStartTime = Date.now();

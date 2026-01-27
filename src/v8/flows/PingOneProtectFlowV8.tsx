@@ -558,13 +558,15 @@ export const PingOneProtectFlowV8: React.FC = () => {
 						onClick={async () => {
 							// Pass current checkbox values to override config (page checkboxes take precedence)
 							// forceShowModal=true because user explicitly clicked the button - always show modal
-							const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+							const { handleShowWorkerTokenModal } = await import(
+								'@/v8/utils/workerTokenModalHelperV8'
+							);
 							await handleShowWorkerTokenModal(
 								setShowWorkerTokenModal,
 								setTokenStatus,
-								silentApiRetrieval,  // Page checkbox value takes precedence
-								showTokenAtEnd,      // Page checkbox value takes precedence
-								true                  // Force show modal - user clicked button
+								silentApiRetrieval, // Page checkbox value takes precedence
+								showTokenAtEnd, // Page checkbox value takes precedence
+								true // Force show modal - user clicked button
 							);
 						}}
 						style={{
@@ -581,7 +583,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 						{tokenStatus.isValid ? 'Manage Token' : 'Generate Token'}
 					</button>
 				</div>
-				
+
 				{/* Worker Token Settings Checkboxes */}
 				<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 					<label
@@ -613,21 +615,29 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								config.workerToken.silentApiRetrieval = newValue;
 								MFAConfigurationServiceV8.saveConfiguration(config);
 								// Dispatch event to notify other components
-								window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+								window.dispatchEvent(
+									new CustomEvent('mfaConfigurationUpdated', {
+										detail: { workerToken: config.workerToken },
+									})
+								);
 								toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
-								
+
 								// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 								if (newValue) {
 									const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 									if (!currentStatus.isValid) {
-										console.log('[PINGONE-PROTECT-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...');
-										const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+										console.log(
+											'[PINGONE-PROTECT-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
+										);
+										const { handleShowWorkerTokenModal } = await import(
+											'@/v8/utils/workerTokenModalHelperV8'
+										);
 										await handleShowWorkerTokenModal(
 											setShowWorkerTokenModal,
 											setTokenStatus,
-											newValue,  // Use new value
+											newValue, // Use new value
 											showTokenAtEnd,
-											false      // Not forced - respect silent setting
+											false // Not forced - respect silent setting
 										);
 									}
 								}
@@ -679,7 +689,11 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								config.workerToken.showTokenAtEnd = newValue;
 								MFAConfigurationServiceV8.saveConfiguration(config);
 								// Dispatch event to notify other components
-								window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+								window.dispatchEvent(
+									new CustomEvent('mfaConfigurationUpdated', {
+										detail: { workerToken: config.workerToken },
+									})
+								);
 								toastV8.info(`Show Token After Generation set to: ${newValue}`);
 							}}
 							style={{
@@ -1389,38 +1403,39 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}
 			)}
 
 			{/* Worker Token Modal */}
-			{showWorkerTokenModal && (() => {
-				// Check if we should show token only (matches MFA pattern)
-				try {
-					const config = MFAConfigurationServiceV8.loadConfiguration();
-					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-					
-					// Show token-only if showTokenAtEnd is ON and token is valid
-					const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
-					
-					return (
-						<WorkerTokenModalV8
-							isOpen={showWorkerTokenModal}
-							onClose={() => {
-								setShowWorkerTokenModal(false);
-								// Refresh token status when modal closes (matches MFA pattern)
-								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-							}}
-							showTokenOnly={showTokenOnly}
-						/>
-					);
-				} catch {
-					return (
-						<WorkerTokenModalV8
-							isOpen={showWorkerTokenModal}
-							onClose={() => {
-								setShowWorkerTokenModal(false);
-								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-							}}
-						/>
-					);
-				}
-			})()}
+			{showWorkerTokenModal &&
+				(() => {
+					// Check if we should show token only (matches MFA pattern)
+					try {
+						const config = MFAConfigurationServiceV8.loadConfiguration();
+						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+
+						// Show token-only if showTokenAtEnd is ON and token is valid
+						const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+
+						return (
+							<WorkerTokenModalV8
+								isOpen={showWorkerTokenModal}
+								onClose={() => {
+									setShowWorkerTokenModal(false);
+									// Refresh token status when modal closes (matches MFA pattern)
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+								}}
+								showTokenOnly={showTokenOnly}
+							/>
+						);
+					} catch {
+						return (
+							<WorkerTokenModalV8
+								isOpen={showWorkerTokenModal}
+								onClose={() => {
+									setShowWorkerTokenModal(false);
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+								}}
+							/>
+						);
+					}
+				})()}
 		</div>
 	);
 };

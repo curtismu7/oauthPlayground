@@ -214,7 +214,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 	// Check for callback authorization code on mount and when URL changes
 	useEffect(() => {
-
 		// #region agent log
 		sendAnalyticsLog({
 			location: 'UserLoginModalV8.tsx:189',
@@ -959,7 +958,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	// This ensures the success page can render even if isOpen becomes false
 	// Show success page if authentication was successful
 	if (showSuccessPage && sessionInfo) {
-
 		return (
 			<div
 				style={{

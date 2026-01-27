@@ -153,7 +153,7 @@ const convertToUnifiedData = (
 ): UnifiedMFASuccessPageData => {
 	// Ensure deviceType is preserved - use successData.deviceType first, fallback to credentials.deviceType
 	const deviceType = successData.deviceType || credentials.deviceType || 'SMS';
-	
+
 	// Debug logging for FIDO2
 	if (deviceType === 'FIDO2' || successData.deviceType === 'FIDO2') {
 		console.log('[MFASuccessPageV8] Converting FIDO2 success data:', {
@@ -162,7 +162,7 @@ const convertToUnifiedData = (
 			finalDeviceType: deviceType,
 		});
 	}
-	
+
 	return {
 		flowType: 'registration',
 		username: successData.username || credentials.username,

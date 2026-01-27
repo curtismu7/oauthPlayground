@@ -211,9 +211,14 @@ class WorkerTokenServiceV8 {
 					environmentId: legacyData.environmentId,
 					clientId: legacyData.clientId,
 					clientSecret: legacyData.clientSecret,
-					scopes: legacyData.scopes ? (Array.isArray(legacyData.scopes) ? legacyData.scopes : legacyData.scopes.split(/\s+/).filter(Boolean)) : [],
+					scopes: legacyData.scopes
+						? Array.isArray(legacyData.scopes)
+							? legacyData.scopes
+							: legacyData.scopes.split(/\s+/).filter(Boolean)
+						: [],
 					region: legacyData.region || 'us',
-					tokenEndpointAuthMethod: legacyData.authMethod || legacyData.tokenEndpointAuthMethod || 'client_secret_post',
+					tokenEndpointAuthMethod:
+						legacyData.authMethod || legacyData.tokenEndpointAuthMethod || 'client_secret_post',
 					savedAt: Date.now(),
 				};
 				// #region agent log
@@ -268,9 +273,14 @@ class WorkerTokenServiceV8 {
 					environmentId: legacyData.environmentId,
 					clientId: legacyData.clientId,
 					clientSecret: legacyData.clientSecret,
-					scopes: legacyData.scopes ? (Array.isArray(legacyData.scopes) ? legacyData.scopes : legacyData.scopes.split(/\s+/).filter(Boolean)) : [],
+					scopes: legacyData.scopes
+						? Array.isArray(legacyData.scopes)
+							? legacyData.scopes
+							: legacyData.scopes.split(/\s+/).filter(Boolean)
+						: [],
 					region: legacyData.region || 'us',
-					tokenEndpointAuthMethod: legacyData.authMethod || legacyData.tokenEndpointAuthMethod || 'client_secret_post',
+					tokenEndpointAuthMethod:
+						legacyData.authMethod || legacyData.tokenEndpointAuthMethod || 'client_secret_post',
 					savedAt: Date.now(),
 				};
 				// Save to new format and cache
@@ -278,7 +288,10 @@ class WorkerTokenServiceV8 {
 				try {
 					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(convertedData));
 				} catch (error) {
-					console.warn(`${MODULE_TAG} Failed to migrate legacy credentials to new storage (sync)`, error);
+					console.warn(
+						`${MODULE_TAG} Failed to migrate legacy credentials to new storage (sync)`,
+						error
+					);
 				}
 				return this.extractCredentials(convertedData);
 			}

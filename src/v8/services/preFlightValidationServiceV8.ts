@@ -30,10 +30,10 @@
  * }
  */
 
+import type { UnifiedFlowCredentials } from '@/v8u/services/unifiedFlowIntegrationV8U';
+import { ConfigCheckerServiceV8 } from './configCheckerServiceV8';
 import type { FlowType, SpecVersion } from './specVersionServiceV8';
 import { SpecVersionServiceV8 } from './specVersionServiceV8';
-import { ConfigCheckerServiceV8 } from './configCheckerServiceV8';
-import type { UnifiedFlowCredentials } from '@/v8u/services/unifiedFlowIntegrationV8U';
 
 const MODULE_TAG = '[✈️ PRE-FLIGHT-VALIDATION-V8]';
 
@@ -46,7 +46,12 @@ export interface PreFlightValidationOptions {
 
 export interface FixableError {
 	errorIndex: number;
-	errorType: 'redirect_uri_mismatch' | 'pkce_required' | 'auth_method_mismatch' | 'openid_scope_missing' | 'response_type_invalid';
+	errorType:
+		| 'redirect_uri_mismatch'
+		| 'pkce_required'
+		| 'auth_method_mismatch'
+		| 'openid_scope_missing'
+		| 'response_type_invalid';
 	errorMessage: string;
 	fixable: boolean;
 	fixDescription: string;
@@ -168,7 +173,12 @@ You can still proceed, but the authorization request may fail if there's a misma
 │                    PingOne Config                           │
 ├─────────────────────────────────────────────────────────────┤
 │ Redirect URIs:    ${appConfig.redirectUris.length} registered${' '.repeat(30)} │
-│                   ${appConfig.redirectUris.slice(0, 3).map(uri => `                   • ${uri}`).join('\n')}${appConfig.redirectUris.length > 3 ? `\n                   ... and ${appConfig.redirectUris.length - 3} more` : ''} │
+│                   ${appConfig.redirectUris
+					.slice(0, 3)
+					.map((uri) => `                   • ${uri}`)
+					.join(
+						'\n'
+					)}${appConfig.redirectUris.length > 3 ? `\n                   ... and ${appConfig.redirectUris.length - 3} more` : ''} │
 └─────────────────────────────────────────────────────────────┘
 
 ❌ Redirect URI mismatch - Your redirect URI does not match any of the registered URIs in PingOne.
@@ -222,9 +232,7 @@ You can still proceed, but the authorization request may fail if there's a misma
 	 * @param options - Validation options
 	 * @returns Validation result
 	 */
-	static async validateOAuthConfig(
-		options: PreFlightValidationOptions
-	): Promise<{
+	static async validateOAuthConfig(options: PreFlightValidationOptions): Promise<{
 		passed: boolean;
 		errors: string[];
 		warnings: string[];
@@ -283,7 +291,10 @@ You can still proceed, but the authorization request may fail if there's a misma
 				}
 
 				// Check if PKCE is enabled but PingOne doesn't support it
-				if ((credentials.usePKCE || credentials.pkceEnforcement) && appConfig.pkceEnforced === false) {
+				if (
+					(credentials.usePKCE || credentials.pkceEnforcement) &&
+					appConfig.pkceEnforced === false
+				) {
 					warnings.push(
 						`⚠️ PKCE Mismatch: PKCE is enabled in your configuration, but your PingOne application may not support it. This may cause authorization failures.`
 					);
@@ -362,7 +373,10 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 				// CRITICAL: Backend proxy requires client_secret in request body for BOTH client_secret_basic and client_secret_post
 				// For client_secret_basic: Backend reconstructs Authorization header from client_secret in body
 				// For client_secret_post: Backend uses client_secret directly from body
-				if (credentials.clientAuthMethod === 'client_secret_basic' || credentials.clientAuthMethod === 'client_secret_post') {
+				if (
+					credentials.clientAuthMethod === 'client_secret_basic' ||
+					credentials.clientAuthMethod === 'client_secret_post'
+				) {
 					if (!credentials.clientSecret || !credentials.clientSecret.trim()) {
 						errors.push(
 							`❌ Token Exchange Authentication Error: Token exchange for ${flowType} flow requires a client secret in the request body for authentication method "${credentials.clientAuthMethod}". Please provide a Client Secret in Step 0 (Configuration).`
@@ -412,21 +426,25 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 				);
 			}
 
-		// 4. Response Type Validation
-		if (flowType === 'implicit' && credentials.responseType && !credentials.responseType.includes('token')) {
-			const errorMsg = `❌ Response Type Invalid: Implicit flow requires "token" or "token id_token" in response_type, but your configuration has "${credentials.responseType}". This will cause authorization failures.`;
-			errors.push(errorMsg);
-			
-			// Make this fixable - auto-set correct response type for implicit flow
-			fixableErrors.push({
-				errorIndex: errors.length - 1,
-				error: errorMsg,
-				fix: 'Update response_type to "token id_token" (recommended for OIDC implicit flow)',
-				autoFix: {
-					responseType: specVersion === 'oidc' ? 'token id_token' : 'token',
-				},
-			});
-		}
+			// 4. Response Type Validation
+			if (
+				flowType === 'implicit' &&
+				credentials.responseType &&
+				!credentials.responseType.includes('token')
+			) {
+				const errorMsg = `❌ Response Type Invalid: Implicit flow requires "token" or "token id_token" in response_type, but your configuration has "${credentials.responseType}". This will cause authorization failures.`;
+				errors.push(errorMsg);
+
+				// Make this fixable - auto-set correct response type for implicit flow
+				fixableErrors.push({
+					errorIndex: errors.length - 1,
+					error: errorMsg,
+					fix: 'Update response_type to "token id_token" (recommended for OIDC implicit flow)',
+					autoFix: {
+						responseType: specVersion === 'oidc' ? 'token id_token' : 'token',
+					},
+				});
+			}
 
 			if (flowType === 'hybrid' && credentials.responseType) {
 				// Hybrid flow requires both 'code' and 'token' or 'id_token'
@@ -485,7 +503,7 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 					);
 				} else {
 					// Validate scope format (should be space-separated, no empty segments)
-					const scopeArray = scopes.split(/\s+/).filter(s => s.length > 0);
+					const scopeArray = scopes.split(/\s+/).filter((s) => s.length > 0);
 					if (scopeArray.length === 0) {
 						errors.push(
 							`❌ Invalid Scope Format: Scopes cannot be empty. Please provide valid space-separated scopes in Step 0 (Configuration).`
@@ -586,7 +604,7 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 
 		errors.forEach((error, index) => {
 			const errorLower = error.toLowerCase();
-			
+
 			console.log(`${MODULE_TAG} Analyzing error for fixability`, {
 				index,
 				error,
@@ -642,9 +660,9 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 					// Handle both uppercase and mixed case
 					return method.toLowerCase().replace(/-/g, '_');
 				};
-				
+
 				const normalizedMethod = normalizeForUI(appConfig.tokenEndpointAuthMethod);
-				
+
 				console.log(`${MODULE_TAG} ✅ Found fixable auth method mismatch`, {
 					errorIndex: index,
 					pingOneMethod: appConfig.tokenEndpointAuthMethod,
@@ -667,7 +685,10 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 
 			// 4. OpenID Scope Missing
 			// CRITICAL: PingOne requires 'openid' scope for ALL flows (not just OIDC)
-			else if (errorLower.includes('openid scope required') || (errorLower.includes('openid') && errorLower.includes('scope'))) {
+			else if (
+				errorLower.includes('openid scope required') ||
+				(errorLower.includes('openid') && errorLower.includes('scope'))
+			) {
 				// Fixable for all flows (PingOne requirement)
 				if (!options.credentials.scopes?.includes('openid')) {
 					fixableErrors.push({
@@ -675,7 +696,8 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 						errorType: 'openid_scope_missing',
 						errorMessage: error,
 						fixable: true,
-						fixDescription: 'Add "openid" scope to configuration (PingOne requirement for all flows)',
+						fixDescription:
+							'Add "openid" scope to configuration (PingOne requirement for all flows)',
 						fixData: {
 							addScope: 'openid',
 						},
@@ -684,7 +706,10 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 			}
 
 			// 5. Response Type Invalid
-			else if (errorLower.includes('response type invalid') || (errorLower.includes('response type') && errorLower.includes('required'))) {
+			else if (
+				errorLower.includes('response type invalid') ||
+				(errorLower.includes('response type') && errorLower.includes('required'))
+			) {
 				// Determine correct response type based on flow
 				let correctResponseType = '';
 				if (options.flowType === 'hybrid') {
@@ -754,12 +779,14 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 		const passed = redirectUriResult.passed && oauthConfigResult.passed;
 
 		// Fetch app config for fixable error analysis (if worker token available)
-		let appConfig: {
-			tokenEndpointAuthMethod?: string;
-			pkceEnforced?: boolean;
-			pkceRequired?: boolean;
-			requireSignedRequestObject?: boolean;
-		} | undefined;
+		let appConfig:
+			| {
+					tokenEndpointAuthMethod?: string;
+					pkceEnforced?: boolean;
+					pkceRequired?: boolean;
+					requireSignedRequestObject?: boolean;
+			  }
+			| undefined;
 		if (options.workerToken && options.credentials.environmentId && options.credentials.clientId) {
 			try {
 				const fetchedConfig = await ConfigCheckerServiceV8.fetchAppConfig(

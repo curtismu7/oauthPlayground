@@ -4,8 +4,17 @@
 // Tests MFA registration and authentication flows
 // Allows manual testing without auto-submission
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { FiPlay, FiRefreshCw, FiCheck, FiX, FiCode, FiDatabase, FiShield, FiKey } from 'react-icons/fi';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+	FiCheck,
+	FiCode,
+	FiDatabase,
+	FiKey,
+	FiPlay,
+	FiRefreshCw,
+	FiShield,
+	FiX,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { useWorkerTokenState } from '../../services/workerTokenUIService';
@@ -18,7 +27,14 @@ interface AllFlowsTestConfig {
 	clientSecret: string;
 	redirectUri: string;
 	scopes: string;
-	flowType: 'authorization_code' | 'implicit' | 'hybrid' | 'device_code' | 'client_credentials' | 'mfa_registration' | 'mfa_authentication';
+	flowType:
+		| 'authorization_code'
+		| 'implicit'
+		| 'hybrid'
+		| 'device_code'
+		| 'client_credentials'
+		| 'mfa_registration'
+		| 'mfa_authentication';
 	responseType?:
 		| 'code'
 		| 'token'
@@ -279,7 +295,11 @@ const FlowTypeBadge = styled.span<{ flowtype: string }>`
 
 const AllFlowsApiTest: React.FC = () => {
 	const { apps, selectedAppId, selectApp, getActiveAppConfig } = useCredentialStoreV8();
-	const { hasValidToken: hasWorkerToken, showWorkerTokenModal, setShowWorkerTokenModal } = useWorkerTokenState();
+	const {
+		hasValidToken: hasWorkerToken,
+		showWorkerTokenModal,
+		setShowWorkerTokenModal,
+	} = useWorkerTokenState();
 
 	const [config, setConfig] = useState<AllFlowsTestConfig>({
 		environmentId: '',
@@ -692,17 +712,20 @@ const AllFlowsApiTest: React.FC = () => {
 				throw new Error('Username and device type are required for MFA registration');
 			}
 
-			const response = await fetch(`https://api.pingone.com/v1/environments/${config.environmentId}/users/${config.username}/devices`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${await getWorkerToken()}`,
-				},
-				body: JSON.stringify({
-					deviceType: config.deviceType,
-					deviceName: `Test Device - ${config.deviceType} - ${new Date().toISOString()}`,
-				}),
-			});
+			const response = await fetch(
+				`https://api.pingone.com/v1/environments/${config.environmentId}/users/${config.username}/devices`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${await getWorkerToken()}`,
+					},
+					body: JSON.stringify({
+						deviceType: config.deviceType,
+						deviceName: `Test Device - ${config.deviceType} - ${new Date().toISOString()}`,
+					}),
+				}
+			);
 
 			const duration = Date.now() - startTime;
 			const data = await response.json();
@@ -749,27 +772,35 @@ const AllFlowsApiTest: React.FC = () => {
 			}
 
 			// First, get available devices for the user
-			const devicesResponse = await fetch(`https://api.pingone.com/v1/environments/${config.environmentId}/users/${config.username}/devices`, {
-				headers: {
-					'Authorization': `Bearer ${await getWorkerToken()}`,
-				},
-			});
+			const devicesResponse = await fetch(
+				`https://api.pingone.com/v1/environments/${config.environmentId}/users/${config.username}/devices`,
+				{
+					headers: {
+						Authorization: `Bearer ${await getWorkerToken()}`,
+					},
+				}
+			);
 
 			const devices = await devicesResponse.json();
-			const targetDevice = devices._embedded?.devices?.find((device: any) => device.type === config.deviceType);
+			const targetDevice = devices._embedded?.devices?.find(
+				(device: any) => device.type === config.deviceType
+			);
 
 			if (!targetDevice) {
 				throw new Error(`No ${config.deviceType} device found for user ${config.username}`);
 			}
 
 			// Start MFA authentication
-			const authResponse = await fetch(`https://api.pingone.com/v1/environments/${config.environmentId}/users/${config.username}/devices/${targetDevice.id}/challenge`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${await getWorkerToken()}`,
-				},
-			});
+			const authResponse = await fetch(
+				`https://api.pingone.com/v1/environments/${config.environmentId}/users/${config.username}/devices/${targetDevice.id}/challenge`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${await getWorkerToken()}`,
+					},
+				}
+			);
 
 			const duration = Date.now() - startTime;
 			const authData = await authResponse.json();
@@ -853,7 +884,15 @@ const AllFlowsApiTest: React.FC = () => {
 		} finally {
 			setIsRunning(false);
 		}
-	}, [config, testUrlGeneration, testTokenExchange, testClientCredentials, testDeviceCode, testMFARegistration, testMFAAuthentication]);
+	}, [
+		config,
+		testUrlGeneration,
+		testTokenExchange,
+		testClientCredentials,
+		testDeviceCode,
+		testMFARegistration,
+		testMFAAuthentication,
+	]);
 
 	return (
 		<Container>
@@ -895,7 +934,9 @@ const AllFlowsApiTest: React.FC = () => {
 								onChange={(e) => selectApp(e.target.value || null)}
 								disabled={!hasWorkerToken}
 							>
-								<option key="manual" value="">Manual Configuration</option>
+								<option key="manual" value="">
+									Manual Configuration
+								</option>
 								{apps.map((app) => (
 									<option key={app.id} value={app.id}>
 										{app.name} ({app.clientId?.substring(0, 8)}...)
@@ -910,13 +951,27 @@ const AllFlowsApiTest: React.FC = () => {
 								value={config.flowType}
 								onChange={(e) => handleConfigChange('flowType', e.target.value)}
 							>
-								<option key="auth_code" value="authorization_code">Authorization Code</option>
-								<option key="implicit" value="implicit">Implicit</option>
-								<option key="hybrid" value="hybrid">Hybrid</option>
-								<option key="device_code" value="device_code">Device Code</option>
-								<option key="client_credentials" value="client_credentials">Client Credentials</option>
-								<option key="mfa_registration" value="mfa_registration">MFA Device Registration</option>
-								<option key="mfa_authentication" value="mfa_authentication">MFA Authentication</option>
+								<option key="auth_code" value="authorization_code">
+									Authorization Code
+								</option>
+								<option key="implicit" value="implicit">
+									Implicit
+								</option>
+								<option key="hybrid" value="hybrid">
+									Hybrid
+								</option>
+								<option key="device_code" value="device_code">
+									Device Code
+								</option>
+								<option key="client_credentials" value="client_credentials">
+									Client Credentials
+								</option>
+								<option key="mfa_registration" value="mfa_registration">
+									MFA Device Registration
+								</option>
+								<option key="mfa_authentication" value="mfa_authentication">
+									MFA Authentication
+								</option>
 							</Select>
 						</FormGroup>
 					</FormRow>
@@ -987,12 +1042,24 @@ const AllFlowsApiTest: React.FC = () => {
 									value={config.responseType}
 									onChange={(e) => handleConfigChange('responseType', e.target.value)}
 								>
-									<option key="code" value="code">code</option>
-									<option key="token" value="token">token</option>
-									<option key="id_token token" value="id_token token">id_token token</option>
-									<option key="code token" value="code token">code token</option>
-									<option key="code id_token" value="code id_token">code id_token</option>
-									<option key="code id_token token" value="code id_token token">code id_token token</option>
+									<option key="code" value="code">
+										code
+									</option>
+									<option key="token" value="token">
+										token
+									</option>
+									<option key="id_token token" value="id_token token">
+										id_token token
+									</option>
+									<option key="code token" value="code token">
+										code token
+									</option>
+									<option key="code id_token" value="code id_token">
+										code id_token
+									</option>
+									<option key="code id_token token" value="code id_token token">
+										code id_token token
+									</option>
 								</Select>
 							</FormGroup>
 
@@ -1002,9 +1069,15 @@ const AllFlowsApiTest: React.FC = () => {
 									value={config.responseMode}
 									onChange={(e) => handleConfigChange('responseMode', e.target.value)}
 								>
-									<option key="fragment" value="fragment">fragment</option>
-									<option key="form_post" value="form_post">form_post</option>
-									<option key="query" value="query">query</option>
+									<option key="fragment" value="fragment">
+										fragment
+									</option>
+									<option key="form_post" value="form_post">
+										form_post
+									</option>
+									<option key="query" value="query">
+										query
+									</option>
 								</Select>
 							</FormGroup>
 
@@ -1053,35 +1126,45 @@ const AllFlowsApiTest: React.FC = () => {
 							</FormRow>
 						)}
 
-						{/* MFA-specific fields */}
-						{(config.flowType === 'mfa_registration' || config.flowType === 'mfa_authentication') && (
-							<FormRow>
-								<FormGroup>
-									<Label>Username:</Label>
-									<Input
-										type="text"
-										value={config.username || ''}
-										onChange={(e) => handleConfigChange('username', e.target.value)}
-										placeholder="User ID or username for MFA"
-									/>
-								</FormGroup>
+					{/* MFA-specific fields */}
+					{(config.flowType === 'mfa_registration' || config.flowType === 'mfa_authentication') && (
+						<FormRow>
+							<FormGroup>
+								<Label>Username:</Label>
+								<Input
+									type="text"
+									value={config.username || ''}
+									onChange={(e) => handleConfigChange('username', e.target.value)}
+									placeholder="User ID or username for MFA"
+								/>
+							</FormGroup>
 
-								<FormGroup>
-									<Label>Device Type:</Label>
-									<Select
-										value={config.deviceType || 'sms'}
-										onChange={(e) => handleConfigChange('deviceType', e.target.value)}
-									>
-										<option key="sms" value="sms">SMS</option>
-										<option key="email" value="email">Email</option>
-										<option key="totp" value="totp">TOTP</option>
-										<option key="fido2" value="fido2">FIDO2</option>
-										<option key="push" value="push">Push</option>
-									</Select>
-								</FormGroup>
-							</FormRow>
-						)}
-					</Form>
+							<FormGroup>
+								<Label>Device Type:</Label>
+								<Select
+									value={config.deviceType || 'sms'}
+									onChange={(e) => handleConfigChange('deviceType', e.target.value)}
+								>
+									<option key="sms" value="sms">
+										SMS
+									</option>
+									<option key="email" value="email">
+										Email
+									</option>
+									<option key="totp" value="totp">
+										TOTP
+									</option>
+									<option key="fido2" value="fido2">
+										FIDO2
+									</option>
+									<option key="push" value="push">
+										Push
+									</option>
+								</Select>
+							</FormGroup>
+						</FormRow>
+					)}
+				</Form>
 
 				<ButtonGroup>
 					<Button variant="primary" onClick={runTests} disabled={isRunning}>

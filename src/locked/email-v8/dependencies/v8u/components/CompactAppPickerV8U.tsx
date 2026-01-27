@@ -147,7 +147,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 		// Always show search box immediately for better UX
 		setShowSearch(true);
 		setShowDropdown(true);
-		
+
 		// If apps haven't been discovered yet, discover them
 		if (!hasDiscovered && apps.length === 0 && !isLoading) {
 			await handleDiscover();

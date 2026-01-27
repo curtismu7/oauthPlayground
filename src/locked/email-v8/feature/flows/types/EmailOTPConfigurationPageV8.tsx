@@ -143,7 +143,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 		const processCallback = async () => {
 			// Read storedState INSIDE the function to ensure it's fresh
 			const storedState = sessionStorage.getItem('user_login_state_v8');
-			
+
 			// If no stored state but we have code/state in URL, another component likely handled it
 			// Silently clean the URL to prevent false CSRF warnings
 			if (!storedState && (code || state)) {

@@ -221,12 +221,8 @@ export class P1MFASDK {
 					id: params.fido2Credential.id,
 					rawId: Array.from(new Uint8Array(params.fido2Credential.rawId)),
 					response: {
-						clientDataJSON: Array.from(
-							new Uint8Array(response.clientDataJSON)
-						),
-						attestationObject: Array.from(
-							new Uint8Array(response.attestationObject)
-						),
+						clientDataJSON: Array.from(new Uint8Array(response.clientDataJSON)),
+						attestationObject: Array.from(new Uint8Array(response.attestationObject)),
 					},
 					type: params.fido2Credential.type,
 				});
@@ -385,9 +381,7 @@ export class P1MFASDK {
 	/**
 	 * Initialize device authentication (MFA challenge)
 	 */
-	async initializeAuthentication(
-		params: AuthenticationInitParams
-	): Promise<AuthenticationResult> {
+	async initializeAuthentication(params: AuthenticationInitParams): Promise<AuthenticationResult> {
 		if (!this.config) {
 			throw new ConfigurationError('SDK not initialized. Call initialize() first.');
 		}
@@ -432,23 +426,27 @@ export class P1MFASDK {
 				);
 			}
 
-			const responseData = (await response.json()) as {
-				id: string;
-				status: string;
-				_links?: Record<string, { href: string }>;
-				challengeId?: string;
-				[key: string]: unknown;
-			} | {
-				deviceAuthentication?: {
-					id: string;
-					status: string;
-					_links?: Record<string, { href: string }>;
-					challengeId?: string;
-				};
-			};
+			const responseData = (await response.json()) as
+				| {
+						id: string;
+						status: string;
+						_links?: Record<string, { href: string }>;
+						challengeId?: string;
+						[key: string]: unknown;
+				  }
+				| {
+						deviceAuthentication?: {
+							id: string;
+							status: string;
+							_links?: Record<string, { href: string }>;
+							challengeId?: string;
+						};
+				  };
 
 			// Backend proxy may wrap response or return directly
-			const data = (responseData as { deviceAuthentication?: { id: string; status: string } }).deviceAuthentication || (responseData as { id: string; status: string });
+			const data =
+				(responseData as { deviceAuthentication?: { id: string; status: string } })
+					.deviceAuthentication || (responseData as { id: string; status: string });
 
 			return {
 				authenticationId: data.id,

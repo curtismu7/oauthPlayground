@@ -12,10 +12,10 @@ import React, { useState } from 'react';
 import { FiBook, FiDownload, FiFileText, FiX } from 'react-icons/fi';
 import type { FlowType, SpecVersion } from '../../v8/services/specVersionServiceV8.ts';
 import {
-	generateUnifiedFlowMarkdown,
+	type DocumentationApiCall,
 	downloadAsMarkdown,
 	downloadAsPDF,
-	type DocumentationApiCall,
+	generateUnifiedFlowMarkdown,
 } from './UnifiedFlowDocumentationPageV8U';
 
 interface UseCase {
@@ -32,7 +32,13 @@ interface UnifiedDocumentationModalV8UProps {
 }
 
 const SPEC_VERSIONS: SpecVersion[] = ['oauth2.0', 'oidc', 'oauth2.1'];
-const FLOW_TYPES: FlowType[] = ['oauth-authz', 'implicit', 'client-credentials', 'device-code', 'hybrid'];
+const FLOW_TYPES: FlowType[] = [
+	'oauth-authz',
+	'implicit',
+	'client-credentials',
+	'device-code',
+	'hybrid',
+];
 
 const FLOW_TYPE_LABELS: Record<FlowType, string> = {
 	'oauth-authz': 'Authorization Code',
@@ -71,7 +77,10 @@ SPEC_VERSIONS.forEach((specVersion) => {
 
 // Generate mock API calls for documentation purposes
 // In a real implementation, these would be generated from actual flow execution data
-const generateMockApiCalls = (flowType: FlowType, specVersion: SpecVersion): DocumentationApiCall[] => {
+const generateMockApiCalls = (
+	flowType: FlowType,
+	specVersion: SpecVersion
+): DocumentationApiCall[] => {
 	const baseCalls: DocumentationApiCall[] = [];
 
 	// Common: Build Authorization URL
@@ -83,7 +92,12 @@ const generateMockApiCalls = (flowType: FlowType, specVersion: SpecVersion): Doc
 			description: `Build authorization URL for ${FLOW_TYPE_LABELS[flowType]} flow (${SPEC_VERSION_LABELS[specVersion]})`,
 			requestBody: {
 				client_id: '{{client_id}}',
-				response_type: flowType === 'oauth-authz' ? 'code' : flowType === 'implicit' ? 'token id_token' : 'code id_token',
+				response_type:
+					flowType === 'oauth-authz'
+						? 'code'
+						: flowType === 'implicit'
+							? 'token id_token'
+							: 'code id_token',
 				redirect_uri: '{{redirect_uri}}',
 				scope: specVersion === 'oauth2.0' ? 'openid' : 'openid profile email',
 				state: '{{state}}',
@@ -251,13 +265,16 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 		markdown += `This document contains comprehensive API documentation for ${useCases.length} selected Unified flow use case${useCases.length !== 1 ? 's' : ''}.\n\n`;
 
 		// Group by spec version
-		const groupedBySpec = useCases.reduce((acc, uc) => {
-			if (!acc[uc.specVersion]) {
-				acc[uc.specVersion] = [];
-			}
-			acc[uc.specVersion].push(uc);
-			return acc;
-		}, {} as Record<SpecVersion, UseCase[]>);
+		const groupedBySpec = useCases.reduce(
+			(acc, uc) => {
+				if (!acc[uc.specVersion]) {
+					acc[uc.specVersion] = [];
+				}
+				acc[uc.specVersion].push(uc);
+				return acc;
+			},
+			{} as Record<SpecVersion, UseCase[]>
+		);
 
 		// Generate documentation for each use case
 		for (const [specVersion, cases] of Object.entries(groupedBySpec)) {
@@ -265,7 +282,10 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 			for (const useCase of cases) {
 				// Generate mock API calls for documentation
 				// In a real implementation, these would come from the actual flow execution
-				const apiCalls: DocumentationApiCall[] = generateMockApiCalls(useCase.flowType, useCase.specVersion);
+				const apiCalls: DocumentationApiCall[] = generateMockApiCalls(
+					useCase.flowType,
+					useCase.specVersion
+				);
 				const useCaseMarkdown = generateUnifiedFlowMarkdown(
 					useCase.flowType,
 					useCase.specVersion,
@@ -297,20 +317,26 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 		combinedMarkdown += `This document contains comprehensive API documentation for ${useCases.length} selected Unified flow use case${useCases.length !== 1 ? 's' : ''}.\n\n`;
 
 		// Group by spec version
-		const groupedBySpec = useCases.reduce((acc, uc) => {
-			if (!acc[uc.specVersion]) {
-				acc[uc.specVersion] = [];
-			}
-			acc[uc.specVersion].push(uc);
-			return acc;
-		}, {} as Record<SpecVersion, UseCase[]>);
+		const groupedBySpec = useCases.reduce(
+			(acc, uc) => {
+				if (!acc[uc.specVersion]) {
+					acc[uc.specVersion] = [];
+				}
+				acc[uc.specVersion].push(uc);
+				return acc;
+			},
+			{} as Record<SpecVersion, UseCase[]>
+		);
 
 		// Generate documentation for each use case
 		for (const [specVersion, cases] of Object.entries(groupedBySpec)) {
 			combinedMarkdown += `\n\n## ${SPEC_VERSION_LABELS[specVersion as SpecVersion]}\n\n`;
 			for (const useCase of cases) {
 				// Generate mock API calls for documentation
-				const apiCalls: DocumentationApiCall[] = generateMockApiCalls(useCase.flowType, useCase.specVersion);
+				const apiCalls: DocumentationApiCall[] = generateMockApiCalls(
+					useCase.flowType,
+					useCase.specVersion
+				);
 				const useCaseMarkdown = generateUnifiedFlowMarkdown(
 					useCase.flowType,
 					useCase.specVersion,
@@ -506,7 +532,8 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 												marginTop: '4px',
 											}}
 										>
-											{FLOW_TYPE_LABELS[useCase.flowType]} • {SPEC_VERSION_LABELS[useCase.specVersion]}
+											{FLOW_TYPE_LABELS[useCase.flowType]} •{' '}
+											{SPEC_VERSION_LABELS[useCase.specVersion]}
 										</div>
 									</div>
 								</label>

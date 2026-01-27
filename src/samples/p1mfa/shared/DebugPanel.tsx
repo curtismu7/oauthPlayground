@@ -34,7 +34,15 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
 		if (typeof body !== 'object') return body;
 
 		const sanitized = { ...(body as Record<string, unknown>) };
-		const sensitiveKeys = ['token', 'secret', 'password', 'otp', 'client_secret', 'access_token', 'refresh_token'];
+		const sensitiveKeys = [
+			'token',
+			'secret',
+			'password',
+			'otp',
+			'client_secret',
+			'access_token',
+			'refresh_token',
+		];
 
 		for (const key of sensitiveKeys) {
 			if (key in sanitized) {
@@ -73,8 +81,17 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
 
 			{/* State Machine Status */}
 			{stateMachineStatus && (
-				<div style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: '#fff', borderRadius: '4px' }}>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+				<div
+					style={{
+						marginBottom: '1rem',
+						padding: '0.75rem',
+						backgroundColor: '#fff',
+						borderRadius: '4px',
+					}}
+				>
+					<div
+						style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}
+					>
 						<strong>State Machine Status:</strong>
 						<span
 							style={{
@@ -82,9 +99,11 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
 								backgroundColor:
 									stateMachineStatus.includes('REQUIRED') || stateMachineStatus.includes('PENDING')
 										? '#fff3cd'
-										: stateMachineStatus.includes('COMPLETE') || stateMachineStatus.includes('ACTIVE')
+										: stateMachineStatus.includes('COMPLETE') ||
+												stateMachineStatus.includes('ACTIVE')
 											? '#d4edda'
-											: stateMachineStatus.includes('ERROR') || stateMachineStatus.includes('FAILED')
+											: stateMachineStatus.includes('ERROR') ||
+													stateMachineStatus.includes('FAILED')
 												? '#f8d7da'
 												: '#e7f3ff',
 								borderRadius: '4px',
@@ -99,10 +118,24 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
 
 			{/* Correlation ID */}
 			{correlationId && (
-				<div style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: '#fff', borderRadius: '4px' }}>
+				<div
+					style={{
+						marginBottom: '1rem',
+						padding: '0.75rem',
+						backgroundColor: '#fff',
+						borderRadius: '4px',
+					}}
+				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 						<strong>Correlation ID:</strong>
-						<code style={{ flex: 1, padding: '0.25rem 0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+						<code
+							style={{
+								flex: 1,
+								padding: '0.25rem 0.5rem',
+								backgroundColor: '#f8f9fa',
+								borderRadius: '4px',
+							}}
+						>
 							{correlationId}
 						</code>
 						<button
@@ -125,7 +158,14 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
 
 			{/* Copyable Values */}
 			{Object.keys(copyableValues).length > 0 && (
-				<div style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: '#fff', borderRadius: '4px' }}>
+				<div
+					style={{
+						marginBottom: '1rem',
+						padding: '0.75rem',
+						backgroundColor: '#fff',
+						borderRadius: '4px',
+					}}
+				>
 					<strong style={{ display: 'block', marginBottom: '0.5rem' }}>Quick Copy:</strong>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
 						{Object.entries(copyableValues).map(([key, value]) => (
@@ -168,14 +208,27 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
 			{request && (
 				<div style={{ marginBottom: '1rem' }}>
 					<strong style={{ display: 'block', marginBottom: '0.5rem' }}>Request:</strong>
-					<div style={{ padding: '0.75rem', backgroundColor: '#fff', borderRadius: '4px', overflow: 'auto' }}>
+					<div
+						style={{
+							padding: '0.75rem',
+							backgroundColor: '#fff',
+							borderRadius: '4px',
+							overflow: 'auto',
+						}}
+					>
 						<div style={{ marginBottom: '0.5rem' }}>
 							<strong>Method:</strong> {request.method || 'N/A'}
 						</div>
 						{request.url && (
 							<div style={{ marginBottom: '0.5rem' }}>
 								<strong>URL:</strong>{' '}
-								<code style={{ padding: '0.25rem 0.5rem', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+								<code
+									style={{
+										padding: '0.25rem 0.5rem',
+										backgroundColor: '#f8f9fa',
+										borderRadius: '4px',
+									}}
+								>
 									{request.url}
 								</code>
 							</div>

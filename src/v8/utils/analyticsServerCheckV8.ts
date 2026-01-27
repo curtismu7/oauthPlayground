@@ -3,10 +3,10 @@
  * @module v8/utils
  * @description Check if analytics server is available before making calls
  * @version 1.0.0
- * 
+ *
  * This utility checks if the analytics server at 127.0.0.1:7242 is available
  * to prevent console spam from connection refused errors.
- * 
+ *
  * NOTE: Analytics completely disabled to prevent connection errors
  */
 
@@ -18,7 +18,7 @@ const FAILED_CACHE_DURATION = 600000; // Cache failure for 10 minutes (once it f
 
 let serverAvailable: boolean | null = null;
 let lastCheckTime: number = 0;
-let hasEverSucceeded = false; // Track if server has ever been available
+const hasEverSucceeded = false; // Track if server has ever been available
 
 /**
  * Check if analytics server is available (always returns false - disabled)

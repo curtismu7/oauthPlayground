@@ -6,9 +6,9 @@
  */
 
 import React, { useState } from 'react';
-import { P1MFASDK, type AuthenticationResult } from '@/sdk/p1mfa';
 import { DebugPanel } from '@/samples/p1mfa/shared/DebugPanel';
 import { StatusDisplay } from '@/samples/p1mfa/shared/StatusDisplay';
+import { type AuthenticationResult, P1MFASDK } from '@/sdk/p1mfa';
 
 interface AuthSmsProps {
 	sdk: P1MFASDK;
@@ -131,12 +131,14 @@ export const AuthSms: React.FC<AuthSmsProps> = ({ sdk, userId, policyId, deviceI
 			<div>
 				<StatusDisplay status={status} message={message} request={request} response={response} />
 				<DebugPanel
-					request={request as {
-						method?: string;
-						url?: string;
-						headers?: Record<string, string>;
-						body?: unknown;
-					}}
+					request={
+						request as {
+							method?: string;
+							url?: string;
+							headers?: Record<string, string>;
+							body?: unknown;
+						}
+					}
 					response={response}
 					correlationId={correlationId}
 					stateMachineStatus={stateMachineStatus}
@@ -177,12 +179,14 @@ export const AuthSms: React.FC<AuthSmsProps> = ({ sdk, userId, policyId, deviceI
 				<div>
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					<DebugPanel
-						request={request as {
-							method?: string;
-							url?: string;
-							headers?: Record<string, string>;
-							body?: unknown;
-						}}
+						request={
+							request as {
+								method?: string;
+								url?: string;
+								headers?: Record<string, string>;
+								body?: unknown;
+							}
+						}
 						response={response}
 						correlationId={correlationId}
 						stateMachineStatus={stateMachineStatus}
@@ -198,12 +202,14 @@ export const AuthSms: React.FC<AuthSmsProps> = ({ sdk, userId, policyId, deviceI
 				<div>
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					<DebugPanel
-						request={request as {
-							method?: string;
-							url?: string;
-							headers?: Record<string, string>;
-							body?: unknown;
-						}}
+						request={
+							request as {
+								method?: string;
+								url?: string;
+								headers?: Record<string, string>;
+								body?: unknown;
+							}
+						}
 						response={response}
 						correlationId={correlationId}
 						stateMachineStatus={stateMachineStatus}
@@ -258,12 +264,14 @@ export const AuthSms: React.FC<AuthSmsProps> = ({ sdk, userId, policyId, deviceI
 				<div>
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					<DebugPanel
-						request={request as {
-							method?: string;
-							url?: string;
-							headers?: Record<string, string>;
-							body?: unknown;
-						}}
+						request={
+							request as {
+								method?: string;
+								url?: string;
+								headers?: Record<string, string>;
+								body?: unknown;
+							}
+						}
 						response={response}
 						correlationId={correlationId}
 						stateMachineStatus={stateMachineStatus}

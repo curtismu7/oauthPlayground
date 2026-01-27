@@ -13,7 +13,10 @@ import {
 	type DiscoveredApplication,
 } from '@/v8/services/appDiscoveryServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusServiceV8,
+} from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔍 APP-DISCOVERY-MODAL-V8U]';
@@ -104,10 +107,10 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 
 		setIsLoading(true);
 		setApps([]);
-		
+
 		try {
 			console.log(`${MODULE_TAG} Getting worker token from global service...`);
-			
+
 			// Get worker token directly from global service
 			const workerToken = await workerTokenServiceV8.getToken();
 
@@ -132,19 +135,19 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 			}
 
 			console.log(`${MODULE_TAG} Calling AppDiscoveryServiceV8.discoverApplications...`);
-			
+
 			const discovered = await AppDiscoveryServiceV8.discoverApplications(
 				environmentId.trim(),
 				workerToken.trim()
 			);
-			
+
 			console.log(`${MODULE_TAG} Discovery result:`, {
 				hasData: !!discovered,
 				isArray: Array.isArray(discovered),
 				length: discovered?.length || 0,
 				firstApp: discovered?.[0]?.name || 'none',
 			});
-			
+
 			if (discovered && Array.isArray(discovered) && discovered.length > 0) {
 				// Map to DiscoveredApp format, but keep full app data for applying config
 				const mappedApps: (DiscoveredApp & { fullApp?: DiscoveredApplication })[] = discovered.map(
@@ -158,7 +161,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 						fullApp: app, // Store full app data for applying config
 					})
 				);
-				
+
 				console.log(`${MODULE_TAG} Successfully mapped ${mappedApps.length} applications`);
 				setApps(mappedApps);
 				toastV8.success(`Found ${mappedApps.length} application(s)`);
@@ -178,10 +181,10 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 				environmentId,
 				tokenValid: tokenStatus.isValid,
 			});
-			
+
 			// Enhanced error messages based on error type
 			let errorMessage = 'Failed to discover applications';
-			
+
 			if (error instanceof Error) {
 				if (error.message.includes('Failed to fetch')) {
 					errorMessage = 'Network error - check connection and try again';
@@ -195,7 +198,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 					errorMessage = 'Worker token issue - please generate a new one';
 				}
 			}
-			
+
 			toastV8.error(errorMessage);
 		} finally {
 			setIsLoading(false);
@@ -729,11 +732,10 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 								}}
 							>
 								<div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
-								<div style={{ fontWeight: '600', marginBottom: '8px' }}>
-									No Applications Found
-								</div>
+								<div style={{ fontWeight: '600', marginBottom: '8px' }}>No Applications Found</div>
 								<div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '20px' }}>
-									No applications were found in this environment. Check your environment ID and permissions.
+									No applications were found in this environment. Check your environment ID and
+									permissions.
 								</div>
 								<div style={{ fontSize: '12px', color: '#6b7280' }}>
 									<strong>Troubleshooting tips:</strong>

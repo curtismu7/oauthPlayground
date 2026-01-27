@@ -6,13 +6,13 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { MFADeviceSelector } from '../components/MFADeviceSelector';
-import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { CollapsibleSectionV8 } from '@/v8/components/shared/CollapsibleSectionV8';
 import { SuccessMessage } from '@/v8/components/shared/MessageBoxV8';
-import type { MFACredentials, MFAState } from '../shared/MFATypes';
+import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import type { MFAFlowBaseRenderProps } from '../shared/MFAFlowBaseV8';
+import type { MFACredentials, MFAState } from '../shared/MFATypes';
 
 const MODULE_TAG = '[📱 SMS-DEVICE-SELECTION-V8]';
 
@@ -183,12 +183,18 @@ export const SMSDeviceSelectionStep: React.FC<SMSDeviceSelectionStepProps> = ({
 						});
 						nav.markStepComplete();
 						nav.goToStep(3);
-						toastV8.success('Device selected for authentication. Follow the next step to continue.');
+						toastV8.success(
+							'Device selected for authentication. Follow the next step to continue.'
+						);
 				}
 			} catch (error) {
 				console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
-				nav.setValidationErrors([`Failed to authenticate: ${error instanceof Error ? error.message : 'Unknown error'}`]);
-				toastV8.error(`Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+				nav.setValidationErrors([
+					`Failed to authenticate: ${error instanceof Error ? error.message : 'Unknown error'}`,
+				]);
+				toastV8.error(
+					`Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+				);
 				updateOtpState({ otpSent: false });
 			}
 		});
@@ -217,7 +223,7 @@ export const SMSDeviceSelectionStep: React.FC<SMSDeviceSelectionStepProps> = ({
 	};
 
 	return (
-		<CollapsibleSectionV8 
+		<CollapsibleSectionV8
 			title="Select SMS Device - Choose an existing device or register a new one"
 			defaultExpanded={true}
 		>
@@ -230,7 +236,7 @@ export const SMSDeviceSelectionStep: React.FC<SMSDeviceSelectionStepProps> = ({
 				onUseSelected={handleSelectExistingDevice}
 				renderDeviceInfo={(device) => <>{device.status && `Status: ${device.status}`}</>}
 			/>
-			
+
 			{mfaState.deviceId && (
 				<SuccessMessage title="Device Ready">
 					<p>

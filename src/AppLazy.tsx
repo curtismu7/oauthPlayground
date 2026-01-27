@@ -386,11 +386,7 @@ const AppRoutes = () => {
 			</LazyRouteWrapper>
 
 			<LazyRouteWrapper fallbackMessage="Loading page spinner...">
-				<LoadingSpinnerModalV8U
-					show={showPageSpinner}
-					message="Loading page..."
-					theme="blue"
-				/>
+				<LoadingSpinnerModalV8U show={showPageSpinner} message="Loading page..." theme="blue" />
 			</LazyRouteWrapper>
 		</>
 	);

@@ -1,6 +1,22 @@
 import React, { useState } from 'react';
+import {
+	FiAlertTriangle,
+	FiArrowRight,
+	FiBarChart2,
+	FiCheck,
+	FiCheckCircle,
+	FiClock,
+	FiDatabase,
+	FiDownload,
+	FiInfo,
+	FiLock,
+	FiRefreshCw,
+	FiShield,
+	FiUsers,
+	FiX,
+	FiZap,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiArrowRight, FiShield, FiZap, FiUsers, FiLock, FiInfo, FiCheck, FiX, FiAlertTriangle, FiBarChart2, FiClock, FiDatabase, FiRefreshCw, FiDownload, FiCheckCircle } from 'react-icons/fi';
 import { type FlowType } from '../../v8/services/specVersionServiceV8';
 import { FlowComparisonTool } from '../components/FlowComparisonTool';
 
@@ -51,7 +67,7 @@ const StatCard = styled.div`
 const StatIcon = styled.div<{ $color?: string }>`
   font-size: 2rem;
   margin-bottom: 0.5rem;
-  color: ${props => props.$color || '#64748b'};
+  color: ${(props) => props.$color || '#64748b'};
 `;
 
 const StatValue = styled.div`
@@ -115,7 +131,7 @@ const FeatureItem = styled.li`
 
 const FeatureIcon = styled.div<{ $color?: string }>`
   font-size: 1rem;
-  color: ${props => props.$color || '#3b82f6'};
+  color: ${(props) => props.$color || '#3b82f6'};
 `;
 
 const FeatureText = styled.div`
@@ -131,19 +147,19 @@ const FeatureStatus = styled.span<{ $enabled: boolean }>`
   font-size: 0.75rem;
   font-weight: 500;
   
-  ${props => {
-    return props.$enabled 
-      ? `
+  ${(props) => {
+		return props.$enabled
+			? `
         background: #dcfce7;
         color: #166534;
         border-color: #86efac;
       `
-      : `
+			: `
         background: #f3f4f6;
         color: #6b7280;
         border-color: #d1d5db;
       `;
-  }}
+	}}
 `;
 
 const ActionButtons = styled.div`
@@ -165,10 +181,10 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
   align-items: center;
   gap: 0.5rem;
   
-  ${props => {
-    switch (props.$variant) {
-      case 'primary':
-        return `
+  ${(props) => {
+		switch (props.$variant) {
+			case 'primary':
+				return `
           background: #3b82f6;
           border-color: #3b82f6;
           color: white;
@@ -178,8 +194,8 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
             border-color: #2563eb;
           }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background: #ef4444;
           border-color: #ef4444;
           color: white;
@@ -189,8 +205,8 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
             border-color: #dc2626;
           }
         `;
-      default:
-        return `
+			default:
+				return `
           background: white;
           border-color: #e2e8f0;
           color: #64748b;
@@ -201,8 +217,8 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
             color: #475569;
           }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const ComparisonStats = styled.div`
@@ -233,384 +249,388 @@ const StatItemLabel = styled.div`
 `;
 
 const FlowMetrics = {
-  'oauth-authz': {
-    name: 'Authorization Code',
-    security: 'excellent',
-    complexity: 'fair',
-    performance: 'good',
-    scalability: 'excellent',
-    userExperience: 'good',
-    tokenSecurity: 'excellent',
-    bestFor: ['Web applications', 'Server-side apps', 'High security requirements'],
-    pros: [
-      'Most secure OAuth flow',
-      'Tokens never exposed to browser',
-      'Supports refresh tokens',
-      'PKCE support for enhanced security'
-    ],
-    cons: [
-      'Requires server-side component',
-      'More complex than implicit flow',
-      'Additional round trips'
-    ]
-  },
-  'implicit': {
-    name: 'Implicit',
-    security: 'poor',
-    complexity: 'excellent',
-    performance: 'excellent',
-    scalability: 'fair',
-    userExperience: 'excellent',
-    tokenSecurity: 'poor',
-    bestFor: ['Legacy applications', 'Simple SPAs', 'Limited server resources'],
-    pros: [
-      'Fast and simple',
-      'No server-side storage needed',
-      'Single request-response',
-      'Good for mobile apps'
-    ],
-    cons: [
-      'Tokens exposed in URL',
-      'No refresh token support',
-      'Security vulnerabilities',
-      'Deprecated in OAuth 2.1'
-    ]
-  },
-  'client-credentials': {
-    name: 'Client Credentials',
-    security: 'excellent',
-    complexity: 'excellent',
-    performance: 'excellent',
-    scalability: 'excellent',
-    userExperience: 'good',
-    tokenSecurity: 'excellent',
-    bestFor: ['API services', 'Backend services', 'Machine-to-machine'],
-    pros: [
-      'Simple and secure',
-      'No user interaction required',
-      'High performance',
-      'Ideal for service-to-service'
-    ],
-    cons: [
-      'No user context',
-      'Cannot access user resources',
-      'Limited to client scopes'
-    ]
-  },
-  'device-code': {
-    name: 'Device Code',
-    security: 'excellent',
-    complexity: 'fair',
-    performance: 'fair',
-    scalability: 'good',
-    userExperience: 'fair',
-    tokenSecurity: 'excellent',
-    bestFor: ['IoT devices', 'Smart TVs', 'CLI applications'],
-    pros: [
-      'Works on input-constrained devices',
-      'Secure user authentication',
-      'Good user experience for devices',
-      'Supports polling mechanism'
-    ],
-    cons: [
-      'Multi-step process',
-      'Requires secondary device',
-      'Slower than other flows',
-      'More complex UX'
-    ]
-  },
-  'hybrid': {
-    name: 'Hybrid',
-    security: 'good',
-    complexity: 'poor',
-    performance: 'fair',
-    scalability: 'good',
-    userExperience: 'fair',
-    tokenSecurity: 'good',
-    bestFor: ['Complex applications', 'Migrated systems', 'Special requirements'],
-    pros: [
-      'Flexible token delivery',
-      'Reduced round trips',
-      'Supports multiple token types',
-      'Backward compatible'
-    ],
-    cons: [
-      'Most complex flow',
-      'Security considerations',
-      'Harder to implement correctly',
-      'Limited use cases'
-    ]
-  },
-  'ropc': {
-    name: 'Resource Owner Password',
-    security: 'poor',
-    complexity: 'excellent',
-    performance: 'excellent',
-    scalability: 'fair',
-    userExperience: 'excellent',
-    tokenSecurity: 'poor',
-    bestFor: ['Trusted applications', 'Legacy systems', 'Internal tools'],
-    pros: [
-      'Simple to implement',
-      'Fast authentication',
-      'No redirects needed',
-      'Good for trusted clients'
-    ],
-    cons: [
-      'Security risks with passwords',
-      'Not recommended for new apps',
-      'Requires user credentials',
-      'Limited to trusted applications'
-    ]
-  }
+	'oauth-authz': {
+		name: 'Authorization Code',
+		security: 'excellent',
+		complexity: 'fair',
+		performance: 'good',
+		scalability: 'excellent',
+		userExperience: 'good',
+		tokenSecurity: 'excellent',
+		bestFor: ['Web applications', 'Server-side apps', 'High security requirements'],
+		pros: [
+			'Most secure OAuth flow',
+			'Tokens never exposed to browser',
+			'Supports refresh tokens',
+			'PKCE support for enhanced security',
+		],
+		cons: [
+			'Requires server-side component',
+			'More complex than implicit flow',
+			'Additional round trips',
+		],
+	},
+	implicit: {
+		name: 'Implicit',
+		security: 'poor',
+		complexity: 'excellent',
+		performance: 'excellent',
+		scalability: 'fair',
+		userExperience: 'excellent',
+		tokenSecurity: 'poor',
+		bestFor: ['Legacy applications', 'Simple SPAs', 'Limited server resources'],
+		pros: [
+			'Fast and simple',
+			'No server-side storage needed',
+			'Single request-response',
+			'Good for mobile apps',
+		],
+		cons: [
+			'Tokens exposed in URL',
+			'No refresh token support',
+			'Security vulnerabilities',
+			'Deprecated in OAuth 2.1',
+		],
+	},
+	'client-credentials': {
+		name: 'Client Credentials',
+		security: 'excellent',
+		complexity: 'excellent',
+		performance: 'excellent',
+		scalability: 'excellent',
+		userExperience: 'good',
+		tokenSecurity: 'excellent',
+		bestFor: ['API services', 'Backend services', 'Machine-to-machine'],
+		pros: [
+			'Simple and secure',
+			'No user interaction required',
+			'High performance',
+			'Ideal for service-to-service',
+		],
+		cons: ['No user context', 'Cannot access user resources', 'Limited to client scopes'],
+	},
+	'device-code': {
+		name: 'Device Code',
+		security: 'excellent',
+		complexity: 'fair',
+		performance: 'fair',
+		scalability: 'good',
+		userExperience: 'fair',
+		tokenSecurity: 'excellent',
+		bestFor: ['IoT devices', 'Smart TVs', 'CLI applications'],
+		pros: [
+			'Works on input-constrained devices',
+			'Secure user authentication',
+			'Good user experience for devices',
+			'Supports polling mechanism',
+		],
+		cons: [
+			'Multi-step process',
+			'Requires secondary device',
+			'Slower than other flows',
+			'More complex UX',
+		],
+	},
+	hybrid: {
+		name: 'Hybrid',
+		security: 'good',
+		complexity: 'poor',
+		performance: 'fair',
+		scalability: 'good',
+		userExperience: 'fair',
+		tokenSecurity: 'good',
+		bestFor: ['Complex applications', 'Migrated systems', 'Special requirements'],
+		pros: [
+			'Flexible token delivery',
+			'Reduced round trips',
+			'Supports multiple token types',
+			'Backward compatible',
+		],
+		cons: [
+			'Most complex flow',
+			'Security considerations',
+			'Harder to implement correctly',
+			'Limited use cases',
+		],
+	},
+	ropc: {
+		name: 'Resource Owner Password',
+		security: 'poor',
+		complexity: 'excellent',
+		performance: 'excellent',
+		scalability: 'fair',
+		userExperience: 'excellent',
+		tokenSecurity: 'poor',
+		bestFor: ['Trusted applications', 'Legacy systems', 'Internal tools'],
+		pros: [
+			'Simple to implement',
+			'Fast authentication',
+			'No redirects needed',
+			'Good for trusted clients',
+		],
+		cons: [
+			'Security risks with passwords',
+			'Not recommended for new apps',
+			'Requires user credentials',
+			'Limited to trusted applications',
+		],
+	},
 };
 
 export const FlowComparisonPage: React.FC = () => {
-  const [selectedFlows, setSelectedFlows] = useState<FlowType[]>(['oauth-authz', 'implicit']);
-  const [comparisonMode, setComparisonMode] = useState<'detailed' | 'matrix'>('detailed');
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
+	const [selectedFlows, setSelectedFlows] = useState<FlowType[]>(['oauth-authz', 'implicit']);
+	const [comparisonMode, setComparisonMode] = useState<'detailed' | 'matrix'>('detailed');
+	const [message, setMessage] = useState('');
+	const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
 
-  // Handle flow selection
-  const handleFlowSelect = (flowType: FlowType) => {
-    setSelectedFlows((previous) => {
-      if (previous.includes(flowType)) {
-        return previous;
-      }
+	// Handle flow selection
+	const handleFlowSelect = (flowType: FlowType) => {
+		setSelectedFlows((previous) => {
+			if (previous.includes(flowType)) {
+				return previous;
+			}
 
-      const updated = [flowType, ...previous];
-      return updated.slice(0, 4);
-    });
+			const updated = [flowType, ...previous];
+			return updated.slice(0, 4);
+		});
 
-    const friendlyName = FlowMetrics[flowType]?.name ?? flowType;
-    setMessage(`Selected ${friendlyName} flow for implementation`);
-    setMessageType('success');
-  };
+		const friendlyName = FlowMetrics[flowType]?.name ?? flowType;
+		setMessage(`Selected ${friendlyName} flow for implementation`);
+		setMessageType('success');
+	};
 
-  // Export comparison results
-  const handleExportComparison = () => {
-    const comparisonData = selectedFlows.map(flowType => ({
-      flow: flowType,
-      metrics: FlowMetrics[flowType],
-    }));
+	// Export comparison results
+	const handleExportComparison = () => {
+		const comparisonData = selectedFlows.map((flowType) => ({
+			flow: flowType,
+			metrics: FlowMetrics[flowType],
+		}));
 
-    const blob = new Blob([JSON.stringify(comparisonData, null, 2)], {
-      type: 'application/json',
-    });
-    
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `flow-comparison-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    setMessage('Comparison results exported successfully');
-    setMessageType('success');
-  };
+		const blob = new Blob([JSON.stringify(comparisonData, null, 2)], {
+			type: 'application/json',
+		});
 
-  // Calculate statistics
-  const stats = {
-    totalFlows: Object.keys(FlowMetrics).length,
-    selectedFlows: selectedFlows.length,
-    avgSecurity: selectedFlows.length > 0 
-      ? selectedFlows.reduce((sum, flow) => {
-          const rating = FlowMetrics[flow].security;
-          return sum + (rating === 'excellent' ? 4 : rating === 'good' ? 3 : rating === 'fair' ? 2 : 1);
-        }, 0) / selectedFlows.length
-      : 0,
-    avgComplexity: selectedFlows.length > 0
-      ? selectedFlows.reduce((sum, flow) => {
-          const rating = FlowMetrics[flow].complexity;
-          return sum + (rating === 'excellent' ? 4 : rating === 'good' ? 3 : rating === 'fair' ? 2 : 1);
-        }, 0) / selectedFlows.length
-      : 0,
-  };
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `flow-comparison-${new Date().toISOString().split('T')[0]}.json`;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		URL.revokeObjectURL(url);
 
-  return (
-    <PageContainer>
-      <PageHeader>
-        <PageTitle>📊 Flow Comparison Tool</PageTitle>
-        <PageSubtitle>
-          Compare different OAuth flows to understand their security implications, performance characteristics, and best use cases
-        </PageSubtitle>
-      </PageHeader>
+		setMessage('Comparison results exported successfully');
+		setMessageType('success');
+	};
 
-      {message && (
-        <div style={{
-          marginBottom: '1rem',
-        }}>
-          <div style={{
-            padding: '1rem',
-            borderRadius: '8px',
-            background: messageType === 'success' ? '#f0fdf4' : messageType === 'error' ? '#fef2f2' : '#eff6ff',
-            border: `1px solid ${messageType === 'success' ? '#86efac' : messageType === 'error' ? '#fecaca' : '#bfdbfe'}`,
-            color: messageType === 'success' ? '#166534' : messageType === 'error' ? '#991b1b' : '#1e40af',
-            textAlign: 'center',
-          }}>
-            {message}
-          </div>
-        </div>
-      )}
+	// Calculate statistics
+	const stats = {
+		totalFlows: Object.keys(FlowMetrics).length,
+		selectedFlows: selectedFlows.length,
+		avgSecurity:
+			selectedFlows.length > 0
+				? selectedFlows.reduce((sum, flow) => {
+						const rating = FlowMetrics[flow].security;
+						return (
+							sum + (rating === 'excellent' ? 4 : rating === 'good' ? 3 : rating === 'fair' ? 2 : 1)
+						);
+					}, 0) / selectedFlows.length
+				: 0,
+		avgComplexity:
+			selectedFlows.length > 0
+				? selectedFlows.reduce((sum, flow) => {
+						const rating = FlowMetrics[flow].complexity;
+						return (
+							sum + (rating === 'excellent' ? 4 : rating === 'good' ? 3 : rating === 'fair' ? 2 : 1)
+						);
+					}, 0) / selectedFlows.length
+				: 0,
+	};
 
-      {/* Statistics */}
-      <StatsGrid>
-        <StatCard>
-          <StatIcon $color="#3b82f6">
-            <FiBarChart2 />
-          </StatIcon>
-          <StatValue>{stats.totalFlows}</StatValue>
-          <StatLabel>Total Flows</StatLabel>
-        </StatCard>
-        
-        <StatCard>
-          <StatIcon $color="#10b981">
-            <FiCheckCircle />
-          </StatIcon>
-          <StatValue>{stats.selectedFlows}</StatValue>
-          <StatLabel>Selected Flows</StatLabel>
-        </StatCard>
-        
-        <StatCard>
-          <StatIcon $color="#f59e0b">
-            <FiShield />
-          </StatIcon>
-          <StatValue>{stats.avgSecurity.toFixed(1)}</StatValue>
-          <StatLabel>Avg Security</StatLabel>
-        </StatCard>
-        
-        <StatCard>
-          <StatIcon $color="#8b5cf6">
-            <FiClock />
-          </StatIcon>
-          <StatValue>{stats.avgComplexity.toFixed(1)}</StatValue>
-          <StatLabel>Avg Complexity</StatLabel>
-        </StatCard>
-      </StatsGrid>
+	return (
+		<PageContainer>
+			<PageHeader>
+				<PageTitle>📊 Flow Comparison Tool</PageTitle>
+				<PageSubtitle>
+					Compare different OAuth flows to understand their security implications, performance
+					characteristics, and best use cases
+				</PageSubtitle>
+			</PageHeader>
 
-      {/* Flow Comparison Tool */}
-      <FlowComparisonTool
-        onFlowSelect={handleFlowSelect}
-        selectedFlows={selectedFlows}
-      />
+			{message && (
+				<div
+					style={{
+						marginBottom: '1rem',
+					}}
+				>
+					<div
+						style={{
+							padding: '1rem',
+							borderRadius: '8px',
+							background:
+								messageType === 'success'
+									? '#f0fdf4'
+									: messageType === 'error'
+										? '#fef2f2'
+										: '#eff6ff',
+							border: `1px solid ${messageType === 'success' ? '#86efac' : messageType === 'error' ? '#fecaca' : '#bfdbfe'}`,
+							color:
+								messageType === 'success'
+									? '#166534'
+									: messageType === 'error'
+										? '#991b1b'
+										: '#1e40af',
+							textAlign: 'center',
+						}}
+					>
+						{message}
+					</div>
+				</div>
+			)}
 
-      {/* Features Overview */}
-      <SectionContainer>
-        <SectionHeader>
-          <SectionIcon>
-            <FiDatabase />
-          </SectionIcon>
-          <SectionTitle>Comparison Features</SectionTitle>
-        </SectionHeader>
-        
-        <FeatureList>
-          <FeatureItem>
-            <FeatureIcon $color="#10b981">
-              <FiShield />
-            </FeatureIcon>
-            <FeatureText>
-              Comprehensive security analysis with detailed ratings
-            </FeatureText>
-            <FeatureStatus $enabled={true}>Active</FeatureStatus>
-          </FeatureItem>
-          
-          <FeatureItem>
-            <FeatureIcon $color="#3b82f6">
-              <FiBarChart2 />
-            </FeatureIcon>
-            <FeatureText>
-              Performance metrics and complexity assessment
-            </FeatureText>
-            <FeatureStatus $enabled={true}>Active</FeatureStatus>
-          </FeatureItem>
-          
-          <FeatureItem>
-            <FeatureIcon $color="#8b5cf6">
-              <FiUsers />
-            </FeatureIcon>
-            <FeatureText>
-              User experience evaluation and recommendations
-            </FeatureText>
-            <FeatureStatus $enabled={true}>Active</FeatureStatus>
-          </FeatureItem>
-          
-          <FeatureItem>
-            <FeatureIcon $color="#10b981">
-              <FiDatabase />
-            </FeatureIcon>
-            <FeatureText>
-              Detailed pros and cons for each flow type
-            </FeatureText>
-            <FeatureStatus $enabled={true}>Active</FeatureStatus>
-          </FeatureItem>
-          
-          <FeatureItem>
-            <FeatureIcon $color="#f59e0b">
-              <FiArrowRight />
-            </FeatureIcon>
-            <FeatureText>
-              Best use case recommendations and guidance
-            </FeatureText>
-            <FeatureStatus $enabled={true}>Active</FeatureStatus>
-          </FeatureItem>
-          
-          <FeatureItem>
-            <FeatureIcon $color="#ef4444">
-              <FiAlertTriangle />
-            </FeatureIcon>
-            <FeatureText>
-              Security warnings and deprecation notices
-            </FeatureText>
-            <FeatureStatus $enabled={true}>Active</FeatureStatus>
-          </FeatureItem>
-        </FeatureList>
-      </SectionContainer>
+			{/* Statistics */}
+			<StatsGrid>
+				<StatCard>
+					<StatIcon $color="#3b82f6">
+						<FiBarChart2 />
+					</StatIcon>
+					<StatValue>{stats.totalFlows}</StatValue>
+					<StatLabel>Total Flows</StatLabel>
+				</StatCard>
 
-      {/* Comparison Statistics */}
-      <SectionContainer>
-        <SectionHeader>
-          <SectionIcon>
-            <FiBarChart2 />
-          </SectionIcon>
-          <SectionTitle>Comparison Statistics</SectionTitle>
-        </SectionHeader>
-        
-        <ComparisonStats>
-          <StatItem>
-            <StatItemValue>{stats.selectedFlows}</StatItemValue>
-            <StatItemLabel>Flows Compared</StatItemLabel>
-          </StatItem>
-          
-          <StatItem>
-            <StatItemValue>{stats.avgSecurity.toFixed(1)}/4</StatItemValue>
-            <StatItemLabel>Avg Security Score</StatItemLabel>
-          </StatItem>
-          
-          <StatItem>
-            <StatItemValue>{stats.avgComplexity.toFixed(1)}/4</StatItemValue>
-            <StatItemLabel>Avg Complexity Score</StatItemLabel>
-          </StatItem>
-          
-          <StatItem>
-            <StatItemValue>{comparisonMode === 'detailed' ? 'Detailed' : 'Matrix'}</StatItemValue>
-            <StatItemLabel>View Mode</StatItemLabel>
-          </StatItem>
-        </ComparisonStats>
-      </SectionContainer>
+				<StatCard>
+					<StatIcon $color="#10b981">
+						<FiCheckCircle />
+					</StatIcon>
+					<StatValue>{stats.selectedFlows}</StatValue>
+					<StatLabel>Selected Flows</StatLabel>
+				</StatCard>
 
-      {/* Export Actions */}
-      <ActionButtons>
-        <ActionButton onClick={handleExportComparison}>
-          <FiDownload /> Export Comparison
-        </ActionButton>
-        <ActionButton onClick={() => setComparisonMode(comparisonMode === 'detailed' ? 'matrix' : 'detailed')}>
-          <FiRefreshCw /> Switch to {comparisonMode === 'detailed' ? 'Matrix' : 'Detailed'} View
-        </ActionButton>
-      </ActionButtons>
-    </PageContainer>
-  );
+				<StatCard>
+					<StatIcon $color="#f59e0b">
+						<FiShield />
+					</StatIcon>
+					<StatValue>{stats.avgSecurity.toFixed(1)}</StatValue>
+					<StatLabel>Avg Security</StatLabel>
+				</StatCard>
+
+				<StatCard>
+					<StatIcon $color="#8b5cf6">
+						<FiClock />
+					</StatIcon>
+					<StatValue>{stats.avgComplexity.toFixed(1)}</StatValue>
+					<StatLabel>Avg Complexity</StatLabel>
+				</StatCard>
+			</StatsGrid>
+
+			{/* Flow Comparison Tool */}
+			<FlowComparisonTool onFlowSelect={handleFlowSelect} selectedFlows={selectedFlows} />
+
+			{/* Features Overview */}
+			<SectionContainer>
+				<SectionHeader>
+					<SectionIcon>
+						<FiDatabase />
+					</SectionIcon>
+					<SectionTitle>Comparison Features</SectionTitle>
+				</SectionHeader>
+
+				<FeatureList>
+					<FeatureItem>
+						<FeatureIcon $color="#10b981">
+							<FiShield />
+						</FeatureIcon>
+						<FeatureText>Comprehensive security analysis with detailed ratings</FeatureText>
+						<FeatureStatus $enabled={true}>Active</FeatureStatus>
+					</FeatureItem>
+
+					<FeatureItem>
+						<FeatureIcon $color="#3b82f6">
+							<FiBarChart2 />
+						</FeatureIcon>
+						<FeatureText>Performance metrics and complexity assessment</FeatureText>
+						<FeatureStatus $enabled={true}>Active</FeatureStatus>
+					</FeatureItem>
+
+					<FeatureItem>
+						<FeatureIcon $color="#8b5cf6">
+							<FiUsers />
+						</FeatureIcon>
+						<FeatureText>User experience evaluation and recommendations</FeatureText>
+						<FeatureStatus $enabled={true}>Active</FeatureStatus>
+					</FeatureItem>
+
+					<FeatureItem>
+						<FeatureIcon $color="#10b981">
+							<FiDatabase />
+						</FeatureIcon>
+						<FeatureText>Detailed pros and cons for each flow type</FeatureText>
+						<FeatureStatus $enabled={true}>Active</FeatureStatus>
+					</FeatureItem>
+
+					<FeatureItem>
+						<FeatureIcon $color="#f59e0b">
+							<FiArrowRight />
+						</FeatureIcon>
+						<FeatureText>Best use case recommendations and guidance</FeatureText>
+						<FeatureStatus $enabled={true}>Active</FeatureStatus>
+					</FeatureItem>
+
+					<FeatureItem>
+						<FeatureIcon $color="#ef4444">
+							<FiAlertTriangle />
+						</FeatureIcon>
+						<FeatureText>Security warnings and deprecation notices</FeatureText>
+						<FeatureStatus $enabled={true}>Active</FeatureStatus>
+					</FeatureItem>
+				</FeatureList>
+			</SectionContainer>
+
+			{/* Comparison Statistics */}
+			<SectionContainer>
+				<SectionHeader>
+					<SectionIcon>
+						<FiBarChart2 />
+					</SectionIcon>
+					<SectionTitle>Comparison Statistics</SectionTitle>
+				</SectionHeader>
+
+				<ComparisonStats>
+					<StatItem>
+						<StatItemValue>{stats.selectedFlows}</StatItemValue>
+						<StatItemLabel>Flows Compared</StatItemLabel>
+					</StatItem>
+
+					<StatItem>
+						<StatItemValue>{stats.avgSecurity.toFixed(1)}/4</StatItemValue>
+						<StatItemLabel>Avg Security Score</StatItemLabel>
+					</StatItem>
+
+					<StatItem>
+						<StatItemValue>{stats.avgComplexity.toFixed(1)}/4</StatItemValue>
+						<StatItemLabel>Avg Complexity Score</StatItemLabel>
+					</StatItem>
+
+					<StatItem>
+						<StatItemValue>{comparisonMode === 'detailed' ? 'Detailed' : 'Matrix'}</StatItemValue>
+						<StatItemLabel>View Mode</StatItemLabel>
+					</StatItem>
+				</ComparisonStats>
+			</SectionContainer>
+
+			{/* Export Actions */}
+			<ActionButtons>
+				<ActionButton onClick={handleExportComparison}>
+					<FiDownload /> Export Comparison
+				</ActionButton>
+				<ActionButton
+					onClick={() => setComparisonMode(comparisonMode === 'detailed' ? 'matrix' : 'detailed')}
+				>
+					<FiRefreshCw /> Switch to {comparisonMode === 'detailed' ? 'Matrix' : 'Detailed'} View
+				</ActionButton>
+			</ActionButtons>
+		</PageContainer>
+	);
 };
 
 export default FlowComparisonPage;

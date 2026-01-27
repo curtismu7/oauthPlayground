@@ -4,8 +4,8 @@
  */
 
 import { writeFileSync } from 'fs';
-import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -18,7 +18,12 @@ const projectRoot = join(__dirname, '..');
 async function generateCompleteCollection() {
 	try {
 		// Import the generator functions
-		const { generateComprehensiveUnifiedPostmanCollection, generateComprehensiveMFAPostmanCollection, generateCompletePostmanCollection, generatePostmanEnvironment } = await import('../src/services/postmanCollectionGeneratorV8.ts');
+		const {
+			generateComprehensiveUnifiedPostmanCollection,
+			generateComprehensiveMFAPostmanCollection,
+			generateCompletePostmanCollection,
+			generatePostmanEnvironment,
+		} = await import('../src/services/postmanCollectionGeneratorV8.ts');
 
 		// Generate the complete collection
 		const collection = generateCompletePostmanCollection({
@@ -29,7 +34,10 @@ async function generateCompleteCollection() {
 		});
 
 		// Generate the environment file
-		const environment = generatePostmanEnvironment(collection, 'PingOne Complete Collection Environment');
+		const environment = generatePostmanEnvironment(
+			collection,
+			'PingOne Complete Collection Environment'
+		);
 
 		// Generate filename with date
 		const date = new Date().toISOString().split('T')[0];
@@ -48,7 +56,9 @@ async function generateCompleteCollection() {
 		console.log(`🌍 Environment: ${environmentPath}`);
 		console.log('');
 		console.log('The collection includes:');
-		console.log('  • All Unified OAuth/OIDC flows (Authorization Code, Implicit, Client Credentials, Device Code, Hybrid)');
+		console.log(
+			'  • All Unified OAuth/OIDC flows (Authorization Code, Implicit, Client Credentials, Device Code, Hybrid)'
+		);
 		console.log('  • All MFA device types (SMS, Email, WhatsApp, TOTP, FIDO2, Mobile)');
 		console.log('  • Registration and Authentication flows for each');
 		console.log('  • Educational comments on every request');

@@ -358,28 +358,31 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 	};
 
 	// Handle automatic save with button feedback
-	const saveWithFeedback = useCallback((groups: MenuGroup[]) => {
-		// Save to localStorage without triggering toast during render
-		try {
-			const serializable = createSerializableGroups(groups);
-			localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
-			localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
-			console.log('💾 Menu layout saved to localStorage:', serializable);
-			
-			// Update save button state
-			setSaveButtonState('saved');
+	const saveWithFeedback = useCallback(
+		(groups: MenuGroup[]) => {
+			// Save to localStorage without triggering toast during render
+			try {
+				const serializable = createSerializableGroups(groups);
+				localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
+				localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
+				console.log('💾 Menu layout saved to localStorage:', serializable);
 
-			// Reset to default after 1.5 seconds
-			setTimeout(() => {
-				setSaveButtonState('default');
-			}, 1500);
+				// Update save button state
+				setSaveButtonState('saved');
 
-			// Removed toast to prevent setState during render
-		} catch (error) {
-			console.warn('❌ Failed to save menu layout:', error);
-			// Removed toast to prevent setState during render
-		}
-	}, [setSaveButtonState]);
+				// Reset to default after 1.5 seconds
+				setTimeout(() => {
+					setSaveButtonState('default');
+				}, 1500);
+
+				// Removed toast to prevent setState during render
+			} catch (error) {
+				console.warn('❌ Failed to save menu layout:', error);
+				// Removed toast to prevent setState during render
+			}
+		},
+		[setSaveButtonState]
+	);
 
 	// Initialize menu structure
 	const [menuGroups, setMenuGroups] = useState<MenuGroup[]>(() => {
@@ -471,11 +474,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/v8/resources-api',
 						label: 'Resources API Tutorial',
 						icon: <FiBook />,
-						badge: (
-							<MigrationBadge title="PingOne resources API tutorial">
-								NEW
-							</MigrationBadge>
-						),
+						badge: <MigrationBadge title="PingOne resources API tutorial">NEW</MigrationBadge>,
 					},
 					{
 						id: 'enhanced-state-management',
@@ -494,9 +493,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: 'Token Monitoring Dashboard',
 						icon: <FiEye />,
 						badge: (
-							<MigrationBadge title="Real-time token monitoring dashboard">
-								NEW
-							</MigrationBadge>
+							<MigrationBadge title="Real-time token monitoring dashboard">NEW</MigrationBadge>
 						),
 					},
 					{
@@ -1857,7 +1854,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
 			localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
 			console.log('💾 Menu layout saved to localStorage:', serializable);
-			
+
 			setSaveButtonState('saved');
 
 			// Reset to default after 2 seconds

@@ -21,20 +21,20 @@ interface MessageBoxProps {
 
 /**
  * MessageBox Component
- * 
+ *
  * Consistent message/alert component with semantic color coding.
- * 
+ *
  * Color Standards:
  * - Success (green): Completed operations, positive confirmations
  * - Warning (amber): Cautions, non-critical issues, optional actions
  * - Error (red): Failures, critical issues, validation errors
  * - Info (blue): Informational messages, tips, neutral notifications
- * 
+ *
  * @example
  * <MessageBox type="success" icon="✅">
  *   Device registered successfully
  * </MessageBox>
- * 
+ *
  * <MessageBox type="error" icon="❌" dismissible onDismiss={() => console.log('Dismissed')}>
  *   Authentication failed: Invalid code
  * </MessageBox>

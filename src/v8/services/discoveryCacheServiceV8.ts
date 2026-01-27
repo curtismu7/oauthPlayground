@@ -126,7 +126,9 @@ export async function getCachedDiscoveryDocument(
 			const request = store.get(cacheKey);
 
 			request.onsuccess = () => {
-				const result = request.result as (CachedDiscoveryDocument & { cacheKey: string }) | undefined;
+				const result = request.result as
+					| (CachedDiscoveryDocument & { cacheKey: string })
+					| undefined;
 
 				if (!result) {
 					console.log(`${MODULE_TAG} ⚠️ No cached discovery document found`, { issuer });

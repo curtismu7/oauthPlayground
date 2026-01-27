@@ -15,9 +15,12 @@ import {
 } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 // Import components
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import { LearningTooltip } from '../../components/LearningTooltip';
 import OAuthErrorDisplay from '../../components/OAuthErrorDisplay';
+import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import { useCredentialBackup } from '../../hooks/useCredentialBackup';
@@ -26,9 +29,14 @@ import {
 	useImplicitFlowController,
 } from '../../hooks/useImplicitFlowController';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
+import { CopyButtonService } from '../../services/copyButtonService';
+import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
 import { FlowCredentialService } from '../../services/flowCredentialService';
 import { FlowHeader } from '../../services/flowHeaderService';
+// Import UI components from services
+import { FlowUIService } from '../../services/flowUIService';
 // Import shared services
 import {
 	ImplicitFlowSharedService,
@@ -39,17 +47,9 @@ import {
 	OAuthErrorHandlingService,
 } from '../../services/oauthErrorHandlingService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
-import { LearningTooltip } from '../../components/LearningTooltip';
-import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { CopyButtonService } from '../../services/copyButtonService';
-import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
-// Import UI components from services
-import { FlowUIService } from '../../services/flowUIService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Get UI components
 const {
@@ -631,25 +631,28 @@ const ImplicitFlowV7: React.FC = () => {
 					}}
 					onScopesChange={(value) => {
 						// Filter out offline_access for Implicit flow since it never provides refresh tokens
-						const scopeArray = value.split(/\s+/).filter(scope => scope.trim());
+						const scopeArray = value.split(/\s+/).filter((scope) => scope.trim());
 						const hasOfflineAccess = scopeArray.includes('offline_access');
-						
+
 						let filteredScopes = value;
 						if (hasOfflineAccess) {
-							filteredScopes = scopeArray.filter(scope => scope !== 'offline_access').join(' ');
-							
+							filteredScopes = scopeArray.filter((scope) => scope !== 'offline_access').join(' ');
+
 							// Show warning to user
 							v4ToastManager.showWarning(
 								'offline_access removed - Implicit Flow never provides refresh tokens',
 								{
-									description: 'Use Authorization Code flow if you need refresh tokens for offline access.',
+									description:
+										'Use Authorization Code flow if you need refresh tokens for offline access.',
 									duration: 5000,
 								}
 							);
-							
-							console.log('[Implicit Flow V7] Removed offline_access scope - Implicit flow never provides refresh tokens');
+
+							console.log(
+								'[Implicit Flow V7] Removed offline_access scope - Implicit flow never provides refresh tokens'
+							);
 						}
-						
+
 						const updated = { ...credentials, scope: filteredScopes, scopes: filteredScopes };
 						setCredentials(updated);
 						controller.setCredentials(updated); // Sync with controller
@@ -1865,7 +1868,7 @@ const ImplicitFlowV7: React.FC = () => {
 								onStartNewFlow: () => {
 									setCurrentStep(0);
 									controller.resetFlow();
-									
+
 									// Clear any potential ConfigChecker-related state or cached data
 									try {
 										// Clear any comparison results or cached application data
@@ -1873,12 +1876,14 @@ const ImplicitFlowV7: React.FC = () => {
 										sessionStorage.removeItem('config-checker-last-check');
 										sessionStorage.removeItem('pingone-app-cache');
 										localStorage.removeItem('pingone-applications-cache');
-										
+
 										// Clear any worker token related cache that might be used for pre-flight checks
 										sessionStorage.removeItem('worker-token-cache');
 										localStorage.removeItem('worker-apps-cache');
-										
-										console.log('🔄 [Implicit V7] Start New Flow: cleared ConfigChecker and pre-flight cache data');
+
+										console.log(
+											'🔄 [Implicit V7] Start New Flow: cleared ConfigChecker and pre-flight cache data'
+										);
 									} catch (error) {
 										console.warn('[Implicit V7] Failed to clear cache data:', error);
 									}
@@ -1983,12 +1988,14 @@ const ImplicitFlowV7: React.FC = () => {
 							sessionStorage.removeItem('config-checker-last-check');
 							sessionStorage.removeItem('pingone-app-cache');
 							localStorage.removeItem('pingone-applications-cache');
-							
+
 							// Clear any worker token related cache that might be used for pre-flight checks
 							sessionStorage.removeItem('worker-token-cache');
 							localStorage.removeItem('worker-apps-cache');
-							
-							console.log('🔄 [Implicit V7] Reset: cleared ConfigChecker and pre-flight cache data');
+
+							console.log(
+								'🔄 [Implicit V7] Reset: cleared ConfigChecker and pre-flight cache data'
+							);
 						} catch (error) {
 							console.warn('[Implicit V7] Failed to clear cache data:', error);
 						}

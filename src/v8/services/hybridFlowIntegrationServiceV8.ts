@@ -150,7 +150,7 @@ export class HybridFlowIntegrationServiceV8 {
 				let codeVerifier: string | undefined;
 
 				if (responseType.includes('code')) {
-					const pkce = pkceCodes || await HybridFlowIntegrationServiceV8.generatePKCECodes();
+					const pkce = pkceCodes || (await HybridFlowIntegrationServiceV8.generatePKCECodes());
 					codeChallenge = pkce.codeChallenge;
 					codeChallengeMethod = pkce.codeChallengeMethod;
 					codeVerifier = pkce.codeVerifier;
@@ -233,13 +233,13 @@ export class HybridFlowIntegrationServiceV8 {
 		// Add PKCE if response type includes 'code'
 		if (responseType.includes('code')) {
 			// Use provided PKCE codes or generate new ones
-			const pkce = pkceCodes || await HybridFlowIntegrationServiceV8.generatePKCECodes();
+			const pkce = pkceCodes || (await HybridFlowIntegrationServiceV8.generatePKCECodes());
 			params.append('code_challenge', pkce.codeChallenge);
 			params.append('code_challenge_method', pkce.codeChallengeMethod);
 			codeChallenge = pkce.codeChallenge;
 			codeChallengeMethod = pkce.codeChallengeMethod;
 			codeVerifier = pkce.codeVerifier;
-			
+
 			// #region agent log - verify PKCE codes in authorization URL
 			// #endregion
 		}
@@ -266,11 +266,11 @@ export class HybridFlowIntegrationServiceV8 {
 
 	/**
 	 * Parse callback URL fragment to extract tokens and code
-	 * 
+	 *
 	 * For hybrid flow, the callback contains:
 	 * - Authorization code in query string (?code=...)
 	 * - ID token and access token in fragment (#id_token=...&access_token=...)
-	 * 
+	 *
 	 * @param callbackUrl - Full callback URL with fragment
 	 * @param expectedState - Expected state parameter for validation
 	 * @returns Parsed code and tokens
@@ -283,7 +283,7 @@ export class HybridFlowIntegrationServiceV8 {
 
 		try {
 			const url = new URL(callbackUrl);
-			
+
 			// For hybrid flow, check BOTH query string and fragment
 			// - Authorization code is in query string (?code=...)
 			// - ID token and access token are in fragment (#id_token=...&access_token=...)
@@ -293,7 +293,8 @@ export class HybridFlowIntegrationServiceV8 {
 
 			// Check for error in either query or fragment
 			const error = fragmentParams?.get('error') || queryParams.get('error');
-			const errorDescription = fragmentParams?.get('error_description') || queryParams.get('error_description');
+			const errorDescription =
+				fragmentParams?.get('error_description') || queryParams.get('error_description');
 
 			if (error) {
 				throw new Error(`Authorization failed: ${error} - ${errorDescription || ''}`);
@@ -301,11 +302,11 @@ export class HybridFlowIntegrationServiceV8 {
 
 			// Extract authorization code from query string (hybrid flow standard)
 			const code = queryParams.get('code');
-			
+
 			// Extract tokens from fragment (hybrid flow standard)
 			const accessToken = fragmentParams?.get('access_token') || null;
 			const idToken = fragmentParams?.get('id_token') || null;
-			
+
 			// State can be in either query or fragment (check both)
 			const state = fragmentParams?.get('state') || queryParams.get('state');
 
@@ -328,7 +329,7 @@ export class HybridFlowIntegrationServiceV8 {
 				hasAccessToken: !!accessToken,
 				hasIdToken: !!idToken,
 				codeSource: code ? 'query' : 'none',
-				tokenSource: (accessToken || idToken) ? 'fragment' : 'none',
+				tokenSource: accessToken || idToken ? 'fragment' : 'none',
 			});
 
 			const result: { code?: string; access_token?: string; id_token?: string; state: string } = {
@@ -438,14 +439,16 @@ export class HybridFlowIntegrationServiceV8 {
 						// Always include client_secret in body for backend proxy to use
 						// Backend will use it for client_secret_post OR reconstruct Basic auth header for client_secret_basic
 						bodyParams.client_secret = credentials.clientSecret;
-						
+
 						if (authMethod === 'client_secret_post') {
 							console.log(
 								`${MODULE_TAG} ✅ Including client_secret in request (client_secret_post)`
 							);
 						} else {
 							// client_secret_basic - backend will reconstruct Authorization header from client_secret in body
-							console.log(`${MODULE_TAG} ✅ Including client_secret in body for backend to construct Basic auth`);
+							console.log(
+								`${MODULE_TAG} ✅ Including client_secret in body for backend to construct Basic auth`
+							);
 						}
 					} else {
 						throw new Error(`Client secret is required for ${authMethod} authentication`);

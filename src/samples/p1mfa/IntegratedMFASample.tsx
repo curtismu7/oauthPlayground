@@ -11,12 +11,19 @@
  */
 
 import React, { useState } from 'react';
-import { P1MFASDK, FIDO2Helper, SMSHelper, type P1MFAConfig, type Device } from '@/sdk/p1mfa';
+import { type Device, FIDO2Helper, type P1MFAConfig, P1MFASDK, SMSHelper } from '@/sdk/p1mfa';
 import { CredentialsForm } from './shared/CredentialsForm';
 import { DeviceList } from './shared/DeviceList';
 import { StatusDisplay } from './shared/StatusDisplay';
 
-type Tab = 'config' | 'oidc-signin' | 'enroll-sms' | 'enroll-fido2' | 'auth-sms' | 'auth-fido2' | 'devices';
+type Tab =
+	| 'config'
+	| 'oidc-signin'
+	| 'enroll-sms'
+	| 'enroll-fido2'
+	| 'auth-sms'
+	| 'auth-fido2'
+	| 'devices';
 
 interface UserContext {
 	userId?: string;
@@ -403,9 +410,7 @@ export const IntegratedMFASample: React.FC = () => {
 								id="clientId"
 								type="text"
 								value={oidcConfig.clientId}
-								onChange={(e) =>
-									setOidcConfig((prev) => ({ ...prev, clientId: e.target.value }))
-								}
+								onChange={(e) => setOidcConfig((prev) => ({ ...prev, clientId: e.target.value }))}
 								style={{
 									width: '100%',
 									maxWidth: '400px',
@@ -423,9 +428,7 @@ export const IntegratedMFASample: React.FC = () => {
 								id="policyId"
 								type="text"
 								value={oidcConfig.policyId}
-								onChange={(e) =>
-									setOidcConfig((prev) => ({ ...prev, policyId: e.target.value }))
-								}
+								onChange={(e) => setOidcConfig((prev) => ({ ...prev, policyId: e.target.value }))}
 								style={{
 									width: '100%',
 									maxWidth: '400px',
@@ -462,7 +465,14 @@ export const IntegratedMFASample: React.FC = () => {
 						Start OIDC Sign-in
 					</button>
 					{userContext.userId && (
-						<div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#d4edda', borderRadius: '4px' }}>
+						<div
+							style={{
+								marginTop: '1rem',
+								padding: '1rem',
+								backgroundColor: '#d4edda',
+								borderRadius: '4px',
+							}}
+						>
 							<p>
 								<strong>Signed in as:</strong> {userContext.userId}
 							</p>
@@ -526,9 +536,7 @@ export const IntegratedMFASample: React.FC = () => {
 									id="otp"
 									type="text"
 									value={smsEnrollState.otp}
-									onChange={(e) =>
-										setSmsEnrollState((prev) => ({ ...prev, otp: e.target.value }))
-									}
+									onChange={(e) => setSmsEnrollState((prev) => ({ ...prev, otp: e.target.value }))}
 									maxLength={6}
 									style={{
 										width: '100%',
@@ -551,7 +559,10 @@ export const IntegratedMFASample: React.FC = () => {
 									color: 'white',
 									border: 'none',
 									borderRadius: '4px',
-									cursor: smsEnrollState.otp && smsEnrollState.otp.length >= 6 ? 'pointer' : 'not-allowed',
+									cursor:
+										smsEnrollState.otp && smsEnrollState.otp.length >= 6
+											? 'pointer'
+											: 'not-allowed',
 									opacity: smsEnrollState.otp && smsEnrollState.otp.length >= 6 ? 1 : 0.5,
 								}}
 							>
@@ -645,9 +656,7 @@ export const IntegratedMFASample: React.FC = () => {
 					)}
 					{smsAuthState.step === 'initialized' && (
 						<div>
-							<p style={{ marginBottom: '1rem' }}>
-								OTP sent! Please enter the code:
-							</p>
+							<p style={{ marginBottom: '1rem' }}>OTP sent! Please enter the code:</p>
 							<div style={{ marginBottom: '1rem' }}>
 								<label htmlFor="authOtp" style={{ display: 'block', marginBottom: '0.5rem' }}>
 									OTP Code *
@@ -656,9 +665,7 @@ export const IntegratedMFASample: React.FC = () => {
 									id="authOtp"
 									type="text"
 									value={smsAuthState.otp}
-									onChange={(e) =>
-										setSmsAuthState((prev) => ({ ...prev, otp: e.target.value }))
-									}
+									onChange={(e) => setSmsAuthState((prev) => ({ ...prev, otp: e.target.value }))}
 									maxLength={6}
 									style={{
 										width: '100%',
@@ -681,7 +688,8 @@ export const IntegratedMFASample: React.FC = () => {
 									color: 'white',
 									border: 'none',
 									borderRadius: '4px',
-									cursor: smsAuthState.otp && smsAuthState.otp.length >= 6 ? 'pointer' : 'not-allowed',
+									cursor:
+										smsAuthState.otp && smsAuthState.otp.length >= 6 ? 'pointer' : 'not-allowed',
 									opacity: smsAuthState.otp && smsAuthState.otp.length >= 6 ? 1 : 0.5,
 								}}
 							>
@@ -723,9 +731,7 @@ export const IntegratedMFASample: React.FC = () => {
 					)}
 					{fido2AuthState.step === 'webauthn' && (
 						<div>
-							<p style={{ marginBottom: '1rem' }}>
-								Click below to get WebAuthn assertion:
-							</p>
+							<p style={{ marginBottom: '1rem' }}>Click below to get WebAuthn assertion:</p>
 							<button
 								onClick={handleWebAuthnAssertion}
 								style={{
@@ -763,9 +769,7 @@ export const IntegratedMFASample: React.FC = () => {
 								id="devicesUserId"
 								type="text"
 								value={userContext.userId || ''}
-								onChange={(e) =>
-									setUserContext((prev) => ({ ...prev, userId: e.target.value }))
-								}
+								onChange={(e) => setUserContext((prev) => ({ ...prev, userId: e.target.value }))}
 								placeholder="Enter User ID"
 								style={{
 									width: '100%',

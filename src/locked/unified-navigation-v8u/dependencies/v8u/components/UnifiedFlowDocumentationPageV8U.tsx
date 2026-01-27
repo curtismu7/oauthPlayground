@@ -19,15 +19,18 @@ import {
 	FiPackage,
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import {
+	apiCallTrackerService,
+	type ApiCall as TrackedApiCall,
+} from '@/services/apiCallTrackerService';
+import {
+	downloadPostmanCollectionWithEnvironment,
+	generatePostmanCollection,
+} from '@/services/postmanCollectionGeneratorV8';
+import { SpecUrlServiceV8 } from '@/v8/services/specUrlServiceV8';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
-import { SpecUrlServiceV8 } from '@/v8/services/specUrlServiceV8';
 import type { UnifiedFlowCredentials } from '../services/unifiedFlowIntegrationV8U';
-import { apiCallTrackerService, type ApiCall as TrackedApiCall } from '@/services/apiCallTrackerService';
-import {
-	generatePostmanCollection,
-	downloadPostmanCollectionWithEnvironment,
-} from '@/services/postmanCollectionGeneratorV8';
 
 interface UnifiedFlowDocumentationPageV8UProps {
 	flowType: FlowType;
@@ -62,7 +65,10 @@ export const convertTrackedCallsToDocumentation = (
 	return filteredCalls.map((call, index) => {
 		// Extract step name from call.step or generate one
 		const stepName = call.step
-			? call.step.replace(/^unified-/, '').replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+			? call.step
+					.replace(/^unified-/, '')
+					.replace(/-/g, ' ')
+					.replace(/\b\w/g, (l) => l.toUpperCase())
 			: `Step ${index + 1}`;
 
 		// Get endpoint (prefer actualPingOneUrl if available)
@@ -83,7 +89,7 @@ export const convertTrackedCallsToDocumentation = (
 		}
 
 		// Get response body
-		const responseBody = call.response?.data as Record<string, unknown> || {};
+		const responseBody = (call.response?.data as Record<string, unknown>) || {};
 
 		// Generate description based on step
 		let description = `${stepName} for ${flowType} flow`;
@@ -132,18 +138,20 @@ export const convertTrackedCallsToDocumentation = (
  */
 const getApiDocsUrlForFlow = (flowType: FlowType): string => {
 	const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
-	
+
 	// #region agent log
-	import('@/v8/utils/analyticsV8').then(({ analytics }) => {
-		analytics.log({
-			location: 'UnifiedFlowDocumentationPageV8U.tsx:132',
-			message: 'Getting PingOne API docs URL for flow',
-			data: { flowType, baseUrl },
-			sessionId: 'debug-session',
-			runId: 'run2',
-			hypothesisId: 'F',
-		});
-	}).catch(() => {});
+	import('@/v8/utils/analyticsV8')
+		.then(({ analytics }) => {
+			analytics.log({
+				location: 'UnifiedFlowDocumentationPageV8U.tsx:132',
+				message: 'Getting PingOne API docs URL for flow',
+				data: { flowType, baseUrl },
+				sessionId: 'debug-session',
+				runId: 'run2',
+				hypothesisId: 'F',
+			});
+		})
+		.catch(() => {});
 	// #endregion
 
 	let url: string;
@@ -166,20 +174,27 @@ const getApiDocsUrlForFlow = (flowType: FlowType): string => {
 		default:
 			url = baseUrl;
 	}
-	
+
 	// #region agent log
-	import('@/v8/utils/analyticsV8').then(({ analytics }) => {
-		analytics.log({
-			location: 'UnifiedFlowDocumentationPageV8U.tsx:153',
-			message: 'Generated PingOne API docs URL',
-			data: { flowType, url, hasAnchor: url.includes('#'), anchor: url.includes('#') ? url.split('#')[1] : null },
-			sessionId: 'debug-session',
-			runId: 'run2',
-			hypothesisId: 'F',
-		});
-	}).catch(() => {});
+	import('@/v8/utils/analyticsV8')
+		.then(({ analytics }) => {
+			analytics.log({
+				location: 'UnifiedFlowDocumentationPageV8U.tsx:153',
+				message: 'Generated PingOne API docs URL',
+				data: {
+					flowType,
+					url,
+					hasAnchor: url.includes('#'),
+					anchor: url.includes('#') ? url.split('#')[1] : null,
+				},
+				sessionId: 'debug-session',
+				runId: 'run2',
+				hypothesisId: 'F',
+			});
+		})
+		.catch(() => {});
 	// #endregion
-	
+
 	return url;
 };
 
@@ -264,33 +279,39 @@ export const generateUnifiedFlowMarkdown = (
 	});
 
 	md += `## References\n\n`;
-	
+
 	// Get flow-specific specification links
 	const flowSpecs = SpecUrlServiceV8.getFlowSpecInfo(flowType);
 	const specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, flowType);
 	const versionSpecs = SpecUrlServiceV8.getSpecUrls(specVersion);
-	
+
 	// #region agent log
-	import('@/v8/utils/analyticsV8').then(({ analytics }) => {
-		analytics.log({
-			location: 'UnifiedFlowDocumentationPageV8U.tsx:231',
-			message: 'Generating documentation references',
-			data: {
-				flowType,
-				specVersion,
-				flowPrimarySpec: flowSpecs.primarySpec,
-				flowRelatedSpecs: flowSpecs.relatedSpecs?.map((s) => ({ label: s.label, url: s.url })),
-				combinedPrimaryUrl: specUrls.primary,
-				combinedPrimaryLabel: specUrls.primaryLabel,
-				combinedAllSpecs: specUrls.allSpecs.map((s) => ({ label: s.label, url: s.url, isPrimary: s.isPrimary })),
-			},
-			sessionId: 'debug-session',
-			runId: 'run2',
-			hypothesisId: 'E',
-		});
-	}).catch(() => {});
+	import('@/v8/utils/analyticsV8')
+		.then(({ analytics }) => {
+			analytics.log({
+				location: 'UnifiedFlowDocumentationPageV8U.tsx:231',
+				message: 'Generating documentation references',
+				data: {
+					flowType,
+					specVersion,
+					flowPrimarySpec: flowSpecs.primarySpec,
+					flowRelatedSpecs: flowSpecs.relatedSpecs?.map((s) => ({ label: s.label, url: s.url })),
+					combinedPrimaryUrl: specUrls.primary,
+					combinedPrimaryLabel: specUrls.primaryLabel,
+					combinedAllSpecs: specUrls.allSpecs.map((s) => ({
+						label: s.label,
+						url: s.url,
+						isPrimary: s.isPrimary,
+					})),
+				},
+				sessionId: 'debug-session',
+				runId: 'run2',
+				hypothesisId: 'E',
+			});
+		})
+		.catch(() => {});
 	// #endregion
-	
+
 	// Add primary specification with section anchor if available
 	if (flowSpecs.relatedSpecs && flowSpecs.relatedSpecs.length > 0) {
 		flowSpecs.relatedSpecs.forEach((spec) => {
@@ -300,7 +321,7 @@ export const generateUnifiedFlowMarkdown = (
 		// Fallback to primary spec
 		md += `- [${specUrls.primaryLabel}](${specUrls.primary})\n`;
 	}
-	
+
 	// Add version-specific related specs
 	versionSpecs.related.forEach((spec) => {
 		// Avoid duplicates
@@ -308,23 +329,25 @@ export const generateUnifiedFlowMarkdown = (
 			md += `- [${spec.label}](${spec.url})\n`;
 		}
 	});
-	
+
 	// Add PingOne API documentation with flow-specific anchor
 	const apiDocsUrl = getApiDocsUrlForFlow(flowType);
-	
+
 	// #region agent log
-	import('@/v8/utils/analyticsV8').then(({ analytics }) => {
-		analytics.log({
-			location: 'UnifiedFlowDocumentationPageV8U.tsx:257',
-			message: 'Adding PingOne API documentation link',
-			data: { flowType, apiDocsUrl, hasAnchor: apiDocsUrl.includes('#') },
-			sessionId: 'debug-session',
-			runId: 'run2',
-			hypothesisId: 'E',
-		});
-	}).catch(() => {});
+	import('@/v8/utils/analyticsV8')
+		.then(({ analytics }) => {
+			analytics.log({
+				location: 'UnifiedFlowDocumentationPageV8U.tsx:257',
+				message: 'Adding PingOne API documentation link',
+				data: { flowType, apiDocsUrl, hasAnchor: apiDocsUrl.includes('#') },
+				sessionId: 'debug-session',
+				runId: 'run2',
+				hypothesisId: 'E',
+			});
+		})
+		.catch(() => {});
 	// #endregion
-	
+
 	md += `- [PingOne API Documentation - ${flowTypeLabels[flowType]} Flow](${apiDocsUrl})\n`;
 
 	return md;
@@ -705,7 +728,9 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 			{/* API Calls */}
 			{apiCalls.length > 0 && (
 				<div style={{ marginBottom: '32px' }}>
-					<h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+					<h3
+						style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}
+					>
 						API Calls
 					</h3>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

@@ -5,8 +5,8 @@
  * @version 1.0.0
  */
 
-export { EnrollSms } from './EnrollSms';
-export { EnrollFido2 } from './EnrollFido2';
-export { AuthSms } from './AuthSms';
 export { AuthFido2 } from './AuthFido2';
+export { AuthSms } from './AuthSms';
+export { EnrollFido2 } from './EnrollFido2';
+export { EnrollSms } from './EnrollSms';
 export * from './webauthn';

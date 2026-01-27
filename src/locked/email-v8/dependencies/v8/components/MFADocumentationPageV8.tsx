@@ -19,11 +19,11 @@ import {
 	FiPackage,
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import type { DeviceType } from '../flows/shared/MFATypes';
 import {
-	generateMFAPostmanCollection,
 	downloadPostmanCollectionWithEnvironment,
+	generateMFAPostmanCollection,
 } from '../../services/postmanCollectionGeneratorV8.ts';
+import type { DeviceType } from '../flows/shared/MFATypes';
 
 interface MFADocumentationPageV8Props {
 	deviceType: DeviceType;
@@ -1472,8 +1472,8 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 					</span>
 				</div>
 				<p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#1e40af', lineHeight: '1.5' }}>
-					This documentation shows all available fields in the request body, including optional fields with
-					default values. For the complete data model specification, see:
+					This documentation shows all available fields in the request body, including optional
+					fields with default values. For the complete data model specification, see:
 				</p>
 				<a
 					href={deviceInfo.registrationApiDocs}

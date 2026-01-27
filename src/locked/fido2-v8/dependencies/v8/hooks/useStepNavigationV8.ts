@@ -107,21 +107,21 @@ export const useStepNavigationV8 = (
 	// Go to specific step
 	const goToStep = useCallback(
 		(step: number) => {
-		if (step < 0 || step >= totalSteps) {
-			console.warn(`${MODULE_TAG} Invalid step`, { step, totalSteps });
-			return;
-		}
+			if (step < 0 || step >= totalSteps) {
+				console.warn(`${MODULE_TAG} Invalid step`, { step, totalSteps });
+				return;
+			}
 
-		// Mark current step as completed when leaving it
-		if (currentStep < step && !completedSteps.includes(currentStep)) {
-			setCompletedSteps((prev) => [...prev, currentStep]);
-		}
+			// Mark current step as completed when leaving it
+			if (currentStep < step && !completedSteps.includes(currentStep)) {
+				setCompletedSteps((prev) => [...prev, currentStep]);
+			}
 
-		setCurrentStep(step);
-		setValidationErrorsState([]);
-		setValidationWarningsState([]);
+			setCurrentStep(step);
+			setValidationErrorsState([]);
+			setValidationWarningsState([]);
 
-		onStepChange?.(step);
+			onStepChange?.(step);
 		},
 		[currentStep, totalSteps, completedSteps, onStepChange]
 	);

@@ -1976,31 +1976,42 @@ POST /resources/{resourceId}/attributes
 						<div>
 							<h3>🎯 Purpose</h3>
 							<p>
-								The PingOne Resources API enables you to define and manage OAuth 2.0 resources, 
+								The PingOne Resources API enables you to define and manage OAuth 2.0 resources,
 								scopes, and custom claims for fine-grained access control in your applications.
 							</p>
-							
+
 							<h3>📚 What You'll Learn</h3>
 							<ul>
-								<li><strong>Resources:</strong> Define protected APIs and services that require authorization</li>
-								<li><strong>Scopes:</strong> Create granular permissions for different user roles</li>
-								<li><strong>Resource Attributes:</strong> Add custom claims to access tokens</li>
-								<li><strong>Integration:</strong> Use resources in OAuth 2.0 authorization flows</li>
-								<li><strong>Best Practices:</strong> Security considerations and design patterns</li>
+								<li>
+									<strong>Resources:</strong> Define protected APIs and services that require
+									authorization
+								</li>
+								<li>
+									<strong>Scopes:</strong> Create granular permissions for different user roles
+								</li>
+								<li>
+									<strong>Resource Attributes:</strong> Add custom claims to access tokens
+								</li>
+								<li>
+									<strong>Integration:</strong> Use resources in OAuth 2.0 authorization flows
+								</li>
+								<li>
+									<strong>Best Practices:</strong> Security considerations and design patterns
+								</li>
 							</ul>
-							
+
 							<h3>🚀 Quick Start</h3>
 							<p>
-								Click on any card below to explore detailed guides and examples. 
-								Each topic includes step-by-step instructions with real-world scenarios.
+								Click on any card below to explore detailed guides and examples. Each topic includes
+								step-by-step instructions with real-world scenarios.
 							</p>
 						</div>
-						
+
 						<QuickStartBox>
 							<h4>💡 Pro Tip</h4>
 							<p>
-								Start with the "Resources Overview" to understand the concepts, 
-								then follow the "Create a Resource" guide for hands-on experience.
+								Start with the "Resources Overview" to understand the concepts, then follow the
+								"Create a Resource" guide for hands-on experience.
 							</p>
 						</QuickStartBox>
 					</OverviewContent>

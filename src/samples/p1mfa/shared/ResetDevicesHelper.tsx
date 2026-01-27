@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import type { P1MFASDK, Device } from '@/sdk/p1mfa';
+import type { Device, P1MFASDK } from '@/sdk/p1mfa';
 
 interface ResetDevicesHelperProps {
 	sdk: P1MFASDK | null;
@@ -20,9 +20,11 @@ export const ResetDevicesHelper: React.FC<ResetDevicesHelperProps> = ({
 	onDevicesReset,
 }) => {
 	const [loading, setLoading] = useState(false);
-	const [result, setResult] = useState<{ success: boolean; message: string; deleted: number } | null>(
-		null
-	);
+	const [result, setResult] = useState<{
+		success: boolean;
+		message: string;
+		deleted: number;
+	} | null>(null);
 
 	const handleReset = async () => {
 		if (!sdk || !userId) return;
@@ -50,7 +52,9 @@ export const ResetDevicesHelper: React.FC<ResetDevicesHelperProps> = ({
 					await sdk.deleteDevice(userId, device.id);
 					deleted++;
 				} catch (error) {
-					errors.push(`Failed to delete ${device.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+					errors.push(
+						`Failed to delete ${device.id}: ${error instanceof Error ? error.message : 'Unknown error'}`
+					);
 				}
 			}
 

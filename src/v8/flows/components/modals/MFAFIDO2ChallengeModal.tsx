@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiX, FiLoader, FiKey } from 'react-icons/fi';
+import { FiKey, FiLoader, FiX } from 'react-icons/fi';
 import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
 
 export interface MFAFIDO2ChallengeModalProps {
@@ -163,15 +163,11 @@ export const MFAFIDO2ChallengeModal: React.FC<MFAFIDO2ChallengeModalProps> = ({
 								padding: '10px 24px',
 								border: 'none',
 								borderRadius: '6px',
-								background:
-									isAuthenticating || !hasChallengeData ? '#9ca3af' : '#3b82f6',
+								background: isAuthenticating || !hasChallengeData ? '#9ca3af' : '#3b82f6',
 								color: 'white',
 								fontSize: '16px',
 								fontWeight: '600',
-								cursor:
-									isAuthenticating || !hasChallengeData
-										? 'not-allowed'
-										: 'pointer',
+								cursor: isAuthenticating || !hasChallengeData ? 'not-allowed' : 'pointer',
 								display: 'flex',
 								alignItems: 'center',
 								justifyContent: 'center',

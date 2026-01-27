@@ -138,48 +138,44 @@ export class DeviceCodeIntegrationServiceV8 {
 			// #region agent log - Debug instrumentation for 403 error
 			try {
 					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
+					headers: 'Content-Type': 'application/json' ,
+					body: JSON.stringify(
 						location: 'deviceCodeIntegrationServiceV8.ts:124',
 						message: 'Frontend building request body for device authorization',
-						data: {
+						data: 
 							environmentId: credentials.environmentId,
 							clientId: credentials.clientId
-								? `${credentials.clientId.substring(0, 10)}...`
+								? `$credentials.clientId.substring(0, 10)...`
 								: 'MISSING',
 							hasScope: !!finalScopes,
 							scopeValue: finalScopes || 'NONE',
-							requestBodyKeys: Object.keys(requestBody),
-						},
+							requestBodyKeys: Object.keys(requestBody),,
 						timestamp: Date.now(),
 						sessionId: 'debug-session',
 						runId: 'pre-fix',
-						hypothesisId: 'D',
-					}),
-				}).catch(() => {});
+						hypothesisId: 'D',),
+				}).catch(() => );
 			} catch (_e) {}
 			// #endregion
 
 			// Track API call for display (with timeout to prevent hanging)
 			let callId: string | undefined;
-			let startTime = Date.now();
+			const startTime = Date.now();
 			try {
 				// #region agent log - Debug instrumentation before dynamic import
 				try {
 						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
+						headers: 'Content-Type': 'application/json' ,
+						body: JSON.stringify(
 							location: 'deviceCodeIntegrationServiceV8.ts:163-BEFORE-IMPORT',
 							message: 'About to dynamically import apiCallTrackerService',
-							data: {
-								timestamp: Date.now(),
-							},
+							data: 
+								timestamp: Date.now(),,
 							timestamp: Date.now(),
 							sessionId: 'debug-session',
 							runId: 'request-hang',
-							hypothesisId: 'BEFORE-IMPORT',
-						}),
-					}).catch(() => {});
+							hypothesisId: 'BEFORE-IMPORT',),
+					}).catch(() => );
 				} catch (_e) {}
 				// #endregion
 
@@ -194,20 +190,18 @@ export class DeviceCodeIntegrationServiceV8 {
 				// #region agent log - Debug instrumentation after dynamic import
 				try {
 						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
+						headers: 'Content-Type': 'application/json' ,
+						body: JSON.stringify(
 							location: 'deviceCodeIntegrationServiceV8.ts:163-AFTER-IMPORT',
 							message: 'Dynamic import completed',
-							data: {
+							data: 
 								hasApiCallTrackerService: !!apiCallTrackerService,
-								timestamp: Date.now(),
-							},
+								timestamp: Date.now(),,
 							timestamp: Date.now(),
 							sessionId: 'debug-session',
 							runId: 'request-hang',
-							hypothesisId: 'AFTER-IMPORT',
-						}),
-					}).catch(() => {});
+							hypothesisId: 'AFTER-IMPORT',),
+					}).catch(() => );
 				} catch (_e) {}
 				// #endregion
 
@@ -235,23 +229,21 @@ export class DeviceCodeIntegrationServiceV8 {
 			// #region agent log - Debug instrumentation before pingOneFetch
 			try {
 					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
+					headers: 'Content-Type': 'application/json' ,
+					body: JSON.stringify(
 						location: 'deviceCodeIntegrationServiceV8.ts:172-BEFORE-PINGONEFETCH',
 						message: 'About to call pingOneFetch for device authorization',
-						data: {
+						data: 
 							endpoint: deviceAuthEndpoint,
 							hasRequestBody: !!requestBody,
 							requestBodyKeys: Object.keys(requestBody),
 							environmentId: credentials.environmentId,
-							clientId: `${credentials.clientId?.substring(0, 10)}...`,
-							timestamp: Date.now(),
-						},
+							clientId: `$credentials.clientId?.substring(0, 10)...`,
+							timestamp: Date.now(),,
 						timestamp: Date.now(),
 						sessionId: 'debug-session',
 						runId: 'request-hang',
-						hypothesisId: 'BEFORE-PINGONEFETCH',
-					}),
+						hypothesisId: 'BEFORE-PINGONEFETCH',),
 				}).catch(() => {});
 			} catch (_e) {}
 			// #endregion
@@ -267,22 +259,20 @@ export class DeviceCodeIntegrationServiceV8 {
 			// #region agent log - Debug instrumentation after pingOneFetch
 			try {
 					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
+					headers: 'Content-Type': 'application/json' ,
+					body: JSON.stringify(
 						location: 'deviceCodeIntegrationServiceV8.ts:172-AFTER-PINGONEFETCH',
 						message: 'pingOneFetch completed',
-						data: {
+						data: 
 							status: response.status,
 							statusText: response.statusText,
 							ok: response.ok,
 							hasBody: !!response.body,
-							timestamp: Date.now(),
-						},
+							timestamp: Date.now(),,
 						timestamp: Date.now(),
 						sessionId: 'debug-session',
 						runId: 'request-hang',
-						hypothesisId: 'AFTER-PINGONEFETCH',
-					}),
+						hypothesisId: 'AFTER-PINGONEFETCH',),
 				}).catch(() => {});
 			} catch (_e) {}
 			// #endregion
@@ -455,23 +445,21 @@ export class DeviceCodeIntegrationServiceV8 {
 			// #region agent log - Debug instrumentation for catch block
 			try {
 					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
+					headers: 'Content-Type': 'application/json' ,
+					body: JSON.stringify(
 						location: 'deviceCodeIntegrationServiceV8.ts:385-CATCH',
 						message: 'Caught error in requestDeviceAuthorization',
-						data: {
+						data: 
 							errorMessage: error instanceof Error ? error.message : String(error),
 							errorType: error instanceof Error ? error.constructor.name : typeof error,
 							hasStack: error instanceof Error ? !!error.stack : false,
 							stackPreview: error instanceof Error ? error.stack?.substring(0, 300) : 'no stack',
-							timestamp: Date.now(),
-						},
+							timestamp: Date.now(),,
 						timestamp: Date.now(),
 						sessionId: 'debug-session',
 						runId: 'request-hang',
-						hypothesisId: 'CATCH',
-					}),
-				}).catch(() => {});
+						hypothesisId: 'CATCH',),
+				}).catch(() => );
 			} catch (_e) {}
 			// #endregion
 

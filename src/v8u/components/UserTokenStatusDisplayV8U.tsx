@@ -13,9 +13,25 @@
  * - Compact and detailed view modes
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
-import styled, { keyframes, css } from 'styled-components';
-import { FiKey, FiShield, FiClock, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiZap, FiActivity, FiInfo, FiGlobe, FiUser, FiEye, FiEyeOff, FiCopy, FiTrash2 } from 'react-icons/fi';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+	FiActivity,
+	FiAlertCircle,
+	FiCheckCircle,
+	FiClock,
+	FiCopy,
+	FiEye,
+	FiEyeOff,
+	FiGlobe,
+	FiInfo,
+	FiKey,
+	FiRefreshCw,
+	FiShield,
+	FiTrash2,
+	FiUser,
+	FiZap,
+} from 'react-icons/fi';
+import styled, { css, keyframes } from 'styled-components';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 // Flow types for dropdowns
@@ -26,7 +42,7 @@ const FLOW_TYPES = [
 	{ value: 'client-credentials', label: 'Client Credentials' },
 	{ value: 'device-code', label: 'Device Code' },
 	{ value: 'ropc', label: 'Resource Owner Password' },
-	{ value: 'pkce', label: 'PKCE' }
+	{ value: 'pkce', label: 'PKCE' },
 ];
 
 // Animation keyframes
@@ -48,24 +64,30 @@ const slideIn = keyframes`
 // Styled components
 const TokenContainer = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' | 'info' }>`
 	background: linear-gradient(135deg, 
-		${props => 
-			props.$variant === 'valid' ? 'rgba(59, 130, 246, 0.1)' :
-			props.$variant === 'warning' ? 'rgba(245, 158, 11, 0.1)' :
-			props.$variant === 'info' ? 'rgba(16, 185, 129, 0.1)' :
-			'rgba(239, 68, 68, 0.1)'
-		},
-		${props => 
-			props.$variant === 'valid' ? 'rgba(37, 99, 235, 0.05)' :
-			props.$variant === 'warning' ? 'rgba(251, 191, 36, 0.05)' :
-			props.$variant === 'info' ? 'rgba(34, 197, 94, 0.05)' :
-			'rgba(248, 113, 113, 0.05)'
-		});
-	border: 2px solid ${props => 
-		props.$variant === 'valid' ? '#3b82f6' :
-		props.$variant === 'warning' ? '#f59e0b' :
-		props.$variant === 'info' ? '#10b981' :
-		'#ef4444'
-	};
+		${(props) =>
+			props.$variant === 'valid'
+				? 'rgba(59, 130, 246, 0.1)'
+				: props.$variant === 'warning'
+					? 'rgba(245, 158, 11, 0.1)'
+					: props.$variant === 'info'
+						? 'rgba(16, 185, 129, 0.1)'
+						: 'rgba(239, 68, 68, 0.1)'},
+		${(props) =>
+			props.$variant === 'valid'
+				? 'rgba(37, 99, 235, 0.05)'
+				: props.$variant === 'warning'
+					? 'rgba(251, 191, 36, 0.05)'
+					: props.$variant === 'info'
+						? 'rgba(34, 197, 94, 0.05)'
+						: 'rgba(248, 113, 113, 0.05)'});
+	border: 2px solid ${(props) =>
+		props.$variant === 'valid'
+			? '#3b82f6'
+			: props.$variant === 'warning'
+				? '#f59e0b'
+				: props.$variant === 'info'
+					? '#10b981'
+					: '#ef4444'};
 	border-radius: 12px;
 	padding: 16px;
 	margin-bottom: 16px;
@@ -87,7 +109,9 @@ const TokenContainer = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' | 
 			inset 0 1px 0 rgba(255, 255, 255, 0.3);
 	}
 
-	${props => props.$variant === 'valid' && css`
+	${(props) =>
+		props.$variant === 'valid' &&
+		css`
 		animation: ${slideIn} 0.5s ease-out, ${glow} 3s ease-in-out infinite;
 	`}
 `;
@@ -105,7 +129,10 @@ const TokenTitle = styled.div`
 	gap: 10px;
 `;
 
-const TokenIcon = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' | 'info'; $tokenType?: string }>`
+const TokenIcon = styled.div<{
+	$variant: 'valid' | 'invalid' | 'warning' | 'info';
+	$tokenType?: string;
+}>`
 	width: 32px;
 	height: 32px;
 	border-radius: 8px;
@@ -113,18 +140,22 @@ const TokenIcon = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' | 'info
 	align-items: center;
 	justify-content: center;
 	background: linear-gradient(135deg, 
-		${props => 
-			props.$variant === 'valid' ? '#3b82f6' :
-			props.$variant === 'warning' ? '#f59e0b' :
-			props.$variant === 'info' ? '#10b981' :
-			'#ef4444'
-		},
-		${props => 
-			props.$variant === 'valid' ? '#2563eb' :
-			props.$variant === 'warning' ? '#d97706' :
-			props.$variant === 'info' ? '#059669' :
-			'#dc2626'
-		});
+		${(props) =>
+			props.$variant === 'valid'
+				? '#3b82f6'
+				: props.$variant === 'warning'
+					? '#f59e0b'
+					: props.$variant === 'info'
+						? '#10b981'
+						: '#ef4444'},
+		${(props) =>
+			props.$variant === 'valid'
+				? '#2563eb'
+				: props.$variant === 'warning'
+					? '#d97706'
+					: props.$variant === 'info'
+						? '#059669'
+						: '#dc2626'});
 	box-shadow: 
 		0 2px 8px rgba(0, 0, 0, 0.15),
 		inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -152,18 +183,22 @@ const TokenValue = styled.div<{ $variant: 'valid' | 'invalid' | 'warning' | 'inf
 	font-size: 14px;
 	font-weight: 700;
 	background: linear-gradient(135deg, 
-		${props => 
-			props.$variant === 'valid' ? '#3b82f6' :
-			props.$variant === 'warning' ? '#f59e0b' :
-			props.$variant === 'info' ? '#10b981' :
-			'#ef4444'
-		},
-		${props => 
-			props.$variant === 'valid' ? '#2563eb' :
-			props.$variant === 'warning' ? '#d97706' :
-			props.$variant === 'info' ? '#059669' :
-			'#dc2626'
-		});
+		${(props) =>
+			props.$variant === 'valid'
+				? '#3b82f6'
+				: props.$variant === 'warning'
+					? '#f59e0b'
+					: props.$variant === 'info'
+						? '#10b981'
+						: '#ef4444'},
+		${(props) =>
+			props.$variant === 'valid'
+				? '#2563eb'
+				: props.$variant === 'warning'
+					? '#d97706'
+					: props.$variant === 'info'
+						? '#059669'
+						: '#dc2626'});
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
@@ -199,11 +234,13 @@ const DetailLabel = styled.div`
 const DetailValue = styled.div<{ $highlight?: boolean; $monospace?: boolean }>`
 	font-size: 12px;
 	font-weight: 600;
-	color: ${props => props.$highlight ? '#3b82f6' : '#e5e7eb'};
+	color: ${(props) => (props.$highlight ? '#3b82f6' : '#e5e7eb')};
 	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-	font-family: ${props => props.$monospace ? 'monospace' : 'inherit'};
+	font-family: ${(props) => (props.$monospace ? 'monospace' : 'inherit')};
 	word-break: break-all;
-	${props => props.$highlight && `
+	${(props) =>
+		props.$highlight &&
+		`
 		background: linear-gradient(135deg, #3b82f6, #2563eb);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
@@ -218,22 +255,22 @@ const TokenActions = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
-	background: ${props => 
-		props.$variant === 'primary' ? '#3b82f6' :
-		props.$variant === 'danger' ? '#ef4444' :
-		'transparent'
-	};
-	border: 1px solid ${props => 
-		props.$variant === 'primary' ? '#3b82f6' :
-		props.$variant === 'danger' ? '#ef4444' :
-		'rgba(255, 255, 255, 0.2)'
-	};
+	background: ${(props) =>
+		props.$variant === 'primary'
+			? '#3b82f6'
+			: props.$variant === 'danger'
+				? '#ef4444'
+				: 'transparent'};
+	border: 1px solid ${(props) =>
+		props.$variant === 'primary'
+			? '#3b82f6'
+			: props.$variant === 'danger'
+				? '#ef4444'
+				: 'rgba(255, 255, 255, 0.2)'};
 	border-radius: 6px;
 	padding: 6px 10px;
-	color: ${props => 
-		props.$variant === 'primary' || props.$variant === 'danger' ? 'white' :
-		'#e5e7eb'
-	};
+	color: ${(props) =>
+		props.$variant === 'primary' || props.$variant === 'danger' ? 'white' : '#e5e7eb'};
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -243,11 +280,12 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 	font-weight: 500;
 
 	&:hover {
-		background: ${props => 
-			props.$variant === 'primary' ? '#2563eb' :
-			props.$variant === 'danger' ? '#dc2626' :
-			'rgba(255, 255, 255, 0.1)'
-		};
+		background: ${(props) =>
+			props.$variant === 'primary'
+				? '#2563eb'
+				: props.$variant === 'danger'
+					? '#dc2626'
+					: 'rgba(255, 255, 255, 0.1)'};
 		transform: scale(1.02);
 	}
 
@@ -383,12 +421,8 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 	const updateTokenStatus = useCallback(async () => {
 		try {
 			// Check for different token types in various storage locations
-			const tokenPromises = [
-				checkAccessToken(),
-				checkIdToken(), 
-				checkRefreshToken()
-			];
-			
+			const tokenPromises = [checkAccessToken(), checkIdToken(), checkRefreshToken()];
+
 			const resolvedTokens = await Promise.all(tokenPromises);
 			setTokens(resolvedTokens.filter(Boolean) as UserTokenInfo[]);
 		} catch (error) {
@@ -420,7 +454,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				audience: payload.aud,
 				subject: payload.sub,
 				isValid,
-				status: !isValid ? 'expired' : isExpiringSoon ? 'expiring-soon' : 'valid'
+				status: !isValid ? 'expired' : isExpiringSoon ? 'expiring-soon' : 'valid',
 			};
 		} catch (error) {
 			console.error('[UserTokenStatusDisplayV8U] Error checking access token:', error);
@@ -437,7 +471,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 			const now = Date.now();
 			const expiresAt = payload.exp * 1000;
 			const isValid = expiresAt > now;
-			const isExpiringSoon = (expiresAt - now) < 5 * 60 * 1000;
+			const isExpiringSoon = expiresAt - now < 5 * 60 * 1000;
 
 			return {
 				type: 'id_token',
@@ -448,7 +482,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				audience: payload.aud,
 				subject: payload.sub,
 				isValid,
-				status: !isValid ? 'expired' : isExpiringSoon ? 'expiring-soon' : 'valid'
+				status: !isValid ? 'expired' : isExpiringSoon ? 'expiring-soon' : 'valid',
 			};
 		} catch (error) {
 			console.error('[UserTokenStatusDisplayV8U] Error checking ID token:', error);
@@ -466,7 +500,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				type: 'refresh_token',
 				token: refreshToken,
 				isValid: true,
-				status: 'valid'
+				status: 'valid',
 			};
 		} catch (error) {
 			console.error('[UserTokenStatusDisplayV8U] Error checking refresh token:', error);
@@ -508,8 +542,12 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 
 	const clearToken = async (type: string) => {
 		try {
-			const storageKey = type === 'access_token' ? 'access_token' : 
-								type === 'id_token' ? 'id_token' : 'refresh_token';
+			const storageKey =
+				type === 'access_token'
+					? 'access_token'
+					: type === 'id_token'
+						? 'id_token'
+						: 'refresh_token';
 			localStorage.removeItem(storageKey);
 			await updateTokenStatus();
 			toastV8.success(`${type} cleared`);
@@ -520,20 +558,29 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 
 	const getVariant = (status: string): 'valid' | 'invalid' | 'warning' | 'info' => {
 		switch (status) {
-			case 'valid': return 'valid';
-			case 'expiring-soon': return 'warning';
-			case 'expired': return 'invalid';
-			case 'missing': return 'info';
-			default: return 'info';
+			case 'valid':
+				return 'valid';
+			case 'expiring-soon':
+				return 'warning';
+			case 'expired':
+				return 'invalid';
+			case 'missing':
+				return 'info';
+			default:
+				return 'info';
 		}
 	};
 
 	const getTokenIcon = (type: string) => {
 		switch (type) {
-			case 'access_token': return <FiKey />;
-			case 'id_token': return <FiUser />;
-			case 'refresh_token': return <FiRefreshCw />;
-			default: return <FiShield />;
+			case 'access_token':
+				return <FiKey />;
+			case 'id_token':
+				return <FiUser />;
+			case 'refresh_token':
+				return <FiRefreshCw />;
+			default:
+				return <FiShield />;
 		}
 	};
 
@@ -579,7 +626,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 									background: token.isValid ? '#dbeafe' : '#fee2e2',
 									color: token.isValid ? '#1e40af' : '#991b1b',
 									fontSize: '11px',
-									border: `1px solid ${token.isValid ? '#3b82f6' : '#ef4444'}`
+									border: `1px solid ${token.isValid ? '#3b82f6' : '#ef4444'}`,
 								}}
 							>
 								{token.type.replace('_', ' ')}: {token.status}
@@ -639,18 +686,21 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				<TokenContainer $variant="info">
 					<TokenHeader>
 						<TokenTitle>
-							<div style={{
-								width: '32px',
-								height: '32px',
-								borderRadius: '8px',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								background: 'linear-gradient(135deg, #10b981, #059669)',
-								boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-								color: 'white',
-								fontSize: '14px'
-							}}>
+							<div
+								style={{
+									width: '32px',
+									height: '32px',
+									borderRadius: '8px',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									background: 'linear-gradient(135deg, #10b981, #059669)',
+									boxShadow:
+										'0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+									color: 'white',
+									fontSize: '14px',
+								}}
+							>
 								<FiInfo />
 							</div>
 							<TokenText>
@@ -660,8 +710,8 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 						</TokenTitle>
 					</TokenHeader>
 					<div style={{ fontSize: '12px', color: '#6b7280' }}>
-						No user tokens (access, ID, or refresh) found in localStorage. 
-						Perform an OAuth flow to generate tokens.
+						No user tokens (access, ID, or refresh) found in localStorage. Perform an OAuth flow to
+						generate tokens.
 					</div>
 				</TokenContainer>
 			) : (
@@ -669,22 +719,29 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 					<TokenContainer key={index} $variant={getVariant(token.status)}>
 						<TokenHeader>
 							<TokenTitle>
-								<div style={{
-									width: '32px',
-									height: '32px',
-									borderRadius: '8px',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-									boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-									color: 'white',
-									fontSize: '14px',
-									animation: 'pulse 2s ease-in-out infinite'
-								}}>
-									{token.type === 'access_token' ? <FiKey /> :
-									 token.type === 'id_token' ? <FiUser /> :
-									 <FiRefreshCw />}
+								<div
+									style={{
+										width: '32px',
+										height: '32px',
+										borderRadius: '8px',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+										boxShadow:
+											'0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+										color: 'white',
+										fontSize: '14px',
+										animation: 'pulse 2s ease-in-out infinite',
+									}}
+								>
+									{token.type === 'access_token' ? (
+										<FiKey />
+									) : token.type === 'id_token' ? (
+										<FiUser />
+									) : (
+										<FiRefreshCw />
+									)}
 								</div>
 								<TokenText>
 									<TokenLabel>{token.type.replace('_', ' ').toUpperCase()}</TokenLabel>
@@ -715,9 +772,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 							{token.issuedAt && (
 								<TokenDetail>
 									<DetailLabel>Issued At</DetailLabel>
-									<DetailValue>
-										{new Date(token.issuedAt).toLocaleTimeString()}
-									</DetailValue>
+									<DetailValue>{new Date(token.issuedAt).toLocaleTimeString()}</DetailValue>
 								</TokenDetail>
 							)}
 
@@ -744,7 +799,11 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 						</TokenDetails>
 
 						<TokenActions>
-							<ActionButton onClick={() => setShowTokens(prev => ({ ...prev, [token.token]: !prev[token.token] }))}>
+							<ActionButton
+								onClick={() =>
+									setShowTokens((prev) => ({ ...prev, [token.token]: !prev[token.token] }))
+								}
+							>
 								{showTokens[token.token] ? <FiEyeOff /> : <FiEye />}
 								{showTokens[token.token] ? 'Hide' : 'Show'}
 							</ActionButton>

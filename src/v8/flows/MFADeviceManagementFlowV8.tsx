@@ -25,10 +25,13 @@ import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusServiceV8,
+} from '@/v8/services/workerTokenStatusServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔧 DEVICE-MGMT-FLOW-V8]';
 const FLOW_KEY = 'mfa-device-mgmt-v8';
@@ -131,8 +134,8 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 				await handleShowWorkerTokenModal(
 					setShowWorkerTokenModal,
 					async (status) => setTokenStatus(await status),
-					silentApiRetrieval,  // Page checkbox value takes precedence
-					showTokenAtEnd       // Page checkbox value takes precedence
+					silentApiRetrieval, // Page checkbox value takes precedence
+					showTokenAtEnd // Page checkbox value takes precedence
 				);
 			}
 		};
@@ -232,9 +235,9 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 			// Use helper to check silentApiRetrieval before showing modal
 			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
 			await handleShowWorkerTokenModal(
-				setShowWorkerTokenModal, 
-				async (status) => setTokenStatus(await status), 
-				silentApiRetrieval, 
+				setShowWorkerTokenModal,
+				async (status) => setTokenStatus(await status),
+				silentApiRetrieval,
 				showTokenAtEnd,
 				true // Force show modal - user clicked button
 			);
@@ -351,9 +354,11 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 									</p>
 								</div>
 							)}
-							
+
 							{/* Worker Token Settings Checkboxes */}
-							<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+							<div
+								style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}
+							>
 								<label
 									style={{
 										display: 'flex',
@@ -379,26 +384,37 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 											const newValue = e.target.checked;
 											setSilentApiRetrieval(newValue);
 											// Update config service immediately (no cache)
-											const { MFAConfigurationServiceV8 } = await import('@/v8/services/mfaConfigurationServiceV8');
+											const { MFAConfigurationServiceV8 } = await import(
+												'@/v8/services/mfaConfigurationServiceV8'
+											);
 											const config = MFAConfigurationServiceV8.loadConfiguration();
 											config.workerToken.silentApiRetrieval = newValue;
 											MFAConfigurationServiceV8.saveConfiguration(config);
 											// Dispatch event to notify other components
-											window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+											window.dispatchEvent(
+												new CustomEvent('mfaConfigurationUpdated', {
+													detail: { workerToken: config.workerToken },
+												})
+											);
 											toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
-											
+
 											// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 											if (newValue) {
-												const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+												const currentStatus =
+													await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 												if (!currentStatus.isValid) {
-													console.log('[DEVICE-MGMT-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...');
-													const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+													console.log(
+														'[DEVICE-MGMT-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
+													);
+													const { handleShowWorkerTokenModal } = await import(
+														'@/v8/utils/workerTokenModalHelperV8'
+													);
 													await handleShowWorkerTokenModal(
 														setShowWorkerTokenModal,
 														async (status) => setTokenStatus(await status),
-														newValue,  // Use new value
+														newValue, // Use new value
 														showTokenAtEnd,
-														false      // Not forced - respect silent setting
+														false // Not forced - respect silent setting
 													);
 												}
 											}
@@ -446,12 +462,18 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 											const newValue = e.target.checked;
 											setShowTokenAtEnd(newValue);
 											// Update config service immediately (no cache)
-											const { MFAConfigurationServiceV8 } = await import('@/v8/services/mfaConfigurationServiceV8');
+											const { MFAConfigurationServiceV8 } = await import(
+												'@/v8/services/mfaConfigurationServiceV8'
+											);
 											const config = MFAConfigurationServiceV8.loadConfiguration();
 											config.workerToken.showTokenAtEnd = newValue;
 											MFAConfigurationServiceV8.saveConfiguration(config);
 											// Dispatch event to notify other components
-											window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+											window.dispatchEvent(
+												new CustomEvent('mfaConfigurationUpdated', {
+													detail: { workerToken: config.workerToken },
+												})
+											);
 											toastV8.info(`Show Token After Generation set to: ${newValue}`);
 										}}
 										style={{

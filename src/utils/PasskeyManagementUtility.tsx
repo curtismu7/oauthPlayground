@@ -5,8 +5,8 @@
  * @version 1.0.0
  */
 
-import React, { useState, useEffect } from 'react';
-import { FiTrash2, FiInfo, FiExternalLink, FiCopy, FiCheckCircle } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiCheckCircle, FiCopy, FiExternalLink, FiInfo, FiTrash2 } from 'react-icons/fi';
 
 interface PasskeyDevice {
 	id: string;
@@ -290,8 +290,8 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 					🔑 Passkey Management Utility
 				</h1>
 				<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
-					Identify and manage passkeys stored in Chrome. This tool helps you match PingOne devices with
-					Chrome passkeys using identifying information.
+					Identify and manage passkeys stored in Chrome. This tool helps you match PingOne devices
+					with Chrome passkeys using identifying information.
 				</p>
 
 				{/* Chrome Passkey Manager Instructions */}
@@ -304,14 +304,27 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 						marginBottom: '1.5rem',
 					}}
 				>
-					<h3 style={{ marginTop: 0, fontSize: '1rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+					<h3
+						style={{
+							marginTop: 0,
+							fontSize: '1rem',
+							fontWeight: '600',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+						}}
+					>
 						<FiInfo /> How to Access Chrome Passkey Manager
 					</h3>
 					<ol style={{ margin: '0.5rem 0', paddingLeft: '1.5rem', color: '#1e40af' }}>
-						<li>Open Chrome Settings: <code>chrome://settings/passwords</code></li>
+						<li>
+							Open Chrome Settings: <code>chrome://settings/passwords</code>
+						</li>
 						<li>Click on the "Passkeys" tab</li>
 						<li>You'll see all your stored passkeys with their associated websites</li>
-						<li>Use the identifying information below to match PingOne devices with Chrome passkeys</li>
+						<li>
+							Use the identifying information below to match PingOne devices with Chrome passkeys
+						</li>
 					</ol>
 					<button
 						onClick={openChromePasskeyManager}
@@ -396,7 +409,14 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 					>
 						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
 							<div style={{ flex: 1 }}>
-								<h3 style={{ marginTop: 0, marginBottom: '0.5rem', fontSize: '1.1rem', fontWeight: '600' }}>
+								<h3
+									style={{
+										marginTop: 0,
+										marginBottom: '0.5rem',
+										fontSize: '1.1rem',
+										fontWeight: '600',
+									}}
+								>
 									Passkey #{index + 1} {device.name && `- ${device.name}`}
 								</h3>
 								<div
@@ -415,7 +435,14 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 								</div>
 
 								{/* Identifying Information */}
-								<div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.75rem 1rem', fontSize: '0.875rem' }}>
+								<div
+									style={{
+										display: 'grid',
+										gridTemplateColumns: 'auto 1fr',
+										gap: '0.75rem 1rem',
+										fontSize: '0.875rem',
+									}}
+								>
 									<strong style={{ color: '#6b7280' }}>Device ID:</strong>
 									<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 										<code
@@ -532,8 +559,8 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 										</li>
 										{device.credentialId && (
 											<li>
-												The credential ID in Chrome may match the beginning of this device's credential
-												ID
+												The credential ID in Chrome may match the beginning of this device's
+												credential ID
 											</li>
 										)}
 										<li>Created on: {new Date(device.createdAt).toLocaleDateString()}</li>

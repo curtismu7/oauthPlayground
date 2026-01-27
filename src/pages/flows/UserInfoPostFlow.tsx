@@ -318,7 +318,7 @@ try {
 						const missingFields = [];
 						if (!formData.accessToken) missingFields.push('Access Token');
 						if (!formData.environmentId) missingFields.push('Environment ID');
-						
+
 						const errorMessage = `Missing required fields: ${missingFields.join(' and ')}. Please fill in all required fields.`;
 						throw new Error(errorMessage);
 					}
@@ -326,7 +326,10 @@ try {
 					const userInfoEndpoint = `https://auth.pingone.com/${formData.environmentId}/as/userinfo`;
 
 					console.log('[UserInfoPostFlow] Fetching user information from:', userInfoEndpoint);
-					console.log('[UserInfoPostFlow] Token preview:', `${formData.accessToken.substring(0, 20)}...`);
+					console.log(
+						'[UserInfoPostFlow] Token preview:',
+						`${formData.accessToken.substring(0, 20)}...`
+					);
 
 					const response = await fetch('/api/pingone/userinfo', {
 						method: 'POST',
@@ -496,7 +499,7 @@ const retryUserInfoRequest = async (retryCount = 0) => {
 				const missingFields = [];
 				if (!formData.accessToken) missingFields.push('Access Token');
 				if (!formData.environmentId) missingFields.push('Environment ID');
-				
+
 				const errorMessage = `Missing required fields: ${missingFields.join(' and ')}. Please fill in all required fields.`;
 				throw new Error(errorMessage);
 			}
@@ -504,7 +507,10 @@ const retryUserInfoRequest = async (retryCount = 0) => {
 			const userInfoEndpoint = `https://auth.pingone.com/${formData.environmentId}/as/userinfo`;
 
 			console.log('[UserInfoPostFlow] Fetching user information from:', userInfoEndpoint);
-			console.log('[UserInfoPostFlow] Token preview:', `${formData.accessToken.substring(0, 20)}...`);
+			console.log(
+				'[UserInfoPostFlow] Token preview:',
+				`${formData.accessToken.substring(0, 20)}...`
+			);
 
 			const response = await fetch('/api/pingone/userinfo', {
 				method: 'POST',

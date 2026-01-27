@@ -295,7 +295,9 @@ export class ToastNotificationsV8 {
 	 * toastV8.formattedSuccess('Device registered', 'SMS device is now active');
 	 */
 	static formattedSuccess(message: string, detail?: string): void {
-		const formattedMessage = detail ? `Message: ${message} | Detail: ${detail}` : `Message: ${message}`;
+		const formattedMessage = detail
+			? `Message: ${message} | Detail: ${detail}`
+			: `Message: ${message}`;
 		ToastNotificationsV8.success(formattedMessage);
 	}
 
@@ -307,7 +309,9 @@ export class ToastNotificationsV8 {
 	 * toastV8.formattedError('Registration failed', 'Device limit exceeded');
 	 */
 	static formattedError(message: string, detail?: string): void {
-		const formattedMessage = detail ? `Message: ${message} | Detail: ${detail}` : `Message: ${message}`;
+		const formattedMessage = detail
+			? `Message: ${message} | Detail: ${detail}`
+			: `Message: ${message}`;
 		ToastNotificationsV8.error(formattedMessage);
 	}
 
@@ -319,7 +323,9 @@ export class ToastNotificationsV8 {
 	 * toastV8.formattedWarning('Policy required', 'Device authentication policy must be selected');
 	 */
 	static formattedWarning(message: string, detail?: string): void {
-		const formattedMessage = detail ? `Message: ${message} | Detail: ${detail}` : `Message: ${message}`;
+		const formattedMessage = detail
+			? `Message: ${message} | Detail: ${detail}`
+			: `Message: ${message}`;
 		ToastNotificationsV8.warning(formattedMessage);
 	}
 
@@ -331,7 +337,9 @@ export class ToastNotificationsV8 {
 	 * toastV8.formattedInfo('Token loaded', 'User token retrieved from OAuth login');
 	 */
 	static formattedInfo(message: string, detail?: string): void {
-		const formattedMessage = detail ? `Message: ${message} | Detail: ${detail}` : `Message: ${message}`;
+		const formattedMessage = detail
+			? `Message: ${message} | Detail: ${detail}`
+			: `Message: ${message}`;
 		ToastNotificationsV8.info(formattedMessage);
 	}
 

@@ -55,9 +55,7 @@ export const SectionCardV8: React.FC<SectionCardProps> = ({
 					</div>
 				</div>
 			)}
-			<div className="section-content">
-				{children}
-			</div>
+			<div className="section-content">{children}</div>
 
 			<style>{`
 				.section-card-v8 {

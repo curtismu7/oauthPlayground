@@ -6,9 +6,9 @@
  */
 
 import React, { useState } from 'react';
-import { P1MFASDK, SMSHelper, type DeviceRegistrationResult } from '@/sdk/p1mfa';
 import { DebugPanel } from '@/samples/p1mfa/shared/DebugPanel';
 import { StatusDisplay } from '@/samples/p1mfa/shared/StatusDisplay';
+import { type DeviceRegistrationResult, P1MFASDK, SMSHelper } from '@/sdk/p1mfa';
 
 interface EnrollSmsProps {
 	sdk: P1MFASDK;
@@ -171,12 +171,14 @@ export const EnrollSms: React.FC<EnrollSmsProps> = ({ sdk, userId, onDeviceRegis
 			<div>
 				<StatusDisplay status={status} message={message} request={request} response={response} />
 				<DebugPanel
-					request={request as {
-						method?: string;
-						url?: string;
-						headers?: Record<string, string>;
-						body?: unknown;
-					}}
+					request={
+						request as {
+							method?: string;
+							url?: string;
+							headers?: Record<string, string>;
+							body?: unknown;
+						}
+					}
 					response={response}
 					correlationId={correlationId}
 					stateMachineStatus={stateMachineStatus}
@@ -256,12 +258,14 @@ export const EnrollSms: React.FC<EnrollSmsProps> = ({ sdk, userId, onDeviceRegis
 				<div>
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					<DebugPanel
-						request={request as {
-							method?: string;
-							url?: string;
-							headers?: Record<string, string>;
-							body?: unknown;
-						}}
+						request={
+							request as {
+								method?: string;
+								url?: string;
+								headers?: Record<string, string>;
+								body?: unknown;
+							}
+						}
 						response={response}
 						correlationId={correlationId}
 						stateMachineStatus={stateMachineStatus}
@@ -288,12 +292,14 @@ export const EnrollSms: React.FC<EnrollSmsProps> = ({ sdk, userId, onDeviceRegis
 				<div>
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					<DebugPanel
-						request={request as {
-							method?: string;
-							url?: string;
-							headers?: Record<string, string>;
-							body?: unknown;
-						}}
+						request={
+							request as {
+								method?: string;
+								url?: string;
+								headers?: Record<string, string>;
+								body?: unknown;
+							}
+						}
 						response={response}
 						correlationId={correlationId}
 						stateMachineStatus={stateMachineStatus}
@@ -348,12 +354,14 @@ export const EnrollSms: React.FC<EnrollSmsProps> = ({ sdk, userId, onDeviceRegis
 				<div>
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					<DebugPanel
-						request={request as {
-							method?: string;
-							url?: string;
-							headers?: Record<string, string>;
-							body?: unknown;
-						}}
+						request={
+							request as {
+								method?: string;
+								url?: string;
+								headers?: Record<string, string>;
+								body?: unknown;
+							}
+						}
 						response={response}
 						correlationId={correlationId}
 						stateMachineStatus={stateMachineStatus}

@@ -50,17 +50,17 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 	if (process.env.NODE_ENV === 'development') {
 		console.log(`${_MODULE_TAG} 🔍 Checking worker token status using unified service V2`);
 	}
-	
+
 	try {
 		// Use the new unified worker token service V2
 		const status = await unifiedWorkerTokenServiceV2.getStatus();
 		const token = await unifiedWorkerTokenServiceV2.getToken();
-		
+
 		if (process.env.NODE_ENV === 'development') {
 			console.log(`${_MODULE_TAG} 🔍 Unified service status:`, status);
 			console.log(`${_MODULE_TAG} 🔍 Token available:`, !!token);
 		}
-		
+
 		if (!status.hasCredentials) {
 			return {
 				status: 'missing',
@@ -68,7 +68,7 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 				isValid: false,
 			};
 		}
-		
+
 		if (!status.hasToken) {
 			return {
 				status: 'missing',
@@ -76,7 +76,7 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 				isValid: false,
 			};
 		}
-		
+
 		if (!status.tokenValid) {
 			if (status.tokenExpiresIn !== undefined && status.tokenExpiresIn <= 0) {
 				const result: TokenStatusInfo = {
@@ -85,7 +85,7 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 					isValid: false,
 				};
 				if (status.lastFetchedAt) {
-					result.expiresAt = status.lastFetchedAt + (status.tokenExpiresIn * 1000);
+					result.expiresAt = status.lastFetchedAt + status.tokenExpiresIn * 1000;
 				}
 				if (token) {
 					result.token = token;
@@ -98,7 +98,7 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 					isValid: true,
 				};
 				if (status.lastFetchedAt) {
-					result.expiresAt = status.lastFetchedAt + (status.tokenExpiresIn! * 1000);
+					result.expiresAt = status.lastFetchedAt + status.tokenExpiresIn! * 1000;
 				}
 				if (status.tokenExpiresIn !== undefined) {
 					result.minutesRemaining = status.tokenExpiresIn;
@@ -109,24 +109,24 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 				return result;
 			}
 		}
-		
+
 		// Token is valid
 		const minutesRemaining = status.tokenExpiresIn;
 		let message = 'Worker token is valid.';
 		let tokenStatus: TokenStatus = 'valid';
-		
+
 		if (minutesRemaining !== undefined && minutesRemaining <= 5) {
 			message = `Worker token expires in ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''}.`;
 			tokenStatus = 'expiring-soon';
 		}
-		
+
 		const result: TokenStatusInfo = {
 			status: tokenStatus,
 			message,
 			isValid: true,
 		};
 		if (status.lastFetchedAt && status.tokenExpiresIn) {
-			result.expiresAt = status.lastFetchedAt + (status.tokenExpiresIn * 1000);
+			result.expiresAt = status.lastFetchedAt + status.tokenExpiresIn * 1000;
 		}
 		if (minutesRemaining !== undefined) {
 			result.minutesRemaining = minutesRemaining;
@@ -135,7 +135,6 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 			result.token = token;
 		}
 		return result;
-		
 	} catch (error) {
 		console.error(`${_MODULE_TAG} ❌ Error checking worker token status:`, error);
 		return {

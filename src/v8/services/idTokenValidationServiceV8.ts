@@ -11,7 +11,7 @@
  * - Educational value: Teaches cryptographic verification
  */
 
-import { jwtVerify, decodeJwt, type JWTPayload } from 'jose';
+import { decodeJwt, type JWTPayload, jwtVerify } from 'jose';
 import { JWKSCacheServiceV8 } from './jwksCacheServiceV8';
 
 const MODULE_TAG = '[✅ ID-TOKEN-VALIDATION-V8]';
@@ -104,62 +104,73 @@ export class IDTokenValidationServiceV8 {
 				console.warn(`${MODULE_TAG} Cache lookup failed, fetching JWKS`, { error });
 			}
 
-		// If not in cache, fetch JWKS
-		if (!signingKey) {
-			try {
-				// Track API call for documentation
-				const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
-				const startTime = Date.now();
-				const callId = apiCallTrackerService.trackApiCall({
-					method: 'GET',
-					url: actualJwksUri,
-					actualPingOneUrl: actualJwksUri,
-					headers: { Accept: 'application/json' },
-					step: 'jwks-fetch',
-					flowType: 'oidc-metadata',
-					isProxy: false,
-				});
+			// If not in cache, fetch JWKS
+			if (!signingKey) {
+				try {
+					// Track API call for documentation
+					const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+					const startTime = Date.now();
+					const callId = apiCallTrackerService.trackApiCall({
+						method: 'GET',
+						url: actualJwksUri,
+						actualPingOneUrl: actualJwksUri,
+						headers: { Accept: 'application/json' },
+						step: 'jwks-fetch',
+						flowType: 'oidc-metadata',
+						isProxy: false,
+					});
 
-				const response = await fetch(actualJwksUri);
-				if (!response.ok) {
-					// Update API call tracking with error
+					const response = await fetch(actualJwksUri);
+					if (!response.ok) {
+						// Update API call tracking with error
+						apiCallTrackerService.updateApiCallResponse(
+							callId,
+							{
+								status: response.status,
+								statusText: response.statusText,
+								data: { error: `Failed to fetch JWKS: ${response.status} ${response.statusText}` },
+							},
+							Date.now() - startTime
+						);
+						throw new Error(`Failed to fetch JWKS: ${response.status} ${response.statusText}`);
+					}
+					const jwks = await response.json();
+					const keys = jwks.keys as Array<Record<string, unknown>>;
+
+					// Update API call tracking with success
 					apiCallTrackerService.updateApiCallResponse(
 						callId,
 						{
 							status: response.status,
 							statusText: response.statusText,
-							data: { error: `Failed to fetch JWKS: ${response.status} ${response.statusText}` },
+							data: {
+								note: 'JWKS retrieved successfully for ID token signature verification',
+								keyCount: keys.length,
+								keys: keys.map((k) => ({ kid: k.kid, kty: k.kty, use: k.use, alg: k.alg })),
+							},
 						},
 						Date.now() - startTime
 					);
-					throw new Error(`Failed to fetch JWKS: ${response.status} ${response.statusText}`);
-				}
-				const jwks = await response.json();
-				const keys = jwks.keys as Array<Record<string, unknown>>;
 
-				// Update API call tracking with success
-				apiCallTrackerService.updateApiCallResponse(
-					callId,
-					{
-						status: response.status,
-						statusText: response.statusText,
-						data: {
-							note: 'JWKS retrieved successfully for ID token signature verification',
-							keyCount: keys.length,
-							keys: keys.map((k) => ({ kid: k.kid, kty: k.kty, use: k.use, alg: k.alg })),
-						},
-					},
-					Date.now() - startTime
-				);
+					// Cache the JWKS
+					await JWKSCacheServiceV8.cacheJWKS(actualJwksUri, issuer, keys);
 
-				// Cache the JWKS
-				await JWKSCacheServiceV8.cacheJWKS(actualJwksUri, issuer, keys);
+					// Find the key
+					signingKey = keys.find((k) => k.kid === kid) || null;
 
-				// Find the key
-				signingKey = keys.find((k) => k.kid === kid) || null;
-
-				if (!signingKey) {
-					errors.push(`Signing key with kid "${kid}" not found in JWKS`);
+					if (!signingKey) {
+						errors.push(`Signing key with kid "${kid}" not found in JWKS`);
+						return {
+							valid: false,
+							errors,
+							warnings,
+							validationDetails,
+						};
+					}
+				} catch (error) {
+					errors.push(
+						`Failed to fetch JWKS: ${error instanceof Error ? error.message : 'Unknown error'}`
+					);
 					return {
 						valid: false,
 						errors,
@@ -167,18 +178,7 @@ export class IDTokenValidationServiceV8 {
 						validationDetails,
 					};
 				}
-			} catch (error) {
-				errors.push(
-					`Failed to fetch JWKS: ${error instanceof Error ? error.message : 'Unknown error'}`
-				);
-				return {
-					valid: false,
-					errors,
-					warnings,
-					validationDetails,
-				};
 			}
-		}
 
 			// Step 4: Verify signature
 			try {
@@ -267,9 +267,7 @@ export class IDTokenValidationServiceV8 {
 						);
 					}
 				} else {
-					warnings.push(
-						'Token has multiple audiences but missing "azp" (authorized party) claim'
-					);
+					warnings.push('Token has multiple audiences but missing "azp" (authorized party) claim');
 				}
 			}
 

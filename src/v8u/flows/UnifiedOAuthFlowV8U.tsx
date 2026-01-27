@@ -12,12 +12,25 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FiBook, FiChevronDown, FiPackage } from 'react-icons/fi';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import {
+	downloadPostmanCollectionWithEnvironment,
+	generateCompletePostmanCollection,
+	generateComprehensiveUnifiedPostmanCollection,
+} from '@/services/postmanCollectionGeneratorV8';
+import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
 import {
 	ApiDisplayCheckbox,
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import {
+	PageHeaderGradients,
+	PageHeaderTextColors,
+	PageHeaderV8,
+} from '@/v8/components/shared/PageHeaderV8';
+import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -32,39 +45,35 @@ import {
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
-import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
+import { AdvancedOAuthFeatures } from '../components/AdvancedOAuthFeatures';
 import CredentialsFormV8U from '../components/CredentialsFormV8U';
+import { FlowGuidanceSystem } from '../components/FlowGuidanceSystem';
 // FlowNotAvailableModal removed - dropdown already filters flows by spec version
 import { FlowTypeSelector } from '../components/FlowTypeSelector';
-import { FlowGuidanceSystem } from '../components/FlowGuidanceSystem';
+import {
+	MobileResponsiveWrapper,
+	ResponsiveCard,
+	ResponsiveGrid,
+	ResponsiveSpacer,
+} from '../components/MobileResponsiveWrapper';
 import { SecurityScorecard } from '../components/SecurityScorecard';
-import { AdvancedOAuthFeatures } from '../components/AdvancedOAuthFeatures';
-import { MobileResponsiveWrapper, ResponsiveCard, ResponsiveGrid, ResponsiveSpacer } from '../components/MobileResponsiveWrapper';
 import { SpecVersionSelector } from '../components/SpecVersionSelector';
 import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
 import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
-import { 
+import {
 	FlowSettingsServiceV8U,
 	getAdvancedFeatures,
+	isAdvancedFeatureEnabled,
 	saveAdvancedFeatures,
 	toggleAdvancedFeature,
-	isAdvancedFeatureEnabled
 } from '../services/flowSettingsServiceV8U';
-import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,
 } from '../services/unifiedFlowIntegrationV8U';
-import {
-	generateComprehensiveUnifiedPostmanCollection,
-	generateCompletePostmanCollection,
-	downloadPostmanCollectionWithEnvironment,
-} from '@/services/postmanCollectionGeneratorV8';
-import { FiBook, FiPackage, FiChevronDown } from 'react-icons/fi';
-import { PageHeaderV8, PageHeaderGradients, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 
 const MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
 
@@ -102,7 +111,6 @@ const safeLogAnalytics = async (
  * @returns {JSX.Element} The unified OAuth flow UI
  */
 export const UnifiedOAuthFlowV8U: React.FC = () => {
-
 	// Scroll to top on page load for better UX
 	usePageScroll({ pageName: 'Unified OAuth Flow V8U', force: true });
 
@@ -130,13 +138,25 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		(async () => {
 			try {
 				const { log } = await import('@/v8/utils/analyticsHelperV8');
-				await log('UnifiedOAuthFlowV8U.tsx:97', 'Parsing currentStep from URL', { urlStep, urlFlowType, pathname: location.pathname, hash: window.location.hash.substring(0, 100) }, 'debug-session', 'hybrid-redirect', 'STEP_PARSING');
+				await log(
+					'UnifiedOAuthFlowV8U.tsx:97',
+					'Parsing currentStep from URL',
+					{
+						urlStep,
+						urlFlowType,
+						pathname: location.pathname,
+						hash: window.location.hash.substring(0, 100),
+					},
+					'debug-session',
+					'hybrid-redirect',
+					'STEP_PARSING'
+				);
 			} catch {
 				// Silently ignore - analytics server not available
 			}
 		})();
 		// #endregion
-		
+
 		if (urlStep) {
 			const stepNum = parseInt(urlStep, 10);
 			// Validate step number is a valid non-negative integer
@@ -145,7 +165,14 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				(async () => {
 					try {
 						const { log } = await import('@/v8/utils/analyticsHelperV8');
-						await log('UnifiedOAuthFlowV8U.tsx:102', 'Step parsed successfully', { stepNum, urlStep }, 'debug-session', 'hybrid-redirect', 'STEP_PARSING');
+						await log(
+							'UnifiedOAuthFlowV8U.tsx:102',
+							'Step parsed successfully',
+							{ stepNum, urlStep },
+							'debug-session',
+							'hybrid-redirect',
+							'STEP_PARSING'
+						);
 					} catch {
 						// Silently ignore - analytics server not available
 					}
@@ -242,13 +269,20 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		safeLogAnalytics(
 			'UnifiedOAuthFlowV8U.tsx:181',
 			'URL sync effect - ENTRY',
-			{ urlFlowType, flowType, specVersion, lastSynced: lastSyncedUrlFlowTypeRef.current, isUserChanging: isUserChangingFlowRef.current, pathname: location.pathname },
+			{
+				urlFlowType,
+				flowType,
+				specVersion,
+				lastSynced: lastSyncedUrlFlowTypeRef.current,
+				isUserChanging: isUserChangingFlowRef.current,
+				pathname: location.pathname,
+			},
 			'debug-session',
 			'flow-type-debug',
 			'A'
 		);
 		// #endregion
-		
+
 		// Prevent syncing the same URL flow type multiple times
 		if (lastSyncedUrlFlowTypeRef.current === urlFlowType) {
 			// #region agent log - Use safe analytics fetch
@@ -300,7 +334,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				'C'
 			);
 			// #endregion
-			
+
 			// CRITICAL: Check if the URL flow type is available for the current spec version
 			// If not, automatically switch to a compatible spec version (just like handleFlowTypeChange does)
 			const currentAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
@@ -308,13 +342,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			safeLogAnalytics(
 				'UnifiedOAuthFlowV8U.tsx:205',
 				'URL sync effect - AVAILABLE FLOWS CHECK',
-				{ specVersion, currentAvailableFlows, urlFlowType, isAvailable: currentAvailableFlows.includes(urlFlowType as FlowType) },
+				{
+					specVersion,
+					currentAvailableFlows,
+					urlFlowType,
+					isAvailable: currentAvailableFlows.includes(urlFlowType as FlowType),
+				},
 				'debug-session',
 				'flow-type-debug',
 				'C'
 			);
 			// #endregion
-			
+
 			if (!currentAvailableFlows.includes(urlFlowType as FlowType)) {
 				// #region agent log - Use safe analytics fetch
 				safeLogAnalytics(
@@ -326,7 +365,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					'D'
 				);
 				// #endregion
-				
+
 				// Find a spec version that supports this flow type
 				const compatibleSpecVersions: SpecVersion[] = ['oauth2.0', 'oauth2.1', 'oidc'];
 				const compatibleSpec = compatibleSpecVersions.find((spec) => {
@@ -345,7 +384,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						'D'
 					);
 					// #endregion
-					
+
 					// Switch spec version first, then flow type
 					setSpecVersion(compatibleSpec);
 					FlowSettingsServiceV8U.saveSpecVersion(urlFlowType as FlowType, compatibleSpec);
@@ -360,7 +399,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						'D'
 					);
 					// #endregion
-					
+
 					console.warn(`${MODULE_TAG} ⚠️ No compatible spec version found for URL flow type`, {
 						urlFlowType,
 					});
@@ -380,7 +419,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				'C'
 			);
 			// #endregion
-			
+
 			// Mark as synced BEFORE updating to prevent re-runs
 			lastSyncedUrlFlowTypeRef.current = urlFlowType;
 			// Reset the last processed flow type ref so spec version loading can run
@@ -397,7 +436,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				'A'
 			);
 			// #endregion
-			
+
 			// URL and state are in sync - mark as synced
 			lastSyncedUrlFlowTypeRef.current = urlFlowType;
 		} else if (!urlFlowType) {
@@ -411,7 +450,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				'A'
 			);
 			// #endregion
-			
+
 			// URL doesn't have a flow type - mark current flow as synced to prevent loops
 			lastSyncedUrlFlowTypeRef.current = flowType;
 		}
@@ -435,7 +474,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	useEffect(() => {
 		// #region agent log
 		// #endregion
-		
+
 		// Prevent processing the same flowType multiple times
 		if (lastProcessedFlowTypeRef.current === flowType) {
 			// #region agent log
@@ -444,7 +483,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		}
 
 		const savedSpecVersion = FlowSettingsServiceV8U.getSpecVersion(flowType);
-		
+
 		// #region agent log
 		// #endregion
 
@@ -459,19 +498,19 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			// Check if saved spec version supports the current flow type
 			const savedSpecAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(savedSpecVersion);
 			const savedSpecSupportsFlow = savedSpecAvailableFlows.includes(flowType);
-			
+
 			// #region agent log
 			// #endregion
-			
+
 			if (savedSpecSupportsFlow) {
 				// #region agent log
 				// #endregion
-				
+
 				setSpecVersion(savedSpecVersion);
 			} else {
 				// #region agent log
 				// #endregion
-				
+
 				// Don't update spec version - keep current spec that supports the flow type
 				// Also save current spec version as the new preference for this flow type
 				FlowSettingsServiceV8U.saveSpecVersion(flowType, specVersion);
@@ -482,11 +521,12 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// This helps identify which flows are most commonly used
 		// Use current spec version (either unchanged, or updated from saved)
 		// This ensures we save the correct spec version preference
-		const finalSpecVersion = savedSpecVersion !== specVersion && 
+		const finalSpecVersion =
+			savedSpecVersion !== specVersion &&
 			UnifiedFlowIntegrationV8U.getAvailableFlows(savedSpecVersion).includes(flowType)
-			? savedSpecVersion 
-			: specVersion;
-		
+				? savedSpecVersion
+				: specVersion;
+
 		FlowSettingsServiceV8U.saveSettings(flowType, {
 			specVersion: finalSpecVersion,
 		});
@@ -539,7 +579,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	useEffect(() => {
 		// #region agent log
 		// #endregion
-		
+
 		if (location.pathname === '/v8u/unified') {
 			// #region agent log
 			// #endregion
@@ -735,7 +775,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
 			});
-			
+
 			// Re-fetch app configuration to reflect worker token status
 			if (credentials.environmentId && credentials.clientId) {
 				console.log(`${MODULE_TAG} 🔑 Clearing app config to trigger re-fetch`);
@@ -747,10 +787,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 		console.log(`${MODULE_TAG} 🔑 Setting up worker token event listener`);
 		window.addEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
-		
+
 		// Test if event listener is working
 		console.log(`${MODULE_TAG} 🔑 Worker token listener setup complete`);
-		
+
 		return () => {
 			console.log(`${MODULE_TAG} 🔑 Cleaning up worker token event listener`);
 			window.removeEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
@@ -801,9 +841,15 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const flowKey = useMemo(() => {
 		const key = getFlowKey(specVersion, effectiveFlowType);
 		// #region agent log
-		import('@/v8/utils/analyticsV8').then(({ analytics }) => {
-			analytics.log({ location:'UnifiedOAuthFlowV8U.tsx:509',message:'FlowKey calculated',data:{flowKey:key,specVersion,effectiveFlowType} });
-		}).catch(()=>{});
+		import('@/v8/utils/analyticsV8')
+			.then(({ analytics }) => {
+				analytics.log({
+					location: 'UnifiedOAuthFlowV8U.tsx:509',
+					message: 'FlowKey calculated',
+					data: { flowKey: key, specVersion, effectiveFlowType },
+				});
+			})
+			.catch(() => {});
 		// #endregion
 		return key;
 	}, [specVersion, effectiveFlowType, getFlowKey]);
@@ -840,7 +886,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	useEffect(() => {
 		// #region agent log
 		// #endregion
-		
+
 		// Only auto-correct when spec version changes, not when flow type changes
 		if (lastSpecVersionRef.current === specVersion) {
 			// #region agent log
@@ -852,14 +898,14 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		if (isUserChangingFlowRef.current) {
 			// #region agent log
 			// #endregion
-			
+
 			lastSpecVersionRef.current = specVersion;
 			return;
 		}
 
 		const currentAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
 		const isFlowAvailable = currentAvailableFlows.includes(flowType);
-		
+
 		// #region agent log
 		// #endregion
 
@@ -870,10 +916,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// This only happens when spec version changes, not when user selects a flow
 		if (!isFlowAvailable && currentAvailableFlows.length > 0) {
 			const fallbackFlow = currentAvailableFlows[0];
-			
+
 			// #region agent log
 			// #endregion
-			
+
 			setFlowType(fallbackFlow);
 			// Update URL to reflect new flow type
 			if (currentStep !== undefined) {
@@ -920,7 +966,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			lastLoadedFlowKeyRef.current = flowKey;
 
 			try {
-
 				const config = CredentialsServiceV8.getFlowConfig(flowKey) || {
 					flowKey,
 					flowType: 'oauth' as const,
@@ -933,14 +978,16 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				// Load flow-specific credentials (does not depend on worker token)
 				// Try sync first for immediate results, then async with IndexedDB backup fallback
 				const flowSpecificSync = CredentialsServiceV8.loadCredentials(flowKey, config);
-				const flowSpecific = await CredentialsServiceV8.loadCredentialsWithBackup(flowKey, config)
-					.catch((err) => {
-						console.warn(
-							`${MODULE_TAG} Error loading flow-specific credentials with backup (using sync result)`,
-							err
-						);
-						return flowSpecificSync; // Use sync result as fallback
-					});
+				const flowSpecific = await CredentialsServiceV8.loadCredentialsWithBackup(
+					flowKey,
+					config
+				).catch((err) => {
+					console.warn(
+						`${MODULE_TAG} Error loading flow-specific credentials with backup (using sync result)`,
+						err
+					);
+					return flowSpecificSync; // Use sync result as fallback
+				});
 
 				// Load shared credentials (environmentId, clientId, clientSecret, etc.) - independent of worker token
 				// Try sync first for immediate results, then async for disk fallback
@@ -963,9 +1010,27 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				// Use explicit trimming and fallback logic
 				// IMPORTANT: Load ALL fields from UnifiedFlowCredentials to ensure nothing is lost
 				// #region agent log
-				import('@/v8/utils/analyticsV8').then(({ analytics }) => {
-					analytics.log({ location:'UnifiedOAuthFlowV8U.tsx:650',message:'Loading credentials - flowSpecific advanced options',data:{flowKey,hasResponseMode:!!flowSpecific.responseMode,hasUsePAR:flowSpecific.usePAR!==undefined,hasMaxAge:flowSpecific.maxAge!==undefined,hasDisplay:!!flowSpecific.display,hasPrompt:!!flowSpecific.prompt,hasPkceEnforcement:!!flowSpecific.pkceEnforcement,hasPrivateKey:!!flowSpecific.privateKey,responseMode:flowSpecific.responseMode,usePAR:flowSpecific.usePAR,pkceEnforcement:flowSpecific.pkceEnforcement} });
-				}).catch(()=>{});
+				import('@/v8/utils/analyticsV8')
+					.then(({ analytics }) => {
+						analytics.log({
+							location: 'UnifiedOAuthFlowV8U.tsx:650',
+							message: 'Loading credentials - flowSpecific advanced options',
+							data: {
+								flowKey,
+								hasResponseMode: !!flowSpecific.responseMode,
+								hasUsePAR: flowSpecific.usePAR !== undefined,
+								hasMaxAge: flowSpecific.maxAge !== undefined,
+								hasDisplay: !!flowSpecific.display,
+								hasPrompt: !!flowSpecific.prompt,
+								hasPkceEnforcement: !!flowSpecific.pkceEnforcement,
+								hasPrivateKey: !!flowSpecific.privateKey,
+								responseMode: flowSpecific.responseMode,
+								usePAR: flowSpecific.usePAR,
+								pkceEnforcement: flowSpecific.pkceEnforcement,
+							},
+						});
+					})
+					.catch(() => {});
 				// #endregion
 				const merged: UnifiedFlowCredentials = {
 					// Flow-specific credentials take priority (allows per-flow clientId/environmentId)
@@ -1002,9 +1067,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					...(flowSpecific.postLogoutRedirectUri?.trim()
 						? { postLogoutRedirectUri: flowSpecific.postLogoutRedirectUri.trim() }
 						: {}),
-					...(flowSpecific.logoutUri?.trim()
-						? { logoutUri: flowSpecific.logoutUri.trim() }
-						: {}),
+					...(flowSpecific.logoutUri?.trim() ? { logoutUri: flowSpecific.logoutUri.trim() } : {}),
 					scopes: (flowSpecific.scopes?.trim() || 'openid').trim(),
 					...(flowSpecific.responseType?.trim()
 						? { responseType: flowSpecific.responseType.trim() }
@@ -1035,11 +1098,30 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					...(flowSpecific.privateKey ? { privateKey: flowSpecific.privateKey } : {}),
 				};
 				// #region agent log
-				import('@/v8/utils/analyticsV8').then(({ analytics }) => {
-					analytics.log({ location:'UnifiedOAuthFlowV8U.tsx:698',message:'Merged credentials - ALL fields in merged object',data:{flowKey,hasResponseMode:!!merged.responseMode,hasUsePAR:merged.usePAR!==undefined,hasMaxAge:merged.maxAge!==undefined,hasDisplay:!!merged.display,hasPrompt:!!merged.prompt,hasPkceEnforcement:!!merged.pkceEnforcement,hasPrivateKey:!!merged.privateKey,hasLoginHint:merged.loginHint!==undefined,responseMode:merged.responseMode,usePAR:merged.usePAR,pkceEnforcement:merged.pkceEnforcement,allKeys:Object.keys(merged)} });
-				}).catch(()=>{});
+				import('@/v8/utils/analyticsV8')
+					.then(({ analytics }) => {
+						analytics.log({
+							location: 'UnifiedOAuthFlowV8U.tsx:698',
+							message: 'Merged credentials - ALL fields in merged object',
+							data: {
+								flowKey,
+								hasResponseMode: !!merged.responseMode,
+								hasUsePAR: merged.usePAR !== undefined,
+								hasMaxAge: merged.maxAge !== undefined,
+								hasDisplay: !!merged.display,
+								hasPrompt: !!merged.prompt,
+								hasPkceEnforcement: !!merged.pkceEnforcement,
+								hasPrivateKey: !!merged.privateKey,
+								hasLoginHint: merged.loginHint !== undefined,
+								responseMode: merged.responseMode,
+								usePAR: merged.usePAR,
+								pkceEnforcement: merged.pkceEnforcement,
+								allKeys: Object.keys(merged),
+							},
+						});
+					})
+					.catch(() => {});
 				// #endregion
-
 
 				// Update credentials from storage if we have any data
 				// Always use storage data if it exists, as it's the source of truth
@@ -1090,7 +1172,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						};
 					}
 				});
-
 			} catch (err) {
 				console.error(
 					`${MODULE_TAG} ❌ Error loading credentials (will preserve existing state):`,
@@ -1212,9 +1293,28 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						typeof CredentialsServiceV8.saveCredentials
 					>[1];
 					// #region agent log
-					import('@/v8/utils/analyticsV8').then(({ analytics }) => {
-						analytics.log({ location:'UnifiedOAuthFlowV8U.tsx:897',message:'Auto-saving credentials - ALL fields',data:{flowKey,hasResponseMode:!!credentials.responseMode,hasUsePAR:credentials.usePAR!==undefined,hasMaxAge:credentials.maxAge!==undefined,hasDisplay:!!credentials.display,hasPrompt:!!credentials.prompt,hasPkceEnforcement:!!credentials.pkceEnforcement,hasPrivateKey:!!credentials.privateKey,hasLoginHint:credentials.loginHint!==undefined,hasRedirectUri:!!credentials.redirectUri,hasClientAuthMethod:!!credentials.clientAuthMethod,allKeys:Object.keys(credentials)} });
-					}).catch(()=>{});
+					import('@/v8/utils/analyticsV8')
+						.then(({ analytics }) => {
+							analytics.log({
+								location: 'UnifiedOAuthFlowV8U.tsx:897',
+								message: 'Auto-saving credentials - ALL fields',
+								data: {
+									flowKey,
+									hasResponseMode: !!credentials.responseMode,
+									hasUsePAR: credentials.usePAR !== undefined,
+									hasMaxAge: credentials.maxAge !== undefined,
+									hasDisplay: !!credentials.display,
+									hasPrompt: !!credentials.prompt,
+									hasPkceEnforcement: !!credentials.pkceEnforcement,
+									hasPrivateKey: !!credentials.privateKey,
+									hasLoginHint: credentials.loginHint !== undefined,
+									hasRedirectUri: !!credentials.redirectUri,
+									hasClientAuthMethod: !!credentials.clientAuthMethod,
+									allKeys: Object.keys(credentials),
+								},
+							});
+						})
+						.catch(() => {});
 					// #endregion
 					CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
 
@@ -1368,19 +1468,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	};
 
 	const handleTogglePKCE = (enabled: boolean) => {
-		setCredentials(prev => ({ ...prev, usePKCE: enabled }));
+		setCredentials((prev) => ({ ...prev, usePKCE: enabled }));
 	};
 
 	const handleToggleRefreshToken = (enabled: boolean) => {
-		setCredentials(prev => ({ ...prev, enableRefreshToken: enabled }));
+		setCredentials((prev) => ({ ...prev, enableRefreshToken: enabled }));
 	};
 
 	const handleToggleScopes = (scopes: string[]) => {
-		setCredentials(prev => ({ ...prev, scopes }));
+		setCredentials((prev) => ({ ...prev, scopes }));
 	};
 
 	const handleSpecVersionChange = (newSpec: SpecVersion) => {
-
 		// Modal state removed - dropdown already filters flows
 
 		// Validate flow type is still available BEFORE changing spec version
@@ -1401,7 +1500,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const handleFlowTypeChange = async (newFlowType: FlowType) => {
 		// #region agent log
 		// #endregion
-		
+
 		// Prevent changing to the same flow type (prevents loops)
 		if (newFlowType === flowType) {
 			// #region agent log
@@ -1412,14 +1511,14 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// CRITICAL: Validate that the new flow type is available for the current spec version
 		// If not, automatically switch to a compatible spec version
 		const currentAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
-		
+
 		// #region agent log
 		// #endregion
-		
+
 		if (!currentAvailableFlows.includes(newFlowType)) {
 			// #region agent log
 			// #endregion
-			
+
 			// Find a spec version that supports this flow type
 			const compatibleSpecVersions: SpecVersion[] = ['oauth2.0', 'oauth2.1', 'oidc'];
 			const compatibleSpec = compatibleSpecVersions.find((spec) => {
@@ -1430,14 +1529,14 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			if (compatibleSpec) {
 				// #region agent log
 				// #endregion
-				
+
 				// Switch spec version first, then flow type
 				setSpecVersion(compatibleSpec);
 				FlowSettingsServiceV8U.saveSpecVersion(newFlowType, compatibleSpec);
 			} else {
 				// #region agent log
 				// #endregion
-				
+
 				console.error(`${MODULE_TAG} ❌ No compatible spec version found for flow type`, {
 					newFlowType,
 				});
@@ -1476,7 +1575,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 		// CRITICAL: Mark that user is changing flow type to prevent auto-correct from interfering
 		isUserChangingFlowRef.current = true;
-		
+
 		// #region agent log
 		// #endregion
 
@@ -1491,10 +1590,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// Navigate to current step with new flow type to update URL
 		if (currentStep !== undefined) {
 			const path = `/v8u/unified/${newFlowType}/${currentStep}`;
-			
+
 			// #region agent log
 			// #endregion
-			
+
 			navigate(path, { replace: true });
 		}
 
@@ -1502,7 +1601,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		setTimeout(() => {
 			// #region agent log
 			// #endregion
-			
+
 			isUserChangingFlowRef.current = false;
 		}, 100);
 	};
@@ -1511,16 +1610,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const getApiDocsUrl = (flow: FlowType): string => {
 		const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
 		// #region agent log
-		import('@/v8/utils/analyticsV8').then(({ analytics }) => {
-			analytics.log({
-				location: 'UnifiedOAuthFlowV8U.tsx:1103',
-				message: 'Generating PingOne API documentation URL',
-				data: { flowType: flow, baseUrl },
-				sessionId: 'debug-session',
-				runId: 'run2',
-				hypothesisId: 'A',
-			});
-		}).catch(() => {});
+		import('@/v8/utils/analyticsV8')
+			.then(({ analytics }) => {
+				analytics.log({
+					location: 'UnifiedOAuthFlowV8U.tsx:1103',
+					message: 'Generating PingOne API documentation URL',
+					data: { flowType: flow, baseUrl },
+					sessionId: 'debug-session',
+					runId: 'run2',
+					hypothesisId: 'A',
+				});
+			})
+			.catch(() => {});
 		// #endregion
 
 		let url: string;
@@ -1545,16 +1646,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		}
 
 		// #region agent log
-		import('@/v8/utils/analyticsV8').then(({ analytics }) => {
-			analytics.log({
-				location: 'UnifiedOAuthFlowV8U.tsx:1125',
-				message: 'Generated PingOne API documentation URL',
-				data: { flowType: flow, url, hasAnchor: url.includes('#') },
-				sessionId: 'debug-session',
-				runId: 'run2',
-				hypothesisId: 'A',
-			});
-		}).catch(() => {});
+		import('@/v8/utils/analyticsV8')
+			.then(({ analytics }) => {
+				analytics.log({
+					location: 'UnifiedOAuthFlowV8U.tsx:1125',
+					message: 'Generated PingOne API documentation URL',
+					data: { flowType: flow, url, hasAnchor: url.includes('#') },
+					sessionId: 'debug-session',
+					runId: 'run2',
+					hypothesisId: 'A',
+				});
+			})
+			.catch(() => {});
 		// #endregion
 
 		return url;
@@ -1562,7 +1665,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	return (
 		<MobileResponsiveWrapper>
-
 			{/* Header with Flow Step Breadcrumbs at Top */}
 			<PageHeaderV8
 				title="🎯 Unified OAuth/OIDC Flow"
@@ -1617,8 +1719,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						}}
 						title="View comprehensive comparison guide for OAuth/OIDC specifications and flow types"
 					>
-						<FiBook size={16} />
-						📚 Flow & Spec Comparison Guide
+						<FiBook size={16} />📚 Flow & Spec Comparison Guide
 					</button>
 				</div>
 
@@ -1642,8 +1743,14 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							});
 							const date = new Date().toISOString().split('T')[0];
 							const filename = `pingone-unified-flows-complete-${date}-collection.json`;
-							downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Unified Flows Environment');
-							toastV8.success('Postman collection and environment downloaded! Import both into Postman to test all Unified flows.');
+							downloadPostmanCollectionWithEnvironment(
+								collection,
+								filename,
+								'PingOne Unified Flows Environment'
+							);
+							toastV8.success(
+								'Postman collection and environment downloaded! Import both into Postman to test all Unified flows.'
+							);
 						}}
 						style={{
 							display: 'flex',
@@ -1685,7 +1792,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								includeRedirectUri: false,
 								includeLogoutUri: false,
 							});
-							
+
 							const collection = generateCompletePostmanCollection({
 								environmentId: credentials.environmentId,
 								clientId: credentials.clientId,
@@ -1694,8 +1801,14 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							});
 							const date = new Date().toISOString().split('T')[0];
 							const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
-							downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Complete Collection Environment');
-							toastV8.success('Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.');
+							downloadPostmanCollectionWithEnvironment(
+								collection,
+								filename,
+								'PingOne Complete Collection Environment'
+							);
+							toastV8.success(
+								'Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.'
+							);
 						}}
 						style={{
 							display: 'flex',
@@ -1804,23 +1917,29 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					{(() => {
 						const specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, effectiveFlowType);
 						// #region agent log
-						import('@/v8/utils/analyticsV8').then(({ analytics }) => {
-							analytics.log({
-								location: 'UnifiedOAuthFlowV8U.tsx:1369',
-								message: 'Generating specification URLs',
-								data: {
-									specVersion,
-									flowType: effectiveFlowType,
-									primaryUrl: specUrls.primary,
-									primaryLabel: specUrls.primaryLabel,
-									allSpecsCount: specUrls.allSpecs.length,
-									allSpecs: specUrls.allSpecs.map((s) => ({ label: s.label, url: s.url, isPrimary: s.isPrimary })),
-								},
-								sessionId: 'debug-session',
-								runId: 'run2',
-								hypothesisId: 'B',
-							});
-						}).catch(() => {});
+						import('@/v8/utils/analyticsV8')
+							.then(({ analytics }) => {
+								analytics.log({
+									location: 'UnifiedOAuthFlowV8U.tsx:1369',
+									message: 'Generating specification URLs',
+									data: {
+										specVersion,
+										flowType: effectiveFlowType,
+										primaryUrl: specUrls.primary,
+										primaryLabel: specUrls.primaryLabel,
+										allSpecsCount: specUrls.allSpecs.length,
+										allSpecs: specUrls.allSpecs.map((s) => ({
+											label: s.label,
+											url: s.url,
+											isPrimary: s.isPrimary,
+										})),
+									},
+									sessionId: 'debug-session',
+									runId: 'run2',
+									hypothesisId: 'B',
+								});
+							})
+							.catch(() => {});
 						// #endregion
 						return (
 							<div
@@ -1977,14 +2096,17 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					currentFlowType={effectiveFlowType}
 					currentSpecVersion={specVersion}
 					onFlowSelect={(selectedFlowType, selectedSpecVersion) => {
-						console.log(`${MODULE_TAG} 🎯 User selected recommended flow`, { selectedFlowType, selectedSpecVersion });
-						
+						console.log(`${MODULE_TAG} 🎯 User selected recommended flow`, {
+							selectedFlowType,
+							selectedSpecVersion,
+						});
+
 						// Update spec version if different
 						if (selectedSpecVersion !== specVersion) {
 							setSpecVersion(selectedSpecVersion);
 							FlowSettingsServiceV8U.saveSpecVersion(selectedFlowType, selectedSpecVersion);
 						}
-						
+
 						// Update flow type if different
 						if (selectedFlowType !== flowType) {
 							handleFlowTypeChange(selectedFlowType);
@@ -2002,7 +2124,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					credentials={{
 						usePKCE: credentials.usePKCE || false,
 						enableRefreshToken: credentials.enableRefreshToken || false,
-						scopes: credentials.scopes ? credentials.scopes.split(' ') : []
+						scopes: credentials.scopes ? credentials.scopes.split(' ') : [],
 					}}
 					onTogglePKCE={handleTogglePKCE}
 					onToggleRefreshToken={handleToggleRefreshToken}
@@ -2018,15 +2140,16 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					enabledFeatures={getAdvancedFeatures(effectiveFlowType)}
 					onFeatureToggle={(featureId, enabled) => {
 						console.log(`${MODULE_TAG} 🔧 Advanced feature toggled`, { featureId, enabled });
-						
+
 						// Save advanced feature preference to settings service
 						if (enabled) {
 							saveAdvancedFeatures(effectiveFlowType, [
 								...getAdvancedFeatures(effectiveFlowType),
-								featureId
+								featureId,
 							]);
 						} else {
-							saveAdvancedFeatures(effectiveFlowType, 
+							saveAdvancedFeatures(
+								effectiveFlowType,
 								getAdvancedFeatures(effectiveFlowType).filter((f: string) => f !== featureId)
 							);
 						}
@@ -2090,7 +2213,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							Configuration & Credentials
 						</span>
 					</div>
-					
+
 					{/* Enhanced Toggle Icon */}
 					<span
 						style={{
@@ -2109,27 +2232,33 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)',
 						}}
 						onMouseEnter={(e) => {
-							e.currentTarget.style.background = 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)';
+							e.currentTarget.style.background =
+								'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)';
 							e.currentTarget.style.borderColor = '#2563eb';
 							e.currentTarget.style.color = '#2563eb';
-							e.currentTarget.style.transform = isCredentialsCollapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)';
+							e.currentTarget.style.transform = isCredentialsCollapsed
+								? 'rotate(-90deg) scale(1.1)'
+								: 'rotate(0deg) scale(1.1)';
 							e.currentTarget.style.boxShadow = '0 4px 16px rgba(59, 130, 246, 0.3)';
 						}}
 						onMouseLeave={(e) => {
-							e.currentTarget.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+							e.currentTarget.style.background =
+								'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
 							e.currentTarget.style.borderColor = '#3b82f6';
 							e.currentTarget.style.color = '#3b82f6';
-							e.currentTarget.style.transform = isCredentialsCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+							e.currentTarget.style.transform = isCredentialsCollapsed
+								? 'rotate(-90deg)'
+								: 'rotate(0deg)';
 							e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.2)';
 						}}
 					>
-						<FiChevronDown 
-							style={{ 
-								width: '24px', 
-								height: '24px', 
+						<FiChevronDown
+							style={{
+								width: '24px',
+								height: '24px',
 								strokeWidth: '3px',
-								filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))'
-							}} 
+								filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))',
+							}}
 						/>
 					</span>
 				</button>
@@ -2205,8 +2334,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					style={{
 						width: '100%',
 						padding: '16px 20px',
-						background: isWorkerTokenStatusCollapsed 
-							? 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' 
+						background: isWorkerTokenStatusCollapsed
+							? 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
 							: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
 						border: 'none',
 						borderBottom: isWorkerTokenStatusCollapsed ? '1px solid #e2e8f0' : 'none',
@@ -2224,17 +2353,19 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						e.currentTarget.style.color = '#1f2937';
 					}}
 					onMouseLeave={(e) => {
-						e.currentTarget.style.background = isWorkerTokenStatusCollapsed 
-							? 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' 
+						e.currentTarget.style.background = isWorkerTokenStatusCollapsed
+							? 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
 							: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
 						e.currentTarget.style.color = '#374151';
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-						<span style={{ 
-							fontSize: '20px',
-							color: '#3b82f6'
-						}}>
+						<span
+							style={{
+								fontSize: '20px',
+								color: '#3b82f6',
+							}}
+						>
 							🔧
 						</span>
 						<span>Worker Token Status</span>
@@ -2279,19 +2410,24 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						);
 
 						// Use standardized credential reload service (now async)
-						reloadCredentialsAfterReset(flowKey).then((reloaded) => {
-							console.log(`${MODULE_TAG} ✅ Credentials reloaded after reset`, {
-								flowKey,
-								hasRedirectUri: !!reloaded.redirectUri,
-								redirectUri: reloaded.redirectUri,
-								hasClientAuthMethod: !!reloaded.clientAuthMethod,
-								clientAuthMethod: reloaded.clientAuthMethod,
+						reloadCredentialsAfterReset(flowKey)
+							.then((reloaded) => {
+								console.log(`${MODULE_TAG} ✅ Credentials reloaded after reset`, {
+									flowKey,
+									hasRedirectUri: !!reloaded.redirectUri,
+									redirectUri: reloaded.redirectUri,
+									hasClientAuthMethod: !!reloaded.clientAuthMethod,
+									clientAuthMethod: reloaded.clientAuthMethod,
+								});
+								setCredentials(reloaded);
+							})
+							.catch((error) => {
+								console.error(`${MODULE_TAG} ❌ Error reloading credentials after reset`, {
+									flowKey,
+									error,
+								});
+								// Fall back to current credentials if reload fails
 							});
-							setCredentials(reloaded);
-						}).catch((error) => {
-							console.error(`${MODULE_TAG} ❌ Error reloading credentials after reset`, { flowKey, error });
-							// Fall back to current credentials if reload fails
-						});
 
 						// Spec version and flow type are already preserved in React state
 						// No need to do anything - they will remain as-is
@@ -2309,7 +2445,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			{/* Super Simple API Display - Toggleable, hidden by default - Only shows Unified flow calls */}
 			<SuperSimpleApiDisplayV8 flowFilter="unified" />
 		</MobileResponsiveWrapper>
-		);
+	);
 };
 
 export default UnifiedOAuthFlowV8U;
