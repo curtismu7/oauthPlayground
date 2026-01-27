@@ -6769,7 +6769,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								process.env.NODE_ENV === 'production'
 									? 'https://oauth-playground.vercel.app'
 									: 'https://localhost:3001';
-							const deviceAuthEndpoint = `${backendUrl}/api/device-authorization`;
+							// Use PingOne auth proxy to avoid CORS issues
+							const deviceAuthEndpoint = `/pingone-auth/${credentials.environmentId}/as/device_authorization`;
 							const authMethod =
 								credentials.clientAuthMethod ||
 								(credentials.clientSecret ? 'client_secret_basic' : 'none');
@@ -8667,10 +8668,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 
 				try {
-					// Use relative URL to go through Vite proxy (avoids certificate issues)
-					// In development: Vite proxy routes /api/* to http://localhost:3001
-					// In production: Vite proxy routes /api/* to the production backend
-					const tokenEndpoint = '/api/token-exchange';
+					// Use PingOne auth proxy to avoid CORS issues
+					const tokenEndpoint = `/pingone-auth/${flowState.credentials.environmentId}/as/token`;
 
 					// CRITICAL: Read device code from ref (always current, not from stale closure)
 					const currentDeviceCode = deviceCodeRef.current?.trim();
