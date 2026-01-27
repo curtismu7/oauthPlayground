@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react';
 import { FiAlertCircle, FiCheckCircle, FiExternalLink, FiX } from 'react-icons/fi';
 import type { IDTokenValidationResult } from '@/v8/services/idTokenValidationServiceV8';
 import { IDTokenValidationServiceV8 } from '@/v8/services/idTokenValidationServiceV8';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const MODULE_TAG = '[🔐 ID-TOKEN-VALIDATION-MODAL-V8U]';
 
@@ -46,7 +47,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 	}, [isOpen, idToken]);
 
 	const handleValidate = async () => {
-		console.log(`${MODULE_TAG} Starting ID token validation`);
+		logger.debug(Starting ID token validation`);
 		setIsValidating(true);
 		setValidationResult(null);
 
@@ -59,10 +60,10 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 				nonce,
 			});
 
-			console.log(`${MODULE_TAG} Validation complete`, { valid: result.valid });
+			logger.debug(Validation complete`, { valid: result.valid });
 			setValidationResult(result);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Validation failed`, error);
+			logger.error(Validation failed`, error);
 			setValidationResult({
 				valid: false,
 				errors: [`Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`],
