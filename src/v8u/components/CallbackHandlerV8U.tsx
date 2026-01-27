@@ -15,6 +15,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 
 const MODULE_TAG = '[🔄 CALLBACK-HANDLER-V8U]';
 
