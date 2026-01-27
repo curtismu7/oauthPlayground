@@ -19,6 +19,7 @@ import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
+import { StepNavigationButtons } from '../v8/components/StepNavigationButtons';
 
 type CredentialsState = {
 	environmentId: string;

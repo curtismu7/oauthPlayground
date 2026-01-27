@@ -9,6 +9,7 @@ import {
 	FiClock,
 	FiDatabase,
 	FiDownload,
+	FiKey,
 	FiRefreshCw,
 	FiRotateCcw,
 	FiSettings,
