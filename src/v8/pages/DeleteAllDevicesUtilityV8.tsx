@@ -252,6 +252,19 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		}
 	}, [environmentId, username, selectedDeviceType, selectedDeviceStatus]);
 
+	// Auto-reload devices when filters change (if we already have devices loaded)
+	useEffect(() => {
+		// Only auto-reload if we have already loaded devices at least once
+		// This prevents auto-loading on initial page load
+		const hasDevices = devices.length > 0;
+		const hasRequiredFields = environmentId.trim() && username.trim() && tokenStatus.isValid;
+		
+		if (hasDevices && hasRequiredFields) {
+			handleLoadDevices();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [selectedDeviceType, selectedDeviceStatus]);
+
 	// Load devices for the user
 	const handleLoadDevices = useCallback(async () => {
 		if (!environmentId.trim() || !username.trim() || !tokenStatus.isValid) {
@@ -517,11 +530,16 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							style={{
 								width: '100%',
 								padding: '10px 12px',
-								border: '1px solid #d1d5db',
+								border: username.trim() ? '1px solid #d1d5db' : '2px solid #ef4444',
 								borderRadius: '6px',
 								fontSize: '14px',
 							}}
 						/>
+						{!username.trim() && (
+							<div style={{ marginTop: '4px', fontSize: '12px', color: '#ef4444' }}>
+								Username is required
+							</div>
+						)}
 					</div>
 
 					{/* Device Type Filter */}
@@ -782,7 +800,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 								Loading Devices...
 							</>
 						) : (
-							<>🔍 Load Devices</>
+							<>🔍 Get Devices</>
 						)}
 					</button>
 				</div>
