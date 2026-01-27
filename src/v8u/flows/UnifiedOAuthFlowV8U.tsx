@@ -46,6 +46,7 @@ import {
 } from '@/v8/services/specVersionServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
@@ -540,7 +541,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	// Worker token configuration state
 	const [workerTokenConfig, setWorkerTokenConfig] = useState(() => {
-		const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
 		const config = MFAConfigurationServiceV8.loadConfiguration();
 		return {
 			silentApiRetrieval: config.workerToken.silentApiRetrieval,
@@ -551,7 +551,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Listen for config updates
 	useEffect(() => {
 		const handleConfigUpdate = () => {
-			const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
 			const config = MFAConfigurationServiceV8.loadConfiguration();
 			setWorkerTokenConfig({
 				silentApiRetrieval: config.workerToken.silentApiRetrieval,
@@ -2457,7 +2456,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 										type="checkbox"
 										checked={workerTokenConfig.silentApiRetrieval}
 										onChange={(e) => {
-											const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
 											const config = MFAConfigurationServiceV8.loadConfiguration();
 											config.workerToken.silentApiRetrieval = e.target.checked;
 											MFAConfigurationServiceV8.saveConfiguration(config);
@@ -2490,7 +2488,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 										type="checkbox"
 										checked={workerTokenConfig.showTokenAtEnd}
 										onChange={(e) => {
-											const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
 											const config = MFAConfigurationServiceV8.loadConfiguration();
 											config.workerToken.showTokenAtEnd = e.target.checked;
 											MFAConfigurationServiceV8.saveConfiguration(config);
