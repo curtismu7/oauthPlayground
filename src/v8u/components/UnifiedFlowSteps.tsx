@@ -17,8 +17,9 @@
  */
 
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import {
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import {
 	FiAlertCircle,
 	FiArrowRight,
 	FiBook,
