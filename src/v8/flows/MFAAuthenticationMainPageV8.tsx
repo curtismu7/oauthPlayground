@@ -268,7 +268,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const tokenStatus = workerToken.tokenStatus;
 	const setTokenStatus = async (status: TokenStatusInfo | Promise<TokenStatusInfo>) => {
 		const resolvedStatus = await Promise.resolve(status);
-		workerToken.setTokenStatus(resolvedStatus);
+		workerTokenServiceV8.setTokenStatus(resolvedStatus);
 	};
 
 	// Reload credentials when worker token status changes (in case credentials were updated)
@@ -2870,9 +2870,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										</div>
 									)}
 
-									{/* Additional Policy Properties */}
-									{selectedPolicy.authentication &&
-										Object.keys(selectedPolicy.authentication).length > 0 && (
+									{/* Full Policy JSON - Collapsible */}
+									{selectedPolicy && (
 											<div style={{ gridColumn: '1 / -1' }}>
 												<div
 													style={{
@@ -2882,29 +2881,50 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														fontWeight: '500',
 													}}
 												>
-													Authentication Settings
+													Full Policy JSON (Click to expand)
 												</div>
-												<div
+												<details
 													style={{
-														background: 'white',
+														background: '#f9fafb',
 														padding: '12px',
 														borderRadius: '6px',
 														border: '1px solid #e5e7eb',
+														marginTop: '8px',
 													}}
 												>
-													<pre
+													<summary
 														style={{
-															margin: 0,
+															cursor: 'pointer',
 															fontSize: '12px',
-															color: '#1f2937',
-															fontFamily: 'monospace',
-															whiteSpace: 'pre-wrap',
-															wordBreak: 'break-word',
+															color: '#374151',
+															fontWeight: '600',
+															listStyle: 'none',
+															userSelect: 'none',
 														}}
 													>
-														{JSON.stringify(selectedPolicy.authentication, null, 2)}
-													</pre>
-												</div>
+														▶ Click to expand/collapse
+													</summary>
+													<div
+														style={{
+															marginTop: '12px',
+															maxHeight: '400px',
+															overflowY: 'auto',
+														}}
+													>
+														<pre
+															style={{
+																margin: 0,
+																fontSize: '11px',
+																color: '#1f2937',
+																fontFamily: 'monospace',
+																whiteSpace: 'pre-wrap',
+																wordBreak: 'break-word',
+															}}
+														>
+															{JSON.stringify(selectedPolicy, null, 2)}
+														</pre>
+													</div>
+												</details>
 											</div>
 										)}
 								</div>
