@@ -7,11 +7,8 @@
  */
 
 import React from 'react';
-import { FiArrowRight } from 'react-icons/fi';
 import { type FlowType } from '@/v8/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
-
-const MODULE_TAG = '[📊 STEPPER-V8U]';
 
 export interface StepperV8UProps {
 	currentStep: number;
@@ -67,7 +64,7 @@ export const StepperV8U: React.FC<StepperV8UProps> = ({
 	validationErrors = [],
 	validationWarnings = [],
 }) => {
-	logger.debug(Rendering stepper`, { currentStep, totalSteps, flowType });
+	logger.debug('Rendering stepper', { currentStep, totalSteps, flowType });
 
 	return (
 		<div
