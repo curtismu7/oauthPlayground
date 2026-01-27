@@ -57,6 +57,7 @@ interface UseDeviceAuthorizationFlowReturn {
 	startPolling: () => void;
 	stopPolling: () => void;
 	reset: () => void;
+	refreshAuthorizationStatus: () => Promise<void>;
 
 	// Utilities
 	formatTimeRemaining: (ms: number) => string;
@@ -396,6 +397,13 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 						`${LOG_PREFIX} [INFO] Authorization pending (attempt ${currentAttempt}/${pollingStatus.maxAttempts}) - waiting for user authorization...`
 					);
 				}
+				
+				// Update next attempt time for UI display
+				setPollingStatus((prev) => ({
+					...prev,
+					nextAttempt: Date.now() + (deviceCodeData.interval * 1000),
+				}));
+				
 				return false;
 			} else if (data.error === 'slow_down') {
 				console.log(`${LOG_PREFIX} [WARN] Slow down requested by server`);
@@ -631,6 +639,25 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 	// stopPolling moved earlier to avoid hoisting issues
 
+	// Manual refresh to check for completed authorization
+	const refreshAuthorizationStatus = useCallback(async () => {
+		if (!deviceCodeData || !credentials || pollingStatus.isPolling) {
+			console.log(`${LOG_PREFIX} [INFO] Cannot refresh: missing data or already polling`);
+			return;
+		}
+
+		console.log(`${LOG_PREFIX} [INFO] Manual refresh - checking authorization status...`);
+		
+		try {
+			const shouldStop = await pollForToken();
+			if (shouldStop) {
+				stopPolling();
+			}
+		} catch (error) {
+			console.error(`${LOG_PREFIX} [ERROR] Manual refresh failed:`, error);
+		}
+	}, [deviceCodeData, credentials, pollingStatus.isPolling, pollForToken, stopPolling]);
+
 	// Reset flow
 	const reset = useCallback(() => {
 		console.log(`${LOG_PREFIX} [INFO] Resetting device authorization flow`);
@@ -705,6 +732,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		startPolling,
 		stopPolling,
 		reset,
+		refreshAuthorizationStatus,
 
 		// Utilities
 		formatTimeRemaining,
