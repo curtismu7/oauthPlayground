@@ -26,10 +26,10 @@ import {
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const MODULE_TAG = '[🔐 SPIFFE-SPIRE-FLOW-V8U]';
 
@@ -206,10 +206,10 @@ const HelperText = styled.div`
 	}
 `;
 
-const Input = styled.input<{ $hasError?: boolean }>`
+const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid ${(props) => (props.$hasError ? '#dc2626' : '#d1d5db')}; // Red border if error, grey otherwise
+	border: 1px solid #d1d5db; // Grey border
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	color: #1f2937; // Dark text
@@ -218,9 +218,8 @@ const Input = styled.input<{ $hasError?: boolean }>`
 
 	&:focus {
 		outline: none;
-		border-color: ${(props) => (props.$hasError ? '#dc2626' : '#667eea')};
-		box-shadow: 0 0 0 3px
-			${(props) => (props.$hasError ? 'rgba(220, 38, 38, 0.1)' : 'rgba(102, 126, 234, 0.1)')};
+		border-color: #667eea;
+		box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 	}
 
 	&:disabled {
@@ -722,7 +721,7 @@ const generatePingOneToken = (svid: SVID, environmentId: string): PingOneToken =
 };
 
 export const SpiffeSpireFlowV8U: React.FC = () => {
-	logger.debug(`Initializing SPIFFE/SPIRE mock flow`);
+	console.log(`${MODULE_TAG} Initializing SPIFFE/SPIRE mock flow`);
 	const navigate = useNavigate();
 
 	// State
@@ -754,13 +753,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 		const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 		if (storedEnvId) {
 			setEnvironmentId(storedEnvId);
-			logger.debug(Loaded environment ID from storage`);
-		} else {
-			// Auto-fill with a default example if nothing is stored
-			const defaultEnvId = 'b9817c16-9910-4415-b67e-4ac687da74d9';
-			setEnvironmentId(defaultEnvId);
-			EnvironmentIdServiceV8.saveEnvironmentId(defaultEnvId);
-			logger.debug(Auto-filled environment ID with default`);
+			console.log(`${MODULE_TAG} Loaded environment ID from storage`);
 		}
 	}, []);
 
@@ -770,7 +763,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 			const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 			if (storedEnvId && storedEnvId !== environmentId) {
 				setEnvironmentId(storedEnvId);
-				logger.debug(Environment ID updated from storage`);
+				console.log(`${MODULE_TAG} Environment ID updated from storage`);
 			}
 		};
 		window.addEventListener('environmentIdUpdated', handleEnvIdUpdate);
@@ -779,7 +772,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 
 	// Step 1: Generate SVID
 	const handleGenerateSVID = () => {
-		logger.debug(Generating SVID`, { workloadConfig });
+		console.log(`${MODULE_TAG} Generating SVID`, { workloadConfig });
 		setIsLoading(true);
 		setTransitionMessage('🔐 Attesting Workload & Issuing SVID...');
 		setShowPhaseTransition(true);
@@ -852,13 +845,13 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 				// Move to dedicated SVID page
 				navigate('/v8u/spiffe-spire/svid');
 			}, 300);
-			logger.debug(SVID generated`, { spiffeId: generatedSVID.spiffeId });
+			console.log(`${MODULE_TAG} SVID generated`, { spiffeId: generatedSVID.spiffeId });
 		}, 1500);
 	};
 
 	// Step 2: Validate SVID
 	const handleValidateSVID = () => {
-		logger.debug(Validating SVID`);
+		console.log(`${MODULE_TAG} Validating SVID`);
 		setIsLoading(true);
 		setTransitionMessage('✓ Validating SVID with Trust Bundle...');
 		setShowPhaseTransition(true);
@@ -920,18 +913,18 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 				// Move to dedicated validation page
 				navigate('/v8u/spiffe-spire/validate');
 			}, 300);
-			logger.debug(SVID validated successfully`);
+			console.log(`${MODULE_TAG} SVID validated successfully`);
 		}, 1000);
 	};
 
 	// Step 3: Exchange for PingOne Token
 	const handleTokenExchange = () => {
 		if (!svid || !environmentId) {
-			logger.error(Missing required data for token exchange`);
+			console.error(`${MODULE_TAG} Missing required data for token exchange`);
 			return;
 		}
 
-		logger.debug(Exchanging SVID for PingOne token`, { environmentId });
+		console.log(`${MODULE_TAG} Exchanging SVID for PingOne token`, { environmentId });
 		setIsLoading(true);
 		setTransitionMessage('🔄 Exchanging SVID for PingOne Token...');
 		setShowPhaseTransition(true);
@@ -1022,7 +1015,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 					},
 				});
 			}, 300);
-			logger.debug(Token exchange successful`);
+			console.log(`${MODULE_TAG} Token exchange successful`);
 		}, 1500);
 	};
 
@@ -1037,7 +1030,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 
 	// Reset flow
 	const handleReset = () => {
-		logger.debug(Resetting flow`);
+		console.log(`${MODULE_TAG} Resetting flow`);
 		setCurrentStep(1);
 		setSvid(null);
 		setPingOneToken(null);
@@ -1063,6 +1056,9 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 				</h1>
 				<p>Demonstrate workload identity (SVID) generation and exchange for PingOne SSO tokens</p>
 			</Header>
+
+			{/* Navigation */}
+			<MFANavigationV8 currentPage="hub" showRestartFlow={false} showBackToMain={true} />
 
 			<Alert $type="info">
 				<FiExternalLink />
@@ -1338,7 +1334,6 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 								}
 								placeholder="example.org"
 								disabled={currentStep > 1}
-								$hasError={currentStep === 1 && !workloadConfig.trustDomain?.trim()}
 							/>
 							<HelperText>
 								💡 <strong>Use the default:</strong> example.org (or enter your own)
@@ -1364,7 +1359,6 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 								}
 								placeholder="frontend/api"
 								disabled={currentStep > 1}
-								$hasError={currentStep === 1 && !workloadConfig.workloadPath?.trim()}
 							/>
 							<HelperText>
 								💡 <strong>Use the default:</strong> frontend/api (or enter your own)
@@ -1401,11 +1395,6 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 										}
 										placeholder="default"
 										disabled={currentStep > 1}
-										$hasError={
-											currentStep === 1 &&
-											workloadConfig.workloadType === 'kubernetes' &&
-											!workloadConfig.namespace?.trim()
-										}
 									/>
 									<HelperText>
 										💡 <strong>Use the default:</strong> default (or enter your own)
@@ -1422,11 +1411,6 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 										}
 										placeholder="frontend-sa"
 										disabled={currentStep > 1}
-										$hasError={
-											currentStep === 1 &&
-											workloadConfig.workloadType === 'kubernetes' &&
-											!workloadConfig.serviceAccount?.trim()
-										}
 									/>
 									<HelperText>
 										💡 <strong>Use the default:</strong> frontend-sa (or enter your own)
@@ -1449,7 +1433,6 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 								}}
 								placeholder="12345678-1234-1234-1234-123456789abc"
 								disabled={currentStep > 1}
-								$hasError={currentStep === 1 && !environmentId?.trim()}
 							/>
 							<HelperText>
 								{environmentId ? (
