@@ -21,6 +21,7 @@ import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { lookupPingOneUser } from '../services/pingOneUserProfileService';
 import { credentialManager } from '../utils/credentialManager';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 interface WorkerTokenMeta {
@@ -760,9 +761,29 @@ const PingOneUserProfile: React.FC = () => {
 		'';
 	const [userIdentifier, setUserIdentifier] = useState(initialIdentifier);
 	const [resolvedUserId, setResolvedUserId] = useState(initialIdentifier);
-	const [environmentId, setEnvironmentId] = useState(
-		searchParams.get('environmentId') || localStorage.getItem('worker_environment_id') || ''
-	);
+	const [environmentId, setEnvironmentId] = useState(() => {
+		// Try search params first, then localStorage, then worker token credentials
+		const searchParamEnvId = searchParams.get('environmentId');
+		const localStorageEnvId = localStorage.getItem('worker_environment_id');
+		
+		if (searchParamEnvId) return searchParamEnvId;
+		if (localStorageEnvId) return localStorageEnvId;
+		
+		// Try worker token credentials as fallback
+		try {
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				if (data.credentials?.environmentId) {
+					return data.credentials.environmentId;
+				}
+			}
+		} catch (error) {
+			console.log('Failed to load environment ID from worker token:', error);
+		}
+		
+		return '';
+	});
 	const [accessToken, setAccessToken] = useState(
 		searchParams.get('accessToken') || localStorage.getItem('worker_token') || ''
 	);
@@ -1281,6 +1302,26 @@ const PingOneUserProfile: React.FC = () => {
 				console.error('[Population] Failed to fetch population details:', err);
 			});
 	}, [userProfile?.population, environmentId, accessToken]);
+
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId && !environmentId) {
+						setEnvironmentId(data.credentials.environmentId);
+					}
+				}
+			} catch (error) {
+				console.log('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+	}, [environmentId]);
 
 	// Fetch population details for comparison user
 	useEffect(() => {
