@@ -161,6 +161,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 }) => {
 	// UI state - controls section visibility
 	const [isExpanded, setIsExpanded] = useState(true);
+	const [showHeaderSection, setShowHeaderSection] = useState(true);
 	const [showAdvancedSection, setShowAdvancedSection] = useState(true);
 	const [showGeneralSection, setShowGeneralSection] = useState(true);
 
@@ -1911,30 +1912,55 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 	return (
 		<div className="credentials-form-v8">
-			<button 
-				type="button"
-				className="collapsible-header" 
-				onClick={() => setIsExpanded(!isExpanded)}
-				aria-expanded={isExpanded}
-				aria-controls="collapsible-content"
-				style={{
-					background: 'none',
-					border: 'none',
-					padding: 0,
-					margin: 0,
-					font: 'inherit',
-					color: 'inherit',
-					textAlign: 'left',
-					width: '100%',
-					cursor: 'pointer'
-				}}
-			>
-				<div className="header-content">
-					<h2>{defaultTitle}</h2>
-					<span className={`chevron ${isExpanded ? 'open' : ''}`}>›</span>
-				</div>
-				{defaultSubtitle && <p>{defaultSubtitle}</p>}
-			</button>
+			{/* Header Image Section */}
+			<div className="form-section" data-section="header">
+				<button
+					type="button"
+					className="section-header"
+					onClick={() => setShowHeaderSection(!showHeaderSection)}
+					aria-expanded={showHeaderSection}
+					aria-controls="header-section-content"
+					style={{
+						background: 'none',
+						border: 'none',
+						padding: 0,
+						margin: 0,
+						font: 'inherit',
+						color: 'inherit',
+						textAlign: 'left',
+						width: '100%',
+						cursor: 'pointer'
+					}}
+				>
+					<div
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'space-between',
+							width: '100%',
+						}}
+					>
+						<h3>🖼️ Header & Configuration</h3>
+						<span
+							style={{
+								fontSize: '18px',
+								transform: showHeaderSection ? 'rotate(90deg)' : 'rotate(0deg)',
+								transition: 'transform 0.3s ease',
+							}}
+						>
+							›
+						</span>
+					</div>
+				</button>
+				{showHeaderSection && (
+					<div id="header-section-content" className="section-content">
+						<div className="header-content">
+							<h2>{defaultTitle}</h2>
+							<p>{defaultSubtitle}</p>
+						</div>
+					</div>
+				)}
+			</div>
 
 			{isExpanded && (
 				<>
