@@ -65,8 +65,7 @@ export class ClientCredentialsDefaults {
 			environmentId: '',
 			clientId: '',
 			clientSecret: '',
-			scope: '',
-			tokenEndpoint: '',
+			scopes: '',
 		};
 	}
 
@@ -176,7 +175,7 @@ export class ClientCredentialsSync {
 		log.info('Syncing credentials for client credentials flow', {
 			environmentId: credentials.environmentId,
 			clientId: `${credentials.clientId?.substring(0, 8)}...`,
-			scope: credentials.scope,
+			scopes: credentials.scopes,
 		});
 
 		// Validate credentials
@@ -209,7 +208,7 @@ export class ClientCredentialsTokenRequest {
 		headers: Record<string, string>;
 		body: string;
 	} {
-		const tokenEndpoint = credentials.tokenEndpoint || 'https://auth.pingone.com/oauth2/token';
+		const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 		const headers: Record<string, string> = {
 			'Content-Type': 'application/x-www-form-urlencoded',
 		};
@@ -224,9 +223,9 @@ export class ClientCredentialsTokenRequest {
 
 		bodyParams.client_auth_method = authMethod;
 
-		// Add scope if provided
-		if (credentials.scope) {
-			bodyParams.scope = credentials.scope;
+		// Add scopes if provided
+		if (credentials.scopes) {
+			bodyParams.scope = credentials.scopes;
 		}
 
 		// Handle authentication method
@@ -265,7 +264,7 @@ export class ClientCredentialsTokenRequest {
 		log.info('Built token request', {
 			url: tokenEndpoint,
 			authMethod,
-			hasScope: !!credentials.scope,
+			hasScope: !!credentials.scopes,
 		});
 
 		return { url: tokenEndpoint, headers, body };
