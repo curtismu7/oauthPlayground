@@ -438,6 +438,26 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
 			await unifiedWorkerTokenService.saveToken(token, expiresAt);
 
+			// Also save credentials to MFA flow for MFA Hub compatibility
+			try {
+				const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
+				const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+					flowKey: 'mfa-flow-v8',
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+				CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
+					...stored,
+					environmentId: environmentId.trim(),
+					username: stored.username || '',
+				});
+			} catch (credError) {
+				console.warn('[WorkerTokenModalV8] Failed to save credentials to MFA flow:', credError);
+			}
+
 			// Cache the token for future preflight validation
 			const tokenScopes = scopeInput
 				.split(/\s+/)
