@@ -3667,6 +3667,151 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				</div>
 			)}
 
+			{/* Device Selection Section - Show when authentication requires device selection */}
+			{authState.showDeviceSelection && authState.devices.length > 0 && (
+				<div
+					style={{
+						background: 'white',
+						borderRadius: '12px',
+						padding: '24px',
+						marginBottom: '24px',
+						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+						border: '2px solid #3b82f6',
+					}}
+				>
+					<h2
+						style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}
+					>
+						Select Device for Authentication
+					</h2>
+					<p style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#6b7280' }}>
+						Multiple devices are available. Please select one to continue authentication.
+					</p>
+					<div
+						style={{
+							display: 'grid',
+							gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+							gap: '16px',
+						}}
+					>
+						{authState.devices.map((device) => (
+							<button
+								key={device.id}
+								type="button"
+								onClick={async () => {
+									if (!authState.authenticationId || !authState.userId) {
+										toastV8.error('Authentication session not found');
+										return;
+									}
+
+									try {
+										setAuthState((prev) => ({ ...prev, isLoading: true }));
+
+										const data = await MfaAuthenticationServiceV8.selectDeviceForAuthentication({
+											environmentId: credentials.environmentId,
+											username: usernameInput.trim(),
+											userId: authState.userId,
+											authenticationId: authState.authenticationId,
+											deviceId: device.id,
+											region: credentials.region,
+											customDomain: credentials.customDomain,
+										});
+
+										const status = data.status || '';
+										const nextStep = data.nextStep || '';
+										const challengeId = (data.challengeId as string) || null;
+
+										setAuthState((prev) => ({
+											...prev,
+											isLoading: false,
+											status,
+											nextStep,
+											selectedDeviceId: device.id,
+											challengeId,
+											showDeviceSelection: false,
+										}));
+
+										// Handle next step
+										if (status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED') {
+											setShowOTPModal(true);
+											toastV8.success('OTP has been sent');
+										} else if (status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED') {
+											setShowFIDO2Modal(true);
+										} else if (status === 'PUSH_CONFIRMATION_REQUIRED') {
+											setShowPushModal(true);
+										} else if (status === 'COMPLETED') {
+											toastV8.success('Authentication completed!');
+										}
+									} catch (error) {
+										console.error(`${MODULE_TAG} Failed to select device:`, error);
+										toastV8.error(error instanceof Error ? error.message : 'Failed to select device');
+										setAuthState((prev) => ({ ...prev, isLoading: false }));
+									}
+								}}
+								style={{
+									padding: '16px',
+									border: '2px solid #e5e7eb',
+									borderRadius: '8px',
+									background: '#f9fafb',
+									cursor: 'pointer',
+									transition: 'all 0.2s',
+									textAlign: 'left',
+									width: '100%',
+								}}
+								onMouseOver={(e) => {
+									e.currentTarget.style.background = '#eff6ff';
+									e.currentTarget.style.borderColor = '#3b82f6';
+									e.currentTarget.style.transform = 'translateY(-2px)';
+									e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.2)';
+								}}
+								onMouseOut={(e) => {
+									e.currentTarget.style.background = '#f9fafb';
+									e.currentTarget.style.borderColor = '#e5e7eb';
+									e.currentTarget.style.transform = 'translateY(0)';
+									e.currentTarget.style.boxShadow = 'none';
+								}}
+							>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+									<div
+										style={{
+											width: '40px',
+											height: '40px',
+											borderRadius: '8px',
+											background: '#3b82f6',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											color: 'white',
+											fontSize: '20px',
+										}}
+									>
+										{device.type === 'SMS' || device.type === 'VOICE' ? (
+											<FiPhone color="white" />
+										) : device.type === 'EMAIL' ? (
+											<FiMail color="white" />
+										) : device.type === 'FIDO2' ? (
+											<FiKey color="white" />
+										) : (
+											<FiShield color="white" />
+										)}
+									</div>
+									<div style={{ flex: 1 }}>
+										<div style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
+											{device.nickname || device.type}
+										</div>
+										<div style={{ fontSize: '12px', color: '#6b7280' }}>
+											{device.type}
+											{device.phone && ` • ${device.phone}`}
+											{device.email && ` • ${device.email}`}
+										</div>
+									</div>
+								</div>
+							</button>
+						))}
+					</div>
+				</div>
+			)}
+
 			{/* Authentication Status */}
 			{authState.authenticationId && (
 				<div
