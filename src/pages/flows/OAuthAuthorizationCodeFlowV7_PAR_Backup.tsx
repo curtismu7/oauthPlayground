@@ -498,6 +498,7 @@ const ActionRow = styled.div`
 	flex-wrap: wrap;
 	gap: 1rem;
 	align-items: center;
+	justify-content: center;
 	margin-top: 1.5rem;
 `;
 
