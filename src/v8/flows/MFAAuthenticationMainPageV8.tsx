@@ -1932,7 +1932,17 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					{/* Primary Button: Start MFA */}
 					<button
 						type="button"
-						onClick={handleStartMFA}
+						onClick={() => {
+							console.log(`${MODULE_TAG} 🔥 START AUTHENTICATION BUTTON CLICKED:`, {
+								authStateLoading: authState.isLoading,
+								tokenValid: tokenStatus.isValid,
+								hasEnvId: !!credentials.environmentId,
+								hasPolicyId: !!credentials.deviceAuthenticationPolicyId,
+								username: usernameInput.trim(),
+								buttonDisabled: authState.isLoading || !tokenStatus.isValid || !credentials.environmentId || !credentials.deviceAuthenticationPolicyId,
+							});
+							handleStartMFA();
+						}}
 						disabled={
 							authState.isLoading ||
 							!tokenStatus.isValid ||
