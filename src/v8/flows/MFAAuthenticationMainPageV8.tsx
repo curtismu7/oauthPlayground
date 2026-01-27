@@ -1610,164 +1610,17 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				</div>
 			</div>
 
-			{/* 1. Authentication & Registration */}
-			<div
-				style={{
-					background: 'white',
-					borderRadius: '12px',
-					padding: '32px',
-					marginBottom: '24px',
-					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					border: '1px solid #e5e7eb',
-				}}
-			>
-				<h2 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-					Authentication & Registration
-				</h2>
-
-				<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-					{/* Primary Button: Start MFA */}
-					<button
-						type="button"
-						onClick={handleStartMFA}
-						disabled={
-							authState.isLoading ||
-							!tokenStatus.isValid ||
-							!credentials.environmentId ||
-							!credentials.deviceAuthenticationPolicyId
-						}
-						style={{
-							padding: '10px 24px',
-							border: 'none',
-							borderRadius: '6px',
-							background:
-								tokenStatus.isValid &&
-								credentials.environmentId &&
-								credentials.deviceAuthenticationPolicyId
-									? '#3b82f6'
-									: '#9ca3af',
-							color: 'white',
-							fontSize: '16px',
-							fontWeight: '600',
-							cursor:
-								tokenStatus.isValid &&
-								credentials.environmentId &&
-								credentials.deviceAuthenticationPolicyId
-									? 'pointer'
-									: 'not-allowed',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}
-					>
-						{authState.isLoading ? (
-							<>
-								<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-								Starting...
-							</>
-						) : (
-							<>
-								<FiShield />
-								Start Authentication
-							</>
-						)}
-					</button>
-
-					{/* Registration Button */}
-					<button
-						type="button"
-						onClick={() => setShowRegistrationModal(true)}
-						disabled={
-							!tokenStatus.isValid ||
-							!credentials.environmentId ||
-							!credentials.deviceAuthenticationPolicyId
-						}
-						style={{
-							padding: '10px 24px',
-							border: 'none',
-							borderRadius: '6px',
-							background:
-								tokenStatus.isValid &&
-								credentials.environmentId &&
-								credentials.deviceAuthenticationPolicyId
-									? '#10b981'
-									: '#9ca3af',
-							color: 'white',
-							fontSize: '16px',
-							fontWeight: '600',
-							cursor:
-								tokenStatus.isValid &&
-								credentials.environmentId &&
-								credentials.deviceAuthenticationPolicyId
-									? 'pointer'
-									: 'not-allowed',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}
-					>
-						<FiPlus />
-						Register Device
-					</button>
-
-					{/* Secondary Button: Username-less FIDO2 */}
-					<button
-						type="button"
-						onClick={handleUsernamelessFIDO2}
-						disabled={authState.isLoading || !tokenStatus.isValid || !credentials.environmentId}
-						style={{
-							padding: '10px 24px',
-							border: '2px solid #3b82f6',
-							borderRadius: '6px',
-							background: 'white',
-							color: '#3b82f6',
-							fontSize: '16px',
-							fontWeight: '600',
-							cursor: tokenStatus.isValid && credentials.environmentId ? 'pointer' : 'not-allowed',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}
-					>
-						<FiKey />
-						Use Passkey / FaceID (username-less)
-					</button>
-
-					{/* Clear Tokens & Session Button */}
-					<button
-						type="button"
-						onClick={() => setShowClearTokensModal(true)}
-						disabled={isClearingTokens}
-						style={{
-							padding: '10px 24px',
-							border: 'none',
-							borderRadius: '6px',
-							background: isClearingTokens ? '#9ca3af' : '#ef4444',
-							color: 'white',
-							fontSize: '16px',
-							fontWeight: '600',
-							cursor: isClearingTokens ? 'not-allowed' : 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-							opacity: isClearingTokens ? 0.6 : 1,
-							transition: 'all 0.2s ease',
-						}}
-					>
-						{isClearingTokens ? (
-							<>
-								<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-								Clearing...
-							</>
-						) : (
-							<>
-								<FiTrash2 />
-								Clear Tokens & Session
-							</>
-						)}
-					</button>
-				</div>
-			</div>
+			{/* 1. Authentication & Registration - V3 Section Component */}
+			<AuthenticationSectionV8
+				workerToken={workerToken}
+				credentials={credentials}
+				authState={authState}
+				onStartMFA={handleStartMFA}
+				onRegisterDevice={() => setShowRegistrationModal(true)}
+				onUsernamelessFIDO2={handleUsernamelessFIDO2}
+				onClearTokens={() => setShowClearTokensModal(true)}
+				isClearingTokens={isClearingTokens}
+			/>
 
 			{/* Clear Tokens Confirmation Modal */}
 			<ConfirmModalV8
