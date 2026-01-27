@@ -194,7 +194,7 @@ export class CredentialsServiceV8 {
 	 * @example
 	 * const defaults = CredentialsServiceV8.getDefaultCredentials('oauth-authz-v8', config);
 	 */
-	static getDefaultCredentials(flowKey: string, config: CredentialsConfig): Credentials {
+	static getDefaultCredentials(_flowKey: string, config: CredentialsConfig): Credentials {
 		const defaults: Credentials = {
 			environmentId: '',
 			clientId: '',

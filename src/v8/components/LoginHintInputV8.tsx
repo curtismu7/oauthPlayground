@@ -151,7 +151,7 @@ export const LoginHintInputV8: React.FC<LoginHintInputV8Props> = ({
 			</div>
 
 			{/* Description - Only show after user stops typing (debounced) */}
-			{displayValue && displayValue.trim() && (
+			{displayValue?.trim() && (
 				<div
 					style={{
 						marginTop: '8px',

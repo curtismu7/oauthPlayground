@@ -17,7 +17,6 @@
  */
 
 import { pingOneFetch } from '@/utils/pingOneFetch';
-import { AuthMethodServiceV8 } from './authMethodServiceV8';
 
 const MODULE_TAG = '[🔐 OAUTH-INTEGRATION-V8]';
 
@@ -772,7 +771,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 							throw passwordChangeError;
 						}
 					}
-				} catch (parseError) {
+				} catch (_parseError) {
 					// If parsing fails, check response metadata
 					if (requiresPasswordChange) {
 						console.log(`${MODULE_TAG} 🔐 Password change required detected in response metadata`);

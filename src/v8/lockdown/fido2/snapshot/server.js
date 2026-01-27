@@ -183,7 +183,7 @@ const recordPingOneCall = (res, call) => {
 };
 
 const originalGlobalFetch = globalThis.fetch.bind(globalThis);
-const normalizeHeaderObject = (inputHeaders) => {
+const _normalizeHeaderObject = (inputHeaders) => {
 	if (!inputHeaders) {
 		return undefined;
 	}
@@ -380,7 +380,7 @@ const attachPingOneHeaderMetadata = (res) => {
 	}
 };
 
-app.use((req, res, next) => {
+app.use((_req, res, next) => {
 	pingOneRequestContext.enterWith({ res });
 	res.locals.__pingOneCalls = [];
 	const wrapResponseMethod = (methodName) => {
@@ -561,7 +561,7 @@ function logPingOneApiCall(
 
 	// Extract response headers
 	const responseHeaders = {};
-	if (response && response.headers) {
+	if (response?.headers) {
 		response.headers.forEach((value, key) => {
 			responseHeaders[key] = value;
 		});
@@ -875,7 +875,7 @@ app.get('/api/pingone/calls/:id', (req, res) => {
 });
 
 // Get all PingOne API calls for frontend API display
-app.get('/api/pingone/api-calls', (req, res) => {
+app.get('/api/pingone/api-calls', (_req, res) => {
 	try {
 		// Return all stored API calls
 		return res.json({ calls: pingOneApiCallsStore });
@@ -906,7 +906,7 @@ const mergeCookieArrays = (existing = [], incoming = []) => {
 };
 
 // Request statistics tracking middleware
-app.use((req, res, next) => {
+app.use((_req, res, next) => {
 	const startTime = process.hrtime.bigint();
 	requestStats.totalRequests += 1;
 	requestStats.activeConnections += 1;
@@ -1017,7 +1017,7 @@ app.use((err, _req, res, _next) => {
 	try {
 		console.error('[Server] Unhandled error:', err);
 		if (res.headersSent) return;
-		const message = err && err.message ? err.message : 'Internal Server Error';
+		const message = err?.message ? err.message : 'Internal Server Error';
 		res.status(500).json({
 			error: 'internal_server_error',
 			error_description: message,
@@ -1575,7 +1575,7 @@ app.post('/api/token-exchange', async (req, res) => {
 			} catch {
 				responseData = { raw: responseText };
 			}
-		} catch (e) {
+		} catch (_e) {
 			responseData = {
 				error: 'Failed to parse response',
 				status: tokenResponse.status,
@@ -1933,34 +1933,33 @@ app.post('/api/client-credentials', async (req, res) => {
 
 		// #region agent log
 		const logPath = '/Users/cmuir/P1Import-apps/oauth-playground/.cursor/debug.log';
-		const logEntry =
-			JSON.stringify({
-				location: 'server.js:1889',
-				message: 'Backend preparing request body for PingOne',
-				data: {
-					requestBodyKeys: Object.keys(requestBody),
-					requestBodyClientId: requestBody.client_id,
-					requestBodyClientIdType: typeof requestBody.client_id,
-					requestBodyClientIdLength: requestBody.client_id?.length,
-					bodyClientId: body.get('client_id'),
-					bodyClientIdType: typeof body.get('client_id'),
-					expectedClientId: '4a275422-e580-4be6-84f2-3a624a849cbb',
-					clientIdMatches: body.get('client_id') === '4a275422-e580-4be6-84f2-3a624a849cbb',
-					requestBodyScope: requestBody.scope,
-					requestBodyScopeType: typeof requestBody.scope,
-					bodyKeys: Array.from(body.keys()),
-					bodyEntries: Object.fromEntries(body.entries()),
-					bodyScope: body.get('scope'),
-					authMethod: auth_method,
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run1',
-				hypothesisId: 'BACKEND-CLIENT-ID',
-			}) + '\n';
+		const logEntry = `${JSON.stringify({
+			location: 'server.js:1889',
+			message: 'Backend preparing request body for PingOne',
+			data: {
+				requestBodyKeys: Object.keys(requestBody),
+				requestBodyClientId: requestBody.client_id,
+				requestBodyClientIdType: typeof requestBody.client_id,
+				requestBodyClientIdLength: requestBody.client_id?.length,
+				bodyClientId: body.get('client_id'),
+				bodyClientIdType: typeof body.get('client_id'),
+				expectedClientId: '4a275422-e580-4be6-84f2-3a624a849cbb',
+				clientIdMatches: body.get('client_id') === '4a275422-e580-4be6-84f2-3a624a849cbb',
+				requestBodyScope: requestBody.scope,
+				requestBodyScopeType: typeof requestBody.scope,
+				bodyKeys: Array.from(body.keys()),
+				bodyEntries: Object.fromEntries(body.entries()),
+				bodyScope: body.get('scope'),
+				authMethod: auth_method,
+			},
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run1',
+			hypothesisId: 'BACKEND-CLIENT-ID',
+		})}\n`;
 		try {
 			fs.appendFileSync(logPath, logEntry);
-		} catch (e) {
+		} catch (_e) {
 			// Ignore log errors
 		}
 		// #endregion
@@ -1977,33 +1976,32 @@ app.post('/api/client-credentials', async (req, res) => {
 		// #region agent log - capture actual request being sent
 		const bodyString = body.toString();
 		const clientIdFromBody = body.get('client_id');
-		const logEntry4 =
-			JSON.stringify({
-				location: 'server.js:1933',
-				message: 'About to send request to PingOne - actual body string',
-				data: {
-					bodyString,
-					bodyStringLength: bodyString.length,
-					clientId: clientIdFromBody,
-					clientIdLength: clientIdFromBody?.length,
-					clientIdType: typeof clientIdFromBody,
-					expectedClientId: '4a275422-e580-4be6-84f2-3a624a849cbb',
-					clientIdMatches: clientIdFromBody === '4a275422-e580-4be6-84f2-3a624a849cbb',
-					hasScope: bodyString.includes('scope'),
-					scopeValue: body.get('scope'),
-					hasGrantType: bodyString.includes('grant_type'),
-					hasClientId: bodyString.includes('client_id'),
-					hasClientSecret: bodyString.includes('client_secret'),
-					allParams: Object.fromEntries(body.entries()),
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run1',
-				hypothesisId: 'ACTUAL-REQUEST-CLIENT-ID',
-			}) + '\n';
+		const logEntry4 = `${JSON.stringify({
+			location: 'server.js:1933',
+			message: 'About to send request to PingOne - actual body string',
+			data: {
+				bodyString,
+				bodyStringLength: bodyString.length,
+				clientId: clientIdFromBody,
+				clientIdLength: clientIdFromBody?.length,
+				clientIdType: typeof clientIdFromBody,
+				expectedClientId: '4a275422-e580-4be6-84f2-3a624a849cbb',
+				clientIdMatches: clientIdFromBody === '4a275422-e580-4be6-84f2-3a624a849cbb',
+				hasScope: bodyString.includes('scope'),
+				scopeValue: body.get('scope'),
+				hasGrantType: bodyString.includes('grant_type'),
+				hasClientId: bodyString.includes('client_id'),
+				hasClientSecret: bodyString.includes('client_secret'),
+				allParams: Object.fromEntries(body.entries()),
+			},
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run1',
+			hypothesisId: 'ACTUAL-REQUEST-CLIENT-ID',
+		})}\n`;
 		try {
 			fs.appendFileSync(logPath, logEntry4);
-		} catch (e) {
+		} catch (_e) {
 			// Ignore log errors
 		}
 		// #endregion
@@ -2020,24 +2018,23 @@ app.post('/api/client-credentials', async (req, res) => {
 		const responseClone = response.clone();
 
 		// #region agent log
-		const logEntry2 =
-			JSON.stringify({
-				location: 'server.js:1966',
-				message: 'Backend received response from PingOne',
-				data: {
-					status: response.status,
-					statusText: response.statusText,
-					hasBody: !!body,
-					bodyString: body.toString(),
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run1',
-				hypothesisId: 'BACKEND-RESPONSE',
-			}) + '\n';
+		const logEntry2 = `${JSON.stringify({
+			location: 'server.js:1966',
+			message: 'Backend received response from PingOne',
+			data: {
+				status: response.status,
+				statusText: response.statusText,
+				hasBody: !!body,
+				bodyString: body.toString(),
+			},
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run1',
+			hypothesisId: 'BACKEND-RESPONSE',
+		})}\n`;
 		try {
 			fs.appendFileSync(logPath, logEntry2);
-		} catch (e) {
+		} catch (_e) {
 			// Ignore log errors
 		}
 		// #endregion
@@ -2046,7 +2043,7 @@ app.post('/api/client-credentials', async (req, res) => {
 		let data;
 		try {
 			data = JSON.parse(responseText);
-		} catch (e) {
+		} catch (_e) {
 			data = { error: 'Failed to parse response', rawResponse: responseText };
 		}
 
@@ -2060,7 +2057,7 @@ app.post('/api/client-credentials', async (req, res) => {
 			} catch {
 				responseDataForLogging = { raw: cloneText };
 			}
-		} catch (e) {
+		} catch (_e) {
 			responseDataForLogging = data;
 		}
 
@@ -2085,28 +2082,27 @@ app.post('/api/client-credentials', async (req, res) => {
 		);
 
 		// #region agent log
-		const logEntry3 =
-			JSON.stringify({
-				location: 'server.js:1985',
-				message: 'Backend parsed PingOne response',
-				data: {
-					status: response.status,
-					responseText,
-					parsedData: data,
-					error: data.error,
-					errorDescription: data.error_description,
-					requestBodyString: body.toString(),
-					requestBodyScope: body.get('scope'),
-					hasAccessToken: !!data.access_token,
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run1',
-				hypothesisId: 'BACKEND-RESPONSE-DATA',
-			}) + '\n';
+		const logEntry3 = `${JSON.stringify({
+			location: 'server.js:1985',
+			message: 'Backend parsed PingOne response',
+			data: {
+				status: response.status,
+				responseText,
+				parsedData: data,
+				error: data.error,
+				errorDescription: data.error_description,
+				requestBodyString: body.toString(),
+				requestBodyScope: body.get('scope'),
+				hasAccessToken: !!data.access_token,
+			},
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run1',
+			hypothesisId: 'BACKEND-RESPONSE-DATA',
+		})}\n`;
 		try {
 			fs.appendFileSync(logPath, logEntry3);
-		} catch (e) {
+		} catch (_e) {
 			// Ignore log errors
 		}
 		// #endregion
@@ -2214,7 +2210,7 @@ app.post('/api/pingone/token', async (req, res) => {
 			} catch {
 				responseData = { raw: responseText };
 			}
-		} catch (e) {
+		} catch (_e) {
 			responseData = {
 				error: 'Failed to parse response',
 				status: response.status,
@@ -2666,7 +2662,7 @@ app.post('/api/pingone/users/lookup', async (req, res) => {
 
 				try {
 					searchData = payloadText ? JSON.parse(payloadText) : {};
-				} catch (parseError) {
+				} catch (_parseError) {
 					console.error(
 						`[PingOne User Lookup] Failed to parse response for filter ${filter}:`,
 						payloadText.substring(0, 200)
@@ -2872,7 +2868,7 @@ app.get('/api/pingone/user/:userId/groups', async (req, res) => {
 						return item;
 					}
 					// Check if item has _links.group.href for expansion
-					if (item._links && item._links.group && item._links.group.href) {
+					if (item._links?.group?.href) {
 						// Extract group ID from href or mark for fetching via href
 						const href = item._links.group.href;
 						const groupIdMatch = href.match(/\/groups\/([^/?]+)/);
@@ -3044,7 +3040,7 @@ app.get('/api/pingone/user/:userId/roles', async (req, res) => {
 						return assignment;
 					}
 					// Check if assignment has _links.role.href for expansion
-					if (assignment._links && assignment._links.role && assignment._links.role.href) {
+					if (assignment._links?.role?.href) {
 						const href = assignment._links.role.href;
 						const roleIdMatch = href.match(/\/roles\/([^/?]+)/);
 						if (roleIdMatch) {
@@ -3570,7 +3566,7 @@ app.post('/api/device-authorization', async (req, res) => {
 						bodyLength: formDataString.length,
 						formDataKeys: Array.from(formData.keys()),
 						clientIdValue: formData.get('client_id')
-							? formData.get('client_id').substring(0, 15) + '...'
+							? `${formData.get('client_id').substring(0, 15)}...`
 							: 'MISSING',
 						scopeValue: formData.get('scope') || 'NONE',
 					},
@@ -3580,7 +3576,7 @@ app.post('/api/device-authorization', async (req, res) => {
 					hypothesisId: 'B',
 				}),
 			}).catch(() => {});
-		} catch (e) {}
+		} catch (_e) {}
 		// #endregion
 
 		const response = await global.fetch(deviceEndpoint, {
@@ -3617,7 +3613,7 @@ app.post('/api/device-authorization', async (req, res) => {
 					hypothesisId: 'C',
 				}),
 			}).catch(() => {});
-		} catch (e) {}
+		} catch (_e) {}
 		// #endregion
 
 		let data;
@@ -4617,7 +4613,7 @@ app.post('/api/device/register', async (req, res) => {
 });
 
 // Network connectivity check endpoint
-app.get('/api/network/check', async (req, res) => {
+app.get('/api/network/check', async (_req, res) => {
 	try {
 		console.log(`[Network Check] Testing connectivity to PingOne...`);
 
@@ -4856,7 +4852,7 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 			if (!responseText) {
 				try {
 					responseText = await authResponse.text();
-				} catch (e) {
+				} catch (_e) {
 					responseText = 'Unable to read response body';
 				}
 			}
@@ -5043,7 +5039,7 @@ app.post('/api/pingone/redirectless/poll', async (req, res) => {
 		let responseData;
 		try {
 			responseData = await pingOneResponse.json();
-		} catch (e) {
+		} catch (_e) {
 			// If response is not JSON, treat as error
 			return res.status(pingOneResponse.status).json({
 				error: 'invalid_response',
@@ -5209,21 +5205,21 @@ app.post('/api/pingone/resume', async (req, res) => {
 					const locationUrl = new URL(locationHeader);
 					code = locationUrl.searchParams.get('code');
 					state = locationUrl.searchParams.get('state');
-				} catch (urlError) {
+				} catch (_urlError) {
 					// If not absolute URL, try as relative URL (e.g., /callback?code=abc123)
 					try {
 						const baseUrl = new URL(finalResumeUrl);
 						const locationUrl = new URL(locationHeader, baseUrl.origin);
 						code = locationUrl.searchParams.get('code');
 						state = locationUrl.searchParams.get('state');
-					} catch (relativeError) {
+					} catch (_relativeError) {
 						// Fallback: try to extract code using regex
 						const codeMatch = locationHeader.match(/[?&]code=([^&]+)/);
 						const stateMatch = locationHeader.match(/[?&]state=([^&]+)/);
-						if (codeMatch && codeMatch[1]) {
+						if (codeMatch?.[1]) {
 							code = decodeURIComponent(codeMatch[1]);
 						}
-						if (stateMatch && stateMatch[1]) {
+						if (stateMatch?.[1]) {
 							state = decodeURIComponent(stateMatch[1]);
 						}
 						console.log(`[PingOne Resume] Extracted code using regex fallback:`, {
@@ -5385,7 +5381,7 @@ app.post('/api/pingone/resume', async (req, res) => {
 			hasUserId: !!responseData.userId,
 			// Check ALL keys for common patterns
 			allStringValues: Object.entries(responseData)
-				.filter(([k, v]) => typeof v === 'string' && v.length > 0)
+				.filter(([_k, v]) => typeof v === 'string' && v.length > 0)
 				.map(([k, v]) => `${k}:${v.substring(0, 30)}...`)
 				.slice(0, 10),
 		});
@@ -5523,7 +5519,7 @@ app.post('/api/pingone/resume', async (req, res) => {
 				} catch {
 					// If not a valid URL, try regex
 					const codeMatch = responseData.match(/[?&]code=([^&]+)/);
-					if (codeMatch && codeMatch[1]) {
+					if (codeMatch?.[1]) {
 						const codeFromRegex = decodeURIComponent(codeMatch[1]);
 						console.log(
 							`[PingOne Resume] Extracted code from string using regex:`,
@@ -6051,7 +6047,7 @@ app.post('/api/ciba-backchannel', async (req, res) => {
 			const text = await response.text();
 			try {
 				data = JSON.parse(text);
-			} catch (parseError) {
+			} catch (_parseError) {
 				// Response is not JSON - might be HTML error page or plain text
 				console.error(
 					`[CIBA Backchannel] Non-JSON response from PingOne (${response.status}):`,
@@ -7224,7 +7220,7 @@ app.post('/api/pingone/organization-licensing', async (req, res) => {
 		// Try to extract region from worker token JWT (if not in organization response)
 		let regionFromToken = null;
 		try {
-			if (workerToken && workerToken.includes('.')) {
+			if (workerToken?.includes('.')) {
 				const parts = workerToken.split('.');
 				if (parts.length >= 2) {
 					// Decode base64url (PingOne uses base64url, not standard base64)
@@ -7239,9 +7235,9 @@ app.post('/api/pingone/organization-licensing', async (req, res) => {
 					});
 
 					// Extract region from issuer URL: https://auth.pingone.{region}/{envId}/as
-					if (payload.iss && payload.iss.includes('auth.pingone.')) {
+					if (payload.iss?.includes('auth.pingone.')) {
 						const issMatch = payload.iss.match(/auth\.pingone\.([a-z0-9-]+)/);
-						if (issMatch && issMatch[1]) {
+						if (issMatch?.[1]) {
 							regionFromToken = issMatch[1];
 							console.log(
 								'[PingOne Org Licensing] Extracted region from token issuer:',
@@ -7464,7 +7460,7 @@ app.post('/api/pingone/organization-licensing', async (req, res) => {
 		if (organizationInfo.region) {
 			region = organizationInfo.region;
 			console.log('[PingOne Org Licensing] Using region from organizationInfo.region:', region);
-		} else if (organizationInfo.organization && organizationInfo.organization.region) {
+		} else if (organizationInfo.organization?.region) {
 			region = organizationInfo.organization.region;
 			console.log(
 				'[PingOne Org Licensing] Using region from organizationInfo.organization.region:',
@@ -7737,7 +7733,7 @@ app.post('/api/pingone/mfa/create-device-payload', async (req, res) => {
 
 		// Update device nickname if provided (nickname is not valid in create request)
 		// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#put-update-device-nickname
-		if (deviceNickname && deviceNickname.trim() && responseBody?.id) {
+		if (deviceNickname?.trim() && responseBody?.id) {
 			try {
 				const nicknameEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${responseBody.id}/nickname`;
 				const nicknamePayload = { nickname: deviceNickname.trim() };
@@ -8530,7 +8526,7 @@ app.post('/api/pingone/mfa/device-authentication-policies', async (req, res) => 
 			let errorData;
 			try {
 				errorData = await response.json();
-			} catch (parseError) {
+			} catch (_parseError) {
 				const errorText = await response.text().catch(() => 'Unable to read error response');
 				console.error(`[MFA Device Auth Policies] [${requestId}] Error response (non-JSON):`, {
 					status: response.status,
@@ -8685,7 +8681,7 @@ app.put('/api/pingone/mfa/device-authentication-policies/:policyId', async (req,
 			let errorData;
 			try {
 				errorData = await response.json();
-			} catch (parseError) {
+			} catch (_parseError) {
 				const errorText = await response.text().catch(() => 'Unable to read error response');
 				console.error(`[MFA Device Auth Policy Update] [${requestId}] Error response (non-JSON):`, {
 					status: response.status,
@@ -9396,7 +9392,7 @@ app.get('/api/webhooks/events', (req, res) => {
  * Clear Webhook Events API
  * DELETE /api/webhooks/events
  */
-app.delete('/api/webhooks/events', (req, res) => {
+app.delete('/api/webhooks/events', (_req, res) => {
 	try {
 		const clearedCount = webhookEvents.length;
 		webhookEvents.length = 0; // Clear array
@@ -9642,7 +9638,7 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 			hasName: !!name,
 			deviceNickname: deviceNickname || 'NOT PROVIDED',
 			deviceNicknameTrimmed: deviceNickname ? deviceNickname.trim() : 'NOT PROVIDED',
-			willUpdateNickname: !!(deviceNickname && deviceNickname.trim()),
+			willUpdateNickname: !!deviceNickname?.trim(),
 		});
 
 		// Remove nickname and name from devicePayload before sending to PingOne
@@ -9912,7 +9908,7 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 
 		// Clone response for logging (before consuming it)
 		const responseClone = response.clone();
-		const responseCloneForLogging = response.clone();
+		const _responseCloneForLogging = response.clone();
 
 		// #region agent log
 		// Log error response details if request failed
@@ -9961,7 +9957,7 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 			} catch {
 				responseData = { raw: rawResponseText };
 			}
-		} catch (e) {
+		} catch (_e) {
 			responseData = {
 				error: 'Failed to parse response',
 				status: response.status,
@@ -10199,7 +10195,7 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 
 		// Update device nickname if provided (nickname is not valid in create request)
 		// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#put-update-device-nickname
-		if (deviceNickname && deviceNickname.trim() && deviceData.id) {
+		if (deviceNickname?.trim() && deviceData.id) {
 			try {
 				const nicknameEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceData.id}/nickname`;
 				const nicknamePayload = { nickname: deviceNickname.trim() };
@@ -10225,7 +10221,7 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 					} catch {
 						nicknameResponseData = { raw: nicknameResponseText };
 					}
-				} catch (e) {
+				} catch (_e) {
 					nicknameResponseData = {
 						error: 'Failed to parse response',
 						status: nicknameResponse.status,
@@ -10639,7 +10635,7 @@ app.post('/api/pingone/mfa/unblock-device', async (req, res) => {
 						responseData = { raw: responseText };
 					}
 				}
-			} catch (e) {
+			} catch (_e) {
 				responseData = { error: 'Failed to parse response' };
 			}
 		}
@@ -10754,7 +10750,7 @@ app.post('/api/pingone/mfa/delete-device', async (req, res) => {
 						responseData = { raw: responseText };
 					}
 				}
-			} catch (e) {
+			} catch (_e) {
 				responseData = { error: 'Failed to parse response' };
 			}
 		}
@@ -11480,7 +11476,7 @@ app.post('/api/pingone/mfa/send-otp', async (req, res) => {
 			} catch {
 				responseData = { raw: responseText };
 			}
-		} catch (e) {
+		} catch (_e) {
 			responseData = {
 				error: 'Failed to parse response',
 				status: response.status,
@@ -11655,7 +11651,7 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
 			} catch {
 				responseData = { raw: responseText };
 			}
-		} catch (e) {
+		} catch (_e) {
 			responseData = {
 				error: 'Failed to parse response',
 				status: response.status,
@@ -11764,7 +11760,7 @@ app.post('/api/pingone/mfa/validate-otp', async (req, res) => {
 			} catch {
 				responseData = { raw: responseText };
 			}
-		} catch (e) {
+		} catch (_e) {
 			responseData = {
 				error: 'Failed to parse response',
 				status: response.status,
@@ -12336,7 +12332,7 @@ app.post('/api/pingone/mfa/activate-fido2-device', async (req, res) => {
 			clientDataJSONPreview: requestBody.clientDataJSON
 				? `${String(requestBody.clientDataJSON).substring(0, 50)}...`
 				: 'MISSING',
-			originIsLocalhost: requestBody.origin && requestBody.origin.includes('localhost'),
+			originIsLocalhost: requestBody.origin?.includes('localhost'),
 		});
 
 		// Log request details for debugging
@@ -12790,7 +12786,7 @@ app.post('/api/pingone/mfa/activate-fido2-device', async (req, res) => {
 			} catch {
 				responseData = { raw: responseText };
 			}
-		} catch (e) {
+		} catch (_e) {
 			responseData = {
 				error: 'Failed to parse response',
 				status: response.status,
@@ -12886,7 +12882,7 @@ app.post('/api/pingone/mfa/activate-fido2-device', async (req, res) => {
 						: undefined,
 				},
 				origin: requestBody.origin,
-				originIsLocalhost: requestBody.origin && requestBody.origin.includes('localhost'),
+				originIsLocalhost: requestBody.origin?.includes('localhost'),
 				workerTokenPreview: cleanToken ? `${cleanToken.substring(0, 20)}...` : 'MISSING',
 				// Check if error mentions origin/RPID
 				errorMentionsOrigin:
@@ -12903,7 +12899,7 @@ app.post('/api/pingone/mfa/activate-fido2-device', async (req, res) => {
 				// Include origin info in error response for debugging
 				debugInfo: {
 					origin: requestBody.origin,
-					originIsLocalhost: requestBody.origin && requestBody.origin.includes('localhost'),
+					originIsLocalhost: requestBody.origin?.includes('localhost'),
 					hint: 'If origin is localhost, you may need to configure allowed origins in PingOne FIDO2 policy settings',
 				},
 			});
@@ -13084,7 +13080,7 @@ app.post('/api/pingone/mfa/check-fido2-assertion', async (req, res) => {
 			hasAssertion: !!assertion,
 		});
 
-		const toStandardBase64 = (value) => {
+		const _toStandardBase64 = (value) => {
 			if (typeof value !== 'string') {
 				return value;
 			}
@@ -13531,7 +13527,7 @@ app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 			} catch {
 				responseData = { raw: responseText };
 			}
-		} catch (e) {
+		} catch (_e) {
 			responseData = {
 				error: 'Failed to parse response',
 				status: response.status,
@@ -13691,7 +13687,7 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 			} catch {
 				responseData = { raw: responseText };
 			}
-		} catch (e) {
+		} catch (_e) {
 			responseData = {
 				error: 'Failed to parse response',
 				status: response.status,
@@ -13787,7 +13783,7 @@ app.post('/api/pingone/mfa/list-users', async (req, res) => {
 		}
 
 		// Add search filter if provided (SCIM filter syntax)
-		if (search && search.trim()) {
+		if (search?.trim()) {
 			const searchTerm = search.trim();
 			// Escape special characters for SCIM filter (escape backslashes first, then quotes)
 			const escapedSearch = searchTerm.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
@@ -14012,7 +14008,7 @@ app.post('/api/pingone/mfa/user-authentication-reports', async (req, res) => {
 			environmentId,
 			hasQueryParams: !!queryParams,
 			tokenLength: cleanToken.length,
-			tokenPreview: cleanToken.substring(0, 20) + '...',
+			tokenPreview: `${cleanToken.substring(0, 20)}...`,
 			tokenParts: cleanToken.split('.').length,
 			tokenStartsWith: cleanToken.substring(0, 10),
 			endpoint: reportsEndpoint,
@@ -14078,10 +14074,10 @@ app.post('/api/pingone/mfa/user-authentication-reports', async (req, res) => {
 			tokenFirstChars: cleanToken.substring(0, 20),
 			tokenLastChars: cleanToken.substring(cleanToken.length - 20),
 			authHeaderFormat: authHeader.startsWith('Bearer ') ? 'correct' : 'incorrect',
-			authHeaderExact: authHeader.substring(0, 30) + '...',
+			authHeaderExact: `${authHeader.substring(0, 30)}...`,
 			requestHeadersKeys: Object.keys(requestHeaders),
 			requestHeadersAuthorizationType: typeof requestHeaders.Authorization,
-			requestHeadersAuthorizationValue: requestHeaders.Authorization.substring(0, 50) + '...',
+			requestHeadersAuthorizationValue: `${requestHeaders.Authorization.substring(0, 50)}...`,
 			requestHeadersAuthorizationLength: requestHeaders.Authorization.length,
 		});
 
@@ -14155,7 +14151,7 @@ app.post('/api/pingone/mfa/user-authentication-reports', async (req, res) => {
 				statusText: response.statusText,
 				endpoint: reportsEndpoint,
 				error: errorData,
-				authHeaderSent: authHeader.substring(0, 30) + '...',
+				authHeaderSent: `${authHeader.substring(0, 30)}...`,
 				tokenLength: cleanToken.length,
 				tokenParts: cleanToken.split('.').length,
 			});
@@ -14975,7 +14971,7 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 
 		const rawText = await response.text();
 		let authData = {};
-		if (rawText && rawText.trim()) {
+		if (rawText?.trim()) {
 			try {
 				authData = JSON.parse(rawText);
 			} catch (parseError) {
@@ -17221,7 +17217,7 @@ app.post('/api/auth/passkey/options/registration', async (req, res) => {
 		let publicKeyOptions;
 		try {
 			publicKeyOptions = JSON.parse(publicKeyCredentialCreationOptions);
-		} catch (parseError) {
+		} catch (_parseError) {
 			return res.status(500).json({
 				error: 'Invalid registration options',
 				message: 'Failed to parse publicKeyCredentialCreationOptions from PingOne',

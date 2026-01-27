@@ -6,12 +6,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-	type ComplianceRules,
-	type FlowType,
-	type SpecVersion,
-	SpecVersionServiceV8,
-} from '../specVersionServiceV8';
+import { SpecVersionServiceV8 } from '../specVersionServiceV8';
 
 describe('SpecVersionServiceV8', () => {
 	beforeEach(() => {

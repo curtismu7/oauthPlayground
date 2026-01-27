@@ -10,11 +10,6 @@ import React, { useEffect, useState } from 'react';
 import CredentialsFormV8 from '@/v8/components/CredentialsFormV8';
 import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
 import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
-import {
-	DangerButton,
-	PrimaryButton,
-	SecondaryButton,
-} from '@/v8/components/shared/ActionButtonV8';
 import { useActionButton } from '@/v8/hooks/useActionButton';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -96,9 +91,9 @@ export const ImplicitFlowV8: React.FC = () => {
 	});
 
 	// Action button hooks for button state management
-	const generateUrlAction = useActionButton();
-	const handleCallbackAction = useActionButton();
-	const resetFlowAction = useActionButton();
+	const _generateUrlAction = useActionButton();
+	const _handleCallbackAction = useActionButton();
+	const _resetFlowAction = useActionButton();
 
 	useEffect(() => {
 		const result = ValidationServiceV8.validateCredentials(credentials, 'oauth');
