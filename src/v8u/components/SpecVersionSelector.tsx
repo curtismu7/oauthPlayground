@@ -18,6 +18,13 @@ export interface SpecVersionSelectorProps {
 	disabled?: boolean;
 }
 
+// User-facing labels for radio buttons (concise)
+const SPEC_VERSION_BUTTON_LABELS: Record<SpecVersion, string> = {
+	'oauth2.0': 'OAuth 2.0',
+	oidc: 'OIDC Core 1.0',
+	'oauth2.1': 'OAuth 2.1 / OIDC 2.1',
+};
+
 // User guidance for each spec version
 const SPEC_GUIDANCE: Record<
 	SpecVersion,
@@ -85,7 +92,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 		}
 	};
 
-	const specVersions: SpecVersion[] = ['oidc', 'oauth2.0', 'oauth2.1'];
+	const specVersions: SpecVersion[] = ['oauth2.0', 'oidc', 'oauth2.1'];
 	const currentGuidance = selectedGuidance ? SPEC_GUIDANCE[selectedGuidance] : null;
 
 	return (
@@ -288,7 +295,6 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 				}}
 			>
 				{specVersions.map((spec) => {
-					const label = SpecVersionServiceV8.getSpecLabel(spec);
 					const isSelected = specVersion === spec;
 
 					return (
@@ -320,7 +326,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 											: undefined
 									}
 								/>
-								<span>{label}</span>
+								<span>{SPEC_VERSION_BUTTON_LABELS[spec]}</span>
 							</label>
 							<button
 								type="button"
@@ -343,7 +349,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 								title={
 									disabled
 										? 'Specification version cannot be changed after starting the flow'
-										: `Get guidance for ${label}`
+										: `Get guidance for ${SPEC_VERSION_BUTTON_LABELS[spec]}`
 								}
 							>
 								<FiHelpCircle size={14} />
