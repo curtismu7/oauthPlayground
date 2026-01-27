@@ -11,7 +11,7 @@
  * - Educational value: Teaches cryptographic verification
  */
 
-import { decodeJwt, type JWTPayload, jwtVerify, type JWK } from 'jose';
+import { decodeJwt, type JWTPayload, jwtVerify } from 'jose';
 import { JWKSCacheServiceV8 } from './jwksCacheServiceV8';
 
 const MODULE_TAG = '[✅ ID-TOKEN-VALIDATION-V8]';
@@ -195,7 +195,8 @@ export class IDTokenValidationServiceV8 {
 					throw new Error('Invalid signing key: missing required JWK properties');
 				}
 				
-				const publicKey = await importJWK(signingKey as Record<string, unknown>);
+				// Use explicit type assertion to satisfy importJWK requirements
+				const publicKey = await importJWK(signingKey as { kty: string; [key: string]: unknown });
 				await jwtVerify(idToken, publicKey);
 				validationDetails.signatureVerified = true;
 				console.log(`${MODULE_TAG} ✅ Signature verified`);
