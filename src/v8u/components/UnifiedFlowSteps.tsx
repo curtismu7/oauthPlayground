@@ -11382,9 +11382,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						<div>
 							<strong style={{ color: '#1e40af' }}>Next Step:</strong>
 							<p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#1e3a8a' }}>
-								Click "Next Step" or "View Introspection" to proceed to Token Introspection &
-								UserInfo step. The introspection step will show you what operations are available
-								for your flow, even if introspection or UserInfo cannot be used.
+								Click "Next Step" or "{totalSteps - 1 === 4 || totalSteps - 1 === 6 ? 'View Introspection' : 'View API Documentation'}" to proceed to {totalSteps - 1 === 4 || totalSteps - 1 === 6 ? 'Token Introspection & UserInfo' : 'API Documentation'} step. {totalSteps - 1 === 4 || totalSteps - 1 === 6 ? 'The introspection step will show you what operations are available for your flow, even if introspection or UserInfo cannot be used.' : 'The API Documentation step will provide comprehensive documentation for the PingOne APIs.'}
 							</p>
 						</div>
 					</div>
@@ -13603,7 +13601,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						</button>
 						);
 					})()}
-					{/* Always show navigation to introspection step from tokens step, even if validation errors exist */}
+					{/* Always show navigation to next step from tokens step, even if validation errors exist */}
 					{currentStep === totalSteps - 2 && flowState.tokens?.accessToken && (
 						<button
 							type="button"
@@ -13617,9 +13615,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								minWidth: '120px',
 								marginLeft: '8px',
 							}}
-							title="Go to Token Introspection & UserInfo step"
+							title={
+								totalSteps - 1 === 4 || totalSteps - 1 === 6
+									? "Go to Token Introspection & UserInfo step"
+									: "Go to API Documentation step"
+							}
 						>
-							<span>View Introspection</span>
+							<span>
+								{totalSteps - 1 === 4 || totalSteps - 1 === 6
+									? 'View Introspection'
+									: 'View API Documentation'}
+							</span>
 							<FiArrowRight size={16} style={{ marginLeft: '4px' }} />
 						</button>
 					)}
