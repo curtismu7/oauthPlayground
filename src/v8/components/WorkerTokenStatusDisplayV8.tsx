@@ -38,9 +38,9 @@ import styled, { css, keyframes } from 'styled-components';
 import type {
 	UnifiedWorkerTokenData,
 	UnifiedWorkerTokenStatus,
+	UnifiedWorkerTokenCredentials,
 } from '@/services/unifiedWorkerTokenService';
-import { unifiedWorkerTokenServiceV2 } from '@/services/unifiedWorkerTokenServiceV2';
-import { workerTokenRepository } from '@/services/workerTokenRepository';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
@@ -596,12 +596,27 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 
 			// Fetch additional comprehensive data
 			try {
-				const [tokenData, statusInfo] = await Promise.all([
-					workerTokenRepository.loadTokenData(),
-					unifiedWorkerTokenServiceV2.getStatus(),
+				const [token, status] = await Promise.all([
+					unifiedWorkerTokenService.getToken(),
+					unifiedWorkerTokenService.getStatus(),
 				]);
+				
+				// Create tokenData structure from the unified service response
+				const tokenData = token ? {
+					token,
+					credentials: {
+						environmentId: '', // Not needed for display
+						clientId: '',
+						clientSecret: '',
+					} as UnifiedWorkerTokenCredentials,
+					savedAt: status.lastFetchedAt || Date.now(),
+					lastUsedAt: undefined,
+					tokenType: 'Bearer',
+					expiresIn: status.tokenExpiresIn,
+					scope: undefined,
+				} : null;
 				setFullTokenData(tokenData);
-				setTokenStatusInfo(statusInfo);
+				setTokenStatusInfo(status);
 			} catch (dataError) {
 				console.warn('[WorkerTokenStatusDisplayV8] Failed to fetch additional data:', dataError);
 				// Don't let additional data failure break the main status
