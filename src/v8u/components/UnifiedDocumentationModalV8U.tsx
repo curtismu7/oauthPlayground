@@ -12,6 +12,7 @@ import React, { useState } from 'react';
 import { FiBook, FiDownload, FiFileText, FiX } from 'react-icons/fi';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import {
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 	type DocumentationApiCall,
 	downloadAsMarkdown,
 	downloadAsPDF,
@@ -246,7 +247,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 				await downloadPDF(selectedCases);
 			}
 		} catch (error) {
-			console.error('Failed to download documentation:', error);
+			logger.error('Failed to download documentation:', error);
 			alert('Failed to download documentation. Please try again.');
 		}
 	};

@@ -8,6 +8,7 @@
 
 import React from 'react';
 import { FiCheckCircle, FiHash, FiMail, FiUser, FiX } from 'react-icons/fi';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const MODULE_TAG = '[✅ USER-INFO-SUCCESS-MODAL-V8U]';
 
@@ -69,7 +70,7 @@ const extractUserInfo = (
 				if (!result.sub) result.sub = payload.sub;
 			}
 		} catch (err) {
-			console.warn(`${MODULE_TAG} Failed to decode ID token`, err);
+			logger.warn(Failed to decode ID token`, err);
 		}
 	}
 

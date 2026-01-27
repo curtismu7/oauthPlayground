@@ -26,6 +26,7 @@
 import React, { useState } from 'react';
 import { FiArrowRight } from 'react-icons/fi';
 import { StepActionButtonsProps } from '@/v8/types/stepNavigation';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const MODULE_TAG = '[🔘 STEP-BUTTONS-V8]';
 
@@ -56,19 +57,19 @@ export const StepActionButtonsV8U: React.FC<StepActionButtonsProps> = ({
 	const canGoPrevious = currentStep > 0;
 
 	const handlePreviousClick = () => {
-		console.log(`${MODULE_TAG} Previous button clicked`, { currentStep });
+		logger.debug(Previous button clicked`, { currentStep });
 		onPrevious();
 	};
 
 	const handleNextClick = () => {
 		if (!isNextDisabled) {
-			console.log(`${MODULE_TAG} Next button clicked`, { currentStep });
+			logger.debug(Next button clicked`, { currentStep });
 			onNext();
 		}
 	};
 
 	const handleFinalClick = () => {
-		console.log(`${MODULE_TAG} Final button clicked`, { currentStep });
+		logger.debug(Final button clicked`, { currentStep });
 		if (onFinal) {
 			onFinal();
 		}

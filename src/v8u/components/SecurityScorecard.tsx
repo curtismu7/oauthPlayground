@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FiAlertTriangle, FiCheck, FiChevronDown, FiInfo, FiShield, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const ScorecardContainer = styled.div`
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -370,7 +371,7 @@ export const SecurityScorecard: React.FC<SecurityScorecardProps> = ({
 
 	// Debug: Log when props change
 	React.useEffect(() => {
-		console.log('[SecurityScorecard] Props changed:', { flowType, specVersion, credentials });
+		logger.debug('[SecurityScorecard] Props changed:', { flowType, specVersion, credentials });
 	}, [flowType, specVersion, credentials]);
 
 	const getSecurityChecks = (): SecurityCheck[] => {
@@ -510,7 +511,7 @@ export const SecurityScorecard: React.FC<SecurityScorecardProps> = ({
 		else grade = 'F';
 
 		// Debug: Log score calculation
-		console.log('[SecurityScorecard] Score calculated:', {
+		logger.debug('[SecurityScorecard] Score calculated:', {
 			flowType,
 			specVersion,
 			totalItems,

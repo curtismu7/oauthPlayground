@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 	FiAlertTriangle,
 	FiCheckCircle,
 	FiChevronDown,
@@ -452,7 +453,7 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 				toastV8.error(`Failed to update ${pendingFeature.name}: ${result.error}`);
 			}
 		} catch (error) {
-			console.error('Failed to toggle feature:', error);
+			logger.error('Failed to toggle feature:', error);
 			toastV8.error(`Failed to update ${pendingFeature.name}`);
 		} finally {
 			setIsUpdating(false);

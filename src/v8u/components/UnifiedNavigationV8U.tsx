@@ -20,6 +20,7 @@ import { ApiDisplayCheckbox } from '@/v8/components/SuperSimpleApiDisplayV8';
 import type { FlowType } from '@/v8/services/specVersionServiceV8';
 import { PKCEStorageServiceV8U } from '../services/pkceStorageServiceV8U';
 import { UnifiedDocumentationModalV8U } from './UnifiedDocumentationModalV8U';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 interface UnifiedNavigationV8UProps {
 	/** Current flow type for highlighting */
@@ -101,7 +102,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 			flowTypes.forEach((flow) => {
 				const flowKey = `${spec}-${flow}-v8u`;
 				PKCEStorageServiceV8U.clearPKCECodes(flowKey).catch((err) => {
-					console.warn(`Failed to clear PKCE codes for ${flowKey}:`, err);
+					logger.warn(`Failed to clear PKCE codes for ${flowKey}:`, err);
 				});
 			});
 		});
@@ -121,11 +122,11 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 			sessionStorage.removeItem('worker-token-cache');
 			localStorage.removeItem('worker-apps-cache');
 
-			console.log(
+			logger.debug(
 				'🔄 [UnifiedNavigationV8U] Clearing flow state: cleared ConfigChecker and pre-flight cache data'
 			);
 		} catch (error) {
-			console.warn('[UnifiedNavigationV8U] Failed to clear cache data:', error);
+			logger.warn('[UnifiedNavigationV8U] Failed to clear cache data:', error);
 		}
 	};
 

@@ -12,6 +12,7 @@ import {
 	type SpecVersion,
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const MODULE_TAG = '[🔄 FLOW-TYPE-SELECTOR-V8U]';
 
@@ -45,7 +46,7 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 		// #region agent log
 		// #endregion
 
-		console.log(`${MODULE_TAG} Flow type changed`, {
+		logger.debug('Flow type changed', {
 			specVersion,
 			from: flowType,
 			to: newFlowType,
@@ -53,9 +54,7 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 
 		// Show warnings for problematic flow types
 		if (newFlowType === 'implicit') {
-			console.warn(
-				`${MODULE_TAG} ⚠️ Implicit Flow selected - This flow is deprecated in OAuth 2.1 and has security limitations`
-			);
+			logger.warn('Implicit Flow selected - This flow is deprecated in OAuth 2.1 and has security limitations');
 		}
 
 		onChange(newFlowType);
