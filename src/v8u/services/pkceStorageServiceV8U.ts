@@ -44,12 +44,12 @@ export class PKCEStorageServiceV8U {
 			const request = indexedDB.open(PKCEStorageServiceV8U.DB_NAME, 1);
 
 			request.onerror = () => {
-				logger.error(IndexedDB error:`, request.error);
+				logger.error(`IndexedDB error:`, request.error);
 				reject(request.error);
 			};
 
 			request.onsuccess = () => {
-				logger.debug(IndexedDB opened successfully`);
+				logger.debug(`IndexedDB opened successfully`);
 				resolve(request.result);
 			};
 
@@ -57,7 +57,7 @@ export class PKCEStorageServiceV8U {
 				const db = (event.target as IDBOpenDBRequest).result;
 				if (!db.objectStoreNames.contains(PKCEStorageServiceV8U.STORE_NAME)) {
 					db.createObjectStore(PKCEStorageServiceV8U.STORE_NAME, { keyPath: 'flowKey' });
-					logger.debug(IndexedDB object store created`);
+					logger.debug(`IndexedDB object store created`);
 				}
 			};
 		});
