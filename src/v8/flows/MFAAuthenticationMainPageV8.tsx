@@ -841,45 +841,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		return () => clearTimeout(timeoutId);
 	}, [credentials.environmentId, usernameInput, tokenStatus.isValid]);
 
-	// Load devices when credentials are available
-	useEffect(() => {
-		if (credentials.environmentId && usernameInput.trim() && tokenStatus.isValid) {
-			const loadUserDevices = async () => {
-				const currentUsername = usernameInput.trim();
-				try {
-					// Clear devices first to ensure we're loading for the correct user
-					setUserDevices([]);
-					const devices = await MFAServiceV8.getAllDevices({
-						environmentId: credentials.environmentId,
-						username: currentUsername,
-					});
-					// Only set devices if username hasn't changed (prevent race condition)
-					if (usernameInput.trim() === currentUsername) {
-						setUserDevices(devices);
-					}
-				} catch (error) {
-					const errorMessage = error instanceof Error ? error.message : 'Failed to load devices';
-
-					// Check if this is a server connection error
-					const isServerError =
-						errorMessage.toLowerCase().includes('failed to connect') ||
-						errorMessage.toLowerCase().includes('server is running') ||
-						errorMessage.toLowerCase().includes('network error') ||
-						errorMessage.toLowerCase().includes('connection refused') ||
-						errorMessage.toLowerCase().includes('econnrefused');
-
-					if (isServerError) {
-						console.error(`${MODULE_TAG} Backend server is not running or unreachable`);
-						// Could show a toast here if needed
-					} else {
-						console.error(`${MODULE_TAG} Failed to load user devices:`, error);
-					}
-				}
-			};
-			void loadUserDevices();
-		}
-	}, [credentials.environmentId, usernameInput, tokenStatus.isValid]);
-
 	// Track last fetched environment to prevent duplicate calls
 	const lastFetchedPolicyEnvIdRef = useRef<string | null>(null);
 	const isFetchingPoliciesRef = useRef(false);
