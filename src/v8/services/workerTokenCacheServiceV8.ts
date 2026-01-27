@@ -9,7 +9,7 @@
  * preflight validation even when a fresh token isn't available.
  */
 
-import { unifiedWorkerTokenServiceV2 } from '../../services/unifiedWorkerTokenServiceV2';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-CACHE-V8]';
 
@@ -90,7 +90,7 @@ export class WorkerTokenCacheServiceV8 {
 		console.log(`${MODULE_TAG} Getting worker token for validation`);
 
 		// Try to get current token first
-		const currentToken = await unifiedWorkerTokenServiceV2.getToken();
+		const currentToken = await unifiedWorkerTokenService.getToken();
 		if (currentToken) {
 			console.log(`${MODULE_TAG} ✅ Using current worker token`);
 			return {
@@ -132,7 +132,7 @@ export class WorkerTokenCacheServiceV8 {
 	): Promise<void> {
 		console.log(`${MODULE_TAG} Updating cache after token generation`);
 
-		const token = await unifiedWorkerTokenServiceV2.getToken();
+		const token = await unifiedWorkerTokenService.getToken();
 		if (token) {
 			await this.cacheWorkerToken(token, environmentId, clientId, scopes);
 		} else {
