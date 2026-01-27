@@ -177,17 +177,17 @@ export const CollapsibleSectionV8: React.FC<CollapsibleSectionProps> = ({
 						justifyContent: 'center',
 						width: '32px',
 						height: '32px',
-						backgroundColor: '#3b82f6',
+						backgroundColor: 'transparent',
 						borderRadius: '6px',
-						border: '1px solid #2563eb',
+						border: '2px solid #3b82f6',
 						transition: 'all 0.2s ease',
 					}}
 					onMouseEnter={(e) => {
-						e.currentTarget.style.backgroundColor = '#2563eb';
+						e.currentTarget.style.borderColor = '#2563eb';
 						e.currentTarget.style.transform = 'scale(1.05)';
 					}}
 					onMouseLeave={(e) => {
-						e.currentTarget.style.backgroundColor = '#3b82f6';
+						e.currentTarget.style.borderColor = '#3b82f6';
 						e.currentTarget.style.transform = 'scale(1)';
 					}}
 				>
@@ -204,7 +204,7 @@ export const CollapsibleSectionV8: React.FC<CollapsibleSectionProps> = ({
 					>
 						<path
 							d="M5 7.5L10 12.5L15 7.5"
-							stroke="#ffffff"
+							stroke="#3b82f6"
 							strokeWidth="2"
 							strokeLinecap="round"
 							strokeLinejoin="round"
