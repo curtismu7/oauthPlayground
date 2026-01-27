@@ -6374,10 +6374,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 						onClose={() => setShowScopesEducationModal(false)}
 						context={providedFlowType === 'client-credentials' ? 'client-credentials' : 'general'}
 					/>
-				</>
-			)}
+		</div>
 
-			<style>{`
+		<style>{`
 				.credentials-form-v8 {
 					width: 100%;
 					border: 1px solid #cbd5e1;
