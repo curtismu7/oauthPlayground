@@ -95,10 +95,17 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			if (globalEnvId) {
 				return globalEnvId;
 			}
-			// Auto-populate from worker token credentials
-			const credentials = unifiedWorkerTokenService.loadCredentials();
-			if (credentials?.environmentId) {
-				return credentials.environmentId;
+			// Try synchronous check from localStorage for worker token credentials
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId) {
+						return data.credentials.environmentId;
+					}
+				}
+			} catch (syncError) {
+				console.log(`${MODULE_TAG} Sync worker token check failed:`, syncError);
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load saved environment ID`, error);
