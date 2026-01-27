@@ -496,7 +496,9 @@ const PingOneApiTest: React.FC = () => {
 
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}));
-				throw new Error(`Token exchange failed: ${response.status} - ${errorData.error_description || errorData.error || 'Unknown error'}`);
+				throw new Error(
+					`Token exchange failed: ${response.status} - ${errorData.error_description || errorData.error || 'Unknown error'}`
+				);
 			}
 
 			const tokenData = await response.json();
@@ -557,7 +559,9 @@ const PingOneApiTest: React.FC = () => {
 			const duration = Date.now() - startTime;
 
 			// This will likely fail with a real test, but that's expected
-			const responseData = await response.json().catch(() => ({ error: 'Response parsing failed' }));
+			const responseData = await response
+				.json()
+				.catch(() => ({ error: 'Response parsing failed' }));
 
 			addResult({
 				testName: 'User Info Endpoint',
@@ -614,7 +618,9 @@ const PingOneApiTest: React.FC = () => {
 
 			const duration = Date.now() - startTime;
 
-			const responseData = await response.json().catch(() => ({ error: 'Response parsing failed' }));
+			const responseData = await response
+				.json()
+				.catch(() => ({ error: 'Response parsing failed' }));
 
 			addResult({
 				testName: 'Token Introspection',
@@ -665,7 +671,9 @@ const PingOneApiTest: React.FC = () => {
 
 			const duration = Date.now() - startTime;
 
-			const responseData = await response.json().catch(() => ({ error: 'Response parsing failed' }));
+			const responseData = await response
+				.json()
+				.catch(() => ({ error: 'Response parsing failed' }));
 
 			addResult({
 				testName: 'JWKS Endpoint',
@@ -722,7 +730,13 @@ const PingOneApiTest: React.FC = () => {
 		} finally {
 			setIsRunning(false);
 		}
-	}, [testAuthUrlGeneration, testTokenExchange, testUserInfoEndpoint, testTokenIntrospection, testJwksEndpoint]);
+	}, [
+		testAuthUrlGeneration,
+		testTokenExchange,
+		testUserInfoEndpoint,
+		testTokenIntrospection,
+		testJwksEndpoint,
+	]);
 
 	return (
 		<Container>

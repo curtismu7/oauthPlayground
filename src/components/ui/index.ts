@@ -1,4 +1,5 @@
 // Export all UI components
-export { Spinner, SmallSpinner, MediumSpinner, LargeSpinner, FullSpinner } from './Spinner';
+
 export { ButtonSpinner } from './ButtonSpinner';
 export { LoadingOverlay } from './LoadingOverlay';
+export { FullSpinner, LargeSpinner, MediumSpinner, SmallSpinner, Spinner } from './Spinner';

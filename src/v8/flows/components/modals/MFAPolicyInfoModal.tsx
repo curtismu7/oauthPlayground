@@ -112,16 +112,16 @@ export const MFAPolicyInfoModal: React.FC<MFAPolicyInfoModalProps> = ({ show, on
 							display all devices).
 						</li>
 						<li style={{ marginBottom: '8px' }}>
-							<strong>Allowed Device Types:</strong> Specifies which device types (SMS, EMAIL, FIDO2,
-							TOTP, etc.) can be used for authentication and registration.
+							<strong>Allowed Device Types:</strong> Specifies which device types (SMS, EMAIL,
+							FIDO2, TOTP, etc.) can be used for authentication and registration.
 						</li>
 						<li style={{ marginBottom: '8px' }}>
 							<strong>Authentication Requirements:</strong> Defines which device types are required,
 							optional, or excluded from the authentication flow.
 						</li>
 						<li style={{ marginBottom: '8px' }}>
-							<strong>Challenge Configuration:</strong> Sets up OTP requirements, challenge timeouts,
-							retry limits, and other security parameters.
+							<strong>Challenge Configuration:</strong> Sets up OTP requirements, challenge
+							timeouts, retry limits, and other security parameters.
 						</li>
 					</ul>
 
@@ -141,14 +141,15 @@ export const MFAPolicyInfoModal: React.FC<MFAPolicyInfoModalProps> = ({ show, on
 							<strong>both authentication and device registration</strong> flows.
 						</li>
 						<li style={{ marginBottom: '8px' }}>
-							The policy determines which device types users can register and use for authentication.
+							The policy determines which device types users can register and use for
+							authentication.
 						</li>
 						<li style={{ marginBottom: '8px' }}>
 							During authentication, the policy controls how devices are presented and selected.
 						</li>
 						<li style={{ marginBottom: '8px' }}>
-							The policy enforces security requirements like OTP length, challenge timeouts, and retry
-							limits.
+							The policy enforces security requirements like OTP length, challenge timeouts, and
+							retry limits.
 						</li>
 					</ol>
 
@@ -163,9 +164,9 @@ export const MFAPolicyInfoModal: React.FC<MFAPolicyInfoModalProps> = ({ show, on
 						}}
 					>
 						<p style={{ margin: 0, fontSize: '14px', color: '#1e40af' }}>
-							<strong>💡 Tip:</strong> The policy you select here will be used for all authentication
-							attempts and device registrations. Make sure the policy allows the device types you want
-							to test.
+							<strong>💡 Tip:</strong> The policy you select here will be used for all
+							authentication attempts and device registrations. Make sure the policy allows the
+							device types you want to test.
 						</p>
 					</div>
 

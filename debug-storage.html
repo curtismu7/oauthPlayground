@@ -108,14 +108,14 @@
             // Check IndexedDB
             if (window.indexedDB) {
                 const request = indexedDB.open('oauth_playground_unified', 1);
-                request.onsuccess = function(event) {
+                request.onsuccess = (event) => {
                     const db = event.target.result;
                     if (db.objectStoreNames.contains('unified_worker_tokens')) {
                         const transaction = db.transaction(['unified_worker_tokens'], 'readonly');
                         const store = transaction.objectStore('unified_worker_tokens');
                         const getRequest = store.get('unified_worker_token');
                         
-                        getRequest.onsuccess = function() {
+                        getRequest.onsuccess = () => {
                             const data = getRequest.result;
                             if (data) {
                                 result += 'Found IndexedDB backup:\n';
@@ -130,7 +130,7 @@
                             output.textContent = result;
                         };
                         
-                        getRequest.onerror = function() {
+                        getRequest.onerror = () => {
                             result += `Error reading IndexedDB: ${getRequest.error?.message}\n`;
                             output.textContent = result;
                         };
@@ -140,7 +140,7 @@
                     }
                 };
                 
-                request.onerror = function() {
+                request.onerror = () => {
                     result += `Error opening IndexedDB: ${request.error?.message}\n`;
                     output.textContent = result;
                 };

@@ -14,9 +14,9 @@ import { CreatePolicyModalV8 } from '@/v8/components/CreatePolicyModalV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
+import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import {
 	type MFAConfiguration,
@@ -100,7 +100,6 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		};
 	}, []);
 
-
 	// Define loadPingOneSettings before useEffect that uses it
 	const loadPingOneSettings = useCallback(async (envId: string) => {
 		setIsLoadingPingOneSettings(true);
@@ -119,23 +118,26 @@ export const MFAConfigurationPageV8: React.FC = () => {
 	}, []);
 
 	// Load device authentication policies
-	const loadDeviceAuthPolicies = useCallback(async (envId: string) => {
-		setIsLoadingPolicies(true);
-		try {
-			const policies = await MFAServiceV8.listDeviceAuthenticationPolicies(envId);
-			setDeviceAuthPolicies(policies);
-			if (policies.length > 0 && !selectedPolicyId) {
-				setSelectedPolicyId(policies[0].id);
+	const loadDeviceAuthPolicies = useCallback(
+		async (envId: string) => {
+			setIsLoadingPolicies(true);
+			try {
+				const policies = await MFAServiceV8.listDeviceAuthenticationPolicies(envId);
+				setDeviceAuthPolicies(policies);
+				if (policies.length > 0 && !selectedPolicyId) {
+					setSelectedPolicyId(policies[0].id);
+				}
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to load device authentication policies:`, error);
+				toastV8.error(
+					'Failed to load device authentication policies. Please ensure you have a valid worker token.'
+				);
+			} finally {
+				setIsLoadingPolicies(false);
 			}
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load device authentication policies:`, error);
-			toastV8.error(
-				'Failed to load device authentication policies. Please ensure you have a valid worker token.'
-			);
-		} finally {
-			setIsLoadingPolicies(false);
-		}
-	}, [selectedPolicyId]);
+		},
+		[selectedPolicyId]
+	);
 
 	// Load selected policy details
 	const loadSelectedPolicy = useCallback(async (envId: string, policyId: string) => {
@@ -165,7 +167,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				const credentials = await workerTokenServiceV8.loadCredentials();
 				if (credentials?.environmentId) {
 					setEnvironmentId(credentials.environmentId);
-					
+
 					// Only try to load PingOne settings if worker token is available
 					// This prevents error spam when worker token hasn't been configured yet
 					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
@@ -175,7 +177,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					} else {
 						// Silently skip loading settings if no worker token is available
 						// User can configure worker token and settings will load automatically
-						console.log(`${MODULE_TAG} Skipping PingOne MFA settings load - worker token not available`);
+						console.log(
+							`${MODULE_TAG} Skipping PingOne MFA settings load - worker token not available`
+						);
 					}
 				}
 			} catch (error) {
@@ -219,7 +223,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			const credentials = await workerTokenServiceV8.loadCredentials();
 			const region = (credentials?.region as 'us' | 'eu' | 'ap' | 'ca' | 'na') || 'us';
 
-			// PingOne requires ALL device type configurations (email, totp, mobile, name, voice, sms, whatsapp, fido2) 
+			// PingOne requires ALL device type configurations (email, totp, mobile, name, voice, sms, whatsapp, fido2)
 			// to be present when updating a policy, even if they're empty objects.
 			// We must include ALL fields from the complete policy JSON structure.
 			// Start with a deep copy of the entire policy to preserve all fields.
@@ -232,7 +236,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				sms: selectedPolicy.sms || {},
 				whatsapp: selectedPolicy.whatsapp || {},
 				fido2: selectedPolicy.fido2 || {},
-				
+
 				// Include OTP failure settings
 				otp: {
 					failure: {
@@ -256,7 +260,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				},
 
 				// Include any other fields from the policy (description, status, etc.)
-				...(selectedPolicy.description !== undefined && { description: selectedPolicy.description }),
+				...(selectedPolicy.description !== undefined && {
+					description: selectedPolicy.description,
+				}),
 				...(selectedPolicy.status !== undefined && { status: selectedPolicy.status }),
 			};
 
@@ -638,7 +644,6 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				</p>
 			</div>
 
-
 			{/* OTP Failure Cooldown Section */}
 			{selectedPolicy && (
 				<div
@@ -781,7 +786,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 						}}
 					>
 						Method Selection
-						<MFAInfoButtonV8 contentKey="policy.authentication.deviceSelection" displayMode="tooltip" />
+						<MFAInfoButtonV8
+							contentKey="policy.authentication.deviceSelection"
+							displayMode="tooltip"
+						/>
 					</h4>
 					<select
 						value={selectedPolicy.authentication?.deviceSelection || 'USER_CHOICE'}
@@ -854,7 +862,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 							label={
 								<>
 									Prompt for Nickname on Pairing
-									<MFAInfoButtonV8 contentKey="policy.promptForNicknameOnPairing" displayMode="tooltip" />
+									<MFAInfoButtonV8
+										contentKey="policy.promptForNicknameOnPairing"
+										displayMode="tooltip"
+									/>
 								</>
 							}
 							value={selectedPolicy.promptForNicknameOnPairing ?? false}
@@ -871,7 +882,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 							label={
 								<>
 									Skip User Lock Verification
-									<MFAInfoButtonV8 contentKey="policy.skipUserLockVerification" displayMode="tooltip" />
+									<MFAInfoButtonV8
+										contentKey="policy.skipUserLockVerification"
+										displayMode="tooltip"
+									/>
 								</>
 							}
 							value={selectedPolicy.skipUserLockVerification ?? false}
@@ -906,133 +920,86 @@ export const MFAConfigurationPageV8: React.FC = () => {
 						<MFAInfoButtonV8 contentKey="policy.deviceType.configuration" displayMode="tooltip" />
 					</h4>
 
+					<p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#6b7280' }}>
+						Configure settings for each device type. Each section can be expanded to view and edit
+						device-specific options.
+					</p>
 
-				<p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#6b7280' }}>
+					{/* Device Types: Email, TOTP, Mobile, SMS, Voice, FIDO2, WhatsApp */}
 
+					{['EMAIL', 'TOTP', 'MOBILE', 'SMS', 'VOICE', 'FIDO2', 'WHATSAPP'].map((deviceType) => {
+						const deviceKey = deviceType.toLowerCase() as keyof DeviceAuthenticationPolicy;
 
-					Configure settings for each device type. Each section can be expanded to view and edit device-specific options.
+						const deviceConfig = selectedPolicy[deviceKey] as Record<string, unknown> | undefined;
 
+						// Track expansion state using details element (no useState needed)
 
-				</p>
-
-
-			
-
-
-				{/* Device Types: Email, TOTP, Mobile, SMS, Voice, FIDO2, WhatsApp */}
-
-
-				{['EMAIL', 'TOTP', 'MOBILE', 'SMS', 'VOICE', 'FIDO2', 'WHATSAPP'].map((deviceType) => {
-
-
-					const deviceKey = deviceType.toLowerCase() as keyof DeviceAuthenticationPolicy;
-
-
-					const deviceConfig = selectedPolicy[deviceKey] as Record<string, unknown> | undefined;
-
-
-					// Track expansion state using details element (no useState needed)
-
-
-			
-
-
-					return (
-
-
-						<details
-
-
-							key={deviceType}
-
-
-							open={false}
-
-
-							
-
-
-							style={{
-								marginBottom: '12px',
-								padding: '12px',
-								background: '#f9fafb',
-								borderRadius: '8px',
-								border: '1px solid #e5e7eb',
-							}}
-
-
-						>
-
-
-							<summary
-
-
+						return (
+							<details
+								key={deviceType}
+								open={false}
 								style={{
-									cursor: 'pointer',
-									fontWeight: '600',
-									fontSize: '14px',
-									color: '#374151',
-									listStyle: 'none',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'space-between',
+									marginBottom: '12px',
+									padding: '12px',
+									background: '#f9fafb',
+									borderRadius: '8px',
+									border: '1px solid #e5e7eb',
 								}}
-
-
 							>
+								<summary
+									style={{
+										cursor: 'pointer',
+										fontWeight: '600',
+										fontSize: '14px',
+										color: '#374151',
+										listStyle: 'none',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+									}}
+								>
+									<span>{deviceType} Settings</span>
 
+									<span style={{ fontSize: '12px', color: '#6b7280' }}>▶</span>
+								</summary>
 
-								<span>{deviceType} Settings</span>
+								<div
+									style={{
+										marginTop: '12px',
+										padding: '12px',
+										background: 'white',
+										borderRadius: '6px',
+									}}
+								>
+									<p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#6b7280' }}>
+										{deviceType} device configuration options. These settings are part of the policy
+										and will be saved to PingOne.
+									</p>
 
+									{/* Placeholder for device-specific settings */}
 
-								<span style={{ fontSize: '12px', color: '#6b7280' }}>
-									▶
-								</span>
-
-
-							</summary>
-
-
-							<div style={{ marginTop: '12px', padding: '12px', background: 'white', borderRadius: '6px' }}>
-
-
-								<p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#6b7280' }}>
-
-
-									{deviceType} device configuration options. These settings are part of the policy and will be saved to PingOne.
-
-
-								</p>
-
-
-								{/* Placeholder for device-specific settings */}
-
-
-								<div style={{ padding: '8px', background: '#f3f4f6', borderRadius: '4px', fontSize: '12px', color: '#6b7280' }}>
-
-
-									Device-specific settings for {deviceType} will be displayed here.
-
-
-									<br />
-
-
-									<small>Policy currently has: {deviceConfig ? JSON.stringify(deviceConfig, null, 2) : 'No specific settings'}</small>
-
-
+									<div
+										style={{
+											padding: '8px',
+											background: '#f3f4f6',
+											borderRadius: '4px',
+											fontSize: '12px',
+											color: '#6b7280',
+										}}
+									>
+										Device-specific settings for {deviceType} will be displayed here.
+										<br />
+										<small>
+											Policy currently has:{' '}
+											{deviceConfig
+												? JSON.stringify(deviceConfig, null, 2)
+												: 'No specific settings'}
+										</small>
+									</div>
 								</div>
-
-
-							</div>
-
-
-						</details>
-
-
-					);
-
-
-				})}
+							</details>
+						);
+					})}
 
 					{/* Action Buttons - Multiple Save Options */}
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '24px' }}>
@@ -1146,603 +1113,597 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					title="PingOne MFA Settings"
 					description="Environment-level MFA settings from PingOne API. These settings apply to all MFA policies in your environment. Changes are saved directly to your PingOne environment."
 				>
-						{isLoadingPingOneSettings ? (
-							<div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
-								Loading PingOne MFA settings...
+					{isLoadingPingOneSettings ? (
+						<div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
+							Loading PingOne MFA settings...
+						</div>
+					) : pingOneSettings ? (
+						<>
+							<div
+								style={{
+									marginBottom: '20px',
+									padding: '12px',
+									background: '#eff6ff',
+									borderRadius: '8px',
+									border: '1px solid #bfdbfe',
+								}}
+							>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '8px',
+										marginBottom: '8px',
+									}}
+								>
+									<FiInfo size={16} color="#3b82f6" />
+									<span style={{ fontSize: '14px', fontWeight: '600', color: '#1e40af' }}>
+										About PingOne MFA Settings
+									</span>
+								</div>
+								<div style={{ margin: 0, fontSize: '13px', color: '#1e40af', lineHeight: '1.5' }}>
+									These are environment-level settings that control MFA behavior across all
+									policies. For policy-specific settings (like pairing and lockout), configure them
+									in Device Authentication Policies.
+									<MFAInfoButtonV8 contentKey="mfa.settings" displayMode="tooltip" />
+								</div>
 							</div>
-						) : pingOneSettings ? (
-							<>
+
+							{/* Pairing Settings */}
+							{pingOneSettings.pairing && (
 								<div
 									style={{
 										marginBottom: '20px',
-										padding: '12px',
-										background: '#eff6ff',
-										borderRadius: '8px',
-										border: '1px solid #bfdbfe',
+										paddingBottom: '20px',
+										borderBottom: '1px solid #e5e7eb',
 									}}
 								>
-									<div
+									<h4
 										style={{
-											display: 'flex',
-											alignItems: 'center',
-											gap: '8px',
-											marginBottom: '8px',
-										}}
-									>
-										<FiInfo size={16} color="#3b82f6" />
-										<span style={{ fontSize: '14px', fontWeight: '600', color: '#1e40af' }}>
-											About PingOne MFA Settings
-										</span>
-									</div>
-									<div style={{ margin: 0, fontSize: '13px', color: '#1e40af', lineHeight: '1.5' }}>
-										These are environment-level settings that control MFA behavior across all
-										policies. For policy-specific settings (like pairing and lockout), configure
-										them in Device Authentication Policies.
-										<MFAInfoButtonV8 contentKey="mfa.settings" displayMode="tooltip" />
-									</div>
-								</div>
-
-								{/* Pairing Settings */}
-								{pingOneSettings.pairing && (
-									<div
-										style={{
-											marginBottom: '20px',
-											paddingBottom: '20px',
-											borderBottom: '1px solid #e5e7eb',
-										}}
-									>
-										<h4
-											style={{
-												margin: '0 0 12px 0',
-												fontSize: '16px',
-												fontWeight: '600',
-												color: '#374151',
-											}}
-										>
-											Pairing Settings
-										</h4>
-										{pingOneSettings.pairing.maxAllowedDevices !== undefined && (
-											<NumberSetting
-												label="Max Allowed Devices"
-												value={pingOneSettings.pairing.maxAllowedDevices}
-												onChange={(value) => {
-													setPingOneSettings({
-														...pingOneSettings,
-														pairing: { ...pingOneSettings.pairing, maxAllowedDevices: value },
-													});
-													setHasPingOneSettingsChanges(true);
-												}}
-												min={1}
-												max={100}
-												description="Maximum number of MFA devices a user can register"
-											/>
-										)}
-										{pingOneSettings.pairing.pairingKeyFormat && (
-											<SelectSetting
-												label="Pairing Key Format"
-												value={pingOneSettings.pairing.pairingKeyFormat}
-												onChange={(value) => {
-													setPingOneSettings({
-														...pingOneSettings,
-														pairing: {
-															...pingOneSettings.pairing,
-															pairingKeyFormat: value as string,
-														},
-													});
-													setHasPingOneSettingsChanges(true);
-												}}
-												options={[
-													{ value: 'NUMERIC', label: 'Numeric (User Code)' },
-													{ value: 'QR_CODE', label: 'QR Code' },
-													{ value: 'ALPHANUMERIC', label: 'Alphanumeric' },
-												]}
-												description="Format for device pairing keys"
-											/>
-										)}
-										{pingOneSettings.pairing.pairingKeyLength !== undefined && (
-											<NumberSetting
-												label="Pairing Key Length"
-												value={pingOneSettings.pairing.pairingKeyLength}
-												onChange={(value) => {
-													setPingOneSettings({
-														...pingOneSettings,
-														pairing: { ...pingOneSettings.pairing, pairingKeyLength: value },
-													});
-													setHasPingOneSettingsChanges(true);
-												}}
-												min={4}
-												max={32}
-												description="Length of pairing keys"
-											/>
-										)}
-										{pingOneSettings.pairing.pairingTimeoutMinutes !== undefined && (
-											<NumberSetting
-												label="Pairing Timeout (Minutes)"
-												value={pingOneSettings.pairing.pairingTimeoutMinutes}
-												onChange={(value) => {
-													setPingOneSettings({
-														...pingOneSettings,
-														pairing: { ...pingOneSettings.pairing, pairingTimeoutMinutes: value },
-													});
-													setHasPingOneSettingsChanges(true);
-												}}
-												min={1}
-												max={60}
-												description="Timeout for device pairing process"
-											/>
-										)}
-									</div>
-								)}
-
-								{/* Lockout Settings */}
-								{pingOneSettings.lockout && (
-									<div
-										style={{
-											marginBottom: '20px',
-											paddingBottom: '20px',
-											borderBottom: '1px solid #e5e7eb',
-										}}
-									>
-										<h4
-											style={{
-												margin: '0 0 12px 0',
-												fontSize: '16px',
-												fontWeight: '600',
-												color: '#374151',
-											}}
-										>
-											Lockout Settings
-										</h4>
-										{pingOneSettings.lockout.failureCount !== undefined && (
-											<NumberSetting
-												label="Failure Count"
-												value={pingOneSettings.lockout.failureCount}
-												onChange={(value) => {
-													setPingOneSettings({
-														...pingOneSettings,
-														lockout: { ...pingOneSettings.lockout, failureCount: value },
-													});
-													setHasPingOneSettingsChanges(true);
-												}}
-												min={1}
-												max={20}
-												description="Number of failed attempts before lockout"
-											/>
-										)}
-										{pingOneSettings.lockout.durationSeconds !== undefined && (
-											<NumberSetting
-												label="Lockout Duration (Seconds)"
-												value={pingOneSettings.lockout.durationSeconds}
-												onChange={(value) => {
-													setPingOneSettings({
-														...pingOneSettings,
-														lockout: { ...pingOneSettings.lockout, durationSeconds: value },
-													});
-													setHasPingOneSettingsChanges(true);
-												}}
-												min={60}
-												max={86400}
-												description="Duration of lockout after failed attempts"
-											/>
-										)}
-										{pingOneSettings.lockout.progressiveLockoutEnabled !== undefined && (
-											<ToggleSetting
-												label="Progressive Lockout"
-												value={pingOneSettings.lockout.progressiveLockoutEnabled}
-												onChange={(value) => {
-													setPingOneSettings({
-														...pingOneSettings,
-														lockout: {
-															...pingOneSettings.lockout,
-															progressiveLockoutEnabled: value,
-														},
-													});
-													setHasPingOneSettingsChanges(true);
-												}}
-												description="Enable progressive lockout (increasing duration with each failure)"
-											/>
-										)}
-									</div>
-								)}
-
-								{/* OTP Settings */}
-								{pingOneSettings.otp && (
-									<div style={{ marginBottom: '20px' }}>
-										<h4
-											style={{
-												margin: '0 0 12px 0',
-												fontSize: '16px',
-												fontWeight: '600',
-												color: '#374151',
-											}}
-										>
-											OTP Settings
-										</h4>
-										{pingOneSettings.otp.otpLength !== undefined && (
-											<NumberSetting
-												label="OTP Length"
-												value={pingOneSettings.otp.otpLength}
-												onChange={(value) => {
-													setPingOneSettings({
-														...pingOneSettings,
-														otp: { ...pingOneSettings.otp, otpLength: value },
-													});
-													setHasPingOneSettingsChanges(true);
-												}}
-												min={4}
-												max={8}
-												description="Length of OTP codes"
-											/>
-										)}
-										{pingOneSettings.otp.otpValiditySeconds !== undefined && (
-											<NumberSetting
-												label="OTP Validity (Seconds)"
-												value={pingOneSettings.otp.otpValiditySeconds}
-												onChange={(value) => {
-													setPingOneSettings({
-														...pingOneSettings,
-														otp: { ...pingOneSettings.otp, otpValiditySeconds: value },
-													});
-													setHasPingOneSettingsChanges(true);
-												}}
-												min={60}
-												max={600}
-												description="How long OTP codes remain valid"
-											/>
-										)}
-									</div>
-								)}
-
-								{/* Action Buttons */}
-								<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-									<button
-										type="button"
-										onClick={handleSavePingOneSettings}
-										disabled={!hasPingOneSettingsChanges || isSavingPingOneSettings}
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											gap: '8px',
-											padding: '10px 20px',
-											background: hasPingOneSettingsChanges ? '#10b981' : '#9ca3af',
-											color: 'white',
-											border: 'none',
-											borderRadius: '8px',
-											fontSize: '14px',
+											margin: '0 0 12px 0',
+											fontSize: '16px',
 											fontWeight: '600',
-											cursor: hasPingOneSettingsChanges ? 'pointer' : 'not-allowed',
+											color: '#374151',
 										}}
 									>
-										<FiCheck size={16} />
-										{isSavingPingOneSettings ? 'Saving...' : 'Save PingOne Settings'}
-									</button>
-									<button
-										type="button"
-										onClick={handleResetPingOneSettings}
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											gap: '8px',
-											padding: '10px 20px',
-											background: 'white',
-											color: '#dc2626',
-											border: '1px solid #dc2626',
-											borderRadius: '8px',
-											fontSize: '14px',
-											fontWeight: '600',
-											cursor: 'pointer',
-										}}
-									>
-										<FiRefreshCw size={16} />
-										Reset to Defaults
-									</button>
+										Pairing Settings
+									</h4>
+									{pingOneSettings.pairing.maxAllowedDevices !== undefined && (
+										<NumberSetting
+											label="Max Allowed Devices"
+											value={pingOneSettings.pairing.maxAllowedDevices}
+											onChange={(value) => {
+												setPingOneSettings({
+													...pingOneSettings,
+													pairing: { ...pingOneSettings.pairing, maxAllowedDevices: value },
+												});
+												setHasPingOneSettingsChanges(true);
+											}}
+											min={1}
+											max={100}
+											description="Maximum number of MFA devices a user can register"
+										/>
+									)}
+									{pingOneSettings.pairing.pairingKeyFormat && (
+										<SelectSetting
+											label="Pairing Key Format"
+											value={pingOneSettings.pairing.pairingKeyFormat}
+											onChange={(value) => {
+												setPingOneSettings({
+													...pingOneSettings,
+													pairing: {
+														...pingOneSettings.pairing,
+														pairingKeyFormat: value as string,
+													},
+												});
+												setHasPingOneSettingsChanges(true);
+											}}
+											options={[
+												{ value: 'NUMERIC', label: 'Numeric (User Code)' },
+												{ value: 'QR_CODE', label: 'QR Code' },
+												{ value: 'ALPHANUMERIC', label: 'Alphanumeric' },
+											]}
+											description="Format for device pairing keys"
+										/>
+									)}
+									{pingOneSettings.pairing.pairingKeyLength !== undefined && (
+										<NumberSetting
+											label="Pairing Key Length"
+											value={pingOneSettings.pairing.pairingKeyLength}
+											onChange={(value) => {
+												setPingOneSettings({
+													...pingOneSettings,
+													pairing: { ...pingOneSettings.pairing, pairingKeyLength: value },
+												});
+												setHasPingOneSettingsChanges(true);
+											}}
+											min={4}
+											max={32}
+											description="Length of pairing keys"
+										/>
+									)}
+									{pingOneSettings.pairing.pairingTimeoutMinutes !== undefined && (
+										<NumberSetting
+											label="Pairing Timeout (Minutes)"
+											value={pingOneSettings.pairing.pairingTimeoutMinutes}
+											onChange={(value) => {
+												setPingOneSettings({
+													...pingOneSettings,
+													pairing: { ...pingOneSettings.pairing, pairingTimeoutMinutes: value },
+												});
+												setHasPingOneSettingsChanges(true);
+											}}
+											min={1}
+											max={60}
+											description="Timeout for device pairing process"
+										/>
+									)}
 								</div>
-							</>
-						) : (
-							<div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
-								No PingOne MFA settings available. Please ensure you have a valid worker token and
-								environment ID.
+							)}
+
+							{/* Lockout Settings */}
+							{pingOneSettings.lockout && (
+								<div
+									style={{
+										marginBottom: '20px',
+										paddingBottom: '20px',
+										borderBottom: '1px solid #e5e7eb',
+									}}
+								>
+									<h4
+										style={{
+											margin: '0 0 12px 0',
+											fontSize: '16px',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
+										Lockout Settings
+									</h4>
+									{pingOneSettings.lockout.failureCount !== undefined && (
+										<NumberSetting
+											label="Failure Count"
+											value={pingOneSettings.lockout.failureCount}
+											onChange={(value) => {
+												setPingOneSettings({
+													...pingOneSettings,
+													lockout: { ...pingOneSettings.lockout, failureCount: value },
+												});
+												setHasPingOneSettingsChanges(true);
+											}}
+											min={1}
+											max={20}
+											description="Number of failed attempts before lockout"
+										/>
+									)}
+									{pingOneSettings.lockout.durationSeconds !== undefined && (
+										<NumberSetting
+											label="Lockout Duration (Seconds)"
+											value={pingOneSettings.lockout.durationSeconds}
+											onChange={(value) => {
+												setPingOneSettings({
+													...pingOneSettings,
+													lockout: { ...pingOneSettings.lockout, durationSeconds: value },
+												});
+												setHasPingOneSettingsChanges(true);
+											}}
+											min={60}
+											max={86400}
+											description="Duration of lockout after failed attempts"
+										/>
+									)}
+									{pingOneSettings.lockout.progressiveLockoutEnabled !== undefined && (
+										<ToggleSetting
+											label="Progressive Lockout"
+											value={pingOneSettings.lockout.progressiveLockoutEnabled}
+											onChange={(value) => {
+												setPingOneSettings({
+													...pingOneSettings,
+													lockout: {
+														...pingOneSettings.lockout,
+														progressiveLockoutEnabled: value,
+													},
+												});
+												setHasPingOneSettingsChanges(true);
+											}}
+											description="Enable progressive lockout (increasing duration with each failure)"
+										/>
+									)}
+								</div>
+							)}
+
+							{/* OTP Settings */}
+							{pingOneSettings.otp && (
+								<div style={{ marginBottom: '20px' }}>
+									<h4
+										style={{
+											margin: '0 0 12px 0',
+											fontSize: '16px',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
+										OTP Settings
+									</h4>
+									{pingOneSettings.otp.otpLength !== undefined && (
+										<NumberSetting
+											label="OTP Length"
+											value={pingOneSettings.otp.otpLength}
+											onChange={(value) => {
+												setPingOneSettings({
+													...pingOneSettings,
+													otp: { ...pingOneSettings.otp, otpLength: value },
+												});
+												setHasPingOneSettingsChanges(true);
+											}}
+											min={4}
+											max={8}
+											description="Length of OTP codes"
+										/>
+									)}
+									{pingOneSettings.otp.otpValiditySeconds !== undefined && (
+										<NumberSetting
+											label="OTP Validity (Seconds)"
+											value={pingOneSettings.otp.otpValiditySeconds}
+											onChange={(value) => {
+												setPingOneSettings({
+													...pingOneSettings,
+													otp: { ...pingOneSettings.otp, otpValiditySeconds: value },
+												});
+												setHasPingOneSettingsChanges(true);
+											}}
+											min={60}
+											max={600}
+											description="How long OTP codes remain valid"
+										/>
+									)}
+								</div>
+							)}
+
+							{/* Action Buttons */}
+							<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+								<button
+									type="button"
+									onClick={handleSavePingOneSettings}
+									disabled={!hasPingOneSettingsChanges || isSavingPingOneSettings}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '8px',
+										padding: '10px 20px',
+										background: hasPingOneSettingsChanges ? '#10b981' : '#9ca3af',
+										color: 'white',
+										border: 'none',
+										borderRadius: '8px',
+										fontSize: '14px',
+										fontWeight: '600',
+										cursor: hasPingOneSettingsChanges ? 'pointer' : 'not-allowed',
+									}}
+								>
+									<FiCheck size={16} />
+									{isSavingPingOneSettings ? 'Saving...' : 'Save PingOne Settings'}
+								</button>
+								<button
+									type="button"
+									onClick={handleResetPingOneSettings}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '8px',
+										padding: '10px 20px',
+										background: 'white',
+										color: '#dc2626',
+										border: '1px solid #dc2626',
+										borderRadius: '8px',
+										fontSize: '14px',
+										fontWeight: '600',
+										cursor: 'pointer',
+									}}
+								>
+									<FiRefreshCw size={16} />
+									Reset to Defaults
+								</button>
 							</div>
-						)}
+						</>
+					) : (
+						<div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
+							No PingOne MFA settings available. Please ensure you have a valid worker token and
+							environment ID.
+						</div>
+					)}
 				</ConfigSection>
 			)}
 
 			{/* Default Policies */}
 			<ConfigSection
-					title="Default Policies"
-					description="Set default policies for authentication and device registration"
-				>
-					<ToggleSetting
-						label="Auto-Select Default Policies"
-						value={config.autoSelectDefaultPolicies}
-						onChange={(value) => updateConfig('autoSelectDefaultPolicies', value)}
-						description="Automatically select default policies when available"
-					/>
+				title="Default Policies"
+				description="Set default policies for authentication and device registration"
+			>
+				<ToggleSetting
+					label="Auto-Select Default Policies"
+					value={config.autoSelectDefaultPolicies}
+					onChange={(value) => updateConfig('autoSelectDefaultPolicies', value)}
+					description="Automatically select default policies when available"
+				/>
 			</ConfigSection>
 
 			{/* OTP Settings */}
-			<ConfigSection
-					title="OTP Settings"
-					description="Configure OTP code handling and validation"
-				>
-					<SelectSetting
-						label="OTP Code Length"
-						value={config.otpCodeLength}
-						onChange={(value) => updateConfig('otpCodeLength', value as 6 | 7 | 8 | 9 | 10)}
-						options={[
-							{ value: 6, label: '6 digits' },
-							{ value: 7, label: '7 digits' },
-							{ value: 8, label: '8 digits' },
-							{ value: 9, label: '9 digits' },
-							{ value: 10, label: '10 digits' },
-						]}
-						description="Expected length of OTP codes"
-					/>
-					<ToggleSetting
-						label="OTP Input Auto-Focus"
-						value={config.otpInputAutoFocus}
-						onChange={(value) => updateConfig('otpInputAutoFocus', value)}
-						description="Automatically focus OTP input field when modal opens"
-					/>
-					<ToggleSetting
-						label="OTP Input Auto-Submit"
-						value={config.otpInputAutoSubmit}
-						onChange={(value) => updateConfig('otpInputAutoSubmit', value)}
-						description="Automatically submit OTP when all digits are entered"
-					/>
-					<NumberSetting
-						label="OTP Validation Timeout (seconds)"
-						value={config.otpValidationTimeout}
-						onChange={(value) => updateConfig('otpValidationTimeout', value)}
-						min={60}
-						max={1800}
-						description="Maximum time to wait for OTP validation"
-					/>
-					<NumberSetting
-						label="OTP Resend Delay (seconds)"
-						value={config.otpResendDelay}
-						onChange={(value) => updateConfig('otpResendDelay', value)}
-						min={10}
-						max={300}
-						description="Minimum time between OTP resend requests"
-					/>
+			<ConfigSection title="OTP Settings" description="Configure OTP code handling and validation">
+				<SelectSetting
+					label="OTP Code Length"
+					value={config.otpCodeLength}
+					onChange={(value) => updateConfig('otpCodeLength', value as 6 | 7 | 8 | 9 | 10)}
+					options={[
+						{ value: 6, label: '6 digits' },
+						{ value: 7, label: '7 digits' },
+						{ value: 8, label: '8 digits' },
+						{ value: 9, label: '9 digits' },
+						{ value: 10, label: '10 digits' },
+					]}
+					description="Expected length of OTP codes"
+				/>
+				<ToggleSetting
+					label="OTP Input Auto-Focus"
+					value={config.otpInputAutoFocus}
+					onChange={(value) => updateConfig('otpInputAutoFocus', value)}
+					description="Automatically focus OTP input field when modal opens"
+				/>
+				<ToggleSetting
+					label="OTP Input Auto-Submit"
+					value={config.otpInputAutoSubmit}
+					onChange={(value) => updateConfig('otpInputAutoSubmit', value)}
+					description="Automatically submit OTP when all digits are entered"
+				/>
+				<NumberSetting
+					label="OTP Validation Timeout (seconds)"
+					value={config.otpValidationTimeout}
+					onChange={(value) => updateConfig('otpValidationTimeout', value)}
+					min={60}
+					max={1800}
+					description="Maximum time to wait for OTP validation"
+				/>
+				<NumberSetting
+					label="OTP Resend Delay (seconds)"
+					value={config.otpResendDelay}
+					onChange={(value) => updateConfig('otpResendDelay', value)}
+					min={10}
+					max={300}
+					description="Minimum time between OTP resend requests"
+				/>
 			</ConfigSection>
 
 			{/* FIDO2/WebAuthn Settings */}
 			<ConfigSection
-					title="FIDO2/WebAuthn Settings"
-					description="Configure FIDO2 and WebAuthn authentication settings"
-				>
-					<SelectSetting
-						label="Preferred Authenticator Type"
-						value={config.fido2.preferredAuthenticatorType}
-						onChange={(value) =>
-							updateNestedConfig(
-								'fido2',
-								'preferredAuthenticatorType',
-								value as 'platform' | 'cross-platform' | 'both'
-							)
-						}
-						options={[
-							{ value: 'platform', label: 'Platform (Touch ID, Face ID, Windows Hello)' },
-							{ value: 'cross-platform', label: 'Cross-Platform (Security Keys)' },
-							{ value: 'both', label: 'Both (Let user choose)' },
-						]}
-						description="Preferred authenticator type for FIDO2 registration"
+				title="FIDO2/WebAuthn Settings"
+				description="Configure FIDO2 and WebAuthn authentication settings"
+			>
+				<SelectSetting
+					label="Preferred Authenticator Type"
+					value={config.fido2.preferredAuthenticatorType}
+					onChange={(value) =>
+						updateNestedConfig(
+							'fido2',
+							'preferredAuthenticatorType',
+							value as 'platform' | 'cross-platform' | 'both'
+						)
+					}
+					options={[
+						{ value: 'platform', label: 'Platform (Touch ID, Face ID, Windows Hello)' },
+						{ value: 'cross-platform', label: 'Cross-Platform (Security Keys)' },
+						{ value: 'both', label: 'Both (Let user choose)' },
+					]}
+					description="Preferred authenticator type for FIDO2 registration"
+				/>
+				<SelectSetting
+					label="User Verification"
+					value={config.fido2.userVerification}
+					onChange={(value) =>
+						updateNestedConfig(
+							'fido2',
+							'userVerification',
+							value as 'discouraged' | 'preferred' | 'required'
+						)
+					}
+					options={[
+						{ value: 'discouraged', label: 'Discouraged' },
+						{ value: 'preferred', label: 'Preferred' },
+						{ value: 'required', label: 'Required' },
+					]}
+					description="User verification requirement for FIDO2 operations (PIN, biometric)"
+				/>
+				<SelectSetting
+					label="Discoverable Credentials"
+					value={config.fido2.discoverableCredentials}
+					onChange={(value) =>
+						updateNestedConfig(
+							'fido2',
+							'discoverableCredentials',
+							value as 'discouraged' | 'preferred' | 'required'
+						)
+					}
+					options={[
+						{ value: 'discouraged', label: 'Discouraged (Server-side storage)' },
+						{ value: 'preferred', label: 'Preferred (Client-side storage)' },
+						{ value: 'required', label: 'Required (Client-side storage)' },
+					]}
+					description="Whether to use discoverable (resident) credentials"
+				/>
+				<SelectSetting
+					label="Relying Party ID Type"
+					value={config.fido2.relyingPartyIdType}
+					onChange={(value) =>
+						updateNestedConfig(
+							'fido2',
+							'relyingPartyIdType',
+							value as 'pingone' | 'custom' | 'other'
+						)
+					}
+					options={[
+						{ value: 'pingone', label: 'PingOne' },
+						{ value: 'custom', label: 'Custom Domain' },
+						{ value: 'other', label: 'Other' },
+					]}
+					description="Type of Relying Party ID to use"
+				/>
+				{config.fido2.relyingPartyIdType !== 'pingone' && (
+					<TextSetting
+						label="Relying Party ID"
+						value={config.fido2.relyingPartyId}
+						onChange={(value) => updateNestedConfig('fido2', 'relyingPartyId', value)}
+						description="Relying Party ID for WebAuthn operations (usually your domain)"
 					/>
-					<SelectSetting
-						label="User Verification"
-						value={config.fido2.userVerification}
-						onChange={(value) =>
-							updateNestedConfig(
-								'fido2',
-								'userVerification',
-								value as 'discouraged' | 'preferred' | 'required'
-							)
-						}
-						options={[
-							{ value: 'discouraged', label: 'Discouraged' },
-							{ value: 'preferred', label: 'Preferred' },
-							{ value: 'required', label: 'Required' },
-						]}
-						description="User verification requirement for FIDO2 operations (PIN, biometric)"
-					/>
-					<SelectSetting
-						label="Discoverable Credentials"
-						value={config.fido2.discoverableCredentials}
-						onChange={(value) =>
-							updateNestedConfig(
-								'fido2',
-								'discoverableCredentials',
-								value as 'discouraged' | 'preferred' | 'required'
-							)
-						}
-						options={[
-							{ value: 'discouraged', label: 'Discouraged (Server-side storage)' },
-							{ value: 'preferred', label: 'Preferred (Client-side storage)' },
-							{ value: 'required', label: 'Required (Client-side storage)' },
-						]}
-						description="Whether to use discoverable (resident) credentials"
-					/>
-					<SelectSetting
-						label="Relying Party ID Type"
-						value={config.fido2.relyingPartyIdType}
-						onChange={(value) =>
-							updateNestedConfig(
-								'fido2',
-								'relyingPartyIdType',
-								value as 'pingone' | 'custom' | 'other'
-							)
-						}
-						options={[
-							{ value: 'pingone', label: 'PingOne' },
-							{ value: 'custom', label: 'Custom Domain' },
-							{ value: 'other', label: 'Other' },
-						]}
-						description="Type of Relying Party ID to use"
-					/>
-					{config.fido2.relyingPartyIdType !== 'pingone' && (
-						<TextSetting
-							label="Relying Party ID"
-							value={config.fido2.relyingPartyId}
-							onChange={(value) => updateNestedConfig('fido2', 'relyingPartyId', value)}
-							description="Relying Party ID for WebAuthn operations (usually your domain)"
-						/>
-					)}
-					<ToggleSetting
-						label="FIDO Device Aggregation"
-						value={config.fido2.fidoDeviceAggregation}
-						onChange={(value) => updateNestedConfig('fido2', 'fidoDeviceAggregation', value)}
-						description="Enable FIDO device aggregation"
-					/>
-					<SelectSetting
-						label="Backup Eligibility"
-						value={config.fido2.backupEligibility}
-						onChange={(value) =>
-							updateNestedConfig('fido2', 'backupEligibility', value as 'allow' | 'disallow')
-						}
-						options={[
-							{ value: 'allow', label: 'Allow' },
-							{ value: 'disallow', label: 'Disallow' },
-						]}
-						description="Whether credentials can be backed up"
-					/>
-					<ToggleSetting
-						label="Enforce Backup Eligibility During Authentication"
-						value={config.fido2.enforceBackupEligibilityDuringAuth}
-						onChange={(value) =>
-							updateNestedConfig('fido2', 'enforceBackupEligibilityDuringAuth', value)
-						}
-						description="Enforce backup eligibility during authentication"
-					/>
-					<SelectSetting
-						label="Attestation Request"
-						value={config.fido2.attestationRequest}
-						onChange={(value) =>
-							updateNestedConfig(
-								'fido2',
-								'attestationRequest',
-								value as 'none' | 'direct' | 'enterprise'
-							)
-						}
-						options={[
-							{ value: 'none', label: 'None' },
-							{ value: 'direct', label: 'Direct' },
-							{ value: 'enterprise', label: 'Enterprise' },
-						]}
-						description="Type of attestation to request from the authenticator"
-					/>
-					<ToggleSetting
-						label="Include Environment Name"
-						value={config.fido2.includeEnvironmentName}
-						onChange={(value) => updateNestedConfig('fido2', 'includeEnvironmentName', value)}
-						description="Include environment name in display information"
-					/>
-					<ToggleSetting
-						label="Include Organization Name"
-						value={config.fido2.includeOrganizationName}
-						onChange={(value) => updateNestedConfig('fido2', 'includeOrganizationName', value)}
-						description="Include organization name in display information"
-					/>
+				)}
+				<ToggleSetting
+					label="FIDO Device Aggregation"
+					value={config.fido2.fidoDeviceAggregation}
+					onChange={(value) => updateNestedConfig('fido2', 'fidoDeviceAggregation', value)}
+					description="Enable FIDO device aggregation"
+				/>
+				<SelectSetting
+					label="Backup Eligibility"
+					value={config.fido2.backupEligibility}
+					onChange={(value) =>
+						updateNestedConfig('fido2', 'backupEligibility', value as 'allow' | 'disallow')
+					}
+					options={[
+						{ value: 'allow', label: 'Allow' },
+						{ value: 'disallow', label: 'Disallow' },
+					]}
+					description="Whether credentials can be backed up"
+				/>
+				<ToggleSetting
+					label="Enforce Backup Eligibility During Authentication"
+					value={config.fido2.enforceBackupEligibilityDuringAuth}
+					onChange={(value) =>
+						updateNestedConfig('fido2', 'enforceBackupEligibilityDuringAuth', value)
+					}
+					description="Enforce backup eligibility during authentication"
+				/>
+				<SelectSetting
+					label="Attestation Request"
+					value={config.fido2.attestationRequest}
+					onChange={(value) =>
+						updateNestedConfig(
+							'fido2',
+							'attestationRequest',
+							value as 'none' | 'direct' | 'enterprise'
+						)
+					}
+					options={[
+						{ value: 'none', label: 'None' },
+						{ value: 'direct', label: 'Direct' },
+						{ value: 'enterprise', label: 'Enterprise' },
+					]}
+					description="Type of attestation to request from the authenticator"
+				/>
+				<ToggleSetting
+					label="Include Environment Name"
+					value={config.fido2.includeEnvironmentName}
+					onChange={(value) => updateNestedConfig('fido2', 'includeEnvironmentName', value)}
+					description="Include environment name in display information"
+				/>
+				<ToggleSetting
+					label="Include Organization Name"
+					value={config.fido2.includeOrganizationName}
+					onChange={(value) => updateNestedConfig('fido2', 'includeOrganizationName', value)}
+					description="Include organization name in display information"
+				/>
 			</ConfigSection>
 
 			{/* Push Notification Settings */}
 			<ConfigSection
-					title="Push Notification Settings"
-					description="Configure push notification handling and polling"
-				>
-					<NumberSetting
-						label="Push Notification Timeout (seconds)"
-						value={config.pushNotificationTimeout}
-						onChange={(value) => updateConfig('pushNotificationTimeout', value)}
-						min={30}
-						max={600}
-						description="Maximum time to wait for push notification approval"
-					/>
-					<NumberSetting
-						label="Push Polling Interval (seconds)"
-						value={config.pushPollingInterval}
-						onChange={(value) => updateConfig('pushPollingInterval', value)}
-						min={1}
-						max={10}
-						description="How often to poll for push notification status"
-					/>
-					<ToggleSetting
-						label="Auto-Start Push Polling"
-						value={config.autoStartPushPolling}
-						onChange={(value) => updateConfig('autoStartPushPolling', value)}
-						description="Automatically start polling when push notification is sent"
-					/>
-					<ToggleSetting
-						label="Show Push Notification Instructions"
-						value={config.showPushNotificationInstructions}
-						onChange={(value) => updateConfig('showPushNotificationInstructions', value)}
-						description="Display instructions for approving push notifications"
-					/>
+				title="Push Notification Settings"
+				description="Configure push notification handling and polling"
+			>
+				<NumberSetting
+					label="Push Notification Timeout (seconds)"
+					value={config.pushNotificationTimeout}
+					onChange={(value) => updateConfig('pushNotificationTimeout', value)}
+					min={30}
+					max={600}
+					description="Maximum time to wait for push notification approval"
+				/>
+				<NumberSetting
+					label="Push Polling Interval (seconds)"
+					value={config.pushPollingInterval}
+					onChange={(value) => updateConfig('pushPollingInterval', value)}
+					min={1}
+					max={10}
+					description="How often to poll for push notification status"
+				/>
+				<ToggleSetting
+					label="Auto-Start Push Polling"
+					value={config.autoStartPushPolling}
+					onChange={(value) => updateConfig('autoStartPushPolling', value)}
+					description="Automatically start polling when push notification is sent"
+				/>
+				<ToggleSetting
+					label="Show Push Notification Instructions"
+					value={config.showPushNotificationInstructions}
+					onChange={(value) => updateConfig('showPushNotificationInstructions', value)}
+					description="Display instructions for approving push notifications"
+				/>
 			</ConfigSection>
 
 			{/* UI/UX Settings */}
 			<ConfigSection title="UI/UX Settings" description="Customize the user interface experience">
-					<ToggleSetting
-						label="Show Device Icons"
-						value={config.ui.showDeviceIcons}
-						onChange={(value) => updateNestedConfig('ui', 'showDeviceIcons', value)}
-						description="Display icons for different device types"
-					/>
-					<ToggleSetting
-						label="Show Device Status Badges"
-						value={config.ui.showDeviceStatusBadges}
-						onChange={(value) => updateNestedConfig('ui', 'showDeviceStatusBadges', value)}
-						description="Display status badges (ACTIVE, INACTIVE, etc.) on devices"
-					/>
-					<NumberSetting
-						label="Modal Animation Duration (milliseconds)"
-						value={config.ui.modalAnimationDuration}
-						onChange={(value) => updateNestedConfig('ui', 'modalAnimationDuration', value)}
-						min={0}
-						max={1000}
-						description="Duration of modal open/close animations (0 = instant)"
-					/>
-					<ToggleSetting
-						label="Show Loading Spinners"
-						value={config.ui.showLoadingSpinners}
-						onChange={(value) => updateNestedConfig('ui', 'showLoadingSpinners', value)}
-						description="Display loading spinners during async operations"
-					/>
+				<ToggleSetting
+					label="Show Device Icons"
+					value={config.ui.showDeviceIcons}
+					onChange={(value) => updateNestedConfig('ui', 'showDeviceIcons', value)}
+					description="Display icons for different device types"
+				/>
+				<ToggleSetting
+					label="Show Device Status Badges"
+					value={config.ui.showDeviceStatusBadges}
+					onChange={(value) => updateNestedConfig('ui', 'showDeviceStatusBadges', value)}
+					description="Display status badges (ACTIVE, INACTIVE, etc.) on devices"
+				/>
+				<NumberSetting
+					label="Modal Animation Duration (milliseconds)"
+					value={config.ui.modalAnimationDuration}
+					onChange={(value) => updateNestedConfig('ui', 'modalAnimationDuration', value)}
+					min={0}
+					max={1000}
+					description="Duration of modal open/close animations (0 = instant)"
+				/>
+				<ToggleSetting
+					label="Show Loading Spinners"
+					value={config.ui.showLoadingSpinners}
+					onChange={(value) => updateNestedConfig('ui', 'showLoadingSpinners', value)}
+					description="Display loading spinners during async operations"
+				/>
 			</ConfigSection>
 
 			{/* Security Settings */}
-			<ConfigSection
-					title="Security Settings"
-					description="Security-related configuration options"
-				>
-					<ToggleSetting
-						label="Require Username for Authentication"
-						value={config.security.requireUsernameForAuthentication}
-						onChange={(value) =>
-							updateNestedConfig('security', 'requireUsernameForAuthentication', value)
-						}
-						description="Require username input before starting authentication"
-					/>
-					<ToggleSetting
-						label="Allow Usernameless FIDO2"
-						value={config.security.allowUsernamelessFido2}
-						onChange={(value) => updateNestedConfig('security', 'allowUsernamelessFido2', value)}
-						description="Allow FIDO2 authentication without username (passkeys)"
-					/>
-					<ToggleSetting
-						label="Validate Device IDs"
-						value={config.security.validateDeviceIds}
-						onChange={(value) => updateNestedConfig('security', 'validateDeviceIds', value)}
-						description="Validate device IDs before using them in API calls"
-					/>
-					<ToggleSetting
-						label="Sanitize Device Names"
-						value={config.security.sanitizeDeviceNames}
-						onChange={(value) => updateNestedConfig('security', 'sanitizeDeviceNames', value)}
-						description="Sanitize device names to prevent XSS"
-					/>
-				</ConfigSection>
+			<ConfigSection title="Security Settings" description="Security-related configuration options">
+				<ToggleSetting
+					label="Require Username for Authentication"
+					value={config.security.requireUsernameForAuthentication}
+					onChange={(value) =>
+						updateNestedConfig('security', 'requireUsernameForAuthentication', value)
+					}
+					description="Require username input before starting authentication"
+				/>
+				<ToggleSetting
+					label="Allow Usernameless FIDO2"
+					value={config.security.allowUsernamelessFido2}
+					onChange={(value) => updateNestedConfig('security', 'allowUsernamelessFido2', value)}
+					description="Allow FIDO2 authentication without username (passkeys)"
+				/>
+				<ToggleSetting
+					label="Validate Device IDs"
+					value={config.security.validateDeviceIds}
+					onChange={(value) => updateNestedConfig('security', 'validateDeviceIds', value)}
+					description="Validate device IDs before using them in API calls"
+				/>
+				<ToggleSetting
+					label="Sanitize Device Names"
+					value={config.security.sanitizeDeviceNames}
+					onChange={(value) => updateNestedConfig('security', 'sanitizeDeviceNames', value)}
+					description="Sanitize device names to prevent XSS"
+				/>
+			</ConfigSection>
 
 			{/* Create Policy Modal */}
 			<CreatePolicyModalV8

@@ -12,8 +12,14 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FiPackage } from 'react-icons/fi';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import {
+	downloadPostmanCollectionWithEnvironment,
+	generateCompletePostmanCollection,
+	generateComprehensiveUnifiedPostmanCollection,
+} from '../../../dependencies/services/postmanCollectionGeneratorV8.ts';
 import {
 	ApiDisplayCheckbox,
 	SuperSimpleApiDisplayV8,
@@ -47,12 +53,6 @@ import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,
 } from '../services/unifiedFlowIntegrationV8U';
-import {
-	generateComprehensiveUnifiedPostmanCollection,
-	generateCompletePostmanCollection,
-	downloadPostmanCollectionWithEnvironment,
-} from '../../../dependencies/services/postmanCollectionGeneratorV8.ts';
-import { FiPackage } from 'react-icons/fi';
 
 const MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
 
@@ -1113,16 +1113,15 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
 		// #region agent log
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
+			headers: 'Content-Type': 'application/json' ,
+			body: JSON.stringify(
 				location: 'UnifiedOAuthFlowV8U.tsx:1103',
 				message: 'Generating PingOne API documentation URL',
-				data: { flowType: flow, baseUrl },
+				data: flowType: flow, baseUrl ,
 				timestamp: Date.now(),
 				sessionId: 'debug-session',
-				hypothesisId: 'A',
-			}),
-		}).catch(() => {});
+				hypothesisId: 'A',),
+		}).catch(() => );
 		// #endregion
 
 		let url: string;
@@ -1148,15 +1147,14 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 		// #region agent log
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
+			headers: 'Content-Type': 'application/json' ,
+			body: JSON.stringify(
 				location: 'UnifiedOAuthFlowV8U.tsx:1125',
 				message: 'Generated PingOne API documentation URL',
-				data: { flowType: flow, url, hasAnchor: url.includes('#') },
+				data: flowType: flow, url, hasAnchor: url.includes('#') ,
 				timestamp: Date.now(),
 				sessionId: 'debug-session',
-				hypothesisId: 'A',
-			}),
+				hypothesisId: 'A',),
 		}).catch(() => {});
 		// #endregion
 
@@ -1415,25 +1413,21 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						// Suppress all errors to prevent console spam
 						try {
 								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
+								headers: 'Content-Type': 'application/json' ,
+								body: JSON.stringify(
 									location: 'UnifiedOAuthFlowV8U.tsx:1369',
 									message: 'Generating specification URLs',
-									data: {
+									data: 
 										specVersion,
 										flowType: effectiveFlowType,
 										primaryUrl: specUrls.primary,
 										primaryLabel: specUrls.primaryLabel,
 										allSpecsCount: specUrls.allSpecs.length,
-										allSpecs: specUrls.allSpecs.map((s) => ({ label: s.label, url: s.url, isPrimary: s.isPrimary })),
-									},
+										allSpecs: specUrls.allSpecs.map((s) => (label: s.label, url: s.url, isPrimary: s.isPrimary )),,
 									timestamp: Date.now(),
 									sessionId: 'debug-session',
-									hypothesisId: 'B',
-								}),
-							}).catch(() => {
-								// Silently ignore - analytics server not available
-							});
+									hypothesisId: 'B',),
+							}).catch(() => );
 						} catch {
 							// Silently ignore - analytics server not available
 						}

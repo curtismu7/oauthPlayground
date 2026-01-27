@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiX, FiLoader } from 'react-icons/fi';
+import { FiLoader, FiX } from 'react-icons/fi';
 import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
 import { MFAOTPInput } from '../MFAOTPInput';
 
@@ -184,8 +184,7 @@ export const MFAOTPInputModal: React.FC<MFAOTPInputModalProps> = ({
 									width: '100%',
 								}}
 							>
-								Enter the 6-digit code from{' '}
-								{selectedDeviceInfo.phone ? `your phone` : `your email`}
+								Enter the 6-digit code from {selectedDeviceInfo.phone ? `your phone` : `your email`}
 							</p>
 						)}
 					</div>

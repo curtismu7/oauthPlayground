@@ -5,8 +5,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../contexts/NewAuthContext';
 import { LoadingSpinnerModalV8U } from '@/v8u/components/LoadingSpinnerModalV8U';
+import { useAuth } from '../contexts/NewAuthContext';
 
 interface StartupWrapperProps {
 	children: React.ReactNode;
@@ -47,11 +47,7 @@ export const StartupWrapper: React.FC<StartupWrapperProps> = ({ children }) => {
 
 	return (
 		<>
-			<LoadingSpinnerModalV8U
-				show={isLoading}
-				message="Initializing application..."
-				theme="blue"
-			/>
+			<LoadingSpinnerModalV8U show={isLoading} message="Initializing application..." theme="blue" />
 			{children}
 		</>
 	);

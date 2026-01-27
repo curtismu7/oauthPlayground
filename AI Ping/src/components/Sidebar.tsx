@@ -1,11 +1,11 @@
 import React from 'react';
+import { FiBook, FiChevronDown, FiChevronRight, FiCpu, FiSettings, FiShield } from 'react-icons/fi';
 import { NavLink, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { useSidebar } from '../contexts/SidebarContext';
-import { FiCpu, FiBook, FiShield, FiSettings, FiChevronDown, FiChevronRight } from 'react-icons/fi';
 
 const SidebarContainer = styled.div<{ isOpen: boolean }>`
-	width: ${props => props.isOpen ? '280px' : '60px'};
+	width: ${(props) => (props.isOpen ? '280px' : '60px')};
 	height: 100vh;
 	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 	color: white;
@@ -25,7 +25,7 @@ const SidebarHeader = styled.div`
 `;
 
 const Logo = styled.div`
-	font-size: ${props => props.isOpen ? '1.5rem' : '1.2rem'};
+	font-size: ${(props) => (props.isOpen ? '1.5rem' : '1.2rem')};
 	font-weight: bold;
 	color: white;
 	display: flex;
@@ -46,7 +46,7 @@ const SectionTitle = styled.div<{ isOpen: boolean }>`
 	color: rgba(255, 255, 255, 0.7);
 	display: flex;
 	align-items: center;
-	justify-content: ${props => props.isOpen ? 'space-between' : 'center'};
+	justify-content: ${(props) => (props.isOpen ? 'space-between' : 'center')};
 	cursor: pointer;
 	&:hover {
 		color: white;
@@ -83,7 +83,7 @@ const NavIcon = styled.span`
 
 const NavText = styled.span<{ isOpen: boolean }>`
 	white-space: nowrap;
-	opacity: ${props => props.isOpen ? 1 : 0};
+	opacity: ${(props) => (props.isOpen ? 1 : 0)};
 	transition: opacity 0.3s ease;
 `;
 
@@ -171,7 +171,7 @@ const Sidebar: React.FC = () => {
 	);
 
 	const toggleSection = (sectionId: string) => {
-		setExpandedSections(prev => {
+		setExpandedSections((prev) => {
 			const newSet = new Set(prev);
 			if (newSet.has(sectionId)) {
 				newSet.delete(sectionId);
@@ -190,27 +190,25 @@ const Sidebar: React.FC = () => {
 					{isOpen && <span>PingOne AI</span>}
 				</Logo>
 			</SidebarHeader>
-			
-			{menuSections.map(section => (
+
+			{menuSections.map((section) => (
 				<NavSection key={section.id}>
-					<SectionTitle
-						isOpen={isOpen}
-						onClick={() => toggleSection(section.id)}
-					>
+					<SectionTitle isOpen={isOpen} onClick={() => toggleSection(section.id)}>
 						{isOpen && <span>{section.title}</span>}
 						{expandedSections.has(section.id) ? <FiChevronDown /> : <FiChevronRight />}
 					</SectionTitle>
-					
-					{expandedSections.has(section.id) && section.items.map(item => (
-						<NavItem
-							key={item.id}
-							to={item.path}
-							className={location.pathname === item.path ? 'active' : ''}
-						>
-							<NavIcon>{item.icon}</NavIcon>
-							<NavText isOpen={isOpen}>{item.label}</NavText>
-						</NavItem>
-					))}
+
+					{expandedSections.has(section.id) &&
+						section.items.map((item) => (
+							<NavItem
+								key={item.id}
+								to={item.path}
+								className={location.pathname === item.path ? 'active' : ''}
+							>
+								<NavIcon>{item.icon}</NavIcon>
+								<NavText isOpen={isOpen}>{item.label}</NavText>
+							</NavItem>
+						))}
 				</NavSection>
 			))}
 		</SidebarContainer>

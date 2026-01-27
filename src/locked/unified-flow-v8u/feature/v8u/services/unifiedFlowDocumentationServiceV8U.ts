@@ -5,14 +5,17 @@
  * @version 8.0.0
  */
 
-import type { FlowType, SpecVersion } from '../../../dependencies/v8/services/specVersionServiceV8.ts';
-import { SpecVersionServiceV8 } from '../../../dependencies/v8/services/specVersionServiceV8.ts';
 import { apiCallTrackerService } from '../../../dependencies/services/apiCallTrackerService.ts';
-import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
+import type {
+	FlowType,
+	SpecVersion,
+} from '../../../dependencies/v8/services/specVersionServiceV8.ts';
+import { SpecVersionServiceV8 } from '../../../dependencies/v8/services/specVersionServiceV8.ts';
 import {
 	convertTrackedCallsToDocumentation,
 	generateUnifiedFlowMarkdown,
 } from '../components/UnifiedFlowDocumentationPageV8U';
+import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 
 interface UseCase {
 	flowType: FlowType;
@@ -34,7 +37,13 @@ export const generateAllUseCasesDocumentation = (): string => {
 	};
 
 	const specVersions: SpecVersion[] = ['oauth2.0', 'oauth2.1', 'oidc'];
-	const flowTypes: FlowType[] = ['oauth-authz', 'hybrid', 'implicit', 'client-credentials', 'device-code'];
+	const flowTypes: FlowType[] = [
+		'oauth-authz',
+		'hybrid',
+		'implicit',
+		'client-credentials',
+		'device-code',
+	];
 
 	const generatedDate = new Date().toLocaleString('en-US', {
 		year: 'numeric',

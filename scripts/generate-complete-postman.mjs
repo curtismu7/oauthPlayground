@@ -4,9 +4,9 @@
  */
 
 import { writeFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 import { createRequire } from 'module';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -19,12 +19,22 @@ const require = createRequire(import.meta.url);
 async function generateCompleteCollection() {
 	try {
 		// Read the existing comprehensive collections if they exist
-		const unifiedPath = join(projectRoot, 'resources', 'postman', 'pingone-unified-flows-complete-collection.json');
-		const mfaPath = join(projectRoot, 'resources', 'postman', 'pingone-mfa-complete-collection.json');
-		
+		const unifiedPath = join(
+			projectRoot,
+			'resources',
+			'postman',
+			'pingone-unified-flows-complete-collection.json'
+		);
+		const mfaPath = join(
+			projectRoot,
+			'resources',
+			'postman',
+			'pingone-mfa-complete-collection.json'
+		);
+
 		// For now, let's create a simple script that will be run from the browser context
 		// or we can create a Node.js version that manually constructs the collection
-		
+
 		console.log('📝 Generating complete Postman collection...');
 		console.log('');
 		console.log('This script needs to run in a browser context or use a TypeScript compiler.');
@@ -34,7 +44,9 @@ async function generateCompleteCollection() {
 		console.log('Or generate it programmatically from the browser console:');
 		console.log('');
 		console.log('```javascript');
-		console.log('import { generateCompletePostmanCollection, generatePostmanEnvironment, downloadPostmanCollectionWithEnvironment } from "./src/services/postmanCollectionGeneratorV8";');
+		console.log(
+			'import { generateCompletePostmanCollection, generatePostmanEnvironment, downloadPostmanCollectionWithEnvironment } from "./src/services/postmanCollectionGeneratorV8";'
+		);
 		console.log('');
 		console.log('const collection = generateCompletePostmanCollection({');
 		console.log('  environmentId: "",');
@@ -45,9 +57,11 @@ async function generateCompleteCollection() {
 		console.log('');
 		console.log('const date = new Date().toISOString().split("T")[0];');
 		console.log('const filename = `pingone-complete-unified-mfa-${date}-collection.json`;');
-		console.log('downloadPostmanCollectionWithEnvironment(collection, filename, "PingOne Complete Collection Environment");');
+		console.log(
+			'downloadPostmanCollectionWithEnvironment(collection, filename, "PingOne Complete Collection Environment");'
+		);
 		console.log('```');
-		
+
 		// Actually, let's create a simple HTML file that can be opened in a browser
 		const htmlContent = `<!DOCTYPE html>
 <html>
@@ -64,10 +78,10 @@ async function generateCompleteCollection() {
 	<p>If not redirected, go to: <a href="/postman-collection-generator">/postman-collection-generator</a></p>
 </body>
 </html>`;
-		
+
 		const htmlPath = join(projectRoot, 'resources', 'postman', 'generate-complete-collection.html');
 		writeFileSync(htmlPath, htmlContent, 'utf-8');
-		
+
 		console.log('✅ Created helper HTML file at:', htmlPath);
 		console.log('');
 		console.log('To generate the complete collection:');

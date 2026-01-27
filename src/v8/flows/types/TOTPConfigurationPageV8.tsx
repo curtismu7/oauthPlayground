@@ -190,21 +190,28 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 					if (credentials.clientId && credentials.environmentId) {
 						try {
 							const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
-							const { ConfigCheckerServiceV8 } = await import('@/v8/services/configCheckerServiceV8');
+							const { ConfigCheckerServiceV8 } = await import(
+								'@/v8/services/configCheckerServiceV8'
+							);
 							const workerToken = await workerTokenServiceV8.getToken();
-							
+
 							if (workerToken) {
-								console.log(`[⏱️ TOTP-CONFIG-V8] 🔍 Fetching app config to ensure correct auth method...`);
+								console.log(
+									`[⏱️ TOTP-CONFIG-V8] 🔍 Fetching app config to ensure correct auth method...`
+								);
 								const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 									credentials.environmentId,
 									credentials.clientId,
 									workerToken
 								);
-								
+
 								if (appConfig?.tokenEndpointAuthMethod) {
 									const pingOneAuthMethod = appConfig.tokenEndpointAuthMethod;
-									const currentAuthMethod = credentials.clientAuthMethod || credentials.tokenEndpointAuthMethod || 'client_secret_post';
-									
+									const currentAuthMethod =
+										credentials.clientAuthMethod ||
+										credentials.tokenEndpointAuthMethod ||
+										'client_secret_post';
+
 									if (currentAuthMethod !== pingOneAuthMethod) {
 										console.log(`[⏱️ TOTP-CONFIG-V8] ✅ Updating clientAuthMethod from PingOne:`, {
 											from: currentAuthMethod,
@@ -212,13 +219,21 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 										});
 										effectiveCredentials = {
 											...credentials,
-											clientAuthMethod: pingOneAuthMethod as 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt' | 'none',
+											clientAuthMethod: pingOneAuthMethod as
+												| 'client_secret_basic'
+												| 'client_secret_post'
+												| 'client_secret_jwt'
+												| 'private_key_jwt'
+												| 'none',
 										};
 									}
 								}
 							}
 						} catch (configError) {
-							console.warn(`[⏱️ TOTP-CONFIG-V8] ⚠️ Failed to fetch app config (continuing with stored auth method):`, configError);
+							console.warn(
+								`[⏱️ TOTP-CONFIG-V8] ⚠️ Failed to fetch app config (continuing with stored auth method):`,
+								configError
+							);
 							// Continue with stored credentials - don't fail token exchange
 						}
 					}
@@ -716,21 +731,55 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 					</div>
 					<div style={{ fontSize: '14px', color: '#6b7280', lineHeight: 1.6 }}>
 						<p style={{ margin: '0 0 12px 0' }}>
-							<strong>OATH TOTP (Time-based One-Time Password, RFC 6238)</strong> is an open standard for generating time-based authentication codes using authenticator apps like Google Authenticator, Authy, or Microsoft Authenticator.
+							<strong>OATH TOTP (Time-based One-Time Password, RFC 6238)</strong> is an open
+							standard for generating time-based authentication codes using authenticator apps like
+							Google Authenticator, Authy, or Microsoft Authenticator.
 						</p>
 						<ul style={{ margin: '0 0 12px 0', paddingLeft: '20px' }}>
-							<li><strong>Phishing-resistant:</strong> Codes are generated locally on your device, making them immune to SMS interception attacks</li>
-							<li><strong>Offline-capable:</strong> Doesn't rely on network connectivity - codes are generated using time-based algorithms</li>
-							<li><strong>Time-based:</strong> Each 6-digit code is valid for 30 seconds, automatically rotating for enhanced security</li>
-							<li><strong>Industry standard:</strong> Based on RFC 6238, ensuring compatibility across different authenticator apps</li>
-							<li><strong>Secure storage:</strong> Secret keys are stored securely in your authenticator app and never transmitted</li>
-							<li><strong>Easy setup:</strong> Simple QR code scan or manual secret key entry to get started</li>
+							<li>
+								<strong>Phishing-resistant:</strong> Codes are generated locally on your device,
+								making them immune to SMS interception attacks
+							</li>
+							<li>
+								<strong>Offline-capable:</strong> Doesn't rely on network connectivity - codes are
+								generated using time-based algorithms
+							</li>
+							<li>
+								<strong>Time-based:</strong> Each 6-digit code is valid for 30 seconds,
+								automatically rotating for enhanced security
+							</li>
+							<li>
+								<strong>Industry standard:</strong> Based on RFC 6238, ensuring compatibility across
+								different authenticator apps
+							</li>
+							<li>
+								<strong>Secure storage:</strong> Secret keys are stored securely in your
+								authenticator app and never transmitted
+							</li>
+							<li>
+								<strong>Easy setup:</strong> Simple QR code scan or manual secret key entry to get
+								started
+							</li>
 						</ul>
 						<p style={{ margin: '0 0 12px 0' }}>
-							<strong>How it works:</strong> After registering your TOTP device, you'll receive a QR code containing your secret key. Scan this QR code with an authenticator app to set up OATH TOTP (RFC 6238). The app will then generate time-based codes that you enter when authenticating.
+							<strong>How it works:</strong> After registering your TOTP device, you'll receive a QR
+							code containing your secret key. Scan this QR code with an authenticator app to set up
+							OATH TOTP (RFC 6238). The app will then generate time-based codes that you enter when
+							authenticating.
 						</p>
-						<p style={{ margin: 0, padding: '12px', background: '#f0f9ff', borderRadius: '6px', border: '1px solid #bfdbfe' }}>
-							<strong>📚 Learn more:</strong> OATH TOTP (RFC 6238) is part of the Initiative for Open Authentication (OATH) framework, providing a standardized approach to two-factor authentication. The standard ensures codes are generated using HMAC-SHA1 algorithm with time-based intervals, making it highly secure and widely compatible.
+						<p
+							style={{
+								margin: 0,
+								padding: '12px',
+								background: '#f0f9ff',
+								borderRadius: '6px',
+								border: '1px solid #bfdbfe',
+							}}
+						>
+							<strong>📚 Learn more:</strong> OATH TOTP (RFC 6238) is part of the Initiative for
+							Open Authentication (OATH) framework, providing a standardized approach to two-factor
+							authentication. The standard ensures codes are generated using HMAC-SHA1 algorithm
+							with time-based intervals, making it highly secure and widely compatible.
 						</p>
 					</div>
 				</div>
@@ -801,38 +850,41 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 			</div>
 
 			{/* Modals */}
-			{showWorkerTokenModal && (() => {
-				// Check if we should show token only (matches MFA pattern)
-				try {
-					const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
-					const config = MFAConfigurationServiceV8.loadConfiguration();
-					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-					
-					// Show token-only if showTokenAtEnd is ON and token is valid
-					const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
-					
-					return (
-						<WorkerTokenModalV8
-							isOpen={showWorkerTokenModal}
-							onClose={() => {
-								setShowWorkerTokenModal(false);
-								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-							}}
-							showTokenOnly={showTokenOnly}
-						/>
-					);
-				} catch {
-					return (
-				<WorkerTokenModalV8
-					isOpen={showWorkerTokenModal}
-					onClose={() => {
-						setShowWorkerTokenModal(false);
-						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-					}}
-				/>
-					);
-				}
-			})()}
+			{showWorkerTokenModal &&
+				(() => {
+					// Check if we should show token only (matches MFA pattern)
+					try {
+						const {
+							MFAConfigurationServiceV8,
+						} = require('@/v8/services/mfaConfigurationServiceV8');
+						const config = MFAConfigurationServiceV8.loadConfiguration();
+						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+
+						// Show token-only if showTokenAtEnd is ON and token is valid
+						const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+
+						return (
+							<WorkerTokenModalV8
+								isOpen={showWorkerTokenModal}
+								onClose={() => {
+									setShowWorkerTokenModal(false);
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+								}}
+								showTokenOnly={showTokenOnly}
+							/>
+						);
+					} catch {
+						return (
+							<WorkerTokenModalV8
+								isOpen={showWorkerTokenModal}
+								onClose={() => {
+									setShowWorkerTokenModal(false);
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+								}}
+							/>
+						);
+					}
+				})()}
 			{showUserLoginModal && (
 				<UserLoginModalV8
 					isOpen={showUserLoginModal}

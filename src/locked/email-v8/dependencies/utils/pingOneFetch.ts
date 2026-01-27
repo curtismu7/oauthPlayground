@@ -201,11 +201,11 @@ export async function pingOneFetch(
 		// #region agent log - Debug instrumentation before fetch
 		try {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
+				headers: 'Content-Type': 'application/json' ,
+				body: JSON.stringify(
 					location: 'pingOneFetch.ts:198-BEFORE-FETCH',
 					message: 'About to call fetch in pingOneFetch',
-					data: {
+					data: 
 						attempt,
 						maxAttempts,
 						url:
@@ -215,15 +215,13 @@ export async function pingOneFetch(
 									? input.toString()
 									: 'Request object',
 						method: init.method || 'GET',
-						timestamp: Date.now(),
-					},
+						timestamp: Date.now(),,
 					timestamp: Date.now(),
 					sessionId: 'debug-session',
 					runId: 'request-hang',
-					hypothesisId: 'BEFORE-FETCH',
-				}),
-			}).catch(() => {});
-		} catch (_e) {}
+					hypothesisId: 'BEFORE-FETCH',),
+			}).catch(() => );
+		} catch (_e) 
 		// #endregion
 
 		try {
@@ -235,23 +233,21 @@ export async function pingOneFetch(
 			// #region agent log - Debug instrumentation after fetch
 			try {
 					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
+					headers: 'Content-Type': 'application/json' ,
+					body: JSON.stringify(
 						location: 'pingOneFetch.ts:198-AFTER-FETCH',
 						message: 'Fetch completed in pingOneFetch',
-						data: {
+						data: 
 							attempt,
 							status: response.status,
 							statusText: response.statusText,
 							ok: response.ok,
-							timestamp: Date.now(),
-						},
+							timestamp: Date.now(),,
 						timestamp: Date.now(),
 						sessionId: 'debug-session',
 						runId: 'request-hang',
-						hypothesisId: 'AFTER-FETCH',
-					}),
-				}).catch(() => {});
+						hypothesisId: 'AFTER-FETCH',),
+				}).catch(() => );
 			} catch (_e) {}
 			// #endregion
 

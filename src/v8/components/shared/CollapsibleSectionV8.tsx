@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface CollapsibleSectionProps {
 	/** Unique identifier for localStorage persistence */
@@ -25,17 +25,17 @@ interface CollapsibleSectionProps {
 
 /**
  * CollapsibleSection Component
- * 
+ *
  * Reusable section with expand/collapse functionality, smooth animations,
  * and optional localStorage persistence.
- * 
+ *
  * Features:
  * - Smooth 300ms expand/collapse animation
  * - localStorage state persistence (optional)
  * - Chevron indicator
  * - Customizable colors and styling
  * - Keyboard accessible
- * 
+ *
  * @example
  * <CollapsibleSection
  *   id="step-1-config"

@@ -81,7 +81,9 @@ export class SMSHelper {
 		}
 
 		// Get worker token from SDK
-		const token = await (sdk as unknown as { getWorkerToken: () => Promise<string> }).getWorkerToken();
+		const token = await (
+			sdk as unknown as { getWorkerToken: () => Promise<string> }
+		).getWorkerToken();
 
 		try {
 			// Use backend proxy endpoint - worker token sent to backend, not exposed in browser
