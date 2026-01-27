@@ -1346,14 +1346,39 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			const responseDevices = response.devices || [];
 			const embeddedDevices = ((response._embedded as { devices?: Device[] })?.devices || []);
 			const rawDevices = [...responseDevices, ...embeddedDevices];
+			
+			console.log(`${MODULE_TAG} 🔍 Step 3: Extracting devices:`, {
+				responseDevicesCount: responseDevices.length,
+				embeddedDevicesCount: embeddedDevices.length,
+				totalRawDevices: rawDevices.length,
+				responseDevices,
+				embeddedDevices,
+				rawDevices,
+			});
 
 			// Filter devices to ensure they belong to the correct user
+			// PingOne should already filter by user, but we'll double-check
 			const userDevices = rawDevices.filter((d: Record<string, unknown>) => {
 				const deviceUserId = d.user?.id || d.userId;
 				return !deviceUserId || deviceUserId === user.id;
 			});
 
-			let authDevices: Device[] = userDevices.map((d: Record<string, unknown>) => {
+			console.log(`${MODULE_TAG} 🔍 Step 4: User-filtered devices:`, {
+				userDevicesCount: userDevices.length,
+				userDevices,
+			});
+
+			// Deduplicate devices by ID to avoid React key warnings
+			const uniqueDevices = userDevices.filter((device, index, self) => 
+				index === self.findIndex((d) => d.id === device.id)
+			);
+
+			console.log(`${MODULE_TAG} 🔍 Step 4.5: Deduplicated devices:`, {
+				uniqueDevicesCount: uniqueDevices.length,
+				uniqueDevices,
+			});
+
+			let authDevices: Device[] = uniqueDevices.map((d: Record<string, unknown>) => {
 				const device: Device = {
 					id: (d.id as string) || '',
 					type: (d.type as string) || '',
@@ -3725,10 +3750,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							🔥 STATIC DEVICE 2 (FIDO2)
 						</button>
 						
-						{authState.devices.map((device, index) => {
-							console.log(`${MODULE_TAG} 🔥 Rendering device button:`, {device, index});
-							return (
-							<button
+													<button
 								key={`${device.id}-${(device as any).type ?? (device as any).deliveryMethod ?? 'dev'}-${index}`}
 								type="button"
 								onClick={async () => {
