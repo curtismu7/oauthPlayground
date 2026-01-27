@@ -13,6 +13,7 @@ import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V8U]';
 
@@ -131,7 +132,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 				setHasDiscovered(false);
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Discovery error`, error);
+			logger.error('Discovery error', { error });
 			toastV8.error(
 				error instanceof Error
 					? error.message
