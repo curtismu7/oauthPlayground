@@ -176,11 +176,162 @@ export const getStatusIcon = (status: TokenStatus): string => {
 	}
 };
 
+// ============================================================================
+// NEW METHODS - Phase 1 Enhancements (Additive Only, Non-Breaking)
+// ============================================================================
+
+/**
+ * Check if worker token is expiring soon
+ * Returns warning if token expires within threshold
+ * 
+ * @param thresholdMinutes - Warning threshold in minutes (default: 5)
+ * @returns Expiration warning details
+ * 
+ * @example
+ * const warning = await getExpirationWarning(10);
+ * if (warning.isExpiringSoon) {
+ *   toastV8.warn(warning.message);
+ * }
+ */
+export const getExpirationWarning = async (
+	thresholdMinutes: number = 5
+): Promise<{
+	isExpiringSoon: boolean;
+	minutesRemaining?: number;
+	message?: string;
+	severity: 'info' | 'warning' | 'error';
+}> => {
+	const status = await checkWorkerTokenStatus();
+
+	if (!status.isValid) {
+		return {
+			isExpiringSoon: false,
+			severity: 'info',
+			message: 'No valid worker token',
+		};
+	}
+
+	if (!status.expiresAt) {
+		return {
+			isExpiringSoon: false,
+			severity: 'info',
+		};
+	}
+
+	const now = Date.now();
+	const expiresAt = status.expiresAt;
+	const minutesRemaining = Math.floor((expiresAt - now) / 60000);
+
+	if (minutesRemaining <= 0) {
+		return {
+			isExpiringSoon: true,
+			minutesRemaining: 0,
+			message: 'Worker token has expired. Please refresh your token.',
+			severity: 'error',
+		};
+	}
+
+	if (minutesRemaining <= thresholdMinutes) {
+		return {
+			isExpiringSoon: true,
+			minutesRemaining,
+			message: `Worker token expires in ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''}. Consider refreshing soon.`,
+			severity: minutesRemaining <= 2 ? 'error' : 'warning',
+		};
+	}
+
+	return {
+		isExpiringSoon: false,
+		minutesRemaining,
+		severity: 'info',
+	};
+};
+
+/**
+ * Comprehensive health check for worker token
+ * Provides detailed status and actionable recommendations
+ * 
+ * @returns Health check results with issues and recommendations
+ * 
+ * @example
+ * const health = await getHealthCheck();
+ * if (!health.healthy) {
+ *   health.issues.forEach(issue => console.error(issue));
+ *   health.recommendations.forEach(rec => console.log(rec));
+ * }
+ */
+export const getHealthCheck = async (): Promise<{
+	healthy: boolean;
+	status: TokenStatus;
+	issues: string[];
+	recommendations: string[];
+	details: {
+		hasToken: boolean;
+		isValid: boolean;
+		isExpired: boolean;
+		minutesRemaining?: number;
+		expiresAt?: number;
+	};
+}> => {
+	const status = await checkWorkerTokenStatus();
+	const issues: string[] = [];
+	const recommendations: string[] = [];
+
+	// Check if token exists
+	if (!status.isValid) {
+		issues.push('No worker token available');
+		recommendations.push('Generate a worker token to access PingOne APIs');
+		recommendations.push('Click "Get Worker Token" button to generate one');
+	}
+
+	// Check expiration
+	if (status.isValid && status.status === 'expired') {
+		issues.push('Worker token has expired');
+		recommendations.push('Refresh your worker token immediately');
+		recommendations.push('Expired tokens cannot be used for API calls');
+	}
+
+	// Check if expiring soon
+	const warning = await getExpirationWarning(10);
+	if (warning.isExpiringSoon && status.isValid) {
+		issues.push(`Token expires in ${warning.minutesRemaining} minutes`);
+		recommendations.push('Consider refreshing your token soon to avoid interruption');
+	}
+
+	// Check token age (if very old, might want to refresh)
+	if (status.expiresAt && status.isValid) {
+		const now = Date.now();
+		const age = now - (status.expiresAt - (status.minutesRemaining || 0) * 60000);
+		const ageHours = Math.floor(age / 3600000);
+
+		if (ageHours > 12) {
+			recommendations.push(`Token is ${ageHours} hours old. Consider refreshing for best security.`);
+		}
+	}
+
+	return {
+		healthy: issues.length === 0,
+		status: status.status,
+		issues,
+		recommendations,
+		details: {
+			hasToken: !!status.token,
+			isValid: status.isValid,
+			isExpired: status.status === 'expired',
+			minutesRemaining: status.minutesRemaining,
+			expiresAt: status.expiresAt,
+		},
+	};
+};
+
 export const WorkerTokenStatusServiceV8 = {
 	checkWorkerTokenStatus,
 	formatTimeRemaining,
 	getStatusColor,
 	getStatusIcon,
+	// New methods
+	getExpirationWarning,
+	getHealthCheck,
 };
 
 export default WorkerTokenStatusServiceV8;
