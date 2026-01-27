@@ -19,6 +19,7 @@
 
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { logger } from './unifiedFlowLoggerServiceV8U';
+import { UnifiedFlowErrorHandler } from './unifiedFlowErrorHandlerV8U';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { SharedCredentialsServiceV8 } from '@/v8/services/sharedCredentialsServiceV8';
 import type { UnifiedFlowCredentials } from '@/v8u/services/unifiedFlowIntegrationV8U';
