@@ -256,6 +256,7 @@ const ContentColumn = styled.div`
 const MainContent = styled.main<{ $sidebarWidth: number }>`
   flex: 1;
   padding: 1.5rem 2rem;
+  padding-top: calc(80px + 1.5rem); /* Account for fixed navbar (80px) + normal top padding */
   margin-left: ${({ $sidebarWidth }) => $sidebarWidth}px;
   transition: margin-left 0.3s ease;
   overflow-y: auto;
