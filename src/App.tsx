@@ -237,6 +237,8 @@ const AppContainer = styled.div`
   display: flex;
   min-height: 100vh;
   background-color: ${({ theme }) => theme.colors.gray100};
+  text-align: left;
+  direction: ltr;
 `;
 
 const ContentColumn = styled.div`
@@ -247,20 +249,19 @@ const ContentColumn = styled.div`
   min-height: 0;
   min-width: 0;
   overflow-y: auto;
+  text-align: left;
+  direction: ltr;
 `;
 
 const MainContent = styled.main<{ $sidebarWidth: number }>`
   flex: 1;
-  padding: 1.5rem;
+  padding: 1.5rem 2rem;
   margin-left: ${({ $sidebarWidth }) => $sidebarWidth}px;
-  margin-top: 100px;
-  padding-bottom: 2rem;
-  overflow: visible;
-  min-height: 0;
-  min-width: 0;
-  transition: margin 0.3s ease;
-  animation: fadeInPage 0.3s ease-in-out;
-
+  transition: margin-left 0.3s ease;
+  overflow-y: auto;
+  background-color: ${({ theme }) => theme.colors.white};
+  text-align: left;
+  direction: ltr;
   @keyframes fadeInPage {
     from {
       opacity: 0;
