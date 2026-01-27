@@ -298,11 +298,18 @@ const JWKSViewer: React.FC = () => {
 	const [environmentId, setEnvironmentId] = useState(() => {
 		// Auto-populate from worker token credentials
 		try {
-			const credentials = unifiedWorkerTokenService.loadCredentials();
-			return credentials?.environmentId || '';
+			// Try synchronous check from localStorage for worker token credentials
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				if (data.credentials?.environmentId) {
+					return data.credentials.environmentId;
+				}
+			}
 		} catch {
 			return '';
 		}
+		return '';
 	});
 	const [jwksResponse, setJwksResponse] = useState<JWKSResponse | null>(null);
 	const [importJson, setImportJson] = useState('');
