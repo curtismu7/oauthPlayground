@@ -10188,6 +10188,41 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						</div>
 									</InfoBox>
 
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>Using Custom Resources</InfoTitle>
+											<InfoText>
+												Client Credentials flow works best with custom resources that define your own
+												API endpoints and scopes. Custom resources give you full control over what your
+												client application can access.
+											</InfoText>
+											<InfoList>
+												<li>
+													<strong>What are custom resources?</strong> Resource servers that you
+													define to protect your own APIs and services
+												</li>
+												<li>
+													<strong>Why use custom resources?</strong> They provide precise access control
+													for your specific application needs and business logic
+												</li>
+												<li>
+													<strong>How to create:</strong> In PingOne, go to Resources → Resource Servers
+													→ Add Resource Server, then define your custom scopes
+												</li>
+												<li>
+													<strong>Best practice:</strong> Use descriptive scope names like
+													"api:read", "data:write", "admin:manage" that clearly indicate permissions
+												</li>
+											</InfoList>
+											<InfoText style={{ marginTop: '12px', fontStyle: 'italic' }}>
+												<strong>Note:</strong> Unlike other flows, Client Credentials cannot access user
+												data or identity information. It's designed specifically for machine-to-machine
+												access to your protected resources.
+											</InfoText>
+										</div>
+									</InfoBox>
+
 									<InfoBox $variant="info">
 										<FiInfo size={20} />
 										<div>
