@@ -46,46 +46,49 @@ export function useDraggableModal(isOpen: boolean, initialCenter = true): UseDra
 	}, [isOpen]);
 
 	// Handle drag start
-	const handleMouseDown = useCallback((e: React.MouseEvent) => {
-		// Don't start drag if clicking on buttons or interactive elements
-		if (
-			(e.target as HTMLElement).closest('button') ||
-			(e.target as HTMLElement).closest('input') ||
-			(e.target as HTMLElement).closest('select') ||
-			(e.target as HTMLElement).closest('textarea') ||
-			(e.target as HTMLElement).closest('a')
-		) {
-			return;
-		}
-
-		const rect = modalRef.current?.getBoundingClientRect();
-		if (rect) {
-			// Get current modal position (either from state or from getBoundingClientRect if centered)
-			let currentX = modalPosition.x;
-			let currentY = modalPosition.y;
-			
-			// If modal is centered (position is 0,0), use current rect position
-			if (currentX === 0 && currentY === 0) {
-				currentX = rect.left;
-				currentY = rect.top;
-				// Update position state immediately
-				setModalPosition({ x: currentX, y: currentY });
+	const handleMouseDown = useCallback(
+		(e: React.MouseEvent) => {
+			// Don't start drag if clicking on buttons or interactive elements
+			if (
+				(e.target as HTMLElement).closest('button') ||
+				(e.target as HTMLElement).closest('input') ||
+				(e.target as HTMLElement).closest('select') ||
+				(e.target as HTMLElement).closest('textarea') ||
+				(e.target as HTMLElement).closest('a')
+			) {
+				return;
 			}
-			
-			// Calculate drag offset: mouse position relative to modal's current top-left corner
-			const offsetX = e.clientX - currentX;
-			const offsetY = e.clientY - currentY;
-			
-			setDragOffset({
-				x: offsetX,
-				y: offsetY,
-			});
-			
-			setIsDragging(true);
-			e.preventDefault();
-			e.stopPropagation();
-		}
-	}, [modalPosition]);
+
+			const rect = modalRef.current?.getBoundingClientRect();
+			if (rect) {
+				// Get current modal position (either from state or from getBoundingClientRect if centered)
+				let currentX = modalPosition.x;
+				let currentY = modalPosition.y;
+
+				// If modal is centered (position is 0,0), use current rect position
+				if (currentX === 0 && currentY === 0) {
+					currentX = rect.left;
+					currentY = rect.top;
+					// Update position state immediately
+					setModalPosition({ x: currentX, y: currentY });
+				}
+
+				// Calculate drag offset: mouse position relative to modal's current top-left corner
+				const offsetX = e.clientX - currentX;
+				const offsetY = e.clientY - currentY;
+
+				setDragOffset({
+					x: offsetX,
+					y: offsetY,
+				});
+
+				setIsDragging(true);
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		},
+		[modalPosition]
+	);
 
 	// Handle drag movement
 	const handleMouseMove = useCallback(

@@ -51,6 +51,7 @@ import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { FlowOptionsServiceV8 } from '@/v8/services/flowOptionsServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { OidcDiscoveryServiceV8 } from '@/v8/services/oidcDiscoveryServiceV8';
 import { RedirectUriServiceV8 } from '@/v8/services/redirectUriServiceV8';
 import { ResponseTypeServiceV8 } from '@/v8/services/responseTypeServiceV8';
@@ -62,7 +63,6 @@ import {
 } from '@/v8/services/specVersionServiceV8';
 import { TokenEndpointAuthMethodServiceV8 } from '@/v8/services/tokenEndpointAuthMethodServiceV8';
 import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -499,7 +499,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const [tokenStatus, setTokenStatus] = useState(() =>
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
 	);
-	
+
 	// Worker Token Settings
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
 		try {
@@ -842,7 +842,9 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	// Listen for configuration updates
 	useEffect(() => {
 		const handleConfigUpdate = (event: Event) => {
-			const customEvent = event as CustomEvent<{ workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean } }>;
+			const customEvent = event as CustomEvent<{
+				workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean };
+			}>;
 			if (customEvent.detail?.workerToken) {
 				if (customEvent.detail.workerToken.silentApiRetrieval !== undefined) {
 					setSilentApiRetrieval(customEvent.detail.workerToken.silentApiRetrieval);
@@ -1807,13 +1809,15 @@ Why it matters: Backend services communicate server-to-server without user conte
 												onClick={async () => {
 													// Pass current checkbox values to override config (page checkboxes take precedence)
 													// forceShowModal=true because user explicitly clicked the button - always show modal
-													const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+													const { handleShowWorkerTokenModal } = await import(
+														'@/v8/utils/workerTokenModalHelperV8'
+													);
 													await handleShowWorkerTokenModal(
 														setShowWorkerTokenModal,
 														setTokenStatus,
-														silentApiRetrieval,  // Page checkbox value takes precedence
-														showTokenAtEnd,      // Page checkbox value takes precedence
-														true                  // Force show modal - user clicked button
+														silentApiRetrieval, // Page checkbox value takes precedence
+														showTokenAtEnd, // Page checkbox value takes precedence
+														true // Force show modal - user clicked button
 													);
 												}}
 												title={
@@ -1845,9 +1849,16 @@ Why it matters: Backend services communicate server-to-server without user conte
 												{hasDiscoveredApps ? '🔍 Discover Apps AGAIN' : '🔍 Discover Apps'}
 											</button>
 										</div>
-										
+
 										{/* Worker Token Settings Checkboxes */}
-										<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+										<div
+											style={{
+												marginTop: '16px',
+												display: 'flex',
+												flexDirection: 'column',
+												gap: '12px',
+											}}
+										>
 											<label
 												style={{
 													display: 'flex',
@@ -1877,21 +1888,30 @@ Why it matters: Backend services communicate server-to-server without user conte
 														config.workerToken.silentApiRetrieval = newValue;
 														MFAConfigurationServiceV8.saveConfiguration(config);
 														// Dispatch event to notify other components
-														window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+														window.dispatchEvent(
+															new CustomEvent('mfaConfigurationUpdated', {
+																detail: { workerToken: config.workerToken },
+															})
+														);
 														toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
-														
+
 														// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 														if (newValue) {
-															const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+															const currentStatus =
+																WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 															if (!currentStatus.isValid) {
-																console.log('[CREDENTIALS-FORM-V8U] Silent API retrieval enabled, attempting to fetch token now...');
-																const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+																console.log(
+																	'[CREDENTIALS-FORM-V8U] Silent API retrieval enabled, attempting to fetch token now...'
+																);
+																const { handleShowWorkerTokenModal } = await import(
+																	'@/v8/utils/workerTokenModalHelperV8'
+																);
 																await handleShowWorkerTokenModal(
 																	setShowWorkerTokenModal,
 																	setTokenStatus,
-																	newValue,  // Use new value
+																	newValue, // Use new value
 																	showTokenAtEnd,
-																	false      // Not forced - respect silent setting
+																	false // Not forced - respect silent setting
 																);
 															}
 														}
@@ -1909,7 +1929,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 														Silent API Token Retrieval
 													</span>
 													<span style={{ fontSize: '12px', color: '#6b7280' }}>
-														Automatically fetch worker token in the background without showing modals
+														Automatically fetch worker token in the background without showing
+														modals
 													</span>
 												</div>
 											</label>
@@ -1943,7 +1964,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 														config.workerToken.showTokenAtEnd = newValue;
 														MFAConfigurationServiceV8.saveConfiguration(config);
 														// Dispatch event to notify other components
-														window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+														window.dispatchEvent(
+															new CustomEvent('mfaConfigurationUpdated', {
+																detail: { workerToken: config.workerToken },
+															})
+														);
 														toastV8.info(`Show Token After Generation set to: ${newValue}`);
 													}}
 													style={{
@@ -3695,7 +3720,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 													) : (
 														scopesToShow.map((scope) => {
 															// For client-credentials flow, don't default to 'openid'
-															const defaultScope = providedFlowType === 'client-credentials' ? '' : 'openid';
+															const defaultScope =
+																providedFlowType === 'client-credentials' ? '' : 'openid';
 															const currentScopes = (credentials.scopes || defaultScope)
 																.split(/\s+/)
 																.filter((s) => s.trim());
@@ -3783,7 +3809,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 																		type="button"
 																		onClick={() => {
 																			// For client-credentials flow, don't default to 'openid'
-																			const defaultScope = providedFlowType === 'client-credentials' ? '' : 'openid';
+																			const defaultScope =
+																				providedFlowType === 'client-credentials' ? '' : 'openid';
 																			const scopesArray = (credentials.scopes || defaultScope)
 																				.split(/\s+/)
 																				.filter((s) => s.trim());
@@ -3796,8 +3823,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 																				if (
 																					providedFlowType !== 'client-credentials' &&
 																					(updatedScopes.length === 0 ||
-																					(updatedScopes.length === 1 &&
-																						updatedScopes[0] === 'openid' &&
+																						(updatedScopes.length === 1 &&
+																							updatedScopes[0] === 'openid' &&
 																							scope === 'openid'))
 																				) {
 																					updatedScopes = ['openid'];
@@ -4393,53 +4420,54 @@ Why it matters: Backend services communicate server-to-server without user conte
 						onApply={handleApplyDiscovery}
 					/>
 
-					{showWorkerTokenModal && (() => {
-						// Check if we should show token only (matches MFA pattern)
-						try {
-							const config = MFAConfigurationServiceV8.loadConfiguration();
-							const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-							
-							// Show token-only if showTokenAtEnd is ON and token is valid
-							const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
-							
-							return (
-					<WorkerTokenModalV8
-						isOpen={showWorkerTokenModal}
-									onClose={() => {
-										setShowWorkerTokenModal(false);
-										// Refresh token status when modal closes (matches MFA pattern)
-										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-									}}
-						onTokenGenerated={() => {
-										// Match MFA pattern exactly
-										window.dispatchEvent(new Event('workerTokenUpdated'));
-								const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-								setTokenStatus(newStatus);
-										toastV8.success('Worker token generated and saved!');
-									}}
-									environmentId={credentials.environmentId}
-									showTokenOnly={showTokenOnly}
-								/>
-							);
-						} catch {
-							return (
-								<WorkerTokenModalV8
-									isOpen={showWorkerTokenModal}
-									onClose={() => {
-										setShowWorkerTokenModal(false);
-										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-									}}
-									onTokenGenerated={() => {
-							window.dispatchEvent(new Event('workerTokenUpdated'));
-										const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-										setTokenStatus(newStatus);
-							toastV8.success('Worker token generated and saved!');
-						}}
-						environmentId={credentials.environmentId}
-					/>
-							);
-						}
-					})()}
+					{showWorkerTokenModal &&
+						(() => {
+							// Check if we should show token only (matches MFA pattern)
+							try {
+								const config = MFAConfigurationServiceV8.loadConfiguration();
+								const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+
+								// Show token-only if showTokenAtEnd is ON and token is valid
+								const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+
+								return (
+									<WorkerTokenModalV8
+										isOpen={showWorkerTokenModal}
+										onClose={() => {
+											setShowWorkerTokenModal(false);
+											// Refresh token status when modal closes (matches MFA pattern)
+											setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+										}}
+										onTokenGenerated={() => {
+											// Match MFA pattern exactly
+											window.dispatchEvent(new Event('workerTokenUpdated'));
+											const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+											setTokenStatus(newStatus);
+											toastV8.success('Worker token generated and saved!');
+										}}
+										environmentId={credentials.environmentId}
+										showTokenOnly={showTokenOnly}
+									/>
+								);
+							} catch {
+								return (
+									<WorkerTokenModalV8
+										isOpen={showWorkerTokenModal}
+										onClose={() => {
+											setShowWorkerTokenModal(false);
+											setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+										}}
+										onTokenGenerated={() => {
+											window.dispatchEvent(new Event('workerTokenUpdated'));
+											const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+											setTokenStatus(newStatus);
+											toastV8.success('Worker token generated and saved!');
+										}}
+										environmentId={credentials.environmentId}
+									/>
+								);
+							}
+						})()}
 
 					<AppDiscoveryModalV8U
 						isOpen={showAppDiscoveryModal}

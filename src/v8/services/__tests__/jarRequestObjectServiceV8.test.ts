@@ -6,12 +6,12 @@
  * @since 2025-01-XX
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
 	JARRequestObjectServiceV8,
+	type JARSigningConfig,
 	jarRequestObjectServiceV8,
 	type OAuthAuthorizationParams,
-	type JARSigningConfig,
 } from '../jarRequestObjectServiceV8';
 
 describe('JARRequestObjectServiceV8', () => {
@@ -147,7 +147,10 @@ QKBgQDk3n5v9m8pR0Y8L7w4QK3n5v9m8pR0Y8L7w4QK3n5v9m8pR0Y8L7w4QK3n
 			}).toThrow('Missing required parameters');
 
 			expect(() => {
-				service['buildRequestObjectPayload']({ ...mockAuthParams, redirectUri: '' }, mockHS256Config);
+				service['buildRequestObjectPayload'](
+					{ ...mockAuthParams, redirectUri: '' },
+					mockHS256Config
+				);
 			}).toThrow('Missing required parameters');
 
 			expect(() => {
@@ -386,7 +389,10 @@ QKBgQDk3n5v9m8pR0Y8L7w4QK3n5v9m8pR0Y8L7w4QK3n5v9m8pR0Y8L7w4QK3n
 				},
 			};
 
-			const result = await jarRequestObjectServiceV8.generateRequestObjectJWT(fullParams, mockHS256Config);
+			const result = await jarRequestObjectServiceV8.generateRequestObjectJWT(
+				fullParams,
+				mockHS256Config
+			);
 
 			expect(result.success).toBe(true);
 			if (result.payload) {

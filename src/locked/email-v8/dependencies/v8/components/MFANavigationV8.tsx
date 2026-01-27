@@ -17,8 +17,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uiNotificationServiceV8 } from '../services/uiNotificationServiceV8.ts';
 import { navigateToMfaHubWithCleanup } from '../utils/mfaFlowCleanupV8.ts';
-import { ApiDisplayCheckbox } from './SuperSimpleApiDisplayV8';
 import { MFADocumentationModalV8 } from './MFADocumentationModalV8';
+import { ApiDisplayCheckbox } from './SuperSimpleApiDisplayV8';
 
 interface MFANavigationV8Props {
 	/** Current page identifier for highlighting */
@@ -196,15 +196,15 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 							🏠 Back to Main
 						</button>
 					)}
-					<div className="nav-link-btn api-display-wrapper" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+					<div
+						className="nav-link-btn api-display-wrapper"
+						style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+					>
 						<ApiDisplayCheckbox />
 					</div>
 				</div>
 			</div>
-			<MFADocumentationModalV8
-				isOpen={showDocsModal}
-				onClose={() => setShowDocsModal(false)}
-			/>
+			<MFADocumentationModalV8 isOpen={showDocsModal} onClose={() => setShowDocsModal(false)} />
 			<style>{`
 				.mfa-nav-links {
 					display: flex;

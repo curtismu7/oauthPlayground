@@ -6,9 +6,9 @@
  */
 
 import React, { useState } from 'react';
-import { P1MFASDK, FIDO2Helper, type DeviceRegistrationResult } from '@/sdk/p1mfa';
-import { StatusDisplay } from '../shared/StatusDisplay';
+import { type DeviceRegistrationResult, FIDO2Helper, P1MFASDK } from '@/sdk/p1mfa';
 import { DebugPanel } from '../shared/DebugPanel';
+import { StatusDisplay } from '../shared/StatusDisplay';
 
 interface RegistrationFlowProps {
 	sdk: P1MFASDK;
@@ -64,7 +64,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 				method: 'POST',
 				url: '/api/pingone/mfa/register-device',
 				headers: { 'Content-Type': 'application/json' },
-				body: { 
+				body: {
 					environmentId: '***REDACTED***',
 					userId,
 					type: 'FIDO2',
@@ -132,19 +132,27 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 			const credential = await FIDO2Helper.createWebAuthnCredential(creationOptions);
 
 			// Convert credential to JSON for copy button
-			const credentialJson = JSON.stringify({
-				id: credential.id,
-				type: credential.type,
-				rawId: Array.from(new Uint8Array(credential.rawId)),
-				response: {
-					clientDataJSON: Array.from(
-						new Uint8Array((credential.response as AuthenticatorAttestationResponse).clientDataJSON)
-					),
-					attestationObject: Array.from(
-						new Uint8Array((credential.response as AuthenticatorAttestationResponse).attestationObject)
-					),
+			const credentialJson = JSON.stringify(
+				{
+					id: credential.id,
+					type: credential.type,
+					rawId: Array.from(new Uint8Array(credential.rawId)),
+					response: {
+						clientDataJSON: Array.from(
+							new Uint8Array(
+								(credential.response as AuthenticatorAttestationResponse).clientDataJSON
+							)
+						),
+						attestationObject: Array.from(
+							new Uint8Array(
+								(credential.response as AuthenticatorAttestationResponse).attestationObject
+							)
+						),
+					},
 				},
-			}, null, 2);
+				null,
+				2
+			);
 			setWebauthnCredential(credentialJson);
 
 			setRequest({
@@ -174,20 +182,32 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 	};
 
 	// State machine status mapping
-	const stateMachineStatus = 
-		step === 'input' ? 'IDLE' :
-		step === 'registering' ? 'DEVICE_CREATION_PENDING' :
-		step === 'webauthn' ? 'WEBAUTHN_REGISTRATION_REQUIRED' :
-		step === 'activating' ? 'DEVICE_ACTIVATION_PENDING' :
-		step === 'success' ? 'DEVICE_ACTIVE' :
-		'ERROR';
+	const stateMachineStatus =
+		step === 'input'
+			? 'IDLE'
+			: step === 'registering'
+				? 'DEVICE_CREATION_PENDING'
+				: step === 'webauthn'
+					? 'WEBAUTHN_REGISTRATION_REQUIRED'
+					: step === 'activating'
+						? 'DEVICE_ACTIVATION_PENDING'
+						: step === 'success'
+							? 'DEVICE_ACTIVE'
+							: 'ERROR';
 
 	if (step === 'success') {
 		return (
 			<div>
 				<StatusDisplay status={status} message={message} request={request} response={response} />
 				<DebugPanel
-					request={request as { method?: string; url?: string; headers?: Record<string, string>; body?: unknown }}
+					request={
+						request as {
+							method?: string;
+							url?: string;
+							headers?: Record<string, string>;
+							body?: unknown;
+						}
+					}
 					response={response}
 					correlationId={correlationId}
 					stateMachineStatus={stateMachineStatus}
@@ -267,7 +287,14 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 				<div>
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					<DebugPanel
-						request={request as { method?: string; url?: string; headers?: Record<string, string>; body?: unknown }}
+						request={
+							request as {
+								method?: string;
+								url?: string;
+								headers?: Record<string, string>;
+								body?: unknown;
+							}
+						}
 						response={response}
 						correlationId={correlationId}
 						stateMachineStatus={stateMachineStatus}
@@ -280,7 +307,14 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 				<div>
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					<DebugPanel
-						request={request as { method?: string; url?: string; headers?: Record<string, string>; body?: unknown }}
+						request={
+							request as {
+								method?: string;
+								url?: string;
+								headers?: Record<string, string>;
+								body?: unknown;
+							}
+						}
 						response={response}
 						correlationId={correlationId}
 						stateMachineStatus={stateMachineStatus}
@@ -311,7 +345,14 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 				<div>
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					<DebugPanel
-						request={request as { method?: string; url?: string; headers?: Record<string, string>; body?: unknown }}
+						request={
+							request as {
+								method?: string;
+								url?: string;
+								headers?: Record<string, string>;
+								body?: unknown;
+							}
+						}
 						response={response}
 						correlationId={correlationId}
 						stateMachineStatus={stateMachineStatus}

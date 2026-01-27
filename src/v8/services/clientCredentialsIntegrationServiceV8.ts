@@ -110,28 +110,29 @@ export class ClientCredentialsIntegrationServiceV8 {
 			// Validate that scopes are appropriate for client credentials flow
 			// Client credentials flow should NOT use OpenID Connect scopes (openid, profile, email)
 			const scopesList = credentials.scopes.split(/\s+/).filter((s) => s.trim());
-			const invalidScopes = scopesList.filter((scope) => 
-				scope === 'openid' || 
-				scope === 'profile' || 
-				scope === 'email' || 
-				scope === 'address' || 
-				scope === 'phone'
+			const invalidScopes = scopesList.filter(
+				(scope) =>
+					scope === 'openid' ||
+					scope === 'profile' ||
+					scope === 'email' ||
+					scope === 'address' ||
+					scope === 'phone'
 			);
 
 			if (invalidScopes.length > 0) {
 				console.error(`${MODULE_TAG} Invalid scopes for client credentials flow`, {
 					invalidScopes,
 					allScopes: scopesList,
-					message: 'OpenID Connect scopes cannot be used with client credentials flow'
+					message: 'OpenID Connect scopes cannot be used with client credentials flow',
 				});
-				
+
 				throw new Error(
 					`Invalid scope configuration: The scope(s) "${invalidScopes.join(', ')}" are OpenID Connect scopes and cannot be used with client credentials flow.\n\n` +
-					`Client credentials flow is for machine-to-machine authentication and should use resource server scopes like:\n` +
-					`• Management API: p1:read:user, p1:read:environments, p1:admin:user\n` +
-					`• Custom APIs: api:read, api:write, api:admin\n` +
-					`• Remove OpenID Connect scopes: openid, profile, email, address, phone\n\n` +
-					`See: https://apidocs.pingidentity.com/pingone/main/v1/api/#access-services-through-scopes-and-roles`
+						`Client credentials flow is for machine-to-machine authentication and should use resource server scopes like:\n` +
+						`• Management API: p1:read:user, p1:read:environments, p1:admin:user\n` +
+						`• Custom APIs: api:read, api:write, api:admin\n` +
+						`• Remove OpenID Connect scopes: openid, profile, email, address, phone\n\n` +
+						`See: https://apidocs.pingidentity.com/pingone/main/v1/api/#access-services-through-scopes-and-roles`
 				);
 			}
 
@@ -513,16 +514,16 @@ export class ClientCredentialsIntegrationServiceV8 {
 
 					if (isScopeNotGranted) {
 						let errorMsg = `Configuration Error: The scope(s) "${scopesList.join(', ')}" request failed.\n\n`;
-						
+
 						errorMsg += `📋 Root Cause\n\n`;
 						errorMsg += `The error "At least one scope must be granted" from PingOne indicates that the requested scope(s) are not enabled or granted for your application.\n\n`;
-						
+
 						errorMsg += `💡 Critical: What Scopes Work with Client Credentials?\n\n`;
 						errorMsg += `For Client Credentials flow, you MUST use resource server scopes (like "ClaimScope", "custom:read", "api:read", etc.).\n\n`;
 						errorMsg += `❌ OIDC scopes (like "openid", "profile", "email") do NOT work with Client Credentials\n`;
 						errorMsg += `❌ Self-management scopes (like "p1:read:user") do NOT work with Client Credentials\n`;
 						errorMsg += `✅ Resource server scopes (like "ClaimScope", "custom:read") DO work with Client Credentials\n\n`;
-						
+
 						errorMsg += `⚠️ Authentication Method Mismatch\n\n`;
 						errorMsg += `Your PingOne app's "Token Endpoint Authentication Method" (in OIDC Settings tab) must match this app's auth method.\n\n`;
 						errorMsg += `• This app is using: "${authMethod}"\n`;
@@ -559,7 +560,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 						errorMsg += `1. In this app, use the scope name you created (e.g., "ClaimScope")\n\n`;
 						errorMsg += `2. Example: Enter "ClaimScope" in the Scopes field\n\n`;
 						errorMsg += `3. Wait a few seconds for changes to propagate, then try the request again\n\n`;
-						
+
 						errorMsg += `📝 Example\n\n`;
 						errorMsg += `Instead of "openid", use a resource server scope like "ClaimScope" or "custom:read" (whatever is available in your Resources tab under a resource server)\n\n`;
 

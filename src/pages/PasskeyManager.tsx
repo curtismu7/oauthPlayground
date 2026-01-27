@@ -6,16 +6,18 @@
  */
 
 import React, { useState } from 'react';
-import { PasskeyManagementUtility } from '@/utils/PasskeyManagementUtility';
-import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { WorkerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { PasskeyManagementUtility } from '@/utils/PasskeyManagementUtility';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
+import { WorkerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 
 export const PasskeyManager: React.FC = () => {
 	usePageScroll({ pageName: 'Passkey Manager', force: true });
 
-	const [environmentId, setEnvironmentId] = useState(() => EnvironmentIdServiceV8.getEnvironmentId() || '');
+	const [environmentId, setEnvironmentId] = useState(
+		() => EnvironmentIdServiceV8.getEnvironmentId() || ''
+	);
 	const [userId, setUserId] = useState('');
 	const [workerToken, setWorkerToken] = useState<string | null>(null);
 	const [loadingToken, setLoadingToken] = useState(false);
@@ -40,7 +42,9 @@ export const PasskeyManager: React.FC = () => {
 
 			const credentials = CredentialsServiceV8.loadCredentials(flowKey, config);
 			if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
-				throw new Error('Missing worker credentials. Please configure worker token credentials first.');
+				throw new Error(
+					'Missing worker credentials. Please configure worker token credentials first.'
+				);
 			}
 
 			const workerTokenService = new WorkerTokenServiceV8();
@@ -54,7 +58,9 @@ export const PasskeyManager: React.FC = () => {
 			setWorkerToken(token);
 		} catch (error) {
 			console.error('Failed to load worker token:', error);
-			alert(`Failed to load worker token: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			alert(
+				`Failed to load worker token: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		} finally {
 			setLoadingToken(false);
 		}

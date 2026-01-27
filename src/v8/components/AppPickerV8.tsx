@@ -78,11 +78,11 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 			// Use helper to check silentApiRetrieval before showing modal
 			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
 			await handleShowWorkerTokenModal(
-				setShowWorkerTokenModal, 
+				setShowWorkerTokenModal,
 				setTokenStatus,
 				undefined, // Use default silentApiRetrieval from config
 				undefined, // Use default showTokenAtEnd from config
-				true      // Force show modal - user clicked button
+				true // Force show modal - user clicked button
 			);
 		}
 	};

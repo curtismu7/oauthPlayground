@@ -208,7 +208,9 @@ const WhatsAppDeviceSelectionStep: React.FC<
 						});
 						nav.markStepComplete();
 						nav.goToStep(3); // Default to Send OTP step (Step 3) for manual sending
-						toastV8.success('Device selected for authentication. Follow the next step to continue.');
+						toastV8.success(
+							'Device selected for authentication. Follow the next step to continue.'
+						);
 					}
 			}
 		} catch (error) {
@@ -1840,7 +1842,12 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 
 			// Auto-open validation modal when on step 4 (handled in render, not useEffect to avoid Rules of Hooks violation)
 			// But respect if user explicitly closed it
-			if (!showValidationModal && nav.currentStep === 4 && !mfaState.verificationResult && !userClosedValidationModal) {
+			if (
+				!showValidationModal &&
+				nav.currentStep === 4 &&
+				!mfaState.verificationResult &&
+				!userClosedValidationModal
+			) {
 				// Use setTimeout to avoid state updates during render
 				setTimeout(() => {
 					setShowValidationModal(true);
@@ -2056,7 +2063,10 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 							overflow: 'hidden',
 							...step4ModalDrag.modalStyle,
 							pointerEvents: 'auto',
-							position: step4ModalDrag.modalPosition.x !== 0 || step4ModalDrag.modalPosition.y !== 0 ? 'fixed' : 'relative',
+							position:
+								step4ModalDrag.modalPosition.x !== 0 || step4ModalDrag.modalPosition.y !== 0
+									? 'fixed'
+									: 'relative',
 						}}
 						onClick={(e) => e.stopPropagation()}
 					>
@@ -2392,9 +2402,11 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 										try {
 											// For authentication flow (when authenticationId exists), use selectDeviceForAuthentication
 											if (mfaState.authenticationId && mfaState.deviceId) {
-												const { MfaAuthenticationServiceV8 } = await import('@/v8/services/mfaAuthenticationServiceV8');
+												const { MfaAuthenticationServiceV8 } = await import(
+													'@/v8/services/mfaAuthenticationServiceV8'
+												);
 												const { MFAServiceV8 } = await import('@/v8/services/mfaServiceV8');
-												
+
 												// Get userId if not already available
 												let userId = mfaState.userId;
 												if (!userId) {
@@ -2418,7 +2430,10 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 												toastV8.success('OTP code resent successfully!');
 											}
 											// For registration flow with ACTIVATION_REQUIRED devices, use resendPairingCode
-											else if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && mfaState.deviceId) {
+											else if (
+												mfaState.deviceStatus === 'ACTIVATION_REQUIRED' &&
+												mfaState.deviceId
+											) {
 												await MFAServiceV8.resendPairingCode({
 													environmentId: credentials.environmentId,
 													username: credentials.username,
@@ -2445,8 +2460,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 												throw new Error('Device ID is required to resend OTP');
 											}
 										} catch (error) {
-											const errorMessage =
-												error instanceof Error ? error.message : 'Unknown error';
+											const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 											toastV8.error(`Failed to resend OTP: ${errorMessage}`);
 										} finally {
 											setIsLoading(false);
@@ -2534,7 +2548,8 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					(v) =>
 						setValidationState({
 							...validationState,
-							validationAttempts: typeof v === 'function' ? v(validationState.validationAttempts) : v,
+							validationAttempts:
+								typeof v === 'function' ? v(validationState.validationAttempts) : v,
 						}),
 					validationState.validationError,
 					(v) => setValidationState({ ...validationState, validationError: v }),

@@ -7,8 +7,8 @@
  */
 
 import React from 'react';
+import { FiAlertTriangle, FiCheckCircle, FiGlobe, FiSettings, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiX, FiCheckCircle, FiAlertTriangle, FiSettings, FiGlobe } from 'react-icons/fi';
 
 const ModalOverlay = styled.div`
 	position: fixed;
@@ -148,7 +148,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 	transition: all 0.2s ease;
 	border: none;
 
-	${props => {
+	${(props) => {
 		switch (props.$variant) {
 			case 'primary':
 				return `
@@ -230,14 +230,18 @@ export const FeatureEnableConfirmationModal: React.FC<FeatureEnableConfirmationM
 
 				<ModalBody>
 					<InfoBox>
-						<strong>Feature:</strong> {featureName}<br />
-						<strong>Application:</strong> {appName}<br />
-						<strong>Action:</strong> {isEnabling ? 'Enable' : 'Disable'} feature in PingOne client and application
+						<strong>Feature:</strong> {featureName}
+						<br />
+						<strong>Application:</strong> {appName}
+						<br />
+						<strong>Action:</strong> {isEnabling ? 'Enable' : 'Disable'} feature in PingOne client
+						and application
 					</InfoBox>
 
 					{!isEnabling && (
 						<WarningBox>
-							<strong>⚠️ Warning:</strong> Disabling this feature will remove it from your PingOne client configuration and may affect existing integrations that depend on it.
+							<strong>⚠️ Warning:</strong> Disabling this feature will remove it from your PingOne
+							client configuration and may affect existing integrations that depend on it.
 						</WarningBox>
 					)}
 
@@ -249,13 +253,21 @@ export const FeatureEnableConfirmationModal: React.FC<FeatureEnableConfirmationM
 						<ChangeList>
 							{changes.pingOneChanges.map((change, index) => (
 								<ChangeItem key={index}>
-									{change.includes('client_id') || change.includes('redirect_uris') || change.includes('grant_types') ? (
+									{change.includes('client_id') ||
+									change.includes('redirect_uris') ||
+									change.includes('grant_types') ? (
 										<>
-											{change.split(' ').map((part, i) => 
-												part.includes('client_id') || part.includes('redirect_uris') || part.includes('grant_types') ? 
-													<CodeBlock key={i}>{part}</CodeBlock> : 
-													` ${part} `
-											)}
+											{change
+												.split(' ')
+												.map((part, i) =>
+													part.includes('client_id') ||
+													part.includes('redirect_uris') ||
+													part.includes('grant_types') ? (
+														<CodeBlock key={i}>{part}</CodeBlock>
+													) : (
+														` ${part} `
+													)
+												)}
 										</>
 									) : (
 										change
@@ -296,12 +308,12 @@ export const FeatureEnableConfirmationModal: React.FC<FeatureEnableConfirmationM
 					<Button onClick={onClose} disabled={isLoading}>
 						Cancel
 					</Button>
-					<Button 
-						$variant={isEnabling ? 'primary' : 'danger'} 
+					<Button
+						$variant={isEnabling ? 'primary' : 'danger'}
 						onClick={handleConfirm}
 						disabled={isLoading}
 					>
-						{isLoading ? 'Processing...' : (isEnabling ? 'Enable Feature' : 'Disable Feature')}
+						{isLoading ? 'Processing...' : isEnabling ? 'Enable Feature' : 'Disable Feature'}
 					</Button>
 				</ModalFooter>
 			</ModalContent>

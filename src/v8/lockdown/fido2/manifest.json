@@ -1,53 +1,53 @@
 {
-  "flow": "fido2",
-  "description": "FIDO2/WebAuthn registration and authentication flow lockdown",
-  "version": "1.0.0",
-  "updated": "2026-01-24T00:30:57.062Z",
-  "files": [
-    {
-      "path": "src/v8/flows/types/FIDO2FlowV8.tsx",
-      "hash": "88587b67761ca60e8a73847cdffe72be4b8185b5539c7d6e86d0f61ae8c488aa",
-      "description": "Main FIDO2 registration flow component - handles device registration, WebAuthn API calls, and activation"
-    },
-    {
-      "path": "src/v8/flows/types/FIDO2ConfigurationPageV8.tsx",
-      "hash": "3d8d3d47d0faa94c067a742d106131c1630299fa9f9c06d7f8a8e390f2281356",
-      "description": "FIDO2 configuration page - policy selection and FIDO2 settings"
-    },
-    {
-      "path": "src/v8/flows/MFAAuthenticationMainPageV8.tsx",
-      "hash": "5ef6d75c1537711e6780c65d14647e4a9c9b79e3e6ba7b2ab6f858e64d8b9850",
-      "description": "FIDO2 authentication page - device selection, WebAuthn authentication, and assertion check"
-    },
-    {
-      "path": "src/v8/components/FIDODeviceExistsModalV8.tsx",
-      "hash": "97a974ce8168f11937a1f1d0e6206f19b8c3edb60c7e7d81c95bad1da48b816e",
-      "description": "Modal for when user already has a FIDO2 device (only one allowed per user)"
-    },
-    {
-      "path": "src/v8/services/mfaServiceV8.ts",
-      "hash": "8527b086c6f91ee672e1c53139d7b20946e757721ba9e186c3f0719228ddbb05",
-      "description": "FIDO2 device registration and activation service methods (registerFIDO2Device, activateFIDO2Device)"
-    },
-    {
-      "path": "src/v8/services/mfaAuthenticationServiceV8.ts",
-      "hash": "158a06a637254943074e4dfb5e4c5f93abedc9a3b3277c2f715b9ba646c4f755",
-      "description": "FIDO2 authentication service - assertion check (checkFIDO2Assertion) and device authentication initialization"
-    },
-    {
-      "path": "src/v8/flows/controllers/FIDO2FlowController.ts",
-      "hash": "e740157ea30177f9004d59cd41d6f5612e9a252b0b040ee9c1371112e88640b9",
-      "description": "FIDO2 flow controller - handles FIDO2-specific flow logic and device filtering"
-    },
-    {
-      "path": "src/v8/services/mfaConfigurationServiceV8.ts",
-      "hash": "5e9d5bda21c5d6cd32bafee1e0131345465e6c661369563e104d9bd294d0af95",
-      "description": "FIDO2 configuration storage - stores FIDO2 settings (attestation, authenticatorAttachment, etc.)"
-    },
-    {
-      "path": "server.js",
-      "hash": "5cd85241e3e0173f3ce156932d31ec66b5078c31b766c664ca398a02a659cfff",
-      "description": "Backend FIDO2 API endpoints: /api/pingone/mfa/register-device, /api/pingone/mfa/activate-fido2-device, /api/pingone/mfa/check-fido2-assertion"
-    }
-  ]
+	"flow": "fido2",
+	"description": "FIDO2/WebAuthn registration and authentication flow lockdown",
+	"version": "1.0.0",
+	"updated": "2026-01-24T00:30:57.062Z",
+	"files": [
+		{
+			"path": "src/v8/flows/types/FIDO2FlowV8.tsx",
+			"hash": "88587b67761ca60e8a73847cdffe72be4b8185b5539c7d6e86d0f61ae8c488aa",
+			"description": "Main FIDO2 registration flow component - handles device registration, WebAuthn API calls, and activation"
+		},
+		{
+			"path": "src/v8/flows/types/FIDO2ConfigurationPageV8.tsx",
+			"hash": "3d8d3d47d0faa94c067a742d106131c1630299fa9f9c06d7f8a8e390f2281356",
+			"description": "FIDO2 configuration page - policy selection and FIDO2 settings"
+		},
+		{
+			"path": "src/v8/flows/MFAAuthenticationMainPageV8.tsx",
+			"hash": "5ef6d75c1537711e6780c65d14647e4a9c9b79e3e6ba7b2ab6f858e64d8b9850",
+			"description": "FIDO2 authentication page - device selection, WebAuthn authentication, and assertion check"
+		},
+		{
+			"path": "src/v8/components/FIDODeviceExistsModalV8.tsx",
+			"hash": "97a974ce8168f11937a1f1d0e6206f19b8c3edb60c7e7d81c95bad1da48b816e",
+			"description": "Modal for when user already has a FIDO2 device (only one allowed per user)"
+		},
+		{
+			"path": "src/v8/services/mfaServiceV8.ts",
+			"hash": "8527b086c6f91ee672e1c53139d7b20946e757721ba9e186c3f0719228ddbb05",
+			"description": "FIDO2 device registration and activation service methods (registerFIDO2Device, activateFIDO2Device)"
+		},
+		{
+			"path": "src/v8/services/mfaAuthenticationServiceV8.ts",
+			"hash": "158a06a637254943074e4dfb5e4c5f93abedc9a3b3277c2f715b9ba646c4f755",
+			"description": "FIDO2 authentication service - assertion check (checkFIDO2Assertion) and device authentication initialization"
+		},
+		{
+			"path": "src/v8/flows/controllers/FIDO2FlowController.ts",
+			"hash": "e740157ea30177f9004d59cd41d6f5612e9a252b0b040ee9c1371112e88640b9",
+			"description": "FIDO2 flow controller - handles FIDO2-specific flow logic and device filtering"
+		},
+		{
+			"path": "src/v8/services/mfaConfigurationServiceV8.ts",
+			"hash": "5e9d5bda21c5d6cd32bafee1e0131345465e6c661369563e104d9bd294d0af95",
+			"description": "FIDO2 configuration storage - stores FIDO2 settings (attestation, authenticatorAttachment, etc.)"
+		},
+		{
+			"path": "server.js",
+			"hash": "5cd85241e3e0173f3ce156932d31ec66b5078c31b766c664ca398a02a659cfff",
+			"description": "Backend FIDO2 API endpoints: /api/pingone/mfa/register-device, /api/pingone/mfa/activate-fido2-device, /api/pingone/mfa/check-fido2-assertion"
+		}
+	]
 }

@@ -101,9 +101,9 @@
     </div>
 
     <script>
-        let testResults = [];
+        const testResults = [];
         let componentCount = 0;
-        let startTime = Date.now();
+        const startTime = Date.now();
 
         function addTestResult(test, status, message) {
             testResults.push({ test, status, message, timestamp: Date.now() });

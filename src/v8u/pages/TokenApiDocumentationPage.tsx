@@ -1,8 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+	FiCheck,
+	FiClock,
+	FiCode,
+	FiCopy,
+	FiExternalLink,
+	FiRefreshCw,
+	FiSearch,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCode, FiCopy, FiCheck, FiRefreshCw, FiSearch, FiClock, FiExternalLink } from 'react-icons/fi';
-import { TokenMonitoringService, type ApiCall } from '../services/tokenMonitoringService';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
+import { type ApiCall, TokenMonitoringService } from '../services/tokenMonitoringService';
 
 const PageContainer = styled.div`
   padding: 2rem;
@@ -89,10 +97,10 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   align-items: center;
   gap: 0.5rem;
   
-  ${props => {
-    switch (props.$variant) {
-      case 'primary':
-        return `
+  ${(props) => {
+		switch (props.$variant) {
+			case 'primary':
+				return `
           background: #3b82f6;
           border-color: #3b82f6;
           color: white;
@@ -102,8 +110,8 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
             border-color: #2563eb;
           }
         `;
-      default:
-        return `
+			default:
+				return `
           background: white;
           border-color: #e2e8f0;
           color: #64748b;
@@ -114,8 +122,8 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
             color: #475569;
           }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const StatsGrid = styled.div`
@@ -161,14 +169,18 @@ const ApiCallCard = styled.div`
 
 const ApiCallHeader = styled.div<{ $method: string }>`
   padding: 1rem 1.5rem;
-  background: ${props => {
-    switch (props.$method) {
-      case 'POST': return '#dcfce7';
-      case 'GET': return '#dbeafe';
-      case 'DELETE': return '#fee2e2';
-      default: return '#f3f4f6';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$method) {
+			case 'POST':
+				return '#dcfce7';
+			case 'GET':
+				return '#dbeafe';
+			case 'DELETE':
+				return '#fee2e2';
+			default:
+				return '#f3f4f6';
+		}
+	}};
   border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
@@ -181,14 +193,18 @@ const MethodBadge = styled.span<{ $method: string }>`
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  background: ${props => {
-    switch (props.$method) {
-      case 'POST': return '#16a34a';
-      case 'GET': return '#2563eb';
-      case 'DELETE': return '#dc2626';
-      default: return '#6b7280';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$method) {
+			case 'POST':
+				return '#16a34a';
+			case 'GET':
+				return '#2563eb';
+			case 'DELETE':
+				return '#dc2626';
+			default:
+				return '#6b7280';
+		}
+	}};
   color: white;
 `;
 
@@ -231,8 +247,8 @@ const CodeBlock = styled.div<{ $expanded?: boolean }>`
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-all;
-  max-height: ${props => props.$expanded ? 'none' : '200px'};
-  overflow-y: ${props => props.$expanded ? 'visible' : 'auto'};
+  max-height: ${(props) => (props.$expanded ? 'none' : '200px')};
+  overflow-y: ${(props) => (props.$expanded ? 'visible' : 'auto')};
 `;
 
 const ExpandButton = styled.button`
@@ -250,16 +266,16 @@ const ExpandButton = styled.button`
 `;
 
 const ResponseBlock = styled.div<{ $status: number }>`
-  background: ${props => {
-    if (props.$status >= 200 && props.$status < 300) return '#f0fdf4';
-    if (props.$status >= 400) return '#fef2f2';
-    return '#f8fafc';
-  }};
-  border: 1px solid ${props => {
-    if (props.$status >= 200 && props.$status < 300) return '#86efac';
-    if (props.$status >= 400) return '#fecaca';
-    return '#e2e8f0';
-  }};
+  background: ${(props) => {
+		if (props.$status >= 200 && props.$status < 300) return '#f0fdf4';
+		if (props.$status >= 400) return '#fef2f2';
+		return '#f8fafc';
+	}};
+  border: 1px solid ${(props) => {
+		if (props.$status >= 200 && props.$status < 300) return '#86efac';
+		if (props.$status >= 400) return '#fecaca';
+		return '#e2e8f0';
+	}};
   border-radius: 6px;
   padding: 1rem;
   margin-top: 0.5rem;
@@ -270,11 +286,11 @@ const StatusBadge = styled.span<{ $status: number }>`
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 600;
-  background: ${props => {
-    if (props.$status >= 200 && props.$status < 300) return '#16a34a';
-    if (props.$status >= 400) return '#dc2626';
-    return '#6b7280';
-  }};
+  background: ${(props) => {
+		if (props.$status >= 200 && props.$status < 300) return '#16a34a';
+		if (props.$status >= 400) return '#dc2626';
+		return '#6b7280';
+	}};
   color: white;
   margin-bottom: 0.5rem;
   display: inline-block;
@@ -362,384 +378,453 @@ const RedirectInteractionType = styled(InteractionType)`
 `;
 
 export const TokenApiDocumentationPage: React.FC = () => {
-  const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
-  const [redirects, setRedirects] = useState<any[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<string>('all');
-  const [expandedCalls, setExpandedCalls] = useState<Set<string>>(new Set());
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
+	const [redirects, setRedirects] = useState<any[]>([]);
+	const [searchTerm, setSearchTerm] = useState('');
+	const [filterType, setFilterType] = useState<string>('all');
+	const [expandedCalls, setExpandedCalls] = useState<Set<string>>(new Set());
+	const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // Load real API calls and redirects
-  useEffect(() => {
-    const loadData = () => {
-      // Get API calls from token monitoring service
-      const service = TokenMonitoringService.getInstance();
-      const calls = service.getApiCalls();
-      setApiCalls(calls);
+	// Load real API calls and redirects
+	useEffect(() => {
+		const loadData = () => {
+			// Get API calls from token monitoring service
+			const service = TokenMonitoringService.getInstance();
+			const calls = service.getApiCalls();
+			setApiCalls(calls);
 
-      // Get all tracked calls including redirects from apiCallTrackerService
-      const trackedCalls = apiCallTrackerService.getApiCalls();
-      
-      // Filter for redirects (GET /authorize calls, callback URLs, and other front-channel redirects)
-      const redirectCalls = trackedCalls.filter(call => 
-        (call.url?.includes('/authorize') && call.method === 'GET') ||
-        (call.url?.includes('/callback') && call.method === 'GET') ||
-        (call.url?.includes('/resume') && call.method === 'GET') ||
-        (call.step?.includes('redirect')) ||
-        (call.flowType?.includes('redirect'))
-      );
-      
-      setRedirects(redirectCalls);
-    };
+			// Get all tracked calls including redirects from apiCallTrackerService
+			const trackedCalls = apiCallTrackerService.getApiCalls();
 
-    loadData();
-    
-    // Set up polling to get real-time updates
-    const interval = setInterval(loadData, 2000);
-    
-    return () => clearInterval(interval);
-  }, []);
+			// Filter for redirects (GET /authorize calls, callback URLs, and other front-channel redirects)
+			const redirectCalls = trackedCalls.filter(
+				(call) =>
+					(call.url?.includes('/authorize') && call.method === 'GET') ||
+					(call.url?.includes('/callback') && call.method === 'GET') ||
+					(call.url?.includes('/resume') && call.method === 'GET') ||
+					call.step?.includes('redirect') ||
+					call.flowType?.includes('redirect')
+			);
 
-  const filteredCalls = apiCalls.filter(call => {
-    const matchesSearch = call.url.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         call.method.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         call.type.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesFilter = filterType === 'all' || call.type === filterType;
-    
-    return matchesSearch && matchesFilter;
-  });
+			setRedirects(redirectCalls);
+		};
 
-  const toggleExpanded = (id: string) => {
-    const newExpanded = new Set(expandedCalls);
-    if (newExpanded.has(id)) {
-      newExpanded.delete(id);
-    } else {
-      newExpanded.add(id);
-    }
-    setExpandedCalls(newExpanded);
-  };
+		loadData();
 
-  const copyToClipboard = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
+		// Set up polling to get real-time updates
+		const interval = setInterval(loadData, 2000);
 
-  const formatTimestamp = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString();
-  };
+		return () => clearInterval(interval);
+	}, []);
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'oauth_revoke': return '🔄';
-      case 'sso_signoff': return '🚪';
-      case 'session_delete': return '👥';
-      case 'introspect': return '🔍';
-      case 'worker_refresh': return '🏭';
-      case 'preflight-validation': return '✈️';
-      case 'token_exchange': return '🔄';
-      case 'userinfo': return '👤';
-      case 'par': return '📤';
-      case 'resume': return '▶️';
-      case 'device_auth': return '📱';
-      default: return '📡';
-    }
-  };
+	const filteredCalls = apiCalls.filter((call) => {
+		const matchesSearch =
+			call.url.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			call.method.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			call.type.toLowerCase().includes(searchTerm.toLowerCase());
 
-  const getTypeName = (type: string) => {
-    switch (type) {
-      case 'oauth_revoke': return 'OAuth Token Revocation';
-      case 'sso_signoff': return 'SSO Sign-off';
-      case 'session_delete': return 'Session Deletion';
-      case 'introspect': return 'Token Introspection';
-      case 'worker_refresh': return 'Worker Token Refresh';
-      case 'preflight-validation': return 'Pre-flight Validation';
-      case 'token_exchange': return 'Token Exchange';
-      case 'userinfo': return 'User Info';
-      case 'par': return 'Pushed Authorization Request';
-      case 'resume': return 'Resume Flow';
-      case 'device_auth': return 'Device Authorization';
-      default: return type || 'Unknown';
-    }
-  };
+		const matchesFilter = filterType === 'all' || call.type === filterType;
 
-  const stats = {
-    total: apiCalls.length,
-    success: apiCalls.filter(c => c.success).length,
-    failed: apiCalls.filter(c => !c.success).length,
-    avgDuration: apiCalls.length > 0 
-      ? Math.round(apiCalls.reduce((sum, c) => sum + c.duration, 0) / apiCalls.length)
-      : 0,
-    redirects: redirects.length
-  };
+		return matchesSearch && matchesFilter;
+	});
 
-  return (
-    <PageContainer>
-      <PageHeader>
-        <PageTitle>📡 OAuth Flow Documentation</PageTitle>
-        <PageSubtitle>
-          Complete OAuth flow visualization: Front-channel redirects and back-channel API calls
-        </PageSubtitle>
-      </PageHeader>
+	const toggleExpanded = (id: string) => {
+		const newExpanded = new Set(expandedCalls);
+		if (newExpanded.has(id)) {
+			newExpanded.delete(id);
+		} else {
+			newExpanded.add(id);
+		}
+		setExpandedCalls(newExpanded);
+	};
 
-      <StatsGrid>
-        <StatCard>
-          <StatValue>{stats.total}</StatValue>
-          <StatLabel>Total API Calls</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatValue>{stats.redirects}</StatValue>
-          <StatLabel>Front-Channel Redirects</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatValue>{stats.success}</StatValue>
-          <StatLabel>Successful</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatValue>{stats.failed}</StatValue>
-          <StatLabel>Failed</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatValue>{stats.avgDuration}ms</StatValue>
-          <StatLabel>Avg Duration</StatLabel>
-        </StatCard>
-      </StatsGrid>
+	const copyToClipboard = (text: string, id: string) => {
+		navigator.clipboard.writeText(text);
+		setCopiedId(id);
+		setTimeout(() => setCopiedId(null), 2000);
+	};
 
-      <ControlsContainer>
-        <SearchBox>
-          <SearchIcon>
-            <FiSearch />
-          </SearchIcon>
-          <SearchInput
-            placeholder="Search by URL, method, or type..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </SearchBox>
-        
-        <FilterSelect value={filterType} onChange={(e) => setFilterType(e.target.value)}>
-          <option value="all">All Types</option>
-          <option value="oauth_revoke">OAuth Revoke</option>
-          <option value="sso_signoff">SSO Sign-off</option>
-          <option value="session_delete">Session Delete</option>
-          <option value="introspect">Introspect</option>
-          <option value="worker_refresh">Worker Refresh</option>
-          <option value="preflight-validation">Pre-flight Validation</option>
-          <option value="token_exchange">Token Exchange</option>
-          <option value="userinfo">User Info</option>
-          <option value="par">Pushed Authorization Request</option>
-          <option value="resume">Resume Flow</option>
-          <option value="device_auth">Device Authorization</option>
-          <option value="other">Other</option>
-        </FilterSelect>
-        
-        <ActionButton onClick={() => window.location.reload()}>
-          <FiRefreshCw />
-          Refresh
-        </ActionButton>
-      </ControlsContainer>
+	const formatTimestamp = (timestamp: number) => {
+		return new Date(timestamp).toLocaleString();
+	};
 
-      {/* Redirects Section */}
-      {redirects.length > 0 && (
-        <>
-          <div style={{ marginBottom: '2rem' }}>
-            <h3 style={{ 
-              fontSize: '1.25rem', 
-              fontWeight: '600', 
-              color: '#1e293b', 
-              marginBottom: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}>
-              <FiExternalLink />
-              Front-Channel Redirects (Browser Navigation)
-            </h3>
-            <p style={{ color: '#64748b', marginBottom: '1rem' }}>
-              These are the browser redirects that happen during OAuth flows. The user's browser is redirected to these URLs.
-            </p>
-            {redirects.map((redirect, index) => {
-              // Determine redirect type based on URL
-              let redirectTitle = 'Authorization Redirect';
-              let redirectDescription = 'User browser is redirected to the authorization endpoint to authenticate and grant consent.';
-              
-              if (redirect.url?.includes('/callback')) {
-                redirectTitle = 'Authorization Callback';
-                redirectDescription = 'Authorization server redirects back to your application with authorization code or tokens.';
-              } else if (redirect.url?.includes('/resume')) {
-                redirectTitle = 'Flow Resume';
-                redirectDescription = 'Application resumes the OAuth flow after processing the authorization response.';
-              }
-              
-              return (
-                <RedirectCard key={`redirect-${index}`}>
-                  <RedirectHeader>
-                    <RedirectTitle>
-                      <FiExternalLink /> {redirectTitle}
-                    </RedirectTitle>
-                    <RedirectInteractionType>
-                      Front-Channel
-                    </RedirectInteractionType>
-                  </RedirectHeader>
-                  <RedirectUrl>
-                    {redirect.actualPingOneUrl || redirect.url}
-                  </RedirectUrl>
-                  <RedirectDescription>
-                    <strong>Step {redirect.url?.includes('/callback') ? '2' : redirect.url?.includes('/resume') ? '3' : '1'}:</strong> {redirectDescription}
-                    This happens in the user's browser (front-channel).
-                  </RedirectDescription>
-                  <Timestamp>
-                    <FiClock />
-                    {redirect.timestamp ? new Date(redirect.timestamp).toLocaleString() : 'Unknown time'}
-                  </Timestamp>
-                </RedirectCard>
-              );
-            })}
-          </div>
+	const getTypeIcon = (type: string) => {
+		switch (type) {
+			case 'oauth_revoke':
+				return '🔄';
+			case 'sso_signoff':
+				return '🚪';
+			case 'session_delete':
+				return '👥';
+			case 'introspect':
+				return '🔍';
+			case 'worker_refresh':
+				return '🏭';
+			case 'preflight-validation':
+				return '✈️';
+			case 'token_exchange':
+				return '🔄';
+			case 'userinfo':
+				return '👤';
+			case 'par':
+				return '📤';
+			case 'resume':
+				return '▶️';
+			case 'device_auth':
+				return '📱';
+			default:
+				return '📡';
+		}
+	};
 
-          <div style={{ 
-            marginBottom: '2rem', 
-            padding: '1rem', 
-            background: '#f8fafc', 
-            border: '1px solid #e2e8f0', 
-            borderRadius: '8px' 
-          }}>
-            <h4 style={{ 
-              fontSize: '1rem', 
-              fontWeight: '600', 
-              color: '#374151', 
-              marginBottom: '0.5rem' 
-            }}>
-              🔄 Complete OAuth Flow Sequence
-            </h4>
-            <div style={{ fontSize: '0.875rem', color: '#64748b', lineHeight: '1.5' }}>
-              <div style={{ marginBottom: '0.5rem' }}>
-                <strong>1. Front-Channel:</strong> Browser redirects to <code>/authorize</code> endpoint
-              </div>
-              <div style={{ marginBottom: '0.5rem' }}>
-                <strong>2. Front-Channel:</strong> Authorization server redirects back with authorization code
-              </div>
-              <div>
-                <strong>3. Back-Channel:</strong> Application exchanges code for tokens at <code>/token</code> endpoint
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+	const getTypeName = (type: string) => {
+		switch (type) {
+			case 'oauth_revoke':
+				return 'OAuth Token Revocation';
+			case 'sso_signoff':
+				return 'SSO Sign-off';
+			case 'session_delete':
+				return 'Session Deletion';
+			case 'introspect':
+				return 'Token Introspection';
+			case 'worker_refresh':
+				return 'Worker Token Refresh';
+			case 'preflight-validation':
+				return 'Pre-flight Validation';
+			case 'token_exchange':
+				return 'Token Exchange';
+			case 'userinfo':
+				return 'User Info';
+			case 'par':
+				return 'Pushed Authorization Request';
+			case 'resume':
+				return 'Resume Flow';
+			case 'device_auth':
+				return 'Device Authorization';
+			default:
+				return type || 'Unknown';
+		}
+	};
 
-      <ApiCallGrid>
-        {filteredCalls.map((call) => (
-          <ApiCallCard key={call.id}>
-            <ApiCallHeader $method={call.method}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <MethodBadge $method={call.method}>
-                  {call.method}
-                </MethodBadge>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span>{getTypeIcon(call.type)}</span>
-                    <strong>{getTypeName(call.type)}</strong>
-                  </div>
-                  <ApiUrl>{call.url}</ApiUrl>
-                </div>
-              </div>
-              <Timestamp>
-                <FiClock />
-                {formatTimestamp(call.timestamp)}
-              </Timestamp>
-            </ApiCallHeader>
+	const stats = {
+		total: apiCalls.length,
+		success: apiCalls.filter((c) => c.success).length,
+		failed: apiCalls.filter((c) => !c.success).length,
+		avgDuration:
+			apiCalls.length > 0
+				? Math.round(apiCalls.reduce((sum, c) => sum + c.duration, 0) / apiCalls.length)
+				: 0,
+		redirects: redirects.length,
+	};
 
-            <ApiCallBody>
-              <ApiSection>
-                <SectionTitle>Request Headers</SectionTitle>
-                <CodeBlock>
-                  {Object.entries(call.headers).map(([key, value]) => 
-                    `${key}: ${value}`
-                  ).join('\n')}
-                </CodeBlock>
-              </ApiSection>
+	return (
+		<PageContainer>
+			<PageHeader>
+				<PageTitle>📡 OAuth Flow Documentation</PageTitle>
+				<PageSubtitle>
+					Complete OAuth flow visualization: Front-channel redirects and back-channel API calls
+				</PageSubtitle>
+			</PageHeader>
 
-              {call.body && (
-                <ApiSection>
-                  <SectionTitle>Request Body</SectionTitle>
-                  <CodeBlock $expanded={expandedCalls.has(call.id)}>
-                    {call.body}
-                  </CodeBlock>
-                  {call.body.length > 200 && (
-                    <ExpandButton onClick={() => toggleExpanded(call.id)}>
-                      {expandedCalls.has(call.id) ? 'Show Less' : 'Show More'}
-                    </ExpandButton>
-                  )}
-                </ApiSection>
-              )}
+			<StatsGrid>
+				<StatCard>
+					<StatValue>{stats.total}</StatValue>
+					<StatLabel>Total API Calls</StatLabel>
+				</StatCard>
+				<StatCard>
+					<StatValue>{stats.redirects}</StatValue>
+					<StatLabel>Front-Channel Redirects</StatLabel>
+				</StatCard>
+				<StatCard>
+					<StatValue>{stats.success}</StatValue>
+					<StatLabel>Successful</StatLabel>
+				</StatCard>
+				<StatCard>
+					<StatValue>{stats.failed}</StatValue>
+					<StatLabel>Failed</StatLabel>
+				</StatCard>
+				<StatCard>
+					<StatValue>{stats.avgDuration}ms</StatValue>
+					<StatLabel>Avg Duration</StatLabel>
+				</StatCard>
+			</StatsGrid>
 
-              <ApiSection>
-                <SectionTitle>Response</SectionTitle>
-                <ResponseBlock $status={call.response.status}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                    <StatusBadge $status={call.response.status}>
-                      {call.response.status} {call.response.statusText}
-                    </StatusBadge>
-                    <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                      {call.duration}ms
-                    </span>
-                  </div>
-                  
-                  <div style={{ marginBottom: '0.5rem' }}>
-                    <strong>Response Headers:</strong>
-                    <CopyButton onClick={() => copyToClipboard(
-                      Object.entries(call.response.headers).map(([k, v]) => `${k}: ${v}`).join('\n'),
-                      `${call.id}-response-headers`
-                    )}>
-                      {copiedId === `${call.id}-response-headers` ? <FiCheck /> : <FiCopy />}
-                    </CopyButton>
-                  </div>
-                  <CodeBlock>
-                    {Object.entries(call.response.headers).map(([key, value]) => 
-                      `${key}: ${value}`
-                    ).join('\n')}
-                  </CodeBlock>
+			<ControlsContainer>
+				<SearchBox>
+					<SearchIcon>
+						<FiSearch />
+					</SearchIcon>
+					<SearchInput
+						placeholder="Search by URL, method, or type..."
+						value={searchTerm}
+						onChange={(e) => setSearchTerm(e.target.value)}
+					/>
+				</SearchBox>
 
-                  {call.response.body && (
-                    <>
-                      <div style={{ marginBottom: '0.5rem', marginTop: '1rem' }}>
-                        <strong>Response Body:</strong>
-                        <CopyButton onClick={() => copyToClipboard(call.response.body || '', `${call.id}-response-body`)}>
-                          {copiedId === `${call.id}-response-body` ? <FiCheck /> : <FiCopy />}
-                        </CopyButton>
-                      </div>
-                      <CodeBlock $expanded={expandedCalls.has(`${call.id}-response`)}>
-                        {call.response.body}
-                      </CodeBlock>
-                      {call.response.body && call.response.body.length > 200 && (
-                        <ExpandButton onClick={() => toggleExpanded(`${call.id}-response`)}>
-                          {expandedCalls.has(`${call.id}-response`) ? 'Show Less' : 'Show More'}
-                        </ExpandButton>
-                      )}
-                    </>
-                  )}
-                </ResponseBlock>
-              </ApiSection>
-            </ApiCallBody>
-          </ApiCallCard>
-        ))}
-      </ApiCallGrid>
+				<FilterSelect value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+					<option value="all">All Types</option>
+					<option value="oauth_revoke">OAuth Revoke</option>
+					<option value="sso_signoff">SSO Sign-off</option>
+					<option value="session_delete">Session Delete</option>
+					<option value="introspect">Introspect</option>
+					<option value="worker_refresh">Worker Refresh</option>
+					<option value="preflight-validation">Pre-flight Validation</option>
+					<option value="token_exchange">Token Exchange</option>
+					<option value="userinfo">User Info</option>
+					<option value="par">Pushed Authorization Request</option>
+					<option value="resume">Resume Flow</option>
+					<option value="device_auth">Device Authorization</option>
+					<option value="other">Other</option>
+				</FilterSelect>
 
-      {filteredCalls.length === 0 && (
-        <div style={{
-          textAlign: 'center',
-          padding: '3rem',
-          color: '#64748b',
-          fontSize: '0.875rem'
-        }}>
-          <FiCode style={{ fontSize: '3rem', marginBottom: '1rem', display: 'block', margin: '0 auto 1rem' }} />
-          <h3>No API Calls Found</h3>
-          <p>Try adjusting your search or filter criteria, or make some API calls to see them here.</p>
-        </div>
-      )}
-    </PageContainer>
-  );
+				<ActionButton onClick={() => window.location.reload()}>
+					<FiRefreshCw />
+					Refresh
+				</ActionButton>
+			</ControlsContainer>
+
+			{/* Redirects Section */}
+			{redirects.length > 0 && (
+				<>
+					<div style={{ marginBottom: '2rem' }}>
+						<h3
+							style={{
+								fontSize: '1.25rem',
+								fontWeight: '600',
+								color: '#1e293b',
+								marginBottom: '1rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
+							<FiExternalLink />
+							Front-Channel Redirects (Browser Navigation)
+						</h3>
+						<p style={{ color: '#64748b', marginBottom: '1rem' }}>
+							These are the browser redirects that happen during OAuth flows. The user's browser is
+							redirected to these URLs.
+						</p>
+						{redirects.map((redirect, index) => {
+							// Determine redirect type based on URL
+							let redirectTitle = 'Authorization Redirect';
+							let redirectDescription =
+								'User browser is redirected to the authorization endpoint to authenticate and grant consent.';
+
+							if (redirect.url?.includes('/callback')) {
+								redirectTitle = 'Authorization Callback';
+								redirectDescription =
+									'Authorization server redirects back to your application with authorization code or tokens.';
+							} else if (redirect.url?.includes('/resume')) {
+								redirectTitle = 'Flow Resume';
+								redirectDescription =
+									'Application resumes the OAuth flow after processing the authorization response.';
+							}
+
+							return (
+								<RedirectCard key={`redirect-${index}`}>
+									<RedirectHeader>
+										<RedirectTitle>
+											<FiExternalLink /> {redirectTitle}
+										</RedirectTitle>
+										<RedirectInteractionType>Front-Channel</RedirectInteractionType>
+									</RedirectHeader>
+									<RedirectUrl>{redirect.actualPingOneUrl || redirect.url}</RedirectUrl>
+									<RedirectDescription>
+										<strong>
+											Step{' '}
+											{redirect.url?.includes('/callback')
+												? '2'
+												: redirect.url?.includes('/resume')
+													? '3'
+													: '1'}
+											:
+										</strong>{' '}
+										{redirectDescription}
+										This happens in the user's browser (front-channel).
+									</RedirectDescription>
+									<Timestamp>
+										<FiClock />
+										{redirect.timestamp
+											? new Date(redirect.timestamp).toLocaleString()
+											: 'Unknown time'}
+									</Timestamp>
+								</RedirectCard>
+							);
+						})}
+					</div>
+
+					<div
+						style={{
+							marginBottom: '2rem',
+							padding: '1rem',
+							background: '#f8fafc',
+							border: '1px solid #e2e8f0',
+							borderRadius: '8px',
+						}}
+					>
+						<h4
+							style={{
+								fontSize: '1rem',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '0.5rem',
+							}}
+						>
+							🔄 Complete OAuth Flow Sequence
+						</h4>
+						<div style={{ fontSize: '0.875rem', color: '#64748b', lineHeight: '1.5' }}>
+							<div style={{ marginBottom: '0.5rem' }}>
+								<strong>1. Front-Channel:</strong> Browser redirects to <code>/authorize</code>{' '}
+								endpoint
+							</div>
+							<div style={{ marginBottom: '0.5rem' }}>
+								<strong>2. Front-Channel:</strong> Authorization server redirects back with
+								authorization code
+							</div>
+							<div>
+								<strong>3. Back-Channel:</strong> Application exchanges code for tokens at{' '}
+								<code>/token</code> endpoint
+							</div>
+						</div>
+					</div>
+				</>
+			)}
+
+			<ApiCallGrid>
+				{filteredCalls.map((call) => (
+					<ApiCallCard key={call.id}>
+						<ApiCallHeader $method={call.method}>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+								<MethodBadge $method={call.method}>{call.method}</MethodBadge>
+								<div>
+									<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+										<span>{getTypeIcon(call.type)}</span>
+										<strong>{getTypeName(call.type)}</strong>
+									</div>
+									<ApiUrl>{call.url}</ApiUrl>
+								</div>
+							</div>
+							<Timestamp>
+								<FiClock />
+								{formatTimestamp(call.timestamp)}
+							</Timestamp>
+						</ApiCallHeader>
+
+						<ApiCallBody>
+							<ApiSection>
+								<SectionTitle>Request Headers</SectionTitle>
+								<CodeBlock>
+									{Object.entries(call.headers)
+										.map(([key, value]) => `${key}: ${value}`)
+										.join('\n')}
+								</CodeBlock>
+							</ApiSection>
+
+							{call.body && (
+								<ApiSection>
+									<SectionTitle>Request Body</SectionTitle>
+									<CodeBlock $expanded={expandedCalls.has(call.id)}>{call.body}</CodeBlock>
+									{call.body.length > 200 && (
+										<ExpandButton onClick={() => toggleExpanded(call.id)}>
+											{expandedCalls.has(call.id) ? 'Show Less' : 'Show More'}
+										</ExpandButton>
+									)}
+								</ApiSection>
+							)}
+
+							<ApiSection>
+								<SectionTitle>Response</SectionTitle>
+								<ResponseBlock $status={call.response.status}>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											marginBottom: '0.5rem',
+										}}
+									>
+										<StatusBadge $status={call.response.status}>
+											{call.response.status} {call.response.statusText}
+										</StatusBadge>
+										<span style={{ fontSize: '0.75rem', color: '#64748b' }}>{call.duration}ms</span>
+									</div>
+
+									<div style={{ marginBottom: '0.5rem' }}>
+										<strong>Response Headers:</strong>
+										<CopyButton
+											onClick={() =>
+												copyToClipboard(
+													Object.entries(call.response.headers)
+														.map(([k, v]) => `${k}: ${v}`)
+														.join('\n'),
+													`${call.id}-response-headers`
+												)
+											}
+										>
+											{copiedId === `${call.id}-response-headers` ? <FiCheck /> : <FiCopy />}
+										</CopyButton>
+									</div>
+									<CodeBlock>
+										{Object.entries(call.response.headers)
+											.map(([key, value]) => `${key}: ${value}`)
+											.join('\n')}
+									</CodeBlock>
+
+									{call.response.body && (
+										<>
+											<div style={{ marginBottom: '0.5rem', marginTop: '1rem' }}>
+												<strong>Response Body:</strong>
+												<CopyButton
+													onClick={() =>
+														copyToClipboard(call.response.body || '', `${call.id}-response-body`)
+													}
+												>
+													{copiedId === `${call.id}-response-body` ? <FiCheck /> : <FiCopy />}
+												</CopyButton>
+											</div>
+											<CodeBlock $expanded={expandedCalls.has(`${call.id}-response`)}>
+												{call.response.body}
+											</CodeBlock>
+											{call.response.body && call.response.body.length > 200 && (
+												<ExpandButton onClick={() => toggleExpanded(`${call.id}-response`)}>
+													{expandedCalls.has(`${call.id}-response`) ? 'Show Less' : 'Show More'}
+												</ExpandButton>
+											)}
+										</>
+									)}
+								</ResponseBlock>
+							</ApiSection>
+						</ApiCallBody>
+					</ApiCallCard>
+				))}
+			</ApiCallGrid>
+
+			{filteredCalls.length === 0 && (
+				<div
+					style={{
+						textAlign: 'center',
+						padding: '3rem',
+						color: '#64748b',
+						fontSize: '0.875rem',
+					}}
+				>
+					<FiCode
+						style={{
+							fontSize: '3rem',
+							marginBottom: '1rem',
+							display: 'block',
+							margin: '0 auto 1rem',
+						}}
+					/>
+					<h3>No API Calls Found</h3>
+					<p>
+						Try adjusting your search or filter criteria, or make some API calls to see them here.
+					</p>
+				</div>
+			)}
+		</PageContainer>
+	);
 };
 
 export default TokenApiDocumentationPage;

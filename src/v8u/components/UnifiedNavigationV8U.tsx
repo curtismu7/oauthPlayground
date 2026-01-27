@@ -15,11 +15,11 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { FlowType } from '@/v8/services/specVersionServiceV8';
-import { ApiDisplayCheckbox } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { UnifiedDocumentationModalV8U } from './UnifiedDocumentationModalV8U';
-import { PKCEStorageServiceV8U } from '../services/pkceStorageServiceV8U';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { ApiDisplayCheckbox } from '@/v8/components/SuperSimpleApiDisplayV8';
+import type { FlowType } from '@/v8/services/specVersionServiceV8';
+import { PKCEStorageServiceV8U } from '../services/pkceStorageServiceV8U';
+import { UnifiedDocumentationModalV8U } from './UnifiedDocumentationModalV8U';
 
 interface UnifiedNavigationV8UProps {
 	/** Current flow type for highlighting */
@@ -73,7 +73,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 		sessionStorage.removeItem('v8u_implicit_tokens');
 		sessionStorage.removeItem('v8u_device_code_data');
 		sessionStorage.removeItem('v8u_client_credentials_tokens');
-		
+
 		// Clear all flow-specific token keys
 		const allPossibleTokenKeys = [
 			'v8u_oauth-authz_tokens',
@@ -82,15 +82,21 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 			'v8u_client-credentials_tokens',
 			'v8u_device-code_tokens',
 		];
-		
+
 		allPossibleTokenKeys.forEach((key) => {
 			sessionStorage.removeItem(key);
 		});
-		
+
 		// Clear PKCE codes for all possible flow keys
 		const specVersions = ['oauth2.0', 'oidc', 'oauth2.1'];
-		const flowTypes: FlowType[] = ['oauth-authz', 'implicit', 'client-credentials', 'device-code', 'hybrid'];
-		
+		const flowTypes: FlowType[] = [
+			'oauth-authz',
+			'implicit',
+			'client-credentials',
+			'device-code',
+			'hybrid',
+		];
+
 		specVersions.forEach((spec) => {
 			flowTypes.forEach((flow) => {
 				const flowKey = `${spec}-${flow}-v8u`;
@@ -99,10 +105,10 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 				});
 			});
 		});
-		
+
 		// Clear API calls
 		apiCallTrackerService.clearApiCalls();
-		
+
 		// Clear any potential ConfigChecker-related state or cached data
 		try {
 			// Clear any comparison results or cached application data
@@ -110,12 +116,14 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 			sessionStorage.removeItem('config-checker-last-check');
 			sessionStorage.removeItem('pingone-app-cache');
 			localStorage.removeItem('pingone-applications-cache');
-			
+
 			// Clear any worker token related cache that might be used for pre-flight checks
 			sessionStorage.removeItem('worker-token-cache');
 			localStorage.removeItem('worker-apps-cache');
-			
-			console.log('🔄 [UnifiedNavigationV8U] Clearing flow state: cleared ConfigChecker and pre-flight cache data');
+
+			console.log(
+				'🔄 [UnifiedNavigationV8U] Clearing flow state: cleared ConfigChecker and pre-flight cache data'
+			);
 		} catch (error) {
 			console.warn('[UnifiedNavigationV8U] Failed to clear cache data:', error);
 		}
@@ -124,7 +132,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 	const handleNavigateToFlow = (flowType: FlowType) => {
 		// Clear state before navigating
 		clearFlowState();
-		
+
 		const flowInfo = flowTypeLabels[flowType];
 		if (flowInfo) {
 			// Navigate to step 0 of the selected flow
@@ -277,14 +285,14 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 							🏠 Back to Main
 						</button>
 					)}
-					<div 
-						className="nav-link-btn api-display-wrapper" 
-						style={{ 
+					<div
+						className="nav-link-btn api-display-wrapper"
+						style={{
 							flex: '0 0 auto',
 							minWidth: '120px',
 							maxWidth: '180px',
-							display: 'flex', 
-							alignItems: 'center', 
+							display: 'flex',
+							alignItems: 'center',
 							justifyContent: 'center',
 							background: '#f3f4f6',
 							border: '2px solid transparent',

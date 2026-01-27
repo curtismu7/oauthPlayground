@@ -1,11 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { FiDownload, FiFileText, FiHelpCircle, FiLogIn, FiLogOut, FiMenu, FiSearch, FiSettings, FiX } from 'react-icons/fi';
+import {
+	FiDownload,
+	FiFileText,
+	FiHelpCircle,
+	FiLogIn,
+	FiLogOut,
+	FiMenu,
+	FiSearch,
+	FiSettings,
+	FiX,
+} from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
 import { useAccessibility } from '../hooks/useAccessibility';
+import {
+	exportAllUseCasesAsMarkdown,
+	exportAllUseCasesAsPDF,
+} from '../v8u/services/unifiedFlowDocumentationServiceV8U';
 import { APP_VERSION } from '../version';
-import { exportAllUseCasesAsMarkdown, exportAllUseCasesAsPDF } from '../v8u/services/unifiedFlowDocumentationServiceV8U';
 
 const NavbarContainer = styled.nav<{ $sidebarOpen?: boolean; $sidebarWidth?: number }>`
   position: fixed;
@@ -207,8 +220,8 @@ const ExportButton = styled.button<{ $variant: 'markdown' | 'pdf' }>`
   gap: 0.5rem;
   
   ${({ $variant }) => {
-    if ($variant === 'markdown') {
-      return `
+		if ($variant === 'markdown') {
+			return `
         background-color: #3b82f6;
         color: #ffffff;
         border-color: #2563eb;
@@ -218,8 +231,8 @@ const ExportButton = styled.button<{ $variant: 'markdown' | 'pdf' }>`
           border-color: #1d4ed8;
         }
       `;
-    } else {
-      return `
+		} else {
+			return `
         background-color: #dc2626;
         color: #ffffff;
         border-color: #b91c1c;
@@ -229,8 +242,8 @@ const ExportButton = styled.button<{ $variant: 'markdown' | 'pdf' }>`
           border-color: #991b1b;
         }
       `;
-    }
-  }}
+		}
+	}}
 `;
 
 interface NavbarProps {
@@ -320,110 +333,114 @@ const Navbar: React.FC<NavbarProps> = ({
 
 	return (
 		<>
-		<NavbarContainer
-			role="banner"
-			aria-label="Main navigation"
-			$sidebarOpen={sidebarOpen}
-			$sidebarWidth={effectiveSidebarWidth}
-		>
-			<MenuButton
-				onClick={handleMenuToggle}
-				aria-label="Toggle navigation menu"
-				aria-expanded="false"
-				aria-controls="sidebar-menu"
+			<NavbarContainer
+				role="banner"
+				aria-label="Main navigation"
+				$sidebarOpen={sidebarOpen}
+				$sidebarWidth={effectiveSidebarWidth}
 			>
-				<FiMenu size={24} aria-hidden="true" />
-			</MenuButton>
-
-			<Logo>
-				<img src="/images/ping-identity-logo.png" alt="Ping Identity" />
-				<div>
-					<span>PingOne OAuth/OIDC Playground</span>
-					<div className="user-info" aria-live="polite">
-						Version {APP_VERSION}
-					</div>
-					{isAuthenticated && user && (
-						<div className="user-info" aria-live="polite">
-							Welcome, {user.name || user.email}
-						</div>
-					)}
-				</div>
-			</Logo>
-
-			<NavItems role="navigation" aria-label="Main navigation">
-				<Link to="/documentation" title="View documentation and help">
-					<FiHelpCircle aria-hidden="true" />
-					<span>Docs</span>
-				</Link>
-				<Link to="/configuration" title="Configure OAuth settings">
-					<FiSettings aria-hidden="true" />
-					<span>Configuration</span>
-				</Link>
-				<Link to="/auto-discover" title="OIDC Discovery tool" aria-label="OIDC Discovery tool">
-					<FiSearch aria-hidden="true" />
-					<span>OIDC Discovery</span>
-				</Link>
-				<Link to="/client-generator" title="Generate PingOne applications">
-					<FiSettings aria-hidden="true" />
-					<span>App Generator</span>
-				</Link>
-				<button
-					type="button"
-					onClick={handleExportAllUseCases}
-					title="Export all Unified Flow use cases as PDF or Markdown"
-					aria-label="Export all Unified Flow use cases"
+				<MenuButton
+					onClick={handleMenuToggle}
+					aria-label="Toggle navigation menu"
+					aria-expanded="false"
+					aria-controls="sidebar-menu"
 				>
-					<FiDownload aria-hidden="true" />
-					<span>Export All</span>
-				</button>
-				{isAuthenticated ? (
+					<FiMenu size={24} aria-hidden="true" />
+				</MenuButton>
+
+				<Logo>
+					<img src="/images/ping-identity-logo.png" alt="Ping Identity" />
+					<div>
+						<span>PingOne OAuth/OIDC Playground</span>
+						<div className="user-info" aria-live="polite">
+							Version {APP_VERSION}
+						</div>
+						{isAuthenticated && user && (
+							<div className="user-info" aria-live="polite">
+								Welcome, {user.name || user.email}
+							</div>
+						)}
+					</div>
+				</Logo>
+
+				<NavItems role="navigation" aria-label="Main navigation">
+					<Link to="/documentation" title="View documentation and help">
+						<FiHelpCircle aria-hidden="true" />
+						<span>Docs</span>
+					</Link>
+					<Link to="/configuration" title="Configure OAuth settings">
+						<FiSettings aria-hidden="true" />
+						<span>Configuration</span>
+					</Link>
+					<Link to="/auto-discover" title="OIDC Discovery tool" aria-label="OIDC Discovery tool">
+						<FiSearch aria-hidden="true" />
+						<span>OIDC Discovery</span>
+					</Link>
+					<Link to="/client-generator" title="Generate PingOne applications">
+						<FiSettings aria-hidden="true" />
+						<span>App Generator</span>
+					</Link>
 					<button
 						type="button"
-						onClick={handleLogout}
-						title="Logout from the application"
-						aria-label="Logout from the application"
+						onClick={handleExportAllUseCases}
+						title="Export all Unified Flow use cases as PDF or Markdown"
+						aria-label="Export all Unified Flow use cases"
 					>
-						<FiLogOut aria-hidden="true" />
-						<span>Logout</span>
+						<FiDownload aria-hidden="true" />
+						<span>Export All</span>
 					</button>
-				) : (
-					<Link to="/login" title="Login to the application" aria-label="Login to the application">
-						<FiLogIn aria-hidden="true" />
-						<span>Login</span>
-					</Link>
-				)}
-			</NavItems>
-		</NavbarContainer>
-		<ModalOverlay $isOpen={showExportModal} onClick={handleCloseExportModal}>
-			<ModalContent onClick={(e) => e.stopPropagation()}>
-				<ModalHeader>
-					<ModalTitle>
-						<FiDownload />
-						Export All Unified Flow Use Cases
-					</ModalTitle>
-					<CloseButton onClick={handleCloseExportModal} aria-label="Close modal">
-						<FiX size={20} />
-					</CloseButton>
-				</ModalHeader>
-				<ModalBody>
-					<ModalMessage>
-						Choose a format to export all Unified Flow use cases. This will generate a comprehensive document
-						containing API calls for each flow type.
-					</ModalMessage>
-					<ButtonGroup>
-						<ExportButton $variant="markdown" onClick={handleExportMarkdown}>
-							<FiFileText />
-							Export as Markdown
-						</ExportButton>
-						<ExportButton $variant="pdf" onClick={handleExportPDF}>
+					{isAuthenticated ? (
+						<button
+							type="button"
+							onClick={handleLogout}
+							title="Logout from the application"
+							aria-label="Logout from the application"
+						>
+							<FiLogOut aria-hidden="true" />
+							<span>Logout</span>
+						</button>
+					) : (
+						<Link
+							to="/login"
+							title="Login to the application"
+							aria-label="Login to the application"
+						>
+							<FiLogIn aria-hidden="true" />
+							<span>Login</span>
+						</Link>
+					)}
+				</NavItems>
+			</NavbarContainer>
+			<ModalOverlay $isOpen={showExportModal} onClick={handleCloseExportModal}>
+				<ModalContent onClick={(e) => e.stopPropagation()}>
+					<ModalHeader>
+						<ModalTitle>
 							<FiDownload />
-							Export as PDF
-						</ExportButton>
-					</ButtonGroup>
-				</ModalBody>
-			</ModalContent>
-		</ModalOverlay>
-	</>
+							Export All Unified Flow Use Cases
+						</ModalTitle>
+						<CloseButton onClick={handleCloseExportModal} aria-label="Close modal">
+							<FiX size={20} />
+						</CloseButton>
+					</ModalHeader>
+					<ModalBody>
+						<ModalMessage>
+							Choose a format to export all Unified Flow use cases. This will generate a
+							comprehensive document containing API calls for each flow type.
+						</ModalMessage>
+						<ButtonGroup>
+							<ExportButton $variant="markdown" onClick={handleExportMarkdown}>
+								<FiFileText />
+								Export as Markdown
+							</ExportButton>
+							<ExportButton $variant="pdf" onClick={handleExportPDF}>
+								<FiDownload />
+								Export as PDF
+							</ExportButton>
+						</ButtonGroup>
+					</ModalBody>
+				</ModalContent>
+			</ModalOverlay>
+		</>
 	);
 };
 

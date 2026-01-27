@@ -4,13 +4,16 @@
  * @description V8 Worker Token Service - Wrapper for unified service
  * @version 8.0.0
  * @since 2025-01-20
- * 
+ *
  * This is a compatibility wrapper that delegates to the unified worker token service.
  * All new code should use the unified service directly.
  */
 
+import type {
+	UnifiedWorkerTokenCredentials,
+	UnifiedWorkerTokenData,
+} from '../../services/unifiedWorkerTokenService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
-import type { UnifiedWorkerTokenCredentials, UnifiedWorkerTokenData } from '../../services/unifiedWorkerTokenService';
 
 // Re-export types for backward compatibility
 export type { WorkerTokenStatus } from '../../services/unifiedWorkerTokenTypes';
@@ -51,7 +54,7 @@ export interface WorkerTokenCredentials {
 
 /**
  * V8 Worker Token Service - Compatibility Wrapper
- * 
+ *
  * This class provides backward compatibility for existing V8 code while
  * delegating all operations to the unified worker token service.
  */
@@ -67,7 +70,7 @@ class WorkerTokenServiceV8 {
 			appName: 'OAuth Playground V8',
 			appVersion: '8.0.0',
 		};
-		
+
 		await unifiedWorkerTokenService.saveCredentials(unifiedCredentials);
 	}
 
@@ -76,7 +79,7 @@ class WorkerTokenServiceV8 {
 	 */
 	async loadCredentials(): Promise<WorkerTokenCredentials | null> {
 		const unifiedCredentials = await unifiedWorkerTokenService.loadCredentials();
-		
+
 		if (!unifiedCredentials) {
 			return null;
 		}
@@ -161,7 +164,8 @@ export const workerTokenServiceV8 = new WorkerTokenServiceV8();
 
 // Make available globally for debugging
 if (typeof window !== 'undefined') {
-	(window as unknown as { workerTokenServiceV8: WorkerTokenServiceV8 }).workerTokenServiceV8 = workerTokenServiceV8;
+	(window as unknown as { workerTokenServiceV8: WorkerTokenServiceV8 }).workerTokenServiceV8 =
+		workerTokenServiceV8;
 }
 
 export default workerTokenServiceV8;

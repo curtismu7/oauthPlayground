@@ -1,23 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { 
-	FiShield, 
-	FiAlertTriangle, 
-	FiCheckCircle, 
-	FiLock, 
-	FiUnlock, 
-	FiEye, 
-	FiEyeOff,
+import React, { useEffect, useState } from 'react';
+import {
 	FiActivity,
+	FiAlertTriangle,
+	FiCheckCircle,
 	FiClock,
 	FiDatabase,
-	FiSettings,
-	FiRefreshCw,
+	FiEye,
+	FiEyeOff,
 	FiFileText,
-	FiZap
+	FiLock,
+	FiRefreshCw,
+	FiSettings,
+	FiShield,
+	FiUnlock,
+	FiZap,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';
-import { securityService, type SecurityScan, type SecurityThreat } from '../services/securityService';
+import {
+	type SecurityScan,
+	type SecurityThreat,
+	securityService,
+} from '../services/securityService';
 
 const PageContainer = styled.div`
 	padding: 2rem;
@@ -56,13 +60,18 @@ const SecurityGrid = styled.div`
 
 const SecurityCard = styled.div<{ $variant?: 'primary' | 'success' | 'warning' | 'danger' }>`
 	background: white;
-	border: 1px solid ${props => {
+	border: 1px solid ${(props) => {
 		switch (props.$variant) {
-			case 'success': return '#10b981';
-			case 'warning': return '#f59e0b';
-			case 'danger': return '#ef4444';
-			case 'primary': return '#3b82f6';
-			default: return '#e2e8f0';
+			case 'success':
+				return '#10b981';
+			case 'warning':
+				return '#f59e0b';
+			case 'danger':
+				return '#ef4444';
+			case 'primary':
+				return '#3b82f6';
+			default:
+				return '#e2e8f0';
 		}
 	}};
 	border-radius: 12px;
@@ -96,12 +105,16 @@ const CardTitle = styled.h3`
 const CardValue = styled.div<{ $variant?: 'success' | 'warning' | 'danger' }>`
 	font-size: 2rem;
 	font-weight: 700;
-	color: ${props => {
+	color: ${(props) => {
 		switch (props.$variant) {
-			case 'success': return '#10b981';
-			case 'warning': return '#f59e0b';
-			case 'danger': return '#ef4444';
-			default: return '#3b82f6';
+			case 'success':
+				return '#10b981';
+			case 'warning':
+				return '#f59e0b';
+			case 'danger':
+				return '#ef4444';
+			default:
+				return '#3b82f6';
 		}
 	}};
 	text-align: center;
@@ -119,7 +132,7 @@ const SecurityScore = styled.div<{ $score: number }>`
 	font-weight: 700;
 	color: white;
 	margin: 0 auto 1rem;
-	background: ${props => {
+	background: ${(props) => {
 		if (props.$score >= 80) return 'linear-gradient(135deg, #10b981, #059669)';
 		if (props.$score >= 60) return 'linear-gradient(135deg, #f59e0b, #d97706)';
 		return 'linear-gradient(135deg, #ef4444, #dc2626)';
@@ -131,7 +144,7 @@ const SecurityScore = styled.div<{ $score: number }>`
 		position: absolute;
 		inset: -4px;
 		border-radius: 50%;
-		background: ${props => {
+		background: ${(props) => {
 			if (props.$score >= 80) return 'rgba(16, 185, 129, 0.2)';
 			if (props.$score >= 60) return 'rgba(245, 158, 11, 0.2)';
 			return 'rgba(239, 68, 68, 0.2)';
@@ -149,20 +162,28 @@ const ThreatItem = styled.div<{ $severity: 'low' | 'medium' | 'high' | 'critical
 	padding: 0.75rem;
 	margin-bottom: 0.5rem;
 	border-radius: 6px;
-	border-left: 4px solid ${props => {
+	border-left: 4px solid ${(props) => {
 		switch (props.$severity) {
-			case 'critical': return '#dc2626';
-			case 'high': return '#ef4444';
-			case 'medium': return '#f59e0b';
-			case 'low': return '#3b82f6';
+			case 'critical':
+				return '#dc2626';
+			case 'high':
+				return '#ef4444';
+			case 'medium':
+				return '#f59e0b';
+			case 'low':
+				return '#3b82f6';
 		}
 	}};
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.$severity) {
-			case 'critical': return '#fef2f2';
-			case 'high': return '#fef2f2';
-			case 'medium': return '#fffbeb';
-			case 'low': return '#eff6ff';
+			case 'critical':
+				return '#fef2f2';
+			case 'high':
+				return '#fef2f2';
+			case 'medium':
+				return '#fffbeb';
+			case 'low':
+				return '#eff6ff';
 		}
 	}};
 `;
@@ -173,12 +194,16 @@ const SeverityBadge = styled.span<{ $severity: 'low' | 'medium' | 'high' | 'crit
 	font-size: 0.75rem;
 	font-weight: 600;
 	color: white;
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.$severity) {
-			case 'critical': return '#dc2626';
-			case 'high': return '#ef4444';
-			case 'medium': return '#f59e0b';
-			case 'low': return '#3b82f6';
+			case 'critical':
+				return '#dc2626';
+			case 'high':
+				return '#ef4444';
+			case 'medium':
+				return '#f59e0b';
+			case 'low':
+				return '#3b82f6';
 		}
 	}};
 	margin-left: 0.5rem;
@@ -242,7 +267,7 @@ const SettingToggle = styled.button<{ $enabled: boolean }>`
 	height: 24px;
 	border-radius: 12px;
 	border: none;
-	background: ${props => props.$enabled ? '#10b981' : '#d1d5db'};
+	background: ${(props) => (props.$enabled ? '#10b981' : '#d1d5db')};
 	position: relative;
 	cursor: pointer;
 	transition: background 0.2s ease;
@@ -251,7 +276,7 @@ const SettingToggle = styled.button<{ $enabled: boolean }>`
 		content: '';
 		position: absolute;
 		top: 2px;
-		left: ${props => props.$enabled ? '26px' : '2px'};
+		left: ${(props) => (props.$enabled ? '26px' : '2px')};
 		width: 20px;
 		height: 20px;
 		border-radius: 50%;
@@ -313,16 +338,16 @@ export const SecurityDashboardPage: React.FC = () => {
 		try {
 			const scan = await securityService.performSecurityScan();
 			setLastScan(scan);
-			
+
 			// Update the security metrics in state
 			actions.setTokenMetrics({
 				securityMetrics: {
 					securityScore: scan.score,
-					threatsBlocked: scan.threats.filter(t => t.blocked).length,
+					threatsBlocked: scan.threats.filter((t) => t.blocked).length,
 					lastSecurityScan: scan.timestamp,
 					encryptionEnabled: securityMetrics.encryptionEnabled,
 					auditLogCount: securityMetrics.auditLogCount,
-				}
+				},
 			});
 		} catch (error) {
 			console.error('Security scan failed:', error);
@@ -334,13 +359,16 @@ export const SecurityDashboardPage: React.FC = () => {
 	const handleSettingToggle = (setting: keyof typeof securityMetrics) => {
 		const newValue = !securityMetrics[setting];
 		securityService.updateSecuritySettings({ [setting]: newValue });
-		
+
 		// Update state
 		actions.setTokenMetrics({
 			securityMetrics: {
 				...state.unifiedFlow.securityMetrics,
-				encryptionEnabled: setting === 'encryptionEnabled' ? newValue : state.unifiedFlow.securityMetrics.encryptionEnabled,
-			}
+				encryptionEnabled:
+					setting === 'encryptionEnabled'
+						? newValue
+						: state.unifiedFlow.securityMetrics.encryptionEnabled,
+			},
 		});
 	};
 
@@ -350,11 +378,16 @@ export const SecurityDashboardPage: React.FC = () => {
 
 	const getSeverityColor = (severity: string) => {
 		switch (severity) {
-			case 'critical': return '#dc2626';
-			case 'high': return '#ef4444';
-			case 'medium': return '#f59e0b';
-			case 'low': return '#3b82f6';
-			default: return '#64748b';
+			case 'critical':
+				return '#dc2626';
+			case 'high':
+				return '#ef4444';
+			case 'medium':
+				return '#f59e0b';
+			case 'low':
+				return '#3b82f6';
+			default:
+				return '#64748b';
 		}
 	};
 
@@ -366,9 +399,7 @@ export const SecurityDashboardPage: React.FC = () => {
 				<PageTitle>
 					<FiShield /> Security Dashboard
 				</PageTitle>
-				<PageSubtitle>
-					Comprehensive security monitoring and threat detection
-				</PageSubtitle>
+				<PageSubtitle>Comprehensive security monitoring and threat detection</PageSubtitle>
 			</PageHeader>
 
 			<SecurityGrid>
@@ -383,7 +414,9 @@ export const SecurityDashboardPage: React.FC = () => {
 							{isScanning ? 'Scanning...' : 'Scan Now'}
 						</ScanButton>
 					</CardHeader>
-					<SecurityScore $score={lastScan?.score || state.unifiedFlow.securityMetrics.securityScore}>
+					<SecurityScore
+						$score={lastScan?.score || state.unifiedFlow.securityMetrics.securityScore}
+					>
 						{lastScan?.score || state.unifiedFlow.securityMetrics.securityScore}
 					</SecurityScore>
 					<div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.875rem' }}>
@@ -392,13 +425,17 @@ export const SecurityDashboardPage: React.FC = () => {
 				</SecurityCard>
 
 				{/* Threats Blocked */}
-				<SecurityCard $variant={state.unifiedFlow.securityMetrics.threatsBlocked > 0 ? 'warning' : 'success'}>
+				<SecurityCard
+					$variant={state.unifiedFlow.securityMetrics.threatsBlocked > 0 ? 'warning' : 'success'}
+				>
 					<CardHeader>
 						<CardTitle>
 							<FiAlertTriangle /> Threats Blocked
 						</CardTitle>
 					</CardHeader>
-					<CardValue $variant={state.unifiedFlow.securityMetrics.threatsBlocked > 0 ? 'warning' : 'success'}>
+					<CardValue
+						$variant={state.unifiedFlow.securityMetrics.threatsBlocked > 0 ? 'warning' : 'success'}
+					>
 						{state.unifiedFlow.securityMetrics.threatsBlocked}
 					</CardValue>
 					<div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.875rem' }}>
@@ -418,7 +455,9 @@ export const SecurityDashboardPage: React.FC = () => {
 						{securityMetrics.encryptionEnabled ? 'Enabled' : 'Disabled'}
 					</CardValue>
 					<div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.875rem' }}>
-						{securityMetrics.encryptionEnabled ? 'Tokens are encrypted' : 'Tokens stored in plain text'}
+						{securityMetrics.encryptionEnabled
+							? 'Tokens are encrypted'
+							: 'Tokens stored in plain text'}
 					</div>
 				</SecurityCard>
 
@@ -429,9 +468,7 @@ export const SecurityDashboardPage: React.FC = () => {
 							<FiFileText /> Audit Logs
 						</CardTitle>
 					</CardHeader>
-					<CardValue>
-						{securityMetrics.auditLogCount}
-					</CardValue>
+					<CardValue>{securityMetrics.auditLogCount}</CardValue>
 					<div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.875rem' }}>
 						Security events logged
 					</div>
@@ -448,42 +485,42 @@ export const SecurityDashboardPage: React.FC = () => {
 				<SettingsGrid>
 					<SettingItem>
 						<SettingLabel>Token Encryption</SettingLabel>
-						<SettingToggle 
+						<SettingToggle
 							$enabled={securityMetrics.encryptionEnabled}
 							onClick={() => handleSettingToggle('encryptionEnabled')}
 						/>
 					</SettingItem>
 					<SettingItem>
 						<SettingLabel>Token Masking</SettingLabel>
-						<SettingToggle 
+						<SettingToggle
 							$enabled={securityMetrics.tokenMaskingEnabled}
 							onClick={() => handleSettingToggle('tokenMaskingEnabled')}
 						/>
 					</SettingItem>
 					<SettingItem>
 						<SettingLabel>Secure Storage</SettingLabel>
-						<SettingToggle 
+						<SettingToggle
 							$enabled={securityMetrics.secureStorageEnabled}
 							onClick={() => handleSettingToggle('secureStorageEnabled')}
 						/>
 					</SettingItem>
 					<SettingItem>
 						<SettingLabel>Require Re-authentication</SettingLabel>
-						<SettingToggle 
+						<SettingToggle
 							$enabled={securityMetrics.requireReauth}
 							onClick={() => handleSettingToggle('requireReauth')}
 						/>
 					</SettingItem>
 					<SettingItem>
 						<SettingLabel>Session Timeout: {securityMetrics.sessionTimeoutMinutes}min</SettingLabel>
-						<SettingToggle 
+						<SettingToggle
 							$enabled={securityMetrics.sessionTimeoutMinutes > 0}
 							onClick={() => handleSettingToggle('sessionTimeoutMinutes')}
 						/>
 					</SettingItem>
 					<SettingItem>
 						<SettingLabel>Audit Logging</SettingLabel>
-						<SettingToggle 
+						<SettingToggle
 							$enabled={securityMetrics.auditLogging}
 							onClick={() => handleSettingToggle('auditLogging')}
 						/>
@@ -502,12 +539,16 @@ export const SecurityDashboardPage: React.FC = () => {
 					<ThreatList>
 						{lastScan.threats.map((threat) => (
 							<ThreatItem key={threat.id} $severity={threat.severity}>
-								<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+								<div
+									style={{
+										display: 'flex',
+										justifyContent: 'space-between',
+										alignItems: 'flex-start',
+									}}
+								>
 									<div>
 										<strong>{threat.type.replace('_', ' ').toUpperCase()}</strong>
-										<SeverityBadge $severity={threat.severity}>
-											{threat.severity}
-										</SeverityBadge>
+										<SeverityBadge $severity={threat.severity}>{threat.severity}</SeverityBadge>
 									</div>
 									<div style={{ fontSize: '0.75rem', color: '#64748b' }}>
 										{formatTimestamp(threat.timestamp)}
@@ -537,14 +578,17 @@ export const SecurityDashboardPage: React.FC = () => {
 					</CardHeader>
 					<div style={{ marginTop: '1rem' }}>
 						{lastScan.recommendations.map((recommendation, index) => (
-							<div key={index} style={{ 
-								padding: '0.75rem', 
-								marginBottom: '0.5rem', 
-								background: '#f0f9ff',
-								border: '1px solid #bae6fd',
-								borderRadius: '6px',
-								borderLeft: '4px solid #0ea5e9'
-							}}>
+							<div
+								key={index}
+								style={{
+									padding: '0.75rem',
+									marginBottom: '0.5rem',
+									background: '#f0f9ff',
+									border: '1px solid #bae6fd',
+									borderRadius: '6px',
+									borderLeft: '4px solid #0ea5e9',
+								}}
+							>
 								{recommendation}
 							</div>
 						))}
@@ -572,11 +616,7 @@ export const SecurityDashboardPage: React.FC = () => {
 									{formatTimestamp(log.timestamp)}
 								</LogTimestamp>
 								<LogEvent>{log.event}</LogEvent>
-								{log.details && (
-									<LogDetails>
-										{JSON.stringify(log.details, null, 2)}
-									</LogDetails>
-								)}
+								{log.details && <LogDetails>{JSON.stringify(log.details, null, 2)}</LogDetails>}
 							</AuditLogItem>
 						))}
 					</AuditLogList>

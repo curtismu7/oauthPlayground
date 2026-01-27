@@ -6,10 +6,10 @@
  */
 
 import React, { useState } from 'react';
-import { P1MFASDK, FIDO2Helper, type DeviceRegistrationResult } from '@/sdk/p1mfa';
 import { DebugPanel } from '@/samples/p1mfa/shared/DebugPanel';
 import { StatusDisplay } from '@/samples/p1mfa/shared/StatusDisplay';
-import { jsonToCreationOptions, credentialToJson } from './webauthn';
+import { type DeviceRegistrationResult, FIDO2Helper, P1MFASDK } from '@/sdk/p1mfa';
+import { credentialToJson, jsonToCreationOptions } from './webauthn';
 
 interface EnrollFido2Props {
 	sdk: P1MFASDK;
@@ -164,12 +164,14 @@ export const EnrollFido2: React.FC<EnrollFido2Props> = ({
 			<div>
 				<StatusDisplay status={status} message={message} request={request} response={response} />
 				<DebugPanel
-					request={request as {
-						method?: string;
-						url?: string;
-						headers?: Record<string, string>;
-						body?: unknown;
-					}}
+					request={
+						request as {
+							method?: string;
+							url?: string;
+							headers?: Record<string, string>;
+							body?: unknown;
+						}
+					}
 					response={response}
 					correlationId={correlationId}
 					stateMachineStatus={stateMachineStatus}
@@ -230,12 +232,14 @@ export const EnrollFido2: React.FC<EnrollFido2Props> = ({
 				<div>
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					<DebugPanel
-						request={request as {
-							method?: string;
-							url?: string;
-							headers?: Record<string, string>;
-							body?: unknown;
-						}}
+						request={
+							request as {
+								method?: string;
+								url?: string;
+								headers?: Record<string, string>;
+								body?: unknown;
+							}
+						}
 						response={response}
 						correlationId={correlationId}
 						stateMachineStatus={stateMachineStatus}
@@ -248,12 +252,14 @@ export const EnrollFido2: React.FC<EnrollFido2Props> = ({
 				<div>
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					<DebugPanel
-						request={request as {
-							method?: string;
-							url?: string;
-							headers?: Record<string, string>;
-							body?: unknown;
-						}}
+						request={
+							request as {
+								method?: string;
+								url?: string;
+								headers?: Record<string, string>;
+								body?: unknown;
+							}
+						}
 						response={response}
 						correlationId={correlationId}
 						stateMachineStatus={stateMachineStatus}
@@ -283,12 +289,14 @@ export const EnrollFido2: React.FC<EnrollFido2Props> = ({
 				<div>
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					<DebugPanel
-						request={request as {
-							method?: string;
-							url?: string;
-							headers?: Record<string, string>;
-							body?: unknown;
-						}}
+						request={
+							request as {
+								method?: string;
+								url?: string;
+								headers?: Record<string, string>;
+								body?: unknown;
+							}
+						}
 						response={response}
 						correlationId={correlationId}
 						stateMachineStatus={stateMachineStatus}

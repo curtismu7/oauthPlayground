@@ -1,18 +1,21 @@
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
 import React, { useEffect, useMemo, useState } from 'react';
+import { ButtonSpinner, SmallSpinner } from '@/components/ui';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
-import { ButtonSpinner, SmallSpinner } from '@/components/ui';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusServiceV8,
+} from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[📋 DEVICE-ORDER-FLOW-V8]';
@@ -187,9 +190,9 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 			await handleShowWorkerTokenModal(
 				setShowWorkerTokenModal,
 				setTokenStatus,
-				silentApiRetrieval,  // Page checkbox value takes precedence
-				showTokenAtEnd,      // Page checkbox value takes precedence
-				true                  // Force show modal - user clicked button
+				silentApiRetrieval, // Page checkbox value takes precedence
+				showTokenAtEnd, // Page checkbox value takes precedence
+				true // Force show modal - user clicked button
 			);
 		}
 	};
@@ -461,17 +464,17 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 		<>
 			<div
 				className="mfa-device-order-flow-v8"
-			style={{
-				maxWidth: '1200px',
-				margin: '0 auto',
-				background: '#f8f9fa',
-				minHeight: '100vh',
-				overflowY: 'auto',
-				paddingBottom: paddingBottom !== '0' ? paddingBottom : '40px',
-				transition: 'padding-bottom 0.3s ease',
-				position: 'relative',
-			}}
-		>
+				style={{
+					maxWidth: '1200px',
+					margin: '0 auto',
+					background: '#f8f9fa',
+					minHeight: '100vh',
+					overflowY: 'auto',
+					paddingBottom: paddingBottom !== '0' ? paddingBottom : '40px',
+					transition: 'padding-bottom 0.3s ease',
+					position: 'relative',
+				}}
+			>
 				<MFAHeaderV8
 					title="Device Ordering"
 					description="Drag and drop to set the order of MFA devices. The first device is used as default."
@@ -539,9 +542,11 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 									<span style={{ marginLeft: '6px' }}>{tokenStatus.message}</span>
 								</div>
 							</div>
-							
+
 							{/* Worker Token Settings Checkboxes */}
-							<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+							<div
+								style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}
+							>
 								<label
 									style={{
 										display: 'flex',
@@ -571,21 +576,29 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 											config.workerToken.silentApiRetrieval = newValue;
 											MFAConfigurationServiceV8.saveConfiguration(config);
 											// Dispatch event to notify other components
-											window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+											window.dispatchEvent(
+												new CustomEvent('mfaConfigurationUpdated', {
+													detail: { workerToken: config.workerToken },
+												})
+											);
 											toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
-											
+
 											// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 											if (newValue) {
 												const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 												if (!currentStatus.isValid) {
-													console.log('[DEVICE-ORDER-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...');
-													const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+													console.log(
+														'[DEVICE-ORDER-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
+													);
+													const { handleShowWorkerTokenModal } = await import(
+														'@/v8/utils/workerTokenModalHelperV8'
+													);
 													await handleShowWorkerTokenModal(
 														setShowWorkerTokenModal,
 														setTokenStatus,
-														newValue,  // Use new value
+														newValue, // Use new value
 														showTokenAtEnd,
-														false      // Not forced - respect silent setting
+														false // Not forced - respect silent setting
 													);
 												}
 											}
@@ -637,7 +650,11 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 											config.workerToken.showTokenAtEnd = newValue;
 											MFAConfigurationServiceV8.saveConfiguration(config);
 											// Dispatch event to notify other components
-											window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+											window.dispatchEvent(
+												new CustomEvent('mfaConfigurationUpdated', {
+													detail: { workerToken: config.workerToken },
+												})
+											);
 											toastV8.info(`Show Token After Generation set to: ${newValue}`);
 										}}
 										style={{
@@ -659,462 +676,451 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 								</label>
 							</div>
 						</div>
-						</div>
-
-						<div className="credentials-grid">
-							<div className="form-group">
-								<label htmlFor="order-env-id">
-									Environment ID <span className="required">*</span>
-								</label>
-								<input
-									id="order-env-id"
-									type="text"
-									value={credentials.environmentId}
-									onChange={(e) =>
-										setCredentials({ ...credentials, environmentId: e.target.value })
-									}
-									placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-								/>
-								<small>PingOne environment ID</small>
-							</div>
-
-							<div className="form-group">
-								<label htmlFor="order-username">
-									Username <span className="required">*</span>
-								</label>
-								<input
-									id="order-username"
-									type="text"
-									value={credentials.username}
-									onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-									placeholder="john.doe"
-								/>
-								<small>PingOne username whose device order you want to manage</small>
-							</div>
-						</div>
-
-						<button
-							type="button"
-							className="btn btn-primary"
-							onClick={handleLoadDevices}
-							disabled={!canLoad || isLoadingDevices}
-							style={{ marginTop: '20px' }}
-						>
-							{isLoadingDevices ? 'Loading devices...' : 'Load Devices'}
-						</button>
-
-						{loadError && (
-							<div className="info-box" style={{ marginTop: '16px' }}>
-								<p>
-									<strong>Error:</strong> {loadError}
-								</p>
-							</div>
-						)}
 					</div>
 
-					{isReady && (
+					<div className="credentials-grid">
+						<div className="form-group">
+							<label htmlFor="order-env-id">
+								Environment ID <span className="required">*</span>
+							</label>
+							<input
+								id="order-env-id"
+								type="text"
+								value={credentials.environmentId}
+								onChange={(e) => setCredentials({ ...credentials, environmentId: e.target.value })}
+								placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+							/>
+							<small>PingOne environment ID</small>
+						</div>
+
+						<div className="form-group">
+							<label htmlFor="order-username">
+								Username <span className="required">*</span>
+							</label>
+							<input
+								id="order-username"
+								type="text"
+								value={credentials.username}
+								onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+								placeholder="john.doe"
+							/>
+							<small>PingOne username whose device order you want to manage</small>
+						</div>
+					</div>
+
+					<button
+						type="button"
+						className="btn btn-primary"
+						onClick={handleLoadDevices}
+						disabled={!canLoad || isLoadingDevices}
+						style={{ marginTop: '20px' }}
+					>
+						{isLoadingDevices ? 'Loading devices...' : 'Load Devices'}
+					</button>
+
+					{loadError && (
+						<div className="info-box" style={{ marginTop: '16px' }}>
+							<p>
+								<strong>Error:</strong> {loadError}
+							</p>
+						</div>
+					)}
+				</div>
+
+				{isReady && (
+					<div
+						style={{
+							marginTop: '24px',
+							background: 'white',
+							borderRadius: '8px',
+							border: '1px solid #e5e7eb',
+							padding: '16px',
+						}}
+					>
 						<div
 							style={{
-								marginTop: '24px',
-								background: 'white',
-								borderRadius: '8px',
-								border: '1px solid #e5e7eb',
-								padding: '16px',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'space-between',
+								marginBottom: '12px',
 							}}
 						>
-							<div
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'space-between',
-									marginBottom: '12px',
-								}}
-							>
-								<div>
-									<h3
-										style={{
-											margin: 0,
-											fontSize: '16px',
-											fontWeight: 600,
-											color: '#111827',
-										}}
-									>
-										Device Ordering
-									</h3>
-									<p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#6b7280' }}>
-										Drag devices to change their order. The first device is treated as the default
-										device.
-									</p>
-								</div>
-								{devices.length > 0 && (
-									<div
-										style={{
-											display: 'flex',
-											flexWrap: 'wrap',
-											gap: '12px',
-											marginTop: '8px',
-										}}
-									>
-										<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-											<label
-												htmlFor="device-type-filter"
-												style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}
-											>
-												Type
-											</label>
-											<select
-												id="device-type-filter"
-												value={typeFilter}
-												onChange={(e) => setTypeFilter(e.target.value)}
-												style={{
-													padding: '8px 10px',
-													fontSize: '13px',
-													fontWeight: 500,
-													borderRadius: '6px',
-													border: '1px solid #9ca3af',
-													background: '#f9fafb',
-													color: '#111827',
-													minWidth: '160px',
-												}}
-											>
-												<option value="all">All types</option>
-												{typeOptions.map((type) => (
-													<option key={type} value={type}>
-														{type}
-													</option>
-												))}
-											</select>
-										</div>
-										<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-											<label
-												htmlFor="device-status-filter"
-												style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}
-											>
-												Status
-											</label>
-											<select
-												id="device-status-filter"
-												value={statusFilter}
-												onChange={(e) => setStatusFilter(e.target.value)}
-												style={{
-													padding: '8px 10px',
-													fontSize: '13px',
-													fontWeight: 500,
-													borderRadius: '6px',
-													border: '1px solid #9ca3af',
-													background: '#f9fafb',
-													color: '#111827',
-													minWidth: '160px',
-												}}
-											>
-												<option value="all">All statuses</option>
-												{statusOptions.map((status) => (
-													<option key={status} value={status}>
-														{status}
-													</option>
-												))}
-											</select>
-										</div>
-										{filtersActive && (
-											<button
-												type="button"
-												onClick={() => {
-													setTypeFilter('all');
-													setStatusFilter('all');
-												}}
-												style={{
-													padding: '6px 10px',
-													fontSize: '12px',
-													borderRadius: '6px',
-													border: '1px solid #d1d5db',
-													background: 'white',
-													cursor: 'pointer',
-												}}
-											>
-												Clear filters
-											</button>
-										)}
-									</div>
-								)}
-								<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-									<ButtonSpinner
-										loading={isSavingOrder}
-										onClick={handleSaveOrder}
-										disabled={devices.length <= 1}
-										spinnerSize={16}
-										spinnerPosition="left"
-										loadingText="Saving..."
-										style={{
-											padding: '10px 20px',
-											background: '#3b82f6',
-											color: 'white',
-											border: 'none',
-											borderRadius: '8px',
-											fontSize: '14px',
-											fontWeight: 600,
-											cursor: isSavingOrder ? 'wait' : 'pointer',
-											opacity: isSavingOrder ? 0.7 : 1,
-										}}
-									>
-										{isSavingOrder ? '' : 'Save Order'}
-									</ButtonSpinner>
-									<ButtonSpinner
-										loading={isRemovingOrder}
-										onClick={handleRemoveOrder}
-										spinnerSize={16}
-										spinnerPosition="left"
-										loadingText="Removing..."
-										style={{
-											padding: '10px 20px',
-											background: '#f97316',
-											color: 'white',
-											border: 'none',
-											borderRadius: '8px',
-											fontSize: '14px',
-											fontWeight: 600,
-											cursor: isRemovingOrder ? 'wait' : 'pointer',
-											opacity: isRemovingOrder ? 0.7 : 1,
-										}}
-									>
-										{isRemovingOrder ? '' : 'Remove Ordering'}
-									</ButtonSpinner>
-								</div>
-							</div>
-
-							{devices.length === 0 ? (
-								<p style={{ fontSize: '13px', color: '#6b7280' }}>
-									No devices found for this user. Register at least one device to configure
-									ordering.
-								</p>
-							) : filteredDevices.length === 0 ? (
-								<p style={{ fontSize: '13px', color: '#6b7280' }}>
-									No devices match the current filters. Try changing or clearing the filters.
-								</p>
-							) : (
-								<DragDropContext
-									onDragEnd={(result) => {
-										if (!filtersActive) {
-											handleDragEnd(result);
-										}
-									}}
-									onDragStart={() => {
-										console.log(`${MODULE_TAG} Drag started`);
-									}}
-									onDragUpdate={(update) => {
-										console.log(`${MODULE_TAG} Drag update:`, update);
+							<div>
+								<h3
+									style={{
+										margin: 0,
+										fontSize: '16px',
+										fontWeight: 600,
+										color: '#111827',
 									}}
 								>
-									<Droppable droppableId="order-devices">
-										{(provided) => (
-											<div
-												{...provided.droppableProps}
-												ref={provided.innerRef}
-												style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
-											>
-												{filteredDevices.map((device, index) => {
-													const originalIndex = devices.findIndex((d) => d.id === device.id);
-													const isFirst = originalIndex === 0;
-													const isLast = originalIndex === devices.length - 1;
-													const isDefault = devices[0]?.id === device.id;
-													return (
-														<Draggable
-															key={device.id}
-															draggableId={String(device.id)}
-															index={index}
-														>
-															{(draggableProvided, snapshot) => (
+									Device Ordering
+								</h3>
+								<p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#6b7280' }}>
+									Drag devices to change their order. The first device is treated as the default
+									device.
+								</p>
+							</div>
+							{devices.length > 0 && (
+								<div
+									style={{
+										display: 'flex',
+										flexWrap: 'wrap',
+										gap: '12px',
+										marginTop: '8px',
+									}}
+								>
+									<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+										<label
+											htmlFor="device-type-filter"
+											style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}
+										>
+											Type
+										</label>
+										<select
+											id="device-type-filter"
+											value={typeFilter}
+											onChange={(e) => setTypeFilter(e.target.value)}
+											style={{
+												padding: '8px 10px',
+												fontSize: '13px',
+												fontWeight: 500,
+												borderRadius: '6px',
+												border: '1px solid #9ca3af',
+												background: '#f9fafb',
+												color: '#111827',
+												minWidth: '160px',
+											}}
+										>
+											<option value="all">All types</option>
+											{typeOptions.map((type) => (
+												<option key={type} value={type}>
+													{type}
+												</option>
+											))}
+										</select>
+									</div>
+									<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+										<label
+											htmlFor="device-status-filter"
+											style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}
+										>
+											Status
+										</label>
+										<select
+											id="device-status-filter"
+											value={statusFilter}
+											onChange={(e) => setStatusFilter(e.target.value)}
+											style={{
+												padding: '8px 10px',
+												fontSize: '13px',
+												fontWeight: 500,
+												borderRadius: '6px',
+												border: '1px solid #9ca3af',
+												background: '#f9fafb',
+												color: '#111827',
+												minWidth: '160px',
+											}}
+										>
+											<option value="all">All statuses</option>
+											{statusOptions.map((status) => (
+												<option key={status} value={status}>
+													{status}
+												</option>
+											))}
+										</select>
+									</div>
+									{filtersActive && (
+										<button
+											type="button"
+											onClick={() => {
+												setTypeFilter('all');
+												setStatusFilter('all');
+											}}
+											style={{
+												padding: '6px 10px',
+												fontSize: '12px',
+												borderRadius: '6px',
+												border: '1px solid #d1d5db',
+												background: 'white',
+												cursor: 'pointer',
+											}}
+										>
+											Clear filters
+										</button>
+									)}
+								</div>
+							)}
+							<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+								<ButtonSpinner
+									loading={isSavingOrder}
+									onClick={handleSaveOrder}
+									disabled={devices.length <= 1}
+									spinnerSize={16}
+									spinnerPosition="left"
+									loadingText="Saving..."
+									style={{
+										padding: '10px 20px',
+										background: '#3b82f6',
+										color: 'white',
+										border: 'none',
+										borderRadius: '8px',
+										fontSize: '14px',
+										fontWeight: 600,
+										cursor: isSavingOrder ? 'wait' : 'pointer',
+										opacity: isSavingOrder ? 0.7 : 1,
+									}}
+								>
+									{isSavingOrder ? '' : 'Save Order'}
+								</ButtonSpinner>
+								<ButtonSpinner
+									loading={isRemovingOrder}
+									onClick={handleRemoveOrder}
+									spinnerSize={16}
+									spinnerPosition="left"
+									loadingText="Removing..."
+									style={{
+										padding: '10px 20px',
+										background: '#f97316',
+										color: 'white',
+										border: 'none',
+										borderRadius: '8px',
+										fontSize: '14px',
+										fontWeight: 600,
+										cursor: isRemovingOrder ? 'wait' : 'pointer',
+										opacity: isRemovingOrder ? 0.7 : 1,
+									}}
+								>
+									{isRemovingOrder ? '' : 'Remove Ordering'}
+								</ButtonSpinner>
+							</div>
+						</div>
+
+						{devices.length === 0 ? (
+							<p style={{ fontSize: '13px', color: '#6b7280' }}>
+								No devices found for this user. Register at least one device to configure ordering.
+							</p>
+						) : filteredDevices.length === 0 ? (
+							<p style={{ fontSize: '13px', color: '#6b7280' }}>
+								No devices match the current filters. Try changing or clearing the filters.
+							</p>
+						) : (
+							<DragDropContext
+								onDragEnd={(result) => {
+									if (!filtersActive) {
+										handleDragEnd(result);
+									}
+								}}
+								onDragStart={() => {
+									console.log(`${MODULE_TAG} Drag started`);
+								}}
+								onDragUpdate={(update) => {
+									console.log(`${MODULE_TAG} Drag update:`, update);
+								}}
+							>
+								<Droppable droppableId="order-devices">
+									{(provided) => (
+										<div
+											{...provided.droppableProps}
+											ref={provided.innerRef}
+											style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+										>
+											{filteredDevices.map((device, index) => {
+												const originalIndex = devices.findIndex((d) => d.id === device.id);
+												const isFirst = originalIndex === 0;
+												const isLast = originalIndex === devices.length - 1;
+												const isDefault = devices[0]?.id === device.id;
+												return (
+													<Draggable key={device.id} draggableId={String(device.id)} index={index}>
+														{(draggableProvided, snapshot) => (
+															<div
+																ref={draggableProvided.innerRef}
+																{...draggableProvided.draggableProps}
+																{...draggableProvided.dragHandleProps}
+																style={{
+																	userSelect: 'none',
+																	padding: '10px 12px',
+																	borderRadius: '6px',
+																	border: '1px solid #e5e7eb',
+																	background: snapshot.isDragging ? '#e0f2fe' : '#f9fafb',
+																	display: 'flex',
+																	alignItems: 'center',
+																	gap: '8px',
+																	boxShadow: snapshot.isDragging
+																		? '0 4px 12px rgba(0, 0, 0, 0.15)'
+																		: 'none',
+																	transform: snapshot.isDragging ? 'rotate(2deg)' : 'none',
+																	transition: snapshot.isDragging ? 'none' : 'box-shadow 0.2s ease',
+																	opacity: snapshot.isDragging ? 0.8 : 1,
+																	position: 'relative',
+																	zIndex: snapshot.isDragging ? 1000 : 1,
+																	cursor: snapshot.isDragging ? 'grabbing' : 'grab',
+																	...draggableProvided.draggableProps.style,
+																}}
+																onClick={(e) => {
+																	// Prevent clicks on buttons from triggering drag
+																	if ((e.target as HTMLElement).tagName === 'BUTTON') {
+																		e.stopPropagation();
+																	}
+																}}
+															>
+																{/* Drag Handle Icon - Visual indicator only */}
 																<div
-																	ref={draggableProvided.innerRef}
-																	{...draggableProvided.draggableProps}
-																	{...draggableProvided.dragHandleProps}
 																	style={{
-																		userSelect: 'none',
-																		padding: '10px 12px',
-																		borderRadius: '6px',
-																		border: '1px solid #e5e7eb',
-																		background: snapshot.isDragging ? '#e0f2fe' : '#f9fafb',
+																		padding: '8px 12px',
 																		display: 'flex',
 																		alignItems: 'center',
-																		gap: '8px',
-																		boxShadow: snapshot.isDragging
-																			? '0 4px 12px rgba(0, 0, 0, 0.15)'
-																			: 'none',
-																		transform: snapshot.isDragging ? 'rotate(2deg)' : 'none',
-																		transition: snapshot.isDragging
-																			? 'none'
-																			: 'box-shadow 0.2s ease',
-																		opacity: snapshot.isDragging ? 0.8 : 1,
-																		position: 'relative',
-																		zIndex: snapshot.isDragging ? 1000 : 1,
-																		cursor: snapshot.isDragging ? 'grabbing' : 'grab',
-																		...draggableProvided.draggableProps.style,
+																		justifyContent: 'center',
+																		userSelect: 'none',
+																		WebkitUserSelect: 'none',
+																		MozUserSelect: 'none',
+																		msUserSelect: 'none',
+																		fontSize: '20px',
+																		color: '#6b7280',
+																		lineHeight: '1',
+																		flexShrink: 0,
+																		pointerEvents: 'none',
 																	}}
-																	onClick={(e) => {
-																		// Prevent clicks on buttons from triggering drag
-																		if ((e.target as HTMLElement).tagName === 'BUTTON') {
-																			e.stopPropagation();
-																		}
+																	title="Drag to reorder"
+																>
+																	⋮⋮
+																</div>
+																{/* Arrow buttons - separate from drag handle */}
+																<div
+																	style={{
+																		display: 'flex',
+																		flexDirection: 'column',
+																		gap: '2px',
+																		paddingRight: '4px',
 																	}}
 																>
-																	{/* Drag Handle Icon - Visual indicator only */}
-																	<div
+																	<button
+																		type="button"
+																		onClick={(e) => {
+																			e.stopPropagation();
+																			handleMoveUp(device.id);
+																		}}
+																		disabled={isFirst}
 																		style={{
-																			padding: '8px 12px',
+																			padding: '2px 6px',
+																			background: isFirst ? '#e5e7eb' : '#3b82f6',
+																			color: 'white',
+																			border: 'none',
+																			borderRadius: '4px',
+																			cursor: isFirst ? 'not-allowed' : 'pointer',
+																			fontSize: '12px',
+																			opacity: isFirst ? 0.5 : 1,
 																			display: 'flex',
 																			alignItems: 'center',
 																			justifyContent: 'center',
-																			userSelect: 'none',
-																			WebkitUserSelect: 'none',
-																			MozUserSelect: 'none',
-																			msUserSelect: 'none',
-																			fontSize: '20px',
-																			color: '#6b7280',
-																			lineHeight: '1',
-																			flexShrink: 0,
-																			pointerEvents: 'none',
 																		}}
-																		title="Drag to reorder"
+																		title="Move up"
 																	>
-																		⋮⋮
-																	</div>
-																	{/* Arrow buttons - separate from drag handle */}
+																		↑
+																	</button>
+																	<button
+																		type="button"
+																		onClick={(e) => {
+																			e.stopPropagation();
+																			handleMoveDown(device.id);
+																		}}
+																		disabled={isLast}
+																		style={{
+																			padding: '2px 6px',
+																			background: isLast ? '#e5e7eb' : '#3b82f6',
+																			color: 'white',
+																			border: 'none',
+																			borderRadius: '4px',
+																			cursor: isLast ? 'not-allowed' : 'pointer',
+																			fontSize: '12px',
+																			opacity: isLast ? 0.5 : 1,
+																			display: 'flex',
+																			alignItems: 'center',
+																			justifyContent: 'center',
+																		}}
+																		title="Move down"
+																	>
+																		↓
+																	</button>
+																</div>
+																<div style={{ flex: 1 }}>
 																	<div
 																		style={{
-																			display: 'flex',
-																			flexDirection: 'column',
-																			gap: '2px',
-																			paddingRight: '4px',
+																			fontSize: '13px',
+																			fontWeight: 600,
+																			color: '#111827',
 																		}}
 																	>
-																		<button
-																			type="button"
-																			onClick={(e) => {
-																				e.stopPropagation();
-																				handleMoveUp(device.id);
-																			}}
-																			disabled={isFirst}
-																			style={{
-																				padding: '2px 6px',
-																				background: isFirst ? '#e5e7eb' : '#3b82f6',
-																				color: 'white',
-																				border: 'none',
-																				borderRadius: '4px',
-																				cursor: isFirst ? 'not-allowed' : 'pointer',
-																				fontSize: '12px',
-																				opacity: isFirst ? 0.5 : 1,
-																				display: 'flex',
-																				alignItems: 'center',
-																				justifyContent: 'center',
-																			}}
-																			title="Move up"
-																		>
-																			↑
-																		</button>
-																		<button
-																			type="button"
-																			onClick={(e) => {
-																				e.stopPropagation();
-																				handleMoveDown(device.id);
-																			}}
-																			disabled={isLast}
-																			style={{
-																				padding: '2px 6px',
-																				background: isLast ? '#e5e7eb' : '#3b82f6',
-																				color: 'white',
-																				border: 'none',
-																				borderRadius: '4px',
-																				cursor: isLast ? 'not-allowed' : 'pointer',
-																				fontSize: '12px',
-																				opacity: isLast ? 0.5 : 1,
-																				display: 'flex',
-																				alignItems: 'center',
-																				justifyContent: 'center',
-																			}}
-																			title="Move down"
-																		>
-																			↓
-																		</button>
-																	</div>
-																	<div style={{ flex: 1 }}>
-																		<div
-																			style={{
-																				fontSize: '13px',
-																				fontWeight: 600,
-																				color: '#111827',
-																			}}
-																		>
-																			{isDefault && (
-																				<span
-																					style={{
-																						marginRight: '6px',
-																						padding: '2px 6px',
-																						borderRadius: '999px',
-																						background: '#dcfce7',
-																						color: '#166534',
-																						fontSize: '10px',
-																						fontWeight: 700,
-																					}}
-																				>
-																					DEFAULT
-																				</span>
-																			)}
-																			<span>{device.type}</span>
-																		</div>
-																		{(device.nickname || device.name) && (
-																			<div style={{ fontSize: '12px', color: '#4b5563' }}>
-																				{device.nickname || device.name}
-																			</div>
-																		)}
-																		{(device.phone || device.email) && (
-																			<div style={{ fontSize: '12px', color: '#6b7280' }}>
-																				{device.phone || device.email}
-																			</div>
-																		)}
-																	</div>
-																	<div
-																		style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-																	>
-																		<div style={{ fontSize: '11px', color: '#6b7280' }}>
-																			ID: <code style={{ fontSize: '11px' }}>{device.id}</code>
-																		</div>
-																		{!isDefault && (
-																			<ButtonSpinner
-																				loading={isSavingOrder}
-																				onClick={() => handleSetAsDefault(device.id)}
-																				spinnerSize={12}
-																				spinnerPosition="left"
-																				loadingText="Setting..."
+																		{isDefault && (
+																			<span
 																				style={{
-																					padding: '6px 12px',
-																					background: '#3b82f6',
-																					color: 'white',
-																					border: 'none',
-																					borderRadius: '4px',
-																					fontSize: '11px',
-																					fontWeight: '500',
-																					cursor: isSavingOrder ? 'wait' : 'pointer',
-																					opacity: isSavingOrder ? 0.6 : 1,
-																					whiteSpace: 'nowrap',
+																					marginRight: '6px',
+																					padding: '2px 6px',
+																					borderRadius: '999px',
+																					background: '#dcfce7',
+																					color: '#166534',
+																					fontSize: '10px',
+																					fontWeight: 700,
 																				}}
-																				title="Set this device as the default (move to first position)"
 																			>
-																				{isSavingOrder ? '' : 'Set as Default'}
-																			</ButtonSpinner>
+																				DEFAULT
+																			</span>
 																		)}
+																		<span>{device.type}</span>
 																	</div>
+																	{(device.nickname || device.name) && (
+																		<div style={{ fontSize: '12px', color: '#4b5563' }}>
+																			{device.nickname || device.name}
+																		</div>
+																	)}
+																	{(device.phone || device.email) && (
+																		<div style={{ fontSize: '12px', color: '#6b7280' }}>
+																			{device.phone || device.email}
+																		</div>
+																	)}
 																</div>
-															)}
-														</Draggable>
-													);
-												})}
-												{provided.placeholder}
-											</div>
-										)}
-									</Droppable>
-								</DragDropContext>
-							)}
-						</div>
-					)}
+																<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+																	<div style={{ fontSize: '11px', color: '#6b7280' }}>
+																		ID: <code style={{ fontSize: '11px' }}>{device.id}</code>
+																	</div>
+																	{!isDefault && (
+																		<ButtonSpinner
+																			loading={isSavingOrder}
+																			onClick={() => handleSetAsDefault(device.id)}
+																			spinnerSize={12}
+																			spinnerPosition="left"
+																			loadingText="Setting..."
+																			style={{
+																				padding: '6px 12px',
+																				background: '#3b82f6',
+																				color: 'white',
+																				border: 'none',
+																				borderRadius: '4px',
+																				fontSize: '11px',
+																				fontWeight: '500',
+																				cursor: isSavingOrder ? 'wait' : 'pointer',
+																				opacity: isSavingOrder ? 0.6 : 1,
+																				whiteSpace: 'nowrap',
+																			}}
+																			title="Set this device as the default (move to first position)"
+																		>
+																			{isSavingOrder ? '' : 'Set as Default'}
+																		</ButtonSpinner>
+																	)}
+																</div>
+															</div>
+														)}
+													</Draggable>
+												);
+											})}
+											{provided.placeholder}
+										</div>
+									)}
+								</Droppable>
+							</DragDropContext>
+						)}
+					</div>
+				)}
 			</div>
 			{showWorkerTokenModal ? (
 				<WorkerTokenModalV8

@@ -1,184 +1,184 @@
 {
-  "feature": "device-code-v8",
-  "version": "1.0.0",
-  "lockedAt": "2026-01-18T16:54:42.542Z",
-  "description": "Locked-down Device Code Authorization flow (RFC 8628) for OAuth 2.0/OIDC. This includes the device code integration service, device flow service, and all device-specific flow components. Protected from breaking changes in shared services.",
-  "files": {
-    "src/v8/services/deviceCodeIntegrationServiceV8.ts": {
-      "lockedPath": "feature/v8/services/deviceCodeIntegrationServiceV8.ts",
-      "hash": "899c7ec5bf6bd61d38683b5bc3f8b8b5411688dade3757f52a2ae890fa5d0534",
-      "type": "feature"
-    },
-    "src/services/deviceFlowService.ts": {
-      "lockedPath": "feature/services/deviceFlowService.ts",
-      "hash": "6697aa7b422df5cf66d22183463e3ca1a5b37514e9fb98055cdadce35b23ddf6",
-      "type": "feature"
-    },
-    "src/components/DynamicDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/DynamicDeviceFlow.tsx",
-      "hash": "08e886a79cbdb6265ac3dab0ff4ff9b392344173d48137605a2ae27950bae2ed",
-      "type": "dependency"
-    },
-    "src/components/DeviceTypeSelector.tsx": {
-      "lockedPath": "dependencies/components/DeviceTypeSelector.tsx",
-      "hash": "7b63252f6a2bb2d72c1307cbbfc4072199f7373af9ef13ab9994250042592077",
-      "type": "dependency"
-    },
-    "src/components/AIAgentDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/AIAgentDeviceFlow.tsx",
-      "hash": "4f1407177fa7327ac393a9b8732f56f05a8bf21318d68b43dd627e8c09ef30e1",
-      "type": "dependency"
-    },
-    "src/components/AirportKioskDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/AirportKioskDeviceFlow.tsx",
-      "hash": "3d8b06e547ae0b7edf642099b8b6b65af3c1720798d64bc59432b5d601f3e5dc",
-      "type": "dependency"
-    },
-    "src/components/AmazonEchoShowDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/AmazonEchoShowDeviceFlow.tsx",
-      "hash": "ef9c3539eb7b552fe3b321c1c7e5cefd321eba893c6e73005fa772b722dbf4ed",
-      "type": "dependency"
-    },
-    "src/components/AppleTVDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/AppleTVDeviceFlow.tsx",
-      "hash": "b9bd3048f026cc763bae7bb7cc4b9051f7fa2d348bc5149e19ff74d547b41f67",
-      "type": "dependency"
-    },
-    "src/components/BoseSmartSpeakerDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/BoseSmartSpeakerDeviceFlow.tsx",
-      "hash": "12fbb731b8db2998cf9a9f9d4adf73bfe78aeaf6f634443fc2d0ce5767a47486",
-      "type": "dependency"
-    },
-    "src/components/FitnessTrackerDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/FitnessTrackerDeviceFlow.tsx",
-      "hash": "3e73a69851306166d976b1323e060f97e339326d1bbf5f74c514d625e534d049",
-      "type": "dependency"
-    },
-    "src/components/GamingConsoleDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/GamingConsoleDeviceFlow.tsx",
-      "hash": "e90947a3ff68852acf12f5bdc962397724794dda15795bf47cbdfe1863164ce4",
-      "type": "dependency"
-    },
-    "src/components/GasPumpDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/GasPumpDeviceFlow.tsx",
-      "hash": "61cb60f8d438152e9db99daacd94b21f6357cc6f08aceb4d52b787699252a932",
-      "type": "dependency"
-    },
-    "src/components/IndustrialIoTControllerDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/IndustrialIoTControllerDeviceFlow.tsx",
-      "hash": "3763871274e53bba4eb1c0b955e0d6ad4ac2f667e4044dd06d6c30f86e7b28dc",
-      "type": "dependency"
-    },
-    "src/components/MCPServerDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/MCPServerDeviceFlow.tsx",
-      "hash": "0b92176ff0f3ef1ba6f56a1cf5def6e10a9fd9bfef92319f5c9a1d9643cc48bc",
-      "type": "dependency"
-    },
-    "src/components/MobilePhoneDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/MobilePhoneDeviceFlow.tsx",
-      "hash": "29e22b2ccf99ab27697823f1c71c55e5f8ac954890ab4cc4cea717e47d92cd8b",
-      "type": "dependency"
-    },
-    "src/components/POSTerminalDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/POSTerminalDeviceFlow.tsx",
-      "hash": "81a48a8b960e2d17a730d73c9d900eceb862ae2f9c2625bbe04eef28ac539130",
-      "type": "dependency"
-    },
-    "src/components/RingDoorbellDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/RingDoorbellDeviceFlow.tsx",
-      "hash": "b898cabf4164a99500326a95dbf93cc7b0fde4cfd358647e697da718a4dd4b80",
-      "type": "dependency"
-    },
-    "src/components/SmartPrinterDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/SmartPrinterDeviceFlow.tsx",
-      "hash": "799745e3447a1fbac268d99db102c02bcbcbb25dc88f30b10871e5c273acf2a1",
-      "type": "dependency"
-    },
-    "src/components/SmartSpeakerDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/SmartSpeakerDeviceFlow.tsx",
-      "hash": "4cae8268c0cddb2e7324f7657ff5935d300582f78b0508e1f88489abe50c7600",
-      "type": "dependency"
-    },
-    "src/components/SmartTVDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/SmartTVDeviceFlow.tsx",
-      "hash": "8e01c89536c7518eb0381c1e9363ffaeef29c16311f248638c12aed9b4d3ab11",
-      "type": "dependency"
-    },
-    "src/components/SmartVehicleDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/SmartVehicleDeviceFlow.tsx",
-      "hash": "92cb1b4b8d86f8535c4792bf99342986b89e0d65ab2828eb413f8d76dd3b7d47",
-      "type": "dependency"
-    },
-    "src/components/SonyGameControllerDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/SonyGameControllerDeviceFlow.tsx",
-      "hash": "3fcf6034c3a5fe2245cc5ce233d12ce04e988a63e458b43ecae6f0d4034f60a4",
-      "type": "dependency"
-    },
-    "src/components/SquarePOSDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/SquarePOSDeviceFlow.tsx",
-      "hash": "85eb4baa22386e56efdc1c9a3e87c018302f4977b51bdf3b6285a3552d52610c",
-      "type": "dependency"
-    },
-    "src/components/TeslaCarDisplayDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/TeslaCarDisplayDeviceFlow.tsx",
-      "hash": "675b2c087c43977ce60ae3574e2249ecfe41a4091d687f6c20b100bf0cb66877",
-      "type": "dependency"
-    },
-    "src/components/VizioTVDeviceFlow.tsx": {
-      "lockedPath": "dependencies/components/VizioTVDeviceFlow.tsx",
-      "hash": "c9fc32872c7ce34826e4c51cc23842d3c4b5a4bc738910c24ec3ed5dfb06296e",
-      "type": "dependency"
-    },
-    "src/v8/services/credentialsServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/credentialsServiceV8.ts",
-      "hash": "12a732706838859ff8334d0741d6e4b9c1533cb7f54fec3e88f86e3f52c72896",
-      "type": "dependency"
-    },
-    "src/v8/services/sharedCredentialsServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/sharedCredentialsServiceV8.ts",
-      "hash": "7f5954536550497dfa4746f54ba5d311693c5154cb9269bc4a12459bdd849e1e",
-      "type": "dependency"
-    },
-    "src/v8/services/environmentIdServiceV8.ts": {
-      "lockedPath": "dependencies/v8/services/environmentIdServiceV8.ts",
-      "hash": "ab27131e590b3dc4ad52c81a121eb885b6465cbdc38e1fa50232af180abd0962",
-      "type": "dependency"
-    },
-    "src/utils/pingOneFetch.ts": {
-      "lockedPath": "dependencies/utils/pingOneFetch.ts",
-      "hash": "38393594c69fd122cea5dae5225e474bdf018112b8d35c573617fdbdbc2314ca",
-      "type": "dependency"
-    },
-    "src/utils/logger.ts": {
-      "lockedPath": "dependencies/utils/logger.ts",
-      "hash": "546b738d1568593b526cdb2c526385a3d31c776ac735b1765f889fad6e68973e",
-      "type": "dependency"
-    },
-    "src/components/ColoredUrlDisplay.tsx": {
-      "lockedPath": "dependencies/components/ColoredUrlDisplay.tsx",
-      "hash": "1875dc89356e9cdfbc27157b864f48b3adff10c77090071706cc5b90fe7b038d",
-      "type": "dependency"
-    },
-    "src/components/StandardizedTokenDisplay.tsx": {
-      "lockedPath": "dependencies/components/StandardizedTokenDisplay.tsx",
-      "hash": "3cf1d3600539b9b787227f75424bb14fb67aa2a65b05624dfa6f8b297c074961",
-      "type": "dependency"
-    },
-    "src/components/InlineTokenDisplay.tsx": {
-      "lockedPath": "dependencies/components/InlineTokenDisplay.tsx",
-      "hash": "fffeab87b7dc629001c3cbe74af42b4ff1c5d19c20b7c4c8d490e1696dc90f54",
-      "type": "dependency"
-    },
-    "src/services/apiCallTrackerService.ts": {
-      "lockedPath": "dependencies/services/apiCallTrackerService.ts",
-      "hash": "788455ff8e62f07050a5cf74524589f9b6f8d747fd75593c7c009ee0e9b1a62c",
-      "type": "transitive"
-    }
-  },
-  "summary": {
-    "totalFiles": 34,
-    "featureFiles": 2,
-    "dependencyFiles": 31,
-    "transitiveFiles": 1
-  }
+	"feature": "device-code-v8",
+	"version": "1.0.0",
+	"lockedAt": "2026-01-18T16:54:42.542Z",
+	"description": "Locked-down Device Code Authorization flow (RFC 8628) for OAuth 2.0/OIDC. This includes the device code integration service, device flow service, and all device-specific flow components. Protected from breaking changes in shared services.",
+	"files": {
+		"src/v8/services/deviceCodeIntegrationServiceV8.ts": {
+			"lockedPath": "feature/v8/services/deviceCodeIntegrationServiceV8.ts",
+			"hash": "899c7ec5bf6bd61d38683b5bc3f8b8b5411688dade3757f52a2ae890fa5d0534",
+			"type": "feature"
+		},
+		"src/services/deviceFlowService.ts": {
+			"lockedPath": "feature/services/deviceFlowService.ts",
+			"hash": "6697aa7b422df5cf66d22183463e3ca1a5b37514e9fb98055cdadce35b23ddf6",
+			"type": "feature"
+		},
+		"src/components/DynamicDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/DynamicDeviceFlow.tsx",
+			"hash": "08e886a79cbdb6265ac3dab0ff4ff9b392344173d48137605a2ae27950bae2ed",
+			"type": "dependency"
+		},
+		"src/components/DeviceTypeSelector.tsx": {
+			"lockedPath": "dependencies/components/DeviceTypeSelector.tsx",
+			"hash": "7b63252f6a2bb2d72c1307cbbfc4072199f7373af9ef13ab9994250042592077",
+			"type": "dependency"
+		},
+		"src/components/AIAgentDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/AIAgentDeviceFlow.tsx",
+			"hash": "4f1407177fa7327ac393a9b8732f56f05a8bf21318d68b43dd627e8c09ef30e1",
+			"type": "dependency"
+		},
+		"src/components/AirportKioskDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/AirportKioskDeviceFlow.tsx",
+			"hash": "3d8b06e547ae0b7edf642099b8b6b65af3c1720798d64bc59432b5d601f3e5dc",
+			"type": "dependency"
+		},
+		"src/components/AmazonEchoShowDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/AmazonEchoShowDeviceFlow.tsx",
+			"hash": "ef9c3539eb7b552fe3b321c1c7e5cefd321eba893c6e73005fa772b722dbf4ed",
+			"type": "dependency"
+		},
+		"src/components/AppleTVDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/AppleTVDeviceFlow.tsx",
+			"hash": "b9bd3048f026cc763bae7bb7cc4b9051f7fa2d348bc5149e19ff74d547b41f67",
+			"type": "dependency"
+		},
+		"src/components/BoseSmartSpeakerDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/BoseSmartSpeakerDeviceFlow.tsx",
+			"hash": "12fbb731b8db2998cf9a9f9d4adf73bfe78aeaf6f634443fc2d0ce5767a47486",
+			"type": "dependency"
+		},
+		"src/components/FitnessTrackerDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/FitnessTrackerDeviceFlow.tsx",
+			"hash": "3e73a69851306166d976b1323e060f97e339326d1bbf5f74c514d625e534d049",
+			"type": "dependency"
+		},
+		"src/components/GamingConsoleDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/GamingConsoleDeviceFlow.tsx",
+			"hash": "e90947a3ff68852acf12f5bdc962397724794dda15795bf47cbdfe1863164ce4",
+			"type": "dependency"
+		},
+		"src/components/GasPumpDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/GasPumpDeviceFlow.tsx",
+			"hash": "61cb60f8d438152e9db99daacd94b21f6357cc6f08aceb4d52b787699252a932",
+			"type": "dependency"
+		},
+		"src/components/IndustrialIoTControllerDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/IndustrialIoTControllerDeviceFlow.tsx",
+			"hash": "3763871274e53bba4eb1c0b955e0d6ad4ac2f667e4044dd06d6c30f86e7b28dc",
+			"type": "dependency"
+		},
+		"src/components/MCPServerDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/MCPServerDeviceFlow.tsx",
+			"hash": "0b92176ff0f3ef1ba6f56a1cf5def6e10a9fd9bfef92319f5c9a1d9643cc48bc",
+			"type": "dependency"
+		},
+		"src/components/MobilePhoneDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/MobilePhoneDeviceFlow.tsx",
+			"hash": "29e22b2ccf99ab27697823f1c71c55e5f8ac954890ab4cc4cea717e47d92cd8b",
+			"type": "dependency"
+		},
+		"src/components/POSTerminalDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/POSTerminalDeviceFlow.tsx",
+			"hash": "81a48a8b960e2d17a730d73c9d900eceb862ae2f9c2625bbe04eef28ac539130",
+			"type": "dependency"
+		},
+		"src/components/RingDoorbellDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/RingDoorbellDeviceFlow.tsx",
+			"hash": "b898cabf4164a99500326a95dbf93cc7b0fde4cfd358647e697da718a4dd4b80",
+			"type": "dependency"
+		},
+		"src/components/SmartPrinterDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/SmartPrinterDeviceFlow.tsx",
+			"hash": "799745e3447a1fbac268d99db102c02bcbcbb25dc88f30b10871e5c273acf2a1",
+			"type": "dependency"
+		},
+		"src/components/SmartSpeakerDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/SmartSpeakerDeviceFlow.tsx",
+			"hash": "4cae8268c0cddb2e7324f7657ff5935d300582f78b0508e1f88489abe50c7600",
+			"type": "dependency"
+		},
+		"src/components/SmartTVDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/SmartTVDeviceFlow.tsx",
+			"hash": "8e01c89536c7518eb0381c1e9363ffaeef29c16311f248638c12aed9b4d3ab11",
+			"type": "dependency"
+		},
+		"src/components/SmartVehicleDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/SmartVehicleDeviceFlow.tsx",
+			"hash": "92cb1b4b8d86f8535c4792bf99342986b89e0d65ab2828eb413f8d76dd3b7d47",
+			"type": "dependency"
+		},
+		"src/components/SonyGameControllerDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/SonyGameControllerDeviceFlow.tsx",
+			"hash": "3fcf6034c3a5fe2245cc5ce233d12ce04e988a63e458b43ecae6f0d4034f60a4",
+			"type": "dependency"
+		},
+		"src/components/SquarePOSDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/SquarePOSDeviceFlow.tsx",
+			"hash": "85eb4baa22386e56efdc1c9a3e87c018302f4977b51bdf3b6285a3552d52610c",
+			"type": "dependency"
+		},
+		"src/components/TeslaCarDisplayDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/TeslaCarDisplayDeviceFlow.tsx",
+			"hash": "675b2c087c43977ce60ae3574e2249ecfe41a4091d687f6c20b100bf0cb66877",
+			"type": "dependency"
+		},
+		"src/components/VizioTVDeviceFlow.tsx": {
+			"lockedPath": "dependencies/components/VizioTVDeviceFlow.tsx",
+			"hash": "c9fc32872c7ce34826e4c51cc23842d3c4b5a4bc738910c24ec3ed5dfb06296e",
+			"type": "dependency"
+		},
+		"src/v8/services/credentialsServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/credentialsServiceV8.ts",
+			"hash": "12a732706838859ff8334d0741d6e4b9c1533cb7f54fec3e88f86e3f52c72896",
+			"type": "dependency"
+		},
+		"src/v8/services/sharedCredentialsServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/sharedCredentialsServiceV8.ts",
+			"hash": "7f5954536550497dfa4746f54ba5d311693c5154cb9269bc4a12459bdd849e1e",
+			"type": "dependency"
+		},
+		"src/v8/services/environmentIdServiceV8.ts": {
+			"lockedPath": "dependencies/v8/services/environmentIdServiceV8.ts",
+			"hash": "ab27131e590b3dc4ad52c81a121eb885b6465cbdc38e1fa50232af180abd0962",
+			"type": "dependency"
+		},
+		"src/utils/pingOneFetch.ts": {
+			"lockedPath": "dependencies/utils/pingOneFetch.ts",
+			"hash": "38393594c69fd122cea5dae5225e474bdf018112b8d35c573617fdbdbc2314ca",
+			"type": "dependency"
+		},
+		"src/utils/logger.ts": {
+			"lockedPath": "dependencies/utils/logger.ts",
+			"hash": "546b738d1568593b526cdb2c526385a3d31c776ac735b1765f889fad6e68973e",
+			"type": "dependency"
+		},
+		"src/components/ColoredUrlDisplay.tsx": {
+			"lockedPath": "dependencies/components/ColoredUrlDisplay.tsx",
+			"hash": "1875dc89356e9cdfbc27157b864f48b3adff10c77090071706cc5b90fe7b038d",
+			"type": "dependency"
+		},
+		"src/components/StandardizedTokenDisplay.tsx": {
+			"lockedPath": "dependencies/components/StandardizedTokenDisplay.tsx",
+			"hash": "3cf1d3600539b9b787227f75424bb14fb67aa2a65b05624dfa6f8b297c074961",
+			"type": "dependency"
+		},
+		"src/components/InlineTokenDisplay.tsx": {
+			"lockedPath": "dependencies/components/InlineTokenDisplay.tsx",
+			"hash": "fffeab87b7dc629001c3cbe74af42b4ff1c5d19c20b7c4c8d490e1696dc90f54",
+			"type": "dependency"
+		},
+		"src/services/apiCallTrackerService.ts": {
+			"lockedPath": "dependencies/services/apiCallTrackerService.ts",
+			"hash": "788455ff8e62f07050a5cf74524589f9b6f8d747fd75593c7c009ee0e9b1a62c",
+			"type": "transitive"
+		}
+	},
+	"summary": {
+		"totalFiles": 34,
+		"featureFiles": 2,
+		"dependencyFiles": 31,
+		"transitiveFiles": 1
+	}
 }

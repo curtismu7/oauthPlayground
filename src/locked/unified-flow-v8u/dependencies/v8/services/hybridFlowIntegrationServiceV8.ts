@@ -165,11 +165,11 @@ export class HybridFlowIntegrationServiceV8 {
 
 	/**
 	 * Parse callback URL fragment to extract tokens and code
-	 * 
+	 *
 	 * For hybrid flow, the callback contains:
 	 * - Authorization code in query string (?code=...)
 	 * - ID token and access token in fragment (#id_token=...&access_token=...)
-	 * 
+	 *
 	 * @param callbackUrl - Full callback URL with fragment
 	 * @param expectedState - Expected state parameter for validation
 	 * @returns Parsed code and tokens
@@ -182,7 +182,7 @@ export class HybridFlowIntegrationServiceV8 {
 
 		try {
 			const url = new URL(callbackUrl);
-			
+
 			// For hybrid flow, check BOTH query string and fragment
 			// - Authorization code is in query string (?code=...)
 			// - ID token and access token are in fragment (#id_token=...&access_token=...)
@@ -192,7 +192,8 @@ export class HybridFlowIntegrationServiceV8 {
 
 			// Check for error in either query or fragment
 			const error = fragmentParams?.get('error') || queryParams.get('error');
-			const errorDescription = fragmentParams?.get('error_description') || queryParams.get('error_description');
+			const errorDescription =
+				fragmentParams?.get('error_description') || queryParams.get('error_description');
 
 			if (error) {
 				throw new Error(`Authorization failed: ${error} - ${errorDescription || ''}`);
@@ -200,11 +201,11 @@ export class HybridFlowIntegrationServiceV8 {
 
 			// Extract authorization code from query string (hybrid flow standard)
 			const code = queryParams.get('code');
-			
+
 			// Extract tokens from fragment (hybrid flow standard)
 			const accessToken = fragmentParams?.get('access_token') || null;
 			const idToken = fragmentParams?.get('id_token') || null;
-			
+
 			// State can be in either query or fragment (check both)
 			const state = fragmentParams?.get('state') || queryParams.get('state');
 
@@ -227,7 +228,7 @@ export class HybridFlowIntegrationServiceV8 {
 				hasAccessToken: !!accessToken,
 				hasIdToken: !!idToken,
 				codeSource: code ? 'query' : 'none',
-				tokenSource: (accessToken || idToken) ? 'fragment' : 'none',
+				tokenSource: accessToken || idToken ? 'fragment' : 'none',
 			});
 
 			const result: { code?: string; access_token?: string; id_token?: string; state: string } = {

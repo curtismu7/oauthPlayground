@@ -480,7 +480,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		// Default state - only Core Overview and Production open by default
 		return {
 			'Core Overview': true,
-			'Production': true,
+			Production: true,
 			'Production (Legacy)': false,
 			'OAuth 2.0 Flows': false,
 			'OpenID Connect': true,
@@ -508,7 +508,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		// Read openMenus state from localStorage for use in initializer
 		let openMenusState: Record<string, boolean> = {
 			'Core Overview': true,
-			'Production': true,
+			Production: true,
 			'Production (Legacy)': false,
 			'OAuth 2.0 Flows': false,
 			'OpenID Connect': true,
@@ -760,9 +760,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="FIDO2/WebAuthn MFA sample application">
-								FIDO2
-							</MigrationBadge>
+							<MigrationBadge title="FIDO2/WebAuthn MFA sample application">FIDO2</MigrationBadge>
 						),
 					},
 					{
@@ -774,11 +772,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 								<FiSmartphone />
 							</ColoredIcon>
 						),
-						badge: (
-							<MigrationBadge title="SMS OTP MFA sample application">
-								SMS
-							</MigrationBadge>
-						),
+						badge: <MigrationBadge title="SMS OTP MFA sample application">SMS</MigrationBadge>,
 					},
 				],
 			},

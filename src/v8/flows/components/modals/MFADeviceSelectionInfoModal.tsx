@@ -21,7 +21,10 @@ export interface MFADeviceSelectionInfoModalProps {
  * Device Selection Info Modal Component
  * Displays educational content about Device Selection Behavior settings
  */
-export const MFADeviceSelectionInfoModal: React.FC<MFADeviceSelectionInfoModalProps> = ({ show, onClose }) => {
+export const MFADeviceSelectionInfoModal: React.FC<MFADeviceSelectionInfoModalProps> = ({
+	show,
+	onClose,
+}) => {
 	if (!show) return null;
 
 	return (
@@ -137,8 +140,9 @@ export const MFADeviceSelectionInfoModal: React.FC<MFADeviceSelectionInfoModalPr
 							device for authentication. Users do not see a device selection screen.
 						</p>
 						<p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#166534' }}>
-							<strong>When to Use:</strong> Best for single-device users or when you want the fastest
-							authentication experience. Users with multiple devices will always use their first device.
+							<strong>When to Use:</strong> Best for single-device users or when you want the
+							fastest authentication experience. Users with multiple devices will always use their
+							first device.
 						</p>
 					</div>
 
@@ -171,8 +175,8 @@ export const MFADeviceSelectionInfoModal: React.FC<MFADeviceSelectionInfoModalPr
 						</p>
 						<p style={{ margin: 0, fontSize: '14px', color: '#1e40af' }}>
 							<strong>User Experience:</strong> If the user has only one device, it is automatically
-							selected. If the user has multiple devices, they are shown a device selection screen to
-							choose which device to use.
+							selected. If the user has multiple devices, they are shown a device selection screen
+							to choose which device to use.
 						</p>
 						<p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#1e40af' }}>
 							<strong>When to Use:</strong> Ideal for most scenarios. Provides convenience for
@@ -208,14 +212,14 @@ export const MFADeviceSelectionInfoModal: React.FC<MFADeviceSelectionInfoModalPr
 							Always Show Device Selection
 						</p>
 						<p style={{ margin: 0, fontSize: '14px', color: '#92400e' }}>
-							<strong>User Experience:</strong> Users always see a device selection screen, even if they
-							only have one device. This gives users full visibility and control over which device is
-							used.
+							<strong>User Experience:</strong> Users always see a device selection screen, even if
+							they only have one device. This gives users full visibility and control over which
+							device is used.
 						</p>
 						<p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#92400e' }}>
-							<strong>When to Use:</strong> Best for security-conscious environments or when you want
-							users to explicitly confirm their device choice. Also useful for testing and debugging
-							device selection flows.
+							<strong>When to Use:</strong> Best for security-conscious environments or when you
+							want users to explicitly confirm their device choice. Also useful for testing and
+							debugging device selection flows.
 						</p>
 					</div>
 
@@ -231,8 +235,8 @@ export const MFADeviceSelectionInfoModal: React.FC<MFADeviceSelectionInfoModalPr
 					>
 						<p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
 							<strong>💡 Tip:</strong> The device selection behavior is set in your Device
-							Authentication Policy. Changing this setting affects all users who authenticate using that
-							policy.
+							Authentication Policy. Changing this setting affects all users who authenticate using
+							that policy.
 						</p>
 					</div>
 				</div>

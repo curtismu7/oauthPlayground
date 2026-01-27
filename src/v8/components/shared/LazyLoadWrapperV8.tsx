@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState, useEffect } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { UI_STANDARDS } from '@/v8/constants/uiStandardsV8';
 
 interface LazyLoadWrapperV8Props {
@@ -166,10 +166,7 @@ export const LazyLoadWrapperV8: React.FC<LazyLoadWrapperV8Props> = ({
 		<div className="lazy-load-error">
 			<div className="error-icon">⚠</div>
 			<div className="error-message">Failed to load component</div>
-			<button 
-				className="retry-button"
-				onClick={loadComponent}
-			>
+			<button className="retry-button" onClick={loadComponent}>
 				Retry
 			</button>
 			<style>{`
@@ -240,13 +237,10 @@ export function withLazyLoad<P extends object>(
 	options?: Omit<LazyLoadWrapperV8Props, 'loader'>
 ) {
 	const LazyComponent = lazy(componentLoader);
-	
+
 	return function WithLazyLoadWrapper(props: P) {
 		return (
-			<LazyLoadWrapperV8
-				loader={componentLoader}
-				{...options}
-			>
+			<LazyLoadWrapperV8 loader={componentLoader} {...options}>
 				<LazyComponent {...props} />
 			</LazyLoadWrapperV8>
 		);
@@ -258,21 +252,23 @@ export class ComponentPreloader {
 	private static preloadCache = new Map<string, Promise<any>>();
 
 	static preload(key: string, loader: () => Promise<{ default: React.ComponentType<any> }>) {
-		if (!this.preloadCache.has(key)) {
-			this.preloadCache.set(key, loader());
+		if (!ComponentPreloader.preloadCache.has(key)) {
+			ComponentPreloader.preloadCache.set(key, loader());
 		}
-		return this.preloadCache.get(key);
+		return ComponentPreloader.preloadCache.get(key);
 	}
 
-	static preloadMultiple(preloadMap: Record<string, () => Promise<{ default: React.ComponentType<any> }>>) {
-		const promises = Object.entries(preloadMap).map(([key, loader]) => 
-			this.preload(key, loader)
+	static preloadMultiple(
+		preloadMap: Record<string, () => Promise<{ default: React.ComponentType<any> }>>
+	) {
+		const promises = Object.entries(preloadMap).map(([key, loader]) =>
+			ComponentPreloader.preload(key, loader)
 		);
 		return Promise.allSettled(promises);
 	}
 
 	static clearCache() {
-		this.preloadCache.clear();
+		ComponentPreloader.preloadCache.clear();
 	}
 }
 

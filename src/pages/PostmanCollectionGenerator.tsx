@@ -10,7 +10,7 @@
  * - Just Unified (all, OAuth 2.0 Authorization Framework (RFC 6749), OpenID Connect Core 1.0, OAuth 2.1 Authorization Framework (draft), or combinations)
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { FiChevronDown, FiChevronRight, FiDownload, FiPackage } from 'react-icons/fi';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import {
@@ -303,10 +303,18 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			clientSecret?: string;
 			username?: string;
 		},
-		requiredFields: Array<{ key: keyof typeof credentials; ref: React.RefObject<HTMLInputElement>; label: string }>
+		requiredFields: Array<{
+			key: keyof typeof credentials;
+			ref: React.RefObject<HTMLInputElement>;
+			label: string;
+		}>
 	): boolean => {
 		const errors: Record<string, boolean> = {};
-		let firstBlankField: { ref: React.RefObject<HTMLInputElement>; label: string; key: string } | null = null;
+		let firstBlankField: {
+			ref: React.RefObject<HTMLInputElement>;
+			label: string;
+			key: string;
+		} | null = null;
 
 		// Check each required field
 		for (const field of requiredFields) {
@@ -359,7 +367,8 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							}
 						}
 						// Try finding input next to or inside the label
-						const nearbyInput = label.querySelector('input') || label.nextElementSibling?.querySelector('input');
+						const nearbyInput =
+							label.querySelector('input') || label.nextElementSibling?.querySelector('input');
 						if (nearbyInput && nearbyInput.tagName === 'INPUT') {
 							inputElement = nearbyInput as HTMLInputElement;
 							break;
@@ -380,7 +389,9 @@ export const PostmanCollectionGenerator: React.FC = () => {
 
 				// Last resort: search all inputs and try to match by placeholder or nearby label
 				if (!inputElement) {
-					const allInputs = document.querySelectorAll<HTMLInputElement>('input[type="text"], input[type="email"], input:not([type="hidden"])');
+					const allInputs = document.querySelectorAll<HTMLInputElement>(
+						'input[type="text"], input[type="email"], input:not([type="hidden"])'
+					);
 					for (const input of allInputs) {
 						const placeholder = input.placeholder?.toLowerCase() || '';
 						if (placeholder.includes(fieldKey) || placeholder.includes(labelText)) {
@@ -399,16 +410,16 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				// Wait a bit for scroll to complete, then focus and highlight
 				setTimeout(() => {
 					inputElement?.focus();
-					
+
 					// Store original styles
 					const originalBorder = inputElement.style.border;
 					const originalBoxShadow = inputElement.style.boxShadow;
-					
+
 					// Apply red highlight
 					inputElement.style.border = '2px solid #ef4444';
 					inputElement.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
 					inputElement.style.transition = 'border 0.2s ease, box-shadow 0.2s ease';
-					
+
 					// Remove highlight after 3 seconds
 					setTimeout(() => {
 						inputElement.style.border = originalBorder;

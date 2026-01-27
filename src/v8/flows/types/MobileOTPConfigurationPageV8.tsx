@@ -711,8 +711,8 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 						</h1>
 					</div>
 					<p style={{ margin: 0, fontSize: '18px', color: 'rgba(255, 255, 255, 0.9)' }}>
-						Configure Mobile device registration, learn about OTP verification, and prepare for device
-						setup
+						Configure Mobile device registration, learn about OTP verification, and prepare for
+						device setup
 					</p>
 				</div>
 

@@ -1683,7 +1683,10 @@ app.post('/api/token-exchange', async (req, res) => {
 					}
 				}
 			} catch (error) {
-				console.warn('⚠️ [Server] Failed to parse ID token for password state check:', error.message);
+				console.warn(
+					'⚠️ [Server] Failed to parse ID token for password state check:',
+					error.message
+				);
 			}
 		}
 
@@ -1930,30 +1933,31 @@ app.post('/api/client-credentials', async (req, res) => {
 
 		// #region agent log
 		const logPath = '/Users/cmuir/P1Import-apps/oauth-playground/.cursor/debug.log';
-		const logEntry = JSON.stringify({
-			location: 'server.js:1889',
-			message: 'Backend preparing request body for PingOne',
-			data: {
-				requestBodyKeys: Object.keys(requestBody),
-				requestBodyClientId: requestBody.client_id,
-				requestBodyClientIdType: typeof requestBody.client_id,
-				requestBodyClientIdLength: requestBody.client_id?.length,
-				bodyClientId: body.get('client_id'),
-				bodyClientIdType: typeof body.get('client_id'),
-				expectedClientId: '4a275422-e580-4be6-84f2-3a624a849cbb',
-				clientIdMatches: body.get('client_id') === '4a275422-e580-4be6-84f2-3a624a849cbb',
-				requestBodyScope: requestBody.scope,
-				requestBodyScopeType: typeof requestBody.scope,
-				bodyKeys: Array.from(body.keys()),
-				bodyEntries: Object.fromEntries(body.entries()),
-				bodyScope: body.get('scope'),
-				authMethod: auth_method,
-			},
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			runId: 'run1',
-			hypothesisId: 'BACKEND-CLIENT-ID',
-		}) + '\n';
+		const logEntry =
+			JSON.stringify({
+				location: 'server.js:1889',
+				message: 'Backend preparing request body for PingOne',
+				data: {
+					requestBodyKeys: Object.keys(requestBody),
+					requestBodyClientId: requestBody.client_id,
+					requestBodyClientIdType: typeof requestBody.client_id,
+					requestBodyClientIdLength: requestBody.client_id?.length,
+					bodyClientId: body.get('client_id'),
+					bodyClientIdType: typeof body.get('client_id'),
+					expectedClientId: '4a275422-e580-4be6-84f2-3a624a849cbb',
+					clientIdMatches: body.get('client_id') === '4a275422-e580-4be6-84f2-3a624a849cbb',
+					requestBodyScope: requestBody.scope,
+					requestBodyScopeType: typeof requestBody.scope,
+					bodyKeys: Array.from(body.keys()),
+					bodyEntries: Object.fromEntries(body.entries()),
+					bodyScope: body.get('scope'),
+					authMethod: auth_method,
+				},
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'run1',
+				hypothesisId: 'BACKEND-CLIENT-ID',
+			}) + '\n';
 		try {
 			fs.appendFileSync(logPath, logEntry);
 		} catch (e) {
@@ -1973,29 +1977,30 @@ app.post('/api/client-credentials', async (req, res) => {
 		// #region agent log - capture actual request being sent
 		const bodyString = body.toString();
 		const clientIdFromBody = body.get('client_id');
-		const logEntry4 = JSON.stringify({
-			location: 'server.js:1933',
-			message: 'About to send request to PingOne - actual body string',
-			data: {
-				bodyString,
-				bodyStringLength: bodyString.length,
-				clientId: clientIdFromBody,
-				clientIdLength: clientIdFromBody?.length,
-				clientIdType: typeof clientIdFromBody,
-				expectedClientId: '4a275422-e580-4be6-84f2-3a624a849cbb',
-				clientIdMatches: clientIdFromBody === '4a275422-e580-4be6-84f2-3a624a849cbb',
-				hasScope: bodyString.includes('scope'),
-				scopeValue: body.get('scope'),
-				hasGrantType: bodyString.includes('grant_type'),
-				hasClientId: bodyString.includes('client_id'),
-				hasClientSecret: bodyString.includes('client_secret'),
-				allParams: Object.fromEntries(body.entries()),
-			},
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			runId: 'run1',
-			hypothesisId: 'ACTUAL-REQUEST-CLIENT-ID',
-		}) + '\n';
+		const logEntry4 =
+			JSON.stringify({
+				location: 'server.js:1933',
+				message: 'About to send request to PingOne - actual body string',
+				data: {
+					bodyString,
+					bodyStringLength: bodyString.length,
+					clientId: clientIdFromBody,
+					clientIdLength: clientIdFromBody?.length,
+					clientIdType: typeof clientIdFromBody,
+					expectedClientId: '4a275422-e580-4be6-84f2-3a624a849cbb',
+					clientIdMatches: clientIdFromBody === '4a275422-e580-4be6-84f2-3a624a849cbb',
+					hasScope: bodyString.includes('scope'),
+					scopeValue: body.get('scope'),
+					hasGrantType: bodyString.includes('grant_type'),
+					hasClientId: bodyString.includes('client_id'),
+					hasClientSecret: bodyString.includes('client_secret'),
+					allParams: Object.fromEntries(body.entries()),
+				},
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'run1',
+				hypothesisId: 'ACTUAL-REQUEST-CLIENT-ID',
+			}) + '\n';
 		try {
 			fs.appendFileSync(logPath, logEntry4);
 		} catch (e) {
@@ -2015,20 +2020,21 @@ app.post('/api/client-credentials', async (req, res) => {
 		const responseClone = response.clone();
 
 		// #region agent log
-		const logEntry2 = JSON.stringify({
-			location: 'server.js:1966',
-			message: 'Backend received response from PingOne',
-			data: {
-				status: response.status,
-				statusText: response.statusText,
-				hasBody: !!body,
-				bodyString: body.toString(),
-			},
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			runId: 'run1',
-			hypothesisId: 'BACKEND-RESPONSE',
-		}) + '\n';
+		const logEntry2 =
+			JSON.stringify({
+				location: 'server.js:1966',
+				message: 'Backend received response from PingOne',
+				data: {
+					status: response.status,
+					statusText: response.statusText,
+					hasBody: !!body,
+					bodyString: body.toString(),
+				},
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'run1',
+				hypothesisId: 'BACKEND-RESPONSE',
+			}) + '\n';
 		try {
 			fs.appendFileSync(logPath, logEntry2);
 		} catch (e) {
@@ -2079,24 +2085,25 @@ app.post('/api/client-credentials', async (req, res) => {
 		);
 
 		// #region agent log
-		const logEntry3 = JSON.stringify({
-			location: 'server.js:1985',
-			message: 'Backend parsed PingOne response',
-			data: {
-				status: response.status,
-				responseText,
-				parsedData: data,
-				error: data.error,
-				errorDescription: data.error_description,
-				requestBodyString: body.toString(),
-				requestBodyScope: body.get('scope'),
-				hasAccessToken: !!data.access_token,
-			},
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			runId: 'run1',
-			hypothesisId: 'BACKEND-RESPONSE-DATA',
-		}) + '\n';
+		const logEntry3 =
+			JSON.stringify({
+				location: 'server.js:1985',
+				message: 'Backend parsed PingOne response',
+				data: {
+					status: response.status,
+					responseText,
+					parsedData: data,
+					error: data.error,
+					errorDescription: data.error_description,
+					requestBodyString: body.toString(),
+					requestBodyScope: body.get('scope'),
+					hasAccessToken: !!data.access_token,
+				},
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'run1',
+				hypothesisId: 'BACKEND-RESPONSE-DATA',
+			}) + '\n';
 		try {
 			fs.appendFileSync(logPath, logEntry3);
 		} catch (e) {
@@ -2138,7 +2145,13 @@ app.post('/api/client-credentials', async (req, res) => {
 // Used by MFA flows to get worker tokens via client_credentials grant
 app.post('/api/pingone/token', async (req, res) => {
 	try {
-		const { environment_id, region = 'us', body, auth_method = 'client_secret_post', headers: customHeaders = {} } = req.body;
+		const {
+			environment_id,
+			region = 'us',
+			body,
+			auth_method = 'client_secret_post',
+			headers: customHeaders = {},
+		} = req.body;
 
 		if (!environment_id) {
 			return res.status(400).json({
@@ -2150,7 +2163,8 @@ app.post('/api/pingone/token', async (req, res) => {
 		if (!body) {
 			return res.status(400).json({
 				error: 'invalid_request',
-				error_description: 'Missing required parameter: body (URL-encoded token request parameters)',
+				error_description:
+					'Missing required parameter: body (URL-encoded token request parameters)',
 			});
 		}
 
@@ -2244,7 +2258,10 @@ app.post('/api/pingone/token', async (req, res) => {
 		console.error('[Worker Token] Server error:', error);
 		res.status(500).json({
 			error: 'server_error',
-			error_description: error instanceof Error ? error.message : 'Internal server error during worker token request',
+			error_description:
+				error instanceof Error
+					? error.message
+					: 'Internal server error during worker token request',
 		});
 	}
 });
@@ -3440,7 +3457,9 @@ app.post('/api/device-authorization', async (req, res) => {
 				hasClientId: !!client_id,
 				environmentIdType: typeof environment_id,
 				clientIdType: typeof client_id,
-				environmentIdValue: environment_id ? `${String(environment_id).substring(0, 20)}...` : 'undefined',
+				environmentIdValue: environment_id
+					? `${String(environment_id).substring(0, 20)}...`
+					: 'undefined',
 				clientIdValue: client_id ? `${String(client_id).substring(0, 20)}...` : 'undefined',
 				receivedBody: req.body,
 				bodyType: typeof req.body,
@@ -3471,7 +3490,7 @@ app.post('/api/device-authorization', async (req, res) => {
 		// Build form data for PingOne (RFC 8628 requires application/x-www-form-urlencoded)
 		const formData = new URLSearchParams();
 		formData.append('client_id', sanitizedClientId);
-		
+
 		// Add optional parameters only if they have valid values
 		if (scope && String(scope).trim()) {
 			formData.append('scope', String(scope).trim());
@@ -3501,7 +3520,7 @@ app.post('/api/device-authorization', async (req, res) => {
 		// Convert formData to string for logging and sending
 		// URLSearchParams.toString() gives the correct application/x-www-form-urlencoded format
 		const formDataString = formData.toString();
-		
+
 		// Validate formData string is not empty and contains client_id
 		if (!formDataString || !formDataString.includes('client_id=') || !formData.get('client_id')) {
 			console.error(`[Device Authorization] Invalid formData - client_id missing or empty:`, {
@@ -3539,7 +3558,9 @@ app.post('/api/device-authorization', async (req, res) => {
 					message: 'About to send request to PingOne with FIXED endpoint',
 					data: {
 						endpoint: deviceEndpoint,
-						endpointPath: deviceEndpoint.includes('/as/device_authorization') ? 'CORRECT (/as/device_authorization)' : 'WRONG (/as/device)',
+						endpointPath: deviceEndpoint.includes('/as/device_authorization')
+							? 'CORRECT (/as/device_authorization)'
+							: 'WRONG (/as/device)',
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/x-www-form-urlencoded',
@@ -3548,7 +3569,9 @@ app.post('/api/device-authorization', async (req, res) => {
 						body: formDataString,
 						bodyLength: formDataString.length,
 						formDataKeys: Array.from(formData.keys()),
-						clientIdValue: formData.get('client_id') ? formData.get('client_id').substring(0, 15) + '...' : 'MISSING',
+						clientIdValue: formData.get('client_id')
+							? formData.get('client_id').substring(0, 15) + '...'
+							: 'MISSING',
 						scopeValue: formData.get('scope') || 'NONE',
 					},
 					timestamp: Date.now(),
@@ -3571,7 +3594,10 @@ app.post('/api/device-authorization', async (req, res) => {
 
 		// #region agent log - Debug instrumentation for 403 error
 		try {
-			const responseText = await response.clone().text().catch(() => 'FAILED_TO_READ');
+			const responseText = await response
+				.clone()
+				.text()
+				.catch(() => 'FAILED_TO_READ');
 			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -3627,13 +3653,16 @@ app.post('/api/device-authorization', async (req, res) => {
 			if (response.status === 403) {
 				// Check if it's a grant type issue or authentication issue
 				const errorMsg = data?.error_description || data?.error || data?.message || 'Unknown error';
-				
+
 				// Enhance error message with helpful guidance
-				if (errorMsg.toLowerCase().includes('missing authentication token') || 
-				    errorMsg.toLowerCase().includes('authentication token')) {
+				if (
+					errorMsg.toLowerCase().includes('missing authentication token') ||
+					errorMsg.toLowerCase().includes('authentication token')
+				) {
 					return res.status(403).json({
 						error: data?.error || 'forbidden',
-						error_description: `403 Forbidden: ${errorMsg}\n\n` +
+						error_description:
+							`403 Forbidden: ${errorMsg}\n\n` +
 							`This error typically indicates one of the following:\n` +
 							`1. Device Code grant type is not enabled in your PingOne application\n` +
 							`2. Application configuration mismatch\n` +
@@ -8319,7 +8348,7 @@ app.get('/api/pingone/mfa/resume', async (req, res) => {
 app.post('/api/pingone/mfa/device-authentication-policies', async (req, res) => {
 	const requestId = `req-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 	const isCreateRequest = !!req.body?.policy;
-	
+
 	console.log(`[MFA Device Auth Policies] [${requestId}] Request received`, {
 		timestamp: new Date().toISOString(),
 		operation: isCreateRequest ? 'CREATE' : 'LIST',
@@ -9702,7 +9731,7 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 				// The error "valid 'type'=[DEFAULT]" means type can only be 'DEFAULT', not 'DEVICE_AUTHENTICATION_POLICY'
 				// Valid format: { "policy": { "id": "policy-id-string" } } or { "policy": { "type": "DEFAULT" } }
 				// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-mfa-user-device-sms
-				devicePayload.policy = { 
+				devicePayload.policy = {
 					id: policyIdValue,
 					// Do NOT include type when id is provided - API requires either id OR type (not both)
 					// If no id, we could use type: 'DEFAULT', but we always have an id for TOTP
@@ -9712,9 +9741,10 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 					policyObject: devicePayload.policy,
 					deviceType: type,
 					tokenType: tokenType || 'worker',
-					note: type === 'TOTP' 
-						? 'Policy ID included per totp.md (required for properties.secret and properties.keyUri)'
-						: 'Policy ID included (device registration always uses worker tokens).',
+					note:
+						type === 'TOTP'
+							? 'Policy ID included per totp.md (required for properties.secret and properties.keyUri)'
+							: 'Policy ID included (device registration always uses worker tokens).',
 				});
 			} else {
 				// Policy was provided but ID is empty/invalid - don't include it
@@ -10135,7 +10165,7 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 			const hasProperties = !!deviceData.properties;
 			const hasSecret = !!deviceData.properties?.secret;
 			const hasKeyUri = !!deviceData.properties?.keyUri;
-			
+
 			if (!hasProperties || !hasSecret || !hasKeyUri) {
 				console.error(
 					'[MFA Register Device] ⚠️ TOTP DEVICE MISSING properties.secret or properties.keyUri:',
@@ -11502,9 +11532,9 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
 
 		// Ensure we have a body (Express.json() should have parsed it)
 		if (!req.body) {
-			return res.status(400).json({ 
+			return res.status(400).json({
 				error: 'Request body is required',
-				message: 'Please ensure Content-Type is set to application/json'
+				message: 'Please ensure Content-Type is set to application/json',
 			});
 		}
 
@@ -11587,16 +11617,19 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
 			// Similar to FIDO2 activation endpoint which has similar Content-Type requirements
 			// Create Headers object to ensure proper formatting
 			const nodeFetchHeaders = new Headers();
-			nodeFetchHeaders.set('Content-Type', 'application/vnd.pingidentity.device.resend-pairing-code+json');
+			nodeFetchHeaders.set(
+				'Content-Type',
+				'application/vnd.pingidentity.device.resend-pairing-code+json'
+			);
 			nodeFetchHeaders.set('Authorization', `Bearer ${cleanToken}`);
 			nodeFetchHeaders.set('Accept', 'application/json');
-			
+
 			console.log('[MFA Resend Pairing Code] Headers object before fetch:', {
 				contentType: nodeFetchHeaders.get('Content-Type'),
 				hasAuth: !!nodeFetchHeaders.get('Authorization'),
 				accept: nodeFetchHeaders.get('Accept'),
 			});
-			
+
 			// Use direct node-fetch import to bypass any wrapper that might modify headers
 			response = await fetch(resendEndpoint, {
 				method: 'POST',
@@ -11662,12 +11695,13 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
 				bodyString: requestBodyString,
 				bodyLength: requestBodyString.length,
 			});
-			
+
 			// Provide more helpful error message for 415 errors
 			if (response.status === 415) {
 				return res.status(415).json({
 					error: 'Unsupported Media Type',
-					message: 'PingOne API rejected the request. The Content-Type header or request body format may be incorrect.',
+					message:
+						'PingOne API rejected the request. The Content-Type header or request body format may be incorrect.',
 					details: {
 						sentContentType: requestHeaders['Content-Type'],
 						expectedContentType: 'application/vnd.pingidentity.device.resend-pairing-code+json',
@@ -11678,7 +11712,7 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
 					},
 				});
 			}
-			
+
 			return res.status(response.status).json(responseData);
 		}
 
@@ -11787,7 +11821,15 @@ app.post('/api/pingone/mfa/validate-otp', async (req, res) => {
 // API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-validate-otp-for-device
 app.post('/api/pingone/mfa/validate-otp-for-device', async (req, res) => {
 	try {
-		const { environmentId, authenticationId, deviceAuthId, otp, workerToken, region, customDomain } = req.body;
+		const {
+			environmentId,
+			authenticationId,
+			deviceAuthId,
+			otp,
+			workerToken,
+			region,
+			customDomain,
+		} = req.body;
 
 		// Use authenticationId or deviceAuthId (both are accepted)
 		const deviceAuthIdValue = authenticationId || deviceAuthId;
@@ -11795,7 +11837,8 @@ app.post('/api/pingone/mfa/validate-otp-for-device', async (req, res) => {
 		if (!environmentId || !deviceAuthIdValue || !otp || !workerToken) {
 			return res.status(400).json({
 				error: 'Missing required fields',
-				message: 'environmentId, authenticationId (or deviceAuthId), otp, and workerToken are required',
+				message:
+					'environmentId, authenticationId (or deviceAuthId), otp, and workerToken are required',
 			});
 		}
 
@@ -11905,7 +11948,9 @@ app.post('/api/pingone/mfa/validate-otp-for-device', async (req, res) => {
 					status: 'INVALID',
 					message: errorData.message || 'Invalid OTP code',
 					valid: false,
-					...(errorData.attemptsRemaining !== undefined && { attemptsRemaining: errorData.attemptsRemaining }),
+					...(errorData.attemptsRemaining !== undefined && {
+						attemptsRemaining: errorData.attemptsRemaining,
+					}),
 				});
 			}
 			return res.status(response.status).json(errorData);
@@ -13438,31 +13483,31 @@ app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 		// This bypasses the OTP requirement entirely
 		const activateEndpoint = isAdminActivation
 			? `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`
-			: (deviceActivateUri ||
-				`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`);
+			: deviceActivateUri ||
+				`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`;
 
 		// Build request body according to rightOTP.md
 		// For admin activation, we update the device status to ACTIVE directly
-		const requestBody = isAdminActivation 
-			? { 
-				status: 'ACTIVE',
-				// Clear any activation requirements
-				links: {
-					device: {
-						href: `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`
-					}
+		const requestBody = isAdminActivation
+			? {
+					status: 'ACTIVE',
+					// Clear any activation requirements
+					links: {
+						device: {
+							href: `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`,
+						},
+					},
 				}
-			}
-			: { 
-				otp: String(otp).trim(),
-			};
+			: {
+					otp: String(otp).trim(),
+				};
 
 		// For admin activation, use PATCH to update device status
 		// For regular activation, use POST with activation content type
 		const requestMethod = isAdminActivation ? 'PATCH' : 'POST';
 		const requestHeaders = {
-			'Content-Type': isAdminActivation 
-				? 'application/json' 
+			'Content-Type': isAdminActivation
+				? 'application/json'
 				: 'application/vnd.pingidentity.device.activate+json',
 			Authorization: `Bearer ${cleanToken}`,
 			Accept: 'application/json',
@@ -13558,7 +13603,9 @@ app.post('/api/pingone/mfa/get-device', async (req, res) => {
 		}
 
 		// Clean token (remove "Bearer " prefix if present)
-		const cleanToken = String(workerToken).trim().replace(/^Bearer\s+/i, '');
+		const cleanToken = String(workerToken)
+			.trim()
+			.replace(/^Bearer\s+/i, '');
 
 		// PingOne API endpoint: GET /environments/{environmentId}/users/{userId}/devices/{deviceId}
 		const deviceEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`;
@@ -17494,13 +17541,13 @@ app.post('/api/pingone/mfa/dataExplorations', async (req, res) => {
 			deliverAs = 'ENTRIES', // Default to entries in response
 			expand = 'entries', // Default to expand entries
 			region,
-			customDomain
+			customDomain,
 		} = req.body;
 
 		if (!environmentId || !workerToken) {
 			return res.status(400).json({
 				error: 'missing_required_fields',
-				message: 'environmentId and workerToken are required'
+				message: 'environmentId and workerToken are required',
 			});
 		}
 
@@ -17510,7 +17557,7 @@ app.post('/api/pingone/mfa/dataExplorations', async (req, res) => {
 		if (tokenParts.length !== 3 || tokenParts.some((part) => !part || part.length === 0)) {
 			return res.status(400).json({
 				error: 'invalid_token',
-				message: 'Invalid worker token format'
+				message: 'Invalid worker token format',
 			});
 		}
 
@@ -17556,8 +17603,8 @@ app.post('/api/pingone/mfa/dataExplorations', async (req, res) => {
 				{ name: 'fidoUserVerification' },
 				{ name: 'deviceCreatedAt' },
 				{ name: 'deviceUpdatedAt' },
-				{ name: 'lastDeviceTrxTime' }
-			]
+				{ name: 'lastDeviceTrxTime' },
+			],
 		};
 
 		// Add filter if provided
@@ -17571,7 +17618,7 @@ app.post('/api/pingone/mfa/dataExplorations', async (req, res) => {
 			expand,
 			hasFilter: !!filter,
 			fieldsCount: requestBody.fields.length,
-			apiBase
+			apiBase,
 		});
 
 		const response = await fetch(dataExplorationsEndpoint, {
@@ -17588,7 +17635,7 @@ app.post('/api/pingone/mfa/dataExplorations', async (req, res) => {
 			console.error('[MFA DataExplorations] Error:', {
 				status: response.status,
 				statusText: response.statusText,
-				error: errorData
+				error: errorData,
 			});
 			return res.status(response.status).json(errorData);
 		}
@@ -17616,13 +17663,13 @@ app.post('/api/pingone/mfa/dataExplorations-async', async (req, res) => {
 			filter,
 			deliverAs = 'ASYNC_FILE', // For file delivery
 			region,
-			customDomain
+			customDomain,
 		} = req.body;
 
 		if (!environmentId || !workerToken) {
 			return res.status(400).json({
 				error: 'missing_required_fields',
-				message: 'environmentId and workerToken are required'
+				message: 'environmentId and workerToken are required',
 			});
 		}
 
@@ -17632,7 +17679,7 @@ app.post('/api/pingone/mfa/dataExplorations-async', async (req, res) => {
 		if (tokenParts.length !== 3 || tokenParts.some((part) => !part || part.length === 0)) {
 			return res.status(400).json({
 				error: 'invalid_token',
-				message: 'Invalid worker token format'
+				message: 'Invalid worker token format',
 			});
 		}
 
@@ -17664,8 +17711,8 @@ app.post('/api/pingone/mfa/dataExplorations-async', async (req, res) => {
 				{ name: 'deviceStatus' },
 				{ name: 'phone' },
 				{ name: 'email' },
-				{ name: 'deviceCreatedAt' }
-			]
+				{ name: 'deviceCreatedAt' },
+			],
 		};
 
 		// Add filter if provided
@@ -17678,7 +17725,7 @@ app.post('/api/pingone/mfa/dataExplorations-async', async (req, res) => {
 			deliverAs,
 			hasFilter: !!filter,
 			fieldsCount: requestBody.fields.length,
-			apiBase
+			apiBase,
 		});
 
 		const response = await fetch(dataExplorationsEndpoint, {
@@ -17695,17 +17742,22 @@ app.post('/api/pingone/mfa/dataExplorations-async', async (req, res) => {
 			console.error('[MFA DataExplorations Async] Error:', {
 				status: response.status,
 				statusText: response.statusText,
-				error: errorData
+				error: errorData,
 			});
 			return res.status(response.status).json(errorData);
 		}
 
 		const responseData = await response.json();
-		console.log('[MFA DataExplorations Async] Report creation initiated, status:', responseData.status);
+		console.log(
+			'[MFA DataExplorations Async] Report creation initiated, status:',
+			responseData.status
+		);
 		res.json(responseData);
 	} catch (error) {
 		console.error('[MFA DataExplorations Async] Error:', error);
-		res.status(500).json({ error: 'Failed to create async data exploration', message: error.message });
+		res
+			.status(500)
+			.json({ error: 'Failed to create async data exploration', message: error.message });
 	}
 });
 
@@ -17721,7 +17773,7 @@ app.post('/api/pingone/mfa/dataExplorations-status', async (req, res) => {
 		if (!environmentId || !dataExplorationId || !workerToken) {
 			return res.status(400).json({
 				error: 'missing_required_fields',
-				message: 'environmentId, dataExplorationId, and workerToken are required'
+				message: 'environmentId, dataExplorationId, and workerToken are required',
 			});
 		}
 
@@ -17731,7 +17783,7 @@ app.post('/api/pingone/mfa/dataExplorations-status', async (req, res) => {
 		if (tokenParts.length !== 3 || tokenParts.some((part) => !part || part.length === 0)) {
 			return res.status(400).json({
 				error: 'invalid_token',
-				message: 'Invalid worker token format'
+				message: 'Invalid worker token format',
 			});
 		}
 
@@ -17752,7 +17804,7 @@ app.post('/api/pingone/mfa/dataExplorations-status', async (req, res) => {
 		console.log('[MFA DataExplorations Status] Checking status:', {
 			environmentId,
 			dataExplorationId,
-			apiBase
+			apiBase,
 		});
 
 		const response = await fetch(statusEndpoint, {
@@ -17768,7 +17820,7 @@ app.post('/api/pingone/mfa/dataExplorations-status', async (req, res) => {
 			console.error('[MFA DataExplorations Status] Error:', {
 				status: response.status,
 				statusText: response.statusText,
-				error: errorData
+				error: errorData,
 			});
 			return res.status(response.status).json(errorData);
 		}
@@ -17778,7 +17830,9 @@ app.post('/api/pingone/mfa/dataExplorations-status', async (req, res) => {
 		res.json(responseData);
 	} catch (error) {
 		console.error('[MFA DataExplorations Status] Error:', error);
-		res.status(500).json({ error: 'Failed to get data exploration status', message: error.message });
+		res
+			.status(500)
+			.json({ error: 'Failed to get data exploration status', message: error.message });
 	}
 });
 
@@ -17794,7 +17848,7 @@ app.post('/api/pingone/mfa/dataExplorations-entries', async (req, res) => {
 		if (!environmentId || !dataExplorationId || !workerToken) {
 			return res.status(400).json({
 				error: 'missing_required_fields',
-				message: 'environmentId, dataExplorationId, and workerToken are required'
+				message: 'environmentId, dataExplorationId, and workerToken are required',
 			});
 		}
 
@@ -17804,7 +17858,7 @@ app.post('/api/pingone/mfa/dataExplorations-entries', async (req, res) => {
 		if (tokenParts.length !== 3 || tokenParts.some((part) => !part || part.length === 0)) {
 			return res.status(400).json({
 				error: 'invalid_token',
-				message: 'Invalid worker token format'
+				message: 'Invalid worker token format',
 			});
 		}
 
@@ -17825,7 +17879,7 @@ app.post('/api/pingone/mfa/dataExplorations-entries', async (req, res) => {
 		console.log('[MFA DataExplorations Entries] Getting entries:', {
 			environmentId,
 			dataExplorationId,
-			apiBase
+			apiBase,
 		});
 
 		const response = await fetch(entriesEndpoint, {
@@ -17841,7 +17895,7 @@ app.post('/api/pingone/mfa/dataExplorations-entries', async (req, res) => {
 			console.error('[MFA DataExplorations Entries] Error:', {
 				status: response.status,
 				statusText: response.statusText,
-				error: errorData
+				error: errorData,
 			});
 			return res.status(response.status).json(errorData);
 		}
@@ -17851,7 +17905,9 @@ app.post('/api/pingone/mfa/dataExplorations-entries', async (req, res) => {
 		res.json(responseData);
 	} catch (error) {
 		console.error('[MFA DataExplorations Entries] Error:', error);
-		res.status(500).json({ error: 'Failed to get data exploration entries', message: error.message });
+		res
+			.status(500)
+			.json({ error: 'Failed to get data exploration entries', message: error.message });
 	}
 });
 
