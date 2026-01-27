@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { StepCredentials } from '../types/flowTypes';
+import { StepCredentials } from '../types/v4FlowTemplate';
 
 // Unified logging format: [🔑 CLIENT-CREDS-V6]
 const LOG_PREFIX = '[🔑 CLIENT-CREDS-V6]';
@@ -278,7 +278,7 @@ export class ClientCredentialsTokenRequest {
 		credentials: StepCredentials,
 		authMethod: ClientAuthMethod = 'client_secret_post'
 	): Promise<ClientCredentialsTokens> {
-		const { url, headers, body } = ClientCredentialsTokenRequest.buildTokenRequest(
+		const { url: _url, headers, body } = ClientCredentialsTokenRequest.buildTokenRequest(
 			credentials,
 			authMethod
 		);
@@ -316,20 +316,25 @@ export class ClientCredentialsTokenRequest {
 				// Create more descriptive error messages based on status and error type
 				let errorMessage = `Token request failed: ${response.status}`;
 
+				// Type guard for parsed error
+				const isErrorObject = (error: unknown): error is { error?: string; error_description?: string } => {
+					return typeof error === 'object' && error !== null;
+				};
+
 				if (response.status === 401) {
-					if (parsedError.error === 'invalid_client') {
+					if (isErrorObject(parsedError) && parsedError.error === 'invalid_client') {
 						errorMessage = `401 Unauthorized: Invalid client credentials - ${parsedError.error_description || 'Please check your Client ID, Client Secret, and Environment ID'}`;
 					} else {
-						errorMessage = `401 Unauthorized: ${parsedError.error_description || 'Authentication failed - please verify your credentials'}`;
+						errorMessage = `401 Unauthorized: ${isErrorObject(parsedError) ? parsedError.error_description || 'Authentication failed - please verify your credentials' : 'Authentication failed'}`;
 					}
 				} else if (response.status === 403) {
-					errorMessage = `403 Forbidden: ${parsedError.error_description || 'Access denied - check your application permissions and scopes'}`;
+					errorMessage = `403 Forbidden: ${isErrorObject(parsedError) ? parsedError.error_description || 'Access denied - check your application permissions and scopes' : 'Access denied'}`;
 				} else if (response.status === 404) {
-					errorMessage = `404 Not Found: ${parsedError.error_description || 'Environment or endpoint not found - verify your Environment ID'}`;
+					errorMessage = `404 Not Found: ${isErrorObject(parsedError) ? parsedError.error_description || 'Environment or endpoint not found - verify your Environment ID' : 'Environment or endpoint not found'}`;
 				} else if (response.status >= 500) {
-					errorMessage = `${response.status} Server Error: ${parsedError.error_description || 'PingOne server error - please try again later'}`;
+					errorMessage = `${response.status} Server Error: ${isErrorObject(parsedError) ? parsedError.error_description || 'PingOne server error - please try again later' : 'PingOne server error'}`;
 				} else {
-					errorMessage = `${response.status} ${response.statusText}: ${parsedError.error_description || errorText}`;
+					errorMessage = `${response.status} ${response.statusText}: ${isErrorObject(parsedError) ? parsedError.error_description || errorText : errorText}`;
 				}
 
 				throw new Error(errorMessage);
