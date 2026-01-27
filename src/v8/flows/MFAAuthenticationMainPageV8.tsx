@@ -44,7 +44,7 @@ import {
 	generateCompletePostmanCollection,
 	generateComprehensiveMFAPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
-import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { createModuleLogger } from '@/utils/consoleMigrationHelper';
 import { oauthStorage } from '@/utils/storage';
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
@@ -270,14 +270,28 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		};
 	});
 
-	// Use unified worker token service for token status
-	const tokenStatus = unifiedWorkerTokenService.getTokenStatus();
-	
-	// Note: setTokenStatus is no longer needed as the unified service manages token status internally
-	// Keeping this as a no-op for backward compatibility with existing code
+	// Use worker token hook for token status and modal management
+	const {
+		tokenStatus,
+		showWorkerTokenModal,
+		setShowWorkerTokenModal,
+		silentApiRetrieval,
+		setSilentApiRetrieval,
+		showTokenAtEnd,
+		setShowTokenAtEnd,
+		refreshTokenStatus,
+		checkAndRefreshToken,
+		isRefreshing,
+		showTokenOnly,
+	} = useWorkerToken({
+		refreshInterval: 5000,
+		enableAutoRefresh: true,
+	});
+
+	// Backward compatibility: provide setTokenStatus function
 	const setTokenStatus = async (_status: TokenStatusInfo | Promise<TokenStatusInfo>) => {
-		// No-op: Token status is now managed by unifiedWorkerTokenService
-		// The service automatically updates token status when the token changes
+		// No-op: The hook manages token status internally
+		// This is kept for backward compatibility with existing code
 	};
 
 	// Listen for unified worker token updates
@@ -320,10 +334,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		}
 	}, [tokenStatus.isValid]);
 
-	// Modal state management - using unified service
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const [silentApiRetrieval, setSilentApiRetrieval] = useState(false);
-	const [showTokenAtEnd, setShowTokenAtEnd] = useState(false);
+	// Modal state management - provided by useWorkerToken hook
 
 	// MFA Policy State
 	const [deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
@@ -1591,17 +1602,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	}, [authContext, credentials.environmentId, credentials.userToken]);
 
 	// Compute showTokenOnly for modal
-	const showTokenOnly = (() => {
-		if (!showWorkerTokenModal) return false;
-		try {
-			const config = MFAConfigurationServiceV8.loadConfiguration();
-			// Use existing tokenStatus state instead of calling async function
-			return config.workerToken.showTokenAtEnd && tokenStatus.isValid;
-		} catch {
-			return false;
-		}
-	})();
-
+	
 	return (
 		<div
 			style={{
@@ -3748,7 +3749,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					>
 						{authState.devices.map((device, index) => (
 							<button
-								key={`${device.id}-${index}`}
+								key={`${device.id}-${(device as any).type ?? (device as any).deliveryMethod ?? 'dev'}-${index}`}
 								type="button"
 								onClick={async () => {
 									if (!authState.authenticationId || !authState.userId) {
@@ -5986,6 +5987,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							>
 								×
 							</button>
+						</div>
 						<p style={{ margin: '0 0 24px 0', color: '#666' }}>
 							Choose a device type to register for MFA authentication.
 						</p>
