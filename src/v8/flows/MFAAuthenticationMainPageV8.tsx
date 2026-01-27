@@ -1468,6 +1468,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			if (needsDeviceSelection) {
 				// Device selection is needed - the UI will show the device list automatically
 				// based on authState.showDeviceSelection being true
+				console.log(`${MODULE_TAG} 🎯 Device selection needed:`, {
+					needsDeviceSelection,
+					authDevicesCount: authDevices.length,
+					authDevices: authDevices.map(d => ({ id: d.id, type: d.type, nickname: d.nickname })),
+					status,
+					nextStep,
+					deviceSelectionBehavior,
+				});
 				toastV8.success('Please select a device to continue');
 			} else if (needsOTP) {
 				setShowOTPModal(true);
@@ -3711,6 +3719,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 			{/* Device Selection Section - Show when authentication requires device selection */}
 			{(() => {
+				const shouldShow = authState.showDeviceSelection && authState.devices.length > 0;
 				console.log(`${MODULE_TAG} Device Selection UI Check:`, {
 					showDeviceSelection: authState.showDeviceSelection,
 					devicesLength: authState.devices.length,
@@ -3718,9 +3727,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					authenticationId: authState.authenticationId,
 					status: authState.status,
 					nextStep: authState.nextStep,
-					shouldShow: authState.showDeviceSelection && authState.devices.length > 0,
+					shouldShow,
 				});
-				return authState.showDeviceSelection && authState.devices.length > 0;
+				return shouldShow;
 			})() && (
 				<div
 					style={{
