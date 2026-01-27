@@ -18,6 +18,7 @@ export interface MFAConfiguration {
 		showTokenAtEnd: boolean; // show token after generation
 		silentApiRetrieval: boolean; // silently fetch token via API without showing modals
 	};
+	defaultMfaPolicyId: string; // Default MFA policy ID to use
 	autoSelectDefaultPolicies: boolean;
 	autoSelectFirstDevice: boolean;
 	alwaysShowDeviceSelection: boolean;
@@ -72,6 +73,7 @@ const DEFAULT_CONFIG: MFAConfiguration = {
 		showTokenAtEnd: true, // show token after generation by default
 		silentApiRetrieval: true, // enable silent token retrieval by default
 	},
+	defaultMfaPolicyId: '', // Empty by default - user must set
 	autoSelectDefaultPolicies: true,
 	autoSelectFirstDevice: true,
 	alwaysShowDeviceSelection: false,
