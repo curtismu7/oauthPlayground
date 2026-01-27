@@ -24,6 +24,7 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
@@ -94,6 +95,11 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			if (globalEnvId) {
 				return globalEnvId;
 			}
+			// Auto-populate from worker token credentials
+			const credentials = unifiedWorkerTokenService.loadCredentials();
+			if (credentials?.environmentId) {
+				return credentials.environmentId;
+			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load saved environment ID`, error);
 		}
@@ -106,11 +112,15 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		}
 		try {
 			const stored = StorageServiceV8.load<DeleteAllDevicesPageState>(PAGE_STORAGE_KEY);
-			return stored?.username || '';
+			if (stored?.username) {
+				return stored.username;
+			}
+			// Note: Username is user-specific, not stored in worker token credentials
+			// So we don't auto-populate it from worker token
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load saved username`, error);
-			return '';
 		}
+		return '';
 	});
 	const [selectedDeviceType, setSelectedDeviceType] = useState<DeviceType>(() => {
 		// Check location.state first (passed from TOTP flow)
@@ -227,6 +237,29 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 		};
 	}, []);
+
+	// Auto-populate environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = async () => {
+			try {
+				// If environment ID is empty, try to populate from worker token credentials
+				if (!environmentId.trim()) {
+					const credentials = await unifiedWorkerTokenService.loadCredentials();
+					if (credentials?.environmentId) {
+						setEnvironmentId(credentials.environmentId);
+						console.log(`${MODULE_TAG} Auto-populated environment ID from worker token: ${credentials.environmentId}`);
+					}
+				}
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to auto-populate environment ID:`, error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => {
+			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+		};
+	}, [environmentId]);
 
 	const selectedCount = devices.filter((device) =>
 		selectedDeviceIds.has(device.id as string)
