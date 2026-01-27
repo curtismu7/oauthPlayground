@@ -367,17 +367,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const [showUsernameDecisionModal, setShowUsernameDecisionModal] = useState(false);
 	const [isPasskeyRegistrationMode, setIsPasskeyRegistrationMode] = useState(false);
 
-	// Debug: Track authState changes
-	useEffect(() => {
-		console.log(`${MODULE_TAG} 🔥 authState changed:`, {
-			showDeviceSelection: authState.showDeviceSelection,
-			devicesLength: authState.devices.length,
-			authenticationId: authState.authenticationId,
-			status: authState.status,
-			nextStep: authState.nextStep,
-		});
-	}, [authState.showDeviceSelection, authState.devices.length, authState.authenticationId]);
-
 	// Modals
 	const [showOTPModal, setShowOTPModal] = useState(false);
 	const [showFIDO2Modal, setShowFIDO2Modal] = useState(false);
@@ -1290,44 +1279,28 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 	// Handle Start MFA (Username-based)
 	const handleStartMFA = useCallback(async () => {
-		console.log(`${MODULE_TAG} 🔥 START MFA - Initial Check:`, {
-			tokenStatusIsValid: tokenStatus.isValid,
-			hasEnvironmentId: !!credentials.environmentId,
-			hasDeviceAuthPolicyId: !!credentials.deviceAuthenticationPolicyId,
-			username: usernameInput.trim(),
-			tokenStatus,
-			credentials,
-		});
-
 		if (!tokenStatus.isValid) {
-			console.log(`${MODULE_TAG} ❌ Token invalid - aborting`);
 			toastV8.error('Please configure worker token first');
 			return;
 		}
 
 		if (!credentials.environmentId) {
-			console.log(`${MODULE_TAG} ❌ No environment ID - aborting`);
 			toastV8.error('Please configure environment ID first');
 			return;
 		}
 
 		if (!credentials.deviceAuthenticationPolicyId) {
-			console.log(`${MODULE_TAG} ❌ No device auth policy - aborting`);
 			toastV8.error('Please select an MFA Policy first');
 			return;
 		}
 
 		// If username is empty, show decision modal
 		if (!usernameInput.trim()) {
-			console.log(`${MODULE_TAG} 🔄 No username - showing decision modal`);
 			setShowUsernameDecisionModal(true);
 			return;
 		}
 
-		console.log(`${MODULE_TAG} 🔄 Username provided: ${usernameInput.trim()} - proceeding with auth`);
-
 		// Reset auth state to clear any previous authentication session
-		// This ensures we start fresh when restarting the flow
 		const resetAuthState = {
 			isLoading: true,
 			authenticationId: null,
@@ -1342,38 +1315,23 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			_links: null,
 			completionResult: null,
 		};
-		console.log(`${MODULE_TAG} 🔄 Resetting auth state:`, resetAuthState);
 		setAuthState(resetAuthState);
 		setLoadingMessage('🔐 Starting MFA Authentication...');
 
 		try {
-			console.log(`${MODULE_TAG} 🔍 Step 1: Looking up user...`);
 			// 1. Lookup user
 			const user = await MFAServiceV8.lookupUserByUsername(
 				credentials.environmentId,
 				usernameInput.trim()
 			);
-			console.log(`${MODULE_TAG} ✅ User lookup successful:`, {
-				userId: user.id,
-				username: user.username,
-				email: user.email,
-				userObject: user,
-			});
 
-			console.log(`${MODULE_TAG} 🔍 Step 2: Initializing device authentication...`);
-			// 2. Initialize MFA Authentication (this returns the devices available for this auth session)
+			// 2. Initialize MFA Authentication
 			const response = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
 				environmentId: credentials.environmentId,
 				username: usernameInput.trim(),
 				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
 				region: credentials.region,
 				customDomain: credentials.customDomain,
-			});
-			console.log(`${MODULE_TAG} ✅ Device authentication initialized:`, {
-				responseId: response.id,
-				responseStatus: response.status,
-				responseNextStep: response.nextStep,
-				fullResponse: response,
 			});
 
 			// Extract _links for flow coordination
@@ -1387,42 +1345,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			const responseDevices = response.devices || [];
 			const embeddedDevices = ((response._embedded as { devices?: Device[] })?.devices || []);
 			const rawDevices = [...responseDevices, ...embeddedDevices];
-			
-			console.log(`${MODULE_TAG} 🔍 Step 3: Extracting devices:`, {
-				responseDevicesCount: responseDevices.length,
-				embeddedDevicesCount: embeddedDevices.length,
-				totalRawDevices: rawDevices.length,
-				responseDevices,
-				embeddedDevices,
-				rawDevices,
-			});
 
 			// Filter devices to ensure they belong to the correct user
-			// PingOne should already filter by user, but we'll double-check
 			const userDevices = rawDevices.filter((d: Record<string, unknown>) => {
 				const deviceUserId = d.user?.id || d.userId;
-				const matches = !deviceUserId || deviceUserId === user.id;
-				if (!matches) {
-					console.warn(`${MODULE_TAG} ⚠️ Device belongs to different user, filtering out:`, {
-						deviceId: d.id,
-						deviceType: d.type,
-						deviceUserId,
-						expectedUserId: user.id,
-						expectedUsername: usernameInput.trim(),
-					});
-				} else {
-					console.log(`${MODULE_TAG} ✅ Device matches user:`, {
-						deviceId: d.id,
-						deviceType: d.type,
-						deviceUserId,
-					});
-				}
-				return matches;
-			});
-
-			console.log(`${MODULE_TAG} 🔍 Step 4: User-filtered devices:`, {
-				userDevicesCount: userDevices.length,
-				userDevices,
+				return !deviceUserId || deviceUserId === user.id;
 			});
 
 			let authDevices: Device[] = userDevices.map((d: Record<string, unknown>) => {
@@ -1438,27 +1365,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				return device;
 			});
 
-			console.log(`${MODULE_TAG} 🔍 Step 5: Processed auth devices:`, {
-				authDevicesCount: authDevices.length,
-				authDevices: authDevices.map(d => ({
-					id: d.id,
-					type: d.type,
-					nickname: d.nickname,
-					status: d.status,
-				})),
-			});
-
-			// Check for session cookies - if present, prefer FIDO2 platform devices even if not default
-			// Per PingOne MFA API: "If the user is paired with a FIDO2 platform device and a session
-			// token cookie exists on the browser, the FIDO2 platform device is used for authentication
-			// even if it is not the default device."
+			// Check for session cookies - if present, prefer FIDO2 platform devices
 			const { shouldPreferFIDO2PlatformDevice } = await import(
 				'@/v8/services/fido2SessionCookieServiceV8'
 			);
 			const platformPreference = shouldPreferFIDO2PlatformDevice();
 
 			if (platformPreference.prefer && authDevices.length > 0) {
-				// Reorder devices to prioritize FIDO2 devices when session cookie exists
 				const fido2Devices = authDevices.filter((d) => d.type === 'FIDO2');
 				const otherDevices = authDevices.filter((d) => d.type !== 'FIDO2');
 
@@ -1475,21 +1388,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				| string
 				| undefined;
 
-			console.log(`${MODULE_TAG} 🔍 Step 6: Policy and flow determination:`, {
-				selectedPolicyId: credentials.deviceAuthenticationPolicyId,
-				selectedPolicy,
-				deviceSelectionBehavior,
-				status,
-				nextStep,
-				authDevicesCount: authDevices.length,
-			});
-
 			// Determine next action based on status/nextStep
 			const needsDeviceSelection =
 				status === 'DEVICE_SELECTION_REQUIRED' ||
 				nextStep === 'DEVICE_SELECTION_REQUIRED' ||
 				nextStep === 'SELECTION_REQUIRED' ||
-				// For ALWAYS_DISPLAY_DEVICES policy, always show device selection if devices are available
 				(authDevices.length > 0 && deviceSelectionBehavior === 'ALWAYS_DISPLAY_DEVICES');
 
 			const needsOTP = status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED';
@@ -1497,59 +1400,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			const needsPush =
 				status === 'PUSH_CONFIRMATION_REQUIRED' || nextStep === 'PUSH_CONFIRMATION_REQUIRED';
 
-			console.log(`${MODULE_TAG} 🔍 Step 7: Flow determination:`, {
-				needsDeviceSelection,
-				needsOTP,
-				needsAssertion,
-				needsPush,
-				statusCheck: {
-					DEVICE_SELECTION_REQUIRED: status === 'DEVICE_SELECTION_REQUIRED',
-					OTP_REQUIRED: status === 'OTP_REQUIRED',
-					ASSERTION_REQUIRED: status === 'ASSERTION_REQUIRED',
-					PUSH_CONFIRMATION_REQUIRED: status === 'PUSH_CONFIRMATION_REQUIRED',
-				},
-				nextStepCheck: {
-					DEVICE_SELECTION_REQUIRED: nextStep === 'DEVICE_SELECTION_REQUIRED',
-					SELECTION_REQUIRED: nextStep === 'SELECTION_REQUIRED',
-					OTP_REQUIRED: nextStep === 'OTP_REQUIRED',
-					ASSERTION_REQUIRED: nextStep === 'ASSERTION_REQUIRED',
-					PUSH_CONFIRMATION_REQUIRED: nextStep === 'PUSH_CONFIRMATION_REQUIRED',
-				},
-				policyCheck: {
-					hasDevices: authDevices.length > 0,
-					alwaysDisplayDevices: deviceSelectionBehavior === 'ALWAYS_DISPLAY_DEVICES',
-					shouldShowByPolicy: authDevices.length > 0 && deviceSelectionBehavior === 'ALWAYS_DISPLAY_DEVICES',
-				},
-			});
-
 			// Validate that we got an authenticationId from the response
 			if (!response.id) {
-				console.error(`${MODULE_TAG} Authentication initialized but no ID in response:`, response);
 				toastV8.error(
 					'Failed to initialize authentication: No authentication ID received from PingOne'
 				);
 				setAuthState((prev) => ({ ...prev, isLoading: false }));
 				return;
 			}
-
-			console.log(`${MODULE_TAG} Device authentication initialized`, {
-				authenticationId: response.id,
-				status: response.status,
-				nextStep: response.nextStep,
-				hasLinks: !!response._links,
-				devices: response.devices,
-				deviceCount: response.devices?.length || 0,
-				_embedded: response._embedded,
-				embeddedDevices: response._embedded?.devices,
-				embeddedDeviceCount: response._embedded?.devices?.length || 0,
-				allKeys: Object.keys(response),
-				authDevices: authDevices,
-				authDeviceCount: authDevices.length,
-				needsDeviceSelection,
-				deviceSelectionBehavior,
-				username: usernameInput.trim(),
-				userId: user.id,
-			});
 
 			const finalAuthState = {
 				isLoading: false,
@@ -1568,28 +1426,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				completionResult: null,
 			};
 			
-			console.log(`${MODULE_TAG} 🔍 Step 8: Setting final auth state:`, {
-				finalAuthState,
-				needsDeviceSelection,
-				authDevicesCount: authDevices.length,
-				authenticationId: response.id,
-			});
-			
 			setAuthState(finalAuthState);
 			setLoadingMessage('');
 
 			// Show appropriate modal
 			if (needsDeviceSelection) {
-				// Device selection is needed - the UI will show the device list automatically
-				// based on authState.showDeviceSelection being true
-				console.log(`${MODULE_TAG} 🎯 Device selection needed:`, {
-					needsDeviceSelection,
-					authDevicesCount: authDevices.length,
-					authDevices: authDevices.map(d => ({ id: d.id, type: d.type, nickname: d.nickname })),
-					status,
-					nextStep,
-					deviceSelectionBehavior,
-				});
 				toastV8.success('Please select a device to continue');
 			} else if (needsOTP) {
 				setShowOTPModal(true);
@@ -1944,14 +1785,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					<button
 						type="button"
 						onClick={() => {
-							console.log(`${MODULE_TAG} 🔥 START AUTHENTICATION BUTTON CLICKED:`, {
-								authStateLoading: authState.isLoading,
-								tokenValid: tokenStatus.isValid,
-								hasEnvId: !!credentials.environmentId,
-								hasPolicyId: !!credentials.deviceAuthenticationPolicyId,
-								username: usernameInput.trim(),
-								buttonDisabled: authState.isLoading || !tokenStatus.isValid || !credentials.environmentId || !credentials.deviceAuthenticationPolicyId,
-							});
 							handleStartMFA();
 						}}
 						disabled={
@@ -3872,7 +3705,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							gap: '16px',
 						}}
 					>
-						{authState.devices.map((device, index) => (
+						{/* TEST: Device mapping check */}
+						<div style={{background: 'purple', color: 'white', padding: '10px', margin: '0 0 10px 0'}}>
+							🔥 DEVICE MAPPING: {authState.devices.length} devices found
+						</div>
+						{authState.devices.map((device, index) => {
+							console.log(`${MODULE_TAG} 🔥 Mapping device:`, {device, index});
+							return (
 							<button
 								key={`${device.id}-${(device as any).type ?? (device as any).deliveryMethod ?? 'dev'}-${index}`}
 								type="button"
@@ -3985,7 +3824,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									</div>
 								</div>
 							</button>
-						))}
+							);
+						})}
 					</div>
 				</div>
 			)}
