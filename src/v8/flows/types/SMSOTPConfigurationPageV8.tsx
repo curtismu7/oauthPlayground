@@ -686,18 +686,27 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			e.preventDefault();
 			e.stopPropagation();
 
+			console.log(`${_MODULE_TAG} handleProceedToRegistration called`);
+			console.log(`${_MODULE_TAG} credentials:`, credentials);
+			console.log(`${_MODULE_TAG} tokenStatus:`, tokenStatus);
+
 			const tokenType = credentials.tokenType || 'worker';
 			// For user token type: consider valid if we have any userToken value (including 'oauth_completed' placeholder)
 			// This allows progression after successful OAuth exchange without requiring actual token validation
 			const isTokenValid =
 				tokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim();
 
+			console.log(`${_MODULE_TAG} tokenType:`, tokenType);
+			console.log(`${_MODULE_TAG} isTokenValid:`, isTokenValid);
+
 			if (!credentials.deviceAuthenticationPolicyId) {
+				console.log(`${_MODULE_TAG} Missing deviceAuthenticationPolicyId`);
 				toastV8.warning('Please select a Device Authentication Policy before proceeding');
 				return;
 			}
 
 			if (!isTokenValid) {
+				console.log(`${_MODULE_TAG} Invalid token - tokenType: ${tokenType}, isTokenValid: ${isTokenValid}`);
 				toastV8.warning(
 					`Please provide a valid ${tokenType === 'worker' ? 'Worker Token' : 'User Token'} before proceeding`
 				);
@@ -705,15 +714,18 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			}
 
 			if (!credentials.environmentId) {
+				console.log(`${_MODULE_TAG} Missing environmentId`);
 				toastV8.warning('Please enter an Environment ID before proceeding');
 				return;
 			}
 
 			if (!credentials.username) {
+				console.log(`${_MODULE_TAG} Missing username`);
 				toastV8.warning('Please enter a Username before proceeding');
 				return;
 			}
 
+			console.log(`${_MODULE_TAG} All validations passed - navigating to device registration`);
 			// Navigate to actual SMS registration flow device route
 			navigate('/v8/mfa/register/sms/device', {
 				replace: false,
