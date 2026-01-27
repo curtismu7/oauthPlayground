@@ -304,12 +304,22 @@ const AllFlowsApiTest: React.FC = () => {
 		let envId = '';
 		try {
 			const stored = localStorage.getItem('unified_worker_token');
+			console.log('[AllFlowsApiTest] Initializing config - checking worker token:', {
+				hasStored: !!stored,
+				storedLength: stored?.length || 0,
+			});
+			
 			if (stored) {
 				const data = JSON.parse(stored);
 				envId = data.credentials?.environmentId || '';
+				console.log('[AllFlowsApiTest] Worker token data:', {
+					hasCredentials: !!data.credentials,
+					environmentId: data.credentials?.environmentId || 'NOT_FOUND',
+					extractedEnvId: envId || 'EXTRACTED_EMPTY',
+				});
 			}
 		} catch (error) {
-			console.log('Failed to load environment ID from worker token:', error);
+			console.log('[AllFlowsApiTest] Failed to load environment ID from worker token:', error);
 		}
 
 		return {
@@ -348,22 +358,39 @@ const AllFlowsApiTest: React.FC = () => {
 	// Listen for worker token updates and update environment ID
 	useEffect(() => {
 		const handleWorkerTokenUpdate = () => {
+			console.log('[AllFlowsApiTest] Worker token update triggered');
 			try {
 				const stored = localStorage.getItem('unified_worker_token');
+				console.log('[AllFlowsApiTest] Checking stored worker token:', {
+					hasStored: !!stored,
+					currentConfigEnvId: config.environmentId || 'EMPTY',
+				});
+				
 				if (stored) {
 					const data = JSON.parse(stored);
 					const workerTokenEnvId = data.credentials?.environmentId || '';
 					
+					console.log('[AllFlowsApiTest] Worker token update data:', {
+						hasCredentials: !!data.credentials,
+						workerTokenEnvId: workerTokenEnvId || 'NOT_FOUND',
+						shouldUpdate: workerTokenEnvId && !config.environmentId,
+					});
+					
 					// Update environment ID if worker token has one and config doesn't
 					if (workerTokenEnvId && !config.environmentId) {
+						console.log('[AllFlowsApiTest] Updating environment ID to:', workerTokenEnvId);
 						setConfig((prev) => ({
 							...prev,
 							environmentId: workerTokenEnvId,
 						}));
+					} else {
+						console.log('[AllFlowsApiTest] No update needed - either no envId in token or config already has envId');
 					}
+				} else {
+					console.log('[AllFlowsApiTest] No worker token found in storage');
 				}
 			} catch (error) {
-				console.log('Failed to update environment ID from worker token:', error);
+				console.log('[AllFlowsApiTest] Failed to update environment ID from worker token:', error);
 			}
 		};
 
