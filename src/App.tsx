@@ -217,7 +217,6 @@ const TokenApiDocumentationPage = lazy(() => import('./v8u/pages/TokenApiDocumen
 const FlowComparisonPage = lazy(() => import('./v8u/pages/FlowComparisonPage'));
 
 // Import test pages
-const PingOneApiTest = lazy(() => import('./pages/test/PingOneApiTest'));
 const ImplicitFlowTest = lazy(() => import('./pages/test/ImplicitFlowTest'));
 const AllFlowsApiTest = lazy(() => import('./pages/test/AllFlowsApiTest'));
 const MFAFlowsApiTest = lazy(() => import('./pages/test/MFAFlowsApiTest'));
@@ -1158,14 +1157,6 @@ const AppRoutes: React.FC = () => {
 							<Route path="/learn/response-modes" element={<ResponseModesLearnPage />} />
 							<Route path="/service-test-runner" element={<ServiceTestRunner />} />
 							{/* Test Pages */}
-							<Route
-								path="/test/pingone-api-test"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<PingOneApiTest />
-									</Suspense>
-								}
-							/>
 							<Route
 								path="/test/implicit-flow-test"
 								element={
