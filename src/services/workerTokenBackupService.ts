@@ -2,13 +2,13 @@
  * @file workerTokenBackupService.ts
  * @description Worker Token Backup and Export Service
  * @version 1.0.0
- * 
+ *
  * Provides backup, export, and import functionality for worker tokens.
  * Supports multiple formats including JSON, encrypted files, and database sync.
  */
 
+import type { UnifiedWorkerTokenCredentials } from './unifiedWorkerTokenService';
 import { unifiedWorkerTokenService } from './unifiedWorkerTokenService';
-import type { UnifiedWorkerTokenCredentials, UnifiedWorkerTokenData } from './unifiedWorkerTokenService';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-BACKUP]';
 
@@ -49,12 +49,7 @@ class WorkerTokenBackupService {
 	 * Create backup of current worker token credentials
 	 */
 	async createBackup(options: BackupOptions = {}): Promise<WorkerTokenBackupData> {
-		const {
-			includeToken = false,
-			encrypt = false,
-			format = 'json',
-			filename
-		} = options;
+		const { includeToken = false, encrypt = false, format = 'json', filename } = options;
 
 		console.log(`${MODULE_TAG} Creating worker token backup...`);
 
@@ -75,13 +70,13 @@ class WorkerTokenBackupService {
 				credentials: {
 					...credentials,
 					// Remove sensitive data from backup unless explicitly requested
-					clientSecret: includeToken ? credentials.clientSecret : '***REDACTED***'
+					clientSecret: includeToken ? credentials.clientSecret : '***REDACTED***',
 				},
 				token: {
 					expiresAt: tokenData?.expiresAt,
 					savedAt: tokenData?.savedAt || Date.now(),
 					hasToken: status.hasToken,
-					tokenPreview: tokenData?.token ? tokenData.token.substring(0, 20) + '...' : undefined
+					tokenPreview: tokenData?.token ? `${tokenData.token.substring(0, 20)}...` : undefined,
 				},
 				metadata: {
 					environmentId: credentials.environmentId,
@@ -89,8 +84,8 @@ class WorkerTokenBackupService {
 					region: credentials.region,
 					authMethod: credentials.tokenEndpointAuthMethod,
 					scopes: credentials.scopes,
-					backupType: 'manual'
-				}
+					backupType: 'manual',
+				},
 			};
 
 			// Save to localStorage
@@ -100,7 +95,7 @@ class WorkerTokenBackupService {
 			console.log(`${MODULE_TAG} ✅ Backup created successfully`, {
 				hasCredentials: !!backupData.credentials,
 				hasToken: backupData.token?.hasToken,
-				backupType: backupData.metadata.backupType
+				backupType: backupData.metadata.backupType,
 			});
 
 			return backupData;
@@ -131,12 +126,13 @@ class WorkerTokenBackupService {
 			const credentialsToRestore: UnifiedWorkerTokenCredentials = {
 				environmentId: backupData.credentials.environmentId,
 				clientId: backupData.credentials.clientId,
-				clientSecret: backupData.credentials.clientSecret === '***REDACTED***' 
-					? '' // User will need to re-enter secret
-					: backupData.credentials.clientSecret,
+				clientSecret:
+					backupData.credentials.clientSecret === '***REDACTED***'
+						? '' // User will need to re-enter secret
+						: backupData.credentials.clientSecret,
 				region: backupData.credentials.region,
 				scopes: backupData.credentials.scopes,
-				tokenEndpointAuthMethod: backupData.credentials.tokenEndpointAuthMethod
+				tokenEndpointAuthMethod: backupData.credentials.tokenEndpointAuthMethod,
 			};
 
 			await unifiedWorkerTokenService.saveCredentials(credentialsToRestore);
@@ -144,9 +140,8 @@ class WorkerTokenBackupService {
 			console.log(`${MODULE_TAG} ✅ Credentials restored successfully`, {
 				environmentId: backupData.credentials.environmentId,
 				clientId: backupData.credentials.clientId,
-				needsSecret: backupData.credentials.clientSecret === '***REDACTED***'
+				needsSecret: backupData.credentials.clientSecret === '***REDACTED***',
 			});
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} ❌ Failed to restore from backup:`, error);
 			throw error;
@@ -160,7 +155,7 @@ class WorkerTokenBackupService {
 		try {
 			const backupKey = type === 'auto' ? this.AUTO_BACKUP_KEY : this.MANUAL_BACKUP_KEY;
 			const backupData = localStorage.getItem(backupKey);
-			
+
 			if (!backupData) {
 				console.log(`${MODULE_TAG} No ${type} backup found`);
 				return null;
@@ -170,7 +165,7 @@ class WorkerTokenBackupService {
 			console.log(`${MODULE_TAG} ✅ Loaded ${type} backup`, {
 				timestamp: backup.timestamp,
 				hasCredentials: !!backup.credentials,
-				hasToken: backup.token?.hasToken
+				hasToken: backup.token?.hasToken,
 			});
 
 			return backup;
@@ -281,17 +276,14 @@ class WorkerTokenBackupService {
 	} {
 		const autoBackup = this.loadBackup('auto');
 		const manualBackup = this.loadBackup('manual');
-		
-		const timestamps = [
-			autoBackup?.timestamp,
-			manualBackup?.timestamp
-		].filter(Boolean) as number[];
+
+		const timestamps = [autoBackup?.timestamp, manualBackup?.timestamp].filter(Boolean) as number[];
 
 		return {
 			autoBackup,
 			manualBackup,
 			lastBackup: timestamps.length > 0 ? Math.max(...timestamps) : null,
-			totalBackups: timestamps.length
+			totalBackups: timestamps.length,
 		};
 	}
 
@@ -312,9 +304,9 @@ class WorkerTokenBackupService {
 			// Only create auto-backup if we have valid credentials
 			const status = await unifiedWorkerTokenService.getStatus();
 			if (status.hasCredentials) {
-				await this.createBackup({ 
-					includeToken: false, 
-					backupType: 'auto' 
+				await this.createBackup({
+					includeToken: false,
+					backupType: 'auto',
 				});
 			}
 		} catch (error) {
@@ -327,7 +319,7 @@ class WorkerTokenBackupService {
 		const lines = [
 			'# Worker Token Backup',
 			`# Generated: ${new Date(backup.timestamp).toISOString()}`,
-			'# Version: ' + backup.version,
+			`# Version: ${backup.version}`,
 			'',
 			'# Credentials',
 			`WORKER_TOKEN_ENVIRONMENT_ID=${backup.credentials.environmentId}`,
@@ -359,17 +351,17 @@ class WorkerTokenBackupService {
 			['Has Token', backup.token?.hasToken ? 'Yes' : 'No'],
 			['Expires At', backup.token?.expiresAt ? new Date(backup.token.expiresAt).toISOString() : ''],
 		];
-		
-		return [headers, ...rows].map(row => row.join(',')).join('\n');
+
+		return [headers, ...rows].map((row) => row.join(',')).join('\n');
 	}
 
 	private parseEnvFormat(content: string): WorkerTokenBackupData {
 		const lines = content.split('\n');
 		const data: any = {};
-		
-		lines.forEach(line => {
+
+		lines.forEach((line) => {
 			if (line.startsWith('#') || !line.includes('=')) return;
-			
+
 			const [key, value] = line.split('=', 2);
 			data[key] = value;
 		});
@@ -383,54 +375,59 @@ class WorkerTokenBackupService {
 				clientSecret: data.WORKER_TOKEN_CLIENT_SECRET || '',
 				region: data.WORKER_TOKEN_REGION || 'us',
 				tokenEndpointAuthMethod: data.WORKER_TOKEN_AUTH_METHOD as any,
-				scopes: data.WORKER_TOKEN_SCOPES ? data.WORKER_TOKEN_SCOPES.split(',') : undefined
+				scopes: data.WORKER_TOKEN_SCOPES ? data.WORKER_TOKEN_SCOPES.split(',') : undefined,
 			},
 			token: {
 				hasToken: data.WORKER_TOKEN_HAS_TOKEN === 'true',
-				expiresAt: data.WORKER_TOKEN_EXPIRES_AT ? parseInt(data.WORKER_TOKEN_EXPIRES_AT) : undefined,
-				savedAt: data.WORKER_TOKEN_SAVED_AT ? parseInt(data.WORKER_TOKEN_SAVED_AT) : Date.now()
+				expiresAt: data.WORKER_TOKEN_EXPIRES_AT
+					? parseInt(data.WORKER_TOKEN_EXPIRES_AT, 10)
+					: undefined,
+				savedAt: data.WORKER_TOKEN_SAVED_AT ? parseInt(data.WORKER_TOKEN_SAVED_AT, 10) : Date.now(),
 			},
 			metadata: {
 				environmentId: data.WORKER_TOKEN_ENVIRONMENT_ID || '',
 				clientId: data.WORKER_TOKEN_CLIENT_ID || '',
-				backupType: 'manual'
-			}
+				backupType: 'manual',
+			},
 		};
 	}
 
 	private parseCsvFormat(content: string): WorkerTokenBackupData {
 		const lines = content.split('\n');
 		const data: any = {};
-		
-		lines.slice(1).forEach(line => { // Skip header
+
+		lines.slice(1).forEach((line) => {
+			// Skip header
 			if (!line.includes(',')) return;
-			
+
 			const [field, value] = line.split(',', 2);
 			data[field] = value;
 		});
 
-		return this.parseEnvFormat(this.generateEnvFormat({
-			version: '1.0.0',
-			timestamp: Date.now(),
-			credentials: {
-				environmentId: data['Environment ID'] || '',
-				clientId: data['Client ID'] || '',
-				clientSecret: data['Client Secret'] || '',
-				region: data['Region'] || 'us',
-				tokenEndpointAuthMethod: data['Auth Method'] as any,
-				scopes: data['Scopes'] ? data['Scopes'].split(';') : undefined
-			},
-			token: {
-				hasToken: data['Has Token'] === 'Yes',
-				expiresAt: data['Expires At'] ? new Date(data['Expires At']).getTime() : undefined,
-				savedAt: data['Saved At'] ? new Date(data['Saved At']).getTime() : Date.now()
-			},
-			metadata: {
-				environmentId: data['Environment ID'] || '',
-				clientId: data['Client ID'] || '',
-				backupType: 'manual'
-			}
-		}));
+		return this.parseEnvFormat(
+			this.generateEnvFormat({
+				version: '1.0.0',
+				timestamp: Date.now(),
+				credentials: {
+					environmentId: data['Environment ID'] || '',
+					clientId: data['Client ID'] || '',
+					clientSecret: data['Client Secret'] || '',
+					region: data['Region'] || 'us',
+					tokenEndpointAuthMethod: data['Auth Method'] as any,
+					scopes: data['Scopes'] ? data['Scopes'].split(';') : undefined,
+				},
+				token: {
+					hasToken: data['Has Token'] === 'Yes',
+					expiresAt: data['Expires At'] ? new Date(data['Expires At']).getTime() : undefined,
+					savedAt: data['Saved At'] ? new Date(data['Saved At']).getTime() : Date.now(),
+				},
+				metadata: {
+					environmentId: data['Environment ID'] || '',
+					clientId: data['Client ID'] || '',
+					backupType: 'manual',
+				},
+			})
+		);
 	}
 }
 

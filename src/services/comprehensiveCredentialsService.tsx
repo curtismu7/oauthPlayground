@@ -843,7 +843,34 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [flowType]); // Only run when flowType changes
+	}, [
+		flowType,
+		actualPostLogoutRedirectUri,
+		clientAuthMethod,
+		clientId,
+		clientSecret,
+		credentials?.authorizationEndpoint,
+		credentials?.clientAuthMethod,
+		credentials?.clientId,
+		credentials?.clientSecret,
+		credentials?.environmentId,
+		credentials?.grantType,
+		credentials?.issuerUrl,
+		credentials?.loginHint,
+		credentials?.postLogoutRedirectUri,
+		credentials?.responseType,
+		credentials?.scope,
+		credentials?.scopes,
+		credentials?.tokenEndpoint,
+		credentials?.userInfoEndpoint,
+		environmentId,
+		loginHint,
+		onCredentialsChange,
+		onRedirectUriChange,
+		redirectUri,
+		responseType,
+		scopes,
+	]); // Only run when flowType changes
 
 	// 🔧 CRITICAL FIX: Initialize redirect URI with default value on mount if not set
 	// This ensures the authorization request uses the same redirect_uri as shown in the UI
@@ -898,7 +925,34 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			}
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [actualRedirectUri, redirectUri]); // Only run when actualRedirectUri or redirectUri changes to avoid infinite loop
+	}, [
+		actualRedirectUri,
+		redirectUri,
+		actualPostLogoutRedirectUri,
+		clientAuthMethod,
+		clientId,
+		clientSecret,
+		credentials?.authorizationEndpoint,
+		credentials?.clientAuthMethod,
+		credentials?.clientId,
+		credentials?.clientSecret,
+		credentials?.environmentId,
+		credentials?.grantType,
+		credentials?.issuerUrl,
+		credentials?.loginHint,
+		credentials?.postLogoutRedirectUri,
+		credentials?.responseType,
+		credentials?.scope,
+		credentials?.scopes,
+		credentials?.tokenEndpoint,
+		credentials?.userInfoEndpoint,
+		environmentId,
+		loginHint,
+		onCredentialsChange,
+		onRedirectUriChange,
+		responseType,
+		scopes,
+	]); // Only run when actualRedirectUri or redirectUri changes to avoid infinite loop
 
 	const applyCredentialUpdates = useCallback(
 		(updates: Partial<StepCredentials>, { shouldSave } = { shouldSave: false }) => {
