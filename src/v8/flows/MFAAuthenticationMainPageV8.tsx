@@ -282,7 +282,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				deviceAuthenticationPolicyId: stored.deviceAuthenticationPolicyId || '',
 			});
 		}
-	}, [tokenStatus.isValid, tokenStatus.lastUpdated]);
+	}, [tokenStatus.isValid]);
 
 	const showWorkerTokenModal = workerToken.showWorkerTokenModal;
 	const setShowWorkerTokenModal = workerToken.setShowWorkerTokenModal;
