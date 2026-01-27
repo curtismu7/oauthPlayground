@@ -403,6 +403,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [isRedirectlessAuthenticating, setIsRedirectlessAuthenticating] = useState(false);
 	const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [isSilentLoading, setIsSilentLoading] = useState(false);
 	const [passwordChangeUserId, setPasswordChangeUserId] = useState<string | null>(null);
 	// Note: passwordChangeFlowId and passwordChangeState are reserved for future use
 	// @ts-expect-error - Reserved for future use
@@ -5217,9 +5218,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														setShowWorkerTokenModal,
 														undefined, // setTokenStatus
 														true, // silentApiRetrieval - enable silent retrieval
-														false, // showTokenAtEnd
-														false, // forceShowModal - allow silent retrieval
-														setIsLoading // setIsLoading - for spinner during silent retrieval
+														false, // showTokenAtEnd - don't show modal, just get token
+														false, // forceShowModal - not forced, automatic call
+														setIsSilentLoading // loading state for spinner
 													);
 													
 													// Wait a moment for token to be saved, then check if token is now available
@@ -5317,10 +5318,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												gap: '6px',
 											}}
 										>
-											{isLoading ? (
+											{isSilentLoading ? (
 												<>
-													<span>⏳</span>
-													<span>Retrieving...</span>
+													<div style={{
+														width: '16px',
+														height: '16px',
+														border: '2px solid #e5e7eb',
+														borderTop: '2px solid #3b82f6',
+														borderRadius: '50%',
+														animation: 'spin 1s linear infinite'
+													}}></div>
+													<span>Getting Token...</span>
 												</>
 											) : (
 												<>
