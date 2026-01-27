@@ -9,8 +9,8 @@ import {
 	generateUseCasesPostmanCollection,
 	isBlank,
 	normalizeUrlForPostman,
-	parseUrl,
 	type PostmanCollectionItem,
+	parseUrl,
 	requireNonBlankString,
 	validatePlaceholders,
 } from '../postmanCollectionGeneratorV8';

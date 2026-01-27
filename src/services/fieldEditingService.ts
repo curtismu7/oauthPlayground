@@ -88,12 +88,12 @@ class FieldEditingService {
 	applyProtection(): void {
 		// Get all form input elements from the document
 		const allInputs = this.getAllInputElements();
-		let protectedCount = 0;
+		let _protectedCount = 0;
 
 		// Apply protection to each field
 		allInputs.forEach((input) => {
 			if (this.protectField(input)) {
-				protectedCount++;
+				_protectedCount++;
 			}
 		});
 	}

@@ -1,13 +1,13 @@
 // src/services/validators.ts
 
-import type { PostmanCollection, PostmanCollectionItem } from './postmanTypes';
-import { GenerationIssues } from './postmanIssues';
 import { extractEnvironmentScriptKeys } from './builders/scriptUtils';
+import { GenerationIssues } from './postmanIssues';
+import type { PostmanCollection, PostmanCollectionItem } from './postmanTypes';
 import {
 	getRequiredVariableKeys,
 	isBlank,
-	resolveVariablePolicy,
 	RUNTIME_SET_VARIABLES,
+	resolveVariablePolicy,
 } from './variablePolicy';
 
 /**
@@ -272,7 +272,10 @@ export const validatePlaceholders = (
 			contextLabel,
 		});
 	}
-	if (serialized.includes('<<REQUIRED_VALUE_MISSING>>') || serialized.includes('<<MISSING_VALUE>>')) {
+	if (
+		serialized.includes('<<REQUIRED_VALUE_MISSING>>') ||
+		serialized.includes('<<MISSING_VALUE>>')
+	) {
 		issues.addError('PLACEHOLDER_SENTINEL', 'Found required/missing value sentinels in output.', {
 			contextLabel,
 		});
