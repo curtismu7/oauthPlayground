@@ -1317,9 +1317,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			const status = response.status || '';
 			const nextStep = response.nextStep || '';
 
-			// Use devices from authentication response - these are the devices available for this session
-			// Fallback to empty array if no devices in response
-			const rawDevices = response.devices || [];
+			// Extract devices from both response.devices and response._embedded.devices
+			const rawDevices = [
+				...(response.devices || []),
+				...((response._embedded as { devices?: Device[] })?.devices || []),
+			];
 
 			// Filter devices to ensure they belong to the correct user
 			// PingOne should already filter by user, but we'll double-check
@@ -1342,11 +1344,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				const device: Device = {
 					id: (d.id as string) || '',
 					type: (d.type as string) || '',
-					nickname: (d.nickname as string) || (d.name as string) || (d.type as string),
+					nickname: (d.nickname as string) || (d.name as string) || '',
+					status: (d.status as string) || '',
+					userId: (d.user?.id as string) || '',
+					userUsername: (d.user?.username as string) || '',
+					userName: (d.user?.name as string) || '',
 				};
-				if (d.phone) device.phone = d.phone as string;
-				if (d.email) device.email = d.email as string;
-				if (d.status) device.status = d.status as string;
 				return device;
 			});
 
@@ -3509,7 +3512,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 											const status = response.status || '';
 											const nextStep = response.nextStep || '';
-											const authDevices = (response.devices as Device[]) || [];
+											// Extract devices from both response.devices and response._embedded.devices
+											const authDevices = [
+												...(response.devices as Device[] || []),
+												...((response._embedded as { devices?: Device[] })?.devices || []),
+											];
 											const needsDeviceSelection =
 												status === 'DEVICE_SELECTION_REQUIRED' || nextStep === 'SELECTION_REQUIRED';
 											const links = (response._links as Record<string, { href: string }>) || {};
