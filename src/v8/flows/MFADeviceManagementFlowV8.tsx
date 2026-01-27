@@ -317,7 +317,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 									}}
 								>
 									<span>🔑</span>
-									<span>{tokenStatus.isValid ? 'Manage Token' : 'Add Token'}</span>
+									<span>Get worker token</span>
 								</button>
 
 								<div
