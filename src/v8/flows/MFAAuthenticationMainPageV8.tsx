@@ -80,6 +80,8 @@ import {
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { createModuleLogger } from '@/utils/consoleMigrationHelper';
+import { environmentService } from '@/services/environmentService';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import {
 	MFADeviceSelectionInfoModal,
@@ -245,8 +247,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			includeLogoutUri: false,
 			includeScopes: false,
 		});
+		
+		// Use global environment service as primary source, fallback to stored credentials
+		const globalEnvId = environmentService.getEnvironmentId();
+		
 		return {
-			environmentId: stored.environmentId || '',
+			environmentId: globalEnvId || stored.environmentId || '',
 			username: stored.username || '',
 			deviceAuthenticationPolicyId: stored.deviceAuthenticationPolicyId || '',
 		};
