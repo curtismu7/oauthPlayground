@@ -799,55 +799,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 					</small>
 				</div>
 
-				{/* New Configuration Step with Token Type, User Token, Username, etc. */}
-				<div
-					style={{
-						background: 'white',
-						borderRadius: '8px',
-						padding: '24px',
-						marginBottom: '24px',
-						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					}}
-				>
-					<MFAConfigurationStepV8
-						credentials={credentials}
-						setCredentials={setCredentials}
-						tokenStatus={tokenStatus}
-						deviceAuthPolicies={deviceAuthPolicies}
-						isLoadingPolicies={isLoadingPolicies}
-						registrationFlowType={registrationFlowType}
-						policiesError={policiesError}
-						refreshDeviceAuthPolicies={loadPolicies}
-						showWorkerTokenModal={showWorkerTokenModal}
-						setShowWorkerTokenModal={setShowWorkerTokenModal}
-						showUserLoginModal={showUserLoginModal}
-						setShowUserLoginModal={setShowUserLoginModal}
-						showSettingsModal={showSettingsModal}
-						setShowSettingsModal={setShowSettingsModal}
-						deviceType="EMAIL"
-						deviceTypeLabel="Email"
-						policyDescription="Controls how PingOne challenges the user during Email MFA authentication."
-						// Mock props required by MFAFlowBaseRenderProps but not used in this context
-						mfaState={{ deviceId: '', otpCode: '', deviceStatus: '', verificationResult: null }}
-						setMfaState={() => {}}
-						isLoading={false}
-						setIsLoading={() => {}}
-						nav={
-							{
-								currentStep: 0,
-								goToNext: () => {},
-								goToPrevious: () => {},
-								goToStep: () => {},
-								reset: () => {},
-								setValidationErrors: () => {},
-								setValidationWarnings: () => {},
-							} as any
-						}
-						showDeviceLimitModal={false}
-						setShowDeviceLimitModal={() => {}}
-					/>
-				</div>
-
+				
 				{/* Clean Worker Token Section - Always show */}
 				<WorkerTokenSectionV8
 					environmentId={credentials.environmentId}
