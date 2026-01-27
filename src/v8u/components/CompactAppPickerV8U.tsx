@@ -33,15 +33,15 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 	const [searchQuery, setSearchQuery] = useState('');
 	const [hasDiscovered, setHasDiscovered] = useState(false);
 	const [tokenStatus, setTokenStatus] = useState(() =>
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
 	);
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const searchInputRef = useRef<HTMLInputElement>(null);
 
 	// Check token status
 	useEffect(() => {
-		const checkStatus = () => {
-			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+		const checkStatus = async () => {
+			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setTokenStatus(status);
 		};
 
