@@ -16,6 +16,7 @@ import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBann
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { useAuth } from '../contexts/NewAuthContext';
 import { usePageScroll } from '../hooks/usePageScroll';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
 	getAllLicenses,
@@ -373,9 +374,24 @@ const OrganizationLicensingV2: React.FC = () => {
 
 			// Load saved credentials from credential manager
 			const savedCreds = credentialManager.getAllCredentials();
-			if (savedCreds?.environmentId && savedCreds.clientId) {
+			let envId = savedCreds?.environmentId || '';
+			
+			// Try worker token credentials as fallback
+			if (!envId) {
+				try {
+					const stored = localStorage.getItem('unified_worker_token');
+					if (stored) {
+						const data = JSON.parse(stored);
+						envId = data.credentials?.environmentId || '';
+					}
+				} catch (error) {
+					console.log('Failed to load environment ID from worker token:', error);
+				}
+			}
+			
+			if (envId && savedCreds?.clientId) {
 				setCredentials({
-					environmentId: savedCreds.environmentId || '',
+					environmentId: envId,
 					clientId: savedCreds.clientId || '',
 					clientSecret: savedCreds.clientSecret || '',
 					redirectUri: savedCreds.redirectUri || '',
@@ -390,6 +406,29 @@ const OrganizationLicensingV2: React.FC = () => {
 
 		initializeFlow();
 	}, [hasInitialized]);
+
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId && !credentials.environmentId) {
+						setCredentials(prev => ({
+							...prev,
+							environmentId: data.credentials.environmentId
+						}));
+					}
+				}
+			} catch (error) {
+				console.log('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+	}, [credentials.environmentId]);
 
 	// Handle reset - go back to step 0 and reset initialized flag
 	const handleReset = () => {
