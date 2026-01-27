@@ -8962,9 +8962,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						return;
 					}
 
-					console.log(`${MODULE_TAG} Polling attempt ${attempt + 1}/${maxAttempts}`);
+					console.log(`${MODULE_TAG} 🔄 Polling attempt ${attempt + 1}/${maxAttempts}`);
+					console.log(`${MODULE_TAG} [DEBUG] Device code being used:`, deviceCodeRef.current?.substring(0, 8) + '...');
 					
 					const tokens = await performPoll();
+					console.log(`${MODULE_TAG} [DEBUG] Poll result:`, tokens ? 'TOKENS RECEIVED' : 'NO TOKENS (will continue polling)');
 					
 					
 
@@ -8987,7 +8989,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 					if (tokens) {
 						// Success! Tokens received
-						
+						console.log(`${MODULE_TAG} 🎉 AUTHORIZATION COMPLETE! Tokens received:`, {
+							hasAccessToken: !!tokens.access_token,
+							hasIdToken: !!tokens.id_token,
+							hasRefreshToken: !!tokens.refresh_token,
+							tokenType: tokens.token_type,
+							expiresIn: tokens.expires_in,
+						});
 						
 						// Filter tokens based on spec version (OAuth 2.0 Authorization Framework (RFC 6749) / OAuth 2.1 Authorization Framework (draft) should not have id_token when used without OpenID Connect)
 						const filteredTokens = filterTokensBySpec(tokens);
