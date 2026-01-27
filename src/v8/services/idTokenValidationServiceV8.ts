@@ -189,7 +189,7 @@ export class IDTokenValidationServiceV8 {
 			// Step 4: Verify signature
 			try {
 				const { importJWK } = await import('jose');
-				const publicKey = await importJWK(signingKey as Parameters<typeof importJWK>[0]);
+				const publicKey = await importJWK(signingKey as unknown);
 				await jwtVerify(idToken, publicKey);
 				validationDetails.signatureVerified = true;
 				console.log(`${MODULE_TAG} ✅ Signature verified`);
