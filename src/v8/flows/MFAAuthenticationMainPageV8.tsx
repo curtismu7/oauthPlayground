@@ -23,7 +23,6 @@ import {
 	FiAlertCircle,
 	FiCheck,
 	FiCode,
-	FiDownload,
 	FiInfo,
 	FiKey,
 	FiLoader,
@@ -31,11 +30,8 @@ import {
 	FiPackage,
 	FiPhone,
 	FiPlus,
-	FiRefreshCw,
-	FiSearch,
 	FiShield,
 	FiTrash2,
-	FiUser,
 	FiX,
 } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -55,12 +51,6 @@ import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import {
-	DangerButton,
-	PrimaryButton,
-	SecondaryButton,
-	SuccessButton,
-} from '@/v8/components/shared/ActionButtonV8';
-import {
 	PageHeaderGradients,
 	PageHeaderTextColors,
 	PageHeaderV8,
@@ -71,7 +61,6 @@ import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplay
 import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
 import { useActionButton } from '@/v8/hooks/useActionButton';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
-import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
@@ -84,7 +73,6 @@ import {
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
-import { MFAOTPInput } from './components/MFAOTPInput';
 import {
 	MFADeviceSelectionInfoModal,
 	MFAFIDO2ChallengeModal,
@@ -174,10 +162,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const [isGettingWorkerToken, setIsGettingWorkerToken] = useState(false);
 
 	// Action button hooks for consistent button state management
-	const startMFAAction = useActionButton();
-	const registerDeviceAction = useActionButton();
-	const usernamelessFIDO2Action = useActionButton();
-	const clearTokensAction = useActionButton();
+	const _startMFAAction = useActionButton();
+	const _registerDeviceAction = useActionButton();
+	const _usernamelessFIDO2Action = useActionButton();
+	const _clearTokensAction = useActionButton();
 
 	usePageScroll({ pageName: 'MFA Authentication', force: true });
 
@@ -318,7 +306,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	});
 
 	// Loading message state for spinner modal
-	const [loadingMessage, setLoadingMessage] = useState('');
+	const [_loadingMessage, setLoadingMessage] = useState('');
 
 	// Username input state
 	const [usernameInput, setUsernameInput] = useState(credentials.username || '');
@@ -422,7 +410,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 						// Use the same logic as attemptSilentTokenRetrieval
 						const region = credentials.region || 'us';
-						const apiBase =
+						const _apiBase =
 							region === 'eu'
 								? 'https://auth.pingone.eu'
 								: region === 'ap'
@@ -538,7 +526,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		return () => {
 			clearInterval(interval);
 		};
-	}, [setTokenStatus]);
+	}, []);
 
 	// Helper function to handle NO_USABLE_DEVICES errors
 	const handleDeviceFailureError = useCallback((error: unknown) => {
@@ -608,7 +596,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			completionResult: null,
 		});
 		setUserDevices([]);
-	}, [usernameInput]);
+	}, []);
 
 	// Load worker token settings from config service (always fresh, no cache)
 	useEffect(() => {
@@ -623,7 +611,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 		// Listen for config updates
 		const handleConfigUpdate = (event: Event) => {
-			const customEvent = event as CustomEvent<{
+			const _customEvent = event as CustomEvent<{
 				workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean };
 			}>;
 			// Always reload fresh from config service when event fires (no cache)
@@ -741,7 +729,20 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		}, 2000); // Poll every 2 seconds
 
 		return () => clearInterval(pollInterval);
-	}, [showPushModal, authState._links]);
+	}, [
+		showPushModal,
+		authState._links,
+		authState.authenticationId,
+		authState.challengeId,
+		authState.devices.find,
+		authState.selectedDeviceId,
+		authState.userId,
+		credentials.deviceAuthenticationPolicyId,
+		credentials.environmentId,
+		deviceAuthPolicies.find, // Navigate to success page with completion result
+		navigate,
+		usernameInput.trim,
+	]);
 
 	// Track last loaded username/environment to prevent unnecessary reloads
 	const lastLoadedDevicesRef = useRef<{ username: string; environmentId: string } | null>(null);
@@ -936,6 +937,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		credentials.deviceAuthenticationPolicyId,
 		tokenStatus.isValid,
 		deviceAuthPolicies,
+		credentials,
 	]);
 
 	// Load policies when environment or token changes (but not when callback changes)
@@ -1322,6 +1324,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		credentials.deviceAuthenticationPolicyId,
 		usernameInput,
 		handleDeviceFailureError,
+		credentials.customDomain,
+		credentials.region,
+		deviceAuthPolicies.find,
 	]);
 
 	// Clear all tokens (worker and user tokens) and end PingOne session
@@ -1416,7 +1421,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			}
 			setIsClearingTokens(false);
 		}
-	}, [authContext, credentials.environmentId, credentials.userToken, setCredentials]);
+	}, [authContext, credentials.environmentId, credentials.userToken]);
 
 	// Compute showTokenOnly for modal
 	const showTokenOnly = (() => {
@@ -1812,27 +1817,16 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				}}
 			>
 				<h2 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-					Control Panel
+					Worker Token & Configuration
 				</h2>
 
-				{/* Worker Token - First Row (Top Priority) */}
-				<div style={{ marginBottom: '20px' }}>
-					<label
-						style={{
-							display: 'block',
-							marginBottom: '8px',
-							fontSize: '14px',
-							fontWeight: '500',
-							color: '#374151',
-						}}
-					>
-						Worker Token
-					</label>
+				{/* Worker Token Status & Actions */}
+				<div style={{ marginBottom: '24px' }}>
 					<div
 						style={{
 							display: 'flex',
 							flexDirection: 'column',
-							gap: '12px',
+							gap: '16px',
 							alignItems: 'flex-start',
 						}}
 					>
@@ -1891,11 +1885,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							{isGettingWorkerToken ? 'Getting Token...' : 'Get Worker Token'}
 						</button>
 
-						{/* Cool 3D Worker Token Status Display */}
+						{/* Worker Token Status Display */}
 						<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
 					</div>
 
-					{/* Worker Token Settings Checkboxes */}
+					{/* Worker Token Configuration Options */}
 					<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 						<label
 							style={{
@@ -4338,7 +4332,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 															// For FIDO2, check if publicKeyCredentialRequestOptions is provided
 															// This contains the WebAuthn challenge, but we still need challengeId to identify it
-															const hasPublicKeyOptions = !!(
+															const _hasPublicKeyOptions = !!(
 																data as { publicKeyCredentialRequestOptions?: unknown }
 															).publicKeyCredentialRequestOptions;
 
@@ -4352,7 +4346,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																	// Try to extract challengeId from URL (format: /.../challenges/{challengeId}/poll or /.../challenges/{challengeId}/check)
 																	const challengeMatch =
 																		challengePollUrl.match(/\/challenges\/([^/]+)/);
-																	if (challengeMatch && challengeMatch[1]) {
+																	if (challengeMatch?.[1]) {
 																		challengeId = challengeMatch[1];
 																	} else {
 																		console.warn(
@@ -4429,7 +4423,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																		if (challengePollUrl) {
 																			const challengeMatch =
 																				challengePollUrl.match(/\/challenges\/([^/]+)/);
-																			if (challengeMatch && challengeMatch[1]) {
+																			if (challengeMatch?.[1]) {
 																				challengeId = challengeMatch[1];
 																			}
 																		}
@@ -4665,7 +4659,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															return;
 														}
 
-														const deviceType =
+														const _deviceType =
 															(selectedDevice.type as string)?.toUpperCase() || 'UNKNOWN';
 
 														// Validate required fields
