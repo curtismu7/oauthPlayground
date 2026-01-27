@@ -288,17 +288,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		enableAutoRefresh: true,
 	});
 
-	// Debug: Track authState changes
-	useEffect(() => {
-		console.log(`${MODULE_TAG} 🔥 authState changed:`, {
-			showDeviceSelection: authState.showDeviceSelection,
-			devicesLength: authState.devices.length,
-			authenticationId: authState.authenticationId,
-			status: authState.status,
-			nextStep: authState.nextStep,
-		});
-	}, [authState.showDeviceSelection, authState.devices.length, authState.authenticationId]);
-
 	// Backward compatibility: provide setTokenStatus function
 	const setTokenStatus = async (_status: TokenStatusInfo | Promise<TokenStatusInfo>) => {
 		// No-op: The hook manages token status internally
@@ -377,6 +366,17 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const [usernameInput, setUsernameInput] = useState(credentials.username || '');
 	const [showUsernameDecisionModal, setShowUsernameDecisionModal] = useState(false);
 	const [isPasskeyRegistrationMode, setIsPasskeyRegistrationMode] = useState(false);
+
+	// Debug: Track authState changes
+	useEffect(() => {
+		console.log(`${MODULE_TAG} 🔥 authState changed:`, {
+			showDeviceSelection: authState.showDeviceSelection,
+			devicesLength: authState.devices.length,
+			authenticationId: authState.authenticationId,
+			status: authState.status,
+			nextStep: authState.nextStep,
+		});
+	}, [authState.showDeviceSelection, authState.devices.length, authState.authenticationId]);
 
 	// Modals
 	const [showOTPModal, setShowOTPModal] = useState(false);
@@ -3842,31 +3842,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			)}
 
 			{/* Device Selection Section - Show when authentication requires device selection */}
-			{(() => {
-				const shouldShow = authState.showDeviceSelection && authState.devices.length > 0;
-				console.log(`${MODULE_TAG} 🎯 Device Selection UI Check:`, {
-					showDeviceSelection: authState.showDeviceSelection,
-					devicesLength: authState.devices.length,
-					devices: authState.devices,
-					authenticationId: authState.authenticationId,
-					status: authState.status,
-					nextStep: authState.nextStep,
-					shouldShow,
-					timestamp: new Date().toISOString(),
-				});
-				
-				// Add continuous monitoring to catch state changes
-				if (!shouldShow && (authState.showDeviceSelection || authState.devices.length > 0)) {
-					console.warn(`${MODULE_TAG} ⚠️ Device Selection UI NOT showing despite conditions:`, {
-						showDeviceSelection: authState.showDeviceSelection,
-						devicesLength: authState.devices.length,
-						shouldShow,
-						reason: !authState.showDeviceSelection ? 'showDeviceSelection is false' : 'devices.length is 0',
-					});
-				}
-				
-				return shouldShow;
-			})() && (
+			{authState.showDeviceSelection && authState.devices.length > 0 && (
 				<div
 					style={{
 						background: 'white',

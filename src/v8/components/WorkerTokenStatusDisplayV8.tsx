@@ -561,16 +561,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 	refreshInterval = 5,
 	showConfig = false,
 }) => {
-	// Reduced logging - only log in development mode
-	if (process.env.NODE_ENV === 'development') {
-		console.log('[WorkerTokenStatusDisplayV8] Component initialized with props:', {
-			mode,
-			showRefresh,
-			className,
-			refreshInterval,
-			showConfig,
-		});
-	}
+	// Component initialization - logging removed for performance
 
 	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
 		isValid: false,
