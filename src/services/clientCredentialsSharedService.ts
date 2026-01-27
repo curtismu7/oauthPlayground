@@ -306,7 +306,7 @@ export class ClientCredentialsTokenRequest {
 				});
 
 				// Parse error response to provide more specific error messages
-				let parsedError;
+				let parsedError: unknown;
 				try {
 					parsedError = JSON.parse(errorText);
 				} catch {

@@ -2,11 +2,11 @@
  * @file unifiedWorkerTokenService.ts
  * @description Unified Worker Token Service - Single service for all worker token operations
  * @version 1.0.0
- * 
+ *
  * This service consolidates all worker token functionality across the application.
  * It supports different input requirements for different apps while maintaining
  * a single source of truth for worker token management.
- * 
+ *
  * Features:
  * - Single unified service for all worker token operations
  * - Flexible credential interface to support different app requirements
@@ -31,18 +31,23 @@ export interface UnifiedWorkerTokenCredentials {
 	environmentId: string;
 	clientId: string;
 	clientSecret: string;
-	
+
 	// Optional fields for different apps
 	scopes?: string[];
 	region?: 'us' | 'eu' | 'ap' | 'ca';
 	customDomain?: string;
-	tokenEndpointAuthMethod?: 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
-	
+	tokenEndpointAuthMethod?:
+		| 'none'
+		| 'client_secret_basic'
+		| 'client_secret_post'
+		| 'client_secret_jwt'
+		| 'private_key_jwt';
+
 	// App-specific metadata (optional)
 	appId?: string;
 	appName?: string;
 	appVersion?: string;
-	
+
 	// Legacy compatibility fields
 	grant_type?: string;
 	tokenEndpoint?: string;
@@ -54,7 +59,7 @@ export interface UnifiedWorkerTokenData {
 	expiresAt?: number;
 	savedAt: number;
 	lastUsedAt?: number;
-	
+
 	// Token metadata
 	tokenType?: string;
 	expiresIn?: number;
@@ -84,7 +89,7 @@ export interface WorkerTokenValidationResult {
 
 /**
  * Unified Worker Token Service
- * 
+ *
  * This is the single source of truth for all worker token operations.
  * It replaces multiple scattered implementations with one unified service.
  */
@@ -191,7 +196,7 @@ class UnifiedWorkerTokenService {
 	 */
 	async loadCredentials(): Promise<UnifiedWorkerTokenCredentials | null> {
 		console.log(`${MODULE_TAG} 🔍 Loading credentials...`);
-		
+
 		// Try memory cache first
 		if (this.memoryCache) {
 			console.log(`${MODULE_TAG} ✅ Found credentials in memory cache`);
@@ -201,12 +206,12 @@ class UnifiedWorkerTokenService {
 		// Try localStorage (primary)
 		try {
 			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
-			console.log(`${MODULE_TAG} 🔍 localStorage check:`, { 
-				hasData: !!stored, 
+			console.log(`${MODULE_TAG} 🔍 localStorage check:`, {
+				hasData: !!stored,
 				key: BROWSER_STORAGE_KEY,
-				dataLength: stored?.length || 0 
+				dataLength: stored?.length || 0,
 			});
-			
+
 			if (stored) {
 				const data: UnifiedWorkerTokenData = JSON.parse(stored);
 				this.memoryCache = data;
@@ -214,7 +219,7 @@ class UnifiedWorkerTokenService {
 					hasEnvironmentId: !!data.credentials?.environmentId,
 					hasClientId: !!data.credentials?.clientId,
 					hasClientSecret: !!data.credentials?.clientSecret,
-					savedAt: new Date(data.savedAt).toISOString()
+					savedAt: new Date(data.savedAt).toISOString(),
 				});
 				return data.credentials;
 			}
@@ -241,9 +246,9 @@ class UnifiedWorkerTokenService {
 					hasEnvironmentId: !!data.credentials?.environmentId,
 					hasClientId: !!data.credentials?.clientId,
 					hasClientSecret: !!data.credentials?.clientSecret,
-					savedAt: new Date(data.savedAt).toISOString()
+					savedAt: new Date(data.savedAt).toISOString(),
 				});
-				
+
 				// Restore to localStorage
 				try {
 					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
@@ -281,7 +286,7 @@ class UnifiedWorkerTokenService {
 			try {
 				const stored = localStorage.getItem(key);
 				console.log(`${MODULE_TAG} 🔍 Legacy key ${key}:`, { hasData: !!stored });
-				
+
 				if (stored) {
 					const legacyData = JSON.parse(stored);
 					console.log(`${MODULE_TAG} 📦 Found legacy data in ${key}:`, {
@@ -289,20 +294,26 @@ class UnifiedWorkerTokenService {
 						hasClientId: !!legacyData.clientId || !!legacyData.client_id,
 						hasClientSecret: !!legacyData.clientSecret || !!legacyData.client_secret,
 					});
-					
+
 					// Convert to unified format
 					const unifiedCredentials: UnifiedWorkerTokenCredentials = {
 						environmentId: legacyData.environmentId || legacyData.environment_id,
 						clientId: legacyData.clientId || legacyData.client_id,
 						clientSecret: legacyData.clientSecret || legacyData.client_secret,
-						scopes: legacyData.scopes || (legacyData.scope ? legacyData.scope.split(/\s+/) : undefined),
+						scopes:
+							legacyData.scopes || (legacyData.scope ? legacyData.scope.split(/\s+/) : undefined),
 						region: legacyData.region || 'us',
 						customDomain: legacyData.customDomain,
-						tokenEndpointAuthMethod: legacyData.tokenEndpointAuthMethod || legacyData.authMethod || 'client_secret_post',
+						tokenEndpointAuthMethod:
+							legacyData.tokenEndpointAuthMethod || legacyData.authMethod || 'client_secret_post',
 					};
 
 					// Validate we have the required fields
-					if (!unifiedCredentials.environmentId || !unifiedCredentials.clientId || !unifiedCredentials.clientSecret) {
+					if (
+						!unifiedCredentials.environmentId ||
+						!unifiedCredentials.clientId ||
+						!unifiedCredentials.clientSecret
+					) {
 						console.warn(`${MODULE_TAG} ⚠️ Legacy data missing required fields, skipping`, {
 							key,
 							hasEnvironmentId: !!unifiedCredentials.environmentId,
@@ -314,12 +325,15 @@ class UnifiedWorkerTokenService {
 
 					// Save in unified format
 					await this.saveCredentials(unifiedCredentials);
-					
-					console.log(`${MODULE_TAG} 🔄 Successfully migrated credentials from legacy key: ${key}`, {
-						environmentId: unifiedCredentials.environmentId?.substring(0, 8) + '...',
-						clientId: unifiedCredentials.clientId?.substring(0, 8) + '...',
-						hasClientSecret: !!unifiedCredentials.clientSecret,
-					});
+
+					console.log(
+						`${MODULE_TAG} 🔄 Successfully migrated credentials from legacy key: ${key}`,
+						{
+							environmentId: `${unifiedCredentials.environmentId?.substring(0, 8)}...`,
+							clientId: `${unifiedCredentials.clientId?.substring(0, 8)}...`,
+							hasClientSecret: !!unifiedCredentials.clientSecret,
+						}
+					);
 					return unifiedCredentials;
 				}
 			} catch (error) {
@@ -334,7 +348,11 @@ class UnifiedWorkerTokenService {
 	/**
 	 * Save worker token (access token)
 	 */
-	async saveToken(token: string, expiresAt?: number, tokenMetadata?: Partial<UnifiedWorkerTokenData>): Promise<void> {
+	async saveToken(
+		token: string,
+		expiresAt?: number,
+		tokenMetadata?: Partial<UnifiedWorkerTokenData>
+	): Promise<void> {
 		const credentials = await this.loadCredentials();
 		if (!credentials) {
 			throw new Error('No worker token credentials found. Please save credentials first.');
@@ -343,7 +361,7 @@ class UnifiedWorkerTokenService {
 		const data: UnifiedWorkerTokenData = {
 			token,
 			credentials,
-			expiresAt: expiresAt || (Date.now() + 3600 * 1000), // Default 1 hour
+			expiresAt: expiresAt || Date.now() + 3600 * 1000, // Default 1 hour
 			savedAt: Date.now(),
 			lastUsedAt: Date.now(),
 			...tokenMetadata,
@@ -425,11 +443,13 @@ class UnifiedWorkerTokenService {
 			tokenExpiresIn: data ? this.getTokenExpiresIn(data) : undefined,
 			lastFetchedAt: data?.savedAt,
 			lastUsedAt: data?.lastUsedAt,
-			appInfo: credentials ? {
-				appId: credentials.appId,
-				appName: credentials.appName,
-				appVersion: credentials.appVersion,
-			} : undefined,
+			appInfo: credentials
+				? {
+						appId: credentials.appId,
+						appName: credentials.appName,
+						appVersion: credentials.appVersion,
+					}
+				: undefined,
 		};
 	}
 
@@ -446,7 +466,9 @@ class UnifiedWorkerTokenService {
 			errors.push('Environment ID is required');
 		} else if (!this.isValidEnvironmentId(credentials.environmentId)) {
 			errors.push('Environment ID must be a valid UUID format');
-			suggestions.push('Environment ID should be a UUID like: 12345678-1234-1234-1234-123456789012');
+			suggestions.push(
+				'Environment ID should be a UUID like: 12345678-1234-1234-1234-123456789012'
+			);
 		}
 
 		if (!credentials.clientId?.trim()) {
@@ -458,7 +480,11 @@ class UnifiedWorkerTokenService {
 		}
 
 		// Business logic validation
-		if (credentials.environmentId && credentials.clientId && credentials.environmentId === credentials.clientId) {
+		if (
+			credentials.environmentId &&
+			credentials.clientId &&
+			credentials.environmentId === credentials.clientId
+		) {
 			errors.push('Client ID cannot be the same as Environment ID');
 		}
 
@@ -632,11 +658,13 @@ class UnifiedWorkerTokenService {
 				detail: {
 					expiresAt: data.expiresAt,
 					expiresIn: this.getTokenExpiresIn(data),
-					appInfo: data.credentials.appId ? {
-						appId: data.credentials.appId,
-						appName: data.credentials.appName,
-						appVersion: data.credentials.appVersion,
-					} : undefined,
+					appInfo: data.credentials.appId
+						? {
+								appId: data.credentials.appId,
+								appName: data.credentials.appName,
+								appVersion: data.credentials.appVersion,
+							}
+						: undefined,
 				},
 			})
 		);
@@ -647,11 +675,17 @@ class UnifiedWorkerTokenService {
 export const unifiedWorkerTokenService = UnifiedWorkerTokenService.getInstance();
 
 // Export types for backward compatibility
-export type { WorkerAccessToken, WorkerTokenCredentials, WorkerTokenStatus } from './unifiedWorkerTokenTypes';
+export type {
+	WorkerAccessToken,
+	WorkerTokenCredentials,
+	WorkerTokenStatus,
+} from './unifiedWorkerTokenTypes';
 
 // Make available globally for debugging
 if (typeof window !== 'undefined') {
-	(window as unknown as { unifiedWorkerTokenService: typeof unifiedWorkerTokenService }).unifiedWorkerTokenService = unifiedWorkerTokenService;
+	(
+		window as unknown as { unifiedWorkerTokenService: typeof unifiedWorkerTokenService }
+	).unifiedWorkerTokenService = unifiedWorkerTokenService;
 }
 
 export default unifiedWorkerTokenService;

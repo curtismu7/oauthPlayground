@@ -1,7 +1,7 @@
 // src/services/url.ts
 
-import type { GenerationIssues } from './postmanIssues';
 import { getActiveContextLabel, getActiveIssues } from './postmanGenerationContext';
+import type { GenerationIssues } from './postmanIssues';
 import { isBlank, requireNonBlankString } from './variablePolicy';
 
 /**
