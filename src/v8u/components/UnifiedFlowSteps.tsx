@@ -8670,7 +8670,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				try {
 					// Use PingOne auth proxy to avoid CORS issues
-					const tokenEndpoint = `/pingone-auth/${flowState.credentials.environmentId}/as/token`;
+					const tokenEndpoint = `/pingone-auth/${credentials.environmentId}/as/token`;
 
 					// CRITICAL: Read device code from ref (always current, not from stale closure)
 					const currentDeviceCode = deviceCodeRef.current?.trim();
