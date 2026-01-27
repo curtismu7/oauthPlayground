@@ -8,6 +8,7 @@
 
 import React, { useState } from 'react';
 import { FiHelpCircle, FiX } from 'react-icons/fi';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
 
 const MODULE_TAG = '[📋 SPEC-VERSION-SELECTOR-V8U]';
@@ -76,7 +77,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const newSpec = event.target.value as SpecVersion;
-		logger.debug(Spec version changed`, { from: specVersion, to: newSpec });
+		logger.debug(`Spec version changed`, { from: specVersion, to: newSpec });
 		onChange(newSpec);
 	};
 
