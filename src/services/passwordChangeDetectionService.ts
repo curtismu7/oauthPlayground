@@ -53,7 +53,8 @@ export class PasswordChangeDetectionService {
 		userId?: string;
 		message?: string;
 	} {
-		const requiresPasswordChange = PasswordChangeDetectionService.isPasswordChangeRequired(errorResponse);
+		const requiresPasswordChange =
+			PasswordChangeDetectionService.isPasswordChangeRequired(errorResponse);
 
 		return {
 			requiresPasswordChange,
@@ -152,7 +153,9 @@ export class PasswordChangeDetectionService {
 	} {
 		// Check error response first (most common)
 		if (data.errorResponse) {
-			const errorInfo = PasswordChangeDetectionService.extractPasswordChangeInfo(data.errorResponse);
+			const errorInfo = PasswordChangeDetectionService.extractPasswordChangeInfo(
+				data.errorResponse
+			);
 			if (errorInfo.requiresPasswordChange) {
 				return {
 					...errorInfo,
@@ -176,7 +179,9 @@ export class PasswordChangeDetectionService {
 
 		// Check authorization response
 		if (data.authorizationResponse) {
-			const authInfo = PasswordChangeDetectionService.checkAuthorizationResponse(data.authorizationResponse);
+			const authInfo = PasswordChangeDetectionService.checkAuthorizationResponse(
+				data.authorizationResponse
+			);
 			if (authInfo.requiresPasswordChange) {
 				return {
 					requiresPasswordChange: true,

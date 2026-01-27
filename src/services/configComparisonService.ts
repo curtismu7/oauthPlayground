@@ -76,7 +76,7 @@ export class ConfigComparisonService {
 							appWithScopes.scopes = [...new Set(allScopes)];
 						}
 					}
-				} catch (resourcesError) {
+				} catch (_resourcesError) {
 					// Silently fail and try next method
 				}
 
@@ -101,7 +101,7 @@ export class ConfigComparisonService {
 								appWithScopes.scopes = pingOneScopes;
 							}
 						}
-					} catch (discoveryError) {
+					} catch (_discoveryError) {
 						// Silently fail and use default
 					}
 				}
