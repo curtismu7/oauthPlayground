@@ -1825,50 +1825,44 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					onClick={() => setIsWorkerTokenConfigCollapsed(!isWorkerTokenConfigCollapsed)}
 					style={{
 						width: '100%',
-						padding: '16px 20px',
-						background: isWorkerTokenConfigCollapsed
-							? 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
-							: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+						padding: '12px 16px',
+						background: 'transparent',
 						border: 'none',
-						borderBottom: isWorkerTokenConfigCollapsed ? '1px solid #e2e8f0' : 'none',
 						cursor: 'pointer',
 						display: 'flex',
 						alignItems: 'center',
-						justifyContent: 'space-between',
-						transition: 'all 0.3s ease',
-						marginBottom: isWorkerTokenConfigCollapsed ? '0' : '20px',
-					}}
-					onMouseEnter={(e) => {
-						e.currentTarget.style.color = '#1f2937';
-					}}
-					onMouseLeave={(e) => {
-						e.currentTarget.style.color = '#374151';
+						gap: '12px',
+						transition: 'all 0.2s ease',
+						marginBottom: '16px',
 					}}
 				>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+					<div
+						style={{
+							width: '24px',
+							height: '24px',
+							background: '#3b82f6',
+							borderRadius: '4px',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							transition: 'all 0.2s ease',
+							flexShrink: 0,
+						}}
+					>
 						<span
 							style={{
-								fontSize: '24px',
-								color: '#3b82f6',
-								transform: isWorkerTokenConfigCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
-								transition: 'all 0.3s ease',
+								color: 'white',
+								fontSize: '12px',
+								transform: isWorkerTokenConfigCollapsed ? 'rotate(0deg)' : 'rotate(90deg)',
+								transition: 'transform 0.2s ease',
+								display: 'inline-block',
 							}}
 						>
 							▶
 						</span>
-						<span style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-							🔧 Worker Token Configuration
-						</span>
 					</div>
-					<span
-						style={{
-							fontSize: '16px',
-							color: '#6b7280',
-							transform: isWorkerTokenConfigCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
-							transition: 'all 0.3s ease',
-						}}
-					>
-						▶
+					<span style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+						Worker Token Configuration
 					</span>
 				</button>
 
