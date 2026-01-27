@@ -8720,6 +8720,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						clientId: credentials.clientId,
 						deviceCodeLength: currentDeviceCode.length,
 						deviceCodePrefix: `${currentDeviceCode.substring(0, 10)}...`,
+						requestBody: params.toString(),
+						contentType: 'application/x-www-form-urlencoded',
 					});
 
 					
@@ -8766,6 +8768,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							responseData4 = await responseClone4.json();
 						} catch {
 							responseData4 = { error: 'Failed to parse response' };
+						}
+
+						// Debug response details
+						if (!response.ok) {
+							console.error(`${MODULE_TAG} ❌ Polling response error (attempt ${pollCount}):`, {
+								status: response.status,
+								statusText: response.statusText,
+								responseData: responseData4,
+								requestBody: params.toString(),
+								endpoint: tokenEndpoint,
+							});
 						}
 
 						// Update API call with response
