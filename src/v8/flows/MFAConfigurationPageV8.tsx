@@ -7,7 +7,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiArrowLeft, FiCheck, FiDownload, FiInfo, FiRefreshCw, FiUpload } from 'react-icons/fi';
+import { FiArrowLeft, FiCheck, FiInfo, FiRefreshCw } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { CreatePolicyModalV8 } from '@/v8/components/CreatePolicyModalV8';
@@ -17,7 +17,6 @@ import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
-import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import {
 	type MFAConfiguration,
 	MFAConfigurationServiceV8,
@@ -42,9 +41,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 	const [config, setConfig] = useState<MFAConfiguration>(() =>
 		MFAConfigurationServiceV8.loadConfiguration()
 	);
-	const [hasChanges, setHasChanges] = useState(false);
-	const [isSaving, setIsSaving] = useState(false);
-	const [isRefreshingToken, setIsRefreshingToken] = useState(false);
+	const [_hasChanges, setHasChanges] = useState(false);
+	const [_isSaving, setIsSaving] = useState(false);
+	const [_isRefreshingToken, setIsRefreshingToken] = useState(false);
 
 	// PingOne MFA Settings state
 	const [pingOneSettings, setPingOneSettings] = useState<MFASettings | null>(null);
@@ -60,16 +59,16 @@ export const MFAConfigurationPageV8: React.FC = () => {
 	const { paddingBottom } = useApiDisplayPadding();
 
 	// Device Authentication Policy state
-	const [deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
+	const [_deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
 	const [selectedPolicyId, setSelectedPolicyId] = useState<string>('');
 	const [selectedPolicy, setSelectedPolicy] = useState<DeviceAuthenticationPolicy | null>(null);
-	const [isLoadingPolicies, setIsLoadingPolicies] = useState(false);
-	const [isLoadingPolicy, setIsLoadingPolicy] = useState(false);
+	const [_isLoadingPolicies, setIsLoadingPolicies] = useState(false);
+	const [_isLoadingPolicy, setIsLoadingPolicy] = useState(false);
 	const [isSavingPolicy, setIsSavingPolicy] = useState(false);
 	const [hasPolicyChanges, setHasPolicyChanges] = useState(false);
 	const [showCreatePolicyModal, setShowCreatePolicyModal] = useState(false);
-	const [newPolicyName, setNewPolicyName] = useState('');
-	const [newPolicyDescription, setNewPolicyDescription] = useState('');
+	const [_newPolicyName, setNewPolicyName] = useState('');
+	const [_newPolicyDescription, setNewPolicyDescription] = useState('');
 	const [isCreatingPolicy, setIsCreatingPolicy] = useState(false);
 
 	// Get return path from location state
@@ -376,7 +375,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		}
 	};
 
-	const handleSave = () => {
+	const _handleSave = () => {
 		setIsSaving(true);
 		try {
 			MFAConfigurationServiceV8.saveConfiguration(config);
@@ -390,7 +389,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		}
 	};
 
-	const handleReset = async () => {
+	const _handleReset = async () => {
 		const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
 		const confirmed = await uiNotificationServiceV8.confirm({
 			title: 'Reset Configuration',
@@ -405,7 +404,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		}
 	};
 
-	const handleManualWorkerTokenRefresh = async () => {
+	const _handleManualWorkerTokenRefresh = async () => {
 		setIsRefreshingToken(true);
 		try {
 			const credentials = await workerTokenServiceV8.loadCredentials();
@@ -492,7 +491,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		}
 	};
 
-	const handleExport = () => {
+	const _handleExport = () => {
 		try {
 			const json = MFAConfigurationServiceV8.exportConfiguration();
 			const blob = new Blob([json], { type: 'application/json' });
@@ -511,7 +510,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		}
 	};
 
-	const handleImport = () => {
+	const _handleImport = () => {
 		const input = document.createElement('input');
 		input.type = 'file';
 		input.accept = '.json';

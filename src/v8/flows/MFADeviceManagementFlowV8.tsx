@@ -168,7 +168,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 			};
 			updateShowTokenOnly();
 		}
-	}, [showWorkerTokenModal, tokenStatus.isValid]);
+	}, [showWorkerTokenModal]);
 	useEffect(() => {
 		const checkStatus = async () => {
 			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();

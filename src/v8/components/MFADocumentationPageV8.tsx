@@ -19,10 +19,7 @@ import {
 	FiPackage,
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import {
-	apiCallTrackerService,
-	type ApiCall as TrackedApiCall,
-} from '@/services/apiCallTrackerService';
+import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import {
 	downloadPostmanCollectionWithEnvironment,
 	generateMFAPostmanCollection,
@@ -1362,7 +1359,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 					call.step?.toLowerCase().includes('mfa')
 			),
 		};
-	}, [trackedCalls]);
+	}, []);
 
 	// Fallback to static API calls if no tracked calls available (for documentation purposes)
 	const staticApiCalls = getApiCalls(deviceType, flowType, flowSpecificData);
@@ -1865,7 +1862,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 					</h3>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 						{groupedCalls.mfaFlow.map((call, index) => {
-							const globalIndex = apiCalls.findIndex((c) => c === call);
+							const globalIndex = apiCalls.indexOf(call);
 							const isExpanded = expandedSections.has(globalIndex);
 							return (
 								<div
@@ -2040,7 +2037,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 					</h3>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 						{groupedCalls.preflightValidation.map((call, index) => {
-							const globalIndex = apiCalls.findIndex((c) => c === call);
+							const globalIndex = apiCalls.indexOf(call);
 							const isExpanded = expandedSections.has(globalIndex);
 							return (
 								<div

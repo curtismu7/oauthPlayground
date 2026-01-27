@@ -122,7 +122,7 @@ export async function getCachedDiscoveryDocument(
 		const store = transaction.objectStore(STORE_NAME);
 		const cacheKey = getCacheKey(issuer, environmentId);
 
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve, _reject) => {
 			const request = store.get(cacheKey);
 
 			request.onsuccess = () => {

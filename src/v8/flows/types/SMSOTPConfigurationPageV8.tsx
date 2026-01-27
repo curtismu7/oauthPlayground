@@ -20,11 +20,9 @@ import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
@@ -33,7 +31,7 @@ import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
-const MODULE_TAG = '[📱 SMS-OTP-CONFIG-V8]';
+const _MODULE_TAG = '[📱 SMS-OTP-CONFIG-V8]';
 
 export const SMSOTPConfigurationPageV8: React.FC = () => {
 	const navigate = useNavigate();
@@ -160,11 +158,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 		// Backup: Clean up malformed URLs with multiple query parameter sets
 		// This handles cases where OAuth redirects accumulate in the URL
 		const currentSearch = window.location.search;
-		if (
-			currentSearch &&
-			currentSearch.includes('?code=') &&
-			currentSearch.split('?code=').length > 2
-		) {
+		if (currentSearch?.includes('?code=') && currentSearch.split('?code=').length > 2) {
 			// URL has multiple code parameters - extract only the first valid pair
 			const firstCodeMatch = currentSearch.match(/[?&]code=([^&?]+)/);
 			const firstStateMatch = currentSearch.match(/[?&]state=([^&?]+)/);

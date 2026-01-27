@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import type { MFACredentials } from '@/v8/services/mfaServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
-const MODULE_TAG = '[📱 MFA-ONE-TIME-V8]';
+const _MODULE_TAG = '[📱 MFA-ONE-TIME-V8]';
 
 interface OneTimeDeviceState {
 	deviceType: 'EMAIL' | 'SMS' | 'VOICE' | null;

@@ -18,7 +18,7 @@
 
 // Analytics completely disabled to prevent connection errors
 const ANALYTICS_ENDPOINT = null;
-const REQUEST_TIMEOUT = 2000; // 2 seconds max wait
+const _REQUEST_TIMEOUT = 2000; // 2 seconds max wait
 
 // Global flag to disable analytics (useful for testing or production)
 let analyticsEnabled = false; // Disabled by default
@@ -47,7 +47,7 @@ function shouldSendAnalytics(): boolean {
  * Fire-and-forget analytics logging
  * Completely silent - never throws, never logs errors
  */
-function sendAnalytics(data: Record<string, unknown>): void {
+function sendAnalytics(_data: Record<string, unknown>): void {
 	if (!shouldSendAnalytics() || !ANALYTICS_ENDPOINT) {
 		return;
 	}

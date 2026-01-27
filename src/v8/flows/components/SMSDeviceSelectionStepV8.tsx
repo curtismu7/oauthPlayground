@@ -5,13 +5,12 @@
  * @version 8.3.0
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { CollapsibleSectionV8 } from '@/v8/components/shared/CollapsibleSectionV8';
 import { SuccessMessage } from '@/v8/components/shared/MessageBoxV8';
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
-import type { MFAFlowBaseRenderProps } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
 
 const MODULE_TAG = '[📱 SMS-DEVICE-SELECTION-V8]';
