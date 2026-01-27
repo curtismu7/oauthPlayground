@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Sidebar Demo - Holographic Glassmorphism</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Animated Background */
+        .background {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.2) 0%, transparent 50%);
+            animation: backgroundPulse 10s ease infinite;
+        }
+
+        @keyframes backgroundPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Sidebar Container */
+        .sidebar {
+            position: relative;
+            width: 320px;
+            height: 90vh;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2rem;
+            overflow-y: auto;
+            box-shadow: 
+                0 0 60px rgba(99, 102, 241, 0.3),
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        /* Logo with 3D Effect */
+        .logo {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+            margin-bottom: 0.5rem;
+            filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.5));
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Menu Group Header with 3D Text */
+        .menu-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .group-header {
+            position: relative;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(
+                135deg,
+                rgba(99, 102, 241, 0.9) 0%,
+                rgba(139, 92, 246, 0.9) 50%,
+                rgba(236, 72, 153, 0.9) 100%
+            );
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 16px;
+            box-shadow: 
+                0 8px 32px rgba(99, 102, 241, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+            transform: translateZ(0) perspective(1000px);
+        }
+
+        /* Enhanced 3D Text Effect */
+        .group-header h3 {
+            font-size: 1.125rem;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 
+                0 1px 0 rgba(255, 255, 255, 0.6),
+                0 2px 4px rgba(0, 0, 0, 0.5),
+                0 4px 8px rgba(99, 102, 241, 0.6),
+                0 8px 16px rgba(139, 92, 246, 0.5),
+                0 12px 24px rgba(236, 72, 153, 0.4);
+            letter-spacing: 0.75px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transform: translateZ(10px);
+        }
+
+        /* Enhanced Holographic Shimmer */
+        .group-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.6),
+                rgba(255, 255, 255, 0.8),
+                rgba(255, 255, 255, 0.6),
+                transparent
+            );
+            transition: left 0.6s ease;
+            transform: skewX(-20deg);
+        }
+
+        .group-header:hover::before {
+            left: 100%;
+        }
+
+        /* 3D Lift on Hover */
+        .group-header:hover {
+            transform: translateY(-6px) scale(1.02) rotateX(2deg);
+            box-shadow: 
+                0 20px 60px rgba(99, 102, 241, 0.7),
+                0 0 0 2px rgba(255, 255, 255, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .group-header:active {
+            transform: translateY(-3px) scale(0.98) rotateX(1deg);
+            transition: all 0.1s ease;
+        }
+
+        /* Additional shimmer effect */
+        .group-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(
+                circle,
+                rgba(255, 255, 255, 0.1) 0%,
+                transparent 70%
+            );
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .group-header:hover::after {
+            opacity: 1;
+        }
+
+        /* Glassmorphic Menu Items */
+        .menu-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1.25rem;
+            margin: 0.5rem 0;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            box-shadow: 
+                8px 8px 16px rgba(0, 0, 0, 0.2),
+                -8px -8px 16px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateX(8px) translateY(-2px);
+            box-shadow: 
+                12px 12px 24px rgba(0, 0, 0, 0.3),
+                -4px -4px 12px rgba(255, 255, 255, 0.08),
+                0 0 30px rgba(99, 102, 241, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .menu-item:active {
+            transform: translateX(4px) translateY(0);
+            box-shadow: 
+                4px 4px 8px rgba(0, 0, 0, 0.3),
+                inset 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-item.active {
+            background: linear-gradient(
+                135deg,
+                rgba(99, 102, 241, 0.3) 0%,
+                rgba(139, 92, 246, 0.3) 100%
+            );
+            border-color: rgba(99, 102, 241, 0.8);
+            box-shadow: 
+                0 0 30px rgba(99, 102, 241, 0.6),
+                0 8px 16px rgba(99, 102, 241, 0.4),
+                inset 0 0 20px rgba(99, 102, 241, 0.2);
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* Icon Container with Animated Gradient */
+        .icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(
+                135deg,
+                #667eea 0%,
+                #764ba2 25%,
+                #f093fb 50%,
+                #4facfe 75%,
+                #00f2fe 100%
+            );
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            border-radius: 10px;
+            box-shadow: 
+                0 4px 12px rgba(102, 126, 234, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            font-size: 1.2rem;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .icon:hover {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        /* Badge with 3D Effect */
+        .badge {
+            padding: 0.25rem 0.5rem;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+            box-shadow: 
+                0 2px 8px rgba(34, 197, 94, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            margin-left: auto;
+        }
+
+        /* Scrollbar Styling */
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5);
+            border-radius: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.7);
+        }
+
+        /* Info Panel */
+        .info-panel {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            padding: 1.5rem;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: white;
+            max-width: 300px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .info-panel h4 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .info-panel p {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+        }
+
+        .info-panel ul {
+            list-style: none;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .info-panel li {
+            padding: 0.25rem 0;
+        }
+
+        .info-panel li::before {
+            content: "✨ ";
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    
+    <div class="sidebar">
+        <h1 class="logo">PingOne</h1>
+        <p class="subtitle">OAuth Playground - 3D Demo</p>
+
+        <!-- OAuth 2.0 Flows -->
+        <div class="menu-group">
+            <div class="group-header">
+                <h3>🔐 OAuth 2.0 Flows</h3>
+            </div>
+            <div class="menu-item active">
+                <div class="icon">🔑</div>
+                <span>Authorization Code</span>
+                <span class="badge">V8</span>
+            </div>
+            <div class="menu-item">
+                <div class="icon">⚡</div>
+                <span>Client Credentials</span>
+            </div>
+            <div class="menu-item">
+                <div class="icon">📱</div>
+                <span>Device Authorization</span>
+            </div>
+            <div class="menu-item">
+                <div class="icon">🔄</div>
+                <span>Refresh Token</span>
+            </div>
+        </div>
+
+        <!-- OIDC Flows -->
+        <div class="menu-group">
+            <div class="group-header">
+                <h3>🌐 OIDC Flows</h3>
+            </div>
+            <div class="menu-item">
+                <div class="icon">🔐</div>
+                <span>Authorization Code + OIDC</span>
+                <span class="badge">NEW</span>
+            </div>
+            <div class="menu-item">
+                <div class="icon">🔀</div>
+                <span>Hybrid Flow</span>
+            </div>
+            <div class="menu-item">
+                <div class="icon">👤</div>
+                <span>UserInfo Endpoint</span>
+            </div>
+        </div>
+
+        <!-- MFA & Security -->
+        <div class="menu-group">
+            <div class="group-header">
+                <h3>🛡️ MFA & Security</h3>
+            </div>
+            <div class="menu-item">
+                <div class="icon">📲</div>
+                <span>SMS Authentication</span>
+            </div>
+            <div class="menu-item">
+                <div class="icon">🔐</div>
+                <span>TOTP (Authenticator)</span>
+            </div>
+            <div class="menu-item">
+                <div class="icon">🔑</div>
+                <span>FIDO2 / WebAuthn</span>
+            </div>
+            <div class="menu-item">
+                <div class="icon">📧</div>
+                <span>Email OTP</span>
+            </div>
+        </div>
+
+        <!-- Advanced Features -->
+        <div class="menu-group">
+            <div class="group-header">
+                <h3>⚙️ Advanced Features</h3>
+            </div>
+            <div class="menu-item">
+                <div class="icon">🔍</div>
+                <span>Token Inspector</span>
+            </div>
+            <div class="menu-item">
+                <div class="icon">📊</div>
+                <span>Flow Comparison</span>
+            </div>
+            <div class="menu-item">
+                <div class="icon">🎯</div>
+                <span>Security Scorecard</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <h4>🎨 3D Design Features</h4>
+        <p>This demo showcases:</p>
+        <ul>
+            <li>Glassmorphism effects</li>
+            <li>3D text shadows</li>
+            <li>Holographic shimmer</li>
+            <li>Animated gradients</li>
+            <li>Smooth transitions</li>
+            <li>Depth & elevation</li>
+        </ul>
+        <p style="margin-top: 1rem; font-size: 0.75rem; opacity: 0.6;">
+            Hover over items to see effects!
+        </p>
+    </div>
+
+    <script>
+        // Add click interactions
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Add ripple effect on click
+        document.querySelectorAll('.menu-item, .group-header').forEach(element => {
+            element.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    background: rgba(255, 255, 255, 0.5);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s ease-out;
+                    pointer-events: none;
+                `;
+                
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Add CSS animation for ripple
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

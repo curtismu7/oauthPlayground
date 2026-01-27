@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Worker Token Storage</title>
+</head>
+<body>
+    <h1>Worker Token Storage Check</h1>
+    <div id="results"></div>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        function checkStorage() {
+            console.log('Checking storage...');
+            
+            // Check all localStorage keys
+            const allKeys = Object.keys(localStorage);
+            console.log('All localStorage keys:', allKeys);
+            
+            // Check for worker token related keys
+            const workerTokenKeys = allKeys.filter(key => 
+                key.includes('worker') || key.includes('token')
+            );
+            console.log('Worker token related keys:', workerTokenKeys);
+            
+            let html = '<h2>Storage Contents:</h2>';
+            html += '<p><strong>All keys:</strong> ' + JSON.stringify(allKeys, null, 2) + '</p>';
+            html += '<p><strong>Worker token keys:</strong> ' + JSON.stringify(workerTokenKeys, null, 2) + '</p>';
+            
+            // Check specific keys
+            const specificKeys = [
+                'unified_worker_token_credentials',
+                'unified_worker_token',
+                'workerToken',
+                'worker_token',
+                'pingone_worker_token'
+            ];
+            
+            html += '<h3>Specific Key Values:</h3>';
+            specificKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                const hasValue = !!value;
+                const preview = value ? (value.length > 100 ? value.substring(0, 100) + '...' : value) : 'null';
+                
+                html += `<p><strong>${key}:</strong> ${hasValue ? '✅ EXISTS' : '❌ MISSING'}</p>`;
+                if (hasValue) {
+                    html += `<p><em>Preview:</em> <code>${preview}</code></p>`;
+                }
+            });
+            
+            results.innerHTML = html;
+        }
+        
+        // Check storage immediately
+        checkStorage();
+        
+        // Also check every 2 seconds for changes
+        setInterval(checkStorage, 2000);
+    </script>
+</body>
+</html>
