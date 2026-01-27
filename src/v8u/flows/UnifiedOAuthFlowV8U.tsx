@@ -64,13 +64,7 @@ import { SecurityScorecard } from '../components/SecurityScorecard';
 import { SpecVersionSelector } from '../components/SpecVersionSelector';
 import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
 import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
-import {
-	FlowSettingsServiceV8U,
-	getAdvancedFeatures,
-	isAdvancedFeatureEnabled,
-	saveAdvancedFeatures,
-	toggleAdvancedFeature,
-} from '../services/flowSettingsServiceV8U';
+import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
 import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,
@@ -543,6 +537,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	// Worker token status section collapsed state - collapsed by default
 	const [isWorkerTokenStatusCollapsed, setIsWorkerTokenStatusCollapsed] = useState(true);
+
+	// Advanced features state
+	const [advancedFeatures, setAdvancedFeatures] = useState<string[]>([]);
 
 	// Track previous step to detect step changes
 	const prevStepRef = useRef(currentStep);
@@ -2134,21 +2131,15 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				<AdvancedOAuthFeatures
 					flowType={effectiveFlowType}
 					specVersion={specVersion}
-					enabledFeatures={getAdvancedFeatures(effectiveFlowType)}
+					enabledFeatures={advancedFeatures}
 					onFeatureToggle={(featureId, enabled) => {
 						logger.debug(`🔧 Advanced feature toggled`, { featureId, enabled });
 
-						// Save advanced feature preference to settings service
+						// Update advanced features state
 						if (enabled) {
-							saveAdvancedFeatures(effectiveFlowType, [
-								...getAdvancedFeatures(effectiveFlowType),
-								featureId,
-							]);
+							setAdvancedFeatures([...advancedFeatures, featureId]);
 						} else {
-							saveAdvancedFeatures(
-								effectiveFlowType,
-								getAdvancedFeatures(effectiveFlowType).filter((f: string) => f !== featureId)
-							);
+							setAdvancedFeatures(advancedFeatures.filter((f: string) => f !== featureId));
 						}
 					}}
 				/>

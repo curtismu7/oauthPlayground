@@ -70,7 +70,7 @@ const extractUserInfo = (
 				if (!result.sub) result.sub = payload.sub;
 			}
 		} catch (err) {
-			logger.warn(Failed to decode ID token`, err);
+			logger.warn(`Failed to decode ID token`, err);
 		}
 	}
 

@@ -24,7 +24,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FiChevronDown, FiChevronUp, FiEye, FiEyeOff, FiInfo, FiLoader } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp, FiEye, FiEyeOff, FiInfo } from 'react-icons/fi';
 import { DraggableModal } from '@/components/DraggableModal';
 import { JWTConfigV8 } from '@/components/JWTConfigV8';
 import type { ResponseMode } from '@/services/responseModeService';
@@ -35,7 +35,6 @@ import { IssuerURLInputV8 } from '@/v8/components/IssuerURLInputV8';
 import { LoginHintInputV8 } from '@/v8/components/LoginHintInputV8';
 import { MaxAgeInputV8 } from '@/v8/components/MaxAgeInputV8';
 import {
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 	OidcDiscoveryModalV8,
 	type OidcDiscoveryResult,
 } from '@/v8/components/OidcDiscoveryModalV8';
@@ -52,7 +51,6 @@ import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { FlowOptionsServiceV8 } from '@/v8/services/flowOptionsServiceV8';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { OidcDiscoveryServiceV8 } from '@/v8/services/oidcDiscoveryServiceV8';
 import { RedirectUriServiceV8 } from '@/v8/services/redirectUriServiceV8';
 import { ResponseTypeServiceV8 } from '@/v8/services/responseTypeServiceV8';
@@ -64,14 +62,12 @@ import {
 } from '@/v8/services/specVersionServiceV8';
 import { TokenEndpointAuthMethodServiceV8 } from '@/v8/services/tokenEndpointAuthMethodServiceV8';
 import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import {
-	type TokenStatusInfo,
-	WorkerTokenStatusServiceV8,
-} from '@/v8/services/workerTokenStatusServiceV8';
-import { analytics } from '@/v8/utils/analyticsV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { analytics } from '@/v8/utils/analyticsV8';
 import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
 
 type ClientType = 'public' | 'confidential';
@@ -161,8 +157,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	onAppTypeChange,
 }) => {
 	// UI state - controls section visibility
-	const [showHeaderSection, setShowHeaderSection] = useState(true);
-	const [showWorkerTokenSection, setShowWorkerTokenSection] = useState(true);
+	const [isExpanded, setIsExpanded] = useState(true);
 	const [showAdvancedSection, setShowAdvancedSection] = useState(true);
 	const [showGeneralSection, setShowGeneralSection] = useState(true);
 
@@ -501,14 +496,12 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	// App Discovery Modal
 	const [showAppDiscoveryModal, setShowAppDiscoveryModal] = useState(false);
+	const [hasDiscoveredApps, setHasDiscoveredApps] = useState(false);
 	const [highlightEmptyFields, setHighlightEmptyFields] = useState(false);
-	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>(() => ({
-		status: 'missing',
-		message: 'Checking worker token status...',
-		isValid: false,
-	}));
-	const [isGettingWorkerToken, setIsGettingWorkerToken] = useState(false);
-
+	const [tokenStatus, setTokenStatus] = useState(() =>
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+	);
+	
 	// Worker Token Settings
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
 		try {
@@ -571,34 +564,21 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	// Sync checkbox values with credentials (for loading from storage)
 	useEffect(() => {
 		// #region agent log
-		analytics.log({
-			location: 'CredentialsFormV8U.tsx:563',
-			message: 'Sync useEffect entry - credentials advanced options',
-			data: {
-				flowKey,
-				hasResponseMode: credentials.responseMode !== undefined,
-				hasUsePAR: credentials.usePAR !== undefined,
-				hasMaxAge: credentials.maxAge !== undefined,
-				hasDisplay: credentials.display !== undefined,
-				hasPrompt: credentials.prompt !== undefined,
-				responseMode: credentials.responseMode,
-				usePAR: credentials.usePAR,
-				loginHint: credentials.loginHint,
-			},
-		});
+		analytics.log({ location:'CredentialsFormV8U.tsx:563',message:'Sync useEffect entry - credentials advanced options',data:{flowKey,hasResponseMode:credentials.responseMode!==undefined,hasUsePAR:credentials.usePAR!==undefined,hasMaxAge:credentials.maxAge!==undefined,hasDisplay:credentials.display!==undefined,hasPrompt:credentials.prompt!==undefined,responseMode:credentials.responseMode,usePAR:credentials.usePAR,loginHint:credentials.loginHint} });
 		// #endregion
 		// If flow doesn't support PKCE, clear PKCE enforcement and remove from credentials
 		if (!supportsPKCE) {
 			// Clear PKCE enforcement state
 			if (pkceEnforcement !== 'OPTIONAL') {
-				logger.debug(Flow ${effectiveFlowType} does not support PKCE - clearing PKCE enforcement`
+				console.log(
+					`${MODULE_TAG} Flow ${effectiveFlowType} does not support PKCE - clearing PKCE enforcement`
 				);
 				setPkceEnforcement('OPTIONAL');
 			}
 			// Remove PKCE fields from credentials if they exist (implicit, client-credentials, device-code don't use PKCE)
 			if (credentials.pkceEnforcement !== undefined || credentials.usePKCE !== undefined) {
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
-				const { pkceEnforcement: _, usePKCE: __, ...cleanedCredentials } = credentials;
+			const { pkceEnforcement: _, usePKCE: __, ...cleanedCredentials } = credentials;
 				onChange({ ...cleanedCredentials });
 			}
 		}
@@ -613,7 +593,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				credentials.pkceEnforcement === 'S256_REQUIRED') &&
 			credentials.pkceEnforcement !== pkceEnforcement
 		) {
-			logger.debug(Syncing pkceEnforcement from credentials`, {
+			console.log(`${MODULE_TAG} Syncing pkceEnforcement from credentials`, {
 				pkceEnforcement: credentials.pkceEnforcement,
 			});
 			setPkceEnforcement(credentials.pkceEnforcement);
@@ -625,7 +605,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			// Legacy: sync from usePKCE boolean if pkceEnforcement is not set
 			const legacyEnforcement = credentials.usePKCE ? 'REQUIRED' : 'OPTIONAL';
 			if (legacyEnforcement !== pkceEnforcement) {
-				logger.debug(Syncing pkceEnforcement from legacy usePKCE`, {
+				console.log(`${MODULE_TAG} Syncing pkceEnforcement from legacy usePKCE`, {
 					usePKCE: credentials.usePKCE,
 					legacyEnforcement,
 				});
@@ -639,7 +619,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			typeof credentials.enableRefreshToken === 'boolean' &&
 			credentials.enableRefreshToken !== enableRefreshToken
 		) {
-			logger.debug(Syncing enableRefreshToken from credentials`, {
+			console.log(`${MODULE_TAG} Syncing enableRefreshToken from credentials`, {
 				enableRefreshToken: credentials.enableRefreshToken,
 			});
 			setEnableRefreshToken(credentials.enableRefreshToken);
@@ -648,33 +628,26 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		// Load responseMode from credentials if available (skip if recently changed)
 		if (!recentlyChangedFieldsRef.current.has('responseMode')) {
 			if (credentials.responseMode && credentials.responseMode !== responseMode) {
-				logger.debug(Syncing responseMode from credentials`, {
+				console.log(`${MODULE_TAG} Syncing responseMode from credentials`, {
 					responseMode: credentials.responseMode,
 				});
 				setResponseMode(credentials.responseMode as ResponseMode);
 			}
 			// Legacy: Convert useRedirectless to responseMode
 			else if (credentials.useRedirectless && responseMode !== 'pi.flow') {
-				logger.debug(Converting legacy useRedirectless to responseMode=pi.flow`);
+				console.log(`${MODULE_TAG} Converting legacy useRedirectless to responseMode=pi.flow`);
 				setResponseMode('pi.flow');
 			}
 			// Apply default if not set
 			else if (!credentials.responseMode && !credentials.useRedirectless) {
 				const defaultResponseMode: ResponseMode =
-					effectiveFlowType === 'implicit' || effectiveFlowType === 'hybrid' ? 'fragment' : 'query';
+					effectiveFlowType === 'implicit' || effectiveFlowType === 'hybrid'
+						? 'fragment'
+						: 'query';
 				if (responseMode !== defaultResponseMode) {
-					logger.debug(Applying default responseMode: ${defaultResponseMode}`);
+					console.log(`${MODULE_TAG} Applying default responseMode: ${defaultResponseMode}`);
 					// #region agent log
-					analytics.log({
-						location: 'CredentialsFormV8U.tsx:634',
-						message: 'Applying default responseMode',
-						data: {
-							flowKey,
-							defaultResponseMode,
-							currentResponseMode: responseMode,
-							effectiveFlowType,
-						},
-					});
+					analytics.log({ location:'CredentialsFormV8U.tsx:634',message:'Applying default responseMode',data:{flowKey,defaultResponseMode,currentResponseMode:responseMode,effectiveFlowType} });
 					// #endregion
 					setResponseMode(defaultResponseMode);
 					handleChange('responseMode', defaultResponseMode);
@@ -685,7 +658,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		// Load loginHint from credentials if available (skip if recently changed)
 		if (!recentlyChangedFieldsRef.current.has('loginHint')) {
 			if (credentials.loginHint !== undefined && credentials.loginHint !== loginHint) {
-				logger.debug(Syncing loginHint from credentials`, {
+				console.log(`${MODULE_TAG} Syncing loginHint from credentials`, {
 					loginHint: credentials.loginHint,
 				});
 				setLoginHint(credentials.loginHint);
@@ -700,7 +673,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		// Load maxAge from credentials if available (skip if recently changed)
 		if (!recentlyChangedFieldsRef.current.has('maxAge')) {
 			if (credentials.maxAge !== undefined && credentials.maxAge !== maxAge) {
-				logger.debug(Syncing maxAge from credentials`, {
+				console.log(`${MODULE_TAG} Syncing maxAge from credentials`, {
 					maxAge: credentials.maxAge,
 				});
 				setMaxAge(credentials.maxAge);
@@ -711,7 +684,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		// Load display from credentials if available (skip if recently changed)
 		if (!recentlyChangedFieldsRef.current.has('display')) {
 			if (credentials.display && credentials.display !== display) {
-				logger.debug(Syncing display from credentials`, {
+				console.log(`${MODULE_TAG} Syncing display from credentials`, {
 					display: credentials.display,
 				});
 				setDisplay(credentials.display as DisplayMode);
@@ -722,20 +695,16 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		// Load usePAR from credentials if available (skip if recently changed)
 		if (!recentlyChangedFieldsRef.current.has('usePAR')) {
 			if (credentials.usePAR !== undefined && credentials.usePAR !== usePAR) {
-				logger.debug(Syncing usePAR from credentials`, {
+				console.log(`${MODULE_TAG} Syncing usePAR from credentials`, {
 					usePAR: credentials.usePAR,
 				});
 				setUsePAR(credentials.usePAR === true);
 			}
 			// Apply default if not set (false)
 			else if (credentials.usePAR === undefined && usePAR !== false) {
-				logger.debug(Applying default usePAR: false`);
+				console.log(`${MODULE_TAG} Applying default usePAR: false`);
 				// #region agent log
-				analytics.log({
-					location: 'CredentialsFormV8U.tsx:688',
-					message: 'Applying default usePAR',
-					data: { flowKey, defaultUsePAR: false, currentUsePAR: usePAR },
-				});
+				analytics.log({ location:'CredentialsFormV8U.tsx:688',message:'Applying default usePAR',data:{flowKey,defaultUsePAR:false,currentUsePAR:usePAR} });
 				// #endregion
 				setUsePAR(false);
 				handleChange('usePAR', false);
@@ -755,7 +724,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			clientType !== recommendedClientType &&
 			(requiresConfidential || requiresPublic || !credentials.clientType)
 		) {
-			logger.debug(Auto-updating client type based on flow and spec`, {
+			console.log(`${MODULE_TAG} Auto-updating client type based on flow and spec`, {
 				flowType: effectiveFlowType,
 				specVersion,
 				recommendedClientType,
@@ -777,7 +746,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			!requiresConfidential &&
 			!requiresPublic
 		) {
-			logger.debug(Syncing clientType from credentials`, {
+			console.log(`${MODULE_TAG} Syncing clientType from credentials`, {
 				clientType: credentials.clientType,
 			});
 			setClientType(credentials.clientType as ClientType);
@@ -790,7 +759,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				validAppTypes.includes(credentials.appType as AppType) &&
 				credentials.appType !== appType
 			) {
-				logger.debug(Syncing appType from credentials`, {
+				console.log(`${MODULE_TAG} Syncing appType from credentials`, {
 					appType: credentials.appType,
 				});
 				setAppType(credentials.appType as AppType);
@@ -854,7 +823,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	useEffect(() => {
 		const recommendedAppType = getRecommendedAppType(effectiveFlowType);
 		if (recommendedAppType !== appType) {
-			logger.debug(🔄 Auto-selecting recommended app type for flow`, {
+			console.log(`${MODULE_TAG} 🔄 Auto-selecting recommended app type for flow`, {
 				flowType: effectiveFlowType,
 				from: appType,
 				to: recommendedAppType,
@@ -894,33 +863,19 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 	// Check token status and listen for updates
 	useEffect(() => {
-		const checkStatus = async () => {
-			try {
-				setIsGettingWorkerToken(true);
-				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-				if (process.env.NODE_ENV === 'development') {
-					logger.debug(Token status updated`, status);
-					logger.debug(Raw token status check:`, {
-						isValid: status.isValid,
-						status: status.status,
-						message: status.message,
-						hasToken: status.token ? true : false,
-						tokenLength: status.token?.length || 0,
-					});
-				}
-				setTokenStatus(status);
-				setIsGettingWorkerToken(false);
-			} catch (error) {
-				logger.error(Error checking token status:`, error);
-				setTokenStatus({
-					isValid: false,
-					status: 'missing',
-					message: 'Unable to check token status',
-					expiresAt: null,
-					minutesRemaining: 0,
-				});
-				setIsGettingWorkerToken(false);
-			}
+		const checkStatus = () => {
+			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			console.log(`${MODULE_TAG} Token status updated`, status);
+			console.log(`${MODULE_TAG} Raw token status check:`, {
+				isValid: status.isValid,
+				message: status.message,
+				status: status.status,
+				hasToken: !!status.token,
+				tokenLength: status.token?.length,
+				expiresAt: status.expiresAt,
+				isExpired: status.isExpired,
+			});
+			setTokenStatus(status);
 		};
 
 		// Check immediately
@@ -931,13 +886,11 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 		// Listen for token updates
 		const handleTokenUpdate = () => {
-			if (process.env.NODE_ENV === 'development') {
-				logger.debug(Token update event received`);
-			}
+			console.log(`${MODULE_TAG} Token update event received`);
 			// Use a small delay to ensure storage is fully written
 			setTimeout(() => {
 				checkStatus();
-			}, 100);
+			}, 50);
 		};
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 		window.addEventListener('storage', handleTokenUpdate);
@@ -952,9 +905,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	// Listen for configuration updates
 	useEffect(() => {
 		const handleConfigUpdate = (event: Event) => {
-			const customEvent = event as CustomEvent<{
-				workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean };
-			}>;
+			const customEvent = event as CustomEvent<{ workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean } }>;
 			if (customEvent.detail?.workerToken) {
 				if (customEvent.detail.workerToken.silentApiRetrieval !== undefined) {
 					setSilentApiRetrieval(customEvent.detail.workerToken.silentApiRetrieval);
@@ -982,7 +933,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		// CRITICAL: Skip sync if the change came from the checkbox itself
 		// This prevents jitter by avoiding a save loop: checkbox -> onChange -> save -> re-render -> this effect -> save -> re-render...
 		if (isUpdatingFromCheckbox.current) {
-			logger.debug(⏭️ Skipping sync - update came from checkbox (preventing jitter)`);
+			console.log(`${MODULE_TAG} ⏭️ Skipping sync - update came from checkbox (preventing jitter)`);
 			// Update the previous scopes ref so we don't trigger on next render
 			previousScopesRef.current = credentials.scopes;
 			return; // DO NOT reset the flag here - it's reset by setTimeout in the checkbox handler
@@ -1003,14 +954,15 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			const hasOfflineAccess = scopesArray.includes('offline_access');
 			// Only update if state is out of sync
 			if (hasOfflineAccess !== enableRefreshToken) {
-				logger.debug(🔄 Syncing refresh token checkbox with scopes: ${hasOfflineAccess}`
+				console.log(
+					`${MODULE_TAG} 🔄 Syncing refresh token checkbox with scopes: ${hasOfflineAccess}`
 				);
 				setEnableRefreshToken(hasOfflineAccess);
 			}
 		} else {
 			// If scopes is empty, ensure checkbox is unchecked
 			if (enableRefreshToken) {
-				logger.debug(❌ Clearing refresh token checkbox - no scopes`);
+				console.log(`${MODULE_TAG} ❌ Clearing refresh token checkbox - no scopes`);
 				setEnableRefreshToken(false);
 			}
 		}
@@ -1029,7 +981,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				// Get worker token directly from global service
 				const workerTokenValue = await workerTokenServiceV8.getToken();
 				if (!workerTokenValue) {
-					logger.debug(No worker token available to fetch allowed scopes`);
+					console.log(`${MODULE_TAG} No worker token available to fetch allowed scopes`);
 					setIsLoadingScopes(false);
 					setAllowedScopes([]);
 					return;
@@ -1042,7 +994,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				);
 
 				if (appConfig?.allowedScopes) {
-					logger.debug(Fetched allowed scopes:`, appConfig.allowedScopes);
+					console.log(`${MODULE_TAG} Fetched allowed scopes:`, appConfig.allowedScopes);
 					setAllowedScopes(appConfig.allowedScopes);
 				} else {
 					// If no allowedScopes in response, use common OIDC scopes as fallback
@@ -1061,24 +1013,16 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					const pingOneAuthMethod = normalizeAuthMethod(appConfig.tokenEndpointAuthMethod);
 					// Only update if different to avoid unnecessary state changes
 					if (credentials.clientAuthMethod !== pingOneAuthMethod) {
-						logger.debug(Updating clientAuthMethod from PingOne app config:`, {
+						console.log(`${MODULE_TAG} Updating clientAuthMethod from PingOne app config:`, {
 							raw: appConfig.tokenEndpointAuthMethod,
 							normalized: pingOneAuthMethod,
 							current: credentials.clientAuthMethod,
 						});
-						handleChange(
-							'clientAuthMethod',
-							pingOneAuthMethod as
-								| 'none'
-								| 'client_secret_basic'
-								| 'client_secret_post'
-								| 'client_secret_jwt'
-								| 'private_key_jwt'
-						);
+						handleChange('clientAuthMethod', pingOneAuthMethod as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt');
 					}
 				}
 			} catch (error) {
-				logger.error(Error fetching allowed scopes:`, error);
+				console.error(`${MODULE_TAG} Error fetching allowed scopes:`, error);
 				// Use common OIDC scopes as fallback
 				setAllowedScopes(['openid', 'profile', 'email', 'address', 'phone', 'offline_access']);
 			} finally {
@@ -1176,7 +1120,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		const redirectUriEmpty = !credentials.redirectUri?.trim();
 		const postLogoutUriEmpty = !credentials.postLogoutRedirectUri?.trim();
 
-		logger.debug(Redirect URI check`, {
+		console.log(`${MODULE_TAG} Redirect URI check`, {
 			redirectFlowKey,
 			correctRedirectUri,
 			currentRedirectUri: credentials.redirectUri,
@@ -1192,7 +1136,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		if (correctRedirectUri && (redirectUriEmpty || flowKeyChanged)) {
 			// Only update if it's different from current value
 			if (credentials.redirectUri !== correctRedirectUri) {
-				logger.debug(Auto-updating redirect URI for flow`, {
+				console.log(`${MODULE_TAG} Auto-updating redirect URI for flow`, {
 					redirectFlowKey,
 					oldRedirectUri: credentials.redirectUri,
 					newRedirectUri: correctRedirectUri,
@@ -1208,7 +1152,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		if (correctPostLogoutUri && (postLogoutUriEmpty || flowKeyChanged)) {
 			// Only update if it's different from current value
 			if (credentials.postLogoutRedirectUri !== correctPostLogoutUri) {
-				logger.debug(Auto-updating post-logout redirect URI for flow`, {
+				console.log(`${MODULE_TAG} Auto-updating post-logout redirect URI for flow`, {
 					redirectFlowKey,
 					oldPostLogoutUri: credentials.postLogoutRedirectUri,
 					newPostLogoutUri: correctPostLogoutUri,
@@ -1237,13 +1181,10 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 		// Only set default auth method if clientAuthMethod is completely missing/empty
 		// This prevents overriding values set from app selection
-		if (
-			defaultAuthMethod &&
-			(!credentials.clientAuthMethod || credentials.clientAuthMethod.trim() === '')
-		) {
+		if (defaultAuthMethod && (!credentials.clientAuthMethod || credentials.clientAuthMethod.trim() === '')) {
 			updated.clientAuthMethod = defaultAuthMethod;
 			hasChanges = true;
-			logger.debug(Setting default auth method`, {
+			console.log(`${MODULE_TAG} Setting default auth method`, {
 				defaultAuthMethod,
 				previousValue: credentials.clientAuthMethod,
 			});
@@ -1267,13 +1208,13 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
 				}
 
-				logger.debug(Credentials saved after setting defaults`, {
+				console.log(`${MODULE_TAG} Credentials saved after setting defaults`, {
 					flowKey,
 					hasSharedCreds: !!(sharedCreds.environmentId || sharedCreds.clientId),
 					authMethodSet: hasChanges && defaultAuthMethod ? updated.clientAuthMethod : 'not set',
 				});
 			} catch (error) {
-				logger.error(Error saving credentials after setting defaults`, {
+				console.error(`${MODULE_TAG} Error saving credentials after setting defaults`, {
 					flowKey,
 					error,
 				});
@@ -1282,7 +1223,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		}
 	}, [defaultAuthMethod, defaultResponseType, credentials, onChange, flowKey]);
 
-	logger.debug(Rendering credentials form`, { flowKey, flowType, flowOptions });
+	console.log(`${MODULE_TAG} Rendering credentials form`, { flowKey, flowType, flowOptions });
 
 	// Get flow-specific helper text for application type
 	const getFlowSpecificHelperText = useCallback(
@@ -1429,34 +1370,18 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 	const handleChange = useCallback(
 		(field: string, value: string | boolean | number | undefined) => {
-			logger.debug(Credential changed`, { field, flowKey, value });
+			console.log(`${MODULE_TAG} Credential changed`, { field, flowKey, value });
 			// #region agent log
-			analytics.log({
-				location: 'CredentialsFormV8U.tsx:1328',
-				message: 'handleChange called',
-				data: {
-					field,
-					flowKey,
-					value,
-					isAdvancedOption: [
-						'responseMode',
-						'usePAR',
-						'maxAge',
-						'display',
-						'prompt',
-						'loginHint',
-					].includes(field),
-				},
-			});
+			analytics.log({ location:'CredentialsFormV8U.tsx:1328',message:'handleChange called',data:{field,flowKey,value,isAdvancedOption:['responseMode','usePAR','maxAge','display','prompt','loginHint'].includes(field)} });
 			// #endregion
-
+			
 			// Mark this field as recently changed to prevent sync from overwriting it
 			recentlyChangedFieldsRef.current.add(field);
 			// Clear the flag after a short delay (allows parent to update)
 			setTimeout(() => {
 				recentlyChangedFieldsRef.current.delete(field);
 			}, 100);
-
+			
 			// Handle boolean fields (usePKCE, enableRefreshToken, usePAR)
 			// Handle pkceEnforcement as a string (OPTIONAL, REQUIRED, S256_REQUIRED)
 			// Handle responseMode as a string (query, fragment, form_post, pi.flow)
@@ -1481,21 +1406,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 					typeof CredentialsServiceV8.saveCredentials
 				>[1];
 				// #region agent log
-				analytics.log({
-					location: 'CredentialsFormV8U.tsx:1357',
-					message: 'Saving credentials to storage',
-					data: {
-						flowKey,
-						field,
-						hasResponseMode: !!updated.responseMode,
-						hasUsePAR: updated.usePAR !== undefined,
-						hasMaxAge: updated.maxAge !== undefined,
-						hasDisplay: !!updated.display,
-						hasPrompt: !!updated.prompt,
-						responseMode: updated.responseMode,
-						usePAR: updated.usePAR,
-					},
-				});
+				analytics.log({ location:'CredentialsFormV8U.tsx:1357',message:'Saving credentials to storage',data:{flowKey,field,hasResponseMode:!!updated.responseMode,hasUsePAR:updated.usePAR!==undefined,hasMaxAge:updated.maxAge!==undefined,hasDisplay:!!updated.display,hasPrompt:!!updated.prompt,responseMode:updated.responseMode,usePAR:updated.usePAR} });
 				// #endregion
 				CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
 
@@ -1506,18 +1417,18 @@ Why it matters: Backend services communicate server-to-server without user conte
 					SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 					// Also save to disk asynchronously (non-blocking)
 					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((err) => {
-						logger.warn(Background disk save failed (non-critical):`, err);
+						console.warn(`${MODULE_TAG} Background disk save failed (non-critical):`, err);
 					});
 				}
 
-				logger.debug(Credentials saved to storage`, {
+				console.log(`${MODULE_TAG} Credentials saved to storage`, {
 					field,
 					flowKey,
 					hasClientId: !!updated.clientId,
 					hasSharedCreds: !!(sharedCreds.environmentId || sharedCreds.clientId),
 				});
 			} catch (error) {
-				logger.error(Error saving credentials`, { field, flowKey, error });
+				console.error(`${MODULE_TAG} Error saving credentials`, { field, flowKey, error });
 			}
 
 			onChange(updated);
@@ -1529,7 +1440,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 	const handleAppSelected = useCallback(
 		async (app: DiscoveredApp) => {
-			logger.debug(App selected`, { appId: app.id, appName: app.name });
+			console.log(`${MODULE_TAG} App selected`, { appId: app.id, appName: app.name });
+			setHasDiscoveredApps(true);
 			setHighlightEmptyFields(true); // Enable highlighting for empty required fields
 
 			// Fetch the application with its client secret from PingOne API
@@ -1539,14 +1451,14 @@ Why it matters: Backend services communicate server-to-server without user conte
 				try {
 					const workerToken = await AppDiscoveryServiceV8.getStoredWorkerToken();
 					if (workerToken) {
-						logger.debug(Fetching application secret from PingOne API...`);
+						console.log(`${MODULE_TAG} Fetching application secret from PingOne API...`);
 						const fetchedApp = await AppDiscoveryServiceV8.fetchApplicationWithSecret(
 							credentials.environmentId,
 							app.id,
 							workerToken
 						);
 						if (fetchedApp) {
-							logger.debug(Application fetched`, {
+							console.log(`${MODULE_TAG} Application fetched`, {
 								hasClientSecret: 'clientSecret' in fetchedApp,
 								clientSecretType: typeof fetchedApp.clientSecret,
 								clientSecretLength: fetchedApp.clientSecret?.length || 0,
@@ -1557,24 +1469,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 								tokenEndpointAuthMethod: fetchedApp.tokenEndpointAuthMethod,
 								hasRedirectUris: 'redirectUris' in fetchedApp,
 								redirectUris: fetchedApp.redirectUris,
-								redirectUrisLength: Array.isArray(fetchedApp.redirectUris)
-									? fetchedApp.redirectUris.length
-									: 0,
+								redirectUrisLength: Array.isArray(fetchedApp.redirectUris) ? fetchedApp.redirectUris.length : 0,
 							});
 							// #region agent log
-							analytics.log({
-								location: 'CredentialsFormV8U.tsx:1425',
-								message: 'App fetched - checking tokenEndpointAuthMethod and redirectUris',
-								data: {
-									hasTokenEndpointAuthMethod: 'tokenEndpointAuthMethod' in fetchedApp,
-									tokenEndpointAuthMethod: fetchedApp.tokenEndpointAuthMethod,
-									hasRedirectUris: 'redirectUris' in fetchedApp,
-									redirectUris: fetchedApp.redirectUris,
-									redirectUrisLength: Array.isArray(fetchedApp.redirectUris)
-										? fetchedApp.redirectUris.length
-										: 0,
-								},
-							});
+							analytics.log({ location:'CredentialsFormV8U.tsx:1425',message:'App fetched - checking tokenEndpointAuthMethod and redirectUris',data:{hasTokenEndpointAuthMethod:'tokenEndpointAuthMethod' in fetchedApp,tokenEndpointAuthMethod:fetchedApp.tokenEndpointAuthMethod,hasRedirectUris:'redirectUris' in fetchedApp,redirectUris:fetchedApp.redirectUris,redirectUrisLength:Array.isArray(fetchedApp.redirectUris)?fetchedApp.redirectUris.length:0} });
 							// #endregion
 							if (
 								fetchedApp.clientSecret &&
@@ -1582,22 +1480,22 @@ Why it matters: Backend services communicate server-to-server without user conte
 								fetchedApp.clientSecret.trim().length > 0
 							) {
 								appWithSecret = fetchedApp;
-								logger.debug(✅ Application secret fetched successfully`);
+								console.log(`${MODULE_TAG} ✅ Application secret fetched successfully`);
 								toastV8.success('Application secret retrieved from PingOne');
 							} else {
-								logger.debug(Application secret not returned from API or is empty`, {
+								console.log(`${MODULE_TAG} Application secret not returned from API or is empty`, {
 									hasClientSecret: 'clientSecret' in fetchedApp,
 									clientSecretValue: fetchedApp.clientSecret,
 								});
 							}
 						} else {
-							logger.debug(Application fetch returned null`);
+							console.log(`${MODULE_TAG} Application fetch returned null`);
 						}
 					} else {
-						logger.debug(No worker token available, using app data without secret`);
+						console.log(`${MODULE_TAG} No worker token available, using app data without secret`);
 					}
 				} catch (error) {
-					logger.error(Error fetching application secret`, {
+					console.error(`${MODULE_TAG} Error fetching application secret`, {
 						error: error instanceof Error ? error.message : String(error),
 					});
 					// Continue with app data even if secret fetch fails
@@ -1605,12 +1503,14 @@ Why it matters: Backend services communicate server-to-server without user conte
 			}
 
 			// Extract redirectUri from redirectUris array (use first one if available)
-			const redirectUriFromApp =
-				'redirectUris' in appWithSecret &&
-				Array.isArray(appWithSecret.redirectUris) &&
-				appWithSecret.redirectUris.length > 0
+			const redirectUriFromApp = 
+				('redirectUris' in appWithSecret && 
+				 Array.isArray(appWithSecret.redirectUris) && 
+				 appWithSecret.redirectUris.length > 0)
 					? appWithSecret.redirectUris[0]
-					: 'redirectUris' in app && Array.isArray(app.redirectUris) && app.redirectUris.length > 0
+					: ('redirectUris' in app && 
+					   Array.isArray(app.redirectUris) && 
+					   app.redirectUris.length > 0)
 						? app.redirectUris[0]
 						: undefined;
 
@@ -1632,9 +1532,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 			const appExtended = app as AppWithExtendedProps;
 
 			// Get tokenEndpointAuthMethod from appWithSecret first, then fall back to app
-			const rawTokenEndpointAuthMethod =
-				appWithSecretExtended.tokenEndpointAuthMethod ||
-				appExtended.tokenEndpointAuthMethod ||
+			const rawTokenEndpointAuthMethod = 
+				appWithSecretExtended.tokenEndpointAuthMethod || 
+				appExtended.tokenEndpointAuthMethod || 
 				undefined;
 
 			// Normalize tokenEndpointAuthMethod to lowercase with underscores
@@ -1651,7 +1551,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 			const tokenEndpointAuthMethodFromApp = normalizeAuthMethod(rawTokenEndpointAuthMethod);
 
-			logger.debug(Normalizing tokenEndpointAuthMethod`, {
+			console.log(`${MODULE_TAG} Normalizing tokenEndpointAuthMethod`, {
 				raw: rawTokenEndpointAuthMethod,
 				normalized: tokenEndpointAuthMethodFromApp,
 				fromAppWithSecret: appWithSecretExtended.tokenEndpointAuthMethod,
@@ -1659,25 +1559,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 			});
 
 			// #region agent log
-			analytics.log({
-				location: 'CredentialsFormV8U.tsx:1462',
-				message: 'Extracting redirectUri and tokenEndpointAuthMethod',
-				data: {
-					hasRedirectUrisInAppWithSecret: 'redirectUris' in appWithSecret,
-					redirectUrisFromAppWithSecret:
-						'redirectUris' in appWithSecret ? appWithSecret.redirectUris : undefined,
-					hasRedirectUrisInApp: 'redirectUris' in app,
-					redirectUrisFromApp: 'redirectUris' in app ? app.redirectUris : undefined,
-					redirectUriExtracted: redirectUriFromApp,
-					hasTokenEndpointAuthMethodInAppWithSecret:
-						!!appWithSecretExtended.tokenEndpointAuthMethod,
-					tokenEndpointAuthMethodFromAppWithSecret: appWithSecretExtended.tokenEndpointAuthMethod,
-					hasTokenEndpointAuthMethodInApp: !!appExtended.tokenEndpointAuthMethod,
-					tokenEndpointAuthMethodFromApp: appExtended.tokenEndpointAuthMethod,
-					rawTokenEndpointAuthMethod,
-					normalizedTokenEndpointAuthMethod: tokenEndpointAuthMethodFromApp,
-				},
-			});
+			analytics.log({ location:'CredentialsFormV8U.tsx:1462',message:'Extracting redirectUri and tokenEndpointAuthMethod',data:{hasRedirectUrisInAppWithSecret:'redirectUris' in appWithSecret,redirectUrisFromAppWithSecret:('redirectUris' in appWithSecret)?appWithSecret.redirectUris:undefined,hasRedirectUrisInApp:'redirectUris' in app,redirectUrisFromApp:('redirectUris' in app)?app.redirectUris:undefined,redirectUriExtracted:redirectUriFromApp,hasTokenEndpointAuthMethodInAppWithSecret:!!appWithSecretExtended.tokenEndpointAuthMethod,tokenEndpointAuthMethodFromAppWithSecret:appWithSecretExtended.tokenEndpointAuthMethod,hasTokenEndpointAuthMethodInApp:!!appExtended.tokenEndpointAuthMethod,tokenEndpointAuthMethodFromApp:appExtended.tokenEndpointAuthMethod,rawTokenEndpointAuthMethod,normalizedTokenEndpointAuthMethod:tokenEndpointAuthMethodFromApp} });
 			// #endregion
 
 			const updated = {
@@ -1694,19 +1576,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 				...(redirectUriFromApp ? { redirectUri: redirectUriFromApp } : {}),
 				// Set clientAuthMethod from PingOne app configuration (tokenEndpointAuthMethod)
 				// Use normalized value to ensure it matches UI expectations
-				...(tokenEndpointAuthMethodFromApp
-					? {
-							clientAuthMethod: tokenEndpointAuthMethodFromApp as
-								| 'none'
-								| 'client_secret_basic'
-								| 'client_secret_post'
-								| 'client_secret_jwt'
-								| 'private_key_jwt',
-						}
-					: {}),
+				...(tokenEndpointAuthMethodFromApp ? { clientAuthMethod: tokenEndpointAuthMethodFromApp as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt' } : {}),
 			};
 
-			logger.debug(Updated credentials`, {
+			console.log(`${MODULE_TAG} Updated credentials`, {
 				hasClientSecret: !!updated.clientSecret,
 				clientSecretLength: updated.clientSecret?.length || 0,
 				hasRedirectUri: !!updated.redirectUri,
@@ -1717,17 +1590,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 				normalizedTokenEndpointAuthMethod: tokenEndpointAuthMethodFromApp,
 			});
 			// #region agent log
-			analytics.log({
-				location: 'CredentialsFormV8U.tsx:1475',
-				message: 'Final updated credentials object',
-				data: {
-					hasRedirectUri: !!updated.redirectUri,
-					redirectUri: updated.redirectUri,
-					hasClientAuthMethod: !!updated.clientAuthMethod,
-					clientAuthMethod: updated.clientAuthMethod,
-					hasClientSecret: !!updated.clientSecret,
-				},
-			});
+			analytics.log({ location:'CredentialsFormV8U.tsx:1475',message:'Final updated credentials object',data:{hasRedirectUri:!!updated.redirectUri,redirectUri:updated.redirectUri,hasClientAuthMethod:!!updated.clientAuthMethod,clientAuthMethod:updated.clientAuthMethod,hasClientSecret:!!updated.clientSecret} });
 			// #endregion
 			// Apply additional fields if available (from AppDiscoveryServiceV8.getAppConfig)
 			// Type assertion for updated to include pkceEnforcement
@@ -1755,7 +1618,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 				}
 				// Update local state to match
 				setPkceEnforcement(updatedWithPKCE.pkceEnforcement);
-				logger.debug(PKCE enforcement set from app config`, {
+				console.log(`${MODULE_TAG} PKCE enforcement set from app config`, {
 					pkceEnforcement: updatedWithPKCE.pkceEnforcement,
 					pkceEnforced: appWithSecretExtended.pkceEnforced,
 					pkceRequired: appWithSecretExtended.pkceRequired,
@@ -1770,7 +1633,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 				}
 				// Update local state to match
 				setPkceEnforcement(updatedWithPKCE.pkceEnforcement);
-				logger.debug(PKCE enforcement set from app config`, {
+				console.log(`${MODULE_TAG} PKCE enforcement set from app config`, {
 					pkceEnforcement: updatedWithPKCE.pkceEnforcement,
 					pkceEnforced: appExtended.pkceEnforced,
 					pkceRequired: appExtended.pkceRequired,
@@ -1778,7 +1641,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 			}
 			// Check if app has refreshTokenDuration (indicates refresh token support)
 			if ('refreshTokenDuration' in app && app.refreshTokenDuration) {
-				logger.debug(App supports refresh tokens (duration: ${app.refreshTokenDuration}s)`
+				console.log(
+					`${MODULE_TAG} App supports refresh tokens (duration: ${app.refreshTokenDuration}s)`
 				);
 				// Note: We no longer auto-enable refresh token checkbox by default
 			}
@@ -1791,20 +1655,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 					typeof CredentialsServiceV8.saveCredentials
 				>[1];
 				// #region agent log
-				analytics.log({
-					location: 'CredentialsFormV8U.tsx:1598',
-					message: 'Saving credentials after app selection - final state',
-					data: {
-						flowKey,
-						hasRedirectUri: !!updated.redirectUri,
-						redirectUri: updated.redirectUri,
-						hasClientAuthMethod: !!updated.clientAuthMethod,
-						clientAuthMethod: updated.clientAuthMethod,
-						hasClientId: !!updated.clientId,
-						hasClientSecret: !!updated.clientSecret,
-						allKeys: Object.keys(updated),
-					},
-				});
+				analytics.log({ location:'CredentialsFormV8U.tsx:1598',message:'Saving credentials after app selection - final state',data:{flowKey,hasRedirectUri:!!updated.redirectUri,redirectUri:updated.redirectUri,hasClientAuthMethod:!!updated.clientAuthMethod,clientAuthMethod:updated.clientAuthMethod,hasClientId:!!updated.clientId,hasClientSecret:!!updated.clientSecret,allKeys:Object.keys(updated)} });
 				// #endregion
 				CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
 
@@ -1815,11 +1666,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 					SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 					// Also save to disk asynchronously (non-blocking)
 					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((err) => {
-						logger.warn(Background disk save failed (non-critical):`, err);
+						console.warn(`${MODULE_TAG} Background disk save failed (non-critical):`, err);
 					});
 				}
 
-				logger.debug(Credentials saved after app selection`, {
+				console.log(`${MODULE_TAG} Credentials saved after app selection`, {
 					flowKey,
 					clientId: updated.clientId,
 					hasSharedCreds: !!(sharedCreds.environmentId || sharedCreds.clientId),
@@ -1829,24 +1680,14 @@ Why it matters: Backend services communicate server-to-server without user conte
 					clientAuthMethod: updated.clientAuthMethod,
 				});
 			} catch (error) {
-				logger.error(Error saving credentials after app selection`, {
+				console.error(`${MODULE_TAG} Error saving credentials after app selection`, {
 					flowKey,
 					error,
 				});
 			}
 
 			// #region agent log
-			analytics.log({
-				location: 'CredentialsFormV8U.tsx:1615',
-				message: 'Calling onChange after app selection',
-				data: {
-					flowKey,
-					hasRedirectUri: !!updated.redirectUri,
-					redirectUri: updated.redirectUri,
-					hasClientAuthMethod: !!updated.clientAuthMethod,
-					clientAuthMethod: updated.clientAuthMethod,
-				},
-			});
+			analytics.log({ location:'CredentialsFormV8U.tsx:1615',message:'Calling onChange after app selection',data:{flowKey,hasRedirectUri:!!updated.redirectUri,redirectUri:updated.redirectUri,hasClientAuthMethod:!!updated.clientAuthMethod,clientAuthMethod:updated.clientAuthMethod} });
 			// #endregion
 			onChange(updated);
 			toastV8.success(`Applied settings from ${app.name}`);
@@ -1865,23 +1706,23 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 		setIsDiscovering(true);
 		try {
-			logger.debug(Starting OIDC discovery`, {
+			console.log(`${MODULE_TAG} Starting OIDC discovery`, {
 				input: inputToUse,
 				fromCredentials: !discoveryInput.trim() && !!credentials.environmentId,
 			});
 			const result = await OidcDiscoveryServiceV8.discoverFromInput(inputToUse);
 
 			if (result.success && result.data) {
-				logger.debug(Discovery successful`, result.data);
+				console.log(`${MODULE_TAG} Discovery successful`, result.data);
 				setDiscoveryResult(result.data);
 				setShowDiscoveryModal(true);
 				onDiscoveryComplete?.(result.data);
 			} else {
-				logger.error(Discovery failed`, result.error);
+				console.error(`${MODULE_TAG} Discovery failed`, result.error);
 				toastV8.error(result.error || 'Discovery failed');
 			}
 		} catch (error) {
-			logger.error(Discovery error`, error);
+			console.error(`${MODULE_TAG} Discovery error`, error);
 			toastV8.error('Discovery failed - check the issuer URL');
 		} finally {
 			setIsDiscovering(false);
@@ -1890,7 +1731,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 	const handleApplyDiscovery = useCallback(
 		(result: OidcDiscoveryResult) => {
-			logger.debug(Applying discovery result`, result);
+			console.log(`${MODULE_TAG} Applying discovery result`, result);
 			const updated = {
 				...credentials,
 				issuerUrl: result.issuer,
@@ -1907,374 +1748,24 @@ Why it matters: Backend services communicate server-to-server without user conte
 	const defaultSubtitle = subtitle || `Configure credentials for ${flowType} flow`;
 
 	return (
-		<>
-			<div className="credentials-form-v8">
-			{/* Header Image Section */}
-			<div className="form-section" data-section="header">
-				<button
-					type="button"
-					className="section-header"
-					onClick={() => setShowHeaderSection(!showHeaderSection)}
-					aria-expanded={showHeaderSection}
-					aria-controls="header-section-content"
-					style={{
-						background: 'none',
-						border: 'none',
-						padding: 0,
-						margin: 0,
-						font: 'inherit',
-						color: 'inherit',
-						textAlign: 'left',
-						width: '100%',
-						cursor: 'pointer'
-					}}
-				>
-					<div
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'space-between',
-							width: '100%',
-						}}
-					>
-						<h3>🖼️ Header & Configuration</h3>
-						<span
-							style={{
-								fontSize: '18px',
-								transform: showHeaderSection ? 'rotate(90deg)' : 'rotate(0deg)',
-								transition: 'transform 0.3s ease',
-							}}
-						>
-							›
-						</span>
-					</div>
-				</button>
-				{showHeaderSection && (
-					<div id="header-section-content" className="section-content">
-						<div className="header-content">
-							<h2>{defaultTitle}</h2>
-							<p>{defaultSubtitle}</p>
-						</div>
-					</div>
-				)}
+		<div className="credentials-form-v8">
+			<div className="collapsible-header" onClick={() => setIsExpanded(!isExpanded)}>
+				<div className="header-content">
+					<h2>{defaultTitle}</h2>
+					<span className={`chevron ${isExpanded ? 'open' : ''}`}>›</span>
+				</div>
+				{defaultSubtitle && <p>{defaultSubtitle}</p>}
 			</div>
 
-			{/* WORKER TOKEN SECTION - Top Priority */}
-			<div className="form-section" data-section="worker-token">
-				<button
-					type="button"
-					className="section-header"
-					onClick={() => setShowWorkerTokenSection(!showWorkerTokenSection)}
-					aria-expanded={showWorkerTokenSection}
-					aria-controls="worker-token-section-content"
-					style={{
-						background: 'none',
-						border: 'none',
-						padding: 0,
-						margin: 0,
-						font: 'inherit',
-						color: 'inherit',
-						textAlign: 'left',
-						width: '100%',
-						cursor: 'pointer'
-					}}
-				>
-					<div
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'space-between',
-							width: '100%',
-						}}
-					>
-						<h3 style={{ 
-							color: tokenStatus.isValid ? '#059669' : '#dc2626',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px'
-						}}>
-							{tokenStatus.isValid ? '✅' : '⚠️'} Worker Token
-						</h3>
-						<span
-							style={{
-								fontSize: '18px',
-								transform: showWorkerTokenSection ? 'rotate(90deg)' : 'rotate(0deg)',
-								transition: 'transform 0.3s ease',
-							}}
-						>
-							›
-						</span>
-					</div>
-				</button>
-				{showWorkerTokenSection && (
-					<div id="worker-token-section-content" className="section-content">
-						<div style={{ 
-							marginBottom: '16px',
-							padding: '12px',
-							background: tokenStatus.isValid ? '#f0fdf4' : '#fef2f2',
-							border: `1px solid ${tokenStatus.isValid ? '#86efac' : '#fca5a5'}`,
-							borderRadius: '6px'
-						}}>
-							<div style={{ 
-								display: 'flex', 
-								alignItems: 'center', 
-								gap: '8px',
-								marginBottom: '8px'
-							}}>
-								<strong style={{ 
-									color: tokenStatus.isValid ? '#166534' : '#dc2626' 
-								}}>
-									Status: {tokenStatus.status.toUpperCase()}
-								</strong>
-								{isGettingWorkerToken && (
-									<FiLoader
-										style={{
-											animation: 'spin 1s linear infinite',
-											fontSize: '14px',
-											color: '#6366f1'
-										}}
-									/>
-								)}
-							</div>
-							<p style={{ 
-								margin: '0', 
-								fontSize: '13px',
-								color: tokenStatus.isValid ? '#15803d' : '#991b1b'
-							}}>
-								{tokenStatus.message}
-							</p>
-							{tokenStatus.expiresAt && (
-								<p style={{ 
-									margin: '4px 0 0 0', 
-									fontSize: '12px',
-									color: '#6b7280'
-								}}>
-									Expires: {new Date(tokenStatus.expiresAt).toLocaleString()}
-									{tokenStatus.minutesRemaining > 0 && 
-										` (${tokenStatus.minutesRemaining} minutes remaining)`
-									}
-								</p>
-							)}
-						</div>
-
-						{/* Worker Token Buttons */}
-						<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
-							<button
-								type="button"
-								className={tokenStatus.isValid ? 'btn-token-has' : 'btn-token-none'}
-								onClick={async () => {
-									setIsGettingWorkerToken(true);
-									try {
-										const { handleShowWorkerTokenModal } = await import(
-											'@/v8/utils/workerTokenModalHelperV8'
-										);
-										await handleShowWorkerTokenModal(
-											setShowWorkerTokenModal,
-											setTokenStatus,
-											silentApiRetrieval,
-											showTokenAtEnd,
-											true
-										);
-									} finally {
-										setIsGettingWorkerToken(false);
-									}
-								}}
-								disabled={isGettingWorkerToken}
-								style={{
-									flex: '1',
-									minWidth: '140px',
-									opacity: isGettingWorkerToken ? 0.7 : 1,
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									gap: '8px',
-								}}
-							>
-								{isGettingWorkerToken && (
-									<FiLoader
-										style={{
-											animation: 'spin 1s linear infinite',
-											fontSize: '14px',
-										}}
-									/>
-								)}
-								{isGettingWorkerToken
-									? 'Getting Token...'
-									: tokenStatus.isValid
-										? '🔑 Manage Token'
-										: '🔑 Get Worker Token'}
-							</button>
-							<button
-								type="button"
-								className="btn-primary"
-								onClick={async () => {
-									try {
-										const refreshed = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-										setTokenStatus(refreshed);
-										toastV8.success('Token status refreshed');
-									} catch (error) {
-										toastV8.error('Failed to refresh token status');
-									}
-								}}
-								style={{
-									flex: '1',
-									minWidth: '120px',
-								}}
-							>
-								🔄 Refresh Status
-							</button>
-						</div>
-
-						{/* Worker Token Settings Checkboxes */}
-						<div style={{
-							display: 'flex',
-							flexDirection: 'column',
-							gap: '12px',
-						}}>
-							<label
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '12px',
-									cursor: 'pointer',
-									userSelect: 'none',
-									padding: '8px',
-									borderRadius: '6px',
-									transition: 'background-color 0.2s ease',
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.backgroundColor = '#f3f4f6';
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.backgroundColor = 'transparent';
-								}}
-							>
-								<input
-									type="checkbox"
-									checked={silentApiRetrieval}
-									onChange={async (e) => {
-										const newValue = e.target.checked;
-										setSilentApiRetrieval(newValue);
-										const config = MFAConfigurationServiceV8.loadConfiguration();
-										config.workerToken.silentApiRetrieval = newValue;
-										MFAConfigurationServiceV8.saveConfiguration(config);
-										window.dispatchEvent(
-											new CustomEvent('mfaConfigurationUpdated', {
-												detail: { workerToken: config.workerToken },
-											})
-										);
-										toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
-
-										if (newValue) {
-											const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-											if (!currentStatus.isValid) {
-												const { handleShowWorkerTokenModal } = await import(
-													'@/v8/utils/workerTokenModalHelperV8'
-												);
-												await handleShowWorkerTokenModal(
-													setShowWorkerTokenModal,
-													setTokenStatus,
-													newValue,
-													showTokenAtEnd,
-													false
-												);
-											}
-										}
-									}}
-									style={{
-										width: '20px',
-										height: '20px',
-										cursor: 'pointer',
-										accentColor: '#6366f1',
-										flexShrink: 0,
-									}}
-								/>
-								<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-									<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
-										Silent API Token Retrieval
-									</span>
-									<span style={{ fontSize: '12px', color: '#6b7280' }}>
-										Automatically fetch worker token in the background without showing modals
-									</span>
-								</div>
-							</label>
-
-							<label
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '12px',
-									cursor: 'pointer',
-									userSelect: 'none',
-									padding: '8px',
-									borderRadius: '6px',
-									transition: 'background-color 0.2s ease',
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.backgroundColor = '#f3f4f6';
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.backgroundColor = 'transparent';
-								}}
-							>
-								<input
-									type="checkbox"
-									checked={showTokenAtEnd}
-									onChange={(e) => {
-										const newValue = e.target.checked;
-										setShowTokenAtEnd(newValue);
-										const config = MFAConfigurationServiceV8.loadConfiguration();
-										config.workerToken.showTokenAtEnd = newValue;
-										MFAConfigurationServiceV8.saveConfiguration(config);
-										window.dispatchEvent(
-											new CustomEvent('mfaConfigurationUpdated', {
-												detail: { workerToken: config.workerToken },
-											})
-										);
-										toastV8.info(`Show Token After Generation set to: ${newValue}`);
-									}}
-									style={{
-										width: '20px',
-										height: '20px',
-										cursor: 'pointer',
-										accentColor: '#6366f1',
-										flexShrink: 0,
-									}}
-								/>
-								<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-									<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
-										Show Token After Generation
-									</span>
-									<span style={{ fontSize: '12px', color: '#6b7280' }}>
-										Display the generated worker token in a modal after successful retrieval
-									</span>
-								</div>
-							</label>
-						</div>
-					</div>
-				)}
-			</div>
-
-			<form id="collapsible-content" className="form-sections">
+			{isExpanded && (
+				<>
+					<form id="credentials-form-v8u" className="form-sections">
 						{/* GENERAL SECTION - Matches PingOne Console */}
 						<div className="form-section" data-section="general">
-							<button
-								type="button"
+							<div
 								className="section-header"
 								onClick={() => setShowGeneralSection(!showGeneralSection)}
-								aria-expanded={showGeneralSection}
-								aria-controls="general-section-content"
-								style={{
-									background: 'none',
-									border: 'none',
-									padding: 0,
-									margin: 0,
-									font: 'inherit',
-									color: 'inherit',
-									textAlign: 'left',
-									width: '100%',
-									cursor: 'pointer'
-								}}
+								style={{ cursor: 'pointer' }}
 							>
 								<div
 									style={{
@@ -2295,15 +1786,15 @@ Why it matters: Backend services communicate server-to-server without user conte
 										›
 									</span>
 								</div>
-							</button>
+							</div>
 							{showGeneralSection && (
-								<div id="general-section-content" className="section-content">
+								<div className="section-content">
 									{/* Client Type - Educational Component */}
 									<div className="form-group" style={{ marginBottom: '16px' }}>
 										<ClientTypeRadioV8
 											value={clientType}
 											onChange={(type) => {
-												logger.debug(Client type changed to ${type}`);
+												console.log(`${MODULE_TAG} Client type changed to ${type}`);
 												setClientType(type);
 												handleChange('clientType', type);
 												toastV8.info(
@@ -2315,7 +1806,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 									{/* Application Type */}
 									<div className="form-group">
-										<label htmlFor="app-type-select">
+										<label>
 											Application Type
 											<TooltipV8
 												title={`${TooltipContentServiceV8.APPLICATION_TYPE.title} - ${getAppTypeLabel(appType)}`}
@@ -2326,7 +1817,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 											{/* Dropdown - Half Width */}
 											<div style={{ flex: '0 0 50%' }}>
 												<select
-													id="app-type-select"
 													value={appType}
 													onChange={(e) => {
 														const newAppType = e.target.value as AppType;
@@ -2424,11 +1914,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 									{/* Environment ID */}
 									<div className="form-group">
-										<label htmlFor="environment-id-input">
+										<label>
 											Environment ID <span className="required">*</span>
 										</label>
 										<input
-											id="environment-id-input"
 											type="text"
 											placeholder="12345678-1234-1234-1234-123456789012"
 											value={credentials.environmentId}
@@ -2437,6 +1926,212 @@ Why it matters: Backend services communicate server-to-server without user conte
 											style={getFieldErrorStyle(credentials.environmentId, true)}
 										/>
 										<small>Your PingOne environment identifier (saved globally once entered)</small>
+									</div>
+
+									{/* Worker Token Status */}
+									<div className="form-group">
+										<label>Worker Token Status</label>
+										<div
+											style={{
+												padding: '10px 14px',
+												background:
+													tokenStatus.status === 'valid'
+														? '#d1fae5'
+														: tokenStatus.status === 'expiring-soon' ||
+																tokenStatus.status === 'expired'
+															? '#fef3c7'
+															: '#fee2e2',
+												border: `1px solid ${WorkerTokenStatusServiceV8.getStatusColor(tokenStatus.status)}`,
+												borderRadius: '6px',
+												fontSize: '13px',
+												color:
+													tokenStatus.status === 'valid'
+														? '#065f46'
+														: tokenStatus.status === 'expiring-soon' ||
+																tokenStatus.status === 'expired'
+															? '#92400e'
+															: '#991b1b',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												wordWrap: 'break-word',
+												overflowWrap: 'break-word',
+												minHeight: '38px',
+												marginBottom: '8px',
+											}}
+										>
+											<span style={{ fontSize: '16px', flexShrink: 0 }}>
+												{WorkerTokenStatusServiceV8.getStatusIcon(tokenStatus.status)}
+											</span>
+											<span style={{ flex: 1 }}>{tokenStatus.message}</span>
+										</div>
+										<small style={{ marginBottom: '8px', display: 'block' }}>
+											Worker token is required to discover applications
+										</small>
+										<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+											<button
+												type="button"
+												className={tokenStatus.isValid ? 'btn-token-has' : 'btn-token-none'}
+												onClick={async () => {
+													// Pass current checkbox values to override config (page checkboxes take precedence)
+													// forceShowModal=true because user explicitly clicked the button - always show modal
+													const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+													await handleShowWorkerTokenModal(
+														setShowWorkerTokenModal,
+														setTokenStatus,
+														silentApiRetrieval,  // Page checkbox value takes precedence
+														showTokenAtEnd,      // Page checkbox value takes precedence
+														true                  // Force show modal - user clicked button
+													);
+												}}
+												title={
+													tokenStatus.isValid
+														? 'Worker token is stored - click to manage'
+														: 'No worker token - click to get one'
+												}
+												style={{
+													flex: '1',
+													minWidth: '140px',
+												}}
+											>
+												{tokenStatus.isValid ? '🔑 Manage Token' : '🔑 Get Worker Token'}
+											</button>
+											<button
+												type="button"
+												className={
+													tokenStatus.isValid && credentials.environmentId.trim()
+														? 'btn-success'
+														: 'btn-primary'
+												}
+												onClick={() => setShowAppDiscoveryModal(true)}
+												disabled={!credentials.environmentId.trim() || !tokenStatus.isValid}
+												style={{
+													flex: '1',
+													minWidth: '140px',
+												}}
+											>
+												{hasDiscoveredApps ? '🔍 Discover Apps AGAIN' : '🔍 Discover Apps'}
+											</button>
+										</div>
+										
+										{/* Worker Token Settings Checkboxes */}
+										<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+											<label
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '12px',
+													cursor: 'pointer',
+													userSelect: 'none',
+													padding: '8px',
+													borderRadius: '6px',
+													transition: 'background-color 0.2s ease',
+												}}
+												onMouseEnter={(e) => {
+													e.currentTarget.style.backgroundColor = '#f3f4f6';
+												}}
+												onMouseLeave={(e) => {
+													e.currentTarget.style.backgroundColor = 'transparent';
+												}}
+											>
+												<input
+													type="checkbox"
+													checked={silentApiRetrieval}
+													onChange={async (e) => {
+														const newValue = e.target.checked;
+														setSilentApiRetrieval(newValue);
+														// Update config service immediately (no cache)
+														const config = MFAConfigurationServiceV8.loadConfiguration();
+														config.workerToken.silentApiRetrieval = newValue;
+														MFAConfigurationServiceV8.saveConfiguration(config);
+														// Dispatch event to notify other components
+														window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+														toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
+														
+														// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
+														if (newValue) {
+															const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+															if (!currentStatus.isValid) {
+																console.log('[CREDENTIALS-FORM-V8U] Silent API retrieval enabled, attempting to fetch token now...');
+																const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+																await handleShowWorkerTokenModal(
+																	setShowWorkerTokenModal,
+																	setTokenStatus,
+																	newValue,  // Use new value
+																	showTokenAtEnd,
+																	false      // Not forced - respect silent setting
+																);
+															}
+														}
+													}}
+													style={{
+														width: '20px',
+														height: '20px',
+														cursor: 'pointer',
+														accentColor: '#6366f1',
+														flexShrink: 0,
+													}}
+												/>
+												<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+													<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+														Silent API Token Retrieval
+													</span>
+													<span style={{ fontSize: '12px', color: '#6b7280' }}>
+														Automatically fetch worker token in the background without showing modals
+													</span>
+												</div>
+											</label>
+
+											<label
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '12px',
+													cursor: 'pointer',
+													userSelect: 'none',
+													padding: '8px',
+													borderRadius: '6px',
+													transition: 'background-color 0.2s ease',
+												}}
+												onMouseEnter={(e) => {
+													e.currentTarget.style.backgroundColor = '#f3f4f6';
+												}}
+												onMouseLeave={(e) => {
+													e.currentTarget.style.backgroundColor = 'transparent';
+												}}
+											>
+												<input
+													type="checkbox"
+													checked={showTokenAtEnd}
+													onChange={(e) => {
+														const newValue = e.target.checked;
+														setShowTokenAtEnd(newValue);
+														// Update config service immediately (no cache)
+														const config = MFAConfigurationServiceV8.loadConfiguration();
+														config.workerToken.showTokenAtEnd = newValue;
+														MFAConfigurationServiceV8.saveConfiguration(config);
+														// Dispatch event to notify other components
+														window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+														toastV8.info(`Show Token After Generation set to: ${newValue}`);
+													}}
+													style={{
+														width: '20px',
+														height: '20px',
+														cursor: 'pointer',
+														accentColor: '#6366f1',
+														flexShrink: 0,
+													}}
+												/>
+												<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+													<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+														Show Token After Generation
+													</span>
+													<span style={{ fontSize: '12px', color: '#6b7280' }}>
+														Display the generated worker token in a modal after successful retrieval
+													</span>
+												</div>
+											</label>
+										</div>
 									</div>
 
 									{/* Client ID */}
@@ -2566,7 +2261,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 													handleChange('pkceEnforcement', newEnforcement);
 													// Also update legacy usePKCE for backward compatibility
 													handleChange('usePKCE', newEnforcement !== 'OPTIONAL');
-													logger.debug(PKCE enforcement changed`, {
+													console.log(`${MODULE_TAG} PKCE enforcement changed`, {
 														from: pkceEnforcement,
 														to: newEnforcement,
 													});
@@ -3484,7 +3179,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										<ResponseModeDropdownV8
 											value={responseMode}
 											onChange={(mode) => {
-												logger.debug(Response mode changed to ${mode}`);
+												console.log(`${MODULE_TAG} Response mode changed to ${mode}`);
 												setResponseMode(mode);
 												handleChange('responseMode', mode);
 
@@ -3612,10 +3307,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 												// Update scopes immediately - allows any custom scope to be entered
 												handleChange('scopes', newValue);
 											}}
-											onBlur={() => {
-												// Optional: Only filter invalid scopes on blur (when user finishes typing)
-												// Allow all scopes to be typed freely
-											}}
+										onBlur={() => {
+											// Optional: Only filter invalid scopes on blur (when user finishes typing)
+											// Allow all scopes to be typed freely
+										}}
 											aria-label="Scopes"
 										/>
 										<small>
@@ -4168,8 +3863,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 													) : (
 														scopesToShow.map((scope) => {
 															// For client-credentials flow, don't default to 'openid'
-															const defaultScope =
-																providedFlowType === 'client-credentials' ? '' : 'openid';
+															const defaultScope = providedFlowType === 'client-credentials' ? '' : 'openid';
 															const currentScopes = (credentials.scopes || defaultScope)
 																.split(/\s+/)
 																.filter((s) => s.trim());
@@ -4257,8 +3951,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																		type="button"
 																		onClick={() => {
 																			// For client-credentials flow, don't default to 'openid'
-																			const defaultScope =
-																				providedFlowType === 'client-credentials' ? '' : 'openid';
+																			const defaultScope = providedFlowType === 'client-credentials' ? '' : 'openid';
 																			const scopesArray = (credentials.scopes || defaultScope)
 																				.split(/\s+/)
 																				.filter((s) => s.trim());
@@ -4271,8 +3964,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 																				if (
 																					providedFlowType !== 'client-credentials' &&
 																					(updatedScopes.length === 0 ||
-																						(updatedScopes.length === 1 &&
-																							updatedScopes[0] === 'openid' &&
+																					(updatedScopes.length === 1 &&
+																						updatedScopes[0] === 'openid' &&
 																							scope === 'openid'))
 																				) {
 																					updatedScopes = ['openid'];
@@ -4369,68 +4062,23 @@ Why it matters: Backend services communicate server-to-server without user conte
 											<span style={{ fontSize: '18px', flexShrink: 0 }}>🔄</span>
 											<div style={{ flex: 1 }}>
 												<strong style={{ display: 'block', marginBottom: '6px', color: '#0c4a6e' }}>
-													Understanding the{' '}
-													<code
-														style={{
-															background: '#fef3c7',
-															padding: '2px 6px',
-															borderRadius: '3px',
-														}}
-													>
-														offline_access
-													</code>{' '}
-													Scope
+													Understanding the <code style={{ background: '#fef3c7', padding: '2px 6px', borderRadius: '3px' }}>offline_access</code> Scope
 												</strong>
-												<p
-													style={{
-														margin: '0 0 8px 0',
-														color: '#0c4a6e',
-														lineHeight: '1.5',
-														fontSize: '14px',
-													}}
-												>
-													The{' '}
-													<code
-														style={{
-															background: '#fef3c7',
-															padding: '2px 6px',
-															borderRadius: '3px',
-														}}
-													>
-														offline_access
-													</code>{' '}
-													scope is a special OAuth 2.0 / OpenID Connect scope that requests a
-													refresh token along with the access token. When you include this scope in
-													your authorization request:
+												<p style={{ margin: '0 0 8px 0', color: '#0c4a6e', lineHeight: '1.5', fontSize: '14px' }}>
+													The <code style={{ background: '#fef3c7', padding: '2px 6px', borderRadius: '3px' }}>offline_access</code> scope is a special OAuth 2.0 / OpenID Connect scope that requests a refresh token along with the access token. When you include this scope in your authorization request:
 												</p>
-												<ul
-													style={{
-														margin: '8px 0',
-														paddingLeft: '20px',
-														color: '#0c4a6e',
-														lineHeight: '1.6',
-														fontSize: '14px',
-													}}
-												>
+												<ul style={{ margin: '8px 0', paddingLeft: '20px', color: '#0c4a6e', lineHeight: '1.6', fontSize: '14px' }}>
 													<li style={{ marginBottom: '4px' }}>
-														<strong>Refresh Token Issued:</strong> PingOne will issue a refresh
-														token along with the access token (if the application is configured to
-														support refresh tokens).
+														<strong>Refresh Token Issued:</strong> PingOne will issue a refresh token along with the access token (if the application is configured to support refresh tokens).
 													</li>
 													<li style={{ marginBottom: '4px' }}>
-														<strong>Long-Lived Sessions:</strong> Refresh tokens allow your
-														application to obtain new access tokens without requiring the user to
-														re-authenticate, enabling seamless session management.
+														<strong>Long-Lived Sessions:</strong> Refresh tokens allow your application to obtain new access tokens without requiring the user to re-authenticate, enabling seamless session management.
 													</li>
 													<li style={{ marginBottom: '4px' }}>
-														<strong>Background Access:</strong> Your app can access protected
-														resources in the background or when the user is not actively using the
-														app.
+														<strong>Background Access:</strong> Your app can access protected resources in the background or when the user is not actively using the app.
 													</li>
 													<li style={{ marginBottom: '4px' }}>
-														<strong>Token Refresh:</strong> When an access token expires, you can
-														use the refresh token to obtain a new access token without user
-														interaction.
+														<strong>Token Refresh:</strong> When an access token expires, you can use the refresh token to obtain a new access token without user interaction.
 													</li>
 												</ul>
 												{flowOptions.supportsRefreshToken ? (
@@ -4443,31 +4091,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 															border: '1px solid #86efac',
 														}}
 													>
-														<strong
-															style={{ display: 'block', marginBottom: '4px', color: '#065f46' }}
-														>
+														<strong style={{ display: 'block', marginBottom: '4px', color: '#065f46' }}>
 															✅ This flow supports refresh tokens
 														</strong>
-														<p
-															style={{
-																margin: '0',
-																color: '#047857',
-																fontSize: '13px',
-																lineHeight: '1.5',
-															}}
-														>
-															You can enable the "Enable Refresh Token" checkbox below to
-															automatically include{' '}
-															<code
-																style={{
-																	background: '#fef3c7',
-																	padding: '2px 4px',
-																	borderRadius: '2px',
-																}}
-															>
-																offline_access
-															</code>{' '}
-															in your scopes, or manually add it to the Scopes field above.
+														<p style={{ margin: '0', color: '#047857', fontSize: '13px', lineHeight: '1.5' }}>
+															You can enable the "Enable Refresh Token" checkbox below to automatically include <code style={{ background: '#fef3c7', padding: '2px 4px', borderRadius: '2px' }}>offline_access</code> in your scopes, or manually add it to the Scopes field above.
 														</p>
 													</div>
 												) : (
@@ -4480,20 +4108,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 															border: '1px solid #f59e0b',
 														}}
 													>
-														<strong
-															style={{ display: 'block', marginBottom: '4px', color: '#92400e' }}
-														>
+														<strong style={{ display: 'block', marginBottom: '4px', color: '#92400e' }}>
 															ℹ️ This flow does not support refresh tokens
 														</strong>
-														<p
-															style={{
-																margin: '0',
-																color: '#78350f',
-																fontSize: '13px',
-																lineHeight: '1.5',
-															}}
-														>
-															{providedFlowType === 'implicit'
+														<p style={{ margin: '0', color: '#78350f', fontSize: '13px', lineHeight: '1.5' }}>
+															{providedFlowType === 'implicit' 
 																? 'The Implicit Flow does not support refresh tokens. Tokens are returned directly in the URL fragment and are short-lived. For long-lived sessions, consider using the Authorization Code Flow with PKCE instead.'
 																: providedFlowType === 'client-credentials'
 																	? 'The Client Credentials Flow is for machine-to-machine authentication and does not support refresh tokens. Access tokens are obtained directly using client credentials.'
@@ -4501,28 +4120,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 														</p>
 													</div>
 												)}
-												<p
-													style={{
-														margin: '12px 0 0 0',
-														color: '#0c4a6e',
-														fontSize: '13px',
-														lineHeight: '1.5',
-														fontStyle: 'italic',
-													}}
-												>
-													💡 <strong>Note:</strong> Even if you include{' '}
-													<code
-														style={{
-															background: '#fef3c7',
-															padding: '2px 4px',
-															borderRadius: '2px',
-														}}
-													>
-														offline_access
-													</code>{' '}
-													in your scopes, a refresh token will only be issued if your PingOne
-													application is configured to support refresh tokens and the flow type
-													supports it.
+												<p style={{ margin: '12px 0 0 0', color: '#0c4a6e', fontSize: '13px', lineHeight: '1.5', fontStyle: 'italic' }}>
+													💡 <strong>Note:</strong> Even if you include <code style={{ background: '#fef3c7', padding: '2px 4px', borderRadius: '2px' }}>offline_access</code> in your scopes, a refresh token will only be issued if your PingOne application is configured to support refresh tokens and the flow type supports it.
 												</p>
 											</div>
 										</div>
@@ -4612,14 +4211,16 @@ Why it matters: Backend services communicate server-to-server without user conte
 																SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 																SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch(
 																	(err) => {
-																		logger.warn(Background disk save failed (non-critical):`,
+																		console.warn(
+																			`${MODULE_TAG} Background disk save failed (non-critical):`,
 																			err
 																		);
 																	}
 																);
 															}
 
-															logger.debug(✅ Batched save complete for refresh token toggle`,
+															console.log(
+																`${MODULE_TAG} ✅ Batched save complete for refresh token toggle`,
 																{
 																	flowKey,
 																	enableRefreshToken: newValue,
@@ -4627,7 +4228,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 																}
 															);
 														} catch (error) {
-															logger.error(❌ Error saving credentials for refresh token toggle`,
+															console.error(
+																`${MODULE_TAG} ❌ Error saving credentials for refresh token toggle`,
 																{ flowKey, error }
 															);
 														}
@@ -4639,7 +4241,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 														// This prevents the jitter by ensuring the sync effect skips multiple render cycles
 														setTimeout(() => {
 															isUpdatingFromCheckbox.current = false;
-															logger.debug(🔓 Checkbox update flag cleared`);
+															console.log(`${MODULE_TAG} 🔓 Checkbox update flag cleared`);
 														}, 300); // Increased from 100ms to 300ms for more safety
 													}}
 													style={{ cursor: 'pointer' }}
@@ -4702,23 +4304,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 						{/* Advanced Options Section - Collapsible */}
 						<div className="form-section" data-section="advanced">
-							<button
-								type="button"
+							<div
 								className="section-header"
 								onClick={() => setShowAdvancedSection(!showAdvancedSection)}
-								aria-expanded={showAdvancedSection}
-								aria-controls="advanced-section-content"
-								style={{
-									background: 'none',
-									border: 'none',
-									padding: 0,
-									margin: 0,
-									font: 'inherit',
-									color: 'inherit',
-									textAlign: 'left',
-									width: '100%',
-									cursor: 'pointer'
-								}}
+								style={{ cursor: 'pointer' }}
 							>
 								<div
 									style={{
@@ -4739,9 +4328,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 										›
 									</span>
 								</div>
-							</button>
+							</div>
 							{showAdvancedSection && (
-								<div id="advanced-section-content" className="section-content">
+								<div className="section-content">
 									<div
 										style={{
 											padding: '12px',
@@ -4762,7 +4351,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											<PKCEInputV8
 												value={pkceEnforcement as PKCEMode}
 												onChange={(mode) => {
-													logger.debug(PKCE mode changed to ${mode}`);
+													console.log(`${MODULE_TAG} PKCE mode changed to ${mode}`);
 													// Map PKCEMode to PKCEEnforcement (filter out DISABLED)
 													const enforcement: 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' =
 														mode === 'DISABLED' ? 'OPTIONAL' : mode;
@@ -4789,16 +4378,16 @@ Why it matters: Backend services communicate server-to-server without user conte
 									{/* Response Mode - Only for flows that support it */}
 									{flowOptions.requiresRedirectUri && (
 										<div className="form-group" style={{ marginBottom: '16px' }}>
-											<ResponseModeDropdownV8
-												value={responseMode}
-												onChange={(mode) => {
-													logger.debug(Response mode changed to ${mode}`);
-													setResponseMode(mode);
-													handleChange('responseMode', mode);
-												}}
-												flowType={effectiveFlowType as 'oauth-authz' | 'implicit' | 'hybrid'}
-												responseType={credentials.responseType || 'code'}
-											/>
+										<ResponseModeDropdownV8
+											value={responseMode}
+											onChange={(mode) => {
+												console.log(`${MODULE_TAG} Response mode changed to ${mode}`);
+												setResponseMode(mode);
+												handleChange('responseMode', mode);
+											}}
+											flowType={effectiveFlowType as 'oauth-authz' | 'implicit' | 'hybrid'}
+											responseType={credentials.responseType || 'code'}
+										/>
 											{/* Default indicator */}
 											{(() => {
 												const defaultResponseMode: ResponseMode =
@@ -4838,8 +4427,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 															<>
 																<span>⚙️</span>
 																<span>
-																	<strong>Custom value:</strong> {responseMode} (default for this
-																	flow would be {defaultResponseMode})
+																	<strong>Custom value:</strong> {responseMode} (default for this flow
+																	would be {defaultResponseMode})
 																</span>
 															</>
 														)}
@@ -5002,7 +4591,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											<LoginHintInputV8
 												value={loginHint}
 												onChange={(value) => {
-													logger.debug(Login hint changed to ${value}`);
+													console.log(`${MODULE_TAG} Login hint changed to ${value}`);
 													setLoginHint(value);
 													handleChange('loginHint', value);
 													// Removed toast message - LoginHintInputV8 component shows visual feedback
@@ -5048,7 +4637,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											<MaxAgeInputV8
 												value={maxAge}
 												onChange={(value) => {
-													logger.debug(Max age changed to ${value}`);
+													console.log(`${MODULE_TAG} Max age changed to ${value}`);
 													setMaxAge(value);
 													handleChange('maxAge', value);
 													if (value !== undefined) {
@@ -5075,7 +4664,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											<DisplayModeDropdownV8
 												value={display}
 												onChange={(value) => {
-													logger.debug(Display mode changed to ${value}`);
+													console.log(`${MODULE_TAG} Display mode changed to ${value}`);
 													setDisplay(value);
 													handleChange('display', value);
 													if (value) {
@@ -5161,7 +4750,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 								className="btn-save"
 								onClick={() => {
 									toastV8.credentialsSaved();
-									logger.debug(Credentials saved`, { flowKey });
+									console.log(`${MODULE_TAG} Credentials saved`, { flowKey });
 								}}
 							>
 								💾 Save Credentials
@@ -5177,57 +4766,53 @@ Why it matters: Backend services communicate server-to-server without user conte
 						onApply={handleApplyDiscovery}
 					/>
 
-					{showWorkerTokenModal &&
-						(() => {
-							// Check if we should show token only (matches MFA pattern)
-							try {
-								const config = MFAConfigurationServiceV8.loadConfiguration();
-								// Use sync check for modal display (async will be too slow for UI)
-								const tokenStatus = {
-									status: 'missing' as const,
-									message: 'Checking worker token status...',
-									isValid: false,
-								};
-
-								// Show token-only if showTokenAtEnd is ON and token is valid
-								const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
-
-								return (
-									<WorkerTokenModalV8
-										isOpen={showWorkerTokenModal}
-										onClose={() => {
-											setShowWorkerTokenModal(false);
-											// Refresh token status when modal closes (matches MFA pattern)
-											WorkerTokenStatusServiceV8.checkWorkerTokenStatus().then(setTokenStatus);
-										}}
-										onTokenGenerated={() => {
-											// Match MFA pattern exactly
-											window.dispatchEvent(new Event('workerTokenUpdated'));
-											WorkerTokenStatusServiceV8.checkWorkerTokenStatus().then(setTokenStatus);
-											toastV8.success('Worker token generated and saved!');
-										}}
-										environmentId={credentials.environmentId}
-										showTokenOnly={showTokenOnly}
-									/>
-								);
-							} catch {
-								return (
-									<WorkerTokenModalV8
-										isOpen={showWorkerTokenModal}
-										onClose={() => {
-											setShowWorkerTokenModal(false);
-											WorkerTokenStatusServiceV8.checkWorkerTokenStatus().then(setTokenStatus);
-										}}
-										onTokenGenerated={() => {
-											window.dispatchEvent(new Event('workerTokenUpdated'));
-											WorkerTokenStatusServiceV8.checkWorkerTokenStatus().then(setTokenStatus);
-											toastV8.success('Worker token generated and saved!');
-										}}
-										environmentId={credentials.environmentId}
-									/>
-								);
-							}
-						})()}
+					{showWorkerTokenModal && (() => {
+						// Check if we should show token only (matches MFA pattern)
+						try {
+							const config = MFAConfigurationServiceV8.loadConfiguration();
+							const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+							
+							// Show token-only if showTokenAtEnd is ON and token is valid
+							const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+							
+							return (
+					<WorkerTokenModalV8
+						isOpen={showWorkerTokenModal}
+									onClose={() => {
+										setShowWorkerTokenModal(false);
+										// Refresh token status when modal closes (matches MFA pattern)
+										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+									}}
+						onTokenGenerated={() => {
+										// Match MFA pattern exactly
+										window.dispatchEvent(new Event('workerTokenUpdated'));
+								const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+								setTokenStatus(newStatus);
+										toastV8.success('Worker token generated and saved!');
+									}}
+									environmentId={credentials.environmentId}
+									showTokenOnly={showTokenOnly}
+								/>
+							);
+						} catch {
+							return (
+								<WorkerTokenModalV8
+									isOpen={showWorkerTokenModal}
+									onClose={() => {
+										setShowWorkerTokenModal(false);
+										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+									}}
+									onTokenGenerated={() => {
+							window.dispatchEvent(new Event('workerTokenUpdated'));
+										const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										setTokenStatus(newStatus);
+							toastV8.success('Worker token generated and saved!');
+						}}
+						environmentId={credentials.environmentId}
+					/>
+							);
+						}
+					})()}
 
 					<AppDiscoveryModalV8U
 						isOpen={showAppDiscoveryModal}
@@ -5333,7 +4918,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
-								type="button"
 								onClick={() => setShowPromptInfoModal(false)}
 								style={{
 									marginTop: '24px',
@@ -5697,7 +5281,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
-								type="button"
 								onClick={() => setShowPARInfoModal(false)}
 								style={{
 									marginTop: '24px',
@@ -5746,11 +5329,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 										🔐 What is JAR (JWT-secured Authorization Request)?
 									</h3>
 									<p style={{ margin: 0, color: '#1e3a8a', lineHeight: '1.6' }}>
-										<strong>JAR</strong> is an OAuth 2.0 extension (RFC 9101) that requires
-										authorization request parameters to be sent as a <strong>signed JWT</strong>{' '}
-										instead of plain query parameters. This provides additional security by
-										cryptographically signing the authorization request, preventing parameter
-										tampering and ensuring request authenticity.
+										<strong>JAR</strong> is an OAuth 2.0 extension (RFC 9101) that requires authorization 
+										request parameters to be sent as a <strong>signed JWT</strong> instead of plain query 
+										parameters. This provides additional security by cryptographically signing the 
+										authorization request, preventing parameter tampering and ensuring request authenticity.
 									</p>
 									<p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#3b82f6' }}>
 										<a
@@ -5784,14 +5366,13 @@ Why it matters: Backend services communicate server-to-server without user conte
 										⚠️ OAuth Playground Support Status
 									</h3>
 									<p style={{ margin: '0 0 8px 0', color: '#78350f', lineHeight: '1.6' }}>
-										<strong>❌ JAR is NOT currently supported</strong> by the OAuth Playground. JAR
-										requires JWT signing capabilities, private key management, and complex request
-										object construction. For a demo/playground application, this adds significant
+										<strong>❌ JAR is NOT currently supported</strong> by the OAuth Playground. 
+										JAR requires JWT signing capabilities, private key management, and complex request 
+										object construction. For a demo/playground application, this adds significant 
 										complexity without substantial educational value for most OAuth flows.
 									</p>
 									<p style={{ margin: 0, fontSize: '14px', color: '#92400e', fontWeight: '500' }}>
-										💡 <strong>Solution:</strong> Configure your PingOne application to{' '}
-										<strong>"Allow unsigned request parameter"</strong>
+										💡 <strong>Solution:</strong> Configure your PingOne application to <strong>"Allow unsigned request parameter"</strong> 
 										to use the OAuth Playground. See the configuration guide below.
 									</p>
 								</div>
@@ -5815,17 +5396,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 									>
 										⚙️ PingOne Configuration Options
 									</h3>
-									<p
-										style={{
-											margin: '0 0 12px 0',
-											fontSize: '14px',
-											color: '#6b7280',
-											lineHeight: '1.6',
-										}}
-									>
-										In PingOne, you can configure how your application sends authorization request
-										parameters. Here's what each option means and which ones work with the OAuth
-										Playground:
+									<p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+										In PingOne, you can configure how your application sends authorization request parameters. 
+										Here's what each option means and which ones work with the OAuth Playground:
 									</p>
 
 									{/* Configuration Options Table */}
@@ -5894,15 +5467,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 													>
 														<span style={{ color: '#dc2626', fontWeight: '600' }}>❌ No</span>
 													</td>
-													<td
-														style={{
-															padding: '10px',
-															border: '1px solid #cbd5e1',
-															color: '#64748b',
-														}}
-													>
-														Allows signed requests only. Requires JWT request objects (not
-														supported).
+													<td style={{ padding: '10px', border: '1px solid #cbd5e1', color: '#64748b' }}>
+														Allows signed requests only. Requires JWT request objects (not supported).
 													</td>
 												</tr>
 												<tr style={{ background: '#f8fafc' }}>
@@ -5924,14 +5490,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 													>
 														<span style={{ color: '#dc2626', fontWeight: '600' }}>❌ No</span>
 													</td>
-													<td
-														style={{
-															padding: '10px',
-															border: '1px solid #cbd5e1',
-															color: '#64748b',
-														}}
-													>
-														<strong>Most secure:</strong> Only accepts signed request parameters.
+													<td style={{ padding: '10px', border: '1px solid #cbd5e1', color: '#64748b' }}>
+														<strong>Most secure:</strong> Only accepts signed request parameters. 
 														This is what causes the error you're seeing.
 													</td>
 												</tr>
@@ -5954,15 +5514,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 													>
 														<span style={{ color: '#16a34a', fontWeight: '600' }}>✅ Yes</span>
 													</td>
-													<td
-														style={{
-															padding: '10px',
-															border: '1px solid #cbd5e1',
-															color: '#64748b',
-														}}
-													>
-														<strong>Most flexible:</strong> Allows both signed and unsigned
-														requests. This is the recommended setting for the OAuth Playground.
+													<td style={{ padding: '10px', border: '1px solid #cbd5e1', color: '#64748b' }}>
+														<strong>Most flexible:</strong> Allows both signed and unsigned requests. 
+														This is the recommended setting for the OAuth Playground.
 													</td>
 												</tr>
 											</tbody>
@@ -5979,10 +5533,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 										}}
 									>
 										<p style={{ margin: 0, fontSize: '13px', color: '#1e40af', lineHeight: '1.6' }}>
-											💡 <strong>Recommendation:</strong> Use{' '}
-											<strong>"Allow unsigned request parameter"</strong>
-											when using the OAuth Playground. This provides maximum flexibility and
-											compatibility.
+											💡 <strong>Recommendation:</strong> Use <strong>"Allow unsigned request parameter"</strong> 
+											when using the OAuth Playground. This provides maximum flexibility and compatibility.
 										</p>
 									</div>
 								</div>
@@ -6009,19 +5561,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 									<ol
 										style={{ margin: 0, paddingLeft: '20px', color: '#6b7280', lineHeight: '1.8' }}
 									>
-										<li>
-											Navigate to: <strong>Applications</strong> → Your OAuth Client →{' '}
-											<strong>Configuration</strong> tab
-										</li>
-										<li>
-											Scroll to <strong>"Request Parameter Signature Requirement"</strong> section
-										</li>
-										<li>
-											Select <strong>"Allow unsigned request parameter"</strong>
-										</li>
-										<li>
-											Click <strong>Save</strong>
-										</li>
+										<li>Navigate to: <strong>Applications</strong> → Your OAuth Client → <strong>Configuration</strong> tab</li>
+										<li>Scroll to <strong>"Request Parameter Signature Requirement"</strong> section</li>
+										<li>Select <strong>"Allow unsigned request parameter"</strong></li>
+										<li>Click <strong>Save</strong></li>
 										<li>Try generating the authorization URL again in the OAuth Playground</li>
 									</ol>
 								</div>
@@ -6045,23 +5588,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 									>
 										❓ Why is JAR Not Supported?
 									</h3>
-									<p
-										style={{
-											margin: '0 0 8px 0',
-											fontSize: '14px',
-											color: '#4b5563',
-											lineHeight: '1.6',
-										}}
-									>
+									<p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#4b5563', lineHeight: '1.6' }}>
 										JAR support requires:
 									</p>
 									<ul
-										style={{
-											margin: '0 0 8px 0',
-											paddingLeft: '20px',
-											color: '#4b5563',
-											lineHeight: '1.8',
-										}}
+										style={{ margin: '0 0 8px 0', paddingLeft: '20px', color: '#4b5563', lineHeight: '1.8' }}
 									>
 										<li>JWT signing capabilities (HMAC or RSA)</li>
 										<li>Private key management and secure key storage</li>
@@ -6071,9 +5602,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 										<li>Signature verification and validation</li>
 									</ul>
 									<p style={{ margin: 0, fontSize: '14px', color: '#4b5563', lineHeight: '1.6' }}>
-										For a demo/playground application, this adds significant complexity without
-										substantial educational value for most OAuth flows. The core OAuth concepts can
-										be demonstrated without JAR.
+										For a demo/playground application, this adds significant complexity without substantial 
+										educational value for most OAuth flows. The core OAuth concepts can be demonstrated 
+										without JAR.
 									</p>
 								</div>
 
@@ -6100,32 +5631,17 @@ Why it matters: Backend services communicate server-to-server without user conte
 										JAR is typically used in high-security environments where:
 									</p>
 									<ul
-										style={{
-											margin: '8px 0 0 0',
-											paddingLeft: '20px',
-											color: '#1e3a8a',
-											lineHeight: '1.8',
-										}}
+										style={{ margin: '8px 0 0 0', paddingLeft: '20px', color: '#1e3a8a', lineHeight: '1.8' }}
 									>
 										<li>Authorization request integrity must be cryptographically guaranteed</li>
 										<li>Request parameters cannot be tampered with in transit</li>
-										<li>
-											Compliance requirements mandate request signing (e.g., FIDO2, banking
-											regulations)
-										</li>
+										<li>Compliance requirements mandate request signing (e.g., FIDO2, banking regulations)</li>
 										<li>Additional security beyond HTTPS is required</li>
 										<li>You need to prove request authenticity and non-repudiation</li>
 									</ul>
-									<p
-										style={{
-											margin: '8px 0 0 0',
-											fontSize: '13px',
-											color: '#1e40af',
-											fontStyle: 'italic',
-										}}
-									>
-										For most applications, HTTPS provides sufficient security. JAR adds an extra
-										layer for high-security scenarios.
+									<p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#1e40af', fontStyle: 'italic' }}>
+										For most applications, HTTPS provides sufficient security. JAR adds an extra layer for 
+										high-security scenarios.
 									</p>
 								</div>
 
@@ -6149,13 +5665,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 										📚 RFC Reference
 									</h3>
 									<p style={{ margin: 0, color: '#6b7280', lineHeight: '1.6' }}>
-										JAR is defined in{' '}
-										<strong>
-											RFC 9101 - The OAuth 2.0 Authorization Framework: JWT-Secured Authorization
-											Request (JAR)
-										</strong>
-										. It's an extension to OAuth 2.0 that enhances security by requiring signed
-										request objects.
+										JAR is defined in <strong>RFC 9101 - The OAuth 2.0 Authorization Framework: JWT-Secured 
+										Authorization Request (JAR)</strong>. It's an extension to OAuth 2.0 that enhances 
+										security by requiring signed request objects.
 									</p>
 									<p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#3b82f6' }}>
 										<a
@@ -6171,7 +5683,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
-								type="button"
 								onClick={() => setShowJARInfoModal(false)}
 								style={{
 									marginTop: '24px',
@@ -6246,7 +5757,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 									}}
 									onJWTGenerated={(jwt, result) => {
 										if (result.success && result.jwt) {
-											logger.debug(Client Secret JWT generated:`, jwt);
+											console.log(`${MODULE_TAG} Client Secret JWT generated:`, jwt);
 											toastV8.success('JWT generated successfully!');
 										}
 									}}
@@ -6358,14 +5869,14 @@ Why it matters: Backend services communicate server-to-server without user conte
 									}}
 									onJWTGenerated={(jwt, result) => {
 										if (result.success && result.jwt) {
-											logger.debug(Private Key JWT generated:`, jwt);
+											console.log(`${MODULE_TAG} Private Key JWT generated:`, jwt);
 											toastV8.success('JWT generated successfully!');
 											// Note: The private key should be saved separately in the credentials form
 											// The JWT is generated fresh for each token request, not stored
 										}
 									}}
 									onPrivateKeyGenerated={(privateKey, keyId) => {
-										logger.debug(Private key generated, saving to credentials`, {
+										console.log(`${MODULE_TAG} Private key generated, saving to credentials`, {
 											hasPrivateKey: !!privateKey,
 											hasKeyId: !!keyId,
 										});
@@ -6453,9 +5964,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 						onClose={() => setShowScopesEducationModal(false)}
 						context={providedFlowType === 'client-credentials' ? 'client-credentials' : 'general'}
 					/>
-		</div>
+				</>
+			)}
 
-		<style jsx>{`
+			<style>{`
 				.credentials-form-v8 {
 					width: 100%;
 					border: 1px solid #cbd5e1;
@@ -6738,36 +6250,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 					background: #9ca3af;
 				}
 
-				.btn-token-has {
-					background: #059669;
-					color: white;
-					border: 1px solid #047857;
-				}
-
-				.btn-token-has:hover:not(:disabled) {
-					background: #047857;
-				}
-
-				.btn-token-has:disabled {
-					background: #9ca3af;
-					border-color: #6b7280;
-				}
-
-				.btn-token-none {
-					background: #dc2626;
-					color: white;
-					border: 1px solid #b91c1c;
-				}
-
-				.btn-token-none:hover:not(:disabled) {
-					background: #b91c1c;
-				}
-
-				.btn-token-none:disabled {
-					background: #9ca3af;
-					border-color: #6b7280;
-				}
-
 				.form-group small {
 					font-size: 11px;
 					color: #6b7280;
@@ -6789,7 +6271,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 					20%, 40%, 60%, 80% { transform: translateX(4px); }
 				}
 			`}</style>
-		</>
+		</div>
 	);
 };
 
