@@ -10,7 +10,7 @@ import { FiChevronDown, FiSearch, FiX } from 'react-icons/fi';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
-const MODULE_TAG = '[👤 USER-SEARCH-DROPDOWN-V8]';
+const _MODULE_TAG = '[👤 USER-SEARCH-DROPDOWN-V8]';
 
 interface User {
 	id: string;

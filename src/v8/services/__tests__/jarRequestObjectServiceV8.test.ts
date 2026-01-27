@@ -32,7 +32,7 @@ describe('JARRequestObjectServiceV8', () => {
 		audience: mockAuthEndpoint,
 	};
 
-	const mockRS256Config: JARSigningConfig = {
+	const _mockRS256Config: JARSigningConfig = {
 		algorithm: 'RS256',
 		privateKey: `-----BEGIN PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7VJTUt9Us8cKj

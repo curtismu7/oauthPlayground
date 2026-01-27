@@ -126,7 +126,7 @@ export const LazyLoadWrapperV8: React.FC<LazyLoadWrapperV8Props> = ({
 				observer.unobserve(currentRef);
 			}
 		};
-	}, [threshold, rootMargin, hasIntersected]);
+	}, [threshold, rootMargin, hasIntersected, loadComponent]);
 
 	const loadComponent = async () => {
 		setIsLoading(true);

@@ -189,7 +189,6 @@ export const ConfirmationModalV8: React.FC = () => {
 						<button
 							type="button"
 							onClick={handleConfirm}
-							autoFocus
 							style={{
 								padding: '8px 16px',
 								background: options.severity === 'danger' ? '#ef4444' : '#3b82f6',

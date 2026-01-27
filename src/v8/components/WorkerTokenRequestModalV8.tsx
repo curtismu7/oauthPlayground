@@ -181,7 +181,7 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 		}
 	};
 
-	const handleUseToken = () => {
+	const _handleUseToken = () => {
 		onClose();
 	};
 
