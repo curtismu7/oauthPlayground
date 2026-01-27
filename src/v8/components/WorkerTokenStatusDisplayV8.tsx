@@ -612,11 +612,37 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 
 			// Fetch additional comprehensive data
 			try {
-				const [token, status, credentials] = await Promise.all([
+				const [token, status] = await Promise.all([
 					unifiedWorkerTokenService.getToken(),
 					unifiedWorkerTokenService.getStatus(),
-					unifiedWorkerTokenService.loadCredentials(),
 				]);
+
+				// Try to load credentials from MFA flow first, then fallback to unified service
+				let credentials: UnifiedWorkerTokenCredentials | null = null;
+				try {
+					const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
+					const creds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+						flowKey: 'mfa-flow-v8',
+						flowType: 'oidc',
+						includeClientSecret: true,
+						includeLogoutUri: false,
+						includeScopes: false,
+						includeRedirectUri: false,
+					});
+					
+					// Convert Credentials to UnifiedWorkerTokenCredentials format
+					if (creds?.environmentId) {
+						credentials = {
+							environmentId: creds.environmentId,
+							clientId: creds.clientId || '',
+							clientSecret: creds.clientSecret || '',
+						};
+					}
+				} catch (credError) {
+					console.warn('[WorkerTokenStatusDisplayV8] Failed to load MFA credentials:', credError);
+					// Fallback to unified service
+					credentials = await unifiedWorkerTokenService.loadCredentials();
+				}
 
 				// Create tokenData structure from the unified service response
 				const tokenData = token
