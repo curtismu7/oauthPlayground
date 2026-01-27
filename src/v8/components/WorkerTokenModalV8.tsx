@@ -449,6 +449,9 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				tokenScopes
 			);
 
+			// Wait a moment to ensure token is fully saved before dispatching event
+			await new Promise(resolve => setTimeout(resolve, 100));
+			
 			// Dispatch event for status update
 			console.log(`${MODULE_TAG} 🔑 Dispatching workerTokenUpdated event`);
 			window.dispatchEvent(new Event('workerTokenUpdated'));
