@@ -39,67 +39,20 @@ async function attemptSilentTokenRetrieval(silentApiRetrievalOverride?: boolean)
 			return false; // Silent retrieval disabled
 		}
 
-		console.log(
-			`${MODULE_TAG} Silent API retrieval enabled, attempting to fetch token automatically...`
-		);
 		// #region agent log - Check all localStorage keys before loading
 		const _allKeys = Object.keys(localStorage).filter(
 			(k) => k.toLowerCase().includes('worker') || k.toLowerCase().includes('token')
 		);
 		// #endregion
 
-		// Debug: First check what the unified service returns directly
-		console.log(`${MODULE_TAG} 🔍 DEBUG: Checking unified service directly...`);
-		const unifiedCreds = await unifiedWorkerTokenService.loadCredentials();
-		console.log(`${MODULE_TAG} 🔍 DEBUG: Unified service credentials:`, !!unifiedCreds);
-		if (unifiedCreds) {
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Unified credentials structure:`, {
-				hasEnvironmentId: !!unifiedCreds.environmentId,
-				hasClientId: !!unifiedCreds.clientId,
-				hasClientSecret: !!unifiedCreds.clientSecret,
-				envId: unifiedCreds.environmentId,
-				clientId: unifiedCreds.clientId?.substring(0, 8) + '...',
-			});
-		}
 		
 		const credentials = await workerTokenServiceV8.loadCredentials();
 		// #region agent log
 		// #endregion
 		
-		// Debug: Check what's in localStorage
-		console.log(`${MODULE_TAG} 🔍 DEBUG: Checking localStorage...`);
-		const allKeys = Object.keys(localStorage);
-		console.log(`${MODULE_TAG} 🔍 DEBUG: All localStorage keys:`, allKeys);
-		const unifiedToken = localStorage.getItem('unified_worker_token');
-		console.log(`${MODULE_TAG} 🔍 DEBUG: unified_worker_token exists:`, !!unifiedToken);
-		if (unifiedToken) {
-			try {
-				const parsed = JSON.parse(unifiedToken);
-				console.log(`${MODULE_TAG} 🔍 DEBUG: unified_worker_token structure:`, {
-					hasCredentials: !!parsed.credentials,
-					hasToken: !!parsed.token,
-					hasEnvironmentId: !!parsed.credentials?.environmentId,
-					hasClientId: !!parsed.credentials?.clientId,
-					hasClientSecret: !!parsed.credentials?.clientSecret
-				});
-			} catch (e) {
-				console.log(`${MODULE_TAG} 🔍 DEBUG: Failed to parse unified_worker_token:`, e);
-			}
-		}
 		
-		console.log(`${MODULE_TAG} 🔍 DEBUG: Credentials from service:`, !!credentials);
-		if (credentials) {
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Credentials structure:`, {
-				hasEnvironmentId: !!credentials.environmentId,
-				hasClientId: !!credentials.clientId,
-				hasClientSecret: !!credentials.clientSecret
-			});
-		}
 		
 		if (!credentials) {
-			console.warn(
-				`${MODULE_TAG} No stored credentials for silent API retrieval - user needs to configure credentials first`
-			);
 			// #region agent log
 			// #endregion
 			// Show a helpful toast when silent retrieval fails due to missing credentials
@@ -184,12 +137,10 @@ async function attemptSilentTokenRetrieval(silentApiRetrievalOverride?: boolean)
 		}
 
 		// Silent retrieval failed
-		console.warn(`${MODULE_TAG} Silent API retrieval failed (status: ${response.status})`);
 		// #region agent log
 		// #endregion
 		return false;
 	} catch (error) {
-		console.error(`${MODULE_TAG} Silent API retrieval error:`, error);
 		// #region agent log
 		// #endregion
 		return false;
@@ -205,7 +156,6 @@ function _shouldShowTokenModal(): boolean {
 		const config = MFAConfigurationServiceV8.loadConfiguration();
 		return config.workerToken.showTokenAtEnd;
 	} catch (error) {
-		console.error(`${MODULE_TAG} Error checking showTokenAtEnd config:`, error);
 		return false;
 	}
 }
@@ -247,37 +197,8 @@ export async function handleShowWorkerTokenModal(
 			? overrideShowTokenAtEnd
 			: config.workerToken.showTokenAtEnd;
 
-	// DEBUG: Log all values for debugging
-	console.log(`${MODULE_TAG} DEBUG - handleShowWorkerTokenModal called with:`, {
-		overrideSilentApiRetrieval,
-		overrideShowTokenAtEnd,
-		forceShowModal,
-		configSilentApiRetrieval: config.workerToken.silentApiRetrieval,
-		configShowTokenAtEnd: config.workerToken.showTokenAtEnd,
-		finalSilentApiRetrieval: silentApiRetrieval,
-		finalShowTokenAtEnd: showTokenAtEnd,
-		finalForceShowModal: forceShowModal,
-	});
 
-	console.log(
-		`${MODULE_TAG} 🎯 SILENT MODE DEBUG: silentApiRetrieval=${silentApiRetrieval}, forceShowModal=${forceShowModal}, showTokenAtEnd=${showTokenAtEnd}`
-	);
 
-	// Log which values are being used (for debugging)
-	if (overrideSilentApiRetrieval !== undefined || overrideShowTokenAtEnd !== undefined) {
-		console.log(`${MODULE_TAG} Using Hub page checkbox values (override):`, {
-			silentApiRetrieval: {
-				override: overrideSilentApiRetrieval,
-				config: config.workerToken.silentApiRetrieval,
-				using: silentApiRetrieval,
-			},
-			showTokenAtEnd: {
-				override: overrideShowTokenAtEnd,
-				config: config.workerToken.showTokenAtEnd,
-				using: showTokenAtEnd,
-			},
-		});
-	}
 
 	// Check current token status
 	const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
@@ -287,29 +208,16 @@ export async function handleShowWorkerTokenModal(
 		// Only show modal if BOTH silentApiRetrieval is OFF AND showTokenAtEnd is ON
 		// If silentApiRetrieval is ON, we should be truly silent (no modals)
 		if (!silentApiRetrieval && showTokenAtEnd) {
-			console.log(
-				`${MODULE_TAG} Token is valid, showing modal (silentApiRetrieval is OFF, showTokenAtEnd is ON)`
-			);
 			setShowModal(true);
 			return;
 		}
 
-		// Silent mode or showTokenAtEnd is OFF - don't show modal
-		console.log(
-			`${MODULE_TAG} Token is valid, not showing modal (silentApiRetrieval: ${silentApiRetrieval}, showTokenAtEnd: ${showTokenAtEnd})`
-		);
 		return;
 	}
 
 	// Token is missing or expired
 	// If silentApiRetrieval is ON, attempt silent retrieval
 	if (silentApiRetrieval) {
-		console.log(
-			`${MODULE_TAG} 🤫 Silent API retrieval is enabled, attempting to fetch token silently...`
-		);
-		console.log(
-			`${MODULE_TAG} 🎯 DEBUG: forceShowModal=${forceShowModal}, showTokenAtEnd=${showTokenAtEnd}`
-		);
 		
 		// Show loading state during silent retrieval
 		if (setSilentLoading) {
@@ -324,12 +232,10 @@ export async function handleShowWorkerTokenModal(
 		if (setSilentLoading) {
 			setSilentLoading(false);
 		}
-		console.log(`${MODULE_TAG} 🎯 DEBUG: Silent retrieval result=${silentRetrievalSucceeded}`);
 		// #region agent log
 		// #endregion
 
 		if (silentRetrievalSucceeded) {
-			console.log(`${MODULE_TAG} ✅ Silent retrieval succeeded!`);
 			// Token was successfully retrieved silently
 			if (setTokenStatus) {
 				const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
@@ -339,36 +245,17 @@ export async function handleShowWorkerTokenModal(
 			// Only show modal if showTokenAtEnd is also ON (to display the token)
 			// AND user didn't explicitly click button (forceShowModal would be false for automatic calls)
 			if (showTokenAtEnd && !forceShowModal) {
-				console.log(
-					`${MODULE_TAG} 🎯 DEBUG: Showing modal because showTokenAtEnd=true and forceShowModal=false`
-				);
-				console.log(
-					`${MODULE_TAG} Silent retrieval succeeded, showing token display modal (showTokenAtEnd is ON)`
-				);
 				setShowModal(true);
 			} else {
-				console.log(
-					`${MODULE_TAG} 🎯 DEBUG: NOT showing modal - showTokenAtEnd=${showTokenAtEnd}, forceShowModal=${forceShowModal}`
-				);
-				console.log(
-					`${MODULE_TAG} Silent retrieval succeeded, not showing modal (showTokenAtEnd: ${showTokenAtEnd}, forceShowModal: ${forceShowModal})`
-				);
 			}
 			return;
 		}
 
-		console.log(`${MODULE_TAG} ❌ Silent retrieval failed!`);
 		// Silent retrieval failed
 		// If user explicitly clicked button (forceShowModal), show modal to allow credential configuration
 		// If credentials are missing, show modal to allow configuration (even in silent mode)
 		// Otherwise, respect silentApiRetrieval setting and don't show modal
 		if (forceShowModal) {
-			console.log(
-				`${MODULE_TAG} 🎯 DEBUG: Showing modal because forceShowModal=true (user clicked button)`
-			);
-			console.log(
-				`${MODULE_TAG} Silent retrieval failed, but user clicked button - showing modal for credential configuration`
-			);
 			setShowModal(true);
 			return;
 		}
@@ -376,35 +263,16 @@ export async function handleShowWorkerTokenModal(
 		// Check if failure was due to missing credentials
 		const credentialsCheck = await workerTokenServiceV8.loadCredentials();
 		if (!credentialsCheck) {
-			console.log(`${MODULE_TAG} 🎯 DEBUG: Showing modal because credentials are missing`);
-			// Credentials are missing - show modal to allow configuration
-			// This is helpful even in silent mode, as user needs to configure credentials first
-			console.log(
-				`${MODULE_TAG} Silent retrieval failed due to missing credentials - showing modal for configuration`
-			);
 			setShowModal(true);
 			return;
 		}
 
-		// Silent retrieval failed for other reasons - but since silentApiRetrieval is ON and not forced, don't show modal
-		console.log(
-			`${MODULE_TAG} 🎯 DEBUG: NOT showing modal - silentApiRetrieval=true and not forced`
-		);
-		console.log(
-			`${MODULE_TAG} Silent retrieval failed, but silentApiRetrieval is ON - not showing modal (truly silent)`
-		);
 		return;
 	}
 
 	// silentApiRetrieval is OFF - show modal if showTokenAtEnd is ON OR if user explicitly clicked button
 	if (forceShowModal || showTokenAtEnd) {
-		console.log(
-			`${MODULE_TAG} Showing modal (forceShowModal: ${forceShowModal}, showTokenAtEnd: ${showTokenAtEnd})`
-		);
 		setShowModal(true);
 	} else {
-		console.log(
-			`${MODULE_TAG} Silent API retrieval is OFF and showTokenAtEnd is OFF - not showing modal`
-		);
 	}
 }

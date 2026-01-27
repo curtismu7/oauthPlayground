@@ -39,7 +39,6 @@ class UnifiedWorkerTokenServiceV2 {
 	 * Save worker token credentials
 	 */
 	async saveCredentials(credentials: UnifiedWorkerTokenCredentials): Promise<void> {
-		console.log(`${MODULE_TAG} Saving worker token credentials`);
 
 		// Validate credentials first
 		const validation = this.validateCredentials(credentials);
@@ -48,33 +47,27 @@ class UnifiedWorkerTokenServiceV2 {
 		}
 
 		await workerTokenRepository.saveCredentials(credentials);
-		console.log(`${MODULE_TAG} ✅ Worker token credentials saved`);
 	}
 
 	/**
 	 * Load worker token credentials
 	 */
 	async loadCredentials(): Promise<UnifiedWorkerTokenCredentials | null> {
-		console.log(`${MODULE_TAG} 🔍 Loading credentials...`);
 
 		// Try repository first
 		let credentials = await workerTokenRepository.loadCredentials();
 
 		if (credentials) {
-			console.log(`${MODULE_TAG} ✅ Loaded credentials from repository`);
 			return credentials;
 		}
 
 		// Try legacy migration
-		console.log(`${MODULE_TAG} 🔍 Trying legacy migration...`);
 		credentials = await workerTokenRepository.migrateLegacyCredentials();
 
 		if (credentials) {
-			console.log(`${MODULE_TAG} ✅ Migrated legacy credentials`);
 			return credentials;
 		}
 
-		console.log(`${MODULE_TAG} ❌ No credentials found`);
 		return null;
 	}
 
@@ -90,7 +83,6 @@ class UnifiedWorkerTokenServiceV2 {
 			scope?: string;
 		}
 	): Promise<void> {
-		console.log(`${MODULE_TAG} Saving worker token`);
 
 		const metadata = {
 			expiresAt: expiresAt || Date.now() + 3600 * 1000, // Default 1 hour
@@ -107,21 +99,17 @@ class UnifiedWorkerTokenServiceV2 {
 			scope: metadata.scope,
 		});
 
-		console.log(`${MODULE_TAG} ✅ Worker token saved`);
 	}
 
 	/**
 	 * Get worker token (access token) if valid
 	 */
 	async getToken(): Promise<string | null> {
-		console.log(`${MODULE_TAG} Getting token...`);
 
 		const token = await workerTokenRepository.getToken();
 
 		if (token) {
-			console.log(`${MODULE_TAG} ✅ Token retrieved successfully`);
 		} else {
-			console.log(`${MODULE_TAG} ❌ No valid token available`);
 		}
 
 		return token;
@@ -131,16 +119,9 @@ class UnifiedWorkerTokenServiceV2 {
 	 * Get worker token status
 	 */
 	async getStatus(): Promise<UnifiedWorkerTokenStatus> {
-		console.log(`${MODULE_TAG} Getting status...`);
 
 		const status = await workerTokenRepository.getStatus();
 
-		console.log(`${MODULE_TAG} Status:`, {
-			hasCredentials: status.hasCredentials,
-			hasToken: status.hasToken,
-			tokenValid: status.tokenValid,
-			tokenExpiresIn: status.tokenExpiresIn,
-		});
 
 		return status;
 	}
@@ -229,22 +210,18 @@ class UnifiedWorkerTokenServiceV2 {
 	 * Clear worker token credentials
 	 */
 	async clearCredentials(): Promise<void> {
-		console.log(`${MODULE_TAG} Clearing credentials...`);
 
 		await workerTokenRepository.clearCredentials();
 
-		console.log(`${MODULE_TAG} ✅ Cleared all worker token data`);
 	}
 
 	/**
 	 * Clear only the access token (keep credentials)
 	 */
 	async clearToken(): Promise<void> {
-		console.log(`${MODULE_TAG} Clearing token...`);
 
 		await workerTokenRepository.clearToken();
 
-		console.log(`${MODULE_TAG} ✅ Cleared worker token`);
 	}
 
 	/**
