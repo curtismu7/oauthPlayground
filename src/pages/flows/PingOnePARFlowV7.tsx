@@ -2411,7 +2411,8 @@ password=[your-password]`}
 						<h3>Token Exchange</h3>
 						<p>Exchange authorization code for access tokens.</p>
 
-						<button
+						<div style={{ display: 'flex', justifyContent: 'center' }}>
+							<button
 							onClick={async () => {
 								// Exchange authorization code for tokens
 								if (!controller.authCode) {
@@ -2446,6 +2447,7 @@ password=[your-password]`}
 						>
 							Exchange Code for Tokens
 						</button>
+						</div>
 
 						{controller.tokens?.accessToken ? (
 							<div style={{ marginTop: '1rem' }}>
