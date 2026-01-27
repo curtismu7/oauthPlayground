@@ -95,15 +95,21 @@ const ChevronIcon = styled.div.withConfig({
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	width: 32px;
+	height: 32px;
+	background-color: #3b82f6;
+	border-radius: 6px;
+	border: 1px solid #2563eb;
+	transition: all 0.2s ease;
 
 	svg {
 		color: #ffffff;
 	}
 
 	&:hover {
-		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')} scale(1.1);
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')} scale(1.05);
+		background-color: #2563eb;
 	}
-
 	&:active {
 		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')} scale(1.05);
 	}
