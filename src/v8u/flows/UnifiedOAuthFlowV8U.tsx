@@ -538,6 +538,31 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Worker token status section collapsed state - collapsed by default
 	const [isWorkerTokenStatusCollapsed, setIsWorkerTokenStatusCollapsed] = useState(true);
 
+	// Worker token configuration state
+	const [workerTokenConfig, setWorkerTokenConfig] = useState(() => {
+		const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
+		const config = MFAConfigurationServiceV8.loadConfiguration();
+		return {
+			silentApiRetrieval: config.workerToken.silentApiRetrieval,
+			showTokenAtEnd: config.workerToken.showTokenAtEnd,
+		};
+	});
+
+	// Listen for config updates
+	useEffect(() => {
+		const handleConfigUpdate = () => {
+			const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
+			const config = MFAConfigurationServiceV8.loadConfiguration();
+			setWorkerTokenConfig({
+				silentApiRetrieval: config.workerToken.silentApiRetrieval,
+				showTokenAtEnd: config.workerToken.showTokenAtEnd,
+			});
+		};
+
+		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate);
+		return () => window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
+	}, []);
+
 	// Advanced features state
 	const [advancedFeatures, setAdvancedFeatures] = useState<string[]>([]);
 
@@ -2372,6 +2397,119 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				{/* Worker Token Status Content */}
 				{!isWorkerTokenStatusCollapsed && (
 					<div style={{ padding: '20px' }}>
+						{/* Get Worker Token Button & Checkboxes */}
+						<div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+							<button
+								type="button"
+								onClick={async () => {
+									const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+									await handleShowWorkerTokenModal(
+										() => {}, // setShowModal - not needed here
+										undefined, // setTokenStatus - not needed here
+										undefined, // silentApiRetrieval override
+										undefined, // showTokenAtEnd override
+										true // forceShowModal - always show when user clicks button
+									);
+								}}
+								style={{
+									padding: '10px 20px',
+									border: 'none',
+									borderRadius: '8px',
+									background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+									color: 'white',
+									cursor: 'pointer',
+									fontWeight: '600',
+									fontSize: '14px',
+									transition: 'all 0.2s ease',
+									boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									gap: '8px',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.transform = 'translateY(-1px)';
+									e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.4)';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.transform = 'translateY(0)';
+									e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.3)';
+								}}
+							>
+								<span style={{ fontSize: '16px' }}>🔑</span>
+								<span>Get Worker Token</span>
+							</button>
+
+							{/* Worker Token Settings */}
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingLeft: '4px' }}>
+								<label
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '10px',
+										cursor: 'pointer',
+										fontSize: '14px',
+										color: '#4b5563',
+										fontWeight: '500',
+									}}
+								>
+									<input
+										type="checkbox"
+										checked={workerTokenConfig.silentApiRetrieval}
+										onChange={(e) => {
+											const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
+											const config = MFAConfigurationServiceV8.loadConfiguration();
+											config.workerToken.silentApiRetrieval = e.target.checked;
+											MFAConfigurationServiceV8.saveConfiguration(config);
+											setWorkerTokenConfig(prev => ({ ...prev, silentApiRetrieval: e.target.checked }));
+											window.dispatchEvent(new Event('mfaConfigurationUpdated'));
+										}}
+										style={{
+											width: '18px',
+											height: '18px',
+											cursor: 'pointer',
+											accentColor: '#3b82f6',
+										}}
+									/>
+									<span>Silent API Retrieval</span>
+									<span style={{ fontSize: '12px', color: '#9ca3af' }}>(auto-refresh token)</span>
+								</label>
+
+								<label
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '10px',
+										cursor: 'pointer',
+										fontSize: '14px',
+										color: '#4b5563',
+										fontWeight: '500',
+									}}
+								>
+									<input
+										type="checkbox"
+										checked={workerTokenConfig.showTokenAtEnd}
+										onChange={(e) => {
+											const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
+											const config = MFAConfigurationServiceV8.loadConfiguration();
+											config.workerToken.showTokenAtEnd = e.target.checked;
+											MFAConfigurationServiceV8.saveConfiguration(config);
+											setWorkerTokenConfig(prev => ({ ...prev, showTokenAtEnd: e.target.checked }));
+											window.dispatchEvent(new Event('mfaConfigurationUpdated'));
+										}}
+										style={{
+											width: '18px',
+											height: '18px',
+											cursor: 'pointer',
+											accentColor: '#3b82f6',
+										}}
+									/>
+									<span>Show Token After Generation</span>
+									<span style={{ fontSize: '12px', color: '#9ca3af' }}>(display in modal)</span>
+								</label>
+							</div>
+						</div>
+
 						<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
 					</div>
 				)}
