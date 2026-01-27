@@ -1859,6 +1859,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				</div>
 			</PageHeaderV8>
 
+			{/* Navigation Bar with API Display Toggle */}
+			<UnifiedNavigationV8U currentFlowType={effectiveFlowType} showBackToMain={true} />
+
 			{/* Compact Selectors Row with API Docs Link */}
 			<div
 				style={{
