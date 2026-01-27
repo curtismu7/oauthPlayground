@@ -9469,7 +9469,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}
 
 					// Handle non-200 responses
-					let errorData;
+					let errorData: unknown;
 					let responseText = '';
 					try {
 						responseText = await response.text();
@@ -13161,10 +13161,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		if (!showPollingTimeoutModal) return null;
 
 		return (
-			<div
-				role="dialog"
-				aria-modal="true"
-				aria-labelledby="polling-timeout-title"
+			<button
+				type="button"
 				style={{
 					display: showPollingTimeoutModal ? 'flex' : 'none',
 					position: 'fixed',
@@ -13177,6 +13175,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					justifyContent: 'center',
 					zIndex: 10000,
 					padding: '20px',
+					border: 'none',
+					cursor: 'pointer',
 				}}
 				onClick={() => setShowPollingTimeoutModal(false)}
 				onKeyDown={(e) => {
@@ -13184,6 +13184,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						setShowPollingTimeoutModal(false);
 					}
 				}}
+				aria-label="Close modal"
 			>
 				<div
 					style={{
@@ -13336,7 +13337,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						</button>
 					</div>
 				</div>
-			</div>
+			</button>
 		);
 	};
 
@@ -13349,6 +13350,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				role="dialog"
 				aria-modal="true"
 				aria-labelledby="device-code-success-title"
+				tabIndex={0}
 				style={{
 					display: showDeviceCodeSuccessModal ? 'flex' : 'none',
 					position: 'fixed',
@@ -13493,6 +13495,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				role="dialog"
 				aria-modal="true"
 				aria-labelledby={callbackSuccessModalTitleId}
+				tabIndex={0}
 				style={{
 					display: showCallbackSuccessModal ? 'flex' : 'none',
 					position: 'fixed',
@@ -14498,6 +14501,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						zIndex: 10000,
 					}}
 					onClick={() => setShowPingOneRequestModal(false)}
+					onKeyDown={(e) => {
+						if (e.key === 'Escape') {
+							setShowPingOneRequestModal(false);
+						}
+					}}
+					role="button"
+					tabIndex={0}
+					aria-label="Close modal"
 				>
 					<div
 						style={{
