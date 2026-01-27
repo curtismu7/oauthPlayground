@@ -35,7 +35,6 @@ export interface FlowSettings {
 	specVersion: SpecVersion;
 	lastUsed: number; // Timestamp
 	credentialsCollapsed?: boolean; // UI state
-	advancedFeatures?: string[]; // Advanced OAuth features (PAR, JAR, MTLS, DPoP)
 }
 
 const STORAGE_PREFIX = 'v8u_flow_settings_';
@@ -56,15 +55,15 @@ export function loadSettings(flowType: FlowType): FlowSettings | null {
 		const stored = localStorage.getItem(key);
 
 		if (!stored) {
-			logger.debug(No settings found for flow`, { flowType });
+			console.log(`${MODULE_TAG} No settings found for flow`, { flowType });
 			return null;
 		}
 
 		const settings = JSON.parse(stored) as FlowSettings;
-		logger.debug(Loaded settings for flow`, { flowType, settings });
+		console.log(`${MODULE_TAG} Loaded settings for flow`, { flowType, settings });
 		return settings;
 	} catch (err) {
-		logger.error(Error loading settings for flow`, { flowType, err });
+		console.error(`${MODULE_TAG} Error loading settings for flow`, { flowType, err });
 		return null;
 	}
 }
@@ -89,9 +88,9 @@ export function saveSettings(flowType: FlowType, settings: Partial<FlowSettings>
 		};
 
 		localStorage.setItem(key, JSON.stringify(updated));
-		logger.debug(Saved settings for flow`, { flowType, updated });
+		console.log(`${MODULE_TAG} Saved settings for flow`, { flowType, updated });
 	} catch (err) {
-		logger.error(Error saving settings for flow`, { flowType, err });
+		console.error(`${MODULE_TAG} Error saving settings for flow`, { flowType, err });
 	}
 }
 
@@ -128,7 +127,7 @@ export function getAllSettings(): Record<FlowType, FlowSettings | null> {
 		allSettings[flowType] = loadSettings(flowType);
 	}
 
-	logger.debug(All flow settings`, allSettings);
+	console.log(`${MODULE_TAG} All flow settings`, allSettings);
 	return allSettings as Record<FlowType, FlowSettings | null>;
 }
 
@@ -139,9 +138,9 @@ export function clearSettings(flowType: FlowType): void {
 	try {
 		const key = getStorageKey(flowType);
 		localStorage.removeItem(key);
-		logger.debug(Cleared settings for flow`, { flowType });
+		console.log(`${MODULE_TAG} Cleared settings for flow`, { flowType });
 	} catch (err) {
-		logger.error(Error clearing settings for flow`, { flowType, err });
+		console.error(`${MODULE_TAG} Error clearing settings for flow`, { flowType, err });
 	}
 }
 
@@ -149,66 +148,20 @@ export function clearSettings(flowType: FlowType): void {
  * Clear all flow settings
  */
 export function clearAllSettings(): void {
-	try {
-		const flowTypes: FlowType[] = [
-			'oauth-authz',
-			'implicit',
-			'client-credentials',
-			'ropc',
-			'device-code',
-			'hybrid',
-		];
+	const flowTypes: FlowType[] = [
+		'oauth-authz',
+		'implicit',
+		'client-credentials',
+		'ropc',
+		'device-code',
+		'hybrid',
+	];
 
-		for (const flowType of flowTypes) {
-			const key = getStorageKey(flowType);
-			localStorage.removeItem(key);
-		}
-
-		logger.debug(Cleared all flow settings`);
-	} catch (err) {
-		logger.error(Error clearing all flow settings`, err);
+	for (const flowType of flowTypes) {
+		clearSettings(flowType);
 	}
-}
 
-/**
- * Get advanced features for a flow type
- */
-export function getAdvancedFeatures(flowType: FlowType): string[] {
-	const settings = loadSettings(flowType);
-	return settings?.advancedFeatures || [];
-}
-
-/**
- * Save advanced features for a flow type
- */
-export function saveAdvancedFeatures(flowType: FlowType, features: string[]): void {
-	saveSettings(flowType, { advancedFeatures: features });
-}
-
-/**
- * Toggle an advanced feature for a flow type
- */
-export function toggleAdvancedFeature(flowType: FlowType, featureId: string): void {
-	const currentFeatures = getAdvancedFeatures(flowType);
-	const isEnabled = currentFeatures.includes(featureId);
-
-	if (isEnabled) {
-		// Remove feature
-		const updatedFeatures = currentFeatures.filter((f) => f !== featureId);
-		saveAdvancedFeatures(flowType, updatedFeatures);
-	} else {
-		// Add feature
-		const updatedFeatures = [...currentFeatures, featureId];
-		saveAdvancedFeatures(flowType, updatedFeatures);
-	}
-}
-
-/**
- * Check if an advanced feature is enabled for a flow type
- */
-export function isAdvancedFeatureEnabled(flowType: FlowType, featureId: string): boolean {
-	const features = getAdvancedFeatures(flowType);
-	return features.includes(featureId);
+	console.log(`${MODULE_TAG} Cleared all flow settings`);
 }
 
 /**
@@ -229,7 +182,7 @@ export function getMostRecentFlow(): FlowType | null {
 		}
 	}
 
-	logger.debug(Most recent flow`, mostRecent);
+	console.log(`${MODULE_TAG} Most recent flow`, mostRecent);
 	return mostRecent?.flowType || null;
 }
 
