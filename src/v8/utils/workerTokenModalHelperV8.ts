@@ -231,7 +231,8 @@ export async function handleShowWorkerTokenModal(
 	setTokenStatus?: (status: TokenStatusInfo) => void | Promise<void>,
 	overrideSilentApiRetrieval?: boolean,
 	overrideShowTokenAtEnd?: boolean,
-	forceShowModal: boolean = false // Default to false for automatic calls
+	forceShowModal: boolean = false, // Default to false for automatic calls
+	setSilentLoading?: (loading: boolean) => void // New parameter for loading state
 ): Promise<void> {
 	// #region agent log
 	// #endregion
@@ -309,9 +310,20 @@ export async function handleShowWorkerTokenModal(
 		console.log(
 			`${MODULE_TAG} 🎯 DEBUG: forceShowModal=${forceShowModal}, showTokenAtEnd=${showTokenAtEnd}`
 		);
+		
+		// Show loading state during silent retrieval
+		if (setSilentLoading) {
+			setSilentLoading(true);
+		}
+		
 		// #region agent log
 		// #endregion
 		const silentRetrievalSucceeded = await attemptSilentTokenRetrieval(silentApiRetrieval);
+		
+		// Hide loading state
+		if (setSilentLoading) {
+			setSilentLoading(false);
+		}
 		console.log(`${MODULE_TAG} 🎯 DEBUG: Silent retrieval result=${silentRetrievalSucceeded}`);
 		// #region agent log
 		// #endregion
