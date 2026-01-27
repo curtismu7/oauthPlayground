@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiX, FiLoader } from 'react-icons/fi';
+import { FiLoader, FiX } from 'react-icons/fi';
 import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
 
 export interface MFAPushConfirmationModalProps {
@@ -7,7 +7,10 @@ export interface MFAPushConfirmationModalProps {
 	onClose: () => void;
 }
 
-export const MFAPushConfirmationModal: React.FC<MFAPushConfirmationModalProps> = ({ show, onClose }) => {
+export const MFAPushConfirmationModal: React.FC<MFAPushConfirmationModalProps> = ({
+	show,
+	onClose,
+}) => {
 	if (!show) return null;
 
 	return (

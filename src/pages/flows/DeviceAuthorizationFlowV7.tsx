@@ -1672,12 +1672,14 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			sessionStorage.removeItem('config-checker-last-check');
 			sessionStorage.removeItem('pingone-app-cache');
 			localStorage.removeItem('pingone-applications-cache');
-			
+
 			// Clear any worker token related cache that might be used for pre-flight checks
 			sessionStorage.removeItem('worker-token-cache');
 			localStorage.removeItem('worker-apps-cache');
-			
-			console.log('🔄 [DeviceAuthorizationFlowV7] Reset: cleared ConfigChecker and pre-flight cache data');
+
+			console.log(
+				'🔄 [DeviceAuthorizationFlowV7] Reset: cleared ConfigChecker and pre-flight cache data'
+			);
 		} catch (error) {
 			console.warn('[DeviceAuthorizationFlowV7] Failed to clear cache data:', error);
 		}

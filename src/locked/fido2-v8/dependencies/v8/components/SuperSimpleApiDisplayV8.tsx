@@ -1585,742 +1585,776 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 									minWidth: '600px',
 								}}
 							>
-							<thead
-								style={{
-									background: '#f3f4f6',
-									position: 'sticky',
-									top: `${headerHeight}px`,
-									zIndex: 1,
-								}}
-							>
-								<tr>
-									<th
-										style={{
-											padding: '6px 12px',
-											textAlign: 'center',
-											color: '#374151',
-											fontWeight: '600',
-											width: '50px',
-											borderBottom: '1px solid #e5e7eb',
-											fontSize: `${fontSize}px`,
-										}}
-									>
-										Type
-									</th>
-									<th
-										style={{
-											padding: '6px 12px',
-											textAlign: 'left',
-											color: '#374151',
-											fontWeight: '600',
-											width: '50px',
-											borderBottom: '1px solid #e5e7eb',
-											fontSize: `${fontSize}px`,
-										}}
-									>
-										Status
-									</th>
-									<th
-										style={{
-											padding: '6px 12px',
-											textAlign: 'left',
-											color: '#374151',
-											fontWeight: '600',
-											width: '80px',
-											borderBottom: '1px solid #e5e7eb',
-											fontSize: `${fontSize}px`,
-										}}
-									>
-										Method
-									</th>
-									<th
-										style={{
-											padding: '6px 12px',
-											textAlign: 'left',
-											color: '#374151',
-											fontWeight: '600',
-											width: '60px',
-											borderBottom: '1px solid #e5e7eb',
-											fontSize: `${fontSize}px`,
-										}}
-									>
-										Code
-									</th>
-									<th
-										style={{
-											padding: '6px 12px',
-											textAlign: 'left',
-											color: '#374151',
-											fontWeight: '600',
-											borderBottom: '1px solid #e5e7eb',
-											fontSize: `${fontSize}px`,
-										}}
-									>
-										URL
-									</th>
-									<th
-										style={{
-											padding: '6px 12px',
-											textAlign: 'left',
-											color: '#374151',
-											fontWeight: '600',
-											width: '100px',
-											borderBottom: '1px solid #e5e7eb',
-											fontSize: `${fontSize}px`,
-										}}
-									>
-										Time
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								{apiCalls.length === 0 && (
+								<thead
+									style={{
+										background: '#f3f4f6',
+										position: 'sticky',
+										top: `${headerHeight}px`,
+										zIndex: 1,
+									}}
+								>
 									<tr>
-										<td colSpan={6} style={{ padding: '40px 20px', textAlign: 'center', paddingTop: `${headerHeight + 40}px` }}>
-											<div style={{ color: '#9ca3af', fontSize: `${fontSize + 2}px` }}>
-												<div style={{ fontSize: `${fontSize * 2.5}px`, marginBottom: '12px' }}>
-													⚡
-												</div>
-												<div
-													style={{
-														fontWeight: '600',
-														marginBottom: '4px',
-														color: '#6b7280',
-														fontSize: `${fontSize + 2}px`,
-													}}
-												>
-													No API Calls Yet
-												</div>
-												<div style={{ fontSize: `${fontSize}px` }}>
-													API calls will appear here as you use the flow
-												</div>
-											</div>
-										</td>
+										<th
+											style={{
+												padding: '6px 12px',
+												textAlign: 'center',
+												color: '#374151',
+												fontWeight: '600',
+												width: '50px',
+												borderBottom: '1px solid #e5e7eb',
+												fontSize: `${fontSize}px`,
+											}}
+										>
+											Type
+										</th>
+										<th
+											style={{
+												padding: '6px 12px',
+												textAlign: 'left',
+												color: '#374151',
+												fontWeight: '600',
+												width: '50px',
+												borderBottom: '1px solid #e5e7eb',
+												fontSize: `${fontSize}px`,
+											}}
+										>
+											Status
+										</th>
+										<th
+											style={{
+												padding: '6px 12px',
+												textAlign: 'left',
+												color: '#374151',
+												fontWeight: '600',
+												width: '80px',
+												borderBottom: '1px solid #e5e7eb',
+												fontSize: `${fontSize}px`,
+											}}
+										>
+											Method
+										</th>
+										<th
+											style={{
+												padding: '6px 12px',
+												textAlign: 'left',
+												color: '#374151',
+												fontWeight: '600',
+												width: '60px',
+												borderBottom: '1px solid #e5e7eb',
+												fontSize: `${fontSize}px`,
+											}}
+										>
+											Code
+										</th>
+										<th
+											style={{
+												padding: '6px 12px',
+												textAlign: 'left',
+												color: '#374151',
+												fontWeight: '600',
+												borderBottom: '1px solid #e5e7eb',
+												fontSize: `${fontSize}px`,
+											}}
+										>
+											URL
+										</th>
+										<th
+											style={{
+												padding: '6px 12px',
+												textAlign: 'left',
+												color: '#374151',
+												fontWeight: '600',
+												width: '100px',
+												borderBottom: '1px solid #e5e7eb',
+												fontSize: `${fontSize}px`,
+											}}
+										>
+											Time
+										</th>
 									</tr>
-								)}
-								{apiCalls.length > 0 &&
-									apiCalls.map((call, index) => {
-										const apiType = getApiTypeIcon(
-											call as { url?: string; actualPingOneUrl?: string; isProxy?: boolean }
-										);
-										return (
-											<React.Fragment key={call.id}>
-												{/* Main Row */}
-												<tr
-													onClick={() => toggleExpand(call.id)}
-													style={{
-														cursor: 'pointer',
-														background: isExpanded(call.id) ? '#f3f4f6' : 'white',
-														borderBottom: '1px solid #e5e7eb',
-													}}
-													onMouseEnter={(e) => {
-														if (!isExpanded(call.id)) {
-															e.currentTarget.style.background = '#f9fafb';
-														}
-													}}
-													onMouseLeave={(e) => {
-														if (!isExpanded(call.id)) {
-															e.currentTarget.style.background = 'white';
-														}
-													}}
-												>
-													<td
+								</thead>
+								<tbody>
+									{apiCalls.length === 0 && (
+										<tr>
+											<td
+												colSpan={6}
+												style={{
+													padding: '40px 20px',
+													textAlign: 'center',
+													paddingTop: `${headerHeight + 40}px`,
+												}}
+											>
+												<div style={{ color: '#9ca3af', fontSize: `${fontSize + 2}px` }}>
+													<div style={{ fontSize: `${fontSize * 2.5}px`, marginBottom: '12px' }}>
+														⚡
+													</div>
+													<div
 														style={{
-															padding: index === 0 ? `${12 + headerHeight}px 16px 12px 16px` : '12px 16px',
-															textAlign: 'center',
-															fontSize: `${fontSize + 4}px`,
+															fontWeight: '600',
+															marginBottom: '4px',
+															color: '#6b7280',
+															fontSize: `${fontSize + 2}px`,
 														}}
-														title={apiType.label}
 													>
-														{apiType.icon}
-													</td>
-													<td style={{ 
-														padding: index === 0 ? `${12 + headerHeight}px 16px 12px 16px` : '12px 16px', 
-														fontSize: `${fontSize + 4}px` 
-													}}>
-														{getStatusDot(call.response?.status)}
-													</td>
-													<td style={{ padding: index === 0 ? `${12 + headerHeight}px 16px 12px 16px` : '12px 16px' }}>
-														<span
+														No API Calls Yet
+													</div>
+													<div style={{ fontSize: `${fontSize}px` }}>
+														API calls will appear here as you use the flow
+													</div>
+												</div>
+											</td>
+										</tr>
+									)}
+									{apiCalls.length > 0 &&
+										apiCalls.map((call, index) => {
+											const apiType = getApiTypeIcon(
+												call as { url?: string; actualPingOneUrl?: string; isProxy?: boolean }
+											);
+											return (
+												<React.Fragment key={call.id}>
+													{/* Main Row */}
+													<tr
+														onClick={() => toggleExpand(call.id)}
+														style={{
+															cursor: 'pointer',
+															background: isExpanded(call.id) ? '#f3f4f6' : 'white',
+															borderBottom: '1px solid #e5e7eb',
+														}}
+														onMouseEnter={(e) => {
+															if (!isExpanded(call.id)) {
+																e.currentTarget.style.background = '#f9fafb';
+															}
+														}}
+														onMouseLeave={(e) => {
+															if (!isExpanded(call.id)) {
+																e.currentTarget.style.background = 'white';
+															}
+														}}
+													>
+														<td
 															style={{
-																padding: '3px 8px',
-																background:
-																	call.method === 'GET'
-																		? '#3b82f6'
-																		: call.method === 'POST'
-																			? '#10b981'
-																			: call.method === 'DELETE'
-																				? '#ef4444'
-																				: call.method === 'PATCH'
-																					? '#f59e0b'
-																					: '#6b7280',
-																color: 'white',
-																borderRadius: '3px',
-																fontSize: `${Math.max(8, fontSize - 2)}px`,
-																fontWeight: 'bold',
+																padding:
+																	index === 0
+																		? `${12 + headerHeight}px 16px 12px 16px`
+																		: '12px 16px',
+																textAlign: 'center',
+																fontSize: `${fontSize + 4}px`,
+															}}
+															title={apiType.label}
+														>
+															{apiType.icon}
+														</td>
+														<td
+															style={{
+																padding:
+																	index === 0
+																		? `${12 + headerHeight}px 16px 12px 16px`
+																		: '12px 16px',
+																fontSize: `${fontSize + 4}px`,
 															}}
 														>
-															{call.method}
-														</span>
-													</td>
-													<td style={{ padding: index === 0 ? `${12 + headerHeight}px 8px 8px 8px` : '8px' }}>
-														<span
+															{getStatusDot(call.response?.status)}
+														</td>
+														<td
 															style={{
-																color: call.response?.status
-																	? call.response.status >= 200 && call.response.status < 300
-																		? '#10b981'
-																		: call.response.status >= 400
-																			? '#ef4444'
-																			: '#f59e0b'
-																	: '#6b7280',
-																fontWeight: 'bold',
+																padding:
+																	index === 0
+																		? `${12 + headerHeight}px 16px 12px 16px`
+																		: '12px 16px',
+															}}
+														>
+															<span
+																style={{
+																	padding: '3px 8px',
+																	background:
+																		call.method === 'GET'
+																			? '#3b82f6'
+																			: call.method === 'POST'
+																				? '#10b981'
+																				: call.method === 'DELETE'
+																					? '#ef4444'
+																					: call.method === 'PATCH'
+																						? '#f59e0b'
+																						: '#6b7280',
+																	color: 'white',
+																	borderRadius: '3px',
+																	fontSize: `${Math.max(8, fontSize - 2)}px`,
+																	fontWeight: 'bold',
+																}}
+															>
+																{call.method}
+															</span>
+														</td>
+														<td
+															style={{
+																padding: index === 0 ? `${12 + headerHeight}px 8px 8px 8px` : '8px',
+															}}
+														>
+															<span
+																style={{
+																	color: call.response?.status
+																		? call.response.status >= 200 && call.response.status < 300
+																			? '#10b981'
+																			: call.response.status >= 400
+																				? '#ef4444'
+																				: '#f59e0b'
+																		: '#6b7280',
+																	fontWeight: 'bold',
+																	fontSize: `${fontSize}px`,
+																}}
+															>
+																{call.response?.status
+																	? `${call.response.status} ${getStatusLabel(call.response.status)}`
+																	: '...'}
+															</span>
+														</td>
+														<td
+															style={{
+																padding:
+																	index === 0
+																		? `${12 + headerHeight}px 16px 12px 16px`
+																		: '12px 16px',
+																color: '#1f2937',
 																fontSize: `${fontSize}px`,
 															}}
 														>
-															{call.response?.status
-																? `${call.response.status} ${getStatusLabel(call.response.status)}`
-																: '...'}
-														</span>
-													</td>
-													<td
-														style={{
-															padding: index === 0 ? `${12 + headerHeight}px 16px 12px 16px` : '12px 16px',
-															color: '#1f2937',
-															fontSize: `${fontSize}px`,
-														}}
-													>
-														{isProxyCall(call) && (
-															<span
-																style={{
-																	padding: '1px 4px',
-																	background: '#374151',
-																	color: '#9ca3af',
-																	borderRadius: '2px',
-																	fontSize: '9px',
-																	marginRight: '6px',
-																}}
-															>
-																PROXY
-															</span>
-														)}
-														{_getShortUrl(call.actualPingOneUrl || call.url)}
-													</td>
-													<td
-														style={{
-															padding: index === 0 ? `${12 + headerHeight}px 16px 12px 16px` : '12px 16px',
-															color: '#6b7280',
-															fontSize: `${fontSize}px`,
-														}}
-													>
-														{new Date(call.timestamp).toLocaleTimeString()}
-													</td>
-												</tr>
-
-												{/* Expanded Details Row */}
-												{isExpanded(call.id) && (
-													<tr key={`expanded-${call.id}`} style={{ background: '#f9fafb' }}>
+															{isProxyCall(call) && (
+																<span
+																	style={{
+																		padding: '1px 4px',
+																		background: '#374151',
+																		color: '#9ca3af',
+																		borderRadius: '2px',
+																		fontSize: '9px',
+																		marginRight: '6px',
+																	}}
+																>
+																	PROXY
+																</span>
+															)}
+															{_getShortUrl(call.actualPingOneUrl || call.url)}
+														</td>
 														<td
-															colSpan={6}
 															style={{
-																padding: '12px',
-																borderBottom: '1px solid #e5e7eb',
-																maxWidth: '100%',
-																overflow: 'visible',
+																padding:
+																	index === 0
+																		? `${12 + headerHeight}px 16px 12px 16px`
+																		: '12px 16px',
+																color: '#6b7280',
+																fontSize: `${fontSize}px`,
 															}}
 														>
-															<div
+															{new Date(call.timestamp).toLocaleTimeString()}
+														</td>
+													</tr>
+
+													{/* Expanded Details Row */}
+													{isExpanded(call.id) && (
+														<tr key={`expanded-${call.id}`} style={{ background: '#f9fafb' }}>
+															<td
+																colSpan={6}
 																style={{
-																	display: 'grid',
-																	gap: '12px',
+																	padding: '12px',
+																	borderBottom: '1px solid #e5e7eb',
 																	maxWidth: '100%',
 																	overflow: 'visible',
 																}}
 															>
-																{/* API Call (Method + URL) - Quick Copy for Debugging */}
 																<div
 																	style={{
-																		padding: '8px 12px',
-																		background: '#f3f4f6',
-																		borderRadius: '4px',
-																		border: '1px solid #e5e7eb',
+																		display: 'grid',
+																		gap: '12px',
+																		maxWidth: '100%',
+																		overflow: 'visible',
 																	}}
 																>
+																	{/* API Call (Method + URL) - Quick Copy for Debugging */}
 																	<div
 																		style={{
-																			display: 'flex',
-																			alignItems: 'center',
-																			justifyContent: 'space-between',
-																			marginBottom: '4px',
+																			padding: '8px 12px',
+																			background: '#f3f4f6',
+																			borderRadius: '4px',
+																			border: '1px solid #e5e7eb',
 																		}}
 																	>
 																		<div
 																			style={{
-																				color: '#6b7280',
-																				fontSize: '10px',
-																				fontWeight: '600',
+																				display: 'flex',
+																				alignItems: 'center',
+																				justifyContent: 'space-between',
+																				marginBottom: '4px',
 																			}}
 																		>
-																			API CALL ({call.method}):
-																		</div>
-																		<button
-																			type="button"
-																			onClick={(e) => {
-																				e.stopPropagation();
-																				const apiCallText = `${call.method} ${(call as { actualPingOneUrl?: string }).actualPingOneUrl || call.url || ''}`;
-																				handleCopy(apiCallText, `apiCall-${call.id}`);
-																			}}
-																			style={{
-																				padding: '4px 8px',
-																				background:
-																					copiedField === `apiCall-${call.id}`
-																						? '#10b981'
-																						: '#3b82f6',
-																				color: 'white',
-																				border: 'none',
-																				borderRadius: '3px',
-																				fontSize: '10px',
-																				cursor: 'pointer',
-																				fontWeight: '600',
-																			}}
-																			title="Copy API call (method + URL) for debugging"
-																		>
-																			{copiedField === `apiCall-${call.id}`
-																				? '✓ Copied'
-																				: '📋 Copy API Call'}
-																		</button>
-																	</div>
-																	<div
-																		style={{
-																			color: '#1f2937',
-																			fontSize: '11px',
-																			wordBreak: 'break-all',
-																			fontFamily: 'monospace',
-																		}}
-																	>
-																		<span
-																			style={{
-																				padding: '2px 6px',
-																				background:
-																					call.method === 'GET'
-																						? '#3b82f6'
-																						: call.method === 'POST'
+																			<div
+																				style={{
+																					color: '#6b7280',
+																					fontSize: '10px',
+																					fontWeight: '600',
+																				}}
+																			>
+																				API CALL ({call.method}):
+																			</div>
+																			<button
+																				type="button"
+																				onClick={(e) => {
+																					e.stopPropagation();
+																					const apiCallText = `${call.method} ${(call as { actualPingOneUrl?: string }).actualPingOneUrl || call.url || ''}`;
+																					handleCopy(apiCallText, `apiCall-${call.id}`);
+																				}}
+																				style={{
+																					padding: '4px 8px',
+																					background:
+																						copiedField === `apiCall-${call.id}`
 																							? '#10b981'
-																							: call.method === 'DELETE'
-																								? '#ef4444'
-																								: '#6b7280',
-																				color: 'white',
-																				borderRadius: '2px',
-																				fontSize: '9px',
-																				fontWeight: 'bold',
-																				marginRight: '6px',
-																			}}
-																		>
-																			{call.method}
-																		</span>
-																		{(call as { actualPingOneUrl?: string }).actualPingOneUrl ||
-																			call.url ||
-																			''}
-																	</div>
-																</div>
-
-																{/* Full URL */}
-																<div>
-																	<div
-																		style={{
-																			display: 'flex',
-																			alignItems: 'center',
-																			justifyContent: 'space-between',
-																			marginBottom: '4px',
-																		}}
-																	>
+																							: '#3b82f6',
+																					color: 'white',
+																					border: 'none',
+																					borderRadius: '3px',
+																					fontSize: '10px',
+																					cursor: 'pointer',
+																					fontWeight: '600',
+																				}}
+																				title="Copy API call (method + URL) for debugging"
+																			>
+																				{copiedField === `apiCall-${call.id}`
+																					? '✓ Copied'
+																					: '📋 Copy API Call'}
+																			</button>
+																		</div>
 																		<div
 																			style={{
-																				color: '#6b7280',
-																				fontSize: '10px',
-																				fontWeight: '600',
+																				color: '#1f2937',
+																				fontSize: '11px',
+																				wordBreak: 'break-all',
+																				fontFamily: 'monospace',
 																			}}
 																		>
-																			FULL URL:
-																		</div>
-																		<button
-																			type="button"
-																			onClick={(e) => {
-																				e.stopPropagation();
-																				handleCopy(
-																					String(
-																						(call as { actualPingOneUrl?: string })
-																							.actualPingOneUrl ||
-																							call.url ||
-																							''
-																					),
-																					`url-${call.id}`
-																				);
-																			}}
-																			style={{
-																				padding: '2px 6px',
-																				background:
-																					copiedField === `url-${call.id}` ? '#10b981' : '#e5e7eb',
-																				color:
-																					copiedField === `url-${call.id}` ? 'white' : '#374151',
-																				border: 'none',
-																				borderRadius: '3px',
-																				fontSize: '9px',
-																				cursor: 'pointer',
-																				fontWeight: '600',
-																			}}
-																			title="Copy full URL"
-																		>
-																			{copiedField === `url-${call.id}` ? '✓ Copied' : '📋 Copy'}
-																		</button>
-																	</div>
-																	<div
-																		style={{
-																			color: '#2563eb',
-																			fontSize: '11px',
-																			wordBreak: 'break-all',
-																		}}
-																	>
-																		{String(
-																			(call as { actualPingOneUrl?: string }).actualPingOneUrl ||
+																			<span
+																				style={{
+																					padding: '2px 6px',
+																					background:
+																						call.method === 'GET'
+																							? '#3b82f6'
+																							: call.method === 'POST'
+																								? '#10b981'
+																								: call.method === 'DELETE'
+																									? '#ef4444'
+																									: '#6b7280',
+																					color: 'white',
+																					borderRadius: '2px',
+																					fontSize: '9px',
+																					fontWeight: 'bold',
+																					marginRight: '6px',
+																				}}
+																			>
+																				{call.method}
+																			</span>
+																			{(call as { actualPingOneUrl?: string }).actualPingOneUrl ||
 																				call.url ||
-																				''
-																		)}
+																				''}
+																		</div>
 																	</div>
-																</div>
 
-																{/* Request Headers */}
-																{(() => {
-																	const headers = (call as { headers?: Record<string, string> })
-																		.headers;
+																	{/* Full URL */}
+																	<div>
+																		<div
+																			style={{
+																				display: 'flex',
+																				alignItems: 'center',
+																				justifyContent: 'space-between',
+																				marginBottom: '4px',
+																			}}
+																		>
+																			<div
+																				style={{
+																					color: '#6b7280',
+																					fontSize: '10px',
+																					fontWeight: '600',
+																				}}
+																			>
+																				FULL URL:
+																			</div>
+																			<button
+																				type="button"
+																				onClick={(e) => {
+																					e.stopPropagation();
+																					handleCopy(
+																						String(
+																							(call as { actualPingOneUrl?: string })
+																								.actualPingOneUrl ||
+																								call.url ||
+																								''
+																						),
+																						`url-${call.id}`
+																					);
+																				}}
+																				style={{
+																					padding: '2px 6px',
+																					background:
+																						copiedField === `url-${call.id}`
+																							? '#10b981'
+																							: '#e5e7eb',
+																					color:
+																						copiedField === `url-${call.id}` ? 'white' : '#374151',
+																					border: 'none',
+																					borderRadius: '3px',
+																					fontSize: '9px',
+																					cursor: 'pointer',
+																					fontWeight: '600',
+																				}}
+																				title="Copy full URL"
+																			>
+																				{copiedField === `url-${call.id}` ? '✓ Copied' : '📋 Copy'}
+																			</button>
+																		</div>
+																		<div
+																			style={{
+																				color: '#2563eb',
+																				fontSize: '11px',
+																				wordBreak: 'break-all',
+																			}}
+																		>
+																			{String(
+																				(call as { actualPingOneUrl?: string }).actualPingOneUrl ||
+																					call.url ||
+																					''
+																			)}
+																		</div>
+																	</div>
 
-																	// #region agent log - Debug headers display
-																	if (
-																		call.url?.includes('check-fido2-assertion') ||
-																		call.url?.includes('select-device') ||
-																		call.url?.includes('validate-otp') ||
-																		call.url?.includes('initialize-device')
-																	) {
-																		console.log(
-																			'[SuperSimpleApiDisplayV8] Rendering headers section:',
-																			{
-																				callUrl: call.url,
-																				callId: call.id,
-																				hasHeaders: !!headers,
-																				headersType: typeof headers,
-																				headersIsNull: headers === null,
-																				headersIsUndefined: headers === undefined,
-																				headersKeys: headers ? Object.keys(headers) : [],
-																				headersKeysLength: headers
-																					? Object.keys(headers).length
-																					: 0,
-																				headers,
-																				callType: typeof call,
-																				callKeys: Object.keys(call),
-																				callHasHeadersProperty: 'headers' in call,
-																			}
-																		);
-																	}
-																	// #endregion
+																	{/* Request Headers */}
+																	{(() => {
+																		const headers = (call as { headers?: Record<string, string> })
+																			.headers;
 
-																	if (!headers || Object.keys(headers).length === 0) {
-																		// #region agent log - Debug why headers are not shown
+																		// #region agent log - Debug headers display
 																		if (
 																			call.url?.includes('check-fido2-assertion') ||
 																			call.url?.includes('select-device') ||
 																			call.url?.includes('validate-otp') ||
 																			call.url?.includes('initialize-device')
 																		) {
-																			console.warn(
-																				'[SuperSimpleApiDisplayV8] Headers section NOT rendered - headers missing or empty:',
+																			console.log(
+																				'[SuperSimpleApiDisplayV8] Rendering headers section:',
 																				{
 																					callUrl: call.url,
 																					callId: call.id,
 																					hasHeaders: !!headers,
 																					headersType: typeof headers,
-																					headersValue: headers,
+																					headersIsNull: headers === null,
+																					headersIsUndefined: headers === undefined,
+																					headersKeys: headers ? Object.keys(headers) : [],
 																					headersKeysLength: headers
 																						? Object.keys(headers).length
 																						: 0,
+																					headers,
+																					callType: typeof call,
+																					callKeys: Object.keys(call),
+																					callHasHeadersProperty: 'headers' in call,
 																				}
 																			);
 																		}
 																		// #endregion
-																		return null;
-																	}
 
-																	const headersText = JSON.stringify(headers, null, 2);
-
-																	return (
-																		<div>
-																			<div
-																				style={{
-																					display: 'flex',
-																					alignItems: 'center',
-																					justifyContent: 'space-between',
-																					marginBottom: '4px',
-																				}}
-																			>
-																				<div
-																					style={{
-																						color: '#6b7280',
-																						fontSize: '10px',
-																						fontWeight: '600',
-																					}}
-																				>
-																					REQUEST HEADERS:
-																				</div>
-																				<button
-																					type="button"
-																					onClick={(e) => {
-																						e.stopPropagation();
-																						handleCopy(headersText, `headers-${call.id}`);
-																					}}
-																					style={{
-																						padding: '2px 6px',
-																						background:
-																							copiedField === `headers-${call.id}`
-																								? '#10b981'
-																								: '#e5e7eb',
-																						color:
-																							copiedField === `headers-${call.id}`
-																								? 'white'
-																								: '#374151',
-																						border: 'none',
-																						borderRadius: '3px',
-																						fontSize: '9px',
-																						cursor: 'pointer',
-																						fontWeight: '600',
-																					}}
-																					title="Copy request headers"
-																				>
-																					{copiedField === `headers-${call.id}`
-																						? '✓ Copied'
-																						: '📋 Copy'}
-																				</button>
-																			</div>
-																			<div
-																				style={{
-																					background: 'white',
-																					padding: '12px',
-																					borderRadius: '4px',
-																					fontSize: '12px',
-																					overflowX: 'auto',
-																					maxHeight: 'min(50vh, 600px)',
-																					overflowY: 'auto',
-																					minHeight: '100px',
-																				}}
-																			>
-																				<pre
-																					style={{
-																						margin: 0,
-																						whiteSpace: 'pre-wrap',
-																						wordWrap: 'break-word',
-																					}}
-																				>
-																					{headersText}
-																				</pre>
-																			</div>
-																		</div>
-																	);
-																})()}
-
-																{/* Request Body */}
-																{(() => {
-																	const body = call.body;
-																	if (!body) {
-																		return null;
-																	}
-
-																	let bodyText: string;
-																	if (typeof body === 'string') {
-																		bodyText = body;
-																	} else {
-																		try {
-																			bodyText = JSON.stringify(body, null, 2);
-																		} catch {
-																			bodyText = String(body);
+																		if (!headers || Object.keys(headers).length === 0) {
+																			// #region agent log - Debug why headers are not shown
+																			if (
+																				call.url?.includes('check-fido2-assertion') ||
+																				call.url?.includes('select-device') ||
+																				call.url?.includes('validate-otp') ||
+																				call.url?.includes('initialize-device')
+																			) {
+																				console.warn(
+																					'[SuperSimpleApiDisplayV8] Headers section NOT rendered - headers missing or empty:',
+																					{
+																						callUrl: call.url,
+																						callId: call.id,
+																						hasHeaders: !!headers,
+																						headersType: typeof headers,
+																						headersValue: headers,
+																						headersKeysLength: headers
+																							? Object.keys(headers).length
+																							: 0,
+																					}
+																				);
+																			}
+																			// #endregion
+																			return null;
 																		}
-																	}
 
-																	return (
-																		<div
-																			style={{
-																				padding: '8px 12px',
-																				background: '#fef3c7',
-																				borderRadius: '4px',
-																				border: '1px solid #fbbf24',
-																			}}
-																		>
-																			<div
-																				style={{
-																					display: 'flex',
-																					alignItems: 'center',
-																					justifyContent: 'space-between',
-																					marginBottom: '4px',
-																				}}
-																			>
+																		const headersText = JSON.stringify(headers, null, 2);
+
+																		return (
+																			<div>
 																				<div
 																					style={{
-																						color: '#92400e',
-																						fontSize: '11px',
-																						fontWeight: '700',
+																						display: 'flex',
+																						alignItems: 'center',
+																						justifyContent: 'space-between',
+																						marginBottom: '4px',
 																					}}
 																				>
-																					REQUEST BODY (for debugging):
+																					<div
+																						style={{
+																							color: '#6b7280',
+																							fontSize: '10px',
+																							fontWeight: '600',
+																						}}
+																					>
+																						REQUEST HEADERS:
+																					</div>
+																					<button
+																						type="button"
+																						onClick={(e) => {
+																							e.stopPropagation();
+																							handleCopy(headersText, `headers-${call.id}`);
+																						}}
+																						style={{
+																							padding: '2px 6px',
+																							background:
+																								copiedField === `headers-${call.id}`
+																									? '#10b981'
+																									: '#e5e7eb',
+																							color:
+																								copiedField === `headers-${call.id}`
+																									? 'white'
+																									: '#374151',
+																							border: 'none',
+																							borderRadius: '3px',
+																							fontSize: '9px',
+																							cursor: 'pointer',
+																							fontWeight: '600',
+																						}}
+																						title="Copy request headers"
+																					>
+																						{copiedField === `headers-${call.id}`
+																							? '✓ Copied'
+																							: '📋 Copy'}
+																					</button>
 																				</div>
-																				<button
-																					type="button"
-																					onClick={(e) => {
-																						e.stopPropagation();
-																						handleCopy(bodyText, `body-${call.id}`);
-																					}}
-																					style={{
-																						padding: '4px 8px',
-																						background:
-																							copiedField === `body-${call.id}`
-																								? '#10b981'
-																								: '#f59e0b',
-																						color: 'white',
-																						border: 'none',
-																						borderRadius: '3px',
-																						fontSize: '10px',
-																						cursor: 'pointer',
-																						fontWeight: '600',
-																					}}
-																					title="Copy request body for debugging"
-																				>
-																					{copiedField === `body-${call.id}`
-																						? '✓ Copied'
-																						: '📋 Copy Body'}
-																				</button>
-																			</div>
-																			<div
-																				style={{
-																					background: 'white',
-																					padding: '12px',
-																					borderRadius: '4px',
-																					fontSize: '12px',
-																					overflowX: 'auto',
-																					maxHeight: 'min(50vh, 600px)',
-																					overflowY: 'auto',
-																					minHeight: '100px',
-																				}}
-																			>
-																				<pre
-																					style={{
-																						margin: 0,
-																						whiteSpace: 'pre-wrap',
-																						wordWrap: 'break-word',
-																					}}
-																				>
-																					{bodyText}
-																				</pre>
-																			</div>
-																		</div>
-																	);
-																})()}
-
-																{/* Response */}
-																{(() => {
-																	const data = call.response?.data;
-																	if (data === null || data === undefined) {
-																		return null;
-																	}
-
-																	let responseText: string;
-																	try {
-																		responseText = JSON.stringify(data, null, 2);
-																	} catch {
-																		responseText = String(data);
-																	}
-
-																	return (
-																		<div
-																			style={{
-																				padding: '8px 12px',
-																				background: '#e0f2fe',
-																				borderRadius: '4px',
-																				border: '1px solid #38bdf8',
-																				marginTop: '12px',
-																			}}
-																		>
-																			<div
-																				style={{
-																					display: 'flex',
-																					alignItems: 'center',
-																					justifyContent: 'space-between',
-																					marginBottom: '4px',
-																				}}
-																			>
 																				<div
 																					style={{
-																						color: '#0369a1',
-																						fontSize: '11px',
-																						fontWeight: '700',
-																					}}
-																				>
-																					RESPONSE (for debugging):
-																				</div>
-																				<button
-																					type="button"
-																					onClick={(e) => {
-																						e.stopPropagation();
-																						handleCopy(responseText, `response-${call.id}`);
-																					}}
-																					style={{
-																						padding: '4px 10px',
-																						background:
-																							copiedField === `response-${call.id}`
-																								? '#10b981'
-																								: '#0ea5e9',
-																						color: 'white',
-																						border: 'none',
+																						background: 'white',
+																						padding: '12px',
 																						borderRadius: '4px',
-																						fontSize: '10px',
-																						cursor: 'pointer',
-																						fontWeight: '600',
+																						fontSize: '12px',
+																						overflowX: 'auto',
+																						maxHeight: 'min(50vh, 600px)',
+																						overflowY: 'auto',
+																						minHeight: '100px',
 																					}}
-																					title="Copy response for debugging"
 																				>
-																					{copiedField === `response-${call.id}`
-																						? '✓ Copied'
-																						: '📋 Copy Response'}
-																				</button>
+																					<pre
+																						style={{
+																							margin: 0,
+																							whiteSpace: 'pre-wrap',
+																							wordWrap: 'break-word',
+																						}}
+																					>
+																						{headersText}
+																					</pre>
+																				</div>
 																			</div>
+																		);
+																	})()}
+
+																	{/* Request Body */}
+																	{(() => {
+																		const body = call.body;
+																		if (!body) {
+																			return null;
+																		}
+
+																		let bodyText: string;
+																		if (typeof body === 'string') {
+																			bodyText = body;
+																		} else {
+																			try {
+																				bodyText = JSON.stringify(body, null, 2);
+																			} catch {
+																				bodyText = String(body);
+																			}
+																		}
+
+																		return (
 																			<div
 																				style={{
-																					background: 'white',
-																					padding: '12px',
+																					padding: '8px 12px',
+																					background: '#fef3c7',
 																					borderRadius: '4px',
-																					fontSize: '12px',
-																					overflowX: 'auto',
-																					maxHeight: 'min(50vh, 600px)',
-																					overflowY: 'auto',
-																					minHeight: '100px',
+																					border: '1px solid #fbbf24',
 																				}}
 																			>
-																				<pre
+																				<div
 																					style={{
-																						margin: 0,
-																						whiteSpace: 'pre-wrap',
-																						wordWrap: 'break-word',
+																						display: 'flex',
+																						alignItems: 'center',
+																						justifyContent: 'space-between',
+																						marginBottom: '4px',
 																					}}
 																				>
-																					{responseText}
-																				</pre>
+																					<div
+																						style={{
+																							color: '#92400e',
+																							fontSize: '11px',
+																							fontWeight: '700',
+																						}}
+																					>
+																						REQUEST BODY (for debugging):
+																					</div>
+																					<button
+																						type="button"
+																						onClick={(e) => {
+																							e.stopPropagation();
+																							handleCopy(bodyText, `body-${call.id}`);
+																						}}
+																						style={{
+																							padding: '4px 8px',
+																							background:
+																								copiedField === `body-${call.id}`
+																									? '#10b981'
+																									: '#f59e0b',
+																							color: 'white',
+																							border: 'none',
+																							borderRadius: '3px',
+																							fontSize: '10px',
+																							cursor: 'pointer',
+																							fontWeight: '600',
+																						}}
+																						title="Copy request body for debugging"
+																					>
+																						{copiedField === `body-${call.id}`
+																							? '✓ Copied'
+																							: '📋 Copy Body'}
+																					</button>
+																				</div>
+																				<div
+																					style={{
+																						background: 'white',
+																						padding: '12px',
+																						borderRadius: '4px',
+																						fontSize: '12px',
+																						overflowX: 'auto',
+																						maxHeight: 'min(50vh, 600px)',
+																						overflowY: 'auto',
+																						minHeight: '100px',
+																					}}
+																				>
+																					<pre
+																						style={{
+																							margin: 0,
+																							whiteSpace: 'pre-wrap',
+																							wordWrap: 'break-word',
+																						}}
+																					>
+																						{bodyText}
+																					</pre>
+																				</div>
 																			</div>
-																		</div>
-																	);
-																})()}
-															</div>
-														</td>
-													</tr>
-												)}
-											</React.Fragment>
-										);
-									})}
-							</tbody>
-						</table>
+																		);
+																	})()}
+
+																	{/* Response */}
+																	{(() => {
+																		const data = call.response?.data;
+																		if (data === null || data === undefined) {
+																			return null;
+																		}
+
+																		let responseText: string;
+																		try {
+																			responseText = JSON.stringify(data, null, 2);
+																		} catch {
+																			responseText = String(data);
+																		}
+
+																		return (
+																			<div
+																				style={{
+																					padding: '8px 12px',
+																					background: '#e0f2fe',
+																					borderRadius: '4px',
+																					border: '1px solid #38bdf8',
+																					marginTop: '12px',
+																				}}
+																			>
+																				<div
+																					style={{
+																						display: 'flex',
+																						alignItems: 'center',
+																						justifyContent: 'space-between',
+																						marginBottom: '4px',
+																					}}
+																				>
+																					<div
+																						style={{
+																							color: '#0369a1',
+																							fontSize: '11px',
+																							fontWeight: '700',
+																						}}
+																					>
+																						RESPONSE (for debugging):
+																					</div>
+																					<button
+																						type="button"
+																						onClick={(e) => {
+																							e.stopPropagation();
+																							handleCopy(responseText, `response-${call.id}`);
+																						}}
+																						style={{
+																							padding: '4px 10px',
+																							background:
+																								copiedField === `response-${call.id}`
+																									? '#10b981'
+																									: '#0ea5e9',
+																							color: 'white',
+																							border: 'none',
+																							borderRadius: '4px',
+																							fontSize: '10px',
+																							cursor: 'pointer',
+																							fontWeight: '600',
+																						}}
+																						title="Copy response for debugging"
+																					>
+																						{copiedField === `response-${call.id}`
+																							? '✓ Copied'
+																							: '📋 Copy Response'}
+																					</button>
+																				</div>
+																				<div
+																					style={{
+																						background: 'white',
+																						padding: '12px',
+																						borderRadius: '4px',
+																						fontSize: '12px',
+																						overflowX: 'auto',
+																						maxHeight: 'min(50vh, 600px)',
+																						overflowY: 'auto',
+																						minHeight: '100px',
+																					}}
+																				>
+																					<pre
+																						style={{
+																							margin: 0,
+																							whiteSpace: 'pre-wrap',
+																							wordWrap: 'break-word',
+																						}}
+																					>
+																						{responseText}
+																					</pre>
+																				</div>
+																			</div>
+																		);
+																	})()}
+																</div>
+															</td>
+														</tr>
+													)}
+												</React.Fragment>
+											);
+										})}
+								</tbody>
+							</table>
 						</div>
 					</div>
 				</div>

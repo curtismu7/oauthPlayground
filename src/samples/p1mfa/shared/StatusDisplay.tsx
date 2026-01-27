@@ -74,8 +74,7 @@ export const StatusDisplay: React.FC<StatusDisplayProps> = ({
 						color: '#721c24',
 					}}
 				>
-					<strong>Error:</strong>{' '}
-					{error instanceof Error ? error.message : String(error)}
+					<strong>Error:</strong> {error instanceof Error ? error.message : String(error)}
 				</div>
 			)}
 

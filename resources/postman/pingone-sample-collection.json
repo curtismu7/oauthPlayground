@@ -430,7 +430,13 @@
 											"raw": "{{authPath}}/{{envID}}/deviceAuthentications/{{deviceAuthenticationId}}/otp/check",
 											"protocol": "https",
 											"host": ["auth", "pingone", "com"],
-											"path": ["{{envID}}", "deviceAuthentications", "{{deviceAuthenticationId}}", "otp", "check"]
+											"path": [
+												"{{envID}}",
+												"deviceAuthentications",
+												"{{deviceAuthenticationId}}",
+												"otp",
+												"check"
+											]
 										},
 										"description": "Validate OTP code for SMS authentication."
 									}
@@ -499,7 +505,13 @@
 											"raw": "{{authPath}}/{{envID}}/deviceAuthentications/{{deviceAuthenticationId}}/assertion/check",
 											"protocol": "https",
 											"host": ["auth", "pingone", "com"],
-											"path": ["{{envID}}", "deviceAuthentications", "{{deviceAuthenticationId}}", "assertion", "check"]
+											"path": [
+												"{{envID}}",
+												"deviceAuthentications",
+												"{{deviceAuthenticationId}}",
+												"assertion",
+												"check"
+											]
 										},
 										"description": "Validate FIDO2 WebAuthn assertion."
 									}

@@ -331,13 +331,17 @@ export class MFAServiceV8 {
 
 			return data;
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(error, {
-				flowType: 'mfa' as any,
-				operation: 'allowMfaBypass',
-			}, {
-				logError: true,
-				showToast: false,
-			});
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'mfa' as any,
+					operation: 'allowMfaBypass',
+				},
+				{
+					logError: true,
+					showToast: false,
+				}
+			);
 			console.error(`${MODULE_TAG} Exception in allowMfaBypass:`, {
 				error: parsed.userFriendlyMessage,
 				requestId,
@@ -395,13 +399,17 @@ export class MFAServiceV8 {
 
 			return data;
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(error, {
-				flowType: 'mfa' as any,
-				operation: 'checkMfaBypassStatus',
-			}, {
-				logError: true,
-				showToast: false,
-			});
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'mfa' as any,
+					operation: 'checkMfaBypassStatus',
+				},
+				{
+					logError: true,
+					showToast: false,
+				}
+			);
 			console.error(`${MODULE_TAG} Exception in checkMfaBypassStatus:`, {
 				error: parsed.userFriendlyMessage,
 				requestId,
@@ -520,7 +528,7 @@ export class MFAServiceV8 {
 				headers: {
 					'Content-Type': 'application/json',
 					'Cache-Control': 'no-cache',
-					'Pragma': 'no-cache',
+					Pragma: 'no-cache',
 				},
 				body: JSON.stringify(requestBody),
 			});
@@ -854,7 +862,7 @@ export class MFAServiceV8 {
 						// Convert string policy ID to object format
 						requestBody.policy = { id: String(params.policy) };
 					}
-					
+
 					// Log policy for TOTP devices to ensure it's being sent
 					if (params.type === 'TOTP') {
 						console.log(`${MODULE_TAG} 🔍 TOTP device registration - Policy included:`, {
@@ -894,7 +902,7 @@ export class MFAServiceV8 {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						'Authorization': `Bearer ${trimmedToken}`,
+						Authorization: `Bearer ${trimmedToken}`,
 					},
 					body: JSON.stringify(requestBody),
 				});
@@ -1119,19 +1127,19 @@ export class MFAServiceV8 {
 			//     "keyUri": "otpauth://totp/example:user@example.com?secret=BASE32SECRET..."
 			//   }
 			// }
-			
+
 			// Extract from properties (primary location per totp.md)
 			const secretFromProperties = dd.properties?.secret;
 			const keyUriFromProperties = dd.properties?.keyUri;
-			
+
 			// Also check root level as fallback (in case API structure differs)
 			const secretFromRoot = (dd as Record<string, unknown>).secret as string | undefined;
 			const keyUriFromRoot = (dd as Record<string, unknown>).keyUri as string | undefined;
-			
+
 			// Use properties first, fallback to root level
 			const secret = secretFromProperties || secretFromRoot;
 			const keyUri = keyUriFromProperties || keyUriFromRoot;
-			
+
 			// Log raw device data structure for TOTP devices to debug missing properties
 			if (dd.type === 'TOTP') {
 				console.error(`${MODULE_TAG} 🔍 TOTP device raw response structure (FULL DETAILS):`, {
@@ -1150,30 +1158,36 @@ export class MFAServiceV8 {
 					rawDeviceData: JSON.stringify(dd, null, 2),
 					note: 'Per totp.md: properties.secret and properties.keyUri should be present when status is ACTIVATION_REQUIRED',
 				});
-				
+
 				// Check alternative locations where secret/keyUri might be
 				if (secretFromRoot || keyUriFromRoot) {
-					console.warn(`${MODULE_TAG} ⚠️ Found secret/keyUri in alternative location (not in properties):`, {
-						hasSecretAtRoot: !!secretFromRoot,
-						hasKeyUriAtRoot: !!keyUriFromRoot,
-						secretValue: secretFromRoot ? `${secretFromRoot.substring(0, 20)}...` : 'none',
-						keyUriValue: keyUriFromRoot ? `${keyUriFromRoot.substring(0, 50)}...` : 'none',
-					});
+					console.warn(
+						`${MODULE_TAG} ⚠️ Found secret/keyUri in alternative location (not in properties):`,
+						{
+							hasSecretAtRoot: !!secretFromRoot,
+							hasKeyUriAtRoot: !!keyUriFromRoot,
+							secretValue: secretFromRoot ? `${secretFromRoot.substring(0, 20)}...` : 'none',
+							keyUriValue: keyUriFromRoot ? `${keyUriFromRoot.substring(0, 50)}...` : 'none',
+						}
+					);
 				}
 			}
-			
+
 			if (dd.type === 'TOTP' && dd.status === 'ACTIVATION_REQUIRED' && !secret && !keyUri) {
-				console.error(`${MODULE_TAG} ❌ CRITICAL: TOTP device with ACTIVATION_REQUIRED status missing secret and keyUri!`, {
-					deviceId: dd.id,
-					status: dd.status,
-					requestedStatus: params.status,
-					hasProperties: !!dd.properties,
-					checkedProperties: !!dd.properties?.secret || !!dd.properties?.keyUri,
-					checkedRoot: !!secretFromRoot || !!keyUriFromRoot,
-					allKeys: Object.keys(dd),
-					fullResponse: JSON.stringify(dd, null, 2),
-					note: 'This is required per totp.md. Check: 1) Status is ACTIVATION_REQUIRED, 2) Policy is included in request, 3) PingOne environment has TOTP enabled',
-				});
+				console.error(
+					`${MODULE_TAG} ❌ CRITICAL: TOTP device with ACTIVATION_REQUIRED status missing secret and keyUri!`,
+					{
+						deviceId: dd.id,
+						status: dd.status,
+						requestedStatus: params.status,
+						hasProperties: !!dd.properties,
+						checkedProperties: !!dd.properties?.secret || !!dd.properties?.keyUri,
+						checkedRoot: !!secretFromRoot || !!keyUriFromRoot,
+						allKeys: Object.keys(dd),
+						fullResponse: JSON.stringify(dd, null, 2),
+						note: 'This is required per totp.md. Check: 1) Status is ACTIVATION_REQUIRED, 2) Policy is included in request, 3) PingOne environment has TOTP enabled',
+					}
+				);
 			}
 
 			// Build return object - include publicKeyCredentialCreationOptions in initial construction
@@ -1217,7 +1231,7 @@ export class MFAServiceV8 {
 					}
 				);
 			}
-			
+
 			// Log TOTP secret/keyUri confirmation
 			if (dd.type === 'TOTP') {
 				const resultSecret = (result as { secret?: string }).secret;
@@ -3040,7 +3054,7 @@ export class MFAServiceV8 {
 				url: '/api/pingone/mfa/resend-pairing-code',
 				headers: {
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${trimmedToken}`,
+					Authorization: `Bearer ${trimmedToken}`,
 				},
 				body: requestBody,
 				step: 'mfa-Resend Pairing Code',
@@ -3053,7 +3067,7 @@ export class MFAServiceV8 {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						'Authorization': `Bearer ${trimmedToken}`,
+						Authorization: `Bearer ${trimmedToken}`,
 					},
 					body: JSON.stringify(requestBody),
 					retry: { maxAttempts: 3 },
@@ -3188,7 +3202,7 @@ export class MFAServiceV8 {
 					'Content-Type': 'application/json',
 					'X-Request-ID': requestId,
 					'Cache-Control': 'no-cache',
-					'Pragma': 'no-cache',
+					Pragma: 'no-cache',
 				},
 				body: JSON.stringify({
 					environmentId,

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext } from 'react';
 
 interface ThemeContextType {
 	theme: 'light' | 'dark';
@@ -21,9 +21,5 @@ interface ThemeProviderProps {
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 	const theme: 'light' | 'dark' = 'light';
 
-	return (
-		<ThemeContext.Provider value={{ theme }}>
-			{children}
-		</ThemeContext.Provider>
-	);
+	return <ThemeContext.Provider value={{ theme }}>{children}</ThemeContext.Provider>;
 };

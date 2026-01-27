@@ -35,7 +35,7 @@ export const ComponentTestSuiteV8: React.FC<ComponentTestSuiteV8Props> = ({
 
 		for (const component of components) {
 			setCurrentTest(component);
-			
+
 			// Simulate component tests
 			const tests = [
 				{ name: 'Render Test', test: () => testComponentRender(component) },
@@ -76,39 +76,40 @@ export const ComponentTestSuiteV8: React.FC<ComponentTestSuiteV8Props> = ({
 
 	// Mock test functions
 	const testComponentRender = async (component: string): Promise<boolean> => {
-		await new Promise(resolve => setTimeout(resolve, 100));
+		await new Promise((resolve) => setTimeout(resolve, 100));
 		return Math.random() > 0.1; // 90% pass rate
 	};
 
 	const testComponentProps = async (component: string): Promise<boolean> => {
-		await new Promise(resolve => setTimeout(resolve, 50));
+		await new Promise((resolve) => setTimeout(resolve, 50));
 		return Math.random() > 0.15; // 85% pass rate
 	};
 
 	const testComponentAccessibility = async (component: string): Promise<boolean> => {
-		await new Promise(resolve => setTimeout(resolve, 75));
+		await new Promise((resolve) => setTimeout(resolve, 75));
 		return Math.random() > 0.05; // 95% pass rate
 	};
 
 	const testComponentPerformance = async (component: string): Promise<boolean> => {
-		await new Promise(resolve => setTimeout(resolve, 200));
+		await new Promise((resolve) => setTimeout(resolve, 200));
 		return Math.random() > 0.2; // 80% pass rate
 	};
 
 	const testComponentResponsive = async (component: string): Promise<boolean> => {
-		await new Promise(resolve => setTimeout(resolve, 60));
+		await new Promise((resolve) => setTimeout(resolve, 60));
 		return Math.random() > 0.1; // 90% pass rate
 	};
 
 	const getTestStats = () => {
 		const total = testResults.length;
-		const passed = testResults.filter(r => r.status === 'pass').length;
-		const failed = testResults.filter(r => r.status === 'fail').length;
-		const pending = testResults.filter(r => r.status === 'pending').length;
+		const passed = testResults.filter((r) => r.status === 'pass').length;
+		const failed = testResults.filter((r) => r.status === 'fail').length;
+		const pending = testResults.filter((r) => r.status === 'pending').length;
 		const passRate = total > 0 ? (passed / total) * 100 : 0;
-		const avgDuration = testResults.length > 0 
-			? testResults.reduce((sum, r) => sum + (r.duration || 0), 0) / testResults.length 
-			: 0;
+		const avgDuration =
+			testResults.length > 0
+				? testResults.reduce((sum, r) => sum + (r.duration || 0), 0) / testResults.length
+				: 0;
 
 		return { total, passed, failed, pending, passRate, avgDuration };
 	};
@@ -120,24 +121,16 @@ export const ComponentTestSuiteV8: React.FC<ComponentTestSuiteV8Props> = ({
 			<div className="test-header">
 				<h3>Component Test Suite</h3>
 				<div className="test-controls">
-					<button
-						className="run-tests-btn"
-						onClick={runComponentTests}
-						disabled={isRunning}
-					>
+					<button className="run-tests-btn" onClick={runComponentTests} disabled={isRunning}>
 						{isRunning ? 'Running Tests...' : 'Run All Tests'}
 					</button>
-					{autoRun && (
-						<span className="auto-run-indicator">Auto-run enabled</span>
-					)}
+					{autoRun && <span className="auto-run-indicator">Auto-run enabled</span>}
 				</div>
 			</div>
 
 			{isRunning && (
 				<div className="test-progress">
-					<div className="current-test">
-						Testing: {currentTest}
-					</div>
+					<div className="current-test">Testing: {currentTest}</div>
 					<div className="progress-bar">
 						<div className="progress-fill" style={{ width: '60%' }} />
 					</div>
@@ -173,11 +166,11 @@ export const ComponentTestSuiteV8: React.FC<ComponentTestSuiteV8Props> = ({
 
 			{showDetails && testResults.length > 0 && (
 				<div className="test-details">
-					{components.map(component => {
-						const componentResults = testResults.filter(r => r.component === component);
+					{components.map((component) => {
+						const componentResults = testResults.filter((r) => r.component === component);
 						const componentStats = {
-							passed: componentResults.filter(r => r.status === 'pass').length,
-							failed: componentResults.filter(r => r.status === 'fail').length,
+							passed: componentResults.filter((r) => r.status === 'pass').length,
+							failed: componentResults.filter((r) => r.status === 'fail').length,
 							total: componentResults.length,
 						};
 
@@ -197,9 +190,7 @@ export const ComponentTestSuiteV8: React.FC<ComponentTestSuiteV8Props> = ({
 										<div key={index} className={`test-item ${result.status}`}>
 											<span className="test-name">{result.test}</span>
 											<span className="test-duration">{result.duration}ms</span>
-											{result.message && (
-												<span className="test-message">{result.message}</span>
-											)}
+											{result.message && <span className="test-message">{result.message}</span>}
 										</div>
 									))}
 								</div>

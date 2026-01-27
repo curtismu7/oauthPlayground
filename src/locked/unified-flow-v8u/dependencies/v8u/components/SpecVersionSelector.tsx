@@ -23,7 +23,8 @@ const SPEC_GUIDANCE: Record<
 	{ description: string; whenToUse: string[]; flows: string[] }
 > = {
 	oidc: {
-		description: 'OpenID Connect Core 1.0 - Authentication layer on top of OAuth 2.0. Adds identity layer with ID Tokens, openid scope, UserInfo endpoint, and user authentication. Provides authorization AND authentication.',
+		description:
+			'OpenID Connect Core 1.0 - Authentication layer on top of OAuth 2.0. Adds identity layer with ID Tokens, openid scope, UserInfo endpoint, and user authentication. Provides authorization AND authentication.',
 		whenToUse: [
 			'You need user authentication and identity information (ID tokens, user claims)',
 			'You want ID tokens with user claims (email, name, profile, etc.)',
@@ -33,7 +34,8 @@ const SPEC_GUIDANCE: Record<
 		flows: ['Authorization Code', 'Implicit', 'Hybrid', 'Device Authorization'],
 	},
 	'oauth2.0': {
-		description: 'OAuth 2.0 Authorization Framework (RFC 6749) - Baseline OAuth framework standard. Provides authorization without authentication. Most flexible, supports all flow types including Implicit.',
+		description:
+			'OAuth 2.0 Authorization Framework (RFC 6749) - Baseline OAuth framework standard. Provides authorization without authentication. Most flexible, supports all flow types including Implicit.',
 		whenToUse: [
 			'You need maximum compatibility with older systems and legacy applications',
 			'You want to use Implicit Flow (deprecated in OAuth 2.1 draft)',
@@ -168,13 +170,20 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 					</div>
 					<ul style={{ margin: '0', paddingLeft: '20px', color: '#1e40af' }}>
 						<li>
-							<strong>OpenID Connect Core 1.0:</strong> Use when you need user authentication and identity information (ID tokens, openid scope, UserInfo endpoint). Adds identity layer on top of OAuth 2.0.
+							<strong>OpenID Connect Core 1.0:</strong> Use when you need user authentication and
+							identity information (ID tokens, openid scope, UserInfo endpoint). Adds identity layer
+							on top of OAuth 2.0.
 						</li>
 						<li>
-							<strong>OAuth 2.0 Authorization Framework (RFC 6749):</strong> Use for baseline authorization without authentication. Maximum compatibility, supports all flow types including Implicit.
+							<strong>OAuth 2.0 Authorization Framework (RFC 6749):</strong> Use for baseline
+							authorization without authentication. Maximum compatibility, supports all flow types
+							including Implicit.
 						</li>
 						<li>
-							<strong>OAuth 2.1 Authorization Framework (draft):</strong> Use for new applications requiring highest security (PKCE required, HTTPS enforced). Note: Still an Internet-Draft. When used with OpenID Connect, this means "OIDC Core 1.0 using OAuth 2.1 (draft) baseline".
+							<strong>OAuth 2.1 Authorization Framework (draft):</strong> Use for new applications
+							requiring highest security (PKCE required, HTTPS enforced). Note: Still an
+							Internet-Draft. When used with OpenID Connect, this means "OIDC Core 1.0 using OAuth
+							2.1 (draft) baseline".
 						</li>
 					</ul>
 					<p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#1e40af' }}>

@@ -76,12 +76,12 @@ export const StepValidationFeedbackV8U: React.FC<StepValidationFeedbackProps> = 
 							{errors.length} {errors.length === 1 ? 'Error' : 'Errors'}
 						</span>
 						<span className="section-toggle">
-							<FiChevronDown 
-								style={{ 
+							<FiChevronDown
+								style={{
 									transform: expandedErrors ? 'rotate(0deg)' : 'rotate(-90deg)',
 									transition: 'transform 0.3s ease',
-									fontSize: '16px'
-								}} 
+									fontSize: '16px',
+								}}
 							/>
 						</span>
 					</button>
@@ -116,12 +116,12 @@ export const StepValidationFeedbackV8U: React.FC<StepValidationFeedbackProps> = 
 							{warnings.length} {warnings.length === 1 ? 'Warning' : 'Warnings'}
 						</span>
 						<span className="section-toggle">
-							<FiChevronDown 
-								style={{ 
+							<FiChevronDown
+								style={{
 									transform: expandedWarnings ? 'rotate(0deg)' : 'rotate(-90deg)',
 									transition: 'transform 0.3s ease',
-									fontSize: '16px'
-								}} 
+									fontSize: '16px',
+								}}
 							/>
 						</span>
 					</button>

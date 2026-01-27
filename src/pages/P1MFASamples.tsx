@@ -15,7 +15,14 @@ export const P1MFASamples: React.FC = () => {
 		<div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
 			<h1 style={{ marginBottom: '2rem' }}>P1MFA SDK Sample Applications</h1>
 
-			<div style={{ marginBottom: '2rem', padding: '1.5rem', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+			<div
+				style={{
+					marginBottom: '2rem',
+					padding: '1.5rem',
+					backgroundColor: '#f8f9fa',
+					borderRadius: '8px',
+				}}
+			>
 				<h2>About P1MFA SDK</h2>
 				<p style={{ lineHeight: '1.6', color: '#6c757d' }}>
 					The P1MFA SDK is a simplified wrapper for PingOne MFA operations that makes it easy to
@@ -34,7 +41,14 @@ export const P1MFASamples: React.FC = () => {
 				</ul>
 			</div>
 
-			<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
+			<div
+				style={{
+					display: 'grid',
+					gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+					gap: '2rem',
+					marginBottom: '2rem',
+				}}
+			>
 				<div style={{ padding: '1.5rem', border: '2px solid #8b5cf6', borderRadius: '8px' }}>
 					<h3 style={{ marginBottom: '1rem' }}>🔗 Integrated Sample</h3>
 					<p style={{ marginBottom: '1rem', color: '#6c757d' }}>
@@ -59,8 +73,8 @@ export const P1MFASamples: React.FC = () => {
 				<div style={{ padding: '1.5rem', border: '2px solid #007bff', borderRadius: '8px' }}>
 					<h3 style={{ marginBottom: '1rem' }}>FIDO2 Sample App</h3>
 					<p style={{ marginBottom: '1rem', color: '#6c757d' }}>
-						Demonstrates FIDO2/WebAuthn device registration and authentication flows using
-						platform authenticators (TouchID, FaceID, Windows Hello) or security keys.
+						Demonstrates FIDO2/WebAuthn device registration and authentication flows using platform
+						authenticators (TouchID, FaceID, Windows Hello) or security keys.
 					</p>
 					<Link
 						to="/samples/p1mfa/fido2"
@@ -99,7 +113,15 @@ export const P1MFASamples: React.FC = () => {
 				</div>
 			</div>
 
-			<div style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffc107' }}>
+			<div
+				style={{
+					marginTop: '2rem',
+					padding: '1.5rem',
+					backgroundColor: '#fff3cd',
+					borderRadius: '8px',
+					border: '1px solid #ffc107',
+				}}
+			>
 				<h3 style={{ marginBottom: '1rem' }}>Prerequisites</h3>
 				<ul style={{ lineHeight: '1.8' }}>
 					<li>PingOne environment with MFA enabled</li>

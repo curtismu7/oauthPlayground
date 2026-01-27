@@ -14,12 +14,15 @@
  * - Token refresh and validation
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { FiPlay, FiRefreshCw, FiCheck, FiX, FiCode, FiDatabase, FiShield } from 'react-icons/fi';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiCheck, FiCode, FiDatabase, FiPlay, FiRefreshCw, FiShield, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
-import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusServiceV8,
+} from '@/v8/services/workerTokenStatusServiceV8';
 import UserTokenStatusDisplayV8U from '@/v8u/components/UserTokenStatusDisplayV8U';
 
 // Token monitoring interfaces
@@ -245,8 +248,8 @@ const TokenStatusPageV8U: React.FC = () => {
 			<PageHeader>
 				<PageTitle>Token Status Monitoring</PageTitle>
 				<PageDescription>
-					Comprehensive token status monitoring for OAuth flows and API authentication.
-					Track worker tokens, user tokens, and manage OAuth configuration settings in real-time.
+					Comprehensive token status monitoring for OAuth flows and API authentication. Track worker
+					tokens, user tokens, and manage OAuth configuration settings in real-time.
 				</PageDescription>
 			</PageHeader>
 
@@ -259,10 +262,10 @@ const TokenStatusPageV8U: React.FC = () => {
 					</TokenStatusTitle>
 				</TokenStatusHeader>
 				<TokenStatusDescription>
-					Monitor the worker token used for API authentication and management operations.
-					Check token validity, expiration, and refresh status.
+					Monitor the worker token used for API authentication and management operations. Check
+					token validity, expiration, and refresh status.
 				</TokenStatusDescription>
-				
+
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 					<div style={{ display: 'flex', gap: '8px' }}>
 						<ActionButton onClick={handleShowWorkerTokenModal}>
@@ -302,21 +305,30 @@ const TokenStatusPageV8U: React.FC = () => {
 									config.workerToken.silentApiRetrieval = newValue;
 									MFAConfigurationServiceV8.saveConfiguration(config);
 									// Dispatch event to notify other components
-									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
-									
+									window.dispatchEvent(
+										new CustomEvent('mfaConfigurationUpdated', {
+											detail: { workerToken: config.workerToken },
+										})
+									);
+
 									// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 									if (newValue) {
 										try {
-											const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+											const currentStatus =
+												await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 											if (!currentStatus.isValid) {
-												console.log('[TOKEN-STATUS-V8U] Silent API retrieval enabled, attempting to fetch token now...');
-												const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+												console.log(
+													'[TOKEN-STATUS-V8U] Silent API retrieval enabled, attempting to fetch token now...'
+												);
+												const { handleShowWorkerTokenModal } = await import(
+													'@/v8/utils/workerTokenModalHelperV8'
+												);
 												await handleShowWorkerTokenModal(
 													setShowWorkerTokenModal,
 													setTokenStatus,
-													newValue,  // Use new value
+													newValue, // Use new value
 													showTokenAtEnd,
-													false      // Not forced - respect silent setting
+													false // Not forced - respect silent setting
 												);
 											}
 										} catch (error) {
@@ -371,7 +383,11 @@ const TokenStatusPageV8U: React.FC = () => {
 									config.workerToken.showTokenAtEnd = newValue;
 									MFAConfigurationServiceV8.saveConfiguration(config);
 									// Dispatch event to notify other components
-									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+									window.dispatchEvent(
+										new CustomEvent('mfaConfigurationUpdated', {
+											detail: { workerToken: config.workerToken },
+										})
+									);
 								}}
 								style={{
 									width: '20px',
@@ -406,9 +422,10 @@ const TokenStatusPageV8U: React.FC = () => {
 					</TokenStatusTitle>
 				</TokenStatusHeader>
 				<TokenStatusDescription>
-					Monitor user authentication tokens (Access, ID, and Refresh tokens) from OAuth flows and unified authentication.
+					Monitor user authentication tokens (Access, ID, and Refresh tokens) from OAuth flows and
+					unified authentication.
 				</TokenStatusDescription>
-				
+
 				<UserTokenStatusDisplayV8U showRefresh={true} refreshInterval={10} />
 			</TokenStatusCard>
 		</PageContainer>

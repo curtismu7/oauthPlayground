@@ -546,7 +546,9 @@ const Configuration: React.FC = () => {
 	const [workerTokenError, setWorkerTokenError] = useState<string | null>(null);
 	const [showWorkerToken, setShowWorkerToken] = useState(false);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const [tokenStatus, setTokenStatus] = useState(() => WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+	const [tokenStatus, setTokenStatus] = useState(() =>
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+	);
 
 	// Load existing credentials on mount
 	useEffect(() => {
@@ -742,13 +744,17 @@ const Configuration: React.FC = () => {
 							}}
 							onMouseEnter={(e) => {
 								if (!workerTokenLoading) {
-									e.currentTarget.style.backgroundColor = tokenStatus.isValid ? '#059669' : '#2563eb';
+									e.currentTarget.style.backgroundColor = tokenStatus.isValid
+										? '#059669'
+										: '#2563eb';
 									e.currentTarget.style.borderColor = '#ffffff';
 								}
 							}}
 							onMouseLeave={(e) => {
 								if (!workerTokenLoading) {
-									e.currentTarget.style.backgroundColor = tokenStatus.isValid ? '#10b981' : '#3b82f6';
+									e.currentTarget.style.backgroundColor = tokenStatus.isValid
+										? '#10b981'
+										: '#3b82f6';
 									e.currentTarget.style.borderColor = '#ffffff';
 								}
 							}}

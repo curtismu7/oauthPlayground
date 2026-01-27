@@ -491,17 +491,23 @@ const PingOneAuthenticationResult: React.FC = () => {
 									Connect flows).
 								</li>
 								<li>
-									<strong>Refresh Token:</strong> Used to obtain new access tokens without
-									requiring user interaction (if enabled).
+									<strong>Refresh Token:</strong> Used to obtain new access tokens without requiring
+									user interaction (if enabled).
 								</li>
 							</ul>
 							<h4 style={{ color: '#333', marginTop: '1.5rem', marginBottom: '0.5rem' }}>
 								Next Steps
 							</h4>
 							<ul style={{ color: '#666', marginBottom: '1.5rem', paddingLeft: '1.5rem' }}>
-								<li>Use the <strong>Token Introspection</strong> section above to inspect your access token.</li>
+								<li>
+									Use the <strong>Token Introspection</strong> section above to inspect your access
+									token.
+								</li>
 								<li>Test API calls with your access token to access protected resources.</li>
-								<li>Review the <strong>Flow Requests & Responses</strong> section to see detailed API interactions.</li>
+								<li>
+									Review the <strong>Flow Requests & Responses</strong> section to see detailed API
+									interactions.
+								</li>
 								<li>Learn more about OAuth 2.0 and OpenID Connect in the PingOne documentation.</li>
 							</ul>
 						</div>

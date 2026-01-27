@@ -761,7 +761,7 @@ if (introspectionResponse) {
 					setError(null);
 					setTokenResponse(null);
 					setIntrospectionResponse(null);
-					
+
 					// Clear any potential ConfigChecker-related state or cached data
 					try {
 						// Clear any comparison results or cached application data
@@ -769,12 +769,14 @@ if (introspectionResponse) {
 						sessionStorage.removeItem('config-checker-last-check');
 						sessionStorage.removeItem('pingone-app-cache');
 						localStorage.removeItem('pingone-applications-cache');
-						
+
 						// Clear any worker token related cache that might be used for pre-flight checks
 						sessionStorage.removeItem('worker-token-cache');
 						localStorage.removeItem('worker-apps-cache');
-						
-						console.log('🔄 [TokenManagementFlow] Reset: cleared ConfigChecker and pre-flight cache data');
+
+						console.log(
+							'🔄 [TokenManagementFlow] Reset: cleared ConfigChecker and pre-flight cache data'
+						);
 					} catch (error) {
 						console.warn('[TokenManagementFlow] Failed to clear cache data:', error);
 					}

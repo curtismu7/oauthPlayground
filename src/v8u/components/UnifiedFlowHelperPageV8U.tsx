@@ -12,11 +12,15 @@
  */
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiBook, FiCheckCircle, FiInfo, FiShield, FiXCircle } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import {
+	PageHeaderGradients,
+	PageHeaderTextColors,
+	PageHeaderV8,
+} from '@/v8/components/shared/PageHeaderV8';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
-import { PageHeaderV8, PageHeaderGradients, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 
 const MODULE_TAG = '[📚 UNIFIED-FLOW-HELPER-V8U]';
 
@@ -212,9 +216,7 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 							</StatusCell>
 							<StatusCell>
 								<StatusIcon title="Deprecated">❌</StatusIcon>
-								<div style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>
-									Removed
-								</div>
+								<div style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>Removed</div>
 							</StatusCell>
 							<StatusCell>
 								<StatusIcon title="Supported but deprecated">⚠️</StatusIcon>
@@ -297,9 +299,9 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 				<InfoBox $variant="info">
 					<FiInfo size={20} />
 					<InfoText>
-						<strong>PingOne Support:</strong> PingOne supports all three specification versions. When using
-						OIDC Core 1.0, the <code>openid</code> scope is required for ID tokens. For OAuth 2.1 / OIDC 2.1,
-						PKCE is mandatory for public clients (SPAs, mobile apps).
+						<strong>PingOne Support:</strong> PingOne supports all three specification versions.
+						When using OIDC Core 1.0, the <code>openid</code> scope is required for ID tokens. For
+						OAuth 2.1 / OIDC 2.1, PKCE is mandatory for public clients (SPAs, mobile apps).
 					</InfoText>
 				</InfoBox>
 			</Section>
@@ -413,15 +415,21 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 							</TableCell>
 							<StatusCell>
 								<StatusIcon>✅</StatusIcon>
-								<div style={{ fontSize: '12px', color: '#059669', marginTop: '4px' }}>OIDC only</div>
+								<div style={{ fontSize: '12px', color: '#059669', marginTop: '4px' }}>
+									OIDC only
+								</div>
 							</StatusCell>
 							<StatusCell>
 								<StatusIcon>✅</StatusIcon>
-								<div style={{ fontSize: '12px', color: '#059669', marginTop: '4px' }}>OIDC only</div>
+								<div style={{ fontSize: '12px', color: '#059669', marginTop: '4px' }}>
+									OIDC only
+								</div>
 							</StatusCell>
 							<StatusCell>
 								<StatusIcon>✅</StatusIcon>
-								<div style={{ fontSize: '12px', color: '#059669', marginTop: '4px' }}>OIDC only</div>
+								<div style={{ fontSize: '12px', color: '#059669', marginTop: '4px' }}>
+									OIDC only
+								</div>
 							</StatusCell>
 							<StatusCell>
 								<StatusIcon>❌</StatusIcon>
@@ -429,7 +437,9 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 							</StatusCell>
 							<StatusCell>
 								<StatusIcon>✅</StatusIcon>
-								<div style={{ fontSize: '12px', color: '#059669', marginTop: '4px' }}>OIDC only</div>
+								<div style={{ fontSize: '12px', color: '#059669', marginTop: '4px' }}>
+									OIDC only
+								</div>
 							</StatusCell>
 						</TableRow>
 						<TableRow>
@@ -464,22 +474,23 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 				<InfoBox $variant="warning">
 					<FiInfo size={20} />
 					<InfoText>
-						<strong>Key Differences: Authorization Code vs Hybrid:</strong> Both flows are nearly identical
-						and use the same security mechanisms (PKCE recommended). The primary difference is that Hybrid
-						flow can return an ID token immediately in the URL fragment when using <code>response_type</code>{' '}
-						like <code>code id_token</code>, while Authorization Code flow always requires a token exchange
-						step. Hybrid flow is useful when you need the ID token immediately for user identification, while
-						still getting an authorization code for subsequent token exchange.
+						<strong>Key Differences: Authorization Code vs Hybrid:</strong> Both flows are nearly
+						identical and use the same security mechanisms (PKCE recommended). The primary
+						difference is that Hybrid flow can return an ID token immediately in the URL fragment
+						when using <code>response_type</code> like <code>code id_token</code>, while
+						Authorization Code flow always requires a token exchange step. Hybrid flow is useful
+						when you need the ID token immediately for user identification, while still getting an
+						authorization code for subsequent token exchange.
 					</InfoText>
 				</InfoBox>
 
 				<InfoBox $variant="success">
 					<FiCheckCircle size={20} />
 					<InfoText>
-						<strong>PingOne Implementation:</strong> PingOne supports all flow types except ROPC (Resource
-						Owner Password Credentials). For OIDC flows, the <code>openid</code> scope is required. All
-						flows support refresh tokens when using the <code>offline_access</code> scope (except Implicit,
-						which is deprecated).
+						<strong>PingOne Implementation:</strong> PingOne supports all flow types except ROPC
+						(Resource Owner Password Credentials). For OIDC flows, the <code>openid</code> scope is
+						required. All flows support refresh tokens when using the <code>offline_access</code>{' '}
+						scope (except Implicit, which is deprecated).
 					</InfoText>
 				</InfoBox>
 			</Section>
@@ -495,8 +506,8 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 					<FiInfo size={20} />
 					<div>
 						<InfoText>
-							<strong>OpenID Scope Requirement:</strong> PingOne requires the <code>openid</code> scope
-							even for pure OAuth 2.0 flows when using OIDC-enabled applications. This ensures
+							<strong>OpenID Scope Requirement:</strong> PingOne requires the <code>openid</code>{' '}
+							scope even for pure OAuth 2.0 flows when using OIDC-enabled applications. This ensures
 							compatibility with OIDC discovery and token introspection endpoints.
 						</InfoText>
 					</div>
@@ -506,9 +517,9 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 					<FiCheckCircle size={20} />
 					<div>
 						<InfoText>
-							<strong>PKCE with PingOne:</strong> While PKCE is optional in OAuth 2.0, PingOne recommends
-							using PKCE for all public clients (SPAs, mobile apps). For OAuth 2.1 / OIDC 2.1 flows, PKCE
-							is mandatory for public clients.
+							<strong>PKCE with PingOne:</strong> While PKCE is optional in OAuth 2.0, PingOne
+							recommends using PKCE for all public clients (SPAs, mobile apps). For OAuth 2.1 / OIDC
+							2.1 flows, PKCE is mandatory for public clients.
 						</InfoText>
 					</div>
 				</InfoBox>
@@ -517,16 +528,16 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 					<FiInfo size={20} />
 					<div>
 						<InfoText>
-							<strong>Token Endpoint Authentication:</strong> PingOne supports multiple authentication
-							methods:
+							<strong>Token Endpoint Authentication:</strong> PingOne supports multiple
+							authentication methods:
 						</InfoText>
 						<List>
 							<ListItem>
 								<code>client_secret_basic</code> - Client credentials in Authorization header
 							</ListItem>
 							<ListItem>
-								<code>client_secret_post</code> - Client credentials in request body (recommended for
-								web apps)
+								<code>client_secret_post</code> - Client credentials in request body (recommended
+								for web apps)
 							</ListItem>
 							<ListItem>
 								<code>client_secret_jwt</code> - Signed JWT with client secret
@@ -545,10 +556,10 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 					<FiInfo size={20} />
 					<div>
 						<InfoText>
-							<strong>Redirect URI Validation:</strong> PingOne requires exact match of redirect URIs. The
-							redirect URI in the authorization request must exactly match one of the registered redirect
-							URIs in the application configuration, including protocol (http/https), domain, port, and
-							path.
+							<strong>Redirect URI Validation:</strong> PingOne requires exact match of redirect
+							URIs. The redirect URI in the authorization request must exactly match one of the
+							registered redirect URIs in the application configuration, including protocol
+							(http/https), domain, port, and path.
 						</InfoText>
 					</div>
 				</InfoBox>
