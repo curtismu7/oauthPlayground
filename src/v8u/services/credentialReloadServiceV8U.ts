@@ -18,6 +18,7 @@
  */
 
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { logger } from './unifiedFlowLoggerServiceV8U';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { SharedCredentialsServiceV8 } from '@/v8/services/sharedCredentialsServiceV8';
 import type { UnifiedFlowCredentials } from '@/v8u/services/unifiedFlowIntegrationV8U';
@@ -184,7 +185,7 @@ function mergeAllCredentialFields(
 export async function reloadCredentialsAfterReset(
 	flowKey: string
 ): Promise<UnifiedFlowCredentials> {
-	console.log(`${MODULE_TAG} Reloading credentials from storage for flow reset`, { flowKey });
+	logger.debug(Reloading credentials from storage for flow reset`, { flowKey });
 
 	// Debug: Check what's actually in localStorage for this flowKey
 	try {
@@ -192,7 +193,7 @@ export async function reloadCredentialsAfterReset(
 		const rawStored = localStorage.getItem(storageKey);
 		if (rawStored) {
 			const parsedStored = JSON.parse(rawStored);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Raw localStorage data for flowKey`, {
+			logger.debug(🔍 DEBUG: Raw localStorage data for flowKey`, {
 				flowKey,
 				storageKey,
 				hasRedirectUri: !!parsedStored.redirectUri,
@@ -202,13 +203,13 @@ export async function reloadCredentialsAfterReset(
 				allKeys: Object.keys(parsedStored),
 			});
 		} else {
-			console.warn(`${MODULE_TAG} ⚠️ DEBUG: No data in localStorage for flowKey`, {
+			logger.warn(⚠️ DEBUG: No data in localStorage for flowKey`, {
 				flowKey,
 				storageKey,
 			});
 		}
 	} catch (debugError) {
-		console.warn(`${MODULE_TAG} ⚠️ DEBUG: Error checking localStorage`, {
+		logger.warn(⚠️ DEBUG: Error checking localStorage`, {
 			flowKey,
 			error: debugError,
 		});
@@ -249,7 +250,7 @@ export async function reloadCredentialsAfterReset(
 			const loaded = await CredentialsServiceV8.loadCredentialsWithBackup(flowKey, config);
 			flowSpecific = loaded as Record<string, unknown>;
 		} catch (error) {
-			console.warn(`${MODULE_TAG} ⚠️ Async load failed, using sync fallback`, { flowKey, error });
+			logger.warn(⚠️ Async load failed, using sync fallback`, { flowKey, error });
 			// Fall back to sync version
 			flowSpecific = CredentialsServiceV8.loadCredentials(flowKey, config) as Record<
 				string,
@@ -258,7 +259,7 @@ export async function reloadCredentialsAfterReset(
 		}
 
 		// Debug: Log what was loaded to verify redirectUri and clientAuthMethod are present
-		console.log(`${MODULE_TAG} 🔍 Loaded flow-specific credentials`, {
+		logger.debug(🔍 Loaded flow-specific credentials`, {
 			flowKey,
 			hasRedirectUri: !!flowSpecific.redirectUri,
 			redirectUri: flowSpecific.redirectUri,
@@ -325,7 +326,7 @@ export async function reloadCredentialsAfterReset(
 			storedEnvId
 		);
 
-		console.log(`${MODULE_TAG} ✅ Credentials reloaded from storage`, {
+		logger.debug(✅ Credentials reloaded from storage`, {
 			flowKey,
 			hasEnvId: !!merged.environmentId?.trim(),
 			hasClientId: !!merged.clientId?.trim(),
@@ -380,7 +381,7 @@ export async function reloadCredentialsAfterReset(
 
 		return merged;
 	} catch (error) {
-		console.error(`${MODULE_TAG} ❌ Error reloading credentials from storage`, {
+		logger.error(❌ Error reloading credentials from storage`, {
 			flowKey,
 			error: error instanceof Error ? error.message : String(error),
 		});
@@ -408,7 +409,7 @@ export function saveCredentialsBeforeReset(
 	flowKey: string,
 	credentials: UnifiedFlowCredentials
 ): void {
-	console.log(`${MODULE_TAG} Saving credentials before flow reset`, { flowKey });
+	logger.debug(Saving credentials before flow reset`, { flowKey });
 
 	try {
 		// Save flow-specific credentials
@@ -435,9 +436,9 @@ export function saveCredentialsBeforeReset(
 		};
 		SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
 
-		console.log(`${MODULE_TAG} ✅ Credentials saved before reset`);
+		logger.debug(✅ Credentials saved before reset`);
 	} catch (error) {
-		console.error(`${MODULE_TAG} ❌ Error saving credentials before reset`, {
+		logger.error(❌ Error saving credentials before reset`, {
 			flowKey,
 			error: error instanceof Error ? error.message : String(error),
 		});

@@ -1,6 +1,8 @@
 // src/v8u/services/securityService.ts
 // Comprehensive Security Service for OAuth Playground
 
+import { logger } from './unifiedFlowLoggerServiceV8U';
+
 export interface SecurityThreat {
 	id: string;
 	type: 'xss' | 'csrf' | 'injection' | 'token_leak' | 'invalid_redirect' | 'weak_crypto';
@@ -87,14 +89,14 @@ export class SecurityService {
 			}
 			return decrypted;
 		} catch (error) {
-			console.error('[Security] Failed to decrypt token:', error);
+			logger.error('[Security] Failed to decrypt token:', error);
 			return '';
 		}
 	}
 
 	// Security Scanning
 	async performSecurityScan(): Promise<SecurityScan> {
-		console.log('[Security] Performing security scan...');
+		logger.debug('[Security] Performing security scan...');
 
 		const threats: SecurityThreat[] = [];
 		const scanId = this.generateId();
@@ -306,7 +308,7 @@ export class SecurityService {
 			this.auditLogs = this.auditLogs.slice(-1000);
 		}
 
-		console.log(`[Security Audit] ${event}:`, details);
+		logger.debug(`[Security Audit] ${event}:`, details);
 	}
 
 	private getClientIP(): string {
