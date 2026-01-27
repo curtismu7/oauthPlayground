@@ -1910,7 +1910,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 	const defaultSubtitle = subtitle || `Configure credentials for ${flowType} flow`;
 
 	return (
-		<div className="credentials-form-v8">
+		<>
+			<div className="credentials-form-v8">
 			{/* Header Image Section */}
 			<div className="form-section" data-section="header">
 				<button
@@ -6376,7 +6377,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 					/>
 		</div>
 
-		<style>{`
+		<style jsx>{`
 				.credentials-form-v8 {
 					width: 100%;
 					border: 1px solid #cbd5e1;
@@ -6680,7 +6681,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 					20%, 40%, 60%, 80% { transform: translateX(4px); }
 				}
 			`}</style>
-		</div>
+		</>
 	);
 };
 
