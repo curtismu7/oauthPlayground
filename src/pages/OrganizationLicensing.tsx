@@ -87,6 +87,30 @@ const StepDescription = styled.div`
 	}
 `;
 
+const ScopeList = styled.ul`
+	margin: 1rem 0;
+	padding-left: 1.5rem;
+	
+	li {
+		margin-bottom: 0.5rem;
+		line-height: 1.6;
+		color: #374151;
+		
+		code {
+			background: #f3f4f6;
+			padding: 0.125rem 0.25rem;
+			border-radius: 0.25rem;
+			font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+			font-size: 0.875rem;
+			color: #1f2937;
+		}
+	}
+	
+	li:last-child {
+		margin-bottom: 0;
+	}
+`;
+
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 0.5rem;
