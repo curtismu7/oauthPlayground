@@ -373,112 +373,97 @@ const createPopOutWindow = (
 				}
 
 				// Filter calls based on current settings
-				const filteredCalls = window.processedCalls ? window.processedCalls.filter(call => {
-					console.log('Filtering calls, total:', window.processedCalls.length);
-					return true; // For now, show all calls
-				}) : [];
+				const filteredCalls = showP1OnlyFilter 
+					? currentApiCalls.filter(call => call.isProxy || call.url.includes('/pingone-auth/'))
+					: currentApiCalls;
 
-				const html = \`
-					<div style="width: 100%; height: 100vh; display: flex; flex-direction: column; font-family: monospace; font-size: \${currentFontSize}px; background: white;">
-						<div style="padding: 12px 16px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
-							<div style="color: #10b981; font-weight: bold; font-size: \${currentFontSize + 2}px;">
-								⚡ API Calls (\${filteredCalls.length}) - Pop Out Window
-							</div>
-							<div style="display: flex; gap: 8px; align-items: center;">
-								<div style="display: flex; gap: 4px; align-items: center; margin-right: 8px; padding: 4px 8px; background: #e5e7eb; border-radius: 4px;">
-									<button onclick="window.decreaseFont()" style="padding: 4px 8px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 3px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">−</button>
-									<span style="font-size: \${currentFontSize - 2}px; color: #6b7280; min-width: 32px; text-align: center;">\${currentFontSize}px</span>
-									<button onclick="window.increaseFont()" style="padding: 4px 8px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 3px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">+</button>
-								</div>
-								\${filteredCalls.length > 0 ? \`
-									<button onclick="window.toggleP1OnlyFilter()" style="padding: 6px 12px; background: \${showP1OnlyFilter ? '#10b981' : '#6b7280'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">\${showP1OnlyFilter ? '🔍 P1 Only' : '📋 All Calls'}</button>
-									<button onclick="window.expandAll()" style="padding: 6px 12px; background: \${expandedIds.size === filteredCalls.length ? '#10b981' : '#3b82f6'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">▼ Expand All</button>
-									<button onclick="window.collapseAll()" style="padding: 6px 12px; background: \${expandedIds.size === 0 ? '#6b7280' : '#3b82f6'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">▲ Collapse All</button>
-									<button onclick="window.clearCalls()" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">Clear</button>
-								\` : ''}
-								<button onclick="window.close()" style="padding: 6px 12px; background: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">✕ Close</button>
-							</div>
-						</div>
-						<div style="flex: 1; overflow-y: auto; padding: 16px;">
-							\${filteredCalls.length === 0 ? \`
-								<div style="text-align: center; padding: 40px; color: #9ca3af;">
-									<div style="font-size: 48px; margin-bottom: 16px;">⚡</div>
-									<div style="font-weight: 600; margin-bottom: 8px; color: #6b7280; font-size: \${currentFontSize + 2}px;">No API Calls Yet</div>
-									<div style="font-size: \${currentFontSize}px;">API calls will appear here as you use the flow</div>
-								</div>
-							\` : \`
-								<table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-									<thead style="background: #f3f4f6; position: sticky; top: 0; z-index: 1;">
-										<tr>
-											<th style="padding: 8px 12px; text-align: center; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb; font-size: \${currentFontSize}px;">Type</th>
-											<th style="padding: 8px 12px; text-align: left; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb; font-size: \${currentFontSize}px;">Status</th>
-											<th style="padding: 8px 12px; text-align: left; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb; font-size: \${currentFontSize}px;">Method</th>
-											<th style="padding: 8px 12px; text-align: left; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb; font-size: \${currentFontSize}px;">Code</th>
-											<th style="padding: 8px 12px; text-align: left; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb; font-size: \${currentFontSize}px; width: 40%;">URL</th>
-											<th style="padding: 8px 12px; text-align: left; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb; font-size: \${currentFontSize}px;">Time</th>
-										</tr>
-									</thead>
-									<tbody>
-										\${window.processedCalls ? window.processedCalls.map(call => {
-											const isExpanded = expandedIds.has(call.id);
-											const displayUrl = call.actualPingOneUrl || call.url;
-											const urlEscaped = displayUrl.replace(/'/g, "\\\\'");
-											
-											return \`
-												<tr onclick="window.toggleExpand('\${call.id}')" style="cursor: pointer; background: \${isExpanded ? '#f3f4f6' : 'white'}; border-bottom: 1px solid #e5e7eb;" onmouseover="this.style.background='\${isExpanded ? '#f3f4f6' : '#f9fafb'}'" onmouseout="this.style.background='\${isExpanded ? '#f3f4f6' : 'white'}'">
-													<td style="padding: 12px; text-align: center; font-size: \${currentFontSize + 4}px;" title="\${call.apiType.label}">\${call.apiType.icon}</td>
-													<td style="padding: 12px; font-size: \${currentFontSize + 4}px;">\${getStatusDot(call.response?.status || 0)}</td>
-													<td style="padding: 12px;"><span style="padding: 4px 8px; background: \${call.methodColor}; color: white; border-radius: 3px; font-size: \${currentFontSize}px; font-weight: bold;">\${call.method}</span></td>
-													<td style="padding: 12px; color: \${call.statusColor}; font-weight: bold; font-size: \${currentFontSize}px;">\${call.response?.status ? call.response.status + ' ' + getStatusLabel(call.response.status) : '...'}</td>
-													<td style="padding: 12px; color: #1f2937; font-size: \${currentFontSize}px; word-break: break-all; white-space: normal; overflow-wrap: anywhere;">
-														\${isProxyCall(call) ? '<span style="padding: 2px 6px; background: #374151; color: #9ca3af; border-radius: 2px; font-size: ' + (currentFontSize - 2) + 'px; margin-right: 6px;">PROXY</span>' : ''}\${getShortUrl(call)}</td>
-													<td style="padding: 12px; color: #6b7280; font-size: \${currentFontSize}px;">\${new Date(call.timestamp).toLocaleTimeString()}</td>
-												</tr>\` + (isExpanded ? \`
-													<tr class="expanded-row">
-														<td colspan="6" style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
-															<div style="display: grid; gap: 12px;">
-																<div>
-																	<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-																		<div style="color: #6b7280; font-size: 10px; font-weight: 600;">FULL URL:</div>
-																		<button class="copy-btn \${copiedField === 'url-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${urlEscaped}', 'url-\${call.id}')">\${copiedField === 'url-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
-																	</div>
-																	<div style="color: #2563eb; font-size: 11px; word-break: break-all; white-space: normal; overflow-wrap: anywhere;">\${displayUrl}</div>
-																</div>\` + (call.hasHeaders ? \`
-																<div>
-																	<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-																		<div style="color: #6b7280; font-size: 10px; font-weight: 600;">REQUEST HEADERS:</div>
-																		<button class="copy-btn \${copiedField === 'headers-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${escapeForJsString(call.headersText)}', 'headers-\${call.id}')">\${copiedField === 'headers-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
-																	</div>
-																	<div class="json-display"><pre>\${call.headersText}</pre></div>
-																</div>\` : '') + (call.hasBody ? \`
-																<div>
-																	<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-																		<div style="color: #6b7280; font-size: 10px; font-weight: 600;">REQUEST BODY:</div>
-																		<button class="copy-btn \${copiedField === 'body-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${escapeForJsString(call.bodyText)}', 'body-\${call.id}')">\${copiedField === 'body-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
-																	</div>
-																	<div class="json-display"><pre>\${call.bodyText}</pre></div>
-																</div>\` : '') + (call.hasResponse ? \`
-																<div style="padding: 8px 12px; background: #e0f2fe; border-radius: 4px; border: 1px solid #38bdf8; margin-top: 12px;">
-																	<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-																		<div style="color: #0369a1; font-size: 11px; font-weight: 700;">RESPONSE (for debugging):</div>
-																		<button class="copy-btn \${copiedField === 'response-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${escapeForJsString(call.responseText)}', 'response-\${call.id}')" style="padding: 4px 10px; background: \${copiedField === 'response-' + call.id ? '#10b981' : '#0ea5e9'}; color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: 600;">\${copiedField === 'response-' + call.id ? '✓ Copied' : '📋 Copy Response'}</button>
-																	</div>
-																	<div class="json-display"><pre>\${call.responseText}</pre></div>
-																</div>\` : '') + \`
-															</div>
-														</td>
-													</tr>\` : '')
-											\`;
-										}).join('')}
-									</tbody>
-								</table>
-							\`}
-						</div>
-					</div>
-				\`;
-				console.log('Setting innerHTML');
+				let html = '<div class="header">';
+				html += '<div class="title">⚡ API Calls (' + filteredCalls.length + ') - Pop Out Window</div>';
+				html += '<div class="controls">';
+				html += '<div class="font-controls">';
+				html += '<button class="btn" onclick="decreaseFont()">−</button>';
+				html += '<span style="min-width: 32px; text-align: center;">' + currentFontSize + 'px</span>';
+				html += '<button class="btn" onclick="increaseFont()">+</button>';
+				html += '</div>';
+				
+				if (filteredCalls.length > 0) {
+					html += '<button class="btn ' + (showP1OnlyFilter ? 'btn-success' : 'btn-secondary') + '" onclick="toggleP1OnlyFilter()">' + (showP1OnlyFilter ? '🔍 P1 Only' : '📋 All Calls') + '</button>';
+					html += '<button class="btn-primary" onclick="expandAll()">▼ Expand All</button>';
+					html += '<button class="btn-primary" onclick="collapseAll()">▲ Collapse All</button>';
+					html += '<button class="btn-danger" onclick="clearCalls()">Clear</button>';
+				}
+				
+				html += '<button class="btn-secondary" onclick="window.close()">✕ Close</button>';
+				html += '</div></div>';
+				html += '<div class="content">';
+
+				if (filteredCalls.length === 0) {
+					html += '<div class="no-calls">';
+					html += '<div class="no-calls-icon">⚡</div>';
+					html += '<div class="no-calls-title">No API Calls Yet</div>';
+					html += '<div>API calls will appear here as you use the flow</div>';
+					html += '</div>';
+				} else {
+					html += '<table class="table">';
+					html += '<thead class="thead"><tr>';
+					html += '<th class="th-center">Type</th>';
+					html += '<th>Status</th>';
+					html += '<th>Method</th>';
+					html += '<th>Code</th>';
+					html += '<th>URL</th>';
+					html += '<th>Time</th>';
+					html += '</tr></thead><tbody>';
+
+					filteredCalls.forEach(function(call) {
+						var isExpanded = expandedIds.has(call.id);
+						var displayUrl = getShortUrl(call);
+						var status = call.response ? call.response.status : 0;
+						var methodColor = call.method === 'GET' ? '#3b82f6' : call.method === 'POST' ? '#10b981' : '#ef4444';
+						var statusColor = status >= 200 && status < 300 ? '#10b981' : status >= 400 ? '#ef4444' : '#f59e0b';
+
+						html += '<tr class="tr ' + (isExpanded ? 'expanded' : '') + '" onclick="toggleExpand(\'' + call.id + '\')">';
+						html += '<td class="td th-center" title="' + call.apiType.label + '">' + call.apiType.icon + '</td>';
+						html += '<td class="td">' + getStatusDot(status) + '</td>';
+						html += '<td class="td"><span class="method-badge" style="background: ' + methodColor + '">' + call.method + '</span></td>';
+						html += '<td class="td" style="color: ' + statusColor + '; font-weight: bold;">' + (status ? status + ' ' + getStatusLabel(status) : '...') + '</td>';
+						html += '<td class="td" style="color: #1f2937;">';
+						if (isProxyCall(call)) {
+							html += '<span class="proxy-badge">PROXY</span>';
+						}
+						html += displayUrl + '</td>';
+						html += '<td class="td" style="color: #6b7280;">' + new Date(call.timestamp).toLocaleTimeString() + '</td>';
+						html += '</tr>';
+
+						if (isExpanded) {
+							html += '<tr class="expanded-row"><td colspan="6">';
+							html += '<div class="expanded-content">';
+							html += '<div class="section-header"><div class="section-title">FULL URL:</div><button class="copy-btn" onclick="handleCopy(\'' + displayUrl.replace(/'/g, '\\\'') + '\', \'url-' + call.id + '\')">' + (copiedField === 'url-' + call.id ? '✓ Copied' : '📋 Copy') + '</button></div>';
+							html += '<div class="url-text">' + displayUrl + '</div>';
+							
+							if (call.hasHeaders) {
+								html += '<div class="section-header"><div class="section-title">REQUEST HEADERS:</div><button class="copy-btn" onclick="handleCopy(\'' + (call.headersText || '').replace(/'/g, '\\\'') + '\', \'headers-' + call.id + '\')">' + (copiedField === 'headers-' + call.id ? '✓ Copied' : '📋 Copy') + '</button></div>';
+								html += '<div class="code-block">' + (call.headersText || '') + '</div>';
+							}
+							
+							if (call.hasBody) {
+								html += '<div class="section-header"><div class="section-title">REQUEST BODY:</div><button class="copy-btn" onclick="handleCopy(\'' + (call.bodyText || '').replace(/'/g, '\\\'') + '\', \'body-' + call.id + '\')">' + (copiedField === 'body-' + call.id ? '✓ Copied' : '📋 Copy') + '</button></div>';
+								html += '<div class="code-block">' + (call.bodyText || '') + '</div>';
+							}
+							
+							if (call.hasResponse) {
+								html += '<div class="section-header"><div class="section-title">RESPONSE BODY:</div><button class="copy-btn" onclick="handleCopy(\'' + (call.responseText || '').replace(/'/g, '\\\'') + '\', \'response-' + call.id + '\')">' + (copiedField === 'response-' + call.id ? '✓ Copied' : '📋 Copy') + '</button></div>';
+								html += '<div class="code-block">' + (call.responseText || '') + '</div>';
+							}
+							
+							html += '</div></td></tr>';
+						}
+					});
+
+					html += '</tbody></table>';
+				}
+
+				html += '</div>';
 				root.innerHTML = html;
-				console.log('Render completed');
 			}
 
 			// Expose functions to window
