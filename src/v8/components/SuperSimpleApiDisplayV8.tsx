@@ -343,25 +343,20 @@ const createPopOutWindow = (
 				}
 			}
 
-			function toggleP1OnlyFilter() {
-				showP1OnlyFilter = !showP1OnlyFilter;
-				if (window.opener) {
-					window.opener.postMessage({ type: 'showP1OnlyChange', showP1Only: showP1OnlyFilter }, '*');
-				}
-				render();
-			}
-
+			// Main render function
 			function render() {
-				const root = document.getElementById('api-display-root');
-				if (!root) return;
-
-				// Apply P1-only filter if enabled (filter out proxy calls)
-				let filteredCalls = currentApiCalls;
-				if (showP1OnlyFilter) {
-					filteredCalls = currentApiCalls.filter(call => {
-						return !isProxyCall(call);
-					});
+				console.log('Render function called');
+				const root = document.getElementById('root');
+				if (!root) {
+					console.error('Root element not found');
+					return;
 				}
+
+				// Filter calls based on current settings
+				const filteredCalls = window.processedCalls ? window.processedCalls.filter(call => {
+					console.log('Filtering calls, total:', window.processedCalls.length);
+					return true; // For now, show all calls
+				}) : [];
 
 				const html = \`
 					<div style="width: 100%; height: 100vh; display: flex; flex-direction: column; font-family: monospace; font-size: \${currentFontSize}px; background: white;">
@@ -461,7 +456,9 @@ const createPopOutWindow = (
 						</div>
 					</div>
 				\`;
+				console.log('Setting innerHTML');
 				root.innerHTML = html;
+				console.log('Render completed');
 			}
 
 			// Expose functions to window
@@ -526,6 +523,11 @@ const createPopOutWindow = (
 				return displayUrl;
 			};
 
+			// Debug: Log that JavaScript is loading
+			console.log('Popout window JavaScript loading...');
+			console.log('Processed calls available:', !!window.processedCalls);
+			console.log('Processed calls count:', window.processedCalls?.length || 0);
+
 			// Initial render
 			render();
 		})();
@@ -538,6 +540,7 @@ const createPopOutWindow = (
 
 	// Pass the processed data to the popout window
 	(newWindow as any).processedCalls = processedCalls;
+	console.log('Popout window created with processed calls:', processedCalls.length);
 
 	return newWindow;
 };
