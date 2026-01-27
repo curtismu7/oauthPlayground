@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import type {

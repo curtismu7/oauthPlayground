@@ -1,6 +1,6 @@
 import { DragDropContext, Draggable, Droppable, type DropResult } from '@hello-pangea/dnd';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ButtonSpinner, SmallSpinner } from '@/components/ui';
+import { ButtonSpinner } from '@/components/ui';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';

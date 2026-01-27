@@ -237,7 +237,7 @@ export class MFAReportingServiceV8 {
 				// Provide more helpful error messages for common issues
 				if (response.status === 403) {
 					// Check if backend provided enhanced error message
-					if (errorData.message && errorData.message.includes('403 Forbidden')) {
+					if (errorData.message?.includes('403 Forbidden')) {
 						throw new Error(errorData.message);
 					}
 

@@ -11,7 +11,6 @@
  */
 
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 
 const MODULE_TAG = '[🛡️ PROTECT-SERVICE-V8]';
 
@@ -464,17 +463,6 @@ export class ProtectServiceV8 {
 			console.error(`${MODULE_TAG} Credential validation failed:`, error);
 			return false;
 		}
-	}
-
-	/**
-	 * Helper method to get worker token with automatic renewal
-	 */
-	private static async getWorkerToken(): Promise<string> {
-		const token = await workerTokenServiceV8.getToken();
-		if (!token) {
-			throw new Error('Worker token not found. Please generate a worker token first.');
-		}
-		return token.trim().replace(/^Bearer\s+/i, '');
 	}
 
 	/**
