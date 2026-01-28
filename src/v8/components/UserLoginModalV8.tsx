@@ -86,6 +86,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	} | null>(null);
 	// Fix errors state
 	const [isFixingErrors, setIsFixingErrors] = useState(false);
+	// Import/Export state
+	const [exportConfig, setExportConfig] = useState(false);
+	const [isImporting, setIsImporting] = useState(false);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 	// Use different default redirect URI for MFA flows
 	const defaultRedirectUri = isMfaFlow
 		? 'https://localhost:3000/user-mfa-login-callback'
@@ -277,6 +281,114 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			setIsFixingErrors(false);
 		}
 	};
+
+	// Export configuration function
+	const handleExportConfig = useCallback(() => {
+		if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim() || !redirectUri.trim()) {
+			toastV8.error('Please fill in all required fields before exporting');
+			return;
+		}
+
+		const configData = {
+			environmentId: environmentId.trim(),
+			clientId: clientId.trim(),
+			clientSecret: clientSecret.trim(),
+			redirectUri: redirectUri.trim(),
+			scopes: scopes.trim(),
+			authMethod,
+			isMfaFlow,
+			exportedAt: new Date().toISOString(),
+			version: '1.0',
+			description: 'User Login Modal Configuration',
+		};
+
+		// Create and download the config file
+		const blob = new Blob([JSON.stringify(configData, null, 2)], { type: 'application/json' });
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = `user-login-config-${environmentId.trim()}-${new Date().toISOString().split('T')[0]}.json`;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		URL.revokeObjectURL(url);
+
+		toastV8.success('Configuration exported successfully!');
+	}, [environmentId, clientId, clientSecret, redirectUri, scopes, authMethod, isMfaFlow]);
+
+	// Import configuration function
+	const handleImportConfig = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+		if (!file) return;
+
+		setIsImporting(true);
+
+		const reader = new FileReader();
+		reader.onload = (e) => {
+			try {
+				const content = e.target?.result;
+				if (typeof content !== 'string') {
+					throw new Error('Invalid file content');
+				}
+
+				const configData = JSON.parse(content);
+
+				// Validate required fields
+				const requiredFields = ['environmentId', 'clientId', 'clientSecret', 'redirectUri'];
+				const missingFields = requiredFields.filter((field) => !configData[field]);
+
+				if (missingFields.length > 0) {
+					throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+				}
+
+				// Validate field formats
+				if (typeof configData.environmentId !== 'string' || !configData.environmentId.trim()) {
+					throw new Error('Invalid environment ID format');
+				}
+				if (typeof configData.clientId !== 'string' || !configData.clientId.trim()) {
+					throw new Error('Invalid client ID format');
+				}
+				if (typeof configData.clientSecret !== 'string' || !configData.clientSecret.trim()) {
+					throw new Error('Invalid client secret format');
+				}
+				if (typeof configData.redirectUri !== 'string' || !configData.redirectUri.trim()) {
+					throw new Error('Invalid redirect URI format');
+				}
+
+				// Apply imported configuration
+				setEnvironmentId(configData.environmentId.trim());
+				setClientId(configData.clientId.trim());
+				setClientSecret(configData.clientSecret.trim());
+				setRedirectUri(configData.redirectUri.trim());
+				setScopes(configData.scopes || 'openid profile email');
+				setAuthMethod(configData.authMethod || 'client_secret_post');
+
+				toastV8.success('Configuration imported successfully!');
+				console.log(`${MODULE_TAG} Imported configuration:`, configData);
+			} catch (error) {
+				console.error(`${MODULE_TAG} Error importing configuration:`, error);
+				toastV8.error(
+					`Failed to import configuration: ${error instanceof Error ? error.message : 'Unknown error'}`
+				);
+			} finally {
+				setIsImporting(false);
+				// Reset file input
+				if (fileInputRef.current) {
+					fileInputRef.current.value = '';
+				}
+			}
+		};
+
+		reader.onerror = () => {
+			toastV8.error('Failed to read file');
+			setIsImporting(false);
+			if (fileInputRef.current) {
+				fileInputRef.current.value = '';
+			}
+		};
+
+		reader.readAsText(file);
+	}, []);
 
 	// Track if success page was set (to prevent clearing it prematurely when parent closes modal)
 	const successPageSetRef = React.useRef(false);
@@ -1078,6 +1190,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			// Notify parent that credentials were saved (so it can refresh/update state)
 			onCredentialsSaved?.();
 
+			// Export config if checkbox is checked
+			if (exportConfig) {
+				handleExportConfig();
+			}
+
 			// Modal stays open so user can continue editing or login
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to save credentials:`, error);
@@ -1094,6 +1211,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		authMethod,
 		onCredentialsSaved,
 		defaultRedirectUri,
+		exportConfig,
+		handleExportConfig,
 	]);
 
 	const handleLogin = async () => {
@@ -2244,6 +2363,103 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									</span>
 								</div>
 							</label>
+						</div>
+					</div>
+
+					{/* Import/Export Configuration */}
+					<div
+						style={{
+							marginTop: '24px',
+							padding: '16px',
+							background: '#f9fafb',
+							borderRadius: '8px',
+							border: '1px solid #e5e7eb',
+						}}
+					>
+						<h3
+							style={{
+								margin: '0 0 12px 0',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+							}}
+						>
+							📁 Configuration
+						</h3>
+
+						{/* Export Checkbox */}
+						<div style={{ marginBottom: '12px' }}>
+							<label
+								style={{
+									display: 'flex',
+									alignItems: 'flex-start',
+									gap: '8px',
+									cursor: 'pointer',
+								}}
+							>
+								<input
+									type="checkbox"
+									checked={exportConfig}
+									onChange={(e) => setExportConfig(e.target.checked)}
+									style={{
+										marginTop: '2px',
+										flexShrink: 0,
+									}}
+								/>
+								<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+									<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+										Export configuration when saving
+									</span>
+									<span style={{ fontSize: '12px', color: '#6b7280' }}>
+										Save configuration as a JSON file when clicking "Save Credentials"
+									</span>
+								</div>
+							</label>
+						</div>
+
+						{/* Import Button */}
+						<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+							<input
+								ref={fileInputRef}
+								type="file"
+								accept=".json"
+								onChange={handleImportConfig}
+								style={{ display: 'none' }}
+							/>
+							<button
+								type="button"
+								onClick={() => fileInputRef.current?.click()}
+								disabled={isImporting}
+								style={{
+									padding: '8px 16px',
+									background: isImporting ? '#fbbf24' : '#3b82f6',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '14px',
+									fontWeight: '600',
+									cursor: isImporting ? 'not-allowed' : 'pointer',
+									transition: 'all 0.2s ease',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '6px',
+								}}
+							>
+								{isImporting ? (
+									<>
+										<span>📥</span>
+										<span>Importing...</span>
+									</>
+								) : (
+									<>
+										<span>📥</span>
+										<span>Import Config</span>
+									</>
+								)}
+							</button>
+							<small style={{ fontSize: '12px', color: '#6b7280' }}>
+								Load configuration from a previously exported JSON file
+							</small>
 						</div>
 					</div>
 
