@@ -520,6 +520,7 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 							>
 								Device Status:
 								<MFAInfoButtonV8
+									key="sms-device-status-info" // Unique key to prevent state sharing
 									contentKey="device.status.rules"
 									displayMode="modal"
 									label="What is this?"
