@@ -1262,11 +1262,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						}
 
 						setShowModal(false);
-						// Navigate immediately to avoid any delay - same pattern as SMS flow
-						// Use setTimeout to ensure state updates complete before navigation
-						setTimeout(() => {
-							nav.goToStep(3); // Go directly to validation step (Step 3)
-						}, 0);
+						// Auto-advance removed - user must manually click "Next" button
+						// User controls navigation to validation step
 
 						toastV8.success('Email device registered! OTP has been sent automatically.');
 					} else if (actualDeviceStatus === 'ACTIVE') {
