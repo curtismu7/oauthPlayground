@@ -2106,8 +2106,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									{isGettingWorkerToken ? 'Getting Token...' : 'Get Worker Token'}
 								</button>
 
-								{/* Worker Token Status Display */}
-								<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
+								{/* Worker Token Status Display - Removed */}
 							</div>
 
 							{/* Worker Token Configuration Options */}
