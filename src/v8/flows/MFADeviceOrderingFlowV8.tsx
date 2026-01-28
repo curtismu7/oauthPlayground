@@ -69,11 +69,9 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 	});
 
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
-		status: 'missing',
-		message: 'Checking...',
-		isValid: false,
-	});
+	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>(
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
+	);
 
 	// Worker Token Settings - Load from config service
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
@@ -122,7 +120,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 	// Check token status periodically
 	useEffect(() => {
 		const checkStatus = () => {
-			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 			setTokenStatus(status);
 		};
 
@@ -176,7 +174,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				// #region agent log
 				// #endregion
 				window.dispatchEvent(new Event('workerTokenUpdated'));
-				const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 				// #region agent log
 				// #endregion
 				setTokenStatus(newStatus);
@@ -199,7 +197,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 
 	const handleWorkerTokenGenerated = () => {
 		window.dispatchEvent(new Event('workerTokenUpdated'));
-		setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+		setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 		toastV8.success('Worker token generated and saved!');
 	};
 
@@ -453,7 +451,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 		if (!showWorkerTokenModal) return false;
 		try {
 			const config = MFAConfigurationServiceV8.loadConfiguration();
-			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 			return config.workerToken.showTokenAtEnd && tokenStatus.isValid;
 		} catch {
 			return false;
@@ -585,7 +583,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 
 											// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 											if (newValue) {
-												const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+												const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 												if (!currentStatus.isValid) {
 													console.log(
 														'[DEVICE-ORDER-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
@@ -1128,7 +1126,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 					onClose={() => {
 						setShowWorkerTokenModal(false);
 						// Refresh token status when modal closes (matches MFA pattern)
-						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 					}}
 					onTokenGenerated={handleWorkerTokenGenerated}
 					environmentId={credentials.environmentId}
