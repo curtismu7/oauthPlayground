@@ -76,36 +76,38 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 	);
 	
 	// Debug: Log token status to help debug button enabling
-	console.log('[EmailOTP] Token Status:', {
-		tokenStatus,
-		isValid: tokenStatus.isValid,
-		credentials: {
-			deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
-			environmentId: credentials.environmentId,
-			username: credentials.username,
-			tokenType: credentials.tokenType
+	useEffect(() => {
+		console.log('[EmailOTP] Token Status:', {
+			tokenStatus,
+			isValid: tokenStatus.isValid,
+			credentials: {
+				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
+				environmentId: credentials.environmentId,
+				username: credentials.username,
+				tokenType: credentials.tokenType
+			}
+		});
+		
+		// Debug: Check localStorage directly
+		const storedToken = localStorage.getItem('unified_worker_token');
+		let tokenData = null;
+		let tokenPresent = null;
+		
+		if (storedToken) {
+			try {
+				tokenData = JSON.parse(storedToken);
+				tokenPresent = tokenData.token || null;
+			} catch (error) {
+				console.error('[EmailOTP] Failed to parse stored token:', error);
+			}
 		}
-	});
-	
-	// Debug: Check localStorage directly
-	const storedToken = localStorage.getItem('unified_worker_token');
-	let tokenData = null;
-	let tokenPresent = null;
-	
-	if (storedToken) {
-		try {
-			tokenData = JSON.parse(storedToken);
-			tokenPresent = tokenData.token || null;
-		} catch (error) {
-			console.error('[EmailOTP] Failed to parse stored token:', error);
-		}
-	}
-	
-	console.log('[EmailOTP] LocalStorage worker token:', {
-		exists: !!storedToken,
-		data: tokenData,
-		tokenPresent: tokenPresent
-	});
+		
+		console.log('[EmailOTP] LocalStorage worker token:', {
+			exists: !!storedToken,
+			data: tokenData,
+			tokenPresent: tokenPresent
+		});
+	}, [tokenStatus, credentials]);
 	
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
