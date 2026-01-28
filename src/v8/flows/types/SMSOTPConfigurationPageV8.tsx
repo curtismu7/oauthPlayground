@@ -21,6 +21,7 @@ import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -93,9 +94,21 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
 
-	// Worker token settings
-	const [silentApiRetrieval, setSilentApiRetrieval] = useState(false);
-	const [showTokenAtEnd, setShowTokenAtEnd] = useState(false);
+	// Worker token settings - Load from config service
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+		try {
+			return MFAConfigurationServiceV8.loadConfiguration().workerToken.silentApiRetrieval || false;
+		} catch {
+			return false;
+		}
+	});
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+		try {
+			return MFAConfigurationServiceV8.loadConfiguration().workerToken.showTokenAtEnd || true;
+		} catch {
+			return true;
+		}
+	});
 
 	// Registration flow type state
 	const [registrationFlowType, setRegistrationFlowType] = useState<'admin' | 'user'>('user');
