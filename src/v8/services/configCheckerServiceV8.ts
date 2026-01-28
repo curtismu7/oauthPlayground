@@ -230,13 +230,6 @@ export class ConfigCheckerServiceV8 {
 				updatedAt: rawApp.updatedAt || rawApp.updated_at || new Date().toISOString(),
 			};
 
-				appId: app.id,
-				appName: app.name,
-				grantTypes: app.grantTypes,
-				responseTypes: app.responseTypes,
-				tokenEndpointAuthMethod: app.tokenEndpointAuthMethod,
-			});
-
 			// Update API call tracking with success
 			apiCallTrackerService.updateApiCallResponse(
 				callId,
