@@ -786,8 +786,10 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 					</div>
 				</div>
 
-				{/* Proceed Button */}
-				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+				{/* Navigation Button - Only show Cancel, navigation happens via flow */}
+				<div
+					style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}
+				>
 					<button
 						type="button"
 						onClick={() => navigateToMfaHubWithCleanup(navigate)}
@@ -808,34 +810,31 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 						type="button"
 						onClick={handleProceedToRegistration}
 						disabled={
-							!credentials.environmentId?.trim() ||
-							!credentials.username?.trim() ||
-							!credentials.deviceAuthenticationPolicyId?.trim() ||
-							!(credentials.tokenType === 'worker'
-								? tokenStatus.isValid
-								: !!credentials.userToken?.trim())
+							!credentials.deviceAuthenticationPolicyId ||
+							!credentials.environmentId ||
+							((credentials.tokenType || 'worker') === 'worker'
+								? !tokenStatus.isValid
+								: !credentials.userToken?.trim())
 						}
 						style={{
 							padding: '12px 24px',
 							border: 'none',
 							borderRadius: '6px',
 							background:
-								credentials.environmentId?.trim() &&
-								credentials.username?.trim() &&
-								credentials.deviceAuthenticationPolicyId?.trim() &&
-								(credentials.tokenType === 'worker'
+								credentials.deviceAuthenticationPolicyId &&
+								credentials.environmentId &&
+								((credentials.tokenType || 'worker') === 'worker'
 									? tokenStatus.isValid
 									: !!credentials.userToken?.trim())
-									? '#f59e0b'
+									? '#8b5cf6'
 									: '#9ca3af',
 							color: 'white',
 							fontSize: '16px',
 							fontWeight: '600',
 							cursor:
-								credentials.environmentId?.trim() &&
-								credentials.username?.trim() &&
-								credentials.deviceAuthenticationPolicyId?.trim() &&
-								(credentials.tokenType === 'worker'
+								credentials.deviceAuthenticationPolicyId &&
+								credentials.environmentId &&
+								((credentials.tokenType || 'worker') === 'worker'
 									? tokenStatus.isValid
 									: !!credentials.userToken?.trim())
 									? 'pointer'

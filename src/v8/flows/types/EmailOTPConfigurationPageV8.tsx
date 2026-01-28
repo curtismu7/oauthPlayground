@@ -914,7 +914,6 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 						disabled={
 							!credentials.deviceAuthenticationPolicyId ||
 							!credentials.environmentId ||
-							!credentials.username ||
 							((credentials.tokenType || 'worker') === 'worker'
 								? !tokenStatus.isValid
 								: !credentials.userToken?.trim())
@@ -926,7 +925,6 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 							background:
 								credentials.deviceAuthenticationPolicyId &&
 								credentials.environmentId &&
-								credentials.username &&
 								((credentials.tokenType || 'worker') === 'worker'
 									? tokenStatus.isValid
 									: !!credentials.userToken?.trim())
@@ -938,7 +936,6 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 							cursor:
 								credentials.deviceAuthenticationPolicyId &&
 								credentials.environmentId &&
-								credentials.username &&
 								((credentials.tokenType || 'worker') === 'worker'
 									? tokenStatus.isValid
 									: !!credentials.userToken?.trim())
