@@ -80,9 +80,11 @@ export const CallbackHandlerV8U: React.FC = () => {
 			
 
 			// DEBUG: Check for other related keys
+			console.log(
 				`${MODULE_TAG} 🔍 DEBUG: user_login_state_v8:`,
 				sessionStorage.getItem('user_login_state_v8') ? 'EXISTS' : 'MISSING'
 			);
+			console.log(
 				`${MODULE_TAG} 🔍 DEBUG: user_login_redirect_uri_v8:`,
 				sessionStorage.getItem('user_login_redirect_uri_v8')
 			);
@@ -211,6 +213,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 		const errorDescription =
 			fragmentParams?.get('error_description') || searchParams.get('error_description');
 
+		console.log(`${MODULE_TAG} 🔍 URL Analysis:`, {
 			url: window.location.href,
 			hasCode: searchParams.has('code'),
 			hasState: searchParams.has('state'),
@@ -220,10 +223,6 @@ export const CallbackHandlerV8U: React.FC = () => {
 			hasFragmentState: fragmentParams?.has('state'),
 			extractedState: state,
 			stateSource: fragmentParams?.has('state')
-				? 'fragment'
-				: searchParams.has('state')
-					? 'query'
-					: 'none',
 		});
 
 		// CRITICAL: Check if we got a code when we expected tokens in fragment (implicit flow)
@@ -244,6 +243,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 		let flowType = 'oauth-authz'; // Default
 		let detectedStep = 3; // Default to step 3 (callback handling)
 
+		console.log(`${MODULE_TAG} 🔍 Analyzing state parameter`, {
 			state,
 			stateLength: state?.length,
 			startsWithV8u: state?.startsWith('v8u-'),

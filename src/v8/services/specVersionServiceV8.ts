@@ -199,6 +199,7 @@ export class SpecVersionServiceV8 {
 		}
 
 		const valid = errors.length === 0;
+		console.log(`${MODULE_TAG} 🔍 Validation result:`, {
 			valid,
 			errorCount: errors.length,
 			warningCount: warnings.length,
