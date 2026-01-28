@@ -140,18 +140,10 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
  */
 export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 	try {
-		// Quick synchronous check using localStorage only
-		const stored = localStorage.getItem('unified_worker_token');
-		if (!stored) {
-			return {
-				status: 'missing',
-				message: 'No worker token data found.',
-				isValid: false,
-			};
-		}
-
-		const data = JSON.parse(stored);
-		if (!data.token) {
+		// Use unified worker token service for proper storage detection
+		const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+		
+		if (!tokenData || !tokenData.token) {
 			return {
 				status: 'missing',
 				message: 'No worker token found.',
@@ -161,7 +153,7 @@ export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 
 		// Check expiration
 		const now = Date.now();
-		const expiresAt = data.expiresAt || (data.savedAt + 3600 * 1000); // Default 1 hour
+		const expiresAt = tokenData.expiresAt || (tokenData.savedAt + 3600 * 1000); // Default 1 hour
 		const isExpired = now >= expiresAt;
 		const minutesRemaining = Math.max(0, Math.floor((expiresAt - now) / 60000));
 
@@ -182,13 +174,13 @@ export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 			isValid: !isExpired,
 			expiresAt,
 			minutesRemaining,
-			token: data.token,
+			token: tokenData.token,
 		};
 	} catch (error) {
 		console.error('Error checking worker token status (sync):', error);
 		return {
 			status: 'missing',
-			message: 'Error checking worker token status.',
+			message: 'Unable to check worker token status.',
 			isValid: false,
 		};
 	}

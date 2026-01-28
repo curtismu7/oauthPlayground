@@ -101,9 +101,45 @@ class UnifiedWorkerTokenService {
 	private constructor() {}
 
 	/**
+	 * Synchronous get worker token data (for backward compatibility)
+	 * Uses memory cache and localStorage only - may be stale but is fast
+	 */
+	public getTokenDataSync(): UnifiedWorkerTokenData | null {
+		// Try memory cache first
+		if (this.memoryCache) {
+			return this.memoryCache;
+		}
+
+		// Try localStorage
+		try {
+			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
+			if (stored) {
+				const data = JSON.parse(stored) as UnifiedWorkerTokenData;
+				this.memoryCache = data; // Update cache
+				return data;
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load data from storage (sync)`, error);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Synchronous check if worker token exists and is valid
+	 */
+	public hasValidTokenSync(): boolean {
+		const data = this.getTokenDataSync();
+		if (!data || !data.token) {
+			return false;
+		}
+		return this.isTokenValid(data);
+	}
+
+	/**
 	 * Get singleton instance
 	 */
-	static getInstance(): UnifiedWorkerTokenService {
+	public static getInstance(): UnifiedWorkerTokenService {
 		if (!UnifiedWorkerTokenService.instance) {
 			UnifiedWorkerTokenService.instance = new UnifiedWorkerTokenService();
 		}

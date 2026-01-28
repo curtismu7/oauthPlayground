@@ -201,7 +201,7 @@ export async function handleShowWorkerTokenModal(
 
 
 	// Check current token status
-	const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+	const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 
 	// If token is already valid
 	if (currentStatus.isValid) {
@@ -238,7 +238,7 @@ export async function handleShowWorkerTokenModal(
 		if (silentRetrievalSucceeded) {
 			// Token was successfully retrieved silently
 			if (setTokenStatus) {
-				const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 				await setTokenStatus(newStatus);
 			}
 
