@@ -265,9 +265,6 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 			if (newValue) {
 				const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				if (!currentStatus.isValid) {
-					console.log(
-						'[WorkerTokenUIServiceV8] Silent API retrieval enabled, attempting to fetch token now...'
-					);
 					try {
 						const { handleShowWorkerTokenModal } = await import(
 							'../utils/workerTokenModalHelperV8'
@@ -321,27 +318,17 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 
 				if (credentials?.environmentId) {
 					effectiveEnvironmentId = credentials.environmentId;
-					console.log('[WorkerTokenUIServiceV8] Extracted environment ID from worker token', {
-						environmentId: effectiveEnvironmentId,
-					});
 				} else {
 					// Fallback to sync method if async fails
 					const syncCredentials = workerTokenServiceV8.loadCredentialsSync();
 					if (syncCredentials?.environmentId) {
 						effectiveEnvironmentId = syncCredentials.environmentId;
-						console.log(
-							'[WorkerTokenUIServiceV8] Extracted environment ID from worker token (sync)',
-							{ environmentId: effectiveEnvironmentId }
-						);
 					} else {
 						// Final fallback: try global environment ID service
 						const { EnvironmentIdServiceV8 } = await import('./environmentIdServiceV8');
 						const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 						if (globalEnvId) {
 							effectiveEnvironmentId = globalEnvId;
-							console.log('[WorkerTokenUIServiceV8] Using globally stored environment ID', {
-								environmentId: effectiveEnvironmentId,
-							});
 						}
 					}
 				}

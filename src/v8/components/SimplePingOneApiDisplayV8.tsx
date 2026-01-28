@@ -66,10 +66,6 @@ export const SimplePingOneApiDisplayV8: React.FC = () => {
 				}));
 
 			setApiCalls(pingOneCalls);
-
-			if (pingOneCalls.length > 0) {
-				console.log(`${MODULE_TAG} Displaying ${pingOneCalls.length} API calls`);
-			}
 		};
 
 		// Initial load

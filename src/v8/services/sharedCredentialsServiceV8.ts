@@ -111,11 +111,6 @@ export class SharedCredentialsServiceV8 {
 	 * @param credentials - Shared credentials to save
 	 */
 	static saveSharedCredentialsSync(credentials: SharedCredentials): void {
-		console.log(`${MODULE_TAG} 🔍 Saving shared credentials:`, {
-			hasEnvId: !!credentials.environmentId,
-			hasClientId: !!credentials.clientId,
-		});
-
 		try {
 			// Load existing shared credentials
 			const existing = SharedCredentialsServiceV8.loadSharedCredentialsSync();

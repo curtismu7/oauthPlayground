@@ -122,13 +122,6 @@ export class RedirectlessServiceV8 {
 			requestBody.redirectUri = credentials.redirectUri;
 		}
 
-			environmentId: credentials.environmentId,
-			clientId: `${credentials.clientId.substring(0, 8)}...`,
-			responseType: requestBody.responseType,
-			responseMode: requestBody.responseMode,
-			hasCodeChallenge: !!codeChallenge,
-		});
-
 		const response = await fetch('/api/pingone/redirectless/authorize', {
 			method: 'POST',
 			headers: {
@@ -169,11 +162,6 @@ export class RedirectlessServiceV8 {
 		}
 
 		const flowData: RedirectlessFlowResponse = await response.json();
-			flowId: flowData.flowId,
-			status: flowData.status,
-			hasResumeUrl: !!flowData.resumeUrl,
-			hasSessionId: !!(flowData._sessionId || flowData.sessionId),
-		});
 
 		// Store flow data for resume
 		if (flowData.flowId && flowData.resumeUrl) {

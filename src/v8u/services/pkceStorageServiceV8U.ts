@@ -148,14 +148,6 @@ export class PKCEStorageServiceV8U {
 
 		// 4. Save to memory cache
 		PKCEStorageServiceV8U.memoryCache.set(flowKey, pkceData);
-		
-		console.log(`${MODULE_TAG} 🔍 PKCE codes saved to all storage locations:`, {
-			flowKey,
-			verifierLength: codes.codeVerifier.length,
-			challengeLength: codes.codeChallenge.length,
-			savedAt: new Date(pkceData.savedAt).toISOString(),
-			locations: ['sessionStorage', 'localStorage', 'IndexedDB', 'memory'],
-		});
 	}
 
 	/**
