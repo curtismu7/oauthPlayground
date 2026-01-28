@@ -68,7 +68,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 
 	// Token and modal state
 	const [tokenStatus, setTokenStatus] = useState(
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
 	);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
@@ -114,7 +114,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 
 	useEffect(() => {
 		const checkToken = () => {
-			setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+			setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 		};
 		const interval = setInterval(checkToken, 30000);
 		checkToken();
@@ -894,7 +894,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 							MFAConfigurationServiceV8,
 						} = require('@/v8/services/mfaConfigurationServiceV8');
 						const config = MFAConfigurationServiceV8.loadConfiguration();
-						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 
 						// Show token-only if showTokenAtEnd is ON and token is valid
 						const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
@@ -904,7 +904,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 								isOpen={showWorkerTokenModal}
 								onClose={() => {
 									setShowWorkerTokenModal(false);
-									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 								}}
 								showTokenOnly={showTokenOnly}
 							/>
@@ -915,7 +915,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 								isOpen={showWorkerTokenModal}
 								onClose={() => {
 									setShowWorkerTokenModal(false);
-									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 								}}
 							/>
 						);
