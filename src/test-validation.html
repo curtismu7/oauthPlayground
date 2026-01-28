@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test UserLoginModalV8 Validation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .test-button:hover {
+            background: #2563eb;
+        }
+        .console-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test UserLoginModalV8 Pre-Flight Validation</h1>
+        <p>This page allows testing the pre-flight validation without the v8u component issues.</p>
+        
+        <button class="test-button" onclick="openUserLoginModal()">Open User Login Modal</button>
+        <button class="test-button" onclick="clearConsole()">Clear Console</button>
+        
+        <div class="console-output" id="console-output">
+            Console output will appear here...
+        </div>
+    </div>
+
+    <script>
+        // Mock console.log to capture output
+        const originalConsoleLog = console.log;
+        const consoleOutput = document.getElementById('console-output');
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            consoleOutput.innerHTML += message + '\n';
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        };
+
+        function clearConsole() {
+            consoleOutput.innerHTML = 'Console output will appear here...\n';
+        }
+
+        function openUserLoginModal() {
+            // This would normally open the UserLoginModalV8
+            // For now, just show a message
+            console.log('=== Testing UserLoginModalV8 Pre-Flight Validation ===');
+            console.log('To test the validation:');
+            console.log('1. Navigate to https://localhost:3000/v8/mfa/register/sms');
+            console.log('2. Click the User Login button');
+            console.log('3. Fill in Environment ID and Client ID');
+            console.log('4. Click "Pre-Flight Validation"');
+            console.log('5. Check the browser console for debug output');
+            console.log('');
+            console.log('Expected debug output:');
+            console.log('  userRedirectUri: https://localhost:3000/user-mfa-login-callback');
+            console.log('  pingOneGrantTypes: ["authorization_code", "refresh_token", ...]');
+            console.log('  pingOneResponseTypes: ["code", "id_token", ...]');
+            console.log('  grantTypeIncluded: true/false');
+            console.log('  responseTypeIncluded: true/false');
+            console.log('  redirectUriIncluded: true/false');
+        }
+    </script>
+</body>
+</html>
