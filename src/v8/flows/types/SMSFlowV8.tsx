@@ -851,17 +851,14 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			// - Environment ID, Policy, Username fields
 			// - Registration Flow Type selector
 			//
-			// Auto-navigate from Step 0 to Step 2 when configured
+			// Auto-navigation removed - user must manually click "Next" button
 		// Registration flows should go directly 0 -> 2, skipping Step 1 entirely
 		// Registration and Authentication are completely separate flows
 		if (isConfigured && nav.currentStep === 0 && hasMinimumConfig) {
-			setTimeout(() => {
-				console.log(
-					`${MODULE_TAG} Auto-navigating from Step 0 to Step 2 for registration flow (skipping Step 1)`
-				);
-				nav.goToStep(2); // Go directly to Step 2, skip Step 1 entirely
-			}, 0);
-			return null;
+			console.log(
+				`${MODULE_TAG} SMS configured, user must manually click "Next" button to proceed`
+			);
+			// Don't auto-navigate - let user click "Next" button manually
 		}
 
 			// If configured flag is true but we are missing env/user/policy,
@@ -1394,11 +1391,8 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						// This ensures Step 2 returns null immediately and allows Step 4 to render
 						setShowModal(false);
 
-						// Navigate to Step 4 after a short delay to ensure state updates complete
-						// This matches the pattern that works for admin flow
-						setTimeout(() => {
-							nav.goToStep(3); // Go directly to validation step (Step 3)
-						}, 100);
+						// Auto-advance removed - user must manually click "Next" button
+						// User controls navigation to validation step
 
 						const deviceTypeLabel2 =
 							actualDeviceType === 'EMAIL'
@@ -1502,7 +1496,8 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 							console.warn(`${MODULE_TAG} Device status unclear, defaulting to OTP flow`);
 							setShowModal(false);
 							nav.markStepComplete();
-							nav.goToStep(3);
+							// Auto-advance removed - user must manually click "Next" button
+							// User controls navigation to validation step
 							const deviceTypeLabel5 =
 								actualDeviceType === 'EMAIL'
 									? 'Email'
