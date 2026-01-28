@@ -2896,7 +2896,27 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					}
 				)}
 				validateStep0={validateStep0}
-				stepLabels={['Configure', 'Select Device', 'Register Device', 'Validate']}
+				stepLabels={
+					isConfigured
+						? [
+								// Registration flow: Config -> Register Device -> Validate
+								// Step 0: Configure (shown when coming from config page)
+								'Configure',
+								// Step 1: Select Device (skipped, returns null) - hide from breadcrumb
+								'', // Empty string will hide this step from breadcrumb
+								// Step 2: Register Device (email input and registration)
+								'Register Device',
+								// Step 3: Validate OTP
+								'Validate',
+							]
+						: [
+								// Authentication flow: Include device selection
+								'Configure',
+								'Select Device',
+								'Register Device',
+								'Validate',
+							]
+				}
 				shouldHideNextButton={(props) => {
 					// Hide Next button on step 2 when showing success page for ACTIVE devices
 					if (
