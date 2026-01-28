@@ -1053,7 +1053,10 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					deviceTypeLabel="Mobile"
 					policyDescription="Determines which PingOne policy governs Mobile OTP challenges."
 					registrationFlowType={registrationFlowType}
-					fetchDeviceAuthPolicies={loadPolicies}
+					deviceAuthPolicies={deviceAuthPolicies}
+					isLoadingPolicies={isLoadingPolicies}
+					policiesError={policiesError}
+					refreshDeviceAuthPolicies={loadPolicies}
 				/>
 
 				
