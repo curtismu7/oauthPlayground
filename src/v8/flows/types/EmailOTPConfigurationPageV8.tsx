@@ -89,10 +89,22 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 	
 	// Debug: Check localStorage directly
 	const storedToken = localStorage.getItem('unified_worker_token');
+	let tokenData = null;
+	let tokenPresent = null;
+	
+	if (storedToken) {
+		try {
+			tokenData = JSON.parse(storedToken);
+			tokenPresent = tokenData.token || null;
+		} catch (error) {
+			console.error('[EmailOTP] Failed to parse stored token:', error);
+		}
+	}
+	
 	console.log('[EmailOTP] LocalStorage worker token:', {
 		exists: !!storedToken,
-		data: storedToken ? JSON.parse(storedToken) : null,
-		tokenPresent: storedToken ? JSON.parse(storedToken).token : null
+		data: tokenData,
+		tokenPresent: tokenPresent
 	});
 	
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
