@@ -851,14 +851,15 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			// - Environment ID, Policy, Username fields
 			// - Registration Flow Type selector
 			//
-			// Auto-navigate from Step 0 to Step 1 when configured
-		// This allows skipping to device registration flow
+			// Auto-navigate from Step 0 to Step 2 when configured
+		// Registration flows should go directly 0 -> 2, skipping Step 1 entirely
+		// Registration and Authentication are completely separate flows
 		if (isConfigured && nav.currentStep === 0 && hasMinimumConfig) {
 			setTimeout(() => {
 				console.log(
-					`${MODULE_TAG} Auto-navigating from Step 0 to Step 1 for configured flow`
+					`${MODULE_TAG} Auto-navigating from Step 0 to Step 2 for registration flow (skipping Step 1)`
 				);
-				nav.goToStep(1);
+				nav.goToStep(2); // Go directly to Step 2, skip Step 1 entirely
 			}, 0);
 			return null;
 		}
@@ -3339,7 +3340,27 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				renderStep2={renderStep2Register}
 				renderStep3={createRenderStep4()}
 				validateStep0={validateStep0}
-				stepLabels={['Configure', 'Select Device', 'Register Device', 'Validate']}
+				stepLabels={
+					isConfigured
+						? [
+								// Registration flow: Config -> Register Device -> Validate
+								// Step 0: Configure (shown when coming from config page)
+								'Configure',
+								// Step 1: Select Device (skipped, returns null) - hide from breadcrumb
+								'', // Empty string will hide this step from breadcrumb
+								// Step 2: Register Device (phone number input and registration)
+								'Register Device',
+								// Step 3: Validate OTP
+								'Validate',
+							]
+						: [
+								// Authentication flow: Include device selection
+								'Configure',
+								'Select Device',
+								'Register Device',
+								'Validate',
+							]
+				}
 				shouldHideNextButton={(props) => {
 					// Hide Next button on step 2 when showing success page for ACTIVE devices
 					if (
