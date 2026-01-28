@@ -342,10 +342,15 @@ const createRenderStep0 = (
 	setRegistrationFlowType: (type: 'admin' | 'user') => void,
 	adminDeviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED',
 	setAdminDeviceStatus: (status: 'ACTIVE' | 'ACTIVATION_REQUIRED') => void,
-	autoNavigateRef: React.MutableRefObject<{ step: number; triggered: boolean }>
+	autoNavigateRef: React.MutableRefObject<{ step: number; triggered: boolean }>,
+	step0PropsRef: React.MutableRefObject<MFAFlowBaseRenderProps | null>
 ) => {
 	return (props: MFAFlowBaseRenderProps) => {
 		const { nav, credentials, setCredentials } = props;
+		
+		// Store props in ref for parent-level useEffect hooks
+		step0PropsRef.current = props;
+		
 		const locationState = location.state as {
 			configured?: boolean;
 			deviceAuthenticationPolicyId?: string;
@@ -353,30 +358,17 @@ const createRenderStep0 = (
 		} | null;
 
 		// Update credentials with policy ID from location.state if available (only once)
-		// Use setTimeout to defer state update outside of render (like Email/WhatsApp flows)
 		if (
 			!credentialsUpdatedRef.current &&
 			locationState?.deviceAuthenticationPolicyId &&
 			credentials.deviceAuthenticationPolicyId !== locationState.deviceAuthenticationPolicyId
 		) {
 			const policyId = locationState.deviceAuthenticationPolicyId;
-			setTimeout(() => {
-				setCredentials({
-					...credentials,
-					...(policyId ? { deviceAuthenticationPolicyId: policyId } : {}),
-				});
-				credentialsUpdatedRef.current = true;
-			}, 0);
-		}
-
-		// Handle navigation - use setTimeout to defer outside of render
-		// For registration flow, skip Step 0, Step 1, and Step 2, go directly to Step 3 (QR Code)
-		// Step 3 will automatically register the device and show QR code
-		if (isConfigured && nav.currentStep === 0 && !autoNavigateRef.current.triggered) {
-			setTimeout(() => {
-				autoNavigateRef.current = { step: 3, triggered: true };
-				nav.goToStep(3); // Skip directly to Step 3 (QR Code) - device registration happens automatically
-			}, 0);
+			setCredentials({
+				...credentials,
+				...(policyId ? { deviceAuthenticationPolicyId: policyId } : {}),
+			});
+			credentialsUpdatedRef.current = true;
 		}
 
 		// If coming from config page, show loading message while redirecting
@@ -543,6 +535,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		step: 0,
 		triggered: false,
 	});
+	// Store Step 0 props for parent-level useEffect hooks to access
+	const step0PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
 	// Store Step 1 props for parent-level useEffect hooks to access
 	const step1PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
 	// Track if user explicitly closed QR modal (to prevent auto-reopening)
@@ -929,6 +923,27 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		username: string;
 		tokenValid: boolean;
 	} | null>(null);
+
+	// Handle auto-navigation from Step 0 to Step 3 (for configured flow)
+	// Check ref in useEffect (similar to Email flow pattern)
+	useEffect(() => {
+		const props = step0PropsRef.current;
+		if (!props) return;
+
+		const currentStep = typeof props.nav?.currentStep === 'number' ? props.nav.currentStep : 0;
+		const isConfiguredValue = Boolean(isConfigured);
+
+		// Auto-navigate from Step 0 to Step 3 when configured
+		if (isConfiguredValue && currentStep === 0 && !autoNavigateRef.current.triggered) {
+			console.log(`${MODULE_TAG} [useEffect] Auto-navigating from Step 0 to Step 3`, {
+				currentStep,
+				isConfigured: isConfiguredValue,
+			});
+
+			autoNavigateRef.current = { step: 3, triggered: true };
+			props.nav.goToStep(3); // Skip directly to Step 3 (QR Code) - device registration happens automatically
+		}
+	}, [isConfigured]);
 
 	// Handle auto-navigation from Step 1 to Step 2 (for registration flow)
 	// Check ref in useEffect (similar to Email flow pattern)
@@ -3756,7 +3771,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					setRegistrationFlowType,
 					adminDeviceStatus,
 					setAdminDeviceStatus,
-					autoNavigateRef
+					autoNavigateRef,
+					step0PropsRef
 				)}
 				renderStep1={renderStep1WithSelection}
 				renderStep2={renderStep2Register}
