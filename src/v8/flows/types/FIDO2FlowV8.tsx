@@ -32,8 +32,10 @@ import {
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { fetchPhoneFromPingOne } from '@/v8/services/phoneAutoPopulationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
@@ -1096,6 +1098,16 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 							</label>
 						</div>
 					</div>
+
+					{/* Enhanced Worker Token UI Service */}
+					<WorkerTokenUIServiceV8
+						mode="compact"
+						showStatusDisplay={true}
+						statusSize="small"
+						showRefresh={false}
+						environmentId={credentials.environmentId}
+						context="mfa"
+					/>
 
 					<div className="credentials-grid">
 						<div className="form-group">
