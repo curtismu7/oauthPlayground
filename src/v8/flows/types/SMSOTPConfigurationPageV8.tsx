@@ -26,12 +26,12 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; // NEW - Enhanced UI service
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
-import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
 import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
@@ -1093,23 +1093,20 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 				</div>
 
 				
-				{/* Clean Worker Token Section - Always show */}
-				<WorkerTokenSectionV8
+				{/* Enhanced Worker Token UI Service - Always show */}
+				<WorkerTokenUIServiceV8
+					mode="wide"
+					showStatusDisplay={true}
+					statusSize="large"
+					showRefresh={true}
 					environmentId={credentials.environmentId}
-					onTokenUpdated={(token) => {
-						// Update credentials when worker token is generated
+					onEnvironmentIdUpdate={(envId) => {
 						setCredentials(prev => ({
 							...prev,
-							workerToken: token,
-							tokenType: 'worker' as const,
+							environmentId: envId,
 						}));
 					}}
-					compact={false}
-					showSettings={true}
-					silentApiRetrieval={silentApiRetrieval}
-					onSilentApiRetrievalChange={setSilentApiRetrieval}
-					showTokenAtEnd={showTokenAtEnd}
-					onShowTokenAtEndChange={setShowTokenAtEnd}
+					context="mfa"
 				/>
 
 				{/* Clean User Login Section - Only show for user flow */}
