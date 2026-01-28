@@ -211,7 +211,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 							onClick={handleGetToken}
 							style={{
 								padding: '10px 16px',
-								background: '#3b82f6',
+								background: '#8b5cf6',
 								color: 'white',
 								border: 'none',
 								borderRadius: '6px',
@@ -224,11 +224,11 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 								transition: 'all 0.2s ease',
 							}}
 							onMouseEnter={(e) => {
-								e.currentTarget.style.background = '#2563eb';
+								e.currentTarget.style.background = '#7c3aed';
 								e.currentTarget.style.transform = 'translateY(-1px)';
 							}}
 							onMouseLeave={(e) => {
-								e.currentTarget.style.background = '#3b82f6';
+								e.currentTarget.style.background = '#8b5cf6';
 								e.currentTarget.style.transform = 'translateY(0)';
 							}}
 						>
