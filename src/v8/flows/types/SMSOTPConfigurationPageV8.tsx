@@ -18,7 +18,6 @@ import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -1158,67 +1157,56 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					</button>
 				</div>
 
-				{/* Worker Token Status Display - Below buttons for consistency */}
-				<div style={{ marginTop: '24px' }}>
-					<WorkerTokenStatusDisplayV8
-						mode="compact"
-						showRefresh={true}
-						refreshInterval={10}
-						showConfig={false}
+				{/* Worker Token Modal */}
+				{showWorkerTokenModal &&
+					(() => {
+						// Check if we should show token only (matches MFA pattern)
+						try {
+							const {
+								MFAConfigurationServiceV8,
+							} = require('@/v8/services/mfaConfigurationServiceV8');
+							const config = MFAConfigurationServiceV8.loadConfiguration();
+							const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+
+							// Show token-only if showTokenAtEnd is ON and token is valid
+							const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+
+							return (
+								<WorkerTokenModalV8
+									isOpen={showWorkerTokenModal}
+									onClose={() => {
+										setShowWorkerTokenModal(false);
+										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+									}}
+									showTokenOnly={showTokenOnly}
+								/>
+							);
+						} catch {
+							return (
+								<WorkerTokenModalV8
+									isOpen={showWorkerTokenModal}
+									onClose={() => {
+										setShowWorkerTokenModal(false);
+										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+									}}
+								/>
+							);
+						}
+					})()}
+
+				{/* User Login Modal */}
+				{showUserLoginModal && (
+					<UserLoginModalV8
+						isOpen={showUserLoginModal}
+						onClose={() => setShowUserLoginModal(false)}
+						onTokenReceived={(token) => {
+							setCredentials((prev) => ({ ...prev, userToken: token, tokenType: 'user' }));
+							setShowUserLoginModal(false);
+							toastV8.success('User token received successfully!');
+						}}
+						environmentId={credentials.environmentId}
 					/>
-				</div>
+				)}
 			</div>
-
-			{/* Worker Token Modal */}
-			{showWorkerTokenModal &&
-				(() => {
-					// Check if we should show token only (matches MFA pattern)
-					try {
-						const {
-							MFAConfigurationServiceV8,
-						} = require('@/v8/services/mfaConfigurationServiceV8');
-						const config = MFAConfigurationServiceV8.loadConfiguration();
-						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-
-						// Show token-only if showTokenAtEnd is ON and token is valid
-						const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
-
-						return (
-							<WorkerTokenModalV8
-								isOpen={showWorkerTokenModal}
-								onClose={() => {
-									setShowWorkerTokenModal(false);
-									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-								}}
-								showTokenOnly={showTokenOnly}
-							/>
-						);
-					} catch {
-						return (
-							<WorkerTokenModalV8
-								isOpen={showWorkerTokenModal}
-								onClose={() => {
-									setShowWorkerTokenModal(false);
-									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-								}}
-							/>
-						);
-					}
-				})()}
-
-			{/* User Login Modal */}
-			{showUserLoginModal && (
-				<UserLoginModalV8
-					isOpen={showUserLoginModal}
-					onClose={() => setShowUserLoginModal(false)}
-					onTokenReceived={(token) => {
-						setCredentials((prev) => ({ ...prev, userToken: token, tokenType: 'user' }));
-						setShowUserLoginModal(false);
-						toastV8.success('User token received successfully!');
-					}}
-					environmentId={credentials.environmentId}
-				/>
-			)}
-		</div>
 	);
 };
