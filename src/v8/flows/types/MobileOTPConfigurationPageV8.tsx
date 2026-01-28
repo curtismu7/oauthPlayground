@@ -14,6 +14,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FiArrowRight, FiBook, FiMessageSquare } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
@@ -93,8 +94,20 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
 
 	// Worker token settings
-	const [silentApiRetrieval, setSilentApiRetrieval] = useState(false);
-	const [showTokenAtEnd, setShowTokenAtEnd] = useState(false);
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+		try {
+			return MFAConfigurationServiceV8.loadConfiguration().workerToken.silentApiRetrieval || false;
+		} catch {
+			return false;
+		}
+	});
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+		try {
+			return MFAConfigurationServiceV8.loadConfiguration().workerToken.showTokenAtEnd !== false;
+		} catch {
+			return true;
+		}
+	});
 
 	// Registration flow type state
 	const [registrationFlowType, setRegistrationFlowType] = useState<'admin' | 'user'>('user');
