@@ -988,5 +988,6 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 				/>
 			)}
 		</div>
+		</div>
 	);
 };

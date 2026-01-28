@@ -1133,5 +1133,6 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 				/>
 			)}
 		</div>
+		</div>
 	);
 };

@@ -893,5 +893,6 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 				/>
 			)}
 		</div>
+		</div>
 	);
 };

@@ -1208,5 +1208,6 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					/>
 				)}
 			</div>
+		</div>
 	);
 };
