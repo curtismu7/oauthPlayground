@@ -241,6 +241,19 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	});
 
 	/**
+	 * Refresh token type state
+	 *
+	 * Determines the format of refresh tokens:
+	 * - JWT: Traditional JWT-based refresh tokens (default)
+	 * - OPAQUE: Opaque reference tokens (more secure, requires introspection)
+	 *
+	 * Loads initial value from credentials, defaults to JWT.
+	 */
+	const [refreshTokenType, setRefreshTokenType] = useState<RefreshTokenType>(() => {
+		return (credentials.refreshTokenType as RefreshTokenType) || 'JWT';
+	});
+
+	/**
 	 * Redirectless authentication state
 	 *
 	 * Redirectless authentication allows token exchange without browser redirects.
@@ -1386,12 +1399,13 @@ Why it matters: Backend services communicate server-to-server without user conte
 			// Handle boolean fields (usePKCE, enableRefreshToken, usePAR)
 			// Handle pkceEnforcement as a string (OPTIONAL, REQUIRED, S256_REQUIRED)
 			// Handle responseMode as a string (query, fragment, form_post, pi.flow)
+			// Handle refreshTokenType as a string (JWT, OPAQUE)
 			// Handle number fields (maxAge)
 			const updated =
 				field === 'usePKCE' || field === 'enableRefreshToken' || field === 'usePAR'
 					? { ...credentials, [field]: value === true || value === 'true' }
-					: field === 'pkceEnforcement' || field === 'responseMode'
-						? { ...credentials, [field]: value as 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' }
+					: field === 'pkceEnforcement' || field === 'responseMode' || field === 'refreshTokenType'
+						? { ...credentials, [field]: value as 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' | 'JWT' | 'OPAQUE' }
 						: field === 'maxAge'
 							? { ...credentials, [field]: typeof value === 'number' ? value : undefined }
 							: { ...credentials, [field]: value };
@@ -4298,6 +4312,20 @@ Why it matters: Backend services communicate server-to-server without user conte
 													</small>
 												)}
 										</div>
+
+										{/* Refresh Token Type Dropdown - Only show when refresh tokens are enabled */}
+										{enableRefreshToken && (
+											<div style={{ marginTop: '16px' }}>
+												<RefreshTokenTypeDropdownV8
+													value={refreshTokenType}
+													onChange={(type) => {
+														setRefreshTokenType(type);
+														handleChange('refreshTokenType', type);
+													}}
+													disabled={!enableRefreshToken}
+												/>
+											</div>
+										)}
 									</div>
 								)}
 							</div>
