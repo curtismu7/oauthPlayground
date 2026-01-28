@@ -976,6 +976,19 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 				</div>
 
 				
+				{/* Device Authentication Policy Configuration */}
+				<MFAConfigurationStepV8
+					credentials={credentials}
+					setCredentials={setCredentials}
+					tokenStatus={tokenStatus}
+					deviceType="MOBILE"
+					deviceTypeLabel="Mobile"
+					policyDescription="Determines which PingOne policy governs Mobile OTP challenges."
+					registrationFlowType={registrationFlowType}
+					fetchDeviceAuthPolicies={loadPolicies}
+				/>
+
+				
 				{/* Clean Worker Token Section - Always show */}
 				<WorkerTokenSectionV8
 					environmentId={credentials.environmentId}
