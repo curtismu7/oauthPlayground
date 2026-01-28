@@ -40,8 +40,9 @@ import {
 	type SendOTPParams,
 } from '@/v8/services/mfaServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
+import { fetchPhoneFromPingOne } from '@/v8/services/phoneAutoPopulationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
