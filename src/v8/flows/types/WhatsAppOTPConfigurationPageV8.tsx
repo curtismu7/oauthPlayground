@@ -21,6 +21,7 @@ import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
@@ -993,6 +994,16 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 						Continue to Device Registration
 						<FiArrowRight size={18} />
 					</button>
+				</div>
+
+				{/* Worker Token Status Display - Below buttons for consistency */}
+				<div style={{ marginTop: '24px' }}>
+					<WorkerTokenStatusDisplayV8
+						mode="compact"
+						showRefresh={true}
+						refreshInterval={10}
+						showConfig={false}
+					/>
 				</div>
 			</div>
 
