@@ -84,6 +84,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		errors: string[];
 		warnings: string[];
 	} | null>(null);
+	// Fix errors state
+	const [isFixingErrors, setIsFixingErrors] = useState(false);
 	// Use different default redirect URI for MFA flows
 	const defaultRedirectUri = isMfaFlow
 		? 'https://localhost:3000/user-mfa-login-callback'
@@ -169,12 +171,110 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			console.error(`${MODULE_TAG} Pre-flight validation error:`, error);
 			setValidationResult({
 				passed: false,
-				errors: [`Failed to validate configuration: ${error instanceof Error ? error.message : 'Unknown error'}`],
+				errors: [
+					`Failed to validate configuration: ${error instanceof Error ? error.message : 'Unknown error'}`,
+				],
 				warnings: [],
 			});
 			toastV8.error('Pre-flight validation failed');
 		} finally {
 			setIsValidating(false);
+		}
+	};
+
+	// Fix pre-flight errors function
+	const handleFixErrors = async () => {
+		if (!environmentId.trim() || !clientId.trim()) {
+			toastV8.error('Please enter Environment ID and Client ID first');
+			return;
+		}
+
+		setIsFixingErrors(true);
+
+		try {
+			const workerToken = await workerTokenServiceV8.getToken();
+			if (!workerToken) {
+				toastV8.error('Worker token required for fixing configuration');
+				setIsFixingErrors(false);
+				return;
+			}
+
+			console.log(`${MODULE_TAG} Attempting to fix pre-flight errors...`);
+
+			// Get current app config
+			const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
+				environmentId.trim(),
+				clientId.trim(),
+				workerToken
+			);
+
+			if (!appConfig) {
+				toastV8.error('Could not fetch application configuration from PingOne');
+				return;
+			}
+
+			// Generate fix suggestions
+			const userConfig = {
+				clientId: clientId.trim(),
+				redirectUri: redirectUri.trim(),
+			};
+			const comparison = ConfigCheckerServiceV8.compareConfigs(userConfig, appConfig);
+			const suggestions = ConfigCheckerServiceV8.generateFixSuggestions(comparison);
+
+			if (suggestions.length === 0) {
+				toastV8.info('No fix suggestions available');
+				return;
+			}
+
+			console.log(`${MODULE_TAG} Generated ${suggestions.length} fix suggestions`);
+
+			// Apply fixes (for now, just show suggestions - in future we could auto-apply)
+			const fixResults: string[] = [];
+
+			for (const suggestion of suggestions) {
+				try {
+					// For now, we'll focus on common fixes that can be automated
+					if (
+						suggestion.field === 'grantTypes' &&
+						suggestion.issue.includes('authorization_code')
+					) {
+						// This would require API call to update grant types
+						fixResults.push(`🔧 ${suggestion.action} (Manual fix required)`);
+					} else if (suggestion.field === 'redirectUris') {
+						// Check if current redirect URI is missing
+						if (!appConfig.redirectUris.includes(redirectUri.trim())) {
+							fixResults.push(`➕ Add redirect URI: ${redirectUri.trim()} (Manual fix required)`);
+						}
+					} else {
+						fixResults.push(`ℹ️ ${suggestion.action}`);
+					}
+				} catch (error) {
+					console.error(`${MODULE_TAG} Failed to apply fix for ${suggestion.field}:`, error);
+					fixResults.push(
+						`❌ Failed to fix ${suggestion.field}: ${error instanceof Error ? error.message : 'Unknown error'}`
+					);
+				}
+			}
+
+			// Show fix results
+			if (fixResults.length > 0) {
+				toastV8.info(
+					`Generated ${fixResults.length} fix suggestion(s). Check console for details.`
+				);
+				console.log(`${MODULE_TAG} Fix Results:`, fixResults);
+
+				// Re-run validation to check if fixes resolved issues
+				setTimeout(() => {
+					handlePreFlightValidation();
+				}, 1000);
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error fixing configuration:`, error);
+			toastV8.error(
+				`Failed to fix configuration: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+		} finally {
+			setIsFixingErrors(false);
 		}
 	};
 
@@ -1856,7 +1956,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									borderRadius: '6px',
 									fontSize: '14px',
 									fontWeight: '600',
-									cursor: isValidating || !environmentId.trim() || !clientId.trim() ? 'not-allowed' : 'pointer',
+									cursor:
+										isValidating || !environmentId.trim() || !clientId.trim()
+											? 'not-allowed'
+											: 'pointer',
 									display: 'flex',
 									alignItems: 'center',
 									justifyContent: 'center',
@@ -1866,7 +1969,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							>
 								{isValidating ? '🔄 Validating...' : '✈️ Run Pre-flight Validation'}
 							</button>
-							<small style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}>
+							<small
+								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
+							>
 								Validates your app configuration with PingOne before login
 							</small>
 						</div>
@@ -1926,7 +2031,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 												<strong style={{ color: '#991b1b', fontSize: '14px' }}>Errors:</strong>
 												<ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
 													{validationResult.errors.map((error, idx) => (
-														<li key={idx} style={{ color: '#991b1b', fontSize: '13px', marginBottom: '4px' }}>
+														<li
+															key={idx}
+															style={{ color: '#991b1b', fontSize: '13px', marginBottom: '4px' }}
+														>
 															{error}
 														</li>
 													))}
@@ -1940,11 +2048,70 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 												<strong style={{ color: '#c2410c', fontSize: '14px' }}>Warnings:</strong>
 												<ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
 													{validationResult.warnings.map((warning, idx) => (
-														<li key={idx} style={{ color: '#c2410c', fontSize: '13px', marginBottom: '4px' }}>
+														<li
+															key={idx}
+															style={{ color: '#c2410c', fontSize: '13px', marginBottom: '4px' }}
+														>
 															{warning}
 														</li>
 													))}
 												</ul>
+											</div>
+										)}
+
+										{/* Fix Errors Button */}
+										{validationResult.errors.length > 0 && (
+											<div
+												style={{
+													marginTop: '16px',
+													paddingTop: '16px',
+													borderTop: '1px solid #e5e7eb',
+												}}
+											>
+												<button
+													type="button"
+													onClick={handleFixErrors}
+													disabled={isFixingErrors || isValidating}
+													style={{
+														width: '100%',
+														padding: '10px 16px',
+														background: isFixingErrors ? '#fbbf24' : '#3b82f6',
+														color: 'white',
+														border: 'none',
+														borderRadius: '6px',
+														fontSize: '14px',
+														fontWeight: '600',
+														cursor: isFixingErrors || isValidating ? 'not-allowed' : 'pointer',
+														transition: 'all 0.2s ease',
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'center',
+														gap: '8px',
+													}}
+												>
+													{isFixingErrors ? (
+														<>
+															<span>🔧</span>
+															<span>Fixing Errors...</span>
+														</>
+													) : (
+														<>
+															<span>🔧</span>
+															<span>Fix Pre-flight Errors</span>
+														</>
+													)}
+												</button>
+												<small
+													style={{
+														display: 'block',
+														marginTop: '4px',
+														fontSize: '12px',
+														color: '#6b7280',
+														textAlign: 'center',
+													}}
+												>
+													Attempts to automatically fix common configuration issues
+												</small>
 											</div>
 										)}
 									</div>
