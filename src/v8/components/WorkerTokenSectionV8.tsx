@@ -16,6 +16,7 @@ import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService'
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
+import { WorkerTokenStatusDisplayV8 } from './WorkerTokenStatusDisplayV8';
 import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-SECTION-V8]';
@@ -293,6 +294,16 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 							</button>
 						</>
 					)}
+				</div>
+
+				{/* Worker Token Status Display - Between buttons and checkboxes */}
+				<div style={{ marginTop: '16px', marginBottom: '16px' }}>
+					<WorkerTokenStatusDisplayV8
+						mode="compact"
+						showRefresh={true}
+						refreshInterval={10}
+						showConfig={false}
+					/>
 				</div>
 
 				{/* Worker Token Settings Checkboxes */}
