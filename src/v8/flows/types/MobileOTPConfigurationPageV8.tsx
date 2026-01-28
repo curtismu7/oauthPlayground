@@ -87,7 +87,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 
 	// Token and modal state
 	const [tokenStatus, setTokenStatus] = useState(
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
 	);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
@@ -531,7 +531,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 	// Monitor token status changes
 	useEffect(() => {
 		const checkToken = () => {
-			setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+			setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 		};
 
 		const interval = setInterval(checkToken, 30000); // Check every 30 seconds
@@ -1151,7 +1151,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					isOpen={showWorkerTokenModal}
 					onClose={() => {
 						setShowWorkerTokenModal(false);
-						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 					}}
 				/>
 			)}
