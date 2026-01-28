@@ -87,6 +87,14 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 		}
 	});
 	
+	// Debug: Check localStorage directly
+	const storedToken = localStorage.getItem('unified_worker_token');
+	console.log('[EmailOTP] LocalStorage worker token:', {
+		exists: !!storedToken,
+		data: storedToken ? JSON.parse(storedToken) : null,
+		tokenPresent: storedToken ? JSON.parse(storedToken).token : null
+	});
+	
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
