@@ -21,6 +21,7 @@ import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
@@ -70,8 +71,12 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 		});
 		// #endregion
 
+		// Get global environment ID if not in flow-specific storage
+		const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+		const environmentId = stored.environmentId || globalEnvId || '';
+
 		return {
-			environmentId: stored.environmentId || '',
+			environmentId: environmentId,
 			clientId: stored.clientId || '',
 			username: stored.username || '',
 			deviceType: 'SMS' as const,
@@ -85,6 +90,16 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			userToken: stored.userToken || '',
 		};
 	});
+
+	// Save environment ID globally when it changes
+	useEffect(() => {
+		if (credentials.environmentId) {
+			EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
+			console.log('[SMSOTP] Environment ID saved globally', {
+				environmentId: credentials.environmentId,
+			});
+		}
+	}, [credentials.environmentId]);
 
 	// Token and modal state
 	const [tokenStatus, setTokenStatus] = useState(
