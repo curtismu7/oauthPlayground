@@ -1053,6 +1053,11 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				setShowWorkerTokenModal,
 			} = props;
 
+			// Check token status synchronously for button enable/disable logic
+			const { WorkerTokenStatusServiceV8 } = require('@/v8/services/workerTokenStatusServiceV8');
+			const currentTokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+			const isTokenValid = currentTokenStatus.isValid;
+
 			// Store step 2 props for useEffect to access
 			step2PropsRef.current = props;
 
@@ -2478,34 +2483,34 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 							</button>
 							<button
 								type="button"
-								disabled={isLoading || !isValidForm || !tokenStatus.isValid}
+								disabled={isLoading || !isValidForm || !isTokenValid}
 								onClick={handleRegisterDevice}
 								style={{
 									flex: 2,
 									padding: '12px 20px',
 									background:
-										isValidForm && !isLoading && tokenStatus.isValid ? '#10b981' : '#d1d5db',
+										isValidForm && !isLoading && isTokenValid ? '#10b981' : '#d1d5db',
 									color: 'white',
 									border: 'none',
 									borderRadius: '8px',
 									fontSize: '15px',
 									fontWeight: '600',
 									cursor:
-										isValidForm && !isLoading && tokenStatus.isValid ? 'pointer' : 'not-allowed',
+										isValidForm && !isLoading && isTokenValid ? 'pointer' : 'not-allowed',
 									boxShadow:
-										isValidForm && !isLoading && tokenStatus.isValid
+										isValidForm && !isLoading && isTokenValid
 											? '0 4px 12px rgba(16, 185, 129, 0.3)'
 											: 'none',
 									transition: 'all 0.2s ease',
 								}}
 								onMouseEnter={(e) => {
-									if (isValidForm && !isLoading && tokenStatus.isValid) {
+									if (isValidForm && !isLoading && isTokenValid) {
 										e.currentTarget.style.background = '#059669';
 										e.currentTarget.style.boxShadow = '0 6px 16px rgba(5, 150, 105, 0.4)';
 									}
 								}}
 								onMouseLeave={(e) => {
-									if (isValidForm && !isLoading && tokenStatus.isValid) {
+									if (isValidForm && !isLoading && isTokenValid) {
 										e.currentTarget.style.background = '#10b981';
 										e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
 									}
