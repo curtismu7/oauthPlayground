@@ -852,6 +852,18 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 					</small>
 				</div>
 
+				{/* Device Authentication Policy Configuration */}
+				<MFAConfigurationStepV8
+					credentials={credentials}
+					setCredentials={setCredentials}
+					tokenStatus={tokenStatus}
+					deviceType="EMAIL"
+					deviceTypeLabel="Email"
+					policyDescription="Determines which PingOne policy governs Email OTP challenges."
+					registrationFlowType={registrationFlowType}
+					fetchDeviceAuthPolicies={loadPolicies}
+				/>
+
 				
 				{/* Clean Worker Token Section - Always show */}
 				<WorkerTokenSectionV8
