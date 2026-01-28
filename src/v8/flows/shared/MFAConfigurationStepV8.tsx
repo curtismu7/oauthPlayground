@@ -1429,28 +1429,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 							<span>MFA Settings</span>
 						</button>
 
-						{/* Worker Token Status Display */}
-						<div
-							style={{
-								flex: 1,
-								minWidth: '200px',
-								padding: '12px 16px',
-								background: workerTokenStatusDisplay.background,
-								border: `1px solid ${workerTokenStatusDisplay.color}`,
-								borderRadius: '6px',
-								fontSize: '13px',
-								fontWeight: '500',
-								color: workerTokenStatusDisplay.textColor,
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-							}}
-						>
-							<span style={{ fontSize: '16px' }}>{workerTokenStatusDisplay.icon}</span>
-							<span>
-								<strong>Worker Token:</strong> {workerTokenStatusDisplay.message}
-							</span>
-						</div>
+						{/* Worker Token Status Display - Removed */}
 
 						{/* User Token Status Display - Only show for User Flow */}
 						{(registrationFlowType === 'user' ||
