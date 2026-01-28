@@ -408,13 +408,8 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		[deviceType]
 	);
 
-	// Handle skip step 0 navigation in useEffect to avoid render-phase updates
-	useLayoutEffect(() => {
-		if (isConfigured && skipStep0NavRef.current && !hasSkippedStep0Ref.current) {
-			hasSkippedStep0Ref.current = true;
-			skipStep0NavRef.current(1);
-		}
-	}, [isConfigured]);
+	// Auto-navigation removed - user must manually click "Next" button
+	// User controls navigation from Step 0
 
 	// Device selection state
 	const [deviceSelection, setDeviceSelection] = useState({
@@ -773,11 +768,8 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				nav,
 			} = props;
 
-			// Store nav callback in ref for useEffect to use
-			if (isConfigured && nav.currentStep === 0) {
-				skipStep0NavRef.current = nav.goToStep;
-				return null;
-			}
+			// Auto-navigation removed - user must manually click "Next" button
+			// User controls navigation from Step 0
 
 			// Use config-selected Device Auth policy as default (from credentials or location.state)
 			// Priority: credentials.deviceAuthenticationPolicyId > location.state.deviceAuthPolicyId > empty
