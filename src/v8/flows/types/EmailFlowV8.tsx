@@ -849,7 +849,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						deviceName: '',
 						deviceAuthenticationPolicyId: '',
 					};
-					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 					const devices = await controller.loadExistingDevices(credentials, tokenStatus);
 					setDeviceSelection({
 						existingDevices: devices,
@@ -1946,7 +1946,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 													// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 													if (newValue && setShowWorkerTokenModal) {
 														const currentStatus =
-															WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+															WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 														if (!currentStatus.isValid) {
 															console.log(
 																'[EMAIL-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
