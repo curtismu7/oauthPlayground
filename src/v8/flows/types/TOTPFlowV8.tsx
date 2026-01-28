@@ -557,6 +557,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	const [secretReceivedAt, setSecretReceivedAt] = useState<number | null>(null);
 	// Modal state for expired QR code/secret
 	const [showExpiredModal, setShowExpiredModal] = useState(false);
+	// Modal state for guidance when configured
+	const [showGuidanceModal, setShowGuidanceModal] = useState(false);
 
 	// State for secret copy button
 	const [secretCopied, setSecretCopied] = useState(false);
@@ -933,15 +935,17 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		const currentStep = typeof props.nav?.currentStep === 'number' ? props.nav.currentStep : 0;
 		const isConfiguredValue = Boolean(isConfigured);
 
-		// Auto-navigate from Step 0 to Step 2 when configured
+		// Auto-navigation removed - user must manually click "Next" button
+		// Show guidance modal instead when configured
 		if (isConfiguredValue && currentStep === 0 && !autoNavigateRef.current.triggered) {
-			console.log(`${MODULE_TAG} [useEffect] Auto-navigating from Step 0 to Step 2`, {
+			console.log(`${MODULE_TAG} [useEffect] TOTP configured, showing guidance instead of auto-navigating`, {
 				currentStep,
 				isConfigured: isConfiguredValue,
 			});
 
 			autoNavigateRef.current = { step: 2, triggered: true };
-			props.nav.goToStep(2); // Go to Step 2 (Device Registration) - Step 1 is skipped for registration flow
+			// Show guidance modal to direct user to click "Next" button
+			setShowGuidanceModal(true);
 		}
 	}, [isConfigured]);
 
@@ -1324,169 +1328,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				}
 			}
 
-			// Auto-register device for registration flow (when coming from config page)
+			// Auto-registration removed - user must manually click "Register Device" button
 			// Per UI contract: Step 0 -> Step 2 (register) -> Step 3 (QR code)
-			if (
-				isConfigured &&
-				nav.currentStep === 2 &&
-				!mfaState.deviceId &&
-				!autoRegistrationTriggeredRef.current &&
-				credentials.environmentId &&
-				credentials.username &&
-				tokenStatus?.isValid &&
-				!showModal // Only auto-register when modal is not yet open
-			) {
-				autoRegistrationTriggeredRef.current = true;
-
-				// Trigger auto-registration asynchronously
-				Promise.resolve().then(async () => {
-					try {
-						console.log(`${MODULE_TAG} [Step 2] Auto-registering TOTP device for registration flow`);
-						
-						// Check if pairing is disabled in the policy
-						const selectedPolicy = props.deviceAuthPolicies?.find(
-							(p) => p.id === credentials.deviceAuthenticationPolicyId
-						);
-
-						if (selectedPolicy?.pairingDisabled === true) {
-							console.warn(
-								`${MODULE_TAG} Auto-registration blocked: pairing is disabled for policy ${selectedPolicy.id}`
-							);
-							toastV8.error(
-								'Device pairing is disabled for this policy. Please select a different policy.'
-							);
-							autoRegistrationTriggeredRef.current = false; // Allow retry
-							return;
-						}
-
-						const shouldPromptForNickname = selectedPolicy?.promptForNicknameOnPairing === true;
-
-						// Use device name from credentials if prompted, otherwise use default
-						const deviceName = shouldPromptForNickname
-							? credentials.deviceName?.trim() || 'TOTP'
-							: 'TOTP';
-						const registrationCredentials = {
-							...credentials,
-							deviceName,
-						};
-						const deviceStatus =
-							registrationFlowType === 'user' ? 'ACTIVATION_REQUIRED' : adminDeviceStatus;
-
-						// Get registration params and add promptForNicknameOnPairing
-						const registrationParams = {
-							...controller.getDeviceRegistrationParams(registrationCredentials, deviceStatus),
-							promptForNicknameOnPairing: shouldPromptForNickname,
-						};
-
-						setIsLoading(true);
-						const result = (await controller.registerDevice(
-							registrationCredentials,
-							registrationParams
-						)) as DeviceRegistrationResult;
-
-						// Extract secret and keyUri (same logic as original Step 2)
-						const resultWithTotp = result as {
-							secret?: string;
-							keyUri?: string;
-							totpResult?: {
-								secret?: string;
-								qrCode?: string;
-								manualEntryKey?: string;
-							};
-						};
-
-						const secret =
-							resultWithTotp.secret ||
-							resultWithTotp.totpResult?.secret ||
-							resultWithTotp.totpResult?.manualEntryKey;
-						const keyUri =
-							resultWithTotp.keyUri ||
-							(resultWithTotp.totpResult?.qrCode
-								? `data:image/png;base64,${resultWithTotp.totpResult.qrCode}`
-								: undefined);
-
-						// Fetch device details if secret/keyUri missing
-						let finalSecret = secret;
-						let finalKeyUri = keyUri;
-
-						if (!secret && !keyUri && result.deviceId) {
-							try {
-								const deviceDetails = await MFAServiceV8.getDevice({
-									...registrationCredentials,
-									deviceId: result.deviceId,
-								} as SendOTPParams);
-
-								const deviceProperties = (
-									deviceDetails as { properties?: { secret?: string; keyUri?: string } }
-								).properties;
-								if (deviceProperties) {
-									finalSecret = deviceProperties.secret || finalSecret;
-									finalKeyUri = deviceProperties.keyUri || finalKeyUri;
-								}
-							} catch (error) {
-								console.error(`${MODULE_TAG} Failed to fetch device details:`, error);
-							}
-						}
-
-						// Store TOTP data
-						if (finalSecret || finalKeyUri) {
-							setSecretReceivedAt(Date.now());
-						}
-						if (finalSecret) {
-							setTotpSecret(finalSecret);
-						}
-						if (finalKeyUri) {
-							setQrCodeUrl(finalKeyUri);
-						}
-
-						// Update mfaState
-						const updatedMfaState: Partial<MFAState> = {
-							deviceId: result.deviceId,
-							deviceStatus: result.status,
-							...(finalSecret ? { totpSecret: finalSecret } : {}),
-							...(finalKeyUri ? { qrCodeUrl: finalKeyUri } : {}),
-							...(result.createdAt ? { createdAt: result.createdAt } : {}),
-						};
-
-						mfaStateRef.current = {
-							deviceId: result.deviceId,
-							deviceStatus: result.status,
-							...(result.createdAt ? { createdAt: result.createdAt } : {}),
-							...(finalKeyUri ? { qrCodeUrl: finalKeyUri, keyUri: finalKeyUri } : {}),
-							...(finalSecret ? { totpSecret: finalSecret, secret: finalSecret } : {}),
-						};
-
-						// Update state - this will trigger a re-render and show the QR code
-						setMfaState(updatedMfaState);
-
-						// Auto-navigate to Step 3 after successful registration
-						nav.markStepComplete();
-						setShowModal(false);
-						nav.goToStep(3);
-
-						// Log success for debugging
-						console.log(
-							`${MODULE_TAG} ✅ Auto-registration complete, navigating to Step 3:`,
-							{
-								deviceId: result.deviceId,
-								hasSecret: !!finalSecret,
-								hasKeyUri: !!finalKeyUri,
-								secretLength: finalSecret?.length,
-								keyUriLength: finalKeyUri?.length,
-							}
-						);
-
-						toastV8.info('Device registered. Proceeding to QR code setup.');
-					} catch (error) {
-						const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-						console.error(`${MODULE_TAG} Auto-registration failed:`, error);
-						toastV8.error(`Failed to register device: ${errorMessage}`);
-						autoRegistrationTriggeredRef.current = false; // Allow retry
-					} finally {
-						setIsLoading(false);
-					}
-				});
-			}
+			// Registration now requires manual button click in Step 2 modal
 
 			// Handle device registration
 			const handleRegisterDevice = async () => {
@@ -3837,6 +3681,126 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					return false;
 				}}
 			/>
+
+			{/* Guidance Modal for Configured Flow */}
+			{showGuidanceModal && (
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						background: 'rgba(0, 0, 0, 0.5)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						zIndex: 1000,
+					}}
+					onClick={() => setShowGuidanceModal(false)}
+				>
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '12px',
+							padding: '32px',
+							maxWidth: '450px',
+							width: '90%',
+							textAlign: 'center',
+							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+						}}
+						onClick={(e) => e.stopPropagation()}
+					>
+						<div
+							style={{
+								width: '60px',
+								height: '60px',
+								background: '#10b981',
+								borderRadius: '50%',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								margin: '0 auto 24px auto',
+								animation: 'pulse 2s infinite',
+							}}
+						>
+							<span style={{ fontSize: '28px', color: 'white' }}>✓</span>
+						</div>
+						
+						<h2
+							style={{
+								margin: '0 0 16px 0',
+								fontSize: '24px',
+								fontWeight: '600',
+								color: '#1f2937',
+							}}
+						>
+							Ready to Continue!
+						</h2>
+						
+						<p
+							style={{
+								margin: '0 0 24px 0',
+								fontSize: '16px',
+								color: '#6b7280',
+								lineHeight: 1.6,
+							}}
+						>
+							Your TOTP configuration is complete and you've successfully logged into PingOne. 
+							Please click the <strong>"Next Step"</strong> button to continue with device registration.
+						</p>
+						
+						<div
+							style={{
+								background: '#f0f9ff',
+								border: '1px solid #bfdbfe',
+								borderRadius: '8px',
+								padding: '16px',
+								marginBottom: '24px',
+							}}
+						>
+							<p
+								style={{
+									margin: 0,
+									fontSize: '14px',
+									color: '#1e40af',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+								}}
+							>
+								<span style={{ fontSize: '18px' }}>💡</span>
+								Look for the <strong>"Next Step"</strong> button below to proceed
+							</p>
+						</div>
+						
+						<button
+							type="button"
+							onClick={() => setShowGuidanceModal(false)}
+							style={{
+								padding: '12px 24px',
+								background: '#10b981',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								fontSize: '16px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+								transition: 'all 0.2s ease',
+							}}
+							onMouseOver={(e) => {
+								e.currentTarget.style.background = '#059669';
+							}}
+							onMouseOut={(e) => {
+								e.currentTarget.style.background = '#10b981';
+							}}
+						>
+							Got it, I'll click Next Step
+						</button>
+					</div>
+				</div>
+			)}
 
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 
