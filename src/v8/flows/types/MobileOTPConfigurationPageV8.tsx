@@ -1065,6 +1065,43 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					>
 						Cancel
 					</button>
+					{/* Debug: Add button enabling debug */}
+					{(() => {
+						const hasDeviceAuthPolicy = !!credentials.deviceAuthenticationPolicyId;
+						const hasEnvironmentId = !!credentials.environmentId;
+						const isWorkerTokenType = (credentials.tokenType || 'worker') === 'worker';
+						const hasValidWorkerToken = tokenStatus.isValid;
+						const hasValidUserToken = !!credentials.userToken?.trim();
+						const isDisabled = !hasDeviceAuthPolicy || !hasEnvironmentId || (isWorkerTokenType ? !hasValidWorkerToken : !hasValidUserToken);
+						
+						console.log('[MobileOTP] BUTTON DEBUG:', {
+							'Raw Values': {
+								deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
+								environmentId: credentials.environmentId,
+								tokenType: credentials.tokenType || 'worker',
+								tokenStatus: tokenStatus,
+								userToken: credentials.userToken
+							},
+							'Boolean Checks': {
+								hasDeviceAuthPolicy,
+								hasEnvironmentId,
+								isWorkerTokenType,
+								hasValidWorkerToken,
+								hasValidUserToken
+							},
+							'Final Result': {
+								isDisabled,
+								disabledReason: !hasDeviceAuthPolicy ? 'Missing device auth policy' :
+												!hasEnvironmentId ? 'Missing environment ID' :
+												isWorkerTokenType && !hasValidWorkerToken ? 'Invalid worker token' :
+												!isWorkerTokenType && !hasValidUserToken ? 'Invalid user token' :
+												'Unknown reason'
+							}
+						});
+						
+						return null;
+					})()}
+					
 					<button
 						type="button"
 						onClick={handleProceedToRegistration}
