@@ -24,11 +24,13 @@ import {
 	FiShield,
 	FiX,
 } from 'react-icons/fi';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '@/contexts/NewAuthContext';
 import { FIDO2Service } from '@/services/fido2Service';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -38,9 +40,12 @@ import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
+import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
+import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
+import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import type { DeviceAuthenticationPolicy } from '../shared/MFATypes';
 
 const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
 
@@ -56,11 +61,36 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	}, []);
 
 	// Environment and token state
+	const [searchParams] = useSearchParams();
+	const authContext = useAuth();
 	const [environmentId, setEnvironmentId] = useState<string>('');
 	const [tokenStatus, setTokenStatus] = useState(
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
 	);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
+
+	// Registration flow type state
+	const [registrationFlowType, setRegistrationFlowType] = useState<'admin' | 'user'>('user');
+
+	// Credentials state
+	const [credentials, setCredentials] = useState<MFACredentials>(() => {
+		const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+			flowKey: 'mfa-flow-v8',
+			flowType: 'oidc',
+			includeClientSecret: false,
+			includeRedirectUri: false,
+			includeScopes: false,
+		});
+
+		return stored || {
+			environmentId: '',
+			username: '',
+			deviceAuthenticationPolicyId: '',
+			tokenType: 'worker' as const,
+			userToken: '',
+		};
+	});
 
 	// Worker Token Settings - Load from config service
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
@@ -677,6 +707,56 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						</div>
 					</div>
 				)}
+
+				{/* Registration Flow Type Selection */}
+				<div
+					style={{
+						background: 'white',
+						borderRadius: '8px',
+						padding: '24px',
+						marginBottom: '24px',
+						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+					}}
+				>
+					<h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+						Registration Flow Type
+					</h3>
+					<div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
+						{(['admin', 'user'] as const).map((flowType) => (
+							<label
+								key={flowType}
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+									cursor: 'pointer',
+									padding: '8px 16px',
+									borderRadius: '6px',
+									border: registrationFlowType === flowType ? '2px solid #3b82f6' : '1px solid #d1d5db',
+									background: registrationFlowType === flowType ? '#eff6ff' : 'white',
+									transition: 'all 0.2s ease',
+								}}
+							>
+								<input
+									type="radio"
+									name="registrationFlowType"
+									value={flowType}
+									checked={registrationFlowType === flowType}
+									onChange={() => setRegistrationFlowType(flowType)}
+									style={{ cursor: 'pointer' }}
+								/>
+								<span style={{ fontSize: '14px', fontWeight: '500' }}>
+									{flowType.charAt(0).toUpperCase() + flowType.slice(1)} Flow
+								</span>
+							</label>
+						))}
+					</div>
+					<div style={{ fontSize: '13px', color: '#6b7280', lineHeight: '1.4' }}>
+						<strong>Admin Flow:</strong> Use worker token for device registration (recommended for testing)
+						<br />
+						<strong>User Flow:</strong> Use user login token for device registration (requires user authentication)
+					</div>
+				</div>
 
 				<div
 					style={{
@@ -2014,6 +2094,22 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					</div>
 				)}
 
+				{/* Clean User Login Section - Only show for user flow */}
+				{registrationFlowType === 'user' && (
+					<UserLoginSectionV8
+						onTokenUpdated={(token) => {
+							// Update credentials when user token is received
+							setCredentials(prev => ({
+								...prev,
+								userToken: token,
+								tokenType: 'user' as const,
+							}));
+						}}
+						compact={false}
+						showUserInfo={true}
+					/>
+				)}
+
 				{/* Proceed Button */}
 				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
 					<button
@@ -2039,21 +2135,23 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							e.stopPropagation();
 							console.log(`${MODULE_TAG} Button clicked`, {
 								selectedFido2PolicyId,
+								registrationFlowType,
 								tokenStatusValid: tokenStatus.isValid,
-								disabled: !selectedFido2PolicyId || !tokenStatus.isValid,
+								userTokenValid: registrationFlowType === 'user' ? !!credentials.userToken : true,
+								disabled: !selectedFido2PolicyId || (registrationFlowType === 'admin' ? !tokenStatus.isValid : !credentials.userToken),
 							});
 							handleProceedToRegistration();
 						}}
-						disabled={!selectedFido2PolicyId || !tokenStatus.isValid}
+						disabled={!selectedFido2PolicyId || (registrationFlowType === 'admin' ? !tokenStatus.isValid : !credentials.userToken)}
 						style={{
 							padding: '12px 24px',
 							border: 'none',
 							borderRadius: '6px',
-							background: selectedFido2PolicyId && tokenStatus.isValid ? '#3b82f6' : '#9ca3af',
+							background: selectedFido2PolicyId && (registrationFlowType === 'admin' ? tokenStatus.isValid : !!credentials.userToken) ? '#3b82f6' : '#9ca3af',
 							color: 'white',
 							fontSize: '16px',
 							fontWeight: '600',
-							cursor: selectedFido2PolicyId && tokenStatus.isValid ? 'pointer' : 'not-allowed',
+							cursor: selectedFido2PolicyId && (registrationFlowType === 'admin' ? tokenStatus.isValid : !!credentials.userToken) ? 'pointer' : 'not-allowed',
 							display: 'flex',
 							alignItems: 'center',
 							gap: '8px',
@@ -2099,6 +2197,24 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						);
 					}
 				})()}
+
+			{/* User Login Modal */}
+			{showUserLoginModal && (
+				<UserLoginModalV8
+					isOpen={showUserLoginModal}
+					onClose={() => setShowUserLoginModal(false)}
+					onTokenReceived={(token: string) => {
+						// Update credentials when user login succeeds
+						setCredentials(prev => ({
+							...prev,
+							userToken: token,
+							tokenType: 'user' as const,
+						}));
+						setShowUserLoginModal(false);
+					}}
+					environmentId={environmentId}
+				/>
+			)}
 		</div>
 	);
 };
