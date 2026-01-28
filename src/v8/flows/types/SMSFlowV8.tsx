@@ -851,18 +851,17 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			// - Environment ID, Policy, Username fields
 			// - Registration Flow Type selector
 			//
-			// Even if coming from config page with all prerequisites, we show Step 0
-			// so users can configure token type and see the new UI
-			if (false && isConfigured && nav.currentStep === 0 && hasMinimumConfig) {
-				// Disabled: Always show Step 0 now
-				setTimeout(() => {
-					console.log(
-						`${MODULE_TAG} Step 0 skip logic disabled - always showing new configuration screens`
-					);
-					// nav.goToStep(1);
-				}, 0);
-				// return null;
-			}
+			// Auto-navigate from Step 0 to Step 1 when configured
+		// This allows skipping to device registration flow
+		if (isConfigured && nav.currentStep === 0 && hasMinimumConfig) {
+			setTimeout(() => {
+				console.log(
+					`${MODULE_TAG} Auto-navigating from Step 0 to Step 1 for configured flow`
+				);
+				nav.goToStep(1);
+			}, 0);
+			return null;
+		}
 
 			// If configured flag is true but we are missing env/user/policy,
 			// stay on Step 0 so user can complete configuration
