@@ -956,7 +956,6 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 						disabled={
 							!credentials.deviceAuthenticationPolicyId ||
 							!credentials.environmentId ||
-							!credentials.username ||
 							((credentials.tokenType || 'worker') === 'worker'
 								? !tokenStatus.isValid
 								: !credentials.userToken?.trim())
@@ -968,11 +967,10 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 							background:
 								credentials.deviceAuthenticationPolicyId &&
 								credentials.environmentId &&
-								credentials.username &&
 								((credentials.tokenType || 'worker') === 'worker'
 									? tokenStatus.isValid
 									: !!credentials.userToken?.trim())
-									? '#10b981'
+									? '#8b5cf6'
 									: '#9ca3af',
 							color: 'white',
 							fontSize: '16px',
@@ -980,7 +978,6 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 							cursor:
 								credentials.deviceAuthenticationPolicyId &&
 								credentials.environmentId &&
-								credentials.username &&
 								((credentials.tokenType || 'worker') === 'worker'
 									? tokenStatus.isValid
 									: !!credentials.userToken?.trim())
