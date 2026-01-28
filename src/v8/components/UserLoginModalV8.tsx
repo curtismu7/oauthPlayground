@@ -940,7 +940,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		const finalRedirectUri =
 			fieldValue &&
 			!fieldValue.includes('implicit-callback') &&
-			!fieldValue.includes('authz-callback') &&
 			!(isMfaFlow && (fieldValue.includes('/v8/mfa-hub') || fieldValue.includes('mfa-hub')))
 				? fieldValue
 				: defaultRedirectUriForMfa;
