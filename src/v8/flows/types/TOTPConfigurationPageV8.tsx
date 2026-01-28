@@ -755,7 +755,10 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 					deviceType="TOTP"
 					deviceTypeLabel="TOTP"
 					policyDescription="Determines which PingOne policy governs TOTP challenges."
-					fetchDeviceAuthPolicies={fetchDeviceAuthPolicies}
+					deviceAuthPolicies={deviceAuthPolicies}
+					isLoadingPolicies={isLoadingPolicies}
+					policiesError={policiesError}
+					refreshDeviceAuthPolicies={fetchDeviceAuthPolicies}
 				/>
 
 	
