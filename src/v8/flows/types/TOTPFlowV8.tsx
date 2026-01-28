@@ -1894,7 +1894,15 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									);
 								})()}
 
-								{/* Worker Token Status - Removed */}
+								{/* Enhanced Worker Token UI Service */}
+							<WorkerTokenUIServiceV8
+								mode="compact"
+								showStatusDisplay={true}
+								statusSize="small"
+								showRefresh={false}
+								environmentId={credentials.environmentId}
+								context="mfa"
+							/>
 							</div>
 
 							{/* Action Buttons - Sticky Footer */}
