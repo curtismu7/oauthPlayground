@@ -1043,5 +1043,6 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 				/>
 			)}
 		</div>
+		</div>
 	);
 };
