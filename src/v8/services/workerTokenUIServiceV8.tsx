@@ -18,7 +18,7 @@ import { FiLoader, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
 import { AppDiscoveryModalV8U } from '../../v8u/components/AppDiscoveryModalV8U';
 import type { DiscoveredApp } from '../components/AppPickerV8';
-// import { WorkerTokenStatusDisplayV8 } from '../components/WorkerTokenStatusDisplayV8'; // Removed
+import { WorkerTokenStatusDisplayV8 } from '../components/WorkerTokenStatusDisplayV8';
 import { toastV8 } from '../utils/toastNotificationsV8';
 import { MFAConfigurationServiceV8 } from './mfaConfigurationServiceV8';
 import type { TokenStatusInfo } from './workerTokenStatusServiceV8';
@@ -26,9 +26,13 @@ import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
 
 export interface WorkerTokenUIServiceV8Props {
 	/** Display mode for the status display */
-	mode?: 'compact' | 'detailed' | 'minimal';
+	mode?: 'compact' | 'detailed' | 'minimal' | 'wide';
 	/** Show refresh button on status display */
 	showRefresh?: boolean;
+	/** Show status display component */
+	showStatusDisplay?: boolean;
+	/** Status display size variant */
+	statusSize?: 'small' | 'large' | 'hub' | 'minimal';
 	/** Custom className for container */
 	className?: string;
 	/** Custom styling for container */
@@ -143,6 +147,8 @@ const SettingDescription = styled.span`
 export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 	mode = 'detailed',
 	showRefresh = true,
+	showStatusDisplay = true,
+	statusSize = 'large',
 	className = '',
 	style = {},
 	context = 'unified',
@@ -150,6 +156,34 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 	onAppSelected,
 	onEnvironmentIdUpdate,
 }) => {
+	// Status display configurations for different contexts
+	const getStatusConfig = () => {
+		const configs = {
+			small: {
+				mode: 'compact' as const,
+				showRefresh: false,
+				className: 'worker-token-status-small',
+			},
+			large: {
+				mode: 'detailed' as const,
+				showRefresh: true,
+				className: 'worker-token-status-large',
+			},
+			hub: {
+				mode: 'wide' as const,
+				showRefresh: true,
+				className: 'worker-token-status-hub',
+			},
+			minimal: {
+				mode: 'minimal' as const,
+				showRefresh: false,
+				className: 'worker-token-status-minimal',
+			}
+		};
+		return configs[statusSize] || configs.large;
+	};
+
+	const statusConfig = getStatusConfig();
 	// State
 	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo | null>(null);
 	const [isGettingWorkerToken, setIsGettingWorkerToken] = useState(false);
@@ -477,7 +511,15 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 					</GetWorkerTokenButton>
 				</ButtonContainer>
 
-				{/* Cool 3D Worker Token Status Display - Removed */}
+				{/* Status Display */}
+				{showStatusDisplay && (
+					<WorkerTokenStatusDisplayV8
+						mode={statusConfig.mode}
+						showRefresh={statusConfig.showRefresh}
+						className={statusConfig.className}
+						refreshInterval={5}
+					/>
+				)}
 			</div>
 
 			{/* Worker Token Settings Checkboxes */}
