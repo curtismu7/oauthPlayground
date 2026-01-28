@@ -2379,7 +2379,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 													// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 													if (newValue) {
 														const currentStatus =
-															WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+															WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 														if (!currentStatus.isValid) {
 															console.log(
 																'[SMS-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
