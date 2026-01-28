@@ -150,6 +150,8 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 	triggerClassName,
 	triggerStyle,
 }) => {
+	// Use a unique key for each instance to prevent state sharing
+	const instanceId = React.useId();
 	const [isOpen, setIsOpen] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 
@@ -165,9 +167,12 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 			event.preventDefault();
 			event.stopPropagation();
 		}
-		console.log(`${MODULE_TAG} Info button clicked`, { contentKey, displayMode });
+		console.log(`${MODULE_TAG} Info button clicked`, { contentKey, displayMode, isOpen });
 		if (displayMode === 'modal') {
-			setIsOpen((prev) => !prev);
+			setIsOpen((prev) => {
+				console.log(`${MODULE_TAG} Setting isOpen to`, !prev);
+				return !prev;
+			});
 		}
 	};
 
