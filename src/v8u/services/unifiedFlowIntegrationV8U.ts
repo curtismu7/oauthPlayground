@@ -60,6 +60,7 @@ export interface UnifiedFlowCredentials {
 	usePKCE?: boolean; // Legacy field - kept for backward compatibility
 	pkceEnforcement?: 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED'; // PKCE enforcement level from PingOne
 	enableRefreshToken?: boolean;
+	refreshTokenType?: 'JWT' | 'OPAQUE'; // Refresh token type: JWT (default) or OPAQUE (more secure)
 	flowKey?: string; // Flow identifier for PKCE storage
 	responseMode?: ResponseMode; // How authorization response is returned (query, fragment, form_post, pi.flow)
 	useRedirectless?: boolean; // DEPRECATED: Use responseMode='pi.flow' instead. Kept for backward compatibility.
