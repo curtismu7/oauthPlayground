@@ -40,6 +40,7 @@ import {
 } from '@/v8/components/OidcDiscoveryModalV8';
 import { PKCEEnforcementDropdownV8 } from '@/v8/components/PKCEEnforcementDropdownV8';
 import { PKCEInputV8, type PKCEMode } from '@/v8/components/PKCEInputV8';
+import { RefreshTokenTypeDropdownV8, type RefreshTokenType } from '@/v8/components/RefreshTokenTypeDropdownV8';
 import { ResponseModeDropdownV8 } from '@/v8/components/ResponseModeDropdownV8';
 import { ResponseTypeDropdownV8 } from '@/v8/components/ResponseTypeDropdownV8';
 import { TokenEndpointAuthMethodDropdownV8 } from '@/v8/components/TokenEndpointAuthMethodDropdownV8';
