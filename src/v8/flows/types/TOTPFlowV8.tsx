@@ -1893,31 +1893,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									);
 								})()}
 
-								{/* Worker Token Status */}
-								<div
-									style={{
-										marginBottom: '16px',
-										padding: '10px 12px',
-										background: tokenStatus.isValid ? '#d1fae5' : '#fee2e2',
-										border: `1px solid ${tokenStatus.isValid ? '#10b981' : '#ef4444'}`,
-										borderRadius: '6px',
-									}}
-								>
-									<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-										<span style={{ fontSize: '16px' }}>{tokenStatus.isValid ? '✅' : '⚠️'}</span>
-										<span
-											style={{
-												fontSize: '14px',
-												color: tokenStatus.isValid ? '#065f46' : '#991b1b',
-												fontWeight: '500',
-											}}
-										>
-											{tokenStatus.isValid
-												? tokenStatus.message || 'Worker token valid'
-												: tokenStatus.message || 'Worker token required'}
-										</span>
-									</div>
-								</div>
+								{/* Worker Token Status - Removed */}
 							</div>
 
 							{/* Action Buttons - Sticky Footer */}
