@@ -929,7 +929,10 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 					deviceTypeLabel="Email"
 					policyDescription="Determines which PingOne policy governs Email OTP challenges."
 					registrationFlowType={registrationFlowType}
-					fetchDeviceAuthPolicies={loadPolicies}
+					deviceAuthPolicies={deviceAuthPolicies}
+					isLoadingPolicies={isLoadingPolicies}
+					policiesError={policiesError}
+					refreshDeviceAuthPolicies={loadPolicies}
 				/>
 
 				
