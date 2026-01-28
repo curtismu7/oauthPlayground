@@ -73,8 +73,21 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 
 	// Token and modal state
 	const [tokenStatus, setTokenStatus] = useState(
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
 	);
+	
+	// Debug: Log token status to help debug button enabling
+	console.log('[EmailOTP] Token Status:', {
+		tokenStatus,
+		isValid: tokenStatus.isValid,
+		credentials: {
+			deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
+			environmentId: credentials.environmentId,
+			username: credentials.username,
+			tokenType: credentials.tokenType
+		}
+	});
+	
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -417,7 +430,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 	// Monitor token status changes
 	useEffect(() => {
 		const checkToken = () => {
-			setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+			setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 		};
 
 		const interval = setInterval(checkToken, 30000); // Check every 30 seconds
@@ -968,7 +981,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 					isOpen={showWorkerTokenModal}
 					onClose={() => {
 						setShowWorkerTokenModal(false);
-						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 					}}
 				/>
 			)}
