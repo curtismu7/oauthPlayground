@@ -22,10 +22,12 @@ import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
 import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
@@ -115,17 +117,52 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 	const isSyncingRef = React.useRef(false);
 
 	// Policy state
-	const [deviceAuthPolicies, _setDeviceAuthPolicies] = useState([]);
-	const [isLoadingPolicies, _setIsLoadingPolicies] = useState(false);
-	const [policiesError, _setPoliciesError] = useState<string | null>(null);
+	const [deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
+	const [isLoadingPolicies, setIsLoadingPolicies] = useState(false);
+	const [policiesError, setPoliciesError] = useState<string | null>(null);
 
 	// API display visibility
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);
 
 	const fetchDeviceAuthPolicies = useCallback(async () => {
-		// This function is now passed to MFAConfigurationStepV8
-		// The actual logic for fetching policies is in mfaServiceV8
-	}, []);
+	// Policies can only be loaded with a worker token
+	// Even if using User Token for the flow, we need worker token for policies
+		if (!credentials.environmentId || !tokenStatus.isValid) {
+			// If no worker token, don't show error - user can enter policy ID manually
+			if (!tokenStatus.isValid && credentials.tokenType === 'user') {
+				// User is using User Token - policies are optional, they can enter ID manually
+				return;
+			}
+			return;
+		}
+
+		setIsLoadingPolicies(true);
+		setPoliciesError(null);
+
+		try {
+			// Always use worker token for loading policies (even when tokenType is 'user')
+			const policies = await MFAServiceV8.listDeviceAuthenticationPolicies(
+				credentials.environmentId
+			);
+			setDeviceAuthPolicies(policies);
+		} catch (error) {
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'mfa' as any,
+					deviceType: 'TOTP',
+					operation: 'loadPolicies',
+				},
+				{
+					showToast: tokenStatus.isValid, // Only show toast if worker token is valid
+					logError: true,
+				}
+			);
+			setPoliciesError(parsed.userFriendlyMessage);
+		} finally {
+			setIsLoadingPolicies(false);
+		}
+	}, [credentials.environmentId, credentials.tokenType, tokenStatus.isValid]);
 
 	useEffect(() => {
 		const checkToken = () => {
@@ -377,6 +414,14 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 		});
 		return () => unsubscribe();
 	}, []);
+
+	// Load policies when environment and worker token are ready
+	// Note: Policies require worker token, even when using User Token for the flow
+	useEffect(() => {
+		if (credentials.environmentId && tokenStatus.isValid) {
+			void fetchDeviceAuthPolicies();
+		}
+	}, [credentials.environmentId, tokenStatus.isValid, fetchDeviceAuthPolicies]);
 
 	const handleProceedToRegistration = useCallback(
 		(e: React.MouseEvent<HTMLButtonElement>) => {
