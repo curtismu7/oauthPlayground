@@ -18,7 +18,7 @@ import { FiLoader, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
 import { AppDiscoveryModalV8U } from '../../v8u/components/AppDiscoveryModalV8U';
 import type { DiscoveredApp } from '../components/AppPickerV8';
-import { WorkerTokenStatusDisplayV8 } from '../components/WorkerTokenStatusDisplayV8';
+// import { WorkerTokenStatusDisplayV8 } from '../components/WorkerTokenStatusDisplayV8'; // Removed
 import { toastV8 } from '../utils/toastNotificationsV8';
 import { MFAConfigurationServiceV8 } from './mfaConfigurationServiceV8';
 import type { TokenStatusInfo } from './workerTokenStatusServiceV8';
@@ -392,11 +392,11 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 		[context, onEnvironmentIdUpdate, onAppSelected]
 	);
 
-	// Render minimal mode (just status display)
+	// Render minimal mode (just status display - removed)
 	if (mode === 'minimal') {
 		return (
 			<div className={className} style={style}>
-				<WorkerTokenStatusDisplayV8 mode="minimal" showRefresh={false} />
+				{/* WorkerTokenStatusDisplayV8 - Removed */}
 			</div>
 		);
 	}
@@ -429,13 +429,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 					</GetWorkerTokenButton>
 				</ButtonContainer>
 
-				<WorkerTokenStatusDisplayV8
-					mode="compact"
-					showRefresh={showRefresh}
-					showGetAppsConfig={true}
-					environmentId={environmentId}
-					onGetAppsConfig={handleGetAppsConfig}
-				/>
+				{/* WorkerTokenStatusDisplayV8 - Removed */}
 			</WorkerTokenContainer>
 		);
 	}
@@ -483,14 +477,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 					</GetWorkerTokenButton>
 				</ButtonContainer>
 
-				{/* Cool 3D Worker Token Status Display - Below buttons */}
-				<WorkerTokenStatusDisplayV8
-					mode="detailed"
-					showRefresh={true}
-					showGetAppsConfig={true}
-					environmentId={environmentId}
-					onGetAppsConfig={handleGetAppsConfig}
-				/>
+				{/* Cool 3D Worker Token Status Display - Removed */}
 			</div>
 
 			{/* Worker Token Settings Checkboxes */}
