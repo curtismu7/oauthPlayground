@@ -16,6 +16,7 @@ import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService'
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
+import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-SECTION-V8]';
 
@@ -95,8 +96,16 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 		}
 	};
 
-	const handleGetToken = () => {
-		setShowModal(true);
+	const handleGetToken = async () => {
+		// Use the silent retrieval helper instead of always showing modal
+		await handleShowWorkerTokenModal(
+			setShowModal,
+			setTokenStatus,
+			silentApiRetrieval, // Use the prop value
+			showTokenAtEnd, // Use the prop value
+			true, // forceShowModal = true since user explicitly clicked button
+			undefined // No silent loading state needed for explicit button click
+		);
 	};
 
 	const sectionStyle = compact
