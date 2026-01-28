@@ -679,6 +679,18 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 				</div>
 
 	
+				{/* Device Authentication Policy Configuration */}
+				<MFAConfigurationStepV8
+					credentials={credentials}
+					setCredentials={setCredentials}
+					tokenStatus={tokenStatus}
+					deviceType="TOTP"
+					deviceTypeLabel="TOTP"
+					policyDescription="Determines which PingOne policy governs TOTP challenges."
+					fetchDeviceAuthPolicies={fetchDeviceAuthPolicies}
+				/>
+
+	
 				{/* Clean Worker Token Section - Always show */}
 				<WorkerTokenSectionV8
 					environmentId={credentials.environmentId}
