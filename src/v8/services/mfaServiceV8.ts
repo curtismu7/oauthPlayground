@@ -1046,17 +1046,6 @@ export class MFAServiceV8 {
 				.publicKeyCredentialCreationOptions as string | undefined;
 			const hasPublicKeyInRaw = 'publicKeyCredentialCreationOptions' in deviceDataWithoutMetadata;
 
-				hasPublicKeyCredentialCreationOptions: hasPublicKeyInRaw,
-				publicKeyCredentialCreationOptionsValue:
-					rawPublicKeyOptions?.substring(0, 100) || 'NOT FOUND',
-				publicKeyCredentialCreationOptionsType: typeof rawPublicKeyOptions,
-				publicKeyCredentialCreationOptionsLength: rawPublicKeyOptions?.length || 0,
-				allKeys: Object.keys(deviceDataWithoutMetadata),
-				deviceType: (deviceDataWithoutMetadata as { type?: string }).type,
-				// Log full response structure for debugging
-				fullResponsePreview: JSON.stringify(deviceDataWithoutMetadata, null, 2).substring(0, 500),
-			});
-
 			const dd = deviceDataWithoutMetadata as PingOneResponse & {
 				environment?: { id?: string };
 				user?: { id?: string };
@@ -1211,21 +1200,6 @@ export class MFAServiceV8 {
 					: {}),
 			};
 
-			// Log confirmation that it's included
-			if (hasPublicKeyOptionsValue && publicKeyOptions) {
-					`${MODULE_TAG} ✅ Including publicKeyCredentialCreationOptions in return object:`,
-					{
-						length: publicKeyOptions.length,
-						hasInResult: 'publicKeyCredentialCreationOptions' in result,
-						resultKeys: Object.keys(result),
-						resultValue: result.publicKeyCredentialCreationOptions?.substring(0, 50) || 'NOT FOUND',
-						// Log the actual value to verify it's there
-						actualValue: result.publicKeyCredentialCreationOptions,
-						actualValueType: typeof result.publicKeyCredentialCreationOptions,
-					}
-				);
-			}
-
 			// Log TOTP secret/keyUri confirmation
 			if (dd.type === 'TOTP') {
 				const resultSecret = (result as { secret?: string }).secret;
@@ -1234,7 +1208,7 @@ export class MFAServiceV8 {
 					hasKeyUriInResult: !!resultKeyUri,
 					secretLength: resultSecret?.length || 0,
 					keyUriLength: resultKeyUri?.length || 0,
-					secretPreview: resultSecret ? `${resultSecret.substring(0, 20)}...` : 'NOT FOUND',
+					secretPreview: resultSecret ? `$resultSecret.substring(0, 20)...` : 'NOT FOUND',
 					keyUriPreview: resultKeyUri ? `${resultKeyUri.substring(0, 50)}...` : 'NOT FOUND',
 					resultKeys: Object.keys(result),
 					status: dd.status,
@@ -1958,11 +1932,10 @@ export class MFAServiceV8 {
 				originalCount: devices.length,
 				filteredCount: userDevices.length,
 				removedCount: devices.length - userDevices.length,
-				devices: userDevices.map((d: Record<string, unknown>) => ({
+				devices: userDevices.map((d: Record<string, unknown>) => (
 					id: d.id,
 					type: d.type,
-					nickname: d.nickname || d.name,
-				})),
+					nickname: d.nickname || d.name,)),
 			});
 
 			// Log device structure to debug "Unnamed Device" issue
@@ -2910,11 +2883,10 @@ export class MFAServiceV8 {
 				tokenEnd: trimmedToken.substring(trimmedToken.length - 10),
 				hasEquals: trimmedToken.includes('='),
 				partsCount: trimmedToken.split('.').length,
-				tokenParts: tokenParts.map((part, index) => ({
+				tokenParts: tokenParts.map((part, index) => (
 					part: index + 1,
 					length: part.length,
-					start: part.substring(0, 10),
-				})),
+					start: part.substring(0, 10),)),
 			});
 
 			// Optional: Check device status before resending
@@ -3971,9 +3943,7 @@ export class MFAServiceV8 {
 					// Continue without policy - don't fail initialization
 					// The policy might not be available via API yet, so we'll proceed without it
 				}
-			} else {
-				
-			}
+			} else 
 
 			// Lookup user by username to obtain the PingOne user ID required by the MFA API
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);

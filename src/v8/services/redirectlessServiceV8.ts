@@ -80,8 +80,6 @@ export class RedirectlessServiceV8 {
 	 * Start redirectless authorization flow
 	 */
 	static async startFlow(config: RedirectlessConfig): Promise<RedirectlessFlowResponse> {
-		
-
 		const { credentials, flowType, codeChallenge, codeChallengeMethod, responseType } = config;
 
 		// Generate state
@@ -195,8 +193,6 @@ export class RedirectlessServiceV8 {
 		clientId?: string;
 		clientSecret?: string;
 	}): Promise<RedirectlessFlowResponse> {
-		
-
 		const flowUrl = `https://auth.pingone.com/${params.environmentId}/flows/${params.flowId}`;
 		const payload: Record<string, unknown> = {
 			environmentId: params.environmentId,
@@ -260,8 +256,6 @@ export class RedirectlessServiceV8 {
 		tokens?: RedirectlessTokens;
 		state: string;
 	} | null> {
-		
-
 		const pendingRaw = sessionStorage.getItem(`${config.flowKey}_redirectless_pending`);
 		if (!pendingRaw) {
 			console.warn(`${MODULE_TAG} No pending resume data found`);
@@ -338,7 +332,6 @@ export class RedirectlessServiceV8 {
 		}
 
 		const resumeResult: RedirectlessFlowResponse = await response.json();
-		
 
 		// Extract code or tokens based on flow type
 		const authResponse = resumeResult.authorizeResponse;
