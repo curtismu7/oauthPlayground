@@ -825,8 +825,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						<div
 							style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}
 						>
-							{/* New Worker Token Status Display */}
-							<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
+							{/* Worker Token Status Display - Removed */}
 
 							<button
 								type="button"

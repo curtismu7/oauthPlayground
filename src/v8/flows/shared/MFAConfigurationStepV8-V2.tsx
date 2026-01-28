@@ -191,7 +191,7 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 						</button>
 						{showWorkerTokenSection && (
 							<div style={{ padding: '0 20px 20px' }}>
-								<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
+								{/* WorkerTokenStatusDisplayV8 - Removed */}
 								<div
 									style={{
 										marginTop: '16px',
