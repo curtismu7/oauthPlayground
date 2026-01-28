@@ -2195,10 +2195,8 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 										placeholder={currentDeviceType || 'Device Name'}
 										style={{
 											padding: '12px 16px',
-											border: `1px solid ${credentials.deviceName?.trim() ? '#10b981' : '#ef4444'}`,
-											boxShadow: credentials.deviceName?.trim()
-												? 'none'
-												: '0 0 0 3px rgba(239, 68, 68, 0.25)',
+											border: '1px solid #d1d5db',
+											boxShadow: 'none',
 											outline: 'none',
 											borderRadius: '8px',
 											fontSize: '15px',
