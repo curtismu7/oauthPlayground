@@ -157,6 +157,7 @@ export class ImplicitFlowIntegrationServiceV8 {
 
 				const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
+				console.log(`${MODULE_TAG} 🔍 Redirecting to authorization endpoint:`, {
 					url: `${authorizationUrl.substring(0, 150)}...`,
 					response_type: 'token id_token',
 					response_mode: 'fragment',
@@ -190,6 +191,7 @@ export class ImplicitFlowIntegrationServiceV8 {
 
 		const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
+		console.log(`${MODULE_TAG} 🔍 Redirecting to authorization endpoint:`, {
 			url: `${authorizationUrl.substring(0, 150)}...`,
 			response_type: 'token id_token',
 			response_mode: 'fragment',
