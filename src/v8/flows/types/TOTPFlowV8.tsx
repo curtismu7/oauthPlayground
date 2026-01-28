@@ -924,7 +924,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		tokenValid: boolean;
 	} | null>(null);
 
-	// Handle auto-navigation from Step 0 to Step 3 (for configured flow)
+	// Handle auto-navigation from Step 0 to Step 2 (for configured flow)
 	// Check ref in useEffect (similar to Email flow pattern)
 	useEffect(() => {
 		const props = step0PropsRef.current;
@@ -933,15 +933,15 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		const currentStep = typeof props.nav?.currentStep === 'number' ? props.nav.currentStep : 0;
 		const isConfiguredValue = Boolean(isConfigured);
 
-		// Auto-navigate from Step 0 to Step 3 when configured
+		// Auto-navigate from Step 0 to Step 2 when configured
 		if (isConfiguredValue && currentStep === 0 && !autoNavigateRef.current.triggered) {
-			console.log(`${MODULE_TAG} [useEffect] Auto-navigating from Step 0 to Step 3`, {
+			console.log(`${MODULE_TAG} [useEffect] Auto-navigating from Step 0 to Step 2`, {
 				currentStep,
 				isConfigured: isConfiguredValue,
 			});
 
-			autoNavigateRef.current = { step: 3, triggered: true };
-			props.nav.goToStep(3); // Skip directly to Step 3 (QR Code) - device registration happens automatically
+			autoNavigateRef.current = { step: 2, triggered: true };
+			props.nav.goToStep(2); // Go to Step 2 (Device Registration) - Step 1 is skipped for registration flow
 		}
 	}, [isConfigured]);
 
@@ -1322,6 +1322,170 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						deviceType: validDeviceType,
 					};
 				}
+			}
+
+			// Auto-register device for registration flow (when coming from config page)
+			// Per UI contract: Step 0 -> Step 2 (register) -> Step 3 (QR code)
+			if (
+				isConfigured &&
+				nav.currentStep === 2 &&
+				!mfaState.deviceId &&
+				!autoRegistrationTriggeredRef.current &&
+				credentials.environmentId &&
+				credentials.username &&
+				tokenStatus?.isValid &&
+				!showModal // Only auto-register when modal is not yet open
+			) {
+				autoRegistrationTriggeredRef.current = true;
+
+				// Trigger auto-registration asynchronously
+				Promise.resolve().then(async () => {
+					try {
+						console.log(`${MODULE_TAG} [Step 2] Auto-registering TOTP device for registration flow`);
+						
+						// Check if pairing is disabled in the policy
+						const selectedPolicy = props.deviceAuthPolicies?.find(
+							(p) => p.id === credentials.deviceAuthenticationPolicyId
+						);
+
+						if (selectedPolicy?.pairingDisabled === true) {
+							console.warn(
+								`${MODULE_TAG} Auto-registration blocked: pairing is disabled for policy ${selectedPolicy.id}`
+							);
+							toastV8.error(
+								'Device pairing is disabled for this policy. Please select a different policy.'
+							);
+							autoRegistrationTriggeredRef.current = false; // Allow retry
+							return;
+						}
+
+						const shouldPromptForNickname = selectedPolicy?.promptForNicknameOnPairing === true;
+
+						// Use device name from credentials if prompted, otherwise use default
+						const deviceName = shouldPromptForNickname
+							? credentials.deviceName?.trim() || 'TOTP'
+							: 'TOTP';
+						const registrationCredentials = {
+							...credentials,
+							deviceName,
+						};
+						const deviceStatus =
+							registrationFlowType === 'user' ? 'ACTIVATION_REQUIRED' : adminDeviceStatus;
+
+						// Get registration params and add promptForNicknameOnPairing
+						const registrationParams = {
+							...controller.getDeviceRegistrationParams(registrationCredentials, deviceStatus),
+							promptForNicknameOnPairing: shouldPromptForNickname,
+						};
+
+						setIsLoading(true);
+						const result = (await controller.registerDevice(
+							registrationCredentials,
+							registrationParams
+						)) as DeviceRegistrationResult;
+
+						// Extract secret and keyUri (same logic as original Step 2)
+						const resultWithTotp = result as {
+							secret?: string;
+							keyUri?: string;
+							totpResult?: {
+								secret?: string;
+								qrCode?: string;
+								manualEntryKey?: string;
+							};
+						};
+
+						const secret =
+							resultWithTotp.secret ||
+							resultWithTotp.totpResult?.secret ||
+							resultWithTotp.totpResult?.manualEntryKey;
+						const keyUri =
+							resultWithTotp.keyUri ||
+							(resultWithTotp.totpResult?.qrCode
+								? `data:image/png;base64,${resultWithTotp.totpResult.qrCode}`
+								: undefined);
+
+						// Fetch device details if secret/keyUri missing
+						let finalSecret = secret;
+						let finalKeyUri = keyUri;
+
+						if (!secret && !keyUri && result.deviceId) {
+							try {
+								const deviceDetails = await MFAServiceV8.getDevice({
+									...registrationCredentials,
+									deviceId: result.deviceId,
+								} as SendOTPParams);
+
+								const deviceProperties = (
+									deviceDetails as { properties?: { secret?: string; keyUri?: string } }
+								).properties;
+								if (deviceProperties) {
+									finalSecret = deviceProperties.secret || finalSecret;
+									finalKeyUri = deviceProperties.keyUri || finalKeyUri;
+								}
+							} catch (error) {
+								console.error(`${MODULE_TAG} Failed to fetch device details:`, error);
+							}
+						}
+
+						// Store TOTP data
+						if (finalSecret || finalKeyUri) {
+							setSecretReceivedAt(Date.now());
+						}
+						if (finalSecret) {
+							setTotpSecret(finalSecret);
+						}
+						if (finalKeyUri) {
+							setQrCodeUrl(finalKeyUri);
+						}
+
+						// Update mfaState
+						const updatedMfaState: Partial<MFAState> = {
+							deviceId: result.deviceId,
+							deviceStatus: result.status,
+							...(finalSecret ? { totpSecret: finalSecret } : {}),
+							...(finalKeyUri ? { qrCodeUrl: finalKeyUri } : {}),
+							...(result.createdAt ? { createdAt: result.createdAt } : {}),
+						};
+
+						mfaStateRef.current = {
+							deviceId: result.deviceId,
+							deviceStatus: result.status,
+							...(result.createdAt ? { createdAt: result.createdAt } : {}),
+							...(finalKeyUri ? { qrCodeUrl: finalKeyUri, keyUri: finalKeyUri } : {}),
+							...(finalSecret ? { totpSecret: finalSecret, secret: finalSecret } : {}),
+						};
+
+						// Update state - this will trigger a re-render and show the QR code
+						setMfaState(updatedMfaState);
+
+						// Auto-navigate to Step 3 after successful registration
+						nav.markStepComplete();
+						setShowModal(false);
+						nav.goToStep(3);
+
+						// Log success for debugging
+						console.log(
+							`${MODULE_TAG} ✅ Auto-registration complete, navigating to Step 3:`,
+							{
+								deviceId: result.deviceId,
+								hasSecret: !!finalSecret,
+								hasKeyUri: !!finalKeyUri,
+								secretLength: finalSecret?.length,
+								keyUriLength: finalKeyUri?.length,
+							}
+						);
+
+						toastV8.info('Device registered. Proceeding to QR code setup.');
+					} catch (error) {
+						const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+						console.error(`${MODULE_TAG} Auto-registration failed:`, error);
+						toastV8.error(`Failed to register device: ${errorMessage}`);
+						autoRegistrationTriggeredRef.current = false; // Allow retry
+					} finally {
+						setIsLoading(false);
+					}
+				});
 			}
 
 			// Handle device registration
@@ -2013,163 +2177,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				setIsLoading,
 			};
 
-			// Auto-register device if in registration flow and device not yet registered
-			// This allows skipping Step 2 (Register Device) and going directly to QR code page
-			if (
-				isConfigured &&
-				nav.currentStep === 3 &&
-				!mfaState.deviceId &&
-				!autoRegistrationTriggeredRef.current &&
-				credentials.environmentId &&
-				credentials.username &&
-				tokenStatus?.isValid
-			) {
-				autoRegistrationTriggeredRef.current = true;
+			// Auto-registration logic removed from Step 3 - should be in Step 2 per UI contract
+			// Registration flow: Step 0 -> Step 2 (register) -> Step 3 (QR code)
 
-				// Trigger auto-registration asynchronously
-				Promise.resolve().then(async () => {
-					try {
-						// Get selected policy to check policy settings
-						const selectedPolicy = props.deviceAuthPolicies?.find(
-							(p) => p.id === credentials.deviceAuthenticationPolicyId
-						);
-
-						// Check if pairing is disabled in the policy
-						if (selectedPolicy?.pairingDisabled === true) {
-							console.warn(
-								`${MODULE_TAG} Auto-registration blocked: pairing is disabled for policy ${selectedPolicy.id}`
-							);
-							toastV8.error(
-								'Device pairing is disabled for this policy. Please select a different policy.'
-							);
-							autoRegistrationTriggeredRef.current = false; // Allow retry
-							return;
-						}
-
-						const shouldPromptForNickname = selectedPolicy?.promptForNicknameOnPairing === true;
-
-						// Use device name from credentials if prompted, otherwise use default
-						const deviceName = shouldPromptForNickname
-							? credentials.deviceName?.trim() || 'TOTP'
-							: 'TOTP';
-						const registrationCredentials = {
-							...credentials,
-							deviceName,
-						};
-						const deviceStatus =
-							registrationFlowType === 'user' ? 'ACTIVATION_REQUIRED' : adminDeviceStatus;
-
-						// Get registration params and add promptForNicknameOnPairing
-						const registrationParams = {
-							...controller.getDeviceRegistrationParams(registrationCredentials, deviceStatus),
-							promptForNicknameOnPairing: shouldPromptForNickname,
-						};
-
-						setIsLoading(true);
-						const result = (await controller.registerDevice(
-							registrationCredentials,
-							registrationParams
-						)) as DeviceRegistrationResult;
-
-						// Extract secret and keyUri (same logic as Step 2)
-						const resultWithTotp = result as {
-							secret?: string;
-							keyUri?: string;
-							totpResult?: {
-								secret?: string;
-								qrCode?: string;
-								manualEntryKey?: string;
-							};
-						};
-
-						const secret =
-							resultWithTotp.secret ||
-							resultWithTotp.totpResult?.secret ||
-							resultWithTotp.totpResult?.manualEntryKey;
-						const keyUri =
-							resultWithTotp.keyUri ||
-							(resultWithTotp.totpResult?.qrCode
-								? `data:image/png;base64,${resultWithTotp.totpResult.qrCode}`
-								: undefined);
-
-						// Fetch device details if secret/keyUri missing
-						let finalSecret = secret;
-						let finalKeyUri = keyUri;
-
-						if (!secret && !keyUri && result.deviceId) {
-							try {
-								const deviceDetails = await MFAServiceV8.getDevice({
-									...registrationCredentials,
-									deviceId: result.deviceId,
-								} as SendOTPParams);
-
-								const deviceProperties = (
-									deviceDetails as { properties?: { secret?: string; keyUri?: string } }
-								).properties;
-								if (deviceProperties) {
-									finalSecret = deviceProperties.secret || finalSecret;
-									finalKeyUri = deviceProperties.keyUri || finalKeyUri;
-								}
-							} catch (error) {
-								console.error(`${MODULE_TAG} Failed to fetch device details:`, error);
-							}
-						}
-
-						// Store TOTP data
-						if (finalSecret || finalKeyUri) {
-							setSecretReceivedAt(Date.now());
-						}
-						if (finalSecret) {
-							setTotpSecret(finalSecret);
-						}
-						if (finalKeyUri) {
-							setQrCodeUrl(finalKeyUri);
-						}
-
-						// Update mfaState
-						const updatedMfaState: Partial<MFAState> = {
-							deviceId: result.deviceId,
-							deviceStatus: result.status,
-							...(finalSecret ? { totpSecret: finalSecret } : {}),
-							...(finalKeyUri ? { qrCodeUrl: finalKeyUri } : {}),
-							...(result.createdAt ? { createdAt: result.createdAt } : {}),
-						};
-
-						mfaStateRef.current = {
-							deviceId: result.deviceId,
-							deviceStatus: result.status,
-							...(result.createdAt ? { createdAt: result.createdAt } : {}),
-							...(finalKeyUri ? { qrCodeUrl: finalKeyUri, keyUri: finalKeyUri } : {}),
-							...(finalSecret ? { totpSecret: finalSecret, secret: finalSecret } : {}),
-						};
-
-						// Update state - this will trigger a re-render and show the QR code
-						setMfaState(updatedMfaState);
-						setShowQrModal(true);
-
-						// Log success for debugging
-						console.log(
-							`${MODULE_TAG} ✅ Auto-registration complete, QR code should now be visible:`,
-							{
-								deviceId: result.deviceId,
-								hasSecret: !!finalSecret,
-								hasKeyUri: !!finalKeyUri,
-								secretLength: finalSecret?.length,
-								keyUriLength: finalKeyUri?.length,
-							}
-						);
-
-						toastV8.info('Device registered. Scan the QR code to complete setup.');
-					} catch (error) {
-						const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-						console.error(`${MODULE_TAG} Auto-registration failed:`, error);
-						toastV8.error(`Failed to register device: ${errorMessage}`);
-						autoRegistrationTriggeredRef.current = false; // Allow retry
-					} finally {
-						setIsLoading(false);
-					}
-				});
-			}
 			// Update mfaState ref with latest data, preserving any QR code data that might be in the ref
 			const updatedRef: {
 				deviceId?: string;
@@ -3782,14 +3792,14 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				stepLabels={
 					isConfigured
 						? [
-								// Registration flow: Config -> QR Code (auto-registers) -> OTP -> Success
+								// Registration flow: Config -> Device Registration -> QR Code -> OTP -> Success
 								// Step 0: Configure (skipped when coming from config page)
 								'Configure',
 								// Step 1: Select Device (skipped, returns null) - hide from breadcrumb
 								'', // Empty string will hide this step from breadcrumb
-								// Step 2: Register Device (skipped, auto-registration happens in Step 3) - hide from breadcrumb
-								'', // Empty string will hide this step from breadcrumb
-								// Step 3: QR Code (device registration happens automatically here)
+								// Step 2: Register Device (device registration happens here)
+								'Register Device',
+								// Step 3: QR Code (show QR code and handle activation)
 								'Scan QR Code',
 								// Step 4: OTP/Activate -> Success
 								'Activate Device',
