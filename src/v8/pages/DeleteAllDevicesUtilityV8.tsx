@@ -17,7 +17,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FiAlertCircle, FiKey, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
+// import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8'; // Removed
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
@@ -612,8 +612,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						</select>
 					</div>
 
-					{/* Cool 3D Worker Token Status Display */}
-					<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
+					{/* Worker Token Status Display - Removed */}
 
 					{/* Get Worker Token Button */}
 					<button
