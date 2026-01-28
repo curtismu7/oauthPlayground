@@ -100,6 +100,10 @@ function mergeAllCredentialFields(
 		...(typeof flowSpecific.enableRefreshToken === 'boolean'
 			? { enableRefreshToken: flowSpecific.enableRefreshToken }
 			: {}),
+		...(typeof flowSpecific.refreshTokenType === 'string' &&
+		(flowSpecific.refreshTokenType === 'JWT' || flowSpecific.refreshTokenType === 'OPAQUE')
+			? { refreshTokenType: flowSpecific.refreshTokenType }
+			: {}),
 		...(typeof flowSpecific.useRedirectless === 'boolean'
 			? { useRedirectless: flowSpecific.useRedirectless }
 			: {}),

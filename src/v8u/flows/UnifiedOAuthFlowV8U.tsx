@@ -702,6 +702,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				...(typeof flowSpecific.enableRefreshToken === 'boolean'
 					? { enableRefreshToken: flowSpecific.enableRefreshToken }
 					: {}),
+				...(typeof flowSpecific.refreshTokenType === 'string' &&
+				(flowSpecific.refreshTokenType === 'JWT' || flowSpecific.refreshTokenType === 'OPAQUE')
+					? { refreshTokenType: flowSpecific.refreshTokenType }
+					: {}),
 				...(typeof flowSpecific.useRedirectless === 'boolean'
 					? { useRedirectless: flowSpecific.useRedirectless }
 					: {}),
@@ -1106,6 +1110,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					...(typeof flowSpecific.usePKCE === 'boolean' ? { usePKCE: flowSpecific.usePKCE } : {}),
 					...(typeof flowSpecific.enableRefreshToken === 'boolean'
 						? { enableRefreshToken: flowSpecific.enableRefreshToken }
+						: {}),
+					...(typeof flowSpecific.refreshTokenType === 'string' &&
+					(flowSpecific.refreshTokenType === 'JWT' || flowSpecific.refreshTokenType === 'OPAQUE')
+						? { refreshTokenType: flowSpecific.refreshTokenType }
 						: {}),
 					...(typeof flowSpecific.useRedirectless === 'boolean'
 						? { useRedirectless: flowSpecific.useRedirectless }
