@@ -548,17 +548,21 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 				},
 			});
 		},
-		[navigate, credentials, tokenStatus.isValid, registrationFlowType, adminDeviceStatus]
+		[navigate, credentials, tokenStatus, registrationFlowType, adminDeviceStatus]
 	);
 
 	// Auto-proceed to registration when all requirements are met
 	useEffect(() => {
 		const tokenType = credentials.tokenType || 'worker';
-		const isTokenValid = 
-			tokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim();
+		const isTokenValid =
+			registrationFlowType === 'admin'
+				? !!tokenStatus.token // Admin flow: any worker token enables the button
+				: tokenType === 'worker'
+					? tokenStatus.isValid // User flow with worker token: must be valid
+					: !!credentials.userToken?.trim(); // User flow with user token
 
 		// Check if all requirements are met for automatic progression
-		const canAutoProceed = 
+		const canAutoProceed =
 			credentials.deviceAuthenticationPolicyId &&
 			credentials.environmentId &&
 			credentials.username &&
@@ -572,7 +576,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 				username: !!credentials.username,
 				isTokenValid,
 				tokenType,
-				registrationFlowType
+				registrationFlowType,
 			});
 
 			// Small delay to ensure user sees the success state
@@ -598,10 +602,10 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 		credentials.username,
 		credentials.userToken,
 		credentials.tokenType,
-		tokenStatus.isValid,
+		tokenStatus,
 		registrationFlowType,
 		navigate,
-		adminDeviceStatus
+		adminDeviceStatus,
 	]);
 
 	return (
@@ -951,11 +955,16 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 					<UserLoginSectionV8
 						onTokenUpdated={(token) => {
 							// Update credentials when user token is received
-							setCredentials(prev => ({
-								...prev,
-								userToken: token,
-								tokenType: 'user' as const,
-							}));
+							setCredentials(prev => {
+								const updated = {
+									...prev,
+									userToken: token,
+									tokenType: 'user' as const,
+								};
+								// Save to localStorage so page detects the token
+								CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
+								return updated;
+							});
 						}}
 						compact={false}
 						showUserInfo={true}
@@ -1017,16 +1026,17 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 					>
 						Cancel
 					</button>
-					
 					<button
 						type="button"
 						onClick={handleProceedToRegistration}
 						disabled={
 							!credentials.deviceAuthenticationPolicyId ||
 							!credentials.environmentId ||
-							((credentials.tokenType || 'worker') === 'worker'
-								? !tokenStatus.isValid
-								: !credentials.userToken?.trim())
+							(registrationFlowType === 'admin'
+								? !tokenStatus.token // Admin flow: any worker token enables the button
+								: ((credentials.tokenType || 'worker') === 'worker'
+										? !tokenStatus.isValid // User flow with worker token: must be valid
+										: !credentials.userToken?.trim())) // User flow with user token
 						}
 						style={{
 							padding: '12px 24px',
@@ -1035,9 +1045,11 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 							background:
 								credentials.deviceAuthenticationPolicyId &&
 								credentials.environmentId &&
-								((credentials.tokenType || 'worker') === 'worker'
-									? tokenStatus.isValid
-									: !!credentials.userToken?.trim())
+								(registrationFlowType === 'admin'
+									? !!tokenStatus.token // Admin flow: any worker token enables the button
+									: ((credentials.tokenType || 'worker') === 'worker'
+											? tokenStatus.isValid // User flow with worker token: must be valid
+											: !!credentials.userToken?.trim())) // User flow with user token
 									? '#8b5cf6'
 									: '#9ca3af',
 							color: 'white',
@@ -1046,9 +1058,11 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 							cursor:
 								credentials.deviceAuthenticationPolicyId &&
 								credentials.environmentId &&
-								((credentials.tokenType || 'worker') === 'worker'
-									? tokenStatus.isValid
-									: !!credentials.userToken?.trim())
+								(registrationFlowType === 'admin'
+									? !!tokenStatus.token // Admin flow: any worker token enables the button
+									: ((credentials.tokenType || 'worker') === 'worker'
+											? tokenStatus.isValid // User flow with worker token: must be valid
+											: !!credentials.userToken?.trim())) // User flow with user token
 									? 'pointer'
 									: 'not-allowed',
 							display: 'flex',
@@ -1061,57 +1075,57 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 					</button>
 				</div>
 
-			{/* Worker Token Modal */}
-			{showWorkerTokenModal &&
-				(() => {
-					// Check if we should show token only (matches MFA pattern)
-					try {
-						const {
-							MFAConfigurationServiceV8,
-						} = require('@/v8/services/mfaConfigurationServiceV8');
-						const config = MFAConfigurationServiceV8.loadConfiguration();
-						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+				{/* Worker Token Modal */}
+				{showWorkerTokenModal &&
+					(() => {
+						// Check if we should show token only (matches MFA pattern)
+						try {
+							const {
+								MFAConfigurationServiceV8,
+							} = require('@/v8/services/mfaConfigurationServiceV8');
+							const config = MFAConfigurationServiceV8.loadConfiguration();
+							const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 
-						// Show token-only if showTokenAtEnd is ON and token is valid
-						const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+							// Show token-only if showTokenAtEnd is ON and token is valid
+							const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
 
-						return (
-							<WorkerTokenModalV8
-								isOpen={showWorkerTokenModal}
-								onClose={() => {
-									setShowWorkerTokenModal(false);
-									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
-								}}
-								showTokenOnly={showTokenOnly}
-							/>
-						);
-					} catch {
-						return (
-							<WorkerTokenModalV8
-								isOpen={showWorkerTokenModal}
-								onClose={() => {
-									setShowWorkerTokenModal(false);
-									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
-								}}
-							/>
-						);
-					}
-				})()}
+							return (
+								<WorkerTokenModalV8
+									isOpen={showWorkerTokenModal}
+									onClose={() => {
+										setShowWorkerTokenModal(false);
+										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
+									}}
+									showTokenOnly={showTokenOnly}
+								/>
+							);
+						} catch {
+							return (
+								<WorkerTokenModalV8
+									isOpen={showWorkerTokenModal}
+									onClose={() => {
+										setShowWorkerTokenModal(false);
+										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
+									}}
+								/>
+							);
+						}
+					})()}
 
-			{/* User Login Modal */}
-			{showUserLoginModal && (
-				<UserLoginModalV8
-					isOpen={showUserLoginModal}
-					onClose={() => setShowUserLoginModal(false)}
-					onTokenReceived={(token) => {
-						setCredentials((prev) => ({ ...prev, userToken: token, tokenType: 'user' }));
-						setShowUserLoginModal(false);
-						toastV8.success('User token received successfully!');
-					}}
-					environmentId={credentials.environmentId}
-				/>
-			)}
-		</div>
+				{/* User Login Modal */}
+				{showUserLoginModal && (
+					<UserLoginModalV8
+						isOpen={showUserLoginModal}
+						onClose={() => setShowUserLoginModal(false)}
+						onTokenReceived={(token) => {
+							setCredentials((prev) => ({ ...prev, userToken: token, tokenType: 'user' }));
+							setShowUserLoginModal(false);
+							toastV8.success('User token received successfully!');
+						}}
+						environmentId={credentials.environmentId}
+					/>
+				)}
+			</div>
 		</div>
 	);
 };
