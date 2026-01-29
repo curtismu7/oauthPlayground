@@ -2099,11 +2099,16 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					<UserLoginSectionV8
 						onTokenUpdated={(token) => {
 							// Update credentials when user token is received
-							setCredentials(prev => ({
-								...prev,
-								userToken: token,
-								tokenType: 'user' as const,
-							}));
+							setCredentials(prev => {
+								const updated = {
+									...prev,
+									userToken: token,
+									tokenType: 'user' as const,
+								};
+								// Save to localStorage so page detects the token
+								CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
+								return updated;
+							});
 						}}
 						compact={false}
 						showUserInfo={true}
@@ -2142,16 +2147,16 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							});
 							handleProceedToRegistration();
 						}}
-						disabled={!selectedFido2PolicyId || (registrationFlowType === 'admin' ? !tokenStatus.isValid : !credentials.userToken)}
+						disabled={!selectedFido2PolicyId || (registrationFlowType === 'admin' ? !tokenStatus.token : !credentials.userToken)}
 						style={{
 							padding: '12px 24px',
 							border: 'none',
 							borderRadius: '6px',
-							background: selectedFido2PolicyId && (registrationFlowType === 'admin' ? tokenStatus.isValid : !!credentials.userToken) ? '#3b82f6' : '#9ca3af',
+							background: selectedFido2PolicyId && (registrationFlowType === 'admin' ? !!tokenStatus.token : !!credentials.userToken) ? '#3b82f6' : '#9ca3af',
 							color: 'white',
 							fontSize: '16px',
 							fontWeight: '600',
-							cursor: selectedFido2PolicyId && (registrationFlowType === 'admin' ? tokenStatus.isValid : !!credentials.userToken) ? 'pointer' : 'not-allowed',
+							cursor: selectedFido2PolicyId && (registrationFlowType === 'admin' ? !!tokenStatus.token : !!credentials.userToken) ? 'pointer' : 'not-allowed',
 							display: 'flex',
 							alignItems: 'center',
 							gap: '8px',
