@@ -350,6 +350,7 @@ export const TokenUIIntegrationV8: React.FC = () => {
 								opacity: collapsibleStates.worker.isExpanded ? '1' : '0',
 							}}
 						>
+							{/* Expanded content */}
 							<div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px' }}>
 								{tokenState.workerTokenValid ? '✅ Worker Token Active' : '⚠️ No Worker Token'}
 							</div>
@@ -388,6 +389,35 @@ export const TokenUIIntegrationV8: React.FC = () => {
 								)}
 							</div>
 						</div>
+
+						{/* Collapsed state - basic info */}
+						{!collapsibleStates.worker.isExpanded && (
+							<div
+								style={{
+									position: 'absolute',
+									bottom: '12px',
+									left: '20px',
+									right: '60px',
+									fontSize: '12px',
+									color: tokenState.workerTokenValid ? '#16a34a' : '#dc2626',
+									fontWeight: '500',
+									opacity: 0.8,
+								}}
+							>
+								{tokenState.hasWorkerToken ? (
+									<>
+										<span>{tokenState.workerTokenInfo.status.toUpperCase()}</span>
+										{tokenState.workerTokenInfo.expiresAt && (
+											<span style={{ marginLeft: '12px' }}>
+												• {formatTimeRemaining(tokenState.workerTokenInfo.expiresAt)}
+											</span>
+										)}
+									</>
+								) : (
+									<span>NO TOKEN</span>
+								)}
+							</div>
+						)}
 					</div>
 
 					{/* User Token Section */}
@@ -500,6 +530,7 @@ export const TokenUIIntegrationV8: React.FC = () => {
 									opacity: collapsibleStates.user.isExpanded ? '1' : '0',
 								}}
 							>
+								{/* Expanded content */}
 								<div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px' }}>
 									{tokenState.userTokenValid ? '✅ User Authenticated' : '⚠️ User Not Authenticated'}
 								</div>
@@ -539,12 +570,40 @@ export const TokenUIIntegrationV8: React.FC = () => {
 									)}
 								</div>
 							</div>
+
+							{/* Collapsed state - basic info */}
+							{!collapsibleStates.user.isExpanded && (
+								<div
+									style={{
+										position: 'absolute',
+										bottom: '12px',
+										left: '20px',
+										right: '60px',
+										fontSize: '12px',
+										color: tokenState.userTokenValid ? '#16a34a' : '#dc2626',
+										fontWeight: '500',
+										opacity: 0.8,
+									}}
+								>
+									{tokenState.hasUserToken ? (
+										<>
+											<span>{tokenState.userTokenInfo.status.toUpperCase()}</span>
+											{tokenState.userTokenInfo.expiresAt && (
+												<span style={{ marginLeft: '12px' }}>
+													• {formatTimeRemaining(tokenState.userTokenInfo.expiresAt)}
+												</span>
+											)}
+										</>
+									) : (
+										<span>NOT AUTHENTICATED</span>
+									)}
+								</div>
+							)}
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	);
 };
 
 export default TokenUIIntegrationV8;
