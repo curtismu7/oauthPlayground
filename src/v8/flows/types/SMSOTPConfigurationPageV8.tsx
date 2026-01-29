@@ -16,10 +16,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { TokenUIIntegrationV8 } from '@/v8/components/TokenUIIntegrationV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
+import { comprehensiveTokenUIService } from '@/v8/services/comprehensiveTokenUIService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
@@ -103,7 +105,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 
 	// Token and modal state
 	const [tokenStatus, setTokenStatus] = useState(
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
 	);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
@@ -599,7 +601,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 	// Monitor token status changes
 	useEffect(() => {
 		const checkToken = () => {
-			setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+			setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 		};
 
 		const interval = setInterval(checkToken, 30000); // Check every 30 seconds
@@ -607,6 +609,41 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 
 		return () => clearInterval(interval);
 	}, []);
+
+	// Sync comprehensiveTokenUIService with local token state
+	useEffect(() => {
+		// Set environment ID
+		if (credentials.environmentId) {
+			comprehensiveTokenUIService.setEnvironmentId(credentials.environmentId);
+		}
+
+		// Sync worker token status
+		if (tokenStatus.isValid && tokenStatus.token) {
+			comprehensiveTokenUIService.setWorkerToken({
+				tokenId: tokenStatus.token,
+				status: tokenStatus.status as any,
+				expiresAt: tokenStatus.expiresAt || null,
+				duration: tokenStatus.minutesRemaining ? `${tokenStatus.minutesRemaining} minutes` : null,
+				environment: credentials.environmentId || null,
+				lastUpdated: Date.now(),
+				tokenType: 'worker',
+			});
+		}
+
+		// Sync user token status
+		if (credentials.userToken && credentials.tokenType === 'user') {
+			comprehensiveTokenUIService.setUserToken({
+				tokenId: credentials.userToken,
+				status: 'valid' as any,
+				expiresAt: null,
+				environment: credentials.environmentId || null,
+				lastUpdated: Date.now(),
+				tokenType: 'user',
+				username: credentials.username || null,
+			});
+		}
+	}, [credentials.environmentId, credentials.userToken, credentials.tokenType, credentials.username, tokenStatus.isValid, tokenStatus.token, tokenStatus.status, tokenStatus.expiresAt, tokenStatus.minutesRemaining]);
+
 
 	// Monitor API display visibility
 	useEffect(() => {
@@ -715,10 +752,14 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			e.stopPropagation();
 
 			const tokenType = credentials.tokenType || 'worker';
-			// For user token type: consider valid if we have any userToken value (including 'oauth_completed' placeholder)
-			// This allows progression after successful OAuth exchange without requiring actual token validation
-			const isTokenValid =
-				tokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim();
+			// For admin flow: check if worker token exists (not necessarily valid)
+			// For user token flow: check if user token exists
+			const isTokenValid = 
+				registrationFlowType === 'admin' 
+					? !!tokenStatus.token  // Admin flow: any worker token enables the button
+					: tokenType === 'worker' 
+						? tokenStatus.isValid  // User flow with worker token: must be valid
+						: !!credentials.userToken?.trim();  // User flow with user token
 
 			if (!credentials.deviceAuthenticationPolicyId) {
 				toastV8.warning('Please select a Device Authentication Policy before proceeding');
@@ -1093,37 +1134,9 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 				</div>
 
 				
-				{/* Enhanced Worker Token UI Service - Always show */}
-				<WorkerTokenUIServiceV8
-					mode="wide"
-					showStatusDisplay={true}
-					statusSize="large"
-					showRefresh={true}
-					environmentId={credentials.environmentId}
-					onEnvironmentIdUpdate={(envId) => {
-						setCredentials(prev => ({
-							...prev,
-							environmentId: envId,
-						}));
-					}}
-					context="mfa"
-				/>
 
-				{/* Clean User Login Section - Only show for user flow */}
-				{registrationFlowType === 'user' && (
-					<UserLoginSectionV8
-						onTokenUpdated={(token) => {
-							// Update credentials when user token is received
-							setCredentials(prev => ({
-								...prev,
-								userToken: token,
-								tokenType: 'user' as const,
-							}));
-						}}
-						compact={false}
-						showUserInfo={true}
-					/>
-				)}
+				{/* Comprehensive Token UI Integration - Shows both worker and user token status */}
+				<TokenUIIntegrationV8 />
 
 				{/* Education Section */}
 				<div
@@ -1186,9 +1199,11 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 						disabled={
 							!credentials.deviceAuthenticationPolicyId ||
 							!credentials.environmentId ||
-							((credentials.tokenType || 'worker') === 'worker'
-								? !tokenStatus.isValid
-								: !credentials.userToken?.trim())
+							(registrationFlowType === 'admin' 
+								? !tokenStatus.token  // Admin flow: any worker token enables the button
+								: ((credentials.tokenType || 'worker') === 'worker'
+									? !tokenStatus.isValid  // User flow with worker token: must be valid
+									: !credentials.userToken?.trim()))  // User flow with user token
 						}
 						style={{
 							padding: '12px 24px',
@@ -1197,9 +1212,11 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 							background:
 								credentials.deviceAuthenticationPolicyId &&
 								credentials.environmentId &&
-								((credentials.tokenType || 'worker') === 'worker'
-									? tokenStatus.isValid
-									: !!credentials.userToken?.trim())
+								(registrationFlowType === 'admin' 
+									? !!tokenStatus.token  // Admin flow: any worker token enables the button
+									: ((credentials.tokenType || 'worker') === 'worker'
+										? tokenStatus.isValid  // User flow with worker token: must be valid
+										: !!credentials.userToken?.trim()))  // User flow with user token
 									? '#8b5cf6'
 									: '#9ca3af',
 							color: 'white',
@@ -1208,9 +1225,11 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 							cursor:
 								credentials.deviceAuthenticationPolicyId &&
 								credentials.environmentId &&
-								((credentials.tokenType || 'worker') === 'worker'
-									? tokenStatus.isValid
-									: !!credentials.userToken?.trim())
+								(registrationFlowType === 'admin' 
+									? !!tokenStatus.token  // Admin flow: any worker token enables the button
+									: ((credentials.tokenType || 'worker') === 'worker'
+										? tokenStatus.isValid  // User flow with worker token: must be valid
+										: !!credentials.userToken?.trim()))  // User flow with user token
 									? 'pointer'
 									: 'not-allowed',
 							display: 'flex',
@@ -1242,7 +1261,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 									isOpen={showWorkerTokenModal}
 									onClose={() => {
 										setShowWorkerTokenModal(false);
-										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 									}}
 									showTokenOnly={showTokenOnly}
 								/>
@@ -1253,7 +1272,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 									isOpen={showWorkerTokenModal}
 									onClose={() => {
 										setShowWorkerTokenModal(false);
-										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 									}}
 								/>
 							);
@@ -1266,7 +1285,12 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 						isOpen={showUserLoginModal}
 						onClose={() => setShowUserLoginModal(false)}
 						onTokenReceived={(token) => {
-							setCredentials((prev) => ({ ...prev, userToken: token, tokenType: 'user' }));
+						setCredentials((prev) => {
+							const updated = { ...prev, userToken: token, tokenType: 'user' };
+							// Save to localStorage so page detects it
+							CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
+							return updated;
+						});
 							setShowUserLoginModal(false);
 							toastV8.success('User token received successfully!');
 						}}
