@@ -1,8 +1,8 @@
 {
 	"name": "pingone-oauth-playground",
-	"version": "9.0.5",
-	"mfaV8Version": "9.0.5",
-	"unifiedV8uVersion": "9.0.5",
+	"version": "9.0.6",
+	"mfaV8Version": "9.0.6",
+	"unifiedV8uVersion": "9.0.6",
 	"description": "Interactive playground for PingOne OAuth 2.0 and OpenID Connect",
 	"main": "src/main.tsx",
 	"type": "module",
