@@ -9,7 +9,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FiMail, FiShield, FiX } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
-import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
@@ -1909,34 +1908,34 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 							</button>
 							<button
 								type="button"
-								disabled={isLoading || !isValidForm || !tokenStatus.isValid}
+								disabled={isLoading || !isValidForm || (registrationFlowType === 'admin' ? !tokenStatus.token : !tokenStatus.isValid)}
 								onClick={handleRegisterDevice}
 								style={{
 									flex: 2,
 									padding: '12px 20px',
 									background:
-										isValidForm && !isLoading && tokenStatus.isValid ? '#10b981' : '#d1d5db',
+										isValidForm && !isLoading && (registrationFlowType === 'admin' ? !!tokenStatus.token : tokenStatus.isValid) ? '#10b981' : '#d1d5db',
 									color: 'white',
 									border: 'none',
 									borderRadius: '8px',
 									fontSize: '15px',
 									fontWeight: '600',
 									cursor:
-										isValidForm && !isLoading && tokenStatus.isValid ? 'pointer' : 'not-allowed',
+										isValidForm && !isLoading && (registrationFlowType === 'admin' ? !!tokenStatus.token : tokenStatus.isValid) ? 'pointer' : 'not-allowed',
 									boxShadow:
-										isValidForm && !isLoading && tokenStatus.isValid
+										isValidForm && !isLoading && (registrationFlowType === 'admin' ? !!tokenStatus.token : tokenStatus.isValid)
 											? '0 4px 12px rgba(16, 185, 129, 0.3)'
 											: 'none',
 									transition: 'all 0.2s ease',
 								}}
 								onMouseEnter={(e) => {
-									if (isValidForm && !isLoading && tokenStatus.isValid) {
+									if (isValidForm && !isLoading && (registrationFlowType === 'admin' ? !!tokenStatus.token : tokenStatus.isValid)) {
 										e.currentTarget.style.background = '#059669';
 										e.currentTarget.style.boxShadow = '0 6px 16px rgba(5, 150, 105, 0.4)';
 									}
 								}}
 								onMouseLeave={(e) => {
-									if (isValidForm && !isLoading && tokenStatus.isValid) {
+									if (isValidForm && !isLoading && (registrationFlowType === 'admin' ? !!tokenStatus.token : tokenStatus.isValid)) {
 										e.currentTarget.style.background = '#10b981';
 										e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
 									}
@@ -2721,7 +2720,6 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				}}
 			/>
 
-			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 		</div>
 	);
 };
