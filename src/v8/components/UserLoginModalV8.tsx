@@ -17,6 +17,7 @@ import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
@@ -151,8 +152,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				? 'https://localhost:3000/user-mfa-login-callback'
 				: 'https://localhost:3000/user-login-callback';
 
-			if (saved.environmentId || saved.clientId || saved.redirectUri) {
-				setEnvironmentId(saved.environmentId || propEnvironmentId);
+			// Get global environment ID as fallback (priority: saved > prop > global > empty)
+			const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+			const finalEnvironmentId = saved.environmentId || propEnvironmentId || globalEnvId || '';
+
+			if (saved.environmentId || saved.clientId || saved.redirectUri || finalEnvironmentId) {
+				setEnvironmentId(finalEnvironmentId);
 				setClientId(saved.clientId || '');
 				setClientSecret(saved.clientSecret || '');
 				setAuthMethod(saved.authMethod || saved.tokenEndpointAuthMethod || 'client_secret_post');
@@ -194,6 +199,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				setScopes(finalScopes);
 			} else {
 				// Set default redirect URI based on flow type (MFA vs regular)
+				// Use global environment ID if available
+				const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+				const initialEnvId = propEnvironmentId || globalEnvId || '';
+				if (initialEnvId) {
+					setEnvironmentId(initialEnvId);
+				}
 				setRedirectUri(defaultRedirectUriForMfa);
 
 				previousRedirectUriRef.current = defaultRedirectUriForMfa;
@@ -303,18 +314,17 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					sessionStorage.removeItem('user_login_code_verifier_v8');
 					sessionStorage.removeItem('user_login_credentials_temp_v8');
 					sessionStorage.removeItem('user_login_redirect_uri_v8');
+					setIsProcessingCallback(false);
 					return;
 				}
 
-				// Mark as processing
-
-				isProcessingRef.current = true;
-				// Mark code as processed immediately to prevent duplicate attempts
+				// CRITICAL: Mark code as processed and clean URL IMMEDIATELY (synchronously)
+				// This must happen BEFORE any async operations to prevent React re-renders from processing the code again
 				processedCodesRef.current.add(code);
+				isProcessingRef.current = true;
 
-				// CRITICAL: Clean up URL immediately to prevent re-processing on re-renders
-				// Use searchParams to get current params, then remove code/state
-				const newSearchParams = new URLSearchParams(searchParams);
+				// Clean up URL immediately using window.location.search to prevent re-processing
+				const newSearchParams = new URLSearchParams(window.location.search);
 				newSearchParams.delete('code');
 				newSearchParams.delete('state');
 				newSearchParams.delete('error');
@@ -323,11 +333,16 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				const newUrl = newSearch
 					? `${window.location.pathname}?${newSearch}`
 					: window.location.pathname;
+
+				// Use replaceState to update URL without reload
 				window.history.replaceState({}, document.title, newUrl);
 
-				// Get stored credentials and PKCE verifier
+				// Get stored credentials and PKCE verifier BEFORE removing them
 				const storedCodeVerifier = sessionStorage.getItem('user_login_code_verifier_v8');
 				const storedCredentials = sessionStorage.getItem('user_login_credentials_temp_v8');
+
+				// Remove state from session storage immediately to prevent re-processing
+				sessionStorage.removeItem('user_login_state_v8');
 
 				if (!storedCodeVerifier || !storedCredentials) {
 					toastV8.error('Missing PKCE verifier or credentials. Please try logging in again.');
@@ -1152,8 +1167,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					borderRadius: '8px',
 					boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
 					zIndex: 1000,
-					maxWidth: '500px',
-					width: '90%',
+					maxWidth: '650px',
+					width: '95%',
 					maxHeight: '80vh',
 					overflow: 'auto',
 				}}
