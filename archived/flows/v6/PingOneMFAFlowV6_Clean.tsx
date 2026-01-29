@@ -10,19 +10,14 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiAlertTriangle,
 	FiArrowRight,
-	FiBook,
 	FiCheckCircle,
-	FiCopy,
 	FiExternalLink,
 	FiEye,
 	FiEyeOff,
 	FiInfo,
 	FiKey,
-	FiLock,
 	FiMail,
-	FiPhone,
 	FiRefreshCw,
-	FiSettings,
 	FiShield,
 	FiSmartphone,
 	FiUser,
@@ -380,13 +375,13 @@ const PingOneMFAFlowV6: React.FC = () => {
 
 	// Flow state
 	const [showClientSecret, setShowClientSecret] = useState(false);
-	const [selectedMfaMethod, setSelectedMfaMethod] = useState<string>('sms');
+	const [selectedMfaMethod, _setSelectedMfaMethod] = useState<string>('sms');
 	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
-	const [isLoading, setIsLoading] = useState(false);
-	const [mfaDevice, setMfaDevice] = useState<any>(null);
-	const [mfaChallenge, setMfaChallenge] = useState<any>(null);
-	const [verificationCode, setVerificationCode] = useState('');
-	const [verificationResult, setVerificationResult] = useState<any>(null);
+	const [_isLoading, _setIsLoading] = useState(false);
+	const [_mfaDevice, setMfaDevice] = useState<any>(null);
+	const [_mfaChallenge, setMfaChallenge] = useState<any>(null);
+	const [_verificationCode, setVerificationCode] = useState('');
+	const [_verificationResult, setVerificationResult] = useState<any>(null);
 
 	// Load saved credentials on mount
 	useEffect(() => {
@@ -401,7 +396,7 @@ const PingOneMFAFlowV6: React.FC = () => {
 		}
 	}, []);
 
-	const mfaMethods = [
+	const _mfaMethods = [
 		{
 			id: 'sms',
 			label: 'SMS Verification',
@@ -522,7 +517,7 @@ const PingOneMFAFlowV6: React.FC = () => {
 		}
 	}, [workerCredentials, addApiCall, updateApiCall]);
 
-	const copyToClipboard = (text: string, label: string) => {
+	const _copyToClipboard = (text: string, label: string) => {
 		navigator.clipboard.writeText(text);
 		v4ToastManager.showSuccess(`${label} copied to clipboard`);
 	};
@@ -791,7 +786,7 @@ const PingOneMFAFlowV6: React.FC = () => {
 								<CodeBlock>
 									{`// Step 2: Register MFA Device
 POST https://api.pingone.com/v1/environments/${workerCredentials.environmentId}/users/{userId}/devices
-Authorization: Bearer ${workerToken ? workerToken.substring(0, 20) + '...' : '{worker_token}'}
+Authorization: Bearer ${workerToken ? `${workerToken.substring(0, 20)}...` : '{worker_token}'}
 Content-Type: application/json
 
 {
@@ -801,7 +796,7 @@ Content-Type: application/json
 
 // Step 3: Initiate MFA Challenge  
 POST https://api.pingone.com/v1/environments/${workerCredentials.environmentId}/users/{userId}/mfa/challenges
-Authorization: Bearer ${workerToken ? workerToken.substring(0, 20) + '...' : '{worker_token}'}
+Authorization: Bearer ${workerToken ? `${workerToken.substring(0, 20)}...` : '{worker_token}'}
 Content-Type: application/json
 
 {
@@ -811,7 +806,7 @@ Content-Type: application/json
 
 // Step 4: Verify MFA Code
 POST https://api.pingone.com/v1/environments/${workerCredentials.environmentId}/users/{userId}/mfa/challenges/{challengeId}/verify
-Authorization: Bearer ${workerToken ? workerToken.substring(0, 20) + '...' : '{worker_token}'}
+Authorization: Bearer ${workerToken ? `${workerToken.substring(0, 20)}...` : '{worker_token}'}
 Content-Type: application/json
 
 {

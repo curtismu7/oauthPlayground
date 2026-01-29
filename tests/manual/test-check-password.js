@@ -113,7 +113,7 @@ async function runTests() {
 	console.log(`Environment: ${config.environmentId.substring(0, 20)}...`);
 	console.log(`Test User: ${config.testUsername}`);
 	console.log(`Base URL: ${BASE_URL}`);
-	console.log('='.repeat(60) + '\n');
+	console.log(`${'='.repeat(60)}\n`);
 
 	try {
 		// Get worker token

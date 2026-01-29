@@ -3,11 +3,11 @@
  * @module v8/flows
  * @description V3 PROTOTYPE - Demonstrates hook integration pattern
  * @version 3.0.0-prototype
- * 
+ *
  * This is a PROTOTYPE showing how to integrate the 4 custom hooks into
  * the main component. This demonstrates the pattern before applying to
  * the production file.
- * 
+ *
  * Changes from V2:
  * - Replaced inline worker token logic with useWorkerToken hook
  * - Replaced inline device logic with useMFADevices hook
@@ -17,7 +17,7 @@
  * - Improved maintainability and testability
  */
 
-import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
@@ -30,25 +30,24 @@ import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 
 // Services
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V3-PROTOTYPE]';
 const FLOW_KEY = 'mfa-flow-v8';
 
 /**
  * V3 PROTOTYPE: MFA Authentication Main Page with Custom Hooks
- * 
+ *
  * This prototype demonstrates the integration pattern for Phase 1.5
  */
 export const MFAAuthenticationMainPageV8_V3_PROTOTYPE: React.FC = () => {
-	const navigate = useNavigate();
-	const [searchParams] = useSearchParams();
-	const authContext = useAuth();
+	const _navigate = useNavigate();
+	const [_searchParams] = useSearchParams();
+	const _authContext = useAuth();
 
 	usePageScroll({ pageName: 'MFA Authentication V3', force: true });
 
 	// Load credentials from storage
-	const [credentials, setCredentials] = useState(() => {
+	const [credentials, _setCredentials] = useState(() => {
 		const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 			flowKey: FLOW_KEY,
 			flowType: 'oidc',
@@ -64,7 +63,7 @@ export const MFAAuthenticationMainPageV8_V3_PROTOTYPE: React.FC = () => {
 		};
 	});
 
-	const [usernameInput, setUsernameInput] = useState(credentials.username || '');
+	const [usernameInput, _setUsernameInput] = useState(credentials.username || '');
 
 	// ============================================================================
 	// V3 CUSTOM HOOKS INTEGRATION (NEW!)
@@ -152,67 +151,123 @@ export const MFAAuthenticationMainPageV8_V3_PROTOTYPE: React.FC = () => {
 			<p>This prototype demonstrates the custom hooks integration pattern.</p>
 
 			{/* Worker Token Section */}
-			<section style={{ marginBottom: '32px', padding: '20px', background: '#f0f9ff', borderRadius: '8px' }}>
+			<section
+				style={{
+					marginBottom: '32px',
+					padding: '20px',
+					background: '#f0f9ff',
+					borderRadius: '8px',
+				}}
+			>
 				<h2>1. Worker Token Hook</h2>
-				<p><strong>Status:</strong> {workerToken.tokenStatus.status}</p>
-				<p><strong>Valid:</strong> {workerToken.tokenStatus.isValid ? '✅' : '❌'}</p>
-				<p><strong>Message:</strong> {workerToken.tokenStatus.message}</p>
-				<p><strong>Silent Retrieval:</strong> {workerToken.silentApiRetrieval ? '✅' : '❌'}</p>
-				<p><strong>Show Token:</strong> {workerToken.showTokenAtEnd ? '✅' : '❌'}</p>
-				<button onClick={() => workerToken.setShowWorkerTokenModal(true)}>
-					Get Worker Token
-				</button>
-				<button onClick={() => workerToken.refreshTokenStatus()}>
-					Refresh Status
-				</button>
+				<p>
+					<strong>Status:</strong> {workerToken.tokenStatus.status}
+				</p>
+				<p>
+					<strong>Valid:</strong> {workerToken.tokenStatus.isValid ? '✅' : '❌'}
+				</p>
+				<p>
+					<strong>Message:</strong> {workerToken.tokenStatus.message}
+				</p>
+				<p>
+					<strong>Silent Retrieval:</strong> {workerToken.silentApiRetrieval ? '✅' : '❌'}
+				</p>
+				<p>
+					<strong>Show Token:</strong> {workerToken.showTokenAtEnd ? '✅' : '❌'}
+				</p>
+				<button onClick={() => workerToken.setShowWorkerTokenModal(true)}>Get Worker Token</button>
+				<button onClick={() => workerToken.refreshTokenStatus()}>Refresh Status</button>
 			</section>
 
 			{/* Devices Section */}
-			<section style={{ marginBottom: '32px', padding: '20px', background: '#f0fdf4', borderRadius: '8px' }}>
+			<section
+				style={{
+					marginBottom: '32px',
+					padding: '20px',
+					background: '#f0fdf4',
+					borderRadius: '8px',
+				}}
+			>
 				<h2>2. MFA Devices Hook</h2>
-				<p><strong>Device Count:</strong> {mfaDevices.deviceCount}</p>
-				<p><strong>Loading:</strong> {mfaDevices.isLoading ? '⏳' : '✅'}</p>
-				<p><strong>Has Devices:</strong> {mfaDevices.hasDevices ? '✅' : '❌'}</p>
-				{mfaDevices.error && <p style={{ color: 'red' }}><strong>Error:</strong> {mfaDevices.error}</p>}
-				<button onClick={() => mfaDevices.refreshDevices()}>
-					Refresh Devices
-				</button>
-				<button onClick={() => mfaDevices.clearDevices()}>
-					Clear Devices
-				</button>
+				<p>
+					<strong>Device Count:</strong> {mfaDevices.deviceCount}
+				</p>
+				<p>
+					<strong>Loading:</strong> {mfaDevices.isLoading ? '⏳' : '✅'}
+				</p>
+				<p>
+					<strong>Has Devices:</strong> {mfaDevices.hasDevices ? '✅' : '❌'}
+				</p>
+				{mfaDevices.error && (
+					<p style={{ color: 'red' }}>
+						<strong>Error:</strong> {mfaDevices.error}
+					</p>
+				)}
+				<button onClick={() => mfaDevices.refreshDevices()}>Refresh Devices</button>
+				<button onClick={() => mfaDevices.clearDevices()}>Clear Devices</button>
 			</section>
 
 			{/* Authentication Section */}
-			<section style={{ marginBottom: '32px', padding: '20px', background: '#fef3c7', borderRadius: '8px' }}>
+			<section
+				style={{
+					marginBottom: '32px',
+					padding: '20px',
+					background: '#fef3c7',
+					borderRadius: '8px',
+				}}
+			>
 				<h2>3. MFA Authentication Hook</h2>
-				<p><strong>Authenticating:</strong> {mfaAuth.isAuthenticating ? '⏳' : '✅'}</p>
-				<p><strong>Active Challenge:</strong> {mfaAuth.hasActiveChallenge ? '✅' : '❌'}</p>
-				<p><strong>OTP Modal:</strong> {mfaAuth.showOTPModal ? '✅' : '❌'}</p>
-				<p><strong>FIDO2 Modal:</strong> {mfaAuth.showFIDO2Modal ? '✅' : '❌'}</p>
-				<p><strong>Push Modal:</strong> {mfaAuth.showPushModal ? '✅' : '❌'}</p>
-				<button onClick={() => mfaAuth.resetAuthState()}>
-					Reset Auth State
-				</button>
-				<button onClick={() => mfaAuth.closeAllModals()}>
-					Close All Modals
-				</button>
+				<p>
+					<strong>Authenticating:</strong> {mfaAuth.isAuthenticating ? '⏳' : '✅'}
+				</p>
+				<p>
+					<strong>Active Challenge:</strong> {mfaAuth.hasActiveChallenge ? '✅' : '❌'}
+				</p>
+				<p>
+					<strong>OTP Modal:</strong> {mfaAuth.showOTPModal ? '✅' : '❌'}
+				</p>
+				<p>
+					<strong>FIDO2 Modal:</strong> {mfaAuth.showFIDO2Modal ? '✅' : '❌'}
+				</p>
+				<p>
+					<strong>Push Modal:</strong> {mfaAuth.showPushModal ? '✅' : '❌'}
+				</p>
+				<button onClick={() => mfaAuth.resetAuthState()}>Reset Auth State</button>
+				<button onClick={() => mfaAuth.closeAllModals()}>Close All Modals</button>
 			</section>
 
 			{/* Policies Section */}
-			<section style={{ marginBottom: '32px', padding: '20px', background: '#fce7f3', borderRadius: '8px' }}>
+			<section
+				style={{
+					marginBottom: '32px',
+					padding: '20px',
+					background: '#fce7f3',
+					borderRadius: '8px',
+				}}
+			>
 				<h2>4. MFA Policies Hook</h2>
-				<p><strong>Policy Count:</strong> {mfaPolicies.policyCount}</p>
-				<p><strong>Loading:</strong> {mfaPolicies.isLoading ? '⏳' : '✅'}</p>
-				<p><strong>Has Policies:</strong> {mfaPolicies.hasPolicies ? '✅' : '❌'}</p>
-				<p><strong>Selected Policy:</strong> {mfaPolicies.selectedPolicy?.name || 'None'}</p>
-				<p><strong>Default Policy:</strong> {mfaPolicies.defaultPolicy?.name || 'None'}</p>
-				{mfaPolicies.error && <p style={{ color: 'red' }}><strong>Error:</strong> {mfaPolicies.error}</p>}
-				<button onClick={() => mfaPolicies.refreshPolicies()}>
-					Refresh Policies
-				</button>
-				<button onClick={() => mfaPolicies.clearPolicies()}>
-					Clear Policies
-				</button>
+				<p>
+					<strong>Policy Count:</strong> {mfaPolicies.policyCount}
+				</p>
+				<p>
+					<strong>Loading:</strong> {mfaPolicies.isLoading ? '⏳' : '✅'}
+				</p>
+				<p>
+					<strong>Has Policies:</strong> {mfaPolicies.hasPolicies ? '✅' : '❌'}
+				</p>
+				<p>
+					<strong>Selected Policy:</strong> {mfaPolicies.selectedPolicy?.name || 'None'}
+				</p>
+				<p>
+					<strong>Default Policy:</strong> {mfaPolicies.defaultPolicy?.name || 'None'}
+				</p>
+				{mfaPolicies.error && (
+					<p style={{ color: 'red' }}>
+						<strong>Error:</strong> {mfaPolicies.error}
+					</p>
+				)}
+				<button onClick={() => mfaPolicies.refreshPolicies()}>Refresh Policies</button>
+				<button onClick={() => mfaPolicies.clearPolicies()}>Clear Policies</button>
 			</section>
 
 			{/* Summary */}
@@ -225,7 +280,9 @@ export const MFAAuthenticationMainPageV8_V3_PROTOTYPE: React.FC = () => {
 					<li>✅ Reusable, testable code</li>
 					<li>✅ Component complexity reduced</li>
 				</ul>
-				<p><strong>Next Steps:</strong></p>
+				<p>
+					<strong>Next Steps:</strong>
+				</p>
 				<ol>
 					<li>Test this prototype thoroughly</li>
 					<li>Apply pattern to production MFAAuthenticationMainPageV8.tsx</li>

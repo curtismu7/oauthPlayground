@@ -14,7 +14,6 @@ import React, { useState } from 'react';
 import { type Device, FIDO2Helper, type P1MFAConfig, P1MFASDK, SMSHelper } from '@/sdk/p1mfa';
 import { CredentialsForm } from './shared/CredentialsForm';
 import { DeviceList } from './shared/DeviceList';
-import { StatusDisplay } from './shared/StatusDisplay';
 
 type Tab =
 	| 'config'
@@ -245,7 +244,7 @@ export const IntegratedMFASample: React.FC = () => {
 		if (!sdk || !smsAuthState.authenticationId || !smsAuthState.otp) return;
 
 		try {
-			const result = await sdk.completeAuthentication({
+			const _result = await sdk.completeAuthentication({
 				authenticationId: smsAuthState.authenticationId,
 				otp: smsAuthState.otp,
 			});
@@ -296,7 +295,7 @@ export const IntegratedMFASample: React.FC = () => {
 			setFido2AuthState((prev) => ({ ...prev, step: 'completing' }));
 
 			// Complete authentication
-			const result = await sdk.completeAuthentication({
+			const _result = await sdk.completeAuthentication({
 				authenticationId: fido2AuthState.authenticationId,
 				fido2Assertion: assertion,
 			});

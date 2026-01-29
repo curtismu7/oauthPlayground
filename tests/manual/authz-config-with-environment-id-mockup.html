@@ -556,7 +556,7 @@
 
         const envInput = document.getElementById('env-id');
         const regionSelect = document.getElementById('region');
-        const discoverBtn = document.getElementById('discover-btn');
+        const _discoverBtn = document.getElementById('discover-btn');
         const issuerUrlText = document.getElementById('issuer-url-text');
         const regionInfo = document.querySelector('.region-info');
 
@@ -580,7 +580,7 @@
             }
         }
 
-        function copyIssuerUrl() {
+        function _copyIssuerUrl() {
             const url = issuerUrlText.textContent;
             navigator.clipboard.writeText(url).then(() => {
                 const copyBtn = document.querySelector('.copy-btn');

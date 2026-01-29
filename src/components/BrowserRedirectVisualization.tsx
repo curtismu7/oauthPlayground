@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { FiExternalLink, FiClock, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiClock, FiExternalLink } from 'react-icons/fi';
 
 interface BrowserRedirectVisualizationProps {
 	authorizationUrl: string;
@@ -56,7 +56,7 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 		if (isRedirecting) {
 			// Simulate the redirect process
 			const timers: NodeJS.Timeout[] = [];
-			
+
 			// Step 1: Prepare
 			timers.push(
 				setTimeout(() => {
@@ -65,8 +65,8 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 							stepIndex === 0
 								? { ...step, status: 'completed', duration: 500 }
 								: stepIndex === 1
-								? { ...step, status: 'active' }
-								: step
+									? { ...step, status: 'active' }
+									: step
 						)
 					);
 				}, 500)
@@ -80,11 +80,11 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 							stepIndex === 1
 								? { ...step, status: 'completed', duration: 1000 }
 								: stepIndex === 2
-								? { ...step, status: 'active' }
-								: step
+									? { ...step, status: 'active' }
+									: step
 						)
 					);
-					
+
 					// Actually open the URL in a new window for demonstration
 					if (authorizationUrl) {
 						window.open(authorizationUrl, '_blank', 'width=800,height=600');
@@ -100,8 +100,8 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 							stepIndex === 2
 								? { ...step, status: 'completed', duration: 3000 }
 								: stepIndex === 3
-								? { ...step, status: 'active' }
-								: step
+									? { ...step, status: 'active' }
+									: step
 						)
 					);
 				}, 3000)
@@ -112,9 +112,7 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 				setTimeout(() => {
 					setSteps((prev) =>
 						prev.map((step, stepIndex) =>
-							stepIndex === 3
-								? { ...step, status: 'completed', duration: 500 }
-								: step
+							stepIndex === 3 ? { ...step, status: 'completed', duration: 500 } : step
 						)
 					);
 					onRedirectComplete?.();
@@ -152,7 +150,7 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 		try {
 			const urlObj = new URL(url);
 			const params = new URLSearchParams(urlObj.search);
-			
+
 			return {
 				baseUrl: `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`,
 				params: Array.from(params.entries()).map(([key, value]) => ({
@@ -168,7 +166,14 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 	const { baseUrl, params } = parseAuthorizationUrl(authorizationUrl);
 
 	return (
-		<div style={{ padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+		<div
+			style={{
+				padding: '1rem',
+				backgroundColor: '#f8fafc',
+				borderRadius: '8px',
+				border: '1px solid #e2e8f0',
+			}}
+		>
 			<div style={{ marginBottom: '1rem' }}>
 				<h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', fontWeight: '600' }}>
 					Browser Redirect to PingOne
@@ -180,20 +185,52 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 
 			{/* Authorization URL Display */}
 			{authorizationUrl && (
-				<div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-					<div style={{ marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '500', color: '#374151' }}>
+				<div
+					style={{
+						marginBottom: '1.5rem',
+						padding: '1rem',
+						backgroundColor: 'white',
+						borderRadius: '6px',
+						border: '1px solid #e2e8f0',
+					}}
+				>
+					<div
+						style={{
+							marginBottom: '0.5rem',
+							fontSize: '0.85rem',
+							fontWeight: '500',
+							color: '#374151',
+						}}
+					>
 						Authorization URL:
 					</div>
-					<div style={{ wordBreak: 'break-all', fontSize: '0.8rem', fontFamily: 'monospace', color: '#1f2937' }}>
+					<div
+						style={{
+							wordBreak: 'break-all',
+							fontSize: '0.8rem',
+							fontFamily: 'monospace',
+							color: '#1f2937',
+						}}
+					>
 						{baseUrl}
 					</div>
 					{params.length > 0 && (
 						<div style={{ marginTop: '0.75rem' }}>
-							<div style={{ fontSize: '0.8rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>
+							<div
+								style={{
+									fontSize: '0.8rem',
+									fontWeight: '500',
+									color: '#374151',
+									marginBottom: '0.25rem',
+								}}
+							>
 								Query Parameters:
 							</div>
 							{params.map(({ key, value }) => (
-								<div key={key} style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: '#6b7280' }}>
+								<div
+									key={key}
+									style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: '#6b7280' }}
+								>
 									{key}={value}
 								</div>
 							))}
@@ -204,7 +241,7 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 
 			{/* Redirect Steps */}
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-				{steps.map((step, index) => (
+				{steps.map((step, _index) => (
 					<div
 						key={step.id}
 						style={{
@@ -271,10 +308,28 @@ export const BrowserRedirectVisualization: React.FC<BrowserRedirectVisualization
 
 			{/* Progress Indicator */}
 			{isRedirecting && (
-				<div style={{ marginTop: '1rem', padding: '0.75rem', backgroundColor: '#fef3c7', borderRadius: '6px', border: '1px solid #f59e0b' }}>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: '#92400e' }}>
+				<div
+					style={{
+						marginTop: '1rem',
+						padding: '0.75rem',
+						backgroundColor: '#fef3c7',
+						borderRadius: '6px',
+						border: '1px solid #f59e0b',
+					}}
+				>
+					<div
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+							fontSize: '0.85rem',
+							color: '#92400e',
+						}}
+					>
 						<FiClock />
-						<span>Redirect in progress... Please complete authentication in the opened window.</span>
+						<span>
+							Redirect in progress... Please complete authentication in the opened window.
+						</span>
 					</div>
 				</div>
 			)}

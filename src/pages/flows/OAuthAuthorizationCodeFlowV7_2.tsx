@@ -14,19 +14,15 @@ import {
 	FiKey,
 	FiPackage,
 	FiRefreshCw,
-	FiSave,
 	FiSend,
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import AudienceParameterInput from '../../components/AudienceParameterInput';
 import CodeExamplesDisplay from '../../components/CodeExamplesDisplay';
-import ConfigurationBackup from '../../components/ConfigurationBackup';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedSecurityFeaturesDemo from '../../components/EnhancedSecurityFeaturesDemo';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import KrogerLoginPopup, { type KrogerLoginCredentials } from '../../components/KrogerLoginPopup';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
@@ -37,7 +33,6 @@ import {
 	ResultsSection,
 	SectionDivider,
 } from '../../components/ResultsPanel';
-import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
@@ -49,20 +44,14 @@ import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import { CopyButtonService } from '../../services/copyButtonService';
-import { EducationalContentService } from '../../services/educationalContentService.tsx';
 import {
 	EnhancedApiCallData,
 	EnhancedApiCallDisplayService,
 } from '../../services/enhancedApiCallDisplayService';
-import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
 import FlowCredentialService from '../../services/flowCredentialService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import FlowStorageService from '../../services/flowStorageService';
 import FlowUIService from '../../services/flowUIService';
-import {
-	OAuthErrorDetails,
-	OAuthErrorHandlingService,
-} from '../../services/oauthErrorHandlingService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { PKCEGenerationService } from '../../services/pkceGenerationService';
 import { themeService } from '../../services/themeService';
@@ -70,10 +59,7 @@ import {
 	IntrospectionApiCallData,
 	TokenIntrospectionService,
 } from '../../services/tokenIntrospectionService';
-import { UISettingsService } from '../../services/uiSettingsService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { useV7CredentialValidation } from '../../services/v7CredentialValidationService';
-import { V7SharedService } from '../../services/v7SharedService';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
@@ -247,7 +233,7 @@ const CollapsibleSection = styled.section`
 	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
 `;
 
-const Section = styled.section`
+const _Section = styled.section`
 	border: 1px solid #e2e8f0;
 	border-radius: 0.75rem;
 	margin-bottom: 1.5rem;
@@ -256,7 +242,7 @@ const Section = styled.section`
 	overflow: hidden;
 `;
 
-const SectionHeader = styled.div`
+const _SectionHeader = styled.div`
 	background: #f8fafc;
 	color: #374151;
 	padding: 1.25rem 1.75rem;
@@ -291,7 +277,7 @@ const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 `;
 
 // Theme-specific header variants
-const OrangeHeaderButton = styled(CollapsibleHeaderButton)`
+const _OrangeHeaderButton = styled(CollapsibleHeaderButton)`
 	background: linear-gradient(135deg, #fed7aa 0%, #fb923c 100%);
 	color: #7c2d12;
 	
@@ -422,14 +408,14 @@ const InfoList = styled.ul`
 	padding-left: 1.5rem;
 `;
 
-const FlowSuitability = styled.div`
+const _FlowSuitability = styled.div`
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 	gap: 1rem;
 	margin: 1.5rem 0 0;
 `;
 
-const SuitabilityCard = styled.div<{ $variant: 'success' | 'warning' | 'danger' }>`
+const _SuitabilityCard = styled.div<{ $variant: 'success' | 'warning' | 'danger' }>`
 	border-radius: 1rem;
 	padding: 1.25rem;
 	border: 2px solid
@@ -509,7 +495,7 @@ const ActionRow = styled.div`
 	margin-top: 1.5rem;
 `;
 
-const SaveAdvancedParamsButton = styled.button`
+const _SaveAdvancedParamsButton = styled.button`
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -540,7 +526,7 @@ const SaveAdvancedParamsButton = styled.button`
 	}
 `;
 
-const SavedAdvancedParamsIndicator = styled.div`
+const _SavedAdvancedParamsIndicator = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -728,7 +714,7 @@ const EmptyText = styled.p`
 	margin-bottom: 1rem;
 `;
 
-const VariantToggleContainer = styled.div`
+const _VariantToggleContainer = styled.div`
 	display: inline-flex;
 	border-radius: 9999px;
 	border: 1px solid #d1d5db;
@@ -737,7 +723,7 @@ const VariantToggleContainer = styled.div`
 	margin: 1.5rem 0;
 `;
 
-const VariantToggleButton = styled.button<{ $active: boolean }>`
+const _VariantToggleButton = styled.button<{ $active: boolean }>`
 	appearance: none;
 	border: none;
 	padding: 0.65rem 1.4rem;
@@ -815,7 +801,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		AuthorizationCodeSharedService.StepRestoration.getInitialStep()
 	);
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
-	const [emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
+	const [_emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
 	const [collapsedSections, setCollapsedSections] = useState(
 		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState()
 	);
@@ -824,7 +810,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 	// Prevent the login success modal from reopening repeatedly for the same auth code
 	const loginModalGuardRef = useRef<string | null>(null);
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
-	const [copiedField, setCopiedField] = useState<string | null>(null);
+	const [_copiedField, setCopiedField] = useState<string | null>(null);
 	const [flowVariant, setFlowVariant] = useState<'oauth' | 'oidc'>(controller.flowVariant);
 
 	useEffect(() => {
@@ -937,7 +923,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 	const [audience, setAudience] = useState<string>('');
 	const [resources, setResources] = useState<string[]>([]);
 	const [promptValues, setPromptValues] = useState<string[]>([]);
-	const [isSavedAdvancedParams, setIsSavedAdvancedParams] = useState(false);
+	const [_isSavedAdvancedParams, setIsSavedAdvancedParams] = useState(false);
 
 	// V7.2 addition: optional redirectless (pi.flow) execution inline
 	const [useRedirectless, setUseRedirectless] = useState(false);
@@ -987,10 +973,15 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				prompt: promptValues.join(' '),
 			});
 		}
-	}, [audience, promptValues]);
+	}, [
+		audience,
+		promptValues,
+		controller.flowConfig, // Note: Resources are not sent for PingOne flows as they're not reliably supported
+		controller.setFlowConfig,
+	]);
 
 	// Save advanced parameters
-	const handleSaveAdvancedParams = useCallback(async () => {
+	const _handleSaveAdvancedParams = useCallback(async () => {
 		console.log('💾 [OAuth AuthZ V6] Saving advanced parameters:', {
 			audience,
 			resources,
@@ -1037,12 +1028,12 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		setTimeout(() => {
 			setIsSavedAdvancedParams(false);
 		}, 3000);
-	}, [audience, resources, promptValues, controller]);
+	}, [audience, resources, promptValues, controller, flowVariant]);
 
 	// Scroll to top on step change
 	useEffect(() => {
 		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange();
-	}, [currentStep]);
+	}, []);
 
 	// Response type selector state
 	const [selectedResponseType, setSelectedResponseType] = useState<string>('code id_token');
@@ -1056,7 +1047,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		});
 		// Intentionally do NOT depend on the controller object identity to avoid infinite loops
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedResponseType]);
+	}, [selectedResponseType, controller.credentials, controller.setCredentials]);
 
 	// Load PingOne configuration from sessionStorage on mount
 	// Load comprehensive flow data on mount to restore tokenEndpointAuthMethod
@@ -1088,7 +1079,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				clientAuthMethod: flowData.flowCredentials.tokenEndpointAuthMethod as any,
 			});
 		}
-	}, [flowVariant]); // Run when variant changes
+	}, [flowVariant, controller.credentials, controller.setCredentials]); // Run when variant changes
 
 	// Load PingOne app config on mount
 	useEffect(() => {
@@ -1120,7 +1111,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				console.warn('[AuthorizationCodeFlowV5] Failed to parse stored PingOne config:', error);
 			}
 		}
-	}, []); // Only run once on mount
+	}, [controller.credentials, controller.setCredentials]); // Only run once on mount
 
 	// Debug: Always log the current authorization code state
 	console.log('🔍 [AuthorizationCodeFlowV5] Current controller.authCode:', {
@@ -1214,8 +1205,8 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				hasRequiredCredentials,
 				credentialsPreview: controller.credentials
 					? {
-							envId: controller.credentials.environmentId?.substring(0, 8) + '...',
-							clientId: controller.credentials.clientId?.substring(0, 8) + '...',
+							envId: `${controller.credentials.environmentId?.substring(0, 8)}...`,
+							clientId: `${controller.credentials.clientId?.substring(0, 8)}...`,
 							hasSecret: !!controller.credentials.clientSecret,
 						}
 					: 'no credentials object',
@@ -1299,7 +1290,11 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		console.log('🔄 [AuthorizationCodeFlowV5] Fresh start - going to step 0');
 		setCurrentStep(0);
 		sessionStorage.setItem('oauth-authorization-code-v7-current-step', '0');
-	}, []); // Run only once on mount
+	}, [
+		controller.credentials, // Also set it in the controller
+		controller.setAuthCodeManually, // Credentials available - proceed normally
+		handleAuthCodeSuccess,
+	]); // Run only once on mount
 
 	// Persist current step to session storage
 	useEffect(() => {
@@ -1388,7 +1383,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 	// 	return getFlowSequence('authorization-code');
 	// }, []);
 
-	const stepCompletions = useMemo<StepCompletionState>(
+	const _stepCompletions = useMemo<StepCompletionState>(
 		() => ({
 			0: controller.hasStepResult('setup-credentials') || controller.hasCredentialsSaved,
 			1: controller.hasStepResult('generate-pkce') || Boolean(controller.pkceCodes.codeVerifier),
@@ -1621,7 +1616,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				flowVariant: flowVariant,
 			});
 		}
-	}, [controller]);
+	}, [controller, flowVariant]);
 
 	const handleGenerateAuthUrl = useCallback(async () => {
 		await AuthorizationCodeSharedService.Authorization.generateAuthUrl(
@@ -1629,7 +1624,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			controller.credentials,
 			controller
 		);
-	}, [controller]);
+	}, [controller, flowVariant]);
 
 	// Run redirectless (pi.flow) inside V7.2 using the same backend endpoints as the playground
 	const runRedirectlessInline = useCallback(
@@ -1779,7 +1774,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				}
 				console.log(
 					'🚀 [Redirectless] Authorization code received:',
-					authorizationCode.substring(0, 20) + '...'
+					`${authorizationCode.substring(0, 20)}...`
 				);
 
 				// Step 4: backend token exchange (reuse existing endpoint)
@@ -1820,7 +1815,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				// This enables the "Exchange Authorization Code for Tokens" button to show it worked
 				console.log(
 					'🚀 [Redirectless] Setting authorization code in controller for UI display:',
-					authorizationCode.substring(0, 20) + '...'
+					`${authorizationCode.substring(0, 20)}...`
 				);
 				controller.setAuthCodeManually(authorizationCode);
 				setLocalAuthCode(authorizationCode);
@@ -1884,7 +1879,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				setCustomLoginOpen(false);
 			}
 		},
-		[controller, isRedirectlessRunning, useRedirectless]
+		[controller, isRedirectlessRunning, useRedirectless, handleGeneratePkce]
 	);
 
 	const handleOpenAuthUrl = useCallback(() => {
@@ -2112,14 +2107,14 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		}
 	}, [controller]);
 
-	const handleCopy = useCallback((text: string, label: string) => {
+	const _handleCopy = useCallback((text: string, label: string) => {
 		v4ToastManager.handleCopyOperation(text, label);
 		setCopiedField(label);
 		setTimeout(() => setCopiedField(null), 1000);
 	}, []);
 
 	// Extract x5t parameter from JWT header
-	const getX5tParameter = useCallback((token: string) => {
+	const _getX5tParameter = useCallback((token: string) => {
 		try {
 			const header = decodeJWTHeader(token);
 			return header.x5t || header['x5t#S256'] || null;
@@ -2152,9 +2147,9 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		storeFlowNavigationState('oauth-authorization-code-v7', currentStep, 'oauth');
 
 		window.open('/token-management', '_blank');
-	}, [controller.tokens, controller.credentials, currentStep]);
+	}, [controller.tokens, controller.credentials, currentStep, flowVariant]);
 
-	const navigateToTokenManagementWithRefreshToken = useCallback(() => {
+	const _navigateToTokenManagementWithRefreshToken = useCallback(() => {
 		AuthorizationCodeSharedService.TokenManagement.navigateToTokenManagement(
 			flowVariant,
 			controller.tokens,
@@ -2177,7 +2172,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		storeFlowNavigationState('oauth-authorization-code-v7', currentStep, 'oauth');
 
 		window.open('/token-management', '_blank');
-	}, [controller.tokens, controller.credentials, currentStep]);
+	}, [controller.tokens, controller.credentials, currentStep, flowVariant]);
 
 	const handleResetFlow = useCallback(() => {
 		controller.resetFlow();
@@ -2282,6 +2277,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			controller.authCode,
 			localAuthCode,
 			controller.tokens,
+			controller.persistKey,
 		]
 	);
 
@@ -2348,6 +2344,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		controller.authCode,
 		localAuthCode,
 		controller.credentials,
+		controller,
 	]);
 
 	const handlePrev = useCallback(() => {
@@ -2371,7 +2368,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 	}, [canNavigateNext, handleNext]);
 
 	// Determine if tokens should be displayed (only show if they were exchanged for the current auth code)
-	const shouldDisplayTokens = useMemo(() => {
+	const _shouldDisplayTokens = useMemo(() => {
 		// Don't show tokens if we don't have any
 		if (!controller.tokens?.access_token) {
 			return false;
@@ -3672,18 +3669,13 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		controller.pkceCodes,
 		controller.tokens,
 		currentStep,
-		handleCopy,
 		handleExchangeTokens,
 		handleFetchUserInfo,
 		handleGenerateAuthUrl,
-		handleGeneratePkce,
 		navigateToTokenManagement,
-		navigateToTokenManagementWithRefreshToken,
-		stepCompletions,
 		toggleSection,
 		canNavigateNext,
 		controller.setAuthCodeManually,
-		emptyRequiredFields.has,
 		handleClearConfiguration,
 		handleFieldChange,
 		handleNextClick,
@@ -3696,15 +3688,18 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		pingOneConfig,
 		savePingOneConfig,
 		manualAuthCodeId,
-		getX5tParameter,
-		emptyRequiredFields,
-		copiedField,
 		controller.isFetchingUserInfo,
 		controller.userInfo,
 		introspectionApiCall,
 		tokenExchangeApiCall,
 		userInfoApiCall,
-		shouldDisplayTokens,
+		controller,
+		customLoginOpen,
+		flowVariant,
+		isRedirectlessRunning,
+		runRedirectlessInline,
+		selectedResponseType,
+		useRedirectless,
 	]);
 
 	return (

@@ -3,18 +3,13 @@ import {
 	FiAlertTriangle,
 	FiArrowRight,
 	FiBarChart2,
-	FiCheck,
 	FiCheckCircle,
 	FiClock,
 	FiDatabase,
 	FiDownload,
-	FiInfo,
-	FiLock,
 	FiRefreshCw,
 	FiShield,
 	FiUsers,
-	FiX,
-	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { type FlowType } from '../../v8/services/specVersionServiceV8';

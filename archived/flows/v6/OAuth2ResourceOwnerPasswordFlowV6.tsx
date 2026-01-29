@@ -1,7 +1,7 @@
 // src/pages/flows/OAuth2ResourceOwnerPasswordFlowV6.tsx
 // Hybrid V6 implementation: V5 controller with V6 layout and styling
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
@@ -11,7 +11,6 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { useResourceOwnerPasswordFlowV5 } from '../../hooks/useResourceOwnerPasswordFlowV5';
 import {
-	FiAlertTriangle,
 	FiBook,
 	FiCheckCircle,
 	FiCopy,
@@ -22,13 +21,10 @@ import {
 	FiLock,
 	FiRefreshCw,
 	FiSave,
-	FiShield,
 	FiUser,
 } from '../../services/commonImportsService';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import EducationalContentService from '../../services/educationalContentService.tsx';
 import { FlowHeader } from '../../services/flowHeaderService';
-import TokenDisplayService from '../../services/tokenDisplayService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // V6 Styled Components

@@ -1136,7 +1136,7 @@ export class MfaAuthenticationServiceV8 {
 		const autoRenewalEnabled = config.workerToken.autoRenewal;
 		const renewalThreshold = config.workerToken.renewalThreshold; // seconds before expiry
 
-		const workerToken = await workerTokenServiceV8.getToken();
+		let workerToken = await workerTokenServiceV8.getToken();
 
 		// Decode JWT to check expiry
 		let tokenExpiry: number | null = null;
@@ -1356,21 +1356,21 @@ export class MfaAuthenticationServiceV8 {
 				console.log(`${MODULE_TAG} Using otp.check URL from _links:`, endpoint);
 			} else {
 				// Get userId - use provided userId or look up by username
-				let userId: string;
+				let _userId: string;
 				if (params.userId) {
-					userId = params.userId;
+					_userId = params.userId;
 				} else if (params.username) {
 					const { MFAServiceV8 } = await import('./mfaServiceV8');
 					const user = await MFAServiceV8.lookupUserByUsername(
 						params.environmentId,
 						params.username
 					);
-					userId = user.id as string;
+					_userId = user.id as string;
 				} else {
 					// No-username variant: Initialize device authentication without username/userId
 					// This requires a special request body structure
 					console.log(`${MODULE_TAG} Using no-username variant for device authentication`);
-					userId = ''; // Will be omitted from request body
+					_userId = ''; // Will be omitted from request body
 				}
 
 				// Fallback to direct endpoint - use custom domain if provided
@@ -1802,7 +1802,7 @@ export class MfaAuthenticationServiceV8 {
 			// Ensure assertion is an object, not a string
 			const assertionObject = typeof assertion === 'string' ? JSON.parse(assertion) : assertion;
 
-			const assertionBody = {
+			const _assertionBody = {
 				assertion: {
 					id: assertionObject.id,
 					rawId: assertionObject.rawId,
@@ -1820,7 +1820,7 @@ export class MfaAuthenticationServiceV8 {
 
 			// Track API call for display
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
-			const startTime = Date.now();
+			const _startTime = Date.now();
 
 			// Get environment ID - use provided parameter or load from credentials service
 			let finalEnvironmentId = environmentId;
@@ -1898,7 +1898,7 @@ export class MfaAuthenticationServiceV8 {
 			// PingOne API endpoint: POST {{authPath}}/{{envID}}/deviceAuthentications/{{deviceAuthID}}
 			// Content-Type: application/vnd.pingidentity.assertion.check+json
 			// Note: The Content-Type header indicates this is an assertion check, not the URL path
-			const actualPingOneUrl = `${authPath}/${finalEnvironmentId}/deviceAuthentications/${deviceAuthId}`;
+			const _actualPingOneUrl = `${authPath}/${finalEnvironmentId}/deviceAuthentications/${deviceAuthId}`;
 
 			// #region agent log
 				method: 'POST',

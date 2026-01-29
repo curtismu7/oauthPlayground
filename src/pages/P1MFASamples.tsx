@@ -7,8 +7,6 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FIDO2SampleApp } from '@/samples/p1mfa/fido2/FIDO2SampleApp';
-import { SMSSampleApp } from '@/samples/p1mfa/sms/SMSSampleApp';
 
 export const P1MFASamples: React.FC = () => {
 	return (

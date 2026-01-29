@@ -65,7 +65,7 @@ testCases.forEach((testCase, index) => {
 	}
 });
 
-console.log('\n' + '='.repeat(70));
+console.log(`\n${'='.repeat(70)}`);
 console.log('\n✅ Server Implementation Details:\n');
 console.log('1. Detects identifier type automatically:');
 console.log('   - UUID pattern → Direct GET request');

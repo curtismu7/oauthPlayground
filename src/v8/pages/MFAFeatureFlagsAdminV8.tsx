@@ -8,7 +8,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { FiFlag, FiRefreshCw, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
-import { MFAFeatureFlagsV8, type MFAFeatureFlag, type RolloutPercentage } from '../services/mfaFeatureFlagsV8';
+import {
+	type MFAFeatureFlag,
+	MFAFeatureFlagsV8,
+	type RolloutPercentage,
+} from '../services/mfaFeatureFlagsV8';
 
 export const MFAFeatureFlagsAdminV8: React.FC = () => {
 	const [flags, setFlags] = useState(MFAFeatureFlagsV8.getAllFlags());
@@ -21,7 +25,7 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 
 	useEffect(() => {
 		refreshFlags();
-	}, []);
+	}, [refreshFlags]);
 
 	const toggleFlag = (flag: MFAFeatureFlag) => {
 		const current = MFAFeatureFlagsV8.getFlagState(flag);
@@ -86,10 +90,25 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 							ℹ️
 						</div>
 						<div>
-							<h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600', color: '#1e40af' }}>
+							<h3
+								style={{
+									margin: '0 0 8px 0',
+									fontSize: '16px',
+									fontWeight: '600',
+									color: '#1e40af',
+								}}
+							>
 								How Feature Flags Work
 							</h3>
-							<ul style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', color: '#1e3a8a', lineHeight: '1.6' }}>
+							<ul
+								style={{
+									margin: 0,
+									paddingLeft: '20px',
+									fontSize: '14px',
+									color: '#1e3a8a',
+									lineHeight: '1.6',
+								}}
+							>
 								<li>
 									<strong>0%:</strong> Disabled - all users see old flow
 								</li>
@@ -125,7 +144,9 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 						color: '#d1d5db',
 					}}
 				>
-					<div style={{ marginBottom: '12px', fontWeight: '600', color: '#f3f4f6' }}>Browser Console Commands:</div>
+					<div style={{ marginBottom: '12px', fontWeight: '600', color: '#f3f4f6' }}>
+						Browser Console Commands:
+					</div>
 					<div style={{ lineHeight: '1.8' }}>
 						<div>
 							<span style={{ color: '#10b981' }}>window.mfaFlags</span>
@@ -171,9 +192,18 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 									border: isApplied ? '2px solid #10b981' : '1px solid #e5e7eb',
 								}}
 							>
-								<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+										marginBottom: '16px',
+									}}
+								>
 									<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-										<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#111827' }}>
+										<h3
+											style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#111827' }}
+										>
 											{item.flag.replace('mfa_unified_', '').toUpperCase()}
 										</h3>
 										{isApplied && (
@@ -218,7 +248,14 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 
 								{/* Rollout Percentage */}
 								<div style={{ marginBottom: '16px' }}>
-									<div style={{ marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+									<div
+										style={{
+											marginBottom: '8px',
+											fontSize: '14px',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
 										Rollout Percentage
 									</div>
 									<div style={{ display: 'flex', gap: '8px' }}>
@@ -231,7 +268,10 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 												style={{
 													flex: 1,
 													padding: '12px',
-													border: state.rolloutPercentage === pct ? '2px solid #3b82f6' : '1px solid #d1d5db',
+													border:
+														state.rolloutPercentage === pct
+															? '2px solid #3b82f6'
+															: '1px solid #d1d5db',
 													borderRadius: '6px',
 													background: state.rolloutPercentage === pct ? '#eff6ff' : 'white',
 													color: state.rolloutPercentage === pct ? '#1e40af' : '#6b7280',
@@ -259,7 +299,8 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 									}}
 								>
 									<div style={{ marginBottom: '4px' }}>
-										<strong>Status:</strong> {state.enabled ? `Enabled at ${state.rolloutPercentage}%` : 'Disabled'}
+										<strong>Status:</strong>{' '}
+										{state.enabled ? `Enabled at ${state.rolloutPercentage}%` : 'Disabled'}
 									</div>
 									<div>
 										<strong>Last Updated:</strong> {new Date(state.lastUpdated).toLocaleString()}
@@ -271,7 +312,9 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 				</div>
 
 				{/* Actions */}
-				<div style={{ marginTop: '32px', display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+				<div
+					style={{ marginTop: '32px', display: 'flex', gap: '12px', justifyContent: 'flex-end' }}
+				>
 					<button
 						type="button"
 						onClick={refreshFlags}

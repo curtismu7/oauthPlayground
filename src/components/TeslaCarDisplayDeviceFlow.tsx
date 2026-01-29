@@ -462,157 +462,155 @@ const TeslaCarDisplayDeviceFlow: React.FC<TeslaCarDisplayDeviceFlowProps> = ({
 	};
 
 	return (
-		<>
-			<TeslaDisplayContainer>
-				{/* Dashboard Surface */}
-				<DashboardSurface>
-					{/* Physical Car Display Frame */}
-					<CarDisplayFrame>
-						{/* Tesla Screen */}
-						<TeslaScreen>
-							{/* Car Status Display (like weather on Echo Show) */}
-							<CarStatusDisplay>
-								<CarStatusIcon>🔋</CarStatusIcon>
-								<CarStatusValue>78%</CarStatusValue>
-								<CarStatusLabel>Battery</CarStatusLabel>
-							</CarStatusDisplay>
+		<TeslaDisplayContainer>
+			{/* Dashboard Surface */}
+			<DashboardSurface>
+				{/* Physical Car Display Frame */}
+				<CarDisplayFrame>
+					{/* Tesla Screen */}
+					<TeslaScreen>
+						{/* Car Status Display (like weather on Echo Show) */}
+						<CarStatusDisplay>
+							<CarStatusIcon>🔋</CarStatusIcon>
+							<CarStatusValue>78%</CarStatusValue>
+							<CarStatusLabel>Battery</CarStatusLabel>
+						</CarStatusDisplay>
 
-							{/* Main Content */}
-							<div
-								style={{
-									display: 'flex',
-									flexDirection: 'column',
-									alignItems: 'center',
-									justifyContent: 'flex-start',
-									marginTop: '2rem',
-									marginBottom: '1rem',
-								}}
-							>
-								<div
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										marginBottom: '1rem',
-									}}
-								>
-									<StatusIndicator $active={!!state.tokens} />
-									<DisplayTitle>Device Authorization</DisplayTitle>
-								</div>
-
-								<DisplaySubtitle>Enter this code on your phone or computer</DisplaySubtitle>
-
-								{/* User Code Display */}
-								{state.userCode && (
-									<>
-										<UserCodeLabel>Authorization Code</UserCodeLabel>
-										<UserCodeDisplay>{state.userCode}</UserCodeDisplay>
-									</>
-								)}
-
-								{/* Status Display */}
-								{state.status && (
-									<StatusDisplay $status={state.status}>
-										<StatusIcon>{getStatusIcon()}</StatusIcon>
-										<StatusText>{getStatusText()}</StatusText>
-										<StatusMessage>{getStatusMessage()}</StatusMessage>
-									</StatusDisplay>
-								)}
-
-								{/* Control Buttons */}
-								<ControlButtons>
-									<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
-										<FiCopy size={12} /> Copy Code
-									</ControlButton>
-									<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-										<FiCopy size={12} /> Copy URI
-									</ControlButton>
-								</ControlButtons>
-
-								{/* Success Message */}
-								{state.status === 'authorized' && state.tokens && (
-									<div
-										style={{
-											background: 'rgba(0, 255, 0, 0.15)',
-											border: '2px solid rgba(0, 255, 0, 0.3)',
-											borderRadius: '0.75rem',
-											padding: '1rem',
-											marginTop: '1rem',
-										}}
-									>
-										<div
-											style={{
-												fontSize: '0.625rem',
-												fontWeight: '600',
-												color: '#00ff00',
-												textAlign: 'center',
-												fontFamily: 'Arial, sans-serif',
-											}}
-										>
-											<FiCheckCircle size={12} style={{ marginRight: '0.25rem' }} />
-											Authorization Successful!
-										</div>
-									</div>
-								)}
-							</div>
-						</TeslaScreen>
-					</CarDisplayFrame>
-				</DashboardSurface>
-
-				{/* Physical Controls Below Screen */}
-				<PhysicalControls>
-					<RotaryKnob />
-					<div style={{ display: 'flex', gap: '0.5rem' }}>
-						<CenterButton />
-						<CenterButton />
-					</div>
-					<RotaryKnob />
-				</PhysicalControls>
-
-				{/* QR Code Section - Below Device */}
-				{state.verificationUriComplete && (
-					<QRCodeSection>
-						<QRCodeLabel>Scan QR Code</QRCodeLabel>
-						<QRCodeContainer>
-							<QRCodeSVG
-								value={state.verificationUriComplete}
-								size={100}
-								level="M"
-								includeMargin={true}
-							/>
-						</QRCodeContainer>
-						{state.verificationUri && (
-							<div
-								style={{
-									fontSize: '0.5rem',
-									color: 'rgba(255, 255, 255, 0.4)',
-									marginTop: '0.5rem',
-									wordBreak: 'break-all',
-									fontFamily: 'Arial, sans-serif',
-								}}
-							>
-								{state.verificationUri}
-							</div>
-						)}
+						{/* Main Content */}
 						<div
 							style={{
 								display: 'flex',
-								gap: '0.5rem',
-								justifyContent: 'center',
-								marginTop: '0.75rem',
+								flexDirection: 'column',
+								alignItems: 'center',
+								justifyContent: 'flex-start',
+								marginTop: '2rem',
+								marginBottom: '1rem',
 							}}
 						>
-							<ControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-								<FiExternalLink size={12} /> Open in Browser
-							</ControlButton>
-							<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-								<FiCopy size={12} /> Copy URI
-							</ControlButton>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									marginBottom: '1rem',
+								}}
+							>
+								<StatusIndicator $active={!!state.tokens} />
+								<DisplayTitle>Device Authorization</DisplayTitle>
+							</div>
+
+							<DisplaySubtitle>Enter this code on your phone or computer</DisplaySubtitle>
+
+							{/* User Code Display */}
+							{state.userCode && (
+								<>
+									<UserCodeLabel>Authorization Code</UserCodeLabel>
+									<UserCodeDisplay>{state.userCode}</UserCodeDisplay>
+								</>
+							)}
+
+							{/* Status Display */}
+							{state.status && (
+								<StatusDisplay $status={state.status}>
+									<StatusIcon>{getStatusIcon()}</StatusIcon>
+									<StatusText>{getStatusText()}</StatusText>
+									<StatusMessage>{getStatusMessage()}</StatusMessage>
+								</StatusDisplay>
+							)}
+
+							{/* Control Buttons */}
+							<ControlButtons>
+								<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
+									<FiCopy size={12} /> Copy Code
+								</ControlButton>
+								<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
+									<FiCopy size={12} /> Copy URI
+								</ControlButton>
+							</ControlButtons>
+
+							{/* Success Message */}
+							{state.status === 'authorized' && state.tokens && (
+								<div
+									style={{
+										background: 'rgba(0, 255, 0, 0.15)',
+										border: '2px solid rgba(0, 255, 0, 0.3)',
+										borderRadius: '0.75rem',
+										padding: '1rem',
+										marginTop: '1rem',
+									}}
+								>
+									<div
+										style={{
+											fontSize: '0.625rem',
+											fontWeight: '600',
+											color: '#00ff00',
+											textAlign: 'center',
+											fontFamily: 'Arial, sans-serif',
+										}}
+									>
+										<FiCheckCircle size={12} style={{ marginRight: '0.25rem' }} />
+										Authorization Successful!
+									</div>
+								</div>
+							)}
 						</div>
-					</QRCodeSection>
-				)}
-			</TeslaDisplayContainer>
-		</>
+					</TeslaScreen>
+				</CarDisplayFrame>
+			</DashboardSurface>
+
+			{/* Physical Controls Below Screen */}
+			<PhysicalControls>
+				<RotaryKnob />
+				<div style={{ display: 'flex', gap: '0.5rem' }}>
+					<CenterButton />
+					<CenterButton />
+				</div>
+				<RotaryKnob />
+			</PhysicalControls>
+
+			{/* QR Code Section - Below Device */}
+			{state.verificationUriComplete && (
+				<QRCodeSection>
+					<QRCodeLabel>Scan QR Code</QRCodeLabel>
+					<QRCodeContainer>
+						<QRCodeSVG
+							value={state.verificationUriComplete}
+							size={100}
+							level="M"
+							includeMargin={true}
+						/>
+					</QRCodeContainer>
+					{state.verificationUri && (
+						<div
+							style={{
+								fontSize: '0.5rem',
+								color: 'rgba(255, 255, 255, 0.4)',
+								marginTop: '0.5rem',
+								wordBreak: 'break-all',
+								fontFamily: 'Arial, sans-serif',
+							}}
+						>
+							{state.verificationUri}
+						</div>
+					)}
+					<div
+						style={{
+							display: 'flex',
+							gap: '0.5rem',
+							justifyContent: 'center',
+							marginTop: '0.75rem',
+						}}
+					>
+						<ControlButton $variant="primary" onClick={handleOpenVerificationUri}>
+							<FiExternalLink size={12} /> Open in Browser
+						</ControlButton>
+						<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
+							<FiCopy size={12} /> Copy URI
+						</ControlButton>
+					</div>
+				</QRCodeSection>
+			)}
+		</TeslaDisplayContainer>
 	);
 };
 

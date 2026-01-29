@@ -456,7 +456,6 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				return 'spa'; // Implicit flow was designed for SPAs (now deprecated)
 			case 'hybrid':
 				return 'web'; // Hybrid flow for web apps
-			case 'oauth-authz':
 			default:
 				return 'web'; // Authorization Code is most common for web apps
 		}
@@ -557,7 +556,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			onChange(updated);
 		}
 		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount to prevent infinite loop
-	}, []);
+	}, [credentials, onChange]);
 
 	// Sync checkbox values with credentials (for loading from storage)
 	useEffect(() => {
@@ -724,7 +723,6 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		credentials.appType,
 		credentials.usePAR,
 		pkceEnforcement,
-		usePKCE,
 		enableRefreshToken,
 		responseMode,
 		loginHint,
@@ -739,30 +737,6 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		appType,
 		usePAR,
 		getRecommendedClientType,
-		credentials.usePKCE,
-		credentials.enableRefreshToken,
-		credentials.responseMode,
-		credentials.useRedirectless,
-		credentials.loginHint,
-		credentials.maxAge,
-		credentials.display,
-		credentials.clientType,
-		credentials.appType,
-		credentials.usePAR,
-		pkceEnforcement,
-		usePKCE,
-		enableRefreshToken,
-		responseMode,
-		loginHint,
-		supportsPKCE,
-		effectiveFlowType,
-		onChange,
-		credentials,
-		maxAge,
-		display,
-		clientType,
-		appType,
-		usePAR,
 	]);
 
 	// Auto-select recommended application type when flow type changes
@@ -787,7 +761,13 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				onAppTypeChange(recommendedAppType, effectiveFlowType);
 			}
 		}
-	}, [effectiveFlowType, getRecommendedAppType]); // Only run when flow type changes
+	}, [
+		effectiveFlowType,
+		getRecommendedAppType,
+		appType,
+		onAppTypeChange, // Update credentials with new app type
+		onChange,
+	]); // Only run when flow type changes
 
 	// Listen for environment ID updates
 	useEffect(() => {
@@ -805,7 +785,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		window.addEventListener('environmentIdUpdated', handleEnvIdUpdate);
 		return () => window.removeEventListener('environmentIdUpdated', handleEnvIdUpdate);
 		// biome-ignore lint/correctness/useExhaustiveDependencies: onChange uses functional update to prevent loops
-	}, [credentials.environmentId]);
+	}, [onChange]);
 
 	// Check token status and listen for updates
 	useEffect(() => {
@@ -963,7 +943,13 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		};
 
 		fetchAllowedScopes();
-	}, [credentials.clientId, credentials.environmentId, tokenStatus.isValid]);
+	}, [
+		credentials.clientId,
+		credentials.environmentId,
+		tokenStatus.isValid,
+		credentials.clientAuthMethod,
+		handleChange,
+	]);
 
 	// Determine effective flow key based on PKCE toggle - use V8U suffix for V8U flows
 	const effectiveFlowKey =
@@ -1526,7 +1512,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 			onChange(updated);
 			toastV8.success(`Applied settings from ${app.name}`);
 		},
-		[credentials, onChange, flowKey, flowOptions.requiresClientSecret]
+		[credentials, onChange, flowKey]
 	);
 
 	const handleDiscovery = useCallback(async () => {
@@ -3164,7 +3150,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 												// Update scopes immediately - allows any custom scope to be entered
 												handleChange('scopes', newValue);
 											}}
-											onBlur={(e) => {
+											onBlur={(_e) => {
 												// Optional: Only filter invalid scopes on blur (when user finishes typing)
 												// Allow all scopes to be typed freely
 											}}

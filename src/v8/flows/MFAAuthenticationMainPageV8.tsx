@@ -37,6 +37,7 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { environmentService } from '@/services/environmentService';
 import { pingOneLogoutService } from '@/services/pingOneLogoutService';
 import {
 	downloadPostmanCollectionWithEnvironment,
@@ -50,10 +51,6 @@ import { MFACooldownModalV8 } from '@/v8/components/MFACooldownModalV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { AuthenticationSectionV8 } from '@/v8/components/sections/AuthenticationSectionV8';
-import { DeviceManagementSectionV8 } from '@/v8/components/sections/DeviceManagementSectionV8';
-import { PolicySectionV8 } from '@/v8/components/sections/PolicySectionV8';
-import { WorkerTokenSectionV8 } from '@/v8/components/sections/WorkerTokenSectionV8';
 import {
 	PageHeaderGradients,
 	PageHeaderTextColors,
@@ -61,14 +58,9 @@ import {
 } from '@/v8/components/shared/PageHeaderV8';
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-// import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8'; // Removed
-import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; // NEW - Enhanced UI service
 import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
 import { useActionButton } from '@/v8/hooks/useActionButton';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
-import { useMFAAuthentication } from '@/v8/hooks/useMFAAuthentication';
-import { useMFADevices } from '@/v8/hooks/useMFADevices';
-import { useMFAPolicies } from '@/v8/hooks/useMFAPolicies';
 import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
@@ -80,9 +72,9 @@ import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
+// import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8'; // Removed
+import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; // NEW - Enhanced UI service
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { createModuleLogger } from '@/utils/consoleMigrationHelper';
-import { environmentService } from '@/services/environmentService';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import {
 	MFADeviceSelectionInfoModal,
@@ -170,7 +162,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const authContext = useAuth();
 	const [isClearingTokens, setIsClearingTokens] = useState(false);
 	const [showClearTokensModal, setShowClearTokensModal] = useState(false);
-	const [isGettingWorkerToken, setIsGettingWorkerToken] = useState(false);
+	const [_isGettingWorkerToken, _setIsGettingWorkerToken] = useState(false);
 
 	// Action button hooks for consistent button state management
 	const _startMFAAction = useActionButton();
@@ -248,10 +240,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			includeLogoutUri: false,
 			includeScopes: false,
 		});
-		
+
 		// Use global environment service as primary source, fallback to stored credentials
 		const globalEnvId = environmentService.getEnvironmentId();
-		
+
 		return {
 			environmentId: globalEnvId || stored.environmentId || '',
 			username: stored.username || '',
@@ -295,15 +287,15 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 	const showWorkerTokenModal = workerToken.showWorkerTokenModal;
 	const setShowWorkerTokenModal = workerToken.setShowWorkerTokenModal;
-	const silentApiRetrieval = workerToken.silentApiRetrieval;
+	const _silentApiRetrieval = workerToken.silentApiRetrieval;
 	const setSilentApiRetrieval = workerToken.setSilentApiRetrieval;
-	const showTokenAtEnd = workerToken.showTokenAtEnd;
+	const _showTokenAtEnd = workerToken.showTokenAtEnd;
 	const setShowTokenAtEnd = workerToken.setShowTokenAtEnd;
 
 	// MFA Policy State
 	const [deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
-	const [isLoadingPolicies, setIsLoadingPolicies] = useState(false);
-	const [policiesError, setPoliciesError] = useState<string | null>(null);
+	const [_isLoadingPolicies, setIsLoadingPolicies] = useState(false);
+	const [_policiesError, setPoliciesError] = useState<string | null>(null);
 
 	// Authentication State
 	const [authState, setAuthState] = useState<AuthenticationState>({
@@ -377,7 +369,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const [devicesError, setDevicesError] = useState<string | null>(null);
 
 	// Generate IDs
-	const policySelectId = useId();
+	const _policySelectId = useId();
 	const usernameInputId = useId();
 
 	// Ensure modal is closed on mount - only show when explicitly triggered by button
@@ -548,7 +540,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		return () => {
 			clearInterval(interval);
 		};
-	}, []);
+	}, [setTokenStatus]);
 
 	// Helper function to handle NO_USABLE_DEVICES errors
 	const handleDeviceFailureError = useCallback((error: unknown) => {
@@ -646,7 +638,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		return () => {
 			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
 		};
-	}, []);
+	}, [setShowTokenAtEnd, setSilentApiRetrieval]);
 
 	// Update token status
 	useEffect(() => {
@@ -668,7 +660,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			window.removeEventListener('storage', handleTokenUpdate);
 			clearInterval(interval);
 		};
-	}, []);
+	}, [setTokenStatus]);
 
 	// Poll Push authentication status
 	useEffect(() => {
@@ -980,7 +972,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		if (envId && tokenStatus.isValid && lastFetchedPolicyEnvIdRef.current !== envId) {
 			void loadPolicies();
 		}
-	}, [credentials.environmentId, tokenStatus.isValid]);
+	}, [credentials.environmentId, tokenStatus.isValid, loadPolicies]);
 
 	// Extract allowed device types from policy (shared function)
 	const extractAllowedDeviceTypes = useCallback(
@@ -1030,7 +1022,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	);
 
 	// Handle MFA Policy Selection
-	const handlePolicySelect = useCallback(
+	const _handlePolicySelect = useCallback(
 		async (policyId: string) => {
 			// Update credentials first
 			const updatedCredentials = {
@@ -1180,7 +1172,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		try {
 			// Get region and build authorization URL
 			const region = credentials.region || 'us';
-			const apiBase = 
+			const apiBase =
 				region === 'eu'
 					? 'https://auth.pingone.eu'
 					: region === 'ap'
@@ -1194,7 +1186,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			const params = new URLSearchParams({
 				response_type: 'code',
 				client_id: credentials.clientId,
-				redirect_uri: credentials.redirectUri || window.location.origin + '/v8/mfa/callback',
+				redirect_uri: credentials.redirectUri || `${window.location.origin}/v8/mfa/callback`,
 				scope: credentials.scopes || 'openid profile email',
 				state: `mfa-auth-${Date.now()}`,
 			});
@@ -1203,7 +1195,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			if (credentials.usePKCE) {
 				// Generate PKCE codes
 				const codeVerifier = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-					.map(b => b.toString(16).padStart(2, '0'))
+					.map((b) => b.toString(16).padStart(2, '0'))
 					.join('');
 				const encoder = new TextEncoder();
 				const data = encoder.encode(codeVerifier);
@@ -1215,7 +1207,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 				params.set('code_challenge', challenge);
 				params.set('code_challenge_method', 'S256');
-				
+
 				// Store code verifier for token exchange
 				sessionStorage.setItem('mfa_auth_code_verifier', codeVerifier);
 			}
@@ -1226,22 +1218,25 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 			// Open authorization in popup or same window
 			const authorizationUrl = `${authUrl}?${params.toString()}`;
-			
+
 			// Store current context for callback
-			sessionStorage.setItem('mfa_auth_context', JSON.stringify({
-				flowType: 'mfa-authorization',
-				timestamp: Date.now(),
-				environmentId: credentials.environmentId,
-			}));
+			sessionStorage.setItem(
+				'mfa_auth_context',
+				JSON.stringify({
+					flowType: 'mfa-authorization',
+					timestamp: Date.now(),
+					environmentId: credentials.environmentId,
+				})
+			);
 
 			toastV8.info('🔐 Opening authorization page...');
-			
+
 			// Open in same window for better UX
 			window.location.href = authorizationUrl;
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Authorization API call failed:`, error);
-			const errorMessage = error instanceof Error ? error.message : 'Failed to initiate authorization';
+			const errorMessage =
+				error instanceof Error ? error.message : 'Failed to initiate authorization';
 			setAuthorizationError(errorMessage);
 			toastV8.error(`Authorization failed: ${errorMessage}`);
 		} finally {
@@ -2538,61 +2533,61 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 									{/* Full Policy JSON - Collapsible */}
 									{selectedPolicy && (
-											<div style={{ gridColumn: '1 / -1' }}>
+										<div style={{ gridColumn: '1 / -1' }}>
+											<div
+												style={{
+													fontSize: '12px',
+													color: '#6b7280',
+													marginBottom: '8px',
+													fontWeight: '500',
+												}}
+											>
+												Full Policy JSON (Click to expand)
+											</div>
+											<details
+												style={{
+													background: '#f9fafb',
+													padding: '12px',
+													borderRadius: '6px',
+													border: '1px solid #e5e7eb',
+													marginTop: '8px',
+												}}
+											>
+												<summary
+													style={{
+														cursor: 'pointer',
+														fontSize: '12px',
+														color: '#374151',
+														fontWeight: '600',
+														listStyle: 'none',
+														userSelect: 'none',
+													}}
+												>
+													▶ Click to expand/collapse
+												</summary>
 												<div
 													style={{
-														fontSize: '12px',
-														color: '#6b7280',
-														marginBottom: '8px',
-														fontWeight: '500',
+														marginTop: '12px',
+														maxHeight: '400px',
+														overflowY: 'auto',
 													}}
 												>
-													Full Policy JSON (Click to expand)
+													<pre
+														style={{
+															margin: 0,
+															fontSize: '11px',
+															color: '#1f2937',
+															fontFamily: 'monospace',
+															whiteSpace: 'pre-wrap',
+															wordBreak: 'break-word',
+														}}
+													>
+														{JSON.stringify(selectedPolicy, null, 2)}
+													</pre>
 												</div>
-												<details
-													style={{
-														background: '#f9fafb',
-														padding: '12px',
-														borderRadius: '6px',
-														border: '1px solid #e5e7eb',
-														marginTop: '8px',
-													}}
-												>
-													<summary
-														style={{
-															cursor: 'pointer',
-															fontSize: '12px',
-															color: '#374151',
-															fontWeight: '600',
-															listStyle: 'none',
-															userSelect: 'none',
-														}}
-													>
-														▶ Click to expand/collapse
-													</summary>
-													<div
-														style={{
-															marginTop: '12px',
-															maxHeight: '400px',
-															overflowY: 'auto',
-														}}
-													>
-														<pre
-															style={{
-																margin: 0,
-																fontSize: '11px',
-																color: '#1f2937',
-																fontFamily: 'monospace',
-																whiteSpace: 'pre-wrap',
-																wordBreak: 'break-word',
-															}}
-														>
-															{JSON.stringify(selectedPolicy, null, 2)}
-														</pre>
-													</div>
-												</details>
-											</div>
-										)}
+											</details>
+										</div>
+									)}
 								</div>
 							</div>
 						);
@@ -3575,7 +3570,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
 						<FiAlertCircle style={{ color: '#ef4444', marginTop: '2px', flexShrink: 0 }} />
 						<div style={{ flex: 1 }}>
-							<h4 style={{ margin: '0 0 8px 0', color: '#dc2626', fontSize: '16px', fontWeight: '600' }}>
+							<h4
+								style={{
+									margin: '0 0 8px 0',
+									color: '#dc2626',
+									fontSize: '16px',
+									fontWeight: '600',
+								}}
+							>
 								Authorization API Error
 							</h4>
 							<p style={{ margin: '0', color: '#7f1d1d', fontSize: '14px', lineHeight: '1.5' }}>

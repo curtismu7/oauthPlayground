@@ -34,7 +34,6 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { useResponseModeIntegration } from '../../services/responseModeIntegrationService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
@@ -157,7 +156,7 @@ const StepContent = styled.div`
 // [REMOVED] Unused CollapsibleSection - migrated to CollapsibleHeader service
 // [REMOVED] Local collapsible styled component
 
-const CollapsibleTitle = styled.h3`
+const _CollapsibleTitle = styled.h3`
 	font-size: 1rem;
 	font-weight: 600;
 	color: #374151;
@@ -660,7 +659,7 @@ const RedirectlessFlowV5: React.FC = () => {
 		v4ToastManager.showSuccess('Flow reset successfully!');
 	}, [controller]);
 
-	const renderFlowSummary = useCallback(() => {
+	const _renderFlowSummary = useCallback(() => {
 		const completionConfig = {
 			...FlowCompletionConfigs.authorizationCode,
 			onStartNewFlow: () => {
@@ -1420,8 +1419,6 @@ const RedirectlessFlowV5: React.FC = () => {
 		}
 	}, [
 		currentStep,
-		collapsedSections,
-		toggleSection,
 		controller,
 		handleCopy,
 		handleGeneratePkce,

@@ -21,10 +21,7 @@ import {
 	generateComprehensiveUnifiedPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
-import {
-	ApiDisplayCheckbox,
-	SuperSimpleApiDisplayV8,
-} from '@/v8/components/SuperSimpleApiDisplayV8';
+import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import {
 	PageHeaderGradients,
 	PageHeaderTextColors,
@@ -34,6 +31,7 @@ import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplay
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import {
 	type SharedCredentials,
 	SharedCredentialsServiceV8,
@@ -46,7 +44,6 @@ import {
 } from '@/v8/services/specVersionServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
@@ -55,12 +52,7 @@ import CredentialsFormV8U from '../components/CredentialsFormV8U';
 import { FlowGuidanceSystem } from '../components/FlowGuidanceSystem';
 // FlowNotAvailableModal removed - dropdown already filters flows by spec version
 import { FlowTypeSelector } from '../components/FlowTypeSelector';
-import {
-	MobileResponsiveWrapper,
-	ResponsiveCard,
-	ResponsiveGrid,
-	ResponsiveSpacer,
-} from '../components/MobileResponsiveWrapper';
+import { MobileResponsiveWrapper } from '../components/MobileResponsiveWrapper';
 import { SecurityScorecard } from '../components/SecurityScorecard';
 import { SpecVersionSelector } from '../components/SpecVersionSelector';
 import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
@@ -71,7 +63,7 @@ import {
 	UnifiedFlowIntegrationV8U,
 } from '../services/unifiedFlowIntegrationV8U';
 
-const MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
+const _MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
 
 /**
  * Safe analytics helper - prevents connection errors when analytics server is unavailable
@@ -87,7 +79,7 @@ const safeLogAnalytics = async (
 	try {
 		const { log } = await import('@/v8/utils/analyticsHelperV8');
 		await log(location, message, data, sessionId, runId, hypothesisId);
-	} catch (error) {
+	} catch (_error) {
 		// Silently fail - analytics not available
 	}
 };
@@ -190,13 +182,13 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					'hybrid-redirect',
 					'STEP_PARSING'
 				);
-			} catch (error) {
+			} catch (_error) {
 				// Silently fail - analytics not available
 			}
 		})();
 		// #endregion
 		return 0;
-	}, [urlStep, location.pathname]);
+	}, [urlStep, location.pathname, urlFlowType]);
 
 	/**
 	 * Flow type state - determines which OAuth flow is currently active
@@ -450,7 +442,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			// URL doesn't have a flow type - mark current flow as synced to prevent loops
 			lastSyncedUrlFlowTypeRef.current = flowType;
 		}
-	}, [urlFlowType, flowType, specVersion, currentStep, location.pathname]);
+	}, [urlFlowType, flowType, specVersion, location.pathname]);
 
 	/**
 	 * Load spec version when flow type changes and update last used timestamp
@@ -528,7 +520,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		});
 		// CRITICAL: Only depend on flowType, NOT specVersion to avoid loops
 		// Intentionally omitting specVersion from dependencies to prevent loops
-	}, [flowType]);
+	}, [flowType, specVersion]);
 
 	// Credentials section collapsed state - collapsed by default after step 0
 	const [isCredentialsCollapsed, setIsCredentialsCollapsed] = useState(() => {
@@ -607,7 +599,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			// #endregion
 			navigateToStep(0, flowType);
 		}
-	}, [location.pathname, navigateToStep, flowType, currentStep]);
+	}, [location.pathname, navigateToStep, flowType]);
 
 	/**
 	 * Generate storage key that includes specVersion + flowType
@@ -861,7 +853,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			fallback,
 		});
 		return fallback;
-	}, [flowType, availableFlows, specVersion]);
+	}, [flowType, availableFlows]);
 
 	// Calculate current flow key (specVersion + flowType) - MUST be after effectiveFlowType is defined
 	const flowKey = useMemo(() => {
@@ -1008,7 +1000,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					flowKey,
 					config
 				).catch((err) => {
-					logger.warn(`Error loading flow-specific credentials with backup (using sync result)`,
+					logger.warn(
+						`Error loading flow-specific credentials with backup (using sync result)`,
 						err
 					);
 					return flowSpecificSync; // Use sync result as fallback
@@ -1020,9 +1013,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 				const shared: SharedCredentials =
 					await SharedCredentialsServiceV8.loadSharedCredentials().catch((err) => {
-						logger.warn(`Error loading shared credentials async (using sync result)`,
-							err
-						);
+						logger.warn(`Error loading shared credentials async (using sync result)`, err);
 						return sharedSync; // Use sync result as fallback
 					});
 
@@ -1201,12 +1192,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					}
 				});
 			} catch (err) {
-				logger.error(`❌ Error loading credentials (will preserve existing state):`,
-					err
-				);
-				logger.error(`Error stack:`,
-					err instanceof Error ? err.stack : 'No stack trace'
-				);
+				logger.error(`❌ Error loading credentials (will preserve existing state):`, err);
+				logger.error(`Error stack:`, err instanceof Error ? err.stack : 'No stack trace');
 				// Don't clear credentials on error - preserve what we have
 			} finally {
 				// Clear loading flag after load completes (use setTimeout to ensure state updates have flushed)
@@ -2322,8 +2309,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 												usePKCE: true,
 											};
 											handleCredentialsChange(updatedCredentials);
-											logger.debug(`Auto-enabled PKCE for ${appType} application type`
-											);
+											logger.debug(`Auto-enabled PKCE for ${appType} application type`);
 										}
 									} else {
 										logger.debug(`Suggested flow not available for spec`, {
@@ -2408,11 +2394,20 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				{!isWorkerTokenStatusCollapsed && (
 					<div style={{ padding: '20px' }}>
 						{/* Get Worker Token Button & Checkboxes */}
-						<div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+						<div
+							style={{
+								marginBottom: '20px',
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '16px',
+							}}
+						>
 							<button
 								type="button"
 								onClick={async () => {
-									const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+									const { handleShowWorkerTokenModal } = await import(
+										'@/v8/utils/workerTokenModalHelperV8'
+									);
 									await handleShowWorkerTokenModal(
 										() => {}, // setShowModal - not needed here
 										undefined, // setTokenStatus - not needed here
@@ -2451,7 +2446,14 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							</button>
 
 							{/* Worker Token Settings */}
-							<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingLeft: '4px' }}>
+							<div
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '12px',
+									paddingLeft: '4px',
+								}}
+							>
 								<label
 									style={{
 										display: 'flex',
@@ -2470,7 +2472,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 											const config = MFAConfigurationServiceV8.loadConfiguration();
 											config.workerToken.silentApiRetrieval = e.target.checked;
 											MFAConfigurationServiceV8.saveConfiguration(config);
-											setWorkerTokenConfig(prev => ({ ...prev, silentApiRetrieval: e.target.checked }));
+											setWorkerTokenConfig((prev) => ({
+												...prev,
+												silentApiRetrieval: e.target.checked,
+											}));
 											window.dispatchEvent(new Event('mfaConfigurationUpdated'));
 										}}
 										style={{
@@ -2502,7 +2507,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 											const config = MFAConfigurationServiceV8.loadConfiguration();
 											config.workerToken.showTokenAtEnd = e.target.checked;
 											MFAConfigurationServiceV8.saveConfiguration(config);
-											setWorkerTokenConfig(prev => ({ ...prev, showTokenAtEnd: e.target.checked }));
+											setWorkerTokenConfig((prev) => ({
+												...prev,
+												showTokenAtEnd: e.target.checked,
+											}));
 											window.dispatchEvent(new Event('mfaConfigurationUpdated'));
 										}}
 										style={{
@@ -2533,7 +2541,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					appConfig={appConfig ?? undefined}
 					onFlowReset={() => {
 						// Flow reset - preserve credentials, spec version, and flow type
-						logger.debug(`🔄 Flow reset detected - preserving credentials, spec version, and flow type`,
+						logger.debug(
+							`🔄 Flow reset detected - preserving credentials, spec version, and flow type`,
 							{
 								specVersion,
 								flowType: effectiveFlowType,
@@ -2563,12 +2572,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 						// Spec version and flow type are already preserved in React state
 						// No need to do anything - they will remain as-is
-						logger.debug(`✅ Flow reset complete - spec version and flow type preserved`,
-							{
-								specVersion,
-								flowType: effectiveFlowType,
-							}
-						);
+						logger.debug(`✅ Flow reset complete - spec version and flow type preserved`, {
+							specVersion,
+							flowType: effectiveFlowType,
+						});
 					}}
 				/>
 			)}

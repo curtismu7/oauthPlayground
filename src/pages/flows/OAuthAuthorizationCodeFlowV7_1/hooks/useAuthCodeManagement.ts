@@ -114,7 +114,7 @@ export const useAuthCodeManagement = () => {
 		const detectedCode = detectAuthCode();
 		if (detectedCode) {
 			console.log('🔍 Auth code detected:', {
-				code: detectedCode.substring(0, 20) + '...',
+				code: `${detectedCode.substring(0, 20)}...`,
 				source: authCodeSource,
 				timestamp: new Date(authCodeTimestamp).toISOString(),
 			});

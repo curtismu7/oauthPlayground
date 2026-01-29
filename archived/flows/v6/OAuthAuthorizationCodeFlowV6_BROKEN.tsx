@@ -654,7 +654,7 @@ const EmptyText = styled.p`
 	margin-bottom: 1rem;
 `;
 
-const VariantToggleContainer = styled.div`
+const _VariantToggleContainer = styled.div`
 	display: inline-flex;
 	border-radius: 9999px;
 	border: 1px solid #d1d5db;
@@ -663,7 +663,7 @@ const VariantToggleContainer = styled.div`
 	margin: 1.5rem 0;
 `;
 
-const VariantToggleButton = styled.button<{ $active: boolean }>`
+const _VariantToggleButton = styled.button<{ $active: boolean }>`
 	appearance: none;
 	border: none;
 	padding: 0.65rem 1.4rem;
@@ -702,15 +702,15 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		AuthorizationCodeSharedService.StepRestoration.getInitialStep()
 	);
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
-	const [emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
+	const [_emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
 	const [collapsedSections, setCollapsedSections] = useState(
 		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState()
 	);
-	const [showRedirectModal, setShowRedirectModal] = useState(false);
+	const [_showRedirectModal, setShowRedirectModal] = useState(false);
 	const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
-	const [copiedField, setCopiedField] = useState<string | null>(null);
-	const [flowVariant, setFlowVariant] = useState<'oauth' | 'oidc'>(controller.flowVariant);
+	const [_copiedField, setCopiedField] = useState<string | null>(null);
+	const [_flowVariant, setFlowVariant] = useState<'oauth' | 'oidc'>(controller.flowVariant);
 
 	useEffect(() => {
 		setFlowVariant(controller.flowVariant);
@@ -727,7 +727,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		return base.join(' ');
 	}, []);
 
-	const handleFlowVariantChange = useCallback(
+	const _handleFlowVariantChange = useCallback(
 		(nextVariant: 'oauth' | 'oidc') => {
 			setFlowVariant(nextVariant);
 			controller.setFlowVariant(nextVariant);
@@ -789,7 +789,8 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				prompt: promptValues.join(' ')
 			});
 		}
-	}, [audience, promptValues]);
+	}, [audience, promptValues, controller.flowConfig, // Note: Resources are not sent for PingOne flows as they're not reliably supported
+			controller.setFlowConfig]);
 
 	// Save advanced parameters
 	const handleSaveAdvancedParams = useCallback(async () => {
@@ -843,7 +844,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	// Scroll to top on step change
 	useEffect(() => {
 		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange();
-	}, [currentStep]);
+	}, []);
 
 	// Enforce correct response_type for OAuth (should be 'code')
 	useEffect(() => {
@@ -884,7 +885,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				console.warn('[AuthorizationCodeFlowV5] Failed to parse stored PingOne config:', error);
 			}
 		}
-	}, []); // Only run once on mount
+	}, [controller.credentials, controller.setCredentials]); // Only run once on mount
 
 	// Debug: Always log the current authorization code state
 	console.log('🔍 [AuthorizationCodeFlowV5] Current controller.authCode:', {
@@ -1013,7 +1014,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	// 	return getFlowSequence('authorization-code');
 	// }, []);
 
-	const stepCompletions = useMemo<StepCompletionState>(
+	const _stepCompletions = useMemo<StepCompletionState>(
 		() => ({
 			0: controller.hasStepResult('setup-credentials') || controller.hasCredentialsSaved,
 			1: controller.hasStepResult('generate-pkce') || Boolean(controller.pkceCodes.codeVerifier),
@@ -1138,7 +1139,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		[controller]
 	);
 
-	const handleGeneratePkce = useCallback(async () => {
+	const _handleGeneratePkce = useCallback(async () => {
 		console.log('[OAuth AuthZ V6] Generating PKCE codes...', {
 			clientId: controller.credentials.clientId,
 			environmentId: controller.credentials.environmentId,
@@ -1329,14 +1330,14 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		}
 	}, [controller]);
 
-	const handleCopy = useCallback((text: string, label: string) => {
+	const _handleCopy = useCallback((text: string, label: string) => {
 		v4ToastManager.handleCopyOperation(text, label);
 		setCopiedField(label);
 		setTimeout(() => setCopiedField(null), 1000);
 	}, []);
 
 	// Extract x5t parameter from JWT header
-	const getX5tParameter = useCallback((token: string) => {
+	const _getX5tParameter = useCallback((token: string) => {
 		try {
 			const header = decodeJWTHeader(token);
 			return header.x5t || header['x5t#S256'] || null;
@@ -1371,7 +1372,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		window.open('/token-management', '_blank');
 	}, [controller.tokens, controller.credentials, currentStep]);
 
-	const navigateToTokenManagementWithRefreshToken = useCallback(() => {
+	const _navigateToTokenManagementWithRefreshToken = useCallback(() => {
 		AuthorizationCodeSharedService.TokenManagement.navigateToTokenManagement(
 			'oauth',
 			controller.tokens,
@@ -1486,16 +1487,16 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			}
 		},
 		[
-			controller.pkceCodes,
-			controller.authUrl,
-			controller.authCode,
-			localAuthCode,
-			controller.tokens,
+			controller.pkceCodes, 
+			controller.authUrl, 
+			controller.authCode, 
+			localAuthCode, 
+			controller.tokens, controller.persistKey
 		]
 	);
 
 	// Get step completion requirements for user guidance
-	const getStepRequirements = useCallback((stepIndex: number): string[] => {
+	const _getStepRequirements = useCallback((stepIndex: number): string[] => {
 		switch (stepIndex) {
 			case 0: // Step 0: Introduction & Setup
 				return ['Review the flow overview and setup credentials'];
@@ -1549,17 +1550,17 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			}
 		);
 	}, [
-		currentStep,
-		canNavigateNext,
-		isStepValid,
-		controller.pkceCodes,
-		controller.authUrl,
-		controller.authCode,
-		localAuthCode,
-		controller.credentials,
+		currentStep, 
+		canNavigateNext, 
+		isStepValid, 
+		controller.pkceCodes, 
+		controller.authUrl, 
+		controller.authCode, 
+		localAuthCode, 
+		controller.credentials, controller
 	]);
 
-	const handlePrev = useCallback(() => {
+	const _handlePrev = useCallback(() => {
 		if (currentStep <= 0) {
 			return;
 		}
@@ -1580,7 +1581,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	}, [canNavigateNext, handleNext]);
 
 	// Determine if tokens should be displayed (only show if they were exchanged for the current auth code)
-	const shouldDisplayTokens = useMemo(() => {
+	const _shouldDisplayTokens = useMemo(() => {
 		// Don't show tokens if we don't have any
 		if (!controller.tokens?.access_token) {
 			return false;
@@ -1598,11 +1599,11 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		return true;
 	}, [controller.tokens, controller.authCode, localAuthCode, controller.hasStepResult]);
 
-	const renderStepContent = useMemo(() => {
-		const credentials = controller.credentials;
-		const authCode = controller.authCode;
-		const userInfo = controller.userInfo;
-		const isFetchingUserInfo = controller.isFetchingUserInfo;
+	const _renderStepContent = useMemo(() => {
+		let credentials = controller.credentials;
+		const _authCode = controller.authCode;
+		const _userInfo = controller.userInfo;
+		const _isFetchingUserInfo = controller.isFetchingUserInfo;
 
 		switch (currentStep) {
 			case 0:

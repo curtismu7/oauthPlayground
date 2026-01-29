@@ -740,10 +740,10 @@ export class CredentialsServiceV8 {
 	/**
 	 * Sanitize credentials for logging (removes secrets)
 	 * Safe to log without exposing sensitive data
-	 * 
+	 *
 	 * @param credentials - Credentials to sanitize
 	 * @returns Sanitized object safe for logging
-	 * 
+	 *
 	 * @example
 	 * const sanitized = CredentialsServiceV8.sanitizeForLogging(credentials);
 	 * console.log('Credentials:', sanitized);
@@ -776,12 +776,12 @@ export class CredentialsServiceV8 {
 	/**
 	 * Compare two credential objects to detect changes
 	 * Useful for determining if save is needed
-	 * 
+	 *
 	 * @param oldCreds - Previous credentials
 	 * @param newCreds - New credentials
 	 * @param ignoreFields - Fields to ignore in comparison (e.g., timestamps)
 	 * @returns True if credentials have changed
-	 * 
+	 *
 	 * @example
 	 * if (CredentialsServiceV8.hasCredentialsChanged(oldCreds, newCreds)) {
 	 *   // Save is needed
@@ -844,10 +844,10 @@ export class CredentialsServiceV8 {
 	/**
 	 * Get a human-readable summary of credentials
 	 * Useful for debugging and status displays
-	 * 
+	 *
 	 * @param credentials - Credentials to summarize
 	 * @returns Human-readable summary
-	 * 
+	 *
 	 * @example
 	 * const summary = CredentialsServiceV8.getCredentialsSummary(credentials);
 	 * console.log(summary);

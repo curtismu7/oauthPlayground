@@ -193,7 +193,7 @@
             }
         }
 
-        async function runAllTests() {
+        async function _runAllTests() {
             // Clear previous results
             document.getElementById('test-results').innerHTML = '';
             
@@ -223,7 +223,7 @@
             );
         }
 
-        function clearTestData() {
+        function _clearTestData() {
             // Clear localStorage test data
             const keysToRemove = [
                 'pingone_permanent_credentials',

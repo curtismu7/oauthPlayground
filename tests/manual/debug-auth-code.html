@@ -177,13 +177,13 @@
             log(`URL Analysis: ${JSON.stringify(analysis)}`);
         }
 
-        function generateTestCode() {
+        function _generateTestCode() {
             const testCode = `test-auth-code-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             document.getElementById('testCode').value = testCode;
             log(`Generated test code: ${testCode}`);
         }
 
-        function simulateAuthCode() {
+        function _simulateAuthCode() {
             const testCode = document.getElementById('testCode').value || `test-auth-code-${Date.now()}`;
             const currentUrl = new URL(window.location);
             currentUrl.searchParams.set('code', testCode);
@@ -194,7 +194,7 @@
             analyzeUrl();
         }
 
-        function clearUrl() {
+        function _clearUrl() {
             const currentUrl = new URL(window.location);
             currentUrl.search = '';
             currentUrl.hash = '';
@@ -204,13 +204,13 @@
             analyzeUrl();
         }
 
-        function saveToLocalStorage() {
+        function _saveToLocalStorage() {
             const testCode = document.getElementById('testCode').value || `test-auth-code-${Date.now()}`;
             localStorage.setItem('oauth-v4-auth-code', testCode);
             log(`Saved to localStorage: ${testCode}`);
         }
 
-        function loadFromLocalStorage() {
+        function _loadFromLocalStorage() {
             const savedCode = localStorage.getItem('oauth-v4-auth-code');
             if (savedCode) {
                 document.getElementById('testCode').value = savedCode;
@@ -220,25 +220,25 @@
             }
         }
 
-        function clearLocalStorage() {
+        function _clearLocalStorage() {
             localStorage.removeItem('oauth-v4-auth-code');
             localStorage.removeItem('oauth-v4-test-config');
             log('Cleared localStorage');
         }
 
-        function openV4Flow() {
+        function _openV4Flow() {
             window.open('/flows/authorization-code-v4', '_blank');
             log('Opened V4 Flow in new tab');
         }
 
-        function openV4WithCode() {
+        function _openV4WithCode() {
             const testCode = document.getElementById('testCode').value || `test-auth-code-${Date.now()}`;
             const url = `/flows/authorization-code-v4?code=${encodeURIComponent(testCode)}&state=test-state`;
             window.open(url, '_blank');
             log(`Opened V4 Flow with auth code: ${testCode}`);
         }
 
-        function testUrlMonitoring() {
+        function _testUrlMonitoring() {
             log('Starting URL monitoring test...');
             
             // Monitor URL changes
@@ -260,7 +260,7 @@
             log('URL monitoring started (will stop in 30 seconds)');
         }
 
-        function clearLog() {
+        function _clearLog() {
             logEntries = [];
             document.getElementById('debugLog').textContent = 'Debug log cleared...';
         }

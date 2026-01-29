@@ -186,7 +186,7 @@ const InfoText = styled.p`
 	line-height: 1.5;
 `;
 
-const InfoList = styled.ul`
+const _InfoList = styled.ul`
 	font-size: 0.875rem;
 	color: #334155;
 	margin: 0;
@@ -343,7 +343,7 @@ const PingOneMFAFlowV5: React.FC = () => {
 	const [selectedMfaMethod, setSelectedMfaMethod] = useState('sms');
 	const [mfaVerified, setMfaVerified] = useState(false);
 	const [tokens, setTokens] = useState<any>(null);
-	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
+	const [_collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
 		overview: false,
 		credentials: false,
 		results: false,
@@ -405,8 +405,8 @@ const PingOneMFAFlowV5: React.FC = () => {
 	const handleTokenExchange = () => {
 		setTimeout(() => {
 			setTokens({
-				access_token: 'access_token_' + Date.now(),
-				id_token: 'id_token_' + Date.now(),
+				access_token: `access_token_${Date.now()}`,
+				id_token: `id_token_${Date.now()}`,
 				token_type: 'Bearer',
 				expires_in: 3600,
 				mfa_verified: true,
@@ -416,7 +416,7 @@ const PingOneMFAFlowV5: React.FC = () => {
 		}, 1000);
 	};
 
-	const toggleSection = (sectionKey: IntroSectionKey) => {
+	const _toggleSection = (sectionKey: IntroSectionKey) => {
 		setCollapsedSections((prev) => ({
 			...prev,
 			[sectionKey]: !prev[sectionKey],

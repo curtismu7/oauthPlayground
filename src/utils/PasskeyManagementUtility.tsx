@@ -95,7 +95,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 		if (environmentId && userId && workerToken) {
 			loadDevices();
 		}
-	}, [environmentId, userId, workerToken]);
+	}, [environmentId, userId, workerToken, loadDevices]);
 
 	const copyToClipboard = async (text: string, fieldName: string) => {
 		try {
@@ -144,7 +144,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 				});
 
 				console.log('✅ Successfully signaled Chrome to remove passkey', {
-					credentialId: credentialId.substring(0, 20) + '...',
+					credentialId: `${credentialId.substring(0, 20)}...`,
 					rpId,
 				});
 			} catch (signalError) {

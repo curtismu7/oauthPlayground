@@ -129,7 +129,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 			// Try to decode ID token first
 			if (sessionInfo.idToken) {
 				const decoded = decodeJWT(sessionInfo.idToken);
-				if (decoded && decoded.sub && typeof decoded.sub === 'string') {
+				if (decoded?.sub && typeof decoded.sub === 'string') {
 					setUserInfo(decoded as UserInfo);
 					setIsLoadingUserInfo(false);
 					return;

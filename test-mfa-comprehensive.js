@@ -5,7 +5,7 @@
  * Tests all MFA functionality end-to-end
  */
 
-import http from 'http';
+import http from 'node:http';
 
 // Test configuration - using test values since we don't have real PingOne access
 const TEST_CONFIG = {
@@ -46,7 +46,7 @@ function makeRequest(path, method = 'POST', data = null) {
 				try {
 					const parsed = body ? JSON.parse(body) : {};
 					resolve({ status: res.statusCode, data: parsed });
-				} catch (e) {
+				} catch (_e) {
 					resolve({ status: res.statusCode, data: body });
 				}
 			});

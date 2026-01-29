@@ -6,12 +6,12 @@ import { presetManagerService } from '../services/presetManagerService';
 export function testPresetFunctionality() {
 	try {
 		// Test 1: Load built-in presets
-		const builtInPresets = presetManagerService.getBuiltInPresets();
+		const _builtInPresets = presetManagerService.getBuiltInPresets();
 
 		// Test 2: Test preset filtering by app type
-		const webAppPresets = presetManagerService.getPresetsByAppType('OIDC_WEB_APP');
-		const workerPresets = presetManagerService.getPresetsByAppType('WORKER');
-		const spaPresets = presetManagerService.getPresetsByAppType('SINGLE_PAGE_APP');
+		const _webAppPresets = presetManagerService.getPresetsByAppType('OIDC_WEB_APP');
+		const _workerPresets = presetManagerService.getPresetsByAppType('WORKER');
+		const _spaPresets = presetManagerService.getPresetsByAppType('SINGLE_PAGE_APP');
 
 		// Test 3: Test preset application - Worker App
 		const workerPreset = presetManagerService.getPresetById('worker-app-basic');

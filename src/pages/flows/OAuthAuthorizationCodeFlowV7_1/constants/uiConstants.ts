@@ -86,17 +86,6 @@ export const UI_CONSTANTS = {
 		GREEN_600: '#16a34a',
 	},
 
-	// Animation constants
-	ANIMATION: {
-		DURATION_FAST: '0.15s',
-		DURATION_NORMAL: '0.2s',
-		DURATION_SLOW: '0.3s',
-		EASING_EASE: 'ease',
-		EASING_EASE_IN_OUT: 'ease-in-out',
-		TRANSFORM_SCALE_HOVER: 'scale(1.05)',
-		TRANSFORM_SCALE_ACTIVE: 'scale(0.95)',
-	},
-
 	// Variant selector constants
 	VARIANT_SELECTOR: {
 		BACKGROUND: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
@@ -245,6 +234,8 @@ export const UI_CONSTANTS = {
 		INFO_BACKGROUND: '#eff6ff',
 		INFO_BORDER: '#bfdbfe',
 	},
+
+	// Animation constants
 
 	// Animation constants
 	ANIMATION: {

@@ -23,10 +23,9 @@
 
 import React from 'react';
 import { StepNavigationV8Props } from '@/v8/types/stepNavigation';
-import StepProgressBarV8U from './StepProgressBarV8U';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
-const MODULE_TAG = '[🧭 STEP-NAVIGATION-V8U]';
+const _MODULE_TAG = '[🧭 STEP-NAVIGATION-V8U]';
 
 /**
  * StepNavigationV8U Component
@@ -97,13 +96,11 @@ export const StepNavigationV8U: React.FC<StepNavigationV8Props> = ({
 
 				/* Mobile responsive */
 				@media (max-width: 600px) {
-					.step-number {
+					.step-number 
 						font-size: 11px;
-					}
 
-					.step-label {
+					.step-label 
 						font-size: 16px;
-					}
 				}
 			`}</style>
 		</div>

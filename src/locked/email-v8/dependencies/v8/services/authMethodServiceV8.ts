@@ -13,7 +13,7 @@
  * - none (Public clients)
  */
 
-const MODULE_TAG = '[🔐 AUTH-METHOD-SERVICE-V8]';
+const _MODULE_TAG = '[🔐 AUTH-METHOD-SERVICE-V8]';
 
 export type AuthMethodV8 =
 	| 'none'

@@ -16,11 +16,11 @@ import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 	FiUnlock,
 	FiZap,
 } from 'react-icons/fi';
+
 import styled from 'styled-components';
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';
 import {
 	type SecurityScan,
-	type SecurityThreat,
 	securityService,
 } from '../services/securityService';
 
@@ -377,7 +377,7 @@ export const SecurityDashboardPage: React.FC = () => {
 		return new Date(timestamp).toLocaleString();
 	};
 
-	const getSeverityColor = (severity: string) => {
+	const _getSeverityColor = (severity: string) => {
 		switch (severity) {
 			case 'critical':
 				return '#dc2626';

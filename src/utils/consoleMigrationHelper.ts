@@ -6,12 +6,12 @@
  * @since 2025-01-27
  */
 
-import { logger, LogLevel } from '@/services/loggingService';
+import { LogLevel, logger } from '@/services/loggingService';
 
 /**
  * Mapping of console methods to logging service methods
  */
-const consoleMapping = {
+const _consoleMapping = {
 	log: { level: LogLevel.INFO, method: logger.info.bind(logger) },
 	info: { level: LogLevel.INFO, method: logger.info.bind(logger) },
 	warn: { level: LogLevel.WARN, method: logger.warn.bind(logger) },
@@ -35,7 +35,7 @@ function extractModuleName(filePath: string): string {
  */
 export function createModuleLogger(filePath: string) {
 	const moduleName = extractModuleName(filePath);
-	
+
 	return {
 		error: (message: string, data?: any) => logger.error(moduleName, message, data),
 		warn: (message: string, data?: any) => logger.warn(moduleName, message, data),
@@ -53,13 +53,13 @@ export const consoleReplacements = {
 	'console.error(`': 'logger.error(',
 	'console.warn(': 'logger.warn(',
 	'console.warn(`': 'logger.warn(',
-	
+
 	// Info logging
 	'console.log(': 'logger.info(',
 	'console.log(`': 'logger.info(',
 	'console.info(': 'logger.info(',
 	'console.info(`': 'logger.info(',
-	
+
 	// Debug logging
 	'console.debug(': 'logger.debug(',
 	'console.debug(`': 'logger.debug(',
@@ -75,13 +75,13 @@ export function generateReplacements(moduleName: string) {
 		'console.error(`': `logger.error('${moduleName}', `,
 		'console.warn(': `logger.warn('${moduleName}', `,
 		'console.warn(`': `logger.warn('${moduleName}', `,
-		
+
 		// Info patterns
 		'console.log(': `logger.info('${moduleName}', `,
 		'console.log(`': `logger.info('${moduleName}', `,
 		'console.info(': `logger.info('${moduleName}', `,
 		'console.info(`': `logger.info('${moduleName}', `,
-		
+
 		// Debug patterns
 		'console.debug(': `logger.debug('${moduleName}', `,
 		'console.debug(`': `logger.debug('${moduleName}', `,
@@ -105,13 +105,13 @@ export function replaceConsoleStatements(code: string, moduleName: string): stri
 
 /**
  * Example usage:
- * 
+ *
  * Before:
  * console.log('User logged in', { userId: 123 });
- * 
+ *
  * After:
  * logger.info('AuthContext', 'User logged in', { userId: 123 });
- * 
+ *
  * Or with module logger:
  * const log = createModuleLogger('src/contexts/AuthContext.tsx');
  * log.info('User logged in', { userId: 123 });

@@ -1,7 +1,7 @@
 // Device polling component for OIDC Device Code flow
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiClock, FiLoader, FiXCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiClock, FiLoader, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
 import { DeviceCodeTokens } from '../../types/deviceCode';
 import { pollTokenEndpoint } from '../../utils/deviceCode';
@@ -195,7 +195,7 @@ const DevicePolling: React.FC<DevicePollingProps> = ({
 	const [progress, setProgress] = useState(0);
 	const [startTime] = useState(Date.now());
 	const [errorMessage, setErrorMessage] = useState<string>('');
-	const [tokens, setTokens] = useState<DeviceCodeTokens | null>(null);
+	const [_tokens, setTokens] = useState<DeviceCodeTokens | null>(null);
 
 	const pollFn = useCallback(async () => {
 		return await pollTokenEndpoint(tokenEndpoint, deviceCode, clientId, interval);
@@ -264,7 +264,7 @@ const DevicePolling: React.FC<DevicePollingProps> = ({
 		return () => {
 			poller.stop();
 		};
-	}, [pollFn, options, onSuccess, onError, onProgress]);
+	}, [pollFn, onSuccess, onError, onProgress, interval]);
 
 	const getStatusIcon = () => {
 		switch (pollingStatus) {

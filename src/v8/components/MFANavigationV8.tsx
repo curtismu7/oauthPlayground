@@ -116,7 +116,8 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 							background: currentPage === 'management' ? '#10b981' : '#f3f4f6',
 							color: currentPage === 'management' ? 'white' : '#1f2937',
 							border: '2px solid #10b981',
-							boxShadow: currentPage === 'management' ? '0 0 0 3px rgba(16, 185, 129, 0.3)' : 'none',
+							boxShadow:
+								currentPage === 'management' ? '0 0 0 3px rgba(16, 185, 129, 0.3)' : 'none',
 						}}
 					>
 						🔧 Device Management

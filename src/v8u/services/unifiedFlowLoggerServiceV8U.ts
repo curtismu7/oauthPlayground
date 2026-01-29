@@ -325,5 +325,7 @@ export const logger = UnifiedFlowLoggerService;
 
 // Make available globally for debugging
 if (typeof window !== 'undefined') {
-	(window as { UnifiedFlowLoggerService?: typeof UnifiedFlowLoggerService }).UnifiedFlowLoggerService = UnifiedFlowLoggerService;
+	(
+		window as { UnifiedFlowLoggerService?: typeof UnifiedFlowLoggerService }
+	).UnifiedFlowLoggerService = UnifiedFlowLoggerService;
 }

@@ -106,7 +106,7 @@ test.describe('Navigation and UI', () => {
 	});
 
 	test('Responsive sidebar behavior', async ({ page }) => {
-		const sidebar = new SidebarPage(page);
+		const _sidebar = new SidebarPage(page);
 
 		await page.goto('/');
 
