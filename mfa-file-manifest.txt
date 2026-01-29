@@ -1,0 +1,41 @@
+# MFA Consolidation - File Manifest
+# Created: 2026-01-29
+# Purpose: Record of all MFA files BEFORE consolidation begins
+# Backup Branch: backup/pre-mfa-consolidation
+
+## Configuration Pages (6 files)
+src/v8/flows/types/EmailOTPConfigurationPageV8.tsx
+src/v8/flows/types/FIDO2ConfigurationPageV8.tsx
+src/v8/flows/types/MobileOTPConfigurationPageV8.tsx
+src/v8/flows/types/SMSOTPConfigurationPageV8.tsx
+src/v8/flows/types/TOTPConfigurationPageV8.tsx
+src/v8/flows/types/WhatsAppOTPConfigurationPageV8.tsx
+
+## Device Flow Pages (6 files)
+src/v8/flows/types/EmailFlowV8.tsx
+src/v8/flows/types/FIDO2FlowV8.tsx
+src/v8/flows/types/MobileFlowV8.tsx
+src/v8/flows/types/SMSFlowV8.tsx
+src/v8/flows/types/TOTPFlowV8.tsx
+src/v8/flows/types/WhatsAppFlowV8.tsx
+
+## Documentation Pages (5 files)
+src/v8/pages/EmailRegistrationDocsPageV8.tsx
+src/v8/pages/FIDO2RegistrationDocsPageV8.tsx
+src/v8/pages/MobileRegistrationDocsPageV8.tsx
+src/v8/pages/SMSRegistrationDocsPageV8.tsx
+src/v8/pages/WhatsAppRegistrationDocsPageV8.tsx
+
+## Total Files to be Consolidated: 17
+
+## File Statistics (lines of code)
+Configuration Pages: ~7,766 lines
+Device Flow Pages: ~18,977 lines
+Documentation Pages: ~448 lines
+TOTAL: ~27,191 lines of code
+
+## Restoration Instructions
+To restore the MFA system to pre-consolidation state:
+1. git checkout backup/pre-mfa-consolidation
+2. Or: git checkout backup/pre-mfa-consolidation -- <specific-file>
+3. Or full rollback: git reset --hard backup/pre-mfa-consolidation
