@@ -15,7 +15,7 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
-const MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V8U]';
+const _MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V8U]';
 
 interface CompactAppPickerV8UProps {
 	environmentId: string;
@@ -236,15 +236,20 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 					style={{
 						position: 'absolute',
 						top: '100%',
-						right: 0,
+						right: '-8px',
 						marginTop: '4px',
 						border: '1px solid #d1d5db',
 						borderRadius: '4px',
 						background: 'white',
 						boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-						zIndex: 1000,
-						minWidth: '320px',
-						maxWidth: '400px',
+						zIndex: 2000,
+						minWidth: '280px',
+						maxWidth: '350px',
+						// Ensure dropdown doesn't exceed viewport
+						maxHeight: '70vh',
+						overflow: 'auto',
+						// Adjust positioning if needed to stay in viewport
+						transform: 'translateX(0)',
 					}}
 				>
 					{/* Search Input */}
@@ -304,14 +309,18 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 					>
 						{filteredApps.length > 0 ? (
 							filteredApps.map((app) => (
-								<div
+								<button
 									key={app.id}
+									type="button"
 									onClick={() => handleSelectApp(app)}
 									style={{
+										width: '100%',
 										padding: '10px 12px',
 										borderBottom: '1px solid #e5e7eb',
 										cursor: 'pointer',
 										background: 'white',
+										border: 'none',
+										textAlign: 'left',
 										transition: 'background 0.2s ease',
 									}}
 									onMouseEnter={(e) => {
@@ -346,7 +355,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 											{app.description}
 										</div>
 									)}
-								</div>
+								</button>
 							))
 						) : searchQuery.trim() ? (
 							<div
