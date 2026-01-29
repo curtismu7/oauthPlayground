@@ -7,19 +7,13 @@ import {
 	FiAlertTriangle,
 	FiCheckCircle,
 	FiChevronDown,
-	FiClock,
-	FiCode,
 	FiCopy,
 	FiExternalLink,
-	FiEye,
-	FiEyeOff,
 	FiInfo,
 	FiKey,
 	FiRefreshCw,
 	FiShield,
 } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
@@ -28,10 +22,8 @@ import ComprehensiveCredentialsService from '../../services/comprehensiveCredent
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import { CopyButtonService } from '../../services/copyButtonService';
 import { CredentialGuardService } from '../../services/credentialGuardService';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
 import type { StepCredentials } from '../../services/flowCredentialService';
-import { FlowCredentialService } from '../../services/flowCredentialService';
 // Import V6 service architecture components
 import { FlowHeader } from '../../services/flowHeaderService';
 // Get shared UI components from FlowUIService
@@ -40,8 +32,6 @@ import ModalPresentationService from '../../services/modalPresentationService';
 import { OAuthFlowComparisonService } from '../../services/oauthFlowComparisonService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Step Metadata
@@ -260,7 +250,7 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 
 	// Generate JWT ID
 	const generateJWTId = useCallback(() => {
-		const jti = 'jwt_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+		const jti = `jwt_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`;
 		setJwtClaims((prev) => ({ ...prev, jti }));
 	}, []);
 
@@ -449,7 +439,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 
 			const encodedHeader = btoa(JSON.stringify(header));
 			const encodedPayload = btoa(JSON.stringify(claims));
-			const signature = 'mock_signature_' + Date.now(); // Mock signature
+			const signature = `mock_signature_${Date.now()}`; // Mock signature
 			const encodedSignature = btoa(signature);
 
 			const jwt = `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
@@ -494,7 +484,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 				scope: scopes || 'openid',
 				iat: now,
 				exp: exp,
-				jti: 'mock_jti_' + Math.random().toString(36).substr(2, 16),
+				jti: `mock_jti_${Math.random().toString(36).substr(2, 16)}`,
 				token_use: 'access',
 				_mock: true,
 				_note: 'Mock JWT Bearer access token for educational purposes',
@@ -509,7 +499,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 				.replace(/=/g, '')
 				.replace(/\+/g, '-')
 				.replace(/\//g, '_');
-			const mockSignature = 'mock_signature_' + Math.random().toString(36).substr(2, 43);
+			const mockSignature = `mock_signature_${Math.random().toString(36).substr(2, 43)}`;
 			const mockAccessToken = `${encodedHeader}.${encodedPayload}.${mockSignature}`;
 
 			// MOCK IMPLEMENTATION - Generate mock token response
@@ -770,7 +760,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 								// 1. Try from issuerUrl
 								if (result.issuerUrl) {
 									const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
-									if (envIdMatch && envIdMatch[1]) {
+									if (envIdMatch?.[1]) {
 										extractedEnvId = envIdMatch[1];
 									}
 								}
@@ -778,7 +768,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 								// 2. Try from document.issuer if available
 								if (!extractedEnvId && result.document?.issuer) {
 									const envIdMatch = result.document.issuer.match(/\/([a-f0-9-]{36})\//i);
-									if (envIdMatch && envIdMatch[1]) {
+									if (envIdMatch?.[1]) {
 										extractedEnvId = envIdMatch[1];
 									}
 								}
@@ -960,7 +950,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 										type="number"
 										value={jwtClaims.exp}
 										onChange={(e) =>
-											setJwtClaims((prev) => ({ ...prev, exp: parseInt(e.target.value) }))
+											setJwtClaims((prev) => ({ ...prev, exp: parseInt(e.target.value, 10) }))
 										}
 										placeholder="1640995200"
 									/>
@@ -1061,273 +1051,250 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 							</div>
 						</CollapsibleHeader>
 
-						{generatedJWT && (
-							<>
-								{UnifiedTokenDisplayService.showTokens(
-									{ access_token: generatedJWT }, // Pass JWT as access_token
-									'oauth',
-									'jwt-bearer-v6',
-									{
-										showCopyButtons: true,
-										showDecodeButtons: true,
-									}
-								)}
-							</>
-						)}
+						{generatedJWT &&
+							UnifiedTokenDisplayService.showTokens(
+								{ access_token: generatedJWT }, // Pass JWT as access_token
+								'oauth',
+								'jwt-bearer-v6',
+								{
+									showCopyButtons: true,
+									showDecodeButtons: true,
+								}
+							)}
 					</>
 				);
 
 			case 2:
 				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('tokenRequest')}
-								aria-expanded={!collapsedSections.tokenRequest}
-							>
-								<CollapsibleTitle>
-									<FiExternalLink /> Token Request
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenRequest}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.tokenRequest && (
-								<CollapsibleContent>
-									<InfoBox $variant="warning">
-										<FiAlertCircle size={20} />
-										<div>
-											<InfoTitle>🎓 JWT Bearer Token Request</InfoTitle>
-											<InfoText>
-												This demonstrates how a JWT Bearer token request would be sent to an OAuth
-												2.0 server that supports RFC 7523. The assertion parameter contains the
-												signed JWT that proves the client's identity.
-											</InfoText>
-											<InfoText style={{ marginTop: '0.5rem' }}>
-												<strong>Note:</strong> PingOne does not support JWT Bearer assertions, but
-												many other OAuth providers do. Below are real-world examples of providers
-												that support JWT Bearer grant type.
-											</InfoText>
-										</div>
-									</InfoBox>
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('tokenRequest')}
+							aria-expanded={!collapsedSections.tokenRequest}
+						>
+							<CollapsibleTitle>
+								<FiExternalLink /> Token Request
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.tokenRequest}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!collapsedSections.tokenRequest && (
+							<CollapsibleContent>
+								<InfoBox $variant="warning">
+									<FiAlertCircle size={20} />
+									<div>
+										<InfoTitle>🎓 JWT Bearer Token Request</InfoTitle>
+										<InfoText>
+											This demonstrates how a JWT Bearer token request would be sent to an OAuth 2.0
+											server that supports RFC 7523. The assertion parameter contains the signed JWT
+											that proves the client's identity.
+										</InfoText>
+										<InfoText style={{ marginTop: '0.5rem' }}>
+											<strong>Note:</strong> PingOne does not support JWT Bearer assertions, but
+											many other OAuth providers do. Below are real-world examples of providers that
+											support JWT Bearer grant type.
+										</InfoText>
+									</div>
+								</InfoBox>
 
-									{/* Real-world JWT Bearer Examples */}
-									<div style={{ marginBottom: '1.5rem' }}>
-										<h4
+								{/* Real-world JWT Bearer Examples */}
+								<div style={{ marginBottom: '1.5rem' }}>
+									<h4
+										style={{
+											margin: '0 0 1rem 0',
+											fontSize: '1rem',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
+										🌐 Real-World JWT Bearer Examples
+									</h4>
+									<div style={{ display: 'grid', gap: '0.75rem' }}>
+										<div
+											onClick={() => setTokenEndpoint('https://oauth2.googleapis.com/token')}
 											style={{
-												margin: '0 0 1rem 0',
-												fontSize: '1rem',
-												fontWeight: '600',
-												color: '#374151',
+												padding: '0.75rem',
+												background: '#f8fafc',
+												border: '1px solid #e2e8f0',
+												borderRadius: '6px',
+												fontSize: '0.875rem',
+												cursor: 'pointer',
+												transition: 'all 0.2s ease',
+												'&:hover': {
+													background: '#f1f5f9',
+													borderColor: '#3b82f6',
+												},
+											}}
+											onMouseEnter={(e) => {
+												e.currentTarget.style.background = '#f1f5f9';
+												e.currentTarget.style.borderColor = '#3b82f6';
+											}}
+											onMouseLeave={(e) => {
+												e.currentTarget.style.background = '#f8fafc';
+												e.currentTarget.style.borderColor = '#e2e8f0';
 											}}
 										>
-											🌐 Real-World JWT Bearer Examples
-										</h4>
-										<div style={{ display: 'grid', gap: '0.75rem' }}>
-											<div
-												onClick={() => setTokenEndpoint('https://oauth2.googleapis.com/token')}
-												style={{
-													padding: '0.75rem',
-													background: '#f8fafc',
-													border: '1px solid #e2e8f0',
-													borderRadius: '6px',
-													fontSize: '0.875rem',
-													cursor: 'pointer',
-													transition: 'all 0.2s ease',
-													'&:hover': {
-														background: '#f1f5f9',
-														borderColor: '#3b82f6',
-													},
-												}}
-												onMouseEnter={(e) => {
-													e.currentTarget.style.background = '#f1f5f9';
-													e.currentTarget.style.borderColor = '#3b82f6';
-												}}
-												onMouseLeave={(e) => {
-													e.currentTarget.style.background = '#f8fafc';
-													e.currentTarget.style.borderColor = '#e2e8f0';
-												}}
-											>
-												<div
-													style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}
-												>
-													🔵 Google Cloud Platform
-												</div>
-												<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
-													https://oauth2.googleapis.com/token
-												</div>
-												<div
-													style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}
-												>
-													Supports JWT Bearer for service account authentication
-												</div>
+											<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
+												🔵 Google Cloud Platform
 											</div>
-
-											<div
-												onClick={() =>
-													setTokenEndpoint(
-														'https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/token'
-													)
-												}
-												style={{
-													padding: '0.75rem',
-													background: '#f8fafc',
-													border: '1px solid #e2e8f0',
-													borderRadius: '6px',
-													fontSize: '0.875rem',
-													cursor: 'pointer',
-													transition: 'all 0.2s ease',
-												}}
-												onMouseEnter={(e) => {
-													e.currentTarget.style.background = '#f1f5f9';
-													e.currentTarget.style.borderColor = '#3b82f6';
-												}}
-												onMouseLeave={(e) => {
-													e.currentTarget.style.background = '#f8fafc';
-													e.currentTarget.style.borderColor = '#e2e8f0';
-												}}
-											>
-												<div
-													style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}
-												>
-													🟠 Microsoft Azure AD
-												</div>
-												<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
-													https://login.microsoftonline.com/{tenant - id}/oauth2/v2.0/token
-												</div>
-												<div
-													style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}
-												>
-													Supports JWT Bearer for application authentication
-												</div>
+											<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
+												https://oauth2.googleapis.com/token
 											</div>
-
-											<div
-												onClick={() =>
-													setTokenEndpoint('https://{pingfederate-host}:9031/as/token')
-												}
-												style={{
-													padding: '0.75rem',
-													background: '#f8fafc',
-													border: '1px solid #e2e8f0',
-													borderRadius: '6px',
-													fontSize: '0.875rem',
-													cursor: 'pointer',
-													transition: 'all 0.2s ease',
-												}}
-												onMouseEnter={(e) => {
-													e.currentTarget.style.background = '#f1f5f9';
-													e.currentTarget.style.borderColor = '#3b82f6';
-												}}
-												onMouseLeave={(e) => {
-													e.currentTarget.style.background = '#f8fafc';
-													e.currentTarget.style.borderColor = '#e2e8f0';
-												}}
-											>
-												<div
-													style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}
-												>
-													🟢 PingFederate
-												</div>
-												<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
-													https://{pingfederate - host}:9031/as/token
-												</div>
-												<div
-													style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}
-												>
-													Supports JWT Bearer for enterprise authentication
-												</div>
-											</div>
-
-											<div
-												onClick={() => setTokenEndpoint('https://{pingone-ais-host}/oauth/token')}
-												style={{
-													padding: '0.75rem',
-													background: '#f8fafc',
-													border: '1px solid #e2e8f0',
-													borderRadius: '6px',
-													fontSize: '0.875rem',
-													cursor: 'pointer',
-													transition: 'all 0.2s ease',
-												}}
-												onMouseEnter={(e) => {
-													e.currentTarget.style.background = '#f1f5f9';
-													e.currentTarget.style.borderColor = '#3b82f6';
-												}}
-												onMouseLeave={(e) => {
-													e.currentTarget.style.background = '#f8fafc';
-													e.currentTarget.style.borderColor = '#e2e8f0';
-												}}
-											>
-												<div
-													style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}
-												>
-													🟣 PingOne Advanced Identity Cloud
-												</div>
-												<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
-													https://{pingone - ais - host}/oauth/token
-												</div>
-												<div
-													style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}
-												>
-													Supports JWT Bearer (RFC 7523) for advanced identity scenarios
-												</div>
+											<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+												Supports JWT Bearer for service account authentication
 											</div>
 										</div>
 
 										<div
+											onClick={() =>
+												setTokenEndpoint(
+													'https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/token'
+												)
+											}
 											style={{
-												marginTop: '1rem',
 												padding: '0.75rem',
-												background: '#fef3c7',
-												border: '1px solid #f59e0b',
+												background: '#f8fafc',
+												border: '1px solid #e2e8f0',
 												borderRadius: '6px',
 												fontSize: '0.875rem',
-												color: '#92400e',
+												cursor: 'pointer',
+												transition: 'all 0.2s ease',
+											}}
+											onMouseEnter={(e) => {
+												e.currentTarget.style.background = '#f1f5f9';
+												e.currentTarget.style.borderColor = '#3b82f6';
+											}}
+											onMouseLeave={(e) => {
+												e.currentTarget.style.background = '#f8fafc';
+												e.currentTarget.style.borderColor = '#e2e8f0';
 											}}
 										>
-											<strong>💡 Tip:</strong> Click on any example above to use it as your token
-											endpoint, or enter your own OAuth provider's token endpoint that supports JWT
-											Bearer grant type.
+											<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
+												🟠 Microsoft Azure AD
+											</div>
+											<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
+												https://login.microsoftonline.com/{tenant - id}/oauth2/v2.0/token
+											</div>
+											<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+												Supports JWT Bearer for application authentication
+											</div>
+										</div>
+
+										<div
+											onClick={() => setTokenEndpoint('https://{pingfederate-host}:9031/as/token')}
+											style={{
+												padding: '0.75rem',
+												background: '#f8fafc',
+												border: '1px solid #e2e8f0',
+												borderRadius: '6px',
+												fontSize: '0.875rem',
+												cursor: 'pointer',
+												transition: 'all 0.2s ease',
+											}}
+											onMouseEnter={(e) => {
+												e.currentTarget.style.background = '#f1f5f9';
+												e.currentTarget.style.borderColor = '#3b82f6';
+											}}
+											onMouseLeave={(e) => {
+												e.currentTarget.style.background = '#f8fafc';
+												e.currentTarget.style.borderColor = '#e2e8f0';
+											}}
+										>
+											<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
+												🟢 PingFederate
+											</div>
+											<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
+												https://{pingfederate - host}:9031/as/token
+											</div>
+											<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+												Supports JWT Bearer for enterprise authentication
+											</div>
+										</div>
+
+										<div
+											onClick={() => setTokenEndpoint('https://{pingone-ais-host}/oauth/token')}
+											style={{
+												padding: '0.75rem',
+												background: '#f8fafc',
+												border: '1px solid #e2e8f0',
+												borderRadius: '6px',
+												fontSize: '0.875rem',
+												cursor: 'pointer',
+												transition: 'all 0.2s ease',
+											}}
+											onMouseEnter={(e) => {
+												e.currentTarget.style.background = '#f1f5f9';
+												e.currentTarget.style.borderColor = '#3b82f6';
+											}}
+											onMouseLeave={(e) => {
+												e.currentTarget.style.background = '#f8fafc';
+												e.currentTarget.style.borderColor = '#e2e8f0';
+											}}
+										>
+											<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
+												🟣 PingOne Advanced Identity Cloud
+											</div>
+											<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
+												https://{pingone - ais - host}/oauth/token
+											</div>
+											<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+												Supports JWT Bearer (RFC 7523) for advanced identity scenarios
+											</div>
 										</div>
 									</div>
 
-									<GeneratedContentBox>
-										<ParameterGrid>
-											<ParameterLabel>Request URL</ParameterLabel>
-											<ParameterValue>{tokenEndpoint}</ParameterValue>
-
-											<ParameterLabel>Method</ParameterLabel>
-											<ParameterValue>POST</ParameterValue>
-
-											<ParameterLabel>Content-Type</ParameterLabel>
-											<ParameterValue>application/x-www-form-urlencoded</ParameterValue>
-
-											<ParameterLabel>grant_type</ParameterLabel>
-											<ParameterValue>urn:ietf:params:oauth:grant-type:jwt-bearer</ParameterValue>
-
-											<ParameterLabel>assertion</ParameterLabel>
-											<ParameterValue style={{ wordBreak: 'break-all', fontSize: '0.75rem' }}>
-												{generatedJWT || 'Generate JWT first'}
-											</ParameterValue>
-
-											<ParameterLabel>scope</ParameterLabel>
-											<ParameterValue>{scopes || 'Not specified'}</ParameterValue>
-										</ParameterGrid>
-									</GeneratedContentBox>
-
-									<Button
-										onClick={makeTokenRequest}
-										variant="success"
-										disabled={!generatedJWT || isLoading}
+									<div
+										style={{
+											marginTop: '1rem',
+											padding: '0.75rem',
+											background: '#fef3c7',
+											border: '1px solid #f59e0b',
+											borderRadius: '6px',
+											fontSize: '0.875rem',
+											color: '#92400e',
+										}}
 									>
-										{isLoading ? <FiRefreshCw className="animate-spin" /> : <FiExternalLink />}
-										{isLoading ? 'Requesting Token...' : 'Make Token Request'}
-									</Button>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
+										<strong>💡 Tip:</strong> Click on any example above to use it as your token
+										endpoint, or enter your own OAuth provider's token endpoint that supports JWT
+										Bearer grant type.
+									</div>
+								</div>
+
+								<GeneratedContentBox>
+									<ParameterGrid>
+										<ParameterLabel>Request URL</ParameterLabel>
+										<ParameterValue>{tokenEndpoint}</ParameterValue>
+
+										<ParameterLabel>Method</ParameterLabel>
+										<ParameterValue>POST</ParameterValue>
+
+										<ParameterLabel>Content-Type</ParameterLabel>
+										<ParameterValue>application/x-www-form-urlencoded</ParameterValue>
+
+										<ParameterLabel>grant_type</ParameterLabel>
+										<ParameterValue>urn:ietf:params:oauth:grant-type:jwt-bearer</ParameterValue>
+
+										<ParameterLabel>assertion</ParameterLabel>
+										<ParameterValue style={{ wordBreak: 'break-all', fontSize: '0.75rem' }}>
+											{generatedJWT || 'Generate JWT first'}
+										</ParameterValue>
+
+										<ParameterLabel>scope</ParameterLabel>
+										<ParameterValue>{scopes || 'Not specified'}</ParameterValue>
+									</ParameterGrid>
+								</GeneratedContentBox>
+
+								<Button
+									onClick={makeTokenRequest}
+									variant="success"
+									disabled={!generatedJWT || isLoading}
+								>
+									{isLoading ? <FiRefreshCw className="animate-spin" /> : <FiExternalLink />}
+									{isLoading ? 'Requesting Token...' : 'Make Token Request'}
+								</Button>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				);
 
 			case 3:
@@ -1420,13 +1387,11 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 
 			case 4:
 				return (
-					<>
-						<FlowCompletionService
-							config={FlowCompletionConfigs.jwtBearer}
-							collapsed={collapsedSections.completion}
-							onToggleCollapsed={() => toggleSection('completion')}
-						/>
-					</>
+					<FlowCompletionService
+						config={FlowCompletionConfigs.jwtBearer}
+						collapsed={collapsedSections.completion}
+						onToggleCollapsed={() => toggleSection('completion')}
+					/>
 				);
 
 			default:
@@ -1446,6 +1411,13 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 		tokenResponse,
 		isLoading,
 		makeTokenRequest,
+		discoverAudience,
+		environmentId,
+		generateJWT,
+		generateJWTId,
+		generateSampleKeyPair,
+		isDiscoveringAudience,
+		saveCredentials,
 	]);
 
 	// Main render

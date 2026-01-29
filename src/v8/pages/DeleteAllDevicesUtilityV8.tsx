@@ -258,12 +258,12 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		// This prevents auto-loading on initial page load
 		const hasDevices = devices.length > 0;
 		const hasRequiredFields = environmentId.trim() && username.trim() && tokenStatus.isValid;
-		
+
 		if (hasDevices && hasRequiredFields) {
 			handleLoadDevices();
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedDeviceType, selectedDeviceStatus]);
+	}, [devices.length, environmentId.trim, handleLoadDevices, tokenStatus.isValid, username.trim]);
 
 	// Load devices for the user
 	const handleLoadDevices = useCallback(async () => {

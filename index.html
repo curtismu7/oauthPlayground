@@ -29,8 +29,8 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: none !important; /* Force transparent background */
-      background-color: transparent !important;
+      background: none; /* Force transparent background */
+      background-color: transparent;
     }
     
     #root {
@@ -43,24 +43,24 @@
     input:-webkit-autofill:hover,
     input:-webkit-autofill:focus,
     input:-webkit-autofill:active {
-      -webkit-box-shadow: 0 0 0 30px white inset !important;
-      -webkit-text-fill-color: inherit !important;
+      -webkit-box-shadow: 0 0 0 30px white inset;
+      -webkit-text-fill-color: inherit;
     }
     
     /* Hide autofill icons and suggestions */
     input::-webkit-credentials-auto-fill-button {
-      display: none !important;
+      display: none;
     }
     
     /* Prevent extension overlays */
     [data-bitwarden-watching] {
-      display: none !important;
+      display: none;
     }
     
     /* Disable autofill on all inputs */
     input, textarea, select {
-      autocomplete: off !important;
-      data-form-type: other !important;
+      autocomplete: off;
+      data-form-type: other;
     }
   </style>
 </head>

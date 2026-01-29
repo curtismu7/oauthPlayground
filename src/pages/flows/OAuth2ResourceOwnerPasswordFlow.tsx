@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
-	FiCopy,
 	FiEye,
 	FiEyeOff,
 	FiInfo,
@@ -100,7 +99,7 @@ const FormInput = styled.input`
 	}
 `;
 
-const FormTextarea = styled.textarea`
+const _FormTextarea = styled.textarea`
 	width: 100%;
 	padding: 0.75rem;
 	border: 1px solid #d1d5db;
@@ -215,7 +214,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 		});
 	};
 
-	const copyToClipboard = (text: string, label: string) => {
+	const _copyToClipboard = (text: string, label: string) => {
 		navigator.clipboard.writeText(text);
 		v4ToastManager.showSuccess(`${label} copied to clipboard`);
 	};

@@ -481,70 +481,70 @@ https://auth.pingone.com/{{environmentId}}/as/revoke
     </div>
 
     <script>
-        function showSignatureDemo() {
+        function _showSignatureDemo() {
             alert('Request Parameter Signature Demo:\n\n1. Generate HMAC-SHA256 signature of request parameters\n2. Include signature in Authorization header\n3. Server validates signature before processing request\n\nThis prevents parameter tampering and ensures request authenticity.');
         }
         
-        function validateSignature() {
+        function _validateSignature() {
             alert('✅ Current request signature is valid!\n\nSignature: a1b2c3d4e5f6...\nAlgorithm: HMAC-SHA256\nStatus: Verified');
         }
         
-        function showX5tDemo() {
+        function _showX5tDemo() {
             alert('x5t Parameter Demo:\n\nJWT Header contains:\n- x5t: SHA-1 thumbprint of signing certificate\n- x5t#S256: SHA-256 thumbprint\n- kid: Key identifier for key rotation\n\nThis enables certificate validation and key management.');
         }
         
-        function verifyCertificate() {
+        function _verifyCertificate() {
             alert('🔐 Certificate Verification:\n\n✅ Certificate is valid\n✅ Not expired\n✅ Issued by trusted CA\n✅ Key usage matches requirements\n\nCertificate thumbprint matches x5t in JWT header.');
         }
         
-        function validateAllTokens() {
+        function _validateAllTokens() {
             alert('🔍 Token Validation Results:\n\n✅ Access Token: Valid (expires in 1h 23m)\n✅ Refresh Token: Valid (expires in 30d)\n✅ ID Token: Valid (expires in 1h 23m)\n\nAll tokens have valid signatures and are not expired.');
         }
         
-        function checkTokenExpiry() {
+        function _checkTokenExpiry() {
             alert('⏰ Token Expiration Status:\n\nAccess Token: 1h 23m remaining\nRefresh Token: 29d 12h remaining\nID Token: 1h 23m remaining\n\nAll tokens are within acceptable expiration windows.');
         }
         
-        function terminateSession() {
+        function _terminateSession() {
             if (confirm('Are you sure you want to terminate the current session? This will log out the user and invalidate all tokens.')) {
                 alert('🚪 Session terminated successfully!\n\n- User logged out\n- All tokens invalidated\n- Session cleared\n- Redirected to logout URL');
             }
         }
         
-        function showLogoutUrl() {
+        function _showLogoutUrl() {
             document.getElementById('logoutUrl').style.display = 'block';
         }
         
-        function revokeTokens() {
+        function _revokeTokens() {
             if (confirm('Are you sure you want to revoke all tokens? This will immediately invalidate access and refresh tokens.')) {
                 alert('❌ All tokens revoked successfully!\n\n- Access token invalidated\n- Refresh token invalidated\n- User must re-authenticate\n- Session terminated');
             }
         }
         
-        function revokeRefreshToken() {
+        function _revokeRefreshToken() {
             if (confirm('Are you sure you want to revoke the refresh token? This will prevent token renewal.')) {
                 alert('🔄 Refresh token revoked successfully!\n\n- Refresh token invalidated\n- Access token will expire normally\n- User must re-authenticate for new tokens');
             }
         }
         
-        function exportSecurityReport() {
+        function _exportSecurityReport() {
             alert('📄 Security Report exported!\n\nReport includes:\n- Security configuration\n- Token analysis\n- Certificate details\n- Recommendations\n- Compliance status');
         }
         
-        function runSecurityTest() {
+        function _runSecurityTest() {
             alert('🧪 Security Test Suite Results:\n\n✅ Request signature validation: PASS\n✅ Token signature verification: PASS\n✅ Certificate validation: PASS\n✅ Session management: PASS\n✅ Token expiration: PASS\n\nOverall: 5/5 tests passed');
         }
         
-        function viewDocumentation() {
+        function _viewDocumentation() {
             alert('📚 Opening security documentation...\n\nThis would open the comprehensive security features documentation covering:\n- Request parameter signatures\n- JWT security enhancements\n- Session management\n- Best practices');
         }
         
-        function testCorsConfiguration() {
+        function _testCorsConfiguration() {
             // Simulate toast notification instead of alert
             showToast('🌐 CORS Test Complete: 2 origins blocked by CORS policy\n\n✅ https://localhost:3000 - Allowed\n❌ https://malicious-site.com - Blocked\n✅ https://app.example.com - Allowed\n❌ http://localhost:3001 - Blocked\n\nCORS policy is working correctly to protect your OAuth endpoints!', 'warning');
         }
         
-        function demonstrateCorsError() {
+        function _demonstrateCorsError() {
             // Simulate toast notification instead of alert
             showToast('🚫 CORS Error Demonstration\n\nAccess to fetch at \'https://api.pingone.com/oauth/token\' from origin \'https://malicious-site.com\' has been blocked by CORS policy: The request client is not a secure context and the resource is in a cross-origin context.\n\nThis is exactly what CORS protection prevents!', 'error');
         }

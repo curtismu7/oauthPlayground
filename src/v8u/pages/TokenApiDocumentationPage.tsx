@@ -367,7 +367,7 @@ const InteractionType = styled.div`
   margin-bottom: 0.5rem;
 `;
 
-const ApiInteractionType = styled(InteractionType)`
+const _ApiInteractionType = styled(InteractionType)`
   background: #dbeafe;
   color: #1e40af;
 `;

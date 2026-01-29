@@ -46,7 +46,7 @@ for (const fileEntry of manifest.files || []) {
 manifest.files = files;
 manifest.updated = new Date().toISOString().split('T')[0];
 
-writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
+writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
 
 console.log(`\n✅ FIDO2 lockdown updated - ${files.length} files`);
 console.log(`   Manifest: ${manifestPath}`);

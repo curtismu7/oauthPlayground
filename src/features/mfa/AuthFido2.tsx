@@ -8,8 +8,8 @@
 import React, { useState } from 'react';
 import { DebugPanel } from '@/samples/p1mfa/shared/DebugPanel';
 import { StatusDisplay } from '@/samples/p1mfa/shared/StatusDisplay';
-import { type AuthenticationResult, FIDO2Helper, P1MFASDK } from '@/sdk/p1mfa';
-import { credentialToJson, jsonToRequestOptions } from './webauthn';
+import { FIDO2Helper, P1MFASDK } from '@/sdk/p1mfa';
+import { credentialToJson } from './webauthn';
 
 interface AuthFido2Props {
 	sdk: P1MFASDK;

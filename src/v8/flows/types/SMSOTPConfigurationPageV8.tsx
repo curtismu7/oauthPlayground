@@ -16,9 +16,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
-import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
-import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { comprehensiveTokenUIService } from '@/v8/services/comprehensiveTokenUIService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -27,12 +24,10 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; // NEW - Enhanced UI service
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
-import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
 const _MODULE_TAG = '[📱 SMS-OTP-CONFIG-V8]';
@@ -107,17 +102,17 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 	);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
-	const [showSettingsModal, setShowSettingsModal] = useState(false);
+	const [_showSettingsModal, _setShowSettingsModal] = useState(false);
 
 	// Worker token settings - Load from config service
-	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+	const [_silentApiRetrieval, _setSilentApiRetrieval] = useState(() => {
 		try {
 			return MFAConfigurationServiceV8.loadConfiguration().workerToken.silentApiRetrieval || false;
 		} catch {
 			return false;
 		}
 	});
-	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+	const [_showTokenAtEnd, _setShowTokenAtEnd] = useState(() => {
 		try {
 			return MFAConfigurationServiceV8.loadConfiguration().workerToken.showTokenAtEnd || true;
 		} catch {
@@ -539,9 +534,9 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 	}, [credentials.tokenType, registrationFlowType]);
 
 	// Policy state
-	const [deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
-	const [isLoadingPolicies, setIsLoadingPolicies] = useState(false);
-	const [policiesError, setPoliciesError] = useState<string | null>(null);
+	const [_deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
+	const [_isLoadingPolicies, setIsLoadingPolicies] = useState(false);
+	const [_policiesError, setPoliciesError] = useState<string | null>(null);
 
 	// API display visibility and height for dynamic padding
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);
@@ -796,7 +791,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 				},
 			});
 		},
-		[navigate, credentials, tokenStatus.isValid, registrationFlowType, adminDeviceStatus]
+		[navigate, credentials, tokenStatus.isValid, registrationFlowType, adminDeviceStatus, tokenStatus.token  // Admin flow: any worker token enables the button]
 	);
 
 

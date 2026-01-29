@@ -3,15 +3,15 @@
  * Usage: node scripts/generate-complete-postman.mjs
  */
 
-import { writeFileSync } from 'fs';
-import { createRequire } from 'module';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = join(__dirname, '..');
-const require = createRequire(import.meta.url);
+const _require = createRequire(import.meta.url);
 
 // Since we can't directly import TypeScript, let's read the generated comprehensive collections
 // and combine them manually, or use a simpler approach
@@ -19,13 +19,13 @@ const require = createRequire(import.meta.url);
 async function generateCompleteCollection() {
 	try {
 		// Read the existing comprehensive collections if they exist
-		const unifiedPath = join(
+		const _unifiedPath = join(
 			projectRoot,
 			'resources',
 			'postman',
 			'pingone-unified-flows-complete-collection.json'
 		);
-		const mfaPath = join(
+		const _mfaPath = join(
 			projectRoot,
 			'resources',
 			'postman',

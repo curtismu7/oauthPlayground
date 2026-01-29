@@ -7,7 +7,6 @@ import CompleteMFAFlowV7 from '../../components/CompleteMFAFlowV7';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
-import { FlowCredentialService } from '../../services/flowCredentialService';
 
 const PageContainer = styled.div`
   min-height: 100vh;

@@ -195,7 +195,7 @@ const HybridCallback: React.FC = () => {
 				// For hybrid flow, we need at least code OR id_token (not necessarily both)
 				if (code || idToken) {
 					// Determine if this is a unified flow callback
-					const isUnifiedFlow = state && state.startsWith('v8u-hybrid-');
+					const isUnifiedFlow = state?.startsWith('v8u-hybrid-');
 
 					// Store tokens in sessionStorage for the hybrid flow component to pick up
 					const tokens: Record<string, string | null> = {

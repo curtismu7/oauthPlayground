@@ -209,7 +209,7 @@ const ScopeExample = styled.code`
 	color: #dc2626;
 `;
 
-const ScopeExampleValue = styled.span`
+const _ScopeExampleValue = styled.span`
 	color: #2563eb;
 `;
 

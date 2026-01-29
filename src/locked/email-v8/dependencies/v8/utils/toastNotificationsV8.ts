@@ -69,7 +69,7 @@ export class ToastNotificationsV8 {
 		}
 
 		// Fallback: truncate to 120 chars with ellipsis
-		return message.substring(0, 120) + '...';
+		return `${message.substring(0, 120)}...`;
 	}
 
 	/**

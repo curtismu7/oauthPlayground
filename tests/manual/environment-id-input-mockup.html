@@ -479,7 +479,7 @@
             }, 2000);
         }
 
-        function copyIssuerUrl() {
+        function _copyIssuerUrl() {
             const url = issuerUrlText.textContent;
             navigator.clipboard.writeText(url).then(() => {
                 const copyBtn = document.querySelector('.copy-btn');

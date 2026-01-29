@@ -5,11 +5,11 @@
  * @version 3.0.0
  */
 
-import { renderHook, act, waitFor } from '@testing-library/react';
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { useWorkerToken } from '../useWorkerToken';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { useWorkerToken } from '../useWorkerToken';
 
 // Mock the services
 vi.mock('@/v8/services/workerTokenStatusServiceV8');
@@ -197,7 +197,9 @@ describe('useWorkerToken', () => {
 				},
 			};
 
-			vi.mocked(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).mockResolvedValue(expiringStatus);
+			vi.mocked(WorkerTokenStatusServiceV8.checkWorkerTokenStatus).mockResolvedValue(
+				expiringStatus
+			);
 			vi.mocked(MFAConfigurationServiceV8.loadConfiguration).mockReturnValue(mockConfig as any);
 
 			const { result } = renderHook(() => useWorkerToken({ enableAutoRefresh: true }));
@@ -333,7 +335,10 @@ describe('useWorkerToken', () => {
 
 			unmount();
 
-			expect(removeEventListenerSpy).toHaveBeenCalledWith('workerTokenUpdated', expect.any(Function));
+			expect(removeEventListenerSpy).toHaveBeenCalledWith(
+				'workerTokenUpdated',
+				expect.any(Function)
+			);
 			expect(removeEventListenerSpy).toHaveBeenCalledWith('storage', expect.any(Function));
 		});
 	});

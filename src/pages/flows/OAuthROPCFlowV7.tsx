@@ -1,12 +1,10 @@
 // src/pages/flows/OAuthROPCFlowV7.tsx
 // V7 implementation: Enhanced ROPC flow with improved UI and functionality
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-	FiAlertTriangle,
 	FiBook,
 	FiCheckCircle,
-	FiCopy,
 	FiEye,
 	FiEyeOff,
 	FiInfo,
@@ -14,7 +12,6 @@ import {
 	FiLock,
 	FiRefreshCw,
 	FiSave,
-	FiShield,
 	FiUser,
 } from 'react-icons/fi';
 import styled from 'styled-components';
@@ -25,12 +22,10 @@ import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { useResourceOwnerPasswordFlowV7 } from '../../hooks/useResourceOwnerPasswordFlowV7';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { EducationalContentService } from '../../services/educationalContentService.tsx';
 import { FlowHeader } from '../../services/flowHeaderService';
 import FlowUIService from '../../services/flowUIService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Get UI components from FlowUIService
 const Container = FlowUIService.getContainer();
@@ -382,7 +377,7 @@ const UserInfoDisplay = styled.div`
 	box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 `;
 
-const TokenMeta = styled.div`
+const _TokenMeta = styled.div`
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 	gap: 1.5rem;
@@ -423,7 +418,10 @@ const OAuthROPCFlowV7: React.FC = () => {
 		// Reset flow to step 1 when component mounts to ensure fresh start
 		controller.stepManager.setStep(0, 'fresh start from menu');
 		console.log('[ROPC-V7] Initialized - starting on step 1');
-	}, []); // Empty dependency array ensures this runs only on mount
+	}, [
+		// Reset flow to step 1 when component mounts to ensure fresh start
+		controller.stepManager.setStep,
+	]); // Empty dependency array ensures this runs only on mount
 
 	const handleCredentialChange = (field: string, value: string) => {
 		controller.setCredentials({

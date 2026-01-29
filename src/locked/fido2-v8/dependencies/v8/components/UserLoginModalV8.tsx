@@ -564,7 +564,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 		window.addEventListener('popstate', handlePopState);
 		return () => window.removeEventListener('popstate', handlePopState);
-	}, [handleTokenReceived, isOpen, searchParams, location.search, onTokenReceived]);
+	}, [isOpen, searchParams, location.search, onTokenReceived, sessionInfo, showSuccessPage]);
 
 	// Process callback even when modal is not open (for auto-processing on page load)
 	// This ensures callbacks are handled even if the modal wasn't explicitly opened

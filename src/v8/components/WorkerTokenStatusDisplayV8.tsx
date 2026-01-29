@@ -49,7 +49,6 @@ import {
 	WORKER_TOKEN_STATUS_STYLES,
 	WorkerTokenStatusServiceV8U,
 } from '@/v8u/services/workerTokenStatusServiceV8U';
-import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
 
 // Animation keyframes
 const pulse = keyframes`
@@ -630,7 +629,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						includeScopes: false,
 						includeRedirectUri: false,
 					});
-					
+
 					// Convert Credentials to UnifiedWorkerTokenCredentials format
 					if (creds?.environmentId) {
 						credentials = {

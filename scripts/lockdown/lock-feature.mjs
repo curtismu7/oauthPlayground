@@ -150,13 +150,13 @@ function updateImports(content, lockedDir, originalDir) {
 		const lockedPath = join(lockedDir, 'dependencies', path);
 		if (existsSync(lockedPath)) {
 			const relPath = relative(originalDir, lockedPath).replace(/\\/g, '/');
-			return `from '${relPath.startsWith('.') ? relPath : './' + relPath}'`;
+			return `from '${relPath.startsWith('.') ? relPath : `./${relPath}`}'`;
 		}
 		return match; // Keep original if not locked
 	});
 
 	// Update relative imports that point to locked dependencies
-	content = content.replace(/from\s+['"](\.\.?\/[^'"]+)['"]/g, (match, path) => {
+	content = content.replace(/from\s+['"](\.\.?\/[^'"]+)['"]/g, (match, _path) => {
 		// Check if this path resolves to a locked dependency
 		// This is simplified - you may need more sophisticated path resolution
 		return match;

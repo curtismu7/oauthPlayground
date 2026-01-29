@@ -3,10 +3,10 @@
  * @module v8/styles
  * @description Design System Tokens for V3 Architecture
  * @version 3.0.0
- * 
+ *
  * Centralized design tokens to replace inline styles throughout the application.
  * This provides consistency, maintainability, and easy theming support.
- * 
+ *
  * Based on Tailwind CSS color palette and spacing system for familiarity.
  */
 

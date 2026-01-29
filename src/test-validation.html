@@ -62,20 +62,20 @@
         const originalConsoleLog = console.log;
         const consoleOutput = document.getElementById('console-output');
         
-        console.log = function(...args) {
+        console.log = (...args) => {
             originalConsoleLog.apply(console, args);
             const message = args.map(arg => 
                 typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
             ).join(' ');
-            consoleOutput.innerHTML += message + '\n';
+            consoleOutput.innerHTML += `${message}\n`;
             consoleOutput.scrollTop = consoleOutput.scrollHeight;
         };
 
-        function clearConsole() {
+        function _clearConsole() {
             consoleOutput.innerHTML = 'Console output will appear here...\n';
         }
 
-        function openUserLoginModal() {
+        function _openUserLoginModal() {
             // This would normally open the UserLoginModalV8
             // For now, just show a message
             console.log('=== Testing UserLoginModalV8 Pre-Flight Validation ===');

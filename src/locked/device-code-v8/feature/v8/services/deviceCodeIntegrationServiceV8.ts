@@ -69,7 +69,7 @@ export class DeviceCodeIntegrationServiceV8 {
 		try {
 			// Use backend proxy to avoid CORS issues
 			// Use relative URL in development to go through Vite proxy (avoids SSL errors)
-			const deviceAuthEndpoint =
+			const _deviceAuthEndpoint =
 				process.env.NODE_ENV === 'production'
 					? 'https://oauth-playground.vercel.app/api/device-authorization'
 					: '/api/device-authorization';
@@ -159,8 +159,8 @@ export class DeviceCodeIntegrationServiceV8 {
 			// #endregion
 
 			// Track API call for display (with timeout to prevent hanging)
-			let callId: string | undefined;
-			const startTime = Date.now();
+			let _callId: string | undefined;
+			const _startTime = Date.now();
 			try {
 				// #region agent log - Debug instrumentation before dynamic import
 				try {

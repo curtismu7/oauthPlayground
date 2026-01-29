@@ -4,7 +4,7 @@
 export function testImplicitConfigChecker() {
 	try {
 		// Test data for Implicit Flow
-		const implicitFormData = {
+		const _implicitFormData = {
 			name: 'Implicit Flow Test App',
 			clientId: 'test-implicit-client-id',
 			environmentId: 'test-env-id',
