@@ -9,7 +9,6 @@
 
 import React, { useMemo, useState } from 'react';
 import {
-	FiBook,
 	FiChevronDown,
 	FiChevronUp,
 	FiDownload,
@@ -56,7 +55,7 @@ interface DocumentationApiCall {
 export const convertTrackedCallsToDocumentation = (
 	trackedCalls: TrackedApiCall[],
 	flowType: FlowType,
-	specVersion: SpecVersion
+	_specVersion: SpecVersion
 ): DocumentationApiCall[] => {
 	const filteredCalls = trackedCalls.filter(
 		(call) => call.flowType === 'unified' || call.step?.startsWith('unified-')

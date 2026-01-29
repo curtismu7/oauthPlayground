@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import { DebugPanel } from '@/samples/p1mfa/shared/DebugPanel';
 import { StatusDisplay } from '@/samples/p1mfa/shared/StatusDisplay';
-import { type AuthenticationResult, P1MFASDK } from '@/sdk/p1mfa';
+import { P1MFASDK } from '@/sdk/p1mfa';
 
 interface AuthSmsProps {
 	sdk: P1MFASDK;

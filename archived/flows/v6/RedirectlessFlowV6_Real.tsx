@@ -8,28 +8,20 @@ import styled from 'styled-components';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
-import {
-	HelperText,
-	ResultsHeading,
-	ResultsSection,
-	SectionDivider,
-} from '../../components/ResultsPanel';
+import { HelperText } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { AuthorizationCodeSharedService } from '../../services/authorizationCodeSharedService';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import {
-	FiArrowRight,
 	FiCheckCircle,
 	FiCode,
 	FiExternalLink,
 	FiEye,
 	FiInfo,
-	FiKey,
 	FiRefreshCw,
 	FiSend,
-	FiShield,
 } from '../../services/commonImportsService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import EducationalContentService from '../../services/educationalContentService.tsx';
@@ -110,20 +102,20 @@ const RedirectlessFlowV6Real: React.FC = () => {
 	// Collapse all sections by default for cleaner UI
 	const shouldCollapseAll = true;
 
-	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
+	const [_collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
 		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState()
 	);
 
 	// V6 Educational API Call Tracking
 	const [apiCalls, setApiCalls] = useState<EnhancedApiCallData[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-	const [tokens, setTokens] = useState<any>(null);
+	const [_error, setError] = useState<string | null>(null);
+	const [_tokens, setTokens] = useState<any>(null);
 
 	// Scroll to top on step change
 	useEffect(() => {
 		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange();
-	}, [currentStep]);
+	}, []);
 
 	// V6 Service: Load saved flow state on mount
 	useEffect(() => {
@@ -146,7 +138,7 @@ const RedirectlessFlowV6Real: React.FC = () => {
 	}, [currentStep, controller.credentials.clientId, controller.tokens]);
 
 	// Toggle section handler
-	const toggleSection = useCallback(
+	const _toggleSection = useCallback(
 		AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections),
 		[]
 	);
@@ -289,8 +281,8 @@ const RedirectlessFlowV6Real: React.FC = () => {
 			};
 
 			console.log('🔐 [Redirectless V6] Generated fresh PKCE codes:', {
-				codeVerifier: codeVerifier.substring(0, 20) + '...',
-				codeChallenge: codeChallenge.substring(0, 20) + '...',
+				codeVerifier: `${codeVerifier.substring(0, 20)}...`,
+				codeChallenge: `${codeChallenge.substring(0, 20)}...`,
 			});
 
 			// Update the controller with fresh codes
@@ -1023,120 +1015,116 @@ const RedirectlessFlowV6Real: React.FC = () => {
 
 			case 2:
 				return (
-					<>
-						<CollapsibleHeader
-							title="Token Exchange"
-							icon={<FiRefreshCw />}
-							defaultCollapsed={shouldCollapseAll}
+					<CollapsibleHeader
+						title="Token Exchange"
+						icon={<FiRefreshCw />}
+						defaultCollapsed={shouldCollapseAll}
+					>
+						<div style={{ marginBottom: '1rem' }}>
+							<p>
+								For Redirectless flow, tokens are returned directly in the API response without
+								requiring a separate token exchange call. Click below to make real API calls to
+								PingOne and get actual tokens.
+							</p>
+						</div>
+
+						<NavigationButton
+							onClick={handleRedirectlessTokenExchange}
+							disabled={!controller.authUrl || isLoading}
+							title={
+								!controller.authUrl
+									? 'Generate authorization URL first'
+									: 'Get real tokens from PingOne'
+							}
 						>
-							<div style={{ marginBottom: '1rem' }}>
-								<p>
-									For Redirectless flow, tokens are returned directly in the API response without
-									requiring a separate token exchange call. Click below to make real API calls to
-									PingOne and get actual tokens.
+							{isLoading ? (
+								<>
+									<FiRefreshCw className="animate-spin" /> Exchanging Tokens...
+								</>
+							) : (
+								<>
+									<FiSend /> Get Real Tokens
+								</>
+							)}
+							<HighlightBadge>2</HighlightBadge>
+						</NavigationButton>
+
+						{controller.tokens?.accessToken && (
+							<div
+								style={{
+									marginTop: '1rem',
+									padding: '1rem',
+									background: '#f0fdf4',
+									borderRadius: '0.5rem',
+									border: '1px solid #bbf7d0',
+								}}
+							>
+								<p style={{ color: '#166534', margin: 0, fontWeight: '600' }}>
+									✅ Tokens received successfully! The redirectless flow is complete.
 								</p>
 							</div>
+						)}
 
-							<NavigationButton
-								onClick={handleRedirectlessTokenExchange}
-								disabled={!controller.authUrl || isLoading}
-								title={
-									!controller.authUrl
-										? 'Generate authorization URL first'
-										: 'Get real tokens from PingOne'
-								}
-							>
-								{isLoading ? (
-									<>
-										<FiRefreshCw className="animate-spin" /> Exchanging Tokens...
-									</>
-								) : (
-									<>
-										<FiSend /> Get Real Tokens
-									</>
+						{controller.tokens?.accessToken ? (
+							<div style={{ marginTop: '1rem' }}>
+								{UnifiedTokenDisplayService.showTokens(
+									controller.tokens,
+									'oidc',
+									'redirectless-v6-tokens',
+									{
+										showCopyButtons: true,
+										showDecodeButtons: true,
+										showIntrospection: true,
+										title: '🎯 Redirectless Flow Tokens',
+									}
 								)}
-								<HighlightBadge>2</HighlightBadge>
-							</NavigationButton>
-
-							{controller.tokens?.accessToken && (
-								<div
-									style={{
-										marginTop: '1rem',
-										padding: '1rem',
-										background: '#f0fdf4',
-										borderRadius: '0.5rem',
-										border: '1px solid #bbf7d0',
-									}}
-								>
-									<p style={{ color: '#166534', margin: 0, fontWeight: '600' }}>
-										✅ Tokens received successfully! The redirectless flow is complete.
-									</p>
-								</div>
-							)}
-
-							{controller.tokens?.accessToken ? (
-								<div style={{ marginTop: '1rem' }}>
-									{UnifiedTokenDisplayService.showTokens(
-										controller.tokens,
-										'oidc',
-										'redirectless-v6-tokens',
-										{
-											showCopyButtons: true,
-											showDecodeButtons: true,
-											showIntrospection: true,
-											title: '🎯 Redirectless Flow Tokens',
-										}
-									)}
-								</div>
-							) : (
-								<div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
-									<FiInfo style={{ marginBottom: '0.5rem' }} />
-									<p>Complete the token exchange step to receive tokens</p>
-								</div>
-							)}
-						</CollapsibleHeader>
-					</>
+							</div>
+						) : (
+							<div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
+								<FiInfo style={{ marginBottom: '0.5rem' }} />
+								<p>Complete the token exchange step to receive tokens</p>
+							</div>
+						)}
+					</CollapsibleHeader>
 				);
 
 			case 3:
 				return (
-					<>
-						<CollapsibleHeader
-							title="Token Management"
-							icon={<FiEye />}
-							defaultCollapsed={shouldCollapseAll}
+					<CollapsibleHeader
+						title="Token Management"
+						icon={<FiEye />}
+						defaultCollapsed={shouldCollapseAll}
+					>
+						<div style={{ marginBottom: '1rem' }}>
+							<p>Manage your tokens, including introspection, refresh, and validation.</p>
+						</div>
+
+						<NavigationButton
+							onClick={navigateToTokenManagement}
+							disabled={!controller.tokens?.accessToken}
+							title={
+								!controller.tokens?.accessToken ? 'No tokens available' : 'Open token management'
+							}
 						>
-							<div style={{ marginBottom: '1rem' }}>
-								<p>Manage your tokens, including introspection, refresh, and validation.</p>
-							</div>
+							<FiEye /> Token Management
+							<HighlightBadge>1</HighlightBadge>
+						</NavigationButton>
 
-							<NavigationButton
-								onClick={navigateToTokenManagement}
-								disabled={!controller.tokens?.accessToken}
-								title={
-									!controller.tokens?.accessToken ? 'No tokens available' : 'Open token management'
-								}
+						{controller.tokens?.accessToken ? (
+							<div
+								style={{
+									marginTop: '1rem',
+									padding: '1rem',
+									background: '#f9fafb',
+									borderRadius: '0.5rem',
+								}}
 							>
-								<FiEye /> Token Management
-								<HighlightBadge>1</HighlightBadge>
-							</NavigationButton>
-
-							{controller.tokens?.accessToken ? (
-								<div
-									style={{
-										marginTop: '1rem',
-										padding: '1rem',
-										background: '#f9fafb',
-										borderRadius: '0.5rem',
-									}}
-								>
-									<p style={{ color: '#059669', margin: 0 }}>
-										✓ Tokens available. Click the button above to navigate to Token Management page.
-									</p>
-								</div>
-							) : null}
-						</CollapsibleHeader>
-					</>
+								<p style={{ color: '#059669', margin: 0 }}>
+									✓ Tokens available. Click the button above to navigate to Token Management page.
+								</p>
+							</div>
+						) : null}
+					</CollapsibleHeader>
 				);
 
 			default:
@@ -1145,13 +1133,12 @@ const RedirectlessFlowV6Real: React.FC = () => {
 	}, [
 		currentStep,
 		controller,
-		collapsedSections,
-		toggleSection,
 		handleGeneratePkce,
 		handleGenerateAuthUrl,
 		handleOpenAuthUrl,
 		navigateToTokenManagement,
-		shouldCollapseAll,
+		handleRedirectlessTokenExchange,
+		isLoading,
 	]);
 
 	return (

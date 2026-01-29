@@ -98,7 +98,7 @@ a:hover {
 		max-width: 100%;
 	}
 	.hide-mobile {
-		display: none !important;
+		display: none;
 	}
 }
 
@@ -170,7 +170,7 @@ table.coverage td span.cline-any {
 }
 .missing-if-branch .typ,
 .skip-if-branch .typ {
-	color: inherit !important;
+	color: inherit;
 }
 .coverage-summary {
 	border-collapse: collapse;
@@ -201,7 +201,7 @@ table.coverage td span.cline-any {
 	white-space: nowrap;
 }
 .coverage-summary th.file {
-	border-right: none !important;
+	border-right: none;
 }
 .coverage-summary th.pct {
 }
@@ -215,7 +215,7 @@ table.coverage td span.cline-any {
 	white-space: nowrap;
 }
 .coverage-summary td.pic {
-	min-width: 120px !important;
+	min-width: 120px;
 }
 .coverage-summary tfoot td {
 }
@@ -238,7 +238,7 @@ table.coverage td span.cline-any {
 }
 /* yellow */
 .cbranch-no {
-	background: yellow !important;
+	background: yellow;
 	color: #111;
 }
 /* dark red */
@@ -254,7 +254,7 @@ table.coverage td span.cline-any {
 .highlighted .cstat-no,
 .highlighted .fstat-no,
 .highlighted .cbranch-no {
-	background: #c21f39 !important;
+	background: #c21f39;
 }
 /* medium red */
 .cstat-no,
@@ -304,10 +304,10 @@ table.coverage td span.cline-any {
 }
 .fstat-skip {
 	background: #ddd;
-	color: #111 !important;
+	color: #111;
 }
 .cbranch-skip {
-	background: #ddd !important;
+	background: #ddd;
 	color: #111;
 }
 
@@ -335,15 +335,15 @@ span.cline-neutral {
 	background: white;
 }
 .cover-full {
-	border-right: none !important;
+	border-right: none;
 }
 pre.prettyprint {
-	border: none !important;
-	padding: 0 !important;
-	margin: 0 !important;
+	border: none;
+	padding: 0;
+	margin: 0;
 }
 .com {
-	color: #999 !important;
+	color: #999;
 }
 .ignore-none {
 	color: #999;
@@ -352,7 +352,7 @@ pre.prettyprint {
 
 .wrapper {
 	min-height: 100%;
-	height: auto !important;
+	height: auto;
 	height: 100%;
 	margin: 0 auto -48px;
 }

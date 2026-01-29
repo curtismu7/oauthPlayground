@@ -44,6 +44,8 @@ export interface FlowControllerCallbacks {
 /**
  * Base controller for MFA flow operations
  * Handles common operations like device loading, OTP sending, and validation
+ *
+ * @version 8.3.0 - Added unified flow support with new method signatures
  */
 export abstract class MFAFlowController {
 	protected deviceType: DeviceType;
@@ -54,14 +56,50 @@ export abstract class MFAFlowController {
 		this.callbacks = callbacks;
 	}
 
+	// ========================================================================
+	// LEGACY METHODS (for backward compatibility with existing flows)
+	// ========================================================================
+
 	/**
-	 * Load existing devices for the user
+	 * Load existing devices for the user (legacy signature)
 	 */
 	async loadExistingDevices(
 		credentials: MFACredentials,
 		tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>
+	): Promise<Array<Record<string, unknown>>>;
+
+	/**
+	 * Load existing devices for the user (unified flow signature)
+	 */
+	async loadExistingDevices(
+		credentials: MFACredentials,
+		mfaState: MFAState,
+		tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
+		nav: ReturnType<typeof useStepNavigationV8>
+	): Promise<Array<Record<string, unknown>>>;
+
+	/**
+	 * Load existing devices for the user (implementation)
+	 */
+	async loadExistingDevices(
+		credentials: MFACredentials,
+		mfaStateOrTokenStatus:
+			| MFAState
+			| ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
+		tokenStatus?: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
+		_nav?: ReturnType<typeof useStepNavigationV8>
 	): Promise<Array<Record<string, unknown>>> {
-		if (!credentials.environmentId || !credentials.username || !tokenStatus.isValid) {
+		// Handle both signatures:
+		// Legacy: (credentials, tokenStatus)
+		// Unified: (credentials, mfaState, tokenStatus, nav)
+		const actualTokenStatus =
+			tokenStatus !== undefined
+				? tokenStatus
+				: (mfaStateOrTokenStatus as ReturnType<
+						typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus
+					>);
+
+		if (!credentials.environmentId || !credentials.username || !actualTokenStatus.isValid) {
 			return [];
 		}
 
@@ -94,12 +132,47 @@ export abstract class MFAFlowController {
 	): Array<Record<string, unknown>>;
 
 	/**
-	 * Register a new device
+	 * Register a new device (legacy signature)
 	 */
 	async registerDevice(
 		credentials: MFACredentials,
 		deviceParams: Partial<RegisterDeviceParams>
-	): Promise<{ deviceId: string; status: string }> {
+	): Promise<{ deviceId: string; status: string }>;
+
+	/**
+	 * Register a new device (unified flow signature)
+	 */
+	async registerDevice(
+		credentials: MFACredentials,
+		mfaState: MFAState,
+		tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
+		nav: ReturnType<typeof useStepNavigationV8>
+	): Promise<{ deviceId: string; status: string; [key: string]: any }>;
+
+	/**
+	 * Register a new device (implementation)
+	 */
+	async registerDevice(
+		credentials: MFACredentials,
+		deviceParamsOrMfaState: Partial<RegisterDeviceParams> | MFAState,
+		tokenStatus?: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
+		_nav?: ReturnType<typeof useStepNavigationV8>
+	): Promise<{ deviceId: string; status: string; [key: string]: any }> {
+		// Handle both signatures:
+		// Legacy: (credentials, deviceParams)
+		// Unified: (credentials, mfaState, tokenStatus, nav)
+		const isUnifiedFlow = tokenStatus !== undefined;
+
+		let deviceParams: Partial<RegisterDeviceParams>;
+
+		if (isUnifiedFlow) {
+			// Unified flow: get device params from credentials
+			deviceParams = this.getDeviceRegistrationParams(credentials);
+		} else {
+			// Legacy flow: use provided params
+			deviceParams = deviceParamsOrMfaState as Partial<RegisterDeviceParams>;
+		}
+
 		const params: RegisterDeviceParams = {
 			environmentId: credentials.environmentId,
 			username: credentials.username,
@@ -116,15 +189,28 @@ export abstract class MFAFlowController {
 			this.callbacks.onDeviceRegistered(result.deviceId, result.status);
 		}
 
-		// Return all fields from result, including FIDO2-specific fields
-		// This ensures publicKeyCredentialCreationOptions and other fields are preserved
+		// Process and return result with device-specific fields
+		return this.processRegistrationResult(result);
+	}
+
+	/**
+	 * Process registration result (can be overridden for device-specific handling)
+	 * Extracts and formats device-specific data from the API response
+	 */
+	protected processRegistrationResult(result: any): {
+		deviceId: string;
+		status: string;
+		[key: string]: any;
+	} {
+		// Return all fields from result, including device-specific fields
+		// This ensures publicKeyCredentialCreationOptions, QR codes, and other fields are preserved
 		return {
 			deviceId: result.deviceId,
 			status: result.status,
 			type: result.type,
 			// Per rightOTP.md: Include deviceActivateUri for ACTIVATION_REQUIRED devices
 			...(result.deviceActivateUri ? { deviceActivateUri: result.deviceActivateUri } : {}),
-			// Include other fields that might be needed
+			// Include other common fields
 			...(result.userId ? { userId: result.userId } : {}),
 			...(result.environmentId ? { environmentId: result.environmentId } : {}),
 			...(result.createdAt ? { createdAt: result.createdAt } : {}),
@@ -133,13 +219,20 @@ export abstract class MFAFlowController {
 			...(result.publicKeyCredentialCreationOptions
 				? { publicKeyCredentialCreationOptions: result.publicKeyCredentialCreationOptions }
 				: {}),
-			// TOTP-specific: Include secret and keyUri if present
+			// TOTP-specific: Include secret, QR code, and keyUri if present
 			...(result.secret ? { secret: result.secret } : {}),
+			...(result.totpSecret ? { totpSecret: result.totpSecret } : {}),
+			...(result.qrCode ? { qrCode: result.qrCode } : {}),
+			...(result.qrCodeUrl ? { qrCodeUrl: result.qrCodeUrl } : {}),
 			...(result.keyUri ? { keyUri: result.keyUri } : {}),
+			// Mobile-specific: Include pairing key if present
+			...(result.pairingKey ? { pairingKey: result.pairingKey } : {}),
 			// Include phone/email if present
 			...(result.phone ? { phone: result.phone } : {}),
 			...(result.email ? { email: result.email } : {}),
 			...(result.nickname ? { nickname: result.nickname } : {}),
+			// Include _links for activation if present
+			...(result._links ? { _links: result._links } : {}),
 		};
 	}
 
@@ -211,8 +304,108 @@ export abstract class MFAFlowController {
 		}
 	}
 
+	// ========================================================================
+	// UNIFIED FLOW METHODS (for UnifiedMFARegistrationFlowV8 components)
+	// ========================================================================
+
 	/**
-	 * Validate OTP code
+	 * Validate OTP (unified flow signature)
+	 * Called by UnifiedActivationStep component
+	 *
+	 * @param deviceId - Device ID to validate OTP for
+	 * @param otp - 6-digit OTP code
+	 * @param credentials - MFA credentials
+	 * @param mfaState - Current MFA state
+	 * @param tokenStatus - Worker token status
+	 * @param nav - Navigation helper
+	 * @returns Promise that resolves to validation result
+	 * @throws Error if validation fails
+	 */
+	async validateOtp(
+		deviceId: string,
+		otp: string,
+		credentials: MFACredentials,
+		mfaState: MFAState,
+		_tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
+		_nav: ReturnType<typeof useStepNavigationV8>
+	): Promise<any> {
+		console.log(`${MODULE_TAG} Validating OTP (unified flow)`, {
+			deviceId,
+			deviceType: this.deviceType,
+		});
+
+		try {
+			const workerToken = await MFAServiceV8.getWorkerToken();
+			const cleanToken = workerToken.trim().replace(/^Bearer\s+/i, '');
+
+			const result = await MFAServiceV8.validateOTP({
+				environmentId: credentials.environmentId,
+				deviceAuthId: mfaState.deviceAuthId || deviceId,
+				otp,
+				workerToken: cleanToken,
+				otpCheckUrl: mfaState.otpCheckUrl,
+			});
+
+			if (!result.valid) {
+				throw new Error(result.message || 'Invalid OTP code');
+			}
+
+			console.log(`${MODULE_TAG} OTP validated successfully (unified flow)`);
+			return result;
+		} catch (error) {
+			console.error(`${MODULE_TAG} OTP validation failed (unified flow)`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Resend OTP (unified flow signature)
+	 * Called by UnifiedActivationStep component
+	 *
+	 * @param deviceId - Device ID to resend OTP for
+	 * @param credentials - MFA credentials
+	 * @param mfaState - Current MFA state
+	 * @param tokenStatus - Worker token status
+	 * @param nav - Navigation helper
+	 * @returns Promise that resolves when OTP is sent
+	 * @throws Error if sending fails
+	 */
+	async resendOtp(
+		deviceId: string,
+		credentials: MFACredentials,
+		mfaState: MFAState,
+		_tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
+		_nav: ReturnType<typeof useStepNavigationV8>
+	): Promise<void> {
+		console.log(`${MODULE_TAG} Resending OTP (unified flow)`, {
+			deviceId,
+			deviceType: this.deviceType,
+		});
+
+		try {
+			const { deviceAuthId, otpCheckUrl } = await MFAServiceV8.sendOTP({
+				environmentId: credentials.environmentId,
+				username: credentials.username,
+				deviceId,
+			});
+
+			console.log(`${MODULE_TAG} OTP resent successfully (unified flow)`, {
+				hasOtpCheckUrl: !!otpCheckUrl,
+				deviceAuthId,
+			});
+
+			// Update mfaState with new deviceAuthId if needed
+			if (deviceAuthId && mfaState.deviceAuthId !== deviceAuthId) {
+				console.log(`${MODULE_TAG} Updating deviceAuthId in mfaState`);
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to resend OTP (unified flow)`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Validate OTP code (legacy signature)
 	 */
 	async validateOTP(
 		credentials: MFACredentials,

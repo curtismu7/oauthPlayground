@@ -617,7 +617,7 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 
 	const [selectedScenario, setSelectedScenario] =
 		useState<TokenExchangeScenario>('audience-restriction');
-	const [currentStep, setCurrentStep] = useState(0);
+	const [_currentStep, setCurrentStep] = useState(0);
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
 		codeExamples: true, // Implementation examples collapsed by default
 		troubleshooting: true, // Troubleshooting collapsed by default
@@ -631,7 +631,7 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 		response: false, // Token exchange response expanded by default
 		resources: true, // Additional resources collapsed by default
 	});
-	const [subjectToken, setSubjectToken] = useState('');
+	const [_subjectToken, setSubjectToken] = useState('');
 	const [exchangedToken, setExchangedToken] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [selectedScopes, setSelectedScopes] = useState<string[]>([]);
@@ -809,7 +809,7 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 			claims: scenarios[selectedScenario].defaultClaims,
 			authorizationDetails: scenarios[selectedScenario].defaultAuthDetails,
 		}));
-	}, []);
+	}, [selectedScenario]);
 
 	const handleScenarioChange = useCallback((scenario: TokenExchangeScenario) => {
 		setSelectedScenario(scenario);
@@ -859,7 +859,7 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 		// Simulate API call delay with realistic processing time
 		await new Promise((resolve) => setTimeout(resolve, 1500 + Math.random() * 1000));
 
-		const scenario = scenarios[selectedScenario];
+		const _scenario = scenarios[selectedScenario];
 		const timestamp = new Date().toISOString();
 		const tokenId = `${selectedScenario}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -868,7 +868,7 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 			JSON.stringify({
 				alg: 'RS256',
 				typ: 'JWT',
-				kid: 'key-' + selectedScenario,
+				kid: `key-${selectedScenario}`,
 			})
 		);
 

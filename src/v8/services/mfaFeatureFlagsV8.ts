@@ -73,7 +73,7 @@ export class MFAFeatureFlagsV8 {
 	 * @returns true if flag is enabled for this user, false otherwise
 	 */
 	static isEnabled(flag: MFAFeatureFlag): boolean {
-		const state = this.getFlagState(flag);
+		const state = MFAFeatureFlagsV8.getFlagState(flag);
 
 		// If flag is disabled, always return false
 		if (!state.enabled) return false;
@@ -86,8 +86,8 @@ export class MFAFeatureFlagsV8 {
 
 		// Percentage-based rollout using deterministic user ID hash
 		// Same user always gets same result (consistent experience)
-		const userId = this.getUserId();
-		const hash = this.hashString(userId + flag);
+		const userId = MFAFeatureFlagsV8.getUserId();
+		const hash = MFAFeatureFlagsV8.hashString(userId + flag);
 		const bucket = hash % 100;
 
 		return bucket < state.rolloutPercentage;
@@ -105,13 +105,13 @@ export class MFAFeatureFlagsV8 {
 		enabled: boolean,
 		rolloutPercentage: RolloutPercentage = 0
 	): void {
-		const flags = this.getAllFlags();
+		const flags = MFAFeatureFlagsV8.getAllFlags();
 		flags[flag] = {
 			enabled,
 			rolloutPercentage,
 			lastUpdated: Date.now(),
 		};
-		localStorage.setItem(this.STORAGE_KEY, JSON.stringify(flags));
+		localStorage.setItem(MFAFeatureFlagsV8.STORAGE_KEY, JSON.stringify(flags));
 		console.log(
 			`[MFA-FLAGS] ${flag} set to ${enabled ? 'ENABLED' : 'DISABLED'} (${rolloutPercentage}% rollout)`
 		);
@@ -124,7 +124,7 @@ export class MFAFeatureFlagsV8 {
 	 * @returns The current state of the flag
 	 */
 	static getFlagState(flag: MFAFeatureFlag): FeatureFlagState {
-		const flags = this.getAllFlags();
+		const flags = MFAFeatureFlagsV8.getAllFlags();
 		return flags[flag] || DEFAULT_FLAGS[flag];
 	}
 
@@ -135,7 +135,7 @@ export class MFAFeatureFlagsV8 {
 	 */
 	static getAllFlags(): Record<MFAFeatureFlag, FeatureFlagState> {
 		try {
-			const stored = localStorage.getItem(this.STORAGE_KEY);
+			const stored = localStorage.getItem(MFAFeatureFlagsV8.STORAGE_KEY);
 			if (!stored) return { ...DEFAULT_FLAGS };
 			return { ...DEFAULT_FLAGS, ...JSON.parse(stored) };
 		} catch {
@@ -147,7 +147,7 @@ export class MFAFeatureFlagsV8 {
 	 * Reset all flags to default (testing use only)
 	 */
 	static resetAllFlags(): void {
-		localStorage.removeItem(this.STORAGE_KEY);
+		localStorage.removeItem(MFAFeatureFlagsV8.STORAGE_KEY);
 		console.log('[MFA-FLAGS] All flags reset to defaults (all disabled)');
 	}
 
@@ -205,12 +205,14 @@ export class MFAFeatureFlagsV8 {
 		rolloutPercentage: RolloutPercentage;
 		appliesTo: string;
 	}> {
-		const allFlags = this.getAllFlags();
+		const allFlags = MFAFeatureFlagsV8.getAllFlags();
 		return Object.entries(allFlags).map(([flag, state]) => ({
 			flag: flag as MFAFeatureFlag,
 			enabled: state.enabled,
 			rolloutPercentage: state.rolloutPercentage,
-			appliesTo: this.isEnabled(flag as MFAFeatureFlag) ? 'THIS USER' : 'not this user',
+			appliesTo: MFAFeatureFlagsV8.isEnabled(flag as MFAFeatureFlag)
+				? 'THIS USER'
+				: 'not this user',
 		}));
 	}
 }

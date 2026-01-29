@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-	FiAlertTriangle,
 	FiArrowRight,
 	FiBarChart2,
 	FiCheck,
@@ -14,7 +13,7 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { type FlowType, type SpecVersion } from '../../v8/services/specVersionServiceV8';
+import { type FlowType } from '../../v8/services/specVersionServiceV8';
 
 const ComparisonContainer = styled.div`
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -429,7 +428,7 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 		}
 	};
 
-	const getRatingColor = (rating: string) => {
+	const _getRatingColor = (rating: string) => {
 		switch (rating) {
 			case 'excellent':
 				return '#059669';

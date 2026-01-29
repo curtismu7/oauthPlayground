@@ -21,7 +21,7 @@ interface FlowNotAvailableModalProps {
 	onChangeSpec: () => void;
 }
 
-const MODULE_TAG = '[🚫 FLOW-NOT-AVAILABLE-MODAL-V8U]';
+const _MODULE_TAG = '[🚫 FLOW-NOT-AVAILABLE-MODAL-V8U]';
 
 export const FlowNotAvailableModal: React.FC<FlowNotAvailableModalProps> = ({
 	isOpen,
@@ -233,7 +233,7 @@ export const FlowNotAvailableModal: React.FC<FlowNotAvailableModalProps> = ({
 							onAccept();
 							onClose();
 						}}
-						style={{
+						style={
 							padding: '14px 24px',
 							background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
 							color: 'white',
@@ -242,9 +242,8 @@ export const FlowNotAvailableModal: React.FC<FlowNotAvailableModalProps> = ({
 							fontSize: '16px',
 							fontWeight: '600',
 							cursor: 'pointer',
-							transition: 'all 0.2s ease',
-						}}
-						onMouseEnter={(e) => {
+							transition: 'all 0.2s ease',}
+						onMouseEnter={(_e) => {
 							e.currentTarget.style.transform = 'translateY(-1px)';
 							e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
 						}}

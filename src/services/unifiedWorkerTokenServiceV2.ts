@@ -18,7 +18,7 @@ import type {
 } from './unifiedWorkerTokenService';
 import { workerTokenRepository } from './workerTokenRepository';
 
-const MODULE_TAG = '[🔑 UNIFIED-WORKER-TOKEN-V2]';
+const _MODULE_TAG = '[🔑 UNIFIED-WORKER-TOKEN-V2]';
 
 /**
  * Optimized Unified Worker Token Service V2
@@ -39,7 +39,6 @@ class UnifiedWorkerTokenServiceV2 {
 	 * Save worker token credentials
 	 */
 	async saveCredentials(credentials: UnifiedWorkerTokenCredentials): Promise<void> {
-
 		// Validate credentials first
 		const validation = this.validateCredentials(credentials);
 		if (!validation.isValid) {
@@ -53,7 +52,6 @@ class UnifiedWorkerTokenServiceV2 {
 	 * Load worker token credentials
 	 */
 	async loadCredentials(): Promise<UnifiedWorkerTokenCredentials | null> {
-
 		// Try repository first
 		let credentials = await workerTokenRepository.loadCredentials();
 
@@ -83,7 +81,6 @@ class UnifiedWorkerTokenServiceV2 {
 			scope?: string;
 		}
 	): Promise<void> {
-
 		const metadata = {
 			expiresAt: expiresAt || Date.now() + 3600 * 1000, // Default 1 hour
 			...tokenMetadata,
@@ -98,14 +95,12 @@ class UnifiedWorkerTokenServiceV2 {
 			expiresIn: metadata.expiresIn,
 			scope: metadata.scope,
 		});
-
 	}
 
 	/**
 	 * Get worker token (access token) if valid
 	 */
 	async getToken(): Promise<string | null> {
-
 		const token = await workerTokenRepository.getToken();
 
 		if (token) {
@@ -119,9 +114,7 @@ class UnifiedWorkerTokenServiceV2 {
 	 * Get worker token status
 	 */
 	async getStatus(): Promise<UnifiedWorkerTokenStatus> {
-
 		const status = await workerTokenRepository.getStatus();
-
 
 		return status;
 	}
@@ -210,18 +203,14 @@ class UnifiedWorkerTokenServiceV2 {
 	 * Clear worker token credentials
 	 */
 	async clearCredentials(): Promise<void> {
-
 		await workerTokenRepository.clearCredentials();
-
 	}
 
 	/**
 	 * Clear only the access token (keep credentials)
 	 */
 	async clearToken(): Promise<void> {
-
 		await workerTokenRepository.clearToken();
-
 	}
 
 	/**

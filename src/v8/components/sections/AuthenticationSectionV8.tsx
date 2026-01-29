@@ -3,7 +3,7 @@
  * @module v8/components/sections
  * @description Authentication Section Component
  * @version 3.0.0
- * 
+ *
  * Extracted from MFAAuthenticationMainPageV8.tsx as part of V3 refactoring.
  * This component handles the authentication UI including:
  * - Username input
@@ -34,7 +34,7 @@ export interface AuthenticationSectionProps {
 	tokenIsValid?: boolean;
 }
 
-const MODULE_TAG = '[🔐 AUTHENTICATION-SECTION-V8]';
+const _MODULE_TAG = '[🔐 AUTHENTICATION-SECTION-V8]';
 
 /**
  * Authentication Section Component

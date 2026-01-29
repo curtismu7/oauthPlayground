@@ -1,4 +1,3 @@
-import React from 'react';
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import MainLayout from './components/MainLayout';
 import Sidebar from './components/Sidebar';

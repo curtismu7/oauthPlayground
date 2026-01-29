@@ -11,10 +11,10 @@
  */
 
 import React, { useState } from 'react';
-import { FiUser, FiRefreshCw, FiLogIn } from 'react-icons/fi';
+import { FiLogIn, FiRefreshCw, FiUser } from 'react-icons/fi';
 import { useAuth } from '@/contexts/NewAuthContext';
-import { UserLoginModalV8 } from './UserLoginModalV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { UserLoginModalV8 } from './UserLoginModalV8';
 
 const MODULE_TAG = '[👤 USER-LOGIN-SECTION-V8]';
 
@@ -115,10 +115,12 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 
 				{/* Description */}
 				{!compact && (
-					<p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}>
-						User tokens are OAuth access tokens obtained via Authorization Code Flow.
-						They are used for user-initiated device registration and always create devices
-						with ACTIVATION_REQUIRED status.
+					<p
+						style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}
+					>
+						User tokens are OAuth access tokens obtained via Authorization Code Flow. They are used
+						for user-initiated device registration and always create devices with
+						ACTIVATION_REQUIRED status.
 					</p>
 				)}
 
@@ -134,7 +136,13 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 				>
 					<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 						<div>
-							<div style={{ fontSize: '14px', fontWeight: '600', color: isAuthenticated ? '#166534' : '#991b1b' }}>
+							<div
+								style={{
+									fontSize: '14px',
+									fontWeight: '600',
+									color: isAuthenticated ? '#166534' : '#991b1b',
+								}}
+							>
 								Status: {isAuthenticated ? 'Logged In' : 'Not Logged In'}
 							</div>
 							{!isAuthenticated && (
@@ -167,7 +175,10 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 								}}
 								title="Refresh user token"
 							>
-								<FiRefreshCw size={12} style={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }} />
+								<FiRefreshCw
+									size={12}
+									style={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }}
+								/>
 								Refresh
 							</button>
 						)}

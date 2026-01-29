@@ -162,7 +162,9 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 			// Stop if tokens are received during countdown
 			if (tokens) {
-				console.log(`${LOG_PREFIX} [INFO] Authorization completed during countdown - stopping timer`);
+				console.log(
+					`${LOG_PREFIX} [INFO] Authorization completed during countdown - stopping timer`
+				);
 				setTimeRemaining(0);
 				return;
 			}
@@ -413,13 +415,13 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 						`${LOG_PREFIX} [INFO] Authorization pending (attempt ${currentAttempt}/${pollingStatus.maxAttempts}) - waiting for user authorization...`
 					);
 				}
-				
+
 				// Update next attempt time for UI display
 				setPollingStatus((prev) => ({
 					...prev,
-					nextAttempt: Date.now() + (deviceCodeData.interval * 1000),
+					nextAttempt: Date.now() + deviceCodeData.interval * 1000,
 				}));
-				
+
 				return false;
 			} else if (data.error === 'slow_down') {
 				console.log(`${LOG_PREFIX} [WARN] Slow down requested by server`);
@@ -663,7 +665,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		}
 
 		console.log(`${LOG_PREFIX} [INFO] Manual refresh - checking authorization status...`);
-		
+
 		try {
 			const shouldStop = await pollForToken();
 			if (shouldStop) {

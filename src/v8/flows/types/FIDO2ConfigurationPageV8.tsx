@@ -31,6 +31,7 @@ import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
+import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -40,12 +41,9 @@ import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
-import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
-import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
-import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
 const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
 
@@ -61,8 +59,8 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	}, []);
 
 	// Environment and token state
-	const [searchParams] = useSearchParams();
-	const authContext = useAuth();
+	const [_searchParams] = useSearchParams();
+	const _authContext = useAuth();
 	const [environmentId, setEnvironmentId] = useState<string>('');
 	const [tokenStatus, setTokenStatus] = useState(
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
@@ -83,13 +81,15 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 			includeScopes: false,
 		});
 
-		return stored || {
-			environmentId: '',
-			username: '',
-			deviceAuthenticationPolicyId: '',
-			tokenType: 'worker' as const,
-			userToken: '',
-		};
+		return (
+			stored || {
+				environmentId: '',
+				username: '',
+				deviceAuthenticationPolicyId: '',
+				tokenType: 'worker' as const,
+				userToken: '',
+			}
+		);
 	});
 
 	// Worker Token Settings - Load from config service
@@ -718,7 +718,9 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 					}}
 				>
-					<h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+					<h3
+						style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}
+					>
 						Registration Flow Type
 					</h3>
 					<div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
@@ -732,7 +734,8 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 									cursor: 'pointer',
 									padding: '8px 16px',
 									borderRadius: '6px',
-									border: registrationFlowType === flowType ? '2px solid #3b82f6' : '1px solid #d1d5db',
+									border:
+										registrationFlowType === flowType ? '2px solid #3b82f6' : '1px solid #d1d5db',
 									background: registrationFlowType === flowType ? '#eff6ff' : 'white',
 									transition: 'all 0.2s ease',
 								}}
@@ -752,9 +755,11 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						))}
 					</div>
 					<div style={{ fontSize: '13px', color: '#6b7280', lineHeight: '1.4' }}>
-						<strong>Admin Flow:</strong> Use worker token for device registration (recommended for testing)
+						<strong>Admin Flow:</strong> Use worker token for device registration (recommended for
+						testing)
 						<br />
-						<strong>User Flow:</strong> Use user login token for device registration (requires user authentication)
+						<strong>User Flow:</strong> Use user login token for device registration (requires user
+						authentication)
 					</div>
 				</div>
 
@@ -2099,7 +2104,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					<UserLoginSectionV8
 						onTokenUpdated={(token) => {
 							// Update credentials when user token is received
-							setCredentials(prev => {
+							setCredentials((prev) => {
 								const updated = {
 									...prev,
 									userToken: token,
@@ -2143,20 +2148,35 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								registrationFlowType,
 								tokenStatusValid: tokenStatus.isValid,
 								userTokenValid: registrationFlowType === 'user' ? !!credentials.userToken : true,
-								disabled: !selectedFido2PolicyId || (registrationFlowType === 'admin' ? !tokenStatus.isValid : !credentials.userToken),
+								disabled:
+									!selectedFido2PolicyId ||
+									(registrationFlowType === 'admin'
+										? !tokenStatus.isValid
+										: !credentials.userToken),
 							});
 							handleProceedToRegistration();
 						}}
-						disabled={!selectedFido2PolicyId || (registrationFlowType === 'admin' ? !tokenStatus.token : !credentials.userToken)}
+						disabled={
+							!selectedFido2PolicyId ||
+							(registrationFlowType === 'admin' ? !tokenStatus.token : !credentials.userToken)
+						}
 						style={{
 							padding: '12px 24px',
 							border: 'none',
 							borderRadius: '6px',
-							background: selectedFido2PolicyId && (registrationFlowType === 'admin' ? !!tokenStatus.token : !!credentials.userToken) ? '#3b82f6' : '#9ca3af',
+							background:
+								selectedFido2PolicyId &&
+								(registrationFlowType === 'admin' ? !!tokenStatus.token : !!credentials.userToken)
+									? '#3b82f6'
+									: '#9ca3af',
 							color: 'white',
 							fontSize: '16px',
 							fontWeight: '600',
-							cursor: selectedFido2PolicyId && (registrationFlowType === 'admin' ? !!tokenStatus.token : !!credentials.userToken) ? 'pointer' : 'not-allowed',
+							cursor:
+								selectedFido2PolicyId &&
+								(registrationFlowType === 'admin' ? !!tokenStatus.token : !!credentials.userToken)
+									? 'pointer'
+									: 'not-allowed',
 							display: 'flex',
 							alignItems: 'center',
 							gap: '8px',
@@ -2210,7 +2230,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					onClose={() => setShowUserLoginModal(false)}
 					onTokenReceived={(token: string) => {
 						// Update credentials when user login succeeds
-						setCredentials(prev => ({
+						setCredentials((prev) => ({
 							...prev,
 							userToken: token,
 							tokenType: 'user' as const,

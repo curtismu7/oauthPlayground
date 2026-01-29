@@ -499,7 +499,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 
 			console.log('[Kroger] Exchanging authorization code with credentials:', {
 				environmentId: authConfig.environmentId,
-				clientId: trimmedClientId.substring(0, 8) + '...',
+				clientId: `${trimmedClientId.substring(0, 8)}...`,
 				hasClientSecret: !!trimmedClientSecret,
 				clientSecretLength: trimmedClientSecret.length,
 			});
@@ -702,7 +702,6 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 		displayAuthError,
 		loginCredentials.username,
 		rememberUsername,
-		storeRedirectlessAuthCode,
 		warnOfflineAccessUsage,
 	]);
 	const progressPercent = totalSteps > 1 ? (currentStep / (totalSteps - 1)) * 100 : 100;

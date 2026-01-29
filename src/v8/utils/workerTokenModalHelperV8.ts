@@ -7,7 +7,6 @@
  */
 
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
-import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import {
 	type TokenStatusInfo,
@@ -45,13 +44,10 @@ async function attemptSilentTokenRetrieval(silentApiRetrievalOverride?: boolean)
 		);
 		// #endregion
 
-		
 		const credentials = await workerTokenServiceV8.loadCredentials();
 		// #region agent log
 		// #endregion
-		
-		
-		
+
 		if (!credentials) {
 			// #region agent log
 			// #endregion
@@ -140,7 +136,7 @@ async function attemptSilentTokenRetrieval(silentApiRetrievalOverride?: boolean)
 		// #region agent log
 		// #endregion
 		return false;
-	} catch (error) {
+	} catch (_error) {
 		// #region agent log
 		// #endregion
 		return false;
@@ -155,7 +151,7 @@ function _shouldShowTokenModal(): boolean {
 	try {
 		const config = MFAConfigurationServiceV8.loadConfiguration();
 		return config.workerToken.showTokenAtEnd;
-	} catch (error) {
+	} catch (_error) {
 		return false;
 	}
 }
@@ -197,9 +193,6 @@ export async function handleShowWorkerTokenModal(
 			? overrideShowTokenAtEnd
 			: config.workerToken.showTokenAtEnd;
 
-
-
-
 	// Check current token status
 	const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 
@@ -218,16 +211,15 @@ export async function handleShowWorkerTokenModal(
 	// Token is missing or expired
 	// If silentApiRetrieval is ON, attempt silent retrieval
 	if (silentApiRetrieval) {
-		
 		// Show loading state during silent retrieval
 		if (setSilentLoading) {
 			setSilentLoading(true);
 		}
-		
+
 		// #region agent log
 		// #endregion
 		const silentRetrievalSucceeded = await attemptSilentTokenRetrieval(silentApiRetrieval);
-		
+
 		// Hide loading state
 		if (setSilentLoading) {
 			setSilentLoading(false);

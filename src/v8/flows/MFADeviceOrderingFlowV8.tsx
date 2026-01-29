@@ -583,7 +583,8 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 
 											// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 											if (newValue) {
-												const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+												const currentStatus =
+													WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 												if (!currentStatus.isValid) {
 													console.log(
 														'[DEVICE-ORDER-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'

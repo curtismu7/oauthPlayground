@@ -1,6 +1,3 @@
-// Simple Mock: Condensed V7 Flow Structure
-import React from 'react';
-
 const V7CondensedMock = () => {
 	return (
 		<div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>

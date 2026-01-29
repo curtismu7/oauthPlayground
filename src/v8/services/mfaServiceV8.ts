@@ -658,7 +658,7 @@ export class MFAServiceV8 {
 	 * @returns Device registration result
 	 */
 	static async registerDevice(params: RegisterDeviceParams): Promise<DeviceRegistrationResult> {
-		log.info('Registering ' + params.type + ' device', {
+		log.info(`Registering ${params.type} device`, {
 			username: params.username,
 			type: params.type,
 		});

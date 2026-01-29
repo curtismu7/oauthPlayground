@@ -19,14 +19,7 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import { AdvancedParametersSectionService } from '../../services/advancedParametersSectionService';
 import { AuthenticationModalService } from '../../services/authenticationModalService';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
-import {
-	FiBook,
-	FiKey,
-	FiSend,
-	FiSettings,
-	FiShield,
-	FiZap,
-} from '../../services/commonImportsService';
+import { FiKey, FiSend, FiSettings, FiShield, FiZap } from '../../services/commonImportsService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { CredentialGuardService } from '../../services/credentialGuardService';
 import { EducationalContentService } from '../../services/educationalContentService.tsx';
@@ -44,7 +37,6 @@ import {
 	IntrospectionApiCallData,
 	TokenIntrospectionService,
 } from '../../services/tokenIntrospectionService';
-import { UISettingsService } from '../../services/uiSettingsService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
@@ -176,7 +168,7 @@ const STEP_METADATA = [
 ];
 
 const OIDCHybridFlowV6: React.FC = () => {
-	const navigate = useNavigate();
+	const _navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 
 	// Initialize page scroll management
@@ -225,17 +217,17 @@ const OIDCHybridFlowV6: React.FC = () => {
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
 		HybridFlowCollapsibleSectionsManager.getDefaultState()
 	);
-	const [displayMode, setDisplayMode] = useState<DisplayMode>('page');
-	const [claimsRequest, setClaimsRequest] = useState<ClaimsRequestStructure | null>(null);
+	const [_displayMode, _setDisplayMode] = useState<DisplayMode>('page');
+	const [_claimsRequest, _setClaimsRequest] = useState<ClaimsRequestStructure | null>(null);
 	// Internationalization - SAVED FOR LATER
 	// const [uiLocales, setUiLocales] = useState<string>('');
 	// const [claimsLocales, setClaimsLocales] = useState<string>('');
-	const [audience, setAudience] = useState<string>('');
+	const [_audience, _setAudience] = useState<string>('');
 	const [showRedirectModal, setShowRedirectModal] = useState(false);
 	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
 		null
 	);
-	const [userInfo, setUserInfo] = useState<any>(null);
+	const [userInfo, _setUserInfo] = useState<any>(null);
 	const [showMissingCredentialsModal, setShowMissingCredentialsModal] = useState(false);
 	const [missingCredentialFields, setMissingCredentialFields] = useState<string[]>([]);
 
@@ -396,47 +388,56 @@ const OIDCHybridFlowV6: React.FC = () => {
 	}, [controller.tokens]);
 
 	// Render step content
-	const renderStepContent = useCallback((step: number) => {
-		switch (step) {
-			case 0:
-				return renderCredentialsConfiguration();
-			case 1:
-				return renderResponseTypeSelection();
-			case 2:
-				return renderAuthorizationUrlGeneration();
-			case 3:
-				return renderUserAuthentication();
-			case 4:
-				return renderTokenProcessing();
-			case 5:
-				return renderCodeExchange();
-			case 6:
-				return renderTokenManagement();
-			case 7:
-				return renderFlowCompletion();
-			default:
-				return <div>Invalid step</div>;
-		}
-	}, []);
+	const renderStepContent = useCallback(
+		(step: number) => {
+			switch (step) {
+				case 0:
+					return renderCredentialsConfiguration();
+				case 1:
+					return renderResponseTypeSelection();
+				case 2:
+					return renderAuthorizationUrlGeneration();
+				case 3:
+					return renderUserAuthentication();
+				case 4:
+					return renderTokenProcessing();
+				case 5:
+					return renderCodeExchange();
+				case 6:
+					return renderTokenManagement();
+				case 7:
+					return renderFlowCompletion();
+				default:
+					return <div>Invalid step</div>;
+			}
+		},
+		[
+			renderAuthorizationUrlGeneration,
+			renderCodeExchange,
+			renderCredentialsConfiguration,
+			renderFlowCompletion,
+			renderResponseTypeSelection,
+			renderTokenManagement,
+			renderTokenProcessing,
+			renderUserAuthentication,
+		]
+	);
 
 	// Step 0: Credentials & Configuration
 	const renderCredentialsConfiguration = () => {
 		// Wrapper to enforce openid scope (required for OIDC & PingOne)
-		const handleCredentialsChange = useCallback(
-			(newCredentials: typeof controller.credentials) => {
-				// Ensure openid is always included in scopes
-				if (newCredentials && newCredentials.scopes) {
-					const scopes = newCredentials.scopes.split(/\s+/).filter((s) => s.length > 0);
-					if (!scopes.includes('openid')) {
-						scopes.unshift('openid');
-						newCredentials.scopes = scopes.join(' ');
-						v4ToastManager.showWarning('Added required "openid" scope for OIDC compliance');
-					}
+		const handleCredentialsChange = useCallback((newCredentials: typeof controller.credentials) => {
+			// Ensure openid is always included in scopes
+			if (newCredentials?.scopes) {
+				const scopes = newCredentials.scopes.split(/\s+/).filter((s) => s.length > 0);
+				if (!scopes.includes('openid')) {
+					scopes.unshift('openid');
+					newCredentials.scopes = scopes.join(' ');
+					v4ToastManager.showWarning('Added required "openid" scope for OIDC compliance');
 				}
-				controller.setCredentials(newCredentials);
-			},
-			[controller]
-		);
+			}
+			controller.setCredentials(newCredentials);
+		}, []);
 
 		return (
 			<>

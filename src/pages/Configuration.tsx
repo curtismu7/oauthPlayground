@@ -542,8 +542,8 @@ const Configuration: React.FC = () => {
 	});
 	const [pingOneConfigSaved, setPingOneConfigSaved] = useState(false);
 
-	const [workerTokenLoading, setWorkerTokenLoading] = useState(false);
-	const [workerTokenError, setWorkerTokenError] = useState<string | null>(null);
+	const [workerTokenLoading, _setWorkerTokenLoading] = useState(false);
+	const [workerTokenError, _setWorkerTokenError] = useState<string | null>(null);
 	const [showWorkerToken, setShowWorkerToken] = useState(false);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [tokenStatus, setTokenStatus] = useState(() =>

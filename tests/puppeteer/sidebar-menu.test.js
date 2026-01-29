@@ -7,7 +7,7 @@ const waitForMenuToRender = async (page) => {
 	await page.waitForSelector('.ps-menu-button', { timeout: 15000 });
 };
 
-const computeKey = (button) => {
+const _computeKey = (button) => {
 	const text = (button.textContent ?? '').replace(/\s+/g, ' ').trim();
 	const indices = [];
 	let current = button;

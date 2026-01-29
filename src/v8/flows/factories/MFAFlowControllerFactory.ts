@@ -14,6 +14,7 @@
 import { EmailFlowController } from '../controllers/EmailFlowController';
 import { FIDO2FlowController } from '../controllers/FIDO2FlowController';
 import type { FlowControllerCallbacks } from '../controllers/MFAFlowController';
+import { MobileFlowController } from '../controllers/MobileFlowController';
 import { SMSFlowController } from '../controllers/SMSFlowController';
 import { TOTPFlowController } from '../controllers/TOTPFlowController';
 import { WhatsAppFlowController } from '../controllers/WhatsAppFlowController';
@@ -58,7 +59,7 @@ export class MFAFlowControllerFactory {
 				return new SMSFlowController(callbacks);
 
 			case 'MOBILE':
-				return new SMSFlowController(callbacks); // MOBILE uses SMS controller
+				return new MobileFlowController(callbacks); // PingOne Mobile app with QR code pairing
 
 			case 'EMAIL':
 				return new EmailFlowController(callbacks);

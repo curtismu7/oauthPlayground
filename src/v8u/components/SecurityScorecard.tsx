@@ -291,7 +291,7 @@ const RecommendationList = styled.ul`
   margin: 0;
 `;
 
-const RecommendationItem = styled.li`
+const _RecommendationItem = styled.li`
   padding: 0.5rem 0;
   color: #374151;
   font-size: 0.875rem;

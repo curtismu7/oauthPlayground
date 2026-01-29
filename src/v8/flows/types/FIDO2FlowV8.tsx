@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiShield } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FIDO2Service } from '@/services/fido2Service';
@@ -13,14 +13,7 @@ import { FIDODeviceExistsModalV8 } from '@/v8/components/FIDODeviceExistsModalV8
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { CollapsibleSectionV8 } from '@/v8/components/shared/CollapsibleSectionV8';
-import {
-	ErrorMessage,
-	InfoMessage,
-	MessageBoxV8,
-	SuccessMessage,
-	WarningMessage,
-} from '@/v8/components/shared/MessageBoxV8';
+import { SuccessMessage } from '@/v8/components/shared/MessageBoxV8';
 // import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8'; // Removed
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
@@ -32,15 +25,12 @@ import {
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
-import { fetchPhoneFromPingOne } from '@/v8/services/phoneAutoPopulationServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
-import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { FIDO2FlowController } from '../controllers/FIDO2FlowController';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
@@ -306,7 +296,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	const location = useLocation();
 
 	// Initialize loading state manager
-	const loadingManager = useMFALoadingStateManager();
+	const _loadingManager = useMFALoadingStateManager();
 
 	// Extended location state type to include policy IDs and FIDO2 config from configuration page
 	const locationState = location.state as {
@@ -398,8 +388,8 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	}, [locationState]);
 
 	// Ref to track if we've already skipped step 0 and store nav callback
-	const hasSkippedStep0Ref = useRef(false);
-	const skipStep0NavRef = useRef<((step: number) => void) | null>(null);
+	const _hasSkippedStep0Ref = useRef(false);
+	const _skipStep0NavRef = useRef<((step: number) => void) | null>(null);
 
 	// Initialize controller using factory with dynamic device type
 	const controller = useMemo(
@@ -842,7 +832,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 										// #region agent log
 										// #endregion
 										window.dispatchEvent(new Event('workerTokenUpdated'));
-										const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										const _newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 										// #region agent log
 										// #endregion
 										toastV8.success('Worker token removed');
@@ -1413,7 +1403,6 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			);
 		};
 	}, [
-		isConfigured,
 		webAuthnSupported,
 		webAuthnCapabilities,
 		fido2Policies,
@@ -1421,6 +1410,10 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		fido2PoliciesError,
 		fetchFido2Policies,
 		location,
+		locationState?.deviceAuthPolicyId, // Navigate to MFA config page with return path in state
+		navigate,
+		showTokenAtEnd,
+		silentApiRetrieval,
 	]);
 
 	// Ref to store pending trigger update (to avoid setState during render)
@@ -1522,6 +1515,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		isConfigured,
 		deviceType,
 		controller,
+		deviceLoadTrigger,
+		deviceSelection.existingDevices.length,
+		deviceSelection.loadingDevices,
 	]);
 
 	// Effect to handle auto-showing registration form when configured (moved from render to avoid setState during render)
@@ -2719,7 +2715,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				</div>
 			);
 		};
-	}, [navigate, isAuthenticating, assertionError, setIsAuthenticating, setAssertionError]);
+	}, [navigate, isAuthenticating, assertionError]);
 
 	// Step 3: Success screen (FIDO2 doesn't need OTP validation)
 	// Memoize renderStep3 to ensure stable function reference

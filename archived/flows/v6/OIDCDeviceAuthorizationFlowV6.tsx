@@ -4,7 +4,6 @@
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
@@ -30,25 +29,11 @@ import {
 	FiZap,
 } from '../../services/commonImportsService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import type { DiscoveryResult } from '../../services/comprehensiveDiscoveryService';
-import { ConfigurationSummaryService } from '../../services/configurationSummaryService';
-import EducationalContentService from '../../services/educationalContentService.tsx';
-import {
-	EnhancedApiCallData,
-	EnhancedApiCallDisplayService,
-} from '../../services/enhancedApiCallDisplayService';
 import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
 import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
-import TokenDisplayService from '../../services/tokenDisplayService';
-import {
-	IntrospectionApiCallData,
-	TokenIntrospectionService,
-} from '../../services/tokenIntrospectionService';
-import { UISettingsService } from '../../services/uiSettingsService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import logger from '../../utils/logger';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Styled Components (V5 Parity)
@@ -742,7 +727,7 @@ const OIDCDeviceAuthorizationFlowV6: React.FC = () => {
 		setShowPollingModal(false);
 	}, []);
 
-	const navigateToTokenManagement = useCallback(() => {
+	const _navigateToTokenManagement = useCallback(() => {
 		// Store flow navigation state for back navigation
 		storeFlowNavigationState('oidc-device-authorization-v6', currentStep, 'oidc');
 
@@ -1034,7 +1019,7 @@ const OIDCDeviceAuthorizationFlowV6: React.FC = () => {
 					// Extract environment ID from issuer URL using dedicated service
 					if (result.issuerUrl) {
 						const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
-						if (envIdMatch && envIdMatch[1]) {
+						if (envIdMatch?.[1]) {
 							deviceFlow.setCredentials({
 								...deviceFlow.credentials,
 								environmentId: envIdMatch[1],

@@ -46,7 +46,7 @@ export class EnvironmentIdServiceV8 {
 			console.log(`${MODULE_TAG} Saved environment ID`);
 
 			// Add to history (new feature)
-			this.addToHistory(trimmed);
+			EnvironmentIdServiceV8.addToHistory(trimmed);
 
 			// Dispatch event so components can react
 			window.dispatchEvent(new Event('environmentIdUpdated'));
@@ -83,10 +83,10 @@ export class EnvironmentIdServiceV8 {
 	/**
 	 * Validate environment ID format
 	 * PingOne environment IDs are UUIDs
-	 * 
+	 *
 	 * @param envId - Environment ID to validate
 	 * @returns Validation result with specific error message
-	 * 
+	 *
 	 * @example
 	 * const result = EnvironmentIdServiceV8.validateEnvironmentId(envId);
 	 * if (!result.valid) {
@@ -142,10 +142,10 @@ export class EnvironmentIdServiceV8 {
 	/**
 	 * Get recently used environment IDs
 	 * Useful for quick switching between environments
-	 * 
+	 *
 	 * @param limit - Maximum number of IDs to return (default: 5)
 	 * @returns Array of recent environment IDs (most recent first)
-	 * 
+	 *
 	 * @example
 	 * const recent = EnvironmentIdServiceV8.getRecentEnvironmentIds(5);
 	 * // Show in dropdown for quick selection
@@ -168,12 +168,12 @@ export class EnvironmentIdServiceV8 {
 	/**
 	 * Add environment ID to history
 	 * Automatically called by saveEnvironmentId
-	 * 
+	 *
 	 * @param envId - Environment ID to add to history
 	 */
 	private static addToHistory(envId: string): void {
 		try {
-			const history = this.getRecentEnvironmentIds(10);
+			const history = EnvironmentIdServiceV8.getRecentEnvironmentIds(10);
 
 			// Remove if already exists (to move to front)
 			const filtered = history.filter((id) => id !== envId);
@@ -204,22 +204,19 @@ export class EnvironmentIdServiceV8 {
 	/**
 	 * Format environment ID for display
 	 * Provides consistent formatting across the application
-	 * 
+	 *
 	 * @param envId - Environment ID to format
 	 * @param format - Format type ('short', 'medium', 'full')
 	 * @returns Formatted environment ID
-	 * 
+	 *
 	 * @example
 	 * const short = EnvironmentIdServiceV8.formatEnvironmentId(envId, 'short');
 	 * // "12345678..."
-	 * 
+	 *
 	 * const medium = EnvironmentIdServiceV8.formatEnvironmentId(envId, 'medium');
 	 * // "12345678-1234..."
 	 */
-	static formatEnvironmentId(
-		envId: string,
-		format: 'short' | 'medium' | 'full' = 'short'
-	): string {
+	static formatEnvironmentId(envId: string, format: 'short' | 'medium' | 'full' = 'short'): string {
 		if (!envId) {
 			return '(not set)';
 		}
@@ -239,8 +236,6 @@ export class EnvironmentIdServiceV8 {
 				}
 				return `${trimmed.substring(0, 13)}...`;
 			}
-
-			case 'full':
 			default:
 				return trimmed;
 		}

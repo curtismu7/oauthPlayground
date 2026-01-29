@@ -66,7 +66,7 @@
         document.getElementById('currentUrl').textContent = window.location.href;
         document.getElementById('origin').textContent = window.location.origin;
         
-        const expectedCallback = window.location.origin + '/authz-callback';
+        const expectedCallback = `${window.location.origin}/authz-callback`;
         document.getElementById('expectedCallback').textContent = expectedCallback;
         document.getElementById('redirectUri').textContent = expectedCallback;
         document.getElementById('redirectUriToCopy').textContent = expectedCallback;
@@ -151,7 +151,7 @@
         let localHtml = '<strong>Relevant Local Storage Keys:</strong><br>';
         localKeys.forEach(key => {
             const value = localStorage.getItem(key);
-            const shortValue = value && value.length > 100 ? value.substring(0, 100) + '...' : value;
+            const shortValue = value && value.length > 100 ? `${value.substring(0, 100)}...` : value;
             localHtml += `<code>${key}</code>: ${shortValue}<br>`;
         });
         document.getElementById('localDebug').innerHTML = localHtml;

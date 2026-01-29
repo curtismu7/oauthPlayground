@@ -237,7 +237,8 @@ export class UnifiedFlowErrorHandler {
 			if (message.includes('fetch') || message.includes('network')) {
 				return {
 					message,
-					userFriendlyMessage: 'Network error. Please check your internet connection and try again.',
+					userFriendlyMessage:
+						'Network error. Please check your internet connection and try again.',
 					recoverySuggestion: 'Verify your internet connection and retry the operation.',
 					errorCode: 'network_error',
 					category: 'network',

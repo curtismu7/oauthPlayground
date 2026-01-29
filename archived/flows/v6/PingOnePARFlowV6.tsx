@@ -27,10 +27,8 @@ import {
 	FiCheckCircle,
 	FiCopy,
 	FiExternalLink,
-	FiInfo,
 	FiKey,
 	FiRefreshCw,
-	FiSettings,
 	FiShield,
 } from '../../services/commonImportsService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
@@ -41,8 +39,7 @@ import {
 import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowStorageService } from '../../services/flowStorageService';
 import { pingOneConfigService } from '../../services/pingoneConfigService';
-import { StepValidationService, useStepValidation } from '../../services/stepValidationService';
-import { themeService } from '../../services/themeService';
+import { useStepValidation } from '../../services/stepValidationService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import {
 	DEFAULT_APP_CONFIG,
@@ -118,7 +115,7 @@ const StepContent = styled.div`
 // [REMOVED] Unused CollapsibleSection - migrated to CollapsibleHeader service
 // [REMOVED] Local collapsible styled component
 
-const CollapsibleTitle = styled.h3`
+const _CollapsibleTitle = styled.h3`
 	font-size: 1rem;
 	font-weight: 600;
 	color: #374151;
@@ -270,8 +267,8 @@ const PingOnePARFlowV6: React.FC = () => {
 	// Collapse all sections by default for cleaner UI
 	const shouldCollapseAll = true;
 
-	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>(() =>
-		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState('pingone-par-v6')
+	const [_collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>(
+		() => AuthorizationCodeSharedService.CollapsibleSections.getDefaultState('pingone-par-v6')
 	);
 
 	// PAR-specific advanced parameters
@@ -280,7 +277,7 @@ const PingOnePARFlowV6: React.FC = () => {
 	const [promptValues, setPromptValues] = useState<string[]>([]);
 	const [displayMode, setDisplayMode] = useState<DisplayMode>('page');
 	const [claimsRequest, setClaimsRequest] = useState<ClaimsRequestStructure | null>(null);
-	const [isSavedAdvancedParams, setIsSavedAdvancedParams] = useState(false);
+	const [_isSavedAdvancedParams, setIsSavedAdvancedParams] = useState(false);
 
 	// Load saved PAR advanced parameters on mount
 	useEffect(() => {
@@ -296,7 +293,7 @@ const PingOnePARFlowV6: React.FC = () => {
 	}, []);
 
 	// Save PAR advanced parameters
-	const handleSaveAdvancedParams = useCallback(async () => {
+	const _handleSaveAdvancedParams = useCallback(async () => {
 		console.log('💾 [PAR V6] Saving advanced parameters:', {
 			audience,
 			resources,
@@ -365,7 +362,7 @@ const PingOnePARFlowV6: React.FC = () => {
 	);
 
 	// Use service for toggle handler
-	const toggleSection =
+	const _toggleSection =
 		AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 
 	const generateRandomString = useCallback((length: number): string => {
@@ -726,7 +723,7 @@ const PingOnePARFlowV6: React.FC = () => {
 								console.log('[PAR Flow] Discovery completed:', result);
 								if (result.issuerUrl) {
 									const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
-									if (envIdMatch && envIdMatch[1]) {
+									if (envIdMatch?.[1]) {
 										const updated = {
 											...localCredentials,
 											environmentId: envIdMatch[1],
@@ -1162,8 +1159,6 @@ const PingOnePARFlowV6: React.FC = () => {
 		}
 	}, [
 		currentStep,
-		collapsedSections,
-		toggleSection,
 		controller.credentials,
 		controller.setCredentials,
 		controller.saveCredentials,
@@ -1184,6 +1179,8 @@ const PingOnePARFlowV6: React.FC = () => {
 		settings.tokenAutoExchange,
 		controller.exchangeTokens,
 		controller.isExchangingTokens,
+		controller.persistKey,
+		pingOneConfig,
 	]);
 
 	return (

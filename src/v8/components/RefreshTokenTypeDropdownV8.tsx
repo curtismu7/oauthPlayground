@@ -122,8 +122,8 @@ export const RefreshTokenTypeDropdownV8: React.FC<RefreshTokenTypeDropdownV8Prop
 			<br />
 			<strong>Opaque:</strong>
 			<br />
-			Refresh tokens are opaque references that must be validated by the authorization server.
-			More secure as token contents cannot be inspected, but requires token introspection endpoint.
+			Refresh tokens are opaque references that must be validated by the authorization server. More
+			secure as token contents cannot be inspected, but requires token introspection endpoint.
 			<br />
 			<br />
 			<em>Note: Opaque tokens are recommended for enhanced security in production environments.</em>

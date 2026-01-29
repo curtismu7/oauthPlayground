@@ -10,8 +10,6 @@
  */
 
 import type { ResponseMode } from '@/services/responseModeService';
-import { logger } from './unifiedFlowLoggerServiceV8U';
-import { UnifiedFlowErrorHandler } from './unifiedFlowErrorHandlerV8U';
 import {
 	type ClientCredentialsCredentials,
 	ClientCredentialsIntegrationServiceV8,
@@ -37,8 +35,10 @@ import {
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
+import { UnifiedFlowErrorHandler } from './unifiedFlowErrorHandlerV8U';
+import { logger } from './unifiedFlowLoggerServiceV8U';
 
-const MODULE_TAG = '[🔗 UNIFIED-FLOW-INTEGRATION-V8U]';
+const _MODULE_TAG = '[🔗 UNIFIED-FLOW-INTEGRATION-V8U]';
 
 export interface UnifiedFlowCredentials {
 	environmentId: string;
@@ -231,13 +231,13 @@ export class UnifiedFlowIntegrationV8U {
 
 		// Implicit flow
 		if (flowType === 'implicit') {
-			logger.debug(`✅ Using IMPLICIT FLOW - generating URL with response_type=token id_token`
-			);
+			logger.debug(`✅ Using IMPLICIT FLOW - generating URL with response_type=token id_token`);
 			// Ensure offline_access is included if enableRefreshToken is true (though implicit flow doesn't support refresh tokens)
 			let scopesToUse = credentials.scopes || 'openid profile email';
 			if (credentials.enableRefreshToken && !scopesToUse.includes('offline_access')) {
 				scopesToUse = `${scopesToUse.trim()} offline_access`;
-				logger.debug(`⚠️ Note: Implicit flow doesn't support refresh tokens, but adding offline_access scope anyway`
+				logger.debug(
+					`⚠️ Note: Implicit flow doesn't support refresh tokens, but adding offline_access scope anyway`
 				);
 			}
 
@@ -1047,9 +1047,7 @@ export class UnifiedFlowIntegrationV8U {
 			};
 			if (credentials.scopes) {
 				ccCredentials.scopes = credentials.scopes;
-				logger.debug(`Passing scopes to client credentials service:`,
-					credentials.scopes
-				);
+				logger.debug(`Passing scopes to client credentials service:`, credentials.scopes);
 			} else {
 				logger.warn(`No scopes provided in credentials for client credentials flow`);
 			}
@@ -1204,8 +1202,7 @@ export class UnifiedFlowIntegrationV8U {
 
 			if (credentials.clientSecret) {
 				oauthCredentials.clientSecret = credentials.clientSecret;
-				logger.debug(`Client secret included (length: ${credentials.clientSecret.length})`
-				);
+				logger.debug(`Client secret included (length: ${credentials.clientSecret.length})`);
 			} else {
 				logger.debug(`No client secret provided`);
 			}
@@ -1216,7 +1213,8 @@ export class UnifiedFlowIntegrationV8U {
 				logger.debug(`Private key included for private_key_jwt authentication`);
 			}
 
-			logger.debug(`OAuth credentials created with auth method: ${oauthCredentials.clientAuthMethod}`
+			logger.debug(
+				`OAuth credentials created with auth method: ${oauthCredentials.clientAuthMethod}`
 			);
 
 			logger.debug(`OAuth credentials prepared:`, {
@@ -1277,8 +1275,7 @@ export class UnifiedFlowIntegrationV8U {
 			// Add private key for private_key_jwt authentication
 			if (credentials.clientAuthMethod === 'private_key_jwt' && credentials.privateKey) {
 				hybridCredentials.privateKey = credentials.privateKey;
-				logger.debug(`Private key included for hybrid flow private_key_jwt authentication`
-				);
+				logger.debug(`Private key included for hybrid flow private_key_jwt authentication`);
 			}
 			return HybridFlowIntegrationServiceV8.exchangeCodeForTokens(
 				hybridCredentials,

@@ -5,16 +5,14 @@
  * @version 8.2.0
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FiMail, FiShield, FiX } from 'react-icons/fi';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useCallback, useMemo, useState } from 'react';
+import { FiMail, FiX } from 'react-icons/fi';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { fetchPhoneFromPingOne } from '@/v8/services/phoneAutoPopulationServiceV8';
@@ -24,7 +22,6 @@ import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { isValidPhoneFormat, validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
-import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { type Device, MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { getFullPhoneNumber } from '../controllers/SMSFlowController';
@@ -32,12 +29,7 @@ import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory'
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { DeviceType, MFACredentials } from '../shared/MFATypes';
-import {
-	buildSuccessPageData,
-	getSuccessPageStep,
-	type MFASuccessPageData,
-	MFASuccessPageV8,
-} from '../shared/mfaSuccessPageServiceV8';
+import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 
 const MODULE_TAG = '[📱 SMS-FLOW-V8]';
@@ -174,6 +166,8 @@ const SMSDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigured
 		setDeviceSelection,
 		tokenStatus.isValid,
 		username,
+		credentials,
+		tokenStatus,
 	]);
 
 	const authenticateExistingDevice = async (deviceId: string) => {
@@ -400,7 +394,6 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 	}, [
 		registrationFlowType,
 		props.credentials.tokenType,
-		props.credentials.userToken,
 		props.showUserLoginModal,
 		props.setCredentials,
 		props.setShowUserLoginModal,
@@ -749,7 +742,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 	);
 
 	// Use the dynamic controller if device type is different, otherwise use the hook's controller
-	const effectiveController = controllerDeviceType !== 'SMS' ? dynamicController : controller;
+	const _effectiveController = controllerDeviceType !== 'SMS' ? dynamicController : controller;
 
 	// Track previous step to detect when we navigate to step 1
 	const previousStepRef = React.useRef<number | null>(null);
@@ -854,14 +847,14 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			// - Registration Flow Type selector
 			//
 			// Auto-navigation removed - user must manually click "Next" button
-		// Registration flows should go directly 0 -> 2, skipping Step 1 entirely
-		// Registration and Authentication are completely separate flows
-		if (isConfigured && nav.currentStep === 0 && hasMinimumConfig) {
-			console.log(
-				`${MODULE_TAG} SMS configured, user must manually click "Next" button to proceed`
-			);
-			// Don't auto-navigate - let user click "Next" button manually
-		}
+			// Registration flows should go directly 0 -> 2, skipping Step 1 entirely
+			// Registration and Authentication are completely separate flows
+			if (isConfigured && nav.currentStep === 0 && hasMinimumConfig) {
+				console.log(
+					`${MODULE_TAG} SMS configured, user must manually click "Next" button to proceed`
+				);
+				// Don't auto-navigate - let user click "Next" button manually
+			}
 
 			// If configured flag is true but we are missing env/user/policy,
 			// stay on Step 0 so user can complete configuration
@@ -886,7 +879,15 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				/>
 			);
 		};
-	}, [isConfigured, location, registrationFlowType, adminDeviceStatus]);
+	}, [
+		isConfigured,
+		location,
+		registrationFlowType,
+		adminDeviceStatus,
+		MODULE_TAG,
+		setAdminDeviceStatus,
+		setRegistrationFlowType,
+	]);
 
 	// Step 1: Device Selection/Registration (using controller)
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
@@ -963,7 +964,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 		};
 
 		fetchUserPhone();
-	}, []);
+	}, [MODULE_TAG]);
 
 	// Close validation modal when verification completes
 	// This is handled in renderStep4Validate, not here, to avoid accessing mfaState outside of render props
@@ -1584,7 +1585,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			};
 
 			// Use the currentDeviceType already declared above (line 938)
-			const isSMS = currentDeviceType === 'SMS';
+			const _isSMS = currentDeviceType === 'SMS';
 			const isEMAIL = currentDeviceType === 'EMAIL';
 			// isPhoneBased is already declared above (line 941)
 			// Use phone validation utility for format checking
@@ -2354,15 +2355,13 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 								style={{
 									flex: 2,
 									padding: '12px 20px',
-									background:
-										isValidForm && !isLoading && isTokenValid ? '#10b981' : '#d1d5db',
+									background: isValidForm && !isLoading && isTokenValid ? '#10b981' : '#d1d5db',
 									color: 'white',
 									border: 'none',
 									borderRadius: '8px',
 									fontSize: '15px',
 									fontWeight: '600',
-									cursor:
-										isValidForm && !isLoading && isTokenValid ? 'pointer' : 'not-allowed',
+									cursor: isValidForm && !isLoading && isTokenValid ? 'pointer' : 'not-allowed',
 									boxShadow:
 										isValidForm && !isLoading && isTokenValid
 											? '0 4px 12px rgba(16, 185, 129, 0.3)'
@@ -2397,13 +2396,22 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			registrationFlowType,
 			adminDeviceStatus,
 			controllerDeviceType,
-			setControllerDeviceType,
 			setDeviceSelection,
-			updateOtpState,
 			setShowModal,
 			showModal,
 			deviceRegisteredActive,
 			isApiDisplayVisible,
+			MODULE_TAG,
+			navigate,
+			setDeviceRegisteredActive,
+			setShowValidationModal,
+			showValidationModal,
+			step2ModalDrag.handleMouseDown,
+			step2ModalDrag.isDragging,
+			step2ModalDrag.modalPosition.x,
+			step2ModalDrag.modalPosition.y,
+			step2ModalDrag.modalRef,
+			step2ModalDrag.modalStyle,
 		]
 	);
 
@@ -2417,7 +2425,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			navRef.current = nav;
 
 			// Helper function to update OTP state
-			const updateOtpState = (
+			const _updateOtpState = (
 				update: Partial<typeof otpState> | ((prev: typeof otpState) => typeof otpState)
 			) => {
 				setOtpState((prev) => {

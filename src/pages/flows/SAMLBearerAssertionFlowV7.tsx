@@ -9,7 +9,6 @@ import {
 	FiExternalLink,
 	FiEye,
 	FiEyeOff,
-	FiGlobe,
 	FiInfo,
 	FiPackage,
 	FiRefreshCw,
@@ -27,7 +26,6 @@ import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import SAMLAssertionService from '../../services/samlAssertionService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { credentialManager } from '../../utils/credentialManager';
-import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Get UI components from FlowUIService
@@ -600,7 +598,7 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 				scope: 'openid profile email',
 				iat: now,
 				exp: exp,
-				jti: 'saml_bearer_' + Math.random().toString(36).substr(2, 16),
+				jti: `saml_bearer_${Math.random().toString(36).substr(2, 16)}`,
 				token_use: 'access',
 				authn_method: 'saml_bearer',
 				// Include user attributes from SAML assertion (real authorization servers do this)
@@ -627,7 +625,7 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 				.replace(/\+/g, '-')
 				.replace(/\//g, '_')
 				.replace(/=/g, '');
-			const mockSignature = 'saml_mock_sig_' + Math.random().toString(36).substr(2, 43);
+			const mockSignature = `saml_mock_sig_${Math.random().toString(36).substr(2, 43)}`;
 			const mockAccessToken = `${encodedHeader}.${encodedPayload}.${mockSignature}`;
 
 			// MOCK IMPLEMENTATION - Generate mock token response

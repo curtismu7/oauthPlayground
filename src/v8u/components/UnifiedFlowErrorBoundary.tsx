@@ -1,6 +1,6 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import ErrorBoundary from '../../components/ErrorBoundary';
+import { Component, ErrorInfo, ReactNode } from 'react';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import ErrorBoundary from '../../components/ErrorBoundary';
 
 interface UnifiedFlowErrorBoundaryProps {
 	children: ReactNode;

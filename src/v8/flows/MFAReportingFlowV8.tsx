@@ -19,7 +19,6 @@
 import React, { useEffect, useState } from 'react';
 import { FiPackage } from 'react-icons/fi';
 import { usePageScroll } from '@/hooks/usePageScroll';
-import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
@@ -44,18 +43,18 @@ interface Credentials {
 	[key: string]: unknown;
 }
 
-type ReportType = 
-	| 'sms' 
-	| 'email' 
-	| 'voice' 
-	| 'totp' 
-	| 'fido2' 
-	| 'whatsapp' 
-	| 'mfa-enabled' 
-	| 'mfa-disabled' 
-	| 'all-devices' 
-	| 'active-devices' 
-	| 'blocked-devices' 
+type ReportType =
+	| 'sms'
+	| 'email'
+	| 'voice'
+	| 'totp'
+	| 'fido2'
+	| 'whatsapp'
+	| 'mfa-enabled'
+	| 'mfa-disabled'
+	| 'all-devices'
+	| 'active-devices'
+	| 'blocked-devices'
 	| 'compromised-devices'
 	| 'user-authentications'
 	| 'device-authentications';
@@ -304,14 +303,14 @@ export const MFAReportingFlowV8: React.FC = () => {
 	);
 
 	// Worker Token Settings - Load from config service
-	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+	const [silentApiRetrieval, _setSilentApiRetrieval] = useState(() => {
 		try {
 			return MFAConfigurationServiceV8.loadConfiguration().workerToken.silentApiRetrieval || false;
 		} catch {
 			return false;
 		}
 	});
-	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+	const [showTokenAtEnd, _setShowTokenAtEnd] = useState(() => {
 		try {
 			return MFAConfigurationServiceV8.loadConfiguration().workerToken.showTokenAtEnd || false;
 		} catch {
@@ -329,9 +328,11 @@ export const MFAReportingFlowV8: React.FC = () => {
 
 	// Check if current report requires username
 	const needsUsername = REPORT_CONFIGS[selectedReport]?.requiresUsername || false;
-	const isDeviceReport = ['sms', 'email', 'voice', 'totp', 'fido2', 'whatsapp'].includes(selectedReport);
+	const isDeviceReport = ['sms', 'email', 'voice', 'totp', 'fido2', 'whatsapp'].includes(
+		selectedReport
+	);
 	const isAsyncReport = REPORT_CONFIGS[selectedReport]?.isAsync;
-	
+
 	// Get API display padding
 	const { paddingBottom } = useApiDisplayPadding();
 
@@ -371,7 +372,8 @@ export const MFAReportingFlowV8: React.FC = () => {
 			const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
 			const confirmed = await uiNotificationServiceV8.confirm({
 				title: 'Remove Worker Token',
-				message: 'Are you sure you want to remove the worker token? This will affect all MFA reporting functionality.',
+				message:
+					'Are you sure you want to remove the worker token? This will affect all MFA reporting functionality.',
 				confirmText: 'Remove',
 				cancelText: 'Cancel',
 				severity: 'warning',
@@ -507,16 +509,33 @@ export const MFAReportingFlowV8: React.FC = () => {
 					}}
 				>
 					<h3 style={{ margin: '0 0 16px 0', color: '#1e293b' }}>Configuration</h3>
-					
-					<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+
+					<div
+						style={{
+							display: 'grid',
+							gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+							gap: '16px',
+							marginBottom: '16px',
+						}}
+					>
 						<div>
-							<label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+							<label
+								style={{
+									display: 'block',
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '6px',
+								}}
+							>
 								Environment ID <span style={{ color: '#dc2626' }}>*</span>
 							</label>
 							<input
 								type="text"
 								value={credentials.environmentId}
-								onChange={(e) => setCredentials({ ...credentials, environmentId: e.target.value.trim() })}
+								onChange={(e) =>
+									setCredentials({ ...credentials, environmentId: e.target.value.trim() })
+								}
 								placeholder="Enter Environment ID"
 								style={{
 									width: '100%',
@@ -530,7 +549,15 @@ export const MFAReportingFlowV8: React.FC = () => {
 
 						{needsUsername && (
 							<div>
-								<label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+								<label
+									style={{
+										display: 'block',
+										fontSize: '14px',
+										fontWeight: '600',
+										color: '#374151',
+										marginBottom: '6px',
+									}}
+								>
 									Username <span style={{ color: '#dc2626' }}>*</span>
 								</label>
 								<input
@@ -550,7 +577,15 @@ export const MFAReportingFlowV8: React.FC = () => {
 						)}
 
 						<div>
-							<label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+							<label
+								style={{
+									display: 'block',
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '6px',
+								}}
+							>
 								Region
 							</label>
 							<select
@@ -574,7 +609,15 @@ export const MFAReportingFlowV8: React.FC = () => {
 						</div>
 
 						<div>
-							<label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+							<label
+								style={{
+									display: 'block',
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '6px',
+								}}
+							>
 								Custom Domain (Optional)
 							</label>
 							<input
@@ -653,10 +696,24 @@ export const MFAReportingFlowV8: React.FC = () => {
 					}}
 				>
 					<h3 style={{ margin: '0 0 16px 0', color: '#1e293b' }}>Report Selection</h3>
-					
-					<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+
+					<div
+						style={{
+							display: 'grid',
+							gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+							gap: '16px',
+						}}
+					>
 						<div>
-							<label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+							<label
+								style={{
+									display: 'block',
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '6px',
+								}}
+							>
 								Report Type
 							</label>
 							<select
@@ -710,8 +767,18 @@ export const MFAReportingFlowV8: React.FC = () => {
 					</div>
 
 					{needsUsername && (
-						<div style={{ marginTop: '12px', padding: '12px', background: '#fef3c7', borderRadius: '6px', fontSize: '12px', color: '#92400e' }}>
-							<strong>Note:</strong> This report type requires a username to filter results for a specific user.
+						<div
+							style={{
+								marginTop: '12px',
+								padding: '12px',
+								background: '#fef3c7',
+								borderRadius: '6px',
+								fontSize: '12px',
+								color: '#92400e',
+							}}
+						>
+							<strong>Note:</strong> This report type requires a username to filter results for a
+							specific user.
 						</div>
 					)}
 				</div>
@@ -728,7 +795,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 						}}
 					>
 						<h3 style={{ margin: '0 0 16px 0', color: '#1e293b' }}>{getReportTitle()}</h3>
-						
+
 						<div style={{ marginBottom: '16px' }}>
 							<strong>Total Records:</strong> {reports.length}
 						</div>

@@ -1,7 +1,7 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/hooks/useFlowStateManagement.ts
 // V7.1 Flow State Management - Consolidated state management for OAuth Authorization Code Flow
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import type {
 	AuthCodeState,
@@ -325,8 +325,8 @@ export const useFlowStateManagement = () => {
 
 	const getCompletedSteps = useCallback(() => {
 		return Object.keys(stepCompletion)
-			.filter((step) => stepCompletion[parseInt(step)] === true)
-			.map((step) => parseInt(step))
+			.filter((step) => stepCompletion[parseInt(step, 10)] === true)
+			.map((step) => parseInt(step, 10))
 			.sort((a, b) => a - b);
 	}, [stepCompletion]);
 

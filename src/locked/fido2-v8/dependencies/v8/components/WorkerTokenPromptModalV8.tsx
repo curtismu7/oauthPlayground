@@ -6,11 +6,10 @@
  */
 
 import React from 'react';
-import { FiAlertTriangle, FiKey, FiX } from 'react-icons/fi';
+import { FiAlertTriangle, FiX } from 'react-icons/fi';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
-import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 
-const MODULE_TAG = '[🔑 WORKER-TOKEN-PROMPT-MODAL-V8]';
+const _MODULE_TAG = '[🔑 WORKER-TOKEN-PROMPT-MODAL-V8]';
 
 interface WorkerTokenPromptModalV8Props {
 	isOpen: boolean;
@@ -44,7 +43,7 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 
 		window.addEventListener('keydown', handleEscape);
 		return () => window.removeEventListener('keydown', handleEscape);
-	}, [isOpen]);
+	}, [isOpen, handleCancel]);
 
 	return (
 		<>

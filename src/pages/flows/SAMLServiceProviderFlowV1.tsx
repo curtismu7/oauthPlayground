@@ -466,7 +466,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 		} finally {
 			setIsFetchingPingOneApp(false);
 		}
-	}, [fetchPingOneApplication, pingOneAppIdInput, updateConfig]);
+	}, [fetchPingOneApplication, pingOneAppIdInput, updateConfig, isAdminConfigured]);
 
 	const handleSyncDynamicAcs = useCallback(async () => {
 		if (!pingOneAppIdInput.trim()) {
@@ -511,6 +511,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 		samlConfig.enableAlwaysAcceptAcsUrlInSignedAuthnRequest,
 		syncDynamicAcsWithPingOne,
 		updateConfig,
+		samlConfig.signingCertificate,
 	]);
 
 	// Generate sample AuthnRequest with dynamic ACS URL
@@ -856,7 +857,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				</Helper>
 			)}
 
-			{pingOneAdmin && pingOneAdmin.environmentId && pingOneAdmin.clientId && (
+			{pingOneAdmin?.environmentId && pingOneAdmin.clientId && (
 				<GeneratedContentBox>
 					<strong>PingOne Admin Summary</strong>
 					<ParameterGrid style={{ marginTop: '0.75rem' }}>

@@ -83,7 +83,7 @@ test.describe('OAuth Playground - Comprehensive User Flows', () => {
 				await page.waitForTimeout(1000);
 
 				// Check for error messages
-				const errorMessages = page.locator(
+				const _errorMessages = page.locator(
 					'.error, [data-testid*="error"], .alert-danger, .text-danger'
 				);
 				// Note: This might not always show errors depending on form validation

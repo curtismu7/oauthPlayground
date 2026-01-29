@@ -35,7 +35,7 @@ export function testConfigChecker() {
 		const normalizedApp = (service as any).normalize(mockPingOneApp);
 
 		// Test diff function
-		const diffs = (service as any).diff(normalizedForm, normalizedApp);
+		const _diffs = (service as any).diff(normalizedForm, normalizedApp);
 	} catch (error) {
 		console.error('❌ Config Checker test failed:', error);
 	}

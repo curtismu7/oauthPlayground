@@ -257,7 +257,7 @@ const PingOnePARFlowV7: React.FC = () => {
 				redirectUri: 'https://localhost:3000/par-callback',
 			});
 		}
-	}, [controller.credentials]);
+	}, [controller.credentials, controller.setCredentials]);
 
 	// Ensure PAR flow uses its own credential storage
 	useEffect(() => {
@@ -269,7 +269,7 @@ const PingOnePARFlowV7: React.FC = () => {
 			console.log('🔧 [PAR V7] Saving credentials to PAR-specific storage:', {
 				flowKey: 'pingone-par-flow-v7',
 				environmentId: controller.credentials.environmentId,
-				clientId: controller.credentials.clientId?.substring(0, 8) + '...',
+				clientId: `${controller.credentials.clientId?.substring(0, 8)}...`,
 				redirectUri: controller.credentials.redirectUri,
 			});
 
@@ -322,7 +322,11 @@ const PingOnePARFlowV7: React.FC = () => {
 			redirectUri: controller.credentials.redirectUri,
 			hasCredentials: !!(controller.credentials.environmentId && controller.credentials.clientId),
 		});
-	}, []);
+	}, [
+		controller.credentials.clientId,
+		controller.credentials.environmentId,
+		controller.credentials.redirectUri,
+	]);
 
 	// V7 Enhanced state management (unused - keeping for future use)
 	// const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>({
@@ -408,7 +412,7 @@ const PingOnePARFlowV7: React.FC = () => {
 		selectedVariant,
 		parConfigParams,
 		authorizationDetails,
-		parConfig, // Include PAR configuration in dependencies
+		controller.credentials,
 	]);
 
 	// PKCE generation handler
@@ -2218,7 +2222,7 @@ password=[your-password]`}
 											const contentType = authResponse.headers.get('content-type');
 											console.log('🔐 [PAR V7] Response content-type:', contentType);
 
-											if (contentType && contentType.includes('text/html')) {
+											if (contentType?.includes('text/html')) {
 												// PingOne returned an HTML login page - this is expected for OAuth flows
 												console.log(
 													'🔐 [PAR V7] Received HTML login page - redirectless authentication not supported'
@@ -2413,40 +2417,40 @@ password=[your-password]`}
 
 						<div style={{ display: 'flex', justifyContent: 'center' }}>
 							<button
-							onClick={async () => {
-								// Exchange authorization code for tokens
-								if (!controller.authCode) {
-									v4ToastManager.showError('No authorization code available');
-									return;
-								}
+								onClick={async () => {
+									// Exchange authorization code for tokens
+									if (!controller.authCode) {
+										v4ToastManager.showError('No authorization code available');
+										return;
+									}
 
-								try {
-									// Use the exchangeTokens method
-									await controller.exchangeTokens();
+									try {
+										// Use the exchangeTokens method
+										await controller.exchangeTokens();
 
-									// Mark step 6 action as completed
-									setCompletedActions((prev) => ({ ...prev, 6: true }));
+										// Mark step 6 action as completed
+										setCompletedActions((prev) => ({ ...prev, 6: true }));
 
-									v4ToastManager.showSuccess('✅ Token exchange successful!');
-								} catch (error) {
-									v4ToastManager.showError(
-										`Token exchange failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-									);
-								}
-							}}
-							disabled={!controller.authCode}
-							style={{
-								padding: '0.75rem 1.5rem',
-								background: '#8b5cf6',
-								color: 'white',
-								border: 'none',
-								borderRadius: '0.5rem',
-								cursor: 'pointer',
-								marginTop: '1rem',
-							}}
-						>
-							Exchange Code for Tokens
-						</button>
+										v4ToastManager.showSuccess('✅ Token exchange successful!');
+									} catch (error) {
+										v4ToastManager.showError(
+											`Token exchange failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+										);
+									}
+								}}
+								disabled={!controller.authCode}
+								style={{
+									padding: '0.75rem 1.5rem',
+									background: '#8b5cf6',
+									color: 'white',
+									border: 'none',
+									borderRadius: '0.5rem',
+									cursor: 'pointer',
+									marginTop: '1rem',
+								}}
+							>
+								Exchange Code for Tokens
+							</button>
 						</div>
 
 						{controller.tokens?.accessToken ? (

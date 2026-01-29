@@ -12,7 +12,6 @@ import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
-import ResponseModeSelector from '../../components/ResponseModeSelector';
 import {
 	HelperText,
 	ResultsHeading,
@@ -36,40 +35,28 @@ import {
 	FiCheckCircle,
 	FiCopy,
 	FiExternalLink,
-	FiEye,
-	FiEyeOff,
 	FiGlobe,
 	FiInfo,
 	FiKey,
 	FiRefreshCw,
-	FiSettings,
 	FiShield,
 } from '../../services/commonImportsService';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import EducationalContentService from '../../services/educationalContentService.tsx';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { getFlowSequence } from '../../services/flowSequenceService';
 import FlowStorageService from '../../services/flowStorageService';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import { ResponseMode } from '../../services/responseModeService';
 import {
 	IntrospectionApiCallData,
 	TokenIntrospectionService,
 } from '../../services/tokenIntrospectionService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { getAuthCodeIfFresh, setAuthCodeWithTimestamp } from '../../utils/sessionStorageHelpers';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import {
-	DEFAULT_APP_CONFIG,
-	type IntroSectionKey,
-	RAR_EDUCATION,
-	STEP_METADATA,
-} from './config/RARFlow.config';
+import { DEFAULT_APP_CONFIG, type IntroSectionKey, STEP_METADATA } from './config/RARFlow.config';
 
 type StepCompletionState = Record<number, boolean>;
 
@@ -447,7 +434,7 @@ const HighlightBadge = styled.span`
 	font-weight: 700;
 `;
 
-const CodeBlock = styled.pre`
+const _CodeBlock = styled.pre`
 	background-color: #1e293b;
 	border: 1px solid #334155;
 	border-radius: 0.5rem;
@@ -461,7 +448,7 @@ const CodeBlock = styled.pre`
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
-const GeneratedUrlDisplay = styled.div`
+const _GeneratedUrlDisplay = styled.div`
 	background-color: #ecfdf3;
 	border: 1px solid #bbf7d0;
 	border-radius: 0.75rem;
@@ -473,7 +460,7 @@ const GeneratedUrlDisplay = styled.div`
 	position: relative;
 `;
 
-const Modal = styled.div<{ $show?: boolean }>`
+const _Modal = styled.div<{ $show?: boolean }>`
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -486,7 +473,7 @@ const Modal = styled.div<{ $show?: boolean }>`
 	z-index: 2000;
 `;
 
-const ModalContent = styled.div`
+const _ModalContent = styled.div`
 	background-color: #ffffff;
 	border-radius: 0.75rem;
 	padding: 2rem;
@@ -495,7 +482,7 @@ const ModalContent = styled.div`
 	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 `;
 
-const ModalIcon = styled.div`
+const _ModalIcon = styled.div`
 	width: 4rem;
 	height: 4rem;
 	border-radius: 50%;
@@ -508,14 +495,14 @@ const ModalIcon = styled.div`
 	color: #ffffff;
 `;
 
-const ModalTitle = styled.h3`
+const _ModalTitle = styled.h3`
 	font-size: 1.25rem;
 	font-weight: 600;
 	color: var(--color-text-primary, #111827);
 	margin-bottom: 0.5rem;
 `;
 
-const ModalText = styled.p`
+const _ModalText = styled.p`
 	font-size: 0.875rem;
 	color: #6b7280;
 	line-height: 1.5;
@@ -577,7 +564,7 @@ const RARFlowV6: React.FC = () => {
 	// Collapse all sections by default for cleaner UI
 	const shouldCollapseAll = true;
 
-	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
+	const [_pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
 	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
 		null
 	);
@@ -588,14 +575,14 @@ const RARFlowV6: React.FC = () => {
 	const [showRedirectModal, setShowRedirectModal] = useState(false);
 	const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
-	const [showSavedSecret, setShowSavedSecret] = useState(false);
+	const [_showSavedSecret, _setShowSavedSecret] = useState(false);
 	const [, setIsFetchingUserInfo] = useState(false);
 	const [completionCollapsed, setCompletionCollapsed] = useState(false);
 
 	// Scroll to top on step change
 	useEffect(() => {
 		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange();
-	}, [currentStep]);
+	}, []);
 
 	// Enforce correct response_type for OIDC (should be 'code')
 	useEffect(() => {
@@ -647,7 +634,7 @@ const RARFlowV6: React.FC = () => {
 				console.warn('[AuthorizationCodeFlowV5] Failed to parse stored PingOne config:', error);
 			}
 		}
-	}, []); // Empty dependency array - only run once on mount
+	}, [controller.credentials, controller.setCredentials]); // Empty dependency array - only run once on mount
 
 	// Debug: Always log the current authorization code state
 	console.log('🔍 [AuthorizationCodeFlowV5] Current controller.authCode:', {
@@ -779,11 +766,11 @@ const RARFlowV6: React.FC = () => {
 	// The auth code detection is already handled in the other useEffect
 
 	// Get flow sequence for Step 0 diagram
-	const flowSequence = useMemo(() => {
+	const _flowSequence = useMemo(() => {
 		return getFlowSequence('rar');
 	}, []);
 
-	const stepCompletions = useMemo<StepCompletionState>(
+	const _stepCompletions = useMemo<StepCompletionState>(
 		() => ({
 			0: controller.hasStepResult('setup-credentials') || controller.hasCredentialsSaved,
 			1: controller.hasStepResult('generate-pkce') || Boolean(controller.pkceCodes.codeVerifier),
@@ -810,7 +797,7 @@ const RARFlowV6: React.FC = () => {
 	const toggleSection =
 		AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 
-	const handleSaveConfiguration = useCallback(async () => {
+	const _handleSaveConfiguration = useCallback(async () => {
 		const required: Array<keyof StepCredentials> = [
 			'environmentId',
 			'clientId',
@@ -831,7 +818,7 @@ const RARFlowV6: React.FC = () => {
 		v4ToastManager.showSuccess('Configuration saved successfully!');
 	}, [controller]);
 
-	const savePingOneConfig = useCallback(
+	const _savePingOneConfig = useCallback(
 		async (config: PingOneApplicationState) => {
 			setPingOneConfig(config);
 			sessionStorage.setItem('oidc-authorization-code-v5-app-config', JSON.stringify(config));
@@ -975,7 +962,7 @@ const RARFlowV6: React.FC = () => {
 	}, []);
 
 	// Extract x5t parameter from JWT header
-	const getX5tParameter = useCallback((token: string) => {
+	const _getX5tParameter = useCallback((token: string) => {
 		try {
 			const header = decodeJWTHeader(token);
 			return header.x5t || header['x5t#S256'] || null;
@@ -1007,7 +994,7 @@ const RARFlowV6: React.FC = () => {
 		window.open('/token-management', '_blank');
 	}, [controller.tokens, controller.credentials, currentStep]);
 
-	const navigateToTokenManagementWithRefreshToken = useCallback(() => {
+	const _navigateToTokenManagementWithRefreshToken = useCallback(() => {
 		AuthorizationCodeSharedService.TokenManagement.navigateToTokenManagement(
 			'oidc',
 			controller.tokens,
@@ -1027,7 +1014,7 @@ const RARFlowV6: React.FC = () => {
 		}
 
 		window.open('/token-management', '_blank');
-	}, [controller.tokens, controller.credentials]);
+	}, [controller.tokens, controller.credentials, currentStep]);
 
 	const handleResetFlow = useCallback(() => {
 		controller.resetFlow();
@@ -1146,6 +1133,7 @@ const RARFlowV6: React.FC = () => {
 			localAuthCode,
 			controller.tokens,
 			controller.userInfo,
+			controller.persistKey,
 		]
 	);
 
@@ -1216,6 +1204,7 @@ const RARFlowV6: React.FC = () => {
 		controller.authCode,
 		localAuthCode,
 		controller.credentials,
+		controller,
 	]);
 
 	const handlePrev = useCallback(() => {
@@ -2101,25 +2090,20 @@ const RARFlowV6: React.FC = () => {
 		handleGenerateAuthUrl,
 		handleGeneratePkce,
 		navigateToTokenManagement,
-		navigateToTokenManagementWithRefreshToken,
-		stepCompletions,
 		toggleSection,
 		canNavigateNext,
 		controller.setAuthCodeManually,
 		handleNextClick,
 		handleOpenAuthUrl,
 		handleResetFlow,
-		handleSaveConfiguration,
 		handleIntrospectToken,
 		isStepValid,
 		localAuthCode,
-		pingOneConfig,
-		savePingOneConfig,
 		manualAuthCodeId,
-		getX5tParameter,
-		showSavedSecret,
 		controller.isFetchingUserInfo,
-		controller.setCredentials,
+		controller.persistKey,
+		introspectionApiCall,
+		renderFlowSummary,
 	]);
 
 	return (

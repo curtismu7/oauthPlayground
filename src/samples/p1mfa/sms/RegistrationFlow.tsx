@@ -31,7 +31,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 	const [deviceId, setDeviceId] = useState<string>();
 	const [phone, setPhone] = useState('');
 	const [otp, setOtp] = useState('');
-	const [registrationResult, setRegistrationResult] = useState<DeviceRegistrationResult>();
+	const [_registrationResult, setRegistrationResult] = useState<DeviceRegistrationResult>();
 
 	const handleRegister = async () => {
 		if (!userId || !phone) {

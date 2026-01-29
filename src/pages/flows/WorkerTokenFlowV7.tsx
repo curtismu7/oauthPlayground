@@ -1,8 +1,8 @@
 // src/pages/flows/WorkerTokenFlowV7.tsx
 // V7 PingOne Worker Token Flow with ComprehensiveCredentialsService
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiCopy, FiKey, FiSettings, FiShield } from 'react-icons/fi';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiKey, FiShield } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
@@ -53,14 +53,14 @@ const StyledHelperText = styled.p`
 	margin-bottom: 20px;
 `;
 
-const ActionRow = styled.div`
+const _ActionRow = styled.div`
 	display: flex;
 	gap: 12px;
 	flex-wrap: wrap;
 	margin-top: 16px;
 `;
 
-const HighlightedActionButton = styled.button<{ $priority?: string }>`
+const _HighlightedActionButton = styled.button<{ $priority?: string }>`
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -108,7 +108,7 @@ const WorkerTokenFlowV7: React.FC = () => {
 			requiredFields: ['environmentId', 'clientId', 'clientSecret'],
 			showToast: true,
 		});
-	}, []); // Only run once on mount
+	}, [controller.credentials]); // Only run once on mount
 	const navigate = useNavigate();
 
 	// Initialize controller with default scopes for worker tokens
@@ -120,7 +120,7 @@ const WorkerTokenFlowV7: React.FC = () => {
 	// Local state for credentials
 	const [credentials, setCredentials] = useState(controller.credentials);
 	const [currentStep, setCurrentStep] = useState(0);
-	const [errorDetails, setErrorDetails] = useState<any>(null);
+	const [_errorDetails, setErrorDetails] = useState<any>(null);
 	const [workerToken, setWorkerToken] = useState(localStorage.getItem('worker_token') || '');
 
 	// Debug logging for credentials being passed to ComprehensiveCredentialsService
@@ -161,7 +161,7 @@ const WorkerTokenFlowV7: React.FC = () => {
 		console.log('🔍 [WorkerTokenFlowV7] Current local credentials before sync:', credentials);
 		setCredentials(controller.credentials);
 		console.log('🔍 [WorkerTokenFlowV7] Local credentials after sync:', controller.credentials);
-	}, [controller.credentials]);
+	}, [controller.credentials, credentials]);
 
 	// Check for worker token updates
 	useEffect(() => {
@@ -250,7 +250,7 @@ const WorkerTokenFlowV7: React.FC = () => {
 	}, [controller]);
 
 	// Enhanced step validation with error messages
-	const isStepValid = useCallback(
+	const _isStepValid = useCallback(
 		(step: number): boolean => {
 			switch (step) {
 				case 0:

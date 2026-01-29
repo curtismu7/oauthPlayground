@@ -515,156 +515,154 @@ const AppleTVDeviceFlow: React.FC<AppleTVDeviceFlowProps> = ({
 	};
 
 	return (
-		<>
-			<AppleTVContainer>
-				{/* Physical TV Frame */}
-				<TVFrame>
-					{/* TV Screen */}
-					<TVScreen>
-						{/* Movie Playback Controls (bottom of screen) */}
-						<MovieControls>
-							<PlaybackProgress>
-								<ProgressBar />
-							</PlaybackProgress>
-							<PlaybackTime>
-								<span>12:34</span>
-								<span>35:42</span>
-							</PlaybackTime>
-							<PlaybackButtons>
-								<PlayButton>⏮</PlayButton>
-								<PlayButton>⏸</PlayButton>
-								<PlayButton>⏭</PlayButton>
-							</PlaybackButtons>
-						</MovieControls>
+		<AppleTVContainer>
+			{/* Physical TV Frame */}
+			<TVFrame>
+				{/* TV Screen */}
+				<TVScreen>
+					{/* Movie Playback Controls (bottom of screen) */}
+					<MovieControls>
+						<PlaybackProgress>
+							<ProgressBar />
+						</PlaybackProgress>
+						<PlaybackTime>
+							<span>12:34</span>
+							<span>35:42</span>
+						</PlaybackTime>
+						<PlaybackButtons>
+							<PlayButton>⏮</PlayButton>
+							<PlayButton>⏸</PlayButton>
+							<PlayButton>⏭</PlayButton>
+						</PlaybackButtons>
+					</MovieControls>
 
-						{/* Main Content */}
+					{/* Main Content */}
+					<div
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'center',
+							justifyContent: 'flex-start',
+							marginTop: '2rem',
+							marginBottom: '1rem',
+						}}
+					>
 						<div
 							style={{
 								display: 'flex',
-								flexDirection: 'column',
 								alignItems: 'center',
-								justifyContent: 'flex-start',
-								marginTop: '2rem',
+								justifyContent: 'center',
 								marginBottom: '1rem',
 							}}
 						>
+							<StatusIndicator $active={!!state.tokens} />
+							<TVTitle>Device Authorization</TVTitle>
+						</div>
+
+						<TVSubtitle>Scan QR code or enter this code on your phone or computer</TVSubtitle>
+
+						{/* QR Code Display */}
+						{(state.verificationUriComplete || (state.verificationUri && state.userCode)) && (
 							<div
 								style={{
 									display: 'flex',
-									alignItems: 'center',
 									justifyContent: 'center',
+									alignItems: 'center',
 									marginBottom: '1rem',
+									padding: '0.75rem',
+									backgroundColor: 'rgba(255, 255, 255, 0.95)',
+									borderRadius: '0.5rem',
+									border: '2px solid rgba(255, 255, 255, 0.3)',
+									boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
 								}}
 							>
-								<StatusIndicator $active={!!state.tokens} />
-								<TVTitle>Device Authorization</TVTitle>
+								<QRCodeSVG
+									value={
+										state.verificationUriComplete ||
+										`${state.verificationUri}?user_code=${state.userCode}`
+									}
+									size={180}
+									level="M"
+									includeMargin={true}
+								/>
 							</div>
+						)}
 
-							<TVSubtitle>Scan QR code or enter this code on your phone or computer</TVSubtitle>
+						{/* User Code Display */}
+						{state.userCode && (
+							<>
+								<UserCodeLabel>Enter Code</UserCodeLabel>
+								<UserCodeDisplay>{state.userCode}</UserCodeDisplay>
+							</>
+						)}
 
-							{/* QR Code Display */}
-							{(state.verificationUriComplete || (state.verificationUri && state.userCode)) && (
+						{/* Status Display */}
+						{state.status && (
+							<StatusDisplay $status={state.status}>
+								<StatusIcon>{getStatusIcon()}</StatusIcon>
+								<StatusText>{getStatusText()}</StatusText>
+								<StatusMessage>{getStatusMessage()}</StatusMessage>
+							</StatusDisplay>
+						)}
+
+						{/* Control Buttons */}
+						<ControlButtons>
+							<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
+								<FiCopy size={12} /> Copy Code
+							</ControlButton>
+							<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
+								<FiCopy size={12} /> Copy URI
+							</ControlButton>
+						</ControlButtons>
+
+						{/* Success Message */}
+						{state.status === 'authorized' && state.tokens && (
+							<div
+								style={{
+									background: 'rgba(52, 199, 89, 0.15)',
+									border: '2px solid rgba(52, 199, 89, 0.3)',
+									borderRadius: '0.75rem',
+									padding: '1rem',
+									marginTop: '1rem',
+								}}
+							>
 								<div
 									style={{
-										display: 'flex',
-										justifyContent: 'center',
-										alignItems: 'center',
-										marginBottom: '1rem',
-										padding: '0.75rem',
-										backgroundColor: 'rgba(255, 255, 255, 0.95)',
-										borderRadius: '0.5rem',
-										border: '2px solid rgba(255, 255, 255, 0.3)',
-										boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+										fontSize: '0.625rem',
+										fontWeight: '600',
+										color: '#34c759',
+										textAlign: 'center',
+										fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
 									}}
 								>
-									<QRCodeSVG
-										value={
-											state.verificationUriComplete ||
-											`${state.verificationUri}?user_code=${state.userCode}`
-										}
-										size={180}
-										level="M"
-										includeMargin={true}
-									/>
+									<FiCheckCircle size={12} style={{ marginRight: '0.25rem' }} />
+									Authorization Successful!
 								</div>
-							)}
+							</div>
+						)}
+					</div>
+				</TVScreen>
+			</TVFrame>
 
-							{/* User Code Display */}
-							{state.userCode && (
-								<>
-									<UserCodeLabel>Enter Code</UserCodeLabel>
-									<UserCodeDisplay>{state.userCode}</UserCodeDisplay>
-								</>
-							)}
+			{/* Physical Apple TV Box */}
+			<AppleTVBox />
 
-							{/* Status Display */}
-							{state.status && (
-								<StatusDisplay $status={state.status}>
-									<StatusIcon>{getStatusIcon()}</StatusIcon>
-									<StatusText>{getStatusText()}</StatusText>
-									<StatusMessage>{getStatusMessage()}</StatusMessage>
-								</StatusDisplay>
-							)}
+			{/* Siri Remote - Grey with Control Buttons */}
+			<SiriRemote>
+				<TouchSurface />
+				<RemoteButtons>
+					<MenuButton />
+					<PlayPauseButton />
+					<VolumeButtons>
+						<VolumeButton />
+						<VolumeButton />
+					</VolumeButtons>
+				</RemoteButtons>
+			</SiriRemote>
 
-							{/* Control Buttons */}
-							<ControlButtons>
-								<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
-									<FiCopy size={12} /> Copy Code
-								</ControlButton>
-								<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-									<FiCopy size={12} /> Copy URI
-								</ControlButton>
-							</ControlButtons>
-
-							{/* Success Message */}
-							{state.status === 'authorized' && state.tokens && (
-								<div
-									style={{
-										background: 'rgba(52, 199, 89, 0.15)',
-										border: '2px solid rgba(52, 199, 89, 0.3)',
-										borderRadius: '0.75rem',
-										padding: '1rem',
-										marginTop: '1rem',
-									}}
-								>
-									<div
-										style={{
-											fontSize: '0.625rem',
-											fontWeight: '600',
-											color: '#34c759',
-											textAlign: 'center',
-											fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
-										}}
-									>
-										<FiCheckCircle size={12} style={{ marginRight: '0.25rem' }} />
-										Authorization Successful!
-									</div>
-								</div>
-							)}
-						</div>
-					</TVScreen>
-				</TVFrame>
-
-				{/* Physical Apple TV Box */}
-				<AppleTVBox />
-
-				{/* Siri Remote - Grey with Control Buttons */}
-				<SiriRemote>
-					<TouchSurface />
-					<RemoteButtons>
-						<MenuButton />
-						<PlayPauseButton />
-						<VolumeButtons>
-							<VolumeButton />
-							<VolumeButton />
-						</VolumeButtons>
-					</RemoteButtons>
-				</SiriRemote>
-
-				{/* TV Stand */}
-				<TVStand />
-			</AppleTVContainer>
-		</>
+			{/* TV Stand */}
+			<TVStand />
+		</AppleTVContainer>
 	);
 };
 

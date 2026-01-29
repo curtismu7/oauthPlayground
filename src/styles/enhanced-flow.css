@@ -796,14 +796,14 @@
 .spin,
 .animate-spin,
 [class*="spin"] {
-	background: transparent !important;
+	background: transparent;
 }
 
 /* Make spinner SVG elements transparent */
 .spin svg,
 .animate-spin svg,
 [class*="spin"] svg {
-	background: transparent !important;
+	background: transparent;
 }
 
 /* Make spinners in buttons transparent */

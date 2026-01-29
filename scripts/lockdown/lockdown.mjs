@@ -220,7 +220,7 @@ function approve(flow) {
 	manifest.flow = flow;
 
 	// Write manifest
-	writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
+	writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
 
 	console.log('');
 	console.log(`✅ ${flow.toUpperCase()} lockdown approved - snapshots and manifest updated`);

@@ -37,7 +37,7 @@ async function testUserLookup() {
 
 		try {
 			data = JSON.parse(responseText);
-		} catch (e) {
+		} catch (_e) {
 			console.error('❌ Failed to parse response as JSON:');
 			console.error(responseText.substring(0, 500));
 			process.exit(1);

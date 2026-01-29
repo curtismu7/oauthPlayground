@@ -3,19 +3,7 @@
 // Tests PingOne MFA API implementations and Admin Authentication scenarios
 
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-	FiCheck,
-	FiCode,
-	FiDatabase,
-	FiKey,
-	FiLock,
-	FiPlay,
-	FiRefreshCw,
-	FiShield,
-	FiSmartphone,
-	FiUser,
-	FiX,
-} from 'react-icons/fi';
+import { FiKey, FiRefreshCw, FiSmartphone, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { useWorkerTokenState } from '../../services/workerTokenUIService';
@@ -305,7 +293,7 @@ const MFAFlowsApiTest: React.FC = () => {
 			}
 
 			const requestBody = {
-				userId: config.userId || 'test-user-' + Date.now(),
+				userId: config.userId || `test-user-${Date.now()}`,
 				phoneNumber: config.phoneNumber,
 				email: config.email,
 				environmentId: config.environmentId,
@@ -315,7 +303,7 @@ const MFAFlowsApiTest: React.FC = () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + (await getWorkerToken()),
+					Authorization: `Bearer ${await getWorkerToken()}`,
 				},
 				body: JSON.stringify(requestBody),
 			});
@@ -358,7 +346,7 @@ const MFAFlowsApiTest: React.FC = () => {
 				duration,
 			});
 		}
-	}, [config, hasWorkerToken, addResult]);
+	}, [config, hasWorkerToken, addResult, getWorkerToken]);
 
 	// Test 2: OTP Verification
 	const testOTPVerification = useCallback(async () => {
@@ -372,7 +360,7 @@ const MFAFlowsApiTest: React.FC = () => {
 			}
 
 			const requestBody = {
-				userId: config.userId || 'test-user-' + Date.now(),
+				userId: config.userId || `test-user-${Date.now()}`,
 				otpCode: config.otpCode || '123456',
 				environmentId: config.environmentId,
 			};
@@ -381,7 +369,7 @@ const MFAFlowsApiTest: React.FC = () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + (await getWorkerToken()),
+					Authorization: `Bearer ${await getWorkerToken()}`,
 				},
 				body: JSON.stringify(requestBody),
 			});
@@ -423,7 +411,7 @@ const MFAFlowsApiTest: React.FC = () => {
 				duration,
 			});
 		}
-	}, [config, hasWorkerToken, addResult]);
+	}, [config, hasWorkerToken, addResult, getWorkerToken]);
 
 	// Test 3: TOTP Registration
 	const testTOTPRegistration = useCallback(async () => {
@@ -437,7 +425,7 @@ const MFAFlowsApiTest: React.FC = () => {
 			}
 
 			const requestBody = {
-				userId: config.userId || 'test-user-' + Date.now(),
+				userId: config.userId || `test-user-${Date.now()}`,
 				deviceName: 'Test TOTP Device',
 				environmentId: config.environmentId,
 			};
@@ -446,7 +434,7 @@ const MFAFlowsApiTest: React.FC = () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + (await getWorkerToken()),
+					Authorization: `Bearer ${await getWorkerToken()}`,
 				},
 				body: JSON.stringify(requestBody),
 			});
@@ -488,7 +476,7 @@ const MFAFlowsApiTest: React.FC = () => {
 				duration,
 			});
 		}
-	}, [config, hasWorkerToken, addResult]);
+	}, [config, hasWorkerToken, addResult, getWorkerToken]);
 
 	// Test 4: TOTP Verification
 	const testTOTPVerification = useCallback(async () => {
@@ -502,7 +490,7 @@ const MFAFlowsApiTest: React.FC = () => {
 			}
 
 			const requestBody = {
-				userId: config.userId || 'test-user-' + Date.now(),
+				userId: config.userId || `test-user-${Date.now()}`,
 				totpCode: config.otpCode || '123456',
 				environmentId: config.environmentId,
 			};
@@ -511,7 +499,7 @@ const MFAFlowsApiTest: React.FC = () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + (await getWorkerToken()),
+					Authorization: `Bearer ${await getWorkerToken()}`,
 				},
 				body: JSON.stringify(requestBody),
 			});
@@ -553,7 +541,7 @@ const MFAFlowsApiTest: React.FC = () => {
 				duration,
 			});
 		}
-	}, [config, hasWorkerToken, addResult]);
+	}, [config, hasWorkerToken, addResult, getWorkerToken]);
 
 	// Test 5: FIDO2 Registration
 	const testFIDO2Registration = useCallback(async () => {
@@ -567,7 +555,7 @@ const MFAFlowsApiTest: React.FC = () => {
 			}
 
 			const requestBody = {
-				userId: config.userId || 'test-user-' + Date.now(),
+				userId: config.userId || `test-user-${Date.now()}`,
 				deviceName: config.fidoDeviceName,
 				environmentId: config.environmentId,
 				origin: window.location.origin,
@@ -577,7 +565,7 @@ const MFAFlowsApiTest: React.FC = () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + (await getWorkerToken()),
+					Authorization: `Bearer ${await getWorkerToken()}`,
 				},
 				body: JSON.stringify(requestBody),
 			});
@@ -620,7 +608,7 @@ const MFAFlowsApiTest: React.FC = () => {
 				duration,
 			});
 		}
-	}, [config, hasWorkerToken, addResult]);
+	}, [config, hasWorkerToken, addResult, getWorkerToken]);
 
 	// Test 6: Admin Authentication - Activation Required
 	const testAdminAuthActivationRequired = useCallback(async () => {
@@ -643,13 +631,13 @@ const MFAFlowsApiTest: React.FC = () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + (await getWorkerToken()),
+					Authorization: `Bearer ${await getWorkerToken()}`,
 				},
 				body: JSON.stringify(requestBody),
 			});
 
 			const duration = Date.now() - startTime;
-			const responseData = await response
+			const _responseData = await response
 				.json()
 				.catch(() => ({ error: 'Response parsing failed' }));
 
@@ -658,7 +646,7 @@ const MFAFlowsApiTest: React.FC = () => {
 				success: true,
 				status: 'activation_required',
 				message: 'Admin account requires activation',
-				activationCode: 'ACT-' + Date.now(),
+				activationCode: `ACT-${Date.now()}`,
 				activationUrl: `https://auth.pingone.com/${config.environmentId}/activate`,
 			};
 
@@ -694,7 +682,7 @@ const MFAFlowsApiTest: React.FC = () => {
 				duration,
 			});
 		}
-	}, [config, hasWorkerToken, addResult]);
+	}, [config, hasWorkerToken, addResult, getWorkerToken]);
 
 	// Run MFA Tests
 	const runMFATests = useCallback(async () => {
@@ -755,7 +743,7 @@ const MFAFlowsApiTest: React.FC = () => {
 	// Mock worker token function
 	const getWorkerToken = async (): Promise<string> => {
 		// This would normally get the worker token from storage
-		return 'mock-worker-token-' + Date.now();
+		return `mock-worker-token-${Date.now()}`;
 	};
 
 	return (

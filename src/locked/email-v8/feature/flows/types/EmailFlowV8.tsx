@@ -5,15 +5,14 @@
  * @version 8.2.0
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FiMail, FiShield, FiX } from 'react-icons/fi';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiMail, FiX } from 'react-icons/fi';
+import { useLocation } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '../../../dependencies/v8/components/MFAInfoButtonV8.tsx';
 import { SuperSimpleApiDisplayV8 } from '../../../dependencies/v8/components/SuperSimpleApiDisplayV8.tsx';
 import { useDraggableModal } from '../../../dependencies/v8/hooks/useDraggableModal.ts';
 import { useStepNavigationV8 } from '../../../dependencies/v8/hooks/useStepNavigationV8.ts';
 import { apiDisplayServiceV8 } from '../../../dependencies/v8/services/apiDisplayServiceV8.ts';
-import { CredentialsServiceV8 } from '../../../dependencies/v8/services/credentialsServiceV8.ts';
 import { MFAConfigurationServiceV8 } from '../../../dependencies/v8/services/mfaConfigurationServiceV8.ts';
 import { MFAServiceV8 } from '../../../dependencies/v8/services/mfaServiceV8.ts';
 import { WorkerTokenStatusServiceV8 } from '../../../dependencies/v8/services/workerTokenStatusServiceV8.ts';
@@ -152,6 +151,7 @@ const EmailDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigur
 		tokenStatus.isValid,
 		username,
 		credentials,
+		tokenStatus,
 	]);
 
 	const authenticateExistingDevice = async (deviceId: string) => {
@@ -297,7 +297,7 @@ const EmailDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigur
 
 // Step 0: Configure Credentials (Email-specific) - will be wrapped in component
 const createRenderStep0 = (
-	isConfigured: boolean,
+	_isConfigured: boolean,
 	location: ReturnType<typeof useLocation>,
 	credentialsUpdatedRef: React.MutableRefObject<boolean>,
 	registrationFlowType: 'admin' | 'user',
@@ -652,7 +652,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 	const pendingTokenTypeRef = React.useRef<string | undefined>(undefined);
 
 	// Ref to store step 4 props for potential use at component level
-	const step4PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
+	const _step4PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
 
 	// Ref to track if deviceName has been reset for step 2 (to avoid Rules of Hooks violation)
 	const step2DeviceNameResetRef = React.useRef<{ step: number; deviceType: string } | null>(null);
@@ -780,7 +780,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		// Note: We can't use step0PropsRef.current in dependencies, so we use a combination of other dependencies
 		// and check step0PropsRef.current inside the effect
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [deviceLoadTrigger, showModal]); // showModal changes when modal opens/closes, which helps trigger updates
+	}, [deviceLoadTrigger]); // showModal changes when modal opens/closes, which helps trigger updates
 
 	// Load devices when entering step 1 - moved to parent component level
 	// Skip device loading during registration flow (when coming from config page)
@@ -856,6 +856,9 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		controller,
 		deviceSelection.existingDevices.length,
 		deviceSelection.loadingDevices,
+		MODULE_TAG,
+		deviceLoadTrigger,
+		setDeviceSelection,
 	]);
 
 	// Auto-populate email from PingOne user when entering step 2
@@ -1190,7 +1193,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					// → User must enter OTP to activate device (go directly to validation step)
 					// Note: Admin Flow uses Worker Token and can choose ACTIVE or ACTIVATION_REQUIRED. User Flow uses User Token and always uses ACTIVATION_REQUIRED.
 					const hasDeviceActivateUri = !!deviceActivateUri;
-					const deviceIsActive = actualDeviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
+					const _deviceIsActive = actualDeviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
 
 					if (actualDeviceStatus === 'ACTIVATION_REQUIRED') {
 						// Device requires activation - PingOne automatically sends OTP when status is ACTIVATION_REQUIRED
@@ -2111,13 +2114,21 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 			adminDeviceStatus,
 			setDeviceSelection,
 			controller,
-			updateOtpState,
 			setShowModal,
 			showModal,
 			deviceRegisteredActive,
 			isApiDisplayVisible,
 			showValidationModal,
 			navigate,
+			MODULE_TAG,
+			setDeviceRegisteredActive,
+			setShowValidationModal,
+			step2ModalDrag.handleMouseDown,
+			step2ModalDrag.isDragging,
+			step2ModalDrag.modalPosition.x,
+			step2ModalDrag.modalPosition.y,
+			step2ModalDrag.modalRef,
+			step2ModalDrag.modalStyle,
 		]
 	);
 
@@ -2127,8 +2138,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		setValidationAttempts: (value: number | ((prev: number) => number)) => void,
 		lastValidationError: string | null,
 		setLastValidationError: (value: string | null) => void,
-		otpState: { otpSent: boolean; sendError: string | null; sendRetryCount: number },
-		setOtpState: (
+		_otpState: { otpSent: boolean; sendError: string | null; sendRetryCount: number },
+		_setOtpState: (
 			state: Partial<typeof otpState> | ((prev: typeof otpState) => Partial<typeof otpState>)
 		) => void
 	) => {

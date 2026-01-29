@@ -12,7 +12,7 @@
  */
 
 import React from 'react';
-import { FiArrowLeft, FiBook, FiCheckCircle, FiInfo, FiShield, FiXCircle } from 'react-icons/fi';
+import { FiArrowLeft, FiBook, FiCheckCircle, FiInfo, FiShield } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import {
@@ -20,9 +20,8 @@ import {
 	PageHeaderTextColors,
 	PageHeaderV8,
 } from '@/v8/components/shared/PageHeaderV8';
-import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 
-const MODULE_TAG = '[📚 UNIFIED-FLOW-HELPER-V8U]';
+const _MODULE_TAG = '[📚 UNIFIED-FLOW-HELPER-V8U]';
 
 const PageContainer = styled.div`
 	max-width: 1400px;

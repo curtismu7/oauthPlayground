@@ -239,7 +239,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 			requiredFields: ['environmentId', 'clientId', 'clientSecret'],
 			showToast: true,
 		});
-	}, []); // Only run once on mount
+	}, [controller.credentials]); // Only run once on mount
 
 	// Initialize V7 compliance features
 	const flowName: V7FlowName = 'oidc-hybrid-v7';
@@ -263,9 +263,11 @@ const OIDCHybridFlowV7: React.FC = () => {
 	const [workerToken, setWorkerToken] = useState<string>('');
 
 	// V7 compliance state
-	const [complianceStatus, setComplianceStatus] = useState(v7FlowConfig.compliance);
-	const [validationResults, setValidationResults] = useState<any>(null);
-	const [errorStats, setErrorStats] = useState(V7SharedService.ErrorHandling.getErrorStatistics());
+	const [_complianceStatus, _setComplianceStatus] = useState(v7FlowConfig.compliance);
+	const [_validationResults, setValidationResults] = useState<any>(null);
+	const [_errorStats, _setErrorStats] = useState(
+		V7SharedService.ErrorHandling.getErrorStatistics()
+	);
 
 	const toggleSection = useCallback(
 		HybridFlowCollapsibleSectionsManager.createToggleHandler(setCollapsedSections),
@@ -273,32 +275,29 @@ const OIDCHybridFlowV7: React.FC = () => {
 	);
 
 	// V7 compliance functions
-	const validateHybridParameters = useCallback(
-		(parameters: Record<string, any>) => {
-			const validation = V7SharedService.ParameterValidation.validateFlowParameters(
+	const _validateHybridParameters = useCallback((parameters: Record<string, any>) => {
+		const validation = V7SharedService.ParameterValidation.validateFlowParameters(
+			flowName,
+			parameters
+		);
+		setValidationResults(validation);
+
+		if (!validation.isValid) {
+			const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_request', {
 				flowName,
-				parameters
-			);
-			setValidationResults(validation);
+				step: 'hybrid_authorization_request',
+				operation: 'parameter_validation',
+				timestamp: Date.now(),
+			});
+			v4ToastManager.showError(`Parameter validation failed: ${validation.errors.join(', ')}`);
+			return { success: false, error: errorResponse };
+		}
 
-			if (!validation.isValid) {
-				const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_request', {
-					flowName,
-					step: 'hybrid_authorization_request',
-					operation: 'parameter_validation',
-					timestamp: Date.now(),
-				});
-				v4ToastManager.showError(`Parameter validation failed: ${validation.errors.join(', ')}`);
-				return { success: false, error: errorResponse };
-			}
+		v4ToastManager.showSuccess('Parameter validation successful');
+		return { success: true, validation };
+	}, []);
 
-			v4ToastManager.showSuccess('Parameter validation successful');
-			return { success: true, validation };
-		},
-		[flowName]
-	);
-
-	const validateIDToken = useCallback(
+	const _validateIDToken = useCallback(
 		async (
 			idToken: string,
 			expectedIssuer: string,
@@ -339,16 +338,16 @@ const OIDCHybridFlowV7: React.FC = () => {
 				return { success: false, error: errorResponse };
 			}
 		},
-		[flowName]
+		[]
 	);
 
-	const getSecurityHeaders = useCallback(() => {
+	const _getSecurityHeaders = useCallback(() => {
 		return V7SharedService.SecurityHeaders.getSecurityHeaders(flowName);
-	}, [flowName]);
+	}, []);
 
-	const getComplianceScore = useCallback(() => {
+	const _getComplianceScore = useCallback(() => {
 		return V7SharedService.SpecificationCompliance.checkFlowCompliance(flowName);
-	}, [flowName]);
+	}, []);
 
 	useEffect(() => {
 		setSelectedVariant(controller.flowVariant);
@@ -375,7 +374,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 			console.log('🔧 [OIDC Hybrid V7] Saving credentials to flow-specific storage:', {
 				flowKey: 'hybrid-flow-v7',
 				environmentId: controller.credentials.environmentId,
-				clientId: controller.credentials.clientId?.substring(0, 8) + '...',
+				clientId: `${controller.credentials.clientId?.substring(0, 8)}...`,
 				redirectUri: controller.credentials.redirectUri,
 			});
 
@@ -417,7 +416,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 				'openid profile email',
 		})) as CredentialsUpdater);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [controller.credentials, controller.flowVariant, controller.setCredentials]);
 
 	const handleVariantChange = useCallback(
 		(variant: 'code-id-token' | 'code-token' | 'code-id-token-token') => {
@@ -1422,7 +1421,15 @@ const OIDCHybridFlowV7: React.FC = () => {
 			default:
 				return <div>Step not implemented</div>;
 		}
-	}, [currentStep, renderCompletionStep, selectedVariant, collapsedSections, controller.tokens]);
+	}, [
+		currentStep,
+		renderCompletionStep,
+		renderAuthorizationStep,
+		renderCredentialsStep,
+		renderFragmentStep,
+		renderTokenAnalysisStep,
+		renderVariantStep,
+	]);
 
 	return (
 		<Container>

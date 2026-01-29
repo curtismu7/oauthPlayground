@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { FiAlertCircle, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
-import { Card, CardBody, CardHeader } from '../../components/Card';
+import { CardBody, CardHeader } from '../../components/Card';
 import { ColorCodedURL } from '../../components/ColorCodedURL';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import ConfigurationStatus from '../../components/ConfigurationStatus';

@@ -17,7 +17,7 @@ import {
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import useCibaFlow, { CibaAuthRequest, CibaConfig } from '../../hooks/useCibaFlow';
+import useCibaFlow, { CibaConfig } from '../../hooks/useCibaFlow';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiAlertCircle,
@@ -29,12 +29,10 @@ import {
 } from '../../services/commonImportsService';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import {
 	IntrospectionApiCallData,
 	TokenIntrospectionService,
 } from '../../services/tokenIntrospectionService';
-import { credentialManager } from '../../utils/credentialManager';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 

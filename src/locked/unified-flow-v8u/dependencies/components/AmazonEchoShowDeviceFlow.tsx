@@ -414,136 +414,134 @@ const AmazonEchoShowDeviceFlow: React.FC<AmazonEchoShowDeviceFlowProps> = ({
 	};
 
 	return (
-		<>
-			<EchoShowContainer>
-				{/* Physical Echo Show Frame */}
-				<EchoShowFrame>
-					{/* Echo Show Screen */}
-					<EchoScreen>
-						{/* Weather Display */}
-						<WeatherDisplay>
-							<WeatherIcon>☀️</WeatherIcon>
-							<WeatherTemp>72°</WeatherTemp>
-							<WeatherCondition>Sunny</WeatherCondition>
-						</WeatherDisplay>
+		<EchoShowContainer>
+			{/* Physical Echo Show Frame */}
+			<EchoShowFrame>
+				{/* Echo Show Screen */}
+				<EchoScreen>
+					{/* Weather Display */}
+					<WeatherDisplay>
+						<WeatherIcon>☀️</WeatherIcon>
+						<WeatherTemp>72°</WeatherTemp>
+						<WeatherCondition>Sunny</WeatherCondition>
+					</WeatherDisplay>
 
+					<div
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							marginBottom: '1rem',
+							marginTop: '2rem',
+						}}
+					>
+						<StatusIndicator $active={!!state.tokens} />
+						<DisplayTitle>Device Authorization</DisplayTitle>
+					</div>
+
+					<DisplaySubtitle>Enter this code on your phone or computer</DisplaySubtitle>
+
+					{/* User Code Display */}
+					{state.userCode && (
+						<>
+							<UserCodeLabel>Authorization Code</UserCodeLabel>
+							<UserCodeDisplay>{state.userCode}</UserCodeDisplay>
+						</>
+					)}
+
+					{/* Status Display */}
+					{state.status && (
+						<StatusDisplay $status={state.status}>
+							<StatusIcon>{getStatusIcon()}</StatusIcon>
+							<StatusText>{getStatusText()}</StatusText>
+							<StatusMessage>{getStatusMessage()}</StatusMessage>
+						</StatusDisplay>
+					)}
+
+					{/* Control Buttons */}
+					<ControlButtons>
+						<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
+							<FiCopy size={12} /> Copy Code
+						</ControlButton>
+						<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
+							<FiCopy size={12} /> Copy URI
+						</ControlButton>
+					</ControlButtons>
+
+					{/* Success Message */}
+					{state.status === 'authorized' && state.tokens && (
 						<div
 							style={{
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								marginBottom: '1rem',
-								marginTop: '2rem',
+								background: 'rgba(0, 255, 0, 0.15)',
+								border: '2px solid rgba(0, 255, 0, 0.3)',
+								borderRadius: '0.75rem',
+								padding: '1rem',
+								marginTop: '1rem',
 							}}
 						>
-							<StatusIndicator $active={!!state.tokens} />
-							<DisplayTitle>Device Authorization</DisplayTitle>
-						</div>
-
-						<DisplaySubtitle>Enter this code on your phone or computer</DisplaySubtitle>
-
-						{/* User Code Display */}
-						{state.userCode && (
-							<>
-								<UserCodeLabel>Authorization Code</UserCodeLabel>
-								<UserCodeDisplay>{state.userCode}</UserCodeDisplay>
-							</>
-						)}
-
-						{/* Status Display */}
-						{state.status && (
-							<StatusDisplay $status={state.status}>
-								<StatusIcon>{getStatusIcon()}</StatusIcon>
-								<StatusText>{getStatusText()}</StatusText>
-								<StatusMessage>{getStatusMessage()}</StatusMessage>
-							</StatusDisplay>
-						)}
-
-						{/* Control Buttons */}
-						<ControlButtons>
-							<ControlButton $variant="secondary" onClick={handleCopyUserCode}>
-								<FiCopy size={12} /> Copy Code
-							</ControlButton>
-							<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-								<FiCopy size={12} /> Copy URI
-							</ControlButton>
-						</ControlButtons>
-
-						{/* Success Message */}
-						{state.status === 'authorized' && state.tokens && (
 							<div
 								style={{
-									background: 'rgba(0, 255, 0, 0.15)',
-									border: '2px solid rgba(0, 255, 0, 0.3)',
-									borderRadius: '0.75rem',
-									padding: '1rem',
-									marginTop: '1rem',
-								}}
-							>
-								<div
-									style={{
-										fontSize: '0.625rem',
-										fontWeight: '600',
-										color: '#00ff00',
-										textAlign: 'center',
-										fontFamily: 'Amazon Ember, Helvetica Neue, sans-serif',
-									}}
-								>
-									<FiCheckCircle size={12} style={{ marginRight: '0.25rem' }} />
-									Authorization Successful!
-								</div>
-							</div>
-						)}
-					</EchoScreen>
-				</EchoShowFrame>
-
-				{/* Bottom Speaker Grille */}
-				<SpeakerGrille />
-
-				{/* QR Code Section - Below Device */}
-				{state.verificationUriComplete && (
-					<QRCodeSection>
-						<QRCodeLabel>Scan QR Code</QRCodeLabel>
-						<QRCodeContainer>
-							<QRCodeSVG
-								value={state.verificationUriComplete}
-								size={100}
-								level="M"
-								includeMargin={true}
-							/>
-						</QRCodeContainer>
-						{state.verificationUri && (
-							<div
-								style={{
-									fontSize: '0.5rem',
-									color: 'rgba(255, 255, 255, 0.5)',
-									marginTop: '0.5rem',
-									wordBreak: 'break-all',
+									fontSize: '0.625rem',
+									fontWeight: '600',
+									color: '#00ff00',
+									textAlign: 'center',
 									fontFamily: 'Amazon Ember, Helvetica Neue, sans-serif',
 								}}
 							>
-								{state.verificationUri}
+								<FiCheckCircle size={12} style={{ marginRight: '0.25rem' }} />
+								Authorization Successful!
 							</div>
-						)}
+						</div>
+					)}
+				</EchoScreen>
+			</EchoShowFrame>
+
+			{/* Bottom Speaker Grille */}
+			<SpeakerGrille />
+
+			{/* QR Code Section - Below Device */}
+			{state.verificationUriComplete && (
+				<QRCodeSection>
+					<QRCodeLabel>Scan QR Code</QRCodeLabel>
+					<QRCodeContainer>
+						<QRCodeSVG
+							value={state.verificationUriComplete}
+							size={100}
+							level="M"
+							includeMargin={true}
+						/>
+					</QRCodeContainer>
+					{state.verificationUri && (
 						<div
 							style={{
-								display: 'flex',
-								gap: '0.5rem',
-								justifyContent: 'center',
-								marginTop: '0.75rem',
+								fontSize: '0.5rem',
+								color: 'rgba(255, 255, 255, 0.5)',
+								marginTop: '0.5rem',
+								wordBreak: 'break-all',
+								fontFamily: 'Amazon Ember, Helvetica Neue, sans-serif',
 							}}
 						>
-							<ControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-								<FiExternalLink size={12} /> Open in Browser
-							</ControlButton>
-							<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
-								<FiCopy size={12} /> Copy URI
-							</ControlButton>
+							{state.verificationUri}
 						</div>
-					</QRCodeSection>
-				)}
-			</EchoShowContainer>
-		</>
+					)}
+					<div
+						style={{
+							display: 'flex',
+							gap: '0.5rem',
+							justifyContent: 'center',
+							marginTop: '0.75rem',
+						}}
+					>
+						<ControlButton $variant="primary" onClick={handleOpenVerificationUri}>
+							<FiExternalLink size={12} /> Open in Browser
+						</ControlButton>
+						<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
+							<FiCopy size={12} /> Copy URI
+						</ControlButton>
+					</div>
+				</QRCodeSection>
+			)}
+		</EchoShowContainer>
 	);
 };
 

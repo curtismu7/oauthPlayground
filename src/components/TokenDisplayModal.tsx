@@ -1,9 +1,9 @@
 // src/components/TokenDisplayModal.tsx
 // Modal for displaying OAuth tokens (access, ID, refresh)
 
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { FiCopy, FiEye, FiEyeOff, FiKey } from '../services/commonImportsService';
+import { FiCopy, FiKey } from '../services/commonImportsService';
 import { decodeJWT, isJWT } from '../utils/jwtDecoder';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { DraggableModal } from './DraggableModal';

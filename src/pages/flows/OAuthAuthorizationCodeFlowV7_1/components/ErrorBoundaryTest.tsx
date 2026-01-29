@@ -3,7 +3,6 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import { FlowErrorBoundary } from './FlowErrorBoundary';
 

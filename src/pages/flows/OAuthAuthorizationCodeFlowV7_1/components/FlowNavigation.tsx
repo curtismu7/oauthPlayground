@@ -4,7 +4,6 @@
 import React from 'react';
 import { FiChevronLeft, FiChevronRight, FiHome, FiRefreshCw } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { STEP_METADATA } from '../constants/stepMetadata';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 

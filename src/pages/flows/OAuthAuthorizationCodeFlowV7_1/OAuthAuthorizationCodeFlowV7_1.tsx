@@ -2,7 +2,7 @@
 // V7.1 Main Container - Orchestrates all refactored components
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiBook, FiCheckCircle, FiChevronDown, FiLoader, FiSettings } from 'react-icons/fi';
+import { FiBook, FiCheckCircle, FiChevronDown, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
@@ -25,7 +25,7 @@ const v4ToastManager = {
 	showInfo: (message: string) => console.log('ℹ️ Toast:', message),
 };
 
-const FlowCredentialService = {
+const _FlowCredentialService = {
 	loadSharedCredentials: async (key: string): Promise<Partial<FlowCredentials> | null> => {
 		try {
 			const stored = sessionStorage.getItem(key);
@@ -57,7 +57,7 @@ const ContentWrapper = styled.div`
   gap: ${UI_CONSTANTS.SPACING.LG};
 `;
 
-const MainContent = styled.div`
+const _MainContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${UI_CONSTANTS.SPACING.LG};
@@ -296,10 +296,22 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 		};
 
 		initializeFlow();
-	}, [initialVariant, initialCredentials]);
+	}, [
+		initialVariant,
+		initialCredentials,
+		authCodeManagement.detectAuthCode,
+		flowState.flowState.flowVariant,
+		flowState.markStepCompleted,
+		flowState.updateAuthCode,
+		flowState.updateCredentials,
+		flowVariantSwitching.switchVariant,
+		onFlowError,
+		performanceMonitoring.endRender,
+		performanceMonitoring.startRender,
+	]);
 
 	// Handle flow completion
-	const handleFlowComplete = useCallback(
+	const _handleFlowComplete = useCallback(
 		(tokens: TokenResponse, userInfo?: UserInfo) => {
 			flowState.updateTokens(tokens);
 			if (userInfo) {

@@ -241,7 +241,7 @@ const PingOneLogoutFlow: React.FC<PingOneLogoutFlowProps> = ({ credentials }) =>
 const logoutConfig = {
   environmentId: '${formData.environmentId}',
   clientId: '${formData.clientId}',
-  idToken: '${formData.idToken ? formData.idToken.substring(0, 50) + '...' : 'YOUR_ID_TOKEN'}',
+  idToken: '${formData.idToken ? `${formData.idToken.substring(0, 50)}...` : 'YOUR_ID_TOKEN'}',
   postLogoutRedirectUri: '${formData.postLogoutRedirectUri}',
   state: '${formData.state}'
 };

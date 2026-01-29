@@ -65,35 +65,48 @@ const createPopOutWindow = (
 	const getApiTypeIcon = (call: { url?: string; actualPingOneUrl?: string; isProxy?: boolean }) => {
 		const url = call.url || '';
 		const isProxy = call.isProxy || (call.actualPingOneUrl && url.includes('/pingone-auth/'));
-		
+
 		if (isProxy) {
 			return { icon: '🔗', label: 'PingOne API (Proxy)' };
 		}
-		
+
 		if (url.includes('/pingone-auth/')) {
 			return { icon: '🔐', label: 'PingOne Auth API' };
 		}
-		
+
 		if (url.includes('/pingone/')) {
 			return { icon: '⚡', label: 'PingOne API' };
 		}
-		
+
 		return { icon: '🌐', label: 'External API' };
 	};
 
 	// Pre-process the data to avoid complex JavaScript in HTML
-	const processedCalls = apiCalls.map(call => {
+	const processedCalls = apiCalls.map((call) => {
 		const status = call.response?.status || 0;
-		const statusColor = status >= 200 && status < 300 ? '#10b981' : status >= 400 ? '#ef4444' : '#f59e0b';
-		const methodColor = call.method === 'GET' ? '#3b82f6' : call.method === 'POST' ? '#10b981' : call.method === 'DELETE' ? '#ef4444' : '#6b7280';
+		const statusColor =
+			status >= 200 && status < 300 ? '#10b981' : status >= 400 ? '#ef4444' : '#f59e0b';
+		const methodColor =
+			call.method === 'GET'
+				? '#3b82f6'
+				: call.method === 'POST'
+					? '#10b981'
+					: call.method === 'DELETE'
+						? '#ef4444'
+						: '#6b7280';
 		const apiType = getApiTypeIcon(call);
-		const hasHeaders = call.headers && typeof call.headers === 'object' && Object.keys(call.headers).length > 0;
+		const hasHeaders =
+			call.headers && typeof call.headers === 'object' && Object.keys(call.headers).length > 0;
 		const hasBody = call.body && typeof call.body === 'object' && Object.keys(call.body).length > 0;
 		const hasResponse = call.response?.data !== undefined && call.response.data !== null;
 		const headersText = hasHeaders ? JSON.stringify(call.headers, null, 2) : '';
-		const bodyText = hasBody ? (typeof call.body === 'string' ? call.body : JSON.stringify(call.body, null, 2)) : '';
+		const bodyText = hasBody
+			? typeof call.body === 'string'
+				? call.body
+				: JSON.stringify(call.body, null, 2)
+			: '';
 		const responseText = hasResponse ? JSON.stringify(call.response.data, null, 2) : '';
-		
+
 		return {
 			...call,
 			statusColor,
@@ -104,7 +117,7 @@ const createPopOutWindow = (
 			hasResponse,
 			headersText,
 			bodyText,
-			responseText
+			responseText,
 		};
 	});
 
@@ -643,7 +656,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 								isProxy?: boolean;
 							}>;
 						};
-												if (data.calls && Array.isArray(data.calls)) {
+						if (data.calls && Array.isArray(data.calls)) {
 							backendCalls = data.calls.map((call) => ({
 								id: call.id,
 								method: call.method as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
@@ -849,7 +862,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		// Note: excludePatterns and includePatterns are NOT in dependencies because
 		// the function uses excludePatternsRef.current and includePatternsRef.current internally.
 		// The refs are updated in a separate useEffect that triggers updateCalls when they change.
-	}, [flowFilter, showP1Only, serverHealth.isOnline]);
+	}, [flowFilter, showP1Only, serverHealth.isOnline, previousCallCount]);
 
 	// Store updateCalls in ref so it can be called from other effects
 	updateCallsRef.current = updateCalls;

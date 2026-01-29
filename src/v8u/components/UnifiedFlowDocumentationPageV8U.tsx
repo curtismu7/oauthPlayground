@@ -9,7 +9,6 @@
 
 import React, { useMemo, useState } from 'react';
 import {
-	FiBook,
 	FiChevronDown,
 	FiChevronUp,
 	FiDownload,
@@ -57,7 +56,7 @@ interface DocumentationApiCall {
 export const convertTrackedCallsToDocumentation = (
 	trackedCalls: TrackedApiCall[],
 	flowType: FlowType,
-	specVersion: SpecVersion
+	_specVersion: SpecVersion
 ): DocumentationApiCall[] => {
 	// Include ALL tracked calls (no filtering by flowType)
 	// We'll organize by category in the UI instead
@@ -484,7 +483,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 				(call) => call.flowType === 'unified' || call.step?.startsWith('unified-')
 			),
 		};
-	}, [trackedCalls]);
+	}, []);
 
 	const toggleSection = (index: number): void => {
 		setExpandedSections((prev) => {
@@ -880,7 +879,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 					</h3>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 						{groupedCalls.oauthFlow.map((call, index) => {
-							const globalIndex = apiCalls.findIndex((c) => c === call);
+							const globalIndex = apiCalls.indexOf(call);
 							const isExpanded = expandedSections.has(globalIndex);
 							return (
 								<div
@@ -1008,7 +1007,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 					</h3>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 						{groupedCalls.preflightValidation.map((call, index) => {
-							const globalIndex = apiCalls.findIndex((c) => c === call);
+							const globalIndex = apiCalls.indexOf(call);
 							const isExpanded = expandedSections.has(globalIndex);
 							return (
 								<div

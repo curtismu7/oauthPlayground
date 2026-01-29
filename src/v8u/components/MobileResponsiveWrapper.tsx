@@ -113,7 +113,6 @@ const ResponsiveButton = styled.button<{
             border-color: #4b5563;
           }
         `;
-			case 'outline':
 			default:
 				return `
           background: transparent;
@@ -192,7 +191,6 @@ const ResponsiveText = styled.div<{
 					return 'font-size: 0.875rem;';
 				case 'sm':
 					return 'font-size: 0.75rem;';
-				case 'xs':
 				default:
 					return 'font-size: 0.6875rem;';
 			}
@@ -210,7 +208,6 @@ const ResponsiveText = styled.div<{
 					return 'font-size: 0.75rem;';
 				case 'sm':
 					return 'font-size: 0.6875rem;';
-				case 'xs':
 				default:
 					return 'font-size: 0.625rem;';
 			}

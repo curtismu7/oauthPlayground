@@ -703,6 +703,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 		pkceCodes.codeVerifier,
 		saveStepResult,
 		handleOAuthError,
+		credentials.includeX5tParameter,
 	]);
 
 	// Get user info with proper access token

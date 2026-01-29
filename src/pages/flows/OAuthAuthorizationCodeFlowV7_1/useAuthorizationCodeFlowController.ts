@@ -38,7 +38,6 @@ import {
 } from '../../../services/flowCredentialService';
 import type { FlowConfig } from '../components/FlowConfiguration';
 import type { PKCECodes, StepCredentials } from '../components/steps/CommonSteps';
-import { HybridFlowDefaults } from '../services/hybridFlowSharedService';
 import { trackTokenOperation } from '../utils/activityTracker';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { applyClientAuthentication } from '../utils/clientAuthentication';
@@ -148,7 +147,7 @@ const resolveAuthEndpoint = (creds: StepCredentials): string => {
 	return '';
 };
 
-const resolveTokenEndpoint = (creds: StepCredentials): string => {
+const _resolveTokenEndpoint = (creds: StepCredentials): string => {
 	if (creds.tokenEndpoint) return creds.tokenEndpoint;
 	if (creds.environmentId) {
 		return `https://auth.pingone.com/${creds.environmentId}/as/token`;
@@ -198,7 +197,7 @@ const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 
 	// DO NOT load from credentialManager - this causes credential bleeding between flows
 	// Each flow should maintain its own credentials in flow-specific storage
-	const loaded: any = {}; // Empty object to prevent loading shared credentials
+	const _loaded: any = {}; // Empty object to prevent loading shared credentials
 
 	const mergedScopes = urlScope || (variant === 'oidc' ? 'openid profile email' : 'read write');
 
@@ -249,12 +248,12 @@ export const useAuthorizationCodeFlowController = (
 		const pkceStorageKey = `${persistKey}-pkce-codes`;
 		const parsed = safeSessionStorageParse<PKCECodes>(pkceStorageKey, null);
 
-		if (parsed && parsed.codeVerifier && parsed.codeChallenge) {
+		if (parsed?.codeVerifier && parsed.codeChallenge) {
 			console.log(
 				'🔄 [useAuthorizationCodeFlowController] Loaded existing PKCE codes from sessionStorage:',
 				{
-					codeVerifier: parsed.codeVerifier.substring(0, 20) + '...',
-					codeChallenge: parsed.codeChallenge.substring(0, 20) + '...',
+					codeVerifier: `${parsed.codeVerifier.substring(0, 20)}...`,
+					codeChallenge: `${parsed.codeChallenge.substring(0, 20)}...`,
 					storageKey: pkceStorageKey,
 				}
 			);
@@ -382,7 +381,7 @@ export const useAuthorizationCodeFlowController = (
 		legacyKeys.forEach((key) => sessionStorage.removeItem(key));
 
 		console.log('✅ [useAuthorizationCodeFlowV7_1Controller] PKCE codes cleared on flow load');
-	}, []); // Only run once on mount
+	}, [flowKey, persistKey]); // Only run once on mount
 
 	// Load flow-specific credentials on mount using isolated storage
 	useEffect(() => {
@@ -485,7 +484,7 @@ export const useAuthorizationCodeFlowController = (
 			if (code) {
 				console.log(
 					'✅ [useAuthorizationCodeFlowController] Setting auth code from popup:',
-					code.substring(0, 10) + '...'
+					`${code.substring(0, 10)}...`
 				);
 				setAuthCode(code);
 				console.log('✅ [useAuthorizationCodeFlowController] Auth code SET in state');
@@ -548,7 +547,7 @@ export const useAuthorizationCodeFlowController = (
 					if (code && code !== authCode) {
 						console.log(
 							'✅ [useAuthorizationCodeFlowController] Polling found new auth code:',
-							code.substring(0, 10) + '...'
+							`${code.substring(0, 10)}...`
 						);
 						setAuthCode(code);
 
@@ -628,6 +627,7 @@ export const useAuthorizationCodeFlowController = (
 		credentials.clientSecret,
 		credentials.scopes,
 		credentials.redirectUri,
+		credentials[typedKey],
 	]);
 
 	const generatePkceCodes = useCallback(async () => {
@@ -644,11 +644,11 @@ export const useAuthorizationCodeFlowController = (
 			console.log('🔐 [PKCE DEBUG] ===== GENERATING NEW PKCE CODES =====');
 			console.log(
 				'🔐 [PKCE DEBUG] code_verifier (first 20 chars):',
-				codeVerifier.substring(0, 20) + '...'
+				`${codeVerifier.substring(0, 20)}...`
 			);
 			console.log(
 				'🔐 [PKCE DEBUG] code_challenge (first 20 chars):',
-				codeChallenge.substring(0, 20) + '...'
+				`${codeChallenge.substring(0, 20)}...`
 			);
 			console.log('🔐 [PKCE DEBUG] Storage key:', `${persistKey}-pkce-codes`);
 
@@ -780,8 +780,8 @@ export const useAuthorizationCodeFlowController = (
 
 		console.log('🌐 [PKCE DEBUG] ===== BUILDING AUTHORIZATION URL =====');
 		console.log('🌐 [PKCE DEBUG] Using PKCE codes:', {
-			codeVerifier: currentPkceCodes.codeVerifier.substring(0, 20) + '...',
-			codeChallenge: currentPkceCodes.codeChallenge.substring(0, 20) + '...',
+			codeVerifier: `${currentPkceCodes.codeVerifier.substring(0, 20)}...`,
+			codeChallenge: `${currentPkceCodes.codeChallenge.substring(0, 20)}...`,
 			codeChallengeMethod: currentPkceCodes.codeChallengeMethod,
 		});
 
@@ -1158,7 +1158,7 @@ export const useAuthorizationCodeFlowController = (
 					codeVerifier = storedPkceCodes.codeVerifier;
 					console.log(
 						`✅ [PKCE DEBUG] Retrieved code_verifier from ${pkceStorageKey}:`,
-						codeVerifier.substring(0, 20) + '...'
+						`${codeVerifier.substring(0, 20)}...`
 					);
 				} else {
 					console.log('⚠️ [PKCE DEBUG] No PKCE in primary storage, trying legacy keys...');
@@ -1178,7 +1178,7 @@ export const useAuthorizationCodeFlowController = (
 							codeVerifier = stored;
 							console.log(
 								`🔧 [PKCE DEBUG] Retrieved code_verifier from legacy key ${key}:`,
-								stored.substring(0, 20) + '...'
+								`${stored.substring(0, 20)}...`
 							);
 							break;
 						}
@@ -1187,7 +1187,7 @@ export const useAuthorizationCodeFlowController = (
 			} else {
 				console.log(
 					'✅ [PKCE DEBUG] Using code_verifier from state:',
-					codeVerifier.substring(0, 20) + '...'
+					`${codeVerifier.substring(0, 20)}...`
 				);
 			}
 
@@ -1330,7 +1330,7 @@ export const useAuthorizationCodeFlowController = (
 						userMessage = errorJson.error_description || errorJson.error || 'Token exchange failed';
 						errorDetails = errorJson.error_description || errorText;
 					}
-				} catch (e) {
+				} catch (_e) {
 					// If not JSON, use the raw error text
 				}
 
@@ -1412,7 +1412,7 @@ export const useAuthorizationCodeFlowController = (
 		} finally {
 			setIsExchangingTokens(false);
 		}
-	}, [authCode, credentials, pkceCodes, saveStepResult, flowVariant]);
+	}, [authCode, credentials, pkceCodes, saveStepResult, flowVariant, flowKey, persistKey]);
 
 	const fetchUserInfo = async () => {
 		console.log('🔍 [fetchUserInfo] Starting user info fetch:', {

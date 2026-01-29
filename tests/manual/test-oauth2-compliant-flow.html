@@ -146,7 +146,7 @@
                     if (url.protocol === 'http:') {
                         warnings.push('HTTP redirect URI - HTTPS recommended');
                     }
-                } catch (e) {
+                } catch (_e) {
                     errors.push('Invalid URI format');
                 }
                 
@@ -240,7 +240,7 @@
             element.innerHTML = html;
         }
 
-        function testParameterValidation() {
+        function _testParameterValidation() {
             const data = getFormData();
             const errors = [];
             const warnings = [];
@@ -273,7 +273,7 @@
             });
         }
 
-        async function testPKCEGeneration() {
+        async function _testPKCEGeneration() {
             try {
                 const pkce = await oauth2Service.generatePKCECodes();
                 
@@ -293,7 +293,7 @@
             }
         }
 
-        function testAuthUrlGeneration() {
+        function _testAuthUrlGeneration() {
             const data = getFormData();
             
             if (!data.clientId || !data.environmentId) {
@@ -337,7 +337,7 @@
             window.testState = state;
         }
 
-        function testSecurityFeatures() {
+        function _testSecurityFeatures() {
             const headers = oauth2Service.getSecurityHeaders();
             const state = oauth2Service.generateSecureState();
             
@@ -353,11 +353,11 @@
             displayResults('securityResults', {
                 success: true,
                 message: 'All security features implemented!',
-                details: features.join('\n') + '\n\nSecurity Headers:\n' + JSON.stringify(headers, null, 2)
+                details: `${features.join('\n')}\n\nSecurity Headers:\n${JSON.stringify(headers, null, 2)}`
             });
         }
 
-        function openCompliantFlow() {
+        function _openCompliantFlow() {
             const url = '/flows/oauth2-compliant-authorization-code';
             window.open(url, '_blank');
         }

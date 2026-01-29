@@ -277,10 +277,11 @@ export class ClientCredentialsTokenRequest {
 		credentials: StepCredentials,
 		authMethod: ClientAuthMethod = 'client_secret_post'
 	): Promise<ClientCredentialsTokens> {
-		const { url: _url, headers, body } = ClientCredentialsTokenRequest.buildTokenRequest(
-			credentials,
-			authMethod
-		);
+		const {
+			url: _url,
+			headers,
+			body,
+		} = ClientCredentialsTokenRequest.buildTokenRequest(credentials, authMethod);
 
 		try {
 			log.info('Making token request', {
@@ -316,7 +317,9 @@ export class ClientCredentialsTokenRequest {
 				let errorMessage = `Token request failed: ${response.status}`;
 
 				// Type guard for parsed error
-				const isErrorObject = (error: unknown): error is { error?: string; error_description?: string } => {
+				const isErrorObject = (
+					error: unknown
+				): error is { error?: string; error_description?: string } => {
 					return typeof error === 'object' && error !== null;
 				};
 

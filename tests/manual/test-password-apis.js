@@ -384,7 +384,7 @@ async function testAdminSetPassword() {
 }
 
 async function printSummary() {
-	log('\n' + '='.repeat(60), colors.blue);
+	log(`\n${'='.repeat(60)}`, colors.blue);
 	log('📊 TEST SUMMARY', colors.blue);
 	log('='.repeat(60), colors.blue);
 
@@ -406,7 +406,7 @@ async function printSummary() {
 			});
 	}
 
-	log('\n' + '='.repeat(60), colors.blue);
+	log(`\n${'='.repeat(60)}`, colors.blue);
 }
 
 async function runTests() {

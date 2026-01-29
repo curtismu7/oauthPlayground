@@ -2,7 +2,7 @@ import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { FiAlertCircle, FiDownload, FiInfo, FiSend } from 'react-icons/fi';
 import styled from 'styled-components';
-import { Card, CardBody, CardHeader } from '../../components/Card';
+import { CardBody, CardHeader } from '../../components/Card';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import FlowCredentials from '../../components/FlowCredentials';
 import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
@@ -1182,19 +1182,16 @@ console.log('Welcome, ' + user.name + '!');`,
 						</ErrorMessage>
 					)}
 
-					{accessToken && (
-						<>
-							{UnifiedTokenDisplayService.showTokens(
-								{ access_token: accessToken, token_type: 'Bearer' },
-								'oauth',
-								'userinfo-flow',
-								{
-									showCopyButtons: true,
-									showDecodeButtons: true,
-								}
-							)}
-						</>
-					)}
+					{accessToken &&
+						UnifiedTokenDisplayService.showTokens(
+							{ access_token: accessToken, token_type: 'Bearer' },
+							'oauth',
+							'userinfo-flow',
+							{
+								showCopyButtons: true,
+								showDecodeButtons: true,
+							}
+						)}
 
 					{/* Request/Response Section */}
 					{(requestDetails || userInfo) && (

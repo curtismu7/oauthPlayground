@@ -1,7 +1,6 @@
 // tests/backend/password-reset.test.js
 // Backend tests for password reset API endpoints
 
-import { jest } from '@jest/globals';
 import request from 'supertest';
 import app from '../../server.js';
 

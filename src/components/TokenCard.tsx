@@ -1,6 +1,6 @@
 // src/components/InlineTokenDisplay.tsx
 import React, { useCallback, useState } from 'react';
-import { FiCopy, FiExternalLink, FiEye, FiEyeOff, FiKey, FiShield } from 'react-icons/fi';
+import { FiCopy, FiExternalLink, FiKey, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 import TokenDisplayService, { type DecodedJWT } from '../services/tokenDisplayService';
 import { v4ToastManager } from '../utils/v4ToastMessages';

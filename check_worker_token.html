@@ -24,8 +24,8 @@
             console.log('Worker token related keys:', workerTokenKeys);
             
             let html = '<h2>Storage Contents:</h2>';
-            html += '<p><strong>All keys:</strong> ' + JSON.stringify(allKeys, null, 2) + '</p>';
-            html += '<p><strong>Worker token keys:</strong> ' + JSON.stringify(workerTokenKeys, null, 2) + '</p>';
+            html += `<p><strong>All keys:</strong> ${JSON.stringify(allKeys, null, 2)}</p>`;
+            html += `<p><strong>Worker token keys:</strong> ${JSON.stringify(workerTokenKeys, null, 2)}</p>`;
             
             // Check specific keys
             const specificKeys = [
@@ -40,7 +40,7 @@
             specificKeys.forEach(key => {
                 const value = localStorage.getItem(key);
                 const hasValue = !!value;
-                const preview = value ? (value.length > 100 ? value.substring(0, 100) + '...' : value) : 'null';
+                const preview = value ? (value.length > 100 ? `${value.substring(0, 100)}...` : value) : 'null';
                 
                 html += `<p><strong>${key}:</strong> ${hasValue ? '✅ EXISTS' : '❌ MISSING'}</p>`;
                 if (hasValue) {

@@ -36,7 +36,6 @@ import type { FlowConfig } from '../components/FlowConfiguration';
 import type { PKCECodes, StepCredentials } from '../components/steps/CommonSteps';
 import { FlowCredentialService } from '../services/flowCredentialService';
 import { FlowContext, flowTrackingService } from '../services/flowTrackingService';
-import { HybridFlowDefaults } from '../services/hybridFlowSharedService';
 import { scopeValidationService } from '../services/scopeValidationService';
 import { trackTokenOperation } from '../utils/activityTracker';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
@@ -235,7 +234,7 @@ const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 
 	// DO NOT load from credentialManager - this causes credential bleeding between flows
 	// Each flow should maintain its own credentials in flow-specific storage
-	const loaded: any = {}; // Empty object to prevent loading shared credentials
+	const _loaded: any = {}; // Empty object to prevent loading shared credentials
 
 	const defaultScopes = variant === 'oidc' ? DEFAULT_OIDC_SCOPES : DEFAULT_OAUTH_SCOPES;
 	const mergedScopes = ensureRequiredScopes(urlScope || defaultScopes, variant);
@@ -297,12 +296,12 @@ export const useAuthorizationCodeFlowController = (
 		const pkceStorageKey = `${persistKey}-pkce-codes`;
 		const parsed = safeSessionStorageParse<PKCECodes>(pkceStorageKey, null);
 
-		if (parsed && parsed.codeVerifier && parsed.codeChallenge) {
+		if (parsed?.codeVerifier && parsed.codeChallenge) {
 			console.log(
 				'🔄 [useAuthorizationCodeFlowController] Loaded existing PKCE codes from sessionStorage:',
 				{
-					codeVerifier: parsed.codeVerifier.substring(0, 20) + '...',
-					codeChallenge: parsed.codeChallenge.substring(0, 20) + '...',
+					codeVerifier: `${parsed.codeVerifier.substring(0, 20)}...`,
+					codeChallenge: `${parsed.codeChallenge.substring(0, 20)}...`,
 					storageKey: pkceStorageKey,
 				}
 			);
@@ -430,7 +429,7 @@ export const useAuthorizationCodeFlowController = (
 		legacyKeys.forEach((key) => sessionStorage.removeItem(key));
 
 		console.log('✅ [useAuthorizationCodeFlowController] PKCE codes cleared on flow load');
-	}, []); // Only run once on mount
+	}, [flowKey, persistKey]); // Only run once on mount
 
 	// Track current flow for error handling
 	useEffect(() => {
@@ -554,7 +553,7 @@ export const useAuthorizationCodeFlowController = (
 			if (code) {
 				console.log(
 					'✅ [useAuthorizationCodeFlowController] Setting auth code from popup:',
-					code.substring(0, 10) + '...'
+					`${code.substring(0, 10)}...`
 				);
 				setAuthCode(code);
 				console.log('✅ [useAuthorizationCodeFlowController] Auth code SET in state');
@@ -617,7 +616,7 @@ export const useAuthorizationCodeFlowController = (
 					if (code && code !== authCode) {
 						console.log(
 							'✅ [useAuthorizationCodeFlowController] Polling found new auth code:',
-							code.substring(0, 10) + '...'
+							`${code.substring(0, 10)}...`
 						);
 						setAuthCode(code);
 
@@ -697,6 +696,7 @@ export const useAuthorizationCodeFlowController = (
 		credentials.clientSecret,
 		credentials.scopes,
 		credentials.redirectUri,
+		credentials[typedKey],
 	]);
 
 	/**
@@ -743,11 +743,11 @@ export const useAuthorizationCodeFlowController = (
 			console.log('🔐 [PKCE DEBUG] ===== GENERATING NEW PKCE CODES =====');
 			console.log(
 				'🔐 [PKCE DEBUG] code_verifier (first 20 chars):',
-				codeVerifier.substring(0, 20) + '...'
+				`${codeVerifier.substring(0, 20)}...`
 			);
 			console.log(
 				'🔐 [PKCE DEBUG] code_challenge (first 20 chars):',
-				codeChallenge.substring(0, 20) + '...'
+				`${codeChallenge.substring(0, 20)}...`
 			);
 			console.log('🔐 [PKCE DEBUG] Storage key:', `${persistKey}-pkce-codes`);
 
@@ -879,8 +879,8 @@ export const useAuthorizationCodeFlowController = (
 
 		console.log('🌐 [PKCE DEBUG] ===== BUILDING AUTHORIZATION URL =====');
 		console.log('🌐 [PKCE DEBUG] Using PKCE codes:', {
-			codeVerifier: currentPkceCodes.codeVerifier.substring(0, 20) + '...',
-			codeChallenge: currentPkceCodes.codeChallenge.substring(0, 20) + '...',
+			codeVerifier: `${currentPkceCodes.codeVerifier.substring(0, 20)}...`,
+			codeChallenge: `${currentPkceCodes.codeChallenge.substring(0, 20)}...`,
 			codeChallengeMethod: currentPkceCodes.codeChallengeMethod,
 		});
 
@@ -1165,7 +1165,16 @@ export const useAuthorizationCodeFlowController = (
 			codeChallengeMethod: currentPkceCodes.codeChallengeMethod,
 			timestamp: Date.now(),
 		});
-	}, [credentials, pkceCodes, flowVariant, flowKey, flowConfig, persistKey, saveStepResult]);
+	}, [
+		credentials,
+		pkceCodes,
+		flowVariant,
+		flowKey,
+		flowConfig,
+		persistKey,
+		saveStepResult,
+		validateBeforeSend,
+	]);
 
 	const clearPopupInterval = useRef<number | null>(null);
 
@@ -1220,7 +1229,7 @@ export const useAuthorizationCodeFlowController = (
 				'🔴 [useAuthorizationCodeFlowController] CRITICAL: clientId is empty before redirect!',
 				{
 					credentials,
-					authUrl: authUrl.substring(0, 100) + '...',
+					authUrl: `${authUrl.substring(0, 100)}...`,
 				}
 			);
 			showGlobalError('Client ID missing', {
@@ -1265,7 +1274,7 @@ export const useAuthorizationCodeFlowController = (
 			hasClientId: !!flowContext.clientId,
 			hasEnvironmentId: !!flowContext.environmentId,
 			hasRedirectUri: !!flowContext.redirectUri,
-			clientId: flowContext.clientId?.substring(0, 10) + '...',
+			clientId: `${flowContext.clientId?.substring(0, 10)}...`,
 			environmentId: flowContext.environmentId,
 			redirectUri: flowContext.redirectUri,
 		});
@@ -1431,7 +1440,7 @@ export const useAuthorizationCodeFlowController = (
 					codeVerifier = storedPkceCodes.codeVerifier;
 					console.log(
 						`✅ [PKCE DEBUG] Retrieved code_verifier from ${pkceStorageKey}:`,
-						codeVerifier.substring(0, 20) + '...'
+						`${codeVerifier.substring(0, 20)}...`
 					);
 				} else {
 					console.log('⚠️ [PKCE DEBUG] No PKCE in primary storage, trying legacy keys...');
@@ -1451,7 +1460,7 @@ export const useAuthorizationCodeFlowController = (
 							codeVerifier = stored;
 							console.log(
 								`🔧 [PKCE DEBUG] Retrieved code_verifier from legacy key ${key}:`,
-								stored.substring(0, 20) + '...'
+								`${stored.substring(0, 20)}...`
 							);
 							break;
 						}
@@ -1460,7 +1469,7 @@ export const useAuthorizationCodeFlowController = (
 			} else {
 				console.log(
 					'✅ [PKCE DEBUG] Using code_verifier from state:',
-					codeVerifier.substring(0, 20) + '...'
+					`${codeVerifier.substring(0, 20)}...`
 				);
 			}
 
@@ -1603,7 +1612,7 @@ export const useAuthorizationCodeFlowController = (
 						userMessage = errorJson.error_description || errorJson.error || 'Token exchange failed';
 						errorDetails = errorJson.error_description || errorText;
 					}
-				} catch (e) {
+				} catch (_e) {
 					// If not JSON, use the raw error text
 				}
 
@@ -1709,7 +1718,7 @@ export const useAuthorizationCodeFlowController = (
 		} finally {
 			setIsExchangingTokens(false);
 		}
-	}, [authCode, credentials, pkceCodes, saveStepResult, flowVariant]);
+	}, [authCode, credentials, pkceCodes, saveStepResult, flowVariant, flowKey, persistKey]);
 
 	const fetchUserInfo = async () => {
 		console.log('🔍 [fetchUserInfo] Starting user info fetch:', {

@@ -1,6 +1,6 @@
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
-import type { WorkerAccessToken, WorkerTokenStatus } from '../../services/unifiedWorkerTokenTypes';
+import type { WorkerAccessToken } from '../../services/unifiedWorkerTokenTypes';
 import { logger } from './unifiedFlowLoggerServiceV8U';
 export interface TokenInfo {
 	id: string;
@@ -445,7 +445,7 @@ export class TokenMonitoringService {
 		// Add access token
 		if (oauthTokens.access_token) {
 			const expiresIn = oauthTokens.expires_in
-				? parseInt(oauthTokens.expires_in) * 1000
+				? parseInt(oauthTokens.expires_in, 10) * 1000
 				: 60 * 60 * 1000; // Default 1 hour
 			const expiresAt = Date.now() + expiresIn;
 
@@ -481,18 +481,6 @@ export class TokenMonitoringService {
 				scope: ['openid'],
 			});
 		}
-	}
-
-	private clearTokensFromFlow(flowSource: string): void {
-		const tokensToRemove: string[] = [];
-
-		this.tokens.forEach((token, id) => {
-			// For now, we'll clear all tokens when syncing from any flow
-			// In a more sophisticated implementation, we could track flow sources per token
-			tokensToRemove.push(id);
-		});
-
-		tokensToRemove.forEach((id) => this.removeToken(id));
 	}
 
 	private clearTokensByType(tokenType: string): void {
@@ -945,7 +933,10 @@ export class TokenMonitoringService {
 		}
 	}
 
-	private async revokeTokenSSOSignoff(token: TokenInfo, options: RevocationOptions): Promise<void> {
+	private async revokeTokenSSOSignoff(
+		_token: TokenInfo,
+		options: RevocationOptions
+	): Promise<void> {
 		const flowContext =
 			typeof window !== 'undefined'
 				? window.sessionStorage.getItem('tokenManagementFlowContext')
@@ -987,7 +978,7 @@ export class TokenMonitoringService {
 	}
 
 	private async revokeTokenSessionDelete(
-		token: TokenInfo,
+		_token: TokenInfo,
 		options: RevocationOptions
 	): Promise<void> {
 		if (!options.userId || !options.sessionId) {

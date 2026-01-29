@@ -255,9 +255,8 @@ export const FeatureEnableConfirmationModal: React.FC<FeatureEnableConfirmationM
 								<ChangeItem key={index}>
 									{change.includes('client_id') ||
 									change.includes('redirect_uris') ||
-									change.includes('grant_types') ? (
-										<>
-											{change
+									change.includes('grant_types')
+										? change
 												.split(' ')
 												.map((part, i) =>
 													part.includes('client_id') ||
@@ -267,11 +266,8 @@ export const FeatureEnableConfirmationModal: React.FC<FeatureEnableConfirmationM
 													) : (
 														` ${part} `
 													)
-												)}
-										</>
-									) : (
-										change
-									)}
+												)
+										: change}
 								</ChangeItem>
 							))}
 						</ChangeList>

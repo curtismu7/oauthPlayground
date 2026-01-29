@@ -2,7 +2,6 @@
 // V7.1 Performance Monitoring - Performance tracking and optimization
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FLOW_CONSTANTS } from '../constants/flowConstants';
 
 interface PerformanceMetrics {
 	componentName: string;
@@ -117,7 +116,7 @@ export const usePerformanceMonitoring = (
 		};
 
 		return report;
-	}, [metrics, finalThresholds]);
+	}, [metrics, finalThresholds, calculatePerformanceScore, getPerformanceRecommendations]);
 
 	// Calculate performance score (0-100)
 	const calculatePerformanceScore = useCallback(

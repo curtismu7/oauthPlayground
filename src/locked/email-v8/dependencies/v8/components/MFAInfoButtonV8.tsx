@@ -96,7 +96,7 @@ const renderFormattedDescription = (description: string): React.ReactNode => {
 			parts.push(text.substring(lastIndex));
 		}
 
-		return parts.length > 0 ? <>{parts}</> : text;
+		return parts.length > 0 ? parts : text;
 	};
 
 	for (let i = 0; i < lines.length; i++) {
@@ -187,7 +187,7 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 
 		window.addEventListener('keydown', handleEscape);
 		return () => window.removeEventListener('keydown', handleEscape);
-	}, [isOpen, displayMode]);
+	}, [isOpen, displayMode, handleClose]);
 
 	// Show tooltip on hover (tooltip mode only)
 	const shouldShowTooltip = displayMode === 'tooltip' && (isHovered || isOpen);

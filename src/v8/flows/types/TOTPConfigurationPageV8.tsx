@@ -17,7 +17,9 @@ import { useAuth } from '@/contexts/NewAuthContext';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
+import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -29,8 +31,6 @@ import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
-import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
-import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
 const _MODULE_TAG = '[⏱️ TOTP-CONFIG-V8]';
@@ -105,7 +105,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 			return true;
 		}
 	});
-	const [showSettingsModal, setShowSettingsModal] = useState(false);
+	const [_showSettingsModal, _setShowSettingsModal] = useState(false);
 
 	// Registration flow type state
 	const [registrationFlowType, setRegistrationFlowType] = useState<'admin' | 'user'>('user');
@@ -125,8 +125,8 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);
 
 	const fetchDeviceAuthPolicies = useCallback(async () => {
-	// Policies can only be loaded with a worker token
-	// Even if using User Token for the flow, we need worker token for policies
+		// Policies can only be loaded with a worker token
+		// Even if using User Token for the flow, we need worker token for policies
 		if (!credentials.environmentId || !tokenStatus.isValid) {
 			// If no worker token, don't show error - user can enter policy ID manually
 			if (!tokenStatus.isValid && credentials.tokenType === 'user') {
@@ -460,7 +460,6 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 		},
 		[navigate, credentials, tokenStatus, registrationFlowType, adminDeviceStatus]
 	);
-
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
@@ -892,9 +891,9 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 							!credentials.environmentId ||
 							(registrationFlowType === 'admin'
 								? !tokenStatus.token // Admin flow: any worker token enables the button
-								: ((credentials.tokenType || 'worker') === 'worker'
-										? !tokenStatus.isValid // User flow with worker token: must be valid
-										: !credentials.userToken?.trim())) // User flow with user token
+								: (credentials.tokenType || 'worker') === 'worker'
+									? !tokenStatus.isValid // User flow with worker token: must be valid
+									: !credentials.userToken?.trim()) // User flow with user token
 						}
 						style={{
 							padding: '12px 24px',
@@ -905,9 +904,9 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 								credentials.environmentId &&
 								(registrationFlowType === 'admin'
 									? !!tokenStatus.token // Admin flow: any worker token enables the button
-									: ((credentials.tokenType || 'worker') === 'worker'
-											? tokenStatus.isValid // User flow with worker token: must be valid
-											: !!credentials.userToken?.trim())) // User flow with user token
+									: (credentials.tokenType || 'worker') === 'worker'
+										? tokenStatus.isValid // User flow with worker token: must be valid
+										: !!credentials.userToken?.trim()) // User flow with user token
 									? '#8b5cf6'
 									: '#9ca3af',
 							color: 'white',
@@ -918,9 +917,9 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 								credentials.environmentId &&
 								(registrationFlowType === 'admin'
 									? !!tokenStatus.token // Admin flow: any worker token enables the button
-									: ((credentials.tokenType || 'worker') === 'worker'
-											? tokenStatus.isValid // User flow with worker token: must be valid
-											: !!credentials.userToken?.trim())) // User flow with user token
+									: (credentials.tokenType || 'worker') === 'worker'
+										? tokenStatus.isValid // User flow with worker token: must be valid
+										: !!credentials.userToken?.trim()) // User flow with user token
 									? 'pointer'
 									: 'not-allowed',
 							display: 'flex',

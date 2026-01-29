@@ -16,8 +16,8 @@
             const key = localStorage.key(i);
             if (key && (key.includes('worker') || key.includes('token'))) {
                 const value = localStorage.getItem(key);
-                console.log(`Found: ${key} = ${value ? value.substring(0, 100) + '...' : 'null'}`);
-                results.innerHTML += `<p><strong>${key}:</strong> ${value ? value.substring(0, 100) + '...' : 'null'}</p>`;
+                console.log(`Found: ${key} = ${value ? `${value.substring(0, 100)}...` : 'null'}`);
+                results.innerHTML += `<p><strong>${key}:</strong> ${value ? `${value.substring(0, 100)}...` : 'null'}</p>`;
             }
         }
         
@@ -27,8 +27,8 @@
             const key = sessionStorage.key(i);
             if (key && (key.includes('worker') || key.includes('token'))) {
                 const value = sessionStorage.getItem(key);
-                console.log(`Found: ${key} = ${value ? value.substring(0, 100) + '...' : 'null'}`);
-                results.innerHTML += `<p><strong>${key} (session):</strong> ${value ? value.substring(0, 100) + '...' : 'null'}</p>`;
+                console.log(`Found: ${key} = ${value ? `${value.substring(0, 100)}...` : 'null'}`);
+                results.innerHTML += `<p><strong>${key} (session):</strong> ${value ? `${value.substring(0, 100)}...` : 'null'}</p>`;
             }
         }
         

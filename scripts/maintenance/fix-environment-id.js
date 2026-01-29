@@ -2,7 +2,7 @@
 // Script to fix environment ID in localStorage for HEB Grocery Store flow
 
 const CORRECT_ENV_ID = 'b9817c16-9910-4415-b67e-4ac687da74d9';
-const FLOW_KEY = 'heb-grocery-store-mfa';
+const _FLOW_KEY = 'heb-grocery-store-mfa';
 
 // Storage keys to check and update
 const storageKeys = [
@@ -203,7 +203,7 @@ function fixEnvironmentId() {
 						}
 					}
 				}
-			} catch (e) {
+			} catch (_e) {
 				// Not JSON, skip
 			}
 		}

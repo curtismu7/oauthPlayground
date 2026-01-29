@@ -10,7 +10,7 @@ import React from 'react';
 import { FiCheckCircle, FiHash, FiMail, FiUser, FiX } from 'react-icons/fi';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
-const MODULE_TAG = '[✅ USER-INFO-SUCCESS-MODAL-V8U]';
+const _MODULE_TAG = '[✅ USER-INFO-SUCCESS-MODAL-V8U]';
 
 interface UserInfoSuccessModalV8UProps {
 	isOpen: boolean;

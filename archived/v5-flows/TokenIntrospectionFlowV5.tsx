@@ -15,7 +15,6 @@ import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useTokenIntrospectionFlowController } from '../../hooks/useTokenIntrospectionFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [

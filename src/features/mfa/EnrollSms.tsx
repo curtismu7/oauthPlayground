@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import { DebugPanel } from '@/samples/p1mfa/shared/DebugPanel';
 import { StatusDisplay } from '@/samples/p1mfa/shared/StatusDisplay';
-import { type DeviceRegistrationResult, P1MFASDK, SMSHelper } from '@/sdk/p1mfa';
+import { P1MFASDK, SMSHelper } from '@/sdk/p1mfa';
 
 interface EnrollSmsProps {
 	sdk: P1MFASDK;

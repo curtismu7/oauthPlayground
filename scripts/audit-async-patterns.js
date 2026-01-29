@@ -7,9 +7,9 @@
  * lead to syntax errors like the Configuration.tsx issue.
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -111,7 +111,7 @@ function generateReport(results) {
 		}
 	});
 
-	console.log('\n' + '='.repeat(80));
+	console.log(`\n${'='.repeat(80)}`);
 	console.log('SUMMARY');
 	console.log('='.repeat(80));
 	console.log(`\nTotal async patterns found: ${totalIssues}`);
@@ -120,7 +120,7 @@ function generateReport(results) {
 		console.log(`  ${pattern}: ${count}`);
 	});
 
-	console.log('\n' + '='.repeat(80));
+	console.log(`\n${'='.repeat(80)}`);
 	console.log('RECOMMENDATIONS');
 	console.log('='.repeat(80));
 	console.log(`

@@ -4,7 +4,6 @@ import {
 	loadFlowCredentialsIsolated,
 	saveFlowCredentials,
 } from '../services/flowCredentialService';
-import FlowStorageService from '../services/flowStorageService';
 import { pingOneConfigService } from '../services/pingoneConfigService';
 import { AuthContextType, AuthState, LoginResult } from '../types/auth';
 import type { OAuthTokenResponse, OAuthTokens, UserInfo } from '../types/storage';
@@ -241,7 +240,7 @@ async function loadConfiguration(): Promise<AppConfig> {
 			if (v7Credentials.credentials?.clientId && v7Credentials.credentials?.environmentId) {
 				return v7Credentials.credentials;
 			}
-		} catch (v7Error) {
+		} catch (_v7Error) {
 			// V7 FlowCredentialService not available, continue to fallback
 		}
 
@@ -259,7 +258,7 @@ async function loadConfiguration(): Promise<AppConfig> {
 			if (v5Config?.clientId && v5Config?.environmentId) {
 				return v5Config;
 			}
-		} catch (v5Error) {
+		} catch (_v5Error) {
 			// V5 Config Service not available, continue to fallback
 		}
 
@@ -1132,7 +1131,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				let codeVerifier = '';
 				for (const key of possibleKeys) {
 					const value = sessionStorage.getItem(key);
-					if (value && value.trim()) {
+					if (value?.trim()) {
 						codeVerifier = value.trim();
 						console.log(` [NewAuthContext] Found code_verifier in sessionStorage key: ${key}`);
 						break;
@@ -1167,7 +1166,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					keys: Object.keys(sessionStorage),
 					values: Object.keys(sessionStorage).reduce(
 						(acc, key) => {
-							acc[key] = sessionStorage.getItem(key)?.substring(0, 20) + '...';
+							acc[key] = `${sessionStorage.getItem(key)?.substring(0, 20)}...`;
 							return acc;
 						},
 						{} as Record<string, string>
@@ -1578,7 +1577,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					let parsedError;
 					try {
 						parsedError = JSON.parse(errorText);
-					} catch (e) {
+					} catch (_e) {
 						parsedError = { error: 'unknown', error_description: errorText };
 					}
 
@@ -1999,6 +1998,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 		updateFlowStep,
 		completeFlow,
 		getCurrentFlow,
+		saveCredentialsV7,
 	]);
 
 	// Reduced debug logging to prevent console spam

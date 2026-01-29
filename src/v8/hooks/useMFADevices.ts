@@ -3,7 +3,7 @@
  * @module v8/hooks
  * @description Custom hook for managing MFA device state and operations
  * @version 3.0.0
- * 
+ *
  * Extracted from MFAAuthenticationMainPageV8.tsx as part of V3 refactoring.
  * Centralizes all device-related logic including:
  * - Loading user devices

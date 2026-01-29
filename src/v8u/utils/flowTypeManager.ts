@@ -15,9 +15,10 @@ import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 	type SpecVersion,
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
+
 import { UnifiedFlowIntegrationV8U } from '../services/unifiedFlowIntegrationV8U';
 
-const MODULE_TAG = '[🔄 FLOW-TYPE-MANAGER-V8U]';
+const _MODULE_TAG = '[🔄 FLOW-TYPE-MANAGER-V8U]';
 
 export interface FlowTypeCompatibility {
 	isCompatible: boolean;

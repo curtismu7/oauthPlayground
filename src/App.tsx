@@ -213,7 +213,7 @@ const SpiffeSpireFlowV8U = lazy(() => import('./v8u/flows/SpiffeSpireFlowV8U'));
 const UnifiedOAuthFlowV8U = lazy(() => import('./v8u/flows/UnifiedOAuthFlowV8U'));
 const SpiffeSpireTokenDisplayV8U = lazy(() => import('./v8u/pages/SpiffeSpireTokenDisplayV8U'));
 const EnhancedStateManagementPage = lazy(() => import('./v8u/pages/EnhancedStateManagementPage'));
-const TokenMonitoringPage = lazy(() => import('./v8u/pages/TokenMonitoringPage'));
+const _TokenMonitoringPage = lazy(() => import('./v8u/pages/TokenMonitoringPage'));
 const TokenApiDocumentationPage = lazy(() => import('./v8u/pages/TokenApiDocumentationPage'));
 const FlowComparisonPage = lazy(() => import('./v8u/pages/FlowComparisonPage'));
 

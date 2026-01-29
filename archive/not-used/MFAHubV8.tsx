@@ -18,7 +18,6 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { FiChevronDown, FiPackage, FiTrash2 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { ConfirmModalV8 } from '../components/ConfirmModalV8';
 import styled from 'styled-components';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
@@ -39,6 +38,7 @@ import WorkerTokenStatusServiceV8, {
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
+import { ConfirmModalV8 } from '../components/ConfirmModalV8';
 
 // Collapsible components
 const CollapsibleSection = styled.div`
@@ -1191,7 +1191,7 @@ export const MFAHubV8: React.FC = () => {
 					}}
 				/>
 			)}
-			
+
 			<ConfirmModalV8
 				isOpen={showClearTokensModal}
 				title="Clear All Tokens"

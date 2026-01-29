@@ -32,7 +32,7 @@ var addSorting = (() => {
 		let searchRegex;
 		try {
 			searchRegex = new RegExp(searchValue, 'i'); // 'i' for case-insensitive
-		} catch (error) {
+		} catch (_error) {
 			searchRegex = null;
 		}
 
@@ -78,7 +78,7 @@ var addSorting = (() => {
 			cols.push(col);
 			if (col.sortable) {
 				col.defaultDescSort = col.type === 'number';
-				colNode.innerHTML = colNode.innerHTML + '<span class="sorter"></span>';
+				colNode.innerHTML = `${colNode.innerHTML}<span class="sorter"></span>`;
 			}
 		}
 		return cols;

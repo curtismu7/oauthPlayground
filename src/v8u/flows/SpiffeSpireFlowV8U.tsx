@@ -1617,66 +1617,63 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 								);
 
 								return (
-									<>
-										<FormGroup>
-											<div
+									<FormGroup>
+										<div
+											style={{
+												display: 'flex',
+												justifyContent: 'space-between',
+												alignItems: 'center',
+											}}
+										>
+											<Label>Registration Entry JSON</Label>
+											<button
+												type="button"
+												onClick={() => setShowRegistrationInfo((prev) => !prev)}
 												style={{
-													display: 'flex',
-													justifyContent: 'space-between',
+													display: 'inline-flex',
 													alignItems: 'center',
+													gap: '0.25rem',
+													background: 'transparent',
+													border: 'none',
+													color: '#6b7280',
+													fontSize: '0.75rem',
+													cursor: 'pointer',
 												}}
 											>
-												<Label>Registration Entry JSON</Label>
-												<button
-													type="button"
-													onClick={() => setShowRegistrationInfo((prev) => !prev)}
-													style={{
-														display: 'inline-flex',
-														alignItems: 'center',
-														gap: '0.25rem',
-														background: 'transparent',
-														border: 'none',
-														color: '#6b7280',
-														fontSize: '0.75rem',
-														cursor: 'pointer',
-													}}
-												>
-													<FiInfo size={14} />
-													<span>{showRegistrationInfo ? 'Hide info' : "What's this?"}</span>
-												</button>
-											</div>
-											<CodeBlock>{JSON.stringify(entry, null, 2)}</CodeBlock>
+												<FiInfo size={14} />
+												<span>{showRegistrationInfo ? 'Hide info' : "What's this?"}</span>
+											</button>
+										</div>
+										<CodeBlock>{JSON.stringify(entry, null, 2)}</CodeBlock>
+										<HelperText>
+											This object shows how SPIRE maps your workload's selectors to a SPIFFE ID.
+										</HelperText>
+										{showRegistrationInfo && (
 											<HelperText>
-												This object shows how SPIRE maps your workload's selectors to a SPIFFE ID.
+												<strong>Registration entry</strong> is a rule on the SPIRE Server that says
+												"for workloads with these selectors, issue this SPIFFE ID from this parent".
+												<br />
+												Key fields:
+												<ul>
+													<li>
+														<strong>spiffeId</strong>: the SPIFFE ID the workload receives.
+													</li>
+													<li>
+														<strong>parentId</strong>: who is allowed to sign SVIDs for this
+														workload (often the SPIRE Server).
+													</li>
+													<li>
+														<strong>selectors</strong>: platform attributes that identify which
+														workloads this entry applies to (e.g., Kubernetes service account).
+													</li>
+													<li>
+														<strong>ttlSeconds</strong>: how long each SVID is valid before it must
+														be rotated.
+													</li>
+												</ul>
 											</HelperText>
-											{showRegistrationInfo && (
-												<HelperText>
-													<strong>Registration entry</strong> is a rule on the SPIRE Server that
-													says "for workloads with these selectors, issue this SPIFFE ID from this
-													parent".
-													<br />
-													Key fields:
-													<ul>
-														<li>
-															<strong>spiffeId</strong>: the SPIFFE ID the workload receives.
-														</li>
-														<li>
-															<strong>parentId</strong>: who is allowed to sign SVIDs for this
-															workload (often the SPIRE Server).
-														</li>
-														<li>
-															<strong>selectors</strong>: platform attributes that identify which
-															workloads this entry applies to (e.g., Kubernetes service account).
-														</li>
-														<li>
-															<strong>ttlSeconds</strong>: how long each SVID is valid before it
-															must be rotated.
-														</li>
-													</ul>
-												</HelperText>
-											)}
-										</FormGroup>
-									</>
+										)}
+									</FormGroup>
 								);
 							})()}
 						</Card>

@@ -2,17 +2,8 @@
 // V7.1 Flow Results - Display tokens, user info, and flow results
 
 import React, { useState } from 'react';
-import {
-	FiCheck,
-	FiChevronDown,
-	FiChevronRight,
-	FiCopy,
-	FiEye,
-	FiEyeOff,
-	FiRefreshCw,
-} from 'react-icons/fi';
+import { FiCheck, FiChevronRight, FiCopy, FiEye, FiEyeOff, FiRefreshCw } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { TokenResponse, UserInfo } from '../types/flowTypes';
 
@@ -361,7 +352,7 @@ export const FlowResults: React.FC<FlowResultsProps> = ({
 					expires: payload.exp ? new Date(payload.exp * 1000).toLocaleString() : 'Unknown',
 				};
 			}
-		} catch (error) {
+		} catch (_error) {
 			// Not a JWT token
 		}
 		return null;

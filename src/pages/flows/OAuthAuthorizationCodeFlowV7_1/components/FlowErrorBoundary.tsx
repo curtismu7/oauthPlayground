@@ -4,7 +4,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { FiAlertTriangle, FiChevronLeft, FiHome, FiRefreshCw } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 
 interface Props {

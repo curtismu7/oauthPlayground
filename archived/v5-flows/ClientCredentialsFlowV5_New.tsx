@@ -516,7 +516,7 @@ const ClientCredentialsFlowV5: React.FC = () => {
 	// Scroll to top when step changes
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}, [currentStep]);
+	}, []);
 
 	const handleNext = useCallback(() => {
 		if (canNavigateNext) {
@@ -1062,6 +1062,9 @@ const ClientCredentialsFlowV5: React.FC = () => {
 			saveCredentials,
 			handleResetFlow,
 			handleIntrospectToken,
+			hasUnsavedCredentialChanges,
+			introspectionApiCall,
+			isSavingCredentials,
 		]
 	);
 

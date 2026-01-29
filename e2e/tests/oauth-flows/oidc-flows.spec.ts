@@ -60,7 +60,7 @@ test.describe('OpenID Connect Flows', () => {
 		expect(idToken).toBeTruthy();
 
 		// Access token should not be present in implicit flow with id_token only
-		const accessToken = await flowPage.getAccessToken();
+		const _accessToken = await flowPage.getAccessToken();
 		// Note: In implicit flow, access token presence depends on response type
 	});
 
