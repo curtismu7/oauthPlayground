@@ -9,6 +9,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FiMail, FiShield, FiX } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
+import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
@@ -2719,7 +2720,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					return false;
 				}}
 			/>
-
+			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 		</div>
 	);
 };
