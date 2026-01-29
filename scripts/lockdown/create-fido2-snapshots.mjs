@@ -44,7 +44,7 @@ const updatedFiles = manifest.files.map((fileEntry) => {
 manifest.files = updatedFiles;
 manifest.updated = new Date().toISOString();
 
-writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
+writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
 
 console.log(`\n✅ Created ${updatedFiles.length} snapshots`);
 console.log(`   Manifest updated: ${manifestPath}`);

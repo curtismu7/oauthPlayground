@@ -180,7 +180,7 @@ export const MFAProvider: React.FC<MFAProviderProps> = ({
 		[credentials]
 	);
 
-	const resendVerificationCode = useCallback(async (deviceId: string) => {
+	const resendVerificationCode = useCallback(async (_deviceId: string) => {
 		try {
 			setError(null);
 

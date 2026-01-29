@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -8,15 +7,14 @@ import {
 	FiDownload,
 	FiEye,
 	FiInfo,
-	FiLogOut,
 	FiRefreshCw,
 	FiSettings,
 	FiShield,
 	FiTrash2,
-	FiUsers,
 	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
 import {
@@ -332,7 +330,7 @@ export const TokenMonitoringPage: React.FC = () => {
 	const [message, setMessage] = useState<string>('');
 	const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const [revocationMethod, setRevocationMethod] = useState<RevocationMethod>('oauth_revoke');
+	const [_revocationMethod, _setRevocationMethod] = useState<RevocationMethod>('oauth_revoke');
 	const [showRevocationOptions, setShowRevocationOptions] = useState<string | null>(null);
 
 	// Subscribe to token monitoring service

@@ -24,11 +24,10 @@
  */
 
 import React, { useState } from 'react';
-import { FiArrowRight } from 'react-icons/fi';
 import { StepActionButtonsProps } from '@/v8/types/stepNavigation';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
-const MODULE_TAG = '[🔘 STEP-BUTTONS-V8]';
+const _MODULE_TAG = '[🔘 STEP-BUTTONS-V8]';
 
 /**
  * StepActionButtonsV8U Component
@@ -51,12 +50,12 @@ export const StepActionButtonsV8U: React.FC<StepActionButtonsProps> = ({
 	finalLabel = 'Start New Flow',
 	className = '',
 }) => {
-	const [showTooltip, setShowTooltip] = useState(false);
+	const [_showTooltip, _setShowTooltip] = useState(false);
 
-	const isLastStep = currentStep === totalSteps - 1;
-	const canGoPrevious = currentStep > 0;
+	const _isLastStep = currentStep === totalSteps - 1;
+	const _canGoPrevious = currentStep > 0;
 
-	const handlePreviousClick = () => {
+	const _handlePreviousClick = () => {
 		logger.debug(Previous button clicked`, { currentStep });
 		onPrevious();
 	};
@@ -68,7 +67,7 @@ export const StepActionButtonsV8U: React.FC<StepActionButtonsProps> = ({
 		}
 	};
 
-	const handleFinalClick = () => {
+	const _handleFinalClick = () => {
 		logger.debug(Final button clicked`, { currentStep });
 		if (onFinal) {
 			onFinal();
@@ -276,14 +275,12 @@ export const StepActionButtonsV8U: React.FC<StepActionButtonsProps> = ({
 				}
 
 				@keyframes slideUp {
-					from {
+					from 
 						opacity: 0;
 						transform: translateX(-50%) translateY(4px);
-					}
-					to {
+					to 
 						opacity: 1;
 						transform: translateX(-50%) translateY(0);
-					}
 				}
 
 				.btn-icon {
@@ -297,26 +294,22 @@ export const StepActionButtonsV8U: React.FC<StepActionButtonsProps> = ({
 
 				/* Mobile responsive */
 				@media (max-width: 600px) {
-					.step-action-buttons-v8 {
+					.step-action-buttons-v8 
 						flex-direction: column;
 						gap: 8px;
-					}
 
-					.btn {
+					.btn 
 						width: 100%;
 						justify-content: center;
 						padding: 12px 16px;
-					}
 
-					.next-button-wrapper {
+					.next-button-wrapper 
 						width: 100%;
 						max-width: none;
-					}
 
-					.tooltip {
+					.tooltip 
 						white-space: normal;
 						max-width: 200px;
-					}
 				}
 			`}</style>
 		</div>

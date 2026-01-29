@@ -193,7 +193,7 @@ export async function pingOneFetch(
 	const retryStatuses = new Set(retryOptions.statusCodes ?? Array.from(DEFAULT_RETRY_STATUSES));
 
 	let attempt = 0;
-	let lastError: unknown;
+	let _lastError: unknown;
 
 	while (attempt < maxAttempts) {
 		attempt += 1;
@@ -225,7 +225,7 @@ export async function pingOneFetch(
 		// #endregion
 
 		try {
-			const response = await fetch(input, {
+			const _response = await fetch(input, {
 				...init,
 				headers,
 			});

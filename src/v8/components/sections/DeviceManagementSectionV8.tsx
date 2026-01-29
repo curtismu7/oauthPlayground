@@ -3,7 +3,7 @@
  * @module v8/components/sections
  * @description Device Management Section Component
  * @version 3.0.0
- * 
+ *
  * Extracted from MFAAuthenticationMainPageV8.tsx as part of V3 refactoring.
  * This component handles the device management UI including:
  * - Device list display
@@ -109,9 +109,7 @@ export const DeviceManagementSectionV8: React.FC<DeviceManagementSectionProps> =
 						marginBottom: '16px',
 					}}
 				>
-					<p style={{ fontSize: '14px', color: '#991b1b', margin: 0 }}>
-						⚠️ {mfaDevices.error}
-					</p>
+					<p style={{ fontSize: '14px', color: '#991b1b', margin: 0 }}>⚠️ {mfaDevices.error}</p>
 				</div>
 			)}
 
@@ -159,7 +157,7 @@ export const DeviceManagementSectionV8: React.FC<DeviceManagementSectionProps> =
 
 								return (
 									<div
-										key={device.id as string || index}
+										key={(device.id as string) || index}
 										onClick={() => mfaDevices.selectDevice(device)}
 										style={{
 											padding: '16px',

@@ -1,37 +1,25 @@
 // src/pages/flows/RARFlowV7.tsx
 // V7 RAR (Rich Authorization Requests) Flow with Enhanced Architecture
 
-import React, { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-	FiAlertCircle,
 	FiArrowRight,
 	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiEye,
-	FiEyeOff,
-	FiGlobe,
 	FiInfo,
 	FiKey,
 	FiRefreshCw,
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { LearningTooltip } from '../../components/LearningTooltip';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 // Import V7 UI components
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
-import { CopyButtonService } from '../../services/copyButtonService';
-import { CredentialGuardService } from '../../services/credentialGuardService';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
 import type { StepCredentials } from '../../services/flowCredentialService';
-import { FlowCredentialService } from '../../services/flowCredentialService';
 // Import V7 service architecture components
 import { FlowHeader } from '../../services/flowHeaderService';
 // Get shared UI components from FlowUIService
@@ -40,8 +28,6 @@ import ModalPresentationService from '../../services/modalPresentationService';
 import { OAuthFlowComparisonService } from '../../services/oauthFlowComparisonService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const {
@@ -314,17 +300,14 @@ const RARFlowV7: React.FC = () => {
 	}, []);
 
 	// Apply RAR example
-	const applyRarExample = useCallback(
-		(exampleKey: string) => {
-			const example = rarExamples[exampleKey];
-			if (example) {
-				setRarDetails(example.details);
-				setSelectedExample(exampleKey);
-				v4ToastManager.showSuccess(`Applied ${example.name} RAR example`);
-			}
-		},
-		[rarExamples]
-	);
+	const applyRarExample = useCallback((exampleKey: string) => {
+		const example = rarExamples[exampleKey];
+		if (example) {
+			setRarDetails(example.details);
+			setSelectedExample(exampleKey);
+			v4ToastManager.showSuccess(`Applied ${example.name} RAR example`);
+		}
+	}, []);
 
 	// Load credentials on mount
 	useEffect(() => {
@@ -426,7 +409,7 @@ const RARFlowV7: React.FC = () => {
 			client_id: clientId,
 			redirect_uri: redirectUri,
 			scope: scopes,
-			state: 'rar-state-' + Math.random().toString(36).substr(2, 9),
+			state: `rar-state-${Math.random().toString(36).substr(2, 9)}`,
 			authorization_details: encodedRar,
 		});
 
@@ -520,7 +503,7 @@ const RARFlowV7: React.FC = () => {
 		} finally {
 			setIsLoading(false);
 		}
-	}, [authCode, clientId, clientSecret, environmentId, redirectUri, scopes, rarDetails]);
+	}, [authCode, clientId, clientSecret, environmentId, scopes, rarDetails]);
 
 	// Navigation handlers
 	const handleNext = useCallback(() => {
@@ -1005,335 +988,329 @@ const RARFlowV7: React.FC = () => {
 
 			case 1:
 				return (
-					<>
-						<ComprehensiveCredentialsService
-							flowType="rar-v7"
-							onCredentialsChange={(credentials) => {
-								console.log('🔧 [RAR-V7] Credentials changed:', credentials);
-								setEnvironmentId(credentials.environmentId || '');
-								setClientId(credentials.clientId || '');
-								setClientSecret(credentials.clientSecret || '');
-								setScopes(credentials.scopes || 'read write');
-								setRedirectUri(credentials.redirectUri || 'https://localhost:3000/rar-callback');
+					<ComprehensiveCredentialsService
+						flowType="rar-v7"
+						onCredentialsChange={(credentials) => {
+							console.log('🔧 [RAR-V7] Credentials changed:', credentials);
+							setEnvironmentId(credentials.environmentId || '');
+							setClientId(credentials.clientId || '');
+							setClientSecret(credentials.clientSecret || '');
+							setScopes(credentials.scopes || 'read write');
+							setRedirectUri(credentials.redirectUri || 'https://localhost:3000/rar-callback');
 
-								// Auto-save credentials when changed
-								saveCredentials({
-									environmentId: credentials.environmentId || '',
-									clientId: credentials.clientId || '',
-									clientSecret: credentials.clientSecret || '',
-									scopes: credentials.scopes || 'read write',
-									redirectUri: credentials.redirectUri || 'https://localhost:3000/rar-callback',
-								});
-							}}
-							onDiscoveryComplete={(result) => {
-								console.log('🔍 [RAR-V7] OIDC Discovery completed:', result);
-								if (result.success && result.document) {
-									const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(
-										result.document.issuer
-									);
-									if (extractedEnvId) {
-										console.log('✅ [RAR-V7] Extracted environment ID:', extractedEnvId);
-										setEnvironmentId(extractedEnvId);
-									}
+							// Auto-save credentials when changed
+							saveCredentials({
+								environmentId: credentials.environmentId || '',
+								clientId: credentials.clientId || '',
+								clientSecret: credentials.clientSecret || '',
+								scopes: credentials.scopes || 'read write',
+								redirectUri: credentials.redirectUri || 'https://localhost:3000/rar-callback',
+							});
+						}}
+						onDiscoveryComplete={(result) => {
+							console.log('🔍 [RAR-V7] OIDC Discovery completed:', result);
+							if (result.success && result.document) {
+								const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(
+									result.document.issuer
+								);
+								if (extractedEnvId) {
+									console.log('✅ [RAR-V7] Extracted environment ID:', extractedEnvId);
+									setEnvironmentId(extractedEnvId);
 								}
-							}}
-							credentials={{
-								environmentId,
-								clientId,
-								clientSecret,
-								scopes,
-								redirectUri,
-							}}
-							title="🎯 RAR Flow V7 Configuration"
-							subtitle="Configure PingOne environment and client credentials for Rich Authorization Requests"
-							requireClientSecret={true}
-							showRedirectUri={true}
-							showAdvancedConfig={true}
-							// Config Checker - Disabled to remove pre-flight API calls
-							showConfigChecker={false}
-							workerToken={localStorage.getItem('worker_token') || ''}
-							defaultCollapsed={false}
-						/>
-					</>
+							}
+						}}
+						credentials={{
+							environmentId,
+							clientId,
+							clientSecret,
+							scopes,
+							redirectUri,
+						}}
+						title="🎯 RAR Flow V7 Configuration"
+						subtitle="Configure PingOne environment and client credentials for Rich Authorization Requests"
+						requireClientSecret={true}
+						showRedirectUri={true}
+						showAdvancedConfig={true}
+						// Config Checker - Disabled to remove pre-flight API calls
+						showConfigChecker={false}
+						workerToken={localStorage.getItem('worker_token') || ''}
+						defaultCollapsed={false}
+					/>
 				);
 
 			case 2:
 				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('authorization')}
-								aria-expanded={!collapsedSections.authorization}
-							>
-								<CollapsibleTitle>
-									<FiKey /> Generate{' '}
-									<LearningTooltip
-										variant="learning"
-										title="RAR Authorization URL"
-										content="The authorization endpoint URL with RAR parameters. Includes 'authorization_details' parameter containing the structured JSON with resource, actions, and other fine-grained authorization requirements (RFC 9396)."
-										placement="top"
-									>
-										RAR Authorization URL
-									</LearningTooltip>
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.authorization}>
-									<FiArrowRight />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.authorization && (
-								<CollapsibleContent>
-									<FormGroup>
-										<Label>
-											<LearningTooltip
-												variant="learning"
-												title="RAR Authorization Details"
-												content="Structured JSON object containing resource, actions, locations, datatypes, and other fine-grained authorization parameters. Sent as 'authorization_details' parameter in the authorization request (RFC 9396)."
-												placement="top"
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('authorization')}
+							aria-expanded={!collapsedSections.authorization}
+						>
+							<CollapsibleTitle>
+								<FiKey /> Generate{' '}
+								<LearningTooltip
+									variant="learning"
+									title="RAR Authorization URL"
+									content="The authorization endpoint URL with RAR parameters. Includes 'authorization_details' parameter containing the structured JSON with resource, actions, and other fine-grained authorization requirements (RFC 9396)."
+									placement="top"
+								>
+									RAR Authorization URL
+								</LearningTooltip>
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.authorization}>
+								<FiArrowRight />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!collapsedSections.authorization && (
+							<CollapsibleContent>
+								<FormGroup>
+									<Label>
+										<LearningTooltip
+											variant="learning"
+											title="RAR Authorization Details"
+											content="Structured JSON object containing resource, actions, locations, datatypes, and other fine-grained authorization parameters. Sent as 'authorization_details' parameter in the authorization request (RFC 9396)."
+											placement="top"
+										>
+											RAR Authorization Details
+										</LearningTooltip>
+									</Label>
+									<CodeBlock>{JSON.stringify(rarDetails, null, 2)}</CodeBlock>
+								</FormGroup>
+
+								<Button onClick={generateRARAuthUrl} $variant="primary">
+									<FiKey /> Generate RAR Authorization URL
+								</Button>
+
+								{authUrl && (
+									<GeneratedContentBox style={{ marginTop: '1rem', padding: '0.75rem' }}>
+										<ParameterGrid>
+											<ParameterLabel>Authorization URL</ParameterLabel>
+											<ParameterValue
+												style={{
+													wordBreak: 'break-all',
+													fontSize: '0.75rem',
+													maxWidth: '100%',
+													overflow: 'hidden',
+													textOverflow: 'ellipsis',
+												}}
 											>
-												RAR Authorization Details
-											</LearningTooltip>
-										</Label>
-										<CodeBlock>{JSON.stringify(rarDetails, null, 2)}</CodeBlock>
-									</FormGroup>
-
-									<Button onClick={generateRARAuthUrl} $variant="primary">
-										<FiKey /> Generate RAR Authorization URL
-									</Button>
-
-									{authUrl && (
-										<GeneratedContentBox style={{ marginTop: '1rem', padding: '0.75rem' }}>
-											<ParameterGrid>
-												<ParameterLabel>Authorization URL</ParameterLabel>
-												<ParameterValue
-													style={{
-														wordBreak: 'break-all',
-														fontSize: '0.75rem',
-														maxWidth: '100%',
-														overflow: 'hidden',
-														textOverflow: 'ellipsis',
-													}}
-												>
-													{authUrl}
-												</ParameterValue>
-											</ParameterGrid>
-										</GeneratedContentBox>
-									)}
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
+												{authUrl}
+											</ParameterValue>
+										</ParameterGrid>
+									</GeneratedContentBox>
+								)}
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				);
 
 			case 3:
 				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('tokenExchange')}
-								aria-expanded={!collapsedSections.tokenExchange}
-							>
-								<CollapsibleTitle>
-									<FiRefreshCw />{' '}
-									<LearningTooltip
-										variant="learning"
-										title="Token Exchange"
-										content="The process of exchanging an authorization code for access and ID tokens at the token endpoint. The server validates the code and returns tokens that include the approved RAR authorization details."
-										placement="top"
-									>
-										Token Exchange
-									</LearningTooltip>
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchange}>
-									<FiArrowRight />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.tokenExchange && (
-								<CollapsibleContent>
-									<FormGroup>
-										<Label>
-											<LearningTooltip
-												variant="learning"
-												title="Authorization Code"
-												content="A short-lived credential (typically 10 minutes) returned from the authorization server after user consent. Single-use and must be exchanged server-side for tokens."
-												placement="top"
-											>
-												Authorization Code
-											</LearningTooltip>
-										</Label>
-										<Input
-											type="text"
-											value={authCode}
-											onChange={(e) => setAuthCode(e.target.value)}
-											placeholder="Enter authorization code from callback"
-										/>
-									</FormGroup>
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('tokenExchange')}
+							aria-expanded={!collapsedSections.tokenExchange}
+						>
+							<CollapsibleTitle>
+								<FiRefreshCw />{' '}
+								<LearningTooltip
+									variant="learning"
+									title="Token Exchange"
+									content="The process of exchanging an authorization code for access and ID tokens at the token endpoint. The server validates the code and returns tokens that include the approved RAR authorization details."
+									placement="top"
+								>
+									Token Exchange
+								</LearningTooltip>
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchange}>
+								<FiArrowRight />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!collapsedSections.tokenExchange && (
+							<CollapsibleContent>
+								<FormGroup>
+									<Label>
+										<LearningTooltip
+											variant="learning"
+											title="Authorization Code"
+											content="A short-lived credential (typically 10 minutes) returned from the authorization server after user consent. Single-use and must be exchanged server-side for tokens."
+											placement="top"
+										>
+											Authorization Code
+										</LearningTooltip>
+									</Label>
+									<Input
+										type="text"
+										value={authCode}
+										onChange={(e) => setAuthCode(e.target.value)}
+										placeholder="Enter authorization code from callback"
+									/>
+								</FormGroup>
 
-									<Button
-										onClick={exchangeCodeForTokens}
-										$variant="primary"
-										disabled={!authCode || isLoading}
-									>
-										<FiRefreshCw /> {isLoading ? 'Exchanging...' : 'Exchange for Tokens'}
-									</Button>
+								<Button
+									onClick={exchangeCodeForTokens}
+									$variant="primary"
+									disabled={!authCode || isLoading}
+								>
+									<FiRefreshCw /> {isLoading ? 'Exchanging...' : 'Exchange for Tokens'}
+								</Button>
 
-									{/* Enhanced Token Display with RAR Context using UnifiedTokenDisplayService */}
-									{tokenResponse && (
-										<>
-											{UnifiedTokenDisplayService.showTokens(
-												tokenResponse,
-												'oauth',
-												'rar-v7-tokens',
-												{
-													showCopyButtons: true,
-													showDecodeButtons: true,
-													showIntrospection: true,
-													title: '🎯 RAR Flow V7 Tokens with Authorization Details',
-													className: 'rar-token-display',
-												}
-											)}
+								{/* Enhanced Token Display with RAR Context using UnifiedTokenDisplayService */}
+								{tokenResponse && (
+									<>
+										{UnifiedTokenDisplayService.showTokens(
+											tokenResponse,
+											'oauth',
+											'rar-v7-tokens',
+											{
+												showCopyButtons: true,
+												showDecodeButtons: true,
+												showIntrospection: true,
+												title: '🎯 RAR Flow V7 Tokens with Authorization Details',
+												className: 'rar-token-display',
+											}
+										)}
 
-											{/* Enhanced RAR-Specific Fields Display */}
-											{(tokenResponse.authorization_details || tokenResponse.rar_context) && (
-												<div style={{ marginTop: '1rem' }}>
-													<h4
-														style={{
-															margin: '0 0 1rem 0',
-															color: '#16a34a',
-															fontSize: '1rem',
-															fontWeight: '600',
-															display: 'flex',
-															alignItems: 'center',
-															gap: '0.5rem',
-														}}
-													>
-														<FiShield size={16} />
-														RAR Authorization Details & Context
-													</h4>
+										{/* Enhanced RAR-Specific Fields Display */}
+										{(tokenResponse.authorization_details || tokenResponse.rar_context) && (
+											<div style={{ marginTop: '1rem' }}>
+												<h4
+													style={{
+														margin: '0 0 1rem 0',
+														color: '#16a34a',
+														fontSize: '1rem',
+														fontWeight: '600',
+														display: 'flex',
+														alignItems: 'center',
+														gap: '0.5rem',
+													}}
+												>
+													<FiShield size={16} />
+													RAR Authorization Details & Context
+												</h4>
 
-													{tokenResponse.authorization_details && (
-														<GeneratedContentBox style={{ marginBottom: '1rem', padding: '1rem' }}>
-															<h5
-																style={{
-																	margin: '0 0 0.75rem 0',
-																	color: '#059669',
-																	fontSize: '0.875rem',
-																	fontWeight: '600',
-																}}
-															>
-																📋 RFC 9396 Authorization Details
-															</h5>
-															<CodeBlock
-																style={{
-																	fontSize: '0.75rem',
-																	margin: '0',
-																	maxHeight: '200px',
-																	overflow: 'auto',
-																}}
-															>
-																{JSON.stringify(tokenResponse.authorization_details, null, 2)}
-															</CodeBlock>
+												{tokenResponse.authorization_details && (
+													<GeneratedContentBox style={{ marginBottom: '1rem', padding: '1rem' }}>
+														<h5
+															style={{
+																margin: '0 0 0.75rem 0',
+																color: '#059669',
+																fontSize: '0.875rem',
+																fontWeight: '600',
+															}}
+														>
+															📋 RFC 9396 Authorization Details
+														</h5>
+														<CodeBlock
+															style={{
+																fontSize: '0.75rem',
+																margin: '0',
+																maxHeight: '200px',
+																overflow: 'auto',
+															}}
+														>
+															{JSON.stringify(tokenResponse.authorization_details, null, 2)}
+														</CodeBlock>
+														<div
+															style={{
+																marginTop: '0.75rem',
+																padding: '0.5rem',
+																background: '#ecfdf5',
+																borderRadius: '0.25rem',
+																fontSize: '0.75rem',
+																color: '#065f46',
+															}}
+														>
+															<strong>✅ Approved Permissions:</strong>{' '}
+															{tokenResponse.authorization_details[0]?.actions?.join(', ')} on{' '}
+															{tokenResponse.authorization_details[0]?.resource}
+														</div>
+													</GeneratedContentBox>
+												)}
+
+												{tokenResponse.rar_context && (
+													<GeneratedContentBox style={{ padding: '1rem' }}>
+														<h5
+															style={{
+																margin: '0 0 0.75rem 0',
+																color: '#0369a1',
+																fontSize: '0.875rem',
+																fontWeight: '600',
+															}}
+														>
+															🔍 RAR Context & Metadata
+														</h5>
+														<CodeBlock
+															style={{
+																fontSize: '0.75rem',
+																margin: '0 0 0.75rem 0',
+																maxHeight: '200px',
+																overflow: 'auto',
+															}}
+														>
+															{JSON.stringify(tokenResponse.rar_context, null, 2)}
+														</CodeBlock>
+
+														{/* RAR Context Summary */}
+														<div
+															style={{
+																display: 'grid',
+																gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+																gap: '0.75rem',
+																marginTop: '0.75rem',
+															}}
+														>
 															<div
 																style={{
-																	marginTop: '0.75rem',
 																	padding: '0.5rem',
-																	background: '#ecfdf5',
+																	background: '#eff6ff',
 																	borderRadius: '0.25rem',
 																	fontSize: '0.75rem',
-																	color: '#065f46',
 																}}
 															>
-																<strong>✅ Approved Permissions:</strong>{' '}
-																{tokenResponse.authorization_details[0]?.actions?.join(', ')} on{' '}
-																{tokenResponse.authorization_details[0]?.resource}
+																<strong style={{ color: '#1e40af' }}>Flow Type:</strong>
+																<br />
+																<span style={{ color: '#1e3a8a' }}>
+																	{tokenResponse.rar_context.flow_type}
+																</span>
 															</div>
-														</GeneratedContentBox>
-													)}
-
-													{tokenResponse.rar_context && (
-														<GeneratedContentBox style={{ padding: '1rem' }}>
-															<h5
-																style={{
-																	margin: '0 0 0.75rem 0',
-																	color: '#0369a1',
-																	fontSize: '0.875rem',
-																	fontWeight: '600',
-																}}
-															>
-																🔍 RAR Context & Metadata
-															</h5>
-															<CodeBlock
-																style={{
-																	fontSize: '0.75rem',
-																	margin: '0 0 0.75rem 0',
-																	maxHeight: '200px',
-																	overflow: 'auto',
-																}}
-															>
-																{JSON.stringify(tokenResponse.rar_context, null, 2)}
-															</CodeBlock>
-
-															{/* RAR Context Summary */}
 															<div
 																style={{
-																	display: 'grid',
-																	gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-																	gap: '0.75rem',
-																	marginTop: '0.75rem',
+																	padding: '0.5rem',
+																	background: '#f0fdf4',
+																	borderRadius: '0.25rem',
+																	fontSize: '0.75rem',
 																}}
 															>
-																<div
-																	style={{
-																		padding: '0.5rem',
-																		background: '#eff6ff',
-																		borderRadius: '0.25rem',
-																		fontSize: '0.75rem',
-																	}}
-																>
-																	<strong style={{ color: '#1e40af' }}>Flow Type:</strong>
-																	<br />
-																	<span style={{ color: '#1e3a8a' }}>
-																		{tokenResponse.rar_context.flow_type}
-																	</span>
-																</div>
-																<div
-																	style={{
-																		padding: '0.5rem',
-																		background: '#f0fdf4',
-																		borderRadius: '0.25rem',
-																		fontSize: '0.75rem',
-																	}}
-																>
-																	<strong style={{ color: '#166534' }}>Compliance:</strong>
-																	<br />
-																	<span style={{ color: '#14532d' }}>
-																		{tokenResponse.rar_context.compliance_level}
-																	</span>
-																</div>
-																<div
-																	style={{
-																		padding: '0.5rem',
-																		background: '#fefce8',
-																		borderRadius: '0.25rem',
-																		fontSize: '0.75rem',
-																	}}
-																>
-																	<strong style={{ color: '#a16207' }}>Risk Level:</strong>
-																	<br />
-																	<span style={{ color: '#92400e' }}>
-																		{tokenResponse.rar_context.approval_metadata?.risk_assessment}
-																	</span>
-																</div>
+																<strong style={{ color: '#166534' }}>Compliance:</strong>
+																<br />
+																<span style={{ color: '#14532d' }}>
+																	{tokenResponse.rar_context.compliance_level}
+																</span>
 															</div>
-														</GeneratedContentBox>
-													)}
-												</div>
-											)}
-										</>
-									)}
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
+															<div
+																style={{
+																	padding: '0.5rem',
+																	background: '#fefce8',
+																	borderRadius: '0.25rem',
+																	fontSize: '0.75rem',
+																}}
+															>
+																<strong style={{ color: '#a16207' }}>Risk Level:</strong>
+																<br />
+																<span style={{ color: '#92400e' }}>
+																	{tokenResponse.rar_context.approval_metadata?.risk_assessment}
+																</span>
+															</div>
+														</div>
+													</GeneratedContentBox>
+												)}
+											</div>
+										)}
+									</>
+								)}
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				);
 
 			case 4:
@@ -1516,6 +1493,9 @@ const RARFlowV7: React.FC = () => {
 		isLoading,
 		generateRARAuthUrl,
 		exchangeCodeForTokens,
+		applyRarExample, // Auto-save credentials when changed
+		saveCredentials,
+		selectedExample,
 	]);
 
 	// Main render

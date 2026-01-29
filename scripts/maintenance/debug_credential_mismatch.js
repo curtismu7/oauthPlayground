@@ -10,7 +10,7 @@ const currentCredentials = {
 console.log('Current credentials being used:');
 console.log('Environment ID:', currentCredentials.environmentId);
 console.log('Client ID:', currentCredentials.clientId);
-console.log('Client Secret (first 20 chars):', currentCredentials.clientSecret.substring(0, 20) + '...');
+console.log('Client Secret (first 20 chars):', `${currentCredentials.clientSecret.substring(0, 20)}...`);
 
 // Check what's stored in the Authorization Code V7 flow
 const authzV7Key = 'oauth-authorization-code-v7';
@@ -22,7 +22,7 @@ if (authzV7Data) {
 Authorization Code V7 flow credentials:');
   console.log('Environment ID:', parsed.credentials?.environmentId);
   console.log('Client ID:', parsed.credentials?.clientId);
-  console.log('Client Secret (first 20 chars):', parsed.credentials?.clientSecret ? parsed.credentials.clientSecret.substring(0, 20) + '...' : 'Not set');
+  console.log('Client Secret (first 20 chars):', parsed.credentials?.clientSecret ? `${parsed.credentials.clientSecret.substring(0, 20)}...` : 'Not set');
   
   // Check if there's a mismatch
   const envMatch = parsed.credentials?.environmentId === currentCredentials.environmentId;

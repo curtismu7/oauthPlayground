@@ -39,7 +39,7 @@ async function attemptSilentTokenRetrieval(silentApiRetrievalOverride?: boolean)
 			`${MODULE_TAG} Silent API retrieval enabled, attempting to fetch token automatically...`
 		);
 		// #region agent log - Check all localStorage keys before loading
-		const allKeys = Object.keys(localStorage).filter(
+		const _allKeys = Object.keys(localStorage).filter(
 			(k) => k.toLowerCase().includes('worker') || k.toLowerCase().includes('token')
 		);
 		// #endregion
@@ -63,7 +63,7 @@ async function attemptSilentTokenRetrieval(silentApiRetrievalOverride?: boolean)
 
 		// Try to automatically fetch token using stored credentials
 		const region = credentials.region || 'us';
-		const apiBase =
+		const _apiBase =
 			region === 'eu'
 				? 'https://auth.pingone.eu'
 				: region === 'ap'
@@ -151,7 +151,7 @@ async function attemptSilentTokenRetrieval(silentApiRetrievalOverride?: boolean)
  * Checks if we should show the modal to display the token
  * Returns true if showTokenAtEnd is enabled, false otherwise
  */
-function shouldShowTokenModal(): boolean {
+function _shouldShowTokenModal(): boolean {
 	try {
 		const config = MFAConfigurationServiceV8.loadConfiguration();
 		return config.workerToken.showTokenAtEnd;

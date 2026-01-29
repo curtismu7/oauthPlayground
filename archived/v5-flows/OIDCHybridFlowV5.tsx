@@ -6,7 +6,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
-	FiCopy,
 	FiExternalLink,
 	FiInfo,
 	FiKey,
@@ -452,7 +451,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 	// Scroll to top when step changes
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}, [currentStep]);
+	}, []);
 
 	// Form state
 	const [environmentId, setEnvironmentId] = useState('');
@@ -506,7 +505,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 		}
 	}, [searchParams, hybridFlow.setError, hybridFlow.setTokens]);
 
-	const handleSaveCredentials = useCallback(() => {
+	const _handleSaveCredentials = useCallback(() => {
 		if (!environmentId || !clientId) {
 			v4ToastManager.showError('Please enter Environment ID and Client ID.');
 			return;
@@ -530,7 +529,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 		v4ToastManager.showSuccess('Credentials saved successfully!');
 		log.info('Credentials saved');
-	}, [environmentId, clientId, clientSecret, scopes, responseType, hybridFlow]);
+	}, [environmentId, clientId, clientSecret, scopes, responseType, hybridFlow, responseMode]);
 
 	const handleClientIdChange = useCallback(
 		(newClientId: string) => {
@@ -613,7 +612,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 		navigate('/token-management');
 	}, [hybridFlow.tokens, navigate, currentStep]);
 
-	const navigateToTokenManagementWithIdToken = useCallback(() => {
+	const _navigateToTokenManagementWithIdToken = useCallback(() => {
 		// Store flow navigation state for back navigation
 		storeFlowNavigationState('oidc-hybrid-v5', currentStep, 'oidc');
 
@@ -648,20 +647,13 @@ const OIDCHybridFlowV5: React.FC = () => {
 			}
 		},
 		[
-			collapsedSections,
-			environmentId,
-			clientId,
-			clientSecret,
-			scopes,
-			responseType,
-			hybridFlow,
-			handleSaveCredentials,
-			handleStartAuthorization,
-			handleExchangeCode,
-			toggleSection,
-			handleCopy,
-			navigateToTokenManagement,
-			navigateToTokenManagementWithIdToken,
+			renderAuthorizationRequest,
+			renderCompletion,
+			renderFlowSummary,
+			renderIntroduction,
+			renderProcessResponse,
+			renderTokenExchange,
+			renderTokensReceived,
 		]
 	);
 

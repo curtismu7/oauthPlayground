@@ -10,11 +10,7 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import {
-	type FlowType,
-	type SpecVersion,
-	SpecVersionServiceV8,
-} from '@/v8/services/specVersionServiceV8';
+import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
 
 const GuidanceContainer = styled.div`
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -105,14 +101,14 @@ const CollapsibleContent = styled.div`
 	}
 `;
 
-const GuidanceHeader = styled.div`
+const _GuidanceHeader = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1rem;
 `;
 
-const GuidanceTitle = styled.h3`
+const _GuidanceTitle = styled.h3`
   color: #1e293b;
   font-size: 1.125rem;
   font-weight: 600;

@@ -16,7 +16,7 @@ type Tab = 'credentials' | 'registration' | 'authentication' | 'devices';
 
 export const SMSSampleApp: React.FC = () => {
 	const [sdk, setSdk] = useState<P1MFASDK | null>(null);
-	const [config, setConfig] = useState<P1MFAConfig | null>(null);
+	const [_config, setConfig] = useState<P1MFAConfig | null>(null);
 	const [activeTab, setActiveTab] = useState<Tab>('credentials');
 	const [devices, setDevices] = useState<Device[]>([]);
 	const [loadingDevices, setLoadingDevices] = useState(false);

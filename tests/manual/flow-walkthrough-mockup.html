@@ -393,9 +393,9 @@
     </div>
 
     <script>
-        function toggleWalkthrough(type) {
-            const content = document.getElementById(type + '-content');
-            const chevron = document.getElementById(type + '-chevron');
+        function _toggleWalkthrough(type) {
+            const content = document.getElementById(`${type}-content`);
+            const chevron = document.getElementById(`${type}-chevron`);
             
             if (content.classList.contains('expanded')) {
                 content.classList.remove('expanded');

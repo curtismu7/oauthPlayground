@@ -115,7 +115,7 @@ class LoggingService {
 	private outputToConsole(entry: LogEntry): void {
 		const prefix = `[${entry.timestamp}] [${entry.module}]`;
 		const message = `${prefix} ${entry.message}`;
-		
+
 		switch (entry.level) {
 			case LogLevel.ERROR:
 				console.error(message, entry.data);
@@ -143,14 +143,14 @@ class LoggingService {
 	 * Get logs by level
 	 */
 	getLogsByLevel(level: LogLevel): LogEntry[] {
-		return this.logs.filter(log => log.level === level);
+		return this.logs.filter((log) => log.level === level);
 	}
 
 	/**
 	 * Get logs by module
 	 */
 	getLogsByModule(module: string): LogEntry[] {
-		return this.logs.filter(log => log.module === module);
+		return this.logs.filter((log) => log.module === module);
 	}
 
 	/**
@@ -165,7 +165,7 @@ class LoggingService {
 	 */
 	exportLogs(): void {
 		const logText = this.logs
-			.map(entry => {
+			.map((entry) => {
 				const levelName = LogLevel[entry.level];
 				const dataStr = entry.data ? `\n  Data: ${JSON.stringify(entry.data, null, 2)}` : '';
 				return `[${entry.timestamp}] [${levelName}] [${entry.module}] ${entry.message}${dataStr}`;
@@ -207,7 +207,11 @@ class LoggingService {
 export const logger = new LoggingService();
 
 // Export convenience functions
-export const logError = (module: string, message: string, data?: any) => logger.error(module, message, data);
-export const logWarn = (module: string, message: string, data?: any) => logger.warn(module, message, data);
-export const logInfo = (module: string, message: string, data?: any) => logger.info(module, message, data);
-export const logDebug = (module: string, message: string, data?: any) => logger.debug(module, message, data);
+export const logError = (module: string, message: string, data?: any) =>
+	logger.error(module, message, data);
+export const logWarn = (module: string, message: string, data?: any) =>
+	logger.warn(module, message, data);
+export const logInfo = (module: string, message: string, data?: any) =>
+	logger.info(module, message, data);
+export const logDebug = (module: string, message: string, data?: any) =>
+	logger.debug(module, message, data);

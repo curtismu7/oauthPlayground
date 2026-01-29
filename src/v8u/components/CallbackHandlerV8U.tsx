@@ -264,7 +264,9 @@ export const CallbackHandlerV8U: React.FC = () => {
 		if (state?.startsWith('v8u-')) {
 			const parts = state.split('-');
 			console.log(`${MODULE_TAG} 🔍 State parts (split by hyphen):`, parts);
-			console.log(`${MODULE_TAG} 🔍 parts[0]="${parts[0]}", parts[1]="${parts[1]}", parts.length=${parts.length}`);
+			console.log(
+				`${MODULE_TAG} 🔍 parts[0]="${parts[0]}", parts[1]="${parts[1]}", parts.length=${parts.length}`
+			);
 
 			if (parts.length >= 2) {
 				// Known flow types (some have hyphens, so we need to check combinations)

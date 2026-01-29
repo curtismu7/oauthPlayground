@@ -15,7 +15,7 @@
 
 import { logger } from './unifiedFlowLoggerServiceV8U';
 
-const MODULE_TAG = '[💾 INDEXEDDB-BACKUP-V8U]';
+const _MODULE_TAG = '[💾 INDEXEDDB-BACKUP-V8U]';
 
 export interface BackupData {
 	key: string;

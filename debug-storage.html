@@ -11,7 +11,7 @@
     <pre id="output"></pre>
 
     <script>
-        function checkStorage() {
+        function _checkStorage() {
             const output = document.getElementById('output');
             let result = '=== STORAGE DEBUG ===\n\n';
             
@@ -20,7 +20,7 @@
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 const value = localStorage.getItem(key);
-                result += `${key}: ${value ? (value.length > 100 ? value.substring(0, 100) + '...' : value) : 'null'}\n`;
+                result += `${key}: ${value ? (value.length > 100 ? `${value.substring(0, 100)}...` : value) : 'null'}\n`;
             }
             
             result += '\n=== UNIFIED WORKER TOKEN ===\n';
@@ -68,7 +68,7 @@
             output.textContent = result;
         }
         
-        function checkWorkerToken() {
+        function _checkWorkerToken() {
             const output = document.getElementById('output');
             let result = '=== WORKER TOKEN DEBUG ===\n\n';
             
@@ -101,7 +101,7 @@
             }
         }
         
-        function checkBackup() {
+        function _checkBackup() {
             const output = document.getElementById('output');
             let result = '=== BACKUP DEBUG ===\n\n';
             

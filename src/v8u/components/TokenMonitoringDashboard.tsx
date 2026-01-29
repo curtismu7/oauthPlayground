@@ -409,7 +409,7 @@ export const TokenMonitoringDashboard: React.FC<TokenMonitoringDashboardProps> =
 		});
 
 		setTokenStates(updatedTokens);
-	}, [currentTime, tokenStates.length]);
+	}, [currentTime, tokenStates.map]);
 
 	const formatTimeRemaining = (expiresAt: number | null): string => {
 		if (!expiresAt) return 'No expiry';
@@ -462,7 +462,7 @@ export const TokenMonitoringDashboard: React.FC<TokenMonitoringDashboardProps> =
 
 	const maskToken = (token: string): string => {
 		if (token.length <= 8) return '****';
-		return token.substring(0, 4) + '****' + token.substring(token.length - 4);
+		return `${token.substring(0, 4)}****${token.substring(token.length - 4)}`;
 	};
 
 	const exportTokenData = () => {

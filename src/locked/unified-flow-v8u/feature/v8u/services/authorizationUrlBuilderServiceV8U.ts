@@ -18,7 +18,7 @@ import type {
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 
-const MODULE_TAG = '[🔗 AUTHORIZATION-URL-BUILDER-V8U]';
+const _MODULE_TAG = '[🔗 AUTHORIZATION-URL-BUILDER-V8U]';
 
 export interface AuthorizationUrlParams {
 	specVersion: SpecVersion;
@@ -105,7 +105,7 @@ export class AuthorizationUrlBuilderService {
 	 * Build base authorization URL parameters
 	 */
 	private static buildBaseParams(
-		flowType: FlowType,
+		_flowType: FlowType,
 		credentials: UnifiedFlowCredentials,
 		state: string,
 		redirectUri: string

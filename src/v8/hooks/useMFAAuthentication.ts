@@ -3,7 +3,7 @@
  * @module v8/hooks
  * @description Custom hook for managing MFA authentication flow state
  * @version 3.0.0
- * 
+ *
  * Extracted from MFAAuthenticationMainPageV8.tsx as part of V3 refactoring.
  * Centralizes all authentication-related logic including:
  * - Authentication flow state machine
@@ -47,7 +47,9 @@ export interface UseMFAAuthenticationReturn {
 	isPasskeyRegistrationMode: boolean;
 
 	// Actions
-	setAuthState: (state: AuthenticationState | ((prev: AuthenticationState) => AuthenticationState)) => void;
+	setAuthState: (
+		state: AuthenticationState | ((prev: AuthenticationState) => AuthenticationState)
+	) => void;
 	setShowOTPModal: (show: boolean) => void;
 	setShowFIDO2Modal: (show: boolean) => void;
 	setShowPushModal: (show: boolean) => void;

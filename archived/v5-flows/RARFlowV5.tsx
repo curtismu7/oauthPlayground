@@ -1,21 +1,8 @@
 // src/pages/flows/RARFlowV6.tsx
 // Rich Authorization Requests (RAR) Flow - V6 Implementation with Service Architecture
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-	FiCheckCircle,
-	FiChevronDown,
-	FiCode,
-	FiExternalLink,
-	FiInfo,
-	FiKey,
-	FiPlus,
-	FiRefreshCw,
-	FiSettings,
-	FiShield,
-	FiTrash2,
-	FiZap,
-} from 'react-icons/fi';
+import { useCallback, useEffect, useState } from 'react';
+import { FiCheckCircle, FiExternalLink, FiKey, FiRefreshCw, FiZap } from 'react-icons/fi';
 import styled from 'styled-components';
 import AuthorizationDetailsEditor from '../../components/AuthorizationDetailsEditor';
 import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
@@ -26,7 +13,6 @@ import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import JWTTokenDisplay from '../../components/JWTTokenDisplay';
-import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import RARExampleSelector from '../../components/RARExampleSelector';
 import RARValidationDisplay from '../../components/RARValidationDisplay';
 import { ResultsHeading, ResultsSection, SectionDivider } from '../../components/ResultsPanel';
@@ -35,7 +21,6 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import {
 	createOAuthTemplate,
 	EnhancedApiCallDisplayService,
@@ -51,12 +36,7 @@ import { trackOAuthFlow } from '../../utils/activityTracker';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import {
-	DEFAULT_APP_CONFIG,
-	type IntroSectionKey,
-	RAR_EDUCATION,
-	STEP_METADATA,
-} from './config/RARFlow.config';
+import { STEP_METADATA } from './config/RARFlow.config';
 
 // Styled Components
 const Container = styled.div`
@@ -234,7 +214,7 @@ const CodeBlock = styled.pre`
 	color: #1f2937;
 `;
 
-const AuthorizationDetailsContainer = styled.div`
+const _AuthorizationDetailsContainer = styled.div`
 	border: 1px solid #e5e7eb;
 	border-radius: 8px;
 	padding: 1rem;
@@ -242,7 +222,7 @@ const AuthorizationDetailsContainer = styled.div`
 	color: #1f2937;
 `;
 
-const AuthorizationDetailItem = styled.div`
+const _AuthorizationDetailItem = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 1rem;
@@ -257,7 +237,7 @@ const AuthorizationDetailItem = styled.div`
 	}
 `;
 
-const DetailInput = styled.input`
+const _DetailInput = styled.input`
 	flex: 1;
 	padding: 0.5rem;
 	border: 1px solid #d1d5db;
@@ -266,7 +246,7 @@ const DetailInput = styled.input`
 	color: #1f2937;
 `;
 
-const DetailTextArea = styled.textarea`
+const _DetailTextArea = styled.textarea`
 	flex: 1;
 	padding: 0.5rem;
 	border: 1px solid #d1d5db;
@@ -277,7 +257,7 @@ const DetailTextArea = styled.textarea`
 	color: #1f2937;
 `;
 
-const RemoveButton = styled.button`
+const _RemoveButton = styled.button`
 	background: #ef4444;
 	color: white;
 	border: none;
@@ -293,7 +273,7 @@ const RemoveButton = styled.button`
 	}
 `;
 
-const AddButton = styled.button`
+const _AddButton = styled.button`
 	background: #10b981;
 	color: white;
 	border: none;
@@ -312,7 +292,7 @@ const AddButton = styled.button`
 `;
 
 // Example section styled components
-const ExampleSection = styled.div`
+const _ExampleSection = styled.div`
 	border: 1px solid #e5e7eb;
 	border-radius: 8px;
 	padding: 1.5rem;
@@ -320,7 +300,7 @@ const ExampleSection = styled.div`
 	background: #fafafa;
 `;
 
-const ExampleHeader = styled.h3`
+const _ExampleHeader = styled.h3`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -330,19 +310,19 @@ const ExampleHeader = styled.h3`
 	color: #374151;
 `;
 
-const ExampleContainer = styled.div`
+const _ExampleContainer = styled.div`
 	border: 1px solid #d1d5db;
 	border-radius: 6px;
 	overflow: hidden;
 `;
 
-const ExampleTabs = styled.div`
+const _ExampleTabs = styled.div`
 	display: flex;
 	border-bottom: 1px solid #d1d5db;
 	background: #f9fafb;
 `;
 
-const ExampleTab = styled.button<{ active?: boolean }>`
+const _ExampleTab = styled.button<{ active?: boolean }>`
 	flex: 1;
 	padding: 0.75rem 1rem;
 	border: none;
@@ -359,19 +339,19 @@ const ExampleTab = styled.button<{ active?: boolean }>`
 	}
 `;
 
-const JsonExampleContainer = styled.div`
+const _JsonExampleContainer = styled.div`
 	padding: 1.5rem;
 	background: #1e293b;
 `;
 
-const JsonExampleTitle = styled.h4`
+const _JsonExampleTitle = styled.h4`
 	margin: 0 0 1rem 0;
 	color: #e2e8f0;
 	font-size: 1rem;
 	font-weight: 600;
 `;
 
-const JsonExampleDisplay = styled.pre`
+const _JsonExampleDisplay = styled.pre`
 	background: #0f172a;
 	color: #e2e8f0;
 	padding: 1rem;
@@ -385,12 +365,12 @@ const JsonExampleDisplay = styled.pre`
 	word-break: break-all;
 `;
 
-const JsonExampleActions = styled.div`
+const _JsonExampleActions = styled.div`
 	display: flex;
 	gap: 0.75rem;
 `;
 
-const JsonExampleButton = styled.button`
+const _JsonExampleButton = styled.button`
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -410,45 +390,45 @@ const JsonExampleButton = styled.button`
 	}
 `;
 
-const FormattedExampleContainer = styled.div`
+const _FormattedExampleContainer = styled.div`
 	padding: 1.5rem;
 	background: white;
 `;
 
-const FormattedExampleTitle = styled.h4`
+const _FormattedExampleTitle = styled.h4`
 	margin: 0 0 1rem 0;
 	color: #374151;
 	font-size: 1rem;
 	font-weight: 600;
 `;
 
-const FormattedExampleList = styled.div`
+const _FormattedExampleList = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
 `;
 
-const FormattedExampleItem = styled.div`
+const _FormattedExampleItem = styled.div`
 	border: 1px solid #e5e7eb;
 	border-radius: 6px;
 	padding: 1rem;
 	background: #f9fafb;
 `;
 
-const FormattedExampleItemHeader = styled.div`
+const _FormattedExampleItemHeader = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
 	color: #374151;
 	margin-bottom: 0.5rem;
 `;
 
-const FormattedExampleDetails = styled.div`
+const _FormattedExampleDetails = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 0.25rem;
 `;
 
-const FormattedExampleDetail = styled.div`
+const _FormattedExampleDetail = styled.div`
 	font-size: 0.75rem;
 	color: #6b7280;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -518,7 +498,7 @@ export const RARFlowV6: React.FC = () => {
 	const [authorizationDetails, setAuthorizationDetails] = useState<AuthorizationDetail[]>(() => {
 		// Load authorization details from FlowStorageService first (preferred)
 		const saved = FlowStorageService.AdvancedParameters.get('rar-v5');
-		if (saved && saved.authorizationDetails) {
+		if (saved?.authorizationDetails) {
 			console.log(
 				'💾 [RAR-V5] Loaded authorization details from FlowStorageService:',
 				saved.authorizationDetails
@@ -791,7 +771,7 @@ export const RARFlowV6: React.FC = () => {
 				client_id: credentials.clientId,
 				redirect_uri: credentials.redirectUri,
 				scope: credentials.scopes,
-				state: 'rar-flow-state-' + Math.random().toString(36).substr(2, 9),
+				state: `rar-flow-state-${Math.random().toString(36).substr(2, 9)}`,
 			});
 
 			// Validate and add RAR authorization details using RARService

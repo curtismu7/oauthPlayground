@@ -21,11 +21,10 @@
  */
 
 import React, { useId, useState } from 'react';
-import { FiChevronDown } from 'react-icons/fi';
 import { StepValidationFeedbackProps } from '@/v8/types/stepNavigation';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
-const MODULE_TAG = '[⚠️ VALIDATION-FEEDBACK-V8]';
+const _MODULE_TAG = '[⚠️ VALIDATION-FEEDBACK-V8]';
 
 /**
  * StepValidationFeedbackV8U Component
@@ -43,8 +42,8 @@ export const StepValidationFeedbackV8U: React.FC<StepValidationFeedbackProps> = 
 	showWarnings = true,
 	className = '',
 }) => {
-	const [expandedErrors, setExpandedErrors] = useState(true);
-	const [expandedWarnings, setExpandedWarnings] = useState(true);
+	const [_expandedErrors, _setExpandedErrors] = useState(true);
+	const [_expandedWarnings, _setExpandedWarnings] = useState(true);
 	const errorsId = useId();
 	const warningsId = useId();
 
@@ -288,19 +287,16 @@ export const StepValidationFeedbackV8U: React.FC<StepValidationFeedbackProps> = 
 
 				/* Mobile responsive */
 				@media (max-width: 600px) {
-					.section-header {
+					.section-header 
 						padding: 10px 12px;
 						font-size: 13px;
-					}
 
-					.section-content {
+					.section-content 
 						padding: 10px 12px;
-					}
 
 					.error-list li,
-					.warning-list li {
+					.warning-list li 
 						font-size: 12px;
-					}
 				}
 			`}</style>
 		</div>

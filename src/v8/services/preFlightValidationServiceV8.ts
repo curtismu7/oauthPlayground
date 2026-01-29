@@ -559,16 +559,18 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 					const { PKCEStorageServiceV8U } = await import('@/v8u/services/pkceStorageServiceV8U');
 					const flowKey = credentials.flowKey || 'default';
 					const storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
-					
+
 					if (storedPKCE) {
 						if (storedPKCE.codeChallengeMethod === 'plain') {
 							errors.push(
 								`❌ PKCE Method Mismatch: Your stored PKCE codes use the deprecated 'plain' method. This will cause token exchange to fail. Please: 1) Go back to Step 1 (Generate PKCE Parameters) 2) Click "Generate PKCE Parameters" to create new codes with 'S256' method 3) Go to Step 2 and click "Generate Authorization URL" again 4) Complete authentication and try token exchange again. Old PKCE codes have been automatically cleared.`
 							);
-							
+
 							// Auto-clear the problematic PKCE codes
 							await PKCEStorageServiceV8U.clearPKCECodes(flowKey);
-							console.log(`${MODULE_TAG} 🗑️ Auto-cleared PKCE codes with 'plain' method for flow: ${flowKey}`);
+							console.log(
+								`${MODULE_TAG} 🗑️ Auto-cleared PKCE codes with 'plain' method for flow: ${flowKey}`
+							);
 						} else if (storedPKCE.codeChallengeMethod !== 'S256') {
 							warnings.push(
 								`⚠️ PKCE Method: Your stored PKCE codes use method '${storedPKCE.codeChallengeMethod}'. Only 'S256' is recommended for security.`
@@ -828,7 +830,7 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 						pkceRequired?: boolean;
 						requireSignedRequestObject?: boolean;
 					} = {};
-					
+
 					if (fetchedConfig.tokenEndpointAuthMethod) {
 						config.tokenEndpointAuthMethod = fetchedConfig.tokenEndpointAuthMethod;
 					}
@@ -841,7 +843,7 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 					if (fetchedConfig.requireSignedRequestObject !== undefined) {
 						config.requireSignedRequestObject = fetchedConfig.requireSignedRequestObject;
 					}
-					
+
 					appConfig = config;
 				}
 			} catch (error) {

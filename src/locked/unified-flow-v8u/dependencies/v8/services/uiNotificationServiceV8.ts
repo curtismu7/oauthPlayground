@@ -101,7 +101,7 @@ class UINotificationServiceV8 {
 	/**
 	 * Show error toast
 	 */
-	showError(message: string, options?: NotificationOptions): void {
+	showError(message: string, _options?: NotificationOptions): void {
 		this.log('toast', 'error', message);
 		console.error(`${MODULE_TAG} ❌ Error:`, message);
 		v4ToastManager.showError(message);
@@ -110,7 +110,7 @@ class UINotificationServiceV8 {
 	/**
 	 * Show warning toast
 	 */
-	showWarning(message: string, options?: NotificationOptions): void {
+	showWarning(message: string, _options?: NotificationOptions): void {
 		this.log('toast', 'warning', message);
 		console.warn(`${MODULE_TAG} ⚠️ Warning:`, message);
 		v4ToastManager.showWarning(message);
@@ -119,7 +119,7 @@ class UINotificationServiceV8 {
 	/**
 	 * Show info toast
 	 */
-	showInfo(message: string, options?: NotificationOptions): void {
+	showInfo(message: string, _options?: NotificationOptions): void {
 		this.log('toast', 'info', message);
 		console.log(`${MODULE_TAG} ℹ️ Info:`, message);
 		v4ToastManager.showInfo(message);

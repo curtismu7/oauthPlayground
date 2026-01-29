@@ -524,7 +524,7 @@ const PolicyWizard: React.FC = () => {
 		if (step < totalSteps - 1) {
 			setStep((prev) => prev + 1);
 		}
-	}, [step, totalSteps]);
+	}, [step]);
 
 	const handleBack = useCallback(() => {
 		if (step > 0) {

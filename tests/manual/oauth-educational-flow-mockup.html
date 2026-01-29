@@ -892,19 +892,19 @@
             currentStep = stepNumber;
         }
 
-        function nextStep() {
+        function _nextStep() {
             if (currentStep < totalSteps) {
                 showStep(currentStep + 1);
             }
         }
 
-        function previousStep() {
+        function _previousStep() {
             if (currentStep > 1) {
                 showStep(currentStep - 1);
             }
         }
 
-        function selectAnswer(element, isCorrect) {
+        function _selectAnswer(element, isCorrect) {
             // Remove previous selections
             element.parentElement.querySelectorAll('.quiz-option').forEach(option => {
                 option.classList.remove('selected', 'correct', 'incorrect');
@@ -930,7 +930,7 @@
             }, 500);
         }
 
-        function copyToClipboard(button, text) {
+        function _copyToClipboard(button, text) {
             navigator.clipboard.writeText(text).then(() => {
                 const originalText = button.innerHTML;
                 button.innerHTML = '<i class="fas fa-check mr-1"></i>Copied!';

@@ -241,8 +241,8 @@ const ExampleV7Flow: React.FC = () => {
 				</InfoBox>
 
 				<div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
-				<Button onClick={exchangeTokens}>Exchange Code for Tokens</Button>
-			</div>
+					<Button onClick={exchangeTokens}>Exchange Code for Tokens</Button>
+				</div>
 
 				{tokens && (
 					<GeneratedContentBox>

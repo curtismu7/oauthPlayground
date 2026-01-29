@@ -12,18 +12,13 @@
  * - Some UI text differences
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useStepNavigationV8 } from '../../hooks/useStepNavigationV8.ts';
 import { apiDisplayServiceV8 } from '../../services/apiDisplayServiceV8.ts';
 import { CredentialsServiceV8 } from '../../services/credentialsServiceV8.ts';
-import { MFAServiceV8 } from '../../services/mfaServiceV8.ts';
-import { WorkerTokenStatusServiceV8 } from '../../services/workerTokenStatusServiceV8.ts';
-import { toastV8 } from '../../utils/toastNotificationsV8.ts';
 import { getFullPhoneNumber } from '../controllers/SMSFlowController';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
-import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
-import type { DeviceType, MFACredentials } from './MFATypes';
+import type { MFACredentials } from './MFATypes';
 
 export type UnifiedOTPDeviceType = 'SMS' | 'EMAIL' | 'WHATSAPP';
 

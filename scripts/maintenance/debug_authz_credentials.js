@@ -6,7 +6,7 @@ const credentialManager = {
     try {
       const stored = localStorage.getItem('pingone_permanent_credentials');
       return stored ? JSON.parse(stored) : {};
-    } catch (e) {
+    } catch (_e) {
       return {};
     }
   },
@@ -14,7 +14,7 @@ const credentialManager = {
     try {
       const stored = localStorage.getItem('pingone_config_credentials');
       return stored ? JSON.parse(stored) : {};
-    } catch (e) {
+    } catch (_e) {
       return {};
     }
   },
@@ -22,7 +22,7 @@ const credentialManager = {
     try {
       const stored = localStorage.getItem('pingone_authz_flow_credentials');
       return stored ? JSON.parse(stored) : {};
-    } catch (e) {
+    } catch (_e) {
       return {};
     }
   }
@@ -51,7 +51,7 @@ flowKeys.forEach(key => {
       environmentId: data.credentials?.environmentId || 'none',
       hasClientSecret: !!data.credentials?.clientSecret
     });
-  } catch (e) {
+  } catch (_e) {
     console.log(`${key}: (parse error)`);
   }
 });

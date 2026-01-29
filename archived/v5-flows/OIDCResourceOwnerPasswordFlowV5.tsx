@@ -309,26 +309,23 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 	// Ensure page starts at top
 	usePageScroll({ pageName: 'OIDCResourceOwnerPasswordFlowV5', force: true });
 
-	const handleDiscoveryComplete = useCallback(
-		(discoveryResult: DiscoveryResult) => {
-			if (discoveryResult.success && discoveryResult.document) {
-				const environmentId = oidcDiscoveryService.extractEnvironmentId(
-					discoveryResult.issuerUrl || discoveryResult.document.issuer
-				);
+	const _handleDiscoveryComplete = useCallback((discoveryResult: DiscoveryResult) => {
+		if (discoveryResult.success && discoveryResult.document) {
+			const environmentId = oidcDiscoveryService.extractEnvironmentId(
+				discoveryResult.issuerUrl || discoveryResult.document.issuer
+			);
 
-				logger.discovery(
-					'OIDCResourceOwnerPasswordFlowV5',
-					`Discovery completed successfully for environment: ${environmentId}, issuer: ${discoveryResult.issuerUrl || discoveryResult.document.issuer}`
-				);
+			logger.discovery(
+				'OIDCResourceOwnerPasswordFlowV5',
+				`Discovery completed successfully for environment: ${environmentId}, issuer: ${discoveryResult.issuerUrl || discoveryResult.document.issuer}`
+			);
 
-				// Auto-populate token endpoint from discovery
-				if (discoveryResult.document.token_endpoint) {
-					updateCredentials({ tokenEndpoint: discoveryResult.document.token_endpoint });
-				}
+			// Auto-populate token endpoint from discovery
+			if (discoveryResult.document.token_endpoint) {
+				updateCredentials({ tokenEndpoint: discoveryResult.document.token_endpoint });
 			}
-		},
-		[updateCredentials]
-	);
+		}
+	}, []);
 
 	const handleNext = useCallback(() => {
 		if (currentStep === 0) {
@@ -373,7 +370,7 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 		setTokenResult(null);
 		setError(null);
 		clearResults();
-	}, [clearResults]);
+	}, []);
 
 	const handleRequestToken = useCallback(async () => {
 		if (!credentials.username || !credentials.password || !credentials.clientId) {
@@ -397,7 +394,7 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 		} finally {
 			setIsRequesting(false);
 		}
-	}, [credentials, requestToken, handleNext]);
+	}, [handleNext]);
 
 	const canNavigateNext = currentStep === 0 || (currentStep === 1 && !!tokenResult);
 
@@ -591,14 +588,14 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 										<TokenInfoLabel>Access Token:</TokenInfoLabel>
 										<TokenInfoValue>
 											{tokens?.access_token
-												? tokens.access_token.substring(0, 50) + '...'
+												? `${tokens.access_token.substring(0, 50)}...`
 												: 'Not available'}
 										</TokenInfoValue>
 									</TokenInfoRow>
 									{tokens?.id_token && (
 										<TokenInfoRow>
 											<TokenInfoLabel>ID Token:</TokenInfoLabel>
-											<TokenInfoValue>{tokens.id_token.substring(0, 50) + '...'}</TokenInfoValue>
+											<TokenInfoValue>{`${tokens.id_token.substring(0, 50)}...`}</TokenInfoValue>
 										</TokenInfoRow>
 									)}
 									{tokens?.token_type && (

@@ -1,24 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiChevronDown,
-	FiInfo,
-	FiKey,
-	FiLock,
-	FiServer,
-	FiShield,
-} from 'react-icons/fi';
+import { FiChevronDown, FiInfo, FiKey, FiLock, FiServer, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import {
-	FlowSettingsServiceV8U,
-	getAdvancedFeatures,
-	isAdvancedFeatureEnabled,
-	saveAdvancedFeatures,
-	toggleAdvancedFeature,
-} from '../services/flowSettingsServiceV8U';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { PingOneClientServiceV8U } from '../services/pingOneClientServiceV8U';
 import FeatureEnableConfirmationModal from './FeatureEnableConfirmationModal';
 
@@ -413,7 +397,7 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 
 		try {
 			// Generate change descriptions
-			const changes = PingOneClientServiceV8U.generateChangeDescriptions(
+			const _changes = PingOneClientServiceV8U.generateChangeDescriptions(
 				pendingFeature.id,
 				pendingFeature.name,
 				pendingFeature.isEnabling,

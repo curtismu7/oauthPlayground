@@ -241,7 +241,7 @@
             el.innerHTML = `<span class="status status-${type}">${text}</span>`;
         }
         
-        async function testWorkerToken() {
+        async function _testWorkerToken() {
             const token = document.getElementById('workerToken').value.trim();
             
             if (!token) {
@@ -279,7 +279,7 @@
             }
         }
         
-        async function lookupUser() {
+        async function _lookupUser() {
             const token = document.getElementById('workerToken').value.trim();
             const username = document.getElementById('username').value.trim();
             
@@ -379,7 +379,7 @@
             }
         }
         
-        async function deleteDevice(deviceIdToDelete) {
+        async function _deleteDevice(deviceIdToDelete) {
             const token = document.getElementById('workerToken').value.trim();
             
             if (!confirm('Delete this device?')) {
@@ -411,7 +411,7 @@
             }
         }
         
-        async function registerSmsDevice() {
+        async function _registerSmsDevice() {
             const token = document.getElementById('workerToken').value.trim();
             const phoneNumber = document.getElementById('phoneNumber').value.trim();
             
@@ -459,7 +459,7 @@
             }
         }
         
-        async function sendChallenge() {
+        async function _sendChallenge() {
             const token = document.getElementById('workerToken').value.trim();
             
             if (!deviceId) {
@@ -503,7 +503,7 @@
             }
         }
         
-        async function verifyCode() {
+        async function _verifyCode() {
             const token = document.getElementById('workerToken').value.trim();
             const code = document.getElementById('verificationCode').value.trim();
             
@@ -559,7 +559,7 @@
             }
             
             log('🚀 Kroger MFA Live Test Ready', 'success');
-            log('   Environment: ' + ENV_ID, 'info');
+            log(`   Environment: ${ENV_ID}`, 'info');
             log('   Paste your worker token and click "Test Worker Token" to begin', 'info');
         });
     </script>

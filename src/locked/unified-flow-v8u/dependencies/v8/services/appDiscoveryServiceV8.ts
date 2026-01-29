@@ -76,11 +76,6 @@ export interface WorkerTokenInfo {
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
 export class AppDiscoveryServiceV8 {
-	// Worker token storage constants removed - now using workerTokenServiceV8
-	// Legacy constants kept for backwards compatibility during migration
-	private static readonly WORKER_TOKEN_KEY = 'v8:worker-token'; // DEPRECATED - use workerTokenServiceV8
-	private static readonly WORKER_TOKEN_DIRECTORY = 'v8'; // DEPRECATED
-	private static readonly WORKER_TOKEN_FILENAME = 'worker-token.json'; // DEPRECATED
 	private static readonly WORKER_TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
 	/**

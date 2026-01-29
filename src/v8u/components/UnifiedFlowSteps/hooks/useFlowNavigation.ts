@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { NavigationState } from '../types';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import type { NavigationState } from '../types';
 
 export const useFlowNavigation = (
 	flowType: string,

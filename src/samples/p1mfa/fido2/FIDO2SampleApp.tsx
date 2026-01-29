@@ -6,10 +6,9 @@
  */
 
 import React, { useState } from 'react';
-import { type Device, FIDO2Helper, type P1MFAConfig, P1MFASDK } from '@/sdk/p1mfa';
+import { type Device, type P1MFAConfig, P1MFASDK } from '@/sdk/p1mfa';
 import { CredentialsForm } from '../shared/CredentialsForm';
 import { DeviceList } from '../shared/DeviceList';
-import { StatusDisplay } from '../shared/StatusDisplay';
 import { AuthenticationFlow } from './AuthenticationFlow';
 import { RegistrationFlow } from './RegistrationFlow';
 
@@ -17,7 +16,7 @@ type Tab = 'credentials' | 'registration' | 'authentication' | 'devices';
 
 export const FIDO2SampleApp: React.FC = () => {
 	const [sdk, setSdk] = useState<P1MFASDK | null>(null);
-	const [config, setConfig] = useState<P1MFAConfig | null>(null);
+	const [_config, setConfig] = useState<P1MFAConfig | null>(null);
 	const [activeTab, setActiveTab] = useState<Tab>('credentials');
 	const [devices, setDevices] = useState<Device[]>([]);
 	const [loadingDevices, setLoadingDevices] = useState(false);

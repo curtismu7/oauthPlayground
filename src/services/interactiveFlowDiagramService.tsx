@@ -523,7 +523,7 @@ export class InteractiveFlowDiagramService {
 				};
 
 				renderDiagram();
-			}, [config.id, config.diagramType]);
+			}, []);
 
 			const availableFlows = [
 				{ id: 'oauth', label: 'OAuth 2.0' },

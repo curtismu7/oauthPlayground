@@ -2,9 +2,8 @@
 // V7.1 Flow Steps - Step-by-step flow execution and display
 
 import React from 'react';
-import { FiCheck, FiClock, FiPause, FiPlay, FiRefreshCw } from 'react-icons/fi';
+import { FiCheck, FiClock, FiPlay, FiRefreshCw } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { STEP_METADATA } from '../constants/stepMetadata';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { FlowVariant, StepCompletionState } from '../types/flowTypes';
@@ -279,7 +278,7 @@ export const FlowSteps: React.FC<FlowStepsProps> = ({
 		return 'pending';
 	};
 
-	const getStepIcon = (stepIndex: number, status: 'pending' | 'active' | 'completed') => {
+	const getStepIcon = (_stepIndex: number, status: 'pending' | 'active' | 'completed') => {
 		if (status === 'completed') {
 			return <FiCheck />;
 		}

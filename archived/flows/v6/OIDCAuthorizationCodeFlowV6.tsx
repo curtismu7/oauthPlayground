@@ -17,7 +17,6 @@ import FlowConfigurationRequirements from '../../components/FlowConfigurationReq
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
-import LocalesParameterInput from '../../components/LocalesParameterInput';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import ResourceParameterInput from '../../components/ResourceParameterInput';
@@ -28,7 +27,6 @@ import {
 	ResultsSection,
 	SectionDivider,
 } from '../../components/ResultsPanel';
-import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
@@ -45,8 +43,6 @@ import {
 	FiChevronDown,
 	FiCopy,
 	FiExternalLink,
-	FiEye,
-	FiEyeOff,
 	FiGlobe,
 	FiInfo,
 	FiKey,
@@ -64,15 +60,13 @@ import { getFlowSequence } from '../../services/flowSequenceService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { PKCEGenerationService } from '../../services/pkceGenerationService';
 import { ResponseMode } from '../../services/responseModeService';
-import { StepValidationService, useStepValidation } from '../../services/stepValidationService';
+import { useStepValidation } from '../../services/stepValidationService';
 import {
 	IntrospectionApiCallData,
 	TokenIntrospectionService,
 } from '../../services/tokenIntrospectionService';
-import { UISettingsService } from '../../services/uiSettingsService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { getAuthCodeIfFresh, setAuthCodeWithTimestamp } from '../../utils/sessionStorageHelpers';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
@@ -506,7 +500,7 @@ const HighlightBadge = styled.span`
 	font-weight: 700;
 `;
 
-const CodeBlock = styled.pre`
+const _CodeBlock = styled.pre`
 	background-color: #1e293b;
 	border: 1px solid #334155;
 	border-radius: 0.5rem;
@@ -520,7 +514,7 @@ const CodeBlock = styled.pre`
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
-const GeneratedUrlDisplay = styled.div`
+const _GeneratedUrlDisplay = styled.div`
 	background-color: #ecfdf3;
 	border: 1px solid #bbf7d0;
 	border-radius: 0.75rem;
@@ -532,7 +526,7 @@ const GeneratedUrlDisplay = styled.div`
 	position: relative;
 `;
 
-const Modal = styled.div<{ $show?: boolean }>`
+const _Modal = styled.div<{ $show?: boolean }>`
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -545,7 +539,7 @@ const Modal = styled.div<{ $show?: boolean }>`
 	z-index: 2000;
 `;
 
-const ModalContent = styled.div`
+const _ModalContent = styled.div`
 	background-color: #ffffff;
 	border-radius: 0.75rem;
 	padding: 2rem;
@@ -554,7 +548,7 @@ const ModalContent = styled.div`
 	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 `;
 
-const ModalIcon = styled.div`
+const _ModalIcon = styled.div`
 	width: 4rem;
 	height: 4rem;
 	border-radius: 50%;
@@ -567,14 +561,14 @@ const ModalIcon = styled.div`
 	color: #ffffff;
 `;
 
-const ModalTitle = styled.h3`
+const _ModalTitle = styled.h3`
 	font-size: 1.25rem;
 	font-weight: 600;
 	color: var(--color-text-primary, #111827);
 	margin-bottom: 0.5rem;
 `;
 
-const ModalText = styled.p`
+const _ModalText = styled.p`
 	font-size: 0.875rem;
 	color: #6b7280;
 	line-height: 1.5;
@@ -636,7 +630,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
 		null
 	);
-	const [imageLoaded, setImageLoaded] = useState(false);
+	const [_imageLoaded, _setImageLoaded] = useState(false);
 	const [localCredentials, setLocalCredentials] = useState(controller.credentials);
 	const { validateAndProceed, StepValidationModal } = useStepValidation();
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
@@ -661,7 +655,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 	});
 	const [showRedirectModal, setShowRedirectModal] = useState(false);
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
-	const [showSavedSecret, setShowSavedSecret] = useState(false);
+	const [_showSavedSecret, _setShowSavedSecret] = useState(false);
 	const [completionCollapsed, setCompletionCollapsed] = useState(false);
 	const [, setIsFetchingUserInfo] = useState(false);
 	const [displayMode, setDisplayMode] = useState<DisplayMode>('page');
@@ -673,14 +667,14 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 	// Scroll to top on step change
 	useEffect(() => {
 		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange();
-	}, [currentStep]);
+	}, []);
 
 	// NOTE: Advanced parameters (display, claims, ui_locales, claims_locales, audience)
 	// are currently for educational/UI purposes. Full integration with auth URL generation
 	// requires controller refactoring. See ROADMAP_TO_100_PERCENT_COMPLIANCE.md for details.
 
 	// Helper to get enhanced URL (for display/logging purposes)
-	const getEnhancedAuthorizationUrl = useCallback(() => {
+	const _getEnhancedAuthorizationUrl = useCallback(() => {
 		if (!controller.authUrl) return '';
 
 		return AdvancedParametersService.enhanceAuthorizationUrl(controller.authUrl, {
@@ -742,7 +736,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 				console.warn('[AuthorizationCodeFlowV5] Failed to parse stored PingOne config:', error);
 			}
 		}
-	}, []); // Empty dependency array - only run once on mount
+	}, [controller.credentials, controller.setCredentials]); // Empty dependency array - only run once on mount
 
 	// Debug: Always log the current authorization code state
 	console.log('🔍 [AuthorizationCodeFlowV5] Current controller.authCode:', {
@@ -871,11 +865,11 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 	// The auth code detection is already handled in the other useEffect
 
 	// Get flow sequence for Step 0 diagram
-	const flowSequence = useMemo(() => {
+	const _flowSequence = useMemo(() => {
 		return getFlowSequence('authorization-code');
 	}, []);
 
-	const stepCompletions = useMemo<StepCompletionState>(
+	const _stepCompletions = useMemo<StepCompletionState>(
 		() => ({
 			0: controller.hasStepResult('setup-credentials') || controller.hasCredentialsSaved,
 			1: controller.hasStepResult('generate-pkce') || Boolean(controller.pkceCodes.codeVerifier),
@@ -902,7 +896,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 	const toggleSection =
 		AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 
-	const handleSaveConfiguration = useCallback(async () => {
+	const _handleSaveConfiguration = useCallback(async () => {
 		const required: Array<keyof StepCredentials> = [
 			'environmentId',
 			'clientId',
@@ -958,7 +952,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 		[controller, localCredentials]
 	);
 
-	const handleGeneratePkce = useCallback(async () => {
+	const _handleGeneratePkce = useCallback(async () => {
 		await AuthorizationCodeSharedService.PKCE.generatePKCE(
 			'oidc',
 			controller.credentials,
@@ -1075,7 +1069,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 	);
 
 	// Extract x5t parameter from JWT header
-	const getX5tParameter = useCallback((token: string) => {
+	const _getX5tParameter = useCallback((token: string) => {
 		try {
 			const header = decodeJWTHeader(token);
 			return header.x5t || header['x5t#S256'] || null;
@@ -1107,7 +1101,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 		window.open('/token-management', '_blank');
 	}, [controller.tokens, controller.credentials, currentStep]);
 
-	const navigateToTokenManagementWithRefreshToken = useCallback(() => {
+	const _navigateToTokenManagementWithRefreshToken = useCallback(() => {
 		AuthorizationCodeSharedService.TokenManagement.navigateToTokenManagement(
 			'oidc',
 			controller.tokens,
@@ -1127,7 +1121,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 		}
 
 		window.open('/token-management', '_blank');
-	}, [controller.tokens, controller.credentials]);
+	}, [controller.tokens, controller.credentials, currentStep]);
 
 	const handleResetFlow = useCallback(() => {
 		controller.resetFlow();
@@ -1225,6 +1219,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 			localAuthCode,
 			controller.tokens,
 			controller.userInfo,
+			controller.persistKey,
 		]
 	);
 
@@ -1295,6 +1290,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 		controller.authCode,
 		localAuthCode,
 		controller.credentials,
+		controller,
 	]);
 
 	const handlePrev = useCallback(() => {
@@ -1341,7 +1337,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 
 	const renderStepContent = useMemo(() => {
 		const credentials = controller.credentials;
-		const pkceCodes = controller.pkceCodes;
+		const _pkceCodes = controller.pkceCodes;
 		const authCode = controller.authCode;
 		const tokens = controller.tokens;
 		const userInfo = controller.userInfo;
@@ -2536,29 +2532,33 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 		handleExchangeTokens,
 		handleFetchUserInfo,
 		handleGenerateAuthUrl,
-		handleGeneratePkce,
 		navigateToTokenManagement,
-		navigateToTokenManagementWithRefreshToken,
-		stepCompletions,
 		toggleSection,
 		canNavigateNext,
 		controller.setAuthCodeManually,
 		handleNextClick,
 		handleOpenAuthUrl,
 		handleResetFlow,
-		handleSaveConfiguration,
 		handleIntrospectToken,
 		isStepValid,
 		localAuthCode,
 		pingOneConfig,
 		savePingOneConfig,
 		manualAuthCodeId,
-		getX5tParameter,
-		showSavedSecret,
 		controller.isFetchingUserInfo,
 		controller.setCredentials,
 		completionCollapsed,
 		introspectionApiCall,
+		handleFieldChange,
+		promptValues,
+		renderFlowSummary,
+		resources,
+		displayMode,
+		controller.saveCredentials,
+		controller.persistKey,
+		controller,
+		audience,
+		claimsRequest,
 	]);
 
 	return (

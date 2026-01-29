@@ -12,9 +12,9 @@
  */
 
 import { useEffect, useState } from 'react';
-import { FiCheckCircle, FiAlertCircle, FiX, FiExternalLink } from 'react-icons/fi';
-import { IDTokenValidationServiceV8 } from '@/v8/services/idTokenValidationServiceV8';
+import { FiAlertCircle, FiCheckCircle, FiExternalLink, FiX } from 'react-icons/fi';
 import type { IDTokenValidationResult } from '@/v8/services/idTokenValidationServiceV8';
+import { IDTokenValidationServiceV8 } from '@/v8/services/idTokenValidationServiceV8';
 
 const MODULE_TAG = '[🔐 ID-TOKEN-VALIDATION-MODAL-V8U]';
 
@@ -43,7 +43,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 		if (isOpen && idToken && !validationResult) {
 			handleValidate();
 		}
-	}, [isOpen, idToken]);
+	}, [isOpen, idToken, handleValidate, validationResult]);
 
 	const handleValidate = async () => {
 		console.log(`${MODULE_TAG} Starting ID token validation`);

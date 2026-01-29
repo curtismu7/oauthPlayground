@@ -2,9 +2,9 @@
 // scripts/migrate-collapsible-sections.js
 // Automated migration tool to convert local CollapsibleSection components to CollapsibleHeader service
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,7 +58,7 @@ function migrateFile(filePath) {
 	console.log('='.repeat(80));
 
 	let content = fs.readFileSync(filePath, 'utf-8');
-	const originalContent = content;
+	const _originalContent = content;
 	const changes = [];
 
 	// Step 1: Check if already using CollapsibleHeader

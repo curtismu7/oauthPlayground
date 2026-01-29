@@ -28,7 +28,7 @@
 import { useCallback, useState } from 'react';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
-const MODULE_TAG = '[🪝 STEP-HOOK-V8U]';
+const _MODULE_TAG = '[🪝 STEP-HOOK-V8U]';
 
 export interface UseStepNavigationV8UOptions {
 	/** Initial step (default: 0) */
@@ -158,7 +158,7 @@ export const useStepNavigationV8U = (
 			logger.debug(Marking step as complete`, { step: currentStep });
 			setCompletedSteps((prev) => [...prev, currentStep]);
 		}
-	}, [currentStep, completedSteps]);
+	}, [step]);
 
 	// Set validation errors
 	const setValidationErrors = useCallback(
@@ -203,7 +203,7 @@ export const useStepNavigationV8U = (
 		}
 
 		return `Missing required fields:\n${validationErrors.map((e) => `• ${e}`).join('\n')}`;
-	}, [validationErrors]);
+	}, []);
 
 	return {
 		currentStep,

@@ -23,7 +23,7 @@ import React from 'react';
 import { StepProgressBarProps } from '@/v8/types/stepNavigation';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
-const MODULE_TAG = '[📊 STEP-PROGRESS-V8]';
+const _MODULE_TAG = '[📊 STEP-PROGRESS-V8]';
 
 /**
  * StepProgressBarV8U Component
@@ -75,8 +75,6 @@ export const StepProgressBarV8U: React.FC<StepProgressBarProps> = ({
 					aria-label={`Progress: ${progressPercentage}% complete`}
 				/>
 			</div>
-
-			{/* Step Indicators */}
 			<div className="step-indicators">
 				{Array.from({ length: totalSteps }).map((_, index) => {
 					const isCompleted = completedSteps.includes(index);
@@ -108,7 +106,7 @@ export const StepProgressBarV8U: React.FC<StepProgressBarProps> = ({
 			</div>
 
 			<style>{`
-				.step-progress-bar-v8 {
+				.step-progress-bar-v8 
 					display: flex;
 					flex-direction: column;
 					gap: 12px;
@@ -116,34 +114,29 @@ export const StepProgressBarV8U: React.FC<StepProgressBarProps> = ({
 					background: #f5f5f5;
 					border-radius: 8px;
 					margin-bottom: 24px;
-				}
 
-				.progress-text {
+				.progress-text 
 					display: flex;
 					gap: 8px;
 					font-size: 14px;
 					font-weight: 500;
 					color: #333;
-				}
 
-				.progress-percentage {
+				.progress-percentage 
 					font-weight: 600;
 					color: #2196f3;
-				}
 
-				.progress-steps {
+				.progress-steps 
 					color: #666;
-				}
 
-				.progress-bar-container {
+				.progress-bar-container 
 					width: 100%;
 					height: 8px;
 					background: #e0e0e0;
 					border-radius: 4px;
 					overflow: hidden;
-				}
 
-				.progress-bar-fill {
+				.progress-bar-fill 
 					height: 100%;
 					background: linear-gradient(
 						90deg,
@@ -151,15 +144,13 @@ export const StepProgressBarV8U: React.FC<StepProgressBarProps> = ({
 						#1976d2 100%
 					);
 					border-radius: 4px;
-				}
 
-				.step-indicators {
+				.step-indicators 
 					display: flex;
 					justify-content: space-between;
 					gap: 8px;
-				}
 
-				.step-indicator {
+				.step-indicator 
 					flex: 1;
 					display: flex;
 					align-items: center;
@@ -173,50 +164,40 @@ export const StepProgressBarV8U: React.FC<StepProgressBarProps> = ({
 					font-weight: 600;
 					transition: all 0.3s ease;
 					cursor: default;
-				}
 
-				.step-indicator.completed {
+				.step-indicator.completed 
 					background: #4caf50;
 					color: white;
-				}
 
-				.step-indicator.active {
+				.step-indicator.active 
 					background: #2196f3;
 					color: white;
 					box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
-				}
 
-				.step-indicator.locked {
+				.step-indicator.locked 
 					background: #f5f5f5;
 					color: #999;
 					border: 1px solid #ddd;
-				}
 
-				.indicator-icon {
+				.indicator-icon 
 					display: inline-block;
-				}
 
-				.indicator-number {
+				.indicator-number 
 					display: inline-block;
-				}
 
 				/* Mobile responsive */
-				@media (max-width: 600px) {
-					.step-progress-bar-v8 {
+				@media (max-width: 600px) 
+					.step-progress-bar-v8 
 						padding: 12px;
 						gap: 8px;
-					}
 
-					.progress-text {
+					.progress-text 
 						font-size: 12px;
-					}
 
-					.step-indicator {
+					.step-indicator 
 						width: 28px;
 						height: 28px;
 						font-size: 10px;
-					}
-				}
 			`}</style>
 		</div>
 	);

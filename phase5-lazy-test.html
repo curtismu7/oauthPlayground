@@ -125,7 +125,7 @@
         }
 
         // Test 1: Basic Lazy Load
-        function testBasicLazyLoad() {
+        function _testBasicLazyLoad() {
             addTestResult('Basic Lazy Load', 'info', 'Starting test...');
             
             // Simulate lazy loading
@@ -171,7 +171,7 @@
         }
 
         // Test 3: Error Handling
-        function testErrorHandling() {
+        function _testErrorHandling() {
             addTestResult('Error Handling', 'info', 'Testing error recovery...');
             
             // Simulate failed load
@@ -188,7 +188,7 @@
             }, 1500);
         }
 
-        function retryLoad() {
+        function _retryLoad() {
             addTestResult('Retry Load', 'info', 'Retrying...');
             setTimeout(() => {
                 componentCount++;
@@ -204,7 +204,7 @@
         }
 
         // Test 4: Preloading
-        function testPreloading() {
+        function _testPreloading() {
             addTestResult('Preloading', 'info', 'Testing component preloading...');
             
             // Simulate preloading

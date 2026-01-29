@@ -1,15 +1,6 @@
 // Mock: Condensed V7 Authorization Code Flow - 4 Section Structure
-import React, { useState } from 'react';
-import {
-	FiBook,
-	FiCheckCircle,
-	FiChevronDown,
-	FiInfo,
-	FiSettings,
-	FiShield,
-	FiTarget,
-	FiZap,
-} from 'react-icons/fi';
+import { useState } from 'react';
+import { FiBook, FiCheckCircle, FiChevronDown, FiSettings, FiTarget, FiZap } from 'react-icons/fi';
 import styled from 'styled-components';
 import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
 

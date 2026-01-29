@@ -11,13 +11,13 @@
  */
 
 import React, { useState } from 'react';
-import { FiKey, FiRefreshCw, FiSettings } from 'react-icons/fi';
+import { FiKey, FiRefreshCw } from 'react-icons/fi';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from './WorkerTokenStatusDisplayV8';
-import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-SECTION-V8]';
 
@@ -152,9 +152,11 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 
 				{/* Description */}
 				{!compact && (
-					<p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}>
-						Worker tokens are service account credentials used for administrative operations.
-						They allow you to register devices with custom status (ACTIVE or ACTIVATION_REQUIRED).
+					<p
+						style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}
+					>
+						Worker tokens are service account credentials used for administrative operations. They
+						allow you to register devices with custom status (ACTIVE or ACTIVATION_REQUIRED).
 					</p>
 				)}
 
@@ -170,7 +172,13 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 				>
 					<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 						<div>
-							<div style={{ fontSize: '14px', fontWeight: '600', color: tokenStatus.isValid ? '#166534' : '#991b1b' }}>
+							<div
+								style={{
+									fontSize: '14px',
+									fontWeight: '600',
+									color: tokenStatus.isValid ? '#166534' : '#991b1b',
+								}}
+							>
 								Status: {tokenStatus.isValid ? 'Active' : 'Not Set'}
 							</div>
 							{!tokenStatus.isValid && (
@@ -197,7 +205,10 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 								}}
 								title="Refresh token status"
 							>
-								<FiRefreshCw size={12} style={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }} />
+								<FiRefreshCw
+									size={12}
+									style={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }}
+								/>
 								Refresh
 							</button>
 						)}
@@ -330,7 +341,8 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 								}}
 							/>
 							<span>
-								<strong>Silent API Retrieval</strong> - Automatically fetch worker token without showing modal
+								<strong>Silent API Retrieval</strong> - Automatically fetch worker token without
+								showing modal
 							</span>
 						</label>
 						<label
@@ -354,7 +366,8 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 								}}
 							/>
 							<span>
-								<strong>Show Token at End</strong> - Display the worker token after successful retrieval
+								<strong>Show Token at End</strong> - Display the worker token after successful
+								retrieval
 							</span>
 						</label>
 					</div>

@@ -1,7 +1,7 @@
 // Run this in browser console to fix environment ID immediately
 (() => {
 	const CORRECT_ENV_ID = 'b9817c16-9910-4415-b67e-4ac687da74d9';
-	const FLOW_KEY = 'heb-grocery-store-mfa';
+	const _FLOW_KEY = 'heb-grocery-store-mfa';
 
 	console.log('🔧 Fixing Environment ID in localStorage...');
 	console.log(`Correct Environment ID: ${CORRECT_ENV_ID}\n`);
@@ -180,7 +180,7 @@
 						}
 					}
 				}
-			} catch (e) {
+			} catch (_e) {
 				// Not JSON, skip
 			}
 		}
