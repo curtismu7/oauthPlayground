@@ -662,10 +662,14 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 			e.stopPropagation();
 
 			const tokenType = credentials.tokenType || 'worker';
-			// For user token type: consider valid if we have any userToken value (including 'oauth_completed' placeholder)
-			// This allows progression after successful OAuth exchange without requiring actual token validation
+			// For admin flow: check if worker token exists (not necessarily valid)
+			// For user token flow: check if user token exists
 			const isTokenValid =
-				tokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim();
+				registrationFlowType === 'admin'
+					? !!tokenStatus.token // Admin flow: any worker token enables the button
+					: tokenType === 'worker'
+						? tokenStatus.isValid // User flow with worker token: must be valid
+						: !!credentials.userToken?.trim(); // User flow with user token
 
 			if (!credentials.deviceAuthenticationPolicyId) {
 				toastV8.warning('Please select a Device Authentication Policy before proceeding');
@@ -714,11 +718,17 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 	// Auto-proceed to registration when all requirements are met
 	useEffect(() => {
 		const tokenType = credentials.tokenType || 'worker';
-		const isTokenValid = 
-			tokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim();
+		// For admin flow: check if worker token exists (not necessarily valid)
+		// For user token flow: check if user token exists
+		const isTokenValid =
+			registrationFlowType === 'admin'
+				? !!tokenStatus.token // Admin flow: any worker token enables the button
+				: tokenType === 'worker'
+					? tokenStatus.isValid // User flow with worker token: must be valid
+					: !!credentials.userToken?.trim(); // User flow with user token
 
 		// Check if all requirements are met for automatic progression
-		const canAutoProceed = 
+		const canAutoProceed =
 			credentials.deviceAuthenticationPolicyId &&
 			credentials.environmentId &&
 			credentials.username &&
@@ -732,7 +742,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 				username: !!credentials.username,
 				isTokenValid,
 				tokenType,
-				registrationFlowType
+				registrationFlowType,
 			});
 
 			// Small delay to ensure user sees the success state
@@ -761,7 +771,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 		tokenStatus.isValid,
 		registrationFlowType,
 		navigate,
-		adminDeviceStatus
+		adminDeviceStatus,
 	]);
 
 	return (
@@ -1043,7 +1053,6 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					</small>
 				</div>
 
-				
 				{/* Device Authentication Policy Configuration */}
 				<MFAConfigurationStepV8
 					credentials={credentials}
@@ -1059,7 +1068,6 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					refreshDeviceAuthPolicies={loadPolicies}
 				/>
 
-				
 				{/* Enhanced Worker Token UI Service - Always show */}
 				<WorkerTokenUIServiceV8
 					mode="wide"
@@ -1081,11 +1089,16 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					<UserLoginSectionV8
 						onTokenUpdated={(token) => {
 							// Update credentials when user token is received
-							setCredentials(prev => ({
-								...prev,
-								userToken: token,
-								tokenType: 'user' as const,
-							}));
+							setCredentials(prev => {
+								const updated = {
+									...prev,
+									userToken: token,
+									tokenType: 'user' as const,
+								};
+								// Save to localStorage so page detects the token
+								CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
+								return updated;
+							});
 						}}
 						compact={false}
 						showUserInfo={true}
@@ -1146,16 +1159,17 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					>
 						Cancel
 					</button>
-					
 					<button
 						type="button"
 						onClick={handleProceedToRegistration}
 						disabled={
 							!credentials.deviceAuthenticationPolicyId ||
 							!credentials.environmentId ||
-							((credentials.tokenType || 'worker') === 'worker'
-								? !tokenStatus.isValid
-								: !credentials.userToken?.trim())
+							(registrationFlowType === 'admin'
+								? !tokenStatus.token // Admin flow: any worker token enables the button
+								: ((credentials.tokenType || 'worker') === 'worker'
+										? !tokenStatus.isValid // User flow with worker token: must be valid
+										: !credentials.userToken?.trim())) // User flow with user token
 						}
 						style={{
 							padding: '12px 24px',
@@ -1164,9 +1178,11 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 							background:
 								credentials.deviceAuthenticationPolicyId &&
 								credentials.environmentId &&
-								((credentials.tokenType || 'worker') === 'worker'
-									? tokenStatus.isValid
-									: !!credentials.userToken?.trim())
+								(registrationFlowType === 'admin'
+									? !!tokenStatus.token // Admin flow: any worker token enables the button
+									: ((credentials.tokenType || 'worker') === 'worker'
+											? tokenStatus.isValid // User flow with worker token: must be valid
+											: !!credentials.userToken?.trim())) // User flow with user token
 									? '#8b5cf6'
 									: '#9ca3af',
 							color: 'white',
@@ -1175,9 +1191,11 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 							cursor:
 								credentials.deviceAuthenticationPolicyId &&
 								credentials.environmentId &&
-								((credentials.tokenType || 'worker') === 'worker'
-									? tokenStatus.isValid
-									: !!credentials.userToken?.trim())
+								(registrationFlowType === 'admin'
+									? !!tokenStatus.token // Admin flow: any worker token enables the button
+									: ((credentials.tokenType || 'worker') === 'worker'
+											? tokenStatus.isValid // User flow with worker token: must be valid
+											: !!credentials.userToken?.trim())) // User flow with user token
 									? 'pointer'
 									: 'not-allowed',
 							display: 'flex',
@@ -1190,31 +1208,31 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					</button>
 				</div>
 
-			{/* Worker Token Modal */}
-			{showWorkerTokenModal && (
-				<WorkerTokenModalV8
-					isOpen={showWorkerTokenModal}
-					onClose={() => {
-						setShowWorkerTokenModal(false);
-						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
-					}}
-				/>
-			)}
+				{/* Worker Token Modal */}
+				{showWorkerTokenModal && (
+					<WorkerTokenModalV8
+						isOpen={showWorkerTokenModal}
+						onClose={() => {
+							setShowWorkerTokenModal(false);
+							setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
+						}}
+					/>
+				)}
 
-			{/* User Login Modal */}
-			{showUserLoginModal && (
-				<UserLoginModalV8
-					isOpen={showUserLoginModal}
-					onClose={() => setShowUserLoginModal(false)}
-					onTokenReceived={(token) => {
-						setCredentials((prev) => ({ ...prev, userToken: token, tokenType: 'user' }));
-						setShowUserLoginModal(false);
-						toastV8.success('User token received successfully!');
-					}}
-					environmentId={credentials.environmentId}
-				/>
-			)}
-		</div>
+				{/* User Login Modal */}
+				{showUserLoginModal && (
+					<UserLoginModalV8
+						isOpen={showUserLoginModal}
+						onClose={() => setShowUserLoginModal(false)}
+						onTokenReceived={(token) => {
+							setCredentials((prev) => ({ ...prev, userToken: token, tokenType: 'user' }));
+							setShowUserLoginModal(false);
+							toastV8.success('User token received successfully!');
+						}}
+						environmentId={credentials.environmentId}
+					/>
+				)}
+			</div>
 		</div>
 	);
 };
