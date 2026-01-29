@@ -47,8 +47,6 @@ import ModalPresentationService from './services/modalPresentationService';
 import { credentialManager } from './utils/credentialManager';
 // Import IndexedDB backup service to make it globally available
 import './v8u/services/indexedDBBackupServiceV8U';
-// Import MFA feature flags to make window.mfaFlags available
-import './v8/services/mfaFeatureFlagsV8';
 
 // Extend Window interface for global test utilities
 declare global {
