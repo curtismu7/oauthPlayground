@@ -17994,5 +17994,3 @@ if (httpsServer) {
 		console.log(`🌐 HTTPS Server listening on:`, addr);
 	});
 }
-
-export default app;
