@@ -715,64 +715,6 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 		[navigate, credentials, tokenStatus.isValid, registrationFlowType, adminDeviceStatus]
 	);
 
-	// Auto-proceed to registration when all requirements are met
-	useEffect(() => {
-		const tokenType = credentials.tokenType || 'worker';
-		// For admin flow: check if worker token exists (not necessarily valid)
-		// For user token flow: check if user token exists
-		const isTokenValid =
-			registrationFlowType === 'admin'
-				? !!tokenStatus.token // Admin flow: any worker token enables the button
-				: tokenType === 'worker'
-					? tokenStatus.isValid // User flow with worker token: must be valid
-					: !!credentials.userToken?.trim(); // User flow with user token
-
-		// Check if all requirements are met for automatic progression
-		const canAutoProceed =
-			credentials.deviceAuthenticationPolicyId &&
-			credentials.environmentId &&
-			credentials.username &&
-			isTokenValid &&
-			registrationFlowType === 'user'; // Only auto-proceed for user flow
-
-		if (canAutoProceed) {
-			console.log('[MobileOTP] Auto-proceeding to registration - all requirements met', {
-				deviceAuthenticationPolicyId: !!credentials.deviceAuthenticationPolicyId,
-				environmentId: !!credentials.environmentId,
-				username: !!credentials.username,
-				isTokenValid,
-				tokenType,
-				registrationFlowType,
-			});
-
-			// Small delay to ensure user sees the success state
-			setTimeout(() => {
-				navigate('/v8/mfa/register/mobile/device', {
-					replace: false,
-					state: {
-						deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
-						environmentId: credentials.environmentId,
-						username: credentials.username,
-						tokenType: credentials.tokenType,
-						userToken: credentials.userToken,
-						registrationFlowType: registrationFlowType,
-						adminDeviceStatus: adminDeviceStatus,
-						configured: true,
-					},
-				});
-			}, 1500); // 1.5 second delay
-		}
-	}, [
-		credentials.deviceAuthenticationPolicyId,
-		credentials.environmentId,
-		credentials.username,
-		credentials.userToken,
-		credentials.tokenType,
-		tokenStatus.isValid,
-		registrationFlowType,
-		navigate,
-		adminDeviceStatus,
-	]);
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
