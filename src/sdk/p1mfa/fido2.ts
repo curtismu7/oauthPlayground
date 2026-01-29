@@ -27,7 +27,7 @@ export class FIDO2Helper {
 	): Promise<DeviceRegistrationResult> {
 		// Ensure RP (Relying Party) is set
 		if (!params.rp) {
-			const origin = typeof window !== 'undefined' ? window.location.origin : 'localhost';
+			const _origin = typeof window !== 'undefined' ? window.location.origin : 'localhost';
 			const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
 			params.rp = {
 				id: hostname === 'localhost' ? 'localhost' : hostname,

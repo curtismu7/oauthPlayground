@@ -2,7 +2,7 @@
 // V5.0.0 JWT Bearer Token Flow - Full V5 Implementation with Enhanced FlowInfoService
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiCheckCircle, FiInfo, FiKey, FiLock, FiRefreshCw, FiSettings } from 'react-icons/fi';
+import { FiCheckCircle, FiInfo, FiLock, FiRefreshCw, FiSettings } from 'react-icons/fi';
 import type { DefaultTheme } from 'styled-components';
 import styled, { css } from 'styled-components';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
@@ -10,8 +10,6 @@ import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
-import JSONHighlighter, { JSONData } from '../../components/JSONHighlighter';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useJWTBearerFlowController } from '../../hooks/useJWTBearerFlowController';
@@ -253,7 +251,6 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' }>(
 					background: #059669;
 				}
 			`;
-			case 'primary':
 			default:
 				return css`
 				${baseStyles};
@@ -950,7 +947,7 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 										<JWTInfoLabel>Access Token:</JWTInfoLabel>
 										<JWTInfoValue>
 											{tokens?.access_token
-												? tokens.access_token.substring(0, 50) + '...'
+												? `${tokens.access_token.substring(0, 50)}...`
 												: 'Not available'}
 										</JWTInfoValue>
 									</JWTInfoRow>

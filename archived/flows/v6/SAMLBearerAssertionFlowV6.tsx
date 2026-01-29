@@ -1,48 +1,34 @@
 // src/pages/flows/SAMLBearerAssertionFlowV6.tsx
 // OAuth 2.0 SAML Bearer Assertion Flow (RFC 7522)
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FlowSequenceDisplay } from '../../components/FlowSequenceDisplay';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import {
-	FiAlertCircle,
 	FiAlertTriangle,
 	FiCheckCircle,
-	FiChevronDown,
-	FiClock,
-	FiCode,
 	FiCopy,
-	FiExternalLink,
-	FiEye,
-	FiEyeOff,
 	FiGlobe,
 	FiInfo,
-	FiKey,
 	FiPackage,
 	FiRefreshCw,
 	FiSend,
 	FiSettings,
-	FiShield,
 	FiUsers,
 } from '../../services/commonImportsService';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { CopyButtonService } from '../../services/copyButtonService';
 import EducationalContentService from '../../services/educationalContentService.tsx';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { OAuthFlowComparisonService } from '../../services/oauthFlowComparisonService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import SAMLAssertionService from '../../services/samlAssertionService';
-import SAMLIssuerService from '../../services/samlIssuerService';
-import TokenDisplayService from '../../services/tokenDisplayService';
 import { credentialManager } from '../../utils/credentialManager';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
-const LOG_PREFIX = '[🏢 SAML-BEARER-V6]';
+const _LOG_PREFIX = '[🏢 SAML-BEARER-V6]';
 
 // Styled Components (reusing from JWT Bearer Flow)
 const Container = styled.div`
@@ -173,7 +159,7 @@ const Helper = styled.div`
 	line-height: 1.4;
 `;
 
-const Textarea = styled.textarea`
+const _Textarea = styled.textarea`
 	width: 100%;
 	padding: 0.75rem;
 	border: 1px solid #d1d5db;
@@ -227,7 +213,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	`}
 `;
 
-const CodeBlock = styled.pre`
+const _CodeBlock = styled.pre`
 	background: #1e293b;
 	color: #e2e8f0;
 	padding: 1rem;
@@ -328,7 +314,7 @@ const SAMLBearerAssertionFlowV6: React.FC = () => {
 	usePageScroll();
 
 	// State management
-	const [currentStep, setCurrentStep] = useState(0);
+	const [_currentStep, setCurrentStep] = useState(0);
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
 		comparison: false,
 		overview: false,
@@ -563,7 +549,7 @@ const SAMLBearerAssertionFlowV6: React.FC = () => {
 
 			// MOCK IMPLEMENTATION - Generate mock token response
 			const mockTokenResponse = {
-				access_token: 'mock_saml_bearer_token_' + Math.random().toString(36).substr(2, 32),
+				access_token: `mock_saml_bearer_token_${Math.random().toString(36).substr(2, 32)}`,
 				token_type: 'Bearer',
 				expires_in: 3600,
 				scope: scopes || 'read write',

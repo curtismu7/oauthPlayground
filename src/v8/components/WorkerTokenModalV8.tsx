@@ -15,6 +15,7 @@ import {
 	triggerFileImport,
 	type WorkerTokenCredentials,
 } from '@/services/credentialExportImportService';
+import { environmentService } from '@/services/environmentService';
 import { UnifiedTokenDisplayService } from '@/services/unifiedTokenDisplayService';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import pingOneFetch from '@/utils/pingOneFetch';
@@ -24,7 +25,6 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { workerTokenCacheServiceV8 } from '@/v8/services/workerTokenCacheServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { environmentService } from '@/services/environmentService';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-V8]';
@@ -480,8 +480,8 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			);
 
 			// Wait a moment to ensure token is fully saved before dispatching event
-			await new Promise(resolve => setTimeout(resolve, 100));
-			
+			await new Promise((resolve) => setTimeout(resolve, 100));
+
 			// Dispatch event for status update
 			console.log(`${MODULE_TAG} 🔑 Dispatching workerTokenUpdated event`);
 			window.dispatchEvent(new Event('workerTokenUpdated'));

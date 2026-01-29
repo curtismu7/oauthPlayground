@@ -298,7 +298,7 @@
             el.innerHTML = `<span class="status status-${type}">${text}</span>`;
         }
         
-        function saveConfig() {
+        function _saveConfig() {
             config = {
                 envId: document.getElementById('envId').value.trim(),
                 clientId: document.getElementById('clientId').value.trim(),
@@ -338,7 +338,7 @@
                 .replace(/=/g, '');
         }
         
-        async function generatePKCE() {
+        async function _generatePKCE() {
             log('🔐 Generating PKCE codes...', 'info');
             setStatus('pkceStatus', 'Generating...', 'pending');
             
@@ -380,7 +380,7 @@
             }
         }
         
-        function buildAuthRequest() {
+        function _buildAuthRequest() {
             log('🔨 Building authorization request...', 'info');
             setStatus('authReqStatus', 'Building...', 'pending');
             
@@ -435,7 +435,7 @@ ${authUrl}
             }
         }
         
-        function receiveAuthCode() {
+        function _receiveAuthCode() {
             const code = document.getElementById('authCode').value.trim();
             
             if (!code) {
@@ -457,7 +457,7 @@ ${authUrl}
             document.getElementById('exchangeBtn').disabled = false;
         }
         
-        async function exchangeCode() {
+        async function _exchangeCode() {
             log('🔄 Exchanging authorization code for tokens...', 'info');
             setStatus('exchangeStatus', 'Exchanging...', 'pending');
             
@@ -521,7 +521,7 @@ ${authUrl}
             }
         }
         
-        function verifyPKCE() {
+        function _verifyPKCE() {
             log('🔍 Verifying PKCE implementation...', 'info');
             
             const checks = [];

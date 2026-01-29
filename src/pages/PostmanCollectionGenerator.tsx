@@ -287,13 +287,13 @@ export const PostmanCollectionGenerator: React.FC = () => {
 	const [expandedUseCases, setExpandedUseCases] = useState(false); // Collapsed by default - for Use Cases selection
 
 	const [isGenerating, setIsGenerating] = useState(false);
-	const [validationErrors, setValidationErrors] = useState<Record<string, boolean>>({});
+	const [_validationErrors, setValidationErrors] = useState<Record<string, boolean>>({});
 
 	// Refs for input fields
 	const environmentIdRef = useRef<HTMLInputElement>(null);
 	const clientIdRef = useRef<HTMLInputElement>(null);
-	const clientSecretRef = useRef<HTMLInputElement>(null);
-	const usernameRef = useRef<HTMLInputElement>(null);
+	const _clientSecretRef = useRef<HTMLInputElement>(null);
+	const _usernameRef = useRef<HTMLInputElement>(null);
 
 	// Helper function to find and highlight blank fields
 	const validateAndHighlightFields = (

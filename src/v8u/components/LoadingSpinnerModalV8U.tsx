@@ -56,7 +56,6 @@ const Modal = styled.div<{ $theme: 'blue' | 'green' | 'orange' | 'purple' }>`
 				return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
 			case 'purple':
 				return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-			case 'blue':
 			default:
 				return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
 		}

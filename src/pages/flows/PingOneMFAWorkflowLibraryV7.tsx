@@ -124,7 +124,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 				const envIdMatch = result.issuerUrl.match(
 					/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i
 				);
-				if (envIdMatch && envIdMatch[1]) {
+				if (envIdMatch?.[1]) {
 					const extractedEnvId = envIdMatch[1];
 					console.log(
 						'[PingOneMFAWorkflowLibraryV7] Extracted Environment ID from discovery:',
@@ -1017,365 +1017,349 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 
 			case 1:
 				return (
-					<>
-						<CollapsibleHeader
-							title="Step 11: Enable User MFA"
-							icon={<FiShield />}
-							theme="blue"
-							defaultCollapsed={false}
-						>
-							<InfoBox $variant="info">
-								<FiInfo />
-								<div>
-									<InfoTitle>Enable User MFA Device</InfoTitle>
-									<InfoText>
-										Enable the registered MFA device for the user. API: PUT /api/v1/environments/
-										{'{'}environmentId{'}'}/users/{'{'}userId{'}'}/devices/{'{'}deviceId{'}'}
-									</InfoText>
-								</div>
-							</InfoBox>
+					<CollapsibleHeader
+						title="Step 11: Enable User MFA"
+						icon={<FiShield />}
+						theme="blue"
+						defaultCollapsed={false}
+					>
+						<InfoBox $variant="info">
+							<FiInfo />
+							<div>
+								<InfoTitle>Enable User MFA Device</InfoTitle>
+								<InfoText>
+									Enable the registered MFA device for the user. API: PUT /api/v1/environments/
+									{'{'}environmentId{'}'}/users/{'{'}userId{'}'}/devices/{'{'}deviceId{'}'}
+								</InfoText>
+							</div>
+						</InfoBox>
 
-							<ParameterGrid>
-								<ParameterLabel>User ID:</ParameterLabel>
-								<ParameterValue>
-									<input
-										type="text"
-										value={userId}
-										onChange={(e) => setUserId(e.target.value)}
-										placeholder="User ID"
-										style={{ width: '100%', padding: '0.5rem' }}
-										disabled
-									/>
-								</ParameterValue>
+						<ParameterGrid>
+							<ParameterLabel>User ID:</ParameterLabel>
+							<ParameterValue>
+								<input
+									type="text"
+									value={userId}
+									onChange={(e) => setUserId(e.target.value)}
+									placeholder="User ID"
+									style={{ width: '100%', padding: '0.5rem' }}
+									disabled
+								/>
+							</ParameterValue>
 
-								<ParameterLabel>Device ID:</ParameterLabel>
-								<ParameterValue>
-									<input
-										type="text"
-										value={deviceId}
-										onChange={(e) => setDeviceId(e.target.value)}
-										placeholder="Device ID"
-										style={{ width: '100%', padding: '0.5rem' }}
-										disabled
-									/>
-								</ParameterValue>
-							</ParameterGrid>
+							<ParameterLabel>Device ID:</ParameterLabel>
+							<ParameterValue>
+								<input
+									type="text"
+									value={deviceId}
+									onChange={(e) => setDeviceId(e.target.value)}
+									placeholder="Device ID"
+									style={{ width: '100%', padding: '0.5rem' }}
+									disabled
+								/>
+							</ParameterValue>
+						</ParameterGrid>
 
-							<Button onClick={handleEnableUserMFA} disabled={isLoading || !isStepValid(1)}>
-								{isLoading ? <FiRefreshCw /> : <FiShield />}
-								Enable MFA Device
-							</Button>
+						<Button onClick={handleEnableUserMFA} disabled={isLoading || !isStepValid(1)}>
+							{isLoading ? <FiRefreshCw /> : <FiShield />}
+							Enable MFA Device
+						</Button>
 
-							{(apiResponses[11] as Record<string, unknown>)?.enabled ? (
-								<ResultsSection>
-									<ResultsHeading>Step 11 Response:</ResultsHeading>
-									<JSONHighlighter data={apiResponses[11]} />
-									<InfoBox $variant="success">
-										<FiCheckCircle />
-										<div>
-											<InfoTitle>MFA Device Enabled Successfully</InfoTitle>
-										</div>
-									</InfoBox>
-								</ResultsSection>
-							) : null}
-						</CollapsibleHeader>
-					</>
+						{(apiResponses[11] as Record<string, unknown>)?.enabled ? (
+							<ResultsSection>
+								<ResultsHeading>Step 11 Response:</ResultsHeading>
+								<JSONHighlighter data={apiResponses[11]} />
+								<InfoBox $variant="success">
+									<FiCheckCircle />
+									<div>
+										<InfoTitle>MFA Device Enabled Successfully</InfoTitle>
+									</div>
+								</InfoBox>
+							</ResultsSection>
+						) : null}
+					</CollapsibleHeader>
 				);
 
 			case 2:
 				return (
-					<>
-						<CollapsibleHeader
-							title="Step 12: Send Authorize Request"
-							icon={<FiSend />}
-							theme="blue"
-							defaultCollapsed={false}
-						>
-							<InfoBox $variant="info">
-								<FiInfo />
-								<div>
-									<InfoTitle>Initiate Authorization Code Flow</InfoTitle>
-									<InfoText>
-										Send an authorization request with response_mode=pi.flow to initiate the flow.
-										This returns a flowId that will be used in subsequent steps.
-									</InfoText>
-								</div>
-							</InfoBox>
+					<CollapsibleHeader
+						title="Step 12: Send Authorize Request"
+						icon={<FiSend />}
+						theme="blue"
+						defaultCollapsed={false}
+					>
+						<InfoBox $variant="info">
+							<FiInfo />
+							<div>
+								<InfoTitle>Initiate Authorization Code Flow</InfoTitle>
+								<InfoText>
+									Send an authorization request with response_mode=pi.flow to initiate the flow.
+									This returns a flowId that will be used in subsequent steps.
+								</InfoText>
+							</div>
+						</InfoBox>
 
-							<Button onClick={handleSendAuthorizeRequest} disabled={isLoading}>
-								{isLoading ? <FiRefreshCw /> : <FiSend />}
-								Send Authorize Request
-							</Button>
+						<Button onClick={handleSendAuthorizeRequest} disabled={isLoading}>
+							{isLoading ? <FiRefreshCw /> : <FiSend />}
+							Send Authorize Request
+						</Button>
 
-							{apiResponses[12] && (
-								<ResultsSection>
-									<ResultsHeading>Step 12 Response:</ResultsHeading>
-									<JSONHighlighter data={apiResponses[12]} />
-									{flowId && (
-										<InfoBox $variant="success">
-											<FiCheckCircle />
-											<div>
-												<InfoTitle>Flow ID:</InfoTitle>
-												<InfoText>{flowId}</InfoText>
-											</div>
-										</InfoBox>
-									)}
-								</ResultsSection>
-							)}
-						</CollapsibleHeader>
-					</>
+						{apiResponses[12] && (
+							<ResultsSection>
+								<ResultsHeading>Step 12 Response:</ResultsHeading>
+								<JSONHighlighter data={apiResponses[12]} />
+								{flowId && (
+									<InfoBox $variant="success">
+										<FiCheckCircle />
+										<div>
+											<InfoTitle>Flow ID:</InfoTitle>
+											<InfoText>{flowId}</InfoText>
+										</div>
+									</InfoBox>
+								)}
+							</ResultsSection>
+						)}
+					</CollapsibleHeader>
 				);
 
 			case 3:
 				return (
-					<>
-						<CollapsibleHeader
-							title="Step 13: Get the Flow"
-							icon={<FiPackage />}
-							theme="highlight"
-							defaultCollapsed={false}
-						>
-							<InfoBox $variant="info">
-								<FiInfo />
-								<div>
-									<InfoTitle>Retrieve Flow Details</InfoTitle>
-									<InfoText>
-										Get the current state of the flow from PingOne. This shows what actions are
-										available in the flow.
-									</InfoText>
-								</div>
-							</InfoBox>
+					<CollapsibleHeader
+						title="Step 13: Get the Flow"
+						icon={<FiPackage />}
+						theme="highlight"
+						defaultCollapsed={false}
+					>
+						<InfoBox $variant="info">
+							<FiInfo />
+							<div>
+								<InfoTitle>Retrieve Flow Details</InfoTitle>
+								<InfoText>
+									Get the current state of the flow from PingOne. This shows what actions are
+									available in the flow.
+								</InfoText>
+							</div>
+						</InfoBox>
 
-							<Button onClick={handleGetFlow} disabled={isLoading}>
-								{isLoading ? <FiRefreshCw /> : <FiPackage />}
-								Get Flow
-							</Button>
+						<Button onClick={handleGetFlow} disabled={isLoading}>
+							{isLoading ? <FiRefreshCw /> : <FiPackage />}
+							Get Flow
+						</Button>
 
-							{apiResponses[13] && (
-								<ResultsSection>
-									<ResultsHeading>Step 13 Response:</ResultsHeading>
-									<JSONHighlighter data={apiResponses[13]} />
-								</ResultsSection>
-							)}
-						</CollapsibleHeader>
-					</>
+						{apiResponses[13] && (
+							<ResultsSection>
+								<ResultsHeading>Step 13 Response:</ResultsHeading>
+								<JSONHighlighter data={apiResponses[13]} />
+							</ResultsSection>
+						)}
+					</CollapsibleHeader>
 				);
 
 			case 4:
 				return (
-					<>
-						<CollapsibleHeader
-							title="Step 14: Submit Login Credentials"
-							icon={<FiUser />}
-							theme="blue"
-							defaultCollapsed={false}
+					<CollapsibleHeader
+						title="Step 14: Submit Login Credentials"
+						icon={<FiUser />}
+						theme="blue"
+						defaultCollapsed={false}
+					>
+						<InfoBox $variant="info">
+							<FiInfo />
+							<div>
+								<InfoTitle>Authenticate with Username/Password</InfoTitle>
+								<InfoText>
+									Submit the user's login credentials to authenticate. This step advances the flow
+									to the MFA challenge.
+								</InfoText>
+							</div>
+						</InfoBox>
+
+						<ParameterGrid>
+							<ParameterLabel>Username:</ParameterLabel>
+							<ParameterValue>
+								<input
+									type="text"
+									value={username}
+									onChange={(e) => setUsername(e.target.value)}
+									placeholder="Username"
+									style={{ width: '100%', padding: '0.5rem' }}
+								/>
+							</ParameterValue>
+
+							<ParameterLabel>Password:</ParameterLabel>
+							<ParameterValue>
+								<input
+									type="password"
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
+									placeholder="Password"
+									style={{ width: '100%', padding: '0.5rem' }}
+								/>
+							</ParameterValue>
+						</ParameterGrid>
+
+						<Button
+							onClick={handleSubmitLoginCredentials}
+							disabled={isLoading || !username || !password}
 						>
-							<InfoBox $variant="info">
-								<FiInfo />
-								<div>
-									<InfoTitle>Authenticate with Username/Password</InfoTitle>
-									<InfoText>
-										Submit the user's login credentials to authenticate. This step advances the flow
-										to the MFA challenge.
-									</InfoText>
-								</div>
-							</InfoBox>
+							{isLoading ? <FiRefreshCw /> : <FiUser />}
+							Submit Login Credentials
+						</Button>
 
-							<ParameterGrid>
-								<ParameterLabel>Username:</ParameterLabel>
-								<ParameterValue>
-									<input
-										type="text"
-										value={username}
-										onChange={(e) => setUsername(e.target.value)}
-										placeholder="Username"
-										style={{ width: '100%', padding: '0.5rem' }}
-									/>
-								</ParameterValue>
-
-								<ParameterLabel>Password:</ParameterLabel>
-								<ParameterValue>
-									<input
-										type="password"
-										value={password}
-										onChange={(e) => setPassword(e.target.value)}
-										placeholder="Password"
-										style={{ width: '100%', padding: '0.5rem' }}
-									/>
-								</ParameterValue>
-							</ParameterGrid>
-
-							<Button
-								onClick={handleSubmitLoginCredentials}
-								disabled={isLoading || !username || !password}
-							>
-								{isLoading ? <FiRefreshCw /> : <FiUser />}
-								Submit Login Credentials
-							</Button>
-
-							{apiResponses[14] && (
-								<ResultsSection>
-									<ResultsHeading>Step 14 Response:</ResultsHeading>
-									<JSONHighlighter data={apiResponses[14]} />
-								</ResultsSection>
-							)}
-						</CollapsibleHeader>
-					</>
+						{apiResponses[14] && (
+							<ResultsSection>
+								<ResultsHeading>Step 14 Response:</ResultsHeading>
+								<JSONHighlighter data={apiResponses[14]} />
+							</ResultsSection>
+						)}
+					</CollapsibleHeader>
 				);
 
 			case 5:
 				return (
-					<>
-						<CollapsibleHeader
-							title="Step 15: Submit MFA Credentials"
-							icon={<FiSmartphone />}
-							theme="blue"
-							defaultCollapsed={false}
-						>
-							<InfoBox $variant="info">
-								<FiInfo />
-								<div>
-									<InfoTitle>Complete MFA Challenge</InfoTitle>
-									<InfoText>
-										Submit the MFA code received via SMS to complete the MFA challenge.
-									</InfoText>
-								</div>
-							</InfoBox>
+					<CollapsibleHeader
+						title="Step 15: Submit MFA Credentials"
+						icon={<FiSmartphone />}
+						theme="blue"
+						defaultCollapsed={false}
+					>
+						<InfoBox $variant="info">
+							<FiInfo />
+							<div>
+								<InfoTitle>Complete MFA Challenge</InfoTitle>
+								<InfoText>
+									Submit the MFA code received via SMS to complete the MFA challenge.
+								</InfoText>
+							</div>
+						</InfoBox>
 
-							<ParameterGrid>
-								<ParameterLabel>MFA Code:</ParameterLabel>
-								<ParameterValue>
-									<input
-										type="text"
-										value={mfaCode}
-										onChange={(e) => setMfaCode(e.target.value)}
-										placeholder="Enter MFA code from SMS"
-										style={{ width: '100%', padding: '0.5rem' }}
-									/>
-								</ParameterValue>
-							</ParameterGrid>
+						<ParameterGrid>
+							<ParameterLabel>MFA Code:</ParameterLabel>
+							<ParameterValue>
+								<input
+									type="text"
+									value={mfaCode}
+									onChange={(e) => setMfaCode(e.target.value)}
+									placeholder="Enter MFA code from SMS"
+									style={{ width: '100%', padding: '0.5rem' }}
+								/>
+							</ParameterValue>
+						</ParameterGrid>
 
-							<Button onClick={handleSubmitMFACredentials} disabled={isLoading || !mfaCode}>
-								{isLoading ? <FiRefreshCw /> : <FiSmartphone />}
-								Submit MFA Credentials
-							</Button>
+						<Button onClick={handleSubmitMFACredentials} disabled={isLoading || !mfaCode}>
+							{isLoading ? <FiRefreshCw /> : <FiSmartphone />}
+							Submit MFA Credentials
+						</Button>
 
-							{apiResponses[15] && (
-								<ResultsSection>
-									<ResultsHeading>Step 15 Response:</ResultsHeading>
-									<JSONHighlighter data={apiResponses[15]} />
-								</ResultsSection>
-							)}
-						</CollapsibleHeader>
-					</>
+						{apiResponses[15] && (
+							<ResultsSection>
+								<ResultsHeading>Step 15 Response:</ResultsHeading>
+								<JSONHighlighter data={apiResponses[15]} />
+							</ResultsSection>
+						)}
+					</CollapsibleHeader>
 				);
 
 			case 6:
 				return (
-					<>
-						<CollapsibleHeader
-							title="Step 16: Call Resume Endpoint"
-							icon={<FiCheckCircle />}
-							theme="green"
-							defaultCollapsed={false}
-						>
-							<InfoBox $variant="info">
-								<FiInfo />
-								<div>
-									<InfoTitle>Get Authorization Code</InfoTitle>
-									<InfoText>
-										After successful authentication and MFA, call the resume endpoint to get the
-										authorization code.
-									</InfoText>
-								</div>
-							</InfoBox>
+					<CollapsibleHeader
+						title="Step 16: Call Resume Endpoint"
+						icon={<FiCheckCircle />}
+						theme="green"
+						defaultCollapsed={false}
+					>
+						<InfoBox $variant="info">
+							<FiInfo />
+							<div>
+								<InfoTitle>Get Authorization Code</InfoTitle>
+								<InfoText>
+									After successful authentication and MFA, call the resume endpoint to get the
+									authorization code.
+								</InfoText>
+							</div>
+						</InfoBox>
 
-							<Button onClick={handleCallResumeEndpoint} disabled={isLoading}>
-								{isLoading ? <FiRefreshCw /> : <FiCheckCircle />}
-								Call Resume Endpoint
-							</Button>
+						<Button onClick={handleCallResumeEndpoint} disabled={isLoading}>
+							{isLoading ? <FiRefreshCw /> : <FiCheckCircle />}
+							Call Resume Endpoint
+						</Button>
 
-							{apiResponses[16] && (
-								<ResultsSection>
-									<ResultsHeading>Step 16 Response:</ResultsHeading>
-									<JSONHighlighter data={apiResponses[16]} />
-									{authorizationCode && (
-										<InfoBox $variant="success">
-											<FiCheckCircle />
-											<div>
-												<InfoTitle>Authorization Code:</InfoTitle>
-												<InfoText>{String(authorizationCode)}</InfoText>
-											</div>
-										</InfoBox>
-									)}
-								</ResultsSection>
-							)}
-						</CollapsibleHeader>
-					</>
+						{apiResponses[16] && (
+							<ResultsSection>
+								<ResultsHeading>Step 16 Response:</ResultsHeading>
+								<JSONHighlighter data={apiResponses[16]} />
+								{authorizationCode && (
+									<InfoBox $variant="success">
+										<FiCheckCircle />
+										<div>
+											<InfoTitle>Authorization Code:</InfoTitle>
+											<InfoText>{String(authorizationCode)}</InfoText>
+										</div>
+									</InfoBox>
+								)}
+							</ResultsSection>
+						)}
+					</CollapsibleHeader>
 				);
 
 			case 7:
 				return (
-					<>
-						<CollapsibleHeader
-							title="Step 17: Generate Access Token"
-							icon={<FiKey />}
-							theme="blue"
-							defaultCollapsed={false}
-						>
-							<InfoBox $variant="info">
-								<FiInfo />
-								<div>
-									<InfoTitle>Exchange Authorization Code for Tokens</InfoTitle>
-									<InfoText>
-										Exchange the authorization code for access token, refresh token, and ID token.
-									</InfoText>
-								</div>
-							</InfoBox>
+					<CollapsibleHeader
+						title="Step 17: Generate Access Token"
+						icon={<FiKey />}
+						theme="blue"
+						defaultCollapsed={false}
+					>
+						<InfoBox $variant="info">
+							<FiInfo />
+							<div>
+								<InfoTitle>Exchange Authorization Code for Tokens</InfoTitle>
+								<InfoText>
+									Exchange the authorization code for access token, refresh token, and ID token.
+								</InfoText>
+							</div>
+						</InfoBox>
 
-							<Button onClick={handleGenerateAccessToken} disabled={isLoading}>
-								{isLoading ? <FiRefreshCw /> : <FiKey />}
-								Generate Access Token
-							</Button>
+						<Button onClick={handleGenerateAccessToken} disabled={isLoading}>
+							{isLoading ? <FiRefreshCw /> : <FiKey />}
+							Generate Access Token
+						</Button>
 
-							{apiResponses[17] && (
-								<ResultsSection>
-									<ResultsHeading>Step 17 Response:</ResultsHeading>
-									<JSONHighlighter data={apiResponses[17]} />
-								</ResultsSection>
-							)}
-						</CollapsibleHeader>
-					</>
+						{apiResponses[17] && (
+							<ResultsSection>
+								<ResultsHeading>Step 17 Response:</ResultsHeading>
+								<JSONHighlighter data={apiResponses[17]} />
+							</ResultsSection>
+						)}
+					</CollapsibleHeader>
 				);
 
 			case 8:
 				return (
-					<>
-						<CollapsibleHeader
-							title="Step 18-20: Flow Complete"
-							icon={<FiCheckCircle />}
-							theme="green"
-							defaultCollapsed={false}
-						>
-							<InfoBox $variant="success">
-								<FiCheckCircle />
-								<div>
-									<InfoTitle>Flow Completed Successfully</InfoTitle>
-									<InfoText>
-										The authorization code flow with MFA has been completed successfully. All tokens
-										have been received.
-									</InfoText>
-								</div>
-							</InfoBox>
+					<CollapsibleHeader
+						title="Step 18-20: Flow Complete"
+						icon={<FiCheckCircle />}
+						theme="green"
+						defaultCollapsed={false}
+					>
+						<InfoBox $variant="success">
+							<FiCheckCircle />
+							<div>
+								<InfoTitle>Flow Completed Successfully</InfoTitle>
+								<InfoText>
+									The authorization code flow with MFA has been completed successfully. All tokens
+									have been received.
+								</InfoText>
+							</div>
+						</InfoBox>
 
-							{tokens && (
-								<ResultsSection>
-									<ResultsHeading>Received Tokens:</ResultsHeading>
-									<JSONHighlighter data={tokens} />
-								</ResultsSection>
-							)}
-						</CollapsibleHeader>
-					</>
+						{tokens && (
+							<ResultsSection>
+								<ResultsHeading>Received Tokens:</ResultsHeading>
+								<JSONHighlighter data={tokens} />
+							</ResultsSection>
+						)}
+					</CollapsibleHeader>
 				);
 
 			default:
@@ -1399,6 +1383,21 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 		handleSubmitMFACredentials,
 		handleCallResumeEndpoint,
 		handleGenerateAccessToken,
+		deviceSelectionMode,
+		existingDevices.length,
+		existingDevices.map,
+		handleCredentialsChange,
+		handleDiscoveryComplete,
+		handleFetchExistingDevices,
+		handleRegisterMobilePhone,
+		handleSelectExistingDevice,
+		isLoadingDevices,
+		mfaCode,
+		password,
+		phoneNumber,
+		selectedExistingDeviceId,
+		username,
+		workerToken,
 	]);
 
 	return (

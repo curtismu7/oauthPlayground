@@ -819,7 +819,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 										// #region agent log
 										// #endregion
 										window.dispatchEvent(new Event('workerTokenUpdated'));
-										const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										const _newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 										// #region agent log
 										// #endregion
 										toastV8.success('Worker token removed');
@@ -1388,6 +1388,10 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		fido2PoliciesError,
 		fetchFido2Policies,
 		location,
+		locationState?.deviceAuthPolicyId, // Navigate to MFA config page with return path in state
+		navigate,
+		showTokenAtEnd,
+		silentApiRetrieval,
 	]);
 
 	// Ref to store pending trigger update (to avoid setState during render)
@@ -1489,6 +1493,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		isConfigured,
 		deviceType,
 		controller,
+		deviceLoadTrigger,
+		deviceSelection.existingDevices.length,
+		deviceSelection.loadingDevices,
 	]);
 
 	// Effect to handle auto-showing registration form when configured (moved from render to avoid setState during render)
@@ -2684,7 +2691,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				</div>
 			);
 		};
-	}, [navigate, isAuthenticating, assertionError, setIsAuthenticating, setAssertionError]);
+	}, [navigate, isAuthenticating, assertionError]);
 
 	// Step 3: Success screen (FIDO2 doesn't need OTP validation)
 	// Memoize renderStep3 to ensure stable function reference

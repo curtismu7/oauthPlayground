@@ -12,11 +12,8 @@ import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay'
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedPromptSelector, { PromptValue } from '../../components/EnhancedPromptSelector';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import LocalesParameterInput from '../../components/LocalesParameterInput';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
-import PingOneApplicationConfig, {
-	type PingOneApplicationState,
-} from '../../components/PingOneApplicationConfig';
+import { type PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import ResourceParameterInput from '../../components/ResourceParameterInput';
 import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
@@ -35,7 +32,6 @@ import {
 	FiChevronDown,
 	FiClock,
 	FiCode,
-	FiCopy,
 	FiExternalLink,
 	FiGlobe,
 	FiInfo,
@@ -46,15 +42,12 @@ import {
 } from '../../services/commonImportsService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { CopyButtonService } from '../../services/copyButtonService';
-import { validateForStep } from '../../services/credentialsValidationService';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
 // Import shared services
 import { FlowConfigurationService } from '../../services/flowConfigurationService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowLayoutService } from '../../services/flowLayoutService';
-import { getFlowSequence } from '../../services/flowSequenceService';
-import FlowStateService from '../../services/flowStateService';
 import { FlowStepNavigationService } from '../../services/flowStepNavigationService';
 import { FlowUIService } from '../../services/flowUIService';
 import { ImplicitFlowSharedService } from '../../services/implicitFlowSharedService';
@@ -64,10 +57,7 @@ import {
 	IntrospectionApiCallData,
 	TokenIntrospectionService,
 } from '../../services/tokenIntrospectionService';
-import { UISettingsService } from '../../services/uiSettingsService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Import extracted styles and config
@@ -140,8 +130,6 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 
 import {
 	DEFAULT_APP_CONFIG,
-	FLOW_TYPE,
-	INTRO_SECTION_KEYS,
 	type IntroSectionKey,
 	STEP_METADATA,
 } from './config/OIDCImplicitFlow.config';
@@ -217,7 +205,7 @@ const OIDCImplicitFlowV6: React.FC = () => {
 			controller.setCredentials(updated);
 			setCredentials(updated);
 		},
-		[setResponseModeInternal, controller, setCredentials]
+		[setResponseModeInternal, controller]
 	);
 
 	// Ensure page starts at top
@@ -290,7 +278,7 @@ const OIDCImplicitFlowV6: React.FC = () => {
 			setCurrentStep,
 			setShowSuccessModal
 		);
-	}, []); // Only run once on mount, not when controller changes
+	}, [controller]); // Only run once on mount, not when controller changes
 
 	useEffect(() => {
 		ImplicitFlowSharedService.CredentialsSync.syncCredentials(
@@ -306,11 +294,11 @@ const OIDCImplicitFlowV6: React.FC = () => {
 			credentials,
 			setCredentials
 		);
-	}, [credentials, setCredentials]);
+	}, [credentials]);
 
 	useEffect(() => {
 		ImplicitFlowSharedService.StepRestoration.scrollToTopOnStepChange();
-	}, [currentStep]);
+	}, []);
 
 	// Step completions are now handled by FlowStateService
 
@@ -339,7 +327,7 @@ const OIDCImplicitFlowV6: React.FC = () => {
 		controller.handleRedirectAuthorization();
 	}, [controller]);
 
-	const handleCancelRedirect = useCallback(() => {
+	const _handleCancelRedirect = useCallback(() => {
 		setShowRedirectModal(false);
 	}, []);
 
@@ -462,21 +450,15 @@ const OIDCImplicitFlowV6: React.FC = () => {
 		FlowStepNavigationService.createStepNavigationHandlers({
 			currentStep,
 			totalSteps: STEP_METADATA.length,
-			isStepValid: (stepIndex: number) => {
+			isStepValid: (_stepIndex: number) => {
 				// Add step validation logic here if needed
 				return true;
 			},
 		});
 
 	// Create the actual handlers that use setCurrentStep
-	const handleNextStep = useCallback(
-		() => handleNext(setCurrentStep),
-		[handleNext, setCurrentStep]
-	);
-	const handlePrevStep = useCallback(
-		() => handlePrev(setCurrentStep),
-		[handlePrev, setCurrentStep]
-	);
+	const _handleNextStep = useCallback(() => handleNext(setCurrentStep), [handleNext]);
+	const handlePrevStep = useCallback(() => handlePrev(setCurrentStep), [handlePrev]);
 
 	// Override canNavigateNext to include step validation
 	const validatedCanNavigateNext = useCallback(() => {
@@ -1785,6 +1767,13 @@ console.log('Scope:', scope);`}
 		toggleSection,
 		completionCollapsed,
 		introspectionApiCall,
+		audience,
+		claimsRequest,
+		credentials,
+		displayMode,
+		promptValues,
+		resources,
+		setResponseMode,
 	]);
 
 	return (

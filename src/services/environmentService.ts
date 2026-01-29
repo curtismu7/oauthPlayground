@@ -91,9 +91,12 @@ class EnvironmentService {
 	/**
 	 * Set the environment ID
 	 */
-	setEnvironmentId(environmentId: string, options?: { region?: 'us' | 'eu' | 'ap' | 'ca'; customDomain?: string }): void {
+	setEnvironmentId(
+		environmentId: string,
+		options?: { region?: 'us' | 'eu' | 'ap' | 'ca'; customDomain?: string }
+	): void {
 		const trimmedId = environmentId.trim();
-		
+
 		if (!trimmedId) {
 			this.clearEnvironment();
 			return;
@@ -101,13 +104,14 @@ class EnvironmentService {
 
 		const newEnvironment: EnvironmentConfig = {
 			environmentId: trimmedId,
-			region: options?.region || this.currentEnvironment?.region || this.config.defaultRegion || 'us',
+			region:
+				options?.region || this.currentEnvironment?.region || this.config.defaultRegion || 'us',
 			customDomain: options?.customDomain,
 			lastUpdated: Date.now(),
 		};
 
 		this.currentEnvironment = newEnvironment;
-		
+
 		if (this.config.autoSave) {
 			this.saveToStorage();
 		}
@@ -191,7 +195,7 @@ class EnvironmentService {
 	 */
 	clearEnvironment(): void {
 		this.currentEnvironment = null;
-		
+
 		if (this.config.autoSave) {
 			this.saveToStorage();
 		}
@@ -261,7 +265,7 @@ class EnvironmentService {
 		age: string | null;
 	} {
 		const env = this.currentEnvironment;
-		
+
 		return {
 			hasEnvironment: !!env,
 			environmentId: env?.environmentId || '',
@@ -285,7 +289,7 @@ class EnvironmentService {
 	import(configJson: string): boolean {
 		try {
 			const config = JSON.parse(configJson) as Partial<EnvironmentConfig>;
-			
+
 			if (config.environmentId) {
 				this.setEnvironmentId(config.environmentId, {
 					region: config.region,
@@ -293,7 +297,7 @@ class EnvironmentService {
 				});
 				return true;
 			}
-			
+
 			return false;
 		} catch {
 			return false;
@@ -322,7 +326,7 @@ class EnvironmentService {
 	}
 
 	private notifyListeners(): void {
-		this.listeners.forEach(listener => {
+		this.listeners.forEach((listener) => {
 			try {
 				listener(this.currentEnvironment);
 			} catch (error) {
@@ -351,10 +355,14 @@ export const environmentService = EnvironmentService.getInstance();
 export const getEnvironmentId = () => environmentService.getEnvironmentId();
 export const getRegion = () => environmentService.getRegion();
 export const getCustomDomain = () => environmentService.getCustomDomain();
-export const setEnvironmentId = (environmentId: string, options?: { region?: 'us' | 'eu' | 'ap' | 'ca'; customDomain?: string }) => 
-	environmentService.setEnvironmentId(environmentId, options);
-export const setRegion = (region: 'us' | 'eu' | 'ap' | 'ca') => environmentService.setRegion(region);
-export const setCustomDomain = (customDomain: string | undefined) => environmentService.setCustomDomain(customDomain);
+export const setEnvironmentId = (
+	environmentId: string,
+	options?: { region?: 'us' | 'eu' | 'ap' | 'ca'; customDomain?: string }
+) => environmentService.setEnvironmentId(environmentId, options);
+export const setRegion = (region: 'us' | 'eu' | 'ap' | 'ca') =>
+	environmentService.setRegion(region);
+export const setCustomDomain = (customDomain: string | undefined) =>
+	environmentService.setCustomDomain(customDomain);
 export const hasEnvironment = () => environmentService.hasEnvironment();
 export const clearEnvironment = () => environmentService.clearEnvironment();
 
@@ -378,11 +386,14 @@ export const useEnvironment = () => {
 		region: environment?.region || 'us',
 		customDomain: environment?.customDomain,
 		hasEnvironment: !!environment?.environmentId?.trim(),
-		setEnvironmentId: (environmentId: string, options?: { region?: 'us' | 'eu' | 'ap' | 'ca'; customDomain?: string }) => 
-			environmentService.setEnvironmentId(environmentId, options),
+		setEnvironmentId: (
+			environmentId: string,
+			options?: { region?: 'us' | 'eu' | 'ap' | 'ca'; customDomain?: string }
+		) => environmentService.setEnvironmentId(environmentId, options),
 		setRegion: (region: 'us' | 'eu' | 'ap' | 'ca') => environmentService.setRegion(region),
-		setCustomDomain: (customDomain: string | undefined) => environmentService.setCustomDomain(customDomain),
-		updateEnvironment: (updates: Partial<Omit<EnvironmentConfig, 'lastUpdated'>>) => 
+		setCustomDomain: (customDomain: string | undefined) =>
+			environmentService.setCustomDomain(customDomain),
+		updateEnvironment: (updates: Partial<Omit<EnvironmentConfig, 'lastUpdated'>>) =>
 			environmentService.updateEnvironment(updates),
 		clearEnvironment: () => environmentService.clearEnvironment(),
 		getPingOneDomain: () => environmentService.getPingOneDomain(),

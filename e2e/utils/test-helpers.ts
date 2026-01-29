@@ -134,7 +134,7 @@ export class OAuthTestUtils {
 		await expect(accessToken).toBeVisible();
 
 		// Optionally check for refresh token (may not always be present)
-		const refreshToken = page.locator('[data-testid="refresh-token"], .refresh-token');
+		const _refreshToken = page.locator('[data-testid="refresh-token"], .refresh-token');
 		// Note: Refresh token presence depends on the OAuth flow configuration
 	}
 }
@@ -150,11 +150,11 @@ export class MockOAuthServer {
 				status: 200,
 				contentType: 'application/json',
 				body: JSON.stringify({
-					access_token: 'mock_access_token_' + Date.now(),
+					access_token: `mock_access_token_${Date.now()}`,
 					token_type: 'Bearer',
 					expires_in: 3600,
-					id_token: 'mock_id_token_' + Date.now(),
-					refresh_token: 'mock_refresh_token_' + Date.now(),
+					id_token: `mock_id_token_${Date.now()}`,
+					refresh_token: `mock_refresh_token_${Date.now()}`,
 				}),
 			});
 		});
@@ -162,7 +162,7 @@ export class MockOAuthServer {
 		await page.route('**/oauth2/authorize', async (route) => {
 			// Redirect back to callback with authorization code
 			const url = new URL(route.request().url());
-			url.searchParams.set('code', 'mock_authorization_code_' + Date.now());
+			url.searchParams.set('code', `mock_authorization_code_${Date.now()}`);
 			url.searchParams.set('state', url.searchParams.get('state') || 'test_state');
 
 			await route.fulfill({

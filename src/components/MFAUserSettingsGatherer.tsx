@@ -8,7 +8,6 @@ import {
 	FiChevronDown,
 	FiKey,
 	FiLock,
-	FiMail,
 	FiMessageSquare,
 	FiSettings,
 	FiShield,

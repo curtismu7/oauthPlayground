@@ -21,7 +21,7 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; // NEW - Enhanced UI service
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
-import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, TokenType } from './MFATypes';
+import type { DeviceType, TokenType } from './MFATypes';
 
 interface MFAConfigurationStepV8Props extends MFAFlowBaseRenderProps {
 	deviceType: DeviceType;
@@ -216,7 +216,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 					`[⚙️ MFA-CONFIG-STEP-V8] Token validation failed: expected 3 parts, got ${parts.length}`,
 					{
 						tokenLength: cleanToken.length,
-						tokenPreview: cleanToken.substring(0, 50) + '...',
+						tokenPreview: `${cleanToken.substring(0, 50)}...`,
 					}
 				);
 				return 'invalid';
@@ -257,7 +257,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 				// Invalid JWT format
 				console.error(`[⚙️ MFA-CONFIG-STEP-V8] Token validation error:`, error, {
 					tokenLength: cleanToken.length,
-					tokenPreview: cleanToken.substring(0, 50) + '...',
+					tokenPreview: `${cleanToken.substring(0, 50)}...`,
 				});
 				return 'invalid';
 			}
@@ -342,7 +342,13 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 			});
 			setTokenType(credentials.tokenType);
 		}
-	}, [credentials.tokenType, tokenType, registrationFlowType, setCredentials]);
+	}, [
+		credentials.tokenType,
+		tokenType,
+		registrationFlowType,
+		setCredentials,
+		credentials.userToken,
+	]);
 
 	/**
 	 * Sync userToken from auth context → credentials.
@@ -369,7 +375,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 				console.log(`[⚙️ MFA-CONFIG-STEP-V8] Syncing userToken from auth context`, {
 					hasToken: !!authToken,
 					tokenLength: authToken.length,
-					tokenPreview: authToken.substring(0, 20) + '...',
+					tokenPreview: `${authToken.substring(0, 20)}...`,
 					tokenType,
 					registrationFlowType,
 					hasCredentialsToken: !!credentials.userToken,
@@ -613,9 +619,9 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 			const status = validateUserToken(userToken);
 			setUserTokenStatus(status);
 		}
-	}, []); // Only run on mount
+	}, [userToken, userTokenStatus, validateUserToken]); // Only run on mount
 
-	const handleUserTokenChange = (value: string) => {
+	const _handleUserTokenChange = (value: string) => {
 		setUserToken(value);
 		const status = validateUserToken(value);
 		setUserTokenStatus(status);
@@ -687,7 +693,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		};
 	};
 
-	const workerTokenStatusDisplay = getWorkerTokenStatusDisplay();
+	const _workerTokenStatusDisplay = getWorkerTokenStatusDisplay();
 	const userTokenStatusDisplay = getUserTokenStatusDisplay();
 	const isTokenValid = tokenType === 'worker' ? tokenStatus.isValid : userTokenStatus === 'active';
 
@@ -820,78 +826,78 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 				>
 					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
 						{/* Worker Token Button - Always show, but optional when using User Token */}
-								<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-									{/* Worker Token Status Display - Removed */}
+						<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+							{/* Worker Token Status Display - Removed */}
 
-									<button
-										type="button"
-										onClick={async () => {
-											if (tokenStatus.isValid) {
-												// #region agent log
-												// #endregion
-												const { workerTokenServiceV8 } = await import(
-													'@/v8/services/workerTokenServiceV8'
-												);
-												await workerTokenServiceV8.clearToken();
-												// #region agent log
-												// #endregion
-												window.dispatchEvent(new Event('workerTokenUpdated'));
-												const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-												// #region agent log
-												// #endregion
-												toastV8.success('Worker token removed');
-											} else {
-												// Use helper to check silentApiRetrieval before showing modal
-												// Pass current checkbox values to override config (page checkboxes take precedence)
-												// forceShowModal=true because user explicitly clicked the button - always show modal
-												const { handleShowWorkerTokenModal } = await import(
-													'@/v8/utils/workerTokenModalHelperV8'
-												);
-												await handleShowWorkerTokenModal(
-													setShowWorkerTokenModal,
-													undefined,
-													silentApiRetrieval, // Page checkbox value takes precedence
-													showTokenAtEnd, // Page checkbox value takes precedence
-													true, // Force show modal - user clicked button
-													setIsRetrievingWorkerToken
-												);
-											}
-										}}
-										className="token-button"
-										style={{
-											padding: '12px 20px',
-											background: tokenStatus.isValid ? '#10b981' : '#6366f1',
-											color: 'white',
-											border: 'none',
-											borderRadius: '6px',
-											fontSize: '14px',
-											fontWeight: '600',
-											cursor: 'pointer',
-											display: 'flex',
-											alignItems: 'center',
-											gap: '8px',
-											boxShadow: tokenStatus.isValid
-												? '0 2px 4px rgba(16, 185, 129, 0.2)'
-												: '0 2px 4px rgba(59, 130, 246, 0.2)',
-											transition: 'all 0.2s ease',
-										}}
-										onMouseEnter={(e) => {
-											e.currentTarget.style.transform = 'translateY(-1px)';
-											e.currentTarget.style.boxShadow = tokenStatus.isValid
-												? '0 4px 8px rgba(16, 185, 129, 0.3)'
-												: '0 4px 8px rgba(59, 130, 246, 0.3)';
-										}}
-										onMouseLeave={(e) => {
-											e.currentTarget.style.transform = 'translateY(0)';
-											e.currentTarget.style.boxShadow = tokenStatus.isValid
-												? '0 2px 4px rgba(16, 185, 129, 0.2)'
-												: '0 2px 4px rgba(59, 130, 246, 0.2)';
-										}}
-									>
-										<span>🔑</span>
-										<span>Get Worker Token</span>
-									</button>
-								</div>
+							<button
+								type="button"
+								onClick={async () => {
+									if (tokenStatus.isValid) {
+										// #region agent log
+										// #endregion
+										const { workerTokenServiceV8 } = await import(
+											'@/v8/services/workerTokenServiceV8'
+										);
+										await workerTokenServiceV8.clearToken();
+										// #region agent log
+										// #endregion
+										window.dispatchEvent(new Event('workerTokenUpdated'));
+										const _newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										// #region agent log
+										// #endregion
+										toastV8.success('Worker token removed');
+									} else {
+										// Use helper to check silentApiRetrieval before showing modal
+										// Pass current checkbox values to override config (page checkboxes take precedence)
+										// forceShowModal=true because user explicitly clicked the button - always show modal
+										const { handleShowWorkerTokenModal } = await import(
+											'@/v8/utils/workerTokenModalHelperV8'
+										);
+										await handleShowWorkerTokenModal(
+											setShowWorkerTokenModal,
+											undefined,
+											silentApiRetrieval, // Page checkbox value takes precedence
+											showTokenAtEnd, // Page checkbox value takes precedence
+											true, // Force show modal - user clicked button
+											setIsRetrievingWorkerToken
+										);
+									}
+								}}
+								className="token-button"
+								style={{
+									padding: '12px 20px',
+									background: tokenStatus.isValid ? '#10b981' : '#6366f1',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '14px',
+									fontWeight: '600',
+									cursor: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+									boxShadow: tokenStatus.isValid
+										? '0 2px 4px rgba(16, 185, 129, 0.2)'
+										: '0 2px 4px rgba(59, 130, 246, 0.2)',
+									transition: 'all 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.transform = 'translateY(-1px)';
+									e.currentTarget.style.boxShadow = tokenStatus.isValid
+										? '0 4px 8px rgba(16, 185, 129, 0.3)'
+										: '0 4px 8px rgba(59, 130, 246, 0.3)';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.transform = 'translateY(0)';
+									e.currentTarget.style.boxShadow = tokenStatus.isValid
+										? '0 2px 4px rgba(16, 185, 129, 0.2)'
+										: '0 2px 4px rgba(59, 130, 246, 0.2)';
+								}}
+							>
+								<span>🔑</span>
+								<span>Get Worker Token</span>
+							</button>
+						</div>
 
 						{/* Enhanced Worker Token UI Service - Show when worker token is relevant (admin flow or tokenType is worker) */}
 						{(tokenType === 'worker' || registrationFlowType === 'admin') && (
@@ -1101,55 +1107,53 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										)}
 									</>
 								) : (
-									<>
-										{shouldShowLoginButton && (
-											<>
-												<small
-													style={{
-														display: 'block',
-														fontSize: '12px',
-														color: '#6b7280',
-														marginBottom: '10px',
-														lineHeight: '1.5',
-													}}
-												>
-													Click "Login with PingOne" below to authenticate and automatically obtain
-													your access token
-												</small>
-												<button
-													type="button"
-													onClick={() => setShowUserLoginModal(true)}
-													style={{
-														padding: '10px 18px',
-														background: '#3b82f6',
-														color: 'white',
-														border: 'none',
-														borderRadius: '6px',
-														fontSize: '13px',
-														fontWeight: '600',
-														cursor: 'pointer',
-														display: 'flex',
-														alignItems: 'center',
-														gap: '8px',
-														boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
-														transition: 'all 0.2s ease',
-														marginBottom: '10px',
-													}}
-													onMouseEnter={(e) => {
-														e.currentTarget.style.transform = 'translateY(-1px)';
-														e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)';
-													}}
-													onMouseLeave={(e) => {
-														e.currentTarget.style.transform = 'translateY(0)';
-														e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
-													}}
-												>
-													<span>🔐</span>
-													<span>Login with PingOne</span>
-												</button>
-											</>
-										)}
-									</>
+									shouldShowLoginButton && (
+										<>
+											<small
+												style={{
+													display: 'block',
+													fontSize: '12px',
+													color: '#6b7280',
+													marginBottom: '10px',
+													lineHeight: '1.5',
+												}}
+											>
+												Click "Login with PingOne" below to authenticate and automatically obtain
+												your access token
+											</small>
+											<button
+												type="button"
+												onClick={() => setShowUserLoginModal(true)}
+												style={{
+													padding: '10px 18px',
+													background: '#3b82f6',
+													color: 'white',
+													border: 'none',
+													borderRadius: '6px',
+													fontSize: '13px',
+													fontWeight: '600',
+													cursor: 'pointer',
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
+													transition: 'all 0.2s ease',
+													marginBottom: '10px',
+												}}
+												onMouseEnter={(e) => {
+													e.currentTarget.style.transform = 'translateY(-1px)';
+													e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)';
+												}}
+												onMouseLeave={(e) => {
+													e.currentTarget.style.transform = 'translateY(0)';
+													e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
+												}}
+											>
+												<span>🔐</span>
+												<span>Login with PingOne</span>
+											</button>
+										</>
+									)
 								)}
 							</div>
 						) : null}
@@ -1169,7 +1173,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										// #region agent log
 										// #endregion
 										window.dispatchEvent(new Event('workerTokenUpdated'));
-										const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										const _newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 										// #region agent log
 										// #endregion
 										toastV8.success('Worker token removed');

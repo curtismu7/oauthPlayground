@@ -14,17 +14,17 @@
  * - Token refresh and validation
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { FiCheck, FiCode, FiDatabase, FiPlay, FiRefreshCw, FiShield, FiX } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiCode, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
 import UserTokenStatusDisplayV8U from '@/v8u/components/UserTokenStatusDisplayV8U';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 // Token monitoring interfaces
 interface TokenStatus {
@@ -142,7 +142,7 @@ const ActionButton = styled.button`
 `;
 
 // Token status data
-const tokenStatuses: TokenStatus[] = [
+const _tokenStatuses: TokenStatus[] = [
 	{
 		id: 'worker-token-status',
 		name: 'Worker Token Status',
@@ -164,7 +164,7 @@ const tokenStatuses: TokenStatus[] = [
 ];
 
 const TokenStatusPageV8U: React.FC = () => {
-	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
+	const [_tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
 		isValid: false,
 		status: 'missing',
 		message: 'Checking...',
@@ -182,7 +182,7 @@ const TokenStatusPageV8U: React.FC = () => {
 		return config.workerToken?.showTokenAtEnd || false;
 	});
 
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [_showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// Update token status on mount and set up interval
 	useEffect(() => {

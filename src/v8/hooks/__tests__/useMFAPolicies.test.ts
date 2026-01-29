@@ -5,10 +5,10 @@
  * @version 3.0.0
  */
 
-import { renderHook, act, waitFor } from '@testing-library/react';
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { useMFAPolicies } from '../useMFAPolicies';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { useMFAPolicies } from '../useMFAPolicies';
 
 // Mock the service
 vi.mock('@/v8/services/mfaServiceV8');

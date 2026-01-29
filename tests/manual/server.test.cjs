@@ -64,7 +64,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Request statistics tracking middleware
-app.use((req, res, next) => {
+app.use((_req, res, next) => {
 	const startTime = process.hrtime.bigint();
 	requestStats.totalRequests += 1;
 	requestStats.activeConnections += 1;

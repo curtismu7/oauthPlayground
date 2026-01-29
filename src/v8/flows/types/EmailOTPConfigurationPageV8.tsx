@@ -18,8 +18,8 @@ import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
+import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -29,11 +29,9 @@ import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationService
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
-import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
 const MODULE_TAG = '[📧 EMAIL-OTP-CONFIG-V8]';
@@ -90,7 +88,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 	const [tokenStatus, setTokenStatus] = useState(
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
 	);
-	
+
 	// Debug: Log token status to help debug button enabling
 	useEffect(() => {
 		console.log('[EmailOTP] Token Status:', {
@@ -100,15 +98,15 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
 				environmentId: credentials.environmentId,
 				username: credentials.username,
-				tokenType: credentials.tokenType
-			}
+				tokenType: credentials.tokenType,
+			},
 		});
-		
+
 		// Debug: Check localStorage directly
 		const storedToken = localStorage.getItem('unified_worker_token');
 		let tokenData = null;
 		let tokenPresent = null;
-		
+
 		if (storedToken) {
 			try {
 				tokenData = JSON.parse(storedToken);
@@ -117,27 +115,27 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 				console.error('[EmailOTP] Failed to parse stored token:', error);
 			}
 		}
-		
+
 		console.log('[EmailOTP] LocalStorage worker token:', {
 			exists: !!storedToken,
 			data: tokenData,
-			tokenPresent: tokenPresent
+			tokenPresent: tokenPresent,
 		});
 	}, [tokenStatus, credentials]);
-	
+
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
-	const [showSettingsModal, setShowSettingsModal] = useState(false);
+	const [_showSettingsModal, _setShowSettingsModal] = useState(false);
 
 	// Worker token settings - Load from config service
-	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+	const [_silentApiRetrieval, _setSilentApiRetrieval] = useState(() => {
 		try {
 			return MFAConfigurationServiceV8.loadConfiguration().workerToken.silentApiRetrieval || false;
 		} catch {
 			return false;
 		}
 	});
-	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+	const [_showTokenAtEnd, _setShowTokenAtEnd] = useState(() => {
 		try {
 			return MFAConfigurationServiceV8.loadConfiguration().workerToken.showTokenAtEnd || true;
 		} catch {
@@ -585,7 +583,6 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 		[navigate, credentials, tokenStatus, registrationFlowType, adminDeviceStatus]
 	);
 
-
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
 			<MFANavigationV8 currentPage="registration" showBackToMain={true} />
@@ -892,7 +889,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 					showRefresh={true}
 					environmentId={credentials.environmentId}
 					onEnvironmentIdUpdate={(envId) => {
-						setCredentials(prev => ({
+						setCredentials((prev) => ({
 							...prev,
 							environmentId: envId,
 						}));
@@ -905,7 +902,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 					<UserLoginSectionV8
 						onTokenUpdated={(token) => {
 							// Update credentials when user token is received
-							setCredentials(prev => {
+							setCredentials((prev) => {
 								const updated = {
 									...prev,
 									userToken: token,
@@ -983,9 +980,9 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 							!credentials.environmentId ||
 							(registrationFlowType === 'admin'
 								? !tokenStatus.token // Admin flow: any worker token enables the button
-								: ((credentials.tokenType || 'worker') === 'worker'
-										? !tokenStatus.isValid // User flow with worker token: must be valid
-										: !credentials.userToken?.trim())) // User flow with user token
+								: (credentials.tokenType || 'worker') === 'worker'
+									? !tokenStatus.isValid // User flow with worker token: must be valid
+									: !credentials.userToken?.trim()) // User flow with user token
 						}
 						style={{
 							padding: '12px 24px',
@@ -996,9 +993,9 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 								credentials.environmentId &&
 								(registrationFlowType === 'admin'
 									? !!tokenStatus.token // Admin flow: any worker token enables the button
-									: ((credentials.tokenType || 'worker') === 'worker'
-											? tokenStatus.isValid // User flow with worker token: must be valid
-											: !!credentials.userToken?.trim())) // User flow with user token
+									: (credentials.tokenType || 'worker') === 'worker'
+										? tokenStatus.isValid // User flow with worker token: must be valid
+										: !!credentials.userToken?.trim()) // User flow with user token
 									? '#8b5cf6'
 									: '#9ca3af',
 							color: 'white',
@@ -1009,9 +1006,9 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 								credentials.environmentId &&
 								(registrationFlowType === 'admin'
 									? !!tokenStatus.token // Admin flow: any worker token enables the button
-									: ((credentials.tokenType || 'worker') === 'worker'
-											? tokenStatus.isValid // User flow with worker token: must be valid
-											: !!credentials.userToken?.trim())) // User flow with user token
+									: (credentials.tokenType || 'worker') === 'worker'
+										? tokenStatus.isValid // User flow with worker token: must be valid
+										: !!credentials.userToken?.trim()) // User flow with user token
 									? 'pointer'
 									: 'not-allowed',
 							display: 'flex',

@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import type { Device, P1MFASDK } from '@/sdk/p1mfa';
+import type { P1MFASDK } from '@/sdk/p1mfa';
 
 interface ResetDevicesHelperProps {
 	sdk: P1MFASDK | null;

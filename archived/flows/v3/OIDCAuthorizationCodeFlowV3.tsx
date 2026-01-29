@@ -385,7 +385,7 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 			console.log('[OIDC-AUTHZ-V3] Skipping authorization modal');
 			handleAuthorizationDirect();
 		}
-	}, [authUrl, handleAuthorizationDirect, uiSettings.showAuthRequestModal]);
+	}, [handleAuthorizationDirect, uiSettings.showAuthRequestModal]);
 
 	// Navigate to Token Management with token
 	const navigateToTokenManagement = useCallback(

@@ -342,7 +342,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			console.warn(`${MODULE_TAG} Backup sync failed (non-critical):`, error);
 		}
 		return false; // Indicates no sync was needed or failed
-	}, [credentials.userToken, credentials.tokenType, setCredentials]);
+	}, [credentials.userToken, credentials.tokenType]);
 
 	// Sync user token from user-login-v8 if available (for user flow)
 	// This handles the case where user logs in after MFA flow has already loaded

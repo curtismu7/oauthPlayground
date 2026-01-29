@@ -31,7 +31,6 @@ import {
 	type FlowId,
 	FlowStorageService,
 } from '../../services/flowStorageService';
-import { UISettingsService } from '../../services/uiSettingsService';
 
 // Styled components
 const Container = styled.div`
@@ -265,7 +264,7 @@ export const AdvancedParametersV6: React.FC<AdvancedParametersV6Props> = ({
 			if (saved.claimsRequest !== undefined)
 				setClaimsRequest(saved.claimsRequest as ClaimsRequestStructure | null);
 		}
-	}, [actualFlowType]);
+	}, [getFlowId]);
 
 	// Save parameters to storage
 	const handleSave = () => {

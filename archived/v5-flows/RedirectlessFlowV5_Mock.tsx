@@ -3,7 +3,6 @@
 import { useCallback, useId, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
-	FiArrowRight,
 	FiBook,
 	FiCheckCircle,
 	FiCode,
@@ -31,14 +30,11 @@ import {
 	ResultsSection,
 	SectionDivider,
 } from '../../components/ResultsPanel';
-import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { useResponseModeIntegration } from '../../services/responseModeIntegrationService';
-import { themeService } from '../../services/themeService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
@@ -85,7 +81,7 @@ const ContentWrapper = styled.div`
 	padding: 0 1rem;
 `;
 
-const Subtitle = styled.p`
+const _Subtitle = styled.p`
 	font-size: 1.125rem;
 	color: var(--color-text-secondary, #4b5563);
 	margin: 0 auto;
@@ -168,7 +164,7 @@ const StepContent = styled.div`
 // [REMOVED] Unused CollapsibleSection - migrated to CollapsibleHeader service
 // [REMOVED] Local collapsible styled component
 
-const CollapsibleTitle = styled.h3`
+const _CollapsibleTitle = styled.h3`
 	font-size: 1rem;
 	font-weight: 600;
 	color: #374151;
@@ -702,7 +698,7 @@ const RedirectlessFlowV5: React.FC = () => {
 		});
 	}, []);
 
-	const renderFlowSummary = useCallback(() => {
+	const _renderFlowSummary = useCallback(() => {
 		const completionConfig = {
 			...FlowCompletionConfigs.authorizationCode,
 			onStartNewFlow: () => {
@@ -1458,8 +1454,6 @@ const RedirectlessFlowV5: React.FC = () => {
 		}
 	}, [
 		currentStep,
-		collapsedSections,
-		toggleSection,
 		controller,
 		handleCopy,
 		handleGeneratePkce,

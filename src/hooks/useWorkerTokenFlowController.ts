@@ -13,7 +13,7 @@ import { useFlowStepManager } from '../utils/flowStepSystem';
 import { safeJsonParse } from '../utils/secureJson';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import type { TokenIntrospectionResponse, WorkerTokenResponse } from '../utils/workerToken';
-import { introspectToken, requestClientCredentialsToken } from '../utils/workerToken';
+import { requestClientCredentialsToken } from '../utils/workerToken';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
 
@@ -236,7 +236,7 @@ export const useWorkerTokenFlowController = (
 					console.log('✅ [useWorkerTokenFlowController] Found saved credentials', {
 						flowKey: persistKey,
 						environmentId: loadedCreds.environmentId,
-						clientId: loadedCreds.clientId?.substring(0, 8) + '...',
+						clientId: `${loadedCreds.clientId?.substring(0, 8)}...`,
 					});
 
 					setCredentials(loadedCreds);
@@ -497,7 +497,7 @@ export const useWorkerTokenFlowController = (
 		} finally {
 			setIsSavingCredentials(false);
 		}
-	}, [credentials]);
+	}, [credentials, flowConfig, persistKey, tokens]);
 
 	const resetFlow = useCallback(() => {
 		console.log('🔄 [useWorkerTokenFlowController] Reset flow called (preserving credentials)');

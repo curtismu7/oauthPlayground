@@ -4,8 +4,8 @@
 // exports of their source modules.
 
 /* eslint-disable no-console */
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const ts = require('typescript');
 
 const projectRoot = path.resolve(__dirname, '..');

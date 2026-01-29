@@ -8,8 +8,6 @@ import {
 	FiCheck,
 	FiCode,
 	FiCopy,
-	FiEye,
-	FiEyeOff,
 	FiKey,
 	FiShield,
 	FiZap,
@@ -375,7 +373,7 @@ export const UltimateTokenDisplayModal: React.FC<UltimateTokenDisplayModalProps>
 		}
 	};
 
-	const maskToken = (token: string) => {
+	const _maskToken = (token: string) => {
 		if (token.length <= 24) return '••••••••••••••••••••';
 		return `${token.substring(0, 12)}${'•'.repeat(20)}${token.substring(token.length - 12)}`;
 	};
@@ -403,7 +401,7 @@ export const UltimateTokenDisplayModal: React.FC<UltimateTokenDisplayModalProps>
 		const token = tokens[tokenKey] as string;
 		if (!token) return null;
 
-		const isMasked = maskedStates[tokenType];
+		const _isMasked = maskedStates[tokenType];
 		const isDecoded = decodedStates[tokenType];
 		const isCopied = copiedStates[tokenType];
 		const isJWT = TokenDisplayService.isJWT(token);

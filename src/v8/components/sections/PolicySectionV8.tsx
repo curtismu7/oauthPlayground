@@ -3,7 +3,7 @@
  * @module v8/components/sections
  * @description Policy Section Component
  * @version 3.0.0
- * 
+ *
  * Extracted from MFAAuthenticationMainPageV8.tsx as part of V3 refactoring.
  * This component handles the policy management UI including:
  * - Policy list display
@@ -113,9 +113,7 @@ export const PolicySectionV8: React.FC<PolicySectionProps> = ({
 						marginBottom: '16px',
 					}}
 				>
-					<p style={{ fontSize: '14px', color: '#991b1b', margin: 0 }}>
-						⚠️ {mfaPolicies.error}
-					</p>
+					<p style={{ fontSize: '14px', color: '#991b1b', margin: 0 }}>⚠️ {mfaPolicies.error}</p>
 				</div>
 			)}
 

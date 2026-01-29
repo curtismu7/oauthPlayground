@@ -1,76 +1,29 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7.tsx
 // V7 Unified OAuth/OIDC Authorization Code Flow - Single implementation supporting both variants
 
-import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { useCallback, useId, useState } from 'react';
 import {
 	FiAlertCircle,
-	FiArrowRight,
 	FiBook,
 	FiCheckCircle,
 	FiChevronDown,
-	FiExternalLink,
 	FiGlobe,
 	FiInfo,
 	FiKey,
 	FiPackage,
-	FiRefreshCw,
-	FiSave,
-	FiSend,
-	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import AudienceParameterInput from '../../components/AudienceParameterInput';
-import ConfigurationBackup from '../../components/ConfigurationBackup';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
-import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
-import {
-	HelperText,
-	ResultsHeading,
-	ResultsSection,
-	SectionDivider,
-} from '../../components/ResultsPanel';
-import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import type { StepCredentials } from '../../components/steps/CommonSteps';
-import TokenIntrospect from '../../components/TokenIntrospect';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import { AuthenticationModalService } from '../../services/authenticationModalService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { CopyButtonService } from '../../services/copyButtonService';
-import EducationalContentService from '../../services/educationalContentService.tsx';
-import {
-	EnhancedApiCallData,
-	EnhancedApiCallDisplayService,
-} from '../../services/enhancedApiCallDisplayService';
-import FlowCredentialService from '../../services/flowCredentialService';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { FlowStorageService } from '../../services/flowStorageService';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import { PKCEGenerationService } from '../../services/pkceGenerationService';
 import { themeService } from '../../services/themeService';
-import {
-	IntrospectionApiCallData,
-	TokenIntrospectionService,
-} from '../../services/tokenIntrospectionService';
-import { UISettingsService } from '../../services/uiSettingsService';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import {
-	DEFAULT_APP_CONFIG,
-	type IntroSectionKey,
-	STEP_METADATA,
-} from './config/OAuthAuthzCodeFlowV6.config';
+import { DEFAULT_APP_CONFIG } from './config/OAuthAuthzCodeFlowV6.config';
 
 type StepCompletionState = Record<number, boolean>;
 type FlowVariant = 'oauth' | 'oidc';
@@ -335,7 +288,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	// Scroll to top on page load
 	usePageScroll({ pageName: 'OAuth Authorization Code Flow V7 - Unified', force: true });
 
-	const manualAuthCodeId = useId();
+	const _manualAuthCodeId = useId();
 	const controller = useAuthorizationCodeFlowController({
 		flowKey: 'oauth-authorization-code-v7',
 		defaultFlowVariant: selectedVariant,
@@ -345,15 +298,15 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(
 		AuthorizationCodeSharedService.StepRestoration.getInitialStep()
 	);
-	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
-	const [emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
+	const [_pingOneConfig, _setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
+	const [_emptyRequiredFields, _setEmptyRequiredFields] = useState<Set<string>>(new Set());
 	const [collapsedSections, setCollapsedSections] = useState(
 		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState()
 	);
-	const [showRedirectModal, setShowRedirectModal] = useState(false);
-	const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
-	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
-	const [copiedField, setCopiedField] = useState<string | null>(null);
+	const [_showRedirectModal, _setShowRedirectModal] = useState(false);
+	const [_showLoginSuccessModal, _setShowLoginSuccessModal] = useState(false);
+	const [_localAuthCode, _setLocalAuthCode] = useState<string | null>(null);
+	const [_copiedField, _setCopiedField] = useState<string | null>(null);
 
 	// V7 Variant Change Handler
 	const handleVariantChange = useCallback(

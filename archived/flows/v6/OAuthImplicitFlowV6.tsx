@@ -45,7 +45,6 @@ import { FlowConfigurationService } from '../../services/flowConfigurationServic
 import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowLayoutService } from '../../services/flowLayoutService';
 import { FlowRedirectUriService } from '../../services/flowRedirectUriService';
-import FlowStateService from '../../services/flowStateService';
 import { FlowStepNavigationService } from '../../services/flowStepNavigationService';
 import { FlowUIService } from '../../services/flowUIService';
 import { ImplicitFlowSharedService } from '../../services/implicitFlowSharedService';
@@ -56,7 +55,6 @@ import {
 	IntrospectionApiCallData,
 	TokenIntrospectionService,
 } from '../../services/tokenIntrospectionService';
-import { UISettingsService } from '../../services/uiSettingsService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
@@ -212,7 +210,7 @@ const OAuthImplicitFlowV6: React.FC = () => {
 			authorizationEndpoint: implicitFlowState.credentials.authorizationEndpoint,
 		};
 		setCredentials(updatedCredentials);
-	}, [implicitFlowState.credentials]);
+	}, [implicitFlowState.credentials, credentials]);
 
 	// Response mode integration using centralized service
 	const responseModeIntegration = useResponseModeIntegration({
@@ -233,7 +231,7 @@ const OAuthImplicitFlowV6: React.FC = () => {
 			const updated = { ...credentials, responseMode: mode };
 			setCredentials(updated);
 		},
-		[setResponseModeInternal, credentials, setCredentials]
+		[setResponseModeInternal, credentials]
 	);
 
 	// Ensure page starts at top
@@ -398,7 +396,7 @@ const OAuthImplicitFlowV6: React.FC = () => {
 
 	useEffect(() => {
 		ImplicitFlowSharedService.StepRestoration.scrollToTopOnStepChange();
-	}, [currentStep]);
+	}, []);
 
 	// Discover audience from OIDC Discovery
 	const discoverAudience = useCallback(async () => {
@@ -439,7 +437,7 @@ const OAuthImplicitFlowV6: React.FC = () => {
 		} finally {
 			setIsDiscoveringAudience(false);
 		}
-	}, [credentials.environmentId]);
+	}, [credentials.environmentId, handleFlowError]);
 
 	// Step completions are now handled by FlowStateService
 
@@ -519,7 +517,7 @@ const OAuthImplicitFlowV6: React.FC = () => {
 				'Failed to generate authorization URL. Please check your credentials and try again.'
 			);
 		}
-	}, [credentials, implicitFlowActions]);
+	}, [credentials, implicitFlowActions, handleFlowError]);
 
 	const handleOpenAuthUrl = useCallback(() => {
 		if (ImplicitFlowSharedService.Authorization.openAuthUrl(implicitFlowState.authorizationUrl)) {
@@ -741,21 +739,15 @@ const OAuthImplicitFlowV6: React.FC = () => {
 		FlowStepNavigationService.createStepNavigationHandlers({
 			currentStep,
 			totalSteps: STEP_METADATA.length,
-			isStepValid: (stepIndex: number) => {
+			isStepValid: (_stepIndex: number) => {
 				// Add step validation logic here if needed
 				return true;
 			},
 		});
 
 	// Create the actual handlers that use setCurrentStep
-	const handleNextStep = useCallback(
-		() => handleNext(setCurrentStep),
-		[handleNext, setCurrentStep]
-	);
-	const handlePrevStep = useCallback(
-		() => handlePrev(setCurrentStep),
-		[handlePrev, setCurrentStep]
-	);
+	const _handleNextStep = useCallback(() => handleNext(setCurrentStep), [handleNext]);
+	const handlePrevStep = useCallback(() => handlePrev(setCurrentStep), [handlePrev]);
 
 	// Override canNavigateNext to include step validation
 	const validatedCanNavigateNext = useCallback(() => {
@@ -2429,6 +2421,15 @@ const tokenResponse = await fetch('https://auth.pingone.com/ENV_ID/as/token', {
 		showApiCallExamples,
 		toggleSection,
 		introspectionApiCall,
+		audience, // Auto-save redirect URI to persist across refreshes
+		configService.saveConfiguration,
+		credentials,
+		discoverAudience,
+		implicitFlowActions.setCredentials,
+		isDiscoveringAudience,
+		promptValues,
+		resources,
+		setResponseMode,
 	]);
 
 	return (

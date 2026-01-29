@@ -5,7 +5,7 @@
  * Tests the send OTP endpoint to verify it works correctly
  */
 
-import http from 'http';
+import http from 'node:http';
 
 // Test configuration
 const TEST_CONFIG = {

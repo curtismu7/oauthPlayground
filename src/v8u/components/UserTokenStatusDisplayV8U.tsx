@@ -14,26 +14,20 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import {
-	FiActivity,
-	FiAlertCircle,
-	FiCheckCircle,
-	FiClock,
 	FiCopy,
 	FiEye,
 	FiEyeOff,
-	FiGlobe,
 	FiInfo,
 	FiKey,
 	FiRefreshCw,
 	FiShield,
 	FiTrash2,
 	FiUser,
-	FiZap,
 } from 'react-icons/fi';
 import styled, { css, keyframes } from 'styled-components';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 // Flow types for dropdowns
 const FLOW_TYPES = [
@@ -130,7 +124,7 @@ const TokenTitle = styled.div`
 	gap: 10px;
 `;
 
-const TokenIcon = styled.div<{
+const _TokenIcon = styled.div<{
 	$variant: 'valid' | 'invalid' | 'warning' | 'info';
 	$tokenType?: string;
 }>`
@@ -417,7 +411,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 		updateTokenStatus();
 		const interval = setInterval(updateTokenStatus, refreshInterval * 1000);
 		return () => clearInterval(interval);
-	}, [refreshInterval]);
+	}, [refreshInterval, updateTokenStatus]);
 
 	const updateTokenStatus = useCallback(async () => {
 		try {
@@ -429,7 +423,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 		} catch (error) {
 			logger.error('[UserTokenStatusDisplayV8U] Failed to update token status:', error);
 		}
-	}, []);
+	}, [checkAccessToken, checkIdToken, checkRefreshToken]);
 
 	const checkAccessToken = async (): Promise<UserTokenInfo | null> => {
 		try {
@@ -525,7 +519,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 		try {
 			await updateTokenStatus();
 			toastV8.success('User token status refreshed');
-		} catch (error) {
+		} catch (_error) {
 			toastV8.error('Failed to refresh token status');
 		} finally {
 			setTimeout(() => setIsRefreshing(false), 500);
@@ -536,7 +530,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 		try {
 			await navigator.clipboard.writeText(token);
 			toastV8.success(`${type} copied to clipboard`);
-		} catch (error) {
+		} catch (_error) {
 			toastV8.error('Failed to copy token');
 		}
 	};
@@ -552,7 +546,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 			localStorage.removeItem(storageKey);
 			await updateTokenStatus();
 			toastV8.success(`${type} cleared`);
-		} catch (error) {
+		} catch (_error) {
 			toastV8.error('Failed to clear token');
 		}
 	};
@@ -572,7 +566,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 		}
 	};
 
-	const getTokenIcon = (type: string) => {
+	const _getTokenIcon = (type: string) => {
 		switch (type) {
 			case 'access_token':
 				return <FiKey />;
@@ -599,7 +593,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 	const maskToken = (token: string) => {
 		if (showTokens[token]) return token;
 		if (token.length <= 16) return '*'.repeat(token.length);
-		return token.substring(0, 8) + '...' + token.substring(token.length - 8);
+		return `${token.substring(0, 8)}...${token.substring(token.length - 8)}`;
 	};
 
 	if (compact) {

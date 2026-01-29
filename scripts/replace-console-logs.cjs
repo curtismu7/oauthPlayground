@@ -5,8 +5,8 @@
  * Usage: node scripts/replace-console-logs.js <file-path>
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const filePath = process.argv[2];
 
@@ -56,38 +56,62 @@ content = content.replace(/console\.info\(/g, () => {
 });
 
 // Remove MODULE_TAG from logger calls (logger adds its own tag)
-content = content.replace(/logger\.(debug|info|warn|error)\(\s*`\$\{MODULE_TAG\}\s*/g, (match, level) => {
-	return `logger.${level}(`;
-});
+content = content.replace(
+	/logger\.(debug|info|warn|error)\(\s*`\$\{MODULE_TAG\}\s*/g,
+	(_match, level) => {
+		return `logger.${level}(`;
+	}
+);
 
 // Clean up emoji and extra formatting in messages
-content = content.replace(/logger\.(debug|info|warn|error)\(\s*`([^`]*?)\s*🔑\s*/g, (match, level, msg) => {
-	return `logger.${level}(\`${msg.trim()}`;
-});
+content = content.replace(
+	/logger\.(debug|info|warn|error)\(\s*`([^`]*?)\s*🔑\s*/g,
+	(_match, level, msg) => {
+		return `logger.${level}(\`${msg.trim()}`;
+	}
+);
 
-content = content.replace(/logger\.(debug|info|warn|error)\(\s*`([^`]*?)\s*⚠️\s*/g, (match, level, msg) => {
-	return `logger.${level}(\`${msg.trim()}`;
-});
+content = content.replace(
+	/logger\.(debug|info|warn|error)\(\s*`([^`]*?)\s*⚠️\s*/g,
+	(_match, level, msg) => {
+		return `logger.${level}(\`${msg.trim()}`;
+	}
+);
 
-content = content.replace(/logger\.(debug|info|warn|error)\(\s*`([^`]*?)\s*❌\s*/g, (match, level, msg) => {
-	return `logger.${level}(\`${msg.trim()}`;
-});
+content = content.replace(
+	/logger\.(debug|info|warn|error)\(\s*`([^`]*?)\s*❌\s*/g,
+	(_match, level, msg) => {
+		return `logger.${level}(\`${msg.trim()}`;
+	}
+);
 
-content = content.replace(/logger\.(debug|info|warn|error)\(\s*`([^`]*?)\s*✅\s*/g, (match, level, msg) => {
-	return `logger.${level}(\`${msg.trim()}`;
-});
+content = content.replace(
+	/logger\.(debug|info|warn|error)\(\s*`([^`]*?)\s*✅\s*/g,
+	(_match, level, msg) => {
+		return `logger.${level}(\`${msg.trim()}`;
+	}
+);
 
-content = content.replace(/logger\.(debug|info|warn|error)\(\s*`([^`]*?)\s*🎯\s*/g, (match, level, msg) => {
-	return `logger.${level}(\`${msg.trim()}`;
-});
+content = content.replace(
+	/logger\.(debug|info|warn|error)\(\s*`([^`]*?)\s*🎯\s*/g,
+	(_match, level, msg) => {
+		return `logger.${level}(\`${msg.trim()}`;
+	}
+);
 
-content = content.replace(/logger\.(debug|info|warn|error)\(\s*`([^`]*?)\s*🔧\s*/g, (match, level, msg) => {
-	return `logger.${level}(\`${msg.trim()}`;
-});
+content = content.replace(
+	/logger\.(debug|info|warn|error)\(\s*`([^`]*?)\s*🔧\s*/g,
+	(_match, level, msg) => {
+		return `logger.${level}(\`${msg.trim()}`;
+	}
+);
 
-content = content.replace(/logger\.(debug|info|warn|error)\(\s*`([^`]*?)\s*🔄\s*/g, (match, level, msg) => {
-	return `logger.${level}(\`${msg.trim()}`;
-});
+content = content.replace(
+	/logger\.(debug|info|warn|error)\(\s*`([^`]*?)\s*🔄\s*/g,
+	(_match, level, msg) => {
+		return `logger.${level}(\`${msg.trim()}`;
+	}
+);
 
 fs.writeFileSync(fullPath, content, 'utf8');
 

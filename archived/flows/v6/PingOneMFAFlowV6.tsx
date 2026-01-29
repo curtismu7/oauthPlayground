@@ -31,10 +31,7 @@ import {
 	FiTablet,
 	FiX,
 } from '../../services/commonImportsService';
-import PingOneMfaService, {
-	type MfaCredentials,
-	type MfaDevice,
-} from '../../services/pingOneMfaService';
+import PingOneMfaService, { type MfaCredentials } from '../../services/pingOneMfaService';
 import { V6FlowService } from '../../services/v6FlowService';
 import { useV6CollapsibleSections } from '../../services/v6StepManagementService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
@@ -653,7 +650,7 @@ const PingOneMFAFlowV6: React.FC = () => {
 	}, [activationCode, activatingDevice, workerToken, credentials]);
 
 	// Load real devices from PingOne API
-	const loadRealDevices = useCallback(async () => {
+	const _loadRealDevices = useCallback(async () => {
 		if (!workerToken || !credentials.environmentId || !credentials.username) {
 			return;
 		}

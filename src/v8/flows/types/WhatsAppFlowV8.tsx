@@ -9,9 +9,9 @@
  * This component reuses SMS patterns but uses WHATSAPP device type.
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { FiShield, FiX } from 'react-icons/fi';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { NicknamePromptModalV8 } from '@/v8/components/NicknamePromptModalV8';
@@ -19,18 +19,16 @@ import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8
 import { WhatsAppNotEnabledModalV8 } from '@/v8/components/WhatsAppNotEnabledModalV8';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
-import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { fetchPhoneFromPingOne } from '@/v8/services/phoneAutoPopulationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { isValidPhoneFormat, validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
+import { isValidPhoneFormat } from '@/v8/utils/phoneValidationV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
-import { getFullPhoneNumber } from '../controllers/WhatsAppFlowController';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
@@ -147,6 +145,7 @@ const WhatsAppDeviceSelectionStep: React.FC<
 		tokenStatus.isValid,
 		username,
 		credentials,
+		tokenStatus,
 	]);
 
 	const authenticateExistingDevice = async (deviceId: string) => {
@@ -327,7 +326,7 @@ const WhatsAppDeviceSelectionStep: React.FC<
 
 // Step 0: Configure Credentials (WhatsApp-specific) - will be wrapped in component
 const createRenderStep0 = (
-	isConfigured: boolean,
+	_isConfigured: boolean,
 	location: ReturnType<typeof useLocation>,
 	credentialsUpdatedRef: React.MutableRefObject<boolean>,
 	registrationFlowType: 'admin' | 'user',
@@ -335,7 +334,7 @@ const createRenderStep0 = (
 	adminDeviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED',
 	setAdminDeviceStatus: (status: 'ACTIVE' | 'ACTIVATION_REQUIRED') => void,
 	step0PropsRef: React.MutableRefObject<MFAFlowBaseRenderProps | null>,
-	setLastTokenType: (tokenType: string | undefined) => void,
+	_setLastTokenType: (tokenType: string | undefined) => void,
 	prevTokenTypeRef: React.MutableRefObject<string | undefined>
 ) => {
 	return (props: MFAFlowBaseRenderProps) => {
@@ -675,7 +674,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 	} = flow;
 
 	// Load credentials from storage for use in modals/components outside of MFAFlowBaseV8
-	const [credentialsForModal, setCredentialsForModal] = useState<MFACredentials>(() => {
+	const [credentialsForModal, _setCredentialsForModal] = useState<MFACredentials>(() => {
 		const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
 			flowKey: 'mfa-flow-v8',
 			flowType: 'oidc',
@@ -713,7 +712,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 	const [userClosedValidationModal, setUserClosedValidationModal] = useState(false);
 
 	// State to track tokenType changes (for triggering effects)
-	const [lastTokenType, setLastTokenType] = useState<string | undefined>(undefined);
+	const [_lastTokenType, setLastTokenType] = useState<string | undefined>(undefined);
 
 	// Ref to track previous tokenType to avoid unnecessary updates
 	const prevTokenTypeRef = React.useRef<string | undefined>(undefined);
@@ -785,7 +784,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			}, 0);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [registrationFlowType]);
+	}, [registrationFlowType, MODULE_TAG]);
 
 	// When tokenType dropdown changes, sync to Registration Flow Type
 	// Moved from createRenderStep0 to component level to fix hooks order issue
@@ -828,7 +827,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			}, 0);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [lastTokenType, registrationFlowType, setRegistrationFlowType]);
+	}, [registrationFlowType, setRegistrationFlowType, MODULE_TAG]);
 
 	// Device loading is now handled inside WhatsAppDeviceSelectionStep component (like SMS)
 
@@ -839,7 +838,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			prevTokenTypeRef.current = currentTokenType;
 			setLastTokenType(currentTokenType);
 		}
-	}, [step0PropsRef.current?.credentials?.tokenType, lastTokenType, setLastTokenType]);
+	}, []);
 
 	// Clear success state when navigating to step 1 (moved to useEffect to avoid render warning)
 	React.useEffect(() => {
@@ -917,10 +916,10 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 		};
 
 		fetchUserPhone();
-	}, []);
+	}, [MODULE_TAG]);
 
 	// Draggable modal hooks
-	const step2ModalDrag = useDraggableModal(showModal);
+	const _step2ModalDrag = useDraggableModal(showModal);
 	const step4ModalDrag = useDraggableModal(showValidationModal);
 
 	// Ref to store nav object for ESC key handler
@@ -1016,7 +1015,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			}
 
 			// Ensure deviceType is set correctly - default to WHATSAPP for WhatsApp flow
-			const currentDeviceType = credentials.deviceType || 'WHATSAPP';
+			const _currentDeviceType = credentials.deviceType || 'WHATSAPP';
 
 			// Handle device registration
 			const handleRegisterDevice = async () => {
@@ -1177,7 +1176,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					// → User must enter OTP to activate device (go directly to validation step)
 					// Note: Admin Flow uses Worker Token and can choose ACTIVE or ACTIVATION_REQUIRED. User Flow uses User Token and always uses ACTIVATION_REQUIRED.
 					const hasDeviceActivateUri = !!deviceActivateUri;
-					const deviceIsActive = actualDeviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
+					const _deviceIsActive = actualDeviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
 
 					if (actualDeviceStatus === 'ACTIVATION_REQUIRED') {
 						// Device requires activation - PingOne automatically sends OTP when status is ACTIVATION_REQUIRED
@@ -1297,7 +1296,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 
 			// Check if device was successfully registered with ACTIVE status
 			// We'll hide the register button and show Next button instead
-			const isDeviceRegisteredActive =
+			const _isDeviceRegisteredActive =
 				(deviceRegisteredActive && deviceRegisteredActive.status === 'ACTIVE') ||
 				(mfaState.deviceId && mfaState.deviceStatus === 'ACTIVE' && !showModal);
 
@@ -1492,8 +1491,6 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 								toastV8.success('Device nickname updated successfully');
 								setShowNicknameModal(false);
 								setPendingDeviceId(null);
-							} catch (error) {
-								throw error;
 							} finally {
 								setIsUpdatingNickname(false);
 							}
@@ -1513,14 +1510,18 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			showNicknameModal,
 			pendingDeviceId,
 			isUpdatingNickname,
-			setShowNicknameModal,
-			setPendingDeviceId,
-			setIsUpdatingNickname,
+			MODULE_TAG,
+			deviceRegisteredActive,
+			setDeviceRegisteredActive,
+			setDeviceSelection,
+			setShowModal,
+			setShowValidationModal,
+			showModal,
 		]
 	);
 
 	// Step 3: Send OTP (using controller) - Renumbered from Step 2
-	const createRenderStep3 = (
+	const _createRenderStep3 = (
 		otpSent: boolean,
 		setOtpSent: (value: boolean) => void,
 		sendError: string | null,
@@ -1815,8 +1816,8 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 		setValidationAttempts: (value: number | ((prev: number) => number)) => void,
 		lastValidationError: string | null,
 		setLastValidationError: (value: string | null) => void,
-		otpState: { otpSent: boolean; sendError: string | null; sendRetryCount: number },
-		setOtpState: (
+		_otpState: { otpSent: boolean; sendError: string | null; sendRetryCount: number },
+		_setOtpState: (
 			state: Partial<typeof otpState> | ((prev: typeof otpState) => Partial<typeof otpState>)
 		) => void
 	) => {

@@ -1,28 +1,8 @@
 // src/pages/flows/MFALoginHintFlowV7.tsx
 // MFA-Only Flow Using Login Hint Token - Based on PingOne Workflow Library
 
-import { useCallback, useEffect, useId, useMemo, useState } from 'react';
-import {
-	FiAlertCircle,
-	FiArrowRight,
-	FiBook,
-	FiCheckCircle,
-	FiChevronDown,
-	FiCode,
-	FiExternalLink,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiLock,
-	FiLogOut,
-	FiPackage,
-	FiRefreshCw,
-	FiSend,
-	FiSettings,
-	FiShield,
-	FiSmartphone,
-	FiUser,
-} from 'react-icons/fi';
+import { useCallback, useEffect, useState } from 'react';
+import { FiCheckCircle, FiKey, FiSettings, FiShield, FiSmartphone, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 import { HelperText } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';

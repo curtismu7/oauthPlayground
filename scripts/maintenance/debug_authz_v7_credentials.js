@@ -45,7 +45,7 @@ const checkCredentials = () => {
         clientId: data.credentials?.clientId ? `${data.credentials.clientId.substring(0, 8)}...` : 'none',
         environmentId: data.credentials?.environmentId || 'none'
       });
-    } catch (e) {
+    } catch (_e) {
       console.log(`${key}: (parse error)`);
     }
   });

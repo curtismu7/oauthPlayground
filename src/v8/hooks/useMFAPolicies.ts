@@ -3,7 +3,7 @@
  * @module v8/hooks
  * @description Custom hook for managing MFA device authentication policies
  * @version 3.0.0
- * 
+ *
  * Extracted from MFAAuthenticationMainPageV8.tsx as part of V3 refactoring.
  * Centralizes all policy-related logic including:
  * - Loading device authentication policies
@@ -14,8 +14,8 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 
 export interface UseMFAPoliciesConfig {
 	/** Environment ID for policy queries */
@@ -95,7 +95,9 @@ export const useMFAPolicies = (config: UseMFAPoliciesConfig = {}): UseMFAPolicie
 			lastFetchedEnvIdRef.current = envId;
 			setPolicies(loadedPolicies);
 
-			console.log(`${MODULE_TAG} Loaded ${loadedPolicies.length} policies for environment ${envId}`);
+			console.log(
+				`${MODULE_TAG} Loaded ${loadedPolicies.length} policies for environment ${envId}`
+			);
 
 			return loadedPolicies;
 		} catch (err) {
@@ -163,7 +165,7 @@ export const useMFAPolicies = (config: UseMFAPoliciesConfig = {}): UseMFAPolicie
 	// Computed values
 	const hasPolicies = policies.length > 0;
 	const policyCount = policies.length;
-	
+
 	// Find selected policy
 	const selectedPolicy = selectedPolicyId
 		? policies.find((p) => p.id === selectedPolicyId) || null

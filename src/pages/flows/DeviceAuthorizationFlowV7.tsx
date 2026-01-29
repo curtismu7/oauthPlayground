@@ -3375,7 +3375,13 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								}}
 							>
 								<div
-									style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '1rem',
+										flexWrap: 'wrap',
+										justifyContent: 'center',
+									}}
 								>
 									<Button
 										onClick={handleRequestDeviceCode}
@@ -3963,7 +3969,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 							{/* Polling Control Buttons */}
 							{deviceFlow.deviceCodeData && !deviceFlow.tokens && (
-								<ActionRow style={{ justifyContent: 'center', marginTop: '1.5rem', gap: '0.75rem' }}>
+								<ActionRow
+									style={{ justifyContent: 'center', marginTop: '1.5rem', gap: '0.75rem' }}
+								>
 									{deviceFlow.pollingStatus.isPolling ? (
 										<Button onClick={deviceFlow.stopPolling} $variant="danger">
 											<FiX /> Cancel Polling

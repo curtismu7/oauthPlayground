@@ -3,8 +3,6 @@
 // Used in: OAuthAuthorizationCodeFlowV6 and other V6 flows
 // Purpose: Provides V5-style step layout with consistent styling and navigation
 
-import React from 'react';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import styled from 'styled-components';
 
 export interface StepMetadata {
@@ -181,7 +179,7 @@ export class V5StepperService {
 	}
 
 	// Navigation buttons
-	static getNavigationButton(variant: 'primary' | 'secondary' | 'danger' = 'primary') {
+	static getNavigationButton(_variant: 'primary' | 'secondary' | 'danger' = 'primary') {
 		return styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 			display: inline-flex;
 			align-items: center;

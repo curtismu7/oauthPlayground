@@ -6,9 +6,9 @@
  * Usage: node scripts/validate-postman-api-calls.js
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -157,7 +157,7 @@ function extractAPICalls(content) {
 					.replace(/,\s*]/g, ']') // Remove trailing commas in arrays
 					.replace(/\{\{([^}]+)\}\}/g, '"{{$1}}"'); // Preserve Postman variables
 				body = JSON.parse(jsObjectString);
-			} catch (e) {
+			} catch (_e) {
 				// If parsing fails, keep as string for pattern matching
 				body = bodyString;
 			}

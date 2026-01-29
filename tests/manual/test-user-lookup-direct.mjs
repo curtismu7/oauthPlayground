@@ -40,7 +40,7 @@ async function getWorkerToken() {
 }
 
 async function testUserLookup(identifier, workerToken) {
-	console.log('\n' + '='.repeat(70));
+	console.log(`\n${'='.repeat(70)}`);
 	console.log(`🧪 Testing User Lookup: ${identifier}`);
 	console.log('='.repeat(70));
 
@@ -110,7 +110,7 @@ async function main() {
 	// Test with email
 	await testUserLookup('cmuir@pingone.com', workerToken);
 
-	console.log('\n' + '='.repeat(70));
+	console.log(`\n${'='.repeat(70)}`);
 	console.log('✅ All tests completed');
 	console.log('='.repeat(70));
 }
