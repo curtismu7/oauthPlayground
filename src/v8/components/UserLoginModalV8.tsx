@@ -1384,16 +1384,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									Client ID <span style={{ color: '#ef4444' }}>*</span>
 								</label>
 								{environmentId.trim() && (
-									<div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-										<small
-											style={{
-												fontSize: '11px',
-												color: '#6b7280',
-												whiteSpace: 'nowrap',
-											}}
-										>
-											🔍 Lookup app
-										</small>
+									<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 										<CompactAppPickerV8U
 											environmentId={environmentId}
 											onAppSelected={async (app: DiscoveredApp) => {
@@ -1473,6 +1464,15 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 												}
 											}}
 										/>
+										<small
+											style={{
+												fontSize: '11px',
+												color: '#6b7280',
+												whiteSpace: 'nowrap',
+											}}
+										>
+											🔍 or click to lookup app
+										</small>
 									</div>
 								)}
 							</div>
