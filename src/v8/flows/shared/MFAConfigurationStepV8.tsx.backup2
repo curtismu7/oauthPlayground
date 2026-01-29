@@ -820,6 +820,8 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 				>
 					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
 						{/* Worker Token Button - Always show, but optional when using User Token */}
+						{tokenType === 'worker' ? (
+							<>
 								<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 									{/* Worker Token Status Display - Removed */}
 
@@ -892,6 +894,8 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										<span>Get Worker Token</span>
 									</button>
 								</div>
+							</>
+						) : null}
 
 						{/* Enhanced Worker Token UI Service - Show when worker token is relevant (admin flow or tokenType is worker) */}
 						{(tokenType === 'worker' || registrationFlowType === 'admin') && (
@@ -906,7 +910,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 						)}
 
 						{/* User Token Section */}
-						{registrationFlowType === 'user' ? (
+						{tokenType === 'user' ? (
 							<div style={{ flex: 1, minWidth: '300px' }}>
 								<label
 									htmlFor="mfa-user-token"
