@@ -10,8 +10,9 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FiEye, FiEyeOff, FiInfo } from 'react-icons/fi';
+import { FiDownload, FiEye, FiEyeOff, FiInfo, FiUpload } from 'react-icons/fi';
 import { useLocation, useSearchParams } from 'react-router-dom';
+import { exportImportService } from '@/services/exportImportService';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
@@ -867,6 +868,98 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		},
 		[environmentId, clientId, defaultRedirectUri]
 	);
+
+	// Handle export configuration
+	const handleExportConfiguration = useCallback(() => {
+		if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim() || !redirectUri.trim()) {
+			toastV8.error('Please fill in all required fields before exporting');
+			return;
+		}
+
+		try {
+			const configData = {
+				name: 'User Login Configuration',
+				description: `PingOne OAuth configuration for ${clientId}`,
+				environmentId: environmentId.trim(),
+				clientId: clientId.trim(),
+				clientSecret: clientSecret.trim(),
+				redirectUri: redirectUri.trim(),
+				scopes: scopes.trim(),
+				authMethod: authMethod,
+				tokenEndpointAuthMethod: authMethod,
+				flowType: 'authorization-code',
+				isMfaFlow: isMfaFlow,
+			};
+
+			// Create a simple export format
+			const exportData = {
+				version: '1.0.0',
+				exportedAt: new Date().toISOString(),
+				type: 'user-login-config',
+				configuration: configData,
+				metadata: {
+					name: 'User Login Configuration',
+					description: 'PingOne OAuth User Login Configuration',
+					source: 'user-login-modal',
+					exportedBy: 'PingOne OAuth Playground',
+				},
+			};
+
+			// Create and download file
+			const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `user-login-config-${new Date().toISOString().split('T')[0]}.json`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			URL.revokeObjectURL(url);
+
+			toastV8.success('Configuration exported successfully!');
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to export configuration:`, error);
+			toastV8.error('Failed to export configuration');
+		}
+	}, [environmentId, clientId, clientSecret, redirectUri, scopes, authMethod, isMfaFlow]);
+
+	// Handle import configuration
+	const handleImportConfiguration = useCallback(async () => {
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = '.json';
+		input.onchange = async (event) => {
+			const file = (event.target as HTMLInputElement).files?.[0];
+			if (!file) return;
+
+			try {
+				const text = await file.text();
+				const data = JSON.parse(text);
+
+				// Validate basic structure
+				if (!data.configuration) {
+					toastV8.error('Invalid configuration file format');
+					return;
+				}
+
+				const config = data.configuration;
+
+				// Import the configuration
+				if (config.environmentId) setEnvironmentId(config.environmentId);
+				if (config.clientId) setClientId(config.clientId);
+				if (config.clientSecret) setClientSecret(config.clientSecret);
+				if (config.redirectUri) setRedirectUri(config.redirectUri);
+				if (config.scopes) setScopes(config.scopes);
+				if (config.authMethod) setAuthMethod(config.authMethod);
+
+				toastV8.success('Configuration imported successfully!');
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to import configuration:`, error);
+				toastV8.error('Failed to import configuration. Please check the file format.');
+			}
+		};
+		input.click();
+	}, []);
 
 	// Handle saving credentials without logging in
 	const handleSaveCredentials = useCallback(() => {
@@ -1892,29 +1985,102 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					<div
 						style={{
 							display: 'flex',
-							gap: '12px',
+							flexWrap: 'wrap',
+							gap: '8px',
 							marginTop: '24px',
 							paddingTop: '20px',
 							borderTop: '1px solid #e5e7eb',
 						}}
 					>
+						{/* Export Button */}
+						<button
+							type="button"
+							onClick={handleExportConfiguration}
+							disabled={
+								!environmentId.trim() ||
+								!clientId.trim() ||
+								!clientSecret.trim() ||
+								!redirectUri.trim()
+							}
+							style={{
+								padding: '8px 12px',
+								background:
+									!environmentId.trim() ||
+									!clientId.trim() ||
+									!clientSecret.trim() ||
+									!redirectUri.trim()
+										? '#d1d5db'
+										: '#6366f1',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								fontSize: '12px',
+								fontWeight: '600',
+								cursor:
+									!environmentId.trim() ||
+									!clientId.trim() ||
+									!clientSecret.trim() ||
+									!redirectUri.trim()
+										? 'not-allowed'
+										: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								gap: '4px',
+								minWidth: '80px',
+							}}
+							title="Export configuration to JSON file"
+						>
+							<FiDownload size={14} />
+							Export
+						</button>
+
+						{/* Import Button */}
+						<button
+							type="button"
+							onClick={handleImportConfiguration}
+							style={{
+								padding: '8px 12px',
+								background: '#8b5cf6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								fontSize: '12px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								gap: '4px',
+								minWidth: '80px',
+							}}
+							title="Import configuration from JSON file"
+						>
+							<FiUpload size={14} />
+							Import
+						</button>
+
+						{/* Cancel Button */}
 						<button
 							type="button"
 							onClick={onClose}
 							style={{
 								flex: 1,
-								padding: '12px 20px',
+								padding: '8px 12px',
 								background: '#f3f4f6',
 								color: '#374151',
 								border: 'none',
 								borderRadius: '6px',
-								fontSize: '14px',
+								fontSize: '12px',
 								fontWeight: '600',
 								cursor: 'pointer',
+								minWidth: '60px',
 							}}
 						>
 							Cancel
 						</button>
+
+						{/* Save Button */}
 						<button
 							type="button"
 							onClick={handleSaveCredentials}
@@ -1926,7 +2092,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								!redirectUri.trim()
 							}
 							style={{
-								padding: '12px 20px',
+								padding: '8px 12px',
 								background:
 									isSaving ||
 									!environmentId.trim() ||
@@ -1938,7 +2104,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								color: 'white',
 								border: 'none',
 								borderRadius: '6px',
-								fontSize: '14px',
+								fontSize: '12px',
 								fontWeight: '600',
 								cursor:
 									isSaving ||
@@ -1951,14 +2117,14 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								display: 'flex',
 								alignItems: 'center',
 								justifyContent: 'center',
-								gap: '8px',
-								minWidth: '140px',
+								gap: '4px',
+								minWidth: '60px',
 							}}
 						>
 							{isSaving ? (
 								<>
 									<span>⏳</span>
-									<span>Saving...</span>
+									<span>Saving</span>
 								</>
 							) : (
 								<>
@@ -1967,6 +2133,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								</>
 							)}
 						</button>
+
+						{/* Login Button */}
 						<button
 							type="button"
 							onClick={handleLogin}
@@ -1979,8 +2147,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								!redirectUri.trim()
 							}
 							style={{
-								flex: 1,
-								padding: '12px 20px',
+								flex: 2,
+								padding: '8px 12px',
 								background:
 									isRedirecting ||
 									isProcessingCallback ||
@@ -1993,7 +2161,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								color: 'white',
 								border: 'none',
 								borderRadius: '6px',
-								fontSize: '14px',
+								fontSize: '12px',
 								fontWeight: '600',
 								cursor:
 									isRedirecting ||
@@ -2007,18 +2175,19 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								display: 'flex',
 								alignItems: 'center',
 								justifyContent: 'center',
-								gap: '8px',
+								gap: '4px',
+								minWidth: '100px',
 							}}
 						>
 							{isRedirecting || isProcessingCallback ? (
 								<>
 									<span>⏳</span>
-									<span>{isRedirecting ? 'Redirecting...' : 'Processing authentication...'}</span>
+									<span>{isRedirecting ? 'Redirecting' : 'Processing'}</span>
 								</>
 							) : (
 								<>
 									<span>🔐</span>
-									<span>Login with PingOne</span>
+									<span>Login</span>
 								</>
 							)}
 						</button>
