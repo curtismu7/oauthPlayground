@@ -24,10 +24,10 @@ const API_CACHE_PATTERNS = [
 ];
 
 // PingOne API endpoints to exclude from caching
-const PINGONE_API_EXCLUSIONS = [/api\.pingone\.com/, /auth\.pingone\.com/];
+const _PINGONE_API_EXCLUSIONS = [/api\.pingone\.com/, /auth\.pingone\.com/];
 
 // Cache strategies
-const CACHE_STRATEGIES = {
+const _CACHE_STRATEGIES = {
 	STATIC: 'cache-first',
 	DYNAMIC: 'network-first',
 	API: 'network-first',

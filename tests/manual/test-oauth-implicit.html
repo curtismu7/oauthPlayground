@@ -96,7 +96,7 @@
             testStatus.textContent = 'Testing server connection...';
             
             try {
-                const response = await fetch('http://localhost:3000', {
+                const _response = await fetch('http://localhost:3000', {
                     method: 'HEAD',
                     mode: 'no-cors'
                 });
@@ -144,7 +144,7 @@
             }
         }
         
-        async function runAllTests() {
+        async function _runAllTests() {
             clearResults();
             testStatus.textContent = 'Running all tests...';
             

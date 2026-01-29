@@ -459,7 +459,7 @@ const Login = () => {
 		} else {
 			console.log(' [Login] No saved credentials found in localStorage or credential manager');
 		}
-	}, []);
+	}, [credentials.clientId]);
 
 	const copyToClipboard = async (text: string, id: string) => {
 		try {

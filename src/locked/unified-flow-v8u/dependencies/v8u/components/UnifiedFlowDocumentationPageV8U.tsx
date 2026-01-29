@@ -9,7 +9,6 @@
 
 import React, { useMemo, useState } from 'react';
 import {
-	FiBook,
 	FiChevronDown,
 	FiChevronUp,
 	FiDownload,
@@ -53,7 +52,7 @@ interface DocumentationApiCall {
 export const convertTrackedCallsToDocumentation = (
 	trackedCalls: TrackedApiCall[],
 	flowType: FlowType,
-	specVersion: SpecVersion
+	_specVersion: SpecVersion
 ): DocumentationApiCall[] => {
 	const filteredCalls = trackedCalls.filter(
 		(call) => call.flowType === 'unified' || call.step?.startsWith('unified-')
@@ -130,8 +129,8 @@ export const convertTrackedCallsToDocumentation = (
 /**
  * Get PingOne API documentation URL for a flow type
  */
-const getApiDocsUrlForFlow = (flowType: FlowType): string => {
-	const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
+const getApiDocsUrlForFlow = (_flowType: FlowType): string => {
+	const _baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
 	
 	// #region agent log
 		method: 'POST',
@@ -212,64 +211,64 @@ export const generateUnifiedFlowMarkdown = (
 		timeZoneName: 'short',
 	});
 
-	let md = `# ${title}\n\n`;
-	md += `**Generated:** ${generatedDate}\n\n`;
-	md += `## Overview\n\n`;
-	md += `This document describes the PingOne OAuth 2.0 API calls required for the ${flowTypeLabels[flowType]} flow using ${SpecVersionServiceV8.getSpecLabel(specVersion)}.\n\n`;
+	let _md = `# ${title}\n\n`;
+	_md += `**Generated:** ${generatedDate}\n\n`;
+	_md += `## Overview\n\n`;
+	_md += `This document describes the PingOne OAuth 2.0 API calls required for the ${flowTypeLabels[flowType]} flow using ${SpecVersionServiceV8.getSpecLabel(specVersion)}.\n\n`;
 
 	if (credentials) {
-		md += `## Configuration\n\n`;
-		md += `- **Environment ID:** ${credentials.environmentId || '{environmentId}'}\n`;
-		md += `- **Client ID:** ${credentials.clientId || '{clientId}'}\n`;
+		_md += `## Configuration\n\n`;
+		_md += `- **Environment ID:** ${credentials.environmentId || '{environmentId}'}\n`;
+		_md += `- **Client ID:** ${credentials.clientId || '{clientId}'}\n`;
 		if (credentials.scopes) {
-			md += `- **Scopes:** ${credentials.scopes}\n`;
+			_md += `- **Scopes:** ${credentials.scopes}\n`;
 		}
 		if (credentials.redirectUri) {
-			md += `- **Redirect URI:** ${credentials.redirectUri}\n`;
+			_md += `- **Redirect URI:** ${credentials.redirectUri}\n`;
 		}
-		md += `\n`;
+		_md += `\n`;
 	}
 
-	md += `## API Calls\n\n`;
+	_md += `## API Calls\n\n`;
 
 	apiCalls.forEach((call, index) => {
-		md += `### ${call.step}\n\n`;
-		md += `**${call.method}** \`${call.endpoint}\`\n\n`;
-		md += `${call.description}\n\n`;
+		_md += `### ${call.step}\n\n`;
+		_md += `**${call.method}** \`${call.endpoint}\`\n\n`;
+		_md += `${call.description}\n\n`;
 
 		if (call.notes && call.notes.length > 0) {
-			md += `**Notes:**\n`;
+			_md += `**Notes:**\n`;
 			call.notes.forEach((note) => {
-				md += `- ${note}\n`;
+				_md += `- ${note}\n`;
 			});
-			md += `\n`;
+			_md += `\n`;
 		}
 
 		if (Object.keys(call.requestBody).length > 0) {
-			md += `**Request Body:**\n\n`;
-			md += `\`\`\`json\n`;
-			md += `${JSON.stringify(call.requestBody, null, 2)}\n`;
-			md += `\`\`\`\n\n`;
+			_md += `**Request Body:**\n\n`;
+			_md += `\`\`\`json\n`;
+			_md += `${JSON.stringify(call.requestBody, null, 2)}\n`;
+			_md += `\`\`\`\n\n`;
 		}
 
 		if (Object.keys(call.responseBody).length > 0) {
-			md += `**Response:**\n\n`;
-			md += `\`\`\`json\n`;
-			md += `${JSON.stringify(call.responseBody, null, 2)}\n`;
-			md += `\`\`\`\n\n`;
+			_md += `**Response:**\n\n`;
+			_md += `\`\`\`json\n`;
+			_md += `${JSON.stringify(call.responseBody, null, 2)}\n`;
+			_md += `\`\`\`\n\n`;
 		}
 
 		if (index < apiCalls.length - 1) {
-			md += `---\n\n`;
+			_md += `---\n\n`;
 		}
 	});
 
-	md += `## References\n\n`;
+	_md += `## References\n\n`;
 	
 	// Get flow-specific specification links
-	const flowSpecs = SpecUrlServiceV8.getFlowSpecInfo(flowType);
-	const specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, flowType);
-	const versionSpecs = SpecUrlServiceV8.getSpecUrls(specVersion);
+	const _flowSpecs = SpecUrlServiceV8.getFlowSpecInfo(flowType);
+	const _specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, flowType);
+	const _versionSpecs = SpecUrlServiceV8.getSpecUrls(specVersion);
 	
 	// #region agent log
 		method: 'POST',

@@ -7,7 +7,7 @@ import React, {
 	useReducer,
 } from 'react';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
-import { type ApiCall, TokenMonitoringService } from './tokenMonitoringService';
+import { TokenMonitoringService } from './tokenMonitoringService';
 import { logger } from './unifiedFlowLoggerServiceV8U';
 
 export type ThemePreference = 'light' | 'dark' | 'auto';
@@ -460,7 +460,7 @@ const EnhancedStateProvider = ({ children }: { children: ReactNode }) => {
 		return () => {
 			externalDispatch.current = null;
 		};
-	}, [dispatch]);
+	}, []);
 
 	const actions = useMemo(() => {
 		return {

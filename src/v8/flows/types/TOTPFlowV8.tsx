@@ -18,14 +18,6 @@ import { FiInfo, FiX } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { CollapsibleSectionV8 } from '@/v8/components/shared/CollapsibleSectionV8';
-import {
-	ErrorMessage,
-	InfoMessage,
-	MessageBoxV8,
-	SuccessMessage,
-	WarningMessage,
-} from '@/v8/components/shared/MessageBoxV8';
 import { TOTPExpiredModalV8 } from '@/v8/components/TOTPExpiredModalV8';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
@@ -40,14 +32,11 @@ import {
 	type SendOTPParams,
 } from '@/v8/services/mfaServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
-import { fetchPhoneFromPingOne } from '@/v8/services/phoneAutoPopulationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
-import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
@@ -343,15 +332,15 @@ const createRenderStep0 = (
 	setRegistrationFlowType: (type: 'admin' | 'user') => void,
 	adminDeviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED',
 	setAdminDeviceStatus: (status: 'ACTIVE' | 'ACTIVATION_REQUIRED') => void,
-	autoNavigateRef: React.MutableRefObject<{ step: number; triggered: boolean }>,
+	_autoNavigateRef: React.MutableRefObject<{ step: number; triggered: boolean }>,
 	step0PropsRef: React.MutableRefObject<MFAFlowBaseRenderProps | null>
 ) => {
 	return (props: MFAFlowBaseRenderProps) => {
 		const { nav, credentials, setCredentials } = props;
-		
+
 		// Store props in ref for parent-level useEffect hooks
 		step0PropsRef.current = props;
-		
+
 		const locationState = location.state as {
 			configured?: boolean;
 			deviceAuthenticationPolicyId?: string;
@@ -483,7 +472,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	const navigate = useNavigate();
 	const isConfigured = (location.state as { configured?: boolean })?.configured === true;
 	const credentialsUpdatedRef = React.useRef(false);
-	const loadingManager = useMFALoadingStateManager();
+	const _loadingManager = useMFALoadingStateManager();
 
 	// Get configured OTP length - reload on config updates
 	const [otpLength, setOtpLength] = useState(() => {
@@ -939,10 +928,13 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		// Auto-navigation removed - user must manually click "Next" button
 		// Show guidance modal instead when configured
 		if (isConfiguredValue && currentStep === 0 && !autoNavigateRef.current.triggered) {
-			console.log(`${MODULE_TAG} [useEffect] TOTP configured, showing guidance instead of auto-navigating`, {
-				currentStep,
-				isConfigured: isConfiguredValue,
-			});
+			console.log(
+				`${MODULE_TAG} [useEffect] TOTP configured, showing guidance instead of auto-navigating`,
+				{
+					currentStep,
+					isConfigured: isConfiguredValue,
+				}
+			);
 
 			autoNavigateRef.current = { step: 2, triggered: true };
 			// Show guidance modal to direct user to click "Next" button
@@ -964,7 +956,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			props.nav.goToStep(2);
 		}
 		// Note: We can't use step1PropsRef.current in dependencies, so we use deviceSelection.showRegisterForm to trigger updates
-	}, [isConfigured, deviceSelection.showRegisterForm]);
+	}, [isConfigured]);
 
 	// Handle device load trigger update (for authentication flow)
 	// Check ref in useEffect (similar to Email flow pattern)
@@ -996,7 +988,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			}
 		}
 		// Note: We can't use step1PropsRef.current in dependencies, so we use deviceSelection.showRegisterForm to trigger updates
-	}, [isConfigured, deviceLoadTrigger, deviceSelection.showRegisterForm]);
+	}, [isConfigured, deviceLoadTrigger]);
 
 	// Load devices when entering step 1 - moved to parent component level
 	useEffect(() => {
@@ -1895,14 +1887,14 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								})()}
 
 								{/* Enhanced Worker Token UI Service */}
-							<WorkerTokenUIServiceV8
-								mode="compact"
-								showStatusDisplay={true}
-								statusSize="small"
-								showRefresh={false}
-								environmentId={credentials.environmentId}
-								context="mfa"
-							/>
+								<WorkerTokenUIServiceV8
+									mode="compact"
+									showStatusDisplay={true}
+									statusSize="small"
+									showRefresh={false}
+									environmentId={credentials.environmentId}
+									context="mfa"
+								/>
 							</div>
 
 							{/* Action Buttons - Sticky Footer */}
@@ -1983,6 +1975,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			adminDeviceStatus,
 			isConfigured,
 			navigateSafely,
+			qrCodeUrl,
+			totpSecret,
 		]
 	);
 
@@ -2909,7 +2903,6 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			// modalPosition.x and .y are primitives that change when dragging
 			step3ModalDrag.modalPosition.x,
 			step3ModalDrag.modalPosition.y,
-			step3ModalDrag.isDragging,
 			// handleMouseDown is a useCallback, should be stable, but include it to be safe
 			step3ModalDrag.handleMouseDown,
 			// Note: step3ModalDrag.modalStyle is intentionally NOT in dependencies
@@ -2918,15 +2911,15 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			totpSecret,
 			secretCopied,
 			showActivationModal,
-			handleActivateDevice,
-			activationOtp,
-			activationError,
-			otpLength,
 			// Note: mfaState is a prop, not in component scope, so we can't include it in deps
 			// The callback will re-run when props change naturally
 			// Include isConfigured to re-render when flow type changes
 			isConfigured,
 			navigateSafely,
+			location.state, // Navigate to delete all devices page with pre-filled credentials
+			navigate,
+			step3ModalDrag.modalRef,
+			step3ModalDrag.modalStyle,
 			// Include mfaState.deviceStatus and mfaState.deviceId for stuck device warning
 			// Note: mfaState is a prop, but we need to track deviceStatus and deviceId changes
 			// We'll use a ref to track these values or include them conditionally
@@ -3414,12 +3407,12 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			showValidationModal,
 			step4ModalDrag,
 			validationState,
-			setValidationState,
 			navigate,
 			controller,
 			location,
 			isConfigured,
 			navigateSafely,
+			otpLength,
 		]
 	);
 
@@ -3480,7 +3473,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		}, 0);
 
 		return () => clearTimeout(timeoutId);
-	}, [totpSecret, qrCodeUrl, secretReceivedAt]); // Trigger when secret data changes
+	}, []); // Trigger when secret data changes
 
 	// Also sync when mfaState changes (passed from MFAFlowBaseV8)
 	// This ensures we catch updates that happen via setMfaState
@@ -3711,7 +3704,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						>
 							<span style={{ fontSize: '28px', color: 'white' }}>✓</span>
 						</div>
-						
+
 						<h2
 							style={{
 								margin: '0 0 16px 0',
@@ -3722,7 +3715,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						>
 							Ready to Continue!
 						</h2>
-						
+
 						<p
 							style={{
 								margin: '0 0 24px 0',
@@ -3731,10 +3724,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								lineHeight: 1.6,
 							}}
 						>
-							Your TOTP configuration is complete and you've successfully logged into PingOne. 
-							Please click the <strong>"Next Step"</strong> button to continue with device registration.
+							Your TOTP configuration is complete and you've successfully logged into PingOne.
+							Please click the <strong>"Next Step"</strong> button to continue with device
+							registration.
 						</p>
-						
+
 						<div
 							style={{
 								background: '#f0f9ff',
@@ -3758,7 +3752,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								Look for the <strong>"Next Step"</strong> button below to proceed
 							</p>
 						</div>
-						
+
 						<button
 							type="button"
 							onClick={() => setShowGuidanceModal(false)}

@@ -17,8 +17,8 @@ import { useAuth } from '@/contexts/NewAuthContext';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
+import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -31,7 +31,6 @@ import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
-import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
 const MODULE_TAG = '[📱 MOBILE-OTP-CONFIG-V8]';
@@ -106,17 +105,17 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 	);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
-	const [showSettingsModal, setShowSettingsModal] = useState(false);
+	const [_showSettingsModal, _setShowSettingsModal] = useState(false);
 
 	// Worker token settings - Load from config service
-	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+	const [_silentApiRetrieval, _setSilentApiRetrieval] = useState(() => {
 		try {
 			return MFAConfigurationServiceV8.loadConfiguration().workerToken.silentApiRetrieval || false;
 		} catch {
 			return false;
 		}
 	});
-	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+	const [_showTokenAtEnd, _setShowTokenAtEnd] = useState(() => {
 		try {
 			return MFAConfigurationServiceV8.loadConfiguration().workerToken.showTokenAtEnd || true;
 		} catch {
@@ -712,7 +711,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 				},
 			});
 		},
-		[navigate, credentials, tokenStatus.isValid, registrationFlowType, adminDeviceStatus]
+		[navigate, credentials, tokenStatus.isValid, registrationFlowType, adminDeviceStatus, tokenStatus.token // Admin flow: any worker token enables the button]
 	);
 
 

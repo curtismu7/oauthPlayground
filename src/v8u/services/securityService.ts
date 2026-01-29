@@ -34,7 +34,6 @@ export interface SecurityMetrics {
 export class SecurityService {
 	private static instance: SecurityService;
 	private auditLogs: any[] = [];
-	private threats: SecurityThreat[] = [];
 	private lastScan: SecurityScan | null = null;
 	private metrics: SecurityMetrics;
 

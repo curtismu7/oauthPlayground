@@ -59,7 +59,7 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 			onChange(undefined);
 		} else {
 			const numValue = parseInt(inputValue, 10);
-			if (!isNaN(numValue) && numValue >= 0) {
+			if (!Number.isNaN(numValue) && numValue >= 0) {
 				onChange(numValue);
 			}
 		}

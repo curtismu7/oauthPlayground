@@ -8,10 +8,10 @@
 
 import React, { useState } from 'react';
 import { FiHelpCircle, FiX } from 'react-icons/fi';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
-const MODULE_TAG = '[📋 SPEC-VERSION-SELECTOR-V8U]';
+const _MODULE_TAG = '[📋 SPEC-VERSION-SELECTOR-V8U]';
 
 export interface SpecVersionSelectorProps {
 	specVersion: SpecVersion;

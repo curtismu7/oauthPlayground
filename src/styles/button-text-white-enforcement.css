@@ -14,15 +14,15 @@
 .btn-primary,
 button[class*="primary"],
 [class*="Button"][class*="primary"] {
-	background: #3b82f6 !important;
-	color: #ffffff !important;
+	background: #3b82f6;
+	color: #ffffff;
 }
 
 .btn:hover:not(:disabled),
 .btn-primary:hover:not(:disabled),
 button[class*="primary"]:hover:not(:disabled) {
-	background: #2563eb !important;
-	color: #ffffff !important;
+	background: #2563eb;
+	color: #ffffff;
 }
 
 /* Next Action button - Green background with white text */
@@ -30,37 +30,37 @@ button[class*="primary"]:hover:not(:disabled) {
 .btn-success,
 button[class*="next"],
 button[class*="success"] {
-	background: #10b981 !important;
-	color: #ffffff !important;
+	background: #10b981;
+	color: #ffffff;
 }
 
 .btn-next:hover:not(:disabled),
 .btn-success:hover:not(:disabled),
 button[class*="next"]:hover:not(:disabled),
 button[class*="success"]:hover:not(:disabled) {
-	background: #059669 !important;
-	color: #ffffff !important;
+	background: #059669;
+	color: #ffffff;
 }
 
 /* Token button - Red when no token, Green when token exists */
 .btn-token-none {
-	background: #ef4444 !important;
-	color: #ffffff !important;
+	background: #ef4444;
+	color: #ffffff;
 }
 
 .btn-token-none:hover:not(:disabled) {
-	background: #dc2626 !important;
-	color: #ffffff !important;
+	background: #dc2626;
+	color: #ffffff;
 }
 
 .btn-token-has {
-	background: #10b981 !important;
-	color: #ffffff !important;
+	background: #10b981;
+	color: #ffffff;
 }
 
 .btn-token-has:hover:not(:disabled) {
-	background: #059669 !important;
-	color: #ffffff !important;
+	background: #059669;
+	color: #ffffff;
 }
 
 /* Light background buttons - Black text */
@@ -68,43 +68,43 @@ button[class*="success"]:hover:not(:disabled) {
 .btn-secondary,
 button[class*="light"],
 button[class*="secondary"] {
-	background: #ffffff !important;
-	color: #000000 !important;
-	border: 1px solid #d1d5db !important;
+	background: #ffffff;
+	color: #000000;
+	border: 1px solid #d1d5db;
 }
 
 .btn-light:hover:not(:disabled),
 .btn-secondary:hover:not(:disabled),
 button[class*="light"]:hover:not(:disabled),
 button[class*="secondary"]:hover:not(:disabled) {
-	background: #f9fafb !important;
-	color: #000000 !important;
+	background: #f9fafb;
+	color: #000000;
 }
 
 /* Dark background buttons - White text */
 .btn-dark,
 button[class*="dark"] {
-	background: #1f2937 !important;
-	color: #ffffff !important;
+	background: #1f2937;
+	color: #ffffff;
 }
 
 .btn-dark:hover:not(:disabled),
 button[class*="dark"]:hover:not(:disabled) {
-	background: #374151 !important;
-	color: #ffffff !important;
+	background: #374151;
+	color: #ffffff;
 }
 
 /* Danger/Error buttons - Red background with white text */
 .btn-danger,
 button[class*="danger"] {
-	background: #ef4444 !important;
-	color: #ffffff !important;
+	background: #ef4444;
+	color: #ffffff;
 }
 
 .btn-danger:hover:not(:disabled),
 button[class*="danger"]:hover:not(:disabled) {
-	background: #dc2626 !important;
-	color: #ffffff !important;
+	background: #dc2626;
+	color: #ffffff;
 }
 
 /* Nested elements inside buttons - inherit parent color */
@@ -116,7 +116,7 @@ button[class*="danger"]:hover:not(:disabled) {
 .btn-token-has *,
 .btn-danger *,
 button * {
-	color: inherit !important;
+	color: inherit;
 }
 
 /* Disabled state - maintain contrast */

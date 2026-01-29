@@ -14,7 +14,7 @@
  * - Step-by-step guidance with validation
  */
 
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiAlertTriangle,
@@ -369,7 +369,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 		try {
 			await navigator.clipboard.writeText(text);
 			v4ToastManager.showSuccess(`${label} copied to clipboard`);
-		} catch (error) {
+		} catch (_error) {
 			v4ToastManager.showError('Failed to copy to clipboard');
 		}
 	}, []);

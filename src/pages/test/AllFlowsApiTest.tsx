@@ -5,16 +5,7 @@
 // Allows manual testing without auto-submission
 
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-	FiCheck,
-	FiCode,
-	FiDatabase,
-	FiKey,
-	FiPlay,
-	FiRefreshCw,
-	FiShield,
-	FiX,
-} from 'react-icons/fi';
+import { FiKey, FiRefreshCw } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { useWorkerTokenState } from '../../services/workerTokenUIService';
@@ -758,7 +749,7 @@ const AllFlowsApiTest: React.FC = () => {
 			console.error('❌ MFA Device Registration failed:', error);
 			return null;
 		}
-	}, [config, addResult]);
+	}, [config, addResult, getWorkerToken]);
 
 	// Test 6: MFA Authentication
 	const testMFAAuthentication = useCallback(async () => {
@@ -833,7 +824,7 @@ const AllFlowsApiTest: React.FC = () => {
 			console.error('❌ MFA Authentication Challenge failed:', error);
 			return null;
 		}
-	}, [config, addResult]);
+	}, [config, addResult, getWorkerToken]);
 
 	// Helper function to get worker token
 	const getWorkerToken = async () => {

@@ -194,7 +194,7 @@ async function testUnlockPassword(workerToken) {
 async function main() {
 	console.log('🚀 PingOne Password Operations Test');
 	console.log('Environment ID:', ENV_ID);
-	console.log('Test User: curtis7 (ID:', TEST_USER_ID + ')');
+	console.log('Test User: curtis7 (ID:', `${TEST_USER_ID})`);
 	console.log('');
 
 	const workerToken = await getWorkerToken();

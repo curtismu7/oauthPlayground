@@ -5,18 +5,15 @@
  * @version 8.2.0
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FiMail, FiShield, FiX } from 'react-icons/fi';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiMail, FiX } from 'react-icons/fi';
+import { useLocation } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { fetchPhoneFromPingOne } from '@/v8/services/phoneAutoPopulationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
@@ -32,7 +29,7 @@ import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 
-const MODULE_TAG = '[📧 EMAIL-FLOW-V8]';
+const _MODULE_TAG = '[📧 EMAIL-FLOW-V8]';
 
 type DeviceSelectionState = {
 	existingDevices: Record<string, unknown>[];
@@ -167,6 +164,7 @@ const EmailDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigur
 		tokenStatus.isValid,
 		username,
 		credentials,
+		tokenStatus,
 	]);
 
 	const authenticateExistingDevice = async (deviceId: string) => {
@@ -321,7 +319,7 @@ const EmailDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigur
 
 // Step 0: Configure Credentials (Email-specific) - will be wrapped in component
 const createRenderStep0 = (
-	isConfigured: boolean,
+	_isConfigured: boolean,
 	location: ReturnType<typeof useLocation>,
 	credentialsUpdatedRef: React.MutableRefObject<boolean>,
 	registrationFlowType: 'admin' | 'user',
@@ -676,7 +674,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 	const pendingTokenTypeRef = React.useRef<string | undefined>(undefined);
 
 	// Ref to store step 4 props for potential use at component level
-	const step4PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
+	const _step4PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
 
 	// Ref to track if deviceName has been reset for step 2 (to avoid Rules of Hooks violation)
 	const step2DeviceNameResetRef = React.useRef<{ step: number; deviceType: string } | null>(null);
@@ -804,7 +802,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		// Note: We can't use step0PropsRef.current in dependencies, so we use a combination of other dependencies
 		// and check step0PropsRef.current inside the effect
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [deviceLoadTrigger, showModal]); // showModal changes when modal opens/closes, which helps trigger updates
+	}, [deviceLoadTrigger]); // showModal changes when modal opens/closes, which helps trigger updates
 
 	// Load devices when entering step 1 - moved to parent component level
 	// Skip device loading during registration flow (when coming from config page)
@@ -891,6 +889,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		controller,
 		deviceSelection.existingDevices.length,
 		deviceSelection.loadingDevices,
+		deviceLoadTrigger,
+		setDeviceSelection,
 	]);
 
 	// Auto-populate email from PingOne user when entering step 2
@@ -1236,7 +1236,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					// → User must enter OTP to activate device (go directly to validation step)
 					// Note: Admin Flow uses Worker Token and can choose ACTIVE or ACTIVATION_REQUIRED. User Flow uses User Token and always uses ACTIVATION_REQUIRED.
 					const hasDeviceActivateUri = !!deviceActivateUri;
-					const deviceIsActive = actualDeviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
+					const _deviceIsActive = actualDeviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
 
 					if (actualDeviceStatus === 'ACTIVATION_REQUIRED') {
 						// Device requires activation - PingOne automatically sends OTP when status is ACTIVATION_REQUIRED
@@ -1909,34 +1909,56 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 							</button>
 							<button
 								type="button"
-								disabled={isLoading || !isValidForm || (registrationFlowType === 'admin' ? !tokenStatus.token : !tokenStatus.isValid)}
+								disabled={
+									isLoading ||
+									!isValidForm ||
+									(registrationFlowType === 'admin' ? !tokenStatus.token : !tokenStatus.isValid)
+								}
 								onClick={handleRegisterDevice}
 								style={{
 									flex: 2,
 									padding: '12px 20px',
 									background:
-										isValidForm && !isLoading && (registrationFlowType === 'admin' ? !!tokenStatus.token : tokenStatus.isValid) ? '#10b981' : '#d1d5db',
+										isValidForm &&
+										!isLoading &&
+										(registrationFlowType === 'admin' ? !!tokenStatus.token : tokenStatus.isValid)
+											? '#10b981'
+											: '#d1d5db',
 									color: 'white',
 									border: 'none',
 									borderRadius: '8px',
 									fontSize: '15px',
 									fontWeight: '600',
 									cursor:
-										isValidForm && !isLoading && (registrationFlowType === 'admin' ? !!tokenStatus.token : tokenStatus.isValid) ? 'pointer' : 'not-allowed',
+										isValidForm &&
+										!isLoading &&
+										(registrationFlowType === 'admin' ? !!tokenStatus.token : tokenStatus.isValid)
+											? 'pointer'
+											: 'not-allowed',
 									boxShadow:
-										isValidForm && !isLoading && (registrationFlowType === 'admin' ? !!tokenStatus.token : tokenStatus.isValid)
+										isValidForm &&
+										!isLoading &&
+										(registrationFlowType === 'admin' ? !!tokenStatus.token : tokenStatus.isValid)
 											? '0 4px 12px rgba(16, 185, 129, 0.3)'
 											: 'none',
 									transition: 'all 0.2s ease',
 								}}
 								onMouseEnter={(e) => {
-									if (isValidForm && !isLoading && (registrationFlowType === 'admin' ? !!tokenStatus.token : tokenStatus.isValid)) {
+									if (
+										isValidForm &&
+										!isLoading &&
+										(registrationFlowType === 'admin' ? !!tokenStatus.token : tokenStatus.isValid)
+									) {
 										e.currentTarget.style.background = '#059669';
 										e.currentTarget.style.boxShadow = '0 6px 16px rgba(5, 150, 105, 0.4)';
 									}
 								}}
 								onMouseLeave={(e) => {
-									if (isValidForm && !isLoading && (registrationFlowType === 'admin' ? !!tokenStatus.token : tokenStatus.isValid)) {
+									if (
+										isValidForm &&
+										!isLoading &&
+										(registrationFlowType === 'admin' ? !!tokenStatus.token : tokenStatus.isValid)
+									) {
 										e.currentTarget.style.background = '#10b981';
 										e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
 									}
@@ -1954,13 +1976,20 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 			adminDeviceStatus,
 			setDeviceSelection,
 			controller,
-			updateOtpState,
 			setShowModal,
 			showModal,
 			deviceRegisteredActive,
 			isApiDisplayVisible,
 			showValidationModal,
 			navigate,
+			setDeviceRegisteredActive,
+			setShowValidationModal,
+			step2ModalDrag.handleMouseDown,
+			step2ModalDrag.isDragging,
+			step2ModalDrag.modalPosition.x,
+			step2ModalDrag.modalPosition.y,
+			step2ModalDrag.modalRef,
+			step2ModalDrag.modalStyle,
 		]
 	);
 
@@ -1970,8 +1999,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		setValidationAttempts: (value: number | ((prev: number) => number)) => void,
 		lastValidationError: string | null,
 		setLastValidationError: (value: string | null) => void,
-		otpState: { otpSent: boolean; sendError: string | null; sendRetryCount: number },
-		setOtpState: (
+		_otpState: { otpSent: boolean; sendError: string | null; sendRetryCount: number },
+		_setOtpState: (
 			state: Partial<typeof otpState> | ((prev: typeof otpState) => Partial<typeof otpState>)
 		) => void
 	) => {

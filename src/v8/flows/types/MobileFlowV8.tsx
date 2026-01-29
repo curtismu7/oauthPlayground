@@ -5,36 +5,24 @@
  * @version 8.2.0
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { FiMail, FiShield, FiX } from 'react-icons/fi';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { CollapsibleSectionV8 } from '@/v8/components/shared/CollapsibleSectionV8';
-import {
-	ErrorMessage,
-	InfoMessage,
-	MessageBoxV8,
-	SuccessMessage,
-	WarningMessage,
-} from '@/v8/components/shared/MessageBoxV8';
+import { SuccessMessage } from '@/v8/components/shared/MessageBoxV8';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { fetchPhoneFromPingOne } from '@/v8/services/phoneAutoPopulationServiceV8';
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; // NEW - Enhanced UI service
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { isValidPhoneFormat, validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
-import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { type Device, MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { getFullPhoneNumber } from '../controllers/SMSFlowController';
@@ -42,12 +30,7 @@ import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory'
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { DeviceType, MFACredentials } from '../shared/MFATypes';
-import {
-	buildSuccessPageData,
-	getSuccessPageStep,
-	type MFASuccessPageData,
-	MFASuccessPageV8,
-} from '../shared/mfaSuccessPageServiceV8';
+import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 
 const MODULE_TAG = '[📱 MOBILE-FLOW-V8]';
@@ -176,6 +159,8 @@ const MobileDeviceSelectionStep: React.FC<
 		setDeviceSelection,
 		tokenStatus.isValid,
 		username,
+		credentials,
+		tokenStatus,
 	]);
 
 	const authenticateExistingDevice = async (deviceId: string) => {
@@ -393,7 +378,6 @@ const MobileConfigureStep: React.FC<MobileConfigureStepProps> = (props) => {
 	}, [
 		registrationFlowType,
 		props.credentials.tokenType,
-		props.credentials.userToken,
 		props.showUserLoginModal,
 		props.setCredentials,
 		props.setShowUserLoginModal,
@@ -702,7 +686,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 	});
 
 	// Initialize loading state manager
-	const loadingManager = useMFALoadingStateManager();
+	const _loadingManager = useMFALoadingStateManager();
 
 	// Destructure from shared hook
 	const {
@@ -744,7 +728,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 	);
 
 	// Use the dynamic controller if device type is different, otherwise use the hook's controller
-	const effectiveController = controllerDeviceType !== 'SMS' ? dynamicController : controller;
+	const _effectiveController = controllerDeviceType !== 'SMS' ? dynamicController : controller;
 
 	// Track previous step to detect when we navigate to step 1
 	const previousStepRef = React.useRef<number | null>(null);
@@ -884,7 +868,15 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 				/>
 			);
 		};
-	}, [isConfigured, location, registrationFlowType, adminDeviceStatus]);
+	}, [
+		isConfigured,
+		location,
+		registrationFlowType,
+		adminDeviceStatus,
+		MODULE_TAG,
+		setAdminDeviceStatus,
+		setRegistrationFlowType,
+	]);
 
 	// Step 1: Device Selection/Registration (using controller)
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
@@ -961,7 +953,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 		};
 
 		fetchUserPhone();
-	}, []);
+	}, [MODULE_TAG]);
 
 	// Close validation modal when verification completes
 	// This is handled in renderStep4Validate, not here, to avoid accessing mfaState outside of render props
@@ -1571,7 +1563,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 			};
 
 			// Use the currentDeviceType already declared above (line 938)
-			const isSMS = currentDeviceType === 'SMS';
+			const _isSMS = currentDeviceType === 'SMS';
 			const isEMAIL = currentDeviceType === 'EMAIL';
 			// isPhoneBased is already declared above (line 941)
 			// Use phone validation utility for format checking
@@ -2386,13 +2378,22 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 			registrationFlowType,
 			adminDeviceStatus,
 			controllerDeviceType,
-			setControllerDeviceType,
 			setDeviceSelection,
-			updateOtpState,
 			setShowModal,
 			showModal,
 			deviceRegisteredActive,
 			isApiDisplayVisible,
+			MODULE_TAG,
+			navigate,
+			setDeviceRegisteredActive,
+			setShowValidationModal,
+			showValidationModal,
+			step2ModalDrag.handleMouseDown,
+			step2ModalDrag.isDragging,
+			step2ModalDrag.modalPosition.x,
+			step2ModalDrag.modalPosition.y,
+			step2ModalDrag.modalRef,
+			step2ModalDrag.modalStyle,
 		]
 	);
 
@@ -2621,7 +2622,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 			navRef.current = nav;
 
 			// Helper function to update OTP state
-			const updateOtpState = (
+			const _updateOtpState = (
 				update: Partial<typeof otpState> | ((prev: typeof otpState) => typeof otpState)
 			) => {
 				setOtpState((prev) => {

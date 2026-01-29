@@ -3,7 +3,7 @@
  * @module v8/components/sections
  * @description Worker Token Configuration Section Component
  * @version 3.0.0
- * 
+ *
  * Extracted from MFAAuthenticationMainPageV8.tsx as part of V3 refactoring.
  * This component handles the worker token configuration UI including:
  * - Worker token status display
@@ -14,8 +14,8 @@
  */
 
 import React, { useState } from 'react';
-import type { UseWorkerTokenReturn } from '@/v8/hooks/useWorkerToken';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
+import type { UseWorkerTokenReturn } from '@/v8/hooks/useWorkerToken';
 
 export interface WorkerTokenSectionProps {
 	/** Worker token hook return value */
@@ -147,11 +147,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionProps> = ({
 								{isGettingWorkerToken ? '⏳ Getting Token...' : '🔑 Get Worker Token'}
 							</button>
 
-							<WorkerTokenStatusDisplayV8
-								mode="detailed"
-								showRefresh={true}
-								refreshInterval={5}
-							/>
+							<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} refreshInterval={5} />
 						</div>
 					</div>
 

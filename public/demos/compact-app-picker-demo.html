@@ -476,7 +476,7 @@
             `).join('');
         }
 
-        function selectApp(appId) {
+        function _selectApp(appId) {
             selectedApp = applications.find(app => app.id === appId);
             
             if (selectedApp) {
@@ -501,7 +501,7 @@
             renderAppList();
         }
 
-        function addRandomApp() {
+        function _addRandomApp() {
             const randomNames = [
                 'Test Application', 'Dev Environment', 'Staging Portal', 
                 'QA Dashboard', 'Demo Service', 'Beta App', 'Sandbox Client'
@@ -527,7 +527,7 @@
             }, 1000);
         }
 
-        function resetApps() {
+        function _resetApps() {
             applications = [...sampleApps];
             clearSelection();
             renderAppList();

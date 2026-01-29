@@ -6,7 +6,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
-	FiArrowRight,
 	FiCheckCircle,
 	FiCode,
 	FiExternalLink,
@@ -14,7 +13,6 @@ import {
 	FiInfo,
 	FiKey,
 	FiRefreshCw,
-	FiSend,
 	FiShield,
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
@@ -23,12 +21,7 @@ import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay'
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { PasswordChangeModal } from '../../components/PasswordChangeModal';
-import {
-	HelperText,
-	ResultsHeading,
-	ResultsSection,
-	SectionDivider,
-} from '../../components/ResultsPanel';
+import { HelperText } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { usePageScroll } from '../../hooks/usePageScroll';
@@ -245,7 +238,7 @@ const RedirectlessFlowV7Real: React.FC = () => {
 	// Collapse all sections by default for cleaner UI
 	const shouldCollapseAll = true;
 
-	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
+	const [_collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
 		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState()
 	);
 
@@ -275,7 +268,7 @@ const RedirectlessFlowV7Real: React.FC = () => {
 	// Scroll to top on step change
 	useEffect(() => {
 		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange();
-	}, [currentStep]);
+	}, []);
 
 	// V7 Service: Load saved flow state on mount
 	useEffect(() => {
@@ -298,7 +291,7 @@ const RedirectlessFlowV7Real: React.FC = () => {
 	}, [currentStep, controller.credentials.clientId, controller.tokens]);
 
 	// Toggle section handler
-	const toggleSection = useCallback(
+	const _toggleSection = useCallback(
 		AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections),
 		[]
 	);
@@ -481,7 +474,7 @@ const RedirectlessFlowV7Real: React.FC = () => {
 				throw error;
 			}
 		},
-		[controller]
+		[controller, handleTokenExchange]
 	);
 
 	// Step 4: Exchange authorization code for tokens (must be defined before handleResumeFlow)
@@ -577,7 +570,7 @@ const RedirectlessFlowV7Real: React.FC = () => {
 								throw passwordChangeError;
 							}
 						}
-					} catch (parseError) {
+					} catch (_parseError) {
 						// If parsing fails but requiresPasswordChange is true, still throw
 						if (requiresPasswordChange) {
 							console.log(
@@ -864,8 +857,8 @@ const RedirectlessFlowV7Real: React.FC = () => {
 			};
 
 			console.log('🔐 [Redirectless V7] Generated fresh PKCE codes:', {
-				codeVerifier: codeVerifier.substring(0, 20) + '...',
-				codeChallenge: codeChallenge.substring(0, 20) + '...',
+				codeVerifier: `${codeVerifier.substring(0, 20)}...`,
+				codeChallenge: `${codeChallenge.substring(0, 20)}...`,
 			});
 
 			// Update the controller with fresh codes
@@ -1471,144 +1464,140 @@ const RedirectlessFlowV7Real: React.FC = () => {
 
 			case 2:
 				return (
-					<>
-						<CollapsibleHeader
-							title="Token Exchange (V7 Enhanced)"
-							icon={<FiRefreshCw />}
-							defaultCollapsed={shouldCollapseAll}
-						>
-							<div style={{ marginBottom: '1rem' }}>
-								<p>
-									<strong>Redirectless Authentication:</strong> Experience a real authorization code
-									flow without browser redirects! You'll see a custom login form (not PingOne's UI),
-									enter credentials, and receive tokens directly via API calls with{' '}
-									<code>response_mode=pi.flow</code>.
+					<CollapsibleHeader
+						title="Token Exchange (V7 Enhanced)"
+						icon={<FiRefreshCw />}
+						defaultCollapsed={shouldCollapseAll}
+					>
+						<div style={{ marginBottom: '1rem' }}>
+							<p>
+								<strong>Redirectless Authentication:</strong> Experience a real authorization code
+								flow without browser redirects! You'll see a custom login form (not PingOne's UI),
+								enter credentials, and receive tokens directly via API calls with{' '}
+								<code>response_mode=pi.flow</code>.
+							</p>
+						</div>
+
+						<div style={{ textAlign: 'center' }}>
+							<SignInButton
+								onClick={handleStartRedirectlessFlow}
+								disabled={!checkHasPkceCodes() || isLoading || isAuthenticating}
+								title={
+									!checkHasPkceCodes()
+										? 'Generate PKCE parameters first'
+										: isLoading
+											? 'Starting redirectless flow...'
+											: 'Start redirectless authentication'
+								}
+							>
+								{isLoading || isAuthenticating ? (
+									<>
+										<FiRefreshCw className="animate-spin" />
+										{isLoading ? 'Starting Flow...' : 'Authenticating...'}
+									</>
+								) : (
+									<>
+										<FiShield />
+										Start Redirectless Authentication
+									</>
+								)}
+							</SignInButton>
+
+							<div
+								style={{
+									marginTop: '1rem',
+									padding: '1rem',
+									background: '#eff6ff',
+									borderRadius: '0.5rem',
+									border: '1px solid #bfdbfe',
+									fontSize: '0.875rem',
+									color: '#1e40af',
+								}}
+							>
+								<strong>🚀 Behind the Scenes:</strong>
+								<br />
+								When you click "Sign In", your app makes a POST request to PingOne's authorization
+								endpoint with <code>response_mode=pi.flow</code> and receives tokens directly - no
+								redirect needed! Fresh PKCE codes generated every time.
+							</div>
+						</div>
+
+						{controller.tokens?.accessToken && (
+							<div
+								style={{
+									marginTop: '1rem',
+									padding: '1rem',
+									background: '#f0fdf4',
+									borderRadius: '0.5rem',
+									border: '1px solid #bbf7d0',
+								}}
+							>
+								<p style={{ color: '#166534', margin: 0, fontWeight: '600' }}>
+									✅ Tokens received successfully! The redirectless flow V7 is complete.
 								</p>
 							</div>
+						)}
 
-							<div style={{ textAlign: 'center' }}>
-								<SignInButton
-									onClick={handleStartRedirectlessFlow}
-									disabled={!checkHasPkceCodes() || isLoading || isAuthenticating}
-									title={
-										!checkHasPkceCodes()
-											? 'Generate PKCE parameters first'
-											: isLoading
-												? 'Starting redirectless flow...'
-												: 'Start redirectless authentication'
+						{controller.tokens?.accessToken ? (
+							<div style={{ marginTop: '1rem' }}>
+								{UnifiedTokenDisplayService.showTokens(
+									controller.tokens,
+									'oidc',
+									'redirectless-v7-tokens',
+									{
+										showCopyButtons: true,
+										showDecodeButtons: true,
+										showIntrospection: true,
+										title: '🎯 Redirectless Flow V7 Tokens',
 									}
-								>
-									{isLoading || isAuthenticating ? (
-										<>
-											<FiRefreshCw className="animate-spin" />
-											{isLoading ? 'Starting Flow...' : 'Authenticating...'}
-										</>
-									) : (
-										<>
-											<FiShield />
-											Start Redirectless Authentication
-										</>
-									)}
-								</SignInButton>
-
-								<div
-									style={{
-										marginTop: '1rem',
-										padding: '1rem',
-										background: '#eff6ff',
-										borderRadius: '0.5rem',
-										border: '1px solid #bfdbfe',
-										fontSize: '0.875rem',
-										color: '#1e40af',
-									}}
-								>
-									<strong>🚀 Behind the Scenes:</strong>
-									<br />
-									When you click "Sign In", your app makes a POST request to PingOne's authorization
-									endpoint with <code>response_mode=pi.flow</code> and receives tokens directly - no
-									redirect needed! Fresh PKCE codes generated every time.
-								</div>
+								)}
 							</div>
-
-							{controller.tokens?.accessToken && (
-								<div
-									style={{
-										marginTop: '1rem',
-										padding: '1rem',
-										background: '#f0fdf4',
-										borderRadius: '0.5rem',
-										border: '1px solid #bbf7d0',
-									}}
-								>
-									<p style={{ color: '#166534', margin: 0, fontWeight: '600' }}>
-										✅ Tokens received successfully! The redirectless flow V7 is complete.
-									</p>
-								</div>
-							)}
-
-							{controller.tokens?.accessToken ? (
-								<div style={{ marginTop: '1rem' }}>
-									{UnifiedTokenDisplayService.showTokens(
-										controller.tokens,
-										'oidc',
-										'redirectless-v7-tokens',
-										{
-											showCopyButtons: true,
-											showDecodeButtons: true,
-											showIntrospection: true,
-											title: '🎯 Redirectless Flow V7 Tokens',
-										}
-									)}
-								</div>
-							) : (
-								<div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
-									<FiInfo style={{ marginBottom: '0.5rem' }} />
-									<p>Complete the token exchange step to receive tokens</p>
-								</div>
-							)}
-						</CollapsibleHeader>
-					</>
+						) : (
+							<div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
+								<FiInfo style={{ marginBottom: '0.5rem' }} />
+								<p>Complete the token exchange step to receive tokens</p>
+							</div>
+						)}
+					</CollapsibleHeader>
 				);
 
 			case 3:
 				return (
-					<>
-						<CollapsibleHeader
-							title="Token Management (V7)"
-							icon={<FiEye />}
-							defaultCollapsed={shouldCollapseAll}
+					<CollapsibleHeader
+						title="Token Management (V7)"
+						icon={<FiEye />}
+						defaultCollapsed={shouldCollapseAll}
+					>
+						<div style={{ marginBottom: '1rem' }}>
+							<p>Manage your tokens, including introspection, refresh, and validation.</p>
+						</div>
+
+						<NavigationButton
+							onClick={navigateToTokenManagement}
+							disabled={!controller.tokens?.accessToken}
+							title={
+								!controller.tokens?.accessToken ? 'No tokens available' : 'Open token management'
+							}
 						>
-							<div style={{ marginBottom: '1rem' }}>
-								<p>Manage your tokens, including introspection, refresh, and validation.</p>
-							</div>
+							<FiEye /> Token Management
+							<HighlightBadge>1</HighlightBadge>
+						</NavigationButton>
 
-							<NavigationButton
-								onClick={navigateToTokenManagement}
-								disabled={!controller.tokens?.accessToken}
-								title={
-									!controller.tokens?.accessToken ? 'No tokens available' : 'Open token management'
-								}
+						{controller.tokens?.accessToken ? (
+							<div
+								style={{
+									marginTop: '1rem',
+									padding: '1rem',
+									background: '#f9fafb',
+									borderRadius: '0.5rem',
+								}}
 							>
-								<FiEye /> Token Management
-								<HighlightBadge>1</HighlightBadge>
-							</NavigationButton>
-
-							{controller.tokens?.accessToken ? (
-								<div
-									style={{
-										marginTop: '1rem',
-										padding: '1rem',
-										background: '#f9fafb',
-										borderRadius: '0.5rem',
-									}}
-								>
-									<p style={{ color: '#059669', margin: 0 }}>
-										✓ Tokens available. Click the button above to navigate to Token Management page.
-									</p>
-								</div>
-							) : null}
-						</CollapsibleHeader>
-					</>
+								<p style={{ color: '#059669', margin: 0 }}>
+									✓ Tokens available. Click the button above to navigate to Token Management page.
+								</p>
+							</div>
+						) : null}
+					</CollapsibleHeader>
 				);
 
 			default:
@@ -1617,13 +1606,14 @@ const RedirectlessFlowV7Real: React.FC = () => {
 	}, [
 		currentStep,
 		controller,
-		collapsedSections,
-		toggleSection,
 		handleGeneratePkce,
 		handleGenerateAuthUrl,
 		handleOpenAuthUrl,
 		navigateToTokenManagement,
-		shouldCollapseAll,
+		checkHasPkceCodes,
+		handleStartRedirectlessFlow,
+		isAuthenticating,
+		isLoading,
 	]);
 
 	return (

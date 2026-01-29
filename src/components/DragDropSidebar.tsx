@@ -381,7 +381,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				// Removed toast to prevent setState during render
 			}
 		},
-		[setSaveButtonState]
+		[createSerializableGroups]
 	);
 
 	// Initialize menu structure
@@ -1868,7 +1868,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			setSaveButtonState('default');
 			// Removed toast to prevent setState during render
 		}
-	}, [menuGroups, setSaveButtonState]);
+	}, [menuGroups, createSerializableGroups]);
 
 	// Persist menu layout whenever it changes
 	useEffect(() => {
