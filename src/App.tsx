@@ -47,6 +47,8 @@ import ModalPresentationService from './services/modalPresentationService';
 import { credentialManager } from './utils/credentialManager';
 // Import IndexedDB backup service to make it globally available
 import './v8u/services/indexedDBBackupServiceV8U';
+// Import MFA feature flags to make window.mfaFlags available
+import './v8/services/mfaFeatureFlagsV8';
 
 // Extend Window interface for global test utilities
 declare global {
@@ -198,6 +200,7 @@ import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetail
 import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
 import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
 import MFADeviceCreateDemoV8 from './v8/pages/MFADeviceCreateDemoV8';
+import { MFAFeatureFlagsAdminV8 } from './v8/pages/MFAFeatureFlagsAdminV8';
 import { MobileRegistrationDocsPageV8 } from './v8/pages/MobileRegistrationDocsPageV8';
 import { SMSRegistrationDocsPageV8 } from './v8/pages/SMSRegistrationDocsPageV8';
 import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
@@ -614,6 +617,7 @@ const AppRoutes: React.FC = () => {
 								element={<Navigate to="/v8/mfa/register/fido2" replace />}
 							/>
 							<Route path="/v8/mfa-config" element={<MFAConfigurationPageV8 />} />
+							<Route path="/v8/mfa-feature-flags" element={<MFAFeatureFlagsAdminV8 />} />
 							<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlowV8 />} />
 							<Route path="/v8/mfa-device-ordering" element={<MFADeviceOrderingFlowV8 />} />
 							<Route path="/v8/mfa-reporting" element={<MFAReportingFlowV8 />} />
