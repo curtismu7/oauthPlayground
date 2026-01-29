@@ -61,10 +61,6 @@ import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplay
 import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
 import { useActionButton } from '@/v8/hooks/useActionButton';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
-import { useMFAAuthentication } from '@/v8/hooks/useMFAAuthentication';
-import { useMFADevices } from '@/v8/hooks/useMFADevices';
-import { useMFAPolicies } from '@/v8/hooks/useMFAPolicies';
-import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
@@ -1874,358 +1870,364 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				{!isWorkerTokenConfigCollapsed && (
 					<div>
 						{/* Worker Token Status & Actions */}
-				<div style={{ marginBottom: '24px' }}>
-					<div
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							gap: '16px',
-							alignItems: 'flex-start',
-						}}
-					>
-						<button
-							type="button"
-							onClick={async () => {
-								setIsGettingWorkerToken(true);
-								try {
-									const { handleShowWorkerTokenModal } = await import(
-										'@/v8/utils/workerTokenModalHelperV8'
-									);
-									// User explicitly clicked the button - always show modal
-									// Pass current checkbox values to override config (page checkboxes take precedence)
-									// forceShowModal=true because user explicitly clicked the button
-									await handleShowWorkerTokenModal(
-										setShowWorkerTokenModal,
-										setTokenStatus,
-										silentApiRetrieval, // Page checkbox value takes precedence
-										showTokenAtEnd, // Page checkbox value takes precedence
-										true // Always show modal when user clicks button
-									);
-								} finally {
-									setIsGettingWorkerToken(false);
-								}
-							}}
-							disabled={isGettingWorkerToken}
-							style={{
-								padding: '8px 16px',
-								border: 'none',
-								borderRadius: '6px',
-								background:
-									tokenStatus.status === 'expiring-soon'
-										? '#f59e0b'
-										: tokenStatus.isValid
-											? '#10b981'
-											: '#dc2626',
-								color: 'white',
-								fontSize: '14px',
-								fontWeight: '500',
-								cursor: isGettingWorkerToken ? 'not-allowed' : 'pointer',
-								whiteSpace: 'nowrap',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								opacity: isGettingWorkerToken ? 0.7 : 1,
-							}}
-						>
-							{isGettingWorkerToken && (
-								<FiLoader
-									style={{
-										animation: 'spin 1s linear infinite',
-										fontSize: '14px',
-									}}
-								/>
-							)}
-							{isGettingWorkerToken ? 'Getting Token...' : 'Get Worker Token'}
-						</button>
-
-						{/* Worker Token Status Display */}
-						<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
-					</div>
-
-					{/* Worker Token Configuration Options */}
-					<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-						<label
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '12px',
-								cursor: 'pointer',
-								userSelect: 'none',
-								padding: '8px',
-								borderRadius: '6px',
-								transition: 'background-color 0.2s ease',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.backgroundColor = '#f3f4f6';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.backgroundColor = 'transparent';
-							}}
-						>
-							<input
-								type="checkbox"
-								checked={silentApiRetrieval}
-								onChange={async (e) => {
-									const newValue = e.target.checked;
-									setSilentApiRetrieval(newValue);
-									// Update config service immediately (no cache)
-									const config = MFAConfigurationServiceV8.loadConfiguration();
-									config.workerToken.silentApiRetrieval = newValue;
-									MFAConfigurationServiceV8.saveConfiguration(config);
-									// Dispatch event to notify other components
-									window.dispatchEvent(
-										new CustomEvent('mfaConfigurationUpdated', {
-											detail: { workerToken: config.workerToken },
-										})
-									);
-									toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
-
-									// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
-									if (newValue) {
-										const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-										if (!currentStatus.isValid) {
-											console.log(
-												'[MFA-AUTHN-MAIN-V8] Silent API retrieval enabled, attempting to fetch token now...'
-											);
+						<div style={{ marginBottom: '24px' }}>
+							<div
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '16px',
+									alignItems: 'flex-start',
+								}}
+							>
+								<button
+									type="button"
+									onClick={async () => {
+										setIsGettingWorkerToken(true);
+										try {
 											const { handleShowWorkerTokenModal } = await import(
 												'@/v8/utils/workerTokenModalHelperV8'
 											);
+											// User explicitly clicked the button - always show modal
+											// Pass current checkbox values to override config (page checkboxes take precedence)
+											// forceShowModal=true because user explicitly clicked the button
 											await handleShowWorkerTokenModal(
 												setShowWorkerTokenModal,
 												setTokenStatus,
-												newValue, // Use new value
-												showTokenAtEnd,
-												false // Not forced - respect silent setting
+												silentApiRetrieval, // Page checkbox value takes precedence
+												showTokenAtEnd, // Page checkbox value takes precedence
+												true // Always show modal when user clicks button
 											);
+										} finally {
+											setIsGettingWorkerToken(false);
 										}
-									}
-								}}
-								style={{
-									width: '20px',
-									height: '20px',
-									cursor: 'pointer',
-									accentColor: '#6366f1',
-									flexShrink: 0,
-								}}
-							/>
-							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-								<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
-									Silent API Token Retrieval
-								</span>
-								<span style={{ fontSize: '12px', color: '#6b7280' }}>
-									Automatically fetch worker token in the background without showing modals
-								</span>
+									}}
+									disabled={isGettingWorkerToken}
+									style={{
+										padding: '8px 16px',
+										border: 'none',
+										borderRadius: '6px',
+										background:
+											tokenStatus.status === 'expiring-soon'
+												? '#f59e0b'
+												: tokenStatus.isValid
+													? '#10b981'
+													: '#dc2626',
+										color: 'white',
+										fontSize: '14px',
+										fontWeight: '500',
+										cursor: isGettingWorkerToken ? 'not-allowed' : 'pointer',
+										whiteSpace: 'nowrap',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '8px',
+										opacity: isGettingWorkerToken ? 0.7 : 1,
+									}}
+								>
+									{isGettingWorkerToken && (
+										<FiLoader
+											style={{
+												animation: 'spin 1s linear infinite',
+												fontSize: '14px',
+											}}
+										/>
+									)}
+									{isGettingWorkerToken ? 'Getting Token...' : 'Get Worker Token'}
+								</button>
+
+								{/* Worker Token Status Display */}
+								<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
 							</div>
-						</label>
 
-						<label
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '12px',
-								cursor: 'pointer',
-								userSelect: 'none',
-								padding: '8px',
-								borderRadius: '6px',
-								transition: 'background-color 0.2s ease',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.backgroundColor = '#f3f4f6';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.backgroundColor = 'transparent';
-							}}
-						>
-							<input
-								type="checkbox"
-								checked={showTokenAtEnd}
-								onChange={(e) => {
-									const newValue = e.target.checked;
-									setShowTokenAtEnd(newValue);
-									// Update config service immediately (no cache)
-									const config = MFAConfigurationServiceV8.loadConfiguration();
-									config.workerToken.showTokenAtEnd = newValue;
-									MFAConfigurationServiceV8.saveConfiguration(config);
-									// Dispatch event to notify other components
-									window.dispatchEvent(
-										new CustomEvent('mfaConfigurationUpdated', {
-											detail: { workerToken: config.workerToken },
-										})
-									);
-									toastV8.info(`Show Token After Generation set to: ${newValue}`);
-								}}
-								style={{
-									width: '20px',
-									height: '20px',
-									cursor: 'pointer',
-									accentColor: '#6366f1',
-									flexShrink: 0,
-								}}
-							/>
-							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-								<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
-									Show Token After Generation
-								</span>
-								<span style={{ fontSize: '12px', color: '#6b7280' }}>
-									Display the generated worker token in a modal after successful retrieval
-								</span>
+							{/* Worker Token Configuration Options */}
+							<div
+								style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}
+							>
+								<label
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '12px',
+										cursor: 'pointer',
+										userSelect: 'none',
+										padding: '8px',
+										borderRadius: '6px',
+										transition: 'background-color 0.2s ease',
+									}}
+									onMouseEnter={(e) => {
+										e.currentTarget.style.backgroundColor = '#f3f4f6';
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.backgroundColor = 'transparent';
+									}}
+								>
+									<input
+										type="checkbox"
+										checked={silentApiRetrieval}
+										onChange={async (e) => {
+											const newValue = e.target.checked;
+											setSilentApiRetrieval(newValue);
+											// Update config service immediately (no cache)
+											const config = MFAConfigurationServiceV8.loadConfiguration();
+											config.workerToken.silentApiRetrieval = newValue;
+											MFAConfigurationServiceV8.saveConfiguration(config);
+											// Dispatch event to notify other components
+											window.dispatchEvent(
+												new CustomEvent('mfaConfigurationUpdated', {
+													detail: { workerToken: config.workerToken },
+												})
+											);
+											toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
+
+											// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
+											if (newValue) {
+												const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+												if (!currentStatus.isValid) {
+													console.log(
+														'[MFA-AUTHN-MAIN-V8] Silent API retrieval enabled, attempting to fetch token now...'
+													);
+													const { handleShowWorkerTokenModal } = await import(
+														'@/v8/utils/workerTokenModalHelperV8'
+													);
+													await handleShowWorkerTokenModal(
+														setShowWorkerTokenModal,
+														setTokenStatus,
+														newValue, // Use new value
+														showTokenAtEnd,
+														false // Not forced - respect silent setting
+													);
+												}
+											}
+										}}
+										style={{
+											width: '20px',
+											height: '20px',
+											cursor: 'pointer',
+											accentColor: '#6366f1',
+											flexShrink: 0,
+										}}
+									/>
+									<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+										<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+											Silent API Token Retrieval
+										</span>
+										<span style={{ fontSize: '12px', color: '#6b7280' }}>
+											Automatically fetch worker token in the background without showing modals
+										</span>
+									</div>
+								</label>
+
+								<label
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '12px',
+										cursor: 'pointer',
+										userSelect: 'none',
+										padding: '8px',
+										borderRadius: '6px',
+										transition: 'background-color 0.2s ease',
+									}}
+									onMouseEnter={(e) => {
+										e.currentTarget.style.backgroundColor = '#f3f4f6';
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.backgroundColor = 'transparent';
+									}}
+								>
+									<input
+										type="checkbox"
+										checked={showTokenAtEnd}
+										onChange={(e) => {
+											const newValue = e.target.checked;
+											setShowTokenAtEnd(newValue);
+											// Update config service immediately (no cache)
+											const config = MFAConfigurationServiceV8.loadConfiguration();
+											config.workerToken.showTokenAtEnd = newValue;
+											MFAConfigurationServiceV8.saveConfiguration(config);
+											// Dispatch event to notify other components
+											window.dispatchEvent(
+												new CustomEvent('mfaConfigurationUpdated', {
+													detail: { workerToken: config.workerToken },
+												})
+											);
+											toastV8.info(`Show Token After Generation set to: ${newValue}`);
+										}}
+										style={{
+											width: '20px',
+											height: '20px',
+											cursor: 'pointer',
+											accentColor: '#6366f1',
+											flexShrink: 0,
+										}}
+									/>
+									<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+										<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+											Show Token After Generation
+										</span>
+										<span style={{ fontSize: '12px', color: '#6b7280' }}>
+											Display the generated worker token in a modal after successful retrieval
+										</span>
+									</div>
+								</label>
 							</div>
-						</label>
-					</div>
-				</div>
-
-				<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-					{/* Environment ID */}
-					<div>
-						<label
-							style={{
-								display: 'block',
-								marginBottom: '8px',
-								fontSize: '14px',
-								fontWeight: '500',
-								color: '#374151',
-							}}
-						>
-							Environment ID
-						</label>
-						<input
-							type="text"
-							value={credentials.environmentId}
-							onChange={(e) => {
-								const updated = { ...credentials, environmentId: e.target.value };
-								setCredentials(updated);
-								const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-									flowKey: FLOW_KEY,
-									flowType: 'oidc',
-									includeClientSecret: false,
-									includeRedirectUri: false,
-									includeLogoutUri: false,
-									includeScopes: false,
-								});
-								CredentialsServiceV8.saveCredentials(FLOW_KEY, {
-									...stored,
-									environmentId: e.target.value,
-								});
-							}}
-							placeholder="Enter environment ID"
-							style={{
-								width: '100%',
-								padding: '8px 12px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '14px',
-							}}
-						/>
-					</div>
-
-					{/* Username */}
-					<div>
-						<label
-							htmlFor={usernameInputId}
-							style={{
-								display: 'block',
-								marginBottom: '8px',
-								fontSize: '14px',
-								fontWeight: '500',
-								color: '#374151',
-							}}
-						>
-							Username
-						</label>
-						<input
-							id={usernameInputId}
-							type="text"
-							value={usernameInput}
-							onChange={(e) => {
-								const newUsername = e.target.value;
-								setUsernameInput(newUsername);
-								setCredentials((prev) => ({ ...prev, username: newUsername }));
-								const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-									flowKey: FLOW_KEY,
-									flowType: 'oidc',
-									includeClientSecret: false,
-									includeRedirectUri: false,
-									includeLogoutUri: false,
-									includeScopes: false,
-								});
-								CredentialsServiceV8.saveCredentials(FLOW_KEY, {
-									...stored,
-									username: newUsername,
-								});
-							}}
-							onKeyDown={(e) => {
-								if (e.key === 'Enter') {
-									handleStartMFA();
-								}
-							}}
-							placeholder="Enter username (e.g., user@example.com)"
-							style={{
-								width: '100%',
-								padding: '8px 12px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '14px',
-							}}
-						/>
-					</div>
-				</div>
-
-				{/* MFA Policy Selection - Second Row */}
-				<div style={{ marginTop: '20px' }}>
-					<label
-						htmlFor={policySelectId}
-						style={{
-							display: 'block',
-							marginBottom: '8px',
-							fontSize: '14px',
-							fontWeight: '500',
-							color: '#374151',
-						}}
-					>
-						Device Authentication Policy
-					</label>
-					{isLoadingPolicies ? (
-						<div style={{ padding: '8px 12px', color: '#6b7280', fontSize: '14px' }}>
-							<FiLoader style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }} />{' '}
-							Loading policies...
 						</div>
-					) : policiesError ? (
-						<div style={{ padding: '8px 12px', color: '#dc2626', fontSize: '14px' }}>
-							<FiAlertCircle /> {policiesError}
+
+						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+							{/* Environment ID */}
+							<div>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+										color: '#374151',
+									}}
+								>
+									Environment ID
+								</label>
+								<input
+									type="text"
+									value={credentials.environmentId}
+									onChange={(e) => {
+										const updated = { ...credentials, environmentId: e.target.value };
+										setCredentials(updated);
+										const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+											flowKey: FLOW_KEY,
+											flowType: 'oidc',
+											includeClientSecret: false,
+											includeRedirectUri: false,
+											includeLogoutUri: false,
+											includeScopes: false,
+										});
+										CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+											...stored,
+											environmentId: e.target.value,
+										});
+									}}
+									placeholder="Enter environment ID"
+									style={{
+										width: '100%',
+										padding: '8px 12px',
+										border: '1px solid #d1d5db',
+										borderRadius: '6px',
+										fontSize: '14px',
+									}}
+								/>
+							</div>
+
+							{/* Username */}
+							<div>
+								<label
+									htmlFor={usernameInputId}
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+										color: '#374151',
+									}}
+								>
+									Username
+								</label>
+								<input
+									id={usernameInputId}
+									type="text"
+									value={usernameInput}
+									onChange={(e) => {
+										const newUsername = e.target.value;
+										setUsernameInput(newUsername);
+										setCredentials((prev) => ({ ...prev, username: newUsername }));
+										const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+											flowKey: FLOW_KEY,
+											flowType: 'oidc',
+											includeClientSecret: false,
+											includeRedirectUri: false,
+											includeLogoutUri: false,
+											includeScopes: false,
+										});
+										CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+											...stored,
+											username: newUsername,
+										});
+									}}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter') {
+											handleStartMFA();
+										}
+									}}
+									placeholder="Enter username (e.g., user@example.com)"
+									style={{
+										width: '100%',
+										padding: '8px 12px',
+										border: '1px solid #d1d5db',
+										borderRadius: '6px',
+										fontSize: '14px',
+									}}
+								/>
+							</div>
 						</div>
-					) : (
-						<select
-							id={policySelectId}
-							value={credentials.deviceAuthenticationPolicyId}
-							onChange={(e) => handlePolicySelect(e.target.value)}
-							disabled={!tokenStatus.isValid || deviceAuthPolicies.length === 0}
-							style={{
-								width: '100%',
-								padding: '8px 12px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '14px',
-								background: 'white',
-								cursor:
-									tokenStatus.isValid && deviceAuthPolicies.length > 0 ? 'pointer' : 'not-allowed',
-								opacity: !tokenStatus.isValid || deviceAuthPolicies.length === 0 ? 0.6 : 1,
-							}}
-						>
-							<option value="">
-								{!tokenStatus.isValid
-									? 'Get Worker Token first to load policies'
-									: deviceAuthPolicies.length === 0
-										? 'No policies available'
-										: 'Choose a policy...'}
-							</option>
-							{deviceAuthPolicies.map((policy) => (
-								<option key={policy.id} value={policy.id}>
-									{policy.name} {policy.default ? '(DEFAULT)' : ''}
-								</option>
-							))}
-						</select>
-					)}
-				</div>
+
+						{/* MFA Policy Selection - Second Row */}
+						<div style={{ marginTop: '20px' }}>
+							<label
+								htmlFor={policySelectId}
+								style={{
+									display: 'block',
+									marginBottom: '8px',
+									fontSize: '14px',
+									fontWeight: '500',
+									color: '#374151',
+								}}
+							>
+								Device Authentication Policy
+							</label>
+							{isLoadingPolicies ? (
+								<div style={{ padding: '8px 12px', color: '#6b7280', fontSize: '14px' }}>
+									<FiLoader
+										style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}
+									/>{' '}
+									Loading policies...
+								</div>
+							) : policiesError ? (
+								<div style={{ padding: '8px 12px', color: '#dc2626', fontSize: '14px' }}>
+									<FiAlertCircle /> {policiesError}
+								</div>
+							) : (
+								<select
+									id={policySelectId}
+									value={credentials.deviceAuthenticationPolicyId}
+									onChange={(e) => handlePolicySelect(e.target.value)}
+									disabled={!tokenStatus.isValid || deviceAuthPolicies.length === 0}
+									style={{
+										width: '100%',
+										padding: '8px 12px',
+										border: '1px solid #d1d5db',
+										borderRadius: '6px',
+										fontSize: '14px',
+										background: 'white',
+										cursor:
+											tokenStatus.isValid && deviceAuthPolicies.length > 0
+												? 'pointer'
+												: 'not-allowed',
+										opacity: !tokenStatus.isValid || deviceAuthPolicies.length === 0 ? 0.6 : 1,
+									}}
+								>
+									<option value="">
+										{!tokenStatus.isValid
+											? 'Get Worker Token first to load policies'
+											: deviceAuthPolicies.length === 0
+												? 'No policies available'
+												: 'Choose a policy...'}
+									</option>
+									{deviceAuthPolicies.map((policy) => (
+										<option key={policy.id} value={policy.id}>
+											{policy.name} {policy.default ? '(DEFAULT)' : ''}
+										</option>
+									))}
+								</select>
+							)}
+						</div>
 					</div>
 				)}
 			</div>

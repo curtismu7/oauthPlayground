@@ -17,7 +17,7 @@ import type { FlowType } from '../../../dependencies/v8/services/specVersionServ
 import { toastV8 } from '../../../dependencies/v8/utils/toastNotificationsV8.ts';
 import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 
-const MODULE_TAG = '[🛡️ UNIFIED-FLOW-ERROR-HANDLER-V8U]';
+const _MODULE_TAG = '[🛡️ UNIFIED-FLOW-ERROR-HANDLER-V8U]';
 
 export interface ErrorContext {
 	flowType?: FlowType;
@@ -281,7 +281,7 @@ export class UnifiedFlowErrorHandler {
 	/**
 	 * Get recovery suggestion for error
 	 */
-	static getRecoverySuggestion(error: unknown, context: ErrorContext = {}): string | undefined {
+	static getRecoverySuggestion(error: unknown, _context: ErrorContext = {}): string | undefined {
 		const parsedError = UnifiedFlowErrorHandler.parsePingOneError(error);
 		return parsedError.recoverySuggestion;
 	}

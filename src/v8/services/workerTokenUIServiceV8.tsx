@@ -178,7 +178,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 				mode: 'minimal' as const,
 				showRefresh: false,
 				className: 'worker-token-status-minimal',
-			}
+			},
 		};
 		return configs[statusSize] || configs.large;
 	};

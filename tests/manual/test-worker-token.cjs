@@ -5,7 +5,7 @@
  * Tests if a PingOne worker token is valid by making API calls
  */
 
-const https = require('https');
+const https = require('node:https');
 
 const WORKER_TOKEN =
 	'eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiOGExY2FiODEtMDVhMi00NjM0LTg3MGYtNGRkYTUzYWUzODJlIiwiaWF0IjoxNzYzMDY2ODg2LCJleHAiOjE3NjMwNzA0ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiI4YTFjYWI4MS0wNWEyLTQ2MzQtODcwZi00ZGRhNTNhZTM4MmUifQ.XxjvcRn1CZmI-hOH6sNrOcSZO58IcVCxIbYlrdac1PZpuxo7DB9tkji4cu5a6hclHcpD685cx06x4H6lBKy1fTvnUEAABKEULnkeSePKYej5_kWBIcawBvq5G1wgtNRrz33tZxIrGxaAHtZbkd-_2wcw2vSg2eRg21LwwsFWO50EuC0UINYosLSZ4S8W2VpwvnlIwFmF0OkbaJ3NUbzvbl_3xfk1iAok8I0eqwCRaiBh0MNGlFDkChRjJAzLWM13CTf16CPp8XBdzTVv4pox0PZGF4O-el5iKpPgsIu4PgbmuxSXrOdSYGRN1AfOEaM0fLr4oe42r15KvJb9oJ3Uxg';
@@ -116,7 +116,7 @@ async function testWorkerToken() {
 				const error = JSON.parse(response.body);
 				console.log('   Error:', error.message || error.error);
 				console.log('   Details:', error.details || error.error_description);
-			} catch (e) {
+			} catch (_e) {
 				console.log('   Response:', response.body);
 			}
 		} else if (response.statusCode === 403) {
@@ -124,7 +124,7 @@ async function testWorkerToken() {
 			try {
 				const error = JSON.parse(response.body);
 				console.log('   Error:', error.message || error.error);
-			} catch (e) {
+			} catch (_e) {
 				console.log('   Response:', response.body);
 			}
 		} else {
@@ -169,7 +169,7 @@ async function testWorkerToken() {
 		console.error('   ❌ Request failed:', error.message);
 	}
 
-	console.log('\n' + '='.repeat(60));
+	console.log(`\n${'='.repeat(60)}`);
 	console.log('✅ Test complete\n');
 }
 

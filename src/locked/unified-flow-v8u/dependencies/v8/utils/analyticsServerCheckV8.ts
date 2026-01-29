@@ -62,7 +62,7 @@ export async function isAnalyticsServerAvailable(): Promise<boolean> {
 			lastCheckTime = now;
 			return false;
 		}
-	} catch (error) {
+	} catch (_error) {
 		// Server is not available - suppress error
 		serverAvailable = false;
 		lastCheckTime = now;
@@ -73,7 +73,7 @@ export async function isAnalyticsServerAvailable(): Promise<boolean> {
 /**
  * Safely send analytics data only if server is available
  */
-export async function safeAnalyticsFetch(data: Record<string, unknown>): Promise<void> {
+export async function safeAnalyticsFetch(_data: Record<string, unknown>): Promise<void> {
 	const available = await isAnalyticsServerAvailable();
 	if (!available) {
 		// Silently skip - server not available

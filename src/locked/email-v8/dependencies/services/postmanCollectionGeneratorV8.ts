@@ -1871,7 +1871,7 @@ const generatePasswordScript = (): string[] => {
 };
 
 const generateUseCasesItems = (
-	credentials?: {
+	_credentials?: {
 		environmentId?: string;
 		clientId?: string;
 		clientSecret?: string;

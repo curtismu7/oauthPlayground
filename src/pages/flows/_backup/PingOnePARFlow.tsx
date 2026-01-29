@@ -222,7 +222,7 @@ interface PARResponse {
 	expires_in: number;
 }
 
-const PingOnePARFlow: React.FC = () => {
+const _PingOnePARFlow: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(0);
 	const [config, setConfig] = useState<PingOneConfig | null>(null);
 	const [parRequest, setPARRequest] = useState<PARRequest>({

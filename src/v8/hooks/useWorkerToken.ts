@@ -3,7 +3,7 @@
  * @module v8/hooks
  * @description Custom hook for managing worker token state and operations
  * @version 3.0.0
- * 
+ *
  * Extracted from MFAAuthenticationMainPageV8.tsx as part of V3 refactoring.
  * Centralizes all worker token-related logic including:
  * - Token status monitoring
@@ -15,8 +15,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 
 export interface UseWorkerTokenConfig {
 	/** Auto-refresh interval in milliseconds (default: 5000) */
@@ -138,19 +138,19 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 			if (!config.workerToken.silentApiRetrieval) return;
 
 			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			
+
 			// If token expires in less than 5 minutes, refresh it
 			if (status.expiresAt) {
 				const expiresIn = status.expiresAt - Date.now();
 				const fiveMinutes = 5 * 60 * 1000;
-				
+
 				if (expiresIn > 0 && expiresIn < fiveMinutes && !isRefreshing) {
 					setIsRefreshing(true);
 					console.log(`${MODULE_TAG} Token expiring soon, auto-refreshing...`);
-					
+
 					// Trigger token refresh by dispatching event
 					window.dispatchEvent(new CustomEvent('refreshWorkerToken'));
-					
+
 					// Wait a bit then check status again
 					setTimeout(async () => {
 						await refreshTokenStatus();

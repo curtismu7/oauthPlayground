@@ -75,7 +75,7 @@ const StatusMessage = styled.p`
   margin-bottom: 1rem;
 `;
 
-const WarningMessage = styled.div`
+const _WarningMessage = styled.div`
   background: #fef3c7;
   border: 1px solid #f59e0b;
   border-radius: 0.5rem;

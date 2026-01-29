@@ -469,7 +469,7 @@ const PingOneApiTest: React.FC = () => {
 			}
 
 			// For testing purposes, we'll use a mock authorization code
-			const testAuthCode = 'test_authorization_code_' + Date.now();
+			const testAuthCode = `test_authorization_code_${Date.now()}`;
 
 			const requestBody = {
 				grant_type: 'authorization_code',
@@ -550,7 +550,7 @@ const PingOneApiTest: React.FC = () => {
 			}
 
 			// Mock access token for testing
-			const testAccessToken = 'test_access_token_' + Date.now();
+			const testAccessToken = `test_access_token_${Date.now()}`;
 
 			const response = await fetch(`/api/pingone/userinfo?access_token=${testAccessToken}`, {
 				method: 'GET',
@@ -601,7 +601,7 @@ const PingOneApiTest: React.FC = () => {
 			}
 
 			// Mock token for testing
-			const testToken = 'test_token_' + Date.now();
+			const testToken = `test_token_${Date.now()}`;
 
 			const requestBody = {
 				token: testToken,
@@ -664,7 +664,7 @@ const PingOneApiTest: React.FC = () => {
 				throw new Error('Environment ID required for JWKS test');
 			}
 
-			const jwksUrl = `https://auth.pingone.com/${config.environmentId}/as/jwks`;
+			const _jwksUrl = `https://auth.pingone.com/${config.environmentId}/as/jwks`;
 			const response = await fetch(`/api/pingone/jwks?environmentId=${config.environmentId}`, {
 				method: 'GET',
 			});

@@ -7,7 +7,7 @@ import fetch from 'node-fetch';
 dotenv.config();
 
 const BACKEND_URL = 'https://localhost:3001';
-const FRONTEND_URL = 'https://localhost:3000';
+const _FRONTEND_URL = 'https://localhost:3000';
 
 // Disable SSL verification for self-signed certificates in testing
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';

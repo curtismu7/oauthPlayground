@@ -6,7 +6,6 @@ import {
 	FiAlertCircle,
 	FiCheckCircle,
 	FiChevronDown,
-	FiCopy,
 	FiExternalLink,
 	FiGlobe,
 	FiInfo,
@@ -33,7 +32,6 @@ import { FlowControllerService } from '../../services/flowControllerService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowLayoutService } from '../../services/flowLayoutService';
 import FlowStateService from '../../services/flowStateService';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Service-generated styled components
@@ -239,7 +237,7 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 	});
 
 	// Configuration management functions
-	const handleSaveConfiguration = useCallback(async () => {
+	const _handleSaveConfiguration = useCallback(async () => {
 		const required = ['environmentId', 'clientId', 'redirectUri'];
 		const missing = required.filter((field) => {
 			const value =
@@ -285,7 +283,7 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 		}
 	}, [controller.credentials]);
 
-	const handleLoadConfiguration = useCallback(
+	const _handleLoadConfiguration = useCallback(
 		(config?: {
 			environmentId?: string;
 			clientId?: string;
@@ -409,7 +407,7 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 
 	// Service-generated step content
 
-	const renderFlowSummary = useCallback(() => {
+	const _renderFlowSummary = useCallback(() => {
 		const completionConfig = {
 			...FlowCompletionConfigs.authorizationCode,
 			onStartNewFlow: () => {
@@ -1155,6 +1153,16 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 		controller.credentials.scopes,
 		pingOneConfig,
 		savePingOneConfig,
+		controller.credentials.scope,
+		controller.handleCopy,
+		controller.setCredentials,
+		controller.tokens.access_token,
+		controller.tokens.expires_in,
+		controller.tokens.scope,
+		handleFetchUserInfo,
+		handleGenerateAuthUrl,
+		controller.credentials,
+		handleValidateToken,
 	]);
 
 	return (

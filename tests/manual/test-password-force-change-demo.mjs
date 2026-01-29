@@ -87,7 +87,7 @@ function highlightChanges(before, after, changedFields) {
 		}
 	});
 
-	console.log('\n' + '='.repeat(70));
+	console.log(`\n${'='.repeat(70)}`);
 }
 
 async function main() {

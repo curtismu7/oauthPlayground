@@ -631,7 +631,7 @@
             }
 
             // Warning for HTTP
-            if (credentials.redirectUri && credentials.redirectUri.startsWith('http://') && !credentials.redirectUri.includes('localhost')) {
+            if (credentials.redirectUri?.startsWith('http://') && !credentials.redirectUri.includes('localhost')) {
                 warnings.push('Using HTTP (not HTTPS) for non-localhost URLs is insecure');
             }
 
@@ -934,7 +934,7 @@
         };
 
         // Quick Start
-        function applyQuickStart() {
+        function _applyQuickStart() {
             credentials.environmentId = '12345678-1234-1234-1234-123456789012';
             credentials.clientId = 'my-client-id';
             credentials.redirectUri = 'http://localhost:3000/callback';

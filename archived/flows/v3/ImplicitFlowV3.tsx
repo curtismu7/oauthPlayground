@@ -25,12 +25,10 @@ import {
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
-	FiCopy,
 	FiEye,
 	FiEyeOff,
 	FiKey,
 	FiRefreshCw,
-	FiSettings,
 	FiShield,
 } from '../../services/commonImportsService';
 import { ResponseMode } from '../../services/responseModeService';

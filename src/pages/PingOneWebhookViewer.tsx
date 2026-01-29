@@ -543,7 +543,7 @@ const PingOneWebhookViewer: React.FC = () => {
 	}, [environmentId, workerToken]);
 
 	// Validate worker token and provide helpful feedback
-	const validateWorkerToken = async (token: string, envId: string) => {
+	const _validateWorkerToken = async (token: string, envId: string) => {
 		try {
 			// Test basic environment access
 			const testResponse = await fetch(
@@ -585,19 +585,21 @@ const PingOneWebhookViewer: React.FC = () => {
 	};
 
 	// Format conversion functions for different display formats
-	const formatEventForDisplay = useCallback((event: WebhookEvent, format: string) => {
-		switch (format) {
-			case 'splunk':
-				return formatAsSplunk(event);
-			case 'ping-activity':
-				return formatAsPingActivity(event);
-			case 'new-relic':
-				return formatAsNewRelic(event);
-			case 'json':
-			default:
-				return JSON.stringify(event.data, null, 2);
-		}
-	}, []);
+	const formatEventForDisplay = useCallback(
+		(event: WebhookEvent, format: string) => {
+			switch (format) {
+				case 'splunk':
+					return formatAsSplunk(event);
+				case 'ping-activity':
+					return formatAsPingActivity(event);
+				case 'new-relic':
+					return formatAsNewRelic(event);
+				default:
+					return JSON.stringify(event.data, null, 2);
+			}
+		},
+		[formatAsNewRelic, formatAsPingActivity, formatAsSplunk]
+	);
 
 	const formatAsSplunk = (event: WebhookEvent): string => {
 		const timestamp = event.timestamp.toISOString();
@@ -1144,7 +1146,7 @@ const PingOneWebhookViewer: React.FC = () => {
 		}).format(timestamp);
 	};
 
-	const formatData = (data: Record<string, unknown>, webhook: WebhookEvent) => {
+	const formatData = (_data: Record<string, unknown>, webhook: WebhookEvent) => {
 		return formatEventForDisplay(webhook, displayFormat);
 	};
 
