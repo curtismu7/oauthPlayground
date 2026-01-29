@@ -16,7 +16,6 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { useResourceOwnerPasswordFlowController } from '../../hooks/useResourceOwnerPasswordFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
@@ -328,7 +327,7 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 	// Scroll to top when step changes
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}, [currentStep]);
+	}, []);
 
 	const { credentials, tokens, requestToken, clearResults, updateCredentials, saveCredentials } =
 		useResourceOwnerPasswordFlowController();
@@ -554,7 +553,7 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 										<TokenInfoLabel>Access Token:</TokenInfoLabel>
 										<TokenInfoValue>
 											{tokens?.access_token
-												? tokens.access_token.substring(0, 50) + '...'
+												? `${tokens.access_token.substring(0, 50)}...`
 												: 'Not available'}
 										</TokenInfoValue>
 									</TokenInfoRow>

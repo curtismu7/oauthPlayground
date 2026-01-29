@@ -14,14 +14,11 @@ import {
 	ClientAuthMethod,
 	ClientCredentialsCollapsibleSections,
 	ClientCredentialsDefaults,
-	ClientCredentialsEducationalContent,
 	ClientCredentialsTokenRequest,
 	log,
 } from '../../services/clientCredentialsSharedService';
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import {
 	FiAlertCircle,
-	FiAlertTriangle,
 	FiCheckCircle,
 	FiChevronDown,
 	FiEye,
@@ -32,7 +29,6 @@ import {
 	FiZap,
 } from '../../services/commonImportsService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { ConfigurationSummaryService } from '../../services/configurationSummaryService';
 import { CredentialGuardService } from '../../services/credentialGuardService';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { ErrorHandlingService } from '../../services/errorHandlingService';
@@ -43,7 +39,7 @@ import { TokenIntrospectionService } from '../../services/tokenIntrospectionServ
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
-const LOG_PREFIX = '[🔑 CLIENT-CREDS-V6]';
+const _LOG_PREFIX = '[🔑 CLIENT-CREDS-V6]';
 const DEFAULT_CLIENT_CREDENTIALS_SCOPES =
 	'p1:read:user p1:update:user p1:read:device p1:update:device';
 
@@ -446,7 +442,7 @@ const ClientCredentialsFlowV6: React.FC<ClientCredentialsFlowV6Props> = ({
 	selectedAuthMethod: propSelectedAuthMethod,
 	onAuthMethodChange: propOnAuthMethodChange,
 }) => {
-	const navigate = useNavigate();
+	const _navigate = useNavigate();
 
 	// Initialize page scroll management
 	usePageScroll();
@@ -657,10 +653,10 @@ const ClientCredentialsFlowV6: React.FC<ClientCredentialsFlowV6Props> = ({
 		} finally {
 			controller.setIsLoading(false);
 		}
-	}, [controller, selectedAuthMethod]);
+	}, [controller, selectedAuthMethod, flowKey]);
 
 	// Wrapper to enforce openid scope (required by PingOne)
-	const handleCredentialsChange = useCallback(
+	const _handleCredentialsChange = useCallback(
 		(newCredentials: typeof controller.credentials) => {
 			const trimmedScopes = newCredentials.scopes?.trim() || '';
 			const isClientCredentialsV7 = flowKey === 'client-credentials-v7';
@@ -707,7 +703,14 @@ const ClientCredentialsFlowV6: React.FC<ClientCredentialsFlowV6Props> = ({
 					return <div>Invalid step</div>;
 			}
 		},
-		[controller, collapsedSections, toggleSection, selectedAuthMethod]
+		[
+			renderAuthMethodSelection,
+			renderCredentialsConfiguration,
+			renderFlowCompletion,
+			renderTokenAnalysis,
+			renderTokenManagement,
+			renderTokenRequest,
+		]
 	);
 
 	// Step 0: Credentials & Configuration
@@ -793,7 +796,7 @@ const ClientCredentialsFlowV6: React.FC<ClientCredentialsFlowV6Props> = ({
 						// Extract environment ID from issuer URL if available
 						if (result.issuerUrl) {
 							const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
-							if (envIdMatch && envIdMatch[1]) {
+							if (envIdMatch?.[1]) {
 								controller.setCredentials({
 									...controller.credentials,
 									environmentId: envIdMatch[1],

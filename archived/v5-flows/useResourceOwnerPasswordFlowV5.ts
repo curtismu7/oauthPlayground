@@ -161,7 +161,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 		} finally {
 			setIsSavingCredentials(false);
 		}
-	}, [credentials, enableDebugger]);
+	}, [credentials, enableDebugger, saveStepResult]);
 
 	// Authenticate user using Resource Owner Password flow (MOCK IMPLEMENTATION)
 	const authenticateUser = useCallback(async () => {
@@ -290,7 +290,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 		} finally {
 			setIsAuthenticating(false);
 		}
-	}, [credentials, stepManager, enableDebugger]);
+	}, [credentials, enableDebugger, saveStepResult]);
 
 	// Fetch user info using access token (MOCK IMPLEMENTATION)
 	const fetchUserInfo = useCallback(async () => {
@@ -309,7 +309,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// Generate realistic mock user data based on the username credential
-			const [localPart, domain] = credentials.username.split('@');
+			const [localPart, _domain] = credentials.username.split('@');
 			const firstName = localPart.split('.')[0] || 'Demo';
 			const lastName = localPart.split('.')[1] || 'User';
 
@@ -364,7 +364,14 @@ export const useResourceOwnerPasswordFlowV5 = ({
 		} finally {
 			setIsFetchingUserInfo(false);
 		}
-	}, [tokens, credentials.environmentId, enableDebugger]);
+	}, [
+		tokens,
+		credentials.environmentId,
+		enableDebugger,
+		credentials.clientId,
+		credentials.username,
+		saveStepResult,
+	]);
 
 	// Refresh tokens using refresh token
 	const refreshTokens = useCallback(async () => {
@@ -428,7 +435,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 		} finally {
 			setIsRefreshingTokens(false);
 		}
-	}, [tokens, credentials, enableDebugger]);
+	}, [tokens, credentials, enableDebugger, saveStepResult]);
 
 	// Reset flow
 	const resetFlow = useCallback(() => {
@@ -474,7 +481,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 
 				// Fallback to loading from credentialManager (but keep mock username/password)
 				const savedCredentials = credentialManager.loadAuthzFlowCredentials();
-				if (savedCredentials && savedCredentials.environmentId && savedCredentials.clientId) {
+				if (savedCredentials?.environmentId && savedCredentials.clientId) {
 					// Safely handle scopes - check if it's an array before calling join
 					const scopeString = savedCredentials.scopes
 						? Array.isArray(savedCredentials.scopes)

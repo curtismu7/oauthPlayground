@@ -49,7 +49,6 @@ import {
 	IntrospectionApiCallData,
 	TokenIntrospectionService,
 } from '../../services/tokenIntrospectionService';
-import { UISettingsService } from '../../services/uiSettingsService';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
@@ -2181,7 +2180,7 @@ const DeviceAuthorizationFlowV6: React.FC = () => {
 		</>
 	);
 
-	const renderDeviceSuccessContent = () => {
+	const _renderDeviceSuccessContent = () => {
 		switch (selectedDevice) {
 			case 'gaming-console':
 				return (
@@ -2285,7 +2284,7 @@ const DeviceAuthorizationFlowV6: React.FC = () => {
 		}
 	};
 
-	const renderDevicePendingContent = () => {
+	const _renderDevicePendingContent = () => {
 		const isPolling = deviceFlow.pollingStatus.isPolling;
 		switch (selectedDevice) {
 			case 'gaming-console':

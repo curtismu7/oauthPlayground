@@ -37,7 +37,7 @@
                     if (parsed.flowCredentials) {
                         html += `<p><strong>${key} flowCredentials:</strong> <pre>${JSON.stringify(parsed.flowCredentials, null, 2)}</pre></p>`;
                     }
-                } catch (e) {
+                } catch (_e) {
                     html += `<p><strong>${key} (not JSON):</strong> ${value}</p>`;
                 }
             });

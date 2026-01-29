@@ -113,7 +113,7 @@ export const TokenEndpointAuthMethodDropdownV8: React.FC<
 	className = '',
 }) => {
 	const [showInfo, setShowInfo] = useState(false);
-	const availableMethods = TokenEndpointAuthMethodServiceV8.getAuthMethods(
+	const _availableMethods = TokenEndpointAuthMethodServiceV8.getAuthMethods(
 		flowType,
 		specVersion,
 		usePKCE

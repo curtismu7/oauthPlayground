@@ -326,7 +326,7 @@ Description: ${errorDesc || 'No description provided'}
             document.getElementById('fixes').innerHTML = html;
         }
 
-        function clearSessionStorage() {
+        function _clearSessionStorage() {
             if (confirm('Are you sure you want to clear all session storage? This will reset your OAuth flow state.')) {
                 sessionStorage.clear();
                 analyzeSessionStorage();
@@ -334,7 +334,7 @@ Description: ${errorDesc || 'No description provided'}
             }
         }
 
-        function simulateCallback() {
+        function _simulateCallback() {
             const testCode = 'test_auth_code_12345';
             const testState = 'test_state_67890';
             
@@ -346,7 +346,7 @@ Description: ${errorDesc || 'No description provided'}
             alert(`Simulated callback URL:\n${currentUrl.toString()}\n\nCopy this URL and navigate to it to test the callback handling.`);
         }
 
-        function testRedirectUri() {
+        function _testRedirectUri() {
             const currentOrigin = window.location.origin;
             const commonCallbackPaths = [
                 '/dashboard-callback',
@@ -373,7 +373,7 @@ Description: ${errorDesc || 'No description provided'}
             document.getElementById('fixes').innerHTML = html;
         }
 
-        function exportDebugInfo() {
+        function _exportDebugInfo() {
             const debugInfo = {
                 timestamp: new Date().toISOString(),
                 url: window.location.href,

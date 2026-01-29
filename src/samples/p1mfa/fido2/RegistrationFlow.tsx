@@ -104,7 +104,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 						? registrationResult.publicKeyCredentialCreationOptions
 						: JSON.stringify(registrationResult.publicKeyCredentialCreationOptions);
 				creationOptions = JSON.parse(optionsStr);
-			} catch (parseError) {
+			} catch (_parseError) {
 				throw new Error('Failed to parse device creation options');
 			}
 

@@ -206,16 +206,16 @@
     </div>
 
     <script>
-        function copyCommand(cmd) {
+        function _copyCommand(cmd) {
             navigator.clipboard.writeText(cmd);
-            alert('Copied to clipboard: ' + cmd);
+            alert(`Copied to clipboard: ${cmd}`);
         }
 
-        function openConsole() {
+        function _openConsole() {
             alert('Press F12 (Windows) or Cmd+Option+I (Mac) to open the console');
         }
 
-        function navigate() {
+        function _navigate() {
             window.location.href = '/v8u/unified/oauth-authz';
         }
 
@@ -231,7 +231,7 @@
             output.scrollTop = output.scrollHeight;
         }
 
-        async function runTests() {
+        async function _runTests() {
             clearOutput();
             log('Starting test suite...', 'info');
             
@@ -264,12 +264,12 @@
                     log(`⚠️ ${totalTests - totalPassed} test(s) failed. Check console for details.`, 'error');
                 }
             } catch (error) {
-                log('Error running tests: ' + error.message, 'error');
+                log(`Error running tests: ${error.message}`, 'error');
                 log('Make sure you are on the main app page.', 'info');
             }
         }
 
-        async function runUnitTests() {
+        async function _runUnitTests() {
             clearOutput();
             log('Running unit tests...', 'info');
             
@@ -287,11 +287,11 @@
                 const passed = results.filter(r => r.passed).length;
                 log(`Total: ${passed}/${results.length} passed`, passed === results.length ? 'success' : 'error');
             } catch (error) {
-                log('Error: ' + error.message, 'error');
+                log(`Error: ${error.message}`, 'error');
             }
         }
 
-        async function runIntegrationTests() {
+        async function _runIntegrationTests() {
             clearOutput();
             log('Running integration tests...', 'info');
             
@@ -309,7 +309,7 @@
                 const passed = results.filter(r => r.passed).length;
                 log(`Total: ${passed}/${results.length} passed`, passed === results.length ? 'success' : 'error');
             } catch (error) {
-                log('Error: ' + error.message, 'error');
+                log(`Error: ${error.message}`, 'error');
             }
         }
 

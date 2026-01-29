@@ -400,9 +400,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [isRedirectlessAuthenticating, setIsRedirectlessAuthenticating] = useState(false);
 	const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
 	const [passwordChangeUserId, setPasswordChangeUserId] = useState<string | null>(null);
-	const [passwordChangeFlowId, setPasswordChangeFlowId] = useState<string | null>(null);
-	const [passwordChangeState, setPasswordChangeState] = useState<string | null>(null);
-	const [passwordChangeUsername, setPasswordChangeUsername] = useState<string | null>(null);
+	const [_passwordChangeFlowId, setPasswordChangeFlowId] = useState<string | null>(null);
+	const [_passwordChangeState, setPasswordChangeState] = useState<string | null>(null);
+	const [_passwordChangeUsername, setPasswordChangeUsername] = useState<string | null>(null);
 	const [showPingOneRequestModal, setShowPingOneRequestModal] = useState(false);
 	const [pendingPingOneRequest, setPendingPingOneRequest] = useState<{
 		url: string;
@@ -436,7 +436,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			navigate(path, { replace: true });
 			onStepChange?.(step);
 		},
-		[flowType, totalSteps, currentStep, navigate, onStepChange]
+		[flowType, totalSteps, navigate, onStepChange]
 	);
 
 	const goToNext = useCallback(() => {
@@ -3483,7 +3483,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 	// Handle password change when MUST_CHANGE_PASSWORD is detected
 	const handlePasswordChange = useCallback(
-		async (oldPassword: string, newPassword: string) => {
+		async (_oldPassword: string, newPassword: string) => {
 			if (!passwordChangeUserId || !credentials.environmentId) {
 				throw new Error('Missing user ID or environment ID for password change');
 			}
@@ -3535,12 +3535,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				throw error; // Re-throw to let modal handle the error display
 			}
 		},
-		[
-			passwordChangeUserId,
-			passwordChangeUsername,
-			credentials.environmentId,
-			handleSubmitRedirectlessCredentials,
-		]
+		[passwordChangeUserId, credentials.environmentId]
 	);
 
 	// Handler for starting redirectless authentication after URL is displayed
@@ -6312,7 +6307,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			toastV8.error(message);
 		} finally {
 			// Use functional update to ensure we're setting it correctly regardless of closure
-			setIsLoading((prev) => {
+			setIsLoading((_prev) => {
 				return false;
 			});
 
@@ -6323,7 +6318,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				isPollingExecutingRef.current = false;
 			}
 		}
-	}, [credentials, flowState, nav, currentStep, isLoading]);
+	}, [credentials, flowState, nav, currentStep]);
 
 	// Auto-start polling when device code is received (device code flow)
 	// This runs on both step 1 and step 2 - polling starts automatically after device code is received
@@ -6747,7 +6742,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						responseText = await response.text();
 
 						errorData = JSON.parse(responseText);
-					} catch (parseErr) {
+					} catch (_parseErr) {
 						console.error(`${MODULE_TAG} Failed to parse error response:`, responseText);
 						throw new Error(`Token polling failed: HTTP ${response.status} ${response.statusText}`);
 					}

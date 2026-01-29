@@ -202,7 +202,7 @@
             updateStatus('Safe fetch completed', 'success');
         }
 
-        async function testMultipleCalls() {
+        async function _testMultipleCalls() {
             updateLog('Testing multiple calls (should be cached)...');
             updateStatus('Testing multiple calls...', 'info');
             
@@ -222,7 +222,7 @@
             updateStatus('Multiple calls completed', 'success');
         }
 
-        function clearLog() {
+        function _clearLog() {
             document.getElementById('log').textContent = 'Test results will appear here...\n';
             updateStatus('Ready to test...', 'info');
         }

@@ -1,7 +1,6 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV5.tsx
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
@@ -29,15 +28,11 @@ import {
 	FiArrowRight,
 	FiCheckCircle,
 	FiChevronDown,
-	FiCopy,
 	FiExternalLink,
-	FiEye,
-	FiEyeOff,
 	FiGlobe,
 	FiInfo,
 	FiKey,
 	FiRefreshCw,
-	FiSettings,
 	FiShield,
 } from '../../services/commonImportsService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
@@ -51,10 +46,7 @@ import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flo
 import { FlowHeader } from '../../services/flowHeaderService';
 import { getFlowSequence } from '../../services/flowSequenceService';
 import FlowStorageService from '../../services/flowStorageService';
-import {
-	PARConfigurationService,
-	PARConfigurationServiceUtils,
-} from '../../services/parConfigurationService';
+import { PARConfigurationService } from '../../services/parConfigurationService';
 import { themeService } from '../../services/themeService';
 import {
 	IntrospectionApiCallData,
@@ -67,7 +59,6 @@ import { v4ToastManager } from '../../utils/v4ToastMessages';
 import {
 	DEFAULT_APP_CONFIG,
 	type IntroSectionKey,
-	PAR_EDUCATION,
 	STEP_METADATA,
 } from './config/PingOnePARFlow.config';
 
@@ -506,7 +497,7 @@ const HighlightBadge = styled.span`
 	font-weight: 700;
 `;
 
-const CodeBlock = styled.pre`
+const _CodeBlock = styled.pre`
 	background-color: #1e293b;
 	border: 1px solid #334155;
 	border-radius: 0.5rem;
@@ -532,7 +523,7 @@ const GeneratedUrlDisplay = styled.div`
 	position: relative;
 `;
 
-const Modal = styled.div<{ $show?: boolean }>`
+const _Modal = styled.div<{ $show?: boolean }>`
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -545,7 +536,7 @@ const Modal = styled.div<{ $show?: boolean }>`
 	z-index: 2000;
 `;
 
-const ModalContent = styled.div`
+const _ModalContent = styled.div`
 	background-color: #ffffff;
 	border-radius: 0.75rem;
 	padding: 2rem;
@@ -554,7 +545,7 @@ const ModalContent = styled.div`
 	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 `;
 
-const ModalIcon = styled.div`
+const _ModalIcon = styled.div`
 	width: 4rem;
 	height: 4rem;
 	border-radius: 50%;
@@ -567,14 +558,14 @@ const ModalIcon = styled.div`
 	color: #ffffff;
 `;
 
-const ModalTitle = styled.h3`
+const _ModalTitle = styled.h3`
 	font-size: 1.25rem;
 	font-weight: 600;
 	color: var(--color-text-primary, #111827);
 	margin-bottom: 0.5rem;
 `;
 
-const ModalText = styled.p`
+const _ModalText = styled.p`
 	font-size: 0.875rem;
 	color: #6b7280;
 	line-height: 1.5;
@@ -637,15 +628,15 @@ const PingOnePARFlowV6: React.FC = () => {
 	const shouldCollapseAll = true;
 
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
-	const [emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
+	const [_emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
 	const [collapsedSections, setCollapsedSections] = useState(
 		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState()
 	);
 	const [showRedirectModal, setShowRedirectModal] = useState(false);
 	const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
-	const [showSavedSecret, setShowSavedSecret] = useState(false);
-	const [copiedField, setCopiedField] = useState<string | null>(null);
+	const [_showSavedSecret, _setShowSavedSecret] = useState(false);
+	const [_copiedField, setCopiedField] = useState<string | null>(null);
 	const [completionCollapsed, setCompletionCollapsed] = useState(false);
 
 	// API call tracking for display
@@ -660,7 +651,7 @@ const PingOnePARFlowV6: React.FC = () => {
 	// Scroll to top on step change
 	useEffect(() => {
 		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange();
-	}, [currentStep]);
+	}, []);
 
 	// Enforce correct response_type for OAuth (should be 'code')
 	useEffect(() => {
@@ -713,7 +704,7 @@ const PingOnePARFlowV6: React.FC = () => {
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []); // Only run once on mount
+	}, [controller.credentials, controller.setCredentials]); // Only run once on mount
 
 	// Debug: Always log the current authorization code state
 	console.log('🔍 [AuthorizationCodeFlowV6] Current controller.authCode:', {
@@ -841,11 +832,11 @@ const PingOnePARFlowV6: React.FC = () => {
 	// The auth code detection is already handled in the other useEffect
 
 	// Get flow sequence for Step 0 diagram
-	const flowSequence = useMemo(() => {
+	const _flowSequence = useMemo(() => {
 		return getFlowSequence('authorization-code'); // PAR uses standard authz code sequence
 	}, []);
 
-	const stepCompletions = useMemo<StepCompletionState>(
+	const _stepCompletions = useMemo<StepCompletionState>(
 		() => ({
 			0: controller.hasStepResult('setup-credentials') || controller.hasCredentialsSaved,
 			1: controller.hasStepResult('generate-pkce') || Boolean(controller.pkceCodes.codeVerifier),
@@ -914,7 +905,7 @@ const PingOnePARFlowV6: React.FC = () => {
 		v4ToastManager.showSuccess('Configuration saved successfully!');
 	}, [controller]);
 
-	const handleClearConfiguration = useCallback(() => {
+	const _handleClearConfiguration = useCallback(() => {
 		controller.setCredentials({
 			environmentId: '',
 			clientId: '',
@@ -1148,14 +1139,14 @@ const PingOnePARFlowV6: React.FC = () => {
 		}
 	}, [controller]);
 
-	const handleCopy = useCallback((text: string, label: string) => {
+	const _handleCopy = useCallback((text: string, label: string) => {
 		v4ToastManager.handleCopyOperation(text, label);
 		setCopiedField(label);
 		setTimeout(() => setCopiedField(null), 1000);
 	}, []);
 
 	// Extract x5t parameter from JWT header
-	const getX5tParameter = useCallback((token: string) => {
+	const _getX5tParameter = useCallback((token: string) => {
 		try {
 			const header = decodeJWTHeader(token);
 			return header.x5t || header['x5t#S256'] || null;
@@ -1190,7 +1181,7 @@ const PingOnePARFlowV6: React.FC = () => {
 		window.open('/token-management', '_blank');
 	}, [controller.tokens, controller.credentials, currentStep]);
 
-	const navigateToTokenManagementWithRefreshToken = useCallback(() => {
+	const _navigateToTokenManagementWithRefreshToken = useCallback(() => {
 		AuthorizationCodeSharedService.TokenManagement.navigateToTokenManagement(
 			'oauth',
 			controller.tokens,
@@ -1335,6 +1326,7 @@ const PingOnePARFlowV6: React.FC = () => {
 			controller.authCode,
 			localAuthCode,
 			controller.tokens,
+			controller.persistKey,
 		]
 	);
 
@@ -1401,6 +1393,7 @@ const PingOnePARFlowV6: React.FC = () => {
 		controller.authCode,
 		localAuthCode,
 		controller.credentials,
+		controller,
 	]);
 
 	const handlePrev = useCallback(() => {
@@ -1514,7 +1507,7 @@ const PingOnePARFlowV6: React.FC = () => {
 								// Extract environment ID from issuer URL if available
 								if (result.issuerUrl) {
 									const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
-									if (envIdMatch && envIdMatch[1]) {
+									if (envIdMatch?.[1]) {
 										handleFieldChange('environmentId', envIdMatch[1]);
 									}
 								}
@@ -2436,19 +2429,14 @@ const PingOnePARFlowV6: React.FC = () => {
 		controller.pkceCodes,
 		controller.tokens,
 		currentStep,
-		handleCopy,
 		handleExchangeTokens,
 		handleFetchUserInfo,
 		handleGenerateAuthUrl,
 		handleGeneratePkce,
 		navigateToTokenManagement,
-		navigateToTokenManagementWithRefreshToken,
-		stepCompletions,
 		toggleSection,
 		canNavigateNext,
 		controller.setAuthCodeManually,
-		emptyRequiredFields.has,
-		handleClearConfiguration,
 		handleFieldChange,
 		handleNextClick,
 		handleOpenAuthUrl,
@@ -2460,16 +2448,13 @@ const PingOnePARFlowV6: React.FC = () => {
 		pingOneConfig,
 		savePingOneConfig,
 		manualAuthCodeId,
-		getX5tParameter,
-		emptyRequiredFields,
-		copiedField,
-		showSavedSecret,
 		controller.isFetchingUserInfo,
 		controller.userInfo,
 		completionCollapsed,
 		introspectionApiCall,
 		tokenExchangeApiCall,
 		userInfoApiCall,
+		controller.persistKey,
 	]);
 
 	return (

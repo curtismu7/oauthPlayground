@@ -599,7 +599,7 @@ export class AuthzFlowCodeProcessor {
 		setCurrentStep: (step: number) => void
 	): void {
 		console.log('[CodeProcessor] Processing authorization code:', {
-			code: code.substring(0, 20) + '...',
+			code: `${code.substring(0, 20)}...`,
 			state,
 		});
 
@@ -649,7 +649,7 @@ export class AuthzFlowTokenExchangeManager {
 	 */
 	static async exchangeCodeForTokens(
 		variant: AuthzFlowVariant,
-		credentials: StepCredentials,
+		_credentials: StepCredentials,
 		authCode: string,
 		codeVerifier: string,
 		controller: any

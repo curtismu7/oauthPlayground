@@ -48,7 +48,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 		if (isOpen && environmentId) {
 			fetchSettings();
 		}
-	}, [isOpen, environmentId]);
+	}, [isOpen, environmentId, fetchSettings]);
 
 	const fetchSettings = async () => {
 		setIsLoading(true);
@@ -122,7 +122,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 												...settings,
 												pairing: {
 													...settings.pairing,
-													maxAllowedDevices: parseInt(e.target.value) || 0,
+													maxAllowedDevices: parseInt(e.target.value, 10) || 0,
 												},
 											})
 										}
@@ -161,7 +161,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 												...settings,
 												lockout: {
 													...settings.lockout,
-													failureCount: parseInt(e.target.value) || 0,
+													failureCount: parseInt(e.target.value, 10) || 0,
 												},
 											})
 										}
@@ -177,7 +177,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 												...settings,
 												lockout: {
 													...settings.lockout,
-													durationSeconds: parseInt(e.target.value) || 0,
+													durationSeconds: parseInt(e.target.value, 10) || 0,
 												},
 											})
 										}

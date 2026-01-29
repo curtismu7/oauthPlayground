@@ -21,16 +21,8 @@
  */
 
 import { createHash } from 'node:crypto';
-import {
-	cpSync,
-	existsSync,
-	mkdirSync,
-	readdirSync,
-	readFileSync,
-	statSync,
-	writeFileSync,
-} from 'node:fs';
-import { dirname, extname, join, relative, resolve } from 'node:path';
+import { cpSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -146,7 +138,7 @@ function updateImports(content, filePath, lockedDepsMap) {
 		for (const [originalPath, lockedPath] of Object.entries(lockedDepsMap)) {
 			if (originalPath.includes(path)) {
 				const relPath = relative(dirname(filePath), lockedPath).replace(/\\/g, '/');
-				return `from '${relPath.startsWith('.') ? relPath : './' + relPath}'`;
+				return `from '${relPath.startsWith('.') ? relPath : `./${relPath}`}'`;
 			}
 		}
 		return match; // Keep original if not locked
@@ -158,7 +150,7 @@ function updateImports(content, filePath, lockedDepsMap) {
 		for (const [origPath, lockedPath] of Object.entries(lockedDepsMap)) {
 			if (originalPath === origPath) {
 				const relPath = relative(dirname(filePath), lockedPath).replace(/\\/g, '/');
-				return `from '${relPath.startsWith('.') ? relPath : './' + relPath}'`;
+				return `from '${relPath.startsWith('.') ? relPath : `./${relPath}`}'`;
 			}
 		}
 		return match;

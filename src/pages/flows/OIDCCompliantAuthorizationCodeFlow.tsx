@@ -13,27 +13,10 @@
  * - at_hash and c_hash validation
  */
 
-import React, { useCallback, useState } from 'react';
-import {
-	FiAlertCircle,
-	FiAlertTriangle,
-	FiArrowRight,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiKey,
-	FiLock,
-	FiRefreshCw,
-	FiShield,
-	FiUser,
-} from 'react-icons/fi';
+import { useState } from 'react';
+import { FiCheckCircle, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useOIDCCompliantAuthorizationCodeFlow } from '../../hooks/useOIDCCompliantAuthorizationCodeFlow';
-import type { ClaimsRequest } from '../../services/oidcComplianceService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Styled Components (reusing from OAuth2 compliant flow)
 const Container = styled.div`
@@ -86,10 +69,10 @@ const ComplianceBadge = styled.div`
 `;
 
 export default function OIDCCompliantAuthorizationCodeFlow() {
-	const [flowState, flowActions] = useOIDCCompliantAuthorizationCodeFlow();
-	const [showTokens, setShowTokens] = useState(false);
-	const [showIdToken, setShowIdToken] = useState(false);
-	const [showUserInfo, setShowUserInfo] = useState(false);
+	const [_flowState, _flowActions] = useOIDCCompliantAuthorizationCodeFlow();
+	const [_showTokens, _setShowTokens] = useState(false);
+	const [_showIdToken, _setShowIdToken] = useState(false);
+	const [_showUserInfo, _setShowUserInfo] = useState(false);
 
 	return (
 		<Container>

@@ -867,26 +867,26 @@
             }
         }
 
-        function nextStep() {
+        function _nextStep() {
             if (currentStep < totalSteps) {
                 currentStep++;
                 updateStepDisplay();
             }
         }
 
-        function previousStep() {
+        function _previousStep() {
             if (currentStep > 1) {
                 currentStep--;
                 updateStepDisplay();
             }
         }
 
-        function resetFlow() {
+        function _resetFlow() {
             currentStep = 1;
             updateStepDisplay();
         }
 
-        function toggleSection(sectionId) {
+        function _toggleSection(sectionId) {
             const content = document.getElementById(`${sectionId}-content`);
             const icon = document.getElementById(`${sectionId}-icon`);
             

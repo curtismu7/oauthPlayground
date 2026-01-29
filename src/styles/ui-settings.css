@@ -364,13 +364,13 @@ button[class*="primary"],
 [class*="Button"][class*="primary"] {
 	background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
 	border-color: var(--color-primary);
-	color: white !important;
+	color: white;
 }
 
 button[class*="primary"]:hover,
 .btn-primary:hover {
 	background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
-	color: white !important;
+	color: white;
 	transform: translateY(-1px);
 }
 
