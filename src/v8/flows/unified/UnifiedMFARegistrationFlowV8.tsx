@@ -386,8 +386,10 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	// Registration flow - show unified device registration form
 	return (
 		<UnifiedDeviceRegistrationForm
-			onSubmit={(deviceType, fields) => {
-				console.log(`${MODULE_TAG} Device registration submitted:`, { deviceType, fields });
+			onSubmit={(deviceType, fields, flowType) => {
+				console.log(`${MODULE_TAG} Device registration submitted:`, { deviceType, fields, flowType });
+				// Store flow type in local storage or pass to next step
+				localStorage.setItem('mfa_registration_flow_type', flowType);
 				onSelectDeviceType(deviceType);
 			}}
 			onCancel={() => setFlowMode(null)}
