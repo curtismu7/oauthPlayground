@@ -408,9 +408,9 @@ const AppRoutes: React.FC = () => {
 	const { showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal } = useAuth();
 	const location = useLocation();
 
-	// Scroll to top on route change - scroll main content only, not entire window
+	// Scroll to top on route change - scroll both window and main content
 	useEffect(() => {
-		// Skip auto-scroll for certain flows to prevent menu jumping
+		// Skip auto-scroll for certain flows to preserve scroll position
 		const skipAutoScroll: string[] = [
 			// Add flows that should preserve scroll position
 		];
@@ -420,12 +420,22 @@ const AppRoutes: React.FC = () => {
 			return;
 		}
 
-		// Scroll the main content area only, not the entire window
-		// This prevents the sidebar/menu from jumping
+		// Scroll window to top
+		window.scrollTo(0, 0);
+
+		// Also scroll the main content area
 		const mainContent = document.querySelector('main');
 		if (mainContent) {
 			mainContent.scrollTop = 0;
 		}
+
+		// Scroll any other scrollable containers
+		const scrollableContainers = document.querySelectorAll('[data-scrollable]');
+		scrollableContainers.forEach((container) => {
+			if (container instanceof HTMLElement) {
+				container.scrollTop = 0;
+			}
+		});
 
 		// Also scroll the content column if it exists
 		const contentColumn = document.querySelector('[data-content-column]');
