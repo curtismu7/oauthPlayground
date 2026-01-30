@@ -101,8 +101,14 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 		// Map field names to input components
 		switch (fieldName) {
 			case 'phoneNumber':
-				// Get country code value for combined display
+				// Get country code value for combined display - ensure it's set to +1 if not already
 				const countryCodeValue = values['countryCode'] || '+1';
+				
+				// Initialize country code if not set
+				if (!values['countryCode']) {
+					onChange('countryCode', '+1');
+				}
+				
 				const phoneError = errors['phoneNumber'];
 				const countryError = errors['countryCode'];
 				const combinedError = phoneError || countryError;
@@ -112,9 +118,9 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 						<label htmlFor="phoneNumber">
 							Phone Number {isRequired && <span className="required">*</span>}
 						</label>
-						<div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+						<div style={{ display: 'flex', gap: '0', alignItems: 'flex-start' }}>
 							{/* Country Code Dropdown */}
-							<div style={{ width: '120px', flexShrink: 0 }}>
+							<div style={{ flexShrink: 0 }}>
 								<CountryCodePickerV8
 									value={countryCodeValue}
 									onChange={(val) => onChange('countryCode', val)}
@@ -136,10 +142,13 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 									aria-describedby={phoneError ? `${fieldName}-error` : undefined}
 									style={{
 										width: '100%',
-										padding: '8px 12px',
+										padding: '10px 12px',
 										border: phoneError ? '1px solid #ef4444' : '1px solid #d1d5db',
-										borderRadius: '6px',
+										borderLeft: 'none',
+										borderRadius: '0 6px 6px 0',
 										fontSize: '14px',
+										height: '42px',
+										boxSizing: 'border-box',
 									}}
 								/>
 							</div>
@@ -149,7 +158,7 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 								{combinedError}
 							</span>
 						)}
-						<span className="field-hint">Select country code and enter phone number</span>
+						<span className="field-hint">Country code and phone number combined</span>
 					</div>
 				);
 
