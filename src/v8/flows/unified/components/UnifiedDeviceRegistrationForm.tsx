@@ -14,8 +14,8 @@ import { Button } from '@/v8/components/Button';
 import { PageTransition } from '@/v8/components/PageTransition';
 import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
 import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
-import { colors, spacing } from '@/v8/styles/designTokens';
 import { MFATokenManagerV8 } from '@/v8/services/mfaTokenManagerV8';
+import { colors, spacing } from '@/v8/styles/designTokens';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { APIComparisonModal } from './APIComparisonModal';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
@@ -126,7 +126,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 		// Check worker token status first
 		const tokenManager = MFATokenManagerV8.getInstance();
 		const tokenState = tokenManager.getTokenState();
-		
+
 		if (!tokenState.isValid) {
 			toastV8.error('Worker token is invalid or expired. Please refresh the worker token.');
 			return;

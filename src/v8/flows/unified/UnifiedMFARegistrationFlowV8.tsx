@@ -962,8 +962,20 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				}));
 
 				// Register the device using proper API call
+				// CRITICAL: status determines whether MFA sends OTP to user
+				// - User flow: ACTIVATION_REQUIRED (sends OTP for user to activate)
+				// - Admin flow: ACTIVE (device is pre-activated, no OTP needed)
 				const deviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED' =
 					flowType === 'admin' ? 'ACTIVE' : 'ACTIVATION_REQUIRED';
+
+				console.log('[UNIFIED-FLOW] Device status determined:', {
+					flowType,
+					deviceStatus,
+					otpWillBeSent: deviceStatus === 'ACTIVATION_REQUIRED',
+					reason: flowType === 'admin' 
+						? 'Admin flow - device pre-activated, no OTP needed' 
+						: 'User flow - OTP required for activation'
+				});
 
 				// Use same parameter construction as working MFA flows
 				const baseParams = {
@@ -973,7 +985,9 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					// Per rightTOTP.md: Pass token type and user token if available
 					tokenType: flowType === 'user' ? 'user' : 'worker',
 					userToken: flowType === 'user' ? props.credentials.userToken : undefined,
-					// Set device status based on flow type
+					// CRITICAL: This status tells MFA whether to send OTP
+					// ACTIVATION_REQUIRED = Send OTP to user
+					// ACTIVE = Device is pre-activated, no OTP
 					status: deviceStatus,
 				};
 

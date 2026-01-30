@@ -47,7 +47,7 @@ export interface DeviceComponentProps {
 	setMfaState: (state: MFAState | ((prev: MFAState) => MFAState)) => void;
 
 	/** Success callback */
-	onSuccess: (data: any) => void;
+	onSuccess: (data: Record<string, unknown>) => void;
 
 	/** Error callback */
 	onError: (error: string) => void;
@@ -277,20 +277,24 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 				credential,
 				credentialId: credential.id,
 			});
-		} catch (error: any) {
+		} catch (error: unknown) {
 			console.error(`${MODULE_TAG} WebAuthn registration failed:`, error);
 
 			// Handle common errors
 			let errorMessage = 'Biometric registration failed';
 
-			if (error.name === 'NotAllowedError') {
-				errorMessage = 'Registration was cancelled or timed out';
-			} else if (error.name === 'InvalidStateError') {
-				errorMessage = 'This authenticator has already been registered';
-			} else if (error.name === 'NotSupportedError') {
-				errorMessage = 'Your device does not support this type of authenticator';
-			} else if (error.message) {
-				errorMessage = error.message;
+			if (error instanceof Error) {
+				if (error.name === 'NotAllowedError') {
+					errorMessage = 'Registration was cancelled or timed out';
+				} else if (error.name === 'InvalidStateError') {
+					errorMessage = 'This authenticator has already been registered';
+				} else if (error.name === 'NotSupportedError') {
+					errorMessage = 'This device does not support biometric authentication';
+				} else if (error.name === 'SecurityError') {
+					errorMessage = 'Registration failed due to security constraints';
+				} else {
+					errorMessage = error.message;
+				}
 			}
 
 			onError(errorMessage);
