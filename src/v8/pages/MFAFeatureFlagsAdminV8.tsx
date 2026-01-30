@@ -7,8 +7,8 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiFlag, FiRefreshCw, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 import {
 	type MFAFeatureFlag,
 	MFAFeatureFlagsV8,
