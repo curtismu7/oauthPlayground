@@ -91,7 +91,7 @@ interface MenuGroup {
 	isOpen: boolean;
 }
 
-const SIDEBAR_MENU_VERSION = '2026-01-22-production-updates';
+const SIDEBAR_MENU_VERSION = '2026-01-29-unified-mfa-additions';
 
 const ensureSidebarStateVersion = (): void => {
 	if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
@@ -584,6 +584,36 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						badge: (
 							<MigrationBadge title="V8: PingOne MFA Playground with SMS, Email, TOTP, and FIDO2">
 								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'unified-mfa-registration-v8',
+						path: '/v8/mfa-unified',
+						label: '🎯 Unified MFA Registration',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiLayers />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: Unified flow for all MFA device types - Single component replacing 6 legacy flows">
+								UNIFIED
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'mfa-feature-flags-admin-v8',
+						path: '/v8/mfa-feature-flags',
+						label: '🚦 MFA Feature Flags',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<FiSettings />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Control unified flow rollout with per-device feature flags and percentage-based gradual deployment">
+								ADMIN
 							</MigrationBadge>
 						),
 					},

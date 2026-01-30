@@ -193,6 +193,7 @@ import { TOTPConfigurationPageV8 } from './v8/flows/types/TOTPConfigurationPageV
 import { TOTPFlowV8 } from './v8/flows/types/TOTPFlowV8';
 import { WhatsAppFlowV8 } from './v8/flows/types/WhatsAppFlowV8';
 import { WhatsAppOTPConfigurationPageV8 } from './v8/flows/types/WhatsAppOTPConfigurationPageV8';
+import UnifiedMFARegistrationFlowV8 from './v8/flows/unified/UnifiedMFARegistrationFlowV8';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
@@ -551,6 +552,10 @@ const AppRoutes: React.FC = () => {
 								element={<OAuthAuthorizationCodeFlowV8 />}
 							/>
 							<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
+							<Route
+								path="/v8/mfa-unified"
+								element={<UnifiedMFARegistrationFlowV8 deviceType="SMS" />}
+							/>
 							<Route path="/v8/mfa" element={<Navigate to="/v8/mfa-hub" replace />} />
 							<Route path="/v8/mfa-hub" element={<MFAAuthenticationMainPageV8 />} />
 							<Route

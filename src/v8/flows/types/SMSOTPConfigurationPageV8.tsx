@@ -635,8 +635,17 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 				username: credentials.username || null,
 			});
 		}
-	}, [credentials.environmentId, credentials.userToken, credentials.tokenType, credentials.username, tokenStatus.isValid, tokenStatus.token, tokenStatus.status, tokenStatus.expiresAt, tokenStatus.minutesRemaining]);
-
+	}, [
+		credentials.environmentId,
+		credentials.userToken,
+		credentials.tokenType,
+		credentials.username,
+		tokenStatus.isValid,
+		tokenStatus.token,
+		tokenStatus.status,
+		tokenStatus.expiresAt,
+		tokenStatus.minutesRemaining,
+	]);
 
 	// Monitor API display visibility
 	useEffect(() => {
@@ -747,12 +756,12 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			const tokenType = credentials.tokenType || 'worker';
 			// For admin flow: check if worker token exists (not necessarily valid)
 			// For user token flow: check if user token exists
-			const isTokenValid = 
-				registrationFlowType === 'admin' 
-					? !!tokenStatus.token  // Admin flow: any worker token enables the button
-					: tokenType === 'worker' 
-						? tokenStatus.isValid  // User flow with worker token: must be valid
-						: !!credentials.userToken?.trim();  // User flow with user token
+			const isTokenValid =
+				registrationFlowType === 'admin'
+					? !!tokenStatus.token // Admin flow: any worker token enables the button
+					: tokenType === 'worker'
+						? tokenStatus.isValid // User flow with worker token: must be valid
+						: !!credentials.userToken?.trim(); // User flow with user token
 
 			if (!credentials.deviceAuthenticationPolicyId) {
 				toastV8.warning('Please select a Device Authentication Policy before proceeding');
@@ -791,9 +800,16 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 				},
 			});
 		},
-		[navigate, credentials, tokenStatus.isValid, registrationFlowType, adminDeviceStatus, tokenStatus.token  // Admin flow: any worker token enables the button]
+		// Admin flow: any worker token enables the button
+		[
+			navigate,
+			credentials,
+			tokenStatus.isValid,
+			registrationFlowType,
+			adminDeviceStatus,
+			tokenStatus.token,
+		]
 	);
-
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
@@ -1074,8 +1090,6 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					</small>
 				</div>
 
-				
-
 				{/* Comprehensive Token UI Integration - Shows both worker and user token status */}
 				<TokenUIIntegrationV8 />
 
@@ -1133,18 +1147,18 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					>
 						Cancel
 					</button>
-					
+
 					<button
 						type="button"
 						onClick={handleProceedToRegistration}
 						disabled={
 							!credentials.deviceAuthenticationPolicyId ||
 							!credentials.environmentId ||
-							(registrationFlowType === 'admin' 
-								? !tokenStatus.token  // Admin flow: any worker token enables the button
-								: ((credentials.tokenType || 'worker') === 'worker'
-									? !tokenStatus.isValid  // User flow with worker token: must be valid
-									: !credentials.userToken?.trim()))  // User flow with user token
+							(registrationFlowType === 'admin'
+								? !tokenStatus.token // Admin flow: any worker token enables the button
+								: (credentials.tokenType || 'worker') === 'worker'
+									? !tokenStatus.isValid // User flow with worker token: must be valid
+									: !credentials.userToken?.trim()) // User flow with user token
 						}
 						style={{
 							padding: '12px 24px',
@@ -1153,11 +1167,11 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 							background:
 								credentials.deviceAuthenticationPolicyId &&
 								credentials.environmentId &&
-								(registrationFlowType === 'admin' 
-									? !!tokenStatus.token  // Admin flow: any worker token enables the button
-									: ((credentials.tokenType || 'worker') === 'worker'
-										? tokenStatus.isValid  // User flow with worker token: must be valid
-										: !!credentials.userToken?.trim()))  // User flow with user token
+								(registrationFlowType === 'admin'
+									? !!tokenStatus.token // Admin flow: any worker token enables the button
+									: (credentials.tokenType || 'worker') === 'worker'
+										? tokenStatus.isValid // User flow with worker token: must be valid
+										: !!credentials.userToken?.trim()) // User flow with user token
 									? '#8b5cf6'
 									: '#9ca3af',
 							color: 'white',
@@ -1166,11 +1180,11 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 							cursor:
 								credentials.deviceAuthenticationPolicyId &&
 								credentials.environmentId &&
-								(registrationFlowType === 'admin' 
-									? !!tokenStatus.token  // Admin flow: any worker token enables the button
-									: ((credentials.tokenType || 'worker') === 'worker'
-										? tokenStatus.isValid  // User flow with worker token: must be valid
-										: !!credentials.userToken?.trim()))  // User flow with user token
+								(registrationFlowType === 'admin'
+									? !!tokenStatus.token // Admin flow: any worker token enables the button
+									: (credentials.tokenType || 'worker') === 'worker'
+										? tokenStatus.isValid // User flow with worker token: must be valid
+										: !!credentials.userToken?.trim()) // User flow with user token
 									? 'pointer'
 									: 'not-allowed',
 							display: 'flex',
@@ -1226,12 +1240,12 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 						isOpen={showUserLoginModal}
 						onClose={() => setShowUserLoginModal(false)}
 						onTokenReceived={(token) => {
-						setCredentials((prev) => {
-							const updated = { ...prev, userToken: token, tokenType: 'user' };
-							// Save to localStorage so page detects it
-							CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
-							return updated;
-						});
+							setCredentials((prev) => {
+								const updated = { ...prev, userToken: token, tokenType: 'user' };
+								// Save to localStorage so page detects it
+								CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
+								return updated;
+							});
 							setShowUserLoginModal(false);
 							toastV8.success('User token received successfully!');
 						}}
