@@ -77,24 +77,6 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 	console.log(`${MODULE_TAG} Required fields:`, config.requiredFields);
 	console.log(`${MODULE_TAG} Optional fields:`, config.optionalFields);
 
-	// Load saved phone number, country code, and email from localStorage on mount
-	useEffect(() => {
-		const savedPhone = localStorage.getItem('mfa_saved_phoneNumber');
-		const savedCountryCode = localStorage.getItem('mfa_saved_countryCode');
-		const savedEmail = localStorage.getItem('mfa_saved_email');
-
-		if (savedPhone && !values['phoneNumber']) {
-			onChange('phoneNumber', savedPhone);
-		}
-		if (savedCountryCode && !values['countryCode']) {
-			onChange('countryCode', savedCountryCode);
-		}
-		if (savedEmail && !values['email']) {
-			onChange('email', savedEmail);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []); // Only run on mount - onChange is stable
-
 	// Save phone number to localStorage when it changes
 	useEffect(() => {
 		if (values['phoneNumber']) {
