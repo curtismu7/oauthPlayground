@@ -291,88 +291,355 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 	// ========================================================================
 
 	return (
-		<div className="unified-configuration-step">
+		<div
+			className="unified-configuration-step"
+			style={{
+				maxWidth: '900px',
+				margin: '0 auto',
+				padding: '24px',
+			}}
+		>
 			{/* Step Header */}
-			<div className="step-header">
-				<h2>Configure {config.displayName} Registration</h2>
-				<p className="step-description">
+			<div
+				style={{
+					background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+					borderRadius: '12px',
+					padding: '28px 32px',
+					marginBottom: '28px',
+					boxShadow: '0 4px 12px rgba(139, 92, 246, 0.2)',
+				}}
+			>
+				<h2
+					style={{
+						margin: '0 0 8px 0',
+						fontSize: '26px',
+						fontWeight: '700',
+						color: '#ffffff',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '12px',
+					}}
+				>
+					{config.icon} Configure {config.displayName} Registration
+				</h2>
+				<p
+					style={{
+						margin: 0,
+						fontSize: '15px',
+						color: 'rgba(255, 255, 255, 0.9)',
+						lineHeight: '1.5',
+					}}
+				>
 					Enter your environment and user credentials to begin the registration process.
 				</p>
 			</div>
 
 			{/* Configuration Form */}
-			<div className="configuration-form">
-				{/* Environment ID */}
-				<div className="form-field">
-					<label htmlFor="environmentId">
-						Environment ID <span className="required">*</span>
-					</label>
-					<input
-						id="environmentId"
-						type="text"
-						value={environmentId}
-						onChange={(e) => handleEnvironmentIdChange(e.target.value)}
-						placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-						className={errors.environmentId ? 'input-error' : ''}
-						aria-invalid={!!errors.environmentId}
-						aria-describedby={errors.environmentId ? 'environmentId-error' : undefined}
-					/>
-					{errors.environmentId && (
-						<span id="environmentId-error" className="error-message" role="alert">
-							{errors.environmentId}
-						</span>
-					)}
-				</div>
-
-				{/* Username */}
-				<div className="form-field">
-					<label htmlFor="username">
-						Username <span className="required">*</span>
-					</label>
-					<input
-						id="username"
-						type="text"
-						value={username}
-						onChange={(e) => handleUsernameChange(e.target.value)}
-						placeholder="user@example.com"
-						className={errors.username ? 'input-error' : ''}
-						aria-invalid={!!errors.username}
-						aria-describedby={errors.username ? 'username-error' : undefined}
-					/>
-					{errors.username && (
-						<span id="username-error" className="error-message" role="alert">
-							{errors.username}
-						</span>
-					)}
-				</div>
-
-				{/* Token Type Selection */}
-				<div className="form-field">
-					<label>
-						Token Type <span className="required">*</span>
-						<MFAInfoButtonV8 infoKey="tokenType" />
-					</label>
-					<div className="token-type-options">
-						<label className="radio-option">
-							<input
-								type="radio"
-								name="tokenType"
-								value="worker"
-								checked={tokenType === 'worker'}
-								onChange={() => handleTokenTypeChange('worker')}
-							/>
-							<span>Worker Token {registrationFlowType === 'admin' && '(Required)'}</span>
+			<div
+				style={{
+					background: '#ffffff',
+					borderRadius: '12px',
+					padding: '28px',
+					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+					border: '1px solid #e5e7eb',
+				}}
+			>
+				<div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+					{/* Environment ID */}
+					<div className="form-field">
+						<label
+							htmlFor="environmentId"
+							style={{
+								display: 'block',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '8px',
+							}}
+						>
+							Environment ID <span style={{ color: '#dc2626' }}>*</span>
 						</label>
-						<label className="radio-option">
-							<input
-								type="radio"
-								name="tokenType"
-								value="user"
-								checked={tokenType === 'user'}
-								onChange={() => handleTokenTypeChange('user')}
-								disabled={registrationFlowType === 'admin'}
-							/>
-							<span>User Token</span>
+						<input
+							id="environmentId"
+							type="text"
+							value={environmentId}
+							onChange={(e) => handleEnvironmentIdChange(e.target.value)}
+							placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+							style={{
+								width: '100%',
+								padding: '12px 14px',
+								border: `1px solid ${errors.environmentId ? '#dc2626' : '#d1d5db'}`,
+								borderRadius: '8px',
+								fontSize: '14px',
+								color: '#111827',
+								background: '#ffffff',
+								transition: 'all 0.2s ease',
+								boxSizing: 'border-box',
+							}}
+							onFocus={(e) => {
+								e.currentTarget.style.borderColor = '#8b5cf6';
+								e.currentTarget.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+							}}
+							onBlur={(e) => {
+								e.currentTarget.style.borderColor = errors.environmentId ? '#dc2626' : '#d1d5db';
+								e.currentTarget.style.boxShadow = 'none';
+							}}
+							aria-invalid={!!errors.environmentId}
+							aria-describedby={errors.environmentId ? 'environmentId-error' : undefined}
+						/>
+						{errors.environmentId && (
+							<span
+								id="environmentId-error"
+								style={{
+									display: 'block',
+									marginTop: '6px',
+									fontSize: '13px',
+									color: '#dc2626',
+								}}
+								role="alert"
+							>
+								{errors.environmentId}
+							</span>
+						)}
+					</div>
+
+					{/* Username */}
+					<div className="form-field">
+						<label
+							htmlFor="username"
+							style={{
+								display: 'block',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '8px',
+							}}
+						>
+							Username <span style={{ color: '#dc2626' }}>*</span>
+						</label>
+						<input
+							id="username"
+							type="text"
+							value={username}
+							onChange={(e) => handleUsernameChange(e.target.value)}
+							placeholder="user@example.com"
+							style={{
+								width: '100%',
+								padding: '12px 14px',
+								border: `1px solid ${errors.username ? '#dc2626' : '#d1d5db'}`,
+								borderRadius: '8px',
+								fontSize: '14px',
+								color: '#111827',
+								background: '#ffffff',
+								transition: 'all 0.2s ease',
+								boxSizing: 'border-box',
+							}}
+							onFocus={(e) => {
+								e.currentTarget.style.borderColor = '#8b5cf6';
+								e.currentTarget.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)';
+							}}
+							onBlur={(e) => {
+								e.currentTarget.style.borderColor = errors.username ? '#dc2626' : '#d1d5db';
+								e.currentTarget.style.boxShadow = 'none';
+							}}
+							aria-invalid={!!errors.username}
+							aria-describedby={errors.username ? 'username-error' : undefined}
+						/>
+						{errors.username && (
+							<span
+								id="username-error"
+								style={{
+									display: 'block',
+									marginTop: '6px',
+									fontSize: '13px',
+									color: '#dc2626',
+								}}
+								role="alert"
+							>
+								{errors.username}
+							</span>
+						)}
+					</div>
+
+					{/* Token Type Selection */}
+				<div className="form-field">
+					<label
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							fontSize: '14px',
+							fontWeight: '600',
+							color: '#374151',
+							marginBottom: '12px',
+						}}
+					>
+						Token Type <span className="required">*</span>
+						<MFAInfoButtonV8 contentKey="mfa.registrationFlowType" displayMode="modal" />
+					</label>
+					<div
+						style={{
+							display: 'flex',
+							gap: '16px',
+							flexWrap: 'wrap',
+						}}
+					>
+						{/* Worker Token Option */}
+						<label
+							style={{
+								flex: 1,
+								minWidth: '200px',
+								padding: '16px 20px',
+								border: `2px solid ${tokenType === 'worker' ? '#8b5cf6' : '#e5e7eb'}`,
+								borderRadius: '10px',
+								background: tokenType === 'worker' ? '#f5f3ff' : '#ffffff',
+								cursor: 'pointer',
+								transition: 'all 0.2s ease',
+								boxShadow:
+									tokenType === 'worker'
+										? '0 4px 12px rgba(139, 92, 246, 0.15)'
+										: '0 1px 3px rgba(0, 0, 0, 0.05)',
+							}}
+							onMouseEnter={(e) => {
+								if (tokenType !== 'worker') {
+									e.currentTarget.style.borderColor = '#c4b5fd';
+									e.currentTarget.style.background = '#faf5ff';
+								}
+							}}
+							onMouseLeave={(e) => {
+								if (tokenType !== 'worker') {
+									e.currentTarget.style.borderColor = '#e5e7eb';
+									e.currentTarget.style.background = '#ffffff';
+								}
+							}}
+						>
+							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+								<input
+									type="radio"
+									name="tokenType"
+									value="worker"
+									checked={tokenType === 'worker'}
+									onChange={() => handleTokenTypeChange('worker')}
+									style={{
+										width: '20px',
+										height: '20px',
+										accentColor: '#8b5cf6',
+										marginTop: '2px',
+										cursor: 'pointer',
+									}}
+								/>
+								<div style={{ flex: 1 }}>
+									<div
+										style={{
+											fontSize: '15px',
+											fontWeight: '600',
+											color: tokenType === 'worker' ? '#6d28d9' : '#1f2937',
+											marginBottom: '4px',
+											display: 'flex',
+											alignItems: 'center',
+											gap: '8px',
+										}}
+									>
+										🔑 Worker Token
+										{registrationFlowType === 'admin' && (
+											<span
+												style={{
+													fontSize: '11px',
+													fontWeight: '600',
+													padding: '2px 8px',
+													background: '#fef3c7',
+													color: '#92400e',
+													borderRadius: '4px',
+												}}
+											>
+												Required
+											</span>
+										)}
+									</div>
+									<div
+										style={{
+											fontSize: '13px',
+											color: '#6b7280',
+											lineHeight: '1.5',
+										}}
+									>
+										Administrative API access for backend operations
+									</div>
+								</div>
+							</div>
+						</label>
+
+						{/* User Token Option */}
+						<label
+							style={{
+								flex: 1,
+								minWidth: '200px',
+								padding: '16px 20px',
+								border: `2px solid ${tokenType === 'user' ? '#8b5cf6' : '#e5e7eb'}`,
+								borderRadius: '10px',
+								background: tokenType === 'user' ? '#f5f3ff' : '#ffffff',
+								cursor: registrationFlowType === 'admin' ? 'not-allowed' : 'pointer',
+								transition: 'all 0.2s ease',
+								opacity: registrationFlowType === 'admin' ? 0.5 : 1,
+								boxShadow:
+									tokenType === 'user'
+										? '0 4px 12px rgba(139, 92, 246, 0.15)'
+										: '0 1px 3px rgba(0, 0, 0, 0.05)',
+							}}
+							onMouseEnter={(e) => {
+								if (tokenType !== 'user' && registrationFlowType !== 'admin') {
+									e.currentTarget.style.borderColor = '#c4b5fd';
+									e.currentTarget.style.background = '#faf5ff';
+								}
+							}}
+							onMouseLeave={(e) => {
+								if (tokenType !== 'user' && registrationFlowType !== 'admin') {
+									e.currentTarget.style.borderColor = '#e5e7eb';
+									e.currentTarget.style.background = '#ffffff';
+								}
+							}}
+						>
+							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+								<input
+									type="radio"
+									name="tokenType"
+									value="user"
+									checked={tokenType === 'user'}
+									onChange={() => handleTokenTypeChange('user')}
+									disabled={registrationFlowType === 'admin'}
+									style={{
+										width: '20px',
+										height: '20px',
+										accentColor: '#8b5cf6',
+										marginTop: '2px',
+										cursor: registrationFlowType === 'admin' ? 'not-allowed' : 'pointer',
+									}}
+								/>
+								<div style={{ flex: 1 }}>
+									<div
+										style={{
+											fontSize: '15px',
+											fontWeight: '600',
+											color: tokenType === 'user' ? '#6d28d9' : '#1f2937',
+											marginBottom: '4px',
+											display: 'flex',
+											alignItems: 'center',
+											gap: '8px',
+										}}
+									>
+										👤 User Token
+									</div>
+									<div
+										style={{
+											fontSize: '13px',
+											color: '#6b7280',
+											lineHeight: '1.5',
+										}}
+									>
+										OAuth access token for user-initiated registration
+									</div>
+								</div>
+							</div>
 						</label>
 					</div>
 				</div>
@@ -432,7 +699,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 					<div className="form-field">
 						<label htmlFor="deviceAuthPolicy">
 							Device Authentication Policy
-							<MFAInfoButtonV8 infoKey="deviceAuthPolicy" />
+							<MFAInfoButtonV8 contentKey="device.authentication.policy" displayMode="modal" />
 						</label>
 						<select
 							id="deviceAuthPolicy"
@@ -452,26 +719,57 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 					</div>
 				)}
 
-				{/* Policy Loading/Error States */}
-				{isLoadingPolicies && (
-					<div className="loading-indicator">Loading device authentication policies...</div>
-				)}
-				{policiesError && (
-					<div className="error-message" role="alert">
-						{policiesError}
-						<button type="button" onClick={refreshDeviceAuthPolicies} className="button-link">
-							Retry
-						</button>
-					</div>
-				)}
+					{/* Policy Loading/Error States */}
+					{isLoadingPolicies && (
+						<div className="loading-indicator">Loading device authentication policies...</div>
+					)}
+					{policiesError && (
+						<div className="error-message" role="alert">
+							{policiesError}
+							<button type="button" onClick={refreshDeviceAuthPolicies} className="button-link">
+								Retry
+							</button>
+						</div>
+					)}
+				</div>
 			</div>
 
 			{/* Action Buttons */}
-			<div className="step-actions">
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					marginTop: '32px',
+					paddingTop: '24px',
+					borderTop: '1px solid #e5e7eb',
+				}}
+			>
 				<button
 					type="button"
 					onClick={() => setShowSettingsModal(true)}
-					className="button-secondary"
+					style={{
+						padding: '12px 20px',
+						background: '#ffffff',
+						border: '1px solid #d1d5db',
+						borderRadius: '8px',
+						fontSize: '14px',
+						fontWeight: '500',
+						color: '#374151',
+						cursor: 'pointer',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '8px',
+						transition: 'all 0.2s ease',
+					}}
+					onMouseEnter={(e) => {
+						e.currentTarget.style.background = '#f9fafb';
+						e.currentTarget.style.borderColor = '#9ca3af';
+					}}
+					onMouseLeave={(e) => {
+						e.currentTarget.style.background = '#ffffff';
+						e.currentTarget.style.borderColor = '#d1d5db';
+					}}
 				>
 					⚙️ Settings
 				</button>
@@ -480,7 +778,35 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 					type="button"
 					onClick={handleContinue}
 					disabled={!canProceed || isLoading}
-					className="button-primary"
+					style={{
+						padding: '14px 28px',
+						background: canProceed && !isLoading ? '#8b5cf6' : '#d1d5db',
+						border: 'none',
+						borderRadius: '8px',
+						fontSize: '15px',
+						fontWeight: '600',
+						color: canProceed && !isLoading ? '#ffffff' : '#9ca3af',
+						cursor: canProceed && !isLoading ? 'pointer' : 'not-allowed',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '8px',
+						transition: 'all 0.2s ease',
+						boxShadow: canProceed && !isLoading ? '0 4px 12px rgba(139, 92, 246, 0.3)' : 'none',
+					}}
+					onMouseEnter={(e) => {
+						if (canProceed && !isLoading) {
+							e.currentTarget.style.background = '#7c3aed';
+							e.currentTarget.style.transform = 'translateY(-1px)';
+							e.currentTarget.style.boxShadow = '0 6px 16px rgba(139, 92, 246, 0.4)';
+						}
+					}}
+					onMouseLeave={(e) => {
+						if (canProceed && !isLoading) {
+							e.currentTarget.style.background = '#8b5cf6';
+							e.currentTarget.style.transform = 'translateY(0)';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.3)';
+						}
+					}}
 				>
 					{isLoading ? 'Loading...' : 'Continue →'}
 				</button>
