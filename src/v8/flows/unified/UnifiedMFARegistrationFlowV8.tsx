@@ -118,7 +118,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	const [username, setUsername] = useState('');
 	const [selectedPolicyId, setSelectedPolicyId] = useState('');
 
-	// Load Environment ID from global service on mount
+	// Load Environment ID and username from global services on mount
 	useEffect(() => {
 		// Initialize the service first to load from localStorage
 		globalEnvironmentService.initialize();
@@ -126,6 +126,13 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		console.log('[DeviceTypeSelectionScreen] Loaded Environment ID:', savedEnvId);
 		if (savedEnvId) {
 			setEnvironmentId(savedEnvId);
+		}
+
+		// Load username from localStorage
+		const savedUsername = localStorage.getItem('mfa_unified_username');
+		console.log('[DeviceTypeSelectionScreen] Loaded username:', savedUsername);
+		if (savedUsername) {
+			setUsername(savedUsername);
 		}
 	}, []);
 
@@ -135,6 +142,14 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			globalEnvironmentService.setEnvironmentId(environmentId);
 		}
 	}, [environmentId]);
+
+	// Save username to localStorage when it changes
+	useEffect(() => {
+		if (username) {
+			localStorage.setItem('mfa_unified_username', username);
+			console.log('[DeviceTypeSelectionScreen] Saved username to localStorage:', username);
+		}
+	}, [username]);
 
 	// Step 1: Choose Registration or Authentication
 	if (!flowMode) {
