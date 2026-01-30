@@ -57,15 +57,11 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 	const { values, errors, touched, handleChange, handleBlur, validateAll } = useFormValidation(
 		{
 			username: credentials.username || '',
-			clientId: credentials.clientId || '',
 		},
 		{
 			username: {
 				required: true,
 				minLength: 3,
-			},
-			clientId: {
-				required: false,
 			},
 		}
 	);
@@ -107,7 +103,6 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 				...prev,
 				environmentId: environmentId!,
 				username: values.username.trim(),
-				clientId: values.clientId.trim() || prev.clientId,
 				tokenType: 'worker',
 				deviceType,
 			}));
@@ -256,19 +251,6 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 						required
 						placeholder="user@example.com"
 						helpText="The user who will register this MFA device"
-					/>
-
-					<FormInput
-						label="Client ID"
-						name="clientId"
-						type="text"
-						value={values.clientId}
-						error={errors.clientId}
-						touched={touched.clientId}
-						onChange={handleChange}
-						onBlur={handleBlur}
-						placeholder="Optional - uses default if not provided"
-						helpText="OAuth client ID (optional)"
 					/>
 				</div>
 
