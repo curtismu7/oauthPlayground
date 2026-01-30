@@ -101,52 +101,61 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 		// Map field names to input components
 		switch (fieldName) {
 			case 'phoneNumber':
+				// Get country code value for combined display
+				const countryCodeValue = values['countryCode'] || '+1';
+				const phoneError = errors['phoneNumber'];
+				const countryError = errors['countryCode'];
+				const combinedError = phoneError || countryError;
+				
 				return (
 					<div key={fieldName} className="form-field phone-number-field">
 						<label htmlFor="phoneNumber">
 							Phone Number {isRequired && <span className="required">*</span>}
 						</label>
-						<input
-							id="phoneNumber"
-							type="tel"
-							value={value}
-							onChange={(e) => onChange(fieldName, e.target.value)}
-							onBlur={handleBlur}
-							disabled={disabled}
-							placeholder="+1 (512) 520-1234"
-							className={hasError ? 'input-error' : ''}
-							aria-invalid={hasError}
-							aria-describedby={hasError ? `${fieldName}-error` : undefined}
-						/>
-						{hasError && (
+						<div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+							{/* Country Code Dropdown */}
+							<div style={{ width: '120px', flexShrink: 0 }}>
+								<CountryCodePickerV8
+									value={countryCodeValue}
+									onChange={(val) => onChange('countryCode', val)}
+									disabled={disabled}
+								/>
+							</div>
+							{/* Phone Number Input */}
+							<div style={{ flex: 1 }}>
+								<input
+									id="phoneNumber"
+									type="tel"
+									value={value}
+									onChange={(e) => onChange(fieldName, e.target.value)}
+									onBlur={handleBlur}
+									disabled={disabled}
+									placeholder="(512) 520-1234"
+									className={phoneError ? 'input-error' : ''}
+									aria-invalid={!!phoneError}
+									aria-describedby={phoneError ? `${fieldName}-error` : undefined}
+									style={{
+										width: '100%',
+										padding: '8px 12px',
+										border: phoneError ? '1px solid #ef4444' : '1px solid #d1d5db',
+										borderRadius: '6px',
+										fontSize: '14px',
+									}}
+								/>
+							</div>
+						</div>
+						{combinedError && (
 							<span id={`${fieldName}-error`} className="error-message" role="alert">
-								{error}
+								{combinedError}
 							</span>
 						)}
-						<span className="field-hint">Enter phone number with country code</span>
+						<span className="field-hint">Select country code and enter phone number</span>
 					</div>
 				);
 
 			case 'countryCode':
-				return (
-					<div key={fieldName} className="form-field country-code-field">
-						<label htmlFor="countryCode">
-							Country Code {isRequired && <span className="required">*</span>}
-						</label>
-						<CountryCodePickerV8
-							value={value}
-							onChange={(val) => onChange(fieldName, val)}
-							onBlur={handleBlur}
-							disabled={disabled}
-							error={error}
-						/>
-						{hasError && (
-							<span id={`${fieldName}-error`} className="error-message" role="alert">
-								{error}
-							</span>
-						)}
-					</div>
-				);
+				// Skip rendering - it's now combined with phoneNumber
+				return null;
 
 			case 'email':
 				return (
