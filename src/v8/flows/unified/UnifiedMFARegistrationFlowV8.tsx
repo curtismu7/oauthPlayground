@@ -116,6 +116,14 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	const [username, setUsername] = useState('');
 	const [selectedPolicyId, setSelectedPolicyId] = useState('');
 
+	// Load Environment ID from global service on mount
+	useEffect(() => {
+		const savedEnvId = globalEnvironmentService.getEnvironmentId();
+		if (savedEnvId) {
+			setEnvironmentId(savedEnvId);
+		}
+	}, []);
+
 	// Sync environment ID to global service when it changes
 	useEffect(() => {
 		if (environmentId) {
