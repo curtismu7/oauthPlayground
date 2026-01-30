@@ -5,8 +5,9 @@
  * @version 9.2.0
  */
 
-import { workerTokenManager } from '@/services/workerTokenManager';
-import type { WorkerTokenCredentials, WorkerTokenStatus } from '@/types/credentials';
+import { workerTokenServiceV8 } from './workerTokenServiceV8';
+import type { WorkerTokenStatus } from './workerTokenServiceV8';
+import type { WorkerTokenCredentials } from './workerTokenServiceV8';
 
 type WorkerTokenStatusListener = (status: WorkerTokenStatus) => void;
 
@@ -56,7 +57,10 @@ export class GlobalWorkerTokenService {
 	async getToken(): Promise<string> {
 		console.log('[GlobalWorkerTokenService] Getting token...');
 		try {
-			const token = await workerTokenManager.getWorkerToken();
+			const token = await workerTokenServiceV8.getToken();
+			if (!token) {
+				throw new Error('Worker token not available');
+			}
 			await this.refreshStatus();
 			return token;
 		} catch (error) {
@@ -70,7 +74,7 @@ export class GlobalWorkerTokenService {
 	 * Get current Worker Token status
 	 */
 	async getStatus(): Promise<WorkerTokenStatus> {
-		const status = await workerTokenManager.getStatus();
+		const status = await workerTokenServiceV8.getStatus();
 		this.currentStatus = status;
 		return status;
 	}
@@ -87,7 +91,7 @@ export class GlobalWorkerTokenService {
 	 */
 	async saveCredentials(credentials: WorkerTokenCredentials): Promise<void> {
 		console.log('[GlobalWorkerTokenService] Saving credentials...');
-		await workerTokenManager.saveCredentials(credentials);
+		await workerTokenServiceV8.saveCredentials(credentials);
 		await this.refreshStatus();
 	}
 
@@ -96,7 +100,8 @@ export class GlobalWorkerTokenService {
 	 */
 	async clearCredentials(): Promise<void> {
 		console.log('[GlobalWorkerTokenService] Clearing credentials...');
-		await workerTokenManager.clearAll();
+		await workerTokenServiceV8.clearCredentials();
+		await workerTokenServiceV8.clearToken();
 		await this.refreshStatus();
 	}
 
@@ -126,7 +131,7 @@ export class GlobalWorkerTokenService {
 	 */
 	private async refreshStatus(): Promise<void> {
 		try {
-			const status = await workerTokenManager.getStatus();
+			const status = await workerTokenServiceV8.getStatus();
 			this.currentStatus = status;
 			this.notifyListeners(status);
 		} catch (error) {
@@ -147,7 +152,7 @@ export class GlobalWorkerTokenService {
 	 */
 	async forceRefresh(): Promise<string> {
 		console.log('[GlobalWorkerTokenService] Forcing token refresh...');
-		workerTokenManager.invalidateToken();
+		await workerTokenServiceV8.clearToken();
 		return await this.getToken();
 	}
 }
