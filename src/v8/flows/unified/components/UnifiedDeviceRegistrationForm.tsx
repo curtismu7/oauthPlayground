@@ -9,11 +9,11 @@
  * Users can see all options and fill in the appropriate fields in one view
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Button } from '@/v8/components/Button';
 import { PageTransition } from '@/v8/components/PageTransition';
 import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
-import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/deviceFlowConfigTypes';
+import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
 import { colors, spacing } from '@/v8/styles/designTokens';
 import { APIComparisonModal } from './APIComparisonModal';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
