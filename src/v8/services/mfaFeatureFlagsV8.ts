@@ -42,12 +42,12 @@ interface FeatureFlagState {
 }
 
 const DEFAULT_FLAGS: Record<MFAFeatureFlag, FeatureFlagState> = {
-	mfa_unified_sms: { enabled: false, rolloutPercentage: 0, lastUpdated: Date.now() },
-	mfa_unified_email: { enabled: false, rolloutPercentage: 0, lastUpdated: Date.now() },
-	mfa_unified_mobile: { enabled: false, rolloutPercentage: 0, lastUpdated: Date.now() },
-	mfa_unified_whatsapp: { enabled: false, rolloutPercentage: 0, lastUpdated: Date.now() },
-	mfa_unified_totp: { enabled: false, rolloutPercentage: 0, lastUpdated: Date.now() },
-	mfa_unified_fido2: { enabled: false, rolloutPercentage: 0, lastUpdated: Date.now() },
+	mfa_unified_sms: { enabled: true, rolloutPercentage: 100, lastUpdated: Date.now() },
+	mfa_unified_email: { enabled: true, rolloutPercentage: 100, lastUpdated: Date.now() },
+	mfa_unified_mobile: { enabled: true, rolloutPercentage: 100, lastUpdated: Date.now() },
+	mfa_unified_whatsapp: { enabled: true, rolloutPercentage: 100, lastUpdated: Date.now() },
+	mfa_unified_totp: { enabled: true, rolloutPercentage: 100, lastUpdated: Date.now() },
+	mfa_unified_fido2: { enabled: true, rolloutPercentage: 100, lastUpdated: Date.now() },
 };
 
 /**

@@ -481,7 +481,7 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 					environmentId: workerTokenCredentials.environmentId,
 					clientId: workerTokenCredentials.clientId,
 					clientSecret: workerTokenCredentials.clientSecret,
-					scope: 'p1:read:user p1:update:user p1:read:device p1:update:device p1:create:device',
+					scope: 'p1:read:user p1:update:user p1:read:device p1:update:device',
 					tokenEndpoint: `https://auth.pingone.com/${workerTokenCredentials.environmentId}/as/token`,
 				},
 				'client_secret_post'

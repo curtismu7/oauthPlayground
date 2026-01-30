@@ -2,11 +2,15 @@
  * @file workerTokenModalHelperV8.ts
  * @module v8/utils
  * @description Helper function to handle worker token modal display with silent API retrieval support
- * @version 8.0.0
+ * @version 8.1.0
  * @since 2025-01-XX
+ *
+ * IMPORTANT: This file delegates to tokenGatewayV8 for all token acquisition.
+ * Do NOT add direct token fetch logic here - use tokenGatewayV8 instead.
  */
 
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { tokenGatewayV8 } from '@/v8/services/auth/tokenGatewayV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import {
 	type TokenStatusInfo,
@@ -19,126 +23,59 @@ const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-HELPER-V8]';
 /**
  * Attempts to silently retrieve worker token if silentApiRetrieval is enabled
  * Returns true if token was successfully retrieved, false otherwise
+ *
+ * IMPORTANT: This function delegates to tokenGatewayV8 for actual token acquisition.
+ * All token fetch logic is centralized in tokenGatewayV8 to prevent regressions.
  */
 async function attemptSilentTokenRetrieval(silentApiRetrievalOverride?: boolean): Promise<boolean> {
 	try {
-		// #region agent log
-		// #endregion
 		const config = MFAConfigurationServiceV8.loadConfiguration();
 		const silentApiRetrieval =
 			silentApiRetrievalOverride !== undefined
 				? silentApiRetrievalOverride
 				: config.workerToken.silentApiRetrieval;
-		// #region agent log
-		// #endregion
 
 		if (!silentApiRetrieval) {
-			// #region agent log
-			// #endregion
-			return false; // Silent retrieval disabled
-		}
-
-		// #region agent log - Check all localStorage keys before loading
-		const _allKeys = Object.keys(localStorage).filter(
-			(k) => k.toLowerCase().includes('worker') || k.toLowerCase().includes('token')
-		);
-		// #endregion
-
-		const credentials = await workerTokenServiceV8.loadCredentials();
-		// #region agent log
-		// #endregion
-
-		if (!credentials) {
-			// #region agent log
-			// #endregion
-			// Show a helpful toast when silent retrieval fails due to missing credentials
-			// This helps users understand why silent retrieval isn't working
-			toastV8.warning(
-				'Silent API retrieval requires saved credentials. Click "Get Worker Token" to configure.'
-			);
+			console.log(`${MODULE_TAG} Silent retrieval disabled`);
 			return false;
 		}
 
-		// Try to automatically fetch token using stored credentials
-		const region = credentials.region || 'us';
-		const _apiBase =
-			region === 'eu'
-				? 'https://auth.pingone.eu'
-				: region === 'ap'
-					? 'https://auth.pingone.asia'
-					: region === 'ca'
-						? 'https://auth.pingone.ca'
-						: 'https://auth.pingone.com';
+		console.log(`${MODULE_TAG} Attempting silent token retrieval via tokenGatewayV8...`);
 
-		const proxyEndpoint = '/api/pingone/token';
-		const defaultScopes = ['mfa:device:manage', 'mfa:device:read'];
-		const scopeList = credentials.scopes;
-		const normalizedScopes: string[] =
-			Array.isArray(scopeList) && scopeList.length > 0 ? scopeList : defaultScopes;
-
-		const params = new URLSearchParams({
-			grant_type: 'client_credentials',
-			client_id: credentials.clientId,
-			scope: normalizedScopes.join(' '),
+		// Delegate to canonical token gateway
+		const result = await tokenGatewayV8.getWorkerToken({
+			mode: 'silent',
+			forceRefresh: false,
+			timeout: 10000,
+			maxRetries: 2,
+			debug: true,
 		});
 
-		const authMethod = credentials.tokenEndpointAuthMethod || 'client_secret_post';
-		if (authMethod === 'client_secret_post') {
-			params.set('client_secret', credentials.clientSecret);
+		if (result.success) {
+			console.log(`${MODULE_TAG} Token automatically fetched via tokenGatewayV8`);
+			toastV8.success('Worker token automatically retrieved!');
+			return true;
 		}
 
-		const headers: Record<string, string> = {
-			'Content-Type': 'application/json',
-		};
+		// Handle specific error cases
+		if (result.error) {
+			console.log(`${MODULE_TAG} Silent retrieval failed:`, result.error.code, result.error.message);
 
-		const requestBody: Record<string, unknown> = {
-			environment_id: credentials.environmentId,
-			region,
-			body: params.toString(),
-			auth_method: authMethod,
-		};
-
-		if (authMethod === 'client_secret_basic') {
-			const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
-			requestBody.headers = { Authorization: `Basic ${basicAuth}` };
-		}
-
-		// #region agent log
-		// #endregion
-		const response = await fetch(proxyEndpoint, {
-			method: 'POST',
-			headers,
-			body: JSON.stringify(requestBody),
-		});
-		// #region agent log
-		// #endregion
-
-		if (response.ok) {
-			const data = (await response.json()) as {
-				access_token: string;
-				expires_in?: number;
-			};
-
-			if (data.access_token) {
-				const expiresIn = data.expires_in || 3600; // Default to 1 hour
-				const expiresAt = Date.now() + expiresIn * 1000;
-
-				await workerTokenServiceV8.saveToken(data.access_token, expiresAt);
-
-				console.log(`${MODULE_TAG} Token automatically fetched and saved via silent API retrieval`);
-				window.dispatchEvent(new Event('workerTokenUpdated'));
-				toastV8.success('Worker token automatically retrieved!');
-				return true; // Success
+			if (result.error.code === 'NO_CREDENTIALS') {
+				toastV8.warning(
+					'Silent API retrieval requires saved credentials. Click "Get Worker Token" to configure.'
+				);
+			} else if (result.error.code === 'TIMEOUT') {
+				toastV8.warning('Token retrieval timed out. Please try again.');
+			} else if (result.error.code === 'NETWORK_ERROR') {
+				toastV8.warning('Network error during token retrieval. Check your connection.');
 			}
+			// Other errors are handled silently - user can click button to get details
 		}
 
-		// Silent retrieval failed
-		// #region agent log
-		// #endregion
 		return false;
-	} catch (_error) {
-		// #region agent log
-		// #endregion
+	} catch (error) {
+		console.error(`${MODULE_TAG} Unexpected error in silent retrieval:`, error);
 		return false;
 	}
 }
