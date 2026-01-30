@@ -13663,8 +13663,26 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 	try {
 		const { environmentId, username, workerToken } = req.body;
 
+		// Enhanced debugging for 400 errors
+		console.log('[LOOKUP-USER] Request body:', {
+			environmentId: environmentId ? 'present' : 'MISSING',
+			username: username ? 'present' : 'MISSING',
+			workerToken: workerToken ? 'present' : 'MISSING',
+			environmentIdValue: environmentId,
+			usernameValue: username,
+			workerTokenLength: workerToken ? workerToken.length : 0,
+			});
+
 		if (!environmentId || !username || !workerToken) {
-			return res.status(400).json({ error: 'Missing required fields' });
+			console.log('[LOOKUP-USER] 400 Error: Missing required fields');
+			return res.status(400).json({ 
+				error: 'Missing required fields',
+				details: {
+					environmentId: !!environmentId,
+					username: !!username,
+					workerToken: !!workerToken,
+				}
+			});
 		}
 
 		const usersEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users?filter=username eq "${username}"`;
@@ -13716,11 +13734,21 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 		);
 
 		if (!response.ok) {
+			console.log('[LOOKUP-USER] PingOne API Error:', {
+				status: response.status,
+				statusText: response.statusText,
+				responseData,
+				usersEndpoint,
+			});
 			return res.status(response.status).json(responseData);
 		}
 
 		// Parse response data (already parsed above)
 		const data = responseData;
+		console.log('[LOOKUP-USER] PingOne API Success:', {
+			userCount: data._embedded?.users?.length || 0,
+			hasUsers: !!(data._embedded?.users),
+		});
 
 		if (!data._embedded?.users || data._embedded.users.length === 0) {
 			return res.status(404).json({ error: 'User not found', username });
