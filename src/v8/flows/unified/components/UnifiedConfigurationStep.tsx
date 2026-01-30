@@ -22,7 +22,7 @@
  * />
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
@@ -80,8 +80,17 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 	// LOCAL STATE
 	// ========================================================================
 
+	// Load saved username from localStorage
+	const getSavedUsername = () => {
+		try {
+			return localStorage.getItem('mfa_unified_username') || credentials.username || '';
+		} catch {
+			return credentials.username || '';
+		}
+	};
+
 	const [environmentId, setEnvironmentId] = useState(credentials.environmentId || '');
-	const [username, setUsername] = useState(credentials.username || '');
+	const [username, setUsername] = useState(getSavedUsername);
 
 	// Registration flow type: 'admin-active', 'admin-activation', or 'user'
 	const [flowType, setFlowType] = useState<'admin-active' | 'admin-activation' | 'user'>(
@@ -125,6 +134,20 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 	}, [tokenStatus.isValid, environmentId, setCredentials]);
 
 	/**
+	 * Save username to localStorage when it changes
+	 */
+	useEffect(() => {
+		if (username.trim()) {
+			try {
+				localStorage.setItem('mfa_unified_username', username.trim());
+				console.log(`${MODULE_TAG} Saved username to localStorage`);
+			} catch {
+				// Ignore localStorage errors
+			}
+		}
+	}, [username]);
+
+	/**
 	 * Auto-select first device authentication policy when loaded
 	 */
 	useEffect(() => {
@@ -148,6 +171,46 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 			setFlowType('user');
 		}
 	}, [registrationFlowType, flowType]);
+
+	/**
+	 * Track if we've already auto-advanced to prevent loops
+	 */
+	const hasAutoAdvanced = useRef(false);
+
+	/**
+	 * Auto-advance after successful OAuth login for User Flow
+	 * When user returns from OAuth with a token, automatically proceed to next step
+	 */
+	useEffect(() => {
+		// Only auto-advance for user flow when we have a user token
+		if (
+			flowType === 'user' &&
+			credentials.userToken &&
+			environmentId.trim() &&
+			username.trim() &&
+			!hasAutoAdvanced.current
+		) {
+			console.log(`${MODULE_TAG} Auto-advancing after OAuth login`);
+			hasAutoAdvanced.current = true;
+
+			// Update credentials with final values
+			setCredentials((prev) => ({
+				...prev,
+				environmentId: environmentId.trim(),
+				username: username.trim(),
+				tokenType: 'user',
+				deviceAuthenticationPolicyId: selectedPolicyId,
+				deviceType: config.deviceType,
+			}));
+
+			// Small delay to ensure state updates propagate
+			setTimeout(() => {
+				toastV8.success('Authentication successful! Proceeding to next step...');
+				nav.markStepComplete();
+				nav.goToNext();
+			}, 300);
+		}
+	}, [credentials.userToken, flowType, environmentId, username, selectedPolicyId, config.deviceType, setCredentials, nav]);
 
 	// ========================================================================
 	// HANDLERS
