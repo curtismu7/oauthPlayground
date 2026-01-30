@@ -67,13 +67,13 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 				`type eq "${config.deviceType}"`
 			);
 			
-			setExistingDevices(devices as ExistingDevice[]);
+			setExistingDevices(devices as unknown as ExistingDevice[]);
 			
 			if (devices.length === 0) {
 				toastV8.info(`No existing ${config.displayName} devices found`);
 			}
-		} catch (error: any) {
-			const errorMsg = error.message || 'Failed to load devices';
+		} catch (error: unknown) {
+			const errorMsg = error instanceof Error ? error.message : 'Failed to load devices';
 			setLoadError(errorMsg);
 			toastV8.error(errorMsg);
 		} finally {
