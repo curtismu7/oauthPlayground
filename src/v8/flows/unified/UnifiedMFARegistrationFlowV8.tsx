@@ -592,20 +592,21 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	// ========================================================================
 
 	/**
-	 * Render Step 0: Configuration
+	 * Render Step 0: Configuration (SKIPPED - username already collected)
 	 */
 	const renderStep0 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
-			return (
-				<UnifiedConfigurationStep
-					{...props}
-					config={config}
-					deviceType={deviceType}
-					registrationFlowType={registrationFlowType || 'admin'}
-				/>
-			);
+			// Skip this step - username is already collected in the initial form
+			// Automatically advance to device selection
+			React.useEffect(() => {
+				if (props.nav.currentStep === 0) {
+					props.nav.goToNext();
+				}
+			}, [props.nav]);
+			
+			return null;
 		},
-		[config, deviceType, registrationFlowType]
+		[]
 	);
 
 	/**
@@ -661,7 +662,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 	const stepLabels = useMemo(
 		() => [
-			'Configure',
+			'', // Skip configuration step (username already collected)
 			'Select Device',
 			`Register ${config.displayName}`,
 			config.requiresOTP ? 'Activate (OTP)' : 'Activate',
