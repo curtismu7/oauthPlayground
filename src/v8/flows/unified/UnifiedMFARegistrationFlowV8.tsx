@@ -791,9 +791,23 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	 */
 	const renderStep0 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
-			return <UnifiedRegistrationStep {...props} config={config} />;
+			return (
+				<UnifiedDeviceRegistrationForm
+					onSubmit={(deviceType, fields, flowType) => {
+						console.log('[UNIFIED-FLOW] Device registration submitted', { deviceType, fields, flowType });
+						// Store flow type
+						localStorage.setItem('mfa_registration_flow_type', flowType);
+						// Navigate to next step
+						props.nav.goToNext();
+					}}
+					onCancel={() => {
+						console.log('[UNIFIED-FLOW] Registration cancelled');
+					}}
+					isLoading={props.isLoading}
+				/>
+			);
 		},
-		[config]
+		[]
 	);
 
 	/**
