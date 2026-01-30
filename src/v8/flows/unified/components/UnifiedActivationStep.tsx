@@ -136,23 +136,22 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 		try {
 			console.log(`${MODULE_TAG} Validating OTP via API`);
 
-			// Validate OTP via API
-			const response = await fetch('/api/pingone/mfa/validate-otp', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					environmentId: credentials.environmentId,
-					deviceId: mfaState.deviceId,
-					otp,
-				}),
+			// Validate OTP via MFAServiceV8
+			const { MFAServiceV8 } = await import('@/v8/services/mfaServiceV8');
+			const workerToken = await MFAServiceV8.getWorkerToken();
+			const cleanToken = workerToken.trim().replace(/^Bearer\s+/i, '');
+
+			const result = await MFAServiceV8.validateOTP({
+				environmentId: credentials.environmentId,
+				deviceAuthId: mfaState.deviceId,
+				otp,
+				workerToken: cleanToken,
+				otpCheckUrl: mfaState.otpCheckUrl,
 			});
 
-			if (!response.ok) {
-				const error = await response.json();
-				throw new Error(error.error || 'Invalid OTP code');
+			if (!result.valid) {
+				throw new Error(result.message || 'Invalid OTP code');
 			}
-
-			const result = await response.json();
 			console.log(`${MODULE_TAG} OTP validation successful:`, result);
 
 			// Update MFA state with activation result
@@ -206,20 +205,18 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 		setResendCooldown(60); // 60 second cooldown
 
 		try {
-			// Send OTP via API
-			const response = await fetch('/api/pingone/mfa/send-otp', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					environmentId: credentials.environmentId,
-					deviceId: mfaState.deviceId,
-				}),
+			// Send OTP via MFAServiceV8
+			const { MFAServiceV8 } = await import('@/v8/services/mfaServiceV8');
+			const { deviceAuthId, otpCheckUrl } = await MFAServiceV8.sendOTP({
+				environmentId: credentials.environmentId,
+				username: credentials.username,
+				deviceId: mfaState.deviceId,
 			});
 
-			if (!response.ok) {
-				const error = await response.json();
-				throw new Error(error.error || 'Failed to resend OTP');
-			}
+			console.log(`${MODULE_TAG} OTP resent successfully`, {
+				hasOtpCheckUrl: !!otpCheckUrl,
+				deviceAuthId,
+			});
 
 			console.log(`${MODULE_TAG} OTP resent successfully`);
 
