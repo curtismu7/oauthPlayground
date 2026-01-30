@@ -750,6 +750,16 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 									.slice(0, nav.currentStep + 1)
 									.filter((label) => label && label.trim() !== '').length;
 								const totalVisibleSteps = visibleSteps.length;
+								
+								// Debug logging
+								console.log('[STEP-COUNTER]', {
+									currentStep: nav.currentStep,
+									stepLabels,
+									sliced: stepLabels.slice(0, nav.currentStep + 1),
+									currentVisibleStep,
+									totalVisibleSteps
+								});
+								
 								return (
 									<>
 										<span className="step-number">{currentVisibleStep}</span>
