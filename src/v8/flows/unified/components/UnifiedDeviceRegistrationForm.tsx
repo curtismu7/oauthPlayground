@@ -10,13 +10,14 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
-import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/deviceFlowConfigTypes';
 import { Button } from '@/v8/components/Button';
 import { PageTransition } from '@/v8/components/PageTransition';
-import { DynamicFormRenderer } from './DynamicFormRenderer';
+import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
+import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/deviceFlowConfigTypes';
+import { colors, spacing } from '@/v8/styles/designTokens';
 import { APIComparisonModal } from './APIComparisonModal';
-import './UnifiedMFAFlow.css';
+import { DynamicFormRenderer } from './DynamicFormRenderer';
+import '../UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[📝 UNIFIED-DEVICE-REG-FORM]';
 
@@ -39,7 +40,11 @@ const DEVICE_TABS: DeviceTypeTab[] = [
 type FlowType = 'admin' | 'admin_activation_required' | 'user';
 
 export interface UnifiedDeviceRegistrationFormProps {
-	onSubmit: (deviceType: DeviceConfigKey, fields: Record<string, string>, flowType: FlowType) => void;
+	onSubmit: (
+		deviceType: DeviceConfigKey,
+		fields: Record<string, string>,
+		flowType: FlowType
+	) => void;
 	onCancel: () => void;
 	isLoading?: boolean;
 }
@@ -51,67 +56,72 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 }) => {
 	const [selectedTab, setSelectedTab] = useState<DeviceConfigKey>('SMS');
 	const [flowType, setFlowType] = useState<FlowType>('admin');
-	const [deviceFields, setDeviceFields] = useState<Record<DeviceConfigKey, Record<string, string>>>(() => {
-		// Initialize with saved values from localStorage
-		const savedPhone = localStorage.getItem('mfa_saved_phoneNumber');
-		const savedCountryCode = localStorage.getItem('mfa_saved_countryCode');
-		const savedEmail = localStorage.getItem('mfa_saved_email');
-		
-		const initialFields: Record<DeviceConfigKey, Record<string, string>> = {
-			SMS: {},
-			EMAIL: {},
-			TOTP: {},
-			MOBILE: {},
-			WHATSAPP: {},
-			FIDO2: {},
-		};
-		
-		// Pre-populate phone-based devices with saved values
-		if (savedPhone) {
-			initialFields.SMS.phoneNumber = savedPhone;
-			initialFields.WHATSAPP.phoneNumber = savedPhone;
+	const [deviceFields, setDeviceFields] = useState<Record<DeviceConfigKey, Record<string, string>>>(
+		() => {
+			// Initialize with saved values from localStorage
+			const savedPhone = localStorage.getItem('mfa_saved_phoneNumber');
+			const savedCountryCode = localStorage.getItem('mfa_saved_countryCode');
+			const savedEmail = localStorage.getItem('mfa_saved_email');
+
+			const initialFields: Record<DeviceConfigKey, Record<string, string>> = {
+				SMS: {},
+				EMAIL: {},
+				TOTP: {},
+				MOBILE: {},
+				WHATSAPP: {},
+				FIDO2: {},
+			};
+
+			// Pre-populate phone-based devices with saved values
+			if (savedPhone) {
+				initialFields.SMS.phoneNumber = savedPhone;
+				initialFields.WHATSAPP.phoneNumber = savedPhone;
+			}
+			if (savedCountryCode) {
+				initialFields.SMS.countryCode = savedCountryCode;
+				initialFields.WHATSAPP.countryCode = savedCountryCode;
+			}
+			if (savedEmail) {
+				initialFields.EMAIL.email = savedEmail;
+			}
+
+			return initialFields;
 		}
-		if (savedCountryCode) {
-			initialFields.SMS.countryCode = savedCountryCode;
-			initialFields.WHATSAPP.countryCode = savedCountryCode;
-		}
-		if (savedEmail) {
-			initialFields.EMAIL.email = savedEmail;
-		}
-		
-		return initialFields;
-	});
+	);
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [showApiModal, setShowApiModal] = useState(false);
 
 	const config = getDeviceConfig(selectedTab);
 
-	const handleFieldChange = useCallback((field: string, value: string) => {
-		setDeviceFields((prev) => ({
-			...prev,
-			[selectedTab]: {
-				...prev[selectedTab],
-				[field]: value,
-			},
-		}));
-		// Clear error for this field
-		if (errors[field]) {
-			setErrors((prev) => {
-				const newErrors = { ...prev };
-				delete newErrors[field];
-				return newErrors;
-			});
-		}
-	}, [selectedTab, errors]);
+	const handleFieldChange = useCallback(
+		(field: string, value: string) => {
+			setDeviceFields((prev) => ({
+				...prev,
+				[selectedTab]: {
+					...prev[selectedTab],
+					[field]: value,
+				},
+			}));
+			// Clear error for this field
+			if (errors[field]) {
+				setErrors((prev) => {
+					const newErrors = { ...prev };
+					delete newErrors[field];
+					return newErrors;
+				});
+			}
+		},
+		[selectedTab, errors]
+	);
 
 	const handleSubmit = useCallback(() => {
 		console.log(`${MODULE_TAG} Submitting registration for:`, selectedTab, 'Flow type:', flowType);
 		const fields = deviceFields[selectedTab];
-		
+
 		// Basic validation
 		const requiredFields = config.requiredFields || [];
 		const newErrors: Record<string, string> = {};
-		
+
 		requiredFields.forEach((field) => {
 			if (!fields[field]?.trim()) {
 				newErrors[field] = `${field} is required`;
@@ -128,15 +138,24 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 
 	return (
 		<PageTransition>
-			<div style={{ maxWidth: '900px', margin: '0 auto', padding: spacing.xl }}>
+			<div style={{ maxWidth: '900px', margin: '0 auto', padding: spacing[6] }}>
 				{/* Header */}
-				<div style={{ marginBottom: spacing.xl }}>
-					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: spacing.sm }}>
+				<div style={{ marginBottom: spacing[6] }}>
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'flex-start',
+							marginBottom: spacing[2],
+						}}
+					>
 						<div>
-							<h2 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: colors.neutral[900] }}>
+							<h2
+								style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: colors.gray[900] }}
+							>
 								Register MFA Device
 							</h2>
-							<p style={{ margin: '4px 0 0 0', fontSize: '14px', color: colors.neutral[600] }}>
+							<p style={{ margin: '4px 0 0 0', fontSize: '14px', color: colors.gray[600] }}>
 								Select a device type and enter the required information
 							</p>
 						</div>
@@ -154,24 +173,31 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 				<div
 					style={{
 						background: '#ffffff',
-						border: `1px solid ${colors.neutral[200]}`,
+						border: `1px solid ${colors.gray[200]}`,
 						borderRadius: '12px',
-						padding: spacing.lg,
-						marginBottom: spacing.xl,
+						padding: spacing[4],
+						marginBottom: spacing[6],
 					}}
 				>
-					<h3 style={{ margin: `0 0 ${spacing.md}`, fontSize: '16px', fontWeight: '600', color: colors.neutral[900] }}>
+					<h3
+						style={{
+							margin: `0 0 ${spacing[3]}`,
+							fontSize: '16px',
+							fontWeight: '600',
+							color: colors.gray[900],
+						}}
+					>
 						Registration Flow Type
 					</h3>
-					<div style={{ display: 'flex', flexDirection: 'column', gap: spacing.md }}>
+					<div style={{ display: 'flex', flexDirection: 'column', gap: spacing[3] }}>
 						{/* Admin Flow */}
 						<label
 							style={{
 								display: 'flex',
 								alignItems: 'flex-start',
-								gap: spacing.sm,
-								padding: spacing.md,
-								border: `2px solid ${flowType === 'admin' ? colors.primary[500] : colors.neutral[200]}`,
+								gap: spacing[2],
+								padding: spacing[3],
+								border: `2px solid ${flowType === 'admin' ? colors.primary[500] : colors.gray[200]}`,
 								borderRadius: '8px',
 								cursor: 'pointer',
 								background: flowType === 'admin' ? colors.primary[50] : 'transparent',
@@ -187,10 +213,10 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 								style={{ marginTop: '2px', cursor: 'pointer' }}
 							/>
 							<div>
-								<div style={{ fontWeight: '600', color: colors.neutral[900], marginBottom: '4px' }}>
+								<div style={{ fontWeight: '600', color: colors.gray[900], marginBottom: '4px' }}>
 									Admin Flow (Direct Registration)
 								</div>
-								<div style={{ fontSize: '13px', color: colors.neutral[600] }}>
+								<div style={{ fontSize: '13px', color: colors.gray[600] }}>
 									Register device directly as admin. Device is immediately active and ready to use.
 								</div>
 							</div>
@@ -201,12 +227,13 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 							style={{
 								display: 'flex',
 								alignItems: 'flex-start',
-								gap: spacing.sm,
-								padding: spacing.md,
-								border: `2px solid ${flowType === 'admin_activation_required' ? colors.primary[500] : colors.neutral[200]}`,
+								gap: spacing[2],
+								padding: spacing[3],
+								border: `2px solid ${flowType === 'admin_activation_required' ? colors.primary[500] : colors.gray[200]}`,
 								borderRadius: '8px',
 								cursor: 'pointer',
-								background: flowType === 'admin_activation_required' ? colors.primary[50] : 'transparent',
+								background:
+									flowType === 'admin_activation_required' ? colors.primary[50] : 'transparent',
 								transition: 'all 0.2s ease',
 							}}
 						>
@@ -219,11 +246,12 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 								style={{ marginTop: '2px', cursor: 'pointer' }}
 							/>
 							<div>
-								<div style={{ fontWeight: '600', color: colors.neutral[900], marginBottom: '4px' }}>
+								<div style={{ fontWeight: '600', color: colors.gray[900], marginBottom: '4px' }}>
 									Admin Flow with Activation Required
 								</div>
-								<div style={{ fontSize: '13px', color: colors.neutral[600] }}>
-									Register device as admin, but require user activation (OTP verification) before it's active.
+								<div style={{ fontSize: '13px', color: colors.gray[600] }}>
+									Register device as admin, but require user activation (OTP verification) before
+									it's active.
 								</div>
 							</div>
 						</label>
@@ -233,9 +261,9 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 							style={{
 								display: 'flex',
 								alignItems: 'flex-start',
-								gap: spacing.sm,
-								padding: spacing.md,
-								border: `2px solid ${flowType === 'user' ? colors.primary[500] : colors.neutral[200]}`,
+								gap: spacing[2],
+								padding: spacing[3],
+								border: `2px solid ${flowType === 'user' ? colors.primary[500] : colors.gray[200]}`,
 								borderRadius: '8px',
 								cursor: 'pointer',
 								background: flowType === 'user' ? colors.primary[50] : 'transparent',
@@ -251,11 +279,12 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 								style={{ marginTop: '2px', cursor: 'pointer' }}
 							/>
 							<div>
-								<div style={{ fontWeight: '600', color: colors.neutral[900], marginBottom: '4px' }}>
+								<div style={{ fontWeight: '600', color: colors.gray[900], marginBottom: '4px' }}>
 									User Flow (PingOne Authentication)
 								</div>
-								<div style={{ fontSize: '13px', color: colors.neutral[600] }}>
-									User registers their own device. Redirects to PingOne for authentication before registration.
+								<div style={{ fontSize: '13px', color: colors.gray[600] }}>
+									User registers their own device. Redirects to PingOne for authentication before
+									registration.
 								</div>
 							</div>
 						</label>
@@ -266,11 +295,11 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 				<div
 					style={{
 						display: 'flex',
-						gap: spacing.sm,
-						marginBottom: spacing.lg,
-						borderBottom: `2px solid ${colors.neutral[200]}`,
+						gap: spacing[2],
+						marginBottom: spacing[4],
+						borderBottom: `2px solid ${colors.gray[200]}`,
 						overflowX: 'auto',
-						paddingBottom: spacing.sm,
+						paddingBottom: spacing[2],
 					}}
 				>
 					{DEVICE_TABS.map((tab) => (
@@ -282,11 +311,14 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 								display: 'flex',
 								flexDirection: 'column',
 								alignItems: 'center',
-								gap: spacing.xs,
-								padding: `${spacing.sm} ${spacing.md}`,
+								gap: spacing[1],
+								padding: `${spacing[2]} ${spacing[3]}`,
 								background: selectedTab === tab.key ? colors.primary[50] : 'transparent',
 								border: 'none',
-								borderBottom: selectedTab === tab.key ? `3px solid ${colors.primary[600]}` : '3px solid transparent',
+								borderBottom:
+									selectedTab === tab.key
+										? `3px solid ${colors.primary[600]}`
+										: '3px solid transparent',
 								borderRadius: '8px 8px 0 0',
 								cursor: 'pointer',
 								transition: 'all 0.2s ease',
@@ -299,7 +331,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 								style={{
 									fontSize: '13px',
 									fontWeight: selectedTab === tab.key ? '600' : '500',
-									color: selectedTab === tab.key ? colors.primary[700] : colors.neutral[600],
+									color: selectedTab === tab.key ? colors.primary[700] : colors.gray[600],
 									whiteSpace: 'nowrap',
 								}}
 							>
@@ -315,12 +347,13 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 						background: colors.primary[50],
 						border: `1px solid ${colors.primary[200]}`,
 						borderRadius: '8px',
-						padding: spacing.md,
-						marginBottom: spacing.lg,
+						padding: spacing[3],
+						marginBottom: spacing[4],
 					}}
 				>
 					<p style={{ margin: 0, fontSize: '14px', color: colors.primary[900] }}>
-						<strong>{config.displayName}:</strong> {config.description || DEVICE_TABS.find(t => t.key === selectedTab)?.description}
+						<strong>{config.displayName}:</strong>{' '}
+						{config.description || DEVICE_TABS.find((t) => t.key === selectedTab)?.description}
 					</p>
 				</div>
 
@@ -328,21 +361,23 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 				<div
 					style={{
 						background: '#ffffff',
-						border: `1px solid ${colors.neutral[200]}`,
+						border: `1px solid ${colors.gray[200]}`,
 						borderRadius: '12px',
-						padding: spacing.lg,
-						marginBottom: spacing.xl,
+						padding: spacing[4],
+						marginBottom: spacing[6],
 					}}
 				>
-					{config.deviceType === 'TOTP' || config.deviceType === 'FIDO2' || config.deviceType === 'MOBILE' ? (
+					{config.deviceType === 'TOTP' ||
+					config.deviceType === 'FIDO2' ||
+					config.deviceType === 'MOBILE' ? (
 						<div
 							style={{
-								padding: spacing.xl,
+								padding: spacing[6],
 								textAlign: 'center',
-								color: colors.neutral[600],
+								color: colors.gray[600],
 							}}
 						>
-							<p style={{ fontSize: '48px', margin: `0 0 ${spacing.md}` }}>
+							<p style={{ fontSize: '48px', margin: `0 0 ${spacing[3]}` }}>
 								{config.deviceType === 'TOTP' ? '🔐' : config.deviceType === 'FIDO2' ? '🔑' : '📲'}
 							</p>
 							<p style={{ margin: 0, fontSize: '14px' }}>
@@ -365,33 +400,23 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 				<div
 					style={{
 						display: 'flex',
-						gap: spacing.md,
+						gap: spacing[3],
 						justifyContent: 'flex-end',
-						paddingTop: spacing.lg,
-						borderTop: `1px solid ${colors.neutral[200]}`,
+						paddingTop: spacing[4],
+						borderTop: `1px solid ${colors.gray[200]}`,
 					}}
 				>
-					<Button
-						variant="secondary"
-						onClick={onCancel}
-						disabled={isLoading}
-					>
+					<Button variant="secondary" onClick={onCancel} disabled={isLoading}>
 						Cancel
 					</Button>
-					<Button
-						variant="primary"
-						onClick={handleSubmit}
-						disabled={isLoading}
-						loading={isLoading}
-					>
+					<Button variant="primary" onClick={handleSubmit} disabled={isLoading} loading={isLoading}>
 						Register {config.displayName} →
 					</Button>
 				</div>
 			</div>
+			{/* API Comparison Modal */}
+			<APIComparisonModal isOpen={showApiModal} onClose={() => setShowApiModal(false)} />
 		</PageTransition>
-		
-		{/* API Comparison Modal */}
-		<APIComparisonModal isOpen={showApiModal} onClose={() => setShowApiModal(false)} />
 	);
 };
 
