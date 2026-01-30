@@ -27,8 +27,8 @@ import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import type { TokenType } from '@/v8/flows/shared/MFATypes';
-import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[⚙️ UNIFIED-CONFIGURATION-STEP]';
@@ -391,7 +391,11 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 								onEnvironmentIdUpdate={handleEnvironmentIdChange}
 							/>
 							{errors.token && (
-								<span className="error-message" role="alert" style={{ marginTop: '12px', display: 'block' }}>
+								<span
+									className="error-message"
+									role="alert"
+									style={{ marginTop: '12px', display: 'block' }}
+								>
 									{errors.token}
 								</span>
 							)}
@@ -411,7 +415,11 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 								{credentials.userToken ? 'Re-authenticate' : 'Login via OAuth'}
 							</button>
 							{errors.token && (
-								<span className="error-message" role="alert" style={{ marginTop: '12px', display: 'block' }}>
+								<span
+									className="error-message"
+									role="alert"
+									style={{ marginTop: '12px', display: 'block' }}
+								>
 									{errors.token}
 								</span>
 							)}

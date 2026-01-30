@@ -32,10 +32,10 @@ import { MFATokenManagerV8 } from '@/v8/services/mfaTokenManagerV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
+import { UnifiedActivationStep } from './components/UnifiedActivationStep';
 import { UnifiedConfigurationStep } from './components/UnifiedConfigurationStep';
 import { UnifiedDeviceSelectionStep } from './components/UnifiedDeviceSelectionStep';
 import { UnifiedRegistrationStep } from './components/UnifiedRegistrationStep';
-import { UnifiedActivationStep } from './components/UnifiedActivationStep';
 import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
 import './UnifiedMFAFlow.css';
 
@@ -83,7 +83,8 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 	const location = useLocation();
 
 	// Get device type from props or location state
-	const deviceType = props.deviceType || (location.state as { deviceType?: DeviceConfigKey })?.deviceType || 'SMS';
+	const deviceType =
+		props.deviceType || (location.state as { deviceType?: DeviceConfigKey })?.deviceType || 'SMS';
 
 	console.log(`${MODULE_TAG} Initializing unified flow for device type:`, deviceType);
 
@@ -262,13 +263,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	 */
 	const renderStep1 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
-			return (
-				<UnifiedDeviceSelectionStep
-					{...props}
-					deviceType={deviceType}
-					config={config}
-				/>
-			);
+			return <UnifiedDeviceSelectionStep {...props} deviceType={deviceType} config={config} />;
 		},
 		[config, deviceType]
 	);
@@ -278,13 +273,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	 */
 	const renderStep2 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
-			return (
-				<UnifiedRegistrationStep
-					{...props}
-					deviceType={deviceType}
-					config={config}
-				/>
-			);
+			return <UnifiedRegistrationStep {...props} deviceType={deviceType} config={config} />;
 		},
 		[config, deviceType]
 	);
@@ -294,13 +283,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	 */
 	const renderStep3 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
-			return (
-				<UnifiedActivationStep
-					{...props}
-					deviceType={deviceType}
-					config={config}
-				/>
-			);
+			return <UnifiedActivationStep {...props} deviceType={deviceType} config={config} />;
 		},
 		[config, deviceType]
 	);
