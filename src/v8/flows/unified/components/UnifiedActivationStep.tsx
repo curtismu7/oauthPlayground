@@ -27,7 +27,6 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
-import type { MFAFlowController } from '@/v8/flows/controllers/MFAFlowController';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
@@ -40,9 +39,6 @@ const MODULE_TAG = '[🔐 UNIFIED-ACTIVATION-STEP]';
 export interface UnifiedActivationStepProps extends MFAFlowBaseRenderProps {
 	/** Device flow configuration */
 	config: DeviceFlowConfig;
-
-	/** Device controller */
-	controller: MFAFlowController;
 }
 
 // ============================================================================
@@ -67,7 +63,6 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 	setIsLoading,
 	nav,
 	config,
-	controller,
 }) => {
 	console.log(`${MODULE_TAG} Rendering activation step for:`, config.deviceType);
 	console.log(`${MODULE_TAG} Device status:`, mfaState.deviceStatus);
@@ -131,31 +126,33 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 	const handleValidateOtp = useCallback(async () => {
 		console.log(`${MODULE_TAG} Validating OTP:`, otp);
 
-		// Validate OTP format
-		if (otp.length !== 6) {
-			setOtpError('OTP must be 6 digits');
+		if (!otp || otp.length !== 6) {
+			setOtpError('Please enter a valid 6-digit code');
 			return;
 		}
 
-		// Clear previous errors
-		setOtpError(null);
-
-		// Set loading state
 		setIsLoading(true);
 
 		try {
-			console.log(`${MODULE_TAG} Calling controller.validateOtp`);
+			console.log(`${MODULE_TAG} Validating OTP via API`);
 
-			// Call controller to validate OTP
-			const result = await controller.validateOtp(
-				mfaState.deviceId!,
-				otp,
-				credentials,
-				mfaState,
-				tokenStatus,
-				nav
-			);
+			// Validate OTP via API
+			const response = await fetch('/api/pingone/mfa/validate-otp', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					environmentId: credentials.environmentId,
+					deviceId: mfaState.deviceId,
+					otp,
+				}),
+			});
 
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.error || 'Invalid OTP code');
+			}
+
+			const result = await response.json();
 			console.log(`${MODULE_TAG} OTP validation successful:`, result);
 
 			// Update MFA state with activation result
@@ -173,13 +170,19 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 
 			// Navigate to success step
 			nav.goToNext();
+
+			// Increment validation attempts
+			setValidationAttempts((prev) => prev + 1);
 		} catch (error: any) {
 			console.error(`${MODULE_TAG} OTP validation failed:`, error);
 
-			const errorMessage = error.message || `Failed to validate ${config.displayName} OTP`;
-
-			setOtpError(errorMessage);
+			// Increment validation attempts
 			setValidationAttempts((prev) => prev + 1);
+
+			const errorMessage = error.message || 'Invalid OTP code';
+			setOtpError(errorMessage);
+
+			// Set validation errors in nav
 			nav.setValidationErrors([errorMessage]);
 
 			// Show error toast
@@ -190,21 +193,33 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 		} finally {
 			setIsLoading(false);
 		}
-	}, [otp, mfaState, credentials, tokenStatus, config, controller, nav, setMfaState, setIsLoading]);
+	}, [otp, mfaState, credentials, config, nav, setMfaState, setIsLoading]);
 
 	/**
 	 * Handle resend OTP
 	 */
 	const handleResendOtp = useCallback(async () => {
-		console.log(`${MODULE_TAG} Resending OTP`);
+		console.log(`${MODULE_TAG} Resending OTP for device:`, mfaState.deviceId);
 
 		setIsLoading(true);
 		setCanResend(false);
 		setResendCooldown(60); // 60 second cooldown
 
 		try {
-			// Call controller to resend OTP
-			await controller.resendOtp(mfaState.deviceId!, credentials, mfaState, tokenStatus, nav);
+			// Send OTP via API
+			const response = await fetch('/api/pingone/mfa/send-otp', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					environmentId: credentials.environmentId,
+					deviceId: mfaState.deviceId,
+				}),
+			});
+
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.error || 'Failed to resend OTP');
+			}
 
 			console.log(`${MODULE_TAG} OTP resent successfully`);
 
@@ -229,7 +244,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 		} finally {
 			setIsLoading(false);
 		}
-	}, [mfaState, credentials, tokenStatus, config, controller, nav, setIsLoading]);
+	}, [mfaState.deviceId, credentials.environmentId, config.displayName]);
 
 	// ========================================================================
 	// RENDER LOGIC
