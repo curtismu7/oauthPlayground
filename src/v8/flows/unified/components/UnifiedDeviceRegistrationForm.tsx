@@ -9,13 +9,14 @@
  * Users can see all options and fill in the appropriate fields in one view
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
-import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
+import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/deviceFlowConfigTypes';
 import { Button } from '@/v8/components/Button';
 import { PageTransition } from '@/v8/components/PageTransition';
-import { colors, spacing } from '@/v8/design/tokens';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
+import { APIComparisonModal } from './APIComparisonModal';
+import './UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[📝 UNIFIED-DEVICE-REG-FORM]';
 
@@ -81,6 +82,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 		return initialFields;
 	});
 	const [errors, setErrors] = useState<Record<string, string>>({});
+	const [showApiModal, setShowApiModal] = useState(false);
 
 	const config = getDeviceConfig(selectedTab);
 
@@ -129,12 +131,23 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 			<div style={{ maxWidth: '900px', margin: '0 auto', padding: spacing.xl }}>
 				{/* Header */}
 				<div style={{ marginBottom: spacing.xl }}>
-					<h2 style={{ margin: `0 0 ${spacing.sm}`, fontSize: '24px', fontWeight: '700', color: colors.neutral[900] }}>
-						Register MFA Device
-					</h2>
-					<p style={{ margin: 0, fontSize: '14px', color: colors.neutral[600] }}>
-						Select a device type and enter the required information
-					</p>
+					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: spacing.sm }}>
+						<div>
+							<h2 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: colors.neutral[900] }}>
+								Register MFA Device
+							</h2>
+							<p style={{ margin: '4px 0 0 0', fontSize: '14px', color: colors.neutral[600] }}>
+								Select a device type and enter the required information
+							</p>
+						</div>
+						<Button
+							variant="secondary"
+							onClick={() => setShowApiModal(true)}
+							style={{ fontSize: '12px', padding: '8px 12px' }}
+						>
+							🔍 API Comparison
+						</Button>
+					</div>
 				</div>
 
 				{/* Flow Type Selection */}
@@ -376,6 +389,9 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 				</div>
 			</div>
 		</PageTransition>
+		
+		{/* API Comparison Modal */}
+		<APIComparisonModal isOpen={showApiModal} onClose={() => setShowApiModal(false)} />
 	);
 };
 
