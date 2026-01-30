@@ -52,13 +52,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [clientId, setClientId] = useState('');
 	const [clientSecret, setClientSecret] = useState('');
 	const [redirectUri, setRedirectUri] = useState('');
-	// Check if we're in an MFA flow context (for adding p1:update:device scope)
+	// Check if we're in an MFA flow context
 	const isMfaFlow = location.pathname.startsWith('/v8/mfa');
 
-	// Default scopes: include p1:update:device for MFA flows
-	const defaultScopesForMfa = 'openid profile email p1:update:device';
-	const defaultScopesForOther = 'openid profile email';
-	const [scopes, setScopes] = useState(isMfaFlow ? defaultScopesForMfa : defaultScopesForOther);
+	// Default scopes - same for all flows
+	const defaultScopes = 'openid profile email';
+	const [scopes, setScopes] = useState(defaultScopes);
 	const [isRedirecting, setIsRedirecting] = useState(false);
 	const [showClientSecret, setShowClientSecret] = useState(false);
 	const [, setShowConfigModal] = useState(false);
@@ -142,10 +141,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				includeScopes: true,
 			});
 
-			// Default scopes: include p1:update:device for MFA flows
-			const defaultScopes = isMfaFlow
-				? 'openid profile email p1:update:device'
-				: 'openid profile email';
+			// Default scopes - same for all flows
+			const defaultScopes = 'openid profile email';
 
 			// Use different default redirect URI for MFA flows
 			const defaultRedirectUriForMfa = isMfaFlow
@@ -190,13 +187,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 				previousRedirectUriRef.current = initialRedirectUri;
 
-				// If saved scopes don't include p1:update:device and we're in MFA flow, add it
+				// Use saved scopes or default
 				const savedScopes = saved.scopes || defaultScopes;
-				const finalScopes =
-					isMfaFlow && !savedScopes.includes('p1:update:device')
-						? `${savedScopes} p1:update:device`.trim()
-						: savedScopes || defaultScopes;
-				setScopes(finalScopes);
+				setScopes(savedScopes);
 			} else {
 				// Set default redirect URI based on flow type (MFA vs regular)
 				// Use global environment ID if available
@@ -208,7 +201,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				setRedirectUri(defaultRedirectUriForMfa);
 
 				previousRedirectUriRef.current = defaultRedirectUriForMfa;
-				// Set default scopes with p1:create:device for MFA flows
+				// Set default scopes
 				setScopes(defaultScopes);
 			}
 		}
@@ -1014,14 +1007,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			return;
 		}
 
-		// Validate that p1:update:device scope is included for MFA flows
-		if (isMfaFlow && !scopes.includes('p1:update:device')) {
-			toastV8.error(
-				'For MFA user flow, the access token must include the p1:update:device scope. Please add it to the scopes field.'
-			);
-			return;
-		}
-
 		// Always use what's in the modal field (redirectUri state)
 		// Only fall back to default if field is empty or contains invalid old URIs
 		// For MFA flows, use user-mfa-login-callback; for others, use user-login-callback
@@ -1775,81 +1760,21 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								type="text"
 								value={scopes}
 								onChange={(e) => setScopes(e.target.value)}
-								placeholder={
-									isMfaFlow ? 'openid profile email p1:update:device' : 'openid profile email'
-								}
+								placeholder="openid profile email"
 								style={{
 									width: '100%',
 									padding: '10px 12px',
-									border:
-										isMfaFlow && !scopes.includes('p1:update:device')
-											? '2px solid #f59e0b'
-											: '1px solid #d1d5db',
+									border: '1px solid #d1d5db',
 									borderRadius: '6px',
 									fontSize: '14px',
-									background:
-										isMfaFlow && !scopes.includes('p1:update:device') ? '#fffbeb' : 'white',
+									background: 'white',
 								}}
 							/>
-							{isMfaFlow && !scopes.includes('p1:update:device') ? (
-								<div
-									style={{
-										marginTop: '8px',
-										padding: '10px 12px',
-										background: '#fef3c7',
-										border: '1px solid #f59e0b',
-										borderRadius: '6px',
-										fontSize: '12px',
-										color: '#92400e',
-									}}
-								>
-									<strong>⚠️ Required Scope Missing:</strong> For MFA user flow (self-service device
-									registration), the access token must include the{' '}
-									<code
-										style={{
-											background: '#fbbf24',
-											padding: '2px 6px',
-											borderRadius: '3px',
-											fontWeight: '600',
-										}}
-									>
-										p1:update:device
-									</code>{' '}
-									scope.
-									<br />
-									<button
-										type="button"
-										onClick={() => {
-											const currentScopes = scopes.trim();
-											const hasScope = currentScopes.includes('p1:update:device');
-											if (!hasScope) {
-												setScopes(`${currentScopes} p1:update:device`.trim());
-											}
-										}}
-										style={{
-											marginTop: '6px',
-											padding: '4px 12px',
-											background: '#f59e0b',
-											color: 'white',
-											border: 'none',
-											borderRadius: '4px',
-											fontSize: '12px',
-											fontWeight: '600',
-											cursor: 'pointer',
-										}}
-									>
-										+ Add p1:update:device scope
-									</button>
-								</div>
-							) : (
-								<small
-									style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
-								>
-									{isMfaFlow
-										? 'Space-separated list of OAuth scopes. Must include p1:update:device for MFA user flow.'
-										: 'Space-separated list of OAuth scopes (openid is required for OIDC)'}
-								</small>
-							)}
+							<small
+								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
+							>
+								Space-separated list of OAuth scopes (openid is required for OIDC)
+							</small>
 						</div>
 					</div>
 
