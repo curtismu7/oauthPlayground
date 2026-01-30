@@ -24,7 +24,7 @@
  * />
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { EmailInputV8 } from '@/v8/components/EmailInputV8';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
@@ -98,6 +98,16 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 		}
 	}, [values['email']]);
 
+	// Initialize country code if not set (must be in useEffect, not during render)
+	const hasInitializedCountryCode = useRef(false);
+	useEffect(() => {
+		const needsCountryCode = config.requiredFields.includes('countryCode') || config.requiredFields.includes('phoneNumber');
+		if (needsCountryCode && !values['countryCode'] && !hasInitializedCountryCode.current) {
+			hasInitializedCountryCode.current = true;
+			onChange('countryCode', '+1');
+		}
+	}, [config.requiredFields, values, onChange]);
+
 	// ========================================================================
 	// FIELD RENDERERS
 	// ========================================================================
@@ -122,14 +132,9 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 		// Map field names to input components
 		switch (fieldName) {
 			case 'phoneNumber':
-				// Get country code value for combined display - ensure it's set to +1 if not already
+				// Get country code value for combined display (initialization happens in useEffect)
 				const countryCodeValue = values['countryCode'] || '+1';
-				
-				// Initialize country code if not set
-				if (!values['countryCode']) {
-					onChange('countryCode', '+1');
-				}
-				
+
 				const phoneError = errors['phoneNumber'];
 				const countryError = errors['countryCode'];
 				const combinedError = phoneError || countryError;

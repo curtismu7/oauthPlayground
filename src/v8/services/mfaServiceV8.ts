@@ -733,25 +733,43 @@ export class MFAServiceV8 {
 			}
 
 			// Always set device status explicitly (ACTIVE or ACTIVATION_REQUIRED)
-			// ACTIVE: Device is pre-paired (Worker App can set this, user doesn't need to activate)
-			// ACTIVATION_REQUIRED: User must activate device before first use
+			// CRITICAL: This status tells PingOne whether to send OTP to user
+			// ACTIVE: Device is pre-activated, no OTP needed (admin flow)
+			// ACTIVATION_REQUIRED: User must activate device, OTP will be sent (user flow)
 			// IMPORTANT: Always set status explicitly for educational purposes
-			// For Admin Flow (worker token): default to ACTIVE if not provided (PingOne's default)
-			// For User Flow (user token): default to ACTIVATION_REQUIRED (enforced by PingOne)
+			// For Admin Flow (worker token): ACTIVE (device pre-activated)
+			// For User Flow (user token): ACTIVATION_REQUIRED (OTP required)
 			// PingOne's default is ACTIVE if status is not provided, but we always send it explicitly
 			if (params.status) {
 				devicePayload.status = params.status;
+				log.info('Using explicit status from params', {
+					status: params.status,
+					otpWillBeSent: params.status === 'ACTIVATION_REQUIRED',
+					deviceType: params.type,
+				});
 			} else {
 				const tokenType =
 					'tokenType' in params
 						? (params as { tokenType?: 'worker' | 'user' }).tokenType
 						: undefined;
 				if (tokenType === 'worker') {
-					// Admin Flow: default to ACTIVE (PingOne's default, but we send it explicitly for education)
+					// Admin Flow: ACTIVE (device pre-activated, no OTP needed)
 					devicePayload.status = 'ACTIVE';
+					log.info('Default status for admin flow', {
+						status: 'ACTIVE',
+						otpWillBeSent: false,
+						reason: 'Admin flow - device pre-activated',
+						deviceType: params.type,
+					});
 				} else {
-					// User Flow: default to ACTIVATION_REQUIRED (enforced by PingOne)
+					// User Flow: ACTIVATION_REQUIRED (OTP will be sent for activation)
 					devicePayload.status = 'ACTIVATION_REQUIRED';
+					log.info('Default status for user flow', {
+						status: 'ACTIVATION_REQUIRED',
+						otpWillBeSent: true,
+						reason: 'User flow - OTP required for activation',
+						deviceType: params.type,
+					});
 				}
 			}
 
@@ -766,6 +784,18 @@ export class MFAServiceV8 {
 				type: params.type,
 				userId: user.id,
 				nickname: devicePayload.nickname || params.nickname || params.name,
+				deviceStatus: devicePayload.status,
+				otpWillBeSent: devicePayload.status === 'ACTIVATION_REQUIRED',
+				flowType: (params as { tokenType?: 'worker' | 'user' }).tokenType || 'unknown',
+			});
+
+			// CRITICAL: Log the complete device payload for debugging
+			log.info('Device registration payload', {
+				devicePayload,
+				otpWillBeSent: devicePayload.status === 'ACTIVATION_REQUIRED',
+				statusExplanation: devicePayload.status === 'ACTIVATION_REQUIRED' 
+					? 'OTP will be sent to user for activation' 
+					: 'Device is pre-activated, no OTP needed',
 			});
 
 			const trimmedToken = accessToken.trim();
