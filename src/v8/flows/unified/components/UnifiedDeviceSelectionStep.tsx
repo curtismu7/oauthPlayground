@@ -129,10 +129,10 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 					`No existing ${config.displayName} devices found. Register a new device to continue.`
 				);
 			}
-		} catch (error: any) {
+		} catch (error: unknown) {
 			console.error(`${MODULE_TAG} Failed to load existing devices:`, error);
 
-			const errorMessage = error.message || 'Failed to load existing devices';
+			const errorMessage = error instanceof Error ? error.message : 'Failed to load existing devices';
 			setLoadError(errorMessage);
 
 			// Show error toast

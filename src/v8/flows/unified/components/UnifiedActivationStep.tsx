@@ -317,7 +317,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 							? 'Make sure WhatsApp is installed and you have internet connectivity.'
 							: 'Listen carefully and have a pen ready. The code will be read twice.'
 					}
-					onValidateOtp={async (otpCode) => {
+					onValidateOtp={async (_otpCode) => {
 						await handleValidateOtp();
 					}}
 					onResendOtp={async () => {
