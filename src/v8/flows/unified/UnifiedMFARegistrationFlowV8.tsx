@@ -30,6 +30,7 @@ import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
 import { GlobalMFAProvider } from '@/v8/contexts/GlobalMFAContext';
+import { useMFAPolicies } from '@/v8/hooks/useMFAPolicies';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
 import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
@@ -117,7 +118,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	const [flowMode, setFlowMode] = useState<FlowMode | null>(null);
 	const [environmentId, setEnvironmentId] = useState('');
 	const [username, setUsername] = useState('');
-	const [selectedPolicyId, setSelectedPolicyId] = useState('');
+	const [tokenIsValid, setTokenIsValid] = useState(false);
 
 	// Load Environment ID and username from global services on mount
 	useEffect(() => {
@@ -133,7 +134,26 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		if (savedUsername) {
 			setUsername(savedUsername);
 		}
+
+		// Check worker token status
+		const tokenManager = MFATokenManagerV8.getInstance();
+		const tokenState = tokenManager.getTokenState();
+		setTokenIsValid(tokenState.isValid);
 	}, []);
+
+	// Use MFA policies hook
+	const {
+		policies,
+		selectedPolicy,
+		isLoading: isPoliciesLoading,
+		error: policiesError,
+		selectPolicy,
+	} = useMFAPolicies({
+		environmentId,
+		tokenIsValid,
+		autoLoad: true,
+		autoSelectSingle: true,
+	});
 
 	// Sync environment ID to global service when it changes
 	useEffect(() => {
@@ -258,6 +278,68 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							environmentId={environmentId}
 							onEnvironmentIdUpdate={setEnvironmentId}
 						/>
+					</div>
+
+					{/* MFA Policy Dropdown */}
+					<div style={{ marginBottom: '20px' }}>
+						<label
+							htmlFor="mfa-policy"
+							style={{
+								display: 'block',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '8px',
+							}}
+						>
+							MFA Policy
+						</label>
+						{isPoliciesLoading ? (
+							<div style={{ padding: '10px', color: '#6b7280', fontSize: '14px' }}>
+								Loading policies...
+							</div>
+						) : policiesError ? (
+							<div style={{ padding: '10px', color: '#ef4444', fontSize: '14px' }}>
+								Error loading policies: {policiesError}
+							</div>
+						) : policies.length === 0 ? (
+							<div style={{ padding: '10px', color: '#6b7280', fontSize: '14px' }}>
+								No MFA policies found. Please check your environment ID and worker token.
+							</div>
+						) : (
+							<select
+								id="mfa-policy"
+								value={selectedPolicy?.id || ''}
+								onChange={(e) => selectPolicy(e.target.value)}
+								style={{
+									width: '100%',
+									padding: '10px 12px',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									fontSize: '14px',
+									boxSizing: 'border-box',
+									backgroundColor: 'white',
+									cursor: 'pointer',
+								}}
+							>
+								<option value="">Select an MFA policy...</option>
+								{policies.map((policy) => (
+									<option key={policy.id} value={policy.id}>
+										{policy.name} {policy.default ? '(Default)' : ''}
+									</option>
+								))}
+							</select>
+						)}
+						<span
+							style={{
+								display: 'block',
+								marginTop: '6px',
+								fontSize: '12px',
+								color: '#6b7280',
+							}}
+						>
+							Select the MFA policy to use for device registration
+						</span>
 					</div>
 				</div>
 
