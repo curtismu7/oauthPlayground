@@ -53,8 +53,8 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 		globalLoading,
 	});
 
-	// Form validation
-	const { values, errors, touched, handleChange, handleBlur, validateAll } = useFormValidation(
+	// Form validation - initialize with credentials.username
+	const { values, errors, touched, handleChange, handleBlur, validateAll, setValues } = useFormValidation(
 		{
 			username: credentials.username || '',
 		},
@@ -67,6 +67,13 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 	);
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	// Update form when credentials change
+	useEffect(() => {
+		if (credentials.username && values.username !== credentials.username) {
+			setValues({ username: credentials.username });
+		}
+	}, [credentials.username, values.username, setValues]);
 
 	// Auto-populate credentials from global state
 	useEffect(() => {
