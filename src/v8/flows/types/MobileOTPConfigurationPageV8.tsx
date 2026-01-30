@@ -712,9 +712,15 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 			});
 		},
 		// Admin flow: any worker token enables the button
-		[navigate, credentials, tokenStatus.isValid, registrationFlowType, adminDeviceStatus, tokenStatus.token]
+		[
+			navigate,
+			credentials,
+			tokenStatus.isValid,
+			registrationFlowType,
+			adminDeviceStatus,
+			tokenStatus.token,
+		]
 	);
-
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
@@ -1018,7 +1024,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					showRefresh={true}
 					environmentId={credentials.environmentId}
 					onEnvironmentIdUpdate={(envId) => {
-						setCredentials(prev => ({
+						setCredentials((prev) => ({
 							...prev,
 							environmentId: envId,
 						}));
@@ -1031,7 +1037,7 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					<UserLoginSectionV8
 						onTokenUpdated={(token) => {
 							// Update credentials when user token is received
-							setCredentials(prev => {
+							setCredentials((prev) => {
 								const updated = {
 									...prev,
 									userToken: token,
@@ -1109,9 +1115,9 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 							!credentials.environmentId ||
 							(registrationFlowType === 'admin'
 								? !tokenStatus.token // Admin flow: any worker token enables the button
-								: ((credentials.tokenType || 'worker') === 'worker'
-										? !tokenStatus.isValid // User flow with worker token: must be valid
-										: !credentials.userToken?.trim())) // User flow with user token
+								: (credentials.tokenType || 'worker') === 'worker'
+									? !tokenStatus.isValid // User flow with worker token: must be valid
+									: !credentials.userToken?.trim()) // User flow with user token
 						}
 						style={{
 							padding: '12px 24px',
@@ -1122,9 +1128,9 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 								credentials.environmentId &&
 								(registrationFlowType === 'admin'
 									? !!tokenStatus.token // Admin flow: any worker token enables the button
-									: ((credentials.tokenType || 'worker') === 'worker'
-											? tokenStatus.isValid // User flow with worker token: must be valid
-											: !!credentials.userToken?.trim())) // User flow with user token
+									: (credentials.tokenType || 'worker') === 'worker'
+										? tokenStatus.isValid // User flow with worker token: must be valid
+										: !!credentials.userToken?.trim()) // User flow with user token
 									? '#8b5cf6'
 									: '#9ca3af',
 							color: 'white',
@@ -1135,9 +1141,9 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 								credentials.environmentId &&
 								(registrationFlowType === 'admin'
 									? !!tokenStatus.token // Admin flow: any worker token enables the button
-									: ((credentials.tokenType || 'worker') === 'worker'
-											? tokenStatus.isValid // User flow with worker token: must be valid
-											: !!credentials.userToken?.trim())) // User flow with user token
+									: (credentials.tokenType || 'worker') === 'worker'
+										? tokenStatus.isValid // User flow with worker token: must be valid
+										: !!credentials.userToken?.trim()) // User flow with user token
 									? 'pointer'
 									: 'not-allowed',
 							display: 'flex',
