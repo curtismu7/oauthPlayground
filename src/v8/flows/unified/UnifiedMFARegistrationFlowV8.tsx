@@ -124,14 +124,12 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		// Initialize the service first to load from localStorage
 		globalEnvironmentService.initialize();
 		const savedEnvId = globalEnvironmentService.getEnvironmentId();
-		console.log('[DeviceTypeSelectionScreen] Loaded Environment ID:', savedEnvId);
 		if (savedEnvId) {
 			setEnvironmentId(savedEnvId);
 		}
 
 		// Load username from localStorage
 		const savedUsername = localStorage.getItem('mfa_unified_username');
-		console.log('[DeviceTypeSelectionScreen] Loaded username:', savedUsername);
 		if (savedUsername) {
 			setUsername(savedUsername);
 		}
@@ -148,7 +146,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	useEffect(() => {
 		if (username) {
 			localStorage.setItem('mfa_unified_username', username);
-			console.log('[DeviceTypeSelectionScreen] Saved username to localStorage:', username);
 		}
 	}, [username]);
 
@@ -407,7 +404,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	return (
 		<UnifiedDeviceRegistrationForm
 			onSubmit={(deviceType, fields, flowType) => {
-				console.log(`${MODULE_TAG} Device registration submitted:`, { deviceType, fields, flowType });
 				// Store flow type in local storage or pass to next step
 				localStorage.setItem('mfa_registration_flow_type', flowType);
 				onSelectDeviceType(deviceType);
@@ -417,6 +413,9 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	);
 };
 
+	// ============================================================================
+	// MAIN COMPONENT (WRAPPER)
+	// ============================================================================
 // ============================================================================
 // MAIN COMPONENT (WRAPPER)
 // ============================================================================
@@ -439,8 +438,6 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 	const [selectedDeviceType, setSelectedDeviceType] = useState<DeviceConfigKey | undefined>(
 		initialDeviceType
 	);
-
-	console.log(`${MODULE_TAG} Initializing unified flow for device type:`, selectedDeviceType);
 
 	// If no device type selected, show device type selection screen
 	if (!selectedDeviceType) {
@@ -513,16 +510,8 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 	// Load device-specific configuration
 	const config = useMemo(() => {
-		console.log(`${MODULE_TAG} Loading config for device type:`, deviceType);
 		return getDeviceConfig(deviceType);
 	}, [deviceType]);
-
-	console.log(`${MODULE_TAG} Device config loaded:`, {
-		displayName: config.displayName,
-		requiredFields: config.requiredFields,
-		supportsQRCode: config.supportsQRCode,
-		requiresOTP: config.requiresOTP,
-	});
 
 	// ========================================================================
 	// TOKEN MANAGEMENT
@@ -536,10 +525,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 	// Subscribe to token updates
 	useEffect(() => {
-		console.log(`${MODULE_TAG} Subscribing to token manager updates`);
-
 		const unsubscribe = tokenManager.subscribe((state) => {
-			console.log(`${MODULE_TAG} Token state updated:`, state);
 			setTokenStatus(state);
 		});
 
@@ -547,7 +533,6 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 		tokenManager.startAutoRefresh();
 
 		return () => {
-			console.log(`${MODULE_TAG} Unsubscribing from token manager`);
 			unsubscribe();
 			tokenManager.stopAutoRefresh();
 		};
@@ -581,11 +566,6 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 			token: TokenStatusInfo,
 			navigation: ReturnType<typeof useStepNavigationV8>
 		) => {
-			console.log(`${MODULE_TAG} Validating step 0`, {
-				tokenValid: token.isValid,
-				environmentId: credentials.environmentId,
-				username: credentials.username,
-			});
 
 			// Check token validity
 			if (!token.isValid) {
