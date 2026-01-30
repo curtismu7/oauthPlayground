@@ -14,7 +14,7 @@
  */
 
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { MFADocumentationModalV8 } from './MFADocumentationModalV8';
@@ -56,7 +56,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 			// If on unified flow, navigate to unified flow start (step 0)
 			navigate('/v8/mfa-unified', {
 				state: location.state,
-				replace: true
+				replace: true,
 			});
 			// Reload to reset to step 0
 			window.location.reload();
