@@ -82,9 +82,18 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 
 	const [environmentId, setEnvironmentId] = useState(credentials.environmentId || '');
 	const [username, setUsername] = useState(credentials.username || '');
-	const [tokenType, setTokenType] = useState<TokenType>(
-		registrationFlowType === 'admin' ? 'worker' : credentials.tokenType || 'worker'
+
+	// Registration flow type: 'admin-active', 'admin-activation', or 'user'
+	const [flowType, setFlowType] = useState<'admin-active' | 'admin-activation' | 'user'>(
+		registrationFlowType === 'user' ? 'user' : 'admin-active'
 	);
+
+	// Derived token type from flow type
+	const tokenType: TokenType = flowType === 'user' ? 'user' : 'worker';
+
+	// Device status for admin flows
+	const adminDeviceStatus = flowType === 'admin-active' ? 'ACTIVE' : 'ACTIVATION_REQUIRED';
+
 	const [selectedPolicyId, setSelectedPolicyId] = useState(
 		credentials.deviceAuthenticationPolicyId || ''
 	);
@@ -131,14 +140,14 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 	}, [deviceAuthPolicies, selectedPolicyId, setCredentials]);
 
 	/**
-	 * Force worker token for admin registration flow
+	 * Sync flow type when registration flow type prop changes
 	 */
 	useEffect(() => {
-		if (registrationFlowType === 'admin' && tokenType !== 'worker') {
-			console.log(`${MODULE_TAG} Admin flow - forcing worker token`);
-			setTokenType('worker');
+		if (registrationFlowType === 'user' && flowType !== 'user') {
+			console.log(`${MODULE_TAG} User registration flow - switching to user flow type`);
+			setFlowType('user');
 		}
-	}, [registrationFlowType, tokenType]);
+	}, [registrationFlowType, flowType]);
 
 	// ========================================================================
 	// HANDLERS
@@ -202,6 +211,8 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 			tokenType,
 			deviceAuthenticationPolicyId: selectedPolicyId,
 			deviceType: config.deviceType,
+			// Store device status for admin flows (ACTIVE or ACTIVATION_REQUIRED)
+			adminDeviceStatus: flowType !== 'user' ? adminDeviceStatus : undefined,
 		}));
 
 		// Mark step as complete
@@ -243,22 +254,23 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 	}, []);
 
 	/**
-	 * Handle token type change
+	 * Handle flow type change
 	 */
-	const handleTokenTypeChange = useCallback(
-		(type: TokenType) => {
-			if (registrationFlowType === 'admin' && type === 'user') {
-				toastV8.warning('Admin registration flow requires worker token');
-				return;
-			}
-			console.log(`${MODULE_TAG} Token type changed to:`, type);
-			setTokenType(type);
+	const handleFlowTypeChange = useCallback(
+		(type: 'admin-active' | 'admin-activation' | 'user') => {
+			console.log(`${MODULE_TAG} Flow type changed to:`, type);
+			setFlowType(type);
 			setErrors((prev) => {
 				const { token, ...rest } = prev;
 				return rest;
 			});
+
+			// Open user login modal when user flow is selected
+			if (type === 'user' && !credentials.userToken) {
+				setShowUserLoginModal(true);
+			}
 		},
-		[registrationFlowType]
+		[credentials.userToken, setShowUserLoginModal]
 	);
 
 	/**
@@ -738,42 +750,13 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 			<div
 				style={{
 					display: 'flex',
-					justifyContent: 'space-between',
+					justifyContent: 'flex-end',
 					alignItems: 'center',
 					marginTop: '32px',
 					paddingTop: '24px',
 					borderTop: '1px solid #e5e7eb',
 				}}
 			>
-				<button
-					type="button"
-					onClick={() => setShowSettingsModal(true)}
-					style={{
-						padding: '12px 20px',
-						background: '#ffffff',
-						border: '1px solid #d1d5db',
-						borderRadius: '8px',
-						fontSize: '14px',
-						fontWeight: '500',
-						color: '#374151',
-						cursor: 'pointer',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '8px',
-						transition: 'all 0.2s ease',
-					}}
-					onMouseEnter={(e) => {
-						e.currentTarget.style.background = '#f9fafb';
-						e.currentTarget.style.borderColor = '#9ca3af';
-					}}
-					onMouseLeave={(e) => {
-						e.currentTarget.style.background = '#ffffff';
-						e.currentTarget.style.borderColor = '#d1d5db';
-					}}
-				>
-					⚙️ Settings
-				</button>
-
 				<button
 					type="button"
 					onClick={handleContinue}
