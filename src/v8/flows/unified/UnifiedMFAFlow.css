@@ -1,0 +1,402 @@
+/**
+ * @file UnifiedMFAFlow.css
+ * @description Styles for Unified MFA Registration Flow components
+ * @version 8.0.0
+ */
+
+/* Configuration Step */
+.unified-configuration-step {
+	max-width: 900px;
+	margin: 0 auto;
+}
+
+.step-header {
+	margin-bottom: 32px;
+}
+
+.step-header h2 {
+	margin: 0 0 8px 0;
+	font-size: 24px;
+	font-weight: 700;
+	color: #111827;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.step-description {
+	margin: 0;
+	font-size: 15px;
+	color: #6b7280;
+	line-height: 1.5;
+}
+
+.configuration-form {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.form-field {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.form-field label {
+	font-size: 14px;
+	font-weight: 600;
+	color: #374151;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.required {
+	color: #dc2626;
+}
+
+.form-field input[type="text"],
+.form-field input[type="email"],
+.form-field input[type="tel"],
+.form-field select {
+	padding: 10px 14px;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 14px;
+	color: #111827;
+	background: white;
+	transition: all 0.2s;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+	outline: none;
+	border-color: #8b5cf6;
+	box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.input-error {
+	border-color: #dc2626 !important;
+}
+
+.error-message {
+	font-size: 13px;
+	color: #dc2626;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.token-type-options {
+	display: flex;
+	gap: 16px;
+}
+
+.radio-option {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 16px;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.radio-option:hover {
+	background: #f9fafb;
+}
+
+.radio-option input[type="radio"] {
+	cursor: pointer;
+}
+
+.token-status-section {
+	margin-top: 8px;
+}
+
+.token-status-card {
+	padding: 20px;
+	background: #f9fafb;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+}
+
+.token-status-card h4 {
+	margin: 0 0 12px 0;
+	font-size: 14px;
+	font-weight: 600;
+	color: #374151;
+}
+
+.status-indicator {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px;
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	margin-bottom: 12px;
+}
+
+.status-indicator.valid {
+	background: #d1fae5;
+	color: #065f46;
+}
+
+.status-indicator.invalid {
+	background: #fee2e2;
+	color: #991b1b;
+}
+
+.token-expiry {
+	margin: 8px 0;
+	font-size: 13px;
+	color: #6b7280;
+}
+
+.button-link {
+	padding: 8px 16px;
+	border: 1px solid #8b5cf6;
+	border-radius: 6px;
+	background: white;
+	color: #8b5cf6;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.button-link:hover {
+	background: #f5f3ff;
+}
+
+.policy-section {
+	margin-top: 8px;
+}
+
+.policy-info-box {
+	padding: 16px;
+	background: #eff6ff;
+	border: 1px solid #bae6fd;
+	border-radius: 6px;
+	margin-top: 12px;
+}
+
+.policy-info-box h5 {
+	margin: 0 0 8px 0;
+	font-size: 14px;
+	font-weight: 600;
+	color: #1e40af;
+}
+
+.policy-info-box p {
+	margin: 0;
+	font-size: 13px;
+	color: #1e3a8a;
+	line-height: 1.5;
+}
+
+/* Device Selection Step */
+.unified-device-selection-step {
+	max-width: 900px;
+	margin: 0 auto;
+}
+
+.device-list {
+	display: grid;
+	gap: 12px;
+	margin-bottom: 24px;
+}
+
+.device-card {
+	padding: 20px;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	background: white;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.device-card:hover {
+	border-color: #8b5cf6;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.device-card.selected {
+	border-color: #8b5cf6;
+	background: #f5f3ff;
+}
+
+/* Registration Step */
+.unified-registration-step {
+	max-width: 900px;
+	margin: 0 auto;
+}
+
+.registration-form {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+/* Activation Step */
+.unified-activation-step {
+	max-width: 900px;
+	margin: 0 auto;
+}
+
+.activation-content {
+	padding: 32px;
+	background: #f9fafb;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	text-align: center;
+}
+
+/* Success Step */
+.unified-success-step {
+	max-width: 900px;
+	margin: 0 auto;
+}
+
+.success-content {
+	padding: 48px 32px;
+	background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+	border-radius: 12px;
+	text-align: center;
+}
+
+.success-icon {
+	font-size: 64px;
+	margin-bottom: 24px;
+}
+
+.success-title {
+	margin: 0 0 12px 0;
+	font-size: 28px;
+	font-weight: 700;
+	color: #065f46;
+}
+
+.success-message {
+	margin: 0;
+	font-size: 16px;
+	color: #047857;
+	line-height: 1.6;
+}
+
+.device-details {
+	margin-top: 32px;
+	padding: 24px;
+	background: white;
+	border-radius: 8px;
+	text-align: left;
+}
+
+.device-details h3 {
+	margin: 0 0 16px 0;
+	font-size: 18px;
+	font-weight: 600;
+	color: #111827;
+}
+
+.detail-row {
+	display: flex;
+	padding: 12px 0;
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-row:last-child {
+	border-bottom: none;
+}
+
+.detail-label {
+	flex: 0 0 150px;
+	font-weight: 600;
+	color: #6b7280;
+	font-size: 14px;
+}
+
+.detail-value {
+	flex: 1;
+	color: #111827;
+	font-size: 14px;
+}
+
+.action-buttons {
+	display: flex;
+	gap: 12px;
+	justify-content: center;
+	margin-top: 32px;
+}
+
+.btn-primary {
+	padding: 12px 24px;
+	border: none;
+	border-radius: 6px;
+	background: #8b5cf6;
+	color: white;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.btn-primary:hover {
+	background: #7c3aed;
+}
+
+.btn-secondary {
+	padding: 12px 24px;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	background: white;
+	color: #374151;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+	background: #f9fafb;
+}
+
+/* Loading states */
+.loading-spinner {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	border: 3px solid rgba(139, 92, 246, 0.2);
+	border-top-color: #8b5cf6;
+	border-radius: 50%;
+	animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.unified-configuration-step,
+	.unified-device-selection-step,
+	.unified-registration-step,
+	.unified-activation-step,
+	.unified-success-step {
+		padding: 0 16px;
+	}
+
+	.token-type-options {
+		flex-direction: column;
+	}
+
+	.action-buttons {
+		flex-direction: column;
+	}
+}
