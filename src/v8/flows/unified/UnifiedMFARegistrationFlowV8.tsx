@@ -27,7 +27,10 @@ import { useLocation } from 'react-router-dom';
 import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
 import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/deviceFlowConfigTypes';
 import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
+import { GlobalMFAProvider } from '@/v8/contexts/GlobalMFAContext';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
+import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
+import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFATokenManagerV8 } from '@/v8/services/mfaTokenManagerV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
@@ -74,6 +77,16 @@ export interface UnifiedMFARegistrationFlowV8Props {
 
 type FlowMode = 'registration' | 'authentication';
 
+/** Map device types to their feature flags */
+const DEVICE_FLAG_MAP: Record<DeviceConfigKey, MFAFeatureFlag> = {
+	SMS: 'mfa_unified_sms',
+	EMAIL: 'mfa_unified_email',
+	MOBILE: 'mfa_unified_mobile',
+	WHATSAPP: 'mfa_unified_whatsapp',
+	TOTP: 'mfa_unified_totp',
+	FIDO2: 'mfa_unified_fido2',
+};
+
 const DEVICE_TYPES: { key: DeviceConfigKey; icon: string; name: string; description: string }[] = [
 	{ key: 'SMS', icon: '📱', name: 'SMS', description: 'Receive OTP codes via text message' },
 	{ key: 'EMAIL', icon: '✉️', name: 'Email', description: 'Receive OTP codes via email' },
@@ -82,6 +95,12 @@ const DEVICE_TYPES: { key: DeviceConfigKey; icon: string; name: string; descript
 	{ key: 'WHATSAPP', icon: '💬', name: 'WhatsApp', description: 'Receive OTP codes via WhatsApp' },
 	{ key: 'FIDO2', icon: '🔑', name: 'Security Key (FIDO2)', description: 'Use a hardware security key or passkey' },
 ];
+
+/** Check if a device type is enabled via feature flags */
+const isDeviceEnabled = (deviceKey: DeviceConfigKey): boolean => {
+	const flag = DEVICE_FLAG_MAP[deviceKey];
+	return MFAFeatureFlagsV8.isEnabled(flag);
+};
 
 interface DeviceTypeSelectionScreenProps {
 	onSelectDeviceType: (deviceType: DeviceConfigKey) => void;
@@ -291,44 +310,60 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 
 			{/* Device Type Grid */}
 			<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-				{DEVICE_TYPES.map((device) => (
-					<button
-						key={device.key}
-						type="button"
-						onClick={() => onSelectDeviceType(device.key)}
-						style={{
-							padding: '20px',
-							background: '#ffffff',
-							border: '2px solid #e5e7eb',
-							borderRadius: '12px',
-							cursor: 'pointer',
-							textAlign: 'left',
-							transition: 'all 0.2s ease',
-						}}
-						onMouseEnter={(e) => {
-							e.currentTarget.style.borderColor = '#10b981';
-							e.currentTarget.style.background = '#ecfdf5';
-							e.currentTarget.style.transform = 'translateY(-2px)';
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.borderColor = '#e5e7eb';
-							e.currentTarget.style.background = '#ffffff';
-							e.currentTarget.style.transform = 'translateY(0)';
-						}}
-					>
-						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-							<span style={{ fontSize: '32px', lineHeight: 1 }}>{device.icon}</span>
-							<div>
-								<h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
-									{device.name}
-								</h3>
-								<p style={{ margin: 0, fontSize: '13px', color: '#6b7280', lineHeight: '1.5' }}>
-									{device.description}
-								</p>
+				{DEVICE_TYPES.map((device) => {
+					const enabled = isDeviceEnabled(device.key);
+					return (
+						<button
+							key={device.key}
+							type="button"
+							onClick={() => enabled && onSelectDeviceType(device.key)}
+							disabled={!enabled}
+							style={{
+								padding: '20px',
+								background: enabled ? '#ffffff' : '#f9fafb',
+								border: `2px solid ${enabled ? '#e5e7eb' : '#e5e7eb'}`,
+								borderRadius: '12px',
+								cursor: enabled ? 'pointer' : 'not-allowed',
+								textAlign: 'left',
+								transition: 'all 0.2s ease',
+								opacity: enabled ? 1 : 0.6,
+							}}
+							onMouseEnter={(e) => {
+								if (enabled) {
+									e.currentTarget.style.borderColor = '#10b981';
+									e.currentTarget.style.background = '#ecfdf5';
+									e.currentTarget.style.transform = 'translateY(-2px)';
+								}
+							}}
+							onMouseLeave={(e) => {
+								if (enabled) {
+									e.currentTarget.style.borderColor = '#e5e7eb';
+									e.currentTarget.style.background = '#ffffff';
+									e.currentTarget.style.transform = 'translateY(0)';
+								}
+							}}
+						>
+							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+								<span style={{ fontSize: '32px', lineHeight: 1 }}>{device.icon}</span>
+								<div style={{ flex: 1 }}>
+									<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+										<h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '600', color: enabled ? '#1f2937' : '#9ca3af' }}>
+											{device.name}
+										</h3>
+										{!enabled && (
+											<span style={{ fontSize: '10px', padding: '2px 6px', background: '#fef3c7', color: '#92400e', borderRadius: '4px', fontWeight: '600' }}>
+												Coming Soon
+											</span>
+										)}
+									</div>
+									<p style={{ margin: 0, fontSize: '13px', color: '#6b7280', lineHeight: '1.5' }}>
+										{device.description}
+									</p>
+								</div>
 							</div>
-						</div>
-					</button>
-				))}
+						</button>
+					);
+				})}
 			</div>
 		</div>
 	);
@@ -362,16 +397,20 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 	// If no device type selected, show device type selection screen
 	if (!selectedDeviceType) {
 		return (
-			<MFACredentialProvider>
-				<DeviceTypeSelectionScreen onSelectDeviceType={setSelectedDeviceType} />
-			</MFACredentialProvider>
+			<GlobalMFAProvider>
+				<MFACredentialProvider>
+					<DeviceTypeSelectionScreen onSelectDeviceType={setSelectedDeviceType} />
+				</MFACredentialProvider>
+			</GlobalMFAProvider>
 		);
 	}
 
 	return (
-		<MFACredentialProvider>
-			<UnifiedMFARegistrationFlowContent {...props} deviceType={selectedDeviceType} />
-		</MFACredentialProvider>
+		<GlobalMFAProvider>
+			<MFACredentialProvider>
+				<UnifiedMFARegistrationFlowContent {...props} deviceType={selectedDeviceType} />
+			</MFACredentialProvider>
+		</GlobalMFAProvider>
 	);
 };
 
