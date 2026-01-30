@@ -38,6 +38,7 @@ import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFATokenManagerV8 } from '@/v8/services/mfaTokenManagerV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
 import { UnifiedActivationStep } from './components/UnifiedActivationStep';
@@ -793,12 +794,75 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 		(props: MFAFlowBaseRenderProps) => {
 			return (
 				<UnifiedDeviceRegistrationForm
-					onSubmit={(deviceType, fields, flowType) => {
+					onSubmit={async (deviceType, fields, flowType) => {
 						console.log('[UNIFIED-FLOW] Device registration submitted', { deviceType, fields, flowType });
-						// Store flow type
-						localStorage.setItem('mfa_registration_flow_type', flowType);
-						// Navigate to next step
-						props.nav.goToNext();
+						
+						try {
+							props.setIsLoading(true);
+							
+							// Store flow type
+							localStorage.setItem('mfa_registration_flow_type', flowType);
+							
+							// Update credentials with device fields
+							props.setCredentials((prev) => ({
+								...prev,
+								deviceType,
+								...fields,
+							}));
+							
+							// Register the device
+							const registerResponse = await fetch('/api/pingone/mfa/register-device', {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' },
+								body: JSON.stringify({
+									environmentId: props.credentials.environmentId,
+									username: props.credentials.username,
+									deviceType,
+									...fields,
+									flowType,
+								}),
+							});
+							
+							if (!registerResponse.ok) {
+								const error = await registerResponse.json();
+								throw new Error(error.error || 'Device registration failed');
+							}
+							
+							const registerData = await registerResponse.json();
+							console.log('[UNIFIED-FLOW] Device registered:', registerData);
+							
+							// Update MFA state with device info
+							props.setMfaState((prev) => ({
+								...prev,
+								deviceId: registerData.id,
+								status: registerData.status,
+							}));
+							
+							// For admin_activation_required, automatically send OTP
+							if (flowType === 'admin_activation_required' && registerData.status === 'ACTIVATION_REQUIRED') {
+								console.log('[UNIFIED-FLOW] Sending OTP for activation...');
+								const otpResponse = await fetch('/api/pingone/mfa/send-otp', {
+									method: 'POST',
+									headers: { 'Content-Type': 'application/json' },
+									body: JSON.stringify({
+										environmentId: props.credentials.environmentId,
+										deviceId: registerData.id,
+									}),
+								});
+								
+								if (otpResponse.ok) {
+									toastV8.success('OTP sent! Check your device for the verification code.');
+								}
+							}
+							
+							// Navigate to activation step
+							props.nav.goToNext();
+						} catch (error) {
+							console.error('[UNIFIED-FLOW] Registration failed:', error);
+							toastV8.error(error instanceof Error ? error.message : 'Device registration failed');
+						} finally {
+							props.setIsLoading(false);
+						}
 					}}
 					onCancel={() => {
 						console.log('[UNIFIED-FLOW] Registration cancelled');
