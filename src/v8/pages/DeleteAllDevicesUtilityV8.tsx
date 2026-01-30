@@ -252,19 +252,6 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		}
 	}, [environmentId, username, selectedDeviceType, selectedDeviceStatus]);
 
-	// Auto-reload devices when filters change (if we already have devices loaded)
-	useEffect(() => {
-		// Only auto-reload if we have already loaded devices at least once
-		// This prevents auto-loading on initial page load
-		const hasDevices = devices.length > 0;
-		const hasRequiredFields = environmentId.trim() && username.trim() && tokenStatus.isValid;
-
-		if (hasDevices && hasRequiredFields) {
-			handleLoadDevices();
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [devices.length, environmentId.trim, handleLoadDevices, tokenStatus.isValid, username.trim]);
-
 	// Load devices for the user
 	const handleLoadDevices = useCallback(async () => {
 		if (!environmentId.trim() || !username.trim() || !tokenStatus.isValid) {
@@ -327,6 +314,17 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			setIsLoading(false);
 		}
 	}, [environmentId, username, selectedDeviceType, selectedDeviceStatus, tokenStatus.isValid]);
+
+	// Auto-load devices when environment ID and username are provided
+	useEffect(() => {
+		const hasDevices = devices.length === 0;
+		const hasRequiredFields = environmentId.trim() && username.trim() && tokenStatus.isValid;
+
+		if (hasDevices && hasRequiredFields) {
+			handleLoadDevices();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [devices.length, environmentId, username, tokenStatus.isValid]);
 
 	const handleToggleDeviceSelection = useCallback((deviceId: string) => {
 		setSelectedDeviceIds((prev) => {
