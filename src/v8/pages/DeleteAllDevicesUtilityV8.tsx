@@ -18,7 +18,7 @@ import { FiAlertCircle, FiKey, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 // import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8'; // Removed
-import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
+import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
@@ -86,13 +86,16 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			return locationState.environmentId;
 		}
 		try {
+			// Initialize global environment service
+			globalEnvironmentService.initialize();
+			const globalEnvId = globalEnvironmentService.getEnvironmentId();
+			if (globalEnvId) {
+				return globalEnvId;
+			}
+			// Fallback to page-specific storage
 			const stored = StorageServiceV8.load<DeleteAllDevicesPageState>(PAGE_STORAGE_KEY);
 			if (stored?.environmentId) {
 				return stored.environmentId;
-			}
-			const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
-			if (globalEnvId) {
-				return globalEnvId;
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load saved environment ID`, error);
@@ -245,7 +248,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			StorageServiceV8.save(PAGE_STORAGE_KEY, state, PAGE_STORAGE_VERSION);
 
 			if (state.environmentId) {
-				EnvironmentIdServiceV8.saveEnvironmentId(state.environmentId);
+				globalEnvironmentService.setEnvironmentId(state.environmentId);
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to save delete-all-devices state`, error);
