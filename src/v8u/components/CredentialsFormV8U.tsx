@@ -834,7 +834,6 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		usePAR,
 		getRecommendedClientType,
 		flowKey,
-		handleChange,
 	]);
 
 	// Auto-select recommended application type when flow type changes
