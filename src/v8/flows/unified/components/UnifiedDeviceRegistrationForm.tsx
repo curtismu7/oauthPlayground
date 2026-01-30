@@ -319,7 +319,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 					) : (
 						<DynamicFormRenderer
 							config={config}
-							values={deviceFields[selectedTab]}
+							values={deviceFields[selectedTab] || {}}
 							onChange={handleFieldChange}
 							errors={errors}
 						/>
