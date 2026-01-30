@@ -293,7 +293,7 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 			return (
 				<DynamicFormRenderer
 					config={config}
-					values={deviceFields}
+					values={deviceFields || {}}
 					onChange={handleFieldChange}
 					errors={errors}
 					onTouch={touchField}
