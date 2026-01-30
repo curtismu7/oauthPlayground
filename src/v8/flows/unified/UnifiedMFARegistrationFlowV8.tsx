@@ -48,6 +48,7 @@ import { UnifiedDeviceSelectionStepModern as UnifiedDeviceSelectionStep } from '
 import { UnifiedRegistrationStep } from './components/UnifiedRegistrationStep';
 import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
 import { UnifiedDeviceRegistrationForm } from './components/UnifiedDeviceRegistrationForm';
+import { UnifiedDeviceSelectionModal } from './components/UnifiedDeviceSelectionModal';
 import './UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[🔄 UNIFIED-MFA-FLOW-V8]';
@@ -121,6 +122,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	const [environmentId, setEnvironmentId] = useState('');
 	const [username, setUsername] = useState('');
 	const [tokenIsValid, setTokenIsValid] = useState(false);
+	const [showDeviceSelectionModal, setShowDeviceSelectionModal] = useState(false);
 
 	// Load Environment ID and username from global services on mount
 	useEffect(() => {
@@ -178,6 +180,17 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			localStorage.setItem('mfa_unified_username', username);
 		}
 	}, [username]);
+
+	// Handle device selection for authentication
+	const handleDeviceSelectForAuthentication = (device: { id: string; type: string; deviceName?: string; nickname?: string }) => {
+		console.log('🔓 Selected device for authentication:', device);
+		// TODO: Implement actual authentication flow
+		// This would typically involve:
+		// 1. Initiating MFA challenge with the selected device
+		// 2. Showing OTP input or waiting for push approval
+		// 3. Completing the authentication flow
+		toastV8.success(`Authentication initiated for ${device.deviceName || device.type} device`);
+	};
 
 	// Step 1: Choose Registration or Authentication
 	if (!flowMode) {
@@ -556,9 +569,8 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	}
 
 	// Step 2: Choose Device Type (for Registration)
-	// For Authentication, we might want to redirect to a different flow
+	// For Authentication, show device selection modal
 	if (flowMode === 'authentication') {
-		// TODO: Redirect to authentication flow or show authentication device selection
 		return (
 			<div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
 				<div
@@ -589,37 +601,175 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						🔓 Device Authentication
 					</h1>
 					<p style={{ margin: 0, fontSize: '15px', color: 'rgba(255, 255, 255, 0.9)' }}>
-						Authentication flow coming soon. For now, use the MFA Hub for authentication.
+						Select which device to authenticate with for {username}
 					</p>
 				</div>
-				<a
-					href="/v8/mfa-hub"
+
+				{/* Authentication Instructions */}
+				<div
 					style={{
-						display: 'inline-block',
-						padding: '12px 24px',
-						background: '#3b82f6',
-						color: 'white',
-						borderRadius: '8px',
-						textDecoration: 'none',
-						fontWeight: '600',
+						background: '#ffffff',
+						borderRadius: '12px',
+						padding: '24px',
+						marginBottom: '28px',
+						border: '1px solid #e5e7eb',
 					}}
 				>
-					Go to MFA Hub →
-				</a>
+					<h2 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600', color: '#111827' }}>
+						How Authentication Works
+					</h2>
+					<div style={{ fontSize: '14px', color: '#6b7280', lineHeight: 1.6 }}>
+						<ol style={{ margin: 0, paddingLeft: '20px' }}>
+							<li style={{ marginBottom: '8px' }}>
+								<strong>Device Selection:</strong> Choose from your registered MFA devices
+							</li>
+							<li style={{ marginBottom: '8px' }}>
+								<strong>Challenge Initiation:</strong> We'll send a verification request to your selected device
+							</li>
+							<li style={{ marginBottom: '8px' }}>
+								<strong>Verification:</strong> Enter the code or approve the request on your device
+							</li>
+							<li style={{ marginBottom: '0' }}>
+								<strong>Completion:</strong> Authentication successful! You'll be redirected to the application
+							</li>
+						</ol>
+					</div>
+				</div>
+
+				{/* Device Selection Button */}
+				<div style={{ textAlign: 'center' }}>
+					<button
+						type="button"
+						onClick={() => setShowDeviceSelectionModal(true)}
+						style={{
+							padding: '16px 32px',
+							background: '#3b82f6',
+							color: 'white',
+							border: 'none',
+							borderRadius: '12px',
+							fontSize: '16px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							transition: 'all 0.2s ease',
+							boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#2563eb';
+							e.currentTarget.style.transform = 'translateY(-2px)';
+							e.currentTarget.style.boxShadow = '0 8px 24px rgba(59, 130, 246, 0.4)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = '#3b82f6';
+							e.currentTarget.style.transform = 'translateY(0)';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+						}}
+					>
+						📱 Select Authentication Device
+					</button>
+				</div>
+
+				{/* Device Selection Modal */}
+				<UnifiedDeviceSelectionModal
+					isOpen={showDeviceSelectionModal}
+					onClose={() => setShowDeviceSelectionModal(false)}
+					onDeviceSelect={handleDeviceSelectForAuthentication}
+					username={username}
+					environmentId={environmentId}
+				/>
 			</div>
 		);
 	}
 
-	// Registration flow - show unified device registration form
+	// Registration flow - show device type selection cards
 	return (
-		<UnifiedDeviceRegistrationForm
-			onSubmit={(deviceType, fields, flowType) => {
-				// Store flow type in local storage or pass to next step
-				localStorage.setItem('mfa_registration_flow_type', flowType);
-				onSelectDeviceType(deviceType);
-			}}
-			onCancel={() => setFlowMode(null)}
-		/>
+		<div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
+			{/* Header */}
+			<div
+				style={{
+					background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
+					borderRadius: '12px',
+					padding: '28px 32px',
+					marginBottom: '28px',
+				}}
+			>
+				<button
+					type="button"
+					onClick={() => setFlowMode(null)}
+					style={{
+						background: 'rgba(255,255,255,0.2)',
+						border: 'none',
+						color: 'white',
+						padding: '6px 12px',
+						borderRadius: '6px',
+						cursor: 'pointer',
+						marginBottom: '12px',
+						fontSize: '13px',
+					}}
+				>
+					← Back
+				</button>
+				<h1 style={{ margin: '0 0 8px 0', fontSize: '26px', fontWeight: '700', color: '#ffffff' }}>
+					➕ Register MFA Device
+				</h1>
+				<p style={{ margin: 0, fontSize: '15px', color: 'rgba(255, 255, 255, 0.9)' }}>
+					Select a device type to register for {username || 'the user'}
+				</p>
+			</div>
+
+			{/* Device Type Cards */}
+			<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+				{DEVICE_TYPES.map((device) => {
+					const enabled = isDeviceEnabled(device.key);
+					return (
+						<button
+							key={device.key}
+							type="button"
+							onClick={() => enabled && onSelectDeviceType(device.key)}
+							disabled={!enabled}
+							style={{
+								padding: '24px',
+								background: enabled ? '#ffffff' : '#f9fafb',
+								border: `2px solid ${enabled ? '#e5e7eb' : '#f3f4f6'}`,
+								borderRadius: '12px',
+								cursor: enabled ? 'pointer' : 'not-allowed',
+								textAlign: 'left',
+								opacity: enabled ? 1 : 0.5,
+								transition: 'all 0.2s ease',
+							}}
+							onMouseEnter={(e) => {
+								if (enabled) {
+									e.currentTarget.style.borderColor = '#10b981';
+									e.currentTarget.style.background = '#ecfdf5';
+									e.currentTarget.style.transform = 'translateY(-2px)';
+								}
+							}}
+							onMouseLeave={(e) => {
+								if (enabled) {
+									e.currentTarget.style.borderColor = '#e5e7eb';
+									e.currentTarget.style.background = '#ffffff';
+									e.currentTarget.style.transform = 'translateY(0)';
+								}
+							}}
+						>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+								<span style={{ fontSize: '32px' }}>{device.icon}</span>
+								<span style={{ fontSize: '18px', fontWeight: '600', color: '#111827' }}>
+									{device.name}
+								</span>
+							</div>
+							<p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
+								{device.description}
+							</p>
+							{!enabled && (
+								<p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#9ca3af' }}>
+									(Not enabled)
+								</p>
+							)}
+						</button>
+					);
+				})}
+			</div>
+		</div>
 	);
 };
 
@@ -713,6 +863,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 		return getDeviceConfig(deviceType);
 	}, [deviceType]);
 
+
 	// ========================================================================
 	// TOKEN MANAGEMENT
 	// ========================================================================
@@ -789,77 +940,107 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	// ========================================================================
 
 	/**
-	 * Render Step 0: Registration (skip device selection)
+	 * Perform device registration API call
+	 */
+	const performRegistration = useCallback(
+		async (
+			props: MFAFlowBaseRenderProps,
+			selectedDeviceType: DeviceConfigKey,
+			fields: Record<string, string>,
+			flowType: string
+		) => {
+			console.log('[UNIFIED-FLOW] Device registration submitted', { selectedDeviceType, fields, flowType });
+
+			try {
+				props.setIsLoading(true);
+
+				// Update credentials with device fields
+				props.setCredentials((prev) => ({
+					...prev,
+					deviceType: selectedDeviceType,
+					...fields,
+				}));
+
+				// Register the device using proper API call
+				const deviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED' =
+					flowType === 'admin' ? 'ACTIVE' : 'ACTIVATION_REQUIRED';
+
+				// Use same parameter construction as working MFA flows
+				const baseParams = {
+					environmentId: props.credentials.environmentId,
+					username: props.credentials.username,
+					type: selectedDeviceType,
+					// Per rightTOTP.md: Pass token type and user token if available
+					tokenType: flowType === 'user' ? 'user' : 'worker',
+					userToken: flowType === 'user' ? props.credentials.userToken : undefined,
+					// Set device status based on flow type
+					status: deviceStatus,
+				};
+
+				// Include device-specific fields (phone, email, etc.)
+				const deviceParams = {
+					...baseParams,
+					...fields,
+				};
+
+				console.log('[UNIFIED-FLOW] Registering device with params:', deviceParams);
+
+				const result = await MFAServiceV8.registerDevice(deviceParams);
+				console.log('[UNIFIED-FLOW] Device registered:', result);
+
+				// Clear stored registration data after successful use
+				localStorage.removeItem('mfa_registration_flow_type');
+				localStorage.removeItem('mfa_registration_fields');
+				localStorage.removeItem('mfa_registration_device_type');
+
+				// Update MFA state with device info
+				const registrationResult = result as unknown as Record<string, unknown>;
+				props.setMfaState((prev) => ({
+					...prev,
+					deviceId: result.deviceId,
+					deviceStatus: result.status,
+					// Store device.activate URI for activation if present
+					...(registrationResult.deviceActivateUri
+						? { deviceActivateUri: String(registrationResult.deviceActivateUri) }
+						: {}),
+				}));
+
+				// Handle flow-specific logic based on device status
+				if (result.status === 'ACTIVE') {
+					// Admin flow with ACTIVE status - device is ready to use
+					// Skip activation step and go directly to success (step 2)
+					toastV8.success(`${config.displayName} device registered successfully! Device is ready to use.`);
+					props.nav.markStepComplete(); // Mark registration as complete
+					props.nav.goToStep(2); // Skip to success step
+				} else if (result.status === 'ACTIVATION_REQUIRED') {
+					// Device requires activation - PingOne automatically sends OTP
+					// This applies to both admin_activation_required and user flow
+					toastV8.success(`${config.displayName} device registered! OTP has been sent automatically.`);
+					props.nav.goToNext(); // Go to activation step
+				} else {
+					// Unknown status, proceed to activation step by default
+					props.nav.goToNext();
+				}
+			} catch (error) {
+				console.error('[UNIFIED-FLOW] Registration failed:', error);
+				toastV8.error(error instanceof Error ? error.message : 'Device registration failed');
+			} finally {
+				props.setIsLoading(false);
+			}
+		},
+		[config.displayName]
+	);
+
+	/**
+	 * Render Step 0: Registration form for SMS
 	 */
 	const renderStep0 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
 			return (
 				<UnifiedDeviceRegistrationForm
-					onSubmit={async (deviceType, fields, flowType) => {
-						console.log('[UNIFIED-FLOW] Device registration submitted', { deviceType, fields, flowType });
-						
-						try {
-							props.setIsLoading(true);
-							
-							// Store flow type
-							localStorage.setItem('mfa_registration_flow_type', flowType);
-							
-							// Update credentials with device fields
-							props.setCredentials((prev) => ({
-								...prev,
-								deviceType,
-								...fields,
-							}));
-							
-							// Register the device using proper API call
-							const deviceParams = {
-								environmentId: props.credentials.environmentId,
-								username: props.credentials.username,
-								type: deviceType,
-								// Set token type based on flow type
-								tokenType: flowType === 'user' ? 'user' : 'worker',
-								// Include user token for user flow
-								...(flowType === 'user' && props.credentials.userToken
-									? { userToken: props.credentials.userToken }
-									: {}),
-								// Set device status based on flow type
-								status: flowType === 'admin' ? 'ACTIVE' : 'ACTIVATION_REQUIRED',
-								// Include device-specific fields
-								...fields,
-							};
-
-							console.log('[UNIFIED-FLOW] Registering device with params:', deviceParams);
-
-							const result = await MFAServiceV8.registerDevice(deviceParams);
-							console.log('[UNIFIED-FLOW] Device registered:', result);
-							
-							// Update MFA state with device info
-							props.setMfaState((prev) => ({
-								...prev,
-								deviceId: result.deviceId,
-								deviceStatus: result.status,
-								// Store device.activate URI for activation if present
-								...((result as any).deviceActivateUri ? { deviceActivateUri: (result as any).deviceActivateUri } : {}),
-							}));
-							
-							// Handle flow-specific logic based on device status
-							if (result.status === 'ACTIVE') {
-								// Admin flow with ACTIVE status - device is ready to use
-								toastV8.success(`${config.displayName} device registered successfully! Device is ready to use.`);
-							} else if (result.status === 'ACTIVATION_REQUIRED') {
-								// Device requires activation - PingOne automatically sends OTP
-								// This applies to both admin_activation_required and user flow
-								toastV8.success(`${config.displayName} device registered! OTP has been sent automatically.`);
-							}
-							
-							// Navigate to activation step
-							props.nav.goToNext();
-						} catch (error) {
-							console.error('[UNIFIED-FLOW] Registration failed:', error);
-							toastV8.error(error instanceof Error ? error.message : 'Device registration failed');
-						} finally {
-							props.setIsLoading(false);
-						}
+					initialDeviceType={deviceType}
+					onSubmit={async (selectedDeviceType, fields, flowType) => {
+						await performRegistration(props, selectedDeviceType, fields, flowType);
 					}}
 					onCancel={() => {
 						console.log('[UNIFIED-FLOW] Registration cancelled');
@@ -868,7 +1049,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				/>
 			);
 		},
-		[]
+		[deviceType, performRegistration]
 	);
 
 	/**
