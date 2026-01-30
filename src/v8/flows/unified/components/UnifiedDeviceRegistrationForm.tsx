@@ -14,7 +14,9 @@ import { Button } from '@/v8/components/Button';
 import { PageTransition } from '@/v8/components/PageTransition';
 import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
 import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
+import { MFATokenManagerV8 } from '@/v8/services/mfaTokenManagerV8';
 import { colors, spacing } from '@/v8/styles/designTokens';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { APIComparisonModal } from './APIComparisonModal';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
 import '../UnifiedMFAFlow.css';
@@ -47,14 +49,17 @@ export interface UnifiedDeviceRegistrationFormProps {
 	) => void;
 	onCancel: () => void;
 	isLoading?: boolean;
+	/** Initial device type to select (defaults to SMS) */
+	initialDeviceType?: DeviceConfigKey;
 }
 
 export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFormProps> = ({
 	onSubmit,
 	onCancel,
 	isLoading = false,
+	initialDeviceType = 'SMS',
 }) => {
-	const [selectedTab, setSelectedTab] = useState<DeviceConfigKey>('SMS');
+	const [selectedTab, setSelectedTab] = useState<DeviceConfigKey>(initialDeviceType);
 	const [flowType, setFlowType] = useState<FlowType>('admin');
 	const [deviceFields, setDeviceFields] = useState<Record<DeviceConfigKey, Record<string, string>>>(
 		() => {
@@ -117,6 +122,15 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 	const handleSubmit = useCallback(() => {
 		console.log(`${MODULE_TAG} Submitting registration for:`, selectedTab, 'Flow type:', flowType);
 		const fields = deviceFields[selectedTab];
+
+		// Check worker token status first
+		const tokenManager = MFATokenManagerV8.getInstance();
+		const tokenState = tokenManager.getTokenState();
+
+		if (!tokenState.isValid) {
+			toastV8.error('Worker token is invalid or expired. Please refresh the worker token.');
+			return;
+		}
 
 		// Basic validation
 		const requiredFields = config.requiredFields || [];
