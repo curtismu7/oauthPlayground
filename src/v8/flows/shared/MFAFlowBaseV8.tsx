@@ -21,6 +21,7 @@ import { WorkerTokenPromptModalV8 } from '@/v8/components/WorkerTokenPromptModal
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { DualStorageServiceV8 } from '@/v8/services/dualStorageServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import {
 	type TokenStatusInfo,
@@ -127,6 +128,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	});
 
 	const [credentials, setCredentials] = useState<MFACredentials>(() => {
+		// Try dual storage first (browser + database fallback)
 		const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 			flowKey: FLOW_KEY,
 			flowType: 'oidc',
@@ -300,9 +302,19 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		};
 	}, []);
 
-	// Save credentials when they change
+	// Save credentials when they change (using dual storage for database persistence)
 	useEffect(() => {
+		// Save to browser storage first (fast)
 		CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials);
+		
+		// Also save to database via dual storage for persistence
+		DualStorageServiceV8.save({
+			directory: 'mfa',
+			filename: 'mfa-credentials.json',
+			browserStorageKey: FLOW_KEY,
+		}, credentials).catch(error => {
+			console.warn('[MFA-FLOW-BASE] Failed to save credentials to database:', error);
+		});
 	}, [credentials]);
 
 	/**
