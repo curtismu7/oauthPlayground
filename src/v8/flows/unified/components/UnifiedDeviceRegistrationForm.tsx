@@ -50,13 +50,35 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 }) => {
 	const [selectedTab, setSelectedTab] = useState<DeviceConfigKey>('SMS');
 	const [flowType, setFlowType] = useState<FlowType>('admin');
-	const [deviceFields, setDeviceFields] = useState<Record<DeviceConfigKey, Record<string, string>>>({
-		SMS: {},
-		EMAIL: {},
-		TOTP: {},
-		MOBILE: {},
-		WHATSAPP: {},
-		FIDO2: {},
+	const [deviceFields, setDeviceFields] = useState<Record<DeviceConfigKey, Record<string, string>>>(() => {
+		// Initialize with saved values from localStorage
+		const savedPhone = localStorage.getItem('mfa_saved_phoneNumber');
+		const savedCountryCode = localStorage.getItem('mfa_saved_countryCode');
+		const savedEmail = localStorage.getItem('mfa_saved_email');
+		
+		const initialFields: Record<DeviceConfigKey, Record<string, string>> = {
+			SMS: {},
+			EMAIL: {},
+			TOTP: {},
+			MOBILE: {},
+			WHATSAPP: {},
+			FIDO2: {},
+		};
+		
+		// Pre-populate phone-based devices with saved values
+		if (savedPhone) {
+			initialFields.SMS.phoneNumber = savedPhone;
+			initialFields.WHATSAPP.phoneNumber = savedPhone;
+		}
+		if (savedCountryCode) {
+			initialFields.SMS.countryCode = savedCountryCode;
+			initialFields.WHATSAPP.countryCode = savedCountryCode;
+		}
+		if (savedEmail) {
+			initialFields.EMAIL.email = savedEmail;
+		}
+		
+		return initialFields;
 	});
 	const [errors, setErrors] = useState<Record<string, string>>({});
 
