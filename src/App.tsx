@@ -552,10 +552,7 @@ const AppRoutes: React.FC = () => {
 								element={<OAuthAuthorizationCodeFlowV8 />}
 							/>
 							<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
-							<Route
-								path="/v8/mfa-unified"
-								element={<UnifiedMFARegistrationFlowV8 deviceType="SMS" />}
-							/>
+							<Route path="/v8/mfa-unified" element={<UnifiedMFARegistrationFlowV8 />} />
 							<Route path="/v8/mfa" element={<Navigate to="/v8/mfa-hub" replace />} />
 							<Route path="/v8/mfa-hub" element={<MFAAuthenticationMainPageV8 />} />
 							<Route
