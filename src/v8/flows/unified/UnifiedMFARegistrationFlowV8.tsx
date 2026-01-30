@@ -569,26 +569,6 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	const [_isLoading, _setIsLoading] = useState(false);
 
 	// ========================================================================
-	// STEP NAVIGATION
-	// ========================================================================
-
-	// Initialize step navigation (5 steps)
-	const nav = useStepNavigationV8(5, {
-		initialStep,
-		onStepChange: (step) => {
-			console.log(`${MODULE_TAG} Step changed to:`, step);
-		},
-	});
-
-	// Skip to registration step if configured
-	useEffect(() => {
-		if (skipConfiguration && nav.currentStep === 0) {
-			console.log(`${MODULE_TAG} Skipping configuration, going to step 2`);
-			nav.goToStep(2);
-		}
-	}, [skipConfiguration, nav]);
-
-	// ========================================================================
 	// STEP VALIDATION
 	// ========================================================================
 
