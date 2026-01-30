@@ -38,13 +38,6 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 	const [isValidating, setIsValidating] = useState(false);
 	const [validationResult, setValidationResult] = useState<IDTokenValidationResult | null>(null);
 
-	// Auto-validate when modal opens
-	useEffect(() => {
-		if (isOpen && idToken && !validationResult) {
-			handleValidate();
-		}
-	}, [isOpen, idToken, handleValidate, validationResult]);
-
 	const handleValidate = async () => {
 		console.log(`${MODULE_TAG} Starting ID token validation`);
 		setIsValidating(true);
@@ -79,6 +72,13 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 			setIsValidating(false);
 		}
 	};
+
+	// Auto-validate when modal opens
+	useEffect(() => {
+		if (isOpen && idToken && !validationResult) {
+			handleValidate();
+		}
+	}, [isOpen, idToken, validationResult]);
 
 	if (!isOpen) return null;
 
