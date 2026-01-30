@@ -59,7 +59,7 @@ export const useMFAPolicies = (config: UseMFAPoliciesConfig = {}): UseMFAPolicie
 	const {
 		environmentId,
 		tokenIsValid = false,
-		selectedPolicyId,
+		selectedPolicyId: externalSelectedPolicyId,
 		autoLoad = true,
 		autoSelectSingle = true,
 	} = config;
@@ -68,6 +68,9 @@ export const useMFAPolicies = (config: UseMFAPoliciesConfig = {}): UseMFAPolicie
 	const [policies, setPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [internalSelectedPolicyId, setInternalSelectedPolicyId] = useState<string | undefined>(
+		externalSelectedPolicyId
+	);
 
 	// Refs for caching and preventing duplicate calls
 	const isFetchingRef = useRef(false);
@@ -134,14 +137,19 @@ export const useMFAPolicies = (config: UseMFAPoliciesConfig = {}): UseMFAPolicie
 		return await loadPolicies();
 	}, [loadPolicies]);
 
+	// Use internal state or external prop for selected policy ID
+	const selectedPolicyId = internalSelectedPolicyId || externalSelectedPolicyId;
+
 	// Select policy
 	const selectPolicy = useCallback((policyId: string) => {
 		console.log(`${MODULE_TAG} Policy selected: ${policyId}`);
+		setInternalSelectedPolicyId(policyId);
 	}, []);
 
 	// Clear policies
 	const clearPolicies = useCallback(() => {
 		setPolicies([]);
+		setInternalSelectedPolicyId(undefined);
 		lastFetchedEnvIdRef.current = null;
 	}, []);
 
