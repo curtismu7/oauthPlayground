@@ -10,13 +10,15 @@
  * Features:
  * - Single unified service for all worker token operations
  * - Flexible credential interface to support different app requirements
- * - Multiple storage layers (localStorage, IndexedDB, memory)
+ * - Multiple storage layers (localStorage, IndexedDB, database backup)
  * - Automatic token lifecycle management
  * - Support for different authentication methods
  * - Cross-app token sharing
  * - Retry logic and error handling
  * - Token validation and expiration handling
  */
+
+import { DualStorageServiceV8 } from '../v8/services/dualStorageServiceV8';
 
 const MODULE_TAG = '[🔑 UNIFIED-WORKER-TOKEN]';
 
@@ -224,6 +226,22 @@ class UnifiedWorkerTokenService {
 			// Don't throw - localStorage is primary
 		}
 
+		// Save to database via dual storage for persistence
+		try {
+			await DualStorageServiceV8.save(
+				{
+					directory: 'worker_token',
+					filename: 'unified-credentials.json',
+					browserStorageKey: BROWSER_STORAGE_KEY,
+				},
+				credentials
+			);
+			console.log(`${MODULE_TAG} ✅ Worker token credentials backed up to database`);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to backup to database`, error);
+			// Don't throw - local storage is primary
+		}
+
 		console.log(`${MODULE_TAG} ✅ Worker token credentials saved`);
 	}
 
@@ -276,6 +294,42 @@ class UnifiedWorkerTokenService {
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} ❌ Failed to load from IndexedDB`, error);
+		}
+
+		// Try database backup via dual storage
+		try {
+			console.log(`${MODULE_TAG} 🔍 Trying database backup...`);
+			const result = await DualStorageServiceV8.load({
+				directory: 'worker_token',
+				filename: 'unified-credentials.json',
+				browserStorageKey: BROWSER_STORAGE_KEY,
+			});
+			
+			if (result.success && result.data) {
+				const credentials = result.data as UnifiedWorkerTokenCredentials;
+				console.log(`${MODULE_TAG} ✅ Loaded worker token credentials from database`);
+				
+				// Update memory cache and localStorage
+				const data: UnifiedWorkerTokenData = {
+					token: '', // Token will be fetched when needed
+					credentials,
+					savedAt: Date.now(),
+				};
+				this.memoryCache = data;
+				
+				// Restore to localStorage
+				try {
+					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
+				} catch (error) {
+					console.warn(`${MODULE_TAG} ⚠️ Failed to restore to localStorage`, error);
+				}
+				
+				return credentials;
+			} else {
+				console.log(`${MODULE_TAG} ❌ No data found in database`);
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} ❌ Failed to load from database`, error);
 		}
 
 		// Try legacy storage keys for migration

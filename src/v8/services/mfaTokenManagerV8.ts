@@ -2,14 +2,17 @@
  * @file mfaTokenManagerV8.ts
  * @module v8/services
  * @description Centralized MFA token management service
- * @version 8.0.0
+ * @version 8.1.0
  * @since 2026-01-29
  *
  * Purpose: Unified token state management for all MFA flows
- * - Wraps existing WorkerTokenStatusServiceV8
+ * - Delegates to tokenGatewayV8 for all token operations
  * - Provides subscription-based updates
  * - Supports auto-refresh
  * - Singleton pattern for consistent state
+ *
+ * IMPORTANT: This service now delegates to tokenGatewayV8 for token acquisition.
+ * Do NOT add direct token fetch logic here - use tokenGatewayV8 instead.
  *
  * @example
  * // Subscribe to token updates
@@ -26,7 +29,7 @@
  */
 
 import type { TokenStatusInfo } from './workerTokenStatusServiceV8';
-import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
+import { tokenGatewayV8 } from './auth/tokenGatewayV8';
 
 export type TokenUpdateCallback = (state: TokenStatusInfo) => void;
 
@@ -64,8 +67,8 @@ export class MFATokenManagerV8 {
 		this.subscribers = new Set();
 		this.refreshTimer = null;
 
-		// Initialize with current token state
-		this.tokenState = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+		// Initialize with current token state via tokenGatewayV8
+		this.tokenState = tokenGatewayV8.getWorkerTokenStatusSync();
 
 		console.log('[MFATokenManagerV8] Initialized with state:', this.tokenState.status);
 	}
@@ -136,13 +139,14 @@ export class MFATokenManagerV8 {
 	 * Refresh token state (async)
 	 *
 	 * Checks token status and notifies all subscribers if state changed.
+	 * Delegates to tokenGatewayV8 for consistent token handling.
 	 */
 	async refreshToken(): Promise<void> {
 		try {
-			console.log('[MFATokenManagerV8] Refreshing token state...');
+			console.log('[MFATokenManagerV8] Refreshing token state via tokenGatewayV8...');
 
-			// Delegate to existing service
-			const newState = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			// Delegate to tokenGatewayV8 for status check
+			const newState = await tokenGatewayV8.getWorkerTokenStatus();
 
 			// Check if state actually changed
 			const stateChanged =
