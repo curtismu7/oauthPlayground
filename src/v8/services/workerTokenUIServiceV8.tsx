@@ -18,6 +18,7 @@ import { FiLoader, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
 import { AppDiscoveryModalV8U } from '../../v8u/components/AppDiscoveryModalV8U';
 import type { DiscoveredApp } from '../components/AppPickerV8';
+import { WorkerTokenModalV8 } from '../components/WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from '../components/WorkerTokenStatusDisplayV8';
 import { toastV8 } from '../utils/toastNotificationsV8';
 import { MFAConfigurationServiceV8 } from './mfaConfigurationServiceV8';
@@ -188,6 +189,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo | null>(null);
 	const [isGettingWorkerToken, setIsGettingWorkerToken] = useState(false);
 	const [showAppDiscoveryModal, setShowAppDiscoveryModal] = useState(false);
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// Load settings from MFA Configuration Service
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
@@ -261,7 +263,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 			// Pass current checkbox values to override config (page checkboxes take precedence)
 			// forceShowModal=true because user explicitly clicked the button
 			await handleShowWorkerTokenModal(
-				() => {}, // No-op - modal is handled globally via events
+				setShowWorkerTokenModal, // Use actual state setter to show modal
 				setTokenStatus,
 				silentApiRetrieval, // Page checkbox value takes precedence
 				showTokenAtEnd, // Page checkbox value takes precedence
@@ -463,7 +465,21 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 					</GetWorkerTokenButton>
 				</ButtonContainer>
 
-				{/* WorkerTokenStatusDisplayV8 - Removed */}
+				{/* Worker Token Modal */}
+				<WorkerTokenModalV8
+					isOpen={showWorkerTokenModal}
+					onClose={() => {
+						setShowWorkerTokenModal(false);
+						WorkerTokenStatusServiceV8.checkWorkerTokenStatus().then(setTokenStatus);
+					}}
+					onTokenGenerated={async () => {
+						const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+						setTokenStatus(newStatus);
+						if (!showTokenAtEnd) {
+							setShowWorkerTokenModal(false);
+						}
+					}}
+				/>
 			</WorkerTokenContainer>
 		);
 	}
@@ -560,6 +576,25 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 				environmentId={environmentId}
 				onEnvironmentIdChange={onEnvironmentIdUpdate}
 				onAppSelected={handleAppSelected}
+			/>
+
+			{/* Worker Token Modal */}
+			<WorkerTokenModalV8
+				isOpen={showWorkerTokenModal}
+				onClose={() => {
+					setShowWorkerTokenModal(false);
+					// Refresh token status after modal closes
+					WorkerTokenStatusServiceV8.checkWorkerTokenStatus().then(setTokenStatus);
+				}}
+				onTokenGenerated={async () => {
+					// Refresh token status after generation
+					const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+					setTokenStatus(newStatus);
+					// Keep modal open if showTokenAtEnd is enabled
+					if (!showTokenAtEnd) {
+						setShowWorkerTokenModal(false);
+					}
+				}}
 			/>
 		</WorkerTokenContainer>
 	);
