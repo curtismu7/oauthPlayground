@@ -27,11 +27,14 @@ import { useLocation } from 'react-router-dom';
 import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
 import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/deviceFlowConfigTypes';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
+import { MFADocumentationPageV8 } from '@/v8/components/MFADocumentationPageV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
 import { GlobalMFAProvider } from '@/v8/contexts/GlobalMFAContext';
 import { useMFAPolicies } from '@/v8/hooks/useMFAPolicies';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
 import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
@@ -167,17 +170,46 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		}
 	}, [defaultPolicy, selectedPolicy, selectPolicy]);
 
-	// Sync environment ID to global service when it changes
+	// Sync environment ID to global service and CredentialsServiceV8 when it changes
 	useEffect(() => {
 		if (environmentId) {
 			globalEnvironmentService.setEnvironmentId(environmentId);
+			localStorage.setItem('mfa_environmentId', environmentId);
+			// Also save to CredentialsServiceV8 for MFAFlowBase to read
+			const currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+				flowKey: 'mfa-flow-v8',
+				flowType: 'oidc',
+				includeClientSecret: false,
+				includeRedirectUri: false,
+				includeLogoutUri: false,
+				includeScopes: false,
+			});
+			CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
+				...currentCreds,
+				environmentId,
+			});
 		}
 	}, [environmentId]);
 
-	// Save username to localStorage when it changes
+	// Save username to localStorage and CredentialsServiceV8 when it changes
+	// This ensures MFAFlowBase can read the username from its expected storage location
 	useEffect(() => {
 		if (username) {
 			localStorage.setItem('mfa_unified_username', username);
+			localStorage.setItem('mfa_username', username);
+			// Also save to CredentialsServiceV8 for MFAFlowBase to read
+			const currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+				flowKey: 'mfa-flow-v8',
+				flowType: 'oidc',
+				includeClientSecret: false,
+				includeRedirectUri: false,
+				includeLogoutUri: false,
+				includeScopes: false,
+			});
+			CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
+				...currentCreds,
+				username,
+			});
 		}
 	}, [username]);
 
@@ -222,6 +254,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						padding: '24px',
 						marginBottom: '28px',
 						border: '1px solid #e5e7eb',
+						overflow: 'hidden',
 					}}
 				>
 					<h2 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#111827' }}>
@@ -471,7 +504,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					</div>
 
 					{/* Worker Token Status */}
-					<div style={{ marginTop: '24px', marginBottom: '20px' }}>
+					<div style={{ marginTop: '24px', marginBottom: '20px', paddingRight: '24px', overflow: 'hidden' }}>
 						<WorkerTokenUIServiceV8
 							mode="detailed"
 							showRefresh={true}
@@ -863,6 +896,38 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 		return getDeviceConfig(deviceType);
 	}, [deviceType]);
 
+	// ========================================================================
+	// USER FLOW OAUTH STATE
+	// ========================================================================
+
+	// State for User Login Modal (OAuth authentication for User Flow)
+	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
+	const [userToken, setUserToken] = useState<string | null>(() => {
+		// Check if we already have a user token from previous OAuth flow
+		const savedCreds = CredentialsServiceV8.loadCredentials('user-login-v8', {
+			flowKey: 'user-login-v8',
+			flowType: 'oauth',
+			includeClientSecret: false,
+			includeRedirectUri: false,
+			includeLogoutUri: false,
+			includeScopes: false,
+		});
+		return savedCreds?.userToken || null;
+	});
+
+	// Pending registration data while waiting for OAuth
+	const [pendingRegistration, setPendingRegistration] = useState<{
+		deviceType: DeviceConfigKey;
+		fields: Record<string, string>;
+		flowType: string;
+		props: MFAFlowBaseRenderProps;
+	} | null>(null);
+
+	// Get environment ID for UserLoginModal
+	const envIdForModal = useMemo(() => {
+		return globalEnvironmentService.getEnvironmentId() || '';
+	}, []);
+
 
 	// ========================================================================
 	// TOKEN MANAGEMENT
@@ -940,40 +1005,72 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	// ========================================================================
 
 	/**
-	 * Perform device registration API call
+	 * Handle user token received from OAuth flow
 	 */
-	const performRegistration = useCallback(
+	const handleUserTokenReceived = useCallback((token: string) => {
+		console.log('[UNIFIED-FLOW] User token received from OAuth', { tokenLength: token.length });
+		setUserToken(token);
+
+		// If we have pending registration, continue with it
+		if (pendingRegistration) {
+			toastV8.success('Authentication successful! Continuing with device registration...');
+			setShowUserLoginModal(false);
+
+			// Continue registration with the new token
+			const { deviceType: pendingDeviceType, fields, flowType, props } = pendingRegistration;
+			setPendingRegistration(null);
+
+			// Re-call performRegistration with the token now available
+			performRegistrationWithToken(props, pendingDeviceType, fields, flowType, token);
+		}
+	}, [pendingRegistration]);
+
+	/**
+	 * Perform device registration API call (with token already available)
+	 */
+	const performRegistrationWithToken = useCallback(
 		async (
 			props: MFAFlowBaseRenderProps,
 			selectedDeviceType: DeviceConfigKey,
 			fields: Record<string, string>,
-			flowType: string
+			flowType: string,
+			token?: string
 		) => {
-			console.log('[UNIFIED-FLOW] Device registration submitted', { selectedDeviceType, fields, flowType });
+			console.log('[UNIFIED-FLOW] Performing registration with token', { selectedDeviceType, flowType, hasToken: !!token });
 
 			try {
 				props.setIsLoading(true);
 
-				// Update credentials with device fields
+				// Update credentials with device fields and user token if provided
 				props.setCredentials((prev) => ({
 					...prev,
 					deviceType: selectedDeviceType,
 					...fields,
+					...(flowType === 'user' && token ? { userToken: token, tokenType: 'user' } : {}),
 				}));
 
 				// Register the device using proper API call
-				// CRITICAL: status determines whether MFA sends OTP to user
+				// CRITICAL: Flow-specific device status
+				// - Admin flow: ACTIVE (no OTP sent, device ready immediately)
+				// - Admin ACTIVATION_REQUIRED: ACTIVATION_REQUIRED (sends OTP for admin to activate)
 				// - User flow: ACTIVATION_REQUIRED (sends OTP for user to activate)
-				// - Admin flow: ACTIVE (device is pre-activated, no OTP needed)
-				const deviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED' =
-					flowType === 'admin' ? 'ACTIVE' : 'ACTIVATION_REQUIRED';
+				let deviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+				if (flowType === 'admin') {
+					deviceStatus = 'ACTIVE';
+				} else if (flowType === 'admin_activation_required') {
+					deviceStatus = 'ACTIVATION_REQUIRED';
+				} else {
+					deviceStatus = 'ACTIVATION_REQUIRED'; // user flow
+				}
 
 				console.log('[UNIFIED-FLOW] Device status determined:', {
 					flowType,
 					deviceStatus,
 					otpWillBeSent: deviceStatus === 'ACTIVATION_REQUIRED',
-					reason: flowType === 'admin' 
-						? 'Admin flow - device pre-activated, no OTP needed' 
+					reason: flowType === 'admin'
+						? 'Admin flow - device activated immediately, no OTP needed'
+						: flowType === 'admin_activation_required'
+						? 'Admin ACTIVATION_REQUIRED flow - OTP sent for admin activation'
 						: 'User flow - OTP required for activation'
 				});
 
@@ -984,17 +1081,38 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					type: selectedDeviceType,
 					// Per rightTOTP.md: Pass token type and user token if available
 					tokenType: flowType === 'user' ? 'user' : 'worker',
-					userToken: flowType === 'user' ? props.credentials.userToken : undefined,
+					userToken: flowType === 'user' ? token : undefined,
 					// CRITICAL: This status tells MFA whether to send OTP
 					// ACTIVATION_REQUIRED = Send OTP to user
 					// ACTIVE = Device is pre-activated, no OTP
 					status: deviceStatus,
 				};
 
+				// Map form field names to API field names
+				// Form uses 'deviceName' but API expects 'nickname' or 'name'
+				const mappedFields: Record<string, string> = { ...fields };
+				if (mappedFields.deviceName) {
+					mappedFields.nickname = mappedFields.deviceName;
+					mappedFields.name = mappedFields.deviceName;
+					delete mappedFields.deviceName;
+				}
+
+				// Format phone number for SMS/WhatsApp devices
+				// Form sends: { phoneNumber: '9725231586', countryCode: '+1' }
+				// API expects: { phone: '+1.9725231586' }
+				if (mappedFields.phoneNumber && mappedFields.countryCode) {
+					const countryCode = mappedFields.countryCode.replace('+', ''); // Remove + for formatting
+					const phoneNumber = mappedFields.phoneNumber.replace(/\D/g, ''); // Remove non-digits
+					mappedFields.phone = `+${countryCode}.${phoneNumber}`;
+					console.log('[UNIFIED-FLOW] Formatted phone:', mappedFields.phone);
+					delete mappedFields.phoneNumber;
+					delete mappedFields.countryCode;
+				}
+
 				// Include device-specific fields (phone, email, etc.)
 				const deviceParams = {
 					...baseParams,
-					...fields,
+					...mappedFields,
 				};
 
 				console.log('[UNIFIED-FLOW] Registering device with params:', deviceParams);
@@ -1046,6 +1164,43 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	);
 
 	/**
+	 * Perform device registration API call
+	 * Checks if User Flow needs OAuth first, otherwise proceeds with registration
+	 */
+	const performRegistration = useCallback(
+		async (
+			props: MFAFlowBaseRenderProps,
+			selectedDeviceType: DeviceConfigKey,
+			fields: Record<string, string>,
+			flowType: string
+		) => {
+			console.log('[UNIFIED-FLOW] Device registration submitted', { selectedDeviceType, fields, flowType });
+
+			// For User Flow, check if we need OAuth authentication first
+			if (flowType === 'user' && !userToken) {
+				console.log('[UNIFIED-FLOW] User flow selected but no token - showing OAuth modal');
+
+				// Store pending registration data
+				setPendingRegistration({
+					deviceType: selectedDeviceType,
+					fields,
+					flowType,
+					props,
+				});
+
+				// Show the user login modal
+				setShowUserLoginModal(true);
+				toastV8.info('User Flow requires PingOne authentication. Please log in to continue.');
+				return;
+			}
+
+			// Proceed with registration (using existing token for user flow)
+			await performRegistrationWithToken(props, selectedDeviceType, fields, flowType, userToken || undefined);
+		},
+		[userToken, performRegistrationWithToken]
+	);
+
+	/**
 	 * Render Step 0: Registration form for SMS
 	 */
 	const renderStep0 = useCallback(
@@ -1077,9 +1232,41 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	);
 
 	/**
-	 * Render Step 2: Success
+	 * Render Step 2: API Documentation
 	 */
 	const renderStep2 = useCallback(
+		(props: MFAFlowBaseRenderProps) => {
+			return (
+				<MFADocumentationPageV8
+					deviceType={deviceType}
+					flowType="registration"
+					credentials={{
+						...(props.credentials.environmentId && { environmentId: props.credentials.environmentId }),
+						...(props.credentials.username && { username: props.credentials.username }),
+						...(props.credentials.deviceAuthenticationPolicyId && { deviceAuthenticationPolicyId: props.credentials.deviceAuthenticationPolicyId }),
+					}}
+					currentStep={2}
+					totalSteps={4}
+					registrationFlowType={props.credentials.tokenType === 'user' ? 'user' : 'admin'}
+					tokenType={props.credentials.tokenType === 'user' ? 'user' : 'worker'}
+					flowSpecificData={{
+						...(props.credentials.environmentId && { environmentId: props.credentials.environmentId }),
+						...(props.credentials.username && { username: props.credentials.username }),
+						...(props.mfaState.deviceId && { deviceId: props.mfaState.deviceId }),
+						...(props.credentials.deviceAuthenticationPolicyId && { policyId: props.credentials.deviceAuthenticationPolicyId }),
+						...(props.mfaState.deviceStatus && { deviceStatus: props.mfaState.deviceStatus }),
+						...(props.credentials.clientId && { clientId: props.credentials.clientId }),
+					}}
+				/>
+			);
+		},
+		[deviceType]
+	);
+
+	/**
+	 * Render Step 3: Success
+	 */
+	const renderStep3 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
 			return (
 				<UnifiedSuccessStep
@@ -1089,16 +1276,6 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 			);
 		},
 		[config]
-	);
-
-	/**
-	 * Render Step 3: Not used
-	 */
-	const renderStep3 = useCallback(
-		(_props: MFAFlowBaseRenderProps) => {
-			return null;
-		},
-		[]
 	);
 
 	/**
@@ -1119,9 +1296,26 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 		() => [
 			`Register ${config.displayName}`,
 			config.requiresOTP ? 'Activate (OTP)' : 'Activate',
+			'API Documentation',
 			'Success',
 		],
 		[config]
+	);
+
+	// ========================================================================
+	// CREDENTIAL VALIDATION
+	// ========================================================================
+
+	/**
+	 * Always show Next button - let user click it to trigger login when needed
+	 */
+	const shouldHideNextButton = useCallback(
+		(_props: MFAFlowBaseRenderProps) => {
+			// Don't automatically open UserLoginModal - let user click Next button
+			// Always show Next button so user can initiate login when needed
+			return false; // Always show Next button
+		},
+		[]
 	);
 
 	// ========================================================================
@@ -1139,8 +1333,20 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				renderStep4={renderStep4}
 				validateStep0={validateStep0}
 				stepLabels={stepLabels}
+				shouldHideNextButton={shouldHideNextButton}
 			/>
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
+
+			{/* User Login Modal for User Flow OAuth */}
+			<UserLoginModalV8
+				isOpen={showUserLoginModal}
+				onClose={() => {
+					setShowUserLoginModal(false);
+					setPendingRegistration(null);
+				}}
+				onTokenReceived={handleUserTokenReceived}
+				environmentId={envIdForModal}
+			/>
 		</>
 	);
 };

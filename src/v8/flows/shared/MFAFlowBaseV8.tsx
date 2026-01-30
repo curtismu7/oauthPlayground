@@ -119,7 +119,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	const totalSteps = stepLabels.length;
 
 	const nav = useStepNavigationV8(totalSteps, {
-		onStepChange: (_step) => {
+		onStepChange: () => {
 			// Removed verbose logging
 			window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
 			document.documentElement.scrollTop = 0;
@@ -502,7 +502,41 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			// Clean up the marker
 			sessionStorage.removeItem('mfa_oauth_callback_return');
 
-			// Validate step 0 and advance if valid
+			// Check for ACTIVATION_REQUIRED state that should skip registration
+			const storedFlowState = sessionStorage.getItem('mfa_flow_state_after_oauth');
+			if (storedFlowState) {
+				try {
+					const flowState = JSON.parse(storedFlowState);
+					console.log(`${MODULE_TAG} Found stored flow state after OAuth callback:`, flowState);
+
+					// If device was registered with ACTIVATION_REQUIRED status, skip to activation
+					if (flowState.deviceStatus === 'ACTIVATION_REQUIRED' && flowState.deviceId) {
+						console.log(`${MODULE_TAG} Device requires activation, skipping registration step`);
+						
+						// Restore MFA state
+						setMfaState((prev) => ({
+							...prev,
+							deviceId: flowState.deviceId,
+							deviceStatus: 'ACTIVATION_REQUIRED',
+							...(flowState.deviceActivateUri && { deviceActivateUri: flowState.deviceActivateUri }),
+						}));
+
+						// Clean up stored state
+						sessionStorage.removeItem('mfa_flow_state_after_oauth');
+
+						// Skip directly to activation step (Step 1)
+						setTimeout(() => {
+							nav.goToStep(1);
+						}, 500);
+						return;
+					}
+				} catch (error) {
+					console.error(`${MODULE_TAG} Failed to parse stored flow state:`, error);
+					sessionStorage.removeItem('mfa_flow_state_after_oauth');
+				}
+			}
+
+			// Normal flow: Validate step 0 and advance if valid
 			setTimeout(() => {
 				if (validateStep0(credentials, tokenStatus, nav)) {
 					nav.goToNext();
@@ -730,6 +764,8 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				setShowDeviceLimitModal,
 				showWorkerTokenModal,
 				setShowWorkerTokenModal,
+				showUserLoginModal,
+				setShowUserLoginModal,
 				showSettingsModal,
 				setShowSettingsModal,
 				deviceAuthPolicies,
@@ -925,6 +961,13 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					}}
 					onNext={() => {
 						if (nav.currentStep === 0) {
+							// Check if essential credentials are missing
+							if (!credentials.environmentId?.trim() || !credentials.username?.trim()) {
+								console.log(`${MODULE_TAG} Missing credentials, showing UserLoginModal`);
+								setShowUserLoginModal(true);
+								return; // Don't proceed with validation
+							}
+
 							// Re-check credentials before validation (in case they were just updated)
 							const currentCreds = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 								flowKey: FLOW_KEY,
@@ -1160,7 +1203,8 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							}
 						}
 
-						setShowUserLoginModal(false);
+						// Don't close modal immediately - let user see success page and click Continue
+						// The modal will be closed when user clicks Continue on the success page
 						toastV8.success('User token received and saved!');
 
 						// Force a re-validation check after state update

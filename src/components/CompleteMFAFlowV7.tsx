@@ -543,10 +543,8 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				scopes: [
 					'p1:read:user',
 					'p1:update:user',
-					'p1:create:device',
 					'p1:read:device',
 					'p1:update:device',
-					'p1:delete:device',
 				],
 				region: 'us' as const,
 				tokenEndpointAuthMethod: 'client_secret_basic' as const,
@@ -1597,7 +1595,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							const tokenRequestBody = new URLSearchParams({
 								grant_type: 'client_credentials',
 								scope:
-									'p1:read:user p1:update:user p1:create:device p1:read:device p1:update:device p1:delete:device',
+									'p1:read:user p1:update:user p1:read:device p1:update:device',
 							});
 
 							console.log(
