@@ -29,6 +29,7 @@ import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/devi
 import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
 import { GlobalMFAProvider } from '@/v8/contexts/GlobalMFAContext';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
+import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
 import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFATokenManagerV8 } from '@/v8/services/mfaTokenManagerV8';
@@ -114,6 +115,13 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	const [environmentId, setEnvironmentId] = useState('');
 	const [username, setUsername] = useState('');
 	const [selectedPolicyId, setSelectedPolicyId] = useState('');
+
+	// Sync environment ID to global service when it changes
+	useEffect(() => {
+		if (environmentId) {
+			globalEnvironmentService.setEnvironmentId(environmentId);
+		}
+	}, [environmentId]);
 
 	// Step 1: Choose Registration or Authentication
 	if (!flowMode) {
