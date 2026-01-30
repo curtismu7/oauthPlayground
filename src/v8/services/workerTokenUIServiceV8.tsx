@@ -453,16 +453,6 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 						)}
 						{isGettingWorkerToken ? 'Getting Token...' : 'Get Worker Token'}
 					</GetWorkerTokenButton>
-
-					<GetWorkerTokenButton
-						onClick={handleGetAppsConfig}
-						$tokenStatus={tokenStatus}
-						$isLoading={false}
-						$variant="secondary"
-					>
-						<FiSettings style={{ fontSize: '14px' }} />
-						Get Apps Config
-					</GetWorkerTokenButton>
 				</ButtonContainer>
 
 				{/* Worker Token Modal */}
@@ -514,16 +504,6 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 							<FiLoader style={{ animation: 'spin 1s linear infinite', fontSize: '14px' }} />
 						)}
 						{isGettingWorkerToken ? 'Getting Token...' : 'Get Worker Token'}
-					</GetWorkerTokenButton>
-
-					<GetWorkerTokenButton
-						onClick={handleGetAppsConfig}
-						$tokenStatus={tokenStatus}
-						$isLoading={false}
-						$variant="secondary"
-					>
-						<FiSettings style={{ fontSize: '14px' }} />
-						Get Apps Config
 					</GetWorkerTokenButton>
 				</ButtonContainer>
 
