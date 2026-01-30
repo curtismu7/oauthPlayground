@@ -122,26 +122,77 @@ const SMS_CONFIG: DeviceFlowConfig = {
 	deviceType: 'SMS',
 	displayName: 'SMS OTP',
 	icon: '📱',
-	description: 'Receive verification codes via SMS text message',
+	description: 'Enhanced SMS OTP with database persistence and production-grade debugging',
 	educationalContent: `
-## SMS One-Time Password (OTP)
+## SMS One-Time Password (OTP) - Enhanced Implementation
 
-SMS OTP is a widely-used MFA method that sends temporary verification codes to your mobile phone.
+SMS OTP is a widely-used MFA method that sends temporary verification codes to your mobile phone. This implementation includes enhanced debugging, database persistence, and alignment with production-grade flows.
 
 ### How it Works
-1. Register your mobile phone number
-2. When you need to authenticate, a 6-digit code is sent via SMS
-3. Enter the code within a few minutes to complete authentication
+1. **Register your mobile phone number** with worker token validation
+2. **Automatic user lookup** via PingOne API with enhanced error handling
+3. **6-digit code delivery** via SMS with comprehensive logging
+4. **Code validation** with attempt tracking and cooldown management
+5. **Persistent storage** using dual storage (browser + database)
+
+### 🔧 Recent Enhancements (v9.2.6)
+
+#### **Fixed 400 Error Issues**
+- **Root Cause**: Parameter construction mismatch with working MFA-HUB implementation
+- **Solution**: Aligned parameter construction with proven working flows
+- **Result**: Same API calls as production MFA-HUB implementation
+
+#### **Database Storage Implementation**
+- **Dual Storage**: Browser localStorage + persistent database storage
+- **Cross-Session Persistence**: Data survives browser clear/refresh
+- **Production Alignment**: Same storage strategy as V8U production apps
+- **Automatic Sync**: Browser ↔ Database synchronization
+
+#### **Enhanced Debugging**
+- **Server-Side Logging**: Comprehensive request/response logging
+- **Error Details**: Clear indication of missing required fields
+- **PingOne API Response**: Full upstream error details
+- **Request Validation**: Detailed request body logging
 
 ### Security Considerations
 - SMS is convenient but vulnerable to SIM swapping attacks
-- Use a trusted mobile carrier
-- Keep your phone number up to date
+- Use a trusted mobile carrier with good signal coverage
+- Keep your phone number up to date in your profile
+- Monitor for unexpected SMS messages
 
 ### Best Practices
-- Never share your OTP codes with anyone
-- Be aware of the expiration time (typically 5-10 minutes)
-- If you don't receive a code, check your phone signal and request a new one
+- **Never share OTP codes** with anyone
+- **Check signal strength** if codes don't arrive quickly
+- **Request resend** after 60-second cooldown if needed
+- **Monitor attempts** - maximum 3 attempts per session
+- **Codes expire** after 10 minutes for security
+
+### 🔍 Troubleshooting
+
+#### **Common Issues & Solutions**
+1. **400 Bad Request Error**
+   - ✅ **Fixed**: Worker token validation and parameter alignment
+   - Check worker token status in Worker Token UI
+
+2. **No Code Received**
+   - Verify phone signal strength
+   - Check phone number format (+1.xxx.xxx.xxxx)
+   - Request resend after 60-second cooldown
+
+3. **Code Expired**
+   - Codes expire after 10 minutes
+   - Request a new code via resend button
+
+4. **Data Persistence**
+   - Data now persists across browser sessions
+   - Automatic database backup and recovery
+
+### 🚀 Production Ready Features
+- **MFA-HUB Compatibility**: Identical to working implementation
+- **Database Persistence**: Survives browser clear/refresh
+- **Enhanced Error Handling**: Clear user feedback
+- **Comprehensive Logging**: Full debugging capabilities
+- **Worker Token Validation**: Pre-checks prevent API failures
 `,
 	requiredFields: ['phoneNumber', 'countryCode'],
 	optionalFields: ['deviceName', 'nickname'],

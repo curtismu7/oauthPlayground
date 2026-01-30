@@ -84,7 +84,7 @@ const DEVICE_CONFIGS = {
 		icon: '📱',
 		color: colors.primary,
 		instructions: 'Enter the 6-digit code sent to your mobile phone via SMS',
-		contextText: 'Codes expire after 10 minutes. Check your signal if you don\'t receive the code.',
+		contextText: 'Enhanced SMS with database persistence. Codes expire after 10 minutes. Check your signal if you don\'t receive the code.',
 		resendText: 'Resend SMS',
 	},
 	EMAIL: {
