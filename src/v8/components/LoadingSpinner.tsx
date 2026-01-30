@@ -47,9 +47,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 				}}
 			/>
 			{text && (
-				<p style={{ margin: 0, fontSize: '14px', color: '#6b7280', fontWeight: '500' }}>
-					{text}
-				</p>
+				<p style={{ margin: 0, fontSize: '14px', color: '#6b7280', fontWeight: '500' }}>{text}</p>
 			)}
 			<style>{`
         @keyframes spin {
