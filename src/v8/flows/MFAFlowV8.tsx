@@ -41,6 +41,8 @@
 
 import React, { Suspense, useState } from 'react';
 import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
+import { MFAErrorBoundary } from '@/v8/components/MFAErrorBoundary';
+import { MFAFlowSkeleton } from '@/v8/components/MFASkeletonLoader';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
@@ -126,13 +128,11 @@ export const MFAFlowV8: React.FC = () => {
 	if (useUnifiedFlow) {
 		console.log(`${MODULE_TAG} ✨ Using UNIFIED flow for ${deviceType}`);
 		return (
-			<Suspense
-				fallback={
-					<div style={{ padding: '40px', textAlign: 'center' }}>Loading unified flow...</div>
-				}
-			>
-				<UnifiedMFARegistrationFlowV8 deviceType={deviceType as DeviceConfigKey} />
-			</Suspense>
+			<MFAErrorBoundary>
+				<Suspense fallback={<MFAFlowSkeleton />}>
+					<UnifiedMFARegistrationFlowV8 deviceType={deviceType as DeviceConfigKey} />
+				</Suspense>
+			</MFAErrorBoundary>
 		);
 	}
 
@@ -141,11 +141,11 @@ export const MFAFlowV8: React.FC = () => {
 	const FlowComponent = MFAFlowComponentFactory.create(deviceType);
 
 	return (
-		<Suspense
-			fallback={<div style={{ padding: '40px', textAlign: 'center' }}>Loading flow...</div>}
-		>
-			<FlowComponent />
-		</Suspense>
+		<MFAErrorBoundary>
+			<Suspense fallback={<MFAFlowSkeleton />}>
+				<FlowComponent />
+			</Suspense>
+		</MFAErrorBoundary>
 	);
 };
 

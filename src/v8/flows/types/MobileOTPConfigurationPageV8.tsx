@@ -711,7 +711,8 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 				},
 			});
 		},
-		[navigate, credentials, tokenStatus.isValid, registrationFlowType, adminDeviceStatus, tokenStatus.token // Admin flow: any worker token enables the button]
+		// Admin flow: any worker token enables the button
+		[navigate, credentials, tokenStatus.isValid, registrationFlowType, adminDeviceStatus, tokenStatus.token]
 	);
 
 
