@@ -26,6 +26,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
 import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/deviceFlowConfigTypes';
+import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
 import { GlobalMFAProvider } from '@/v8/contexts/GlobalMFAContext';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
@@ -428,20 +429,40 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 	// If no device type selected, show device type selection screen
 	if (!selectedDeviceType) {
 		return (
-			<GlobalMFAProvider>
-				<MFACredentialProvider>
-					<DeviceTypeSelectionScreen onSelectDeviceType={setSelectedDeviceType} />
-				</MFACredentialProvider>
-			</GlobalMFAProvider>
+			<>
+				<MFAHeaderV8
+					title="MFA Unified Flow"
+					description="Register or authenticate MFA devices"
+					versionTag="V8"
+					currentPage="registration"
+					showBackToMain={true}
+					headerColor="purple"
+				/>
+				<GlobalMFAProvider>
+					<MFACredentialProvider>
+						<DeviceTypeSelectionScreen onSelectDeviceType={setSelectedDeviceType} />
+					</MFACredentialProvider>
+				</GlobalMFAProvider>
+			</>
 		);
 	}
 
 	return (
-		<GlobalMFAProvider>
-			<MFACredentialProvider>
-				<UnifiedMFARegistrationFlowContent {...props} deviceType={selectedDeviceType} />
-			</MFACredentialProvider>
-		</GlobalMFAProvider>
+		<>
+			<MFAHeaderV8
+				title="MFA Unified Flow"
+				description="Register or authenticate MFA devices"
+				versionTag="V8"
+				currentPage="registration"
+				showBackToMain={true}
+				headerColor="purple"
+			/>
+			<GlobalMFAProvider>
+				<MFACredentialProvider>
+					<UnifiedMFARegistrationFlowContent {...props} deviceType={selectedDeviceType} />
+				</MFACredentialProvider>
+			</GlobalMFAProvider>
+		</>
 	);
 };
 
