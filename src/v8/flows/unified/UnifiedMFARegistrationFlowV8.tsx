@@ -710,13 +710,11 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 			return (
 				<UnifiedSuccessStep
 					{...props}
-					deviceType={deviceType}
 					config={config}
-					onSuccess={onSuccess}
 				/>
 			);
 		},
-		[config, deviceType, onSuccess]
+		[config]
 	);
 
 	// ========================================================================
