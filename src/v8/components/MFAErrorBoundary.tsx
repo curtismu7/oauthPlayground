@@ -6,7 +6,7 @@
  */
 
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { FiAlertTriangle, FiRefreshCw, FiHome } from 'react-icons/fi';
+import { FiAlertTriangle, FiHome, FiRefreshCw } from 'react-icons/fi';
 
 interface Props {
 	children: ReactNode;
@@ -117,9 +117,7 @@ export class MFAErrorBoundary extends Component<Props, State> {
 									textAlign: 'left',
 								}}
 							>
-								<summary
-									style={{ cursor: 'pointer', fontWeight: '600', color: '#dc2626' }}
-								>
+								<summary style={{ cursor: 'pointer', fontWeight: '600', color: '#dc2626' }}>
 									Error Details (Dev Only)
 								</summary>
 								<pre

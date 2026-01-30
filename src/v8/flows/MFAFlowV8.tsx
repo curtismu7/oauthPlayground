@@ -40,9 +40,9 @@
  */
 
 import React, { Suspense, useState } from 'react';
-import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
 import { MFAErrorBoundary } from '@/v8/components/MFAErrorBoundary';
 import { MFAFlowSkeleton } from '@/v8/components/MFASkeletonLoader';
+import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
