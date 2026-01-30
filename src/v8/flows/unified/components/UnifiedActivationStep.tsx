@@ -29,6 +29,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { UnifiedOTPActivationTemplate } from './UnifiedOTPActivationTemplate';
 
 const MODULE_TAG = '[🔐 UNIFIED-ACTIVATION-STEP]';
 
@@ -121,10 +122,14 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 	}, []);
 
 	/**
-	 * Handle OTP validation
+	 * Handle OTP validation (device activation)
+	 *
+	 * IMPORTANT: For registration flows, we use activateDevice() not validateOTP()
+	 * - activateDevice(): Used after device registration to activate with OTP
+	 * - validateOTP(): Used for authentication flows with an existing active device
 	 */
 	const handleValidateOtp = useCallback(async () => {
-		console.log(`${MODULE_TAG} Validating OTP:`, otp);
+		console.log(`${MODULE_TAG} Activating device with OTP:`, otp);
 
 		if (!otp || otp.length !== 6) {
 			setOtpError('Please enter a valid 6-digit code');
@@ -134,25 +139,28 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 		setIsLoading(true);
 
 		try {
-			console.log(`${MODULE_TAG} Validating OTP via API`);
+			console.log(`${MODULE_TAG} Activating device via activateDevice API`);
 
-			// Validate OTP via MFAServiceV8
+			// Activate device via MFAServiceV8.activateDevice()
+			// This is the correct method for registration flows (not validateOTP)
 			const { MFAServiceV8 } = await import('@/v8/services/mfaServiceV8');
-			const workerToken = await MFAServiceV8.getWorkerToken();
-			const cleanToken = workerToken.trim().replace(/^Bearer\s+/i, '');
 
-			const result = await MFAServiceV8.validateOTP({
+			const result = await MFAServiceV8.activateDevice({
 				environmentId: credentials.environmentId,
-				deviceAuthId: mfaState.deviceId,
+				username: credentials.username,
+				deviceId: mfaState.deviceId,
 				otp,
-				workerToken: cleanToken,
-				otpCheckUrl: mfaState.otpCheckUrl,
 			});
 
-			if (!result.valid) {
-				throw new Error(result.message || 'Invalid OTP code');
+			// Check if activation was successful
+			// activateDevice returns the device object on success
+			const activationResult = result as Record<string, unknown>;
+			if (!result || activationResult.error) {
+				throw new Error(
+					String(activationResult.error || activationResult.message || 'Device activation failed')
+				);
 			}
-			console.log(`${MODULE_TAG} OTP validation successful:`, result);
+			console.log(`${MODULE_TAG} Device activation successful:`, result);
 
 			// Update MFA state with activation result
 			setMfaState((prev) => ({
@@ -172,13 +180,13 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 
 			// Increment validation attempts
 			setValidationAttempts((prev) => prev + 1);
-		} catch (error: any) {
-			console.error(`${MODULE_TAG} OTP validation failed:`, error);
+		} catch (error: unknown) {
+			console.error(`${MODULE_TAG} Device activation failed:`, error);
 
 			// Increment validation attempts
 			setValidationAttempts((prev) => prev + 1);
 
-			const errorMessage = error.message || 'Invalid OTP code';
+			const errorMessage = error instanceof Error ? error.message : 'Invalid OTP code';
 			setOtpError(errorMessage);
 
 			// Set validation errors in nav
@@ -195,41 +203,40 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 	}, [otp, mfaState, credentials, config, nav, setMfaState, setIsLoading]);
 
 	/**
-	 * Handle resend OTP
+	 * Handle resend OTP (resend pairing code for device activation)
+	 *
+	 * Uses resendPairingCode() which is the correct method for devices in ACTIVATION_REQUIRED state.
+	 * This is different from authentication flows which use initializeDeviceAuthentication().
 	 */
 	const handleResendOtp = useCallback(async () => {
-		console.log(`${MODULE_TAG} Resending OTP for device:`, mfaState.deviceId);
+		console.log(`${MODULE_TAG} Resending pairing code for device:`, mfaState.deviceId);
 
 		setIsLoading(true);
 		setCanResend(false);
 		setResendCooldown(60); // 60 second cooldown
 
 		try {
-			// Send OTP via MFAServiceV8
+			// Resend pairing code via MFAServiceV8.resendPairingCode()
+			// This is the correct method for registration activation flows
 			const { MFAServiceV8 } = await import('@/v8/services/mfaServiceV8');
-			const { deviceAuthId, otpCheckUrl } = await MFAServiceV8.sendOTP({
+			await MFAServiceV8.resendPairingCode({
 				environmentId: credentials.environmentId,
 				username: credentials.username,
 				deviceId: mfaState.deviceId,
 			});
 
-			console.log(`${MODULE_TAG} OTP resent successfully`, {
-				hasOtpCheckUrl: !!otpCheckUrl,
-				deviceAuthId,
-			});
-
-			console.log(`${MODULE_TAG} OTP resent successfully`);
+			console.log(`${MODULE_TAG} Pairing code resent successfully`);
 
 			// Show success toast
-			toastV8.success(`New ${config.displayName} OTP sent`);
+			toastV8.success(`New ${config.displayName} verification code sent`);
 
 			// Clear previous OTP and error
 			setOtp('');
 			setOtpError(null);
-		} catch (error: any) {
-			console.error(`${MODULE_TAG} Resend OTP failed:`, error);
+		} catch (error: unknown) {
+			console.error(`${MODULE_TAG} Resend pairing code failed:`, error);
 
-			const errorMessage = error.message || 'Failed to resend OTP';
+			const errorMessage = error instanceof Error ? error.message : 'Failed to resend verification code';
 			setOtpError(errorMessage);
 
 			// Show error toast
@@ -241,7 +248,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 		} finally {
 			setIsLoading(false);
 		}
-	}, [mfaState.deviceId, credentials.environmentId, config.displayName]);
+	}, [mfaState.deviceId, credentials.environmentId, credentials.username, config.displayName, setIsLoading]);
 
 	// ========================================================================
 	// RENDER LOGIC
@@ -288,67 +295,43 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 			);
 		}
 
-		// SMS, Email, WhatsApp, TOTP: Show OTP input
+		// SMS, Email, WhatsApp, TOTP: Use the unified OTP template
 		if (config.requiresOTP) {
 			return (
-				<div className="otp-activation">
-					<h3>Verify Your Device</h3>
-					<p className="instruction-text">
-						{config.deviceType === 'TOTP'
-							? 'Enter the 6-digit code from your authenticator app.'
-							: `Enter the 6-digit code sent to your ${config.displayName}.`}
-					</p>
-
-					{/* OTP Input */}
-					<div className="otp-input-container">
-						<label htmlFor="otp-input" className="otp-label">
-							One-Time Password
-						</label>
-						<input
-							id="otp-input"
-							type="text"
-							inputMode="numeric"
-							pattern="[0-9]*"
-							maxLength={6}
-							value={otp}
-							onChange={(e) => handleOtpChange(e.target.value)}
-							onKeyPress={(e) => {
-								if (e.key === 'Enter' && otp.length === 6) {
-									handleValidateOtp();
-								}
-							}}
-							disabled={isLoading}
-							placeholder="000000"
-							className={`otp-input ${otpError ? 'input-error' : ''}`}
-							aria-invalid={!!otpError}
-							aria-describedby={otpError ? 'otp-error' : undefined}
-						/>
-
-						{otpError && (
-							<span id="otp-error" className="error-message" role="alert">
-								{otpError}
-							</span>
-						)}
-
-						{validationAttempts > 0 && (
-							<p className="validation-attempts">Validation attempts: {validationAttempts}</p>
-						)}
-					</div>
-
-					{/* Resend OTP Button (not for TOTP) */}
-					{config.deviceType !== 'TOTP' && (
-						<div className="resend-section">
-							<button
-								type="button"
-								onClick={handleResendOtp}
-								disabled={!canResend || isLoading}
-								className="button-link"
-							>
-								{canResend ? 'Resend Code' : `Resend available in ${resendCooldown}s`}
-							</button>
-						</div>
-					)}
-				</div>
+				<UnifiedOTPActivationTemplate
+					deviceType={config.deviceType}
+					deviceDisplayName={config.displayName}
+					instructions={
+						config.deviceType === 'TOTP'
+							? 'Enter the current 6-digit code from your authenticator app'
+							: `Enter the 6-digit code sent to your ${config.displayName.toLowerCase()}`
+					}
+					contextText={
+						config.deviceType === 'TOTP'
+							? 'Codes refresh every 30 seconds. Wait for a new code if time is running out.'
+							: config.deviceType === 'SMS'
+							? 'Codes expire after 10 minutes. Check your signal if you don\'t receive the code.'
+							: config.deviceType === 'EMAIL'
+							? 'Check your spam folder if you don\'t see the email in your inbox.'
+							: config.deviceType === 'WHATSAPP'
+							? 'Make sure WhatsApp is installed and you have internet connectivity.'
+							: 'Listen carefully and have a pen ready. The code will be read twice.'
+					}
+					onValidateOtp={async (otpCode) => {
+						await handleValidateOtp();
+					}}
+					onResendOtp={async () => {
+						await handleResendOtp();
+					}}
+					isLoading={isLoading}
+					otpError={otpError}
+					canResend={canResend}
+					resendCooldown={resendCooldown}
+					otp={otp}
+					onOtpChange={handleOtpChange}
+					validationAttempts={validationAttempts}
+					maxAttempts={3}
+				/>
 			);
 		}
 
