@@ -182,7 +182,7 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 			</div>
 
 			{/* Device Details Card */}
-			<div className="device-details-card">
+			<div className="device-details">
 				<h3>Device Details</h3>
 
 				<div className="detail-row">
@@ -268,10 +268,25 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 			</div>
 
 			{/* Action Buttons */}
-			<div className="step-actions">
-				<button type="button" onClick={handleRegisterAnother} className="button-secondary">
+			<div className="action-buttons">
+				<button type="button" onClick={handleRegisterAnother} className="btn-secondary">
 					← Register Another Device
 				</button>
+
+				<a
+					href="https://apidocs.pingidentity.com/pingone/platform/v1/api/"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="btn-secondary"
+					style={{
+						display: 'inline-flex',
+						alignItems: 'center',
+						gap: '8px',
+						textDecoration: 'none',
+					}}
+				>
+					📚 View API Docs
+				</a>
 
 				<button
 					type="button"
@@ -279,7 +294,7 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 						console.log(`${MODULE_TAG} User finished registration flow`);
 						toastV8.success('Registration complete!');
 					}}
-					className="button-primary"
+					className="btn-primary"
 				>
 					Finish
 				</button>
