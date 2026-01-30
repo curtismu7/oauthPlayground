@@ -42,6 +42,7 @@ import { UnifiedConfigurationStepModern as UnifiedConfigurationStep } from './co
 import { UnifiedDeviceSelectionStepModern as UnifiedDeviceSelectionStep } from './components/UnifiedDeviceSelectionStep.modern';
 import { UnifiedRegistrationStep } from './components/UnifiedRegistrationStep';
 import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
+import { UnifiedDeviceRegistrationForm } from './components/UnifiedDeviceRegistrationForm';
 import './UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[🔄 UNIFIED-MFA-FLOW-V8]';
@@ -382,100 +383,15 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		);
 	}
 
-	// Registration flow - show device type selection
+	// Registration flow - show unified device registration form
 	return (
-		<div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
-			{/* Header */}
-			<div
-				style={{
-					background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
-					borderRadius: '12px',
-					padding: '28px 32px',
-					marginBottom: '28px',
-				}}
-			>
-				<button
-					type="button"
-					onClick={() => setFlowMode(null)}
-					style={{
-						background: 'rgba(255,255,255,0.2)',
-						border: 'none',
-						color: 'white',
-						padding: '6px 12px',
-						borderRadius: '6px',
-						cursor: 'pointer',
-						marginBottom: '12px',
-						fontSize: '13px',
-					}}
-				>
-					← Back
-				</button>
-				<h1 style={{ margin: '0 0 8px 0', fontSize: '26px', fontWeight: '700', color: '#ffffff' }}>
-					➕ Device Registration
-				</h1>
-				<p style={{ margin: 0, fontSize: '15px', color: 'rgba(255, 255, 255, 0.9)' }}>
-					Select the type of MFA device you want to register.
-				</p>
-			</div>
-
-			{/* Device Type Grid */}
-			<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-				{DEVICE_TYPES.map((device) => {
-					const enabled = isDeviceEnabled(device.key);
-					return (
-						<button
-							key={device.key}
-							type="button"
-							onClick={() => enabled && onSelectDeviceType(device.key)}
-							disabled={!enabled}
-							style={{
-								padding: '20px',
-								background: enabled ? '#ffffff' : '#f9fafb',
-								border: `2px solid ${enabled ? '#e5e7eb' : '#e5e7eb'}`,
-								borderRadius: '12px',
-								cursor: enabled ? 'pointer' : 'not-allowed',
-								textAlign: 'left',
-								transition: 'all 0.2s ease',
-								opacity: enabled ? 1 : 0.6,
-							}}
-							onMouseEnter={(e) => {
-								if (enabled) {
-									e.currentTarget.style.borderColor = '#10b981';
-									e.currentTarget.style.background = '#ecfdf5';
-									e.currentTarget.style.transform = 'translateY(-2px)';
-								}
-							}}
-							onMouseLeave={(e) => {
-								if (enabled) {
-									e.currentTarget.style.borderColor = '#e5e7eb';
-									e.currentTarget.style.background = '#ffffff';
-									e.currentTarget.style.transform = 'translateY(0)';
-								}
-							}}
-						>
-							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-								<span style={{ fontSize: '32px', lineHeight: 1 }}>{device.icon}</span>
-								<div style={{ flex: 1 }}>
-									<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-										<h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '600', color: enabled ? '#1f2937' : '#9ca3af' }}>
-											{device.name}
-										</h3>
-										{!enabled && (
-											<span style={{ fontSize: '10px', padding: '2px 6px', background: '#fef3c7', color: '#92400e', borderRadius: '4px', fontWeight: '600' }}>
-												Coming Soon
-											</span>
-										)}
-									</div>
-									<p style={{ margin: 0, fontSize: '13px', color: '#6b7280', lineHeight: '1.5' }}>
-										{device.description}
-									</p>
-								</div>
-							</div>
-						</button>
-					);
-				})}
-			</div>
-		</div>
+		<UnifiedDeviceRegistrationForm
+			onSubmit={(deviceType, fields) => {
+				console.log(`${MODULE_TAG} Device registration submitted:`, { deviceType, fields });
+				onSelectDeviceType(deviceType);
+			}}
+			onCancel={() => setFlowMode(null)}
+		/>
 	);
 };
 
