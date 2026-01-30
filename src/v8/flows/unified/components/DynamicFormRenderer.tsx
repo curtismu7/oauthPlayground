@@ -92,7 +92,8 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 		if (savedEmail && !values['email']) {
 			onChange('email', savedEmail);
 		}
-	}, []); // Only run on mount
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // Only run on mount - onChange is stable
 
 	// Save phone number to localStorage when it changes
 	useEffect(() => {
