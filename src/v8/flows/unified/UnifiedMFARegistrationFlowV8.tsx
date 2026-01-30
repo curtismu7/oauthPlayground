@@ -33,6 +33,7 @@ import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFATokenManagerV8 } from '@/v8/services/mfaTokenManagerV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
 import { UnifiedActivationStep } from './components/UnifiedActivationStep';
@@ -110,6 +111,9 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	onSelectDeviceType,
 }) => {
 	const [flowMode, setFlowMode] = useState<FlowMode | null>(null);
+	const [environmentId, setEnvironmentId] = useState('');
+	const [username, setUsername] = useState('');
+	const [selectedPolicyId, setSelectedPolicyId] = useState('');
 
 	// Step 1: Choose Registration or Authentication
 	if (!flowMode) {
@@ -131,6 +135,96 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					<p style={{ margin: 0, fontSize: '15px', color: 'rgba(255, 255, 255, 0.9)', lineHeight: '1.5' }}>
 						Choose what you want to do with MFA devices.
 					</p>
+				</div>
+
+				{/* Configuration Section */}
+				<div
+					style={{
+						background: '#ffffff',
+						borderRadius: '12px',
+						padding: '24px',
+						marginBottom: '28px',
+						border: '1px solid #e5e7eb',
+					}}
+				>
+					<h2 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#111827' }}>
+						Configuration
+					</h2>
+
+					{/* Environment ID */}
+					<div style={{ marginBottom: '20px' }}>
+						<label
+							htmlFor="env-id"
+							style={{
+								display: 'block',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '8px',
+							}}
+						>
+							Environment ID
+						</label>
+						<input
+							id="env-id"
+							type="text"
+							value={environmentId}
+							onChange={(e) => setEnvironmentId(e.target.value)}
+							placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+							style={{
+								width: '100%',
+								padding: '10px 12px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								fontSize: '14px',
+								boxSizing: 'border-box',
+							}}
+						/>
+					</div>
+
+					{/* Username */}
+					<div style={{ marginBottom: '20px' }}>
+						<label
+							htmlFor="username"
+							style={{
+								display: 'block',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '8px',
+							}}
+						>
+							Username
+						</label>
+						<input
+							id="username"
+							type="text"
+							value={username}
+							onChange={(e) => setUsername(e.target.value)}
+							placeholder="user@example.com"
+							style={{
+								width: '100%',
+								padding: '10px 12px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								fontSize: '14px',
+								boxSizing: 'border-box',
+							}}
+						/>
+					</div>
+
+					{/* Worker Token Status */}
+					<div style={{ marginBottom: '20px' }}>
+						<WorkerTokenUIServiceV8
+							mode="detailed"
+							showRefresh={true}
+							showStatusDisplay={true}
+							statusSize="large"
+							context="mfa"
+							environmentId={environmentId}
+							onEnvironmentIdUpdate={setEnvironmentId}
+						/>
+					</div>
 				</div>
 
 				{/* Flow Mode Selection */}
