@@ -4848,8 +4848,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															setShowRegistrationModal(false);
 															// Navigate to registration with the selected policy
 															// The registration flow will use credentials.deviceAuthenticationPolicyId
-															navigate(`/v8/mfa/register/${deviceType.toLowerCase()}`, {
+															navigate('/v8/mfa-unified', {
 																state: {
+																	deviceType: deviceType,
 																	deviceAuthenticationPolicyId:
 																		credentials.deviceAuthenticationPolicyId,
 																	policyName: selectedPolicy.name,
@@ -5438,15 +5439,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									type="button"
 									onClick={() => {
 										setShowRegistrationModal(false);
-										// Navigate to the appropriate registration page
-										const registrationRoutes = {
-											SMS: '/v8/mfa/register/sms',
-											EMAIL: '/v8/mfa/register/email',
-											WHATSAPP: '/v8/mfa/register/whatsapp',
-											TOTP: '/v8/mfa/register/totp',
-											FIDO2: '/v8/mfa/register/fido2',
-										};
-										navigate(registrationRoutes[deviceType]);
+										// Navigate to unified MFA registration flow
+										navigate('/v8/mfa-unified', {
+											state: { deviceType },
+										});
 									}}
 									style={{
 										padding: '12px 24px',

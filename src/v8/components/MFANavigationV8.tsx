@@ -14,7 +14,7 @@
  */
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { MFADocumentationModalV8 } from './MFADocumentationModalV8';
@@ -45,7 +45,26 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 	showBackToMain = true,
 }) => {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const [showDocsModal, setShowDocsModal] = useState(false);
+
+	// Check if we're on the unified MFA flow
+	const isUnifiedFlow = location.pathname.includes('/v8/mfa-unified');
+
+	const handleBackToMain = () => {
+		if (isUnifiedFlow) {
+			// If on unified flow, navigate to unified flow start (step 0)
+			navigate('/v8/mfa-unified', {
+				state: location.state,
+				replace: true
+			});
+			// Reload to reset to step 0
+			window.location.reload();
+		} else {
+			// Otherwise, navigate to MFA hub
+			navigateToMfaHubWithCleanup(navigate);
+		}
+	};
 
 	const handleRestartFlow = async () => {
 		if (!onRestartFlow) return;
@@ -91,9 +110,9 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 				>
 					<button
 						type="button"
-						onClick={() => navigateToMfaHubWithCleanup(navigate)}
+						onClick={handleBackToMain}
 						className={`nav-link-btn nav-btn-hub ${currentPage === 'hub' ? 'active' : ''}`}
-						title="Go to MFA Hub"
+						title={isUnifiedFlow ? 'Restart Unified Flow' : 'Go to MFA Hub'}
 						style={{
 							fontWeight: currentPage === 'hub' ? '600' : '500',
 							flex: 1,
@@ -103,7 +122,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 							boxShadow: currentPage === 'hub' ? '0 0 0 3px rgba(59, 130, 246, 0.3)' : 'none',
 						}}
 					>
-						🏠 MFA Hub
+						🏠 {isUnifiedFlow ? 'Restart Flow' : 'MFA Hub'}
 					</button>
 					<button
 						type="button"
@@ -198,10 +217,10 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 							🔄 Restart Flow
 						</button>
 					)}
-					{showBackToMain && (
+					{showBackToMain && !isUnifiedFlow && (
 						<button
 							type="button"
-							onClick={() => navigateToMfaHubWithCleanup(navigate)}
+							onClick={handleBackToMain}
 							className="nav-link-btn"
 							title="Back to MFA Hub"
 							style={{
