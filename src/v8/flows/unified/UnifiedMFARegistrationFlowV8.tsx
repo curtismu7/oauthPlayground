@@ -456,7 +456,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					</div>
 
 					{/* Worker Token Status */}
-					<div style={{ marginBottom: '20px' }}>
+					<div style={{ marginTop: '24px', marginBottom: '20px' }}>
 						<WorkerTokenUIServiceV8
 							mode="detailed"
 							showRefresh={true}
