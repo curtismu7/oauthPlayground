@@ -543,21 +543,11 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 	}
 
 	return (
-		<>
-			<MFAHeaderV8
-				title="MFA Unified Flow"
-				description="Register or authenticate MFA devices"
-				versionTag="V8"
-				currentPage="registration"
-				showBackToMain={true}
-				headerColor="purple"
-			/>
-			<GlobalMFAProvider>
-				<MFACredentialProvider>
-					<UnifiedMFARegistrationFlowContent {...props} deviceType={selectedDeviceType} />
-				</MFACredentialProvider>
-			</GlobalMFAProvider>
-		</>
+		<GlobalMFAProvider>
+			<MFACredentialProvider>
+				<UnifiedMFARegistrationFlowContent {...props} deviceType={selectedDeviceType} />
+			</MFACredentialProvider>
+		</GlobalMFAProvider>
 	);
 };
 
