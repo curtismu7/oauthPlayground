@@ -280,32 +280,9 @@ export class MfaAuthenticationServiceV8 {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'Cache-Control': 'no-cache',
-					Pragma: 'no-cache',
 				},
 				body: JSON.stringify(requestBody),
 			});
-
-			// Check if response is ok before parsing
-			if (!response.ok) {
-				console.error(`${MODULE_TAG} Initialize device authentication failed:`, {
-					status: response.status,
-					statusText: response.statusText,
-					url: '/api/pingone/mfa/initialize-device-authentication',
-				});
-				throw new Error(
-					`Failed to initialize device authentication: ${response.status} ${response.statusText}`
-				);
-			}
-
-			// Check if response has content
-			const contentLength = response.headers.get('content-length');
-			if (contentLength === '0') {
-				console.error(
-					`${MODULE_TAG} Empty response received from initialize device authentication`
-				);
-				throw new Error('Empty response received from server');
-			}
 
 			// Parse response once (clone first to avoid consuming the body)
 			const responseClone = response.clone();
@@ -392,7 +369,7 @@ export class MfaAuthenticationServiceV8 {
 						if (limitExceededDetail) {
 							const deliveryMethod = limitExceededDetail.innerError.deliveryMethod.toUpperCase();
 							const expiresAt = limitExceededDetail.innerError?.coolDownExpiresAt;
-
+							
 							// Get device type display name
 							const getDeviceTypeName = (method: string): string => {
 								const methodMap: Record<string, string> = {
@@ -404,10 +381,10 @@ export class MfaAuthenticationServiceV8 {
 								};
 								return methodMap[method] || method;
 							};
-
+							
 							const deviceTypeName = getDeviceTypeName(deliveryMethod);
 							let friendlyMessage = `${deviceTypeName} authentication is temporarily locked due to too many recent attempts. Please wait a few minutes and try again.`;
-
+							
 							if (expiresAt && typeof expiresAt === 'number') {
 								try {
 									const lockUntil = new Date(expiresAt);
@@ -420,8 +397,8 @@ export class MfaAuthenticationServiceV8 {
 									// If date conversion fails, fall back to generic message
 								}
 							}
-
-							const error = new Error(friendlyMessage) as Error & {
+							
+							const error = new Error(friendlyMessage) as Error & { 
 								errorCode?: string;
 								deliveryMethod?: string;
 								coolDownExpiresAt?: number;
@@ -457,21 +434,14 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(
-				error,
-				{
-					flowType: 'mfa' as any,
-					operation: 'initializeDeviceAuthentication',
-				},
-				{
-					logError: true,
-					showToast: false,
-				}
-			);
-			console.error(
-				`${MODULE_TAG} Error initializing device authentication:`,
-				parsed.userFriendlyMessage
-			);
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				flowType: 'mfa' as any,
+				operation: 'initializeDeviceAuthentication',
+			}, {
+				logError: true,
+				showToast: false,
+			});
+			console.error(`${MODULE_TAG} Error initializing device authentication:`, parsed.userFriendlyMessage);
 			throw error;
 		}
 	}
@@ -603,21 +573,14 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(
-				error,
-				{
-					flowType: 'mfa' as any,
-					operation: 'initializeOneTimeDeviceAuthentication',
-				},
-				{
-					logError: true,
-					showToast: false,
-				}
-			);
-			console.error(
-				`${MODULE_TAG} Error initializing one-time device authentication:`,
-				parsed.userFriendlyMessage
-			);
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				flowType: 'mfa' as any,
+				operation: 'initializeOneTimeDeviceAuthentication',
+			}, {
+				logError: true,
+				showToast: false,
+			});
+			console.error(`${MODULE_TAG} Error initializing one-time device authentication:`, parsed.userFriendlyMessage);
 			throw error;
 		}
 	}
@@ -741,21 +704,14 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(
-				error,
-				{
-					flowType: 'mfa' as any,
-					operation: 'readDeviceAuthentication',
-				},
-				{
-					logError: true,
-					showToast: false,
-				}
-			);
-			console.error(
-				`${MODULE_TAG} Error reading device authentication:`,
-				parsed.userFriendlyMessage
-			);
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				flowType: 'mfa' as any,
+				operation: 'readDeviceAuthentication',
+			}, {
+				logError: true,
+				showToast: false,
+			});
+			console.error(`${MODULE_TAG} Error reading device authentication:`, parsed.userFriendlyMessage);
 			throw error;
 		}
 	}
@@ -1039,7 +995,7 @@ export class MfaAuthenticationServiceV8 {
 						if (limitExceededDetail) {
 							const deliveryMethod = limitExceededDetail.innerError.deliveryMethod.toUpperCase();
 							const expiresAt = limitExceededDetail.innerError?.coolDownExpiresAt;
-
+							
 							// Get device type display name
 							const getDeviceTypeName = (method: string): string => {
 								const methodMap: Record<string, string> = {
@@ -1051,10 +1007,10 @@ export class MfaAuthenticationServiceV8 {
 								};
 								return methodMap[method] || method;
 							};
-
+							
 							const deviceTypeName = getDeviceTypeName(deliveryMethod);
 							let friendlyMessage = `${deviceTypeName} authentication is temporarily locked due to too many recent attempts. Please wait a few minutes and try again.`;
-
+							
 							if (expiresAt && typeof expiresAt === 'number') {
 								try {
 									const lockUntil = new Date(expiresAt);
@@ -1067,8 +1023,8 @@ export class MfaAuthenticationServiceV8 {
 									// If date conversion fails, fall back to generic message
 								}
 							}
-
-							const error = new Error(friendlyMessage) as Error & {
+							
+							const error = new Error(friendlyMessage) as Error & { 
 								errorCode?: string;
 								deliveryMethod?: string;
 								coolDownExpiresAt?: number;
@@ -1184,7 +1140,7 @@ export class MfaAuthenticationServiceV8 {
 		const autoRenewalEnabled = config.workerToken.autoRenewal;
 		const renewalThreshold = config.workerToken.renewalThreshold; // seconds before expiry
 
-		let workerToken = await workerTokenServiceV8.getToken();
+		const workerToken = await workerTokenServiceV8.getToken();
 
 		// Decode JWT to check expiry
 		let tokenExpiry: number | null = null;
@@ -1403,6 +1359,24 @@ export class MfaAuthenticationServiceV8 {
 				contentType = 'application/vnd.pingidentity.otp.check+json';
 				console.log(`${MODULE_TAG} Using otp.check URL from _links:`, endpoint);
 			} else {
+				// Get userId - use provided userId or look up by username
+				let userId: string;
+				if (params.userId) {
+					userId = params.userId;
+				} else if (params.username) {
+					const { MFAServiceV8 } = await import('./mfaServiceV8');
+					const user = await MFAServiceV8.lookupUserByUsername(
+						params.environmentId,
+						params.username
+					);
+					userId = user.id as string;
+				} else {
+					// No-username variant: Initialize device authentication without username/userId
+					// This requires a special request body structure
+					console.log(`${MODULE_TAG} Using no-username variant for device authentication`);
+					userId = ''; // Will be omitted from request body
+				}
+
 				// Fallback to direct endpoint - use custom domain if provided
 				// Per PingOne API: POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}/otp
 				// API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-validate-otp-for-device
@@ -1875,6 +1849,29 @@ export class MfaAuthenticationServiceV8 {
 				);
 			}
 
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					location: 'mfaAuthenticationServiceV8.ts:1724',
+					message: 'Assertion body structure check',
+					data: {
+						assertionType: typeof assertionBody.assertion,
+						isString: typeof assertionBody.assertion === 'string',
+						isObject: typeof assertionBody.assertion === 'object',
+						hasId: !!assertionBody.assertion?.id,
+						hasRawId: !!assertionBody.assertion?.rawId,
+						hasResponse: !!assertionBody.assertion?.response,
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'run1',
+					hypothesisId: 'A',
+				}),
+			}).catch(() => {});
+			// #endregion
+
 			// Build request body for backend proxy
 			// The backend will transform this into the PingOne API format
 			const backendRequestBody: {
@@ -1909,6 +1906,34 @@ export class MfaAuthenticationServiceV8 {
 			// Content-Type: application/vnd.pingidentity.assertion.check+json
 			// Note: The Content-Type header indicates this is an assertion check, not the URL path
 			const actualPingOneUrl = `${authPath}/${finalEnvironmentId}/deviceAuthentications/${deviceAuthId}`;
+
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					location: 'mfaAuthenticationServiceV8.ts:1774',
+					message: 'Request body before stringify',
+					data: {
+						requestBodyType: typeof backendRequestBody,
+						assertionType: typeof backendRequestBody.assertion,
+						isAssertionString: typeof backendRequestBody.assertion === 'string',
+						isAssertionObject:
+							typeof backendRequestBody.assertion === 'object' &&
+							backendRequestBody.assertion !== null,
+						assertionKeys:
+							typeof backendRequestBody.assertion === 'object' &&
+							backendRequestBody.assertion !== null
+								? Object.keys(backendRequestBody.assertion)
+								: [],
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'run1',
+					hypothesisId: 'B',
+				}),
+			}).catch(() => {});
+			// #endregion
 
 			// Build the request body that will be sent to PingOne (via backend proxy)
 			// This matches the PingOne API spec: { origin, assertion (as JSON string), compatibility }
@@ -1946,7 +1971,29 @@ export class MfaAuthenticationServiceV8 {
 				flowType: 'mfa',
 			});
 
+			// #region agent log
 			const stringifiedBody = JSON.stringify(backendRequestBody);
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					location: 'mfaAuthenticationServiceV8.ts:1802',
+					message: 'Request body after stringify',
+					data: {
+						stringifiedLength: stringifiedBody.length,
+						stringifiedPreview: stringifiedBody.substring(0, 200),
+						hasAssertionString: stringifiedBody.includes('"assertion"'),
+						assertionIsStringified:
+							stringifiedBody.includes('"assertion":"') ||
+							stringifiedBody.includes('"assertion": "'),
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'run1',
+					hypothesisId: 'C',
+				}),
+			}).catch(() => {});
+			// #endregion
 
 			const response = await pingOneFetch('/api/pingone/mfa/check-fido2-assertion', {
 				method: 'POST',
@@ -2006,7 +2053,7 @@ export class MfaAuthenticationServiceV8 {
 	 * This method attempts multiple strategies in order:
 	 * 1. Cancel the current authentication and re-initialize it (most reliable)
 	 * 2. Re-select the device (fallback, may not always trigger new OTP)
-	 *
+	 * 
 	 * @param params - Parameters for resending OTP
 	 * @returns Updated device authentication response with new OTP sent
 	 */
@@ -2048,10 +2095,7 @@ export class MfaAuthenticationServiceV8 {
 					}
 				);
 			} catch (readError) {
-				console.warn(
-					`${MODULE_TAG} Could not read device authentication, proceeding with re-select:`,
-					readError
-				);
+				console.warn(`${MODULE_TAG} Could not read device authentication, proceeding with re-select:`, readError);
 				// Fall through to re-select strategy
 				authData = {} as DeviceAuthenticationResponse;
 			}

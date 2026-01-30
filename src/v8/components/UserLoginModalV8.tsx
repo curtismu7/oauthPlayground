@@ -52,11 +52,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [clientId, setClientId] = useState('');
 	const [clientSecret, setClientSecret] = useState('');
 	const [redirectUri, setRedirectUri] = useState('');
-	// Check if we're in an MFA flow context (for adding p1:create:device scope)
+	// Check if we're in an MFA flow context (for adding p1:update:device scope)
 	const isMfaFlow = location.pathname.startsWith('/v8/mfa');
 
-	// Default scopes: include p1:create:device for MFA flows
-	const defaultScopesForMfa = 'openid profile email p1:create:device';
+	// Default scopes: include p1:update:device for MFA flows
+	const defaultScopesForMfa = 'openid profile email p1:update:device';
 	const defaultScopesForOther = 'openid profile email';
 	const [scopes, setScopes] = useState(isMfaFlow ? defaultScopesForMfa : defaultScopesForOther);
 	const [isRedirecting, setIsRedirecting] = useState(false);
@@ -142,9 +142,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				includeScopes: true,
 			});
 
-			// Default scopes: include p1:create:device for MFA flows
+			// Default scopes: include p1:update:device for MFA flows
 			const defaultScopes = isMfaFlow
-				? 'openid profile email p1:create:device'
+				? 'openid profile email p1:update:device'
 				: 'openid profile email';
 
 			// Use different default redirect URI for MFA flows
@@ -190,11 +190,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 				previousRedirectUriRef.current = initialRedirectUri;
 
-				// If saved scopes don't include p1:create:device and we're in MFA flow, add it
+				// If saved scopes don't include p1:update:device and we're in MFA flow, add it
 				const savedScopes = saved.scopes || defaultScopes;
 				const finalScopes =
-					isMfaFlow && !savedScopes.includes('p1:create:device')
-						? `${savedScopes} p1:create:device`.trim()
+					isMfaFlow && !savedScopes.includes('p1:update:device')
+						? `${savedScopes} p1:update:device`.trim()
 						: savedScopes || defaultScopes;
 				setScopes(finalScopes);
 			} else {
@@ -218,9 +218,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		(token: string) => {
 			onTokenReceived?.(token);
 			toastV8.success('Access token received successfully!');
-			onClose();
+			// Don't auto-close modal - let parent component decide when to close
 		},
-		[onTokenReceived, onClose]
+		[onTokenReceived]
 	);
 
 	// Track processed codes to prevent duplicate processing (authorization codes are single-use)
@@ -1014,10 +1014,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			return;
 		}
 
-		// Validate that p1:create:device scope is included for MFA flows
-		if (isMfaFlow && !scopes.includes('p1:create:device')) {
+		// Validate that p1:update:device scope is included for MFA flows
+		if (isMfaFlow && !scopes.includes('p1:update:device')) {
 			toastV8.error(
-				'For MFA user flow, the access token must include the p1:create:device scope. Please add it to the scopes field.'
+				'For MFA user flow, the access token must include the p1:update:device scope. Please add it to the scopes field.'
 			);
 			return;
 		}
@@ -1776,22 +1776,22 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								value={scopes}
 								onChange={(e) => setScopes(e.target.value)}
 								placeholder={
-									isMfaFlow ? 'openid profile email p1:create:device' : 'openid profile email'
+									isMfaFlow ? 'openid profile email p1:update:device' : 'openid profile email'
 								}
 								style={{
 									width: '100%',
 									padding: '10px 12px',
 									border:
-										isMfaFlow && !scopes.includes('p1:create:device')
+										isMfaFlow && !scopes.includes('p1:update:device')
 											? '2px solid #f59e0b'
 											: '1px solid #d1d5db',
 									borderRadius: '6px',
 									fontSize: '14px',
 									background:
-										isMfaFlow && !scopes.includes('p1:create:device') ? '#fffbeb' : 'white',
+										isMfaFlow && !scopes.includes('p1:update:device') ? '#fffbeb' : 'white',
 								}}
 							/>
-							{isMfaFlow && !scopes.includes('p1:create:device') ? (
+							{isMfaFlow && !scopes.includes('p1:update:device') ? (
 								<div
 									style={{
 										marginTop: '8px',
@@ -1813,7 +1813,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 											fontWeight: '600',
 										}}
 									>
-										p1:create:device
+										p1:update:device
 									</code>{' '}
 									scope.
 									<br />
@@ -1821,9 +1821,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 										type="button"
 										onClick={() => {
 											const currentScopes = scopes.trim();
-											const hasScope = currentScopes.includes('p1:create:device');
+											const hasScope = currentScopes.includes('p1:update:device');
 											if (!hasScope) {
-												setScopes(`${currentScopes} p1:create:device`.trim());
+												setScopes(`${currentScopes} p1:update:device`.trim());
 											}
 										}}
 										style={{
@@ -1838,7 +1838,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 											cursor: 'pointer',
 										}}
 									>
-										+ Add p1:create:device scope
+										+ Add p1:update:device scope
 									</button>
 								</div>
 							) : (
@@ -1846,7 +1846,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
 								>
 									{isMfaFlow
-										? 'Space-separated list of OAuth scopes. Must include p1:create:device for MFA user flow.'
+										? 'Space-separated list of OAuth scopes. Must include p1:update:device for MFA user flow.'
 										: 'Space-separated list of OAuth scopes (openid is required for OIDC)'}
 								</small>
 							)}
