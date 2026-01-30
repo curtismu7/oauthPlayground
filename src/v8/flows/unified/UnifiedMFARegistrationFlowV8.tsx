@@ -631,15 +631,9 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	 * Render Step 0: Configuration (SKIPPED - username already collected)
 	 */
 	const renderStep0 = useCallback(
-		(props: MFAFlowBaseRenderProps) => {
+		(_props: MFAFlowBaseRenderProps) => {
 			// Skip this step - username is already collected in the initial form
-			// Automatically advance to device selection
-			React.useEffect(() => {
-				if (props.nav.currentStep === 0) {
-					props.nav.goToNext();
-				}
-			}, [props.nav]);
-			
+			// The skip logic is handled by the useEffect at line 583-588
 			return null;
 		},
 		[]
