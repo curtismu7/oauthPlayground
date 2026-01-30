@@ -35,6 +35,7 @@ import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
 import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { MFATokenManagerV8 } from '@/v8/services/mfaTokenManagerV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
@@ -810,49 +811,45 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 								...fields,
 							}));
 							
-							// Register the device
-							const registerResponse = await fetch('/api/pingone/mfa/register-device', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									environmentId: props.credentials.environmentId,
-									username: props.credentials.username,
-									deviceType,
-									...fields,
-									flowType,
-								}),
-							});
-							
-							if (!registerResponse.ok) {
-								const error = await registerResponse.json();
-								throw new Error(error.error || 'Device registration failed');
-							}
-							
-							const registerData = await registerResponse.json();
-							console.log('[UNIFIED-FLOW] Device registered:', registerData);
+							// Register the device using proper API call
+							const deviceParams = {
+								environmentId: props.credentials.environmentId,
+								username: props.credentials.username,
+								type: deviceType,
+								// Set token type based on flow type
+								tokenType: flowType === 'user' ? 'user' : 'worker',
+								// Include user token for user flow
+								...(flowType === 'user' && props.credentials.userToken
+									? { userToken: props.credentials.userToken }
+									: {}),
+								// Set device status based on flow type
+								status: flowType === 'admin' ? 'ACTIVE' : 'ACTIVATION_REQUIRED',
+								// Include device-specific fields
+								...fields,
+							};
+
+							console.log('[UNIFIED-FLOW] Registering device with params:', deviceParams);
+
+							const result = await MFAServiceV8.registerDevice(deviceParams);
+							console.log('[UNIFIED-FLOW] Device registered:', result);
 							
 							// Update MFA state with device info
 							props.setMfaState((prev) => ({
 								...prev,
-								deviceId: registerData.id,
-								status: registerData.status,
+								deviceId: result.deviceId,
+								deviceStatus: result.status,
+								// Store device.activate URI for activation if present
+								...((result as any).deviceActivateUri ? { deviceActivateUri: (result as any).deviceActivateUri } : {}),
 							}));
 							
-							// For admin_activation_required, automatically send OTP
-							if (flowType === 'admin_activation_required' && registerData.status === 'ACTIVATION_REQUIRED') {
-								console.log('[UNIFIED-FLOW] Sending OTP for activation...');
-								const otpResponse = await fetch('/api/pingone/mfa/send-otp', {
-									method: 'POST',
-									headers: { 'Content-Type': 'application/json' },
-									body: JSON.stringify({
-										environmentId: props.credentials.environmentId,
-										deviceId: registerData.id,
-									}),
-								});
-								
-								if (otpResponse.ok) {
-									toastV8.success('OTP sent! Check your device for the verification code.');
-								}
+							// Handle flow-specific logic based on device status
+							if (result.status === 'ACTIVE') {
+								// Admin flow with ACTIVE status - device is ready to use
+								toastV8.success(`${config.displayName} device registered successfully! Device is ready to use.`);
+							} else if (result.status === 'ACTIVATION_REQUIRED') {
+								// Device requires activation - PingOne automatically sends OTP
+								// This applies to both admin_activation_required and user flow
+								toastV8.success(`${config.displayName} device registered! OTP has been sent automatically.`);
 							}
 							
 							// Navigate to activation step
