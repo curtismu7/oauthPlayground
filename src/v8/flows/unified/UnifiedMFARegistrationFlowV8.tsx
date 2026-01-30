@@ -787,21 +787,9 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	// ========================================================================
 
 	/**
-	 * Render Step 0: Configuration (SKIPPED - username already collected)
+	 * Render Step 0: Device Selection (was Step 1)
 	 */
 	const renderStep0 = useCallback(
-		(_props: MFAFlowBaseRenderProps) => {
-			// Skip this step - username is already collected in the initial form
-			// The skip logic is handled by the useEffect at line 583-588
-			return null;
-		},
-		[]
-	);
-
-	/**
-	 * Render Step 1: Device Selection
-	 */
-	const renderStep1 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
 			return <UnifiedDeviceSelectionStep {...props} deviceType={deviceType} config={config} />;
 		},
@@ -809,29 +797,29 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	);
 
 	/**
-	 * Render Step 2: Device Registration
+	 * Render Step 1: Registration (was Step 2)
+	 */
+	const renderStep1 = useCallback(
+		(props: MFAFlowBaseRenderProps) => {
+			return <UnifiedRegistrationStep {...props} config={config} />;
+		},
+		[config]
+	);
+
+	/**
+	 * Render Step 2: Activation (was Step 3)
 	 */
 	const renderStep2 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
-			return <UnifiedRegistrationStep {...props} deviceType={deviceType} config={config} />;
+			return <UnifiedActivationStep {...props} config={config} />;
 		},
-		[config, deviceType]
+		[config]
 	);
 
 	/**
-	 * Render Step 3: Activation
+	 * Render Step 3: Success (was Step 4)
 	 */
 	const renderStep3 = useCallback(
-		(props: MFAFlowBaseRenderProps) => {
-			return <UnifiedActivationStep {...props} deviceType={deviceType} config={config} />;
-		},
-		[config, deviceType]
-	);
-
-	/**
-	 * Render Step 4: Success
-	 */
-	const renderStep4 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
 			return (
 				<UnifiedSuccessStep
@@ -843,13 +831,22 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 		[config]
 	);
 
+	/**
+	 * Render Step 4: Not used (removed blank step)
+	 */
+	const renderStep4 = useCallback(
+		(_props: MFAFlowBaseRenderProps) => {
+			return null;
+		},
+		[]
+	);
+
 	// ========================================================================
 	// STEP LABELS
 	// ========================================================================
 
 	const stepLabels = useMemo(
 		() => [
-			'', // Skip configuration step (username already collected)
 			'Select Device',
 			`Register ${config.displayName}`,
 			config.requiresOTP ? 'Activate (OTP)' : 'Activate',
