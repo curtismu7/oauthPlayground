@@ -35,8 +35,10 @@ const DEVICE_TABS: DeviceTypeTab[] = [
 	{ key: 'FIDO2', icon: '🔑', label: 'Security Key', description: 'Hardware key/passkey' },
 ];
 
+type FlowType = 'admin' | 'admin_activation_required' | 'user';
+
 export interface UnifiedDeviceRegistrationFormProps {
-	onSubmit: (deviceType: DeviceConfigKey, fields: Record<string, string>) => void;
+	onSubmit: (deviceType: DeviceConfigKey, fields: Record<string, string>, flowType: FlowType) => void;
 	onCancel: () => void;
 	isLoading?: boolean;
 }
@@ -47,6 +49,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 	isLoading = false,
 }) => {
 	const [selectedTab, setSelectedTab] = useState<DeviceConfigKey>('SMS');
+	const [flowType, setFlowType] = useState<FlowType>('admin');
 	const [deviceFields, setDeviceFields] = useState<Record<DeviceConfigKey, Record<string, string>>>({
 		SMS: {},
 		EMAIL: {},
@@ -78,7 +81,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 	}, [selectedTab, errors]);
 
 	const handleSubmit = useCallback(() => {
-		console.log(`${MODULE_TAG} Submitting registration for:`, selectedTab);
+		console.log(`${MODULE_TAG} Submitting registration for:`, selectedTab, 'Flow type:', flowType);
 		const fields = deviceFields[selectedTab];
 		
 		// Basic validation
@@ -96,8 +99,8 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 			return;
 		}
 
-		onSubmit(selectedTab, fields);
-	}, [selectedTab, deviceFields, config, onSubmit]);
+		onSubmit(selectedTab, fields, flowType);
+	}, [selectedTab, deviceFields, config, onSubmit, flowType]);
 
 	return (
 		<PageTransition>
@@ -110,6 +113,118 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 					<p style={{ margin: 0, fontSize: '14px', color: colors.neutral[600] }}>
 						Select a device type and enter the required information
 					</p>
+				</div>
+
+				{/* Flow Type Selection */}
+				<div
+					style={{
+						background: '#ffffff',
+						border: `1px solid ${colors.neutral[200]}`,
+						borderRadius: '12px',
+						padding: spacing.lg,
+						marginBottom: spacing.xl,
+					}}
+				>
+					<h3 style={{ margin: `0 0 ${spacing.md}`, fontSize: '16px', fontWeight: '600', color: colors.neutral[900] }}>
+						Registration Flow Type
+					</h3>
+					<div style={{ display: 'flex', flexDirection: 'column', gap: spacing.md }}>
+						{/* Admin Flow */}
+						<label
+							style={{
+								display: 'flex',
+								alignItems: 'flex-start',
+								gap: spacing.sm,
+								padding: spacing.md,
+								border: `2px solid ${flowType === 'admin' ? colors.primary[500] : colors.neutral[200]}`,
+								borderRadius: '8px',
+								cursor: 'pointer',
+								background: flowType === 'admin' ? colors.primary[50] : 'transparent',
+								transition: 'all 0.2s ease',
+							}}
+						>
+							<input
+								type="radio"
+								name="flowType"
+								value="admin"
+								checked={flowType === 'admin'}
+								onChange={(e) => setFlowType(e.target.value as FlowType)}
+								style={{ marginTop: '2px', cursor: 'pointer' }}
+							/>
+							<div>
+								<div style={{ fontWeight: '600', color: colors.neutral[900], marginBottom: '4px' }}>
+									Admin Flow (Direct Registration)
+								</div>
+								<div style={{ fontSize: '13px', color: colors.neutral[600] }}>
+									Register device directly as admin. Device is immediately active and ready to use.
+								</div>
+							</div>
+						</label>
+
+						{/* Admin with Activation Required */}
+						<label
+							style={{
+								display: 'flex',
+								alignItems: 'flex-start',
+								gap: spacing.sm,
+								padding: spacing.md,
+								border: `2px solid ${flowType === 'admin_activation_required' ? colors.primary[500] : colors.neutral[200]}`,
+								borderRadius: '8px',
+								cursor: 'pointer',
+								background: flowType === 'admin_activation_required' ? colors.primary[50] : 'transparent',
+								transition: 'all 0.2s ease',
+							}}
+						>
+							<input
+								type="radio"
+								name="flowType"
+								value="admin_activation_required"
+								checked={flowType === 'admin_activation_required'}
+								onChange={(e) => setFlowType(e.target.value as FlowType)}
+								style={{ marginTop: '2px', cursor: 'pointer' }}
+							/>
+							<div>
+								<div style={{ fontWeight: '600', color: colors.neutral[900], marginBottom: '4px' }}>
+									Admin Flow with Activation Required
+								</div>
+								<div style={{ fontSize: '13px', color: colors.neutral[600] }}>
+									Register device as admin, but require user activation (OTP verification) before it's active.
+								</div>
+							</div>
+						</label>
+
+						{/* User Flow */}
+						<label
+							style={{
+								display: 'flex',
+								alignItems: 'flex-start',
+								gap: spacing.sm,
+								padding: spacing.md,
+								border: `2px solid ${flowType === 'user' ? colors.primary[500] : colors.neutral[200]}`,
+								borderRadius: '8px',
+								cursor: 'pointer',
+								background: flowType === 'user' ? colors.primary[50] : 'transparent',
+								transition: 'all 0.2s ease',
+							}}
+						>
+							<input
+								type="radio"
+								name="flowType"
+								value="user"
+								checked={flowType === 'user'}
+								onChange={(e) => setFlowType(e.target.value as FlowType)}
+								style={{ marginTop: '2px', cursor: 'pointer' }}
+							/>
+							<div>
+								<div style={{ fontWeight: '600', color: colors.neutral[900], marginBottom: '4px' }}>
+									User Flow (PingOne Authentication)
+								</div>
+								<div style={{ fontSize: '13px', color: colors.neutral[600] }}>
+									User registers their own device. Redirects to PingOne for authentication before registration.
+								</div>
+							</div>
+						</label>
+					</div>
 				</div>
 
 				{/* Device Type Tabs */}
