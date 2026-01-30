@@ -275,19 +275,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						/>
 					</div>
 
-					{/* Worker Token Status */}
-					<div style={{ marginBottom: '20px' }}>
-						<WorkerTokenUIServiceV8
-							mode="detailed"
-							showRefresh={true}
-							showStatusDisplay={true}
-							statusSize="large"
-							context="mfa"
-							environmentId={environmentId}
-							onEnvironmentIdUpdate={setEnvironmentId}
-						/>
-					</div>
-
 					{/* MFA Policy Dropdown */}
 					<div style={{ marginBottom: '20px' }}>
 						<label
@@ -348,6 +335,19 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						>
 							Select the MFA policy to use for device registration
 						</span>
+					</div>
+
+					{/* Worker Token Status */}
+					<div style={{ marginBottom: '20px' }}>
+						<WorkerTokenUIServiceV8
+							mode="detailed"
+							showRefresh={true}
+							showStatusDisplay={true}
+							statusSize="large"
+							context="mfa"
+							environmentId={environmentId}
+							onEnvironmentIdUpdate={setEnvironmentId}
+						/>
 					</div>
 				</div>
 
