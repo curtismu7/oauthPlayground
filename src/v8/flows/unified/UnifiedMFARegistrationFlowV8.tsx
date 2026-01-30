@@ -69,6 +69,167 @@ export interface UnifiedMFARegistrationFlowV8Props {
 }
 
 // ============================================================================
+// DEVICE TYPE SELECTION SCREEN
+// ============================================================================
+
+const DEVICE_TYPES: { key: DeviceConfigKey; icon: string; name: string; description: string }[] = [
+	{
+		key: 'SMS',
+		icon: '📱',
+		name: 'SMS',
+		description: 'Receive OTP codes via text message',
+	},
+	{
+		key: 'Email',
+		icon: '✉️',
+		name: 'Email',
+		description: 'Receive OTP codes via email',
+	},
+	{
+		key: 'TOTP',
+		icon: '🔐',
+		name: 'Authenticator App (TOTP)',
+		description: 'Use Google Authenticator, Authy, or similar',
+	},
+	{
+		key: 'MobileApplication',
+		icon: '📲',
+		name: 'Mobile Push',
+		description: 'Receive push notifications on your phone',
+	},
+	{
+		key: 'WhatsApp',
+		icon: '💬',
+		name: 'WhatsApp',
+		description: 'Receive OTP codes via WhatsApp',
+	},
+	{
+		key: 'FIDO2',
+		icon: '🔑',
+		name: 'Security Key (FIDO2)',
+		description: 'Use a hardware security key or passkey',
+	},
+];
+
+interface DeviceTypeSelectionScreenProps {
+	onSelectDeviceType: (deviceType: DeviceConfigKey) => void;
+}
+
+const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
+	onSelectDeviceType,
+}) => {
+	return (
+		<div
+			style={{
+				maxWidth: '900px',
+				margin: '0 auto',
+				padding: '24px',
+			}}
+		>
+			{/* Header */}
+			<div
+				style={{
+					background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+					borderRadius: '12px',
+					padding: '28px 32px',
+					marginBottom: '28px',
+					boxShadow: '0 4px 12px rgba(139, 92, 246, 0.2)',
+				}}
+			>
+				<h1
+					style={{
+						margin: '0 0 8px 0',
+						fontSize: '26px',
+						fontWeight: '700',
+						color: '#ffffff',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '12px',
+					}}
+				>
+					🔐 MFA Device Registration
+				</h1>
+				<p
+					style={{
+						margin: 0,
+						fontSize: '15px',
+						color: 'rgba(255, 255, 255, 0.9)',
+						lineHeight: '1.5',
+					}}
+				>
+					Select the type of MFA device you want to register for your account.
+				</p>
+			</div>
+
+			{/* Device Type Grid */}
+			<div
+				style={{
+					display: 'grid',
+					gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+					gap: '16px',
+				}}
+			>
+				{DEVICE_TYPES.map((device) => (
+					<button
+						key={device.key}
+						type="button"
+						onClick={() => onSelectDeviceType(device.key)}
+						style={{
+							padding: '20px',
+							background: '#ffffff',
+							border: '2px solid #e5e7eb',
+							borderRadius: '12px',
+							cursor: 'pointer',
+							textAlign: 'left',
+							transition: 'all 0.2s ease',
+							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.borderColor = '#8b5cf6';
+							e.currentTarget.style.background = '#faf5ff';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.15)';
+							e.currentTarget.style.transform = 'translateY(-2px)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.borderColor = '#e5e7eb';
+							e.currentTarget.style.background = '#ffffff';
+							e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
+							e.currentTarget.style.transform = 'translateY(0)';
+						}}
+					>
+						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+							<span style={{ fontSize: '32px', lineHeight: 1 }}>{device.icon}</span>
+							<div style={{ flex: 1 }}>
+								<h3
+									style={{
+										margin: '0 0 6px 0',
+										fontSize: '16px',
+										fontWeight: '600',
+										color: '#1f2937',
+									}}
+								>
+									{device.name}
+								</h3>
+								<p
+									style={{
+										margin: 0,
+										fontSize: '13px',
+										color: '#6b7280',
+										lineHeight: '1.5',
+									}}
+								>
+									{device.description}
+								</p>
+							</div>
+						</div>
+					</button>
+				))}
+			</div>
+		</div>
+	);
+};
+
+// ============================================================================
 // MAIN COMPONENT (WRAPPER)
 // ============================================================================
 
@@ -82,15 +243,29 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 ) => {
 	const location = useLocation();
 
-	// Get device type from props or location state
-	const deviceType =
-		props.deviceType || (location.state as { deviceType?: DeviceConfigKey })?.deviceType || 'SMS';
+	// Get device type from props or location state (can be undefined)
+	const initialDeviceType =
+		props.deviceType || (location.state as { deviceType?: DeviceConfigKey })?.deviceType;
 
-	console.log(`${MODULE_TAG} Initializing unified flow for device type:`, deviceType);
+	// State for selected device type (allows user to select if not provided)
+	const [selectedDeviceType, setSelectedDeviceType] = useState<DeviceConfigKey | undefined>(
+		initialDeviceType
+	);
+
+	console.log(`${MODULE_TAG} Initializing unified flow for device type:`, selectedDeviceType);
+
+	// If no device type selected, show device type selection screen
+	if (!selectedDeviceType) {
+		return (
+			<MFACredentialProvider>
+				<DeviceTypeSelectionScreen onSelectDeviceType={setSelectedDeviceType} />
+			</MFACredentialProvider>
+		);
+	}
 
 	return (
 		<MFACredentialProvider>
-			<UnifiedMFARegistrationFlowContent {...props} deviceType={deviceType} />
+			<UnifiedMFARegistrationFlowContent {...props} deviceType={selectedDeviceType} />
 		</MFACredentialProvider>
 	);
 };
