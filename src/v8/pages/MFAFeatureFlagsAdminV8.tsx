@@ -6,37 +6,95 @@
  * @since 2026-01-29
  */
 
-import React, { useEffect, useState } from 'react';
-import { FiFlag, FiRefreshCw, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FiArrowLeft, FiFlag, FiRefreshCw, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
 import {
 	type MFAFeatureFlag,
 	MFAFeatureFlagsV8,
 	type RolloutPercentage,
 } from '../services/mfaFeatureFlagsV8';
+import {
+	disableUnifiedFlowForAll,
+	disableUnifiedFlowForDevice,
+	enableUnifiedFlowForAll,
+	enableUnifiedFlowForDevice,
+} from '../utils/mfaFeatureFlagHelpers';
 
 export const MFAFeatureFlagsAdminV8: React.FC = () => {
+	const navigate = useNavigate();
 	const [flags, setFlags] = useState(MFAFeatureFlagsV8.getAllFlags());
 	const [summary, setSummary] = useState(MFAFeatureFlagsV8.getFlagsSummary());
+	const [isUpdating, setIsUpdating] = useState(false);
 
-	const refreshFlags = () => {
+	// Use useCallback to prevent unnecessary re-renders
+	const refreshFlags = useCallback(() => {
+		setIsUpdating(true);
 		setFlags(MFAFeatureFlagsV8.getAllFlags());
 		setSummary(MFAFeatureFlagsV8.getFlagsSummary());
-	};
+		setTimeout(() => setIsUpdating(false), 300);
+	}, []);
 
+	// Initial load
 	useEffect(() => {
 		refreshFlags();
 	}, [refreshFlags]);
 
+	// Real-time updates: polling and multi-tab sync
+	useEffect(() => {
+		// Poll for changes every 5 seconds
+		const pollInterval = setInterval(() => {
+			refreshFlags();
+		}, 5000);
+
+		// Listen for storage changes (multi-tab support)
+		const handleStorageChange = (e: StorageEvent) => {
+			if (e.key === 'mfa_feature_flags_v8') {
+				console.log('[MFA-FLAGS-ADMIN] Flags changed in another tab, refreshing...');
+				refreshFlags();
+			}
+		};
+
+		window.addEventListener('storage', handleStorageChange);
+
+		return () => {
+			clearInterval(pollInterval);
+			window.removeEventListener('storage', handleStorageChange);
+		};
+	}, [refreshFlags]);
+
+	// Use Phase 8 helper utilities for consistency
 	const toggleFlag = (flag: MFAFeatureFlag) => {
+		const deviceType = flag.replace('mfa_unified_', '').toUpperCase();
 		const current = MFAFeatureFlagsV8.getFlagState(flag);
-		MFAFeatureFlagsV8.setFlag(flag, !current.enabled, current.rolloutPercentage);
+
+		if (current.enabled) {
+			disableUnifiedFlowForDevice(deviceType);
+		} else {
+			enableUnifiedFlowForDevice(deviceType, current.rolloutPercentage || 100);
+		}
 		refreshFlags();
 	};
 
 	const setRollout = (flag: MFAFeatureFlag, percentage: RolloutPercentage) => {
-		const current = MFAFeatureFlagsV8.getFlagState(flag);
-		MFAFeatureFlagsV8.setFlag(flag, current.enabled, percentage);
+		const deviceType = flag.replace('mfa_unified_', '').toUpperCase();
+		enableUnifiedFlowForDevice(deviceType, percentage);
 		refreshFlags();
+	};
+
+	// Bulk operations using Phase 8 helpers
+	const handleEnableAll = (percentage: RolloutPercentage) => {
+		if (confirm(`Enable all devices at ${percentage}% rollout?`)) {
+			enableUnifiedFlowForAll(percentage);
+			refreshFlags();
+		}
+	};
+
+	const handleDisableAll = () => {
+		if (confirm('Disable all devices (emergency rollback)?')) {
+			disableUnifiedFlowForAll();
+			refreshFlags();
+		}
 	};
 
 	const resetAll = () => {
@@ -59,14 +117,67 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 						boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
 					}}
 				>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
-						<FiFlag size={32} color="white" />
-						<h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: 'white' }}>
-							MFA Feature Flags Admin
-						</h1>
+					<div
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'space-between',
+							marginBottom: '12px',
+						}}
+					>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+							<FiFlag size={32} color="white" />
+							<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+								<h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: 'white' }}>
+									MFA Feature Flags Admin
+								</h1>
+								{isUpdating && (
+									<div
+										style={{
+											display: 'inline-block',
+											padding: '4px 12px',
+											background: 'rgba(255, 255, 255, 0.2)',
+											borderRadius: '12px',
+											fontSize: '12px',
+											color: 'white',
+											fontWeight: '600',
+										}}
+									>
+										Updating...
+									</div>
+								)}
+							</div>
+						</div>
+						<button
+							type="button"
+							onClick={() => navigate('/v8/mfa-hub')}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+							}}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								padding: '10px 20px',
+								border: '1px solid rgba(255, 255, 255, 0.3)',
+								borderRadius: '6px',
+								background: 'rgba(255, 255, 255, 0.1)',
+								color: 'white',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								transition: 'all 0.2s',
+							}}
+						>
+							<FiArrowLeft size={16} />
+							Back to MFA Hub
+						</button>
 					</div>
 					<p style={{ margin: 0, fontSize: '18px', color: 'rgba(255, 255, 255, 0.9)' }}>
-						Control gradual rollout of unified MFA flows (Phase 0 - Week 6-8)
+						Control gradual rollout of unified MFA flows (Phase 8 - Week 7-8)
 					</p>
 				</div>
 
@@ -145,9 +256,48 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 					}}
 				>
 					<div style={{ marginBottom: '12px', fontWeight: '600', color: '#f3f4f6' }}>
-						Browser Console Commands:
+						Phase 8 Helper Commands (Recommended):
 					</div>
-					<div style={{ lineHeight: '1.8' }}>
+					<div style={{ lineHeight: '1.8', marginBottom: '16px' }}>
+						<div>
+							<span style={{ color: '#10b981' }}>window.mfaHelpers</span>
+							<span style={{ color: '#6b7280' }}>.enable(</span>
+							<span style={{ color: '#f59e0b' }}>"SMS"</span>
+							<span style={{ color: '#6b7280' }}>, </span>
+							<span style={{ color: '#ec4899' }}>10</span>
+							<span style={{ color: '#6b7280' }}>)</span>
+							<span style={{ color: '#6b7280', marginLeft: '12px' }}>// Enable SMS at 10%</span>
+						</div>
+						<div>
+							<span style={{ color: '#10b981' }}>window.mfaHelpers</span>
+							<span style={{ color: '#6b7280' }}>.disable(</span>
+							<span style={{ color: '#f59e0b' }}>"SMS"</span>
+							<span style={{ color: '#6b7280' }}>)</span>
+							<span style={{ color: '#6b7280', marginLeft: '12px' }}>// Instant rollback</span>
+						</div>
+						<div>
+							<span style={{ color: '#10b981' }}>window.mfaHelpers</span>
+							<span style={{ color: '#6b7280' }}>.status()</span>
+							<span style={{ color: '#6b7280', marginLeft: '12px' }}>// Show formatted table</span>
+						</div>
+						<div>
+							<span style={{ color: '#10b981' }}>window.mfaHelpers</span>
+							<span style={{ color: '#6b7280' }}>.enableAll(</span>
+							<span style={{ color: '#ec4899' }}>50</span>
+							<span style={{ color: '#6b7280' }}>)</span>
+							<span style={{ color: '#6b7280', marginLeft: '12px' }}>// Enable all at 50%</span>
+						</div>
+						<div>
+							<span style={{ color: '#10b981' }}>window.mfaHelpers</span>
+							<span style={{ color: '#6b7280' }}>.disableAll()</span>
+							<span style={{ color: '#6b7280', marginLeft: '12px' }}>// Emergency rollback</span>
+						</div>
+					</div>
+
+					<div style={{ marginBottom: '8px', fontWeight: '600', color: '#9ca3af' }}>
+						Legacy Commands (still supported):
+					</div>
+					<div style={{ lineHeight: '1.8', opacity: 0.7 }}>
 						<div>
 							<span style={{ color: '#10b981' }}>window.mfaFlags</span>
 							<span style={{ color: '#6b7280' }}>.setFlag(</span>
@@ -160,18 +310,107 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 						</div>
 						<div>
 							<span style={{ color: '#10b981' }}>window.mfaFlags</span>
-							<span style={{ color: '#6b7280' }}>.isEnabled(</span>
-							<span style={{ color: '#f59e0b' }}>"mfa_unified_sms"</span>
-							<span style={{ color: '#6b7280' }}>)</span>
-						</div>
-						<div>
-							<span style={{ color: '#10b981' }}>window.mfaFlags</span>
 							<span style={{ color: '#6b7280' }}>.getFlagsSummary()</span>
 						</div>
-						<div>
-							<span style={{ color: '#10b981' }}>window.mfaFlags</span>
-							<span style={{ color: '#6b7280' }}>.resetAllFlags()</span>
-						</div>
+					</div>
+				</div>
+
+				{/* Bulk Operations */}
+				<div
+					style={{
+						background: 'white',
+						borderRadius: '8px',
+						padding: '24px',
+						marginBottom: '24px',
+						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+					}}
+				>
+					<h3
+						style={{
+							fontSize: '18px',
+							fontWeight: '600',
+							color: '#111827',
+							marginTop: 0,
+							marginBottom: '12px',
+						}}
+					>
+						Bulk Operations
+					</h3>
+					<p style={{ fontSize: '14px', color: '#6b7280', marginTop: 0, marginBottom: '16px' }}>
+						Apply rollout settings to all device types at once for faster deployment management.
+					</p>
+					<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+						<button
+							type="button"
+							onClick={() => handleEnableAll(10)}
+							style={{
+								padding: '10px 20px',
+								border: '1px solid #10b981',
+								borderRadius: '6px',
+								background: '#f0fdf4',
+								color: '#065f46',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								transition: 'all 0.2s',
+							}}
+						>
+							Enable All at 10% (Pilot)
+						</button>
+
+						<button
+							type="button"
+							onClick={() => handleEnableAll(50)}
+							style={{
+								padding: '10px 20px',
+								border: '1px solid #3b82f6',
+								borderRadius: '6px',
+								background: '#eff6ff',
+								color: '#1e40af',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								transition: 'all 0.2s',
+							}}
+						>
+							Enable All at 50% (Expansion)
+						</button>
+
+						<button
+							type="button"
+							onClick={() => handleEnableAll(100)}
+							style={{
+								padding: '10px 20px',
+								border: '1px solid #8b5cf6',
+								borderRadius: '6px',
+								background: '#f5f3ff',
+								color: '#6d28d9',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								transition: 'all 0.2s',
+							}}
+						>
+							Enable All at 100% (Full Rollout)
+						</button>
+
+						<button
+							type="button"
+							onClick={handleDisableAll}
+							style={{
+								padding: '10px 20px',
+								border: '1px solid #dc2626',
+								borderRadius: '6px',
+								background: '#fef2f2',
+								color: '#dc2626',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								transition: 'all 0.2s',
+							}}
+						>
+							🚨 Emergency Rollback (Disable All)
+						</button>
 					</div>
 				</div>
 

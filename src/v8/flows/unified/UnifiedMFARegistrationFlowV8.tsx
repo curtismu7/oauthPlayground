@@ -23,6 +23,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
 import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/deviceFlowConfigTypes';
 import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
@@ -31,6 +32,12 @@ import { MFATokenManagerV8 } from '@/v8/services/mfaTokenManagerV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
+import { UnifiedConfigurationStep } from './components/UnifiedConfigurationStep';
+import { UnifiedDeviceSelectionStep } from './components/UnifiedDeviceSelectionStep';
+import { UnifiedRegistrationStep } from './components/UnifiedRegistrationStep';
+import { UnifiedActivationStep } from './components/UnifiedActivationStep';
+import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
+import './UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[🔄 UNIFIED-MFA-FLOW-V8]';
 
@@ -39,8 +46,8 @@ const MODULE_TAG = '[🔄 UNIFIED-MFA-FLOW-V8]';
 // ============================================================================
 
 export interface UnifiedMFARegistrationFlowV8Props {
-	/** Device type to render (required) */
-	deviceType: DeviceConfigKey;
+	/** Device type to render (optional - can be provided via navigation state) */
+	deviceType?: DeviceConfigKey;
 
 	/** Optional initial credentials (for pre-filled forms) */
 	initialCredentials?: Partial<MFACredentials>;
@@ -73,11 +80,16 @@ export interface UnifiedMFARegistrationFlowV8Props {
 export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8Props> = (
 	props
 ) => {
-	console.log(`${MODULE_TAG} Initializing unified flow for device type:`, props.deviceType);
+	const location = useLocation();
+
+	// Get device type from props or location state
+	const deviceType = props.deviceType || (location.state as { deviceType?: DeviceConfigKey })?.deviceType || 'SMS';
+
+	console.log(`${MODULE_TAG} Initializing unified flow for device type:`, deviceType);
 
 	return (
 		<MFACredentialProvider>
-			<UnifiedMFARegistrationFlowContent {...props} />
+			<UnifiedMFARegistrationFlowContent {...props} deviceType={deviceType} />
 		</MFACredentialProvider>
 	);
 };
@@ -95,7 +107,10 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
  * - deviceFlowConfigs (device-specific configuration)
  * - MFAFlowBaseV8 (5-step framework)
  */
-const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowV8Props> = ({
+const UnifiedMFARegistrationFlowContent: React.FC<
+	Required<Pick<UnifiedMFARegistrationFlowV8Props, 'deviceType'>> &
+		Omit<UnifiedMFARegistrationFlowV8Props, 'deviceType'>
+> = ({
 	deviceType,
 	initialCredentials,
 	onSuccess,
@@ -229,73 +244,83 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowV8Pr
 	 * Render Step 0: Configuration
 	 */
 	const renderStep0 = useCallback(
-		(_props: MFAFlowBaseRenderProps) => {
+		(props: MFAFlowBaseRenderProps) => {
 			return (
-				<div className="unified-configuration-step">
-					<h2>Step 0: Configuration (Placeholder)</h2>
-					<p>Device Type: {config.displayName}</p>
-					<p>This step will be implemented in the next phase.</p>
-				</div>
+				<UnifiedConfigurationStep
+					{...props}
+					deviceType={deviceType}
+					config={config}
+					registrationFlowType={registrationFlowType}
+				/>
 			);
 		},
-		[config]
+		[config, deviceType, registrationFlowType]
 	);
 
 	/**
 	 * Render Step 1: Device Selection
 	 */
-	const renderStep1 = useCallback((_props: MFAFlowBaseRenderProps) => {
-		return (
-			<div className="unified-device-selection-step">
-				<h2>Step 1: Device Selection (Placeholder)</h2>
-				<p>This step will be implemented in the next phase.</p>
-			</div>
-		);
-	}, []);
+	const renderStep1 = useCallback(
+		(props: MFAFlowBaseRenderProps) => {
+			return (
+				<UnifiedDeviceSelectionStep
+					{...props}
+					deviceType={deviceType}
+					config={config}
+				/>
+			);
+		},
+		[config, deviceType]
+	);
 
 	/**
 	 * Render Step 2: Device Registration
 	 */
 	const renderStep2 = useCallback(
-		(_props: MFAFlowBaseRenderProps) => {
+		(props: MFAFlowBaseRenderProps) => {
 			return (
-				<div className="unified-registration-step">
-					<h2>Step 2: {config.displayName} Registration (Placeholder)</h2>
-					<p>Required fields: {config.requiredFields.join(', ')}</p>
-					<p>This step will be implemented in the next phase.</p>
-				</div>
+				<UnifiedRegistrationStep
+					{...props}
+					deviceType={deviceType}
+					config={config}
+				/>
 			);
 		},
-		[config]
+		[config, deviceType]
 	);
 
 	/**
 	 * Render Step 3: Activation
 	 */
 	const renderStep3 = useCallback(
-		(_props: MFAFlowBaseRenderProps) => {
+		(props: MFAFlowBaseRenderProps) => {
 			return (
-				<div className="unified-activation-step">
-					<h2>Step 3: Activation (Placeholder)</h2>
-					<p>Requires OTP: {config.requiresOTP ? 'Yes' : 'No'}</p>
-					<p>This step will be implemented in the next phase.</p>
-				</div>
+				<UnifiedActivationStep
+					{...props}
+					deviceType={deviceType}
+					config={config}
+				/>
 			);
 		},
-		[config]
+		[config, deviceType]
 	);
 
 	/**
 	 * Render Step 4: Success
 	 */
-	const renderStep4 = useCallback((_props: MFAFlowBaseRenderProps) => {
-		return (
-			<div className="unified-success-step">
-				<h2>Step 4: Success (Placeholder)</h2>
-				<p>This step will be implemented in the next phase.</p>
-			</div>
-		);
-	}, []);
+	const renderStep4 = useCallback(
+		(props: MFAFlowBaseRenderProps) => {
+			return (
+				<UnifiedSuccessStep
+					{...props}
+					deviceType={deviceType}
+					config={config}
+					onSuccess={onSuccess}
+				/>
+			);
+		},
+		[config, deviceType, onSuccess]
+	);
 
 	// ========================================================================
 	// STEP LABELS
