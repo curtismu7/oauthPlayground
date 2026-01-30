@@ -33,8 +33,8 @@ import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
 import { UnifiedActivationStep } from './components/UnifiedActivationStep';
-import { UnifiedConfigurationStep } from './components/UnifiedConfigurationStep';
-import { UnifiedDeviceSelectionStep } from './components/UnifiedDeviceSelectionStep';
+import { UnifiedConfigurationStepModern as UnifiedConfigurationStep } from './components/UnifiedConfigurationStep.modern';
+import { UnifiedDeviceSelectionStepModern as UnifiedDeviceSelectionStep } from './components/UnifiedDeviceSelectionStep.modern';
 import { UnifiedRegistrationStep } from './components/UnifiedRegistrationStep';
 import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
 import './UnifiedMFAFlow.css';
@@ -69,46 +69,18 @@ export interface UnifiedMFARegistrationFlowV8Props {
 }
 
 // ============================================================================
-// DEVICE TYPE SELECTION SCREEN
+// MFA FLOW SELECTION SCREEN
 // ============================================================================
 
+type FlowMode = 'registration' | 'authentication';
+
 const DEVICE_TYPES: { key: DeviceConfigKey; icon: string; name: string; description: string }[] = [
-	{
-		key: 'SMS',
-		icon: '📱',
-		name: 'SMS',
-		description: 'Receive OTP codes via text message',
-	},
-	{
-		key: 'Email',
-		icon: '✉️',
-		name: 'Email',
-		description: 'Receive OTP codes via email',
-	},
-	{
-		key: 'TOTP',
-		icon: '🔐',
-		name: 'Authenticator App (TOTP)',
-		description: 'Use Google Authenticator, Authy, or similar',
-	},
-	{
-		key: 'MobileApplication',
-		icon: '📲',
-		name: 'Mobile Push',
-		description: 'Receive push notifications on your phone',
-	},
-	{
-		key: 'WhatsApp',
-		icon: '💬',
-		name: 'WhatsApp',
-		description: 'Receive OTP codes via WhatsApp',
-	},
-	{
-		key: 'FIDO2',
-		icon: '🔑',
-		name: 'Security Key (FIDO2)',
-		description: 'Use a hardware security key or passkey',
-	},
+	{ key: 'SMS', icon: '📱', name: 'SMS', description: 'Receive OTP codes via text message' },
+	{ key: 'EMAIL', icon: '✉️', name: 'Email', description: 'Receive OTP codes via email' },
+	{ key: 'TOTP', icon: '🔐', name: 'Authenticator App (TOTP)', description: 'Use Google Authenticator, Authy, or similar' },
+	{ key: 'MOBILE', icon: '📲', name: 'Mobile Push', description: 'Receive push notifications on your phone' },
+	{ key: 'WHATSAPP', icon: '💬', name: 'WhatsApp', description: 'Receive OTP codes via WhatsApp' },
+	{ key: 'FIDO2', icon: '🔑', name: 'Security Key (FIDO2)', description: 'Use a hardware security key or passkey' },
 ];
 
 interface DeviceTypeSelectionScreenProps {
@@ -118,57 +90,207 @@ interface DeviceTypeSelectionScreenProps {
 const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	onSelectDeviceType,
 }) => {
+	const [flowMode, setFlowMode] = useState<FlowMode | null>(null);
+
+	// Step 1: Choose Registration or Authentication
+	if (!flowMode) {
+		return (
+			<div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
+				{/* Header */}
+				<div
+					style={{
+						background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+						borderRadius: '12px',
+						padding: '28px 32px',
+						marginBottom: '28px',
+						boxShadow: '0 4px 12px rgba(139, 92, 246, 0.2)',
+					}}
+				>
+					<h1 style={{ margin: '0 0 8px 0', fontSize: '26px', fontWeight: '700', color: '#ffffff' }}>
+						🔐 MFA Unified Flow
+					</h1>
+					<p style={{ margin: 0, fontSize: '15px', color: 'rgba(255, 255, 255, 0.9)', lineHeight: '1.5' }}>
+						Choose what you want to do with MFA devices.
+					</p>
+				</div>
+
+				{/* Flow Mode Selection */}
+				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+					{/* Registration Option */}
+					<button
+						type="button"
+						onClick={() => setFlowMode('registration')}
+						style={{
+							padding: '32px 24px',
+							background: '#ffffff',
+							border: '2px solid #e5e7eb',
+							borderRadius: '16px',
+							cursor: 'pointer',
+							textAlign: 'left',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.borderColor = '#10b981';
+							e.currentTarget.style.background = '#ecfdf5';
+							e.currentTarget.style.transform = 'translateY(-4px)';
+							e.currentTarget.style.boxShadow = '0 8px 24px rgba(16, 185, 129, 0.2)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.borderColor = '#e5e7eb';
+							e.currentTarget.style.background = '#ffffff';
+							e.currentTarget.style.transform = 'translateY(0)';
+							e.currentTarget.style.boxShadow = 'none';
+						}}
+					>
+						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+							<span style={{ fontSize: '48px', lineHeight: 1 }}>➕</span>
+							<div>
+								<h2 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: '700', color: '#047857' }}>
+									Device Registration
+								</h2>
+								<p style={{ margin: 0, fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+									Register a new MFA device for a user. Create SMS, Email, TOTP, Mobile Push, WhatsApp, or FIDO2 devices.
+								</p>
+							</div>
+						</div>
+					</button>
+
+					{/* Authentication Option */}
+					<button
+						type="button"
+						onClick={() => setFlowMode('authentication')}
+						style={{
+							padding: '32px 24px',
+							background: '#ffffff',
+							border: '2px solid #e5e7eb',
+							borderRadius: '16px',
+							cursor: 'pointer',
+							textAlign: 'left',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.borderColor = '#3b82f6';
+							e.currentTarget.style.background = '#eff6ff';
+							e.currentTarget.style.transform = 'translateY(-4px)';
+							e.currentTarget.style.boxShadow = '0 8px 24px rgba(59, 130, 246, 0.2)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.borderColor = '#e5e7eb';
+							e.currentTarget.style.background = '#ffffff';
+							e.currentTarget.style.transform = 'translateY(0)';
+							e.currentTarget.style.boxShadow = 'none';
+						}}
+					>
+						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+							<span style={{ fontSize: '48px', lineHeight: 1 }}>🔓</span>
+							<div>
+								<h2 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: '700', color: '#1d4ed8' }}>
+									Device Authentication
+								</h2>
+								<p style={{ margin: 0, fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+									Authenticate using an existing MFA device. Verify user identity with OTP, push notification, or security key.
+								</p>
+							</div>
+						</div>
+					</button>
+				</div>
+			</div>
+		);
+	}
+
+	// Step 2: Choose Device Type (for Registration)
+	// For Authentication, we might want to redirect to a different flow
+	if (flowMode === 'authentication') {
+		// TODO: Redirect to authentication flow or show authentication device selection
+		return (
+			<div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
+				<div
+					style={{
+						background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+						borderRadius: '12px',
+						padding: '28px 32px',
+						marginBottom: '28px',
+					}}
+				>
+					<button
+						type="button"
+						onClick={() => setFlowMode(null)}
+						style={{
+							background: 'rgba(255,255,255,0.2)',
+							border: 'none',
+							color: 'white',
+							padding: '6px 12px',
+							borderRadius: '6px',
+							cursor: 'pointer',
+							marginBottom: '12px',
+							fontSize: '13px',
+						}}
+					>
+						← Back
+					</button>
+					<h1 style={{ margin: '0 0 8px 0', fontSize: '26px', fontWeight: '700', color: '#ffffff' }}>
+						🔓 Device Authentication
+					</h1>
+					<p style={{ margin: 0, fontSize: '15px', color: 'rgba(255, 255, 255, 0.9)' }}>
+						Authentication flow coming soon. For now, use the MFA Hub for authentication.
+					</p>
+				</div>
+				<a
+					href="/v8/mfa-hub"
+					style={{
+						display: 'inline-block',
+						padding: '12px 24px',
+						background: '#3b82f6',
+						color: 'white',
+						borderRadius: '8px',
+						textDecoration: 'none',
+						fontWeight: '600',
+					}}
+				>
+					Go to MFA Hub →
+				</a>
+			</div>
+		);
+	}
+
+	// Registration flow - show device type selection
 	return (
-		<div
-			style={{
-				maxWidth: '900px',
-				margin: '0 auto',
-				padding: '24px',
-			}}
-		>
+		<div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
 			{/* Header */}
 			<div
 				style={{
-					background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+					background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
 					borderRadius: '12px',
 					padding: '28px 32px',
 					marginBottom: '28px',
-					boxShadow: '0 4px 12px rgba(139, 92, 246, 0.2)',
 				}}
 			>
-				<h1
+				<button
+					type="button"
+					onClick={() => setFlowMode(null)}
 					style={{
-						margin: '0 0 8px 0',
-						fontSize: '26px',
-						fontWeight: '700',
-						color: '#ffffff',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '12px',
+						background: 'rgba(255,255,255,0.2)',
+						border: 'none',
+						color: 'white',
+						padding: '6px 12px',
+						borderRadius: '6px',
+						cursor: 'pointer',
+						marginBottom: '12px',
+						fontSize: '13px',
 					}}
 				>
-					🔐 MFA Device Registration
+					← Back
+				</button>
+				<h1 style={{ margin: '0 0 8px 0', fontSize: '26px', fontWeight: '700', color: '#ffffff' }}>
+					➕ Device Registration
 				</h1>
-				<p
-					style={{
-						margin: 0,
-						fontSize: '15px',
-						color: 'rgba(255, 255, 255, 0.9)',
-						lineHeight: '1.5',
-					}}
-				>
-					Select the type of MFA device you want to register for your account.
+				<p style={{ margin: 0, fontSize: '15px', color: 'rgba(255, 255, 255, 0.9)' }}>
+					Select the type of MFA device you want to register.
 				</p>
 			</div>
 
 			{/* Device Type Grid */}
-			<div
-				style={{
-					display: 'grid',
-					gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-					gap: '16px',
-				}}
-			>
+			<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
 				{DEVICE_TYPES.map((device) => (
 					<button
 						key={device.key}
@@ -182,42 +304,25 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							cursor: 'pointer',
 							textAlign: 'left',
 							transition: 'all 0.2s ease',
-							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
 						}}
 						onMouseEnter={(e) => {
-							e.currentTarget.style.borderColor = '#8b5cf6';
-							e.currentTarget.style.background = '#faf5ff';
-							e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.15)';
+							e.currentTarget.style.borderColor = '#10b981';
+							e.currentTarget.style.background = '#ecfdf5';
 							e.currentTarget.style.transform = 'translateY(-2px)';
 						}}
 						onMouseLeave={(e) => {
 							e.currentTarget.style.borderColor = '#e5e7eb';
 							e.currentTarget.style.background = '#ffffff';
-							e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
 							e.currentTarget.style.transform = 'translateY(0)';
 						}}
 					>
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
 							<span style={{ fontSize: '32px', lineHeight: 1 }}>{device.icon}</span>
-							<div style={{ flex: 1 }}>
-								<h3
-									style={{
-										margin: '0 0 6px 0',
-										fontSize: '16px',
-										fontWeight: '600',
-										color: '#1f2937',
-									}}
-								>
+							<div>
+								<h3 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
 									{device.name}
 								</h3>
-								<p
-									style={{
-										margin: 0,
-										fontSize: '13px',
-										color: '#6b7280',
-										lineHeight: '1.5',
-									}}
-								>
+								<p style={{ margin: 0, fontSize: '13px', color: '#6b7280', lineHeight: '1.5' }}>
 									{device.description}
 								</p>
 							</div>
@@ -424,9 +529,9 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 			return (
 				<UnifiedConfigurationStep
 					{...props}
-					deviceType={deviceType}
 					config={config}
-					registrationFlowType={registrationFlowType}
+					deviceType={deviceType}
+					registrationFlowType={registrationFlowType || 'admin'}
 				/>
 			);
 		},
