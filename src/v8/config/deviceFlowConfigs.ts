@@ -428,11 +428,10 @@ WhatsApp OTP sends temporary verification codes via WhatsApp message.
 - Keep your phone number up to date
 `,
 	requiredFields: ['phoneNumber', 'countryCode'],
-	optionalFields: ['email', 'deviceName', 'nickname'],
+	optionalFields: ['deviceName', 'nickname'],
 	validationRules: {
 		phoneNumber: validatePhoneNumber,
 		countryCode: validateCountryCode,
-		email: validateEmail,
 		deviceName: validateDeviceName,
 		nickname: validateNickname,
 	},
