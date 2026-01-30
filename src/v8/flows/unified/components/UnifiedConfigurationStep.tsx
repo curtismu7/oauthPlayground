@@ -473,87 +473,165 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 						)}
 					</div>
 
-					{/* Token Type Selection */}
-				<div className="form-field">
-					<label
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-							fontSize: '14px',
-							fontWeight: '600',
-							color: '#374151',
-							marginBottom: '12px',
-						}}
-					>
-						Token Type <span className="required">*</span>
-						<MFAInfoButtonV8 contentKey="mfa.registrationFlowType" displayMode="modal" />
-					</label>
-					<div
-						style={{
-							display: 'flex',
-							gap: '16px',
-							flexWrap: 'wrap',
-						}}
-					>
-						{/* Worker Token Option */}
+					{/* Registration Flow Type Selection */}
+					<div className="form-field">
 						<label
 							style={{
-								flex: 1,
-								minWidth: '200px',
-								padding: '16px 20px',
-								border: `2px solid ${tokenType === 'worker' ? '#8b5cf6' : '#e5e7eb'}`,
-								borderRadius: '10px',
-								background: tokenType === 'worker' ? '#f5f3ff' : '#ffffff',
-								cursor: 'pointer',
-								transition: 'all 0.2s ease',
-								boxShadow:
-									tokenType === 'worker'
-										? '0 4px 12px rgba(139, 92, 246, 0.15)'
-										: '0 1px 3px rgba(0, 0, 0, 0.05)',
-							}}
-							onMouseEnter={(e) => {
-								if (tokenType !== 'worker') {
-									e.currentTarget.style.borderColor = '#c4b5fd';
-									e.currentTarget.style.background = '#faf5ff';
-								}
-							}}
-							onMouseLeave={(e) => {
-								if (tokenType !== 'worker') {
-									e.currentTarget.style.borderColor = '#e5e7eb';
-									e.currentTarget.style.background = '#ffffff';
-								}
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '12px',
 							}}
 						>
-							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-								<input
-									type="radio"
-									name="tokenType"
-									value="worker"
-									checked={tokenType === 'worker'}
-									onChange={() => handleTokenTypeChange('worker')}
-									style={{
-										width: '20px',
-										height: '20px',
-										accentColor: '#8b5cf6',
-										marginTop: '2px',
-										cursor: 'pointer',
-									}}
-								/>
-								<div style={{ flex: 1 }}>
-									<div
+							Registration Flow <span className="required">*</span>
+							<MFAInfoButtonV8 contentKey="mfa.registrationFlowType" displayMode="modal" />
+						</label>
+						<div
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '12px',
+							}}
+						>
+							{/* Admin Flow (ACTIVE) Option */}
+							<label
+								style={{
+									padding: '16px 20px',
+									border: `2px solid ${flowType === 'admin-active' ? '#10b981' : '#e5e7eb'}`,
+									borderRadius: '10px',
+									background: flowType === 'admin-active' ? '#ecfdf5' : '#ffffff',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+									boxShadow:
+										flowType === 'admin-active'
+											? '0 4px 12px rgba(16, 185, 129, 0.15)'
+											: '0 1px 3px rgba(0, 0, 0, 0.05)',
+								}}
+								onMouseEnter={(e) => {
+									if (flowType !== 'admin-active') {
+										e.currentTarget.style.borderColor = '#6ee7b7';
+										e.currentTarget.style.background = '#f0fdf4';
+									}
+								}}
+								onMouseLeave={(e) => {
+									if (flowType !== 'admin-active') {
+										e.currentTarget.style.borderColor = '#e5e7eb';
+										e.currentTarget.style.background = '#ffffff';
+									}
+								}}
+							>
+								<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+									<input
+										type="radio"
+										name="flowType"
+										value="admin-active"
+										checked={flowType === 'admin-active'}
+										onChange={() => handleFlowTypeChange('admin-active')}
 										style={{
-											fontSize: '15px',
-											fontWeight: '600',
-											color: tokenType === 'worker' ? '#6d28d9' : '#1f2937',
-											marginBottom: '4px',
-											display: 'flex',
-											alignItems: 'center',
-											gap: '8px',
+											width: '20px',
+											height: '20px',
+											accentColor: '#10b981',
+											marginTop: '2px',
+											cursor: 'pointer',
 										}}
-									>
-										🔑 Worker Token
-										{registrationFlowType === 'admin' && (
+									/>
+									<div style={{ flex: 1 }}>
+										<div
+											style={{
+												fontSize: '15px',
+												fontWeight: '600',
+												color: flowType === 'admin-active' ? '#047857' : '#1f2937',
+												marginBottom: '4px',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+											}}
+										>
+											🔑 Admin Flow (ACTIVE)
+											<span
+												style={{
+													fontSize: '11px',
+													fontWeight: '600',
+													padding: '2px 8px',
+													background: '#d1fae5',
+													color: '#065f46',
+													borderRadius: '4px',
+												}}
+											>
+												Instant Activation
+											</span>
+										</div>
+										<div
+											style={{
+												fontSize: '13px',
+												color: '#6b7280',
+												lineHeight: '1.5',
+											}}
+										>
+											Device is created and immediately active. No OTP verification required. Uses Worker Token.
+										</div>
+									</div>
+								</div>
+							</label>
+
+							{/* Admin Flow (ACTIVATION_REQUIRED) Option */}
+							<label
+								style={{
+									padding: '16px 20px',
+									border: `2px solid ${flowType === 'admin-activation' ? '#f59e0b' : '#e5e7eb'}`,
+									borderRadius: '10px',
+									background: flowType === 'admin-activation' ? '#fffbeb' : '#ffffff',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+									boxShadow:
+										flowType === 'admin-activation'
+											? '0 4px 12px rgba(245, 158, 11, 0.15)'
+											: '0 1px 3px rgba(0, 0, 0, 0.05)',
+								}}
+								onMouseEnter={(e) => {
+									if (flowType !== 'admin-activation') {
+										e.currentTarget.style.borderColor = '#fcd34d';
+										e.currentTarget.style.background = '#fefce8';
+									}
+								}}
+								onMouseLeave={(e) => {
+									if (flowType !== 'admin-activation') {
+										e.currentTarget.style.borderColor = '#e5e7eb';
+										e.currentTarget.style.background = '#ffffff';
+									}
+								}}
+							>
+								<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+									<input
+										type="radio"
+										name="flowType"
+										value="admin-activation"
+										checked={flowType === 'admin-activation'}
+										onChange={() => handleFlowTypeChange('admin-activation')}
+										style={{
+											width: '20px',
+											height: '20px',
+											accentColor: '#f59e0b',
+											marginTop: '2px',
+											cursor: 'pointer',
+										}}
+									/>
+									<div style={{ flex: 1 }}>
+										<div
+											style={{
+												fontSize: '15px',
+												fontWeight: '600',
+												color: flowType === 'admin-activation' ? '#b45309' : '#1f2937',
+												marginBottom: '4px',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+											}}
+										>
+											🔐 Admin Flow (ACTIVATION_REQUIRED)
 											<span
 												style={{
 													fontSize: '11px',
@@ -564,97 +642,104 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 													borderRadius: '4px',
 												}}
 											>
-												Required
+												OTP Required
 											</span>
-										)}
-									</div>
-									<div
-										style={{
-											fontSize: '13px',
-											color: '#6b7280',
-											lineHeight: '1.5',
-										}}
-									>
-										Administrative API access for backend operations
+										</div>
+										<div
+											style={{
+												fontSize: '13px',
+												color: '#6b7280',
+												lineHeight: '1.5',
+											}}
+										>
+											Device is created pending activation. User must verify with OTP before device becomes active. Uses Worker Token.
+										</div>
 									</div>
 								</div>
-							</div>
-						</label>
+							</label>
 
-						{/* User Token Option */}
-						<label
-							style={{
-								flex: 1,
-								minWidth: '200px',
-								padding: '16px 20px',
-								border: `2px solid ${tokenType === 'user' ? '#8b5cf6' : '#e5e7eb'}`,
-								borderRadius: '10px',
-								background: tokenType === 'user' ? '#f5f3ff' : '#ffffff',
-								cursor: registrationFlowType === 'admin' ? 'not-allowed' : 'pointer',
-								transition: 'all 0.2s ease',
-								opacity: registrationFlowType === 'admin' ? 0.5 : 1,
-								boxShadow:
-									tokenType === 'user'
-										? '0 4px 12px rgba(139, 92, 246, 0.15)'
-										: '0 1px 3px rgba(0, 0, 0, 0.05)',
-							}}
-							onMouseEnter={(e) => {
-								if (tokenType !== 'user' && registrationFlowType !== 'admin') {
-									e.currentTarget.style.borderColor = '#c4b5fd';
-									e.currentTarget.style.background = '#faf5ff';
-								}
-							}}
-							onMouseLeave={(e) => {
-								if (tokenType !== 'user' && registrationFlowType !== 'admin') {
-									e.currentTarget.style.borderColor = '#e5e7eb';
-									e.currentTarget.style.background = '#ffffff';
-								}
-							}}
-						>
-							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-								<input
-									type="radio"
-									name="tokenType"
-									value="user"
-									checked={tokenType === 'user'}
-									onChange={() => handleTokenTypeChange('user')}
-									disabled={registrationFlowType === 'admin'}
-									style={{
-										width: '20px',
-										height: '20px',
-										accentColor: '#8b5cf6',
-										marginTop: '2px',
-										cursor: registrationFlowType === 'admin' ? 'not-allowed' : 'pointer',
-									}}
-								/>
-								<div style={{ flex: 1 }}>
-									<div
+							{/* User Flow Option */}
+							<label
+								style={{
+									padding: '16px 20px',
+									border: `2px solid ${flowType === 'user' ? '#8b5cf6' : '#e5e7eb'}`,
+									borderRadius: '10px',
+									background: flowType === 'user' ? '#f5f3ff' : '#ffffff',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+									boxShadow:
+										flowType === 'user'
+											? '0 4px 12px rgba(139, 92, 246, 0.15)'
+											: '0 1px 3px rgba(0, 0, 0, 0.05)',
+								}}
+								onMouseEnter={(e) => {
+									if (flowType !== 'user') {
+										e.currentTarget.style.borderColor = '#c4b5fd';
+										e.currentTarget.style.background = '#faf5ff';
+									}
+								}}
+								onMouseLeave={(e) => {
+									if (flowType !== 'user') {
+										e.currentTarget.style.borderColor = '#e5e7eb';
+										e.currentTarget.style.background = '#ffffff';
+									}
+								}}
+							>
+								<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+									<input
+										type="radio"
+										name="flowType"
+										value="user"
+										checked={flowType === 'user'}
+										onChange={() => handleFlowTypeChange('user')}
 										style={{
-											fontSize: '15px',
-											fontWeight: '600',
-											color: tokenType === 'user' ? '#6d28d9' : '#1f2937',
-											marginBottom: '4px',
-											display: 'flex',
-											alignItems: 'center',
-											gap: '8px',
+											width: '20px',
+											height: '20px',
+											accentColor: '#8b5cf6',
+											marginTop: '2px',
+											cursor: 'pointer',
 										}}
-									>
-										👤 User Token
-									</div>
-									<div
-										style={{
-											fontSize: '13px',
-											color: '#6b7280',
-											lineHeight: '1.5',
-										}}
-									>
-										OAuth access token for user-initiated registration
+									/>
+									<div style={{ flex: 1 }}>
+										<div
+											style={{
+												fontSize: '15px',
+												fontWeight: '600',
+												color: flowType === 'user' ? '#6d28d9' : '#1f2937',
+												marginBottom: '4px',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+											}}
+										>
+											👤 User Flow
+											<span
+												style={{
+													fontSize: '11px',
+													fontWeight: '600',
+													padding: '2px 8px',
+													background: '#ede9fe',
+													color: '#5b21b6',
+													borderRadius: '4px',
+												}}
+											>
+												OAuth Login
+											</span>
+										</div>
+										<div
+											style={{
+												fontSize: '13px',
+												color: '#6b7280',
+												lineHeight: '1.5',
+											}}
+										>
+											User authenticates via OAuth and registers their own device. Requires user login.
+										</div>
 									</div>
 								</div>
-							</div>
-						</label>
+							</label>
+						</div>
 					</div>
-				</div>
 
 				{/* Token Status Display */}
 				<div className="token-status-section">
@@ -791,7 +876,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 						}
 					}}
 				>
-					{isLoading ? 'Loading...' : 'Continue →'}
+					{isLoading ? 'Loading...' : 'Next Step →'}
 				</button>
 			</div>
 		</div>
