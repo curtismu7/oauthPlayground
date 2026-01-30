@@ -3545,8 +3545,6 @@ app.post('/api/device-authorization', async (req, res) => {
 		});
 
 		// #region agent log - Debug instrumentation for 403 error
-		// Analytics disabled - ingest service not running
-		/*
 		try {
 			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 				method: 'POST',
@@ -3579,7 +3577,6 @@ app.post('/api/device-authorization', async (req, res) => {
 				}),
 			}).catch(() => {});
 		} catch (e) {}
-		*/
 		// #endregion
 
 		const response = await global.fetch(deviceEndpoint, {
