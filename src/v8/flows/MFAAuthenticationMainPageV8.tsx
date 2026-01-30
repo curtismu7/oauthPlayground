@@ -1761,6 +1761,42 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				</div>
 			</div>
 
+			{/* Configuration Sections */}
+			<WorkerTokenSectionV8
+				workerToken={workerToken}
+				environmentId={credentials.environmentId}
+				username={usernameInput}
+				onEnvironmentChange={(value) => {
+					const newEnvId = value;
+					setCredentials((prev) => ({ ...prev, environmentId: newEnvId }));
+					environmentService.setEnvironmentId(newEnvId);
+				}}
+				onUsernameChange={(value) => setUsernameInput(value)}
+				onGetWorkerToken={async () => {
+					// This will be handled by the WorkerTokenStatusDisplayV8 component
+					setShowWorkerTokenModal(true);
+				}}
+			/>
+
+			<AuthenticationSectionV8
+				mfaAuth={authState}
+				mfaDevices={userDevices}
+				username={usernameInput}
+				onUsernameChange={(value) => setUsernameInput(value)}
+				onStartAuthentication={handleStartMFA}
+				isAuthenticating={authState.isLoading}
+				tokenIsValid={tokenStatus.isValid}
+			/>
+
+			<PolicySectionV8
+				mfaPolicies={deviceAuthPolicies}
+				onPolicySelect={(policyId) => {
+					setCredentials((prev) => ({ ...prev, deviceAuthenticationPolicyId: policyId }));
+				}}
+				onRefreshPolicies={loadPolicies}
+				showDetails={true}
+			/>
+
 			{/* 1. Authentication & Registration */}
 			<div
 				style={{

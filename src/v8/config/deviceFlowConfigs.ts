@@ -124,75 +124,173 @@ const SMS_CONFIG: DeviceFlowConfig = {
 	icon: '📱',
 	description: 'Enhanced SMS OTP with database persistence and production-grade debugging',
 	educationalContent: `
-## SMS One-Time Password (OTP) - Enhanced Implementation
+## SMS One-Time Password (OTP) - Unified Registration Flow
 
-SMS OTP is a widely-used MFA method that sends temporary verification codes to your mobile phone. This implementation includes enhanced debugging, database persistence, and alignment with production-grade flows.
+SMS OTP sends temporary verification codes to mobile phones for multi-factor authentication. This unified implementation supports multiple registration flows with comprehensive API documentation.
 
-### How it Works
-1. **Register your mobile phone number** with worker token validation
-2. **Automatic user lookup** via PingOne API with enhanced error handling
-3. **6-digit code delivery** via SMS with comprehensive logging
-4. **Code validation** with attempt tracking and cooldown management
-5. **Persistent storage** using dual storage (browser + database)
+### 🔄 Registration Flow Options
 
-### 🔧 Recent Enhancements (v9.2.6)
+#### **Option 1: Admin Flow (Immediate Activation)**
+- **Token**: Worker token (service account)
+- **Device Status**: \`ACTIVE\` (no OTP required)
+- **Steps**: Register → API Docs → Success (3 steps)
+- **Use Case**: Immediate admin registration without OTP
 
-#### **Fixed 400 Error Issues**
-- **Root Cause**: Parameter construction mismatch with working MFA-HUB implementation
-- **Solution**: Aligned parameter construction with proven working flows
-- **Result**: Same API calls as production MFA-HUB implementation
+#### **Option 2: Admin ACTIVATION_REQUIRED Flow**
+- **Token**: Worker token (service account)  
+- **Device Status**: \`ACTIVATION_REQUIRED\` (OTP sent to admin)
+- **Steps**: Register → Activate (OTP) → API Docs → Success (4 steps)
+- **Use Case**: Admin wants OTP verification for security
 
-#### **Database Storage Implementation**
-- **Dual Storage**: Browser localStorage + persistent database storage
-- **Cross-Session Persistence**: Data survives browser clear/refresh
-- **Production Alignment**: Same storage strategy as V8U production apps
-- **Automatic Sync**: Browser ↔ Database synchronization
+#### **Option 3: User Login Flow (Self-Service)**
+- **Token**: User token (after OAuth login)
+- **Device Status**: \`ACTIVATION_REQUIRED\` (OTP sent to user)
+- **Steps**: Login → Register → Activate (OTP) → API Docs → Success (5 steps)
+- **Use Case**: Self-service user registration
 
-#### **Enhanced Debugging**
-- **Server-Side Logging**: Comprehensive request/response logging
-- **Error Details**: Clear indication of missing required fields
-- **PingOne API Response**: Full upstream error details
-- **Request Validation**: Detailed request body logging
+#### **Option 4: ACTIVATION_REQUIRED Recovery**
+- **Token**: Any (existing device)
+- **Device Status**: Existing \`ACTIVATION_REQUIRED\` device
+- **Steps**: Direct to Activate (OTP) → API Docs → Success (4 steps)
+- **Use Case**: Resume interrupted registration
 
-### Security Considerations
-- SMS is convenient but vulnerable to SIM swapping attacks
-- Use a trusted mobile carrier with good signal coverage
-- Keep your phone number up to date in your profile
-- Monitor for unexpected SMS messages
+### 📋 Flow Steps Overview
 
-### Best Practices
-- **Never share OTP codes** with anyone
-- **Check signal strength** if codes don't arrive quickly
-- **Request resend** after 60-second cooldown if needed
-- **Monitor attempts** - maximum 3 attempts per session
-- **Codes expire** after 10 minutes for security
+**Step 1: Registration**
+- Enter phone number and select flow type
+- Device created with appropriate status
+- OTP sent if status is \`ACTIVATION_REQUIRED\`
 
-### 🔍 Troubleshooting
+**Step 2: Activation (OTP)** 
+- Enter 6-digit code received via SMS
+- Validates against PingOne API
+- Device status changes to \`ACTIVE\`
 
-#### **Common Issues & Solutions**
-1. **400 Bad Request Error**
-   - ✅ **Fixed**: Worker token validation and parameter alignment
-   - Check worker token status in Worker Token UI
+**Step 3: API Documentation**
+- Comprehensive API reference
+- Postman collection download
+- Technical implementation details
 
-2. **No Code Received**
-   - Verify phone signal strength
-   - Check phone number format (+1.xxx.xxx.xxxx)
-   - Request resend after 60-second cooldown
+**Step 4: Success**
+- Device ready for MFA use
+- Confirmation and next steps
 
-3. **Code Expired**
-   - Codes expire after 10 minutes
-   - Request a new code via resend button
+### 🔧 Technical Implementation
 
-4. **Data Persistence**
-   - Data now persists across browser sessions
-   - Automatic database backup and recovery
+#### **Device Status Logic**
+\`\`\`typescript
+// Admin flow - immediate activation
+if (flowType === 'admin') {
+    deviceStatus = 'ACTIVE'; // No OTP sent
+}
 
-### 🚀 Production Ready Features
-- **MFA-HUB Compatibility**: Identical to working implementation
-- **Database Persistence**: Survives browser clear/refresh
-- **Enhanced Error Handling**: Clear user feedback
-- **Comprehensive Logging**: Full debugging capabilities
-- **Worker Token Validation**: Pre-checks prevent API failures
+// Admin ACTIVATION_REQUIRED - OTP for admin
+else if (flowType === 'admin_activation_required') {
+    deviceStatus = 'ACTIVATION_REQUIRED'; // OTP sent
+}
+
+// User flow - OTP for user
+else {
+    deviceStatus = 'ACTIVATION_REQUIRED'; // OTP sent
+}
+\`\`\`
+
+#### **API Endpoints Used**
+- **Device Registration**: \`POST /environments/{envId}/devices\`
+- **OTP Validation**: \`POST /environments/{envId}/devices/{deviceId}/activate\`
+- **User Lookup**: \`GET /environments/{envId}/users/{userId}\`
+
+### 🛡️ Security Features
+
+#### **OTP Security**
+- **6-digit codes** with 10-minute expiration
+- **Maximum 3 attempts** per session with cooldown
+- **Automatic resend** after 60-second cooldown
+- **Attempt tracking** and rate limiting
+
+#### **Token Security**
+- **Worker tokens**: Admin flows with elevated permissions
+- **User tokens**: Self-service with user-scoped permissions
+- **Token validation** before each API call
+- **Secure storage** with dual persistence
+
+### 📊 API Documentation Features
+
+#### **Comprehensive Reference**
+- **Request/Response examples** for each flow type
+- **JSON schemas** and validation rules
+- **Error handling** and troubleshooting guides
+- **Postman collection** with environment variables
+
+#### **Flow-Specific Examples**
+- **Admin ACTIVE**: Immediate registration API calls
+- **Admin ACTIVATION_REQUIRED**: OTP-triggered registration
+- **User flow**: OAuth + registration + activation sequence
+- **Recovery flow**: Existing device activation
+
+### 🔍 Debugging & Monitoring
+
+#### **Enhanced Logging**
+- **Request/Response logging** for all API calls
+- **Flow state tracking** across steps
+- **Error categorization** with actionable messages
+- **Performance metrics** for timing analysis
+
+#### **Database Persistence**
+- **Dual storage**: Browser localStorage + database
+- **Cross-session recovery** for interrupted flows
+- **State synchronization** between storage layers
+- **Production alignment** with V8U apps
+
+### 📱 SMS Delivery Details
+
+#### **Message Format**
+- **6-digit numeric code** (e.g., "123456")
+- **Sender identification** for user recognition
+- **Expiration warning** in message content
+- **Support contact** for delivery issues
+
+#### **Delivery Reliability**
+- **Multiple carrier support** for global reach
+- **Signal strength monitoring** for failed deliveries
+- **Retry logic** with exponential backoff
+- **Fallback mechanisms** for delivery failures
+
+### 🚀 Best Practices
+
+#### **For Admins**
+- **Use ACTIVE flow** for immediate device provisioning
+- **Use ACTIVATION_REQUIRED** for high-security environments
+- **Monitor delivery** for time-sensitive registrations
+- **Document processes** for audit compliance
+
+#### **For Users**
+- **Keep phone updated** in user profile
+- **Check signal strength** before registration
+- **Save codes securely** during activation
+- **Report issues** promptly for support
+
+#### **For Developers**
+- **Handle all flow types** in integration code
+- **Validate device status** before proceeding
+- **Implement proper error handling** for each step
+- **Use API documentation** for implementation reference
+
+### ⚡ Performance Optimizations
+
+#### **Flow Efficiency**
+- **Conditional OTP** - only sent when required
+- **Parallel processing** where possible
+- **Smart caching** of device information
+- **Optimized API calls** with minimal payloads
+
+#### **Storage Optimization**
+- **Selective persistence** - only essential data
+- **Compression** for large datasets
+- **Cleanup routines** for expired data
+- **Sync optimization** between storage layers
+
+This unified SMS OTP implementation provides maximum flexibility while maintaining security and reliability across all use cases.
 `,
 	requiredFields: ['phoneNumber', 'countryCode'],
 	optionalFields: ['deviceName', 'nickname'],
@@ -203,57 +301,13 @@ SMS OTP is a widely-used MFA method that sends temporary verification codes to y
 		nickname: validateNickname,
 	},
 	apiEndpoints: {
-		register: '/api/pingone/mfa/register-device',
-		activate: '/api/pingone/mfa/activate-device',
-		sendOTP: '/api/pingone/mfa/send-otp',
+		register: '/environments/{environmentId}/devices',
+		activate: '/environments/{environmentId}/devices/{deviceId}/activate',
 	},
 	documentation: {
 		title: 'SMS Device Registration API',
 		description: 'Register an SMS device for one-time password delivery via text message',
-		apiDocContent: `
-### SMS Device Registration
-
-**Endpoint:** \`POST /v1/environments/{envId}/users/{userId}/devices\`
-
-**Request Body:**
-\`\`\`json
-{
-  "type": "SMS",
-  "phone": "+1.5125201234",
-  "name": "My Phone",
-  "status": "ACTIVATION_REQUIRED"
-}
-\`\`\`
-
-**Response:**
-\`\`\`json
-{
-  "id": "device-id",
-  "type": "SMS",
-  "phone": "+1.5125201234",
-  "status": "ACTIVATION_REQUIRED",
-  "_links": {
-    "activate": {
-      "href": "/v1/environments/{envId}/users/{userId}/devices/{deviceId}"
-    }
-  }
-}
-\`\`\`
-
-### Activation
-
-Send the OTP code to activate the device:
-
-\`\`\`json
-POST /v1/environments/{envId}/users/{userId}/devices/{deviceId}
-Content-Type: application/vnd.pingidentity.device.activate+json
-
-{
-  "otp": "123456"
-}
-\`\`\`
-`,
-		externalDocsUrl: 'https://docs.pingidentity.com/r/en-us/pingone/p1_add_mfa_device',
+		externalDocsUrl: 'https://docs.pingidentity.com/pingone/p1_add_mfa_device',
 	},
 	requiresOTP: true,
 	defaultDeviceStatus: 'ACTIVATION_REQUIRED',

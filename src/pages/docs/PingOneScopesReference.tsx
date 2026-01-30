@@ -488,11 +488,7 @@ const PingOneScopesReference: React.FC = () => {
 									</li>
 									<li>
 										<ScopeBadge>Write</ScopeBadge> <code>p1:update:device</code> –
-										activate/deactivate devices.
-									</li>
-									<li>
-										<ScopeBadge>Write</ScopeBadge> <code>p1:create:device</code> – register new
-										devices.
+										register, activate/deactivate devices.
 									</li>
 								</ul>
 							</ScopeCategoryCard>

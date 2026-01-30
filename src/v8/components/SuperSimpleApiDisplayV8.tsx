@@ -249,6 +249,8 @@ const createPopOutWindow = (
 				const isProxy = isProxyCall(call);
 				
 				// Check if it's an admin/worker token API call
+			}
+			
 			// Helper function to escape text for JavaScript strings
 			function escapeForJsString(text) {
 				// JSON.stringify will properly escape all special characters
@@ -292,6 +294,24 @@ const createPopOutWindow = (
 				console.log('No processed calls found, using fallback data');
 				window.processedCalls = [];
 			}
+
+			// Listen for messages from parent window
+			window.addEventListener('message', function(event) {
+				if (event.data.type === 'apiCallsUpdate') {
+					currentApiCalls = event.data.apiCalls || [];
+					render();
+				} else if (event.data.type === 'clearCalls') {
+					currentApiCalls = [];
+					expandedIds.clear();
+					render();
+				} else if (event.data.type === 'fontSizeChange') {
+					currentFontSize = event.data.fontSize || 12;
+					render();
+				} else if (event.data.type === 'showP1OnlyChange') {
+					showP1OnlyFilter = event.data.showP1Only || false;
+					render();
+				}
+			});
 
 			// Initial render
 			render();
