@@ -148,12 +148,20 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		isLoading: isPoliciesLoading,
 		error: policiesError,
 		selectPolicy,
+		defaultPolicy,
 	} = useMFAPolicies({
 		environmentId,
 		tokenIsValid,
 		autoLoad: true,
 		autoSelectSingle: true,
 	});
+
+	// Auto-select default policy when policies load
+	useEffect(() => {
+		if (defaultPolicy && !selectedPolicy) {
+			selectPolicy(defaultPolicy.id);
+		}
+	}, [defaultPolicy, selectedPolicy, selectPolicy]);
 
 	// Sync environment ID to global service when it changes
 	useEffect(() => {
