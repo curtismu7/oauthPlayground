@@ -427,8 +427,8 @@ WhatsApp OTP sends temporary verification codes via WhatsApp message.
 - Never share your OTP codes with anyone
 - Keep your phone number up to date
 `,
-	requiredFields: ['phoneNumber', 'countryCode', 'email'],
-	optionalFields: ['deviceName', 'nickname'],
+	requiredFields: ['phoneNumber', 'countryCode'],
+	optionalFields: ['email', 'deviceName', 'nickname'],
 	validationRules: {
 		phoneNumber: validatePhoneNumber,
 		countryCode: validateCountryCode,
