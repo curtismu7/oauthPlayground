@@ -290,12 +290,113 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 
 			{/* Educational Content (if available) */}
 			{config.educationalContent && (
-				<details className="educational-content">
-					<summary>Learn more about {config.displayName}</summary>
+				<details
+					style={{
+						marginTop: '20px',
+						padding: '16px',
+						background: '#f9fafb',
+						border: '1px solid #e5e7eb',
+						borderRadius: '8px',
+					}}
+				>
+					<summary
+						style={{
+							cursor: 'pointer',
+							fontWeight: '600',
+							fontSize: '14px',
+							color: '#374151',
+							userSelect: 'none',
+						}}
+					>
+						▼ Learn more about {config.displayName}
+					</summary>
 					<div
-						className="education-content-body"
-						dangerouslySetInnerHTML={{ __html: config.educationalContent }}
-					/>
+						style={{
+							marginTop: '16px',
+							fontSize: '14px',
+							lineHeight: '1.6',
+							color: '#4b5563',
+						}}
+					>
+						{config.educationalContent.split('\n').map((line, index) => {
+							// Handle headers
+							if (line.startsWith('## ')) {
+								return (
+									<h3
+										key={index}
+										style={{
+											fontSize: '16px',
+											fontWeight: '700',
+											color: '#111827',
+											marginTop: index === 0 ? '0' : '16px',
+											marginBottom: '8px',
+										}}
+									>
+										{line.replace('## ', '')}
+									</h3>
+								);
+							}
+							if (line.startsWith('### ')) {
+								return (
+									<h4
+										key={index}
+										style={{
+											fontSize: '14px',
+											fontWeight: '600',
+											color: '#1f2937',
+											marginTop: '12px',
+											marginBottom: '6px',
+										}}
+									>
+										{line.replace('### ', '')}
+									</h4>
+								);
+							}
+							// Handle list items
+							if (line.trim().startsWith('- ')) {
+								return (
+									<li
+										key={index}
+										style={{
+											marginLeft: '20px',
+											marginBottom: '4px',
+										}}
+									>
+										{line.replace(/^- /, '')}
+									</li>
+								);
+							}
+							// Handle numbered lists
+							if (/^\d+\.\s/.test(line.trim())) {
+								return (
+									<li
+										key={index}
+										style={{
+											marginLeft: '20px',
+											marginBottom: '4px',
+										}}
+									>
+										{line.replace(/^\d+\.\s/, '')}
+									</li>
+								);
+							}
+							// Handle empty lines
+							if (line.trim() === '') {
+								return <div key={index} style={{ height: '8px' }} />;
+							}
+							// Regular paragraphs
+							return (
+								<p
+									key={index}
+									style={{
+										margin: '0 0 8px 0',
+									}}
+								>
+									{line}
+								</p>
+							);
+						})}
+					</div>
 				</details>
 			)}
 		</div>
