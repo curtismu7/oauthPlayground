@@ -266,31 +266,39 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 							<span style={{ color: '#6b7280' }}>, </span>
 							<span style={{ color: '#ec4899' }}>10</span>
 							<span style={{ color: '#6b7280' }}>)</span>
-							<span style={{ color: '#6b7280', marginLeft: '12px' }}>// Enable SMS at 10%</span>
+							<span style={{ color: '#6b7280', marginLeft: '12px' }}>
+								{/* Enable SMS at 10% */}
+							</span>
 						</div>
 						<div>
 							<span style={{ color: '#10b981' }}>window.mfaHelpers</span>
 							<span style={{ color: '#6b7280' }}>.disable(</span>
 							<span style={{ color: '#f59e0b' }}>"SMS"</span>
 							<span style={{ color: '#6b7280' }}>)</span>
-							<span style={{ color: '#6b7280', marginLeft: '12px' }}>// Instant rollback</span>
+							<span style={{ color: '#6b7280', marginLeft: '12px' }}>{/* Instant rollback */}</span>
 						</div>
 						<div>
 							<span style={{ color: '#10b981' }}>window.mfaHelpers</span>
 							<span style={{ color: '#6b7280' }}>.status()</span>
-							<span style={{ color: '#6b7280', marginLeft: '12px' }}>// Show formatted table</span>
+							<span style={{ color: '#6b7280', marginLeft: '12px' }}>
+								{/* Show formatted table */}
+							</span>
 						</div>
 						<div>
 							<span style={{ color: '#10b981' }}>window.mfaHelpers</span>
 							<span style={{ color: '#6b7280' }}>.enableAll(</span>
 							<span style={{ color: '#ec4899' }}>50</span>
 							<span style={{ color: '#6b7280' }}>)</span>
-							<span style={{ color: '#6b7280', marginLeft: '12px' }}>// Enable all at 50%</span>
+							<span style={{ color: '#6b7280', marginLeft: '12px' }}>
+								{/* Enable all at 50% */}
+							</span>
 						</div>
 						<div>
 							<span style={{ color: '#10b981' }}>window.mfaHelpers</span>
 							<span style={{ color: '#6b7280' }}>.disableAll()</span>
-							<span style={{ color: '#6b7280', marginLeft: '12px' }}>// Emergency rollback</span>
+							<span style={{ color: '#6b7280', marginLeft: '12px' }}>
+								{/* Emergency rollback */}
+							</span>
 						</div>
 					</div>
 
