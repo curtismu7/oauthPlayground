@@ -75,8 +75,7 @@ export const StepProgressBarV8U: React.FC<StepProgressBarProps> = ({
 					aria-label={`Progress: ${progressPercentage}% complete`}
 				/>
 			</div>
-			<div className="step-indicators">
-				{Array.from({ length: totalSteps }).map((_, index) => {
+			<div className="step-indicators">Array.from(length: totalSteps ).map((_, index) => {
 					const isCompleted = completedSteps.includes(index);
 					const isActive = index === currentStep;
 					const isAccessible = index <= currentStep;
@@ -102,10 +101,10 @@ export const StepProgressBarV8U: React.FC<StepProgressBarProps> = ({
 							)}
 						</div>
 					);
-				})}
+				})
 			</div>
 
-			<style>{`
+			<style>`
 				.step-progress-bar-v8 
 					display: flex;
 					flex-direction: column;
@@ -198,7 +197,7 @@ export const StepProgressBarV8U: React.FC<StepProgressBarProps> = ({
 						width: 28px;
 						height: 28px;
 						font-size: 10px;
-			`}</style>
+			`</style>
 		</div>
 	);
 };
