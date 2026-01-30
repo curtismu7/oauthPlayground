@@ -119,7 +119,10 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 
 	// Load Environment ID from global service on mount
 	useEffect(() => {
+		// Initialize the service first to load from localStorage
+		globalEnvironmentService.initialize();
 		const savedEnvId = globalEnvironmentService.getEnvironmentId();
+		console.log('[DeviceTypeSelectionScreen] Loaded Environment ID:', savedEnvId);
 		if (savedEnvId) {
 			setEnvironmentId(savedEnvId);
 		}
