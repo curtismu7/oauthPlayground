@@ -27,6 +27,7 @@ import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import type { TokenType } from '@/v8/flows/shared/MFATypes';
+import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
@@ -379,24 +380,22 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 				{/* Token Status Display */}
 				<div className="token-status-section">
 					{tokenType === 'worker' && (
-						<div className="token-status-card">
-							<h4>Worker Token Status</h4>
-							<div className={`status-indicator ${tokenStatus.isValid ? 'valid' : 'invalid'}`}>
-								{tokenStatus.isValid ? '✓ Valid' : '✗ Invalid or Missing'}
-							</div>
-							{tokenStatus.expiresAt && (
-								<p className="token-expiry">
-									Expires: {new Date(tokenStatus.expiresAt).toLocaleString()}
-								</p>
+						<>
+							<WorkerTokenUIServiceV8
+								mode="detailed"
+								showRefresh={true}
+								showStatusDisplay={true}
+								statusSize="large"
+								context="mfa"
+								environmentId={environmentId}
+								onEnvironmentIdUpdate={handleEnvironmentIdChange}
+							/>
+							{errors.token && (
+								<span className="error-message" role="alert" style={{ marginTop: '12px', display: 'block' }}>
+									{errors.token}
+								</span>
 							)}
-							<button
-								type="button"
-								onClick={() => setShowWorkerTokenModal(true)}
-								className="button-link"
-							>
-								{tokenStatus.isValid ? 'Update Token' : 'Set Worker Token'}
-							</button>
-						</div>
+						</>
 					)}
 					{tokenType === 'user' && (
 						<div className="token-status-card">
@@ -411,12 +410,12 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 							>
 								{credentials.userToken ? 'Re-authenticate' : 'Login via OAuth'}
 							</button>
+							{errors.token && (
+								<span className="error-message" role="alert" style={{ marginTop: '12px', display: 'block' }}>
+									{errors.token}
+								</span>
+							)}
 						</div>
-					)}
-					{errors.token && (
-						<span className="error-message" role="alert">
-							{errors.token}
-						</span>
 					)}
 				</div>
 
