@@ -24,7 +24,7 @@
  * />
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { EmailInputV8 } from '@/v8/components/EmailInputV8';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
@@ -76,6 +76,44 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 	console.log(`${MODULE_TAG} Rendering form for device:`, config.deviceType);
 	console.log(`${MODULE_TAG} Required fields:`, config.requiredFields);
 	console.log(`${MODULE_TAG} Optional fields:`, config.optionalFields);
+
+	// Load saved phone number, country code, and email from localStorage on mount
+	useEffect(() => {
+		const savedPhone = localStorage.getItem('mfa_saved_phoneNumber');
+		const savedCountryCode = localStorage.getItem('mfa_saved_countryCode');
+		const savedEmail = localStorage.getItem('mfa_saved_email');
+
+		if (savedPhone && !values['phoneNumber']) {
+			onChange('phoneNumber', savedPhone);
+		}
+		if (savedCountryCode && !values['countryCode']) {
+			onChange('countryCode', savedCountryCode);
+		}
+		if (savedEmail && !values['email']) {
+			onChange('email', savedEmail);
+		}
+	}, []); // Only run on mount
+
+	// Save phone number to localStorage when it changes
+	useEffect(() => {
+		if (values['phoneNumber']) {
+			localStorage.setItem('mfa_saved_phoneNumber', values['phoneNumber']);
+		}
+	}, [values['phoneNumber']]);
+
+	// Save country code to localStorage when it changes
+	useEffect(() => {
+		if (values['countryCode']) {
+			localStorage.setItem('mfa_saved_countryCode', values['countryCode']);
+		}
+	}, [values['countryCode']]);
+
+	// Save email to localStorage when it changes
+	useEffect(() => {
+		if (values['email']) {
+			localStorage.setItem('mfa_saved_email', values['email']);
+		}
+	}, [values['email']]);
 
 	// ========================================================================
 	// FIELD RENDERERS
