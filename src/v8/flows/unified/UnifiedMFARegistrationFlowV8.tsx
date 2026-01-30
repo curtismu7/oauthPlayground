@@ -27,6 +27,7 @@ import { useLocation } from 'react-router-dom';
 import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
 import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/deviceFlowConfigTypes';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
+import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
 import { GlobalMFAProvider } from '@/v8/contexts/GlobalMFAContext';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
@@ -706,16 +707,19 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	// ========================================================================
 
 	return (
-		<MFAFlowBaseV8
-			deviceType={deviceType}
-			renderStep0={renderStep0}
-			renderStep1={renderStep1}
-			renderStep2={renderStep2}
-			renderStep3={renderStep3}
-			renderStep4={renderStep4}
-			validateStep0={validateStep0}
-			stepLabels={stepLabels}
-		/>
+		<>
+			<MFAFlowBaseV8
+				deviceType={deviceType}
+				renderStep0={renderStep0}
+				renderStep1={renderStep1}
+				renderStep2={renderStep2}
+				renderStep3={renderStep3}
+				renderStep4={renderStep4}
+				validateStep0={validateStep0}
+				stepLabels={stepLabels}
+			/>
+			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
+		</>
 	);
 };
 
