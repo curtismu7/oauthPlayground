@@ -280,15 +280,19 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		}
 	}, [credentials.environmentId]);
 
-	// Check token status periodically
+	// Check token status on mount and periodically
 	useEffect(() => {
+		// Check immediately on mount
+		const initialStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+		setTokenStatus(initialStatus);
+
 		const interval = setInterval(() => {
-			const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 			setTokenStatus(newStatus);
 		}, 5000);
 
 		const handleStorageChange = () => {
-			const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 			setTokenStatus(newStatus);
 		};
 
@@ -616,7 +620,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	const handleWorkerTokenGenerated = () => {
 		void (async () => {
 			window.dispatchEvent(new Event('workerTokenUpdated'));
-			const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setTokenStatus(newStatus);
 			nav.setValidationErrors([]);
 			toastV8.success('Worker token generated and saved!');
@@ -1088,10 +1092,10 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							MFAConfigurationServiceV8,
 						} = require('@/v8/services/mfaConfigurationServiceV8');
 						const config = MFAConfigurationServiceV8.loadConfiguration();
-						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+						const currentTokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 
 						// Show token-only if showTokenAtEnd is ON and token is valid
-						const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+						const showTokenOnly = config.workerToken.showTokenAtEnd && currentTokenStatus.isValid;
 
 						return (
 							<WorkerTokenModalV8
