@@ -44,6 +44,14 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 
 	// Global MFA state
 	const { environmentId, workerTokenStatus, isConfigured, isLoading: globalLoading } = useGlobalMFA();
+	
+	// Debug logging
+	console.log(`${MODULE_TAG} Global state:`, {
+		environmentId,
+		workerTokenStatus,
+		isConfigured,
+		globalLoading,
+	});
 
 	// Form validation
 	const { values, errors, touched, handleChange, handleBlur, validateAll } = useFormValidation(
