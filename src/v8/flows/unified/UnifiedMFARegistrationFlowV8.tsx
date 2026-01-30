@@ -335,6 +335,124 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						>
 							Select the MFA policy to use for device registration
 						</span>
+
+						{/* Policy Summary - Collapsible */}
+						{selectedPolicy && (
+							<details
+								style={{
+									marginTop: '12px',
+									padding: '12px',
+									background: '#f9fafb',
+									border: '1px solid #e5e7eb',
+									borderRadius: '6px',
+								}}
+							>
+								<summary
+									style={{
+										cursor: 'pointer',
+										fontWeight: '600',
+										fontSize: '13px',
+										color: '#374151',
+										userSelect: 'none',
+									}}
+								>
+									📋 Policy Details
+								</summary>
+								<div style={{ marginTop: '12px', fontSize: '13px', color: '#4b5563' }}>
+									<div style={{ marginBottom: '8px' }}>
+										<strong>Policy Name:</strong> {selectedPolicy.name}
+									</div>
+									{selectedPolicy.default && (
+										<div style={{ marginBottom: '8px', color: '#059669' }}>
+											<strong>✓ Default Policy</strong>
+										</div>
+									)}
+									<div style={{ marginBottom: '8px' }}>
+										<strong>Enabled Devices:</strong>
+									</div>
+									<div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px' }}>
+										{selectedPolicy.sms?.enabled && (
+											<span
+												style={{
+													padding: '4px 8px',
+													background: '#dbeafe',
+													color: '#1e40af',
+													borderRadius: '4px',
+													fontSize: '12px',
+												}}
+											>
+												📱 SMS
+											</span>
+										)}
+										{selectedPolicy.email?.enabled && (
+											<span
+												style={{
+													padding: '4px 8px',
+													background: '#dbeafe',
+													color: '#1e40af',
+													borderRadius: '4px',
+													fontSize: '12px',
+												}}
+											>
+												✉️ Email
+											</span>
+										)}
+										{selectedPolicy.totp?.enabled && (
+											<span
+												style={{
+													padding: '4px 8px',
+													background: '#dbeafe',
+													color: '#1e40af',
+													borderRadius: '4px',
+													fontSize: '12px',
+												}}
+											>
+												🔐 TOTP
+											</span>
+										)}
+										{selectedPolicy.fido2?.enabled && (
+											<span
+												style={{
+													padding: '4px 8px',
+													background: '#dbeafe',
+													color: '#1e40af',
+													borderRadius: '4px',
+													fontSize: '12px',
+												}}
+											>
+												🔑 FIDO2
+											</span>
+										)}
+										{selectedPolicy.mobile?.enabled && (
+											<span
+												style={{
+													padding: '4px 8px',
+													background: '#dbeafe',
+													color: '#1e40af',
+													borderRadius: '4px',
+													fontSize: '12px',
+												}}
+											>
+												📲 Mobile
+											</span>
+										)}
+										{selectedPolicy.voice?.enabled && (
+											<span
+												style={{
+													padding: '4px 8px',
+													background: '#dbeafe',
+													color: '#1e40af',
+													borderRadius: '4px',
+													fontSize: '12px',
+												}}
+											>
+												📞 Voice
+											</span>
+										)}
+									</div>
+								</div>
+							</details>
+						)}
 					</div>
 
 					{/* Worker Token Status */}
