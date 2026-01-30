@@ -787,19 +787,9 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	// ========================================================================
 
 	/**
-	 * Render Step 0: Device Selection (was Step 1)
+	 * Render Step 0: Registration (skip device selection)
 	 */
 	const renderStep0 = useCallback(
-		(props: MFAFlowBaseRenderProps) => {
-			return <UnifiedDeviceSelectionStep {...props} deviceType={deviceType} config={config} />;
-		},
-		[config, deviceType]
-	);
-
-	/**
-	 * Render Step 1: Registration (was Step 2)
-	 */
-	const renderStep1 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
 			return <UnifiedRegistrationStep {...props} config={config} />;
 		},
@@ -807,9 +797,9 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	);
 
 	/**
-	 * Render Step 2: Activation (was Step 3)
+	 * Render Step 1: Activation
 	 */
-	const renderStep2 = useCallback(
+	const renderStep1 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
 			return <UnifiedActivationStep {...props} config={config} />;
 		},
@@ -817,9 +807,9 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	);
 
 	/**
-	 * Render Step 3: Success (was Step 4)
+	 * Render Step 2: Success
 	 */
-	const renderStep3 = useCallback(
+	const renderStep2 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
 			return (
 				<UnifiedSuccessStep
@@ -832,7 +822,17 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	);
 
 	/**
-	 * Render Step 4: Not used (removed blank step)
+	 * Render Step 3: Not used
+	 */
+	const renderStep3 = useCallback(
+		(_props: MFAFlowBaseRenderProps) => {
+			return null;
+		},
+		[]
+	);
+
+	/**
+	 * Render Step 4: Not used
 	 */
 	const renderStep4 = useCallback(
 		(_props: MFAFlowBaseRenderProps) => {
@@ -847,7 +847,6 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 	const stepLabels = useMemo(
 		() => [
-			'Select Device',
 			`Register ${config.displayName}`,
 			config.requiresOTP ? 'Activate (OTP)' : 'Activate',
 			'Success',
