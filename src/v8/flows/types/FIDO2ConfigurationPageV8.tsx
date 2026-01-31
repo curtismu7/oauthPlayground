@@ -63,7 +63,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	const _authContext = useAuth();
 	const [environmentId, setEnvironmentId] = useState<string>('');
 	const [tokenStatus, setTokenStatus] = useState(
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
 	);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
@@ -615,7 +615,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 										if (newValue) {
-											const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+											const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 											if (!currentStatus.isValid) {
 												console.log(
 													'[FIDO2-CONFIG-V8] Silent API retrieval enabled, attempting to fetch token now...'
@@ -2194,7 +2194,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					// Check if we should show token only (matches MFA pattern)
 					try {
 						const config = MFAConfigurationServiceV8.loadConfiguration();
-						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 
 						// Show token-only if showTokenAtEnd is ON and token is valid
 						const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
@@ -2205,7 +2205,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								onClose={() => {
 									setShowWorkerTokenModal(false);
 									// Refresh token status when modal closes (matches MFA pattern)
-									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 								}}
 								showTokenOnly={showTokenOnly}
 							/>
@@ -2216,7 +2216,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								isOpen={showWorkerTokenModal}
 								onClose={() => {
 									setShowWorkerTokenModal(false);
-									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 								}}
 							/>
 						);

@@ -38,13 +38,13 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const [tokenStatus, setTokenStatus] = useState(() =>
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
 	);
 
 	// Check token status on mount and periodically
 	useEffect(() => {
 		const checkStatus = () => {
-			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 			console.log(`${MODULE_TAG} Token status check:`, status);
 			setTokenStatus(status);
 		};
@@ -91,7 +91,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 		// Clear token using global service
 		await workerTokenServiceV8.clearToken();
 		window.dispatchEvent(new Event('workerTokenUpdated'));
-		const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+		const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 		setTokenStatus(newStatus);
 		setShowConfirmModal(false);
 		toastV8.success('Worker token removed');
@@ -100,7 +100,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 	const handleWorkerTokenGenerated = () => {
 		// Dispatch custom event for status update
 		window.dispatchEvent(new Event('workerTokenUpdated'));
-		const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+		const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 		setTokenStatus(newStatus);
 		toastV8.success('Worker token generated and saved!');
 	};
