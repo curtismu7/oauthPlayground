@@ -41,8 +41,26 @@ export const formatTimeRemaining = (expiresAt: number): string => {
 };
 
 /**
- * Check worker token status
- * Uses workerTokenServiceV8 as the single source of truth for worker token storage
+ * Check worker token status (ASYNC - requires await!)
+ *
+ * ⚠️ WARNING: This is an async function that returns a Promise.
+ * You MUST use `await` when calling this function, otherwise you'll get a Promise
+ * object instead of the actual TokenStatusInfo.
+ *
+ * For synchronous contexts (useState initializers, setInterval callbacks, event handlers),
+ * use `checkWorkerTokenStatusSync()` instead.
+ *
+ * @example
+ * // ✅ Correct - in async function with await
+ * const status = await checkWorkerTokenStatus();
+ *
+ * // ❌ WRONG - calling without await returns Promise, not TokenStatusInfo
+ * const status = checkWorkerTokenStatus(); // status.isValid is undefined!
+ *
+ * // ✅ Correct - use sync version for non-async contexts
+ * const [status, setStatus] = useState(() => checkWorkerTokenStatusSync());
+ *
+ * @returns Promise<TokenStatusInfo> - MUST be awaited
  */
 export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 	try {
@@ -135,8 +153,18 @@ export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
 };
 
 /**
- * Synchronous check worker token status (for backward compatibility)
- * Uses memory cache only - may be stale but is fast
+ * Synchronous check worker token status (RECOMMENDED for most use cases)
+ *
+ * ✅ Use this method for:
+ * - useState initializers: useState(() => checkWorkerTokenStatusSync())
+ * - setInterval callbacks
+ * - Event handlers
+ * - Any synchronous context
+ *
+ * This uses the memory cache and localStorage, which is fast and reliable.
+ * The cache is updated whenever tokens change via events.
+ *
+ * @returns TokenStatusInfo - synchronous, no await needed
  */
 export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 	try {
@@ -367,9 +395,19 @@ export const getHealthCheck = async (): Promise<{
 	};
 };
 
+/**
+ * Safe getter that always returns TokenStatusInfo synchronously.
+ * This is an alias for checkWorkerTokenStatusSync() for clarity.
+ *
+ * Use this when you want to be explicit that you're getting sync status.
+ */
+export const getTokenStatus = checkWorkerTokenStatusSync;
+
 export const WorkerTokenStatusServiceV8 = {
 	checkWorkerTokenStatus,
 	checkWorkerTokenStatusSync,
+	// Alias for sync version - recommended for most use cases
+	getTokenStatus,
 	formatTimeRemaining,
 	getStatusColor,
 	getStatusIcon,

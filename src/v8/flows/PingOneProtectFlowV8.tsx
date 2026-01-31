@@ -142,7 +142,7 @@ type RiskLevel = keyof typeof RISK_LEVEL_CONFIG;
 export const PingOneProtectFlowV8: React.FC = () => {
 	// Worker token state
 	const [tokenStatus, setTokenStatus] = useState(() => {
-		return workerTokenServiceV8.checkWorkerTokenStatus();
+		return WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 	});
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
@@ -225,7 +225,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	// Update token status
 	useEffect(() => {
 		const updateTokenStatus = () => {
-			setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+			setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 		};
 
 		updateTokenStatus();
@@ -624,7 +624,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 
 								// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 								if (newValue) {
-									const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+									const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 									if (!currentStatus.isValid) {
 										console.log(
 											'[PINGONE-PROTECT-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
@@ -1408,10 +1408,10 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}
 					// Check if we should show token only (matches MFA pattern)
 					try {
 						const config = MFAConfigurationServiceV8.loadConfiguration();
-						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+						const currentTokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 
 						// Show token-only if showTokenAtEnd is ON and token is valid
-						const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+						const showTokenOnly = config.workerToken.showTokenAtEnd && currentTokenStatus.isValid;
 
 						return (
 							<WorkerTokenModalV8
@@ -1419,7 +1419,7 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}
 								onClose={() => {
 									setShowWorkerTokenModal(false);
 									// Refresh token status when modal closes (matches MFA pattern)
-									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 								}}
 								showTokenOnly={showTokenOnly}
 							/>
@@ -1430,7 +1430,7 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}
 								isOpen={showWorkerTokenModal}
 								onClose={() => {
 									setShowWorkerTokenModal(false);
-									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
 								}}
 							/>
 						);

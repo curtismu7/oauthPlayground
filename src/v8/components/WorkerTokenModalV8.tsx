@@ -76,7 +76,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	useEffect(() => {
 		if (isOpen) {
 			const checkToken = async () => {
-				const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				const tokenStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				if (tokenStatus.isValid || showTokenOnly) {
 					const config = MFAConfigurationServiceV8.loadConfiguration();
 					if (config.workerToken.showTokenAtEnd || showTokenOnly) {

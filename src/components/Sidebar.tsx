@@ -633,6 +633,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 					},
 					{
+						id: 'pingone-protect-v8',
+						path: '/v8/protect',
+						label: 'PingOne Protect',
+						icon: (
+							<ColoredIcon $color="#ef4444">
+								<FiAlertTriangle />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: PingOne Protect risk evaluation and fraud detection">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
 						id: 'mfa-one-time-devices-v8',
 						path: '/v8/mfa-one-time-devices',
 						label: 'MFA One-Time Devices',
@@ -1284,21 +1299,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							<ColoredIcon $color="#7c3aed">
 								<FiCpu />
 							</ColoredIcon>
-						),
-					},
-					{
-						id: 'pingone-protect-v8',
-						path: '/v8/protect',
-						label: 'PingOne Protect (V8)',
-						icon: (
-							<ColoredIcon $color="#ef4444">
-								<FiAlertTriangle />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V8: PingOne Protect risk evaluation and fraud detection">
-								NEW
-							</MigrationBadge>
 						),
 					},
 				],
