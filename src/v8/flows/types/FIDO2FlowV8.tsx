@@ -580,7 +580,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			includeScopes: false,
 		});
 		const envId = storedCredentials.environmentId?.trim();
-		const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatus().isValid;
+		const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync().isValid;
 		// #region agent log - Use safe analytics fetch
 		(async () => {
 			try {
@@ -710,7 +710,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			includeScopes: false,
 		});
 		const envId = storedCredentials.environmentId?.trim();
-		const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatus().isValid;
+		const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync().isValid;
 
 		if (envId && tokenValid) {
 			void fetchFido2Policies();
@@ -729,7 +729,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				includeScopes: false,
 			});
 			const envId = storedCredentials.environmentId?.trim();
-			const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatus().isValid;
+			const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync().isValid;
 
 			if (envId && tokenValid && lastFetchedFido2EnvIdRef.current !== envId) {
 				void fetchFido2Policies();
@@ -832,7 +832,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 										// #region agent log
 										// #endregion
 										window.dispatchEvent(new Event('workerTokenUpdated'));
-										const _newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										const _newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 										// #region agent log
 										// #endregion
 										toastV8.success('Worker token removed');
@@ -997,7 +997,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 										if (newValue) {
-											const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+											const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 											if (!currentStatus.isValid) {
 												console.log(
 													'[FIDO2-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
@@ -1486,7 +1486,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						email: '',
 						deviceName: '',
 					};
-					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 					const devices = await controller.loadExistingDevices(credentials, tokenStatus);
 					setDeviceSelection({
 						existingDevices: devices,
