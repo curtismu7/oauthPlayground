@@ -23,37 +23,37 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
-import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/deviceFlowConfigTypes';
-import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { MFADocumentationPageV8 } from '@/v8/components/MFADocumentationPageV8';
+import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
+import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdownV8';
+import { SearchableDropdownV8 } from '@/v8/components/SearchableDropdownV8';
+import { SQLiteStatsDisplayV8 } from '@/v8/components/SQLiteStatsDisplayV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
-import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
+import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
+import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/deviceFlowConfigTypes';
 import { GlobalMFAProvider } from '@/v8/contexts/GlobalMFAContext';
+import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
 import { useMFAPolicies } from '@/v8/hooks/useMFAPolicies';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
+import { useUserSearch } from '@/v8/hooks/useUserSearch';
+import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
+import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
-import { useUserSearch } from '@/v8/hooks/useUserSearch';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
 import { UnifiedActivationStep } from './components/UnifiedActivationStep';
-import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
 import { UnifiedDeviceRegistrationForm } from './components/UnifiedDeviceRegistrationForm';
 import { UnifiedDeviceSelectionModal } from './components/UnifiedDeviceSelectionModal';
-import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
-import { SearchableDropdownV8 } from '@/v8/components/SearchableDropdownV8';
-import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdownV8';
-import { SQLiteStatsDisplayV8 } from '@/v8/components/SQLiteStatsDisplayV8';
+import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
 import './UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[🔄 UNIFIED-MFA-FLOW-V8]';
@@ -104,10 +104,25 @@ const DEVICE_FLAG_MAP: Record<DeviceConfigKey, MFAFeatureFlag> = {
 const DEVICE_TYPES: { key: DeviceConfigKey; icon: string; name: string; description: string }[] = [
 	{ key: 'SMS', icon: '📱', name: 'SMS', description: 'Receive OTP codes via text message' },
 	{ key: 'EMAIL', icon: '✉️', name: 'Email', description: 'Receive OTP codes via email' },
-	{ key: 'TOTP', icon: '🔐', name: 'Authenticator App (TOTP)', description: 'Use Google Authenticator, Authy, or similar' },
-	{ key: 'MOBILE', icon: '📲', name: 'Mobile Push', description: 'Receive push notifications on your phone' },
+	{
+		key: 'TOTP',
+		icon: '🔐',
+		name: 'Authenticator App (TOTP)',
+		description: 'Use Google Authenticator, Authy, or similar',
+	},
+	{
+		key: 'MOBILE',
+		icon: '📲',
+		name: 'Mobile Push',
+		description: 'Receive push notifications on your phone',
+	},
 	{ key: 'WHATSAPP', icon: '💬', name: 'WhatsApp', description: 'Receive OTP codes via WhatsApp' },
-	{ key: 'FIDO2', icon: '🔑', name: 'Security Key (FIDO2)', description: 'Use a hardware security key or passkey' },
+	{
+		key: 'FIDO2',
+		icon: '🔑',
+		name: 'Security Key (FIDO2)',
+		description: 'Use a hardware security key or passkey',
+	},
 ];
 
 /** Check if a device type is enabled via feature flags */
@@ -133,7 +148,11 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	const [showOTPModal, setShowOTPModal] = useState(false);
 	const [otpCode, setOtpCode] = useState('');
 	const [authenticationId, setAuthenticationId] = useState<string | null>(null);
-	const [selectedAuthDevice, setSelectedAuthDevice] = useState<{ id: string; type: string; nickname?: string } | null>(null);
+	const [selectedAuthDevice, setSelectedAuthDevice] = useState<{
+		id: string;
+		type: string;
+		nickname?: string;
+	} | null>(null);
 
 	// Use worker token hook for token management
 	const workerToken = useWorkerToken({
@@ -248,17 +267,22 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	}, [username]);
 
 	// Handle device selection for authentication
-	const handleDeviceSelectForAuthentication = async (device: { id: string; type: string; deviceName?: string; nickname?: string }) => {
+	const handleDeviceSelectForAuthentication = async (device: {
+		id: string;
+		type: string;
+		deviceName?: string;
+		nickname?: string;
+	}) => {
 		console.log(`${MODULE_TAG} Selected device for authentication:`, device);
 		setShowDeviceSelectionModal(false);
 		setSelectedAuthDevice(device);
-		
+
 		const policyId = selectedPolicy?.id;
 		if (!policyId) {
 			toastV8.error('Please select an MFA Policy first');
 			return;
 		}
-		
+
 		try {
 			// Initialize authentication
 			const response = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
@@ -268,17 +292,25 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				deviceId: device.id,
 				region: 'na',
 			});
-			
+
 			console.log(`${MODULE_TAG} Auth initialized - full response:`, response);
 			setAuthenticationId(response.id);
-			
+
 			const status = (response.status || '').toUpperCase();
 			const nextStep = (response.nextStep || '').toUpperCase();
 			const links = response._links as Record<string, { href?: string }> | undefined;
-			const hasOtpLink = !!(links && (links.otp || links['otp.check'] || (links as Record<string, unknown>)['checkOtp']));
-			
-			console.log(`${MODULE_TAG} Auth status:`, { status, nextStep, hasOtpLink, deviceType: device.type });
-			
+			const hasOtpLink = !!(
+				links &&
+				(links.otp || links['otp.check'] || (links as Record<string, unknown>)['checkOtp'])
+			);
+
+			console.log(`${MODULE_TAG} Auth status:`, {
+				status,
+				nextStep,
+				hasOtpLink,
+				deviceType: device.type,
+			});
+
 			// Show appropriate UI based on response (normalize status/nextStep for PingOne variants)
 			if (status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED' || hasOtpLink) {
 				console.log(`${MODULE_TAG} Opening OTP modal for device:`, device.type);
@@ -286,9 +318,14 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				toastV8.success(`Verification code sent to your ${device.type} device`);
 			} else if (status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED') {
 				console.log(`${MODULE_TAG} FIDO2 assertion required`);
-				toastV8.info('FIDO2 authentication required. Please use /v8/mfa-hub for FIDO2 authentication.');
+				toastV8.info(
+					'FIDO2 authentication required. Please use /v8/mfa-hub for FIDO2 authentication.'
+				);
 				setFlowMode(null);
-			} else if (status === 'PUSH_CONFIRMATION_REQUIRED' || nextStep === 'PUSH_CONFIRMATION_REQUIRED') {
+			} else if (
+				status === 'PUSH_CONFIRMATION_REQUIRED' ||
+				nextStep === 'PUSH_CONFIRMATION_REQUIRED'
+			) {
 				console.log(`${MODULE_TAG} Push confirmation required`);
 				toastV8.success('Push notification sent! Please approve on your mobile device.');
 				toastV8.info('Complete authentication at /v8/mfa-hub for push polling.');
@@ -296,31 +333,47 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			} else if (status === 'COMPLETED') {
 				toastV8.success('Authentication completed successfully!');
 				setFlowMode(null);
-			} else if (status === 'DEVICE_SELECTION_REQUIRED' || nextStep === 'SELECTION_REQUIRED' || nextStep === 'DEVICE_SELECTION_REQUIRED') {
+			} else if (
+				status === 'DEVICE_SELECTION_REQUIRED' ||
+				nextStep === 'SELECTION_REQUIRED' ||
+				nextStep === 'DEVICE_SELECTION_REQUIRED'
+			) {
 				console.log(`${MODULE_TAG} Device selection required - showing modal again`);
 				setShowDeviceSelectionModal(true);
 			} else {
-				console.warn(`${MODULE_TAG} Unexpected authentication status:`, { status, nextStep, response });
+				console.warn(`${MODULE_TAG} Unexpected authentication status:`, {
+					status,
+					nextStep,
+					response,
+				});
 				toastV8.info(`Authentication status: ${status || nextStep || 'UNKNOWN'}`);
 				// Stay in authentication flow so user can try another device
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
-			
+
 			// Enhanced error handling for NO_USABLE_DEVICES
 			let errorMessage = 'Authentication failed: ';
 			if (error instanceof Error) {
 				const errorStr = error.message.toLowerCase();
-				
+
 				// Check for NO_USABLE_DEVICES or device availability errors
-				if (errorStr.includes('no usable devices') || errorStr.includes('too many') || errorStr.includes('cooldown') || errorStr.includes('blocked')) {
+				if (
+					errorStr.includes('no usable devices') ||
+					errorStr.includes('too many') ||
+					errorStr.includes('cooldown') ||
+					errorStr.includes('blocked')
+				) {
 					errorMessage = '⚠️ Device Temporarily Unavailable\n\n';
-					
+
 					if (errorStr.includes('cooldown') || errorStr.includes('too many')) {
-						errorMessage += 'This device is in cooldown due to too many recent authentication attempts. ';
-						errorMessage += 'Please wait a few minutes and try again, or select a different device.';
+						errorMessage +=
+							'Too many notifications have been sent to this device. It is temporarily in cooldown. ';
+						errorMessage +=
+							'Please wait a few minutes and try again, or select a different device.';
 					} else if (errorStr.includes('blocked')) {
-						errorMessage += 'This device has been blocked. Please contact your administrator or use a different device.';
+						errorMessage +=
+							'This device has been blocked. Please contact your administrator or use a different device.';
 					} else {
 						errorMessage += error.message;
 					}
@@ -330,24 +383,24 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			} else {
 				errorMessage += 'Unknown error';
 			}
-			
+
 			toastV8.error(errorMessage, { duration: 8000 });
 			// Do NOT set flowMode(null) - keep user in authentication flow so they can retry or select another device
 		}
 	};
-	
+
 	// Handle OTP verification
 	const handleVerifyOTP = async () => {
 		if (!authenticationId || !selectedAuthDevice) {
 			toastV8.error('Authentication session not found');
 			return;
 		}
-		
+
 		if (otpCode.length !== 6) {
 			toastV8.error('Please enter a 6-digit code');
 			return;
 		}
-		
+
 		try {
 			const result = await MfaAuthenticationServiceV8.validateOTP({
 				environmentId,
@@ -356,7 +409,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				otp: otpCode,
 				otpCheckUrl: '', // Will be constructed by service
 			});
-			
+
 			if (result.valid || result.status === 'COMPLETED') {
 				toastV8.success('Authentication completed successfully!');
 				setShowOTPModal(false);
@@ -367,7 +420,9 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} OTP verification failed:`, error);
-			toastV8.error(`Verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			toastV8.error(
+				`Verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		}
 	};
 
@@ -385,10 +440,19 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						boxShadow: '0 4px 12px rgba(139, 92, 246, 0.2)',
 					}}
 				>
-					<h1 style={{ margin: '0 0 8px 0', fontSize: '26px', fontWeight: '700', color: '#ffffff' }}>
+					<h1
+						style={{ margin: '0 0 8px 0', fontSize: '26px', fontWeight: '700', color: '#ffffff' }}
+					>
 						🔐 MFA Unified Flow
 					</h1>
-					<p style={{ margin: 0, fontSize: '15px', color: 'rgba(255, 255, 255, 0.9)', lineHeight: '1.5' }}>
+					<p
+						style={{
+							margin: 0,
+							fontSize: '15px',
+							color: 'rgba(255, 255, 255, 0.9)',
+							lineHeight: '1.5',
+						}}
+					>
 						Choose what you want to do with MFA devices.
 					</p>
 				</div>
@@ -404,7 +468,9 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						overflow: 'hidden',
 					}}
 				>
-					<h2 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#111827' }}>
+					<h2
+						style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#111827' }}
+					>
 						Configuration
 					</h2>
 
@@ -676,7 +742,14 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					</div>
 
 					{/* Worker Token Status */}
-					<div style={{ marginTop: '24px', marginBottom: '60px', paddingRight: '24px', overflow: 'hidden' }}>
+					<div
+						style={{
+							marginTop: '24px',
+							marginBottom: '60px',
+							paddingRight: '24px',
+							overflow: 'hidden',
+						}}
+					>
 						<WorkerTokenUIServiceV8
 							mode="detailed"
 							showRefresh={true}
@@ -686,31 +759,48 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							environmentId={environmentId}
 							onEnvironmentIdUpdate={setEnvironmentId}
 						/>
-					
-					{/* User Token Status */}
-					{userToken && (
-						<div style={{ marginTop: '16px', padding: '16px', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.05))', border: '2px solid #10b981', borderRadius: '8px' }}>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-								<span style={{ fontSize: '20px' }}>👤</span>
-								<strong style={{ color: '#047857', fontSize: '16px' }}>User Token Active</strong>
-							</div>
-							<div style={{ fontSize: '14px', color: '#059669', lineHeight: '1.5' }}>
-								✓ User authentication token available<br/>
-								✓ Ready for User Flow device registration
-							</div>
-						</div>
-					)}
-				</div>
-			</div>
 
-			{/* Flow Mode Selection */}
-			<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-				{/* Registration Option */}
-				<button
-					type="button"
-					onClick={() => setFlowMode('registration')}
+						{/* User Token Status */}
+						{userToken && (
+							<div
+								style={{
+									marginTop: '16px',
+									padding: '16px',
+									background:
+										'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.05))',
+									border: '2px solid #10b981',
+									borderRadius: '8px',
+								}}
+							>
+								<div
+									style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
+								>
+									<span style={{ fontSize: '20px' }}>👤</span>
+									<strong style={{ color: '#047857', fontSize: '16px' }}>User Token Active</strong>
+								</div>
+								<div style={{ fontSize: '14px', color: '#059669', lineHeight: '1.5' }}>
+									✓ User authentication token available
+									<br />✓ Ready for User Flow device registration
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+
+				{/* Flow Mode Selection */}
+				<div
 					style={{
-						padding: '32px 24px',
+						display: 'grid',
+						gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+						gap: '20px',
+					}}
+				>
+					{/* Registration Option */}
+					<button
+						type="button"
+						onClick={() => setFlowMode('registration')}
+						style={{
+							padding: '32px 24px',
 						}}
 						onMouseLeave={(e) => {
 							e.currentTarget.style.borderColor = '#e5e7eb';
@@ -722,25 +812,33 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
 							<span style={{ fontSize: '48px', lineHeight: 1 }}>➕</span>
 							<div>
-								<h2 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: '700', color: '#047857' }}>
+								<h2
+									style={{
+										margin: '0 0 8px 0',
+										fontSize: '20px',
+										fontWeight: '700',
+										color: '#047857',
+									}}
+								>
 									Device Registration
 								</h2>
 								<p style={{ margin: 0, fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
-									Register a new MFA device for a user. Create SMS, Email, TOTP, Mobile Push, WhatsApp, or FIDO2 devices.
+									Register a new MFA device for a user. Create SMS, Email, TOTP, Mobile Push,
+									WhatsApp, or FIDO2 devices.
 								</p>
 							</div>
 						</div>
 					</button>
 
-				{/* Authentication Option */}
-				<button
-					type="button"
-					onClick={() => {
-						// Show device selection modal for authentication on this page
-						setFlowMode('authentication');
-						setShowDeviceSelectionModal(true);
-					}}
-					style={{
+					{/* Authentication Option */}
+					<button
+						type="button"
+						onClick={() => {
+							// Show device selection modal for authentication on this page
+							setFlowMode('authentication');
+							setShowDeviceSelectionModal(true);
+						}}
+						style={{
 							padding: '32px 24px',
 							background: '#ffffff',
 							border: '2px solid #e5e7eb',
@@ -765,11 +863,19 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
 							<span style={{ fontSize: '48px', lineHeight: 1 }}>🔓</span>
 							<div>
-								<h2 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: '700', color: '#1d4ed8' }}>
+								<h2
+									style={{
+										margin: '0 0 8px 0',
+										fontSize: '20px',
+										fontWeight: '700',
+										color: '#1d4ed8',
+									}}
+								>
 									Device Authentication
 								</h2>
 								<p style={{ margin: 0, fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
-									Authenticate using an existing MFA device. Verify user identity with OTP, push notification, or security key.
+									Authenticate using an existing MFA device. Verify user identity with OTP, push
+									notification, or security key.
 								</p>
 							</div>
 						</div>
@@ -813,7 +919,9 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					>
 						← Back
 					</button>
-					<h1 style={{ margin: '0 0 8px 0', fontSize: '26px', fontWeight: '700', color: '#ffffff' }}>
+					<h1
+						style={{ margin: '0 0 8px 0', fontSize: '26px', fontWeight: '700', color: '#ffffff' }}
+					>
 						🔓 Device Authentication
 					</h1>
 					<p style={{ margin: 0, fontSize: '15px', color: 'rgba(255, 255, 255, 0.9)' }}>
@@ -884,10 +992,10 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							<input
 								type="text"
 								value={otpCode}
-						onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-						placeholder="000000"
-						maxLength={6}
-						style={{
+								onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+								placeholder="000000"
+								maxLength={6}
+								style={{
 									width: '100%',
 									padding: '12px 16px',
 									fontSize: '24px',
@@ -981,7 +1089,13 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			</div>
 
 			{/* Device Type Cards */}
-			<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+			<div
+				style={{
+					display: 'grid',
+					gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+					gap: '16px',
+				}}
+			>
 				{DEVICE_TYPES.map((device) => {
 					const enabled = isDeviceEnabled(device.key);
 					return (
@@ -1015,15 +1129,15 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 								}
 							}}
 						>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}
+							>
 								<span style={{ fontSize: '32px' }}>{device.icon}</span>
 								<span style={{ fontSize: '18px', fontWeight: '600', color: '#111827' }}>
 									{device.name}
 								</span>
 							</div>
-							<p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
-								{device.description}
-							</p>
+							<p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>{device.description}</p>
 							{!enabled && (
 								<p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#9ca3af' }}>
 									(Not enabled)
@@ -1033,7 +1147,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					);
 				})}
 			</div>
-			
+
 			{/* Device Selection Modal for Authentication */}
 			<UnifiedDeviceSelectionModal
 				isOpen={showDeviceSelectionModal}
@@ -1045,29 +1159,33 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				username={username}
 				environmentId={environmentId}
 			/>
-			
+
 			{/* OTP Modal for Authentication */}
 			{showOTPModal && (
-				<div style={{
-					position: 'fixed',
-					top: 0,
-					left: 0,
-					right: 0,
-					bottom: 0,
-					background: 'rgba(0, 0, 0, 0.5)',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					zIndex: 9999,
-				}}>
-					<div style={{
-						background: 'white',
-						borderRadius: '12px',
-						padding: '32px',
-						maxWidth: '400px',
-						width: '100%',
-						boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-					}}>
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						background: 'rgba(0, 0, 0, 0.5)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						zIndex: 9999,
+					}}
+				>
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '12px',
+							padding: '32px',
+							maxWidth: '400px',
+							width: '100%',
+							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+						}}
+					>
 						<h2 style={{ margin: '0 0 16px 0', fontSize: '20px', fontWeight: '600' }}>
 							Enter Verification Code
 						</h2>
@@ -1090,11 +1208,11 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 								borderRadius: '8px',
 								marginBottom: '20px',
 							}}
-					/>
-					<div style={{ display: 'flex', gap: '12px' }}>
-						<button
-							type="button"
-							onClick={() => {
+						/>
+						<div style={{ display: 'flex', gap: '12px' }}>
+							<button
+								type="button"
+								onClick={() => {
 									setShowOTPModal(false);
 									setOtpCode('');
 									setFlowMode(null);
@@ -1110,11 +1228,11 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 									cursor: 'pointer',
 								}}
 							>
-							Cancel
-						</button>
-						<button
-							type="button"
-							onClick={handleVerifyOTP}
+								Cancel
+							</button>
+							<button
+								type="button"
+								onClick={handleVerifyOTP}
 								disabled={otpCode.length !== 6}
 								style={{
 									flex: 1,
@@ -1138,9 +1256,9 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	);
 };
 
-	// ============================================================================
-	// MAIN COMPONENT (WRAPPER)
-	// ============================================================================
+// ============================================================================
+// MAIN COMPONENT (WRAPPER)
+// ============================================================================
 // ============================================================================
 // MAIN COMPONENT (WRAPPER)
 // ============================================================================
@@ -1192,10 +1310,10 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 				/>
 				<GlobalMFAProvider>
 					<MFACredentialProvider>
-						<DeviceTypeSelectionScreen 
-						onSelectDeviceType={setSelectedDeviceType} 
-						userToken={userToken}
-					/>
+						<DeviceTypeSelectionScreen
+							onSelectDeviceType={setSelectedDeviceType}
+							userToken={userToken}
+						/>
 					</MFACredentialProvider>
 				</GlobalMFAProvider>
 				{/* API display (bottom of page) */}
@@ -1209,8 +1327,8 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 	return (
 		<GlobalMFAProvider>
 			<MFACredentialProvider>
-				<UnifiedMFARegistrationFlowContent 
-					{...props} 
+				<UnifiedMFARegistrationFlowContent
+					{...props}
 					deviceType={selectedDeviceType}
 					userToken={userToken}
 					setUserToken={setUserToken}
@@ -1293,14 +1411,13 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 		const urlParams = new URLSearchParams(window.location.search);
 		const code = urlParams.get('code');
 		const hasStoredState = sessionStorage.getItem('user_login_state_v8');
-		
+
 		// If we have OAuth callback params and stored state, re-open the modal to process callback
 		if (code && hasStoredState && !showUserLoginModal) {
 			console.log('[UNIFIED-FLOW] OAuth callback detected - re-opening modal to process');
 			setShowUserLoginModal(true);
 		}
 	}, [showUserLoginModal]);
-
 
 	// ========================================================================
 	// TOKEN MANAGEMENT
@@ -1343,7 +1460,6 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 			token: TokenStatusInfo,
 			navigation: ReturnType<typeof useStepNavigationV8>
 		) => {
-
 			// Check token validity
 			if (!token.isValid) {
 				navigation.setValidationErrors(['Invalid or expired worker token']);
@@ -1401,35 +1517,36 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				// - Admin flow: ACTIVE (no OTP sent, device ready immediately)
 				// - Admin ACTIVATION_REQUIRED: ACTIVATION_REQUIRED (sends OTP for admin to activate)
 				// - User flow: ACTIVATION_REQUIRED (sends OTP for user to activate)
-			// - FIDO2: ACTIVE (WebAuthn verification happens during registration)
-			let deviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED' | undefined;
-			
-			if (selectedDeviceType === 'FIDO2') {
-				// FIDO2: Device is ACTIVE after successful WebAuthn registration
-				// WebAuthn verification (biometric/security key) proves device works
-				// No separate OTP activation needed
-				deviceStatus = 'ACTIVE';
-				console.log('[UNIFIED-FLOW] FIDO2 device - setting status to ACTIVE (WebAuthn verified)');
-			} else if (flowType === 'admin') {
-				deviceStatus = 'ACTIVE';
-			} else if (flowType === 'admin_activation_required') {
-				deviceStatus = 'ACTIVATION_REQUIRED';
-			} else {
-				deviceStatus = 'ACTIVATION_REQUIRED'; // user flow
-			}
+				// - FIDO2: ACTIVE (WebAuthn verification happens during registration)
+				let deviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED' | undefined;
 
-			console.log('[UNIFIED-FLOW] Device status determined:', {
-				flowType,
-				deviceType: selectedDeviceType,
-				deviceStatus,
-				otpWillBeSent: deviceStatus === 'ACTIVATION_REQUIRED',
-				reason: selectedDeviceType === 'FIDO2'
-					? 'FIDO2 - ACTIVE after WebAuthn verification'
-						: 'User flow - OTP required for activation'
+				if (selectedDeviceType === 'FIDO2') {
+					// FIDO2: Device is ACTIVE after successful WebAuthn registration
+					// WebAuthn verification (biometric/security key) proves device works
+					// No separate OTP activation needed
+					deviceStatus = 'ACTIVE';
+					console.log('[UNIFIED-FLOW] FIDO2 device - setting status to ACTIVE (WebAuthn verified)');
+				} else if (flowType === 'admin') {
+					deviceStatus = 'ACTIVE';
+				} else if (flowType === 'admin_activation_required') {
+					deviceStatus = 'ACTIVATION_REQUIRED';
+				} else {
+					deviceStatus = 'ACTIVATION_REQUIRED'; // user flow
+				}
+
+				console.log('[UNIFIED-FLOW] Device status determined:', {
+					flowType,
+					deviceType: selectedDeviceType,
+					deviceStatus,
+					otpWillBeSent: deviceStatus === 'ACTIVATION_REQUIRED',
+					reason:
+						selectedDeviceType === 'FIDO2'
+							? 'FIDO2 - ACTIVE after WebAuthn verification'
+							: 'User flow - OTP required for activation',
 				});
 
-			// Use same parameter construction as working MFA flows
-			const baseParams: Record<string, unknown> = {
+				// Use same parameter construction as working MFA flows
+				const baseParams: Record<string, unknown> = {
 					environmentId: props.credentials.environmentId,
 					username: props.credentials.username,
 					type: selectedDeviceType,
@@ -1437,7 +1554,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					tokenType: flowType === 'user' ? 'user' : 'worker',
 					userToken: flowType === 'user' ? token : undefined,
 				};
-				
+
 				// Only add status if it's not FIDO2 (FIDO2 gets status from API)
 				if (deviceStatus !== undefined) {
 					baseParams.status = deviceStatus;
@@ -1483,104 +1600,119 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 				const result = await MFAServiceV8.registerDevice(deviceParams);
 				console.log('[UNIFIED-FLOW] Device registered:', result);
-				
+
 				// Update MFA state with device info
 				const registrationResult = result as unknown as Record<string, unknown>;
-			
-			// ========== DEBUG: TOTP QR CODE DATA ==========
-			if (selectedDeviceType === 'TOTP') {
-				console.log('🔍 [TOTP DEBUG] Registration result for TOTP:', {
-					deviceId: result.deviceId,
-					status: result.status,
-					qrCode: registrationResult.qrCode,
-					qrCodeUrl: registrationResult.qrCodeUrl,
-					secret: registrationResult.secret,
-					totpSecret: registrationResult.totpSecret,
-					fullResult: result
-				});
-			}
-			// ===============================================
 
-			// Clear stored registration data after successful use
-			localStorage.removeItem('mfa_registration_flow_type');
-			localStorage.removeItem('mfa_registration_fields');
-			localStorage.removeItem('mfa_registration_device_type');
-
-			props.setMfaState((prev) => {
-// TOTP: QR code will be rendered by QRCodeSVG component in UnifiedActivationStep
-		// No need to generate QR code data URL here - just pass the keyUri
-			
-			const newState = {
-				...prev,
-				deviceId: result.deviceId,
-				deviceStatus: result.status,
-				// Store device.activate URI for activation if present
-				...(registrationResult.deviceActivateUri
-					? { deviceActivateUri: String(registrationResult.deviceActivateUri) }
-					: {}),
-				// TOTP-specific: Store QR code and secret
-				...(selectedDeviceType === 'TOTP' && {
-					// Map API response fields to expected mfaState fields:
-					// API returns: { secret, keyUri }
-					// mfaState expects: { totpSecret, qrCodeUrl }
-					totpSecret: String(registrationResult.secret || ''),
-					keyUri: String(registrationResult.keyUri || ''),
-					// Store keyUri as qrCodeUrl - activation component will render it as QR
-					qrCodeUrl: String(registrationResult.keyUri || ''),
-					showQr: !!(registrationResult.secret || registrationResult.keyUri),
-				}),
-				// FIDO2-specific: Store credential creation options
-				...(selectedDeviceType === 'FIDO2' && registrationResult.publicKeyCredentialCreationOptions && {
-					publicKeyCredentialCreationOptions: registrationResult.publicKeyCredentialCreationOptions,
-				}),
-				// Mobile-specific: Store pairing key
-				...(selectedDeviceType === 'MOBILE' && registrationResult.pairingKey && {
-					pairingKey: String(registrationResult.pairingKey),
-				}),
-			};
-				
-				// ========== DEBUG: TOTP MFA STATE UPDATE ==========
+				// ========== DEBUG: TOTP QR CODE DATA ==========
 				if (selectedDeviceType === 'TOTP') {
-					console.log('🔍 [TOTP DEBUG] Updated mfaState:', {
-						qrCodeUrl: newState.qrCodeUrl,
-						totpSecret: newState.totpSecret,
-						showQr: newState.showQr,
-						deviceStatus: newState.deviceStatus,
-						fullState: newState
+					console.log('🔍 [TOTP DEBUG] Registration result for TOTP:', {
+						deviceId: result.deviceId,
+						status: result.status,
+						qrCode: registrationResult.qrCode,
+						qrCodeUrl: registrationResult.qrCodeUrl,
+						secret: registrationResult.secret,
+						totpSecret: registrationResult.totpSecret,
+						fullResult: result,
 					});
 				}
-				// ================================================
-				
-				return newState;
-			});
-				
+				// ===============================================
+
+				// Clear stored registration data after successful use
+				localStorage.removeItem('mfa_registration_flow_type');
+				localStorage.removeItem('mfa_registration_fields');
+				localStorage.removeItem('mfa_registration_device_type');
+
+				props.setMfaState((prev) => {
+					// TOTP: QR code will be rendered by QRCodeSVG component in UnifiedActivationStep
+					// No need to generate QR code data URL here - just pass the keyUri
+
+					const newState = {
+						...prev,
+						deviceId: result.deviceId,
+						deviceStatus: result.status,
+						// Store device.activate URI for activation if present
+						...(registrationResult.deviceActivateUri
+							? { deviceActivateUri: String(registrationResult.deviceActivateUri) }
+							: {}),
+						// TOTP-specific: Store QR code and secret
+						...(selectedDeviceType === 'TOTP' && {
+							// Map API response fields to expected mfaState fields:
+							// API returns: { secret, keyUri }
+							// mfaState expects: { totpSecret, qrCodeUrl }
+							totpSecret: String(registrationResult.secret || ''),
+							keyUri: String(registrationResult.keyUri || ''),
+							// Store keyUri as qrCodeUrl - activation component will render it as QR
+							qrCodeUrl: String(registrationResult.keyUri || ''),
+							showQr: !!(registrationResult.secret || registrationResult.keyUri),
+						}),
+						// FIDO2-specific: Store credential creation options
+						...(selectedDeviceType === 'FIDO2' &&
+							registrationResult.publicKeyCredentialCreationOptions && {
+								publicKeyCredentialCreationOptions:
+									registrationResult.publicKeyCredentialCreationOptions,
+							}),
+						// Mobile-specific: Store pairing key
+						...(selectedDeviceType === 'MOBILE' &&
+							registrationResult.pairingKey && {
+								pairingKey: String(registrationResult.pairingKey),
+							}),
+					};
+
+					// ========== DEBUG: TOTP MFA STATE UPDATE ==========
+					if (selectedDeviceType === 'TOTP') {
+						console.log('🔍 [TOTP DEBUG] Updated mfaState:', {
+							qrCodeUrl: newState.qrCodeUrl,
+							totpSecret: newState.totpSecret,
+							showQr: newState.showQr,
+							deviceStatus: newState.deviceStatus,
+							fullState: newState,
+						});
+					}
+					// ================================================
+
+					return newState;
+				});
+
 				// FIDO2: Check if we already have credential data (from WebAuthn modal)
 				// If credentialId and publicKey are present, registration is complete
 				if (selectedDeviceType === 'FIDO2') {
 					if (fields.credentialId && fields.publicKey) {
 						// WebAuthn already completed via modal - device fully registered
-						console.log('[UNIFIED-FLOW] FIDO2 device fully registered with credentials - proceeding to next step');
+						console.log(
+							'[UNIFIED-FLOW] FIDO2 device fully registered with credentials - proceeding to next step'
+						);
 						toastV8.success(`${config.displayName} device registered successfully!`);
 						props.nav.goToNext();
 					} else {
 						// Device created, but user needs to complete WebAuthn biometric/security key interaction
-						console.log('[UNIFIED-FLOW] FIDO2 device created - user must complete biometric authentication');
-						toastV8.info('Device created. Please complete the biometric authentication prompt below.');
+						console.log(
+							'[UNIFIED-FLOW] FIDO2 device created - user must complete biometric authentication'
+						);
+						toastV8.info(
+							'Device created. Please complete the biometric authentication prompt below.'
+						);
 						// DO NOT call nav.goToNext() - let user interact with WebAuthn on registration step
 						return;
 					}
 				}
-				
-				// Admin Flow: Show QR but skip OTP validation - device ready immediately  
+
+				// Admin Flow: Show QR but skip OTP validation - device ready immediately
 				// Admin ACTIVATION_REQUIRED & User Flow: Show QR and require OTP validation
 				if (flowType === 'admin' || result.status === 'ACTIVE') {
-					console.log('[UNIFIED-FLOW] Admin flow or ACTIVE status - proceeding to show QR without OTP requirement');
-					toastV8.success(`${config.displayName} device registered successfully!${flowType === 'admin' ? ' Device is ready to use.' : ''}`);
+					console.log(
+						'[UNIFIED-FLOW] Admin flow or ACTIVE status - proceeding to show QR without OTP requirement'
+					);
+					toastV8.success(
+						`${config.displayName} device registered successfully!${flowType === 'admin' ? ' Device is ready to use.' : ''}`
+					);
 					props.nav.goToNext(); // Go to activation step (will show QR but allow skip for admin)
 				} else if (result.status === 'ACTIVATION_REQUIRED') {
 					// Device requires activation - PingOne automatically sends OTP
 					// This applies to both admin_activation_required and user flow
-					toastV8.success(`${config.displayName} device registered! OTP has been sent automatically.`);
+					toastV8.success(
+						`${config.displayName} device registered! OTP has been sent automatically.`
+					);
 					props.nav.goToNext(); // Go to activation step
 				} else {
 					// Unknown status, proceed to activation step by default
@@ -1589,7 +1721,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 			} catch (error) {
 				console.error('[UNIFIED-FLOW] Registration failed:', error);
 				const errorMessage = error instanceof Error ? error.message : 'Device registration failed';
-				
+
 				// Check if error is due to too many devices
 				if (errorMessage.includes('Too many devices')) {
 					toastV8.error(
@@ -1609,68 +1741,76 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	/**
 	 * Handle user token received from OAuth flow
 	 */
-	const handleUserTokenReceived = useCallback((token: string) => {
-		console.log('[UNIFIED-FLOW] ===== USER TOKEN RECEIVED =====');
-		console.log('[UNIFIED-FLOW] Token length:', token.length);
-		console.log('[UNIFIED-FLOW] Current pending registration:', pendingRegistrationRef.current);
-		
-		setUserToken(token);
-		setUserTokenForDisplay(token);
+	const handleUserTokenReceived = useCallback(
+		(token: string) => {
+			console.log('[UNIFIED-FLOW] ===== USER TOKEN RECEIVED =====');
+			console.log('[UNIFIED-FLOW] Token length:', token.length);
+			console.log('[UNIFIED-FLOW] Current pending registration:', pendingRegistrationRef.current);
 
-		// Decode JWT to extract username
-		try {
-			const base64Url = token.split('.')[1];
-			const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-			const jsonPayload = decodeURIComponent(
-				atob(base64)
-					.split('')
-					.map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
-					.join('')
-			);
-			const payload = JSON.parse(jsonPayload);
-			const username = payload.username || payload.preferred_username || payload.sub || 'Unknown User';
-			setUsernameFromToken(username);
-			console.log('[UNIFIED-FLOW] Extracted username:', username);
-		} catch (error) {
-			console.error('[UNIFIED-FLOW] Failed to decode JWT:', error);
-			setUsernameFromToken('Unknown User');
-		}
+			setUserToken(token);
+			setUserTokenForDisplay(token);
 
-		// If we have pending registration, show success page first
-		const pending = pendingRegistrationRef.current;
-		if (pending) {
-			console.log('[UNIFIED-FLOW] Found pending registration, showing success page first...');
-			console.log('[UNIFIED-FLOW] Pending data:', {
-				deviceType: pending.deviceType,
-				flowType: pending.flowType,
-				hasProps: !!pending.props,
-				hasFields: !!pending.fields
-			});
-			
-			toastV8.success('✅ Authentication successful! Your user token is ready.', { duration: 4000 });
-			
-			// Close login modal and show success page
-			setShowUserLoginModal(false);
-			setShowUserTokenSuccess(true);
-		} else {
-			console.log('[UNIFIED-FLOW] WARNING: No pending registration found after OAuth!');
-		}
-	}, [setUserToken]);
+			// Decode JWT to extract username
+			try {
+				const base64Url = token.split('.')[1];
+				const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+				const jsonPayload = decodeURIComponent(
+					atob(base64)
+						.split('')
+						.map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
+						.join('')
+				);
+				const payload = JSON.parse(jsonPayload);
+				const username =
+					payload.username || payload.preferred_username || payload.sub || 'Unknown User';
+				setUsernameFromToken(username);
+				console.log('[UNIFIED-FLOW] Extracted username:', username);
+			} catch (error) {
+				console.error('[UNIFIED-FLOW] Failed to decode JWT:', error);
+				setUsernameFromToken('Unknown User');
+			}
+
+			// If we have pending registration, show success page first
+			const pending = pendingRegistrationRef.current;
+			if (pending) {
+				console.log('[UNIFIED-FLOW] Found pending registration, showing success page first...');
+				console.log('[UNIFIED-FLOW] Pending data:', {
+					deviceType: pending.deviceType,
+					flowType: pending.flowType,
+					hasProps: !!pending.props,
+					hasFields: !!pending.fields,
+				});
+
+				toastV8.success('✅ Authentication successful! Your user token is ready.', {
+					duration: 4000,
+				});
+
+				// Close login modal and show success page
+				setShowUserLoginModal(false);
+				setShowUserTokenSuccess(true);
+			} else {
+				console.log('[UNIFIED-FLOW] WARNING: No pending registration found after OAuth!');
+			}
+		},
+		[setUserToken]
+	);
 
 	/**
 	 * Handle continue from user token success page
 	 */
 	const handleContinueAfterUserLogin = useCallback(() => {
-		console.log('[UNIFIED-FLOW] User clicked continue after login, proceeding with registration...');
-		
+		console.log(
+			'[UNIFIED-FLOW] User clicked continue after login, proceeding with registration...'
+		);
+
 		const pending = pendingRegistrationRef.current;
 		if (pending && userToken) {
 			const { deviceType: pendingDeviceType, fields, flowType, props } = pending;
 			pendingRegistrationRef.current = null;
-			
+
 			// Hide success page
 			setShowUserTokenSuccess(false);
-			
+
 			// Continue with registration
 			setTimeout(() => {
 				console.log('[UNIFIED-FLOW] Now executing performRegistrationWithToken...');
@@ -1708,18 +1848,29 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					flowType,
 					props,
 				};
-				
+
 				console.log('[UNIFIED-FLOW] Pending registration stored:', pendingRegistrationRef.current);
-				
+
 				// Show the user login modal
 				setShowUserLoginModal(true);
-				toastV8.info('🔐 User Flow requires PingOne authentication. Please complete the login to continue with device registration.', { duration: 6000 });
+				toastV8.info(
+					'🔐 User Flow requires PingOne authentication. Please complete the login to continue with device registration.',
+					{ duration: 6000 }
+				);
 				return;
 			}
 
-			console.log('[UNIFIED-FLOW] Proceeding directly with registration (token exists or admin flow)');
+			console.log(
+				'[UNIFIED-FLOW] Proceeding directly with registration (token exists or admin flow)'
+			);
 			// Proceed with registration (using existing token for user flow)
-			await performRegistrationWithToken(props, selectedDeviceType, fields, flowType, userToken || undefined);
+			await performRegistrationWithToken(
+				props,
+				selectedDeviceType,
+				fields,
+				flowType,
+				userToken || undefined
+			);
 		},
 		[userToken, performRegistrationWithToken]
 	);
@@ -1735,7 +1886,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					onSubmit={async (selectedDeviceType, fields, flowType) => {
 						await performRegistration(props, selectedDeviceType, fields, flowType);
 					}}
-						onCancel={() => {
+					onCancel={() => {
 						console.log('[UNIFIED-FLOW] Registration cancelled - navigating to unified main page');
 						if (onCancel) {
 							onCancel();
@@ -1743,8 +1894,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 							// Default: navigate to unified MFA main page
 							navigate('/v8/mfa-unified');
 						}
-						}
-					}
+					}}
 					isLoading={props.isLoading}
 					tokenStatus={_tokenStatus}
 					registrationError={registrationError}
@@ -1776,19 +1926,27 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					deviceType={deviceType}
 					flowType="registration"
 					credentials={{
-						...(props.credentials.environmentId && { environmentId: props.credentials.environmentId }),
+						...(props.credentials.environmentId && {
+							environmentId: props.credentials.environmentId,
+						}),
 						...(props.credentials.username && { username: props.credentials.username }),
-						...(props.credentials.deviceAuthenticationPolicyId && { deviceAuthenticationPolicyId: props.credentials.deviceAuthenticationPolicyId }),
+						...(props.credentials.deviceAuthenticationPolicyId && {
+							deviceAuthenticationPolicyId: props.credentials.deviceAuthenticationPolicyId,
+						}),
 					}}
 					currentStep={2}
 					totalSteps={4}
 					registrationFlowType={props.credentials.tokenType === 'user' ? 'user' : 'admin'}
 					tokenType={props.credentials.tokenType === 'user' ? 'user' : 'worker'}
 					flowSpecificData={{
-						...(props.credentials.environmentId && { environmentId: props.credentials.environmentId }),
+						...(props.credentials.environmentId && {
+							environmentId: props.credentials.environmentId,
+						}),
 						...(props.credentials.username && { username: props.credentials.username }),
 						...(props.mfaState.deviceId && { deviceId: props.mfaState.deviceId }),
-						...(props.credentials.deviceAuthenticationPolicyId && { policyId: props.credentials.deviceAuthenticationPolicyId }),
+						...(props.credentials.deviceAuthenticationPolicyId && {
+							policyId: props.credentials.deviceAuthenticationPolicyId,
+						}),
 						...(props.mfaState.deviceStatus && { deviceStatus: props.mfaState.deviceStatus }),
 						...(props.credentials.clientId && { clientId: props.credentials.clientId }),
 					}}
@@ -1803,12 +1961,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	 */
 	const renderStep3 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
-			return (
-				<UnifiedSuccessStep
-					{...props}
-					config={config}
-				/>
-			);
+			return <UnifiedSuccessStep {...props} config={config} />;
 		},
 		[config]
 	);
@@ -1816,12 +1969,9 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	/**
 	 * Render Step 4: Not used
 	 */
-	const renderStep4 = useCallback(
-		(_props: MFAFlowBaseRenderProps) => {
-			return null;
-		},
-		[]
-	);
+	const renderStep4 = useCallback((_props: MFAFlowBaseRenderProps) => {
+		return null;
+	}, []);
 
 	// ========================================================================
 	// STEP LABELS
@@ -1844,18 +1994,15 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	/**
 	 * Hide Next button on step 0 (registration) since UnifiedRegistrationStep has its own buttons
 	 */
-	const shouldHideNextButton = useCallback(
-		(props: MFAFlowBaseRenderProps) => {
-			// Hide Next button on Step 0 (registration) since UnifiedRegistrationStep component
-			// has its own custom buttons that handle both registration and navigation
-			if (props.nav.currentStep === 0) {
-				return true;
-			}
-			// Show Next button on all other steps
-			return false;
-		},
-		[]
-	);
+	const shouldHideNextButton = useCallback((props: MFAFlowBaseRenderProps) => {
+		// Hide Next button on Step 0 (registration) since UnifiedRegistrationStep component
+		// has its own custom buttons that handle both registration and navigation
+		if (props.nav.currentStep === 0) {
+			return true;
+		}
+		// Show Next button on all other steps
+		return false;
+	}, []);
 
 	// ========================================================================
 	// RENDER
@@ -1887,22 +2034,22 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				environmentId={envIdForModal}
 			/>
 
-		{/* User Token Success Page - Show token after OAuth login */}
-		{showUserTokenSuccess && userTokenForDisplay && (
-			<div
-				style={{
-					position: 'fixed',
-					top: 0,
-					left: 0,
-					right: 0,
-					bottom: 0,
-					background: 'rgba(0, 0, 0, 0.5)',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					zIndex: 10000,
-				}}
-			>
+			{/* User Token Success Page - Show token after OAuth login */}
+			{showUserTokenSuccess && userTokenForDisplay && (
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						background: 'rgba(0, 0, 0, 0.5)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						zIndex: 10000,
+					}}
+				>
 					<div
 						style={{
 							background: 'white',
@@ -1965,9 +2112,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 										marginBottom: showUsernameDropdown ? '12px' : 0,
 									}}
 								>
-									<h3 style={{ margin: 0, fontSize: '16px', color: '#374151' }}>
-										Username
-									</h3>
+									<h3 style={{ margin: 0, fontSize: '16px', color: '#374151' }}>Username</h3>
 									{showUsernameDropdown ? (
 										<FiChevronUp size={20} color="#6b7280" />
 									) : (
@@ -2073,7 +2218,8 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 							}}
 						>
 							<p style={{ margin: 0, fontSize: '14px', color: '#1e40af', lineHeight: '1.6' }}>
-								<strong>Next:</strong> Click "Continue with Registration" to proceed with your {config.displayName} device registration using this user token.
+								<strong>Next:</strong> Click "Continue with Registration" to proceed with your{' '}
+								{config.displayName} device registration using this user token.
 							</p>
 						</div>
 
