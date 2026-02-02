@@ -6,6 +6,7 @@
  */
 
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { backendConnectivityService } from '@/v8/services/backendConnectivityServiceV8';
 
 const DEFAULT_RETRY_STATUSES = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
 
@@ -255,6 +256,16 @@ export async function pingOneFetch(
 			}
 			// #endregion
 
+			// Record successful response
+			if (response.ok) {
+				backendConnectivityService.recordSuccess();
+			}
+
+			// Record backend errors (500 series)
+			if (response.status >= 500) {
+				backendConnectivityService.recordFailure();
+			}
+
 			if (!retryStatuses.has(response.status) || attempt === maxAttempts) {
 				await logBackendPingOneCalls(response);
 				return response;
@@ -274,6 +285,20 @@ export async function pingOneFetch(
 			await delay(waitTime);
 		} catch (error) {
 			lastError = error;
+			
+			// Check if this is a backend connectivity error
+			if (backendConnectivityService.isBackendConnectivityError(error)) {
+				backendConnectivityService.recordFailure();
+				
+				// Suppress console errors if modal is shown or will be shown
+				if (!backendConnectivityService.shouldShowModal()) {
+					// Only log first few failures before modal shows
+					if (backendConnectivityService.getState().consecutiveFailures === 1) {
+						console.warn('[pingOneFetch] Backend connection issue detected:', error);
+					}
+				}
+			}
+			
 			if (attempt >= maxAttempts) {
 				throw error;
 			}

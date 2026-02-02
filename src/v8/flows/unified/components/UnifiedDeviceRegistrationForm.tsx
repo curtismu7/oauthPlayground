@@ -9,16 +9,17 @@
  * Users can see all options and fill in the appropriate fields in one view
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Button } from '@/v8/components/Button';
 import { PageTransition } from '@/v8/components/PageTransition';
 import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
 import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
-import { MFATokenManagerV8 } from '@/v8/services/mfaTokenManagerV8';
+import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { colors, spacing } from '@/v8/styles/designTokens';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { APIComparisonModal } from './APIComparisonModal';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
+import FIDO2RegistrationModal from '@/components/FIDO2RegistrationModal';
 import '../UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[📝 UNIFIED-DEVICE-REG-FORM]';
@@ -36,7 +37,7 @@ const DEVICE_TABS: DeviceTypeTab[] = [
 	{ key: 'TOTP', icon: '🔐', label: 'Authenticator', description: 'App-based codes' },
 	{ key: 'MOBILE', icon: '📲', label: 'Mobile Push', description: 'Push notifications' },
 	{ key: 'WHATSAPP', icon: '💬', label: 'WhatsApp', description: 'WhatsApp messages' },
-	{ key: 'FIDO2', icon: '🔑', label: 'Security Key', description: 'Hardware key/passkey' },
+	{ key: 'FIDO2', icon: '🔑', label: 'Security Key / FIDO2', description: 'Hardware key/passkey' },
 ];
 
 type FlowType = 'admin' | 'admin_activation_required' | 'user';
@@ -51,6 +52,14 @@ export interface UnifiedDeviceRegistrationFormProps {
 	isLoading?: boolean;
 	/** Initial device type to select (defaults to SMS) */
 	initialDeviceType?: DeviceConfigKey;
+	/** Token status for validation */
+	tokenStatus: TokenStatusInfo;
+	/** Registration error to display */
+	registrationError?: string | null;
+	/** Callback to clear error */
+	onClearError?: () => void;
+	/** Username for FIDO2 registration */
+	username?: string;
 }
 
 export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFormProps> = ({
@@ -58,9 +67,26 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 	onCancel,
 	isLoading = false,
 	initialDeviceType = 'SMS',
+	tokenStatus,
+	registrationError,
+	onClearError,
+	username,
 }) => {
 	const [selectedTab, setSelectedTab] = useState<DeviceConfigKey>(initialDeviceType);
 	const [flowType, setFlowType] = useState<FlowType>('admin');
+	
+	// Debug logging for flowType changes
+	useEffect(() => {
+		console.log('🔍 [FLOW TYPE DEBUG] flowType state changed:', flowType);
+	}, [flowType]);
+	
+	// Debug logging on mount
+	useEffect(() => {
+		console.log('🔍 [FLOW TYPE DEBUG] UnifiedDeviceRegistrationForm mounted');
+		console.log('🔍 [FLOW TYPE DEBUG] Initial flowType:', flowType);
+		console.log('🔍 [FLOW TYPE DEBUG] Initial selectedTab:', selectedTab);
+	}, []);
+	
 	const [deviceFields, setDeviceFields] = useState<Record<DeviceConfigKey, Record<string, string>>>(
 		() => {
 			// Initialize with saved values from localStorage
@@ -69,12 +95,12 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 			const savedEmail = localStorage.getItem('mfa_saved_email');
 
 			const initialFields: Record<DeviceConfigKey, Record<string, string>> = {
-				SMS: {},
-				EMAIL: {},
-				TOTP: {},
-				MOBILE: {},
-				WHATSAPP: {},
-				FIDO2: {},
+				SMS: { name: 'SMS', nickname: 'MyKnickName' },
+				EMAIL: { name: 'EMAIL', nickname: 'MyKnickName' },
+				TOTP: { name: 'TOTP', nickname: 'MyKnickName' },
+				MOBILE: { name: 'MOBILE', nickname: 'MyKnickName' },
+				WHATSAPP: { name: 'WHATSAPP', nickname: 'MyKnickName' },
+				FIDO2: { name: 'FIDO2', nickname: 'MyKnickName' },
 			};
 
 			// Pre-populate phone-based devices with saved values
@@ -95,6 +121,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 	);
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [showApiModal, setShowApiModal] = useState(false);
+	const [showFido2Modal, setShowFido2Modal] = useState(false);
 
 	const config = getDeviceConfig(selectedTab);
 
@@ -122,13 +149,21 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 	const handleSubmit = useCallback(() => {
 		console.log(`${MODULE_TAG} Submitting registration for:`, selectedTab, 'Flow type:', flowType);
 		const fields = deviceFields[selectedTab];
+		
+		// ========== DEBUG: FORM SUBMISSION ==========
+		console.log('🔍 [FORM DEBUG] Submit handler called:', {
+			selectedTab,
+			flowType,
+			fields,
+			tokenIsValid: tokenStatus.isValid,
+			hasOnSubmit: !!onSubmit
+		});
+		// ============================================
 
-		// Check worker token status first
-		const tokenManager = MFATokenManagerV8.getInstance();
-		const tokenState = tokenManager.getTokenState();
-
-		if (!tokenState.isValid) {
+		// Check worker token status
+		if (!tokenStatus.isValid) {
 			toastV8.error('Worker token is invalid or expired. Please refresh the worker token.');
+			console.log('🔍 [FORM DEBUG] Token invalid, blocking submission');
 			return;
 		}
 
@@ -144,11 +179,39 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 
 		if (Object.keys(newErrors).length > 0) {
 			setErrors(newErrors);
+			console.log('🔍 [FORM DEBUG] Validation errors:', newErrors);
 			return;
 		}
-
+		
+		console.log('🔍 [FORM DEBUG] Calling onSubmit callback');
+		
+		// Special handling for FIDO2
+		if (selectedTab === 'FIDO2') {
+			setShowFido2Modal(true);
+			return;
+		}
+		
 		onSubmit(selectedTab, fields, flowType);
-	}, [selectedTab, deviceFields, config, onSubmit, flowType]);
+	}, [selectedTab, deviceFields, config, onSubmit, flowType, tokenStatus]);
+	
+	const handleFido2Success = useCallback(
+		(credentialId: string, publicKey: string) => {
+			console.log(`${MODULE_TAG} FIDO2 registration successful`, { credentialId });
+			toastV8.success('FIDO2 device registered successfully!');
+			setShowFido2Modal(false);
+			
+			// Update device fields with FIDO2 data
+			const fido2Fields = {
+				...deviceFields.FIDO2,
+				credentialId,
+				publicKey,
+			};
+			
+			// Submit FIDO2 registration
+			onSubmit('FIDO2', fido2Fields, flowType);
+		},
+		[deviceFields, flowType, onSubmit]
+	);
 
 	return (
 		<PageTransition>
@@ -223,7 +286,11 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 								name="flowType"
 								value="admin"
 								checked={flowType === 'admin'}
-								onChange={(e) => setFlowType(e.target.value as FlowType)}
+								onChange={(e) => {
+									console.log('🔍 [FLOW TYPE DEBUG] Admin Flow radio selected');
+									console.log('🔍 [FLOW TYPE DEBUG] New value:', e.target.value);
+									setFlowType(e.target.value as FlowType);
+								}}
 								style={{ marginTop: '2px', cursor: 'pointer' }}
 							/>
 							<div>
@@ -236,39 +303,45 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 							</div>
 						</label>
 
-						{/* Admin with Activation Required */}
-						<label
-							style={{
-								display: 'flex',
-								alignItems: 'flex-start',
-								gap: spacing[2],
-								padding: spacing[3],
-								border: `2px solid ${flowType === 'admin_activation_required' ? colors.primary[500] : colors.gray[200]}`,
-								borderRadius: '8px',
-								cursor: 'pointer',
-								background:
-									flowType === 'admin_activation_required' ? colors.primary[50] : 'transparent',
-								transition: 'all 0.2s ease',
-							}}
-						>
-							<input
-								type="radio"
-								name="flowType"
-								value="admin_activation_required"
-								checked={flowType === 'admin_activation_required'}
-								onChange={(e) => setFlowType(e.target.value as FlowType)}
-								style={{ marginTop: '2px', cursor: 'pointer' }}
-							/>
-							<div>
-								<div style={{ fontWeight: '600', color: colors.gray[900], marginBottom: '4px' }}>
-									Admin Flow with Activation Required
+						{/* Admin with Activation Required - Hide for FIDO2 (no OTP activation needed) */}
+						{selectedTab !== 'FIDO2' && (
+							<label
+								style={{
+									display: 'flex',
+									alignItems: 'flex-start',
+									gap: spacing[2],
+									padding: spacing[3],
+									border: `2px solid ${flowType === 'admin_activation_required' ? colors.primary[500] : colors.gray[200]}`,
+									borderRadius: '8px',
+									cursor: 'pointer',
+									background:
+										flowType === 'admin_activation_required' ? colors.primary[50] : 'transparent',
+									transition: 'all 0.2s ease',
+								}}
+							>
+								<input
+									type="radio"
+									name="flowType"
+									value="admin_activation_required"
+									checked={flowType === 'admin_activation_required'}
+									onChange={(e) => {
+										console.log('🔍 [FLOW TYPE DEBUG] Admin ACTIVATION_REQUIRED radio selected');
+										console.log('🔍 [FLOW TYPE DEBUG] New value:', e.target.value);
+										setFlowType(e.target.value as FlowType);
+									}}
+									style={{ marginTop: '2px', cursor: 'pointer' }}
+								/>
+								<div>
+									<div style={{ fontWeight: '600', color: colors.gray[900], marginBottom: '4px' }}>
+										Admin Flow with Activation Required
+									</div>
+									<div style={{ fontSize: '13px', color: colors.gray[600] }}>
+										Register device as admin, but require user activation (OTP verification) before
+										it's active.
+									</div>
 								</div>
-								<div style={{ fontSize: '13px', color: colors.gray[600] }}>
-									Register device as admin, but require user activation (OTP verification) before
-									it's active.
-								</div>
-							</div>
-						</label>
+							</label>
+						)}
 
 						{/* User Flow */}
 						<label
@@ -289,7 +362,11 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 								name="flowType"
 								value="user"
 								checked={flowType === 'user'}
-								onChange={(e) => setFlowType(e.target.value as FlowType)}
+								onChange={(e) => {
+									console.log('🔍 [FLOW TYPE DEBUG] User Flow radio selected');
+									console.log('🔍 [FLOW TYPE DEBUG] New value:', e.target.value);
+									setFlowType(e.target.value as FlowType);
+								}}
 								style={{ marginTop: '2px', cursor: 'pointer' }}
 							/>
 							<div>
@@ -381,23 +458,28 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 						marginBottom: spacing[6],
 					}}
 				>
-					{config.deviceType === 'TOTP' ||
-					config.deviceType === 'FIDO2' ||
-					config.deviceType === 'MOBILE' ? (
+					{config.deviceType === 'FIDO2' ? (
 						<div
 							style={{
 								padding: spacing[6],
 								textAlign: 'center',
-								color: colors.gray[600],
 							}}
 						>
-							<p style={{ fontSize: '48px', margin: `0 0 ${spacing[3]}` }}>
-								{config.deviceType === 'TOTP' ? '🔐' : config.deviceType === 'FIDO2' ? '🔑' : '📲'}
+							<p style={{ fontSize: '48px', margin: `0 0 ${spacing[3]}` }}>🔑</p>
+							<h3 style={{ margin: `0 0 ${spacing[2]}`, fontSize: '18px', fontWeight: '600', color: colors.gray[900] }}>
+								FIDO2 Security Key / Passkey
+							</h3>
+							<p style={{ margin: `0 0 ${spacing[4]}`, fontSize: '14px', color: colors.gray[600] }}>
+								Register a hardware security key, platform authenticator, or passkey
 							</p>
-							<p style={{ margin: 0, fontSize: '14px' }}>
-								{config.deviceType} requires a custom registration flow.
-								<br />
-								This device type will use a specialized component.
+							<DynamicFormRenderer
+								config={config}
+								values={deviceFields[selectedTab] || {}}
+								onChange={handleFieldChange}
+								errors={errors}
+							/>
+							<p style={{ margin: `${spacing[4]} 0 0 0`, fontSize: '13px', color: colors.gray[500] }}>
+								ℹ️ Click "Register Security Key" below to start the WebAuthn registration flow
 							</p>
 						</div>
 					) : (
@@ -410,12 +492,95 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 					)}
 				</div>
 
+				{/* Registration Error Display */}
+				{registrationError && (
+					<div style={{
+						padding: '16px',
+						background: '#fef2f2',
+						border: '2px solid #fca5a5',
+						borderRadius: '8px',
+						marginBottom: '20px',
+					}}>
+						<div style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'flex-start',
+							marginBottom: '12px',
+						}}>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+								<span style={{ fontSize: '20px' }}>⚠️</span>
+								<strong style={{ color: '#991b1b', fontSize: '15px' }}>Registration Failed</strong>
+							</div>
+							{onClearError && (
+								<button
+									type="button"
+									onClick={onClearError}
+									style={{
+										background: 'none',
+										border: 'none',
+										color: '#991b1b',
+										cursor: 'pointer',
+										fontSize: '18px',
+										padding: '0',
+									}}
+								>
+									×
+								</button>
+							)}
+						</div>
+						<p style={{ margin: '0 0 12px 0', color: '#7f1d1d', fontSize: '14px', lineHeight: '1.5' }}>
+							{registrationError}
+						</p>
+						{registrationError.includes('Too many devices') && (
+							<div style={{
+								padding: '12px',
+								background: '#fff',
+								border: '1px solid #fca5a5',
+								borderRadius: '6px',
+								marginTop: '12px',
+							}}>
+								<p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#7f1d1d', fontWeight: '600' }}>
+									💡 Need to manage your devices?
+								</p>
+								<a
+									href="/v8/delete-all-devices"
+									style={{
+										display: 'inline-block',
+										padding: '8px 16px',
+										background: '#dc2626',
+										color: 'white',
+										textDecoration: 'none',
+										borderRadius: '6px',
+										fontSize: '14px',
+										fontWeight: '600',
+									}}
+								>
+									Go to Device Management →
+								</a>
+							</div>
+						)}
+					</div>
+				)}
+
+				{/* Registration Info */}
+				<div style={{ 
+					padding: '12px 16px', 
+					background: '#eff6ff', 
+					border: '1px solid #bfdbfe',
+					borderRadius: '6px',
+					marginBottom: '16px',
+					fontSize: '14px',
+					color: '#1e40af'
+				}}>
+					ℹ️ Clicking "Register {config.displayName} →" will register your device and send the activation code.
+				</div>
+
 				{/* Action Buttons */}
 				<div
 					style={{
 						display: 'flex',
-						gap: spacing[3],
-						justifyContent: 'flex-end',
+						justifyContent: 'space-between',
+						alignItems: 'center',
 						paddingTop: spacing[4],
 						borderTop: `1px solid ${colors.gray[200]}`,
 					}}
@@ -424,12 +589,22 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 						Cancel
 					</Button>
 					<Button variant="primary" onClick={handleSubmit} disabled={isLoading} loading={isLoading}>
-						Register {config.displayName} →
+					{flowType === 'user' ? `Continue to User Login →` : `Register ${config.displayName} →`}
 					</Button>
 				</div>
 			</div>
+			
 			{/* API Comparison Modal */}
 			<APIComparisonModal isOpen={showApiModal} onClose={() => setShowApiModal(false)} />
+			
+			{/* FIDO2 Registration Modal */}
+			<FIDO2RegistrationModal
+				isOpen={showFido2Modal}
+				onClose={() => setShowFido2Modal(false)}
+				onSuccess={handleFido2Success}
+				userId={username || deviceFields.FIDO2?.userId || 'default-user'}
+				deviceName={deviceFields.FIDO2?.name || 'Security Key'}
+			/>
 		</PageTransition>
 	);
 };

@@ -292,7 +292,7 @@ else {
 
 This unified SMS OTP implementation provides maximum flexibility while maintaining security and reliability across all use cases.
 `,
-	requiredFields: ['phoneNumber', 'countryCode'],
+	requiredFields: ['name', 'phoneNumber', 'countryCode'],
 	optionalFields: ['deviceName', 'nickname'],
 	validationRules: {
 		phoneNumber: validatePhoneNumber,
@@ -345,7 +345,7 @@ Email OTP sends temporary verification codes to your email address.
 - Never share your OTP codes with anyone
 - Email OTPs may take longer to arrive than SMS
 `,
-	requiredFields: ['email'],
+	requiredFields: ['name', 'email'],
 	optionalFields: ['deviceName', 'nickname'],
 	validationRules: {
 		email: validateEmail,
@@ -532,7 +532,7 @@ WhatsApp OTP sends temporary verification codes via WhatsApp message.
 - Never share your OTP codes with anyone
 - Keep your phone number up to date
 `,
-	requiredFields: ['phoneNumber', 'countryCode'],
+	requiredFields: ['name', 'phoneNumber', 'countryCode'],
 	optionalFields: ['deviceName', 'nickname'],
 	validationRules: {
 		phoneNumber: validatePhoneNumber,

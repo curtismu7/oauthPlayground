@@ -537,6 +537,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</MigrationBadge>
 						),
 					},
+					{
+						id: 'user-cache-sync-v8',
+						path: '/production/user-cache-sync',
+						label: '🔄 User Cache Sync Utility',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiDatabase />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: Sync all PingOne users to IndexedDB cache for offline access">
+								NEW
+							</MigrationBadge>
+						),
+					},
 				],
 			},
 			{

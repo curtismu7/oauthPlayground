@@ -98,15 +98,40 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 		}
 	}, [values['email']]);
 
-	// Initialize country code if not set (must be in useEffect, not during render)
-	const hasInitializedCountryCode = useRef(false);
+	// Initialize saved values from localStorage on mount
+	const hasInitializedValues = useRef(false);
 	useEffect(() => {
-		const needsCountryCode = config.requiredFields.includes('countryCode') || config.requiredFields.includes('phoneNumber');
-		if (needsCountryCode && !values['countryCode'] && !hasInitializedCountryCode.current) {
-			hasInitializedCountryCode.current = true;
-			onChange('countryCode', '+1');
+		if (hasInitializedValues.current) return;
+		hasInitializedValues.current = true;
+
+		// Load saved email
+		if (config.requiredFields.includes('email') && !values['email']) {
+			const savedEmail = localStorage.getItem('mfa_saved_email');
+			if (savedEmail) {
+				onChange('email', savedEmail);
+			}
 		}
-	}, [config.requiredFields, values, onChange]);
+
+		// Load saved phone number
+		if (config.requiredFields.includes('phoneNumber') && !values['phoneNumber']) {
+			const savedPhone = localStorage.getItem('mfa_saved_phoneNumber');
+			if (savedPhone) {
+				onChange('phoneNumber', savedPhone);
+			}
+		}
+
+		// Load saved country code
+		const needsCountryCode = config.requiredFields.includes('countryCode') || config.requiredFields.includes('phoneNumber');
+		if (needsCountryCode && !values['countryCode']) {
+			const savedCountryCode = localStorage.getItem('mfa_saved_countryCode');
+			onChange('countryCode', savedCountryCode || '+1');
+		}
+
+		// Set deviceName to device type if not already set
+		if (!values['deviceName']) {
+			onChange('deviceName', config.deviceType);
+		}
+	}, [config, values, onChange]);
 
 	// ========================================================================
 	// FIELD RENDERERS
@@ -220,7 +245,7 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 							onChange={(e) => onChange(fieldName, e.target.value)}
 							onBlur={handleBlur}
 							disabled={disabled}
-							placeholder="My Device"
+						placeholder={config.deviceType}
 							maxLength={50}
 							className={hasError ? 'input-error' : ''}
 							aria-invalid={hasError}

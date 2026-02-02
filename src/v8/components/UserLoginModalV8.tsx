@@ -514,20 +514,24 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					});
 					// #endregion
 
-					// CRITICAL: Mark success page as set BEFORE calling onTokenReceived
-					// This prevents the useEffect from clearing it if parent closes modal
-					successPageSetRef.current = true;
+					// For MFA flows, skip success page and call onTokenReceived immediately
+					// For non-MFA flows, show success page first
+					if (isMfaFlow && onTokenReceived) {
+						// MFA flow: Don't show success page, just pass token and let parent handle
+						onTokenReceived(tokenResponse.access_token);
+						toastV8.success('Access token received successfully!');
+					} else {
+						// Non-MFA flow: Show success page
+						// CRITICAL: Mark success page as set BEFORE calling onTokenReceived
+						// This prevents the useEffect from clearing it if parent closes modal
+						successPageSetRef.current = true;
 
-					// Call onTokenReceived callback but DON'T close modal yet - let success page show
-					// The modal will close when user clicks "Continue" on the success page
-					// NOTE: Even if parent component closes modal in onTokenReceived, success page will still show
-					// IMPORTANT: Call onTokenReceived AFTER setting success page state
-					// Even if parent closes modal, success page should still show because:
-					// 1. successPageSetRef.current = true prevents useEffect from clearing it
-					// 2. Success page check happens BEFORE isOpen check in render
-					onTokenReceived?.(tokenResponse.access_token);
+						// Call onTokenReceived callback but DON'T close modal yet - let success page show
+						// The modal will close when user clicks "Continue" on the success page
+						onTokenReceived?.(tokenResponse.access_token);
 
-					toastV8.success('Access token received successfully!');
+						toastV8.success('Access token received successfully!');
+					}
 				} catch (error) {
 					console.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
 
@@ -1195,7 +1199,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							successPageSetRef.current = false; // Reset ref when user closes success page
 							setShowSuccessPage(false);
 							setSessionInfo(null);
-							onClose();
+							// For MFA flows, don't call parent onClose - let the registration flow continue
+							// The parent will handle closing after registration proceeds
+							if (!isMfaFlow) {
+								onClose();
+							}
 						}}
 					/>
 				</div>

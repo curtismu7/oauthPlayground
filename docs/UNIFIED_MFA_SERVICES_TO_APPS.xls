@@ -1,0 +1,93 @@
+<html>
+<head>
+<meta charset="utf-8" />
+</head>
+<body>
+<table border="1">
+  <thead>
+    <tr>
+      <th>Service</th>
+      <th>Apps/Components</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>UnifiedMFARegistrationFlowV8</td>
+      <td>UnifiedConfigurationStep; UnifiedDeviceSelectionStep; UnifiedRegistrationStep; UnifiedSuccessStep; SearchableDropdownV8; MFACredentialContext; GlobalMFAContext</td>
+    </tr>
+    <tr>
+      <td>mfaServiceV8</td>
+      <td>UnifiedMFARegistrationFlowV8; UnifiedConfigurationStep; server proxy endpoints (/api/pingone/mfa/*); other MFA flows</td>
+    </tr>
+    <tr>
+      <td>tokenGatewayV8</td>
+      <td>WorkerTokenModalV8; workerTokenUIServiceV8; workerTokenModalHelperV8; any token requesters</td>
+    </tr>
+    <tr>
+      <td>unifiedWorkerTokenService</td>
+      <td>WorkerTokenModalV8; workerTokenRepository; workerTokenBackupService; workerTokenCacheServiceV8; workerTokenUIServiceV8</td>
+    </tr>
+    <tr>
+      <td>WorkerTokenStatusServiceV8</td>
+      <td>WorkerTokenModalV8; workerTokenUIServiceV8; workerTokenCacheServiceV8</td>
+    </tr>
+    <tr>
+      <td>workerTokenCacheServiceV8</td>
+      <td>WorkerTokenModalV8 (preflight); tokenGatewayV8 helpers</td>
+    </tr>
+    <tr>
+      <td>workerTokenRepository</td>
+      <td>unifiedWorkerTokenService; workerTokenBackupService</td>
+    </tr>
+    <tr>
+      <td>MFAConfigurationServiceV8</td>
+      <td>workerTokenModalHelperV8; WorkerTokenModalV8; UI checkboxes</td>
+    </tr>
+    <tr>
+      <td>pingOneFetch</td>
+      <td>mfaServiceV8; many v8 services (backend calls); integrates with backendConnectivityServiceV8</td>
+    </tr>
+    <tr>
+      <td>backendConnectivityServiceV8</td>
+      <td>pingOneFetch; mfaServiceV8; BackendDownModalV8; App.tsx (global modal)</td>
+    </tr>
+    <tr>
+      <td>BackendDownModalV8</td>
+      <td>App.tsx (global); subscribed components via backendConnectivityServiceV8</td>
+    </tr>
+    <tr>
+      <td>MFAFlowController</td>
+      <td>Shared orchestration used by unified and other MFA flows</td>
+    </tr>
+    <tr>
+      <td>MFACredentialContext</td>
+      <td>UnifiedMFARegistrationFlowV8 and subcomponents</td>
+    </tr>
+    <tr>
+      <td>GlobalMFAContext</td>
+      <td>UnifiedMFARegistrationFlowV8 and cross-component state</td>
+    </tr>
+    <tr>
+      <td>preFlightValidationServiceV8</td>
+      <td>WorkerTokenModalV8 (validates OAuth config)</td>
+    </tr>
+    <tr>
+      <td>unifiedMFASuccessPageServiceV8</td>
+      <td>UnifiedSuccessStep; legacy flows mapping to unified success</td>
+    </tr>
+    <tr>
+      <td>SearchableDropdownV8</td>
+      <td>UnifiedMFARegistrationFlowV8 (user lookup)</td>
+    </tr>
+    <tr>
+      <td>toastV8</td>
+      <td>Many UI components (WorkerTokenModalV8, UnifiedMFARegistrationFlowV8, services)</td>
+    </tr>
+    <tr>
+      <td>server.js proxy endpoints</td>
+      <td>UI callers via mfaServiceV8 and other client services</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>

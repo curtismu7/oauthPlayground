@@ -26,6 +26,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
@@ -97,15 +98,68 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 	}, [resendCooldown]);
 
 	/**
-	 * Check if device is already activated
+	 * Scroll to top when TOTP activation loads (so QR code is visible)
+	 * Use multiple scroll targets and requestAnimationFrame for reliability
 	 */
 	useEffect(() => {
+		if (config.deviceType === 'TOTP' && (mfaState.qrCodeUrl || mfaState.totpSecret)) {
+			console.log('🔍 [TOTP DEBUG] Scrolling to top - QR code data available');
+			
+			const scrollToTop = () => {
+				// Scroll main window
+				window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+				document.documentElement.scrollTop = 0;
+				document.body.scrollTop = 0;
+				
+				// Find and scroll the step header into view
+				const stepHeader = document.querySelector('.step-header');
+				if (stepHeader) {
+					stepHeader.scrollIntoView({ behavior: 'instant', block: 'start' });
+				}
+				
+				// Find and scroll the unified-activation-step container
+				const activationStep = document.querySelector('.unified-activation-step');
+				if (activationStep) {
+					activationStep.scrollIntoView({ behavior: 'instant', block: 'start' });
+				}
+				
+				// Scroll all scrollable parents
+				const scrollableElements = document.querySelectorAll('[style*="overflow"]');
+				scrollableElements.forEach((el) => {
+					if (el instanceof HTMLElement) {
+						el.scrollTop = 0;
+					}
+				});
+			};
+			
+			// Multiple scroll attempts with increasing delays
+			scrollToTop(); // Immediate
+			requestAnimationFrame(scrollToTop); // After next paint
+			setTimeout(scrollToTop, 10);
+			setTimeout(scrollToTop, 50);
+			setTimeout(scrollToTop, 100);
+			setTimeout(scrollToTop, 200);
+			setTimeout(scrollToTop, 300);
+			setTimeout(scrollToTop, 500);
+		}
+	}, [config.deviceType, mfaState.qrCodeUrl, mfaState.totpSecret]); // Re-run when QR data arrives
+
+	/**
+	 * Check if device is already activated
+	 * NOTE: Don't auto-advance for Admin Flow - user needs to see QR code or confirmation
+	 */
+	useEffect(() => {
+		// Skip auto-advance for Admin Flow (user needs to manually click "Continue to Success")
+		if (credentials.flowType === 'admin') {
+			return;
+		}
+		
 		if (mfaState.deviceStatus === 'ACTIVE') {
 			console.log(`${MODULE_TAG} Device already activated, proceeding to success`);
 			nav.markStepComplete();
 			setTimeout(() => nav.goToNext(), 1500); // Auto-advance after 1.5s
 		}
-	}, [mfaState.deviceStatus, nav]);
+	}, [mfaState.deviceStatus, nav, credentials.flowType]);
 
 	// ========================================================================
 	// HANDLERS
@@ -150,11 +204,12 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 				username: credentials.username,
 				deviceId: mfaState.deviceId,
 				otp,
-			});
+			...(mfaState.deviceActivateUri && { deviceActivateUri: mfaState.deviceActivateUri }),
+		});
 
-			// Check if activation was successful
-			// activateDevice returns the device object on success
-			const activationResult = result as Record<string, unknown>;
+		// Check if activation was successful
+		// activateDevice returns the device object on success
+		const activationResult = result as Record<string, unknown>;
 			if (!result || activationResult.error) {
 				throw new Error(
 					String(activationResult.error || activationResult.message || 'Device activation failed')
@@ -297,16 +352,150 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 
 		// SMS, Email, WhatsApp, TOTP: Use the unified OTP template
 		if (config.requiresOTP) {
+			// ========== DEBUG: TOTP ACTIVATION STATE ==========
+			if (config.deviceType === 'TOTP') {
+				console.log('🔍 [TOTP DEBUG] Activation step rendering:', {
+					qrCodeUrl: mfaState.qrCodeUrl,
+					totpSecret: mfaState.totpSecret,
+					showQr: mfaState.showQr,
+					deviceStatus: mfaState.deviceStatus,
+					hasQrData: !!(mfaState.qrCodeUrl || mfaState.totpSecret),
+					fullMfaState: mfaState
+				});
+			}
+			// ================================================
+			
 			return (
-				<UnifiedOTPActivationTemplate
-					deviceType={config.deviceType}
-					deviceDisplayName={config.displayName}
-					instructions={
-						config.deviceType === 'TOTP'
-							? 'Enter the current 6-digit code from your authenticator app'
-							: `Enter the 6-digit code sent to your ${config.displayName.toLowerCase()}`
-					}
-					contextText={
+				<>
+					{/* TOTP: Show QR code and secret before OTP input */}
+					{config.deviceType === 'TOTP' && (mfaState.qrCodeUrl || mfaState.totpSecret) && (
+						<div className="totp-qr-section" style={{
+							marginBottom: '24px',
+							padding: '20px',
+							background: '#f8f9fa',
+							borderRadius: '8px',
+							border: '1px solid #dee2e6'
+						}}>
+							<h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: 600 }}>
+								📱 Scan QR Code
+							</h3>
+							
+							{mfaState.qrCodeUrl && (
+								<div style={{ textAlign: 'center', marginBottom: '16px' }}>
+									{/* Render QR code from keyUri using QRCodeSVG */}
+									<div style={{ 
+										display: 'inline-block',
+										padding: '16px',
+										background: 'white',
+										border: '2px solid #dee2e6',
+										borderRadius: '8px'
+									}}>
+										<QRCodeSVG 
+											value={mfaState.qrCodeUrl}
+											size={200}
+											level="M"
+											includeMargin={false}
+										/>
+									</div>
+									<p style={{ margin: '12px 0 0 0', fontSize: '14px', color: '#6c757d' }}>
+										Scan this code with your authenticator app
+									</p>
+								</div>
+							)}
+							
+							{mfaState.totpSecret && (
+								<details style={{ marginTop: '16px' }}>
+									<summary style={{ cursor: 'pointer', fontWeight: 500, color: '#495057' }}>
+										Can't scan? Enter manually
+									</summary>
+									<div style={{ 
+										marginTop: '12px',
+										padding: '12px',
+										background: 'white',
+										borderRadius: '4px',
+										border: '1px solid #dee2e6'
+									}}>
+										<code style={{ 
+											display: 'block',
+											fontFamily: 'monospace',
+											fontSize: '14px',
+											wordBreak: 'break-all',
+											color: '#212529'
+										}}>
+											{mfaState.totpSecret}
+										</code>
+										<button
+											type="button"
+											onClick={() => {
+												navigator.clipboard.writeText(mfaState.totpSecret || '');
+												toastV8.success('Secret copied to clipboard');
+											}}
+											style={{
+												marginTop: '8px',
+												padding: '6px 12px',
+												background: '#007bff',
+												color: 'white',
+												border: 'none',
+												borderRadius: '4px',
+												fontSize: '13px',
+												cursor: 'pointer'
+											}}
+										>
+											📋 Copy Secret
+										</button>
+									</div>
+								</details>
+							)}
+							
+							<p style={{ 
+								margin: '16px 0 0 0', 
+								fontSize: '13px', 
+								color: '#6c757d',
+								fontStyle: 'italic'
+							}}>
+								✓ Supported: Google Authenticator, Microsoft Authenticator, Authy, 1Password, etc.
+							</p>
+						</div>
+					)}
+					
+					{/* For Admin Flow with OTP devices, show skip button instead of OTP input */}
+					{config.requiresOTP && credentials.flowType === 'admin' ? (
+						<div style={{ marginTop: '24px', textAlign: 'center' }}>
+							<p style={{ marginBottom: '16px', fontSize: '14px', color: '#6c757d' }}>
+								✓ Your {config.displayName} device is registered and ready to use immediately.
+							</p>
+							<button
+								type="button"
+								onClick={() => {
+									setMfaState((prev) => ({ ...prev, deviceStatus: 'ACTIVE' }));
+									nav.markStepComplete();
+									nav.goToNext();
+								}}
+								disabled={isLoading}
+								style={{
+									padding: '12px 24px',
+									background: '#10b981',
+									color: 'white',
+									border: 'none',
+									borderRadius: '8px',
+									fontSize: '16px',
+									fontWeight: 600,
+									cursor: 'pointer',
+								}}
+							>
+								Continue to Success →
+							</button>
+						</div>
+					) : config.requiresOTP ? (
+					<UnifiedOTPActivationTemplate
+						deviceType={config.deviceType}
+						deviceDisplayName={config.displayName}
+						instructions={
+							config.deviceType === 'TOTP'
+								? 'Enter the current 6-digit code from your authenticator app'
+								: `Enter the 6-digit code sent to your ${config.displayName.toLowerCase()}`
+						}
+						contextText={
 						config.deviceType === 'TOTP'
 							? 'Codes refresh every 30 seconds. Wait for a new code if time is running out.'
 							: config.deviceType === 'SMS'
@@ -321,6 +510,15 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 						await handleValidateOtp();
 					}}
 					onResendOtp={async () => {
+						// For TOTP, the "resend" action should show the QR code again (navigate to registration/QR step)
+						if (config.deviceType === 'TOTP') {
+							try {
+								nav.goToStep(0); // Show registration step where QR is displayed
+								return;
+							} catch (err) {
+								console.error('[UNIFIED-ACTIVATION] Failed to navigate to QR step:', err);
+							}
+						}
 						await handleResendOtp();
 					}}
 					isLoading={isLoading}
@@ -332,6 +530,8 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 					validationAttempts={validationAttempts}
 					maxAttempts={3}
 				/>
+					) : null}
+				</>
 			);
 		}
 
@@ -361,37 +561,57 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 			<div className="activation-ui">{renderActivationUI()}</div>
 
 			{/* Action Buttons */}
-			<div className="step-actions">
+			<div className="step-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+				<div style={{ display: 'flex', gap: '12px' }}>
+					<button
+						type="button"
+						onClick={() => nav.goToPrevious()}
+						disabled={isLoading}
+						className="button-secondary"
+					>
+						← Previous
+					</button>
+
+					{config.requiresOTP && otp.length === 6 && (
+						<button
+							type="button"
+							onClick={handleValidateOtp}
+							disabled={isLoading || !tokenStatus.isValid}
+							className="button-primary"
+						>
+							{isLoading ? 'Validating...' : 'Verify Code'}
+						</button>
+					)}
+
+					{!config.requiresOTP && mfaState.deviceStatus === 'ACTIVE' && (
+						<button
+							type="button"
+							onClick={() => nav.goToNext()}
+							disabled={isLoading}
+							className="button-primary"
+						>
+							Continue →
+						</button>
+					)}
+				</div>
+
 				<button
 					type="button"
-					onClick={() => nav.goToPrevious()}
+					onClick={() => nav.goToStep(0)}
 					disabled={isLoading}
-					className="button-secondary"
+					style={{
+						padding: '8px 16px',
+						background: '#6b7280',
+						color: 'white',
+						border: 'none',
+						borderRadius: '6px',
+						fontSize: '14px',
+						cursor: isLoading ? 'not-allowed' : 'pointer',
+						opacity: isLoading ? 0.5 : 1,
+					}}
 				>
-					← Previous
+					🔄 Restart Flow
 				</button>
-
-				{config.requiresOTP && otp.length === 6 && (
-					<button
-						type="button"
-						onClick={handleValidateOtp}
-						disabled={isLoading || !tokenStatus.isValid}
-						className="button-primary"
-					>
-						{isLoading ? 'Validating...' : 'Verify Code'}
-					</button>
-				)}
-
-				{!config.requiresOTP && mfaState.deviceStatus === 'ACTIVE' && (
-					<button
-						type="button"
-						onClick={() => nav.goToNext()}
-						disabled={isLoading}
-						className="button-primary"
-					>
-						Continue →
-					</button>
-				)}
 			</div>
 
 			{/* Token Status Warning */}

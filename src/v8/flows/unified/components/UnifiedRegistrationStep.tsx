@@ -38,6 +38,18 @@ import { DynamicFormRenderer } from './DynamicFormRenderer';
 
 const MODULE_TAG = '[📝 UNIFIED-REGISTRATION-STEP]';
 
+// Exported helper to determine final device status after registration
+export function computeDeviceStatus(resultStatus: string | undefined, deviceType: string, tokenType: string) {
+	let status = resultStatus || '';
+	if (deviceType === 'TOTP') {
+		// User flows must require activation
+		if (tokenType === 'user') return 'ACTIVATION_REQUIRED';
+		// For admin/worker flows, prefer returned status, but default to ACTIVATION_REQUIRED
+		return status || 'ACTIVATION_REQUIRED';
+	}
+	return status || 'ACTIVE';
+}
+
 // ============================================================================
 // PROPS INTERFACE
 // ============================================================================
@@ -95,6 +107,27 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 	touchField,
 }) => {
 	console.log(`${MODULE_TAG} Rendering registration step for:`, config.deviceType);
+	
+	// ========== DEBUG: FULL CONFIG CHECK ==========
+	console.log('🔍 [REG-STEP DEBUG] Full config:', {
+		deviceType: config.deviceType,
+		displayName: config.displayName,
+		requiresOTP: config.requiresOTP,
+		configObject: config
+	});
+	// ==============================================
+	
+	// ========== DEBUG: COMPONENT MOUNT ==========
+	React.useEffect(() => {
+		console.log('🔍 [REG-STEP DEBUG] Component mounted/updated', {
+			deviceType: config.deviceType,
+			hasDeviceFields: !!deviceFields,
+			fieldCount: Object.keys(deviceFields || {}).length,
+			tokenValid: tokenStatus.isValid,
+			isLoading
+		});
+	}, [config.deviceType, deviceFields, tokenStatus.isValid, isLoading]);
+	// ===========================================
 
 	// ========================================================================
 	// LOCAL STATE
@@ -130,6 +163,15 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 			deviceType: config.deviceType,
 			deviceFields,
 		});
+		
+		// ========== DEBUG: REGISTRATION ENTRY ==========
+		console.log('🔍 [REG DEBUG] handleRegisterDevice called', {
+			deviceType: config.deviceType,
+			fields: deviceFields,
+			credentialsEnvId: credentials.environmentId,
+			tokenIsValid: tokenStatus.isValid
+		});
+		// ===============================================
 
 		// Clear previous errors
 		setRegistrationError(null);
@@ -137,10 +179,13 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 		// Validate fields
 		if (!validate()) {
 			console.error(`${MODULE_TAG} Validation failed`);
+			console.log('🔍 [REG DEBUG] Validation failed, errors:', errors);
 			setRegistrationError('Please fix the errors above before continuing');
 			nav.setValidationErrors(['Please fix the form errors']);
 			return;
 		}
+		
+		console.log('🔍 [REG DEBUG] Validation passed, proceeding with registration');
 
 		// Set loading state
 		setIsLoading(true);
@@ -167,23 +212,54 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 			);
 
 			console.log(`${MODULE_TAG} Device registered successfully:`, result);
+		
+		// ========== DEBUG: TOTP QR CODE DATA ==========
+		if (config.deviceType === 'TOTP') {
+			console.log('🔍 [TOTP DEBUG] Registration result:', {
+				deviceId: result.deviceId,
+				status: result.status,
+				qrCode: result.qrCode,
+				qrCodeUrl: result.qrCodeUrl,
+				secret: result.secret,
+				totpSecret: result.totpSecret,
+				fullResult: result
+			});
+		}
+		// ===============================================
 
-			// Update MFA state with registration result
-			setMfaState((prev) => ({
+		// Update MFA state with registration result
+		setMfaState((prev) => {
+			const newState = {
 				...prev,
 				deviceId: result.deviceId,
-				deviceStatus: result.status,
-				// TOTP-specific data
+				deviceStatus: computeDeviceStatus(result.status, config.deviceType, tokenStatus.type),
+				// TOTP-specific data (preserve QR/secret for user to scan)
 				qrCodeUrl: result.qrCode || result.qrCodeUrl,
 				totpSecret: result.secret || result.totpSecret,
+				// If we have TOTP data, surface the QR/secret immediately
+				showQr: config.deviceType === 'TOTP' && (result.qrCode || result.secret || result.totpSecret),
 				// FIDO2-specific data
 				publicKeyCredentialCreationOptions: result.publicKeyCredentialCreationOptions,
 				// Mobile-specific data
 				pairingKey: result.pairingKey,
 				// Links for activation
 				activationLinks: result._links,
-			}));
-
+			};
+			
+			// ========== DEBUG: TOTP MFA STATE UPDATE ==========
+			if (config.deviceType === 'TOTP') {
+				console.log('🔍 [TOTP DEBUG] Updated mfaState:', {
+					qrCodeUrl: newState.qrCodeUrl,
+					totpSecret: newState.totpSecret,
+					showQr: newState.showQr,
+					deviceStatus: newState.deviceStatus,
+					fullState: newState
+				});
+			}
+			// ================================================
+			
+			return newState;
+		});
 			// Show success toast
 			toastV8.success(`${config.displayName} device registered successfully`);
 
@@ -270,6 +346,15 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 	const renderRegistrationUI = () => {
 		// Check if this device type has a custom component
 		const CustomComponent = DeviceComponentRegistry[config.deviceType];
+		
+		// ========== DEBUG: REGISTRATION UI PATH ==========
+		console.log('🔍 [REG-UI DEBUG] Rendering path:', {
+			deviceType: config.deviceType,
+			hasCustomComponent: !!CustomComponent,
+			willUseDynamicForm: !CustomComponent,
+			registryValue: CustomComponent
+		});
+		// ================================================
 
 		if (CustomComponent) {
 			// Use device-specific custom component (TOTP, FIDO2, Mobile)
@@ -325,14 +410,21 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 				</div>
 			)}
 
-			{/* Action Buttons */}
-			<div className="step-actions">
-				<button
-					type="button"
-					onClick={() => nav.goToPrevious()}
-					disabled={isLoading}
-					className="button-secondary"
-				>
+			{/* Registration Info */}
+			<div style={{ 
+				padding: '12px 16px', 
+				background: '#eff6ff', 
+				border: '1px solid #bfdbfe',
+				borderRadius: '6px',
+				marginBottom: '16px',
+				fontSize: '14px',
+				color: '#1e40af'
+			}}>
+			{config.deviceType === 'FIDO2' ? (
+				<>ℹ️ Clicking "Next Step" will create your {config.displayName} device, then you'll complete biometric authentication.</>
+			) : (
+				<>ℹ️ Clicking "Next Step" will register your {config.displayName} device and send the activation code.</>
+			)}
 					← Previous
 				</button>
 
@@ -342,7 +434,7 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 					disabled={isLoading || !tokenStatus.isValid}
 					className="button-primary"
 				>
-					{isLoading ? 'Registering...' : `Register ${config.displayName}`}
+					{isLoading ? 'Registering...' : 'Next Step ▶'}
 				</button>
 			</div>
 

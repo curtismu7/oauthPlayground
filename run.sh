@@ -341,12 +341,69 @@ check_requirements() {
         print_success "curl ✓"
     fi
     
+    # Check SQLite3
+    if ! command -v sqlite3 &> /dev/null; then
+        print_warning "sqlite3 not installed - database operations may not work"
+    else
+        print_success "sqlite3 ✓"
+    fi
+    
     if [ "$requirements_ok" = false ]; then
         print_error "System requirements not met. Please fix the above issues."
         exit 1
     fi
     
     print_success "System requirements check passed"
+}
+
+# Check SQLite database schema
+check_sqlite_database() {
+    local db_file="src/server/data/users.db"
+    
+    if [ ! -f "$db_file" ]; then
+        print_info "Database file not found - will be created on first run"
+        return 0
+    fi
+    
+    # Check if sqlite3 is available
+    if ! command -v sqlite3 &> /dev/null; then
+        print_warning "sqlite3 not available - skipping database schema check"
+        return 0
+    fi
+    
+    print_status "🔍 Checking SQLite database schema..."
+    
+    # Check if the users table has the required columns
+    local schema_check=$(sqlite3 "$db_file" "PRAGMA table_info(users);" 2>/dev/null)
+    
+    if [ -z "$schema_check" ]; then
+        print_warning "Could not read database schema - database may be corrupted"
+        echo -n "Delete and recreate database? (y/N): "
+        read -r delete_db
+        if [ "$delete_db" = "y" ] || [ "$delete_db" = "Y" ]; then
+            rm -f "$db_file" "${db_file}-shm" "${db_file}-wal"
+            print_success "Database deleted - will be recreated on startup"
+        fi
+        return 0
+    fi
+    
+    # Check for required columns
+    local has_user_type=$(echo "$schema_check" | grep -c "user_type")
+    local has_updated_at=$(echo "$schema_check" | grep -c "updated_at")
+    
+    if [ "$has_user_type" -eq 0 ] || [ "$has_updated_at" -eq 0 ]; then
+        print_warning "Database schema is outdated (missing required columns)"
+        echo -n "Delete and recreate database? (Y/n): "
+        read -r delete_db
+        if [ -z "$delete_db" ] || [ "$delete_db" = "y" ] || [ "$delete_db" = "Y" ]; then
+            rm -f "$db_file" "${db_file}-shm" "${db_file}-wal"
+            print_success "Database deleted - will be recreated with correct schema"
+        else
+            print_warning "Continuing with old schema - sync operations may fail"
+        fi
+    else
+        print_success "Database schema is up to date"
+    fi
 }
 
 verify_sms_lockdown() {

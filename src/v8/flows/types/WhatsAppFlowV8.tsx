@@ -265,6 +265,7 @@ const WhatsAppDeviceSelectionStep: React.FC<
 		setCredentials({
 			...credentials,
 			deviceName: credentials.deviceType || 'WHATSAPP',
+			nickname: credentials.nickname || 'MyKnickName',
 		});
 		nav.goToStep(2);
 	};
@@ -1383,8 +1384,14 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 						<input
 							id="mfa-device-name-register"
 							type="text"
-							value={credentials.deviceName || credentials.deviceType || 'WHATSAPP'}
-							onChange={(e) => setCredentials({ ...credentials, deviceName: e.target.value })}
+							value={credentials.deviceName || 'WHATSAPP'}
+							onChange={(e) => 
+								setCredentials({ 
+									...credentials, 
+									deviceName: e.target.value,
+									nickname: credentials.nickname || 'MyKnickName'
+								})
+							}
 							placeholder={credentials.deviceType || 'WHATSAPP'}
 							style={{
 								padding: '10px 12px',
@@ -1411,6 +1418,43 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 									}}
 								>
 									✓ Device will be registered as: "{credentials.deviceName}"
+								</span>
+							)}
+						</small>
+					</div>
+
+					<div style={{ marginBottom: '16px' }}>
+						<label htmlFor="mfa-device-nickname-register" style={{ display: 'block', marginBottom: '8px', color: '#374151', fontSize: '14px', fontWeight: '500' }}>
+							Device Nickname (optional)
+						</label>
+						<input
+							id="mfa-device-nickname-register"
+							type="text"
+							value={credentials.nickname || 'MyKnickName'}
+							onChange={(e) => setCredentials({ ...credentials, nickname: e.target.value })}
+							placeholder="MyKnickName"
+							style={{
+								padding: '10px 12px',
+								border: '1px solid #d1d5db',
+								outline: 'none',
+								borderRadius: '6px',
+								fontSize: '14px',
+								color: '#1f2937',
+								background: 'white',
+								width: '100%',
+							}}
+						/>
+						<small style={{ display: 'block', marginTop: '4px', color: '#6b7280', fontSize: '12px' }}>
+							Enter a friendly nickname for this device (e.g., "Personal WhatsApp", "Work Phone")
+							{credentials.nickname && (
+								<span
+									style={{
+										marginLeft: '8px',
+										color: '#10b981',
+										fontWeight: '500',
+									}}
+								>
+									✓ Nickname: "{credentials.nickname}"
 								</span>
 							)}
 						</small>
