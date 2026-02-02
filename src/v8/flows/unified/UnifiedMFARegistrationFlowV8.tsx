@@ -153,6 +153,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		type: string;
 		nickname?: string;
 	} | null>(null);
+	const [customLogoUrl, setCustomLogoUrl] = useState<string>('');
 
 	// Use worker token hook for token management
 	const workerToken = useWorkerToken({
