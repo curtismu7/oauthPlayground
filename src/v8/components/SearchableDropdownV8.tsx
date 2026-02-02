@@ -16,7 +16,7 @@
  * - Accessible (ARIA labels, keyboard support)
  */
 
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 const MODULE_TAG = '[🔍 SEARCHABLE-DROPDOWN-V8]';
 
@@ -68,7 +68,7 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 	const filteredOptions = useMemo(() => {
 		// If no search term, return all options
 		if (!searchTerm) return options;
-		
+
 		// Always filter locally based on current search term
 		// Even with server-side search, we filter the returned results for immediate feedback
 		const lowerSearch = searchTerm.toLowerCase();
@@ -86,7 +86,7 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 		const selectedOption = options.find((opt) => opt.value === value);
 		if (!selectedOption) return value;
 		return selectedOption.secondaryLabel
-			? `${selectedOption.label} (${selectedOption.secondaryLabel})`
+			? `${selectedOption.label} - ${selectedOption.secondaryLabel}`
 			: selectedOption.label;
 	}, [value, options]);
 
@@ -133,12 +133,12 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 		setSearchTerm(newSearchTerm);
 		setIsOpen(true);
 		setHighlightedIndex(-1);
-		
+
 		// Call server-side search callback if provided
 		if (onSearchChange) {
 			onSearchChange(newSearchTerm);
 		}
-		
+
 		// If user clears the search, keep dropdown open to show full list
 		if (newSearchTerm === '') {
 			console.log(`${MODULE_TAG} Search cleared - dropdown stays open`);
@@ -164,9 +164,7 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 		switch (e.key) {
 			case 'ArrowDown':
 				e.preventDefault();
-				setHighlightedIndex((prev) =>
-					prev < filteredOptions.length - 1 ? prev + 1 : prev
-				);
+				setHighlightedIndex((prev) => (prev < filteredOptions.length - 1 ? prev + 1 : prev));
 				break;
 			case 'ArrowUp':
 				e.preventDefault();
@@ -297,46 +295,48 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 				</button>
 			)}
 
-				{/* Caret / toggle button */}
-				<button
-					type="button"
-					aria-label={isOpen ? 'Close options' : 'Open options'}
-					onClick={() => {
-						if (disabled || isLoading) return;
-						setIsOpen((s) => !s);
-						if (!isOpen) {
-							setTimeout(() => inputRef.current?.focus(), 0);
-						}
-					}}
-					disabled={disabled || isLoading}
-					style={{
-						position: 'absolute',
-						right: '8px',
-						top: '50%',
-						transform: 'translateY(-50%)',
-						width: '32px',
-						height: '32px',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						color: '#4b5563',
-						cursor: disabled || isLoading ? 'not-allowed' : 'pointer',
-						background: 'rgba(243, 244, 246, 0.8)',
-						border: 'none',
-						borderRadius: '4px',
-						transition: 'background 0.15s ease',
-					}}
-					onMouseEnter={(e) => {
-						if (!disabled && !isLoading) {
-							e.currentTarget.style.background = 'rgba(229, 231, 235, 1)';
-						}
-					}}
-					onMouseLeave={(e) => {
-						e.currentTarget.style.background = 'rgba(243, 244, 246, 0.8)';
-					}}
-				>
-					<span style={{ fontSize: '18px', lineHeight: '18px', fontWeight: 'bold' }}>{isOpen ? '▴' : '▾'}</span>
-				</button>
+			{/* Caret / toggle button */}
+			<button
+				type="button"
+				aria-label={isOpen ? 'Close options' : 'Open options'}
+				onClick={() => {
+					if (disabled || isLoading) return;
+					setIsOpen((s) => !s);
+					if (!isOpen) {
+						setTimeout(() => inputRef.current?.focus(), 0);
+					}
+				}}
+				disabled={disabled || isLoading}
+				style={{
+					position: 'absolute',
+					right: '8px',
+					top: '50%',
+					transform: 'translateY(-50%)',
+					width: '32px',
+					height: '32px',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					color: '#4b5563',
+					cursor: disabled || isLoading ? 'not-allowed' : 'pointer',
+					background: 'rgba(243, 244, 246, 0.8)',
+					border: 'none',
+					borderRadius: '4px',
+					transition: 'background 0.15s ease',
+				}}
+				onMouseEnter={(e) => {
+					if (!disabled && !isLoading) {
+						e.currentTarget.style.background = 'rgba(229, 231, 235, 1)';
+					}
+				}}
+				onMouseLeave={(e) => {
+					e.currentTarget.style.background = 'rgba(243, 244, 246, 0.8)';
+				}}
+			>
+				<span style={{ fontSize: '18px', lineHeight: '18px', fontWeight: 'bold' }}>
+					{isOpen ? '▴' : '▾'}
+				</span>
+			</button>
 
 			{isLoading && (
 				<div
@@ -431,8 +431,7 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 											: option.value === value
 												? '#eff6ff'
 												: 'white',
-									borderBottom:
-										index < filteredOptions.length - 1 ? '1px solid #f3f4f6' : 'none',
+									borderBottom: index < filteredOptions.length - 1 ? '1px solid #f3f4f6' : 'none',
 									display: 'flex',
 									justifyContent: 'space-between',
 									alignItems: 'center',
@@ -442,7 +441,7 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 									{option.label}
 									{option.secondaryLabel && (
 										<span style={{ color: '#6b7280', marginLeft: '8px' }}>
-											({option.secondaryLabel})
+											- {option.secondaryLabel}
 										</span>
 									)}
 								</span>
