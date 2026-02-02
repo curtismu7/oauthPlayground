@@ -11,13 +11,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { colors, spacing } from '@/v8/styles/designTokens';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 
 interface Device {
 	id: string;
 	type: 'SMS' | 'EMAIL' | 'TOTP' | 'VOICE' | 'FIDO2' | 'MOBILE' | 'WHATSAPP';
 	deviceName?: string;
 	nickname?: string;
-	status: 'ACTIVE' | 'ACTIVATION_REQUIRED' | 'DISABLED';
+	status: 'ACTIVE' | 'ACTIVATION_REQUIRED' | 'DISABLED' | 'BLOCKED' | 'LOCKED' | 'PENDING' | 'SUSPENDED' | 'EXPIRED';
 }
 
 interface UnifiedDeviceSelectionModalProps {
@@ -67,44 +68,44 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 }) => {
 	const [devices, setDevices] = useState<Device[]>([]);
 	const [searchQuery, setSearchQuery] = useState('');
+	const [isLoading, setIsLoading] = useState(false);
+	const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-	// Mock device data - in real implementation, this would come from API
+	// Fetch real devices from API
 	useEffect(() => {
 		if (isOpen && username && environmentId) {
-			// Simulate API call to get user's devices
-			setTimeout(() => {
-				const mockDevices: Device[] = [
-					{
-						id: 'device-1',
-						type: 'SMS',
-						deviceName: 'iPhone 15 Pro',
-						nickname: 'My Phone',
-						status: 'ACTIVE',
-					},
-					{
-						id: 'device-2',
-						type: 'EMAIL',
-						deviceName: 'Gmail Account',
-						nickname: 'Work Email',
-						status: 'ACTIVE',
-					},
-					{
-						id: 'device-3',
-						type: 'TOTP',
-						deviceName: 'Google Authenticator',
-						nickname: 'Authenticator App',
-						status: 'ACTIVE',
-					},
-					{
-						id: 'device-4',
-						type: 'FIDO2',
-						deviceName: 'YubiKey 5',
-						nickname: 'Security Key',
-						status: 'ACTIVE',
-					},
-				];
-				setDevices(mockDevices);
-			}, 1000);
+			const fetchDevices = async () => {
+				setIsLoading(true);
+				setErrorMsg(null);
+				try {
+					const allDevices = await MFAServiceV8.getAllDevices({
+						environmentId,
+						username,
+					});
+
+					// Filter out devices with ACTIVATION_REQUIRED status
+					// Only show ACTIVE devices for authentication
+					const activeDevices = allDevices
+						.filter((device: any) => device.status === 'ACTIVE')
+						.map((device: any) => ({
+							id: device.id,
+							type: device.type,
+							deviceName: device.name || device.phone?.number || device.email?.address,
+							nickname: device.nickname,
+							status: device.status,
+						}));
+
+					console.log('[DEVICE-SELECTION] Loaded devices:', activeDevices.length, 'active devices');
+					setDevices(activeDevices);
+				} catch (err) {
+					console.error('[DEVICE-SELECTION] Error loading devices:', err);
+					setErrorMsg(err instanceof Error ? err.message : 'Failed to load devices');
+				} finally {
+					setIsLoading(false);
+				}
+			};
+
+			fetchDevices();
 		}
 	}, [isOpen, username, environmentId]);
 
@@ -221,15 +222,15 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 						overflowY: 'auto',
 					}}
 				>
-					{loading ? (
+					{isLoading ? (
 						<div style={{ textAlign: 'center', padding: spacing[8] }}>
 							<div style={{ fontSize: '32px', marginBottom: spacing[4] }}>⏳</div>
 							<p style={{ color: colors.gray[600] }}>Loading your devices...</p>
 						</div>
-					) : error ? (
+					) : errorMsg ? (
 						<div style={{ textAlign: 'center', padding: spacing[8] }}>
 							<div style={{ fontSize: '32px', marginBottom: spacing[4], color: colors.error[500] }}>⚠️</div>
-							<p style={{ color: colors.error[600] }}>{error}</p>
+							<p style={{ color: colors.error[600] }}>{errorMsg}</p>
 						</div>
 					) : availableDevices.length === 0 ? (
 						<div style={{ textAlign: 'center', padding: spacing[8] }}>
