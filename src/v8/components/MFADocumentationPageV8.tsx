@@ -1553,95 +1553,93 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 			<div
 				style={{
 					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
 					gap: '12px',
 					marginBottom: '32px',
-					justifyContent: 'center',
 					flexWrap: 'wrap',
 				}}
 			>
+				<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+					<button
+						type="button"
+						onClick={handleDownloadMarkdown}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							padding: '12px 24px',
+							background: '#3b82f6',
+							color: 'white',
+							border: 'none',
+							borderRadius: '8px',
+							fontSize: '15px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+						}}
+					>
+						<FiFileText size={18} />
+						Download as Markdown
+					</button>
+					<button
+						type="button"
+						onClick={handleDownloadPDF}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							padding: '12px 24px',
+							background: '#ef4444',
+							color: 'white',
+							border: 'none',
+							borderRadius: '8px',
+							fontSize: '15px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
+						}}
+					>
+						<FiDownload size={18} />
+						Download as PDF
+					</button>
+					<button
+						type="button"
+						onClick={handleDownloadPostman}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							padding: '12px 24px',
+							background: '#8b5cf6',
+							color: 'white',
+							border: 'none',
+							borderRadius: '8px',
+							fontSize: '15px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
+						}}
+					>
+						<FiPackage size={18} />
+						Download Postman Collection
+					</button>
+				</div>
+
 				<button
 					type="button"
-					onClick={() => navigate('/v8/mfa-hub')}
+					onClick={() => window.location.href = window.location.pathname}
 					style={{
-						display: 'flex',
-						alignItems: 'center',
-						gap: '8px',
-						padding: '12px 24px',
-						background: '#10b981',
+						padding: '8px 16px',
+						background: '#6b7280',
 						color: 'white',
 						border: 'none',
-						borderRadius: '8px',
-						fontSize: '15px',
-						fontWeight: '600',
+						borderRadius: '6px',
+						fontSize: '14px',
 						cursor: 'pointer',
-						boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
 					}}
 				>
-					<FiHome size={18} />
-					Back to Hub
-				</button>
-				<button
-					type="button"
-					onClick={handleDownloadMarkdown}
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						gap: '8px',
-						padding: '12px 24px',
-						background: '#3b82f6',
-						color: 'white',
-						border: 'none',
-						borderRadius: '8px',
-						fontSize: '15px',
-						fontWeight: '600',
-						cursor: 'pointer',
-						boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
-					}}
-				>
-					<FiFileText size={18} />
-					Download as Markdown
-				</button>
-				<button
-					type="button"
-					onClick={handleDownloadPDF}
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						gap: '8px',
-						padding: '12px 24px',
-						background: '#ef4444',
-						color: 'white',
-						border: 'none',
-						borderRadius: '8px',
-						fontSize: '15px',
-						fontWeight: '600',
-						cursor: 'pointer',
-						boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
-					}}
-				>
-					<FiDownload size={18} />
-					Download as PDF
-				</button>
-				<button
-					type="button"
-					onClick={handleDownloadPostman}
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						gap: '8px',
-						padding: '12px 24px',
-						background: '#8b5cf6',
-						color: 'white',
-						border: 'none',
-						borderRadius: '8px',
-						fontSize: '15px',
-						fontWeight: '600',
-						cursor: 'pointer',
-						boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
-					}}
-				>
-					<FiPackage size={18} />
-					Download Postman Collection
+					🔄 Restart Flow
 				</button>
 			</div>
 
@@ -2298,7 +2296,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 				</ul>
 			</div>
 
-			{/* Bottom Navigation - Back to Hub Button */}
+			{/* Bottom Navigation */}
 			<div
 				style={{
 					display: 'flex',
@@ -2308,27 +2306,6 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 					borderTop: '1px solid #e5e7eb',
 				}}
 			>
-				<button
-					type="button"
-					onClick={() => navigate('/v8/mfa-hub')}
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						gap: '8px',
-						padding: '12px 24px',
-						background: '#10b981',
-						color: 'white',
-						border: 'none',
-						borderRadius: '8px',
-						fontSize: '15px',
-						fontWeight: '600',
-						cursor: 'pointer',
-						boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-					}}
-				>
-					<FiHome size={18} />
-					Back to Hub
-				</button>
 			</div>
 		</div>
 	);

@@ -17,11 +17,18 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FiAlertCircle, FiKey, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-// import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8'; // Removed
+import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
+import { SearchableDropdownV8 } from '@/v8/components/SearchableDropdownV8';
+import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdownV8';
+import { UserCacheProgressV8 } from '@/v8/components/UserCacheProgressV8';
+import { APIComparisonModal } from '@/v8/flows/unified/components/APIComparisonModal';
+import { useUserSearch } from '@/v8/hooks/useUserSearch';
+import { useWorkerTokenConfig } from '@/v8/hooks/useWorkerTokenConfig';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
+import { UserServiceV8 } from '@/v8/services/userServiceV8';
+import type { User } from '@/v8/services/userServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
@@ -156,29 +163,30 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 	} | null>(null);
 	const [selectedDeviceIds, setSelectedDeviceIds] = useState<Set<string>>(new Set());
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [showApiModal, setShowApiModal] = useState(false);
 
-	// Worker Token Settings State
-	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
-		try {
-			const config = MFAConfigurationServiceV8.loadConfiguration();
-			return config.workerToken.silentApiRetrieval;
-		} catch {
-			return false;
-		}
-	});
-	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
-		try {
-			const config = MFAConfigurationServiceV8.loadConfiguration();
-			return config.workerToken.showTokenAtEnd;
-		} catch {
-			return false;
-		}
-	});
+	// Use centralized worker token configuration service
+	const { silentApiRetrieval, showTokenAtEnd } = useWorkerTokenConfig();
 
 	// Get worker token status
 	const [tokenStatus, setTokenStatus] = useState<any>({
 		isValid: false,
 		minutesRemaining: 0,
+	});
+
+	// Use the reusable user search hook (cache-first, no server fallback)
+	const {
+		users,
+		allUsers,
+		isLoading: isLoadingUsers,
+		usersFetched,
+		searchQuery,
+		setSearchQuery,
+	} = useUserSearch({
+		environmentId,
+		tokenValid: tokenStatus.isValid,
+		maxPages: 100, // Support up to 20,000 users (100 pages × 200 users/page)
+		useCache: true,
 	});
 
 	// Update token status periodically
@@ -190,21 +198,6 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			} catch (error) {
 				console.error(`${MODULE_TAG} Failed to check token status`, error);
 				setTokenStatus({ isValid: false, minutesRemaining: 0 });
-			}
-		};
-
-		// Listen for configuration updates
-		const handleConfigUpdate = (event: Event) => {
-			const customEvent = event as CustomEvent<{
-				workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean };
-			}>;
-			if (customEvent.detail?.workerToken) {
-				if (customEvent.detail.workerToken.silentApiRetrieval !== undefined) {
-					setSilentApiRetrieval(customEvent.detail.workerToken.silentApiRetrieval);
-				}
-				if (customEvent.detail.workerToken.showTokenAtEnd !== undefined) {
-					setShowTokenAtEnd(customEvent.detail.workerToken.showTokenAtEnd);
-				}
 			}
 		};
 
@@ -221,12 +214,10 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		updateTokenStatus();
 		const interval = setInterval(updateTokenStatus, 30000); // Update every 30 seconds
 
-		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 
 		return () => {
 			clearInterval(interval);
-			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
 			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 		};
 	}, []);
@@ -349,7 +340,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		setSelectedDeviceIds(new Set());
 	}, []);
 
-	// Handle worker token modal
+	// Handle worker token modal with silent retrieval support
 	const handleShowWorkerTokenModal = async () => {
 		const { handleShowWorkerTokenModal: showModal } = await import(
 			'@/v8/utils/workerTokenModalHelperV8'
@@ -453,12 +444,31 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		<div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto' }}>
 			{/* Header */}
 			<div style={{ marginBottom: '32px' }}>
-				<h1 style={{ margin: '0 0 8px 0', fontSize: '28px', fontWeight: '700', color: '#1f2937' }}>
-					🗑️ Delete All Devices Utility
-				</h1>
-				<p style={{ margin: 0, color: '#6b7280', fontSize: '16px' }}>
-					Delete all MFA devices for a user, with optional filtering by device type and status
-				</p>
+				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+					<div>
+						<h1 style={{ margin: '0 0 8px 0', fontSize: '28px', fontWeight: '700', color: '#1f2937' }}>
+							🗑️ Delete All Devices Utility
+						</h1>
+						<p style={{ margin: 0, color: '#6b7280', fontSize: '16px' }}>
+							Delete all MFA devices for a user, with optional filtering by device type and status
+						</p>
+					</div>
+					<button
+						onClick={() => setShowApiModal(true)}
+						style={{
+							padding: '8px 16px',
+							backgroundColor: '#3b82f6',
+							color: 'white',
+							border: 'none',
+							borderRadius: '6px',
+							cursor: 'pointer',
+							fontSize: '14px',
+							fontWeight: '500',
+						}}
+					>
+						🔍 API Comparison
+					</button>
+				</div>
 			</div>
 
 			{/* Configuration Section */}
@@ -510,32 +520,71 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 
 					{/* Username */}
 					<div>
-						<label
-							htmlFor="delete-devices-username"
-							style={{
-								display: 'block',
-								marginBottom: '8px',
-								fontSize: '14px',
-								fontWeight: '600',
-								color: '#374151',
-							}}
-						>
-							Username *
-						</label>
-						<input
-							id="delete-devices-username"
-							type="text"
-							value={username}
-							onChange={(e) => setUsername(e.target.value)}
-							placeholder="Enter username"
-							style={{
-								width: '100%',
-								padding: '10px 12px',
-								border: username.trim() ? '1px solid #d1d5db' : '2px solid #ef4444',
-								borderRadius: '6px',
-								fontSize: '14px',
-							}}
-						/>
+						{/* Cache Progress Indicator */}
+						{environmentId && tokenStatus.isValid && (
+							<div style={{ marginBottom: '12px' }}>
+								<UserCacheProgressV8
+									environmentId={environmentId}
+									autoStart={true}
+									initialPages={5}
+								maxPages={100}
+								compact={true}
+							/>
+						</div>
+					)}
+					
+<label
+htmlFor="delete-devices-username"
+style={{
+display: 'block',
+marginBottom: '8px',
+fontSize: '14px',
+fontWeight: '600',
+color: '#374151',
+}}
+>
+Username *
+</label>
+
+						
+						{environmentId && tokenStatus.isValid ? (
+							<SearchableDropdownV8
+								id="delete-devices-username"
+								value={username}
+								options={Array.from(
+									new Map(
+										users.map((user) => [
+											user.username,
+											{
+												value: user.username,
+												label: user.username,
+												secondaryLabel: user.email || undefined,
+											} as SearchableDropdownOption,
+										])
+									).values()
+								)}
+								onChange={setUsername}
+								placeholder="Type to search users..."
+								isLoading={isLoadingUsers}
+								onSearchChange={setSearchQuery}
+							/>
+						) : (
+							<input
+								id="delete-devices-username"
+								type="text"
+								value={username}
+								onChange={(e) => setUsername(e.target.value)}
+								placeholder="Enter username"
+								style={{
+									width: '100%',
+									padding: '10px 12px',
+									border: username.trim() ? '1px solid #d1d5db' : '2px solid #ef4444',
+									borderRadius: '6px',
+									fontSize: '14px',
+								}}
+							/>
+						)}
+						
 						{!username.trim() && (
 							<div style={{ marginTop: '4px', fontSize: '12px', color: '#ef4444' }}>
 								Username is required
@@ -613,46 +662,40 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						</select>
 					</div>
 
-					{/* Worker Token Status Display - Removed */}
-
-					{/* Get Worker Token Button */}
+				{/* Worker Token Section */}
+				<div style={{ marginBottom: '24px' }}>
 					<button
-						type="button"
 						onClick={handleShowWorkerTokenModal}
 						style={{
-							padding: '12px 24px',
-							border: 'none',
-							borderRadius: '8px',
-							background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+							padding: '8px 16px',
+							backgroundColor: tokenStatus.isValid ? '#28a745' : '#dc3545',
 							color: 'white',
-							fontSize: '14px',
-							fontWeight: '600',
+							border: 'none',
+							borderRadius: '4px',
 							cursor: 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-							boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-							transition: 'all 0.2s ease',
-							marginBottom: '12px',
+							fontSize: '14px',
+							fontWeight: '500',
+							marginBottom: '24px',
+							display: 'block',
 						}}
-						onMouseEnter={(e) => {
-							e.currentTarget.style.background = 'linear-gradient(135deg, #2563eb, #1d4ed8)';
-							e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
-							e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
-						}}
-						title="Get Worker Token for API Authentication"
 					>
-						<FiKey style={{ fontSize: '16px' }} />
 						Get Worker Token
 					</button>
+
+					{/* Worker Token Status Display */}
+					<div style={{ marginTop: '24px', marginBottom: '20px' }}>
+						<WorkerTokenStatusDisplayV8
+							mode="compact"
+							showRefresh={true}
+							refreshInterval={5}
+							showConfig={false}
+						/>
+					</div>
 
 					{/* Worker Token Configuration Checkboxes */}
 					<div
 						style={{
-							marginTop: '12px',
+							marginTop: '0',
 							padding: '12px',
 							background: '#f8fafc',
 							borderRadius: '6px',
@@ -673,17 +716,9 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 								checked={silentApiRetrieval}
 								onChange={async (e) => {
 									const newValue = e.target.checked;
-									setSilentApiRetrieval(newValue);
-									// Update config service immediately
-									const config = MFAConfigurationServiceV8.loadConfiguration();
-									config.workerToken.silentApiRetrieval = newValue;
-									MFAConfigurationServiceV8.saveConfiguration(config);
-									// Dispatch event to notify other components
-									window.dispatchEvent(
-										new CustomEvent('mfaConfigurationUpdated', {
-											detail: { workerToken: config.workerToken },
-										})
-									);
+									// Update via centralized service
+									const { WorkerTokenConfigServiceV8 } = await import('@/v8/services/workerTokenConfigServiceV8');
+									WorkerTokenConfigServiceV8.setSilentApiRetrieval(newValue);
 									toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
 
 									// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
@@ -733,19 +768,11 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							<input
 								type="checkbox"
 								checked={showTokenAtEnd}
-								onChange={(e) => {
+								onChange={async (e) => {
 									const newValue = e.target.checked;
-									setShowTokenAtEnd(newValue);
-									// Update config service immediately
-									const config = MFAConfigurationServiceV8.loadConfiguration();
-									config.workerToken.showTokenAtEnd = newValue;
-									MFAConfigurationServiceV8.saveConfiguration(config);
-									// Dispatch event to notify other components
-									window.dispatchEvent(
-										new CustomEvent('mfaConfigurationUpdated', {
-											detail: { workerToken: config.workerToken },
-										})
-									);
+									// Update via centralized service
+									const { WorkerTokenConfigServiceV8 } = await import('@/v8/services/workerTokenConfigServiceV8');
+									WorkerTokenConfigServiceV8.setShowTokenAtEnd(newValue);
 									toastV8.info(`Show Token After Generation set to: ${newValue}`);
 								}}
 								style={{
@@ -765,6 +792,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							</div>
 						</div>
 					</div>
+				</div>
 
 					{/* Load Devices Button */}
 					<button
@@ -923,7 +951,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							>
 								{isDeleting ? (
 									<>
-										<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
+										<FiLoader style={{ animation: 'spin 1s linear infinite' }} className="spin-icon" />
 										Deleting...
 									</>
 								) : (
@@ -935,6 +963,20 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							</button>
 						</div>
 					</div>
+
+					<style>{`
+						@keyframes spin {
+							from {
+								transform: rotate(0deg);
+							}
+							to {
+								transform: rotate(360deg);
+							}
+						}
+						.spin-icon {
+							animation: spin 1s linear infinite;
+						}
+					`}</style>
 
 					<div style={{ display: 'grid', gap: '12px' }}>
 						{devices.map((device) => {
@@ -1098,6 +1140,9 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				Deleted devices cannot be recovered.
 			</div>
 
+			{/* API Comparison Modal */}
+			<APIComparisonModal isOpen={showApiModal} onClose={() => setShowApiModal(false)} />
+
 			{/* Worker Token Modal */}
 			{showWorkerTokenModal && (
 				<WorkerTokenModalV8
@@ -1113,24 +1158,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							setTokenStatus({ isValid: false, minutesRemaining: 0 });
 						}
 					}}
-					showTokenOnly={(() => {
-						if (!showWorkerTokenModal) return false;
-						try {
-							const config = MFAConfigurationServiceV8.loadConfiguration();
-							// For showTokenOnly, we need to check synchronously for the modal display logic
-							// Use a simple status check that doesn't require async
-							const currentStatus = {
-								isValid: false,
-								status: 'missing' as const,
-								message: 'Checking...',
-								expiresAt: null as number | null,
-								minutesRemaining: 0,
-							};
-							return config.workerToken.showTokenAtEnd && currentStatus.isValid;
-						} catch {
-							return false;
-						}
-					})()}
+					showTokenOnly={showTokenAtEnd && tokenStatus.isValid}
 				/>
 			)}
 		</div>

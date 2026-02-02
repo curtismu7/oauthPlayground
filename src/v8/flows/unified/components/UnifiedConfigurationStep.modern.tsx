@@ -23,6 +23,7 @@ import { colors, spacing, borderRadius, typography } from '@/v8/design/tokens';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { FiCheck, FiAlertCircle, FiArrowRight } from 'react-icons/fi';
 
 const MODULE_TAG = '[⚙️ UNIFIED-CONFIG-MODERN]';
@@ -39,8 +40,9 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 	nav,
 	config,
 	deviceType,
+	registrationFlowType = 'admin',
 }) => {
-	console.log(`${MODULE_TAG} Rendering for:`, deviceType);
+	console.log(`${MODULE_TAG} Rendering for:`, deviceType, 'Flow type:', registrationFlowType);
 
 	// Global MFA state
 	const { environmentId, workerTokenStatus, isConfigured, isLoading: globalLoading } = useGlobalMFA();
@@ -57,6 +59,7 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 	const { values, errors, touched, handleChange, handleBlur, validateAll, setValues } = useFormValidation(
 		{
 			username: credentials.username || '',
+			flowType: registrationFlowType === 'user' ? 'user' : 'admin-activation',
 		},
 		{
 			username: {
@@ -67,6 +70,9 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 	);
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [selectedFlowType, setSelectedFlowType] = useState<'admin-active' | 'admin-activation' | 'user'>(
+		registrationFlowType === 'user' ? 'user' : 'admin-activation'
+	);
 
 	// Update form when credentials change
 	useEffect(() => {
@@ -87,7 +93,7 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 
 	// Handle continue
 	const handleContinue = useCallback(async () => {
-		console.log(`${MODULE_TAG} Continuing to device selection`);
+		console.log(`${MODULE_TAG} Continuing for device type:`, deviceType, 'Flow type:', selectedFlowType);
 
 		// Validate form
 		if (!validateAll()) {
@@ -106,28 +112,118 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 
 		try {
 			// Update credentials
-			setCredentials((prev) => ({
-				...prev,
+			const updatedCredentials = {
+				...credentials,
 				environmentId: environmentId!,
 				username: values.username.trim(),
-				tokenType: 'worker',
+				tokenType: 'worker' as const,
 				deviceType,
-			}));
+			};
+			
+			setCredentials(updatedCredentials);
 
-			// Mark step complete
-			nav.markStepComplete();
+			/**
+			 * CRITICAL: MFA OTP and TOTP devices MUST always register directly
+			 * 
+			 * Flow Types:
+			 * 1. Admin Active (admin-active): Register → Skip activation → Success
+			 * 2. Admin Activation Required (admin-activation): Register → OTP activation → Success
+			 * 3. User Flow (user): Register → PingOne login → OTP activation → Success
+			 * 
+			 * NEVER skip activation for ACTIVATION_REQUIRED or user flow!
+			 */
+			const DIRECT_REGISTRATION_DEVICES = ['EMAIL', 'SMS', 'WHATSAPP', 'TOTP'];
+			
+			if (DIRECT_REGISTRATION_DEVICES.includes(deviceType)) {
+				console.log(`${MODULE_TAG} Registering ${deviceType} device directly with flow type: ${selectedFlowType}`);
+				
+				// Map device type to field name
+				const fieldMap: Record<string, string> = {
+					EMAIL: 'email',
+					SMS: 'phone',
+					WHATSAPP: 'phone',
+					TOTP: 'deviceName', // TOTP doesn't need contact field
+				};
+				
+				const fieldName = fieldMap[deviceType];
+				const fieldValue = deviceType === 'TOTP' ? deviceType : values.username.trim();
+				
+				// Determine device status based on flow type
+				// CRITICAL: Only admin-active flow creates ACTIVE devices
+				const deviceStatus = selectedFlowType === 'admin-active' ? 'ACTIVE' : 'ACTIVATION_REQUIRED';
+				
+				// Prepare registration parameters
+				const registrationParams: Record<string, any> = {
+					environmentId: environmentId!,
+					username: values.username.trim(),
+					deviceType,
+					[fieldName]: fieldValue,
+					deviceName: deviceType,
+					nickname: 'MyKnickName',
+					tokenType: 'worker' as const,
+					// Only admin flows set status, user flow doesn't include it
+					...(selectedFlowType !== 'user' && { status: deviceStatus }),
+				};
+				
+				console.log(`${MODULE_TAG} Registration params:`, registrationParams);
+				
+				// Call MFA Service to register device
+				const result = await MFAServiceV8.registerDevice(registrationParams);
+				console.log(`${MODULE_TAG} Device registered with status:`, result.status);
+				
+				// CRITICAL VALIDATION: Ensure activation flow is followed correctly
+				if (result.status === 'ACTIVATION_REQUIRED' && selectedFlowType === 'admin-active') {
+					console.error(`${MODULE_TAG} ERROR: Expected ACTIVE but got ACTIVATION_REQUIRED`);
+					throw new Error('Device registration flow mismatch - expected ACTIVE device');
+				}
+				
+				// Update credentials with device info
+				setCredentials((prev) => ({
+					...prev,
+					deviceId: result.deviceId,
+					deviceStatus: result.status,
+				}));
+				
+				// Mark step complete
+				nav.markStepComplete();
+				
+				/**
+				 * ROUTING LOGIC - CRITICAL:
+				 * - ACTIVE devices: Skip activation → Go to success (Step 2)
+				 * - ACTIVATION_REQUIRED: MUST go to activation step (Step 1) for OTP entry
+				 * - User flow: MUST go to activation (Step 1) even if device shows as ACTIVE
+				 */
+				if (result.status === 'ACTIVE' && selectedFlowType === 'admin-active') {
+					console.log(`${MODULE_TAG} Admin Active flow: Skipping activation, going to success`);
+					toastV8.success(`${config.displayName} device registered successfully! Device is ready to use.`);
+					nav.goToStep(2); // Skip activation, go to success
+				} else {
+					// ACTIVATION_REQUIRED or User Flow - MUST go through activation
+					console.log(`${MODULE_TAG} Activation required: Going to activation step`);
+					toastV8.success(`${config.displayName} device registered! ${result.status === 'ACTIVATION_REQUIRED' ? 'OTP has been sent automatically.' : 'Please complete activation.'}`);
+					nav.goToNext(); // Go to activation step
+				}
+			} else {
+				// For FIDO2, MOBILE - go to device selection/registration form
+				console.log(`${MODULE_TAG} Navigating to device selection for ${deviceType}`);
+				
+				// Mark step complete
+				nav.markStepComplete();
 
-			// Navigate to next step
-			nav.goToNext();
+				// Navigate to next step (device selection/registration form)
+				nav.goToNext();
 
-			toastV8.success('Configuration saved');
+				toastV8.success('Configuration saved');
+			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error:`, error);
-			toastV8.error('Failed to save configuration');
+			const errorMessage = error instanceof Error ? error.message : 'Failed to process request';
+			toastV8.error(errorMessage);
+			nav.setValidationErrors([errorMessage]);
 		} finally {
 			setIsSubmitting(false);
 		}
-	}, [validateAll, isConfigured, environmentId, values, deviceType, setCredentials, nav]);
+	}, [validateAll, isConfigured, environmentId, values, deviceType, selectedFlowType, credentials, setCredentials, nav, config]);
 
 	// Loading state
 	if (globalLoading) {
@@ -259,6 +355,101 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 						placeholder="user@example.com"
 						helpText="The user who will register this MFA device"
 					/>
+
+					{/* Flow Type Selection */}
+					<div style={{ marginTop: spacing.lg }}>
+						<label
+							style={{
+								display: 'block',
+								marginBottom: spacing.sm,
+								fontWeight: typography.fontWeight.semibold,
+								color: colors.neutral[700],
+								fontSize: typography.fontSize.sm,
+							}}
+						>
+							Registration Flow Type
+						</label>
+						<div style={{ display: 'flex', flexDirection: 'column', gap: spacing.sm }}>
+							<label
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									padding: spacing.md,
+									border: `2px solid ${selectedFlowType === 'admin-active' ? colors.primary[500] : colors.neutral[300]}`,
+									borderRadius: borderRadius.md,
+									cursor: 'pointer',
+									background: selectedFlowType === 'admin-active' ? colors.primary[50] : 'white',
+								}}
+							>
+								<input
+									type="radio"
+									name="flowType"
+									value="admin-active"
+									checked={selectedFlowType === 'admin-active'}
+									onChange={() => setSelectedFlowType('admin-active')}
+									style={{ marginRight: spacing.sm }}
+								/>
+								<div>
+									<strong>Admin - Active</strong>
+									<div style={{ fontSize: typography.fontSize.sm, color: colors.neutral[600] }}>
+										Device ready immediately (no activation required)
+									</div>
+								</div>
+							</label>
+							<label
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									padding: spacing.md,
+									border: `2px solid ${selectedFlowType === 'admin-activation' ? colors.primary[500] : colors.neutral[300]}`,
+									borderRadius: borderRadius.md,
+									cursor: 'pointer',
+									background: selectedFlowType === 'admin-activation' ? colors.primary[50] : 'white',
+								}}
+							>
+								<input
+									type="radio"
+									name="flowType"
+									value="admin-activation"
+									checked={selectedFlowType === 'admin-activation'}
+									onChange={() => setSelectedFlowType('admin-activation')}
+									style={{ marginRight: spacing.sm }}
+								/>
+								<div>
+									<strong>Admin - Activation Required</strong>
+									<div style={{ fontSize: typography.fontSize.sm, color: colors.neutral[600] }}>
+										Requires OTP activation after registration
+									</div>
+								</div>
+							</label>
+							<label
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									padding: spacing.md,
+									border: `2px solid ${selectedFlowType === 'user' ? colors.primary[500] : colors.neutral[300]}`,
+									borderRadius: borderRadius.md,
+									cursor: 'pointer',
+									background: selectedFlowType === 'user' ? colors.primary[50] : 'white',
+								}}
+							>
+								<input
+									type="radio"
+									name="flowType"
+									value="user"
+									checked={selectedFlowType === 'user'}
+									onChange={() => setSelectedFlowType('user')}
+									style={{ marginRight: spacing.sm }}
+								/>
+								<div>
+									<strong>User Flow</strong>
+									<div style={{ fontSize: typography.fontSize.sm, color: colors.neutral[600] }}>
+										Requires PingOne login + OTP activation
+									</div>
+								</div>
+							</label>
+						</div>
+					</div>
 				</div>
 
 				{/* Action Buttons */}
@@ -281,7 +472,9 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 						rightIcon={<FiArrowRight />}
 						fullWidth
 					>
-						Continue to Device Selection
+						{['EMAIL', 'SMS', 'WHATSAPP', 'TOTP'].includes(deviceType)
+							? `Register ${config.displayName} →`
+							: 'Continue to Device Selection →'}
 					</Button>
 				</div>
 			</div>

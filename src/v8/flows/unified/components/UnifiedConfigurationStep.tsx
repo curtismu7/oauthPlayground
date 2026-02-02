@@ -640,7 +640,8 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 								</div>
 							</label>
 
-							{/* Admin Flow (ACTIVATION_REQUIRED) Option */}
+							{/* Admin Flow (ACTIVATION_REQUIRED) Option - Hidden for FIDO2 */}
+							{config.deviceType !== 'FIDO2' && (
 							<label
 								style={{
 									padding: '16px 20px',
@@ -720,6 +721,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 									</div>
 								</div>
 							</label>
+							)}
 
 							{/* User Flow Option */}
 							<label

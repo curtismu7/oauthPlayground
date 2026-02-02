@@ -14,6 +14,11 @@ import dotenv from 'dotenv';
 import express from 'express';
 import fetch from 'node-fetch';
 
+// Import user database service and API routes
+import { userDatabaseService } from './src/server/services/userDatabaseService.js';
+import { setupUserApiRoutes } from './src/server/routes/userApiRoutes.js';
+import { setupBackupApiRoutes } from './src/server/routes/backupApiRoutes.js';
+
 dotenv.config();
 
 // Setup file logging
@@ -789,8 +794,23 @@ app.use((_req, res, next) => {
 });
 
 // JSON parser - accepts application/json Content-Type
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Increase limit to support large bulk user imports from CLI
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Initialize user database service
+try {
+	userDatabaseService.init();
+	console.log('💾 User database service initialized');
+} catch (error) {
+	console.error('❌ Failed to initialize user database service:', error);
+}
+
+// Setup user API routes
+setupUserApiRoutes(app);
+
+// Setup backup API routes
+setupBackupApiRoutes(app);
 
 /**
  * Client-side logging endpoint
@@ -4401,34 +4421,59 @@ app.post('/api/mfa/challenge/initiate', async (req, res) => {
 		// Make real API call to PingOne for MFA challenge initiation
 		const pingOneChallengeUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}/challenges`;
 
-		const challengeRequestBody = {
-			challengeType: challengeType,
-			deviceType: deviceType,
-		};
+		// Note: deviceType is NOT included in body - it's implicit from the deviceId in the URL
+		const challengeRequestBody = {};
 
 		console.log(`[PingOne MFA] Making real API call to PingOne:`, {
 			url: pingOneChallengeUrl,
 			method: 'POST',
 			body: challengeRequestBody,
+			note: 'Empty body - device type is determined by deviceId in URL path'
 		});
+
+		// Require Authorization header (kill malformed/missing requests early)
+		const incomingAuth = req.headers.authorization || '';
+		if (!incomingAuth || !incomingAuth.startsWith('Bearer ')) {
+			console.warn('[PingOne MFA] Missing or malformed Authorization header');
+			return res.status(401).json({
+				success: false,
+				error: 'missing_authorization',
+				error_description: 'Missing or malformed Authorization header. Please include a Bearer token.'
+			});
+		}
+
+		// Mask and log the incoming Authorization header for debugging
+		try {
+			const masked = incomingAuth.startsWith('Bearer ')
+				? `Bearer ${incomingAuth.slice(7, 15)}…`
+				: incomingAuth.slice(0, 15) + '…';
+			console.log(`[PingOne MFA] Forwarding Authorization: ${masked}`);
+		} catch (e) {
+			console.warn('[PingOne MFA] Failed to mask authorization header', e);
+		}
 
 		const pingOneResponse = await fetch(pingOneChallengeUrl, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${req.headers.authorization?.replace('Bearer ', '')}`,
+				Authorization: req.headers.authorization,
 			},
 			body: JSON.stringify(challengeRequestBody),
 		});
 
 		if (!pingOneResponse.ok) {
-			const errorData = await pingOneResponse.json();
-			console.error(`[PingOne MFA] PingOne challenge initiation failed:`, errorData);
+			// Try to read response body as text for better diagnostics
+			let errorText = '';
+			try {
+				errorText = await pingOneResponse.text();
+			} catch (e) {
+				console.warn('[PingOne MFA] Failed to read PingOne error text', e);
+			}
+			console.error(`[PingOne MFA] PingOne challenge initiation failed: status=${pingOneResponse.status}, body=${errorText}`);
 			return res.status(pingOneResponse.status).json({
 				success: false,
-				error: errorData.error || 'challenge_initiation_failed',
-				error_description:
-					errorData.error_description || errorData.message || 'Failed to initiate MFA challenge',
+				error: 'challenge_initiation_failed',
+				error_description: errorText || 'Failed to initiate MFA challenge',
 				server_timestamp: new Date().toISOString(),
 			});
 		}
@@ -11581,19 +11626,17 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
 		const resendEndpoint = `${apiBaseUrl}/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`;
 
 		// CRITICAL: Resend pairing code requires specific Content-Type header
-		// API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-resend-pairing-code
+		// API Reference: https://developer.pingidentity.com/pingone-api/mfa/users/mfa-devices/resend_pairing_otp.html
 		// According to PingOne API documentation:
-		// - Content-Type: application/vnd.pingidentity.device.resend-pairing-code+json
-		// - Request body: {} (empty JSON object, must be sent as string "{}")
-		// The +json suffix indicates a JSON body is expected (even if empty)
+		// - Content-Type: application/vnd.pingidentity.device.sendActivationCode+json
+		// - Request body: empty string '' (nothing in the body, not even JSON)
 		const requestHeaders = {
-			'Content-Type': 'application/vnd.pingidentity.device.resend-pairing-code+json',
+			'Content-Type': 'application/vnd.pingidentity.device.sendActivationCode+json',
 			Authorization: `Bearer ${cleanToken}`,
 			Accept: 'application/json',
 		};
-		// Empty JSON object as required by PingOne API - must be stringified
-		const requestBody = {};
-		const requestBodyString = JSON.stringify(requestBody); // Results in "{}"
+		// Empty body as required by PingOne API
+		const requestBodyString = '';
 
 		console.log('[MFA Resend Pairing Code] Calling PingOne API:', {
 			endpoint: resendEndpoint,
@@ -11615,7 +11658,7 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
 			const nodeFetchHeaders = new Headers();
 			nodeFetchHeaders.set(
 				'Content-Type',
-				'application/vnd.pingidentity.device.resend-pairing-code+json'
+				'application/vnd.pingidentity.device.sendActivationCode+json'
 			);
 			nodeFetchHeaders.set('Authorization', `Bearer ${cleanToken}`);
 			nodeFetchHeaders.set('Accept', 'application/json');
@@ -11630,7 +11673,7 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
 			response = await fetch(resendEndpoint, {
 				method: 'POST',
 				headers: nodeFetchHeaders,
-				body: requestBodyString, // Send empty JSON object as string: "{}"
+				body: requestBodyString, // Send empty string as body: ''
 			});
 		} catch (fetchError) {
 			console.error('[MFA Resend Pairing Code] Fetch error:', fetchError);
@@ -11665,10 +11708,10 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
 			resendEndpoint,
 			'POST',
 			{
-				'Content-Type': 'application/vnd.pingidentity.device.resend-pairing-code+json',
+				'Content-Type': 'application/vnd.pingidentity.device.sendActivationCode+json',
 				Authorization: `Bearer ${cleanToken.substring(0, 30)}...`,
 			},
-			requestBody, // Empty JSON object {}
+			'', // Empty body
 			response,
 			responseData,
 			duration,
@@ -11699,12 +11742,12 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
 					message:
 						'PingOne API rejected the request. The Content-Type header or request body format may be incorrect.',
 					details: {
-						sentContentType: requestHeaders['Content-Type'],
-						expectedContentType: 'application/vnd.pingidentity.device.resend-pairing-code+json',
+						sentContentType: 'application/vnd.pingidentity.device.sendActivationCode+json',
+						expectedContentType: 'application/vnd.pingidentity.device.sendActivationCode+json',
 						bodyString: requestBodyString,
 						bodyLength: requestBodyString.length,
 						pingOneResponse: responseData,
-						note: 'Verify Content-Type header matches exactly and body is "{}" (empty JSON object as string)',
+						note: 'Verify Content-Type header matches exactly and body is empty string',
 					},
 				});
 			}
@@ -13768,7 +13811,7 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 // List Users with Search and Pagination
 app.post('/api/pingone/mfa/list-users', async (req, res) => {
 	try {
-		const { environmentId, workerToken, search, limit, offset } = req.body;
+		const { environmentId, workerToken, search, limit, offset, updatedSince } = req.body;
 
 		if (!environmentId || !workerToken) {
 			return res.status(400).json({ error: 'Missing required fields: environmentId, workerToken' });
@@ -13802,59 +13845,99 @@ app.post('/api/pingone/mfa/list-users', async (req, res) => {
 					? 'https://api.pingone.asia'
 					: 'https://api.pingone.com';
 
-		// Build query parameters
-		const queryParams = new URLSearchParams();
 		const pageLimit = limit || 10;
-		queryParams.append('limit', String(pageLimit));
-		if (offset) {
-			queryParams.append('offset', String(offset));
+
+		const escapeSearch = (value) => value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+		const buildFilter = (emailAttr) => {
+			const filterParts = [];
+
+			if (updatedSince) {
+				const date = new Date(updatedSince);
+				if (!isNaN(date.getTime())) {
+					filterParts.push(`meta.lastModified gt "${date.toISOString()}"`);
+				}
+			}
+
+			if (search?.trim()) {
+				const escapedSearch = escapeSearch(search.trim());
+				const searchFilter = emailAttr
+					? `(username sw "${escapedSearch}" or ${emailAttr} sw "${escapedSearch}")`
+					: `(username sw "${escapedSearch}")`;
+				filterParts.push(searchFilter);
+			}
+
+			if (filterParts.length === 0) return null;
+			if (filterParts.length === 1) return filterParts[0];
+			return `(${filterParts.join(' and ')})`;
+		};
+
+		const fetchUsers = async (emailAttr) => {
+			const filter = buildFilter(emailAttr);
+			const queryParams = new URLSearchParams();
+			queryParams.append('limit', String(pageLimit));
+			if (offset) {
+				queryParams.append('offset', String(offset));
+			}
+			if (filter) {
+				queryParams.append('filter', filter);
+			}
+			
+			const usersEndpoint = `${apiBase}/v1/environments/${environmentId}/users?${queryParams.toString()}`;
+			const startTime = Date.now();
+			const response = await global.fetch(usersEndpoint, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${cleanToken}`,
+					'Content-Type': 'application/json',
+				},
+			});
+			const duration = Date.now() - startTime;
+			const responseClone = response.clone();
+			let responseData;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
+			}
+			logPingOneApiCall(
+				'List Users',
+				usersEndpoint,
+				'GET',
+				{
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${cleanToken.substring(0, 20)}...***REDACTED***`,
+				},
+				null,
+				response,
+				responseData,
+				duration,
+				{ environmentId, search, limit: pageLimit, offset: offset || 0 }
+			);
+			return { response, responseData };
+		};
+
+		// Try primary filter using emails.value, then fall back to email/username-only if PingOne rejects it
+		let { response, responseData } = await fetchUsers('emails.value');
+		if (
+			!response.ok &&
+			response.status === 400 &&
+			search?.trim() &&
+			`${responseData?.message || responseData?.error || ''}`.toLowerCase().includes('validation')
+		) {
+			console.warn(
+				'[List Users] PingOne rejected filter with emails.value; retrying with email/username-only'
+			);
+			({ response, responseData } = await fetchUsers('email'));
 		}
-
-		// Add search filter if provided (SCIM filter syntax)
-		if (search?.trim()) {
-			const searchTerm = search.trim();
-			// Escape special characters for SCIM filter (escape backslashes first, then quotes)
-			const escapedSearch = searchTerm.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-			// Search in username and email fields (use parentheses for OR expression)
-			const filter = `(username sw "${escapedSearch}" or emails.value sw "${escapedSearch}")`;
-			queryParams.append('filter', filter);
+		if (
+			!response.ok &&
+			response.status === 400 &&
+			search?.trim() &&
+			`${responseData?.message || responseData?.error || ''}`.toLowerCase().includes('validation')
+		) {
+			console.warn('[List Users] PingOne rejected email filter; retrying with username-only');
+			({ response, responseData } = await fetchUsers(null));
 		}
-
-		const usersEndpoint = `${apiBase}/v1/environments/${environmentId}/users?${queryParams.toString()}`;
-
-		const startTime = Date.now();
-		const response = await global.fetch(usersEndpoint, {
-			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${cleanToken}`,
-				'Content-Type': 'application/json',
-			},
-		});
-
-		const duration = Date.now() - startTime;
-		const responseClone = response.clone();
-		let responseData;
-		try {
-			responseData = await responseClone.json();
-		} catch {
-			responseData = { error: 'Failed to parse response' };
-		}
-
-		// Log API call
-		logPingOneApiCall(
-			'List Users',
-			usersEndpoint,
-			'GET',
-			{
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${cleanToken.substring(0, 20)}...***REDACTED***`,
-			},
-			null,
-			response,
-			responseData,
-			duration,
-			{ environmentId, search, limit: pageLimit, offset: offset || 0 }
-		);
 
 		if (!response.ok) {
 			const errorData = responseData || { error: 'Unknown error' };
@@ -13865,17 +13948,29 @@ app.post('/api/pingone/mfa/list-users', async (req, res) => {
 		const users =
 			responseData._embedded?.users || responseData.Resources || responseData.items || [];
 
+		// Filter results to ensure they actually match the search criteria
+		// PingOne sometimes returns users where the name/displayName matches, not just username/email
+				const filteredUsers = search?.trim()
+						? users.filter((user) => {
+										const searchTerm = search.trim().toLowerCase();
+										const username = (user.username || user.userName || '').toLowerCase();
+										const email = (user.emails?.[0]?.value || '').toLowerCase();
+										// Include users where username or email contains the search term (more forgiving)
+										return username.includes(searchTerm) || email.includes(searchTerm);
+							})
+						: users;
+
 		// Extract pagination info if available
-		const totalCount = responseData.count || responseData.totalResults || users.length;
-		const hasMore = users.length === pageLimit; // If we got exactly the limit, there might be more
+		const totalCount = responseData.count || responseData.totalResults || filteredUsers.length;
+		const hasMore = filteredUsers.length === pageLimit; // If we got exactly the limit, there might be more
 
 		return res.json({
-			users: users.map((user) => ({
+			users: filteredUsers.map((user) => ({
 				id: user.id,
 				username: user.username || user.userName || '',
 				email: user.emails?.[0]?.value || '',
 			})),
-			count: users.length,
+			count: filteredUsers.length,
 			totalCount,
 			hasMore,
 			limit: pageLimit,
@@ -17932,6 +18027,41 @@ app.post('/api/pingone/mfa/dataExplorations-entries', async (req, res) => {
 		res
 			.status(500)
 			.json({ error: 'Failed to get data exploration entries', message: error.message });
+	}
+});
+
+// Get CLI cache file for auto-import
+app.get('/api/cli-cache/:environmentId', (req, res) => {
+	try {
+		const { environmentId } = req.params;
+		const cacheFile = path.join(__dirname, 'user-cache', `${environmentId}.json`);
+		
+		console.log('[CLI Cache] Checking for cache file:', cacheFile);
+		
+		if (!fs.existsSync(cacheFile)) {
+			console.log('[CLI Cache] File not found');
+			return res.status(404).json({
+				error: 'cache_not_found',
+				message: 'No CLI cache file found for this environment'
+			});
+		}
+		
+		const cacheData = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+		console.log('[CLI Cache] Serving cache with', cacheData.users?.length || 0, 'users');
+		
+		res.json({
+			environmentId: cacheData.environmentId,
+			users: cacheData.users || [],
+			totalUsers: cacheData.totalUsers || 0,
+			lastFetchedAt: cacheData.lastFetchedAt,
+			fetchComplete: cacheData.fetchComplete
+		});
+	} catch (error) {
+		console.error('[CLI Cache] Error reading cache:', error);
+		res.status(500).json({
+			error: 'cache_read_error',
+			message: error.message
+		});
 	}
 });
 
