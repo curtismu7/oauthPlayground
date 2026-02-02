@@ -34,7 +34,7 @@ import {
 	FiTrash2,
 	FiX,
 } from 'react-icons/fi';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { environmentService } from '@/services/environmentService';
@@ -62,18 +62,23 @@ import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/M
 import { useActionButton } from '@/v8/hooks/useActionButton';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
+import { useWorkerTokenConfig } from '@/v8/hooks/useWorkerTokenConfig';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { WorkerTokenConfigServiceV8 } from '@/v8/services/workerTokenConfigServiceV8';
 import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
 // import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8'; // Removed
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; // NEW - Enhanced UI service
+import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
+import { AuthenticationSectionV8 } from '@/v8/components/sections/AuthenticationSectionV8';
+import { PolicySectionV8 } from '@/v8/components/sections/PolicySectionV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import {
@@ -83,6 +88,11 @@ import {
 	MFAPolicyInfoModal,
 	MFAPushConfirmationModal,
 } from './components/modals';
+// Extracted hooks for better code organization
+import { useMFAAuthentication } from '@/v8/flows/MFAAuthenticationMainPageV8/hooks/useMFAAuthentication';
+import { useMFADevices } from '@/v8/flows/MFAAuthenticationMainPageV8/hooks/useMFADevices';
+import { useMFAPolicy } from '@/v8/flows/MFAAuthenticationMainPageV8/hooks/useMFAPolicy';
+import { useFIDO2Authentication } from '@/v8/flows/MFAAuthenticationMainPageV8/hooks/useFIDO2Authentication';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
@@ -158,6 +168,7 @@ interface AuthenticationState {
  */
 export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const [searchParams] = useSearchParams();
 	const authContext = useAuth();
 	const [isClearingTokens, setIsClearingTokens] = useState(false);
@@ -171,6 +182,32 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const _clearTokensAction = useActionButton();
 
 	usePageScroll({ pageName: 'MFA Authentication', force: true });
+
+	// Check for query parameters from Unified page and auto-fill
+	useEffect(() => {
+		const env = searchParams.get('env');
+		const user = searchParams.get('username');
+		const policy = searchParams.get('policy');
+		
+		if (env || user || policy) {
+			console.log(`${MODULE_TAG} Auto-filling from query params:`, { env, user, policy });
+			setCredentials(prev => ({
+				...prev,
+				...(env && { environmentId: env }),
+				...(policy && { deviceAuthenticationPolicyId: policy }),
+			}));
+			if (user) {
+				setUsernameInput(user);
+			}
+			
+			// Auto-start authentication if all params present
+			if (env && user && policy && tokenStatus.isValid) {
+				setTimeout(() => {
+					handleStartMFA();
+				}, 800);
+			}
+		}
+	}, [searchParams]);
 
 	// Check for OAuth callback code and redirect to the correct flow page
 	useEffect(() => {
@@ -292,81 +329,117 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const _showTokenAtEnd = workerToken.showTokenAtEnd;
 	const setShowTokenAtEnd = workerToken.setShowTokenAtEnd;
 
-	// MFA Policy State
-	const [deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
-	const [_isLoadingPolicies, setIsLoadingPolicies] = useState(false);
-	const [_policiesError, setPoliciesError] = useState<string | null>(null);
-
-	// Authentication State
-	const [authState, setAuthState] = useState<AuthenticationState>({
-		isLoading: false,
-		authenticationId: null,
-		status: null,
-		nextStep: null,
-		devices: [],
-		showDeviceSelection: false,
-		selectedDeviceId: '',
-		userId: null,
-		challengeId: null,
-		_links: null,
-		completionResult: null,
-	});
-
-	// Loading message state for spinner modal
-	const [_loadingMessage, setLoadingMessage] = useState('');
-
-	// Collapsible section state
-	const [isWorkerTokenConfigCollapsed, setIsWorkerTokenConfigCollapsed] = useState(false);
-
-	// Username input state
+	// Username input state (needed before hooks)
 	const [usernameInput, setUsernameInput] = useState(credentials.username || '');
-	const [showUsernameDecisionModal, setShowUsernameDecisionModal] = useState(false);
-	const [isPasskeyRegistrationMode, setIsPasskeyRegistrationMode] = useState(false);
+	
+	// ========== EXTRACTED HOOKS - Replaces ~800 lines of state/logic ==========
+	
+	// MFA Devices Hook - handles device loading, failure, and cooldown
+	const mfaDevices = useMFADevices({
+		environmentId: credentials.environmentId,
+		username: usernameInput,
+		tokenStatus,
+	});
+	
+	// MFA Policy Hook - handles policy loading and selection
+	const mfaPolicy = useMFAPolicy({
+		environmentId: credentials.environmentId,
+		tokenStatus,
+		currentPolicyId: credentials.deviceAuthenticationPolicyId,
+		onAutoSelect: (policyId) => {
+			setCredentials(prev => ({ ...prev, deviceAuthenticationPolicyId: policyId }));
+		},
+	});
+	
+	// FIDO2 Authentication Hook - handles usernameless auth and passkey registration
+	const mfaFido2 = useFIDO2Authentication();
+	
+	// Worker Token Configuration Hook
+	const { silentApiRetrieval, showTokenAtEnd } = useWorkerTokenConfig();
+	
+	// MFA Authentication Hook - handles auth flow, modals, OTP, and FIDO2 state
+	const mfaAuth = useMFAAuthentication({
+		onDeviceFailureError: mfaDevices.handleDeviceFailureError,
+	});
+	
+	// Extract commonly used values from hooks for cleaner code
+	const { handlePolicySelect } = mfaPolicy;
+	const {
+		userDevices,
+		isLoadingDevices,
+		devicesError,
+		showDeviceFailureModal,
+		deviceFailureError,
+		unavailableDevices,
+		cooldownError,
+		deviceSearchQuery,
+		handleDeviceFailureError,
+		setShowDeviceFailureModal,
+		setDeviceFailureError,
+		setUnavailableDevices,
+		setCooldownError,
+		setDeviceSearchQuery,
+	} = mfaDevices;
+	
+	const {
+		deviceAuthPolicies,
+		isLoadingPolicies: _isLoadingPolicies,
+		policiesError: _policiesError,
+		loadPolicies,
+		handlePolicySelect: _handlePolicySelect,
+		extractAllowedDeviceTypes,
+		setDeviceAuthPolicies,
+		setIsLoadingPolicies,
+		setPoliciesError,
+	} = mfaPolicy;
+	
+	const {
+		showUsernameDecisionModal,
+		isPasskeyRegistrationMode,
+		handleUsernamelessFIDO2,
+		setShowUsernameDecisionModal,
+		setIsPasskeyRegistrationMode,
+	} = mfaFido2;
+	
+	const {
+		authState,
+		loadingMessage: _loadingMessage,
+		showOTPModal,
+		showFIDO2Modal,
+		showPushModal,
+		otpCode,
+		isValidatingOTP,
+		otpError,
+		isAuthenticatingFIDO2,
+		fido2Error,
+		handleStartMFA: handleStartMFAFromHook,
+		setAuthState,
+		setLoadingMessage,
+		setShowOTPModal,
+		setShowFIDO2Modal,
+		setShowPushModal,
+		setOtpCode,
+		setIsValidatingOTP,
+		setOtpError,
+		setIsAuthenticatingFIDO2,
+		setFido2Error,
+	} = mfaAuth;
+	
+	// ========== END EXTRACTED HOOKS ==========
 
-	// Modals
-	const [showOTPModal, setShowOTPModal] = useState(false);
-	const [showFIDO2Modal, setShowFIDO2Modal] = useState(false);
-	const [showPushModal, setShowPushModal] = useState(false);
+	// Remaining component-specific state
+	const [isWorkerTokenConfigCollapsed, setIsWorkerTokenConfigCollapsed] = useState(false);
 	const [showRegistrationModal, setShowRegistrationModal] = useState(false);
 	const [showPolicyInfoModal, setShowPolicyInfoModal] = useState(false);
 	const [showDeviceSelectionInfoModal, setShowDeviceSelectionInfoModal] = useState(false);
-	const [deviceSearchQuery, setDeviceSearchQuery] = useState('');
-
-	// Device failure modal state
-	const [showDeviceFailureModal, setShowDeviceFailureModal] = useState(false);
-	const [deviceFailureError, setDeviceFailureError] = useState<string>('');
-	const [unavailableDevices, setUnavailableDevices] = useState<UnavailableDevice[]>([]);
-
-	// Cooldown/lockout modal state
-	const [cooldownError, setCooldownError] = useState<{
-		message: string;
-		deliveryMethod?: string;
-		coolDownExpiresAt?: number;
-	} | null>(null);
-
-	// OTP state
-	const [otpCode, setOtpCode] = useState('');
-	const [isValidatingOTP, setIsValidatingOTP] = useState(false);
-	const [otpError, setOtpError] = useState<string | null>(null);
+	const [isAuthorizing, setIsAuthorizing] = useState(false);
+	const [authorizationError, setAuthorizationError] = useState<string | null>(null);
 
 	// Scroll to top on page load
 	usePageScroll({ pageName: 'MFA Authentication Main V8', force: true });
 
 	// Get API display padding
 	const { paddingBottom } = useApiDisplayPadding();
-
-	// FIDO2 state
-	const [isAuthenticatingFIDO2, setIsAuthenticatingFIDO2] = useState(false);
-	const [fido2Error, setFido2Error] = useState<string | null>(null);
-
-	// Authorization API state
-	const [isAuthorizing, setIsAuthorizing] = useState(false);
-	const [authorizationError, setAuthorizationError] = useState<string | null>(null);
-
-	// Device list state (for dashboard)
-	const [userDevices, setUserDevices] = useState<Array<Record<string, unknown>>>([]);
-	const [isLoadingDevices, setIsLoadingDevices] = useState(false);
-	const [devicesError, setDevicesError] = useState<string | null>(null);
 
 	// Generate IDs
 	const _policySelectId = useId();
@@ -542,74 +615,23 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		};
 	}, [setTokenStatus]);
 
-	// Helper function to handle NO_USABLE_DEVICES errors
-	const handleDeviceFailureError = useCallback((error: unknown) => {
-		// Check if error has NO_USABLE_DEVICES error code
-		if (
-			error instanceof Error &&
-			(error as Error & { errorCode?: string }).errorCode === 'NO_USABLE_DEVICES'
-		) {
-			const errorWithDevices = error as Error & {
-				errorCode?: string;
-				unavailableDevices?: Array<{ id: string }>;
-			};
-			const unavailableDevices: UnavailableDevice[] = (
-				errorWithDevices.unavailableDevices || []
-			).map((d) => ({
-				id: d.id,
-				// Additional device info could be fetched here if needed
-			}));
-
-			setDeviceFailureError(error.message || 'No usable devices found for authentication');
-			setUnavailableDevices(unavailableDevices);
-			setShowDeviceFailureModal(true);
-			return true; // Indicates error was handled
-		}
-
-		// Check if error response contains NO_USABLE_DEVICES
-		if (
-			error &&
-			typeof error === 'object' &&
-			'errorCode' in error &&
-			error.errorCode === 'NO_USABLE_DEVICES'
-		) {
-			const errorObj = error as {
-				errorCode: string;
-				message?: string;
-				unavailableDevices?: Array<{ id: string }>;
-			};
-			const unavailableDevices: UnavailableDevice[] = (errorObj.unavailableDevices || []).map(
-				(d) => ({
-					id: d.id,
-				})
-			);
-
-			setDeviceFailureError(errorObj.message || 'No usable devices found for authentication');
-			setUnavailableDevices(unavailableDevices);
-			setShowDeviceFailureModal(true);
-			return true;
-		}
-
-		return false; // Error was not handled
-	}, []);
-
 	// Clear auth state when username changes to prevent showing wrong user's data
 	useEffect(() => {
 		// Reset auth state when username changes to ensure we're working with the correct user
 		setAuthState({
 			isLoading: false,
 			authenticationId: null,
-			status: '',
-			nextStep: '',
+			status: null,
+			nextStep: null,
 			devices: [],
 			showDeviceSelection: false,
 			selectedDeviceId: '',
-			userId: '',
+			userId: null,
 			challengeId: null,
-			_links: {},
+			_links: null,
 			completionResult: null,
 		});
-		setUserDevices([]);
+		mfaDevices.setUserDevices([]);
 	}, []);
 
 	// Load worker token settings from config service (always fresh, no cache)
@@ -758,395 +780,63 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		usernameInput.trim,
 	]);
 
-	// Track last loaded username/environment to prevent unnecessary reloads
-	const lastLoadedDevicesRef = useRef<{ username: string; environmentId: string } | null>(null);
+	// ========== DEVICE & POLICY LOADING NOW HANDLED BY HOOKS ==========
+	// Device loading: useMFADevices hook (lines 302-308)
+	// Policy loading: useMFAPolicy hook (lines 310-318)
 
-	// Load user devices for dashboard - debounced to prevent blinking while typing
-	useEffect(() => {
-		const loadUserDevices = async () => {
-			if (!credentials.environmentId || !usernameInput.trim() || !tokenStatus.isValid) {
-				setUserDevices([]);
-				lastLoadedDevicesRef.current = null;
-				return;
-			}
-
-			const currentUsername = usernameInput.trim();
-			const currentEnvId = credentials.environmentId;
-
-			// Skip if we already loaded devices for this exact username/environment combination
-			const lastLoaded = lastLoadedDevicesRef.current;
-			if (
-				lastLoaded &&
-				lastLoaded.username === currentUsername &&
-				lastLoaded.environmentId === currentEnvId
-			) {
-				// Already loaded for this user/environment, skip to prevent repeated user lookups
-				return;
-			}
-
-			setIsLoadingDevices(true);
-			setDevicesError(null);
-
-			try {
-				const devices = await MFAServiceV8.getAllDevices({
-					environmentId: currentEnvId,
-					username: currentUsername,
-				});
-				// Only set devices if username hasn't changed (prevent race condition)
-				if (usernameInput.trim() === currentUsername) {
-					setUserDevices(devices);
-					// Mark as loaded for this username/environment
-					lastLoadedDevicesRef.current = {
-						username: currentUsername,
-						environmentId: currentEnvId,
-					};
-				}
-			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : 'Failed to load devices';
-
-				// Check if this is a server connection error
-				const isServerError =
-					errorMessage.toLowerCase().includes('failed to connect') ||
-					errorMessage.toLowerCase().includes('server is running') ||
-					errorMessage.toLowerCase().includes('network error') ||
-					errorMessage.toLowerCase().includes('connection refused') ||
-					errorMessage.toLowerCase().includes('econnrefused');
-
-				if (isServerError) {
-					setDevicesError(
-						'⚠️ Backend server is not running or unreachable. Please ensure the server is running on port 3001 and try again.'
-					);
-				} else {
-					setDevicesError(errorMessage);
-				}
-
-				console.error(`${MODULE_TAG} Failed to load user devices:`, error);
-			} finally {
-				setIsLoadingDevices(false);
-			}
+	// Policy selection wrapper - updates credentials and saves to localStorage
+	const handlePolicySelectWrapper = useCallback(async (policyId: string) => {
+		// Update credentials first
+		const updatedCredentials = {
+			...credentials,
+			deviceAuthenticationPolicyId: policyId,
 		};
+		setCredentials(updatedCredentials);
+		const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+			flowKey: FLOW_KEY,
+			flowType: 'oidc',
+			includeClientSecret: false,
+			includeRedirectUri: false,
+			includeLogoutUri: false,
+			includeScopes: false,
+		});
+		CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+			...stored,
+			deviceAuthenticationPolicyId: policyId,
+		});
 
-		// Debounce device loading to prevent blinking while typing
-		const timeoutId = setTimeout(() => {
-			void loadUserDevices();
-		}, 500); // Wait 500ms after user stops typing
+		// Let the hook handle policy loading and selection
+		await handlePolicySelect(policyId);
+	}, [credentials, handlePolicySelect]);
 
-		return () => clearTimeout(timeoutId);
-	}, [credentials.environmentId, usernameInput, tokenStatus.isValid]);
-
-	// Load devices when credentials are available
-	useEffect(() => {
-		if (credentials.environmentId && usernameInput.trim() && tokenStatus.isValid) {
-			const loadUserDevices = async () => {
-				const currentUsername = usernameInput.trim();
-				try {
-					// Clear devices first to ensure we're loading for the correct user
-					setUserDevices([]);
-					const devices = await MFAServiceV8.getAllDevices({
-						environmentId: credentials.environmentId,
-						username: currentUsername,
-					});
-					// Only set devices if username hasn't changed (prevent race condition)
-					if (usernameInput.trim() === currentUsername) {
-						setUserDevices(devices);
-					}
-				} catch (error) {
-					const errorMessage = error instanceof Error ? error.message : 'Failed to load devices';
-
-					// Check if this is a server connection error
-					const isServerError =
-						errorMessage.toLowerCase().includes('failed to connect') ||
-						errorMessage.toLowerCase().includes('server is running') ||
-						errorMessage.toLowerCase().includes('network error') ||
-						errorMessage.toLowerCase().includes('connection refused') ||
-						errorMessage.toLowerCase().includes('econnrefused');
-
-					if (isServerError) {
-						console.error(`${MODULE_TAG} Backend server is not running or unreachable`);
-						// Could show a toast here if needed
-					} else {
-						console.error(`${MODULE_TAG} Failed to load user devices:`, error);
-					}
-				}
-			};
-			void loadUserDevices();
-		}
-	}, [credentials.environmentId, usernameInput, tokenStatus.isValid]);
-
-	// Track last fetched environment to prevent duplicate calls
-	const lastFetchedPolicyEnvIdRef = useRef<string | null>(null);
-	const isFetchingPoliciesRef = useRef(false);
-
-	// Load MFA Policies
-	const loadPolicies = useCallback(async (): Promise<DeviceAuthenticationPolicy[]> => {
-		const envId = credentials.environmentId?.trim();
-
-		if (!envId || !tokenStatus.isValid) {
-			return [];
-		}
-
-		// Prevent duplicate calls - if we're already fetching or already fetched for this env, skip
-		if (isFetchingPoliciesRef.current || lastFetchedPolicyEnvIdRef.current === envId) {
-			return deviceAuthPolicies;
-		}
-
-		isFetchingPoliciesRef.current = true;
-		setIsLoadingPolicies(true);
-		setPoliciesError(null);
-
-		try {
-			const policies = await MFAServiceV8.listDeviceAuthenticationPolicies(envId);
-			lastFetchedPolicyEnvIdRef.current = envId;
-			setDeviceAuthPolicies(policies);
-
-			// Auto-select if only one policy
-			if (!credentials.deviceAuthenticationPolicyId && policies.length === 1) {
-				const updatedCredentials = {
-					...credentials,
-					deviceAuthenticationPolicyId: policies[0].id,
-				};
-				setCredentials(updatedCredentials);
-				const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-					flowKey: FLOW_KEY,
-					flowType: 'oidc',
-					includeClientSecret: false,
-					includeRedirectUri: false,
-					includeLogoutUri: false,
-					includeScopes: false,
-				});
-				CredentialsServiceV8.saveCredentials(FLOW_KEY, {
-					...stored,
-					deviceAuthenticationPolicyId: policies[0].id,
-				});
-			}
-
-			return policies;
-		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Failed to load policies';
-
-			// Check if this is a server connection error
-			const isServerError =
-				errorMessage.toLowerCase().includes('failed to connect') ||
-				errorMessage.toLowerCase().includes('server is running') ||
-				errorMessage.toLowerCase().includes('network error') ||
-				errorMessage.toLowerCase().includes('connection refused') ||
-				errorMessage.toLowerCase().includes('econnrefused');
-
-			// Check if this is a worker token error
-			const isWorkerTokenError =
-				errorMessage.toLowerCase().includes('worker token') ||
-				errorMessage.toLowerCase().includes('not available') ||
-				errorMessage.toLowerCase().includes('has expired');
-
-			if (isServerError) {
-				setPoliciesError(
-					'⚠️ Backend server is not running or unreachable. Please ensure the server is running on port 3001 and try again.'
-				);
-			} else if (isWorkerTokenError) {
-				setPoliciesError(
-					'⚠️ Worker token is required to load device authentication policies. Please generate a worker token using the "Get Worker Token" button above.'
-				);
-			} else {
-				setPoliciesError(errorMessage);
-			}
-
-			console.error(`${MODULE_TAG} Failed to load policies:`, error);
-			return [];
-		} finally {
-			isFetchingPoliciesRef.current = false;
-			setIsLoadingPolicies(false);
-		}
-	}, [
-		credentials.environmentId,
-		credentials.deviceAuthenticationPolicyId,
-		tokenStatus.isValid,
-		deviceAuthPolicies,
-		credentials,
-	]);
-
-	// Load policies when environment or token changes (but not when callback changes)
-	useEffect(() => {
-		const envId = credentials.environmentId?.trim();
-
-		// Only fetch if environment changed or we haven't fetched yet
-		if (envId && tokenStatus.isValid && lastFetchedPolicyEnvIdRef.current !== envId) {
-			void loadPolicies();
-		}
-	}, [credentials.environmentId, tokenStatus.isValid, loadPolicies]);
-
-	// Extract allowed device types from policy (shared function)
-	const extractAllowedDeviceTypes = useCallback(
-		(policy: DeviceAuthenticationPolicy): DeviceType[] => {
-			const allowed: DeviceType[] = [];
-
-			// Check for allowedDeviceTypes in deviceSelection
-			if (policy.authentication?.deviceSelection) {
-				const deviceSelection = policy.authentication.deviceSelection;
-				if (typeof deviceSelection === 'object' && deviceSelection !== null) {
-					const allowedTypes = (deviceSelection as { allowedDeviceTypes?: string[] })
-						.allowedDeviceTypes;
-					if (Array.isArray(allowedTypes) && allowedTypes.length > 0) {
-						allowed.push(...(allowedTypes as DeviceType[]));
-					}
-				}
-			}
-
-			// Check for deviceAuthentication.required
-			if (policy.authentication?.deviceAuthentication) {
-				const deviceAuth = policy.authentication.deviceAuthentication;
-				if (typeof deviceAuth === 'object' && deviceAuth !== null) {
-					const required = (deviceAuth as { required?: string[] }).required;
-					if (Array.isArray(required) && required.length > 0) {
-						allowed.push(...(required as DeviceType[]));
-					}
-					// Also check optional device types
-					const optional = (deviceAuth as { optional?: string[] }).optional;
-					if (Array.isArray(optional) && optional.length > 0) {
-						allowed.push(...(optional as DeviceType[]));
-					}
-				}
-			}
-
-			// Remove duplicates
-			const uniqueAllowed = [...new Set(allowed)];
-
-			// If no explicit restrictions found, default to all common device types
-			// This means the policy allows all devices (no restrictions)
-			if (uniqueAllowed.length === 0) {
-				return ['FIDO2', 'TOTP', 'SMS', 'EMAIL', 'VOICE', 'MOBILE', 'WHATSAPP'] as DeviceType[];
-			}
-
-			return uniqueAllowed;
-		},
-		[]
-	);
-
-	// Handle MFA Policy Selection
-	const _handlePolicySelect = useCallback(
-		async (policyId: string) => {
-			// Update credentials first
-			const updatedCredentials = {
-				...credentials,
-				deviceAuthenticationPolicyId: policyId,
-			};
-			setCredentials(updatedCredentials);
-			const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-				flowKey: FLOW_KEY,
-				flowType: 'oidc',
-				includeClientSecret: false,
-				includeRedirectUri: false,
-				includeLogoutUri: false,
-				includeScopes: false,
-			});
-			CredentialsServiceV8.saveCredentials(FLOW_KEY, {
-				...stored,
-				deviceAuthenticationPolicyId: policyId,
-			});
-
-			// Reload policies to get the latest data (including updated default flags)
-			const reloadedPolicies = await loadPolicies();
-
-			// Get the updated policy from the reloaded list
-			const updatedPolicy = reloadedPolicies.find((p) => p.id === policyId);
-			if (updatedPolicy) {
-				// Extract and log allowed device types for both authentication and registration
-				const allowedTypes = extractAllowedDeviceTypes(updatedPolicy);
-
-				toastV8.success(
-					`Selected policy: ${updatedPolicy.name} (${allowedTypes.length} device type${allowedTypes.length !== 1 ? 's' : ''} allowed)`
-				);
-			}
-		},
-		[credentials, extractAllowedDeviceTypes, loadPolicies]
-	);
-
-	// Handle Username-less FIDO2 Authentication
-	const handleUsernamelessFIDO2 = useCallback(async () => {
-		if (!tokenStatus.isValid) {
-			toastV8.error('Please configure worker token first');
-			return;
-		}
-
-		if (!credentials.environmentId) {
-			toastV8.error('Please configure environment ID first');
-			return;
-		}
-
-		if (!credentials.deviceAuthenticationPolicyId) {
-			toastV8.error('Please select an MFA Policy first');
-			return;
-		}
-
-		setAuthState((prev) => ({ ...prev, isLoading: true }));
-
-		try {
-			// Import passkey service
-			const { PasskeyServiceV8 } = await import('@/v8/services/passkeyServiceV8');
-
-			// Step 1: Try authentication first (discoverable credentials)
-			const authResult = await PasskeyServiceV8.authenticateUsernameless({
+	// Wrapper for usernameless FIDO2 - passes required parameters to hook method
+	const handleUsernamelessFIDO2Click = useCallback(async () => {
+		await handleUsernamelessFIDO2(
+			{
 				environmentId: credentials.environmentId,
 				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
-			});
-
-			if (authResult.success) {
-				// Authentication successful!
-				toastV8.success(
-					`Authenticated successfully as ${authResult.username || authResult.userId}`
-				);
-
-				// Update auth state with successful authentication
-				setAuthState((prev) => ({
-					...prev,
-					isLoading: false,
-					status: 'COMPLETED',
-					nextStep: 'AUTHENTICATION_COMPLETE',
-				}));
-
-				// Optionally navigate to success page or update UI
-				// For now, we'll just show success message
-				return;
-			}
-
-			// Step 2: Check for NO_USABLE_DEVICES error
-			if (authResult.errorCode === 'NO_USABLE_DEVICES') {
-				setDeviceFailureError(authResult.error || 'No usable devices found for authentication');
-				setUnavailableDevices((authResult.unavailableDevices || []).map((d) => ({ id: d.id })));
+			},
+			tokenStatus.isValid,
+			(error, devices) => {
+				setDeviceFailureError(error);
+				setUnavailableDevices(devices);
 				setShowDeviceFailureModal(true);
-				return;
-			}
-
-			// Step 3: If authentication failed and requires registration, show registration modal
-			if (authResult.requiresRegistration) {
-				// Show username input modal for registration
-				// Registration requires username because PingOne needs to identify/create the user
+			},
+			() => {
 				setIsPasskeyRegistrationMode(true);
 				setShowUsernameDecisionModal(true);
-				toastV8.info('No passkey found. Please enter your username to register a new passkey.');
-				return;
 			}
-
-			// Other error - show error message
-			toastV8.error(authResult.error || 'Authentication failed');
-		} catch (error) {
-			console.error(`${MODULE_TAG} Usernameless FIDO2 failed:`, error);
-
-			// Check for NO_USABLE_DEVICES error
-			if (handleDeviceFailureError(error)) {
-				// Error was handled by modal, just update loading state
-				setAuthState((prev) => ({ ...prev, isLoading: false }));
-				return;
-			}
-
-			toastV8.error(error instanceof Error ? error.message : 'Usernameless authentication failed');
-		} finally {
-			setAuthState((prev) => ({ ...prev, isLoading: false }));
-		}
+		);
 	}, [
-		tokenStatus.isValid,
 		credentials.environmentId,
 		credentials.deviceAuthenticationPolicyId,
-		handleDeviceFailureError,
+		tokenStatus.isValid,
+		handleUsernamelessFIDO2,
+		setDeviceFailureError,
+		setUnavailableDevices,
+		setShowDeviceFailureModal,
+		setIsPasskeyRegistrationMode,
+		setShowUsernameDecisionModal,
 	]);
 
 	// Handle Authorization API Call (Browser-based OAuth)
@@ -1776,6 +1466,16 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					// This will be handled by the WorkerTokenStatusDisplayV8 component
 					setShowWorkerTokenModal(true);
 				}}
+				silentApiRetrieval={silentApiRetrieval}
+				onSilentApiRetrievalChange={(value) => {
+					WorkerTokenConfigServiceV8.setSilentApiRetrieval(value);
+					toastV8.info(`Silent API Token Retrieval set to: ${value}`);
+				}}
+				showTokenAtEnd={showTokenAtEnd}
+				onShowTokenAtEndChange={(value) => {
+					WorkerTokenConfigServiceV8.setShowTokenAtEnd(value);
+					toastV8.info(`Show Token After Generation set to: ${value}`);
+				}}
 			/>
 
 			<AuthenticationSectionV8
@@ -1900,7 +1600,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					{/* Secondary Button: Username-less FIDO2 */}
 					<button
 						type="button"
-						onClick={handleUsernamelessFIDO2}
+						onClick={handleUsernamelessFIDO2Click}
 						disabled={authState.isLoading || !tokenStatus.isValid || !credentials.environmentId}
 						style={{
 							padding: '10px 24px',
@@ -3656,6 +3356,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						zIndex: 1000,
 					}}
 					onClick={() => {
+					// Save current credentials to localStorage before navigation
+					CredentialsServiceV8.saveCredentials('mfa-flow-v8', credentials);
 						// Navigate back to main page when clicking outside
 						navigate('/v8/mfa-hub');
 					}}
@@ -3709,7 +3411,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									onClick={() => {
 										setShowUsernameDecisionModal(false);
 										setIsPasskeyRegistrationMode(false);
-										handleUsernamelessFIDO2();
+										handleUsernamelessFIDO2Click();
 									}}
 									style={{
 										padding: '12px 24px',
@@ -3848,6 +3550,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							<button
 								type="button"
 								onClick={() => {
+						// Save current credentials to localStorage before navigation
+						CredentialsServiceV8.saveCredentials('mfa-flow-v8', credentials);
 									setShowUsernameDecisionModal(false);
 									setIsPasskeyRegistrationMode(false);
 									navigate('/v8/mfa-hub');
@@ -4882,6 +4586,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														type="button"
 														onClick={() => {
 															setShowRegistrationModal(false);
+															// Save current credentials to localStorage before navigation
+															CredentialsServiceV8.saveCredentials('mfa-flow-v8', credentials);
 															// Navigate to registration with the selected policy
 															// The registration flow will use credentials.deviceAuthenticationPolicyId
 															navigate('/v8/mfa-unified', {
@@ -5475,6 +5181,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									type="button"
 									onClick={() => {
 										setShowRegistrationModal(false);
+										// Save current credentials to localStorage before navigation
+										CredentialsServiceV8.saveCredentials('mfa-flow-v8', credentials);
 										// Navigate to unified MFA registration flow
 										navigate('/v8/mfa-unified', {
 											state: { deviceType },

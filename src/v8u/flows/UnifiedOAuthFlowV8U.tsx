@@ -15,6 +15,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FiBook, FiChevronDown, FiPackage } from 'react-icons/fi';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { useWorkerTokenConfig } from '@/v8/hooks/useWorkerTokenConfig';
 import {
 	downloadPostmanCollectionWithEnvironment,
 	generateCompletePostmanCollection,
@@ -31,7 +32,6 @@ import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplay
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import {
 	type SharedCredentials,
 	SharedCredentialsServiceV8,
@@ -531,28 +531,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Worker token status section collapsed state - collapsed by default
 	const [isWorkerTokenStatusCollapsed, setIsWorkerTokenStatusCollapsed] = useState(true);
 
-	// Worker token configuration state
-	const [workerTokenConfig, setWorkerTokenConfig] = useState(() => {
-		const config = MFAConfigurationServiceV8.loadConfiguration();
-		return {
-			silentApiRetrieval: config.workerToken.silentApiRetrieval,
-			showTokenAtEnd: config.workerToken.showTokenAtEnd,
-		};
-	});
-
-	// Listen for config updates
-	useEffect(() => {
-		const handleConfigUpdate = () => {
-			const config = MFAConfigurationServiceV8.loadConfiguration();
-			setWorkerTokenConfig({
-				silentApiRetrieval: config.workerToken.silentApiRetrieval,
-				showTokenAtEnd: config.workerToken.showTokenAtEnd,
-			});
-		};
-
-		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate);
-		return () => window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
-	}, []);
+	// Use centralized worker token configuration service
+	const { silentApiRetrieval, showTokenAtEnd } = useWorkerTokenConfig();
+	const workerTokenConfig = { silentApiRetrieval, showTokenAtEnd };
 
 	// Advanced features state
 	const [advancedFeatures, setAdvancedFeatures] = useState<string[]>([]);
@@ -2468,22 +2449,16 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									<input
 										type="checkbox"
 										checked={workerTokenConfig.silentApiRetrieval}
-										onChange={(e) => {
-											const config = MFAConfigurationServiceV8.loadConfiguration();
-											config.workerToken.silentApiRetrieval = e.target.checked;
-											MFAConfigurationServiceV8.saveConfiguration(config);
-											setWorkerTokenConfig((prev) => ({
-												...prev,
-												silentApiRetrieval: e.target.checked,
-											}));
-											window.dispatchEvent(new Event('mfaConfigurationUpdated'));
-										}}
-										style={{
-											width: '18px',
-											height: '18px',
-											cursor: 'pointer',
-											accentColor: '#3b82f6',
-										}}
+									onChange={async (e) => {
+										const { WorkerTokenConfigServiceV8 } = await import('@/v8/services/workerTokenConfigServiceV8');
+										WorkerTokenConfigServiceV8.setSilentApiRetrieval(e.target.checked);
+									}}
+								style={{
+									width: '18px',
+									height: '18px',
+									cursor: 'pointer',
+									accentColor: '#3b82f6',
+								}}
 									/>
 									<span>Silent API Retrieval</span>
 									<span style={{ fontSize: '12px', color: '#9ca3af' }}>(auto-refresh token)</span>
@@ -2503,22 +2478,16 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									<input
 										type="checkbox"
 										checked={workerTokenConfig.showTokenAtEnd}
-										onChange={(e) => {
-											const config = MFAConfigurationServiceV8.loadConfiguration();
-											config.workerToken.showTokenAtEnd = e.target.checked;
-											MFAConfigurationServiceV8.saveConfiguration(config);
-											setWorkerTokenConfig((prev) => ({
-												...prev,
-												showTokenAtEnd: e.target.checked,
-											}));
-											window.dispatchEvent(new Event('mfaConfigurationUpdated'));
-										}}
-										style={{
-											width: '18px',
-											height: '18px',
-											cursor: 'pointer',
-											accentColor: '#3b82f6',
-										}}
+									onChange={async (e) => {
+										const { WorkerTokenConfigServiceV8 } = await import('@/v8/services/workerTokenConfigServiceV8');
+										WorkerTokenConfigServiceV8.setShowTokenAtEnd(e.target.checked);
+									}}
+								style={{
+									width: '18px',
+									height: '18px',
+									cursor: 'pointer',
+									accentColor: '#3b82f6',
+								}}
 									/>
 									<span>Show Token After Generation</span>
 									<span style={{ fontSize: '12px', color: '#9ca3af' }}>(display in modal)</span>

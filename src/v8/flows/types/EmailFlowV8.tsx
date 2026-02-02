@@ -267,6 +267,7 @@ const EmailDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigur
 		setCredentials({
 			...credentials,
 			deviceName: credentials.deviceType || 'EMAIL',
+			nickname: credentials.nickname || 'MyKnickName',
 		});
 		nav.goToStep(2);
 	};
@@ -1202,11 +1203,27 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						controller.getDeviceRegistrationParams(registrationCredentials, deviceStatus)
 					);
 
-					// Use the actual status returned from the API, not the requested status
-					const actualDeviceStatus = result.status || deviceStatus;
+				// Update device nickname if provided
+				if (result.deviceId && registrationCredentials.nickname) {
+					try {
+						console.log(`${MODULE_TAG} Updating device nickname after registration:`, {
+							deviceId: result.deviceId,
+							nickname: registrationCredentials.nickname,
+						});
+						await MFAServiceV8.updateDeviceNickname(
+							{
+								environmentId: registrationCredentials.environmentId,
+								username: registrationCredentials.username,
+								deviceId: result.deviceId,
+							},
+							registrationCredentials.nickname
+						);
+					} catch (nicknameError) {
+						console.warn(`${MODULE_TAG} Failed to update device nickname:`, nicknameError);
+						// Don't fail the registration if nickname update fails
+					}
+				}
 
-					// Per rightOTP.md: Extract device.activate URI from registration response
-					// If device.activate URI exists, device requires activation
 					// If missing, device is ACTIVE (double-check with status)
 					const deviceActivateUri = (result as { deviceActivateUri?: string }).deviceActivateUri;
 
@@ -1814,6 +1831,54 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 									</p>
 								</div>
 							)}
+
+							{/* Nickname Field - Always show */}
+							<div style={{ marginBottom: '16px' }}>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+									<label
+										htmlFor="mfa-device-nickname-register"
+										style={{
+											display: 'block',
+											fontSize: '13px',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
+										Device Nickname (optional)
+									</label>
+									<MFAInfoButtonV8 contentKey="device.nickname" displayMode="tooltip" />
+								</div>
+								<input
+									id="mfa-device-nickname-register"
+									type="text"
+									value={credentials.nickname || 'MyKnickName'}
+									onChange={(e) => {
+										setCredentials({ ...credentials, nickname: e.target.value });
+									}}
+									placeholder="MyKnickName"
+									style={{
+										padding: '12px 16px',
+										border: '1px solid #d1d5db',
+										boxShadow: 'none',
+										outline: 'none',
+										borderRadius: '8px',
+										fontSize: '15px',
+										color: '#1f2937',
+										background: 'white',
+										width: '100%',
+									}}
+								/>
+								<small
+									style={{
+										display: 'block',
+										marginTop: '4px',
+										fontSize: '11px',
+										color: '#6b7280',
+									}}
+								>
+									Optional: A secondary identifier for this device
+								</small>
+							</div>
 
 							{/* Enhanced Worker Token UI Service */}
 							<WorkerTokenUIServiceV8

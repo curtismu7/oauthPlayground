@@ -266,6 +266,7 @@ const SMSDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigured
 		setCredentials({
 			...credentials,
 			deviceName: credentials.deviceType || 'SMS',
+			nickname: credentials.nickname || 'MyKnickName',
 		});
 		nav.goToStep(2);
 	};
@@ -1288,6 +1289,27 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						deviceParams
 					);
 
+					// Update device nickname if provided
+					if (result.deviceId && registrationCredentials.nickname) {
+						try {
+							console.log(`${MODULE_TAG} Updating device nickname after registration:`, {
+								deviceId: result.deviceId,
+								nickname: registrationCredentials.nickname,
+							});
+							await MFAServiceV8.updateDeviceNickname(
+								{
+									environmentId: registrationCredentials.environmentId,
+									username: registrationCredentials.username,
+									deviceId: result.deviceId,
+								},
+								registrationCredentials.nickname
+							);
+						} catch (nicknameError) {
+							console.warn(`${MODULE_TAG} Failed to update device nickname:`, nicknameError);
+							// Don't fail the registration if nickname update fails
+						}
+					}
+
 					// Use the actual status returned from the API, not the requested status
 					const actualDeviceStatus = result.status || deviceStatus;
 
@@ -2172,9 +2194,13 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 									<input
 										id="mfa-device-name-register"
 										type="text"
-										value={credentials.deviceName || currentDeviceType || 'SMS'}
+										value={credentials.deviceName || 'SMS'}
 										onChange={(e) => {
-											setCredentials({ ...credentials, deviceName: e.target.value });
+											setCredentials({ 
+												...credentials, 
+												deviceName: e.target.value,
+												nickname: credentials.nickname || 'MyKnickName'
+											});
 										}}
 										onFocus={(e) => {
 											const currentName = credentials.deviceName?.trim() || '';
@@ -2255,6 +2281,54 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 									</p>
 								</div>
 							)}
+
+							{/* Nickname Field - Always show */}
+							<div style={{ marginBottom: '16px' }}>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+									<label
+										htmlFor="mfa-device-nickname-register"
+										style={{
+											display: 'block',
+											fontSize: '13px',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
+										Device Nickname (optional)
+									</label>
+									<MFAInfoButtonV8 contentKey="device.nickname" displayMode="tooltip" />
+								</div>
+								<input
+									id="mfa-device-nickname-register"
+									type="text"
+									value={credentials.nickname || 'MyKnickName'}
+									onChange={(e) => {
+										setCredentials({ ...credentials, nickname: e.target.value });
+									}}
+									placeholder="MyKnickName"
+									style={{
+										padding: '12px 16px',
+										border: '1px solid #d1d5db',
+										boxShadow: 'none',
+										outline: 'none',
+										borderRadius: '8px',
+										fontSize: '15px',
+										color: '#1f2937',
+										background: 'white',
+										width: '100%',
+									}}
+								/>
+								<small
+									style={{
+										display: 'block',
+										marginTop: '4px',
+										fontSize: '11px',
+										color: '#6b7280',
+									}}
+								>
+									Optional: A secondary identifier for this device
+								</small>
+							</div>
 
 							{/* Enhanced Worker Token UI Service */}
 							<WorkerTokenUIServiceV8
