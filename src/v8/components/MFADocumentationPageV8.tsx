@@ -14,11 +14,9 @@ import {
 	FiChevronUp,
 	FiDownload,
 	FiFileText,
-	FiHome,
 	FiInfo,
 	FiPackage,
 } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import {
 	downloadPostmanCollectionWithEnvironment,
@@ -1325,7 +1323,6 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 	tokenType: _tokenType,
 	flowSpecificData,
 }) => {
-	const navigate = useNavigate();
 	const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set()); // All collapsed by default to match Unified
 	const deviceInfo = DEVICE_DOCS[deviceType];
 
@@ -1628,7 +1625,9 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 
 				<button
 					type="button"
-					onClick={() => window.location.href = window.location.pathname}
+					onClick={() => {
+						window.location.href = window.location.pathname;
+					}}
 					style={{
 						padding: '8px 16px',
 						background: '#6b7280',

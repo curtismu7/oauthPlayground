@@ -142,6 +142,7 @@ export const BackendDownModalV8: React.FC = () => {
 				{/* Buttons */}
 				<div style={{ display: 'flex', gap: '12px' }}>
 					<button
+						type="button"
 						onClick={handleDismiss}
 						style={{
 							flex: 1,
@@ -167,6 +168,7 @@ export const BackendDownModalV8: React.FC = () => {
 						Dismiss
 					</button>
 					<button
+						type="button"
 						onClick={handleRetry}
 						style={{
 							flex: 1,
