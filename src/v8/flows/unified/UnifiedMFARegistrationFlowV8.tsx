@@ -166,7 +166,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		isLoading: isLoadingUsers,
 		usersFetched: _usersFetched,
 		searchQuery: _searchQuery,
-		setSearchQuery: _setSearchQuery,
+		setSearchQuery,
 	} = useUserSearch({
 		environmentId,
 		tokenValid: workerToken.tokenStatus.isValid,
