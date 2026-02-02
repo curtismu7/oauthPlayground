@@ -98,14 +98,16 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 	};
 
 	const handleGetToken = async () => {
-		// Use the silent retrieval helper instead of always showing modal
+		// Use the silent retrieval helper
+		// If silentApiRetrieval is enabled, don't force modal (allow silent retrieval)
+		// If silentApiRetrieval is disabled, force modal for explicit credential configuration
 		await handleShowWorkerTokenModal(
 			setShowModal,
 			setTokenStatus,
 			silentApiRetrieval, // Use the prop value
 			showTokenAtEnd, // Use the prop value
-			true, // forceShowModal = true since user explicitly clicked button
-			undefined // No silent loading state needed for explicit button click
+			!silentApiRetrieval, // forceShowModal = true only if silent retrieval is disabled
+			undefined // No silent loading state needed
 		);
 	};
 
@@ -216,7 +218,7 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 				</div>
 
 				{/* Action Buttons */}
-				<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+			<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px' }}>
 					{!tokenStatus.isValid ? (
 						<button
 							onClick={handleGetToken}

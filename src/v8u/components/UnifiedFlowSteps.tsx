@@ -480,6 +480,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [implicitDetailsCollapsed, setImplicitDetailsCollapsed] = useState(false);
 	const [preflightValidationCollapsed, setPreflightValidationCollapsed] = useState(false);
 
+	// Worker token validation state
+	const [hasValidWorkerToken, setHasValidWorkerToken] = useState(false);
+
 	// Navigation functions using React Router
 	const navigateToStep = useCallback(
 		(step: number) => {
@@ -534,7 +537,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			canGoNext:
 				currentStep < totalSteps - 1 &&
 				validationErrors.length === 0 &&
-				completedSteps.includes(currentStep),
+				completedSteps.includes(currentStep) &&
+				hasValidWorkerToken, // Require valid worker token to proceed
 			canGoPrevious: currentStep > 0,
 			goToStep: navigateToStep,
 			goToNext,
@@ -557,6 +561,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			markStepComplete,
 			setValidationErrorsState,
 			setValidationWarningsState,
+			hasValidWorkerToken,
 		]
 	);
 
@@ -703,6 +708,89 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 		};
 	}, [flowType, flowState.deviceCodeExpiresAt]);
+
+	// Check worker token status when credentials change or component mounts
+	useEffect(() => {
+		const checkTokenStatus = async () => {
+			try {
+				// Import both services to check token from different sources
+				const { checkWorkerTokenStatus } = await import(
+					'@/v8/services/workerTokenStatusServiceV8'
+				);
+				const { unifiedWorkerTokenService } = await import(
+					'@/services/unifiedWorkerTokenService'
+				);
+
+				// Get detailed status
+				const status = await checkWorkerTokenStatus();
+				const unifiedStatus = await unifiedWorkerTokenService.getStatus();
+				const actualToken = await unifiedWorkerTokenService.getToken();
+
+				// Debug logging to understand what's happening
+				console.log('[WORKER TOKEN VALIDATION] Full diagnostic:', {
+					step: currentStep,
+					statusIsValid: status.isValid,
+					statusMessage: status.message,
+					statusDetails: status.status,
+					unifiedHasCredentials: unifiedStatus.hasCredentials,
+					unifiedHasToken: unifiedStatus.hasToken,
+					unifiedTokenValid: unifiedStatus.tokenValid,
+					unifiedTokenExpiresIn: unifiedStatus.tokenExpiresIn,
+					actualTokenExists: !!actualToken,
+					actualTokenLength: actualToken?.length,
+					localStorageKey: 'unified_worker_token',
+					localStorageHasData: !!localStorage.getItem('unified_worker_token'),
+				});
+
+				setHasValidWorkerToken(status.isValid);
+
+				// If on any step beyond step 0 and no valid token, redirect to step 0
+				if (currentStep > 0 && !status.isValid) {
+					log.warn(
+						'[WORKER TOKEN VALIDATION] Invalid token detected on step ' +
+							currentStep +
+							' - redirecting to configuration',
+						{
+							status: status.status,
+							message: status.message,
+							currentStep,
+							unifiedStatus,
+						}
+					);
+					toastV8.error(
+						'Worker token is invalid or expired. Please refresh the worker token before continuing.',
+						{ duration: 7000 }
+					);
+					// Redirect to step 0 to get/refresh worker token
+					navigateToStep(0);
+				} else if (currentStep === 0 && !status.isValid) {
+					// On step 0, just log warning (don't redirect)
+					log.warn('[WORKER TOKEN VALIDATION] No valid worker token on configuration step', {
+						status: status.status,
+						message: status.message,
+						unifiedStatus,
+					});
+				} else if (status.isValid) {
+					console.log('[WORKER TOKEN VALIDATION] ✅ Token is valid', {
+						step: currentStep,
+						expiresIn: status.minutesRemaining,
+					});
+				}
+			} catch (error) {
+				log.error('[WORKER TOKEN VALIDATION] Failed to check worker token status', error);
+				setHasValidWorkerToken(false);
+			}
+		};
+
+		checkTokenStatus();
+
+		// Re-check token status every 30 seconds to catch expiration
+		const tokenCheckInterval = setInterval(checkTokenStatus, 30000);
+
+		return () => {
+			clearInterval(tokenCheckInterval);
+		};
+	}, [credentials, currentStep, navigateToStep]);
 
 	// Ensure PKCE codes are generated before proceeding to Authorization URL step
 	// Only redirect if PKCE is required (REQUIRED or S256_REQUIRED)
@@ -14023,11 +14111,37 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							const canProceed =
 								isTokenStep && flowState.tokens?.accessToken ? true : nav.canGoNext;
 
+							// Determine the tooltip message based on why the button is disabled
+							let buttonTitle = 'Proceed to next step';
+							if (!canProceed) {
+								if (!hasValidWorkerToken) {
+									buttonTitle = '⚠️ Valid worker token required. Click "Get Worker Token" above to proceed.';
+								} else if (validationErrors.length > 0) {
+									buttonTitle = 'Fix validation errors before proceeding';
+								} else if (!completedSteps.includes(currentStep)) {
+									buttonTitle = 'Complete the current step first';
+								} else {
+									buttonTitle = 'Complete all required fields to proceed';
+								}
+							}
+
+							// Click handler that shows helpful message when blocked by missing token
+							const handleNextClick = () => {
+								if (!hasValidWorkerToken) {
+									toastV8.error(
+										'Valid worker token required. Click "Get Worker Token" above to proceed.',
+										{ duration: 5000 }
+									);
+									return;
+								}
+								nav.goToNext();
+							};
+
 							return (
 								<button
 									type="button"
 									className="btn btn-next"
-									onClick={nav.goToNext}
+									onClick={handleNextClick}
 									disabled={!canProceed}
 									style={{
 										display: 'flex',
@@ -14036,7 +14150,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										gap: '8px',
 										minWidth: '120px',
 									}}
-									title={canProceed ? 'Proceed to next step' : 'Complete the current step first'}
+									title={buttonTitle}
 								>
 									<span>Next Step</span>
 									<FiArrowRight size={16} style={{ marginLeft: '4px' }} />

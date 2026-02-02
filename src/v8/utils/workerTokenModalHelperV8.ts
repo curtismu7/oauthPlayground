@@ -9,7 +9,7 @@
  * Do NOT add direct token fetch logic here - use tokenGatewayV8 instead.
  */
 
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { WorkerTokenConfigServiceV8 } from '@/v8/services/workerTokenConfigServiceV8';
 import { tokenGatewayV8 } from '@/v8/services/auth/tokenGatewayV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import {
@@ -26,26 +26,35 @@ const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-HELPER-V8]';
  *
  * IMPORTANT: This function delegates to tokenGatewayV8 for actual token acquisition.
  * All token fetch logic is centralized in tokenGatewayV8 to prevent regressions.
+ *
+ * @param silentApiRetrievalOverride - Override for silent retrieval setting (if not provided, uses centralized service)
+ * @param forceRefresh - If true, force token refresh even if valid token exists
  */
-async function attemptSilentTokenRetrieval(silentApiRetrievalOverride?: boolean): Promise<boolean> {
+async function attemptSilentTokenRetrieval(
+	silentApiRetrievalOverride?: boolean,
+	forceRefresh: boolean = false
+): Promise<boolean> {
 	try {
-		const config = MFAConfigurationServiceV8.loadConfiguration();
+		// Use WorkerTokenConfigServiceV8 as default source, allow override
 		const silentApiRetrieval =
 			silentApiRetrievalOverride !== undefined
 				? silentApiRetrievalOverride
-				: config.workerToken.silentApiRetrieval;
+				: WorkerTokenConfigServiceV8.getSilentApiRetrieval();
 
 		if (!silentApiRetrieval) {
 			console.log(`${MODULE_TAG} Silent retrieval disabled`);
 			return false;
 		}
 
-		console.log(`${MODULE_TAG} Attempting silent token retrieval via tokenGatewayV8...`);
+		console.log(
+			`${MODULE_TAG} Attempting silent token retrieval via tokenGatewayV8...`,
+			forceRefresh ? '(force refresh)' : ''
+		);
 
 		// Delegate to canonical token gateway
 		const result = await tokenGatewayV8.getWorkerToken({
 			mode: 'silent',
-			forceRefresh: false,
+			forceRefresh: forceRefresh,
 			timeout: 10000,
 			maxRetries: 2,
 			debug: true,
@@ -83,11 +92,11 @@ async function attemptSilentTokenRetrieval(silentApiRetrievalOverride?: boolean)
 /**
  * Checks if we should show the modal to display the token
  * Returns true if showTokenAtEnd is enabled, false otherwise
+ * Uses centralized WorkerTokenConfigServiceV8 by default
  */
 function _shouldShowTokenModal(): boolean {
 	try {
-		const config = MFAConfigurationServiceV8.loadConfiguration();
-		return config.workerToken.showTokenAtEnd;
+		return WorkerTokenConfigServiceV8.getShowTokenAtEnd();
 	} catch (_error) {
 		return false;
 	}
@@ -102,11 +111,15 @@ function _shouldShowTokenModal(): boolean {
  * IMPORTANT: When user explicitly clicks "Get Worker Token" button, always show modal
  * to allow credential configuration, even if silentApiRetrieval is ON.
  *
+ * Now uses WorkerTokenConfigServiceV8 as the default source for configuration.
+ * Override parameters are still supported for backward compatibility.
+ *
  * @param setShowModal - Function to set modal visibility
  * @param setTokenStatus - Optional function to update token status after retrieval
- * @param overrideSilentApiRetrieval - Optional override for silentApiRetrieval (takes precedence over config)
- * @param overrideShowTokenAtEnd - Optional override for showTokenAtEnd (takes precedence over config)
+ * @param overrideSilentApiRetrieval - Optional override for silentApiRetrieval (takes precedence over centralized service)
+ * @param overrideShowTokenAtEnd - Optional override for showTokenAtEnd (takes precedence over centralized service)
  * @param forceShowModal - If true, always show modal (user explicitly clicked button)
+ * @param setSilentLoading - Optional function to update loading state during silent retrieval
  * @returns Promise that resolves when modal handling is complete
  */
 export async function handleShowWorkerTokenModal(
@@ -119,22 +132,21 @@ export async function handleShowWorkerTokenModal(
 ): Promise<void> {
 	// #region agent log
 	// #endregion
-	const config = MFAConfigurationServiceV8.loadConfiguration();
-	// Use override values if provided (Hub page checkboxes take precedence), otherwise use config
+	// Use WorkerTokenConfigServiceV8 as default source, allow overrides for backward compatibility
 	const silentApiRetrieval =
 		overrideSilentApiRetrieval !== undefined
 			? overrideSilentApiRetrieval
-			: config.workerToken.silentApiRetrieval;
+			: WorkerTokenConfigServiceV8.getSilentApiRetrieval();
 	const showTokenAtEnd =
 		overrideShowTokenAtEnd !== undefined
 			? overrideShowTokenAtEnd
-			: config.workerToken.showTokenAtEnd;
+			: WorkerTokenConfigServiceV8.getShowTokenAtEnd();
 
 	// Check current token status
 	const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 
-	// If token is already valid
-	if (currentStatus.isValid) {
+	// If token is already valid AND user didn't explicitly click button
+	if (currentStatus.isValid && !forceShowModal) {
 		// Only show modal if BOTH silentApiRetrieval is OFF AND showTokenAtEnd is ON
 		// If silentApiRetrieval is ON, we should be truly silent (no modals)
 		if (!silentApiRetrieval && showTokenAtEnd) {
@@ -145,7 +157,7 @@ export async function handleShowWorkerTokenModal(
 		return;
 	}
 
-	// Token is missing or expired
+	// Token is missing or expired (or forceShowModal=true which bypasses the early return above)
 	// If silentApiRetrieval is ON, attempt silent retrieval
 	if (silentApiRetrieval) {
 		// Show loading state during silent retrieval
@@ -155,7 +167,10 @@ export async function handleShowWorkerTokenModal(
 
 		// #region agent log
 		// #endregion
-		const silentRetrievalSucceeded = await attemptSilentTokenRetrieval(silentApiRetrieval);
+		const silentRetrievalSucceeded = await attemptSilentTokenRetrieval(
+			silentApiRetrieval,
+			forceShowModal // Force refresh if user explicitly clicked button
+		);
 
 		// Hide loading state
 		if (setSilentLoading) {

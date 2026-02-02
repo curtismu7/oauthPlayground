@@ -110,6 +110,7 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 
 	/**
 	 * Handle "Register Another Device" button click
+	 * Navigate back to main page like Restart Flow does
 	 */
 	const handleRegisterAnother = useCallback(() => {
 		console.log(`${MODULE_TAG} User wants to register another device`);
@@ -120,10 +121,10 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 		if (onRegisterAnother) {
 			onRegisterAnother();
 		} else {
-			// Default: restart flow from device selection step
-			nav.goToStep(1);
+				// Navigate back to unified MFA main page
+				window.location.href = '/v8/mfa-unified';
 		}
-	}, [onRegisterAnother, nav]);
+	}, [onRegisterAnother]);
 
 	// ========================================================================
 	// COMPUTED PROPERTIES
@@ -208,10 +209,14 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 
 				<div className="detail-row">
 					<span className="detail-label">Status:</span>
-					<span className="detail-value status-badge status-active">
-						{mfaState.deviceStatus || 'ACTIVE'}
-					</span>
-				</div>
+				<span className={`detail-value status-badge ${
+					mfaState.deviceStatus === 'ACTIVE' 
+						? 'status-active' 
+						: 'status-activation-required'
+				}`}>
+					{mfaState.deviceStatus || 'ACTIVE'}
+				</span>
+			</div>
 
 				{contactInfo && (
 					<div className="detail-row">
