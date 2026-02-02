@@ -14,7 +14,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiLoader, FiSettings } from 'react-icons/fi';
+import { FiLoader } from 'react-icons/fi';
 import styled from 'styled-components';
 import { AppDiscoveryModalV8U } from '../../v8u/components/AppDiscoveryModalV8U';
 import type { DiscoveredApp } from '../components/AppPickerV8';
@@ -259,15 +259,16 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 		try {
 			const { handleShowWorkerTokenModal } = await import('../utils/workerTokenModalHelperV8');
 
-			// User explicitly clicked the button - always show modal
+			// User explicitly clicked the button - respect silent mode setting
 			// Pass current checkbox values to override config (page checkboxes take precedence)
-			// forceShowModal=true because user explicitly clicked the button
+			// forceShowModal=!silentApiRetrieval so modal only shows when silent mode is OFF
 			await handleShowWorkerTokenModal(
 				setShowWorkerTokenModal, // Use actual state setter to show modal
 				setTokenStatus,
 				silentApiRetrieval, // Page checkbox value takes precedence
 				showTokenAtEnd, // Page checkbox value takes precedence
-				true // Always show modal when user clicks button
+				!silentApiRetrieval, // Only show modal if silent mode is OFF
+				setIsGettingWorkerToken // Pass loading state setter
 			);
 		} catch (error) {
 			console.error('[WorkerTokenUIServiceV8] Error opening worker token modal:', error);
@@ -345,7 +346,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 	}, []);
 
 	// Handle Get Apps Config button click
-	const handleGetAppsConfig = useCallback(async () => {
+	const _handleGetAppsConfig = useCallback(async () => {
 		let effectiveEnvironmentId = environmentId;
 
 		// If environment ID not provided, try to extract it from worker token
