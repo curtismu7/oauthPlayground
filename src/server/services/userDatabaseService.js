@@ -293,17 +293,53 @@ class UserDatabaseService {
 		}
 
 		try {
+			// Use prefix matching for FTS (append *) and LIKE fallback for comprehensive results
+			const ftsQuery = query.trim() + '*';
+			const likePattern = `%${query}%`;
+
 			const results = await this.all(
 				`
-				SELECT u.*, bm25(user_search) as rank
+				SELECT DISTINCT u.*, bm25(user_search) as rank
 				FROM user_search
 				JOIN users u ON user_search.user_id = u.id
 				WHERE user_search MATCH ?
 				AND u.environment_id = ?
+				
+				UNION
+				
+				SELECT DISTINCT u.*, 0 as rank
+				FROM users u
+				WHERE u.environment_id = ?
+				AND u.id NOT IN (
+					SELECT u2.id FROM user_search
+					JOIN users u2 ON user_search.user_id = u2.id
+					WHERE user_search MATCH ? AND u2.environment_id = ?
+				)
+				AND (
+					u.username LIKE ?
+					OR u.email LIKE ?
+					OR u.first_name LIKE ?
+					OR u.last_name LIKE ?
+					OR u.display_name LIKE ?
+				)
+				
 				ORDER BY rank
 				LIMIT ? OFFSET ?
 			`,
-				[query, environmentId, limit, offset]
+				[
+					ftsQuery,
+					environmentId,
+					environmentId,
+					ftsQuery,
+					environmentId,
+					likePattern,
+					likePattern,
+					likePattern,
+					likePattern,
+					likePattern,
+					limit,
+					offset,
+				]
 			);
 
 			return results.map((row) => ({
