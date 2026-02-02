@@ -63,7 +63,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [, setShowConfigModal] = useState(false);
 	const [authMethod, setAuthMethod] = useState<AuthMethodV8>('client_secret_post');
 	const [isUpdatingApp, setIsUpdatingApp] = useState(false);
-	const [isSaving, setIsSaving] = useState(false);
 	const [showSuccessPage, setShowSuccessPage] = useState(false);
 	const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
 	// Track if we're processing a callback (returning from PingOne authentication)
@@ -637,7 +636,15 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 		window.addEventListener('popstate', handlePopState);
 		return () => window.removeEventListener('popstate', handlePopState);
-	}, [isOpen, searchParams, location.search, onTokenReceived, sessionInfo, showSuccessPage]);
+	}, [
+		isOpen,
+		searchParams,
+		location.search,
+		onTokenReceived,
+		sessionInfo,
+		showSuccessPage,
+		isMfaFlow,
+	]);
 
 	// Process callback even when modal is not open (for auto-processing on page load)
 	// This ensures callbacks are handled even if the modal wasn't explicitly opened
@@ -1013,9 +1020,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 		// Always use what's in the modal field (redirectUri state)
 		// Only fall back to default if field is empty or contains invalid old URIs
-		// For MFA flows, use user-mfa-login-callback; for others, use user-login-callback
+		// For MFA flows, use debug callback page; for others, use user-login-callback
 		const defaultRedirectUriForMfa = isMfaFlow
-			? 'https://localhost:3000/user-mfa-login-callback'
+			? 'https://localhost:3000/v8/mfa-unified-callback'
 			: 'https://localhost:3000/user-login-callback';
 
 		// Use the value from the modal field, only fall back if empty or invalid

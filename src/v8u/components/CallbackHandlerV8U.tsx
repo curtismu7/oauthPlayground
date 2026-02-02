@@ -25,12 +25,23 @@ export const CallbackHandlerV8U: React.FC = () => {
 		// Check if this is a user-login-callback or user-mfa-login-callback - if so, redirect back to MFA flow
 		// IMPORTANT: This must be checked FIRST before any unified flow logic
 		// CRITICAL: Both routes are required - /user-login-callback (generic) and /user-mfa-login-callback (MFA-specific)
+		// NOTE: /v8/mfa-unified-callback is handled by UserMFACallbackDebugPage component, not here
 		const currentPath = window.location.pathname;
 		const isUserLoginCallback =
 			currentPath === '/user-login-callback' ||
 			currentPath.includes('user-login-callback') ||
 			currentPath === '/user-mfa-login-callback' ||
 			currentPath.includes('user-mfa-login-callback');
+
+		// Don't handle debug callback page here - it has its own component
+		const isDebugCallbackPage =
+			currentPath === '/v8/mfa-unified-callback' ||
+			currentPath.includes('/v8/mfa-unified-callback');
+
+		if (isDebugCallbackPage) {
+			console.log(`${MODULE_TAG} Debug callback page detected - skipping CallbackHandlerV8U logic`);
+			return;
+		}
 
 		console.log(`${MODULE_TAG} Checking callback path:`, {
 			currentPath,
