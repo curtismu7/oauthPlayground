@@ -125,7 +125,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	onSelectDeviceType,
 	userToken,
 }) => {
-	const navigate = useNavigate();
+	const _navigate = useNavigate();
 	const [flowMode, setFlowMode] = useState<FlowMode | null>(null);
 	const [environmentId, setEnvironmentId] = useState('');
 	const [username, setUsername] = useState('');
@@ -306,7 +306,32 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
-			toastV8.error(`Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			
+			// Enhanced error handling for NO_USABLE_DEVICES
+			let errorMessage = 'Authentication failed: ';
+			if (error instanceof Error) {
+				const errorStr = error.message.toLowerCase();
+				
+				// Check for NO_USABLE_DEVICES or device availability errors
+				if (errorStr.includes('no usable devices') || errorStr.includes('too many') || errorStr.includes('cooldown') || errorStr.includes('blocked')) {
+					errorMessage = '⚠️ Device Temporarily Unavailable\n\n';
+					
+					if (errorStr.includes('cooldown') || errorStr.includes('too many')) {
+						errorMessage += 'This device is in cooldown due to too many recent authentication attempts. ';
+						errorMessage += 'Please wait a few minutes and try again, or select a different device.';
+					} else if (errorStr.includes('blocked')) {
+						errorMessage += 'This device has been blocked. Please contact your administrator or use a different device.';
+					} else {
+						errorMessage += error.message;
+					}
+				} else {
+					errorMessage += error.message;
+				}
+			} else {
+				errorMessage += 'Unknown error';
+			}
+			
+			toastV8.error(errorMessage, { duration: 8000 });
 			// Do NOT set flowMode(null) - keep user in authentication flow so they can retry or select another device
 		}
 	};
@@ -1866,23 +1891,18 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 		{showUserTokenSuccess && userTokenForDisplay && (
 			<div
 				style={{
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						background: 'rgba(0, 0, 0, 0.5)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						zIndex: 10000,
-					}}
-					onClick={(e) => {
-						if (e.target === e.currentTarget) {
-							// Don't close on backdrop click - user must click Continue
-						}
-					}}
-				>
+					position: 'fixed',
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					background: 'rgba(0, 0, 0, 0.5)',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					zIndex: 10000,
+				}}
+			>
 					<div
 						style={{
 							background: 'white',
