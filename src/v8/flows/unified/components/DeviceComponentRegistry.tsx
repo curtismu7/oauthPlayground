@@ -238,13 +238,20 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 
 	/**
 	 * Handle WebAuthn registration
+	 * Calls the FIDO2FlowController to complete the full registration flow:
+	 * 1. Call navigator.credentials.create() with PingOne options
+	 * 2. Send attestation back to PingOne to activate device
 	 */
 	const handleWebAuthnRegistration = useCallback(async () => {
 		console.log(`${MODULE_TAG} Starting WebAuthn registration`);
 		setIsRegistering(true);
 
 		try {
-			// Check if we have credential creation options
+			// Check if we have device ID and credential creation options
+			if (!mfaState.deviceId) {
+				throw new Error('Device ID is missing. Please try registering again.');
+			}
+
 			const options = mfaState.publicKeyCredentialCreationOptions;
 
 			if (!options) {
@@ -253,29 +260,40 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 				);
 			}
 
-			console.log(`${MODULE_TAG} Creating credential with options:`, options);
+			console.log(`${MODULE_TAG} Calling controller.registerFIDO2Device with deviceId:`, mfaState.deviceId);
 
-			// Call WebAuthn API
-			const credential = (await navigator.credentials.create({
-				publicKey: options as PublicKeyCredentialCreationOptions,
-			})) as PublicKeyCredential | null;
+			// Import FIDO2FlowController
+			const { FIDO2FlowController } = await import('@/v8/flows/controllers/FIDO2FlowController');
+			
+			// Check if controller is FIDO2FlowController instance, otherwise create one
+			const fido2Controller = controller instanceof FIDO2FlowController 
+				? controller 
+				: new FIDO2FlowController({
+					onUpdate: (state: any) => setMfaState(prev => ({ ...prev, ...state })),
+					onError: (error: string) => console.error('FIDO2 Controller Error:', error),
+				});
 
-			if (!credential) {
-				throw new Error('WebAuthn credential creation cancelled or failed');
-			}
+			// Call the full FIDO2 registration flow (WebAuthn + activation)
+			const result = await (fido2Controller as any).registerFIDO2Device(
+				credentials,
+				mfaState.deviceId,
+				JSON.stringify(options)
+			);
 
-			console.log(`${MODULE_TAG} WebAuthn credential created:`, credential);
+			console.log(`${MODULE_TAG} FIDO2 registration complete:`, result);
 
-			// Update state with credential
+			// Update state with final device status
 			setMfaState((prev) => ({
 				...prev,
-				webAuthnCredential: credential,
+				deviceStatus: result.status,
+				credentialId: result.credentialId,
 			}));
 
-			// Call success callback
+			// Call success callback - this will trigger navigation to next step
 			onSuccess({
-				credential,
-				credentialId: credential.id,
+				deviceId: result.deviceId,
+				status: result.status,
+				credentialId: result.credentialId,
 			});
 		} catch (error: unknown) {
 			console.error(`${MODULE_TAG} WebAuthn registration failed:`, error);
@@ -284,24 +302,14 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 			let errorMessage = 'Biometric registration failed';
 
 			if (error instanceof Error) {
-				if (error.name === 'NotAllowedError') {
-					errorMessage = 'Registration was cancelled or timed out';
-				} else if (error.name === 'InvalidStateError') {
-					errorMessage = 'This authenticator has already been registered';
-				} else if (error.name === 'NotSupportedError') {
-					errorMessage = 'This device does not support biometric authentication';
-				} else if (error.name === 'SecurityError') {
-					errorMessage = 'Registration failed due to security constraints';
-				} else {
-					errorMessage = error.message;
-				}
+				errorMessage = error.message;
 			}
 
 			onError(errorMessage);
 		} finally {
 			setIsRegistering(false);
 		}
-	}, [mfaState, setMfaState, onSuccess, onError]);
+	}, [mfaState, setMfaState, onSuccess, onError, controller]);
 
 	return (
 		<div className="fido2-registration-component">
@@ -328,21 +336,27 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 					<button
 						type="button"
 						onClick={handleWebAuthnRegistration}
-						disabled={isRegistering || !mfaState.publicKeyCredentialCreationOptions}
+						disabled={isRegistering || !mfaState.publicKeyCredentialCreationOptions || !mfaState.deviceId}
 						className="webauthn-register-button"
 					>
-						{isRegistering ? 'Registering...' : '🔐 Register FIDO2 Device'}
+						{isRegistering ? '🔐 Authenticating...' : '🔐 Complete Biometric Registration'}
 					</button>
 
 					{isRegistering && (
 						<p className="registration-hint">
-							Follow the prompts from your browser to use your security key or biometric...
+							🔐 Follow the prompts from your browser to use your security key or biometric (TouchID/FaceID)...
 						</p>
 					)}
 
 					{!mfaState.publicKeyCredentialCreationOptions && (
 						<p className="no-options-warning">
-							⚠️ WebAuthn options not available yet. Complete device registration first.
+							⚠️ Waiting for device creation... Click "Next Step" above to create the device first.
+						</p>
+					)}
+					
+					{mfaState.publicKeyCredentialCreationOptions && !isRegistering && (
+						<p className="registration-ready">
+							✅ Device created. Click the button above to complete biometric registration.
 						</p>
 					)}
 				</div>
@@ -538,7 +552,7 @@ export const DeviceComponentRegistry: Record<
 	SMS: null, // Use DynamicFormRenderer
 	EMAIL: null, // Use DynamicFormRenderer
 	WHATSAPP: null, // Use DynamicFormRenderer
-	TOTP: TOTPRegistrationComponent,
+	TOTP: null, // Use DynamicFormRenderer - Registration happens first, QR shown in activation step
 	FIDO2: FIDO2RegistrationComponent,
 	MOBILE: MobileRegistrationComponent,
 };

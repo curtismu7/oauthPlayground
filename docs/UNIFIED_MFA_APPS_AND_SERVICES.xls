@@ -1,0 +1,230 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Author>oauthPlayground</Author>
+  <Created>2026-02-01T00:00:00Z</Created>
+  <Version>1.0</Version>
+ </DocumentProperties>
+ <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
+  <WindowHeight>8130</WindowHeight>
+  <WindowWidth>15135</WindowWidth>
+  <WindowTopX>120</WindowTopX>
+  <WindowTopY>45</WindowTopY>
+  <ProtectStructure>False</ProtectStructure>
+  <ProtectWindows>False</ProtectWindows>
+ </ExcelWorkbook>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Center"/>
+   <Borders/>
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11"/>
+   <Interior/>
+   <NumberFormat/>
+   <Protection/>
+  </Style>
+  <Style ss:ID="hdr">
+   <Font ss:Bold="1"/>
+   <Interior ss:Color="#D9E1F2" ss:Pattern="Solid"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="Unified MFA Apps & Services">
+  <Table ss:ExpandedColumnCount="4" ss:DefaultColumnWidth="200" ss:DefaultRowHeight="20">
+   <Column ss:Width="250"/>
+   <Column ss:Width="150"/>
+   <Column ss:Width="450"/>
+   <Column ss:Width="700"/>
+
+   <Row>
+    <Cell ss:StyleID="hdr"><Data ss:Type="String">Name</Data></Cell>
+    <Cell ss:StyleID="hdr"><Data ss:Type="String">Type</Data></Cell>
+    <Cell ss:StyleID="hdr"><Data ss:Type="String">File(s)</Data></Cell>
+    <Cell ss:StyleID="hdr"><Data ss:Type="String">Short description</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Unified MFA Registration Flow</Data></Cell>
+    <Cell><Data ss:Type="String">Main App / Page (UI)</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/flows/unified/UnifiedMFARegistrationFlowV8.tsx</Data></Cell>
+    <Cell><Data ss:Type="String">Main unified MFA registration page and entrypoint for the unified flow. Mounted at /v8/mfa-unified.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Unified Flow Components</Data></Cell>
+    <Cell><Data ss:Type="String">UI Components</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/flows/unified/components/*</Data></Cell>
+    <Cell><Data ss:Type="String">Sub-components used by the unified flow (Activation, Configuration, DeviceSelection, Registration, Success, DeviceRegistrationForm, DeviceSelectionModal, etc.).</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">MFA Service (MFAServiceV8)</Data></Cell>
+    <Cell><Data ss:Type="String">Service (API wrapper)</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/services/mfaServiceV8.ts</Data></Cell>
+    <Cell><Data ss:Type="String">Handles MFA-related API calls (register device, list users, device ops). Communicates with backend /api/pingone/mfa/* endpoints.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Unified MFA Success Page</Data></Cell>
+    <Cell><Data ss:Type="String">Component / Service</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/services/unifiedMFASuccessPageServiceV8.tsx</Data></Cell>
+    <Cell><Data ss:Type="String">Success page renderer and helper used by multiple flows.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Device Flow Configs</Data></Cell>
+    <Cell><Data ss:Type="String">Config</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/config/deviceFlowConfigs.ts; src/v8/config/deviceFlowConfigTypes.ts</Data></Cell>
+    <Cell><Data ss:Type="String">Device-specific config and types used to drive the single unified flow for SMS, EMAIL, TOTP, MOBILE, WHATSAPP, FIDO2.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">MFA Flow Controller</Data></Cell>
+    <Cell><Data ss:Type="String">Controller</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/flows/controllers/MFAFlowController.ts</Data></Cell>
+    <Cell><Data ss:Type="String">Shared flow controller/logic for MFA operations across the app.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">MFACredentialContext</Data></Cell>
+    <Cell><Data ss:Type="String">React Context</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/contexts/MFACredentialContext.tsx</Data></Cell>
+    <Cell><Data ss:Type="String">Provides credential state used during flow (temporary credentials, persistence).</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">GlobalMFAContext</Data></Cell>
+    <Cell><Data ss:Type="String">React Context</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/contexts/GlobalMFAContext.tsx</Data></Cell>
+    <Cell><Data ss:Type="String">Global state shared across unified MFA components.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Worker Token UI & Modal</Data></Cell>
+    <Cell><Data ss:Type="String">UI / Helper</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/components/WorkerTokenModalV8.tsx; src/v8/utils/workerTokenModalHelperV8.ts</Data></Cell>
+    <Cell><Data ss:Type="String">UI for managing/generating worker tokens and helper that orchestrates silent vs interactive retrieval.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Token Gateway (tokenGatewayV8)</Data></Cell>
+    <Cell><Data ss:Type="String">Service (auth)</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/services/auth/tokenGatewayV8.ts</Data></Cell>
+    <Cell><Data ss:Type="String">Canonical token acquisition gateway. Supports silent vs interactive, forceRefresh, retries, timeouts.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Worker Token Services (status/cache)</Data></Cell>
+    <Cell><Data ss:Type="String">Services</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/services/workerTokenStatusServiceV8.ts; src/v8/services/workerTokenCacheServiceV8.ts; src/v8/services/workerTokenServiceV8.ts</Data></Cell>
+    <Cell><Data ss:Type="String">Services that track token status, cache token data, and provide token utilities used by unified flows.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Unified Worker Token Service(s)</Data></Cell>
+    <Cell><Data ss:Type="String">Service / Storage</Data></Cell>
+    <Cell><Data ss:Type="String">src/services/unifiedWorkerTokenService.ts; src/services/unifiedWorkerTokenServiceV2.ts</Data></Cell>
+    <Cell><Data ss:Type="String">Centralized worker-token credentials + persistence used across UI and v8 code.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Worker Token UI Service</Data></Cell>
+    <Cell><Data ss:Type="String">Service (UI helper)</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/services/workerTokenUIServiceV8.tsx</Data></Cell>
+    <Cell><Data ss:Type="String">Provides UI state and handlers for the Get Worker Token button and related controls.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Worker Token Repository</Data></Cell>
+    <Cell><Data ss:Type="String">Service</Data></Cell>
+    <Cell><Data ss:Type="String">src/services/workerTokenRepository.ts</Data></Cell>
+    <Cell><Data ss:Type="String">Persistence helper (save/load token data) used by unified worker token services.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">PingOne Fetch (API helper)</Data></Cell>
+    <Cell><Data ss:Type="String">Utility</Data></Cell>
+    <Cell><Data ss:Type="String">src/utils/pingOneFetch.ts</Data></Cell>
+    <Cell><Data ss:Type="String">Shared fetch wrapper with retries and integration with connectivity monitoring. Used by many v8 services to call backend/PingOne.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Backend Connectivity Monitoring</Data></Cell>
+    <Cell><Data ss:Type="String">Service + Component</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/services/backendConnectivityServiceV8.ts; src/v8/components/BackendDownModalV8.tsx</Data></Cell>
+    <Cell><Data ss:Type="String">Detects backend connectivity issues, suppresses console spam, and displays a global modal instructing how to restart servers.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Searchable Dropdown (helper)</Data></Cell>
+    <Cell><Data ss:Type="String">Component</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/components/SearchableDropdownV8.tsx</Data></Cell>
+    <Cell><Data ss:Type="String">Lightweight searchable dropdown used by the unified flow for the user lookup list. (recently added)</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">MFA Configuration Service</Data></Cell>
+    <Cell><Data ss:Type="String">Service</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/services/mfaConfigurationServiceV8.ts</Data></Cell>
+    <Cell><Data ss:Type="String">Loads/saves MFA flow configuration (worker token settings, showTokenAtEnd, silentApiRetrieval).</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Feature Flags (MFA)</Data></Cell>
+    <Cell><Data ss:Type="String">Service</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/services/mfaFeatureFlagsV8.ts</Data></Cell>
+    <Cell><Data ss:Type="String">Feature flag gate for device types and unified flow features.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Global Environment & Credentials</Data></Cell>
+    <Cell><Data ss:Type="String">Services</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/services/globalEnvironmentService.ts; src/v8/services/credentialsServiceV8.ts</Data></Cell>
+    <Cell><Data ss:Type="String">Environment ID, credential persistence and helpers used by unified flows.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Preflight Validation</Data></Cell>
+    <Cell><Data ss:Type="String">Service</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/services/preFlightValidationServiceV8.ts</Data></Cell>
+    <Cell><Data ss:Type="String">Validates OAuth/configuration when generating worker tokens (used in WorkerTokenModal).</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Toast Notifications</Data></Cell>
+    <Cell><Data ss:Type="String">Utility</Data></Cell>
+    <Cell><Data ss:Type="String">src/v8/utils/toastNotificationsV8.ts</Data></Cell>
+    <Cell><Data ss:Type="String">Central toast helper used to show success/warning/error messages in the unified flow.</Data></Cell>
+   </Row>
+
+   <Row>
+    <Cell><Data ss:Type="String">Server-side proxy endpoints</Data></Cell>
+    <Cell><Data ss:Type="String">Backend (local dev server)</Data></Cell>
+    <Cell><Data ss:Type="String">server.js (root) — relevant endpoints: /api/pingone/mfa/list-users, /api/credentials/save, /api/pingone/mfa/device-authentication-policies</Data></Cell>
+    <Cell><Data ss:Type="String">Local server routes used by the UI to proxy requests to PingOne APIs and to provide list-users results. Note: some filtering logic is implemented server-side (e.g. user lookup).</Data></Cell>
+   </Row>
+
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Layout x:Orientation="Landscape"/>
+    <ValidPrinterInfo/>
+    <HorizontalResolution>600</HorizontalResolution>
+    <VerticalResolution>600</VerticalResolution>
+   </PageSetup>
+   <Selected/>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+     <ActiveRow>1</ActiveRow>
+     <ActiveCol>1</ActiveCol>
+    </Pane>
+   </Panes>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+ </Worksheet>
+</Workbook>
