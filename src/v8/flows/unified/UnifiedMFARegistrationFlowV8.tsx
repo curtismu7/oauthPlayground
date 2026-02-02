@@ -402,16 +402,30 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		}
 
 		try {
-			const result = await MfaAuthenticationServiceV8.validateOTP({
-				environmentId,
-				username: username.trim(),
-				authenticationId,
-				otp: otpCode,
-				otpCheckUrl: '', // Will be constructed by service
+			// Use backend proxy to avoid CORS issues
+			const response = await fetch('/api/pingone/mfa/validate-otp-for-device', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					environmentId,
+					username: username.trim(),
+					deviceAuthId: authenticationId,
+					otp: otpCode,
+					region: 'na',
+				}),
 			});
 
-			if (result.valid || result.status === 'COMPLETED') {
-				toastV8.success('Authentication completed successfully!');
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+				throw new Error(errorData.error || errorData.message || `HTTP ${response.status}`);
+			}
+
+			const result = await response.json();
+
+			if (result.status === 'COMPLETED' || result.status === 'completed') {
+				toastV8.success('✅ Authentication completed successfully!');
 				setShowOTPModal(false);
 				setFlowMode(null);
 				setOtpCode('');
