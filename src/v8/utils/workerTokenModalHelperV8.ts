@@ -9,8 +9,8 @@
  * Do NOT add direct token fetch logic here - use tokenGatewayV8 instead.
  */
 
-import { WorkerTokenConfigServiceV8 } from '@/v8/services/workerTokenConfigServiceV8';
 import { tokenGatewayV8 } from '@/v8/services/auth/tokenGatewayV8';
+import { WorkerTokenConfigServiceV8 } from '@/v8/services/workerTokenConfigServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import {
 	type TokenStatusInfo,
@@ -68,7 +68,11 @@ async function attemptSilentTokenRetrieval(
 
 		// Handle specific error cases
 		if (result.error) {
-			console.log(`${MODULE_TAG} Silent retrieval failed:`, result.error.code, result.error.message);
+			console.log(
+				`${MODULE_TAG} Silent retrieval failed:`,
+				result.error.code,
+				result.error.message
+			);
 
 			if (result.error.code === 'NO_CREDENTIALS') {
 				toastV8.warning(
@@ -186,11 +190,10 @@ export async function handleShowWorkerTokenModal(
 				await setTokenStatus(newStatus);
 			}
 
-			// Only show modal if showTokenAtEnd is also ON (to display the token)
-			// AND user didn't explicitly click button (forceShowModal would be false for automatic calls)
-			if (showTokenAtEnd && !forceShowModal) {
+			// Show modal if showTokenAtEnd is ON OR if user explicitly clicked button
+			// Users expect to see the token when they click "Get Worker Token" or if showTokenAtEnd is enabled
+			if (showTokenAtEnd || forceShowModal) {
 				setShowModal(true);
-			} else {
 			}
 			return;
 		}
