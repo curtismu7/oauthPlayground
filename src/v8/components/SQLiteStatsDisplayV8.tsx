@@ -117,6 +117,7 @@ export const SQLiteStatsDisplayV8: React.FC<SQLiteStatsDisplayV8Props> = ({
 				</div>
 				{showRefreshButton && (
 					<button
+						type="button"
 						onClick={refresh}
 						disabled={isLoading}
 						style={{
