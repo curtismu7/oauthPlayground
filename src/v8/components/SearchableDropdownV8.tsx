@@ -111,7 +111,7 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 	// Reset highlighted index when search term changes
 	useEffect(() => {
 		setHighlightedIndex(-1);
-	}, [searchTerm]);
+	}, []);
 
 	// Scroll highlighted option into view
 	useEffect(() => {
@@ -298,8 +298,8 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 			)}
 
 				{/* Caret / toggle button */}
-				<div
-					role="button"
+				<button
+					type="button"
 					aria-label={isOpen ? 'Close options' : 'Open options'}
 					onClick={() => {
 						if (disabled || isLoading) return;
@@ -308,6 +308,7 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 							setTimeout(() => inputRef.current?.focus(), 0);
 						}
 					}}
+					disabled={disabled || isLoading}
 					style={{
 						position: 'absolute',
 						right: '8px',
@@ -321,6 +322,7 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 						color: '#4b5563',
 						cursor: disabled || isLoading ? 'not-allowed' : 'pointer',
 						background: 'rgba(243, 244, 246, 0.8)',
+						border: 'none',
 						borderRadius: '4px',
 						transition: 'background 0.15s ease',
 					}}
@@ -334,7 +336,7 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 					}}
 				>
 					<span style={{ fontSize: '18px', lineHeight: '18px', fontWeight: 'bold' }}>{isOpen ? '▴' : '▾'}</span>
-				</div>
+				</button>
 
 			{isLoading && (
 				<div

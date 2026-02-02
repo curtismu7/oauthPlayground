@@ -145,9 +145,9 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	const {
 		users,
 		isLoading: isLoadingUsers,
-		usersFetched,
-		searchQuery,
-		setSearchQuery,
+		usersFetched: _usersFetched,
+		searchQuery: _searchQuery,
+		setSearchQuery: _setSearchQuery,
 	} = useUserSearch({
 		environmentId,
 		tokenValid: workerToken.tokenStatus.isValid,
@@ -272,13 +272,15 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			console.log(`${MODULE_TAG} Auth initialized - full response:`, response);
 			setAuthenticationId(response.id);
 			
-			const status = response.status || '';
-			const nextStep = response.nextStep || '';
+			const status = (response.status || '').toUpperCase();
+			const nextStep = (response.nextStep || '').toUpperCase();
+			const links = response._links as Record<string, { href?: string }> | undefined;
+			const hasOtpLink = !!(links && (links.otp || links['otp.check'] || (links as Record<string, unknown>)['checkOtp']));
 			
-			console.log(`${MODULE_TAG} Auth status:`, { status, nextStep, deviceType: device.type });
+			console.log(`${MODULE_TAG} Auth status:`, { status, nextStep, hasOtpLink, deviceType: device.type });
 			
-			// Show appropriate UI based on response
-			if (status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED') {
+			// Show appropriate UI based on response (normalize status/nextStep for PingOne variants)
+			if (status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED' || hasOtpLink) {
 				console.log(`${MODULE_TAG} Opening OTP modal for device:`, device.type);
 				setShowOTPModal(true);
 				toastV8.success(`Verification code sent to your ${device.type} device`);
@@ -294,17 +296,18 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			} else if (status === 'COMPLETED') {
 				toastV8.success('Authentication completed successfully!');
 				setFlowMode(null);
-			} else if (status === 'DEVICE_SELECTION_REQUIRED' || nextStep === 'SELECTION_REQUIRED') {
+			} else if (status === 'DEVICE_SELECTION_REQUIRED' || nextStep === 'SELECTION_REQUIRED' || nextStep === 'DEVICE_SELECTION_REQUIRED') {
 				console.log(`${MODULE_TAG} Device selection required - showing modal again`);
 				setShowDeviceSelectionModal(true);
 			} else {
 				console.warn(`${MODULE_TAG} Unexpected authentication status:`, { status, nextStep, response });
 				toastV8.info(`Authentication status: ${status || nextStep || 'UNKNOWN'}`);
+				// Stay in authentication flow so user can try another device
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
 			toastV8.error(`Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-			setFlowMode(null);
+			// Do NOT set flowMode(null) - keep user in authentication flow so they can retry or select another device
 		}
 	};
 	
@@ -751,8 +754,172 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		);
 	}
 
+	// Authentication flow - dedicated view (device selection + OTP modals only; no registration grid)
+	if (flowMode === 'authentication') {
+		return (
+			<div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
+				<div
+					style={{
+						background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+						borderRadius: '12px',
+						padding: '28px 32px',
+						marginBottom: '28px',
+					}}
+				>
+					<button
+						type="button"
+						onClick={() => {
+							setFlowMode(null);
+							setShowDeviceSelectionModal(false);
+							setShowOTPModal(false);
+							setSelectedAuthDevice(null);
+							setOtpCode('');
+						}}
+						style={{
+							background: 'rgba(255,255,255,0.2)',
+							border: 'none',
+							color: 'white',
+							padding: '6px 12px',
+							borderRadius: '6px',
+							cursor: 'pointer',
+							marginBottom: '12px',
+							fontSize: '13px',
+						}}
+					>
+						← Back
+					</button>
+					<h1 style={{ margin: '0 0 8px 0', fontSize: '26px', fontWeight: '700', color: '#ffffff' }}>
+						🔓 Device Authentication
+					</h1>
+					<p style={{ margin: 0, fontSize: '15px', color: 'rgba(255, 255, 255, 0.9)' }}>
+						{selectedAuthDevice && !showOTPModal
+							? `Authenticating with ${selectedAuthDevice.type} — enter the code when prompted.`
+							: `Select an MFA device to authenticate for ${username || 'the user'}`}
+					</p>
+				</div>
+				{!showDeviceSelectionModal && !showOTPModal && (
+					<button
+						type="button"
+						onClick={() => setShowDeviceSelectionModal(true)}
+						style={{
+							padding: '14px 24px',
+							background: '#3b82f6',
+							color: 'white',
+							border: 'none',
+							borderRadius: '8px',
+							fontSize: '15px',
+							fontWeight: '600',
+							cursor: 'pointer',
+						}}
+					>
+						Select MFA device
+					</button>
+				)}
+				<UnifiedDeviceSelectionModal
+					isOpen={showDeviceSelectionModal}
+					onClose={() => {
+						setShowDeviceSelectionModal(false);
+						// Keep flowMode so user stays in auth flow; only clear if they click Back
+					}}
+					onDeviceSelect={handleDeviceSelectForAuthentication}
+					username={username}
+					environmentId={environmentId}
+				/>
+				{showOTPModal && (
+					<div
+						style={{
+							position: 'fixed',
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							background: 'rgba(0, 0, 0, 0.5)',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							zIndex: 9999,
+						}}
+					>
+						<div
+							style={{
+								background: 'white',
+								borderRadius: '12px',
+								padding: '32px',
+								maxWidth: '400px',
+								width: '100%',
+								boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+							}}
+						>
+							<h2 style={{ margin: '0 0 16px 0', fontSize: '20px', fontWeight: '600' }}>
+								Enter Verification Code
+							</h2>
+							<p style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#6b7280' }}>
+								Check your {selectedAuthDevice?.type} device for the code
+							</p>
+							<input
+								type="text"
+								value={otpCode}
+						onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+						placeholder="000000"
+						maxLength={6}
+						style={{
+									width: '100%',
+									padding: '12px 16px',
+									fontSize: '24px',
+									textAlign: 'center',
+									letterSpacing: '8px',
+									border: '2px solid #e5e7eb',
+									borderRadius: '8px',
+									marginBottom: '20px',
+								}}
+							/>
+							<div style={{ display: 'flex', gap: '12px' }}>
+								<button
+									type="button"
+									onClick={() => {
+										setShowOTPModal(false);
+										setOtpCode('');
+									}}
+									style={{
+										flex: 1,
+										padding: '12px',
+										border: '1px solid #d1d5db',
+										borderRadius: '8px',
+										background: 'white',
+										fontSize: '14px',
+										fontWeight: '600',
+										cursor: 'pointer',
+									}}
+								>
+									Cancel
+								</button>
+								<button
+									type="button"
+									onClick={handleVerifyOTP}
+									disabled={otpCode.length !== 6}
+									style={{
+										flex: 1,
+										padding: '12px',
+										border: 'none',
+										borderRadius: '8px',
+										background: otpCode.length === 6 ? '#3b82f6' : '#9ca3af',
+										color: 'white',
+										fontSize: '14px',
+										fontWeight: '600',
+										cursor: otpCode.length === 6 ? 'pointer' : 'not-allowed',
+									}}
+								>
+									Verify
+								</button>
+							</div>
+						</div>
+					</div>
+				)}
+			</div>
+		);
+	}
+
 	// Registration flow - show device type selection cards
-	// Note: Authentication has been moved to /v8/mfa-auth
 	return (
 		<div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
 			{/* Header */}
@@ -888,7 +1055,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
 							placeholder="000000"
 							maxLength={6}
-							autoFocus
 							style={{
 								width: '100%',
 								padding: '12px 16px',
@@ -899,10 +1065,11 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 								borderRadius: '8px',
 								marginBottom: '20px',
 							}}
-						/>
-						<div style={{ display: 'flex', gap: '12px' }}>
-							<button
-								onClick={() => {
+					/>
+					<div style={{ display: 'flex', gap: '12px' }}>
+						<button
+							type="button"
+							onClick={() => {
 									setShowOTPModal(false);
 									setOtpCode('');
 									setFlowMode(null);
@@ -918,10 +1085,11 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 									cursor: 'pointer',
 								}}
 							>
-								Cancel
-							</button>
-							<button
-								onClick={handleVerifyOTP}
+							Cancel
+						</button>
+						<button
+							type="button"
+							onClick={handleVerifyOTP}
 								disabled={otpCode.length !== 6}
 								style={{
 									flex: 1,
@@ -1048,12 +1216,12 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 		}
 > = ({
 	deviceType,
-	initialCredentials,
-	onSuccess,
+	initialCredentials: _initialCredentials,
+	onSuccess: _onSuccess,
 	onCancel,
-	initialStep = 0,
-	skipConfiguration = false,
-	registrationFlowType,
+	initialStep: _initialStep = 0,
+	skipConfiguration: _skipConfiguration = false,
+	registrationFlowType: _registrationFlowType,
 	userToken,
 	setUserToken,
 }) => {
@@ -1235,8 +1403,8 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 						: 'User flow - OTP required for activation'
 				});
 
-				// Use same parameter construction as working MFA flows
-				const baseParams: Record<string, any> = {
+			// Use same parameter construction as working MFA flows
+			const baseParams: Record<string, unknown> = {
 					environmentId: props.credentials.environmentId,
 					username: props.credentials.username,
 					type: selectedDeviceType,
@@ -1462,7 +1630,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 		} else {
 			console.log('[UNIFIED-FLOW] WARNING: No pending registration found after OAuth!');
 		}
-	}, []);
+	}, [setUserToken]);
 
 	/**
 	 * Handle continue from user token success page
@@ -1560,7 +1728,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				/>
 			);
 		},
-		[deviceType, performRegistration, _tokenStatus, registrationError]
+		[deviceType, performRegistration, _tokenStatus, registrationError, onCancel, navigate]
 	);
 
 	/**
@@ -1694,10 +1862,10 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				environmentId={envIdForModal}
 			/>
 
-			{/* User Token Success Page - Show token after OAuth login */}
-			{showUserTokenSuccess && userTokenForDisplay && (
-				<div
-					style={{
+		{/* User Token Success Page - Show token after OAuth login */}
+		{showUserTokenSuccess && userTokenForDisplay && (
+			<div
+				style={{
 						position: 'fixed',
 						top: 0,
 						left: 0,

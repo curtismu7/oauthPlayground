@@ -8,7 +8,7 @@
  * Shows cache status, progress, and provides manual refresh controls
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { UserCacheServiceV8 } from '@/v8/services/userCacheServiceV8';
 import { UserServiceV8 } from '@/v8/services/userServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
@@ -47,7 +47,7 @@ interface SyncStatus {
 export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 	environmentId,
 	compact = false,
-	autoStart = true,
+	autoStart: _autoStart = true,
 	initialPages = 5,
 	maxPages = 50,
 }) => {
@@ -61,7 +61,7 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 	});
 
 	// Load cache info
-	const loadCacheInfo = async () => {
+	const loadCacheInfo = useCallback(async () => {
 		const info = await UserCacheServiceV8.getCacheInfo(environmentId);
 		if (info) {
 			setCacheInfo({
@@ -74,7 +74,7 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 				fetchedCount: info.fetchedCount || 0,
 			});
 		}
-	};
+	}, [environmentId]);
 
 	// Start prefetch
 	const startPrefetch = async () => {
@@ -111,7 +111,7 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 	};
 
 	// Stop prefetch
-	const stopPrefetch = () => {
+	const _stopPrefetch = () => {
 		if (abortController) {
 			abortController.abort();
 			setAbortController(null);
@@ -135,7 +135,7 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 	};
 
 	// Manual refresh
-	const handleRefresh = async () => {
+	const _handleRefresh = async () => {
 		await clearCache();
 		await startPrefetch();
 	};
@@ -249,7 +249,7 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 		loadCacheInfo();
 		const interval = setInterval(loadCacheInfo, 2000); // Poll every 2s during fetch
 		return () => clearInterval(interval);
-	}, [environmentId]);
+	}, [loadCacheInfo]);
 
 	// Auto-start prefetch DISABLED - users should be loaded via CLI tool only
 	// useEffect(() => {
@@ -317,6 +317,7 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 					👥 User Cache
 				</div>
 				<button
+					type="button"
 					onClick={handleSmartSync}
 					disabled={syncStatus.isSyncing}
 					style={{
