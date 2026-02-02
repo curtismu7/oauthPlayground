@@ -66,13 +66,16 @@ class UserDatabaseService {
 					if (err) console.warn(`${MODULE_TAG} Failed to set temp store:`, err);
 				});
 
-				this.createTables().then(() => {
-					return this.createIndexes();
-				}).then(() => {
-					this.initialized = true;
-					console.log(`${MODULE_TAG} Database initialized at ${DB_PATH}`);
-					resolve();
-				}).catch(reject);
+				this.createTables()
+					.then(() => {
+						return this.createIndexes();
+					})
+					.then(() => {
+						this.initialized = true;
+						console.log(`${MODULE_TAG} Database initialized at ${DB_PATH}`);
+						resolve();
+					})
+					.catch(reject);
 			});
 		});
 	}
@@ -115,7 +118,7 @@ class UserDatabaseService {
 				environment_id UNINDEXED,
 				search_text,
 				tokenize = 'porter ascii'
-			)`
+			)`,
 		];
 
 		for (const sql of tables) {
@@ -135,9 +138,18 @@ class UserDatabaseService {
 			'CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)',
 			'CREATE INDEX IF NOT EXISTS idx_users_updated ON users(updated_at)',
 			'CREATE INDEX IF NOT EXISTS idx_users_created ON users(created_at)',
-			'CREATE TRIGGER IF NOT EXISTS users_fts_insert AFTER INSERT ON users BEGIN INSERT INTO users_fts(rowid, id, username, email, first_name, last_name, display_name) VALUES (new.rowid, new.id, new.username, new.email, new.first_name, new.last_name, new.display_name); END',
-			'CREATE TRIGGER IF NOT EXISTS users_fts_delete AFTER DELETE ON users BEGIN DELETE FROM users_fts WHERE rowid = old.rowid; END',
-			'CREATE TRIGGER IF NOT EXISTS users_fts_update AFTER UPDATE ON users BEGIN UPDATE users_fts SET id = new.id, username = new.username, email = new.email, first_name = new.first_name, last_name = new.last_name, display_name = new.display_name WHERE rowid = new.rowid; END'
+			`CREATE TRIGGER IF NOT EXISTS user_search_insert AFTER INSERT ON users BEGIN 
+				INSERT INTO user_search(user_id, environment_id, search_text) 
+				VALUES (new.id, new.environment_id, new.username || ' ' || COALESCE(new.email, '') || ' ' || COALESCE(new.first_name, '') || ' ' || COALESCE(new.last_name, '') || ' ' || COALESCE(new.display_name, '')); 
+			END`,
+			`CREATE TRIGGER IF NOT EXISTS user_search_delete AFTER DELETE ON users BEGIN 
+				DELETE FROM user_search WHERE user_id = old.id; 
+			END`,
+			`CREATE TRIGGER IF NOT EXISTS user_search_update AFTER UPDATE ON users BEGIN 
+				UPDATE user_search 
+				SET search_text = new.username || ' ' || COALESCE(new.email, '') || ' ' || COALESCE(new.first_name, '') || ' ' || COALESCE(new.last_name, '') || ' ' || COALESCE(new.display_name, '')
+				WHERE user_id = new.id; 
+			END`,
 		];
 
 		for (const sql of indexes) {
@@ -152,7 +164,7 @@ class UserDatabaseService {
 	 */
 	run(sql, params = []) {
 		return new Promise((resolve, reject) => {
-			this.db.run(sql, params, function(err) {
+			this.db.run(sql, params, function (err) {
 				if (err) {
 					reject(err);
 				} else {
@@ -219,47 +231,47 @@ class UserDatabaseService {
 
 					for (const user of users) {
 						// Insert/update user
-						await this.run(`
+						await this.run(
+							`
 							INSERT OR REPLACE INTO users (
 								id, environment_id, username, email, first_name, last_name,
 								display_name, user_type, lifecycle_status, created_at, updated_at,
 								last_login, population_id, enabled
 							) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-						`, [
-							user.id,
-							environmentId,
-							user.username,
-							user.email || null,
-							user.name?.given || null,
-							user.name?.family || null,
-							user.name?.formatted || user.username,
-							user.userType || null,
-							user.lifecycle?.status || null,
-							user.createdAt || null,
-							user.updatedAt || null,
-							user.lastSignOn?.at || null,
-							user.population?.id || null,
-							user.enabled !== undefined ? (user.enabled ? 1 : 0) : 1
-						]);
+						`,
+							[
+								user.id,
+								environmentId,
+								user.username,
+								user.email || null,
+								user.name?.given || null,
+								user.name?.family || null,
+								user.name?.formatted || user.username,
+								user.userType || null,
+								user.lifecycle?.status || null,
+								user.createdAt || null,
+								user.updatedAt || null,
+								user.lastSignOn?.at || null,
+								user.population?.id || null,
+								user.enabled !== undefined ? (user.enabled ? 1 : 0) : 1,
+							]
+						);
 					}
 
 					// Update metadata
 					const totalUsers = await this.getUserCount(environmentId);
-					await this.run(`
+					await this.run(
+						`
 						INSERT OR REPLACE INTO sync_metadata (
 							environment_id, total_users, last_sync_completed, last_sync_status
 						) VALUES (?, ?, ?, ?)
-					`, [
-						environmentId,
-						totalUsers,
-						new Date().toISOString(),
-						'success'
-					]);
+					`,
+						[environmentId, totalUsers, new Date().toISOString(), 'success']
+					);
 
 					await this.run('COMMIT');
 					console.log(`${MODULE_TAG} Saved ${users.length} users for environment ${environmentId}`);
 					resolve();
-
 				} catch (error) {
 					await this.run('ROLLBACK');
 					console.error(`${MODULE_TAG} Failed to save users:`, error);
@@ -281,32 +293,34 @@ class UserDatabaseService {
 		}
 
 		try {
-			const results = await this.all(`
-				SELECT u.*, bm25(users_fts) as rank
-				FROM users_fts
-				JOIN users u ON users_fts.rowid = u.rowid
-				WHERE users_fts MATCH ?
+			const results = await this.all(
+				`
+				SELECT u.*, bm25(user_search) as rank
+				FROM user_search
+				JOIN users u ON user_search.user_id = u.id
+				WHERE user_search MATCH ?
 				AND u.environment_id = ?
 				ORDER BY rank
 				LIMIT ? OFFSET ?
-			`, [query, environmentId, limit, offset]);
+			`,
+				[query, environmentId, limit, offset]
+			);
 
-			return results.map(row => ({
+			return results.map((row) => ({
 				id: row.id,
 				username: row.username,
 				email: row.email,
 				name: {
 					given: row.first_name,
 					family: row.last_name,
-					formatted: row.display_name
+					formatted: row.display_name,
 				},
 				userType: row.user_type,
 				lifecycle: { status: row.lifecycle_status },
 				createdAt: row.created_at,
 				updatedAt: row.updated_at,
-				lastSignOn: row.last_sign_on ? { at: row.last_sign_on } : null
+				lastSignOn: row.last_sign_on ? { at: row.last_sign_on } : null,
 			}));
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Search failed:`, error);
 			return [];
@@ -319,27 +333,30 @@ class UserDatabaseService {
 	async getRecentUsers(environmentId, limit = 100) {
 		await this.init();
 
-		const results = await this.all(`
+		const results = await this.all(
+			`
 			SELECT * FROM users
 			WHERE environment_id = ?
 			ORDER BY updated_at DESC
 			LIMIT ?
-		`, [environmentId, limit]);
+		`,
+			[environmentId, limit]
+		);
 
-		return results.map(row => ({
+		return results.map((row) => ({
 			id: row.id,
 			username: row.username,
 			email: row.email,
 			name: {
 				given: row.first_name,
 				family: row.last_name,
-				formatted: row.display_name
+				formatted: row.display_name,
 			},
 			userType: row.user_type,
 			lifecycle: { status: row.lifecycle_status },
 			createdAt: row.created_at,
 			updatedAt: row.updated_at,
-			lastSignOn: row.last_sign_on ? { at: row.last_sign_on } : null
+			lastSignOn: row.last_sign_on ? { at: row.last_sign_on } : null,
 		}));
 	}
 
@@ -349,9 +366,12 @@ class UserDatabaseService {
 	async getUserCount(environmentId) {
 		await this.init();
 
-		const result = await this.getRow(`
+		const result = await this.getRow(
+			`
 			SELECT COUNT(*) as count FROM users WHERE environment_id = ?
-		`, [environmentId]);
+		`,
+			[environmentId]
+		);
 
 		return result ? result.count || 0 : 0;
 	}
@@ -362,17 +382,22 @@ class UserDatabaseService {
 	async getSyncMetadata(environmentId) {
 		await this.init();
 
-		const result = await this.getRow(`
+		const result = await this.getRow(
+			`
 			SELECT * FROM sync_metadata WHERE environment_id = ?
-		`, [environmentId]);
+		`,
+			[environmentId]
+		);
 
-		return result || {
-			environment_id: environmentId,
-			total_users: 0,
-			last_sync_completed: null,
-			last_sync_status: null,
-			sync_in_progress: 0
-		};
+		return (
+			result || {
+				environment_id: environmentId,
+				total_users: 0,
+				last_sync_completed: null,
+				last_sync_status: null,
+				sync_in_progress: 0,
+			}
+		);
 	}
 
 	/**
@@ -390,7 +415,6 @@ class UserDatabaseService {
 
 				console.log(`${MODULE_TAG} Cleared data for environment ${environmentId}`);
 				resolve();
-
 			} catch (error) {
 				await this.run('ROLLBACK');
 				console.error(`${MODULE_TAG} Failed to clear environment data:`, error);
@@ -405,24 +429,27 @@ class UserDatabaseService {
 	async exportAllUsers(environmentId) {
 		await this.init();
 
-		const results = await this.all(`
+		const results = await this.all(
+			`
 			SELECT * FROM users WHERE environment_id = ? ORDER BY username
-		`, [environmentId]);
+		`,
+			[environmentId]
+		);
 
-		return results.map(row => ({
+		return results.map((row) => ({
 			id: row.id,
 			username: row.username,
 			email: row.email,
 			name: {
 				given: row.first_name,
 				family: row.last_name,
-				formatted: row.display_name
+				formatted: row.display_name,
 			},
 			userType: row.user_type,
 			lifecycle: { status: row.lifecycle_status },
 			createdAt: row.created_at,
 			updatedAt: row.updated_at,
-			lastSignOn: row.last_sign_on ? { at: row.last_sign_on } : null
+			lastSignOn: row.last_sign_on ? { at: row.last_sign_on } : null,
 		}));
 	}
 
@@ -451,7 +478,7 @@ class UserDatabaseService {
 		// Update sync status to in progress
 		await this.updateSyncMetadata(environmentId, {
 			sync_in_progress: 1,
-			last_sync_started: new Date().toISOString()
+			last_sync_started: new Date().toISOString(),
 		});
 
 		try {
@@ -467,7 +494,7 @@ class UserDatabaseService {
 					workerToken,
 					limit,
 					offset,
-					updatedSince: lastSyncTime
+					updatedSince: lastSyncTime,
 				});
 
 				const fetchedCount = result.users.length;
@@ -483,7 +510,7 @@ class UserDatabaseService {
 
 					// Add delay between requests to be respectful to the API
 					if (delayMs > 0) {
-						await new Promise(resolve => setTimeout(resolve, delayMs));
+						await new Promise((resolve) => setTimeout(resolve, delayMs));
 					}
 				} else {
 					hasMore = false;
@@ -504,12 +531,11 @@ class UserDatabaseService {
 			await this.updateSyncMetadata(environmentId, {
 				sync_in_progress: 0,
 				last_sync_completed: new Date().toISOString(),
-				last_sync_status: 'success'
+				last_sync_status: 'success',
 			});
 
 			console.log(`${MODULE_TAG} Incremental sync completed! Updated ${totalFetched} users`);
 			return { success: true, totalUsers: totalFetched, incremental: true };
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Incremental sync failed:`, error);
 			console.error(`${MODULE_TAG} Error message:`, error.message);
@@ -517,7 +543,7 @@ class UserDatabaseService {
 
 			await this.updateSyncMetadata(environmentId, {
 				sync_in_progress: 0,
-				last_sync_status: 'failed'
+				last_sync_status: 'failed',
 			});
 
 			throw error;
@@ -537,7 +563,7 @@ class UserDatabaseService {
 		// Update sync status to in progress
 		await this.updateSyncMetadata(environmentId, {
 			sync_in_progress: 1,
-			last_sync_started: new Date().toISOString()
+			last_sync_started: new Date().toISOString(),
 		});
 
 		try {
@@ -576,7 +602,7 @@ class UserDatabaseService {
 
 				// Add delay between requests to be respectful to the API
 				if (hasMore && delayMs > 0) {
-					await new Promise(resolve => setTimeout(resolve, delayMs));
+					await new Promise((resolve) => setTimeout(resolve, delayMs));
 				}
 			}
 
@@ -589,12 +615,11 @@ class UserDatabaseService {
 			await this.updateSyncMetadata(environmentId, {
 				sync_in_progress: 0,
 				last_sync_completed: new Date().toISOString(),
-				last_sync_status: 'success'
+				last_sync_status: 'success',
 			});
 
 			console.log(`${MODULE_TAG} Full sync completed! Total users: ${totalFetched}`);
 			return { success: true, totalUsers: totalFetched, incremental: false };
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Full sync failed:`, error);
 			console.error(`${MODULE_TAG} Error message:`, error.message);
@@ -602,7 +627,7 @@ class UserDatabaseService {
 
 			await this.updateSyncMetadata(environmentId, {
 				sync_in_progress: 0,
-				last_sync_status: 'failed'
+				last_sync_status: 'failed',
 			});
 
 			throw error;
@@ -630,13 +655,15 @@ class UserDatabaseService {
 				workerToken,
 				limit,
 				offset,
-				updatedSince
-			})
+				updatedSince,
+			}),
 		});
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
-			throw new Error(`Failed to fetch users from PingOne API: ${response.statusText} - ${errorData.error || ''}`);
+			throw new Error(
+				`Failed to fetch users from PingOne API: ${response.statusText} - ${errorData.error || ''}`
+			);
 		}
 
 		const data = await response.json();
@@ -652,19 +679,22 @@ class UserDatabaseService {
 		const current = await this.getSyncMetadata(environmentId);
 		const updated = { ...current, ...updates };
 
-		await this.run(`
+		await this.run(
+			`
 			INSERT OR REPLACE INTO sync_metadata (
 				environment_id, total_users, last_sync_started, last_sync_completed,
 				last_sync_status, sync_in_progress
 			) VALUES (?, ?, ?, ?, ?, ?)
-		`, [
-			updated.environment_id || environmentId,
-			updated.total_users || 0,
-			updated.last_sync_started || null,
-			updated.last_sync_completed || null,
-			updated.last_sync_status || null,
-			updated.sync_in_progress || 0
-		]);
+		`,
+			[
+				updated.environment_id || environmentId,
+				updated.total_users || 0,
+				updated.last_sync_started || null,
+				updated.last_sync_completed || null,
+				updated.last_sync_status || null,
+				updated.sync_in_progress || 0,
+			]
+		);
 	}
 
 	/**
