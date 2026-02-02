@@ -16,6 +16,7 @@ import CredentialSetupModal from './components/CredentialSetupModal';
 import { WorkerTokenModal } from './components/WorkerTokenModal';
 import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
 import { PromptModalV8 } from './v8/components/PromptModalV8';
+import { BackendDownModalV8 } from './v8/components/BackendDownModalV8';
 
 const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
 
@@ -195,6 +196,7 @@ import { WhatsAppFlowV8 } from './v8/flows/types/WhatsAppFlowV8';
 import { WhatsAppOTPConfigurationPageV8 } from './v8/flows/types/WhatsAppOTPConfigurationPageV8';
 import UnifiedMFARegistrationFlowV8 from './v8/flows/unified/UnifiedMFARegistrationFlowV8';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
+import UserCacheSyncUtilityV8 from './v8/pages/UserCacheSyncUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
 import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
@@ -585,7 +587,11 @@ const AppRoutes: React.FC = () => {
 								element={<WhatsAppRegistrationDocsPageV8 />}
 							/>
 							<Route path="/v8/mfa/register/totp" element={<TOTPConfigurationPageV8 />} />
-							<Route path="/v8/mfa/register/totp/device" element={<TOTPFlowV8 />} />
+							{/* TOTP uses unified flow architecture like SMS/Email */}
+							<Route
+								path="/v8/mfa/register/totp/device"
+								element={<UnifiedMFARegistrationFlowV8 deviceType="TOTP" />}
+							/>
 							<Route path="/v8/mfa/register/fido2" element={<FIDO2ConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/fido2/device" element={<FIDO2FlowV8 />} />
 							<Route path="/v8/mfa/register/fido2/docs" element={<FIDO2RegistrationDocsPageV8 />} />
@@ -1228,6 +1234,7 @@ const AppRoutes: React.FC = () => {
 									</Suspense>
 								}
 							/>
+							<Route path="/production/user-cache-sync" element={<UserCacheSyncUtilityV8 />} />
 							<Route
 								path="/test-callback"
 								element={
@@ -1496,10 +1503,10 @@ function AppContent() {
 										<StartupWrapper>
 											<PageStyleProvider>
 												<GlobalStyle />
-												<NotificationContainer />
-												<ApiRequestModalProvider />
-												<AppRoutes />
-											</PageStyleProvider>
+											<NotificationContainer />
+											<ApiRequestModalProvider />
+											<AppRoutes />
+										</PageStyleProvider>
 										</StartupWrapper>
 									</UnifiedFlowProvider>
 								</FlowStateProvider>
@@ -1542,6 +1549,9 @@ function AppContent() {
 					/>
 				</>
 			)}
+
+			{/* Global Backend Connectivity Modal */}
+			<BackendDownModalV8 />
 		</ThemeProvider>
 	);
 }

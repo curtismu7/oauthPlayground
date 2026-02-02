@@ -35,6 +35,7 @@ import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
+import { backendConnectivityService } from './backendConnectivityServiceV8';
 
 const MODULE_TAG = '[📱 MFA-SERVICE-V8]';
 
@@ -572,9 +573,10 @@ export class MFAServiceV8 {
 
 	/**
 	 * List users with search and pagination
+	 * @deprecated Use UserServiceV8.listUsers() instead
 	 * @param environmentId - PingOne environment ID
 	 * @param search - Optional search term to filter users
-	 * @param limit - Number of users to return (default: 10)
+	 * @param limit - Number of users to return (default: 10, max: 200)
 	 * @param offset - Offset for pagination (default: 0)
 	 * @returns List of users with pagination info
 	 */
@@ -591,38 +593,9 @@ export class MFAServiceV8 {
 		limit: number;
 		offset: number;
 	}> {
-		try {
-			const accessToken = await MFAServiceV8.getWorkerToken();
-
-			const requestBody = {
-				environmentId,
-				workerToken: accessToken,
-				...(search && { search }),
-				limit,
-				offset,
-			};
-
-			const response = await fetch('/api/pingone/mfa/list-users', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(requestBody),
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-				throw new Error(
-					`Failed to list users: ${errorData.message || errorData.error || response.statusText}`
-				);
-			}
-
-			const data = await response.json();
-			return data;
-		} catch (error) {
-			console.error(`${MODULE_TAG} List users error`, error);
-			throw error;
-		}
+		// Delegate to UserServiceV8
+		const { UserServiceV8 } = await import('./userServiceV8');
+		return UserServiceV8.listUsers(environmentId, { search, limit, offset });
 	}
 
 	/**
@@ -964,9 +937,74 @@ export class MFAServiceV8 {
 			if (!response.ok) {
 				const errorData = deviceData as PingOneResponse & {
 					debug?: { tokenType?: string; tokenExpired?: boolean };
+					details?: unknown;
 				};
 				const errorMessage = errorData.message || errorData.error || response.statusText;
 				const debugInfo = errorData.debug;
+				const details = errorData.details;
+
+				// Enhanced error message for 400 errors (validation errors)
+				if (response.status === 400) {
+					console.error(`${MODULE_TAG} Device registration failed with 400 Bad Request:`, {
+						error: errorMessage,
+						details,
+						fullError: errorData,
+						environmentId: params.environmentId,
+						userId: user.id,
+						deviceType: params.type,
+					});
+
+					// Parse details array if it exists
+					if (Array.isArray(details) && details.length > 0) {
+						const firstError = details[0];
+						
+						console.error(`${MODULE_TAG} First error details:`, {
+							code: firstError.code,
+							message: firstError.message,
+							target: firstError.target,
+							innerError: firstError.innerError,
+						});
+						
+						// Handle specific error codes
+						if (firstError.code === 'LIMIT_EXCEEDED') {
+							// Log more details about the limit issue
+							console.error(`${MODULE_TAG} LIMIT_EXCEEDED error - Check if this is a device limit or rate limit`, {
+								innerError: firstError.innerError,
+								target: firstError.target,
+							});
+							
+							// Check if this is about notifications/rate limiting vs device count
+							const errorMsg = String(firstError.message || '').toLowerCase();
+							if (errorMsg.includes('notification') || errorMsg.includes('sent')) {
+								// This is a rate limit error, not a device count error
+								if (firstError.innerError?.coolDownExpiresAt) {
+									const expiresAtMs = firstError.innerError.coolDownExpiresAt;
+									const nowMs = Date.now();
+									const secondsRemaining = Math.ceil((expiresAtMs - nowMs) / 1000);
+									
+									if (secondsRemaining > 0) {
+										const minutesRemaining = Math.ceil(secondsRemaining / 60);
+										throw new Error(
+											`Too many OTP notifications sent. Please wait ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''} before trying again.`
+										);
+									} else {
+										throw new Error('Too many OTP notifications sent. Please wait a few moments before trying again.');
+									}
+								}
+								throw new Error(`Device registration failed: ${firstError.message}`);
+							} else {
+								// This is about device count
+								throw new Error(`Device registration failed: Too many devices registered. Please delete some devices before adding more.`);
+							}
+						}
+						
+						if (firstError.message) {
+							throw new Error(`Device registration failed: ${firstError.message}`);
+						}
+					}
+
+					throw new Error(`Device registration failed: ${errorMessage}`);
+				}
 
 				// Enhanced error message with token details for 403 errors
 				if (response.status === 403) {
@@ -3103,8 +3141,35 @@ export class MFAServiceV8 {
 
 				// Provide more helpful error message
 				if (response.status === 400) {
+					// Parse details array if it exists
+					if (Array.isArray(details) && details.length > 0) {
+						const firstError = details[0];
+						
+						// Handle LIMIT_EXCEEDED error with cooldown
+						if (firstError.code === 'LIMIT_EXCEEDED' && firstError.innerError?.coolDownExpiresAt) {
+							const expiresAtMs = firstError.innerError.coolDownExpiresAt;
+							const nowMs = Date.now();
+							const secondsRemaining = Math.ceil((expiresAtMs - nowMs) / 1000);
+							
+							if (secondsRemaining > 0) {
+								const minutesRemaining = Math.ceil(secondsRemaining / 60);
+								throw new Error(
+									`Too many resend attempts. Please wait ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''} before trying again.`
+								);
+							} else {
+								throw new Error('Too many resend attempts. Please try again in a few moments.');
+							}
+						}
+						
+						// Handle other validation errors with friendly message
+						if (firstError.message) {
+							throw new Error(`${firstError.message}`);
+						}
+					}
+					
+					// Fallback for unparseable details
 					const validationMessage = details
-						? `Validation error: ${JSON.stringify(details)}`
+						? typeof details === 'string' ? details : 'Validation failed'
 						: errorMessage;
 					throw new Error(`Failed to resend pairing code: ${validationMessage}`);
 				}

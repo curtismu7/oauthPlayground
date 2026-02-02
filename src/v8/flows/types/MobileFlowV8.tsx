@@ -251,6 +251,7 @@ const MobileDeviceSelectionStep: React.FC<
 		setCredentials({
 			...credentials,
 			deviceName: credentials.deviceType || 'SMS',
+			nickname: credentials.nickname || 'MyKnickName',
 		});
 		nav.goToStep(2);
 	};
@@ -1246,6 +1247,9 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 					const deviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED' =
 						registrationFlowType === 'admin' ? adminDeviceStatus : 'ACTIVATION_REQUIRED';
 
+					// Store nickname for later update
+					const deviceNickname = registrationCredentials.nickname;
+
 					// CRITICAL: Ensure status is explicitly set
 					if (registrationFlowType === 'admin' && deviceStatus !== adminDeviceStatus) {
 						console.error(`${MODULE_TAG} ⚠️ STATUS MISMATCH:`, {
@@ -1271,6 +1275,24 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 						registrationCredentials,
 						deviceParams
 					);
+
+					// Update device nickname if provided
+					if (result.deviceId && deviceNickname) {
+						try {
+							await MFAServiceV8.updateDeviceNickname(
+								{ 
+									environmentId: credentials.environmentId, 
+									username: credentials.username, 
+									deviceId: result.deviceId 
+								},
+								deviceNickname
+							);
+							console.log(`${MODULE_TAG} ✅ Device nickname updated successfully`);
+						} catch (nicknameError) {
+							console.warn(`${MODULE_TAG} ⚠️ Failed to update device nickname:`, nicknameError);
+							// Don't fail the registration if nickname update fails
+						}
+					}
 
 					// Use the actual status returned from the API, not the requested status
 					const actualDeviceStatus = result.status || deviceStatus;
@@ -2152,7 +2174,11 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 										type="text"
 										value={credentials.deviceName || currentDeviceType || 'SMS'}
 										onChange={(e) => {
-											setCredentials({ ...credentials, deviceName: e.target.value });
+											setCredentials({ 
+												...credentials, 
+												deviceName: e.target.value,
+												nickname: credentials.nickname || 'MyKnickName'
+											});
 										}}
 										onFocus={(e) => {
 											const currentName = credentials.deviceName?.trim() || '';
@@ -2200,6 +2226,43 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 										Enter a friendly name to identify this device (e.g., "My Work Phone", "Personal
 										Email")
 									</small>
+
+									<div style={{ marginBottom: '16px', marginTop: '12px' }}>
+										<label htmlFor="mfa-device-nickname-register" style={{ display: 'block', marginBottom: '8px', color: '#374151', fontSize: '14px', fontWeight: '500' }}>
+											Device Nickname (optional)
+										</label>
+										<input
+											id="mfa-device-nickname-register"
+											type="text"
+											value={credentials.nickname || 'MyKnickName'}
+											onChange={(e) => setCredentials({ ...credentials, nickname: e.target.value })}
+											placeholder="MyKnickName"
+											style={{
+												padding: '12px 16px',
+												border: '1px solid #d1d5db',
+												outline: 'none',
+												borderRadius: '8px',
+												fontSize: '15px',
+												color: '#1f2937',
+												background: 'white',
+												width: '100%',
+											}}
+										/>
+										<small style={{ display: 'block', marginTop: '4px', color: '#6b7280', fontSize: '12px' }}>
+											Enter a friendly nickname for this device (e.g., "Personal Phone", "Work SMS")
+											{credentials.nickname && (
+												<span
+													style={{
+														marginLeft: '8px',
+														color: '#10b981',
+														fontWeight: '500',
+													}}
+												>
+													✓ Nickname: "{credentials.nickname}"
+												</span>
+											)}
+										</small>
+									</div>
 								</div>
 							) : (
 								<div

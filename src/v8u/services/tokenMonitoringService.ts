@@ -110,8 +110,16 @@ export class TokenMonitoringService {
 	}
 
 	private async initializeNotifications(): Promise<void> {
+		// Only request notification permission if user hasn't been asked yet (avoid console warning)
 		if ('Notification' in window && this.config.enableNotifications) {
-			this.notificationPermission = await Notification.requestPermission();
+			// Check current permission status without requesting
+			if (Notification.permission === 'default') {
+				// Don't auto-request - wait for user gesture
+				// User can enable via settings or when clicking a notification button
+				logger.debug('[TokenMonitoring] Notifications available but not auto-requesting permission');
+			} else {
+				this.notificationPermission = Notification.permission;
+			}
 		}
 	}
 

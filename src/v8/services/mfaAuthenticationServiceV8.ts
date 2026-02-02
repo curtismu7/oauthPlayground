@@ -1140,7 +1140,7 @@ export class MfaAuthenticationServiceV8 {
 		const autoRenewalEnabled = config.workerToken.autoRenewal;
 		const renewalThreshold = config.workerToken.renewalThreshold; // seconds before expiry
 
-		const workerToken = await workerTokenServiceV8.getToken();
+		let workerToken = await workerTokenServiceV8.getToken();
 
 		// Decode JWT to check expiry
 		let tokenExpiry: number | null = null;
