@@ -474,6 +474,88 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						Configuration
 					</h2>
 
+					{/* Custom Logo URL */}
+					<div style={{ marginBottom: '20px' }}>
+						<label
+							htmlFor="custom-logo-url"
+							style={{
+								display: 'block',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '8px',
+							}}
+						>
+							🎨 Custom Logo URL (Optional)
+						</label>
+						<p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#6b7280' }}>
+							Display a custom logo in the OTP verification modal
+						</p>
+						<input
+							id="custom-logo-url"
+							type="url"
+							value={customLogoUrl}
+							onChange={(e) => setCustomLogoUrl(e.target.value)}
+							placeholder="https://example.com/logo.png"
+							style={{
+								width: '100%',
+								padding: '10px 14px',
+								fontSize: '14px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								outline: 'none',
+								transition: 'all 0.2s ease',
+								boxSizing: 'border-box',
+							}}
+							onFocus={(e) => {
+								e.currentTarget.style.borderColor = '#3b82f6';
+								e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+							}}
+							onBlur={(e) => {
+								e.currentTarget.style.borderColor = '#d1d5db';
+								e.currentTarget.style.boxShadow = 'none';
+							}}
+						/>
+						{customLogoUrl && (
+							<div
+								style={{
+									marginTop: '12px',
+									textAlign: 'center',
+									padding: '12px',
+									background: '#f9fafb',
+									borderRadius: '8px',
+								}}
+							>
+								<p
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginBottom: '8px',
+										fontWeight: '600',
+									}}
+								>
+									Logo Preview:
+								</p>
+								<img
+									src={customLogoUrl}
+									alt="Custom logo"
+									style={{
+										maxWidth: '80px',
+										maxHeight: '80px',
+										borderRadius: '12px',
+										objectFit: 'contain',
+										boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+									}}
+									onError={(e) => {
+										e.currentTarget.style.display = 'none';
+										e.currentTarget.parentElement!.innerHTML =
+											'<div style="color: #ef4444; font-size: 12px;">❌ Invalid image URL</div>';
+									}}
+								/>
+							</div>
+						)}
+					</div>
+
 					{/* Environment ID */}
 					<div style={{ marginBottom: '20px' }}>
 						<label
@@ -966,46 +1048,215 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							left: 0,
 							right: 0,
 							bottom: 0,
-							background: 'rgba(0, 0, 0, 0.5)',
+							background: 'rgba(0, 0, 0, 0.6)',
+							backdropFilter: 'blur(4px)',
 							display: 'flex',
 							alignItems: 'center',
 							justifyContent: 'center',
 							zIndex: 9999,
+							animation: 'fadeIn 0.2s ease-out',
 						}}
 					>
+						<style>
+							{`
+							@keyframes fadeIn {
+								from { opacity: 0; }
+								to { opacity: 1; }
+							}
+							@keyframes slideUp {
+								from { 
+									opacity: 0;
+									transform: translateY(20px); 
+								}
+								to { 
+									opacity: 1;
+									transform: translateY(0); 
+								}
+							}
+							@keyframes pulse {
+								0%, 100% { opacity: 1; }
+								50% { opacity: 0.5; }
+							}
+						`}
+						</style>
 						<div
 							style={{
 								background: 'white',
-								borderRadius: '12px',
-								padding: '32px',
-								maxWidth: '400px',
-								width: '100%',
-								boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+								borderRadius: '24px',
+								padding: '48px 40px',
+								maxWidth: '480px',
+								width: '90%',
+								boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+								animation: 'slideUp 0.3s ease-out',
+								position: 'relative',
 							}}
 						>
-							<h2 style={{ margin: '0 0 16px 0', fontSize: '20px', fontWeight: '600' }}>
-								Enter Verification Code
-							</h2>
-							<p style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#6b7280' }}>
-								Check your {selectedAuthDevice?.type} device for the code
-							</p>
-							<input
-								type="text"
-								value={otpCode}
-								onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-								placeholder="000000"
-								maxLength={6}
-								style={{
-									width: '100%',
-									padding: '12px 16px',
-									fontSize: '24px',
-									textAlign: 'center',
-									letterSpacing: '8px',
-									border: '2px solid #e5e7eb',
-									borderRadius: '8px',
-									marginBottom: '20px',
-								}}
-							/>
+							{/* Logo Area */}
+							<div style={{ textAlign: 'center', marginBottom: '32px' }}>
+								{customLogoUrl ? (
+									<div style={{ marginBottom: '20px' }}>
+										<img
+											src={customLogoUrl}
+											alt="Organization logo"
+											style={{
+												maxWidth: '120px',
+												maxHeight: '80px',
+												margin: '0 auto',
+												display: 'block',
+												borderRadius: '12px',
+												objectFit: 'contain',
+											}}
+											onError={(e) => {
+												// Fallback to default icon if image fails to load
+												e.currentTarget.style.display = 'none';
+												const fallback = document.createElement('div');
+												fallback.style.cssText = `
+												width: 80px;
+												height: 80px;
+												margin: 0 auto 20px;
+												background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+												borderRadius: 20px;
+												display: flex;
+												alignItems: center;
+												justifyContent: center;
+												fontSize: 36px;
+												boxShadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+											`;
+												fallback.textContent = '🔐';
+												e.currentTarget.parentElement!.appendChild(fallback);
+											}}
+										/>
+									</div>
+								) : (
+									<div
+										style={{
+											width: '80px',
+											height: '80px',
+											margin: '0 auto 20px',
+											background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+											borderRadius: '20px',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											fontSize: '36px',
+											boxShadow: '0 10px 25px rgba(102, 126, 234, 0.3)',
+										}}
+									>
+										🔐
+									</div>
+								)}
+								<h2
+									style={{
+										margin: '0 0 8px 0',
+										fontSize: '24px',
+										fontWeight: '700',
+										color: '#111827',
+									}}
+								>
+									Verification Code
+								</h2>
+								<p style={{ margin: 0, fontSize: '15px', color: '#6b7280', lineHeight: '1.5' }}>
+									Enter the 6-digit code sent to your <strong>{selectedAuthDevice?.type}</strong>{' '}
+									device
+								</p>
+							</div>
+
+							{/* OTP Input */}
+							<div style={{ marginBottom: '24px' }}>
+								<input
+									type="text"
+									value={otpCode}
+									onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+									placeholder="• • • • • •"
+									maxLength={6}
+									style={{
+										width: '100%',
+										padding: '16px 20px',
+										fontSize: '32px',
+										fontWeight: '600',
+										textAlign: 'center',
+										letterSpacing: '12px',
+										border: '2px solid #e5e7eb',
+										borderRadius: '16px',
+										outline: 'none',
+										transition: 'all 0.2s ease',
+										boxShadow: otpCode.length > 0 ? '0 0 0 3px rgba(59, 130, 246, 0.1)' : 'none',
+									}}
+									onFocus={(e) => {
+										e.currentTarget.style.borderColor = '#3b82f6';
+										e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+									}}
+									onBlur={(e) => {
+										e.currentTarget.style.borderColor = '#e5e7eb';
+										e.currentTarget.style.boxShadow =
+											otpCode.length > 0 ? '0 0 0 3px rgba(59, 130, 246, 0.1)' : 'none';
+									}}
+								/>
+								{otpCode.length > 0 && otpCode.length < 6 && (
+									<div
+										style={{
+											marginTop: '12px',
+											fontSize: '13px',
+											color: '#6b7280',
+											textAlign: 'center',
+											animation: 'pulse 2s ease-in-out infinite',
+										}}
+									>
+										{6 - otpCode.length} more digit{6 - otpCode.length !== 1 ? 's' : ''} needed
+									</div>
+								)}
+							</div>
+
+							{/* Resend Code Button */}
+							<div style={{ textAlign: 'center', marginBottom: '24px' }}>
+								<button
+									type="button"
+									onClick={async () => {
+										if (!selectedAuthDevice || !authenticationId) return;
+										try {
+											toastV8.info('Resending verification code...');
+											// Re-initialize authentication to resend code
+											const response =
+												await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
+													environmentId,
+													username: username.trim(),
+													deviceAuthenticationPolicyId: selectedPolicy?.id || '',
+													deviceId: selectedAuthDevice.id,
+													region: 'na',
+												});
+											if (response.status?.toUpperCase() === 'OTP_REQUIRED') {
+												toastV8.success('New code sent to your device!');
+												setAuthenticationId(response.id);
+												setOtpCode('');
+											}
+										} catch (error) {
+											toastV8.error('Failed to resend code');
+											console.error('Resend error:', error);
+										}
+									}}
+									style={{
+										background: 'transparent',
+										border: 'none',
+										color: '#3b82f6',
+										fontSize: '14px',
+										fontWeight: '600',
+										cursor: 'pointer',
+										padding: '8px 16px',
+										borderRadius: '8px',
+										transition: 'all 0.2s ease',
+									}}
+									onMouseEnter={(e) => {
+										e.currentTarget.style.background = '#eff6ff';
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.background = 'transparent';
+									}}
+								>
+									↻ Resend Code
+								</button>
+							</div>
+
+							{/* Action Buttons */}
 							<div style={{ display: 'flex', gap: '12px' }}>
 								<button
 									type="button"
@@ -1015,13 +1266,25 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 									}}
 									style={{
 										flex: 1,
-										padding: '12px',
-										border: '1px solid #d1d5db',
-										borderRadius: '8px',
+										padding: '14px 24px',
+										border: '2px solid #e5e7eb',
+										borderRadius: '12px',
 										background: 'white',
-										fontSize: '14px',
+										fontSize: '15px',
 										fontWeight: '600',
+										color: '#6b7280',
 										cursor: 'pointer',
+										transition: 'all 0.2s ease',
+									}}
+									onMouseEnter={(e) => {
+										e.currentTarget.style.borderColor = '#d1d5db';
+										e.currentTarget.style.background = '#f9fafb';
+										e.currentTarget.style.transform = 'translateY(-1px)';
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.borderColor = '#e5e7eb';
+										e.currentTarget.style.background = 'white';
+										e.currentTarget.style.transform = 'translateY(0)';
 									}}
 								>
 									Cancel
@@ -1032,18 +1295,53 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 									disabled={otpCode.length !== 6}
 									style={{
 										flex: 1,
-										padding: '12px',
+										padding: '14px 24px',
 										border: 'none',
-										borderRadius: '8px',
-										background: otpCode.length === 6 ? '#3b82f6' : '#9ca3af',
+										borderRadius: '12px',
+										background:
+											otpCode.length === 6
+												? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+												: '#d1d5db',
 										color: 'white',
-										fontSize: '14px',
+										fontSize: '15px',
 										fontWeight: '600',
 										cursor: otpCode.length === 6 ? 'pointer' : 'not-allowed',
+										transition: 'all 0.2s ease',
+										boxShadow:
+											otpCode.length === 6 ? '0 4px 12px rgba(102, 126, 234, 0.4)' : 'none',
+									}}
+									onMouseEnter={(e) => {
+										if (otpCode.length === 6) {
+											e.currentTarget.style.transform = 'translateY(-2px)';
+											e.currentTarget.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.5)';
+										}
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.transform = 'translateY(0)';
+										e.currentTarget.style.boxShadow =
+											otpCode.length === 6 ? '0 4px 12px rgba(102, 126, 234, 0.4)' : 'none';
 									}}
 								>
-									Verify
+									✓ Verify Code
 								</button>
+							</div>
+
+							{/* Help Text */}
+							<div
+								style={{
+									marginTop: '24px',
+									padding: '16px',
+									background: '#f9fafb',
+									borderRadius: '12px',
+									fontSize: '13px',
+									color: '#6b7280',
+									textAlign: 'center',
+									lineHeight: '1.6',
+								}}
+							>
+								<strong style={{ color: '#111827' }}>Didn't receive the code?</strong>
+								<br />
+								Check your spam folder or click "Resend Code" above
 							</div>
 						</div>
 					</div>
