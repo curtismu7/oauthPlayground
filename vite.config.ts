@@ -116,13 +116,12 @@ export default defineConfig(({ mode }) => {
 		server: {
 			port: 3000,
 			open: true,
-			https: {}, // Re-enable HTTPS in development
+			https: false, // Disable HTTPS in development for easier startup
 			// In production, Vercel will handle HTTPS
-			// In development, basic-ssl plugin provides self-signed certificates
 			hmr: {
 				port: 3000,
 				host: 'localhost',
-				protocol: 'wss',
+				protocol: 'ws',
 				clientPort: 3000,
 			},
 			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)
