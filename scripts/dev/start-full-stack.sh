@@ -18,7 +18,7 @@ NC='\033[0m' # No Color
 # Configuration
 FRONTEND_PORT=${FRONTEND_PORT:-3000}
 BACKEND_PORT=${BACKEND_PORT:-3001}
-FRONTEND_URL="https://localhost:${FRONTEND_PORT}"
+FRONTEND_URL="http://localhost:${FRONTEND_PORT}"
 BACKEND_URL="http://localhost:${BACKEND_PORT}"
 
 # PID files for process management
@@ -54,6 +54,28 @@ check_port() {
     else
         return 1  # Port is free
     fi
+}
+
+# Function to kill processes on specific ports
+kill_processes_on_ports() {
+    print_info "Killing any processes on ports $FRONTEND_PORT and $BACKEND_PORT..."
+    
+    # Kill processes on frontend port
+    if check_port $FRONTEND_PORT; then
+        lsof -ti:$FRONTEND_PORT | xargs kill -9 2>/dev/null || true
+        sleep 1
+    fi
+    
+    # Kill processes on backend port
+    if check_port $BACKEND_PORT; then
+        lsof -ti:$BACKEND_PORT | xargs kill -9 2>/dev/null || true
+        sleep 1
+    fi
+    
+    # Also kill any Vite and Node server processes
+    pkill -f "vite" 2>/dev/null || true
+    pkill -f "node server.js" 2>/dev/null || true
+    sleep 2
 }
 
 # Function to kill process by PID file
@@ -140,11 +162,15 @@ start_backend() {
 start_frontend() {
     print_status "Starting Frontend Server..."
     
+    # Kill any existing Vite processes
+    pkill -f "vite" 2>/dev/null || true
+    sleep 2
+    
     # Check if frontend port is available
     if check_port $FRONTEND_PORT; then
         print_warning "Port $FRONTEND_PORT is already in use. Attempting to free it..."
         lsof -ti:$FRONTEND_PORT | xargs kill -9 2>/dev/null || true
-        sleep 2
+        sleep 3
     fi
     
     # Check if package.json exists
@@ -159,15 +185,15 @@ start_frontend() {
         npm install
     fi
     
-    # Build the frontend if dist doesn't exist
-    if [ ! -d "dist" ]; then
-        print_info "Building frontend..."
-        npm run build
+    # Double-check that frontend port is available
+    if check_port $FRONTEND_PORT; then
+        print_error "Port $FRONTEND_PORT is still in use after cleanup. Cannot start frontend."
+        return 1
     fi
     
-    # Start frontend server
+    # Start frontend server with explicit port
     print_info "Starting frontend on port $FRONTEND_PORT..."
-    npm run dev &
+    npx vite --port $FRONTEND_PORT --strictPort &
     local frontend_pid=$!
     echo $frontend_pid > "$FRONTEND_PID_FILE"
     
@@ -176,8 +202,8 @@ start_frontend() {
     local attempt=0
     
     while [ $attempt -lt $max_attempts ]; do
-        if curl -s -k "$FRONTEND_URL" >/dev/null 2>&1; then
-            print_success "Frontend server started successfully on $FRONTEND_URL"
+        if curl -s "http://localhost:$FRONTEND_PORT" >/dev/null 2>&1; then
+            print_success "Frontend server started successfully on http://localhost:$FRONTEND_PORT"
             return 0
         fi
         sleep 1
@@ -272,11 +298,11 @@ open_browser() {
 
 # Main execution
 main() {
-    show_banner
     check_requirements
     
     # Clean up any existing processes
     print_info "Cleaning up any existing processes..."
+    kill_processes_on_ports
     kill_by_pid_file "$FRONTEND_PID_FILE" "Frontend"
     kill_by_pid_file "$BACKEND_PID_FILE" "Backend"
     
@@ -284,6 +310,7 @@ main() {
     if start_backend; then
         # Start frontend
         if start_frontend; then
+            show_banner
             show_status
             print_success "🎉 OAuth Playground is now running!"
             print_info "Frontend: $FRONTEND_URL"
