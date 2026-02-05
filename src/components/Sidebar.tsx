@@ -9,6 +9,7 @@ import {
 	FiCpu,
 	FiDatabase,
 	FiEye,
+	FiHome,
 	FiKey,
 	FiLayers,
 	FiLock,
@@ -542,66 +543,69 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				),
 				isOpen: true, // Default to open, will be synced with openMenus state
 				items: [
+					// EDUCATION Entries (sorted alphabetically)
 					{
-						id: 'unified-oauth-flow-v8u',
-						path: '/v8u/unified',
-						label: '🎯 Unified OAuth & OIDC',
+						id: 'flow-comparison-tool',
+						path: '/v8u/flow-comparison',
+						label: '� Flow Comparison Tool',
 						icon: (
 							<ColoredIcon $color="#10b981">
-								<FiZap />
+								<FiBarChart2 />
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V8U: Single UI for all OAuth/OIDC flows with real PingOne APIs">
-								NEW
+							<MigrationBadge title="Compare OAuth flows with detailed metrics and recommendations">
+								EDUCATION
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'resources-api-v8',
+						path: '/v8/resources-api',
+						label: 'Resources API Tutorial',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiBook />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: Learn PingOne Resources API - OAuth 2.0 resources, scopes, and custom claims">
+								EDUCATION
 							</MigrationBadge>
 						),
 					},
 					{
 						id: 'spiffe-spire-flow-v8u',
 						path: '/v8u/spiffe-spire',
-						label: '🔐 SPIFFE/SPIRE Mock',
+						label: '� SPIFFE/SPIRE Mock',
 						icon: (
-							<ColoredIcon $color="#8b5cf6">
+							<ColoredIcon $color="#10b981">
 								<FiShield />
 							</ColoredIcon>
 						),
 						badge: (
 							<MigrationBadge title="Mock flow demonstrating SPIFFE/SPIRE workload identity to PingOne token exchange">
-								MOCK
+								EDUCATIONAL
 							</MigrationBadge>
 						),
 					},
+					// LEGACY Entries
 					{
-						id: 'unified-mfa-v8',
-						path: '/v8/unified-mfa',
-						label: '🎯 Unified MFA V8',
-						icon: (
-							<ColoredIcon $color="#8b5cf6">
-								<FiZap />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V8: Unified MFA with runId threading, state machine, and comprehensive logging">
-								NEW
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'mfa-unified-legacy',
+						id: 'unified-mfa-registration-v8',
 						path: '/v8/mfa-unified',
-						label: '🔧 Unified MFA (Legacy)',
+						label: '🔧 Legacy MFA',
 						icon: (
-							<ColoredIcon $color="#f59e0b">
+							<ColoredIcon $color="#10b981">
 								<FiSettings />
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="Legacy MFA registration flow - maintained for compatibility">
+							<MigrationBadge title="V8: Legacy MFA flow - 6-step device authentication">
 								LEGACY
 							</MigrationBadge>
 						),
 					},
+					// ORIGINAL Entries
 					{
 						id: 'mfa-playground-v8',
 						path: '/v8/mfa',
@@ -613,44 +617,61 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 						badge: (
 							<MigrationBadge title="V8: PingOne MFA Playground with SMS, Email, TOTP, and FIDO2">
-								NEW
+								ORIGINAL
 							</MigrationBadge>
 						),
 					},
+					// UNIFIED Entries (sorted alphabetically)
 					{
-						id: 'unified-mfa-registration-v8',
-						path: '/v8/mfa-unified',
-						label: '🎯 Unified MFA Registration',
+						id: 'postman-collection-generator',
+						path: '/postman-collection-generator',
+						label: '📦 Postman Collection Generator',
 						icon: (
-							<ColoredIcon $color="#8b5cf6">
-								<FiLayers />
+							<ColoredIcon $color="#10b981">
+								<FiPackage />
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V8: Unified flow for all MFA device types - Single component replacing 6 legacy flows">
+							<MigrationBadge title="Generate custom Postman collections for Unified OAuth/OIDC and MFA flows" style={{ background: '#3b82f6', color: 'white' }}>
 								UNIFIED
 							</MigrationBadge>
 						),
 					},
 					{
-						id: 'mfa-feature-flags-admin-v8',
-						path: '/v8/mfa-feature-flags',
-						label: '🚦 MFA Feature Flags',
+						id: 'unified-mfa-v8',
+						path: '/v8/unified-mfa',
+						label: '🎯 Unified MFA',
 						icon: (
-							<ColoredIcon $color="#f59e0b">
-								<FiSettings />
+							<ColoredIcon $color="#10b981">
+								<FiZap />
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="Control unified flow rollout with per-device feature flags and percentage-based gradual deployment">
-								ADMIN
+							<MigrationBadge title="V8: Unified MFA with runId threading, state machine, and comprehensive logging" style={{ background: '#3b82f6', color: 'white' }}>
+								UNIFIED
 							</MigrationBadge>
 						),
 					},
 					{
+						id: 'unified-oauth-flow-v8u',
+						path: '/v8u/unified',
+						label: '🎯 Unified OAuth & OIDC',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiZap />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8U: Single UI for all OAuth/OIDC flows with real PingOne APIs" style={{ background: '#3b82f6', color: 'white' }}>
+								UNIFIED
+							</MigrationBadge>
+						),
+					},
+					// UTILITY Entries (sorted alphabetically)
+					{
 						id: 'delete-all-devices-utility-v8',
 						path: '/v8/delete-all-devices',
-						label: '🗑️ Delete All Devices',
+						label: '�️ Delete All Devices',
 						icon: (
 							<ColoredIcon $color="#ef4444">
 								<FiTrash2 />
@@ -662,6 +683,83 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</MigrationBadge>
 						),
 					},
+					{
+						id: 'enhanced-state-management',
+						path: '/v8u/enhanced-state-management',
+						label: '� Enhanced State Management',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiDatabase />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Advanced state management with undo/redo, offline capabilities, and persistence">
+								UTILITY
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'mfa-feature-flags-admin-v8',
+						path: '/v8/mfa-feature-flags',
+						label: '� MFA Feature Flags',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiSettings />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Control unified flow rollout with per-device feature flags and percentage-based gradual deployment">
+								UTILITY
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'token-monitoring-dashboard',
+						path: '/v8u/token-monitoring',
+						label: '🔍 Token Monitoring Dashboard',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiEye />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Real-time token monitoring with countdowns, introspection, and management">
+								UTILITY
+							</MigrationBadge>
+						),
+					},
+					// MAIN entries (moved from Main section)
+					{
+						id: 'configuration',
+						path: '/configuration',
+						label: 'Setup & Configuration',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiSettings />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Application Configuration & Credentials">
+								MAIN
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'dashboard',
+						path: '/dashboard',
+						label: 'Dashboard',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiHome />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Application Dashboard and Status">
+								MAIN
+							</MigrationBadge>
+						),
+					},
+					// Other entries (non-green badges)
 					{
 						id: 'pingone-protect-v8',
 						path: '/v8/protect',
@@ -766,21 +864,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 					},
 					{
-						id: 'resources-api-v8',
-						path: '/v8/resources-api',
-						label: 'Resources API Tutorial',
-						icon: (
-							<ColoredIcon $color="#8b5cf6">
-								<FiBook />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V8: Learn PingOne Resources API - OAuth 2.0 resources, scopes, and custom claims">
-								NEW
-							</MigrationBadge>
-						),
-					},
-					{
 						id: 'pingone-authentication',
 						path: '/pingone-authentication',
 						label: 'PingOne Authentication',
@@ -791,21 +874,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 						badge: (
 							<MigrationBadge title="Enhanced PingOne authentication with token endpoint auth help">
-								NEW
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'postman-collection-generator',
-						path: '/postman-collection-generator',
-						label: '📦 Postman Collection Generator',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiPackage />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Generate custom Postman collections for Unified OAuth/OIDC and MFA flows">
 								NEW
 							</MigrationBadge>
 						),
@@ -918,51 +986,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						badge: (
 							<MigrationBadge title="V8: Spec-aware unified credentials form demo">
 								<FiCode />
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'enhanced-state-management',
-						path: '/v8u/enhanced-state-management',
-						label: '🔧 Enhanced State Management',
-						icon: (
-							<ColoredIcon $color="#8b5cf6">
-								<FiDatabase />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Advanced state management with undo/redo, offline capabilities, and persistence">
-								NEW
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'token-monitoring-dashboard',
-						path: '/v8u/token-monitoring',
-						label: '🔍 Token Monitoring Dashboard',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiEye />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Real-time token monitoring with countdowns, introspection, and management">
-								NEW
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'flow-comparison-tool',
-						path: '/v8u/flow-comparison',
-						label: '📊 Flow Comparison Tool',
-						icon: (
-							<ColoredIcon $color="#3b82f6">
-								<FiBarChart2 />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Compare OAuth flows with detailed metrics and recommendations">
-								NEW
 							</MigrationBadge>
 						),
 					},
