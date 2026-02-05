@@ -26,6 +26,7 @@ import ApiCallList from '../components/ApiCallList';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { secureLog } from '../utils/secureLogging';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
@@ -451,20 +452,24 @@ const PingOneWebhookViewer: React.FC = () => {
 	const [isLoadingSubscriptions, setIsLoadingSubscriptions] = useState(false);
 	const [workerToken, setWorkerToken] = useState<string | null>(() => getAnyWorkerToken());
 	const [environmentId, setEnvironmentId] = useState<string>(() => {
-		// Try to load from worker_credentials first, then fall back to environmentId
-		const workerCredsStr = localStorage.getItem('worker_credentials');
-		const workerCreds = workerCredsStr ? JSON.parse(workerCredsStr) : null;
+		// Try to load from unified worker token first, then fall back to environmentId
+		try {
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				if (data.credentials?.environmentId) {
+					console.log('[Webhook Viewer] Loading Environment ID from unified worker token:', data.credentials.environmentId);
+					return data.credentials.environmentId;
+				}
+			}
+		} catch (error) {
+			console.log('Failed to load environment ID from unified worker token:', error);
+		}
+		
+		// Fallback to old environmentId storage
 		const fallbackEnvId = localStorage.getItem('environmentId') || '';
-		const finalEnvId = workerCreds?.environmentId || fallbackEnvId;
-
-		console.log('[Webhook Viewer] Loading Environment ID from storage:', {
-			workerCredsExists: !!workerCredsStr,
-			workerCredsEnvId: workerCreds?.environmentId,
-			fallbackEnvId: fallbackEnvId,
-			finalEnvId: finalEnvId,
-		});
-
-		return finalEnvId;
+		console.log('[Webhook Viewer] Loading Environment ID from fallback storage:', fallbackEnvId);
+		return fallbackEnvId;
 	});
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showCreateModal, setShowCreateModal] = useState(false);
@@ -483,6 +488,27 @@ const PingOneWebhookViewer: React.FC = () => {
 			navigate('/pingone-webhook-viewer', { replace: true });
 		}
 	}, [location.pathname, navigate]);
+
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId && !environmentId) {
+						setEnvironmentId(data.credentials.environmentId);
+						localStorage.setItem('environmentId', data.credentials.environmentId);
+					}
+				}
+			} catch (error) {
+				console.log('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+	}, [environmentId]);
 
 	// Load worker token and environment ID, and listen for changes
 	useEffect(() => {
@@ -1177,21 +1203,38 @@ const PingOneWebhookViewer: React.FC = () => {
 							setShowWorkerTokenModal(false);
 							const token = getAnyWorkerToken();
 							setWorkerToken(token);
-							// Update environment ID from worker credentials
-							const credsStr = localStorage.getItem('worker_credentials');
-							const creds = credsStr ? JSON.parse(credsStr) : null;
-							if (creds?.environmentId) {
-								setEnvironmentId(creds.environmentId);
-								localStorage.setItem('environmentId', creds.environmentId);
+							// Update environment ID from unified worker token credentials
+							try {
+								const stored = localStorage.getItem('unified_worker_token');
+								if (stored) {
+									const data = JSON.parse(stored);
+									if (data.credentials?.environmentId) {
+										setEnvironmentId(data.credentials.environmentId);
+										localStorage.setItem('environmentId', data.credentials.environmentId);
+									}
+								}
+							} catch (error) {
+								console.log('Failed to update environment ID from unified worker token:', error);
 							}
 						}}
 						flowType="pingone-webhook-viewer"
 						environmentId={environmentId}
-						prefillCredentials={{
-							environmentId: environmentId || '',
-							region: 'us',
-							scopes: 'p1:read:subscriptions p1:write:subscriptions',
-						}}
+						prefillCredentials={(() => {
+							try {
+								const stored = localStorage.getItem('unified_worker_token');
+								if (stored) {
+									const data = JSON.parse(stored);
+									return {
+										environmentId: environmentId || data.credentials?.environmentId || '',
+										region: data.credentials?.region || 'us',
+										scopes: 'p1:read:subscriptions p1:write:subscriptions',
+									};
+								}
+							} catch (error) {
+								console.log('Failed to prefill credentials from unified worker token:', error);
+							}
+							return {};
+						})()}
 						tokenStorageKey="worker_token"
 						tokenExpiryKey="worker_token_expires_at"
 					/>

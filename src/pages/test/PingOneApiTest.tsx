@@ -5,9 +5,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ClientCredentialManager from '../../components/ClientCredentialManager';
-import { WorkerTokenModal } from '../../components/WorkerTokenModal';
+import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
-import { useWorkerTokenState } from '../../services/workerTokenUIService';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
 // Test Configuration Interface
 interface TestConfig {
@@ -198,21 +198,33 @@ const CodeBlock = styled.pre`
 
 const PingOneApiTest: React.FC = () => {
 	const { apps, selectedAppId, selectApp, getActiveAppConfig } = useCredentialStoreV8();
-	const {
-		hasValidToken: hasWorkerToken,
-		showWorkerTokenModal,
-		setShowWorkerTokenModal,
-	} = useWorkerTokenState();
 
-	const [config, setConfig] = useState<TestConfig>({
-		environmentId: '',
-		clientId: '',
-		clientSecret: '',
-		redirectUri: 'http://localhost:3000/test-callback',
-		scopes: 'openid profile email',
-		responseType: 'code',
-		responseMode: 'fragment',
-		usePkce: true,
+	// Get worker token status from unified service
+	const hasWorkerToken = unifiedWorkerTokenService.hasValidToken();
+
+	const [config, setConfig] = useState<TestConfig>(() => {
+		// Try to get environment ID from worker token credentials first
+		let envId = '';
+		try {
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				envId = data.credentials?.environmentId || '';
+			}
+		} catch (error) {
+			console.log('Failed to load environment ID from worker token:', error);
+		}
+
+		return {
+			environmentId: envId,
+			clientId: '',
+			clientSecret: '',
+			redirectUri: 'http://localhost:3000/test-callback',
+			scopes: 'openid profile email',
+			responseType: 'code',
+			responseMode: 'fragment',
+			usePkce: true,
+		};
 	});
 
 	const [results, setResults] = useState<TestResult[]>([]);
@@ -240,6 +252,45 @@ const PingOneApiTest: React.FC = () => {
 			});
 		}
 	}, [getActiveAppConfig]);
+
+	// Listen for worker token updates and update environment ID
+	useEffect(() => {
+		const handleWorkerTokenUpdate = () => {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					const workerTokenEnvId = data.credentials?.environmentId || '';
+					
+					// Update environment ID if worker token has one and config doesn't
+					if (workerTokenEnvId && !config.environmentId) {
+						setConfig((prev) => ({
+							...prev,
+							environmentId: workerTokenEnvId,
+						}));
+					}
+				}
+			} catch (error) {
+				console.log('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		// Listen for storage events (worker token updates from other tabs)
+		const handleStorageChange = (e: StorageEvent) => {
+			if (e.key === 'unified_worker_token') {
+				handleWorkerTokenUpdate();
+			}
+		};
+
+		window.addEventListener('storage', handleStorageChange);
+		
+		// Also check immediately in case worker token was set before this effect ran
+		handleWorkerTokenUpdate();
+
+		return () => {
+			window.removeEventListener('storage', handleStorageChange);
+		};
+	}, [config.environmentId]);
 
 	const addResult = useCallback((result: Omit<TestResult, 'timestamp'>) => {
 		setResults((prev) => [...prev, { ...result, timestamp: new Date() }]);
@@ -746,14 +797,9 @@ const PingOneApiTest: React.FC = () => {
 					Test real PingOne OAuth 2.0 and OpenID Connect API calls for Authorization Code and
 					Implicit flows
 				</Subtitle>
-				<ButtonGroup style={{ marginTop: '1rem' }}>
-					<Button
-						variant={hasWorkerToken ? 'secondary' : 'primary'}
-						onClick={() => setShowWorkerTokenModal(true)}
-					>
-						{hasWorkerToken ? '✓ Worker Token Set' : 'Set Worker Token'}
-					</Button>
-				</ButtonGroup>
+				<div style={{ marginTop: '1rem' }}>
+					<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
+				</div>
 			</Header>
 
 			<TestSection>
@@ -778,32 +824,65 @@ const PingOneApiTest: React.FC = () => {
 					</FormGroup>
 
 					<FormGroup>
-						<Label>Environment ID:</Label>
+						<Label>
+							Environment ID:
+							{config.environmentId && hasWorkerToken && (
+								<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+									✓ Auto-populated from worker token
+								</span>
+							)}
+						</Label>
 						<Input
 							type="text"
 							value={config.environmentId}
 							onChange={(e) => handleConfigChange('environmentId', e.target.value)}
 							placeholder="e.g. 12345678-1234-1234-1234-123456789012"
+							style={{
+								backgroundColor: config.environmentId && hasWorkerToken ? '#f0fdf4' : 'white',
+								borderColor: config.environmentId && hasWorkerToken ? '#10b981' : '#d1d5db',
+							}}
 						/>
 					</FormGroup>
 
 					<FormGroup>
-						<Label>Client ID:</Label>
+						<Label>
+							Client ID:
+							{config.clientId && selectedAppId && (
+								<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+									✓ From {apps.find(app => app.id === selectedAppId)?.name}
+								</span>
+							)}
+						</Label>
 						<Input
 							type="text"
 							value={config.clientId}
 							onChange={(e) => handleConfigChange('clientId', e.target.value)}
 							placeholder="e.g. a1b2c3d4..."
+							style={{
+								backgroundColor: config.clientId && selectedAppId ? '#f0fdf4' : 'white',
+								borderColor: config.clientId && selectedAppId ? '#10b981' : '#d1d5db',
+							}}
 						/>
 					</FormGroup>
 
 					<FormGroup>
-						<Label>Client Secret:</Label>
+						<Label>
+							Client Secret:
+							{config.clientSecret && selectedAppId && (
+								<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+									✓ From {apps.find(app => app.id === selectedAppId)?.name}
+								</span>
+							)}
+						</Label>
 						<Input
 							type="password"
 							value={config.clientSecret}
 							onChange={(e) => handleConfigChange('clientSecret', e.target.value)}
 							placeholder="Required for Authorization Code flow"
+							style={{
+								backgroundColor: config.clientSecret && selectedAppId ? '#f0fdf4' : 'white',
+								borderColor: config.clientSecret && selectedAppId ? '#10b981' : '#d1d5db',
+							}}
 						/>
 					</FormGroup>
 
@@ -941,12 +1020,6 @@ const PingOneApiTest: React.FC = () => {
 					</div>
 				)}
 			</ResultsContainer>
-
-			<WorkerTokenModal
-				isOpen={showWorkerTokenModal}
-				onClose={() => setShowWorkerTokenModal(false)}
-				onContinue={() => setShowWorkerTokenModal(false)}
-			/>
 		</Container>
 	);
 };

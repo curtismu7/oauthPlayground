@@ -18,7 +18,7 @@ import {
 	WorkerTokenResponse,
 } from '../../types/workerToken';
 import { logger } from '../../utils/logger';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { v4ToastManager } from '../../../../../utils/v4ToastMessages';
 import { formatScopes, parseJWTPayload } from '../../utils/workerToken';
 
 const Container = styled.div`
