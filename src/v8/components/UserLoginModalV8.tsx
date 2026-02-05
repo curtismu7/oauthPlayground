@@ -96,6 +96,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [scopes, setScopes] = useState(defaultScopes);
 	const [isRedirecting, setIsRedirecting] = useState(false);
 	const [showClientSecret, setShowClientSecret] = useState(false);
+	const [isSaving, setIsSaving] = useState(false);
 	const [, setShowConfigModal] = useState(false);
 	const [authMethod, setAuthMethod] = useState<AuthMethodV8>('client_secret_post');
 	const [isUpdatingApp, setIsUpdatingApp] = useState(false);
@@ -120,9 +121,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		warnings: string[];
 	} | null>(null);
 	// Use different default redirect URI for MFA flows
+	// Use http for localhost dev, https for production
+	const protocol = window.location.hostname === 'localhost' ? 'http' : 'https';
 	const defaultRedirectUri = isMfaFlow
-		? 'https://localhost:3000/user-mfa-login-callback'
-		: 'https://localhost:3000/user-login-callback';
+		? `${protocol}://${window.location.host}/user-mfa-login-callback`
+		: `${protocol}://${window.location.host}/user-login-callback`;
 	const previousRedirectUriRef = useRef<string>(defaultRedirectUri);
 
 	// Pre-flight validation function
@@ -275,9 +278,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			const defaultScopes = 'openid profile email';
 
 			// Use different default redirect URI for MFA flows
+			// Use http for localhost dev, https for production
+			const protocol = window.location.hostname === 'localhost' ? 'http' : 'https';
 			const defaultRedirectUriForMfa = isMfaFlow
-				? 'https://localhost:3000/user-mfa-login-callback'
-				: 'https://localhost:3000/user-login-callback';
+				? `${protocol}://${window.location.host}/user-mfa-login-callback`
+				: `${protocol}://${window.location.host}/user-login-callback`;
 
 			// Get global environment ID as fallback (priority: saved > prop > global > empty)
 			const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
@@ -1151,10 +1156,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 		// Always use what's in the modal field (redirectUri state)
 		// Only fall back to default if field is empty or contains invalid old URIs
-		// For MFA flows, use debug callback page; for others, use user-login-callback
+		// For MFA flows, use user-mfa-login-callback; for others, use user-login-callback
+		// Use http for localhost dev, https for production
+		const protocol = window.location.hostname === 'localhost' ? 'http' : 'https';
 		const defaultRedirectUriForMfa = isMfaFlow
-			? 'https://localhost:3000/v8/mfa-unified-callback'
-			: 'https://localhost:3000/user-login-callback';
+			? `${protocol}://${window.location.host}/user-mfa-login-callback`
+			: `${protocol}://${window.location.host}/user-login-callback`;
 
 		// Use the value from the modal field, only fall back if empty or invalid
 		const fieldValue = redirectUri.trim();
