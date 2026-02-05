@@ -87,6 +87,10 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 		console.log('🔍 [FLOW TYPE DEBUG] Initial selectedTab:', selectedTab);
 	}, []);
 	
+	// File upload state
+	const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+	const [filePreview, setFilePreview] = useState<string | null>(null);
+
 	const [deviceFields, setDeviceFields] = useState<Record<DeviceConfigKey, Record<string, string>>>(
 		() => {
 			// Initialize with saved values from localStorage
@@ -97,18 +101,14 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 			const initialFields: Record<DeviceConfigKey, Record<string, string>> = {
 				SMS: { name: 'SMS', nickname: 'MyKnickName' },
 				EMAIL: { name: 'EMAIL', nickname: 'MyKnickName' },
-				TOTP: { name: 'TOTP', nickname: 'MyKnickName' },
-				MOBILE: { name: 'MOBILE', nickname: 'MyKnickName' },
-				WHATSAPP: { name: 'WHATSAPP', nickname: 'MyKnickName' },
-				FIDO2: { name: 'FIDO2', nickname: 'MyKnickName' },
 			};
 
-			// Pre-populate phone-based devices with saved values
+			// Restore saved values if available
 			if (savedPhone) {
-				initialFields.SMS.phoneNumber = savedPhone;
-				initialFields.WHATSAPP.phoneNumber = savedPhone;
+				initialFields.SMS = { ...initialFields.SMS, phoneNumber: savedPhone };
 			}
 			if (savedCountryCode) {
+				initialFields.SMS = { ...initialFields.SMS, countryCode: savedCountryCode };
 				initialFields.SMS.countryCode = savedCountryCode;
 				initialFields.WHATSAPP.countryCode = savedCountryCode;
 			}
@@ -212,6 +212,63 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 		},
 		[deviceFields, flowType, onSubmit]
 	);
+
+	// File upload handler
+	const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+		console.log(`${MODULE_TAG} File upload triggered`);
+		const file = event.target.files?.[0];
+		if (!file) return;
+
+		console.log(`${MODULE_TAG} File selected:`, { name: file.name, type: file.type, size: file.size });
+
+		// Validate file type (images only)
+		if (!file.type.startsWith('image/')) {
+			toastV8.error('Please select an image file (JPG, PNG, etc.)');
+			return;
+		}
+
+		// Validate file size (max 5MB)
+		if (file.size > 5 * 1024 * 1024) {
+			toastV8.error('File size must be less than 5MB');
+			return;
+		}
+
+		setUploadedFile(file);
+
+		// Create preview
+		const reader = new FileReader();
+		reader.onload = (e) => {
+			setFilePreview(e.target?.result as string);
+			console.log(`${MODULE_TAG} File preview created`);
+		};
+		reader.readAsDataURL(file);
+
+		// Add file to device fields
+		setDeviceFields(prev => ({
+			...prev,
+			[selectedTab]: {
+				...prev[selectedTab],
+				imageFile: file.name,
+				imageSize: file.size.toString(),
+				imageType: file.type
+			}
+		}));
+
+		toastV8.success(`Image uploaded: ${file.name}`);
+	}, [selectedTab, setDeviceFields]);
+
+	// Clear file handler
+	const clearFile = useCallback(() => {
+		setUploadedFile(null);
+		setFilePreview(null);
+		setDeviceFields(prev => {
+			const updated = { ...prev };
+			delete updated[selectedTab].imageFile;
+			delete updated[selectedTab].imageSize;
+			delete updated[selectedTab].imageType;
+			return updated;
+		});
+	}, [selectedTab, setDeviceFields]);
 
 	return (
 		<PageTransition>
@@ -490,6 +547,88 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 							errors={errors}
 						/>
 					)}
+
+					{/* File Upload Section */}
+					<div style={{
+						marginTop: spacing[4],
+						padding: spacing[4],
+						background: '#f8fafc',
+						border: `1px solid ${colors.gray[200]}`,
+						borderRadius: '8px',
+					}}>
+						{(() => {
+							console.log(`${MODULE_TAG} Rendering file upload section`);
+							return null;
+						})()}
+						<h4 style={{ margin: `0 0 ${spacing[3]}`, fontSize: '16px', fontWeight: '600', color: colors.gray[900] }}>
+							📷 Upload Image (Optional)
+						</h4>
+						<p style={{ margin: `0 0 ${spacing[3]}`, fontSize: '14px', color: colors.gray[600] }}>
+							Upload an image file for device identification (JPG, PNG, max 5MB)
+						</p>
+						
+						{filePreview ? (
+							<div style={{ marginBottom: spacing[3] }}>
+								<img 
+									src={filePreview} 
+									alt="Preview" 
+									style={{ 
+										maxWidth: '200px', 
+										maxHeight: '200px', 
+										borderRadius: '8px',
+										border: `1px solid ${colors.gray[300]}`
+									}}
+								/>
+								<div style={{ marginTop: spacing[2] }}>
+									<p style={{ margin: 0, fontSize: '12px', color: colors.gray[600] }}>
+										{uploadedFile?.name} ({(uploadedFile?.size ? (uploadedFile.size / 1024).toFixed(1) : '0')} KB)
+									</p>
+									<button
+										type="button"
+										onClick={clearFile}
+										style={{
+											padding: '6px 12px',
+											background: colors.danger[500],
+											color: 'white',
+											border: 'none',
+											borderRadius: '4px',
+											fontSize: '12px',
+											cursor: 'pointer'
+										}}
+									>
+										Remove Image
+									</button>
+								</div>
+							</div>
+						) : (
+							<div>
+								<input
+									type="file"
+									id="image-upload"
+									accept="image/*"
+									onChange={handleFileUpload}
+									style={{ display: 'none' }}
+								/>
+								<label
+									htmlFor="image-upload"
+									style={{
+										display: 'inline-block',
+										padding: '10px 16px',
+										background: colors.primary[500],
+										color: 'white',
+										borderRadius: '6px',
+										cursor: 'pointer',
+										fontSize: '14px',
+										transition: 'background-color 0.2s'
+									}}
+									onMouseOver={(e) => e.currentTarget.style.backgroundColor = colors.primary[600]}
+									onMouseOut={(e) => e.currentTarget.style.backgroundColor = colors.primary[500]}
+								>
+									📁 Choose Image File
+								</label>
+							</div>
+						)}
+					</div>
 				</div>
 
 				{/* Registration Error Display */}
