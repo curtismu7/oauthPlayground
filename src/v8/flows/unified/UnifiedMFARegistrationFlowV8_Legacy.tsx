@@ -427,6 +427,11 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		}
 	};
 
+	// Get environment ID for UserLoginModal
+	const envIdForModal = useMemo(() => {
+		return globalEnvironmentService.getEnvironmentId() || '';
+	}, []);
+
 	// Handle OTP verification
 	const handleVerifyOTP = async () => {
 		if (!authenticationId || !selectedAuthDevice) {
@@ -2237,34 +2242,51 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	);
 
 	/**
-	 * Render Step 0: Registration form for SMS
+	 * Render Step 0: User Login (OAuth Authorization)
 	 */
 	const renderStep0 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
+			// Get environment ID for UserLoginModal
+			const envIdForModal = useMemo(() => {
+				return globalEnvironmentService.getEnvironmentId() || '';
+			}, []);
+
 			return (
-				<UnifiedDeviceRegistrationForm
-					initialDeviceType={deviceType}
-					onSubmit={async (selectedDeviceType, fields, flowType) => {
-						await performRegistration(props, selectedDeviceType, fields, flowType);
-					}}
-					onCancel={() => {
-						console.log('[UNIFIED-FLOW] Registration cancelled - navigating to unified main page');
-						if (onCancel) {
-							onCancel();
-						} else {
-							// Default: navigate to unified MFA main page
-							navigate('/v8/mfa-unified');
-						}
-					}}
-					isLoading={props.isLoading}
-					tokenStatus={_tokenStatus}
-					registrationError={registrationError}
-					onClearError={() => setRegistrationError(null)}
-					username={props.credentials?.username}
-				/>
+				<div style={{ padding: '2rem' }}>
+					<div style={{ marginBottom: '2rem' }}>
+						<h2 style={{ fontSize: '24px', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>
+							🔐 User Authentication Required
+						</h2>
+						<p style={{ fontSize: '16px', color: '#6b7280', lineHeight: '1.5' }}>
+							Please authenticate with your PingOne account to proceed with device registration.
+							This ensures secure device management and proper authorization.
+						</p>
+					</div>
+
+					<UserLoginModalV8
+						isOpen={true}
+						onClose={() => {
+							if (onCancel) {
+								onCancel();
+							}
+						}}
+						onTokenReceived={(token) => {
+							console.log(`${MODULE_TAG} User token received:`, token ? '✅' : '❌');
+							setUserToken(token);
+							// Move to next step after successful authentication
+							setTimeout(() => {
+								props.nav.goToStep(1);
+							}, 100);
+						}}
+						onCredentialsSaved={() => {
+							console.log(`${MODULE_TAG} User credentials saved`);
+						}}
+						environmentId={envIdForModal}
+					/>
+				</div>
 			);
 		},
-		[deviceType, performRegistration, _tokenStatus, registrationError, onCancel, navigate]
+		[onCancel, setUserToken, envIdForModal]
 	);
 
 	/**
