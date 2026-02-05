@@ -573,6 +573,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 					},
 					{
+						id: 'unified-mfa-v8',
+						path: '/v8/unified-mfa',
+						label: '🎯 Unified MFA',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiZap />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: Unified MFA with runId threading, state machine, and comprehensive logging">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
 						id: 'mfa-playground-v8',
 						path: '/v8/mfa',
 						label: 'PingOne MFA',
