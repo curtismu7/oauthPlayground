@@ -195,7 +195,7 @@ import { SMSOTPConfigurationPageV8 } from './v8/flows/types/SMSOTPConfigurationP
 import { TOTPConfigurationPageV8 } from './v8/flows/types/TOTPConfigurationPageV8';
 import { WhatsAppFlowV8 } from './v8/flows/types/WhatsAppFlowV8';
 import { WhatsAppOTPConfigurationPageV8 } from './v8/flows/types/WhatsAppOTPConfigurationPageV8';
-import UnifiedMFARegistrationFlowV8 from './v8/flows/unified/UnifiedMFARegistrationFlowV8';
+import UnifiedMFARegistrationFlowV8_Legacy from './v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
@@ -564,7 +564,7 @@ const AppRoutes: React.FC = () => {
 								element={<OAuthAuthorizationCodeFlowV8 />}
 							/>
 							<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
-							<Route path="/v8/mfa-unified" element={<UnifiedMFARegistrationFlowV8 />} />
+							<Route path="/v8/mfa-unified" element={<UnifiedMFARegistrationFlowV8_Legacy />} />
 							<Route path="/v8/mfa-unified-callback" element={<UserMFACallbackDebugPage />} />
 							<Route path="/v8/mfa" element={<Navigate to="/v8/mfa-hub" replace />} />
 							<Route path="/v8/unified-mfa" element={<UnifiedMFAV8_Simple />} />
@@ -592,7 +592,7 @@ const AppRoutes: React.FC = () => {
 							{/* TOTP uses unified flow architecture like SMS/Email */}
 							<Route
 								path="/v8/mfa/register/totp/device"
-								element={<UnifiedMFARegistrationFlowV8 deviceType="TOTP" />}
+								element={<UnifiedMFARegistrationFlowV8_Legacy deviceType="TOTP" />}
 							/>
 							<Route path="/v8/mfa/register/fido2" element={<FIDO2ConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/fido2/device" element={<FIDO2FlowV8 />} />
