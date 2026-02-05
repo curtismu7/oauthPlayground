@@ -42,6 +42,8 @@ export interface MFAFlowBaseProps {
 	renderStep2: (props: MFAFlowBaseRenderProps) => React.ReactNode;
 	renderStep3: (props: MFAFlowBaseRenderProps) => React.ReactNode;
 	renderStep4: (props: MFAFlowBaseRenderProps) => React.ReactNode;
+	renderStep5: (props: MFAFlowBaseRenderProps) => React.ReactNode;
+	renderStep6: (props: MFAFlowBaseRenderProps) => React.ReactNode;
 	validateStep0: (
 		credentials: MFACredentials,
 		tokenStatus: TokenStatusInfo,
@@ -50,6 +52,8 @@ export interface MFAFlowBaseProps {
 	stepLabels?: string[];
 	/** Optional function to determine if Next button should be hidden (e.g., when custom action button is shown) */
 	shouldHideNextButton?: (props: MFAFlowBaseRenderProps) => boolean;
+	/** Flow type: 'device-auth' for device authentication, 'registration' for device registration */
+	flowType?: 'device-auth' | 'registration';
 }
 
 export interface MFAFlowBaseRenderProps {
@@ -59,7 +63,7 @@ export interface MFAFlowBaseRenderProps {
 	) => void;
 	mfaState: MFAState;
 	setMfaState: (state: Partial<MFAState> | ((prev: MFAState) => MFAState)) => void;
-	tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>;
+	tokenStatus: TokenStatusInfo;
 	isLoading: boolean;
 	setIsLoading: (loading: boolean) => void;
 	nav: ReturnType<typeof useStepNavigationV8>;
@@ -84,9 +88,12 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	renderStep2,
 	renderStep3,
 	renderStep4,
+	renderStep5,
+	renderStep6,
 	validateStep0,
-	stepLabels = ['Configure', 'Select Device', 'Register Device', 'Send OTP', 'Validate'],
+	stepLabels = ['Configure', 'User Login', 'Device Selection', 'Generate OTP/QR', 'Validate OTP', 'API Docs', 'Success'],
 	shouldHideNextButton,
+	flowType = 'device-auth',
 }) => {
 	const location = useLocation();
 	const [searchParams] = useSearchParams();
@@ -498,10 +505,10 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		}
 
 		// CRITICAL: After OAuth callback returns, check if we need to auto-advance
-		// This handles the case where user was on Step 0 (or Step 2 for registration) before OAuth
-		// and now needs to proceed after receiving the user token
-		if (isOAuthCallbackReturn && credentials.userToken?.trim() && nav.currentStep === 0) {
-			toastV8.info('🔄 Returning to your previous step after authentication...');
+		// This handles the case where user was on Step 1 (user login) before OAuth
+		// and now needs to proceed to Step 2 (device selection) per UI Contract
+		if (isOAuthCallbackReturn && credentials.userToken?.trim()) {
+			toastV8.info('🔄 Returning to Device Selection after authentication...');
 
 			// Clean up the marker
 			sessionStorage.removeItem('mfa_oauth_callback_return');
@@ -540,12 +547,31 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				}
 			}
 
-			// Normal flow: Validate step 0 and advance if valid
+			// Per UI Contract: After Step 1 (User Login), go to Step 2 (Device Selection)
+			// Also handle case where user was on Step 0 and needs to advance through normal flow
 			setTimeout(() => {
-				if (validateStep0(credentials, tokenStatus, nav)) {
-					nav.goToNext();
+				if (nav.currentStep === 0) {
+					// User was on Step 0, validate and advance normally
+					console.log(`${MODULE_TAG} User was on Step 0, validating and advancing normally`);
+					if (validateStep0(credentials, tokenStatus, nav)) {
+						nav.goToNext(); // This will go to Step 1 (User Login)
+					} else {
+						// Step 0 validation failed, staying on step 0
+						console.log(`${MODULE_TAG} Step 0 validation failed, staying on Step 0`);
+					}
+				} else if (nav.currentStep === 1) {
+					// User was on Step 1 (User Login), go to Step 2 (Device Selection) per UI Contract
+					console.log(`${MODULE_TAG} User was on Step 1 (User Login), going to Step 2 (Device Selection) per UI Contract`);
+					nav.goToStep(2);
 				} else {
-					// Step 0 validation failed, staying on step 0
+					// User was on some other step, validate current step and proceed
+					console.log(`${MODULE_TAG} User was on Step ${nav.currentStep}, validating current step`);
+					// Validate the current step based on what step we're on
+					if (nav.currentStep === 0 && validateStep0(credentials, tokenStatus, nav)) {
+						nav.goToNext();
+					} else {
+						console.log(`${MODULE_TAG} Staying on current step ${nav.currentStep}`);
+					}
 				}
 			}, 500); // Small delay to ensure credentials are fully updated
 		}
@@ -673,6 +699,10 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				return renderStep3(renderProps);
 			case 4:
 				return renderStep4(renderProps);
+			case 5:
+				return renderStep5(renderProps);
+			case 6:
+				return renderStep6(renderProps);
 			default:
 				return renderStep0(renderProps);
 		}
