@@ -47,6 +47,7 @@ import {
 	unlockPassword,
 } from '../../services/passwordResetService';
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import { workerTokenCredentialsService } from '../../services/workerTokenCredentialsService';
 import { trackedFetch } from '../../utils/trackedFetch';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
@@ -653,14 +654,53 @@ const HelioMartPasswordReset: React.FC = () => {
 		return unsubscribe;
 	}, []);
 
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId && !environmentId) {
+						setEnvironmentId(data.credentials.environmentId);
+					}
+				}
+			} catch (error) {
+				console.log('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+	}, [environmentId]);
+
 	// Load environment ID, worker token, and authz credentials
 	useEffect(() => {
 		const loadConfig = () => {
 			const FLOW_TYPE = 'heliomart-password-reset';
 
-			// Load environment ID from shared environment or use default
+			// Load environment ID from shared environment, then worker token credentials, then use default
 			const sharedEnv = comprehensiveFlowDataService.loadSharedEnvironment();
-			const envId = sharedEnv?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9';
+			let envId = sharedEnv?.environmentId || '';
+			
+			// Try worker token credentials as fallback
+			if (!envId) {
+				try {
+					const stored = localStorage.getItem('unified_worker_token');
+					if (stored) {
+						const data = JSON.parse(stored);
+						envId = data.credentials?.environmentId || '';
+					}
+				} catch (error) {
+					console.log('Failed to load environment ID from worker token:', error);
+				}
+			}
+			
+			// Use default if still empty
+			if (!envId) {
+				envId = 'b9817c16-9910-4415-b67e-4ac687da74d9';
+			}
+			
 			setEnvironmentId(envId);
 
 			// Use global worker token

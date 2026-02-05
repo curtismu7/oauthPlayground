@@ -173,6 +173,7 @@ import { SMSSampleApp } from './samples/p1mfa/sms/SMSSampleApp';
 import { MFAAuthenticationSuccessPage } from './v8/components/MFAAuthenticationSuccessPage';
 import { UserMFACallbackDebugPage } from './v8/components/UserMFACallbackDebugPage';
 import { EmailMFASignOnFlowV8 } from './v8/flows/EmailMFASignOnFlowV8';
+import UnifiedMFAV8_Simple from './locked/mfa-hub-v8/feature/UnifiedMFAV8_Simple';
 import { ImplicitFlowV8 } from './v8/flows/ImplicitFlowV8';
 import { MFAAuthenticationMainPageV8 } from './v8/flows/MFAAuthenticationMainPageV8';
 import { MFAConfigurationPageV8 } from './v8/flows/MFAConfigurationPageV8';
@@ -221,7 +222,6 @@ const TokenApiDocumentationPage = lazy(() => import('./v8u/pages/TokenApiDocumen
 const FlowComparisonPage = lazy(() => import('./v8u/pages/FlowComparisonPage'));
 
 // Import test pages
-const PingOneApiTest = lazy(() => import('./pages/test/PingOneApiTest'));
 const ImplicitFlowTest = lazy(() => import('./pages/test/ImplicitFlowTest'));
 const AllFlowsApiTest = lazy(() => import('./pages/test/AllFlowsApiTest'));
 const MFAFlowsApiTest = lazy(() => import('./pages/test/MFAFlowsApiTest'));
@@ -567,6 +567,7 @@ const AppRoutes: React.FC = () => {
 							<Route path="/v8/mfa-unified" element={<UnifiedMFARegistrationFlowV8 />} />
 							<Route path="/v8/mfa-unified-callback" element={<UserMFACallbackDebugPage />} />
 							<Route path="/v8/mfa" element={<Navigate to="/v8/mfa-hub" replace />} />
+							<Route path="/v8/unified-mfa" element={<UnifiedMFAV8_Simple />} />
 							<Route path="/v8/mfa-hub" element={<MFAAuthenticationMainPageV8 />} />
 							<Route
 								path="/v8/mfa/authentication/success"
@@ -1179,14 +1180,6 @@ const AppRoutes: React.FC = () => {
 							<Route path="/learn/response-modes" element={<ResponseModesLearnPage />} />
 							<Route path="/service-test-runner" element={<ServiceTestRunner />} />
 							{/* Test Pages */}
-							<Route
-								path="/test/pingone-api-test"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<PingOneApiTest />
-									</Suspense>
-								}
-							/>
 							<Route
 								path="/test/implicit-flow-test"
 								element={

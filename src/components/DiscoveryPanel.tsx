@@ -17,6 +17,7 @@ import { discoveryService, type OpenIDConfiguration } from '../services/discover
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import CopyIcon from './CopyIcon';
 
 interface DiscoveryPanelProps {
@@ -313,7 +314,22 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 	const regionSelectId = useId();
 	const environmentInputId = useId();
 
-	const [environmentId, setEnvironmentId] = useState('');
+	const [environmentId, setEnvironmentId] = useState(() => {
+		// Auto-populate from worker token credentials
+		try {
+			// Try synchronous check from localStorage for worker token credentials
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				if (data.credentials?.environmentId) {
+					return data.credentials.environmentId;
+				}
+			}
+		} catch {
+			return '';
+		}
+		return '';
+	});
 	const [region, setRegion] = useState('us');
 	const [isLoading, setIsLoading] = useState(false);
 	const [status, setStatus] = useState<{
@@ -374,6 +390,28 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 			logger.error('DiscoveryPanel', 'Failed to load stored discovery preferences', error);
 		}
 	}, []);
+
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const credentials = unifiedWorkerTokenService.loadCredentials();
+				if (credentials?.environmentId && !environmentId.trim()) {
+					setEnvironmentId(credentials.environmentId);
+					logger.info('DiscoveryPanel', 'Auto-populated Environment ID from worker token', {
+						environmentId: credentials.environmentId,
+					});
+				}
+			} catch (error) {
+				logger.error('DiscoveryPanel', 'Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => {
+			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+		};
+	}, [environmentId]);
 
 	// Save preferences when Environment ID or Region changes
 	const handleEnvironmentIdChange = (value: string) => {

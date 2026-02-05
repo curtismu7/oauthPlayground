@@ -2,19 +2,8 @@
 // Organization Licensing: Get Worker Token & License Information
 
 import React, { useEffect, useState } from 'react';
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-} from 'react-icons/fi';
+import { FiAlertTriangle, FiInfo, FiKey, FiRefreshCw, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { StepNavigationButtons } from '../components/StepNavigationButtons';
-import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
-import { useAuth } from '../contexts/NewAuthContext';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
@@ -29,6 +18,8 @@ import { credentialManager } from '../utils/credentialManager';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
+import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
+import { StepNavigationButtons } from '../components/StepNavigationButtons';
 
 type CredentialsState = {
 	environmentId: string;
@@ -59,7 +50,7 @@ const StepContainer = styled.div`
 	margin-bottom: 20px;
 `;
 
-const StepTitle = styled.h2`
+const _StepTitle = styled.h2`
 	font-size: 24px;
 	font-weight: 600;
 	margin-bottom: 16px;
@@ -69,11 +60,56 @@ const StepTitle = styled.h2`
 	gap: 12px;
 `;
 
-const HelperText = styled.p`
+const _HelperText = styled.p`
 	color: #64748b;
 	font-size: 14px;
 	line-height: 1.6;
 	margin-bottom: 20px;
+`;
+
+const StepContent = styled.div`
+	padding: 1.5rem;
+	background: white;
+	border-radius: 0.75rem;
+	border: 1px solid #e5e7eb;
+`;
+
+const StepDescription = styled.div`
+	margin-bottom: 1.5rem;
+	
+	p {
+		margin-bottom: 1rem;
+		line-height: 1.6;
+		color: #374151;
+	}
+	
+	&:last-child {
+		margin-bottom: 0;
+	}
+`;
+
+const ScopeList = styled.ul`
+	margin: 1rem 0;
+	padding-left: 1.5rem;
+	
+	li {
+		margin-bottom: 0.5rem;
+		line-height: 1.6;
+		color: #374151;
+		
+		code {
+			background: #f3f4f6;
+			padding: 0.125rem 0.25rem;
+			border-radius: 0.25rem;
+			font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+			font-size: 0.875rem;
+			color: #1f2937;
+		}
+	}
+	
+	li:last-child {
+		margin-bottom: 0;
+	}
 `;
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
@@ -270,7 +306,6 @@ const ORGANIZATION_ID_STORAGE_KEY = 'organizationLicensing.organizationId';
 
 const OrganizationLicensingV2: React.FC = () => {
 	usePageScroll({ pageName: 'Organization Licensing', force: true });
-	const { tokens } = useAuth();
 
 	// Step management - only one step now (combined worker token + license info)
 	const [currentStep, setCurrentStep] = useState(0);
@@ -311,7 +346,6 @@ const OrganizationLicensingV2: React.FC = () => {
 		scope: 'openid profile email',
 		scopes: 'openid profile email',
 	});
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// Get access token from all possible sources
 	const getAccessToken = (): string | null => {
@@ -373,9 +407,24 @@ const OrganizationLicensingV2: React.FC = () => {
 
 			// Load saved credentials from credential manager
 			const savedCreds = credentialManager.getAllCredentials();
-			if (savedCreds?.environmentId && savedCreds.clientId) {
+			let envId = savedCreds?.environmentId || '';
+
+			// Try worker token credentials as fallback
+			if (!envId) {
+				try {
+					const stored = localStorage.getItem('unified_worker_token');
+					if (stored) {
+						const data = JSON.parse(stored);
+						envId = data.credentials?.environmentId || '';
+					}
+				} catch (error) {
+					console.log('Failed to load environment ID from worker token:', error);
+				}
+			}
+
+			if (envId && savedCreds?.clientId) {
 				setCredentials({
-					environmentId: savedCreds.environmentId || '',
+					environmentId: envId,
 					clientId: savedCreds.clientId || '',
 					clientSecret: savedCreds.clientSecret || '',
 					redirectUri: savedCreds.redirectUri || '',
@@ -390,6 +439,29 @@ const OrganizationLicensingV2: React.FC = () => {
 
 		initializeFlow();
 	}, [hasInitialized]);
+
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId && !credentials.environmentId) {
+						setCredentials((prev) => ({
+							...prev,
+							environmentId: data.credentials.environmentId,
+						}));
+					}
+				}
+			} catch (error) {
+				console.log('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+	}, [credentials.environmentId]);
 
 	// Handle reset - go back to step 0 and reset initialized flag
 	const handleReset = () => {
@@ -408,34 +480,6 @@ const OrganizationLicensingV2: React.FC = () => {
 				scopes: 'p1:read:organization p1:read:licensing',
 			});
 		}
-		const loadedTokens = getOAuthTokens();
-		if (loadedTokens) {
-			setStoredTokens(loadedTokens);
-		}
-	};
-
-	const handleGetWorkerToken = () => {
-		if (getAccessToken()) {
-			v4ToastManager.showInfo(
-				'Worker token already available. Opening modal so you can refresh it if needed.'
-			);
-		}
-		setShowWorkerTokenModal(true);
-	};
-
-	const handleWorkerTokenModalContinue = () => {
-		setShowWorkerTokenModal(false);
-		// Re-check for token after modal closes (check dedicated storage first)
-		const token = getAnyWorkerToken() || getAccessToken();
-		if (token) {
-			setStoredTokens({ access_token: token });
-			window.dispatchEvent(new Event('workerTokenUpdated'));
-			v4ToastManager.showSuccess(
-				'Worker token saved. You can fetch organization licensing details now.'
-			);
-			return;
-		}
-		v4ToastManager.showError('Worker token was not detected. Please try generating it again.');
 	};
 
 	const persistOrganizationId = (value: string) => {
@@ -544,72 +588,37 @@ const OrganizationLicensingV2: React.FC = () => {
 		// Combined step: Get Worker Token + Get License Information
 		return (
 			<StepContainer>
-				<StepTitle>
-					<FiShield /> Get Worker Token & License Information
-				</StepTitle>
-				<HelperText>
-					First, get a worker token using your saved credentials. Then fetch your organization's
-					licensing information.
-				</HelperText>
-
-				{/* Worker Token Section */}
-				<div
-					style={{
-						marginBottom: '2rem',
-						padding: '1.5rem',
-						background: '#f8fafc',
-						borderRadius: '0.5rem',
-						border: '1px solid #e2e8f0',
-					}}
+				<CollapsibleHeader
+					title="Worker Token Status"
+					subtitle="Unified worker token service with real-time status and management"
+					icon={<FiKey />}
+					defaultCollapsed={false}
 				>
-					<h3
-						style={{
-							margin: '0 0 0.75rem 0',
-							fontSize: '1.125rem',
-							fontWeight: 600,
-							color: '#1e293b',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '0.5rem',
-						}}
-					>
-						<FiKey /> Get Worker Token
-					</h3>
-					{hasWorkerToken ? (
-						<WorkerTokenDetectedBanner
-							token={workerToken || ''}
-							tokenExpiryKey="worker_token_expires_at"
-							message="Your existing worker token will be used automatically. You can generate a new one if needed, or proceed to fetch license information below."
-						/>
-					) : (
-						<p style={{ margin: '0 0 1rem 0', color: '#64748b', fontSize: '0.875rem' }}>
-							Click the button below to open the worker token modal and obtain a token using your
-							saved credentials.
-						</p>
-					)}
-					<Button
-						$variant="primary"
-						onClick={handleGetWorkerToken}
-						style={{
-							backgroundColor: hasWorkerToken ? '#9ca3af' : '#059669',
-							cursor: 'pointer',
-							opacity: hasWorkerToken ? 0.95 : 1,
-						}}
-						id="get-worker-token-button"
-					>
-						{hasWorkerToken ? (
-							<>
-								<FiCheckCircle /> Worker Token Ready
-							</>
-						) : (
-							<>
-								<FiKey /> Get Worker Token
-							</>
-						)}
-					</Button>
-				</div>
+					<StepContent>
+						<StepDescription>
+							<p>
+								The unified worker token service provides comprehensive token management with
+								real-time status updates. The token needs the following scopes for organization
+								licensing:
+							</p>
+							<ScopeList>
+								<li>
+									<code>p1:read:organization</code> - Read organization information
+								</li>
+								<li>
+									<code>p1:read:licensing</code> - Read licensing information
+								</li>
+							</ScopeList>
+							<p>
+								The status display below shows token availability, expiration, and provides refresh
+								capabilities.
+							</p>
+						</StepDescription>
 
-				{/* License Information Section */}
+						<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
+					</StepContent>
+				</CollapsibleHeader>
+
 				<div style={{ marginBottom: '1rem' }}>
 					<h3
 						style={{
@@ -944,24 +953,6 @@ const OrganizationLicensingV2: React.FC = () => {
 					isFirstStep
 				/>
 			</ContentWrapper>
-
-			{/* Worker Token Modal - starts at Step 2 (token generation) */}
-			<WorkerTokenModal
-				isOpen={showWorkerTokenModal}
-				onClose={() => setShowWorkerTokenModal(false)}
-				onContinue={handleWorkerTokenModalContinue}
-				flowType="organization-licensing"
-				environmentId={credentials.environmentId}
-				skipCredentialsStep={true}
-				prefillCredentials={{
-					environmentId: credentials.environmentId,
-					clientId: credentials.clientId,
-					clientSecret: credentials.clientSecret,
-					scopes: 'p1:read:organization p1:read:licensing',
-				}}
-				tokenStorageKey="worker_token"
-				tokenExpiryKey="worker_token_expires_at"
-			/>
 		</PageContainer>
 	);
 };

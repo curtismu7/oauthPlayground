@@ -610,6 +610,19 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const [credentials, setCredentials] = useState<UnifiedFlowCredentials>(() => {
 		try {
 			const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+			
+			// Try worker token credentials as fallback
+			let workerTokenEnvId = '';
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					workerTokenEnvId = data.credentials?.environmentId || '';
+				}
+			} catch (error) {
+				console.log('Failed to load environment ID from worker token:', error);
+			}
+			
 			const initialFlowKey = getInitialFlowKey();
 
 			// Load flow-specific credentials synchronously (from localStorage)
@@ -627,7 +640,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			const shared = SharedCredentialsServiceV8.loadSharedCredentialsSync();
 
 			// Merge credentials for initial state
-			// Priority: flow-specific > shared credentials > defaults
+			// Priority: flow-specific > shared credentials > stored > worker token > defaults
 			// CRITICAL: Flow-specific credentials take priority to allow per-flow clientId/environmentId
 			// This allows users to use different PingOne applications for different flow types
 			const initial: UnifiedFlowCredentials = {
@@ -637,6 +650,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					flowSpecific.environmentId?.trim() ||
 					shared.environmentId?.trim() ||
 					storedEnvId?.trim() ||
+					workerTokenEnvId?.trim() ||
 					''
 				).trim(),
 				clientId: (flowSpecific.clientId?.trim() || shared.clientId?.trim() || '').trim(),
@@ -690,8 +704,21 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		} catch (err) {
 			logger.error(`Error loading initial credentials (using defaults):`, err);
 			const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+			
+			// Try worker token credentials as fallback
+			let workerTokenEnvId = '';
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					workerTokenEnvId = data.credentials?.environmentId || '';
+				}
+			} catch (error) {
+				console.log('Failed to load environment ID from worker token:', error);
+			}
+			
 			return {
-				environmentId: storedEnvId || '',
+				environmentId: storedEnvId || workerTokenEnvId || '',
 				clientId: '',
 				clientSecret: '',
 				scopes: 'openid',
@@ -762,6 +789,29 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		};
 		window.addEventListener('environmentIdUpdated', handleEnvIdUpdate);
 		return () => window.removeEventListener('environmentIdUpdated', handleEnvIdUpdate);
+	}, [credentials.environmentId]);
+
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId && !credentials.environmentId) {
+						setCredentials(prev => ({
+							...prev,
+							environmentId: data.credentials.environmentId
+						}));
+					}
+				}
+			} catch (error) {
+				console.log('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 	}, [credentials.environmentId]);
 
 	// Listen for worker token updates
@@ -1000,6 +1050,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 				// Get stored environment ID from global service
 				const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+				
+				// Try worker token credentials as fallback
+				let workerTokenEnvId = '';
+				try {
+					const stored = localStorage.getItem('unified_worker_token');
+					if (stored) {
+						const data = JSON.parse(stored);
+						workerTokenEnvId = data.credentials?.environmentId || '';
+					}
+				} catch (error) {
+					console.log('Failed to load environment ID from worker token:', error);
+				}
 
 				// Merge credentials: flow-specific takes priority (allows per-flow clientId/environmentId)
 				// Fall back to shared credentials if flow-specific not available
@@ -1035,6 +1097,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						flowSpecific.environmentId?.trim() ||
 						shared.environmentId?.trim() ||
 						storedEnvId?.trim() ||
+						workerTokenEnvId?.trim() ||
 						''
 					).trim(),
 					clientId: (flowSpecific.clientId?.trim() || shared.clientId?.trim() || '').trim(),

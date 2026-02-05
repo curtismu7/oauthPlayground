@@ -6,8 +6,6 @@
  * @since 2024-11-16
  */
 
-import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
-
 export type TokenStatus = 'valid' | 'expiring-soon' | 'expired' | 'missing';
 
 export interface TokenStatusInfo {
@@ -41,137 +39,35 @@ export const formatTimeRemaining = (expiresAt: number): string => {
 };
 
 /**
- * Check worker token status (ASYNC - requires await!)
- *
- * ⚠️ WARNING: This is an async function that returns a Promise.
- * You MUST use `await` when calling this function, otherwise you'll get a Promise
- * object instead of the actual TokenStatusInfo.
- *
- * For synchronous contexts (useState initializers, setInterval callbacks, event handlers),
- * use `checkWorkerTokenStatusSync()` instead.
- *
- * @example
- * // ✅ Correct - in async function with await
- * const status = await checkWorkerTokenStatus();
- *
- * // ❌ WRONG - calling without await returns Promise, not TokenStatusInfo
- * const status = checkWorkerTokenStatus(); // status.isValid is undefined!
- *
- * // ✅ Correct - use sync version for non-async contexts
- * const [status, setStatus] = useState(() => checkWorkerTokenStatusSync());
- *
- * @returns Promise<TokenStatusInfo> - MUST be awaited
+ * Check worker token status
+ * Uses localStorage as the single source of truth for worker token storage
  */
 export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
-	try {
-		// Use the unified worker token service
-		const status = await unifiedWorkerTokenService.getStatus();
-		const token = await unifiedWorkerTokenService.getToken();
-
-		if (!status.hasCredentials) {
-			return {
-				status: 'missing',
-				message: 'No worker token credentials. Click "Get Worker Token" to generate one.',
-				isValid: false,
-			};
-		}
-
-		if (!status.hasToken) {
-			return {
-				status: 'missing',
-				message: 'No worker token. Click "Get Worker Token" to generate one.',
-				isValid: false,
-			};
-		}
-
-		if (!status.tokenValid) {
-			if (status.tokenExpiresIn !== undefined && status.tokenExpiresIn <= 0) {
-				const result: TokenStatusInfo = {
-					status: 'expired',
-					message: 'Worker token expired. Click "Get Worker Token" to generate a new one.',
-					isValid: false,
-				};
-				if (status.lastFetchedAt) {
-					result.expiresAt = status.lastFetchedAt + status.tokenExpiresIn * 1000;
-				}
-				if (token) {
-					result.token = token;
-				}
-				return result;
-			} else {
-				const result: TokenStatusInfo = {
-					status: 'expiring-soon',
-					message: `Worker token expires in ${status.tokenExpiresIn} minutes.`,
-					isValid: true,
-				};
-				if (status.lastFetchedAt) {
-					result.expiresAt = status.lastFetchedAt + status.tokenExpiresIn! * 1000;
-				}
-				if (status.tokenExpiresIn !== undefined) {
-					result.minutesRemaining = status.tokenExpiresIn;
-				}
-				if (token) {
-					result.token = token;
-				}
-				return result;
-			}
-		}
-
-		// Token is valid
-		const minutesRemaining = status.tokenExpiresIn;
-		let message = 'Worker token is valid.';
-		let tokenStatus: TokenStatus = 'valid';
-
-		if (minutesRemaining !== undefined && minutesRemaining <= 5) {
-			message = `Worker token expires in ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''}.`;
-			tokenStatus = 'expiring-soon';
-		}
-
-		const result: TokenStatusInfo = {
-			status: tokenStatus,
-			message,
-			isValid: true,
-		};
-		if (status.lastFetchedAt && status.tokenExpiresIn) {
-			result.expiresAt = status.lastFetchedAt + status.tokenExpiresIn * 1000;
-		}
-		if (minutesRemaining !== undefined) {
-			result.minutesRemaining = minutesRemaining;
-		}
-		if (token) {
-			result.token = token;
-		}
-		return result;
-	} catch (error) {
-		console.error('Error checking worker token status:', error);
-		return {
-			status: 'missing',
-			message: 'Error checking worker token status.',
-			isValid: false,
-		};
-	}
+	// For now, just call the sync version since the async operations aren't needed
+	return checkWorkerTokenStatusSync();
 };
 
 /**
- * Synchronous check worker token status (RECOMMENDED for most use cases)
- *
- * ✅ Use this method for:
- * - useState initializers: useState(() => checkWorkerTokenStatusSync())
- * - setInterval callbacks
- * - Event handlers
- * - Any synchronous context
- *
- * This uses the memory cache and localStorage, which is fast and reliable.
- * The cache is updated whenever tokens change via events.
- *
- * @returns TokenStatusInfo - synchronous, no await needed
+ * Synchronous check worker token status (for backward compatibility)
+ * Uses memory cache only - may be stale but is fast
  */
 export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 	try {
-		// Use unified worker token service for proper storage detection
-		const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+		// Quick synchronous check using localStorage only
+		const stored = localStorage.getItem('unified_worker_token');
+		if (!stored) {
+			return {
+				status: 'missing',
+				message: 'No worker token data found.',
+				isValid: false,
+			};
+		}
 
-		if (!tokenData || !tokenData.token) {
+		const data = JSON.parse(stored);
+		
+		// Handle unified service data structure
+		const token = data.token || data.data?.token;
+		if (!token) {
 			return {
 				status: 'missing',
 				message: 'No worker token found.',
@@ -179,9 +75,9 @@ export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 			};
 		}
 
-		// Check expiration
+		// Check expiration - handle both old and new data structures
 		const now = Date.now();
-		const expiresAt = tokenData.expiresAt || tokenData.savedAt + 3600 * 1000; // Default 1 hour
+		const expiresAt = data.expiresAt || data.data?.expiresAt || (data.savedAt || data.data?.savedAt || 0) + 3600 * 1000; // Default 1 hour
 		const isExpired = now >= expiresAt;
 		const minutesRemaining = Math.max(0, Math.floor((expiresAt - now) / 60000));
 
@@ -202,13 +98,13 @@ export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 			isValid: !isExpired,
 			expiresAt,
 			minutesRemaining,
-			token: tokenData.token,
+			token: token, // Use the extracted token from either old or new structure
 		};
 	} catch (error) {
 		console.error('Error checking worker token status (sync):', error);
 		return {
 			status: 'missing',
-			message: 'Unable to check worker token status.',
+			message: 'Error checking worker token status.',
 			isValid: false,
 		};
 	}
@@ -252,10 +148,10 @@ export const getStatusIcon = (status: TokenStatus): string => {
 /**
  * Check if worker token is expiring soon
  * Returns warning if token expires within threshold
- *
+ * 
  * @param thresholdMinutes - Warning threshold in minutes (default: 5)
  * @returns Expiration warning details
- *
+ * 
  * @example
  * const warning = await getExpirationWarning(10);
  * if (warning.isExpiringSoon) {
@@ -319,9 +215,9 @@ export const getExpirationWarning = async (
 /**
  * Comprehensive health check for worker token
  * Provides detailed status and actionable recommendations
- *
+ * 
  * @returns Health check results with issues and recommendations
- *
+ * 
  * @example
  * const health = await getHealthCheck();
  * if (!health.healthy) {
@@ -374,9 +270,7 @@ export const getHealthCheck = async (): Promise<{
 		const ageHours = Math.floor(age / 3600000);
 
 		if (ageHours > 12) {
-			recommendations.push(
-				`Token is ${ageHours} hours old. Consider refreshing for best security.`
-			);
+			recommendations.push(`Token is ${ageHours} hours old. Consider refreshing for best security.`);
 		}
 	}
 
@@ -395,19 +289,9 @@ export const getHealthCheck = async (): Promise<{
 	};
 };
 
-/**
- * Safe getter that always returns TokenStatusInfo synchronously.
- * This is an alias for checkWorkerTokenStatusSync() for clarity.
- *
- * Use this when you want to be explicit that you're getting sync status.
- */
-export const getTokenStatus = checkWorkerTokenStatusSync;
-
 export const WorkerTokenStatusServiceV8 = {
 	checkWorkerTokenStatus,
 	checkWorkerTokenStatusSync,
-	// Alias for sync version - recommended for most use cases
-	getTokenStatus,
 	formatTimeRemaining,
 	getStatusColor,
 	getStatusIcon,

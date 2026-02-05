@@ -1,11 +1,12 @@
 import type React from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { TokenManagementService } from '../../services/tokenManagementService';
 import { logger } from '../../utils/logger';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -268,20 +269,57 @@ const TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }
 	const [activeTab, setActiveTab] = useState<'access_token' | 'refresh_token' | 'bulk_revocation'>(
 		'access_token'
 	);
-	const [formData, setFormData] = useState({
-		clientId: credentials?.clientId || '',
-		clientSecret: credentials?.clientSecret || '',
-		environmentId: credentials?.environmentId || '',
-		tokenToRevoke: 'mock_access_token_to_revoke_example_12345',
-		tokenTypeHint: 'access_token' as 'access_token' | 'refresh_token',
-		bulkTokens:
-			'mock_token_1_example_abc123\nmock_token_2_example_def456\nmock_token_3_example_ghi789',
-		revocationReason: 'user_logout',
+	const [formData, setFormData] = useState(() => {
+		// Try to auto-populate environment ID from worker token credentials
+		let workerTokenEnvId = '';
+		try {
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				workerTokenEnvId = data.credentials?.environmentId || '';
+			}
+		} catch (error) {
+			console.log('Failed to load environment ID from worker token:', error);
+		}
+
+		return {
+			clientId: credentials?.clientId || '',
+			clientSecret: credentials?.clientSecret || '',
+			environmentId: credentials?.environmentId || workerTokenEnvId || '',
+			tokenToRevoke: 'mock_access_token_to_revoke_example_12345',
+			tokenTypeHint: 'access_token' as 'access_token' | 'refresh_token',
+			bulkTokens:
+				'mock_access_token_1,mock_access_token_2,mock_refresh_token_1',
+			revocationReason: '',
+		};
 	});
 	const [response, setResponse] = useState<Record<string, unknown> | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [revocationResult, setRevocationResult] = useState<Record<string, unknown> | null>(null);
 	const [_tokenService] = useState(() => new TokenManagementService(formData.environmentId));
+
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId && !formData.environmentId) {
+						setFormData(prev => ({
+							...prev,
+							environmentId: data.credentials.environmentId
+						}));
+					}
+				}
+			} catch (error) {
+				console.log('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+	}, [formData.environmentId]);
 
 	const steps = [
 		{
