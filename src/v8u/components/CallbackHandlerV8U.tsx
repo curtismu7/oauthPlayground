@@ -105,6 +105,9 @@ export const CallbackHandlerV8U: React.FC = () => {
 				sessionStorage.getItem('user_login_redirect_uri_v8')
 			);
 
+			// Enhanced fallback logic - try multiple approaches
+			let fallbackPath = '/v8/mfa-hub'; // Default fallback
+			
 			if (returnToMfaFlow) {
 				try {
 					// Path is stored as a plain string (no JSON parsing needed)
@@ -195,19 +198,38 @@ export const CallbackHandlerV8U: React.FC = () => {
 					console.error(`${MODULE_TAG} ❌ Return path value that failed:`, returnToMfaFlow);
 					// Fall through to MFA hub redirect
 				}
+			} else {
+				// Enhanced fallback logic - try to detect the most recent MFA page
+				console.warn(`${MODULE_TAG} ⚠️ No return path found in sessionStorage!`);
+				console.warn(
+					`${MODULE_TAG} ⚠️ This might indicate a cache issue or the return path was cleared prematurely.`
+				);
+				
+				// Check if we have any MFA-related sessionStorage keys to infer the last page
+				const mfaRelatedKeys = allKeys.filter(key => 
+					key.includes('mfa') || key.includes('MFA')
+				);
+				
+				console.log(`${MODULE_TAG} 🔍 MFA-related sessionStorage keys:`, mfaRelatedKeys);
+				
+				// If we have unified MFA keys, prefer the unified page
+				if (mfaRelatedKeys.some(key => key.includes('unified'))) {
+					fallbackPath = '/v8/mfa-unified';
+					console.log(`${MODULE_TAG} 🔍 Detected unified MFA activity, using fallback: ${fallbackPath}`);
+				}
+				
+				console.warn(`${MODULE_TAG} ⚠️ Redirecting to fallback MFA page: ${fallbackPath}`);
 			}
 
-			// If no return path, redirect to MFA hub as fallback
-			console.warn(`${MODULE_TAG} ⚠️ No return path found in sessionStorage!`);
-			console.warn(
-				`${MODULE_TAG} ⚠️ This might indicate a cache issue or the return path was cleared prematurely.`
-			);
-			console.warn(`${MODULE_TAG} ⚠️ Redirecting to MFA hub as fallback`);
+			// Fallback redirect
 			const callbackParams = new URLSearchParams(window.location.search);
 			const redirectUrl = callbackParams.toString()
-				? `/v8/mfa-hub?${callbackParams.toString()}`
-				: '/v8/mfa-hub';
-			console.log(`${MODULE_TAG} 🚀 Redirecting to MFA hub: ${redirectUrl}`);
+				? `${fallbackPath}?${callbackParams.toString()}`
+				: fallbackPath;
+			console.log(`${MODULE_TAG} 🚀 Redirecting to fallback: ${redirectUrl}`);
+			
+			// Store callback marker even for fallback
+			sessionStorage.setItem('mfa_oauth_callback_return', 'true');
 			window.location.replace(redirectUrl);
 			return; // CRITICAL: Exit early to prevent unified flow logic
 		}
