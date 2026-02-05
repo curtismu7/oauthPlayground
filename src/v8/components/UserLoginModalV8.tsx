@@ -76,11 +76,106 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		const config = MFAConfigurationServiceV8.loadConfiguration();
 		return config.workerToken.showTokenAtEnd;
 	});
+	// Pre-flight validation state
+	const [isValidating, setIsValidating] = useState(false);
+	const [validationResult, setValidationResult] = useState<{
+		passed: boolean;
+		errors: string[];
+		warnings: string[];
+	} | null>(null);
 	// Use different default redirect URI for MFA flows
 	const defaultRedirectUri = isMfaFlow
 		? 'https://localhost:3000/user-mfa-login-callback'
 		: 'https://localhost:3000/user-login-callback';
 	const previousRedirectUriRef = useRef<string>(defaultRedirectUri);
+
+	// Pre-flight validation function
+	const handlePreFlightValidation = async () => {
+		if (!environmentId.trim() || !clientId.trim()) {
+			toastV8.error('Please enter Environment ID and Client ID first');
+			return;
+		}
+
+		setIsValidating(true);
+		setValidationResult(null);
+
+		try {
+			const workerToken = await workerTokenServiceV8.getToken();
+			if (!workerToken) {
+				toastV8.error('Worker token required for pre-flight validation');
+				setIsValidating(false);
+				return;
+			}
+
+			console.log(`${MODULE_TAG} Running pre-flight validation...`);
+			const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
+				environmentId.trim(),
+				clientId.trim(),
+				workerToken
+			);
+
+			if (!appConfig) {
+				setValidationResult({
+					passed: false,
+					errors: ['Could not fetch application configuration from PingOne'],
+					warnings: [],
+				});
+				setIsValidating(false);
+				return;
+			}
+
+			const errors: string[] = [];
+			const warnings: string[] = [];
+
+			// Check if app is enabled
+			if (!appConfig.enabled) {
+				errors.push('Application is disabled in PingOne');
+			}
+
+			// Check grant types
+			if (!appConfig.grantTypes.includes('authorization_code')) {
+				errors.push('Authorization Code grant type is not enabled');
+			}
+
+			// Check redirect URIs
+			if (!appConfig.redirectUris || appConfig.redirectUris.length === 0) {
+				errors.push('No redirect URIs configured');
+			} else if (!appConfig.redirectUris.includes(redirectUri)) {
+				warnings.push(`Redirect URI "${redirectUri}" is not in the configured list`);
+			}
+
+			// Check PKCE
+			if (appConfig.pkceEnforced) {
+				console.log(`${MODULE_TAG} PKCE is enforced (good for security)`);
+			} else if (!appConfig.pkceRequired) {
+				warnings.push('PKCE is not required - consider enabling for better security');
+			}
+
+			setValidationResult({
+				passed: errors.length === 0,
+				errors,
+				warnings,
+			});
+
+			if (errors.length === 0 && warnings.length === 0) {
+				toastV8.success('✅ Pre-flight validation passed!');
+			} else if (errors.length === 0) {
+				toastV8.warning(`⚠️ Validation passed with ${warnings.length} warning(s)`);
+			} else {
+				toastV8.error(`❌ Validation failed with ${errors.length} error(s)`);
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Pre-flight validation error:`, error);
+			setValidationResult({
+				passed: false,
+				errors: [`Failed to validate configuration: ${error instanceof Error ? error.message : 'Unknown error'}`],
+				warnings: [],
+			});
+			toastV8.error('Pre-flight validation failed');
+		} finally {
+			setIsValidating(false);
+		}
+	};
 
 	// Track if success page was set (to prevent clearing it prematurely when parent closes modal)
 	const successPageSetRef = React.useRef(false);
@@ -1791,6 +1886,117 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								Space-separated list of OAuth scopes (openid is required for OIDC)
 							</small>
 						</div>
+
+						{/* Pre-flight Validation Button */}
+						<div style={{ marginTop: '8px' }}>
+							<button
+								type="button"
+								onClick={handlePreFlightValidation}
+								disabled={isValidating || !environmentId.trim() || !clientId.trim()}
+								style={{
+									width: '100%',
+									padding: '12px',
+									background: isValidating ? '#9ca3af' : '#3b82f6',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '14px',
+									fontWeight: '600',
+									cursor: isValidating || !environmentId.trim() || !clientId.trim() ? 'not-allowed' : 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									gap: '8px',
+									transition: 'all 0.2s ease',
+								}}
+							>
+								{isValidating ? '🔄 Validating...' : '✈️ Run Pre-flight Validation'}
+							</button>
+							<small style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}>
+								Validates your app configuration with PingOne before login
+							</small>
+						</div>
+
+						{/* Pre-flight Validation Results */}
+						{validationResult && (
+							<div
+								style={{
+									marginTop: '16px',
+									padding: '16px',
+									background: validationResult.passed
+										? validationResult.warnings.length > 0
+											? '#fff7ed'
+											: '#f0fdf4'
+										: '#fee2e2',
+									border: `2px solid ${
+										validationResult.passed
+											? validationResult.warnings.length > 0
+												? '#fb923c'
+												: '#22c55e'
+											: '#dc2626'
+									}`,
+									borderRadius: '8px',
+								}}
+							>
+								<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+									<span style={{ fontSize: '24px', flexShrink: 0 }}>
+										{validationResult.passed
+											? validationResult.warnings.length > 0
+												? '⚠️'
+												: '✅'
+											: '❌'}
+									</span>
+									<div style={{ flex: 1 }}>
+										<strong
+											style={{
+												display: 'block',
+												fontSize: '16px',
+												marginBottom: '8px',
+												color: validationResult.passed
+													? validationResult.warnings.length > 0
+														? '#c2410c'
+														: '#166534'
+													: '#991b1b',
+											}}
+										>
+											{validationResult.passed
+												? validationResult.warnings.length > 0
+													? 'Validation Passed with Warnings'
+													: 'Validation Passed'
+												: 'Validation Failed'}
+										</strong>
+
+										{/* Errors */}
+										{validationResult.errors.length > 0 && (
+											<div style={{ marginBottom: '12px' }}>
+												<strong style={{ color: '#991b1b', fontSize: '14px' }}>Errors:</strong>
+												<ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
+													{validationResult.errors.map((error, idx) => (
+														<li key={idx} style={{ color: '#991b1b', fontSize: '13px', marginBottom: '4px' }}>
+															{error}
+														</li>
+													))}
+												</ul>
+											</div>
+										)}
+
+										{/* Warnings */}
+										{validationResult.warnings.length > 0 && (
+											<div>
+												<strong style={{ color: '#c2410c', fontSize: '14px' }}>Warnings:</strong>
+												<ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
+													{validationResult.warnings.map((warning, idx) => (
+														<li key={idx} style={{ color: '#c2410c', fontSize: '13px', marginBottom: '4px' }}>
+															{warning}
+														</li>
+													))}
+												</ul>
+											</div>
+										)}
+									</div>
+								</div>
+							</div>
+						)}
 					</div>
 
 					{/* Worker Token Settings Checkboxes */}
