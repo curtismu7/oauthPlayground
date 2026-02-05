@@ -276,6 +276,16 @@ export class MfaAuthenticationServiceV8 {
 			});
 
 			// Use backend proxy endpoint to avoid CORS violations
+			console.log(`${MODULE_TAG} Sending request to backend:`, {
+				endpoint: '/api/pingone/mfa/initialize-device-authentication',
+				requestBody: {
+					...requestBody,
+					workerToken: cleanToken ? '***REDACTED***' : 'MISSING',
+					hasWorkerToken: !!cleanToken,
+					workerTokenLength: cleanToken?.length || 0
+				}
+			});
+
 			const response = await fetch('/api/pingone/mfa/initialize-device-authentication', {
 				method: 'POST',
 				headers: {
