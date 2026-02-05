@@ -29,6 +29,7 @@ import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBann
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { apiRequestModalService } from '../services/apiRequestModalService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 
@@ -555,11 +556,18 @@ const PingOneAuditActivities: React.FC = () => {
 	const [workerToken, setWorkerToken] = useState<string>(() => getAnyWorkerToken() || '');
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
-	// Environment ID state - load from storage
+	// Environment ID state - load from unified worker token
 	const [environmentId, setEnvironmentId] = useState<string>(() => {
-		const credsStr = localStorage.getItem('worker_credentials');
-		const creds = credsStr ? JSON.parse(credsStr) : null;
-		return creds?.environmentId || '';
+		try {
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				return data.credentials?.environmentId || '';
+			}
+		} catch (error) {
+			console.log('Failed to load environment ID from unified worker token:', error);
+		}
+		return '';
 	});
 	// Check for global token - use state for re-renders, but also check directly for accuracy
 	const currentToken = getAnyWorkerToken() || workerToken || '';
@@ -638,6 +646,26 @@ const PingOneAuditActivities: React.FC = () => {
 	const handleGetWorkerToken = useCallback(() => {
 		setShowWorkerTokenModal(true);
 	}, []);
+
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId && !environmentId) {
+						setEnvironmentId(data.credentials.environmentId);
+					}
+				}
+			} catch (error) {
+				console.log('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+	}, [environmentId]);
 
 	// Execute the actual API call (called after user confirms in modal)
 	const executeApiCall = useCallback(async () => {
@@ -1671,11 +1699,17 @@ const PingOneAuditActivities: React.FC = () => {
 				onContinue={() => {
 					const token = getAnyWorkerToken() || '';
 					setWorkerToken(token);
-					// Update environment ID from credentials
-					const credsStr = localStorage.getItem('worker_credentials');
-					const creds = credsStr ? JSON.parse(credsStr) : null;
-					if (creds?.environmentId) {
-						setEnvironmentId(creds.environmentId);
+					// Update environment ID from unified worker token credentials
+					try {
+						const stored = localStorage.getItem('unified_worker_token');
+						if (stored) {
+							const data = JSON.parse(stored);
+							if (data.credentials?.environmentId) {
+								setEnvironmentId(data.credentials.environmentId);
+							}
+						}
+					} catch (error) {
+						console.log('Failed to update environment ID from unified worker token:', error);
 					}
 					setShowWorkerTokenModal(false);
 					if (token) {
@@ -1690,15 +1724,22 @@ const PingOneAuditActivities: React.FC = () => {
 				environmentId={environmentId}
 				skipCredentialsStep={true}
 				prefillCredentials={(() => {
-					const credsStr = localStorage.getItem('worker_credentials');
-					const creds = credsStr ? JSON.parse(credsStr) : null;
-					return {
-						environmentId: environmentId || creds?.environmentId || '',
-						clientId: creds?.clientId || '',
-						clientSecret: creds?.clientSecret || '',
-						region: (creds?.region as string) || 'us',
-						scopes: 'p1:read:audit',
-					};
+					try {
+						const stored = localStorage.getItem('unified_worker_token');
+						if (stored) {
+							const data = JSON.parse(stored);
+							return {
+								environmentId: environmentId || data.credentials?.environmentId || '',
+								clientId: data.credentials?.clientId || '',
+								clientSecret: data.credentials?.clientSecret || '',
+								region: data.credentials?.region || 'us',
+								scopes: 'p1:read:audit',
+							};
+						}
+					} catch (error) {
+						console.log('Failed to prefill credentials from unified worker token:', error);
+					}
+					return {};
 				})()}
 				tokenStorageKey="worker_token"
 				tokenExpiryKey="worker_token_expires_at"
