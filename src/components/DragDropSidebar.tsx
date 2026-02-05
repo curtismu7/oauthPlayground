@@ -394,66 +394,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				icon: <FiZap />,
 				isOpen: true,
 				items: [
-					{
-						id: 'unified-oauth-flow-v8u',
-						path: '/v8u/unified',
-						label: 'Unified OAuth & OIDC',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiZap />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V8U: Single UI for all OAuth/OIDC flows with real PingOne APIs">
-								NEW
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'spiffe-spire-flow-v8u',
-						path: '/v8u/spiffe-spire',
-						label: 'SPIFFE/SPIRE Mock',
-						icon: (
-							<ColoredIcon $color="#8b5cf6">
-								<FiShield />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Mock flow demonstrating SPIFFE/SPIRE workload identity to PingOne token exchange">
-								MOCK
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'mfa-playground-v8',
-						path: '/v8/mfa',
-						label: 'PingOne MFA',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiSmartphone />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V8: PingOne MFA Playground with SMS, Email, TOTP, and FIDO2">
-								NEW
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'unified-mfa-registration-v8',
-						path: '/v8/mfa-unified',
-						label: '🎯 Unified MFA Registration',
-						icon: (
-							<ColoredIcon $color="#8b5cf6">
-								<FiLayers />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V8: Unified flow for all MFA device types - Single component replacing 6 legacy flows">
-								UNIFIED
-							</MigrationBadge>
-						),
-					},
+					// ADMIN Entries
 					{
 						id: 'mfa-feature-flags-admin-v8',
 						path: '/v8/mfa-feature-flags',
@@ -469,6 +410,115 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</MigrationBadge>
 						),
 					},
+					// EDUCATION Entries (sorted alphabetically)
+					{
+						id: 'flow-comparison-tool',
+						path: '/v8u/flow-comparison',
+						label: 'Flow Comparison Tool',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiBarChart2 />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Compare OAuth flows with detailed metrics and recommendations">
+								EDUCATION
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'resources-api-v8',
+						path: '/v8/resources-api',
+						label: 'Resources API Tutorial',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiBook />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: Learn PingOne Resources API - OAuth 2.0 resources, scopes, and custom claims">
+								EDUCATION
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'spiffe-spire-flow-v8u',
+						path: '/v8u/spiffe-spire',
+						label: 'SPIFFE/SPIRE Mock',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiShield />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Mock flow demonstrating SPIFFE/SPIRE workload identity to PingOne token exchange">
+								EDUCATIONAL
+							</MigrationBadge>
+						),
+					},
+					// ORIGINAL Entries
+					{
+						id: 'mfa-playground-v8',
+						path: '/v8/mfa',
+						label: 'PingOne MFA',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiSmartphone />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: PingOne MFA Playground with SMS, Email, TOTP, and FIDO2">
+								ORIGINAL
+							</MigrationBadge>
+						),
+					},
+					// UNIFIED Entries (sorted alphabetically)
+					{
+						id: 'postman-collection-generator',
+						path: '/postman-collection-generator',
+						label: 'Postman Collection Generator',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiPackage />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Generate custom Postman collections for Unified OAuth/OIDC and MFA flows" style={{ background: '#3b82f6', color: 'white' }}>
+								UNIFIED
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'unified-mfa-registration-v8',
+						path: '/v8/mfa-unified',
+						label: '🎯 Unified MFA',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiLayers />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: Unified flow for all MFA device types - Single component replacing 6 legacy flows" style={{ background: '#3b82f6', color: 'white' }}>
+								UNIFIED
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'unified-oauth-flow-v8u',
+						path: '/v8u/unified',
+						label: 'Unified OAuth & OIDC',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiZap />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8U: Single UI for all OAuth/OIDC flows with real PingOne APIs" style={{ background: '#3b82f6', color: 'white' }}>
+								UNIFIED
+							</MigrationBadge>
+						),
+					},
+					// UTILITY Entries (sorted alphabetically)
 					{
 						id: 'delete-all-devices-utility-v8',
 						path: '/v8/delete-all-devices',
@@ -485,35 +535,17 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 					},
 					{
-						id: 'postman-collection-generator',
-						path: '/postman-collection-generator',
-						label: 'Postman Collection Generator',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiPackage />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Generate custom Postman collections for Unified OAuth/OIDC and MFA flows">
-								NEW
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'resources-api-v8',
-						path: '/v8/resources-api',
-						label: 'Resources API Tutorial',
-						icon: <FiBook />,
-						badge: <MigrationBadge title="PingOne resources API tutorial">NEW</MigrationBadge>,
-					},
-					{
 						id: 'enhanced-state-management',
 						path: '/v8u/enhanced-state-management',
 						label: 'Enhanced State Management (V2)',
-						icon: <FiDatabase />,
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiDatabase />
+							</ColoredIcon>
+						),
 						badge: (
 							<MigrationBadge title="Advanced state management with undo/redo, offline capabilities, and persistence">
-								NEW
+								UTILITY
 							</MigrationBadge>
 						),
 					},
@@ -521,19 +553,14 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						id: 'token-monitoring-dashboard',
 						path: '/v8u/token-monitoring',
 						label: 'Token Monitoring Dashboard',
-						icon: <FiEye />,
-						badge: (
-							<MigrationBadge title="Real-time token monitoring dashboard">NEW</MigrationBadge>
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiEye />
+							</ColoredIcon>
 						),
-					},
-					{
-						id: 'flow-comparison-tool',
-						path: '/v8u/flow-comparison',
-						label: 'Flow Comparison Tool',
-						icon: <FiBarChart2 />,
 						badge: (
-							<MigrationBadge title="Compare OAuth flows with detailed metrics and recommendations">
-								NEW
+							<MigrationBadge title="Real-time token monitoring dashboard">
+								UTILITY
 							</MigrationBadge>
 						),
 					},
@@ -542,13 +569,44 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						path: '/production/user-cache-sync',
 						label: '🔄 User Cache Sync Utility',
 						icon: (
-							<ColoredIcon $color="#8b5cf6">
+							<ColoredIcon $color="#10b981">
 								<FiDatabase />
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V8: Sync all PingOne users to IndexedDB cache for offline access">
-								NEW
+							<MigrationBadge title="Production utility to sync user cache across environments">
+								UTILITY
+							</MigrationBadge>
+						),
+					},
+					// MAIN entries (sorted alphabetically)
+					{
+						id: 'configuration',
+						path: '/configuration',
+						label: 'Setup & Configuration',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiSettings />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Application Configuration & Credentials">
+								MAIN
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'dashboard',
+						path: '/dashboard',
+						label: 'Dashboard',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiHome />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Application Dashboard and Status">
+								MAIN
 							</MigrationBadge>
 						),
 					},
@@ -623,57 +681,27 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				],
 			},
 			{
-				id: 'main',
-				label: 'Main',
+				id: 'reference-materials',
+				label: 'Reference Materials',
 				icon: (
 					<ColoredIcon $color="#6366f1">
-						<FiHome />
+						<FiBook />
 					</ColoredIcon>
 				),
 				isOpen: true,
 				items: [
 					{
-						id: 'dashboard',
-						path: '/dashboard',
-						label: 'Dashboard',
-						icon: (
-							<ColoredIcon $color="#6366f1">
-								<FiHome />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Application Dashboard and Status">
-								<FiCheckCircle />
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'configuration',
-						path: '/configuration',
-						label: 'Setup & Configuration',
-						icon: (
-							<ColoredIcon $color="#6366f1">
-								<FiSettings />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Application Configuration & Credentials">
-								<FiCheckCircle />
-							</MigrationBadge>
-						),
-					},
-					{
 						id: 'ping-ai-resources',
 						path: '/ping-ai-resources',
 						label: 'Ping AI Resources',
 						icon: (
-							<ColoredIcon $color="#8b5cf6">
+							<ColoredIcon $color="#10b981">
 								<FiCpu />
 							</ColoredIcon>
 						),
 						badge: (
 							<MigrationBadge title="Ping Identity AI Resources & Documentation">
-								<FiCheckCircle />
+								REFERENCE
 							</MigrationBadge>
 						),
 					},
@@ -1631,7 +1659,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				],
 			},
 			{
-				id: 'reference-materials',
+				id: 'reference-materials-docs',
 				label: 'Reference Materials',
 				icon: (
 					<ColoredIcon $color="#16a34a">
@@ -1697,6 +1725,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						badge: (
 							<MigrationBadge title="Educational guide to PingOne OAuth 2.0 and OIDC scopes">
 								<FiCheckCircle />
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'ping-ai-resources',
+						path: '/ping-ai-resources',
+						label: 'Ping AI Resources',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiCpu />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Ping Identity AI Resources & Documentation">
+								REFERENCE
 							</MigrationBadge>
 						),
 					},
