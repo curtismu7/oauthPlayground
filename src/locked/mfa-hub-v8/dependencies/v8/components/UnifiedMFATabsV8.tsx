@@ -7,7 +7,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { unifiedLoggerV8, type UnifiedLogEntry } from '../services/unifiedLoggerV8';
+import { type UnifiedLogEntry, unifiedLoggerV8 } from '../services/unifiedLoggerV8';
 import { type UnifiedMFAStateData, unifiedStateServiceV8 } from '../services/unifiedStateServiceV8';
 import { workerTokenServiceV8 } from '../services/workerTokenServiceV8';
 
@@ -27,7 +27,7 @@ export const UnifiedMFATabsV8: React.FC<UnifiedMFATabsV8Props> = ({
 	onReset,
 }) => {
 	const [activeTab, setActiveTab] = useState('config');
-	const [workerTokenStatus, setWorkerTokenStatus] = useState<
+	const [_workerTokenStatus, setWorkerTokenStatus] = useState<
 		'loading' | 'valid' | 'expired' | 'missing'
 	>('loading');
 
@@ -68,13 +68,13 @@ export const UnifiedMFATabsV8: React.FC<UnifiedMFATabsV8Props> = ({
 				} else {
 					setWorkerTokenStatus('valid');
 				}
-			} catch (error) {
+			} catch (_error) {
 				setWorkerTokenStatus('missing');
 			}
 		};
 
 		checkWorkerToken();
-	}, [currentState]);
+	}, []);
 
 	// Set initial tab from URL
 	useEffect(() => {
