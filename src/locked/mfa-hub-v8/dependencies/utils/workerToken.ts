@@ -42,7 +42,7 @@ export async function requestClientCredentialsToken(
 	const startTime = Date.now();
 	const currentState = unifiedStateServiceV8.getCurrentState();
 	const transactionId = currentState?.transactionId || `txn_${startTime}`;
-	
+
 	// Set transaction ID for unified logger
 	unifiedLoggerV8.setTransactionId(transactionId);
 
@@ -60,18 +60,18 @@ export async function requestClientCredentialsToken(
 		url: endpoint,
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
-			'Accept': 'application/json',
+			Accept: 'application/json',
 			...(authMethod === 'client_secret_basic' && {
-				'Authorization': `Basic [REDACTED]`
-			})
+				Authorization: `Basic [REDACTED]`,
+			}),
 		},
 		body: {
 			grant_type: 'client_credentials',
 			scope: scopes.join(' '),
 			client_id: clientId,
 			...(authMethod === 'client_secret_post' && {
-				client_secret: '[REDACTED]'
-			})
+				client_secret: '[REDACTED]',
+			}),
 		},
 		response: { status: 0 }, // Will be updated after response
 		duration: 0, // Will be updated after response
@@ -89,7 +89,7 @@ export async function requestClientCredentialsToken(
 		const error = new Error(
 			'No valid scopes provided. Please configure scopes for the worker token request.'
 		);
-		
+
 		// Log error to unified logger
 		await unifiedLoggerV8.logApiCall({
 			transactionId,
@@ -154,13 +154,12 @@ export async function requestClientCredentialsToken(
 		});
 
 		const duration = Date.now() - startTime;
-		let responseData: Record<string, unknown>;
 		let error: string | undefined;
 
 		if (!response.ok) {
-			responseData = await response.json().catch(() => ({}));
-			error = `Token request failed: ${response.status} ${response.statusText}. ${responseData.error_description || responseData.error || 'Please check your credentials and scopes.'}`;
-			
+			const errorData: Record<string, unknown> = await response.json().catch(() => ({}));
+			error = `Token request failed: ${response.status} ${response.statusText}. ${errorData.error_description || errorData.error || 'Please check your credentials and scopes.'}`;
+
 			// Log failed response to unified logger
 			await unifiedLoggerV8.logApiCall({
 				transactionId,
@@ -168,21 +167,21 @@ export async function requestClientCredentialsToken(
 				url: endpoint,
 				headers: {
 					'Content-Type': headers['Content-Type'],
-					'Accept': headers['Accept'],
-					...(headers.Authorization && { 'Authorization': '[REDACTED]' })
+					Accept: headers['Accept'],
+					...(headers.Authorization && { Authorization: '[REDACTED]' }),
 				},
 				body: {
 					grant_type: 'client_credentials',
 					scope: scopes.join(' '),
 					client_id: clientId,
 					...(authMethod === 'client_secret_post' && {
-						client_secret: '[REDACTED]'
-					})
+						client_secret: '[REDACTED]',
+					}),
 				},
 				response: {
 					status: response.status,
 					headers: Object.fromEntries(response.headers.entries()),
-					data: responseData
+					data: errorData,
 				},
 				duration,
 				error,
@@ -192,7 +191,6 @@ export async function requestClientCredentialsToken(
 		}
 
 		const tokenData = await response.json();
-		responseData = tokenData;
 
 		// Log successful response to unified logger
 		await unifiedLoggerV8.logApiCall({
@@ -201,16 +199,16 @@ export async function requestClientCredentialsToken(
 			url: endpoint,
 			headers: {
 				'Content-Type': headers['Content-Type'],
-				'Accept': headers['Accept'],
-				...(headers.Authorization && { 'Authorization': '[REDACTED]' })
+				Accept: headers['Accept'],
+				...(headers.Authorization && { Authorization: '[REDACTED]' }),
 			},
 			body: {
 				grant_type: 'client_credentials',
 				scope: scopes.join(' '),
 				client_id: clientId,
 				...(authMethod === 'client_secret_post' && {
-					client_secret: '[REDACTED]'
-				})
+					client_secret: '[REDACTED]',
+				}),
 			},
 			response: {
 				status: response.status,
@@ -219,8 +217,8 @@ export async function requestClientCredentialsToken(
 					token_type: tokenData.token_type,
 					expires_in: tokenData.expires_in,
 					scope: tokenData.scope,
-					access_token: '[REDACTED]'
-				}
+					access_token: '[REDACTED]',
+				},
 			},
 			duration,
 		});
@@ -231,7 +229,7 @@ export async function requestClientCredentialsToken(
 				await unifiedStateServiceV8.processEvent('WORKER_TOKEN_LOADED', {
 					workerToken: {
 						token: tokenData.access_token,
-						expiresAt: Date.now() + (tokenData.expires_in * 1000),
+						expiresAt: Date.now() + tokenData.expires_in * 1000,
 					},
 				});
 			} catch (stateError) {
@@ -249,7 +247,7 @@ export async function requestClientCredentialsToken(
 	} catch (error) {
 		const duration = Date.now() - startTime;
 		const errorMessage = error instanceof Error ? error.message : String(error);
-		
+
 		// Log error to unified logger if not already logged above
 		if (!errorMessage.includes('Token request failed:')) {
 			await unifiedLoggerV8.logApiCall({

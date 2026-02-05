@@ -403,6 +403,7 @@ export const UnifiedMFAV8: React.FC<UnifiedMFAV8Props> = () => {
 					)}
 
 					<button
+						type="button"
 						onClick={handleReset}
 						style={{
 							padding: '8px 16px',
