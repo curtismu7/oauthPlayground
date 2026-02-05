@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { JWKSResponse, jwksService } from '../services/jwksService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 
 const ViewerContainer = styled.div`
   background: white;
@@ -294,7 +295,22 @@ const Tab = styled.button<{ $active: boolean }>`
 
 const JWKSViewer: React.FC = () => {
 	const [activeTab, setActiveTab] = useState<'fetch' | 'view' | 'import'>('fetch');
-	const [environmentId, setEnvironmentId] = useState('');
+	const [environmentId, setEnvironmentId] = useState(() => {
+		// Auto-populate from worker token credentials
+		try {
+			// Try synchronous check from localStorage for worker token credentials
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				if (data.credentials?.environmentId) {
+					return data.credentials.environmentId;
+				}
+			}
+		} catch {
+			return '';
+		}
+		return '';
+	});
 	const [jwksResponse, setJwksResponse] = useState<JWKSResponse | null>(null);
 	const [importJson, setImportJson] = useState('');
 	const [loading, setLoading] = useState(false);
@@ -302,6 +318,25 @@ const JWKSViewer: React.FC = () => {
 		type: 'info' | 'success' | 'warning' | 'error';
 		text: string;
 	} | null>(null);
+
+	// Update environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			try {
+				const credentials = unifiedWorkerTokenService.loadCredentials();
+				if (credentials?.environmentId && !environmentId.trim()) {
+					setEnvironmentId(credentials.environmentId);
+				}
+			} catch (error) {
+				console.error('Failed to update environment ID from worker token:', error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => {
+			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+		};
+	}, [environmentId]);
 
 	const handleFetchJWKS = async () => {
 		if (!environmentId.trim()) {

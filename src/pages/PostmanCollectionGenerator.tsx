@@ -28,6 +28,7 @@ import {
 } from '@/services/postmanCollectionGeneratorV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import {
 	type FlowType,
 	type SpecVersion,
@@ -477,23 +478,20 @@ export const PostmanCollectionGenerator: React.FC = () => {
 		const flowKey = 'oauth-authz-v8u';
 
 		// Get flow config with proper fallback
-		let config = CredentialsServiceV8.getFlowConfig(flowKey);
-		if (!config) {
-			config = {
-				flowKey,
-				flowType: 'oauth' as const,
-				includeClientSecret: true,
-				includeScopes: true,
-				includeRedirectUri: true,
-				includeLogoutUri: false,
-			};
-		}
+		const unifiedConfig = {
+			flowKey,
+			flowType: 'oauth' as const,
+			includeClientSecret: true,
+			includeRedirectUri: true,
+			includeLogoutUri: false,
+			includeScopes: true,
+		};
 
-		const unifiedCreds = CredentialsServiceV8.loadCredentials(flowKey, config);
+		const unifiedCreds = CredentialsServiceV8.loadCredentials(flowKey, unifiedConfig);
 
-		// Load MFA credentials with proper flowKey and config
-		const mfaFlowKey = 'mfa-flow-v8';
-		const mfaConfig = CredentialsServiceV8.getFlowConfig(mfaFlowKey) || {
+		// MFA flow config
+		const mfaFlowKey = 'mfa-hub-v8';
+		const mfaConfig = {
 			flowKey: mfaFlowKey,
 			flowType: 'oidc' as const,
 			includeClientSecret: false,
@@ -501,7 +499,20 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			includeLogoutUri: false,
 			includeScopes: false,
 		};
+
 		const mfaCreds = CredentialsServiceV8.loadCredentials(mfaFlowKey, mfaConfig);
+
+		// Try worker token credentials as fallback
+		let workerTokenEnvId = '';
+		try {
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				workerTokenEnvId = data.credentials?.environmentId || '';
+			}
+		} catch (error) {
+			console.log('Failed to load environment ID from worker token:', error);
+		}
 
 		const credentials: {
 			environmentId?: string;
@@ -510,7 +521,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			username?: string;
 		} = {};
 		const resolvedEnvironmentId =
-			environmentId || unifiedCreds?.environmentId || mfaCreds?.environmentId;
+			environmentId || unifiedCreds?.environmentId || mfaCreds?.environmentId || workerTokenEnvId;
 		if (resolvedEnvironmentId) credentials.environmentId = resolvedEnvironmentId;
 		if (unifiedCreds?.clientId) credentials.clientId = unifiedCreds.clientId;
 		if (unifiedCreds?.clientSecret) credentials.clientSecret = unifiedCreds.clientSecret;
