@@ -1,8 +1,8 @@
 // Worker Token flow utilities for PingOne Worker Token implementation
 
-import { logger } from './logger';
 import { unifiedLoggerV8 } from '../v8/services/unifiedLoggerV8';
 import { unifiedStateServiceV8 } from '../v8/services/unifiedStateServiceV8';
+import { logger } from './logger';
 
 export interface WorkerTokenResponse {
 	access_token: string;
@@ -180,7 +180,13 @@ export async function requestClientCredentialsToken(
 				},
 				response: {
 					status: response.status,
-					headers: Object.fromEntries(response.headers.entries()),
+					headers: (() => {
+						const headers: Record<string, string> = {};
+						response.headers.forEach((value, key) => {
+							headers[key] = value;
+						});
+						return headers;
+					})(),
 					data: errorData,
 				},
 				duration,
@@ -212,7 +218,13 @@ export async function requestClientCredentialsToken(
 			},
 			response: {
 				status: response.status,
-				headers: Object.fromEntries(response.headers.entries()),
+				headers: (() => {
+					const headers: Record<string, string> = {};
+					response.headers.forEach((value, key) => {
+						headers[key] = value;
+					});
+					return headers;
+				})(),
 				data: {
 					token_type: tokenData.token_type,
 					expires_in: tokenData.expires_in,
@@ -255,7 +267,7 @@ export async function requestClientCredentialsToken(
 				method: 'POST',
 				url: endpoint,
 				headers: {},
-				response: { status: 0, data: { error: errorMessage } },
+				response: { status: 0, data: { error: errorMessage || 'Unknown error' } },
 				duration,
 				error: errorMessage,
 			});
@@ -303,12 +315,12 @@ export async function introspectToken(
 			);
 		}
 
-		const introspectionData = await response.json();
+		const introspectionData = (await response.json()) as TokenIntrospectionResponse;
 
 		logger.success('WORKER', 'Token introspection successful', {
 			active: introspectionData.active,
 			scopes: introspectionData.scope,
-			clientId: introspectionData.client_id,
+			clientId: introspectionData.clientId,
 		});
 
 		return introspectionData;
@@ -396,7 +408,6 @@ export function shouldRefreshToken(
 ): boolean {
 	const now = Date.now();
 	const issuedTime = issuedAt;
-	const _expiryTime = issuedTime + token.expires_in * 1000;
 	const refreshThreshold = issuedTime + token.expires_in * 1000 * ttlPercent;
 
 	return now >= refreshThreshold;
@@ -405,8 +416,7 @@ export function shouldRefreshToken(
 /**
  * Parse JWT token payload (if token is JWT format)
  */
-// biome-ignore lint/suspicious/noExplicitAny: JWT payload structure is dynamic
-export function parseJWTPayload(token: string): any | null {
+export function parseJWTPayload(token: string): Record<string, unknown> | null {
 	try {
 		const parts = token.split('.');
 		if (parts.length !== 3) {
