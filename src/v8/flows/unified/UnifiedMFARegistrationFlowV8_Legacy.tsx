@@ -43,6 +43,7 @@ import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
+import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
