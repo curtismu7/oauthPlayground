@@ -171,6 +171,7 @@ import { IntegratedMFASample } from './samples/p1mfa/IntegratedMFASample';
 import { SMSSampleApp } from './samples/p1mfa/sms/SMSSampleApp';
 import { MFAAuthenticationSuccessPage } from './v8/components/MFAAuthenticationSuccessPage';
 import { EmailMFASignOnFlowV8 } from './v8/flows/EmailMFASignOnFlowV8';
+import { UnifiedMFAV8 } from './locked/mfa-hub-v8/feature/UnifiedMFAV8';
 import { ImplicitFlowV8 } from './v8/flows/ImplicitFlowV8';
 import { MFAAuthenticationMainPageV8 } from './v8/flows/MFAAuthenticationMainPageV8';
 import { MFAConfigurationPageV8 } from './v8/flows/MFAConfigurationPageV8';
@@ -550,6 +551,7 @@ const AppRoutes: React.FC = () => {
 							/>
 							<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
 							<Route path="/v8/mfa" element={<Navigate to="/v8/mfa-hub" replace />} />
+							<Route path="/v8/unified-mfa" element={<UnifiedMFAV8 />} />
 							<Route path="/v8/mfa-hub" element={<MFAAuthenticationMainPageV8 />} />
 							<Route
 								path="/v8/mfa/authentication/success"
