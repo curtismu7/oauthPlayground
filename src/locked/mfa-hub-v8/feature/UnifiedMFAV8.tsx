@@ -103,14 +103,9 @@ export const UnifiedMFAV8: React.FC<UnifiedMFAV8Props> = () => {
 				// Check if worker token is already available
 				const workerToken = await workerTokenServiceV8.loadCredentials();
 				if (workerToken) {
-					// Transition to CONFIG state
-					const configState = await unifiedStateServiceV8.processEvent('WORKER_TOKEN_LOADED', {
-						workerToken: {
-							token: workerToken.accessToken,
-							expiresAt: workerToken.expiresAt || Date.now() + 3600000,
-						},
-					});
-					setCurrentState(configState);
+					// We have credentials available, but don't trigger state change for now
+					// The component will handle token request when needed
+					console.log('Worker credentials found:', { environmentId: workerToken.environmentId });
 				}
 
 				// Log client event
