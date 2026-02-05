@@ -44,7 +44,10 @@ import {
 	generateCompletePostmanCollection,
 	generateComprehensiveMFAPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
-import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusServiceV8,
+} from '@/v8/services/workerTokenStatusServiceV8';
 import { createModuleLogger } from '@/utils/consoleMigrationHelper';
 import { oauthStorage } from '@/utils/storage';
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
@@ -76,11 +79,6 @@ import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServi
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import {
-	type TokenStatusInfo,
-	WorkerTokenStatusServiceV8,
-} from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import {
@@ -270,13 +268,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		};
 	});
 
-	// Use unified worker token service for token status
-	const tokenStatus = unifiedWorkerTokenService.getTokenStatus();
+	// Use worker token status service for token status
+	const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 	
-	// Note: setTokenStatus is no longer needed as the unified service manages token status internally
+	// Note: setTokenStatus is no longer needed as the worker token status service manages token status internally
 	// Keeping this as a no-op for backward compatibility with existing code
 	const setTokenStatus = async (_status: TokenStatusInfo | Promise<TokenStatusInfo>) => {
-		// No-op: Token status is now managed by unifiedWorkerTokenService
+		// No-op: Token status is now managed by WorkerTokenStatusServiceV8
 		// The service automatically updates token status when the token changes
 	};
 
@@ -5712,10 +5710,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			/>
 
 			{/* Push Confirmation Modal */}
-			<MFAPushConfirmationModal show={showPushModal} onClose={() => setShowPushModal(false)} />
+			{showPushModal && (
+				<MFAPushConfirmationModal show={showPushModal} onClose={() => setShowPushModal(false)} />
+			)}
 
 			{/* FIDO2/Passkey Authentication Modal */}
-			<MFAFIDO2ChallengeModal
+			{showFIDO2Modal && (
+				<MFAFIDO2ChallengeModal
 				show={showFIDO2Modal}
 				onClose={() => {
 					setShowFIDO2Modal(false);
@@ -5915,19 +5916,24 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				isWebAuthnSupported={WebAuthnAuthenticationServiceV8.isWebAuthnSupported()}
 				hasChallengeData={!!authState.challengeId || !!authState.publicKeyCredentialRequestOptions}
 			/>
+			)}
 
 			{/* Device Selection Info Modal */}
-			<MFADeviceSelectionInfoModal
-				show={showDeviceSelectionInfoModal}
-				onClose={() => setShowDeviceSelectionInfoModal(false)}
-			/>
+			{showDeviceSelectionInfoModal && (
+				<MFADeviceSelectionInfoModal
+					show={showDeviceSelectionInfoModal}
+					onClose={() => setShowDeviceSelectionInfoModal(false)}
+				/>
+			)}
 
 			{/* Policy Info Modal */}
-			<MFAPolicyInfoModal
-				show={showPolicyInfoModal}
-				onClose={() => setShowPolicyInfoModal(false)}
-				policy={deviceAuthPolicies.find((p) => p.id === credentials.deviceAuthenticationPolicyId)}
-			/>
+			{showPolicyInfoModal && (
+				<MFAPolicyInfoModal
+					show={showPolicyInfoModal}
+					onClose={() => setShowPolicyInfoModal(false)}
+					policy={deviceAuthPolicies.find((p) => p.id === credentials.deviceAuthenticationPolicyId)}
+				/>
+			)}
 
 			{/* Registration Modal */}
 			{showRegistrationModal && (
@@ -5986,6 +5992,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							>
 								×
 							</button>
+						</div>
 						<p style={{ margin: '0 0 24px 0', color: '#666' }}>
 							Choose a device type to register for MFA authentication.
 						</p>

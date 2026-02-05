@@ -6,8 +6,6 @@
  * @since 2024-11-16
  */
 
-import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
-
 export type TokenStatus = 'valid' | 'expiring-soon' | 'expired' | 'missing';
 
 export interface TokenStatusInfo {
@@ -42,96 +40,11 @@ export const formatTimeRemaining = (expiresAt: number): string => {
 
 /**
  * Check worker token status
- * Uses workerTokenServiceV8 as the single source of truth for worker token storage
+ * Uses localStorage as the single source of truth for worker token storage
  */
 export const checkWorkerTokenStatus = async (): Promise<TokenStatusInfo> => {
-	try {
-		// Use the unified worker token service
-		const status = await unifiedWorkerTokenService.getStatus();
-		const token = await unifiedWorkerTokenService.getToken();
-
-		if (!status.hasCredentials) {
-			return {
-				status: 'missing',
-				message: 'No worker token credentials. Click "Get Worker Token" to generate one.',
-				isValid: false,
-			};
-		}
-
-		if (!status.hasToken) {
-			return {
-				status: 'missing',
-				message: 'No worker token. Click "Get Worker Token" to generate one.',
-				isValid: false,
-			};
-		}
-
-		if (!status.tokenValid) {
-			if (status.tokenExpiresIn !== undefined && status.tokenExpiresIn <= 0) {
-				const result: TokenStatusInfo = {
-					status: 'expired',
-					message: 'Worker token expired. Click "Get Worker Token" to generate a new one.',
-					isValid: false,
-				};
-				if (status.lastFetchedAt) {
-					result.expiresAt = status.lastFetchedAt + status.tokenExpiresIn * 1000;
-				}
-				if (token) {
-					result.token = token;
-				}
-				return result;
-			} else {
-				const result: TokenStatusInfo = {
-					status: 'expiring-soon',
-					message: `Worker token expires in ${status.tokenExpiresIn} minutes.`,
-					isValid: true,
-				};
-				if (status.lastFetchedAt) {
-					result.expiresAt = status.lastFetchedAt + status.tokenExpiresIn! * 1000;
-				}
-				if (status.tokenExpiresIn !== undefined) {
-					result.minutesRemaining = status.tokenExpiresIn;
-				}
-				if (token) {
-					result.token = token;
-				}
-				return result;
-			}
-		}
-
-		// Token is valid
-		const minutesRemaining = status.tokenExpiresIn;
-		let message = 'Worker token is valid.';
-		let tokenStatus: TokenStatus = 'valid';
-
-		if (minutesRemaining !== undefined && minutesRemaining <= 5) {
-			message = `Worker token expires in ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''}.`;
-			tokenStatus = 'expiring-soon';
-		}
-
-		const result: TokenStatusInfo = {
-			status: tokenStatus,
-			message,
-			isValid: true,
-		};
-		if (status.lastFetchedAt && status.tokenExpiresIn) {
-			result.expiresAt = status.lastFetchedAt + status.tokenExpiresIn * 1000;
-		}
-		if (minutesRemaining !== undefined) {
-			result.minutesRemaining = minutesRemaining;
-		}
-		if (token) {
-			result.token = token;
-		}
-		return result;
-	} catch (error) {
-		console.error('Error checking worker token status:', error);
-		return {
-			status: 'missing',
-			message: 'Error checking worker token status.',
-			isValid: false,
-		};
-	}
+	// For now, just call the sync version since the async operations aren't needed
+	return checkWorkerTokenStatusSync();
 };
 
 /**
