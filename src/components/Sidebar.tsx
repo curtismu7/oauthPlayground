@@ -575,7 +575,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					{
 						id: 'unified-mfa-v8',
 						path: '/v8/unified-mfa',
-						label: '🎯 Unified MFA',
+						label: '🎯 Unified MFA V8',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
 								<FiZap />
@@ -584,6 +584,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						badge: (
 							<MigrationBadge title="V8: Unified MFA with runId threading, state machine, and comprehensive logging">
 								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'mfa-unified-legacy',
+						path: '/v8/mfa-unified',
+						label: '🔧 Unified MFA (Legacy)',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<FiSettings />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Legacy MFA registration flow - maintained for compatibility">
+								LEGACY
 							</MigrationBadge>
 						),
 					},
