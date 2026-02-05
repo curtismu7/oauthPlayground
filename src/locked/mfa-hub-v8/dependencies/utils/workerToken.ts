@@ -1,6 +1,8 @@
 // Worker Token flow utilities for PingOne Worker Token implementation
 
 import { logger } from './logger';
+import { unifiedLoggerV8 } from '../v8/services/unifiedLoggerV8';
+import { unifiedStateServiceV8 } from '../v8/services/unifiedStateServiceV8';
 
 export interface WorkerTokenResponse {
 	access_token: string;
@@ -37,11 +39,42 @@ export async function requestClientCredentialsToken(
 	scopes: string[],
 	authMethod: string = 'client_secret_post'
 ): Promise<WorkerTokenResponse> {
+	const startTime = Date.now();
+	const currentState = unifiedStateServiceV8.getCurrentState();
+	const transactionId = currentState?.transactionId || `txn_${startTime}`;
+	
+	// Set transaction ID for unified logger
+	unifiedLoggerV8.setTransactionId(transactionId);
+
 	logger.info('WORKER', 'Requesting client credentials token', {
 		endpoint,
 		clientId: `${clientId.substring(0, 8)}...`,
 		scopes: scopes.join(' '),
 		authMethod,
+	});
+
+	// Log API call start to unified logger
+	await unifiedLoggerV8.logApiCall({
+		transactionId,
+		method: 'POST',
+		url: endpoint,
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			'Accept': 'application/json',
+			...(authMethod === 'client_secret_basic' && {
+				'Authorization': `Basic [REDACTED]`
+			})
+		},
+		body: {
+			grant_type: 'client_credentials',
+			scope: scopes.join(' '),
+			client_id: clientId,
+			...(authMethod === 'client_secret_post' && {
+				client_secret: '[REDACTED]'
+			})
+		},
+		response: { status: 0 }, // Will be updated after response
+		duration: 0, // Will be updated after response
 	});
 
 	// Debug: Log the scopes being sent
@@ -53,10 +86,23 @@ export async function requestClientCredentialsToken(
 
 	// Safety check: Ensure we have valid scopes
 	if (!scopes || scopes.length === 0 || scopes.join(' ').trim() === '') {
-		logger.error('WORKER', 'No valid scopes provided for token request', { scopes });
-		throw new Error(
+		const error = new Error(
 			'No valid scopes provided. Please configure scopes for the worker token request.'
 		);
+		
+		// Log error to unified logger
+		await unifiedLoggerV8.logApiCall({
+			transactionId,
+			method: 'POST',
+			url: endpoint,
+			headers: {},
+			response: { status: 400, data: { error: error.message } },
+			duration: Date.now() - startTime,
+			error: error.message,
+		});
+
+		logger.error('WORKER', 'No valid scopes provided for token request', { scopes });
+		throw error;
 	}
 
 	const body = new URLSearchParams({
@@ -107,14 +153,91 @@ export async function requestClientCredentialsToken(
 			body: body.toString(),
 		});
 
+		const duration = Date.now() - startTime;
+		let responseData: Record<string, unknown>;
+		let error: string | undefined;
+
 		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({}));
-			throw new Error(
-				`Token request failed: ${response.status} ${response.statusText}. ${errorData.error_description || errorData.error || 'Please check your credentials and scopes.'}`
-			);
+			responseData = await response.json().catch(() => ({}));
+			error = `Token request failed: ${response.status} ${response.statusText}. ${responseData.error_description || responseData.error || 'Please check your credentials and scopes.'}`;
+			
+			// Log failed response to unified logger
+			await unifiedLoggerV8.logApiCall({
+				transactionId,
+				method: 'POST',
+				url: endpoint,
+				headers: {
+					'Content-Type': headers['Content-Type'],
+					'Accept': headers['Accept'],
+					...(headers.Authorization && { 'Authorization': '[REDACTED]' })
+				},
+				body: {
+					grant_type: 'client_credentials',
+					scope: scopes.join(' '),
+					client_id: clientId,
+					...(authMethod === 'client_secret_post' && {
+						client_secret: '[REDACTED]'
+					})
+				},
+				response: {
+					status: response.status,
+					headers: Object.fromEntries(response.headers.entries()),
+					data: responseData
+				},
+				duration,
+				error,
+			});
+
+			throw new Error(error);
 		}
 
 		const tokenData = await response.json();
+		responseData = tokenData;
+
+		// Log successful response to unified logger
+		await unifiedLoggerV8.logApiCall({
+			transactionId,
+			method: 'POST',
+			url: endpoint,
+			headers: {
+				'Content-Type': headers['Content-Type'],
+				'Accept': headers['Accept'],
+				...(headers.Authorization && { 'Authorization': '[REDACTED]' })
+			},
+			body: {
+				grant_type: 'client_credentials',
+				scope: scopes.join(' '),
+				client_id: clientId,
+				...(authMethod === 'client_secret_post' && {
+					client_secret: '[REDACTED]'
+				})
+			},
+			response: {
+				status: response.status,
+				headers: Object.fromEntries(response.headers.entries()),
+				data: {
+					token_type: tokenData.token_type,
+					expires_in: tokenData.expires_in,
+					scope: tokenData.scope,
+					access_token: '[REDACTED]'
+				}
+			},
+			duration,
+		});
+
+		// Update state machine if worker token was successfully obtained
+		if (currentState && currentState.state === 'INIT') {
+			try {
+				await unifiedStateServiceV8.processEvent('WORKER_TOKEN_LOADED', {
+					workerToken: {
+						token: tokenData.access_token,
+						expiresAt: Date.now() + (tokenData.expires_in * 1000),
+					},
+				});
+			} catch (stateError) {
+				console.warn('Failed to update state machine:', stateError);
+			}
+		}
 
 		logger.success('TOKEN', 'Worker token received', {
 			tokenType: tokenData.token_type,
@@ -124,6 +247,22 @@ export async function requestClientCredentialsToken(
 
 		return tokenData;
 	} catch (error) {
+		const duration = Date.now() - startTime;
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		
+		// Log error to unified logger if not already logged above
+		if (!errorMessage.includes('Token request failed:')) {
+			await unifiedLoggerV8.logApiCall({
+				transactionId,
+				method: 'POST',
+				url: endpoint,
+				headers: {},
+				response: { status: 0, data: { error: errorMessage } },
+				duration,
+				error: errorMessage,
+			});
+		}
+
 		logger.error('WORKER', 'Token request failed', error);
 		throw error;
 	}
