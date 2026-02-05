@@ -55,6 +55,42 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	// Check if we're in an MFA flow context
 	const isMfaFlow = location.pathname.startsWith('/v8/mfa');
 
+	// Check if worker token is available (from workerTokenServiceV8)
+	const [hasWorkerToken, setHasWorkerToken] = useState(false);
+
+	// Check worker token availability on mount and when modal opens
+	useEffect(() => {
+		const checkWorkerToken = async () => {
+			try {
+				const token = await workerTokenServiceV8.getToken();
+				const hasToken = !!token;
+				setHasWorkerToken(hasToken);
+				
+				// If worker token is available, extract environment ID from it
+				if (hasToken && !environmentId) {
+					// Parse JWT token to get environment ID
+					try {
+						const parts = token.split('.');
+						if (parts.length === 3) {
+							const payload = JSON.parse(atob(parts[1]));
+							if (payload.environmentId) {
+								setEnvironmentId(payload.environmentId);
+							}
+						}
+					} catch (jwtError) {
+						console.warn('Failed to extract environment ID from worker token:', jwtError);
+					}
+				}
+			} catch (error) {
+				setHasWorkerToken(false);
+			}
+		};
+
+		if (isOpen) {
+			checkWorkerToken();
+		}
+	}, [isOpen, environmentId]);
+
 	// Default scopes - same for all flows
 	const defaultScopes = 'openid profile email';
 	const [scopes, setScopes] = useState(defaultScopes);
@@ -1528,40 +1564,42 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 					{/* Form Fields */}
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-						{/* Environment ID */}
-						<div>
-							<label
-								htmlFor="user-login-env-id"
-								style={{
-									display: 'block',
-									fontSize: '14px',
-									fontWeight: '600',
-									color: '#374151',
-									marginBottom: '6px',
-								}}
-							>
-								Environment ID <span style={{ color: '#ef4444' }}>*</span>
-							</label>
-							<input
-								id="user-login-env-id"
-								type="text"
-								value={environmentId}
-								onChange={(e) => setEnvironmentId(e.target.value)}
-								placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-								style={{
-									width: '100%',
-									padding: '10px 12px',
-									border: '1px solid #d1d5db',
-									borderRadius: '6px',
-									fontSize: '14px',
-								}}
-							/>
-							<small
+						{/* Environment ID - Hide when worker token is available */}
+						{!hasWorkerToken && (
+							<div>
+								<label
+									htmlFor="user-login-env-id"
+									style={{
+										display: 'block',
+										fontSize: '14px',
+										fontWeight: '600',
+										color: '#374151',
+										marginBottom: '6px',
+									}}
+								>
+									Environment ID <span style={{ color: '#ef4444' }}>*</span>
+								</label>
+								<input
+									id="user-login-env-id"
+									type="text"
+									value={environmentId}
+									onChange={(e) => setEnvironmentId(e.target.value)}
+									placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+									style={{
+										width: '100%',
+										padding: '10px 12px',
+										border: '1px solid #d1d5db',
+										borderRadius: '6px',
+										fontSize: '14px',
+									}}
+								/>
+								<small
 								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
 							>
 								Your PingOne environment ID
 							</small>
-						</div>
+							</div>
+						)}
 
 						{/* Client ID */}
 						<div>
