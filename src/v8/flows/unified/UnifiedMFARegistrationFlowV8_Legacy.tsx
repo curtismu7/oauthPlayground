@@ -445,13 +445,18 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			return;
 		}
 
+		// Get worker token for API call
+		const workerTokenForOTP = await workerTokenServiceV8.getToken();
+
 		console.log(`${MODULE_TAG} OTP verification debug:`, {
 			environmentId,
 			username: username.trim(),
 			authenticationId,
 			otpCode,
 			hasEnvironmentId: !!environmentId,
-			envIdLength: environmentId?.length
+			envIdLength: environmentId?.length,
+			hasWorkerToken: !!workerTokenForOTP,
+			workerTokenLength: workerTokenForOTP?.length
 		});
 
 		try {
@@ -467,6 +472,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					deviceAuthId: authenticationId,
 					otp: otpCode,
 					region: 'na',
+					workerToken: workerTokenForOTP,
 				}),
 			});
 
