@@ -42,11 +42,9 @@ import { useUserSearch } from '@/v8/hooks/useUserSearch';
 import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
-import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
-import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
-import mfaServiceV8_Legacy from '@/v8/services/mfaServiceV8_Legacy';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
@@ -182,7 +180,23 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		};
 
 		extractEnvironmentId();
-	}, [workerToken, environmentId]);
+	}, [environmentId]);
+
+	// Check if worker token is available for UI decisions
+	const [hasWorkerToken, setHasWorkerToken] = useState(false);
+
+	useEffect(() => {
+		const checkWorkerToken = async () => {
+			try {
+				const token = await workerTokenServiceV8.getToken();
+				setHasWorkerToken(!!token);
+			} catch (error) {
+				setHasWorkerToken(false);
+			}
+		};
+
+		checkWorkerToken();
+	}, [workerToken]);
 
 	// Use user search hook for user fetching and search
 	const {
@@ -594,36 +608,38 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						)}
 					</div>
 
-					{/* Environment ID */}
-					<div style={{ marginBottom: '20px' }}>
-						<label
-							htmlFor="env-id"
-							style={{
-								display: 'block',
-								fontSize: '14px',
-								fontWeight: '600',
-								color: '#374151',
-								marginBottom: '8px',
-							}}
-						>
-							Environment ID
-						</label>
-						<input
-							id="env-id"
-							type="text"
-							value={environmentId}
-							onChange={(e) => setEnvironmentId(e.target.value)}
-							placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-							style={{
-								width: '100%',
-								padding: '10px 12px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '14px',
-								boxSizing: 'border-box',
-							}}
-						/>
-					</div>
+					{/* Environment ID - Hide when worker token is available */}
+					{!hasWorkerToken && (
+						<div style={{ marginBottom: '20px' }}>
+							<label
+								htmlFor="env-id"
+								style={{
+									display: 'block',
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '8px',
+								}}
+							>
+								Environment ID
+							</label>
+							<input
+								id="env-id"
+								type="text"
+								value={environmentId}
+								onChange={(e) => setEnvironmentId(e.target.value)}
+								placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+								style={{
+									width: '100%',
+									padding: '10px 12px',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									fontSize: '14px',
+									boxSizing: 'border-box',
+								}}
+							/>
+						</div>
+					)}
 
 					{/* SQLite Database Stats */}
 					{environmentId && (
