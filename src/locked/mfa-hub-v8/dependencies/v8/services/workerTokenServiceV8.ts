@@ -143,7 +143,7 @@ class WorkerTokenServiceV8 {
 	 */
 	async loadCredentials(): Promise<WorkerTokenCredentials | null> {
 		// Import analytics utility once for this function
-		const { safeAnalyticsFetch } = await import('@/v8/utils/analyticsServerCheckV8');
+		const { safeAnalyticsFetch } = await import('../../../../../v8/utils/analyticsServerCheckV8');
 
 		// #region agent log (only if analytics server is available)
 		safeAnalyticsFetch({
@@ -572,7 +572,7 @@ class WorkerTokenServiceV8 {
 		// #region agent log (only if analytics server is available)
 		// Note: This is a synchronous method, so we can't await the check
 		// Use fire-and-forget pattern to avoid blocking
-		import('@/v8/utils/analyticsServerCheckV8')
+		import('../../../../../v8/utils/analyticsServerCheckV8')
 			.then(({ safeAnalyticsFetch }) => {
 				safeAnalyticsFetch({
 					location: 'workerTokenServiceV8.ts:394',
