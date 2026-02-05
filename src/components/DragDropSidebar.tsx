@@ -591,21 +591,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 					},
 					{
-						id: 'pingone-api-test',
-						path: '/test/pingone-api-test',
-						label: 'PingOne API Test Suite',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiTool />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Test PingOne OAuth 2.0 and OIDC API calls">
-								<FiCheckCircle />
-							</MigrationBadge>
-						),
-					},
-					{
 						id: 'all-flows-api-test',
 						path: '/test/all-flows-api-test',
 						label: 'All Flows API Test Suite',
