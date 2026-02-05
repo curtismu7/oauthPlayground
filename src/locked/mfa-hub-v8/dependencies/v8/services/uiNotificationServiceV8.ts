@@ -22,7 +22,7 @@
  * const value = await uiNotificationServiceV8.prompt('Enter name:');
  */
 
-import { v4ToastManager } from '../../utils/v4ToastMessages.ts';
+import { v4ToastManager } from '@/utils/v4ToastMessages';
 
 const MODULE_TAG = '[🔔 UI-NOTIFICATION-V8]';
 
