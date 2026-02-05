@@ -439,6 +439,15 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			return;
 		}
 
+		console.log(`${MODULE_TAG} OTP verification debug:`, {
+			environmentId,
+			username: username.trim(),
+			authenticationId,
+			otpCode,
+			hasEnvironmentId: !!environmentId,
+			envIdLength: environmentId?.length
+		});
+
 		try {
 			// Use backend proxy to avoid CORS issues
 			const response = await fetch('/api/pingone/mfa/validate-otp-for-device', {
