@@ -161,6 +161,29 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		enableAutoRefresh: true,
 	});
 
+	// Extract environment ID from worker token when available
+	useEffect(() => {
+		const extractEnvironmentId = async () => {
+			try {
+				const token = await workerTokenServiceV8.getToken();
+				if (token && !environmentId) {
+					const parts = token.split('.');
+					if (parts.length === 3) {
+						const payload = JSON.parse(atob(parts[1]));
+						if (payload.environmentId) {
+							setEnvironmentId(payload.environmentId);
+							console.log(`${MODULE_TAG} Environment ID extracted from worker token:`, payload.environmentId);
+						}
+					}
+				}
+			} catch (error) {
+				console.warn(`${MODULE_TAG} Failed to extract environment ID from worker token:`, error);
+			}
+		};
+
+		extractEnvironmentId();
+	}, [workerToken, environmentId]);
+
 	// Use user search hook for user fetching and search
 	const {
 		users,
