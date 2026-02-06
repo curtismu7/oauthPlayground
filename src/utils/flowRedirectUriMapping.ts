@@ -332,7 +332,10 @@ export function generateRedirectUriForFlow(flowType: string, baseUrl?: string): 
 	}
 
 	const base =
-		baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'https://localhost:3000');
+		baseUrl ||
+		(typeof window !== 'undefined'
+			? window.location.origin.replace('http://', 'https://')
+			: 'https://localhost:3000');
 	return `${base}/${config.callbackPath}`;
 }
 
