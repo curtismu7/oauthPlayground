@@ -34,9 +34,9 @@ export const CallbackHandlerV8U: React.FC = () => {
 			currentPath.includes('user-mfa-login-callback');
 
 		// Don't handle debug callback page here - it has its own component
-		const isDebugCallbackPage =
-			currentPath === '/v8/unified-mfa-callback' ||
-			currentPath.includes('/v8/mfa-unified-callback');
+		// Note: Temporarily disabling this to fix the stuck callback issue
+		const isDebugCallbackPage = false; // currentPath === '/v8/unified-mfa-callback' ||
+		// currentPath.includes('/v8/mfa-unified-callback');
 
 		if (isDebugCallbackPage) {
 			console.log(`${MODULE_TAG} Debug callback page detected - skipping CallbackHandlerV8U logic`);
