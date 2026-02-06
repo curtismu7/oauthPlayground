@@ -103,6 +103,15 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [isUpdatingApp, setIsUpdatingApp] = useState(false);
 	const [showSuccessPage, setShowSuccessPage] = useState(false);
 	const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
+	
+	// Debug state for authorization URL details
+	const [debugInfo, setDebugInfo] = useState<{
+		authorizationUrl: string;
+		requestHeaders: Record<string, string>;
+		requestBody: string;
+	} | null>(null);
+	const [showDebugSection, setShowDebugSection] = useState(false);
+	
 	// Track if we're processing a callback (returning from PingOne authentication)
 	const [isProcessingCallback, setIsProcessingCallback] = useState(false);
 	// Worker token settings state (for consistency with other pages)
@@ -1213,6 +1222,25 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			// CRITICAL DEBUG: Verify redirect_uri in the actual authorization URL
 			const urlObj = new URL(authorizationUrl);
 			const urlRedirectUri = urlObj.searchParams.get('redirect_uri');
+
+			// Capture debug information for display
+			const debugRequestData = {
+				authorizationUrl,
+				requestHeaders: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					'Accept': 'application/json',
+				},
+				requestBody: new URLSearchParams({
+					response_type: 'code',
+					client_id: clientId.trim(),
+					redirect_uri: finalRedirectUri,
+					scope: scopes.trim(),
+					state: state,
+					code_challenge: codeVerifier,
+					code_challenge_method: 'S256',
+				}).toString(),
+			};
+			setDebugInfo(debugRequestData);
 
 			// #region agent log
 			sendAnalyticsLog({
@@ -2378,6 +2406,129 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							)}
 						</button>
 					</div>
+
+					{/* Debug Section - Collapsible */}
+					{debugInfo && (
+						<div style={{ marginTop: '16px', borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
+							<button
+								type="button"
+								onClick={() => setShowDebugSection(!showDebugSection)}
+								style={{
+									background: '#f3f4f6',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									padding: '8px 12px',
+									fontSize: '12px',
+									fontWeight: '600',
+									cursor: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+									width: '100%',
+									justifyContent: 'space-between',
+								}}
+							>
+								<span>🔍 Debug Information</span>
+								<span>{showDebugSection ? '▼' : '▶'}</span>
+							</button>
+							
+							{showDebugSection && (
+								<div style={{ marginTop: '12px', background: '#f9fafb', borderRadius: '6px', padding: '12px' }}>
+									<div style={{ marginBottom: '12px' }}>
+										<strong style={{ color: '#374151', fontSize: '13px' }}>Authorization URL:</strong>
+										<div style={{
+											background: 'white',
+											padding: '8px',
+											borderRadius: '4px',
+											border: '1px solid #e5e7eb',
+											fontFamily: 'monospace',
+											fontSize: '11px',
+											wordBreak: 'break-all',
+											marginTop: '4px',
+											maxHeight: '100px',
+											overflow: 'auto',
+										}}>
+											{debugInfo.authorizationUrl}
+										</div>
+										<button
+											onClick={() => navigator.clipboard.writeText(debugInfo.authorizationUrl)}
+											style={{
+												position: 'absolute',
+												right: '8px',
+												top: '8px',
+												background: '#3b82f6',
+												color: 'white',
+												border: 'none',
+												borderRadius: '4px',
+												padding: '4px 8px',
+												fontSize: '10px',
+												cursor: 'pointer',
+											}}
+										>
+											📋
+										</button>
+									</div>
+
+									<div style={{ marginBottom: '12px', position: 'relative' }}>
+										<strong style={{ color: '#374151', fontSize: '13px' }}>Request Headers:</strong>
+										<div style={{
+											background: 'white',
+											padding: '8px',
+											borderRadius: '4px',
+											border: '1px solid #e5e7eb',
+											fontFamily: 'monospace',
+											fontSize: '11px',
+											marginTop: '4px',
+											maxHeight: '80px',
+											overflow: 'auto',
+										}}>
+											{Object.entries(debugInfo.requestHeaders).map(([key, value]) => (
+												<div key={key} style={{ marginBottom: '4px' }}>
+													<strong style={{ color: '#6b7280' }}>{key}:</strong> {value}
+												</div>
+											))}
+										</div>
+									</div>
+
+									<div style={{ position: 'relative' }}>
+										<strong style={{ color: '#374151', fontSize: '13px' }}>Request Body (Form-Encoded):</strong>
+										<div style={{
+											background: 'white',
+											padding: '8px',
+											borderRadius: '4px',
+											border: '1px solid #e5e7eb',
+											fontFamily: 'monospace',
+											fontSize: '11px',
+											marginTop: '4px',
+											maxHeight: '120px',
+											overflow: 'auto',
+											whiteSpace: 'pre-wrap',
+											wordBreak: 'break-all',
+										}}>
+											{debugInfo.requestBody}
+										</div>
+										<button
+											onClick={() => navigator.clipboard.writeText(debugInfo.requestBody)}
+											style={{
+												position: 'absolute',
+												right: '8px',
+												top: '8px',
+												background: '#3b82f6',
+												color: 'white',
+												border: 'none',
+												borderRadius: '4px',
+												padding: '4px 8px',
+												fontSize: '10px',
+												cursor: 'pointer',
+											}}
+										>
+											📋
+										</button>
+									</div>
+								</div>
+							)}
+						</div>
+					)}
 				</div>
 			</div>
 		</>
