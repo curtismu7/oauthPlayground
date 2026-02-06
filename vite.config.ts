@@ -116,12 +116,12 @@ export default defineConfig(({ mode }) => {
 		server: {
 			port: 3000,
 			open: true,
-			https: false, // Disable HTTPS in development for easier startup
+			https: true, // Enable HTTPS in development to match PingOne redirect URI
 			// In production, Vercel will handle HTTPS
 			hmr: {
 				port: 3000,
 				host: 'localhost',
-				protocol: 'ws',
+				protocol: 'wss', // Use secure WebSocket for HTTPS
 				clientPort: 3000,
 			},
 			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)
@@ -209,32 +209,237 @@ export default defineConfig(({ mode }) => {
 			rollupOptions: {
 				output: {
 					manualChunks: (id) => {
+						const normalizedId = id.replace(/\\/g, '/');
+						const lowerId = normalizedId.toLowerCase();
 						// Vendor chunks
-						if (id.includes('node_modules')) {
-							if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+						if (normalizedId.includes('node_modules')) {
+							if (
+								normalizedId.includes('react') ||
+								normalizedId.includes('react-dom') ||
+								normalizedId.includes('react-router')
+							) {
 								return 'react-vendor';
 							}
-							if (id.includes('styled-components')) {
+							if (normalizedId.includes('styled-components')) {
 								return 'styled-vendor';
 							}
-							if (id.includes('react-icons')) {
+							if (normalizedId.includes('react-icons')) {
 								return 'icons-vendor';
 							}
 							return 'vendor';
 						}
 
 						// OAuth flow chunks - group by functionality
-						if (id.includes('src/pages/flows/')) {
+						if (lowerId.includes('/src/pages/flows/')) {
+							if (
+								lowerId.includes('authorizationcode') ||
+								lowerId.includes('authcode') ||
+								lowerId.includes('pkce') ||
+								lowerId.includes('hybrid')
+							) {
+								return 'oauth-flows-authcode';
+							}
+							if (lowerId.includes('implicit')) {
+								return 'oauth-flows-implicit';
+							}
+							if (lowerId.includes('device') || lowerId.includes('ciba')) {
+								return 'oauth-flows-device';
+							}
+							if (lowerId.includes('token') || lowerId.includes('ropc')) {
+								return 'oauth-flows-token';
+							}
+							if (lowerId.includes('par') || lowerId.includes('rar')) {
+								return 'oauth-flows-par';
+							}
+							if (lowerId.includes('jwt') || lowerId.includes('saml')) {
+								return 'oauth-flows-jwt';
+							}
+							if (lowerId.includes('userinfo') || lowerId.includes('user-info')) {
+								return 'oauth-flows-userinfo';
+							}
 							return 'oauth-flows';
 						}
 
-						// Utility chunks
-						if (id.includes('src/utils/')) {
-							return 'utils';
+						// V8/V8U flows
+						if (lowerId.includes('/src/v8/flows/')) {
+							return 'v8-flows';
+						}
+						if (lowerId.includes('/src/v8u/flows/')) {
+							return 'v8u-flows';
 						}
 
-						// Component chunks
-						if (id.includes('src/components/')) {
+						// V8/V8U components
+						if (lowerId.includes('/src/v8/components/')) {
+							return 'v8-components';
+						}
+						if (lowerId.includes('/src/v8u/components/')) {
+							return 'v8u-components';
+						}
+
+						// Services and hooks
+						if (lowerId.includes('/src/v8/services/')) {
+							return 'v8-services';
+						}
+						if (lowerId.includes('/src/v8u/services/')) {
+							return 'v8u-services';
+						}
+						if (lowerId.includes('/src/v8/hooks/')) {
+							return 'v8-hooks';
+						}
+
+						// Utility chunks
+						if (lowerId.includes('/src/utils/')) {
+							return 'utils';
+						}
+						if (lowerId.includes('/src/v8/utils/')) {
+							return 'v8-utils';
+						}
+
+						// Page and component chunks
+						if (lowerId.includes('/src/pages/test/')) {
+							return 'pages-test';
+						}
+						if (lowerId.includes('/src/pages/docs/')) {
+							return 'pages-docs';
+						}
+						if (lowerId.includes('/src/pages/user-guides/')) {
+							return 'pages-guides';
+						}
+						if (lowerId.includes('/src/pages/learn/')) {
+							return 'pages-learn';
+						}
+						if (lowerId.includes('/src/pages/security/')) {
+							return 'pages-security';
+						}
+						if (lowerId.includes('/src/pages/ai')) {
+							return 'pages-ai';
+						}
+						if (lowerId.includes('/src/pages/pingone')) {
+							return 'pages-pingone';
+						}
+						if (lowerId.includes('/src/pages/oauth') || lowerId.includes('/src/pages/oidc')) {
+							return 'pages-oauth';
+						}
+						if (
+							lowerId.includes('/src/pages/token') ||
+							lowerId.includes('/src/pages/jwt') ||
+							lowerId.includes('/src/pages/jwks')
+						) {
+							return 'pages-token';
+						}
+						if (lowerId.includes('/src/pages/')) {
+							return 'pages';
+						}
+						if (lowerId.includes('/src/components/device/')) {
+							return 'components-device';
+						}
+						if (lowerId.includes('/src/components/flow/')) {
+							return 'components-flow';
+						}
+						if (lowerId.includes('/src/components/mfa/')) {
+							return 'components-mfa';
+						}
+						if (lowerId.includes('/src/components/token/')) {
+							return 'components-token';
+						}
+						if (lowerId.includes('/src/components/worker/')) {
+							return 'components-worker';
+						}
+						if (lowerId.includes('/src/components/sidebar/')) {
+							return 'components-sidebar';
+						}
+						if (lowerId.includes('/src/components/layout/')) {
+							return 'components-layout';
+						}
+						if (lowerId.includes('/src/components/ui/')) {
+							return 'components-ui';
+						}
+						if (lowerId.includes('/src/components/display/')) {
+							return 'components-display';
+						}
+						if (lowerId.includes('/src/components/password-reset/')) {
+							return 'components-password-reset';
+						}
+						if (lowerId.includes('/src/components/steps/')) {
+							return 'components-steps';
+						}
+						if (
+							lowerId.includes('/src/components/') &&
+							(lowerId.includes('credential') ||
+								lowerId.includes('credentials') ||
+								lowerId.includes('config'))
+						) {
+							return 'components-credentials';
+						}
+						if (
+							lowerId.includes('/src/components/') &&
+							(lowerId.includes('flow') ||
+								lowerId.includes('sequence') ||
+								lowerId.includes('step'))
+						) {
+							return 'components-flow-core';
+						}
+						if (
+							lowerId.includes('/src/components/') &&
+							(lowerId.includes('authorize') || lowerId.includes('authorization'))
+						) {
+							return 'components-oauth-authorize';
+						}
+						if (
+							lowerId.includes('/src/components/') &&
+							(lowerId.includes('par') || lowerId.includes('rar'))
+						) {
+							return 'components-oauth-par';
+						}
+						if (
+							lowerId.includes('/src/components/') &&
+							(lowerId.includes('token') || lowerId.includes('jwt') || lowerId.includes('jwks'))
+						) {
+							return 'components-token';
+						}
+						if (
+							lowerId.includes('/src/components/') &&
+							(lowerId.includes('client') || lowerId.includes('config'))
+						) {
+							return 'components-oauth-client';
+						}
+						if (
+							lowerId.includes('/src/components/') &&
+							(lowerId.includes('discovery') || lowerId.includes('metadata'))
+						) {
+							return 'components-oauth-discovery';
+						}
+						if (
+							lowerId.includes('/src/components/') &&
+							(lowerId.includes('oauth') || lowerId.includes('oidc'))
+						) {
+							return 'components-oauth';
+						}
+						if (
+							lowerId.includes('/src/components/') &&
+							(lowerId.includes('token') ||
+								lowerId.includes('jwt') ||
+								lowerId.includes('jwks'))
+						) {
+							return 'components-token';
+						}
+						if (
+							lowerId.includes('/src/components/') &&
+							(lowerId.includes('pingone') ||
+								lowerId.includes('mfa') ||
+								lowerId.includes('worker'))
+						) {
+							return 'components-pingone';
+						}
+						if (
+							lowerId.includes('/src/components/') &&
+							(lowerId.includes('security') ||
+								lowerId.includes('audit') ||
+								lowerId.includes('analytics'))
+						) {
+							return 'components-security';
+						}
+						if (lowerId.includes('/src/components/')) {
 							return 'components';
 						}
 					},
