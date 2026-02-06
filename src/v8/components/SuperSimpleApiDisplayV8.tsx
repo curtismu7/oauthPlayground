@@ -341,6 +341,12 @@ const createPopOutWindow = (
 
 			function getShortUrl(call) {
 				const displayUrl = call.actualPingOneUrl || call.url;
+				
+				// Handle base64 image data URLs - show as text, not render as image
+				if (displayUrl.startsWith('data:image/')) {
+					return '[Image Data: ' + displayUrl.substring(0, 30) + '...' + displayUrl.substring(displayUrl.lastIndexOf(',')) + ']';
+				}
+				
 				if (displayUrl.length > 60) {
 					return displayUrl.substring(0, 30) + '...' + displayUrl.substring(displayUrl.length - 25);
 				}
@@ -1003,6 +1009,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					const url = call.url || '';
 					const actualPingOneUrl = (call as { actualPingOneUrl?: string }).actualPingOneUrl || '';
 					const step = (call as { step?: string }).step;
+					const operationName = (call as { operationName?: string }).operationName;
 
 					// Check both url and actualPingOneUrl for PingOne API calls
 					const isPingOne =
@@ -1052,10 +1059,24 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						return isUnifiedFlow;
 					} else if (flowFilter === 'mfa') {
 						// MFA flow: only MFA calls (device management, challenges, etc.)
-						// Check both url, actualPingOneUrl, and step
+						// Check both url, actualPingOneUrl, operationName, and step
 						return (
 							url.includes('/api/pingone/mfa/') ||
-							(actualPingOneUrl.includes('/users/') && actualPingOneUrl.includes('/devices')) || // PingOne devices endpoint
+							(actualPingOneUrl && actualPingOneUrl.includes('/users/') && actualPingOneUrl.includes('/devices')) || // PingOne devices endpoint
+							(url.includes('/users/') && url.includes('/devices')) || // Direct PingOne device endpoints
+							(operationName && (
+								operationName.includes('MFA') ||
+								operationName.includes('Device') ||
+								operationName.includes('TOTP') ||
+								operationName.includes('FIDO') ||
+								operationName.includes('SMS') ||
+								operationName.includes('EMAIL') ||
+								operationName.includes('OTP') ||
+								operationName.includes('Activate') ||
+								operationName.includes('Block') ||
+								operationName.includes('Unblock') ||
+								operationName.includes('Delete')
+							)) ||
 							step?.startsWith('mfa-')
 						);
 					} else if (flowFilter === 'spiffe-spire') {
@@ -1284,6 +1305,11 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 	};
 
 	const _getShortUrl = (url: string) => {
+		// Handle base64 image data URLs - show as text, not render as image
+		if (url.startsWith('data:image/')) {
+			return `[Image Data: ${url.substring(0, 30)}...${url.substring(url.lastIndexOf(','))}]`;
+		}
+		
 		// Remove protocol and domain for cleaner display
 		let shortUrl = url
 			.replace('https://api.pingone.com/v1/', '')
