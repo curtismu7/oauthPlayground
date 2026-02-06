@@ -288,7 +288,7 @@ const TokenManagementFlow: React.FC<TokenManagementFlowProps> = ({ credentials }
 		grantType: 'authorization_code' as TokenRequest['grantType'],
 		code: '',
 		refreshToken: '',
-		redirectUri: 'http://localhost:3000/callback',
+		redirectUri: 'https://localhost:3000/callback',
 		scope: 'openid profile email',
 		audience: '',
 		subjectToken: '',
