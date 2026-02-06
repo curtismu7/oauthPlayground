@@ -33,7 +33,7 @@ export class MFARedirectUriServiceV8 {
 			console.error(`${MODULE_TAG} No redirect URI found for flow type: ${flowType}`);
 			// Fallback to a generic MFA callback - always use HTTPS for security
 			const protocol = window.location.hostname === 'localhost' ? 'https' : 'https';
-			return `${protocol}://${window.location.host}/v8/unified-mfa-callback`;
+			return `${protocol}://${window.location.host}/mfa-unified-callback`;
 		}
 
 		console.log(`${MODULE_TAG} Providing redirect URI for ${flowType}: ${redirectUri}`);
