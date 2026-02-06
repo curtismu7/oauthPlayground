@@ -541,7 +541,6 @@ const AppRoutes: React.FC = () => {
 							<Route path="/mfa-hub-callback" element={<CallbackHandlerV8U />} />
 							{/* LEGACY: V8 Unified MFA callback routes - redirects to new routes for backward compatibility */}
 							<Route path="/v8/unified-mfa-callback" element={<CallbackHandlerV8U />} />
-							<Route path="/v8/mfa-unified-callback" element={<CallbackHandlerV8U />} />
 							<Route path="/hybrid-callback" element={<HybridCallback />} />
 							<Route path="/implicit-callback" element={<ImplicitCallback />} />
 							<Route path="/oauth-implicit-callback" element={<ImplicitCallback />} />
