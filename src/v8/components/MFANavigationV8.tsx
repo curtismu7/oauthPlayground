@@ -49,12 +49,12 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 	const [showDocsModal, setShowDocsModal] = useState(false);
 
 	// Check if we're on the unified MFA flow
-	const isUnifiedFlow = location.pathname.includes('/v8/mfa-unified');
+	const isUnifiedFlow = location.pathname.includes('/v8/unified-mfa');
 
 	const handleBackToMain = () => {
 		if (isUnifiedFlow) {
 			// If on unified flow, navigate to unified flow start (step 0)
-			navigate('/v8/mfa-unified', {
+			navigate('/v8/unified-mfa', {
 				state: location.state,
 				replace: true,
 			});
@@ -222,7 +222,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 							type="button"
 							onClick={handleBackToMain}
 							className="nav-link-btn"
-							title="Back to MFA Hub"
+							title={isUnifiedFlow ? 'Restart Unified Flow' : 'Back to MFA Hub'}
 							style={{
 								fontWeight: '500',
 								flex: 1,
@@ -231,7 +231,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 								border: '2px solid #3b82f6',
 							}}
 						>
-							🏠 Back to Main
+							🏠 {isUnifiedFlow ? 'Restart Flow' : 'Back to Main'}
 						</button>
 					)}
 					<div

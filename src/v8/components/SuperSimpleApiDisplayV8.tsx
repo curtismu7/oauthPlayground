@@ -28,23 +28,123 @@ interface ApiCall {
 	url: string;
 	headers?: Record<string, string>;
 	body?: unknown;
-	response?:
-		| {
-				status: number;
-				data?: unknown;
-		  }
-		| undefined;
+	response?: {
+		status: number;
+		data?: unknown;
+	} | undefined;
 	timestamp: number;
 	actualPingOneUrl?: string;
 	isProxy?: boolean;
 }
+
+type FlowFilter = 'unified' | 'mfa' | 'spiffe-spire' | 'all';
+
+type ProcessedApiCall = ApiCall & {
+	statusColor: string;
+	methodColor: string;
+	apiType: { icon: string; label: string };
+	hasHeaders: boolean;
+	hasBody: boolean;
+	hasResponse: boolean;
+	headersText: string;
+	bodyText: string;
+	responseText: string;
+};
+
+interface PopOutWindow extends Window {
+	processedCalls?: ProcessedApiCall[];
+	initialFontSize?: number;
+	initialShowP1Only?: boolean;
+	initialFlowFilter?: FlowFilter;
+	initialExcludePatterns?: string[];
+	initialIncludePatterns?: string[];
+}
+
+/**
+ * Safe JSON stringify that won't throw on circular structures.
+ * Falls back to String(value) when needed.
+ */
+const safeStringify = (value: unknown, space = 2): string => {
+	try {
+		const seen = new WeakSet<object>();
+		return JSON.stringify(
+			value,
+			(_key, val) => {
+				if (typeof val === 'object' && val !== null) {
+					if (seen.has(val as object)) return '[Circular]';
+					seen.add(val as object);
+				}
+				return val;
+			},
+			space
+		);
+	} catch {
+		try {
+			return String(value);
+		} catch {
+			return '';
+		}
+	}
+};
+
+// Pre-process the data to avoid complex JavaScript in the popout HTML and to ensure
+// postMessage updates keep the same shape the popout renderer expects.
+const processApiCallsForDisplay = (
+	apiCalls: ApiCall[],
+	getApiTypeIcon: (call: { url?: string; actualPingOneUrl?: string; isProxy?: boolean }) => { icon: string; label: string }
+): ProcessedApiCall[] => {
+	return apiCalls.map((call) => {
+		const status = call.response?.status || 0;
+		const statusColor =
+			status >= 200 && status < 300 ? '#10b981' : status >= 400 ? '#ef4444' : '#f59e0b';
+		const methodColor =
+			call.method === 'GET'
+				? '#3b82f6'
+				: call.method === 'POST'
+					? '#10b981'
+					: call.method === 'DELETE'
+						? '#ef4444'
+						: '#6b7280';
+		const apiType = getApiTypeIcon(call);
+		const hasHeaders =
+			!!call.headers &&
+			typeof call.headers === 'object' &&
+			Object.keys(call.headers).length > 0;
+		const hasBody =
+			!!call.body &&
+			typeof call.body === 'object' &&
+			Object.keys(call.body as Record<string, unknown>).length > 0;
+		const hasResponse = call.response?.data !== undefined && call.response.data !== null;
+
+		const headersText = hasHeaders ? safeStringify(call.headers, 2) : '';
+		const bodyText = hasBody
+			? typeof call.body === 'string'
+				? call.body
+				: safeStringify(call.body, 2)
+			: '';
+		const responseText = hasResponse ? safeStringify(call.response?.data, 2) : '';
+
+		return {
+			...call,
+			statusColor,
+			methodColor,
+			apiType,
+			hasHeaders,
+			hasBody,
+			hasResponse,
+			headersText,
+			bodyText,
+			responseText,
+		};
+	});
+};
 
 // Helper function to create fully functional pop-out window
 const createPopOutWindow = (
 	apiCalls: ApiCall[],
 	fontSize: number,
 	_onFontSizeChange: (newSize: number) => void, // Unused - font size changes are handled via postMessage
-	flowFilter: 'unified' | 'mfa' | 'spiffe-spire' | 'all',
+	flowFilter: FlowFilter,
 	excludePatterns: string[],
 	includePatterns: string[],
 	showP1Only: boolean
@@ -81,45 +181,8 @@ const createPopOutWindow = (
 		return { icon: '🌐', label: 'External API' };
 	};
 
-	// Pre-process the data to avoid complex JavaScript in HTML
-	const processedCalls = apiCalls.map((call) => {
-		const status = call.response?.status || 0;
-		const statusColor =
-			status >= 200 && status < 300 ? '#10b981' : status >= 400 ? '#ef4444' : '#f59e0b';
-		const methodColor =
-			call.method === 'GET'
-				? '#3b82f6'
-				: call.method === 'POST'
-					? '#10b981'
-					: call.method === 'DELETE'
-						? '#ef4444'
-						: '#6b7280';
-		const apiType = getApiTypeIcon(call);
-		const hasHeaders =
-			call.headers && typeof call.headers === 'object' && Object.keys(call.headers).length > 0;
-		const hasBody = call.body && typeof call.body === 'object' && Object.keys(call.body).length > 0;
-		const hasResponse = call.response?.data !== undefined && call.response.data !== null;
-		const headersText = hasHeaders ? JSON.stringify(call.headers, null, 2) : '';
-		const bodyText = hasBody
-			? typeof call.body === 'string'
-				? call.body
-				: JSON.stringify(call.body, null, 2)
-			: '';
-		const responseText = hasResponse ? JSON.stringify(call.response.data, null, 2) : '';
 
-		return {
-			...call,
-			statusColor,
-			methodColor,
-			apiType,
-			hasHeaders,
-			hasBody,
-			hasResponse,
-			headersText,
-			bodyText,
-			responseText,
-		};
-	});
+	const processedCalls = processApiCallsForDisplay(apiCalls, getApiTypeIcon);
 
 	// Create a fully functional HTML page with JavaScript
 	const html = `<!DOCTYPE html>
@@ -295,6 +358,204 @@ const createPopOutWindow = (
 				window.processedCalls = [];
 			}
 
+			function escapeHtml(text) {
+				const div = document.createElement('div');
+				div.textContent = text == null ? '' : String(text);
+				return div.innerHTML;
+			}
+
+			function encodeCopyText(text) {
+				return encodeURIComponent(text == null ? '' : String(text));
+			}
+
+			function matchesAnyPattern(text, patterns) {
+				return patterns.some(function(pattern) {
+					return text.includes(pattern);
+				});
+			}
+
+			function shouldIncludeCall(call) {
+				const rawUrl = call.url || '';
+				const actualUrl = call.actualPingOneUrl || rawUrl;
+				const isPingOne =
+					actualUrl.includes('pingone.com') ||
+					actualUrl.includes('auth.pingone') ||
+					rawUrl.includes('/api/pingone/');
+
+				if (showP1OnlyFilter && !isPingOne) {
+					return false;
+				}
+
+				if (flowFilter === 'unified') {
+					if (actualUrl.includes('/mfa/') || actualUrl.includes('/devices')) {
+						return false;
+					}
+				} else if (flowFilter === 'mfa') {
+					if (!actualUrl.includes('/mfa/') && !actualUrl.includes('/devices')) {
+						return false;
+					}
+				} else if (flowFilter === 'spiffe-spire') {
+					if (!actualUrl.includes('spiffe') && !actualUrl.includes('spire')) {
+						return false;
+					}
+				}
+
+				if (excludePatterns.length > 0 && matchesAnyPattern(actualUrl, excludePatterns)) {
+					return false;
+				}
+
+				if (includePatterns.length > 0 && !matchesAnyPattern(actualUrl, includePatterns)) {
+					return false;
+				}
+
+				return true;
+			}
+
+			function render() {
+				const root = document.getElementById('root');
+				if (!root) return;
+
+				const filteredCalls = (currentApiCalls || []).filter(shouldIncludeCall);
+				const rowsHtml = filteredCalls
+					.map(function(call) {
+						const callId = call.id || '';
+						const status = call.response && call.response.status ? call.response.status : 0;
+						const statusDot = getStatusDot(status);
+						const statusLabel = getStatusLabel(status);
+						const methodColor = call.methodColor || '#6b7280';
+						const apiType = call.apiType || { icon: '', label: '' };
+						const shortUrl = escapeHtml(getShortUrl(call));
+						const isExpanded = expandedIds.has(callId);
+						const headersText = call.headersText || '';
+						const bodyText = call.bodyText || '';
+						const responseText = call.responseText || '';
+
+						const headerSection =
+							headersText
+								? '<div style="margin-bottom: 10px;">' +
+								  '<strong>Headers</strong> ' +
+								  '<button class="copy-btn" data-copy-text="' +
+								  encodeCopyText(headersText) +
+								  '">Copy</button>' +
+								  '<div class="json-display"><pre>' +
+								  escapeHtml(headersText) +
+								  '</pre></div>' +
+								  '</div>'
+								: '';
+
+						const bodySection =
+							bodyText
+								? '<div style="margin-bottom: 10px;">' +
+								  '<strong>Body</strong> ' +
+								  '<button class="copy-btn" data-copy-text="' +
+								  encodeCopyText(bodyText) +
+								  '">Copy</button>' +
+								  '<div class="json-display"><pre>' +
+								  escapeHtml(bodyText) +
+								  '</pre></div>' +
+								  '</div>'
+								: '';
+
+						const responseSection =
+							responseText
+								? '<div style="margin-bottom: 10px;">' +
+								  '<strong>Response</strong> ' +
+								  '<button class="copy-btn" data-copy-text="' +
+								  encodeCopyText(responseText) +
+								  '">Copy</button>' +
+								  '<div class="json-display"><pre>' +
+								  escapeHtml(responseText) +
+								  '</pre></div>' +
+								  '</div>'
+								: '';
+
+						const expandedRow =
+							isExpanded
+								? '<tr class="expanded-row"><td colspan="4">' +
+								  headerSection +
+								  bodySection +
+								  responseSection +
+								  '</td></tr>'
+								: '';
+
+						return (
+							'<tr data-expand-id="' +
+							callId +
+							'">' +
+							'<td>' +
+							statusDot +
+							'</td>' +
+							'<td style="color:' +
+							methodColor +
+							'">' +
+							escapeHtml(call.method || '') +
+							'</td>' +
+							'<td>' +
+							shortUrl +
+							'</td>' +
+							'<td>' +
+							(apiType.icon ? apiType.icon + ' ' : '') +
+							escapeHtml(apiType.label || statusLabel || '') +
+							'</td>' +
+							'</tr>' +
+							expandedRow
+						);
+					})
+					.join('');
+
+				root.innerHTML =
+					'<div style="padding: 12px; font-size: ' +
+					currentFontSize +
+					'px;">' +
+					'<table style="width:100%; border-collapse: collapse;">' +
+					'<thead><tr style="text-align:left; border-bottom:1px solid #e5e7eb;">' +
+					'<th style="width:40px;">Status</th>' +
+					'<th style="width:80px;">Method</th>' +
+					'<th>URL</th>' +
+					'<th style="width:160px;">Type</th>' +
+					'</tr></thead>' +
+					'<tbody>' +
+					rowsHtml +
+					'</tbody>' +
+					'</table>' +
+					'</div>';
+
+				root.querySelectorAll('[data-expand-id]').forEach(function(row) {
+					row.addEventListener('click', function() {
+						const id = row.getAttribute('data-expand-id');
+						if (!id) return;
+						if (expandedIds.has(id)) {
+							expandedIds.delete(id);
+						} else {
+							expandedIds.add(id);
+						}
+						render();
+					});
+				});
+
+				root.querySelectorAll('.copy-btn').forEach(function(button) {
+					button.addEventListener('click', function(event) {
+						event.stopPropagation();
+						const encodedText = button.getAttribute('data-copy-text') || '';
+						const decodedText = decodeURIComponent(encodedText);
+						if (!navigator.clipboard) return;
+						navigator.clipboard
+							.writeText(decodedText)
+							.then(function() {
+								button.classList.add('copied');
+								button.textContent = 'Copied';
+								setTimeout(function() {
+									button.classList.remove('copied');
+									button.textContent = 'Copy';
+								}, 1200);
+							})
+							.catch(function() {
+								// Ignore clipboard errors
+							});
+					});
+				});
+			}
+
 			// Listen for messages from parent window
 			window.addEventListener('message', function(event) {
 				if (event.data.type === 'apiCallsUpdate') {
@@ -321,12 +582,13 @@ const createPopOutWindow = (
 </html>`;
 
 	// Pass all initial data to the popout window BEFORE writing HTML
-	(newWindow as any).processedCalls = processedCalls;
-	(newWindow as any).initialFontSize = fontSize;
-	(newWindow as any).initialShowP1Only = showP1Only;
-	(newWindow as any).initialFlowFilter = flowFilter;
-	(newWindow as any).initialExcludePatterns = excludePatterns;
-	(newWindow as any).initialIncludePatterns = includePatterns;
+	const popOutWindow = newWindow as PopOutWindow;
+	popOutWindow.processedCalls = processedCalls;
+	popOutWindow.initialFontSize = fontSize;
+	popOutWindow.initialShowP1Only = showP1Only;
+	popOutWindow.initialFlowFilter = flowFilter;
+	popOutWindow.initialExcludePatterns = excludePatterns;
+	popOutWindow.initialIncludePatterns = includePatterns;
 	console.log('Popout window created with processed calls:', processedCalls.length);
 
 	newWindow.document.write(html);
@@ -416,12 +678,15 @@ interface SuperSimpleApiDisplayV8Props {
 	excludePatterns?: string[];
 	/** Include only URL patterns (e.g., ['/api/pingone/redirectless/']) */
 	includePatterns?: string[];
+	/** Reserve scroll space so bottom page buttons aren't covered by the fixed panel */
+	reserveSpace?: boolean;
 }
 
 export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = ({
 	flowFilter = 'all',
 	excludePatterns = [],
 	includePatterns = [],
+	reserveSpace = false,
 }) => {
 	// Check server health to avoid polling when server is down
 	const serverHealth = useServerHealth(30000); // Check every 30 seconds
@@ -470,6 +735,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		}
 	}, [isVisible]);
 	const [popOutWindow, setPopOutWindow] = useState<Window | null>(null);
+	const [popoutBlocked, setPopoutBlocked] = useState(false);
 	const [showP1Only, setShowP1Only] = useState(false); // Filter toggle state
 
 	// Use refs to track array props and prevent infinite loops from reference changes
@@ -524,7 +790,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						popOutWindow.postMessage(
 							{
 								type: 'apiCallsUpdate',
-								apiCalls: apiCalls,
+								apiCalls: processApiCallsForDisplay(apiCalls, getApiTypeIcon),
 							},
 							'*'
 						);
@@ -1099,6 +1365,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		height: `${Math.max(8, fontSize - 2) * 2.6}px`,
 	};
 
+	const displayHeight = apiCalls.length === 0 ? 140 : Math.min(height, 400);
+	const reservedScrollSpace = displayHeight + 20;
+
 	return (
 		<>
 			{/* Global cursor style when resizing */}
@@ -1121,7 +1390,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						left: `${sidebarWidth}px`,
 						right: '20px',
 						// Start smaller when there are no API calls so we don't hide key buttons
-						height: `${apiCalls.length === 0 ? 140 : Math.min(height, 400)}px`,
+						height: `${displayHeight}px`,
 						maxHeight: apiCalls.length === 0 ? '180px' : 'calc(50vh - 40px)', // Account for bottom spacing
 						background: 'white',
 						borderTop: '3px solid #10b981',
@@ -1295,9 +1564,12 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 											showP1Only
 										);
 										if (newWindow) {
-											setPopOutWindow(newWindow);
-										}
-									}}
+										setPopOutWindow(newWindow);
+										setPopoutBlocked(false);
+									} else {
+										setPopoutBlocked(true);
+									}
+								}}
 									style={{
 										...headerButtonBaseStyle,
 										background: '#8b5cf6',
@@ -1307,6 +1579,11 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 								>
 									🔲 Pop Out
 								</button>
+									{popoutBlocked && (
+										<div style={{ marginTop: 8, color: '#b91c1c', fontSize: 12 }} role="alert">
+											Popup blocked — allow popups for this site to use the API Display popout.
+										</div>
+									)}
 								{apiCalls.length > 0 && (
 									<>
 										<button
@@ -1915,31 +2192,29 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																		);
 																	})()}
 
-																	{/* Request Body */}
+																	{/* Extracted Scopes from Request Body */}
 																	{(() => {
 																		const body = call.body;
-																		if (!body) {
+																		if (!body || typeof body !== 'string') {
 																			return null;
 																		}
 
-																		let bodyText: string;
-																		if (typeof body === 'string') {
-																			bodyText = body;
-																		} else {
-																			try {
-																				bodyText = JSON.stringify(body, null, 2);
-																			} catch {
-																				bodyText = String(body);
-																			}
+																		// Extract scopes from form-encoded body
+																		const scopeMatch = body.match(/(^|&)scope=([^&]+)/);
+																		if (!scopeMatch) {
+																			return null;
 																		}
+
+																		const scopes = decodeURIComponent(scopeMatch[2]);
 
 																		return (
 																			<div
 																				style={{
 																					padding: '8px 12px',
-																					background: '#fef3c7',
+																					background: '#f0fdf4',
 																					borderRadius: '4px',
-																					border: '1px solid #fbbf24',
+																					border: '1px solid #86efac',
+																					marginTop: '12px',
 																				}}
 																			>
 																				<div
@@ -1952,25 +2227,25 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																				>
 																					<div
 																						style={{
-																							color: '#92400e',
+																							color: '#166534',
 																							fontSize: '11px',
 																							fontWeight: '700',
 																						}}
 																					>
-																						REQUEST BODY (for debugging):
+																						🎯 CONFIGURED SCOPES:
 																					</div>
 																					<button
 																						type="button"
 																						onClick={(e) => {
 																							e.stopPropagation();
-																							handleCopy(bodyText, `body-${call.id}`);
+																							handleCopy(scopes, `scopes-${call.id}`);
 																						}}
 																						style={{
 																							padding: '4px 8px',
 																							background:
-																								copiedField === `body-${call.id}`
+																								copiedField === `scopes-${call.id}`
 																									? '#10b981'
-																									: '#f59e0b',
+																									: '#22c55e',
 																							color: 'white',
 																							border: 'none',
 																							borderRadius: '3px',
@@ -1978,11 +2253,11 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																							cursor: 'pointer',
 																							fontWeight: '600',
 																						}}
-																						title="Copy request body for debugging"
+																						title="Copy scopes"
 																					>
-																						{copiedField === `body-${call.id}`
+																						{copiedField === `scopes-${call.id}`
 																							? '✓ Copied'
-																							: '📋 Copy Body'}
+																							: '📋 Copy'}
 																					</button>
 																				</div>
 																				<div
@@ -1991,25 +2266,232 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																						padding: '12px',
 																						borderRadius: '4px',
 																						fontSize: '12px',
-																						overflowX: 'auto',
-																						maxHeight: 'min(50vh, 600px)',
-																						overflowY: 'auto',
-																						minHeight: '100px',
+																						border: '1px solid #d1fae5',
 																					}}
 																				>
-																					<pre
+																					<div
 																						style={{
-																							margin: 0,
-																							whiteSpace: 'pre-wrap',
-																							wordWrap: 'break-word',
+																							fontFamily: 'monospace',
+																							color: '#166534',
+																							fontWeight: '600',
+																							marginBottom: '4px',
 																						}}
 																					>
-																						{bodyText}
-																					</pre>
+																						{scopes}
+																					</div>
+																					<div
+																						style={{
+																							fontSize: '10px',
+																							color: '#6b7280',
+																							marginTop: '4px',
+																						}}
+																					>
+																						{scopes.includes('openid') || scopes.includes('profile') || scopes.includes('email')
+															? '⚠️ Contains OIDC scopes (not valid for client credentials)'
+															: scopes.includes('CLAIMICFACILITY')
+															? '⚠️ CLAIMICFACILITY may not exist in your PingOne resources'
+															: scopes.includes('p1:')
+															? '⚠️ Contains self-management scopes (not valid for client credentials)'
+															: '✅ Appears to be resource server scopes'}
+																					</div>
 																				</div>
 																			</div>
 																		);
 																	})()}
+
+																	{/* Request Body */}
+																	{(() => {
+																		const body = call.body;
+																		if (!body) {
+																			return null;
+																		}
+
+																		let bodyText: string;
+																		let isFormEncoded = false;
+																		let parsedBody: Record<string, string> = {};
+
+																		if (typeof body === 'string') {
+																			bodyText = body;
+																			// Check if it's form-encoded
+																			if (body.includes('grant_type=client_credentials')) {
+																				isFormEncoded = true;
+												// Parse form-encoded data
+												const params = new URLSearchParams(body);
+												parsedBody = Object.fromEntries(params.entries());
+											}
+										} else {
+											try {
+												bodyText = JSON.stringify(body, null, 2);
+											} catch {
+												bodyText = String(body);
+											}
+										}
+
+										return (
+											<div
+												style={{
+													padding: '8px 12px',
+													background: '#fef3c7',
+													borderRadius: '4px',
+													border: '1px solid #fbbf24',
+												}}
+											>
+												<div
+													style={{
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'space-between',
+														marginBottom: '4px',
+													}}
+												>
+													<div
+														style={{
+															color: '#92400e',
+															fontSize: '11px',
+															fontWeight: '700',
+														}}
+													>
+														REQUEST BODY (for debugging):
+													</div>
+													<div style={{ display: 'flex', gap: '4px' }}>
+														{isFormEncoded && (
+															<button
+																type="button"
+																onClick={(e) => {
+																	e.stopPropagation();
+																	const jsonData = JSON.stringify(parsedBody, null, 2);
+																	handleCopy(jsonData, `body-json-${call.id}`);
+																}}
+																style={{
+																	padding: '4px 8px',
+																	background:
+																		copiedField === `body-json-${call.id}`
+																			? '#10b981'
+																			: '#3b82f6',
+																	color: 'white',
+																	border: 'none',
+																	borderRadius: '3px',
+																	fontSize: '10px',
+																	cursor: 'pointer',
+																	fontWeight: '600',
+																}}
+																title="Copy as JSON"
+															>
+																{copiedField === `body-json-${call.id}`
+																	? '✓ JSON Copied'
+																	: '📋 Copy JSON'}
+															</button>
+														)}
+														<button
+															type="button"
+															onClick={(e) => {
+																e.stopPropagation();
+																handleCopy(bodyText, `body-${call.id}`);
+															}}
+															style={{
+																padding: '4px 8px',
+																background:
+																	copiedField === `body-${call.id}`
+																		? '#10b981'
+																		: '#f59e0b',
+																color: 'white',
+																border: 'none',
+																borderRadius: '3px',
+																fontSize: '10px',
+																cursor: 'pointer',
+																fontWeight: '600',
+															}}
+															title="Copy request body for debugging"
+														>
+															{copiedField === `body-${call.id}`
+																? '✓ Copied'
+																: '📋 Copy Body'}
+														</button>
+													</div>
+												</div>
+												<div
+													style={{
+														background: 'white',
+														padding: '12px',
+														borderRadius: '4px',
+														fontSize: '12px',
+														overflowX: 'auto',
+														maxHeight: 'min(50vh, 600px)',
+														overflowY: 'auto',
+														minHeight: '100px',
+													}}
+												>
+													{isFormEncoded ? (
+														<div>
+															<div
+																style={{
+																	marginBottom: '8px',
+																	paddingBottom: '8px',
+																	borderBottom: '1px solid #e5e7eb',
+																}}
+															>
+																<div
+																	style={{
+																		fontSize: '10px',
+																		color: '#6b7280',
+																		marginBottom: '4px',
+																		fontWeight: '600',
+																	}}
+																>
+																	RAW FORM-ENCODED:
+																</div>
+																<pre
+																	style={{
+																		margin: 0,
+																		whiteSpace: 'pre-wrap',
+																		wordWrap: 'break-word',
+																		fontSize: '11px',
+																		background: '#f9fafb',
+																		padding: '8px',
+																		borderRadius: '3px',
+																	}}
+																>
+																	{bodyText}
+																</pre>
+															</div>
+															<div>
+																<div
+																	style={{
+																		fontSize: '10px',
+																		color: '#6b7280',
+																		marginBottom: '4px',
+																		fontWeight: '600',
+																	}}
+																>
+																	PARSED AS JSON:
+																</div>
+																<pre
+																	style={{
+																		margin: 0,
+																		whiteSpace: 'pre-wrap',
+																		wordWrap: 'break-word',
+																		fontSize: '11px',
+																	}}
+																>
+																	{JSON.stringify(parsedBody, null, 2)}
+																</pre>
+															</div>
+														</div>
+													) : (
+														<pre
+															style={{
+																margin: 0,
+																whiteSpace: 'pre-wrap',
+																wordWrap: 'break-word',
+															}}
+														>
+															{bodyText}
+														</pre>
+													)}
+												</div>
+											</div>
+										);
+									})()}
 
 																	{/* Response */}
 																	{(() => {
@@ -2103,6 +2585,186 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																			</div>
 																		);
 																	})()}
+
+																	{/* Scope Error Fix Section */}
+																	{(() => {
+																		const response = call.response;
+																		const body = call.body;
+																		const isTokenError = response && response.status === 400 && 
+																			typeof response.data === 'object' && 
+																			response.data !== null &&
+																			'error' in response.data &&
+																			((response.data as { error?: string }).error?.includes('invalid_scope') ||
+																			(response.data as { error_description?: string }).error_description?.includes('scope') ||
+																			(response.data as { error_description?: string }).error_description?.includes('granted'));
+
+																		if (!isTokenError || !body || typeof body !== 'string') {
+																			return null;
+																		}
+
+																		// Extract scopes from form-encoded body
+																		const scopeMatch = body.match(/(^|&)scope=([^&]+)/);
+																		if (!scopeMatch) {
+																			return null;
+																		}
+
+																		const currentScopes = decodeURIComponent(scopeMatch[2]);
+																		const hasInvalidScopes = currentScopes.includes('openid') || 
+																									currentScopes.includes('profile') || 
+																									currentScopes.includes('email') ||
+																									currentScopes.includes('CLAIMICFACILITY') ||
+																									currentScopes.startsWith('p1:');
+
+																		// Show scope error section for any scope-related error, even if scopes look valid
+																		// This helps with cases like "ClaimScope" not being configured in PingOne
+																		const shouldShowScopeError = isTokenError && (hasInvalidScopes || true);
+
+																		if (!shouldShowScopeError) {
+																			return null;
+																		}
+
+																		return (
+																			<div
+																				style={{
+																					padding: '12px',
+																					background: '#fef2f2',
+																					borderRadius: '4px',
+																					border: '1px solid #fca5a5',
+																					marginTop: '12px',
+																				}}
+																			>
+																				<div
+																					style={{
+																						display: 'flex',
+																						alignItems: 'center',
+																						justifyContent: 'space-between',
+																						marginBottom: '8px',
+																					}}
+																				>
+																					<div
+																						style={{
+																							color: '#dc2626',
+																							fontSize: '11px',
+																							fontWeight: '700',
+																							display: 'flex',
+																							alignItems: 'center',
+																							gap: '6px',
+																						}}
+																					>
+																						🔧 SCOPE CONFIGURATION ERROR
+																					</div>
+																				</div>
+																				
+																				<div
+																					style={{
+																						background: 'white',
+																						padding: '12px',
+																						borderRadius: '4px',
+																						border: '1px solid #fecaca',
+																						marginBottom: '12px',
+																					}}
+																				>
+																					<div style={{ fontSize: '11px', marginBottom: '8px' }}>
+																						<strong>Current Scopes:</strong> 
+																						<span style={{ 
+																							fontFamily: 'monospace', 
+																							background: '#fef2f2', 
+																							padding: '2px 6px', 
+																							borderRadius: '2px',
+																							marginLeft: '8px'
+																						}}>
+																							{currentScopes}
+																						</span>
+																					</div>
+																					
+																					<div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '8px' }}>
+																						{currentScopes.includes('openid') || currentScopes.includes('profile') || currentScopes.includes('email')
+															? '❌ OIDC scopes detected (not valid for client credentials)'
+															: currentScopes.includes('CLAIMICFACILITY')
+															? '❌ CLAIMICFACILITY may not exist in your PingOne resources'
+															: currentScopes.startsWith('p1:')
+															? '❌ Contains self-management scopes (not valid for client credentials)'
+															: '⚠️ Scope may not be configured in PingOne resources'}
+																					</div>
+
+																					<div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '12px' }}>
+																						<strong>Suggested Fix:</strong> Replace with <code style={{ background: '#f0fdf4', padding: '1px 4px' }}>ClaimScope</code> or other resource server scopes
+																					</div>
+
+																					<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+																						<button
+																							type="button"
+																							onClick={(e) => {
+																								e.stopPropagation();
+																								// Try to apply the fix by updating the scopes in the form
+																																const event = new CustomEvent('applyScopeFix', {
+																																	detail: { 
+																																		currentScopes, 
+																																		suggestedScopes: 'ClaimScope',
+																																		callId: call.id 
+																																	}
+																																});
+																																window.dispatchEvent(event);
+																															}}
+																							style={{
+																								padding: '6px 12px',
+																								background: '#10b981',
+																								color: 'white',
+																								border: 'none',
+																								borderRadius: '4px',
+																								fontSize: '10px',
+																								cursor: 'pointer',
+																								fontWeight: '600',
+																							}}
+																							title="Apply suggested scopes"
+																						>
+																							✓ Apply Fix: ClaimScope
+																						</button>
+																						<button
+																							type="button"
+																							onClick={(e) => {
+																								e.stopPropagation();
+																																window.open('https://admin.pingone.com', '_blank');
+																															}}
+																							style={{
+																								padding: '6px 12px',
+																								background: '#3b82f6',
+																								color: 'white',
+																								border: 'none',
+																								borderRadius: '4px',
+																								fontSize: '10px',
+																								cursor: 'pointer',
+																								fontWeight: '600',
+																							}}
+																							title="Open PingOne Admin Console"
+																						>
+																							🔧 PingOne Admin
+																						</button>
+																						<button
+																							type="button"
+																							onClick={(e) => {
+																								e.stopPropagation();
+																																handleCopy(currentScopes, `error-scopes-${call.id}`);
+																															}}
+																							style={{
+																								padding: '6px 12px',
+																								background: '#6b7280',
+																								color: 'white',
+																								border: 'none',
+																								borderRadius: '4px',
+																								fontSize: '10px',
+																								cursor: 'pointer',
+																								fontWeight: '600',
+																							}}
+																							title="Copy current scopes"
+																						>
+																							📋 Copy Scopes
+																						</button>
+																					</div>
+																				</div>
+																			</div>
+																		);
+																	})()}
 																</div>
 															</td>
 														</tr>
@@ -2115,6 +2777,10 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						</div>
 					</div>
 				</div>
+			)}
+
+			{isVisible && reserveSpace && (
+				<div aria-hidden="true" style={{ height: `${reservedScrollSpace}px` }} />
 			)}
 
 			{/* Clear Confirmation Modal */}

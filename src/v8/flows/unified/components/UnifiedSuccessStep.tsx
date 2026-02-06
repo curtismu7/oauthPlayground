@@ -122,7 +122,7 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 			onRegisterAnother();
 		} else {
 				// Navigate back to unified MFA main page
-				window.location.href = '/v8/mfa-unified';
+				window.location.href = '/v8/unified-mfa';
 		}
 	}, [onRegisterAnother]);
 

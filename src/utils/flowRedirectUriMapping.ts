@@ -250,6 +250,20 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		specification: 'RFC 6749, Section 4.4',
 	},
 	{
+		flowType: 'unified-mfa-v8',
+		requiresRedirectUri: true,
+		callbackPath: 'v8/unified-mfa-callback',
+		description: 'V8 Unified MFA Registration Flow',
+		specification: 'PingOne MFA API',
+	},
+	{
+		flowType: 'mfa-hub-v8',
+		requiresRedirectUri: true,
+		callbackPath: 'v8/mfa-hub-callback',
+		description: 'V8 MFA Hub Flow',
+		specification: 'PingOne MFA API',
+	},
+	{
 		flowType: 'ropc-v8u',
 		requiresRedirectUri: false,
 		callbackPath: 'N/A',

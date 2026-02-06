@@ -35,7 +35,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 		// Don't handle debug callback page here - it has its own component
 		const isDebugCallbackPage =
-			currentPath === '/v8/mfa-unified-callback' ||
+			currentPath === '/v8/unified-mfa-callback' ||
 			currentPath.includes('/v8/mfa-unified-callback');
 
 		if (isDebugCallbackPage) {
@@ -107,7 +107,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 			// Enhanced fallback logic - try multiple approaches
 			let fallbackPath = '/v8/mfa-hub'; // Default fallback
-			
+
 			if (returnToMfaFlow) {
 				try {
 					// Path is stored as a plain string (no JSON parsing needed)
@@ -204,20 +204,20 @@ export const CallbackHandlerV8U: React.FC = () => {
 				console.warn(
 					`${MODULE_TAG} ⚠️ This might indicate a cache issue or the return path was cleared prematurely.`
 				);
-				
+
 				// Check if we have any MFA-related sessionStorage keys to infer the last page
-				const mfaRelatedKeys = allKeys.filter(key => 
-					key.includes('mfa') || key.includes('MFA')
-				);
-				
+				const mfaRelatedKeys = allKeys.filter((key) => key.includes('mfa') || key.includes('MFA'));
+
 				console.log(`${MODULE_TAG} 🔍 MFA-related sessionStorage keys:`, mfaRelatedKeys);
-				
+
 				// If we have unified MFA keys, prefer the unified page
-				if (mfaRelatedKeys.some(key => key.includes('unified'))) {
-					fallbackPath = '/v8/mfa-unified';
-					console.log(`${MODULE_TAG} 🔍 Detected unified MFA activity, using fallback: ${fallbackPath}`);
+				if (mfaRelatedKeys.some((key) => key.includes('unified'))) {
+					fallbackPath = '/v8/unified-mfa';
+					console.log(
+						`${MODULE_TAG} 🔍 Detected unified MFA activity, using fallback: ${fallbackPath}`
+					);
 				}
-				
+
 				console.warn(`${MODULE_TAG} ⚠️ Redirecting to fallback MFA page: ${fallbackPath}`);
 			}
 
@@ -227,7 +227,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 				? `${fallbackPath}?${callbackParams.toString()}`
 				: fallbackPath;
 			console.log(`${MODULE_TAG} 🚀 Redirecting to fallback: ${redirectUrl}`);
-			
+
 			// Store callback marker even for fallback
 			sessionStorage.setItem('mfa_oauth_callback_return', 'true');
 			window.location.replace(redirectUrl);

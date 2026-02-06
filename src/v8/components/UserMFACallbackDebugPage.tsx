@@ -422,7 +422,7 @@ export const UserMFACallbackDebugPage: React.FC = () => {
 					</button>
 					<button
 						type="button"
-						onClick={() => navigate('/v8/mfa-unified')}
+						onClick={() => navigate('/v8/unified-mfa')}
 						style={{
 							padding: '12px 24px',
 							background: '#9c27b0',

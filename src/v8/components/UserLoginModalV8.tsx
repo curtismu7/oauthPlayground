@@ -18,6 +18,7 @@ import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethod
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
+import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
@@ -65,7 +66,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				const token = await workerTokenServiceV8.getToken();
 				const hasToken = !!token;
 				setHasWorkerToken(hasToken);
-				
+
 				// If worker token is available, extract environment ID from it
 				if (hasToken && !environmentId) {
 					// Parse JWT token to get environment ID
@@ -207,7 +208,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			console.error(`${MODULE_TAG} Pre-flight validation error:`, error);
 			setValidationResult({
 				passed: false,
-				errors: [`Failed to validate configuration: ${error instanceof Error ? error.message : 'Unknown error'}`],
+				errors: [
+					`Failed to validate configuration: ${error instanceof Error ? error.message : 'Unknown error'}`,
+				],
 				warnings: [],
 			});
 			toastV8.error('Pre-flight validation failed');
@@ -265,6 +268,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	useEffect(() => {
 		if (isOpen) {
 			const FLOW_KEY = 'user-login-v8';
+			
+			// Get the correct redirect URI from the centralized service
+			const defaultRedirectUriForMfa = isMfaFlow
+				? MFARedirectUriServiceV8.getRedirectUri('unified-mfa-v8')
+				: `${window.location.protocol}//${window.location.host}/user-login-callback`;
+			// Load saved credentials
 			const saved = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 				flowKey: FLOW_KEY,
 				flowType: 'oauth',
@@ -273,16 +282,15 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				includeLogoutUri: false,
 				includeScopes: true,
 			});
+			// FOOLPROOF: Migrate credentials if they have old redirect URI
+			if (isMfaFlow && MFARedirectUriServiceV8.needsMigration(saved.redirectUri)) {
+				console.warn('[🔐 USER-LOGIN-MODAL-V8] MIGRATION: Updating to unified MFA callback URI');
+				const migrated = MFARedirectUriServiceV8.migrateCredentials(saved, 'unified-mfa-v8');
+				CredentialsServiceV8.saveCredentials(FLOW_KEY, migrated);
+			}
 
 			// Default scopes - same for all flows
 			const defaultScopes = 'openid profile email';
-
-			// Use different default redirect URI for MFA flows
-			// Use http for localhost dev, https for production
-			const protocol = window.location.hostname === 'localhost' ? 'http' : 'https';
-			const defaultRedirectUriForMfa = isMfaFlow
-				? `${protocol}://${window.location.host}/user-mfa-login-callback`
-				: `${protocol}://${window.location.host}/user-login-callback`;
 
 			// Get global environment ID as fallback (priority: saved > prop > global > empty)
 			const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
@@ -293,24 +301,21 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				setClientId(saved.clientId || '');
 				setClientSecret(saved.clientSecret || '');
 				setAuthMethod(saved.authMethod || saved.tokenEndpointAuthMethod || 'client_secret_post');
-				// Load saved redirect URI to populate the field, but user can edit it
-				// The actual redirect URI used will be whatever is in the field when they click "Start Auth"
-				const savedRedirectUri = saved.redirectUri || defaultRedirectUriForMfa;
-				// If saved URI is implicit-callback, authz-callback, or mfa-hub, migrate to correct MFA callback
-				// For MFA flows, must use user-mfa-login-callback (not mfa-hub or old callback URIs)
-				const initialRedirectUri =
-					savedRedirectUri.includes('implicit-callback') ||
-					savedRedirectUri.includes('authz-callback') ||
-					(isMfaFlow &&
-						(savedRedirectUri.includes('/v8/mfa-hub') || savedRedirectUri.includes('mfa-hub')))
-						? defaultRedirectUriForMfa
-						: savedRedirectUri;
+				
+				// ALWAYS use the new unified callback for MFA flows, regardless of what's saved
+				const initialRedirectUri = isMfaFlow ? defaultRedirectUriForMfa : (saved.redirectUri || defaultRedirectUriForMfa);
 
 				// #region agent log
 				sendAnalyticsLog({
 					location: 'UserLoginModalV8.tsx:134',
-					message: 'Initial redirect URI loaded from saved credentials',
-					data: { savedRedirectUri, defaultRedirectUriForMfa, initialRedirectUri, isMfaFlow },
+					message: 'Redirect URI loaded - FORCED for MFA flows',
+					data: { 
+						savedRedirectUri: saved.redirectUri, 
+						defaultRedirectUriForMfa, 
+						initialRedirectUri, 
+						isMfaFlow,
+						forcedMigration: isMfaFlow,
+					},
 					timestamp: Date.now(),
 					sessionId: 'debug-session',
 					runId: 'run1',
@@ -1154,51 +1159,26 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			return;
 		}
 
-		// Always use what's in the modal field (redirectUri state)
-		// Only fall back to default if field is empty or contains invalid old URIs
-		// For MFA flows, use user-mfa-login-callback; for others, use user-login-callback
-		// Use http for localhost dev, https for production
-		const protocol = window.location.hostname === 'localhost' ? 'http' : 'https';
-		const defaultRedirectUriForMfa = isMfaFlow
-			? `${protocol}://${window.location.host}/user-mfa-login-callback`
-			: `${protocol}://${window.location.host}/user-login-callback`;
-
-		// Use the value from the modal field, only fall back if empty or invalid
-		const fieldValue = redirectUri.trim();
-
-		// #region agent log
-		sendAnalyticsLog({
-			location: 'UserLoginModalV8.tsx:604',
-			message: 'Redirect URI field value check',
-			data: { fieldValue, isMfaFlow, defaultRedirectUriForMfa, currentPath: location.pathname },
-			timestamp: Date.now(),
-			sessionId: 'debug-session',
-			runId: 'run1',
-			hypothesisId: 'A',
-		});
-		// #endregion
-
-		const finalRedirectUri =
-			fieldValue &&
-			!fieldValue.includes('implicit-callback') &&
-			!(isMfaFlow && (fieldValue.includes('/v8/mfa-hub') || fieldValue.includes('mfa-hub')))
-				? fieldValue
-				: defaultRedirectUriForMfa;
+		// FOOLPROOF: For MFA flows, ALWAYS use the centralized service
+		// This ensures the redirect URI is constant and correct
+		const finalRedirectUri = isMfaFlow 
+			? MFARedirectUriServiceV8.getRedirectUri('unified-mfa-v8')
+			: (redirectUri.trim() || `${window.location.protocol}//${window.location.host}/user-login-callback`);
 
 		// #region agent log
 		sendAnalyticsLog({
 			location: 'UserLoginModalV8.tsx:614',
-			message: 'Redirect URI decision result',
+			message: 'Final redirect URI - Using centralized service for MFA',
 			data: {
-				fieldValue,
+				redirectUriField: redirectUri,
 				finalRedirectUri,
-				defaultRedirectUriForMfa,
-				willUseFieldValue: fieldValue === finalRedirectUri,
+				isMfaFlow,
+				source: isMfaFlow ? 'MFARedirectUriServiceV8' : 'field value',
 			},
 			timestamp: Date.now(),
 			sessionId: 'debug-session',
 			runId: 'run1',
-			hypothesisId: 'A',
+			hypothesisId: 'C',
 		});
 		// #endregion
 
@@ -1271,7 +1251,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			const currentSearch = location.search;
 			const fullPath = currentSearch ? `${currentPath}${currentSearch}` : currentPath;
 
-			if (currentPath.startsWith('/v8/mfa')) {
+			// For device registration flows, stay on the current page (Configuration page)
+			// Only store return path for user authentication flows, not device registration
+			if (currentPath.startsWith('/v8/mfa') && !currentPath.includes('/unified-mfa')) {
 				// Store path directly as a string (no need for JSON.stringify on a string)
 				// CRITICAL: Store BEFORE redirect to ensure it's available when callback returns
 				sessionStorage.setItem('user_login_return_to_mfa', fullPath);
@@ -1601,10 +1583,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									}}
 								/>
 								<small
-								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
-							>
-								Your PingOne environment ID
-							</small>
+									style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
+								>
+									Your PingOne environment ID
+								</small>
 							</div>
 						)}
 
@@ -1947,7 +1929,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									borderRadius: '6px',
 									fontSize: '14px',
 									fontWeight: '600',
-									cursor: isValidating || !environmentId.trim() || !clientId.trim() ? 'not-allowed' : 'pointer',
+									cursor:
+										isValidating || !environmentId.trim() || !clientId.trim()
+											? 'not-allowed'
+											: 'pointer',
 									display: 'flex',
 									alignItems: 'center',
 									justifyContent: 'center',
@@ -1957,7 +1942,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							>
 								{isValidating ? '🔄 Validating...' : '✈️ Run Pre-flight Validation'}
 							</button>
-							<small style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}>
+							<small
+								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
+							>
 								Validates your app configuration with PingOne before login
 							</small>
 						</div>
@@ -2017,7 +2004,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 												<strong style={{ color: '#991b1b', fontSize: '14px' }}>Errors:</strong>
 												<ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
 													{validationResult.errors.map((error, idx) => (
-														<li key={idx} style={{ color: '#991b1b', fontSize: '13px', marginBottom: '4px' }}>
+														<li
+															key={idx}
+															style={{ color: '#991b1b', fontSize: '13px', marginBottom: '4px' }}
+														>
 															{error}
 														</li>
 													))}
@@ -2031,7 +2021,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 												<strong style={{ color: '#c2410c', fontSize: '14px' }}>Warnings:</strong>
 												<ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
 													{validationResult.warnings.map((warning, idx) => (
-														<li key={idx} style={{ color: '#c2410c', fontSize: '13px', marginBottom: '4px' }}>
+														<li
+															key={idx}
+															style={{ color: '#c2410c', fontSize: '13px', marginBottom: '4px' }}
+														>
 															{warning}
 														</li>
 													))}

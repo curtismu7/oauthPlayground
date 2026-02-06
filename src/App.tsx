@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import styled, { type DefaultTheme, ThemeProvider } from 'styled-components';
 import { AuthProvider } from './contexts/NewAuthContext';
@@ -48,6 +48,11 @@ import ModalPresentationService from './services/modalPresentationService';
 import { credentialManager } from './utils/credentialManager';
 // Import IndexedDB backup service to make it globally available
 import './v8u/services/indexedDBBackupServiceV8U';
+// Run MFA redirect URI migration on app startup
+import { migrateAllMFARedirectUris } from './v8/utils/mfaRedirectUriMigrationV8';
+
+// Run migration immediately on module load
+migrateAllMFARedirectUris();
 
 // Extend Window interface for global test utilities
 declare global {
@@ -171,9 +176,7 @@ import { FIDO2SampleApp } from './samples/p1mfa/fido2/FIDO2SampleApp';
 import { IntegratedMFASample } from './samples/p1mfa/IntegratedMFASample';
 import { SMSSampleApp } from './samples/p1mfa/sms/SMSSampleApp';
 import { MFAAuthenticationSuccessPage } from './v8/components/MFAAuthenticationSuccessPage';
-import { UserMFACallbackDebugPage } from './v8/components/UserMFACallbackDebugPage';
 import { EmailMFASignOnFlowV8 } from './v8/flows/EmailMFASignOnFlowV8';
-import UnifiedMFAV8_Simple from './locked/mfa-hub-v8/feature/UnifiedMFAV8_Simple';
 import { ImplicitFlowV8 } from './v8/flows/ImplicitFlowV8';
 import { MFAAuthenticationMainPageV8 } from './v8/flows/MFAAuthenticationMainPageV8';
 import { MFAConfigurationPageV8 } from './v8/flows/MFAConfigurationPageV8';
@@ -184,18 +187,31 @@ import MFAReportingFlowV8 from './v8/flows/MFAReportingFlowV8';
 import OAuthAuthorizationCodeFlowV8 from './v8/flows/OAuthAuthorizationCodeFlowV8';
 import PingOneProtectFlowV8 from './v8/flows/PingOneProtectFlowV8';
 import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
-import { EmailFlowV8 } from './v8/flows/types/EmailFlowV8';
 import { EmailOTPConfigurationPageV8 } from './v8/flows/types/EmailOTPConfigurationPageV8';
 import { FIDO2ConfigurationPageV8 } from './v8/flows/types/FIDO2ConfigurationPageV8';
-import { FIDO2FlowV8 } from './v8/flows/types/FIDO2FlowV8';
-import { MobileFlowV8 } from './v8/flows/types/MobileFlowV8';
 import { MobileOTPConfigurationPageV8 } from './v8/flows/types/MobileOTPConfigurationPageV8';
-import { SMSFlowV8 } from './v8/flows/types/SMSFlowV8';
 import { SMSOTPConfigurationPageV8 } from './v8/flows/types/SMSOTPConfigurationPageV8';
 import { TOTPConfigurationPageV8 } from './v8/flows/types/TOTPConfigurationPageV8';
-import { WhatsAppFlowV8 } from './v8/flows/types/WhatsAppFlowV8';
 import { WhatsAppOTPConfigurationPageV8 } from './v8/flows/types/WhatsAppOTPConfigurationPageV8';
-import UnifiedMFARegistrationFlowV8_Legacy from './v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy';
+// Lazy load unified MFA flow for code splitting
+const UnifiedMFARegistrationFlowV8_Legacy = React.lazy(
+	() => import('./v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy')
+);
+const EmailFlowV8 = React.lazy(() =>
+	import('./v8/flows/types/EmailFlowV8').then((module) => ({ default: module.EmailFlowV8 }))
+);
+const FIDO2FlowV8 = React.lazy(() =>
+	import('./v8/flows/types/FIDO2FlowV8').then((module) => ({ default: module.FIDO2FlowV8 }))
+);
+const MobileFlowV8 = React.lazy(() =>
+	import('./v8/flows/types/MobileFlowV8').then((module) => ({ default: module.MobileFlowV8 }))
+);
+const SMSFlowV8 = React.lazy(() =>
+	import('./v8/flows/types/SMSFlowV8').then((module) => ({ default: module.SMSFlowV8 }))
+);
+const WhatsAppFlowV8 = React.lazy(() =>
+	import('./v8/flows/types/WhatsAppFlowV8').then((module) => ({ default: module.WhatsAppFlowV8 }))
+);
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
@@ -518,6 +534,8 @@ const AppRoutes: React.FC = () => {
 							<Route path="/user-login-callback" element={<CallbackHandlerV8U />} />
 							{/* CRITICAL: MFA-specific user login callback route - DO NOT REMOVE - Used by MFA flows for user authentication */}
 							<Route path="/user-mfa-login-callback" element={<CallbackHandlerV8U />} />
+							{/* CRITICAL: V8 Unified MFA callback route - DO NOT REMOVE - Used by unified MFA flows */}
+							<Route path="/v8/unified-mfa-callback" element={<CallbackHandlerV8U />} />
 							<Route path="/hybrid-callback" element={<HybridCallback />} />
 							<Route path="/implicit-callback" element={<ImplicitCallback />} />
 							<Route path="/oauth-implicit-callback" element={<ImplicitCallback />} />
@@ -564,26 +582,51 @@ const AppRoutes: React.FC = () => {
 								element={<OAuthAuthorizationCodeFlowV8 />}
 							/>
 							<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
-							<Route path="/v8/mfa-unified" element={<UnifiedMFARegistrationFlowV8_Legacy />} />
-							<Route path="/v8/mfa-unified-callback" element={<UserMFACallbackDebugPage />} />
-							<Route path="/v8/mfa" element={<Navigate to="/v8/mfa-hub" replace />} />
-							<Route path="/v8/unified-mfa" element={<UnifiedMFAV8_Simple />} />
+							<Route
+								path="/v8/unified-mfa"
+								element={
+									<React.Suspense fallback={<div>Loading...</div>}>
+										<UnifiedMFARegistrationFlowV8_Legacy />
+									</React.Suspense>
+								}
+							/>
 							<Route path="/v8/mfa-hub" element={<MFAAuthenticationMainPageV8 />} />
 							<Route
 								path="/v8/mfa/authentication/success"
 								element={<MFAAuthenticationSuccessPage />}
 							/>
 							<Route path="/v8/mfa/register/sms" element={<SMSOTPConfigurationPageV8 />} />
-							<Route path="/v8/mfa/register/sms/device" element={<SMSFlowV8 />} />
+							<Route
+								path="/v8/mfa/register/sms/device"
+								element={
+									<React.Suspense fallback={<div>Loading...</div>}>
+										<SMSFlowV8 />
+									</React.Suspense>
+								}
+							/>
 							<Route path="/v8/mfa/register/sms/docs" element={<SMSRegistrationDocsPageV8 />} />
 							<Route path="/v8/mfa/register/email" element={<EmailOTPConfigurationPageV8 />} />
-							<Route path="/v8/mfa/register/email/device" element={<EmailFlowV8 />} />
+							<Route
+								path="/v8/mfa/register/email/device"
+								element={
+									<React.Suspense fallback={<div>Loading...</div>}>
+										<EmailFlowV8 />
+									</React.Suspense>
+								}
+							/>
 							<Route path="/v8/mfa/register/email/docs" element={<EmailRegistrationDocsPageV8 />} />
 							<Route
 								path="/v8/mfa/register/whatsapp"
 								element={<WhatsAppOTPConfigurationPageV8 />}
 							/>
-							<Route path="/v8/mfa/register/whatsapp/device" element={<WhatsAppFlowV8 />} />
+							<Route
+								path="/v8/mfa/register/whatsapp/device"
+								element={
+									<React.Suspense fallback={<div>Loading...</div>}>
+										<WhatsAppFlowV8 />
+									</React.Suspense>
+								}
+							/>
 							<Route
 								path="/v8/mfa/register/whatsapp/docs"
 								element={<WhatsAppRegistrationDocsPageV8 />}
@@ -592,10 +635,21 @@ const AppRoutes: React.FC = () => {
 							{/* TOTP uses unified flow architecture like SMS/Email */}
 							<Route
 								path="/v8/mfa/register/totp/device"
-								element={<UnifiedMFARegistrationFlowV8_Legacy deviceType="TOTP" />}
+								element={
+									<React.Suspense fallback={<div>Loading...</div>}>
+										<UnifiedMFARegistrationFlowV8_Legacy deviceType="TOTP" />
+									</React.Suspense>
+								}
 							/>
 							<Route path="/v8/mfa/register/fido2" element={<FIDO2ConfigurationPageV8 />} />
-							<Route path="/v8/mfa/register/fido2/device" element={<FIDO2FlowV8 />} />
+							<Route
+								path="/v8/mfa/register/fido2/device"
+								element={
+									<React.Suspense fallback={<div>Loading...</div>}>
+										<FIDO2FlowV8 />
+									</React.Suspense>
+								}
+							/>
 							<Route path="/v8/mfa/register/fido2/docs" element={<FIDO2RegistrationDocsPageV8 />} />
 							{/* Platform and Security Key routes redirect to FIDO2 (they use the same flow) */}
 							<Route
@@ -625,7 +679,14 @@ const AppRoutes: React.FC = () => {
 							/>
 							{/* Mobile routes - separate app from SMS */}
 							<Route path="/v8/mfa/register/mobile" element={<MobileOTPConfigurationPageV8 />} />
-							<Route path="/v8/mfa/register/mobile/device" element={<MobileFlowV8 />} />
+							<Route
+								path="/v8/mfa/register/mobile/device"
+								element={
+									<React.Suspense fallback={<div>Loading...</div>}>
+										<MobileFlowV8 />
+									</React.Suspense>
+								}
+							/>
 							<Route
 								path="/v8/mfa/register/mobile/docs"
 								element={<MobileRegistrationDocsPageV8 />}

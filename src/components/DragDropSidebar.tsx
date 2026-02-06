@@ -457,22 +457,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 					},
 					// ORIGINAL Entries
-					{
-						id: 'mfa-playground-v8',
-						path: '/v8/mfa',
-						label: 'PingOne MFA',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiSmartphone />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V8: PingOne MFA Playground with SMS, Email, TOTP, and FIDO2">
-								ORIGINAL
-							</MigrationBadge>
-						),
-					},
-					// UNIFIED Entries (sorted alphabetically)
+										// UNIFIED Entries (sorted alphabetically)
 					{
 						id: 'postman-collection-generator',
 						path: '/postman-collection-generator',
@@ -483,22 +468,28 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="Generate custom Postman collections for Unified OAuth/OIDC and MFA flows" style={{ background: '#3b82f6', color: 'white' }}>
+							<MigrationBadge
+								title="Generate custom Postman collections for Unified OAuth/OIDC and MFA flows"
+								style={{ background: '#3b82f6', color: 'white' }}
+							>
 								UNIFIED
 							</MigrationBadge>
 						),
 					},
 					{
-						id: 'unified-mfa-registration-v8',
-						path: '/v8/mfa-unified',
-						label: '🎯 Unified MFA',
+						id: 'new-unified-mfa-v8',
+						path: '/v8/unified-mfa',
+						label: '🔥 New Unified MFA',
 						icon: (
-							<ColoredIcon $color="#8b5cf6">
+							<ColoredIcon $color="#ef4444">
 								<FiLayers />
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V8: Unified flow for all MFA device types - Single component replacing 6 legacy flows" style={{ background: '#3b82f6', color: 'white' }}>
+							<MigrationBadge
+								title="New Unified MFA flow with all fixes and improvements"
+								style={{ background: '#ef4444', color: 'white' }}
+							>
 								UNIFIED
 							</MigrationBadge>
 						),
@@ -513,7 +504,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V8U: Single UI for all OAuth/OIDC flows with real PingOne APIs" style={{ background: '#3b82f6', color: 'white' }}>
+							<MigrationBadge
+								title="V8U: Single UI for all OAuth/OIDC flows with real PingOne APIs"
+								style={{ background: '#3b82f6', color: 'white' }}
+							>
 								UNIFIED
 							</MigrationBadge>
 						),
@@ -559,9 +553,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="Real-time token monitoring dashboard">
-								UTILITY
-							</MigrationBadge>
+							<MigrationBadge title="Real-time token monitoring dashboard">UTILITY</MigrationBadge>
 						),
 					},
 					{
@@ -579,37 +571,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</MigrationBadge>
 						),
 					},
-					// MAIN entries (sorted alphabetically)
-					{
-						id: 'configuration',
-						path: '/configuration',
-						label: 'Setup & Configuration',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiSettings />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Application Configuration & Credentials">
-								MAIN
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'dashboard',
-						path: '/dashboard',
-						label: 'Dashboard',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiHome />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Application Dashboard and Status">
-								MAIN
-							</MigrationBadge>
-						),
-					},
 				],
 			},
 			{
@@ -618,6 +579,17 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				icon: <FiZap />,
 				isOpen: true,
 				items: [
+					{
+						id: 'unified-mfa-v8',
+						path: '/v8/unified-mfa',
+						label: '🔥 New Unified MFA',
+						icon: (
+							<ColoredIcon $color="#ef4444">
+								<FiLayers />
+							</ColoredIcon>
+						),
+						badge: <MigrationBadge style={{ background: '#ef4444', color: 'white' }}>UNIFIED</MigrationBadge>,
+					},
 					{
 						id: 'oauth-authorization-code-v8',
 						path: '/flows/oauth-authorization-code-v8',
