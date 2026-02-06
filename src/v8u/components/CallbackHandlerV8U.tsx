@@ -30,7 +30,14 @@ export const CallbackHandlerV8U: React.FC = () => {
 			currentPath === '/user-login-callback' ||
 			currentPath.includes('user-login-callback') ||
 			currentPath === '/user-mfa-login-callback' ||
-			currentPath.includes('user-mfa-login-callback');
+			currentPath.includes('user-mfa-login-callback') ||
+			// Also handle unified MFA callbacks
+			currentPath === '/mfa-unified-callback' ||
+			currentPath.includes('mfa-unified-callback') ||
+			currentPath === '/v8/unified-mfa-callback' ||
+			currentPath.includes('/v8/unified-mfa-callback') ||
+			currentPath === '/v8/mfa-unified-callback' ||
+			currentPath.includes('/v8/mfa-unified-callback');
 
 		// Don't handle debug callback page here - it has its own component
 		// Note: Temporarily disabling this to fix the stuck callback issue
@@ -208,8 +215,20 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 				console.log(`${MODULE_TAG} 🔍 MFA-related sessionStorage keys:`, mfaRelatedKeys);
 
+				// Check if current path is a unified MFA callback and redirect accordingly
+				if (currentPath === '/mfa-unified-callback' || 
+					currentPath.includes('mfa-unified-callback') ||
+					currentPath === '/v8/unified-mfa-callback' ||
+					currentPath.includes('/v8/unified-mfa-callback') ||
+					currentPath === '/v8/mfa-unified-callback' ||
+					currentPath.includes('/v8/mfa-unified-callback')) {
+					fallbackPath = '/v8/unified-mfa';
+					console.log(
+						`${MODULE_TAG} 🔍 Unified MFA callback detected, using fallback: ${fallbackPath}`
+					);
+				}
 				// If we have unified MFA keys, prefer the unified page
-				if (mfaRelatedKeys.some((key) => key.includes('unified'))) {
+				else if (mfaRelatedKeys.some((key) => key.includes('unified'))) {
 					fallbackPath = '/v8/unified-mfa';
 					console.log(
 						`${MODULE_TAG} 🔍 Detected unified MFA activity, using fallback: ${fallbackPath}`
