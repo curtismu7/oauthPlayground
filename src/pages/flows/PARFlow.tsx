@@ -268,7 +268,7 @@ const PARFlow: React.FC<PARFlowProps> = ({ credentials }) => {
 		clientSecret: credentials?.clientSecret || '',
 		environmentId: credentials?.environmentId || '',
 		responseType: 'code',
-		redirectUri: 'http://localhost:3000/callback',
+		redirectUri: 'https://localhost:3000/callback',
 		scope: 'openid profile email',
 		state: '',
 		nonce: '',
