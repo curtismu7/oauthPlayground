@@ -497,7 +497,7 @@ const Configuration: React.FC = () => {
 		environmentId: '',
 		clientId: '',
 		clientSecret: '',
-		redirectUri: 'http://localhost:3000/callback',
+		redirectUri: 'https://localhost:3000/callback',
 		scope: 'openid profile email',
 		scopes: 'openid profile email',
 		region: 'us',
@@ -560,7 +560,7 @@ const Configuration: React.FC = () => {
 						environmentId: configCredentials.environmentId,
 						clientId: configCredentials.clientId,
 						clientSecret: configCredentials.clientSecret || '',
-						redirectUri: configCredentials.redirectUri || 'http://localhost:3000/callback',
+						redirectUri: configCredentials.redirectUri || 'https://localhost:3000/callback',
 						scopes: Array.isArray(configCredentials.scopes)
 							? configCredentials.scopes.join(' ')
 							: configCredentials.scopes || 'openid profile email',
