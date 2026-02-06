@@ -26,6 +26,7 @@ export interface FlowCallbackUris {
 	deviceCodeCallback: string;
 	dashboardCallback: string;
 	p1authCallback: string;
+	unifiedMFACallback: string;
 	authzLogoutCallback: string;
 	implicitLogoutCallback: string;
 	hybridLogoutCallback: string;
@@ -34,6 +35,7 @@ export interface FlowCallbackUris {
 	clientCredentialsLogoutCallback: string;
 	p1authLogoutCallback: string;
 	dashboardLogoutCallback: string;
+	unifiedMFALogoutCallback: string;
 }
 
 class CallbackUriService {
@@ -52,6 +54,7 @@ class CallbackUriService {
 		deviceCodeCallback: '/device-code-status',
 		dashboardCallback: '/dashboard-callback',
 		p1authCallback: '/p1auth-callback',
+		unifiedMFACallback: '/v8/unified-mfa-callback',
 		authzLogoutCallback: '/logout-callback',
 		implicitLogoutCallback: '/logout-callback-implicit',
 		hybridLogoutCallback: '/hybrid-logout-callback',
@@ -60,6 +63,7 @@ class CallbackUriService {
 		clientCredentialsLogoutCallback: '/client-credentials-logout-callback',
 		p1authLogoutCallback: '/p1auth-logout-callback',
 		dashboardLogoutCallback: '/dashboard-logout-callback',
+		unifiedMFALogoutCallback: '/v8/unified-mfa-logout-callback',
 	};
 
 	constructor(config?: Partial<CallbackUriConfig>) {
@@ -207,6 +211,10 @@ class CallbackUriService {
 
 		if (normalized.includes('pingone') && normalized.includes('auth')) {
 			return { redirect: 'p1authCallback', logout: 'p1authLogoutCallback' };
+		}
+
+		if (normalized.includes('unified') && normalized.includes('mfa')) {
+			return { redirect: 'unifiedMFACallback', logout: 'unifiedMFALogoutCallback' };
 		}
 
 		return { redirect: 'authzCallback', logout: 'authzLogoutCallback' };
