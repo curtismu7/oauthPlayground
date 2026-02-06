@@ -64,7 +64,7 @@ export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 		}
 
 		const data = JSON.parse(stored);
-		
+
 		// Handle unified service data structure
 		const token = data.token || data.data?.token;
 		if (!token) {
@@ -77,9 +77,23 @@ export const checkWorkerTokenStatusSync = (): TokenStatusInfo => {
 
 		// Check expiration - handle both old and new data structures
 		const now = Date.now();
-		const expiresAt = data.expiresAt || data.data?.expiresAt || (data.savedAt || data.data?.savedAt || 0) + 3600 * 1000; // Default 1 hour
+		const expiresAt =
+			data.expiresAt ||
+			data.data?.expiresAt ||
+			(data.savedAt || data.data?.savedAt || 0) + 3600 * 1000; // Default 1 hour
 		const isExpired = now >= expiresAt;
 		const minutesRemaining = Math.max(0, Math.floor((expiresAt - now) / 60000));
+
+		// Debug logging for expired tokens
+		if (isExpired) {
+			console.warn('[WORKER-TOKEN-STATUS] Token expired:', {
+				now: new Date(now).toISOString(),
+				expiresAt: new Date(expiresAt).toISOString(),
+				minutesOverdue: Math.floor((now - expiresAt) / 60000),
+				tokenLength: token.length,
+				dataStructure: Object.keys(data),
+			});
+		}
 
 		let tokenStatus: TokenStatus = 'valid';
 		let message = 'Worker token is valid and ready to use.';
@@ -148,10 +162,10 @@ export const getStatusIcon = (status: TokenStatus): string => {
 /**
  * Check if worker token is expiring soon
  * Returns warning if token expires within threshold
- * 
+ *
  * @param thresholdMinutes - Warning threshold in minutes (default: 5)
  * @returns Expiration warning details
- * 
+ *
  * @example
  * const warning = await getExpirationWarning(10);
  * if (warning.isExpiringSoon) {
@@ -215,9 +229,9 @@ export const getExpirationWarning = async (
 /**
  * Comprehensive health check for worker token
  * Provides detailed status and actionable recommendations
- * 
+ *
  * @returns Health check results with issues and recommendations
- * 
+ *
  * @example
  * const health = await getHealthCheck();
  * if (!health.healthy) {
@@ -270,7 +284,9 @@ export const getHealthCheck = async (): Promise<{
 		const ageHours = Math.floor(age / 3600000);
 
 		if (ageHours > 12) {
-			recommendations.push(`Token is ${ageHours} hours old. Consider refreshing for best security.`);
+			recommendations.push(
+				`Token is ${ageHours} hours old. Consider refreshing for best security.`
+			);
 		}
 	}
 
