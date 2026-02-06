@@ -3546,7 +3546,7 @@ app.post('/api/device-authorization', async (req, res) => {
 
 		// #region agent log - Debug instrumentation for 403 error
 		try {
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+			// fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -3594,7 +3594,7 @@ app.post('/api/device-authorization', async (req, res) => {
 				.clone()
 				.text()
 				.catch(() => 'FAILED_TO_READ');
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+			// fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -9865,7 +9865,7 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 		// Log the exact JSON body being sent to PingOne (for all device types, especially EMAIL)
 		const jsonBodyString = JSON.stringify(requestBody);
 		// Silently attempt analytics (suppress all errors to prevent console spam)
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+		// fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
@@ -9921,7 +9921,7 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 			} catch {
 				errorData = { raw: errorTextForLogging };
 			}
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+			// fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
