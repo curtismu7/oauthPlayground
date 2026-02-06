@@ -82,7 +82,12 @@ class CallbackUriService {
 			return 'https://localhost:3000';
 		}
 
-		return window.location.origin;
+		// Ensure HTTPS is used for security, even in development
+		const origin = window.location.origin;
+		if (origin.startsWith('http://localhost')) {
+			return origin.replace('http://', 'https://');
+		}
+		return origin;
 	}
 
 	private detectEnvironment(): 'development' | 'staging' | 'production' {
