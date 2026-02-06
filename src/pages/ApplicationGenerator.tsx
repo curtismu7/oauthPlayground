@@ -1300,7 +1300,7 @@ const ApplicationGenerator: React.FC = () => {
 			modalData?.redirectUri ||
 			(Array.isArray(formData.redirectUris)
 				? formData.redirectUris[0]
-				: 'http://localhost:3000/callback');
+				: 'https://localhost:3000/callback');
 		const _tokenAuthMethod = modalData?.tokenEndpointAuthMethod || formData.tokenEndpointAuthMethod;
 
 		// Validate required fields
@@ -1804,7 +1804,7 @@ const ApplicationGenerator: React.FC = () => {
 														e.target.value.split('\n').filter((uri) => uri.trim())
 													)
 												}
-												placeholder="http://localhost:3000/callback&#10;https://myapp.com/callback"
+												placeholder="https://localhost:3000/callback&#10;https://myapp.com/callback"
 												$hasError={validationErrors.has('redirectUris')}
 											/>
 											{validationErrors.has('redirectUris') && (
