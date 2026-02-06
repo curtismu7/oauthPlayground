@@ -293,12 +293,12 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 		if (onStartAgain) {
 			onStartAgain();
 		} else {
-			navigate('/v8/mfa-unified');
+			navigate('/v8/unified-mfa');
 		}
 	};
 
 	const handleGoToAuthentication = () => {
-		navigate('/v8/mfa-unified');
+		navigate('/v8/unified-mfa');
 	};
 
 	const handleGoToDocumentation = () => {

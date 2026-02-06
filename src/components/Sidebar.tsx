@@ -589,39 +589,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</MigrationBadge>
 						),
 					},
-					// LEGACY Entries
-					{
-						id: 'unified-mfa-registration-v8',
-						path: '/v8/mfa-unified',
-						label: '🔧 Legacy MFA',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiSettings />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V8: Legacy MFA flow - 6-step device authentication">
-								LEGACY
-							</MigrationBadge>
-						),
-					},
 					// ORIGINAL Entries
-					{
-						id: 'mfa-playground-v8',
-						path: '/v8/mfa',
-						label: 'PingOne MFA',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiSmartphone />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V8: PingOne MFA Playground with SMS, Email, TOTP, and FIDO2">
-								ORIGINAL
-							</MigrationBadge>
-						),
-					},
-					// UNIFIED Entries (sorted alphabetically)
+										// UNIFIED Entries (sorted alphabetically)
 					{
 						id: 'postman-collection-generator',
 						path: '/postman-collection-generator',
@@ -632,7 +601,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="Generate custom Postman collections for Unified OAuth/OIDC and MFA flows" style={{ background: '#3b82f6', color: 'white' }}>
+							<MigrationBadge
+								title="Generate custom Postman collections for Unified OAuth/OIDC and MFA flows"
+								style={{ background: '#3b82f6', color: 'white' }}
+							>
 								UNIFIED
 							</MigrationBadge>
 						),
@@ -640,14 +612,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					{
 						id: 'unified-mfa-v8',
 						path: '/v8/unified-mfa',
-						label: '🎯 Unified MFA',
+						label: '🔥 New Unified MFA',
 						icon: (
-							<ColoredIcon $color="#10b981">
+							<ColoredIcon $color="#ef4444">
 								<FiZap />
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V8: Unified MFA with runId threading, state machine, and comprehensive logging" style={{ background: '#3b82f6', color: 'white' }}>
+							<MigrationBadge
+								title="New Unified MFA flow with all fixes and improvements"
+								style={{ background: '#ef4444', color: 'white' }}
+							>
 								UNIFIED
 							</MigrationBadge>
 						),
@@ -662,7 +637,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V8U: Single UI for all OAuth/OIDC flows with real PingOne APIs" style={{ background: '#3b82f6', color: 'white' }}>
+							<MigrationBadge
+								title="V8U: Single UI for all OAuth/OIDC flows with real PingOne APIs"
+								style={{ background: '#3b82f6', color: 'white' }}
+							>
 								UNIFIED
 							</MigrationBadge>
 						),
@@ -728,36 +706,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</MigrationBadge>
 						),
 					},
-					// MAIN entries (moved from Main section)
+					// Unified MFA entry
 					{
-						id: 'configuration',
-						path: '/configuration',
-						label: 'Setup & Configuration',
+						id: 'unified-mfa-v8',
+						path: '/v8/unified-mfa',
+						label: 'Unified MFA - New',
 						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiSettings />
+							<ColoredIcon $color="#ef4444">
+								<FiZap />
 							</ColoredIcon>
 						),
-						badge: (
-							<MigrationBadge title="Application Configuration & Credentials">
-								MAIN
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'dashboard',
-						path: '/dashboard',
-						label: 'Dashboard',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiHome />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Application Dashboard and Status">
-								MAIN
-							</MigrationBadge>
-						),
+						badge: <MigrationBadge style={{ background: '#ef4444', color: 'white' }}>UNIFIED</MigrationBadge>,
 					},
 					// Other entries (non-green badges)
 					{
