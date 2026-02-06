@@ -193,6 +193,7 @@ import { MobileOTPConfigurationPageV8 } from './v8/flows/types/MobileOTPConfigur
 import { SMSOTPConfigurationPageV8 } from './v8/flows/types/SMSOTPConfigurationPageV8';
 import { TOTPConfigurationPageV8 } from './v8/flows/types/TOTPConfigurationPageV8';
 import { WhatsAppOTPConfigurationPageV8 } from './v8/flows/types/WhatsAppOTPConfigurationPageV8';
+
 // Lazy load unified MFA flow for code splitting
 const UnifiedMFARegistrationFlowV8_Legacy = React.lazy(
 	() => import('./v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy')
@@ -212,6 +213,7 @@ const SMSFlowV8 = React.lazy(() =>
 const WhatsAppFlowV8 = React.lazy(() =>
 	import('./v8/flows/types/WhatsAppFlowV8').then((module) => ({ default: module.WhatsAppFlowV8 }))
 );
+
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
@@ -536,6 +538,8 @@ const AppRoutes: React.FC = () => {
 							<Route path="/user-mfa-login-callback" element={<CallbackHandlerV8U />} />
 							{/* CRITICAL: V8 Unified MFA callback route - DO NOT REMOVE - Used by unified MFA flows */}
 							<Route path="/v8/unified-mfa-callback" element={<CallbackHandlerV8U />} />
+							{/* LEGACY: V8 Unified MFA callback route - redirects to new route for backward compatibility */}
+							<Route path="/v8/mfa-unified-callback" element={<CallbackHandlerV8U />} />
 							<Route path="/hybrid-callback" element={<HybridCallback />} />
 							<Route path="/implicit-callback" element={<ImplicitCallback />} />
 							<Route path="/oauth-implicit-callback" element={<ImplicitCallback />} />
