@@ -536,9 +536,11 @@ const AppRoutes: React.FC = () => {
 							<Route path="/user-login-callback" element={<CallbackHandlerV8U />} />
 							{/* CRITICAL: MFA-specific user login callback route - DO NOT REMOVE - Used by MFA flows for user authentication */}
 							<Route path="/user-mfa-login-callback" element={<CallbackHandlerV8U />} />
-							{/* CRITICAL: V8 Unified MFA callback route - DO NOT REMOVE - Used by unified MFA flows */}
+							{/* CRITICAL: Unified MFA callback routes - DO NOT REMOVE - Used by unified MFA flows */}
+							<Route path="/mfa-unified-callback" element={<CallbackHandlerV8U />} />
+							<Route path="/mfa-hub-callback" element={<CallbackHandlerV8U />} />
+							{/* LEGACY: V8 Unified MFA callback routes - redirects to new routes for backward compatibility */}
 							<Route path="/v8/unified-mfa-callback" element={<CallbackHandlerV8U />} />
-							{/* LEGACY: V8 Unified MFA callback route - redirects to new route for backward compatibility */}
 							<Route path="/v8/mfa-unified-callback" element={<CallbackHandlerV8U />} />
 							<Route path="/hybrid-callback" element={<HybridCallback />} />
 							<Route path="/implicit-callback" element={<ImplicitCallback />} />

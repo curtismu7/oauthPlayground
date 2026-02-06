@@ -54,7 +54,7 @@ class CallbackUriService {
 		deviceCodeCallback: '/device-code-status',
 		dashboardCallback: '/dashboard-callback',
 		p1authCallback: '/p1auth-callback',
-		unifiedMFACallback: '/v8/unified-mfa-callback',
+		unifiedMFACallback: '/mfa-unified-callback',
 		authzLogoutCallback: '/logout-callback',
 		implicitLogoutCallback: '/logout-callback-implicit',
 		hybridLogoutCallback: '/hybrid-logout-callback',
@@ -63,7 +63,7 @@ class CallbackUriService {
 		clientCredentialsLogoutCallback: '/client-credentials-logout-callback',
 		p1authLogoutCallback: '/p1auth-logout-callback',
 		dashboardLogoutCallback: '/dashboard-logout-callback',
-		unifiedMFALogoutCallback: '/v8/unified-mfa-logout-callback',
+		unifiedMFALogoutCallback: '/mfa-unified-logout-callback',
 	};
 
 	constructor(config?: Partial<CallbackUriConfig>) {
