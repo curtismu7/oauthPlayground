@@ -18,8 +18,8 @@ import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethod
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
@@ -122,8 +122,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		warnings: string[];
 	} | null>(null);
 	// Use different default redirect URI for MFA flows
-	// Use http for localhost dev, https for production
-	const protocol = window.location.hostname === 'localhost' ? 'http' : 'https';
+	// Always use HTTPS for security, even in development
+	const protocol = 'https';
 	const defaultRedirectUri = isMfaFlow
 		? `${protocol}://${window.location.host}/user-mfa-login-callback`
 		: `${protocol}://${window.location.host}/user-login-callback`;
@@ -268,11 +268,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	useEffect(() => {
 		if (isOpen) {
 			const FLOW_KEY = 'user-login-v8';
-			
+
 			// Get the correct redirect URI from the centralized service
 			const defaultRedirectUriForMfa = isMfaFlow
 				? MFARedirectUriServiceV8.getRedirectUri('unified-mfa-v8')
-				: `${window.location.protocol}//${window.location.host}/user-login-callback`;
+				: `https://${window.location.host}/user-login-callback`;
 			// Load saved credentials
 			const saved = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 				flowKey: FLOW_KEY,
@@ -301,18 +301,20 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				setClientId(saved.clientId || '');
 				setClientSecret(saved.clientSecret || '');
 				setAuthMethod(saved.authMethod || saved.tokenEndpointAuthMethod || 'client_secret_post');
-				
+
 				// ALWAYS use the new unified callback for MFA flows, regardless of what's saved
-				const initialRedirectUri = isMfaFlow ? defaultRedirectUriForMfa : (saved.redirectUri || defaultRedirectUriForMfa);
+				const initialRedirectUri = isMfaFlow
+					? defaultRedirectUriForMfa
+					: saved.redirectUri || defaultRedirectUriForMfa;
 
 				// #region agent log
 				sendAnalyticsLog({
 					location: 'UserLoginModalV8.tsx:134',
 					message: 'Redirect URI loaded - FORCED for MFA flows',
-					data: { 
-						savedRedirectUri: saved.redirectUri, 
-						defaultRedirectUriForMfa, 
-						initialRedirectUri, 
+					data: {
+						savedRedirectUri: saved.redirectUri,
+						defaultRedirectUriForMfa,
+						initialRedirectUri,
 						isMfaFlow,
 						forcedMigration: isMfaFlow,
 					},
@@ -1161,9 +1163,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 		// FOOLPROOF: For MFA flows, ALWAYS use the centralized service
 		// This ensures the redirect URI is constant and correct
-		const finalRedirectUri = isMfaFlow 
+		const finalRedirectUri = isMfaFlow
 			? MFARedirectUriServiceV8.getRedirectUri('unified-mfa-v8')
-			: (redirectUri.trim() || `${window.location.protocol}//${window.location.host}/user-login-callback`);
+			: redirectUri.trim() ||
+				`${window.location.protocol}//${window.location.host}/user-login-callback`;
 
 		// #region agent log
 		sendAnalyticsLog({
