@@ -237,7 +237,7 @@ const ImplicitRequestURIFlow: React.FC<ImplicitRequestURIFlowProps> = ({ credent
 		clientId: credentials?.clientId || '',
 		clientSecret: credentials?.clientSecret || '',
 		environmentId: credentials?.environmentId || '',
-		redirectUri: 'http://localhost:3000/callback',
+		redirectUri: 'https://localhost:3000/callback',
 		scope: 'openid profile email',
 		state: '',
 		nonce: '',
