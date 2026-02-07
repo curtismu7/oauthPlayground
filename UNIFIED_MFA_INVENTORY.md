@@ -3024,51 +3024,60 @@ grep -n "user-login-callback" src/v8/components/UserLoginModalV8.tsx
 - No validation to distinguish between URLs, filenames, and image data
 
 **Solution Applied**:
-- Added URL validation to ensure only valid URLs are displayed as images
-- Implemented proper handling for different logo input types (URL, filename, base64)
-- Added error handling for invalid image sources
+- Added `isValidLogoUrl` validation function at line 173 to check URL format and exclude base64 data
+- Implemented conditional rendering in logo preview (line 825) and main flow (line 1463)
+- Added proper handling for different logo input types (URL, filename, base64)
+- Added visual feedback for invalid URLs showing URL text instead of broken images
+- Enhanced error handling for invalid image sources
 
 **Files Affected**:
-- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Lines 172, 667, 712, 812, 1428
+- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Lines 173 (validation function), 825 (preview), 1463 (main flow)
 
 **Detection Commands**:
 ```bash
 # Check for custom logo URL state usage
 grep -n "customLogoUrl" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
 
-# Check for direct image src usage with logo URL
-grep -n -A 3 "src.*customLogoUrl" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+# Check for logo URL validation function
+grep -n "isValidLogoUrl" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
 
-# Check for logo URL validation
-grep -n -A 5 "logoUrl.*valid\|valid.*logo" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+# Check for conditional logo rendering
+grep -n -A 10 "isValidLogoUrl.*customLogoUrl" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
 
-# Check for base64 image data in logo handling
-grep -n -A 3 "base64.*logo\|logo.*base64" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+# Check for base64 image data handling
+grep -n -A 3 "base64.*logo\|logo.*base64\|data:image" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
 ```
 
 **Prevention Strategies**:
 1. **Always validate logo URLs** before using them as image sources
-2. **Distinguish input types** - URL vs filename vs base64 data
-3. **Add proper error handling** for invalid image sources
-4. **Use URL validation functions** to ensure proper format
-5. **Display appropriate feedback** for different input types
+2. **Use `isValidLogoUrl` function** to ensure proper URL format and exclude base64 data
+3. **Implement conditional rendering** - show image for valid URLs, text for invalid ones
+4. **Add proper error handling** for invalid image sources
+5. **Display appropriate feedback** for different input types (URL vs base64 vs filename)
 
 **Testing Checklist**:
-- [ ] Test with valid image URLs
-- [ ] Test with invalid URLs
+- [ ] Test with valid image URLs (should display image)
+- [ ] Test with invalid URLs (should show URL text)
+- [ ] Test with base64 data (should show "Base64 Image Data - Use URL instead")
 - [ ] Test with filenames (should not display as images)
-- [ ] Test with base64 data handling
-- [ ] Test error handling for broken images
-- [ ] Verify proper fallback behavior
+- [ ] Verify proper fallback behavior for broken images
+- [ ] Check logo preview and main flow display consistency
 
 **Where This Issue Can Arise**:
 - Any component that handles user-provided logo URLs
 - Image upload functionality with preview
 - Custom branding sections
 - File upload components with image preview
-- Any `<img>` tag using dynamic src from user input
+- Components using `<img src={variable}>` without validation
 
-**Priority**: HIGH - Affects user experience and data display correctness
+**Common Patterns to Watch For**:
+- Direct usage of variables in `<img src={}>` without validation
+- Base64 data being treated as URLs
+- Missing URL validation before image rendering
+- Components showing broken images instead of helpful feedback
+- User input displayed as images without proper type checking
+
+**Priority**: MEDIUM - Affects user experience but doesn't break core functionality
 
 ---
 
@@ -3200,6 +3209,767 @@ grep -n -A 5 "returnToMfaFlow\|return.*path" src/v8/flows/MFAAuthenticationMainP
 
 ---
 
+#### Pre-flight Validation Toast Issue - Generic Error Message Problem
+
+**Issue Description**: Pre-flight validation failures showed generic toast message "Pre-flight validation failed - check error details below" without providing specific error information or actionable fix options. Users couldn't understand what was wrong or how to fix it.
+
+**Root Cause**: 
+- Toast messages used generic text instead of specific error details
+- No indication of error count or fixability
+- Missing context about auto-fix options
+- Poor user experience with unhelpful error messages
+
+**Solution Applied**:
+- Enhanced all toast messages with specific error details (error count, main error)
+- Added fixability information (X errors, Y can be auto-fixed)
+- Differentiated between auto-fix declined, non-fixable, and incomplete fix scenarios
+- Improved UserLoginModalV8 and WorkerTokenModalV8 error messages
+- Added context-specific guidance for each error type
+
+**Files Affected**:
+- `src/v8u/components/UnifiedFlowSteps.tsx` - 8 toast message improvements
+- `src/v8/components/UserLoginModalV8.tsx` - Enhanced error message
+- `src/v8/components/WorkerTokenModalV8.tsx` - Already had specific messages (verified)
+
+**Detection Commands**:
+```bash
+# Check for generic pre-flight validation toast messages
+grep -rn "toastV8.error.*Pre-flight validation failed.*check error details below" src/v8/
+
+# Check for improved toast messages with error details
+grep -rn "Pre-flight validation failed.*error" src/v8u/components/
+
+# Verify error count and fixability information
+grep -rn -A 3 "errorCount.*fixableCount" src/v8u/components/
+```
+
+**Prevention Strategies**:
+1. **Always include specific error details** in toast messages
+2. **Show error count and fixability status** for better context
+3. **Differentiate message types** (auto-fix available, manual fix required, etc.)
+4. **Provide actionable guidance** in error messages
+5. **Test all error scenarios** to ensure helpful messages
+
+**Testing Checklist**:
+- [ ] Test pre-flight validation with fixable errors
+- [ ] Test pre-flight validation with non-fixable errors  
+- [ ] Test auto-fix declined scenarios
+- [ ] Test auto-fix incomplete scenarios
+- [ ] Verify UserLoginModalV8 error messages
+- [ ] Verify WorkerTokenModalV8 error messages
+- [ ] Test error message truncation for long errors
+
+**Where This Issue Can Arise**:
+- Any component using toast notifications for validation errors
+- Pre-flight validation service error handling
+- OAuth/OIDC flow validation feedback
+- User authentication error messaging
+- Token generation error handling
+
+**Common Patterns to Watch For**:
+- Generic "check error details below" messages
+- Missing error count information
+- No indication of fixability or auto-fix options
+- Unhelpful error messages without context
+- Toast messages that don't guide users to solutions
+
+**Priority**: HIGH - Affects user experience and makes debugging difficult for users
+
+---
+
+#### Props Reference Error - Unused Function with Undefined Props
+
+**Issue Description**: `ReferenceError: props is not defined` error occurred in UnifiedMFARegistrationFlowV8_Legacy.tsx at line 2744. An unused function `_shouldHideNextButton` was defined with props parameter but was never called, causing React to attempt to execute it during component rendering.
+
+**Root Cause**: 
+- Unused function `_shouldHideNextButton` defined with `useCallback` hook
+- Function had `props: MFAFlowBaseRenderProps` parameter but `props` was not available in scope
+- Function was never actually used in the component
+- React attempted to evaluate the function during rendering, causing the reference error
+
+**Solution Applied**:
+- Removed the unused `_shouldHideNextButton` function entirely
+- Function was not being used anywhere in the component
+- Eliminated the source of the undefined `props` reference
+- Component now renders without the reference error
+
+**Files Affected**:
+- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Line 2738-2746 (removed unused function)
+
+**Detection Commands**:
+```bash
+# Check for undefined props references
+grep -rn "ReferenceError.*props.*not.*defined" src/v8/flows/
+
+# Check for unused functions with props parameters
+grep -rn -A 3 "useCallback.*props.*=>" src/v8/flows/ | grep -A 2 "_.*="
+
+# Check for functions that access props but might not have them in scope
+grep -rn -A 5 "props\." src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check for unused callback functions
+grep -rn "const.*useCallback.*=>" src/v8/flows/unified/ | grep "_.*="
+```
+
+**Prevention Strategies**:
+1. **Remove unused functions** - Delete functions that are defined but never called
+2. **Check function scope** - Ensure props are available in function context
+3. **Use linting tools** - Enable ESLint rules for unused variables
+4. **Test component rendering** - Verify all functions are properly scoped
+5. **Review useCallback usage** - Ensure dependencies are correct and functions are used
+
+**Testing Checklist**:
+- [ ] Test component rendering without errors
+- [ ] Verify all functions are actually used
+- [ ] Check props availability in function scopes
+- [ ] Test with different component states
+- [ ] Verify no unused callback functions remain
+
+**Where This Issue Can Arise**:
+- Component functions defined with props parameters but never used
+- useCallback hooks with unused functions
+- Functions that reference variables outside their scope
+- Component refactoring that leaves orphaned functions
+- Copy-paste code that includes unused helper functions
+
+**Common Patterns to Watch For**:
+- Functions with `_` prefix that are never called
+- useCallback hooks with functions that aren't referenced
+- Functions defined but not exported or used in component
+- Props parameter in functions without proper scope
+- Orphaned code after refactoring
+
+**Priority**: HIGH - Causes application crashes and prevents component rendering
+
+---
+
+#### Temporal Dead Zone Error - Function Used Before Declaration
+
+**Issue Description**: `ReferenceError: Cannot access 'getApiTypeIcon' before initialization` error occurred in SuperSimpleApiDisplayV8.tsx at line 813. A useEffect hook was trying to use `getApiTypeIcon` in its dependency array before the function was declared, creating a temporal dead zone error.
+
+**Root Cause**: 
+- `getApiTypeIcon` function was defined after the useEffect that used it
+- useEffect dependency array referenced the function before its declaration
+- JavaScript's temporal dead zone prevents accessing variables/constants before initialization
+- Component failed to render during the mounting phase
+
+**Solution Applied**:
+- Moved `getApiTypeIcon` function definition before the useEffect that uses it
+- Function now declared at line 789, before useEffect at line 819
+- Removed duplicate function definition that was causing redeclaration errors
+- Maintained proper function scope and dependencies
+
+**Files Affected**:
+- `src/v8/components/SuperSimpleApiDisplayV8.tsx` - Line 789 (moved function), removed duplicate at line 1309
+
+**Detection Commands**:
+```bash
+# Check for temporal dead zone issues with functions in useEffect dependencies
+grep -rn -A 2 -B 5 "useEffect.*\[.*\]" src/v8/components/ | grep -A 5 -B 5 "const.*="
+
+# Check for functions used in dependency arrays
+grep -rn -A 2 -B 2 "\[.*,.*FunctionName.*\]" src/v8/components/
+
+# Check for function declarations after useEffect that use them
+grep -rn -A 10 "useEffect.*{" src/v8/components/ | grep -B 10 "const.*=.*=>"
+
+# Verify function definition order
+grep -rn "const.*FunctionName\|function.*FunctionName" src/v8/components/SuperSimpleApiDisplayV8.tsx
+```
+
+**Prevention Strategies**:
+1. **Declare functions before useEffect** - Ensure functions are defined before hooks that use them
+2. **Check dependency arrays** - Verify all dependencies are available when useEffect runs
+3. **Use function references carefully** - Avoid referencing functions that aren't yet declared
+4. **Test component mounting** - Verify components render without initialization errors
+5. **Review function order** - Ensure proper declaration sequence in components
+
+**Testing Checklist**:
+- [ ] Test component rendering without temporal dead zone errors
+- [ ] Verify all useEffect dependencies are properly declared
+- [ ] Check function declaration order in components
+- [ ] Test component mounting and lifecycle
+- [ ] Verify no duplicate function declarations exist
+
+**Where This Issue Can Arise**:
+- Components with useEffect hooks that reference functions in dependency arrays
+- Functions declared after useEffect hooks that use them
+- Complex components with multiple helper functions and effects
+- Components with conditional function declarations
+- Refactored components where function order changes
+
+**Common Patterns to Watch For**:
+- useEffect with function dependencies declared before the function
+- Helper functions used in multiple useEffect hooks
+- Functions declared after useEffect hooks
+- Dependency arrays with undefined variables
+- Component initialization order issues
+
+**Priority**: HIGH - Causes application crashes and prevents component rendering
+
+---
+
+#### Logo Loading Issue - CORS and Image Loading Problems
+
+**Issue Description**: Valid logo URLs (such as the official PingIdentity logo) are failing to load in the logo preview, showing broken image indicators instead of the actual logo image.
+
+**Root Cause Analysis**: 
+- **URL Validation Working**: The `isValidLogoUrl` function correctly validates URLs
+- **CORS Issues Likely**: External assets from `assets.pingone.com` may be blocked by browser CORS policies
+- **Network Access**: The URL is accessible via curl but may be blocked in browser context
+- **Error Handling Limited**: Previous error handling didn't provide enough debugging information
+
+**Current Status**: **🔍 IN PROGRESS** - Enhanced debugging implemented
+
+**Solution Applied**:
+- **Enhanced Validation Logging**: Added detailed console logging for URL validation process
+- **Improved Error Handling**: Enhanced image error handlers with detailed debugging information
+- **CORS Detection**: Added specific warnings for PingIdentity asset loading issues
+- **Debug Information**: Added naturalWidth, naturalHeight, and completion status logging
+
+**Files Affected**:
+- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Lines 173 (validation), 847 (preview error), 1493 (main flow error)
+
+**Detection Commands**:
+```bash
+# Check logo URL validation function
+grep -n -A 10 "isValidLogoUrl.*=>" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check enhanced error handling
+grep -n -A 5 "Failed to load.*logo" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check CORS warnings
+grep -n "Possible CORS issue" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Test URL accessibility
+curl -I "https://assets.pingone.com/ux/ui-library/5.0.2/images/logo-pingidentity.png"
+```
+
+**Debugging Steps**:
+1. **Check Console Logs**: Look for validation output and error details
+2. **Verify URL Format**: Ensure URL passes validation (should show isValid: true)
+3. **Check Network Tab**: Look for failed requests or CORS errors
+4. **Test Direct Access**: Try accessing the URL directly in browser
+5. **Check CORS Headers**: Verify if external assets have proper CORS headers
+
+**Potential Solutions** (if CORS is confirmed):
+1. **Proxy Implementation**: Create server-side proxy for PingIdentity assets
+2. **Local Asset Hosting**: Host official logos locally
+3. **CORS Headers**: Ensure PingIdentity CDN has proper CORS configuration
+4. **Alternative Sources**: Use different CDN or hosting for official logos
+5. **Base64 Embedding**: Convert small logos to base64 for local serving
+
+**Testing Checklist**:
+- [ ] Test with PingIdentity official logo URL
+- [ ] Check browser console for validation logs
+- [ ] Verify network requests for CORS errors
+- [ ] Test with other external image URLs
+- [ ] Test with local image URLs
+- [ ] Verify error fallback behavior
+
+**Where This Issue Can Arise**:
+- Logo preview in configuration step
+- Main flow logo display
+- Any external image loading in MFA flows
+- Custom branding functionality
+
+**Common Patterns to Watch For**:
+- External CDN assets without CORS headers
+- Image loading failures without proper error handling
+- Missing debugging information for image issues
+- Network policy restrictions on external resources
+
+**Priority**: MEDIUM - Affects user experience but doesn't break core functionality
+
+---
+
+#### File Upload Display Issue - Base64 Files Not Showing
+
+**Issue Description**: When users upload logo files through the file upload functionality, the uploaded images were not displaying properly in the logo preview. The system was converting files to base64 but the validation logic was rejecting base64 data, preventing uploaded files from being shown as images.
+
+**Root Cause Analysis**: 
+- **Validation Too Restrictive**: `isValidLogoUrl` function rejected all base64 data (`data:image/`)
+- **Missing File Info Tracking**: No state management for uploaded file metadata (name, size, type)
+- **No Distinction**: No differentiation between URL input and file upload in display logic
+- **Base64 Handling**: Files were converted to base64 but display logic didn't handle this format
+
+**Solution Applied**:
+- **Added File Info State**: `uploadedFileInfo` state to track uploaded file metadata
+- **Enhanced Validation**: Added `isUploadedFile()` function to detect base64 uploads
+- **Conditional Rendering**: Three-way conditional logic (uploaded file vs valid URL vs invalid)
+- **Filename Display**: Show uploaded filename below the image for better UX
+- **Enhanced Error Handling**: Specific error logging for uploaded file failures
+
+**Files Affected**:
+- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Lines 169 (state), 201 (function), 857 (preview), 1541 (main flow)
+
+**Detection Commands**:
+```bash
+# Check file upload state management
+grep -n "uploadedFileInfo\|setUploadedFileInfo" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check uploaded file detection function
+grep -n -A 3 "isUploadedFile.*=>" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check conditional rendering for uploaded files
+grep -n -A 5 "isUploadedFile.*customLogoUrl" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check file upload handler
+grep -n -A 10 "setUploadedFileInfo.*fileInfo" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check localStorage loading for file info
+grep -n -A 5 "setUploadedFileInfo.*{" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+```
+
+**Prevention Strategies**:
+1. **Distinguish Input Types**: Separate validation logic for URLs vs uploaded files
+2. **Track File Metadata**: Store and display uploaded file information
+3. **Handle Base64 Properly**: Allow base64 data for uploaded files while rejecting for URLs
+4. **Enhanced Error Handling**: Specific error messages for upload failures
+5. **User Feedback**: Show filenames for uploaded files to improve UX
+
+**Testing Checklist**:
+- [ ] Test file upload with various image formats (JPG, PNG, GIF)
+- [ ] Verify uploaded images display correctly in preview
+- [ ] Check filename display below uploaded images
+- [ ] Test main flow logo display with uploaded files
+- [ ] Verify error handling for corrupted uploads
+- [ ] Test clear button removes file info and localStorage data
+- [ ] Test localStorage persistence and loading of uploaded files
+
+**Where This Issue Can Arise**:
+- File upload functionality with image preview
+- Components that handle both URL input and file upload
+- Base64 data handling and display
+- LocalStorage persistence of uploaded files
+- Conditional rendering based on input type
+
+**Common Patterns to Watch For**:
+- Base64 data being rejected by URL validation
+- Missing file metadata tracking
+- No distinction between input types in display logic
+- Uploaded files not showing proper preview
+- Missing filename display for uploaded content
+
+**Priority**: MEDIUM - Affects user experience but doesn't break core functionality
+
+---
+
+#### Logo Persistence Issue - Raw Base64 Data on Reload
+
+**Issue Description**: When the page reloads, the system was showing raw base64 image data instead of the original filename or URL that was used to obtain the image. This occurred because only file upload data was being persisted, while URL input data was lost on page refresh.
+
+**Root Cause Analysis**: 
+- **Missing URL Persistence**: URL inputs were not being saved to localStorage
+- **No Input Type Tracking**: System couldn't distinguish between file uploads and URL inputs on reload
+- **Incomplete Loading Logic**: Only checked for file upload data, not URL data
+- **State Loss**: URL input type information was lost on page refresh
+
+**Solution Applied**:
+- **URL Persistence**: Added localStorage saving for URL inputs (`custom-logo-url`)
+- **Input Type Tracking**: Added `logoInputType` state to track input method
+- **Enhanced Loading Logic**: Check both file upload and URL data on mount
+- **Priority System**: File uploads take precedence over URLs when both exist
+- **State Synchronization**: Properly clear both localStorage keys when logo is cleared
+
+**Files Affected**:
+- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Lines 175 (state), 180 (URL persistence), 258 (URL loading), 757 (URL input), 825 (file upload)
+
+**Detection Commands**:
+```bash
+# Check input type tracking state
+grep -n "logoInputType\|setLogoInputType" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check URL persistence logic
+grep -n -A 5 "localStorage.*custom-logo-url" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check enhanced loading logic
+grep -n -A 10 "custom-logo-url.*localStorage" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check file upload input type setting
+grep -n -A 2 "setLogoInputType.*file" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check URL input type setting
+grep -n -A 2 "setLogoInputType.*url" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+```
+
+**Prevention Strategies**:
+1. **Dual Persistence**: Save both file upload and URL data to localStorage
+2. **Input Type Tracking**: Always track how the logo was obtained (file vs URL)
+3. **Priority Loading**: Load file uploads first, then URLs (clear precedence)
+4. **State Synchronization**: Clear all related data when logo is cleared
+5. **Comprehensive Loading**: Check all possible sources on component mount
+
+**Testing Checklist**:
+- [ ] Test URL input persistence across page reloads
+- [ ] Test file upload persistence across page reloads
+- [ ] Verify precedence (file upload over URL when both exist)
+- [ ] Test clear button removes all localStorage data
+- [ ] Test switching between URL input and file upload
+- [ ] Verify input type tracking works correctly
+- [ ] Test corrupted localStorage handling
+
+**Where This Issue Can Arise**:
+- Any component with multiple input methods for the same data
+- Components that need to persist user input across sessions
+- File upload components with alternative input methods
+- Form components with mixed input types (URL, file, text)
+
+**Common Patterns to Watch For**:
+- Missing localStorage persistence for certain input types
+- Incomplete loading logic that doesn't check all data sources
+- No input type tracking leading to ambiguous state
+- State synchronization issues when clearing data
+- Missing precedence rules for conflicting data sources
+
+**Priority**: MEDIUM - Affects user experience but doesn't break core functionality
+
+---
+
+#### Worker Token Validation Issue - Registration Without Token
+
+**Issue Description**: Users could advance to the registration flow (step 0) without having a valid worker token, which is a critical security issue. The system was allowing access to device registration functionality without proper authentication.
+
+**Root Cause Analysis**: 
+- **Missing Validation**: Registration buttons and modal close handlers didn't check for worker token
+- **Direct Flow Mode Setting**: `setFlowMode('registration')` was called without token validation
+- **Security Gap**: No gatekeeping before allowing registration flow access
+- **Multiple Entry Points**: Several UI elements could trigger registration without validation
+
+**Solution Applied**:
+- **Registration Button Validation**: Added worker token check to main registration button
+- **Modal Close Validation**: Added validation to device selection modal close handler
+- **Device Selection Validation**: Added validation to device selection registration button
+- **Consistent Error Messages**: Standardized error message for all validation points
+- **Early Prevention**: Block registration flow access at the UI entry points
+
+**Files Affected**:
+- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Lines 1345 (main button), 1487 (device selection), 2051 (modal close)
+
+**Detection Commands**:
+```bash
+# Check worker token validation in registration flow
+grep -n -A 5 "if.*hasWorkerToken" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check worker token error messages
+grep -n -A 2 "Worker token required" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check all registration flow entry points
+grep -n "setFlowMode.*registration" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check worker token state usage
+grep -n "hasWorkerToken" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Verify worker token hook integration
+grep -n "useWorkerToken\|workerToken.*isValid" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+```
+
+**Prevention Strategies**:
+1. **Entry Point Validation**: Always validate worker token before allowing registration flow access
+2. **Multiple Gate Checks**: Validate at all possible registration entry points
+3. **Consistent Error Handling**: Use standardized error messages for validation failures
+4. **Early Blocking**: Prevent access at UI level before any registration logic runs
+5. **Security First**: Prioritize security validation over user convenience
+
+**Testing Checklist**:
+- [ ] Test registration without worker token (should be blocked)
+- [ ] Test registration with valid worker token (should work)
+- [ ] Test device selection modal close without token (should be blocked)
+- [ ] Test device selection registration button without token (should be blocked)
+- [ ] Verify error message consistency across all validation points
+- [ ] Test worker token refresh and re-attempt registration
+- [ ] Verify authentication flow still works with proper tokens
+
+**Where This Issue Can Arise**:
+- Any component that allows direct access to registration flows
+- Modal close handlers that transition to registration
+- Button click handlers that set flow modes
+- Device selection components with registration options
+- Any UI element that bypasses authentication checks
+
+**Common Patterns to Watch For**:
+- Direct `setFlowMode('registration')` calls without validation
+- Missing `hasWorkerToken` checks before registration access
+- Modal close handlers that don't validate state
+- Button handlers that assume proper authentication
+- Multiple entry points without consistent validation
+
+**Priority**: HIGH - Critical security vulnerability that bypasses authentication
+
+---
+
+#### URL Input Field Base64 Issue - Base64 Data in URL Field
+
+**Issue Description**: When users upload an image file, the base64 data appears in the URL input field instead of keeping the field clean or showing the filename. This creates a poor user experience and confusion about whether the URL or file upload is being used.
+
+**Root Cause Analysis**: 
+- **Shared State**: File upload and URL input both used the same `customLogoUrl` state
+- **Base64 Pollution**: File upload handler set `customLogoUrl` with base64 data
+- **Input Field Display**: URL input field displayed the base64 data instead of being empty
+- **State Confusion**: Users couldn't tell if they were using URL or file upload
+
+**Solution Applied**:
+- **State Separation**: File uploads no longer set `customLogoUrl` state
+- **Conditional Input Value**: URL input field shows empty when file is uploaded
+- **Enhanced File Info**: Added `base64Url` to `uploadedFileInfo` for internal use
+- **Updated Preview Logic**: Logo preview uses `uploadedFileInfo.base64Url` for uploaded files
+- **Clean Loading**: localStorage loading preserves the separation
+
+**Files Affected**:
+- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Lines 756 (input value), 818 (upload handler), 888 (preview logic), 911 (image src), 239 (loading logic)
+
+**Detection Commands**:
+```bash
+# Check URL input field conditional value
+grep -n "logoInputType.*file.*customLogoUrl" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check file upload handler not setting customLogoUrl
+grep -n -A 2 "setCustomLogoUrl.*base64Url.*REMOVED" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check logo preview using uploadedFileInfo
+grep -n -A 2 "uploadedFileInfo.*base64Url" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check localStorage loading not setting customLogoUrl
+grep -n -A 2 "setCustomLogoUrl.*uploadData.base64Url.*REMOVED" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Verify uploadedFileInfo state type includes base64Url
+grep -n -A 5 "base64Url.*string" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+```
+
+**Prevention Strategies**:
+1. **State Separation**: Keep file upload and URL input states separate
+2. **Conditional Rendering**: Use input type to determine what to display
+3. **Clean Input Fields**: Keep URL input field clean when file is uploaded
+4. **Enhanced File Metadata**: Store all necessary data in file info object
+5. **Consistent Loading**: Maintain separation when loading from localStorage
+
+**Testing Checklist**:
+- [ ] Test file upload doesn't populate URL input field
+- [ ] Test URL input works normally when no file is uploaded
+- [ ] Test logo preview shows uploaded file image correctly
+- [ ] Test switching between file upload and URL input
+- [ ] Test localStorage loading maintains separation
+- [ ] Test clear button works for both input types
+- [ ] Verify file info includes base64Url for internal use
+
+**Where This Issue Can Arise**:
+- Any component with multiple input methods for the same data
+- File upload components that also have URL input alternatives
+- Components that share state between different input types
+- Form components with mixed input validation
+
+**Common Patterns to Watch For**:
+- Shared state between different input methods
+- File upload handlers setting URL-related state
+- Input fields displaying internal data instead of user input
+- Missing conditional rendering based on input type
+- State pollution from one input method affecting another
+
+**Priority**: MEDIUM - Affects user experience but doesn't break core functionality
+
+---
+
+#### Critical File Corruption Issue - 500 Internal Server Error
+
+**Issue Description**: The UnifiedMFARegistrationFlowV8_Legacy.tsx file became corrupted with widespread syntax errors, causing a 500 Internal Server Error that prevented the entire application from loading. The file had malformed template literals, missing syntax elements, and corrupted code structure throughout.
+
+**Root Cause Analysis**: 
+- **Template Literal Corruption**: Malformed template literals with broken backticks and interpolation
+- **Syntax Cascade**: Multiple syntax errors throughout the file causing parsing failures
+- **Import Corruption**: Some import statements were malformed or duplicated
+- **Code Structure Damage**: Widespread syntax errors affecting multiple sections
+
+**Solution Applied**:
+- **Git Restoration**: Restored the file from git backup to working state
+- **Syntax Verification**: Confirmed file integrity after restoration
+- **Error Resolution**: 500 Internal Server Error resolved, application loads correctly
+- **Backup Strategy**: Emphasized importance of git version control for critical files
+
+**Files Affected**:
+- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Lines 298, 303 (primary corruption points)
+
+**Detection Commands**:
+```bash
+# Check for syntax errors in critical files
+npx tsc --noEmit --skipLibCheck src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check for template literal syntax issues
+grep -n "MODULE_TAG.*Environment ID extracted" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Verify file integrity after changes
+git status src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check for widespread syntax errors
+npx tsc --noEmit --skipLibCheck src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx 2>&1 | grep -c "error TS"
+
+# Verify application can load the component
+curl -I http://localhost:3000/v8/unified-mfa 2>&1 | grep "200\|500"
+```
+
+**Prevention Strategies**:
+1. **Frequent Commits**: Commit changes regularly to prevent large losses
+2. **Syntax Checking**: Run TypeScript checks before major changes
+3. **Incremental Changes**: Make smaller, testable changes rather than large edits
+4. **Backup Strategy**: Use git branches for experimental changes
+5. **Validation**: Test application loads after significant file modifications
+
+**Testing Checklist**:
+- [ ] Verify TypeScript compilation succeeds
+- [ ] Test application loads without 500 errors
+- [ ] Check unified MFA flow loads correctly
+- [ ] Verify all imports are intact
+- [ ] Test component functionality works as expected
+- [ ] Confirm no syntax errors in console
+- [ ] Verify git status is clean before major changes
+
+**Where This Issue Can Arise**:
+- Large-scale file modifications with multiple simultaneous changes
+- Template literal edits with complex interpolation
+- Import statement modifications affecting multiple dependencies
+- Copy-paste operations that introduce formatting issues
+- Automated refactoring tools that malfunction
+
+**Common Patterns to Watch For**:
+- Malformed template literals with broken backticks
+- Missing semicolons or brackets in complex expressions
+- Duplicate or corrupted import statements
+- Cascading syntax errors from single malformed line
+- File encoding issues that affect special characters
+
+**Priority**: HIGH - Critical application failure preventing all functionality
+
+---
+
+#### Filename Display Issue - Blank Field for Uploaded Files
+
+**Issue Description**: When users upload an image file, the filename is not displayed in the logo preview section. Instead of showing the filename, the field appears blank, creating a poor user experience where users cannot see what file they've uploaded.
+
+**Root Cause Analysis**: 
+- **Missing State**: `uploadedFileInfo` state was not defined in the restored file
+- **Preview Condition**: Logo preview condition only checked `customLogoUrl` but not `uploadedFileInfo`
+- **File Upload Handler**: File upload handler set `customLogoUrl` instead of populating file info state
+- **Missing Filename Display**: No UI element to display the uploaded filename
+
+**Solution Applied**:
+- **State Definition**: Added `uploadedFileInfo` state with file metadata including name, size, type, timestamp, and base64Url
+- **Enhanced Preview Logic**: Updated logo preview to check both `customLogoUrl` and `uploadedFileInfo`
+- **Conditional Rendering**: Added conditional rendering to show filename for uploaded files and URL preview for URLs
+- **File Upload Handler**: Updated handler to populate `uploadedFileInfo` state instead of setting `customLogoUrl`
+- **Clear Button**: Updated clear button to reset all related states
+
+**Files Affected**:
+- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Lines 173 (state), 790 (condition), 811 (preview), 844 (filename), 858 (clear button)
+
+**Detection Commands**:
+```bash
+# Check uploadedFileInfo state definition
+grep -n "uploadedFileInfo.*useState" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check logo preview condition
+grep -n "customLogoUrl.*uploadedFileInfo.*&&" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check filename display
+grep -n "uploadedFileInfo.name" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check file upload handler
+grep -n "setUploadedFileInfo.*fileInfo" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Verify clear button resets all states
+grep -n -A 3 "setUploadedFileInfo.*null" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+```
+
+**Prevention Strategies**:
+1. **Complete State Management**: Ensure all file upload related states are properly defined
+2. **Conditional Preview Logic**: Use conditional rendering based on input type (file vs URL)
+3. **Filename Display**: Always show filename for uploaded files to improve UX
+4. **State Synchronization**: Keep all related states in sync when clearing or updating
+5. **Comprehensive Testing**: Test both file upload and URL input flows separately
+
+**Testing Checklist**:
+- [ ] Test file upload shows filename in preview
+- [ ] Test URL input shows image preview without filename
+- [ ] Test switching between file upload and URL input
+- [ ] Test clear button removes all uploaded file data
+- [ ] Test localStorage loading preserves filename display
+- [ ] Verify no base64 data appears in URL input field
+- [ ] Test file metadata (name, size, type) is correctly stored
+
+**Where This Issue Can Arise**:
+- File upload components that don't track file metadata separately
+- Logo preview sections that only check URL state
+- Components restored from git backup that lose state definitions
+- File upload handlers that don't populate appropriate state variables
+
+**Common Patterns to Watch For**:
+- Missing state variables for file metadata tracking
+- Preview conditions that don't account for both file and URL inputs
+- File upload handlers that only set URL state
+- Missing filename display elements in UI
+- Incomplete state clearing in reset functions
+
+**Priority**: MEDIUM - Affects user experience but doesn't break core functionality
+
+---
+
+#### **📍 FILE STATUS: UnifiedMFARegistrationFlowV8_Legacy.tsx**
+
+**⚠️ CRITICAL: This file CANNOT be removed**
+
+**Current Usage Status**: **ACTIVE - IN USE**
+
+**Why It Cannot Be Removed**:
+1. **Primary Unified Flow**: This is the main unified MFA flow component
+2. **Multiple Route Dependencies**: Used in 3 different application routes
+3. **Feature Flag Integration**: Used when unified flow is enabled via feature flags
+4. **No Replacement Available**: NewMFAFlowV8 exists but is not implemented/used
+
+**Active Usage Locations**:
+```typescript
+// 1. Direct route usage in App.tsx
+<Route path="/v8/unified-mfa" element={<UnifiedMFARegistrationFlowV8_Legacy />} />
+
+// 2. TOTP device registration route in App.tsx  
+<Route path="/v8/mfa/register/totp/device" element={<UnifiedMFARegistrationFlowV8_Legacy deviceType="TOTP" />} />
+
+// 3. Feature flag unified flow in MFAFlowV8.tsx
+const UnifiedMFARegistrationFlowV8 = React.lazy(
+    () => import('./unified/UnifiedMFARegistrationFlowV8_Legacy')
+);
+// Used when MFAFeatureFlagsV8.isEnabled(featureFlag) is true
+```
+
+**Architecture Role**:
+- **Main Unified Component**: Handles both registration and authentication flows
+- **Feature Flag Integration**: Serves as the "unified" flow when flags are enabled
+- **Multi-Device Support**: Supports SMS, Email, TOTP, and other device types
+- **Route Handler**: Direct route handler for specific MFA paths
+
+**Migration Path** (if ever needed):
+1. **Create New Unified Flow**: Build replacement for UnifiedMFARegistrationFlowV8_Legacy.tsx
+2. **Update Route Imports**: Change all 3 import locations
+3. **Update Feature Flag Logic**: Update MFAFlowV8.tsx import
+4. **Test All Routes**: Verify /v8/unified-mfa, /v8/mfa/register/totp/device, and feature flag routes
+5. **Update Documentation**: Update all references in inventory and guides
+
+**Detection Commands**:
+```bash
+# Check all imports of the Legacy file
+grep -rn "UnifiedMFARegistrationFlowV8_Legacy" src/
+
+# Check route usage in App.tsx
+grep -n -A 3 -B 3 "UnifiedMFARegistrationFlowV8_Legacy" src/App.tsx
+
+# Check feature flag usage in MFAFlowV8.tsx
+grep -n -A 5 -B 5 "UnifiedMFARegistrationFlowV8" src/v8/flows/MFAFlowV8.tsx
+
+# Verify NewMFAFlowV8 is not used
+grep -rn "NewMFAFlowV8" src/ --exclude="*NewMFAFlowV8.tsx"
+```
+
+**Conclusion**: **DO NOT REMOVE** - This file is actively used and critical for MFA functionality. The "Legacy" name is misleading - it's the current unified flow implementation.
+
+---
+
 #### **📍 Issue Location Mapping & Prevention Index**
 
 This section provides a comprehensive mapping of where specific types of issues commonly arise in the codebase, making it easier to identify potential problem areas during development and testing.
@@ -3233,6 +4003,70 @@ grep -rn "initialStep.*=" src/v8/components/
 - [ ] Verify return path persistence across OAuth flows
 - [ ] Check sessionStorage cleanup timing
 - [ ] Test callback redirect logic with different entry points
+
+---
+
+##### **🔄 PROPS REFERENCE ISSUES**
+
+**Common Locations**:
+- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Component function definitions
+- `src/v8/flows/shared/MFAFlowBaseV8.tsx` - Base component props handling
+- `src/v8/components/AuthenticationFlowStepperV8.tsx` - Flow stepper props
+- `src/v8/flows/types/` - Component type definitions
+
+**Detection Commands**:
+```bash
+# Check for undefined props references
+grep -rn "ReferenceError.*props.*not.*defined" src/v8/flows/
+
+# Check for unused functions with props parameters
+grep -rn -A 3 "useCallback.*props.*=>" src/v8/flows/ | grep -A 2 "_.*="
+
+# Check for functions that access props but might not have them in scope
+grep -rn -A 5 "props\." src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check for unused callback functions
+grep -rn "const.*useCallback.*=>" src/v8/flows/unified/ | grep "_.*="
+```
+
+**Prevention Checklist**:
+- [ ] Remove unused functions that reference props
+- [ ] Check props availability in function scopes
+- [ ] Verify useCallback dependencies are correct
+- [ ] Test component rendering without errors
+- [ ] Review functions after refactoring
+
+---
+
+##### **🔄 TEMPORAL DEAD ZONE ISSUES**
+
+**Common Locations**:
+- `src/v8/components/SuperSimpleApiDisplayV8.tsx` - Component function declarations and useEffect hooks
+- `src/v8/components/` - Components with complex useEffect dependencies
+- `src/v8/flows/` - Flow components with helper functions and effects
+- `src/v8u/components/` - Unified components with function dependencies
+
+**Detection Commands**:
+```bash
+# Check for temporal dead zone issues with functions in useEffect dependencies
+grep -rn -A 2 -B 5 "useEffect.*\[.*\]" src/v8/components/ | grep -A 5 -B 5 "const.*="
+
+# Check for functions used in dependency arrays
+grep -rn -A 2 -B 2 "\[.*,.*FunctionName.*\]" src/v8/components/
+
+# Check for function declarations after useEffect that use them
+grep -rn -A 10 "useEffect.*{" src/v8/components/ | grep -B 10 "const.*=.*=>"
+
+# Verify function definition order
+grep -rn "const.*FunctionName\|function.*FunctionName" src/v8/components/SuperSimpleApiDisplayV8.tsx
+```
+
+**Prevention Checklist**:
+- [ ] Declare functions before useEffect hooks that use them
+- [ ] Check dependency arrays for proper variable availability
+- [ ] Verify function declaration order in components
+- [ ] Test component mounting without initialization errors
+- [ ] Review useEffect dependencies for temporal dead zone issues
 
 ---
 
@@ -3503,9 +4337,23 @@ This section provides a comprehensive summary of all critical issues identified 
 | 5 | **Authentication Flow Redirect** | ✅ RESOLVED | Line 137 | Wrong start point | Remove initialStep override |
 | 6 | **Token Generation Success UI** | ✅ RESOLVED | Line 1363 | Poor UX | Add success state UI |
 | 7 | **Username Dropdown Issue** | ✅ RESOLVED | SearchableDropdownV8 | Selection broken | Clear search term |
-| 8 | **Custom Logo URL Issue** | ✅ RESOLVED | UnifiedMFARegistrationFlowV8_Legacy.tsx | Shows image not URI | Validate logo URL format |
+| 8 | **Custom Logo URL Issue** | ✅ RESOLVED | UnifiedMFARegistrationFlowV8_Legacy.tsx:173,825,1463 | Shows image not URI | Validate logo URL format with isValidLogoUrl function |
 | 9 | **Undefined Variable Reference** | ✅ RESOLVED | UnifiedMFARegistrationFlowV8_Legacy.tsx:2743 | App crash | Use correct variable scope |
 | 10 | **MFA Authentication Redirect Issue** | ✅ RESOLVED | UserLoginModalV8.tsx:1335 | Wrong page after login | Include unified MFA in return path logic |
+| 11 | **Pre-flight Validation Toast Issue** | ✅ RESOLVED | UnifiedFlowSteps.tsx, UserLoginModalV8.tsx | Generic error message | Add specific error details and fix options |
+| 12 | **Props Reference Error** | ✅ RESOLVED | UnifiedMFARegistrationFlowV8_Legacy.tsx:2744 | App crash | Remove unused functions with undefined props |
+| 13 | **Temporal Dead Zone Error** | ✅ RESOLVED | SuperSimpleApiDisplayV8.tsx:813 | App crash | Move function definition before useEffect |
+| 14 | **Logo Loading Issue** | ✅ RESOLVED | UnifiedMFARegistrationFlowV8_Legacy.tsx:173,847,1493 | Logo preview broken | Enhanced validation and error logging |
+| 15 | **File Upload Display Issue** | ✅ RESOLVED | UnifiedMFARegistrationFlowV8_Legacy.tsx:169,201,857,1541 | Uploaded files not showing | Added file info tracking and proper base64 handling |
+| 16 | **Logo Persistence Issue** | ✅ RESOLVED | UnifiedMFARegistrationFlowV8_Legacy.tsx:175,180,258,757,825 | Raw image on reload | Added URL persistence and input type tracking |
+| 17 | **Worker Token Validation Issue** | ✅ RESOLVED | UnifiedMFARegistrationFlowV8_Legacy.tsx:1345,1487,2051 | Registration without token | Added worker token validation before registration |
+| 18 | **URL Input Field Base64 Issue** | ✅ RESOLVED | UnifiedMFARegistrationFlowV8_Legacy.tsx:756,818,888,911,239 | Base64 in URL field | Separated file upload from URL input state |
+| 19 | **Critical File Corruption Issue** | ✅ RESOLVED | UnifiedMFARegistrationFlowV8_Legacy.tsx:298,303 | 500 Internal Server Error | Restored from git backup |
+| 20 | **Filename Display Issue** | ✅ RESOLVED | UnifiedMFARegistrationFlowV8_Legacy.tsx:790,811,844,858 | Blank field for uploaded files | Added uploadedFileInfo state and filename display |
+| 21 | **Critical 500 Error - Import Issues** | 🔴 ACTIVE | UnifiedMFARegistrationFlowV8_Legacy.tsx:25,28,29 | Application won't load | React import and module resolution issues |
+| 22 | **Redirect URI Management** | ✅ DOCUMENTED | redirectURI.md + UNIFIED_MFA_INVENTORY.md | Complete reference available | Comprehensive documentation and detection commands |
+| 23 | **SQLite Resource Exhaustion** | 🔴 ACTIVE | sqliteStatsServiceV8.ts:138, useSQLiteStats.ts:76 | ERR_INSUFFICIENT_RESOURCES | Database connection limits and resource management |
+| 24 | **JWT vs OPAQUE Token Support** | ✅ IMPLEMENTED | RefreshTokenTypeDropdownV8.tsx, CredentialsFormV8U.tsx | Token type selection | JWT (default) and OPAQUE refresh token options |
 
 #### **🔍 Quick Detection Commands**
 
@@ -3574,6 +4422,213 @@ grep -n -A 3 -B 3 "starts.*mfa.*unified-mfa\|unified-mfa.*starts" src/v8/compone
 # Check for callback handling logic
 grep -n -A 5 "returnToMfaFlow\|return.*path" src/v8/flows/MFAAuthenticationMainPageV8.tsx
 
+# === PRE-FLIGHT VALIDATION TOAST ISSUES ===
+# Check for generic pre-flight validation toast messages
+grep -rn "toastV8.error.*Pre-flight validation failed.*check error details below" src/v8/
+
+# Check for improved toast messages with error details
+grep -rn "Pre-flight validation failed.*error" src/v8u/components/
+
+# Verify error count and fixability information
+grep -rn -A 3 "errorCount.*fixableCount" src/v8u/components/
+
+# Check for auto-fix related toast messages
+grep -rn "Auto-fix.*error\|error.*Auto-fix" src/v8u/components/
+
+# === PROPS REFERENCE ISSUES ===
+# Check for undefined props references
+grep -rn "ReferenceError.*props.*not.*defined" src/v8/flows/
+
+# Check for unused functions with props parameters
+grep -rn -A 3 "useCallback.*props.*=>" src/v8/flows/ | grep -A 2 "_.*="
+
+# Check for functions that access props but might not have them in scope
+grep -rn -A 5 "props\." src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check for unused callback functions
+grep -rn "const.*useCallback.*=>" src/v8/flows/unified/ | grep "_.*="
+
+# === TEMPORAL DEAD ZONE ISSUES ===
+# Check for temporal dead zone issues with functions in useEffect dependencies
+grep -rn -A 2 -B 5 "useEffect.*\[.*\]" src/v8/components/ | grep -A 5 -B 5 "const.*="
+
+# Check for functions used in dependency arrays
+grep -rn -A 2 -B 2 "\[.*,.*FunctionName.*\]" src/v8/components/
+
+# Check for function declarations after useEffect that use them
+grep -rn -A 10 "useEffect.*{" src/v8/components/ | grep -B 10 "const.*=.*=>"
+
+# Verify function definition order
+grep -rn "const.*FunctionName\|function.*FunctionName" src/v8/components/SuperSimpleApiDisplayV8.tsx
+
+# === FILENAME DISPLAY ISSUES ===
+# Check uploadedFileInfo state definition
+grep -n "uploadedFileInfo.*useState" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check logo preview condition
+grep -n "customLogoUrl.*uploadedFileInfo.*&&" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check filename display
+grep -n "uploadedFileInfo.name" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check file upload handler
+grep -n "setUploadedFileInfo.*fileInfo" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Verify clear button resets all states
+grep -n -A 3 "setUploadedFileInfo.*null" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# === REDIRECT URI ISSUES ===
+# Check for hardcoded redirect URIs
+grep -r "localhost:3000" src/v8/ --include="*.ts" --include="*.tsx"
+
+# Check redirect URI service usage
+grep -r "redirectUri\|redirect_uri" src/v8/ --include="*.ts" --include="*.tsx"
+
+# Verify MFA redirect URI service
+grep -n "MFARedirectUriServiceV8" src/v8/services/redirectUriServiceV8.ts
+
+# Check callback handler routing
+grep -n "mfa-unified-callback" src/v8u/components/CallbackHandlerV8U.tsx
+
+# Verify return target service
+grep -n "ReturnTargetServiceV8U" src/v8u/services/returnTargetServiceV8U.ts
+
+# Check for legacy redirect URIs
+grep -r "/v8/mfa-unified-callback" src/v8/ --include="*.ts" --include="*.tsx"
+
+# Verify HTTPS enforcement
+grep -r "https.*localhost" src/v8/ --include="*.ts" --include="*.tsx"
+
+# Check flow type detection
+grep -n "unified-mfa-v8\|mfa-hub-v8" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# === SQLITE RESOURCE ISSUES ===
+# Check for ERR_INSUFFICIENT_RESOURCES errors
+grep -r "ERR_INSUFFICIENT_RESOURCES" src/v8/ --include="*.ts" --include="*.tsx"
+
+# Check SQLite database connection patterns
+grep -r "sqlite3\.Database" src/server/ --include="*.js" --include="*.ts"
+
+# Verify database service initialization
+grep -n "new sqlite3.Database" src/server/services/userDatabaseService.js
+
+# Check for connection pooling or timeout settings
+grep -r "timeout\|pool\|busy" src/server/services/userDatabaseService.js
+
+# Monitor API endpoint frequency
+grep -r "sync-metadata\|getUserCount" src/v8/ --include="*.ts" --include="*.tsx"
+
+# Check for Promise.all concurrent requests
+grep -r "Promise\.all" src/v8/hooks/useSQLiteStats.ts
+
+# Verify error handling in SQLite services
+grep -n -A 5 "catch.*error" src/v8/services/sqliteStatsServiceV8.ts
+
+# === JWT vs OPAQUE TOKEN SUPPORT ===
+# Check RefreshTokenTypeDropdownV8 component exists
+ls -la src/v8/components/RefreshTokenTypeDropdownV8.tsx
+
+# Verify component is imported in credentials form
+grep -n "RefreshTokenTypeDropdownV8" src/v8u/components/CredentialsFormV8U.tsx
+
+# Check dropdown is rendered when refresh tokens enabled
+grep -n -A 5 "enableRefreshToken &&" src/v8u/components/CredentialsFormV8U.tsx
+
+# Verify refresh token type in interface
+grep -n "refreshTokenType.*JWT.*OPAQUE" src/v8u/services/unifiedFlowIntegrationV8U.ts
+
+# Check flow integration uses refresh token type
+grep -n "refreshTokenType" src/v8u/flows/UnifiedOAuthFlowV8U.tsx
+
+# Verify token type validation
+grep -n -A 2 "JWT.*OPAQUE" src/v8u/flows/UnifiedOAuthFlowV8U.tsx
+
+# Check localStorage persistence
+grep -n "refreshTokenType" src/v8u/components/CredentialsFormV8U.tsx
+
+# Verify default value is JWT
+grep -n "default.*JWT\|JWT.*default" src/v8/components/RefreshTokenTypeDropdownV8.tsx
+
+# === CRITICAL FILE CORRUPTION ISSUES ===
+# Check for syntax errors in critical files
+npx tsc --noEmit --skipLibCheck src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check for template literal syntax issues
+grep -n "MODULE_TAG.*Environment ID extracted" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Verify file integrity after changes
+git status src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check for widespread syntax errors
+npx tsc --noEmit --skipLibCheck src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx 2>&1 | grep -c "error TS"
+
+# Verify application can load the component
+curl -I http://localhost:3000/v8/unified-mfa 2>&1 | grep "200\|500"
+
+# === URL INPUT FIELD BASE64 ISSUES ===
+# Check URL input field conditional value
+grep -n "logoInputType.*file.*customLogoUrl" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check file upload handler not setting customLogoUrl
+grep -n -A 2 "setCustomLogoUrl.*base64Url.*REMOVED" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check logo preview using uploadedFileInfo
+grep -n -A 2 "uploadedFileInfo.*base64Url" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check localStorage loading not setting customLogoUrl
+grep -n -A 2 "setCustomLogoUrl.*uploadData.base64Url.*REMOVED" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Verify uploadedFileInfo state type includes base64Url
+grep -n -A 5 "base64Url.*string" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# === WORKER TOKEN VALIDATION ISSUES ===
+# Check worker token validation in registration flow
+grep -n -A 5 "if.*hasWorkerToken" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check worker token error messages
+grep -n -A 2 "Worker token required" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check all registration flow entry points
+grep -n "setFlowMode.*registration" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check worker token state usage
+grep -n "hasWorkerToken" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Verify worker token hook integration
+grep -n "useWorkerToken\|workerToken.*isValid" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# === LOGO PERSISTENCE ISSUES ===
+# Check input type tracking state
+grep -n "logoInputType\|setLogoInputType" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check URL persistence logic
+grep -n -A 5 "localStorage.*custom-logo-url" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check enhanced loading logic
+grep -n -A 10 "custom-logo-url.*localStorage" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check file upload input type setting
+grep -n -A 2 "setLogoInputType.*file" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check URL input type setting
+grep -n -A 2 "setLogoInputType.*url" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# === FILE UPLOAD ISSUES ===
+# Check file upload state management
+grep -n "uploadedFileInfo\|setUploadedFileInfo" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check uploaded file detection function
+grep -n -A 3 "isUploadedFile.*=>" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check conditional rendering for uploaded files
+grep -n -A 5 "isUploadedFile.*customLogoUrl" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check file upload handler
+grep -n -A 10 "setUploadedFileInfo.*fileInfo" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check localStorage loading for file info
+grep -n -A 5 "setUploadedFileInfo.*{" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
 # === CUSTOM LOGO URL ISSUES ===
 # Check for custom logo URL state usage
 grep -n "customLogoUrl" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
@@ -3581,11 +4636,17 @@ grep -n "customLogoUrl" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy
 # Check for direct image src usage with logo URL
 grep -n -A 3 "src.*customLogoUrl" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
 
-# Check for logo URL validation
+# Check for logo URL validation function
+grep -n "isValidLogoUrl" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check for logo URL validation usage
 grep -n -A 5 "logoUrl.*valid\|valid.*logo" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
 
-# Check for base64 image data in logo handling
-grep -n -A 3 "base64.*logo\|logo.*base64" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+# Check for base64 image data handling
+grep -n -A 3 "base64.*logo\|logo.*base64\|data:image" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check for conditional logo rendering
+grep -n -A 10 "isValidLogoUrl.*customLogoUrl" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
 
 # === UNDEFINED VARIABLE REFERENCE ISSUES ===
 # Check for undefined variable references
@@ -3670,3 +4731,778 @@ grep -n -A 3 "deviceType.*{" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_L
 - Custom flow configurations
 - Third-party integrations
 - Advanced policy rules
+
+---
+
+## 🔄 REDIRECT URI MANAGEMENT - COMPLETE REFERENCE
+
+### **🎯 Purpose**
+This section provides comprehensive documentation for all redirect URIs used by the OAuth Playground applications and flows, ensuring we can prevent redirect URI issues and quickly resolve them when they occur.
+
+### **📋 Quick Reference - Primary Redirect URIs**
+
+| Flow Type | Redirect URI | Status | Notes |
+|-----------|-------------|--------|-------|
+| **Unified MFA Flow** | `https://localhost:3000/mfa-unified-callback` | ✅ ACTIVE | Main entry point for all MFA device registration |
+| **OAuth Authorization Code** | `https://localhost:3000/authz-callback` | ✅ ACTIVE | Standard OAuth 2.0 Authorization Code Flow |
+| **Device Authorization** | `https://localhost:3000/device-callback` | ✅ ACTIVE | OAuth 2.0 Device Authorization Grant |
+| **User Login Callback** | `https://localhost:3000/user-login-callback` | ✅ ACTIVE | Generic user login callback |
+
+---
+
+### **🔧 Complete Redirect URI Mapping**
+
+#### **OAuth 2.0 Authorization Code Flows**
+| Flow Type | Redirect URI | Description | Specification |
+|-----------|-------------|-------------|--------------|
+| `oauth-authorization-code-v6` | `https://localhost:3000/authz-callback` | OAuth 2.0 Authorization Code Flow with PKCE | RFC 6749, Section 4.1 |
+| `oauth-authorization-code-v5` | `https://localhost:3000/authz-callback` | OAuth 2.0 Authorization Code Flow with PKCE (V5) | RFC 6749, Section 4.1 |
+| `authorization-code-v3` | `https://localhost:3000/authz-callback` | Authorization Code Flow (V3) | RFC 6749, Section 4.1 |
+
+#### **OpenID Connect Authorization Code Flows**
+| Flow Type | Redirect URI | Description | Specification |
+|-----------|-------------|-------------|--------------|
+| `oidc-authorization-code-v6` | `https://localhost:3000/authz-callback` | OpenID Connect Authorization Code Flow | OIDC Core 1.0, Section 3.1.2 |
+| `oidc-authorization-code-v5` | `https://localhost:3000/authz-callback` | OpenID Connect Authorization Code Flow (V5) | OIDC Core 1.0, Section 3.1.2 |
+
+#### **MFA Flows (Critical)**
+| Flow Type | Redirect URI | Description | Priority |
+|-----------|-------------|-------------|----------|
+| `unified-mfa-v8` | `https://localhost:3000/mfa-unified-callback` | **V8 Unified MFA Registration Flow** | **HIGH** |
+| `mfa-hub-v8` | `https://localhost:3000/mfa-hub-callback` | V8 MFA Hub Flow | MEDIUM |
+
+#### **Device Authorization Flows**
+| Flow Type | Redirect URI | Description | Specification |
+|-----------|-------------|-------------|--------------|
+| `device-authorization-v6` | `https://localhost:3000/device-callback` | OAuth 2.0 Device Authorization Grant | RFC 8628, Section 3.4 |
+| `oidc-device-authorization-v6` | `https://localhost:3000/device-callback` | OpenID Connect Device Authorization Grant | OIDC Device Flow 1.0 |
+| `device-code-v8u` | `https://localhost:3000/device-code-status` | V8U Device Code Flow | RFC 8628 |
+
+---
+
+### **🚨 Critical Redirect URI Issues & Solutions**
+
+#### **✅ RESOLVED: Redirect URI Path Corrections**
+- **Issue**: `/v8` prefix causing routing errors
+- **Before**: `/v8/mfa-unified-callback` (caused "We couldn't find anything at /v8/mfa-unified-callback")
+- **After**: `/mfa-unified-callback` (correctly routes to CallbackHandlerV8U)
+- **Affected Flows**: All MFA flows including unified MFA registration
+- **Migration**: Automatic migration from old to new paths on load
+
+#### **✅ RESOLVED: HTTPS Enforcement**
+- **Issue**: HTTP redirect URIs rejected by PingOne
+- **Solution**: Automatic HTTPS conversion for all redirect URIs
+- **Implementation**: `const protocol = window.location.hostname === 'localhost' ? 'https' : 'https';`
+- **Security**: Required for PingOne security policies
+
+#### **✅ RESOLVED: Flow-Aware Return Target Management**
+- **Issue**: Callbacks not returning to correct flow steps
+- **Solution**: ReturnTargetServiceV8U with flow-specific return targets
+- **Implementation**: Separate storage keys per flow type with priority routing
+- **Status**: Fully implemented and tested (Version 9.0.6)
+
+---
+
+### **🔍 Detection Commands for Redirect URI Issues**
+
+```bash
+# === REDIRECT URI VALIDATION ===
+# Check for hardcoded redirect URIs
+grep -r "localhost:3000" src/v8/ --include="*.ts" --include="*.tsx"
+
+# Check redirect URI service usage
+grep -r "redirectUri\|redirect_uri" src/v8/ --include="*.ts" --include="*.tsx"
+
+# Verify MFA redirect URI service
+grep -n "MFARedirectUriServiceV8" src/v8/services/redirectUriServiceV8.ts
+
+# Check callback handler routing
+grep -n "mfa-unified-callback" src/v8u/components/CallbackHandlerV8U.tsx
+
+# Verify return target service
+grep -n "ReturnTargetServiceV8U" src/v8u/services/returnTargetServiceV8U.ts
+
+# Check for legacy redirect URIs
+grep -r "/v8/mfa-unified-callback" src/v8/ --include="*.ts" --include="*.tsx"
+
+# Verify HTTPS enforcement
+grep -r "https.*localhost" src/v8/ --include="*.ts" --include="*.tsx"
+
+# Check flow type detection
+grep -n "unified-mfa-v8\|mfa-hub-v8" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+```
+
+---
+
+### **🛠️ Troubleshooting Guide**
+
+#### **Common Issues & Solutions**
+
+1. **Wrong Redirect URI in PingOne**
+   - **Error**: "redirect_uri_mismatch" or "invalid_redirect_uri"
+   - **Solution**: Ensure exact match: `https://localhost:3000/mfa-unified-callback`
+   - **Check**: No trailing slashes unless specified, must use HTTPS
+
+2. **Callback Not Working**
+   - **Error**: Stuck on callback page or routing errors
+   - **Solution**: Check if redirect URI matches exactly, verify HTTPS enforcement
+   - **Debug**: Check browser console for routing errors
+
+3. **Wrong Flow After Callback**
+   - **Error**: Returns to wrong step or wrong flow
+   - **Solution**: Verify return target service is setting correct flow-specific targets
+   - **Check**: Return target priority system in CallbackHandlerV8U
+
+4. **Legacy Route Conflicts**
+   - **Error**: `/v8/mfa-unified-callback` not found
+   - **Solution**: Use `/mfa-unified-callback` (without `/v8` prefix)
+   - **Migration**: Automatic migration handles legacy paths
+
+---
+
+### **🔒 Security Considerations**
+
+#### **HTTPS Requirements**
+- **All redirect URIs must use HTTPS**
+- **HTTP automatically converted to HTTPS**
+- **Required for PingOne security policies**
+- **Localhost exception handled correctly**
+
+#### **Parameter Preservation**
+- **OAuth state and code preserved during redirects**
+- **Single consumption prevents replay attacks**
+- **Flow isolation prevents cross-contamination**
+- **Return targets cleared after use**
+
+---
+
+### **📋 Testing Checklist**
+
+#### **✅ Unified MFA Flow Testing**
+- [ ] Navigate to `/v8/unified-mfa`
+- [ ] Select "Device Registration" → "User Flow"
+- [ ] Click "Register Device" → Opens UserLoginModal
+- [ ] Verify return target set for `mfa_device_registration`
+- [ ] Complete OAuth login
+- [ ] Expected: Redirects back to `/v8/unified-mfa` at Step 2
+- [ ] Expected: Return target consumed and cleared
+
+#### **✅ Device Authentication Flow Testing**
+- [ ] Navigate to `/v8/unified-mfa`
+- [ ] Select "Device Authentication" → "User Flow"
+- [ ] Click "Authenticate Device" → Opens UserLoginModal
+- [ ] Verify return target set for `mfa_device_authentication`
+- [ ] Complete OAuth login
+- [ ] Expected: Redirects back to `/v8/unified-mfa` at Step 3
+- [ ] Expected: Return target consumed and cleared
+
+---
+
+### **📚 References & Specifications**
+
+- **RFC 6749**: OAuth 2.0 Authorization Framework
+- **OIDC Core 1.0**: OpenID Connect Core
+- **RFC 8628**: OAuth 2.0 Device Authorization Grant
+- **RFC 9126**: OAuth 2.0 Pushed Authorization Requests
+- **RFC 9396**: OAuth 2.0 Rich Authorization Requests
+- **PingOne MFA API**: PingOne Multi-Factor Authentication
+
+---
+
+### **📊 Implementation Status**
+
+#### **✅ COMPLETED FEATURES**
+- **Flow-Aware Return Target Management**: ReturnTargetServiceV8U fully implemented
+- **Enhanced Callback Routing**: CallbackHandlerV8U with priority system
+- **Automatic Migration**: Legacy redirect URIs automatically migrated
+- **HTTPS Enforcement**: All redirect URIs automatically use HTTPS
+- **Type Safety**: Full TypeScript interfaces for all data structures
+
+#### **🔄 SERVICES INTEGRATION**
+- **MFARedirectUriServiceV8**: Provides flow-specific redirect URIs
+- **ReturnTargetServiceV8U**: Manages flow-aware return targets
+- **CallbackHandlerV8U**: Handles flow-specific callback routing
+- **UserLoginModalV8**: MFA flow detection and redirect URI migration
+
+---
+
+*Last Updated: Version 9.0.6*
+*Implementation Complete: 2026-02-06*
+*Documentation Added: 2026-02-07*
+
+---
+
+## 🗄️ SQLITE RESOURCE EXHAUSTION - COMPLETE ANALYSIS
+
+### **🎯 Purpose**
+This section documents the SQLite ERR_INSUFFICIENT_RESOURCES error that occurs during high-load scenarios and provides comprehensive solutions for resource management and prevention.
+
+### **🚨 Issue Description**
+
+#### **Error Pattern**
+```
+sqliteStatsServiceV8.ts:138  GET https://localhost:3000/api/users/sync-metadata/b9817c16-9910-4415-b67e-4ac687da74d9 net::ERR_INSUFFICIENT_RESOURCES
+sqliteStatsServiceV8.ts:156 [📊 SQLITE-STATS-V8] Failed to get sync metadata: TypeError: Failed to fetch
+```
+
+#### **Root Cause Analysis**
+- **Database Connection Limits**: SQLite has limited concurrent connections
+- **Resource Exhaustion**: Multiple simultaneous requests overwhelm the database
+- **No Connection Pooling**: Each request creates a new database connection
+- **Missing Timeout Handling**: No retry mechanism for failed requests
+- **High Frequency Polling**: React hooks trigger frequent API calls
+
+---
+
+### **🔧 Technical Analysis**
+
+#### **Current Implementation Issues**
+1. **Database Initialization**: `new sqlite3.Database(DB_PATH)` without connection limits
+2. **No Connection Pooling**: Each API call creates a new connection
+3. **No Request Queuing**: Concurrent requests compete for resources
+4. **Missing Retry Logic**: Failed requests are not retried
+5. **No Rate Limiting**: Unlimited concurrent API calls allowed
+
+#### **Resource Usage Pattern**
+```typescript
+// Current problematic pattern (useSQLiteStats.ts:74-77)
+const [statsResult, metadataResult] = await Promise.all([
+    SQLiteStatsServiceV8.getUserCount(environmentId),
+    SQLiteStatsServiceV8.getSyncMetadata(environmentId),
+]);
+```
+
+---
+
+### **🔍 Detection Commands for SQLite Issues**
+
+```bash
+# === SQLITE RESOURCE ISSUES ===
+# Check for ERR_INSUFFICIENT_RESOURCES errors
+grep -r "ERR_INSUFFICIENT_RESOURCES" src/v8/ --include="*.ts" --include="*.tsx"
+
+# Check SQLite database connection patterns
+grep -r "sqlite3\.Database" src/server/ --include="*.js" --include="*.ts"
+
+# Verify database service initialization
+grep -n "new sqlite3.Database" src/server/services/userDatabaseService.js
+
+# Check for connection pooling or timeout settings
+grep -r "timeout\|pool\|busy" src/server/services/userDatabaseService.js
+
+# Monitor API endpoint frequency
+grep -r "sync-metadata\|getUserCount" src/v8/ --include="*.ts" --include="*.tsx"
+
+# Check for Promise.all concurrent requests
+grep -r "Promise\.all" src/v8/hooks/useSQLiteStats.ts
+
+# Verify error handling in SQLite services
+grep -n -A 5 "catch.*error" src/v8/services/sqliteStatsServiceV8.ts
+```
+
+---
+
+### **🛠️ Solutions & Prevention Strategies**
+
+#### **✅ IMMEDIATE SOLUTIONS**
+
+1. **Add SQLite Connection Timeout**
+```javascript
+// In userDatabaseService.js
+this.db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READONLY | sqlite3.OPEN_SHAREDCACHE, (err) => {
+    if (err) {
+        console.error(`${MODULE_TAG} Failed to open database:`, err);
+        reject(err);
+        return;
+    }
+    
+    // Set busy timeout to 30 seconds
+    this.db.configure("busyTimeout", 30000);
+    resolve();
+});
+```
+
+2. **Implement Request Debouncing**
+```typescript
+// In useSQLiteStats.ts
+const debouncedFetchStats = useMemo(
+    () => debounce(fetchStats, 1000), // 1 second debounce
+    [environmentId]
+);
+```
+
+3. **Add Exponential Backoff Retry**
+```typescript
+// In sqliteStatsServiceV8.ts
+async getSyncMetadataWithRetry(environmentId, retries = 3) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await this.getSyncMetadata(environmentId);
+        } catch (error) {
+            if (i === retries - 1) throw error;
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+        }
+    }
+}
+```
+
+#### **✅ LONG-TERM SOLUTIONS**
+
+1. **Connection Pool Implementation**
+```javascript
+class SQLiteConnectionPool {
+    constructor(maxConnections = 5) {
+        this.maxConnections = maxConnections;
+        this.connections = [];
+        this.waitingQueue = [];
+    }
+    
+    async getConnection() {
+        // Implement connection pooling logic
+    }
+    
+    releaseConnection(connection) {
+        // Implement connection release logic
+    }
+}
+```
+
+2. **Request Queuing System**
+```typescript
+class RequestQueue {
+    constructor(maxConcurrent = 3) {
+        this.maxConcurrent = maxConcurrent;
+        this.running = 0;
+        this.queue = [];
+    }
+    
+    async add(request) {
+        // Implement request queuing logic
+    }
+}
+```
+
+3. **Resource Monitoring**
+```javascript
+class ResourceMonitor {
+    static checkSystemResources() {
+        const usage = process.cpuUsage();
+        const memUsage = process.memoryUsage();
+        
+        return {
+            cpu: usage,
+            memory: memUsage,
+            isOverloaded: memUsage.heapUsed / memUsage.heapTotal > 0.9
+        };
+    }
+}
+```
+
+---
+
+### **🔧 Implementation Files to Modify**
+
+#### **🔄 High Priority Files**
+1. **`src/server/services/userDatabaseService.js`**
+   - Add connection timeout and busy handling
+   - Implement connection pooling
+   - Add resource monitoring
+
+2. **`src/v8/services/sqliteStatsServiceV8.ts`**
+   - Add retry logic with exponential backoff
+   - Implement request debouncing
+   - Add error recovery mechanisms
+
+3. **`src/v8/hooks/useSQLiteStats.ts`**
+   - Add request debouncing
+   - Implement error state management
+   - Add loading state optimization
+
+#### **🔄 Medium Priority Files**
+4. **`src/server/routes/userApiRoutes.js`**
+   - Add rate limiting middleware
+   - Implement request queuing
+   - Add resource monitoring endpoints
+
+---
+
+### **🚨 Prevention Strategies**
+
+#### **✅ Configuration Settings**
+```javascript
+// SQLite configuration optimizations
+const DB_CONFIG = {
+    busyTimeout: 30000,        // 30 seconds
+    maxConnections: 5,          // Limit concurrent connections
+    cacheSize: -20000,         // 20MB cache
+    tempStore: "memory",        // Use memory for temp tables
+    journalMode: "WAL",         // Write-Ahead Logging
+    synchronous: "NORMAL",      // Balance safety/performance
+};
+```
+
+#### **✅ Monitoring & Alerting**
+```javascript
+// Resource monitoring
+const monitorResources = () => {
+    const memUsage = process.memoryUsage();
+    const cpuUsage = process.cpuUsage();
+    
+    if (memUsage.heapUsed / memUsage.heapTotal > 0.8) {
+        console.warn('High memory usage detected:', memUsage);
+    }
+    
+    if (cpuUsage.user / cpuUsage.system > 2) {
+        console.warn('High CPU usage detected:', cpuUsage);
+    }
+};
+```
+
+#### **✅ Rate Limiting**
+```javascript
+// Simple rate limiting middleware
+const rateLimit = require('express-rate-limit');
+
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,    // 15 minutes
+    max: 100,                    // Limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP'
+});
+```
+
+---
+
+### **📋 Testing Checklist**
+
+#### **✅ Load Testing**
+- [ ] Test with 100+ concurrent users
+- [ ] Verify database connection limits
+- [ ] Test error recovery mechanisms
+- [ ] Monitor resource usage during load
+
+#### **✅ Error Handling**
+- [ ] Test ERR_INSUFFICIENT_RESOURCES scenarios
+- [ ] Verify retry logic works correctly
+- [ ] Test exponential backoff delays
+- [ ] Verify graceful degradation
+
+#### **✅ Performance Testing**
+- [ ] Measure response times under load
+- [ ] Test database query optimization
+- [ ] Verify connection pooling efficiency
+- [ ] Monitor memory usage patterns
+
+---
+
+### **🔒 Security Considerations**
+
+#### **✅ Resource Protection**
+- **Rate Limiting**: Prevent API abuse and resource exhaustion
+- **Connection Limits**: Limit database connections per client
+- **Request Validation**: Validate all incoming requests
+- **Error Handling**: Don't expose internal system details
+
+#### **✅ Data Protection**
+- **Connection Encryption**: Use HTTPS for all API calls
+- **Input Validation**: Sanitize all database queries
+- **Access Control**: Implement proper authentication
+- **Audit Logging**: Log all database operations
+
+---
+
+### **📚 References & Resources**
+
+- **SQLite Documentation**: https://www.sqlite.org/c3ref/busy_timeout.html
+- **Node.js sqlite3**: https://github.com/TryGhost/node-sqlite3
+- **Connection Pooling**: https://github.com/coopernurse/node-sqlite3-pool
+- **Rate Limiting**: https://github.com/express-rate-limit/express-rate-limit
+
+---
+
+### **📊 Implementation Status**
+
+#### **🔴 CURRENT ISSUES**
+- **No Connection Pooling**: Each request creates new connection
+- **No Retry Logic**: Failed requests are not retried
+- **No Rate Limiting**: Unlimited concurrent requests
+- **No Resource Monitoring**: No visibility into system load
+
+#### **✅ RECOMMENDED IMPROVEMENTS**
+- **Connection Timeout**: Add busy timeout handling
+- **Request Debouncing**: Prevent rapid-fire requests
+- **Error Recovery**: Implement retry with backoff
+- **Resource Monitoring**: Add system health checks
+
+---
+
+*Last Updated: Version 9.0.6*
+*Analysis Complete: 2026-02-07*
+*Priority: HIGH - Affects user experience during high load*
+
+---
+
+## 🔄 JWT vs OPAQUE TOKEN SUPPORT - COMPLETE IMPLEMENTATION
+
+### **🎯 Purpose**
+This section documents the JWT vs OPAQUE refresh token selection feature that allows users to choose between JWT-based refresh tokens (default) and opaque refresh tokens for enhanced security, ensuring this feature remains functional and doesn't get broken in future changes.
+
+### **🚨 Feature Overview**
+
+#### **Token Type Options**
+- **JWT (Default)**: Traditional JSON Web Token refresh tokens
+  - Can be validated locally without calling the authorization server
+  - Token contents can be inspected by decoding the JWT
+  - Standard OAuth 2.0 approach
+  - Maintains backward compatibility
+
+- **OPAQUE (More Secure)**: Opaque reference tokens
+  - Must be validated by the authorization server via token introspection
+  - Token contents cannot be inspected or decoded
+  - Enhanced security as token data is not exposed
+  - Recommended for production environments
+
+---
+
+### **🔧 Implementation Status**
+
+#### **✅ FULLY IMPLEMENTED COMPONENTS**
+
+1. **RefreshTokenTypeDropdownV8** (`src/v8/components/RefreshTokenTypeDropdownV8.tsx`)
+   - Dropdown component for selecting refresh token type
+   - Options: JWT (Default) or Opaque (More Secure)
+   - Educational tooltips explaining each option
+   - Automatically disabled when refresh tokens are not enabled
+   - Consistent styling with other V8 dropdowns
+
+2. **CredentialsFormV8U** (`src/v8u/components/CredentialsFormV8U.tsx`)
+   - Added `refreshTokenType` state management
+   - Integrated `RefreshTokenTypeDropdownV8` component
+   - Dropdown appears below "Enable Refresh Token" checkbox
+   - Only visible when refresh tokens are enabled
+   - Persists selection to localStorage
+
+3. **UnifiedOAuthFlowV8U** (`src/v8u/flows/UnifiedOAuthFlowV8U.tsx`)
+   - Loads `refreshTokenType` from flow-specific storage
+   - Persists `refreshTokenType` with other credentials
+   - Validates token type is either 'JWT' or 'OPAQUE'
+
+4. **unifiedFlowIntegrationV8U** (`src/v8u/services/unifiedFlowIntegrationV8U.ts`)
+   - Updated `UnifiedFlowCredentials` interface
+   - Added `refreshTokenType?: 'JWT' | 'OPAQUE'` field
+   - Maintains backward compatibility
+
+---
+
+### **🔍 Detection Commands for Token Type Issues**
+
+```bash
+# === JWT vs OPAQUE TOKEN SUPPORT ===
+# Check RefreshTokenTypeDropdownV8 component exists
+ls -la src/v8/components/RefreshTokenTypeDropdownV8.tsx
+
+# Verify component is imported in credentials form
+grep -n "RefreshTokenTypeDropdownV8" src/v8u/components/CredentialsFormV8U.tsx
+
+# Check dropdown is rendered when refresh tokens enabled
+grep -n -A 5 "enableRefreshToken &&" src/v8u/components/CredentialsFormV8U.tsx
+
+# Verify refresh token type in interface
+grep -n "refreshTokenType.*JWT.*OPAQUE" src/v8u/services/unifiedFlowIntegrationV8U.ts
+
+# Check flow integration uses refresh token type
+grep -n "refreshTokenType" src/v8u/flows/UnifiedOAuthFlowV8U.tsx
+
+# Verify token type validation
+grep -n -A 2 "JWT.*OPAQUE" src/v8u/flows/UnifiedOAuthFlowV8U.tsx
+
+# Check localStorage persistence
+grep -n "refreshTokenType" src/v8u/components/CredentialsFormV8U.tsx
+
+# Verify default value is JWT
+grep -n "default.*JWT\|JWT.*default" src/v8/components/RefreshTokenTypeDropdownV8.tsx
+```
+
+---
+
+### **🛠️ Implementation Details**
+
+#### **✅ Component Interface**
+```typescript
+interface RefreshTokenTypeDropdownV8Props {
+    value: RefreshTokenType; // 'JWT' | 'OPAQUE'
+    onChange: (type: RefreshTokenType) => void;
+    disabled?: boolean;
+    className?: string;
+}
+```
+
+#### **✅ Data Flow Integration**
+```typescript
+// In UnifiedFlowCredentials interface
+interface UnifiedFlowCredentials {
+    // ... existing fields
+    enableRefreshToken?: boolean;
+    refreshTokenType?: 'JWT' | 'OPAQUE'; // Token type selection
+}
+```
+
+#### **✅ UI Integration Pattern**
+```typescript
+// In CredentialsFormV8U.tsx
+{enableRefreshToken && (
+    <div style={{ marginTop: '16px' }}>
+        <RefreshTokenTypeDropdownV8
+            value={refreshTokenType}
+            onChange={(type) => setRefreshTokenType(type)}
+            disabled={!enableRefreshToken}
+        />
+    </div>
+)}
+```
+
+---
+
+### **🚨 Prevention Strategies**
+
+#### **✅ Backward Compatibility**
+- **Default Value**: JWT (maintains existing behavior)
+- **Optional Field**: `refreshTokenType` is optional in interface
+- **Conditional Rendering**: Only shows when refresh tokens are enabled
+- **Graceful Degradation**: Works even if token type is not specified
+
+#### **✅ Data Validation**
+- **Type Safety**: TypeScript ensures only 'JWT' or 'OPAQUE' values
+- **Runtime Validation**: Flow validates token type before use
+- **Default Fallback**: Defaults to JWT if invalid value provided
+- **Error Handling**: Graceful handling of missing or invalid token types
+
+#### **✅ Persistence Strategy**
+- **LocalStorage**: Token type selection persists across sessions
+- **Flow-Specific Storage**: Separate storage per flow type
+- **Reload Support**: Token type restored when returning to flow
+- **Migration Support**: Handles missing token type gracefully
+
+---
+
+### **📋 Testing Checklist**
+
+#### **✅ UI Testing**
+- [ ] Dropdown appears when refresh tokens are enabled
+- [ ] Dropdown is disabled when refresh tokens are disabled
+- [ ] JWT option is selected by default
+- [ ] Opaque option can be selected
+- [ ] Tooltips display educational information
+- [ ] Styling matches other V8 dropdowns
+
+#### **✅ Functionality Testing**
+- [ ] Token type selection persists to localStorage
+- [ ] Token type is restored when returning to flow
+- [ ] Token type is included in credential requests
+- [ ] Flow validates token type before use
+- [ ] Invalid token types default to JWT
+
+#### **✅ Integration Testing**
+- [ ] Works with all OAuth flows (Authorization Code, Implicit, Hybrid)
+- [ ] Works with both V8 and V8U flows
+- [ ] Compatible with PKCE settings
+- [ ] Compatible with other credential settings
+- [ ] Maintains backward compatibility
+
+---
+
+### **🔒 Security Considerations**
+
+#### **✅ Token Security**
+- **Opaque Tokens**: Enhanced security for production environments
+- **JWT Tokens**: Standard approach with local validation
+- **Token Introspection**: Required for opaque token validation
+- **Centralized Control**: Server-side token validation for opaque tokens
+
+#### **✅ Data Protection**
+- **No Exposure**: Opaque tokens don't expose token data
+- **Validation**: All token types validated by authorization server
+- **Revocation**: Easier to revoke opaque tokens
+- **Compliance**: Better for regulatory requirements
+
+---
+
+### **📚 References & Documentation**
+
+- **Implementation**: `/Users/cmuir/P1Import-apps/oauth-playground/docs/OPAQUE_REFRESH_TOKENS.md`
+- **OAuth 2.0 Token Introspection**: RFC 7662
+- **OAuth 2.0 Security Best Current Practice**: draft-ietf-oauth-security-topics
+- **PingOne Applications Documentation**: https://docs.pingidentity.com/pingone/applications/
+
+---
+
+### **📊 Implementation Status**
+
+#### **✅ COMPLETED FEATURES**
+- **Dropdown Component**: Fully functional with educational tooltips
+- **UI Integration**: Seamlessly integrated into credentials form
+- **Data Persistence**: Token type selection persists across sessions
+- **Flow Integration**: Works with all OAuth flows
+- **Type Safety**: Full TypeScript support and validation
+
+#### **✅ COMPATIBILITY**
+- **Backward Compatible**: Default JWT behavior maintained
+- **Optional Feature**: Only appears when refresh tokens enabled
+- **Flow Agnostic**: Works with all OAuth flow types
+- **Browser Support**: Works in all modern browsers
+
+---
+
+### **🚨 Common Issues & Solutions**
+
+#### **✅ Issue: Dropdown Not Visible**
+- **Cause**: Refresh tokens not enabled
+- **Solution**: Enable "Enable Refresh Token" checkbox
+- **Detection**: Check `enableRefreshToken` state
+
+#### **✅ Issue: Token Type Not Persisted**
+- **Cause**: localStorage not updated
+- **Solution**: Verify `onChange` handler is connected
+- **Detection**: Check localStorage for `refreshTokenType`
+
+#### **✅ Issue: Invalid Token Type**
+- **Cause**: Corrupted localStorage data
+- **Solution**: System defaults to JWT
+- **Detection**: Check console for validation errors
+
+#### **✅ Issue: Token Not Used in Flow**
+- **Cause**: Token type not passed to flow
+- **Solution**: Verify flow integration code
+- **Detection**: Check network requests for token type parameter
+
+---
+
+### **🔧 Files to Monitor**
+
+#### **🔄 Critical Files**
+1. **`src/v8/components/RefreshTokenTypeDropdownV8.tsx`**
+   - Core dropdown component
+   - Token type validation
+   - Educational tooltips
+
+2. **`src/v8u/components/CredentialsFormV8U.tsx`**
+   - UI integration
+   - State management
+   - LocalStorage persistence
+
+3. **`src/v8u/flows/UnifiedOAuthFlowV8U.tsx`**
+   - Flow integration
+   - Token type persistence
+   - Credential assembly
+
+4. **`src/v8u/services/unifiedFlowIntegrationV8U.ts`**
+   - Interface definitions
+   - Type safety
+   - Backward compatibility
+
+---
+
+*Last Updated: Version 9.0.6*
+*Implementation Complete: 2026-02-07*
+*Priority: MEDIUM - Enhanced security feature*
+
+---
