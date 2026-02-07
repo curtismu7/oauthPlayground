@@ -13,6 +13,7 @@ import { usePageScroll } from '@/hooks/usePageScroll';
 import { MFADeviceLimitModalV8 } from '@/v8/components/MFADeviceLimitModalV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { MFASettingsModalV8 } from '@/v8/components/MFASettingsModalV8';
+import { MFAUserDisplayV8 } from '@/v8/components/MFAUserDisplayV8';
 import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
 import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
@@ -22,6 +23,7 @@ import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { DualStorageServiceV8 } from '@/v8/services/dualStorageServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import {
 	type TokenStatusInfo,
@@ -29,6 +31,7 @@ import {
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';
 
@@ -91,7 +94,15 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	renderStep5,
 	renderStep6,
 	validateStep0,
-	stepLabels = ['Configure', 'User Login', 'Device Selection', 'Generate OTP/QR', 'Validate OTP', 'API Docs', 'Success'],
+	stepLabels = [
+		'Configure',
+		'User Login',
+		'Device Selection',
+		'Generate OTP/QR',
+		'Validate OTP',
+		'API Docs',
+		'Success',
+	],
 	shouldHideNextButton,
 	flowType = 'device-auth',
 }) => {
@@ -270,7 +281,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			const parsed = UnifiedFlowErrorHandler.handleError(
 				error,
 				{
-					flowType: 'mfa' as any,
+					flowType: 'mfa' as const,
 					deviceType: 'GENERIC',
 					operation: 'loadDeviceAuthenticationPolicies',
 				},
@@ -317,13 +328,16 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	useEffect(() => {
 		// Save to browser storage first (fast)
 		CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials);
-		
+
 		// Also save to database via dual storage for persistence
-		DualStorageServiceV8.save({
-			directory: 'mfa',
-			filename: 'mfa-credentials.json',
-			browserStorageKey: FLOW_KEY,
-		}, credentials).catch(error => {
+		DualStorageServiceV8.save(
+			{
+				directory: 'mfa',
+				filename: 'mfa-credentials.json',
+				browserStorageKey: FLOW_KEY,
+			},
+			credentials
+		).catch((error) => {
 			console.warn('[MFA-FLOW-BASE] Failed to save credentials to database:', error);
 		});
 	}, [credentials]);
@@ -501,6 +515,19 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			console.log(
 				`${MODULE_TAG} Detected OAuth callback code in URL, opening UserLoginModal to process it`
 			);
+
+			// Set return target for device authentication flow
+			const currentPath = window.location.pathname;
+			const isUnifiedMFA = currentPath.includes('/unified-mfa') || currentPath.includes('/mfa-hub');
+
+			if (isUnifiedMFA) {
+				ReturnTargetServiceV8U.setReturnTarget(
+					'mfa_device_authentication',
+					currentPath, // Return to current path
+					nav.currentStep + 1 // Next step
+				);
+			}
+
 			setShowUserLoginModal(true);
 		}
 
@@ -523,13 +550,15 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					// If device was registered with ACTIVATION_REQUIRED status, skip to activation
 					if (flowState.deviceStatus === 'ACTIVATION_REQUIRED' && flowState.deviceId) {
 						console.log(`${MODULE_TAG} Device requires activation, skipping registration step`);
-						
+
 						// Restore MFA state
 						setMfaState((prev) => ({
 							...prev,
 							deviceId: flowState.deviceId,
 							deviceStatus: 'ACTIVATION_REQUIRED',
-							...(flowState.deviceActivateUri && { deviceActivateUri: flowState.deviceActivateUri }),
+							...(flowState.deviceActivateUri && {
+								deviceActivateUri: flowState.deviceActivateUri,
+							}),
 						}));
 
 						// Clean up stored state
@@ -561,17 +590,18 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					}
 				} else if (nav.currentStep === 1) {
 					// User was on Step 1 (User Login), go to Step 2 (Device Selection) per UI Contract
-					console.log(`${MODULE_TAG} User was on Step 1 (User Login), going to Step 2 (Device Selection) per UI Contract`);
+					console.log(
+						`${MODULE_TAG} User was on Step 1 (User Login), going to Step 2 (Device Selection) per UI Contract`
+					);
 					nav.goToStep(2);
 				} else {
 					// User was on some other step, validate current step and proceed
 					console.log(`${MODULE_TAG} User was on Step ${nav.currentStep}, validating current step`);
-					// Validate the current step based on what step we're on
-					if (nav.currentStep === 0 && validateStep0(credentials, tokenStatus, nav)) {
-						nav.goToNext();
-					} else {
-						console.log(`${MODULE_TAG} Staying on current step ${nav.currentStep}`);
-					}
+					// For other steps, stay on current step and let user navigate manually
+					// This prevents unexpected navigation jumps
+					console.log(
+						`${MODULE_TAG} Staying on current step ${nav.currentStep} for manual navigation`
+					);
 				}
 			}, 500); // Small delay to ensure credentials are fully updated
 		}
@@ -821,6 +851,14 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							<div className="version-tag">MFA Flow V8</div>
 							<h1>PingOne MFA Device Management</h1>
 							<p>Register and manage MFA devices for users</p>
+							<MFAUserDisplayV8
+								username={credentials?.username || ''}
+								onUsernameChange={() => {
+									// Reset the flow to allow username change
+									window.location.reload();
+								}}
+								style={{ marginTop: '8px' }}
+							/>
 						</div>
 					</div>
 					<div className="header-right">
@@ -832,16 +870,16 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 									.slice(0, nav.currentStep + 1)
 									.filter((label) => label && label.trim() !== '').length;
 								const totalVisibleSteps = visibleSteps.length;
-								
+
 								// Debug logging
 								console.log('[STEP-COUNTER]', {
 									currentStep: nav.currentStep,
 									stepLabels,
 									sliced: stepLabels.slice(0, nav.currentStep + 1),
 									currentVisibleStep,
-									totalVisibleSteps
+									totalVisibleSteps,
 								});
-								
+
 								return (
 									<>
 										<span className="step-number">{currentVisibleStep}</span>
@@ -879,7 +917,45 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					{renderStepContent()}
 				</div>
 
-				<StepValidationFeedbackV8 errors={nav.validationErrors} warnings={nav.validationWarnings} />
+				<StepValidationFeedbackV8
+					errors={nav.validationErrors}
+					warnings={nav.validationWarnings}
+					onValidationRecheck={() => {
+						console.log(`${MODULE_TAG} Rechecking validation after worker token refresh`);
+						// Clear validation errors and revalidate current step
+						nav.setValidationErrors([]);
+						nav.setValidationWarnings([]);
+
+						// Revalidate the current step
+						if (nav.currentStep === 0) {
+							const credsToValidate = {
+								...credentials,
+								flowKey: FLOW_KEY,
+								flowType: 'oidc',
+								includeClientSecret: false,
+								includeRedirectUri: false,
+							};
+							if (validateStep0(credsToValidate, tokenStatus, nav)) {
+								console.log(`${MODULE_TAG} Step 0 validation passed after worker token refresh`);
+							} else {
+								console.log(
+									`${MODULE_TAG} Step 0 validation still failed after worker token refresh`
+								);
+							}
+						}
+					}}
+					onWorkerTokenRefresh={async () => {
+						console.log(`${MODULE_TAG} Worker token refresh callback triggered`);
+						// Trigger worker token refresh
+						window.dispatchEvent(new Event('workerTokenUpdated'));
+						const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+						setTokenStatus(newStatus);
+						nav.setValidationErrors([]);
+						toastV8.success('Worker token refreshed successfully!');
+
+						await fetchDeviceAuthPolicies();
+					}}
+				/>
 
 				{/* Cancel Authentication Button - Show when authentication is in progress */}
 				{mfaState.authenticationId && (nav.currentStep === 3 || nav.currentStep === 4) && (
@@ -998,6 +1074,20 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							// Check if essential credentials are missing
 							if (!credentials.environmentId?.trim() || !credentials.username?.trim()) {
 								console.log(`${MODULE_TAG} Missing credentials, showing UserLoginModal`);
+
+								// Set return target for device authentication flow
+								const currentPath = window.location.pathname;
+								const isUnifiedMFA =
+									currentPath.includes('/unified-mfa') || currentPath.includes('/mfa-hub');
+
+								if (isUnifiedMFA) {
+									ReturnTargetServiceV8U.setReturnTarget(
+										'mfa_device_authentication',
+										currentPath, // Return to current path
+										nav.currentStep + 1 // Next step
+									);
+								}
+
 								setShowUserLoginModal(true);
 								return; // Don't proceed with validation
 							}
@@ -1118,9 +1208,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				(() => {
 					// Check if we should show token only (matches MFA pattern)
 					try {
-						const {
-							MFAConfigurationServiceV8,
-						} = require('@/v8/services/mfaConfigurationServiceV8');
+						// Use existing MFAConfigurationServiceV8 from imports
 						const config = MFAConfigurationServiceV8.loadConfiguration();
 						const currentTokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 
@@ -1323,7 +1411,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 			<style>{`
 				.mfa-flow-v8 {
-					max-width: 1000px;
+					max-width: 1400px; /* Make body wider */
 					margin: 0 auto;
 					background: #f8f9fa;
 					min-height: auto;
