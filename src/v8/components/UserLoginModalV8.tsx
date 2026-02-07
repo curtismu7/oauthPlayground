@@ -25,6 +25,7 @@ import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
+import { RedirectUriValidatorV8 } from '@/v8/components/RedirectUriValidatorV8';
 import {
 	type SessionInfo,
 	UserAuthenticationSuccessPageV8,
@@ -52,9 +53,25 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [environmentId, setEnvironmentId] = useState(propEnvironmentId);
 	const [clientId, setClientId] = useState('');
 	const [clientSecret, setClientSecret] = useState('');
-	const [redirectUri, setRedirectUri] = useState('');
+	const [redirectUri, setRedirectUri] = useState(() => {
+		// Initialize with correct default redirect URI based on flow type
+		const protocol = 'https';
+		const isMfaFlow = location.pathname.startsWith('/v8/mfa') || location.pathname.startsWith('/v8/unified-mfa');
+		const uri = isMfaFlow
+			? `${protocol}://${window.location.host}/mfa-unified-callback`
+			: `${protocol}://${window.location.host}/user-login-callback`;
+		
+		// DEBUG: Log initial state
+		console.log('🔍 [REDIRECT-URI-DEBUG] Initial state:', {
+			isMfaFlow,
+			currentPath: location.pathname,
+			initialUri: uri
+		});
+		
+		return uri;
+	});
 	// Check if we're in an MFA flow context
-	const isMfaFlow = location.pathname.startsWith('/v8/mfa');
+	const isMfaFlow = location.pathname.startsWith('/v8/mfa') || location.pathname.startsWith('/v8/unified-mfa');
 
 	// Check if worker token is available (from workerTokenServiceV8)
 	const [hasWorkerToken, setHasWorkerToken] = useState(false);
@@ -130,11 +147,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		errors: string[];
 		warnings: string[];
 	} | null>(null);
+	const [appConfig, setAppConfig] = useState<any>(null);
 	// Use different default redirect URI for MFA flows
 	// Always use HTTPS for security, even in development
 	const protocol = 'https';
 	const defaultRedirectUri = isMfaFlow
-		? `${protocol}://${window.location.host}/user-mfa-login-callback`
+		? `${protocol}://${window.location.host}/mfa-unified-callback`
 		: `${protocol}://${window.location.host}/user-login-callback`;
 	const previousRedirectUriRef = useRef<string>(defaultRedirectUri);
 
@@ -144,6 +162,14 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			toastV8.error('Please enter Environment ID and Client ID first');
 			return;
 		}
+
+		// DEBUG: Log current redirect URI
+		console.log('🔍 [REDIRECT-URI-DEBUG] Pre-flight validation:', {
+			currentRedirectUri: redirectUri,
+			isMfaFlow,
+			currentPath: location.pathname,
+			defaultRedirectUri
+		});
 
 		setIsValidating(true);
 		setValidationResult(null);
@@ -162,6 +188,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				clientId.trim(),
 				workerToken
 			);
+
+			// Store appConfig for RedirectUriValidatorV8
+			setAppConfig(appConfig);
 
 			if (!appConfig) {
 				setValidationResult({
@@ -190,6 +219,13 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			if (!appConfig.redirectUris || appConfig.redirectUris.length === 0) {
 				errors.push('No redirect URIs configured');
 			} else if (!appConfig.redirectUris.includes(redirectUri)) {
+				// DEBUG: Log redirect URI comparison
+				console.log('🔍 [REDIRECT-URI-DEBUG] URI Mismatch:', {
+					yourUri: redirectUri,
+					registeredUris: appConfig.redirectUris,
+					isMfaFlow,
+					currentPath: location.pathname
+				});
 				warnings.push(`Redirect URI "${redirectUri}" is not in the configured list`);
 			}
 
@@ -278,10 +314,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		if (isOpen) {
 			const FLOW_KEY = 'user-login-v8';
 
+			// Use HTTPS for security, even in development
+			const protocol = 'https';
+
 			// Get the correct redirect URI from the centralized service
-			const defaultRedirectUriForMfa = isMfaFlow
-				? MFARedirectUriServiceV8.getRedirectUri('unified-mfa-v8')
-				: `https://${window.location.host}/user-login-callback`;
+			// Note: We use defaultRedirectUri (defined above) for consistency
 			// Load saved credentials
 			const saved = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 				flowKey: FLOW_KEY,
@@ -312,20 +349,31 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				setAuthMethod(saved.authMethod || saved.tokenEndpointAuthMethod || 'client_secret_post');
 
 				// ALWAYS use the new unified callback for MFA flows, regardless of what's saved
+				// This forces migration from old /v8/mfa-unified-callback to new /mfa-unified-callback
 				const initialRedirectUri = isMfaFlow
-					? defaultRedirectUriForMfa
-					: saved.redirectUri || defaultRedirectUriForMfa;
+					? defaultRedirectUri  // Use the correct defaultRedirectUri
+					: saved.redirectUri || defaultRedirectUri;
+
+				// DEBUG: Log redirect URI values
+				console.log('🔍 [REDIRECT-URI-DEBUG] Credentials loading:', {
+					isMfaFlow,
+					savedRedirectUri: saved.redirectUri,
+					defaultRedirectUri,
+					initialRedirectUri,
+					currentPath: location.pathname
+				});
 
 				// #region agent log
 				sendAnalyticsLog({
 					location: 'UserLoginModalV8.tsx:134',
-					message: 'Redirect URI loaded - FORCED for MFA flows',
+					message: 'Redirect URI loaded - FORCED migration from /v8/ to new URI for MFA flows',
 					data: {
 						savedRedirectUri: saved.redirectUri,
-						defaultRedirectUriForMfa,
+						defaultRedirectUri,
 						initialRedirectUri,
 						isMfaFlow,
 						forcedMigration: isMfaFlow,
+						migrationNeeded: saved.redirectUri?.includes('/v8/mfa-unified-callback'),
 					},
 					timestamp: Date.now(),
 					sessionId: 'debug-session',
@@ -349,9 +397,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				if (initialEnvId) {
 					setEnvironmentId(initialEnvId);
 				}
-				setRedirectUri(defaultRedirectUriForMfa);
+				setRedirectUri(defaultRedirectUri);
 
-				previousRedirectUriRef.current = defaultRedirectUriForMfa;
+				previousRedirectUriRef.current = defaultRedirectUri;
 				// Set default scopes
 				setScopes(defaultScopes);
 			}
@@ -994,8 +1042,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						setIsUpdatingApp(true);
 						const updatedRedirectUris = [...currentRedirectUris, newUri];
 
-						// Update application
+						// Update application with required fields
 						const result = await pingOneService.updateApplication(app.id, {
+							name: app.name,
+							type: app.type,
+							enabled: app.enabled,
 							redirectUris: updatedRedirectUris,
 						});
 
@@ -1170,22 +1221,19 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			return;
 		}
 
-		// FOOLPROOF: For MFA flows, ALWAYS use the centralized service
-		// This ensures the redirect URI is constant and correct
-		const finalRedirectUri = isMfaFlow
-			? MFARedirectUriServiceV8.getRedirectUri('unified-mfa-v8')
-			: redirectUri.trim() ||
-				`${window.location.protocol}//${window.location.host}/user-login-callback`;
+		// Use what's in the UI field - even for MFA flows
+		// This ensures PingOne receives exactly what the user sees/enters
+		const finalRedirectUri = redirectUri.trim() || defaultRedirectUri;
 
 		// #region agent log
 		sendAnalyticsLog({
 			location: 'UserLoginModalV8.tsx:614',
-			message: 'Final redirect URI - Using centralized service for MFA',
+			message: 'Final redirect URI - Using UI field value',
 			data: {
 				redirectUriField: redirectUri,
 				finalRedirectUri,
 				isMfaFlow,
-				source: isMfaFlow ? 'MFARedirectUriServiceV8' : 'field value',
+				source: 'UI field value',
 			},
 			timestamp: Date.now(),
 			sessionId: 'debug-session',
@@ -1284,7 +1332,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			// For device registration flows, stay on the current page (Configuration page)
 			// Only store return path for user authentication flows, not device registration
-			if (currentPath.startsWith('/v8/mfa') && !currentPath.includes('/unified-mfa')) {
+			if (currentPath.startsWith('/v8/mfa')) {
 				// Store path directly as a string (no need for JSON.stringify on a string)
 				// CRITICAL: Store BEFORE redirect to ensure it's available when callback returns
 				sessionStorage.setItem('user_login_return_to_mfa', fullPath);
@@ -1859,46 +1907,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 						{/* Redirect URI */}
 						<div>
-							<label
-								htmlFor="user-login-redirect-uri"
-								style={{
-									display: 'block',
-									fontSize: '14px',
-									fontWeight: '600',
-									color: '#374151',
-									marginBottom: '6px',
-								}}
-							>
-								Redirect URI <span style={{ color: '#ef4444' }}>*</span>
-								{isUpdatingApp && (
-									<span
-										style={{
-											marginLeft: '8px',
-											fontSize: '12px',
-											fontWeight: '400',
-											color: '#3b82f6',
-										}}
-									>
-										⏳ Updating PingOne app...
-									</span>
-								)}
-							</label>
-							<input
-								id="user-login-redirect-uri"
-								type="text"
-								value={redirectUri}
-								onChange={(e) => handleRedirectUriChange(e.target.value)}
-								placeholder="https://localhost:3000/user-login-callback"
-								disabled={isUpdatingApp}
-								style={{
-									width: '100%',
-									padding: '10px 12px',
-									border: '1px solid #d1d5db',
-									borderRadius: '6px',
-									fontSize: '14px',
-									opacity: isUpdatingApp ? 0.6 : 1,
-									cursor: isUpdatingApp ? 'not-allowed' : 'text',
-								}}
+							<RedirectUriValidatorV8
+								currentUri={redirectUri}
+								validUris={appConfig?.redirectUris || []}
+								label={`Redirect URI${isUpdatingApp ? ' ⏳ Updating PingOne app...' : ''}`}
+								onUriChange={handleRedirectUriChange}
+								showValidation={!!appConfig}
 							/>
 							<small
 								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}

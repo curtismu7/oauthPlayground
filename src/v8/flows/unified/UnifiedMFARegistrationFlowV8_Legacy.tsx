@@ -32,6 +32,11 @@ import { SearchableDropdownV8 } from '@/v8/components/SearchableDropdownV8';
 import { SQLiteStatsDisplayV8 } from '@/v8/components/SQLiteStatsDisplayV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
+import { DeviceLimitErrorModalV8 } from '@/v8/components/DeviceLimitErrorModalV8';
+import { RegistrationFlowStepperV8 } from '@/v8/components/RegistrationFlowStepperV8';
+import { AuthenticationFlowStepperV8 } from '@/v8/components/AuthenticationFlowStepperV8';
+import { RegistrationStepCounterV8 } from '@/v8/components/RegistrationStepCounterV8';
+import { AuthenticationStepCounterV8 } from '@/v8/components/AuthenticationStepCounterV8';
 import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
 import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/deviceFlowConfigTypes';
 import { PING_IDENTITY_COLORS, PING_IDENTITY_UI } from '@/v8/constants/pingIdentityColors';
@@ -48,7 +53,7 @@ import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { type MFAFeatureFlag, MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
-import MFAServiceV8_Legacy, { type RegisterDeviceParams } from '@/v8/services/mfaServiceV8_Legacy';
+import MFAServiceV8, { type RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
@@ -58,6 +63,7 @@ import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBas
 import type { DeviceAuthenticationPolicy, MFACredentials, MFAState } from '../shared/MFATypes';
 import { UnifiedActivationStep } from './components/UnifiedActivationStep';
 import { UnifiedDeviceRegistrationForm } from './components/UnifiedDeviceRegistrationForm';
+import { UnifiedErrorDisplayV8 } from './components/UnifiedErrorDisplayV8';
 import { UnifiedDeviceSelectionModal } from './components/UnifiedDeviceSelectionModal';
 import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
 import './UnifiedMFAFlow.css';
@@ -138,17 +144,20 @@ const isDeviceEnabled = (deviceKey: DeviceConfigKey): boolean => {
 };
 
 interface DeviceTypeSelectionScreenProps {
-	onSelectDeviceType: (deviceType: DeviceConfigKey) => void;
+	onSelectDeviceType: (deviceType: DeviceConfigKey, selectedPolicy?: DeviceAuthenticationPolicy | null) => void;
 	userToken?: string | null;
 	setUserToken: (token: string | null) => void;
+	flowMode: 'registration' | 'authentication' | null;
+	setFlowMode: (mode: 'registration' | 'authentication' | null) => void;
 }
 
 const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	onSelectDeviceType,
 	userToken,
 	setUserToken,
+	flowMode,
+	setFlowMode,
 }) => {
-	const [flowMode, setFlowMode] = useState<FlowMode | null>(null);
 	const [environmentId, setEnvironmentId] = useState('');
 	const [username, setUsername] = useState('');
 	const [showDeviceSelectionModal, setShowDeviceSelectionModal] = useState(false);
@@ -442,7 +451,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				toastV8.info(
 					'FIDO2 authentication required. Please use /v8/mfa-config for FIDO2 authentication.'
 				);
-				setFlowMode(null);
+				setFlowMode('registration');
 			} else if (
 				status === 'PUSH_CONFIRMATION_REQUIRED' ||
 				nextStep === 'PUSH_CONFIRMATION_REQUIRED'
@@ -450,10 +459,10 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				console.log(`${MODULE_TAG} Push confirmation required`);
 				toastV8.success('Push notification sent! Please approve on your mobile device.');
 				toastV8.info('Complete authentication at /v8/mfa-config for push polling.');
-				setFlowMode(null);
+				setFlowMode('registration');
 			} else if (status === 'COMPLETED') {
 				toastV8.success('Authentication completed successfully!');
-				setFlowMode(null);
+				setFlowMode('registration');
 			} else if (
 				status === 'DEVICE_SELECTION_REQUIRED' ||
 				nextStep === 'SELECTION_REQUIRED' ||
@@ -563,7 +572,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			if (result.status === 'COMPLETED' || result.status === 'completed') {
 				toastV8.success('✅ Authentication completed successfully!');
 				setShowOTPModal(false);
-				setFlowMode(null);
+				setFlowMode('registration');
 				setOtpCode('');
 			} else {
 				toastV8.error('Invalid code. Please try again.');
@@ -848,6 +857,49 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							)}
 						</div>
 
+						{/* Username */}
+						<div style={{ marginBottom: '12px' }}>
+							<label
+								htmlFor="username"
+								style={{
+									display: 'block',
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '8px',
+								}}
+							>
+								Username
+							</label>
+							{environmentId && tokenStatus.isValid ? (
+								<SearchableDropdownV8
+									id="username"
+									value={username}
+									options={userOptions}
+									onChange={setUsername}
+									placeholder="Type to search across 16,000+ users..."
+									isLoading={isLoadingUsers}
+									onSearchChange={setSearchQuery}
+								/>
+							) : (
+								<input
+									id="username"
+									type="text"
+									value={username}
+									onChange={(e) => setUsername(e.target.value)}
+									placeholder="user@example.com"
+									style={{
+										width: '100%',
+										padding: '10px 12px',
+										border: '1px solid #d1d5db',
+										borderRadius: '6px',
+										fontSize: '14px',
+										boxSizing: 'border-box',
+									}}
+								/>
+							)}
+						</div>
+
 						{/* Environment ID - Hide when worker token is available */}
 						{!hasWorkerToken && (
 							<div style={{ marginBottom: '12px' }}>
@@ -892,49 +944,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 								/>
 							</div>
 						)}
-
-						{/* Username */}
-						<div style={{ marginBottom: '12px' }}>
-							<label
-								htmlFor="username"
-								style={{
-									display: 'block',
-									fontSize: '14px',
-									fontWeight: '600',
-									color: '#374151',
-									marginBottom: '8px',
-								}}
-							>
-								Username
-							</label>
-							{environmentId && tokenStatus.isValid ? (
-								<SearchableDropdownV8
-									id="username"
-									value={username}
-									options={userOptions}
-									onChange={setUsername}
-									placeholder="Type to search across 16,000+ users..."
-									isLoading={isLoadingUsers}
-									onSearchChange={setSearchQuery}
-								/>
-							) : (
-								<input
-									id="username"
-									type="text"
-									value={username}
-									onChange={(e) => setUsername(e.target.value)}
-									placeholder="user@example.com"
-									style={{
-										width: '100%',
-										padding: '10px 12px',
-										border: '1px solid #d1d5db',
-										borderRadius: '6px',
-										fontSize: '14px',
-										boxSizing: 'border-box',
-									}}
-								/>
-							)}
-						</div>
 
 						{/* MFA Policy Dropdown */}
 						<div style={{ marginBottom: '12px' }}>
@@ -1171,6 +1180,18 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							onClick={() => setFlowMode('registration')}
 							style={{
 								padding: '20px 16px',
+								background: '#ffffff',
+								border: '2px solid #e5e7eb',
+								borderRadius: '16px',
+								cursor: 'pointer',
+								textAlign: 'left',
+								transition: 'all 0.2s ease',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.borderColor = '#047857';
+								e.currentTarget.style.background = '#f0fdf4';
+								e.currentTarget.style.transform = 'translateY(-4px)';
+								e.currentTarget.style.boxShadow = '0 8px 24px rgba(4, 120, 87, 0.2)';
 							}}
 							onMouseLeave={(e) => {
 								e.currentTarget.style.borderColor = '#e5e7eb';
@@ -1290,7 +1311,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					<button
 						type="button"
 						onClick={() => {
-							setFlowMode(null);
+							setFlowMode('registration');
 							setShowDeviceSelectionModal(false);
 							setShowOTPModal(false);
 							setSelectedAuthDevice(null);
@@ -1708,7 +1729,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						<button
 							key={device.key}
 							type="button"
-							onClick={() => enabled && onSelectDeviceType(device.key)}
+							onClick={() => enabled && onSelectDeviceType(device.key, selectedPolicy)}
 							disabled={!enabled}
 							style={{
 								padding: '24px',
@@ -1759,7 +1780,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				isOpen={showDeviceSelectionModal}
 				onClose={() => {
 					setShowDeviceSelectionModal(false);
-					setFlowMode(null);
+					setFlowMode('registration');
 				}}
 				onDeviceSelect={handleDeviceSelectForAuthentication}
 				username={username}
@@ -1821,7 +1842,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 								onClick={() => {
 									setShowOTPModal(false);
 									setOtpCode('');
-									setFlowMode(null);
+									setFlowMode('registration');
 								}}
 								style={{
 									flex: 1,
@@ -1887,6 +1908,15 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 	const [selectedDeviceType, setSelectedDeviceType] = useState<DeviceConfigKey | undefined>(
 		initialDeviceType
 	);
+	const [selectedPolicyFromSelection, setSelectedPolicyFromSelection] = useState<DeviceAuthenticationPolicy | null>(null);
+
+	// Flow mode state for Registration vs Authentication
+	const [flowMode, setFlowMode] = useState<'registration' | 'authentication' | null>(null);
+
+	// Device limit error modal state
+	const [showDeviceLimitError, setShowDeviceLimitError] = useState(false);
+	const [currentDeviceCount, setCurrentDeviceCount] = useState(0);
+	const [maxDeviceLimit, setMaxDeviceLimit] = useState(0);
 
 	// User token state for OAuth authentication (User Flow)
 	const [userToken, setUserToken] = useState<string | null>(() => {
@@ -1917,9 +1947,16 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 				<GlobalMFAProvider>
 					<MFACredentialProvider>
 						<DeviceTypeSelectionScreen
-							onSelectDeviceType={setSelectedDeviceType}
+							onSelectDeviceType={(deviceType, policy) => {
+								setSelectedDeviceType(deviceType);
+								setSelectedPolicyFromSelection(policy || null);
+								// Note: username is managed by DeviceTypeSelectionScreen component
+								// We don't need to capture it here since it's stored in localStorage
+							}}
 							userToken={userToken}
 							setUserToken={setUserToken}
+							flowMode={flowMode}
+							setFlowMode={setFlowMode}
 						/>
 					</MFACredentialProvider>
 				</GlobalMFAProvider>
@@ -1932,16 +1969,38 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 	}
 
 	return (
-		<GlobalMFAProvider>
-			<MFACredentialProvider>
-				<UnifiedMFARegistrationFlowContent
-					{...props}
-					deviceType={selectedDeviceType}
-					userToken={userToken}
-					setUserToken={setUserToken}
-				/>
-			</MFACredentialProvider>
-		</GlobalMFAProvider>
+		<>
+			<GlobalMFAProvider>
+				<MFACredentialProvider>
+					<UnifiedMFARegistrationFlowContent
+						{...props}
+						deviceType={selectedDeviceType}
+						userToken={userToken}
+						setUserToken={setUserToken}
+						selectedPolicy={selectedPolicyFromSelection}
+						showDeviceLimitError={showDeviceLimitError}
+						setShowDeviceLimitError={setShowDeviceLimitError}
+						currentDeviceCount={currentDeviceCount}
+						setCurrentDeviceCount={setCurrentDeviceCount}
+						maxDeviceLimit={maxDeviceLimit}
+						setMaxDeviceLimit={setMaxDeviceLimit}
+						flowMode={flowMode}
+					/>
+				</MFACredentialProvider>
+			</GlobalMFAProvider>
+			
+			{/* Device Limit Error Modal */}
+			<DeviceLimitErrorModalV8
+				isOpen={showDeviceLimitError}
+				onClose={() => setShowDeviceLimitError(false)}
+				onDeleteDevicesClick={() => {
+					// Navigate to device deletion page
+					window.location.href = '/v8/delete-all-devices';
+				}}
+				deviceCount={currentDeviceCount}
+				maxDevices={maxDeviceLimit}
+			/>
+		</>
 	);
 };
 
@@ -1963,8 +2022,16 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 		Omit<UnifiedMFARegistrationFlowV8Props, 'deviceType'> & {
 			userToken: string | null;
 			setUserToken: (token: string | null) => void;
+			selectedPolicy?: DeviceAuthenticationPolicy | null;
+			showDeviceLimitError: boolean;
+			setShowDeviceLimitError: (show: boolean) => void;
+			currentDeviceCount: number;
+			setCurrentDeviceCount: (count: number) => void;
+			maxDeviceLimit: number;
+			setMaxDeviceLimit: (limit: number) => void;
+			flowMode?: 'registration' | 'authentication' | null;
 		}
-> = ({ deviceType, onCancel, userToken, setUserToken }) => {
+> = ({ deviceType, onCancel, userToken, setUserToken, selectedPolicy, showDeviceLimitError, setShowDeviceLimitError, currentDeviceCount, setCurrentDeviceCount, maxDeviceLimit, setMaxDeviceLimit, flowMode = null }) => {
 	// ========================================================================
 	// CONFIGURATION
 	// ========================================================================
@@ -1976,6 +2043,12 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	const config = useMemo(() => {
 		return getDeviceConfig(deviceType);
 	}, [deviceType]);
+
+	// Create ref for selectedPolicy to avoid stale closure issues
+	const selectedPolicyRef = useRef<DeviceAuthenticationPolicy | null>(null);
+	useEffect(() => {
+		selectedPolicyRef.current = selectedPolicy ?? null;
+	}, [selectedPolicy]);
 
 	// ========================================================================
 	// USER FLOW OAUTH STATE
@@ -2197,7 +2270,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 				console.log('[UNIFIED-FLOW] Registering device with params:', deviceParams);
 
-				const result = await MFAServiceV8_Legacy.registerDevice(deviceParams);
+				const result = await MFAServiceV8.registerDevice(deviceParams);
 				console.log('[UNIFIED-FLOW] Device registered:', result);
 
 				// Update MFA state with device info
@@ -2286,14 +2359,19 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 							toastV8.success(
 								`${config.displayName} device registered successfully!${flowType === 'admin-active' || flowType === 'admin-activation' ? ' Device is ready to use.' : ''}`
 							);
-							// For Admin Flow, go to API docs page instead of OTP page
-							// For User Flow, go to User Login step (Step 1)
+							// For Admin Flow, go to API docs page (Step 5) instead of OTP page
+							// For User Flow, go to API docs page (Step 5) 
 							if (flowType === 'admin-active' || flowType === 'admin-activation') {
-								// Navigate to device-specific API docs page
-								const docsPath = `/v8/mfa/register/${config.deviceType}/docs`;
-								window.location.href = docsPath;
+								// Navigate to Step 5: API Documentation
+								props.nav.goToStep(5);
+								toastV8.success(
+									`${config.displayName} device registered successfully! Device is ready to use.`
+								);
 							} else {
-								props.nav.goToNext(); // User Flow - go to User Login
+								props.nav.goToStep(5); // User Flow - go to API Documentation (Step 5)
+								toastV8.success(
+									`${config.displayName} device registered successfully!`
+								);
 							}
 						} else if (result.status === 'ACTIVATION_REQUIRED') {
 							// Device requires activation - PingOne automatically sends OTP
@@ -2307,11 +2385,16 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 						} else {
 							// Unknown status, proceed with flow-specific navigation
 							if (flowType === 'admin-active' || flowType === 'admin-activation') {
-								// Navigate to device-specific API docs page
-								const docsPath = `/v8/mfa/register/${config.deviceType}/docs`;
-								window.location.href = docsPath;
+								// Navigate to Step 5: API Documentation
+								props.nav.goToStep(5);
+								toastV8.success(
+									`${config.displayName} device registered successfully! Device is ready to use.`
+								);
 							} else {
-								props.nav.goToNext(); // User Flow - go to User Login
+								props.nav.goToStep(5); // User Flow - go to API Documentation (Step 5)
+								toastV8.success(
+									`${config.displayName} device registered successfully!`
+								);
 							}
 						}
 					}
@@ -2322,10 +2405,17 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 				// Check if error is due to too many devices
 				if (errorMessage.includes('Too many devices')) {
-					toastV8.error(
-						`${errorMessage}\n\nℹ️ You can manage your devices at:\nhttps://localhost:3000/v8/delete-all-devices`,
-						{ duration: 8000 }
-					);
+					// Extract device count from error message if available
+					const deviceCountMatch = errorMessage.match(/(\d+)\/(\d+)/);
+					if (deviceCountMatch) {
+						setCurrentDeviceCount(parseInt(deviceCountMatch[1]));
+						setMaxDeviceLimit(parseInt(deviceCountMatch[2]));
+					} else {
+						// Default values if we can't extract from error message
+						setCurrentDeviceCount(10);
+						setMaxDeviceLimit(10);
+					}
+					setShowDeviceLimitError(true);
 				} else {
 					toastV8.error(errorMessage);
 				}
@@ -2437,13 +2527,8 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 			// CRITICAL: Validate worker token before allowing any registration
 			if (!workerToken.tokenStatus.isValid) {
 				console.error('[UNIFIED-FLOW] Cannot proceed - no valid worker token');
-				toastV8.error(
-					'❌ Worker token required for device registration. Please configure worker token credentials first.',
-					{
-						duration: 5000,
-					}
-				);
-				return;
+				props.setValidationErrors(['Worker token required for device registration. Please configure worker token credentials first.']);
+				return false;
 			}
 
 			// For User Flow, check if we need OAuth authentication first
@@ -2497,6 +2582,11 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	 */
 	const renderStep0 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
+			// Read username from localStorage
+			const username = localStorage.getItem('mfa_unified_username') || '';
+			// Read environment ID from localStorage
+			const environmentId = localStorage.getItem('mfa_environmentId') || '';
+			
 			return (
 				<UnifiedDeviceRegistrationForm
 					initialDeviceType={deviceType}
@@ -2507,7 +2597,27 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 						if (onCancel) onCancel();
 					}}
 					tokenStatus={props.tokenStatus}
-					username={props.credentials.username}
+					username={username}
+					environmentId={environmentId}
+					onUsernameChange={(newUsername) => {
+						// Update username in the parent component's state
+						// This will also update localStorage and credentials
+						const currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+							flowKey: 'mfa-flow-v8',
+							flowType: 'oidc',
+							includeClientSecret: false,
+							includeRedirectUri: false,
+							includeLogoutUri: false,
+							includeScopes: false,
+						});
+						CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
+							...currentCreds,
+							username: newUsername,
+						});
+						// Also update localStorage for consistency
+						localStorage.setItem('mfa_unified_username', newUsername);
+						localStorage.setItem('mfa_username', newUsername);
+					}}
 				/>
 			);
 		},
@@ -2616,20 +2726,49 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 	return (
 		<>
-			<MFAFlowBaseV8
-				deviceType={deviceType}
-				renderStep0={renderStep0}
-				renderStep1={renderStep1}
-				renderStep2={renderStep2}
-				renderStep3={renderStep3}
-				renderStep4={renderStep4}
-				renderStep5={renderStep5}
-				renderStep6={renderStep6}
-				validateStep0={validateStep0}
-				stepLabels={stepLabels}
-				shouldHideNextButton={shouldHideNextButton}
-				flowType="device-auth"
-			/>
+			{flowMode === null ? (
+				// Show flow selection screen when no mode is selected
+				<DeviceTypeSelectionScreen
+					onSelectDeviceType={(deviceType, policy) => {
+						setSelectedDeviceType(deviceType);
+						setSelectedPolicyFromSelection(policy || null);
+					}}
+					userToken={userToken}
+					setUserToken={setUserToken}
+					flowMode={flowMode}
+					setFlowMode={setFlowMode}
+				/>
+			) : flowMode === 'registration' ? (
+				<UnifiedMFARegistrationFlowContent
+					deviceType={deviceType}
+					onCancel={props.onCancel}
+					userToken={userToken}
+					setUserToken={setUserToken}
+					selectedPolicy={selectedPolicyFromSelection}
+					showDeviceLimitError={showDeviceLimitError}
+					setShowDeviceLimitError={setShowDeviceLimitError}
+					currentDeviceCount={currentDeviceCount}
+					setCurrentDeviceCount={setCurrentDeviceCount}
+					maxDeviceLimit={maxDeviceLimit}
+					setMaxDeviceLimit={setMaxDeviceLimit}
+					flowMode={flowMode}
+				/>
+			) : (
+				<UnifiedMFARegistrationFlowContent
+					deviceType={deviceType}
+					onCancel={props.onCancel}
+					userToken={userToken}
+					setUserToken={setUserToken}
+					selectedPolicy={selectedPolicyFromSelection}
+					showDeviceLimitError={showDeviceLimitError}
+					setShowDeviceLimitError={setShowDeviceLimitError}
+					currentDeviceCount={currentDeviceCount}
+					setCurrentDeviceCount={setCurrentDeviceCount}
+					maxDeviceLimit={maxDeviceLimit}
+					setMaxDeviceLimit={setMaxDeviceLimit}
+					flowMode={flowMode}
+				/>
+			)}
 			<div style={{ height: '300px' }} />
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" reserveSpace />
 
