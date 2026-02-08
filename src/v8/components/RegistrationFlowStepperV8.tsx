@@ -1,15 +1,15 @@
 /**
- * @file AuthenticationFlowStepperV8.tsx
+ * @file RegistrationFlowStepperV8.tsx
  * @module v8/components
- * @description Dedicated stepper for MFA Authentication flows
+ * @description Dedicated stepper for MFA Registration flows
  * @version 8.0.0
  * @since 2026-02-06
  *
- * Purpose: Provide a dedicated stepper component for Authentication flows that:
- * - Uses Authentication-specific step sequence (4 steps)
- * - Includes Device Selection step (Step 2)
- * - Goes from User Login to Device Selection then Device Actions
- * - Provides Authentication-specific validation and navigation
+ * Purpose: Provide a dedicated stepper component for Registration flows that:
+ * - Uses Registration-specific step sequence (6 steps)
+ * - Skips Device Selection step (Step 2)
+ * - Goes directly from User Login to Device Actions (Step 3)
+ * - Provides Registration-specific validation and navigation
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
@@ -31,40 +31,42 @@ import type {
 } from '@/v8/flows/shared/MFATypes';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusServiceV8,
+} from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 
-const MODULE_TAG = '[🔐 AUTHENTICATION-STEPPER-V8]';
-const FLOW_KEY = 'mfa-authentication-flow-v8';
+const MODULE_TAG = '[📝 REGISTRATION-STEPPER-V8]';
+const FLOW_KEY = 'mfa-registration-flow-v8';
 
-export interface AuthenticationFlowStepperV8Props {
+export interface RegistrationFlowStepperV8Props {
 	deviceType: DeviceType;
-	renderStep0: (props: AuthenticationFlowStepperRenderProps) => React.ReactNode;
-	renderStep1: (props: AuthenticationFlowStepperRenderProps) => React.ReactNode;
-	renderStep2: (props: AuthenticationFlowStepperRenderProps) => React.ReactNode;
-	renderStep3: (props: AuthenticationFlowStepperRenderProps) => React.ReactNode;
-	renderStep4: (props: AuthenticationFlowStepperRenderProps) => React.ReactNode;
-	renderStep5: (props: AuthenticationFlowStepperRenderProps) => React.ReactNode;
-	renderStep6: (props: AuthenticationFlowStepperRenderProps) => React.ReactNode;
+	renderStep0: (props: RegistrationFlowStepperRenderProps) => React.ReactNode;
+	renderStep1: (props: RegistrationFlowStepperRenderProps) => React.ReactNode;
+	renderStep3: (props: RegistrationFlowStepperRenderProps) => React.ReactNode;
+	renderStep4: (props: RegistrationFlowStepperRenderProps) => React.ReactNode;
+	renderStep5: (props: RegistrationFlowStepperRenderProps) => React.ReactNode;
+	renderStep6: (props: RegistrationFlowStepperRenderProps) => React.ReactNode;
 	validateStep0: (
 		credentials: MFACredentials,
-		tokenStatus: any,
+		tokenStatus: TokenStatusInfo,
 		nav: ReturnType<typeof useStepNavigationV8>
 	) => boolean;
 	stepLabels?: string[];
 	/** Optional function to determine if Next button should be hidden */
-	shouldHideNextButton?: (props: AuthenticationFlowStepperRenderProps) => boolean;
+	shouldHideNextButton?: (props: RegistrationFlowStepperRenderProps) => boolean;
 }
 
-export interface AuthenticationFlowStepperRenderProps {
+export interface RegistrationFlowStepperRenderProps {
 	credentials: MFACredentials;
 	setCredentials: (
 		credentials: MFACredentials | ((prev: MFACredentials) => MFACredentials)
 	) => void;
 	mfaState: MFAState;
-	setMfaState: (state: Partial<MFAState>) => void;
-	tokenStatus: any;
+	setMfaState: (state: Partial<MFAState> | ((prev: MFAState) => MFAState)) => void;
+	tokenStatus: TokenStatusInfo;
 	isLoading: boolean;
 	setIsLoading: (loading: boolean) => void;
 	nav: ReturnType<typeof useStepNavigationV8>;
@@ -82,11 +84,10 @@ export interface AuthenticationFlowStepperRenderProps {
 	refreshDeviceAuthPolicies: () => Promise<void>;
 }
 
-export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Props> = ({
+export const RegistrationFlowStepperV8: React.FC<RegistrationFlowStepperV8Props> = ({
 	deviceType,
 	renderStep0,
 	renderStep1,
-	renderStep2,
 	renderStep3,
 	renderStep4,
 	renderStep5,
@@ -95,9 +96,8 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 	stepLabels = [
 		'Configure',
 		'User Login',
-		'Device Selection',
-		'QR Code',
 		'Device Actions',
+		'Activation',
 		'API Documentation',
 		'Success',
 	],
@@ -110,7 +110,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 	const [credentials, setCredentials] = useState<MFACredentials>(() => {
 		const saved = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 			flowKey: FLOW_KEY,
-			flowType: 'oauth',
+			flowType: 'registration',
 			includeClientSecret: true,
 			includeRedirectUri: true,
 			includeLogoutUri: false,
@@ -149,11 +149,10 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 	const [isLoadingPolicies, setIsLoadingPolicies] = useState(false);
 	const [policiesError, setPoliciesError] = useState<string | null>(null);
 
-	// Authentication flow has 7 steps
+	// Registration flow has 6 steps (skips device selection)
 	const totalSteps = stepLabels.length;
 
 	const nav = useStepNavigationV8(totalSteps, {
-		// ✅ Remove initialStep override - starts at Step 0 (Configuration) as documented
 		onStepChange: () => {
 			window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
 		},
@@ -163,7 +162,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 	useEffect(() => {
 		const saved = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 			flowKey: FLOW_KEY,
-			flowType: 'oauth',
+			flowType: 'registration',
 			includeClientSecret: true,
 			includeRedirectUri: true,
 			includeLogoutUri: false,
@@ -209,18 +208,18 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 		if (isOAuthCallbackReturn) {
 			console.log(`${MODULE_TAG} OAuth callback detected, processing return...`);
 
-			// Set return target for authentication flow
+			// Set return target for registration flow
 			ReturnTargetServiceV8U.setReturnTarget(
-				'mfa_device_authentication',
+				'mfa_device_registration',
 				currentPath,
-				2 // Go to Step 2 (Device Selection) for Authentication
+				3 // Skip to Step 3 (Device Actions) for Registration
 			);
 
 			// Handle OAuth callback processing
 			if (credentials.userToken?.trim()) {
-				toastV8.info('🔄 Returning to Device Selection after authentication...');
+				toastV8.info('🔄 Returning to Device Actions after authentication...');
 				setTimeout(() => {
-					nav.goToStep(2); // Go to Step 2 (Device Selection) for Authentication
+					nav.goToStep(3); // Skip to Device Actions for Registration
 				}, 500);
 			}
 		}
@@ -228,12 +227,12 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 
 	// Step rendering logic
 	const renderStepContent = useCallback(() => {
-		const renderProps: AuthenticationFlowStepperRenderProps = {
+		const renderProps: RegistrationFlowStepperRenderProps = {
 			credentials,
 			setCredentials,
 			mfaState,
 			setMfaState,
-			tokenStatus: WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync(),
+			tokenStatus: WorkerTokenStatusServiceV8.getCachedTokenStatus(),
 			isLoading,
 			setIsLoading,
 			nav,
@@ -251,15 +250,8 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 			refreshDeviceAuthPolicies: async () => {
 				setIsLoadingPolicies(true);
 				setPoliciesError(null);
-				try {
-					// Refresh policies logic here
-					console.log(`${MODULE_TAG} Refreshing device auth policies...`);
-				} catch (error) {
-					setPoliciesError('Failed to refresh policies');
-					console.error(`${MODULE_TAG} Error refreshing policies:`, error);
-				} finally {
-					setIsLoadingPolicies(false);
-				}
+				// TODO: implement policy refresh when service is available
+				setIsLoadingPolicies(false);
 			},
 		};
 
@@ -269,7 +261,8 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 			case 1:
 				return renderStep1(renderProps);
 			case 2:
-				return renderStep2(renderProps);
+				// Step 2 (Device Selection) is skipped for Registration
+				return renderStep3(renderProps); // Skip to Step 3
 			case 3:
 				return renderStep3(renderProps);
 			case 4:
@@ -295,51 +288,67 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 		policiesError,
 		renderStep0,
 		renderStep1,
-		renderStep2,
 		renderStep3,
 		renderStep4,
 		renderStep5,
 		renderStep6,
 	]);
 
-	// Navigation logic for Authentication flow
+	// Navigation logic for Registration flow
 	const handleNext = useCallback(() => {
 		if (nav.currentStep === 0) {
-			if (
-				validateStep0(credentials, WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync(), nav)
-			) {
+			if (validateStep0(credentials, WorkerTokenStatusServiceV8.getCachedTokenStatus(), nav)) {
 				nav.goToNext(); // Goes to Step 1 (User Login)
 			}
+		} else if (nav.currentStep === 1) {
+			nav.goToStep(3); // Skip Step 2, go to Step 3 (Device Actions)
 		} else {
 			nav.goToNext();
 		}
 	}, [nav, credentials, validateStep0]);
 
 	const handlePrevious = useCallback(() => {
-		nav.goToPrevious();
+		if (nav.currentStep === 3) {
+			nav.goToStep(1); // Skip back to Step 1 (User Login)
+		} else {
+			nav.goToPrevious();
+		}
 	}, [nav]);
 
 	return (
-		<div className="authentication-flow-stepper-v8">
+		<div className="registration-flow-stepper-v8">
 			{/* Header Navigation */}
 			<MFANavigationV8
+				deviceType={deviceType}
 				currentStep={nav.currentStep}
 				totalSteps={totalSteps}
 				stepLabels={stepLabels}
-				onStepClick={(step) => nav.goToStep(step)}
+				onStepClick={(step) => {
+					// Skip Step 2 for Registration flow
+					if (step === 2) {
+						nav.goToStep(3);
+					} else {
+						nav.goToStep(step);
+					}
+				}}
 			/>
 
 			{/* User Display */}
 			<MFAUserDisplayV8
-				tokenStatus={WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()}
+				credentials={credentials}
+				tokenStatus={WorkerTokenStatusServiceV8.getCachedTokenStatus()}
 				onSettingsClick={() => setShowSettingsModal(true)}
 			/>
 
 			{/* Step Progress */}
 			<div className="step-progress" style={{ marginBottom: '24px' }}>
 				{stepLabels.map((label, idx) => {
+					// Skip Step 2 for Registration flow
+					if (idx === 2) return null;
+
 					const isCompleted = idx < nav.currentStep;
 					const isCurrent = idx === nav.currentStep;
+					const displayStep = idx > 2 ? idx - 1 : idx; // Adjust display for skipped step
 
 					return (
 						<div
@@ -356,7 +365,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 							}}
 						>
 							<span style={{ fontWeight: isCurrent ? '600' : '400' }}>
-								Step {idx + 1}: {label}
+								Step {displayStep}: {label}
 							</span>
 						</div>
 					);
@@ -378,14 +387,10 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 						const credsToValidate = {
 							...credentials,
 							flowKey: FLOW_KEY,
-							flowType: 'oauth',
+							flowType: 'registration',
 						};
 						if (
-							validateStep0(
-								credsToValidate,
-								WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync(),
-								nav
-							)
+							validateStep0(credsToValidate, WorkerTokenStatusServiceV8.getCachedTokenStatus(), nav)
 						) {
 							console.log(`${MODULE_TAG} Step 0 validation passed`);
 						}
@@ -397,6 +402,30 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 			<StepActionButtonsV8
 				currentStep={nav.currentStep}
 				totalSteps={totalSteps}
+				isLoading={isLoading}
+				isNextDisabled={isLoading}
+				shouldHideNext={shouldHideNextButton?.({
+					credentials,
+					setCredentials,
+					mfaState,
+					setMfaState,
+					tokenStatus: WorkerTokenStatusServiceV8.getCachedTokenStatus(),
+					isLoading,
+					setIsLoading,
+					nav,
+					showDeviceLimitModal,
+					setShowDeviceLimitModal,
+					showWorkerTokenModal,
+					setShowWorkerTokenModal,
+					showUserLoginModal,
+					setShowUserLoginModal,
+					showSettingsModal,
+					setShowSettingsModal,
+					deviceAuthPolicies,
+					isLoadingPolicies,
+					policiesError,
+					refreshDeviceAuthPolicies: async () => {},
+				})}
 				onNext={handleNext}
 				onPrevious={handlePrevious}
 				onCancel={() => {
@@ -419,11 +448,6 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 			<WorkerTokenPromptModalV8
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
-				onGetToken={async () => {
-					// Handle worker token acquisition
-					console.log(`${MODULE_TAG} Getting worker token...`);
-					setShowWorkerTokenModal(false);
-				}}
 			/>
 
 			<UserLoginModalV8
@@ -433,11 +457,16 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 					setCredentials((prev) => ({ ...prev, userToken: token }));
 					setShowUserLoginModal(false);
 				}}
+				environmentId={credentials.environmentId}
+				clientId={credentials.clientId}
+				clientSecret={credentials.clientSecret}
+				redirectUri={credentials.redirectUri}
 			/>
 
 			<MFASettingsModalV8
 				isOpen={showSettingsModal}
 				onClose={() => setShowSettingsModal(false)}
+				credentials={credentials}
 				onCredentialsChange={setCredentials}
 			/>
 		</div>
