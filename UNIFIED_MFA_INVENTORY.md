@@ -29,19 +29,20 @@ grep -A 10 -B 5 "registrationFlowType.*=" src/v8/flows/unified/
 grep -r "flowType.*=\|const.*flowType.*=" src/v8/flows/
 
 # === SILENT API CONFIGURATION (Issues 56 & 59 Prevention) ===
+# CRITICAL: Find direct setShowWorkerTokenModal(true) calls OUTSIDE the helper — THIS IS THE #1 BUG PATTERN
+# If this returns results in files OTHER than workerTokenModalHelperV8.ts, it's a bug!
+grep -rn "setShowWorkerTokenModal(true)" src/v8/ --include="*.tsx" --include="*.ts" | grep -v "workerTokenModalHelperV8"
+# Verify stepper mount effects use handleShowWorkerTokenModal (not direct calls)
+grep -A 15 "useEffect" src/v8/components/RegistrationFlowStepperV8.tsx | grep -E "handleShowWorkerTokenModal|setShowWorkerTokenModal"
+grep -A 15 "useEffect" src/v8/components/AuthenticationFlowStepperV8.tsx | grep -E "handleShowWorkerTokenModal|setShowWorkerTokenModal"
+# Check for non-existent TokenStatusInfo properties (hasToken, isLoading don't exist)
+grep -rn "tokenStatus\.hasToken\|tokenStatus\.isLoading\|\.hasToken\b" src/v8/components/ --include="*.tsx"
+# Verify canonical helper is used everywhere
+grep -rn "handleShowWorkerTokenModal" src/v8/ --include="*.tsx" --include="*.ts"
+# Config service checks
 grep -r "useState.*silentApiRetrieval" src/v8/
 grep -r "useState.*showTokenAtEnd" src/v8/
 grep -r "useWorkerTokenConfigV8" src/v8/
-grep -r "useSilentApiConfigV8" src/v8/
-grep -r "setSilentApiRetrieval" src/v8/
-grep -r "setShowTokenAtEnd" src/v8/
-grep -r "updateSilentApiRetrieval" src/v8/
-grep -r "updateShowTokenAtEnd" src/v8/
-# Issue 59: Silent API Modal showing when credentials exist
-grep -A 5 -B 5 "currentStatus.isValid.*forceShowModal" src/v8/utils/workerTokenModalHelperV8.ts
-grep -A 10 -B 5 "silentApiRetrieval.*showModal" src/v8/utils/workerTokenModalHelperV8.ts
-grep -A 10 -B 5 "existing valid token\|returning existing" src/v8/services/auth/tokenGatewayV8.ts
-grep -A 5 -B 5 "hasCredentials\|credentials.*exist" src/v8/services/workerTokenServiceV8.ts
 
 # === REDIRECT URI ROUTING (Issue 55 Prevention) ===
 grep -r "step=3" src/v8u/components/
@@ -4708,7 +4709,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 57 | **Biome Code Quality Issues** | ✅ RESOLVED | Multiple files in unified MFA | Various linting and formatting issues | Fixed with Biome code quality tool and file restoration |
 | 56 | Silent API Call for Worker Token Not Working | ✅ RESOLVED | workerTokenUIServiceV8.tsx:227, useSilentApiConfigV8.ts:1 | WorkerTokenUIServiceV8 not using centralized hook for configuration | Fixed by migrating to centralized useWorkerTokenConfigV8 hook |
 | 60 | User Login OAuth Callback Step Advancement | ✅ RESOLVED | CallbackHandlerV8U.tsx:86,108,127, MFAFlowBaseV8.tsx:150 | OAuth callback not advancing to correct step after PingOne login for user flows | Fixed callback handler to include step parameter in redirect URL for all return target types |
-| 59 | Silent API Modal Showing When Credentials Exist | ✅ RESOLVED | RegistrationFlowStepperV8.tsx:183-221, workerTokenModalHelperV8.ts:215 | Silent retrieval showing modal even when valid credentials already exist | Fixed RegistrationFlowStepperV8 to respect silentApiRetrieval setting before showing modal, attempts silent retrieval first |
+| 59 | Silent API Modal Showing When Credentials Exist | ✅ RESOLVED (v9.3.4) | RegistrationFlowStepperV8.tsx:177-201, AuthenticationFlowStepperV8.tsx:178-202 | **Both steppers bypassed `handleShowWorkerTokenModal` and implemented their own broken modal-trigger logic.** RegistrationFlowStepperV8 used `setTimeout(3000)` race condition + fire-and-forget `CustomEvent`. AuthenticationFlowStepperV8 checked non-existent `hasToken`/`isLoading` properties on `TokenStatusInfo`. | **Fixed both steppers to delegate to `handleShowWorkerTokenModal`** — the canonical helper that properly handles silentApiRetrieval config, token gateway, and fallback. See "Silent API Modal Trigger Points" section below. |
 | 55 | **Redirect URI Going to Wrong Page** | ✅ RESOLVED | CallbackHandlerV8U.tsx:71-352, ReturnTargetServiceV8U.ts:1 | Redirects misrouted when return target already had query params, causing malformed URLs | Fixed by building redirect URLs with URL() to merge callback params safely |
 | 54 | **PingOne Authentication Enhancement** | ✅ IMPLEMENTED | pingOneAuthenticationServiceV8.ts:1 | Enhanced authentication checking with session detection | Added comprehensive PingOne authentication with success messages |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -5147,75 +5148,76 @@ grep -A 5 -B 5 "ReturnTargetServiceV8U" src/v8u/components/CallbackHandlerV8U.ts
 1. **No Session Detection**: Don't skip session cookie checking
 
 **🎯 Problem Summary:**
-The Silent API modal is still showing even when valid worker token credentials already exist. This defeats the purpose of "silent" retrieval and creates unnecessary user interaction when the system should automatically use existing valid tokens.
+The Silent API modal keeps reappearing despite valid credentials. This has recurred multiple times because **components bypass the canonical `handleShowWorkerTokenModal` helper** and implement their own broken modal-trigger logic.
 
-**🔍 Root Cause Analysis:**
-1. **Primary Cause**: Token status check not properly detecting existing valid tokens in silent mode
-2. **Secondary Cause**: Modal bypass logic not working correctly for silent API calls
-3. **Impact**: User experience degraded, silent retrieval not truly silent
+**🔍 Root Cause Analysis (DEFINITIVE — Issue recurred twice):**
 
-**🔧 Technical Investigation Steps:**
-```bash
-# 1. Check token status detection logic
-grep -A 10 -B 5 "currentStatus.isValid" src/v8/utils/workerTokenModalHelperV8.ts
+The **real** root cause is NOT in `workerTokenModalHelperV8.ts` — that file is correct. The problem is that **stepper components on mount call `setShowWorkerTokenModal(true)` directly** instead of delegating to `handleShowWorkerTokenModal`. This bypasses all silent API retrieval logic.
 
-# 2. Verify silent mode modal bypass logic
-grep -A 15 -B 5 "forceShowModal.*false" src/v8/utils/workerTokenModalHelperV8.ts
+**Specific bugs found (v9.3.3 → v9.3.4):**
+1. **`RegistrationFlowStepperV8.tsx`**: Used `window.dispatchEvent(new CustomEvent('refreshWorkerToken'))` (fire-and-forget, nobody listening) + `setTimeout(3000)` race condition (tokenGateway takes up to 10s). Modal showed after 3s even though silent retrieval was still in progress.
+2. **`AuthenticationFlowStepperV8.tsx`**: Checked `tokenStatus.hasToken` and `tokenStatus.isLoading` — **neither property exists** on `TokenStatusInfo` (which only has `status`, `message`, `isValid`, `expiresAt`, `minutesRemaining`, `token`). So the condition was always falsy for `hasToken`, causing modal to always show.
 
-# 3. Check token gateway existing token handling
-grep -A 10 -B 5 "existing valid token" src/v8/services/auth/tokenGatewayV8.ts
+**🚨 Silent API Modal Trigger Points (COMPLETE LIST):**
 
-# 4. Verify WorkerTokenStatusService sync check
-grep -A 5 -B 5 "checkWorkerTokenStatusSync" src/v8/services/workerTokenStatusServiceV8.ts
+| Trigger Location | Type | Uses Helper? | Status |
+|---|---|---|---|
+| `RegistrationFlowStepperV8.tsx` useEffect mount | Automatic | ✅ YES (v9.3.4) | FIXED |
+| `AuthenticationFlowStepperV8.tsx` useEffect mount | Automatic | ✅ YES (v9.3.4) | FIXED |
+| `MFAFlowBaseV8.tsx:633` validation error watcher | Automatic | ✅ YES | OK |
+| `MFAFlowBaseV8.tsx:1205` onGetToken button | User click | ✅ YES (forceShowModal=true) | OK |
+| `MFAConfigurationStepV8.tsx:853` Get Worker Token button | User click | ✅ YES (forceShowModal=true) | OK |
+| `MFAConfigurationStepV8.tsx:1183` Get Worker Token button (V2) | User click | ✅ YES (forceShowModal=true) | OK |
+| `MFAAuthenticationMainPageV8.tsx:2137` Get Worker Token button | User click | ✅ YES (forceShowModal=true) | OK |
 
-# 5. Check credentials existence validation
-grep -A 10 -B 5 "hasCredentials\|loadCredentials" src/v8/services/workerTokenServiceV8.ts
+**⚠️ THE RULE: Any code that shows the worker token modal MUST go through `handleShowWorkerTokenModal`.
+Direct calls to `setShowWorkerTokenModal(true)` are ONLY allowed inside `handleShowWorkerTokenModal` itself.**
+
+**🔧 Fix Applied (v9.3.4):**
+Both steppers now delegate to `handleShowWorkerTokenModal` with `forceShowModal=false`:
+```typescript
+// CORRECT pattern — both steppers now use this:
+const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+await handleShowWorkerTokenModal(
+  setShowWorkerTokenModal,
+  undefined, // setTokenStatus
+  undefined, // silentApiRetrieval — let helper read from config
+  undefined, // showTokenAtEnd — let helper read from config
+  false      // forceShowModal=false: automatic mount check
+);
 ```
-
-**🛠️ Solution Implemented:**
-1. **Enhanced Token Status Check**: Improved detection of existing valid tokens
-2. **Fixed Modal Bypass Logic**: Ensured silent mode properly bypasses modal when tokens exist
-3. **Improved Credentials Validation**: Better detection of existing credentials
-4. **Enhanced Debug Logging**: Added detailed logging for troubleshooting silent retrieval
-5. **Fixed Race Conditions**: Ensured proper timing of token status checks
 
 **📊 Expected vs Actual Behavior:**
 ```
 Expected: Silent API retrieval should not show modal when valid credentials exist
-Actual (Before): Modal appears even with existing valid worker token credentials
-Actual (After): Silent retrieval truly silent when credentials exist, no modal shown
+Actual (v9.3.2): Modal appears — RegistrationStepper used setTimeout race condition
+Actual (v9.3.3): Modal STILL appears — AuthenticationStepper checked non-existent properties
+Actual (v9.3.4): FIXED — Both steppers delegate to handleShowWorkerTokenModal
 ```
-
-**🔍 Prevention Strategy:**
-1. **Token Status Validation**: Always check token validity before showing modal
-2. **Silent Mode Respect**: Ensure silent mode never shows modal unless absolutely necessary
-3. **Credentials Existence Check**: Verify credentials exist before attempting retrieval
-4. **Debug Logging**: Add comprehensive logging for silent retrieval troubleshooting
-5. **Race Condition Prevention**: Ensure proper timing of async operations
 
 **🚨 Detection Commands for Future Prevention:**
 ```bash
-# Check for proper token status validation in modal helper
-grep -A 5 -B 5 "currentStatus.isValid.*forceShowModal" src/v8/utils/workerTokenModalHelperV8.ts
+# CRITICAL: Find any direct setShowWorkerTokenModal(true) calls OUTSIDE the helper
+# If this returns results in files OTHER than workerTokenModalHelperV8.ts, it's a bug!
+grep -rn "setShowWorkerTokenModal(true)" src/v8/ --include="*.tsx" --include="*.ts" | grep -v "workerTokenModalHelperV8"
 
-# Verify silent mode modal bypass logic
-grep -A 10 -B 5 "silentApiRetrieval.*showModal" src/v8/utils/workerTokenModalHelperV8.ts
+# Verify all mount-level useEffects use handleShowWorkerTokenModal (not direct calls)
+grep -A 15 "useEffect.*=>" src/v8/components/RegistrationFlowStepperV8.tsx | grep -E "handleShowWorkerTokenModal|setShowWorkerTokenModal"
+grep -A 15 "useEffect.*=>" src/v8/components/AuthenticationFlowStepperV8.tsx | grep -E "handleShowWorkerTokenModal|setShowWorkerTokenModal"
 
-# Check token gateway existing token handling
-grep -A 10 -B 5 "existing valid token\|returning existing" src/v8/services/auth/tokenGatewayV8.ts
+# Check that TokenStatusInfo interface hasn't been misused (no hasToken/isLoading)
+grep -rn "tokenStatus\.hasToken\|tokenStatus\.isLoading\|\.hasToken\b" src/v8/components/ --include="*.tsx"
 
-# Verify credentials existence checks
-grep -A 5 -B 5 "hasCredentials\|credentials.*exist" src/v8/services/workerTokenServiceV8.ts
-
-# Check for race conditions in silent retrieval
-grep -A 10 -B 5 "await.*status\|status.*await" src/v8/utils/workerTokenModalHelperV8.ts
+# Verify the canonical helper is the single source of truth
+grep -rn "handleShowWorkerTokenModal" src/v8/ --include="*.tsx" --include="*.ts"
 ```
 
 **📝 Implementation Guidelines:**
-1. **Always Check Token Status First**: Verify existing valid tokens before any modal logic
-2. **Respect Silent Mode**: Silent mode should never show modal unless forceShowModal=true
-3. **Validate Credentials**: Ensure credentials exist and are valid before retrieval attempts
-4. **Add Debug Logging**: Include detailed logging for silent retrieval troubleshooting
+1. **NEVER call `setShowWorkerTokenModal(true)` directly** — always use `handleShowWorkerTokenModal`
+2. **Automatic checks use `forceShowModal=false`** — only user button clicks use `forceShowModal=true`
+3. **Don't implement custom silent retrieval logic** — the helper handles config loading, token gateway, and fallback
+4. **Don't check non-existent properties** — `TokenStatusInfo` has: `status`, `message`, `isValid`, `expiresAt`, `minutesRemaining`, `token`
+5. **Don't use setTimeout for async operations** — use `await` with the helper which properly awaits tokenGatewayV8
 5. **Handle Race Conditions**: Use proper async/await patterns to avoid timing issues
 
 **⚠️ Common Pitfalls to Avoid:**
@@ -15247,9 +15249,17 @@ npx @biomejs/biome check src/v8/flows/unified/ src/v8/components/ src/v8/service
 grep -r "userToken.*admin\|admin.*userToken" src/v8/flows/
 grep -r "useState.*silentApiRetrieval" src/v8/
 grep -r "goToStep.*[0-9]" src/v8/
-# Issue 59: Silent API Modal showing when credentials exist
-grep -A 5 -B 5 "currentStatus.isValid.*forceShowModal" src/v8/utils/workerTokenModalHelperV8.ts
-grep -A 10 -B 5 "silentApiRetrieval.*showModal" src/v8/utils/workerTokenModalHelperV8.ts
+
+# Issue 59 (CRITICAL): Direct setShowWorkerTokenModal(true) calls OUTSIDE the helper = BUG
+# Results should ONLY be in .txt/.bak/.test files or user-click handlers that pass through handleShowWorkerTokenModal
+grep -rn "setShowWorkerTokenModal(true)" src/v8/ --include="*.tsx" --include="*.ts" | grep -v "workerTokenModalHelperV8"
+
+# Issue 59: Verify steppers delegate to handleShowWorkerTokenModal on mount
+grep -A 15 "useEffect" src/v8/components/RegistrationFlowStepperV8.tsx | grep -E "handleShowWorkerTokenModal|setShowWorkerTokenModal"
+grep -A 15 "useEffect" src/v8/components/AuthenticationFlowStepperV8.tsx | grep -E "handleShowWorkerTokenModal|setShowWorkerTokenModal"
+
+# Issue 59: Check for non-existent TokenStatusInfo properties
+grep -rn "tokenStatus\.hasToken\|tokenStatus\.isLoading" src/v8/components/ --include="*.tsx"
 ```
 
 ### **📋 After Every Fix**
@@ -15265,8 +15275,8 @@ grep -A 10 -B 5 "silentApiRetrieval.*showModal" src/v8/utils/workerTokenModalHel
 
 ---
 
-*Last Updated: Version 9.3.2*
-*New Regression Patterns Identified: 2026-02-07*
+*Last Updated: Version 9.3.4*
+*New Regression Patterns Identified: 2026-02-08 — Issue 59 recurred: steppers bypassing handleShowWorkerTokenModal*
 *Priority: HIGH - Prevent future regressions*
 *SWE-15 Compliance Framework Added: 2026-02-08*
 
