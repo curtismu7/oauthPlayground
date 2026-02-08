@@ -13,6 +13,8 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
+import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
+import { checkPingOneAuthentication, performDetailedAuthenticationCheck } from '@/v8/services/pingOneAuthenticationServiceV8';
 import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 
 const MODULE_TAG = '[🔄 CALLBACK-HANDLER-V8U]';
@@ -22,6 +24,14 @@ export const CallbackHandlerV8U: React.FC = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
+		// Check PingOne authentication status and show success message
+		const authResult = checkPingOneAuthentication();
+		console.log(`${MODULE_TAG} PingOne authentication result:`, authResult);
+		
+		// Perform detailed authentication check for debugging
+		const { result, diagnostics } = performDetailedAuthenticationCheck();
+		console.log(`${MODULE_TAG} Detailed authentication diagnostics:`, { result, diagnostics });
+
 		// Check if this is a user-login-callback or user-mfa-login-callback - if so, redirect back to MFA flow
 		// IMPORTANT: This must be checked FIRST before any unified flow logic
 		// CRITICAL: Both routes are required - /user-login-callback (generic) and /user-mfa-login-callback (MFA-specific)
@@ -37,7 +47,11 @@ export const CallbackHandlerV8U: React.FC = () => {
 			currentPath === '/v8/unified-mfa-callback' ||
 			currentPath.includes('/v8/unified-mfa-callback') ||
 			currentPath === '/v8/mfa-unified-callback' ||
-			currentPath.includes('/v8/mfa-unified-callback');
+			currentPath.includes('/v8/mfa-unified-callback') ||
+			// Handle V8U unified flow callbacks that should return to V8 Unified MFA
+			currentPath === '/v8u/unified/oauth-authz' ||
+			currentPath.includes('/v8u/unified/oauth-authz') ||
+			currentPath.startsWith('/v8u/unified/oauth-authz/');
 
 		// Don't handle debug callback page here - it has its own component
 		// Note: Temporarily disabling this to fix the stuck callback issue
@@ -54,15 +68,117 @@ export const CallbackHandlerV8U: React.FC = () => {
 			searchParams: window.location.search,
 		});
 
+		// See UNIFIED_MFA_INVENTORY.md: Callback Step Fallback Table
+		const CALLBACK_STEP_FALLBACK_TABLE = [
+			{
+				fromStep: 0,
+				toStep: 2,
+				reason: 'Avoid returning to configuration after OAuth callback',
+			},
+			{
+				fromStep: 1,
+				toStep: 2,
+				reason: 'After user login, resume device selection',
+			},
+		] as const;
+
+		const buildRedirectUrl = (path: string, params: URLSearchParams): string => {
+			const url = new URL(path, window.location.origin);
+			params.forEach((value, key) => {
+				url.searchParams.set(key, value);
+			});
+			return url.toString();
+		};
+
+		const normalizeFallbackStep = (path: string): { path: string; step: number } => {
+			const url = new URL(path, window.location.origin);
+			const rawStep = parseInt(url.searchParams.get('step') ?? '0', 10);
+			const fallbackEntry = CALLBACK_STEP_FALLBACK_TABLE.find(
+				(entry) => entry.fromStep === rawStep
+			);
+			const resolvedStep = fallbackEntry ? fallbackEntry.toStep : rawStep;
+			if (resolvedStep !== rawStep) {
+				url.searchParams.set('step', resolvedStep.toString());
+			}
+			return { path: `${url.pathname}${url.search}`, step: resolvedStep };
+		};
+
 		if (isUserLoginCallback) {
+			console.log(`${MODULE_TAG} ✅ User login callback detected - checking for return targets`);
+
+			// NEW: Flow-aware routing priority - check return targets first
+			const allReturnTargets = ReturnTargetServiceV8U.getAllReturnTargets();
+			console.log(`${MODULE_TAG} 🔍 All return targets:`, allReturnTargets);
+
+			// Check for device registration return target
+			const deviceRegTarget = ReturnTargetServiceV8U.peekReturnTarget('mfa_device_registration');
+			if (deviceRegTarget) {
+				console.log(`${MODULE_TAG} 🎯 Found device registration return target:`, deviceRegTarget);
+
+				// Preserve callback parameters and add step parameter
+				const callbackParams = new URLSearchParams(window.location.search);
+				callbackParams.set('step', deviceRegTarget.step.toString());
+				const redirectUrl = buildRedirectUrl(deviceRegTarget.path, callbackParams);
+
+				// Consume the return target
+				ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_registration');
+
+				console.log(`${MODULE_TAG} 🚀 Redirecting to device registration flow: ${redirectUrl}`);
+				window.location.replace(redirectUrl);
+				return;
+			}
+
+			// Check for device authentication return target
+			const deviceAuthTarget = ReturnTargetServiceV8U.peekReturnTarget('mfa_device_authentication');
+			if (deviceAuthTarget) {
+				console.log(
+					`${MODULE_TAG} 🎯 Found device authentication return target:`,
+					deviceAuthTarget
+				);
+
+				// Preserve callback parameters and add step parameter
+				const callbackParams = new URLSearchParams(window.location.search);
+				callbackParams.set('step', deviceAuthTarget.step.toString());
+				const redirectUrl = buildRedirectUrl(deviceAuthTarget.path, callbackParams);
+
+				// Consume the return target
+				ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_authentication');
+
+				console.log(`${MODULE_TAG} 🚀 Redirecting to device authentication flow: ${redirectUrl}`);
+				window.location.replace(redirectUrl);
+				return;
+			}
+
+			// Check for OAuth V8U return target
+			const oauthTarget = ReturnTargetServiceV8U.peekReturnTarget('oauth_v8u');
+			if (oauthTarget) {
+				console.log(`${MODULE_TAG} 🎯 Found OAuth V8U return target:`, oauthTarget);
+
+				// Preserve callback parameters and add step parameter
+				const callbackParams = new URLSearchParams(window.location.search);
+				callbackParams.set('step', oauthTarget.step.toString());
+				const redirectUrl = buildRedirectUrl(oauthTarget.path, callbackParams);
+
+				// Consume the return target
+				ReturnTargetServiceV8U.consumeReturnTarget('oauth_v8u');
+
+				console.log(`${MODULE_TAG} 🚀 Redirecting to OAuth V8U flow: ${redirectUrl}`);
+				window.location.replace(redirectUrl);
+				return;
+			}
+
+			// FALLBACK: No return target found - use existing logic
+			console.warn(`${MODULE_TAG} ⚠️ No return target found, falling back to legacy logic`);
+
 			// #region agent log
 			sendAnalyticsLog({
 				location: 'CallbackHandlerV8U.tsx:39',
-				message: 'User login callback detected',
+				message: 'User login callback detected - no return target, using fallback',
 				data: {
 					currentPath: window.location.pathname,
 					currentSearch: window.location.search,
 					currentHref: window.location.href,
+					allReturnTargets,
 				},
 				timestamp: Date.now(),
 				sessionId: 'debug-session',
@@ -133,12 +249,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 					// Preserve callback parameters in the URL when redirecting
 					const callbackParams = new URLSearchParams(window.location.search);
-					const redirectPath = callbackParams.toString()
-						? `${mfaPath}?${callbackParams.toString()}`
-						: mfaPath;
-
-					// Use absolute URL to ensure redirect works reliably
-					const redirectUrl = `${window.location.origin}${redirectPath}`;
+					const redirectUrl = buildRedirectUrl(mfaPath, callbackParams);
 
 					console.log(`${MODULE_TAG} 🚀 Redirecting to MFA flow: ${redirectUrl}`);
 					console.log(
@@ -149,7 +260,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 					sendAnalyticsLog({
 						location: 'CallbackHandlerV8U.tsx:93',
 						message: 'About to execute redirect to MFA flow',
-						data: { mfaPath, redirectUrl, redirectPath, callbackParams: window.location.search },
+						data: { mfaPath, redirectUrl, callbackParams: window.location.search },
 						timestamp: Date.now(),
 						sessionId: 'debug-session',
 						runId: 'run2',
@@ -216,16 +327,40 @@ export const CallbackHandlerV8U: React.FC = () => {
 				console.log(`${MODULE_TAG} 🔍 MFA-related sessionStorage keys:`, mfaRelatedKeys);
 
 				// Check if current path is a unified MFA callback and redirect accordingly
-				if (currentPath === '/mfa-unified-callback' || 
+				if (
+					currentPath === '/mfa-unified-callback' ||
 					currentPath.includes('mfa-unified-callback') ||
 					currentPath === '/v8/unified-mfa-callback' ||
-					currentPath.includes('/v8/unified-mfa-callback') ||
+					currentPath.includes('v8/unified-mfa-callback') ||
 					currentPath === '/v8/mfa-unified-callback' ||
-					currentPath.includes('/v8/mfa-unified-callback')) {
-					fallbackPath = '/v8/unified-mfa';
-					console.log(
-						`${MODULE_TAG} 🔍 Unified MFA callback detected, using fallback: ${fallbackPath}`
-					);
+					currentPath.includes('v8/mfa-unified-callback')
+				) {
+					// FIXED: Use return target service to determine correct step instead of hardcoding step 3
+					const deviceRegistrationTarget = ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_registration');
+					const deviceAuthenticationTarget = ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_authentication');
+					
+					if (deviceRegistrationTarget) {
+						fallbackPath = deviceRegistrationTarget.path;
+						console.log(
+							`${MODULE_TAG} 🔄 Device Registration return target found: ${fallbackPath} (step ${deviceRegistrationTarget.step})`
+						);
+					} else if (deviceAuthenticationTarget) {
+						fallbackPath = deviceAuthenticationTarget.path;
+						console.log(
+							`${MODULE_TAG} 🔄 Device Authentication return target found: ${fallbackPath} (step ${deviceAuthenticationTarget.step})`
+						);
+					} else {
+						// FOOLPROOF: If no return target, advance to step 3 (Device Actions) as fallback
+						fallbackPath = '/v8/unified-mfa?step=3';
+						console.log(
+							`${MODULE_TAG} 🔄 No return target found, using fallback step 3 (Device Actions): ${fallbackPath}`
+						);
+					}
+					
+					// Store callback marker and step advancement info
+					sessionStorage.setItem('mfa_oauth_callback_return', 'true');
+					sessionStorage.setItem('mfa_oauth_callback_step', fallbackPath.includes('step=') ? fallbackPath.split('step=')[1] : '3');
+					sessionStorage.setItem('mfa_oauth_callback_timestamp', Date.now().toString());
 				}
 				// If we have unified MFA keys, prefer the unified page
 				else if (mfaRelatedKeys.some((key) => key.includes('unified'))) {
@@ -238,15 +373,15 @@ export const CallbackHandlerV8U: React.FC = () => {
 				console.warn(`${MODULE_TAG} ⚠️ Redirecting to fallback MFA page: ${fallbackPath}`);
 			}
 
-			// Fallback redirect
+			const normalizedFallback = normalizeFallbackStep(fallbackPath);
 			const callbackParams = new URLSearchParams(window.location.search);
-			const redirectUrl = callbackParams.toString()
-				? `${fallbackPath}?${callbackParams.toString()}`
-				: fallbackPath;
+			const redirectUrl = buildRedirectUrl(normalizedFallback.path, callbackParams);
 			console.log(`${MODULE_TAG} 🚀 Redirecting to fallback: ${redirectUrl}`);
 
 			// Store callback marker even for fallback
 			sessionStorage.setItem('mfa_oauth_callback_return', 'true');
+			sessionStorage.setItem('mfa_oauth_callback_step', normalizedFallback.step.toString());
+			sessionStorage.setItem('mfa_oauth_callback_timestamp', Date.now().toString());
 			window.location.replace(redirectUrl);
 			return; // CRITICAL: Exit early to prevent unified flow logic
 		}
