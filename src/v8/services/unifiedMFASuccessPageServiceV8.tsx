@@ -426,11 +426,12 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						fontSize: '32px',
 						fontWeight: '700',
 						color: 'white',
+						textAlign: 'center',
 					}}
 				>
 					{flowType === 'authentication'
 						? 'Authentication Successful!'
-						: 'Registration Successful!'}
+						: 'Device Created!'}
 				</h1>
 				<p
 					style={{
