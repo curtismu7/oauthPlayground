@@ -4736,6 +4736,9 @@ This section provides a comprehensive summary of all critical issues identified 
 | 81 | **OIDC Scopes Validation Error** | 🔴 ACTIVE | WorkerTokenModalV8.tsx:264 | Client Credentials flow incorrectly using OIDC scope "openid" causing validation failure | Users trying to use openid scope with client credentials flow - need to use resource server scopes |
 | 82 | **Credential Import JSON Parsing Error** | 🔴 ACTIVE | credentialExportImportService.ts:102 | Import fails when file is HTML (likely from browser download) instead of JSON | Browser downloads HTML page instead of JSON file, causing SyntaxError on JSON.parse |
 | 83 | **Key Rotation Policy (KRP) Support** | ✅ IMPLEMENTED | unifiedWorkerTokenService.ts:784, WorkerTokenModalV8.tsx:837 | PingOne requires KRP for all worker applications by March 2, 2027 | Added KRP status checking, compliance warnings, and UI display in worker token modal |
+| 84 | **React Initialization Error - handleLoadDevices** | ✅ RESOLVED | DeleteAllDevicesUtilityV8.tsx:311 | Cannot access 'handleLoadDevices' before initialization error in React component | Fixed by moving handleLoadDevices useCallback definition before useEffect that uses it |
+| 85 | **Username Dropdown Regression** | ✅ RESOLVED | DeleteAllDevicesUtilityV8.tsx:585 | Username dropdown lost during React initialization fix, reverted to basic text input | Restored SearchableDropdownV8 with user search functionality and proper imports |
+| 86 | **Infinite Loading Loop** | ✅ RESOLVED | DeleteAllDevicesUtilityV8.tsx:381 | Auto-reload useEffect causing infinite loop due to handleLoadDevices dependency | Fixed by removing handleLoadDevices from dependency array and using tokenStatus.isValid instead of tokenStatus object |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -15563,6 +15566,40 @@ grep -A 5 -B 5 "daysUntilDeadline.*30" src/services/unifiedWorkerTokenService.ts
 grep -A 5 -B 5 "daysUntilDeadline.*90" src/services/unifiedWorkerTokenService.ts
 grep -A 5 -B 5 "URGENT.*KRP migration" src/services/unifiedWorkerTokenService.ts
 grep -A 5 -B 5 "March.*2027" src/services/unifiedWorkerTokenService.ts
+
+# Issue 84: Check React useCallback/useEffect initialization order
+grep -A 10 -B 5 "Cannot access.*before initialization" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -A 5 -B 5 "useEffect.*handleLoadDevices" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -A 5 -B 5 "const handleLoadDevices.*useCallback" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -A 5 -B 5 "useEffect.*\[.*handleLoadDevices" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+
+# Issue 84: Verify useCallback functions are defined before useEffect that use them
+grep -n "const handle.*useCallback" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -n "useEffect.*handle" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -B 10 -A 2 "useEffect.*handle" src/v8/pages/DeleteAllDevicesUtilityV8.tsx | grep -E "const.*handle.*useCallback|useEffect"
+
+# Issue 85: Check SearchableDropdown components are properly imported and used
+grep -A 5 -B 5 "SearchableDropdownV8" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -A 5 -B 5 "useUserSearch" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -A 5 -B 5 "userOptions.*useMemo" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -A 10 -B 5 "environmentId.*tokenStatus.isValid" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+
+# Issue 85: Verify username dropdown functionality is intact
+grep -A 10 -B 5 "Username.*\*" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -A 5 -B 5 "Search for username" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -A 5 -B 5 "onSearchChange" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -A 5 -B 5 "isLoadingUsers" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+
+# Issue 86: Check for infinite loop patterns in useEffect dependencies
+grep -A 10 -B 5 "Auto-reload devices" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -A 5 -B 5 "handleLoadDevices.*useEffect" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -A 5 -B 5 "tokenStatus.isValid.*tokenStatus" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -A 5 -B 5 "Remove handleLoadDevices.*infinite" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+
+# Issue 86: Verify useCallback dependencies are stable
+grep -A 5 -B 5 "tokenStatus.isValid.*useCallback" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -A 5 -B 5 "useEffect.*handleLoadDevices" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+grep -A 10 -B 5 "infinite loop" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
 
 # ========================================================================
 # KEY ROTATION POLICY (KRP) COMPREHENSIVE DOCUMENTATION
