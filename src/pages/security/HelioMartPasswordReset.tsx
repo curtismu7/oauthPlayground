@@ -1978,7 +1978,7 @@ export { changePassword, handleChangePassword };`;
 		}
 	}, [passwordState]);
 
-	const { PageHeader, PageContainer, ContentContainer } = PageLayoutService.createPageLayout({
+	const { PageHeader, PageContainer, ContentWrapper } = PageLayoutService.createPageLayout({
 		flowType: 'pingone',
 		theme: 'red',
 		showHeader: true,
@@ -1988,7 +1988,7 @@ export { changePassword, handleChangePassword };`;
 
 	return (
 		<PageContainer>
-			<ContentContainer>
+			<ContentWrapper>
 				{PageHeader && (
 					<PageHeader>
 						<h1>Password Reset (PingOne)</h1>
@@ -4150,7 +4150,7 @@ export { changePassword, handleChangePassword };`;
 						</ModalContent>
 					</ModalOverlay>
 				)}
-			</ContentContainer>
+			</ContentWrapper>
 		</PageContainer>
 	);
 };
