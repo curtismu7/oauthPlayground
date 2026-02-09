@@ -1229,6 +1229,31 @@ export class UnifiedFlowIntegrationV8U {
 					: 'default (client_secret_post)',
 			});
 
+			// Track token exchange API call for unified flow visibility
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			const tokenEndpoint = `https://auth.pingone.com/${oauthCredentials.environmentId}/as/token`;
+			const startTime = Date.now();
+			
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: tokenEndpoint,
+				actualPingOneUrl: tokenEndpoint,
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					'Authorization': `Basic ${btoa(`${oauthCredentials.clientId}:${oauthCredentials.clientSecret || ''}`)}`,
+				},
+				body: {
+					grant_type: 'authorization_code',
+					code: code.substring(0, 20) + '...',
+					redirect_uri: oauthCredentials.redirectUri,
+					...(codeVerifier && { code_verifier: '***REDACTED***' }),
+					client_id: oauthCredentials.clientId,
+					client_secret: '***REDACTED***',
+				},
+				flowType: 'unified',
+				step: 'unified-token-exchange',
+			});
+
 			logger.debug(`🚀 Calling OAuthIntegrationServiceV8.exchangeCodeForTokens...`);
 			logger.debug(`Parameters:`, {
 				hasCredentials: !!oauthCredentials,
@@ -1237,11 +1262,47 @@ export class UnifiedFlowIntegrationV8U {
 				hasCodeVerifier: !!codeVerifier,
 			});
 
-			return OAuthIntegrationServiceV8.exchangeCodeForTokens(
-				oauthCredentials,
-				code,
-				codeVerifier || ''
-			);
+			try {
+				const result = await OAuthIntegrationServiceV8.exchangeCodeForTokens(
+					oauthCredentials,
+					code,
+					codeVerifier || ''
+				);
+
+				// Update API call with successful response
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 200,
+						statusText: 'OK',
+						data: {
+							access_token: result.access_token ? '***REDACTED***' : undefined,
+							token_type: result.token_type,
+							expires_in: result.expires_in,
+							refresh_token: result.refresh_token ? '***REDACTED***' : undefined,
+							id_token: result.id_token ? '***REDACTED***' : undefined,
+							scope: result.scope,
+						},
+					},
+					Date.now() - startTime
+				);
+
+				return result;
+			} catch (error) {
+				// Update API call with error response
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 400,
+						statusText: 'Bad Request',
+						data: {
+							error: error instanceof Error ? error.message : 'Token exchange failed',
+						},
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
 		}
 
 		if (flowType === 'hybrid') {
@@ -1277,11 +1338,73 @@ export class UnifiedFlowIntegrationV8U {
 				hybridCredentials.privateKey = credentials.privateKey;
 				logger.debug(`Private key included for hybrid flow private_key_jwt authentication`);
 			}
-			return HybridFlowIntegrationServiceV8.exchangeCodeForTokens(
-				hybridCredentials,
-				code,
-				codeVerifier
-			);
+
+			// Track hybrid token exchange API call for unified flow visibility
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			const tokenEndpoint = `https://auth.pingone.com/${hybridCredentials.environmentId}/as/token`;
+			const startTime = Date.now();
+			
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: tokenEndpoint,
+				actualPingOneUrl: tokenEndpoint,
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					'Authorization': `Basic ${btoa(`${hybridCredentials.clientId}:${hybridCredentials.clientSecret || ''}`)}`,
+				},
+				body: {
+					grant_type: 'authorization_code',
+					code: code.substring(0, 20) + '...',
+					redirect_uri: hybridCredentials.redirectUri,
+					...(codeVerifier && { code_verifier: '***REDACTED***' }),
+					client_id: hybridCredentials.clientId,
+					client_secret: '***REDACTED***',
+				},
+				flowType: 'unified',
+				step: 'unified-hybrid-token-exchange',
+			});
+
+			try {
+				const result = await HybridFlowIntegrationServiceV8.exchangeCodeForTokens(
+					hybridCredentials,
+					code,
+					codeVerifier
+				);
+
+				// Update API call with successful response
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 200,
+						statusText: 'OK',
+						data: {
+							access_token: result.access_token ? '***REDACTED***' : undefined,
+							token_type: result.token_type,
+							expires_in: result.expires_in,
+							refresh_token: result.refresh_token ? '***REDACTED***' : undefined,
+							id_token: result.id_token ? '***REDACTED***' : undefined,
+							scope: result.scope,
+						},
+					},
+					Date.now() - startTime
+				);
+
+				return result;
+			} catch (error) {
+				// Update API call with error response
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 400,
+						statusText: 'Bad Request',
+						data: {
+							error: error instanceof Error ? error.message : 'Hybrid token exchange failed',
+						},
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
 		}
 
 		throw new Error(
