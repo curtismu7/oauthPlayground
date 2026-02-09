@@ -28,10 +28,12 @@ interface ApiCall {
 	url: string;
 	headers?: Record<string, string>;
 	body?: unknown;
-	response?: {
-		status: number;
-		data?: unknown;
-	} | undefined;
+	response?:
+		| {
+				status: number;
+				data?: unknown;
+		  }
+		| undefined;
 	timestamp: number;
 	actualPingOneUrl?: string;
 	isProxy?: boolean;
@@ -91,7 +93,10 @@ const safeStringify = (value: unknown, space = 2): string => {
 // postMessage updates keep the same shape the popout renderer expects.
 const processApiCallsForDisplay = (
 	apiCalls: ApiCall[],
-	getApiTypeIcon: (call: { url?: string; actualPingOneUrl?: string; isProxy?: boolean }) => { icon: string; label: string }
+	getApiTypeIcon: (call: { url?: string; actualPingOneUrl?: string; isProxy?: boolean }) => {
+		icon: string;
+		label: string;
+	}
 ): ProcessedApiCall[] => {
 	return apiCalls.map((call) => {
 		const status = call.response?.status || 0;
@@ -107,9 +112,7 @@ const processApiCallsForDisplay = (
 						: '#6b7280';
 		const apiType = getApiTypeIcon(call);
 		const hasHeaders =
-			!!call.headers &&
-			typeof call.headers === 'object' &&
-			Object.keys(call.headers).length > 0;
+			!!call.headers && typeof call.headers === 'object' && Object.keys(call.headers).length > 0;
 		const hasBody =
 			!!call.body &&
 			typeof call.body === 'object' &&
@@ -180,7 +183,6 @@ const createPopOutWindow = (
 
 		return { icon: '🌐', label: 'External API' };
 	};
-
 
 	const processedCalls = processApiCallsForDisplay(apiCalls, getApiTypeIcon);
 
@@ -783,6 +785,37 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		}
 	}, [fontSize]);
 
+	// Helper function for API type icons (defined before useEffect to avoid temporal dead zone)
+	const getApiTypeIcon = (
+		call: { url?: string; actualPingOneUrl?: string; isProxy?: boolean } | string
+	) => {
+		// Handle both string URL (legacy) and call object
+		const url = typeof call === 'string' ? call : call.url || '';
+		const callObj = typeof call === 'string' ? { url } : call;
+		const isProxy = isProxyCall(callObj);
+
+		// Check if it's an admin/worker token API call
+		const isAdminApi =
+			url.includes('/as/token') || // Token endpoint
+			url.includes('/users?filter=') || // User lookup
+			(url.includes('/users/') && (url.includes('/devices') || url.includes('/mfa'))) || // Device management
+			url.includes('lookup-user') || // Proxy user lookup
+			url.includes('register-device') || // Proxy device registration
+			url.includes('mfa/') || // MFA proxy endpoints
+			(url.includes('/environments/') && !url.includes('/authorize')); // Management API
+
+		// Different icons for proxy vs direct calls
+		if (isProxy) {
+			return isAdminApi
+				? { icon: '🔀', label: 'Proxy Admin API (Worker Token)', color: '#f59e0b' }
+				: { icon: '🔄', label: 'Proxy User API', color: '#3b82f6' };
+		}
+
+		return isAdminApi
+			? { icon: '🔑', label: 'Admin API (Worker Token)', color: '#f59e0b' }
+			: { icon: '👤', label: 'User API', color: '#3b82f6' };
+	};
+
 	// Handle pop-out window close and sync API calls via postMessage
 	useEffect(() => {
 		if (popOutWindow) {
@@ -808,7 +841,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 			return () => clearInterval(checkClosed);
 		}
 		return undefined;
-	}, [popOutWindow, apiCalls]);
+	}, [popOutWindow, apiCalls, getApiTypeIcon]);
 
 	// Listen for font size changes and filter changes from pop-out window
 	useEffect(() => {
@@ -1032,6 +1065,14 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 
 					// Flow-specific filtering
 					if (flowFilter === 'unified') {
+						// Debug: Log all calls being considered for unified flow
+						console.log('🔍 UNIFIED FILTER: Checking call', {
+							url,
+							actualPingOneUrl,
+							step,
+							isPingOne: url.includes('auth.pingone') || actualPingOneUrl.includes('auth.pingone'),
+						});
+						
 						// Unified flow: exclude MFA calls, include redirectless, token, authorize, etc.
 						// Explicitly exclude MFA-specific endpoints
 						if (url.includes('/api/pingone/mfa/')) {
@@ -1056,27 +1097,34 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 							url.includes('/as/device') || // Direct device authorization endpoint
 							url.includes('/as/par') || // Direct PAR endpoint
 							step?.startsWith('unified-');
+						
+						console.log('🔍 UNIFIED FILTER: Result', {
+							isUnifiedFlow,
+							matchesAuthorize: url.includes('/as/authorize'),
+							matchesToken: url.includes('/as/token'),
+							matchesStep: step?.startsWith('unified-'),
+						});
+						
 						return isUnifiedFlow;
 					} else if (flowFilter === 'mfa') {
 						// MFA flow: only MFA calls (device management, challenges, etc.)
 						// Check both url, actualPingOneUrl, operationName, and step
 						return (
 							url.includes('/api/pingone/mfa/') ||
-							(actualPingOneUrl && actualPingOneUrl.includes('/users/') && actualPingOneUrl.includes('/devices')) || // PingOne devices endpoint
+							(actualPingOneUrl?.includes('/users/') && actualPingOneUrl.includes('/devices')) || // PingOne devices endpoint
 							(url.includes('/users/') && url.includes('/devices')) || // Direct PingOne device endpoints
-							(operationName && (
-								operationName.includes('MFA') ||
-								operationName.includes('Device') ||
-								operationName.includes('TOTP') ||
-								operationName.includes('FIDO') ||
-								operationName.includes('SMS') ||
-								operationName.includes('EMAIL') ||
-								operationName.includes('OTP') ||
-								operationName.includes('Activate') ||
-								operationName.includes('Block') ||
-								operationName.includes('Unblock') ||
-								operationName.includes('Delete')
-							)) ||
+							(operationName &&
+								(operationName.includes('MFA') ||
+									operationName.includes('Device') ||
+									operationName.includes('TOTP') ||
+									operationName.includes('FIDO') ||
+									operationName.includes('SMS') ||
+									operationName.includes('EMAIL') ||
+									operationName.includes('OTP') ||
+									operationName.includes('Activate') ||
+									operationName.includes('Block') ||
+									operationName.includes('Unblock') ||
+									operationName.includes('Delete'))) ||
 							step?.startsWith('mfa-')
 						);
 					} else if (flowFilter === 'spiffe-spire') {
@@ -1274,42 +1322,12 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		return isProxyUrl;
 	};
 
-	const getApiTypeIcon = (
-		call: { url?: string; actualPingOneUrl?: string; isProxy?: boolean } | string
-	) => {
-		// Handle both string URL (legacy) and call object
-		const url = typeof call === 'string' ? call : call.url || '';
-		const callObj = typeof call === 'string' ? { url } : call;
-		const isProxy = isProxyCall(callObj);
-
-		// Check if it's an admin/worker token API call
-		const isAdminApi =
-			url.includes('/as/token') || // Token endpoint
-			url.includes('/users?filter=') || // User lookup
-			(url.includes('/users/') && (url.includes('/devices') || url.includes('/mfa'))) || // Device management
-			url.includes('lookup-user') || // Proxy user lookup
-			url.includes('register-device') || // Proxy device registration
-			url.includes('mfa/') || // MFA proxy endpoints
-			(url.includes('/environments/') && !url.includes('/authorize')); // Management API
-
-		// Different icons for proxy vs direct calls
-		if (isProxy) {
-			return isAdminApi
-				? { icon: '🔀', label: 'Proxy Admin API (Worker Token)', color: '#f59e0b' }
-				: { icon: '🔄', label: 'Proxy User API', color: '#3b82f6' };
-		}
-
-		return isAdminApi
-			? { icon: '🔑', label: 'Admin API (Worker Token)', color: '#f59e0b' }
-			: { icon: '👤', label: 'User API', color: '#3b82f6' };
-	};
-
 	const _getShortUrl = (url: string) => {
 		// Handle base64 image data URLs - show as text, not render as image
 		if (url.startsWith('data:image/')) {
 			return `[Image Data: ${url.substring(0, 30)}...${url.substring(url.lastIndexOf(','))}]`;
 		}
-		
+
 		// Remove protocol and domain for cleaner display
 		let shortUrl = url
 			.replace('https://api.pingone.com/v1/', '')
@@ -1590,12 +1608,12 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 											showP1Only
 										);
 										if (newWindow) {
-										setPopOutWindow(newWindow);
-										setPopoutBlocked(false);
-									} else {
-										setPopoutBlocked(true);
-									}
-								}}
+											setPopOutWindow(newWindow);
+											setPopoutBlocked(false);
+										} else {
+											setPopoutBlocked(true);
+										}
+									}}
 									style={{
 										...headerButtonBaseStyle,
 										background: '#8b5cf6',
@@ -1605,11 +1623,11 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 								>
 									🔲 Pop Out
 								</button>
-									{popoutBlocked && (
-										<div style={{ marginTop: 8, color: '#b91c1c', fontSize: 12 }} role="alert">
-											Popup blocked — allow popups for this site to use the API Display popout.
-										</div>
-									)}
+								{popoutBlocked && (
+									<div style={{ marginTop: 8, color: '#b91c1c', fontSize: 12 }} role="alert">
+										Popup blocked — allow popups for this site to use the API Display popout.
+									</div>
+								)}
 								{apiCalls.length > 0 && (
 									<>
 										<button
@@ -2312,13 +2330,15 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																							marginTop: '4px',
 																						}}
 																					>
-																						{scopes.includes('openid') || scopes.includes('profile') || scopes.includes('email')
-															? '⚠️ Contains OIDC scopes (not valid for client credentials)'
-															: scopes.includes('CLAIMICFACILITY')
-															? '⚠️ CLAIMICFACILITY may not exist in your PingOne resources'
-															: scopes.includes('p1:')
-															? '⚠️ Contains self-management scopes (not valid for client credentials)'
-															: '✅ Appears to be resource server scopes'}
+																						{scopes.includes('openid') ||
+																						scopes.includes('profile') ||
+																						scopes.includes('email')
+																							? '⚠️ Contains OIDC scopes (not valid for client credentials)'
+																							: scopes.includes('CLAIMICFACILITY')
+																								? '⚠️ CLAIMICFACILITY may not exist in your PingOne resources'
+																								: scopes.includes('p1:')
+																									? '⚠️ Contains self-management scopes (not valid for client credentials)'
+																									: '✅ Appears to be resource server scopes'}
 																					</div>
 																				</div>
 																			</div>
@@ -2341,183 +2361,187 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																			// Check if it's form-encoded
 																			if (body.includes('grant_type=client_credentials')) {
 																				isFormEncoded = true;
-												// Parse form-encoded data
-												const params = new URLSearchParams(body);
-												parsedBody = Object.fromEntries(params.entries());
-											}
-										} else {
-											try {
-												bodyText = JSON.stringify(body, null, 2);
-											} catch {
-												bodyText = String(body);
-											}
-										}
+																				// Parse form-encoded data
+																				const params = new URLSearchParams(body);
+																				parsedBody = Object.fromEntries(params.entries());
+																			}
+																		} else {
+																			try {
+																				bodyText = JSON.stringify(body, null, 2);
+																			} catch {
+																				bodyText = String(body);
+																			}
+																		}
 
-										return (
-											<div
-												style={{
-													padding: '8px 12px',
-													background: '#fef3c7',
-													borderRadius: '4px',
-													border: '1px solid #fbbf24',
-												}}
-											>
-												<div
-													style={{
-														display: 'flex',
-														alignItems: 'center',
-														justifyContent: 'space-between',
-														marginBottom: '4px',
-													}}
-												>
-													<div
-														style={{
-															color: '#92400e',
-															fontSize: '11px',
-															fontWeight: '700',
-														}}
-													>
-														REQUEST BODY (for debugging):
-													</div>
-													<div style={{ display: 'flex', gap: '4px' }}>
-														{isFormEncoded && (
-															<button
-																type="button"
-																onClick={(e) => {
-																	e.stopPropagation();
-																	const jsonData = JSON.stringify(parsedBody, null, 2);
-																	handleCopy(jsonData, `body-json-${call.id}`);
-																}}
-																style={{
-																	padding: '4px 8px',
-																	background:
-																		copiedField === `body-json-${call.id}`
-																			? '#10b981'
-																			: '#3b82f6',
-																	color: 'white',
-																	border: 'none',
-																	borderRadius: '3px',
-																	fontSize: '10px',
-																	cursor: 'pointer',
-																	fontWeight: '600',
-																}}
-																title="Copy as JSON"
-															>
-																{copiedField === `body-json-${call.id}`
-																	? '✓ JSON Copied'
-																	: '📋 Copy JSON'}
-															</button>
-														)}
-														<button
-															type="button"
-															onClick={(e) => {
-																e.stopPropagation();
-																handleCopy(bodyText, `body-${call.id}`);
-															}}
-															style={{
-																padding: '4px 8px',
-																background:
-																	copiedField === `body-${call.id}`
-																		? '#10b981'
-																		: '#f59e0b',
-																color: 'white',
-																border: 'none',
-																borderRadius: '3px',
-																fontSize: '10px',
-																cursor: 'pointer',
-																fontWeight: '600',
-															}}
-															title="Copy request body for debugging"
-														>
-															{copiedField === `body-${call.id}`
-																? '✓ Copied'
-																: '📋 Copy Body'}
-														</button>
-													</div>
-												</div>
-												<div
-													style={{
-														background: 'white',
-														padding: '12px',
-														borderRadius: '4px',
-														fontSize: '12px',
-														overflowX: 'auto',
-														maxHeight: 'min(50vh, 600px)',
-														overflowY: 'auto',
-														minHeight: '100px',
-													}}
-												>
-													{isFormEncoded ? (
-														<div>
-															<div
-																style={{
-																	marginBottom: '8px',
-																	paddingBottom: '8px',
-																	borderBottom: '1px solid #e5e7eb',
-																}}
-															>
-																<div
-																	style={{
-																		fontSize: '10px',
-																		color: '#6b7280',
-																		marginBottom: '4px',
-																		fontWeight: '600',
-																	}}
-																>
-																	RAW FORM-ENCODED:
-																</div>
-																<pre
-																	style={{
-																		margin: 0,
-																		whiteSpace: 'pre-wrap',
-																		wordWrap: 'break-word',
-																		fontSize: '11px',
-																		background: '#f9fafb',
-																		padding: '8px',
-																		borderRadius: '3px',
-																	}}
-																>
-																	{bodyText}
-																</pre>
-															</div>
-															<div>
-																<div
-																	style={{
-																		fontSize: '10px',
-																		color: '#6b7280',
-																		marginBottom: '4px',
-																		fontWeight: '600',
-																	}}
-																>
-																	PARSED AS JSON:
-																</div>
-																<pre
-																	style={{
-																		margin: 0,
-																		whiteSpace: 'pre-wrap',
-																		wordWrap: 'break-word',
-																		fontSize: '11px',
-																	}}
-																>
-																	{JSON.stringify(parsedBody, null, 2)}
-																</pre>
-															</div>
-														</div>
-													) : (
-														<pre
-															style={{
-																margin: 0,
-																whiteSpace: 'pre-wrap',
-																wordWrap: 'break-word',
-															}}
-														>
-															{bodyText}
-														</pre>
-													)}
-												</div>
-											</div>
-										);
-									})()}
+																		return (
+																			<div
+																				style={{
+																					padding: '8px 12px',
+																					background: '#fef3c7',
+																					borderRadius: '4px',
+																					border: '1px solid #fbbf24',
+																				}}
+																			>
+																				<div
+																					style={{
+																						display: 'flex',
+																						alignItems: 'center',
+																						justifyContent: 'space-between',
+																						marginBottom: '4px',
+																					}}
+																				>
+																					<div
+																						style={{
+																							color: '#92400e',
+																							fontSize: '11px',
+																							fontWeight: '700',
+																						}}
+																					>
+																						REQUEST BODY (for debugging):
+																					</div>
+																					<div style={{ display: 'flex', gap: '4px' }}>
+																						{isFormEncoded && (
+																							<button
+																								type="button"
+																								onClick={(e) => {
+																									e.stopPropagation();
+																									const jsonData = JSON.stringify(
+																										parsedBody,
+																										null,
+																										2
+																									);
+																									handleCopy(jsonData, `body-json-${call.id}`);
+																								}}
+																								style={{
+																									padding: '4px 8px',
+																									background:
+																										copiedField === `body-json-${call.id}`
+																											? '#10b981'
+																											: '#3b82f6',
+																									color: 'white',
+																									border: 'none',
+																									borderRadius: '3px',
+																									fontSize: '10px',
+																									cursor: 'pointer',
+																									fontWeight: '600',
+																								}}
+																								title="Copy as JSON"
+																							>
+																								{copiedField === `body-json-${call.id}`
+																									? '✓ JSON Copied'
+																									: '📋 Copy JSON'}
+																							</button>
+																						)}
+																						<button
+																							type="button"
+																							onClick={(e) => {
+																								e.stopPropagation();
+																								handleCopy(bodyText, `body-${call.id}`);
+																							}}
+																							style={{
+																								padding: '4px 8px',
+																								background:
+																									copiedField === `body-${call.id}`
+																										? '#10b981'
+																										: '#f59e0b',
+																								color: 'white',
+																								border: 'none',
+																								borderRadius: '3px',
+																								fontSize: '10px',
+																								cursor: 'pointer',
+																								fontWeight: '600',
+																							}}
+																							title="Copy request body for debugging"
+																						>
+																							{copiedField === `body-${call.id}`
+																								? '✓ Copied'
+																								: '📋 Copy Body'}
+																						</button>
+																					</div>
+																				</div>
+																				<div
+																					style={{
+																						background: 'white',
+																						padding: '12px',
+																						borderRadius: '4px',
+																						fontSize: '12px',
+																						overflowX: 'auto',
+																						maxHeight: 'min(50vh, 600px)',
+																						overflowY: 'auto',
+																						minHeight: '100px',
+																					}}
+																				>
+																					{isFormEncoded ? (
+																						<div>
+																							<div
+																								style={{
+																									marginBottom: '8px',
+																									paddingBottom: '8px',
+																									borderBottom: '1px solid #e5e7eb',
+																								}}
+																							>
+																								<div
+																									style={{
+																										fontSize: '10px',
+																										color: '#6b7280',
+																										marginBottom: '4px',
+																										fontWeight: '600',
+																									}}
+																								>
+																									RAW FORM-ENCODED:
+																								</div>
+																								<pre
+																									style={{
+																										margin: 0,
+																										whiteSpace: 'pre-wrap',
+																										wordWrap: 'break-word',
+																										fontSize: '11px',
+																										background: '#f9fafb',
+																										padding: '8px',
+																										borderRadius: '3px',
+																									}}
+																								>
+																									{bodyText}
+																								</pre>
+																							</div>
+																							<div>
+																								<div
+																									style={{
+																										fontSize: '10px',
+																										color: '#6b7280',
+																										marginBottom: '4px',
+																										fontWeight: '600',
+																									}}
+																								>
+																									PARSED AS JSON:
+																								</div>
+																								<pre
+																									style={{
+																										margin: 0,
+																										whiteSpace: 'pre-wrap',
+																										wordWrap: 'break-word',
+																										fontSize: '11px',
+																									}}
+																								>
+																									{JSON.stringify(parsedBody, null, 2)}
+																								</pre>
+																							</div>
+																						</div>
+																					) : (
+																						<pre
+																							style={{
+																								margin: 0,
+																								whiteSpace: 'pre-wrap',
+																								wordWrap: 'break-word',
+																							}}
+																						>
+																							{bodyText}
+																						</pre>
+																					)}
+																				</div>
+																			</div>
+																		);
+																	})()}
 
 																	{/* Response */}
 																	{(() => {
@@ -2616,13 +2640,21 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																	{(() => {
 																		const response = call.response;
 																		const body = call.body;
-																		const isTokenError = response && response.status === 400 && 
-																			typeof response.data === 'object' && 
+																		const isTokenError =
+																			response &&
+																			response.status === 400 &&
+																			typeof response.data === 'object' &&
 																			response.data !== null &&
 																			'error' in response.data &&
-																			((response.data as { error?: string }).error?.includes('invalid_scope') ||
-																			(response.data as { error_description?: string }).error_description?.includes('scope') ||
-																			(response.data as { error_description?: string }).error_description?.includes('granted'));
+																			((response.data as { error?: string }).error?.includes(
+																				'invalid_scope'
+																			) ||
+																				(
+																					response.data as { error_description?: string }
+																				).error_description?.includes('scope') ||
+																				(
+																					response.data as { error_description?: string }
+																				).error_description?.includes('granted'));
 
 																		if (!isTokenError || !body || typeof body !== 'string') {
 																			return null;
@@ -2635,15 +2667,17 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																		}
 
 																		const currentScopes = decodeURIComponent(scopeMatch[2]);
-																		const hasInvalidScopes = currentScopes.includes('openid') || 
-																									currentScopes.includes('profile') || 
-																									currentScopes.includes('email') ||
-																									currentScopes.includes('CLAIMICFACILITY') ||
-																									currentScopes.startsWith('p1:');
+																		const hasInvalidScopes =
+																			currentScopes.includes('openid') ||
+																			currentScopes.includes('profile') ||
+																			currentScopes.includes('email') ||
+																			currentScopes.includes('CLAIMICFACILITY') ||
+																			currentScopes.startsWith('p1:');
 
 																		// Show scope error section for any scope-related error, even if scopes look valid
 																		// This helps with cases like "ClaimScope" not being configured in PingOne
-																		const shouldShowScopeError = isTokenError && (hasInvalidScopes || true);
+																		const shouldShowScopeError =
+																			isTokenError && (hasInvalidScopes || true);
 
 																		if (!shouldShowScopeError) {
 																			return null;
@@ -2680,7 +2714,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																						🔧 SCOPE CONFIGURATION ERROR
 																					</div>
 																				</div>
-																				
+
 																				<div
 																					style={{
 																						background: 'white',
@@ -2691,47 +2725,75 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																					}}
 																				>
 																					<div style={{ fontSize: '11px', marginBottom: '8px' }}>
-																						<strong>Current Scopes:</strong> 
-																						<span style={{ 
-																							fontFamily: 'monospace', 
-																							background: '#fef2f2', 
-																							padding: '2px 6px', 
-																							borderRadius: '2px',
-																							marginLeft: '8px'
-																						}}>
+																						<strong>Current Scopes:</strong>
+																						<span
+																							style={{
+																								fontFamily: 'monospace',
+																								background: '#fef2f2',
+																								padding: '2px 6px',
+																								borderRadius: '2px',
+																								marginLeft: '8px',
+																							}}
+																						>
 																							{currentScopes}
 																						</span>
 																					</div>
-																					
-																					<div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '8px' }}>
-																						{currentScopes.includes('openid') || currentScopes.includes('profile') || currentScopes.includes('email')
-															? '❌ OIDC scopes detected (not valid for client credentials)'
-															: currentScopes.includes('CLAIMICFACILITY')
-															? '❌ CLAIMICFACILITY may not exist in your PingOne resources'
-															: currentScopes.startsWith('p1:')
-															? '❌ Contains self-management scopes (not valid for client credentials)'
-															: '⚠️ Scope may not be configured in PingOne resources'}
+
+																					<div
+																						style={{
+																							fontSize: '10px',
+																							color: '#6b7280',
+																							marginBottom: '8px',
+																						}}
+																					>
+																						{currentScopes.includes('openid') ||
+																						currentScopes.includes('profile') ||
+																						currentScopes.includes('email')
+																							? '❌ OIDC scopes detected (not valid for client credentials)'
+																							: currentScopes.includes('CLAIMICFACILITY')
+																								? '❌ CLAIMICFACILITY may not exist in your PingOne resources'
+																								: currentScopes.startsWith('p1:')
+																									? '❌ Contains self-management scopes (not valid for client credentials)'
+																									: '⚠️ Scope may not be configured in PingOne resources'}
 																					</div>
 
-																					<div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '12px' }}>
-																						<strong>Suggested Fix:</strong> Replace with <code style={{ background: '#f0fdf4', padding: '1px 4px' }}>ClaimScope</code> or other resource server scopes
+																					<div
+																						style={{
+																							fontSize: '10px',
+																							color: '#6b7280',
+																							marginBottom: '12px',
+																						}}
+																					>
+																						<strong>Suggested Fix:</strong> Replace with{' '}
+																						<code
+																							style={{ background: '#f0fdf4', padding: '1px 4px' }}
+																						>
+																							ClaimScope
+																						</code>{' '}
+																						or other resource server scopes
 																					</div>
 
-																					<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+																					<div
+																						style={{
+																							display: 'flex',
+																							gap: '8px',
+																							flexWrap: 'wrap',
+																						}}
+																					>
 																						<button
 																							type="button"
 																							onClick={(e) => {
 																								e.stopPropagation();
 																								// Try to apply the fix by updating the scopes in the form
-																																const event = new CustomEvent('applyScopeFix', {
-																																	detail: { 
-																																		currentScopes, 
-																																		suggestedScopes: 'ClaimScope',
-																																		callId: call.id 
-																																	}
-																																});
-																																window.dispatchEvent(event);
-																															}}
+																								const event = new CustomEvent('applyScopeFix', {
+																									detail: {
+																										currentScopes,
+																										suggestedScopes: 'ClaimScope',
+																										callId: call.id,
+																									},
+																								});
+																								window.dispatchEvent(event);
+																							}}
 																							style={{
 																								padding: '6px 12px',
 																								background: '#10b981',
@@ -2750,8 +2812,8 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																							type="button"
 																							onClick={(e) => {
 																								e.stopPropagation();
-																																window.open('https://admin.pingone.com', '_blank');
-																															}}
+																								window.open('https://admin.pingone.com', '_blank');
+																							}}
 																							style={{
 																								padding: '6px 12px',
 																								background: '#3b82f6',
@@ -2770,8 +2832,11 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																							type="button"
 																							onClick={(e) => {
 																								e.stopPropagation();
-																																handleCopy(currentScopes, `error-scopes-${call.id}`);
-																															}}
+																								handleCopy(
+																									currentScopes,
+																									`error-scopes-${call.id}`
+																								);
+																							}}
 																							style={{
 																								padding: '6px 12px',
 																								background: '#6b7280',
