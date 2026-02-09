@@ -48,6 +48,7 @@ export interface OAuthCredentials {
 	clientSecret?: string;
 	redirectUri: string;
 	scopes: string;
+	username?: string; // Optional username for login_hint parameter
 	clientAuthMethod?:
 		| 'none'
 		| 'client_secret_basic'
@@ -185,16 +186,24 @@ export class OAuthIntegrationServiceV8 {
 				}
 
 				// Generate signed request object
+				const jarRequestParams = {
+					clientId: credentials.clientId,
+					responseType: 'code',
+					redirectUri: credentials.redirectUri,
+					scope: finalScopes,
+					state: state,
+					codeChallenge: pkce.codeChallenge,
+					codeChallengeMethod: pkce.codeChallengeMethod,
+				};
+
+				// Add login_hint to JAR request if username is provided
+				if (credentials.username) {
+					(jarRequestParams as any).login_hint = credentials.username;
+					console.log(`${MODULE_TAG} 🔑 Added login_hint to JAR request: ${credentials.username}`);
+				}
+
 				const jarResult = await jarRequestObjectServiceV8.generateRequestObjectJWT(
-					{
-						clientId: credentials.clientId,
-						responseType: 'code',
-						redirectUri: credentials.redirectUri,
-						scope: finalScopes,
-						state: state,
-						codeChallenge: pkce.codeChallenge,
-						codeChallengeMethod: pkce.codeChallengeMethod,
-					},
+					jarRequestParams,
 					{
 						algorithm,
 						clientSecret: credentials.clientSecret,
@@ -248,6 +257,12 @@ export class OAuthIntegrationServiceV8 {
 			code_challenge: pkce.codeChallenge,
 			code_challenge_method: pkce.codeChallengeMethod,
 		});
+
+		// Add login_hint if username is provided
+		if (credentials.username) {
+			params.append('login_hint', credentials.username);
+			console.log(`${MODULE_TAG} 🔑 Added login_hint: ${credentials.username}`);
+		}
 
 		const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
