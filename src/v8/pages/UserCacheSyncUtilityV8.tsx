@@ -117,12 +117,6 @@ export const UserCacheSyncUtilityV8: React.FC = () => {
 		return () => clearInterval(interval);
 	}, []);
 
-	// Load cache info on mount
-	useEffect(() => {
-		loadCacheInfo();
-		checkCliCache();
-	}, [checkCliCache, loadCacheInfo]);
-
 	// Check if CLI cache file exists
 	const checkCliCache = async () => {
 		if (!environmentId) {
@@ -152,18 +146,6 @@ export const UserCacheSyncUtilityV8: React.FC = () => {
 		}
 	};
 
-	// Save environment ID to storage
-	useEffect(() => {
-		if (environmentId) {
-			try {
-				StorageServiceV8.save(PAGE_STORAGE_KEY, { environmentId });
-				globalEnvironmentService.setEnvironmentId(environmentId);
-			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to save state`, error);
-			}
-		}
-	}, [environmentId]);
-
 	const loadCacheInfo = async () => {
 		if (!environmentId) {
 			setCacheInfo(null);
@@ -186,6 +168,24 @@ export const UserCacheSyncUtilityV8: React.FC = () => {
 			setCacheInfo(null);
 		}
 	};
+
+	// Load cache info on mount
+	useEffect(() => {
+		loadCacheInfo();
+		checkCliCache();
+	}, [environmentId]); // Remove function dependencies, only use environmentId
+
+	// Save environment ID to storage
+	useEffect(() => {
+		if (environmentId) {
+			try {
+				StorageServiceV8.save(PAGE_STORAGE_KEY, { environmentId });
+				globalEnvironmentService.setEnvironmentId(environmentId);
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to save state`, error);
+			}
+		}
+	}, [environmentId]);
 
 	const handleStartSync = async () => {
 		if (!environmentId || !tokenStatus.isValid) {
