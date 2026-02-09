@@ -4751,6 +4751,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 96 | **Redirect URI Still Going to Wrong Place** | 🔴 ACTIVE | CallbackHandlerV8U.tsx:233, ReturnTargetServiceV8U.ts:50 | OAuth callbacks redirect to incorrect pages instead of original flow context | Return target service not properly detecting flow context or fallback logic not working correctly |
 | 97 | **React Hooks Regression in HelioMartPasswordReset** | 🔴 ACTIVE | HelioMartPasswordReset.tsx:496 | "Rendered fewer hooks than expected" error returned after adding app lookup and worker token buttons | Component import causing hooks order violation - likely CompactAppPickerV8U import issue |
 | 98 | **Enhanced State Management Token Sync Issue** | ✅ FIXED | UnifiedFlowSteps.tsx:1638, enhancedStateManagement.ts:477 | New access token and id token from authz code flow not reflected on enhanced state management page | Unified flow steps saving tokens to sessionStorage but not updating enhanced state management metrics |
+| 99 | **Token Monitoring Page Sync & Redundancy** | ✅ FIXED | TokenMonitoringPage.tsx:355, EnhancedStateManagementPage.tsx:22 | Token monitoring page not syncing with enhanced state management; significant redundancy between two pages | Token monitoring service updates not reflected in enhanced state management; duplicate functionality across pages |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -15709,6 +15710,13 @@ grep -A 5 -B 5 "useUnifiedFlowState" src/v8u/components/UnifiedFlowSteps.tsx
 grep -A 5 -B 5 "Tokens auto-saved to sessionStorage" src/v8u/components/UnifiedFlowSteps.tsx
 grep -A 5 -B 5 "sessionStorage.setItem.*tokens" src/v8u/components/UnifiedFlowSteps.tsx
 grep -A 5 -B 5 "flowState\.tokens.*accessToken" src/v8u/components/UnifiedFlowSteps.tsx
+
+# Issue 99: Check token monitoring page synchronization and redundancy
+grep -A 5 -B 5 "enhancedStateActions\|setTokenMetrics" src/v8u/pages/TokenMonitoringPage.tsx
+grep -A 5 -B 5 "useUnifiedFlowState" src/v8u/pages/TokenMonitoringPage.tsx
+grep -A 5 -B 5 "TokenMonitoringService\.subscribe" src/v8u/pages/TokenMonitoringPage.tsx
+grep -A 5 -B 5 "subscribe.*newTokens" src/v8u/pages/TokenMonitoringPage.tsx
+grep -A 5 -B 5 "TokenMonitoringService\.getInstance" src/v8u/pages/EnhancedStateManagementPage.tsx
 
 # ========================================================================
 # REACT HOOKS REGRESSION - COMPREHENSIVE GUIDE
