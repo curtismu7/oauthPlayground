@@ -4747,6 +4747,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 92 | **Missing POST Body Display in API Calls** | ✅ IMPLEMENTED | UnifiedFlowIntegrationV8U.ts:1245, 1355, 611, 763 | POST body not showing in token exchange and authorization calls for educational purposes | Fixed token exchange to use URLSearchParams format and authorization calls to show query parameters with educational notes |
 | 93 | **Missing Authorization URL API Call in Unified OAuth Flow** | ✅ IMPLEMENTED | UnifiedFlowSteps.tsx:6655, 11392 | Authorization Code flow should show 2 API calls (URL generation + token exchange) but only 1 is visible | Added ApiCallExampleV8U component to display API call examples directly on unified flow pages - users now see both authorization URL generation and token exchange examples |
 | 94 | **API Status Page Implementation** | ✅ IMPLEMENTED | ApiStatusPage.tsx:1, App.tsx:1310, vite.config.ts:142 | Created comprehensive API status page for monitoring server health and performance metrics | Added ApiStatusPage component with real-time health monitoring, fixed Vite proxy to connect to HTTPS backend, integrated with React Router at /api-status |
+| 95 | **React Hooks Error in HelioMartPasswordReset** | ✅ RESOLVED | HelioMartPasswordReset.tsx:81, 1981 | "Rendered fewer hooks than expected" error due to component structure conflict | Fixed by removing local styled components and using PageLayoutService.createPageLayout consistently |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -15676,6 +15677,12 @@ grep -A 5 -B 5 "api-status" src/App.tsx
 grep -A 5 -B 5 "target.*https://localhost:3002" vite.config.ts
 grep -A 5 -B 5 "/api/health" src/pages/ApiStatusPage.tsx
 grep -A 5 -B 5 "fetchHealthData" src/pages/ApiStatusPage.tsx
+
+# Issue 95: Check React hooks consistency in components
+grep -A 5 -B 5 "PageLayoutService.createPageLayout" src/pages/security/HelioMartPasswordReset.tsx
+grep -A 5 -B 5 "PageContainer.*ContentContainer" src/pages/security/HelioMartPasswordReset.tsx
+grep -A 5 -B 5 "Rendered fewer hooks than expected" src/pages/security/HelioMartPasswordReset.tsx
+grep -A 5 -B 5 "styled.div.*PageContainer" src/pages/security/HelioMartPasswordReset.tsx
 
 # ========================================================================
 # INFINITE LOOP PREVENTION COMPREHENSIVE GUIDE
