@@ -5158,17 +5158,46 @@ The **real** root cause is NOT in `workerTokenModalHelperV8.ts` — that file is
 1. **`RegistrationFlowStepperV8.tsx`**: Used `window.dispatchEvent(new CustomEvent('refreshWorkerToken'))` (fire-and-forget, nobody listening) + `setTimeout(3000)` race condition (tokenGateway takes up to 10s). Modal showed after 3s even though silent retrieval was still in progress.
 2. **`AuthenticationFlowStepperV8.tsx`**: Checked `tokenStatus.hasToken` and `tokenStatus.isLoading` — **neither property exists** on `TokenStatusInfo` (which only has `status`, `message`, `isValid`, `expiresAt`, `minutesRemaining`, `token`). So the condition was always falsy for `hasToken`, causing modal to always show.
 
-**🚨 Silent API Modal Trigger Points (COMPLETE LIST):**
+**🚨 Silent API Modal Trigger Points (COMPLETE LIST — audited v9.3.4):**
 
-| Trigger Location | Type | Uses Helper? | Status |
+**⚡ AUTOMATIC TRIGGERS (CRITICAL — these MUST use `handleShowWorkerTokenModal` with `forceShowModal=false`):**
+
+| Trigger Location | Context | Uses Helper? | Status |
 |---|---|---|---|
-| `RegistrationFlowStepperV8.tsx` useEffect mount | Automatic | ✅ YES (v9.3.4) | FIXED |
-| `AuthenticationFlowStepperV8.tsx` useEffect mount | Automatic | ✅ YES (v9.3.4) | FIXED |
-| `MFAFlowBaseV8.tsx:633` validation error watcher | Automatic | ✅ YES | OK |
-| `MFAFlowBaseV8.tsx:1205` onGetToken button | User click | ✅ YES (forceShowModal=true) | OK |
-| `MFAConfigurationStepV8.tsx:853` Get Worker Token button | User click | ✅ YES (forceShowModal=true) | OK |
-| `MFAConfigurationStepV8.tsx:1183` Get Worker Token button (V2) | User click | ✅ YES (forceShowModal=true) | OK |
-| `MFAAuthenticationMainPageV8.tsx:2137` Get Worker Token button | User click | ✅ YES (forceShowModal=true) | OK |
+| `RegistrationFlowStepperV8.tsx` useEffect mount | Checks token on stepper load | ✅ YES (v9.3.4) | FIXED |
+| `AuthenticationFlowStepperV8.tsx` useEffect mount | Checks token on stepper load | ✅ YES (v9.3.4) | FIXED |
+| `MFAFlowBaseV8.tsx` validation error watcher | Shows modal on worker token errors | ✅ YES | OK |
+
+**🖱️ USER-CLICK TRIGGERS (use `handleShowWorkerTokenModal` with `forceShowModal=true`):**
+
+| Trigger Location | Context | Uses Helper? | Status |
+|---|---|---|---|
+| `MFAFlowBaseV8.tsx` onGetToken button | Get Worker Token in flow base | ✅ YES | OK |
+| `MFAConfigurationStepV8.tsx` Get Worker Token button | Config step token button | ✅ YES | OK |
+| `MFAConfigurationStepV8.tsx` Get Worker Token button (V2) | Config step token button alt | ✅ YES | OK |
+| `MFAAuthenticationMainPageV8.tsx` Get Worker Token button | Auth main page token button | ✅ YES | OK |
+| `MFAAuthenticationMainPageV8.tsx` second token button | Auth main page alt button | ✅ YES | OK |
+| `UserCacheSyncUtilityV8.tsx` Get Worker Token button | Cache sync utility | ✅ YES (v9.3.4) | FIXED |
+| `DeleteAllDevicesUtilityV8.tsx` Get Worker Token button | Device delete utility | ✅ YES | OK |
+| `MFAReportingFlowV8.tsx` token button | Reporting flow | ✅ YES | OK |
+| `MFADeviceManagementFlowV8.tsx` token button | Device management | ✅ YES | OK |
+| `MFADeviceOrderingFlowV8.tsx` token button | Device ordering | ✅ YES | OK |
+| `PingOneProtectFlowV8.tsx` token button | PingOne Protect flow | ✅ YES | OK |
+| `FIDO2ConfigurationPageV8.tsx` token button | FIDO2 config | ✅ YES | OK |
+
+**🔥 ERROR HANDLER TRIGGERS (use `handleShowWorkerTokenModal` with `forceShowModal=true`):**
+
+| Trigger Location | Context | Uses Helper? | Status |
+|---|---|---|---|
+| `SMSFlowV8.tsx` error handler | Token error during SMS flow | ✅ YES | OK |
+| `FIDO2FlowV8.tsx` error handler (×2) | Token error during FIDO2 flow | ✅ YES | OK |
+| `MobileFlowV8.tsx` error handler | Token error during Mobile flow | ✅ YES | OK |
+| `MFADeviceManagementFlowV8.tsx` error handler | Token error during device mgmt | ✅ YES | OK |
+| `MFADeviceOrderingFlowV8.tsx` error handler | Token error during ordering | ✅ YES | OK |
+| `PingOneProtectFlowV8.tsx` error handler | Token error during Protect flow | ✅ YES | OK |
+| `UnifiedErrorDisplayV8.tsx` error handler | Unified error display retry | ✅ YES | OK |
+| `DeleteAllDevicesUtilityV8.tsx` error handler | Token error during delete | ✅ YES | OK |
+| `workerTokenUIServiceV8.tsx` service layer (×2) | UI service token refresh | ✅ YES | OK |
 
 **⚠️ THE RULE: Any code that shows the worker token modal MUST go through `handleShowWorkerTokenModal`.
 Direct calls to `setShowWorkerTokenModal(true)` are ONLY allowed inside `handleShowWorkerTokenModal` itself.**
