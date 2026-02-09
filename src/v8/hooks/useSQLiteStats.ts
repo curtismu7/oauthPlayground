@@ -8,8 +8,12 @@
  * Provides real-time SQLite user cache statistics with auto-refresh
  */
 
-import { useEffect, useState } from 'react';
-import { SQLiteStatsServiceV8, type SQLiteSyncMetadata, type SQLiteUserStats } from '@/v8/services/sqliteStatsServiceV8';
+import { useCallback, useEffect, useState } from 'react';
+import {
+	SQLiteStatsServiceV8,
+	type SQLiteSyncMetadata,
+	type SQLiteUserStats,
+} from '@/v8/services/sqliteStatsServiceV8';
 
 const MODULE_TAG = '[🔄 USE-SQLITE-STATS]';
 
@@ -37,14 +41,14 @@ export interface UseSQLiteStatsReturn {
 
 /**
  * React hook for SQLite statistics
- * 
+ *
  * @example
  * ```tsx
  * const { stats, metadata, isLoading } = useSQLiteStats({
  *   environmentId: 'env-123',
  *   refreshInterval: 30, // Refresh every 30 seconds
  * });
- * 
+ *
  * if (stats) {
  *   console.log('Total users:', stats.totalUsers);
  * }
@@ -57,7 +61,7 @@ export function useSQLiteStats(options: UseSQLiteStatsOptions): UseSQLiteStatsRe
 	const [metadata, setMetadata] = useState<SQLiteSyncMetadata | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 
-	const fetchStats = async () => {
+	const fetchStats = useCallback(async () => {
 		if (!environmentId || !environmentId.trim() || !enabled) {
 			setStats(null);
 			setMetadata(null);
@@ -86,7 +90,7 @@ export function useSQLiteStats(options: UseSQLiteStatsOptions): UseSQLiteStatsRe
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [environmentId, enabled]);
 
 	const clearCache = () => {
 		SQLiteStatsServiceV8.clearCacheForEnvironment(environmentId);
@@ -96,7 +100,7 @@ export function useSQLiteStats(options: UseSQLiteStatsOptions): UseSQLiteStatsRe
 	// Initial fetch
 	useEffect(() => {
 		fetchStats();
-	}, [environmentId, enabled]);
+	}, [fetchStats]);
 
 	// Auto-refresh
 	useEffect(() => {
@@ -106,7 +110,7 @@ export function useSQLiteStats(options: UseSQLiteStatsOptions): UseSQLiteStatsRe
 
 		const interval = setInterval(fetchStats, refreshInterval * 1000);
 		return () => clearInterval(interval);
-	}, [environmentId, refreshInterval, enabled]);
+	}, [refreshInterval, enabled, fetchStats]);
 
 	return {
 		stats,

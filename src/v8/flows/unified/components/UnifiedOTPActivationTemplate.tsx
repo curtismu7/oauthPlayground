@@ -84,14 +84,15 @@ const DEVICE_CONFIGS = {
 		icon: '📱',
 		color: colors.primary,
 		instructions: 'Enter the 6-digit code sent to your mobile phone via SMS',
-		contextText: 'Enhanced SMS with database persistence. Codes expire after 10 minutes. Check your signal if you don\'t receive the code.',
+		contextText:
+			"Enhanced SMS with database persistence. Codes expire after 10 minutes. Check your signal if you don't receive the code.",
 		resendText: 'Resend SMS',
 	},
 	EMAIL: {
 		icon: '📧',
 		color: colors.success,
 		instructions: 'Enter the 6-digit code sent to your email address',
-		contextText: 'Check your spam folder if you don\'t see the email in your inbox.',
+		contextText: "Check your spam folder if you don't see the email in your inbox.",
 		resendText: 'Resend Email',
 	},
 	WHATSAPP: {
@@ -174,7 +175,7 @@ export const UnifiedOTPActivationTemplate: React.FC<UnifiedOTPActivationTemplate
 	const handleSubmit = useCallback(
 		async (e: React.FormEvent) => {
 			e.preventDefault();
-			
+
 			if (!otp || otp.length !== 6) {
 				toastV8.error('Please enter a valid 6-digit code');
 				return;
@@ -306,7 +307,6 @@ export const UnifiedOTPActivationTemplate: React.FC<UnifiedOTPActivationTemplate
 						onFocus={() => setFocused(true)}
 						onBlur={() => setFocused(false)}
 						disabled={isLoading}
-						autoFocus
 						style={{
 							width: '100%',
 							padding: spacing[4],
@@ -330,7 +330,7 @@ export const UnifiedOTPActivationTemplate: React.FC<UnifiedOTPActivationTemplate
 							id="otp-error"
 							style={{
 								marginTop: spacing[2],
-								padding: spacing[2] + ' ' + spacing[3],
+								padding: `${spacing[2]} ${spacing[3]}`,
 								background: '#fef2f2',
 								border: `1px solid #fecaca`,
 								borderRadius: '6px',
@@ -360,7 +360,7 @@ export const UnifiedOTPActivationTemplate: React.FC<UnifiedOTPActivationTemplate
 					>
 						{isLoading ? 'Verifying...' : 'Verify Code'}
 					</Button>
-					
+
 					<Button
 						type="button"
 						variant="secondary"
@@ -402,7 +402,7 @@ export const UnifiedOTPActivationTemplate: React.FC<UnifiedOTPActivationTemplate
 			>
 				<h3
 					style={{
-						margin: '0 0 ' + spacing[3],
+						margin: `0 0 ${spacing[3]}`,
 						fontSize: '16px',
 						fontWeight: '600',
 						color: colors.gray[800],
@@ -428,9 +428,7 @@ export const UnifiedOTPActivationTemplate: React.FC<UnifiedOTPActivationTemplate
 					<li style={{ marginBottom: spacing[2] }}>
 						Codes are time-sensitive and expire after a few minutes
 					</li>
-					<li>
-						Contact support if you continue to experience issues
-					</li>
+					<li>Contact support if you continue to experience issues</li>
 				</ul>
 			</div>
 		</div>

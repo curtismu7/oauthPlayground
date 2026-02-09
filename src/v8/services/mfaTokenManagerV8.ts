@@ -28,8 +28,8 @@
  * unsubscribe();
  */
 
-import type { TokenStatusInfo } from './workerTokenStatusServiceV8';
 import { tokenGatewayV8 } from './auth/tokenGatewayV8';
+import type { TokenStatusInfo } from './workerTokenStatusServiceV8';
 
 export type TokenUpdateCallback = (state: TokenStatusInfo) => void;
 

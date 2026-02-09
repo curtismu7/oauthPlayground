@@ -145,6 +145,20 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		},
 	});
 
+	// FOOLPROOF: Handle step advancement after OAuth callback
+	useEffect(() => {
+		const targetStep = sessionStorage.getItem('mfa_target_step_after_callback');
+		if (targetStep) {
+			const stepNum = parseInt(targetStep);
+			if (stepNum >= 0 && stepNum < totalSteps) {
+				console.log(`${MODULE_TAG} 🔄 Advancing to step ${stepNum} after OAuth callback`);
+				nav.goToStep(stepNum);
+				// Clear the stored target step
+				sessionStorage.removeItem('mfa_target_step_after_callback');
+			}
+		}
+	}, [nav, totalSteps]);
+
 	const [credentials, setCredentials] = useState<MFACredentials>(() => {
 		// Try dual storage first (browser + database fallback)
 		const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
@@ -195,7 +209,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			tokenType: stored.tokenType || 'worker',
 			userToken: stored.userToken || '',
 			region: (stored.region as 'us' | 'eu' | 'ap' | 'ca' | 'na') || 'us',
-			customDomain: stored.customDomain as string | undefined,
+			customDomain: stored.customDomain || undefined,
 		};
 	});
 
@@ -281,7 +295,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			const parsed = UnifiedFlowErrorHandler.handleError(
 				error,
 				{
-					flowType: 'mfa' as const,
+					flowType: 'oauth-authz',
 					deviceType: 'GENERIC',
 					operation: 'loadDeviceAuthenticationPolicies',
 				},
@@ -1120,7 +1134,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 								nav.goToNext();
 							}
 						} else if (nav.currentStep === 1) {
-							// Step 1: Select Device
+							// Step 1: Select Device / User Login
 							// If user has selected an existing device and has authenticationId, they should use "Use Selected Device" button
 							// Don't allow Next button to go to registration if they have an existing device selected
 							if (mfaState.authenticationId) {
@@ -1132,8 +1146,16 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 								]);
 								return;
 							}
-							// If no device selected or new device selected, allow navigation to registration
-							nav.goToNext();
+							// If no device selected or new device selected, allow navigation
+							if (flowType === 'registration') {
+								// For registration flow, skip Step 2 (Device Selection) and go to Step 3 (Device Registration)
+								console.log(`${MODULE_TAG} Registration flow: Skipping Step 2, going to Step 3 (Device Registration)`);
+								nav.goToStep(3);
+							} else {
+								// For device-auth flow, go to Step 2 (Device Selection)
+								console.log(`${MODULE_TAG} Device authentication flow: Going to Step 2 (Device Selection)`);
+								nav.goToNext();
+							}
 						} else if (nav.currentStep === 3 && deviceType === 'TOTP') {
 							// Step 3: QR Code page for TOTP
 							// For TOTP registration flow, Step 3 is the QR code page and should never navigate to Step 4

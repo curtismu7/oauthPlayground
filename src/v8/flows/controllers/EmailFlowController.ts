@@ -74,7 +74,7 @@ export class EmailFlowController extends MFAFlowController {
 
 	getDeviceRegistrationParams(
 		credentials: MFACredentials,
-		status: 'ACTIVE' | 'ACTIVATION_REQUIRED' = 'ACTIVE'
+		status: 'ACTIVE' | 'ACTIVATION_REQUIRED' = 'ACTIVATION_REQUIRED'
 	): Partial<RegisterDeviceParams> {
 		// Use device name from credentials if provided
 		const deviceName =

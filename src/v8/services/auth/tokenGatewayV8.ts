@@ -18,10 +18,10 @@
  * - Subscription-based status updates
  */
 
+import { unifiedWorkerTokenService } from '../../../services/unifiedWorkerTokenService';
+import { workerTokenServiceV8 } from '../workerTokenServiceV8';
 import type { TokenStatusInfo } from '../workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from '../workerTokenStatusServiceV8';
-import { workerTokenServiceV8 } from '../workerTokenServiceV8';
-import { unifiedWorkerTokenService } from '../../../services/unifiedWorkerTokenService';
 
 const MODULE_TAG = '[🔐 TOKEN-GATEWAY-V8]';
 
@@ -328,12 +328,16 @@ class TokenGatewayV8 {
 
 		// Validate credentials
 		if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
-			this.log('Invalid credentials', { hasEnvId: !!credentials.environmentId, hasClientId: !!credentials.clientId });
+			this.log('Invalid credentials', {
+				hasEnvId: !!credentials.environmentId,
+				hasClientId: !!credentials.clientId,
+			});
 			return {
 				success: false,
 				error: {
 					code: 'INVALID_CREDENTIALS',
-					message: 'Incomplete credentials. Environment ID, Client ID, and Client Secret are required.',
+					message:
+						'Incomplete credentials. Environment ID, Client ID, and Client Secret are required.',
 					retryable: false,
 				},
 				needsInteraction: true,
@@ -407,9 +411,8 @@ class TokenGatewayV8 {
 		const region = credentials.region || 'us';
 		const proxyEndpoint = '/api/pingone/token';
 		const defaultScopes = ['mfa:device:manage', 'mfa:device:read'];
-		const scopes = credentials.scopes && credentials.scopes.length > 0
-			? credentials.scopes
-			: defaultScopes;
+		const scopes =
+			credentials.scopes && credentials.scopes.length > 0 ? credentials.scopes : defaultScopes;
 
 		const params = new URLSearchParams({
 			grant_type: 'client_credentials',
@@ -435,7 +438,11 @@ class TokenGatewayV8 {
 			requestBody.headers = { Authorization: `Basic ${basicAuth}` };
 		}
 
-		this.log('Fetching token', { region, authMethod, envId: credentials.environmentId.substring(0, 8) + '...' });
+		this.log('Fetching token', {
+			region,
+			authMethod,
+			envId: `${credentials.environmentId.substring(0, 8)}...`,
+		});
 
 		// Create abort controller for timeout
 		const controller = new AbortController();
@@ -457,7 +464,7 @@ class TokenGatewayV8 {
 				return this.handleHttpError(response);
 			}
 
-			const data = await response.json() as {
+			const data = (await response.json()) as {
 				access_token?: string;
 				expires_in?: number;
 				error?: string;
@@ -592,7 +599,10 @@ class TokenGatewayV8 {
 	 * Debug logging
 	 */
 	private log(message: string, data?: Record<string, unknown>): void {
-		if (this.debugEnabled || (typeof window !== 'undefined' && (window as any).TOKEN_GATEWAY_DEBUG)) {
+		if (
+			this.debugEnabled ||
+			(typeof window !== 'undefined' && (window as any).TOKEN_GATEWAY_DEBUG)
+		) {
 			if (data) {
 				console.log(`${MODULE_TAG} ${message}`, data);
 			} else {

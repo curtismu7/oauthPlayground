@@ -540,12 +540,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9',
 				clientId: '66a4686b-9222-4ad2-91b6-03113711c9aa',
 				clientSecret: '0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a',
-				scopes: [
-					'p1:read:user',
-					'p1:update:user',
-					'p1:read:device',
-					'p1:update:device',
-				],
+				scopes: ['p1:read:user', 'p1:update:user', 'p1:read:device', 'p1:update:device'],
 				region: 'us' as const,
 				tokenEndpointAuthMethod: 'client_secret_basic' as const,
 			};
@@ -1594,8 +1589,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 							const tokenRequestBody = new URLSearchParams({
 								grant_type: 'client_credentials',
-								scope:
-									'p1:read:user p1:update:user p1:read:device p1:update:device',
+								scope: 'p1:read:user p1:update:user p1:read:device p1:update:device',
 							});
 
 							console.log(

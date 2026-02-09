@@ -9,8 +9,11 @@
  * Automatically updates when configuration changes
  */
 
-import { useState, useEffect } from 'react';
-import { WorkerTokenConfigServiceV8, type WorkerTokenConfig } from '@/v8/services/workerTokenConfigServiceV8';
+import { useEffect, useState } from 'react';
+import {
+	type WorkerTokenConfig,
+	WorkerTokenConfigServiceV8,
+} from '@/v8/services/workerTokenConfigServiceV8';
 
 export interface UseWorkerTokenConfigResult extends WorkerTokenConfig {
 	isReady: boolean;

@@ -150,7 +150,7 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 						</div>
 						<button
 							type="button"
-							onClick={() => navigate('/v8/mfa-hub')}
+							onClick={() => navigate('/v8/mfa-config')}
 							onMouseEnter={(e) => {
 								e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
 							}}

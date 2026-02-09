@@ -124,6 +124,10 @@ export interface StepValidationFeedbackProps {
 	showWarnings?: boolean;
 	/** CSS class name for styling */
 	className?: string;
+	/** Optional callback to trigger worker token refresh */
+	onWorkerTokenRefresh?: () => Promise<void>;
+	/** Optional callback to trigger validation recheck */
+	onValidationRecheck?: () => void;
 }
 
 /**
