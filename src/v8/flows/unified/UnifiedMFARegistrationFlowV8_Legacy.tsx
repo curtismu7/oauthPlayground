@@ -2847,17 +2847,17 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 	);
 
 	/**
-	 * Render Step 5: API Documentation
+	 * Render Step 5: Success screen with all user data and other valuable options
 	 */
 	const renderStep5 = useCallback((props: MFAFlowBaseRenderProps) => {
-		return <APIDocsStepV8 renderProps={props} />;
+		return <SuccessStepV8 renderProps={props} />;
 	}, []);
 
 	/**
-	 * Render Step 6: Success screen with all user data and other valuable options
+	 * Render Step 6: API Documentation
 	 */
 	const renderStep6 = useCallback((props: MFAFlowBaseRenderProps) => {
-		return <SuccessStepV8 renderProps={props} />;
+		return <APIDocsStepV8 renderProps={props} />;
 	}, []);
 
 	// Step labels for device authentication flow
@@ -2869,8 +2869,8 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 				'Device Selection',
 				'Start FIDO in Browser',
 				'Passkey confirmation',
-				'API Docs',
 				'Success',
+				'API Docs',
 			];
 		} else if (deviceType === 'MOBILE') {
 			return [
@@ -2879,8 +2879,8 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 				'Device Selection',
 				'Push to Mobile App',
 				'User Confirms on Mobile',
-				'API Docs',
 				'Success',
+				'API Docs',
 			];
 		} else {
 			// SMS, Email, TOTP, WhatsApp
@@ -2890,8 +2890,8 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 				'Device Selection',
 				'Generate OTP/QR',
 				'Validate OTP',
-				'API Docs',
 				'Success',
+				'API Docs',
 			];
 		}
 	}, [deviceType]);
@@ -2902,6 +2902,20 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 		}
 		if (props.nav.currentStep === 1) {
 			return true; // Hide Next button on user login step, use authentication button
+		}
+		if (props.nav.currentStep === 2) {
+			// FIXED: Prevent advancement to step 3 without valid worker token
+			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+			const tokenType = props.credentials.tokenType || 'worker';
+			
+			// For worker token flows: require valid token
+			// For user token flows: require valid user token
+			if (tokenType === 'worker' && !tokenStatus.isValid) {
+				return true; // Hide Next button - worker token invalid
+			}
+			if (tokenType === 'user' && !props.credentials.userToken?.trim()) {
+				return true; // Hide Next button - user token missing
+			}
 		}
 		return false;
 	}, []);
