@@ -15540,8 +15540,158 @@ grep -A 5 -B 5 "Failed to parse credential file" src/v8/components/WorkerTokenMo
 grep -A 5 -B 5 "KeyRotationPolicy" src/services/unifiedWorkerTokenService.ts
 grep -A 5 -B 5 "getKeyRotationStatus" src/services/unifiedWorkerTokenService.ts
 grep -A 5 -B 5 "checkKRPCompliance" src/services/unifiedWorkerTokenService.ts
+grep -A 5 -B 5 "updateKeyRotationPolicy" src/services/unifiedWorkerTokenService.ts
+grep -A 5 -B 5 "getKeyRotationPolicies" src/services/unifiedWorkerTokenService.ts
 grep -A 5 -B 5 "KRP Status Display" src/v8/components/WorkerTokenModalV8.tsx
 grep -A 5 -B 5 "2027-03-02" src/services/unifiedWorkerTokenService.ts
+grep -A 5 -B 5 "keyRotationPolicyId" src/services/unifiedWorkerTokenService.ts
+grep -A 5 -B 5 "useKeyRotationPolicy" src/services/unifiedWorkerTokenService.ts
+
+# Issue 83: Verify KRP API endpoints are properly called
+grep -A 10 -B 5 "/v1/environments/.*/applications/.*/keyRotationPolicy" src/services/unifiedWorkerTokenService.ts
+grep -A 10 -B 5 "/v1/environments/.*/keyRotationPolicies" src/services/unifiedWorkerTokenService.ts
+grep -A 5 -B 5 "PATCH.*keyRotationPolicy" src/services/unifiedWorkerTokenService.ts
+
+# Issue 83: Check KRP UI components and styling
+grep -A 10 -B 5 "🔑 Key Rotation Policy" src/v8/components/WorkerTokenModalV8.tsx
+grep -A 5 -B 5 "krpCompliance.*compliant" src/v8/components/WorkerTokenModalV8.tsx
+grep -A 5 -B 5 "Compliant.*Application uses KRP" src/v8/components/WorkerTokenModalV8.tsx
+grep -A 5 -B 5 "KRP migration required" src/v8/components/WorkerTokenModalV8.tsx
+
+# Issue 83: Verify KRP deadline calculations and warnings
+grep -A 5 -B 5 "daysUntilDeadline.*30" src/services/unifiedWorkerTokenService.ts
+grep -A 5 -B 5 "daysUntilDeadline.*90" src/services/unifiedWorkerTokenService.ts
+grep -A 5 -B 5 "URGENT.*KRP migration" src/services/unifiedWorkerTokenService.ts
+grep -A 5 -B 5 "March.*2027" src/services/unifiedWorkerTokenService.ts
+
+# ========================================================================
+# KEY ROTATION POLICY (KRP) COMPREHENSIVE DOCUMENTATION
+# ========================================================================
+
+## 🚨 CRITICAL DEADLINE: March 2, 2027
+**PingOne will ONLY use KRP signing keys after this date**
+- All OIDC applications MUST use KRP
+- Non-compliant apps will auto-migrate to default KRP
+- No manual intervention required but preparation recommended
+
+## 📋 KRP Implementation Checklist
+
+### ✅ Service Layer (unifiedWorkerTokenService.ts)
+- [x] KeyRotationPolicy interface
+- [x] ApplicationKeyRotationStatus interface  
+- [x] getKeyRotationStatus() - Check app KRP configuration
+- [x] getKeyRotationPolicies() - List available policies
+- [x] updateKeyRotationPolicy() - Configure app to use KRP
+- [x] checkKRPCompliance() - Deadline compliance check
+- [x] KRP metadata in token data storage
+
+### ✅ UI Layer (WorkerTokenModalV8.tsx)
+- [x] KRP status display component
+- [x] Compliance warnings with countdown
+- [x] Color-coded status (blue=good, yellow=warning)
+- [x] Fetch KRP status on token display
+- [x] Clear user messaging
+
+### ✅ API Integration
+- [x] Dynamic PingOneAPI import (avoid circular deps)
+- [x] GET /v1/environments/{id}/applications/{id} - Check KRP status
+- [x] GET /v1/environments/{id}/keyRotationPolicies - List policies
+- [x] PATCH /v1/environments/{id}/applications/{id} - Update KRP
+- [x] Proper error handling and logging
+
+## 🔍 KRP Testing Commands
+
+### Check Service Implementation
+```bash
+# Verify KRP interfaces exist
+grep -n "interface.*KeyRotationPolicy" src/services/unifiedWorkerTokenService.ts
+grep -n "interface.*ApplicationKeyRotationStatus" src/services/unifiedWorkerTokenService.ts
+
+# Verify KRP methods implemented
+grep -n "async getKeyRotationStatus" src/services/unifiedWorkerTokenService.ts
+grep -n "async getKeyRotationPolicies" src/services/unifiedWorkerTokenService.ts
+grep -n "async updateKeyRotationPolicy" src/services/unifiedWorkerTokenService.ts
+grep -n "async checkKRPCompliance" src/services/unifiedWorkerTokenService.ts
+
+# Check deadline calculations
+grep -A 10 -B 5 "2027-03-02" src/services/unifiedWorkerTokenService.ts
+grep -A 5 -B 5 "daysUntilDeadline" src/services/unifiedWorkerTokenService.ts
+```
+
+### Check UI Implementation
+```bash
+# Verify KRP state management
+grep -n "krpStatus.*useState" src/v8/components/WorkerTokenModalV8.tsx
+grep -n "krpCompliance.*useState" src/v8/components/WorkerTokenModalV8.tsx
+
+# Check KRP display component
+grep -A 15 -B 5 "KRP Status Display" src/v8/components/WorkerTokenModalV8.tsx
+grep -A 10 -B 5 "🔑 Key Rotation Policy" src/v8/components/WorkerTokenModalV8.tsx
+
+# Verify compliance styling
+grep -A 5 -B 5 "compliant.*#dbeafe" src/v8/components/WorkerTokenModalV8.tsx
+grep -A 5 -B 5 "!compliant.*#fef3c7" src/v8/components/WorkerTokenModalV8.tsx
+```
+
+### Check API Endpoints
+```bash
+# Verify correct API calls
+grep -A 5 -B 5 "/applications/.*/keyRotationPolicy" src/services/unifiedWorkerTokenService.ts
+grep -A 5 -B 5 "/keyRotationPolicies" src/services/unifiedWorkerTokenService.ts
+grep -A 5 -B 5 "method.*PATCH" src/services/unifiedWorkerTokenService.ts
+
+# Check error handling
+grep -A 10 -B 5 "Failed to get KRP" src/services/unifiedWorkerTokenService.ts
+grep -A 10 -B 5 "Failed to update KRP" src/services/unifiedWorkerTokenService.ts
+```
+
+## 🎯 KRP Benefits Summary
+
+### Security Enhancements
+- **Automatic Key Rotation** - No manual key management
+- **Zero Administrative Overhead** - PingOne handles everything  
+- **Enhanced Security Posture** - Regular key rotation
+- **Compliance Ready** - Meets 2027 requirements
+
+### User Experience
+- **Transparent Operation** - No impact on token usage
+- **Clear Status Display** - Users know compliance status
+- **Helpful Warnings** - Ample time before deadline
+- **One-Click Migration** - Easy KRP configuration
+
+## ⚠️ Common KRP Issues to Watch For
+
+### API Issues
+- Missing KRP permissions in worker token scopes
+- Invalid environment ID or application ID
+- Network connectivity issues with PingOne API
+- Rate limiting on KRP endpoints
+
+### UI Issues  
+- KRP status not loading (check API calls)
+- Compliance warnings not displaying
+- Color coding not working properly
+- State management issues
+
+### Logic Issues
+- Incorrect deadline calculations
+- Missing KRP metadata in token storage
+- Circular dependency with PingOneAPI import
+- Type errors with optional KRP fields
+
+## 🔄 KRP Maintenance
+
+### Regular Checks
+- Weekly: Verify KRP status fetching works
+- Monthly: Check compliance warnings accuracy  
+- Quarterly: Review KRP policy availability
+- Pre-2027: Monitor deadline countdown accuracy
+
+### Updates Needed
+- If PingOne changes KRP API endpoints
+- If deadline dates change
+- If new KRP features are added
+- If compliance requirements evolve
 
 # Issue 70: Resend email prevention commands
 grep -rn "resendEmail" src/v8/services/mfaServiceV8.ts -A 5 -B 5
