@@ -17,7 +17,10 @@ import {
 } from '@/services/credentialExportImportService';
 import { environmentService } from '@/services/environmentService';
 import { UnifiedTokenDisplayService } from '@/services/unifiedTokenDisplayService';
-import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import { 
+	unifiedWorkerTokenService,
+	type ApplicationKeyRotationStatus,
+} from '@/services/unifiedWorkerTokenService';
 import pingOneFetch from '@/utils/pingOneFetch';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
@@ -71,6 +74,13 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	const [saveCredentials, setSaveCredentials] = useState(true);
 	const [currentToken, setCurrentToken] = useState<string | null>(null);
 	const [showTokenDisplay, setShowTokenDisplay] = useState(false);
+	const [krpStatus, setKrpStatus] = useState<ApplicationKeyRotationStatus | null>(null);
+	const [krpCompliance, setKrpCompliance] = useState<{
+		compliant: boolean;
+		daysUntilDeadline: number;
+		warning: string;
+		recommendation: string;
+	} | null>(null);
 
 	// Check if we should display current token when modal opens
 	useEffect(() => {
@@ -84,6 +94,18 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						if (token) {
 							setCurrentToken(token);
 							setShowTokenDisplay(true);
+							
+							// Fetch KRP status
+							try {
+								const [krpStatusData, krpComplianceData] = await Promise.all([
+									unifiedWorkerTokenService.getKeyRotationStatus(),
+									unifiedWorkerTokenService.checkKRPCompliance(),
+								]);
+								setKrpStatus(krpStatusData);
+								setKrpCompliance(krpComplianceData);
+							} catch (error) {
+								console.warn(`${MODULE_TAG} Failed to fetch KRP status:`, error);
+							}
 						}
 					}
 				}
@@ -93,6 +115,8 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			// Reset when modal closes
 			setCurrentToken(null);
 			setShowTokenDisplay(false);
+			setKrpStatus(null);
+			setKrpCompliance(null);
 		}
 	}, [isOpen, showTokenOnly]);
 
@@ -327,7 +351,37 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			setShowRequestModal(true);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Pre-flight validation error:`, error);
-			toastV8.error(error instanceof Error ? error.message : 'Pre-flight validation failed');
+
+			// Enhanced error handling for token-related issues
+			let errorMessage = 'Pre-flight validation failed';
+			let showWorkerTokenButton = false;
+
+			if (error instanceof Error) {
+				const errorStr = error.message.toLowerCase();
+
+				// Check for 401 Unauthorized or token-related errors
+				if (
+					errorStr.includes('401') ||
+					errorStr.includes('unauthorized') ||
+					errorStr.includes('invalid token') ||
+					errorStr.includes('expired token') ||
+					errorStr.includes('token required') ||
+					errorStr.includes('worker token')
+				) {
+					errorMessage = 'Worker token is invalid or expired. Please generate a new worker token.';
+					showWorkerTokenButton = true;
+				} else {
+					errorMessage = error.message;
+				}
+			}
+
+			// Show error with appropriate recovery options
+			if (showWorkerTokenButton) {
+				// Use toast for now, but this could be enhanced with UnifiedErrorDisplayV8
+				toastV8.error(errorMessage, { duration: 8000 });
+			} else {
+				toastV8.error(errorMessage);
+			}
 		} finally {
 			setIsGenerating(false);
 			setLoadingMessage('');
@@ -502,7 +556,36 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			return token;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Token generation error`, error);
-			toastV8.error(error instanceof Error ? error.message : 'Failed to generate token');
+
+			// Enhanced error handling for token generation
+			let errorMessage = 'Failed to generate token';
+
+			if (error instanceof Error) {
+				const errorStr = error.message.toLowerCase();
+
+				// Check for 401 Unauthorized or token-related errors
+				if (
+					errorStr.includes('401') ||
+					errorStr.includes('unauthorized') ||
+					errorStr.includes('invalid token') ||
+					errorStr.includes('expired token') ||
+					errorStr.includes('token required') ||
+					errorStr.includes('worker token')
+				) {
+					errorMessage =
+						'Worker token is invalid or expired. Please check your credentials and try again.';
+				} else if (errorStr.includes('400') || errorStr.includes('bad request')) {
+					errorMessage = 'Invalid request. Please check your environment ID and credentials.';
+				} else if (errorStr.includes('403') || errorStr.includes('forbidden')) {
+					errorMessage = 'Access forbidden. Please check your permissions and credentials.';
+				} else if (errorStr.includes('network') || errorStr.includes('fetch')) {
+					errorMessage = 'Network error. Please check your connection and try again.';
+				} else {
+					errorMessage = error.message;
+				}
+			}
+
+			toastV8.error(errorMessage, { duration: 8000 });
 			return null;
 		} finally {
 			setIsGenerating(false);
@@ -580,20 +663,27 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-						<div>
-							<h2
-								style={{
-									margin: '0 0 4px 0',
-									fontSize: '18px',
-									fontWeight: '700',
-									color: '#92400e',
-								}}
-							>
-								🔑 Worker Token Credentials
-							</h2>
-							<p style={{ margin: 0, fontSize: '13px', color: '#78350f' }}>
-								Generate a worker token for API access
-							</p>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+							<img
+								src="https://assets.pingone.com/ux/ui-library/5.0.2/images/logo-pingidentity.png"
+								alt="PingIdentity"
+								style={{ height: '32px', width: 'auto' }}
+							/>
+							<div>
+								<h2
+									style={{
+										margin: '0 0 4px 0',
+										fontSize: '18px',
+										fontWeight: '700',
+										color: '#92400e',
+									}}
+								>
+									🔑 Worker Token Credentials
+								</h2>
+								<p style={{ margin: 0, fontSize: '13px', color: '#78350f' }}>
+									Generate a worker token for API access
+								</p>
+							</div>
 						</div>
 						<button
 							type="button"
@@ -740,25 +830,48 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											{ access_token: currentToken },
 											'oauth',
 											'worker-token-current-v8',
-											{
-												showCopyButtons: true,
-												showDecodeButtons: true,
-											}
+											true
 										)}
 									</div>
-									<div style={{ display: 'flex', gap: '8px' }}>
+									
+									{/* KRP Status Display */}
+									{krpCompliance && (
+										<div
+											style={{
+												padding: '12px',
+												background: krpCompliance.compliant ? '#dbeafe' : '#fef3c7',
+												borderRadius: '4px',
+												border: `1px solid ${krpCompliance.compliant ? '#3b82f6' : '#f59e0b'}`,
+												marginBottom: '12px',
+												fontSize: '13px',
+											}}
+										>
+											<div style={{ fontWeight: '600', marginBottom: '4px', color: krpCompliance.compliant ? '#1e40af' : '#92400e' }}>
+												🔑 Key Rotation Policy (KRP)
+											</div>
+											{krpCompliance.compliant ? (
+												<div style={{ color: '#1e40af' }}>
+													✅ Compliant - Application uses KRP
+												</div>
+											) : (
+												<div>
+													<div style={{ color: '#92400e', marginBottom: '4px' }}>
+														{krpCompliance.warning}
+													</div>
+													<div style={{ color: '#92400e', fontSize: '12px' }}>
+														{krpCompliance.recommendation}
+													</div>
+												</div>
+											)}
+										</div>
+									)}
+									
+									<div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
 										<button
 											type="button"
-											onClick={async () => {
-												if (currentToken) {
-													try {
-														await unifiedWorkerTokenService.saveToken(currentToken);
-														toastV8.success('Token saved successfully!');
-													} catch (error) {
-														console.error(`${MODULE_TAG} Failed to save token:`, error);
-														toastV8.error('Failed to save token');
-													}
-												}
+											onClick={() => {
+												navigator.clipboard.writeText(currentToken);
+												toastV8.success('Worker token copied to clipboard!');
 											}}
 											style={{
 												padding: '6px 12px',
@@ -766,15 +879,12 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												color: 'white',
 												border: 'none',
 												borderRadius: '4px',
-												fontSize: '12px',
+												fontSize: '14px',
 												fontWeight: '600',
 												cursor: 'pointer',
-												display: 'flex',
-												alignItems: 'center',
-												gap: '4px',
 											}}
 										>
-											💾 Save
+											Copy Token
 										</button>
 										<button
 											type="button"
@@ -785,12 +895,12 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												color: 'white',
 												border: 'none',
 												borderRadius: '4px',
-												fontSize: '12px',
+												fontSize: '14px',
 												fontWeight: '600',
 												cursor: 'pointer',
 											}}
 										>
-											Hide Token
+											Close
 										</button>
 									</div>
 								</div>
