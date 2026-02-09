@@ -2,12 +2,11 @@
  * UserServiceV8
  *
  * Centralized service for PingOne user operations
- * Handles pagination, caching, and search across large user directories
+ * Handles pagination and search across large user directories
  */
 
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { backendConnectivityService } from './backendConnectivityServiceV8';
-import { UserCacheServiceV8 } from './userCacheServiceV8';
 
 const MODULE_TAG = '[UserServiceV8]';
 
@@ -203,39 +202,34 @@ export class UserServiceV8 {
 	}
 
 	/**
-	 * Fetch all users with automatic pagination and IndexedDB caching
+	 * Fetch all users from an environment with pagination
 	 *
-	 * Handles PingOne's 200-user limit per request by fetching multiple pages
-	 * Uses IndexedDB to persist cached users across sessions
+	 * Automatically handles pagination and returns all users up to maxPages.
+	 * Fetches directly from PingOne API for fresh data.
 	 *
-	 * @param environmentId - PingOne environment ID
+	 * @param environmentId - Environment ID
 	 * @param options - Fetch options
-	 * @returns All fetched users
+	 * @returns Promise resolving to array of users
 	 *
 	 * @example
 	 * ```typescript
-	 * // Fetch up to 10 pages (2000 users) - uses cache if available
+	 * // Fetch up to 10 pages (2000 users)
 	 * const users = await UserServiceV8.fetchAllUsers(envId);
 	 *
-	 * // Force refresh from server
-	 * const users = await UserServiceV8.fetchAllUsers(envId, { useCache: false });
+	 * // Fetch up to 20 pages (4000 users) with progress tracking
+	 * const users = await UserServiceV8.fetchAllUsers(envId, { 
+	 *   maxPages: 20,
+	 *   onProgress: (count, pages, latest) => console.log(`Fetched ${count} users`)
+	 * });
 	 * ```
 	 */
 	static async fetchAllUsers(
 		environmentId: string,
-		options: FetchAllUsersOptions & { useCache?: boolean } = {}
+		options: FetchAllUsersOptions = {}
 	): Promise<User[]> {
-		const { maxPages = 10, delayMs = 100, onProgress, useCache = true } = options;
+		const { maxPages = 10, delayMs = 100, onProgress } = options;
 
-		// Try to load from IndexedDB cache first
-		if (useCache) {
-			const cached = await UserCacheServiceV8.loadUsers(environmentId);
-			if (cached && cached.length > 0) {
-				console.log(`${MODULE_TAG} Using ${cached.length} users from IndexedDB cache`);
-				return cached;
-			}
-		}
-
+		
 		const allUsers: User[] = [];
 		let offset = 0;
 		const limit = 200; // PingOne max per request
@@ -278,12 +272,7 @@ export class UserServiceV8 {
 				`${MODULE_TAG} Finished fetching users. Total: ${allUsers.length} across ${fetchedPages} pages`
 			);
 
-			// Save to IndexedDB cache
-			if (allUsers.length > 0) {
-				await UserCacheServiceV8.saveUsers(environmentId, allUsers, !hasMore);
-				console.log(`${MODULE_TAG} Saved ${allUsers.length} users to IndexedDB cache`);
-			}
-
+			
 			return allUsers;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to fetch all users:`, error);
@@ -350,243 +339,6 @@ export class UserServiceV8 {
 			return data;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Get user error`, error);
-			throw error;
-		}
-	}
-
-	/**
-	 * Background prefetch users with progress tracking
-	 *
-	 * Fetches users in the background with:
-	 * - Configurable initial fetch (e.g., first 5 pages immediately)
-	 * - Remaining pages fetched in background
-	 * - Progress callbacks and abort signal support
-	 * - Automatic IndexedDB persistence
-	 *
-	 * @param environmentId - PingOne environment ID
-	 * @param options - Prefetch options
-	 * @returns Promise that resolves when initial fetch completes (background continues)
-	 *
-	 * @example
-	 * ```typescript
-	 * const controller = new AbortController();
-	 *
-	 * await UserServiceV8.prefetchUsers(envId, {
-	 *   initialPages: 5,  // Fetch first 1k users immediately
-	 *   maxPages: 100,    // Continue up to 20k users in background
-	 *   onProgress: (progress) => console.log(progress),
-	 *   signal: controller.signal
-	 * });
-	 *
-	 * // Later: abort if needed
-	 * controller.abort();
-	 * ```
-	 */
-	static async prefetchUsers(
-		environmentId: string,
-		options: {
-			/** Number of pages to fetch immediately before returning (default: 5) */
-			initialPages?: number;
-			/** Maximum total pages to fetch (default: 50) */
-			maxPages?: number;
-			/** Delay between requests in ms (default: 150) */
-			delayMs?: number;
-			/** Progress callback */
-			onProgress?: (progress: {
-				currentPage: number;
-				totalPages: number;
-				fetchedCount: number;
-				isComplete: boolean;
-				phase: 'initial' | 'background';
-			}) => void;
-			/** Abort signal to cancel prefetch */
-			signal?: AbortSignal;
-		} = {}
-	): Promise<void> {
-		// Check if worker token is available before starting prefetch
-		const testToken = await unifiedWorkerTokenService.getToken();
-		if (!testToken) {
-			console.log(
-				`${MODULE_TAG} Worker token not available, skipping prefetch for environment ${environmentId}`
-			);
-			return;
-		}
-
-		const { initialPages = 5, maxPages = 50, delayMs = 150, onProgress, signal } = options;
-
-		console.log(`${MODULE_TAG} Starting prefetch for environment ${environmentId}`, {
-			initialPages,
-			maxPages,
-		});
-
-		// Check if already in progress
-		const existing = await UserCacheServiceV8.getCacheInfo(environmentId);
-		if (existing?.fetchInProgress) {
-			console.log(`${MODULE_TAG} Prefetch already in progress for ${environmentId}`);
-			return;
-		}
-
-		// Mark fetch as in progress
-		await UserCacheServiceV8.updateMetadata(environmentId, {
-			fetchInProgress: true,
-			currentPage: 0,
-			totalPages: maxPages,
-			fetchedCount: 0,
-		});
-
-		const limit = 200; // PingOne max
-		let offset = 0;
-		let page = 0;
-		const allUsers: User[] = [];
-		let hasMore = true;
-
-		try {
-			// Phase 1: Initial fetch (blocking)
-			console.log(`${MODULE_TAG} Phase 1: Fetching initial ${initialPages} pages...`);
-
-			while (hasMore && page < initialPages && page < maxPages) {
-				if (signal?.aborted) {
-					console.log(`${MODULE_TAG} Prefetch aborted during initial phase`);
-					break;
-				}
-
-				const result = await UserServiceV8.listUsers(environmentId, { limit, offset });
-
-				if (result.users.length > 0) {
-					allUsers.push(...result.users);
-					page++;
-					offset += result.users.length;
-
-					// Update metadata
-					await UserCacheServiceV8.updateMetadata(environmentId, {
-						currentPage: page,
-						fetchedCount: allUsers.length,
-					});
-
-					// Save to cache incrementally
-					await UserCacheServiceV8.saveUsers(environmentId, allUsers, false);
-
-					onProgress?.({
-						currentPage: page,
-						totalPages: maxPages,
-						fetchedCount: allUsers.length,
-						isComplete: false,
-						phase: 'initial',
-					});
-
-					console.log(
-						`${MODULE_TAG} Initial phase: page ${page}/${initialPages}, ${allUsers.length} users`
-					);
-				}
-
-				hasMore = result.hasMore && result.users.length > 0;
-
-				if (hasMore && page < initialPages && delayMs > 0) {
-					await new Promise((resolve) => setTimeout(resolve, delayMs));
-				}
-			}
-
-			console.log(`${MODULE_TAG} Phase 1 complete: ${allUsers.length} users cached`);
-
-			// Phase 2: Background fetch (non-blocking)
-			if (hasMore && page < maxPages) {
-				console.log(`${MODULE_TAG} Phase 2: Starting background fetch for remaining pages...`);
-
-				// Continue in background (don't await)
-				(async () => {
-					try {
-						while (hasMore && page < maxPages) {
-							if (signal?.aborted) {
-								console.log(`${MODULE_TAG} Prefetch aborted during background phase`);
-								break;
-							}
-
-							const result = await UserServiceV8.listUsers(environmentId, { limit, offset });
-
-							if (result.users.length > 0) {
-								allUsers.push(...result.users);
-								page++;
-								offset += result.users.length;
-
-								// Update metadata
-								await UserCacheServiceV8.updateMetadata(environmentId, {
-									currentPage: page,
-									fetchedCount: allUsers.length,
-								});
-
-								// Save to cache incrementally
-								await UserCacheServiceV8.saveUsers(environmentId, allUsers, false);
-
-								onProgress?.({
-									currentPage: page,
-									totalPages: maxPages,
-									fetchedCount: allUsers.length,
-									isComplete: false,
-									phase: 'background',
-								});
-
-								console.log(
-									`${MODULE_TAG} Background phase: page ${page}/${maxPages}, ${allUsers.length} users`
-								);
-							}
-
-							hasMore = result.hasMore && result.users.length > 0;
-
-							if (hasMore && delayMs > 0) {
-								await new Promise((resolve) => setTimeout(resolve, delayMs));
-							}
-						}
-
-						// Mark complete
-						await UserCacheServiceV8.updateMetadata(environmentId, {
-							fetchInProgress: false,
-							fetchComplete: true,
-							totalPages: page,
-							fetchedCount: allUsers.length,
-						});
-
-						await UserCacheServiceV8.saveUsers(environmentId, allUsers, true);
-
-						onProgress?.({
-							currentPage: page,
-							totalPages: page,
-							fetchedCount: allUsers.length,
-							isComplete: true,
-							phase: 'background',
-						});
-
-						console.log(`${MODULE_TAG} Background prefetch complete: ${allUsers.length} users`);
-					} catch (error) {
-						console.error(`${MODULE_TAG} Background prefetch error:`, error);
-						await UserCacheServiceV8.updateMetadata(environmentId, {
-							fetchInProgress: false,
-						});
-					}
-				})();
-			} else {
-				// Already complete in initial phase
-				await UserCacheServiceV8.updateMetadata(environmentId, {
-					fetchInProgress: false,
-					fetchComplete: true,
-					totalPages: page,
-					fetchedCount: allUsers.length,
-				});
-
-				await UserCacheServiceV8.saveUsers(environmentId, allUsers, true);
-
-				onProgress?.({
-					currentPage: page,
-					totalPages: page,
-					fetchedCount: allUsers.length,
-					isComplete: true,
-					phase: 'initial',
-				});
-			}
-		} catch (error) {
-			console.error(`${MODULE_TAG} Prefetch error:`, error);
-			await UserCacheServiceV8.updateMetadata(environmentId, {
-				fetchInProgress: false,
-			});
 			throw error;
 		}
 	}
