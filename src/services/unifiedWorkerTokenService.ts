@@ -50,6 +50,10 @@ export interface UnifiedWorkerTokenCredentials {
 	appName?: string;
 	appVersion?: string;
 
+	// Key Rotation Policy (KRP) support
+	keyRotationPolicyId?: string;
+	useKeyRotationPolicy?: boolean;
+
 	// Legacy compatibility fields
 	grant_type?: string;
 	tokenEndpoint?: string;
@@ -66,6 +70,11 @@ export interface UnifiedWorkerTokenData {
 	tokenType?: string;
 	expiresIn?: number;
 	scope?: string;
+
+	// KRP metadata
+	keyRotationPolicyId?: string | undefined;
+	keyRotationStatus?: 'active' | 'inactive' | 'expiring' | 'unknown' | undefined;
+	keyRotationExpiresAt?: number | undefined;
 }
 
 export interface UnifiedWorkerTokenStatus {
@@ -80,6 +89,13 @@ export interface UnifiedWorkerTokenStatus {
 		appName?: string;
 		appVersion?: string;
 	};
+	keyRotationPolicy?: {
+		enabled: boolean;
+		policyId?: string;
+		status?: 'active' | 'inactive' | 'expiring' | 'unknown';
+		expiresAt?: number;
+		daysUntilExpiry?: number;
+	};
 }
 
 export interface WorkerTokenValidationResult {
@@ -87,6 +103,29 @@ export interface WorkerTokenValidationResult {
 	errors: string[];
 	warnings: string[];
 	suggestions: string[];
+}
+
+export interface KeyRotationPolicy {
+	id: string;
+	name: string;
+	description?: string;
+	algorithm: string;
+	keySize: number;
+	rotationInterval: number; // in days
+	createdAt: string;
+	updatedAt: string;
+	status: 'ACTIVE' | 'INACTIVE' | 'EXPIRING';
+	nextRotationAt?: string;
+}
+
+export interface ApplicationKeyRotationStatus {
+	applicationId: string;
+	keyRotationPolicyId?: string | undefined;
+	keyRotationEnabled: boolean;
+	currentKeyId?: string | undefined;
+	nextRotationAt?: string | undefined;
+	daysUntilRotation?: number | undefined;
+	warningThreshold?: number; // days before rotation to show warning
 }
 
 /**
@@ -304,11 +343,11 @@ class UnifiedWorkerTokenService {
 				filename: 'unified-credentials.json',
 				browserStorageKey: BROWSER_STORAGE_KEY,
 			});
-			
+
 			if (result.success && result.data) {
 				const credentials = result.data as UnifiedWorkerTokenCredentials;
 				console.log(`${MODULE_TAG} ✅ Loaded worker token credentials from database`);
-				
+
 				// Update memory cache and localStorage
 				const data: UnifiedWorkerTokenData = {
 					token: '', // Token will be fetched when needed
@@ -316,14 +355,14 @@ class UnifiedWorkerTokenService {
 					savedAt: Date.now(),
 				};
 				this.memoryCache = data;
-				
+
 				// Restore to localStorage
 				try {
 					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 				} catch (error) {
 					console.warn(`${MODULE_TAG} ⚠️ Failed to restore to localStorage`, error);
 				}
-				
+
 				return credentials;
 			} else {
 				console.log(`${MODULE_TAG} ❌ No data found in database`);
@@ -736,6 +775,197 @@ class UnifiedWorkerTokenService {
 				},
 			})
 		);
+	}
+
+	// ========================================================================
+	// KEY ROTATION POLICY (KRP) SUPPORT
+	// ========================================================================
+
+	/**
+	 * Get key rotation policy status for the current worker token application
+	 */
+	async getKeyRotationStatus(): Promise<ApplicationKeyRotationStatus | null> {
+		const credentials = await this.loadCredentials();
+		if (!credentials || !credentials.environmentId || !credentials.clientId) {
+			return null;
+		}
+
+		try {
+			// Import PingOneAPI dynamically to avoid circular dependencies
+			const { default: PingOneAPI } = await import('../api/pingone');
+			
+			// Authenticate if needed
+			if (PingOneAPI.isTokenExpired()) {
+				await PingOneAPI.authenticate(
+					credentials.clientId,
+					credentials.clientSecret,
+					credentials.environmentId
+				);
+			}
+
+			// Get application details including KRP status
+			const response = await PingOneAPI.request(
+				`/v1/environments/${credentials.environmentId}/applications/${credentials.clientId}`
+			);
+
+			const app = response;
+			const krpStatus: ApplicationKeyRotationStatus = {
+				applicationId: credentials.clientId,
+				keyRotationPolicyId: app.keyRotationPolicy?.id,
+				keyRotationEnabled: !!app.keyRotationPolicy,
+				currentKeyId: app.tokenSigningKey?.kid,
+				nextRotationAt: app.keyRotationPolicy?.nextRotationAt,
+				daysUntilRotation: app.keyRotationPolicy?.nextRotationAt
+					? Math.ceil(
+						(new Date(app.keyRotationPolicy.nextRotationAt).getTime() - Date.now()) /
+							(1000 * 60 * 60 * 24)
+					)
+					: undefined,
+				warningThreshold: 30, // Show warning 30 days before rotation
+			};
+
+			// Update cached token data with KRP info
+			const tokenData = await this.loadDataFromStorage();
+			if (tokenData) {
+				tokenData.keyRotationPolicyId = krpStatus.keyRotationPolicyId ?? undefined;
+				tokenData.keyRotationStatus = krpStatus.keyRotationEnabled ? 'active' : 'inactive';
+				tokenData.keyRotationExpiresAt = krpStatus.nextRotationAt
+					? new Date(krpStatus.nextRotationAt).getTime()
+					: undefined;
+				await this.saveToken(tokenData.token, tokenData.expiresAt, {
+					credentials: tokenData.credentials,
+					keyRotationPolicyId: tokenData.keyRotationPolicyId,
+					keyRotationStatus: tokenData.keyRotationStatus,
+					keyRotationExpiresAt: tokenData.keyRotationExpiresAt,
+				});
+			}
+
+			return krpStatus;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to get KRP status:`, error);
+			return null;
+		}
+	}
+
+	/**
+	 * Get available key rotation policies for the environment
+	 */
+	async getKeyRotationPolicies(): Promise<KeyRotationPolicy[]> {
+		const credentials = await this.loadCredentials();
+		if (!credentials || !credentials.environmentId) {
+			return [];
+		}
+
+		try {
+			// Import PingOneAPI dynamically
+			const { default: PingOneAPI } = await import('../api/pingone');
+			
+			// Authenticate if needed
+			if (PingOneAPI.isTokenExpired()) {
+				await PingOneAPI.authenticate(
+					credentials.clientId,
+					credentials.clientSecret,
+					credentials.environmentId
+				);
+			}
+
+			// Get all key rotation policies
+			const response = await PingOneAPI.request(
+				`/v1/environments/${credentials.environmentId}/keyRotationPolicies`
+			);
+
+			return response._embedded?.keyRotationPolicies || [];
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to get KRP policies:`, error);
+			return [];
+		}
+	}
+
+	/**
+	 * Update application to use a specific key rotation policy
+	 */
+	async updateKeyRotationPolicy(policyId: string): Promise<boolean> {
+		const credentials = await this.loadCredentials();
+		if (!credentials || !credentials.environmentId || !credentials.clientId) {
+			return false;
+		}
+
+		try {
+			// Import PingOneAPI dynamically
+			const { default: PingOneAPI } = await import('../api/pingone');
+			
+			// Authenticate if needed
+			if (PingOneAPI.isTokenExpired()) {
+				await PingOneAPI.authenticate(
+					credentials.clientId,
+					credentials.clientSecret,
+					credentials.environmentId
+				);
+			}
+
+			// Update application with KRP
+			await PingOneAPI.request(
+				`/v1/environments/${credentials.environmentId}/applications/${credentials.clientId}`,
+				{
+					method: 'PATCH',
+					body: JSON.stringify({
+						keyRotationPolicy: {
+							id: policyId,
+						},
+					}),
+				}
+			);
+
+			// Update cached credentials
+			credentials.keyRotationPolicyId = policyId;
+			credentials.useKeyRotationPolicy = true;
+			await this.saveCredentials(credentials);
+
+			console.log(`${MODULE_TAG} ✅ Updated application to use KRP: ${policyId}`);
+			return true;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to update KRP:`, error);
+			return false;
+		}
+	}
+
+	/**
+	 * Check if application should be migrated to KRP (before March 2027 deadline)
+	 */
+	async checkKRPCompliance(): Promise<{
+		compliant: boolean;
+		daysUntilDeadline: number;
+		warning: string;
+		recommendation: string;
+	}> {
+		const krpStatus = await this.getKeyRotationStatus();
+		
+		// March 2, 2027 deadline
+		const deadline = new Date('2027-03-02T00:00:00Z');
+		const daysUntilDeadline = Math.ceil((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+		
+		if (krpStatus?.keyRotationEnabled) {
+			return {
+				compliant: true,
+				daysUntilDeadline,
+				warning: '',
+				recommendation: 'Application is using Key Rotation Policy - compliant with PingOne requirements',
+			};
+		}
+
+		let warning = '';
+		if (daysUntilDeadline <= 30) {
+			warning = `⚠️ URGENT: KRP migration required in ${daysUntilDeadline} days!`;
+		} else if (daysUntilDeadline <= 90) {
+			warning = `⚠️ KRP migration required in ${daysUntilDeadline} days`;
+		}
+
+		return {
+			compliant: false,
+			daysUntilDeadline,
+			warning,
+			recommendation: 'Configure Key Rotation Policy for this worker application before March 2, 2027',
+		};
 	}
 }
 
