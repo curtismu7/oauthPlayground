@@ -608,7 +608,11 @@ export class UnifiedFlowIntegrationV8U {
 				actualPingOneUrl: authorizationEndpoint,
 				isProxy: false,
 				headers: {},
-				body: Object.fromEntries(params.entries()),
+				body: {
+					query_parameters: Object.fromEntries(params.entries()),
+					query_string: params.toString(),
+					note: 'GET request with query parameters - these are sent as URL parameters, not POST body',
+				},
 				step: 'unified-authorization-url',
 				flowType: 'unified',
 			});
@@ -756,7 +760,11 @@ export class UnifiedFlowIntegrationV8U {
 				actualPingOneUrl: authorizationEndpoint,
 				isProxy: false,
 				headers: {},
-				body: Object.fromEntries(params.entries()),
+				body: {
+					query_parameters: Object.fromEntries(params.entries()),
+					query_string: params.toString(),
+					note: 'GET request with query parameters - these are sent as URL parameters, not POST body',
+				},
 				step: 'unified-authorization-url',
 				flowType: 'unified',
 			});
@@ -1242,14 +1250,14 @@ export class UnifiedFlowIntegrationV8U {
 					'Content-Type': 'application/x-www-form-urlencoded',
 					'Authorization': `Basic ${btoa(`${oauthCredentials.clientId}:${oauthCredentials.clientSecret || ''}`)}`,
 				},
-				body: {
+				body: new URLSearchParams({
 					grant_type: 'authorization_code',
 					code: code.substring(0, 20) + '...',
-					redirect_uri: oauthCredentials.redirectUri,
+					redirect_uri: oauthCredentials.redirectUri || '',
 					...(codeVerifier && { code_verifier: '***REDACTED***' }),
 					client_id: oauthCredentials.clientId,
 					client_secret: '***REDACTED***',
-				},
+				}).toString(),
 				flowType: 'unified',
 				step: 'unified-token-exchange',
 			});
@@ -1352,14 +1360,14 @@ export class UnifiedFlowIntegrationV8U {
 					'Content-Type': 'application/x-www-form-urlencoded',
 					'Authorization': `Basic ${btoa(`${hybridCredentials.clientId}:${hybridCredentials.clientSecret || ''}`)}`,
 				},
-				body: {
+				body: new URLSearchParams({
 					grant_type: 'authorization_code',
 					code: code.substring(0, 20) + '...',
-					redirect_uri: hybridCredentials.redirectUri,
+					redirect_uri: hybridCredentials.redirectUri || '',
 					...(codeVerifier && { code_verifier: '***REDACTED***' }),
 					client_id: hybridCredentials.clientId,
 					client_secret: '***REDACTED***',
-				},
+				}).toString(),
 				flowType: 'unified',
 				step: 'unified-hybrid-token-exchange',
 			});
