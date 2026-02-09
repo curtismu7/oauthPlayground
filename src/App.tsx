@@ -247,6 +247,7 @@ const MFAFlowsApiTest = lazy(() => import('./pages/test/MFAFlowsApiTest'));
 const PARTest = lazy(() => import('./pages/test/PARTest'));
 const TestCallback = lazy(() => import('./pages/test/TestCallback'));
 const TokenStatusPageV8U = lazy(() => import('./v8u/pages/TokenStatusPageV8U'));
+const ApiStatusPage = lazy(() => import('./pages/ApiStatusPage'));
 
 // Import V7M pages
 const V7MOAuthAuthCode = lazy(() => import('./v7m/pages/V7MOAuthAuthCode'));
@@ -1302,6 +1303,14 @@ const AppRoutes: React.FC = () => {
 								element={
 									<Suspense fallback={<div>Loading...</div>}>
 										<TokenStatusPageV8U />
+									</Suspense>
+								}
+							/>
+							<Route
+								path="/api-status"
+								element={
+									<Suspense fallback={<div>Loading...</div>}>
+										<ApiStatusPage />
 									</Suspense>
 								}
 							/>
