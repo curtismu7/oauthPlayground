@@ -30,8 +30,6 @@ import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
-import { SpiffeSpireService } from '@/v8u/services/spiffeSpireService';
-import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 
 const MODULE_TAG = '[🔐 SPIFFE-SPIRE-FLOW-V8U]';
 

@@ -26,9 +26,9 @@ interface SQLiteStatsDisplayV8Props {
 
 /**
  * SQLite Stats Display Component
- * 
+ *
  * Shows real-time statistics from the server's SQLite user database.
- * 
+ *
  * @example
  * ```tsx
  * <SQLiteStatsDisplayV8
@@ -54,7 +54,15 @@ export const SQLiteStatsDisplayV8: React.FC<SQLiteStatsDisplayV8Props> = ({
 	if (compact) {
 		if (isLoading && !stats) {
 			return (
-				<div style={{ fontSize: '12px', color: '#6b7280', display: 'flex', alignItems: 'center', gap: '6px' }}>
+				<div
+					style={{
+						fontSize: '12px',
+						color: '#6b7280',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '6px',
+					}}
+				>
 					<div
 						style={{
 							width: '12px',
@@ -71,23 +79,25 @@ export const SQLiteStatsDisplayV8: React.FC<SQLiteStatsDisplayV8Props> = ({
 		}
 
 		if (!stats || !stats.success) {
-			return (
-				<div style={{ fontSize: '12px', color: '#ef4444' }}>
-					❌ SQLite stats unavailable
-				</div>
-			);
+			return <div style={{ fontSize: '12px', color: '#ef4444' }}>❌ SQLite stats unavailable</div>;
 		}
 
 		if (stats.totalUsers === 0) {
 			return (
-				<div style={{ fontSize: '12px', color: '#6b7280' }}>
-					⚪ No users in SQLite database
-				</div>
+				<div style={{ fontSize: '12px', color: '#6b7280' }}>⚪ No users in SQLite database</div>
 			);
 		}
 
 		return (
-			<div style={{ fontSize: '12px', color: '#10b981', display: 'flex', alignItems: 'center', gap: '6px' }}>
+			<div
+				style={{
+					fontSize: '12px',
+					color: '#10b981',
+					display: 'flex',
+					alignItems: 'center',
+					gap: '6px',
+				}}
+			>
 				<FiDatabase size={14} />
 				<span>{stats.totalUsers.toLocaleString()} users in SQLite</span>
 				{metadata?.lastSyncedAt && (
@@ -110,8 +120,23 @@ export const SQLiteStatsDisplayV8: React.FC<SQLiteStatsDisplayV8Props> = ({
 				fontSize: '13px',
 			}}
 		>
-			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-				<div style={{ fontWeight: 600, color: '#0c4a6e', display: 'flex', alignItems: 'center', gap: '6px' }}>
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					marginBottom: '8px',
+				}}
+			>
+				<div
+					style={{
+						fontWeight: 600,
+						color: '#0c4a6e',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '6px',
+					}}
+				>
 					<FiDatabase size={16} />
 					SQLite Database
 				</div>
@@ -141,9 +166,7 @@ export const SQLiteStatsDisplayV8: React.FC<SQLiteStatsDisplayV8Props> = ({
 			</div>
 
 			{isLoading && !stats ? (
-				<div style={{ color: '#6b7280', fontSize: '12px' }}>
-					Loading statistics...
-				</div>
+				<div style={{ color: '#6b7280', fontSize: '12px' }}>Loading statistics...</div>
 			) : !stats || !stats.success ? (
 				<div style={{ color: '#ef4444', fontSize: '12px' }}>
 					❌ Failed to load statistics
@@ -160,13 +183,11 @@ export const SQLiteStatsDisplayV8: React.FC<SQLiteStatsDisplayV8Props> = ({
 							</span>
 						)}
 					</div>
-					
+
 					{metadata && (
 						<div style={{ fontSize: '11px', color: '#6b7280' }}>
 							{metadata.lastSyncedAt && (
-								<div>
-									Last synced: {new Date(metadata.lastSyncedAt).toLocaleString()}
-								</div>
+								<div>Last synced: {new Date(metadata.lastSyncedAt).toLocaleString()}</div>
 							)}
 							{metadata.isSyncing && (
 								<div style={{ color: '#3b82f6', fontWeight: 500, marginTop: '4px' }}>

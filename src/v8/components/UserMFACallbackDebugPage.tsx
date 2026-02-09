@@ -154,7 +154,7 @@ export const UserMFACallbackDebugPage: React.FC = () => {
 		}, 1000);
 
 		return () => clearTimeout(timer);
-	}, [countdown, autoRedirectEnabled, debugInfo]);
+	}, [countdown, autoRedirectEnabled, debugInfo, handleRedirect]);
 
 	const handleRedirect = () => {
 		if (!debugInfo?.redirectTarget) return;

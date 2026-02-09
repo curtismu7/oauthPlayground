@@ -23,7 +23,7 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 			url: '/api/pingone/mfa/register-device',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': 'Bearer WORKER_TOKEN',
+				Authorization: 'Bearer WORKER_TOKEN',
 			},
 			body: {
 				environmentId: 'env-123456',
@@ -49,7 +49,7 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 			url: '/api/pingone/mfa/register-device',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': 'Bearer WORKER_TOKEN',
+				Authorization: 'Bearer WORKER_TOKEN',
 			},
 			body: {
 				environmentId: 'env-123456',
@@ -71,12 +71,13 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 		},
 		user: {
 			name: 'User Flow',
-			description: 'Uses User Token (from OAuth login), creates device with ACTIVATION_REQUIRED status',
+			description:
+				'Uses User Token (from OAuth login), creates device with ACTIVATION_REQUIRED status',
 			method: 'POST',
 			url: '/api/pingone/mfa/register-device',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': 'Bearer USER_TOKEN',
+				Authorization: 'Bearer USER_TOKEN',
 			},
 			body: {
 				environmentId: 'env-123456',
@@ -95,7 +96,8 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 				deviceActivateUri: '/api/pingone/mfa/devices/dev-123456/activate',
 				createdAt: '2026-01-30T00:00:00Z',
 			},
-			notes: 'User must be logged into PingOne first. PingOne automatically sends OTP for activation.',
+			notes:
+				'User must be logged into PingOne first. PingOne automatically sends OTP for activation.',
 		},
 	};
 
@@ -186,7 +188,12 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 								padding: '24px',
 								border: '1px solid #e5e7eb',
 								borderRadius: '8px',
-								background: key === 'admin' ? '#f0fdf4' : key === 'adminActivationRequired' ? '#fef3c7' : '#dbeafe',
+								background:
+									key === 'admin'
+										? '#f0fdf4'
+										: key === 'adminActivationRequired'
+											? '#fef3c7'
+											: '#dbeafe',
 							}}
 						>
 							{/* Flow Header */}
@@ -205,10 +212,24 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 								<div>
 									{/* URL and Method */}
 									<div style={{ marginBottom: '16px' }}>
-										<h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+										<h4
+											style={{
+												margin: '0 0 8px 0',
+												fontSize: '14px',
+												fontWeight: '600',
+												color: '#374151',
+											}}
+										>
 											Endpoint
 										</h4>
-										<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												marginBottom: '8px',
+											}}
+										>
 											<span
 												style={{
 													background: flow.method === 'POST' ? '#10b981' : '#6b7280',
@@ -221,7 +242,14 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 											>
 												{flow.method}
 											</span>
-											<code style={{ background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px', fontSize: '13px' }}>
+											<code
+												style={{
+													background: '#f3f4f6',
+													padding: '4px 8px',
+													borderRadius: '4px',
+													fontSize: '13px',
+												}}
+											>
 												{flow.url}
 											</code>
 										</div>
@@ -229,7 +257,14 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 
 									{/* Headers */}
 									<div style={{ marginBottom: '16px' }}>
-										<h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+										<h4
+											style={{
+												margin: '0 0 8px 0',
+												fontSize: '14px',
+												fontWeight: '600',
+												color: '#374151',
+											}}
+										>
 											Headers
 										</h4>
 										{renderCodeBlock(flow.headers)}
@@ -240,7 +275,14 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 								<div>
 									{/* Request Body */}
 									<div style={{ marginBottom: '16px' }}>
-										<h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+										<h4
+											style={{
+												margin: '0 0 8px 0',
+												fontSize: '14px',
+												fontWeight: '600',
+												color: '#374151',
+											}}
+										>
 											Request Body
 										</h4>
 										{renderCodeBlock(flow.body)}
@@ -248,7 +290,14 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 
 									{/* Response */}
 									<div style={{ marginBottom: '16px' }}>
-										<h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+										<h4
+											style={{
+												margin: '0 0 8px 0',
+												fontSize: '14px',
+												fontWeight: '600',
+												color: '#374151',
+											}}
+										>
 											Response
 										</h4>
 										{renderCodeBlock(flow.response)}
@@ -257,8 +306,22 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 							</div>
 
 							{/* Notes */}
-							<div style={{ marginTop: '16px', padding: '12px', background: 'white', borderRadius: '6px' }}>
-								<h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+							<div
+								style={{
+									marginTop: '16px',
+									padding: '12px',
+									background: 'white',
+									borderRadius: '6px',
+								}}
+							>
+								<h4
+									style={{
+										margin: '0 0 8px 0',
+										fontSize: '14px',
+										fontWeight: '600',
+										color: '#374151',
+									}}
+								>
 									📝 Notes
 								</h4>
 								<p style={{ margin: 0, fontSize: '13px', color: '#6b7280', lineHeight: '1.5' }}>
@@ -278,27 +341,45 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 							marginTop: '24px',
 						}}
 					>
-						<h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600', color: '#111827' }}>
+						<h3
+							style={{
+								margin: '0 0 16px 0',
+								fontSize: '16px',
+								fontWeight: '600',
+								color: '#111827',
+							}}
+						>
 							🔑 Key Differences
 						</h3>
-						<ul style={{ margin: 0, paddingLeft: '20px', color: '#374151', fontSize: '14px', lineHeight: '1.6' }}>
+						<ul
+							style={{
+								margin: 0,
+								paddingLeft: '20px',
+								color: '#374151',
+								fontSize: '14px',
+								lineHeight: '1.6',
+							}}
+						>
 							<li>
-								<strong>Token Type:</strong> Admin flows use <code>tokenType: 'worker'</code>, User flow uses{' '}
-								<code>tokenType: 'user'</code>
+								<strong>Token Type:</strong> Admin flows use <code>tokenType: 'worker'</code>, User
+								flow uses <code>tokenType: 'user'</code>
 							</li>
 							<li>
-								<strong>Authentication:</strong> Admin flows use Worker Token, User flow requires User Token from OAuth login
+								<strong>Authentication:</strong> Admin flows use Worker Token, User flow requires
+								User Token from OAuth login
 							</li>
 							<li>
 								<strong>Device Status:</strong> Admin flow can choose <code>'ACTIVE'</code> or{' '}
-								<code>'ACTIVATION_REQUIRED'</code>, User flow always uses <code>'ACTIVATION_REQUIRED'</code>
+								<code>'ACTIVATION_REQUIRED'</code>, User flow always uses{' '}
+								<code>'ACTIVATION_REQUIRED'</code>
 							</li>
 							<li>
-								<strong>OTP Requirement:</strong> Only flows with <code>'ACTIVATION_REQUIRED'</code> status trigger OTP
-								automatically
+								<strong>OTP Requirement:</strong> Only flows with <code>'ACTIVATION_REQUIRED'</code>{' '}
+								status trigger OTP automatically
 							</li>
 							<li>
-								<strong>User Token:</strong> User flow includes <code>userToken</code> field from OAuth login
+								<strong>User Token:</strong> User flow includes <code>userToken</code> field from
+								OAuth login
 							</li>
 						</ul>
 					</div>

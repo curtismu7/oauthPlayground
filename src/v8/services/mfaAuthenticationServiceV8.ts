@@ -72,6 +72,7 @@ export interface OTPValidationParams {
 	otp: string;
 	otpCheckUrl?: string; // From _links.otp.check.href
 	region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'; // PingOne region: us (North America), eu (Europe), ap (Asia Pacific), ca (Canada), na (alias for us)
+	customDomain?: string; // Custom domain for PingOne API (e.g., auth.yourcompany.com). If provided, overrides region-based domain.
 }
 
 export interface OTPValidationResult {
@@ -282,8 +283,8 @@ export class MfaAuthenticationServiceV8 {
 					...requestBody,
 					workerToken: cleanToken ? '***REDACTED***' : 'MISSING',
 					hasWorkerToken: !!cleanToken,
-					workerTokenLength: cleanToken?.length || 0
-				}
+					workerTokenLength: cleanToken?.length || 0,
+				},
 			});
 
 			const response = await fetch('/api/pingone/mfa/initialize-device-authentication', {
@@ -379,7 +380,7 @@ export class MfaAuthenticationServiceV8 {
 						if (limitExceededDetail) {
 							const deliveryMethod = limitExceededDetail.innerError.deliveryMethod.toUpperCase();
 							const expiresAt = limitExceededDetail.innerError?.coolDownExpiresAt;
-							
+
 							// Get device type display name
 							const getDeviceTypeName = (method: string): string => {
 								const methodMap: Record<string, string> = {
@@ -391,10 +392,10 @@ export class MfaAuthenticationServiceV8 {
 								};
 								return methodMap[method] || method;
 							};
-							
+
 							const deviceTypeName = getDeviceTypeName(deliveryMethod);
 							let friendlyMessage = `${deviceTypeName} authentication is temporarily locked due to too many recent attempts. Please wait a few minutes and try again.`;
-							
+
 							if (expiresAt && typeof expiresAt === 'number') {
 								try {
 									const lockUntil = new Date(expiresAt);
@@ -407,8 +408,8 @@ export class MfaAuthenticationServiceV8 {
 									// If date conversion fails, fall back to generic message
 								}
 							}
-							
-							const error = new Error(friendlyMessage) as Error & { 
+
+							const error = new Error(friendlyMessage) as Error & {
 								errorCode?: string;
 								deliveryMethod?: string;
 								coolDownExpiresAt?: number;
@@ -444,14 +445,21 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(error, {
-				flowType: 'mfa' as any,
-				operation: 'initializeDeviceAuthentication',
-			}, {
-				logError: true,
-				showToast: false,
-			});
-			console.error(`${MODULE_TAG} Error initializing device authentication:`, parsed.userFriendlyMessage);
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'oauth-authz',
+					operation: 'initializeDeviceAuthentication',
+				},
+				{
+					logError: true,
+					showToast: false,
+				}
+			);
+			console.error(
+				`${MODULE_TAG} Error initializing device authentication:`,
+				parsed.userFriendlyMessage
+			);
 			throw error;
 		}
 	}
@@ -583,14 +591,21 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(error, {
-				flowType: 'mfa' as any,
-				operation: 'initializeOneTimeDeviceAuthentication',
-			}, {
-				logError: true,
-				showToast: false,
-			});
-			console.error(`${MODULE_TAG} Error initializing one-time device authentication:`, parsed.userFriendlyMessage);
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'oauth-authz',
+					operation: 'initializeOneTimeDeviceAuthentication',
+				},
+				{
+					logError: true,
+					showToast: false,
+				}
+			);
+			console.error(
+				`${MODULE_TAG} Error initializing one-time device authentication:`,
+				parsed.userFriendlyMessage
+			);
 			throw error;
 		}
 	}
@@ -714,14 +729,21 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(error, {
-				flowType: 'mfa' as any,
-				operation: 'readDeviceAuthentication',
-			}, {
-				logError: true,
-				showToast: false,
-			});
-			console.error(`${MODULE_TAG} Error reading device authentication:`, parsed.userFriendlyMessage);
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'mfa' as any,
+					operation: 'readDeviceAuthentication',
+				},
+				{
+					logError: true,
+					showToast: false,
+				}
+			);
+			console.error(
+				`${MODULE_TAG} Error reading device authentication:`,
+				parsed.userFriendlyMessage
+			);
 			throw error;
 		}
 	}
@@ -1005,7 +1027,7 @@ export class MfaAuthenticationServiceV8 {
 						if (limitExceededDetail) {
 							const deliveryMethod = limitExceededDetail.innerError.deliveryMethod.toUpperCase();
 							const expiresAt = limitExceededDetail.innerError?.coolDownExpiresAt;
-							
+
 							// Get device type display name
 							const getDeviceTypeName = (method: string): string => {
 								const methodMap: Record<string, string> = {
@@ -1017,10 +1039,10 @@ export class MfaAuthenticationServiceV8 {
 								};
 								return methodMap[method] || method;
 							};
-							
+
 							const deviceTypeName = getDeviceTypeName(deliveryMethod);
 							let friendlyMessage = `${deviceTypeName} authentication is temporarily locked due to too many recent attempts. Please wait a few minutes and try again.`;
-							
+
 							if (expiresAt && typeof expiresAt === 'number') {
 								try {
 									const lockUntil = new Date(expiresAt);
@@ -1033,8 +1055,8 @@ export class MfaAuthenticationServiceV8 {
 									// If date conversion fails, fall back to generic message
 								}
 							}
-							
-							const error = new Error(friendlyMessage) as Error & { 
+
+							const error = new Error(friendlyMessage) as Error & {
 								errorCode?: string;
 								deliveryMethod?: string;
 								coolDownExpiresAt?: number;
@@ -1370,21 +1392,21 @@ export class MfaAuthenticationServiceV8 {
 				console.log(`${MODULE_TAG} Using otp.check URL from _links:`, endpoint);
 			} else {
 				// Get userId - use provided userId or look up by username
-				let userId: string;
+				let _userId: string;
 				if (params.userId) {
-					userId = params.userId;
+					_userId = params.userId;
 				} else if (params.username) {
 					const { MFAServiceV8 } = await import('./mfaServiceV8');
 					const user = await MFAServiceV8.lookupUserByUsername(
 						params.environmentId,
 						params.username
 					);
-					userId = user.id as string;
+					_userId = user.id as string;
 				} else {
 					// No-username variant: Initialize device authentication without username/userId
 					// This requires a special request body structure
 					console.log(`${MODULE_TAG} Using no-username variant for device authentication`);
-					userId = ''; // Will be omitted from request body
+					_userId = ''; // Will be omitted from request body
 				}
 
 				// Fallback to direct endpoint - use custom domain if provided
@@ -2064,7 +2086,7 @@ export class MfaAuthenticationServiceV8 {
 	 * This method attempts multiple strategies in order:
 	 * 1. Cancel the current authentication and re-initialize it (most reliable)
 	 * 2. Re-select the device (fallback, may not always trigger new OTP)
-	 * 
+	 *
 	 * @param params - Parameters for resending OTP
 	 * @returns Updated device authentication response with new OTP sent
 	 */
@@ -2101,12 +2123,15 @@ export class MfaAuthenticationServiceV8 {
 					params.authenticationId,
 					{
 						isUserId: true,
-						region: params.region,
-						customDomain: params.customDomain,
+						...(params.region && { region: params.region }),
+						...(params.customDomain && { customDomain: params.customDomain }),
 					}
 				);
 			} catch (readError) {
-				console.warn(`${MODULE_TAG} Could not read device authentication, proceeding with re-select:`, readError);
+				console.warn(
+					`${MODULE_TAG} Could not read device authentication, proceeding with re-select:`,
+					readError
+				);
 				// Fall through to re-select strategy
 				authData = {} as DeviceAuthenticationResponse;
 			}
@@ -2132,8 +2157,6 @@ export class MfaAuthenticationServiceV8 {
 						environmentId: params.environmentId,
 						username: params.username,
 						deviceId: params.deviceId,
-						region: params.region,
-						customDomain: params.customDomain,
 					});
 
 					// Read the new authentication to get full response
@@ -2143,8 +2166,8 @@ export class MfaAuthenticationServiceV8 {
 						newAuthResult.deviceAuthId,
 						{
 							isUserId: true,
-							region: params.region,
-							customDomain: params.customDomain,
+							...(params.region && { region: params.region }),
+							...(params.customDomain && { customDomain: params.customDomain }),
 						}
 					);
 
@@ -2168,8 +2191,8 @@ export class MfaAuthenticationServiceV8 {
 					userId,
 					authenticationId: params.authenticationId,
 					deviceId: params.deviceId,
-					region: params.region,
-					customDomain: params.customDomain,
+					...(params.region && { region: params.region }),
+					...(params.customDomain && { customDomain: params.customDomain }),
 				},
 				{ stepName: 'mfa-Resend OTP Code (Re-select)' }
 			);
@@ -2182,8 +2205,8 @@ export class MfaAuthenticationServiceV8 {
 					params.authenticationId,
 					{
 						isUserId: true,
-						region: params.region,
-						customDomain: params.customDomain,
+						...(params.region && { region: params.region }),
+						...(params.customDomain && { customDomain: params.customDomain }),
 					}
 				);
 				return updatedAuthData;

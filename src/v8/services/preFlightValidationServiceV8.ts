@@ -456,12 +456,23 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 			}
 
 			// 5. Scopes Validation
-			// CRITICAL: PingOne requires 'openid' scope for ALL flows (not just OIDC spec version)
-			// This is a PingOne-specific requirement, not an OAuth/OIDC spec requirement
-			if (!credentials.scopes?.includes('openid')) {
+			// PingOne requires 'openid' scope for most flows, but NOT for client credentials
+			// Client credentials flow uses resource server scopes, not OIDC scopes
+			if (options.flowType !== 'client-credentials' && !credentials.scopes?.includes('openid')) {
 				errors.push(
-					`❌ OpenID Scope Required: PingOne requires the "openid" scope for all flows (OAuth 2.0, OAuth 2.1, and OIDC), but it's not included in your scopes. Please add "openid" to your scopes in Step 0 (Configuration).`
+					`❌ OpenID Scope Required: PingOne requires the "openid" scope for this flow, but it's not included in your scopes. Please add "openid" to your scopes in Step 0 (Configuration).`
 				);
+			}
+
+			// For client credentials flow, validate that it doesn't use OIDC scopes
+			if (options.flowType === 'client-credentials') {
+				const oidcScopes = ['openid', 'profile', 'email', 'address', 'phone'];
+				const foundOidcScopes = oidcScopes.filter((scope) => credentials.scopes?.includes(scope));
+				if (foundOidcScopes.length > 0) {
+					errors.push(
+						`❌ Invalid OIDC Scopes: Client Credentials flow cannot use OIDC scopes (${foundOidcScopes.join(', ')}). Use resource server scopes like "ClaimScope", "my-api:read", or "my-api:write" instead.`
+					);
+				}
 			}
 
 			// 6. HTTPS Validation (for OAuth 2.1)
@@ -713,20 +724,23 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 			}
 
 			// 4. OpenID Scope Missing
-			// CRITICAL: PingOne requires 'openid' scope for ALL flows (not just OIDC)
+			// PingOne requires 'openid' scope for most flows, but NOT for client credentials
 			else if (
 				errorLower.includes('openid scope required') ||
 				(errorLower.includes('openid') && errorLower.includes('scope'))
 			) {
-				// Fixable for all flows (PingOne requirement)
-				if (!options.credentials.scopes?.includes('openid')) {
+				// Fixable for all flows EXCEPT client credentials
+				if (
+					options.flowType !== 'client-credentials' &&
+					!options.credentials.scopes?.includes('openid')
+				) {
 					fixableErrors.push({
 						errorIndex: index,
 						errorType: 'openid_scope_missing',
 						errorMessage: error,
 						fixable: true,
 						fixDescription:
-							'Add "openid" scope to configuration (PingOne requirement for all flows)',
+							'Add "openid" scope to configuration (PingOne requirement for this flow)',
 						fixData: {
 							addScope: 'openid',
 						},

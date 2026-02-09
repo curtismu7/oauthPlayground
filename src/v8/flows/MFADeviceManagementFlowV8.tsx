@@ -18,6 +18,7 @@
 import React, { useEffect, useState } from 'react';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { MFADeviceManagerV8 } from '@/v8/components/MFADeviceManagerV8';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -26,7 +27,6 @@ import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
-import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
@@ -46,7 +46,18 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 	usePageScroll({ pageName: 'MFA Device Management V8', force: true });
 
 	const [credentials, setCredentials] = useState<Credentials>(() => {
-		const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+		// Try to load from unified MFA flow first (most likely source)
+		const unifiedMfaCredentials = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+			flowKey: 'mfa-flow-v8',
+			flowType: 'oidc',
+			includeClientSecret: false,
+			includeRedirectUri: false,
+			includeLogoutUri: false,
+			includeScopes: false,
+		});
+
+		// Fallback to device management flow specific storage
+		const deviceMgmtCredentials = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 			flowKey: FLOW_KEY,
 			flowType: 'oidc',
 			includeClientSecret: false,
@@ -55,14 +66,21 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 			includeScopes: false,
 		});
 
+		// Use unified MFA credentials if available, otherwise fallback to device management credentials
+		const stored = unifiedMfaCredentials.environmentId
+			? unifiedMfaCredentials
+			: deviceMgmtCredentials;
+
 		// Get global environment ID if not in flow-specific storage
 		const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 		const environmentId = stored.environmentId || globalEnvId || '';
 
 		console.log(`${MODULE_TAG} Loading credentials`, {
-			flowSpecificEnvId: stored.environmentId,
+			unifiedMfaEnvId: unifiedMfaCredentials.environmentId,
+			deviceMgmtEnvId: deviceMgmtCredentials.environmentId,
 			globalEnvId,
 			usingEnvId: environmentId,
+			source: unifiedMfaCredentials.environmentId ? 'unified-mfa-flow' : 'device-mgmt-flow',
 		});
 
 		return {
@@ -73,9 +91,23 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	// Use unified worker token service for token status
-	const tokenStatus = unifiedWorkerTokenService.getTokenStatus();
+	const [tokenStatus, setTokenStatus] = useState<any>(null);
 	const [showTokenOnly, setShowTokenOnly] = useState(false);
 	const [isReady, setIsReady] = useState(false);
+
+	// Load token status on mount
+	useEffect(() => {
+		const loadTokenStatus = async () => {
+			try {
+				const status = await unifiedWorkerTokenService.getStatus();
+				setTokenStatus(status);
+			} catch (error) {
+				console.error('[DEVICE-MGMT-FLOW-V8] Failed to load token status:', error);
+				setTokenStatus(null);
+			}
+		};
+		loadTokenStatus();
+	}, []);
 
 	// Worker Token Settings - Load from config service
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
@@ -107,6 +139,62 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 		};
 	}, []);
 
+	// Listen for credential updates from unified MFA flow
+	useEffect(() => {
+		const handleCredentialUpdate = () => {
+			console.log(`${MODULE_TAG} Credential update detected, refreshing credentials`);
+
+			// Reload credentials from unified MFA flow first
+			const unifiedMfaCredentials = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+				flowKey: 'mfa-flow-v8',
+				flowType: 'oidc',
+				includeClientSecret: false,
+				includeRedirectUri: false,
+				includeLogoutUri: false,
+				includeScopes: false,
+			});
+
+			// Fallback to device management flow specific storage
+			const deviceMgmtCredentials = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+				flowKey: FLOW_KEY,
+				flowType: 'oidc',
+				includeClientSecret: false,
+				includeRedirectUri: false,
+				includeLogoutUri: false,
+				includeScopes: false,
+			});
+
+			// Use unified MFA credentials if available, otherwise fallback to device management credentials
+			const stored = unifiedMfaCredentials.environmentId
+				? unifiedMfaCredentials
+				: deviceMgmtCredentials;
+
+			// Get global environment ID if not in flow-specific storage
+			const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+			const environmentId = stored.environmentId || globalEnvId || '';
+
+			const newCredentials = {
+				environmentId,
+				username: stored.username || '',
+			};
+
+			console.log(`${MODULE_TAG} Updated credentials`, {
+				newEnvironmentId: newCredentials.environmentId,
+				newUsername: newCredentials.username,
+				source: unifiedMfaCredentials.environmentId ? 'unified-mfa-flow' : 'device-mgmt-flow',
+			});
+
+			setCredentials(newCredentials);
+		};
+
+		// Listen for credential updates from unified MFA flow
+		window.addEventListener('mfaCredentialsUpdated', handleCredentialUpdate as EventListener);
+
+		return () => {
+			window.removeEventListener('mfaCredentialsUpdated', handleCredentialUpdate as EventListener);
+		};
+	}, []);
+
 	// Get API display padding
 	const { paddingBottom } = useApiDisplayPadding();
 
@@ -122,7 +210,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 		// Listen for token updates
 		const handleTokenUpdate = () => {
 			// Force re-render to get updated token status from unified service
-			setShowWorkerTokenModal(prev => !prev);
+			setShowWorkerTokenModal((prev) => !prev);
 		};
 
 		checkToken();
@@ -132,16 +220,16 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 		return () => {
 			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 		};
-	}, [silentApiRetrieval, showTokenAtEnd]); // Re-run when checkboxes change to trigger silent retrieval
+	}, []); // Re-run when checkboxes change to trigger silent retrieval
 
 	// Update showTokenOnly when modal opens or token status changes
 	useEffect(() => {
 		if (showWorkerTokenModal) {
-			const updateShowTokenOnly = () => {
+			const updateShowTokenOnly = async () => {
 				try {
 					const config = MFAConfigurationServiceV8.loadConfiguration();
-					const currentStatus = unifiedWorkerTokenService.getTokenStatus();
-					setShowTokenOnly(config.workerToken.showTokenAtEnd && currentStatus.isValid);
+					const currentStatus = await unifiedWorkerTokenService.getStatus();
+					setShowTokenOnly(config.workerToken.showTokenAtEnd && currentStatus.tokenValid);
 				} catch {
 					setShowTokenOnly(false);
 				}
@@ -154,7 +242,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 		const handleStorageChange = (e: StorageEvent) => {
 			if (e.key === 'unified_worker_token') {
 				// Force re-render to get updated token status
-				setShowWorkerTokenModal(prev => !prev);
+				setShowWorkerTokenModal((prev) => !prev);
 			}
 		};
 
@@ -182,7 +270,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 	}, [credentials]);
 
 	const handleManageWorkerToken = async () => {
-		if (tokenStatus.isValid) {
+		if (tokenStatus?.isValid) {
 			const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
 			const confirmed = await uiNotificationServiceV8.confirm({
 				title: 'Remove Worker Token',
@@ -199,7 +287,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 				// #endregion
 				window.dispatchEvent(new Event('workerTokenUpdated'));
 				// Force re-render to get updated token status from unified service
-				setShowWorkerTokenModal(prev => !prev);
+				setShowWorkerTokenModal((prev) => !prev);
 				toastV8.success('Worker token removed');
 			}
 		} else {
@@ -219,7 +307,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 	const handleWorkerTokenGenerated = () => {
 		window.dispatchEvent(new Event('workerTokenUpdated'));
 		// Force re-render to get updated token status from unified service
-		setShowWorkerTokenModal(prev => !prev);
+		setShowWorkerTokenModal((prev) => !prev);
 		toastV8.success('Worker token generated and saved!');
 	};
 
@@ -232,7 +320,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 			toastV8.error('Username is required');
 			return;
 		}
-		if (!tokenStatus.isValid) {
+		if (!tokenStatus?.isValid) {
 			toastV8.error('Worker token is required');
 			return;
 		}
@@ -276,7 +364,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 									className="token-button"
 									style={{
 										padding: '10px 16px',
-										background: tokenStatus.isValid ? '#10b981' : '#ef4444',
+										background: tokenStatus?.isValid ? '#10b981' : '#ef4444',
 										color: 'white',
 										border: 'none',
 										borderRadius: '6px',
@@ -296,28 +384,28 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 									style={{
 										flex: 1,
 										padding: '10px 12px',
-										background: tokenStatus.isValid
+										background: tokenStatus?.isValid
 											? tokenStatus.status === 'expiring-soon'
 												? '#fef3c7'
 												: '#d1fae5'
 											: '#fee2e2',
-										border: `1px solid ${tokenStatus.isValid ? '#10b981' : '#ef4444'}`,
+										border: `1px solid ${tokenStatus?.isValid ? '#10b981' : '#ef4444'}`,
 										borderRadius: '4px',
 										fontSize: '12px',
 										fontWeight: '500',
-										color: tokenStatus.isValid
+										color: tokenStatus?.isValid
 											? tokenStatus.status === 'expiring-soon'
 												? '#92400e'
 												: '#065f46'
 											: '#991b1b',
 									}}
 								>
-									<span>{tokenStatus.isValid ? '✅' : '❌'}</span>
-									<span style={{ marginLeft: '6px' }}>{tokenStatus.message}</span>
+									<span>{tokenStatus?.isValid ? '✅' : '❌'}</span>
+									<span style={{ marginLeft: '6px' }}>{tokenStatus?.message || 'Loading...'}</span>
 								</div>
 							</div>
 
-							{!tokenStatus.isValid && (
+							{!tokenStatus?.isValid && (
 								<div className="info-box" style={{ marginBottom: '0' }}>
 									<p>
 										<strong>⚠️ Worker Token Required:</strong> This flow uses a worker token to
@@ -372,8 +460,8 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 
 											// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 											if (newValue) {
-												const currentStatus = unifiedWorkerTokenService.getTokenStatus();
-												if (!currentStatus.isValid) {
+												const currentStatus = await unifiedWorkerTokenService.getStatus();
+												if (!currentStatus.tokenValid) {
 													console.log(
 														'[DEVICE-MGMT-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...'
 													);
@@ -503,7 +591,9 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 							type="button"
 							className="btn btn-primary"
 							onClick={handleLoadDevices}
-							disabled={!credentials.environmentId || !credentials.username || !tokenStatus.isValid}
+							disabled={
+								!credentials.environmentId || !credentials.username || !tokenStatus?.isValid
+							}
 							style={{ marginTop: '20px' }}
 						>
 							Load Devices
@@ -539,6 +629,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 						<MFADeviceManagerV8
 							environmentId={credentials.environmentId}
 							username={credentials.username}
+							onUsernameChange={() => setIsReady(false)}
 						/>
 					</>
 				)}
@@ -551,7 +642,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 					onClose={() => {
 						setShowWorkerTokenModal(false);
 						// Force re-render to get updated token status from unified service
-						setShowWorkerTokenModal(prev => !prev);
+						setShowWorkerTokenModal((prev) => !prev);
 					}}
 					onTokenGenerated={handleWorkerTokenGenerated}
 					environmentId={credentials.environmentId}

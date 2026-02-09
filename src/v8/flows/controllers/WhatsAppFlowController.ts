@@ -93,7 +93,7 @@ export class WhatsAppFlowController extends MFAFlowController {
 
 	getDeviceRegistrationParams(
 		credentials: MFACredentials,
-		status: 'ACTIVE' | 'ACTIVATION_REQUIRED' = 'ACTIVE'
+		status: 'ACTIVE' | 'ACTIVATION_REQUIRED' = 'ACTIVATION_REQUIRED'
 	): Partial<RegisterDeviceParams> {
 		const fullPhone = getFullPhoneNumber(credentials);
 		// Use device name from credentials if provided, otherwise generate default

@@ -24,6 +24,7 @@ import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -257,13 +258,17 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 
 					const credentials = JSON.parse(storedCredentials);
 
+					// FOOLPROOF: Use the centralized redirect URI service for MFA flows
+					// This ensures we always use the correct unified callback URI
+					const correctRedirectUri = MFARedirectUriServiceV8.getRedirectUri('unified-mfa-v8');
+
 					// Exchange authorization code for tokens
 					const tokenResponse = await OAuthIntegrationServiceV8.exchangeCodeForTokens(
 						{
 							environmentId: credentials.environmentId,
 							clientId: credentials.clientId,
 							clientSecret: credentials.clientSecret,
-							redirectUri: credentials.redirectUri,
+							redirectUri: correctRedirectUri,
 							scopes: credentials.scopes,
 							clientAuthMethod:
 								credentials.clientAuthMethod ||

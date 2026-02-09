@@ -11,7 +11,7 @@ type EnvironmentIdListener = (id: string | null) => void;
 
 /**
  * Global Environment Service
- * 
+ *
  * Manages Environment ID as a global singleton with:
  * - Single source of truth across the app
  * - Automatic persistence to localStorage
@@ -58,7 +58,7 @@ export class GlobalEnvironmentService {
 
 		const trimmedId = id.trim();
 		console.log('[GlobalEnvironmentService] Setting Environment ID:', trimmedId);
-		
+
 		this.environmentId = trimmedId;
 		environmentIdPersistenceService.saveEnvironmentId(trimmedId, 'manual');
 		this.notifyListeners();
@@ -104,7 +104,7 @@ export class GlobalEnvironmentService {
 	 */
 	private notifyListeners(): void {
 		console.log('[GlobalEnvironmentService] Notifying listeners:', this.listeners.size);
-		this.listeners.forEach(listener => listener(this.environmentId));
+		this.listeners.forEach((listener) => listener(this.environmentId));
 	}
 
 	/**
@@ -128,5 +128,7 @@ export const globalEnvironmentService = GlobalEnvironmentService.getInstance();
 
 // Expose to window for debugging
 if (typeof window !== 'undefined') {
-	(window as unknown as Window & { globalEnvironmentService: GlobalEnvironmentService }).globalEnvironmentService = globalEnvironmentService;
+	(
+		window as unknown as Window & { globalEnvironmentService: GlobalEnvironmentService }
+	).globalEnvironmentService = globalEnvironmentService;
 }

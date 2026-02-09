@@ -220,5 +220,5 @@ console.log('standards met. The system successfully handles all three flow types
 console.log('(Admin, Admin Activation Required, User) across all device types.');
 console.log('');
 console.log('Version: 9.2.1');
-console.log('Test Date: ' + new Date().toISOString());
+console.log(`Test Date: ${new Date().toISOString()}`);
 console.log('Status: ✅ PRODUCTION READY');

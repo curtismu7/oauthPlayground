@@ -13,10 +13,10 @@
  * - Managing authentication modals
  */
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { Device } from '../../components/MFADeviceSelector';
 import type { DeviceAuthenticationPolicy } from '../../shared/MFATypes';
@@ -53,21 +53,21 @@ export interface MFAAuthenticationHookResult {
 	// State
 	authState: AuthenticationState;
 	loadingMessage: string;
-	
+
 	// Modals
 	showOTPModal: boolean;
 	showFIDO2Modal: boolean;
 	showPushModal: boolean;
-	
+
 	// OTP State
 	otpCode: string;
 	isValidatingOTP: boolean;
 	otpError: string | null;
-	
+
 	// FIDO2 State
 	isAuthenticatingFIDO2: boolean;
 	fido2Error: string | null;
-	
+
 	// Actions
 	handleStartMFA: (
 		username: string,
@@ -75,7 +75,7 @@ export interface MFAAuthenticationHookResult {
 		deviceAuthPolicies: DeviceAuthenticationPolicy[],
 		tokenIsValid: boolean
 	) => Promise<void>;
-	
+
 	// State setters
 	setAuthState: React.Dispatch<React.SetStateAction<AuthenticationState>>;
 	setLoadingMessage: React.Dispatch<React.SetStateAction<string>>;
@@ -95,7 +95,7 @@ export interface UseMFAAuthenticationOptions {
 
 /**
  * Hook for managing MFA authentication flow
- * 
+ *
  * @example
  * ```tsx
  * const {
@@ -113,7 +113,7 @@ export const useMFAAuthentication = (
 	options: UseMFAAuthenticationOptions = {}
 ): MFAAuthenticationHookResult => {
 	const { onDeviceFailureError } = options;
-	const navigate = useNavigate();
+	const _navigate = useNavigate();
 
 	// Authentication State
 	const [authState, setAuthState] = useState<AuthenticationState>({
@@ -191,10 +191,7 @@ export const useMFAAuthentication = (
 
 			try {
 				// 1. Lookup user
-				const user = await MFAServiceV8.lookupUserByUsername(
-					credentials.environmentId,
-					username
-				);
+				const user = await MFAServiceV8.lookupUserByUsername(credentials.environmentId, username);
 
 				// 2. Initialize MFA Authentication
 				const response = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
@@ -276,11 +273,9 @@ export const useMFAAuthentication = (
 					(authDevices.length > 0 && deviceSelectionBehavior === 'ALWAYS_DISPLAY_DEVICES');
 
 				const needsOTP = status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED';
-				const needsAssertion =
-					status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED';
+				const needsAssertion = status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED';
 				const needsPush =
-					status === 'PUSH_CONFIRMATION_REQUIRED' ||
-					nextStep === 'PUSH_CONFIRMATION_REQUIRED';
+					status === 'PUSH_CONFIRMATION_REQUIRED' || nextStep === 'PUSH_CONFIRMATION_REQUIRED';
 
 				// Validate that we got an authenticationId from the response
 				if (!response.id) {
@@ -331,7 +326,7 @@ export const useMFAAuthentication = (
 				console.error(`${MODULE_TAG} Failed to start authentication:`, error);
 
 				// Check for NO_USABLE_DEVICES error
-				if (onDeviceFailureError && onDeviceFailureError(error)) {
+				if (onDeviceFailureError?.(error)) {
 					// Error was handled by callback, just update loading state
 					setAuthState((prev) => ({ ...prev, isLoading: false }));
 					setLoadingMessage('');
@@ -343,31 +338,31 @@ export const useMFAAuthentication = (
 				setLoadingMessage('');
 			}
 		},
-		[navigate, onDeviceFailureError]
+		[onDeviceFailureError]
 	);
 
 	return {
 		// State
 		authState,
 		loadingMessage,
-		
+
 		// Modals
 		showOTPModal,
 		showFIDO2Modal,
 		showPushModal,
-		
+
 		// OTP State
 		otpCode,
 		isValidatingOTP,
 		otpError,
-		
+
 		// FIDO2 State
 		isAuthenticatingFIDO2,
 		fido2Error,
-		
+
 		// Actions
 		handleStartMFA,
-		
+
 		// State setters
 		setAuthState,
 		setLoadingMessage,

@@ -180,38 +180,40 @@ export const AuthenticationSectionV8: React.FC<AuthenticationSectionProps> = ({
 				</div>
 			)}
 
-	{/* Devices Error Warning */}
-	{mfaDevices.devicesError && username.trim() && tokenIsValid && (
-		<div
-			style={{
-				padding: '12px 16px',
-				background: '#fef2f2',
-				border: '1px solid #dc2626',
-				borderRadius: '6px',
-				marginTop: '16px',
-			}}
-		>
-			<p style={{ fontSize: '14px', color: '#991b1b', margin: 0 }}>
-				{mfaDevices.devicesError}
-			</p>
-		</div>
-	)}
+			{/* Devices Error Warning */}
+			{mfaDevices.devicesError && username.trim() && tokenIsValid && (
+				<div
+					style={{
+						padding: '12px 16px',
+						background: '#fef2f2',
+						border: '1px solid #dc2626',
+						borderRadius: '6px',
+						marginTop: '16px',
+					}}
+				>
+					<p style={{ fontSize: '14px', color: '#991b1b', margin: 0 }}>{mfaDevices.devicesError}</p>
+				</div>
+			)}
 
-	{/* No Devices Warning */}
-	{!mfaDevices.isLoading && !mfaDevices.hasDevices && !mfaDevices.devicesError && username.trim() && tokenIsValid && (
-		<div
-			style={{
-				padding: '12px 16px',
-				background: '#fef2f2',
-				border: '1px solid #dc2626',
-				borderRadius: '6px',
-			}}
-		>
-			<p style={{ fontSize: '14px', color: '#991b1b', margin: 0 }}>
-				⚠️ No devices found for this user
-			</p>
-		</div>
-	)}
+			{/* No Devices Warning */}
+			{!mfaDevices.isLoading &&
+				!mfaDevices.hasDevices &&
+				!mfaDevices.devicesError &&
+				username.trim() &&
+				tokenIsValid && (
+					<div
+						style={{
+							padding: '12px 16px',
+							background: '#fef2f2',
+							border: '1px solid #dc2626',
+							borderRadius: '6px',
+						}}
+					>
+						<p style={{ fontSize: '14px', color: '#991b1b', margin: 0 }}>
+							⚠️ No devices found for this user
+						</p>
+					</div>
+				)}
 			{!tokenIsValid && (
 				<div
 					style={{

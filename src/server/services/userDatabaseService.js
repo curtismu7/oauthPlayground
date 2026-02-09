@@ -12,11 +12,11 @@
  * - Environment-specific data isolation
  */
 
-import sqlite3 from 'sqlite3';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import fetch from 'node-fetch';
+import sqlite3 from 'sqlite3';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -294,7 +294,7 @@ class UserDatabaseService {
 
 		try {
 			// Use prefix matching for FTS (append *) and LIKE fallback for comprehensive results
-			const ftsQuery = query.trim() + '*';
+			const ftsQuery = `${query.trim()}*`;
 			const likePattern = `%${query}%`;
 
 			const results = await this.all(
@@ -518,7 +518,7 @@ class UserDatabaseService {
 		});
 
 		try {
-			let allUsers = [];
+			const allUsers = [];
 			let offset = 0;
 			const limit = 200; // PingOne max per request
 			let hasMore = true;
@@ -603,7 +603,7 @@ class UserDatabaseService {
 		});
 
 		try {
-			let allUsers = [];
+			const allUsers = [];
 			let offset = 0;
 			const limit = 200;
 			let hasMore = true;

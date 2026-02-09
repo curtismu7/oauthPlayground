@@ -160,7 +160,7 @@ const HybridPostFlow: React.FC<HybridPostFlowProps> = ({ credentials }) => {
 	const [formData, setFormData] = useState({
 		clientId: credentials?.clientId || '',
 		clientSecret: credentials?.clientSecret || '',
-		redirectUri: credentials?.redirectUri || 'http://localhost:3000/callback',
+		redirectUri: credentials?.redirectUri || 'https://localhost:3000/callback',
 		environmentId: credentials?.environmentId || '',
 		responseType: 'code id_token',
 		scope: 'openid profile email',

@@ -6,7 +6,7 @@
  */
 
 import React, { ButtonHTMLAttributes } from 'react';
-import { colors, spacing, borderRadius, typography, transitions } from '@/v8/design/tokens';
+import { borderRadius, colors, spacing, transitions, typography } from '@/v8/design/tokens';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -105,7 +105,8 @@ export const Button: React.FC<ButtonProps> = ({
 				gap: spacing.sm,
 				width: fullWidth ? '100%' : 'auto',
 				...currentSize,
-				background: isHovered && !disabled && !loading ? currentVariant.hover : currentVariant.background,
+				background:
+					isHovered && !disabled && !loading ? currentVariant.hover : currentVariant.background,
 				color: currentVariant.color,
 				border: currentVariant.border,
 				borderRadius: borderRadius.md,
@@ -117,7 +118,12 @@ export const Button: React.FC<ButtonProps> = ({
 				...style,
 			}}
 		>
-			{loading && <LoadingSpinner size="small" color={variant === 'outline' ? colors.primary[500] : 'white'} />}
+			{loading && (
+				<LoadingSpinner
+					size="small"
+					color={variant === 'outline' ? colors.primary[500] : 'white'}
+				/>
+			)}
 			{!loading && leftIcon}
 			{children}
 			{!loading && rightIcon}

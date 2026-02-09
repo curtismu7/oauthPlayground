@@ -121,8 +121,8 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 		if (onRegisterAnother) {
 			onRegisterAnother();
 		} else {
-				// Navigate back to unified MFA main page
-				window.location.href = '/v8/unified-mfa';
+			// Navigate back to unified MFA main page
+			window.location.href = '/v8/unified-mfa';
 		}
 	}, [onRegisterAnother]);
 
@@ -209,14 +209,14 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 
 				<div className="detail-row">
 					<span className="detail-label">Status:</span>
-				<span className={`detail-value status-badge ${
-					mfaState.deviceStatus === 'ACTIVE' 
-						? 'status-active' 
-						: 'status-activation-required'
-				}`}>
-					{mfaState.deviceStatus || 'ACTIVE'}
-				</span>
-			</div>
+					<span
+						className={`detail-value status-badge ${
+							mfaState.deviceStatus === 'ACTIVE' ? 'status-active' : 'status-activation-required'
+						}`}
+					>
+						{mfaState.deviceStatus || 'ACTIVE'}
+					</span>
+				</div>
 
 				{contactInfo && (
 					<div className="detail-row">

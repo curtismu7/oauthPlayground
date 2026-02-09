@@ -159,7 +159,7 @@ const ImplicitPostFlow: React.FC<ImplicitPostFlowProps> = ({ credentials }) => {
 	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 	const [formData, setFormData] = useState({
 		clientId: credentials?.clientId || '',
-		redirectUri: credentials?.redirectUri || 'http://localhost:3000/callback',
+		redirectUri: credentials?.redirectUri || 'https://localhost:3000/callback',
 		environmentId: credentials?.environmentId || '',
 		responseType: 'token id_token',
 		scope: 'openid profile email',

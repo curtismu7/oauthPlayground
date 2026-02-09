@@ -78,7 +78,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 		if (isOpen && idToken && !validationResult) {
 			handleValidate();
 		}
-	}, [isOpen, idToken, validationResult]);
+	}, [isOpen, idToken, validationResult, handleValidate]);
 
 	if (!isOpen) return null;
 

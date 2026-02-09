@@ -12,12 +12,12 @@
  * - Extracting allowed device types from policies
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { DeviceAuthenticationPolicy, DeviceType } from '../../shared/MFATypes';
-import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 
 const MODULE_TAG = '[🔐 useMFAPolicy]';
 const FLOW_KEY = 'mfa-flow-v8';
@@ -32,7 +32,7 @@ export interface MFAPolicyHookResult {
 	deviceAuthPolicies: DeviceAuthenticationPolicy[];
 	isLoadingPolicies: boolean;
 	policiesError: string | null;
-	
+
 	// Actions
 	loadPolicies: () => Promise<DeviceAuthenticationPolicy[]>;
 	handlePolicySelect: (
@@ -41,7 +41,7 @@ export interface MFAPolicyHookResult {
 		onCredentialsUpdate: (updated: MFAPolicyCredentials) => void
 	) => Promise<void>;
 	extractAllowedDeviceTypes: (policy: DeviceAuthenticationPolicy) => DeviceType[];
-	
+
 	// State setters
 	setDeviceAuthPolicies: React.Dispatch<React.SetStateAction<DeviceAuthenticationPolicy[]>>;
 	setIsLoadingPolicies: React.Dispatch<React.SetStateAction<boolean>>;
@@ -57,7 +57,7 @@ export interface UseMFAPolicyOptions {
 
 /**
  * Hook for managing MFA device authentication policies
- * 
+ *
  * @example
  * ```tsx
  * const {
@@ -163,7 +163,7 @@ export const useMFAPolicy = (options: UseMFAPolicyOptions): MFAPolicyHookResult 
 			// Auto-select if only one policy
 			if (!currentPolicyId && policies.length === 1 && onAutoSelect) {
 				onAutoSelect(policies[0].id);
-				
+
 				// Also save to storage
 				const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 					flowKey: FLOW_KEY,
@@ -215,13 +215,7 @@ export const useMFAPolicy = (options: UseMFAPolicyOptions): MFAPolicyHookResult 
 			isFetchingPoliciesRef.current = false;
 			setIsLoadingPolicies(false);
 		}
-	}, [
-		environmentId,
-		currentPolicyId,
-		tokenStatus.isValid,
-		deviceAuthPolicies,
-		onAutoSelect,
-	]);
+	}, [environmentId, currentPolicyId, tokenStatus.isValid, deviceAuthPolicies, onAutoSelect]);
 
 	/**
 	 * Handle MFA Policy Selection
@@ -238,7 +232,7 @@ export const useMFAPolicy = (options: UseMFAPolicyOptions): MFAPolicyHookResult 
 				deviceAuthenticationPolicyId: policyId,
 			};
 			onCredentialsUpdate(updatedCredentials);
-			
+
 			// Save to storage
 			const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 				flowKey: FLOW_KEY,
@@ -285,12 +279,12 @@ export const useMFAPolicy = (options: UseMFAPolicyOptions): MFAPolicyHookResult 
 		deviceAuthPolicies,
 		isLoadingPolicies,
 		policiesError,
-		
+
 		// Actions
 		loadPolicies,
 		handlePolicySelect,
 		extractAllowedDeviceTypes,
-		
+
 		// State setters
 		setDeviceAuthPolicies,
 		setIsLoadingPolicies,

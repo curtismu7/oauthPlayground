@@ -155,6 +155,7 @@ export class ConfigCheckerServiceV8 {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json',
+					Authorization: `Bearer ${workerToken}`,
 				},
 			});
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * @file db-seed-users.js
  * @description CLI tool to sync users from PingOne to SQLite database
@@ -7,7 +8,7 @@
  *
  * Usage:
  *   npm run db:seed-users -- --envId ENV_ID --clientId CLIENT_ID --clientSecret SECRET
- *   
+ *
  * Options:
  *   --envId          PingOne Environment ID (required)
  *   --clientId       Worker app Client ID (required)
@@ -20,8 +21,8 @@
  *   --apiUrl         Base URL of OAuth Playground server (default: http://localhost:3001)
  */
 
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import fetch from 'node-fetch';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -39,11 +40,14 @@ const config = {
 	envId: getArg('envId'),
 	clientId: getArg('clientId'),
 	clientSecret: getArg('clientSecret'),
-	maxPages: parseInt(getArg('maxPages')) || null,
-	batchSize: Math.min(parseInt(getArg('batchSize')) || 200, 200),
+	maxPages: parseInt(getArg('maxPages'), 10) || null,
+	batchSize: Math.min(parseInt(getArg('batchSize'), 10) || 200, 200),
 	region: getArg('region') || 'na',
 	clear: hasFlag('clear'),
-	authMethod: (getArg('authMethod') || 'client_secret_post').toLowerCase() === 'client_secret_basic' ? 'client_secret_basic' : 'client_secret_post',
+	authMethod:
+		(getArg('authMethod') || 'client_secret_post').toLowerCase() === 'client_secret_basic'
+			? 'client_secret_basic'
+			: 'client_secret_post',
 	apiUrl: (getArg('apiUrl') || 'http://localhost:3001').replace(/\/$/, ''),
 };
 
@@ -120,7 +124,8 @@ async function getWorkerToken() {
 		'Content-Type': 'application/x-www-form-urlencoded',
 	};
 	if (useBasic) {
-		headers['Authorization'] = `Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')}`;
+		headers['Authorization'] =
+			`Basic ${Buffer.from(`${config.clientId}:${config.clientSecret}`).toString('base64')}`;
 	}
 
 	try {
@@ -175,7 +180,7 @@ async function fetchUsersFromPingOne(workerToken) {
 		try {
 			const response = await fetch(nextUrl, {
 				headers: {
-					'Authorization': `Bearer ${workerToken}`,
+					Authorization: `Bearer ${workerToken}`,
 					'Content-Type': 'application/json',
 				},
 			});
@@ -210,7 +215,9 @@ async function fetchUsersFromPingOne(workerToken) {
 			allUsers = allUsers.concat(mappedUsers);
 
 			// Show progress
-			process.stdout.write(`\r  Page ${pageNum}: ${allUsers.length.toLocaleString()} users fetched...`);
+			process.stdout.write(
+				`\r  Page ${pageNum}: ${allUsers.length.toLocaleString()} users fetched...`
+			);
 
 			// Use PingOne's next link for the next request; otherwise stop. Following _links.next
 			// ensures correct pagination (PingOne may not honor offset in a custom URL).
@@ -235,7 +242,9 @@ async function fetchUsersFromPingOne(workerToken) {
 	const byId = new Map(allUsers.map((u) => [u.id, u]));
 	const unique = Array.from(byId.values());
 	if (unique.length !== allUsers.length) {
-		console.log(`\n⚠️  Removed ${(allUsers.length - unique.length).toLocaleString()} duplicate(s) by id`);
+		console.log(
+			`\n⚠️  Removed ${(allUsers.length - unique.length).toLocaleString()} duplicate(s) by id`
+		);
 	}
 	console.log(`\n✅ Fetched ${unique.length.toLocaleString()} users from PingOne\n`);
 	return unique;
@@ -334,7 +343,6 @@ async function main() {
   • Total users: ${users.length.toLocaleString()}
   • Duration: ${duration}s
 		`);
-
 	} catch (error) {
 		console.error('\n❌ Sync failed:', error.message);
 		process.exit(1);

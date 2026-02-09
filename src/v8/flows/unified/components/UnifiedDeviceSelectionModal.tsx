@@ -9,16 +9,24 @@
  * Shows all registered devices with their types and status
  */
 
-import React, { useState, useEffect } from 'react';
-import { colors, spacing } from '@/v8/styles/designTokens';
+import React, { useEffect, useState } from 'react';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { colors, spacing } from '@/v8/styles/designTokens';
 
 interface Device {
 	id: string;
 	type: 'SMS' | 'EMAIL' | 'TOTP' | 'VOICE' | 'FIDO2' | 'MOBILE' | 'WHATSAPP';
 	deviceName?: string;
 	nickname?: string;
-	status: 'ACTIVE' | 'ACTIVATION_REQUIRED' | 'DISABLED' | 'BLOCKED' | 'LOCKED' | 'PENDING' | 'SUSPENDED' | 'EXPIRED';
+	status:
+		| 'ACTIVE'
+		| 'ACTIVATION_REQUIRED'
+		| 'DISABLED'
+		| 'BLOCKED'
+		| 'LOCKED'
+		| 'PENDING'
+		| 'SUSPENDED'
+		| 'EXPIRED';
 }
 
 interface UnifiedDeviceSelectionModalProps {
@@ -53,7 +61,11 @@ const DEVICE_COLORS = {
 
 const STATUS_BADGES = {
 	ACTIVE: { text: 'Active', color: colors.success[600], bg: colors.success[50] },
-	ACTIVATION_REQUIRED: { text: 'Activation Required', color: colors.warning[600], bg: colors.warning[50] },
+	ACTIVATION_REQUIRED: {
+		text: 'Activation Required',
+		color: colors.warning[600],
+		bg: colors.warning[50],
+	},
 	DISABLED: { text: 'Disabled', color: colors.gray[600], bg: colors.gray[50] },
 };
 
@@ -110,14 +122,15 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 	}, [isOpen, username, environmentId]);
 
 	// Filter devices based on search query
-	const filteredDevices = devices.filter(device =>
-		device.deviceName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-		device.nickname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-		device.type.toLowerCase().includes(searchQuery.toLowerCase())
+	const filteredDevices = devices.filter(
+		(device) =>
+			device.deviceName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			device.nickname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			device.type.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
 	// Only show active devices for authentication
-	const availableDevices = filteredDevices.filter(device => device.status === 'ACTIVE');
+	const availableDevices = filteredDevices.filter((device) => device.status === 'ACTIVE');
 
 	const handleDeviceSelect = (device: Device) => {
 		onDeviceSelect(device);
@@ -148,7 +161,7 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 			}}
 			role="dialog"
 			aria-modal="true"
-			>
+		>
 			<div
 				style={{
 					background: 'white',
@@ -170,7 +183,14 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 						borderBottom: `1px solid ${colors.gray[200]}`,
 					}}
 				>
-					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing[4] }}>
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							marginBottom: spacing[4],
+						}}
+					>
 						<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '700', color: colors.gray[900] }}>
 							🔓 Select Authentication Device
 						</h2>
@@ -190,7 +210,7 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 							×
 						</button>
 					</div>
-					
+
 					<div style={{ fontSize: '14px', color: colors.gray[600], lineHeight: 1.5 }}>
 						Choose which MFA device to authenticate with for <strong>{username}</strong>
 					</div>
@@ -229,7 +249,9 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 						</div>
 					) : errorMsg ? (
 						<div style={{ textAlign: 'center', padding: spacing[8] }}>
-							<div style={{ fontSize: '32px', marginBottom: spacing[4], color: colors.error[500] }}>⚠️</div>
+							<div style={{ fontSize: '32px', marginBottom: spacing[4], color: colors.error[500] }}>
+								⚠️
+							</div>
 							<p style={{ color: colors.error[600] }}>{errorMsg}</p>
 						</div>
 					) : availableDevices.length === 0 ? (
@@ -290,7 +312,13 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 
 									{/* Device Info */}
 									<div style={{ flex: 1 }}>
-										<div style={{ fontWeight: '600', color: colors.gray[900], marginBottom: spacing[1] }}>
+										<div
+											style={{
+												fontWeight: '600',
+												color: colors.gray[900],
+												marginBottom: spacing[1],
+											}}
+										>
 											{device.nickname || device.deviceName || `${device.type} Device`}
 										</div>
 										<div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
@@ -320,9 +348,7 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 									</div>
 
 									{/* Arrow */}
-									<div style={{ color: colors.gray[400] }}>
-										→
-									</div>
+									<div style={{ color: colors.gray[400] }}>→</div>
 								</div>
 							))}
 						</div>

@@ -60,6 +60,113 @@ export interface DeviceComponentProps {
 }
 
 // ============================================================================
+// SAFE EDUCATIONAL CONTENT RENDERER
+// ============================================================================
+
+interface EducationalContentRendererProps {
+	content: string;
+	className?: string;
+}
+
+/**
+ * Safe educational content renderer that parses markdown-like content
+ * and renders it as React components instead of using dangerouslySetInnerHTML
+ */
+const EducationalContentRenderer: React.FC<EducationalContentRendererProps> = ({
+	content,
+	className = '',
+}) => {
+	const renderContent = () => {
+		if (!content) return null;
+
+		return content.split('\n').map((line, index) => {
+			// Handle headers (## and ###)
+			if (line.startsWith('## ')) {
+				return (
+					<h3
+						key={index}
+						style={{
+							fontSize: '16px',
+							fontWeight: '700',
+							color: '#111827',
+							marginTop: index === 0 ? '0' : '16px',
+							marginBottom: '8px',
+						}}
+					>
+						{line.replace('## ', '')}
+					</h3>
+				);
+			}
+			if (line.startsWith('### ')) {
+				return (
+					<h4
+						key={index}
+						style={{
+							fontSize: '14px',
+							fontWeight: '600',
+							color: '#1f2937',
+							marginTop: '12px',
+							marginBottom: '6px',
+						}}
+					>
+						{line.replace('### ', '')}
+					</h4>
+				);
+			}
+			// Handle list items (- *)
+			if (line.trim().startsWith('- ')) {
+				return (
+					<li
+						key={index}
+						style={{
+							marginLeft: '20px',
+							marginBottom: '4px',
+							color: '#4b5563',
+						}}
+					>
+						{line.replace(/^- /, '')}
+					</li>
+				);
+			}
+			// Handle numbered lists (1. 2. etc.)
+			if (/^\d+\.\s/.test(line.trim())) {
+				return (
+					<li
+						key={index}
+						style={{
+							marginLeft: '20px',
+							marginBottom: '4px',
+							color: '#4b5563',
+						}}
+					>
+						{line.replace(/^\d+\.\s/, '')}
+					</li>
+				);
+			}
+			// Handle paragraphs (non-empty lines)
+			if (line.trim()) {
+				return (
+					<p
+						key={index}
+						style={{
+							marginBottom: '8px',
+							color: '#4b5563',
+							lineHeight: '1.6',
+						}}
+					>
+						{line}
+					</p>
+				);
+			}
+			// Handle empty lines
+			return <br key={index} />;
+		});
+	};
+
+	return <div className={className}>{renderContent()}</div>;
+};
+
+// ============================================================================
 // TOTP REGISTRATION COMPONENT
 // ============================================================================
 
@@ -72,7 +179,7 @@ export interface DeviceComponentProps {
 export const TOTPRegistrationComponent: React.FC<DeviceComponentProps> = ({
 	mfaState,
 	config,
-	onSuccess,
+	onSuccess: _onSuccess,
 	onError,
 }) => {
 	console.log(`${MODULE_TAG} Rendering TOTP registration component`, {
@@ -177,9 +284,9 @@ export const TOTPRegistrationComponent: React.FC<DeviceComponentProps> = ({
 			{config.educationalContent && (
 				<details className="totp-education">
 					<summary>Learn more about TOTP</summary>
-					<div
+					<EducationalContentRenderer
+						content={config.educationalContent}
 						className="education-content"
-						dangerouslySetInnerHTML={{ __html: config.educationalContent }}
 					/>
 				</details>
 			)}
@@ -260,21 +367,24 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 				);
 			}
 
-			console.log(`${MODULE_TAG} Calling controller.registerFIDO2Device with deviceId:`, mfaState.deviceId);
+			console.log(
+				`${MODULE_TAG} Calling controller.registerFIDO2Device with deviceId:`,
+				mfaState.deviceId
+			);
 
 			// Import FIDO2FlowController
 			const { FIDO2FlowController } = await import('@/v8/flows/controllers/FIDO2FlowController');
-			
+
 			// Check if controller is FIDO2FlowController instance, otherwise create one
-			const fido2Controller = controller instanceof FIDO2FlowController 
-				? controller 
-				: new FIDO2FlowController({
-					onUpdate: (state: any) => setMfaState(prev => ({ ...prev, ...state })),
-					onError: (error: string) => console.error('FIDO2 Controller Error:', error),
-				});
+			const fido2Controller =
+				controller instanceof FIDO2FlowController
+					? controller
+					: new FIDO2FlowController({
+							onError: (error: string) => console.error('FIDO2 Controller Error:', error),
+						});
 
 			// Call the full FIDO2 registration flow (WebAuthn + activation)
-			const result = await (fido2Controller as any).registerFIDO2Device(
+			const result = await fido2Controller.registerFIDO2Device(
 				credentials,
 				mfaState.deviceId,
 				JSON.stringify(options)
@@ -309,7 +419,7 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 		} finally {
 			setIsRegistering(false);
 		}
-	}, [mfaState, setMfaState, onSuccess, onError, controller]);
+	}, [mfaState, setMfaState, onSuccess, onError, controller, credentials]);
 
 	return (
 		<div className="fido2-registration-component">
@@ -336,7 +446,9 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 					<button
 						type="button"
 						onClick={handleWebAuthnRegistration}
-						disabled={isRegistering || !mfaState.publicKeyCredentialCreationOptions || !mfaState.deviceId}
+						disabled={
+							isRegistering || !mfaState.publicKeyCredentialCreationOptions || !mfaState.deviceId
+						}
 						className="webauthn-register-button"
 					>
 						{isRegistering ? '🔐 Authenticating...' : '🔐 Complete Biometric Registration'}
@@ -344,7 +456,8 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 
 					{isRegistering && (
 						<p className="registration-hint">
-							🔐 Follow the prompts from your browser to use your security key or biometric (TouchID/FaceID)...
+							🔐 Follow the prompts from your browser to use your security key or biometric
+							(TouchID/FaceID)...
 						</p>
 					)}
 
@@ -353,7 +466,7 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 							⚠️ Waiting for device creation... Click "Next Step" above to create the device first.
 						</p>
 					)}
-					
+
 					{mfaState.publicKeyCredentialCreationOptions && !isRegistering && (
 						<p className="registration-ready">
 							✅ Device created. Click the button above to complete biometric registration.
@@ -391,9 +504,9 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 			{config.educationalContent && (
 				<details className="fido2-education">
 					<summary>Learn more about FIDO2</summary>
-					<div
+					<EducationalContentRenderer
+						content={config.educationalContent}
 						className="education-content"
-						dangerouslySetInnerHTML={{ __html: config.educationalContent }}
 					/>
 				</details>
 			)}
@@ -516,9 +629,9 @@ export const MobileRegistrationComponent: React.FC<DeviceComponentProps> = ({
 			{config.educationalContent && (
 				<details className="mobile-education">
 					<summary>Learn more about Mobile Push</summary>
-					<div
+					<EducationalContentRenderer
+						content={config.educationalContent}
 						className="education-content"
-						dangerouslySetInnerHTML={{ __html: config.educationalContent }}
 					/>
 				</details>
 			)}

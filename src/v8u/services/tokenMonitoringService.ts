@@ -116,7 +116,9 @@ export class TokenMonitoringService {
 			if (Notification.permission === 'default') {
 				// Don't auto-request - wait for user gesture
 				// User can enable via settings or when clicking a notification button
-				logger.debug('[TokenMonitoring] Notifications available but not auto-requesting permission');
+				logger.debug(
+					'[TokenMonitoring] Notifications available but not auto-requesting permission'
+				);
 			} else {
 				this.notificationPermission = Notification.permission;
 			}

@@ -411,7 +411,10 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 									<button
 										type="button"
 										onClick={() => {
-											window.location.href = '/v8u/unified/oauth-authz/0';
+											// Use the correct unified MFA callback URI instead of hardcoded V8U path
+											const protocol = window.location.hostname === 'localhost' ? 'https' : 'https';
+											const redirectUri = `${protocol}://${window.location.host}/mfa-unified-callback`;
+											window.location.href = `/v8u/unified/oauth-authz/0?redirect_uri=${encodeURIComponent(redirectUri)}`;
 										}}
 										style={{
 											flex: '1',

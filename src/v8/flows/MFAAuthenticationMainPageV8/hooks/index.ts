@@ -6,7 +6,7 @@
  * @since 2026-01-31
  */
 
+export * from './useFIDO2Authentication';
 export * from './useMFAAuthentication';
 export * from './useMFADevices';
 export * from './useMFAPolicy';
-export * from './useFIDO2Authentication';

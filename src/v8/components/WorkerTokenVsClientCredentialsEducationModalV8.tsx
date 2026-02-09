@@ -458,17 +458,72 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 					</Section>
 
 					{context === 'client-credentials' && (
-						<InfoBox>
-							<FiInfo size={20} color="#2563eb" style={{ flexShrink: 0, marginTop: '2px' }} />
-							<div>
-								<strong>You're Using Client Credentials Flow</strong>
-								<p style={{ margin: '8px 0 0 0' }}>
-									This is a <strong>standard OAuth machine-to-machine</strong> flow. It represents
-									your application calling APIs it's authorized to use. This is <strong>not</strong>{' '}
-									a Worker token and should not be used for PingOne Admin operations.
-								</p>
-							</div>
-						</InfoBox>
+						<>
+							<InfoBox>
+								<FiInfo size={20} color="#2563eb" style={{ flexShrink: 0, marginTop: '2px' }} />
+								<div>
+									<strong>You're Using Client Credentials Flow</strong>
+									<p style={{ margin: '8px 0 0 0' }}>
+										This is a <strong>standard OAuth machine-to-machine</strong> flow. It represents
+										your application calling APIs it's authorized to use. This is{' '}
+										<strong>not</strong> a Worker token and should not be used for PingOne Admin
+										operations.
+									</p>
+								</div>
+							</InfoBox>
+
+							<InfoBox>
+								<FiCheckCircle
+									size={20}
+									color="#2563eb"
+									style={{ flexShrink: 0, marginTop: '2px' }}
+								/>
+								<div>
+									<strong>Setting Up ClaimScope (Default)</strong>
+									<p style={{ margin: '8px 0 0 0' }}>
+										To use the default <code>ClaimScope</code>, you need to create a resource server
+										in PingOne:
+									</p>
+									<ol style={{ margin: '8px 0', paddingLeft: '24px' }}>
+										<li>
+											Go to <strong>PingOne Admin Console → Resources → Resource Servers</strong>
+										</li>
+										<li>
+											Click <strong>"Add Resource Server"</strong>
+										</li>
+										<li>Name it (e.g., "My API Server")</li>
+										<li>
+											Click <strong>"Add Scope"</strong> and enter <code>ClaimScope</code>
+										</li>
+										<li>
+											Go to <strong>Applications → Your Application → Resources tab</strong>
+										</li>
+										<li>
+											Enable your resource server and check the <code>ClaimScope</code> box
+										</li>
+										<li>
+											Click <strong>"Save"</strong>
+										</li>
+									</ol>
+									<p style={{ margin: '8px 0 0 0' }}>
+										Wait a few seconds for changes to propagate, then use <code>ClaimScope</code> in
+										your request.
+									</p>
+								</div>
+							</InfoBox>
+
+							<InfoBox>
+								<FiInfo size={20} color="#2563eb" style={{ flexShrink: 0, marginTop: '2px' }} />
+								<div>
+									<strong>Custom Resource Scopes</strong>
+									<p style={{ margin: '8px 0 0 0' }}>
+										You can also create custom scopes like <code>my-api:read</code>,{' '}
+										<code>my-api:write</code> following the same pattern. Just add them to your
+										resource server and enable them for your application.
+									</p>
+								</div>
+							</InfoBox>
+						</>
 					)}
 
 					{context === 'worker-token' && (

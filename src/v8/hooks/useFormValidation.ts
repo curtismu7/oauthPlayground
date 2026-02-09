@@ -5,7 +5,7 @@
  * @version 9.1.0
  */
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 interface ValidationRule {
 	required?: boolean;
@@ -92,9 +92,7 @@ export const useFormValidation = <T extends Record<string, string>>(
 		});
 
 		setErrors(newErrors);
-		setTouched(
-			Object.keys(config).reduce((acc, key) => ({ ...acc, [key]: true }), {})
-		);
+		setTouched(Object.keys(config).reduce((acc, key) => ({ ...acc, [key]: true }), {}));
 
 		return isValid;
 	}, [config, values, validateField]);

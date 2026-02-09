@@ -54,7 +54,6 @@ import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { FlowOptionsServiceV8 } from '@/v8/services/flowOptionsServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { OidcDiscoveryServiceV8 } from '@/v8/services/oidcDiscoveryServiceV8';
@@ -568,6 +567,113 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const [allowedScopes, setAllowedScopes] = useState<string[]>([]);
 	const [isLoadingScopes, setIsLoadingScopes] = useState(false);
 
+	// Track fields that were just changed to prevent sync from overwriting them
+	const recentlyChangedFieldsRef = useRef<Set<string>>(new Set());
+
+	const handleChange = useCallback(
+		(field: string, value: string | boolean | number | undefined) => {
+			console.log(`${MODULE_TAG} Credential changed`, { field, flowKey, value });
+			// #region agent log
+			analytics.log({
+				location: 'CredentialsFormV8U.tsx:1328',
+				message: 'handleChange called',
+				data: {
+					field,
+					flowKey,
+					value,
+					isAdvancedOption: [
+						'responseMode',
+						'usePAR',
+						'maxAge',
+						'display',
+						'prompt',
+						'loginHint',
+					].includes(field),
+				},
+			});
+			// #endregion
+
+			// Mark this field as recently changed to prevent sync from overwriting it
+			recentlyChangedFieldsRef.current.add(field);
+			// Clear the flag after a short delay (allows parent to update)
+			setTimeout(() => {
+				recentlyChangedFieldsRef.current.delete(field);
+			}, 100);
+
+			// Handle boolean fields (usePKCE, enableRefreshToken, usePAR)
+			// Handle pkceEnforcement as a string (OPTIONAL, REQUIRED, S256_REQUIRED)
+			// Handle responseMode as a string (query, fragment, form_post, pi.flow)
+			// Handle refreshTokenType as a string (JWT, OPAQUE)
+			// Handle number fields (maxAge)
+			const updated =
+				field === 'usePKCE' || field === 'enableRefreshToken' || field === 'usePAR'
+					? { ...credentials, [field]: value === true || value === 'true' }
+					: field === 'pkceEnforcement' || field === 'responseMode' || field === 'refreshTokenType'
+						? {
+								...credentials,
+								[field]: value as 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' | 'JWT' | 'OPAQUE',
+							}
+						: field === 'maxAge'
+							? { ...credentials, [field]: typeof value === 'number' ? value : undefined }
+							: { ...credentials, [field]: value };
+
+			// Save environment ID globally when changed
+			if (field === 'environmentId' && typeof value === 'string' && value.trim()) {
+				EnvironmentIdServiceV8.saveEnvironmentId(value);
+			}
+
+			// Save credentials directly to storage using V8U flowKey
+			try {
+				const credsForSave = updated as unknown as Parameters<
+					typeof CredentialsServiceV8.saveCredentials
+				>[1];
+				// #region agent log
+				analytics.log({
+					location: 'CredentialsFormV8U.tsx:1357',
+					message: 'Saving credentials to storage',
+					data: {
+						flowKey,
+						field,
+						hasResponseMode: !!updated.responseMode,
+						hasUsePAR: updated.usePAR !== undefined,
+						hasMaxAge: updated.maxAge !== undefined,
+						hasDisplay: !!updated.display,
+						hasPrompt: !!updated.prompt,
+						responseMode: updated.responseMode,
+						usePAR: updated.usePAR,
+					},
+				});
+				// #endregion
+				CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+
+				// Save shared credentials (environmentId, clientId, clientSecret, etc.) to shared storage (async with disk)
+				const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(updated);
+				if (sharedCreds.environmentId || sharedCreds.clientId) {
+					// Use sync version for immediate browser storage, async disk save happens in background
+					SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
+					// Also save to disk asynchronously (non-blocking)
+					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((err) => {
+						console.warn(`${MODULE_TAG} Background disk save failed (non-critical):`, err);
+					});
+				}
+
+				console.log(`${MODULE_TAG} Credentials saved to storage`, {
+					field,
+					flowKey,
+					hasClientId: !!updated.clientId,
+					hasSharedCreds: !!(sharedCreds.environmentId || sharedCreds.clientId),
+				});
+			} catch (error) {
+				console.error(`${MODULE_TAG} Error saving credentials`, { field, flowKey, error });
+			}
+
+			onChange(updated);
+
+			// Note: Redirect URI and Logout URI change callbacks removed - functionality can be handled by parent via onChange
+		},
+		[credentials, onChange, flowKey]
+	);
+
 	// Load environment ID from global storage on mount (only once)
 	useEffect(() => {
 		const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
@@ -851,6 +957,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		usePAR,
 		getRecommendedClientType,
 		flowKey,
+		handleChange,
 	]);
 
 	// Auto-select recommended application type when flow type changes
@@ -925,7 +1032,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 		// biome-ignore lint/correctness/useExhaustiveDependencies: onChange uses functional update to prevent loops
-	}, [credentials.environmentId]);
+	}, [credentials.environmentId, onChange]);
 
 	// Check token status and listen for updates
 	useEffect(() => {
@@ -1449,113 +1556,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 				return TooltipContentServiceV8.APPLICATION_TYPE.content;
 		}
 	}, []);
-
-	// Track fields that were just changed to prevent sync from overwriting them
-	const recentlyChangedFieldsRef = useRef<Set<string>>(new Set());
-
-	const handleChange = useCallback(
-		(field: string, value: string | boolean | number | undefined) => {
-			console.log(`${MODULE_TAG} Credential changed`, { field, flowKey, value });
-			// #region agent log
-			analytics.log({
-				location: 'CredentialsFormV8U.tsx:1328',
-				message: 'handleChange called',
-				data: {
-					field,
-					flowKey,
-					value,
-					isAdvancedOption: [
-						'responseMode',
-						'usePAR',
-						'maxAge',
-						'display',
-						'prompt',
-						'loginHint',
-					].includes(field),
-				},
-			});
-			// #endregion
-
-			// Mark this field as recently changed to prevent sync from overwriting it
-			recentlyChangedFieldsRef.current.add(field);
-			// Clear the flag after a short delay (allows parent to update)
-			setTimeout(() => {
-				recentlyChangedFieldsRef.current.delete(field);
-			}, 100);
-
-			// Handle boolean fields (usePKCE, enableRefreshToken, usePAR)
-			// Handle pkceEnforcement as a string (OPTIONAL, REQUIRED, S256_REQUIRED)
-			// Handle responseMode as a string (query, fragment, form_post, pi.flow)
-			// Handle refreshTokenType as a string (JWT, OPAQUE)
-			// Handle number fields (maxAge)
-			const updated =
-				field === 'usePKCE' || field === 'enableRefreshToken' || field === 'usePAR'
-					? { ...credentials, [field]: value === true || value === 'true' }
-					: field === 'pkceEnforcement' || field === 'responseMode' || field === 'refreshTokenType'
-						? {
-								...credentials,
-								[field]: value as 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' | 'JWT' | 'OPAQUE',
-							}
-						: field === 'maxAge'
-							? { ...credentials, [field]: typeof value === 'number' ? value : undefined }
-							: { ...credentials, [field]: value };
-
-			// Save environment ID globally when changed
-			if (field === 'environmentId' && typeof value === 'string' && value.trim()) {
-				EnvironmentIdServiceV8.saveEnvironmentId(value);
-			}
-
-			// Save credentials directly to storage using V8U flowKey
-			try {
-				const credsForSave = updated as unknown as Parameters<
-					typeof CredentialsServiceV8.saveCredentials
-				>[1];
-				// #region agent log
-				analytics.log({
-					location: 'CredentialsFormV8U.tsx:1357',
-					message: 'Saving credentials to storage',
-					data: {
-						flowKey,
-						field,
-						hasResponseMode: !!updated.responseMode,
-						hasUsePAR: updated.usePAR !== undefined,
-						hasMaxAge: updated.maxAge !== undefined,
-						hasDisplay: !!updated.display,
-						hasPrompt: !!updated.prompt,
-						responseMode: updated.responseMode,
-						usePAR: updated.usePAR,
-					},
-				});
-				// #endregion
-				CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
-
-				// Save shared credentials (environmentId, clientId, clientSecret, etc.) to shared storage (async with disk)
-				const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(updated);
-				if (sharedCreds.environmentId || sharedCreds.clientId) {
-					// Use sync version for immediate browser storage, async disk save happens in background
-					SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
-					// Also save to disk asynchronously (non-blocking)
-					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((err) => {
-						console.warn(`${MODULE_TAG} Background disk save failed (non-critical):`, err);
-					});
-				}
-
-				console.log(`${MODULE_TAG} Credentials saved to storage`, {
-					field,
-					flowKey,
-					hasClientId: !!updated.clientId,
-					hasSharedCreds: !!(sharedCreds.environmentId || sharedCreds.clientId),
-				});
-			} catch (error) {
-				console.error(`${MODULE_TAG} Error saving credentials`, { field, flowKey, error });
-			}
-
-			onChange(updated);
-
-			// Note: Redirect URI and Logout URI change callbacks removed - functionality can be handled by parent via onChange
-		},
-		[credentials, onChange, flowKey]
-	);
 
 	const handleAppSelected = useCallback(
 		async (app: DiscoveredApp) => {
@@ -3505,7 +3505,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											type="text"
 											placeholder={
 												providedFlowType === 'client-credentials'
-													? 'api:read api:write custom:scope (space-separated)'
+													? 'ClaimScope my-api:read my-api:write (space-separated)'
 													: 'openid'
 											}
 											value={
@@ -3529,7 +3529,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 										/>
 										<small>
 											{providedFlowType === 'client-credentials'
-												? 'Use resource server scopes (e.g., api:read, api:write, ClaimScope, custom:read). Space-separated. Must be enabled in PingOne app Resources tab under a resource server. Note: OIDC scopes (openid, profile, email) and self-management scopes (p1:read:user) do NOT work with client_credentials - you need resource server scopes like api:read or ClaimScope.'
+												? 'Use resource server scopes (e.g., ClaimScope, my-api:read, my-api:write). Space-separated. Must be enabled in PingOne app Resources tab under a resource server. Note: OIDC scopes (openid, profile, email) and self-management scopes (p1:read:user) do NOT work with client_credentials - you need resource server scopes like ClaimScope or my-api:read.'
 												: providedFlowType === 'device-code'
 													? 'OIDC scopes for user authentication (e.g., openid profile email offline_access) - Device Flow is for user authorization, not machine-to-machine'
 													: 'Type space-separated scopes (e.g., openid profile email). Custom scopes are allowed. Must be enabled in PingOne app.'}

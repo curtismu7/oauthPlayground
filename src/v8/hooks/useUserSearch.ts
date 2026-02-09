@@ -10,8 +10,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { UserServiceV8 } from '@/v8/services/userServiceV8';
-import { UserCacheServiceV8 } from '@/v8/services/userCacheServiceV8';
+import { SQLiteStatsServiceV8 } from '@/v8/services/sqliteStatsServiceV8';
 import type { User } from '@/v8/services/userServiceV8';
 
 const MODULE_TAG = '[🔍 USE-USER-SEARCH]';
@@ -46,21 +45,21 @@ export interface UseUserSearchReturn {
 
 /**
  * Hook for user search with caching
- * 
+ *
  * Features:
  * - Auto-fetches users when environment ID and token valid
  * - Uses IndexedDB cache for persistence
  * - Local filtering (instant)
  * - Server search fallback for cache misses
  * - Debounced search (300ms)
- * 
+ *
  * @example
  * ```tsx
  * const { users, isLoading, searchQuery, setSearchQuery } = useUserSearch({
  *   environmentId: 'env-123',
  *   tokenValid: true,
  * });
- * 
+ *
  * // Use in SearchableDropdownV8
  * <SearchableDropdownV8
  *   value={username}
@@ -75,12 +74,12 @@ export function useUserSearch(options: UseUserSearchOptions): UseUserSearchRetur
 	const { environmentId, tokenValid, maxPages = 100, useCache = true } = options;
 
 	const [users, setUsers] = useState<User[]>([]);
-	const [allUsers, setAllUsers] = useState<User[]>([]);
+	const [_allUsers, setAllUsers] = useState<User[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [usersFetched, setUsersFetched] = useState(false);
 
-	// Check if users exist on server
+	// Check if users exist in SQLite database
 	const checkCache = useCallback(async () => {
 		if (!environmentId.trim() || !tokenValid) {
 			setUsersFetched(false);
@@ -88,44 +87,50 @@ export function useUserSearch(options: UseUserSearchOptions): UseUserSearchRetur
 		}
 
 		try {
-			const response = await fetch(`/api/users/count/${environmentId}`);
-			if (response.ok) {
-				const data = await response.json();
-				setUsersFetched(data.totalUsers > 0);
+			// Use SQLiteStatsServiceV8 to get user count from SQLite database
+			const userStats = await SQLiteStatsServiceV8.getUserCount(environmentId);
+			setUsersFetched(userStats.success && userStats.totalUsers > 0);
+
+			if (userStats.success) {
+				console.log(`${MODULE_TAG} SQLite user count for ${environmentId}:`, userStats.totalUsers);
 			} else {
-				setUsersFetched(false);
+				console.warn(`${MODULE_TAG} Failed to get SQLite user count:`, userStats.error);
 			}
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Failed to check user count:`, error);
+			console.warn(`${MODULE_TAG} Failed to check SQLite user count:`, error);
 			setUsersFetched(false);
 		}
 	}, [environmentId, tokenValid]);
 
 	// Fetch users to populate cache (background operation)
-	const fetchUsers = useCallback(async (forceRefresh = false) => {
-		if (!environmentId.trim() || !tokenValid) {
-			setUsers([]);
-			setAllUsers([]);
-			setUsersFetched(false);
-			return;
-		}
+	const fetchUsers = useCallback(
+		async (forceRefresh = false) => {
+			if (!environmentId.trim() || !tokenValid) {
+				setUsers([]);
+				setAllUsers([]);
+				setUsersFetched(false);
+				return;
+			}
 
-		setIsLoading(true);
-		try {
-			// Fetch to populate cache, but don't load into memory
-			await UserServiceV8.fetchAllUsers(environmentId, {
-				maxPages,
-				useCache: useCache && !forceRefresh,
-			});
-			setUsersFetched(true);
-			console.log(`${MODULE_TAG} Cache populated, use search to query`);
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to fetch users:`, error);
-			setUsersFetched(false);
-		} finally {
-			setIsLoading(false);
-		}
-	}, [environmentId, tokenValid, maxPages, useCache]);
+			setIsLoading(true);
+			try {
+				// Fetch to populate cache, but don't load into memory
+				const { UserServiceV8 } = await import('@/v8/services/userServiceV8');
+				await UserServiceV8.fetchAllUsers(environmentId, {
+					maxPages,
+					useCache: useCache && !forceRefresh,
+				});
+				setUsersFetched(true);
+				console.log(`${MODULE_TAG} Cache populated, use search to query`);
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to fetch users:`, error);
+				setUsersFetched(false);
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[environmentId, tokenValid, maxPages, useCache]
+	);
 
 	// Initial check when environment ID or token changes
 	useEffect(() => {
@@ -149,7 +154,11 @@ export function useUserSearch(options: UseUserSearchOptions): UseUserSearchRetur
 					if (response.ok) {
 						const data = await response.json();
 						// Ensure we always set an array, even if API returns unexpected format
-						const usersArray = Array.isArray(data.users) ? data.users : (Array.isArray(data) ? data : []);
+						const usersArray = Array.isArray(data.users)
+							? data.users
+							: Array.isArray(data)
+								? data
+								: [];
 						console.log(`${MODULE_TAG} Loaded ${usersArray.length} recent users`);
 						setUsers(usersArray);
 					} else {
@@ -159,11 +168,17 @@ export function useUserSearch(options: UseUserSearchOptions): UseUserSearchRetur
 				} else {
 					// Search via server API
 					console.log(`${MODULE_TAG} Searching server for: "${searchQuery}"`);
-					const response = await fetch(`/api/users/search?environmentId=${environmentId}&q=${encodeURIComponent(searchQuery)}&limit=100`);
+					const response = await fetch(
+						`/api/users/search?environmentId=${environmentId}&q=${encodeURIComponent(searchQuery)}&limit=100`
+					);
 					if (response.ok) {
 						const data = await response.json();
 						// Ensure we always set an array, even if API returns unexpected format
-						const usersArray = Array.isArray(data.users) ? data.users : (Array.isArray(data) ? data : []);
+						const usersArray = Array.isArray(data.users)
+							? data.users
+							: Array.isArray(data)
+								? data
+								: [];
 						console.log(`${MODULE_TAG} Found ${usersArray.length} matching users`);
 						setUsers(usersArray);
 					} else {

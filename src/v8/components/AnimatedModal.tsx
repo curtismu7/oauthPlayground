@@ -7,7 +7,7 @@
 
 import React, { ReactNode, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { colors, spacing, borderRadius, shadows, typography } from '@/v8/design/tokens';
+import { borderRadius, colors, shadows, spacing, typography } from '@/v8/design/tokens';
 
 interface AnimatedModalProps {
 	isOpen: boolean;

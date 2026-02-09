@@ -5,15 +5,14 @@
  * @version 9.2.0
  */
 
+import type { WorkerTokenCredentials, WorkerTokenStatus } from './workerTokenServiceV8';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
-import type { WorkerTokenStatus } from './workerTokenServiceV8';
-import type { WorkerTokenCredentials } from './workerTokenServiceV8';
 
 type WorkerTokenStatusListener = (status: WorkerTokenStatus) => void;
 
 /**
  * Global Worker Token Service
- * 
+ *
  * Manages Worker Tokens as a global singleton with:
  * - Automatic token lifecycle management (fetch, refresh, expire)
  * - Observable pattern for reactive updates
@@ -50,7 +49,7 @@ export class GlobalWorkerTokenService {
 
 	/**
 	 * Get a valid Worker Token (auto-fetch if needed)
-	 * 
+	 *
 	 * @returns Valid access token string
 	 * @throws Error if credentials not configured or fetch fails
 	 */
@@ -144,7 +143,7 @@ export class GlobalWorkerTokenService {
 	 */
 	private notifyListeners(status: WorkerTokenStatus): void {
 		console.log('[GlobalWorkerTokenService] Notifying listeners:', this.listeners.size);
-		this.listeners.forEach(listener => listener(status));
+		this.listeners.forEach((listener) => listener(status));
 	}
 
 	/**
@@ -162,5 +161,7 @@ export const globalWorkerTokenService = GlobalWorkerTokenService.getInstance();
 
 // Expose to window for debugging
 if (typeof window !== 'undefined') {
-	(window as unknown as Window & { globalWorkerTokenService: GlobalWorkerTokenService }).globalWorkerTokenService = globalWorkerTokenService;
+	(
+		window as unknown as Window & { globalWorkerTokenService: GlobalWorkerTokenService }
+	).globalWorkerTokenService = globalWorkerTokenService;
 }

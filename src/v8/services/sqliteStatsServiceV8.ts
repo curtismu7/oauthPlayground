@@ -47,7 +47,7 @@ export interface SQLiteSyncMetadata {
 
 /**
  * SQLite Stats Service
- * 
+ *
  * Fetches user cache statistics from the server's SQLite database.
  * All operations are server-side; no IndexedDB involved.
  */
@@ -57,7 +57,7 @@ export class SQLiteStatsServiceV8 {
 
 	/**
 	 * Get total user count for an environment from SQLite database
-	 * 
+	 *
 	 * @param environmentId - PingOne environment ID
 	 * @returns User count and status
 	 */
@@ -72,8 +72,8 @@ export class SQLiteStatsServiceV8 {
 		}
 
 		// Check cache first
-		const cached = this.userCountCache.get(environmentId);
-		if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
+		const cached = SQLiteStatsServiceV8.userCountCache.get(environmentId);
+		if (cached && Date.now() - cached.timestamp < SQLiteStatsServiceV8.CACHE_TTL) {
 			console.log(`${MODULE_TAG} Using cached count for ${environmentId}:`, cached.count);
 			return {
 				environmentId,
@@ -84,7 +84,7 @@ export class SQLiteStatsServiceV8 {
 
 		try {
 			const response = await fetch(`/api/users/count/${environmentId}`);
-			
+
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}));
 				throw new Error(errorData.error || `HTTP ${response.status}`);
@@ -94,7 +94,7 @@ export class SQLiteStatsServiceV8 {
 			const count = data.totalUsers || 0;
 
 			// Cache the result
-			this.userCountCache.set(environmentId, {
+			SQLiteStatsServiceV8.userCountCache.set(environmentId, {
 				count,
 				timestamp: Date.now(),
 			});
@@ -119,7 +119,7 @@ export class SQLiteStatsServiceV8 {
 
 	/**
 	 * Get sync metadata for an environment
-	 * 
+	 *
 	 * @param environmentId - PingOne environment ID
 	 * @returns Sync metadata including last sync time, status, etc.
 	 */
@@ -136,7 +136,7 @@ export class SQLiteStatsServiceV8 {
 
 		try {
 			const response = await fetch(`/api/users/sync-metadata/${environmentId}`);
-			
+
 			if (!response.ok) {
 				throw new Error(`HTTP ${response.status}`);
 			}
@@ -154,10 +154,10 @@ export class SQLiteStatsServiceV8 {
 			};
 		} catch (error: any) {
 			console.error(`${MODULE_TAG} Failed to get sync metadata:`, error);
-			
+
 			// Fallback to user count endpoint
-			const countResult = await this.getUserCount(environmentId);
-			
+			const countResult = await SQLiteStatsServiceV8.getUserCount(environmentId);
+
 			return {
 				environmentId,
 				totalUsers: countResult.totalUsers,
@@ -172,7 +172,7 @@ export class SQLiteStatsServiceV8 {
 	 * Clear cached stats (force fresh fetch next time)
 	 */
 	static clearCache(): void {
-		this.userCountCache.clear();
+		SQLiteStatsServiceV8.userCountCache.clear();
 		console.log(`${MODULE_TAG} Cache cleared`);
 	}
 
@@ -180,7 +180,7 @@ export class SQLiteStatsServiceV8 {
 	 * Clear cache for specific environment
 	 */
 	static clearCacheForEnvironment(environmentId: string): void {
-		this.userCountCache.delete(environmentId);
+		SQLiteStatsServiceV8.userCountCache.delete(environmentId);
 		console.log(`${MODULE_TAG} Cache cleared for ${environmentId}`);
 	}
 }

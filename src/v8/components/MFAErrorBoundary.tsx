@@ -55,7 +55,7 @@ export class MFAErrorBoundary extends Component<Props, State> {
 	};
 
 	handleGoHome = () => {
-		window.location.href = '/v8/mfa-hub';
+		window.location.href = '/v8/mfa-config';
 	};
 
 	override render() {

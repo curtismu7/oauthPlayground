@@ -285,11 +285,11 @@ export async function pingOneFetch(
 			await delay(waitTime);
 		} catch (error) {
 			lastError = error;
-			
+
 			// Check if this is a backend connectivity error
 			if (backendConnectivityService.isBackendConnectivityError(error)) {
 				backendConnectivityService.recordFailure();
-				
+
 				// Suppress console errors if modal is shown or will be shown
 				if (!backendConnectivityService.shouldShowModal()) {
 					// Only log first few failures before modal shows
@@ -298,7 +298,7 @@ export async function pingOneFetch(
 					}
 				}
 			}
-			
+
 			if (attempt >= maxAttempts) {
 				throw error;
 			}

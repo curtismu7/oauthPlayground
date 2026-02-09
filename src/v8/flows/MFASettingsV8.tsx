@@ -215,7 +215,7 @@ export const MFASettingsV8: React.FC = () => {
 				onStepChange={() => {}}
 				showNext={false}
 				showPrevious={true}
-				onPrevious={() => navigate('/v8/mfa-hub')}
+				onPrevious={() => navigate('/v8/mfa-config')}
 			/>
 		</Container>
 	);

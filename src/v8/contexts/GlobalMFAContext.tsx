@@ -5,10 +5,10 @@
  * @version 9.2.0
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import type { WorkerTokenStatus } from '@/types/credentials';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
 import { globalWorkerTokenService } from '@/v8/services/globalWorkerTokenService';
-import type { WorkerTokenStatus } from '@/types/credentials';
 
 interface GlobalMFAState {
 	environmentId: string | null;
@@ -30,7 +30,7 @@ interface GlobalMFAProviderProps {
 
 /**
  * Global MFA Provider
- * 
+ *
  * Provides global state for:
  * - Environment ID (single source of truth)
  * - Worker Token status (automatic refresh)
@@ -44,7 +44,7 @@ export const GlobalMFAProvider: React.FC<GlobalMFAProviderProps> = ({ children }
 	// Initialize on mount
 	useEffect(() => {
 		console.log('[GlobalMFAContext] Initializing...');
-		
+
 		const initializeServices = async () => {
 			// Initialize environment service
 			globalEnvironmentService.initialize();
@@ -87,9 +87,9 @@ export const GlobalMFAProvider: React.FC<GlobalMFAProviderProps> = ({ children }
 		};
 
 		const cleanup = initializeServices();
-		
+
 		return () => {
-			cleanup.then(fn => fn?.());
+			cleanup.then((fn) => fn?.());
 		};
 	}, []);
 
@@ -110,8 +110,8 @@ export const GlobalMFAProvider: React.FC<GlobalMFAProviderProps> = ({ children }
 
 	// Determine if fully configured
 	const isConfigured = !!(
-		environmentId && 
-		workerTokenStatus?.hasCredentials && 
+		environmentId &&
+		workerTokenStatus?.hasCredentials &&
 		workerTokenStatus?.tokenValid
 	);
 
@@ -124,16 +124,12 @@ export const GlobalMFAProvider: React.FC<GlobalMFAProviderProps> = ({ children }
 		refreshWorkerToken,
 	};
 
-	return (
-		<GlobalMFAContext.Provider value={value}>
-			{children}
-		</GlobalMFAContext.Provider>
-	);
+	return <GlobalMFAContext.Provider value={value}>{children}</GlobalMFAContext.Provider>;
 };
 
 /**
  * Hook to use Global MFA Context
- * 
+ *
  * @throws Error if used outside GlobalMFAProvider
  */
 export const useGlobalMFA = (): GlobalMFAContextValue => {

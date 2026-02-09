@@ -69,6 +69,13 @@ export interface MFAState {
 		status: string;
 		message: string;
 	} | null;
+	showQr?: boolean;
+	qrCodeUrl?: string;
+	keyUri?: string;
+	totpSecret?: string;
+	publicKeyCredentialCreationOptions?: unknown;
+	pairingKey?: string;
+	deviceActivateUri?: string;
 	// Additional device registration fields
 	nickname?: string;
 	environmentId?: string;
@@ -78,12 +85,6 @@ export interface MFAState {
 	// Authentication flow fields (for existing devices)
 	authenticationId?: string;
 	nextStep?: string; // OTP_REQUIRED, ASSERTION_REQUIRED, SELECTION_REQUIRED, COMPLETED
-	// Per rightOTP.md: device.activate URI from device creation response
-	// Use this URI for OTP activation instead of constructing endpoint
-	deviceActivateUri?: string;
-	// TOTP-specific fields
-	qrCodeUrl?: string;
-	totpSecret?: string;
 	// FIDO2-specific fields
 	fido2CredentialId?: string;
 	fido2PublicKey?: string;
