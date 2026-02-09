@@ -287,7 +287,7 @@ git push
 ### **✅ Recently Resolved (Learn From These)**
 | # | Issue | Root Cause | SWE-15 Fix Applied |
 |---|-------|------------|-------------------|
-| 58 | Admin Flow Making User Do User Login | Token-based flow determination | Interface Segregation |
+| 58 | **Admin Flow Making User Do User Login** | ✅ RESOLVED (REGRESSION FIX) | UnifiedMFARegistrationFlowV8_Legacy.tsx:1324, App.tsx:595 | DeviceTypeSelectionScreen not respecting registrationFlowType prop | Fixed admin flow to prevent user login and respect registrationFlowType, added default admin-active to main route |
 | 57 | Biome Code Quality Issues | Inconsistent formatting | Single Responsibility |
 | 56 | Silent API Call Not Working | Manual state management | Dependency Inversion |
 | 55 | Redirect URI Wrong Page | Hardcoded step logic | Open/Closed Principle |
@@ -5121,10 +5121,18 @@ grep -r "checkPingOneAuthentication" src/v8/
 grep -r "shouldRedirectToPingOne" src/v8/
 grep -r "performDetailedAuthenticationCheck" src/v8/
 
-# Admin flow user login prevention
-grep -r "userToken.*admin\|admin.*userToken" src/v8/flows/
-grep -r "registrationFlowType" src/v8/flows/unified/
-grep -A 15 "Props.*{" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+# Issue 58 (REGRESSION FIX): Check for admin flow user login regression
+grep -A 5 -B 5 "registrationFlowType.*admin" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+grep -A 5 -B 5 "onTokenReceived.*registrationFlowType" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+grep -A 3 "registrationFlowType.*admin-active" src/App.tsx
+
+# Issue 58 (REGRESSION FIX): Verify DeviceTypeSelectionScreen respects registrationFlowType
+grep -A 10 "onClick.*authentication" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+grep -A 5 "User login not allowed in admin flow" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Issue 58 (REGRESSION FIX): Check main route defaults to admin flow
+grep -A 3 "unified-mfa.*registrationFlowType" src/App.tsx
+grep -A 3 "admin-active.*UnifiedMFARegistrationFlowV8_Legacy" src/App.tsx
 grep -A 10 -B 5 "registrationFlowType.*=" src/v8/flows/unified/
 grep -r "flowType.*=\|const.*flowType.*=" src/v8/flows/
 
