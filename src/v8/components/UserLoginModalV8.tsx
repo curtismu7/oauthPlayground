@@ -13,6 +13,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiDownload, FiEye, FiEyeOff, FiInfo, FiUpload } from 'react-icons/fi';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
+import { RedirectUriValidatorV8 } from '@/v8/components/RedirectUriValidatorV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
@@ -20,12 +21,11 @@ import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
-import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
+import { OAuthIntegrationServiceV8, type OAuthCredentials } from '@/v8/services/oauthIntegrationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
-import { RedirectUriValidatorV8 } from '@/v8/components/RedirectUriValidatorV8';
 import {
 	type SessionInfo,
 	UserAuthenticationSuccessPageV8,
@@ -53,25 +53,28 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [environmentId, setEnvironmentId] = useState(propEnvironmentId);
 	const [clientId, setClientId] = useState('');
 	const [clientSecret, setClientSecret] = useState('');
+	const [username, setUsername] = useState('');
 	const [redirectUri, setRedirectUri] = useState(() => {
 		// Initialize with correct default redirect URI based on flow type
 		const protocol = 'https';
-		const isMfaFlow = location.pathname.startsWith('/v8/mfa') || location.pathname.startsWith('/v8/unified-mfa');
+		const isMfaFlow =
+			location.pathname.startsWith('/v8/mfa') || location.pathname.startsWith('/v8/unified-mfa');
 		const uri = isMfaFlow
 			? `${protocol}://${window.location.host}/mfa-unified-callback`
 			: `${protocol}://${window.location.host}/user-login-callback`;
-		
+
 		// DEBUG: Log initial state
 		console.log('🔍 [REDIRECT-URI-DEBUG] Initial state:', {
 			isMfaFlow,
 			currentPath: location.pathname,
-			initialUri: uri
+			initialUri: uri,
 		});
-		
+
 		return uri;
 	});
 	// Check if we're in an MFA flow context
-	const isMfaFlow = location.pathname.startsWith('/v8/mfa') || location.pathname.startsWith('/v8/unified-mfa');
+	const isMfaFlow =
+		location.pathname.startsWith('/v8/mfa') || location.pathname.startsWith('/v8/unified-mfa');
 
 	// Check if worker token is available (from workerTokenServiceV8)
 	const [hasWorkerToken, setHasWorkerToken] = useState(false);
@@ -99,7 +102,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						console.warn('Failed to extract environment ID from worker token:', jwtError);
 					}
 				}
-			} catch (error) {
+			} catch (_error) {
 				setHasWorkerToken(false);
 			}
 		};
@@ -120,7 +123,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [isUpdatingApp, setIsUpdatingApp] = useState(false);
 	const [showSuccessPage, setShowSuccessPage] = useState(false);
 	const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
-	
+
 	// Debug state for authorization URL details
 	const [debugInfo, setDebugInfo] = useState<{
 		authorizationUrl: string;
@@ -128,7 +131,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		requestBody: string;
 	} | null>(null);
 	const [showDebugSection, setShowDebugSection] = useState(false);
-	
+
 	// Track if we're processing a callback (returning from PingOne authentication)
 	const [isProcessingCallback, setIsProcessingCallback] = useState(false);
 	// Worker token settings state (for consistency with other pages)
@@ -168,7 +171,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			currentRedirectUri: redirectUri,
 			isMfaFlow,
 			currentPath: location.pathname,
-			defaultRedirectUri
+			defaultRedirectUri,
 		});
 
 		setIsValidating(true);
@@ -224,7 +227,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					yourUri: redirectUri,
 					registeredUris: appConfig.redirectUris,
 					isMfaFlow,
-					currentPath: location.pathname
+					currentPath: location.pathname,
 				});
 				warnings.push(`Redirect URI "${redirectUri}" is not in the configured list`);
 			}
@@ -251,14 +254,16 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Pre-flight validation error:`, error);
+			const errorMessage = `Failed to validate configuration: ${error instanceof Error ? error.message : 'Unknown error'}`;
 			setValidationResult({
 				passed: false,
-				errors: [
-					`Failed to validate configuration: ${error instanceof Error ? error.message : 'Unknown error'}`,
-				],
+				errors: [errorMessage],
 				warnings: [],
 			});
-			toastV8.error('Pre-flight validation failed');
+			// Create informative toast message
+			const shortError = error instanceof Error ? error.message : 'Unknown error';
+			const toastMessage = `Pre-flight validation failed: ${shortError.substring(0, 80)}${shortError.length > 80 ? '...' : ''}`;
+			toastV8.error(toastMessage);
 		} finally {
 			setIsValidating(false);
 		}
@@ -315,7 +320,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			const FLOW_KEY = 'user-login-v8';
 
 			// Use HTTPS for security, even in development
-			const protocol = 'https';
+			const _protocol = 'https';
 
 			// Get the correct redirect URI from the centralized service
 			// Note: We use defaultRedirectUri (defined above) for consistency
@@ -351,7 +356,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				// ALWAYS use the new unified callback for MFA flows, regardless of what's saved
 				// This forces migration from old /v8/mfa-unified-callback to new /mfa-unified-callback
 				const initialRedirectUri = isMfaFlow
-					? defaultRedirectUri  // Use the correct defaultRedirectUri
+					? defaultRedirectUri // Use the correct defaultRedirectUri
 					: saved.redirectUri || defaultRedirectUri;
 
 				// DEBUG: Log redirect URI values
@@ -360,7 +365,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					savedRedirectUri: saved.redirectUri,
 					defaultRedirectUri,
 					initialRedirectUri,
-					currentPath: location.pathname
+					currentPath: location.pathname,
 				});
 
 				// #region agent log
@@ -404,7 +409,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				setScopes(defaultScopes);
 			}
 		}
-	}, [isOpen, propEnvironmentId, isMfaFlow]);
+	}, [isOpen, propEnvironmentId, isMfaFlow, defaultRedirectUri, location.pathname]);
 
 	const handleTokenReceived = useCallback(
 		(token: string) => {
@@ -1257,15 +1262,22 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 		try {
 			// Generate authorization URL with PKCE
+			const credentials: OAuthCredentials = {
+				environmentId: environmentId.trim(),
+				clientId: clientId.trim(),
+				clientSecret: clientSecret.trim(),
+				redirectUri: finalRedirectUri,
+				scopes: scopes.trim(),
+				clientAuthMethod: authMethod,
+			};
+
+			// Add username if provided
+			if (username.trim()) {
+				credentials.username = username.trim();
+			}
+
 			const { authorizationUrl, state, codeVerifier } =
-				await OAuthIntegrationServiceV8.generateAuthorizationUrl({
-					environmentId: environmentId.trim(),
-					clientId: clientId.trim(),
-					clientSecret: clientSecret.trim(),
-					redirectUri: finalRedirectUri,
-					scopes: scopes.trim(),
-					clientAuthMethod: authMethod,
-				});
+				await OAuthIntegrationServiceV8.generateAuthorizationUrl(credentials);
 
 			// CRITICAL DEBUG: Verify redirect_uri in the actual authorization URL
 			const urlObj = new URL(authorizationUrl);
@@ -1276,7 +1288,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				authorizationUrl,
 				requestHeaders: {
 					'Content-Type': 'application/x-www-form-urlencoded',
-					'Accept': 'application/json',
+					Accept: 'application/json',
 				},
 				requestBody: new URLSearchParams({
 					response_type: 'code',
@@ -1863,6 +1875,41 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							</small>
 						</div>
 
+						{/* Username (Optional) */}
+						<div>
+							<label
+								htmlFor="user-login-username"
+								style={{
+									display: 'block',
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '6px',
+								}}
+							>
+								Username (Optional)
+							</label>
+							<input
+								id="user-login-username"
+								type="text"
+								value={username}
+								onChange={(e) => setUsername(e.target.value)}
+								placeholder="Enter username for login_hint"
+								style={{
+									width: '100%',
+									padding: '10px 12px',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									fontSize: '14px',
+								}}
+							/>
+							<small
+								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
+							>
+								Added as login_hint parameter to authorization URL for better user experience
+							</small>
+						</div>
+
 						{/* Token Endpoint Authentication Method */}
 						<div>
 							<label
@@ -2445,23 +2492,34 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								<span>🔍 Debug Information</span>
 								<span>{showDebugSection ? '▼' : '▶'}</span>
 							</button>
-							
+
 							{showDebugSection && (
-								<div style={{ marginTop: '12px', background: '#f9fafb', borderRadius: '6px', padding: '12px' }}>
+								<div
+									style={{
+										marginTop: '12px',
+										background: '#f9fafb',
+										borderRadius: '6px',
+										padding: '12px',
+									}}
+								>
 									<div style={{ marginBottom: '12px' }}>
-										<strong style={{ color: '#374151', fontSize: '13px' }}>Authorization URL:</strong>
-										<div style={{
-											background: 'white',
-											padding: '8px',
-											borderRadius: '4px',
-											border: '1px solid #e5e7eb',
-											fontFamily: 'monospace',
-											fontSize: '11px',
-											wordBreak: 'break-all',
-											marginTop: '4px',
-											maxHeight: '100px',
-											overflow: 'auto',
-										}}>
+										<strong style={{ color: '#374151', fontSize: '13px' }}>
+											Authorization URL:
+										</strong>
+										<div
+											style={{
+												background: 'white',
+												padding: '8px',
+												borderRadius: '4px',
+												border: '1px solid #e5e7eb',
+												fontFamily: 'monospace',
+												fontSize: '11px',
+												wordBreak: 'break-all',
+												marginTop: '4px',
+												maxHeight: '100px',
+												overflow: 'auto',
+											}}
+										>
 											{debugInfo.authorizationUrl}
 										</div>
 										<button
@@ -2485,17 +2543,19 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 									<div style={{ marginBottom: '12px', position: 'relative' }}>
 										<strong style={{ color: '#374151', fontSize: '13px' }}>Request Headers:</strong>
-										<div style={{
-											background: 'white',
-											padding: '8px',
-											borderRadius: '4px',
-											border: '1px solid #e5e7eb',
-											fontFamily: 'monospace',
-											fontSize: '11px',
-											marginTop: '4px',
-											maxHeight: '80px',
-											overflow: 'auto',
-										}}>
+										<div
+											style={{
+												background: 'white',
+												padding: '8px',
+												borderRadius: '4px',
+												border: '1px solid #e5e7eb',
+												fontFamily: 'monospace',
+												fontSize: '11px',
+												marginTop: '4px',
+												maxHeight: '80px',
+												overflow: 'auto',
+											}}
+										>
 											{Object.entries(debugInfo.requestHeaders).map(([key, value]) => (
 												<div key={key} style={{ marginBottom: '4px' }}>
 													<strong style={{ color: '#6b7280' }}>{key}:</strong> {value}
@@ -2505,20 +2565,24 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									</div>
 
 									<div style={{ position: 'relative' }}>
-										<strong style={{ color: '#374151', fontSize: '13px' }}>Request Body (Form-Encoded):</strong>
-										<div style={{
-											background: 'white',
-											padding: '8px',
-											borderRadius: '4px',
-											border: '1px solid #e5e7eb',
-											fontFamily: 'monospace',
-											fontSize: '11px',
-											marginTop: '4px',
-											maxHeight: '120px',
-											overflow: 'auto',
-											whiteSpace: 'pre-wrap',
-											wordBreak: 'break-all',
-										}}>
+										<strong style={{ color: '#374151', fontSize: '13px' }}>
+											Request Body (Form-Encoded):
+										</strong>
+										<div
+											style={{
+												background: 'white',
+												padding: '8px',
+												borderRadius: '4px',
+												border: '1px solid #e5e7eb',
+												fontFamily: 'monospace',
+												fontSize: '11px',
+												marginTop: '4px',
+												maxHeight: '120px',
+												overflow: 'auto',
+												whiteSpace: 'pre-wrap',
+												wordBreak: 'break-all',
+											}}
+										>
 											{debugInfo.requestBody}
 										</div>
 										<button
