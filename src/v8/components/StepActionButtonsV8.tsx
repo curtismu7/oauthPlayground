@@ -243,10 +243,15 @@ export const StepActionButtonsV8: React.FC<
 
 				/* Final Button */
 				.btn-final {
-					flex: 1;
 					background: #4caf50;
 					color: white;
 					border: none;
+					padding: 12px 20px;
+					font-size: 14px;
+					font-weight: 600;
+					border-radius: 6px;
+					cursor: pointer;
+					transition: all 0.2s ease;
 				}
 
 				.btn-final:hover {
