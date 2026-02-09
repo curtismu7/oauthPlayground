@@ -336,8 +336,10 @@ export const CallbackHandlerV8U: React.FC = () => {
 					currentPath.includes('v8/mfa-unified-callback')
 				) {
 					// FIXED: Use return target service to determine correct step instead of hardcoding step 3
-					const deviceRegistrationTarget = ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_registration');
-					const deviceAuthenticationTarget = ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_authentication');
+					// NOTE: Return targets may have been consumed above in user login callback section
+					// Use peekReturnTarget to check without consuming (since they might already be consumed)
+					const deviceRegistrationTarget = ReturnTargetServiceV8U.peekReturnTarget('mfa_device_registration');
+					const deviceAuthenticationTarget = ReturnTargetServiceV8U.peekReturnTarget('mfa_device_authentication');
 					
 					if (deviceRegistrationTarget) {
 						fallbackPath = deviceRegistrationTarget.path;
