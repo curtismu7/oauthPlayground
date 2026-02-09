@@ -1056,19 +1056,23 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 				}
 
 				if (!credentials.phoneNumber?.trim()) {
-					nav.setValidationErrors(['Phone number is required. Please enter a valid phone number.']);
+					const errorMsg = 'Phone number is required. Please enter a valid phone number.';
+					nav.setValidationErrors([errorMsg]);
+					toastV8.error(errorMsg);
 					return;
 				}
 				if (!isValidPhoneFormat(credentials.phoneNumber, credentials.countryCode)) {
-					nav.setValidationErrors(['Please enter a valid phone number format.']);
+					const errorMsg = 'Please enter a valid phone number format.';
+					nav.setValidationErrors([errorMsg]);
+					toastV8.error(errorMsg);
 					return;
 				}
 				// Use the device name exactly as entered by the user
 				const userEnteredDeviceName = credentials.deviceName?.trim();
 				if (!userEnteredDeviceName) {
-					nav.setValidationErrors([
-						'Device name is required. Please enter a name for this device.',
-					]);
+					const errorMsg = 'Device name is required. Please enter a name for this device.';
+					nav.setValidationErrors([errorMsg]);
+					toastV8.error(errorMsg);
 					return;
 				}
 
@@ -1385,11 +1389,11 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 							id="mfa-device-name-register"
 							type="text"
 							value={credentials.deviceName || 'WHATSAPP'}
-							onChange={(e) => 
-								setCredentials({ 
-									...credentials, 
+							onChange={(e) =>
+								setCredentials({
+									...credentials,
 									deviceName: e.target.value,
-									nickname: credentials.nickname || 'MyKnickName'
+									nickname: credentials.nickname || 'MyKnickName',
 								})
 							}
 							placeholder={credentials.deviceType || 'WHATSAPP'}
@@ -1424,7 +1428,16 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					</div>
 
 					<div style={{ marginBottom: '16px' }}>
-						<label htmlFor="mfa-device-nickname-register" style={{ display: 'block', marginBottom: '8px', color: '#374151', fontSize: '14px', fontWeight: '500' }}>
+						<label
+							htmlFor="mfa-device-nickname-register"
+							style={{
+								display: 'block',
+								marginBottom: '8px',
+								color: '#374151',
+								fontSize: '14px',
+								fontWeight: '500',
+							}}
+						>
 							Device Nickname (optional)
 						</label>
 						<input
@@ -1444,7 +1457,9 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 								width: '100%',
 							}}
 						/>
-						<small style={{ display: 'block', marginTop: '4px', color: '#6b7280', fontSize: '12px' }}>
+						<small
+							style={{ display: 'block', marginTop: '4px', color: '#6b7280', fontSize: '12px' }}
+						>
 							Enter a friendly nickname for this device (e.g., "Personal WhatsApp", "Work Phone")
 							{credentials.nickname && (
 								<span
