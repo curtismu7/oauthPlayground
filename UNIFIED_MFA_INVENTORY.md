@@ -4728,6 +4728,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 73 | **Screen Order - Success Before API Docs** | ✅ RESOLVED | NewMFAFlowV8.tsx:95, UnifiedMFARegistrationFlowV8_Legacy.tsx:2852 | API Docs page shown before Success page in device creation flow | Swapped step order: Step 5 = Success, Step 6 = API Docs for better user experience |
 | 74 | **Worker Token Validation Bypass - Step 3 Access** | ✅ RESOLVED | NewMFAFlowV8.tsx:149, UnifiedMFARegistrationFlowV8_Legacy.tsx:2906 | Users can advance to step 3 without valid worker token, causing API failures | Added step 2 validation to require valid worker token before advancing to step 3 |
 | 75 | **Silent API Auto-Refresh Not Working** | ✅ RESOLVED | useWorkerToken.ts:133, tokenGatewayV8.ts:254 | Silent API not automatically refreshing expiring/invalid tokens | Enhanced auto-refresh logic with better debugging and direct token gateway calls |
+| 76 | **Step 0 Worker Token Validation Missing** | ✅ RESOLVED | NewMFAFlowV8.tsx:143, validateStep0:167 | Users can advance from step 0 without valid worker token | Added step 0 validation to require valid worker token before form submission |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -15479,10 +15480,19 @@ grep -A 5 -B 5 "forceRefresh.*true" src/v8/hooks/useWorkerToken.ts
 grep -A 5 -B 5 "WorkerTokenConfigServiceV8" src/v8/services/workerTokenConfigServiceV8.ts
 grep -A 10 -B 5 "getSilentApiRetrieval\|setSilentApiRetrieval" src/v8/services/workerTokenConfigServiceV8.ts
 
-# Issue 75: Verify redirect URI mapping for Unified MFA
-grep -A 5 -B 5 "mfa-unified-callback" src/App.tsx
-grep -A 5 -B 5 "redirectUri.*mfa-unified-callback" src/v8/components/UserLoginModalV8.tsx
-grep -A 10 -B 5 "mfa-unified-callback" src/v8u/components/CallbackHandlerV8U.tsx
+# Issue 76: Check step 0 worker token validation
+grep -A 10 -B 5 "validateStep0.*tokenStatus.isValid" src/v8/flows/NewMFAFlowV8.tsx
+grep -A 10 -B 5 "validateStep0.*tokenStatus.isValid" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+grep -A 5 -B 5 "Step 0 validation failed.*Invalid or expired worker token" src/v8/flows/NewMFAFlowV8.tsx
+
+# Issue 76: Verify step 0 shouldHideNextButton logic
+grep -A 15 -B 5 "currentStep.*===.*0.*worker.*token" src/v8/flows/NewMFAFlowV8.tsx
+grep -A 10 -B 5 "Prevent advancement from step 0 without valid worker token" src/v8/flows/NewMFAFlowV8.tsx
+grep -A 5 -B 5 "WorkerTokenStatusServiceV8.*checkWorkerTokenStatusSync" src/v8/flows/NewMFAFlowV8.tsx
+
+# Issue 76: Check worker token validation consistency across flows
+grep -rn "validateStep0" src/v8/flows/ --include="*.tsx" -A 10 -B 2
+grep -rn "shouldHideNextButton.*step.*0" src/v8/flows/ --include="*.tsx" -A 5 -B 5
 
 # Issue 70: Resend email prevention commands
 grep -rn "resendEmail" src/v8/services/mfaServiceV8.ts -A 5 -B 5

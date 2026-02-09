@@ -163,10 +163,22 @@ const convertToUnifiedData = (
 		});
 	}
 
+	// Determine flow type based on context
+	// Default to 'registration' for device creation flows
+	// Use 'authentication' only for explicit authentication flows
+	let flowType: 'registration' | 'authentication' = 'registration';
+	
+	// Check if this is an authentication flow by looking for authentication-specific indicators
+	if (successData.adminDeviceStatus === 'ACTIVATION_REQUIRED' || 
+		(successData.deviceStatus === 'ACTIVE' && !successData.deviceId && credentials.deviceId) ||
+		(successData.verificationResult?.status === 'COMPLETED' && !successData.deviceId)) {
+		flowType = 'authentication';
+	}
+
 	return {
-		flowType: 'registration',
+		flowType,
 		username: successData.username || credentials.username,
-		userId: successData.userId,
+		userId: successData.userId || undefined,
 		environmentId: successData.environmentId || credentials.environmentId,
 		deviceId: successData.deviceId,
 		deviceType: deviceType as DeviceType,
@@ -179,7 +191,7 @@ const convertToUnifiedData = (
 		policyId: policyId || credentials.deviceAuthenticationPolicyId,
 		policyName: policyName,
 		fidoPolicy: fidoPolicy,
-		verificationResult: successData.verificationResult,
+		verificationResult: successData.verificationResult || undefined,
 		responseData: {
 			deviceId: successData.deviceId,
 			deviceType: deviceType as DeviceType,
@@ -187,7 +199,7 @@ const convertToUnifiedData = (
 			nickname: successData.nickname,
 			createdAt: successData.createdAt,
 			updatedAt: successData.updatedAt,
-			verificationResult: successData.verificationResult,
+			verificationResult: successData.verificationResult || undefined,
 			fido2CredentialId: successData.fido2CredentialId,
 			secret: successData.secret,
 			keyUri: successData.keyUri,
@@ -226,7 +238,7 @@ export const MFASuccessPageV8: React.FC<MFASuccessPageProps> = ({
 		fidoPolicy
 	);
 
-	return <UnifiedMFASuccessPageV8 data={unifiedData} onStartAgain={onStartAgain} />;
+	return <UnifiedMFASuccessPageV8 data={unifiedData} onStartAgain={onStartAgain || (() => {})} />;
 };
 
 /**
@@ -243,18 +255,18 @@ export const buildSuccessPageData = (
 		deviceId: mfaState.deviceId || '',
 		deviceType: credentials.deviceType || 'SMS',
 		deviceStatus: mfaState.deviceStatus || 'ACTIVE',
-		nickname: mfaState.nickname,
+		nickname: mfaState.nickname || undefined,
 		username: credentials.username,
-		userId: mfaState.userId,
+		userId: mfaState.userId || undefined,
 		environmentId: mfaState.environmentId || credentials.environmentId,
 		createdAt: mfaState.createdAt,
 		updatedAt: mfaState.updatedAt,
-		verificationResult: mfaState.verificationResult,
+		verificationResult: mfaState.verificationResult || undefined,
 		phone: credentials.phoneNumber ? getFullPhoneNumber(credentials) : undefined,
 		email: credentials.email,
 		fido2CredentialId: mfaState.fido2CredentialId,
-		secret: mfaState.secret,
-		keyUri: mfaState.keyUri,
+		secret: (mfaState as any).secret,
+		keyUri: (mfaState as any).keyUri,
 		registrationFlowType,
 		adminDeviceStatus,
 		tokenType,

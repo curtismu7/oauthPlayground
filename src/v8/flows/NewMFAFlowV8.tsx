@@ -142,6 +142,19 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 
 	const shouldHideNextButton = React.useCallback((props: MFAFlowBaseRenderProps) => {
 		if (props.nav.currentStep === 0) {
+			// FIXED: Prevent advancement from step 0 without valid worker token
+			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+			const tokenType = props.credentials.tokenType || 'worker';
+			
+			// For worker token flows: require valid token
+			// For user token flows: require valid user token
+			if (tokenType === 'worker' && !tokenStatus.isValid) {
+				return true; // Hide Next button - worker token invalid
+			}
+			if (tokenType === 'user' && !props.credentials.userToken?.trim()) {
+				return true; // Hide Next button - user token missing
+			}
+			
 			return true; // Hide Next button on configuration step, use form submit
 		}
 		if (props.nav.currentStep === 1) {
@@ -165,21 +178,25 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 	}, []);
 
 	const validateStep0 = React.useCallback((credentials: any, tokenStatus: any, _nav: any) => {
-		// Basic validation for step 0
+		// Always check for valid worker token (required for MFA device operations)
+		if (!tokenStatus.isValid) {
+			console.warn(`${MODULE_TAG} Step 0 validation failed: Invalid or expired worker token`);
+			return false;
+		}
+
+		// Check required configuration
 		const hasEnvironmentId = credentials.environmentId?.trim();
 		const hasUsername = credentials.username?.trim();
-		const hasValidToken =
-			tokenStatus.isValid || (credentials.tokenType === 'user' && credentials.userToken?.trim());
 
 		console.log(`${MODULE_TAG} Validating step 0:`, {
 			hasEnvironmentId,
 			hasUsername,
-			hasValidToken,
+			tokenValid: tokenStatus.isValid,
 			tokenType: credentials.tokenType,
 			hasUserToken: !!credentials.userToken,
 		});
 
-		return hasEnvironmentId && hasUsername && hasValidToken;
+		return hasEnvironmentId && hasUsername;
 	}, []);
 
 	return (
