@@ -12,10 +12,7 @@ interface PageTransitionProps {
 	duration?: number;
 }
 
-export const PageTransition: React.FC<PageTransitionProps> = ({
-	children,
-	duration = 300,
-}) => {
+export const PageTransition: React.FC<PageTransitionProps> = ({ children, duration = 300 }) => {
 	const [isVisible, setIsVisible] = useState(false);
 
 	useEffect(() => {

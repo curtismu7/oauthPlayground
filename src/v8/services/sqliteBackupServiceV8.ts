@@ -6,13 +6,13 @@
  * @since 2026-02-02
  *
  * Purpose: Backup browser storage (localStorage + IndexedDB) to server-side SQLite
- * 
+ *
  * Benefits:
  * - Survives browser cache clear
  * - Shared across devices
  * - Persistent server-side storage
  * - Automatic sync on save operations
- * 
+ *
  * Architecture:
  * - Dual storage: Browser (IndexedDB/localStorage) + Server (SQLite)
  * - Automatic backup on write
@@ -39,7 +39,7 @@ export interface SQLiteBackupOptions {
 
 /**
  * SQLite Backup Service
- * 
+ *
  * Provides server-side backup for browser storage data.
  * Works alongside existing browser storage (localStorage, IndexedDB).
  */
@@ -49,7 +49,7 @@ export class SQLiteBackupServiceV8 {
 
 	/**
 	 * Save data to SQLite backup (server-side)
-	 * 
+	 *
 	 * @param key - Unique key for this data
 	 * @param environmentId - PingOne environment ID
 	 * @param dataType - Type of data being backed up
@@ -69,8 +69,8 @@ export class SQLiteBackupServiceV8 {
 		}
 
 		try {
-			const ttl = options.ttl || this.DEFAULT_TTL;
-			const expiresAt = Date.now() + (ttl * 1000);
+			const ttl = options.ttl || SQLiteBackupServiceV8.DEFAULT_TTL;
+			const expiresAt = Date.now() + ttl * 1000;
 
 			const backupData: SQLiteBackupData = {
 				key,
@@ -81,7 +81,7 @@ export class SQLiteBackupServiceV8 {
 				expiresAt,
 			};
 
-			const response = await fetch(`${this.API_BASE}/save`, {
+			const response = await fetch(`${SQLiteBackupServiceV8.API_BASE}/save`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -105,14 +105,14 @@ export class SQLiteBackupServiceV8 {
 
 	/**
 	 * Load data from SQLite backup
-	 * 
+	 *
 	 * @param key - Unique key for this data
 	 * @param environmentId - PingOne environment ID
 	 * @returns The backed up data, or null if not found/expired
 	 */
 	static async load<T = unknown>(key: string, environmentId: string): Promise<T | null> {
 		try {
-			const response = await fetch(`${this.API_BASE}/load`, {
+			const response = await fetch(`${SQLiteBackupServiceV8.API_BASE}/load`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -129,7 +129,7 @@ export class SQLiteBackupServiceV8 {
 			}
 
 			const result = await response.json();
-			
+
 			if (result.expired) {
 				console.log(`${MODULE_TAG} Backup expired for ${key}`);
 				return null;
@@ -148,7 +148,7 @@ export class SQLiteBackupServiceV8 {
 	 */
 	static async delete(key: string, environmentId: string): Promise<boolean> {
 		try {
-			const response = await fetch(`${this.API_BASE}/delete`, {
+			const response = await fetch(`${SQLiteBackupServiceV8.API_BASE}/delete`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -173,7 +173,7 @@ export class SQLiteBackupServiceV8 {
 	 */
 	static async clearEnvironment(environmentId: string): Promise<boolean> {
 		try {
-			const response = await fetch(`${this.API_BASE}/clear-environment`, {
+			const response = await fetch(`${SQLiteBackupServiceV8.API_BASE}/clear-environment`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -198,7 +198,7 @@ export class SQLiteBackupServiceV8 {
 	 */
 	static async listBackups(environmentId: string, dataType?: string): Promise<SQLiteBackupData[]> {
 		try {
-			const response = await fetch(`${this.API_BASE}/list`, {
+			const response = await fetch(`${SQLiteBackupServiceV8.API_BASE}/list`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',

@@ -7,17 +7,17 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { FiArrowRight, FiCheck, FiKey, FiMail, FiPlus, FiSmartphone } from 'react-icons/fi';
 import { Button } from '@/v8/components/Button';
-import { PageTransition } from '@/v8/components/PageTransition';
-import { LoadingSpinner } from '@/v8/components/LoadingSpinner';
 import { EmptyState } from '@/v8/components/EmptyState';
-import { useGlobalMFA } from '@/v8/contexts/GlobalMFAContext';
-import { unifiedFlowServiceIntegration } from '@/v8/flows/unified/services/unifiedFlowServiceIntegration';
-import { colors, spacing, borderRadius, typography } from '@/v8/design/tokens';
+import { LoadingSpinner } from '@/v8/components/LoadingSpinner';
+import { PageTransition } from '@/v8/components/PageTransition';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
+import { useGlobalMFA } from '@/v8/contexts/GlobalMFAContext';
+import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
+import { unifiedFlowServiceIntegration } from '@/v8/flows/unified/services/unifiedFlowServiceIntegration';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { FiSmartphone, FiMail, FiKey, FiPlus, FiCheck, FiArrowRight } from 'react-icons/fi';
 
 const MODULE_TAG = '[🔍 DEVICE-SELECTION-MODERN]';
 
@@ -55,7 +55,7 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 		if (isConfigured && credentials.username) {
 			loadDevices();
 		}
-	}, [isConfigured, credentials.username]);
+	}, [isConfigured, credentials.username, loadDevices]);
 
 	const loadDevices = async () => {
 		setIsLoading(true);
@@ -66,9 +66,9 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 				credentials.username,
 				`type eq "${config.deviceType}"`
 			);
-			
+
 			setExistingDevices(devices as unknown as ExistingDevice[]);
-			
+
 			if (devices.length === 0) {
 				toastV8.info(`No existing ${config.displayName} devices found`);
 			}
@@ -179,7 +179,12 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 						}}
 					>
 						{loadError}
-						<Button variant="outline" size="sm" onClick={loadDevices} style={{ marginLeft: spacing.md }}>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={loadDevices}
+							style={{ marginLeft: spacing.md }}
+						>
 							Retry
 						</Button>
 					</div>
@@ -209,17 +214,33 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 										gap: spacing.lg,
 									}}
 								>
-									<div style={{ color: selectedDeviceId === device.id ? colors.primary[500] : colors.neutral[400] }}>
+									<div
+										style={{
+											color:
+												selectedDeviceId === device.id ? colors.primary[500] : colors.neutral[400],
+										}}
+									>
 										{getDeviceIcon(device.type)}
 									</div>
 									<div style={{ flex: 1 }}>
-										<div style={{ fontWeight: typography.fontWeight.semibold, color: colors.neutral[900] }}>
+										<div
+											style={{
+												fontWeight: typography.fontWeight.semibold,
+												color: colors.neutral[900],
+											}}
+										>
 											{device.name || `${device.type} Device`}
 										</div>
 										<div style={{ fontSize: typography.fontSize.sm, color: colors.neutral[500] }}>
 											{device.phone || device.email || device.id}
 										</div>
-										<div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[400], marginTop: spacing.xs }}>
+										<div
+											style={{
+												fontSize: typography.fontSize.xs,
+												color: colors.neutral[400],
+												marginTop: spacing.xs,
+											}}
+										>
 											Status: {device.status}
 										</div>
 									</div>
@@ -270,12 +291,7 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 					<p style={{ margin: `0 0 ${spacing.lg} 0`, color: colors.neutral[600] }}>
 						Add a new {config.displayName} device to your account
 					</p>
-					<Button
-						variant="primary"
-						size="lg"
-						onClick={handleRegisterNew}
-						leftIcon={<FiPlus />}
-					>
+					<Button variant="primary" size="lg" onClick={handleRegisterNew} leftIcon={<FiPlus />}>
 						Register New {config.displayName}
 					</Button>
 				</div>

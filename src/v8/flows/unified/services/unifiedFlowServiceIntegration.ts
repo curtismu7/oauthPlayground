@@ -5,31 +5,27 @@
  * @version 9.2.0
  */
 
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
-import { globalWorkerTokenService } from '@/v8/services/globalWorkerTokenService';
 import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFACredentials } from '@/v8/flows/shared/MFATypes';
+import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
+import { globalWorkerTokenService } from '@/v8/services/globalWorkerTokenService';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 
 /**
  * Unified Flow Service Integration
- * 
+ *
  * Integrates Unified MFA Flow with existing V8 services:
  * - Uses global Environment ID (no redundant inputs)
  * - Uses global Worker Token (automatic refresh)
  * - Leverages MFAServiceV8 (static methods for MFA operations)
  */
 export class UnifiedFlowServiceIntegration {
-	constructor() {
-		// MFAServiceV8 uses static methods
-	}
-
 	/**
 	 * Build MFA credentials from global services
 	 */
 	private async buildCredentials(username: string, clientId?: string): Promise<MFACredentials> {
 		const environmentId = globalEnvironmentService.getEnvironmentId();
-		
+
 		if (!environmentId) {
 			throw new Error('Environment ID not configured. Please configure global settings first.');
 		}
@@ -155,7 +151,7 @@ export class UnifiedFlowServiceIntegration {
 			if (!tokenStatus.tokenValid) {
 				errors.push('Worker Token is invalid or expired');
 			}
-		} catch (error) {
+		} catch (_error) {
 			errors.push('Failed to validate Worker Token');
 		}
 

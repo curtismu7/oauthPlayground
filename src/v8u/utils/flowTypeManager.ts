@@ -9,12 +9,12 @@
  * compatibility, reducing complexity in the main UnifiedOAuthFlowV8U component.
  */
 
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import {
 	type FlowType,
 	type SpecVersion,
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 import { UnifiedFlowIntegrationV8U } from '../services/unifiedFlowIntegrationV8U';
 

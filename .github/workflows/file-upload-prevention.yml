@@ -1,0 +1,31 @@
+name: File Upload Base64 Display Prevention
+
+on: [push, pull_request]
+
+jobs:
+  prevent-base64-display:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Check for Base64 Display Issues
+        run: |
+          echo "🔍 Running automated file upload base64 display prevention..."
+          
+          # Check for problematic patterns
+          if grep -r "setCustomLogoUrl.*base64Url" src/v8/flows/unified/ --include="*.ts" --include="*.tsx"; then
+            echo "❌ ERROR: Found setCustomLogoUrl being set with base64Url"
+            exit 1
+          fi
+          
+          if grep -r "setCustomLogoUrl.*uploadData" src/v8/flows/unified/ --include="*.ts" --include="*.tsx"; then
+            echo "❌ ERROR: Found localStorage loading setting customLogoUrl from upload data"
+            exit 1
+          fi
+          
+          if grep -r "URL.*data:" src/v8/flows/unified/ --include="*.ts" --include="*.tsx"; then
+            echo "❌ ERROR: Found data: URLs being displayed as text"
+            exit 1
+          fi
+          
+          echo "✅ File upload base64 display prevention checks passed"

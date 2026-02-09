@@ -265,6 +265,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
 	const [showRequestModal, setShowRequestModal] = useState(false);
+	const [showTokenGenerated, setShowTokenGenerated] = useState(false); // Show success state with option to get another token
 	const [pendingRequestDetails, setPendingRequestDetails] = useState<RequestDetails | null>(null);
 
 	// Worker credentials state - ONLY use prefillCredentials or defaults (never localStorage)
@@ -1361,7 +1362,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			);
 
 			showTokenSuccessMessage(expiresIn);
-			onContinue();
+			setShowTokenGenerated(true); // Show success state with option to get another token
 		} catch (error) {
 			console.error('Worker token generation failed:', error);
 			v4ToastManager.showError(
@@ -1415,7 +1416,38 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						</InfoBox>
 					)}
 
-					{!showForm ? (
+					{showTokenGenerated ? (
+						<>
+							<InfoBox $variant="info">
+								<FiInfo
+									size={16}
+									style={{ flexShrink: 0, color: '#10b981', marginTop: '0.125rem' }}
+								/>
+								<InfoContent>
+									<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem', color: '#10b981' }}>
+										✅ Worker Token Generated Successfully!
+									</InfoTitle>
+									<InfoText>
+										Your worker token has been generated and saved. You can continue with the current flow or generate another token if needed.
+									</InfoText>
+								</InfoContent>
+							</InfoBox>
+
+							<ButtonGroup>
+								<ActionButton $variant="success" onClick={onContinue}>
+									✓ Continue with Current Token
+								</ActionButton>
+								<ActionButton onClick={() => setShowTokenGenerated(false)}>
+									<FiRefreshCw />
+									Generate Another Token
+								</ActionButton>
+								<ActionButton $variant="secondary" onClick={handleGetWorkerToken} disabled={isNavigating}>
+									<FiExternalLink />
+									Use Client Generator
+								</ActionButton>
+							</ButtonGroup>
+						</>
+					) : !showForm ? (
 						<>
 							<InfoBox $variant="info">
 								<FiInfo

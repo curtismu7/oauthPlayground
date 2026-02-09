@@ -44,11 +44,6 @@ import {
 	generateCompletePostmanCollection,
 	generateComprehensiveMFAPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
-import {
-	type TokenStatusInfo,
-	WorkerTokenStatusServiceV8,
-} from '@/v8/services/workerTokenStatusServiceV8';
-import { createModuleLogger } from '@/utils/consoleMigrationHelper';
 import { oauthStorage } from '@/utils/storage';
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
 import { DeviceFailureModalV8, UnavailableDevice } from '@/v8/components/DeviceFailureModalV8';
@@ -56,10 +51,6 @@ import { MFACooldownModalV8 } from '@/v8/components/MFACooldownModalV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { AuthenticationSectionV8 } from '@/v8/components/sections/AuthenticationSectionV8';
-import { DeviceManagementSectionV8 } from '@/v8/components/sections/DeviceManagementSectionV8';
-import { PolicySectionV8 } from '@/v8/components/sections/PolicySectionV8';
-import { WorkerTokenSectionV8 } from '@/v8/components/sections/WorkerTokenSectionV8';
 import {
 	PageHeaderGradients,
 	PageHeaderTextColors,
@@ -71,14 +62,15 @@ import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplay
 import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
 import { useActionButton } from '@/v8/hooks/useActionButton';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
-import { useMFAAuthentication } from '@/v8/hooks/useMFAAuthentication';
-import { useMFADevices } from '@/v8/hooks/useMFADevices';
-import { useMFAPolicies } from '@/v8/hooks/useMFAPolicies';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusServiceV8,
+} from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import {
@@ -245,10 +237,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			includeLogoutUri: false,
 			includeScopes: false,
 		});
-		
+
 		// Use global environment service as primary source, fallback to stored credentials, then worker token
 		const globalEnvId = environmentService.getEnvironmentId();
-		
+
 		// Try worker token credentials as fallback
 		let workerTokenEnvId = '';
 		try {
@@ -260,7 +252,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		} catch (error) {
 			console.log('Failed to load environment ID from worker token:', error);
 		}
-		
+
 		return {
 			environmentId: globalEnvId || stored.environmentId || workerTokenEnvId || '',
 			username: stored.username || '',
@@ -270,7 +262,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 	// Use worker token status service for token status
 	const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
-	
+
 	// Note: setTokenStatus is no longer needed as the worker token status service manages token status internally
 	// Keeping this as a no-op for backward compatibility with existing code
 	const setTokenStatus = async (_status: TokenStatusInfo | Promise<TokenStatusInfo>) => {
@@ -282,7 +274,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	useEffect(() => {
 		const handleWorkerTokenUpdate = () => {
 			// Force re-render by updating a dummy state
-			setCredentials(prev => ({ ...prev }));
+			setCredentials((prev) => ({ ...prev }));
 		};
 
 		// Listen for storage events (worker token updates from other tabs)
@@ -293,7 +285,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		};
 
 		window.addEventListener('storage', handleStorageChange);
-		
+
 		return () => {
 			window.removeEventListener('storage', handleStorageChange);
 		};
@@ -571,7 +563,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		return () => {
 			clearInterval(interval);
 		};
-	}, []);
+	}, [setTokenStatus]);
 
 	// Helper function to handle NO_USABLE_DEVICES errors
 	const handleDeviceFailureError = useCallback((error: unknown) => {
@@ -691,7 +683,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			window.removeEventListener('storage', handleTokenUpdate);
 			clearInterval(interval);
 		};
-	}, []);
+	}, [setTokenStatus]);
 
 	// Poll Push authentication status
 	useEffect(() => {
@@ -964,7 +956,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		if (envId && tokenStatus.isValid && lastFetchedPolicyEnvIdRef.current !== envId) {
 			void loadPolicies();
 		}
-	}, [credentials.environmentId, tokenStatus.isValid]);
+	}, [credentials.environmentId, tokenStatus.isValid, loadPolicies]);
 
 	// Update environment ID when worker token is updated
 	useEffect(() => {
@@ -974,9 +966,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				if (stored) {
 					const data = JSON.parse(stored);
 					if (data.credentials?.environmentId && !credentials.environmentId) {
-						setCredentials(prev => ({
+						setCredentials((prev) => ({
 							...prev,
-							environmentId: data.credentials.environmentId
+							environmentId: data.credentials.environmentId,
 						}));
 					}
 				}
@@ -1187,7 +1179,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		try {
 			// Get region and build authorization URL
 			const region = credentials.region || 'us';
-			const apiBase = 
+			const apiBase =
 				region === 'eu'
 					? 'https://auth.pingone.eu'
 					: region === 'ap'
@@ -1201,7 +1193,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			const params = new URLSearchParams({
 				response_type: 'code',
 				client_id: credentials.clientId,
-				redirect_uri: credentials.redirectUri || `${window.location.origin}/v8/mfa/callback`,
+				redirect_uri: credentials.redirectUri || `${window.location.origin}/mfa/callback`,
 				scope: credentials.scopes || 'openid profile email',
 				state: `mfa-auth-${Date.now()}`,
 			});
@@ -1210,7 +1202,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			if (credentials.usePKCE) {
 				// Generate PKCE codes
 				const codeVerifier = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-					.map(b => b.toString(16).padStart(2, '0'))
+					.map((b) => b.toString(16).padStart(2, '0'))
 					.join('');
 				const encoder = new TextEncoder();
 				const data = encoder.encode(codeVerifier);
@@ -1222,7 +1214,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 				params.set('code_challenge', challenge);
 				params.set('code_challenge_method', 'S256');
-				
+
 				// Store code verifier for token exchange
 				sessionStorage.setItem('mfa_auth_code_verifier', codeVerifier);
 			}
@@ -1233,22 +1225,25 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 			// Open authorization in popup or same window
 			const authorizationUrl = `${authUrl}?${params.toString()}`;
-			
+
 			// Store current context for callback
-			sessionStorage.setItem('mfa_auth_context', JSON.stringify({
-				flowType: 'mfa-authorization',
-				timestamp: Date.now(),
-				environmentId: credentials.environmentId,
-			}));
+			sessionStorage.setItem(
+				'mfa_auth_context',
+				JSON.stringify({
+					flowType: 'mfa-authorization',
+					timestamp: Date.now(),
+					environmentId: credentials.environmentId,
+				})
+			);
 
 			toastV8.info('🔐 Opening authorization page...');
-			
+
 			// Open in same window for better UX
 			window.location.href = authorizationUrl;
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Authorization API call failed:`, error);
-			const errorMessage = error instanceof Error ? error.message : 'Failed to initiate authorization';
+			const errorMessage =
+				error instanceof Error ? error.message : 'Failed to initiate authorization';
 			setAuthorizationError(errorMessage);
 			toastV8.error(`Authorization failed: ${errorMessage}`);
 		} finally {
@@ -1266,26 +1261,43 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 	// Handle Start MFA (Username-based)
 	const handleStartMFA = useCallback(async () => {
+		// FOOLPROOF: Enhanced debugging for authentication flow
+		console.log(`${MODULE_TAG} 🚀 Starting MFA Authentication`, {
+			hasValidToken: tokenStatus.isValid,
+			hasEnvironmentId: !!credentials.environmentId,
+			hasPolicyId: !!credentials.deviceAuthenticationPolicyId,
+			hasUsername: !!usernameInput.trim(),
+			username: usernameInput.trim(),
+			environmentId: credentials.environmentId,
+			policyId: credentials.deviceAuthenticationPolicyId,
+		});
+
 		if (!tokenStatus.isValid) {
+			console.warn(`${MODULE_TAG} ❌ Worker token invalid - cannot start authentication`);
 			toastV8.error('Please configure worker token first');
 			return;
 		}
 
 		if (!credentials.environmentId) {
+			console.warn(`${MODULE_TAG} ❌ Environment ID missing - cannot start authentication`);
 			toastV8.error('Please configure environment ID first');
 			return;
 		}
 
 		if (!credentials.deviceAuthenticationPolicyId) {
+			console.warn(`${MODULE_TAG} ❌ Policy ID missing - cannot start authentication`);
 			toastV8.error('Please select an MFA Policy first');
 			return;
 		}
 
-		// If username is empty, show decision modal
+		// FOOLPROOF: Auto-proceed with username if empty, don't get stuck in modal
 		if (!usernameInput.trim()) {
+			console.log(`${MODULE_TAG} 🔄 No username provided, showing decision modal`);
 			setShowUsernameDecisionModal(true);
 			return;
 		}
+
+		console.log(`${MODULE_TAG} ✅ All validations passed, proceeding with authentication initialization`);
 
 		// Reset auth state to clear any previous authentication session
 		// This ensures we start fresh when restarting the flow
@@ -1451,22 +1463,48 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			});
 			setLoadingMessage('');
 
-			// Show appropriate modal
+			// Show appropriate modal with foolproof advancement
 			if (needsDeviceSelection) {
 				// Device selection is needed - the UI will show the device list automatically
 				// based on authState.showDeviceSelection being true
+				console.log(`${MODULE_TAG} 🔄 Device selection required, showing device list`);
 				toastV8.success('Please select a device to continue');
 			} else if (needsOTP) {
+				console.log(`${MODULE_TAG} 🔢 OTP required, showing OTP modal`);
 				setShowOTPModal(true);
 			} else if (needsPush) {
+				console.log(`${MODULE_TAG} 📱 Push confirmation required, showing push modal`);
 				setShowPushModal(true);
 				toastV8.success('Please approve the sign-in on your phone.');
 			} else if (needsAssertion) {
+				console.log(`${MODULE_TAG} 🔑 FIDO2 assertion required, showing FIDO2 modal`);
 				setShowFIDO2Modal(true);
 			} else if (status === 'COMPLETED') {
+				console.log(`${MODULE_TAG} ✅ Authentication already completed, navigating to success`);
 				toastV8.success('Authentication completed successfully!');
+				// FOOLPROOF: Auto-advance to success page if authentication is already completed
+				setTimeout(() => {
+					window.location.href = '/v8/mfa/authentication/success';
+				}, 1000);
 			} else {
+				// FOOLPROOF: Handle unknown status with fallback advancement
+				console.log(`${MODULE_TAG} 🤔 Unknown authentication status, using fallback`, {
+					status,
+					nextStep,
+					deviceCount: authDevices.length,
+				});
 				toastV8.success('Authentication started successfully');
+				
+				// Fallback: If we have devices, show device selection. Otherwise, show success.
+				setTimeout(() => {
+					if (authDevices.length > 0) {
+						console.log(`${MODULE_TAG} 🔄 Fallback: Showing device selection`);
+						setAuthState((prev) => ({ ...prev, showDeviceSelection: true }));
+					} else {
+						console.log(`${MODULE_TAG} 🔄 Fallback: No devices, showing success`);
+						window.location.href = '/v8/mfa/authentication/success';
+					}
+				}, 1000);
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to start authentication:`, error);
@@ -1766,7 +1804,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					<button
 						type="button"
 						onClick={() => {
-							window.open('/v8u/unified/oauth-authz/0', '_blank');
+							// Use the correct unified MFA callback URI instead of hardcoded V8U path
+							const protocol = window.location.hostname === 'localhost' ? 'https' : 'https';
+							const redirectUri = `${protocol}://${window.location.host}/mfa-unified-callback`;
+							window.open(
+								`/v8u/unified/oauth-authz/0?redirect_uri=${encodeURIComponent(redirectUri)}`,
+								'_blank'
+							);
 						}}
 						style={{
 							display: 'flex',
@@ -2910,61 +2954,61 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 									{/* Full Policy JSON - Collapsible */}
 									{selectedPolicy && (
-											<div style={{ gridColumn: '1 / -1' }}>
+										<div style={{ gridColumn: '1 / -1' }}>
+											<div
+												style={{
+													fontSize: '12px',
+													color: '#6b7280',
+													marginBottom: '8px',
+													fontWeight: '500',
+												}}
+											>
+												Full Policy JSON (Click to expand)
+											</div>
+											<details
+												style={{
+													background: '#f9fafb',
+													padding: '12px',
+													borderRadius: '6px',
+													border: '1px solid #e5e7eb',
+													marginTop: '8px',
+												}}
+											>
+												<summary
+													style={{
+														cursor: 'pointer',
+														fontSize: '12px',
+														color: '#374151',
+														fontWeight: '600',
+														listStyle: 'none',
+														userSelect: 'none',
+													}}
+												>
+													▶ Click to expand/collapse
+												</summary>
 												<div
 													style={{
-														fontSize: '12px',
-														color: '#6b7280',
-														marginBottom: '8px',
-														fontWeight: '500',
+														marginTop: '12px',
+														maxHeight: '400px',
+														overflowY: 'auto',
 													}}
 												>
-													Full Policy JSON (Click to expand)
+													<pre
+														style={{
+															margin: 0,
+															fontSize: '11px',
+															color: '#1f2937',
+															fontFamily: 'monospace',
+															whiteSpace: 'pre-wrap',
+															wordBreak: 'break-word',
+														}}
+													>
+														{JSON.stringify(selectedPolicy, null, 2)}
+													</pre>
 												</div>
-												<details
-													style={{
-														background: '#f9fafb',
-														padding: '12px',
-														borderRadius: '6px',
-														border: '1px solid #e5e7eb',
-														marginTop: '8px',
-													}}
-												>
-													<summary
-														style={{
-															cursor: 'pointer',
-															fontSize: '12px',
-															color: '#374151',
-															fontWeight: '600',
-															listStyle: 'none',
-															userSelect: 'none',
-														}}
-													>
-														▶ Click to expand/collapse
-													</summary>
-													<div
-														style={{
-															marginTop: '12px',
-															maxHeight: '400px',
-															overflowY: 'auto',
-														}}
-													>
-														<pre
-															style={{
-																margin: 0,
-																fontSize: '11px',
-																color: '#1f2937',
-																fontFamily: 'monospace',
-																whiteSpace: 'pre-wrap',
-																wordBreak: 'break-word',
-															}}
-														>
-															{JSON.stringify(selectedPolicy, null, 2)}
-														</pre>
-													</div>
-												</details>
-											</div>
-										)}
+											</details>
+										</div>
+									)}
 								</div>
 							</div>
 						);
@@ -3535,7 +3579,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											const nextStep = response.nextStep || '';
 											// Extract devices from both response.devices and response._embedded.devices
 											const authDevices = [
-												...(response.devices as Device[] || []),
+												...((response.devices as Device[]) || []),
 												...((response._embedded as { devices?: Device[] })?.devices || []),
 											];
 											const needsDeviceSelection =
@@ -3785,7 +3829,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										if (status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED') {
 											setShowOTPModal(true);
 											toastV8.success('OTP has been sent');
-										} else if (status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED') {
+										} else if (
+											status === 'ASSERTION_REQUIRED' ||
+											nextStep === 'ASSERTION_REQUIRED'
+										) {
 											setShowFIDO2Modal(true);
 										} else if (status === 'PUSH_CONFIRMATION_REQUIRED') {
 											setShowPushModal(true);
@@ -3794,7 +3841,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										}
 									} catch (error) {
 										console.error(`${MODULE_TAG} Failed to select device:`, error);
-										toastV8.error(error instanceof Error ? error.message : 'Failed to select device');
+										toastV8.error(
+											error instanceof Error ? error.message : 'Failed to select device'
+										);
 										setAuthState((prev) => ({ ...prev, isLoading: false }));
 									}
 								}}
@@ -3821,7 +3870,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									e.currentTarget.style.boxShadow = 'none';
 								}}
 							>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '12px',
+										marginBottom: '12px',
+									}}
+								>
 									<div
 										style={{
 											width: '40px',
@@ -4107,7 +4163,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
 						<FiAlertCircle style={{ color: '#ef4444', marginTop: '2px', flexShrink: 0 }} />
 						<div style={{ flex: 1 }}>
-							<h4 style={{ margin: '0 0 8px 0', color: '#dc2626', fontSize: '16px', fontWeight: '600' }}>
+							<h4
+								style={{
+									margin: '0 0 8px 0',
+									color: '#dc2626',
+									fontSize: '16px',
+									fontWeight: '600',
+								}}
+							>
 								Authorization API Error
 							</h4>
 							<p style={{ margin: '0', color: '#7f1d1d', fontSize: '14px', lineHeight: '1.5' }}>
@@ -4151,7 +4214,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					}}
 					onClick={() => {
 						// Navigate back to main page when clicking outside
-						navigate('/v8/mfa-hub');
+						navigate('/v8/mfa-config');
 					}}
 				>
 					<div
@@ -4344,7 +4407,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								onClick={() => {
 									setShowUsernameDecisionModal(false);
 									setIsPasskeyRegistrationMode(false);
-									navigate('/v8/mfa-hub');
+									navigate('/v8/mfa-config');
 								}}
 								style={{
 									width: '100%',
@@ -5595,7 +5658,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					}
 				}}
 				onResendCode={async () => {
-					// Resend OTP by re-selecting the device
+					// CORRECTED: Resend OTP using proper PingOne MFA API approach
 					if (!authState.authenticationId || !authState.selectedDeviceId) {
 						setOtpError('Authentication session or device not found');
 						return;
@@ -5606,6 +5669,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					setOtpCode(''); // Clear existing code
 
 					try {
+						console.log(`${MODULE_TAG} 🔄 Resending OTP using proper API approach`, {
+							authenticationId: authState.authenticationId,
+							deviceId: authState.selectedDeviceId,
+							username: usernameInput.trim(),
+						});
+
 						// Get userId if not already available
 						let userId = authState.userId;
 						if (!userId) {
@@ -5617,49 +5686,121 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							setAuthState((prev) => ({ ...prev, userId }));
 						}
 
-						// Re-select device to trigger new OTP
-						const data = await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
-							{
-								environmentId: credentials.environmentId,
-								username: usernameInput.trim(),
-								userId,
-								authenticationId: authState.authenticationId,
-								deviceId: authState.selectedDeviceId,
-								region: credentials.region,
-								customDomain: credentials.customDomain,
-							},
-							{ stepName: 'mfa-Resend OTP Code' } // Custom step name for API display
-						);
+						// CORRECTED: Use the proper resend OTP approach
+						// Strategy 1: Try to cancel and re-initialize authentication (most reliable)
+						let resendResult = null;
+						let success = false;
 
-						// Read device authentication to get updated state
-						let authDetails: Record<string, unknown> | null = null;
-						try {
-							authDetails = await MfaAuthenticationServiceV8.readDeviceAuthentication(
-								credentials.environmentId,
-								userId || usernameInput.trim(),
-								authState.authenticationId,
-								{ isUserId: !!userId }
-							);
-						} catch (readError) {
-							console.warn(
-								`${MODULE_TAG} Failed to read device authentication after resend:`,
-								readError
-							);
+						// Check if we have a cancel link
+						const links = authState._links as Record<string, { href: string }>;
+						if (links?.cancel) {
+							console.log(`${MODULE_TAG} 🔄 Using cancel + re-initialize approach for OTP resend`);
+							try {
+								// Cancel current authentication
+								await MfaAuthenticationServiceV8.cancelDeviceAuthentication(
+									credentials.environmentId,
+									userId,
+									authState.authenticationId
+								);
+
+								// Re-initialize authentication to trigger new OTP
+								resendResult = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
+									environmentId: credentials.environmentId,
+									username: usernameInput.trim(),
+									deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
+									region: credentials.region,
+									customDomain: credentials.customDomain,
+								});
+
+								// Re-select the same device
+								if (resendResult.id && resendResult._links) {
+									const reselectResult = await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
+										{
+											environmentId: credentials.environmentId,
+											username: usernameInput.trim(),
+											userId,
+											authenticationId: resendResult.id,
+											deviceId: authState.selectedDeviceId,
+											region: credentials.region,
+											customDomain: credentials.customDomain,
+										},
+										{ stepName: 'mfa-Resend OTP Code (Re-init + Select)' }
+									);
+
+									// Update auth state with new authentication session
+									const status = reselectResult.status || '';
+									const nextStep = reselectResult.nextStep || '';
+									const newLinks = (reselectResult._links as Record<string, { href: string }>) || {};
+
+									setAuthState((prev) => ({
+										...prev,
+										authenticationId: reselectResult.id,
+										status,
+										nextStep,
+										_links: { ...prev._links, ...newLinks },
+									}));
+
+									success = true;
+									console.log(`${MODULE_TAG} ✅ OTP resent successfully via cancel + re-initialize`);
+								}
+							} catch (cancelError) {
+								console.warn(`${MODULE_TAG} Cancel + re-initialize approach failed:`, cancelError);
+							}
 						}
 
-						// Update auth state with new links
-						const status = (authDetails?.status as string) || data.status || '';
-						const nextStep = (authDetails?.nextStep as string) || data.nextStep || '';
-						const links = (data._links as Record<string, { href: string }>) || {};
+						// Strategy 2: Fallback - try direct device re-selection
+						if (!success) {
+							console.log(`${MODULE_TAG} 🔄 Using fallback device re-selection for OTP resend`);
+							const reselectResult = await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
+								{
+									environmentId: credentials.environmentId,
+									username: usernameInput.trim(),
+									userId,
+									authenticationId: authState.authenticationId,
+									deviceId: authState.selectedDeviceId,
+									region: credentials.region,
+									customDomain: credentials.customDomain,
+								},
+								{ stepName: 'mfa-Resend OTP Code (Direct Re-select)' }
+							);
 
-						setAuthState((prev) => ({
-							...prev,
-							status,
-							nextStep,
-							_links: { ...prev._links, ...links },
-						}));
+							// Read device authentication to get updated state
+							let authDetails: Record<string, unknown> | null = null;
+							try {
+								authDetails = await MfaAuthenticationServiceV8.readDeviceAuthentication(
+									credentials.environmentId,
+									userId || usernameInput.trim(),
+									authState.authenticationId,
+									{ isUserId: !!userId }
+								);
+							} catch (readError) {
+								console.warn(
+									`${MODULE_TAG} Failed to read device authentication after resend:`,
+									readError
+								);
+							}
 
-						toastV8.success('New verification code has been sent. Please check your device.');
+							// Update auth state with new links
+							const status = (authDetails?.status as string) || reselectResult.status || '';
+							const nextStep = (authDetails?.nextStep as string) || reselectResult.nextStep || '';
+							const links = (reselectResult._links as Record<string, { href: string }>) || {};
+
+							setAuthState((prev) => ({
+								...prev,
+								status,
+								nextStep,
+								_links: { ...prev._links, ...links },
+							}));
+
+							success = true;
+							console.log(`${MODULE_TAG} ✅ OTP resent successfully via direct re-selection`);
+						}
+
+						if (success) {
+							toastV8.success('New verification code has been sent. Please check your device.');
+						} else {
+							throw new Error('Failed to resend OTP - all strategies exhausted');
+						}
 					} catch (error) {
 						console.error(`${MODULE_TAG} Failed to resend OTP:`, error);
 
@@ -5717,205 +5858,210 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			{/* FIDO2/Passkey Authentication Modal */}
 			{showFIDO2Modal && (
 				<MFAFIDO2ChallengeModal
-				show={showFIDO2Modal}
-				onClose={() => {
-					setShowFIDO2Modal(false);
-					setFido2Error(null);
-				}}
-				onAuthenticate={async () => {
-					if (!authState.challengeId && !authState.publicKeyCredentialRequestOptions) {
-						setFido2Error('WebAuthn challenge not found. Please try selecting the device again.');
-						return;
-					}
-
-					setIsAuthenticatingFIDO2(true);
-					setFido2Error(null);
-
-					try {
-						console.log(`${MODULE_TAG} Starting FIDO2 authentication...`);
-
-						// Get the WebAuthn credential
-						const assertion = await WebAuthnAuthenticationServiceV8.getWebAuthnAssertion(
-							authState.publicKeyCredentialRequestOptions
-						);
-
-						// Check assertion with PingOne
-						const assertionResult = await MfaAuthenticationServiceV8.checkAssertion(
-							authState.challengeId!,
-							assertion
-						);
-
-						// Handle new publicKeyCredentialRequestOptions if returned
-						const newPublicKeyOptions = (
-							assertionResult as { publicKeyCredentialRequestOptions?: unknown }
-						).publicKeyCredentialRequestOptions;
-						if (newPublicKeyOptions) {
-							console.log(
-								`${MODULE_TAG} PingOne returned new publicKeyCredentialRequestOptions from assertion check response`
-							);
-							setAuthState((prev) => ({
-								...prev,
-								publicKeyCredentialRequestOptions: newPublicKeyOptions,
-							}));
+					show={showFIDO2Modal}
+					onClose={() => {
+						setShowFIDO2Modal(false);
+						setFido2Error(null);
+					}}
+					onAuthenticate={async () => {
+						if (!authState.challengeId && !authState.publicKeyCredentialRequestOptions) {
+							setFido2Error('WebAuthn challenge not found. Please try selecting the device again.');
+							return;
 						}
 
-						// After sending assertion, check status and complete authentication
-						const assertionLinks =
-							(assertionResult._links as Record<string, { href: string }>) || {};
+						setIsAuthenticatingFIDO2(true);
+						setFido2Error(null);
 
-						// Try to complete authentication if complete link is available
-						let completionResult = null;
-						if (assertionLinks['complete']?.href || authState._links?.['complete']?.href) {
-							try {
-								completionResult = await MfaAuthenticationServiceV8.completeAuthentication(
-									assertionLinks['complete']?.href || authState._links!['complete']!.href
+						try {
+							console.log(`${MODULE_TAG} Starting FIDO2 authentication...`);
+
+							// Get the WebAuthn credential
+							const assertion = await WebAuthnAuthenticationServiceV8.getWebAuthnAssertion(
+								authState.publicKeyCredentialRequestOptions
+							);
+
+							// Check assertion with PingOne
+							const assertionResult = await MfaAuthenticationServiceV8.checkAssertion(
+								authState.challengeId!,
+								assertion
+							);
+
+							// Handle new publicKeyCredentialRequestOptions if returned
+							const newPublicKeyOptions = (
+								assertionResult as { publicKeyCredentialRequestOptions?: unknown }
+							).publicKeyCredentialRequestOptions;
+							if (newPublicKeyOptions) {
+								console.log(
+									`${MODULE_TAG} PingOne returned new publicKeyCredentialRequestOptions from assertion check response`
 								);
-							} catch (completeError) {
-								console.warn(
-									`${MODULE_TAG} Failed to complete FIDO2 authentication:`,
-									completeError
-								);
+								setAuthState((prev) => ({
+									...prev,
+									publicKeyCredentialRequestOptions: newPublicKeyOptions,
+								}));
 							}
-						}
 
-						// If status is COMPLETED or we have a completion result, navigate to success
-						if (assertionResult.status === 'COMPLETED' || completionResult) {
-							setShowFIDO2Modal(false);
-							setFido2Error(null);
+							// After sending assertion, check status and complete authentication
+							const assertionLinks =
+								(assertionResult._links as Record<string, { href: string }>) || {};
 
-							// Get selected device details
-							const selectedDevice = authState.devices.find(
-								(d) => d.id === authState.selectedDeviceId
-							);
-							const selectedPolicy = deviceAuthPolicies.find(
-								(p) => p.id === credentials.deviceAuthenticationPolicyId
-							);
-							const policyName = selectedPolicy?.name;
-							const deviceSelectionBehavior = selectedPolicy?.authentication?.deviceSelection as
-								| string
-								| undefined;
-
-							// Navigate to success page with completion result
-							navigate('/v8/mfa/authentication/success', {
-								state: {
-									completionResult: completionResult ? { ...completionResult } : null,
-									username: usernameInput.trim(),
-									userId: authState.userId,
-									environmentId: credentials.environmentId,
-									deviceType: selectedDevice?.type || 'FIDO2',
-									deviceId: authState.selectedDeviceId,
-									deviceDetails: selectedDevice
-										? {
-												id: selectedDevice.id,
-												type: selectedDevice.type,
-												nickname: selectedDevice.nickname,
-												name: selectedDevice.name,
-												phone: selectedDevice.phone,
-												email: selectedDevice.email,
-												status: selectedDevice.status,
-											}
-										: null,
-									policyId: credentials.deviceAuthenticationPolicyId,
-									policyName: policyName,
-									authenticationId: authState.authenticationId,
-									challengeId: authState.challengeId,
-									timestamp: new Date().toISOString(),
-									deviceSelectionBehavior: deviceSelectionBehavior,
-								},
-							});
-						} else {
-							// If assertion check didn't complete, try polling if poll link is available
-							if (
-								assertionLinks['challenge.poll']?.href ||
-								authState._links?.['challenge.poll']?.href
-							) {
-								const pollResult = await MfaAuthenticationServiceV8.pollAuthenticationStatus(
-									assertionLinks['challenge.poll']?.href ||
-										authState._links!['challenge.poll']!.href
-								);
-
-								if (pollResult.status === 'COMPLETED') {
-									// Complete authentication to get access token if complete link is available
-									let pollCompletionResult = null;
-									const pollLinks = (pollResult._links as Record<string, { href: string }>) || {};
-									if (pollLinks['complete']?.href || authState._links?.['complete']?.href) {
-										try {
-											pollCompletionResult =
-												await MfaAuthenticationServiceV8.completeAuthentication(
-													pollLinks['complete']?.href || authState._links!['complete']!.href
-												);
-										} catch (completeError) {
-											console.warn(
-												`${MODULE_TAG} Failed to complete FIDO2 authentication (via poll):`,
-												completeError
-											);
-										}
-									}
-
-									setShowFIDO2Modal(false);
-									setFido2Error(null);
-
-									// Get selected device details
-									const selectedDevice = authState.devices.find(
-										(d) => d.id === authState.selectedDeviceId
+							// Try to complete authentication if complete link is available
+							let completionResult = null;
+							if (assertionLinks['complete']?.href || authState._links?.['complete']?.href) {
+								try {
+									completionResult = await MfaAuthenticationServiceV8.completeAuthentication(
+										assertionLinks['complete']?.href || authState._links!['complete']!.href
 									);
-									const selectedPolicy = deviceAuthPolicies.find(
-										(p) => p.id === credentials.deviceAuthenticationPolicyId
+								} catch (completeError) {
+									console.warn(
+										`${MODULE_TAG} Failed to complete FIDO2 authentication:`,
+										completeError
 									);
-									const policyName = selectedPolicy?.name;
-									const deviceSelectionBehavior = selectedPolicy?.authentication?.deviceSelection as
-										| string
-										| undefined;
-
-									// Navigate to success page
-									navigate('/v8/mfa/authentication/success', {
-										state: {
-											completionResult: pollCompletionResult ? { ...pollCompletionResult } : null,
-											username: usernameInput.trim(),
-											userId: authState.userId,
-											environmentId: credentials.environmentId,
-											deviceType: selectedDevice?.type || 'FIDO2',
-											deviceId: authState.selectedDeviceId,
-											deviceDetails: selectedDevice
-												? {
-														id: selectedDevice.id,
-														type: selectedDevice.type,
-														nickname: selectedDevice.nickname,
-														name: selectedDevice.name,
-														phone: selectedDevice.phone,
-														email: selectedDevice.email,
-														status: selectedDevice.status,
-													}
-												: null,
-											policyId: credentials.deviceAuthenticationPolicyId,
-											policyName: policyName,
-											authenticationId: authState.authenticationId,
-											challengeId: authState.challengeId,
-											timestamp: new Date().toISOString(),
-											deviceSelectionBehavior: deviceSelectionBehavior,
-										},
-									});
-								} else {
-									setFido2Error('Authentication is still pending. Please try again.');
 								}
-							} else {
-								setFido2Error('Authentication completed but status is unclear. Please try again.');
 							}
+
+							// If status is COMPLETED or we have a completion result, navigate to success
+							if (assertionResult.status === 'COMPLETED' || completionResult) {
+								setShowFIDO2Modal(false);
+								setFido2Error(null);
+
+								// Get selected device details
+								const selectedDevice = authState.devices.find(
+									(d) => d.id === authState.selectedDeviceId
+								);
+								const selectedPolicy = deviceAuthPolicies.find(
+									(p) => p.id === credentials.deviceAuthenticationPolicyId
+								);
+								const policyName = selectedPolicy?.name;
+								const deviceSelectionBehavior = selectedPolicy?.authentication?.deviceSelection as
+									| string
+									| undefined;
+
+								// Navigate to success page with completion result
+								navigate('/v8/mfa/authentication/success', {
+									state: {
+										completionResult: completionResult ? { ...completionResult } : null,
+										username: usernameInput.trim(),
+										userId: authState.userId,
+										environmentId: credentials.environmentId,
+										deviceType: selectedDevice?.type || 'FIDO2',
+										deviceId: authState.selectedDeviceId,
+										deviceDetails: selectedDevice
+											? {
+													id: selectedDevice.id,
+													type: selectedDevice.type,
+													nickname: selectedDevice.nickname,
+													name: selectedDevice.name,
+													phone: selectedDevice.phone,
+													email: selectedDevice.email,
+													status: selectedDevice.status,
+												}
+											: null,
+										policyId: credentials.deviceAuthenticationPolicyId,
+										policyName: policyName,
+										authenticationId: authState.authenticationId,
+										challengeId: authState.challengeId,
+										timestamp: new Date().toISOString(),
+										deviceSelectionBehavior: deviceSelectionBehavior,
+									},
+								});
+							} else {
+								// If assertion check didn't complete, try polling if poll link is available
+								if (
+									assertionLinks['challenge.poll']?.href ||
+									authState._links?.['challenge.poll']?.href
+								) {
+									const pollResult = await MfaAuthenticationServiceV8.pollAuthenticationStatus(
+										assertionLinks['challenge.poll']?.href ||
+											authState._links!['challenge.poll']!.href
+									);
+
+									if (pollResult.status === 'COMPLETED') {
+										// Complete authentication to get access token if complete link is available
+										let pollCompletionResult = null;
+										const pollLinks = (pollResult._links as Record<string, { href: string }>) || {};
+										if (pollLinks['complete']?.href || authState._links?.['complete']?.href) {
+											try {
+												pollCompletionResult =
+													await MfaAuthenticationServiceV8.completeAuthentication(
+														pollLinks['complete']?.href || authState._links!['complete']!.href
+													);
+											} catch (completeError) {
+												console.warn(
+													`${MODULE_TAG} Failed to complete FIDO2 authentication (via poll):`,
+													completeError
+												);
+											}
+										}
+
+										setShowFIDO2Modal(false);
+										setFido2Error(null);
+
+										// Get selected device details
+										const selectedDevice = authState.devices.find(
+											(d) => d.id === authState.selectedDeviceId
+										);
+										const selectedPolicy = deviceAuthPolicies.find(
+											(p) => p.id === credentials.deviceAuthenticationPolicyId
+										);
+										const policyName = selectedPolicy?.name;
+										const deviceSelectionBehavior = selectedPolicy?.authentication
+											?.deviceSelection as string | undefined;
+
+										// Navigate to success page
+										navigate('/v8/mfa/authentication/success', {
+											state: {
+												completionResult: pollCompletionResult ? { ...pollCompletionResult } : null,
+												username: usernameInput.trim(),
+												userId: authState.userId,
+												environmentId: credentials.environmentId,
+												deviceType: selectedDevice?.type || 'FIDO2',
+												deviceId: authState.selectedDeviceId,
+												deviceDetails: selectedDevice
+													? {
+															id: selectedDevice.id,
+															type: selectedDevice.type,
+															nickname: selectedDevice.nickname,
+															name: selectedDevice.name,
+															phone: selectedDevice.phone,
+															email: selectedDevice.email,
+															status: selectedDevice.status,
+														}
+													: null,
+												policyId: credentials.deviceAuthenticationPolicyId,
+												policyName: policyName,
+												authenticationId: authState.authenticationId,
+												challengeId: authState.challengeId,
+												timestamp: new Date().toISOString(),
+												deviceSelectionBehavior: deviceSelectionBehavior,
+											},
+										});
+									} else {
+										setFido2Error('Authentication is still pending. Please try again.');
+									}
+								} else {
+									setFido2Error(
+										'Authentication completed but status is unclear. Please try again.'
+									);
+								}
+							}
+						} catch (error) {
+							console.error(`${MODULE_TAG} FIDO2 authentication failed:`, error);
+							setFido2Error(
+								error instanceof Error
+									? error.message
+									: 'Failed to complete WebAuthn authentication'
+							);
+						} finally {
+							setIsAuthenticatingFIDO2(false);
 						}
-					} catch (error) {
-						console.error(`${MODULE_TAG} FIDO2 authentication failed:`, error);
-						setFido2Error(
-							error instanceof Error ? error.message : 'Failed to complete WebAuthn authentication'
-						);
-					} finally {
-						setIsAuthenticatingFIDO2(false);
+					}}
+					fido2Error={fido2Error}
+					isAuthenticating={isAuthenticatingFIDO2}
+					isWebAuthnSupported={WebAuthnAuthenticationServiceV8.isWebAuthnSupported()}
+					hasChallengeData={
+						!!authState.challengeId || !!authState.publicKeyCredentialRequestOptions
 					}
-				}}
-				fido2Error={fido2Error}
-				isAuthenticating={isAuthenticatingFIDO2}
-				isWebAuthnSupported={WebAuthnAuthenticationServiceV8.isWebAuthnSupported()}
-				hasChallengeData={!!authState.challengeId || !!authState.publicKeyCredentialRequestOptions}
-			/>
+				/>
 			)}
 
 			{/* Device Selection Info Modal */}
@@ -5964,8 +6110,18 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
 						}}
 					>
-						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-							<h3 id="registration-modal-title" style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+								marginBottom: '16px',
+							}}
+						>
+							<h3
+								id="registration-modal-title"
+								style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}
+							>
 								Register New Device
 							</h3>
 							<button

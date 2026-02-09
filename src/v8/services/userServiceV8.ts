@@ -1,12 +1,12 @@
 /**
  * UserServiceV8
- * 
+ *
  * Centralized service for PingOne user operations
  * Handles pagination, caching, and search across large user directories
  */
 
-import { backendConnectivityService } from './backendConnectivityServiceV8';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import { backendConnectivityService } from './backendConnectivityServiceV8';
 import { UserCacheServiceV8 } from './userCacheServiceV8';
 
 const MODULE_TAG = '[UserServiceV8]';
@@ -50,25 +50,25 @@ export interface FetchAllUsersOptions {
 
 /**
  * UserServiceV8
- * 
+ *
  * Provides centralized user management operations for PingOne
  */
 export class UserServiceV8 {
 	/**
 	 * List users with pagination and search
-	 * 
+	 *
 	 * @param environmentId - PingOne environment ID
 	 * @param options - List options (search, limit, offset, region)
 	 * @returns Paginated list of users
-	 * 
+	 *
 	 * @example
 	 * ```typescript
 	 * // List first 200 users
 	 * const result = await UserServiceV8.listUsers(envId);
-	 * 
+	 *
 	 * // Search for users
 	 * const searched = await UserServiceV8.listUsers(envId, { search: 'curtis' });
-	 * 
+	 *
 	 * // Paginate through users
 	 * const page2 = await UserServiceV8.listUsers(envId, { limit: 200, offset: 200 });
 	 * ```
@@ -108,7 +108,7 @@ export class UserServiceV8 {
 				if (response.status >= 500) {
 					backendConnectivityService.recordFailure();
 				}
-				
+
 				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
 				throw new Error(
 					`Failed to list users: ${errorData.message || errorData.error || response.statusText}`
@@ -137,41 +137,45 @@ export class UserServiceV8 {
 	): Promise<User[]> {
 		const { search, limit = 200, region = 'na', maxPages = 10 } = options;
 		let offset = 0;
-		let all: User[] = [];
+		const all: User[] = [];
 		let page = 0;
-		
-		console.log(`${MODULE_TAG} searchAllUsers: starting multi-page search for "${search}" (limit=${limit}, maxPages=${maxPages})`);
-		
+
+		console.log(
+			`${MODULE_TAG} searchAllUsers: starting multi-page search for "${search}" (limit=${limit}, maxPages=${maxPages})`
+		);
+
 		while (page < maxPages) {
 			console.log(`${MODULE_TAG} searchAllUsers: fetching page ${page + 1} at offset ${offset}`);
-			
+
 			const result = await UserServiceV8.listUsers(environmentId, {
 				search,
 				limit,
 				offset,
 				region,
 			});
-			
+
 			console.log(`${MODULE_TAG} searchAllUsers: page ${page + 1} returned`, {
 				usersCount: result.users?.length || 0,
 				hasMore: result.hasMore,
 				totalCount: result.totalCount,
 			});
-			
+
 			if (!result || !Array.isArray(result.users) || result.users.length === 0) {
 				console.log(`${MODULE_TAG} searchAllUsers: no more users, breaking`);
 				break;
 			}
-			
+
 			// Append unique users by id
 			const beforeCount = all.length;
 			for (const u of result.users) {
 				if (!all.some((existing) => existing.id === u.id)) all.push(u);
 			}
-			console.log(`${MODULE_TAG} searchAllUsers: added ${all.length - beforeCount} unique users (${beforeCount} -> ${all.length})`);
-			
+			console.log(
+				`${MODULE_TAG} searchAllUsers: added ${all.length - beforeCount} unique users (${beforeCount} -> ${all.length})`
+			);
+
 			page += 1;
-			
+
 			// Continue if:
 			// 1. API says hasMore is true, OR
 			// 2. We got a full page of results (indicates more might exist), OR
@@ -179,36 +183,40 @@ export class UserServiceV8 {
 			const gotFullPage = result.users.length >= limit;
 			const moreExist = result.totalCount && all.length < result.totalCount;
 			const shouldContinue = result.hasMore || gotFullPage || moreExist;
-			
-			console.log(`${MODULE_TAG} searchAllUsers: shouldContinue=${shouldContinue} (hasMore=${result.hasMore}, gotFullPage=${gotFullPage}, moreExist=${moreExist})`);
-			
+
+			console.log(
+				`${MODULE_TAG} searchAllUsers: shouldContinue=${shouldContinue} (hasMore=${result.hasMore}, gotFullPage=${gotFullPage}, moreExist=${moreExist})`
+			);
+
 			if (!shouldContinue) break;
-			
+
 			offset += limit;
-			
+
 			// Small delay to avoid rate limiting
-			await new Promise(resolve => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 		}
-		
-		console.log(`${MODULE_TAG} searchAllUsers: completed - fetched ${page} pages, ${all.length} unique users`);
+
+		console.log(
+			`${MODULE_TAG} searchAllUsers: completed - fetched ${page} pages, ${all.length} unique users`
+		);
 		return all;
 	}
 
 	/**
 	 * Fetch all users with automatic pagination and IndexedDB caching
-	 * 
+	 *
 	 * Handles PingOne's 200-user limit per request by fetching multiple pages
 	 * Uses IndexedDB to persist cached users across sessions
-	 * 
+	 *
 	 * @param environmentId - PingOne environment ID
 	 * @param options - Fetch options
 	 * @returns All fetched users
-	 * 
+	 *
 	 * @example
 	 * ```typescript
 	 * // Fetch up to 10 pages (2000 users) - uses cache if available
 	 * const users = await UserServiceV8.fetchAllUsers(envId);
-	 * 
+	 *
 	 * // Force refresh from server
 	 * const users = await UserServiceV8.fetchAllUsers(envId, { useCache: false });
 	 * ```
@@ -218,7 +226,7 @@ export class UserServiceV8 {
 		options: FetchAllUsersOptions & { useCache?: boolean } = {}
 	): Promise<User[]> {
 		const { maxPages = 10, delayMs = 100, onProgress, useCache = true } = options;
-		
+
 		// Try to load from IndexedDB cache first
 		if (useCache) {
 			const cached = await UserCacheServiceV8.loadUsers(environmentId);
@@ -227,7 +235,7 @@ export class UserServiceV8 {
 				return cached;
 			}
 		}
-		
+
 		const allUsers: User[] = [];
 		let offset = 0;
 		const limit = 200; // PingOne max per request
@@ -244,7 +252,7 @@ export class UserServiceV8 {
 				if (fetchedCount > 0) {
 					allUsers.push(...result.users);
 					fetchedPages++;
-					
+
 					console.log(
 						`${MODULE_TAG} Fetched page ${fetchedPages} at offset ${offset} - got ${fetchedCount} users. Total: ${allUsers.length}`
 					);
@@ -258,10 +266,10 @@ export class UserServiceV8 {
 
 				if (hasMore) {
 					offset += fetchedCount; // Use actual count (PingOne may return less than requested)
-					
+
 					// Delay between requests to avoid rate limiting
 					if (delayMs > 0) {
-						await new Promise(resolve => setTimeout(resolve, delayMs));
+						await new Promise((resolve) => setTimeout(resolve, delayMs));
 					}
 				}
 			}
@@ -285,7 +293,7 @@ export class UserServiceV8 {
 
 	/**
 	 * Search users locally from a cached list
-	 * 
+	 *
 	 * @param users - Cached user list
 	 * @param searchTerm - Search term
 	 * @returns Filtered users
@@ -305,9 +313,9 @@ export class UserServiceV8 {
 
 	/**
 	 * Get user by ID
-	 * 
+	 *
 	 * Note: This requires a separate API call. If you have the user cached, use that instead.
-	 * 
+	 *
 	 * @param environmentId - PingOne environment ID
 	 * @param userId - User ID
 	 * @returns User details
@@ -348,28 +356,28 @@ export class UserServiceV8 {
 
 	/**
 	 * Background prefetch users with progress tracking
-	 * 
+	 *
 	 * Fetches users in the background with:
 	 * - Configurable initial fetch (e.g., first 5 pages immediately)
 	 * - Remaining pages fetched in background
 	 * - Progress callbacks and abort signal support
 	 * - Automatic IndexedDB persistence
-	 * 
+	 *
 	 * @param environmentId - PingOne environment ID
 	 * @param options - Prefetch options
 	 * @returns Promise that resolves when initial fetch completes (background continues)
-	 * 
+	 *
 	 * @example
 	 * ```typescript
 	 * const controller = new AbortController();
-	 * 
+	 *
 	 * await UserServiceV8.prefetchUsers(envId, {
 	 *   initialPages: 5,  // Fetch first 1k users immediately
 	 *   maxPages: 100,    // Continue up to 20k users in background
 	 *   onProgress: (progress) => console.log(progress),
 	 *   signal: controller.signal
 	 * });
-	 * 
+	 *
 	 * // Later: abort if needed
 	 * controller.abort();
 	 * ```
@@ -398,17 +406,13 @@ export class UserServiceV8 {
 		// Check if worker token is available before starting prefetch
 		const testToken = await unifiedWorkerTokenService.getToken();
 		if (!testToken) {
-			console.log(`${MODULE_TAG} Worker token not available, skipping prefetch for environment ${environmentId}`);
+			console.log(
+				`${MODULE_TAG} Worker token not available, skipping prefetch for environment ${environmentId}`
+			);
 			return;
 		}
 
-		const { 
-			initialPages = 5, 
-			maxPages = 50, 
-			delayMs = 150, 
-			onProgress,
-			signal 
-		} = options;
+		const { initialPages = 5, maxPages = 50, delayMs = 150, onProgress, signal } = options;
 
 		console.log(`${MODULE_TAG} Starting prefetch for environment ${environmentId}`, {
 			initialPages,
@@ -433,21 +437,21 @@ export class UserServiceV8 {
 		const limit = 200; // PingOne max
 		let offset = 0;
 		let page = 0;
-		let allUsers: User[] = [];
+		const allUsers: User[] = [];
 		let hasMore = true;
 
 		try {
 			// Phase 1: Initial fetch (blocking)
 			console.log(`${MODULE_TAG} Phase 1: Fetching initial ${initialPages} pages...`);
-			
+
 			while (hasMore && page < initialPages && page < maxPages) {
 				if (signal?.aborted) {
 					console.log(`${MODULE_TAG} Prefetch aborted during initial phase`);
 					break;
 				}
 
-				const result = await this.listUsers(environmentId, { limit, offset });
-				
+				const result = await UserServiceV8.listUsers(environmentId, { limit, offset });
+
 				if (result.users.length > 0) {
 					allUsers.push(...result.users);
 					page++;
@@ -470,13 +474,15 @@ export class UserServiceV8 {
 						phase: 'initial',
 					});
 
-					console.log(`${MODULE_TAG} Initial phase: page ${page}/${initialPages}, ${allUsers.length} users`);
+					console.log(
+						`${MODULE_TAG} Initial phase: page ${page}/${initialPages}, ${allUsers.length} users`
+					);
 				}
 
 				hasMore = result.hasMore && result.users.length > 0;
 
 				if (hasMore && page < initialPages && delayMs > 0) {
-					await new Promise(resolve => setTimeout(resolve, delayMs));
+					await new Promise((resolve) => setTimeout(resolve, delayMs));
 				}
 			}
 
@@ -485,7 +491,7 @@ export class UserServiceV8 {
 			// Phase 2: Background fetch (non-blocking)
 			if (hasMore && page < maxPages) {
 				console.log(`${MODULE_TAG} Phase 2: Starting background fetch for remaining pages...`);
-				
+
 				// Continue in background (don't await)
 				(async () => {
 					try {
@@ -495,8 +501,8 @@ export class UserServiceV8 {
 								break;
 							}
 
-							const result = await this.listUsers(environmentId, { limit, offset });
-							
+							const result = await UserServiceV8.listUsers(environmentId, { limit, offset });
+
 							if (result.users.length > 0) {
 								allUsers.push(...result.users);
 								page++;
@@ -519,13 +525,15 @@ export class UserServiceV8 {
 									phase: 'background',
 								});
 
-								console.log(`${MODULE_TAG} Background phase: page ${page}/${maxPages}, ${allUsers.length} users`);
+								console.log(
+									`${MODULE_TAG} Background phase: page ${page}/${maxPages}, ${allUsers.length} users`
+								);
 							}
 
 							hasMore = result.hasMore && result.users.length > 0;
 
 							if (hasMore && delayMs > 0) {
-								await new Promise(resolve => setTimeout(resolve, delayMs));
+								await new Promise((resolve) => setTimeout(resolve, delayMs));
 							}
 						}
 

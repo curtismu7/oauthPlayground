@@ -161,7 +161,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 		if (onClose) {
 			onClose();
 		} else {
-			navigate('/v8/mfa-hub');
+			navigate('/v8/mfa-config');
 		}
 	};
 

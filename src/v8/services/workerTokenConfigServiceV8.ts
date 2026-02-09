@@ -70,7 +70,7 @@ class WorkerTokenConfigService {
 
 		if (customEvent.detail?.workerToken) {
 			const oldConfig = this.config ? { ...this.config } : null;
-			
+
 			// Update config with new values
 			if (!this.config) {
 				this.initialize();
@@ -169,7 +169,7 @@ class WorkerTokenConfigService {
 	 */
 	subscribe(listener: ConfigUpdateListener): () => void {
 		this.listeners.add(listener);
-		
+
 		// Immediately provide current config to new listener
 		if (this.config) {
 			listener(this.config);
@@ -187,7 +187,7 @@ class WorkerTokenConfigService {
 	private notifyListeners(): void {
 		if (!this.config) return;
 
-		this.listeners.forEach(listener => {
+		this.listeners.forEach((listener) => {
 			try {
 				listener(this.config!);
 			} catch (error) {
