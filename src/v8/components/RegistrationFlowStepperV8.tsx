@@ -207,14 +207,14 @@ export const RegistrationFlowStepperV8: React.FC<RegistrationFlowStepperV8Props>
 			ReturnTargetServiceV8U.setReturnTarget(
 				'mfa_device_registration',
 				currentPath,
-				3 // Skip to Step 3 (Device Actions) for Registration
+				2 // Step 2: Device Selection for Registration (fixed from step 3)
 			);
 
 			// Handle OAuth callback processing
 			if (credentials.userToken?.trim()) {
-				toastV8.info('🔄 Returning to Device Actions after authentication...');
+				toastV8.info('🔄 Returning to Device Selection after authentication...');
 				setTimeout(() => {
-					nav.goToStep(3); // Skip to Device Actions for Registration
+					nav.goToStep(2); // Go to Device Selection for Registration
 				}, 500);
 			}
 		}
