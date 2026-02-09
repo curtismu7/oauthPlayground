@@ -135,9 +135,18 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 
 		try {
 			const config = MFAConfigurationServiceV8.loadConfiguration();
-			if (!config.workerToken.silentApiRetrieval) return;
+			if (!config.workerToken.silentApiRetrieval) {
+				console.log(`${MODULE_TAG} Silent API retrieval disabled, skipping auto-refresh`);
+				return;
+			}
 
 			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			console.log(`${MODULE_TAG} Checking token for auto-refresh:`, {
+				status: status.status,
+				isValid: status.isValid,
+				expiresAt: status.expiresAt,
+				silentApiRetrieval: config.workerToken.silentApiRetrieval,
+			});
 
 			// If token expires in less than 5 minutes, refresh it
 			if (status.expiresAt) {
@@ -146,17 +155,81 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 
 				if (expiresIn > 0 && expiresIn < fiveMinutes && !isRefreshing) {
 					setIsRefreshing(true);
-					console.log(`${MODULE_TAG} Token expiring soon, auto-refreshing...`);
+					console.log(`${MODULE_TAG} Token expiring in ${Math.round(expiresIn / 1000)}s, auto-refreshing...`);
 
-					// Trigger token refresh by dispatching event
-					window.dispatchEvent(new CustomEvent('refreshWorkerToken'));
+					// Trigger silent token retrieval directly
+					const { tokenGatewayV8 } = await import('@/v8/services/auth/tokenGatewayV8');
+					const result = await tokenGatewayV8.getWorkerToken({
+						mode: 'silent',
+						forceRefresh: true,
+						timeout: 10000,
+						maxRetries: 2,
+					});
+
+					const success = result.success;
+
+					if (success) {
+						console.log(`${MODULE_TAG} Auto-refresh successful`);
+					} else {
+						console.warn(`${MODULE_TAG} Auto-refresh failed, user interaction may be required`);
+					}
 
 					// Wait a bit then check status again
 					setTimeout(async () => {
 						await refreshTokenStatus();
 						setIsRefreshing(false);
 					}, 2000);
+				} else if (expiresIn <= 0) {
+					console.log(`${MODULE_TAG} Token expired, attempting refresh...`);
+					setIsRefreshing(true);
+
+					// Trigger silent token retrieval for expired token
+					const { tokenGatewayV8 } = await import('@/v8/services/auth/tokenGatewayV8');
+					const result = await tokenGatewayV8.getWorkerToken({
+						mode: 'silent',
+						forceRefresh: true,
+						timeout: 10000,
+						maxRetries: 2,
+					});
+
+					const success = result.success;
+
+					if (success) {
+						console.log(`${MODULE_TAG} Expired token refresh successful`);
+					} else {
+						console.warn(`${MODULE_TAG} Expired token refresh failed, user interaction required`);
+					}
+
+					setTimeout(async () => {
+						await refreshTokenStatus();
+						setIsRefreshing(false);
+					}, 2000);
 				}
+			} else if (!status.isValid) {
+				console.log(`${MODULE_TAG} Token invalid, attempting refresh...`);
+				setIsRefreshing(true);
+
+				// Trigger silent token retrieval for invalid token
+				const { tokenGatewayV8 } = await import('@/v8/services/auth/tokenGatewayV8');
+				const result = await tokenGatewayV8.getWorkerToken({
+					mode: 'silent',
+					forceRefresh: true,
+					timeout: 10000,
+					maxRetries: 2,
+				});
+
+				const success = result.success;
+
+				if (success) {
+					console.log(`${MODULE_TAG} Invalid token refresh successful`);
+				} else {
+					console.warn(`${MODULE_TAG} Invalid token refresh failed, user interaction required`);
+				}
+
+				setTimeout(async () => {
+					await refreshTokenStatus();
+					setIsRefreshing(false);
+				}, 2000);
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to check/refresh token:`, error);
