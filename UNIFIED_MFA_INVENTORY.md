@@ -4748,6 +4748,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 93 | **Missing Authorization URL API Call in Unified OAuth Flow** | ✅ IMPLEMENTED | UnifiedFlowSteps.tsx:6655, 11392 | Authorization Code flow should show 2 API calls (URL generation + token exchange) but only 1 is visible | Added ApiCallExampleV8U component to display API call examples directly on unified flow pages - users now see both authorization URL generation and token exchange examples |
 | 94 | **API Status Page Implementation** | ✅ IMPLEMENTED | ApiStatusPage.tsx:1, App.tsx:1310, vite.config.ts:142 | Created comprehensive API status page for monitoring server health and performance metrics | Added ApiStatusPage component with real-time health monitoring, fixed Vite proxy to connect to HTTPS backend, integrated with React Router at /api-status |
 | 95 | **React Hooks Error in HelioMartPasswordReset** | ✅ RESOLVED | HelioMartPasswordReset.tsx:81, 1981 | "Rendered fewer hooks than expected" error due to component structure conflict | Fixed by removing local styled components and using PageLayoutService.createPageLayout consistently |
+| 96 | **Redirect URI Still Going to Wrong Place** | 🔴 ACTIVE | CallbackHandlerV8U.tsx:233, ReturnTargetServiceV8U.ts:50 | OAuth callbacks redirect to incorrect pages instead of original flow context | Return target service not properly detecting flow context or fallback logic not working correctly |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -15683,6 +15684,74 @@ grep -A 5 -B 5 "PageLayoutService.createPageLayout" src/pages/security/HelioMart
 grep -A 5 -B 5 "PageContainer.*ContentContainer" src/pages/security/HelioMartPasswordReset.tsx
 grep -A 5 -B 5 "Rendered fewer hooks than expected" src/pages/security/HelioMartPasswordReset.tsx
 grep -A 5 -B 5 "styled.div.*PageContainer" src/pages/security/HelioMartPasswordReset.tsx
+
+# Issue 96: Check redirect URI and callback handling
+grep -A 5 -B 5 "ReturnTargetServiceV8U" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "buildRedirectUrl\|redirectUrl" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "emergencyFallback\|fallback.*path" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "STORAGE_KEYS\|return_target" src/v8u/services/ReturnTargetServiceV8U.ts
+grep -A 5 -B 5 "flow.*context\|context.*flow" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "normalizeFallback" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "window\.location\.replace\|window\.location\.href" src/v8u/components/CallbackHandlerV8U.tsx
+
+# ========================================================================
+# REDIRECT URI ISSUES - COMPREHENSIVE GUIDE
+# ========================================================================
+
+## 🚨 CRITICAL: Redirect URI Problems and Prevention
+
+### Common Redirect URI Issues
+1. **Wrong Callback Page** - OAuth callbacks redirect to incorrect pages instead of original flow
+2. **Return Target Not Set** - ReturnTargetServiceV8U not properly storing flow context
+3. **Fallback Logic Failure** - Emergency fallback paths not working correctly
+4. **Flow Context Detection** - CallbackHandlerV8U not detecting MFA vs OAuth flows properly
+5. **Storage Key Mismatch** - Wrong sessionStorage keys for different flow types
+
+### Prevention Commands for Redirect URI Issues
+```bash
+# Check ReturnTargetServiceV8U usage patterns
+grep -A 5 -B 5 "ReturnTargetServiceV8U" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "setReturnTarget\|getReturnTarget" src/v8u/services/ReturnTargetServiceV8U.ts
+
+# Check redirect URL building logic
+grep -A 5 -B 5 "buildRedirectUrl\|redirectUrl" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "window\.location\.replace\|window\.location\.href" src/v8u/components/CallbackHandlerV8U.tsx
+
+# Check fallback and emergency logic
+grep -A 5 -B 5 "emergencyFallback\|fallback.*path" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "normalizeFallback" src/v8u/components/CallbackHandlerV8U.tsx
+
+# Check storage key consistency
+grep -A 5 -B 5 "STORAGE_KEYS\|return_target" src/v8u/services/ReturnTargetServiceV8U.ts
+grep -A 5 -B 5 "v8u_return_target" src/v8u/services/ReturnTargetServiceV8U.ts
+
+# Check flow context detection
+grep -A 5 -B 5 "flow.*context\|context.*flow" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "isMfaFlow\|flowType" src/v8u/components/CallbackHandlerV8U.tsx
+
+# Check callback route definitions
+grep -A 5 -B 5 "callback.*Route\|Route.*callback" src/App.tsx
+grep -A 5 -B 5 "/unified-callback\|/authz-callback\|/user-mfa-login-callback" src/App.tsx
+```
+
+### Files to Monitor for Redirect URI Issues
+- `src/v8u/components/CallbackHandlerV8U.tsx` - Main callback handler
+- `src/v8u/services/ReturnTargetServiceV8U.ts` - Return target management
+- `src/App.tsx` - Callback route definitions
+- `src/v8/components/UserLoginModalV8.tsx` - OAuth initiation and return target setting
+
+### Common Error Patterns
+- "Redirect URI is not in the configured list" - Wrong URI in PingOne
+- "Callback not found" - CallbackHandlerV8U doesn't recognize path
+- "Stuck in wrong flow" - Return target not set/consumed properly
+- "OAuth initiation fails" - Missing redirect_uri parameter
+
+### Debugging Steps for Redirect URI Issues
+1. **Check PingOne Configuration** - Verify callback URIs match application settings
+2. **Verify Route Definitions** - Ensure all callback routes exist in App.tsx
+3. **Check Return Target Storage** - Verify sessionStorage contains correct return_target keys
+4. **Validate Flow Detection** - Check if flow type is properly detected from state parameter
+5. **Test Fallback Logic** - Verify emergency fallback paths work when return target missing
 
 # ========================================================================
 # INFINITE LOOP PREVENTION COMPREHENSIVE GUIDE
