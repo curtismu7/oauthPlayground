@@ -6,7 +6,14 @@
  */
 
 import React from 'react';
-import { FiCheckCircle, FiShield, FiCpu, FiDownload, FiRefreshCw, FiExternalLink } from 'react-icons/fi';
+import {
+	FiCheckCircle,
+	FiCpu,
+	FiDownload,
+	FiExternalLink,
+	FiRefreshCw,
+	FiShield,
+} from 'react-icons/fi';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 
 const MODULE_TAG = '[✅ SUCCESS-STEP-V8]';
@@ -66,26 +73,27 @@ export const SuccessStepV8: React.FC<SuccessStepV8Props> = ({ renderProps }) => 
 	return (
 		<div className="step-content">
 			<div style={{ textAlign: 'center', marginBottom: '32px' }}>
-				<div style={{
-					width: '80px',
-					height: '80px',
-					background: isSuccess ? '#10b981' : '#f59e0b',
-					borderRadius: '50%',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					margin: '0 auto 20px',
-				}}>
+				<div
+					style={{
+						width: '80px',
+						height: '80px',
+						background: isSuccess ? '#10b981' : '#f59e0b',
+						borderRadius: '50%',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						margin: '0 auto 20px',
+					}}
+				>
 					<FiCheckCircle size={40} color="white" />
 				</div>
-				<h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1f2937', margin: '0 0 8px 0' }}>
-					{isSuccess ? 'Authentication Successful!' : 'Authentication Completed'}
+				<h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1f2937', margin: '0 0 8px 0', textAlign: 'center' }}>
+					{isSuccess ? 'Authentication Successful!' : 'Device Created!'}
 				</h2>
 				<p style={{ fontSize: '16px', color: '#6b7280', margin: '0 0 24px 0' }}>
-					{isSuccess 
+					{isSuccess
 						? `You have successfully authenticated with your ${credentials.deviceType} device.`
-						: 'The authentication process has been completed.'
-					}
+						: 'The authentication process has been completed.'}
 				</p>
 			</div>
 
@@ -94,36 +102,72 @@ export const SuccessStepV8: React.FC<SuccessStepV8Props> = ({ renderProps }) => 
 					<FiShield style={{ marginRight: '8px', color: '#10b981' }} />
 					Session Summary
 				</h3>
-				
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '16px' }}>
+
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+						gap: '16px',
+						marginTop: '16px',
+					}}
+				>
 					<div style={{ padding: '12px', background: '#f8fafc', borderRadius: '6px' }}>
 						<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>User</div>
-						<div style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{credentials.username}</div>
+						<div style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
+							{credentials.username}
+						</div>
 					</div>
-					
+
 					<div style={{ padding: '12px', background: '#f8fafc', borderRadius: '6px' }}>
-						<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Device Type</div>
-						<div style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{credentials.deviceType}</div>
+						<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>
+							Device Type
+						</div>
+						<div style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
+							{credentials.deviceType}
+						</div>
 					</div>
-					
+
 					<div style={{ padding: '12px', background: '#f8fafc', borderRadius: '6px' }}>
 						<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Device ID</div>
-						<div style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937', fontFamily: 'monospace' }}>
+						<div
+							style={{
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#1f2937',
+								fontFamily: 'monospace',
+							}}
+						>
 							{mfaState.deviceId || 'N/A'}
 						</div>
 					</div>
-					
+
 					<div style={{ padding: '12px', background: '#f8fafc', borderRadius: '6px' }}>
 						<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Status</div>
-						<div style={{ fontSize: '14px', fontWeight: '600', color: isSuccess ? '#10b981' : '#f59e0b' }}>
+						<div
+							style={{
+								fontSize: '14px',
+								fontWeight: '600',
+								color: isSuccess ? '#10b981' : '#f59e0b',
+							}}
+						>
 							{mfaState.deviceStatus || 'Completed'}
 						</div>
 					</div>
 				</div>
 
 				{mfaState.verificationResult && (
-					<div style={{ marginTop: '16px', padding: '12px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '6px' }}>
-						<div style={{ fontSize: '12px', color: '#15803d', marginBottom: '4px' }}>Verification Result</div>
+					<div
+						style={{
+							marginTop: '16px',
+							padding: '12px',
+							background: '#f0fdf4',
+							border: '1px solid #86efac',
+							borderRadius: '6px',
+						}}
+					>
+						<div style={{ fontSize: '12px', color: '#15803d', marginBottom: '4px' }}>
+							Verification Result
+						</div>
 						<div style={{ fontSize: '14px', color: '#15803d' }}>
 							{mfaState.verificationResult.success ? '✓ Verified' : '⚠ Completed with warnings'}
 						</div>
@@ -141,8 +185,14 @@ export const SuccessStepV8: React.FC<SuccessStepV8Props> = ({ renderProps }) => 
 					<FiCpu style={{ marginRight: '8px', color: '#10b981' }} />
 					Next Steps & Options
 				</h3>
-				
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '12px' }}>
+
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+						gap: '12px',
+					}}
+				>
 					<button
 						type="button"
 						onClick={handleExportData}
@@ -241,7 +291,10 @@ export const SuccessStepV8: React.FC<SuccessStepV8Props> = ({ renderProps }) => 
 					Security Information
 				</h4>
 				<ul>
-					<li>Your authentication token is securely stored and will expire according to your organization's policy</li>
+					<li>
+						Your authentication token is securely stored and will expire according to your
+						organization's policy
+					</li>
 					<li>Device authentication logs are recorded for audit and compliance purposes</li>
 					<li>You can revoke device access at any time through the device management interface</li>
 				</ul>

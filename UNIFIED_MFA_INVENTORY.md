@@ -4732,6 +4732,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 64 | **Email Registration Field Validation** | 🔴 ACTIVE | EmailFlowV8.tsx:1152-1162 | No toast message for email validation failures | Missing toast notifications when email validation fails, only red border shown |
 | 65 | **Required Field Asterisk Pattern** | ✅ RESOLVED | Multiple V8 flow components | Email field has red asterisk, other fields checked | Email field correctly shows red asterisk, phone/name fields also have asterisks |
 | 66 | **Device Creation Success Modal Missing** | ✅ RESOLVED | EmailFlowV8.tsx:1309-1368 | No modal showing device info after creation | Added DeviceCreationSuccessModalV8 with device info for all flow types |
+| 67 | **Success Page Title and Button Issues** | ✅ RESOLVED | unifiedMFASuccessPageServiceV8.tsx:432, SuccessStepV8.tsx:91 | Registration flows show "Authentication Successful" instead of "Device Created" | Fixed titles to show "Device Created!" for registration flows, centered titles, normal button sizes |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
 | 40 | **SMS Step 1 Advancement Issue** | ✅ RESOLVED | CallbackHandlerV8U.tsx:294, MFAFlowBaseV8.tsx:149 | SMS flow stuck on step 1, not advancing to next step | Fixed with foolproof callback step advancement |
 | 41 | **Registration/Authentication Not Separated** | 🔴 ACTIVE | UnifiedMFARegistrationFlowV8_Legacy.tsx:2734 | Still using MFAFlowBaseV8 instead of separate steppers | Registration and Authentication flows not properly separated |
@@ -15336,6 +15337,22 @@ grep -A 10 "toastV8\.success.*registered" src/v8/flows/types/WhatsAppFlowV8.tsx 
 
 # Issue 66: Check if modal is rendered in component return statements
 grep -rn "DeviceCreationSuccessModalV8" src/v8/flows/types/ --include="*.tsx" -A 5 -B 5
+
+# Issue 67: Success page title patterns - check for correct titles
+grep -rn "Device Created\|Authentication Successful" src/v8/services/unifiedMFASuccessPageServiceV8.tsx
+grep -rn "Device Created\|Authentication Successful" src/v8/flows/shared/SuccessStepV8.tsx
+
+# Issue 67: Check for centered titles in success pages
+grep -rn "textAlign.*center" src/v8/services/unifiedMFASuccessPageServiceV8.tsx
+grep -rn "textAlign.*center" src/v8/flows/shared/SuccessStepV8.tsx
+
+# Issue 67: Check for proper button sizing in success pages
+grep -A 5 -B 5 "padding.*12px.*24px\|padding.*12px.*16px" src/v8/services/unifiedMFASuccessPageServiceV8.tsx
+grep -A 5 -B 5 "padding.*12px.*24px\|padding.*12px.*16px" src/v8/flows/shared/SuccessStepV8.tsx
+
+# Issue 67: Verify flowType-based title logic
+grep -A 3 "flowType.*===.*authentication" src/v8/services/unifiedMFASuccessPageServiceV8.tsx
+grep -A 3 "flowType.*===.*authentication" src/v8/flows/shared/SuccessStepV8.tsx
 ```
 
 ### **📋 After Every Fix**
