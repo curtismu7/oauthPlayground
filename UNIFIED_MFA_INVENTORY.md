@@ -4746,6 +4746,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 91 | **Token Exchange Call Visibility** | ✅ IMPLEMENTED | UnifiedFlowIntegrationV8U.ts:1237, 1347 | Token exchange call in Unified OIDC authorization flow is not visible to users for learning | Added API call tracking for both OAuth and Hybrid flow token exchanges with proper request/response logging and redacted sensitive data |
 | 92 | **Missing POST Body Display in API Calls** | ✅ IMPLEMENTED | UnifiedFlowIntegrationV8U.ts:1245, 1355, 611, 763 | POST body not showing in token exchange and authorization calls for educational purposes | Fixed token exchange to use URLSearchParams format and authorization calls to show query parameters with educational notes |
 | 93 | **Missing Authorization URL API Call in Unified OAuth Flow** | ✅ IMPLEMENTED | UnifiedFlowSteps.tsx:6655, 11392 | Authorization Code flow should show 2 API calls (URL generation + token exchange) but only 1 is visible | Added ApiCallExampleV8U component to display API call examples directly on unified flow pages - users now see both authorization URL generation and token exchange examples |
+| 94 | **API Status Page Implementation** | ✅ IMPLEMENTED | ApiStatusPage.tsx:1, App.tsx:1310, vite.config.ts:142 | Created comprehensive API status page for monitoring server health and performance metrics | Added ApiStatusPage component with real-time health monitoring, fixed Vite proxy to connect to HTTPS backend, integrated with React Router at /api-status |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -15668,6 +15669,13 @@ grep -A 5 -B 5 "Example: Authorization URL Generation" src/v8u/components/Unifie
 grep -A 5 -B 5 "Example: Token Exchange API Call" src/v8u/components/UnifiedFlowSteps.tsx
 grep -A 5 -B 5 "renderStep1AuthUrl" src/v8u/components/UnifiedFlowSteps.tsx
 grep -A 5 -B 5 "renderStep3ExchangeTokens" src/v8u/components/UnifiedFlowSteps.tsx
+
+# Issue 94: Check API Status page implementation and monitoring
+grep -A 5 -B 5 "ApiStatusPage" src/pages/ApiStatusPage.tsx
+grep -A 5 -B 5 "api-status" src/App.tsx
+grep -A 5 -B 5 "target.*https://localhost:3002" vite.config.ts
+grep -A 5 -B 5 "/api/health" src/pages/ApiStatusPage.tsx
+grep -A 5 -B 5 "fetchHealthData" src/pages/ApiStatusPage.tsx
 
 # ========================================================================
 # INFINITE LOOP PREVENTION COMPREHENSIVE GUIDE
