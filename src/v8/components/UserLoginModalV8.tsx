@@ -23,6 +23,7 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { OAuthIntegrationServiceV8, type OAuthCredentials } from '@/v8/services/oauthIntegrationServiceV8';
 import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
+import { safeGetUserInfo } from '@/utils/authUtils';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
@@ -55,6 +56,24 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [clientId, setClientId] = useState('');
 	const [clientSecret, setClientSecret] = useState('');
 	const [username, setUsername] = useState('');
+	
+	// Auto-populate login_hint field with current user information
+	useEffect(() => {
+		try {
+			const userInfo = safeGetUserInfo();
+			if (userInfo) {
+				// Use preferred_username first, then email, then sub as fallback
+				const loginHint = userInfo.preferred_username || userInfo.email || userInfo.sub;
+				if (loginHint) {
+					setUsername(loginHint);
+					console.log(`${MODULE_TAG} 🔑 Auto-populated login_hint with current user: ${loginHint}`);
+				}
+			}
+		} catch (error) {
+			console.warn(`${MODULE_TAG} Failed to auto-populate login_hint:`, error);
+		}
+	}, []); // Only run once on mount
+	
 	const [redirectUri, setRedirectUri] = useState(() => {
 		// Initialize with correct default redirect URI based on flow type
 		const protocol = 'https';
