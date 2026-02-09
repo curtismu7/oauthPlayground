@@ -4744,6 +4744,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 89 | **Return Target Service Migration** | ✅ IMPLEMENTED | UserLoginModalV8.tsx:1352, CallbackHandlerV8U.tsx:170 | Redirect URI return targets not found due to mixed usage of old sessionStorage and new ReturnTargetServiceV8U | Migrated UserLoginModal to use ReturnTargetServiceV8U and removed old sessionStorage fallback logic from CallbackHandler |
 | 90 | **Auto-populate login_hint with Current User** | ✅ IMPLEMENTED | UserLoginModalV8.tsx:61 | login_hint field exists but not automatically filled with current user information | Added useEffect to auto-populate login_hint field with current user's preferred_username, email, or sub from localStorage |
 | 91 | **Token Exchange Call Visibility** | ✅ IMPLEMENTED | UnifiedFlowIntegrationV8U.ts:1237, 1347 | Token exchange call in Unified OIDC authorization flow is not visible to users for learning | Added API call tracking for both OAuth and Hybrid flow token exchanges with proper request/response logging and redacted sensitive data |
+| 92 | **Missing POST Body Display in API Calls** | ✅ IMPLEMENTED | UnifiedFlowIntegrationV8U.ts:1245, 1355, 611, 763 | POST body not showing in token exchange and authorization calls for educational purposes | Fixed token exchange to use URLSearchParams format and authorization calls to show query parameters with educational notes |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -15652,6 +15653,13 @@ grep -A 5 -B 5 "apiCallTrackerService\.trackApiCall" src/v8u/services/unifiedFlo
 grep -A 5 -B 5 "unified-token-exchange" src/v8u/services/unifiedFlowIntegrationV8U.ts
 grep -A 5 -B 5 "unified-hybrid-token-exchange" src/v8u/services/unifiedFlowIntegrationV8U.ts
 grep -A 5 -B 5 "\*\*\*REDACTED\*\*\*" src/v8u/services/unifiedFlowIntegrationV8U.ts
+
+# Issue 92: Check POST body display in API calls
+grep -A 5 -B 5 "URLSearchParams" src/v8u/services/unifiedFlowIntegrationV8U.ts
+grep -A 5 -B 5 "query_parameters" src/v8u/services/unifiedFlowIntegrationV8U.ts
+grep -A 5 -B 5 "query_string" src/v8u/services/unifiedFlowIntegrationV8U.ts
+grep -A 5 -B 5 "GET request with query parameters" src/v8u/services/unifiedFlowIntegrationV8U.ts
+grep -A 5 -B 5 "application/x-www-form-urlencoded" src/v8u/services/unifiedFlowIntegrationV8U.ts
 
 # ========================================================================
 # INFINITE LOOP PREVENTION COMPREHENSIVE GUIDE
