@@ -47,7 +47,6 @@ import {
 	unlockPassword,
 } from '../../services/passwordResetService';
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
-import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import { workerTokenCredentialsService } from '../../services/workerTokenCredentialsService';
 import { trackedFetch } from '../../utils/trackedFetch';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
@@ -79,18 +78,6 @@ interface PasswordState {
 const HELIOMART_ACCENT_START = '#F59E0B'; // Amber
 const HELIOMART_ACCENT_END = '#F97316'; // Orange
 
-const PageContainer = styled.div`
-	min-height: 100vh;
-	background: #ffffff;
-	color: #1F2937;
-	font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', sans-serif;
-	padding: 2rem;
-`;
-
-const ContentContainer = styled.div`
-	max-width: 1200px;
-	margin: 0 auto;
-`;
 
 // Login Page Styled Components
 const LoginTitle = styled.h1`
@@ -682,7 +669,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			// Load environment ID from shared environment, then worker token credentials, then use default
 			const sharedEnv = comprehensiveFlowDataService.loadSharedEnvironment();
 			let envId = sharedEnv?.environmentId || '';
-			
+
 			// Try worker token credentials as fallback
 			if (!envId) {
 				try {
@@ -695,12 +682,12 @@ const HelioMartPasswordReset: React.FC = () => {
 					console.log('Failed to load environment ID from worker token:', error);
 				}
 			}
-			
+
 			// Use default if still empty
 			if (!envId) {
 				envId = 'b9817c16-9910-4415-b67e-4ac687da74d9';
 			}
-			
+
 			setEnvironmentId(envId);
 
 			// Use global worker token
@@ -1991,7 +1978,7 @@ export { changePassword, handleChangePassword };`;
 		}
 	}, [passwordState]);
 
-	const { PageHeader } = PageLayoutService.createPageLayout({
+	const { PageHeader, PageContainer, ContentContainer } = PageLayoutService.createPageLayout({
 		flowType: 'pingone',
 		theme: 'red',
 		showHeader: true,
