@@ -130,5 +130,5 @@ export function navigateToMfaHubWithCleanup(
 	logCleanup: boolean = true
 ): void {
 	cleanupMfaFlowComplete(logCleanup);
-	navigate('/v8/mfa-hub');
+	navigate('/v8/unified-mfa');
 }
