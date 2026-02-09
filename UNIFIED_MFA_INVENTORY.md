@@ -4735,6 +4735,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 80 | **Step 0 Stale Token Validation** | ✅ RESOLVED | NewMFAFlowV8.tsx:180, UnifiedMFARegistrationFlowV8_Legacy.tsx:2712 | Can advance past step 0 without valid worker token due to stale React state | Fixed: fresh WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync() check instead of stale state |
 | 81 | **OIDC Scopes Validation Error** | 🔴 ACTIVE | WorkerTokenModalV8.tsx:264 | Client Credentials flow incorrectly using OIDC scope "openid" causing validation failure | Users trying to use openid scope with client credentials flow - need to use resource server scopes |
 | 82 | **Credential Import JSON Parsing Error** | 🔴 ACTIVE | credentialExportImportService.ts:102 | Import fails when file is HTML (likely from browser download) instead of JSON | Browser downloads HTML page instead of JSON file, causing SyntaxError on JSON.parse |
+| 83 | **Key Rotation Policy (KRP) Support** | ✅ IMPLEMENTED | unifiedWorkerTokenService.ts:784, WorkerTokenModalV8.tsx:837 | PingOne requires KRP for all worker applications by March 2, 2027 | Added KRP status checking, compliance warnings, and UI display in worker token modal |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -15534,6 +15535,13 @@ grep -A 5 -B 5 "JSON.parse" src/v8/services/credentialExportImportService.ts
 grep -A 5 -B 5 "SyntaxError.*Unexpected token" src/v8/services/credentialExportImportService.ts
 grep -A 5 -B 5 "<!DOCTYPE" src/v8/services/credentialExportImportService.ts
 grep -A 5 -B 5 "Failed to parse credential file" src/v8/components/WorkerTokenModalV8.tsx
+
+# Issue 83: Check Key Rotation Policy (KRP) support implementation
+grep -A 5 -B 5 "KeyRotationPolicy" src/services/unifiedWorkerTokenService.ts
+grep -A 5 -B 5 "getKeyRotationStatus" src/services/unifiedWorkerTokenService.ts
+grep -A 5 -B 5 "checkKRPCompliance" src/services/unifiedWorkerTokenService.ts
+grep -A 5 -B 5 "KRP Status Display" src/v8/components/WorkerTokenModalV8.tsx
+grep -A 5 -B 5 "2027-03-02" src/services/unifiedWorkerTokenService.ts
 
 # Issue 70: Resend email prevention commands
 grep -rn "resendEmail" src/v8/services/mfaServiceV8.ts -A 5 -B 5
