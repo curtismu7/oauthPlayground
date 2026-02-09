@@ -68,6 +68,9 @@ import { UnifiedFlowSuccessStepV8U } from './UnifiedFlowSuccessStepV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
 import { ApiCallExampleV8U } from './ApiCallExampleV8U';
 
+// Enhanced state management for token synchronization
+import { useUnifiedFlowState } from '../services/enhancedStateManagement';
+
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
 
 const MODULE_TAG = '[🔄 UNIFIED-FLOW-STEPS-V8U]';
@@ -654,6 +657,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [userInfoError, setUserInfoError] = useState<string | null>(null);
 	const [introspectionLoading, setIntrospectionLoading] = useState(false);
 	const [introspectionError, setIntrospectionError] = useState<string | null>(null);
+
+	// Enhanced state management for token synchronization
+	const { actions: enhancedStateActions } = useUnifiedFlowState();
+
 	/**
 	 * Token operations modal state
 	 *
@@ -1656,11 +1663,23 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					hasIdToken: !!flowState.tokens.idToken,
 					hasRefreshToken: !!flowState.tokens.refreshToken,
 				});
+
+				// Update enhanced state management with new tokens
+				try {
+					enhancedStateActions.setTokenMetrics({
+						tokenCount: (flowState.tokens.accessToken ? 1 : 0) + (flowState.tokens.idToken ? 1 : 0) + (flowState.tokens.refreshToken ? 1 : 0),
+						featureCount: 1, // Token feature
+						lastApiCall: Date.now(),
+					});
+					console.log(`${MODULE_TAG} Enhanced state management updated with new tokens`);
+				} catch (enhancedErr) {
+					console.warn(`${MODULE_TAG} Failed to update enhanced state management`, enhancedErr);
+				}
 			} catch (err) {
 				console.error(`${MODULE_TAG} Failed to save tokens to sessionStorage`, err);
 			}
 		}
-	}, [flowState.tokens, flowType]);
+	}, [flowState.tokens, flowType, enhancedStateActions]);
 
 	// CRITICAL: Save device code data to sessionStorage (device code flow)
 	// Also update ref whenever device code changes

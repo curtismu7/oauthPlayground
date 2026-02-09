@@ -29,10 +29,10 @@ import {
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EmailMFASignOnFlowServiceV8 } from '@/v8/services/emailMfaSignOnFlowServiceV8';
-import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
@@ -437,10 +437,10 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 	// Check worker token status
 	useEffect(() => {
 		if (workerToken) {
-			const checkStatus = () => {
+			const checkStatus = async () => {
 				try {
-					const status = unifiedWorkerTokenService.getTokenStatus();
-					if (!status.isValid) {
+					const status = await unifiedWorkerTokenService.getStatus();
+					if (!status.tokenValid) {
 						toastV8.warning('Worker token is expired or invalid. Please generate a new token.');
 					}
 				} catch (error) {

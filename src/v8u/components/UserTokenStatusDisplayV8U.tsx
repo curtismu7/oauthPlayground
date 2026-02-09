@@ -406,26 +406,18 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 	const [selectedFlowType, setSelectedFlowType] = useState('oauth-authz');
 	const [selectedTokenType, setSelectedTokenType] = useState('access_token');
 
-	// Initialize tokens
-	useEffect(() => {
-		updateTokenStatus();
-		const interval = setInterval(updateTokenStatus, refreshInterval * 1000);
-		return () => clearInterval(interval);
-	}, [refreshInterval, updateTokenStatus]);
-
-	const updateTokenStatus = useCallback(async () => {
+	const parseJWT = useCallback((token: string) => {
 		try {
-			// Check for different token types in various storage locations
-			const tokenPromises = [checkAccessToken(), checkIdToken(), checkRefreshToken()];
-
-			const resolvedTokens = await Promise.all(tokenPromises);
-			setTokens(resolvedTokens.filter(Boolean) as UserTokenInfo[]);
+			const base64Url = token.split('.')[1];
+			const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+			return JSON.parse(window.atob(base64));
 		} catch (error) {
-			logger.error('[UserTokenStatusDisplayV8U] Failed to update token status:', error);
+			logger.error('[UserTokenStatusDisplayV8U] Error parsing JWT:', error);
+			return {};
 		}
-	}, [checkAccessToken, checkIdToken, checkRefreshToken]);
+	}, []);
 
-	const checkAccessToken = async (): Promise<UserTokenInfo | null> => {
+	const checkAccessToken = useCallback(async (): Promise<UserTokenInfo | null> => {
 		try {
 			// Check localStorage for access token
 			const accessToken = localStorage.getItem('access_token');
@@ -444,49 +436,54 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				token: accessToken,
 				expiresAt,
 				issuedAt: payload.iat * 1000,
-				scope: payload.scope || localStorage.getItem('token_scope') || undefined,
+				scope: payload.scope,
 				issuer: payload.iss,
 				audience: payload.aud,
 				subject: payload.sub,
 				isValid,
-				status: !isValid ? 'expired' : isExpiringSoon ? 'expiring-soon' : 'valid',
+				status: isValid ? (isExpiringSoon ? 'expiring-soon' : 'valid') : 'expired',
 			};
 		} catch (error) {
 			logger.error('[UserTokenStatusDisplayV8U] Error checking access token:', error);
 			return null;
 		}
-	};
+	}, [parseJWT]);
 
-	const checkIdToken = async (): Promise<UserTokenInfo | null> => {
+	const checkIdToken = useCallback(async (): Promise<UserTokenInfo | null> => {
 		try {
+			// Check localStorage for ID token
 			const idToken = localStorage.getItem('id_token');
 			if (!idToken) return null;
 
+			// Parse JWT to get expiration
 			const payload = parseJWT(idToken);
 			const now = Date.now();
 			const expiresAt = payload.exp * 1000;
 			const isValid = expiresAt > now;
-			const isExpiringSoon = expiresAt - now < 5 * 60 * 1000;
+			const timeRemaining = expiresAt - now;
+			const isExpiringSoon = timeRemaining < 5 * 60 * 1000; // 5 minutes
 
 			return {
 				type: 'id_token',
 				token: idToken,
 				expiresAt,
 				issuedAt: payload.iat * 1000,
+				scope: payload.scope,
 				issuer: payload.iss,
 				audience: payload.aud,
 				subject: payload.sub,
 				isValid,
-				status: !isValid ? 'expired' : isExpiringSoon ? 'expiring-soon' : 'valid',
+				status: isValid ? (isExpiringSoon ? 'expiring-soon' : 'valid') : 'expired',
 			};
 		} catch (error) {
 			logger.error('[UserTokenStatusDisplayV8U] Error checking ID token:', error);
 			return null;
 		}
-	};
+	}, [parseJWT]);
 
-	const checkRefreshToken = async (): Promise<UserTokenInfo | null> => {
+	const checkRefreshToken = useCallback(async (): Promise<UserTokenInfo | null> => {
 		try {
+			// Check localStorage for refresh token
 			const refreshToken = localStorage.getItem('refresh_token');
 			if (!refreshToken) return null;
 
@@ -501,18 +498,26 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 			logger.error('[UserTokenStatusDisplayV8U] Error checking refresh token:', error);
 			return null;
 		}
-	};
+	}, []);
 
-	const parseJWT = (token: string) => {
+	const updateTokenStatus = useCallback(async () => {
 		try {
-			const base64Url = token.split('.')[1];
-			const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-			return JSON.parse(window.atob(base64));
+			// Check for different token types in various storage locations
+			const tokenPromises = [checkAccessToken(), checkIdToken(), checkRefreshToken()];
+
+			const resolvedTokens = await Promise.all(tokenPromises);
+			setTokens(resolvedTokens.filter(Boolean) as UserTokenInfo[]);
 		} catch (error) {
-			logger.error('[UserTokenStatusDisplayV8U] Error parsing JWT:', error);
-			return {};
+			logger.error('[UserTokenStatusDisplayV8U] Failed to update token status:', error);
 		}
-	};
+	}, [checkAccessToken, checkIdToken, checkRefreshToken]);
+
+	// Initialize tokens
+	useEffect(() => {
+		updateTokenStatus();
+		const interval = setInterval(updateTokenStatus, refreshInterval * 1000);
+		return () => clearInterval(interval);
+	}, [refreshInterval, updateTokenStatus]);
 
 	const handleRefresh = async () => {
 		setIsRefreshing(true);

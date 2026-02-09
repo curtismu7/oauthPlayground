@@ -13,7 +13,7 @@
  * - Device search and filtering
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 
@@ -29,34 +29,36 @@ export interface MFADevicesHookResult {
 	isLoadingDevices: boolean;
 	devicesError: string | null;
 	hasDevices: boolean;
-	
+
 	// Device failure
 	showDeviceFailureModal: boolean;
 	deviceFailureError: string;
 	unavailableDevices: UnavailableDevice[];
-	
+
 	// Cooldown/lockout
 	cooldownError: {
 		message: string;
 		deliveryMethod?: string;
 		coolDownExpiresAt?: number;
 	} | null;
-	
+
 	// Search
 	deviceSearchQuery: string;
-	
+
 	// Actions
 	handleDeviceFailureError: (error: unknown) => boolean;
-	
+
 	// State setters
 	setShowDeviceFailureModal: React.Dispatch<React.SetStateAction<boolean>>;
 	setDeviceFailureError: React.Dispatch<React.SetStateAction<string>>;
 	setUnavailableDevices: React.Dispatch<React.SetStateAction<UnavailableDevice[]>>;
-	setCooldownError: React.Dispatch<React.SetStateAction<{
-		message: string;
-		deliveryMethod?: string;
-		coolDownExpiresAt?: number;
-	} | null>>;
+	setCooldownError: React.Dispatch<
+		React.SetStateAction<{
+			message: string;
+			deliveryMethod?: string;
+			coolDownExpiresAt?: number;
+		} | null>
+	>;
 	setDeviceSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 	setUserDevices: React.Dispatch<React.SetStateAction<Array<Record<string, unknown>>>>;
 	setIsLoadingDevices: React.Dispatch<React.SetStateAction<boolean>>;
@@ -71,7 +73,7 @@ export interface UseMFADevicesOptions {
 
 /**
  * Hook for managing MFA device operations
- * 
+ *
  * @example
  * ```tsx
  * const {
@@ -242,21 +244,21 @@ export const useMFADevices = (options: UseMFADevicesOptions): MFADevicesHookResu
 		isLoadingDevices,
 		devicesError,
 		hasDevices: userDevices.length > 0,
-		
+
 		// Device failure
 		showDeviceFailureModal,
 		deviceFailureError,
 		unavailableDevices,
-		
+
 		// Cooldown/lockout
 		cooldownError,
-		
+
 		// Search
 		deviceSearchQuery,
-		
+
 		// Actions
 		handleDeviceFailureError,
-		
+
 		// State setters
 		setShowDeviceFailureModal,
 		setDeviceFailureError,

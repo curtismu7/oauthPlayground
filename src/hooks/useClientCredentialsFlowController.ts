@@ -129,7 +129,7 @@ export interface ClientCredentialsFlowControllerOptions {
 
 const DEFAULT_FLOW_KEY = 'client-credentials-v5';
 
-const DEFAULT_ADMIN_SCOPES = 'openid';
+const DEFAULT_ADMIN_SCOPES = 'ClaimScope';
 
 const createEmptyCredentials = (): StepCredentials => ({
 	environmentId: '',
@@ -450,7 +450,7 @@ export const useClientCredentialsFlowController = (
 							})
 						);
 						console.log(
-							'[ClientCredsController] Migrated legacy admin scopes to openid scope for client credentials'
+							'[ClientCredsController] Migrated legacy admin scopes to CLAIMICFACILITY scope for client credentials'
 						);
 					}
 

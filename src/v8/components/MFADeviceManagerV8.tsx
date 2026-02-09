@@ -30,6 +30,7 @@ const MODULE_TAG = '[🔧 DEVICE-MANAGER-V8]';
 interface MFADeviceManagerV8Props {
 	environmentId: string;
 	username: string;
+	onUsernameChange?: () => void; // Callback to handle username change
 }
 
 interface Device {
@@ -59,6 +60,7 @@ interface Device {
 export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	environmentId,
 	username,
+	onUsernameChange,
 }) => {
 	const [devices, setDevices] = useState<Device[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
@@ -520,9 +522,31 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 					<h2 style={{ margin: '0 0 8px 0', fontSize: '24px', color: '#1f2937' }}>
 						MFA Device Management
 					</h2>
-					<p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
-						User: <strong>{username}</strong>
-					</p>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+						<p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
+							User: <strong>{username}</strong>
+						</p>
+						{onUsernameChange && (
+							<button
+								type="button"
+								onClick={onUsernameChange}
+								style={{
+									padding: '4px 8px',
+									background: '#f3f4f6',
+									color: '#374151',
+									border: '1px solid #d1d5db',
+									borderRadius: '4px',
+									fontSize: '12px',
+									fontWeight: '500',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+								}}
+								title="Change to a different user"
+							>
+								🔄 Change User
+							</button>
+						)}
+					</div>
 				</div>
 				<div
 					style={{

@@ -1,6 +1,6 @@
 // src/components/ColoredUrlDisplay.tsx
 import React, { useState } from 'react';
-import { FiCode, FiEdit2, FiExternalLink, FiEye, FiInfo, FiSave } from 'react-icons/fi';
+import { FiCode, FiEdit2, FiExternalLink, FiEye, FiInfo, FiSave, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CopyButtonService } from '../services/copyButtonService';
 
@@ -509,6 +509,28 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 							detailed breakdown.
 						</div>
 					)}
+
+					{/* Close Button at Bottom */}
+					<div
+						style={{
+							marginTop: '1.5rem',
+							paddingTop: '1rem',
+							borderTop: '1px solid #e5e7eb',
+							textAlign: 'center',
+						}}
+					>
+						<ActionButton
+							onClick={() => setShowInfo(false)}
+							$variant="secondary"
+							style={{
+								minWidth: '120px',
+								padding: '0.75rem 1.5rem',
+							}}
+						>
+							<FiX size={14} style={{ marginRight: '0.5rem' }} />
+							Close
+						</ActionButton>
+					</div>
 				</InfoModalContent>
 			</InfoModal>
 		</UrlContainer>

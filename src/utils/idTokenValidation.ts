@@ -258,10 +258,58 @@ export class IDTokenValidationService {
 				return cached;
 			}
 
-			// Fetch JWKS
-			const response = await fetch(jwksUri);
+			// Extract environment ID from JWKS URI
+			// Expected format: https://auth.pingone.com/{environmentId}/as/jwks
+			let environmentId: string | null = null;
+
+			if (jwksUri.includes('auth.pingone.com')) {
+				const match = jwksUri.match(/auth\.pingone\.com\/([^/]+)\/as\/jwks/);
+				if (match) {
+					environmentId = match[1];
+				}
+			} else if (jwksUri.includes('auth.pingone.eu')) {
+				const match = jwksUri.match(/auth\.pingone\.eu\/([^/]+)\/as\/jwks/);
+				if (match) {
+					environmentId = match[1];
+				}
+			} else if (jwksUri.includes('auth.pingone.ca')) {
+				const match = jwksUri.match(/auth\.pingone\.ca\/([^/]+)\/as\/jwks/);
+				if (match) {
+					environmentId = match[1];
+				}
+			} else if (jwksUri.includes('auth.pingone.asia')) {
+				const match = jwksUri.match(/auth\.pingone\.asia\/([^/]+)\/as\/jwks/);
+				if (match) {
+					environmentId = match[1];
+				}
+			}
+
+			if (!environmentId) {
+				console.warn(
+					'[ID Token Validation] Could not extract environment ID from JWKS URI, falling back to direct fetch:',
+					jwksUri
+				);
+				// Fallback to direct fetch for non-PingOne endpoints
+				const response = await fetch(jwksUri);
+				if (!response.ok) {
+					throw new Error(`Failed to fetch JWKS: ${response.status}`);
+				}
+				const jwks = (await response.json()) as JWKSSet;
+
+				// Cache JWKS for 1 hour
+				IDTokenValidationService.jwksCache.set(jwksUri, jwks);
+				IDTokenValidationService.jwksCacheExpiry.set(jwksUri, Date.now() + 60 * 60 * 1000);
+
+				return jwks;
+			}
+
+			// Use backend proxy for PingOne JWKS
+			const proxyUrl = `/api/jwks?environment_id=${environmentId}`;
+			console.log(`[ID Token Validation] Fetching JWKS via backend proxy: ${proxyUrl}`);
+
+			const response = await fetch(proxyUrl);
 			if (!response.ok) {
-				throw new Error(`Failed to fetch JWKS: ${response.status}`);
+				throw new Error(`Failed to fetch JWKS via proxy: ${response.status}`);
 			}
 
 			const jwks = (await response.json()) as JWKSSet;
@@ -375,7 +423,8 @@ export class IDTokenValidationService {
 	 */
 	static getValidationSummary(result: IDTokenValidationResult): string {
 		if (result.isValid) {
-			return `✅ ID Token is valid${result.warnings.length > 0 ? ` (${result.warnings.length} warnings)` : ''}`;
+			const warningText = result.warnings.length > 0 ? ` (${result.warnings.length} warnings)` : '';
+			return `✅ ID Token is valid${warningText}`;
 		} else {
 			return `❌ ID Token is invalid (${result.errors.length} errors)`;
 		}

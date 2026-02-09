@@ -8,10 +8,10 @@
  * Provides server-side backup for browser storage data.
  */
 
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import sqlite3 from 'sqlite3';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,11 +47,13 @@ class BackupDatabaseService {
 					return;
 				}
 
-				this.createTables().then(() => {
-					this.initialized = true;
-					console.log(`${MODULE_TAG} Backup database initialized at ${DB_PATH}`);
-					resolve();
-				}).catch(reject);
+				this.createTables()
+					.then(() => {
+						this.initialized = true;
+						console.log(`${MODULE_TAG} Backup database initialized at ${DB_PATH}`);
+						resolve();
+					})
+					.catch(reject);
 			});
 		});
 	}
@@ -87,7 +89,7 @@ class BackupDatabaseService {
 		if (!this.db) await this.init();
 
 		return new Promise((resolve, reject) => {
-			this.db.run(sql, params, function(err) {
+			this.db.run(sql, params, function (err) {
 				if (err) reject(err);
 				else resolve({ lastID: this.lastID, changes: this.changes });
 			});
@@ -137,7 +139,7 @@ class BackupDatabaseService {
 			dataType,
 			JSON.stringify(data),
 			Date.now(),
-			expiresAt
+			expiresAt,
 		]);
 
 		console.log(`${MODULE_TAG} Saved backup: ${key} (type: ${dataType})`);
@@ -154,7 +156,7 @@ class BackupDatabaseService {
 		`;
 
 		const row = await this.get(sql, [key, environmentId, Date.now()]);
-		
+
 		if (!row) {
 			return null;
 		}
@@ -204,7 +206,7 @@ class BackupDatabaseService {
 		sql += ' ORDER BY saved_at DESC';
 
 		const rows = await this.all(sql, params);
-		return rows.map(row => ({
+		return rows.map((row) => ({
 			key: row.key,
 			environmentId: row.environment_id,
 			dataType: row.data_type,
@@ -254,14 +256,14 @@ class BackupDatabaseService {
 		sql += ' GROUP BY data_type';
 
 		const rows = await this.all(sql, params);
-		
+
 		const stats = {
 			total: 0,
 			byType: {},
 			expired: 0,
 		};
 
-		rows.forEach(row => {
+		rows.forEach((row) => {
 			stats.total += row.total;
 			stats.byType[row.data_type] = row.total;
 			stats.expired += row.expired || 0;
@@ -275,7 +277,7 @@ class BackupDatabaseService {
 export const backupDatabaseService = new BackupDatabaseService();
 
 // Initialize on module load
-backupDatabaseService.init().catch(err => {
+backupDatabaseService.init().catch((err) => {
 	console.error(`${MODULE_TAG} Failed to initialize:`, err);
 });
 

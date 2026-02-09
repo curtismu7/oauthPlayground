@@ -147,11 +147,17 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 
 	const handleOptionClick = (optionValue: string) => {
 		console.log(`${MODULE_TAG} Option selected:`, optionValue);
+
+		// Update the value first
 		onChange(optionValue);
-		setIsOpen(false);
-		setSearchTerm('');
-		setHighlightedIndex(-1);
-		inputRef.current?.blur();
+
+		// Then close dropdown and clear search in the next tick to avoid timing issues
+		setTimeout(() => {
+			setIsOpen(false);
+			setSearchTerm(''); // Clear search term when option is selected
+			setHighlightedIndex(-1);
+			inputRef.current?.blur();
+		}, 0);
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -240,13 +246,15 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 					width: '100%',
 					padding: '10px 12px',
 					paddingRight: value ? '76px' : '44px', // Extra space if clear button visible
-					border: '1px solid #d1d5db',
+					border: '2px solid #3b82f6', // Blue outline for better visibility
 					borderRadius: '6px',
 					fontSize: '14px',
 					boxSizing: 'border-box',
 					background: 'white',
 					cursor: disabled || isLoading ? 'not-allowed' : 'text',
 					opacity: disabled || isLoading ? 0.6 : 1,
+					outline: 'none', // Remove default outline
+					transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
 				}}
 			/>
 

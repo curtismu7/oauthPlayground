@@ -15,7 +15,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FiBook, FiChevronDown, FiPackage } from 'react-icons/fi';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
-import { useWorkerTokenConfig } from '@/v8/hooks/useWorkerTokenConfig';
 import {
 	downloadPostmanCollectionWithEnvironment,
 	generateCompletePostmanCollection,
@@ -29,13 +28,11 @@ import {
 	PageHeaderV8,
 } from '@/v8/components/shared/PageHeaderV8';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
+import { useWorkerTokenConfig } from '@/v8/hooks/useWorkerTokenConfig';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import {
-	type SharedCredentials,
-	SharedCredentialsServiceV8,
-} from '@/v8/services/sharedCredentialsServiceV8';
+import { SharedCredentialsServiceV8 } from '@/v8/services/sharedCredentialsServiceV8';
 import { SpecUrlServiceV8 } from '@/v8/services/specUrlServiceV8';
 import {
 	type FlowType,
@@ -62,6 +59,11 @@ import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,
 } from '../services/unifiedFlowIntegrationV8U';
+import {
+	type SharedOAuthCredentials,
+	type UnifiedOAuthCredentials,
+	UnifiedOAuthCredentialsServiceV8U,
+} from '../services/unifiedOAuthCredentialsServiceV8U';
 
 const _MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
 
@@ -610,7 +612,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const [credentials, setCredentials] = useState<UnifiedFlowCredentials>(() => {
 		try {
 			const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
-			
+
 			// Try worker token credentials as fallback
 			let workerTokenEnvId = '';
 			try {
@@ -622,7 +624,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			} catch (error) {
 				console.log('Failed to load environment ID from worker token:', error);
 			}
-			
+
 			const initialFlowKey = getInitialFlowKey();
 
 			// Load flow-specific credentials synchronously (from localStorage)
@@ -704,7 +706,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		} catch (err) {
 			logger.error(`Error loading initial credentials (using defaults):`, err);
 			const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
-			
+
 			// Try worker token credentials as fallback
 			let workerTokenEnvId = '';
 			try {
@@ -716,7 +718,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			} catch (error) {
 				console.log('Failed to load environment ID from worker token:', error);
 			}
-			
+
 			return {
 				environmentId: storedEnvId || workerTokenEnvId || '',
 				clientId: '',
@@ -799,9 +801,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				if (stored) {
 					const data = JSON.parse(stored);
 					if (data.credentials?.environmentId && !credentials.environmentId) {
-						setCredentials(prev => ({
+						setCredentials((prev) => ({
 							...prev,
-							environmentId: data.credentials.environmentId
+							environmentId: data.credentials.environmentId,
 						}));
 					}
 				}
@@ -1024,33 +1026,32 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					includeLogoutUri: false,
 				};
 
-				// Load flow-specific credentials (does not depend on worker token)
-				// Try sync first for immediate results, then async with IndexedDB backup fallback
-				const flowSpecificSync = CredentialsServiceV8.loadCredentials(flowKey, config);
-				const flowSpecific = await CredentialsServiceV8.loadCredentialsWithBackup(
-					flowKey,
-					config
-				).catch((err) => {
-					logger.warn(
-						`Error loading flow-specific credentials with backup (using sync result)`,
-						err
-					);
-					return flowSpecificSync; // Use sync result as fallback
+				// Load flow-specific credentials with SQLite backup (does not depend on worker token)
+				// Enhanced 4-layer storage: Memory → localStorage → IndexedDB → SQLite backup
+				const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
+				const flowSpecific = await UnifiedOAuthCredentialsServiceV8U.loadCredentials(flowKey, {
+					environmentId,
+					enableBackup: !!environmentId,
+				}).catch((err) => {
+					logger.warn(`Error loading flow-specific credentials with SQLite backup`, err);
+					// Fallback to existing service
+					return CredentialsServiceV8.loadCredentialsWithBackup(flowKey, config);
 				});
 
-				// Load shared credentials (environmentId, clientId, clientSecret, etc.) - independent of worker token
-				// Try sync first for immediate results, then async for disk fallback
-				const sharedSync = SharedCredentialsServiceV8.loadSharedCredentialsSync();
-
-				const shared: SharedCredentials =
-					await SharedCredentialsServiceV8.loadSharedCredentials().catch((err) => {
-						logger.warn(`Error loading shared credentials async (using sync result)`, err);
-						return sharedSync; // Use sync result as fallback
-					});
+				// Load shared credentials with SQLite backup (environmentId, clientId, clientSecret, etc.)
+				const shared =
+					(await UnifiedOAuthCredentialsServiceV8U.loadSharedCredentials({
+						environmentId,
+						enableBackup: !!environmentId,
+					}).catch((err) => {
+						logger.warn(`Error loading shared credentials with SQLite backup`, err);
+						// Fallback to existing service
+						return SharedCredentialsServiceV8.loadSharedCredentials();
+					})) || SharedCredentialsServiceV8.loadSharedCredentialsSync();
 
 				// Get stored environment ID from global service
 				const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
-				
+
 				// Try worker token credentials as fallback
 				let workerTokenEnvId = '';
 				try {
@@ -1344,49 +1345,44 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					}
 					lastSavedCredsRef.current = credsString;
 
-					// Save flow-specific credentials (redirectUri, scopes, responseType, etc.)
-					// IMPORTANT: Save ALL fields from UnifiedFlowCredentials to ensure nothing is lost
-					const credsForSave = credentials as unknown as Parameters<
-						typeof CredentialsServiceV8.saveCredentials
-					>[1];
-					// #region agent log
-					import('@/v8/utils/analyticsV8')
-						.then(({ analytics }) => {
-							analytics.log({
-								location: 'UnifiedOAuthFlowV8U.tsx:897',
-								message: 'Auto-saving credentials - ALL fields',
-								data: {
-									flowKey,
-									hasResponseMode: !!credentials.responseMode,
-									hasUsePAR: credentials.usePAR !== undefined,
-									hasMaxAge: credentials.maxAge !== undefined,
-									hasDisplay: !!credentials.display,
-									hasPrompt: !!credentials.prompt,
-									hasPkceEnforcement: !!credentials.pkceEnforcement,
-									hasPrivateKey: !!credentials.privateKey,
-									hasLoginHint: credentials.loginHint !== undefined,
-									hasRedirectUri: !!credentials.redirectUri,
-									hasClientAuthMethod: !!credentials.clientAuthMethod,
-									allKeys: Object.keys(credentials),
-								},
-							});
-						})
-						.catch(() => {});
-					// #endregion
-					CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
+					// Save flow-specific credentials with SQLite backup (redirectUri, scopes, responseType, etc.)
+					// Enhanced 4-layer storage: Memory → localStorage → IndexedDB → SQLite backup
+					const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
+					const credsForSave = credentials as unknown as UnifiedOAuthCredentials;
 
-					// Save shared credentials (environmentId, clientId, clientSecret, etc.) to shared storage
-					// Important: Always save shared credentials if any shared field is present, including clientSecret
-					// This ensures client secret persists across browser refreshes
+					// Save with SQLite backup if environment is available
+					await UnifiedOAuthCredentialsServiceV8U.saveCredentials(flowKey, credsForSave, {
+						environmentId,
+						enableBackup: !!environmentId,
+						backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
+					}).catch((err) => {
+						logger.warn(`SQLite backup save failed, using fallback`, err);
+						// Fallback to existing service
+						const fallbackCreds = credentials as unknown as Parameters<
+							typeof CredentialsServiceV8.saveCredentials
+						>[1];
+						CredentialsServiceV8.saveCredentials(flowKey, fallbackCreds);
+					});
+
+					// Save shared credentials with SQLite backup (environmentId, clientId, clientSecret, etc.)
 					const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(
 						credentials as unknown as Record<string, unknown>
-					);
+					) as SharedOAuthCredentials;
+
 					if (
 						sharedCreds.environmentId ||
 						sharedCreds.clientId ||
 						sharedCreds.clientSecret !== undefined
 					) {
-						await SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
+						await UnifiedOAuthCredentialsServiceV8U.saveSharedCredentials(sharedCreds, {
+							environmentId,
+							enableBackup: !!environmentId,
+							backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
+						}).catch((err) => {
+							logger.warn(`SQLite shared backup save failed, using fallback`, err);
+							// Fallback to existing service
+							SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
+						});
 					}
 				}
 			};
@@ -1411,20 +1407,20 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const getTotalSteps = useCallback((): number => {
 		switch (effectiveFlowType) {
 			case 'client-credentials':
-				return 4; // Config → Token Request → Tokens → Introspection & UserInfo
+				return 6; // Config → Token Request → Tokens → Introspection & UserInfo → Documentation → Success
 			case 'device-code':
-				return 5; // Config → Device Auth → Poll → Tokens → Introspection & UserInfo
+				return 7; // Config → Device Auth → Poll → Tokens → Introspection & UserInfo → Documentation → Success
 			case 'implicit':
-				return 5; // Config → Auth URL → Fragment → Tokens → Introspection & UserInfo
+				return 7; // Config → Auth URL → Fragment → Tokens → Introspection & UserInfo → Documentation → Success
 			case 'hybrid':
 				// If PKCE enabled: Config → PKCE → Auth URL → Parse Callback → Exchange → Tokens → Introspection & UserInfo (7 steps)
 				// If PKCE disabled: Config → Auth URL → Parse Callback → Exchange → Tokens → Introspection & UserInfo (6 steps)
-				return credentials.usePKCE ? 7 : 6;
+				return credentials.usePKCE ? 9 : 8; // + Documentation → Success
 			default:
 				// oauth-authz flow
 				// If PKCE enabled: Config → PKCE → Auth URL → Handle Callback → Exchange → Tokens → Introspection & UserInfo (7 steps)
 				// If PKCE disabled: Config → Auth URL → Handle Callback → Exchange → Tokens → Introspection & UserInfo (6 steps)
-				return credentials.usePKCE ? 7 : 6;
+				return credentials.usePKCE ? 9 : 8; // + Documentation → Success
 		}
 	}, [effectiveFlowType, credentials.usePKCE]);
 
@@ -2221,101 +2217,105 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					marginBottom: '32px',
 				}}
 			>
-				{/* Collapse/Expand Header */}
-				<button
-					type="button"
-					onClick={() => {
-						logger.debug(`🔄 Toggling credentials collapse`, {
-							from: isCredentialsCollapsed,
-							to: !isCredentialsCollapsed,
-						});
-						setIsCredentialsCollapsed(!isCredentialsCollapsed);
-					}}
-					style={{
-						width: '100%',
-						padding: '1.5rem 1.75rem',
-						background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%)',
-						border: '3px solid transparent',
-						borderRadius: '1rem',
-						cursor: 'pointer',
-						fontSize: '1.2rem',
-						fontWeight: '700',
-						color: '#14532d',
-						transition: 'all 0.3s ease',
-						position: 'relative',
-						boxShadow: '0 2px 8px rgba(34, 197, 94, 0.1)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-					}}
-					onMouseEnter={(e) => {
-						e.currentTarget.style.background = 'linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%)';
-						e.currentTarget.style.borderColor = '#86efac';
-						e.currentTarget.style.transform = 'translateY(-2px)';
-						e.currentTarget.style.boxShadow = '0 8px 24px rgba(34, 197, 94, 0.2)';
-					}}
-					onMouseLeave={(e) => {
-						e.currentTarget.style.background = 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%)';
-						e.currentTarget.style.borderColor = 'transparent';
-						e.currentTarget.style.transform = 'translateY(0)';
-						e.currentTarget.style.boxShadow = '0 2px 8px rgba(34, 197, 94, 0.1)';
-					}}
-				>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-						<span style={{ fontSize: '20px' }}>🔧</span>
-						<span style={{ fontSize: '1.2rem', fontWeight: '700' }}>
-							Configuration & Credentials
-						</span>
-					</div>
-
-					{/* Enhanced Toggle Icon */}
-					<span
+				{/* Collapse/Expand Header - Hide on success page */}
+				{currentStep < getTotalSteps() - 1 && (
+					<button
+						type="button"
+						onClick={() => {
+							logger.debug(`🔄 Toggling credentials collapse`, {
+								from: isCredentialsCollapsed,
+								to: !isCredentialsCollapsed,
+							});
+							setIsCredentialsCollapsed(!isCredentialsCollapsed);
+						}}
 						style={{
-							display: 'inline-flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							width: '48px',
-							height: '48px',
-							borderRadius: '12px',
-							background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-							border: '3px solid #3b82f6',
-							transform: isCredentialsCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
-							transition: 'all 0.3s ease',
+							width: '100%',
+							padding: '1.5rem 1.75rem',
+							background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%)',
+							border: '3px solid transparent',
+							borderRadius: '1rem',
 							cursor: 'pointer',
-							color: '#3b82f6',
-							boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)',
+							fontSize: '1.2rem',
+							fontWeight: '700',
+							color: '#14532d',
+							transition: 'all 0.3s ease',
+							position: 'relative',
+							boxShadow: '0 2px 8px rgba(34, 197, 94, 0.1)',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'space-between',
 						}}
 						onMouseEnter={(e) => {
 							e.currentTarget.style.background =
-								'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)';
-							e.currentTarget.style.borderColor = '#2563eb';
-							e.currentTarget.style.color = '#2563eb';
-							e.currentTarget.style.transform = isCredentialsCollapsed
-								? 'rotate(-90deg) scale(1.1)'
-								: 'rotate(0deg) scale(1.1)';
-							e.currentTarget.style.boxShadow = '0 4px 16px rgba(59, 130, 246, 0.3)';
+								'linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%)';
+							e.currentTarget.style.borderColor = '#86efac';
+							e.currentTarget.style.transform = 'translateY(-2px)';
+							e.currentTarget.style.boxShadow = '0 8px 24px rgba(34, 197, 94, 0.2)';
 						}}
 						onMouseLeave={(e) => {
 							e.currentTarget.style.background =
-								'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
-							e.currentTarget.style.borderColor = '#3b82f6';
-							e.currentTarget.style.color = '#3b82f6';
-							e.currentTarget.style.transform = isCredentialsCollapsed
-								? 'rotate(-90deg)'
-								: 'rotate(0deg)';
-							e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.2)';
+								'linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%)';
+							e.currentTarget.style.borderColor = 'transparent';
+							e.currentTarget.style.transform = 'translateY(0)';
+							e.currentTarget.style.boxShadow = '0 2px 8px rgba(34, 197, 94, 0.1)';
 						}}
 					>
-						<FiChevronDown
+						<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+							<span style={{ fontSize: '20px' }}>🔧</span>
+							<span style={{ fontSize: '1.2rem', fontWeight: '700' }}>
+								Configuration & Credentials
+							</span>
+						</div>
+
+						{/* Enhanced Toggle Icon */}
+						<span
 							style={{
-								width: '24px',
-								height: '24px',
-								strokeWidth: '3px',
-								filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))',
+								display: 'inline-flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								width: '48px',
+								height: '48px',
+								borderRadius: '12px',
+								background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+								border: '3px solid #3b82f6',
+								transform: isCredentialsCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+								transition: 'all 0.3s ease',
+								cursor: 'pointer',
+								color: '#3b82f6',
+								boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)',
 							}}
-						/>
-					</span>
-				</button>
+							onMouseEnter={(e) => {
+								e.currentTarget.style.background =
+									'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)';
+								e.currentTarget.style.borderColor = '#2563eb';
+								e.currentTarget.style.color = '#2563eb';
+								e.currentTarget.style.transform = isCredentialsCollapsed
+									? 'rotate(-90deg) scale(1.1)'
+									: 'rotate(0deg) scale(1.1)';
+								e.currentTarget.style.boxShadow = '0 4px 16px rgba(59, 130, 246, 0.3)';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.background =
+									'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+								e.currentTarget.style.borderColor = '#3b82f6';
+								e.currentTarget.style.color = '#3b82f6';
+								e.currentTarget.style.transform = isCredentialsCollapsed
+									? 'rotate(-90deg)'
+									: 'rotate(0deg)';
+								e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.2)';
+							}}
+						>
+							<FiChevronDown
+								style={{
+									width: '24px',
+									height: '24px',
+									strokeWidth: '3px',
+									filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))',
+								}}
+							/>
+						</span>
+					</button>
+				)}
 
 				{/* Credentials Form Content */}
 				{!isCredentialsCollapsed && (
@@ -2512,16 +2512,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									<input
 										type="checkbox"
 										checked={workerTokenConfig.silentApiRetrieval}
-									onChange={async (e) => {
-										const { WorkerTokenConfigServiceV8 } = await import('@/v8/services/workerTokenConfigServiceV8');
-										WorkerTokenConfigServiceV8.setSilentApiRetrieval(e.target.checked);
-									}}
-								style={{
-									width: '18px',
-									height: '18px',
-									cursor: 'pointer',
-									accentColor: '#3b82f6',
-								}}
+										onChange={async (e) => {
+											const { WorkerTokenConfigServiceV8 } = await import(
+												'@/v8/services/workerTokenConfigServiceV8'
+											);
+											WorkerTokenConfigServiceV8.setSilentApiRetrieval(e.target.checked);
+										}}
+										style={{
+											width: '18px',
+											height: '18px',
+											cursor: 'pointer',
+											accentColor: '#3b82f6',
+										}}
 									/>
 									<span>Silent API Retrieval</span>
 									<span style={{ fontSize: '12px', color: '#9ca3af' }}>(auto-refresh token)</span>
@@ -2541,16 +2543,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									<input
 										type="checkbox"
 										checked={workerTokenConfig.showTokenAtEnd}
-									onChange={async (e) => {
-										const { WorkerTokenConfigServiceV8 } = await import('@/v8/services/workerTokenConfigServiceV8');
-										WorkerTokenConfigServiceV8.setShowTokenAtEnd(e.target.checked);
-									}}
-								style={{
-									width: '18px',
-									height: '18px',
-									cursor: 'pointer',
-									accentColor: '#3b82f6',
-								}}
+										onChange={async (e) => {
+											const { WorkerTokenConfigServiceV8 } = await import(
+												'@/v8/services/workerTokenConfigServiceV8'
+											);
+											WorkerTokenConfigServiceV8.setShowTokenAtEnd(e.target.checked);
+										}}
+										style={{
+											width: '18px',
+											height: '18px',
+											cursor: 'pointer',
+											accentColor: '#3b82f6',
+										}}
 									/>
 									<span>Show Token After Generation</span>
 									<span style={{ fontSize: '12px', color: '#9ca3af' }}>(display in modal)</span>
@@ -2613,7 +2617,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			)}
 
 			{/* Super Simple API Display - Toggleable, hidden by default - Only shows Unified flow calls */}
-			<SuperSimpleApiDisplayV8 flowFilter="unified" />
+			<SuperSimpleApiDisplayV8 flowFilter="unified" reserveSpace />
 		</MobileResponsiveWrapper>
 	);
 };
