@@ -4727,9 +4727,10 @@ This section provides a comprehensive summary of all critical issues identified 
 | 59 | Silent API Modal Showing When Credentials Exist | ✅ RESOLVED (v9.3.4) | RegistrationFlowStepperV8.tsx:177-201, AuthenticationFlowStepperV8.tsx:178-202 | **Both steppers bypassed `handleShowWorkerTokenModal` and implemented their own broken modal-trigger logic.** RegistrationFlowStepperV8 used `setTimeout(3000)` race condition + fire-and-forget `CustomEvent`. AuthenticationFlowStepperV8 checked non-existent `hasToken`/`isLoading` properties on `TokenStatusInfo`. | **Fixed both steppers to delegate to `handleShowWorkerTokenModal`** — the canonical helper that properly handles silentApiRetrieval config, token gateway, and fallback. See "Silent API Modal Trigger Points" section below. |
 | 55 | **Redirect URI Going to Wrong Page** | ✅ RESOLVED | CallbackHandlerV8U.tsx:71-352, ReturnTargetServiceV8U.ts:1 | Redirects misrouted when return target already had query params, causing malformed URLs | Fixed by building redirect URLs with URL() to merge callback params safely |
 | 54 | **PingOne Authentication Enhancement** | ✅ IMPLEMENTED | pingOneAuthenticationServiceV8.ts:1 | Enhanced authentication checking with session detection | Added comprehensive PingOne authentication with success messages |
-| 61 | **Token Exchange Phase 1 Missing** | 🔴 ACTIVE | src/v8/flows/ | V8 missing Token Exchange implementation | V7/V8M have complete implementations, V8 needs admin enablement + same environment validation |
+| 61 | **Token Exchange Phase 1 Missing** | 🟡 IN_PROGRESS | src/v8/flows/ | V8 missing Token Exchange implementation | Phase 1A COMPLETE: Core services implemented (TokenExchangeServiceV8, TokenExchangeConfigServiceV8, types). Phase 1B needed: V8 Flow Component + Admin UI |
 | 62 | **Token Exchange Admin Enablement** | 🔴 PLANNED | src/v8/services/ | Admin control for Token Exchange feature | Must implement admin toggle before any token exchange processing |
-| 63 | **Token Exchange Environment Validation** | 🔴 PLANNED | src/v8/services/ | Same-environment token validation required | Prevent cross-environment token exchange per Phase 1 requirements |
+| 64 | **Email Registration Field Validation** | 🔴 ACTIVE | EmailFlowV8.tsx:1152-1162 | No toast message for email validation failures | Missing toast notifications when email validation fails, only red border shown |
+| 65 | **Required Field Asterisk Pattern** | ✅ RESOLVED | Multiple V8 flow components | Email field has red asterisk, other fields checked | Email field correctly shows red asterisk, phone/name fields also have asterisks |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
 | 40 | **SMS Step 1 Advancement Issue** | ✅ RESOLVED | CallbackHandlerV8U.tsx:294, MFAFlowBaseV8.tsx:149 | SMS flow stuck on step 1, not advancing to next step | Fixed with foolproof callback step advancement |
 | 41 | **Registration/Authentication Not Separated** | 🔴 ACTIVE | UnifiedMFARegistrationFlowV8_Legacy.tsx:2734 | Still using MFAFlowBaseV8 instead of separate steppers | Registration and Authentication flows not properly separated |
@@ -15307,6 +15308,21 @@ grep -A 15 "useEffect" src/v8/components/AuthenticationFlowStepperV8.tsx | grep 
 
 # Issue 59: Check for non-existent TokenStatusInfo properties
 grep -rn "tokenStatus\.hasToken\|tokenStatus\.isLoading" src/v8/components/ --include="*.tsx"
+
+# Issue 64: Email field validation - check for toast messages
+grep -rn "toastV8\.error.*email\|email.*toastV8\.error" src/v8/flows/types/EmailFlowV8.tsx
+
+# Issue 64: Check email validation logic has toast notifications
+grep -A 5 "if (!credentials\.email" src/v8/flows/types/EmailFlowV8.tsx | grep -E "toastV8\.error|setValidationErrors"
+
+# Issue 64: Verify required field asterisks in email fields
+grep -rn "Email Address.*\*" src/v8/flows/types/EmailFlowV8.tsx
+grep -rn "Phone Number.*\*" src/v8/flows/types/WhatsAppFlowV8.tsx
+grep -rn "Name.*\*" src/v8/flows/unified/components/DynamicFormRenderer.tsx
+
+# Issue 64: Check all required field indicators across flows
+grep -rn "required.*\*" src/v8/flows/types/ --include="*.tsx"
+grep -rn "className.*required" src/v8/flows/unified/components/DynamicFormRenderer.tsx
 ```
 
 ### **📋 After Every Fix**
