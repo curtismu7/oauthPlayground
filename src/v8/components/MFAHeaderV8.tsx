@@ -14,6 +14,7 @@
 
 import React from 'react';
 import { MFANavigationV8 } from './MFANavigationV8';
+import { MFAUserDisplayV8 } from './MFAUserDisplayV8';
 
 export interface MFAHeaderV8Props {
 	/** Page title */
@@ -31,7 +32,7 @@ export interface MFAHeaderV8Props {
 	/** Show back to main button */
 	showBackToMain?: boolean;
 	/** Header background color gradient (default: green) */
-	headerColor?: 'green' | 'blue' | 'purple' | 'orange';
+	headerColor?: 'green' | 'blue' | 'pingRed' | 'pingBlue' | 'orange';
 	/** Optional step badge (e.g., "1/4") */
 	stepBadge?: {
 		current: number;
@@ -42,7 +43,8 @@ export interface MFAHeaderV8Props {
 const HEADER_COLORS = {
 	green: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
 	blue: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-	purple: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+	pingRed: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+	pingBlue: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
 	orange: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
 };
 
@@ -73,6 +75,22 @@ export const MFAHeaderV8: React.FC<MFAHeaderV8Props> = ({
 								<div className="version-tag">{versionTag}</div>
 								<h1>{title}</h1>
 								{description && <p>{description}</p>}
+								<MFAUserDisplayV8
+									username={(() => {
+										// Try to get username from various sources
+										const stored =
+											localStorage.getItem('mfa_unified_username') ||
+											localStorage.getItem('mfa_username') ||
+											localStorage.getItem('username');
+										return stored || '';
+									})()}
+									onUsernameChange={() => {
+										// Navigate to device management to change user
+										window.location.href = '/v8/mfa-device-management';
+									}}
+									style={{ marginTop: '8px' }}
+									label="Current User"
+								/>
 							</div>
 						</div>
 						{stepBadge && (
@@ -99,6 +117,8 @@ export const MFAHeaderV8: React.FC<MFAHeaderV8Props> = ({
 			<style>{`
 				.mfa-header-v8 {
 					margin-bottom: 0;
+					max-width: 1400px; /* Match body width */
+					margin: 0 auto;
 				}
 
 				.flow-header {
