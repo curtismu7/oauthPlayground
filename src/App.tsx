@@ -224,7 +224,6 @@ import { MFAFeatureFlagsAdminV8 } from './v8/pages/MFAFeatureFlagsAdminV8';
 import { MobileRegistrationDocsPageV8 } from './v8/pages/MobileRegistrationDocsPageV8';
 import { SMSRegistrationDocsPageV8 } from './v8/pages/SMSRegistrationDocsPageV8';
 import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
-import UserCacheSyncUtilityV8 from './v8/pages/UserCacheSyncUtilityV8';
 import { WhatsAppRegistrationDocsPageV8 } from './v8/pages/WhatsAppRegistrationDocsPageV8';
 import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
@@ -1314,7 +1313,6 @@ const AppRoutes: React.FC = () => {
 									</Suspense>
 								}
 							/>
-							<Route path="/production/user-cache-sync" element={<UserCacheSyncUtilityV8 />} />
 							<Route
 								path="/test-callback"
 								element={
