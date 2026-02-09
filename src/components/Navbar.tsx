@@ -7,6 +7,7 @@ import {
 	FiLogOut,
 	FiMenu,
 	FiSearch,
+	FiServer,
 	FiSettings,
 	FiX,
 } from 'react-icons/fi';
@@ -371,6 +372,10 @@ const Navbar: React.FC<NavbarProps> = ({
 					<Link to="/configuration" title="Configure OAuth settings">
 						<FiSettings aria-hidden="true" />
 						<span>Configuration</span>
+					</Link>
+					<Link to="/api-status" title="View API server status and health metrics">
+						<FiServer aria-hidden="true" />
+						<span>API Status</span>
 					</Link>
 					<Link to="/auto-discover" title="OIDC Discovery tool" aria-label="OIDC Discovery tool">
 						<FiSearch aria-hidden="true" />
