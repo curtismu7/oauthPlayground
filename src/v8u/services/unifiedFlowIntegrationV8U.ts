@@ -601,8 +601,18 @@ export class UnifiedFlowIntegrationV8U {
 
 			// Track authorization URL generation for API documentation
 			console.log(`${_MODULE_TAG} 🔄 TRACKING: About to track authorization URL generation`);
+			console.log(`${_MODULE_TAG} 📍 TRACKING DEBUG:`, {
+				authorizationEndpoint,
+				authorizationUrl: authorizationUrl.substring(0, 100) + '...',
+				step: 'unified-authorization-url',
+				flowType: 'unified',
+			});
+			
 			const startTime = Date.now();
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			
+			console.log(`${_MODULE_TAG} 🔄 TRACKING: apiCallTrackerService imported`);
+			
 			const apiCallId = apiCallTrackerService.trackApiCall({
 				method: 'GET',
 				url: authorizationEndpoint,
@@ -617,6 +627,8 @@ export class UnifiedFlowIntegrationV8U {
 				step: 'unified-authorization-url',
 				flowType: 'unified',
 			});
+
+			console.log(`${_MODULE_TAG} 🔄 TRACKING: API call tracked with ID: ${apiCallId}`);
 
 			apiCallTrackerService.updateApiCallResponse(
 				apiCallId,
@@ -634,6 +646,8 @@ export class UnifiedFlowIntegrationV8U {
 				},
 				Date.now() - startTime
 			);
+
+			console.log(`${_MODULE_TAG} 🔄 TRACKING: API call response updated`);
 
 			logger.debug(`✅ OAuth authz URL generated with prefixed state`, {
 				prefixedState: prefixedStateRegular,
