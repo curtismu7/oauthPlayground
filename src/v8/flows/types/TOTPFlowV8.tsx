@@ -33,7 +33,6 @@ import {
 } from '@/v8/services/mfaServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
@@ -1364,23 +1363,23 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						controller.getDeviceRegistrationParams(registrationCredentials, deviceStatus)
 					)) as DeviceRegistrationResult;
 
-				// Update device nickname if provided
-				if (result.deviceId && registrationCredentials.nickname) {
-					try {
-						await MFAServiceV8.updateDeviceNickname(
-							{ 
-								environmentId: credentials.environmentId, 
-								username: credentials.username, 
-								deviceId: result.deviceId 
-							},
-							registrationCredentials.nickname
-						);
-						console.log(`${MODULE_TAG} ✅ Device nickname updated successfully`);
-					} catch (nicknameError) {
-						console.warn(`${MODULE_TAG} ⚠️ Failed to update device nickname:`, nicknameError);
-						// Don't fail the registration if nickname update fails
+					// Update device nickname if provided
+					if (result.deviceId && registrationCredentials.nickname) {
+						try {
+							await MFAServiceV8.updateDeviceNickname(
+								{
+									environmentId: credentials.environmentId,
+									username: credentials.username,
+									deviceId: result.deviceId,
+								},
+								registrationCredentials.nickname
+							);
+							console.log(`${MODULE_TAG} ✅ Device nickname updated successfully`);
+						} catch (nicknameError) {
+							console.warn(`${MODULE_TAG} ⚠️ Failed to update device nickname:`, nicknameError);
+							// Don't fail the registration if nickname update fails
+						}
 					}
-				}
 					const resultWithTotp = result as {
 						secret?: string;
 						keyUri?: string;
@@ -1618,7 +1617,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							type="button"
 							onClick={() => {
 								setShowModal(true);
-								navigate('/v8/mfa-hub');
+								navigate('/v8/unified-mfa');
 							}}
 							style={{
 								padding: '8px 16px',
@@ -1861,10 +1860,10 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 												type="text"
 												value={credentials.deviceName || 'TOTP'}
 												onChange={(e) => {
-													setCredentials({ 
-														...credentials, 
+													setCredentials({
+														...credentials,
 														deviceName: e.target.value,
-														nickname: credentials.nickname || 'MyKnickName'
+														nickname: credentials.nickname || 'MyKnickName',
 													});
 												}}
 												placeholder="TOTP Device"
@@ -1893,71 +1892,90 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 												Enter a friendly name to identify this device (e.g., "My Authenticator App")
 											</small>
 
-										<div style={{ marginTop: '12px' }}>
-											<label htmlFor="mfa-device-nickname-register" style={{ display: 'block', marginBottom: '8px', color: '#374151', fontSize: '14px', fontWeight: '500' }}>
-												Device Nickname (optional)
-											</label>
-											<input
-												id="mfa-device-nickname-register"
-												type="text"
-												value={credentials.nickname || 'MyKnickName'}
-												onChange={(e) => setCredentials({ ...credentials, nickname: e.target.value })}
-												placeholder="MyKnickName"
-												style={{
-													padding: '10px 12px',
-													border: '1px solid #d1d5db',
-													outline: 'none',
-													borderRadius: '6px',
-													fontSize: '14px',
-													color: '#1f2937',
-													background: 'white',
-													width: '100%',
-												}}
-											/>
-											<small style={{ display: 'block', marginTop: '4px', color: '#6b7280', fontSize: '12px' }}>
-												Enter a friendly nickname for this device (e.g., "Personal Authenticator", "Work TOTP")
-												{credentials.nickname && (
-													<span
-														style={{
-															marginLeft: '8px',
-															color: '#10b981',
-															fontWeight: '500',
-														}}
-													>
-														✓ Nickname: "{credentials.nickname}"
-													</span>
-												)}
-											</small>
+											<div style={{ marginTop: '12px' }}>
+												<label
+													htmlFor="mfa-device-nickname-register"
+													style={{
+														display: 'block',
+														marginBottom: '8px',
+														color: '#374151',
+														fontSize: '14px',
+														fontWeight: '500',
+													}}
+												>
+													Device Nickname (optional)
+												</label>
+												<input
+													id="mfa-device-nickname-register"
+													type="text"
+													value={credentials.nickname || 'MyKnickName'}
+													onChange={(e) =>
+														setCredentials({ ...credentials, nickname: e.target.value })
+													}
+													placeholder="MyKnickName"
+													style={{
+														padding: '10px 12px',
+														border: '1px solid #d1d5db',
+														outline: 'none',
+														borderRadius: '6px',
+														fontSize: '14px',
+														color: '#1f2937',
+														background: 'white',
+														width: '100%',
+													}}
+												/>
+												<small
+													style={{
+														display: 'block',
+														marginTop: '4px',
+														color: '#6b7280',
+														fontSize: '12px',
+													}}
+												>
+													Enter a friendly nickname for this device (e.g., "Personal Authenticator",
+													"Work TOTP")
+													{credentials.nickname && (
+														<span
+															style={{
+																marginLeft: '8px',
+																color: '#10b981',
+																fontWeight: '500',
+															}}
+														>
+															✓ Nickname: "{credentials.nickname}"
+														</span>
+													)}
+												</small>
+											</div>
 										</div>
-									</div>
-								);
-							})()}
-						</div>
+									);
+								})()}
+							</div>
 
-						{/* Action Buttons - Sticky Footer */}
-						<div
-							style={{
-								padding: '12px 16px',
-								borderTop: '1px solid #e5e7eb',
-								background: 'white',
-								display: 'flex',
-								gap: '8px',
-								marginTop: 'auto',
-							}}
-						>
-							<button
-								type="button"
-								onClick={() => {
-									setShowModal(false);
-									// Step 2: Navigate back to Step 1 or hub
-									if (isConfigured) {
-										// Registration flow: Step 1 is skipped, go to hub
-										navigateToMfaHubWithCleanup(navigate);
-									} else {
-										// Authentication flow: go to Step 1
-										navigateSafely(nav, 1);
-									}
+							{/* Action Buttons - Sticky Footer */}
+							<div
+								style={{
+									padding: '12px 16px',
+									borderTop: '1px solid #e5e7eb',
+									background: 'white',
+									display: 'flex',
+									gap: '8px',
+									marginTop: 'auto',
 								}}
+							>
+								<button
+									type="button"
+									onClick={() => {
+										setShowModal(false);
+										// Step 2: Navigate back to Step 1 or hub
+										if (isConfigured) {
+											// Registration flow: Step 1 is skipped, go to hub
+											navigateToMfaHubWithCleanup(navigate);
+										} else {
+											// Authentication flow: go to Step 1
+											navigateSafely(nav, 1);
+										}
+									}}
 									style={{
 										flex: 1,
 										padding: '8px 16px',
