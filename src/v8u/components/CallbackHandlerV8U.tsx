@@ -227,7 +227,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 			);
 
 			// Enhanced fallback logic - try multiple approaches
-			let fallbackPath = '/v8/mfa-hub'; // Default fallback
+			let fallbackPath = '/v8/unified-mfa'; // Default fallback to unified flow
 
 			if (returnToMfaFlow) {
 				try {
