@@ -600,6 +600,7 @@ export class UnifiedFlowIntegrationV8U {
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
 			// Track authorization URL generation for API documentation
+			console.log(`${_MODULE_TAG} 🔄 TRACKING: About to track authorization URL generation`);
 			const startTime = Date.now();
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const apiCallId = apiCallTrackerService.trackApiCall({
@@ -1238,6 +1239,7 @@ export class UnifiedFlowIntegrationV8U {
 			});
 
 			// Track token exchange API call for unified flow visibility
+			console.log(`${_MODULE_TAG} 🔄 TRACKING: About to track token exchange API call`);
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const tokenEndpoint = `https://auth.pingone.com/${oauthCredentials.environmentId}/as/token`;
 			const startTime = Date.now();
