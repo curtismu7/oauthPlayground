@@ -17,6 +17,7 @@ import {
 	FiMove,
 	FiPackage,
 	FiRefreshCw,
+	FiServer,
 	FiSettings,
 	FiShield,
 	FiSmartphone,
@@ -533,6 +534,38 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 		// Default menu structure
 		return [
+			{
+				id: 'core-overview',
+				label: 'Core Overview',
+				icon: (
+					<ColoredIcon $color="#3b82f6">
+						<FiHome />
+					</ColoredIcon>
+				),
+				isOpen: openMenusState['Core Overview'] || true,
+				items: [
+					{
+						id: 'dashboard',
+						path: '/dashboard',
+						label: 'Dashboard',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiBarChart2 />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'api-status',
+						path: '/api-status',
+						label: 'API Status',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiServer />
+							</ColoredIcon>
+						),
+					},
+				],
+			},
 			{
 				id: 'v8-flows-new',
 				label: 'Production',
