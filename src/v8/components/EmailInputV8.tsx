@@ -151,10 +151,10 @@ export const EmailInputV8: React.FC<EmailInputV8Props> = ({
 			)}
 
 			{!showError && (
-			<span className="field-hint" style={{ marginTop: '8px', display: 'block' }}>
-				Enter a valid email address
-			</span>
-		)}
+				<span className="field-hint" style={{ marginTop: '8px', display: 'block' }}>
+					Enter a valid email address
+				</span>
+			)}
 		</div>
 	);
 };

@@ -39,42 +39,54 @@ import { DynamicFormRenderer } from './DynamicFormRenderer';
 const MODULE_TAG = '[📝 UNIFIED-REGISTRATION-STEP]';
 
 // Exported helper to determine final device status after registration
-export function computeDeviceStatus(resultStatus: string | undefined, deviceType: string, tokenType: string) {
-	let status = resultStatus || '';
-	if (deviceType === 'TOTP') {
-		// User flows must require activation
-		if (tokenType === 'user') return 'ACTIVATION_REQUIRED';
-		// For admin/worker flows, prefer returned status, but default to ACTIVATION_REQUIRED
-		return status || 'ACTIVATION_REQUIRED';
+export function computeDeviceStatus(
+	resultStatus: string | undefined,
+	deviceType: string,
+	tokenType: string,
+	credentialsDeviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED'
+) {
+	const status = resultStatus || '';
+
+	// For admin flows, check if deviceStatus was explicitly set in credentials
+	// This handles the admin-active vs admin-activation selection
+	if (credentialsDeviceStatus && tokenType === 'worker') {
+		return credentialsDeviceStatus;
 	}
-	return status || 'ACTIVE';
+
+	// Default behavior based on device type and registration result
+	switch (deviceType) {
+		case 'FIDO2':
+			// FIDO2 devices are always active after registration
+			return 'ACTIVE';
+		case 'TOTP':
+		case 'SMS':
+		case 'EMAIL':
+		case 'WHATSAPP':
+		case 'MOBILE':
+			// These devices typically require activation
+			return status === 'ACTIVE' ? 'ACTIVE' : 'ACTIVATION_REQUIRED';
+		default:
+			return 'ACTIVATION_REQUIRED';
+	}
 }
 
 // ============================================================================
-// PROPS INTERFACE
+// TYPES
 // ============================================================================
 
 export interface UnifiedRegistrationStepProps extends MFAFlowBaseRenderProps {
-	/** Device flow configuration */
+	/** Device configuration */
 	config: DeviceFlowConfig;
-
-	/** Device controller */
+	/** Flow controller */
 	controller: MFAFlowController;
-
-	/** Device-specific form field values */
+	/** Device field values */
 	deviceFields: Record<string, string>;
-
-	/** Update device fields */
-	setDeviceFields: (
-		fields: Record<string, string> | ((prev: Record<string, string>) => Record<string, string>)
-	) => void;
-
+	/** Set device field values */
+	setDeviceFields: (fields: Record<string, string>) => void;
 	/** Validation errors */
 	errors: Record<string, string>;
-
-	/** Validation function */
+	/** Validate function */
 	validate: () => boolean;
-
 	/** Touch field callback (for validation) */
 	touchField?: (field: string) => void;
 }
@@ -107,340 +119,268 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 	touchField,
 }) => {
 	console.log(`${MODULE_TAG} Rendering registration step for:`, config.deviceType);
-	
-	// ========== DEBUG: FULL CONFIG CHECK ==========
-	console.log('🔍 [REG-STEP DEBUG] Full config:', {
-		deviceType: config.deviceType,
-		displayName: config.displayName,
-		requiresOTP: config.requiresOTP,
-		configObject: config
-	});
-	// ==============================================
-	
-	// ========== DEBUG: COMPONENT MOUNT ==========
-	React.useEffect(() => {
-		console.log('🔍 [REG-STEP DEBUG] Component mounted/updated', {
-			deviceType: config.deviceType,
-			hasDeviceFields: !!deviceFields,
-			fieldCount: Object.keys(deviceFields || {}).length,
-			tokenValid: tokenStatus.isValid,
-			isLoading
-		});
-	}, [config.deviceType, deviceFields, tokenStatus.isValid, isLoading]);
-	// ===========================================
 
-	// ========================================================================
-	// LOCAL STATE
-	// ========================================================================
-
+	// State for registration result
+	const [registrationResult, setRegistrationResult] = useState<any>(null);
 	const [registrationError, setRegistrationError] = useState<string | null>(null);
 
-	// ========================================================================
-	// HANDLERS
-	// ========================================================================
-
-	/**
-	 * Handle field change
-	 */
-	const handleFieldChange = useCallback(
-		(field: string, value: string) => {
-			console.log(`${MODULE_TAG} Field changed:`, field, '=', value);
-			setDeviceFields((prev) => ({ ...prev, [field]: value }));
-
-			// Clear error for this field
-			if (errors[field]) {
-				setRegistrationError(null);
-			}
-		},
-		[setDeviceFields, errors]
-	);
-
-	/**
-	 * Handle device registration
-	 */
-	const handleRegisterDevice = useCallback(async () => {
-		console.log(`${MODULE_TAG} Starting device registration`, {
-			deviceType: config.deviceType,
-			deviceFields,
-		});
+	// Check if form is valid for registration
+	const isFormValid = React.useMemo(() => {
+		// For user flows, don't require worker token - user token is sufficient
+		const tokenType = credentials.tokenType || 'worker';
+		const requiresWorkerToken = tokenType === 'worker';
 		
-		// ========== DEBUG: REGISTRATION ENTRY ==========
-		console.log('🔍 [REG DEBUG] handleRegisterDevice called', {
-			deviceType: config.deviceType,
-			fields: deviceFields,
-			credentialsEnvId: credentials.environmentId,
-			tokenIsValid: tokenStatus.isValid
-		});
-		// ===============================================
-
-		// Clear previous errors
-		setRegistrationError(null);
-
-		// Validate fields
-		if (!validate()) {
-			console.error(`${MODULE_TAG} Validation failed`);
-			console.log('🔍 [REG DEBUG] Validation failed, errors:', errors);
-			setRegistrationError('Please fix the errors above before continuing');
-			nav.setValidationErrors(['Please fix the form errors']);
-			return;
+		// Check token validity based on token type
+		if (requiresWorkerToken && !tokenStatus.isValid) {
+			console.log(`${MODULE_TAG} Worker token required but not valid for ${config.deviceType}`);
+			return false;
 		}
-		
-		console.log('🔍 [REG DEBUG] Validation passed, proceeding with registration');
 
-		// Set loading state
-		setIsLoading(true);
+		// Check if all required fields are filled
+		const requiredFields = config.requiredFields || [];
+		const fieldsValid = requiredFields.every((field) => {
+			const value = deviceFields[field];
+			return value && value.trim() !== '';
+		});
+
+		console.log(`${MODULE_TAG} Form validation:`, {
+			tokenType,
+			requiresWorkerToken,
+			tokenValid: tokenStatus.isValid,
+			fieldsValid,
+			requiredFieldCount: requiredFields.length,
+			deviceFields
+		});
+
+		return fieldsValid;
+	}, [tokenStatus.isValid, config.requiredFields, deviceFields, credentials]);
+
+	// Handle device registration
+	const handleRegisterDevice = useCallback(async () => {
+		console.log(`${MODULE_TAG} Starting device registration for ${config.deviceType}`);
 
 		try {
-			// Merge device fields into credentials
-			const updatedCredentials = {
-				...credentials,
-				deviceType: config.deviceType,
-				...deviceFields,
-			};
+			setIsLoading(true);
+			setRegistrationError(null);
 
-			// Update credentials
-			setCredentials(updatedCredentials);
-
-			console.log(`${MODULE_TAG} Calling controller.registerDevice`);
+			// Validate form
+			if (!validate()) {
+				console.warn(`${MODULE_TAG} Validation failed`);
+				return;
+			}
 
 			// Call controller to register device
-			const result = await controller.registerDevice(
-				updatedCredentials,
-				mfaState,
-				tokenStatus,
-				nav
-			);
+			const result = await controller.registerDevice(config.deviceType, deviceFields);
 
-			console.log(`${MODULE_TAG} Device registered successfully:`, result);
-		
-		// ========== DEBUG: TOTP QR CODE DATA ==========
-		if (config.deviceType === 'TOTP') {
-			console.log('🔍 [TOTP DEBUG] Registration result:', {
-				deviceId: result.deviceId,
-				status: result.status,
-				qrCode: result.qrCode,
-				qrCodeUrl: result.qrCodeUrl,
-				secret: result.secret,
-				totpSecret: result.totpSecret,
-				fullResult: result
-			});
-		}
-		// ===============================================
+			console.log(`${MODULE_TAG} Registration successful:`, result);
+			setRegistrationResult(result);
 
-		// Update MFA state with registration result
-		setMfaState((prev) => {
-			const newState = {
+			// Update MFA state with registration result
+			setMfaState((prev) => ({
 				...prev,
+				registrationResult: result,
 				deviceId: result.deviceId,
-				deviceStatus: computeDeviceStatus(result.status, config.deviceType, tokenStatus.type),
-				// TOTP-specific data (preserve QR/secret for user to scan)
-				qrCodeUrl: result.qrCode || result.qrCodeUrl,
-				totpSecret: result.secret || result.totpSecret,
-				// If we have TOTP data, surface the QR/secret immediately
-				showQr: config.deviceType === 'TOTP' && (result.qrCode || result.secret || result.totpSecret),
-				// FIDO2-specific data
-				publicKeyCredentialCreationOptions: result.publicKeyCredentialCreationOptions,
-				// Mobile-specific data
-				pairingKey: result.pairingKey,
-				// Links for activation
-				activationLinks: result._links,
-			};
-			
-			// ========== DEBUG: TOTP MFA STATE UPDATE ==========
-			if (config.deviceType === 'TOTP') {
-				console.log('🔍 [TOTP DEBUG] Updated mfaState:', {
-					qrCodeUrl: newState.qrCodeUrl,
-					totpSecret: newState.totpSecret,
-					showQr: newState.showQr,
-					deviceStatus: newState.deviceStatus,
-					fullState: newState
-				});
-			}
-			// ================================================
-			
-			return newState;
-		});
-			// Show success toast
-			toastV8.success(`${config.displayName} device registered successfully`);
+				deviceStatus: computeDeviceStatus(
+					result.status,
+					config.deviceType,
+					credentials.tokenType,
+					credentials.deviceStatus
+				),
+			}));
 
-			// Mark step as complete
-			nav.markStepComplete();
+			// Show success message
+			toastV8.success(`${config.displayName} device registered successfully!`);
 
 			// Navigate to next step (activation)
-			nav.goToNext();
-		} catch (error: any) {
-			console.error(`${MODULE_TAG} Device registration failed:`, error);
-
-			const errorMessage = error.message || `Failed to register ${config.displayName} device`;
-
+			nav.next();
+		} catch (error) {
+			console.error(`${MODULE_TAG} Registration failed:`, error);
+			const errorMessage = error instanceof Error ? error.message : 'Registration failed';
 			setRegistrationError(errorMessage);
-			nav.setValidationErrors([errorMessage]);
-
-			// Show error toast
-			toastV8.error(errorMessage);
+			toastV8.error(`Registration failed: ${errorMessage}`);
 		} finally {
 			setIsLoading(false);
 		}
 	}, [
-		config,
+		config.deviceType,
+		config.displayName,
 		deviceFields,
-		credentials,
-		setCredentials,
-		mfaState,
-		setMfaState,
-		tokenStatus,
-		nav,
 		controller,
 		validate,
 		setIsLoading,
+		setMfaState,
+		nav,
+		credentials.tokenType,
+		credentials.deviceStatus,
 	]);
 
-	/**
-	 * Handle registration success (for custom components)
-	 */
-	const handleRegistrationSuccess = useCallback(
-		(data: any) => {
-			console.log(`${MODULE_TAG} Custom component registration success:`, data);
+	// Handle field changes
+	const handleFieldChange = useCallback(
+		(field: string, value: string) => {
+			const newFields = { ...deviceFields, [field]: value };
+			setDeviceFields(newFields);
 
-			// Update MFA state
-			setMfaState((prev) => ({
-				...prev,
-				...data,
-			}));
-
-			// Show success toast
-			toastV8.success(`${config.displayName} registered successfully`);
-
-			// Mark step as complete
-			nav.markStepComplete();
-
-			// Navigate to next step
-			nav.goToNext();
+			// Clear error for this field
+			if (errors[field]) {
+				setCredentials((prev) => ({
+					...prev,
+					errors: {
+						...prev.errors,
+						[field]: undefined,
+					},
+				}));
+			}
 		},
-		[config, setMfaState, nav]
+		[deviceFields, setDeviceFields, errors, setCredentials]
 	);
 
-	/**
-	 * Handle registration error (for custom components)
-	 */
-	const handleRegistrationError = useCallback(
-		(error: string) => {
-			console.error(`${MODULE_TAG} Custom component registration error:`, error);
-
-			setRegistrationError(error);
-			nav.setValidationErrors([error]);
-
-			// Show error toast
-			toastV8.error(error);
+	// Handle field touch (for validation)
+	const handleFieldTouch = useCallback(
+		(field: string) => {
+			touchField?.(field);
 		},
-		[nav]
+		[touchField]
 	);
 
-	// ========================================================================
-	// RENDER UI LOGIC
-	// ========================================================================
+	// Render device-specific component
+	const renderDeviceComponent = () => {
+		const DeviceComponent = DeviceComponentRegistry[config.deviceType];
 
-	/**
-	 * Render registration UI based on device type
-	 */
-	const renderRegistrationUI = () => {
-		// Check if this device type has a custom component
-		const CustomComponent = DeviceComponentRegistry[config.deviceType];
-		
-		// ========== DEBUG: REGISTRATION UI PATH ==========
-		console.log('🔍 [REG-UI DEBUG] Rendering path:', {
-			deviceType: config.deviceType,
-			hasCustomComponent: !!CustomComponent,
-			willUseDynamicForm: !CustomComponent,
-			registryValue: CustomComponent
-		});
-		// ================================================
-
-		if (CustomComponent) {
-			// Use device-specific custom component (TOTP, FIDO2, Mobile)
-			console.log(`${MODULE_TAG} Using custom component for:`, config.deviceType);
-
-			const customComponentProps: DeviceComponentProps = {
-				credentials,
-				mfaState,
-				setMfaState,
-				onSuccess: handleRegistrationSuccess,
-				onError: handleRegistrationError,
-				controller,
+		if (DeviceComponent) {
+			const props: DeviceComponentProps = {
 				config,
+				values: deviceFields,
+				onChange: handleFieldChange,
+				errors,
+				onTouch: handleFieldTouch,
+				disabled: isLoading,
 			};
 
-			return <CustomComponent {...customComponentProps} />;
-		} else {
-			// Use dynamic form renderer (SMS, Email, WhatsApp)
-			console.log(`${MODULE_TAG} Using dynamic form renderer for:`, config.deviceType);
-
-			return (
-				<DynamicFormRenderer
-					config={config}
-					values={deviceFields || {}}
-					onChange={handleFieldChange}
-					errors={errors}
-					onTouch={touchField}
-					disabled={isLoading}
-				/>
-			);
+			return <DeviceComponent {...props} />;
 		}
-	};
 
-	// ========================================================================
-	// RENDER
-	// ========================================================================
+		// Default to dynamic form renderer
+		return (
+			<DynamicFormRenderer
+				config={config}
+				values={deviceFields}
+				onChange={handleFieldChange}
+				errors={errors}
+				onTouch={handleFieldTouch}
+				disabled={isLoading}
+			/>
+		);
+	};
 
 	return (
 		<div className="unified-registration-step">
-			{/* Step Header */}
-			<div className="step-header">
-				<h2>Register {config.displayName} Device</h2>
-				<p className="step-description">{config.description}</p>
+			{/* Header */}
+			<div style={{ marginBottom: '24px' }}>
+				<h2 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 8px 0' }}>
+					Register {config.displayName} Device
+				</h2>
+				<p style={{ margin: '0', color: '#6b7280', fontSize: '14px' }}>{config.description}</p>
 			</div>
-
-			{/* Registration UI (dynamic form or custom component) */}
-			<div className="registration-ui">{renderRegistrationUI()}</div>
 
 			{/* Registration Error */}
 			{registrationError && (
-				<div className="registration-error" role="alert">
+				<div
+					className="registration-error"
+					role="alert"
+					style={{
+						padding: '12px',
+						background: '#fef2f2',
+						border: '1px solid #fecaca',
+						borderRadius: '6px',
+						marginBottom: '16px',
+						color: '#dc2626',
+						fontSize: '14px',
+					}}
+				>
 					<strong>Registration Failed:</strong> {registrationError}
 				</div>
 			)}
 
 			{/* Registration Info */}
-			<div style={{ 
-				padding: '12px 16px', 
-				background: '#eff6ff', 
-				border: '1px solid #bfdbfe',
-				borderRadius: '6px',
-				marginBottom: '16px',
-				fontSize: '14px',
-				color: '#1e40af'
-			}}>
-			{config.deviceType === 'FIDO2' ? (
-				<>ℹ️ Clicking "Next Step" will create your {config.displayName} device, then you'll complete biometric authentication.</>
-			) : (
-				<>ℹ️ Clicking "Next Step" will register your {config.displayName} device and send the activation code.</>
-			)}
+			<div
+				style={{
+					padding: '12px 16px',
+					background: '#eff6ff',
+					border: '1px solid #bfdbfe',
+					borderRadius: '6px',
+					marginBottom: '16px',
+					fontSize: '14px',
+					color: '#1e40af',
+				}}
+			>
+				{config.deviceType === 'FIDO2' ? (
+					<>
+						ℹ️ Clicking "Next Step" will create your {config.displayName} device, then you'll
+						complete biometric authentication.
+					</>
+				) : (
+					<>
+						ℹ️ Clicking "Next Step" will register your {config.displayName} device and send the
+						activation code.
+					</>
+				)}
+			</div>
+
+			{/* Device Component */}
+			<div style={{ marginBottom: '24px' }}>{renderDeviceComponent()}</div>
+
+			{/* Navigation Buttons */}
+			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+				<button
+					type="button"
+					onClick={() => nav.previous()}
+					disabled={isLoading}
+					style={{
+						padding: '10px 16px',
+						border: '1px solid #d1d5db',
+						borderRadius: '6px',
+						background: '#f9fafb',
+						color: '#374151',
+						cursor: isLoading ? 'not-allowed' : 'pointer',
+						opacity: isLoading ? 0.6 : 1,
+					}}
+				>
 					← Previous
 				</button>
 
 				<button
 					type="button"
 					onClick={handleRegisterDevice}
-					disabled={isLoading || !tokenStatus.isValid}
-					className="button-primary"
+					disabled={isLoading || !isFormValid}
+					style={{
+						padding: '10px 16px',
+						border: 'none',
+						borderRadius: '6px',
+						background: isFormValid && !isLoading ? '#3b82f6' : '#9ca3af',
+						color: 'white',
+						cursor: isFormValid && !isLoading ? 'pointer' : 'not-allowed',
+						opacity: isFormValid && !isLoading ? 1 : 0.6,
+					}}
 				>
 					{isLoading ? 'Registering...' : 'Next Step ▶'}
 				</button>
 			</div>
 
-			{/* Token Status Warning */}
+			{/* Token Warning */}
 			{!tokenStatus.isValid && (
-				<div className="token-warning" role="alert">
+				<div
+					className="token-warning"
+					role="alert"
+					style={{
+						padding: '12px',
+						background: '#fef3c7',
+						border: '1px solid #fde68a',
+						borderRadius: '6px',
+						marginTop: '16px',
+						color: '#d97706',
+						fontSize: '14px',
+					}}
+				>
 					⚠️ Worker token is invalid or expired. Please refresh your token before continuing.
 				</div>
 			)}

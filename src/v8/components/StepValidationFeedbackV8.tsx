@@ -41,14 +41,57 @@ export const StepValidationFeedbackV8: React.FC<StepValidationFeedbackProps> = (
 	showErrors = true,
 	showWarnings = true,
 	className = '',
+	onWorkerTokenRefresh,
+	onValidationRecheck,
 }) => {
 	const [expandedErrors, setExpandedErrors] = useState(true);
 	const [expandedWarnings, setExpandedWarnings] = useState(true);
+	const [isFixing, setIsFixing] = useState(false);
 	const errorsId = useId();
 	const warningsId = useId();
 
 	const hasErrors = errors.length > 0;
 	const hasWarnings = warnings.length > 0;
+
+	// Check if errors are fixable (preflight validation errors)
+	const hasFixableErrors = errors.some(
+		(error) =>
+			error.includes('Invalid or expired worker token') ||
+			error.includes('Environment ID and Username are required')
+	);
+
+	// Handle fix button click
+	const handleFixErrors = async () => {
+		setIsFixing(true);
+		try {
+			// For worker token errors, use the provided callback or fall back to modal helper
+			if (errors.some((error) => error.includes('worker token'))) {
+				if (onWorkerTokenRefresh) {
+					// Use the provided worker token refresh callback
+					await onWorkerTokenRefresh();
+				} else {
+					// Fall back to the modal helper for backward compatibility
+					const { handleShowWorkerTokenModal } = await import(
+						'@/v8/utils/workerTokenModalHelperV8'
+					);
+					await handleShowWorkerTokenModal(
+						() => {}, // setShowWorkerTokenModal - not needed here
+						() => {}, // setTokenStatus - not needed here
+						true // silentApiRetrieval - enable silent mode
+					);
+				}
+			}
+
+			// Trigger validation recheck if callback is provided
+			if (onValidationRecheck) {
+				onValidationRecheck();
+			}
+		} catch (error) {
+			console.error('Failed to fix errors:', error);
+		} finally {
+			setIsFixing(false);
+		}
+	};
 
 	if (!hasErrors && !hasWarnings) {
 		return null;
@@ -90,6 +133,57 @@ export const StepValidationFeedbackV8: React.FC<StepValidationFeedbackProps> = (
 									</li>
 								))}
 							</ul>
+
+							{/* Fix Button for Fixable Errors */}
+							{hasFixableErrors && (
+								<div
+									style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}
+								>
+									<button
+										type="button"
+										onClick={handleFixErrors}
+										disabled={isFixing}
+										style={{
+											padding: '8px 16px',
+											background: isFixing ? '#d1d5db' : '#10b981',
+											border: 'none',
+											borderRadius: '6px',
+											fontSize: '14px',
+											fontWeight: '500',
+											color: isFixing ? '#9ca3af' : '#ffffff',
+											cursor: isFixing ? 'not-allowed' : 'pointer',
+											display: 'flex',
+											alignItems: 'center',
+											gap: '6px',
+											transition: 'all 0.2s ease',
+										}}
+									>
+										{isFixing ? (
+											<>
+												<span>⟳</span>
+												<span>Fixing...</span>
+											</>
+										) : (
+											<>
+												<span>🔧</span>
+												<span>Fix Issues</span>
+											</>
+										)}
+									</button>
+									{errors.some((error) => error.includes('worker token')) && (
+										<p
+											style={{
+												fontSize: '12px',
+												color: '#6b7280',
+												marginTop: '6px',
+												lineHeight: '1.4',
+											}}
+										>
+											Click to automatically generate a new worker token in silent mode
+										</p>
+									)}
+								</div>
+							)}
 						</div>
 					)}
 				</div>

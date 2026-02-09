@@ -1,13 +1,13 @@
 # Unified Flow - Client Credentials Flow UI Contract
 
-**Version:** 1.0  
-**Last Updated:** 2025-01-27  
+**Version:** 2.0  
+**Last Updated:** 2026-02-05  
 **Flow Type:** Client Credentials Flow (OAuth 2.0 / OAuth 2.1)  
 **Component:** `UnifiedOAuthFlowV8U` → `UnifiedFlowSteps` → `CredentialsFormV8U`
 
 ## Overview
 
-The Client Credentials Flow is an OAuth 2.0 flow designed for server-to-server communication where there is no user involved. The application authenticates using its own credentials (client ID and client secret) to obtain an access token for API access.
+The Client Credentials Flow is used for machine-to-machine communication where the application itself is the resource owner. This flow is suitable for backend services, daemons, and other non-interactive applications.
 
 ### Available Spec Versions
 
@@ -17,12 +17,16 @@ The Client Credentials Flow is an OAuth 2.0 flow designed for server-to-server c
 
 ## Flow Steps
 
-The Client Credentials Flow consists of **4 steps** (0-indexed):
+The Client Credentials Flow consists of **6 steps** (0-indexed):
 
 1. **Step 0**: Configure Credentials
 2. **Step 1**: Request Token
 3. **Step 2**: Display Tokens
 4. **Step 3**: Introspection & UserInfo
+5. **Step 4**: API Documentation
+6. **Step 5**: ✅ Success Page (NEW)
+
+**NEW**: Step 5 provides comprehensive success summary with user data and educational content.
 
 ## Step-by-Step Contract
 

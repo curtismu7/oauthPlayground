@@ -24,7 +24,7 @@
  * />
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { EmailInputV8 } from '@/v8/components/EmailInputV8';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
@@ -98,12 +98,8 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 		}
 	}, [values['email']]);
 
-	// Initialize saved values from localStorage on mount
-	const hasInitializedValues = useRef(false);
+	// Initialize saved values from localStorage on mount only
 	useEffect(() => {
-		if (hasInitializedValues.current) return;
-		hasInitializedValues.current = true;
-
 		// Load saved email
 		if (config.requiredFields.includes('email') && !values['email']) {
 			const savedEmail = localStorage.getItem('mfa_saved_email');
@@ -114,14 +110,16 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 
 		// Load saved phone number
 		if (config.requiredFields.includes('phoneNumber') && !values['phoneNumber']) {
-			const savedPhone = localStorage.getItem('mfa_saved_phoneNumber');
-			if (savedPhone) {
-				onChange('phoneNumber', savedPhone);
+			const savedPhoneNumber = localStorage.getItem('mfa_saved_phoneNumber');
+			if (savedPhoneNumber) {
+				onChange('phoneNumber', savedPhoneNumber);
 			}
 		}
 
 		// Load saved country code
-		const needsCountryCode = config.requiredFields.includes('countryCode') || config.requiredFields.includes('phoneNumber');
+		const needsCountryCode =
+			config.requiredFields.includes('countryCode') ||
+			config.requiredFields.includes('phoneNumber');
 		if (needsCountryCode && !values['countryCode']) {
 			const savedCountryCode = localStorage.getItem('mfa_saved_countryCode');
 			onChange('countryCode', savedCountryCode || '+1');
@@ -131,7 +129,7 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 		if (!values['deviceName']) {
 			onChange('deviceName', config.deviceType);
 		}
-	}, [config, values, onChange]);
+	}, [config.requiredFields, config.deviceType, values, onChange]);
 
 	// ========================================================================
 	// FIELD RENDERERS
@@ -156,14 +154,14 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 
 		// Map field names to input components
 		switch (fieldName) {
-			case 'phoneNumber':
+			case 'phoneNumber': {
 				// Get country code value for combined display (initialization happens in useEffect)
 				const countryCodeValue = values['countryCode'] || '+1';
 
 				const phoneError = errors['phoneNumber'];
 				const countryError = errors['countryCode'];
 				const combinedError = phoneError || countryError;
-				
+
 				return (
 					<div key={fieldName} className="form-field phone-number-field">
 						<label htmlFor="phoneNumber">
@@ -212,6 +210,7 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 						<span className="field-hint">Country code and phone number combined</span>
 					</div>
 				);
+			}
 
 			case 'countryCode':
 				// Skip rendering - it's now combined with phoneNumber
@@ -232,6 +231,32 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 					</div>
 				);
 
+			case 'name':
+				return (
+					<div key={fieldName} className="form-field name-field">
+						<label htmlFor="name">Name {isRequired && <span className="required">*</span>}</label>
+						<input
+							id="name"
+							type="text"
+							value={value}
+							onChange={(e) => onChange(fieldName, e.target.value)}
+							onBlur={handleBlur}
+							disabled={disabled}
+							placeholder="Enter name"
+							maxLength={50}
+							className={hasError ? 'input-error' : ''}
+							aria-invalid={hasError}
+							aria-describedby={hasError ? `${fieldName}-error` : undefined}
+						/>
+						{hasError && (
+							<span id={`${fieldName}-error`} className="error-message" role="alert">
+								{error}
+							</span>
+						)}
+						<span className="field-hint">Maximum 50 characters</span>
+					</div>
+				);
+
 			case 'deviceName':
 				return (
 					<div key={fieldName} className="form-field device-name-field">
@@ -245,7 +270,7 @@ export const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
 							onChange={(e) => onChange(fieldName, e.target.value)}
 							onBlur={handleBlur}
 							disabled={disabled}
-						placeholder={config.deviceType}
+							placeholder={config.deviceType}
 							maxLength={50}
 							className={hasError ? 'input-error' : ''}
 							aria-invalid={hasError}

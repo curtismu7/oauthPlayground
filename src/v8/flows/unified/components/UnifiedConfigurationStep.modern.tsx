@@ -13,18 +13,18 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { FiAlertCircle, FiArrowRight, FiCheck } from 'react-icons/fi';
 import { Button } from '@/v8/components/Button';
 import { FormInput } from '@/v8/components/FormInput';
-import { PageTransition } from '@/v8/components/PageTransition';
 import { LoadingSpinner } from '@/v8/components/LoadingSpinner';
-import { useGlobalMFA } from '@/v8/contexts/GlobalMFAContext';
-import { useFormValidation } from '@/v8/hooks/useFormValidation';
-import { colors, spacing, borderRadius, typography } from '@/v8/design/tokens';
+import { PageTransition } from '@/v8/components/PageTransition';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
+import { useGlobalMFA } from '@/v8/contexts/GlobalMFAContext';
+import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { useFormValidation } from '@/v8/hooks/useFormValidation';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { FiCheck, FiAlertCircle, FiArrowRight } from 'react-icons/fi';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[⚙️ UNIFIED-CONFIG-MODERN]';
 
@@ -45,8 +45,13 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 	console.log(`${MODULE_TAG} Rendering for:`, deviceType, 'Flow type:', registrationFlowType);
 
 	// Global MFA state
-	const { environmentId, workerTokenStatus, isConfigured, isLoading: globalLoading } = useGlobalMFA();
-	
+	const {
+		environmentId,
+		workerTokenStatus,
+		isConfigured,
+		isLoading: globalLoading,
+	} = useGlobalMFA();
+
 	// Debug logging
 	console.log(`${MODULE_TAG} Global state:`, {
 		environmentId,
@@ -56,23 +61,24 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 	});
 
 	// Form validation - initialize with credentials.username
-	const { values, errors, touched, handleChange, handleBlur, validateAll, setValues } = useFormValidation(
-		{
-			username: credentials.username || '',
-			flowType: registrationFlowType === 'user' ? 'user' : 'admin-activation',
-		},
-		{
-			username: {
-				required: true,
-				minLength: 3,
+	const { values, errors, touched, handleChange, handleBlur, validateAll, setValues } =
+		useFormValidation(
+			{
+				username: credentials.username || '',
+				flowType: registrationFlowType === 'user' ? 'user' : 'admin-activation',
 			},
-		}
-	);
+			{
+				username: {
+					required: true,
+					minLength: 3,
+				},
+			}
+		);
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [selectedFlowType, setSelectedFlowType] = useState<'admin-active' | 'admin-activation' | 'user'>(
-		registrationFlowType === 'user' ? 'user' : 'admin-activation'
-	);
+	const [selectedFlowType, setSelectedFlowType] = useState<
+		'admin-active' | 'admin-activation' | 'user'
+	>(registrationFlowType === 'user' ? 'user' : 'admin-activation');
 
 	// Update form when credentials change
 	useEffect(() => {
@@ -93,7 +99,12 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 
 	// Handle continue
 	const handleContinue = useCallback(async () => {
-		console.log(`${MODULE_TAG} Continuing for device type:`, deviceType, 'Flow type:', selectedFlowType);
+		console.log(
+			`${MODULE_TAG} Continuing for device type:`,
+			deviceType,
+			'Flow type:',
+			selectedFlowType
+		);
 
 		// Validate form
 		if (!validateAll()) {
@@ -119,24 +130,26 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 				tokenType: 'worker' as const,
 				deviceType,
 			};
-			
+
 			setCredentials(updatedCredentials);
 
 			/**
 			 * CRITICAL: MFA OTP and TOTP devices MUST always register directly
-			 * 
+			 *
 			 * Flow Types:
 			 * 1. Admin Active (admin-active): Register → Skip activation → Success
 			 * 2. Admin Activation Required (admin-activation): Register → OTP activation → Success
 			 * 3. User Flow (user): Register → PingOne login → OTP activation → Success
-			 * 
+			 *
 			 * NEVER skip activation for ACTIVATION_REQUIRED or user flow!
 			 */
 			const DIRECT_REGISTRATION_DEVICES = ['EMAIL', 'SMS', 'WHATSAPP', 'TOTP'];
-			
+
 			if (DIRECT_REGISTRATION_DEVICES.includes(deviceType)) {
-				console.log(`${MODULE_TAG} Registering ${deviceType} device directly with flow type: ${selectedFlowType}`);
-				
+				console.log(
+					`${MODULE_TAG} Registering ${deviceType} device directly with flow type: ${selectedFlowType}`
+				);
+
 				// Map device type to field name
 				const fieldMap: Record<string, string> = {
 					EMAIL: 'email',
@@ -144,14 +157,14 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 					WHATSAPP: 'phone',
 					TOTP: 'deviceName', // TOTP doesn't need contact field
 				};
-				
+
 				const fieldName = fieldMap[deviceType];
 				const fieldValue = deviceType === 'TOTP' ? deviceType : values.username.trim();
-				
+
 				// Determine device status based on flow type
 				// CRITICAL: Only admin-active flow creates ACTIVE devices
 				const deviceStatus = selectedFlowType === 'admin-active' ? 'ACTIVE' : 'ACTIVATION_REQUIRED';
-				
+
 				// Prepare registration parameters
 				const registrationParams: Record<string, any> = {
 					environmentId: environmentId!,
@@ -164,29 +177,29 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 					// Only admin flows set status, user flow doesn't include it
 					...(selectedFlowType !== 'user' && { status: deviceStatus }),
 				};
-				
+
 				console.log(`${MODULE_TAG} Registration params:`, registrationParams);
-				
+
 				// Call MFA Service to register device
 				const result = await MFAServiceV8.registerDevice(registrationParams);
 				console.log(`${MODULE_TAG} Device registered with status:`, result.status);
-				
+
 				// CRITICAL VALIDATION: Ensure activation flow is followed correctly
 				if (result.status === 'ACTIVATION_REQUIRED' && selectedFlowType === 'admin-active') {
 					console.error(`${MODULE_TAG} ERROR: Expected ACTIVE but got ACTIVATION_REQUIRED`);
 					throw new Error('Device registration flow mismatch - expected ACTIVE device');
 				}
-				
+
 				// Update credentials with device info
 				setCredentials((prev) => ({
 					...prev,
 					deviceId: result.deviceId,
 					deviceStatus: result.status,
 				}));
-				
+
 				// Mark step complete
 				nav.markStepComplete();
-				
+
 				/**
 				 * ROUTING LOGIC - CRITICAL:
 				 * - ACTIVE devices: Skip activation → Go to success (Step 2)
@@ -195,18 +208,22 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 				 */
 				if (result.status === 'ACTIVE' && selectedFlowType === 'admin-active') {
 					console.log(`${MODULE_TAG} Admin Active flow: Skipping activation, going to success`);
-					toastV8.success(`${config.displayName} device registered successfully! Device is ready to use.`);
+					toastV8.success(
+						`${config.displayName} device registered successfully! Device is ready to use.`
+					);
 					nav.goToStep(2); // Skip activation, go to success
 				} else {
 					// ACTIVATION_REQUIRED or User Flow - MUST go through activation
 					console.log(`${MODULE_TAG} Activation required: Going to activation step`);
-					toastV8.success(`${config.displayName} device registered! ${result.status === 'ACTIVATION_REQUIRED' ? 'OTP has been sent automatically.' : 'Please complete activation.'}`);
+					toastV8.success(
+						`${config.displayName} device registered! ${result.status === 'ACTIVATION_REQUIRED' ? 'OTP has been sent automatically.' : 'Please complete activation.'}`
+					);
 					nav.goToNext(); // Go to activation step
 				}
 			} else {
 				// For FIDO2, MOBILE - go to device selection/registration form
 				console.log(`${MODULE_TAG} Navigating to device selection for ${deviceType}`);
-				
+
 				// Mark step complete
 				nav.markStepComplete();
 
@@ -223,7 +240,18 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 		} finally {
 			setIsSubmitting(false);
 		}
-	}, [validateAll, isConfigured, environmentId, values, deviceType, selectedFlowType, credentials, setCredentials, nav, config]);
+	}, [
+		validateAll,
+		isConfigured,
+		environmentId,
+		values,
+		deviceType,
+		selectedFlowType,
+		credentials,
+		setCredentials,
+		nav,
+		config,
+	]);
 
 	// Loading state
 	if (globalLoading) {
@@ -248,7 +276,11 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 							textAlign: 'center',
 						}}
 					>
-						<FiAlertCircle size={48} color={colors.warning[500]} style={{ marginBottom: spacing.md }} />
+						<FiAlertCircle
+							size={48}
+							color={colors.warning[500]}
+							style={{ marginBottom: spacing.md }}
+						/>
 						<h2 style={{ margin: `0 0 ${spacing.md} 0`, color: colors.warning[900] }}>
 							Global Configuration Required
 						</h2>
@@ -319,7 +351,9 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 							<h3 style={{ margin: `0 0 ${spacing.xs} 0`, color: colors.success[900] }}>
 								Global Configuration Active
 							</h3>
-							<p style={{ margin: 0, fontSize: typography.fontSize.sm, color: colors.success[700] }}>
+							<p
+								style={{ margin: 0, fontSize: typography.fontSize.sm, color: colors.success[700] }}
+							>
 								Environment ID: <strong>{environmentId}</strong>
 								<br />
 								Worker Token: <strong>{workerTokenStatus?.tokenValid ? 'Valid' : 'Invalid'}</strong>
@@ -404,7 +438,8 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 									border: `2px solid ${selectedFlowType === 'admin-activation' ? colors.primary[500] : colors.neutral[300]}`,
 									borderRadius: borderRadius.md,
 									cursor: 'pointer',
-									background: selectedFlowType === 'admin-activation' ? colors.primary[50] : 'white',
+									background:
+										selectedFlowType === 'admin-activation' ? colors.primary[50] : 'white',
 								}}
 							>
 								<input

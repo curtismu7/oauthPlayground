@@ -2304,8 +2304,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 					paddingTop: '32px',
 					borderTop: '1px solid #e5e7eb',
 				}}
-			>
-			</div>
+			></div>
 		</div>
 	);
 };

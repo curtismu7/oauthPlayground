@@ -51,7 +51,7 @@ const PKCEContainer = styled.div`
 		left: 0;
 		right: 0;
 		height: 5px;
-		background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4, #10b981);
+		background: linear-gradient(90deg, #3b82f6, #ef4444, #06b6d4, #10b981);
 		border-radius: 20px 20px 0 0;
 	}
 `;
@@ -72,7 +72,7 @@ const PKCETitle = styled.h3`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+	background: linear-gradient(135deg, #3b82f6, #ef4444);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
@@ -214,7 +214,7 @@ const PKCEFieldsContainer = styled.div`
 		left: 0;
 		right: 0;
 		height: 3px;
-		background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+		background: linear-gradient(90deg, #3b82f6, #ef4444);
 		border-radius: 16px 16px 0 0;
 	}
 

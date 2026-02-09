@@ -105,7 +105,7 @@ export class UserCacheServiceV8 {
 			const db = await initDB();
 			const transaction = db.transaction([STORE_NAME, 'metadata'], 'readwrite');
 			const userStore = transaction.objectStore(STORE_NAME);
-			const metaStore = transaction.objectStore('metadata');
+			const _metaStore = transaction.objectStore('metadata');
 
 			const now = Date.now();
 
@@ -131,7 +131,7 @@ export class UserCacheServiceV8 {
 			});
 
 			// Count actual users in IndexedDB after save
-			const actualCount = await this.countUsers(environmentId);
+			const actualCount = await UserCacheServiceV8.countUsers(environmentId);
 
 			// Update metadata with actual count
 			const metaTransaction = db.transaction(['metadata'], 'readwrite');
@@ -233,7 +233,11 @@ export class UserCacheServiceV8 {
 	/**
 	 * Search users in cache using IndexedDB cursor (efficient - doesn't load all users)
 	 */
-	static async searchUsers(environmentId: string, searchTerm: string, limit = 100): Promise<User[]> {
+	static async searchUsers(
+		environmentId: string,
+		searchTerm: string,
+		limit = 100
+	): Promise<User[]> {
 		try {
 			if (!searchTerm || !searchTerm.trim()) {
 				// If no search term, return limited recent users
@@ -255,7 +259,7 @@ export class UserCacheServiceV8 {
 					const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
 					if (cursor && results.length < limit) {
 						const user = cursor.value as CachedUser;
-						
+
 						// Check if username or email matches search
 						if (
 							user.username.toLowerCase().includes(lowerSearch) ||
@@ -427,7 +431,7 @@ export class UserCacheServiceV8 {
 
 			// Get existing metadata
 			const getRequest = store.get(environmentId);
-			
+
 			await new Promise<void>((resolve, reject) => {
 				getRequest.onsuccess = () => {
 					const existing = getRequest.result || {
@@ -450,4 +454,5 @@ export class UserCacheServiceV8 {
 			console.error(`${MODULE_TAG} Failed to update metadata`, err);
 			throw err;
 		}
-	}}
+	}
+}

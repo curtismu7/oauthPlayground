@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Redirect URI Implementation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { padding: 10px 15px; margin: 5px; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Redirect URI Implementation Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Return Target Service</h2>
+        <button onclick="testReturnTargetService()">Test ReturnTargetServiceV8U</button>
+        <div id="test1-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Simulate Device Registration Flow</h2>
+        <button onclick="simulateDeviceRegistration()">Simulate Device Registration</button>
+        <div id="test2-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Simulate Device Authentication Flow</h2>
+        <button onclick="simulateDeviceAuthentication()">Simulate Device Authentication</button>
+        <div id="test3-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Check Current Return Targets</h2>
+        <button onclick="checkCurrentTargets()">Check Current Targets</button>
+        <div id="test4-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 5: Clear All Targets</h2>
+        <button onclick="clearAllTargets()">Clear All Targets</button>
+        <div id="test5-result"></div>
+    </div>
+
+    <script>
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            element.innerHTML += `<div class="${className}">${message}</div>`;
+        }
+
+        function clear(elementId) {
+            document.getElementById(elementId).innerHTML = '';
+        }
+
+        function _testReturnTargetService() {
+            clear('test1-result');
+            log('test1-result', '🧪 Testing ReturnTargetServiceV8U functionality...', 'info');
+
+            // Test if service is available (would need to be imported in the actual app)
+            if (typeof window.ReturnTargetServiceV8U !== 'undefined') {
+                log('test1-result', '✅ ReturnTargetServiceV8U is available', 'success');
+                
+                // Test setting and consuming a target
+                try {
+                    window.ReturnTargetServiceV8U.setReturnTarget('mfa_device_registration', '/v8/unified-mfa', 2);
+                    log('test1-result', '✅ Successfully set return target', 'success');
+                    
+                    const peeked = window.ReturnTargetServiceV8U.peekReturnTarget('mfa_device_registration');
+                    log('test1-result', `🔍 Peeked target: ${JSON.stringify(peeked, null, 2)}`, 'info');
+                    
+                    const consumed = window.ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_registration');
+                    log('test1-result', `🎯 Consumed target: ${JSON.stringify(consumed, null, 2)}`, 'success');
+                    
+                    const afterConsume = window.ReturnTargetServiceV8U.peekReturnTarget('mfa_device_registration');
+                    log('test1-result', `🔍 After consume: ${JSON.stringify(afterConsume)}`, 'info');
+                    
+                } catch (error) {
+                    log('test1-result', `❌ Error testing service: ${error.message}`, 'error');
+                }
+            } else {
+                log('test1-result', '⚠️ ReturnTargetServiceV8U not available in this test page (would be available in the actual app)', 'info');
+                log('test1-result', '💡 To test properly, open the actual app at https://localhost:3000 and run tests in browser console', 'info');
+            }
+        }
+
+        function _simulateDeviceRegistration() {
+            clear('test2-result');
+            log('test2-result', '🔄 Simulating Device Registration Flow...', 'info');
+            
+            // This would normally be done when opening the login modal in device registration
+            log('test2-result', '📝 Step 1: User starts device registration', 'info');
+            log('test2-result', '📝 Step 2: System calls ReturnTargetServiceV8U.setReturnTarget(mfa_device_registration, /v8/unified-mfa, 2)', 'info');
+            log('test2-result', '📝 Step 3: User login modal opens', 'info');
+            log('test2-result', '📝 Step 4: User completes OAuth authentication', 'info');
+            log('test2-result', '📝 Step 5: CallbackHandlerV8U detects return target and redirects to /v8/unified-mfa', 'success');
+            log('test2-result', '🎯 Expected result: User lands on Step 2 (Device Selection) in unified MFA flow', 'success');
+        }
+
+        function _simulateDeviceAuthentication() {
+            clear('test3-result');
+            log('test3-result', '🔄 Simulating Device Authentication Flow...', 'info');
+            
+            log('test3-result', '📝 Step 1: User starts device authentication', 'info');
+            log('test3-result', '📝 Step 2: System calls ReturnTargetServiceV8U.setReturnTarget(mfa_device_authentication, /v8/mfa-hub, 2)', 'info');
+            log('test3-result', '📝 Step 3: User login modal opens', 'info');
+            log('test3-result', '📝 Step 4: User completes OAuth authentication', 'info');
+            log('test3-result', '📝 Step 5: CallbackHandlerV8U detects return target and redirects to /v8/mfa-hub', 'success');
+            log('test3-result', '🎯 Expected result: User lands on device selection/action in MFA hub (NOT main page)', 'success');
+        }
+
+        function _checkCurrentTargets() {
+            clear('test4-result');
+            log('test4-result', '🔍 Checking current return targets...', 'info');
+            
+            if (typeof window.ReturnTargetServiceV8U !== 'undefined') {
+                const allTargets = window.ReturnTargetServiceV8U.getAllReturnTargets();
+                log('test4-result', `📋 All return targets: ${JSON.stringify(allTargets, null, 2)}`, 'info');
+                
+                const hasAny = window.ReturnTargetServiceV8U.hasAnyReturnTarget();
+                log('test4-result', `🔍 Has any targets: ${hasAny}`, 'info');
+            } else {
+                log('test4-result', '⚠️ Service not available in this test page', 'info');
+            }
+        }
+
+        function _clearAllTargets() {
+            clear('test5-result');
+            log('test5-result', '🧹 Clearing all return targets...', 'info');
+            
+            if (typeof window.ReturnTargetServiceV8U !== 'undefined') {
+                window.ReturnTargetServiceV8U.clearAllReturnTargets();
+                log('test5-result', '✅ All return targets cleared', 'success');
+                
+                // Verify they're gone
+                const allTargets = window.ReturnTargetServiceV8U.getAllReturnTargets();
+                log('test5-result', `🔍 Targets after clear: ${JSON.stringify(allTargets)}`, 'info');
+            } else {
+                log('test5-result', '⚠️ Service not available in this test page', 'info');
+            }
+        }
+
+        // Instructions
+        document.addEventListener('DOMContentLoaded', () => {
+            const instructions = `
+                <div class="test-section">
+                    <h2>📋 Test Instructions</h2>
+                    <ol>
+                        <li>Open the actual application at <a href="https://localhost:3000" target="_blank">https://localhost:3000</a></li>
+                        <li>Navigate to a device registration or authentication flow</li>
+                        <li>Open browser developer console (F12)</li>
+                        <li>Paste and run the test script from <code>test-return-targets.js</code></li>
+                        <li>Observe the console output to verify the implementation works correctly</li>
+                    </ol>
+                    <p><strong>Expected behavior:</strong></p>
+                    <ul>
+                        <li>Device Registration: OAuth callback → Step 2 (Device Selection)</li>
+                        <li>Device Authentication: OAuth callback → Current path + next step (no main page fallback)</li>
+                        <li>Return targets are set when login modal opens</li>
+                        <li>Return targets are consumed after successful callback</li>
+                    </ul>
+                </div>
+            `;
+            document.body.innerHTML += instructions;
+        });
+    </script>
+</body>
+</html>
