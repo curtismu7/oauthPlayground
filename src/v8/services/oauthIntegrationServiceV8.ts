@@ -196,10 +196,18 @@ export class OAuthIntegrationServiceV8 {
 					codeChallengeMethod: pkce.codeChallengeMethod,
 				};
 
-				// Add login_hint to JAR request if username is provided
+				// Add login_hint to JAR request for OIDC flows if username is provided
 				if (credentials.username) {
-					(jarRequestParams as any).login_hint = credentials.username;
-					console.log(`${MODULE_TAG} 🔑 Added login_hint to JAR request: ${credentials.username}`);
+					// login_hint is an OIDC parameter for pre-filling the username field
+					// Only add for OIDC flows (openid scope is present)
+					if (finalScopes.includes('openid')) {
+						(jarRequestParams as any).login_hint = credentials.username;
+						console.log(`${MODULE_TAG} 🔑 Added OIDC login_hint to JAR request: ${credentials.username}`);
+					} else {
+						console.warn(
+							`${MODULE_TAG} WARNING: login_hint skipped in JAR - not an OIDC flow (missing openid scope)`
+						);
+					}
 				}
 
 				const jarResult = await jarRequestObjectServiceV8.generateRequestObjectJWT(
@@ -258,10 +266,18 @@ export class OAuthIntegrationServiceV8 {
 			code_challenge_method: pkce.codeChallengeMethod,
 		});
 
-		// Add login_hint if username is provided
+		// Add login_hint for OIDC flows if username is provided
 		if (credentials.username) {
-			params.append('login_hint', credentials.username);
-			console.log(`${MODULE_TAG} 🔑 Added login_hint: ${credentials.username}`);
+			// login_hint is an OIDC parameter for pre-filling the username field
+			// Only add for OIDC flows (openid scope is present)
+			if (finalScopes.includes('openid')) {
+				params.append('login_hint', credentials.username);
+				console.log(`${MODULE_TAG} 🔑 Added OIDC login_hint: ${credentials.username}`);
+			} else {
+				console.warn(
+					`${MODULE_TAG} WARNING: login_hint skipped - not an OIDC flow (missing openid scope)`
+				);
+			}
 		}
 
 		const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;

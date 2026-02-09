@@ -1887,7 +1887,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									marginBottom: '6px',
 								}}
 							>
-								Username (Optional)
+								Username for OIDC login_hint (Optional)
 							</label>
 							<input
 								id="user-login-username"
@@ -1906,7 +1906,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							<small
 								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
 							>
-								Added as login_hint parameter to authorization URL for better user experience
+								Added as OIDC login_hint parameter to authorization URL (requires openid scope)
 							</small>
 						</div>
 
