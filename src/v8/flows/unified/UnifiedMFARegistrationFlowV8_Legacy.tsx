@@ -2427,8 +2427,8 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 					...baseParams,
 					...mappedFields,
 					// Include policy for TOTP devices (required for secret and keyUri to be returned)
-					...(selectedDeviceType === 'TOTP' && selectedPolicyRef.current
-						? { policy: selectedPolicyRef.current.id }
+					...(selectedDeviceType === 'TOTP' && selectedPolicy
+						? { policy: selectedPolicy.id }
 						: {}),
 				};
 
@@ -2606,7 +2606,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 				props.setIsLoading(false);
 			}
 		},
-		[config.displayName, config.deviceType]
+		[config.displayName, config.deviceType, selectedPolicy]
 	);
 
 	/**
