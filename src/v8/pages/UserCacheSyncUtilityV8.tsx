@@ -503,14 +503,11 @@ export const UserCacheSyncUtilityV8: React.FC = () => {
 					<div>
 						<button
 							onClick={async () => {
-								const { handleShowWorkerTokenModal } = await import(
-									'@/v8/utils/workerTokenModalHelperV8'
+								const { handleShowWorkerTokenModalSimple } = await import(
+									'@/v8/utils/workerTokenModalHelperV8_SIMPLE'
 								);
-								await handleShowWorkerTokenModal(
+								await handleShowWorkerTokenModalSimple(
 									setShowWorkerTokenModal,
-									undefined,
-									undefined,
-									undefined,
 									true // forceShowModal=true: user clicked the button
 								);
 							}}
