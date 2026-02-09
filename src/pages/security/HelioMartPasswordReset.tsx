@@ -30,6 +30,9 @@ import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCode
 import { PasswordSetValueTab } from '../../components/password-reset/PasswordSetValueTab';
 import { WorkerTokenDetectedBanner } from '../../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModal } from '../../components/WorkerTokenModal';
+import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
+import { renderWorkerTokenButton } from '../../services/workerTokenUIService';
+import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
 import type { ApiCall } from '../../services/apiCallTrackerService';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
@@ -527,6 +530,7 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [showLoginModal, setShowLoginModal] = useState(false);
 	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
 	const [workerToken, setWorkerToken] = useState('');
+	const [workerTokenExpiresAt, setWorkerTokenExpiresAt] = useState<number | undefined>(undefined);
 	const [environmentId, setEnvironmentId] = useState('');
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showAuthzConfigModal, setShowAuthzConfigModal] = useState(false);
@@ -633,6 +637,9 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [isCodeExpanded, setIsCodeExpanded] = useState(true);
 	const [copied, setCopied] = useState(false);
 
+	// App picker state
+	const [selectedApp, setSelectedApp] = useState<DiscoveredApp | null>(null);
+
 	// Subscribe to API calls
 	useEffect(() => {
 		const unsubscribe = apiCallTrackerService.subscribe((calls) => {
@@ -694,6 +701,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			const globalToken = getAnyWorkerToken();
 			if (globalToken) {
 				setWorkerToken(globalToken);
+				// Try to get expiresAt from stored token data
+				try {
+					const stored = localStorage.getItem('unified_worker_token');
+					if (stored) {
+						const data = JSON.parse(stored);
+						setWorkerTokenExpiresAt(data.expiresAt);
+					}
+				} catch (error) {
+					console.log('Failed to load worker token expiresAt:', error);
+				}
 			} else {
 				// Check for saved credentials
 				const savedCreds = workerTokenCredentialsService.loadCredentials(FLOW_TYPE);
@@ -2071,14 +2088,30 @@ export { changePassword, handleChangePassword };`;
 							</>
 						)}
 					</StatusItem>
-					<div style={{ display: 'flex', gap: '0.5rem' }}>
-						<Button
-							$variant={workerToken ? 'success' : 'danger'}
-							onClick={() => setShowWorkerTokenModal(true)}
-						>
-							<FiKey />
-							Configure Worker Token
-						</Button>
+					<div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+						{/* App Lookup Button */}
+						{environmentId && (
+							<CompactAppPickerV8U
+								environmentId={environmentId}
+								onAppSelected={(app) => {
+									setSelectedApp(app);
+									// App selected - user can manually configure clientId
+									console.log('Selected app:', app.name);
+								}}
+							/>
+						)}
+						
+						{/* Worker Token Button */}
+						{renderWorkerTokenButton(
+							workerToken,
+							workerTokenExpiresAt,
+							() => setShowWorkerTokenModal(true),
+							'Get Worker Token',
+							'Worker Token Ready',
+							'Refresh Worker Token'
+						)}
+						
+						{/* Auth Code Client Button */}
 						<Button
 							$variant={
 								authzCredentials.environmentId &&
