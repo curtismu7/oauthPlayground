@@ -4733,6 +4733,8 @@ This section provides a comprehensive summary of all critical issues identified 
 | 78 | **Legacy Hub Navigation Buttons** | ✅ RESOLVED | TOTPFlowV8.tsx:1620, EmailFlowV8.tsx:1475, MobileFlowV8.tsx:1670, SMSFlowV8.tsx:1692 | Multiple flow types still navigate to old /v8/mfa-hub instead of unified flow | Updated all flow navigation buttons to use /v8/unified-mfa |
 | 79 | **Silent API Still Showing Modal** | ✅ RESOLVED | workerTokenModalHelperV8.ts:274 | Silent API mode shows modal when credentials missing instead of staying silent | Fixed: suppress modal in silent mode, show toast warning instead |
 | 80 | **Step 0 Stale Token Validation** | ✅ RESOLVED | NewMFAFlowV8.tsx:180, UnifiedMFARegistrationFlowV8_Legacy.tsx:2712 | Can advance past step 0 without valid worker token due to stale React state | Fixed: fresh WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync() check instead of stale state |
+| 81 | **OIDC Scopes Validation Error** | 🔴 ACTIVE | WorkerTokenModalV8.tsx:264 | Client Credentials flow incorrectly using OIDC scope "openid" causing validation failure | Users trying to use openid scope with client credentials flow - need to use resource server scopes |
+| 82 | **Credential Import JSON Parsing Error** | 🔴 ACTIVE | credentialExportImportService.ts:102 | Import fails when file is HTML (likely from browser download) instead of JSON | Browser downloads HTML page instead of JSON file, causing SyntaxError on JSON.parse |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -15520,6 +15522,18 @@ grep -rn "tokenStatus.isValid" src/v8/flows/NewMFAFlowV8.tsx -A 2 -B 2
 grep -rn "checkWorkerTokenStatusSync" src/v8/flows/NewMFAFlowV8.tsx -A 2 -B 2
 grep -rn "checkWorkerTokenStatusSync" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx -A 2 -B 2
 grep -rn "workerToken.tokenStatus.isValid" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx -A 2 -B 2
+
+# Issue 81: Check OIDC scopes validation (client credentials should not use openid scope)
+grep -A 5 -B 5 "Invalid OIDC Scopes" src/v8/components/WorkerTokenModalV8.tsx
+grep -A 5 -B 5 "Client Credentials flow cannot use OIDC scopes" src/v8/components/WorkerTokenModalV8.tsx
+grep -A 5 -B 5 "openid.*scope" src/v8/components/WorkerTokenModalV8.tsx
+grep -rn "scope.*openid" src/v8/components/WorkerTokenModalV8.tsx -A 2 -B 2
+
+# Issue 82: Check credential import JSON parsing (HTML vs JSON file detection)
+grep -A 5 -B 5 "JSON.parse" src/v8/services/credentialExportImportService.ts
+grep -A 5 -B 5 "SyntaxError.*Unexpected token" src/v8/services/credentialExportImportService.ts
+grep -A 5 -B 5 "<!DOCTYPE" src/v8/services/credentialExportImportService.ts
+grep -A 5 -B 5 "Failed to parse credential file" src/v8/components/WorkerTokenModalV8.tsx
 
 # Issue 70: Resend email prevention commands
 grep -rn "resendEmail" src/v8/services/mfaServiceV8.ts -A 5 -B 5
