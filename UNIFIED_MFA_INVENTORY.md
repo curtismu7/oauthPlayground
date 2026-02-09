@@ -4734,6 +4734,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 66 | **Device Creation Success Modal Missing** | ✅ RESOLVED | EmailFlowV8.tsx:1309-1368 | No modal showing device info after creation | Added DeviceCreationSuccessModalV8 with device info for all flow types |
 | 67 | **Success Page Title and Button Issues** | ✅ RESOLVED | unifiedMFASuccessPageServiceV8.tsx:432, SuccessStepV8.tsx:91 | Registration flows show "Authentication Successful" instead of "Device Created" | Fixed titles to show "Device Created!" for registration flows, centered titles, normal button sizes |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
+| 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
 | 40 | **SMS Step 1 Advancement Issue** | ✅ RESOLVED | CallbackHandlerV8U.tsx:294, MFAFlowBaseV8.tsx:149 | SMS flow stuck on step 1, not advancing to next step | Fixed with foolproof callback step advancement |
 | 41 | **Registration/Authentication Not Separated** | 🔴 ACTIVE | UnifiedMFARegistrationFlowV8_Legacy.tsx:2734 | Still using MFAFlowBaseV8 instead of separate steppers | Registration and Authentication flows not properly separated |
@@ -15373,6 +15374,32 @@ grep -A 10 "handleRegisterDevice" src/v8/flows/types/EmailFlowV8.tsx | grep -E "
 grep -A 10 "handleRegisterDevice" src/v8/flows/types/SMSFlowV8.tsx | grep -E "toastV8\.error|setValidationErrors"
 grep -A 10 "handleRegisterDevice" src/v8/flows/types/WhatsAppFlowV8.tsx | grep -E "toastV8\.error|setValidationErrors"
 grep -A 10 "handleRegisterDevice" src/v8/flows/types/MobileFlowV8.tsx | grep -E "toastV8\.error|setValidationErrors"
+
+# Issue 69: Check resend pairing code error handling patterns
+grep -rn "resendPairingCode" src/v8/services/mfaServiceV8.ts -A 5 -B 5
+grep -rn "401.*Unauthorized\|400.*Bad Request" src/v8/services/mfaServiceV8.ts
+grep -rn "Worker token.*expired\|Content-Type.*application/json" src/v8/services/mfaServiceV8.ts
+
+# Issue 69: Check backend resend pairing code endpoint
+grep -A 10 "resend-pairing-code" server.js
+grep -A 5 "Content-Type.*sendActivationCode" server.js
+grep -A 5 "bodyString.*empty" server.js
+
+# Issue 69: Verify error handling for different HTTP status codes
+grep -A 3 "response.status.*===.*401\|response.status.*===.*400\|response.status.*===.*403\|response.status.*===.*404" src/v8/services/mfaServiceV8.ts
+
+# Issue 70: Resend email prevention commands
+grep -rn "resendEmail" src/v8/services/mfaServiceV8.ts -A 5 -B 5
+grep -rn "401.*Unauthorized\|400.*Bad Request" src/v8/services/mfaServiceV8.ts
+grep -rn "Worker token.*expired\|Content-Type.*application/json" src/v8/services/mfaServiceV8.ts
+
+# Issue 70: Check backend resend email endpoint
+grep -A 10 "resend-email" server.js
+grep -A 5 "Content-Type.*sendEmail" server.js
+grep -A 5 "bodyString.*empty" server.js
+
+# Issue 70: Verify error handling for different HTTP status codes
+grep -A 3 "response.status.*===.*401\|response.status.*===.*400\|response.status.*===.*403\|response.status.*===.*404" src/v8/services/mfaServiceV8.ts
 ```
 
 ### **📋 After Every Fix**
