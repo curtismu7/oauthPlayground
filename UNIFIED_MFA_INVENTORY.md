@@ -4740,6 +4740,8 @@ This section provides a comprehensive summary of all critical issues identified 
 | 85 | **Username Dropdown Regression** | ✅ RESOLVED | DeleteAllDevicesUtilityV8.tsx:585 | Username dropdown lost during React initialization fix, reverted to basic text input | Restored SearchableDropdownV8 with user search functionality and proper imports |
 | 86 | **Infinite Loading Loop** | ✅ RESOLVED | DeleteAllDevicesUtilityV8.tsx:381 | Auto-reload useEffect causing infinite loop due to handleLoadDevices dependency | Fixed by removing handleLoadDevices from dependency array and using tokenStatus.isValid instead of tokenStatus object |
 | 87 | **OIDC login_hint Implementation** | ✅ IMPLEMENTED | UserLoginModalV8.tsx:1890, OAuthIntegrationServiceV8.ts:266 | Add username as OIDC login_hint parameter to authorization calls for better user experience | Added username field to UserLoginModal and OIDC-specific login_hint parameter to authorization URL generation (both standard and JAR flows, requires openid scope) |
+| 88 | **Callback Redirect URI Context Detection** | ✅ FIXED | CallbackHandlerV8U.tsx:233 | User login callback redirects to wrong page instead of original flow context | Fixed callback handler to properly detect MFA vs user login flow context and redirect to correct fallback page |
+| 89 | **Return Target Service Migration** | ✅ IMPLEMENTED | UserLoginModalV8.tsx:1352, CallbackHandlerV8U.tsx:170 | Redirect URI return targets not found due to mixed usage of old sessionStorage and new ReturnTargetServiceV8U | Migrated UserLoginModal to use ReturnTargetServiceV8U and removed old sessionStorage fallback logic from CallbackHandler |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -15614,6 +15616,26 @@ grep -A 5 -B 5 "Added OIDC login_hint.*console" src/v8/services/oauthIntegration
 grep -A 5 -B 5 "credentials.username" src/v8/components/UserLoginModalV8.tsx
 grep -A 5 -B 5 "login_hint.*JAR" src/v8/services/oauthIntegrationServiceV8.ts
 grep -A 5 -B 5 "openid scope.*login_hint" src/v8/services/oauthIntegrationServiceV8.ts
+
+# Issue 88: Check callback redirect URI context detection
+grep -A 5 -B 5 "CRITICAL FIX.*Detect original flow context" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "Detected.*flow callback.*using.*fallback" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "mfa-unified-callback.*user-login-callback" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "fallbackPath.*user-login" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "Redirecting to fallback page" src/v8u/components/CallbackHandlerV8U.tsx
+
+# Issue 89: Check ReturnTargetServiceV8U migration and prevent old sessionStorage usage
+grep -A 5 -B 5 "CRITICAL FIX.*Use ReturnTargetServiceV8U" src/v8/components/UserLoginModalV8.tsx
+grep -A 5 -B 5 "setReturnTarget.*mfa_device_registration" src/v8/components/UserLoginModalV8.tsx
+grep -A 5 -B 5 "No return target found.*indicates.*usage issue" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "EMERGENCY.*ReturnTargetServiceV8U.*not used properly" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "user_login_return_to_mfa" src/v8/components/UserLoginModalV8.tsx src/v8u/components/CallbackHandlerV8U.tsx
+
+# Issue 89: Verify ReturnTargetServiceV8U is used instead of raw sessionStorage
+grep -r "sessionStorage\.setItem.*user_login_return_to_mfa" src/v8/ --exclude-dir=node_modules
+grep -r "sessionStorage\.getItem.*user_login_return_to_mfa" src/v8/ --exclude-dir=node_modules
+grep -r "ReturnTargetServiceV8U\.setReturnTarget" src/v8/ --exclude-dir=node_modules
+grep -r "ReturnTargetServiceV8U\.peekReturnTarget" src/v8u/ --exclude-dir=node_modules
 
 # ========================================================================
 # INFINITE LOOP PREVENTION COMPREHENSIVE GUIDE

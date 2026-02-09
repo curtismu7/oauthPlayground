@@ -22,6 +22,7 @@ import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { OAuthIntegrationServiceV8, type OAuthCredentials } from '@/v8/services/oauthIntegrationServiceV8';
+import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
@@ -1345,27 +1346,24 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			// For device registration flows, stay on the current page (Configuration page)
 			// Only store return path for user authentication flows, not device registration
 			if (currentPath.startsWith('/v8/mfa')) {
-				// Store path directly as a string (no need for JSON.stringify on a string)
-				// CRITICAL: Store BEFORE redirect to ensure it's available when callback returns
-				sessionStorage.setItem('user_login_return_to_mfa', fullPath);
+				// CRITICAL FIX: Use ReturnTargetServiceV8U instead of raw sessionStorage
+				// This ensures proper return target management and prevents "not found" issues
+				const step = parseInt(currentPath.split('step=')[1] || '2', 10);
+				ReturnTargetServiceV8U.setReturnTarget('mfa_device_registration', fullPath, step);
 
 				// #region agent log
 				sendAnalyticsLog({
-					location: 'UserLoginModalV8.tsx:691',
-					message: 'Stored return path to MFA flow',
-					data: {
-						fullPath,
-						currentPath,
-						currentSearch,
-						redirectUri: finalRedirectUri,
-						isMfaFlow,
-					},
+					location: 'UserLoginModalV8.tsx:1348',
+					message: 'Set return target for MFA flow using ReturnTargetServiceV8U',
+					data: { currentPath, fullPath, step, service: 'ReturnTargetServiceV8U' },
 					timestamp: Date.now(),
 					sessionId: 'debug-session',
 					runId: 'run1',
-					hypothesisId: 'B',
+					hypothesisId: 'C',
 				});
 				// #endregion
+
+				console.log(`${MODULE_TAG} 🎯 Set return target for MFA flow: ${fullPath} (step ${step})`);
 			} else {
 				console.warn(
 					`${MODULE_TAG} ⚠️ Not storing return path - current path does not start with /v8/mfa:`,

@@ -167,223 +167,43 @@ export const CallbackHandlerV8U: React.FC = () => {
 				return;
 			}
 
-			// FALLBACK: No return target found - use existing logic
-			console.warn(`${MODULE_TAG} ⚠️ No return target found, falling back to legacy logic`);
-
+			// CRITICAL: No return target found - this should never happen with proper ReturnTargetServiceV8U usage
+			console.error(`${MODULE_TAG} ❌ No return target found - this indicates a ReturnTargetServiceV8U usage issue`);
+			
 			// #region agent log
 			sendAnalyticsLog({
-				location: 'CallbackHandlerV8U.tsx:39',
-				message: 'User login callback detected - no return target, using fallback',
+				location: 'CallbackHandlerV8U.tsx:170',
+				message: 'CRITICAL: No return target found - ReturnTargetServiceV8U not used properly',
 				data: {
 					currentPath: window.location.pathname,
 					currentSearch: window.location.search,
 					currentHref: window.location.href,
 					allReturnTargets,
+					availableKeys: Object.keys(sessionStorage),
 				},
 				timestamp: Date.now(),
 				sessionId: 'debug-session',
 				runId: 'run1',
-				hypothesisId: 'E',
+				hypothesisId: 'CRITICAL',
 			});
 			// #endregion
 
-			console.log(`${MODULE_TAG} ✅ User login callback detected - redirecting back to MFA flow`);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Current URL:`, window.location.href);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Current pathname:`, window.location.pathname);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Current search:`, window.location.search);
-
-			// DEBUG: Log all sessionStorage keys to help diagnose cache issues
-			const allKeys = Object.keys(sessionStorage);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: All sessionStorage keys (${allKeys.length}):`, allKeys);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Checking for user_login_return_to_mfa...`);
-
-			// Check if we have a stored return path
-			const returnToMfaFlow = sessionStorage.getItem('user_login_return_to_mfa');
-
-			// #region agent log
-			sendAnalyticsLog({
-				location: 'CallbackHandlerV8U.tsx:51',
-				message: 'Checking for return path in sessionStorage',
-				data: { returnToMfaFlow, hasReturnPath: !!returnToMfaFlow, allSessionKeys: allKeys },
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run1',
-				hypothesisId: 'B',
-			});
-			// #endregion
-
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Return path value:`, returnToMfaFlow);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Return path type:`, typeof returnToMfaFlow);
-			console.log(`${MODULE_TAG} 🔍 DEBUG: Return path exists:`, !!returnToMfaFlow);
-
-			// DEBUG: Check for other related keys
-			console.log(
-				`${MODULE_TAG} 🔍 DEBUG: user_login_state_v8:`,
-				sessionStorage.getItem('user_login_state_v8') ? 'EXISTS' : 'MISSING'
-			);
-			console.log(
-				`${MODULE_TAG} 🔍 DEBUG: user_login_redirect_uri_v8:`,
-				sessionStorage.getItem('user_login_redirect_uri_v8')
-			);
-
-			// Enhanced fallback logic - try multiple approaches
-			let fallbackPath = '/v8/unified-mfa'; // Default fallback to unified flow
-
-			if (returnToMfaFlow) {
-				try {
-					// Path is stored as a plain string (no JSON parsing needed)
-					const mfaPath = returnToMfaFlow.trim();
-					console.log(`${MODULE_TAG} ✅ Found stored return path: ${mfaPath}`);
-
-					// Validate that the path looks correct
-					if (!mfaPath.startsWith('/v8/mfa')) {
-						console.error(
-							`${MODULE_TAG} ❌ Invalid return path (doesn't start with /v8/mfa): ${mfaPath}`
-						);
-						throw new Error(`Invalid return path: ${mfaPath}`);
-					}
-
-					// CRITICAL: Store a marker that we're returning from OAuth callback
-					// This tells the MFA flow to restore state and auto-advance
-					sessionStorage.setItem('mfa_oauth_callback_return', 'true');
-
-					// Preserve callback parameters in the URL when redirecting
-					const callbackParams = new URLSearchParams(window.location.search);
-					const redirectUrl = buildRedirectUrl(mfaPath, callbackParams);
-
-					console.log(`${MODULE_TAG} 🚀 Redirecting to MFA flow: ${redirectUrl}`);
-					console.log(
-						`${MODULE_TAG} ✅ Set mfa_oauth_callback_return marker for state restoration`
-					);
-
-					// #region agent log
-					sendAnalyticsLog({
-						location: 'CallbackHandlerV8U.tsx:93',
-						message: 'About to execute redirect to MFA flow',
-						data: { mfaPath, redirectUrl, callbackParams: window.location.search },
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'run2',
-						hypothesisId: 'B',
-					});
-					// #endregion
-
-					// CRITICAL: Do NOT remove user_login_return_to_mfa here - let the target page clean it up
-					// This ensures if the redirect fails or there's a race condition, the path is still available
-					// The target page (MFAFlowBaseV8 or MFAAuthenticationMainPageV8) will clean it up after successful navigation
-
-					// Use window.location.replace for immediate redirect (more reliable than navigate)
-					// Store redirect intent in sessionStorage as a backup in case redirect fails
-					sessionStorage.setItem('mfa_redirect_intent', redirectUrl);
-
-					// #region agent log
-					sendAnalyticsLog({
-						location: 'CallbackHandlerV8U.tsx:110',
-						message: 'Executing window.location.replace',
-						data: { redirectUrl },
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'run2',
-						hypothesisId: 'B',
-					});
-					// #endregion
-
-					window.location.replace(redirectUrl);
-
-					// This code should never execute due to navigation, but adding as safety check
-					setTimeout(() => {
-						// #region agent log
-						sendAnalyticsLog({
-							location: 'CallbackHandlerV8U.tsx:120',
-							message: 'WARNING: window.location.replace did not navigate away',
-							data: { currentUrl: window.location.href, expectedRedirect: redirectUrl },
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'run2',
-							hypothesisId: 'B',
-						});
-						// #endregion
-						console.error(
-							`${MODULE_TAG} ❌ CRITICAL: window.location.replace did not navigate - still on page after redirect attempt`
-						);
-					}, 100);
-
-					return; // CRITICAL: Exit early to prevent unified flow logic
-				} catch (error) {
-					console.error(`${MODULE_TAG} ❌ Failed to process return path:`, error);
-					console.error(`${MODULE_TAG} ❌ Return path value that failed:`, returnToMfaFlow);
-					// Fall through to MFA hub redirect
-				}
-			} else {
-				// Enhanced fallback logic - try to detect the most recent MFA page
-				console.warn(`${MODULE_TAG} ⚠️ No return path found in sessionStorage!`);
-				console.warn(
-					`${MODULE_TAG} ⚠️ This might indicate a cache issue or the return path was cleared prematurely.`
-				);
-
-				// Check if we have any MFA-related sessionStorage keys to infer the last page
-				const mfaRelatedKeys = allKeys.filter((key) => key.includes('mfa') || key.includes('MFA'));
-
-				console.log(`${MODULE_TAG} 🔍 MFA-related sessionStorage keys:`, mfaRelatedKeys);
-
-				// Check if current path is a unified MFA callback and redirect accordingly
-				if (
-					currentPath === '/mfa-unified-callback' ||
-					currentPath.includes('mfa-unified-callback') ||
-					currentPath === '/v8/unified-mfa-callback' ||
-					currentPath.includes('v8/unified-mfa-callback') ||
-					currentPath === '/v8/mfa-unified-callback' ||
-					currentPath.includes('v8/mfa-unified-callback')
-				) {
-					// FIXED: Use return target service to determine correct step instead of hardcoding step 3
-					// NOTE: Return targets may have been consumed above in user login callback section
-					// Use peekReturnTarget to check without consuming (since they might already be consumed)
-					const deviceRegistrationTarget = ReturnTargetServiceV8U.peekReturnTarget('mfa_device_registration');
-					const deviceAuthenticationTarget = ReturnTargetServiceV8U.peekReturnTarget('mfa_device_authentication');
-					
-					if (deviceRegistrationTarget) {
-						fallbackPath = deviceRegistrationTarget.path;
-						console.log(
-							`${MODULE_TAG} 🔄 Device Registration return target found: ${fallbackPath} (step ${deviceRegistrationTarget.step})`
-						);
-					} else if (deviceAuthenticationTarget) {
-						fallbackPath = deviceAuthenticationTarget.path;
-						console.log(
-							`${MODULE_TAG} 🔄 Device Authentication return target found: ${fallbackPath} (step ${deviceAuthenticationTarget.step})`
-						);
-					} else {
-						// FOOLPROOF: If no return target, advance to step 3 (Device Actions) as fallback
-						fallbackPath = '/v8/unified-mfa?step=3';
-						console.log(
-							`${MODULE_TAG} 🔄 No return target found, using fallback step 3 (Device Actions): ${fallbackPath}`
-						);
-					}
-					
-					// Store callback marker and step advancement info
-					sessionStorage.setItem('mfa_oauth_callback_return', 'true');
-					sessionStorage.setItem('mfa_oauth_callback_step', fallbackPath.includes('step=') ? fallbackPath.split('step=')[1] : '3');
-					sessionStorage.setItem('mfa_oauth_callback_timestamp', Date.now().toString());
-				}
-				// If we have unified MFA keys, prefer the unified page
-				else if (mfaRelatedKeys.some((key) => key.includes('unified'))) {
-					fallbackPath = '/v8/unified-mfa';
-					console.log(
-						`${MODULE_TAG} 🔍 Detected unified MFA activity, using fallback: ${fallbackPath}`
-					);
-				}
-
-				console.warn(`${MODULE_TAG} ⚠️ Redirecting to fallback MFA page: ${fallbackPath}`);
+			// EMERGENCY FALLBACK: Use flow context detection as last resort
+			let emergencyFallbackPath = '/v8/unified-mfa'; // Default fallback
+			
+			if (currentPath.includes('mfa-unified-callback') || currentPath.includes('unified-mfa-callback')) {
+				emergencyFallbackPath = '/v8/unified-mfa?step=3'; // MFA flow fallback
+				console.error(`${MODULE_TAG} � EMERGENCY: Using MFA fallback: ${emergencyFallbackPath}`);
+			} else if (currentPath.includes('user-login-callback')) {
+				emergencyFallbackPath = '/v8/user-login'; // User login fallback
+				console.error(`${MODULE_TAG} � EMERGENCY: Using user login fallback: ${emergencyFallbackPath}`);
 			}
 
-			const normalizedFallback = normalizeFallbackStep(fallbackPath);
+			const normalizedFallback = normalizeFallbackStep(emergencyFallbackPath);
 			const callbackParams = new URLSearchParams(window.location.search);
 			const redirectUrl = buildRedirectUrl(normalizedFallback.path, callbackParams);
-			console.log(`${MODULE_TAG} 🚀 Redirecting to fallback: ${redirectUrl}`);
-
-			// Store callback marker even for fallback
-			sessionStorage.setItem('mfa_oauth_callback_return', 'true');
-			sessionStorage.setItem('mfa_oauth_callback_step', normalizedFallback.step.toString());
-			sessionStorage.setItem('mfa_oauth_callback_timestamp', Date.now().toString());
+			
+			console.error(`${MODULE_TAG} � EMERGENCY REDIRECT - ReturnTargetServiceV8U was not used properly: ${redirectUrl}`);
 			window.location.replace(redirectUrl);
 			return; // CRITICAL: Exit early to prevent unified flow logic
 		}
