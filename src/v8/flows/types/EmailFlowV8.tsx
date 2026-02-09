@@ -28,6 +28,7 @@ import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBas
 import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
+import { DeviceCreationSuccessModalV8 } from '../../components/DeviceCreationSuccessModalV8';
 
 const _MODULE_TAG = '[📧 EMAIL-FLOW-V8]';
 
@@ -694,6 +695,23 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		tokenValid: boolean;
 	} | null>(null);
 
+	// Device creation success modal state
+	const [showDeviceCreationSuccessModal, setShowDeviceCreationSuccessModal] = useState(false);
+	const [deviceCreationSuccessInfo, setDeviceCreationSuccessInfo] = useState<{
+		deviceId: string;
+		deviceType: DeviceType;
+		deviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+		deviceName?: string;
+		nickname?: string;
+		username?: string;
+		userId?: string;
+		environmentId?: string;
+		email?: string;
+		phone?: string;
+		createdAt?: string;
+		registrationFlowType?: 'admin' | 'user';
+	} | null>(null);
+
 	// Auto-populate email from PingOne user when entering step 2
 	const emailFetchAttemptedRef = React.useRef<{ step: number; username: string } | null>(null);
 	const pendingEmailFetchTriggerRef = React.useRef<{
@@ -1286,6 +1304,22 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						// User controls navigation to validation step
 
 						toastV8.success('Email device registered! OTP has been sent automatically.');
+
+						// Show device creation success modal
+						setDeviceCreationSuccessInfo({
+							deviceId: result.deviceId,
+							deviceType: currentDeviceType,
+							deviceStatus: 'ACTIVATION_REQUIRED',
+							deviceName: userEnteredDeviceName,
+							nickname: registrationCredentials.nickname,
+							username: registrationCredentials.username,
+							userId: (result as { userId?: string }).userId,
+							environmentId: registrationCredentials.environmentId,
+							email: registrationCredentials.email,
+							createdAt: new Date().toISOString(),
+							registrationFlowType,
+						});
+						setShowDeviceCreationSuccessModal(true);
 					} else if (actualDeviceStatus === 'ACTIVE') {
 						// Admin flow: Device is ACTIVE, no OTP needed - show success screen
 						nav.markStepComplete();
@@ -1316,6 +1350,22 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						toastV8.success(
 							'Email device registered successfully! Device is ready to use (ACTIVE status).'
 						);
+
+						// Show device creation success modal
+						setDeviceCreationSuccessInfo({
+							deviceId: resultWithExtras.deviceId,
+							deviceType: currentDeviceType,
+							deviceStatus: 'ACTIVE',
+							deviceName: userEnteredDeviceName,
+							nickname: registrationCredentials.nickname,
+							username: registrationCredentials.username,
+							userId: resultWithExtras.userId,
+							environmentId: resultWithExtras.environmentId || registrationCredentials.environmentId,
+							email: registrationCredentials.email,
+							createdAt: resultWithExtras.createdAt,
+							registrationFlowType,
+						});
+						setShowDeviceCreationSuccessModal(true);
 					} else {
 						// Unknown status - default behavior
 						UnifiedFlowLoggerService.warn(
@@ -2820,6 +2870,15 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				}}
 			/>
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
+			
+			{/* Device Creation Success Modal */}
+			{showDeviceCreationSuccessModal && deviceCreationSuccessInfo && (
+				<DeviceCreationSuccessModalV8
+					isOpen={showDeviceCreationSuccessModal}
+					onClose={() => setShowDeviceCreationSuccessModal(false)}
+					deviceInfo={deviceCreationSuccessInfo}
+				/>
+			)}
 		</div>
 	);
 };
