@@ -15602,6 +15602,176 @@ grep -A 5 -B 5 "useEffect.*handleLoadDevices" src/v8/pages/DeleteAllDevicesUtili
 grep -A 10 -B 5 "infinite loop" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
 
 # ========================================================================
+# INFINITE LOOP PREVENTION COMPREHENSIVE GUIDE
+# ========================================================================
+
+## 🚨 CRITICAL: React Infinite Loop Patterns
+
+### Common Causes of Infinite Loops
+1. **Object References in Dependencies** - Objects change reference on every render
+2. **Function Dependencies in useEffect** - Functions recreated when their dependencies change
+3. **State Updates in useEffect** - Updating state that triggers the same useEffect
+4. **Circular Dependencies** - useEffect A triggers useEffect B which triggers useEffect A
+
+### Prevention Checklist
+
+#### ✅ useCallback Dependencies
+```bash
+# Check for object dependencies in useCallback
+grep -rn "useCallback.*\[\]" src/v8/ --include="*.tsx" -A 2 -B 2
+grep -rn "useCallback.*tokenStatus" src/v8/ --include="*.tsx" -A 2 -B 2
+grep -rn "useCallback.*\[\s*\w*\s*\]" src/v8/ --include="*.tsx" -A 2 -B 2
+
+# Verify primitive values instead of objects
+grep -rn "tokenStatus.isValid" src/v8/ --include="*.tsx" -A 2 -B 2
+grep -rn "isValid.*useCallback" src/v8/ --include="*.tsx" -A 2 -B 2
+```
+
+#### ✅ useEffect Dependencies
+```bash
+# Check for function dependencies in useEffect
+grep -rn "useEffect.*handleLoadDevices" src/v8/ --include="*.tsx" -A 2 -B 2
+grep -rn "useEffect.*\[.*handle" src/v8/ --include="*.tsx" -A 2 -B 2
+
+# Look for auto-reload patterns
+grep -rn "Auto-reload" src/v8/ --include="*.tsx" -A 5 -B 5
+grep -rn "auto.*reload\|reload.*auto" src/v8/ --include="*.tsx" -A 5 -B 5
+```
+
+#### ✅ State Update Patterns
+```bash
+# Check for state updates in useEffect
+grep -rn "useEffect.*set" src/v8/ --include="*.tsx" -A 3 -B 3
+grep -rn "useEffect.*useState" src/v8/ --include="*.tsx" -A 3 -B 3
+
+# Look for conditional state updates
+grep -rn "if.*set" src/v8/ --include="*.tsx" -A 3 -B 3
+```
+
+### 🛠️ Safe Dependency Patterns
+
+#### Use Primitive Values Instead of Objects
+```typescript
+// ❌ BAD: Object reference changes frequently
+}, [environmentId, username, tokenStatus, selectedDeviceType]);
+
+// ✅ GOOD: Use specific primitive values
+}, [environmentId, username, tokenStatus.isValid, selectedDeviceType]);
+```
+
+#### Avoid Function Dependencies in useEffect
+```typescript
+// ❌ BAD: Function dependency causes infinite loop
+useEffect(() => {
+  if (hasDevices) {
+    handleLoadDevices(); // Function dependency
+  }
+}, [devices.length, handleLoadDevices]);
+
+// ✅ GOOD: Remove function dependency
+useEffect(() => {
+  if (hasDevices) {
+    handleLoadDevices(); // Function called but not in dependencies
+  }
+}, [devices.length, environmentId, username, tokenStatus.isValid]);
+```
+
+#### Use Stable References
+```typescript
+// ❌ BAD: Object created on every render
+const config = { enabled: true, debug: false };
+useEffect(() => {
+  doSomething(config);
+}, [config]); // Config changes reference every render
+
+// ✅ GOOD: Use useMemo for stable object reference
+const config = useMemo(() => ({ enabled: true, debug: false }), []);
+useEffect(() => {
+  doSomething(config);
+}, [config]); // Config reference is stable
+```
+
+### 🔍 Debugging Infinite Loops
+
+#### 1. **Identify the Loop**
+```bash
+# Look for console.log patterns that repeat
+grep -rn "console.log.*✅" src/v8/ --include="*.tsx" -A 1 -B 1
+
+# Check for loading state patterns
+grep -rn "setIsLoading.*true" src/v8/ --include="*.tsx" -A 2 -B 2
+```
+
+#### 2. **Trace Dependencies**
+```bash
+# Find all useEffect with function dependencies
+grep -rn "useEffect.*\[" src/v8/ --include="*.tsx" -A 5 | grep -E "handle|function"
+
+# Find useCallback with object dependencies  
+grep -rn "useCallback.*\[" src/v8/ --include="*.tsx" -A 5 | grep -E "Status|Config|Options"
+```
+
+#### 3. **Verify Fix**
+```bash
+# Ensure no function dependencies in useEffect
+grep -rn "useEffect.*handle" src/v8/ --include="*.tsx" | grep -v "eslint-disable"
+
+# Ensure useCallback uses primitive dependencies
+grep -rn "useCallback.*tokenStatus" src/v8/ --include="*.tsx" | grep -v "\.isValid"
+```
+
+### 📋 Code Review Checklist
+
+#### Before Committing useEffect Code:
+- [ ] No function dependencies in useEffect dependency array
+- [ ] Object dependencies use specific primitive values (e.g., `tokenStatus.isValid`)
+- [ ] State updates don't trigger the same useEffect
+- [ ] useMemo used for complex object dependencies
+- [ ] Auto-reload patterns exclude function dependencies
+- [ ] Comments explain any intentional dependency exclusions
+
+#### Before Committing useCallback Code:
+- [ ] Dependencies are primitive values when possible
+- [ ] Object dependencies are stable (useMemo if needed)
+- [ ] No unnecessary dependencies that cause frequent recreation
+- [ ] Function logic doesn't update state that triggers its own recreation
+
+### 🎯 Specific to DeleteAllDevicesUtilityV8
+
+#### Critical Areas to Monitor:
+```bash
+# Auto-reload functionality
+grep -A 10 -B 5 "Auto-reload devices" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+
+# Device loading function
+grep -A 15 -B 5 "handleLoadDevices.*useCallback" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+
+# Token status usage
+grep -A 5 -B 5 "tokenStatus.isValid" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+```
+
+#### Warning Signs:
+- Console logs showing repeated device loading
+- Loading spinner never stopping
+- Network tab showing continuous API calls
+- React DevTools showing component re-rendering continuously
+
+### 🔄 Maintenance Commands
+
+Run these commands regularly to prevent infinite loops:
+
+```bash
+# Weekly: Check for new infinite loop patterns
+npm run check:infinite-loops
+
+# Monthly: Review all useEffect dependencies
+npm run review:useeffects
+
+# Before major releases: Comprehensive dependency audit
+npm run audit:dependencies
+```
+
+# ========================================================================
 # KEY ROTATION POLICY (KRP) COMPREHENSIVE DOCUMENTATION
 # ========================================================================
 
