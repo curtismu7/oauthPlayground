@@ -22,6 +22,8 @@ import {
 	type TokenInfo,
 	TokenMonitoringService,
 } from '../services/tokenMonitoringService';
+// Enhanced state management for token synchronization
+import { useUnifiedFlowState } from '../services/enhancedStateManagement';
 
 const PageContainer = styled.div`
   padding: 2rem;
@@ -333,6 +335,9 @@ export const TokenMonitoringPage: React.FC = () => {
 	const [_revocationMethod, _setRevocationMethod] = useState<RevocationMethod>('oauth_revoke');
 	const [showRevocationOptions, setShowRevocationOptions] = useState<string | null>(null);
 
+	// Enhanced state management for token synchronization
+	const { actions: enhancedStateActions } = useUnifiedFlowState();
+
 	// Subscribe to token monitoring service
 	useEffect(() => {
 		// Reset service instance to ensure clean initialization on refresh
@@ -350,6 +355,21 @@ export const TokenMonitoringPage: React.FC = () => {
 		const unsubscribe = freshService.subscribe((newTokens: TokenInfo[]) => {
 			setTokens(newTokens);
 			logger.debug(`[TokenMonitoringPage] Updated tokens: ${newTokens.length} tokens`);
+
+			// Update enhanced state management with new token counts
+			try {
+				const tokenCount = newTokens.length;
+				const featureCount = tokenCount > 0 ? 1 : 0;
+				
+				enhancedStateActions.setTokenMetrics({
+					tokenCount,
+					featureCount,
+					lastApiCall: Date.now(),
+				});
+				logger.debug(`[TokenMonitoringPage] Enhanced state management updated: ${tokenCount} tokens`);
+			} catch (enhancedErr) {
+				logger.warn('[TokenMonitoringPage] Failed to update enhanced state management', enhancedErr);
+			}
 		});
 
 		// Also try to sync worker tokens if they exist
@@ -362,7 +382,7 @@ export const TokenMonitoringPage: React.FC = () => {
 		}, 1000);
 
 		return unsubscribe;
-	}, []);
+	}, [enhancedStateActions]);
 
 	// Token actions
 	const handleRefreshToken = async (tokenId: string) => {
