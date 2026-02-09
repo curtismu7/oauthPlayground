@@ -27,6 +27,7 @@ import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFAFlowController } from '@/v8/flows/controllers/MFAFlowController';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { unifiedErrorHandlerV8 } from '@/v8/utils/unifiedErrorHandlerV8';
 
 const MODULE_TAG = '[🔍 UNIFIED-DEVICE-SELECTION-STEP]';
 
@@ -130,9 +131,17 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 				);
 			}
 		} catch (error: unknown) {
-			console.error(`${MODULE_TAG} Failed to load existing devices:`, error);
+			// Use standardized error handling
+			const context = unifiedErrorHandlerV8.createContext(
+				'UnifiedDeviceSelectionStep',
+				'loadExistingDevices',
+				{ deviceType: config.deviceType }
+			);
 
-			const errorMessage = error instanceof Error ? error.message : 'Failed to load existing devices';
+			const errorMessage = unifiedErrorHandlerV8.handle(error, context, {
+				showToast: false, // We'll show our own toast below
+			});
+
 			setLoadError(errorMessage);
 
 			// Show error toast

@@ -13,6 +13,7 @@ import { usePageScroll } from '@/hooks/usePageScroll';
 import { CreatePolicyModalV8 } from '@/v8/components/CreatePolicyModalV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
+import { MFAUserDisplayV8 } from '@/v8/components/MFAUserDisplayV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
@@ -641,6 +642,22 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					Manage MFA-specific settings for authentication flows, device management, and user
 					experience
 				</p>
+				<MFAUserDisplayV8
+					username={(() => {
+						// Try to get username from various sources
+						const stored =
+							localStorage.getItem('mfa_unified_username') ||
+							localStorage.getItem('mfa_username') ||
+							localStorage.getItem('username');
+						return stored || '';
+					})()}
+					onUsernameChange={() => {
+						// Navigate to device management to change user
+						navigate('/v8/mfa-device-management');
+					}}
+					style={{ marginTop: '12px' }}
+					label="Current User"
+				/>
 			</div>
 
 			{/* OTP Failure Cooldown Section */}

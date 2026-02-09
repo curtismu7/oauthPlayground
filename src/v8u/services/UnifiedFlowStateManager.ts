@@ -117,17 +117,17 @@ export interface UnifiedFlowStore {
 const calculateTotalSteps = (flowType: FlowType): number => {
 	switch (flowType) {
 		case 'oauth-authz':
-			return 8; // Config, PKCE, Auth URL, Callback, Tokens, Introspection, UserInfo, Documentation
+			return 9; // Config, PKCE, Auth URL, Callback, Tokens, Introspection, UserInfo, Documentation, Success
 		case 'hybrid':
-			return 8; // Config, PKCE, Auth URL, Fragment/Callback, Tokens, Introspection, UserInfo, Documentation
+			return 9; // Config, PKCE, Auth URL, Fragment/Callback, Tokens, Introspection, UserInfo, Documentation, Success
 		case 'implicit':
-			return 7; // Config, Auth URL, Fragment, Tokens, Introspection, UserInfo, Documentation
+			return 8; // Config, Auth URL, Fragment, Tokens, Introspection, UserInfo, Documentation, Success
 		case 'client-credentials':
-			return 6; // Config, Token Request, Tokens, Introspection, UserInfo, Documentation
+			return 7; // Config, Token Request, Tokens, Introspection, UserInfo, Documentation, Success
 		case 'device-code':
-			return 7; // Config, Device Auth, Poll, Tokens, Introspection, UserInfo, Documentation
+			return 8; // Config, Device Auth, Poll, Tokens, Introspection, UserInfo, Documentation, Success
 		default:
-			return 6;
+			return 8;
 	}
 };
 

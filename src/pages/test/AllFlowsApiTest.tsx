@@ -5,11 +5,10 @@
 // Allows manual testing without auto-submission
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiKey, FiRefreshCw } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
-import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
+import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 
 // Test Configuration for all flow types
 interface AllFlowsTestConfig {
@@ -299,7 +298,7 @@ const AllFlowsApiTest: React.FC = () => {
 				hasStored: !!stored,
 				storedLength: stored?.length || 0,
 			});
-			
+
 			if (stored) {
 				const data = JSON.parse(stored);
 				envId = data.credentials?.environmentId || '';
@@ -356,17 +355,17 @@ const AllFlowsApiTest: React.FC = () => {
 					hasStored: !!stored,
 					currentConfigEnvId: config.environmentId || 'EMPTY',
 				});
-				
+
 				if (stored) {
 					const data = JSON.parse(stored);
 					const workerTokenEnvId = data.credentials?.environmentId || '';
-					
+
 					console.log('[AllFlowsApiTest] Worker token update data:', {
 						hasCredentials: !!data.credentials,
 						workerTokenEnvId: workerTokenEnvId || 'NOT_FOUND',
 						shouldUpdate: workerTokenEnvId && !config.environmentId,
 					});
-					
+
 					// Update environment ID if worker token has one and config doesn't
 					if (workerTokenEnvId && !config.environmentId) {
 						console.log('[AllFlowsApiTest] Updating environment ID to:', workerTokenEnvId);
@@ -375,7 +374,9 @@ const AllFlowsApiTest: React.FC = () => {
 							environmentId: workerTokenEnvId,
 						}));
 					} else {
-						console.log('[AllFlowsApiTest] No update needed - either no envId in token or config already has envId');
+						console.log(
+							'[AllFlowsApiTest] No update needed - either no envId in token or config already has envId'
+						);
 					}
 				} else {
 					console.log('[AllFlowsApiTest] No worker token found in storage');
@@ -393,7 +394,7 @@ const AllFlowsApiTest: React.FC = () => {
 		};
 
 		window.addEventListener('storage', handleStorageChange);
-		
+
 		// Also check immediately in case worker token was set before this effect ran
 		handleWorkerTokenUpdate();
 
@@ -1056,7 +1057,7 @@ const AllFlowsApiTest: React.FC = () => {
 								Client ID:
 								{config.clientId && selectedAppId && (
 									<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
-										✓ From {apps.find(app => app.id === selectedAppId)?.name}
+										✓ From {apps.find((app) => app.id === selectedAppId)?.name}
 									</span>
 								)}
 							</Label>
@@ -1082,7 +1083,7 @@ const AllFlowsApiTest: React.FC = () => {
 									Client Secret:
 									{config.clientSecret && selectedAppId && (
 										<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
-											✓ From {apps.find(app => app.id === selectedAppId)?.name}
+											✓ From {apps.find((app) => app.id === selectedAppId)?.name}
 										</span>
 									)}
 								</Label>

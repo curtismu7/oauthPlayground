@@ -9,9 +9,9 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { UserCacheServiceV8 } from '@/v8/services/userCacheServiceV8';
 import { UserServiceV8 } from '@/v8/services/userServiceV8';
-import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 
 interface UserCacheProgressProps {
 	environmentId: string;
@@ -90,7 +90,7 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 				maxPages,
 				delayMs: 150,
 				onProgress: (progress) => {
-					setCacheInfo(prev => ({
+					setCacheInfo((prev) => ({
 						...prev!,
 						currentPage: progress.currentPage,
 						totalPages: progress.totalPages,
@@ -127,7 +127,7 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 			cancelText: 'Cancel',
 			severity: 'warning',
 		});
-		
+
 		if (confirmed) {
 			await UserCacheServiceV8.clearCache(environmentId);
 			setCacheInfo(null);
@@ -144,14 +144,18 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 	const handleSmartSync = async () => {
 		if (syncStatus.isSyncing) return;
 
-		setSyncStatus({ isSyncing: true, phase: 'checking', message: 'Checking PingOne user count...' });
+		setSyncStatus({
+			isSyncing: true,
+			phase: 'checking',
+			message: 'Checking PingOne user count...',
+		});
 
 		try {
 			// Step 1: Get PingOne total count with minimal API call (limit=1)
 			const pingOneResult = await UserServiceV8.listUsers(environmentId, { limit: 1, offset: 0 });
 			const pingOneTotal = pingOneResult.totalCount;
 
-			setSyncStatus(prev => ({
+			setSyncStatus((prev) => ({
 				...prev,
 				pingOneTotal,
 				message: `PingOne: ${pingOneTotal.toLocaleString()} users`,
@@ -160,7 +164,7 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 			// Step 2: Get IndexedDB count
 			const indexedDBTotal = await UserCacheServiceV8.countUsers(environmentId);
 
-			setSyncStatus(prev => ({
+			setSyncStatus((prev) => ({
 				...prev,
 				indexedDBTotal,
 				message: `PingOne: ${pingOneTotal.toLocaleString()}, IndexedDB: ${indexedDBTotal.toLocaleString()}`,
@@ -179,7 +183,7 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 			}
 
 			// Step 4: Sync needed - fetch in smart batches
-			setSyncStatus(prev => ({
+			setSyncStatus((prev) => ({
 				...prev,
 				phase: 'syncing',
 				message: `Syncing ${Math.abs(pingOneTotal - indexedDBTotal).toLocaleString()} users...`,
@@ -192,22 +196,18 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 			// Fetch all users in batches with delay to avoid rate limiting
 			for (let page = 0; page < totalPages; page++) {
 				const offset = page * batchSize;
-				const result = await UserServiceV8.listUsers(environmentId, { 
-					limit: batchSize, 
-					offset 
+				const result = await UserServiceV8.listUsers(environmentId, {
+					limit: batchSize,
+					offset,
 				});
 
 				// Save batch to IndexedDB
 				if (result.users.length > 0) {
-					await UserCacheServiceV8.saveUsers(
-						environmentId, 
-						result.users, 
-						!result.hasMore
-					);
+					await UserCacheServiceV8.saveUsers(environmentId, result.users, !result.hasMore);
 					syncedCount += result.users.length;
 
 					const progress = Math.round((syncedCount / pingOneTotal) * 100);
-					setSyncStatus(prev => ({
+					setSyncStatus((prev) => ({
 						...prev,
 						progress,
 						message: `Syncing: ${syncedCount.toLocaleString()}/${pingOneTotal.toLocaleString()} (${progress}%)`,
@@ -216,7 +216,7 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 
 				// Smart delay to avoid rate limiting (150ms between requests)
 				if (result.hasMore) {
-					await new Promise(resolve => setTimeout(resolve, 150));
+					await new Promise((resolve) => setTimeout(resolve, 150));
 				}
 
 				// Stop if no more users
@@ -233,7 +233,6 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 				pingOneTotal,
 				indexedDBTotal: syncedCount,
 			});
-
 		} catch (error) {
 			console.error('Sync error:', error);
 			setSyncStatus({
@@ -260,26 +259,21 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 
 	if (!cacheInfo && !compact) {
 		return (
-			<div style={{ padding: '8px', fontSize: '12px', color: '#666' }}>
-				Loading cache info...
-			</div>
+			<div style={{ padding: '8px', fontSize: '12px', color: '#666' }}>Loading cache info...</div>
 		);
 	}
 
 	if (compact) {
 		// Compact view - single line with icon
 		if (!cacheInfo || cacheInfo.totalUsers === 0) {
-			return (
-				<div style={{ fontSize: '12px', color: '#666' }}>
-					⚪ No users cached
-				</div>
-			);
+			return <div style={{ fontSize: '12px', color: '#666' }}>⚪ No users cached</div>;
 		}
 
 		if (cacheInfo.fetchInProgress) {
-			const progress = cacheInfo.totalPages > 0 
-				? Math.round((cacheInfo.currentPage / cacheInfo.totalPages) * 100)
-				: 0;
+			const progress =
+				cacheInfo.totalPages > 0
+					? Math.round((cacheInfo.currentPage / cacheInfo.totalPages) * 100)
+					: 0;
 
 			return (
 				<div style={{ fontSize: '12px', color: '#3b82f6' }}>
@@ -296,26 +290,34 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 	}
 
 	// Full view with controls
-	const progress = cacheInfo?.totalPages && cacheInfo.totalPages > 0
-		? Math.round((cacheInfo.currentPage / cacheInfo.totalPages) * 100)
-		: 0;
+	const progress =
+		cacheInfo?.totalPages && cacheInfo.totalPages > 0
+			? Math.round((cacheInfo.currentPage / cacheInfo.totalPages) * 100)
+			: 0;
 
 	const lastFetchedAgo = cacheInfo?.lastFetchedAt
 		? Math.floor((Date.now() - cacheInfo.lastFetchedAt) / 1000 / 60)
 		: null;
 
 	return (
-		<div style={{
-			padding: '12px',
-			background: '#f9fafb',
-			border: '1px solid #e5e7eb',
-			borderRadius: '6px',
-			fontSize: '13px',
-		}}>
-			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-				<div style={{ fontWeight: 600, color: '#111827' }}>
-					👥 User Cache
-				</div>
+		<div
+			style={{
+				padding: '12px',
+				background: '#f9fafb',
+				border: '1px solid #e5e7eb',
+				borderRadius: '6px',
+				fontSize: '13px',
+			}}
+		>
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					marginBottom: '8px',
+				}}
+			>
+				<div style={{ fontWeight: 600, color: '#111827' }}>👥 User Cache</div>
 				<button
 					type="button"
 					onClick={handleSmartSync}
@@ -337,35 +339,40 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 
 			{/* Sync Status */}
 			{syncStatus.phase !== 'idle' && (
-				<div style={{ 
-					marginBottom: '8px', 
-					padding: '8px', 
-					background: syncStatus.phase === 'complete' ? '#f0fdf4' : '#eff6ff',
-					borderRadius: '4px',
-					fontSize: '12px',
-				}}>
-					<div style={{ color: '#374151', marginBottom: '4px' }}>
-						{syncStatus.message}
-					</div>
+				<div
+					style={{
+						marginBottom: '8px',
+						padding: '8px',
+						background: syncStatus.phase === 'complete' ? '#f0fdf4' : '#eff6ff',
+						borderRadius: '4px',
+						fontSize: '12px',
+					}}
+				>
+					<div style={{ color: '#374151', marginBottom: '4px' }}>{syncStatus.message}</div>
 					{syncStatus.progress !== undefined && (
-						<div style={{
-							width: '100%',
-							height: '4px',
-							background: '#e5e7eb',
-							borderRadius: '2px',
-							overflow: 'hidden',
-						}}>
-							<div style={{
-								width: `${syncStatus.progress}%`,
-								height: '100%',
-								background: '#3b82f6',
-								transition: 'width 0.3s ease',
-							}} />
+						<div
+							style={{
+								width: '100%',
+								height: '4px',
+								background: '#e5e7eb',
+								borderRadius: '2px',
+								overflow: 'hidden',
+							}}
+						>
+							<div
+								style={{
+									width: `${syncStatus.progress}%`,
+									height: '100%',
+									background: '#3b82f6',
+									transition: 'width 0.3s ease',
+								}}
+							/>
 						</div>
 					)}
 					{syncStatus.pingOneTotal !== undefined && syncStatus.indexedDBTotal !== undefined && (
 						<div style={{ fontSize: '11px', color: '#6b7280', marginTop: '4px' }}>
-							PingOne: {syncStatus.pingOneTotal.toLocaleString()} | IndexedDB: {syncStatus.indexedDBTotal.toLocaleString()}
+							PingOne: {syncStatus.pingOneTotal.toLocaleString()} | IndexedDB:{' '}
+							{syncStatus.indexedDBTotal.toLocaleString()}
 						</div>
 					)}
 				</div>
@@ -386,28 +393,30 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 						⚠️ {cacheInfo.totalUsers.toLocaleString()} users in IndexedDB (partial)
 					</div>
 				) : (
-					<div style={{ color: '#6b7280' }}>
-						⚪ No users in IndexedDB cache
-					</div>
+					<div style={{ color: '#6b7280' }}>⚪ No users in IndexedDB cache</div>
 				)}
 			</div>
 
 			{/* Progress bar */}
 			{cacheInfo?.fetchInProgress && (
-				<div style={{
-					width: '100%',
-					height: '6px',
-					background: '#e5e7eb',
-					borderRadius: '3px',
-					overflow: 'hidden',
-					marginBottom: '8px',
-				}}>
-					<div style={{
-						width: `${progress}%`,
-						height: '100%',
-						background: '#3b82f6',
-						transition: 'width 0.3s ease',
-					}} />
+				<div
+					style={{
+						width: '100%',
+						height: '6px',
+						background: '#e5e7eb',
+						borderRadius: '3px',
+						overflow: 'hidden',
+						marginBottom: '8px',
+					}}
+				>
+					<div
+						style={{
+							width: `${progress}%`,
+							height: '100%',
+							background: '#3b82f6',
+							transition: 'width 0.3s ease',
+						}}
+					/>
 				</div>
 			)}
 
@@ -416,7 +425,8 @@ export const UserCacheProgressV8: React.FC<UserCacheProgressProps> = ({
 				<div style={{ fontSize: '11px', color: '#6b7280' }}>
 					{cacheInfo.totalUsers > 0 && (
 						<div>
-							<strong>Cached Users:</strong> {cacheInfo.totalUsers.toLocaleString()} exact count from IndexedDB
+							<strong>Cached Users:</strong> {cacheInfo.totalUsers.toLocaleString()} exact count
+							from IndexedDB
 						</div>
 					)}
 					{cacheInfo.fetchedCount > 0 && cacheInfo.fetchedCount !== cacheInfo.totalUsers && (

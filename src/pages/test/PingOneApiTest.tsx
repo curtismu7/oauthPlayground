@@ -5,9 +5,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ClientCredentialManager from '../../components/ClientCredentialManager';
-import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
+import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 
 // Test Configuration Interface
 interface TestConfig {
@@ -261,7 +261,7 @@ const PingOneApiTest: React.FC = () => {
 				if (stored) {
 					const data = JSON.parse(stored);
 					const workerTokenEnvId = data.credentials?.environmentId || '';
-					
+
 					// Update environment ID if worker token has one and config doesn't
 					if (workerTokenEnvId && !config.environmentId) {
 						setConfig((prev) => ({
@@ -283,7 +283,7 @@ const PingOneApiTest: React.FC = () => {
 		};
 
 		window.addEventListener('storage', handleStorageChange);
-		
+
 		// Also check immediately in case worker token was set before this effect ran
 		handleWorkerTokenUpdate();
 
@@ -849,7 +849,7 @@ const PingOneApiTest: React.FC = () => {
 							Client ID:
 							{config.clientId && selectedAppId && (
 								<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
-									✓ From {apps.find(app => app.id === selectedAppId)?.name}
+									✓ From {apps.find((app) => app.id === selectedAppId)?.name}
 								</span>
 							)}
 						</Label>
@@ -870,7 +870,7 @@ const PingOneApiTest: React.FC = () => {
 							Client Secret:
 							{config.clientSecret && selectedAppId && (
 								<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
-									✓ From {apps.find(app => app.id === selectedAppId)?.name}
+									✓ From {apps.find((app) => app.id === selectedAppId)?.name}
 								</span>
 							)}
 						</Label>

@@ -3,12 +3,11 @@
  * @description Unit tests for MFA nextStep normalizer
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-	normalizeMfaNextStep,
 	isNormalizedMfaNextStep,
+	normalizeMfaNextStep,
 	normalizeMfaResponse,
-	type NormalizedMfaNextStep,
 } from './mfaNextStepNormalizer';
 
 describe('normalizeMfaNextStep', () => {
@@ -82,16 +81,12 @@ describe('normalizeMfaNextStep', () => {
 	describe('edge cases and unknown values', () => {
 		it('should default null to SELECTION_REQUIRED', () => {
 			expect(normalizeMfaNextStep(null)).toBe('SELECTION_REQUIRED');
-			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				expect.stringContaining('null/undefined')
-			);
+			expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('null/undefined'));
 		});
 
 		it('should default undefined to SELECTION_REQUIRED', () => {
 			expect(normalizeMfaNextStep(undefined)).toBe('SELECTION_REQUIRED');
-			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				expect.stringContaining('null/undefined')
-			);
+			expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('null/undefined'));
 		});
 
 		it('should default empty string to SELECTION_REQUIRED', () => {
@@ -107,9 +102,7 @@ describe('normalizeMfaNextStep', () => {
 
 		it('should warn about unknown values', () => {
 			normalizeMfaNextStep('WEIRD_STATUS');
-			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				expect.stringContaining('WEIRD_STATUS')
-			);
+			expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('WEIRD_STATUS'));
 		});
 
 		it('should handle whitespace in input', () => {

@@ -14,14 +14,14 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiLoader } from 'react-icons/fi';
+import { FiLoader, FiTrash2 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
 import { AppDiscoveryModalV8U } from '../../v8u/components/AppDiscoveryModalV8U';
 import type { DiscoveredApp } from '../components/AppPickerV8';
 import { WorkerTokenModalV8 } from '../components/WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from '../components/WorkerTokenStatusDisplayV8';
 import { toastV8 } from '../utils/toastNotificationsV8';
-import { MFAConfigurationServiceV8 } from './mfaConfigurationServiceV8';
 import type { TokenStatusInfo } from './workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
 
@@ -60,6 +60,36 @@ const ButtonContainer = styled.div`
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 12px;
+`;
+
+const ClearTokensButton = styled.button<{
+	$tokenStatus: TokenStatusInfo | null;
+}>`
+	padding: 8px 16px;
+	border: 1px solid #dc2626;
+	border-radius: 6px;
+	background: #ffffff;
+	color: #dc2626;
+	fontSize: 14px;
+	fontWeight: 500;
+	cursor: pointer;
+	whiteSpace: nowrap;
+	display: flex;
+	alignItems: center;
+	gap: 6px;
+	opacity: ${(props) => (props.$tokenStatus?.isValid ? 1 : 0.5)};
+	transition: all 0.2s ease;
+
+	&:hover:not(:disabled) {
+		background: #dc2626;
+		color: white;
+		transform: translateY(-1px);
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
 `;
 
 const GetWorkerTokenButton = styled.button<{
@@ -190,17 +220,16 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 	const [isGettingWorkerToken, setIsGettingWorkerToken] = useState(false);
 	const [showAppDiscoveryModal, setShowAppDiscoveryModal] = useState(false);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [tokenWasGenerated, setTokenWasGenerated] = useState(false);
 
-	// Load settings from MFA Configuration Service
-	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
-		const config = MFAConfigurationServiceV8.loadConfiguration();
-		return config.workerToken.silentApiRetrieval;
-	});
-
-	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
-		const config = MFAConfigurationServiceV8.loadConfiguration();
-		return config.workerToken.showTokenAtEnd;
-	});
+	// Use centralized worker token configuration hook
+	const {
+		config,
+		silentApiRetrieval,
+		showTokenAtEnd,
+		updateSilentApiRetrieval,
+		updateShowTokenAtEnd,
+	} = useWorkerTokenConfigV8();
 
 	// Initialize token status
 	useEffect(() => {
@@ -240,10 +269,8 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 	// Listen for config updates
 	useEffect(() => {
 		const handleConfigUpdate = () => {
-			// Reload fresh from config service when event fires
-			const config = MFAConfigurationServiceV8.loadConfiguration();
-			setSilentApiRetrieval(config.workerToken.silentApiRetrieval);
-			setShowTokenAtEnd(config.workerToken.showTokenAtEnd);
+			// Configuration is automatically updated by the centralized hook
+			console.log('[WorkerTokenUIServiceV8] Configuration update event received');
 		};
 
 		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
@@ -256,6 +283,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 	// Handle Get Worker Token button click
 	const handleGetWorkerToken = useCallback(async () => {
 		setIsGettingWorkerToken(true);
+		setTokenWasGenerated(false); // Reset flag when opening modal
 		try {
 			const { handleShowWorkerTokenModal } = await import('../utils/workerTokenModalHelperV8');
 
@@ -278,72 +306,62 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 		}
 	}, [silentApiRetrieval, showTokenAtEnd]);
 
+	// Handle Clear Tokens button click
+	const handleClearTokens = useCallback(async () => {
+		try {
+			// Clear worker token from storage
+			const { workerTokenServiceV8 } = await import('../services/workerTokenServiceV8');
+			await workerTokenServiceV8.clearToken();
+
+			// Update status to reflect cleared state
+			const clearedStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			setTokenStatus(clearedStatus);
+
+			toastV8.success('Worker token cleared successfully');
+		} catch (error) {
+			console.error('[WorkerTokenUIServiceV8] Error clearing worker token:', error);
+			toastV8.error('Failed to clear worker token');
+		}
+	}, []);
+
 	// Handle Silent API Retrieval checkbox change
 	const handleSilentRetrievalChange = useCallback(
 		async (e: React.ChangeEvent<HTMLInputElement>) => {
 			const newValue = e.target.checked;
-			setSilentApiRetrieval(newValue);
 
-			// Update config service immediately (no cache)
-			const config = MFAConfigurationServiceV8.loadConfiguration();
-			config.workerToken.silentApiRetrieval = newValue;
-			MFAConfigurationServiceV8.saveConfiguration(config);
-
-			// Dispatch event to notify other components
-			window.dispatchEvent(
-				new CustomEvent('mfaConfigurationUpdated', {
-					detail: { workerToken: config.workerToken },
-				})
-			);
+			// Use centralized hook to update configuration
+			updateSilentApiRetrieval(newValue);
 
 			toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
 
 			// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 			if (newValue) {
-				const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-				if (!currentStatus.isValid) {
-					console.log(
-						'[WorkerTokenUIServiceV8] Silent API retrieval enabled, attempting to fetch token now...'
+				try {
+					const { handleShowWorkerTokenModal } = await import('../utils/workerTokenModalHelperV8');
+					await handleShowWorkerTokenModal(
+						() => {}, // Don't show modal in silent mode
+						() => {}, // Don't update status in silent mode
+						true, // Override: enable silent retrieval
+						undefined, // No override for showTokenAtEnd
+						false, // Not forced - respect silent setting
+						undefined // No loading state setter needed
 					);
-					try {
-						const { handleShowWorkerTokenModal } = await import(
-							'../utils/workerTokenModalHelperV8'
-						);
-						await handleShowWorkerTokenModal(
-							() => {}, // No-op - modal is handled globally via events
-							setTokenStatus,
-							newValue, // Use new value
-							showTokenAtEnd,
-							false // Not forced - respect silent setting
-						);
-					} catch (error) {
-						console.error('[WorkerTokenUIServiceV8] Error in silent retrieval:', error);
-					}
+				} catch (error) {
+					console.error('[WorkerTokenUIServiceV8] Error in silent retrieval:', error);
 				}
 			}
 		},
-		[showTokenAtEnd]
+		[updateSilentApiRetrieval]
 	);
 
 	// Handle Show Token After Generation checkbox change
-	const handleShowTokenAtEndChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const newValue = e.target.checked;
-		setShowTokenAtEnd(newValue);
-
-		// Update config service immediately (no cache)
-		const config = MFAConfigurationServiceV8.loadConfiguration();
-		config.workerToken.showTokenAtEnd = newValue;
-		MFAConfigurationServiceV8.saveConfiguration(config);
-
-		// Dispatch event to notify other components
-		window.dispatchEvent(
-			new CustomEvent('mfaConfigurationUpdated', {
-				detail: { workerToken: config.workerToken },
-			})
-		);
-
-		toastV8.info(`Show Token After Generation set to: ${newValue}`);
-	}, []);
+	const handleShowTokenAtEndChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			const newValue = e.target.checked;
+			updateShowTokenAtEnd(newValue);
+		},
+		[updateShowTokenAtEnd]
+	);
 
 	// Handle Get Apps Config button click
 	const _handleGetAppsConfig = useCallback(async () => {
@@ -445,7 +463,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 				<ButtonContainer>
 					<GetWorkerTokenButton
 						onClick={handleGetWorkerToken}
-						disabled={isGettingWorkerToken}
+						disabled={isGettingWorkerToken || !environmentId?.trim()}
 						$tokenStatus={tokenStatus}
 						$isLoading={isGettingWorkerToken}
 					>
@@ -497,7 +515,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 				<ButtonContainer>
 					<GetWorkerTokenButton
 						onClick={handleGetWorkerToken}
-						disabled={isGettingWorkerToken}
+						disabled={isGettingWorkerToken || !environmentId?.trim()}
 						$tokenStatus={tokenStatus}
 						$isLoading={isGettingWorkerToken}
 					>
@@ -506,6 +524,15 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 						)}
 						{isGettingWorkerToken ? 'Getting Token...' : 'Get Worker Token'}
 					</GetWorkerTokenButton>
+
+					<ClearTokensButton
+						onClick={handleClearTokens}
+						disabled={isGettingWorkerToken || !environmentId?.trim()}
+						$tokenStatus={tokenStatus}
+					>
+						<FiTrash2 style={{ fontSize: '14px', marginRight: '6px' }} />
+						Clear Tokens
+					</ClearTokensButton>
 				</ButtonContainer>
 
 				{/* Status Display */}
@@ -564,10 +591,15 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 				isOpen={showWorkerTokenModal}
 				onClose={() => {
 					setShowWorkerTokenModal(false);
-					// Refresh token status after modal closes
-					WorkerTokenStatusServiceV8.checkWorkerTokenStatus().then(setTokenStatus);
+					// Only refresh token status if a token was actually generated
+					// Don't refresh if user cancelled without generating a token
+					if (tokenWasGenerated) {
+						WorkerTokenStatusServiceV8.checkWorkerTokenStatus().then(setTokenStatus);
+					}
+					setTokenWasGenerated(false); // Reset flag
 				}}
 				onTokenGenerated={async () => {
+					setTokenWasGenerated(true); // Mark that token was generated
 					// Refresh token status after generation
 					const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 					setTokenStatus(newStatus);
