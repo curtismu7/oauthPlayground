@@ -633,3 +633,5 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 		</Container>
 	);
 };
+
+export default TokenExchangeFlowV8;
