@@ -4727,6 +4727,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 72 | **Token Exchange 400 Error** | ✅ EXPECTED | server.js:1274, oauthIntegrationServiceV8.ts:486 | OAuth authorization code expired or invalid | Expected OAuth behavior - 400 error for invalid/expired codes |
 | 73 | **Screen Order - Success Before API Docs** | ✅ RESOLVED | NewMFAFlowV8.tsx:95, UnifiedMFARegistrationFlowV8_Legacy.tsx:2852 | API Docs page shown before Success page in device creation flow | Swapped step order: Step 5 = Success, Step 6 = API Docs for better user experience |
 | 74 | **Worker Token Validation Bypass - Step 3 Access** | ✅ RESOLVED | NewMFAFlowV8.tsx:149, UnifiedMFARegistrationFlowV8_Legacy.tsx:2906 | Users can advance to step 3 without valid worker token, causing API failures | Added step 2 validation to require valid worker token before advancing to step 3 |
+| 75 | **Silent API Auto-Refresh Not Working** | ✅ RESOLVED | useWorkerToken.ts:133, tokenGatewayV8.ts:254 | Silent API not automatically refreshing expiring/invalid tokens | Enhanced auto-refresh logic with better debugging and direct token gateway calls |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -15464,9 +15465,24 @@ grep -A 15 "tokenType.*worker.*!tokenStatus.isValid" src/v8/flows/unified/Unifie
 grep -A 10 -B 5 "Refresh Worker Token\|showWorkerTokenModal" src/v8/flows/unified/components/UnifiedActivationStep.tsx
 grep -A 5 -B 5 "tokenStatus.*isValid.*!" src/v8/flows/unified/components/UnifiedActivationStep.tsx
 
-# Issue 74: Verify step 3 access prevention
-grep -rn "renderStep3.*APIDocsStepV8\|renderStep3.*SuccessStepV8" src/v8/flows/ --include="*.tsx"
-grep -rn "shouldHideNextButton.*return.*true" src/v8/flows/ --include="*.tsx" -A 3 -B 3
+# Issue 75: Check Silent API auto-refresh configuration
+grep -A 10 -B 5 "silentApiRetrieval.*true\|silentApiRetrieval.*false" src/v8/hooks/useWorkerToken.ts
+grep -A 5 -B 5 "checkAndRefreshToken" src/v8/hooks/useWorkerToken.ts
+grep -A 5 -B 5 "enableAutoRefresh.*true" src/v8/hooks/useWorkerToken.ts
+
+# Issue 75: Verify token gateway silent mode calls
+grep -A 10 -B 5 "mode.*silent" src/v8/hooks/useWorkerToken.ts
+grep -A 10 -B 5 "tokenGatewayV8.*getWorkerToken" src/v8/hooks/useWorkerToken.ts
+grep -A 5 -B 5 "forceRefresh.*true" src/v8/hooks/useWorkerToken.ts
+
+# Issue 75: Check Silent API configuration service
+grep -A 5 -B 5 "WorkerTokenConfigServiceV8" src/v8/services/workerTokenConfigServiceV8.ts
+grep -A 10 -B 5 "getSilentApiRetrieval\|setSilentApiRetrieval" src/v8/services/workerTokenConfigServiceV8.ts
+
+# Issue 75: Verify redirect URI mapping for Unified MFA
+grep -A 5 -B 5 "mfa-unified-callback" src/App.tsx
+grep -A 5 -B 5 "redirectUri.*mfa-unified-callback" src/v8/components/UserLoginModalV8.tsx
+grep -A 10 -B 5 "mfa-unified-callback" src/v8u/components/CallbackHandlerV8U.tsx
 
 # Issue 70: Resend email prevention commands
 grep -rn "resendEmail" src/v8/services/mfaServiceV8.ts -A 5 -B 5
