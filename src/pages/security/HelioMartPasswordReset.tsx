@@ -31,7 +31,7 @@ import { PasswordSetValueTab } from '../../components/password-reset/PasswordSet
 import { WorkerTokenDetectedBanner } from '../../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModal } from '../../components/WorkerTokenModal';
 // import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
-import { renderWorkerTokenButton } from '../../services/workerTokenUIService';
+// import { renderWorkerTokenButton } from '../../services/workerTokenUIService';
 // import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
 import type { ApiCall } from '../../services/apiCallTrackerService';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
@@ -530,7 +530,7 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [showLoginModal, setShowLoginModal] = useState(false);
 	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
 	const [workerToken, setWorkerToken] = useState('');
-	const [workerTokenExpiresAt, setWorkerTokenExpiresAt] = useState<number | undefined>(undefined);
+	// const [workerTokenExpiresAt, setWorkerTokenExpiresAt] = useState<number | undefined>(undefined);
 	const [environmentId, setEnvironmentId] = useState('');
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showAuthzConfigModal, setShowAuthzConfigModal] = useState(false);
@@ -702,15 +702,15 @@ const HelioMartPasswordReset: React.FC = () => {
 			if (globalToken) {
 				setWorkerToken(globalToken);
 				// Try to get expiresAt from stored token data
-				try {
-					const stored = localStorage.getItem('unified_worker_token');
-					if (stored) {
-						const data = JSON.parse(stored);
-						setWorkerTokenExpiresAt(data.expiresAt);
-					}
-				} catch (error) {
-					console.log('Failed to load worker token expiresAt:', error);
-				}
+				// try {
+				// 	const stored = localStorage.getItem('unified_worker_token');
+				// 	if (stored) {
+				// 		const data = JSON.parse(stored);
+				// 		setWorkerTokenExpiresAt(data.expiresAt);
+				// 	}
+				// } catch (error) {
+				// 	console.log('Failed to load worker token expiresAt:', error);
+				// }
 			} else {
 				// Check for saved credentials
 				const savedCreds = workerTokenCredentialsService.loadCredentials(FLOW_TYPE);
@@ -2102,14 +2102,23 @@ export { changePassword, handleChangePassword };`;
 						)} */}
 						
 						{/* Worker Token Button */}
-						{renderWorkerTokenButton(
+						{/* {renderWorkerTokenButton(
 							workerToken,
 							workerTokenExpiresAt,
 							() => setShowWorkerTokenModal(true),
 							'Get Worker Token',
 							'Worker Token Ready',
 							'Refresh Worker Token'
-						)}
+						)} */}
+						
+						{/* Temporary fallback button */}
+						<Button
+							$variant={workerToken ? 'success' : 'danger'}
+							onClick={() => setShowWorkerTokenModal(true)}
+						>
+							<FiKey />
+							Configure Worker Token
+						</Button>
 						
 						{/* Auth Code Client Button */}
 						<Button
