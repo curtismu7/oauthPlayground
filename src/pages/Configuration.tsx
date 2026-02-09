@@ -37,7 +37,6 @@ import { SaveButton } from '../services/saveButtonService';
 import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { WorkerTokenStatusServiceV8 } from '../v8/services/workerTokenStatusServiceV8';
-import { CredentialsFormV8U } from '../v8u/components/CredentialsFormV8U';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -904,27 +903,7 @@ const Configuration: React.FC = () => {
 				</Card>
 			</CollapsibleHeader>
 
-			{/* Application Configuration & Credentials - Using V8U Component */}
-			<CollapsibleHeader
-				title="Application Configuration & Credentials"
-				subtitle="Configure your PingOne environment credentials and optionally auto-fill from existing applications"
-				icon={<FiSettings />}
-				defaultCollapsed={false}
-			>
-				<Card style={{ border: 'none', boxShadow: 'none', marginBottom: 0 }}>
-					<CredentialsFormV8U
-						flowKey="configuration-v8u"
-						flowType="oauth"
-						credentials={credentials}
-						onChange={(newCreds) => {
-							setCredentials(newCreds as StepCredentials);
-						}}
-						title=""
-						subtitle=""
-					/>
-				</Card>
-			</CollapsibleHeader>
-
+			
 			{/* Configuration URI Reference Table */}
 			<CollapsibleHeader
 				title="PingOne Redirect & Logout URIs"
@@ -1221,11 +1200,10 @@ cd oauthPlayground`}
 						<InfoBox $type="info">
 							<FiCheckCircle size={16} />
 							<div>
-								<strong>Credentials are configured in the section above!</strong>
+								<strong>Credentials are configured in individual OAuth flows!</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-									Use the "Application Configuration & Credentials" section above to set up your
-									PingOne application credentials. They'll be saved automatically and available
-									across all OAuth flows.
+									Configure your PingOne application credentials directly in each OAuth flow.
+									They'll be saved automatically and available across all OAuth flows.
 								</p>
 							</div>
 						</InfoBox>
