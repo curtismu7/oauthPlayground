@@ -1472,7 +1472,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						successData={successData}
 						onStartAgain={() => {
 							setDeviceRegisteredActive(null);
-							navigate('/v8/mfa-hub');
+							navigate('/v8/unified-mfa');
 						}}
 					/>
 				);
@@ -1525,7 +1525,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 							type="button"
 							onClick={() => {
 								setShowModal(true);
-								navigate('/v8/mfa-hub');
+								navigate('/v8/unified-mfa');
 							}}
 							style={{
 								padding: '12px 20px',
