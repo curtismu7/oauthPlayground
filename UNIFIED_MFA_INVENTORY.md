@@ -4749,6 +4749,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 94 | **API Status Page Implementation** | ✅ IMPLEMENTED | ApiStatusPage.tsx:1, App.tsx:1310, vite.config.ts:142 | Created comprehensive API status page for monitoring server health and performance metrics | Added ApiStatusPage component with real-time health monitoring, fixed Vite proxy to connect to HTTPS backend, integrated with React Router at /api-status |
 | 95 | **React Hooks Error in HelioMartPasswordReset** | ✅ RESOLVED | HelioMartPasswordReset.tsx:81, 1981 | "Rendered fewer hooks than expected" error due to component structure conflict | Fixed by removing local styled components and using PageLayoutService.createPageLayout consistently |
 | 96 | **Redirect URI Still Going to Wrong Place** | 🔴 ACTIVE | CallbackHandlerV8U.tsx:233, ReturnTargetServiceV8U.ts:50 | OAuth callbacks redirect to incorrect pages instead of original flow context | Return target service not properly detecting flow context or fallback logic not working correctly |
+| 97 | **React Hooks Regression in HelioMartPasswordReset** | 🔴 ACTIVE | HelioMartPasswordReset.tsx:496 | "Rendered fewer hooks than expected" error returned after adding app lookup and worker token buttons | Component import causing hooks order violation - likely CompactAppPickerV8U import issue |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -15693,6 +15694,80 @@ grep -A 5 -B 5 "STORAGE_KEYS\|return_target" src/v8u/services/ReturnTargetServic
 grep -A 5 -B 5 "flow.*context\|context.*flow" src/v8u/components/CallbackHandlerV8U.tsx
 grep -A 5 -B 5 "normalizeFallback" src/v8u/components/CallbackHandlerV8U.tsx
 grep -A 5 -B 5 "window\.location\.replace\|window\.location\.href" src/v8u/components/CallbackHandlerV8U.tsx
+
+# Issue 97: Check React hooks regression after component imports
+grep -A 5 -B 5 "CompactAppPickerV8U\|renderWorkerTokenButton" src/pages/security/HelioMartPasswordReset.tsx
+grep -A 5 -B 5 "Rendered fewer hooks than expected" src/pages/security/HelioMartPasswordReset.tsx
+grep -A 5 -B 5 "import.*v8u.*components" src/pages/security/HelioMartPasswordReset.tsx
+grep -A 5 -B 5 "useState.*DiscoveredApp" src/pages/security/HelioMartPasswordReset.tsx
+grep -A 5 -B 5 "useEffect.*subscribe" src/pages/security/HelioMartPasswordReset.tsx
+
+# ========================================================================
+# REACT HOOKS REGRESSION - COMPREHENSIVE GUIDE
+# ========================================================================
+
+## 🚨 CRITICAL: React Hooks Order Violation Prevention
+
+### Common React Hooks Regression Issues
+1. **Import-Related Hooks Violation** - Importing components that cause hooks order changes
+2. **Conditional Component Rendering** - Components rendered conditionally before hooks
+3. **Service Import Issues** - Services with hooks that affect component hook order
+4. **Type Import Conflicts** - Type imports causing component structure changes
+5. **Early Return Statements** - Returns before all hooks are called
+
+### Prevention Commands for React Hooks Regression
+```bash
+# Check for problematic imports in HelioMartPasswordReset
+grep -A 5 -B 5 "CompactAppPickerV8U\|renderWorkerTokenButton" src/pages/security/HelioMartPasswordReset.tsx
+grep -A 5 -B 5 "import.*v8u.*components" src/pages/security/HelioMartPasswordReset.tsx
+grep -A 5 -B 5 "useState.*DiscoveredApp" src/pages/security/HelioMartPasswordReset.tsx
+
+# Check for hooks order violations
+grep -A 5 -B 5 "Rendered fewer hooks than expected" src/pages/security/HelioMartPasswordReset.tsx
+grep -A 5 -B 5 "useEffect.*subscribe" src/pages/security/HelioMartPasswordReset.tsx
+grep -A 5 -B 5 "useState.*=" src/pages/security/HelioMartPasswordReset.tsx | head -20
+
+# Check for early returns before hooks
+grep -A 10 -B 5 "return.*(" src/pages/security/HelioMartPasswordReset.tsx
+grep -A 10 -B 5 "if.*return" src/pages/security/HelioMartPasswordReset.tsx
+
+# Check component structure consistency
+grep -A 5 -B 5 "PageLayoutService.createPageLayout" src/pages/security/HelioMartPasswordReset.tsx
+grep -A 5 -B 5 "const.*: React.FC" src/pages/security/HelioMartPasswordReset.tsx
+```
+
+### Files to Monitor for React Hooks Issues
+- `src/pages/security/HelioMartPasswordReset.tsx` - Primary affected component
+- `src/v8u/components/CompactAppPickerV8U.tsx` - Problematic import
+- `src/services/workerTokenUIService.tsx` - Service with React components
+- `src/v8/components/AppPickerV8.tsx` - Type definitions
+
+### Common Error Patterns
+- "Rendered fewer hooks than expected" - Hooks order violation
+- "This may be caused by an accidental early return statement" - Early return before hooks
+- "Cannot find name 'ComponentName'" - Import/export issues
+- "Parameter implicitly has 'any' type" - Type import conflicts
+
+### Debugging Steps for React Hooks Regression
+1. **Check Recent Imports** - Look for new component imports that might have hooks
+2. **Verify Hook Order** - Ensure all useState/useEffect come before any returns
+3. **Check Conditional Rendering** - Verify no conditional returns before hooks
+4. **Test Import Isolation** - Comment out new imports to isolate the issue
+5. **Validate Component Structure** - Ensure consistent component structure
+
+### Safe Import Practices
+1. **Import Services First** - Import pure services before React components
+2. **Type Imports Separate** - Keep type imports separate from component imports
+3. **Test Incrementally** - Add imports one at a time and test
+4. **Check Dependencies** - Verify imported components don't have hooks conflicts
+5. **Use Lazy Loading** - Consider lazy loading for complex components
+
+### Regression Prevention Strategy
+1. **Component Isolation** - Keep new components in separate sections
+2. **Import Grouping** - Group imports by type (React, services, components)
+3. **Hook Consistency** - Maintain consistent hook order patterns
+4. **Testing Protocol** - Test after each new import addition
+5. **Documentation Updates** - Document working import patterns
 
 # ========================================================================
 # REDIRECT URI ISSUES - COMPREHENSIVE GUIDE

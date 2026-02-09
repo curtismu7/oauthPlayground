@@ -30,9 +30,9 @@ import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCode
 import { PasswordSetValueTab } from '../../components/password-reset/PasswordSetValueTab';
 import { WorkerTokenDetectedBanner } from '../../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModal } from '../../components/WorkerTokenModal';
-import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
+// import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
 import { renderWorkerTokenButton } from '../../services/workerTokenUIService';
-import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
+// import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
 import type { ApiCall } from '../../services/apiCallTrackerService';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
@@ -638,7 +638,7 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [copied, setCopied] = useState(false);
 
 	// App picker state
-	const [selectedApp, setSelectedApp] = useState<DiscoveredApp | null>(null);
+	// const [selectedApp, setSelectedApp] = useState<DiscoveredApp | null>(null);
 
 	// Subscribe to API calls
 	useEffect(() => {
@@ -2090,7 +2090,7 @@ export { changePassword, handleChangePassword };`;
 					</StatusItem>
 					<div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
 						{/* App Lookup Button */}
-						{environmentId && (
+						{/* {environmentId && (
 							<CompactAppPickerV8U
 								environmentId={environmentId}
 								onAppSelected={(app) => {
@@ -2099,7 +2099,7 @@ export { changePassword, handleChangePassword };`;
 									console.log('Selected app:', app.name);
 								}}
 							/>
-						)}
+						)} */}
 						
 						{/* Worker Token Button */}
 						{renderWorkerTokenButton(
