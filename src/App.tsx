@@ -193,6 +193,7 @@ import { MobileOTPConfigurationPageV8 } from './v8/flows/types/MobileOTPConfigur
 import { SMSOTPConfigurationPageV8 } from './v8/flows/types/SMSOTPConfigurationPageV8';
 import { TOTPConfigurationPageV8 } from './v8/flows/types/TOTPConfigurationPageV8';
 import { WhatsAppOTPConfigurationPageV8 } from './v8/flows/types/WhatsAppOTPConfigurationPageV8';
+import { TokenExchangeFlowV8 } from './v8/flows/TokenExchangeFlowV8';
 
 // Lazy load unified MFA flow for code splitting
 const UnifiedMFARegistrationFlowV8_Legacy = React.lazy(
@@ -595,6 +596,16 @@ const AppRoutes: React.FC = () => {
 									</React.Suspense>
 								}
 							/>
+							<Route
+								path="/v8/unified-credentials-mockup"
+								element={
+									<React.Suspense fallback={<div>Loading...</div>}>
+										<UnifiedCredentialsMockupV8 />
+									</React.Suspense>
+								}
+							/>
+							{/* V8 Token Exchange Flow */}
+							<Route path="/v8/token-exchange" element={<TokenExchangeFlowV8 />} />
 							<Route path="/v8/mfa-hub" element={<MFAAuthenticationMainPageV8 />} />
 							<Route
 								path="/v8/mfa/authentication/success"
