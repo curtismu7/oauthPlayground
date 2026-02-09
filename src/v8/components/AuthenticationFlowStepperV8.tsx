@@ -175,23 +175,18 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 		}
 	}, []);
 
-	// Worker token management — delegates to canonical handleShowWorkerTokenModal
-	// which properly handles silentApiRetrieval, config loading, and fallback.
-	// See UNIFIED_MFA_INVENTORY.md Issue #59 and workerTokenModalHelperV8.ts
+	// Worker token management — DEAD SIMPLE: if creds exist → no modal, if no creds → modal
+	// This bypasses all complex silentApiRetrieval/showTokenAtEnd logic
 	useEffect(() => {
 		const checkWorkerToken = async () => {
 			try {
-				const { handleShowWorkerTokenModal } = await import(
-					'@/v8/utils/workerTokenModalHelperV8'
+				const { handleShowWorkerTokenModalSimple } = await import(
+					'@/v8/utils/workerTokenModalHelperV8_SIMPLE'
 				);
 				// forceShowModal=false: this is an automatic check, not a user click
-				// Let the helper decide whether to show modal based on silentApiRetrieval config
-				await handleShowWorkerTokenModal(
+				await handleShowWorkerTokenModalSimple(
 					setShowWorkerTokenModal,
-					undefined, // setTokenStatus — not needed on mount
-					undefined, // silentApiRetrieval — let helper read from config
-					undefined, // showTokenAtEnd — let helper read from config
-					false      // forceShowModal=false: automatic mount check
+					false // forceShowModal=false: automatic mount check
 				);
 			} catch (error) {
 				console.error(`${MODULE_TAG} Error in worker token check:`, error);
