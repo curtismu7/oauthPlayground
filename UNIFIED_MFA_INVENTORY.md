@@ -4731,6 +4731,8 @@ This section provides a comprehensive summary of all critical issues identified 
 | 76 | **Step 0 Worker Token Validation Missing** | ✅ RESOLVED | NewMFAFlowV8.tsx:143, validateStep0:167 | Users can advance from step 0 without valid worker token | Added step 0 validation to require valid worker token before form submission |
 | 77 | **TOTP selectedPolicyRef ReferenceError** | ✅ RESOLVED | UnifiedMFARegistrationFlowV8_Legacy.tsx:2430, performRegistrationWithToken:2295 | TOTP registration fails with "selectedPolicyRef is not defined" error | Fixed by using selectedPolicy directly instead of ref and adding to dependencies |
 | 78 | **Legacy Hub Navigation Buttons** | ✅ RESOLVED | TOTPFlowV8.tsx:1620, EmailFlowV8.tsx:1475, MobileFlowV8.tsx:1670, SMSFlowV8.tsx:1692 | Multiple flow types still navigate to old /v8/mfa-hub instead of unified flow | Updated all flow navigation buttons to use /v8/unified-mfa |
+| 79 | **Silent API Still Showing Modal** | ✅ RESOLVED | workerTokenModalHelperV8.ts:274 | Silent API mode shows modal when credentials missing instead of staying silent | Fixed: suppress modal in silent mode, show toast warning instead |
+| 80 | **Step 0 Stale Token Validation** | ✅ RESOLVED | NewMFAFlowV8.tsx:180, UnifiedMFARegistrationFlowV8_Legacy.tsx:2712 | Can advance past step 0 without valid worker token due to stale React state | Fixed: fresh WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync() check instead of stale state |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -15507,6 +15509,17 @@ grep -rn "/v8/mfa-hub" src/v8/flows/types/ --include="*.tsx" -A 2 -B 2
 grep -rn "navigate.*mfa-hub" src/v8/flows/types/ --include="*.tsx" -A 2 -B 2
 grep -rn "Back to MFA Hub" src/v8/flows/types/ --include="*.tsx" -A 2 -B 2
 grep -rn "onStartAgain.*mfa-hub" src/v8/flows/types/ --include="*.tsx" -A 2 -B 2
+
+# Issue 79: Check silent API modal suppression
+grep -A 5 -B 5 "setShowModal(true)" src/v8/utils/workerTokenModalHelperV8.ts
+grep -A 5 -B 5 "silentApiRetrieval.*setShowModal" src/v8/utils/workerTokenModalHelperV8.ts
+grep -A 5 -B 5 "credentialsCheck.*setShowModal" src/v8/utils/workerTokenModalHelperV8.ts
+
+# Issue 80: Check for stale token validation (should use fresh check, not React state)
+grep -rn "tokenStatus.isValid" src/v8/flows/NewMFAFlowV8.tsx -A 2 -B 2
+grep -rn "checkWorkerTokenStatusSync" src/v8/flows/NewMFAFlowV8.tsx -A 2 -B 2
+grep -rn "checkWorkerTokenStatusSync" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx -A 2 -B 2
+grep -rn "workerToken.tokenStatus.isValid" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx -A 2 -B 2
 
 # Issue 70: Resend email prevention commands
 grep -rn "resendEmail" src/v8/services/mfaServiceV8.ts -A 5 -B 5
