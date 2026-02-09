@@ -99,7 +99,7 @@ async function testAPIComparisonModal() {
 
 	try {
 		// Test that the modal component exists and can be accessed
-		const response = await axios.get(`${BASE_URL}/`, {
+		const _response = await axios.get(`${BASE_URL}/`, {
 			timeout: 5000,
 		});
 
@@ -129,7 +129,7 @@ async function testUIComponents() {
 
 	for (const test of uiTests) {
 		try {
-			const response = await axios.get(`${BASE_URL}${test.path}`, {
+			const _response = await axios.get(`${BASE_URL}${test.path}`, {
 				timeout: 5000,
 			});
 

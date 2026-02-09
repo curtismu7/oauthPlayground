@@ -30,8 +30,8 @@ export function setupUserApiRoutes(app) {
 				});
 			}
 
-			const limitNum = Math.min(parseInt(limit) || 100, 1000); // Max 1000 results
-			const offsetNum = parseInt(offset) || 0;
+			const limitNum = Math.min(parseInt(limit, 10) || 100, 1000); // Max 1000 results
+			const offsetNum = parseInt(offset, 10) || 0;
 
 			const users = await userDatabaseService.searchUsers(
 				environmentId,
@@ -62,7 +62,7 @@ export function setupUserApiRoutes(app) {
 			const { environmentId } = req.params;
 			const { limit = 100 } = req.query;
 
-			const limitNum = Math.min(parseInt(limit) || 100, 1000);
+			const limitNum = Math.min(parseInt(limit, 10) || 100, 1000);
 
 			const users = await userDatabaseService.getRecentUsers(environmentId, limitNum);
 
@@ -160,7 +160,7 @@ export function setupUserApiRoutes(app) {
 					workerToken,
 					maxPages,
 					delayMs,
-					onProgress: (totalFetched, pages, users) => {
+					onProgress: (totalFetched, pages, _users) => {
 						console.log(`${MODULE_TAG} Progress: ${totalFetched} users across ${pages} pages`);
 					},
 				});
@@ -169,7 +169,7 @@ export function setupUserApiRoutes(app) {
 					workerToken,
 					maxPages,
 					delayMs,
-					onProgress: (totalFetched, pages, users) => {
+					onProgress: (totalFetched, pages, _users) => {
 						console.log(`${MODULE_TAG} Progress: ${totalFetched} users across ${pages} pages`);
 					},
 				});
@@ -241,7 +241,7 @@ export function setupUserApiRoutes(app) {
 
 			// Insert users in batches
 			let insertedCount = 0;
-			let updatedCount = 0;
+			const updatedCount = 0;
 			const batchSize = 500;
 
 			for (let i = 0; i < users.length; i += batchSize) {

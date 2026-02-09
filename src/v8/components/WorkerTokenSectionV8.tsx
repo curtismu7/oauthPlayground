@@ -188,11 +188,11 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 									{tokenStatus.error || 'No worker token configured'}
 								</div>
 							)}
-					</div>
-					{showSettings && (
-						<button
-							type="button"
-							onClick={handleRefreshToken}
+						</div>
+						{showSettings && (
+							<button
+								type="button"
+								onClick={handleRefreshToken}
 								disabled={isRefreshing}
 								style={{
 									padding: '6px 8px',
@@ -219,11 +219,11 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 				</div>
 
 				{/* Action Buttons */}
-			<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px' }}>
-				{!tokenStatus.isValid ? (
-					<button
-						type="button"
-						onClick={handleGetToken}
+				<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px' }}>
+					{!tokenStatus.isValid ? (
+						<button
+							type="button"
+							onClick={handleGetToken}
 							style={{
 								padding: '10px 16px',
 								background: '#dc2626',
@@ -250,11 +250,11 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 							<FiKey size={16} />
 							Get Worker Token
 						</button>
-				) : (
-					<>
-						<button
-							type="button"
-							onClick={handleGetToken}
+					) : (
+						<>
+							<button
+								type="button"
+								onClick={handleGetToken}
 								style={{
 									padding: '10px 16px',
 									background: '#10b981',
@@ -279,11 +279,11 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 								}}
 							>
 								<FiKey size={16} />
-							Update Token
-						</button>
-						<button
-							type="button"
-							onClick={handleClearToken}
+								Update Token
+							</button>
+							<button
+								type="button"
+								onClick={handleClearToken}
 								style={{
 									padding: '10px 16px',
 									background: '#ef4444',

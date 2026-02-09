@@ -7,7 +7,7 @@ import puppeteer from 'puppeteer';
 
 // Test configuration
 const FRONTEND_URL = 'https://localhost:3000';
-const BACKEND_URL = 'http://localhost:3001';
+const _BACKEND_URL = 'http://localhost:3001';
 
 // Test data
 const TEST_DATA = {
@@ -135,7 +135,7 @@ async function testFormSubmission(page) {
 					} else {
 						console.log(`ℹ️ No error message shown for ${flowType} flow`);
 					}
-				} catch (submitError) {
+				} catch (_submitError) {
 					console.log(`ℹ️ Form submission failed as expected for ${flowType} flow`);
 				}
 
@@ -370,7 +370,7 @@ async function runUITests() {
 		const formStatus = results.form.success ? '✅' : '❌';
 		console.log(`${formStatus} Unified Device Registration Form`);
 
-		if (results.submission && results.submission.results) {
+		if (results.submission?.results) {
 			console.log('\nForm Submission Results:');
 			results.submission.results.forEach((result) => {
 				const status = result.success ? '✅' : '❌';
@@ -378,7 +378,7 @@ async function runUITests() {
 			});
 		}
 
-		if (results.deviceSwitching && results.deviceSwitching.results) {
+		if (results.deviceSwitching?.results) {
 			console.log('\nDevice Type Switching Results:');
 			results.deviceSwitching.results.forEach((result) => {
 				const status = result.success ? '✅' : '❌';
@@ -386,7 +386,7 @@ async function runUITests() {
 			});
 		}
 
-		if (results.responsive && results.responsive.results) {
+		if (results.responsive?.results) {
 			console.log('\nResponsive Design Results:');
 			results.responsive.results.forEach((result) => {
 				const status = result.success ? '✅' : '❌';
@@ -431,7 +431,7 @@ async function runUITests() {
 
 // Run tests
 runUITests()
-	.then((results) => {
+	.then((_results) => {
 		console.log('\n✅ UI testing completed successfully');
 		process.exit(0);
 	})

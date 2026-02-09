@@ -19,7 +19,7 @@ export interface CollapsibleHeaderAdapterProps extends Omit<CollapsibleHeaderPro
 
 export interface FlowUIConfig {
 	flowType: string;
-	theme: 'green' | 'orange' | 'blue' | 'purple' | 'red';
+	theme: 'green' | 'orange' | 'blue' | 'pingRed' | 'red';
 	showEducationalContent?: boolean;
 	showApiCallExamples?: boolean;
 	compactMode?: boolean;
@@ -266,7 +266,7 @@ export class FlowUIService {
 				green: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
 				orange: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
 				blue: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-				purple: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+				pingRed: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
 				red: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
 			};
 
@@ -311,7 +311,7 @@ export class FlowUIService {
 				green: { background: 'rgba(22, 163, 74, 0.2)', border: '#4ade80', color: '#bbf7d0' },
 				orange: { background: 'rgba(249, 115, 22, 0.2)', border: '#fb923c', color: '#fed7aa' },
 				blue: { background: 'rgba(59, 130, 246, 0.2)', border: '#3b82f6', color: '#dbeafe' },
-				purple: { background: 'rgba(139, 92, 246, 0.2)', border: '#8b5cf6', color: '#ede9fe' },
+				pingRed: { background: 'rgba(239, 68, 68, 0.2)', border: '#ef4444', color: '#fecaca' },
 				red: { background: 'rgba(239, 68, 68, 0.2)', border: '#ef4444', color: '#fecaca' },
 			};
 
@@ -426,10 +426,10 @@ export class FlowUIService {
 					hover: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
 					color: '#0c4a6e',
 				},
-				purple: {
-					background: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)',
-					hover: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)',
-					color: '#581c87',
+				pingRed: {
+					background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+					hover: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
+					color: '#7f1d1d',
 				},
 				red: {
 					background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
@@ -483,7 +483,7 @@ export class FlowUIService {
 				green: '#16a34a',
 				orange: '#ea580c',
 				blue: '#3b82f6',
-				purple: '#8b5cf6',
+				pingRed: '#ef4444',
 				red: '#ef4444',
 			};
 
@@ -1063,7 +1063,7 @@ export class FlowUIService {
 			},
 			'device-authorization': {
 				flowType: 'device-authorization',
-				theme: 'purple',
+				theme: 'pingRed',
 				showEducationalContent: true,
 				showApiCallExamples: true,
 				compactMode: false,

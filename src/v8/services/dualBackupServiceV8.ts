@@ -8,7 +8,7 @@
  * Automatically saves to both:
  * - IndexedDB (fast browser access)
  * - SQLite (persistent server backup)
- * 
+ *
  * Benefits:
  * - Redundancy: If browser storage cleared, restore from server
  * - Cross-device: Access credentials from any device
@@ -33,14 +33,14 @@ export interface DualBackupOptions {
 
 /**
  * Dual Backup Service
- * 
+ *
  * Saves data to both IndexedDB (browser) and SQLite (server) simultaneously.
  * Automatically falls back to server backup if browser storage fails.
  */
 export class DualBackupServiceV8 {
 	/**
 	 * Save data to both IndexedDB and SQLite
-	 * 
+	 *
 	 * @param key - Unique key for this data
 	 * @param data - Data to backup
 	 * @param dataType - Type of data
@@ -87,15 +87,12 @@ export class DualBackupServiceV8 {
 
 	/**
 	 * Load data from IndexedDB, fallback to SQLite if not found
-	 * 
+	 *
 	 * @param key - Unique key
 	 * @param environmentId - Environment ID (for SQLite fallback)
 	 * @returns Data or null if not found
 	 */
-	static async load<T = unknown>(
-		key: string,
-		environmentId?: string
-	): Promise<T | null> {
+	static async load<T = unknown>(key: string, environmentId?: string): Promise<T | null> {
 		// Try IndexedDB first (faster)
 		try {
 			const data = await IndexedDBBackupServiceV8U.load<T>(key);
@@ -113,7 +110,7 @@ export class DualBackupServiceV8 {
 				const data = await SQLiteBackupServiceV8.load<T>(key, environmentId);
 				if (data !== null) {
 					console.log(`${MODULE_TAG} ✅ Restored from SQLite backup: ${key}`);
-					
+
 					// Re-sync to IndexedDB for future fast access
 					try {
 						await IndexedDBBackupServiceV8U.save(key, data, 'credentials');
@@ -121,7 +118,7 @@ export class DualBackupServiceV8 {
 					} catch (err) {
 						console.warn(`${MODULE_TAG} Failed to re-sync to IndexedDB:`, err);
 					}
-					
+
 					return data;
 				}
 			} catch (error: any) {

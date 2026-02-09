@@ -173,7 +173,7 @@ describe('TokenGatewayV8', () => {
 					ok: true,
 					json: () =>
 						Promise.resolve({
-							access_token: 'token-' + fetchCallCount,
+							access_token: `token-${fetchCallCount}`,
 							expires_in: 3600,
 						}),
 				};

@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
 	FiActivity,
 	FiAlertTriangle,
@@ -19,6 +18,7 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { stateUtils, useUnifiedFlowState } from '../services/enhancedStateManagement';
 import { TokenMonitoringService } from '../services/tokenMonitoringService';
 
@@ -276,14 +276,14 @@ const FeatureStatus = styled.span<{ $enabled: boolean }>`
 	}}
 `;
 
-const HistoryControls = styled.div`
+const _HistoryControls = styled.div`
   display: flex;
   gap: 0.5rem;
   align-items: center;
   margin-bottom: 1rem;
 `;
 
-const HistoryButton = styled.button<{ $disabled?: boolean }>`
+const _HistoryButton = styled.button<{ $disabled?: boolean }>`
   padding: 0.5rem 1rem;
   border-radius: 6px;
   font-size: 0.875rem;
@@ -347,7 +347,7 @@ const ExportImportButton = styled.button`
   }
 `;
 
-const ErrorMessage = styled.div`
+const _ErrorMessage = styled.div`
   background: #fef2f2;
   border: 1px solid #fecaca;
   border-radius: 8px;
@@ -357,7 +357,7 @@ const ErrorMessage = styled.div`
   font-size: 0.875rem;
 `;
 
-const SuccessMessage = styled.div`
+const _SuccessMessage = styled.div`
   background: #f0fdf4;
   border: 1px solid #86efac;
   border-radius: 8px;
@@ -431,7 +431,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 				setMessage('State imported successfully');
 				setMessageType('success');
 			}
-		} catch (error) {
+		} catch (_error) {
 			setMessage('Failed to import state');
 			setMessageType('error');
 		} finally {
@@ -452,15 +452,18 @@ export const EnhancedStateManagementPage: React.FC = () => {
 	};
 
 	// Get real statistics
-	const stats = useMemo(() => ({
-		unifiedFlow: state.unifiedFlow,
-		performance: state.performance,
-		history: {
-			pastCount: 0, // Not tracking history in this version
-			futureCount: 0,
-		},
-		offline: state.offline,
-	}), [state.unifiedFlow, state.performance, state.offline]);
+	const stats = useMemo(
+		() => ({
+			unifiedFlow: state.unifiedFlow,
+			performance: state.performance,
+			history: {
+				pastCount: 0, // Not tracking history in this version
+				futureCount: 0,
+			},
+			offline: state.offline,
+		}),
+		[state.unifiedFlow, state.performance, state.offline]
+	);
 
 	return (
 		<PageContainer>
@@ -797,7 +800,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 					{(() => {
 						try {
 							const service = TokenMonitoringService.getInstance();
-							const allTokens = service.getAllTokens();
+							const _allTokens = service.getAllTokens();
 							const tokenTypes = [
 								'access_token',
 								'refresh_token',
@@ -911,7 +914,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 									</div>
 								);
 							});
-						} catch (error) {
+						} catch (_error) {
 							return (
 								<div
 									style={{
