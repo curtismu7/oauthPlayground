@@ -948,6 +948,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</MigrationBadge>
 						),
 					},
+					{
+						id: 'token-exchange-v8',
+						path: '/v8/token-exchange',
+						label: 'Token Exchange (V8)',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiRefreshCw />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: RFC 8693 Token Exchange implementation">
+								NEW
+							</MigrationBadge>
+						),
+					},
 				],
 			},
 			{
