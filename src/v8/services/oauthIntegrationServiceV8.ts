@@ -239,6 +239,45 @@ export class OAuthIntegrationServiceV8 {
 
 				const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
+				// Track authorization URL generation for API documentation
+				const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+				const startTime = Date.now();
+				const apiCallId = apiCallTrackerService.trackApiCall({
+					method: 'GET',
+					url: authorizationEndpoint,
+					actualPingOneUrl: authorizationEndpoint,
+					isProxy: false,
+					headers: {},
+					body: {
+						query_parameters: {
+							client_id: credentials.clientId,
+							request: jarResult.requestObject ? '***REDACTED***' : undefined,
+						},
+						query_string: params.toString(),
+						note: 'GET request with JAR (JWT-secured Authorization Request) - signed request object sent as request parameter',
+						jar_algorithm: algorithm,
+					},
+					step: 'v8-authorization-url-jar',
+					flowType: 'oauth',
+				});
+
+				apiCallTrackerService.updateApiCallResponse(
+					apiCallId,
+					{
+						status: 200,
+						statusText: 'OK',
+						data: {
+							authorization_url: authorizationUrl,
+							note: 'JAR authorization URL generated with signed request object',
+							flow: 'oauth-authz-jar',
+							response_type: 'code',
+							has_pkce: !!pkce,
+							jar_algorithm: algorithm,
+						},
+					},
+					Date.now() - startTime
+				);
+
 				return {
 					authorizationUrl,
 					state,
@@ -281,6 +320,42 @@ export class OAuthIntegrationServiceV8 {
 		}
 
 		const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
+
+		// Track authorization URL generation for API documentation
+		const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+		const startTime = Date.now();
+		const apiCallId = apiCallTrackerService.trackApiCall({
+			method: 'GET',
+			url: authorizationEndpoint,
+			actualPingOneUrl: authorizationEndpoint,
+			isProxy: false,
+			headers: {},
+			body: {
+				query_parameters: Object.fromEntries(params.entries()),
+				query_string: params.toString(),
+				note: 'GET request with query parameters - these are sent as URL parameters, not POST body',
+				login_hint: credentials.username || undefined,
+			},
+			step: 'v8-authorization-url',
+			flowType: 'oauth',
+		});
+
+		apiCallTrackerService.updateApiCallResponse(
+			apiCallId,
+			{
+				status: 200,
+				statusText: 'OK',
+				data: {
+					authorization_url: authorizationUrl,
+					note: 'Standard authorization URL generated',
+					flow: 'oauth-authz',
+					response_type: 'code',
+					has_pkce: !!pkce,
+					login_hint: credentials.username || undefined,
+				},
+			},
+			Date.now() - startTime
+		);
 
 		return {
 			authorizationUrl,
@@ -477,13 +552,17 @@ export class OAuthIntegrationServiceV8 {
 				actualPingOneUrl,
 				isProxy: true,
 				headers: trackedHeaders,
-				body: {
-					...bodyParams,
-					code: '***REDACTED***', // Don't expose authorization code in display
-					code_verifier: bodyParams.code_verifier ? '***REDACTED***' : undefined,
-					client_secret: bodyParams.client_secret ? '***REDACTED***' : undefined,
-					client_assertion: bodyParams.client_assertion ? '***REDACTED***' : undefined,
-				},
+				body: new URLSearchParams(
+					Object.entries(bodyParams).reduce((acc, [key, value]) => {
+						if (value !== undefined && value !== null) {
+							acc[key] = value;
+						}
+						return acc;
+					}, {} as Record<string, string>)
+				).toString().replace(/code=[^&]+/, 'code=***REDACTED***')
+					.replace(/code_verifier=[^&]+/, 'code_verifier=***REDACTED***')
+					.replace(/client_secret=[^&]+/, 'client_secret=***REDACTED***')
+					.replace(/client_assertion=[^&]+/, 'client_assertion=***REDACTED***'),
 				step: 'unified-token-exchange',
 				flowType: 'unified',
 			});

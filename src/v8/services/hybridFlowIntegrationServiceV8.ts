@@ -246,6 +246,44 @@ export class HybridFlowIntegrationServiceV8 {
 
 		const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
+		// Track authorization URL generation for API documentation
+		const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+		const startTime = Date.now();
+		const apiCallId = apiCallTrackerService.trackApiCall({
+			method: 'GET',
+			url: authorizationEndpoint,
+			actualPingOneUrl: authorizationEndpoint,
+			isProxy: false,
+			headers: {},
+			body: {
+				query_parameters: Object.fromEntries(params.entries()),
+				query_string: params.toString(),
+				note: 'GET request with query parameters - these are sent as URL parameters, not POST body',
+				response_type: responseType,
+				response_mode: 'fragment',
+				has_pkce: responseType.includes('code'),
+			},
+			step: 'v8-hybrid-authorization-url',
+			flowType: 'oauth',
+		});
+
+		apiCallTrackerService.updateApiCallResponse(
+			apiCallId,
+			{
+				status: 200,
+				statusText: 'OK',
+				data: {
+					authorization_url: authorizationUrl,
+					note: 'Hybrid authorization URL generated with fragment response mode',
+					flow: 'hybrid',
+					response_type: responseType,
+					response_mode: 'fragment',
+					has_pkce: responseType.includes('code'),
+				},
+			},
+			Date.now() - startTime
+		);
+
 		console.log(`${MODULE_TAG} Authorization URL generated`, {
 			url: `${authorizationUrl.substring(0, 100)}...`,
 			responseType,
@@ -477,6 +515,37 @@ export class HybridFlowIntegrationServiceV8 {
 				console.log(`${MODULE_TAG} ✅ Added Authorization header (client_secret_basic)`);
 			}
 
+			// Track API call for display
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			const startTime = Date.now();
+
+			const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+			const trackedHeaders: Record<string, string> = { ...headers };
+			if (trackedHeaders.Authorization) {
+				trackedHeaders.Authorization = '***REDACTED***';
+			}
+
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: tokenEndpoint,
+				actualPingOneUrl,
+				isProxy: true,
+				headers: trackedHeaders,
+				body: new URLSearchParams(
+					Object.entries(bodyParams).reduce((acc, [key, value]) => {
+						if (value !== undefined && value !== null) {
+							acc[key] = value;
+						}
+						return acc;
+					}, {} as Record<string, string>)
+				).toString().replace(/code=[^&]+/, 'code=***REDACTED***')
+					.replace(/code_verifier=[^&]+/, 'code_verifier=***REDACTED***')
+					.replace(/client_secret=[^&]+/, 'client_secret=***REDACTED***')
+					.replace(/client_assertion=[^&]+/, 'client_assertion=***REDACTED***'),
+				step: 'v8-hybrid-token-exchange',
+				flowType: 'oauth',
+			});
+
 			const response = await pingOneFetch(tokenEndpoint, {
 				method: 'POST',
 				headers,
@@ -491,6 +560,25 @@ export class HybridFlowIntegrationServiceV8 {
 					`Token exchange failed: ${errorData.error} - ${errorData.error_description || ''}`
 				);
 			}
+
+			// Update API call with response
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch (parseError) {
+				responseData = { error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
 
 			const tokens: TokenResponse = await response.json();
 
