@@ -35,11 +35,34 @@ async function attemptSilentTokenRetrieval(
 	forceRefresh: boolean = false
 ): Promise<boolean> {
 	try {
-		// Use WorkerTokenConfigServiceV8 as default source, allow override
-		const silentApiRetrieval =
-			silentApiRetrievalOverride !== undefined
-				? silentApiRetrievalOverride
-				: WorkerTokenConfigServiceV8.getSilentApiRetrieval();
+		// FOOLPROOF: Use multiple sources to ensure we get the correct configuration
+		let silentApiRetrieval = false;
+
+		if (silentApiRetrievalOverride !== undefined) {
+			// Use explicit override if provided
+			silentApiRetrieval = silentApiRetrievalOverride;
+			console.log(`${MODULE_TAG} Using override silentApiRetrieval:`, silentApiRetrieval);
+		} else {
+			// Try multiple sources for configuration
+			try {
+				// First try centralized service
+				silentApiRetrieval = WorkerTokenConfigServiceV8.getSilentApiRetrieval();
+				console.log(`${MODULE_TAG} Using WorkerTokenConfigServiceV8 silentApiRetrieval:`, silentApiRetrieval);
+			} catch (serviceError) {
+				console.warn(`${MODULE_TAG} Failed to get config from WorkerTokenConfigServiceV8:`, serviceError);
+				
+				// Fallback to MFA configuration service
+				try {
+					const { MFAConfigurationServiceV8 } = await import('@/v8/services/mfaConfigurationServiceV8');
+					const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
+					silentApiRetrieval = mfaConfig.workerToken?.silentApiRetrieval ?? false;
+					console.log(`${MODULE_TAG} Using MFAConfigurationServiceV8 fallback silentApiRetrieval:`, silentApiRetrieval);
+				} catch (fallbackError) {
+					console.error(`${MODULE_TAG} All configuration sources failed:`, fallbackError);
+					silentApiRetrieval = false;
+				}
+			}
+		}
 
 		if (!silentApiRetrieval) {
 			console.log(`${MODULE_TAG} Silent retrieval disabled`);
@@ -136,15 +159,54 @@ export async function handleShowWorkerTokenModal(
 ): Promise<void> {
 	// #region agent log
 	// #endregion
-	// Use WorkerTokenConfigServiceV8 as default source, allow overrides for backward compatibility
-	const silentApiRetrieval =
-		overrideSilentApiRetrieval !== undefined
-			? overrideSilentApiRetrieval
-			: WorkerTokenConfigServiceV8.getSilentApiRetrieval();
-	const showTokenAtEnd =
-		overrideShowTokenAtEnd !== undefined
-			? overrideShowTokenAtEnd
-			: WorkerTokenConfigServiceV8.getShowTokenAtEnd();
+	
+	// FOOLPROOF: Use multiple sources to ensure we get the correct configuration
+	let silentApiRetrieval = false;
+	let showTokenAtEnd = false;
+
+	// Get silentApiRetrieval setting
+	if (overrideSilentApiRetrieval !== undefined) {
+		silentApiRetrieval = overrideSilentApiRetrieval;
+		console.log(`${MODULE_TAG} Using override silentApiRetrieval:`, silentApiRetrieval);
+	} else {
+		try {
+			silentApiRetrieval = WorkerTokenConfigServiceV8.getSilentApiRetrieval();
+			console.log(`${MODULE_TAG} Using WorkerTokenConfigServiceV8 silentApiRetrieval:`, silentApiRetrieval);
+		} catch (serviceError) {
+			console.warn(`${MODULE_TAG} Failed to get silentApiRetrieval from WorkerTokenConfigServiceV8:`, serviceError);
+			try {
+				const { MFAConfigurationServiceV8 } = await import('@/v8/services/mfaConfigurationServiceV8');
+				const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
+				silentApiRetrieval = mfaConfig.workerToken?.silentApiRetrieval ?? false;
+				console.log(`${MODULE_TAG} Using MFAConfigurationServiceV8 fallback silentApiRetrieval:`, silentApiRetrieval);
+			} catch (fallbackError) {
+				console.error(`${MODULE_TAG} All silentApiRetrieval sources failed:`, fallbackError);
+				silentApiRetrieval = false;
+			}
+		}
+	}
+
+	// Get showTokenAtEnd setting
+	if (overrideShowTokenAtEnd !== undefined) {
+		showTokenAtEnd = overrideShowTokenAtEnd;
+		console.log(`${MODULE_TAG} Using override showTokenAtEnd:`, showTokenAtEnd);
+	} else {
+		try {
+			showTokenAtEnd = WorkerTokenConfigServiceV8.getShowTokenAtEnd();
+			console.log(`${MODULE_TAG} Using WorkerTokenConfigServiceV8 showTokenAtEnd:`, showTokenAtEnd);
+		} catch (serviceError) {
+			console.warn(`${MODULE_TAG} Failed to get showTokenAtEnd from WorkerTokenConfigServiceV8:`, serviceError);
+			try {
+				const { MFAConfigurationServiceV8 } = await import('@/v8/services/mfaConfigurationServiceV8');
+				const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
+				showTokenAtEnd = mfaConfig.workerToken?.showTokenAtEnd ?? false;
+				console.log(`${MODULE_TAG} Using MFAConfigurationServiceV8 fallback showTokenAtEnd:`, showTokenAtEnd);
+			} catch (fallbackError) {
+				console.error(`${MODULE_TAG} All showTokenAtEnd sources failed:`, fallbackError);
+				showTokenAtEnd = false;
+			}
+		}
+	}
 
 	// Check current token status
 	const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
@@ -210,7 +272,11 @@ export async function handleShowWorkerTokenModal(
 		// Check if failure was due to missing credentials
 		const credentialsCheck = await workerTokenServiceV8.loadCredentials();
 		if (!credentialsCheck) {
-			setShowModal(true);
+			// FIXED: Do NOT show modal in silent mode even if credentials are missing
+			// The user explicitly chose silent mode - respect that choice
+			// Show a toast warning instead so they know credentials need to be configured
+			console.warn(`${MODULE_TAG} Silent retrieval failed: no credentials configured. Modal suppressed (silent mode ON).`);
+			toastV8.warning('Silent API requires saved credentials. Use "Get Worker Token" button to configure.');
 			return;
 		}
 

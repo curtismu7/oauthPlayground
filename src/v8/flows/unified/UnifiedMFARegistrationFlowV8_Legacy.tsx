@@ -54,7 +54,7 @@ import {
 	shouldRedirectToPingOne,
 } from '@/v8/services/pingOneAuthenticationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
+import { type TokenStatusInfo, WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
@@ -2427,8 +2427,9 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 					...baseParams,
 					...mappedFields,
 					// Include policy for TOTP devices (required for secret and keyUri to be returned)
-					...(selectedDeviceType === 'TOTP' && selectedPolicy
-						? { policy: selectedPolicy.id }
+					// Use props.credentials.deviceAuthenticationPolicyId which is set by the outer component's policy selection
+					...(selectedDeviceType === 'TOTP' && props.credentials.deviceAuthenticationPolicyId
+						? { policy: props.credentials.deviceAuthenticationPolicyId }
 						: {}),
 				};
 
@@ -2606,7 +2607,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 				props.setIsLoading(false);
 			}
 		},
-		[config.displayName, config.deviceType, selectedPolicy]
+		[config.displayName, config.deviceType]
 	);
 
 	/**
@@ -2708,10 +2709,12 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 			console.log('[UNIFIED-FLOW] Fields:', fields);
 
 			// CRITICAL: Validate worker token before allowing any registration
-			if (!workerToken.tokenStatus.isValid) {
-				console.error('[UNIFIED-FLOW] Cannot proceed - no valid worker token');
+			// FIXED: Do a FRESH check - React state (workerToken.tokenStatus) can be stale
+			const freshTokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+			if (!freshTokenStatus.isValid) {
+				console.error('[UNIFIED-FLOW] Cannot proceed - no valid worker token (fresh check)');
 				toastV8.error(
-					'❌ Worker token required for device registration. Please configure worker token credentials first.',
+					'Worker token required for device registration. Please configure worker token credentials first.',
 					{
 						duration: 5000,
 					}

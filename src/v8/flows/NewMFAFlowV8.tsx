@@ -177,10 +177,13 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 		return false;
 	}, []);
 
-	const validateStep0 = React.useCallback((credentials: any, tokenStatus: any, _nav: any) => {
-		// Always check for valid worker token (required for MFA device operations)
-		if (!tokenStatus.isValid) {
-			console.warn(`${MODULE_TAG} Step 0 validation failed: Invalid or expired worker token`);
+	const validateStep0 = React.useCallback((credentials: any, _tokenStatus: any, _nav: any) => {
+		// FIXED: Always do a FRESH check of worker token status
+		// The tokenStatus parameter from React state can be stale
+		const freshTokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+		
+		if (!freshTokenStatus.isValid) {
+			console.warn(`${MODULE_TAG} Step 0 validation failed: Invalid or expired worker token (fresh check)`);
 			return false;
 		}
 
@@ -191,7 +194,7 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 		console.log(`${MODULE_TAG} Validating step 0:`, {
 			hasEnvironmentId,
 			hasUsername,
-			tokenValid: tokenStatus.isValid,
+			tokenValid: freshTokenStatus.isValid,
 			tokenType: credentials.tokenType,
 			hasUserToken: !!credentials.userToken,
 		});
