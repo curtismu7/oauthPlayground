@@ -64,7 +64,9 @@ import { ErrorDisplayWithRetry } from './ErrorDisplayWithRetry';
 import { IDTokenValidationModalV8U } from './IDTokenValidationModalV8U';
 import { TokenDisplayV8U } from './TokenDisplayV8U';
 import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV8U';
+import { UnifiedFlowSuccessStepV8U } from './UnifiedFlowSuccessStepV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
+import { ApiCallExampleV8U } from './ApiCallExampleV8U';
 
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
 
@@ -372,18 +374,18 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const getTotalSteps = (): number => {
 		switch (flowType) {
 			case 'client-credentials':
-				return 5; // Config → Token Request → Tokens → Introspection & UserInfo → Documentation
+				return 6; // Config → Token Request → Tokens → Introspection & UserInfo → Documentation → Success
 			case 'device-code':
-				return 6; // Config → Device Auth → Poll → Tokens → Introspection & UserInfo → Documentation
+				return 7; // Config → Device Auth → Poll → Tokens → Introspection & UserInfo → Documentation → Success
 			case 'implicit':
-				return 6; // Config → Auth URL → Fragment → Tokens → Introspection & UserInfo → Documentation
+				return 7; // Config → Auth URL → Fragment → Tokens → Introspection & UserInfo → Documentation → Success
 			case 'hybrid':
-				// 8 steps: Config → PKCE → Auth URL → Parse Callback → Exchange → Tokens → Introspection & UserInfo → Documentation
-				return 8;
+				// 9 steps: Config → PKCE → Auth URL → Parse Callback → Exchange → Tokens → Introspection & UserInfo → Documentation → Success
+				return 9;
 			default:
 				// oauth-authz flow
-				// 8 steps: Config → PKCE → Auth URL → Handle Callback → Exchange → Tokens → Introspection & UserInfo → Documentation
-				return 8;
+				// 9 steps: Config → PKCE → Auth URL → Handle Callback → Exchange → Tokens → Introspection & UserInfo → Documentation → Success
+				return 9;
 		}
 	};
 
@@ -714,12 +716,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		const checkTokenStatus = async () => {
 			try {
 				// Import both services to check token from different sources
-				const { checkWorkerTokenStatus } = await import(
-					'@/v8/services/workerTokenStatusServiceV8'
-				);
-				const { unifiedWorkerTokenService } = await import(
-					'@/services/unifiedWorkerTokenService'
-				);
+				const { checkWorkerTokenStatus } = await import('@/v8/services/workerTokenStatusServiceV8');
+				const { unifiedWorkerTokenService } = await import('@/services/unifiedWorkerTokenService');
 
 				// Get detailed status
 				const status = await checkWorkerTokenStatus();
@@ -790,7 +788,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		return () => {
 			clearInterval(tokenCheckInterval);
 		};
-	}, [credentials, currentStep, navigateToStep]);
+	}, [currentStep, navigateToStep]);
 
 	// Ensure PKCE codes are generated before proceeding to Authorization URL step
 	// Only redirect if PKCE is required (REQUIRED or S256_REQUIRED)
@@ -5071,7 +5069,20 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									].join('\n');
 									setError(errorMessage);
 									setValidationErrors([errorMessage]);
-									toastV8.error('Pre-flight validation failed - check error details below');
+									// Create informative toast message
+									const errorCount = validationResult.errors.length;
+									const fixableCount = validationResult.fixableErrors?.length || 0;
+									const mainError = validationResult.errors[0];
+									
+									let toastMessage = `Pre-flight validation failed (${errorCount} error${errorCount > 1 ? 's' : ''})`;
+									if (mainError) {
+										toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
+									}
+									if (fixableCount > 0) {
+										toastMessage += ` - ${fixableCount} can be auto-fixed`;
+									}
+									
+									toastV8.error(toastMessage);
 									setIsPreFlightValidating(false);
 									setPreFlightStatus('');
 									setIsLoading(false);
@@ -5129,7 +5140,20 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									fixableErrors: validationResult.fixableErrors || [],
 									...(validationResult.appConfig && { appConfig: validationResult.appConfig }),
 								});
-								toastV8.error('Pre-flight validation failed - check error details below');
+								// Create informative toast message
+								const errorCount = validationResult.errors.length;
+								const fixableCount = validationResult.fixableErrors?.length || 0;
+								const mainError = validationResult.errors[0];
+								
+								let toastMessage = `Pre-flight validation failed (${errorCount} error${errorCount > 1 ? 's' : ''})`;
+								if (mainError) {
+									toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
+								}
+								if (fixableCount > 0) {
+									toastMessage += ` - ${fixableCount} can be auto-fixed`;
+								}
+								
+								toastV8.error(toastMessage);
 								setIsPreFlightValidating(false);
 								setPreFlightStatus('');
 								setIsLoading(false);
@@ -5162,7 +5186,20 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								fixableErrors: validationResult.fixableErrors || [],
 								...(validationResult.appConfig && { appConfig: validationResult.appConfig }),
 							});
-							toastV8.error('Pre-flight validation failed - check error details below');
+							// Create informative toast message
+							const errorCount = validationResult.errors.length;
+							const fixableCount = validationResult.fixableErrors?.length || 0;
+							const mainError = validationResult.errors[0];
+							
+							let toastMessage = `Pre-flight validation failed (${errorCount} error${errorCount > 1 ? 's' : ''})`;
+							if (mainError) {
+								toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
+							}
+							if (fixableCount > 0) {
+								toastMessage += ` - ${fixableCount} can be auto-fixed`;
+							}
+							
+							toastV8.error(toastMessage);
 							setIsPreFlightValidating(false);
 							setPreFlightStatus('');
 							setIsLoading(false);
@@ -6613,6 +6650,35 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							</div>
 						)}
 					</div>
+
+					{/* API Call Example - Authorization URL Generation */}
+					<ApiCallExampleV8U
+						title="Example: Authorization URL Generation API Call"
+						method="GET"
+						url={`https://auth.pingone.com/${credentials.environmentId || 'your-environment-id'}/as/authorize`}
+						headers={{
+							'Accept': 'application/json',
+							'User-Agent': 'OAuth Playground/1.0',
+						}}
+						body={{
+							query_parameters: {
+								response_type: 'code',
+								client_id: credentials.clientId || 'your-client-id',
+								redirect_uri: credentials.redirectUri || 'https://your-app.com/callback',
+								scope: credentials.scopes || 'openid profile email',
+								state: 'v8u-oauth-authz-abc123def456',
+								...(flowState.codeChallenge && {
+									code_challenge: flowState.codeChallenge || 'your-code-challenge',
+									code_challenge_method: 'S256',
+								}),
+								...(credentials.responseMode && {
+									response_mode: credentials.responseMode,
+								}),
+							},
+							query_string: `response_type=code&client_id=${credentials.clientId || 'your-client-id'}&redirect_uri=${encodeURIComponent(credentials.redirectUri || 'https://your-app.com/callback')}&scope=${encodeURIComponent(credentials.scopes || 'openid profile email')}&state=v8u-oauth-authz-abc123def456${flowState.codeChallenge ? `&code_challenge=${flowState.codeChallenge || 'your-code-challenge'}&code_challenge_method=S256` : ''}${credentials.responseMode ? `&response_mode=${credentials.responseMode}` : ''}`,
+						}}
+						note="This is a GET request that generates the authorization URL. The user will be redirected to PingOne's authorization server with these parameters. Note that sensitive values like client_secret are not included in the URL for security."
+					/>
 
 					<div
 						style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}
@@ -8101,7 +8167,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										<ColoredUrlDisplay
 											url={callbackDetails.url}
 											height="80px"
-											showInfoButton={false}
+											showInfoButton={true}
+											showCopyButton={true}
+											showOpenButton={false}
 										/>
 									</div>
 								)}
@@ -8227,7 +8295,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							url={callbackDetails.url}
 							label="🌐 Full Callback URL"
 							showCopyButton={true}
-							showInfoButton={false}
+							showInfoButton={true}
 							showOpenButton={false}
 							height="auto"
 						/>
@@ -8649,7 +8717,20 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						// User declined auto-fix
 						setValidationErrors(validationResult.errors);
 						setValidationWarnings([]);
-						toastV8.error('Pre-flight validation failed - check error details below');
+						// Create informative toast message for declined auto-fix
+						const errorCount = validationResult.errors.length;
+						const fixableCount = validationResult.fixableErrors?.length || 0;
+						const mainError = validationResult.errors[0];
+						
+						let toastMessage = `Auto-fix declined - ${errorCount} error${errorCount > 1 ? 's' : ''} remain`;
+						if (mainError) {
+							toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
+						}
+						if (fixableCount > 0) {
+							toastMessage += ` (${fixableCount} could have been auto-fixed)`;
+						}
+						
+						toastV8.error(toastMessage);
 						setIsPreFlightValidating(false);
 						setPreFlightStatus('');
 						setIsLoading(false);
@@ -8660,7 +8741,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					// Errors but not fixable
 					setValidationErrors(validationResult.errors);
 					setValidationWarnings([]);
-					toastV8.error('Pre-flight validation failed - check error details below');
+					// Create informative toast message for non-fixable errors
+					const errorCount = validationResult.errors.length;
+					const mainError = validationResult.errors[0];
+					
+					let toastMessage = `Pre-flight validation failed (${errorCount} non-fixable error${errorCount > 1 ? 's' : ''})`;
+					if (mainError) {
+						toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
+					}
+					toastMessage += ' - Manual fix required';
+					
+					toastV8.error(toastMessage);
 					setIsPreFlightValidating(false);
 					setPreFlightStatus('');
 					setIsLoading(false);
@@ -8804,7 +8895,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		const hasErrors = validationErrors && validationErrors.length > 0;
 
 		// Trigger on step 1 OR step 2 when device code is available
-		// This makes polling automatic as soon as device code is received
 		const isOnDeviceCodeStep = currentStep === 1 || currentStep === 2;
 		if (
 			flowType === 'device-code' &&
@@ -9352,7 +9442,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					if (pollingAbortRef.current) {
 						console.log(`${MODULE_TAG} Polling stopped after poll attempt`);
 						setIsLoading(false);
-						setLoadingMessage('');
 						isPollingExecutingRef.current = false;
 						setFlowState((prev) => ({
 							...prev,
@@ -10305,7 +10394,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								if (newOAuthConfigResult.errors.length > 0) {
 									setValidationErrors(newOAuthConfigResult.errors);
 									setValidationWarnings([]);
-									toastV8.error('Some errors remain after fixes');
+									// Create informative toast message for errors remaining after auto-fix
+									const errorCount = newOAuthConfigResult.errors.length;
+									const mainError = newOAuthConfigResult.errors[0];
+									
+									let toastMessage = `Auto-fix incomplete - ${errorCount} error${errorCount > 1 ? 's' : ''} remain`;
+									if (mainError) {
+										toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
+									}
+									toastMessage += ' - Manual fix required';
+									
+									toastV8.error(toastMessage);
 									setIsPreFlightValidating(false);
 									setPreFlightStatus('');
 									setIsLoading(false);
@@ -10326,7 +10425,20 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									setValidationErrors(validationResult.errors);
 									setValidationWarnings([]);
 								}
-								toastV8.error('Pre-flight validation failed - check error details below');
+								// Create informative toast message for declined auto-fix
+								const errorCount = validationResult?.errors?.length || 0;
+								const fixableCount = validationResult?.fixableErrors?.length || 0;
+								const mainError = validationResult?.errors?.[0];
+								
+								let toastMessage = `Auto-fix declined - ${errorCount} error${errorCount > 1 ? 's' : ''} remain`;
+								if (mainError) {
+									toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
+								}
+								if (fixableCount > 0) {
+									toastMessage += ` (${fixableCount} could have been auto-fixed)`;
+								}
+								
+								toastV8.error(toastMessage);
 								setIsPreFlightValidating(false);
 								setPreFlightStatus('');
 								setIsLoading(false);
@@ -10339,7 +10451,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								setValidationErrors(validationResult.errors);
 								setValidationWarnings([]);
 							}
-							toastV8.error('Pre-flight validation failed - check error details below');
+							// Create informative toast message for non-fixable errors
+							const errorCount = validationResult?.errors?.length || 0;
+							const mainError = validationResult?.errors?.[0];
+							
+							let toastMessage = `Pre-flight validation failed (${errorCount} non-fixable error${errorCount > 1 ? 's' : ''})`;
+							if (mainError) {
+								toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
+							}
+							toastMessage += ' - Manual fix required';
+							
+							toastV8.error(toastMessage);
 							setIsPreFlightValidating(false);
 							setPreFlightStatus('');
 							setIsLoading(false);
@@ -10788,7 +10910,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											url={tokenEndpoint}
 											label="Token Endpoint"
 											showCopyButton={true}
-											showInfoButton={false}
+											showInfoButton={true}
 											showOpenButton={false}
 											height="auto"
 											editable={false}
@@ -11265,6 +11387,32 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			<div className="step-content">
 				<h2>Step 3: Exchange Code for Tokens</h2>
 				<p>Exchange the authorization code for access token and ID token.</p>
+
+				{/* API Call Example - Token Exchange */}
+				<ApiCallExampleV8U
+					title="Example: Token Exchange API Call"
+					method="POST"
+					url={`https://auth.pingone.com/${credentials.environmentId || 'your-environment-id'}/as/token`}
+					headers={{
+						'Content-Type': 'application/x-www-form-urlencoded',
+						'Authorization': `Basic ${btoa(`${credentials.clientId || 'your-client-id'}:${'***REDACTED***'}`)}`,
+						'Accept': 'application/json',
+					}}
+					body={`grant_type=authorization_code&code=${flowState.authorizationCode?.substring(0, 20) || 'your-authorization-code'}...&redirect_uri=${encodeURIComponent(credentials.redirectUri || 'https://your-app.com/callback')}&client_id=${credentials.clientId || 'your-client-id'}${flowState.codeVerifier ? `&code_verifier=***REDACTED***` : ''}&client_secret=***REDACTED***`}
+					response={{
+						status: 200,
+						statusText: 'OK',
+						data: {
+							access_token: '***REDACTED***',
+							token_type: 'Bearer',
+							expires_in: 3600,
+							refresh_token: '***REDACTED***',
+							id_token: '***REDACTED***',
+							scope: credentials.scopes || 'openid profile email',
+						},
+					}}
+					note="This POST request exchanges the authorization code for tokens. The code_verifier is sent for PKCE validation. All sensitive values (tokens, secrets, codes) are redacted for security. The response includes access_token, id_token, and optionally refresh_token."
+				/>
 
 				{flowState.tokens?.accessToken ? (
 					<div
@@ -11890,16 +12038,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							<strong style={{ color: '#1e40af' }}>Next Step:</strong>
 							<p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#1e3a8a' }}>
 								Click "Next Step" or "
-								{totalSteps - 1 === 4 || totalSteps - 1 === 6
-									? 'View Introspection'
+								{totalSteps - 1 === 5 || totalSteps - 1 === 6 || totalSteps - 1 === 7
+									? 'View API Documentation'
 									: 'View API Documentation'}
 								" to proceed to{' '}
-								{totalSteps - 1 === 4 || totalSteps - 1 === 6
-									? 'Token Introspection & UserInfo'
+								{totalSteps - 1 === 5 || totalSteps - 1 === 6 || totalSteps - 1 === 7
+									? 'API Documentation'
 									: 'API Documentation'}{' '}
 								step.{' '}
-								{totalSteps - 1 === 4 || totalSteps - 1 === 6
-									? 'The introspection step will show you what operations are available for your flow, even if introspection or UserInfo cannot be used.'
+								{totalSteps - 1 === 5 || totalSteps - 1 === 6 || totalSteps - 1 === 7
+									? 'The API Documentation step will provide comprehensive documentation for the PingOne APIs.'
 									: 'The API Documentation step will provide comprehensive documentation for the PingOne APIs.'}
 							</p>
 						</div>
@@ -12922,6 +13070,18 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		);
 	};
 
+	// Step 8: Success Page
+	const renderStep8Success = () => {
+		return (
+			<UnifiedFlowSuccessStepV8U
+				flowType={flowType}
+				specVersion={specVersion}
+				credentials={credentials}
+				onFlowReset={onFlowReset}
+			/>
+		);
+	};
+
 	// Polling Timeout Modal - shown when polling times out
 	const renderPollingTimeoutModal = () => {
 		if (!showPollingTimeoutModal) return null;
@@ -13813,13 +13973,24 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 				return renderStep7Documentation();
 
+			case 8:
+				// For oauth-authz and hybrid, Step 8 is success (after Documentation at step 7)
+				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+					return renderStep8Success();
+				}
+				return renderStep8Success();
+
 			default:
-				// Check if we're on the documentation step (last step)
+				// Check if we're on the success step (last step)
 				if (currentStep === totalSteps - 1) {
+					return renderStep8Success();
+				}
+				// Check if we're on the documentation step (second to last)
+				if (currentStep === totalSteps - 2) {
 					return renderStep7Documentation();
 				}
-				// Check if we're on the introspection step (second to last)
-				if (currentStep === totalSteps - 2) {
+				// Check if we're on the introspection step (third to last)
+				if (currentStep === totalSteps - 3) {
 					return renderStep6IntrospectionUserInfo();
 				}
 				return null;
@@ -14115,7 +14286,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							let buttonTitle = 'Proceed to next step';
 							if (!canProceed) {
 								if (!hasValidWorkerToken) {
-									buttonTitle = '⚠️ Valid worker token required. Click "Get Worker Token" above to proceed.';
+									buttonTitle =
+										'⚠️ Valid worker token required. Click "Get Worker Token" above to proceed.';
 								} else if (validationErrors.length > 0) {
 									buttonTitle = 'Fix validation errors before proceeding';
 								} else if (!completedSteps.includes(currentStep)) {
@@ -14158,7 +14330,41 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							);
 						})()}
 					{/* Always show navigation to next step from tokens step, even if validation errors exist */}
-					{currentStep === totalSteps - 2 && flowState.tokens?.accessToken && (
+					{currentStep === totalSteps - 3 && flowState.tokens?.accessToken && (
+						<button
+							type="button"
+							className="btn btn-next"
+							onClick={() => navigateToStep(totalSteps - 2)}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								background: '#10b981',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								padding: '10px 20px',
+								marginLeft: '8px',
+							}}
+							title={
+								totalSteps - 2 === 5 || totalSteps - 2 === 6 || totalSteps - 2 === 7
+									? 'Go to API Documentation step'
+									: 'Go to API Documentation step'
+							}
+						>
+							<span>
+								{totalSteps - 2 === 5 || totalSteps - 2 === 6 || totalSteps - 2 === 7
+									? 'View API Documentation'
+									: 'View API Documentation'}
+							</span>
+							<FiArrowRight size={16} />
+						</button>
+					)}
+
+					{/* Navigation from documentation to success step */}
+					{currentStep === totalSteps - 2 && (
 						<button
 							type="button"
 							className="btn btn-next"
@@ -14166,23 +14372,20 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							style={{
 								display: 'flex',
 								alignItems: 'center',
-								justifyContent: 'center',
-								gap: '8px',
-								minWidth: '120px',
+								background: '#10b981',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								padding: '10px 20px',
 								marginLeft: '8px',
 							}}
-							title={
-								totalSteps - 1 === 4 || totalSteps - 1 === 6
-									? 'Go to Token Introspection & UserInfo step'
-									: 'Go to API Documentation step'
-							}
+							title="Go to Success page"
 						>
-							<span>
-								{totalSteps - 1 === 4 || totalSteps - 1 === 6
-									? 'View Introspection'
-									: 'View API Documentation'}
-							</span>
-							<FiArrowRight size={16} style={{ marginLeft: '4px' }} />
+							<span>View Success Summary</span>
+							<FiArrowRight size={16} />
 						</button>
 					)}
 				</div>
@@ -14443,7 +14646,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									setError(errorMessage);
 									setValidationErrors([errorMessage]);
 									setValidationWarnings([]);
-									toastV8.error('Pre-flight validation failed - check error details below');
+									// Create informative toast message
+									const errorCount = newValidationResult.errors.length;
+									const mainError = newValidationResult.errors[0];
+									
+									let toastMessage = `Pre-flight validation failed (${errorCount} error${errorCount > 1 ? 's' : ''})`;
+									if (mainError) {
+										toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
+									}
+									toastMessage += ' - Check details below for fix options';
+									
+									toastV8.error(toastMessage);
 								} else if (newValidationResult.warnings.length > 0) {
 									const warningMessage = [
 										'🔍 Pre-flight Validation Results:',
