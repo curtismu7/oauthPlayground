@@ -12,7 +12,7 @@
  * - WebAuthn credential management
  */
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { UnavailableDevice } from './useMFADevices';
 
@@ -27,7 +27,7 @@ export interface FIDO2AuthenticationHookResult {
 	// Usernameless decision modal
 	showUsernameDecisionModal: boolean;
 	isPasskeyRegistrationMode: boolean;
-	
+
 	// Actions
 	handleUsernamelessFIDO2: (
 		credentials: FIDO2Credentials,
@@ -35,7 +35,7 @@ export interface FIDO2AuthenticationHookResult {
 		onDeviceFailure: (error: string, devices: UnavailableDevice[]) => void,
 		onRegistrationRequired: () => void
 	) => Promise<void>;
-	
+
 	// State setters
 	setShowUsernameDecisionModal: React.Dispatch<React.SetStateAction<boolean>>;
 	setIsPasskeyRegistrationMode: React.Dispatch<React.SetStateAction<boolean>>;
@@ -43,14 +43,14 @@ export interface FIDO2AuthenticationHookResult {
 
 /**
  * Hook for managing FIDO2/WebAuthn authentication
- * 
+ *
  * @example
  * ```tsx
  * const {
  *   showUsernameDecisionModal,
  *   handleUsernamelessFIDO2
  * } = useFIDO2Authentication();
- * 
+ *
  * // Use in button handler
  * await handleUsernamelessFIDO2(
  *   credentials,
@@ -117,10 +117,10 @@ export const useFIDO2Authentication = (): FIDO2AuthenticationHookResult => {
 
 				// Step 2: Check for NO_USABLE_DEVICES error
 				if (authResult.errorCode === 'NO_USABLE_DEVICES') {
-					const unavailableDevices: UnavailableDevice[] = (
-						authResult.unavailableDevices || []
-					).map((d) => ({ id: d.id }));
-					
+					const unavailableDevices: UnavailableDevice[] = (authResult.unavailableDevices || []).map(
+						(d) => ({ id: d.id })
+					);
+
 					onDeviceFailure(
 						authResult.error || 'No usable devices found for authentication',
 						unavailableDevices
@@ -152,10 +152,10 @@ export const useFIDO2Authentication = (): FIDO2AuthenticationHookResult => {
 		// Usernameless decision modal
 		showUsernameDecisionModal,
 		isPasskeyRegistrationMode,
-		
+
 		// Actions
 		handleUsernamelessFIDO2,
-		
+
 		// State setters
 		setShowUsernameDecisionModal,
 		setIsPasskeyRegistrationMode,

@@ -165,6 +165,17 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 
 	const isDisabled = isLoading || !environmentId.trim() || !tokenStatus.isValid;
 
+	// Debug logging to identify why button is disabled
+	if (isDisabled) {
+		console.log(`${_MODULE_TAG} App lookup button disabled:`, {
+			isLoading,
+			environmentId: environmentId.trim(),
+			environmentIdEmpty: !environmentId.trim(),
+			tokenStatus,
+			tokenValid: tokenStatus.isValid,
+		});
+	}
+
 	return (
 		<div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
 			{/* Search Icon Button (compact) */}

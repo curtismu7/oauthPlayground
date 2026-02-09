@@ -138,6 +138,22 @@ export const FLOW_REDIRECT_URI_MAPPING_V8: FlowRedirectUriConfig[] = [
 		description: 'OpenID Connect Hybrid Flow V8U (Unified)',
 		specification: 'OIDC Core 1.0, Section 3.3',
 	},
+
+	// V8 MFA Flows
+	{
+		flowType: 'unified-mfa-v8',
+		requiresRedirectUri: true,
+		callbackPath: 'mfa-unified-callback',
+		description: 'V8 Unified MFA Registration Flow',
+		specification: 'PingOne MFA API',
+	},
+	{
+		flowType: 'mfa-hub-v8',
+		requiresRedirectUri: true,
+		callbackPath: 'mfa-hub-callback',
+		description: 'V8 MFA Hub Flow',
+		specification: 'PingOne MFA API',
+	},
 ];
 
 /**

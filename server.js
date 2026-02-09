@@ -3566,36 +3566,36 @@ app.post('/api/device-authorization', async (req, res) => {
 
 		// #region agent log - Debug instrumentation for 403 error
 		try {
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'server.js:3362',
-					message: 'About to send request to PingOne with FIXED endpoint',
-					data: {
-						endpoint: deviceEndpoint,
-						endpointPath: deviceEndpoint.includes('/as/device_authorization')
-							? 'CORRECT (/as/device_authorization)'
-							: 'WRONG (/as/device)',
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/x-www-form-urlencoded',
-							Accept: 'application/json',
-						},
-						body: formDataString,
-						bodyLength: formDataString.length,
-						formDataKeys: Array.from(formData.keys()),
-						clientIdValue: formData.get('client_id')
-							? formData.get('client_id').substring(0, 15) + '...'
-							: 'MISSING',
-						scopeValue: formData.get('scope') || 'NONE',
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'post-fix',
-					hypothesisId: 'B',
-				}),
-			}).catch(() => {});
+			// fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+			// 	method: 'POST',
+			// 	headers: { 'Content-Type': 'application/json' },
+			// 	body: JSON.stringify({
+			// 		location: 'server.js:3362',
+			// 		message: 'About to send request to PingOne with FIXED endpoint',
+			// 		data: {
+			// 			endpoint: deviceEndpoint,
+			// 			endpointPath: deviceEndpoint.includes('/as/device_authorization')
+			// 				? 'CORRECT (/as/device_authorization)'
+			// 				: 'WRONG (/as/device)',
+			// 			method: 'POST',
+			// 			headers: {
+			// 				'Content-Type': 'application/x-www-form-urlencoded',
+			// 				Accept: 'application/json',
+			// 			},
+			// 			body: formDataString,
+			// 			bodyLength: formDataString.length,
+			// 			formDataKeys: Array.from(formData.keys()),
+			// 			clientIdValue: formData.get('client_id')
+			// 				? formData.get('client_id').substring(0, 15) + '...'
+			// 				: 'MISSING',
+			// 			scopeValue: formData.get('scope') || 'NONE',
+			// 		},
+			// 		timestamp: Date.now(),
+			// 		sessionId: 'debug-session',
+			// 		runId: 'post-fix',
+			// 		hypothesisId: 'B',
+			// 	}),
+			// }).catch(() => {});
 		} catch (e) {}
 		// #endregion
 
@@ -3614,25 +3614,25 @@ app.post('/api/device-authorization', async (req, res) => {
 				.clone()
 				.text()
 				.catch(() => 'FAILED_TO_READ');
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'server.js:3380',
-					message: 'Received response from PingOne',
-					data: {
-						status: response.status,
-						statusText: response.statusText,
-						responseHeaders: Object.fromEntries(response.headers.entries()),
-						responseBody: responseText,
-						responseBodyLength: responseText.length,
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'pre-fix',
-					hypothesisId: 'C',
-				}),
-			}).catch(() => {});
+			// fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+			// 	method: 'POST',
+			// 	headers: { 'Content-Type': 'application/json' },
+			// 	body: JSON.stringify({
+			// 		location: 'server.js:3380',
+			// 		message: 'Received response from PingOne',
+			// 		data: {
+			// 			status: response.status,
+			// 			statusText: response.statusText,
+			// 			responseHeaders: Object.fromEntries(response.headers.entries()),
+			// 			responseBody: responseText,
+			// 			responseBodyLength: responseText.length,
+			// 		},
+			// 		timestamp: Date.now(),
+			// 		sessionId: 'debug-session',
+			// 		runId: 'pre-fix',
+			// 		hypothesisId: 'C',
+			// 	}),
+			// }).catch(() => {});
 		} catch (_e) {}
 		// #endregion
 
@@ -9910,37 +9910,37 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 		// Log the exact JSON body being sent to PingOne (for all device types, especially EMAIL)
 		const jsonBodyString = JSON.stringify(requestBody);
 		// Silently attempt analytics (suppress all errors to prevent console spam)
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				location: 'server.js:8786',
-				message: 'JSON body being sent to PingOne for device registration',
-				data: {
-					deviceType: type,
-					jsonBodyString,
-					jsonBodyParsed: requestBody,
-					endpoint: deviceEndpoint,
-					requestBodyKeys: Object.keys(requestBody),
-					hasType: 'type' in requestBody,
-					typeValue: requestBody.type,
-					hasEmail: 'email' in requestBody,
-					emailValue: requestBody.email,
-					hasStatus: 'status' in requestBody,
-					statusValue: requestBody.status,
-					hasPolicy: 'policy' in requestBody,
-					policyValue: requestBody.policy,
-					hasPhone: 'phone' in requestBody,
-					phoneValue: requestBody.phone,
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run1',
-				hypothesisId: 'A',
-			}),
-		}).catch(() => {
-			// Silently ignore - analytics server not available
-		});
+		// fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+		// 	method: 'POST',
+		// 	headers: { 'Content-Type': 'application/json' },
+		// 	body: JSON.stringify({
+		// 		location: 'server.js:8786',
+		// 		message: 'JSON body being sent to PingOne for device registration',
+		// 		data: {
+		// 			deviceType: type,
+		// 			jsonBodyString,
+		// 			jsonBodyParsed: requestBody,
+		// 			endpoint: deviceEndpoint,
+		// 			requestBodyKeys: Object.keys(requestBody),
+		// 			hasType: 'type' in requestBody,
+		// 			typeValue: requestBody.type,
+		// 			hasEmail: 'email' in requestBody,
+		// 			emailValue: requestBody.email,
+		// 			hasStatus: 'status' in requestBody,
+		// 			statusValue: requestBody.status,
+		// 			hasPolicy: 'policy' in requestBody,
+		// 			policyValue: requestBody.policy,
+		// 			hasPhone: 'phone' in requestBody,
+		// 			phoneValue: requestBody.phone,
+		// 		},
+		// 		timestamp: Date.now(),
+		// 		sessionId: 'debug-session',
+		// 		runId: 'run1',
+		// 		hypothesisId: 'A',
+		// 	}),
+		// }).catch(() => {
+		// 	// Silently ignore - analytics server not available
+		// });
 		// #endregion
 
 		const startTime = Date.now();
@@ -9966,27 +9966,27 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 			} catch {
 				errorData = { raw: errorTextForLogging };
 			}
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'server.js:8827',
-					message: 'PingOne device registration error response',
-					data: {
-						status: response.status,
-						statusText: response.statusText,
-						errorData,
-						errorText: errorTextForLogging,
-						jsonBodyThatWasSent: jsonBodyString,
-						deviceType: type,
-						endpoint: deviceEndpoint,
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run1',
-					hypothesisId: 'A',
-				}),
-			}).catch(() => {});
+			// fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+			// 	method: 'POST',
+			// 	headers: { 'Content-Type': 'application/json' },
+			// 	body: JSON.stringify({
+			// 		location: 'server.js:8827',
+			// 		message: 'PingOne device registration error response',
+			// 		data: {
+			// 			status: response.status,
+			// 			statusText: response.statusText,
+			// 			errorData,
+			// 			errorText: errorTextForLogging,
+			// 			jsonBodyThatWasSent: jsonBodyString,
+			// 			deviceType: type,
+			// 			endpoint: deviceEndpoint,
+			// 		},
+			// 		timestamp: Date.now(),
+			// 		sessionId: 'debug-session',
+			// 		runId: 'run1',
+			// 		hypothesisId: 'A',
+			// 	}),
+			// }).catch(() => {});
 		}
 		// #endregion
 
@@ -13476,7 +13476,10 @@ app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 			hasWorkerToken: !!workerToken,
 			hasOtp: !!otp,
 			otpLength: otp ? String(otp).length : 0,
+			otpValue: otp ? `"${otp}"` : 'null',
 			isAdminActivation: otp === 'ADMIN_ACTIVATION',
+			deviceActivateUri: deviceActivateUri || 'none',
+			fullBody: req.body,
 		});
 
 		if (!environmentId || !userId || !deviceId || !workerToken || !otp) {
@@ -13604,7 +13607,16 @@ app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 				statusText: response.statusText,
 				url: activateEndpoint,
 				error: responseData,
+				requestMethod,
+				requestHeaders,
+				requestBody,
 			});
+			
+			// Log detailed validation errors if present
+			if (responseData && responseData.details) {
+				console.error('[MFA Activate Device] Validation Details:', responseData.details);
+			}
+			
 			return res.status(response.status).json({
 				error: 'Failed to activate device',
 				message: responseData.message || responseData.error || response.statusText,
@@ -14927,14 +14939,37 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 			username,
 			deviceId,
 			workerToken,
+			tokenType,
+			userToken,
 			policyId,
 			deviceAuthenticationPolicyId,
 			region,
 			oneTimeDevice, // For one-time device authentication (selectedDevice.oneTime)
 			customNotification, // For custom notification messages
 		} = req.body;
+		// Determine which token to use based on tokenType
+		let effectiveToken = workerToken;
+		let effectiveTokenType = tokenType || 'worker';
+		
+		if (effectiveTokenType === 'user') {
+			// For user flows, use the user token (access token from Authorization Code Flow)
+			effectiveToken = userToken;
+			if (!effectiveToken) {
+				return res.status(400).json({
+					error: 'Missing required fields: userToken is required for user flow authentication',
+				});
+			}
+		} else {
+			// For admin flows, use the worker token
+			if (!effectiveToken) {
+				return res.status(400).json({
+					error: 'Missing required fields: workerToken is required for admin flow authentication',
+				});
+			}
+		}
+		
 		// No-username variant: Allow initialization without username/userId if oneTimeDevice is provided
-		if (!environmentId || !workerToken) {
+		if (!environmentId || !effectiveToken) {
 			return res.status(400).json({
 				error: 'Missing required fields: environmentId and workerToken are required',
 			});
@@ -14993,22 +15028,24 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 				.json({ error: 'Missing userId', message: 'Either userId or username must be provided' });
 		}
 
-		let cleanToken = String(workerToken);
+		let cleanToken = String(effectiveToken);
 		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
 		cleanToken = cleanToken.replace(/[\s\n\r\t]/g, '').trim();
 
 		if (cleanToken.length === 0) {
 			return res.status(400).json({
-				error: 'Worker token is empty',
-				message: 'Please generate a new worker token using the "Manage Token" button.',
+				error: `${effectiveTokenType === 'user' ? 'User' : 'Worker'} token is empty`,
+				message: effectiveTokenType === 'user' 
+					? 'Please complete the OAuth flow to get a valid access token.'
+					: 'Please generate a new worker token using the "Manage Token" button.',
 			});
 		}
 
 		const tokenParts = cleanToken.split('.');
 		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
 			return res.status(400).json({
-				error: 'Invalid worker token format',
-				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+				error: `Invalid ${effectiveTokenType === 'user' ? 'user' : 'worker'} token format`,
+				message: `${effectiveTokenType === 'user' ? 'User' : 'Worker'} token does not appear to be a valid JWT.`,
 			});
 		}
 

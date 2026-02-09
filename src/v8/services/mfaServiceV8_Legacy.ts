@@ -35,7 +35,6 @@ import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
-import { backendConnectivityService } from './backendConnectivityServiceV8';
 
 const MODULE_TAG = '[📱 MFA-SERVICE-V8-LEGACY]';
 
@@ -332,13 +331,17 @@ export class MFAServiceV8 {
 
 			return data;
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(error, {
-				flowType: 'mfa' as any,
-				operation: 'allowMfaBypass',
-			}, {
-				logError: true,
-				showToast: false,
-			});
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'mfa' as any,
+					operation: 'allowMfaBypass',
+				},
+				{
+					logError: true,
+					showToast: false,
+				}
+			);
 			console.error(`${MODULE_TAG} Exception in allowMfaBypass:`, {
 				error: parsed.userFriendlyMessage,
 				requestId,
@@ -396,13 +399,17 @@ export class MFAServiceV8 {
 
 			return data;
 		} catch (error) {
-			const parsed = UnifiedFlowErrorHandler.handleError(error, {
-				flowType: 'mfa' as any,
-				operation: 'checkMfaBypassStatus',
-			}, {
-				logError: true,
-				showToast: false,
-			});
+			const parsed = UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'mfa' as any,
+					operation: 'checkMfaBypassStatus',
+				},
+				{
+					logError: true,
+					showToast: false,
+				}
+			);
 			console.error(`${MODULE_TAG} Exception in checkMfaBypassStatus:`, {
 				error: parsed.userFriendlyMessage,
 				requestId,
@@ -809,7 +816,7 @@ export class MFAServiceV8 {
 						// Convert string policy ID to object format
 						requestBody.policy = { id: String(params.policy) };
 					}
-					
+
 					// Log policy for TOTP devices to ensure it's being sent
 					if (params.type === 'TOTP') {
 						console.log(`${MODULE_TAG} 🔍 TOTP device registration - Policy included:`, {
@@ -957,22 +964,25 @@ export class MFAServiceV8 {
 					// Parse details array if it exists
 					if (Array.isArray(details) && details.length > 0) {
 						const firstError = details[0];
-						
+
 						console.error(`${MODULE_TAG} First error details:`, {
 							code: firstError.code,
 							message: firstError.message,
 							target: firstError.target,
 							innerError: firstError.innerError,
 						});
-						
+
 						// Handle specific error codes
 						if (firstError.code === 'LIMIT_EXCEEDED') {
 							// Log more details about the limit issue
-							console.error(`${MODULE_TAG} LIMIT_EXCEEDED error - Check if this is a device limit or rate limit`, {
-								innerError: firstError.innerError,
-								target: firstError.target,
-							});
-							
+							console.error(
+								`${MODULE_TAG} LIMIT_EXCEEDED error - Check if this is a device limit or rate limit`,
+								{
+									innerError: firstError.innerError,
+									target: firstError.target,
+								}
+							);
+
 							// Check if this is about notifications/rate limiting vs device count
 							const errorMsg = String(firstError.message || '').toLowerCase();
 							if (errorMsg.includes('notification') || errorMsg.includes('sent')) {
@@ -981,23 +991,27 @@ export class MFAServiceV8 {
 									const expiresAtMs = firstError.innerError.coolDownExpiresAt;
 									const nowMs = Date.now();
 									const secondsRemaining = Math.ceil((expiresAtMs - nowMs) / 1000);
-									
+
 									if (secondsRemaining > 0) {
 										const minutesRemaining = Math.ceil(secondsRemaining / 60);
 										throw new Error(
 											`Too many OTP notifications sent. Please wait ${minutesRemaining} minute${minutesRemaining !== 1 ? 's' : ''} before trying again.`
 										);
 									} else {
-										throw new Error('Too many OTP notifications sent. Please wait a few moments before trying again.');
+										throw new Error(
+											'Too many OTP notifications sent. Please wait a few moments before trying again.'
+										);
 									}
 								}
 								throw new Error(`Device registration failed: ${firstError.message}`);
 							} else {
 								// This is about device count
-								throw new Error(`Device registration failed: Too many devices registered. Please delete some devices before adding more.`);
+								throw new Error(
+									`Device registration failed: Too many devices registered. Please delete some devices before adding more.`
+								);
 							}
 						}
-						
+
 						if (firstError.message) {
 							throw new Error(`Device registration failed: ${firstError.message}`);
 						}
@@ -1138,19 +1152,19 @@ export class MFAServiceV8 {
 			//     "keyUri": "otpauth://totp/example:user@example.com?secret=BASE32SECRET..."
 			//   }
 			// }
-			
+
 			// Extract from properties (primary location per totp.md)
 			const secretFromProperties = dd.properties?.secret;
 			const keyUriFromProperties = dd.properties?.keyUri;
-			
+
 			// Also check root level as fallback (in case API structure differs)
 			const secretFromRoot = (dd as Record<string, unknown>).secret as string | undefined;
 			const keyUriFromRoot = (dd as Record<string, unknown>).keyUri as string | undefined;
-			
+
 			// Use properties first, fallback to root level
 			const secret = secretFromProperties || secretFromRoot;
 			const keyUri = keyUriFromProperties || keyUriFromRoot;
-			
+
 			// Log raw device data structure for TOTP devices to debug missing properties
 			if (dd.type === 'TOTP') {
 				console.error(`${MODULE_TAG} 🔍 TOTP device raw response structure (FULL DETAILS):`, {
@@ -1169,30 +1183,36 @@ export class MFAServiceV8 {
 					rawDeviceData: JSON.stringify(dd, null, 2),
 					note: 'Per totp.md: properties.secret and properties.keyUri should be present when status is ACTIVATION_REQUIRED',
 				});
-				
+
 				// Check alternative locations where secret/keyUri might be
 				if (secretFromRoot || keyUriFromRoot) {
-					console.warn(`${MODULE_TAG} ⚠️ Found secret/keyUri in alternative location (not in properties):`, {
-						hasSecretAtRoot: !!secretFromRoot,
-						hasKeyUriAtRoot: !!keyUriFromRoot,
-						secretValue: secretFromRoot ? `${secretFromRoot.substring(0, 20)}...` : 'none',
-						keyUriValue: keyUriFromRoot ? `${keyUriFromRoot.substring(0, 50)}...` : 'none',
-					});
+					console.warn(
+						`${MODULE_TAG} ⚠️ Found secret/keyUri in alternative location (not in properties):`,
+						{
+							hasSecretAtRoot: !!secretFromRoot,
+							hasKeyUriAtRoot: !!keyUriFromRoot,
+							secretValue: secretFromRoot ? `${secretFromRoot.substring(0, 20)}...` : 'none',
+							keyUriValue: keyUriFromRoot ? `${keyUriFromRoot.substring(0, 50)}...` : 'none',
+						}
+					);
 				}
 			}
-			
+
 			if (dd.type === 'TOTP' && dd.status === 'ACTIVATION_REQUIRED' && !secret && !keyUri) {
-				console.error(`${MODULE_TAG} ❌ CRITICAL: TOTP device with ACTIVATION_REQUIRED status missing secret and keyUri!`, {
-					deviceId: dd.id,
-					status: dd.status,
-					requestedStatus: params.status,
-					hasProperties: !!dd.properties,
-					checkedProperties: !!dd.properties?.secret || !!dd.properties?.keyUri,
-					checkedRoot: !!secretFromRoot || !!keyUriFromRoot,
-					allKeys: Object.keys(dd),
-					fullResponse: JSON.stringify(dd, null, 2),
-					note: 'This is required per totp.md. Check: 1) Status is ACTIVATION_REQUIRED, 2) Policy is included in request, 3) PingOne environment has TOTP enabled',
-				});
+				console.error(
+					`${MODULE_TAG} ❌ CRITICAL: TOTP device with ACTIVATION_REQUIRED status missing secret and keyUri!`,
+					{
+						deviceId: dd.id,
+						status: dd.status,
+						requestedStatus: params.status,
+						hasProperties: !!dd.properties,
+						checkedProperties: !!dd.properties?.secret || !!dd.properties?.keyUri,
+						checkedRoot: !!secretFromRoot || !!keyUriFromRoot,
+						allKeys: Object.keys(dd),
+						fullResponse: JSON.stringify(dd, null, 2),
+						note: 'This is required per totp.md. Check: 1) Status is ACTIVATION_REQUIRED, 2) Policy is included in request, 3) PingOne environment has TOTP enabled',
+					}
+				);
 			}
 
 			// Build return object - include publicKeyCredentialCreationOptions in initial construction
@@ -1236,7 +1256,7 @@ export class MFAServiceV8 {
 					}
 				);
 			}
-			
+
 			// Log TOTP secret/keyUri confirmation
 			if (dd.type === 'TOTP') {
 				const resultSecret = (result as { secret?: string }).secret;
@@ -3038,6 +3058,8 @@ export class MFAServiceV8 {
 			// Resend pairing code via backend proxy
 			// Note: This endpoint requires the device to be in ACTIVATION_REQUIRED state
 			// If the device is already activated, this will fail with a validation error
+			// CRITICAL: Must use the correct Content-Type header per PingOne API documentation
+			// Reference: https://developer.pingidentity.com/pingone-api/mfa/users/mfa-devices/resend_pairing_otp.html
 			const requestBody = {
 				environmentId: params.environmentId,
 				userId: user.id,
@@ -3047,23 +3069,14 @@ export class MFAServiceV8 {
 				...(params.customDomain && { customDomain: params.customDomain }),
 			};
 
-			console.log(`${MODULE_TAG} [RESEND] Request details:`, {
-				environmentId: params.environmentId,
-				userId: user.id,
-				deviceId: params.deviceId,
-				username: params.username,
-				deviceStatus,
-				tokenValidated: true,
-				region: params.region,
-				customDomain: params.customDomain,
-			});
-
+			// Track API call for display
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: '/api/pingone/mfa/resend-pairing-code',
 				headers: {
-					'Content-Type': 'application/json',
+					'Content-Type': 'application/vnd.pingidentity.device.sendActivationCode+json',
 				},
 				body: requestBody,
 				step: 'mfa-Resend Pairing Code',
@@ -3075,7 +3088,7 @@ export class MFAServiceV8 {
 				response = await pingOneFetch('/api/pingone/mfa/resend-pairing-code', {
 					method: 'POST',
 					headers: {
-						'Content-Type': 'application/json',
+						'Content-Type': 'application/vnd.pingidentity.device.sendActivationCode+json',
 					},
 					body: JSON.stringify(requestBody),
 					retry: { maxAttempts: 3 },
@@ -3144,13 +3157,13 @@ export class MFAServiceV8 {
 					// Parse details array if it exists
 					if (Array.isArray(details) && details.length > 0) {
 						const firstError = details[0];
-						
+
 						// Handle LIMIT_EXCEEDED error with cooldown
 						if (firstError.code === 'LIMIT_EXCEEDED' && firstError.innerError?.coolDownExpiresAt) {
 							const expiresAtMs = firstError.innerError.coolDownExpiresAt;
 							const nowMs = Date.now();
 							const secondsRemaining = Math.ceil((expiresAtMs - nowMs) / 1000);
-							
+
 							if (secondsRemaining > 0) {
 								const minutesRemaining = Math.ceil(secondsRemaining / 60);
 								throw new Error(
@@ -3160,16 +3173,18 @@ export class MFAServiceV8 {
 								throw new Error('Too many resend attempts. Please try again in a few moments.');
 							}
 						}
-						
+
 						// Handle other validation errors with friendly message
 						if (firstError.message) {
 							throw new Error(`${firstError.message}`);
 						}
 					}
-					
+
 					// Fallback for unparseable details
 					const validationMessage = details
-						? typeof details === 'string' ? details : 'Validation failed'
+						? typeof details === 'string'
+							? details
+							: 'Validation failed'
 						: errorMessage;
 					throw new Error(`Failed to resend pairing code: ${validationMessage}`);
 				}
@@ -5618,7 +5633,7 @@ export class MFAServiceV8 {
 	 */
 	async uploadImage(file: File): Promise<{ imageUrl: string; fileId: string }> {
 		const startTime = Date.now();
-		const callId = apiCallTrackerService.trackApiCall({
+		const _callId = apiCallTrackerService.trackApiCall({
 			method: 'POST',
 			url: '/api/pingone/mfa/upload-image',
 			headers: {

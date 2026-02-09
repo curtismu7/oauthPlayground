@@ -199,14 +199,8 @@ const BUILT_IN_PRESETS: ConfigurationPreset[] = [
 		appType: 'OIDC_WEB_APP',
 		configuration: {
 			enabled: true,
-			redirectUris: [
-				'https://localhost:3000/callback',
-				'https://localhost:8080/callback',
-			],
-			postLogoutRedirectUris: [
-				'https://localhost:3000',
-				'https://localhost:8080',
-			],
+			redirectUris: ['https://localhost:3000/callback', 'https://localhost:8080/callback'],
+			postLogoutRedirectUris: ['https://localhost:3000', 'https://localhost:8080'],
 			grantTypes: ['authorization_code', 'refresh_token'],
 			responseTypes: ['code'],
 			tokenEndpointAuthMethod: 'client_secret_post',

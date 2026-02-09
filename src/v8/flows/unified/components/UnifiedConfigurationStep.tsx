@@ -210,7 +210,16 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 				nav.goToNext();
 			}, 300);
 		}
-	}, [credentials.userToken, flowType, environmentId, username, selectedPolicyId, config.deviceType, setCredentials, nav]);
+	}, [
+		credentials.userToken,
+		flowType,
+		environmentId,
+		username,
+		selectedPolicyId,
+		config.deviceType,
+		setCredentials,
+		nav,
+	]);
 
 	// ========================================================================
 	// HANDLERS
@@ -275,7 +284,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 			deviceAuthenticationPolicyId: selectedPolicyId,
 			deviceType: config.deviceType,
 			// Store device status for admin flows (ACTIVE or ACTIVATION_REQUIRED)
-			adminDeviceStatus: flowType !== 'user' ? adminDeviceStatus : undefined,
+			deviceStatus: flowType !== 'user' ? adminDeviceStatus : undefined,
 		}));
 
 		// Mark step as complete
@@ -292,6 +301,8 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 		validateConfiguration,
 		setCredentials,
 		nav,
+		adminDeviceStatus,
+		flowType,
 	]);
 
 	/**
@@ -634,7 +645,8 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 												lineHeight: '1.5',
 											}}
 										>
-											Device is created and immediately active. No OTP verification required. Uses Worker Token.
+											Device is created and immediately active. No OTP verification required. Uses
+											Worker Token.
 										</div>
 									</div>
 								</div>
@@ -642,85 +654,86 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 
 							{/* Admin Flow (ACTIVATION_REQUIRED) Option - Hidden for FIDO2 */}
 							{config.deviceType !== 'FIDO2' && (
-							<label
-								style={{
-									padding: '16px 20px',
-									border: `2px solid ${flowType === 'admin-activation' ? '#f59e0b' : '#e5e7eb'}`,
-									borderRadius: '10px',
-									background: flowType === 'admin-activation' ? '#fffbeb' : '#ffffff',
-									cursor: 'pointer',
-									transition: 'all 0.2s ease',
-									boxShadow:
-										flowType === 'admin-activation'
-											? '0 4px 12px rgba(245, 158, 11, 0.15)'
-											: '0 1px 3px rgba(0, 0, 0, 0.05)',
-								}}
-								onMouseEnter={(e) => {
-									if (flowType !== 'admin-activation') {
-										e.currentTarget.style.borderColor = '#fcd34d';
-										e.currentTarget.style.background = '#fefce8';
-									}
-								}}
-								onMouseLeave={(e) => {
-									if (flowType !== 'admin-activation') {
-										e.currentTarget.style.borderColor = '#e5e7eb';
-										e.currentTarget.style.background = '#ffffff';
-									}
-								}}
-							>
-								<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-									<input
-										type="radio"
-										name="flowType"
-										value="admin-activation"
-										checked={flowType === 'admin-activation'}
-										onChange={() => handleFlowTypeChange('admin-activation')}
-										style={{
-											width: '20px',
-											height: '20px',
-											accentColor: '#f59e0b',
-											marginTop: '2px',
-											cursor: 'pointer',
-										}}
-									/>
-									<div style={{ flex: 1 }}>
-										<div
+								<label
+									style={{
+										padding: '16px 20px',
+										border: `2px solid ${flowType === 'admin-activation' ? '#f59e0b' : '#e5e7eb'}`,
+										borderRadius: '10px',
+										background: flowType === 'admin-activation' ? '#fffbeb' : '#ffffff',
+										cursor: 'pointer',
+										transition: 'all 0.2s ease',
+										boxShadow:
+											flowType === 'admin-activation'
+												? '0 4px 12px rgba(245, 158, 11, 0.15)'
+												: '0 1px 3px rgba(0, 0, 0, 0.05)',
+									}}
+									onMouseEnter={(e) => {
+										if (flowType !== 'admin-activation') {
+											e.currentTarget.style.borderColor = '#fcd34d';
+											e.currentTarget.style.background = '#fefce8';
+										}
+									}}
+									onMouseLeave={(e) => {
+										if (flowType !== 'admin-activation') {
+											e.currentTarget.style.borderColor = '#e5e7eb';
+											e.currentTarget.style.background = '#ffffff';
+										}
+									}}
+								>
+									<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+										<input
+											type="radio"
+											name="flowType"
+											value="admin-activation"
+											checked={flowType === 'admin-activation'}
+											onChange={() => handleFlowTypeChange('admin-activation')}
 											style={{
-												fontSize: '15px',
-												fontWeight: '600',
-												color: flowType === 'admin-activation' ? '#b45309' : '#1f2937',
-												marginBottom: '4px',
-												display: 'flex',
-												alignItems: 'center',
-												gap: '8px',
+												width: '20px',
+												height: '20px',
+												accentColor: '#f59e0b',
+												marginTop: '2px',
+												cursor: 'pointer',
 											}}
-										>
-											🔐 Admin Flow (ACTIVATION_REQUIRED)
-											<span
+										/>
+										<div style={{ flex: 1 }}>
+											<div
 												style={{
-													fontSize: '11px',
+													fontSize: '15px',
 													fontWeight: '600',
-													padding: '2px 8px',
-													background: '#fef3c7',
-													color: '#92400e',
-													borderRadius: '4px',
+													color: flowType === 'admin-activation' ? '#b45309' : '#1f2937',
+													marginBottom: '4px',
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
 												}}
 											>
-												OTP Required
-											</span>
-										</div>
-										<div
-											style={{
-												fontSize: '13px',
-												color: '#6b7280',
-												lineHeight: '1.5',
-											}}
-										>
-											Device is created pending activation. User must verify with OTP before device becomes active. Uses Worker Token.
+												🔐 Admin Flow (ACTIVATION_REQUIRED)
+												<span
+													style={{
+														fontSize: '11px',
+														fontWeight: '600',
+														padding: '2px 8px',
+														background: '#fef3c7',
+														color: '#92400e',
+														borderRadius: '4px',
+													}}
+												>
+													OTP Required
+												</span>
+											</div>
+											<div
+												style={{
+													fontSize: '13px',
+													color: '#6b7280',
+													lineHeight: '1.5',
+												}}
+											>
+												Device is created pending activation. User must verify with OTP before
+												device becomes active. Uses Worker Token.
+											</div>
 										</div>
 									</div>
-								</div>
-							</label>
+								</label>
 							)}
 
 							{/* User Flow Option */}
@@ -798,7 +811,8 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 												lineHeight: '1.5',
 											}}
 										>
-											User authenticates via OAuth and registers their own device. Requires user login.
+											User authenticates via OAuth and registers their own device. Requires user
+											login.
 										</div>
 									</div>
 								</div>
@@ -806,80 +820,80 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 						</div>
 					</div>
 
-				{/* Token Status Display */}
-				<div className="token-status-section">
-					{tokenType === 'worker' && (
-						<>
-							<WorkerTokenUIServiceV8
-								mode="detailed"
-								showRefresh={true}
-								showStatusDisplay={true}
-								statusSize="large"
-								context="mfa"
-								environmentId={environmentId}
-								onEnvironmentIdUpdate={handleEnvironmentIdChange}
-							/>
-							{errors.token && (
-								<span
-									className="error-message"
-									role="alert"
-									style={{ marginTop: '12px', display: 'block' }}
+					{/* Token Status Display */}
+					<div className="token-status-section">
+						{tokenType === 'worker' && (
+							<>
+								<WorkerTokenUIServiceV8
+									mode="detailed"
+									showRefresh={true}
+									showStatusDisplay={true}
+									statusSize="large"
+									context="mfa"
+									environmentId={environmentId}
+									onEnvironmentIdUpdate={handleEnvironmentIdChange}
+								/>
+								{errors.token && (
+									<span
+										className="error-message"
+										role="alert"
+										style={{ marginTop: '12px', display: 'block' }}
+									>
+										{errors.token}
+									</span>
+								)}
+							</>
+						)}
+						{tokenType === 'user' && (
+							<div className="token-status-card">
+								<h4>User Token Status</h4>
+								<div className={`status-indicator ${credentials.userToken ? 'valid' : 'invalid'}`}>
+									{credentials.userToken ? '✓ Logged In' : '✗ Not Logged In'}
+								</div>
+								<button
+									type="button"
+									onClick={() => setShowUserLoginModal(true)}
+									className="button-link"
 								>
-									{errors.token}
-								</span>
-							)}
-						</>
-					)}
-					{tokenType === 'user' && (
-						<div className="token-status-card">
-							<h4>User Token Status</h4>
-							<div className={`status-indicator ${credentials.userToken ? 'valid' : 'invalid'}`}>
-								{credentials.userToken ? '✓ Logged In' : '✗ Not Logged In'}
+									{credentials.userToken ? 'Re-authenticate' : 'Login via OAuth'}
+								</button>
+								{errors.token && (
+									<span
+										className="error-message"
+										role="alert"
+										style={{ marginTop: '12px', display: 'block' }}
+									>
+										{errors.token}
+									</span>
+								)}
 							</div>
-							<button
-								type="button"
-								onClick={() => setShowUserLoginModal(true)}
-								className="button-link"
+						)}
+					</div>
+
+					{/* Device Authentication Policy */}
+					{deviceAuthPolicies.length > 0 && (
+						<div className="form-field">
+							<label htmlFor="deviceAuthPolicy">
+								Device Authentication Policy
+								<MFAInfoButtonV8 contentKey="device.authentication.policy" displayMode="modal" />
+							</label>
+							<select
+								id="deviceAuthPolicy"
+								value={selectedPolicyId}
+								onChange={(e) => handlePolicyChange(e.target.value)}
+								disabled={isLoadingPolicies}
 							>
-								{credentials.userToken ? 'Re-authenticate' : 'Login via OAuth'}
-							</button>
-							{errors.token && (
-								<span
-									className="error-message"
-									role="alert"
-									style={{ marginTop: '12px', display: 'block' }}
-								>
-									{errors.token}
-								</span>
+								{deviceAuthPolicies.map((policy) => (
+									<option key={policy.id} value={policy.id}>
+										{policy.name}
+									</option>
+								))}
+							</select>
+							{selectedPolicy?.description && (
+								<p className="field-hint">{selectedPolicy.description}</p>
 							)}
 						</div>
 					)}
-				</div>
-
-				{/* Device Authentication Policy */}
-				{deviceAuthPolicies.length > 0 && (
-					<div className="form-field">
-						<label htmlFor="deviceAuthPolicy">
-							Device Authentication Policy
-							<MFAInfoButtonV8 contentKey="device.authentication.policy" displayMode="modal" />
-						</label>
-						<select
-							id="deviceAuthPolicy"
-							value={selectedPolicyId}
-							onChange={(e) => handlePolicyChange(e.target.value)}
-							disabled={isLoadingPolicies}
-						>
-							{deviceAuthPolicies.map((policy) => (
-								<option key={policy.id} value={policy.id}>
-									{policy.name}
-								</option>
-							))}
-						</select>
-						{selectedPolicy?.description && (
-							<p className="field-hint">{selectedPolicy.description}</p>
-						)}
-					</div>
-				)}
 
 					{/* Policy Loading/Error States */}
 					{isLoadingPolicies && (
