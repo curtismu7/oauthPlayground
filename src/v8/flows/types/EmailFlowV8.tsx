@@ -1150,13 +1150,15 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 			// Handle device registration
 			const handleRegisterDevice = async () => {
 				if (!credentials.email?.trim()) {
-					nav.setValidationErrors([
-						'Email address is required. Please enter a valid email address.',
-					]);
+					const errorMsg = 'Email address is required. Please enter a valid email address.';
+					nav.setValidationErrors([errorMsg]);
+					toastV8.error(errorMsg);
 					return;
 				}
 				if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email)) {
-					nav.setValidationErrors(['Please enter a valid email address format.']);
+					const errorMsg = 'Please enter a valid email address format.';
+					nav.setValidationErrors([errorMsg]);
+					toastV8.error(errorMsg);
 					return;
 				}
 				// Get selected policy to check policy settings
@@ -1203,26 +1205,26 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						controller.getDeviceRegistrationParams(registrationCredentials, deviceStatus)
 					);
 
-				// Update device nickname if provided
-				if (result.deviceId && registrationCredentials.nickname) {
-					try {
-						console.log(`${MODULE_TAG} Updating device nickname after registration:`, {
-							deviceId: result.deviceId,
-							nickname: registrationCredentials.nickname,
-						});
-						await MFAServiceV8.updateDeviceNickname(
-							{
-								environmentId: registrationCredentials.environmentId,
-								username: registrationCredentials.username,
+					// Update device nickname if provided
+					if (result.deviceId && registrationCredentials.nickname) {
+						try {
+							console.log(`${MODULE_TAG} Updating device nickname after registration:`, {
 								deviceId: result.deviceId,
-							},
-							registrationCredentials.nickname
-						);
-					} catch (nicknameError) {
-						console.warn(`${MODULE_TAG} Failed to update device nickname:`, nicknameError);
-						// Don't fail the registration if nickname update fails
+								nickname: registrationCredentials.nickname,
+							});
+							await MFAServiceV8.updateDeviceNickname(
+								{
+									environmentId: registrationCredentials.environmentId,
+									username: registrationCredentials.username,
+									deviceId: result.deviceId,
+								},
+								registrationCredentials.nickname
+							);
+						} catch (nicknameError) {
+							console.warn(`${MODULE_TAG} Failed to update device nickname:`, nicknameError);
+							// Don't fail the registration if nickname update fails
+						}
 					}
-				}
 
 					// If missing, device is ACTIVE (double-check with status)
 					const deviceActivateUri = (result as { deviceActivateUri?: string }).deviceActivateUri;
@@ -1834,7 +1836,9 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 
 							{/* Nickname Field - Always show */}
 							<div style={{ marginBottom: '16px' }}>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+								<div
+									style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
+								>
 									<label
 										htmlFor="mfa-device-nickname-register"
 										style={{
@@ -2055,6 +2059,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 			step2ModalDrag.modalPosition.y,
 			step2ModalDrag.modalRef,
 			step2ModalDrag.modalStyle,
+			MODULE_TAG,
 		]
 	);
 
