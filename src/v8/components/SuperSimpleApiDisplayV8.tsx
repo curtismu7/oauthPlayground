@@ -1044,6 +1044,15 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					const step = (call as { step?: string }).step;
 					const operationName = (call as { operationName?: string }).operationName;
 
+					// Debug: Log ALL calls being processed
+					console.log('🔍 API DISPLAY: Processing call', {
+						url,
+						actualPingOneUrl,
+						step,
+						flowType: (call as { flowType?: string }).flowType,
+						flowFilter,
+					});
+
 					// Check both url and actualPingOneUrl for PingOne API calls
 					const isPingOne =
 						url.includes('pingone.com') ||
