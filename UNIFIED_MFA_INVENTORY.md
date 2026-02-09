@@ -4720,17 +4720,6 @@ This section provides a comprehensive summary of all critical issues identified 
 | 50 | **OTP Resend "Many Attempts" Error** | ✅ RESOLVED | MFAAuthenticationMainPageV8.tsx:5660,5690 | Resend OTP showing incorrect attempt limit error | Fixed with proper cancel + re-initialize approach |
 | 51 | **Device Registration Resend Pairing Code Header** | ✅ RESOLVED | mfaServiceV8.ts:3078,3090 | Wrong Content-Type header for resend pairing code API | Fixed with official PingOne API Content-Type header |
 | 52 | **User Flow Token Confusion** | ✅ RESOLVED | UnifiedMFARegistrationFlowV8_Legacy.tsx:2615 | Registration twice with existing token causes confusion | Fixed by always redirecting to PingOne for user flow |
-| 58 | **Admin Flow Making User Do User Login** | ✅ RESOLVED | UnifiedMFARegistrationFlowV8_Legacy.tsx:416, DeviceTypeSelectionScreenProps:147 | Flow type incorrectly determined by userToken presence instead of registrationFlowType prop | Fixed flow type determination logic to use registrationFlowType prop correctly |
-| 57 | **Biome Code Quality Issues** | ✅ RESOLVED | Multiple files in unified MFA | Various linting and formatting issues | Fixed with Biome code quality tool and file restoration |
-| 56 | Silent API Call for Worker Token Not Working | ✅ RESOLVED | workerTokenUIServiceV8.tsx:227, useSilentApiConfigV8.ts:1 | WorkerTokenUIServiceV8 not using centralized hook for configuration | Fixed by migrating to centralized useWorkerTokenConfigV8 hook |
-| 60 | User Login OAuth Callback Step Advancement | ✅ RESOLVED | CallbackHandlerV8U.tsx:86,108,127, MFAFlowBaseV8.tsx:150 | OAuth callback not advancing to correct step after PingOne login for user flows | Fixed callback handler to include step parameter in redirect URL for all return target types |
-| 59 | Silent API Modal Showing When Credentials Exist | ✅ RESOLVED (v9.3.4) | RegistrationFlowStepperV8.tsx:177-201, AuthenticationFlowStepperV8.tsx:178-202 | **Both steppers bypassed `handleShowWorkerTokenModal` and implemented their own broken modal-trigger logic.** RegistrationFlowStepperV8 used `setTimeout(3000)` race condition + fire-and-forget `CustomEvent`. AuthenticationFlowStepperV8 checked non-existent `hasToken`/`isLoading` properties on `TokenStatusInfo`. | **Fixed both steppers to delegate to `handleShowWorkerTokenModal`** — the canonical helper that properly handles silentApiRetrieval config, token gateway, and fallback. See "Silent API Modal Trigger Points" section below. |
-| 55 | **Redirect URI Going to Wrong Page** | ✅ RESOLVED | CallbackHandlerV8U.tsx:71-352, ReturnTargetServiceV8U.ts:1 | Redirects misrouted when return target already had query params, causing malformed URLs | Fixed by building redirect URLs with URL() to merge callback params safely |
-| 54 | **PingOne Authentication Enhancement** | ✅ IMPLEMENTED | pingOneAuthenticationServiceV8.ts:1 | Enhanced authentication checking with session detection | Added comprehensive PingOne authentication with success messages |
-| 61 | **Token Exchange Phase 1 Missing** | 🟡 IN_PROGRESS | src/v8/flows/ | V8 missing Token Exchange implementation | Phase 1A COMPLETE: Core services implemented (TokenExchangeServiceV8, TokenExchangeConfigServiceV8, types). Phase 1B needed: V8 Flow Component + Admin UI |
-| 62 | **Token Exchange Admin Enablement** | 🔴 PLANNED | src/v8/services/ | Admin control for Token Exchange feature | Must implement admin toggle before any token exchange processing |
-| 64 | **Email Registration Field Validation** | 🔴 ACTIVE | EmailFlowV8.tsx:1152-1162 | No toast message for email validation failures | Missing toast notifications when email validation fails, only red border shown |
-| 65 | **Required Field Asterisk Pattern** | ✅ RESOLVED | Multiple V8 flow components | Email field has red asterisk, other fields checked | Email field correctly shows red asterisk, phone/name fields also have asterisks |
 | 66 | **Device Creation Success Modal Missing** | ✅ RESOLVED | EmailFlowV8.tsx:1309-1368 | No modal showing device info after creation | Added DeviceCreationSuccessModalV8 with device info for all flow types |
 | 67 | **Success Page Title and Button Issues** | ✅ RESOLVED | unifiedMFASuccessPageServiceV8.tsx:432, SuccessStepV8.tsx:91 | Registration flows show "Authentication Successful" instead of "Device Created" | Fixed titles to show "Device Created!" for registration flows, centered titles, normal button sizes |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
@@ -15387,6 +15376,23 @@ grep -A 5 "bodyString.*empty" server.js
 
 # Issue 69: Verify error handling for different HTTP status codes
 grep -A 3 "response.status.*===.*401\|response.status.*===.*400\|response.status.*===.*403\|response.status.*===.*404" src/v8/services/mfaServiceV8.ts
+
+# Issue 55 (6th Attempt): Check for double consumption of return targets
+grep -A 5 -B 5 "consumeReturnTarget.*mfa_device_registration\|consumeReturnTarget.*mfa_device_authentication" src/v8u/components/CallbackHandlerV8U.tsx
+grep -A 5 -B 5 "peekReturnTarget.*mfa_device_registration\|peekReturnTarget.*mfa_device_authentication" src/v8u/components/CallbackHandlerV8U.tsx
+
+# Issue 55 (6th Attempt): Verify correct step numbers for return targets
+grep -A 3 "setReturnTarget.*mfa_device_registration" src/v8/components/RegistrationFlowStepperV8.tsx
+grep -A 3 "setReturnTarget.*mfa_device_authentication" src/v8/components/AuthenticationFlowStepperV8.tsx
+grep -A 3 "setReturnTarget.*mfa_device_registration" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Issue 55 (6th Attempt): Check for hardcoded step numbers
+grep -rn "step.*3.*Device Actions\|step.*2.*Device Selection" src/v8/components/ --include="*.tsx"
+grep -rn "goToStep.*3\|goToStep.*2" src/v8/components/ --include="*.tsx"
+
+# Issue 55 (6th Attempt): Verify return target service usage patterns
+grep -rn "ReturnTargetServiceV8U\." src/v8u/components/CallbackHandlerV8U.tsx -A 2 -B 2
+grep -rn "getAllReturnTargets\|peekReturnTarget\|consumeReturnTarget\|setReturnTarget" src/v8/ --include="*.tsx" --include="*.ts"
 
 # Issue 70: Resend email prevention commands
 grep -rn "resendEmail" src/v8/services/mfaServiceV8.ts -A 5 -B 5
