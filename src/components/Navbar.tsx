@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+	FiActivity,
 	FiDownload,
 	FiFileText,
 	FiHelpCircle,
@@ -376,6 +377,10 @@ const Navbar: React.FC<NavbarProps> = ({
 					<Link to="/api-status" title="View API server status and health metrics">
 						<FiServer aria-hidden="true" />
 						<span>API Status</span>
+					</Link>
+					<Link to="/dashboard" title="View dashboard and system overview">
+						<FiActivity aria-hidden="true" />
+						<span>Dashboard</span>
 					</Link>
 					<Link to="/auto-discover" title="OIDC Discovery tool" aria-label="OIDC Discovery tool">
 						<FiSearch aria-hidden="true" />
