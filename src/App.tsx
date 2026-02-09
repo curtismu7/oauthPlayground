@@ -592,7 +592,7 @@ const AppRoutes: React.FC = () => {
 								path="/v8/unified-mfa"
 								element={
 									<React.Suspense fallback={<div>Loading...</div>}>
-										<UnifiedMFARegistrationFlowV8_Legacy />
+										<UnifiedMFARegistrationFlowV8_Legacy registrationFlowType="admin-active" />
 									</React.Suspense>
 								}
 							/>

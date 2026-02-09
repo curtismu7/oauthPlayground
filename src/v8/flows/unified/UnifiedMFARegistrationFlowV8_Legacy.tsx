@@ -25,7 +25,7 @@
 import * as React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdownV8';
 import { SearchableDropdownV8 } from '@/v8/components/SearchableDropdownV8';
@@ -49,6 +49,10 @@ import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { type MFAFeatureFlag, MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import MFAServiceV8_Legacy, { type RegisterDeviceParams } from '@/v8/services/mfaServiceV8_Legacy';
+import {
+	checkPingOneAuthentication,
+	shouldRedirectToPingOne,
+} from '@/v8/services/pingOneAuthenticationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
@@ -59,7 +63,6 @@ import type { DeviceAuthenticationPolicy, MFACredentials, MFAState } from '../sh
 import { UnifiedActivationStep } from './components/UnifiedActivationStep';
 import { UnifiedDeviceRegistrationForm } from './components/UnifiedDeviceRegistrationForm';
 import { UnifiedDeviceSelectionModal } from './components/UnifiedDeviceSelectionModal';
-import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
 import './UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[🔄 UNIFIED-MFA-FLOW-V8]';
@@ -141,12 +144,14 @@ interface DeviceTypeSelectionScreenProps {
 	onSelectDeviceType: (deviceType: DeviceConfigKey) => void;
 	userToken?: string | null;
 	setUserToken: (token: string | null) => void;
+	registrationFlowType?: 'admin-active' | 'admin-activation' | 'user';
 }
 
 const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	onSelectDeviceType,
 	userToken,
 	setUserToken,
+	registrationFlowType,
 }) => {
 	const [flowMode, setFlowMode] = useState<FlowMode | null>(null);
 	const [environmentId, setEnvironmentId] = useState('');
@@ -409,8 +414,18 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		}
 
 		// Determine flow type and token
+		// FIXED: Use registrationFlowType prop instead of incorrectly guessing based on userToken presence
 		// Admin flows should use worker tokens, not require user tokens
-		const flowType = userToken ? 'user' : 'admin';
+		let flowType: 'admin' | 'user';
+		
+		if (registrationFlowType) {
+			// Use explicitly specified flow type
+			flowType = registrationFlowType.startsWith('admin') ? 'admin' : 'user';
+		} else {
+			// Default to admin flow unless explicitly set to user
+			flowType = 'admin';
+		}
+		
 		const effectiveUserToken = flowType === 'user' ? userToken : undefined;
 
 		// For admin flow, check if we have a valid worker token before proceeding
@@ -1305,6 +1320,14 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						<button
 							type="button"
 							onClick={() => {
+								// FIXED: Respect registrationFlowType - admin flows should not use user login
+								if (registrationFlowType && registrationFlowType.startsWith('admin')) {
+									toastV8.error('🔐 Admin flow selected. Please use worker token for authentication.', {
+										duration: 5000,
+									});
+									return;
+								}
+								
 								if (!userToken) {
 									setShowAuthLoginModal(true);
 									toastV8.info('🔐 Please complete user login before device authentication.', {
@@ -1364,6 +1387,15 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						isOpen={showAuthLoginModal}
 						onClose={() => setShowAuthLoginModal(false)}
 						onTokenReceived={(token) => {
+							// FIXED: Respect registrationFlowType - admin flows should not use user login
+							if (registrationFlowType && registrationFlowType.startsWith('admin')) {
+								toastV8.error('🔐 Admin flow selected. User login not allowed in admin flow.', {
+									duration: 5000,
+								});
+								setShowAuthLoginModal(false);
+								return;
+							}
+							
 							setUserToken(token);
 							setShowAuthLoginModal(false);
 							setFlowMode('authentication');
@@ -1996,10 +2028,58 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 	const initialDeviceType =
 		props.deviceType || (location.state as { deviceType?: DeviceConfigKey })?.deviceType;
 
+	// Get registration flow type from props, location state, or saved preference
+	const getInitialRegistrationFlowType = (): 'admin-active' | 'admin-activation' | 'user' | undefined => {
+		// Priority 1: Explicit prop
+		if (props.registrationFlowType) {
+			return props.registrationFlowType;
+		}
+		
+		// Priority 2: Location state (for navigation)
+		const locationState = location.state as { registrationFlowType?: 'admin-active' | 'admin-activation' | 'user' };
+		if (locationState?.registrationFlowType) {
+			return locationState.registrationFlowType;
+		}
+		
+		// Priority 3: Saved preference (for restart/reload)
+		try {
+			const saved = localStorage.getItem('unified_mfa_registration_flow_type');
+			if (saved) {
+				const parsed = JSON.parse(saved);
+				// Validate that saved value is still valid
+				if (['admin-active', 'admin-activation', 'user'].includes(parsed)) {
+					return parsed;
+				}
+			}
+		} catch (error) {
+			console.warn('[UNIFIED-FLOW] Failed to load saved registration flow type:', error);
+		}
+		
+		// Priority 4: Default to undefined (will use admin flow by default)
+		return undefined;
+	};
+
 	// State for selected device type (allows user to select if not provided)
 	const [selectedDeviceType, setSelectedDeviceType] = useState<DeviceConfigKey | undefined>(
 		initialDeviceType
 	);
+
+	// State for registration flow type with persistence
+	const [registrationFlowType, setRegistrationFlowType] = useState<'admin-active' | 'admin-activation' | 'user' | undefined>(
+		getInitialRegistrationFlowType()
+	);
+
+	// Save registration flow type when it changes
+	useEffect(() => {
+		if (registrationFlowType) {
+			try {
+				localStorage.setItem('unified_mfa_registration_flow_type', JSON.stringify(registrationFlowType));
+				console.log('[UNIFIED-FLOW] Saved registration flow type:', registrationFlowType);
+			} catch (error) {
+				console.warn('[UNIFIED-FLOW] Failed to save registration flow type:', error);
+			}
+		}
+	}, [registrationFlowType]);
 
 	// User token state for OAuth authentication (User Flow)
 	const [userToken, setUserToken] = useState<string | null>(() => {
@@ -2033,6 +2113,7 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 							onSelectDeviceType={setSelectedDeviceType}
 							userToken={userToken}
 							setUserToken={setUserToken}
+							registrationFlowType={props.registrationFlowType}
 						/>
 					</MFACredentialProvider>
 				</GlobalMFAProvider>
@@ -2048,10 +2129,16 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 		<GlobalMFAProvider>
 			<MFACredentialProvider>
 				<UnifiedMFARegistrationFlowContent
-					{...props}
 					deviceType={selectedDeviceType}
 					userToken={userToken}
 					setUserToken={setUserToken}
+					registrationFlowType={registrationFlowType || undefined}
+					setRegistrationFlowType={setRegistrationFlowType}
+					onCancel={props.onCancel}
+					onSuccess={props.onSuccess}
+					initialCredentials={props.initialCredentials}
+					initialStep={props.initialStep}
+					skipConfiguration={props.skipConfiguration}
 				/>
 			</MFACredentialProvider>
 		</GlobalMFAProvider>
@@ -2063,6 +2150,22 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 // ============================================================================
 
 /**
+ * Props for the content component (internal use only)
+ */
+interface UnifiedMFARegistrationFlowContentProps {
+	deviceType: DeviceConfigKey;
+	onCancel?: (() => void) | undefined;
+	onSuccess?: ((result: DeviceRegistrationResult) => void) | undefined;
+	initialCredentials?: Partial<MFACredentials> | undefined;
+	initialStep?: number | undefined;
+	skipConfiguration?: boolean | undefined;
+	userToken: string | null;
+	setUserToken: (token: string | null) => void;
+	registrationFlowType?: 'admin-active' | 'admin-activation' | 'user' | undefined;
+	setRegistrationFlowType?: (flowType: 'admin-active' | 'admin-activation' | 'user' | undefined) => void | undefined;
+}
+
+/**
  * Unified MFA Registration Flow - Content Component
  *
  * Contains the actual flow logic and integrates with:
@@ -2071,19 +2174,21 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
  * - deviceFlowConfigs (device-specific configuration)
  * - MFAFlowBaseV8 (5-step framework)
  */
-const UnifiedMFARegistrationFlowContent: React.FC<
-	Required<Pick<UnifiedMFARegistrationFlowV8Props, 'deviceType'>> &
-		Omit<UnifiedMFARegistrationFlowV8Props, 'deviceType'> & {
-			userToken: string | null;
-			setUserToken: (token: string | null) => void;
-		}
-> = ({ deviceType, onCancel, userToken, setUserToken }) => {
+const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowContentProps> = ({ 
+	deviceType, 
+	onCancel, 
+	onSuccess, 
+	initialCredentials, 
+	initialStep, 
+	skipConfiguration, 
+	userToken, 
+	setUserToken, 
+	registrationFlowType, 
+	setRegistrationFlowType 
+}) => {
 	// ========================================================================
 	// CONFIGURATION
 	// ========================================================================
-
-	// React Router navigation
-	const navigate = useNavigate();
 
 	// Load device-specific configuration
 	const config = useMemo(() => {
@@ -2100,7 +2205,6 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	const [userTokenForDisplay, setUserTokenForDisplay] = useState<string>('');
 	const [usernameFromToken, setUsernameFromToken] = useState<string>('');
 	const [showUsernameDropdown, setShowUsernameDropdown] = useState(false);
-	const [registrationError, setRegistrationError] = useState<string | null>(null);
 	const envIdForModal = useMemo(() => globalEnvironmentService.getEnvironmentId() || '', []);
 
 	// Pending registration data while waiting for OAuth (use ref to avoid stale closure)
@@ -2122,6 +2226,26 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 		const urlParams = new URLSearchParams(window.location.search);
 		const code = urlParams.get('code');
 		const hasStoredState = sessionStorage.getItem('user_login_state_v8');
+		const stepParam = urlParams.get('step');
+		const callbackStep = sessionStorage.getItem('mfa_oauth_callback_step');
+		const callbackReturn = sessionStorage.getItem('mfa_oauth_callback_return');
+
+		// FOOLPROOF: Handle callback step advancement after OAuth login
+		if (callbackReturn === 'true' && (stepParam || callbackStep)) {
+			const targetStep = parseInt(stepParam || callbackStep || '0', 10);
+			console.log(`[UNIFIED-FLOW] 🔄 OAuth callback detected with step advancement: ${targetStep}`);
+
+			// Clear callback markers
+			sessionStorage.removeItem('mfa_oauth_callback_return');
+			sessionStorage.removeItem('mfa_oauth_callback_step');
+			sessionStorage.removeItem('mfa_oauth_callback_timestamp');
+
+			// Store the target step for the MFAFlowBaseV8 to handle
+			sessionStorage.setItem('mfa_target_step_after_callback', targetStep.toString());
+
+			// Force a re-render to trigger step advancement
+			window.location.hash = `#step=${targetStep}`;
+		}
 
 		// If we have OAuth callback params and stored state, re-open the modal to process callback
 		// But only if we don't already have a user token (to prevent reopening after silent auth)
@@ -2414,11 +2538,14 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 							toastV8.success(
 								`${config.displayName} device registered! OTP has been sent automatically.`
 							);
-							// DO NOT auto-advance for OTP-required devices
-							// User should manually click Next after receiving OTP
+							// FOOLPROOF: Auto-advance to Step 4 (OTP Activation) after successful registration
 							console.log(
-								`${MODULE_TAG} Device requires OTP activation - waiting for user to proceed manually`
+								`${MODULE_TAG} Device requires OTP activation - auto-advancing to Step 4 (OTP Activation)`
 							);
+							// Add small delay to ensure toast is visible before navigation
+							setTimeout(() => {
+								props.nav.goToStep(4); // Go directly to OTP Activation step
+							}, 1000);
 						} else {
 							// Unknown status, proceed with flow-specific navigation
 							if (flowType === 'admin-active' || flowType === 'admin-activation') {
@@ -2431,6 +2558,37 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 						}
 					}
 				} // End of FIDO2 section
+
+				// FOOLPROOF: Auto-advance for all non-FIDO2 devices after successful registration
+				if (selectedDeviceType !== 'FIDO2') {
+					console.log(
+						`${MODULE_TAG} ${selectedDeviceType} device registered successfully - auto-advancing to next step`
+					);
+
+					// Determine next step based on device status and type
+					if (result.status === 'ACTIVATION_REQUIRED') {
+						// Device needs OTP activation - go to Step 4
+						setTimeout(() => {
+							props.nav.goToStep(4); // OTP Activation step
+						}, 1000);
+					} else if (selectedDeviceType === 'TOTP') {
+						// TOTP shows QR code - go to Step 4 for activation
+						setTimeout(() => {
+							props.nav.goToStep(4); // OTP Activation step (shows QR code)
+						}, 1000);
+					} else {
+						// Other devices (SMS, Email, etc.) - go to Step 4 for OTP or Step 5 for docs
+						setTimeout(() => {
+							if (result.status === 'ACTIVE') {
+								// Device is already active - go to API docs
+								props.nav.goToStep(5); // API Documentation
+							} else {
+								// Device needs activation - go to OTP step
+								props.nav.goToStep(4); // OTP Activation step
+							}
+						}, 1000);
+					}
+				}
 			} catch (error) {
 				console.error('[UNIFIED-FLOW] Registration failed:', error);
 				const errorMessage = error instanceof Error ? error.message : 'Device registration failed';
@@ -2448,7 +2606,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				props.setIsLoading(false);
 			}
 		},
-		[config.displayName, toastV8]
+		[config.displayName, config.deviceType]
 	);
 
 	/**
@@ -2561,35 +2719,54 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				return;
 			}
 
-			// For User Flow, check if we need OAuth authentication first
-			if (flowType === 'user' && !userToken) {
-				console.log('[UNIFIED-FLOW] User flow selected but no token - showing OAuth modal');
-				console.log('[UNIFIED-FLOW] Storing pending registration...');
+			// For User Flow, always check PingOne authentication and redirect if needed
+			if (flowType === 'user') {
+				// Check current PingOne authentication status
+				const authResult = checkPingOneAuthentication();
+				console.log('[UNIFIED-FLOW] PingOne authentication result:', authResult);
 
-				// Store pending registration data
-				pendingRegistrationRef.current = {
-					deviceType: selectedDeviceType,
-					fields,
-					flowType,
-					props,
-				};
+				// Check if we should redirect to PingOne
+				if (shouldRedirectToPingOne()) {
+					console.log('[UNIFIED-FLOW] User flow requires PingOne authentication - redirecting...');
+					console.log('[UNIFIED-FLOW] Storing pending registration...');
 
-				console.log('[UNIFIED-FLOW] Pending registration stored:', pendingRegistrationRef.current);
+					// Store pending registration data
+					pendingRegistrationRef.current = {
+						deviceType: selectedDeviceType,
+						fields,
+						flowType,
+						props,
+					};
 
-				// Set return target for device registration flow
-				ReturnTargetServiceV8U.setReturnTarget(
-					'mfa_device_registration',
-					'/v8/unified-mfa', // Return to unified MFA flow
-					2 // Step 2: Device Selection
-				);
+					console.log(
+						'[UNIFIED-FLOW] Pending registration stored:',
+						pendingRegistrationRef.current
+					);
 
-				// Show the user login modal
-				setShowUserLoginModal(true);
-				toastV8.info(
-					'🔐 User Flow requires PingOne authentication. Please complete the login to continue with device registration.',
-					{ duration: 6000 }
-				);
-				return;
+					// Set return target for device registration flow
+					ReturnTargetServiceV8U.setReturnTarget(
+						'mfa_device_registration',
+						'/v8/unified-mfa', // Return to unified MFA flow
+						2 // Step 2: Device Selection
+					);
+
+					// Show the user login modal
+					setShowUserLoginModal(true);
+					toastV8.info(
+						'🔐 User Flow requires PingOne authentication. Please complete the login to continue with device registration.',
+						{ duration: 6000 }
+					);
+					return;
+				} else {
+					// User is already authenticated, show success message and proceed
+					console.log(
+						'[UNIFIED-FLOW] User already authenticated with PingOne, proceeding with registration'
+					);
+					toastV8.success(
+						'✅ PingOne authentication detected! Proceeding with device registration.',
+						{ duration: 4000 }
+					);
+				}
 			}
 
 			console.log(
@@ -2604,7 +2781,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				userToken || undefined
 			);
 		},
-		[workerToken.tokenStatus.isValid, userToken]
+		[workerToken.tokenStatus.isValid, userToken, performRegistrationWithToken]
 	);
 
 	/**
@@ -2743,7 +2920,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				validateStep0={validateStep0}
 				stepLabels={stepLabels}
 				shouldHideNextButton={shouldHideNextButton}
-				flowType="device-auth"
+				flowType="registration"
 			/>
 			<div style={{ height: '300px' }} />
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" reserveSpace />
