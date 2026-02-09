@@ -139,9 +139,9 @@ export default defineConfig(({ mode }) => {
 			},
 			proxy: {
 				'/api': {
-					target: 'http://localhost:3001', // Backend server (HTTP)
+					target: 'https://localhost:3002', // Backend server (HTTPS)
 					changeOrigin: true,
-					secure: false, // Allow self-signed certificates and HTTP backend
+					secure: false, // Allow self-signed certificates
 					timeout: 3000, // Shorter timeout for health checks
 					proxyTimeout: 3000,
 					rewrite: (path) => {
@@ -373,9 +373,7 @@ export default defineConfig(({ mode }) => {
 						}
 						if (
 							lowerId.includes('/src/components/') &&
-							(lowerId.includes('flow') ||
-								lowerId.includes('sequence') ||
-								lowerId.includes('step'))
+							(lowerId.includes('flow') || lowerId.includes('sequence') || lowerId.includes('step'))
 						) {
 							return 'components-flow-core';
 						}
@@ -417,17 +415,13 @@ export default defineConfig(({ mode }) => {
 						}
 						if (
 							lowerId.includes('/src/components/') &&
-							(lowerId.includes('token') ||
-								lowerId.includes('jwt') ||
-								lowerId.includes('jwks'))
+							(lowerId.includes('token') || lowerId.includes('jwt') || lowerId.includes('jwks'))
 						) {
 							return 'components-token';
 						}
 						if (
 							lowerId.includes('/src/components/') &&
-							(lowerId.includes('pingone') ||
-								lowerId.includes('mfa') ||
-								lowerId.includes('worker'))
+							(lowerId.includes('pingone') || lowerId.includes('mfa') || lowerId.includes('worker'))
 						) {
 							return 'components-pingone';
 						}
