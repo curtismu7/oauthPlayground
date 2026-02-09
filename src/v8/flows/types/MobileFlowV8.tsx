@@ -1168,9 +1168,9 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 				// Both SMS and VOICE use phone numbers
 				if (actualDeviceType === 'SMS' || actualDeviceType === 'VOICE') {
 					if (!credentials.phoneNumber?.trim()) {
-						nav.setValidationErrors([
-							'Phone number is required. Please enter a valid phone number.',
-						]);
+						const errorMsg = 'Phone number is required. Please enter a valid phone number.';
+						nav.setValidationErrors([errorMsg]);
+						toastV8.error(errorMsg);
 						return;
 					}
 					// Use phone validation utility to handle multiple formats
@@ -1179,18 +1179,22 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 						credentials.countryCode
 					);
 					if (!phoneValidation.isValid) {
-						nav.setValidationErrors([phoneValidation.error || 'Invalid phone number format']);
+						const errorMsg = phoneValidation.error || 'Invalid phone number format';
+						nav.setValidationErrors([errorMsg]);
+						toastV8.error(errorMsg);
 						return;
 					}
 				} else if (actualDeviceType === 'EMAIL') {
 					if (!credentials.email?.trim()) {
-						nav.setValidationErrors([
-							'Email address is required. Please enter a valid email address.',
-						]);
+						const errorMsg = 'Email address is required. Please enter a valid email address.';
+						nav.setValidationErrors([errorMsg]);
+						toastV8.error(errorMsg);
 						return;
 					}
 					if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email)) {
-						nav.setValidationErrors(['Please enter a valid email address format.']);
+						const errorMsg = 'Please enter a valid email address format.';
+						nav.setValidationErrors([errorMsg]);
+						toastV8.error(errorMsg);
 						return;
 					}
 				}
@@ -1280,10 +1284,10 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 					if (result.deviceId && deviceNickname) {
 						try {
 							await MFAServiceV8.updateDeviceNickname(
-								{ 
-									environmentId: credentials.environmentId, 
-									username: credentials.username, 
-									deviceId: result.deviceId 
+								{
+									environmentId: credentials.environmentId,
+									username: credentials.username,
+									deviceId: result.deviceId,
 								},
 								deviceNickname
 							);
@@ -2174,10 +2178,10 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 										type="text"
 										value={credentials.deviceName || currentDeviceType || 'SMS'}
 										onChange={(e) => {
-											setCredentials({ 
-												...credentials, 
+											setCredentials({
+												...credentials,
 												deviceName: e.target.value,
-												nickname: credentials.nickname || 'MyKnickName'
+												nickname: credentials.nickname || 'MyKnickName',
 											});
 										}}
 										onFocus={(e) => {
@@ -2228,7 +2232,16 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 									</small>
 
 									<div style={{ marginBottom: '16px', marginTop: '12px' }}>
-										<label htmlFor="mfa-device-nickname-register" style={{ display: 'block', marginBottom: '8px', color: '#374151', fontSize: '14px', fontWeight: '500' }}>
+										<label
+											htmlFor="mfa-device-nickname-register"
+											style={{
+												display: 'block',
+												marginBottom: '8px',
+												color: '#374151',
+												fontSize: '14px',
+												fontWeight: '500',
+											}}
+										>
 											Device Nickname (optional)
 										</label>
 										<input
@@ -2248,7 +2261,14 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 												width: '100%',
 											}}
 										/>
-										<small style={{ display: 'block', marginTop: '4px', color: '#6b7280', fontSize: '12px' }}>
+										<small
+											style={{
+												display: 'block',
+												marginTop: '4px',
+												color: '#6b7280',
+												fontSize: '12px',
+											}}
+										>
 											Enter a friendly nickname for this device (e.g., "Personal Phone", "Work SMS")
 											{credentials.nickname && (
 												<span
