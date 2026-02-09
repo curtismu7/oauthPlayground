@@ -1184,9 +1184,9 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				// Both SMS and VOICE use phone numbers
 				if (actualDeviceType === 'SMS' || actualDeviceType === 'VOICE') {
 					if (!credentials.phoneNumber?.trim()) {
-						nav.setValidationErrors([
-							'Phone number is required. Please enter a valid phone number.',
-						]);
+						const errorMsg = 'Phone number is required. Please enter a valid phone number.';
+						nav.setValidationErrors([errorMsg]);
+						toastV8.error(errorMsg);
 						return;
 					}
 					// Use phone validation utility to handle multiple formats
@@ -1195,18 +1195,22 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						credentials.countryCode
 					);
 					if (!phoneValidation.isValid) {
-						nav.setValidationErrors([phoneValidation.error || 'Invalid phone number format']);
+						const errorMsg = phoneValidation.error || 'Invalid phone number format';
+						nav.setValidationErrors([errorMsg]);
+						toastV8.error(errorMsg);
 						return;
 					}
 				} else if (actualDeviceType === 'EMAIL') {
 					if (!credentials.email?.trim()) {
-						nav.setValidationErrors([
-							'Email address is required. Please enter a valid email address.',
-						]);
+						const errorMsg = 'Email address is required. Please enter a valid email address.';
+						nav.setValidationErrors([errorMsg]);
+						toastV8.error(errorMsg);
 						return;
 					}
 					if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email)) {
-						nav.setValidationErrors(['Please enter a valid email address format.']);
+						const errorMsg = 'Please enter a valid email address format.';
+						nav.setValidationErrors([errorMsg]);
+						toastV8.error(errorMsg);
 						return;
 					}
 				}
@@ -2196,10 +2200,10 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 										type="text"
 										value={credentials.deviceName || 'SMS'}
 										onChange={(e) => {
-											setCredentials({ 
-												...credentials, 
+											setCredentials({
+												...credentials,
 												deviceName: e.target.value,
-												nickname: credentials.nickname || 'MyKnickName'
+												nickname: credentials.nickname || 'MyKnickName',
 											});
 										}}
 										onFocus={(e) => {
@@ -2284,7 +2288,9 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 
 							{/* Nickname Field - Always show */}
 							<div style={{ marginBottom: '16px' }}>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+								<div
+									style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
+								>
 									<label
 										htmlFor="mfa-device-nickname-register"
 										style={{

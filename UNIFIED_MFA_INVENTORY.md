@@ -4733,6 +4733,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 65 | **Required Field Asterisk Pattern** | ✅ RESOLVED | Multiple V8 flow components | Email field has red asterisk, other fields checked | Email field correctly shows red asterisk, phone/name fields also have asterisks |
 | 66 | **Device Creation Success Modal Missing** | ✅ RESOLVED | EmailFlowV8.tsx:1309-1368 | No modal showing device info after creation | Added DeviceCreationSuccessModalV8 with device info for all flow types |
 | 67 | **Success Page Title and Button Issues** | ✅ RESOLVED | unifiedMFASuccessPageServiceV8.tsx:432, SuccessStepV8.tsx:91 | Registration flows show "Authentication Successful" instead of "Device Created" | Fixed titles to show "Device Created!" for registration flows, centered titles, normal button sizes |
+| 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
 | 40 | **SMS Step 1 Advancement Issue** | ✅ RESOLVED | CallbackHandlerV8U.tsx:294, MFAFlowBaseV8.tsx:149 | SMS flow stuck on step 1, not advancing to next step | Fixed with foolproof callback step advancement |
 | 41 | **Registration/Authentication Not Separated** | 🔴 ACTIVE | UnifiedMFARegistrationFlowV8_Legacy.tsx:2734 | Still using MFAFlowBaseV8 instead of separate steppers | Registration and Authentication flows not properly separated |
@@ -15353,6 +15354,25 @@ grep -A 5 -B 5 "padding.*12px.*24px\|padding.*12px.*16px" src/v8/flows/shared/Su
 # Issue 67: Verify flowType-based title logic
 grep -A 3 "flowType.*===.*authentication" src/v8/services/unifiedMFASuccessPageServiceV8.tsx
 grep -A 3 "flowType.*===.*authentication" src/v8/flows/shared/SuccessStepV8.tsx
+
+# Issue 68: Required field validation - check for toast messages in all flows
+grep -rn "toastV8\.error.*required\|toastV8\.error.*is required" src/v8/flows/types/ --include="*.tsx"
+grep -rn "toastV8\.error.*email.*required\|toastV8\.error.*phone.*required\|toastV8\.error.*device.*required" src/v8/flows/types/ --include="*.tsx"
+
+# Issue 68: Check for red asterisk patterns in all flows
+grep -rn "className.*required\|color.*#ef4444\|color.*#dc2626" src/v8/flows/types/ --include="*.tsx"
+grep -rn "required.*\*" src/v8/flows/unified/components/DynamicFormRenderer.tsx
+
+# Issue 68: Verify red border validation for empty fields
+grep -rn "border.*#ef4444\|border.*red" src/v8/flows/types/ --include="*.tsx"
+grep -rn "input-error\|border.*1px solid.*red" src/v8/flows/types/ --include="*.tsx"
+
+# Issue 68: Check validation error patterns in handleRegisterDevice functions
+grep -A 5 -B 5 "setValidationErrors.*required" src/v8/flows/types/ --include="*.tsx"
+grep -A 10 "handleRegisterDevice" src/v8/flows/types/EmailFlowV8.tsx | grep -E "toastV8\.error|setValidationErrors"
+grep -A 10 "handleRegisterDevice" src/v8/flows/types/SMSFlowV8.tsx | grep -E "toastV8\.error|setValidationErrors"
+grep -A 10 "handleRegisterDevice" src/v8/flows/types/WhatsAppFlowV8.tsx | grep -E "toastV8\.error|setValidationErrors"
+grep -A 10 "handleRegisterDevice" src/v8/flows/types/MobileFlowV8.tsx | grep -E "toastV8\.error|setValidationErrors"
 ```
 
 ### **📋 After Every Fix**
