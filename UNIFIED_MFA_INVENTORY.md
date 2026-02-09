@@ -4743,6 +4743,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 88 | **Callback Redirect URI Context Detection** | ✅ FIXED | CallbackHandlerV8U.tsx:233 | User login callback redirects to wrong page instead of original flow context | Fixed callback handler to properly detect MFA vs user login flow context and redirect to correct fallback page |
 | 89 | **Return Target Service Migration** | ✅ IMPLEMENTED | UserLoginModalV8.tsx:1352, CallbackHandlerV8U.tsx:170 | Redirect URI return targets not found due to mixed usage of old sessionStorage and new ReturnTargetServiceV8U | Migrated UserLoginModal to use ReturnTargetServiceV8U and removed old sessionStorage fallback logic from CallbackHandler |
 | 90 | **Auto-populate login_hint with Current User** | ✅ IMPLEMENTED | UserLoginModalV8.tsx:61 | login_hint field exists but not automatically filled with current user information | Added useEffect to auto-populate login_hint field with current user's preferred_username, email, or sub from localStorage |
+| 91 | **Token Exchange Call Visibility** | ✅ IMPLEMENTED | UnifiedFlowIntegrationV8U.ts:1237, 1347 | Token exchange call in Unified OIDC authorization flow is not visible to users for learning | Added API call tracking for both OAuth and Hybrid flow token exchanges with proper request/response logging and redacted sensitive data |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -15644,6 +15645,13 @@ grep -A 5 -B 5 "safeGetUserInfo" src/v8/components/UserLoginModalV8.tsx
 grep -A 5 -B 5 "preferred_username.*email.*sub" src/v8/components/UserLoginModalV8.tsx
 grep -A 5 -B 5 "Auto-populated login_hint.*current user" src/v8/components/UserLoginModalV8.tsx
 grep -A 5 -B 5 "Failed to auto-populate login_hint" src/v8/components/UserLoginModalV8.tsx
+
+# Issue 91: Check token exchange call visibility in unified flows
+grep -A 5 -B 5 "Track token exchange API call.*unified flow visibility" src/v8u/services/unifiedFlowIntegrationV8U.ts
+grep -A 5 -B 5 "apiCallTrackerService\.trackApiCall" src/v8u/services/unifiedFlowIntegrationV8U.ts
+grep -A 5 -B 5 "unified-token-exchange" src/v8u/services/unifiedFlowIntegrationV8U.ts
+grep -A 5 -B 5 "unified-hybrid-token-exchange" src/v8u/services/unifiedFlowIntegrationV8U.ts
+grep -A 5 -B 5 "\*\*\*REDACTED\*\*\*" src/v8u/services/unifiedFlowIntegrationV8U.ts
 
 # ========================================================================
 # INFINITE LOOP PREVENTION COMPREHENSIVE GUIDE
