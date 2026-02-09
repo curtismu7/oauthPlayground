@@ -4731,6 +4731,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 62 | **Token Exchange Admin Enablement** | 🔴 PLANNED | src/v8/services/ | Admin control for Token Exchange feature | Must implement admin toggle before any token exchange processing |
 | 64 | **Email Registration Field Validation** | 🔴 ACTIVE | EmailFlowV8.tsx:1152-1162 | No toast message for email validation failures | Missing toast notifications when email validation fails, only red border shown |
 | 65 | **Required Field Asterisk Pattern** | ✅ RESOLVED | Multiple V8 flow components | Email field has red asterisk, other fields checked | Email field correctly shows red asterisk, phone/name fields also have asterisks |
+| 66 | **Device Creation Success Modal Missing** | ✅ RESOLVED | EmailFlowV8.tsx:1309-1368 | No modal showing device info after creation | Added DeviceCreationSuccessModalV8 with device info for all flow types |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
 | 40 | **SMS Step 1 Advancement Issue** | ✅ RESOLVED | CallbackHandlerV8U.tsx:294, MFAFlowBaseV8.tsx:149 | SMS flow stuck on step 1, not advancing to next step | Fixed with foolproof callback step advancement |
 | 41 | **Registration/Authentication Not Separated** | 🔴 ACTIVE | UnifiedMFARegistrationFlowV8_Legacy.tsx:2734 | Still using MFAFlowBaseV8 instead of separate steppers | Registration and Authentication flows not properly separated |
@@ -15323,6 +15324,18 @@ grep -rn "Name.*\*" src/v8/flows/unified/components/DynamicFormRenderer.tsx
 # Issue 64: Check all required field indicators across flows
 grep -rn "required.*\*" src/v8/flows/types/ --include="*.tsx"
 grep -rn "className.*required" src/v8/flows/unified/components/DynamicFormRenderer.tsx
+
+# Issue 66: Device creation success modal - check for modal implementation
+grep -rn "DeviceCreationSuccessModalV8" src/v8/flows/types/ --include="*.tsx"
+grep -rn "setDeviceCreationSuccessInfo\|setShowDeviceCreationSuccessModal" src/v8/flows/types/ --include="*.tsx"
+
+# Issue 66: Verify device creation success modal triggers for all flow types
+grep -A 10 "toastV8\.success.*registered" src/v8/flows/types/EmailFlowV8.tsx | grep -E "setDeviceCreationSuccessInfo|setShowDeviceCreationSuccessModal"
+grep -A 10 "toastV8\.success.*registered" src/v8/flows/types/SMSFlowV8.tsx | grep -E "setDeviceCreationSuccessInfo|setShowDeviceCreationSuccessModal"
+grep -A 10 "toastV8\.success.*registered" src/v8/flows/types/WhatsAppFlowV8.tsx | grep -E "setDeviceCreationSuccessInfo|setShowDeviceCreationSuccessModal"
+
+# Issue 66: Check if modal is rendered in component return statements
+grep -rn "DeviceCreationSuccessModalV8" src/v8/flows/types/ --include="*.tsx" -A 5 -B 5
 ```
 
 ### **📋 After Every Fix**
