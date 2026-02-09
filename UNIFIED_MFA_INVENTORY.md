@@ -4725,6 +4725,8 @@ This section provides a comprehensive summary of all critical issues identified 
 | 70 | **Success Page Coverage - All Device Types** | ✅ VERIFIED | All device type flows use MFASuccessPageV8 → UnifiedMFASuccessPageV8 | Email, SMS, WhatsApp, Mobile, TOTP, FIDO2 all have correct titles and buttons | Unified service architecture ensures consistent success pages across all device types |
 | 71 | **TokenExchangeFlowV8 Not Defined Error** | ✅ RESOLVED | TokenExchangeFlowV8.tsx:637, App.tsx:196 | Missing default export causing runtime error | Added default export to TokenExchangeFlowV8 component |
 | 72 | **Token Exchange 400 Error** | ✅ EXPECTED | server.js:1274, oauthIntegrationServiceV8.ts:486 | OAuth authorization code expired or invalid | Expected OAuth behavior - 400 error for invalid/expired codes |
+| 73 | **Screen Order - Success Before API Docs** | ✅ RESOLVED | NewMFAFlowV8.tsx:95, UnifiedMFARegistrationFlowV8_Legacy.tsx:2852 | API Docs page shown before Success page in device creation flow | Swapped step order: Step 5 = Success, Step 6 = API Docs for better user experience |
+| 74 | **Worker Token Validation Bypass - Step 3 Access** | ✅ RESOLVED | NewMFAFlowV8.tsx:149, UnifiedMFARegistrationFlowV8_Legacy.tsx:2906 | Users can advance to step 3 without valid worker token, causing API failures | Added step 2 validation to require valid worker token before advancing to step 3 |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -15438,9 +15440,33 @@ grep -A 10 "token-exchange" server.js
 grep -A 5 "invalid_grant\|invalid_request" server.js
 grep -A 5 "subject_token\|subject_token_type" server.js
 
-# Issue 72: Verify OAuth error handling patterns
-grep -A 3 "invalid_grant.*expired\|invalid_grant.*invalid" src/v8/services/oauthIntegrationServiceV8.ts
-grep -A 3 "400.*Bad Request" src/v8/services/oauthIntegrationServiceV8.ts
+# Issue 73: Check screen order for device creation flows
+grep -A 5 -B 5 "renderStep5.*Success\|renderStep6.*API" src/v8/flows/NewMFAFlowV8.tsx
+grep -A 5 -B 5 "renderStep5.*Success\|renderStep6.*API" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+grep -A 10 "stepLabels.*=" src/v8/flows/NewMFAFlowV8.tsx
+grep -A 10 "stepLabels.*=" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Issue 73: Verify step order in step labels
+grep -A 15 "Success.*API Docs\|API Docs.*Success" src/v8/flows/NewMFAFlowV8.tsx
+grep -A 15 "Success.*API Docs\|API Docs.*Success" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Issue 74: Check worker token validation in step advancement
+grep -A 10 -B 5 "shouldHideNextButton.*step.*2\|currentStep.*===.*2" src/v8/flows/NewMFAFlowV8.tsx
+grep -A 10 -B 5 "shouldHideNextButton.*step.*2\|currentStep.*===.*2" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+grep -A 5 -B 5 "WorkerTokenStatusServiceV8.*checkWorkerTokenStatusSync" src/v8/flows/NewMFAFlowV8.tsx
+grep -A 5 -B 5 "WorkerTokenStatusServiceV8.*checkWorkerTokenStatusSync" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Issue 74: Verify worker token validation logic
+grep -A 15 "tokenType.*worker.*!tokenStatus.isValid" src/v8/flows/NewMFAFlowV8.tsx
+grep -A 15 "tokenType.*worker.*!tokenStatus.isValid" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Issue 74: Check for worker token refresh button in activation step
+grep -A 10 -B 5 "Refresh Worker Token\|showWorkerTokenModal" src/v8/flows/unified/components/UnifiedActivationStep.tsx
+grep -A 5 -B 5 "tokenStatus.*isValid.*!" src/v8/flows/unified/components/UnifiedActivationStep.tsx
+
+# Issue 74: Verify step 3 access prevention
+grep -rn "renderStep3.*APIDocsStepV8\|renderStep3.*SuccessStepV8" src/v8/flows/ --include="*.tsx"
+grep -rn "shouldHideNextButton.*return.*true" src/v8/flows/ --include="*.tsx" -A 3 -B 3
 
 # Issue 70: Resend email prevention commands
 grep -rn "resendEmail" src/v8/services/mfaServiceV8.ts -A 5 -B 5
