@@ -60,16 +60,16 @@ const MainCard = styled.div`
 `;
 
 const Header = styled.div`
-	background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
 	color: #ffffff;
 	padding: 2rem;
 	text-align: center;
 `;
 
 const VersionBadge = styled.span`
-	background: rgba(124, 58, 237, 0.2);
-	border: 1px solid #a855f7;
-	color: #e9d5ff;
+	background: rgba(59, 130, 246, 0.2);
+	border: 1px solid #60a5fa;
+	color: #dbeafe;
 	font-size: 0.75rem;
 	font-weight: 600;
 	letter-spacing: 0.08em;
