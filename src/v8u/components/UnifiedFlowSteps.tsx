@@ -8537,6 +8537,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 	// Shared handler for device authorization requests (used in both Step 1 and Step 2)
 	const handleRequestDeviceAuth = useCallback(async () => {
+		// SECURITY LOCKDOWN: Enhanced validation for device authorization flow
+		// Prevent unauthorized device authorization requests
+		
 		// Validate required fields before requesting device authorization
 		if (!credentials.environmentId?.trim()) {
 			setError('Please provide an Environment ID in the configuration above.');
@@ -8553,6 +8556,49 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			setValidationErrors(['Please provide at least one scope in the configuration above.']);
 			return;
 		}
+
+		// SECURITY: Additional validation for device authorization flow
+		// Ensure proper scope format and prevent malicious scope injection
+		const scopes = credentials.scopes.trim().split(/\s+/).filter(s => s.length > 0);
+		if (scopes.length > 10) {
+			setError('Too many scopes requested. Maximum 10 scopes allowed for security.');
+			setValidationErrors(['Too many scopes requested. Maximum 10 scopes allowed for security.']);
+			return;
+		}
+		
+		// Validate scope format (prevent injection attacks)
+		const invalidScopes = scopes.filter(scope => 
+			!/^[a-zA-Z0-9._:-]+$/.test(scope) || 
+			scope.length > 100
+		);
+		if (invalidScopes.length > 0) {
+			setError(`Invalid scope format detected: ${invalidScopes.join(', ')}`);
+			setValidationErrors([`Invalid scope format detected: ${invalidScopes.join(', ')}`]);
+			return;
+		}
+
+		// SECURITY: Rate limiting check (prevent abuse)
+		const now = Date.now();
+		const lastRequestTime = sessionStorage.getItem('v8u_device_auth_last_request');
+		const requestCount = parseInt(sessionStorage.getItem('v8u_device_auth_request_count') || '0');
+		
+		if (lastRequestTime) {
+			const timeSinceLastRequest = now - parseInt(lastRequestTime);
+			// Allow max 3 requests per minute
+			if (timeSinceLastRequest < 60000 && requestCount >= 3) {
+				setError('Rate limit exceeded. Please wait before making another device authorization request.');
+				setValidationErrors(['Rate limit exceeded. Please wait before making another device authorization request.']);
+				return;
+			}
+		}
+
+		// Update rate limiting tracking
+		if (timeSinceLastRequest < 60000) {
+			sessionStorage.setItem('v8u_device_auth_request_count', (requestCount + 1).toString());
+		} else {
+			sessionStorage.setItem('v8u_device_auth_request_count', '1');
+		}
+		sessionStorage.setItem('v8u_device_auth_last_request', now.toString());
 
 		console.log(`${MODULE_TAG} Requesting device authorization`);
 		// CRITICAL: Stop any running polling before requesting new device code
@@ -9097,6 +9143,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		};
 
 		const handlePollForTokens = async () => {
+			// SECURITY LOCKDOWN: Enhanced security checks for polling
+			// Prevent unauthorized polling attempts
+			
 			// CRITICAL: Check abort flag FIRST - if polling was stopped, don't start new polling
 			if (pollingAbortRef.current) {
 				console.log(`${MODULE_TAG} Polling aborted - not starting new polling`);
@@ -9113,6 +9162,26 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				);
 				return;
 			}
+
+			// SECURITY: Additional polling security checks
+			// Prevent excessive polling attempts
+			const pollingCount = parseInt(sessionStorage.getItem('v8u_device_polling_count') || '0');
+			const lastPollingTime = parseInt(sessionStorage.getItem('v8u_device_last_polling') || '0');
+			const now = Date.now();
+			
+			// Rate limit polling to prevent abuse (max 60 polling attempts per hour)
+			if (now - lastPollingTime < 3600000 && pollingCount >= 60) {
+				setError('Polling rate limit exceeded. Please wait before polling again.');
+				return;
+			}
+
+			// Update polling tracking
+			if (now - lastPollingTime < 3600000) {
+				sessionStorage.setItem('v8u_device_polling_count', (pollingCount + 1).toString());
+			} else {
+				sessionStorage.setItem('v8u_device_polling_count', '1');
+			}
+			sessionStorage.setItem('v8u_device_last_polling', now.toString());
 
 			// Note: We only check the ref, not the state, because:
 			// 1. The ref is the source of truth and is updated synchronously
