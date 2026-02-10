@@ -224,6 +224,20 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 				'CIBA (Client Initiated Backchannel Authentication)',
 			],
 		},
+		{
+			title: 'Custom Resources & Scopes',
+			icon: <FiUsers />,
+			topics: [
+				'Custom Resource Configuration',
+				'Attribute Mapping Limitations',
+				'Scope-Specific Attribute Control',
+				'Principle of Least Privilege',
+				'Current PingOne Limitations',
+				'Workarounds & Best Practices',
+				'Security Considerations',
+				'Future Implementation Roadmap',
+			],
+		},
 	];
 
 	const oauthFlows = [
@@ -334,6 +348,94 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 					))}
 				</FlowGrid>
 			</FlowSection>
+
+			<EducationCard>
+				<CardHeader>
+					<h2>
+						<FiUsers />
+						Custom Resource Attribute Mapping
+					</h2>
+					<p>
+						Understanding current limitations and best practices for mapping custom resource attributes to specific scopes in PingOne.
+					</p>
+				</CardHeader>
+				<TopicList>
+					<TopicItem>
+						<FiCheckCircle size={16} />
+						<strong>Current Limitation:</strong> Requesting any custom scope returns ALL resource attributes
+					</TopicItem>
+					<TopicItem>
+						<FiCheckCircle size={16} />
+						<strong>Security Impact:</strong> Violates principle of least privilege
+					</TopicItem>
+					<TopicItem>
+						<FiCheckCircle size={16} />
+						<strong>Expected Behavior:</strong> Scope-specific attribute mapping (like mappedClaims)
+					</TopicItem>
+					<TopicItem>
+						<FiCheckCircle size={16} />
+						<strong>Workaround:</strong> Use multiple resources with specific attribute sets
+					</TopicItem>
+					<TopicItem>
+						<FiCheckCircle size={16} />
+						<strong>Best Practice:</strong> Separate sensitive attributes into dedicated resources
+					</TopicItem>
+				</TopicList>
+				
+				<EducationCard style={{ marginTop: '1rem', backgroundColor: '#fef3c7', border: '1px solid #f59e0b' }}>
+					<CardHeader>
+						<h3 style={{ color: '#92400e', fontSize: '1.125rem' }}>
+							<FiShield />
+							Security Considerations
+						</h3>
+					</CardHeader>
+					<TopicList>
+						<TopicItem>
+							<FiCheckCircle size={16} style={{ color: '#92400e' }} />
+							Only request necessary scopes for your use case
+						</TopicItem>
+						<TopicItem>
+							<FiCheckCircle size={16} style={{ color: '#92400e' }} />
+							Audit access tokens for unnecessary attribute exposure
+						</TopicItem>
+						<TopicItem>
+							<FiCheckCircle size={16} style={{ color: '#92400e' }} />
+							Implement client-side validation for received attributes
+						</TopicItem>
+					</TopicList>
+				</EducationCard>
+
+				<EducationCard style={{ marginTop: '1rem', backgroundColor: '#f0f9ff', border: '1px solid #0ea5e9' }}>
+					<CardHeader>
+						<h3 style={{ color: '#075985', fontSize: '1.125rem' }}>
+							<FiBook />
+							Configuration Examples
+						</h3>
+					</CardHeader>
+					<TopicList>
+						<TopicItem>
+							<FiCheckCircle size={16} style={{ color: '#075985' }} />
+							<strong>Problem:</strong> One resource with attributes: name, email, phone, department
+						</TopicItem>
+						<TopicItem>
+							<FiCheckCircle size={16} style={{ color: '#075985' }} />
+							<strong>Current:</strong> Scope read:profile.basic returns ALL attributes
+						</TopicItem>
+						<TopicItem>
+							<FiCheckCircle size={16} style={{ color: '#075985' }} />
+							<strong>Workaround:</strong> Create separate resources for different attribute sets
+						</TopicItem>
+						<TopicItem>
+							<FiCheckCircle size={16} style={{ color: '#075985' }} />
+							<strong>Future:</strong> Configure scope-to-attribute mapping per resource
+						</TopicItem>
+					</TopicList>
+				</EducationCard>
+
+				<ActionButton href="https://docs.pingidentity.com/pingone/p1_cloud__platform_main_landing_page.html" target="_blank" rel="noopener noreferrer">
+					Learn More in PingOne Docs <FiArrowRight />
+				</ActionButton>
+			</EducationCard>
 
 			<EducationCard>
 				<CardHeader>
