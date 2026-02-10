@@ -86,6 +86,16 @@ grep -n -A 5 -B 2 "nav\.currentStep === 0.*validateStep0" src/v8/flows/shared/MF
 grep -n "uploadedFileInfo\?.name" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
 grep -n "uploadedFileInfo\?.size" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
 
+# === SIDEBAR MENU VISIBILITY (Issue 106 Prevention) ===
+# CRITICAL: Ensure new pages are visible in sidebar menu
+grep -n "api-status\|environment-management" src/components/Sidebar.tsx
+# Check for missing route imports in App.tsx
+grep -n "import.*Page" src/App.tsx | grep -v "\.md"
+# Verify routes exist for sidebar items
+grep -n "path.*Page" src/App.tsx | head -10
+# Check for proper menu group structure
+grep -A 5 -B 5 "Tools & Utilities" src/components/Sidebar.tsx
+
 # === NEW REGRESSION PATTERNS ===
 # LocalStorage state management
 grep -n -A 3 -B 2 "localStorage\.setItem" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
@@ -4757,6 +4767,8 @@ This section provides a comprehensive summary of all critical issues identified 
 | 102 | **API Status Page Menu Visibility** | ✅ FIXED | DragDropSidebar.tsx:414, App.tsx:1310 | API Status page not visible in side menu for easy access | API Status page implemented but not added to navigation menu |
 | 103 | **Unified OAuth Flow Lockdown** | ✅ LOCKED | src/v8u/lockdown/unified/manifest.json:1, UnifiedOAuthFlowV8U.tsx:1 | Unified OAuth flow is working and stable, locked to prevent changes | User requested lockdown of working Unified OAuth flow at /v8u/unified |
 | 104 | **Migrate MFA Flows to Unified OAuth Callback Pattern** | ✅ COMPLETED | CallbackHandlerV8U.tsx:106, UserLoginModalV8.tsx:1364, MFAFlowBaseV8.tsx:533 | MFA flows using complex ReturnTargetServiceV8U instead of simple URL-based detection | Migrated all MFA flows to use sessionStorage-based flow context matching Unified OAuth's elegant pattern |
+| 105 | **Environment Management App Implementation** | ✅ COMPLETED | EnvironmentManagementPageV8.tsx:1, environmentServiceV8Simple.ts:1, Sidebar.tsx:1349 | Full environment management system with CRUD operations and modern UI | Created comprehensive environment management with service layer, UI components, and sidebar integration |
+| 106 | **Sidebar Menu Visibility Prevention** | ✅ IMPLEMENTED | UNIFIED_MFA_INVENTORY.md:110-115, Sidebar.tsx:558,1349 | New pages not visible in sidebar menu | Added prevention commands and checklist for sidebar menu integration |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -4835,6 +4847,80 @@ grep -r "flowType.*=\|const.*flowType.*=" src/v8/flows/
 **📝 Implementation Guidelines:**
 1. **Use Explicit Flow Types**: Always use `registrationFlowType` prop for flow determination
 2. **Avoid Token-Based Logic**: Never determine flow type based on token presence
+
+#### **📋 Issue 106: Sidebar Menu Visibility Prevention - DETAILED ANALYSIS**
+
+**🎯 Problem Summary:**
+New pages and components were being implemented but not added to the sidebar navigation, making them inaccessible to users. This created a disconnect between implemented functionality and user discoverability.
+
+**🔍 Root Cause Analysis:**
+1. **Primary Cause**: Development workflow didn't include sidebar integration as a required step
+2. **Secondary Cause**: No systematic verification process for menu visibility
+3. **Impact**: Users couldn't access new features, reducing the value of implementations
+
+**🔧 Technical Investigation Steps:**
+```bash
+# 1. Check if page exists in sidebar
+grep -n "page-name" src/components/Sidebar.tsx
+
+# 2. Verify route exists in App.tsx
+grep -n "path.*page-name" src/App.tsx
+
+# 3. Check import exists for the page
+grep -n "import.*PageName" src/App.tsx
+
+# 4. Verify menu group structure
+grep -A 5 -B 5 "Tools & Utilities" src/components/Sidebar.tsx
+```
+
+**🛠️ Solution Implemented:**
+1. **Added Prevention Commands**: Systematic checks for sidebar visibility
+2. **Updated Development Workflow**: Sidebar integration now part of implementation checklist
+3. **Enhanced Documentation**: Clear guidance for menu integration
+4. **Verification Process**: Automated detection of missing menu items
+
+**📊 Expected vs Actual Behavior:**
+```
+Expected: All new pages are accessible via sidebar menu
+Actual (Before): Pages implemented but not visible in navigation
+Actual (After): Systematic verification ensures menu visibility
+```
+
+**🔍 Prevention Strategy:**
+1. **Checklist Integration**: Add sidebar verification to implementation workflow
+2. **Automated Detection**: Use grep commands to verify menu integration
+3. **Documentation Updates**: Clear guidelines for menu structure
+4. **Route Verification**: Ensure all routes have corresponding menu items
+5. **Import Validation**: Check for proper page imports in App.tsx
+
+**🚨 Detection Commands for Future Prevention:**
+```bash
+# Check for specific pages in sidebar
+grep -n "api-status\|environment-management" src/components/Sidebar.tsx
+
+# Verify all page imports exist
+grep -n "import.*Page" src/App.tsx | grep -v "\.md"
+
+# Check route definitions
+grep -n "path.*Page" src/App.tsx | head -10
+
+# Verify menu group structure
+grep -A 5 -B 5 "Tools & Utilities" src/components/Sidebar.tsx
+
+# Comprehensive sidebar audit
+find src/pages/ -name "*.tsx" -exec basename {} .tsx \; | while read page; do
+  if ! grep -q "$page" src/components/Sidebar.tsx; then
+    echo "Missing from sidebar: $page"
+  fi
+done
+```
+
+**📝 Implementation Guidelines:**
+1. **Always Add to Sidebar**: Every new page must have a corresponding menu item
+2. **Use Consistent Structure**: Follow existing menu group patterns
+3. **Verify Routes**: Ensure menu paths match route definitions
+4. **Check Imports**: Validate page imports in App.tsx
+5. **Test Navigation**: Verify menu items navigate to correct pages
 3. **Prop Chain Integrity**: Ensure props flow through entire component hierarchy
 4. **Interface Completeness**: Keep component interfaces complete and up-to-date
 5. **Secure Defaults**: Default to admin flow unless explicitly user flow
