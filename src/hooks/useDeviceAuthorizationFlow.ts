@@ -217,7 +217,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 			// Use centralized scope validation service
 			const scopeValidation = scopeValidationService.validateForAuthorizationUrl(
-				credentials.scopes || credentials.scope,
+				credentials.scopes,
 				'device'
 			);
 
@@ -228,7 +228,6 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			const scopes = scopeValidation.scopes;
 			console.log('🔍 [useDeviceAuthorizationFlow] Scope validation:', {
 				originalScopes: credentials.scopes,
-				originalScope: credentials.scope,
 				validatedScopes: scopes,
 				isValid: scopeValidation.isValid,
 			});
@@ -344,6 +343,21 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			return false;
 		}
 
+		// Check if we've exceeded max attempts to prevent infinite polling
+		if (pollingStatus.attempts >= pollingStatus.maxAttempts) {
+			console.log(
+				`${LOG_PREFIX} [ERROR] Max attempts reached (${pollingStatus.maxAttempts}) - stopping polling`
+			);
+			setPollingStatus((prev) => ({
+				...prev,
+				isPolling: false,
+				error: 'Maximum polling attempts reached. Please start over.',
+				status: 'error',
+			}));
+			v4ToastManager.showError('Maximum polling attempts reached. Please start over.');
+			return true; // Stop polling
+		}
+
 		// Use backend proxy to avoid CORS issues
 		const tokenEndpoint = `/pingone-auth/${credentials.environmentId}/as/token`;
 
@@ -354,13 +368,15 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			client_id: credentials.clientId,
 		});
 
+		// Fix race condition: calculate new attempts first, then update state
+		const newAttempts = pollingStatus.attempts + 1;
 		setPollingStatus((prev) => ({
 			...prev,
-			attempts: prev.attempts + 1,
+			attempts: newAttempts,
 			lastAttempt: Date.now(),
 		}));
 
-		const currentAttempt = pollingStatus.attempts + 1;
+		const currentAttempt = newAttempts;
 		console.log(
 			`${LOG_PREFIX} [INFO] Polling attempt ${currentAttempt}/${pollingStatus.maxAttempts}`
 		);
@@ -608,15 +624,8 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			return;
 		}
 
-		// Clear any existing intervals before starting new ones
-		if (pollingIntervalRef.current) {
-			clearInterval(pollingIntervalRef.current);
-			pollingIntervalRef.current = null;
-		}
-		if (pollingTimeoutRef.current) {
-			clearTimeout(pollingTimeoutRef.current);
-			pollingTimeoutRef.current = null;
-		}
+		// Ensure clean state before starting new polling
+		stopPolling(); // Clear any existing intervals and reset state
 
 		console.log(`${LOG_PREFIX} [INFO] Starting token polling...`);
 		console.log(`${LOG_PREFIX} [INFO] Poll interval: ${deviceCodeData.interval} seconds`);
@@ -715,6 +724,17 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			console.warn(`${LOG_PREFIX} [WARN] Failed to clear tokens from localStorage:`, e);
 		}
 	}, []);
+
+	// Auto-stop polling if we exceed max attempts
+	useEffect(() => {
+		if (pollingStatus.attempts > pollingStatus.maxAttempts && pollingStatus.isPolling) {
+			console.warn(
+				`${LOG_PREFIX} [WARN] Auto-stopping: exceeded max attempts (${pollingStatus.attempts}/${pollingStatus.maxAttempts})`
+			);
+			stopPolling();
+			v4ToastManager.showError('Polling exceeded maximum attempts. Please start over.');
+		}
+	}, [pollingStatus.attempts, pollingStatus.maxAttempts, pollingStatus.isPolling, stopPolling]);
 
 	// Cleanup on unmount
 	useEffect(() => {
