@@ -122,7 +122,7 @@ export const EmailInputV8: React.FC<EmailInputV8Props> = ({
 			<label htmlFor={id} className="email-label">
 				{label}
 				{required && (
-					<span className="required" aria-label="required">
+					<span className="required" title="This field is required">
 						{' '}
 						*
 					</span>
