@@ -187,13 +187,13 @@ import MFAReportingFlowV8 from './v8/flows/MFAReportingFlowV8';
 import OAuthAuthorizationCodeFlowV8 from './v8/flows/OAuthAuthorizationCodeFlowV8';
 import PingOneProtectFlowV8 from './v8/flows/PingOneProtectFlowV8';
 import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
+import { TokenExchangeFlowV8 } from './v8/flows/TokenExchangeFlowV8';
 import { EmailOTPConfigurationPageV8 } from './v8/flows/types/EmailOTPConfigurationPageV8';
 import { FIDO2ConfigurationPageV8 } from './v8/flows/types/FIDO2ConfigurationPageV8';
 import { MobileOTPConfigurationPageV8 } from './v8/flows/types/MobileOTPConfigurationPageV8';
 import { SMSOTPConfigurationPageV8 } from './v8/flows/types/SMSOTPConfigurationPageV8';
 import { TOTPConfigurationPageV8 } from './v8/flows/types/TOTPConfigurationPageV8';
 import { WhatsAppOTPConfigurationPageV8 } from './v8/flows/types/WhatsAppOTPConfigurationPageV8';
-import { TokenExchangeFlowV8 } from './v8/flows/TokenExchangeFlowV8';
 
 // Lazy load unified MFA flow for code splitting
 const UnifiedMFARegistrationFlowV8_Legacy = React.lazy(
@@ -218,6 +218,7 @@ const WhatsAppFlowV8 = React.lazy(() =>
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
+import { EnvironmentManagementPageV8 } from './v8/pages/EnvironmentManagementPageV8';
 import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
 import MFADeviceCreateDemoV8 from './v8/pages/MFADeviceCreateDemoV8';
 import { MFAFeatureFlagsAdminV8 } from './v8/pages/MFAFeatureFlagsAdminV8';
@@ -574,6 +575,8 @@ const AppRoutes: React.FC = () => {
 							{/* Tools & Utilities Routes */}
 							<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
 							<Route path="/ultimate-token-display-demo" element={<UltimateTokenDisplayDemo />} />
+							{/* Environment Management */}
+							<Route path="/environments" element={<EnvironmentManagementPageV8 />} />
 							{/* V7 OAuth/OIDC Flow Routes */}
 							<Route
 								path="/flows/oauth-authorization-code-v7"
