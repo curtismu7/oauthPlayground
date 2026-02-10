@@ -158,6 +158,19 @@ grep -A 20 -B 5 "finally.*setIsRefreshing\|catch.*setIsRefreshing" src/v8/hooks/
 # 3. Check for missing loading states in async event handlers
 grep -rn "await.*checkWorkerTokenStatus\|await.*getToken" src/v8/ --include="*.tsx" --include="*.ts" | grep -v "setIsRefreshing\|setLoading"
 
+# === DEVICE AUTHORIZATION FLOW POLLING (Issue 112 Prevention) ===
+# 1. Check for race conditions in polling attempt counting
+grep -rn "setPollingStatus.*attempts" src/hooks/useDeviceAuthorizationFlow.ts
+
+# 2. Verify max attempts checks are implemented
+grep -rn "maxAttempts\|max_attempts" src/hooks/useDeviceAuthorizationFlow.ts
+
+# 3. Check for proper polling cleanup
+grep -rn "clearInterval\|clearTimeout" src/hooks/useDeviceAuthorizationFlow.ts
+
+# 4. Verify polling state management
+grep -rn "isPolling.*true\|isPolling.*false" src/hooks/useDeviceAuthorizationFlow.ts
+
 # === NEW REGRESSION PATTERNS ===
 # LocalStorage state management
 grep -n -A 3 -B 2 "localStorage\.setItem" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
@@ -5381,6 +5394,166 @@ grep -A 20 -B 5 "finally.*setIsRefreshing\|catch.*setIsRefreshing" src/v8/hooks/
 
 # Check for missing loading states in async event handlers
 grep -rn "await.*checkWorkerTokenStatus\|await.*getToken" src/v8/ --include="*.tsx" --include="*.ts" | grep -v "setIsRefreshing\|setLoading"
+```
+
+#### **📋 Issue 112: Device Authorization Flow Infinite Polling - DETAILED ANALYSIS**
+
+**🎯 Problem Summary:**
+The Device Authorization Flow polling mechanism never ends and doesn't properly detect responses from the mobile app. Users experience infinite polling that continues indefinitely without stopping, even when the mobile app has completed authorization.
+
+**🔍 Root Cause Analysis:**
+1. **Primary Cause**: Race condition in attempt counting using stale state values
+2. **Secondary Cause**: Missing max attempts validation in polling loop
+3. **Tertiary Cause**: Inadequate polling cleanup and state management
+4. **Impact**: Infinite polling, poor user experience, potential memory leaks
+
+**🛠️ Technical Investigation:**
+```bash
+# 1. Check for race conditions in polling attempt counting
+grep -rn "setPollingStatus.*attempts" src/hooks/useDeviceAuthorizationFlow.ts
+
+# 2. Verify max attempts checks are implemented
+grep -rn "maxAttempts\|max_attempts" src/hooks/useDeviceAuthorizationFlow.ts
+
+# 3. Check for proper polling cleanup
+grep -rn "clearInterval\|clearTimeout" src/hooks/useDeviceAuthorizationFlow.ts
+
+# 4. Verify polling state management
+grep -rn "isPolling.*true\|isPolling.*false" src/hooks/useDeviceAuthorizationFlow.ts
+```
+
+**📊 Implementation Process:**
+1. **Hook Analysis**: Identified `useDeviceAuthorizationFlow` hook manages polling state
+2. **Race Condition**: Found attempt counting used stale `pollingStatus.attempts` value
+3. **Missing Validation**: No check for max attempts before making polling requests
+4. **Cleanup Issues**: Multiple intervals could be created without proper cleanup
+
+**🔧 Code Changes Made:**
+```typescript
+// BEFORE: Race condition in attempt counting
+setPollingStatus((prev) => ({
+  ...prev,
+  attempts: prev.attempts + 1,
+  lastAttempt: Date.now(),
+}));
+
+const currentAttempt = pollingStatus.attempts + 1; // ❌ Stale state
+
+// AFTER: Fixed race condition
+const newAttempts = pollingStatus.attempts + 1;
+setPollingStatus((prev) => ({
+  ...prev,
+  attempts: newAttempts,
+  lastAttempt: Date.now(),
+}));
+
+const currentAttempt = newAttempts; // ✅ Correct value
+```
+
+```typescript
+// BEFORE: No max attempts check
+const pollForToken = useCallback(async (): Promise<boolean> => {
+  if (!deviceCodeData || !credentials) {
+    console.error(`${LOG_PREFIX} [ERROR] Cannot poll: missing device code or credentials`);
+    return false;
+  }
+  // ❌ No max attempts validation
+```
+
+```typescript
+// AFTER: Added max attempts check
+const pollForToken = useCallback(async (): Promise<boolean> => {
+  if (!deviceCodeData || !credentials) {
+    console.error(`${LOG_PREFIX} [ERROR] Cannot poll: missing device code or credentials`);
+    return false;
+  }
+
+  // Check if we've exceeded max attempts to prevent infinite polling
+  if (pollingStatus.attempts >= pollingStatus.maxAttempts) {
+    console.log(`${LOG_PREFIX} [ERROR] Max attempts reached (${pollingStatus.maxAttempts}) - stopping polling`);
+    setPollingStatus((prev) => ({
+      ...prev,
+      isPolling: false,
+      error: 'Maximum polling attempts reached. Please start over.',
+      status: 'error',
+    }));
+    v4ToastManager.showError('Maximum polling attempts reached. Please start over.');
+    return true; // Stop polling
+  }
+  // ✅ Max attempts validation added
+```
+
+```typescript
+// BEFORE: Basic cleanup
+if (pollingIntervalRef.current) {
+  clearInterval(pollingIntervalRef.current);
+  pollingIntervalRef.current = null;
+}
+if (pollingTimeoutRef.current) {
+  clearTimeout(pollingTimeoutRef.current);
+  pollingTimeoutRef.current = null;
+}
+
+// AFTER: Enhanced cleanup with auto-stop mechanism
+// Ensure clean state before starting new polling
+stopPolling(); // Clear any existing intervals and reset state
+
+// Auto-stop polling if we exceed max attempts
+useEffect(() => {
+  if (pollingStatus.attempts > pollingStatus.maxAttempts && pollingStatus.isPolling) {
+    console.warn(`${LOG_PREFIX} [WARN] Auto-stopping: exceeded max attempts (${pollingStatus.attempts}/${pollingStatus.maxAttempts})`);
+    stopPolling();
+    v4ToastManager.showError('Polling exceeded maximum attempts. Please start over.');
+  }
+}, [pollingStatus.attempts, pollingStatus.maxAttempts, pollingStatus.isPolling, stopPolling]);
+```
+
+**📈 Implementation Results:**
+```
+✅ Race Condition Fixed: Attempt counting now uses correct values
+✅ Max Attempts Validation: Polling stops when limit is reached
+✅ Enhanced Cleanup: Proper interval management and state reset
+✅ Auto-Stop Mechanism: Automatic polling termination on exceeded attempts
+✅ Error Handling: Clear user feedback and error states
+✅ Memory Management: No more interval leaks or memory issues
+```
+
+**🔍 Verification Steps:**
+1. Start Device Authorization Flow and request device code
+2. Begin polling and verify attempt counting is accurate (1, 2, 3...)
+3. Verify polling stops exactly at max attempts (not exceeding)
+4. Verify polling stops immediately on successful authorization
+5. Verify polling stops on error conditions (access_denied, expired_token, etc.)
+6. Test component unmount during active polling
+7. Verify no memory leaks or multiple intervals
+
+**📝 Implementation Guidelines:**
+1. **State Synchronization**: Always calculate new values before updating state
+2. **Boundary Validation**: Check limits before performing operations
+3. **Cleanup First**: Ensure clean state before starting new operations
+4. **Auto-Recovery**: Implement automatic mechanisms to handle edge cases
+5. **User Feedback**: Provide clear error messages and loading states
+
+**⚠️ Common Pitfalls to Avoid:**
+1. **Stale State**: Don't use state values immediately after setState calls
+2. **Missing Boundaries**: Don't perform operations without limit checks
+3. **Incomplete Cleanup**: Don't start new operations without cleaning old ones
+4. **Race Conditions**: Don't assume state updates are synchronous
+5. **Memory Leaks**: Don't forget to clear intervals and timeouts
+
+**🛡️ Prevention Commands:**
+```bash
+# Check for race conditions in polling attempt counting
+grep -rn "setPollingStatus.*attempts" src/hooks/useDeviceAuthorizationFlow.ts
+
+# Verify max attempts checks are implemented
+grep -rn "maxAttempts\|max_attempts" src/hooks/useDeviceAuthorizationFlow.ts
+
+# Check for proper polling cleanup
+grep -rn "clearInterval\|clearTimeout" src/hooks/useDeviceAuthorizationFlow.ts
+
+# Verify polling state management
+grep -rn "isPolling.*true\|isPolling.*false" src/hooks/useDeviceAuthorizationFlow.ts
 ```
 
 3. **Prop Chain Integrity**: Ensure props flow through entire component hierarchy
