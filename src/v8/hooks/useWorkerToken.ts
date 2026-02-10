@@ -99,33 +99,52 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 
 	// Refresh token status
 	const refreshTokenStatus = useCallback(async () => {
+		// Show immediate loading state for better UX
+		setIsRefreshing(true);
+		console.log(`${MODULE_TAG} Manual token refresh triggered - showing loading state`);
+
 		try {
 			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setTokenStatus(status);
+			console.log(`${MODULE_TAG} Manual token refresh completed:`, status.status);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to refresh token status:`, error);
+		} finally {
+			// Hide loading state after refresh completes
+			setIsRefreshing(false);
+			console.log(`${MODULE_TAG} Manual token refresh completed - hiding loading state`);
 		}
 	}, []);
 
 	// Update token status on events
 	useEffect(() => {
 		const handleTokenUpdate = async () => {
+			// Show immediate loading state for better UX
+			setIsRefreshing(true);
+			console.log(`${MODULE_TAG} Token update triggered - showing loading state`);
+
 			try {
 				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				setTokenStatus(status);
+				console.log(`${MODULE_TAG} Token status updated:`, status.status);
 			} catch (error) {
 				console.error(`${MODULE_TAG} Failed to check token status in event handler:`, error);
+			} finally {
+				// Hide loading state after update completes
+				setIsRefreshing(false);
+				console.log(`${MODULE_TAG} Token update completed - hiding loading state`);
 			}
 		};
 
 		// Handle storage events more carefully - only respond to worker token related changes
 		const handleStorageChange = (event: StorageEvent) => {
 			// Only process storage events related to worker token
-			if (event.key && (
-				event.key.includes('worker_token') || 
-				event.key.includes('unified_worker_token') ||
-				event.key.includes('worker_credentials')
-			)) {
+			if (
+				event.key &&
+				(event.key.includes('worker_token') ||
+					event.key.includes('unified_worker_token') ||
+					event.key.includes('worker_credentials'))
+			) {
 				console.log(`${MODULE_TAG} Worker token related storage change detected:`, event.key);
 				handleTokenUpdate();
 			}
@@ -168,7 +187,9 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 
 				if (expiresIn > 0 && expiresIn < fiveMinutes && !isRefreshing) {
 					setIsRefreshing(true);
-					console.log(`${MODULE_TAG} Token expiring in ${Math.round(expiresIn / 1000)}s, auto-refreshing...`);
+					console.log(
+						`${MODULE_TAG} Token expiring in ${Math.round(expiresIn / 1000)}s, auto-refreshing...`
+					);
 
 					// Trigger silent token retrieval directly
 					const { tokenGatewayV8 } = await import('@/v8/services/auth/tokenGatewayV8');
