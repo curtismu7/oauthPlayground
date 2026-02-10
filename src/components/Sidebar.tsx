@@ -623,7 +623,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 					},
 					// ORIGINAL Entries
-										// UNIFIED Entries (sorted alphabetically)
+					// UNIFIED Entries (sorted alphabetically)
 					{
 						id: 'postman-collection-generator',
 						path: '/postman-collection-generator',
@@ -749,7 +749,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 								<FiZap />
 							</ColoredIcon>
 						),
-						badge: <MigrationBadge style={{ background: '#ef4444', color: 'white' }}>UNIFIED</MigrationBadge>,
+						badge: (
+							<MigrationBadge style={{ background: '#ef4444', color: 'white' }}>
+								UNIFIED
+							</MigrationBadge>
+						),
 					},
 					// Other entries (non-green badges)
 					{
@@ -1326,6 +1330,53 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						icon: (
 							<ColoredIcon $color="#f59e0b">
 								<FiLayers />
+							</ColoredIcon>
+						),
+					},
+				],
+			},
+			{
+				id: 'tools-utilities',
+				label: 'Tools & Utilities',
+				icon: (
+					<ColoredIcon $color="#6b7280">
+						<FiSettings />
+					</ColoredIcon>
+				),
+				isOpen: openMenusState['Tools & Utilities'] || false,
+				items: [
+					{
+						id: 'environment-management',
+						path: '/environments',
+						label: 'Environment Management',
+						icon: (
+							<ColoredIcon $color="#3b82f6">
+								<FiServer />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Manage PingOne environments, create, delete, and promote to production">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'sdk-sample-app',
+						path: '/sdk-sample-app',
+						label: 'SDK Sample App',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiCode />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'ultimate-token-display-demo',
+						path: '/ultimate-token-display-demo',
+						label: 'Ultimate Token Display',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiDatabase />
 							</ColoredIcon>
 						),
 					},
