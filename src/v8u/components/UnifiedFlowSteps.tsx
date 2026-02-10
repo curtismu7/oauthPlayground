@@ -55,21 +55,20 @@ const log = createModuleLogger('src/v8u/components/UnifiedFlowSteps.tsx');
 
 import { ButtonSpinner } from '@/components/ui';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+// Enhanced state management for token synchronization
+import { useUnifiedFlowState } from '../services/enhancedStateManagement';
 import { PKCEStorageServiceV8U } from '../services/pkceStorageServiceV8U';
 import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,
 } from '../services/unifiedFlowIntegrationV8U';
+import { ApiCallExampleV8U } from './ApiCallExampleV8U';
 import { ErrorDisplayWithRetry } from './ErrorDisplayWithRetry';
 import { IDTokenValidationModalV8U } from './IDTokenValidationModalV8U';
 import { TokenDisplayV8U } from './TokenDisplayV8U';
 import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV8U';
 import { UnifiedFlowSuccessStepV8U } from './UnifiedFlowSuccessStepV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
-import { ApiCallExampleV8U } from './ApiCallExampleV8U';
-
-// Enhanced state management for token synchronization
-import { useUnifiedFlowState } from '../services/enhancedStateManagement';
 
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
 
@@ -1672,7 +1671,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// Update enhanced state management with new tokens
 				try {
 					enhancedStateActions.setTokenMetrics({
-						tokenCount: (flowState.tokens.accessToken ? 1 : 0) + (flowState.tokens.idToken ? 1 : 0) + (flowState.tokens.refreshToken ? 1 : 0),
+						tokenCount:
+							(flowState.tokens.accessToken ? 1 : 0) +
+							(flowState.tokens.idToken ? 1 : 0) +
+							(flowState.tokens.refreshToken ? 1 : 0),
 						featureCount: 1, // Token feature
 						lastApiCall: Date.now(),
 					});
@@ -5097,7 +5099,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									const errorCount = validationResult.errors.length;
 									const fixableCount = validationResult.fixableErrors?.length || 0;
 									const mainError = validationResult.errors[0];
-									
+
 									let toastMessage = `Pre-flight validation failed (${errorCount} error${errorCount > 1 ? 's' : ''})`;
 									if (mainError) {
 										toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
@@ -5105,7 +5107,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									if (fixableCount > 0) {
 										toastMessage += ` - ${fixableCount} can be auto-fixed`;
 									}
-									
+
 									toastV8.error(toastMessage);
 									setIsPreFlightValidating(false);
 									setPreFlightStatus('');
@@ -5168,7 +5170,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								const errorCount = validationResult.errors.length;
 								const fixableCount = validationResult.fixableErrors?.length || 0;
 								const mainError = validationResult.errors[0];
-								
+
 								let toastMessage = `Pre-flight validation failed (${errorCount} error${errorCount > 1 ? 's' : ''})`;
 								if (mainError) {
 									toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
@@ -5176,7 +5178,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								if (fixableCount > 0) {
 									toastMessage += ` - ${fixableCount} can be auto-fixed`;
 								}
-								
+
 								toastV8.error(toastMessage);
 								setIsPreFlightValidating(false);
 								setPreFlightStatus('');
@@ -5214,7 +5216,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							const errorCount = validationResult.errors.length;
 							const fixableCount = validationResult.fixableErrors?.length || 0;
 							const mainError = validationResult.errors[0];
-							
+
 							let toastMessage = `Pre-flight validation failed (${errorCount} error${errorCount > 1 ? 's' : ''})`;
 							if (mainError) {
 								toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
@@ -5222,7 +5224,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							if (fixableCount > 0) {
 								toastMessage += ` - ${fixableCount} can be auto-fixed`;
 							}
-							
+
 							toastV8.error(toastMessage);
 							setIsPreFlightValidating(false);
 							setPreFlightStatus('');
@@ -6681,7 +6683,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						method="GET"
 						url={`https://auth.pingone.com/${credentials.environmentId || 'your-environment-id'}/as/authorize`}
 						headers={{
-							'Accept': 'application/json',
+							Accept: 'application/json',
 							'User-Agent': 'OAuth Playground/1.0',
 						}}
 						body={{
@@ -8745,7 +8747,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						const errorCount = validationResult.errors.length;
 						const fixableCount = validationResult.fixableErrors?.length || 0;
 						const mainError = validationResult.errors[0];
-						
+
 						let toastMessage = `Auto-fix declined - ${errorCount} error${errorCount > 1 ? 's' : ''} remain`;
 						if (mainError) {
 							toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
@@ -8753,7 +8755,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						if (fixableCount > 0) {
 							toastMessage += ` (${fixableCount} could have been auto-fixed)`;
 						}
-						
+
 						toastV8.error(toastMessage);
 						setIsPreFlightValidating(false);
 						setPreFlightStatus('');
@@ -8768,13 +8770,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					// Create informative toast message for non-fixable errors
 					const errorCount = validationResult.errors.length;
 					const mainError = validationResult.errors[0];
-					
+
 					let toastMessage = `Pre-flight validation failed (${errorCount} non-fixable error${errorCount > 1 ? 's' : ''})`;
 					if (mainError) {
 						toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
 					}
 					toastMessage += ' - Manual fix required';
-					
+
 					toastV8.error(toastMessage);
 					setIsPreFlightValidating(false);
 					setPreFlightStatus('');
@@ -10421,13 +10423,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									// Create informative toast message for errors remaining after auto-fix
 									const errorCount = newOAuthConfigResult.errors.length;
 									const mainError = newOAuthConfigResult.errors[0];
-									
+
 									let toastMessage = `Auto-fix incomplete - ${errorCount} error${errorCount > 1 ? 's' : ''} remain`;
 									if (mainError) {
 										toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
 									}
 									toastMessage += ' - Manual fix required';
-									
+
 									toastV8.error(toastMessage);
 									setIsPreFlightValidating(false);
 									setPreFlightStatus('');
@@ -10453,7 +10455,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								const errorCount = validationResult?.errors?.length || 0;
 								const fixableCount = validationResult?.fixableErrors?.length || 0;
 								const mainError = validationResult?.errors?.[0];
-								
+
 								let toastMessage = `Auto-fix declined - ${errorCount} error${errorCount > 1 ? 's' : ''} remain`;
 								if (mainError) {
 									toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
@@ -10461,7 +10463,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								if (fixableCount > 0) {
 									toastMessage += ` (${fixableCount} could have been auto-fixed)`;
 								}
-								
+
 								toastV8.error(toastMessage);
 								setIsPreFlightValidating(false);
 								setPreFlightStatus('');
@@ -10478,13 +10480,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							// Create informative toast message for non-fixable errors
 							const errorCount = validationResult?.errors?.length || 0;
 							const mainError = validationResult?.errors?.[0];
-							
+
 							let toastMessage = `Pre-flight validation failed (${errorCount} non-fixable error${errorCount > 1 ? 's' : ''})`;
 							if (mainError) {
 								toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
 							}
 							toastMessage += ' - Manual fix required';
-							
+
 							toastV8.error(toastMessage);
 							setIsPreFlightValidating(false);
 							setPreFlightStatus('');
@@ -11419,8 +11421,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					url={`https://auth.pingone.com/${credentials.environmentId || 'your-environment-id'}/as/token`}
 					headers={{
 						'Content-Type': 'application/x-www-form-urlencoded',
-						'Authorization': `Basic ${btoa(`${credentials.clientId || 'your-client-id'}:${'***REDACTED***'}`)}`,
-						'Accept': 'application/json',
+						Authorization: `Basic ${btoa(`${credentials.clientId || 'your-client-id'}:${'***REDACTED***'}`)}`,
+						Accept: 'application/json',
 					}}
 					body={`grant_type=authorization_code&code=${flowState.authorizationCode?.substring(0, 20) || 'your-authorization-code'}...&redirect_uri=${encodeURIComponent(credentials.redirectUri || 'https://your-app.com/callback')}&client_id=${credentials.clientId || 'your-client-id'}${flowState.codeVerifier ? `&code_verifier=***REDACTED***` : ''}&client_secret=***REDACTED***`}
 					response={{
@@ -14673,13 +14675,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									// Create informative toast message
 									const errorCount = newValidationResult.errors.length;
 									const mainError = newValidationResult.errors[0];
-									
+
 									let toastMessage = `Pre-flight validation failed (${errorCount} error${errorCount > 1 ? 's' : ''})`;
 									if (mainError) {
 										toastMessage += `: ${mainError.substring(0, 100)}${mainError.length > 100 ? '...' : ''}`;
 									}
 									toastMessage += ' - Check details below for fix options';
-									
+
 									toastV8.error(toastMessage);
 								} else if (newValidationResult.warnings.length > 0) {
 									const warningMessage = [
