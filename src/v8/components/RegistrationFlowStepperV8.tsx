@@ -36,7 +36,6 @@ import {
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 
 const MODULE_TAG = '[📝 REGISTRATION-STEPPER-V8]';
 const FLOW_KEY = 'mfa-registration-flow-v8';
@@ -203,12 +202,17 @@ export const RegistrationFlowStepperV8: React.FC<RegistrationFlowStepperV8Props>
 		if (isOAuthCallbackReturn) {
 			console.log(`${MODULE_TAG} OAuth callback detected, processing return...`);
 
-			// Set return target for registration flow
-			ReturnTargetServiceV8U.setReturnTarget(
-				'mfa_device_registration',
-				currentPath,
-				2 // Step 2: Device Selection for Registration (fixed from step 3)
-			);
+			// Store flow context for callback handler (Unified OAuth pattern)
+			const flowContext = {
+				returnPath: currentPath,
+				returnStep: 2, // Step 2: Device Selection for Registration
+				flowType: 'registration' as const,
+				timestamp: Date.now(),
+			};
+			
+			sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
+			
+			console.log(`${MODULE_TAG} 🎯 Stored flow context for registration`);
 
 			// Handle OAuth callback processing
 			if (credentials.userToken?.trim()) {
