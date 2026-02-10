@@ -543,7 +543,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				currentStep < totalSteps - 1 &&
 				validationErrors.length === 0 &&
 				completedSteps.includes(currentStep) &&
-				hasValidWorkerToken, // Require valid worker token to proceed
+				(flowType === 'device-code' || hasValidWorkerToken), // Device Code Flow doesn't need worker token
 			canGoPrevious: currentStep > 0,
 			goToStep: navigateToStep,
 			goToNext,
@@ -567,6 +567,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			setValidationErrorsState,
 			setValidationWarningsState,
 			hasValidWorkerToken,
+			flowType,
 		]
 	);
 
@@ -749,8 +750,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				setHasValidWorkerToken(status.isValid);
 
+				// Device Code Flow does NOT require worker token - it uses direct API calls
+				// Only validate worker token for flows that actually need it
+				const flowRequiresWorkerToken = flowType !== 'device-code';
+
 				// If on any step beyond step 0 and no valid token, redirect to step 0
-				if (currentStep > 0 && !status.isValid) {
+				if (flowRequiresWorkerToken && currentStep > 0 && !status.isValid) {
 					log.warn(
 						'[WORKER TOKEN VALIDATION] Invalid token detected on step ' +
 							currentStep +
@@ -795,7 +800,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		return () => {
 			clearInterval(tokenCheckInterval);
 		};
-	}, [currentStep, navigateToStep]);
+	}, [currentStep, flowType, navigateToStep]);
 
 	// Ensure PKCE codes are generated before proceeding to Authorization URL step
 	// Only redirect if PKCE is required (REQUIRED or S256_REQUIRED)
