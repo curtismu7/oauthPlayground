@@ -118,13 +118,26 @@ export const useWorkerToken = (config: UseWorkerTokenConfig = {}): UseWorkerToke
 			}
 		};
 
+		// Handle storage events more carefully - only respond to worker token related changes
+		const handleStorageChange = (event: StorageEvent) => {
+			// Only process storage events related to worker token
+			if (event.key && (
+				event.key.includes('worker_token') || 
+				event.key.includes('unified_worker_token') ||
+				event.key.includes('worker_credentials')
+			)) {
+				console.log(`${MODULE_TAG} Worker token related storage change detected:`, event.key);
+				handleTokenUpdate();
+			}
+		};
+
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
-		window.addEventListener('storage', handleTokenUpdate);
+		window.addEventListener('storage', handleStorageChange);
 		const interval = setInterval(handleTokenUpdate, refreshInterval);
 
 		return () => {
 			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
-			window.removeEventListener('storage', handleTokenUpdate);
+			window.removeEventListener('storage', handleStorageChange);
 			clearInterval(interval);
 		};
 	}, [refreshInterval]);
