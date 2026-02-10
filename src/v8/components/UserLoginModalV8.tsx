@@ -22,7 +22,6 @@ import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { OAuthIntegrationServiceV8, type OAuthCredentials } from '@/v8/services/oauthIntegrationServiceV8';
-import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { safeGetUserInfo } from '@/utils/authUtils';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
@@ -1357,35 +1356,34 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			sessionStorage.setItem('user_login_redirect_uri_v8', finalRedirectUri);
 
 			// Store current path to return to after authentication (if we're in an MFA flow)
-			// Include query params if present (e.g., for device registration flows)
 			const currentPath = location.pathname;
 			const currentSearch = location.search;
 			const fullPath = currentSearch ? `${currentPath}${currentSearch}` : currentPath;
 
-			// For device registration flows, stay on the current page (Configuration page)
-			// Only store return path for user authentication flows, not device registration
-			if (currentPath.startsWith('/v8/mfa')) {
-				// CRITICAL FIX: Use ReturnTargetServiceV8U instead of raw sessionStorage
-				// This ensures proper return target management and prevents "not found" issues
+			if (currentPath.startsWith('/v8/mfa') || currentPath.startsWith('/v8/unified-mfa')) {
 				const step = parseInt(currentPath.split('step=')[1] || '2', 10);
-				ReturnTargetServiceV8U.setReturnTarget('mfa_device_registration', fullPath, step);
-
-				// #region agent log
-				sendAnalyticsLog({
-					location: 'UserLoginModalV8.tsx:1348',
-					message: 'Set return target for MFA flow using ReturnTargetServiceV8U',
-					data: { currentPath, fullPath, step, service: 'ReturnTargetServiceV8U' },
+				
+				// Determine flow type based on path
+				const flowType = currentPath.includes('authentication') ? 'authentication' : 'registration';
+				
+				// Store flow context for CallbackHandlerV8U to retrieve
+				const flowContext = {
+					returnPath: fullPath,
+					returnStep: step,
+					flowType,
 					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run1',
-					hypothesisId: 'C',
-				});
-				// #endregion
+				};
+				
+				sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
 
-				console.log(`${MODULE_TAG} 🎯 Set return target for MFA flow: ${fullPath} (step ${step})`);
+				console.log(`${MODULE_TAG} 🎯 Stored flow context for ${flowType}:`, {
+					path: fullPath,
+					step,
+					flowType,
+				});
 			} else {
 				console.warn(
-					`${MODULE_TAG} ⚠️ Not storing return path - current path does not start with /v8/mfa:`,
+					`${MODULE_TAG} ⚠️ Not storing flow context - current path does not start with /v8/mfa:`,
 					currentPath
 				);
 			}
