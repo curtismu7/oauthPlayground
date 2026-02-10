@@ -33,7 +33,6 @@ import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 
 const MODULE_TAG = '[🔐 AUTHENTICATION-STEPPER-V8]';
 const FLOW_KEY = 'mfa-authentication-flow-v8';
@@ -204,12 +203,17 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 		if (isOAuthCallbackReturn) {
 			console.log(`${MODULE_TAG} OAuth callback detected, processing return...`);
 
-			// Set return target for authentication flow
-			ReturnTargetServiceV8U.setReturnTarget(
-				'mfa_device_authentication',
-				currentPath,
-				2 // Go to Step 2 (Device Selection) for Authentication
-			);
+			// Store flow context for callback handler (Unified OAuth pattern)
+			const flowContext = {
+				returnPath: currentPath,
+				returnStep: 2, // Step 2: Device Selection for Authentication
+				flowType: 'authentication' as const,
+				timestamp: Date.now(),
+			};
+			
+			sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
+			
+			console.log(`${MODULE_TAG} 🎯 Stored flow context for authentication`);
 
 			// Handle OAuth callback processing
 			if (credentials.userToken?.trim()) {

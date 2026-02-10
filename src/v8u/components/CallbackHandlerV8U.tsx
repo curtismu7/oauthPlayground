@@ -12,8 +12,6 @@
 
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
-import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { checkPingOneAuthentication, performDetailedAuthenticationCheck } from '@/v8/services/pingOneAuthenticationServiceV8';
 import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 
@@ -104,106 +102,97 @@ export const CallbackHandlerV8U: React.FC = () => {
 		};
 
 		if (isUserLoginCallback) {
-			console.log(`${MODULE_TAG} ✅ User login callback detected - checking for return targets`);
+			console.log(`${MODULE_TAG} ✅ User login callback detected - using URL-based detection`);
 
-			// NEW: Flow-aware routing priority - check return targets first
-			const allReturnTargets = ReturnTargetServiceV8U.getAllReturnTargets();
-			console.log(`${MODULE_TAG} 🔍 All return targets:`, allReturnTargets);
-
-			// Check for device registration return target
-			const deviceRegTarget = ReturnTargetServiceV8U.peekReturnTarget('mfa_device_registration');
-			if (deviceRegTarget) {
-				console.log(`${MODULE_TAG} 🎯 Found device registration return target:`, deviceRegTarget);
-
-				// Preserve callback parameters and add step parameter
-				const callbackParams = new URLSearchParams(window.location.search);
-				callbackParams.set('step', deviceRegTarget.step.toString());
-				const redirectUrl = buildRedirectUrl(deviceRegTarget.path, callbackParams);
-
-				// Consume the return target
-				ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_registration');
-
-				console.log(`${MODULE_TAG} 🚀 Redirecting to device registration flow: ${redirectUrl}`);
-				window.location.replace(redirectUrl);
-				return;
-			}
-
-			// Check for device authentication return target
-			const deviceAuthTarget = ReturnTargetServiceV8U.peekReturnTarget('mfa_device_authentication');
-			if (deviceAuthTarget) {
-				console.log(
-					`${MODULE_TAG} 🎯 Found device authentication return target:`,
-					deviceAuthTarget
-				);
-
-				// Preserve callback parameters and add step parameter
-				const callbackParams = new URLSearchParams(window.location.search);
-				callbackParams.set('step', deviceAuthTarget.step.toString());
-				const redirectUrl = buildRedirectUrl(deviceAuthTarget.path, callbackParams);
-
-				// Consume the return target
-				ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_authentication');
-
-				console.log(`${MODULE_TAG} 🚀 Redirecting to device authentication flow: ${redirectUrl}`);
-				window.location.replace(redirectUrl);
-				return;
-			}
-
-			// Check for OAuth V8U return target
-			const oauthTarget = ReturnTargetServiceV8U.peekReturnTarget('oauth_v8u');
-			if (oauthTarget) {
-				console.log(`${MODULE_TAG} 🎯 Found OAuth V8U return target:`, oauthTarget);
-
-				// Preserve callback parameters and add step parameter
-				const callbackParams = new URLSearchParams(window.location.search);
-				callbackParams.set('step', oauthTarget.step.toString());
-				const redirectUrl = buildRedirectUrl(oauthTarget.path, callbackParams);
-
-				// Consume the return target
-				ReturnTargetServiceV8U.consumeReturnTarget('oauth_v8u');
-
-				console.log(`${MODULE_TAG} 🚀 Redirecting to OAuth V8U flow: ${redirectUrl}`);
-				window.location.replace(redirectUrl);
-				return;
-			}
-
-			// CRITICAL: No return target found - this should never happen with proper ReturnTargetServiceV8U usage
-			console.error(`${MODULE_TAG} ❌ No return target found - this indicates a ReturnTargetServiceV8U usage issue`);
+			// NEW: Unified OAuth pattern - retrieve flow context from sessionStorage
+			// This is set by the flow before redirecting to PingOne for authentication
+			const flowContextKey = 'mfa_flow_callback_context';
+			const storedContext = sessionStorage.getItem(flowContextKey);
 			
-			// #region agent log
-			sendAnalyticsLog({
-				location: 'CallbackHandlerV8U.tsx:170',
-				message: 'CRITICAL: No return target found - ReturnTargetServiceV8U not used properly',
-				data: {
-					currentPath: window.location.pathname,
-					currentSearch: window.location.search,
-					currentHref: window.location.href,
-					allReturnTargets,
-					availableKeys: Object.keys(sessionStorage),
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run1',
-				hypothesisId: 'CRITICAL',
+			console.log(`${MODULE_TAG} 🔍 Checking for stored flow context:`, {
+				hasContext: !!storedContext,
+				contextKey: flowContextKey,
 			});
-			// #endregion
 
-			// EMERGENCY FALLBACK: Use flow context detection as last resort
-			let emergencyFallbackPath = '/v8/unified-mfa'; // Default fallback
+			if (storedContext) {
+				try {
+					const context = JSON.parse(storedContext) as {
+						returnPath: string;
+						returnStep: number;
+						flowType: 'registration' | 'authentication';
+						timestamp: number;
+					};
+
+					console.log(`${MODULE_TAG} 🎯 Found stored flow context:`, context);
+
+					// Validate context age (should be recent, within 10 minutes)
+					const contextAge = Date.now() - context.timestamp;
+					const maxAge = 10 * 60 * 1000; // 10 minutes
+
+					if (contextAge > maxAge) {
+						console.warn(`${MODULE_TAG} ⚠️ Flow context is stale (${Math.round(contextAge / 1000)}s old), using fallback`);
+					} else {
+						// Preserve callback parameters and add step parameter
+						const callbackParams = new URLSearchParams(window.location.search);
+						callbackParams.set('step', context.returnStep.toString());
+						const redirectUrl = buildRedirectUrl(context.returnPath, callbackParams);
+
+						// Clear the context after consuming it (single-use)
+						sessionStorage.removeItem(flowContextKey);
+
+						console.log(`${MODULE_TAG} 🚀 Redirecting to ${context.flowType} flow: ${redirectUrl}`);
+						
+						// Store callback data for the flow to process
+						sessionStorage.setItem('oauth_callback_data', JSON.stringify({
+							code: searchParams.get('code'),
+							state: searchParams.get('state'),
+							fullUrl: window.location.href,
+							timestamp: Date.now(),
+						}));
+
+						window.location.replace(redirectUrl);
+						return;
+					}
+				} catch (error) {
+					console.error(`${MODULE_TAG} ❌ Failed to parse flow context:`, error);
+				}
+			}
+
+			// FALLBACK: No stored context - use intelligent detection based on callback path
+			console.log(`${MODULE_TAG} 🔍 No stored context, using path-based detection`);
+			
+			let fallbackPath = '/v8/unified-mfa?step=2'; // Default: return to device selection
+			let fallbackReason = 'default';
 			
 			if (currentPath.includes('mfa-unified-callback') || currentPath.includes('unified-mfa-callback')) {
-				emergencyFallbackPath = '/v8/unified-mfa?step=3'; // MFA flow fallback
-				console.error(`${MODULE_TAG} � EMERGENCY: Using MFA fallback: ${emergencyFallbackPath}`);
-			} else if (currentPath.includes('user-login-callback')) {
-				emergencyFallbackPath = '/v8/user-login'; // User login fallback
-				console.error(`${MODULE_TAG} � EMERGENCY: Using user login fallback: ${emergencyFallbackPath}`);
+				fallbackPath = '/v8/unified-mfa?step=2'; // MFA flow: device selection step
+				fallbackReason = 'mfa-callback-path';
+			} else if (currentPath.includes('mfa-hub-callback')) {
+				fallbackPath = '/v8/mfa-hub?step=2'; // MFA hub: authentication flow
+				fallbackReason = 'mfa-hub-path';
+			} else if (currentPath.includes('user-login-callback') || currentPath.includes('user-mfa-login-callback')) {
+				fallbackPath = '/v8/unified-mfa?step=2'; // User login: return to MFA flow
+				fallbackReason = 'user-login-path';
 			}
 
-			const normalizedFallback = normalizeFallbackStep(emergencyFallbackPath);
+			console.log(`${MODULE_TAG} 🔄 Using fallback redirect:`, {
+				path: fallbackPath,
+				reason: fallbackReason,
+			});
+
+			const normalizedFallback = normalizeFallbackStep(fallbackPath);
 			const callbackParams = new URLSearchParams(window.location.search);
 			const redirectUrl = buildRedirectUrl(normalizedFallback.path, callbackParams);
 			
-			console.error(`${MODULE_TAG} � EMERGENCY REDIRECT - ReturnTargetServiceV8U was not used properly: ${redirectUrl}`);
+			// Store callback data for the flow to process
+			sessionStorage.setItem('oauth_callback_data', JSON.stringify({
+				code: searchParams.get('code'),
+				state: searchParams.get('state'),
+				fullUrl: window.location.href,
+				timestamp: Date.now(),
+			}));
+			
+			console.log(`${MODULE_TAG} 🚀 Fallback redirect: ${redirectUrl}`);
 			window.location.replace(redirectUrl);
 			return; // CRITICAL: Exit early to prevent unified flow logic
 		}

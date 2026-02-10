@@ -31,7 +31,6 @@ import {
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';
 
@@ -530,16 +529,27 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				`${MODULE_TAG} Detected OAuth callback code in URL, opening UserLoginModal to process it`
 			);
 
-			// Set return target for device authentication flow
+			// Store flow context for callback handler (Unified OAuth pattern)
 			const currentPath = window.location.pathname;
+			const currentSearch = window.location.search;
+			const fullPath = currentSearch ? `${currentPath}${currentSearch}` : currentPath;
 			const isUnifiedMFA = currentPath.includes('/unified-mfa') || currentPath.includes('/mfa-hub');
 
 			if (isUnifiedMFA) {
-				ReturnTargetServiceV8U.setReturnTarget(
-					'mfa_device_authentication',
-					currentPath, // Return to current path
-					nav.currentStep + 1 // Next step
-				);
+				// Store flow context for CallbackHandlerV8U to retrieve
+				const flowContext = {
+					returnPath: fullPath,
+					returnStep: nav.currentStep + 1, // Next step after authentication
+					flowType: 'authentication' as const,
+					timestamp: Date.now(),
+				};
+				
+				sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
+				
+				console.log(`${MODULE_TAG} 🎯 Stored flow context for authentication:`, {
+					path: fullPath,
+					step: nav.currentStep + 1,
+				});
 			}
 
 			setShowUserLoginModal(true);
@@ -1089,17 +1099,28 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							if (!credentials.environmentId?.trim() || !credentials.username?.trim()) {
 								console.log(`${MODULE_TAG} Missing credentials, showing UserLoginModal`);
 
-								// Set return target for device authentication flow
+								// Store flow context for callback handler (Unified OAuth pattern)
 								const currentPath = window.location.pathname;
+								const currentSearch = window.location.search;
+								const fullPath = currentSearch ? `${currentPath}${currentSearch}` : currentPath;
 								const isUnifiedMFA =
 									currentPath.includes('/unified-mfa') || currentPath.includes('/mfa-hub');
 
 								if (isUnifiedMFA) {
-									ReturnTargetServiceV8U.setReturnTarget(
-										'mfa_device_authentication',
-										currentPath, // Return to current path
-										nav.currentStep + 1 // Next step
-									);
+									// Store flow context for CallbackHandlerV8U to retrieve
+									const flowContext = {
+										returnPath: fullPath,
+										returnStep: nav.currentStep + 1, // Next step after authentication
+										flowType: 'authentication' as const,
+										timestamp: Date.now(),
+									};
+									
+									sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
+									
+									console.log(`${MODULE_TAG} 🎯 Stored flow context for authentication:`, {
+										path: fullPath,
+										step: nav.currentStep + 1,
+									});
 								}
 
 								setShowUserLoginModal(true);
