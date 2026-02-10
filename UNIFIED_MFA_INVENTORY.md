@@ -18139,12 +18139,241 @@ done
 - **Maintainability**: Single source of truth for Silent API and Show token logic
 - **SWE-15 Compliance**: All implementations follow Single Responsibility and Interface Segregation principles
 
+#### **📋 Issue 118: Custom Resource Attribute Mapping to Specific Scopes - DETAILED ANALYSIS**
+
+**🎯 Problem Summary:**
+For custom resources with multiple custom attributes and multiple custom scopes, requesting any one custom scope returns ALL attributes mapped to that resource in the access token. Users need granular control to map specific custom resource attributes to specific custom scopes, similar to how mappedClaims works for OpenID resources.
+
+**🔍 Root Cause Analysis:**
+1. **Primary Cause**: PingOne custom resource implementation returns all attributes when any custom scope is requested
+2. **Secondary Cause**: No granular scope-to-attribute mapping configuration available
+3. **Impact**: Access tokens contain unnecessary attributes, violating principle of least privilege
+4. **User Need**: Educational content and implementation guidance for scope-specific attribute mapping
+
+**📊 Current Behavior vs Expected Behavior:**
+
+| Scenario | Current Behavior | Expected Behavior |
+|---|---|---|
+| **Custom Resource**: `user-profile`<br/>**Attributes**: `name`, `email`, `phone`, `department`<br/>**Scopes**: `read:profile.basic`, `read:profile.detailed`, `read:profile.contact` | Requesting `read:profile.basic` returns ALL attributes (`name`, `email`, `phone`, `department`) | Requesting `read:profile.basic` should return only `name` and `email` |
+| **Multiple Scopes Request**: `read:profile.basic read:profile.contact` | Returns ALL attributes (duplicated data) | Returns union of mapped attributes: `name`, `email`, `phone` |
+
+**🛠️ Technical Investigation:**
+
+#### **🔍 PingOne API Analysis**
+```typescript
+// Current PingOne Custom Resource Configuration
+interface CustomResource {
+  id: string;
+  name: string;
+  description: string;
+  // ISSUE: No scope-to-attribute mapping configuration
+  attributes: CustomAttribute[];
+  scopes: CustomScope[];
+}
+
+interface CustomAttribute {
+  name: string;
+  type: 'string' | 'boolean' | 'number';
+  required: boolean;
+  // ISSUE: No scope mapping field
+}
+
+interface CustomScope {
+  name: string;
+  description: string;
+  // ISSUE: No attribute mapping field
+}
+```
+
+#### **🔍 Expected Implementation (Similar to mappedClaims)**
+```typescript
+// PROPOSED: Enhanced Custom Resource Configuration
+interface CustomResourceEnhanced {
+  id: string;
+  name: string;
+  description: string;
+  attributes: CustomAttribute[];
+  scopes: CustomScope[];
+  // NEW: Scope-to-attribute mapping
+  scopeAttributeMapping?: Record<string, string[]>;
+}
+
+interface CustomScopeEnhanced {
+  name: string;
+  description: string;
+  // NEW: Explicit attribute mapping
+  mappedAttributes?: string[];
+}
+
+// EXAMPLE: Configuration
+{
+  "scopeAttributeMapping": {
+    "read:profile.basic": ["name", "email"],
+    "read:profile.detailed": ["name", "email", "department"],
+    "read:profile.contact": ["email", "phone"]
+  }
+}
+```
+
+**🔍 Implementation Requirements Analysis:**
+
+#### **📋 Feature Requirements**
+1. **Scope-to-Attribute Mapping**: Configuration to map specific attributes to specific scopes
+2. **Union Logic**: When multiple scopes requested, return union of mapped attributes
+3. **Backward Compatibility**: Existing resources without mapping should continue working
+4. **Validation**: Prevent invalid attribute mappings in configuration
+5. **Educational Content**: Clear documentation and examples for users
+
+#### **🛡️ Security Considerations**
+1. **Principle of Least Privilege**: Only return necessary attributes for requested scopes
+2. **Attribute Exposure**: Prevent accidental exposure of sensitive attributes
+3. **Access Control**: Ensure proper permissions for scope configuration
+4. **Audit Trail**: Log scope-to-attribute mapping configurations
+
+**🔍 Current Implementation Investigation:**
+```bash
+# Check for existing custom resource implementation
+find src/ -name "*custom*" -type f
+
+# Check for scope mapping patterns
+grep -rn "scope.*mapping\|mappedClaims\|custom.*resource" src/ --include="*.ts" --include="*.tsx"
+
+# Check for educational content on custom resources
+grep -rn "custom.*resource\|resource.*attribute" src/ --include="*.ts" --include="*.tsx"
+```
+
+**📊 Current Status: NO IMPLEMENTATION FOUND**
+- ❌ No custom resource implementation in current codebase
+- ❌ No scope-to-attribute mapping functionality
+- ❌ No educational content for custom resource configuration
+- ❌ No prevention commands for this issue
+
+**🛠️ Proposed Implementation Strategy:**
+
+#### **📋 Phase 1: Educational Content (Immediate)**
+1. **OAuth Education Section**: Add comprehensive guide on custom resource attribute mapping
+2. **Examples**: Provide clear configuration examples
+3. **Best Practices**: Document security considerations
+4. **Workarounds**: Document current limitations and workarounds
+
+#### **📋 Phase 2: Feature Implementation (Future)**
+1. **PingOne API Enhancement**: Request scope-to-attribute mapping feature
+2. **Configuration UI**: Build interface for managing custom resource mappings
+3. **Validation Service**: Implement attribute mapping validation
+4. **Testing Framework**: Create tests for scope-specific attribute returns
+
+**📚 Educational Content Requirements:**
+
+#### **🎯 OAuth Education Section Structure**
+```markdown
+# Custom Resource Attribute Mapping
+
+## Current Limitations
+- All attributes returned when any custom scope is requested
+- No granular control over attribute exposure
+- Violates principle of least privilege
+
+## Expected Behavior
+- Scope-specific attribute mapping
+- Union logic for multiple scopes
+- Backward compatibility
+
+## Configuration Examples
+### Basic Mapping
+### Advanced Mapping
+### Security Best Practices
+
+## Implementation Workarounds
+### Multiple Resources Strategy
+### Scope Naming Conventions
+### Attribute Separation Patterns
+```
+
+**🔍 Prevention Strategy:**
+1. **Educational Content**: Add comprehensive OAuth education section
+2. **Configuration Validation**: Prevent invalid custom resource configurations
+3. **Security Guidelines**: Document best practices for attribute mapping
+4. **Testing Commands**: Verify scope-specific attribute returns
+
+**🛡️ Prevention Commands Added:**
+```bash
+# === CUSTOM RESOURCE ATTRIBUTE MAPPING (Issue 118 Prevention) ===
+# 1. Check for custom resource educational content
+grep -rn "custom.*resource.*attribute\|resource.*attribute.*mapping" src/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify OAuth education includes custom resource guidance
+grep -rn "Custom Resource\|Attribute Mapping\|Scope.*Mapping" src/pages/ComprehensiveOAuthEducation.tsx
+
+# 3. Check for scope mapping validation
+grep -rn "validateScopeMapping\|scopeAttributeMapping" src/ --include="*.ts" --include="*.tsx"
+
+# 4. Verify educational content service includes custom resources
+grep -rn "customResource\|resourceMapping" src/services/educationalContentService.tsx
+
+# 5. Check for custom resource configuration patterns
+grep -rn "CustomResource\|custom.*resource.*config" src/ --include="*.ts" --include="*.tsx"
+
+# 6. Verify security considerations are documented
+grep -rn "least.*privilege\|attribute.*exposure\|scope.*validation" src/pages/ComprehensiveOAuthEducation.tsx
+
+# 7. Check for workaround implementations
+grep -rn "multiple.*resources\|scope.*naming\|attribute.*separation" src/ --include="*.ts" --include="*.tsx"
+```
+
+**📝 Implementation Guidelines for Future Development:**
+1. **Educational First**: Always document limitations and workarounds before implementation
+2. **Security by Design**: Apply principle of least privilege to all custom resource configurations
+3. **Backward Compatibility**: Ensure existing resources continue working
+4. **Validation First**: Implement validation before configuration UI
+5. **Testing Coverage**: Test all scope combinations and attribute mappings
+
+**⚠️ Common Pitfalls to Avoid:**
+1. **Over-Exposure**: Never return more attributes than necessary for requested scopes
+2. **Missing Validation**: Don't allow invalid attribute mappings
+3. **Breaking Changes**: Don't break existing custom resource configurations
+4. **Poor Documentation**: Don't implement without comprehensive educational content
+5. **Security Oversights**: Don't ignore principle of least privilege
+
+**🚨 Detection Commands for Regression Testing:**
+```bash
+# Quick regression check - run before adding custom resource features
+grep -rn "custom.*resource" src/ --include="*.ts" --include="*.tsx" && echo "❌ CUSTOM RESOURCE IMPLEMENTATION FOUND" || echo "✅ NO CUSTOM RESOURCE IMPLEMENTATION"
+
+# Verify educational content exists
+grep -rn "Custom Resource\|Attribute Mapping" src/pages/ComprehensiveOAuthEducation.tsx | wc -l && echo "✅ EDUCATIONAL CONTENT COUNT"
+
+# Check for security considerations
+grep -rn "least.*privilege\|attribute.*exposure" src/pages/ComprehensiveOAuthEducation.tsx | wc -l && echo "✅ SECURITY CONSIDERATIONS COUNT"
+```
+
+**📈 Implementation Status:**
+- **Educational Content**: ❌ Missing - Need to add OAuth education section
+- **Custom Resource Implementation**: ❌ Missing - No current implementation
+- **Scope Mapping Validation**: ❌ Missing - No validation logic
+- **Security Guidelines**: ❌ Missing - Need documentation
+- **Prevention Commands**: ✅ Added - 7 new detection commands
+
+**🎯 Success Metrics:**
+- **Education**: Comprehensive custom resource attribute mapping guide
+- **Awareness**: Users understand current limitations and workarounds
+- **Security**: Principle of least privilege documented and enforced
+- **Prevention**: Commands detect custom resource implementation issues
+- **Future-Ready**: Framework for when PingOne implements the feature
+
+**🔄 Next Steps:**
+1. **Immediate**: Add OAuth education section for custom resource attribute mapping
+2. **Short-term**: Document workarounds and best practices
+3. **Medium-term**: Engage with PingOne about feature implementation
+4. **Long-term**: Implement configuration UI and validation when available
+
+
 ---
 
-*Last Updated: Version 9.6.4*
-*New Regression Patterns Identified: 2026-02-10 — Issue 117: Silent API and Show token inconsistencies across production apps*
-*Priority: HIGH - Ensure consistent implementation across all production menu group applications*
+*Last Updated: Version 9.6.5*
+*New Regression Patterns Identified: 2026-02-10 — Issue 118: Custom Resource Attribute Mapping to Specific Scopes*
+*Priority: HIGH - Educational content needed for custom resource attribute mapping limitations*
 *SWE-15 Compliance Framework Enhanced: 2026-02-10*
 *Device Authorization Security Lockdown Completed: 2026-02-10*
+*Silent API and Show Token Implementation Completed: 2026-02-10*
 
 ---
