@@ -171,6 +171,16 @@ grep -rn "clearInterval\|clearTimeout" src/hooks/useDeviceAuthorizationFlow.ts
 # 4. Verify polling state management
 grep -rn "isPolling.*true\|isPolling.*false" src/hooks/useDeviceAuthorizationFlow.ts
 
+# === SILENT API MODAL ISSUE (Issue 113 Prevention) ===
+# 1. Check for silent API retrieval modal logic
+grep -rn "silentRetrievalSucceeded\|showTokenAtEnd.*forceShowModal" src/v8/utils/workerTokenModalHelperV8.ts
+
+# 2. Verify forceShowModal logic in silent retrieval
+grep -rn "forceShowModal.*true\|forceShowModal.*false" src/v8/utils/workerTokenModalHelperV8.ts
+
+# 3. Check for modal display conditions after silent retrieval
+grep -rn "setShowModal.*true" src/v8/utils/workerTokenModalHelperV8.ts
+
 # === NEW REGRESSION PATTERNS ===
 # LocalStorage state management
 grep -n -A 3 -B 2 "localStorage\.setItem" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
@@ -5554,6 +5564,118 @@ grep -rn "clearInterval\|clearTimeout" src/hooks/useDeviceAuthorizationFlow.ts
 
 # Verify polling state management
 grep -rn "isPolling.*true\|isPolling.*false" src/hooks/useDeviceAuthorizationFlow.ts
+```
+
+#### **📋 Issue 113: Silent API Flow Shows Modal Instead of Returning to Step 0 - DETAILED ANALYSIS**
+
+**🎯 Problem Summary:**
+When Silent API retrieval is enabled and successfully obtains a worker token, the flow incorrectly shows a token modal instead of returning the user to step 0. Users expect silent API retrieval to be completely silent and continue the flow without interruption.
+
+**🔍 Root Cause Analysis:**
+1. **Primary Cause**: Modal display logic incorrectly checks `showTokenAtEnd` even during silent retrieval success
+2. **Secondary Cause**: Missing distinction between user-initiated vs automatic silent retrieval
+3. **Impact**: Silent API flow is not truly silent, breaking user expectations
+
+**🛠️ Technical Investigation:**
+```bash
+# 1. Check for silent API retrieval modal logic
+grep -rn "silentRetrievalSucceeded\|showTokenAtEnd.*forceShowModal" src/v8/utils/workerTokenModalHelperV8.ts
+
+# 2. Verify forceShowModal logic in silent retrieval
+grep -rn "forceShowModal.*true\|forceShowModal.*false" src/v8/utils/workerTokenModalHelperV8.ts
+
+# 3. Check for modal display conditions after silent retrieval
+grep -rn "setShowModal.*true" src/v8/utils/workerTokenModalHelperV8.ts
+```
+
+**📊 Implementation Process:**
+1. **Helper Analysis**: Identified `workerTokenModalHelperV8.ts` handles modal display logic
+2. **Logic Issue**: Found silent retrieval success shows modal when `showTokenAtEnd` is enabled
+3. **Missing Distinction**: No differentiation between user-clicked vs automatic silent retrieval
+4. **Expected Behavior**: Silent retrieval should only show modal when user explicitly clicked button
+
+**🔧 Code Changes Made:**
+```typescript
+// BEFORE: Incorrect logic - shows modal even during silent retrieval
+if (silentRetrievalSucceeded) {
+  // Token was successfully retrieved silently
+  if (setTokenStatus) {
+    const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+    await setTokenStatus(newStatus);
+  }
+
+  // Show modal if showTokenAtEnd is ON OR if user explicitly clicked button
+  // Users expect to see the token when they click "Get Worker Token" or if showTokenAtEnd is enabled
+  if (showTokenAtEnd || forceShowModal) {
+    setShowModal(true); // ❌ Shows modal even during automatic silent retrieval
+  }
+  return;
+}
+```
+
+```typescript
+// AFTER: Fixed logic - only show modal when user explicitly clicked button
+if (silentRetrievalSucceeded) {
+  // Token was successfully retrieved silently
+  if (setTokenStatus) {
+    const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+    await setTokenStatus(newStatus);
+  }
+
+  // For silent API retrieval, only show modal if user explicitly clicked button
+  // If silent retrieval succeeded automatically, user should return to step 0 without modal
+  if (forceShowModal) {
+    // User explicitly clicked "Get Worker Token" - show modal even in silent mode
+    setShowModal(true); // ✅ Only shows modal when user clicked button
+  }
+  // If this was automatic silent retrieval (not user-clicked), don't show modal
+  // User should continue to step 0 as expected
+  return;
+}
+```
+
+**📈 Implementation Results:**
+```
+✅ Silent API Retrieval: Now truly silent when successful
+✅ User Intent Respected: Modal only shows when user explicitly clicks button
+✅ Step 0 Return: Users return to step 0 as expected after silent token retrieval
+✅ Backward Compatibility: Manual token requests still show modal appropriately
+✅ Clear Distinction: Proper separation of automatic vs user-initiated actions
+```
+
+**🔍 Verification Steps:**
+1. Enable Silent API Retrieval in settings
+2. Start Unified MFA flow and reach step requiring worker token
+3. Verify silent API retrieves token without showing modal
+4. Confirm user returns to step 0 after successful silent retrieval
+5. Test manual "Get Worker Token" button still shows modal appropriately
+6. Verify `showTokenAtEnd` setting works correctly for manual requests
+7. Test error scenarios in silent mode don't show modal
+
+**📝 Implementation Guidelines:**
+1. **User Intent**: Distinguish between automatic vs user-initiated actions
+2. **Silent Behavior**: Ensure silent retrieval is truly silent when successful
+3. **Modal Logic**: Only show modals when user explicitly expects them
+4. **Flow Continuation**: Allow seamless progression through steps without interruption
+5. **Backward Compatibility**: Maintain existing behavior for manual token requests
+
+**⚠️ Common Pitfalls to Avoid:**
+1. **Mixed Intentions**: Don't mix automatic and user-initiated modal logic
+2. **False Silent**: Don't show modals during supposedly silent operations
+3. **Flow Interruption**: Don't break user flow with unexpected modals
+4. **Setting Conflicts**: Don't let `showTokenAtEnd` override silent retrieval intent
+5. **Missing Context**: Don't ignore the difference between automatic and manual actions
+
+**🛡️ Prevention Commands:**
+```bash
+# Check for silent API retrieval modal logic
+grep -rn "silentRetrievalSucceeded\|showTokenAtEnd.*forceShowModal" src/v8/utils/workerTokenModalHelperV8.ts
+
+# Verify forceShowModal logic in silent retrieval
+grep -rn "forceShowModal.*true\|forceShowModal.*false" src/v8/utils/workerTokenModalHelperV8.ts
+
+# Check for modal display conditions after silent retrieval
+grep -rn "setShowModal.*true" src/v8/utils/workerTokenModalHelperV8.ts
 ```
 
 3. **Prop Chain Integrity**: Ensure props flow through entire component hierarchy
