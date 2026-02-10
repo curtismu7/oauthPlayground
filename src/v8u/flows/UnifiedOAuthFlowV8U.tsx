@@ -28,7 +28,8 @@ import {
 	PageHeaderV8,
 } from '@/v8/components/shared/PageHeaderV8';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
-import { useWorkerTokenConfig } from '@/v8/hooks/useWorkerTokenConfig';
+import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
+import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -533,9 +534,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Worker token status section collapsed state - collapsed by default
 	const [isWorkerTokenStatusCollapsed, setIsWorkerTokenStatusCollapsed] = useState(true);
 
-	// Use centralized worker token configuration service
-	const { silentApiRetrieval, showTokenAtEnd } = useWorkerTokenConfig();
-	const workerTokenConfig = { silentApiRetrieval, showTokenAtEnd };
+	// Worker token configuration is handled internally by SilentApiConfigCheckboxV8 and ShowTokenConfigCheckboxV8
 
 	// Advanced features state
 	const [advancedFeatures, setAdvancedFeatures] = useState<string[]>([]);
@@ -2498,67 +2497,39 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									paddingLeft: '4px',
 								}}
 							>
-								<label
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: '10px',
-										cursor: 'pointer',
-										fontSize: '14px',
-										color: '#4b5563',
-										fontWeight: '500',
+								{/* Silent API Retrieval Checkbox - Centralized Component */}
+								<SilentApiConfigCheckboxV8
+									onChange={async (newValue) => {
+										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
+										if (newValue) {
+											try {
+												const { handleShowWorkerTokenModal } = await import(
+													'@/v8/utils/workerTokenModalHelperV8'
+												);
+												// Attempt silent retrieval (will show modal if credentials are missing)
+												await handleShowWorkerTokenModal(
+													() => {}, // setShowModal - not needed here
+													undefined, // setTokenStatus - not needed here
+													true, // silentApiRetrieval - enable silent retrieval
+													false, // showTokenAtEnd - don't show modal, just get token
+													false // forceShowModal - don't force, use silent retrieval
+												);
+											} catch (error) {
+												console.warn('Failed to attempt silent retrieval:', error);
+											}
+										}
 									}}
-								>
-									<input
-										type="checkbox"
-										checked={workerTokenConfig.silentApiRetrieval}
-										onChange={async (e) => {
-											const { WorkerTokenConfigServiceV8 } = await import(
-												'@/v8/services/workerTokenConfigServiceV8'
-											);
-											WorkerTokenConfigServiceV8.setSilentApiRetrieval(e.target.checked);
-										}}
-										style={{
-											width: '18px',
-											height: '18px',
-											cursor: 'pointer',
-											accentColor: '#3b82f6',
-										}}
-									/>
-									<span>Silent API Retrieval</span>
-									<span style={{ fontSize: '12px', color: '#9ca3af' }}>(auto-refresh token)</span>
-								</label>
+									style={{ marginBottom: '12px' }}
+								/>
 
-								<label
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: '10px',
-										cursor: 'pointer',
-										fontSize: '14px',
-										color: '#4b5563',
-										fontWeight: '500',
+								{/* Show Token at End Checkbox - Centralized Component */}
+								<ShowTokenConfigCheckboxV8
+									onChange={async (newValue) => {
+										// Configuration is handled automatically by the centralized component
+										console.log('Show token at end setting changed to:', newValue);
 									}}
-								>
-									<input
-										type="checkbox"
-										checked={workerTokenConfig.showTokenAtEnd}
-										onChange={async (e) => {
-											const { WorkerTokenConfigServiceV8 } = await import(
-												'@/v8/services/workerTokenConfigServiceV8'
-											);
-											WorkerTokenConfigServiceV8.setShowTokenAtEnd(e.target.checked);
-										}}
-										style={{
-											width: '18px',
-											height: '18px',
-											cursor: 'pointer',
-											accentColor: '#3b82f6',
-										}}
-									/>
-									<span>Show Token After Generation</span>
-									<span style={{ fontSize: '12px', color: '#9ca3af' }}>(display in modal)</span>
-								</label>
+									style={{ marginBottom: '12px' }}
+								/>
 							</div>
 						</div>
 
