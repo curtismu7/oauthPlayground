@@ -47,6 +47,9 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 
 	return (
 		<div
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="modal-title"
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -60,8 +63,14 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 				zIndex: 1000,
 			}}
 			onClick={onClose}
+			onKeyDown={(e) => {
+				if (e.key === 'Escape') {
+					onClose();
+				}
+			}}
 		>
 			<div
+				role="document"
 				style={{
 					backgroundColor: 'white',
 					borderRadius: '8px',
@@ -71,6 +80,12 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 					boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
 				}}
 				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						e.stopPropagation();
+						onClose();
+					}
+				}}
 			>
 				{/* Header */}
 				<div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
@@ -81,7 +96,7 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 							marginRight: '12px',
 						}}
 					/>
-					<h2 style={{ margin: 0, color: '#1f2937', fontSize: '18px' }}>Device Limit Reached</h2>
+					<h2 id="modal-title" style={{ margin: 0, color: '#1f2937', fontSize: '18px' }}>Device Limit Reached</h2>
 				</div>
 
 				{/* Error Message */}
@@ -117,6 +132,7 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 				{/* Action Buttons */}
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
 					<button
+						type="button"
 						onClick={handleDeleteDevices}
 						style={{
 							backgroundColor: '#dc2626',
@@ -139,12 +155,19 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 						onMouseOut={(e) => {
 							e.currentTarget.style.backgroundColor = '#dc2626';
 						}}
+						onFocus={(e) => {
+							e.currentTarget.style.backgroundColor = '#b91c1c';
+						}}
+						onBlur={(e) => {
+							e.currentTarget.style.backgroundColor = '#dc2626';
+						}}
 					>
 						<FiTrash2 size={16} />
 						Delete Devices to Continue
 					</button>
 
 					<button
+						type="button"
 						onClick={handleManageDevices}
 						style={{
 							backgroundColor: '#f3f4f6',
@@ -167,6 +190,12 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 						onMouseOut={(e) => {
 							e.currentTarget.style.backgroundColor = '#f3f4f6';
 						}}
+						onFocus={(e) => {
+							e.currentTarget.style.backgroundColor = '#e5e7eb';
+						}}
+						onBlur={(e) => {
+							e.currentTarget.style.backgroundColor = '#f3f4f6';
+						}}
 					>
 						<FiExternalLink size={16} />
 						Manage Devices
@@ -175,6 +204,7 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 
 				{/* Cancel Button */}
 				<button
+					type="button"
 					onClick={onClose}
 					style={{
 						backgroundColor: 'transparent',

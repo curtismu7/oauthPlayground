@@ -1333,6 +1333,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</ColoredIcon>
 						),
 					},
+					{
+						id: 'protect-portal-app',
+						path: '/protect-portal',
+						label: 'Protect Portal App',
+						icon: (
+							<ColoredIcon $color="#dc2626">
+								<FiShield />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge 
+								title="Complete risk-based authentication portal with MFA integration"
+								style={{ background: '#dc2626', color: 'white' }}
+							>
+								PROTECT
+							</MigrationBadge>
+						),
+					},
 				],
 			},
 			{
