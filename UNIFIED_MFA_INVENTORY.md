@@ -20,26 +20,43 @@
 ### **Version Synchronization Rule:**
 All three version fields must be updated together for every commit to maintain consistency across the application stack.
 
+## 🎯 **PRIMARY REFERENCE HIERARCHY**
+
+**📋 ORDER OF REFERENCE (Always follow this sequence):**
+1. **UNIFIED_MFA_INVENTORY.md** - Primary reference for all development
+2. **SWE-15_UNIFIED_MFA_GUIDE.md** - Software engineering best practices
+3. **cursor-optimized.md** - Code quality and guardrails (secondary)
+
+**⚠️ IMPORTANT**: Always check this inventory FIRST before any other documentation. This document contains:
+- Current issues and their prevention commands
+- Version tracking and synchronization requirements
+- SWE-15 compliance patterns
+- Security measures and lockdown procedures
+- Regression prevention strategies
+
 ## 🚨 QUICK PREVENTION COMMANDS (Run Before Every Commit)
 
 ```bash
-# === SWE-15 COMPLIANCE CHECKS ===
-# 1. Check for breaking changes (SWE-15 Principle: Open/Closed)
-grep -r "MFAFlowBaseV8" src/v8/flows/unified/ | grep -v "\.md"
-grep -r "step.*=" src/v8/flows/shared/MFAFlowBaseV8.tsx
+# === PRIMARY: UNIFIED MFA INVENTORY CHECKS ===
+# 1. Check current version synchronization
+grep -E "version.*9\." package.json | head -3
 
-# 2. Verify interface contracts (SWE-15 Principle: Interface Segregation)
-grep -r "interface.*Props" src/v8/flows/unified/ | head -10
-grep -r "React\.FC<" src/v8/flows/unified/ | head -5
-
-# 3. Check dependency inversion (SWE-15 Principle: Dependency Inversion)
-grep -r "import.*Service" src/v8/flows/unified/ | head -10
-grep -r "use.*Hook" src/v8/flows/unified/ | head -5
-
-# === CRITICAL REGRESSION CHECKS ===
+# 2. Run critical regression prevention commands
 ./scripts/prevent-base64-display.sh
 grep -n "useCallback" src/v8/hooks/useSQLiteStats.ts
 grep -n "dangerouslySetInnerHTML" src/v8/flows/unified/ --include="*.ts" --include="*.tsx"
+
+# 3. Check for breaking changes (SWE-15 Principle: Open/Closed)
+grep -r "MFAFlowBaseV8" src/v8/flows/unified/ | grep -v "\.md"
+grep -r "step.*=" src/v8/flows/shared/MFAFlowBaseV8.tsx
+
+# 4. Verify interface contracts (SWE-15 Principle: Interface Segregation)
+grep -r "interface.*Props" src/v8/flows/unified/ | head -10
+grep -r "React\.FC<" src/v8/flows/unified/ | head -5
+
+# 5. Check dependency inversion (SWE-15 Principle: Dependency Inversion)
+grep -r "import.*Service" src/v8/flows/unified/ | head -10
+grep -r "use.*Hook" src/v8/flows/unified/ | head -5
 
 # === FLOW TYPE DETERMINATION (Issue 58 Prevention) ===
 grep -r "userToken.*admin\|admin.*userToken" src/v8/flows/
@@ -6032,14 +6049,78 @@ grep -rn "while.*true" src/ --include="*.ts" --include="*.tsx"
 # Check for empty catch blocks
 grep -rn "catch.*{.*}" src/ --include="*.ts" --include="*.tsx" | grep -v "console\|log\|error\|warn"
 
-# Verify _links usage compliance
+# Verify _links usage compliance (Rule 4: Respect PingOne Flow Contracts)
 grep -rn "_links\[" src/ --include="*.ts" --include="*.tsx"
 
-# Check for invented API endpoints
+# Check for invented API endpoints (Rule 1: Do NOT invent API calls)
 grep -rn "TODO.*Undefined.*PingOne.*docs" src/ --include="*.ts" --include="*.tsx"
 
-# Verify proper error handling for async calls
+# Verify proper error handling for async calls (Rule 3: Do NOT create unstable code)
 grep -rn "fetch\(" src/ --include="*.ts" --include="*.tsx" -A 5 | grep -B 5 -A 5 "catch"
+```
+
+---
+
+## 🔗 **RELATIONSHIP TO CURSOR-OPTIMIZED.md**
+
+### **📋 When to Use cursor-optimized.md**
+
+**cursor-optimized.md** should be consulted **AFTER** this inventory for:
+
+1. **Code Quality Guardrails**: When implementing new features
+2. **API Call Patterns**: When making HTTP requests to PingOne
+3. **Loop Safety**: When implementing polling or iteration logic
+4. **Error Handling**: When adding try/catch blocks
+5. **Flow Contract Compliance**: When working with PingOne responses
+
+### **🎯 How They Work Together**
+
+```
+UNIFIED_MFA_INVENTORY.md (Primary)
+    ↓
+Check for existing issues & prevention patterns
+    ↓
+SWE-15_UNIFIED_MFA_GUIDE.md (Architecture)
+    ↓
+Ensure proper software engineering practices
+    ↓
+cursor-optimized.md (Code Quality)
+    ↓
+Apply specific coding standards and guardrails
+```
+
+### **⚠️ Important Notes**
+
+- **Inventory First**: Always check this inventory for existing issues before implementing
+- **Prevention Over Correction**: Use prevention commands to avoid reintroducing known issues
+- **Cursor as Secondary**: cursor-optimized.md provides coding standards, not issue tracking
+- **Integration**: Prevention commands from this inventory include cursor-optimized checks
+
+### **🔍 cursor-optimized.md Rules Covered in This Inventory**
+
+| Rule | Inventory Coverage | Prevention Commands |
+|------|-------------------|-------------------|
+| No Invented API Calls | ✅ Issue 115 | grep -rn "TODO.*Undefined.*PingOne.*docs" |
+| Safe Loops | ✅ Issue 112 | grep -rn "while.*true" src/ |
+| Proper Error Handling | ✅ Issue 115 | grep -rn "catch.*{.*}" src/ |
+| Flow Contracts | ✅ Issue 115 | grep -rn "_links\[" src/ |
+| No Breaking Changes | ✅ SWE-15 | grep -r "MFAFlowBaseV8" src/ |
+
+### **📝 Example Workflow**
+
+```bash
+# 1. Check inventory first (PRIMARY)
+cat UNIFIED_MFA_INVENTORY.md | grep -A 10 "### Services"
+
+# 2. Run prevention commands from inventory
+grep -rn "setShowWorkerTokenModal(true)" src/v8/ --include="*.tsx" --include="*.ts" | grep -v "workerTokenModalHelperV8"
+
+# 3. Apply cursor-optimized guardrails (SECONDARY)
+# Check for unsafe loops (cursor-optimized Rule 2)
+grep -rn "while.*true" src/ --include="*.ts" --include="*.tsx"
+
+# 4. Verify error handling (cursor-optimized Rule 3)
+grep -rn "catch.*{.*}" src/ --include="*.ts" --include="*.tsx" | grep -v "console\|log\|error\|warn"
 ```
 
 **🚀 Recommendations:**
