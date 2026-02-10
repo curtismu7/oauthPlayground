@@ -22,7 +22,6 @@ import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { colors, spacing } from '@/v8/styles/designTokens';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { APIComparisonModal } from './APIComparisonModal';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
 import '../UnifiedMFAFlow.css';
@@ -782,12 +781,17 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 									onClick={() => {
 										console.log('[UNIFIED-FLOW] Manual fallback: User clicked continue button');
 
-										// Manually set return target and proceed
-										ReturnTargetServiceV8U.setReturnTarget(
-											'mfa_device_registration',
-											'/v8/unified-mfa',
-											2 // Step 2: Device Selection
-										);
+										// Store flow context for callback handler (Unified OAuth pattern)
+										const flowContext = {
+											returnPath: '/v8/unified-mfa',
+											returnStep: 2, // Step 2: Device Selection
+											flowType: 'registration' as const,
+											timestamp: Date.now(),
+										};
+										
+										sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
+										
+										console.log('[UNIFIED-FLOW] 🎯 Stored flow context for registration fallback');
 
 										// Proceed with registration
 										handleSubmit();

@@ -57,7 +57,6 @@ import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { type TokenStatusInfo, WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { DeviceAuthenticationPolicy, MFACredentials, MFAState } from '../shared/MFATypes';
 import { UnifiedActivationStep } from './components/UnifiedActivationStep';
@@ -2746,12 +2745,18 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 						pendingRegistrationRef.current
 					);
 
-					// Set return target for device registration flow
-					ReturnTargetServiceV8U.setReturnTarget(
-						'mfa_device_registration',
-						'/v8/unified-mfa', // Return to unified MFA flow
-						2 // Step 2: Device Selection
-					);
+					// Store flow context for callback handler (Unified OAuth pattern)
+					const flowContext = {
+						returnPath: '/v8/unified-mfa',
+						returnStep: 2, // Step 2: Device Selection
+						flowType: 'registration' as const,
+						timestamp: Date.now(),
+					};
+					sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
+					console.log(`${MODULE_TAG} 🎯 Stored flow context for registration:`, {
+						path: '/v8/unified-mfa',
+						step: 2,
+					});
 
 					// Show the user login modal
 					setShowUserLoginModal(true);
