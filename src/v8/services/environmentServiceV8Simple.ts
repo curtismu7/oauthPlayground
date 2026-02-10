@@ -93,7 +93,6 @@ export interface DeleteEnvironmentOptions {
 
 class EnvironmentServiceV8 {
 	private readonly MODULE_TAG = '[🌍 ENVIRONMENT-SERVICE-V8]';
-	private readonly BASE_PATH = '/environments';
 
 	/**
 	 * Get all environments with optional filtering
@@ -372,7 +371,7 @@ class EnvironmentServiceV8 {
 		const newEnvironment: PingOneEnvironment = {
 			id: `env-${Date.now()}`,
 			name: request.name,
-			description: request.description || undefined,
+			...(request.description && { description: request.description }),
 			type: request.type,
 			status: 'ACTIVE',
 			region: request.region || 'us-east-1',
@@ -434,7 +433,7 @@ class EnvironmentServiceV8 {
 
 	private async mockDeleteEnvironment(
 		id: string,
-		options?: DeleteEnvironmentOptions
+		_options?: DeleteEnvironmentOptions
 	): Promise<void> {
 		await new Promise((resolve) => setTimeout(resolve, 400));
 
