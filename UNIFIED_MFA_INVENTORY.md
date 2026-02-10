@@ -148,6 +148,16 @@ grep -A 15 -B 5 "handleStorageChange\|storage.*event" src/v8/hooks/useWorkerToke
 # 3. Check for worker token related storage keys that should trigger updates
 grep -rn "setItem.*worker\|worker.*token\|unified.*worker" src/v8/ --include="*.tsx" --include="*.ts" | grep -v test
 
+# === WORKER TOKEN UI LOADING STATES (Issue 111 Prevention) ===
+# 1. Check for immediate loading state in async operations
+grep -rn "setIsRefreshing\|setLoading" src/v8/hooks/useWorkerToken.ts | grep -v "finally"
+
+# 2. Verify loading state cleanup in error handling
+grep -A 20 -B 5 "finally.*setIsRefreshing\|catch.*setIsRefreshing" src/v8/hooks/useWorkerToken.ts
+
+# 3. Check for missing loading states in async event handlers
+grep -rn "await.*checkWorkerTokenStatus\|await.*getToken" src/v8/ --include="*.tsx" --include="*.ts" | grep -v "setIsRefreshing\|setLoading"
+
 # === NEW REGRESSION PATTERNS ===
 # LocalStorage state management
 grep -n -A 3 -B 2 "localStorage\.setItem" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
@@ -4825,6 +4835,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 108 | **Biome New App Creation** | ✅ COMPLETED | biome-new-app/ directory, package.json:1, biome.json:1 | Created new React app with Biome tooling and modern development setup | Full Biome-integrated React app with Vite, TypeScript, and automated linting/formatting |
 | 109 | **Device Code Flow Silent API Token Retrieval** | ✅ FIXED | UnifiedFlowSteps.tsx:754,757,546 | Device Code Flow was incorrectly requiring worker token and showing modals | Fixed device-code flow to skip worker token validation and use direct API calls |
 | 110 | **Worker Token Modal Cancel False Positive** | ✅ FIXED | useWorkerToken.ts:122,134,135 | Canceling worker token modal incorrectly showed "new worker token" message | Fixed storage event listener to only respond to worker token related changes |
+| 111 | **Worker Token UI Update Delay** | ✅ FIXED | useWorkerToken.ts:113-127,103-117 | UI doesn't update immediately when worker token is obtained, no spinner feedback | Added immediate loading state in useWorkerToken hook when token updates are triggered |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -5268,6 +5279,108 @@ grep -A 15 -B 5 "handleStorageChange\|storage.*event" src/v8/hooks/useWorkerToke
 
 # Check for worker token related storage keys
 grep -rn "setItem.*worker\|worker.*token\|unified.*worker" src/v8/ --include="*.tsx" --include="*.ts" | grep -v test
+```
+
+#### **📋 Issue 111: Worker Token UI Update Delay - DETAILED ANALYSIS**
+
+**🎯 Problem Summary:**
+When a worker token is obtained, the UI doesn't update immediately to show the new token status. Users see no feedback (no spinner) that the system is working on updating the token status, creating a poor user experience.
+
+**🔍 Root Cause Analysis:**
+1. **Primary Cause**: `useWorkerToken` hook's event handlers didn't show immediate loading state
+2. **Secondary Cause**: Token status check was async but UI didn't show loading during the check
+3. **Impact**: Users think nothing is happening when worker token is obtained/updated
+
+**🛠️ Technical Investigation:**
+```bash
+# 1. Check useWorkerToken hook event handling
+grep -A 15 -B 5 "handleTokenUpdate.*async" src/v8/hooks/useWorkerToken.ts
+
+# 2. Verify loading state management in useWorkerToken
+grep -rn "isRefreshing.*useState\|setIsRefreshing" src/v8/hooks/useWorkerToken.ts
+
+# 3. Check how WorkerTokenStatusDisplayV8 shows loading states
+grep -A 10 -B 5 "LoadingOverlay\|isRefreshing" src/v8/components/WorkerTokenStatusDisplayV8.tsx
+```
+
+**📊 Implementation Process:**
+1. **Hook Analysis**: Identified `useWorkerToken` hook manages token status and loading state
+2. **Loading State**: Found `isRefreshing` state already exists but wasn't used for event updates
+3. **Immediate Feedback**: Added immediate `setIsRefreshing(true)` when token update events trigger
+4. **Debug Logging**: Added console logs to track loading state transitions
+
+**🔧 Code Changes Made:**
+```typescript
+// BEFORE: No immediate loading state
+const handleTokenUpdate = async () => {
+  try {
+    const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+    setTokenStatus(status);
+  } catch (error) {
+    console.error(`${MODULE_TAG} Failed to check token status in event handler:`, error);
+  }
+};
+
+// AFTER: Immediate loading state with feedback
+const handleTokenUpdate = async () => {
+  // Show immediate loading state for better UX
+  setIsRefreshing(true);
+  console.log(`${MODULE_TAG} Token update triggered - showing loading state`);
+  
+  try {
+    const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+    setTokenStatus(status);
+    console.log(`${MODULE_TAG} Token status updated:`, status.status);
+  } catch (error) {
+    console.error(`${MODULE_TAG} Failed to check token status in event handler:`, error);
+  } finally {
+    // Hide loading state after update completes
+    setIsRefreshing(false);
+    console.log(`${MODULE_TAG} Token update completed - hiding loading state`);
+  }
+};
+```
+
+**📈 Implementation Results:**
+```
+✅ Immediate Loading State: UI shows spinner as soon as token update starts
+✅ Debug Logging: Clear visibility into token update process
+✅ User Feedback: Users see immediate indication that work is in progress
+✅ Consistent Behavior: Both manual refresh and event-driven updates show loading
+✅ Error Handling: Loading state properly cleared even on errors
+```
+
+**🔍 Verification Steps:**
+1. Obtain a worker token through any method (modal, silent retrieval, etc.)
+2. Observe immediate spinner appearance in WorkerTokenStatusDisplayV8
+3. Verify spinner disappears when token status update completes
+4. Check console logs for proper loading state transitions
+5. Test error scenarios to ensure loading state is properly cleared
+
+**📝 Implementation Guidelines:**
+1. **Immediate Feedback**: Always show loading state immediately when async operations start
+2. **Consistent Loading**: Use the same loading state for manual and automatic updates
+3. **Debug Logging**: Add logs to track state transitions for debugging
+4. **Error Safety**: Ensure loading state is cleared in finally blocks
+5. **User Experience**: Consider perceived performance - show feedback even for fast operations
+
+**⚠️ Common Pitfalls to Avoid:**
+1. **Delayed Feedback**: Don't wait for async operations to show loading state
+2. **Inconsistent Loading**: Don't use different loading mechanisms for similar operations
+3. **Missing Cleanup**: Don't forget to clear loading state in error cases
+4. **Silent Operations**: Don't perform async operations without user feedback
+5. **Race Conditions**: Don't allow multiple loading states to conflict
+
+**🛡️ Prevention Commands:**
+```bash
+# Check for immediate loading state in async operations
+grep -rn "setIsRefreshing\|setLoading" src/v8/hooks/useWorkerToken.ts | grep -v "finally"
+
+# Verify loading state cleanup in error handling
+grep -A 20 -B 5 "finally.*setIsRefreshing\|catch.*setIsRefreshing" src/v8/hooks/useWorkerToken.ts
+
+# Check for missing loading states in async event handlers
+grep -rn "await.*checkWorkerTokenStatus\|await.*getToken" src/v8/ --include="*.tsx" --include="*.ts" | grep -v "setIsRefreshing\|setLoading"
 ```
 
 3. **Prop Chain Integrity**: Ensure props flow through entire component hierarchy
