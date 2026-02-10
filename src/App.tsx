@@ -230,6 +230,9 @@ import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
 import UnifiedFlowErrorBoundary from './v8u/components/UnifiedFlowErrorBoundary';
 
+// Import Protect Portal
+import ProtectPortalApp from './pages/protect-portal/ProtectPortalApp';
+
 // Lazy load heavy V8U components for better performance
 const UnifiedFlowHelperPageV8U = lazy(() => import('./v8u/components/UnifiedFlowHelperPageV8U'));
 const SpiffeSpireFlowV8U = lazy(() => import('./v8u/flows/SpiffeSpireFlowV8U'));
@@ -1244,6 +1247,8 @@ const AppRoutes: React.FC = () => {
 								path="/comprehensive-oauth-education"
 								element={<ComprehensiveOAuthEducation />}
 							/>
+							{/* Protect Portal Application */}
+							<Route path="/protect-portal" element={<ProtectPortalApp />} />
 							<Route path="/advanced-config" element={<AdvancedConfiguration />} />
 							<Route
 								path="/advanced-security-settings"
