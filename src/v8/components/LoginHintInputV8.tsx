@@ -72,6 +72,7 @@ export const LoginHintInputV8: React.FC<LoginHintInputV8Props> = ({
 				}}
 			>
 				<label
+					htmlFor="login-hint-input"
 					style={{
 						fontSize: '14px',
 						fontWeight: '600',
@@ -122,6 +123,7 @@ export const LoginHintInputV8: React.FC<LoginHintInputV8Props> = ({
 					}}
 				/>
 				<input
+					id="login-hint-input"
 					type="text"
 					value={value}
 					onChange={(e) => handleChange(e.target.value)}

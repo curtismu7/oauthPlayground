@@ -1,0 +1,85 @@
+name: Biome Code Quality Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  biome-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run Biome check
+      run: |
+        echo "🔍 Running Biome code quality checks..."
+        npx @biomejs/biome check src/v8/flows/unified/ src/v8/components/ src/v8/services/ --max-diagnostics=100
+        
+    - name: Run Biome check on accessibility
+      run: |
+        echo "♿ Running Biome accessibility checks..."
+        npx @biomejs/biome check --only=lint/a11y src/v8/ --max-diagnostics=50
+        
+    - name: Run Biome check on suspicious patterns
+      run: |
+        echo "🔎 Running Biome suspicious pattern checks..."
+        npx @biomejs/biome check --only=lint/suspicious src/v8/ --max-diagnostics=50
+
+    - name: Run Biome format check
+      run: |
+        echo "📝 Running Biome format checks..."
+        npx @biomejs/biome format --check src/v8/
+
+    - name: Comment PR with results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Read the biome check results
+          try {
+            const biomeOutput = fs.readFileSync('biome-report.txt', 'utf8');
+            
+            const comment = `## 🔍 Biome Code Quality Report
+            
+### Summary
+The automated Biome checks have been completed for this PR.
+
+### Results
+\`\`\`
+${biomeOutput}
+\`\`\`
+
+### Recommendations
+- Fix any linting errors before merging
+- Ensure accessibility standards are met
+- Maintain consistent code formatting
+
+### Next Steps
+1. Review and fix any issues found
+2. Run \`npx @biomejs/biome check\` locally to verify fixes
+3. Update this PR with the fixes`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } catch (error) {
+            console.log('No biome report file found or error reading it');
+          }

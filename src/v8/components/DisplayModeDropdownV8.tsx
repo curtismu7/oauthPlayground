@@ -93,6 +93,7 @@ export const DisplayModeDropdownV8: React.FC<DisplayModeDropdownV8Props> = ({
 				}}
 			>
 				<label
+					htmlFor="display-mode-select"
 					style={{
 						fontSize: '14px',
 						fontWeight: '600',
@@ -132,6 +133,7 @@ export const DisplayModeDropdownV8: React.FC<DisplayModeDropdownV8Props> = ({
 			{/* Dropdown */}
 			<div style={{ position: 'relative' }}>
 				<select
+					id="display-mode-select"
 					value={value || ''}
 					onChange={(e) => handleChange(e.target.value)}
 					disabled={disabled}
