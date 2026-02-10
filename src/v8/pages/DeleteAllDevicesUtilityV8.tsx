@@ -13,7 +13,7 @@
  * - Shows device count before deletion
  */
 
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useState, useMemo, useRef } from 'react';
 import { FiAlertCircle, FiKey, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
@@ -170,10 +170,14 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 	const [devices, setDevices] = useState<Array<Record<string, unknown>>>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [deletionResults, setDeletionResults] = useState<{
-		success: number;
+		successful: number;
 		failed: number;
-		errors: Array<{ deviceId: string; error: string }>;
+		results: Array<{ deviceId: string; success: boolean; error?: string }>;
 	} | null>(null);
+
+	// Track if devices have been loaded at least once to prevent infinite loops
+	const hasLoadedDevicesRef = useRef(false);
+
 	const [selectedDeviceIds, setSelectedDeviceIds] = useState<Set<string>>(new Set());
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
@@ -348,6 +352,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 
 			setDevices(filteredDevices);
 			setSelectedDeviceIds(new Set(filteredDevices.map((d) => d.id as string)));
+			hasLoadedDevicesRef.current = true; // Mark that devices have been loaded
 			console.log(`${MODULE_TAG} ✅ Loaded ${filteredDevices.length} devices`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load devices:`, error);
@@ -381,13 +386,13 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 	useEffect(() => {
 		// Only auto-reload if we have already loaded devices at least once
 		// This prevents auto-loading on initial page load
-		const hasDevices = devices.length > 0;
+		const hasLoadedDevices = hasLoadedDevicesRef.current;
 		const hasRequiredFields = environmentId.trim() && username.trim() && tokenStatus.isValid;
 
-		if (hasDevices && hasRequiredFields) {
+		if (hasLoadedDevices && hasRequiredFields) {
 			handleLoadDevices();
 		}
-	}, [devices.length, environmentId, username, tokenStatus.isValid]); // Remove handleLoadDevices to prevent infinite loop
+	}, [environmentId, username, tokenStatus.isValid, selectedDeviceType, selectedDeviceStatus]); // Use ref instead of devices.length to prevent infinite loop
 
 	const handleToggleDeviceSelection = useCallback((deviceId: string) => {
 		setSelectedDeviceIds((prev) => {
