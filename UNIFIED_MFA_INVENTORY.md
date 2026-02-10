@@ -96,6 +96,18 @@ grep -n "path.*Page" src/App.tsx | head -10
 # Check for proper menu group structure
 grep -A 5 -B 5 "Tools & Utilities" src/components/Sidebar.tsx
 
+# === NEW PAGE VERIFICATION (Issue 107 Prevention) ===
+# CRITICAL: Verify new pages don't introduce regressions
+npx @biomejs/biome check src/v8/pages/EnvironmentManagementPageV8.tsx --max-diagnostics=20
+npx @biomejs/biome check src/v8/services/environmentServiceV8Simple.ts --max-diagnostics=20
+# Check for unsafe patterns in new pages
+grep -n "dangerouslySetInnerHTML" src/v8/pages/EnvironmentManagementPageV8.tsx
+grep -n "any" src/v8/pages/EnvironmentManagementPageV8.tsx
+# Check for proper useCallback usage
+grep -n "useCallback.*\[\s*\]" src/v8/pages/EnvironmentManagementPageV8.tsx
+# Verify no localStorage/sessionStorage regressions
+grep -n "localStorage\|sessionStorage" src/v8/pages/EnvironmentManagementPageV8.tsx
+
 # === NEW REGRESSION PATTERNS ===
 # LocalStorage state management
 grep -n -A 3 -B 2 "localStorage\.setItem" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
@@ -4769,6 +4781,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 104 | **Migrate MFA Flows to Unified OAuth Callback Pattern** | ✅ COMPLETED | CallbackHandlerV8U.tsx:106, UserLoginModalV8.tsx:1364, MFAFlowBaseV8.tsx:533 | MFA flows using complex ReturnTargetServiceV8U instead of simple URL-based detection | Migrated all MFA flows to use sessionStorage-based flow context matching Unified OAuth's elegant pattern |
 | 105 | **Environment Management App Implementation** | ✅ COMPLETED | EnvironmentManagementPageV8.tsx:1, environmentServiceV8Simple.ts:1, Sidebar.tsx:1349 | Full environment management system with CRUD operations and modern UI | Created comprehensive environment management with service layer, UI components, and sidebar integration |
 | 106 | **Sidebar Menu Visibility Prevention** | ✅ IMPLEMENTED | UNIFIED_MFA_INVENTORY.md:110-115, Sidebar.tsx:558,1349 | New pages not visible in sidebar menu | Added prevention commands and checklist for sidebar menu integration |
+| 107 | **Environment Page SWE-15 Compliance Verification** | ✅ VERIFIED | EnvironmentManagementPageV8.tsx:1, environmentServiceV8Simple.ts:1 | New Environment page checked for SWE-15 compliance | No regressions introduced, all Biome issues fixed, prevention commands passed |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -4921,6 +4934,68 @@ done
 3. **Verify Routes**: Ensure menu paths match route definitions
 4. **Check Imports**: Validate page imports in App.tsx
 5. **Test Navigation**: Verify menu items navigate to correct pages
+
+#### **📋 Issue 107: Environment Page SWE-15 Compliance Verification - DETAILED ANALYSIS**
+
+**🎯 Problem Summary:**
+New Environment Management page was implemented and needed verification against SWE-15 principles and inventory prevention patterns to ensure no regressions were introduced.
+
+**🔍 Verification Process:**
+1. **SWE-15 Principles Check**: Verified compliance with all 5 SOLID principles
+2. **Inventory Prevention Commands**: Ran all critical regression checks
+3. **Biome Code Quality**: Fixed linting issues and ensured code quality
+4. **Type Safety**: Verified TypeScript compliance with exactOptionalPropertyTypes
+5. **Security Review**: Checked for unsafe patterns and vulnerabilities
+
+**🛠️ Issues Found and Fixed:**
+1. **Biome Linting Issues**: 
+   - Removed unused `BASE_PATH` private class member
+   - Fixed unused parameter by prefixing with underscore
+   - Fixed TypeScript exactOptionalPropertyTypes issue with conditional spread
+
+**📊 Verification Results:**
+```
+✅ SWE-15 Compliance: No violations found
+✅ Inventory Prevention: All commands passed
+✅ Biome Code Quality: All issues resolved
+✅ Type Safety: TypeScript errors fixed
+✅ Security: No unsafe patterns detected
+✅ Sidebar Integration: Properly configured
+✅ Route Definition: Correctly implemented
+```
+
+**🔍 Prevention Commands Added:**
+```bash
+# === NEW PAGE VERIFICATION (Issue 107 Prevention) ===
+# CRITICAL: Verify new pages don't introduce regressions
+npx @biomejs/biome check src/v8/pages/NewPageV8.tsx --max-diagnostics=20
+npx @biomejs/biome check src/v8/services/newServiceV8.ts --max-diagnostics=20
+# Check for unsafe patterns in new pages
+grep -n "dangerouslySetInnerHTML" src/v8/pages/NewPageV8.tsx
+grep -n "any" src/v8/pages/NewPageV8.tsx
+# Check for proper useCallback usage
+grep -n "useCallback.*\[\s*\]" src/v8/pages/NewPageV8.tsx
+# Verify no localStorage/sessionStorage regressions
+grep -n "localStorage\|sessionStorage" src/v8/pages/NewPageV8.tsx
+```
+
+**📝 Implementation Guidelines for New Pages:**
+1. **Run Biome Check**: Always run `npx @biomejs/biome check` on new files
+2. **Fix All Linting**: Address all warnings and errors before commit
+3. **Type Safety**: Use exactOptionalPropertyTypes compliant patterns
+4. **Security Review**: Avoid unsafe HTML and any types
+5. **Prevention Commands**: Run full inventory prevention suite
+6. **SWE-15 Compliance**: Follow all SOLID principles
+7. **Documentation**: Update inventory with verification results
+
+**⚠️ Common Pitfalls to Avoid:**
+1. **Unused Class Members**: Remove unused private properties
+2. **Unused Parameters**: Prefix with underscore or remove
+3. **Type Safety Issues**: Use conditional spread for optional properties
+4. **Unsafe Patterns**: Avoid dangerouslySetInnerHTML and any types
+5. **Storage Regressions**: Don't introduce localStorage/sessionStorage without review
+6. **Missing Verification**: Don't skip inventory prevention commands
+
 3. **Prop Chain Integrity**: Ensure props flow through entire component hierarchy
 4. **Interface Completeness**: Keep component interfaces complete and up-to-date
 5. **Secure Defaults**: Default to admin flow unless explicitly user flow
