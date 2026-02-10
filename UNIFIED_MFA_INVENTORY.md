@@ -181,6 +181,19 @@ grep -rn "forceShowModal.*true\|forceShowModal.*false" src/v8/utils/workerTokenM
 # 3. Check for modal display conditions after silent retrieval
 grep -rn "setShowModal.*true" src/v8/utils/workerTokenModalHelperV8.ts
 
+# === COMMON SPINNER SYSTEM (Issue 114 Prevention) ===
+# 1. Check for consistent spinner usage across Production apps
+grep -rn "useProductionSpinner\|CommonSpinner" src/v8u/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify spinner service integration
+grep -rn "CommonSpinnerService" src/ --include="*.tsx" --include="*.ts"
+
+# 3. Check for proper spinner cleanup
+grep -rn "hideSpinner\|hideAllSpinners" src/ --include="*.tsx" --include="*.ts"
+
+# 4. Verify spinner theme consistency
+grep -rn "theme.*blue\|theme.*green\|theme.*orange\|theme.*purple" src/components/common/ --include="*.tsx" --include="*.ts"
+
 # === NEW REGRESSION PATTERNS ===
 # LocalStorage state management
 grep -n -A 3 -B 2 "localStorage\.setItem" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
@@ -5677,6 +5690,180 @@ grep -rn "forceShowModal.*true\|forceShowModal.*false" src/v8/utils/workerTokenM
 # Check for modal display conditions after silent retrieval
 grep -rn "setShowModal.*true" src/v8/utils/workerTokenModalHelperV8.ts
 ```
+
+#### **📋 Issue 114: Common Spinner System Implementation - DETAILED ANALYSIS**
+
+**🎯 Problem Summary:**
+Production menu group apps have fragmented and inconsistent loading states across different applications. Multiple spinner implementations exist with different patterns, leading to poor user experience and code duplication.
+
+**🔍 Root Cause Analysis:**
+1. **Primary Cause**: No centralized spinner management system across Production apps
+2. **Secondary Cause**: Multiple spinner implementations with inconsistent patterns
+3. **Tertiary Cause**: Code duplication and maintenance overhead
+4. **Impact**: Inconsistent UX, fragmented codebase, difficult maintenance
+
+**🛠️ Technical Investigation:**
+```bash
+# 1. Check for consistent spinner usage across Production apps
+grep -rn "useProductionSpinner\|CommonSpinner" src/v8u/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify spinner service integration
+grep -rn "CommonSpinnerService" src/ --include="*.tsx" --include="*.ts"
+
+# 3. Check for proper spinner cleanup
+grep -rn "hideSpinner\|hideAllSpinners" src/ --include="*.tsx" --include="*.ts"
+
+# 4. Verify spinner theme consistency
+grep -rn "theme.*blue\|theme.*green\|theme.*orange\|theme.*purple" src/components/common/ --include="*.tsx" --include="*.ts"
+```
+
+**📊 Implementation Process:**
+1. **Foundation Creation**: Built centralized service layer and type definitions
+2. **Component Development**: Created unified spinner components with variants
+3. **Hook Implementation**: Developed custom hooks for easy integration
+4. **Wrapper Creation**: Built HOC for automatic spinner management
+5. **Variant Expansion**: Added modal and overlay variants for different use cases
+
+**🔧 Code Changes Made:**
+```typescript
+// 1. TypeScript Definitions (src/types/spinner.ts)
+export type SpinnerTheme = 'blue' | 'green' | 'orange' | 'purple';
+export type SpinnerVariant = 'inline' | 'modal' | 'overlay';
+export type SpinnerSize = 'sm' | 'md' | 'lg' | 'xl';
+
+export interface CommonSpinnerState {
+  show: boolean;
+  message: string;
+  type: SpinnerVariant;
+  theme: SpinnerTheme;
+  size?: SpinnerSize;
+  progress?: number;
+  allowDismiss?: boolean;
+  startTime?: number;
+}
+```
+
+```typescript
+// 2. Centralized Service (src/services/CommonSpinnerService.ts)
+class CommonSpinnerService {
+  private static instances: Map<string, SpinnerInstance> = new Map();
+  
+  static getInstance(appId: string): SpinnerInstance
+  static showSpinner(appId: string, config?: Partial<CommonSpinnerConfig>): void
+  static hideSpinner(appId: string): void
+  static updateMessage(appId: string, message: string): void
+  static updateProgress(appId: string, progress: number): void
+  static hideAllSpinners(): void
+  static getMetrics(): SpinnerMetrics
+}
+```
+
+```typescript
+// 3. Base Component (src/components/common/CommonSpinner.tsx)
+export const CommonSpinner: React.FC<CommonSpinnerProps> = ({
+  message = 'Loading...',
+  size = 'md',
+  theme = 'blue',
+  variant = 'inline',
+  showProgress = false,
+  progress = 0,
+  allowDismiss = false,
+  onDismiss,
+  className,
+}) => {
+  // Unified spinner implementation with themes, sizes, and variants
+};
+```
+
+```typescript
+// 4. Custom Hook (src/hooks/useProductionSpinner.ts)
+export const useProductionSpinner = (appId: string, defaultConfig?: Partial<CommonSpinnerConfig>): UseProductionSpinnerReturn => {
+  const showSpinner = (message?: string, config?: Partial<CommonSpinnerConfig>) => { /* ... */ };
+  const hideSpinner = () => { /* ... */ };
+  const withSpinner = async <T>(operation: () => Promise<T>, message?: string): Promise<T> => { /* ... */ };
+  
+  return { showSpinner, hideSpinner, updateMessage, updateProgress, withSpinner, spinnerState, isLoading };
+};
+```
+
+```typescript
+// 5. HOC Wrapper (src/components/common/ProductionSpinnerWrapper.tsx)
+export const ProductionSpinnerWrapper: React.FC<ProductionSpinnerWrapperProps> = ({
+  appId,
+  children,
+  fallbackMessage = 'Loading...',
+  customTheme = 'blue',
+  onSpinnerShow,
+  onSpinnerHide,
+}) => {
+  // Automatic spinner management for Production apps
+};
+```
+
+**📈 Implementation Results:**
+```
+✅ Centralized Service: Single source of truth for spinner state management
+✅ Unified Components: Consistent spinner appearance across all Production apps
+✅ Easy Integration: Simple hook-based API for developers
+✅ Multiple Variants: Inline, modal, and overlay variants for different use cases
+✅ Theme System: Consistent theming (blue, green, orange, purple) across apps
+✅ Performance Tracking: Built-in metrics and monitoring capabilities
+✅ Event System: Custom events for global spinner state monitoring
+✅ Auto-Cleanup: Automatic cleanup on component unmount
+```
+
+**🔍 File Structure Created:**
+```
+src/
+├── types/
+│   └── spinner.ts                     # TypeScript definitions
+├── services/
+│   └── CommonSpinnerService.ts        # Centralized service
+├── components/common/
+│   ├── CommonSpinner.tsx              # Base spinner component
+│   ├── CommonSpinnerModal.tsx         # Modal variant
+│   ├── CommonSpinnerOverlay.tsx       # Full-screen overlay
+│   ├── ProductionSpinnerWrapper.tsx   # HOC for Production apps
+│   └── index.ts                       # Component exports
+└── hooks/
+    └── useProductionSpinner.ts         # Custom hook
+```
+
+**📝 Implementation Guidelines:**
+1. **Centralized Management**: Use CommonSpinnerService for all spinner state
+2. **Consistent Theming**: Use blue theme for Production apps by default
+3. **Easy Integration**: Prefer useProductionSpinner hook for new implementations
+4. **Auto-Cleanup**: Use withSpinner for automatic spinner management
+5. **Performance Monitoring**: Track spinner metrics for optimization
+
+**⚠️ Common Pitfalls to Avoid:**
+1. **Direct State**: Don't manage spinner state locally, use the service
+2. **Inconsistent Themes**: Don't use different themes across Production apps
+3. **Missing Cleanup**: Don't forget to hide spinners on component unmount
+4. **Blocking UI**: Don't use modal spinners for non-blocking operations
+5. **Performance Issues**: Don't create multiple spinner instances per app
+
+**🛡️ Prevention Commands:**
+```bash
+# Check for consistent spinner usage across Production apps
+grep -rn "useProductionSpinner\|CommonSpinner" src/v8u/ --include="*.tsx" --include="*.ts"
+
+# Verify spinner service integration
+grep -rn "CommonSpinnerService" src/ --include="*.tsx" --include="*.ts"
+
+# Check for proper spinner cleanup
+grep -rn "hideSpinner\|hideAllSpinners" src/ --include="*.tsx" --include="*.ts"
+
+# Verify spinner theme consistency
+grep -rn "theme.*blue\|theme.*green\|theme.*orange\|theme.*purple" src/components/common/ --include="*.tsx" --include="*.ts"
+```
+
+**🚀 Next Steps for Integration:**
+1. **Phase 3**: Integrate with existing Production apps (MFA Feature Flags, API Status, etc.)
+2. **Migration**: Replace fragmented spinner implementations with common system
+3. **Testing**: Verify consistent behavior across all Production apps
+4. **Documentation**: Update component documentation with usage examples
+5. **Performance**: Monitor spinner metrics and optimize as needed
 
 3. **Prop Chain Integrity**: Ensure props flow through entire component hierarchy
 4. **Interface Completeness**: Keep component interfaces complete and up-to-date
