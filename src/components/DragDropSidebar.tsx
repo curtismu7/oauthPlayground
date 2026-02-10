@@ -410,6 +410,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</MigrationBadge>
 						),
 					},
+					{
+						id: 'api-status-page',
+						path: '/api-status',
+						label: '🔍 API Status',
+						icon: (
+							<ColoredIcon $color="#3b82f6">
+								<FiActivity />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Real-time API health monitoring and server performance metrics">
+								MONITOR
+							</MigrationBadge>
+						),
+					},
 					// EDUCATION Entries (sorted alphabetically)
 					{
 						id: 'flow-comparison-tool',
