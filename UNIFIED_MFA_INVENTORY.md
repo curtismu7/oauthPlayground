@@ -18369,11 +18369,164 @@ grep -rn "least.*privilege\|attribute.*exposure" src/pages/ComprehensiveOAuthEdu
 
 ---
 
-*Last Updated: Version 9.6.5*
-*New Regression Patterns Identified: 2026-02-10 — Issue 118: Custom Resource Attribute Mapping to Specific Scopes*
-*Priority: HIGH - Educational content needed for custom resource attribute mapping limitations*
+#### **📋 Issue 119: Device Loading Infinite Loop Regression - DETAILED ANALYSIS**
+
+**🎯 Problem Summary:**
+DeleteAllDevicesUtilityV8 page experiencing infinite loading loop when getting devices. The auto-reload useEffect with `devices.length` dependency causes continuous API calls, preventing the device list from stabilizing and creating a poor user experience.
+
+**🔍 Root Cause Analysis:**
+1. **Primary Cause**: useEffect dependency array includes `devices.length`, causing re-render loop
+2. **Secondary Cause**: `handleLoadDevices` function changes `devices.length`, triggering useEffect again
+3. **Impact**: Continuous API calls, infinite loading state, resource exhaustion
+4. **Regression**: Previously fixed Issue 86 has recurred due to dependency mismanagement
+
+**📊 Current Broken Implementation:**
+```typescript
+// PROBLEMATIC: devices.length in dependency causes infinite loop
+useEffect(() => {
+  const hasDevices = devices.length > 0;  // This changes when devices are set
+  const hasRequiredFields = environmentId.trim() && username.trim() && tokenStatus.isValid;
+
+  if (hasDevices && hasRequiredFields) {
+    handleLoadDevices();  // This changes devices.length, triggering useEffect again
+  }
+}, [devices.length, environmentId, username, tokenStatus.isValid]); // ❌ devices.length causes loop
+```
+
+**🛠️ Fix Applied:**
+```typescript
+// FIXED: Use ref to track loading state instead of devices.length
+const hasLoadedDevicesRef = useRef(false);
+
+// Auto-reload devices when filters change (if we already have devices loaded)
+useEffect(() => {
+  // Only auto-reload if we have already loaded devices at least once
+  // This prevents auto-loading on initial page load
+  const hasLoadedDevices = hasLoadedDevicesRef.current;  // ✅ Use ref instead
+  const hasRequiredFields = environmentId.trim() && username.trim() && tokenStatus.isValid;
+
+  if (hasLoadedDevices && hasRequiredFields) {
+    handleLoadDevices();
+  }
+}, [environmentId, username, tokenStatus.isValid, selectedDeviceType, selectedDeviceStatus]); // ✅ No devices.length
+
+// Update ref when devices are successfully loaded
+const handleLoadDevices = useCallback(async () => {
+  // ... loading logic ...
+  setDevices(filteredDevices);
+  hasLoadedDevicesRef.current = true;  // ✅ Mark devices as loaded
+}, [environmentId, username, tokenStatus.isValid, selectedDeviceType, selectedDeviceStatus]);
+```
+
+**🔍 Technical Investigation:**
+```bash
+# Check for infinite loop patterns in DeleteAllDevicesUtilityV8
+grep -n -A 5 -B 2 "devices.length" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+
+# Check useEffect dependencies for potential loops
+grep -n -A 3 -B 1 "useEffect.*\[" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+
+# Check useCallback dependencies
+grep -n -A 2 -B 1 "useCallback.*\[" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+```
+
+**📊 Current Status After Fix:**
+- ✅ **Infinite Loop Fixed**: Removed `devices.length` from useEffect dependency
+- ✅ **Ref Pattern Applied**: Using `hasLoadedDevicesRef` to track loading state
+- ✅ **Proper Dependencies**: useEffect only depends on actual filter changes
+- ✅ **Loading State Management**: Ref prevents re-triggering after initial load
+
+**🔍 Prevention Strategy:**
+1. **Ref Pattern**: Use refs to track state that shouldn't trigger re-renders
+2. **Dependency Audit**: Regularly audit useEffect/useCallback dependencies
+3. **Loading State Management**: Separate loading triggers from state updates
+4. **Pattern Documentation**: Document correct patterns for auto-reloading functionality
+
+**🛡️ Prevention Commands Added:**
+```bash
+# === DEVICE LOADING INFINITE LOOP (Issue 119 Prevention) ===
+# 1. Check for devices.length in useEffect dependencies (infinite loop risk)
+grep -rn "devices\.length.*\]" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+
+# 2. Check for useRef usage in device loading components
+grep -rn "useRef.*loaded\|hasLoadedRef" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+
+# 3. Verify useEffect dependencies don't include state they modify
+grep -A 5 -B 2 "useEffect.*\[" src/v8/pages/DeleteAllDevicesUtilityV8.tsx | grep -E "(devices\.length|setDevices)"
+
+# 4. Check useCallback dependencies for circular references
+grep -A 3 -B 1 "useCallback.*\[" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+
+# 5. Verify proper ref usage patterns in device components
+grep -rn "hasLoadedDevicesRef\.current" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+
+# 6. Check for auto-reload patterns that could cause loops
+grep -rn "auto.*reload\|handleLoadDevices" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+
+# 7. Verify loading state management doesn't create circular dependencies
+grep -rn "setIsLoading\|isLoading.*=" src/v8/pages/DeleteAllDevicesUtilityV8.tsx
+```
+
+**📝 Implementation Guidelines for Future Development:**
+1. **Never Use State in Dependencies**: Avoid using state values that are modified within the effect
+2. **Use Refs for Loading Tracking**: Track "has loaded" state with refs instead of state length checks
+3. **Separate Triggers from Updates**: Dependencies should trigger effects, not be updated by them
+4. **Audit Dependencies**: Regularly review useEffect/useCallback dependencies for circular references
+5. **Document Patterns**: Document correct patterns for auto-reloading functionality
+
+**⚠️ Common Pitfalls to Avoid:**
+1. **State Dependencies**: Never depend on state that the effect modifies
+2. **Length Checks**: Avoid using array/object lengths in useEffect dependencies
+3. **Circular References**: Prevent useCallback from depending on functions it creates
+4. **Loading State Loops**: Don't trigger loading based on loading state changes
+5. **Auto-reload Without Guards**: Always guard auto-reload with "has loaded" checks
+
+**🚨 Detection Commands for Regression Testing:**
+```bash
+# Quick regression check - run before modifying device loading
+grep -n "devices\.length.*\]" src/v8/pages/DeleteAllDevicesUtilityV8.tsx && echo "❌ DEVICES.LENGTH IN DEPENDENCIES - INFINITE LOOP RISK" || echo "✅ NO DEVICES.LENGTH DEPENDENCIES"
+
+# Verify ref pattern is used for loading tracking
+grep -c "hasLoadedDevicesRef\.current" src/v8/pages/DeleteAllDevicesUtilityV8.tsx && echo "✅ REF PATTERN IN USE"
+
+# Check for proper useEffect dependencies
+grep -A 5 "useEffect.*\[" src/v8/pages/DeleteAllDevicesUtilityV8.tsx | grep -v "devices\.length" && echo "✅ SAFE DEPENDENCY PATTERNS"
+```
+
+**📈 Implementation Status:**
+- **Infinite Loop**: ✅ Fixed - Removed devices.length from useEffect dependency
+- **Ref Pattern**: ✅ Implemented - Using hasLoadedDevicesRef for state tracking
+- **Dependencies**: ✅ Corrected - useEffect only depends on filter changes
+- **Loading Management**: ✅ Improved - Proper separation of triggers and updates
+- **Prevention Commands**: ✅ Added - 7 new detection commands for regression testing
+
+**🎯 Success Metrics:**
+- **No Infinite Loop**: Device loading stops after initial load and filter changes
+- **Proper Auto-reload**: Devices reload only when filters actually change
+- **Resource Efficiency**: No unnecessary API calls or continuous loading
+- **User Experience**: Stable device list with proper loading states
+- **Prevention**: Commands detect future infinite loop patterns
+
+**🔄 Related Issues:**
+- **Issue 86**: Original infinite loading loop fix (resolved)
+- **Issue 119**: Current regression of the same pattern
+- **Pattern**: Common issue with useEffect dependencies and state management
+
+**📋 Testing Requirements:**
+- [ ] Verify device loading stops after initial load
+- [ ] Test filter changes trigger single reload
+- [ ] Confirm no continuous API calls in browser dev tools
+- [ ] Validate loading states work correctly
+- [ ] Test with various device counts (0, 1, many)
+
+---
+
+*Last Updated: Version 9.6.6*
+*New Regression Patterns Identified: 2026-02-10 — Issue 119: Device Loading Infinite Loop Regression*
+*Priority: HIGH - Infinite loading loop prevents device management functionality*
 *SWE-15 Compliance Framework Enhanced: 2026-02-10*
 *Device Authorization Security Lockdown Completed: 2026-02-10*
 *Silent API and Show Token Implementation Completed: 2026-02-10*
+*Custom Resource Attribute Mapping Documentation Completed: 2026-02-10*
 
 ---
