@@ -128,6 +128,16 @@ grep -n "useCallback.*\[\s*\]" src/v8/pages/EnvironmentManagementPageV8.tsx
 # Verify no localStorage/sessionStorage regressions
 grep -n "localStorage\|sessionStorage" src/v8/pages/EnvironmentManagementPageV8.tsx
 
+# === DEVICE CODE FLOW SILENT API CHECKS (Issue 109 Prevention) ===
+# 1. Check for improper worker token requirements in device-code flow
+grep -rn "hasValidWorkerToken.*required\|require.*worker.*token" src/v8u/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify device-code flow exclusion from worker token validation
+grep -A 5 -B 5 "device-code.*worker\|worker.*device-code" src/v8u/components/UnifiedFlowSteps.tsx
+
+# 3. Check for modal triggers in device-code flow (should be none)
+grep -rn "setShowWorkerTokenModal" src/v8/ --include="*.tsx" --include="*.ts" | grep -v test | grep -v prototype
+
 # === NEW REGRESSION PATTERNS ===
 # LocalStorage state management
 grep -n -A 3 -B 2 "localStorage\.setItem" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
@@ -4803,6 +4813,7 @@ This section provides a comprehensive summary of all critical issues identified 
 | 106 | **Sidebar Menu Visibility Prevention** | ✅ IMPLEMENTED | UNIFIED_MFA_INVENTORY.md:110-115, Sidebar.tsx:558,1349 | New pages not visible in sidebar menu | Added prevention commands and checklist for sidebar menu integration |
 | 107 | **Environment Page SWE-15 Compliance Verification** | ✅ VERIFIED | EnvironmentManagementPageV8.tsx:1, environmentServiceV8Simple.ts:1 | New Environment page checked for SWE-15 compliance | No regressions introduced, all Biome issues fixed, prevention commands passed |
 | 108 | **Biome New App Creation** | ✅ COMPLETED | biome-new-app/ directory, package.json:1, biome.json:1 | Created new React app with Biome tooling and modern development setup | Full Biome-integrated React app with Vite, TypeScript, and automated linting/formatting |
+| 109 | **Device Code Flow Silent API Token Retrieval** | ✅ FIXED | UnifiedFlowSteps.tsx:754,757,546 | Device Code Flow was incorrectly requiring worker token and showing modals | Fixed device-code flow to skip worker token validation and use direct API calls |
 | 68 | **Required Field Validation Missing Toast Messages** | ✅ RESOLVED | SMSFlowV8.tsx:1187, WhatsAppFlowV8.tsx:1059, MobileFlowV8.tsx:1171 | Required fields have red asterisk and border but no toast messages | Added toastV8.error messages for all required field validation failures across flows |
 | 69 | **Resend Email 401/400 Error** | ✅ RESOLVED | mfaServiceV8.ts:3200, server.js:11565 | Resend pairing code fails with 401 Unauthorized or 400 Bad Request | Improved error handling for worker token expiration and Content-Type issues |
 | 53 | **Worker Token Checkboxes Not Working** | ✅ RESOLVED | useWorkerTokenConfigV8.ts:1, SilentApiConfigCheckboxV8.tsx:1 | Both Silent API and Show Token checkboxes not working | Fixed with centralized hook and components |
@@ -5063,13 +5074,99 @@ User requested creation of a new React app with Biome tooling integration to dem
 6. **Code Quality**: Ensure all Biome checks pass
 7. **Documentation**: Document setup process and dependencies
 
+#### **📋 Issue 109: Device Code Flow Silent API Token Retrieval - DETAILED ANALYSIS**
+
+**🎯 Problem Summary:**
+Device Code Flow at `/v8u/unified/device-code/0` was incorrectly requiring worker token validation and showing modals instead of making silent API calls directly to PingOne through the proxy. This violated the principle that Device Code Flow should be a direct API flow without worker token dependencies.
+
+**🔍 Root Cause Analysis:**
+1. **Primary Cause**: UnifiedFlowSteps.tsx applied worker token validation to ALL flows including device-code
+2. **Secondary Cause**: Navigation logic required `hasValidWorkerToken` for step progression
+3. **Impact**: Device Code Flow couldn't proceed without worker token, breaking silent API behavior
+
+**🛠️ Technical Investigation:**
+```bash
+# 1. Identify worker token modal triggers
+grep -rn "setShowWorkerTokenModal(true)" src/v8/ --include="*.tsx" --include="*.ts" | grep -v "workerTokenModalHelperV8"
+
+# 2. Check device-code flow validation logic
+grep -A 10 -B 5 "flowRequiresWorkerToken" src/v8u/components/UnifiedFlowSteps.tsx
+
+# 3. Verify navigation logic for device-code flow
+grep -A 5 -B 5 "device-code.*worker.*token" src/v8u/components/UnifiedFlowSteps.tsx
+```
+
+**📊 Implementation Process:**
+1. **Flow Analysis**: Identified that device-code flow should NOT require worker token
+2. **Logic Update**: Added `flowRequiresWorkerToken` condition to exclude device-code
+3. **Navigation Fix**: Updated `canGoNext` logic to allow device-code without worker token
+4. **Dependency Fix**: Added `flowType` to useEffect and useMemo dependency arrays
+
+**🔧 Code Changes Made:**
+```typescript
+// 1. Worker token validation exclusion
+const flowRequiresWorkerToken = flowType !== 'device-code';
+
+if (flowRequiresWorkerToken && currentStep > 0 && !status.isValid) {
+  // Only redirect if flow actually needs worker token
+}
+
+// 2. Navigation logic update
+canGoNext: 
+  currentStep < totalSteps - 1 &&
+  validationErrors.length === 0 &&
+  completedSteps.includes(currentStep) &&
+  (flowType === 'device-code' || hasValidWorkerToken), // Device Code Flow doesn't need worker token
+
+// 3. Dependency array fixes
+}, [currentStep, flowType, navigateToStep]);
+// and
+hasValidWorkerToken, flowType,
+```
+
+**📈 Implementation Results:**
+```
+✅ Device Code Flow Silent API: Working correctly
+✅ Worker Token Validation: Properly excluded for device-code
+✅ Navigation Logic: Allows device-code progression without worker token
+✅ Dependency Arrays: Fixed React hook dependency warnings
+✅ Direct API Calls: Device Code Flow now uses proxy directly
+✅ Silent Behavior: No modals shown for device-code flow
+```
+
+**🔍 Verification Steps:**
+1. Navigate to `/v8u/unified/device-code/0`
+2. Configure credentials (environmentId, clientId, scopes)
+3. Proceed to step 1 without worker token
+4. Device authorization should work via direct API calls
+5. No worker token modals should appear
+
+**📝 Implementation Guidelines:**
+1. **Flow-Specific Requirements**: Different flows have different token requirements
+2. **Worker Token Scope**: Only required for admin/management flows, not user flows
+3. **Direct API Access**: Device Code and Client Credentials use direct proxy calls
+4. **Navigation Logic**: Consider flow type when determining progression requirements
+5. **Dependency Arrays**: Include all variables used in hooks to prevent warnings
+
 **⚠️ Common Pitfalls to Avoid:**
-1. **Schema Mismatch**: Keep Biome schema version updated
-2. **Missing Configuration**: Ensure all config files are present
-3. **Build Errors**: Fix TypeScript issues before building
-4. **Linting Issues**: Address all Biome warnings/errors
-5. **Missing Scripts**: Include all necessary npm scripts
-6. **Outdated Dependencies**: Keep packages up to date
+1. **Universal Token Requirements**: Don't apply worker token requirements to all flows
+2. **Flow Type Awareness**: Always check flow type before applying validation logic
+3. **Navigation Dependencies**: Consider flow-specific requirements for step progression
+4. **Silent API Behavior**: Respect silent mode flags and flow characteristics
+5. **Dependency Arrays**: Include all used variables in React hook dependencies
+6. **Direct vs Proxy Calls**: Know which flows use direct API vs worker token calls
+
+**🛡️ Prevention Commands:**
+```bash
+# Check for improper worker token requirements
+grep -rn "hasValidWorkerToken.*required\|require.*worker.*token" src/v8u/ --include="*.tsx" --include="*.ts"
+
+# Verify device-code flow exclusion
+grep -A 5 -B 5 "device-code.*worker\|worker.*device-code" src/v8u/components/UnifiedFlowSteps.tsx
+
+# Check for modal triggers in device-code flow
+grep -rn "setShowWorkerTokenModal" src/v8u/ --include="*.tsx" --include="*.ts" | grep -v test | grep -v prototype
+```
 
 3. **Prop Chain Integrity**: Ensure props flow through entire component hierarchy
 4. **Interface Completeness**: Keep component interfaces complete and up-to-date
