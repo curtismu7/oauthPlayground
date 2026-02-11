@@ -15,15 +15,15 @@ export const fedexTheme: BrandTheme = {
 	displayName: 'FedEx',
 	portalName: 'FedEx Employee Portal',
 	logo: {
-		url: 'https://raw.githubusercontent.com/curtismu7/CDN/74b2535cf2ff57c98c702071ff3de3e9eda63929/fedex-logo.png',
+		url: 'https://www.fedex.com/favicon.ico',
 		alt: 'FedEx Logo',
 		width: '140px',
 		height: '60px',
 		text: 'FedEx',
 		colors: {
 			fed: '#4D148C',
-			ex: '#FF6600'
-		}
+			ex: '#FF6600',
+		},
 	},
 	colors: {
 		primary: '#4D148C', // FedEx Purple (official brand color)

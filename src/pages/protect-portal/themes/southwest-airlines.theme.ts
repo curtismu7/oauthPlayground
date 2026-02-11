@@ -15,15 +15,15 @@ export const southwestAirlinesTheme: BrandTheme = {
 	displayName: 'Southwest Airlines',
 	portalName: 'Southwest Airlines Employee Portal',
 	logo: {
-		url: 'https://raw.githubusercontent.com/curtismu7/CDN/74b2535cf2ff57c98c702071ff3de3e9eda63929/southwest-airlines-logo.png',
+		url: 'https://www.southwest.com/favicon.ico',
 		alt: 'Southwest Airlines Logo',
-		width: '160px',
+		width: '140px',
 		height: '60px',
 		text: 'SOUTHWEST',
 		colors: {
-			southwest: '#2E4BB1',
-			heart: '#E51D23'
-		}
+			southwest: '#304CB2',
+			heart: '#EE3124',
+		},
 	},
 	colors: {
 		primary: '#2E4BB1', // Southwest Blue (exact from their brand)
