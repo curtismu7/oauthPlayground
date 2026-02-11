@@ -123,6 +123,76 @@ const LoginSubtitle = styled.p`
   font-family: 'Helvetica Neue', Arial, sans-serif;
 `;
 
+const LoginDescription = styled.p`
+  color: #666666;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+`;
+
+const LoginButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 1rem;
+  background: #4D148C; /* FedEx purple */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #3A0F6B; /* Darker purple on hover */
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+const QuickActions = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 2rem 0;
+`;
+
+const QuickAction = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(77, 20, 140, 0.1);
+  border-radius: 8px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(77, 20, 140, 0.2);
+    transform: translateY(-2px);
+  }
+`;
+
+const ActionIcon = styled.div`
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+`;
+
+const ActionLabel = styled.span`
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4D148C;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+`;
+
 const QuickLinks = styled.div`
   display: flex;
   justify-content: space-between;
@@ -173,76 +243,87 @@ const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 	clientSecret,
 	redirectUri,
 }) => {
-	// Show different content based on current step
-	if (currentStep && currentStep !== 'portal-home') {
-		return (
-			<HeroContainer className={className}>
-				<HeroBackground />
-				<HeroContent>
-					<Navigation>
-						<LogoSection>
-							<LogoText>FedEx</LogoText>
-						</LogoSection>
-						<NavLinks>
-							<NavLink href="#">Ship</NavLink>
-							<NavLink href="#">Track</NavLink>
-							<NavLink href="#">Manage</NavLink>
-							<NavLink href="#">Support</NavLink>
-						</NavLinks>
-					</Navigation>
-					<MainContent>
-						<LoginContainer>
-							<LoginSection>
-								<LoginTitle>Secure Employee Portal</LoginTitle>
-								<LoginSubtitle>
-									Access your FedEx employee account with enhanced security features.
-								</LoginSubtitle>
-							</LoginSection>
-
-							<FedExLoginForm
-								onLoginSuccess={onLoginSuccess || (() => {})}
-								onError={onError || (() => {})}
-								environmentId={environmentId}
-								clientId={clientId}
-								clientSecret={clientSecret}
-								redirectUri={redirectUri}
-							/>
-
-							<QuickLinks>
-								<QuickLink href="#">Forgot Username?</QuickLink>
-								<QuickLink href="#">Forgot Password?</QuickLink>
-								<QuickLink href="#">Need Help?</QuickLink>
-							</QuickLinks>
-						</LoginContainer>
-					</MainContent>
-				</HeroContent>
-			</HeroContainer>
-		);
-	}
-
 	return (
 		<HeroContainer className={className}>
 			<HeroBackground />
 			<HeroContent>
-				<MainContent>
-					<LoginContainer>
-						<LoginSection>
-							<LoginTitle>Secure Employee Portal</LoginTitle>
-							<LoginSubtitle>
-								Access your FedEx employee account with enhanced security features.
-							</LoginSubtitle>
-						</LoginSection>
+				{currentStep === 'portal-home' ? (
+					<MainContent>
+						<LoginContainer>
+							<LoginSection>
+								<LoginTitle>The World on Time</LoginTitle>
+								<LoginSubtitle>
+									Ship, track, and manage your shipments with FedEx's reliable global logistics
+									network
+								</LoginSubtitle>
+							</LoginSection>
 
-						<FedExLoginForm
-							onLoginSuccess={onLoginSuccess || (() => {})}
-							onError={onError || (() => {})}
-							environmentId={environmentId}
-							clientId={clientId}
-							clientSecret={clientSecret}
-							redirectUri={redirectUri}
-						/>
-					</LoginContainer>
-				</MainContent>
+							<QuickActions>
+								<QuickAction>
+									<ActionIcon>📦</ActionIcon>
+									<ActionLabel>Ship</ActionLabel>
+								</QuickAction>
+
+								<QuickAction>
+									<ActionIcon>🔍</ActionIcon>
+									<ActionLabel>Track</ActionLabel>
+								</QuickAction>
+
+								<QuickAction>
+									<ActionIcon>📋</ActionIcon>
+									<ActionLabel>Manage</ActionLabel>
+								</QuickAction>
+							</QuickActions>
+
+							<LoginSection>
+								<LoginDescription>
+									Click below to begin your secure login journey. We'll evaluate your login attempt
+									in real-time to provide the appropriate level of security.
+								</LoginDescription>
+								<LoginButton onClick={() => {}}>🔒 Begin Secure Login →</LoginButton>
+							</LoginSection>
+						</LoginContainer>
+					</MainContent>
+				) : (
+					<>
+						<Navigation>
+							<LogoSection>
+								<LogoText>FedEx</LogoText>
+							</LogoSection>
+							<NavLinks>
+								<NavLink href="#">Ship</NavLink>
+								<NavLink href="#">Track</NavLink>
+								<NavLink href="#">Manage</NavLink>
+								<NavLink href="#">Support</NavLink>
+							</NavLinks>
+						</Navigation>
+						<MainContent>
+							<LoginContainer>
+								<LoginSection>
+									<LoginTitle>Secure Employee Portal</LoginTitle>
+									<LoginSubtitle>
+										Access your FedEx employee account with enhanced security features.
+									</LoginSubtitle>
+								</LoginSection>
+
+								<FedExLoginForm
+									onLoginSuccess={onLoginSuccess || (() => {})}
+									onError={onError || (() => {})}
+									environmentId={environmentId}
+									clientId={clientId}
+									clientSecret={clientSecret}
+									redirectUri={redirectUri}
+								/>
+
+								<QuickLinks>
+									<QuickLink href="#">Forgot Username?</QuickLink>
+									<QuickLink href="#">Forgot Password?</QuickLink>
+									<QuickLink href="#">Need Help?</QuickLink>
+								</QuickLinks>
+							</LoginContainer>
+						</MainContent>
+					</>
+				)}
 			</HeroContent>
 		</HeroContainer>
 	);

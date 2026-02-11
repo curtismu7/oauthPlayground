@@ -471,6 +471,7 @@ grep -rn "CSRF\|XSS\|injection" src/pages/protect-portal/components/CustomLoginF
 | **✅ Double Header Fix** | RESOLVED | Fixed FedEx and Southwest double headers | Removed duplicate Navigation components in hero sections
 | **✅ Double Footer Fix** | RESOLVED | Fixed FedEx double footer issue | Removed duplicate QuickLinks components in FedEx hero section
 | **✅ Broken Logo Fix** | RESOLVED | Fixed all broken logo URLs | Updated FedEx and Southwest to use working favicon URLs, verified all logos return 200 status
+| **✅ FedEx Step 2 Duplication Fix** | RESOLVED | Fixed FedEx login page appearing on both step 1 and step 2 | Corrected conditional rendering logic to match American Airlines pattern
 
 
 ### **Prevention Commands for Future Development**
@@ -509,6 +510,19 @@ head -30 src/protect-app/ProtectPortalApp.tsx | grep -E "^import" && echo "✅ I
 # === DOUBLE FOOTER PREVENTION (Issue PP-055 Prevention) ===
 
 # === BROKEN LOGO PREVENTION (Issue PP-056 Prevention) ===
+
+# === STEP-BASED RENDERING PREVENTION (Issue PP-057 Prevention) ===
+# 1. Check for duplicate login forms in hero components
+grep -c "LoginForm" src/pages/protect-portal/components/*Hero.tsx
+
+# 2. Verify conditional rendering uses correct logic pattern
+grep -A 3 -B 1 "currentStep.*===.*portal-home" src/pages/protect-portal/components/*Hero.tsx
+
+# 3. Check for proper step separation (portal-home vs other steps)
+grep -rn "portal-home|currentStep" src/pages/protect-portal/components/ --include="*.tsx" | grep -v "import" | sort
+
+# 4. Verify each hero component has only one login form instance
+for file in src/pages/protect-portal/components/*Hero.tsx; do echo "$file: $(grep -c "LoginForm" "$file" | grep -v "import")"; done
 # 1. Check all logo URLs return 200 status
 for theme in fedex southwest american united bank; do echo "Testing $theme:"; curl -s -o /dev/null -w "%{http_code}" "$(grep -A 1 "url.*:" src/pages/protect-portal/themes/*$theme*.ts | grep -o "https://[^"]*" || echo "URL_NOT_FOUND")"; done
 
@@ -679,6 +693,7 @@ type PortalStep =
 | **✅ Double Header Fix** | RESOLVED | Fixed FedEx and Southwest double headers | Removed duplicate Navigation components in hero sections
 | **✅ Double Footer Fix** | RESOLVED | Fixed FedEx double footer issue | Removed duplicate QuickLinks components in FedEx hero section
 | **✅ Broken Logo Fix** | RESOLVED | Fixed all broken logo URLs | Updated FedEx and Southwest to use working favicon URLs, verified all logos return 200 status
+| **✅ FedEx Step 2 Duplication Fix** | RESOLVED | Fixed FedEx login page appearing on both step 1 and step 2 | Corrected conditional rendering logic to match American Airlines pattern
 
 
 ### **Prevention Commands for Future Development**
@@ -717,6 +732,19 @@ head -30 src/protect-app/ProtectPortalApp.tsx | grep -E "^import" && echo "✅ I
 # === DOUBLE FOOTER PREVENTION (Issue PP-055 Prevention) ===
 
 # === BROKEN LOGO PREVENTION (Issue PP-056 Prevention) ===
+
+# === STEP-BASED RENDERING PREVENTION (Issue PP-057 Prevention) ===
+# 1. Check for duplicate login forms in hero components
+grep -c "LoginForm" src/pages/protect-portal/components/*Hero.tsx
+
+# 2. Verify conditional rendering uses correct logic pattern
+grep -A 3 -B 1 "currentStep.*===.*portal-home" src/pages/protect-portal/components/*Hero.tsx
+
+# 3. Check for proper step separation (portal-home vs other steps)
+grep -rn "portal-home|currentStep" src/pages/protect-portal/components/ --include="*.tsx" | grep -v "import" | sort
+
+# 4. Verify each hero component has only one login form instance
+for file in src/pages/protect-portal/components/*Hero.tsx; do echo "$file: $(grep -c "LoginForm" "$file" | grep -v "import")"; done
 # 1. Check all logo URLs return 200 status
 for theme in fedex southwest american united bank; do echo "Testing $theme:"; curl -s -o /dev/null -w "%{http_code}" "$(grep -A 1 "url.*:" src/pages/protect-portal/themes/*$theme*.ts | grep -o "https://[^"]*" || echo "URL_NOT_FOUND")"; done
 
