@@ -237,20 +237,13 @@ export class PingOneLoginService {
 			const result = await response.json();
 
 			// Extract authorization code from various possible locations
-			let authorizationCode: string;
-			let state: string;
-
-			if (result.code && typeof result.code === 'string') {
-				authorizationCode = result.code;
-			} else if (result.authorizeResponse?.code) {
-				authorizationCode = result.authorizeResponse.code;
-			} else if (result.flow?.code) {
-				authorizationCode = result.flow.code;
-			} else {
+			const authorizationCode: string =
+				result.code || result.authorizeResponse?.code || result.flow?.code;
+			if (!authorizationCode) {
 				throw new Error('Authorization code not found in response');
 			}
 
-			state = result.state || flowId;
+			const state: string = result.state || flowId;
 
 			// Clean up stored PKCE params
 			PingOneLoginService.clearPKCEParams(flowId);
