@@ -11,24 +11,18 @@
 
 import React from 'react';
 import {
-	FiArrowRight,
 	FiCalendar,
 	FiCheckCircle,
 	FiCreditCard,
 	FiGift,
 	FiHeadphones,
 	FiHeart,
-	FiHome,
-	FiMapPin,
-	FiPlane,
-	FiSearch,
 	FiShield,
-	FiUser,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
-import SouthwestAirlinesLoginForm from './SouthwestAirlinesLoginForm';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
+import SouthwestAirlinesLoginForm from './SouthwestAirlinesLoginForm';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -242,15 +236,15 @@ const TrustBadge = styled.div`
 // ============================================================================
 
 interface SouthwestAirlinesHeroProps {
-  className?: string;
-  currentStep?: string;
-  onLoginStart?: () => void;
-  onLoginSuccess: (userContext: UserContext, loginContext: LoginContext) => void;
-  onError: (error: PortalError) => void;
-  environmentId: string;
-  clientId: string;
-  clientSecret: string;
-  redirectUri: string;
+	className?: string;
+	currentStep?: string;
+	onLoginStart?: () => void;
+	onLoginSuccess: (userContext: UserContext, loginContext: LoginContext) => void;
+	onError: (error: PortalError) => void;
+	environmentId: string;
+	clientId: string;
+	clientSecret: string;
+	redirectUri: string;
 }
 
 // ============================================================================
@@ -258,150 +252,152 @@ interface SouthwestAirlinesHeroProps {
 // ============================================================================
 
 const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
-  className,
-  currentStep,
-  onLoginStart,
-  onLoginSuccess,
-  onError,
-  environmentId,
-  clientId,
-  clientSecret,
-  redirectUri,
+	className,
+	currentStep,
+	onLoginStart,
+	onLoginSuccess,
+	onError,
+	environmentId,
+	clientId,
+	clientSecret,
+	redirectUri,
 }) => {
-  const { activeTheme } = useBrandTheme();
+	const { activeTheme } = useBrandTheme();
 
-  // Show different content based on current step
-  if (currentStep && currentStep !== 'portal-home') {
-    return (
-      <HeroContainer className={className}>
-        <HeroBackground />
-        <HeroContent>
-          <Navigation>
-            <LogoSection>
-              <LogoText>SOUTHWEST</LogoText>
-            </LogoSection>
-            <NavLinks>
-              <NavLink href="#">Book</NavLink>
-              <NavLink href="#">Check In</NavLink>
-              <NavLink href="#">My Trips</NavLink>
-              <NavLink href="#">Rapid Rewards</NavLink>
-            </NavLinks>
-          </Navigation>
-          <MainContent>
-            <LeftContent>
-              <HeroTitle>Secure Employee Portal</HeroTitle>
-              <HeroSubtitle>Access your Southwest Airlines employee account with enhanced security features.</HeroSubtitle>
-              <Features>
-                <Feature>
-                  <FeatureIcon><FiShield /></FeatureIcon>
-                  <span>Enhanced Security</span>
-                </Feature>
-                <Feature>
-                  <FeatureIcon><FiCheckCircle /></FeatureIcon>
-                  <span>Quick Access</span>
-                </Feature>
-              </Features>
-            </LeftContent>
-            <RightContent>
-              <SouthwestAirlinesLoginForm
-                onLoginSuccess={onLoginSuccess}
-                onError={onError}
-                environmentId={environmentId}
-                clientId={clientId}
-                clientSecret={clientSecret}
-                redirectUri={redirectUri}
-              />
-            </RightContent>
-          </MainContent>
-        </HeroContent>
-      </HeroContainer>
-    );
-  }
+	// Show different content based on current step
+	if (currentStep && currentStep !== 'portal-home') {
+		return (
+			<HeroContainer className={className}>
+				<HeroBackground />
+				<HeroContent>
+					<Navigation>
+						<LogoSection>
+							<LogoText>SOUTHWEST</LogoText>
+						</LogoSection>
+						<NavLinks>
+							<NavLink href="#">Book</NavLink>
+							<NavLink href="#">Check In</NavLink>
+							<NavLink href="#">My Trips</NavLink>
+							<NavLink href="#">Rapid Rewards</NavLink>
+						</NavLinks>
+					</Navigation>
+					<MainContent>
+						<LeftContent>
+							<HeroTitle>Secure Employee Portal</HeroTitle>
+							<HeroSubtitle>
+								Access your Southwest Airlines employee account with enhanced security features.
+							</HeroSubtitle>
+							<Features>
+								<Feature>
+									<FeatureIcon>
+										<FiShield />
+									</FeatureIcon>
+									<span>Enhanced Security</span>
+								</Feature>
+								<Feature>
+									<FeatureIcon>
+										<FiCheckCircle />
+									</FeatureIcon>
+									<span>Quick Access</span>
+								</Feature>
+							</Features>
+						</LeftContent>
+						<RightContent>
+							<SouthwestAirlinesLoginForm
+								onLoginSuccess={onLoginSuccess}
+								onError={onError}
+								environmentId={environmentId}
+								clientId={clientId}
+								clientSecret={clientSecret}
+								redirectUri={redirectUri}
+							/>
+						</RightContent>
+					</MainContent>
+				</HeroContent>
+			</HeroContainer>
+		);
+	}
 
-  return (
-    <HeroContainer className={className}>
-      <HeroBackground />
-      <HeroContent>
-        <Navigation>
-          <LogoSection>
-            <LogoText>SOUTHWEST</LogoText>
-          </LogoSection>
-          <NavLinks>
-            <NavLink href="#">Book</NavLink>
-            <NavLink href="#">Check In</NavLink>
-            <NavLink href="#">My Trips</NavLink>
-            <NavLink href="#">Rapid Rewards</NavLink>
-          </NavLinks>
-        </Navigation>
+	return (
+		<HeroContainer className={className}>
+			<HeroBackground />
+			<HeroContent>
+				<MainContent>
+					<LeftContent>
+						<HeroTitle>Transfarency. No Hidden Fees.</HeroTitle>
+						<HeroSubtitle>
+							Experience Southwest's legendary customer service with no change fees, no cancellation
+							fees, and bags fly free®.
+						</HeroSubtitle>
 
-        <MainContent>
-          <LeftContent>
-            <HeroTitle>Transfarency. No Hidden Fees.</HeroTitle>
-            <HeroSubtitle>
-              Experience Southwest's legendary customer service with no change fees, 
-              no cancellation fees, and bags fly free®.
-            </HeroSubtitle>
-            
-            <Features>
-              <Feature>
-                <FeatureIcon><FiHeart /></FeatureIcon>
-                <span>Bags Fly Free®</span>
-              </Feature>
-              <Feature>
-                <FeatureIcon><FiCreditCard /></FeatureIcon>
-                <span>No Change Fees</span>
-              </Feature>
-              <Feature>
-                <FeatureIcon><FiCalendar /></FeatureIcon>
-                <span>Flexible Booking</span>
-              </Feature>
-              <Feature>
-                <FeatureIcon><FiGift /></FeatureIcon>
-                <span>Rapid Rewards</span>
-              </Feature>
-            </Features>
+						<Features>
+							<Feature>
+								<FeatureIcon>
+									<FiHeart />
+								</FeatureIcon>
+								<span>Bags Fly Free®</span>
+							</Feature>
+							<Feature>
+								<FeatureIcon>
+									<FiCreditCard />
+								</FeatureIcon>
+								<span>No Change Fees</span>
+							</Feature>
+							<Feature>
+								<FeatureIcon>
+									<FiCalendar />
+								</FeatureIcon>
+								<span>Flexible Booking</span>
+							</Feature>
+							<Feature>
+								<FeatureIcon>
+									<FiGift />
+								</FeatureIcon>
+								<span>Rapid Rewards</span>
+							</Feature>
+						</Features>
 
-            <TrustBadges>
-              <TrustBadge>
-                <FiShield />
-                <span>Secure Booking</span>
-              </TrustBadge>
-              <TrustBadge>
-                <FiHeadphones />
-                <span>24/7 Support</span>
-              </TrustBadge>
-              <TrustBadge>
-                <FiCheckCircle />
-                <span>Customer First</span>
-              </TrustBadge>
-            </TrustBadges>
-          </LeftContent>
+						<TrustBadges>
+							<TrustBadge>
+								<FiShield />
+								<span>Secure Booking</span>
+							</TrustBadge>
+							<TrustBadge>
+								<FiHeadphones />
+								<span>24/7 Support</span>
+							</TrustBadge>
+							<TrustBadge>
+								<FiCheckCircle />
+								<span>Customer First</span>
+							</TrustBadge>
+						</TrustBadges>
+					</LeftContent>
 
-          <RightContent>
-            <LoginSection>
-              <LoginTitle>Employee Sign In</LoginTitle>
-              <LoginSubtitle>Access your Southwest Airlines employee account</LoginSubtitle>
-            </LoginSection>
-            
-            <SouthwestAirlinesLoginForm
-              onLoginSuccess={onLoginSuccess}
-              onError={onError}
-              environmentId={environmentId}
-              clientId={clientId}
-              clientSecret={clientSecret}
-              redirectUri={redirectUri}
-            />
+					<RightContent>
+						<LoginSection>
+							<LoginTitle>Employee Sign In</LoginTitle>
+							<LoginSubtitle>Access your Southwest Airlines employee account</LoginSubtitle>
+						</LoginSection>
 
-            <QuickLinks>
-              <QuickLink href="#">Forgot Username?</QuickLink>
-              <QuickLink href="#">Forgot Password?</QuickLink>
-              <QuickLink href="#">Need Help?</QuickLink>
-            </QuickLinks>
-          </RightContent>
-        </MainContent>
-      </HeroContent>
-    </HeroContainer>
-  );
+						<SouthwestAirlinesLoginForm
+							onLoginSuccess={onLoginSuccess}
+							onError={onError}
+							environmentId={environmentId}
+							clientId={clientId}
+							clientSecret={clientSecret}
+							redirectUri={redirectUri}
+						/>
+
+						<QuickLinks>
+							<QuickLink href="#">Forgot Username?</QuickLink>
+							<QuickLink href="#">Forgot Password?</QuickLink>
+							<QuickLink href="#">Need Help?</QuickLink>
+						</QuickLinks>
+					</RightContent>
+				</MainContent>
+			</HeroContent>
+		</HeroContainer>
+	);
 };
 
 export default SouthwestAirlinesHero;
