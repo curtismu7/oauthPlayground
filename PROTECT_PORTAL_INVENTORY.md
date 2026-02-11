@@ -472,6 +472,7 @@ grep -rn "CSRF\|XSS\|injection" src/pages/protect-portal/components/CustomLoginF
 | **✅ Double Footer Fix** | RESOLVED | Fixed FedEx double footer issue | Removed duplicate QuickLinks components in FedEx hero section
 | **✅ Broken Logo Fix** | RESOLVED | Fixed all broken logo URLs | Updated FedEx and Southwest to use working favicon URLs, verified all logos return 200 status
 | **✅ FedEx Step 2 Duplication Fix** | RESOLVED | Fixed FedEx login page appearing on both step 1 and step 2 | Corrected conditional rendering logic to match American Airlines pattern
+| **✅ Default Theme Selection Fix** | RESOLVED | Fixed default portal option not changing UI | Removed early return in switchTheme to always provide feedback
 
 
 ### **Prevention Commands for Future Development**
@@ -512,6 +513,22 @@ head -30 src/protect-app/ProtectPortalApp.tsx | grep -E "^import" && echo "✅ I
 # === BROKEN LOGO PREVENTION (Issue PP-056 Prevention) ===
 
 # === STEP-BASED RENDERING PREVENTION (Issue PP-057 Prevention) ===
+
+# === DEFAULT THEME SELECTION PREVENTION (Issue PP-058 Prevention) ===
+# 1. Check for early returns in switchTheme function
+grep -A 5 -B 5 "newTheme.name === activeTheme.name" src/pages/protect-portal/themes/theme-provider.tsx
+
+# 2. Verify switchTheme always provides UI feedback
+grep -A 10 "Always provide UI feedback" src/pages/protect-portal/themes/theme-provider.tsx
+
+# 3. Check dropdown selector calls switchTheme properly
+grep -A 3 "handleSelect.*themeName" src/pages/protect-portal/components/BrandDropdownSelector.tsx
+
+# 4. Verify theme switching works for same theme selection
+grep -rn "switchTheme" src/pages/protect-portal/components/ --include="*.tsx" | wc -l
+
+# 5. Check for useCallback dependency issues
+grep -A 2 "useCallback.*[]" src/pages/protect-portal/themes/theme-provider.tsx
 # 1. Check for duplicate login forms in hero components
 grep -c "LoginForm" src/pages/protect-portal/components/*Hero.tsx
 
@@ -694,6 +711,7 @@ type PortalStep =
 | **✅ Double Footer Fix** | RESOLVED | Fixed FedEx double footer issue | Removed duplicate QuickLinks components in FedEx hero section
 | **✅ Broken Logo Fix** | RESOLVED | Fixed all broken logo URLs | Updated FedEx and Southwest to use working favicon URLs, verified all logos return 200 status
 | **✅ FedEx Step 2 Duplication Fix** | RESOLVED | Fixed FedEx login page appearing on both step 1 and step 2 | Corrected conditional rendering logic to match American Airlines pattern
+| **✅ Default Theme Selection Fix** | RESOLVED | Fixed default portal option not changing UI | Removed early return in switchTheme to always provide feedback
 
 
 ### **Prevention Commands for Future Development**
@@ -734,6 +752,22 @@ head -30 src/protect-app/ProtectPortalApp.tsx | grep -E "^import" && echo "✅ I
 # === BROKEN LOGO PREVENTION (Issue PP-056 Prevention) ===
 
 # === STEP-BASED RENDERING PREVENTION (Issue PP-057 Prevention) ===
+
+# === DEFAULT THEME SELECTION PREVENTION (Issue PP-058 Prevention) ===
+# 1. Check for early returns in switchTheme function
+grep -A 5 -B 5 "newTheme.name === activeTheme.name" src/pages/protect-portal/themes/theme-provider.tsx
+
+# 2. Verify switchTheme always provides UI feedback
+grep -A 10 "Always provide UI feedback" src/pages/protect-portal/themes/theme-provider.tsx
+
+# 3. Check dropdown selector calls switchTheme properly
+grep -A 3 "handleSelect.*themeName" src/pages/protect-portal/components/BrandDropdownSelector.tsx
+
+# 4. Verify theme switching works for same theme selection
+grep -rn "switchTheme" src/pages/protect-portal/components/ --include="*.tsx" | wc -l
+
+# 5. Check for useCallback dependency issues
+grep -A 2 "useCallback.*[]" src/pages/protect-portal/themes/theme-provider.tsx
 # 1. Check for duplicate login forms in hero components
 grep -c "LoginForm" src/pages/protect-portal/components/*Hero.tsx
 
