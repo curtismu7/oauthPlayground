@@ -10,17 +10,8 @@
  */
 
 import React from 'react';
-import {
-	FiCalendar,
-	FiCheckCircle,
-	FiCreditCard,
-	FiGift,
-	FiHeadphones,
-	FiHeart,
-	FiShield,
-} from 'react-icons/fi';
+import { FiCheckCircle, FiDollarSign, FiHeart, FiShield, FiSmile } from 'react-icons/fi';
 import styled from 'styled-components';
-import { useBrandTheme } from '../themes/theme-provider';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 import SouthwestAirlinesLoginForm from './SouthwestAirlinesLoginForm';
 
@@ -187,6 +178,41 @@ const LoginSubtitle = styled.p`
   font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
 `;
 
+const LoginDescription = styled.p`
+  color: #6B7280;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
+  font-family: 'Benton Sans', Arial, sans-serif;
+`;
+
+const LoginButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 1rem;
+  background: #304CB2; /* Southwest Blue */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Benton Sans', Arial, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #263A94; /* Darker blue on hover */
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
 const QuickLinks = styled.div`
   display: flex;
   justify-content: space-between;
@@ -208,7 +234,7 @@ const QuickLink = styled.a`
   }
 `;
 
-const TrustBadges = styled.div`
+const _TrustBadges = styled.div`
   display: flex;
   justify-content: center;
   gap: 2rem;
@@ -223,7 +249,7 @@ const TrustBadges = styled.div`
   }
 `;
 
-const TrustBadge = styled.div`
+const _TrustBadge = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -254,7 +280,6 @@ interface SouthwestAirlinesHeroProps {
 const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 	className,
 	currentStep,
-	onLoginStart,
 	onLoginSuccess,
 	onError,
 	environmentId,
@@ -262,139 +287,108 @@ const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 	clientSecret,
 	redirectUri,
 }) => {
-	const { activeTheme } = useBrandTheme();
-
-	// Show different content based on current step
-	if (currentStep && currentStep !== 'portal-home') {
-		return (
-			<HeroContainer className={className}>
-				<HeroBackground />
-				<HeroContent>
-					<Navigation>
-						<LogoSection>
-							<LogoText>SOUTHWEST</LogoText>
-						</LogoSection>
-						<NavLinks>
-							<NavLink href="#">Book</NavLink>
-							<NavLink href="#">Check In</NavLink>
-							<NavLink href="#">My Trips</NavLink>
-							<NavLink href="#">Rapid Rewards</NavLink>
-						</NavLinks>
-					</Navigation>
-					<MainContent>
-						<LeftContent>
-							<HeroTitle>Secure Employee Portal</HeroTitle>
-							<HeroSubtitle>
-								Access your Southwest Airlines employee account with enhanced security features.
-							</HeroSubtitle>
-							<Features>
-								<Feature>
-									<FeatureIcon>
-										<FiShield />
-									</FeatureIcon>
-									<span>Enhanced Security</span>
-								</Feature>
-								<Feature>
-									<FeatureIcon>
-										<FiCheckCircle />
-									</FeatureIcon>
-									<span>Quick Access</span>
-								</Feature>
-							</Features>
-						</LeftContent>
-						<RightContent>
-							<SouthwestAirlinesLoginForm
-								onLoginSuccess={onLoginSuccess}
-								onError={onError}
-								environmentId={environmentId}
-								clientId={clientId}
-								clientSecret={clientSecret}
-								redirectUri={redirectUri}
-							/>
-						</RightContent>
-					</MainContent>
-				</HeroContent>
-			</HeroContainer>
-		);
-	}
-
 	return (
 		<HeroContainer className={className}>
 			<HeroBackground />
 			<HeroContent>
-				<MainContent>
-					<LeftContent>
-						<HeroTitle>Transfarency. No Hidden Fees.</HeroTitle>
-						<HeroSubtitle>
-							Experience Southwest's legendary customer service with no change fees, no cancellation
-							fees, and bags fly free®.
-						</HeroSubtitle>
+				{currentStep === 'portal-home' ? (
+					<MainContent>
+						<LeftContent>
+							<HeroTitle>Transfarency. No Hidden Fees.</HeroTitle>
+							<HeroSubtitle>
+								Experience Southwest's legendary customer service with no change fees, no
+								cancellation fees, and bags fly free®.
+							</HeroSubtitle>
 
-						<Features>
-							<Feature>
-								<FeatureIcon>
-									<FiHeart />
-								</FeatureIcon>
-								<span>Bags Fly Free®</span>
-							</Feature>
-							<Feature>
-								<FeatureIcon>
-									<FiCreditCard />
-								</FeatureIcon>
-								<span>No Change Fees</span>
-							</Feature>
-							<Feature>
-								<FeatureIcon>
-									<FiCalendar />
-								</FeatureIcon>
-								<span>Flexible Booking</span>
-							</Feature>
-							<Feature>
-								<FeatureIcon>
-									<FiGift />
-								</FeatureIcon>
-								<span>Rapid Rewards</span>
-							</Feature>
-						</Features>
+							<Features>
+								<Feature>
+									<FeatureIcon>
+										<FiHeart />
+									</FeatureIcon>
+									<span>Bags Fly Free®</span>
+								</Feature>
+								<Feature>
+									<FeatureIcon>
+										<FiDollarSign />
+									</FeatureIcon>
+									<span>No Change Fees</span>
+								</Feature>
+								<Feature>
+									<FeatureIcon>
+										<FiSmile />
+									</FeatureIcon>
+									<span>Customer First</span>
+								</Feature>
+							</Features>
 
-						<TrustBadges>
-							<TrustBadge>
-								<FiShield />
-								<span>Secure Booking</span>
-							</TrustBadge>
-							<TrustBadge>
-								<FiHeadphones />
-								<span>24/7 Support</span>
-							</TrustBadge>
-							<TrustBadge>
-								<FiCheckCircle />
-								<span>Customer First</span>
-							</TrustBadge>
-						</TrustBadges>
-					</LeftContent>
+							<LoginSection>
+								<LoginDescription>
+									Click below to begin your secure login journey. We'll evaluate your login attempt
+									in real-time to provide the appropriate level of security.
+								</LoginDescription>
+								<LoginButton onClick={() => {}}>🔒 Begin Secure Login →</LoginButton>
+							</LoginSection>
+						</LeftContent>
+					</MainContent>
+				) : (
+					<>
+						<Navigation>
+							<LogoSection>
+								<LogoText>SOUTHWEST</LogoText>
+							</LogoSection>
+							<NavLinks>
+								<NavLink href="#">Book</NavLink>
+								<NavLink href="#">Check In</NavLink>
+								<NavLink href="#">My Trips</NavLink>
+								<NavLink href="#">Rapid Rewards</NavLink>
+							</NavLinks>
+						</Navigation>
+						<MainContent>
+							<LeftContent>
+								<HeroTitle>Secure Employee Portal</HeroTitle>
+								<HeroSubtitle>
+									Access your Southwest Airlines employee account with enhanced security features.
+								</HeroSubtitle>
+								<Features>
+									<Feature>
+										<FeatureIcon>
+											<FiShield />
+										</FeatureIcon>
+										<span>Enhanced Security</span>
+									</Feature>
+									<Feature>
+										<FeatureIcon>
+											<FiCheckCircle />
+										</FeatureIcon>
+										<span>Quick Access</span>
+									</Feature>
+								</Features>
+							</LeftContent>
 
-					<RightContent>
-						<LoginSection>
-							<LoginTitle>Employee Sign In</LoginTitle>
-							<LoginSubtitle>Access your Southwest Airlines employee account</LoginSubtitle>
-						</LoginSection>
+							<RightContent>
+								<LoginSection>
+									<LoginTitle>Employee Sign In</LoginTitle>
+									<LoginSubtitle>Access your Southwest Airlines employee account</LoginSubtitle>
+								</LoginSection>
 
-						<SouthwestAirlinesLoginForm
-							onLoginSuccess={onLoginSuccess}
-							onError={onError}
-							environmentId={environmentId}
-							clientId={clientId}
-							clientSecret={clientSecret}
-							redirectUri={redirectUri}
-						/>
+								<SouthwestAirlinesLoginForm
+									onLoginSuccess={onLoginSuccess}
+									onError={onError}
+									environmentId={environmentId}
+									clientId={clientId}
+									clientSecret={clientSecret}
+									redirectUri={redirectUri}
+								/>
 
-						<QuickLinks>
-							<QuickLink href="#">Forgot Username?</QuickLink>
-							<QuickLink href="#">Forgot Password?</QuickLink>
-							<QuickLink href="#">Need Help?</QuickLink>
-						</QuickLinks>
-					</RightContent>
-				</MainContent>
+								<QuickLinks>
+									<QuickLink href="#">Forgot Username?</QuickLink>
+									<QuickLink href="#">Forgot Password?</QuickLink>
+									<QuickLink href="#">Need Help?</QuickLink>
+								</QuickLinks>
+							</RightContent>
+						</MainContent>
+					</>
+				)}
 			</HeroContent>
 		</HeroContainer>
 	);
