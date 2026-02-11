@@ -241,12 +241,6 @@ const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 							clientSecret={clientSecret}
 							redirectUri={redirectUri}
 						/>
-
-						<QuickLinks>
-							<QuickLink href="#">Forgot Username?</QuickLink>
-							<QuickLink href="#">Forgot Password?</QuickLink>
-							<QuickLink href="#">Need Help?</QuickLink>
-						</QuickLinks>
 					</LoginContainer>
 				</MainContent>
 			</HeroContent>
