@@ -61,27 +61,29 @@ const SelectorIcon = styled.div`
 `;
 
 const DropdownIcon = styled(FiChevronDown)<{ isOpen: boolean }>`
-  transition: transform 0.2s ease;
-  transform: ${(props) => (props.isOpen ? 'rotate(180deg)' : 'rotate(0deg)')};
+	shouldForwardProp={(prop) => prop !== 'isOpen'}
+	transition: transform 0.2s ease;
+	transform: ${(props) => (props.isOpen ? 'rotate(180deg)' : 'rotate(0deg)')};
 `;
 
 const DropdownMenu = styled.div<{ isOpen: boolean }>`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  margin-top: 0.5rem;
-  background: white;
-  border: 1px solid var(--brand-text-secondary);
-  border-radius: var(--brand-radius-md);
-  box-shadow: var(--brand-shadow-lg);
-  z-index: 1000;
-  opacity: ${(props) => (props.isOpen ? 1 : 0)};
-  visibility: ${(props) => (props.isOpen ? 'visible' : 'hidden')};
-  transform: ${(props) => (props.isOpen ? 'translateY(0)' : 'translateY(-10px)')};
-  transition: all 0.2s ease;
-  max-height: 300px;
-  overflow-y: auto;
+	shouldForwardProp={(prop) => prop !== 'isOpen'}
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	margin-top: 0.5rem;
+	background: white;
+	border: 1px solid var(--brand-text-secondary);
+	border-radius: var(--brand-radius-md);
+	box-shadow: var(--brand-shadow-lg);
+	z-index: 1000;
+	max-height: 300px;
+	overflow-y: auto;
+	opacity: ${(props) => (props.isOpen ? 1 : 0)};
+	visibility: ${(props) => (props.isOpen ? 'visible' : 'hidden')};
+	transform: translateY(${(props) => (props.isOpen ? '0' : '-10px')});
+	transition: all 0.2s ease;
 `;
 
 const DropdownItem = styled.button`
@@ -114,17 +116,25 @@ const DropdownItem = styled.button`
 `;
 
 const CompanyLogo = styled.div<{ color: string; bgColor: string }>`
-  width: 32px;
-  height: 32px;
-  background: ${(props) => props.bgColor};
-  border-radius: 0.375rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${(props) => props.color};
-  font-size: 1rem;
-  font-weight: 700;
-  flex-shrink: 0;
+	shouldForwardProp={(prop) => prop !== 'color' && prop !== 'bgColor'}
+	width: 32px;
+	height: 32px;
+	background: ${(props) => props.bgColor};
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 14px;
+	color: ${(props) => props.color};
+	font-family: 'Arial', sans-serif;
+	flex-shrink: 0;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	transition: transform 0.2s ease;
+
+	&:hover {
+		transform: scale(1.05);
+	}
 `;
 
 const CompanyInfo = styled.div`
@@ -199,7 +209,7 @@ const companies = [
 // ============================================================================
 
 interface CompanySelectorProps {
-	onCompanyChange?: (company: typeof companies[0]) => void;
+	onCompanyChange?: (company: (typeof companies)[0]) => void;
 	selectedCompany?: string;
 }
 
@@ -215,7 +225,7 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({
 	const { switchTheme, activeTheme } = useBrandTheme();
 
 	const currentCompany = companies.find((c) => c.id === selectedCompany) || companies[0];
-	
+
 	// Debug logging
 	console.log('[🚀 COMPANY-SELECTOR] Component rendering:', {
 		selectedCompany,
@@ -225,14 +235,14 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({
 		companiesCount: companies.length,
 	});
 
-	const handleSelect = (company: typeof companies[0]) => {
+	const handleSelect = (company: (typeof companies)[0]) => {
 		setIsOpen(false);
-		
+
 		// Change theme if different
 		if (company.theme !== currentCompany.theme) {
 			switchTheme(company.theme);
 		}
-		
+
 		// Notify parent
 		if (onCompanyChange) {
 			onCompanyChange(company);
