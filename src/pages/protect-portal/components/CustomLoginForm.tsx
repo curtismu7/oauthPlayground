@@ -9,11 +9,19 @@
  * (pi.flow) instead of redirecting to the PingOne login page.
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+	FiAlertTriangle,
+	FiEye,
+	FiEyeOff,
+	FiLock as FiLockIcon,
+	FiUser,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiAlertTriangle, FiEye, FiEyeOff, FiLoader, FiUser, FiLock as FiLockIcon } from 'react-icons/fi';
-
-import type { UserContext, LoginContext, PortalError } from '../types/protectPortal.types';
+import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
+import CompanyLogoHeader from './CompanyLogoHeader';
+import PingOneLoginService from '../services/pingOneLoginService';
+import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -27,17 +35,19 @@ const LoginFormContainer = styled.div`
 const FormTitle = styled.h2`
   font-size: 1.875rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--brand-text);
   margin: 0 0 1rem 0;
   text-align: center;
+  font-family: var(--brand-heading-font);
 `;
 
 const FormDescription = styled.p`
   font-size: 1rem;
-  color: #6b7280;
+  color: var(--brand-text-secondary);
   margin: 0 0 2rem 0;
   text-align: center;
   line-height: 1.6;
+  font-family: var(--brand-body-font);
 `;
 
 const LoginForm = styled.form`
@@ -54,8 +64,9 @@ const InputLabel = styled.label`
   display: block;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--brand-text);
   margin-bottom: 0.5rem;
+  font-family: var(--brand-body-font);
 `;
 
 const InputWrapper = styled.div`
@@ -67,36 +78,38 @@ const InputWrapper = styled.div`
 const InputIcon = styled.div`
   position: absolute;
   left: 1rem;
-  color: #9ca3af;
+  color: var(--brand-text-secondary);
   pointer-events: none;
   z-index: 1;
 `;
 
-const StyledInput = styled.input<{ hasIcon: boolean; hasToggle: boolean }>`
+const StyledInput = styled.input.withConfig({
+	shouldForwardProp: (prop) => !['hasIcon', 'hasToggle'].includes(prop),
+})<{ hasIcon: boolean; hasToggle: boolean }>`
   width: 100%;
-  padding: ${props => {
-    const leftPadding = props.hasIcon ? '3rem' : '1rem';
-    const rightPadding = props.hasToggle ? '3rem' : '1rem';
-    return `0.75rem ${rightPadding} 0.75rem ${leftPadding}`;
-  }};
-  border: 2px solid #e5e7eb;
-  border-radius: 0.5rem;
+  padding: ${(props) => {
+		const leftPadding = props.hasIcon ? '3rem' : '1rem';
+		const rightPadding = props.hasToggle ? '3rem' : '1rem';
+		return `0.75rem ${rightPadding} 0.75rem ${leftPadding}`;
+	}};
+  border: 2px solid var(--brand-text-secondary);
+  border-radius: var(--brand-radius-sm);
   font-size: 1rem;
-  transition: all 0.2s ease;
+  transition: var(--brand-transition);
   background: white;
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: var(--brand-primary);
+    box-shadow: var(--brand-shadow-md);
   }
 
   &:invalid {
-    border-color: #ef4444;
+    border-color: var(--brand-error);
   }
 
   &::placeholder {
-    color: #9ca3af;
+    color: var(--brand-text-secondary);
   }
 `;
 
@@ -105,86 +118,34 @@ const PasswordToggle = styled.button`
   right: 1rem;
   background: none;
   border: none;
-  color: #6b7280;
+  color: var(--brand-text-secondary);
   cursor: pointer;
   padding: 0.25rem;
-  border-radius: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s ease;
+  border-radius: var(--brand-radius-xs);
+  transition: var(--brand-transition);
 
   &:hover {
-    color: #374151;
+    color: var(--brand-text);
   }
 
   &:focus {
     outline: none;
-    color: #3b82f6;
-  }
-`;
-
-const SubmitButton = styled.button<{ disabled?: boolean }>`
-  background: ${props => props.disabled ? '#9ca3af' : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'};
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-height: 56px;
-
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-
-  &:disabled {
-    opacity: 0.6;
+    color: var(--brand-primary);
   }
 `;
 
 const ErrorMessage = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 0.5rem;
+  background: var(--brand-error-light);
+  border: 1px solid var(--brand-error);
+  border-radius: var(--brand-radius-sm);
   padding: 1rem;
-  color: #dc2626;
+  color: var(--brand-error);
   font-size: 0.875rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 1rem;
-`;
-
-const LoadingSpinner = styled(FiLoader)`
-  animation: spin 1s linear infinite;
-
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-`;
-
-const MockModeIndicator = styled.div`
-  background: #fef3c7;
-  border: 1px solid #fcd34d;
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
-  color: #92400e;
-  text-align: center;
+  font-family: var(--brand-body-font);
 `;
 
 // ============================================================================
@@ -192,9 +153,12 @@ const MockModeIndicator = styled.div`
 // ============================================================================
 
 interface CustomLoginFormProps {
-  onLoginSuccess: (userContext: UserContext, loginContext: LoginContext) => void;
-  onError: (error: PortalError) => void;
-  enableMockMode?: boolean;
+	onLoginSuccess: (userContext: UserContext, loginContext: LoginContext) => void;
+	onError: (error: PortalError) => void;
+	environmentId: string;
+	clientId: string;
+	clientSecret: string;
+	redirectUri: string;
 }
 
 // ============================================================================
@@ -202,235 +166,337 @@ interface CustomLoginFormProps {
 // ============================================================================
 
 const CustomLoginForm: React.FC<CustomLoginFormProps> = ({
-  onLoginSuccess,
-  onError,
-  enableMockMode = false
+	onLoginSuccess,
+	onError,
+	environmentId,
+	clientId,
+	clientSecret,
+	redirectUri,
 }) => {
-  // ============================================================================
-  // STATE MANAGEMENT
-  // ============================================================================
+	// ============================================================================
+	// STATE MANAGEMENT
+	// ============================================================================
 
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    email: ''
-  });
+	const [formData, setFormData] = useState({
+		username: '',
+		password: '',
+	});
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+	const [showPassword, setShowPassword] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-  // ============================================================================
-  // EVENT HANDLERS
-  // ============================================================================
+	// ============================================================================
+	// EVENT HANDLERS
+	// ============================================================================
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Clear error when user starts typing
-    if (error) {
-      setError(null);
-    }
-  }, [error]);
+	const handleInputChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			const { name, value } = e.target;
+			setFormData((prev) => ({
+				...prev,
+				[name]: value,
+			}));
 
-  const handlePasswordToggle = useCallback(() => {
-    setShowPassword(prev => !prev);
-  }, []);
+			// Clear error when user starts typing
+			if (error) {
+				setError(null);
+			}
+		},
+		[error]
+	);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Basic validation
-    if (!formData.username || !formData.password) {
-      setError('Please enter both username and password');
-      return;
-    }
+	const handlePasswordToggle = useCallback(() => {
+		setShowPassword((prev) => !prev);
+	}, []);
 
-    setIsLoading(true);
-    setError(null);
+	const handleSubmit = useCallback(
+		async (e: React.FormEvent) => {
+			e.preventDefault();
 
-    try {
-      if (enableMockMode) {
-        // Mock authentication for testing
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        const userContext: UserContext = {
-          id: `user-${formData.username}`,
-          email: formData.email || `${formData.username}@securecorp.com`,
-          name: formData.username.charAt(0).toUpperCase() + formData.username.slice(1),
-          username: formData.username,
-          type: 'EXTERNAL',
-          device: {
-            userAgent: navigator.userAgent,
-            ipAddress: '192.168.1.100' // Mock IP
-          },
-          session: {
-            id: `session-${Date.now()}`,
-            createdAt: new Date().toISOString()
-          }
-        };
+			// Enhanced validation
+			if (!formData.username || !formData.password) {
+				setError('Please enter both username and password');
+				return;
+			}
 
-        const loginContext: LoginContext = {
-          timestamp: new Date().toISOString(),
-          ipAddress: '192.168.1.100',
-          userAgent: navigator.userAgent,
-          origin: window.location.origin,
-          flowType: 'AUTHENTICATION',
-          flowSubtype: 'CUSTOM_LOGIN'
-        };
+			if (formData.username.length < 3) {
+				setError('Username must be at least 3 characters long');
+				return;
+			}
 
-        onLoginSuccess(userContext, loginContext);
-      } else {
-        // TODO: Implement actual PingOne embedded login
-        // This would integrate with the PingOne JavaScript SDK
-        throw new Error('PingOne embedded login not yet implemented');
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Login failed';
-      setError(errorMessage);
-      
-      const portalError: PortalError = {
-        code: 'LOGIN_FAILED',
-        message: errorMessage,
-        recoverable: true,
-        suggestedAction: 'Please check your credentials and try again'
-      };
-      
-      onError(portalError);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [formData, enableMockMode, onLoginSuccess, onError]);
+			if (formData.password.length < 8) {
+				setError('Password must be at least 8 characters long');
+				return;
+			}
 
-  // ============================================================================
-  // EFFECTS
-  // ============================================================================
+			setIsLoading(true);
+			setError(null);
 
-  useEffect(() => {
-    console.log('[🔐 CUSTOM-LOGIN] Custom login form initialized', {
-      enableMockMode,
-      userAgent: navigator.userAgent
-    });
-  }, [enableMockMode]);
+			try {
+				console.log(
+					'[🔐 CUSTOM-LOGIN] Starting embedded PingOne authentication (pi.flow simulation)'
+				);
 
-  // ============================================================================
-  // RENDER
-  // ============================================================================
+				// Simulate pi.flow embedded login initialization
+				console.log('[🔐 PI.FLOW] Initializing embedded login flow');
+				console.log('[🔐 PI.FLOW] Environment:', environmentId);
+				console.log('[🔐 PI.FLOW] Client ID:', `${clientId.substring(0, 8)}...`);
 
-  return (
-    <LoginFormContainer>
-      <FormTitle>Secure Login</FormTitle>
-      <FormDescription>
-        Enter your credentials to begin the secure authentication process
-      </FormDescription>
+				// Step 1: Start PingOne flow with embedded login parameters
+				const flowResponse = await PingOneLoginService.initializeEmbeddedLogin(
+					environmentId,
+					clientId,
+					redirectUri,
+					['openid', 'profile', 'email', 'pingone:manage']
+				);
 
-      {enableMockMode && (
-        <MockModeIndicator>
-          <strong>Mock Mode Enabled</strong> - This is a demonstration login for testing purposes
-        </MockModeIndicator>
-      )}
+				if (!flowResponse.success || !flowResponse.data) {
+					throw new Error('Failed to initialize embedded PingOne flow');
+				}
 
-      {error && (
-        <ErrorMessage>
-          <FiAlertTriangle />
-          {error}
-        </ErrorMessage>
-      )}
+				const { flowId } = flowResponse.data;
+				console.log('[🔐 PI.FLOW] Flow started successfully:', `${flowId.substring(0, 8)}...`);
 
-      <LoginForm onSubmit={handleSubmit}>
-        <InputGroup>
-          <InputLabel htmlFor="username">Username</InputLabel>
-          <InputWrapper>
-            <InputIcon>
-              <FiUser />
-            </InputIcon>
-            <StyledInput
-              id="username"
-              name="username"
-              type="text"
-              placeholder="Enter your username"
-              value={formData.username}
-              onChange={handleInputChange}
-              hasIcon={true}
-              hasToggle={false}
-              required
-              disabled={isLoading}
-              autoComplete="username"
-            />
-          </InputWrapper>
-        </InputGroup>
+				// Step 2: Submit user credentials through embedded flow
+				console.log('[🔐 PI.FLOW] Submitting credentials through embedded flow');
+				const credsResponse = await PingOneLoginService.submitCredentials(
+					flowId,
+					formData.username,
+					formData.password
+				);
 
-        <InputGroup>
-          <InputLabel htmlFor="email">Email (Optional)</InputLabel>
-          <InputWrapper>
-            <InputIcon>
-              <FiUser />
-            </InputIcon>
-            <StyledInput
-              id="email"
-              name="email"
-              type="email"
-              placeholder="Enter your email address"
-              value={formData.email}
-              onChange={handleInputChange}
-              hasIcon={true}
-              hasToggle={false}
-              disabled={isLoading}
-              autoComplete="email"
-            />
-          </InputWrapper>
-        </InputGroup>
+				if (!credsResponse.success) {
+					const errorDetails = credsResponse.error?.details || {};
+					console.error('[🔐 PI.FLOW] Credential submission failed:', errorDetails);
 
-        <InputGroup>
-          <InputLabel htmlFor="password">Password</InputLabel>
-          <InputWrapper>
-            <InputIcon>
-              <FiLockIcon />
-            </InputIcon>
-            <StyledInput
-              id="password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={handleInputChange}
-              hasIcon={true}
-              hasToggle={true}
-              required
-              disabled={isLoading}
-              autoComplete="current-password"
-            />
-            <PasswordToggle
-              type="button"
-              onClick={handlePasswordToggle}
-              disabled={isLoading}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              {showPassword ? <FiEyeOff /> : <FiEye />}
-            </PasswordToggle>
-          </InputWrapper>
-        </InputGroup>
+					// Provide more specific error messages based on error type
+					if (credsResponse.error?.code === 'INVALID_CREDENTIALS') {
+						throw new Error(
+							'Invalid username or password. Please check your credentials and try again.'
+						);
+					} else if (credsResponse.error?.code === 'ACCOUNT_LOCKED') {
+						throw new Error(
+							'Account is temporarily locked. Please try again later or contact support.'
+						);
+					} else if (credsResponse.error?.code === 'ACCOUNT_SUSPENDED') {
+						throw new Error('Account is suspended. Please contact your administrator.');
+					} else {
+						throw new Error(credsResponse.error?.message || 'Authentication failed');
+					}
+				}
 
-        <SubmitButton type="submit" disabled={isLoading || !formData.username || !formData.password}>
-          {isLoading ? (
-            <>
-              <LoadingSpinner />
-              Authenticating...
-            </>
-          ) : (
-            <>
-              <FiLockIcon />
-              Sign In Securely
-            </>
-          )}
-        </SubmitButton>
-      </LoginForm>
-    </LoginFormContainer>
-  );
+				console.log('[🔐 PI.FLOW] Credentials validated successfully');
+
+				// Step 3: Resume embedded flow to get authorization code
+				console.log('[🔐 PI.FLOW] Resuming embedded flow for authorization code');
+				const resumeResponse = await PingOneLoginService.resumeFlow(flowId);
+
+				if (!resumeResponse.success || !resumeResponse.data) {
+					throw new Error('Failed to complete embedded authentication flow');
+				}
+
+				const { authorizationCode } = resumeResponse.data;
+				console.log('[🔐 PI.FLOW] Authorization code received successfully');
+
+				// Step 4: Exchange authorization code for tokens (PKCE flow)
+				console.log('[🔐 PI.FLOW] Exchanging authorization code for tokens');
+				const tokenResponse = await PingOneLoginService.exchangeCodeForTokens(
+					environmentId,
+					clientId,
+					clientSecret,
+					redirectUri,
+					authorizationCode,
+					flowId // Use flowId to retrieve the stored code verifier
+				);
+
+				if (!tokenResponse.success || !tokenResponse.data) {
+					throw new Error('Failed to exchange authorization code for tokens');
+				}
+
+				console.log('[🔐 PI.FLOW] Token exchange successful');
+				const { id_token } = tokenResponse.data;
+
+				// Step 5: Extract user context from ID token
+				console.log('[🔐 PI.FLOW] Extracting user context from ID token');
+				const userContext = id_token
+					? PingOneLoginService.extractUserFromIdToken(id_token)
+					: {
+							id: formData.username,
+							email: formData.username.includes('@') ? formData.username : `${formData.username}@example.com`,
+							name: formData.username.charAt(0).toUpperCase() + formData.username.slice(1),
+							username: formData.username,
+							type: 'PING_ONE' as const,
+							groups: [{ name: 'Default Group' }],
+							device: {
+								userAgent: navigator.userAgent,
+								ipAddress: 'unknown', // Would be obtained from server headers
+							},
+							session: {
+								id: flowId,
+								createdAt: new Date().toISOString(),
+							},
+						};
+
+				const loginContext: LoginContext = {
+					timestamp: new Date().toISOString(),
+					ipAddress: 'unknown', // Would be obtained from server headers
+					userAgent: navigator.userAgent,
+					origin: window.location.origin,
+					flowType: 'AUTHENTICATION',
+					flowSubtype: 'CUSTOM_LOGIN',
+				};
+
+				console.log('[🔐 CUSTOM-LOGIN] Embedded PingOne authentication successful');
+				console.log('[🔐 CUSTOM-LOGIN] User authenticated:', userContext.username);
+				console.log('[🔐 CUSTOM-LOGIN] Flow type:', loginContext.flowSubtype);
+
+				onLoginSuccess(userContext, loginContext);
+			} catch (err) {
+				console.error('[🔐 CUSTOM-LOGIN] Embedded authentication failed:', err);
+
+				const errorMessage = err instanceof Error ? err.message : 'Login failed';
+				setError(errorMessage);
+
+				const portalError: PortalError = {
+					code: 'EMBEDDED_LOGIN_FAILED',
+					message: errorMessage,
+					recoverable: true,
+					suggestedAction:
+						'Please check your credentials and try again, or contact support if the issue persists',
+					details: {
+						flowType: 'EMBEDDED_PI_FLOW',
+						timestamp: new Date().toISOString(),
+					},
+				};
+
+				onError(portalError);
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[formData, environmentId, clientId, clientSecret, redirectUri, onLoginSuccess, onError]
+	);
+
+	// ============================================================================
+	// EFFECTS
+	// ============================================================================
+
+	useEffect(() => {
+		console.log('[🔐 CUSTOM-LOGIN] Custom login form initialized', {
+			environmentId,
+			clientId,
+			userAgent: navigator.userAgent,
+		});
+	}, [environmentId, clientId]);
+
+	// ============================================================================
+	// RENDER
+	// ============================================================================
+
+	return (
+		<>
+			<CompanyLogoHeader size="small" />
+			<LoginFormContainer>
+				<FormTitle>Secure Login</FormTitle>
+				<FormDescription>
+					Enter your credentials to begin the secure authentication process
+				</FormDescription>
+
+				{error && (
+					<ErrorMessage>
+						<FiAlertTriangle />
+						{error}
+					</ErrorMessage>
+				)}
+
+			<LoginForm onSubmit={handleSubmit}>
+				<InputGroup>
+					<InputLabel htmlFor="username">Username or Email</InputLabel>
+					<InputWrapper>
+						<InputIcon>
+							<FiUser />
+						</InputIcon>
+						<StyledInput
+							id="username"
+							name="username"
+							type="text"
+							placeholder="Enter your username or email address"
+							value={formData.username}
+							onChange={handleInputChange}
+							hasIcon={true}
+							hasToggle={false}
+							required
+							disabled={isLoading}
+							autoComplete="username"
+						/>
+					</InputWrapper>
+				</InputGroup>
+
+				<InputGroup>
+					<InputLabel htmlFor="password">Password</InputLabel>
+					<InputWrapper>
+						<InputIcon>
+							<FiLockIcon />
+						</InputIcon>
+						<StyledInput
+							id="password"
+							name="password"
+							type={showPassword ? 'text' : 'password'}
+							placeholder="Enter your password"
+							value={formData.password}
+							onChange={handleInputChange}
+							hasIcon={true}
+							hasToggle={true}
+							required
+							disabled={isLoading}
+							autoComplete="current-password"
+						/>
+						<PasswordToggle
+							type="button"
+							onClick={handlePasswordToggle}
+							disabled={isLoading}
+							aria-label={showPassword ? 'Hide password' : 'Show password'}
+						>
+							{showPassword ? <FiEyeOff /> : <FiEye />}
+						</PasswordToggle>
+					</InputWrapper>
+				</InputGroup>
+
+				<ButtonSpinner
+					loading={isLoading}
+					loadingText="Authenticating..."
+					spinnerPosition="center"
+					spinnerSize={20}
+					disabled={!formData.username || !formData.password}
+					style={{
+						width: '100%',
+						padding: '0.875rem 1.5rem',
+						background: isLoading ? '#9ca3af' : '#1f2937',
+						color: 'white',
+						border: 'none',
+						borderRadius: '0.5rem',
+						fontSize: '1rem',
+						fontWeight: '600',
+						cursor: isLoading ? 'not-allowed' : 'pointer',
+						transition: 'all 0.2s ease',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						gap: '0.5rem',
+					}}
+				>
+					{!isLoading && (
+						<>
+							<FiLockIcon />
+							Sign In Securely
+						</>
+					)}
+				</ButtonSpinner>
+			</LoginForm>
+		</LoginFormContainer>
+		</>
+	);
 };
 
 export default CustomLoginForm;

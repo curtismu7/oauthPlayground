@@ -9,15 +9,16 @@
  * risk evaluation summary, and OIDC token display.
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiCheckCircle, FiCopy, FiEye, FiEyeOff, FiInfo, FiLogOut, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCheckCircle, FiCopy, FiEye, FiEyeOff, FiLogOut, FiShield, FiUser, FiInfo } from 'react-icons/fi';
-
+import CompanyLogoHeader from './CompanyLogoHeader';
+import TokenUtilityService, { type TokenValidationResult } from '../services/tokenUtilityService';
 import type {
-  UserContext,
-  RiskEvaluationResult,
-  TokenSet,
-  EducationalContent
+	EducationalContent,
+	RiskEvaluationResult,
+	TokenSet,
+	UserContext,
 } from '../types/protectPortal.types';
 
 // ============================================================================
@@ -33,25 +34,27 @@ const SuccessContainer = styled.div`
 const SuccessTitle = styled.h2`
   font-size: 2.5rem;
   font-weight: 700;
-  color: #059669;
+  color: var(--brand-success);
   margin: 0 0 1rem 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
+  font-family: var(--brand-heading-font);
 `;
 
 const SuccessMessage = styled.p`
   font-size: 1.25rem;
-  color: #6b7280;
+  color: var(--brand-text-secondary);
   margin: 0 0 2rem 0;
   line-height: 1.6;
+  font-family: var(--brand-body-font);
 `;
 
 const UserInfoCard = styled.div`
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 1rem;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-text-secondary);
+  border-radius: var(--brand-radius-lg);
   padding: 2rem;
   margin-bottom: 2rem;
 `;
@@ -67,7 +70,7 @@ const UserInfoHeader = styled.div`
 const UserAvatar = styled.div`
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: var(--brand-primary);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -84,14 +87,16 @@ const UserDetails = styled.div`
 const UserName = styled.h3`
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--brand-text);
   margin: 0 0 0.25rem 0;
+  font-family: var(--brand-heading-font);
 `;
 
 const UserEmail = styled.p`
   font-size: 1rem;
-  color: #6b7280;
+  color: var(--brand-text-secondary);
   margin: 0;
+  font-family: var(--brand-body-font);
 `;
 
 const UserInfoGrid = styled.div`
@@ -107,37 +112,43 @@ const UserInfoItem = styled.div`
 const InfoLabel = styled.div`
   font-size: 0.875rem;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--brand-text-secondary);
   margin-bottom: 0.25rem;
+  font-family: var(--brand-body-font);
 `;
 
 const InfoValue = styled.div`
   font-size: 1rem;
-  color: #1f2937;
+  color: var(--brand-text);
+  font-family: var(--brand-body-font);
 `;
 
 const RiskSummaryCard = styled.div<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
-  background: ${props => {
-    switch (props.riskLevel) {
-      case 'LOW':
-        return '#f0fdf4';
-      case 'MEDIUM':
-        return '#fffbeb';
-      case 'HIGH':
-        return '#fef2f2';
-    }
-  }};
-  border: 1px solid ${props => {
-    switch (props.riskLevel) {
-      case 'LOW':
-        return '#10b981';
-      case 'MEDIUM':
-        return '#f59e0b';
-      case 'HIGH':
-        return '#ef4444';
-    }
-  }};
-  border-radius: 1rem;
+  background: ${(props) => {
+		switch (props.riskLevel) {
+			case 'LOW':
+				return 'var(--brand-success-light)';
+			case 'MEDIUM':
+				return 'var(--brand-warning-light)';
+			case 'HIGH':
+				return 'var(--brand-error-light)';
+			default:
+				return 'var(--brand-surface)';
+		}
+	}};
+  border: 1px solid ${(props) => {
+		switch (props.riskLevel) {
+			case 'LOW':
+				return 'var(--brand-success)';
+			case 'MEDIUM':
+				return 'var(--brand-warning)';
+			case 'HIGH':
+				return 'var(--brand-error)';
+			default:
+				return 'var(--brand-text-secondary)';
+		}
+	}};
+  border-radius: var(--brand-radius-lg);
   padding: 1.5rem;
   margin-bottom: 2rem;
 `;
@@ -149,52 +160,47 @@ const RiskHeader = styled.div<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
   margin-bottom: 1rem;
 `;
 
-const RiskTitle = styled.h3<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
+const RiskTitle = styled.h4`
   font-size: 1.125rem;
   font-weight: 600;
-  margin: 0;
-  color: ${props => {
-    switch (props.riskLevel) {
-      case 'LOW':
-        return '#059669';
-      case 'MEDIUM':
-        return '#d97706';
-      case 'HIGH':
-        return '#dc2626';
-    }
-  }};
+  color: var(--brand-text);
+  margin: 0 0 0.5rem 0;
+  font-family: var(--brand-heading-font);
 `;
 
-const RiskBadge = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
-  background: ${props => {
-    switch (props.riskLevel) {
-      case 'LOW':
-        return '#10b981';
-      case 'MEDIUM':
-        return '#f59e0b';
-      case 'HIGH':
-        return '#ef4444';
-    }
-  }};
-  color: white;
+const RiskLevelBadge = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
   padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
+  border-radius: var(--brand-radius-sm);
   font-size: 0.75rem;
   font-weight: 600;
+  color: white;
+  background: ${(props) => {
+		switch (props.riskLevel) {
+			case 'LOW':
+				return 'var(--brand-success)';
+			case 'MEDIUM':
+				return 'var(--brand-warning)';
+			case 'HIGH':
+				return 'var(--brand-error)';
+			default:
+				return 'var(--brand-text)';
+		}
+	}};
 `;
 
 const RiskDescription = styled.p`
   font-size: 0.875rem;
-  color: #374151;
+  color: var(--brand-text-secondary);
   margin: 0 0 1rem 0;
   line-height: 1.5;
+  font-family: var(--brand-body-font);
 `;
 
 const TokenSection = styled.div`
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 1rem;
-  overflow: hidden;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-text-secondary);
+  border-radius: var(--brand-radius-lg);
+  padding: 1.5rem;
   margin-bottom: 2rem;
 `;
 
@@ -210,7 +216,7 @@ const TokenHeader = styled.div`
 const TokenTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--brand-text);
   margin: 0;
 `;
 
@@ -219,7 +225,7 @@ const TokenToggle = styled.button`
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   padding: 0.5rem;
-  color: #6b7280;
+  color: var(--brand-text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -228,8 +234,8 @@ const TokenToggle = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: #f3f4f6;
-    color: #374151;
+    background: var(--brand-surface);
+    color: var(--brand-text);
   }
 `;
 
@@ -246,12 +252,12 @@ const TokenType = styled.div`
 
 const TypeName = styled.div`
   font-weight: 600;
-  color: #1f2937;
+  color: var(--brand-text);
 `;
 
 const TypeBadge = styled.span`
-  background: #e5e7eb;
-  color: #374151;
+  background: var(--brand-surface);
+  color: var(--brand-text-secondary);
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
@@ -259,20 +265,20 @@ const TypeBadge = styled.span`
 `;
 
 const TokenPreview = styled.div`
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-text-secondary);
   border-radius: 0.5rem;
   padding: 1rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
-  color: #374151;
+  color: var(--brand-text);
   word-break: break-all;
   position: relative;
 `;
 
 const TokenFull = styled.div`
-  background: #1f2937;
-  color: #10b981;
+  background: var(--brand-surface);
+  color: var(--brand-text);
   border-radius: 0.5rem;
   padding: 1rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -286,7 +292,7 @@ const CopyButton = styled.button`
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background: #3b82f6;
+  background: var(--brand-primary);
   color: white;
   border: none;
   border-radius: 0.25rem;
@@ -299,11 +305,11 @@ const CopyButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: #2563eb;
+    background: var(--brand-accent);
   }
 
   &:active {
-    background: #1d4ed8;
+    background: var(--brand-accent-dark);
   }
 `;
 
@@ -319,14 +325,15 @@ const TokenInfoItem = styled.div`
   text-align: left;
 `;
 
-const InfoLabelSmall = styled.div`
-  font-weight: 600;
-  color: #6b7280;
+const TokenLabel = styled.div`
+  font-size: 0.75rem;
+  color: var(--brand-text-secondary);
   margin-bottom: 0.25rem;
+  font-family: var(--brand-body-font);
 `;
 
 const InfoValueSmall = styled.div`
-  color: #1f2937;
+  color: var(--brand-text);
   word-break: break-all;
 `;
 
@@ -337,30 +344,44 @@ const ActionButtons = styled.div`
   flex-wrap: wrap;
 `;
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
-  background: ${props => props.variant === 'secondary' ? '#f3f4f6' : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'};
-  color: ${props => props.variant === 'secondary' ? '#374151' : 'white'};
-  border: none;
-  border-radius: 0.5rem;
+const ActionButton = styled.button`
   padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--brand-radius-md);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--brand-transition);
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-family: var(--brand-body-font);
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  &:first-child {
+    background: var(--brand-primary);
+    color: white;
+
+    &:hover {
+      background: var(--brand-accent);
+    }
+  }
+
+  &:last-child {
+    background: var(--brand-surface);
+    color: var(--brand-text);
+    border: 1px solid var(--brand-text-secondary);
+
+    &:hover {
+      background: var(--brand-text-secondary);
+      color: white;
+    }
   }
 `;
 
 const EducationalSection = styled.div`
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 1rem;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-text-secondary);
+  border-radius: var(--brand-radius-lg);
   padding: 1.5rem;
   text-align: left;
 `;
@@ -375,15 +396,16 @@ const EducationalHeader = styled.div`
 const EducationalTitle = styled.h4`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1e40af;
+  color: var(--brand-text);
   margin: 0;
 `;
 
 const EducationalDescription = styled.p`
   font-size: 0.875rem;
-  color: #1e40af;
+  color: var(--brand-text-secondary);
   margin: 0 0 1rem 0;
   line-height: 1.5;
+  font-family: var(--brand-body-font);
 `;
 
 const KeyPoints = styled.ul`
@@ -398,12 +420,12 @@ const KeyPoint = styled.li`
   gap: 0.5rem;
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
-  color: #374151;
+  color: var(--brand-text);
   line-height: 1.4;
 `;
 
 const KeyPointIcon = styled(FiCheckCircle)`
-  color: #10b981;
+  color: var(--brand-success);
   flex-shrink: 0;
   margin-top: 0.125rem;
 `;
@@ -413,11 +435,11 @@ const KeyPointIcon = styled(FiCheckCircle)`
 // ============================================================================
 
 interface PortalSuccessProps {
-  userContext: UserContext;
-  riskEvaluation: RiskEvaluationResult;
-  tokens: TokenSet;
-  onLogout: () => void;
-  educationalContent: EducationalContent;
+	userContext: UserContext;
+	riskEvaluation: RiskEvaluationResult;
+	tokens: TokenSet;
+	onLogout: () => void;
+	educationalContent: EducationalContent;
 }
 
 // ============================================================================
@@ -425,287 +447,350 @@ interface PortalSuccessProps {
 // ============================================================================
 
 const PortalSuccess: React.FC<PortalSuccessProps> = ({
-  userContext,
-  riskEvaluation,
-  tokens,
-  onLogout,
-  educationalContent
+	userContext,
+	riskEvaluation,
+	tokens,
+	onLogout,
+	educationalContent,
 }) => {
-  // ============================================================================
-  // STATE MANAGEMENT
-  // ============================================================================
+	// ============================================================================
+	// STATE MANAGEMENT
+	// ============================================================================
 
-  const [showFullTokens, setShowFullTokens] = useState(false);
-  const [copiedToken, setCopiedToken] = useState<string | null>(null);
+	const [showFullTokens, setShowFullTokens] = useState(false);
+	const [copiedToken, setCopiedToken] = useState<string | null>(null);
+	const [tokenValidation, setTokenValidation] = useState<TokenValidationResult | null>(null);
 
-  // ============================================================================
-  // EVENT HANDLERS
-  // ============================================================================
+	// ============================================================================
+	// EVENT HANDLERS
+	// ============================================================================
 
-  const handleToggleTokens = useCallback(() => {
-    setShowFullTokens(prev => !prev);
-  }, []);
+	const handleToggleTokens = useCallback(() => {
+		setShowFullTokens((prev) => !prev);
+	}, []);
 
-  const handleCopyToken = useCallback(async (tokenType: string, token: string) => {
-    try {
-      await navigator.clipboard.writeText(token);
-      setCopiedToken(tokenType);
-      setTimeout(() => setCopiedToken(null), 2000);
-    } catch (err) {
-      console.error('Failed to copy token:', err);
-    }
-  }, []);
+	const handleCopyToken = useCallback(async (tokenType: string, token: string) => {
+		try {
+			await navigator.clipboard.writeText(token);
+			setCopiedToken(tokenType);
+			setTimeout(() => setCopiedToken(null), 2000);
+		} catch (err) {
+			console.error('Failed to copy token:', err);
+		}
+	}, []);
 
-  const getRiskLevelInfo = (level: 'LOW' | 'MEDIUM' | 'HIGH') => {
-    switch (level) {
-      case 'LOW':
-        return {
-          title: 'Low Risk',
-          description: 'Your login was completed successfully with standard security measures.',
-          icon: '✅',
-          color: '#10b981'
-        };
-      case 'MEDIUM':
-        return {
-          title: 'Medium Risk (MFA Verified)',
-          description: 'Additional verification was completed successfully to secure your login.',
-          icon: '🔐',
-          color: '#f59e0b'
-        };
-      case 'HIGH':
-        return {
-          title: 'High Risk (Blocked)',
-          description: 'This login was blocked due to security concerns.',
-          icon: '🚫',
-          color: '#ef4444'
-        };
-      default:
-        return {
-          title: 'Unknown Risk',
-          description: 'Risk level could not be determined.',
-          icon: '❓',
-          color: '#6b7280'
-        };
-    }
-  };
+	const getRiskLevelInfo = (level: 'LOW' | 'MEDIUM' | 'HIGH') => {
+		switch (level) {
+			case 'LOW':
+				return {
+					title: 'Low Risk',
+					description: 'Your login was completed successfully with standard security measures.',
+					icon: '✅',
+					color: '#10b981',
+				};
+			case 'MEDIUM':
+				return {
+					title: 'Medium Risk (MFA Verified)',
+					description: 'Additional verification was completed successfully to secure your login.',
+					icon: '🔐',
+					color: '#f59e0b',
+				};
+			case 'HIGH':
+				return {
+					title: 'High Risk (Blocked)',
+					description: 'This login was blocked due to security concerns.',
+					icon: '🚫',
+					color: '#ef4444',
+				};
+			default:
+				return {
+					title: 'Unknown Risk',
+					description: 'Risk level could not be determined.',
+					icon: '❓',
+					color: '#6b7280',
+				};
+		}
+	};
 
-  const formatTokenPreview = (token: string) => {
-    return token.substring(0, 20) + '...' + token.substring(token.length - 10);
-  };
+	const formatTokenPreview = (token: string) => {
+		return `${token.substring(0, 20)}...${token.substring(token.length - 10)}`;
+	};
 
-  const getTokenExpiryTime = (expiresIn: number) => {
-    const expiryDate = new Date(Date.now() + expiresIn * 1000);
-    return expiryDate.toLocaleString();
-  };
+	const getTokenExpiryTime = (expiresIn: number) => {
+		const expiryDate = new Date(Date.now() + expiresIn * 1000);
+		return expiryDate.toLocaleString();
+	};
 
-  // ============================================================================
-  // EFFECTS
-  // ============================================================================
+	// ============================================================================
+	// EFFECTS
+	// ============================================================================
 
-  useEffect(() => {
-    console.log('[🎉 PORTAL-SUCCESS] Portal success page loaded', {
-      userId: userContext.id,
-      riskLevel: riskEvaluation.result.level,
-      hasTokens: !!tokens
-    });
-  }, [userContext.id, riskEvaluation.result.level, tokens]);
+	useEffect(() => {
+		console.log('[🎉 PORTAL-SUCCESS] Portal success page loaded', {
+			userId: userContext.id,
+			riskLevel: riskEvaluation.result.level,
+			hasTokens: !!tokens,
+		});
 
-  // ============================================================================
-  // RENDER
-  // ============================================================================
+		// Validate tokens when component loads
+		if (tokens) {
+			const validation = TokenUtilityService.validateTokens(tokens);
+			setTokenValidation(validation);
 
-  const riskInfo = getRiskLevelInfo(riskEvaluation.result.level);
+			console.log('[🎉 PORTAL-SUCCESS] Token validation completed', {
+				isValid: validation.isValid,
+				errors: validation.errors.length,
+				warnings: validation.warnings.length,
+			});
+		}
+	}, [userContext.id, riskEvaluation.result.level, tokens]);
 
-  return (
-    <SuccessContainer>
-      <SuccessTitle>
-        <FiCheckCircle />
-        Login Successful
-      </SuccessTitle>
-      <SuccessMessage>
-        Welcome back! Your authentication has been completed successfully.
-      </SuccessMessage>
+	// ============================================================================
+	// RENDER
+	// ============================================================================
 
-      {/* User Information */}
-      <UserInfoCard>
-        <UserInfoHeader>
-          <UserAvatar>
-            {userContext.name?.charAt(0).toUpperCase() || userContext.username.charAt(0).toUpperCase()}
-          </UserAvatar>
-          <UserDetails>
-            <UserName>{userContext.name || userContext.username}</UserName>
-            <UserEmail>{userContext.email}</UserEmail>
-          </UserDetails>
-        </UserInfoHeader>
+	const riskInfo = getRiskLevelInfo(riskEvaluation.result.level);
 
-        <UserInfoGrid>
-          <UserInfoItem>
-            <InfoLabel>User ID</InfoLabel>
-            <InfoValue>{userContext.id}</InfoValue>
-          </UserInfoItem>
-          <UserInfoItem>
-            <InfoLabel>Username</InfoLabel>
-            <InfoValue>{userContext.username}</InfoValue>
-          </UserInfoItem>
-          <UserInfoItem>
-            <InfoLabel>User Type</InfoLabel>
-            <InfoValue>{userContext.type}</InfoValue>
-          </UserInfoItem>
-          <UserInfoItem>
-            <InfoLabel>Login Time</InfoLabel>
-            <InfoValue>{new Date().toLocaleString()}</InfoValue>
-          </UserInfoItem>
-        </UserInfoGrid>
-      </UserInfoCard>
+	return (
+		<>
+			<CompanyLogoHeader size="small" />
+			<SuccessContainer>
+				<SuccessTitle>
+					<FiCheckCircle />
+					Login Successful
+				</SuccessTitle>
+				<SuccessMessage>
+					Welcome back! Your authentication has been completed successfully.
+				</SuccessMessage>
 
-      {/* Risk Summary */}
-      <RiskSummaryCard riskLevel={riskEvaluation.result.level}>
-        <RiskHeader riskLevel={riskEvaluation.result.level}>
-          <RiskTitle riskLevel={riskEvaluation.result.level}>
-            <FiShield />
-            Security Evaluation
-          </RiskTitle>
-          <RiskBadge riskLevel={riskEvaluation.result.level}>
-            {riskInfo.title}
-          </RiskBadge>
-        </RiskHeader>
+				{/* User Information */}
+				<UserInfoCard>
+					<UserInfoHeader>
+						<UserAvatar>
+							{userContext.name?.charAt(0).toUpperCase() ||
+								userContext.username.charAt(0).toUpperCase()}
+						</UserAvatar>
+						<UserDetails>
+							<UserName>{userContext.name || userContext.username}</UserName>
+							<UserEmail>{userContext.email}</UserEmail>
+						</UserDetails>
+				</UserInfoHeader>
 
-        <RiskDescription>{riskInfo.description}</RiskDescription>
+				<UserInfoGrid>
+					<UserInfoItem>
+						<InfoLabel>User ID</InfoLabel>
+						<InfoValue>{userContext.id}</InfoValue>
+					</UserInfoItem>
+					<UserInfoItem>
+						<InfoLabel>Username</InfoLabel>
+						<InfoValue>{userContext.username}</InfoValue>
+					</UserInfoItem>
+					<UserInfoItem>
+						<InfoLabel>User Type</InfoLabel>
+						<InfoValue>{userContext.type}</InfoValue>
+					</UserInfoItem>
+					<UserInfoItem>
+						<InfoLabel>Login Time</InfoLabel>
+						<InfoValue>{new Date().toLocaleString()}</InfoValue>
+					</UserInfoItem>
+				</UserInfoGrid>
+			</UserInfoCard>
 
-        <UserInfoGrid>
-          <UserInfoItem>
-            <InfoLabel>Risk Level</InfoLabel>
-            <InfoValue>{riskEvaluation.result.level}</InfoValue>
-          </UserInfoItem>
-          <UserInfoItem>
-            <InfoLabel>Recommended Action</InfoLabel>
-            <InfoValue>{riskEvaluation.result.recommendedAction}</InfoValue>
-          </UserInfoItem>
-          <UserInfoItem>
-            <InfoLabel>Policy Used</InfoLabel>
-            <InfoValue>{riskEvaluation.riskPolicySet.name}</InfoValue>
-          </UserInfoItem>
-          <UserInfoItem>
-            <InfoLabel>Evaluated At</InfoLabel>
-            <InfoValue>{new Date(riskEvaluation.createdAt).toLocaleString()}</InfoValue>
-          </UserInfoItem>
-        </UserInfoGrid>
-      </RiskSummaryCard>
+			{/* Risk Summary */}
+			<RiskSummaryCard riskLevel={riskEvaluation.result.level}>
+				<RiskHeader riskLevel={riskEvaluation.result.level}>
+					<RiskTitle riskLevel={riskEvaluation.result.level}>
+						<FiShield />
+						Security Evaluation
+					</RiskTitle>
+					<RiskBadge riskLevel={riskEvaluation.result.level}>{riskInfo.title}</RiskBadge>
+				</RiskHeader>
 
-      {/* Token Display */}
-      <TokenSection>
-        <TokenHeader>
-          <TokenTitle>
-            <FiInfo />
-            OAuth & OIDC Tokens
-          </TokenTitle>
-          <TokenToggle onClick={handleToggleTokens}>
-            {showFullTokens ? <FiEyeOff /> : <FiEye />}
-            {showFullTokens ? 'Hide Tokens' : 'Show Tokens'}
-          </TokenToggle>
-        </TokenHeader>
+				<RiskDescription>{riskInfo.description}</RiskDescription>
 
-        <TokenContent>
-          {/* Access Token */}
-          <TokenType>
-            <TypeName>Access Token</TypeName>
-            <TypeBadge>Bearer</TypeBadge>
-          </TokenType>
+				<UserInfoGrid>
+					<UserInfoItem>
+						<InfoLabel>Risk Level</InfoLabel>
+						<InfoValue>{riskEvaluation.result.level}</InfoValue>
+					</UserInfoItem>
+					<UserInfoItem>
+						<InfoLabel>Recommended Action</InfoLabel>
+						<InfoValue>{riskEvaluation.result.recommendedAction}</InfoValue>
+					</UserInfoItem>
+					<UserInfoItem>
+						<InfoLabel>Policy Used</InfoLabel>
+						<InfoValue>{riskEvaluation.riskPolicySet.name}</InfoValue>
+					</UserInfoItem>
+					<UserInfoItem>
+						<InfoLabel>Evaluated At</InfoLabel>
+						<InfoValue>{new Date(riskEvaluation.createdAt).toLocaleString()}</InfoValue>
+					</UserInfoItem>
+				</UserInfoGrid>
+			</RiskSummaryCard>
 
-          {showFullTokens ? (
-            <TokenFull>
-              {tokens.accessToken}
-              <CopyButton onClick={() => handleCopyToken('access', tokens.accessToken)}>
-                {copiedToken === 'access' ? 'Copied!' : <FiCopy />}
-              </CopyButton>
-            </TokenFull>
-          ) : (
-            <TokenPreview>
-              {formatTokenPreview(tokens.accessToken)}
-              <CopyButton onClick={() => handleCopyToken('access', tokens.accessToken)}>
-                {copiedToken === 'access' ? 'Copied!' : <FiCopy />}
-              </CopyButton>
-            </TokenPreview>
-          )}
+			{/* Token Display */}
+			<TokenSection>
+				<TokenHeader>
+					<TokenTitle>
+						<FiInfo />
+						OAuth & OIDC Tokens
+					</TokenTitle>
+					<TokenToggle onClick={handleToggleTokens}>
+						{showFullTokens ? <FiEyeOff /> : <FiEye />}
+						{showFullTokens ? 'Hide Tokens' : 'Show Tokens'}
+					</TokenToggle>
+				</TokenHeader>
 
-          {/* ID Token */}
-          {tokens.idToken && (
-            <>
-              <TokenType style={{ marginTop: '1.5rem' }}>
-                <TypeName>ID Token</TypeName>
-                <TypeBadge>JWT</TypeBadge>
-              </TokenType>
+				<TokenContent>
+					{/* Access Token */}
+					<TokenType>
+						<TypeName>Access Token</TypeName>
+						<TypeBadge>Bearer</TypeBadge>
+					</TokenType>
 
-              {showFullTokens ? (
-                <TokenFull>
-                  {tokens.idToken}
-                  <CopyButton onClick={() => handleCopyToken('id', tokens.idToken)}>
-                    {copiedToken === 'id' ? 'Copied!' : <FiCopy />}
-                  </CopyButton>
-                </TokenFull>
-              ) : (
-                <TokenPreview>
-                  {formatTokenPreview(tokens.idToken)}
-                  <CopyButton onClick={() => handleCopyToken('id', tokens.idToken)}>
-                    {copiedToken === 'id' ? 'Copied!' : <FiCopy />}
-                  </CopyButton>
-                </TokenPreview>
-              )}
-            </>
-          )}
+					{showFullTokens ? (
+						<TokenFull>
+							{tokens.accessToken}
+							<CopyButton onClick={() => handleCopyToken('access', tokens.accessToken)}>
+								{copiedToken === 'access' ? 'Copied!' : <FiCopy />}
+							</CopyButton>
+						</TokenFull>
+					) : (
+						<TokenPreview>
+							{formatTokenPreview(tokens.accessToken)}
+							<CopyButton onClick={() => handleCopyToken('access', tokens.accessToken)}>
+								{copiedToken === 'access' ? 'Copied!' : <FiCopy />}
+							</CopyButton>
+						</TokenPreview>
+					)}
 
-          {/* Token Information */}
-          <TokenInfo>
-            <TokenInfoItem>
-              <InfoLabelSmall>Token Type</InfoLabelSmall>
-              <InfoValueSmall>{tokens.tokenType}</InfoValueSmall>
-            </TokenInfoItem>
-            <TokenInfoItem>
-              <InfoLabelSmall>Expires In</InfoLabelSmall>
-              <InfoValueSmall>{tokens.expiresIn}s ({getTokenExpiryTime(tokens.expiresIn)})</InfoValueSmall>
-            </TokenInfoItem>
-            <TokenInfoItem>
-              <InfoLabelSmall>Scope</InfoLabelSmall>
-              <InfoValueSmall>{tokens.scope}</InfoValueSmall>
-            </TokenInfoItem>
-            {tokens.refreshToken && (
-              <TokenInfoItem>
-                <InfoLabelSmall>Refresh Token</InfoLabelSmall>
-                <InfoValueSmall>Available</InfoValueSmall>
-              </TokenInfoItem>
-            )}
-          </TokenInfo>
-        </TokenContent>
-      </TokenSection>
+					{/* ID Token */}
+					{tokens.idToken && (
+						<>
+							<TokenType style={{ marginTop: '1.5rem' }}>
+								<TypeName>ID Token</TypeName>
+								<TypeBadge>JWT</TypeBadge>
+							</TokenType>
 
-      {/* Action Buttons */}
-      <ActionButtons>
-        <Button onClick={onLogout}>
-          <FiLogOut />
-          Logout
-        </Button>
-      </ActionButtons>
+							{showFullTokens ? (
+								<TokenFull>
+									{tokens.idToken}
+									<CopyButton onClick={() => handleCopyToken('id', tokens.idToken)}>
+										{copiedToken === 'id' ? 'Copied!' : <FiCopy />}
+									</CopyButton>
+								</TokenFull>
+							) : (
+								<TokenPreview>
+									{formatTokenPreview(tokens.idToken)}
+									<CopyButton onClick={() => handleCopyToken('id', tokens.idToken)}>
+										{copiedToken === 'id' ? 'Copied!' : <FiCopy />}
+									</CopyButton>
+								</TokenPreview>
+							)}
+						</>
+					)}
 
-      {/* Educational Section */}
-      <EducationalSection>
-        <EducationalHeader>
-          <FiInfo style={{ color: '#3b82f6' }} />
-          <EducationalTitle>{educationalContent.title}</EducationalTitle>
-        </EducationalHeader>
-        
-        <EducationalDescription>{educationalContent.description}</EducationalDescription>
-        
-        <KeyPoints>
-          {educationalContent.keyPoints.map((point, index) => (
-            <KeyPoint key={index}>
-              <KeyPointIcon />
-              {point}
-            </KeyPoint>
-          ))}
-        </KeyPoints>
-      </EducationalSection>
-    </SuccessContainer>
-  );
+					{/* Token Information */}
+					<TokenInfo>
+						<TokenInfoItem>
+							<InfoLabelSmall>Token Type</InfoLabelSmall>
+							<InfoValueSmall>{tokens.tokenType}</InfoValueSmall>
+						</TokenInfoItem>
+						<TokenInfoItem>
+							<InfoLabelSmall>Expires In</InfoLabelSmall>
+							<InfoValueSmall>
+								{tokens.expiresIn}s ({getTokenExpiryTime(tokens.expiresIn)})
+							</InfoValueSmall>
+						</TokenInfoItem>
+						<TokenInfoItem>
+							<InfoLabelSmall>Scope</InfoLabelSmall>
+							<InfoValueSmall>{tokens.scope}</InfoValueSmall>
+						</TokenInfoItem>
+						{tokens.refreshToken && (
+							<TokenInfoItem>
+								<InfoLabelSmall>Refresh Token</InfoLabelSmall>
+								<InfoValueSmall>Available</InfoValueSmall>
+							</TokenInfoItem>
+						)}
+					</TokenInfo>
+
+					{/* Token Validation */}
+					{tokenValidation && (
+						<TokenInfo
+							style={{ marginTop: '1.5rem', borderTop: '1px solid #e5e7eb', paddingTop: '1rem' }}
+						>
+							<TokenInfoItem>
+								<InfoLabelSmall>Validation Status</InfoLabelSmall>
+								<InfoValueSmall style={{ color: tokenValidation.isValid ? '#059669' : '#dc2626' }}>
+									{tokenValidation.isValid ? 'Valid' : 'Invalid'}
+								</InfoValueSmall>
+							</TokenInfoItem>
+							{tokenValidation.tokenInfo.accessTokenExpiry && (
+								<TokenInfoItem>
+									<InfoLabelSmall>Access Token Expires</InfoLabelSmall>
+									<InfoValueSmall>
+										{tokenValidation.tokenInfo.accessTokenExpiry.toLocaleString()}
+									</InfoValueSmall>
+								</TokenInfoItem>
+							)}
+							{tokenValidation.tokenInfo.idTokenExpiry && (
+								<TokenInfoItem>
+									<InfoLabelSmall>ID Token Expires</InfoLabelSmall>
+									<InfoValueSmall>
+										{tokenValidation.tokenInfo.idTokenExpiry.toLocaleString()}
+									</InfoValueSmall>
+								</TokenInfoItem>
+							)}
+							{tokenValidation.warnings.length > 0 && (
+								<TokenInfoItem style={{ gridColumn: '1 / -1' }}>
+									<InfoLabelSmall>Warnings</InfoLabelSmall>
+									<InfoValueSmall style={{ fontSize: '0.75rem', color: '#d97706' }}>
+										{tokenValidation.warnings.join(', ')}
+									</InfoValueSmall>
+								</TokenInfoItem>
+							)}
+							{tokenValidation.errors.length > 0 && (
+								<TokenInfoItem style={{ gridColumn: '1 / -1' }}>
+									<InfoLabelSmall>Errors</InfoLabelSmall>
+									<InfoValueSmall style={{ fontSize: '0.75rem', color: '#dc2626' }}>
+										{tokenValidation.errors.join(', ')}
+									</InfoValueSmall>
+								</TokenInfoItem>
+							)}
+						</TokenInfo>
+					)}
+				</TokenContent>
+			</TokenSection>
+
+			{/* Action Buttons */}
+			<ActionButtons>
+				<Button onClick={onLogout}>
+					<FiLogOut />
+					Logout
+				</Button>
+			</ActionButtons>
+
+			{/* Educational Section */}
+			<EducationalSection>
+				<EducationalHeader>
+					<FiInfo style={{ color: '#3b82f6' }} />
+					<EducationalTitle>{educationalContent.title}</EducationalTitle>
+				</EducationalHeader>
+
+				<EducationalDescription>{educationalContent.description}</EducationalDescription>
+
+				<KeyPoints>
+					{educationalContent.keyPoints.map((point, index) => (
+						<KeyPoint key={index}>
+							<KeyPointIcon />
+							{point}
+						</KeyPoint>
+					))}
+				</KeyPoints>
+			</EducationalSection>
+		</SuccessContainer>
+		</>
+	);
 };
 
 export default PortalSuccess;
