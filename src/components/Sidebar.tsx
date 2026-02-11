@@ -563,6 +563,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 								<FiServer />
 							</ColoredIcon>
 						),
+						badge: (
+							<MigrationBadge title="Server health monitoring and status information">
+								UTILITY
+							</MigrationBadge>
+						),
 					},
 				],
 			},

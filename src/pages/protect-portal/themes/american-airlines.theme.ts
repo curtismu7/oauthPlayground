@@ -1,0 +1,116 @@
+/**
+ * @file american-airlines.theme.ts
+ * @module protect-portal/themes
+ * @description American Airlines brand theme configuration
+ * @version 9.6.5
+ * @since 2026-02-10
+ *
+ * American Airlines brand theme with patriotic colors and aviation styling.
+ */
+
+import type { BrandTheme } from './brand-theme.interface';
+
+export const americanAirlinesTheme: BrandTheme = {
+	name: 'american-airlines',
+	displayName: 'American Airlines',
+	portalName: 'American Airlines Employee Portal',
+	logo: {
+		url: 'https://raw.githubusercontent.com/curtismu7/CDN/74b2535cf2ff57c98c702071ff3de3e9eda63929/american.svg',
+		alt: 'American Airlines Logo',
+		width: '160px',
+		height: '60px',
+		text: 'AMERICAN',
+		colors: {
+			american: '#0033A0',
+			airlines: '#E31937'
+		}
+	},
+	colors: {
+		primary: '#0033A0', // American Blue (exact from their brand)
+		secondary: '#FFFFFF', // White
+		accent: '#E31937', // American Red
+		background: 'linear-gradient(180deg, #0033A0 0%, #002880 25%, #FFFFFF 100%)',
+		surface: '#FFFFFF',
+		text: '#1F2937',
+		textSecondary: '#6B7280',
+		error: '#E31937', // Use American red for errors
+		success: '#059669',
+		warning: '#D97706',
+		info: '#0033A0', // Use American blue for info
+		// Additional theme colors
+		primaryLight: '#0056B3',
+		primaryDark: '#002880',
+		secondaryLight: '#F8F9FA',
+		secondaryDark: '#E9ECEF',
+		errorLight: '#FEE2E2',
+		warningLight: '#FEF3C7',
+		successLight: '#D1FAE5',
+	},
+	typography: {
+		fontFamily: '"Owners Bold", "Helvetica Neue", Arial, sans-serif',
+		headingFont: '"Owners Bold", "Helvetica Neue", Arial, sans-serif',
+		bodyFont: '"Inter", system-ui, sans-serif',
+		weights: {
+			light: 300,
+			normal: 400,
+			medium: 600,
+			bold: 700,
+		},
+		sizes: {
+			xs: '0.75rem',
+			sm: '0.875rem',
+			md: '1rem',
+			lg: '1.125rem',
+			xl: '1.25rem',
+			xxl: '1.5rem',
+		},
+	},
+	spacing: {
+		xs: '0.25rem',
+		sm: '0.5rem',
+		md: '1rem',
+		lg: '1.5rem',
+		xl: '2rem',
+		xxl: '3rem',
+	},
+	borderRadius: {
+		sm: '0.25rem',
+		md: '0.5rem',
+		lg: '0.75rem',
+		xl: '1rem',
+	},
+	shadows: {
+		sm: '0 1px 2px 0 rgba(0, 51, 160, 0.05)',
+		md: '0 4px 6px -1px rgba(0, 51, 160, 0.1), 0 2px 4px -1px rgba(0, 51, 160, 0.06)',
+		lg: '0 10px 15px -3px rgba(0, 51, 160, 0.1), 0 4px 6px -2px rgba(0, 51, 160, 0.05)',
+		xl: '0 20px 25px -5px rgba(0, 51, 160, 0.1), 0 10px 10px -5px rgba(0, 51, 160, 0.04)',
+	},
+	brandSpecific: {
+		logo: '🦅',
+		logoUrl: 'https://www.aa.com/favicon.ico',
+		iconSet: ['✈️', '🦅', '🌍', '🎫', '🛫'],
+		messaging: {
+			welcome: 'Welcome to American Airlines Secure Portal',
+			security: 'Your flight security is our top priority',
+			success: 'Check-in completed successfully',
+			error: 'Unable to process your request',
+		},
+		animations: {
+			loading: 'spin 1s linear infinite',
+			transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+		},
+		layout: {
+			navigationHeight: '64px',
+			heroHeight: '400px',
+			primaryColor: '#0033A0',
+			accentColor: '#E31937',
+			backgroundGradient: 'linear-gradient(135deg, #0033A0 0%, #002880 100%)',
+			useFullWidthLayout: true,
+			showNavigation: true,
+			showHero: true,
+			showFooter: true,
+			contentMaxWidth: '1200px',
+			contentPadding: '2rem',
+		},
+	},
+};

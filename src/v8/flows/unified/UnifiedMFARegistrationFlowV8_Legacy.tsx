@@ -443,7 +443,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				deviceAuthenticationPolicyId: policyId,
 				deviceId: device.id,
 				region: 'na',
-				tokenType: flowType,
 				...(effectiveUserToken && { userToken: effectiveUserToken }),
 			});
 
@@ -1122,7 +1121,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 									</summary>
 									<div style={{ marginTop: '12px', fontSize: '13px', color: '#4b5563' }}>
 										<div style={{ marginBottom: '8px' }}>
-											<strong>Policy Name:</strong> {String(selectedPolicy.name)}
+											<strong>Policy Name:</strong> {selectedPolicy.name}
 										</div>
 										{selectedPolicy.default && (
 											<div style={{ marginBottom: '8px', color: '#059669' }}>
@@ -1320,7 +1319,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							type="button"
 							onClick={() => {
 								// FIXED: Respect registrationFlowType - admin flows should not use user login
-								if (registrationFlowType && registrationFlowType.startsWith('admin')) {
+								if (registrationFlowType?.startsWith('admin')) {
 									toastV8.error('🔐 Admin flow selected. Please use worker token for authentication.', {
 										duration: 5000,
 									});
@@ -1387,7 +1386,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						onClose={() => setShowAuthLoginModal(false)}
 						onTokenReceived={(token) => {
 							// FIXED: Respect registrationFlowType - admin flows should not use user login
-							if (registrationFlowType && registrationFlowType.startsWith('admin')) {
+							if (registrationFlowType?.startsWith('admin')) {
 								toastV8.error('🔐 Admin flow selected. User login not allowed in admin flow.', {
 									duration: 5000,
 								});
@@ -2064,7 +2063,7 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 	);
 
 	// State for registration flow type with persistence
-	const [registrationFlowType, setRegistrationFlowType] = useState<'admin-active' | 'admin-activation' | 'user' | undefined>(
+	const [registrationFlowType] = useState<'admin-active' | 'admin-activation' | 'user' | undefined>(
 		getInitialRegistrationFlowType()
 	);
 
@@ -2112,7 +2111,7 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 							onSelectDeviceType={setSelectedDeviceType}
 							userToken={userToken}
 							setUserToken={setUserToken}
-							registrationFlowType={props.registrationFlowType}
+							registrationFlowType={props.registrationFlowType || 'user'}
 						/>
 					</MFACredentialProvider>
 				</GlobalMFAProvider>
@@ -2131,13 +2130,7 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 					deviceType={selectedDeviceType}
 					userToken={userToken}
 					setUserToken={setUserToken}
-					registrationFlowType={registrationFlowType || undefined}
-					setRegistrationFlowType={setRegistrationFlowType}
 					onCancel={props.onCancel}
-					onSuccess={props.onSuccess}
-					initialCredentials={props.initialCredentials}
-					initialStep={props.initialStep}
-					skipConfiguration={props.skipConfiguration}
 				/>
 			</MFACredentialProvider>
 		</GlobalMFAProvider>
@@ -2154,14 +2147,8 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 interface UnifiedMFARegistrationFlowContentProps {
 	deviceType: DeviceConfigKey;
 	onCancel?: (() => void) | undefined;
-	onSuccess?: ((result: DeviceRegistrationResult) => void) | undefined;
-	initialCredentials?: Partial<MFACredentials> | undefined;
-	initialStep?: number | undefined;
-	skipConfiguration?: boolean | undefined;
 	userToken: string | null;
 	setUserToken: (token: string | null) => void;
-	registrationFlowType?: 'admin-active' | 'admin-activation' | 'user' | undefined;
-	setRegistrationFlowType?: (flowType: 'admin-active' | 'admin-activation' | 'user' | undefined) => void | undefined;
 }
 
 /**
@@ -2176,14 +2163,8 @@ interface UnifiedMFARegistrationFlowContentProps {
 const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowContentProps> = ({ 
 	deviceType, 
 	onCancel, 
-	onSuccess, 
-	initialCredentials, 
-	initialStep, 
-	skipConfiguration, 
 	userToken, 
-	setUserToken, 
-	registrationFlowType, 
-	setRegistrationFlowType 
+	setUserToken 
 }) => {
 	// ========================================================================
 	// CONFIGURATION

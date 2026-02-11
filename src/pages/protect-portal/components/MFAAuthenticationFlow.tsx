@@ -9,17 +9,27 @@
  * including device selection and authentication methods.
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiKey,
+	FiLoader,
+	FiLock,
+	FiMail,
+	FiShield,
+	FiSmartphone,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiAlertTriangle, FiCheckCircle, FiLoader, FiShield, FiSmartphone, FiMail, FiKey, FiLock } from 'react-icons/fi';
-
+import CompanyLogoHeader from './CompanyLogoHeader';
+import MFAAuthenticationService from '../services/mfaAuthenticationService';
 import type {
-  UserContext,
-  RiskEvaluationResult,
-  MFADevice,
-  TokenSet,
-  PortalError,
-  EducationalContent
+	EducationalContent,
+	MFADevice,
+	PortalError,
+	RiskEvaluationResult,
+	TokenSet,
+	UserContext,
 } from '../types/protectPortal.types';
 
 // ============================================================================
@@ -35,21 +45,23 @@ const MFAContainer = styled.div`
 const MFATitle = styled.h2`
   font-size: 1.875rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--brand-text);
   margin: 0 0 1rem 0;
+  font-family: var(--brand-heading-font);
 `;
 
 const MFADescription = styled.p`
   font-size: 1rem;
-  color: #6b7280;
+  color: var(--brand-text-secondary);
   margin: 0 0 2rem 0;
   line-height: 1.6;
+  font-family: var(--brand-body-font);
 `;
 
 const RiskWarning = styled.div`
-  background: #fffbeb;
-  border: 1px solid #fcd34d;
-  border-radius: 0.75rem;
+  background: var(--brand-warning-light);
+  border: 1px solid var(--brand-warning);
+  border-radius: var(--brand-radius-md);
   padding: 1.5rem;
   margin-bottom: 2rem;
   display: flex;
@@ -58,7 +70,7 @@ const RiskWarning = styled.div`
 `;
 
 const WarningIcon = styled.div`
-  color: #f59e0b;
+  color: var(--brand-warning);
   font-size: 1.5rem;
   flex-shrink: 0;
 `;
@@ -71,21 +83,23 @@ const WarningContent = styled.div`
 const WarningTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #92400e;
+  color: var(--brand-warning-dark);
   margin: 0 0 0.5rem 0;
+  font-family: var(--brand-heading-font);
 `;
 
 const WarningText = styled.p`
   font-size: 0.875rem;
-  color: #78350f;
+  color: var(--brand-warning-dark);
   margin: 0;
   line-height: 1.5;
+  font-family: var(--brand-body-font);
 `;
 
 const DeviceSelectionContainer = styled.div`
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 1rem;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-text-secondary);
+  border-radius: var(--brand-radius-lg);
   padding: 2rem;
   margin-bottom: 2rem;
 `;
@@ -93,8 +107,9 @@ const DeviceSelectionContainer = styled.div`
 const DeviceSelectionTitle = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--brand-text);
   margin: 0 0 1.5rem 0;
+  font-family: var(--brand-heading-font);
 `;
 
 const DeviceGrid = styled.div`
@@ -105,22 +120,19 @@ const DeviceGrid = styled.div`
 `;
 
 const DeviceCard = styled.button<{ selected?: boolean }>`
-  background: ${props => props.selected ? '#eff6ff' : 'white'};
-  border: 2px solid ${props => props.selected ? '#3b82f6' : '#e5e7eb'};
-  border-radius: 0.75rem;
+  background: ${(props) => (props.selected ? 'var(--brand-primary-light)' : 'var(--brand-surface)')};
+  border: 2px solid ${(props) => (props.selected ? 'var(--brand-primary)' : 'var(--brand-text-secondary)')};
+  border-radius: var(--brand-radius-md);
   padding: 1.5rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
+  transition: var(--brand-transition);
+  width: 100%;
   text-align: center;
 
   &:hover {
-    border-color: ${props => props.selected ? '#3b82f6' : '#9ca3af'};
+    border-color: ${(props) => (props.selected ? 'var(--brand-primary)' : 'var(--brand-text)')};
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--brand-shadow-md);
   }
 
   &:disabled {
@@ -133,83 +145,34 @@ const DeviceCard = styled.button<{ selected?: boolean }>`
 const DeviceIcon = styled.div<{ deviceType: string }>`
   width: 48px;
   height: 48px;
-  background: ${props => {
-    switch (props.deviceType) {
-      case 'SMS':
-        return '#dbeafe';
-      case 'EMAIL':
-        return '#dcfce7';
-      case 'TOTP':
-        return '#fef3c7';
-      case 'FIDO2':
-        return '#ede9fe';
-      default:
-        return '#f3f4f6';
-    }
-  }};
-  border-radius: 0.5rem;
+  background: var(--brand-primary-light);
+  border-radius: var(--brand-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${props => {
-    switch (props.deviceType) {
-      case 'SMS':
-        return '#1e40af';
-      case 'EMAIL':
-        return '#166534';
-      case 'TOTP':
-        return '#92400e';
-      case 'FIDO2':
-        return '#5b21b6';
-      default:
-        return '#374151';
-    }
-  }};
+  color: var(--brand-primary);
   font-size: 1.25rem;
+  margin-bottom: 1rem;
 `;
 
 const DeviceName = styled.div`
   font-weight: 600;
-  color: #1f2937;
+  color: var(--brand-text);
   margin-bottom: 0.25rem;
+  font-family: var(--brand-heading-font);
 `;
 
 const DeviceStatus = styled.div`
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--brand-text-secondary);
+  font-family: var(--brand-body-font);
 `;
 
 const NoDevicesMessage = styled.div`
   text-align: center;
   padding: 2rem;
-  color: #6b7280;
-`;
-
-const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
-  background: ${props => props.variant === 'secondary' ? '#f3f4f6' : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'};
-  color: ${props => props.variant === 'secondary' ? '#374151' : 'white'};
-  border: none;
-  border-radius: 0.5rem;
-  padding: 1rem 2rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0 auto;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
+  color: var(--brand-text-secondary);
+  font-family: var(--brand-body-font);
 `;
 
 const LoadingContainer = styled.div`
@@ -223,7 +186,7 @@ const LoadingContainer = styled.div`
 const LoadingSpinner = styled(FiLoader)`
   animation: spin 1s linear infinite;
   font-size: 2rem;
-  color: #3b82f6;
+  color: var(--brand-primary);
 
   @keyframes spin {
     from { transform: rotate(0deg); }
@@ -232,31 +195,31 @@ const LoadingSpinner = styled(FiLoader)`
 `;
 
 const LoadingText = styled.p`
-  color: #6b7280;
+  color: var(--brand-text-secondary);
   font-size: 1rem;
   margin: 0;
+  font-family: var(--brand-body-font);
 `;
 
 const ErrorMessage = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 0.5rem;
+  background: var(--brand-error-light);
+  border: 1px solid var(--brand-error);
+  border-radius: var(--brand-radius-sm);
   padding: 1rem;
-  color: #dc2626;
+  color: var(--brand-error);
   font-size: 0.875rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  font-family: var(--brand-body-font);
 `;
 
 const EducationalSection = styled.div`
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 1rem;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-primary);
+  border-radius: var(--brand-radius-lg);
   padding: 1.5rem;
   text-align: left;
-  margin-top: 2rem;
 `;
 
 const EducationalHeader = styled.div`
@@ -269,35 +232,39 @@ const EducationalHeader = styled.div`
 const EducationalTitle = styled.h4`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1e40af;
+  color: var(--brand-primary);
   margin: 0;
+  font-family: var(--brand-heading-font);
 `;
 
 const EducationalDescription = styled.p`
   font-size: 0.875rem;
-  color: #1e40af;
+  color: var(--brand-primary);
   margin: 0 0 1rem 0;
   line-height: 1.5;
+  font-family: var(--brand-body-font);
 `;
 
-const KeyPoints = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1rem 0;
+const KeyPoints = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 `;
 
-const KeyPoint = styled.li`
+const KeyPoint = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
-  color: #374151;
+  color: var(--brand-text);
   line-height: 1.4;
+  font-family: var(--brand-body-font);
 `;
 
 const KeyPointIcon = styled(FiCheckCircle)`
-  color: #10b981;
+  color: var(--brand-success);
   flex-shrink: 0;
   margin-top: 0.125rem;
 `;
@@ -307,323 +274,372 @@ const KeyPointIcon = styled(FiCheckCircle)`
 // ============================================================================
 
 interface MFAAuthenticationFlowProps {
-  userContext: UserContext;
-  riskEvaluation: RiskEvaluationResult;
-  onComplete: (tokens: TokenSet) => void;
-  onError: (error: PortalError) => void;
-  enableMockMode?: boolean;
-  educationalContent: EducationalContent;
+	userContext: UserContext;
+	riskEvaluation: RiskEvaluationResult;
+	onComplete: (tokens: TokenSet) => void;
+	onError: (error: PortalError) => void;
+	mfaCredentials: {
+		environmentId: string;
+		accessToken: string;
+		region: 'us' | 'eu' | 'ap' | 'ca';
+	};
+	loginContext: {
+		ipAddress: string;
+		userAgent: string;
+	};
+	educationalContent: EducationalContent;
 }
-
-// ============================================================================
-// MOCK DATA
-// ============================================================================
-
-const mockDevices: MFADevice[] = [
-  {
-    id: 'sms-device-1',
-    type: 'SMS',
-    name: 'iPhone 13 Pro',
-    status: 'ACTIVE',
-    phone: '+1***-***-1234',
-    createdAt: '2024-01-15T10:30:00Z',
-    lastUsedAt: '2024-02-08T14:22:00Z'
-  },
-  {
-    id: 'email-device-1',
-    type: 'EMAIL',
-    name: 'Personal Email',
-    status: 'ACTIVE',
-    email: 'user@example.com',
-    createdAt: '2024-01-20T09:15:00Z',
-    lastUsedAt: '2024-02-05T16:45:00Z'
-  },
-  {
-    id: 'totp-device-1',
-    type: 'TOTP',
-    name: 'Google Authenticator',
-    status: 'ACTIVE',
-    createdAt: '2024-01-10T11:00:00Z',
-    lastUsedAt: '2024-02-09T08:30:00Z'
-  },
-  {
-    id: 'fido2-device-1',
-    type: 'FIDO2',
-    name: 'YubiKey 5',
-    status: 'ACTIVE',
-    createdAt: '2024-01-25T13:45:00Z',
-    lastUsedAt: '2024-02-07T10:15:00Z'
-  }
-];
 
 // ============================================================================
 // COMPONENT
 // ============================================================================
 
 const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
-  userContext,
-  riskEvaluation,
-  onComplete,
-  onError,
-  enableMockMode = false,
-  educationalContent
+	userContext,
+	riskEvaluation,
+	onComplete,
+	onError,
+	mfaCredentials,
+	loginContext,
+	educationalContent,
 }) => {
-  // ============================================================================
-  // STATE MANAGEMENT
-  // ============================================================================
+	// ============================================================================
+	// STATE MANAGEMENT
+	// ============================================================================
 
-  const [availableDevices, setAvailableDevices] = useState<MFADevice[]>([]);
-  const [selectedDevice, setSelectedDevice] = useState<MFADevice | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [currentStep, setCurrentStep] = useState<'loading' | 'device-selection' | 'authenticating' | 'complete'>('loading');
+	const [availableDevices, setAvailableDevices] = useState<MFADevice[]>([]);
+	const [selectedDevice, setSelectedDevice] = useState<MFADevice | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [currentStep, setCurrentStep] = useState<
+		'loading' | 'device-selection' | 'authenticating' | 'complete'
+	>('loading');
 
-  // ============================================================================
-  // EVENT HANDLERS
-  // ============================================================================
+	// ============================================================================
+	// EVENT HANDLERS
+	// ============================================================================
 
-  const loadDevices = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+	const loadDevices = useCallback(async () => {
+		setIsLoading(true);
+		setError(null);
 
-    try {
-      if (enableMockMode) {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setAvailableDevices(mockDevices);
-      } else {
-        // TODO: Implement actual device loading
-        throw new Error('Device loading not yet implemented');
-      }
+		try {
+			console.log('[🔐 MFA-AUTHENTICATION] Loading MFA devices for user:', userContext.id);
 
-      setCurrentStep('device-selection');
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load devices';
-      setError(errorMessage);
-      
-      const portalError: PortalError = {
-        code: 'DEVICE_LOAD_FAILED',
-        message: errorMessage,
-        recoverable: true,
-        suggestedAction: 'Please try again or contact support'
-      };
+			// Use real MFA service to get available devices
+			const devicesResponse = await MFAAuthenticationService.getAvailableDevices(
+				userContext,
+				mfaCredentials
+			);
 
-      onError(portalError);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [enableMockMode, onError]);
+			if (!devicesResponse.success || !devicesResponse.data) {
+				throw new Error(devicesResponse.error?.message || 'Failed to load MFA devices');
+			}
 
-  const handleDeviceSelect = useCallback((device: MFADevice) => {
-    setSelectedDevice(device);
-    setError(null);
-  }, []);
+			setAvailableDevices(devicesResponse.data.devices);
+			console.log('[🔐 MFA-AUTHENTICATION] Loaded devices:', devicesResponse.data.devices.length);
+		} catch (err) {
+			console.error('[🔐 MFA-AUTHENTICATION] Failed to load devices:', err);
 
-  const handleAuthenticate = useCallback(async () => {
-    if (!selectedDevice) {
-      setError('Please select a device');
-      return;
-    }
+			const errorMessage = err instanceof Error ? err.message : 'Failed to load MFA devices';
+			setError(errorMessage);
 
-    setIsLoading(true);
-    setError(null);
-    setCurrentStep('authenticating');
+			const portalError: PortalError = {
+				code: 'DEVICE_LOAD_FAILED',
+				message: errorMessage,
+				recoverable: true,
+				suggestedAction: 'Please try again or contact support',
+			};
 
-    try {
-      if (enableMockMode) {
-        // Simulate authentication based on device type
-        await new Promise(resolve => setTimeout(resolve, 2000));
+			onError(portalError);
+		} finally {
+			setIsLoading(false);
+		}
+	}, [userContext, mfaCredentials, onError]);
 
-        // Mock token generation
-        const mockTokens: TokenSet = {
-          accessToken: `mock-access-token-${Date.now()}`,
-          tokenType: 'Bearer',
-          expiresIn: 3600,
-          scope: 'openid profile email',
-          idToken: `mock-id-token-${Date.now()}`
-        };
+	const handleDeviceSelect = useCallback((device: MFADevice) => {
+		setSelectedDevice(device);
+		setError(null);
+	}, []);
 
-        setCurrentStep('complete');
-        onComplete(mockTokens);
-      } else {
-        // TODO: Implement actual MFA authentication
-        throw new Error('MFA authentication not yet implemented');
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Authentication failed';
-      setError(errorMessage);
-      setCurrentStep('device-selection');
-      
-      const portalError: PortalError = {
-        code: 'MFA_AUTH_FAILED',
-        message: errorMessage,
-        recoverable: true,
-        suggestedAction: 'Please try again or select a different device'
-      };
+	const handleAuthenticate = useCallback(async () => {
+		if (!selectedDevice) {
+			setError('Please select a device');
+			return;
+		}
 
-      onError(portalError);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [selectedDevice, enableMockMode, onComplete, onError]);
+		setIsLoading(true);
+		setError(null);
+		setCurrentStep('authenticating');
 
-  const getDeviceIcon = (deviceType: string) => {
-    switch (deviceType) {
-      case 'SMS':
-        return <FiSmartphone />;
-      case 'EMAIL':
-        return <FiMail />;
-      case 'TOTP':
-        return <FiKey />;
-      case 'FIDO2':
-        return <FiLock />;
-      default:
-        return <FiShield />;
-    }
-  };
+		try {
+			console.log(
+				'[🔐 MFA-AUTHENTICATION] Starting authentication with device:',
+				selectedDevice.id
+			);
 
-  // ============================================================================
-  // EFFECTS
-  // ============================================================================
+			// Use real MFA service to initiate authentication
+			const authResponse = await MFAAuthenticationService.initiateAuthentication(
+				userContext,
+				selectedDevice,
+				mfaCredentials,
+				loginContext
+			);
 
-  useEffect(() => {
-    console.log('[🔐 MFA-AUTHENTICATION] MFA flow initialized', {
-      userId: userContext.id,
-      riskLevel: riskEvaluation.result.level,
-      enableMockMode
-    });
+			if (!authResponse.success || !authResponse.data) {
+				throw new Error(authResponse.error?.message || 'MFA authentication failed');
+			}
 
-    loadDevices();
-  }, [loadDevices, userContext.id, riskEvaluation.result.level, enableMockMode]);
+			const authData = authResponse.data;
 
-  // ============================================================================
-  // RENDER
-  // ============================================================================
+			if (authData.requiresChallenge && authData.challengeData) {
+				// Handle challenge-based authentication (OTP, Push, Biometric)
+				console.log('[🔐 MFA-AUTHENTICATION] Challenge required:', authData.challengeData.type);
 
-  return (
-    <MFAContainer>
-      <MFATitle>Multi-Factor Authentication</MFATitle>
-      <MFADescription>
-        Additional verification is required to protect your account
-      </MFADescription>
+				// TODO: Implement proper challenge UI based on challenge type
+				// For now, we'll show a message indicating challenge is required
+				setError(`Challenge required: ${authData.challengeData.message}`);
 
-      {/* Risk Warning */}
-      <RiskWarning>
-        <WarningIcon>
-          <FiAlertTriangle />
-        </WarningIcon>
-        <WarningContent>
-          <WarningTitle>Medium Risk Detected</WarningTitle>
-          <WarningText>
-            Your login attempt shows some unusual patterns. For your security, 
-            we require additional verification before proceeding.
-          </WarningText>
-        </WarningContent>
-      </RiskWarning>
+				// In a real implementation, you would:
+				// 1. Show appropriate challenge UI (OTP input, push notification waiting, biometric prompt)
+				// 2. Collect user response
+				// 3. Call completeAuthentication with the actual response
 
-      {error && (
-        <ErrorMessage>
-          <FiAlertTriangle />
-          {error}
-        </ErrorMessage>
-      )}
+				// For demo purposes, we'll simulate successful challenge completion
+				setTimeout(async () => {
+					try {
+						const completeResponse = await MFAAuthenticationService.completeAuthentication(
+							userContext,
+							selectedDevice,
+							'challenge-completed', // This would come from user input
+							mfaCredentials
+						);
 
-      {/* Loading State */}
-      {currentStep === 'loading' && (
-        <LoadingContainer>
-          <LoadingSpinner />
-          <LoadingText>Loading your authentication devices...</LoadingText>
-        </LoadingContainer>
-      )}
+						if (!completeResponse.success || !completeResponse.data) {
+							throw new Error(completeResponse.error?.message || 'MFA completion failed');
+						}
 
-      {/* Device Selection */}
-      {currentStep === 'device-selection' && (
-        <DeviceSelectionContainer>
-          <DeviceSelectionTitle>Select Authentication Method</DeviceSelectionTitle>
-          
-          {availableDevices.length > 0 ? (
-            <>
-              <DeviceGrid>
-                {availableDevices.map(device => (
-                  <DeviceCard
-                    key={device.id}
-                    selected={selectedDevice?.id === device.id}
-                    onClick={() => handleDeviceSelect(device)}
-                    disabled={isLoading}
-                  >
-                    <DeviceIcon deviceType={device.type}>
-                      {getDeviceIcon(device.type)}
-                    </DeviceIcon>
-                    <DeviceName>{device.name}</DeviceName>
-                    <DeviceStatus>
-                      {device.type} • {device.status.toLowerCase()}
-                    </DeviceStatus>
-                  </DeviceCard>
-                ))}
-              </DeviceGrid>
+						setCurrentStep('complete');
+						onComplete(completeResponse.data);
+					} catch (completeErr) {
+						const errorMessage =
+							completeErr instanceof Error ? completeErr.message : 'MFA completion failed';
+						setError(errorMessage);
 
-              <ActionButton
-                onClick={handleAuthenticate}
-                disabled={!selectedDevice || isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <LoadingSpinner />
-                    Authenticating...
-                  </>
-                ) : (
-                  <>
-                    <FiShield />
-                    Authenticate with {selectedDevice?.name || 'Selected Device'}
-                  </>
-                )}
-              </ActionButton>
-            </>
-          ) : (
-            <NoDevicesMessage>
-              <FiShield style={{ fontSize: '2rem', marginBottom: '1rem', color: '#9ca3af' }} />
-              <p>No authentication devices found</p>
-              <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
-                Please register an MFA device first
-              </p>
-            </NoDevicesMessage>
-          )}
-        </DeviceSelectionContainer>
-      )}
+						const portalError: PortalError = {
+							code: 'MFA_COMPLETION_FAILED',
+							message: errorMessage,
+							recoverable: true,
+							suggestedAction: 'Please try again',
+						};
+						onError(portalError);
+					}
+				}, 3000);
+			} else if (authData.tokens) {
+				// Direct authentication without challenge
+				setCurrentStep('complete');
+				onComplete(authData.tokens);
+			} else {
+				throw new Error('Authentication completed but no tokens received');
+			}
+		} catch (err) {
+			console.error('[🔐 MFA-AUTHENTICATION] Authentication failed:', err);
 
-      {/* Authenticating State */}
-      {currentStep === 'authenticating' && (
-        <LoadingContainer>
-          <LoadingSpinner />
-          <LoadingText>
-            Authenticating with {selectedDevice?.name}...
-          </LoadingText>
-          <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.5rem' }}>
-            Please follow the instructions on your device
-          </p>
-        </LoadingContainer>
-      )}
+			const errorMessage = err instanceof Error ? err.message : 'MFA authentication failed';
+			setError(errorMessage);
 
-      {/* Educational Section */}
-      <EducationalSection>
-        <EducationalHeader>
-          <FiShield style={{ color: '#3b82f6' }} />
-          <EducationalTitle>{educationalContent.title}</EducationalTitle>
-        </EducationalHeader>
-        
-        <EducationalDescription>{educationalContent.description}</EducationalDescription>
-        
-        <KeyPoints>
-          {educationalContent.keyPoints.map((point, index) => (
-            <KeyPoint key={index}>
-              <KeyPointIcon />
-              {point}
-            </KeyPoint>
-          ))}
-        </KeyPoints>
-      </EducationalSection>
-    </MFAContainer>
-  );
+			const portalError: PortalError = {
+				code: 'MFA_AUTHENTICATION_FAILED',
+				message: errorMessage,
+				recoverable: true,
+				suggestedAction: 'Please try again or contact support',
+			};
+
+			onError(portalError);
+		} finally {
+			setIsLoading(false);
+		}
+	}, [selectedDevice, userContext, mfaCredentials, loginContext, onComplete, onError]);
+
+	const getDeviceIcon = (deviceType: string) => {
+		switch (deviceType) {
+			case 'SMS':
+				return <FiSmartphone />;
+			case 'EMAIL':
+				return <FiMail />;
+			case 'TOTP':
+				return <FiKey />;
+			case 'FIDO2':
+				return <FiLock />;
+			default:
+				return <FiShield />;
+		}
+	};
+
+	// ============================================================================
+	// EFFECTS
+	// ============================================================================
+
+	useEffect(() => {
+		console.log('[🔐 MFA-AUTHENTICATION] MFA flow initialized', {
+			userId: userContext.id,
+			riskLevel: riskEvaluation.result.level,
+			mfaCredentials: !!mfaCredentials,
+		});
+
+		loadDevices();
+	}, [loadDevices, userContext.id, riskEvaluation.result.level, mfaCredentials]);
+
+	// ============================================================================
+	// RENDER
+	// ============================================================================
+
+	return (
+		<>
+			<CompanyLogoHeader size="small" />
+			<MFAContainer>
+				<MFATitle>Multi-Factor Authentication</MFATitle>
+				<MFADescription>Additional verification is required to protect your account</MFADescription>
+
+				{/* Risk Warning */}
+				<RiskWarning>
+					<WarningIcon>
+						<FiAlertTriangle />
+					</WarningIcon>
+					<WarningContent>
+						<WarningTitle>Medium Risk Detected</WarningTitle>
+						<WarningText>
+							Your login attempt shows some unusual patterns. For your security, we require additional
+							verification before proceeding.
+						</WarningText>
+					</WarningContent>
+				</RiskWarning>
+
+			{error && (
+				<ErrorMessage>
+					<FiAlertTriangle />
+					{error}
+				</ErrorMessage>
+			)}
+
+			{/* Loading State */}
+			{currentStep === 'loading' && (
+				<LoadingContainer>
+					<LoadingSpinner />
+					<LoadingText>Loading your authentication devices...</LoadingText>
+				</LoadingContainer>
+			)}
+
+			{/* Device Selection */}
+			{currentStep === 'device-selection' && (
+				<DeviceSelectionContainer>
+					<DeviceSelectionTitle>Select Authentication Method</DeviceSelectionTitle>
+
+					{availableDevices.length > 0 ? (
+						<>
+							<DeviceGrid>
+								{availableDevices.map((device) => (
+									<DeviceCard
+										key={device.id}
+										selected={selectedDevice?.id === device.id}
+										onClick={() => handleDeviceSelect(device)}
+										disabled={isLoading}
+									>
+										<DeviceIcon deviceType={device.type}>{getDeviceIcon(device.type)}</DeviceIcon>
+										<DeviceName>{device.name}</DeviceName>
+										<DeviceStatus>
+											{device.type} • {device.status.toLowerCase()}
+										</DeviceStatus>
+									</DeviceCard>
+								))}
+							</DeviceGrid>
+
+							<button
+								type="button"
+								onClick={handleAuthenticate}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										handleAuthenticate();
+									}
+								}}
+								disabled={!selectedDevice || isLoading}
+								style={{
+									width: '100%',
+									maxWidth: '300px',
+									padding: '1rem 2rem',
+									background: isLoading ? '#9ca3af' : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+									color: 'white',
+									border: 'none',
+									borderRadius: '0.5rem',
+									fontSize: '1.125rem',
+									fontWeight: '600',
+									cursor: isLoading || !selectedDevice ? 'not-allowed' : 'pointer',
+									transition: 'all 0.2s ease',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									gap: '0.5rem',
+									margin: '0 auto',
+								}}
+							>
+								{isLoading ? (
+									<>
+										<LoadingSpinner />
+										Authenticating...
+									</>
+								) : (
+									<>
+										<FiShield />
+										Authenticate with {selectedDevice?.name || 'Selected Device'}
+									</>
+								)}
+							</button>
+						</>
+					) : (
+						<NoDevicesMessage>
+							<FiShield style={{ fontSize: '2rem', marginBottom: '1rem', color: '#9ca3af' }} />
+							<p>No authentication devices found</p>
+							<p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
+								Please register an MFA device first
+							</p>
+						</NoDevicesMessage>
+					)}
+				</DeviceSelectionContainer>
+			)}
+
+			{/* Authenticating State */}
+			{currentStep === 'authenticating' && (
+				<LoadingContainer>
+					<LoadingSpinner />
+					<LoadingText>Authenticating with {selectedDevice?.name}...</LoadingText>
+					<p style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.5rem' }}>
+						Please follow the instructions on your device
+					</p>
+				</LoadingContainer>
+			)}
+
+			{/* Educational Section */}
+			<EducationalSection>
+				<EducationalHeader>
+					<FiShield style={{ color: '#3b82f6' }} />
+					<EducationalTitle>{educationalContent.title}</EducationalTitle>
+				</EducationalHeader>
+
+				<EducationalDescription>{educationalContent.description}</EducationalDescription>
+
+				<KeyPoints>
+					{educationalContent.keyPoints.map((point, index) => (
+						<KeyPoint key={index}>
+							<KeyPointIcon />
+							{point}
+						</KeyPoint>
+					))}
+				</KeyPoints>
+			</EducationalSection>
+		</MFAContainer>
+		</>
+	);
 };
 
 export default MFAAuthenticationFlow;

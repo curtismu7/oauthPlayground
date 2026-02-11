@@ -179,7 +179,6 @@ const EducationalContentRenderer: React.FC<EducationalContentRendererProps> = ({
 export const TOTPRegistrationComponent: React.FC<DeviceComponentProps> = ({
 	mfaState,
 	config,
-	onSuccess: _onSuccess,
 	onError,
 }) => {
 	console.log(`${MODULE_TAG} Rendering TOTP registration component`, {
@@ -467,7 +466,7 @@ export const FIDO2RegistrationComponent: React.FC<DeviceComponentProps> = ({
 						</p>
 					)}
 
-					{mfaState.publicKeyCredentialCreationOptions && !isRegistering && (
+					{!!mfaState.publicKeyCredentialCreationOptions && !isRegistering && (
 						<p className="registration-ready">
 							✅ Device created. Click the button above to complete biometric registration.
 						</p>

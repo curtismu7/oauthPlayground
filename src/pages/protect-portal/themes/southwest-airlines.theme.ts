@@ -1,0 +1,103 @@
+/**
+ * @file southwest-airlines.theme.ts
+ * @module protect-portal/themes
+ * @description Southwest Airlines brand theme configuration
+ * @version 9.6.5
+ * @since 2026-02-10
+ *
+ * Southwest Airlines brand theme with blue, red, and gold colors, friendly aviation styling.
+ */
+
+import type { BrandTheme } from './brand-theme.interface';
+
+export const southwestAirlinesTheme: BrandTheme = {
+	name: 'southwest-airlines',
+	displayName: 'Southwest Airlines',
+	portalName: 'Southwest Airlines Employee Portal',
+	logo: {
+		url: 'https://raw.githubusercontent.com/curtismu7/CDN/74b2535cf2ff57c98c702071ff3de3e9eda63929/southwest-airlines-logo.png',
+		alt: 'Southwest Airlines Logo',
+		width: '160px',
+		height: '60px',
+		text: 'SOUTHWEST',
+		colors: {
+			southwest: '#2E4BB1',
+			heart: '#E51D23'
+		}
+	},
+	colors: {
+		primary: '#2E4BB1', // Southwest Blue (exact from their brand)
+		secondary: '#FFFFFF', // White
+		accent: '#F9B612', // Desert Gold
+		background: 'linear-gradient(180deg, #2E4BB1 0%, #1E3A8A 20%, #FFFFFF 100%)',
+		surface: '#FFFFFF',
+		text: '#1F2937',
+		textSecondary: '#6B7280',
+		error: '#E51D23', // Use Southwest red for errors
+		success: '#059669',
+		warning: '#F9B612', // Use Southwest gold for warnings
+		info: '#2E4BB1', // Use Southwest blue for info
+		// Additional theme colors
+		primaryLight: '#4A6BC4',
+		primaryDark: '#1E3A8A',
+		secondaryLight: '#F8F9FA',
+		secondaryDark: '#E9ECEF',
+		errorLight: '#FEE2E2',
+		warningLight: '#FEF3C7',
+		successLight: '#D1FAE5',
+	},
+	typography: {
+		fontFamily: '"Southwest Sans", "Helvetica Neue", Arial, sans-serif',
+		headingFont: '"Southwest Sans", "Helvetica Neue", Arial, sans-serif',
+		bodyFont: '"Inter", system-ui, sans-serif',
+		weights: {
+			light: 300,
+			normal: 400,
+			medium: 600,
+			bold: 700,
+		},
+		sizes: {
+			xs: '0.75rem',
+			sm: '0.875rem',
+			md: '1rem',
+			lg: '1.125rem',
+			xl: '1.25rem',
+			xxl: '1.5rem',
+		},
+	},
+	spacing: {
+		xs: '0.25rem',
+		sm: '0.5rem',
+		md: '1rem',
+		lg: '1.5rem',
+		xl: '2rem',
+		xxl: '3rem',
+	},
+	borderRadius: {
+		sm: '0.25rem',
+		md: '0.5rem',
+		lg: '0.75rem',
+		xl: '1rem',
+	},
+	shadows: {
+		sm: '0 1px 2px 0 rgba(46, 75, 177, 0.05)',
+		md: '0 4px 6px -1px rgba(46, 75, 177, 0.1), 0 2px 4px -1px rgba(46, 75, 177, 0.06)',
+		lg: '0 10px 15px -3px rgba(46, 75, 177, 0.1), 0 4px 6px -2px rgba(46, 75, 177, 0.05)',
+		xl: '0 20px 25px -5px rgba(46, 75, 177, 0.1), 0 10px 10px -5px rgba(46, 75, 177, 0.04)',
+	},
+	brandSpecific: {
+		logo: '❤️',
+		logoUrl: 'https://www.southwest.com/favicon.ico',
+		iconSet: ['❤️', '✈️', '🛫', '🎫', '☀️'],
+		messaging: {
+			welcome: 'Welcome to Southwest Airlines Secure Portal',
+			security: 'Transfarency in everything we do',
+			success: 'Flight booked successfully',
+			error: 'Unable to process your request',
+		},
+		animations: {
+			loading: 'spin 1s linear infinite',
+			transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+		},
+	},
+};

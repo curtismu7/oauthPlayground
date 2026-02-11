@@ -419,30 +419,6 @@ const ConfigToggleInput = styled.input`
 	}
 `;
 
-const _ConfigSlider = styled.span`
-	position: absolute;
-	cursor: pointer;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: #ccc;
-	transition: .4s;
-	border-radius: 24px;
-
-	&:before {
-		position: absolute;
-		content: "";
-		height: 18px;
-		width: 18px;
-		left: 3px;
-		bottom: 3px;
-		background-color: white;
-		transition: .4s;
-		border-radius: 50%;
-	}
-`;
-
 const ConfigButtonGroup = styled.div`
 	display: flex;
 	flex-direction: row;
@@ -601,10 +577,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 
 			// Fetch additional comprehensive data
 			try {
-				const [token, status] = await Promise.all([
-					unifiedWorkerTokenService.getToken(),
-					unifiedWorkerTokenService.getStatus(),
-				]);
+				const status = await unifiedWorkerTokenService.getStatus();
 
 				// Try to load credentials from MFA flow first, then fallback to unified service
 				let credentials: UnifiedWorkerTokenCredentials | null = null;
@@ -615,15 +588,14 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						flowType: 'oidc',
 						includeClientSecret: true,
 						includeLogoutUri: false,
-						includeScopes: false,
 						includeRedirectUri: false,
+						includeScopes: false,
 					});
 
-					// Convert Credentials to UnifiedWorkerTokenCredentials format
-					if (creds?.environmentId) {
+					if (creds?.environmentId && creds?.clientId) {
 						credentials = {
 							environmentId: creds.environmentId,
-							clientId: creds.clientId || '',
+							clientId: creds.clientId,
 							clientSecret: creds.clientSecret || '',
 						};
 					}
@@ -634,19 +606,16 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 				}
 
 				// Create tokenData structure from the unified service response
-				const tokenData = token
+				const tokenData = status.hasToken && credentials
 					? {
-							token,
-							credentials: credentials || {
-								environmentId: '',
-								clientId: '',
-								clientSecret: '',
-							},
+							token: '***', // Masked token for security
+							credentials: credentials,
+							expiresAt: status.tokenExpiresIn ? Date.now() + (status.tokenExpiresIn * 1000) : Date.now() + 3600000, // Default to 1 hour from now
 							savedAt: status.lastFetchedAt || Date.now(),
-							lastUsedAt: undefined,
+							lastUsedAt: status.lastUsedAt || Date.now(),
 							tokenType: 'Bearer',
-							expiresIn: status.tokenExpiresIn,
-							scope: undefined,
+							expiresIn: status.tokenExpiresIn || 3600, // Default to 1 hour
+							scope: '', // Empty string instead of undefined
 						}
 					: null;
 				setFullTokenData(tokenData);
@@ -818,21 +787,19 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 					}
 				} catch (error) {
 					console.warn('[WorkerTokenStatusDisplayV8] Failed to fetch PingOne config:', error);
-					// Use local config as fallback
-					const localConfig = MFAConfigurationServiceV8.loadConfiguration();
+					// Use default config as fallback
 					setOauthConfig({
-						pkceEnabled: localConfig.oauth?.pkceEnabled || false,
-						refreshTokenEnabled: localConfig.oauth?.refreshTokenEnabled || false,
-						tokenStorage: localConfig.oauth?.tokenStorage || 'localStorage',
+						pkceEnabled: false, // Default value since oauth property doesn't exist
+						refreshTokenEnabled: false, // Default value since oauth property doesn't exist
+						tokenStorage: 'localStorage', // Default value since oauth property doesn't exist
 					});
 				}
 			} else {
-				// Use local config if no worker token
-				const localConfig = MFAConfigurationServiceV8.loadConfiguration();
+				// Use default config if no worker token
 				setOauthConfig({
-					pkceEnabled: localConfig.oauth?.pkceEnabled || false,
-					refreshTokenEnabled: localConfig.oauth?.refreshTokenEnabled || false,
-					tokenStorage: localConfig.oauth?.tokenStorage || 'localStorage',
+					pkceEnabled: false, // Default value since oauth property doesn't exist
+					refreshTokenEnabled: false, // Default value since oauth property doesn't exist
+					tokenStorage: 'localStorage', // Default value since oauth property doesn't exist
 				});
 			}
 		} finally {

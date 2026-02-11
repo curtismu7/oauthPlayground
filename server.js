@@ -2156,6 +2156,58 @@ app.post('/api/client-credentials', async (req, res) => {
 	}
 });
 
+// Simple Worker Token Endpoint (for Protect Portal compatibility)
+// POST /api/pingone/worker-token
+// Simplified endpoint for getting worker tokens
+app.post('/api/pingone/worker-token', async (req, res) => {
+	try {
+		const {
+			environment_id,
+			client_id,
+			client_secret,
+			grant_type = 'client_credentials',
+			region = 'us'
+		} = req.body;
+
+		if (!environment_id || !client_id || !client_secret) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environment_id, client_id, client_secret',
+			});
+		}
+
+		console.log('[Protect Portal Worker Token] Request received:', {
+			environmentId: `${environment_id?.substring(0, 8)}...`,
+			clientId: `${client_id?.substring(0, 8)}...`,
+			grantType: grant_type
+		});
+
+		// For demo purposes, return a mock worker token
+		// In production, this would call the actual PingOne token endpoint
+		const mockWorkerToken = `mock-worker-token-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+		
+		const tokenResponse = {
+			access_token: mockWorkerToken,
+			token_type: 'Bearer',
+			expires_in: 3600,
+			scope: 'pingone:read pingone:write',
+			environment_id: environment_id
+		};
+
+		console.log('[Protect Portal Worker Token] Mock token generated');
+
+		return res.json(tokenResponse);
+
+	} catch (error) {
+		console.error('[Protect Portal Worker Token] Error:', error);
+		return res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error during worker token generation',
+			details: error.message
+		});
+	}
+});
+
 // Worker Token Endpoint (proxy to PingOne token endpoint for MFA flows)
 // POST /api/pingone/token
 // Used by MFA flows to get worker tokens via client_credentials grant
@@ -3211,6 +3263,98 @@ app.get('/api/pingone/user/:userId/consents', async (req, res) => {
 			error: 'server_error',
 			error_description: 'Internal server error during user consents fetch',
 			details: error.message,
+		});
+	}
+});
+
+// ============================================================================
+// PROTECT PORTAL RISK EVALUATION ENDPOINTS
+// ============================================================================
+
+// Risk Evaluation Endpoint
+// POST /api/pingone/risk-evaluations
+// Used by Protect Portal to evaluate user risk for authentication decisions
+app.post('/api/pingone/risk-evaluations', async (req, res) => {
+	try {
+		const { environmentId, riskEvent } = req.body || {};
+		
+		console.log('[Protect Portal Risk Evaluation] Request received:', {
+			environmentId: environmentId?.substring(0, 8) + '...',
+			hasRiskEvent: !!riskEvent,
+			eventType: riskEvent?.type,
+			userId: riskEvent?.userId?.substring(0, 8) + '...'
+		});
+
+		// Validate required fields
+		if (!environmentId || !riskEvent) {
+			return res.status(400).json({
+				error: 'Missing required fields: environmentId, riskEvent'
+			});
+		}
+
+		// Get worker token from Authorization header
+		const authHeader = req.headers.authorization;
+		if (!authHeader || !authHeader.startsWith('Bearer ')) {
+			return res.status(401).json({
+				error: 'Missing or invalid authorization header'
+			});
+		}
+
+		const workerToken = authHeader.substring(7); // Remove 'Bearer ' prefix
+
+		// For demo purposes, simulate risk evaluation
+		// In production, this would call PingOne Protect API
+		const riskScore = Math.floor(Math.random() * 100); // Random score 0-99
+		let riskLevel = 'LOW';
+		let recommendedAction = 'ALLOW';
+
+		if (riskScore >= 70) {
+			riskLevel = 'HIGH';
+			recommendedAction = 'BLOCK';
+		} else if (riskScore >= 30) {
+			riskLevel = 'MEDIUM';
+			recommendedAction = 'CHALLENGE_MFA';
+		}
+
+		const evaluationResult = {
+			result: {
+				level: riskLevel,
+				recommendedAction: recommendedAction,
+				score: riskScore,
+				confidence: 0.85
+			},
+			details: {
+				evaluationTime: new Date().toISOString(),
+				factors: {
+					ipReputation: riskScore > 50 ? 'SUSPICIOUS' : 'CLEAN',
+					deviceFamiliarity: riskScore < 30 ? 'KNOWN' : 'UNKNOWN',
+					locationAnomaly: riskScore > 70 ? 'ANOMALY_DETECTED' : 'NORMAL',
+					timeBasedPattern: riskScore < 50 ? 'CONSISTENT' : 'UNUSUAL'
+				},
+				originalScore: riskScore,
+				customThresholdsApplied: false
+			},
+			metadata: {
+				environmentId,
+				evaluationId: `risk-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+				processingTime: Math.floor(Math.random() * 100) + 50 // 50-150ms
+			}
+		};
+
+		console.log('[Protect Portal Risk Evaluation] Evaluation completed:', {
+			riskLevel,
+			riskScore,
+			recommendedAction,
+			evaluationId: evaluationResult.metadata.evaluationId?.substring(0, 12) + '...'
+		});
+
+		return res.json(evaluationResult);
+
+	} catch (error) {
+		console.error('[Protect Portal Risk Evaluation] Error:', error);
+		return res.status(500).json({
+			error: 'Internal server error during risk evaluation',
+			message: error.message
 		});
 	}
 });
@@ -4699,6 +4843,63 @@ app.get('/api/network/check', async (_req, res) => {
 	}
 });
 
+// Mock Embedded Login Endpoint (for Protect Portal testing)
+// POST /api/pingone/redirectless/authorize-mock
+// Mock version that doesn't call real PingOne API
+app.post('/api/pingone/redirectless/authorize-mock', async (req, res) => {
+	try {
+		const {
+			environmentId,
+			clientId,
+			redirectUri,
+			scopes,
+			codeChallenge,
+			codeChallengeMethod,
+			state
+		} = req.body || {};
+
+		console.log('[Protect Portal Mock Login] Request received:', {
+			environmentId: environmentId?.substring(0, 8) + '...',
+			clientId: clientId?.substring(0, 8) + '...',
+			hasScopes: !!scopes,
+			hasCodeChallenge: !!codeChallenge
+		});
+
+		// Validate required fields
+		if (!environmentId || !clientId) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, clientId'
+			});
+		}
+
+		// Generate mock flow response
+		const mockFlowId = state || `mock-flow-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+		
+		const mockResponse = {
+			flowId: mockFlowId,
+			flowType: 'REDIRECTLESS',
+			responseMode: 'pi.flow',
+			status: 'INITIALIZED',
+			expiresIn: 600,
+			environmentId: environmentId,
+			clientId: clientId
+		};
+
+		console.log('[Protect Portal Mock Login] Mock flow initialized:', mockFlowId.substring(0, 12) + '...');
+
+		return res.json(mockResponse);
+
+	} catch (error) {
+		console.error('[Protect Portal Mock Login] Error:', error);
+		return res.status(500).json({
+			error: 'internal_server_error',
+			error_description: 'Internal server error during mock login initialization',
+			details: error.message
+		});
+	}
+});
+
 // PingOne Redirectless Authorization Endpoint (for starting redirectless authentication)
 app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 	try {
@@ -4742,7 +4943,8 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 		authParams.set('response_mode', 'pi.flow'); // CRITICAL: Enable redirectless flow
 		authParams.set('client_id', clientId);
 		// Ensure 'openid' is included in scopes for OIDC flows
-		const scopeList = (scopes || 'openid').trim().split(/\s+/);
+		const scopesString = Array.isArray(scopes) ? scopes.join(' ') : (scopes || 'openid');
+		const scopeList = scopesString.trim().split(/\s+/);
 		if (!scopeList.includes('openid')) {
 			scopeList.unshift('openid'); // Add 'openid' at the beginning if missing
 		}
@@ -7939,6 +8141,195 @@ app.post('/api/pingone/mfa/initiate-device-auth', async (req, res) => {
 		console.error('[MFA Device Auth] Initialize Error:', error);
 		res.status(500).json({
 			error: 'Failed to initialize device authentication',
+			message: error.message,
+		});
+	}
+});
+
+// Mock User Devices Endpoint (for Protect Portal testing)
+// GET /api/pingone/user/:userId/devices-mock
+// Mock version that doesn't call real PingOne API
+app.get('/api/pingone/user/:userId/devices-mock', async (req, res) => {
+	try {
+		const { userId } = req.params;
+		const { environmentId, accessToken } = req.query;
+
+		console.log('[Protect Portal Mock User Devices] Get user devices:', {
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
+		});
+
+		// Return mock devices
+		const mockDevices = [
+			{
+				id: 'mock-sms-device-1',
+				type: 'SMS',
+				status: 'ACTIVE',
+				phone: '+1XXXXXXXXXX',
+				createdAt: new Date().toISOString()
+			},
+			{
+				id: 'mock-email-device-2', 
+				type: 'EMAIL',
+				status: 'ACTIVE',
+				email: 'user@example.com',
+				createdAt: new Date().toISOString()
+			}
+		];
+
+		console.log('[Protect Portal Mock User Devices] Retrieved mock devices:', mockDevices.length);
+
+		return res.json(mockDevices);
+
+	} catch (error) {
+		console.error('[Protect Portal Mock User Devices] Error:', error);
+		res.status(500).json({
+			error: 'Failed to fetch mock user devices',
+			message: error.message,
+		});
+	}
+});
+
+// Mock User Profile Endpoint (for Protect Portal testing)
+// GET /api/pingone/user-mock/:userId
+// Mock version that doesn't call real PingOne API
+app.get('/api/pingone/user-mock/:userId', async (req, res) => {
+	try {
+		const { userId } = req.params;
+		const { environmentId, accessToken } = req.query;
+
+		console.log('[Protect Portal Mock User Profile] Get user profile:', {
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
+		});
+
+		// Return mock user profile
+		const mockUserProfile = {
+			id: userId,
+			name: 'Test User',
+			email: 'testuser@example.com',
+			username: userId,
+			population: {
+				id: 'mock-population-1',
+				name: 'Default Population'
+			},
+			enabled: true,
+			account: {
+				locked: false,
+				disabled: false
+			},
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
+		};
+
+		console.log('[Protect Portal Mock User Profile] Retrieved mock profile');
+
+		return res.json(mockUserProfile);
+
+	} catch (error) {
+		console.error('[Protect Portal Mock User Profile] Error:', error);
+		res.status(500).json({
+			error: 'Failed to fetch mock user profile',
+			message: error.message,
+		});
+	}
+});
+
+// Mock User Profile Endpoint (for Protect Portal testing)
+// GET /api/pingone/user/:userId-mock
+// Mock version that doesn't call real PingOne API
+app.get('/api/pingone/user/:userId-mock', async (req, res) => {
+	try {
+		const { userId } = req.params;
+		const { environmentId, accessToken } = req.query;
+
+		console.log('[Protect Portal Mock User Profile] Get user profile:', {
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
+		});
+
+		// Return mock user profile
+		const mockUserProfile = {
+			id: userId,
+			name: 'Test User',
+			email: 'testuser@example.com',
+			username: userId,
+			population: {
+				id: 'mock-population-1',
+				name: 'Default Population'
+			},
+			enabled: true,
+			account: {
+				locked: false,
+				disabled: false
+			},
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString()
+		};
+
+		console.log('[Protect Portal Mock User Profile] Retrieved mock profile');
+
+		return res.json(mockUserProfile);
+
+	} catch (error) {
+		console.error('[Protect Portal Mock User Profile] Error:', error);
+		res.status(500).json({
+			error: 'Failed to fetch mock user profile',
+			message: error.message,
+		});
+	}
+});
+
+// User Devices Endpoint (for Protect Portal compatibility)
+// GET /api/pingone/user/:userId/devices
+// Alias for the MFA user devices endpoint
+app.get('/api/pingone/user/:userId/devices', async (req, res) => {
+	try {
+		const { userId } = req.params;
+		const { environmentId, accessToken } = req.query;
+
+		if (!environmentId || !accessToken) {
+			return res.status(400).json({
+				error: 'Missing required parameters: environmentId, accessToken'
+			});
+		}
+
+		console.log('[Protect Portal User Devices] Get user devices:', {
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
+		});
+
+		// Call PingOne's actual devices API
+		const devicesUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices`;
+
+		const devicesResponse = await fetch(devicesUrl, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+				'Content-Type': 'application/json'
+			}
+		});
+
+		if (!devicesResponse.ok) {
+			const errorData = await devicesResponse.json();
+			console.error('[Protect Portal User Devices] API Error:', errorData);
+			return res.status(devicesResponse.status).json({
+				error: 'Failed to fetch user devices',
+				message: errorData.message || 'PingOne API error',
+				details: errorData,
+			});
+		}
+
+		const devices = await devicesResponse.json();
+		console.log('[Protect Portal User Devices] Retrieved devices:', devices.length || 0);
+
+		// Return devices in expected format
+		return res.json(devices);
+
+	} catch (error) {
+		console.error('[Protect Portal User Devices] Error:', error);
+		res.status(500).json({
+			error: 'Failed to fetch user devices',
 			message: error.message,
 		});
 	}
