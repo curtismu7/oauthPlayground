@@ -11,8 +11,8 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import FedExLoginForm from './FedExLoginForm';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
+import FedExLoginForm from './FedExLoginForm';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -149,14 +149,14 @@ const QuickLink = styled.a`
 // ============================================================================
 
 interface FedExAirlinesHeroProps {
-  className?: string;
-  currentStep?: string;
-  onLoginSuccess?: (userContext: UserContext, loginContext: LoginContext) => void;
-  onError?: (error: PortalError) => void;
-  environmentId: string;
-  clientId: string;
-  clientSecret: string;
-  redirectUri: string;
+	className?: string;
+	currentStep?: string;
+	onLoginSuccess?: (userContext: UserContext, loginContext: LoginContext) => void;
+	onError?: (error: PortalError) => void;
+	environmentId: string;
+	clientId: string;
+	clientSecret: string;
+	redirectUri: string;
 }
 
 // ============================================================================
@@ -164,103 +164,94 @@ interface FedExAirlinesHeroProps {
 // ============================================================================
 
 const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
-  className,
-  currentStep,
-  onLoginSuccess,
-  onError,
-  environmentId,
-  clientId,
-  clientSecret,
-  redirectUri,
+	className,
+	currentStep,
+	onLoginSuccess,
+	onError,
+	environmentId,
+	clientId,
+	clientSecret,
+	redirectUri,
 }) => {
+	// Show different content based on current step
+	if (currentStep && currentStep !== 'portal-home') {
+		return (
+			<HeroContainer className={className}>
+				<HeroBackground />
+				<HeroContent>
+					<Navigation>
+						<LogoSection>
+							<LogoText>FedEx</LogoText>
+						</LogoSection>
+						<NavLinks>
+							<NavLink href="#">Ship</NavLink>
+							<NavLink href="#">Track</NavLink>
+							<NavLink href="#">Manage</NavLink>
+							<NavLink href="#">Support</NavLink>
+						</NavLinks>
+					</Navigation>
+					<MainContent>
+						<LoginContainer>
+							<LoginSection>
+								<LoginTitle>Secure Employee Portal</LoginTitle>
+								<LoginSubtitle>
+									Access your FedEx employee account with enhanced security features.
+								</LoginSubtitle>
+							</LoginSection>
 
-  // Show different content based on current step
-  if (currentStep && currentStep !== 'portal-home') {
-    return (
-      <HeroContainer className={className}>
-        <HeroBackground />
-        <HeroContent>
-          <Navigation>
-            <LogoSection>
-              <LogoText>FedEx</LogoText>
-            </LogoSection>
-            <NavLinks>
-              <NavLink href="#">Ship</NavLink>
-              <NavLink href="#">Track</NavLink>
-              <NavLink href="#">Manage</NavLink>
-              <NavLink href="#">Support</NavLink>
-            </NavLinks>
-          </Navigation>
-          <MainContent>
-            <LoginContainer>
-              <LoginSection>
-                <LoginTitle>Secure Employee Portal</LoginTitle>
-                <LoginSubtitle>Access your FedEx employee account with enhanced security features.</LoginSubtitle>
-              </LoginSection>
-              
-              <FedExLoginForm
-                onLoginSuccess={onLoginSuccess || (() => {})}
-                onError={onError || (() => {})}
-                environmentId={environmentId}
-                clientId={clientId}
-                clientSecret={clientSecret}
-                redirectUri={redirectUri}
-              />
+							<FedExLoginForm
+								onLoginSuccess={onLoginSuccess || (() => {})}
+								onError={onError || (() => {})}
+								environmentId={environmentId}
+								clientId={clientId}
+								clientSecret={clientSecret}
+								redirectUri={redirectUri}
+							/>
 
-              <QuickLinks>
-                <QuickLink href="#">Forgot Username?</QuickLink>
-                <QuickLink href="#">Forgot Password?</QuickLink>
-                <QuickLink href="#">Need Help?</QuickLink>
-              </QuickLinks>
-            </LoginContainer>
-          </MainContent>
-        </HeroContent>
-      </HeroContainer>
-    );
-  }
+							<QuickLinks>
+								<QuickLink href="#">Forgot Username?</QuickLink>
+								<QuickLink href="#">Forgot Password?</QuickLink>
+								<QuickLink href="#">Need Help?</QuickLink>
+							</QuickLinks>
+						</LoginContainer>
+					</MainContent>
+				</HeroContent>
+			</HeroContainer>
+		);
+	}
 
-  return (
-    <HeroContainer className={className}>
-      <HeroBackground />
-      <HeroContent>
-        <Navigation>
-          <LogoSection>
-            <LogoText>FedEx</LogoText>
-          </LogoSection>
-          <NavLinks>
-            <NavLink href="#">Ship</NavLink>
-            <NavLink href="#">Track</NavLink>
-            <NavLink href="#">Manage</NavLink>
-            <NavLink href="#">Support</NavLink>
-          </NavLinks>
-        </Navigation>
+	return (
+		<HeroContainer className={className}>
+			<HeroBackground />
+			<HeroContent>
+				<MainContent>
+					<LoginContainer>
+						<LoginSection>
+							<LoginTitle>Secure Employee Portal</LoginTitle>
+							<LoginSubtitle>
+								Access your FedEx employee account with enhanced security features.
+							</LoginSubtitle>
+						</LoginSection>
 
-        <MainContent>
-          <LoginContainer>
-            <LoginSection>
-              <LoginTitle>Secure Employee Portal</LoginTitle>
-              <LoginSubtitle>Access your FedEx employee account with enhanced security features.</LoginSubtitle>
-            </LoginSection>
-            
-            <FedExLoginForm
-              onLoginSuccess={onLoginSuccess || (() => {})}
-              onError={onError || (() => {})}
-              environmentId={environmentId}
-              clientId={clientId}
-              clientSecret={clientSecret}
-              redirectUri={redirectUri}
-            />
+						<FedExLoginForm
+							onLoginSuccess={onLoginSuccess || (() => {})}
+							onError={onError || (() => {})}
+							environmentId={environmentId}
+							clientId={clientId}
+							clientSecret={clientSecret}
+							redirectUri={redirectUri}
+						/>
 
-            <QuickLinks>
-              <QuickLink href="#">Forgot Username?</QuickLink>
-              <QuickLink href="#">Forgot Password?</QuickLink>
-              <QuickLink href="#">Need Help?</QuickLink>
-            </QuickLinks>
-          </LoginContainer>
-        </MainContent>
-      </HeroContent>
-    </HeroContainer>
-  );
+						<QuickLinks>
+							<QuickLink href="#">Forgot Username?</QuickLink>
+							<QuickLink href="#">Forgot Password?</QuickLink>
+							<QuickLink href="#">Need Help?</QuickLink>
+						</QuickLinks>
+					</LoginContainer>
+				</MainContent>
+			</HeroContent>
+		</HeroContainer>
+	);
 };
 
 export default FedExAirlinesHero;
