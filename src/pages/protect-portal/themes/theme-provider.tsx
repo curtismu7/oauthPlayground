@@ -9,13 +9,13 @@
  * the Protect Portal corporate branding system.
  */
 
-import React, { createContext, useContext, useCallback, useEffect, useState } from 'react';
-import { fedexTheme } from './fedex.theme';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { americanAirlinesTheme } from './american-airlines.theme';
-import { unitedAirlinesTheme } from './united-airlines.theme';
-import { southwestAirlinesTheme } from './southwest-airlines.theme';
 import { bankOfAmericaTheme } from './bank-of-america.theme';
 import type { BrandTheme, BrandThemeContext } from './brand-theme.interface';
+import { fedexTheme } from './fedex.theme';
+import { southwestAirlinesTheme } from './southwest-airlines.theme';
+import { unitedAirlinesTheme } from './united-airlines.theme';
 
 // Available themes
 const availableThemes: BrandTheme[] = [
@@ -51,33 +51,38 @@ export const BrandThemeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 	}, [activeTheme]);
 
 	// Switch theme with smooth transition
-	const switchTheme = useCallback((themeName: string) => {
-		const newTheme = availableThemes.find((t) => t.name === themeName);
-		if (!newTheme || newTheme.name === activeTheme.name) {
-			return;
-		}
+	const switchTheme = useCallback(
+		(themeName: string) => {
+			const newTheme = availableThemes.find((t) => t.name === themeName);
+			if (!newTheme) {
+				return;
+			}
 
-		setIsTransitioning(true);
-		
-		// Add transition class to body
-		document.body.classList.add('theme-transitioning');
-		
-		// Switch theme after brief delay for smooth transition
-		setTimeout(() => {
-			setActiveTheme(newTheme);
-			
-			// Remove transition class after theme change
+			// Always provide UI feedback, even if switching to the same theme
+			// This ensures the dropdown closes and user gets visual confirmation
+			setIsTransitioning(true);
+
+			// Add transition class to body
+			document.body.classList.add('theme-transitioning');
+
+			// Switch theme after brief delay for smooth transition
 			setTimeout(() => {
-				document.body.classList.remove('theme-transitioning');
-				setIsTransitioning(false);
-			}, 300);
-		}, 150);
-	}, [activeTheme.name]);
+				setActiveTheme(newTheme);
+
+				// Remove transition class after theme change
+				setTimeout(() => {
+					document.body.classList.remove('theme-transitioning');
+					setIsTransitioning(false);
+				}, 300);
+			}, 150);
+		},
+		[] // No dependencies needed since we always want to allow switching
+	);
 
 	// Apply theme CSS variables to document
 	useEffect(() => {
 		const root = document.documentElement;
-		
+
 		// Apply color variables
 		root.style.setProperty('--brand-primary', activeTheme.colors.primary);
 		root.style.setProperty('--brand-secondary', activeTheme.colors.secondary);
@@ -90,7 +95,7 @@ export const BrandThemeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 		root.style.setProperty('--brand-success', activeTheme.colors.success);
 		root.style.setProperty('--brand-warning', activeTheme.colors.warning);
 		root.style.setProperty('--brand-info', activeTheme.colors.info);
-		
+
 		// Apply additional color variables
 		root.style.setProperty('--brand-primary-light', activeTheme.colors.primaryLight);
 		root.style.setProperty('--brand-primary-dark', activeTheme.colors.primaryDark);
@@ -100,12 +105,12 @@ export const BrandThemeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 		root.style.setProperty('--brand-warning-light', activeTheme.colors.warningLight);
 		root.style.setProperty('--brand-success-light', activeTheme.colors.successLight);
 		root.style.setProperty('--brand-accent-dark', activeTheme.colors.primaryDark);
-		
+
 		// Apply typography variables
 		root.style.setProperty('--brand-font-family', activeTheme.typography.fontFamily);
 		root.style.setProperty('--brand-heading-font', activeTheme.typography.headingFont);
 		root.style.setProperty('--brand-body-font', activeTheme.typography.bodyFont);
-		
+
 		// Apply spacing variables
 		root.style.setProperty('--brand-spacing-xs', activeTheme.spacing.xs);
 		root.style.setProperty('--brand-spacing-sm', activeTheme.spacing.sm);
@@ -113,21 +118,24 @@ export const BrandThemeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 		root.style.setProperty('--brand-spacing-lg', activeTheme.spacing.lg);
 		root.style.setProperty('--brand-spacing-xl', activeTheme.spacing.xl);
 		root.style.setProperty('--brand-spacing-xxl', activeTheme.spacing.xxl);
-		
+
 		// Apply border radius variables
 		root.style.setProperty('--brand-radius-sm', activeTheme.borderRadius.sm);
 		root.style.setProperty('--brand-radius-md', activeTheme.borderRadius.md);
 		root.style.setProperty('--brand-radius-lg', activeTheme.borderRadius.lg);
 		root.style.setProperty('--brand-radius-xl', activeTheme.borderRadius.xl);
-		
+
 		// Apply shadow variables
 		root.style.setProperty('--brand-shadow-sm', activeTheme.shadows.sm);
 		root.style.setProperty('--brand-shadow-md', activeTheme.shadows.md);
 		root.style.setProperty('--brand-shadow-lg', activeTheme.shadows.lg);
 		root.style.setProperty('--brand-shadow-xl', activeTheme.shadows.xl);
-		
+
 		// Apply animation variables
-		root.style.setProperty('--brand-loading-animation', activeTheme.brandSpecific.animations.loading);
+		root.style.setProperty(
+			'--brand-loading-animation',
+			activeTheme.brandSpecific.animations.loading
+		);
 		root.style.setProperty('--brand-transition', activeTheme.brandSpecific.animations.transition);
 	}, [activeTheme]);
 
@@ -138,11 +146,7 @@ export const BrandThemeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 		availableThemes,
 	};
 
-	return (
-		<ThemeContext.Provider value={contextValue}>
-			{children}
-		</ThemeContext.Provider>
-	);
+	return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;
 };
 
 // Hook to use theme context
