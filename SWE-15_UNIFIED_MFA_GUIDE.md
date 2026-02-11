@@ -170,6 +170,42 @@ describe('MFAServiceV8', () => {
 - Follow existing patterns
 - Handle errors gracefully
 
+### **🔄 Menu Synchronization (Critical for Navigation Items)**
+
+#### **❌ Don't Do This**
+- Add menu items to only one sidebar component
+- Assume both sidebars are automatically synchronized
+- Forget to verify menu consistency across components
+- Skip testing navigation in both sidebar implementations
+
+#### **✅ Do This Instead**
+- **Always add menu items to BOTH sidebar components**:
+  - `src/components/Sidebar.tsx` (Standard sidebar)
+  - `src/components/DragDropSidebar.tsx` (Draggable sidebar)
+- **Use verification commands** after adding menu items:
+```bash
+# Check menu consistency between sidebars
+diff <(grep "id:.*path:" src/components/Sidebar.tsx) <(grep "id:.*path:" src/components/DragDropSidebar.tsx)
+
+# Verify specific menu item exists in both
+grep -n "menu-item-id" src/components/Sidebar.tsx src/components/DragDropSidebar.tsx
+
+# Check for missing menu items
+comm -23 <(sort sidebar_items) <(sort dragdrop_items)
+```
+- **Follow the synchronization process**:
+  1. Add to `Sidebar.tsx` first (primary implementation)
+  2. Copy exact same structure to `DragDropSidebar.tsx`
+  3. Verify badges, colors, and styling match
+  4. Test navigation works in both sidebars
+  5. Run verification commands to confirm consistency
+
+#### **🎯 Why This Matters**
+- **User Experience**: Inconsistent navigation across different sidebar modes
+- **Functionality**: Missing menu items break user workflows
+- **Testing**: Both sidebars must be tested for complete coverage
+- **Maintenance**: Prevents future synchronization issues
+
 ## 🔧 Development Workflow
 
 ### **1. Analysis Phase**
@@ -202,6 +238,13 @@ npm run lint
 
 # 3. Test affected flows
 # Manual testing of device types
+
+# 4. CRITICAL: Check menu synchronization (if adding navigation items)
+if [[ "$ADDED_MENU_ITEMS" == "true" ]]; then
+    echo "🔍 Verifying menu synchronization..."
+    diff <(grep "id:.*path:" src/components/Sidebar.tsx) <(grep "id:.*path:" src/components/DragDropSidebar.tsx)
+    grep -n "new-menu-item-id" src/components/Sidebar.tsx src/components/DragDropSidebar.tsx
+fi
 ```
 
 ### **4. Documentation Phase**

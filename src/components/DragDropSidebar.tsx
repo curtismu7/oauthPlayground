@@ -421,7 +421,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 						badge: (
 							<MigrationBadge title="Real-time API health monitoring and server performance metrics">
-								MONITOR
+								UTILITY
 							</MigrationBadge>
 						),
 					},
@@ -583,6 +583,24 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						badge: (
 							<MigrationBadge title="Production utility to sync user cache across environments">
 								UTILITY
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'protect-portal-app',
+						path: '/protect-portal',
+						label: 'Protect Portal App',
+						icon: (
+							<ColoredIcon $color="#dc2626">
+								<FiShield />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge 
+								title="Complete risk-based authentication portal with MFA integration"
+								style={{ background: '#dc2626', color: 'white' }}
+							>
+								PROTECT
 							</MigrationBadge>
 						),
 					},
