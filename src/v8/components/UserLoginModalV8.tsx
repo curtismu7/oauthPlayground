@@ -14,7 +14,7 @@ import { FiDownload, FiEye, FiEyeOff, FiInfo, FiUpload } from 'react-icons/fi';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { RedirectUriValidatorV8 } from '@/v8/components/RedirectUriValidatorV8';
-import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
+import { AppDiscoveryServiceV8, type DiscoveredApplication } from '@/v8/services/appDiscoveryServiceV8';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -121,7 +121,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						console.warn('Failed to extract environment ID from worker token:', jwtError);
 					}
 				}
-			} catch (_error) {
+			} catch {
 				setHasWorkerToken(false);
 			}
 		};
@@ -169,13 +169,41 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		errors: string[];
 		warnings: string[];
 	} | null>(null);
-	const [appConfig, setAppConfig] = useState<any>(null);
+	const [appConfig, setAppConfig] = useState<{
+		id: string;
+		name: string;
+		description?: string;
+		enabled: boolean;
+		type: 'NATIVE_APP' | 'WEB_APP' | 'SINGLE_PAGE_APP' | 'SERVICE';
+		grantTypes: string[];
+		responseTypes: string[];
+		tokenEndpointAuthMethod: string;
+		redirectUris: string[];
+		allowedOrigins?: string[];
+		postLogoutRedirectUris?: string[];
+		initiateLoginUri?: string;
+		logoUri?: string;
+		policyUri?: string;
+		termsOfServiceUri?: string;
+		clientUri?: string;
+		contacts?: string[];
+		createdAt: string;
+		updatedAt: string;
+		pkceRequired?: boolean;
+		pkceEnforced?: boolean;
+		refreshTokenDuration?: number;
+		refreshTokenRollingWindow?: boolean;
+		accessTokenDuration?: number;
+		idTokenSigningAlgorithm?: string;
+		tokenFormat?: 'OPAQUE' | 'JWT';
+		accessTokenFormat?: 'OPAQUE' | 'JWT';
+		idTokenFormat?: 'OPAQUE' | 'JWT';
+	} | null>(null);
 	// Use different default redirect URI for MFA flows
 	// Always use HTTPS for security, even in development
-	const protocol = 'https';
 	const defaultRedirectUri = isMfaFlow
-		? `${protocol}://${window.location.host}/mfa-unified-callback`
-		: `${protocol}://${window.location.host}/user-login-callback`;
+		? `https://${window.location.host}/mfa-unified-callback`
+		: `https://${window.location.host}/user-login-callback`;
 	const previousRedirectUriRef = useRef<string>(defaultRedirectUri);
 
 	// Pre-flight validation function
@@ -339,7 +367,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			const FLOW_KEY = 'user-login-v8';
 
 			// Use HTTPS for security, even in development
-			const _protocol = 'https';
+			// Note: Protocol is handled by defaultRedirectUri above
 
 			// Get the correct redirect URI from the centralized service
 			// Note: We use defaultRedirectUri (defined above) for consistency
@@ -677,7 +705,14 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					// CRITICAL: Save user token to credentials so MFA flows can find it
 					// This ensures credentials.userToken is set and all flows look in the same place
 					const FLOW_KEY = 'user-login-v8';
-					const currentCredentials = CredentialsServiceV8.loadCredentials(FLOW_KEY) || {};
+					const currentCredentials = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+		flowKey: FLOW_KEY,
+		flowType: 'oauth',
+		includeClientSecret: false,
+		includeRedirectUri: false,
+		includeLogoutUri: false,
+		includeScopes: false,
+	}) || {};
 					const updatedCredentials = {
 						...currentCredentials,
 						...credentials, // Preserve all original credentials
@@ -987,7 +1022,14 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 						// CRITICAL: Save user token to credentials so MFA flows can find it
 						const FLOW_KEY = 'user-login-v8';
-						const currentCredentials = CredentialsServiceV8.loadCredentials(FLOW_KEY) || {};
+						const currentCredentials = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+		flowKey: FLOW_KEY,
+		flowType: 'oauth',
+		includeClientSecret: false,
+		includeRedirectUri: false,
+		includeLogoutUri: false,
+		includeScopes: false,
+	}) || {};
 						const updatedCredentials = {
 							...currentCredentials,
 							...credentials, // Preserve all original credentials
@@ -1730,7 +1772,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 													});
 
 													// Fetch the application with its client secret from PingOne API
-													let appWithSecret = app;
+													let appWithSecret: DiscoveredApplication = app as DiscoveredApplication;
 													if (environmentId.trim()) {
 														try {
 															const workerToken = await workerTokenServiceV8.getToken();
@@ -2538,6 +2580,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 											{debugInfo.authorizationUrl}
 										</div>
 										<button
+											type="button"
 											onClick={() => navigator.clipboard.writeText(debugInfo.authorizationUrl)}
 											style={{
 												position: 'absolute',
@@ -2601,6 +2644,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 											{debugInfo.requestBody}
 										</div>
 										<button
+											type="button"
 											onClick={() => navigator.clipboard.writeText(debugInfo.requestBody)}
 											style={{
 												position: 'absolute',
