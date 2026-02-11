@@ -34,6 +34,8 @@ All three version fields must be updated together for every commit to maintain c
 - Security measures and lockdown procedures
 - Regression prevention strategies
 
+**📋 Protect Portal Development**: For Protect Portal-specific issues, CORS prevention, and implementation details, refer to `PROTECT_PORTAL_INVENTORY.md` (primary reference for Protect Portal development).
+
 ## 🚨 QUICK PREVENTION COMMANDS (Run Before Every Commit)
 
 ```bash
