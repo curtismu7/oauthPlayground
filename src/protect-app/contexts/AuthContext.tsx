@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, {
+	createContext,
+	ReactNode,
+	useCallback,
+	useContext,
+	useEffect,
+	useReducer,
+} from 'react';
 
 // Auth Types
 export interface User {
@@ -67,7 +74,7 @@ const initialState: AuthState = {
 	user: null,
 	token: null,
 	refreshToken: null,
-	isLoading: false,
+	isLoading: true, // Start with loading true to prevent race conditions
 	error: null,
 	sessionTimeout: 30 * 60 * 1000, // 30 minutes
 	lastActivity: new Date(),
@@ -109,6 +116,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 		case 'LOGOUT':
 			return {
 				...initialState,
+				isLoading: false, // Ensure loading is false on logout
 			};
 
 		case 'REFRESH_TOKEN_START':
@@ -176,7 +184,7 @@ class AuthService {
 		refreshToken: string;
 	}> {
 		// Simulate API call
-		await new Promise(resolve => setTimeout(resolve, 1000));
+		await new Promise((resolve) => setTimeout(resolve, 1000));
 
 		// Mock user data
 		const user: User = {
@@ -200,12 +208,12 @@ class AuthService {
 		};
 	}
 
-	static async refreshToken(refreshToken: string): Promise<{
+	static async refreshToken(_refreshToken: string): Promise<{
 		token: string;
 		refreshToken: string;
 	}> {
 		// Simulate API call
-		await new Promise(resolve => setTimeout(resolve, 500));
+		await new Promise((resolve) => setTimeout(resolve, 500));
 
 		return {
 			token: 'mock-new-jwt-token',
@@ -215,7 +223,7 @@ class AuthService {
 
 	static async validateToken(token: string): Promise<User | null> {
 		// Simulate API call
-		await new Promise(resolve => setTimeout(resolve, 300));
+		await new Promise((resolve) => setTimeout(resolve, 300));
 
 		// Mock validation
 		if (token === 'mock-jwt-token' || token === 'mock-new-jwt-token') {
@@ -255,7 +263,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 				try {
 					dispatch({ type: 'SET_LOADING', payload: true });
 					const user = await AuthService.validateToken(savedToken);
-					
+
 					if (user) {
 						dispatch({
 							type: 'LOGIN_SUCCESS',
@@ -273,10 +281,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 				} finally {
 					dispatch({ type: 'SET_LOADING', payload: false });
 				}
+			} else {
+				// No saved token, set loading to false
+				dispatch({ type: 'SET_LOADING', payload: false });
 			}
 		};
 
 		loadAuthState();
+	}, []);
+
+	// Methods
+	const logout = useCallback(() => {
+		dispatch({ type: 'LOGOUT' });
+		localStorage.removeItem('protect-portal-token');
+		localStorage.removeItem('protect-portal-refresh-token');
+		localStorage.removeItem('protect-portal-remember-me');
 	}, []);
 
 	// Auto-logout on session timeout
@@ -286,7 +305,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		const checkSessionTimeout = () => {
 			const now = new Date();
 			const timeSinceLastActivity = now.getTime() - state.lastActivity.getTime();
-			
+
 			if (timeSinceLastActivity > state.sessionTimeout) {
 				logout();
 			}
@@ -295,7 +314,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		const interval = setInterval(checkSessionTimeout, 60000); // Check every minute
 
 		return () => clearInterval(interval);
-	}, [state.isAuthenticated, state.lastActivity, state.sessionTimeout]);
+	}, [state.isAuthenticated, state.lastActivity, state.sessionTimeout, logout]);
 
 	// Update last activity on user interaction
 	useEffect(() => {
@@ -306,10 +325,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		};
 
 		const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
-		events.forEach(event => document.addEventListener(event, updateActivity));
+		events.forEach((event) => {
+			document.addEventListener(event, updateActivity);
+		});
 
 		return () => {
-			events.forEach(event => document.removeEventListener(event, updateActivity));
+			events.forEach((event) => {
+				document.removeEventListener(event, updateActivity);
+			});
 		};
 	}, [state.isAuthenticated]);
 
@@ -319,7 +342,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 		try {
 			const response = await AuthService.login(credentials);
-			
+
 			dispatch({
 				type: 'LOGIN_SUCCESS',
 				payload: response,
@@ -340,13 +363,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		}
 	};
 
-	const logout = () => {
-		dispatch({ type: 'LOGOUT' });
-		localStorage.removeItem('protect-portal-token');
-		localStorage.removeItem('protect-portal-refresh-token');
-		localStorage.removeItem('protect-portal-remember-me');
-	};
-
 	const refreshTokenAction = async () => {
 		if (!state.refreshToken) return;
 
@@ -354,7 +370,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 		try {
 			const response = await AuthService.refreshToken(state.refreshToken);
-			
+
 			dispatch({
 				type: 'REFRESH_TOKEN_SUCCESS',
 				payload: response,
@@ -381,7 +397,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		try {
 			dispatch({ type: 'SET_LOADING', payload: true });
 			const user = await AuthService.validateToken(state.token);
-			
+
 			if (user) {
 				dispatch({ type: 'UPDATE_USER', payload: user });
 			} else {
