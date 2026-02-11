@@ -49,9 +49,16 @@ export const ButtonSpinner: React.FC<ButtonSpinnerProps> = ({
 	};
 
 	return (
-		<button className={className} style={style} disabled={disabled || loading} {...buttonProps}>
+		<div
+			className={className}
+			style={style}
+			role="button"
+			tabIndex={disabled ? -1 : 0}
+			aria-disabled={disabled || loading}
+			{...buttonProps}
+		>
 			{renderContent()}
-		</button>
+		</div>
 	);
 };
 
