@@ -62,6 +62,11 @@ export interface MFAConfiguration {
 		validateDeviceIds: boolean;
 		sanitizeDeviceNames: boolean;
 	};
+	oauth: {
+		pkceEnabled: boolean;
+		refreshTokenEnabled: boolean;
+		tokenStorage: 'localStorage' | 'sessionStorage' | 'memory';
+	};
 }
 
 const DEFAULT_CONFIG: MFAConfiguration = {
@@ -117,6 +122,11 @@ const DEFAULT_CONFIG: MFAConfiguration = {
 		allowUsernamelessFido2: true,
 		validateDeviceIds: true,
 		sanitizeDeviceNames: true,
+	},
+	oauth: {
+		pkceEnabled: false,
+		refreshTokenEnabled: false,
+		tokenStorage: 'localStorage',
 	},
 };
 
