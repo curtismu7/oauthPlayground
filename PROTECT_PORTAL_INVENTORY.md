@@ -78,6 +78,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -114,6 +117,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -229,6 +247,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -265,6 +286,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -440,6 +476,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -476,6 +515,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -749,6 +803,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -785,6 +842,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -870,6 +942,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -906,6 +981,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -1003,6 +1093,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -1039,6 +1132,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -1137,6 +1245,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -1173,6 +1284,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -1276,6 +1402,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -1312,6 +1441,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -1410,6 +1554,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -1446,6 +1593,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -1540,6 +1702,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -1576,6 +1741,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -1670,6 +1850,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -1706,6 +1889,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -1803,6 +2001,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -1839,6 +2040,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -1941,6 +2157,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -1977,6 +2196,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -2078,6 +2312,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -2114,6 +2351,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -2217,6 +2469,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -2253,6 +2508,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -2356,6 +2626,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -2392,6 +2665,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -2494,6 +2782,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -2530,6 +2821,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -2635,6 +2941,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -2671,6 +2980,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -2790,6 +3114,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -2826,6 +3153,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -2941,6 +3283,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -2977,6 +3322,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -3110,6 +3470,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -3146,6 +3509,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -3261,6 +3639,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -3297,6 +3678,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -3419,6 +3815,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -3455,6 +3854,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -3593,6 +4007,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -3629,6 +4046,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -3756,6 +4188,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -3792,6 +4227,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -3924,6 +4374,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -3960,6 +4413,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -4075,6 +4543,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -4111,6 +4582,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -4257,6 +4743,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -4293,6 +4782,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -4457,6 +4961,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -4493,6 +5000,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -4643,6 +5165,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -4679,6 +5204,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -4827,6 +5367,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -4863,6 +5406,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -4979,6 +5537,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -5015,6 +5576,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -5161,6 +5737,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -5197,6 +5776,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -5369,6 +5963,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -5405,6 +6002,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -5581,6 +6193,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -5617,6 +6232,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -5770,6 +6400,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -5806,6 +6439,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -5968,6 +6616,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -6004,6 +6655,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -6185,6 +6851,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -6221,6 +6890,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -6371,6 +7055,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -6407,6 +7094,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -6572,6 +7274,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -6608,6 +7313,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -6751,6 +7471,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -6787,6 +7510,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -6938,6 +7676,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -6974,6 +7715,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -7200,6 +7956,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -7236,6 +7995,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -7323,6 +8097,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -7359,6 +8136,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -7438,6 +8230,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -7474,6 +8269,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -7555,6 +8365,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -7591,6 +8404,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -7670,6 +8498,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -7706,6 +8537,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -7785,6 +8631,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -7821,6 +8670,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -7900,6 +8764,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -7936,6 +8803,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -8016,6 +8898,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -8052,6 +8937,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -8136,6 +9036,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -8172,6 +9075,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -8262,6 +9180,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -8298,6 +9219,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -8394,6 +9330,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -8430,6 +9369,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -8515,6 +9469,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -8551,6 +9508,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -8657,6 +9629,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -8693,6 +9668,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -8809,6 +9799,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -8845,6 +9838,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -9281,6 +10289,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -9317,6 +10328,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -9371,6 +10397,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -9407,6 +10436,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -9461,6 +10505,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -9497,6 +10544,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -9551,6 +10613,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -9587,6 +10652,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -9641,6 +10721,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -9677,6 +10760,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
@@ -9855,6 +10953,9 @@ grep -rn "localStorage.*token|sessionStorage.*token" src/pages/protect-portal/ -
 grep -rn "validation|sanitize|form.*validate" src/pages/protect-portal/components/ --include="*.tsx" | head -3 || echo "❌ INPUT VALIDATION ISSUES"
 
 # 14. Check session management
+
+# 15. Check for sensitive data logging (security issue)
+grep -rn "console.log.*token|console.log.*claims|console.log.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ SENSITIVE DATA LOGGING FOUND" || echo "✅ NO SENSITIVE LOGGING"
 grep -rn "timeout|session.*timeout|clear.*session" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ SESSION MANAGEMENT ISSUES"
 
 # === RESPONSIVE DESIGN VERIFICATION ===
@@ -9891,6 +10992,21 @@ grep -rn "console..*error|catch.*error|error.*log" src/pages/protect-portal/ --i
 grep -rn "analytics|tracking|metrics" src/pages/protect-portal/ --include="*.tsx" | head -3 || echo "❌ ANALYTICS IMPLEMENTATION ISSUES"
 
 # === REGRESSION PREVENTION SUMMARY ===
+# === SENSITIVE DATA LOGGING PREVENTION (Issue PP-061 Prevention) ===
+# 1. Check for console logs with sensitive information
+grep -rn "console\.log.*token\|console\.log.*claims\|console\.log.*email\|console\.log.*password" src/pages/protect-portal/ --include="*.tsx" --include="*.ts"
+
+# 2. Verify no user claims are logged
+grep -rn "console\.log.*claims" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -v "claims.*length\|claims.*exists" && echo "❌ USER CLAIMS LOGGED" || echo "✅ NO CLAIMS LOGGED"
+
+# 3. Check for token exchange logging
+grep -rn "console\.log.*exchanging.*token" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ TOKEN EXCHANGE LOGGED" || echo "✅ NO TOKEN EXCHANGE LOGGING"
+
+# 4. Verify debug logs don't contain PII
+grep -rn "console\.log.*sub.*email" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" && echo "❌ PII IN DEBUG LOGS" || echo "✅ NO PII IN DEBUG LOGS"
+
+# 5. Check for development-only console logs
+grep -rn "console\.log.*\[.*\]" src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | grep -E "\[DEBUG\|\[DEV\]" && echo "✅ DEV LOGS MARKED" || echo "⚠️ UNMARKED DEBUG LOGS"
 # 25. Run full Biome check
 npx @biomejs/biome check src/pages/protect-portal/ --max-diagnostics 100
 
