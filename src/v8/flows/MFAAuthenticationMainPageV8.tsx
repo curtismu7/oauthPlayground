@@ -311,6 +311,19 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		}
 	}, [tokenStatus.isValid]);
 
+	// Save credentials on initial load to ensure persistence across server restarts
+	useEffect(() => {
+		// Only save if we have valid credentials to persist
+		if (credentials.environmentId || credentials.username) {
+			CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+				environmentId: credentials.environmentId,
+				username: credentials.username,
+				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
+				clientId: '', // Add empty clientId to satisfy Credentials interface
+			});
+		}
+	}, []); // Run once on mount
+
 	// Modal state management - using unified service
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(false);
