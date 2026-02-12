@@ -88,7 +88,138 @@ grep -A 20 "tools-utilities" src/components/DragDropSidebar.tsx | grep -q "sdk-e
 
 ---
 
-### **🚨 Menu Structure Prevention Commands**
+### **� Issue PROD-009: Environment Management Page Null Safety Crash - CRITICAL FIX**
+
+**Date**: 2026-02-12  
+**Status**: ✅ FIXED  
+**Severity**: CRITICAL - Application crash on page load
+
+**🎯 Problem Summary:**
+The Environment Management Page crashed with "Cannot read properties of undefined (reading 'map')" error when the API response was undefined or failed. The page attempted to call `.map()` on an undefined `environments` array, causing a complete application crash.
+
+**🔍 Root Cause Analysis:**
+1. **Primary Cause**: Missing null safety checks on `environments` state array
+2. **Secondary Cause**: API error handling didn't set fallback empty array
+3. **Impact**: Complete page crash, error boundary triggered, poor user experience
+4. **API Issue**: Backend 404 error for `/api/environments` endpoint (not yet implemented)
+
+**🔧 Technical Investigation Steps:**
+```bash
+# 1. Find the crash location
+grep -n "environments.map" src/pages/EnvironmentManagementPageV8.tsx
+
+# 2. Check API error handling
+grep -A 10 "catch.*err" src/pages/EnvironmentManagementPageV8.tsx
+
+# 3. Verify null safety patterns
+grep -n "??" src/pages/EnvironmentManagementPageV8.tsx
+
+# 4. Check API endpoint implementation
+grep -r "api/environments" server/
+```
+
+**🛠️ Solution Implemented:**
+1. **Null Coalescing in Fetch**: Use `response?.environments ?? []` to ensure array
+2. **Error Handling Fallback**: Set `setEnvironments([])` in catch block
+3. **Render Null Safety**: Use `(environments ?? []).map()` in JSX
+4. **Handler Protection**: Add null checks in `handleSelectAll`
+5. **Enhanced Logging**: Add console.error for debugging
+
+**📊 Before vs After:**
+```typescript
+// ❌ BEFORE (BROKEN):
+const response = await EnvironmentServiceV8.getEnvironments(filters);
+setEnvironments(response.environments); // Crashes if response is undefined
+// ...
+{environments.map((environment) => ( // Crashes if environments is undefined
+
+// ✅ AFTER (FIXED):
+const response = await EnvironmentServiceV8.getEnvironments(filters);
+setEnvironments(response?.environments ?? []); // Always sets array
+// ...
+catch (err) {
+  setEnvironments([]); // Set empty array on error
+}
+// ...
+{(environments ?? []).map((environment) => ( // Never crashes
+```
+
+**🎯 CRITICAL UNDERSTANDING:**
+```
+Null Safety Pattern:
+✅ Always use ?? [] for array initialization from API responses
+✅ Always set empty array in error handlers
+✅ Always use ?. optional chaining for nested properties
+✅ Always use ?? [] in .map() calls for defensive rendering
+
+API Proxy Pattern:
+✅ All PingOne API calls use pingOneFetch utility
+✅ pingOneFetch calls /api/* endpoints (backend proxy)
+✅ Backend proxy forwards to PingOne (no CORS issues)
+✅ Never call PingOne directly from frontend
+```
+
+**🔍 Prevention Strategy:**
+1. **Null Safety First**: Always add ?? [] for arrays from API
+2. **Error Fallbacks**: Always set safe defaults in catch blocks
+3. **Defensive Rendering**: Use optional chaining in JSX
+4. **Proxy Pattern**: Always use pingOneFetch for PingOne APIs
+5. **Enhanced Logging**: Log errors for debugging
+
+**🚨 Detection Commands for Future Prevention:**
+```bash
+# Check for unsafe .map() calls without null coalescing
+grep -rn "\.map(" src/pages/ --include="*.tsx" | grep -v "??" | grep -v "Array.from"
+
+# Verify error handlers set empty arrays
+grep -A 5 "catch.*err" src/pages/EnvironmentManagementPageV8.tsx | grep "setEnvironments(\[\])"
+
+# Check for API calls using proxy
+grep -rn "EnvironmentServiceV8" src/pages/ | head -5
+
+# Verify pingOneFetch usage (not direct fetch to PingOne)
+grep -rn "fetch.*pingone" src/ --include="*.ts" --include="*.tsx" && echo "❌ DIRECT PINGONE CALL FOUND" || echo "✅ USING PROXY"
+```
+
+**📝 Implementation Guidelines:**
+1. **Array Initialization**: Always use `?? []` for API response arrays
+2. **Error Handling**: Always set empty array in catch blocks
+3. **Defensive Rendering**: Use `(array ?? []).map()` pattern
+4. **API Calls**: Always use pingOneFetch utility (proxy pattern)
+5. **Logging**: Add console.error for debugging failed API calls
+
+**⚠️ Common Pitfalls to Avoid:**
+1. **Unsafe .map()**: Don't call .map() without null coalescing
+2. **Missing Error Fallbacks**: Don't skip setting empty arrays in catch
+3. **Direct PingOne Calls**: Don't call PingOne APIs directly (use proxy)
+4. **Poor Error Messages**: Don't skip logging errors for debugging
+5. **Optimistic Rendering**: Don't assume API always returns data
+
+**🎯 Files Modified:**
+- `src/pages/EnvironmentManagementPageV8.tsx` - Added null safety (lines 320, 326, 379-382, 523)
+
+**✅ Verification:**
+```bash
+# Verify null coalescing in fetch
+grep "response?.environments ?? \[\]" src/pages/EnvironmentManagementPageV8.tsx && echo "✅ NULL SAFETY IN FETCH" || echo "❌ MISSING NULL SAFETY"
+
+# Check error handler sets empty array
+grep -A 2 "catch.*err" src/pages/EnvironmentManagementPageV8.tsx | grep "setEnvironments(\[\])" && echo "✅ ERROR FALLBACK FOUND" || echo "❌ MISSING ERROR FALLBACK"
+
+# Verify defensive rendering
+grep "(environments ?? \[\]).map" src/pages/EnvironmentManagementPageV8.tsx && echo "✅ DEFENSIVE RENDERING" || echo "❌ UNSAFE RENDERING"
+
+# Check proxy usage
+grep "pingOneFetch" src/services/environmentServiceV8.ts && echo "✅ USING PROXY" || echo "❌ NOT USING PROXY"
+```
+
+**🔗 Related Issues:**
+- Backend `/api/environments` endpoint needs implementation
+- CORS prevention through proxy pattern (already implemented)
+
+---
+
+### **�🚨 Menu Structure Prevention Commands**
 
 #### **🔍 Comprehensive Menu Verification**
 ```bash
