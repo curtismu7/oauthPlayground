@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { PageApiInfo } from '../components/common/PageApiInfo';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -269,6 +270,9 @@ export const LoginPage: React.FC = () => {
 					</div>
 				</div>
 			</div>
+
+			{/* Page API Info */}
+			<PageApiInfo pageName="Login" />
 		</div>
 	);
 };
