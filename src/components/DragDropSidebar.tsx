@@ -1955,7 +1955,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 		];
 
 		// Menu structure version - increment when menu structure changes significantly
-		const MENU_VERSION = '2.4'; // Updated to add Tools & Utilities section with SDK examples
+		const MENU_VERSION = '2.5'; // Force refresh to ensure SDK Examples visibility
 		const savedVersion = localStorage.getItem('simpleDragDropSidebar.menuVersion');
 
 		// If version changed, clear old menu layout and use new structure
