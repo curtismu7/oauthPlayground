@@ -28,11 +28,14 @@ export const bankOfAmericaTheme: BrandTheme = {
 		},
 	},
 	colors: {
-		primary: '#012169', // Bank of America Blue (official brand color)
-		secondary: '#FFFFFF', // White
+		primary: '#b91c1c', // Updated to match mockup primary
+		primaryDark: '#991b1b', // Updated to match mockup primaryDark
+		secondary: '#111827', // Updated to match mockup secondary
 		accent: '#E31837', // Bank of America Red (official accent color)
-		background: '#FFFFFF', // Changed to solid white for Protect app
-		surface: '#FFFFFF',
+		background: '#f7fafc', // Updated to match mockup bg
+		surface: '#ffffff', // Updated to match mockup surface
+		muted: '#6b7280', // Updated to match mockup muted
+		border: '#d1d5db', // Updated to match mockup border
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#E31837', // Use Bank of America red for errors
@@ -41,7 +44,6 @@ export const bankOfAmericaTheme: BrandTheme = {
 		info: '#012169', // Use Bank of America blue for info
 		// Additional theme colors with official Bank of America palette
 		primaryLight: '#1E3A8A',
-		primaryDark: '#001847',
 		secondaryLight: '#F8F9FA',
 		secondaryDark: '#E9ECEF',
 		errorLight: '#FEE2E2',

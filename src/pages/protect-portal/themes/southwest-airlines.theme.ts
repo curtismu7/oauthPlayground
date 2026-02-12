@@ -26,20 +26,22 @@ export const southwestAirlinesTheme: BrandTheme = {
 		},
 	},
 	colors: {
-		primary: '#2E4BB1', // Southwest Blue (exact from their brand)
-		secondary: '#FFFFFF', // White
-		accent: '#F9B612', // Desert Gold
-		background: '#FFFFFF', // Changed to solid white for Protect app
-		surface: '#FFFFFF',
+		primary: '#304cb2', // Updated to match mockup primary
+		primaryDark: '#253a8a', // Updated to match mockup primaryDark
+		secondary: '#111827', // Updated to match mockup secondary
+		accent: '#f4c542', // Updated to match mockup accent
+		background: '#f5f6f8', // Updated to match mockup bg
+		surface: '#ffffff', // Updated to match mockup surface
+		muted: '#6b7280', // Updated to match mockup muted
+		border: '#d1d5db', // Updated to match mockup border
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#E51D23', // Use Southwest red for errors
 		success: '#059669',
 		warning: '#F9B612', // Use Southwest gold for warnings
-		info: '#2E4BB1', // Use Southwest blue for info
+		info: '#304cb2', // Use Southwest blue for info
 		// Additional theme colors
 		primaryLight: '#4A6BC4',
-		primaryDark: '#1E3A8A',
 		secondaryLight: '#F8F9FA',
 		secondaryDark: '#E9ECEF',
 		errorLight: '#FEE2E2',

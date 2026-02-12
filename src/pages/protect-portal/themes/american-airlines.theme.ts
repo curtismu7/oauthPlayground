@@ -21,25 +21,27 @@ export const americanAirlinesTheme: BrandTheme = {
 		height: '60px',
 		text: 'AMERICAN',
 		colors: {
-			american: '#0033A0',
-			airlines: '#E31937',
+			american: '#0b4aa2', // Updated to match mockup
+			airlines: '#e11d48', // Updated to match mockup
 		},
 	},
 	colors: {
-		primary: '#0033A0', // American Blue (exact from their brand)
-		secondary: '#FFFFFF', // White
-		accent: '#E31937', // American Red
-		background: '#FFFFFF', // Changed to solid white for Protect app
-		surface: '#FFFFFF',
+		primary: '#0b4aa2', // Updated to match mockup primary
+		primaryDark: '#073a80', // Updated to match mockup primaryDark
+		secondary: '#111827', // Updated to match mockup secondary
+		accent: '#e11d48', // Updated to match mockup accent
+		background: '#ffffff', // Updated to match mockup bg
+		surface: '#ffffff', // Updated to match mockup surface
+		muted: '#6b7280', // Updated to match mockup muted
+		border: '#d1d5db', // Updated to match mockup border
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#E31937', // Use American red for errors
 		success: '#059669',
 		warning: '#D97706',
-		info: '#0033A0', // Use American blue for info
+		info: '#0b4aa2', // Use American blue for info
 		// Additional theme colors
 		primaryLight: '#0056B3',
-		primaryDark: '#002880',
 		secondaryLight: '#F8F9FA',
 		secondaryDark: '#E9ECEF',
 		errorLight: '#FEE2E2',
