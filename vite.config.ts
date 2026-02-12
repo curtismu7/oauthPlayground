@@ -116,27 +116,16 @@ export default defineConfig(({ mode }) => {
 		server: {
 			port: 3000,
 			open: true,
-			https: false, // Temporarily disable HTTPS to fix callback 404 issue
+			https: true, // Enable HTTPS in development to match PingOne redirect URI
 			// In production, Vercel will handle HTTPS
 			hmr: {
 				port: 3000,
 				host: 'localhost',
-				protocol: 'ws', // Use WebSocket for HTTP
+				protocol: 'wss', // Use secure WebSocket for HTTPS
 				clientPort: 3000,
 			},
 			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)
-			// Force HTTPS redirect
-			setupMiddlewares: (middlewares, _devServer) => {
-				middlewares.unshift((req, res, next) => {
-					if (req.headers['x-forwarded-proto'] === 'http' || req.url.startsWith('http://')) {
-						res.writeHead(301, { Location: `https://localhost:3000${req.url}` });
-						res.end();
-						return;
-					}
-					next();
-				});
-				return middlewares;
-			},
+			// Disable certificate verification for localhost development
 			proxy: {
 				'/api': {
 					target: 'http://localhost:3001', // Backend server (HTTP)
