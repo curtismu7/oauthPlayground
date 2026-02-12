@@ -1,16 +1,31 @@
 # Protect Portal Implementation Inventory
 
+## 🔎 Quick Links (Start here when testing a change)
+
+- **Critical Issues** — Immediate attention required issues
+- **Issue PP-010** — React DOM Props Warning
+- **Issue PP-011** — Login Page Username Dropdown (NEW)
+- **Enhanced Prevention Commands** — Copy/paste checks for Protect Portal regressions
+- **Automated Inventory Gate** — CI integration and verification
+- **Corporate Branding** — United Airlines theme implementation
+- **Risk Evaluation** — PingOne Protect integration patterns
+
+> Tip: Use your editor's outline/sidebar view and search for the exact headings above.
+
+---
+
 ## 📊 CURRENT VERSION TRACKING
 
-### **Version: 9.6.5** (Target for Implementation)
-- **APP**: package.json.version (9.6.5)
-- **UI/MFA V8**: package.json.mfaV8Version (9.6.5) 
-- **Server/Unified V8U**: package.json.unifiedV8uVersion (9.6.5)
-- **Protect Portal**: package.json.protectPortalVersion (9.6.5)
+### **Version: 9.6.6** (Current)
+- **APP**: package.json.version (9.6.6)
+- **UI/MFA V8**: package.json.mfaV8Version (9.6.6) 
+- **Server/Unified V8U**: package.json.unifiedV8uVersion (9.6.6)
+- **Protect Portal**: package.json.protectPortalVersion (9.6.6)
 
 ### **Implementation Version History:**
-- **9.6.5** - Protect Portal Application Implementation (Target)
-- **9.6.4** - Current baseline (PingOne KRP support)
+- **9.6.6** - Login page username dropdown + Playwright integration
+- **9.6.5** - Protect Portal Application Implementation
+- **9.6.4** - PingOne KRP support
 - **9.6.3** - Silent API modal suppression fixes
 - **9.6.2** - User login modal improvements
 
@@ -90,6 +105,78 @@ interface CustomLoginFormProps {
   // Other props...
 }
 ```
+
+---
+
+### **🔴 Issue PP-012: Missing Authorization Configuration Modal - UX BLOCKER**
+**Date**: 2026-02-12  
+**Status**: ✅ FIXED  
+**Severity**: High (UX Blocker)
+
+#### **🎯 Problem Summary:**
+The Protect Portal had no user interface for configuring authorization credentials when environment variables were not set. Users were unable to use the application without manual .env file configuration, creating a complete blocker for usability.
+
+#### **🔍 Root Cause Analysis:**
+- Protect Portal expected environment variables (`REACT_APP_ENVIRONMENT_ID`, `REACT_APP_API_BASE_URL`, etc.)
+- No UI for users to enter credentials when environment variables were missing
+- Settings page showed "Settings Coming Soon" with no functionality
+- No modal or configuration flow for on-the-fly setup
+
+#### **📁 Files Modified:**
+- `src/protect-app/components/ProtectPortalConfigModal.tsx` - New configuration modal component
+- `src/protect-app/ProtectPortalApp.tsx` - Integration and auto-detection logic
+
+#### **✅ Solution Implemented:**
+```typescript
+// NEW: Configuration Modal Component
+export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> = ({
+  isOpen,
+  onClose,
+  onConfigurationSaved,
+}) => {
+  // Required: Environment ID, API Base URL, Region
+  // Optional: Client ID, Client Secret, Redirect URI
+  // Features: Connection testing, localStorage persistence
+};
+
+// AUTO-DETECTION LOGIC
+const hasEnvironmentConfig = !!(process.env.REACT_APP_ENVIRONMENT_ID || 
+  localStorage.getItem('protect_portal_config'));
+
+if (!hasEnvironmentConfig) {
+  setShowConfigModal(true); // Auto-show modal for setup
+}
+```
+
+#### **🎯 Features Added:**
+- ✅ **Auto-Detection**: Automatically detects missing configuration
+- ✅ **Configuration Modal**: User-friendly form for entering credentials
+- ✅ **Connection Testing**: Test API connectivity before saving
+- ✅ **Local Storage**: Persists configuration for session
+- ✅ **Environment Fallback**: Uses .env variables when available
+- ✅ **Advanced Options**: Collapsible section for OAuth credentials
+
+#### **🔍 Prevention Commands:**
+```bash
+# Verify configuration modal exists
+grep -rn "ProtectPortalConfigModal" src/protect-app/ --include="*.tsx" --include="*.ts" && echo "✅ CONFIG MODAL EXISTS" || echo "❌ CONFIG MODAL MISSING"
+
+# Check auto-detection logic
+grep -rn "REACT_APP_ENVIRONMENT_ID" src/protect-app/ProtectPortalApp.tsx && echo "✅ AUTO-DETECTION IMPLEMENTED" || echo "❌ AUTO-DETECTION MISSING"
+
+# Verify modal integration
+grep -rn "showConfigModal" src/protect-app/ProtectPortalApp.tsx && echo "✅ MODAL INTEGRATED" || echo "❌ MODAL NOT INTEGRATED"
+
+# Test configuration persistence
+grep -rn "protect_portal_config" src/protect-app/components/ProtectPortalConfigModal.tsx && echo "✅ LOCAL STORAGE IMPLEMENTED" || echo "❌ LOCAL STORAGE MISSING"
+```
+
+#### **🔧 SWE-15 Compliance:**
+- ✅ **Single Responsibility**: Configuration modal handles only setup concerns
+- ✅ **Open/Closed**: Extended app without breaking existing authentication flow
+- ✅ **Liskov Substitution**: Modal works as drop-in replacement for missing .env config
+- ✅ **Interface Segregation**: Clean separation of configuration and UI concerns
+- ✅ **Dependency Inversion**: Uses theme and context abstractions
 
 ---
 
@@ -402,7 +489,20 @@ grep -rn "import.*PageApiInfo" src/protect-app/pages/ --include="*.tsx" | wc -l 
 # 31. Verify onLoginStart handlers are present in all hero components
 grep -rn "onLoginStart.*handleLoginStart" src/pages/protect-portal/ --include="*.tsx" | wc -l && echo "✅ ONLOGINSTART HANDLERS FOUND" || echo "❌ MISSING ONLOGINSTART HANDLERS"
 
-# 32. Check hero component padding is not excessive (prevent tall headers)
+# === CODE QUALITY & ACCESSIBILITY PREVENTION ===
+# 32. Check for alert() usage (should be NONE - use error state instead)
+grep -r "alert(" src/ --include="*.tsx" --include="*.ts" && echo "❌ ALERT CALLS FOUND" || echo "✅ NO ALERT CALLS"
+
+# 33. Check for accessibility issues - unassociated labels
+grep -r "<label" src/ --include="*.tsx" --include="*.ts" | grep -v "htmlFor=" | head -3 && echo "❌ UNASSOCIATED LABELS FOUND" || echo "✅ ALL LABELS HAVE HTMLFOR"
+
+# 34. Check for button types (all buttons should have explicit type)
+grep -r "<button" src/ --include="*.tsx" --include="*.ts" | grep -v "type=" | head -3 && echo "❌ BUTTONS WITHOUT TYPES FOUND" || echo "✅ ALL BUTTONS HAVE TYPES"
+
+# 35. Check for input IDs (all inputs should have id for label association)
+grep -r "<input" src/ --include="*.tsx" --include="*.ts" | grep -v "id=" | head -3 && echo "❌ INPUTS WITHOUT IDS FOUND" || echo "✅ ALL INPUTS HAVE IDS"
+
+# 36. Check hero component padding is not excessive (prevent tall headers)
 grep -rn "padding.*4rem" src/pages/protect-portal/components/*Hero.tsx && echo "❌ EXCESSIVE HERO PADDING FOUND" || echo "✅ HERO PADDING IS APPROPRIATE"
 
 # 33. Verify all hero components have proper event handlers
@@ -584,6 +684,145 @@ grep -rn "import.*PageApiInfo" src/protect-app/pages/ --include="*.tsx" | wc -l 
 ---
 
 ## 🚨 **COMMON PROTECT PORTAL ISSUES & PREVENTION**
+
+### **🔴 Issue PP-012: Environment Management API Endpoints & Region Support**
+**Status**: 🔴 CRITICAL - Must verify all endpoints exist and region dropdown works  
+**Component**: Environments Page & API Proxy  
+**Risk**: Multi-region users lose access, incomplete environment management
+
+#### **🎯 Problem:**
+- Missing API endpoints for environment CRUD operations
+- No region selection dropdown for multi-region users
+- Hardcoded region prevents global access
+- Incomplete service layer methods
+
+#### **🔍 Where to Check:**
+1. **server.js** - Lines 1250-1588: All 5 API proxy endpoints
+2. **EnvironmentManagementPageV8.tsx** - Lines 479-490: Region dropdown
+3. **environmentServiceV8.ts** - Lines 160-389: Complete CRUD methods
+
+#### **⚡ Quick Prevention Commands:**
+```bash
+# Verify all API endpoints exist (should return 401 for auth, not 404)
+curl -s -o /dev/null -w "%{http_code}" "http://localhost:3001/api/environments"
+curl -s -o /dev/null -w "%{http_code}" "http://localhost:3001/api/environments/test-id"
+curl -s -o /dev/null -X POST -o /dev/null -w "%{http_code}" "http://localhost:3001/api/environments"
+curl -s -o /dev/null -X PUT -o /dev/null -w "%{http_code}" "http://localhost:3001/api/environments/test-id"
+curl -s -o /dev/null -X DELETE -o /dev/null -w "%{http_code}" "http://localhost:3001/api/environments/test-id"
+curl -s -o /dev/null -X PUT -o /dev/null -w "%{http_code}" "http://localhost:3001/api/environments/test-id/status"
+
+# Check region dropdown exists
+grep -c "selectedApiRegion" src/pages/EnvironmentManagementPageV8.tsx
+
+# Verify service methods have auth parameters
+grep -c "accessToken.*region" src/services/environmentServiceV8.ts
+```
+
+#### **🚨 Regression Signs:**
+- 404 errors on environment API endpoints
+- Missing region dropdown in environments page  
+- Service methods missing accessToken/region parameters
+- Hardcoded 'na' region in API calls
+
+#### **✅ Prevention Strategy:**
+- Always test all 5 API endpoints after server changes
+- Verify region dropdown appears in environments page
+- Check service methods include authentication parameters
+- Test with different regions (eu, ca, ap, sg, au)
+
+---
+
+### **✅ Issue PP-013: Environment Management Page Runtime Errors**
+**Status**: ✅ RESOLVED - Component loads successfully  
+**Component**: EnvironmentManagementPageV8.tsx  
+**Risk**: Environments page accessible and functional
+
+#### **🎯 Problem:**
+- Runtime errors with undefined variables (`selectedEnvironmentId`, `searchTerm`)
+- Component crashes preventing access to environments functionality
+- Vite cache serving stale component versions
+- Development workflow blocked
+
+#### **🔍 Where to Check:**
+1. **EnvironmentManagementPageV8.tsx** - Lines 260, 492-493: State variable definitions
+2. **Browser Console** - Runtime error messages
+3. **Vite Cache** - Stale HMR cache preventing updates
+
+#### **⚡ Quick Prevention Commands:**
+```bash
+# Clear Vite cache and restart
+pkill -f "vite"
+rm -rf node_modules/.vite
+npm run dev
+
+# Verify state variables are defined
+grep -c "useState.*selectedEnvironmentId\|useState.*selectedApiRegion" src/pages/EnvironmentManagementPageV8.tsx
+
+# Check component accessibility
+curl -s -o /dev/null -w "%{http_code}" "http://localhost:3000/environments"
+```
+
+#### **🚨 Regression Signs:**
+- "ReferenceError: X is not defined" in browser console
+- Environment page showing blank or error state
+- Component fails to render completely
+- Cache issues preventing code updates
+
+#### **✅ Prevention Strategy:**
+- Always clear Vite cache after state management changes
+- Verify all state variables are properly defined before use
+- Test component accessibility after refactoring
+- Use browser dev tools to check for runtime errors
+- Implement proper error boundaries
+
+---
+
+### **✅ Issue PP-014: Environment Management Worker Token Integration**
+**Status**: ✅ RESOLVED - User-friendly worker token prompt implemented  
+**Component**: EnvironmentManagementPageV8.tsx  
+**Risk**: Improved user experience with proper worker token handling
+
+#### **🎯 Problem:**
+- Error messages about worker token requirements instead of helpful UI
+- No clear way for users to get worker token from environments page
+- Component crashing instead of graceful degradation
+- User confusion about how to proceed without worker token
+
+#### **🔍 Where to Check:**
+1. **EnvironmentManagementPageV8.tsx** - Lines 461-500: Worker token UI integration
+2. **workerTokenUIService.tsx** - Worker token UI component and hooks
+3. **Browser Console** - Error messages vs graceful handling
+4. **User Flow** - Token generation accessibility from environments page
+
+#### **⚡ Quick Prevention Commands:**
+```bash
+# Verify worker token UI integration
+grep -c "WorkerTokenUI" src/pages/EnvironmentManagementPageV8.tsx
+
+# Check for graceful token handling
+grep -c "Global worker token not available" src/pages/EnvironmentManagementPageV8.tsx
+
+# Verify no hard errors thrown
+grep -c "throw new Error.*worker token" src/pages/EnvironmentManagementPageV8.tsx
+
+# Test component accessibility
+curl -k -s -o /dev/null -w "%{http_code}" "https://localhost:3000/environments"
+```
+
+#### **🚨 Regression Signs:**
+- Error messages about worker token requirements
+- Environment page crashing or showing blank
+- Users unable to proceed without worker token
+- Hard errors thrown instead of graceful UI
+
+#### **✅ Prevention Strategy:**
+- Always use WorkerTokenUI component for token requirements
+- Implement graceful degradation instead of hard errors
+- Provide clear user guidance and next steps
+- Test component behavior with and without worker token
+- Use existing worker token UI service for consistency
+
+---
 
 ### **✅ Issue: Missing Event Handlers in Hero Components**
 
