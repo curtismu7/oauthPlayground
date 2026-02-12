@@ -686,7 +686,10 @@ grep -rn "handleCopy\|copy.*clipboard" src/protect-app/components/common/JsonDis
 
 ### **🚨 Critical Regression Prevention**
 ```bash
-# === CRITICAL ISSUES MONITORING ===
+# === FAST PREVENTION CHECKS (Recommended for quick validation) ===
+echo "=== FAST PREVENTION CHECK ===" && echo "🔍 PP-010: React DOM Props" && (grep -q "hasIcon\|hasToggle" src/pages/protect-portal/components/ --include="*.tsx" && echo "❌ FOUND" || echo "✅ CLEAR") && echo "🔍 PP-011: Embedded Login API" && (find src/pages/protect-portal/services/ -name "*.ts" -exec grep -l "redirectless/authorize" {} \; | wc -l | tr -d ' ' && echo " FILES") && echo "🔍 PP-012: Protect Portal App" && (test -f src/protect-app/ProtectPortalApp.tsx && echo "✅ EXISTS" || echo "❌ MISSING") && echo "🔍 PP-018: Theme Configs" && (find src -name "*.theme.ts" | grep -c protect && echo " FILES") && echo "🎯 CHECK COMPLETE!"
+
+# === DETAILED PREVENTION CHECKS (For comprehensive validation) ===
 # React DOM Props (PP-010)
 echo "=== PP-010: React DOM Props Check ==="
 grep -rn "hasIcon\|hasToggle" src/pages/protect-portal/components/ --include="*.tsx" && echo "❌ PP-010 ACTIVE" || echo "✅ PP-010 RESOLVED"
