@@ -8,7 +8,7 @@ interface LoadingSpinnerProps {
 
 /**
  * Loading Spinner Component
- * 
+ *
  * A customizable loading spinner with different sizes and colors.
  * Used throughout the application for loading states.
  */

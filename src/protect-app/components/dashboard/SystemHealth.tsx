@@ -3,7 +3,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 
 /**
  * System Health Component
- * 
+ *
  * Displays system health and status information.
  */
 export const SystemHealth: React.FC = () => {
@@ -17,17 +17,14 @@ export const SystemHealth: React.FC = () => {
 	];
 
 	return (
-		<div 
+		<div
 			className="p-6 rounded-xl"
 			style={{
 				backgroundColor: currentTheme.colors.surface,
 				boxShadow: currentTheme.shadows.lg,
 			}}
 		>
-			<h3 
-				className="text-lg font-semibold mb-4"
-				style={{ color: currentTheme.colors.text }}
-			>
+			<h3 className="text-lg font-semibold mb-4" style={{ color: currentTheme.colors.text }}>
 				System Health
 			</h3>
 			<div className="space-y-3">
@@ -35,16 +32,9 @@ export const SystemHealth: React.FC = () => {
 					<div key={index} className="flex items-center justify-between">
 						<div className="flex items-center space-x-2">
 							<span className="text-lg">{metric.icon}</span>
-							<span 
-								style={{ color: currentTheme.colors.text }}
-							>
-								{metric.label}
-							</span>
+							<span style={{ color: currentTheme.colors.text }}>{metric.label}</span>
 						</div>
-						<span 
-							className="text-sm font-medium"
-							style={{ color: currentTheme.colors.success }}
-						>
+						<span className="text-sm font-medium" style={{ color: currentTheme.colors.success }}>
 							{metric.value}
 						</span>
 					</div>

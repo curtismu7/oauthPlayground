@@ -99,11 +99,24 @@ export async function importCredentials(
 		reader.onload = (e) => {
 			try {
 				const text = e.target?.result as string;
+				
+				// Check if the text is actually HTML (browser downloaded HTML page instead of JSON)
+				if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+					reject(new Error('Invalid file format: You downloaded an HTML page instead of a JSON file. Please right-click the export link and select "Save Link As..." or "Download Linked File As..." to download the actual JSON file.'));
+					return;
+				}
+				
+				// Check if the text looks like JSON
+				if (!text.trim().startsWith('{') && !text.trim().startsWith('[')) {
+					reject(new Error('Invalid file format: The file does not appear to be JSON. Please ensure you downloaded the correct JSON credential file.'));
+					return;
+				}
+				
 				const parsed = JSON.parse(text) as ExportedCredentials;
 
 				// Validate structure
 				if (!parsed.version || (!parsed.authz && !parsed.workerToken)) {
-					reject(new Error('Invalid credential file format'));
+					reject(new Error('Invalid credential file format: Missing required fields (version and either authz or workerToken)'));
 					return;
 				}
 
@@ -113,9 +126,14 @@ export async function importCredentials(
 				});
 			} catch (error) {
 				console.error('[CredentialExportImport] Error parsing credential file:', error);
-				reject(
-					new Error('Failed to parse credential file. Please ensure it is a valid JSON file.')
-				);
+				
+				// Provide more helpful error messages
+				const errorMessage = error instanceof Error ? error.message : String(error);
+				if (errorMessage.includes('Unexpected token')) {
+					reject(new Error('Invalid JSON format: The file contains invalid JSON. Please ensure you downloaded the correct JSON credential file and not an HTML page.'));
+				} else {
+					reject(new Error(`Failed to parse credential file: ${errorMessage}. Please ensure the file is valid JSON.`));
+				}
 			}
 		};
 
