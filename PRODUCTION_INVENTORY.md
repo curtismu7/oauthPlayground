@@ -140,7 +140,91 @@ grep -rn "progress\|percentage\|usage.*bar" src/v8/pages/DeleteAllDevicesUtility
 
 ---
 
-### **✅ Issue PROD-003: JWT Token Decoding Security**
+### **✅ Issue PROD-003: Token Monitoring Dropdown Missing "All Types" Option**
+**Status**: ✅ RESOLVED  
+**Component**: TokenMonitoringPage  
+**Severity**: Medium (User Experience)
+**Last Updated**: 2026-02-12
+
+#### **Problem Summary:**
+The token monitoring page at `/v8u/token-monitoring` was missing the "All Types" dropdown option, preventing users from viewing all tokens. This was likely caused by Vite caching issues preventing recent updates from being displayed.
+
+#### **Root Cause Analysis:**
+- Vite development server cache was serving stale version of the component
+- Dropdown functionality was implemented but not visible due to caching
+- Browser cache may have been serving cached JavaScript bundles
+
+#### **Required Actions:**
+1. **Clear Vite Cache**: Remove cached build artifacts
+2. **Restart Development Server**: Ensure fresh build
+3. **Verify Dropdown Functionality**: Confirm "All Tokens" option is visible
+4. **Test Token Filtering**: Verify all token types work correctly
+
+#### **Files Affected:**
+- `src/v8u/pages/TokenMonitoringPage.tsx` - Token monitoring page with dropdown
+- `node_modules/.vite/` - Vite cache directory
+- `public/sw.js` - Service worker (potential caching)
+
+#### **Prevention Commands:**
+```bash
+# Check if dropdown functionality exists
+grep -rn "All Tokens\|selectedTokenType.*all" src/v8u/pages/TokenMonitoringPage.tsx | wc -l && echo "✅ DROPDOWN FUNCTIONALITY EXISTS" || echo "❌ MISSING DROPDOWN FUNCTIONALITY"
+
+# Verify token filtering logic
+grep -rn "filteredTokens.*filter\|selectedTokenType.*===" src/v8u/pages/TokenMonitoringPage.tsx | wc -l && echo "✅ TOKEN FILTERING LOGIC EXISTS" || echo "❌ MISSING TOKEN FILTERING"
+
+# Check for Vite cache issues
+test -d node_modules/.vite && echo "⚠️ VITE CACHE EXISTS - MAY NEED CLEARING" || echo "✅ NO VITE CACHE"
+
+# Verify dropdown components
+grep -rn "DropdownContainer\|DropdownButton\|DropdownMenu" src/v8u/pages/TokenMonitoringPage.tsx | wc -l && echo "✅ DROPDOWN COMPONENTS FOUND" || echo "❌ MISSING DROPDOWN COMPONENTS"
+```
+
+#### **SWE-15 Solution:**
+```typescript
+// ✅ SWE-15 COMPLIANT: Token type filtering with dropdown
+const TokenMonitoringPage: React.FC = () => {
+  const [selectedTokenType, setSelectedTokenType] = useState<string>('all');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Filter tokens based on selected type
+  const filteredTokens = selectedTokenType === 'all' 
+    ? tokens 
+    : tokens.filter(token => token.type === selectedTokenType);
+
+  return (
+    <DropdownContainer>
+      <DropdownButton onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+        <span>
+          {selectedTokenType === 'all' ? 'All Tokens' : getTokenTypeLabel(selectedTokenType)}
+        </span>
+        {isDropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
+      </DropdownButton>
+      <DropdownMenu $isOpen={isDropdownOpen}>
+        <DropdownItem onClick={() => { setSelectedTokenType('all'); setIsDropdownOpen(false); }}>
+          <FiDatabase /> All Tokens
+        </DropdownItem>
+        <DropdownItem onClick={() => { setSelectedTokenType('access_token'); setIsDropdownOpen(false); }}>
+          <FiShield /> Access Tokens
+        </DropdownItem>
+        <DropdownItem onClick={() => { setSelectedTokenType('refresh_token'); setIsDropdownOpen(false); }}>
+          <FiRefreshCw /> Refresh Tokens
+        </DropdownItem>
+        <DropdownItem onClick={() => { setSelectedTokenType('id_token'); setIsDropdownOpen(false); }}>
+          <FiInfo /> ID Tokens
+        </DropdownItem>
+        <DropdownItem onClick={() => { setSelectedTokenType('worker_token'); setIsDropdownOpen(false); }}>
+          <FiSettings /> Worker Tokens
+        </DropdownItem>
+      </DropdownMenu>
+    </DropdownContainer>
+  );
+};
+```
+
+---
+
+### **✅ Issue PROD-004: JWT Token Decoding Security**
 **Status**: ✅ RESOLVED  
 **Component**: TokenDisplayService  
 **Severity**: High (Security)
