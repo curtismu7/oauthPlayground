@@ -143,22 +143,22 @@ const CardTitle = styled.h3`
   flex: 1;
 `;
 
-const CardStatus = styled.span<{ status: string }>`
+const CardStatus = styled.span<{ $status: string }>`
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
   font-size: 0.875rem;
   font-weight: 500;
-  background: ${(props) => EnvironmentServiceV8.getStatusColor(props.status)}20;
-  color: ${(props) => EnvironmentServiceV8.getStatusColor(props.status)};
+  background: ${(props) => EnvironmentServiceV8.getStatusColor(props.$status)}20;
+  color: ${(props) => EnvironmentServiceV8.getStatusColor(props.$status)};
 `;
 
-const CardType = styled.span<{ type: string }>`
+const CardType = styled.span<{ $type: string }>`
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
   font-size: 0.875rem;
   font-weight: 500;
-  background: ${(props) => EnvironmentServiceV8.getTypeColor(props.type)}20;
-  color: ${(props) => EnvironmentServiceV8.getTypeColor(props.type)};
+  background: ${(props) => EnvironmentServiceV8.getTypeColor(props.$type)}20;
+  color: ${(props) => EnvironmentServiceV8.getTypeColor(props.$type)};
   margin-left: 0.5rem;
 `;
 
@@ -681,10 +681,10 @@ const EnvironmentManagementPageV8: React.FC = () => {
 									gap: '0.25rem',
 								}}
 							>
-								<CardStatus status={environment.status}>
+								<CardStatus $status={environment.status}>
 									{EnvironmentServiceV8.formatEnvironmentStatus(environment.status)}
 								</CardStatus>
-								<CardType type={environment.type}>
+								<CardType $type={environment.type}>
 									{EnvironmentServiceV8.formatEnvironmentType(environment.type)}
 								</CardType>
 							</div>
