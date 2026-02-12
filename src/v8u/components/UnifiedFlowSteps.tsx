@@ -8435,7 +8435,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					<input
 						id={fragmentUrlInputId}
 						type="text"
-						placeholder="http://localhost:3000/callback#access_token=...&id_token=..."
+						placeholder="https://localhost:3000/callback#access_token=...&id_token=..."
 						value={hasFragmentInUrl ? window.location.href : flowState.authorizationCode || ''}
 						onChange={(e) => setFlowState({ ...flowState, authorizationCode: e.target.value })}
 						style={{

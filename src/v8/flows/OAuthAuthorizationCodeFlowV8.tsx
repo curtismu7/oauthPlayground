@@ -73,7 +73,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 			includeLogoutUri: false,
 			includeScopes: true,
 			defaultScopes: 'openid profile email',
-			defaultRedirectUri: 'http://localhost:3000/callback',
+			defaultRedirectUri: 'https://localhost:3000/callback',
 		});
 	});
 
@@ -397,7 +397,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 				<input
 					id="oauth-callback-url"
 					type="text"
-					placeholder="http://localhost:3000/callback?code=...&state=..."
+					placeholder="https://localhost:3000/callback?code=...&state=..."
 					value={authState.authorizationCode}
 					onChange={(e) => setAuthState({ ...authState, authorizationCode: e.target.value })}
 					aria-label="Callback URL"
@@ -613,7 +613,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 							includeLogoutUri: false,
 							includeScopes: true,
 							defaultScopes: 'openid profile email',
-							defaultRedirectUri: 'http://localhost:3000/callback',
+							defaultRedirectUri: 'https://localhost:3000/callback',
 						});
 						setCredentials(reloaded);
 						setAuthState({
@@ -650,7 +650,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 							includeLogoutUri: false,
 							includeScopes: true,
 							defaultScopes: 'openid profile email',
-							defaultRedirectUri: 'http://localhost:3000/callback',
+							defaultRedirectUri: 'https://localhost:3000/callback',
 						});
 						setCredentials(reloaded);
 						nav.reset();
