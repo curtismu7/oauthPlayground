@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { PageApiInfo } from '../components/common/PageApiInfo';
 import { useRisk } from '../contexts/RiskContext';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -130,6 +131,9 @@ export const RiskEvaluationPage: React.FC = () => {
 					)}
 				</button>
 			</div>
+
+			{/* Page API Info */}
+			<PageApiInfo pageName="Risk Evaluation" />
 		</div>
 	);
 };

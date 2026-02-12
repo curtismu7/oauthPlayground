@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { PageApiInfo } from '../components/common/PageApiInfo';
 import { QuickActions } from '../components/dashboard/QuickActions';
 import { RecentEvaluations } from '../components/dashboard/RecentEvaluations';
 import { RiskScoreCard } from '../components/dashboard/RiskScoreCard';
@@ -188,6 +189,9 @@ export const DashboardPage: React.FC = () => {
 					</div>
 				</div>
 			)}
+
+			{/* Page API Info */}
+			<PageApiInfo pageName="Dashboard" />
 		</div>
 	);
 };
