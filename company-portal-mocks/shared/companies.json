@@ -1,0 +1,110 @@
+[
+  {
+    "id": "pingidentity",
+    "name": "Ping Identity",
+    "domain": "https://www.pingidentity.com/",
+    "loginMode": "page",
+    "palette": {
+      "primary": "#b03a2e",
+      "primaryDark": "#8e2f26",
+      "secondary": "#111827",
+      "bg": "#ffffff",
+      "surface": "#ffffff",
+      "muted": "#6b7280",
+      "border": "#d1d5db"
+    },
+    "hero": {
+      "title": "Sign on to PingOne",
+      "subtitle": "Secure access to your organization",
+      "image": ""
+    },
+    "logoSvg": "<svg width=\"160\" height=\"34\" viewBox=\"0 0 160 34\" role=\"img\" aria-label=\"Ping Identity\">\n  <rect x=\"0\" y=\"6\" width=\"22\" height=\"22\" fill=\"currentColor\" opacity=\".95\"/>\n  <text x=\"30\" y=\"24\" font-family=\"system-ui,Segoe UI,Arial\" font-size=\"20\" font-weight=\"700\" fill=\"currentColor\">Ping</text>\n  <text x=\"78\" y=\"24\" font-family=\"system-ui,Segoe UI,Arial\" font-size=\"20\" font-weight=\"500\" fill=\"currentColor\">Identity</text>\n</svg>"
+  },
+  {
+    "id": "southwest",
+    "name": "Southwest",
+    "domain": "https://www.southwest.com/",
+    "loginMode": "modal",
+    "palette": {
+      "primary": "#304cb2",
+      "primaryDark": "#253a8a",
+      "secondary": "#111827",
+      "bg": "#f5f6f8",
+      "surface": "#ffffff",
+      "muted": "#6b7280",
+      "border": "#d1d5db",
+      "accent": "#f4c542"
+    },
+    "hero": {
+      "title": "Find flights and fares",
+      "subtitle": "Manage trips, check in, and explore deals.",
+      "image": ""
+    },
+    "logoSvg": "<svg width=\"180\" height=\"34\" viewBox=\"0 0 180 34\" role=\"img\" aria-label=\"Southwest\">\n  <text x=\"0\" y=\"24\" font-family=\"system-ui,Segoe UI,Arial\" font-size=\"22\" font-weight=\"800\" fill=\"currentColor\">Southwest</text>\n  <path d=\"M152 11c3-3 8-3 11 0 3 3 3 8 0 11l-6 6-6-6c-3-3-3-8 0-11z\" fill=\"#e11d48\" opacity=\".9\"/>\n  <path d=\"M152 11c3-3 8-3 11 0\" stroke=\"#f59e0b\" stroke-width=\"4\" stroke-linecap=\"round\" opacity=\".9\"/>\n</svg>"
+  },
+  {
+    "id": "american",
+    "name": "American Airlines",
+    "domain": "https://www.aa.com/",
+    "loginMode": "page",
+    "palette": {
+      "primary": "#0b4aa2",
+      "primaryDark": "#073a80",
+      "secondary": "#111827",
+      "bg": "#ffffff",
+      "surface": "#ffffff",
+      "muted": "#6b7280",
+      "border": "#d1d5db"
+    },
+    "hero": {
+      "title": "Log in to your account",
+      "subtitle": "Not an AAdvantage\u00ae member? Join now",
+      "image": ""
+    },
+    "logoSvg": "<svg width=\"190\" height=\"34\" viewBox=\"0 0 190 34\" role=\"img\" aria-label=\"American\">\n  <text x=\"0\" y=\"24\" font-family=\"system-ui,Segoe UI,Arial\" font-size=\"22\" font-weight=\"800\" fill=\"currentColor\">American</text>\n  <path d=\"M136 10l10 14\" stroke=\"#e11d48\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <path d=\"M146 10l10 14\" stroke=\"#2563eb\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n</svg>"
+  },
+  {
+    "id": "fedex",
+    "name": "FedEx",
+    "domain": "https://www.fedex.com/",
+    "loginMode": "page",
+    "palette": {
+      "primary": "#4d148c",
+      "primaryDark": "#3c0f6d",
+      "secondary": "#111827",
+      "bg": "#ffffff",
+      "surface": "#ffffff",
+      "muted": "#6b7280",
+      "border": "#d1d5db",
+      "accent": "#ff6600"
+    },
+    "hero": {
+      "title": "Enter your user ID and password to log in",
+      "subtitle": "Create a user ID",
+      "image": ""
+    },
+    "logoSvg": "<svg width=\"150\" height=\"34\" viewBox=\"0 0 150 34\" role=\"img\" aria-label=\"FedEx\">\n  <text x=\"0\" y=\"24\" font-family=\"system-ui,Segoe UI,Arial\" font-size=\"24\" font-weight=\"900\" fill=\"#4d148c\">Fed</text>\n  <text x=\"54\" y=\"24\" font-family=\"system-ui,Segoe UI,Arial\" font-size=\"24\" font-weight=\"900\" fill=\"#ff6600\">Ex</text>\n</svg>"
+  },
+  {
+    "id": "bankofamerica",
+    "name": "Bank of America",
+    "domain": "https://www.bankofamerica.com/",
+    "loginMode": "modal",
+    "palette": {
+      "primary": "#b91c1c",
+      "primaryDark": "#991b1b",
+      "secondary": "#111827",
+      "bg": "#f7fafc",
+      "surface": "#ffffff",
+      "muted": "#6b7280",
+      "border": "#d1d5db",
+      "accent": "#2563eb"
+    },
+    "hero": {
+      "title": "Banking made easier",
+      "subtitle": "Securely manage your accounts and cards.",
+      "image": ""
+    },
+    "logoSvg": "<svg width=\"220\" height=\"34\" viewBox=\"0 0 220 34\" role=\"img\" aria-label=\"Bank of America\">\n  <text x=\"0\" y=\"24\" font-family=\"system-ui,Segoe UI,Arial\" font-size=\"20\" font-weight=\"900\" fill=\"currentColor\">Bank of America</text>\n  <path d=\"M188 10h24\" stroke=\"#2563eb\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <path d=\"M188 16h24\" stroke=\"#b91c1c\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <path d=\"M188 22h24\" stroke=\"#2563eb\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n</svg>"
+  }
+]

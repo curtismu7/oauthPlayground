@@ -1,0 +1,57 @@
+/* Brand-specific layout nudges (still config-driven)
+   These are lightweight differences to mimic common patterns per site.
+*/
+
+html[data-company="fedex"] .header{
+  background: var(--brand-primary);
+}
+html[data-company="fedex"] .nav a,
+html[data-company="fedex"] .brand,
+html[data-company="fedex"] .brand .logo{
+  color:#fff;
+}
+html[data-company="fedex"] .header{ border-bottom:0; }
+html[data-company="fedex"] .btn-outline{
+  border-color: rgba(255,255,255,.5);
+  color:#fff;
+}
+html[data-company="fedex"] .btn-outline:hover{ border-color: rgba(255,255,255,.72); }
+html[data-company="fedex"] .hero{ padding-top:26px; }
+html[data-company="fedex"] .hero__title{ font-size:40px; }
+
+html[data-company="southwest"] .btn-primary{
+  background: var(--brand-accent);
+  color:#111827;
+}
+html[data-company="southwest"] .btn-primary:hover{ filter:brightness(.97); }
+html[data-company="southwest"] .tab[aria-selected="true"]{
+  background: rgba(244,197,66,.22);
+  color:#111827;
+}
+
+html[data-company="american"] .login-wrap{
+  background: linear-gradient(180deg, rgba(0,0,0,.03), rgba(0,0,0,0));
+}
+html[data-company="american"] .card{
+  box-shadow: var(--shadow);
+  border-radius: 10px;
+}
+html[data-company="american"] .btn-primary{
+  border-radius: 10px;
+  height:46px;
+}
+
+html[data-company="bankofamerica"] .header{
+  background:#fff;
+}
+html[data-company="bankofamerica"] .btn-outline{
+  border-color: rgba(185,28,28,.22);
+}
+html[data-company="bankofamerica"] .tab[aria-selected="true"]{
+  background: rgba(185,28,28,.10);
+  color: var(--brand-primary);
+}
+
+html[data-company="pingidentity"] .hero__title{
+  font-size:36px;
+}

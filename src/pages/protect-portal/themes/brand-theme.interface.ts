@@ -23,10 +23,13 @@ export interface BrandTheme {
 	};
 	colors: {
 		primary: string;
+		primaryDark: string;
 		secondary: string;
 		accent: string;
 		background: string;
 		surface: string;
+		muted: string;
+		border: string;
 		text: string;
 		textSecondary: string;
 		error: string;
@@ -35,7 +38,6 @@ export interface BrandTheme {
 		info: string;
 		// Additional theme colors for internal portal
 		primaryLight: string;
-		primaryDark: string;
 		secondaryLight: string;
 		secondaryDark: string;
 		errorLight: string;
