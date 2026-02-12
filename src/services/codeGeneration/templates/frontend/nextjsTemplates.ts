@@ -247,7 +247,7 @@ export default async function handler(
 
   try {
     const response = await fetch(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${userId}/devices\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${userId}/devices\`,
       {
         headers: {
           'Authorization': \`Bearer \${accessToken}\`,
@@ -349,7 +349,7 @@ export default async function handler(
 
   try {
     const response = await fetch(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${userId}/devices/\${deviceId}/otp\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${userId}/devices/\${deviceId}/otp\`,
       {
         method: 'POST',
         headers: {
@@ -448,7 +448,7 @@ export default async function handler(
 
   try {
     const response = await fetch(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${userId}/devices/\${deviceId}/otp/verify\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${userId}/devices/\${deviceId}/otp/verify\`,
       {
         method: 'POST',
         headers: {
@@ -578,7 +578,7 @@ export default async function handler(
     }
 
     const response = await fetch(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${userId}/devices\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${userId}/devices\`,
       {
         method: 'POST',
         headers: {

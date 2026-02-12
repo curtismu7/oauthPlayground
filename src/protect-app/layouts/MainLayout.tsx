@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react';
 import { Outlet } from 'react-router-dom';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Footer } from '../components/layout/Footer';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
-import { Footer } from '../components/layout/Footer';
-import { useTheme } from '../../contexts/ThemeContext';
 
 interface MainLayoutProps {
 	children?: ReactNode;
@@ -11,7 +11,7 @@ interface MainLayoutProps {
 
 /**
  * Main Layout Component
- * 
+ *
  * The main layout for authenticated pages, including:
  * - Header with navigation and user profile
  * - Sidebar with main navigation menu
@@ -22,7 +22,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 	const { currentTheme } = useTheme();
 
 	return (
-		<div 
+		<div
 			className="min-h-screen flex flex-col"
 			style={{
 				backgroundColor: currentTheme.colors.background,
@@ -38,9 +38,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
 				{/* Main Content */}
 				<main className="flex-1 overflow-auto">
-					<div className="p-6">
-						{children || <Outlet />}
-					</div>
+					<div className="p-6">{children || <Outlet />}</div>
 				</main>
 			</div>
 

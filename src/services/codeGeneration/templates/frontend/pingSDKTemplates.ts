@@ -115,7 +115,7 @@ const config = {
 async function listMfaDevices() {
   try {
     const response = await fetch(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
       {
         method: 'GET',
         headers: {
@@ -165,7 +165,7 @@ const config = {
 async function sendMfaChallenge() {
   try {
     const response = await fetch(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${config.userId}/devices/\${config.deviceId}/otp\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${config.userId}/devices/\${config.deviceId}/otp\`,
       {
         method: 'POST',
         headers: {
@@ -211,7 +211,7 @@ const config = {
 async function verifyMfaCode() {
   try {
     const response = await fetch(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${config.userId}/devices/\${config.deviceId}/otp/verify\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${config.userId}/devices/\${config.deviceId}/otp/verify\`,
       {
         method: 'POST',
         headers: {
@@ -266,7 +266,7 @@ const config = {
 async function registerSmsDevice(phoneNumber: string) {
   try {
     const response = await fetch(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
       {
         method: 'POST',
         headers: {
@@ -298,7 +298,7 @@ async function registerSmsDevice(phoneNumber: string) {
 async function registerEmailDevice(email: string) {
   try {
     const response = await fetch(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
       {
         method: 'POST',
         headers: {
@@ -330,7 +330,7 @@ async function registerEmailDevice(email: string) {
 async function registerTotpDevice(name: string = 'Authenticator App') {
   try {
     const response = await fetch(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
       {
         method: 'POST',
         headers: {

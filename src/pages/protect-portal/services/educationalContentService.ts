@@ -16,7 +16,7 @@ import type {
 	TokenExplanation,
 } from '../types/protectPortal.types';
 
-const MODULE_TAG = '[📚 EDUCATIONAL-CONTENT-SERVICE]';
+const _MODULE_TAG = '[📚 EDUCATIONAL-CONTENT-SERVICE]';
 
 // ============================================================================
 // EDUCATIONAL CONTENT SERVICE

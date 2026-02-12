@@ -41,19 +41,21 @@ const LogoText = styled.span<{ colors?: Record<string, string> }>`
   letter-spacing: ${({ colors }) => (colors ? '-0.05em' : '0')};
   
   ${({ colors }) => {
-    if (!colors) return '';
-    
-    return Object.entries(colors).map(([part, color]) => {
-      if (part === 'fed') {
-        return `color: ${color}; font-weight: 800;`;
-      } else if (part === 'ex') {
-        return `color: ${color}; font-weight: 600;`;
-      } else if (part === 'aa' || part === 'ua' || part === 'sw') {
-        return `color: ${color}; font-weight: 700;`;
-      }
-      return `color: ${color};`;
-    }).join('');
-  }}
+		if (!colors) return '';
+
+		return Object.entries(colors)
+			.map(([part, color]) => {
+				if (part === 'fed') {
+					return `color: ${color}; font-weight: 800;`;
+				} else if (part === 'ex') {
+					return `color: ${color}; font-weight: 600;`;
+				} else if (part === 'aa' || part === 'ua' || part === 'sw') {
+					return `color: ${color}; font-weight: 700;`;
+				}
+				return `color: ${color};`;
+			})
+			.join('');
+	}}
 `;
 
 // ============================================================================
@@ -73,25 +75,20 @@ interface TextLogoProps {
 // COMPONENT
 // ============================================================================
 
-const TextLogo: React.FC<TextLogoProps> = ({ 
-	text, 
-	colors, 
-	width, 
-	height, 
-	alt,
-	className 
-}) => {
+const TextLogo: React.FC<TextLogoProps> = ({ text, colors, width, height, alt, className }) => {
 	// For American Airlines "AMERICAN" with special styling
 	if (text === 'AMERICAN' && colors) {
 		return (
 			<LogoContainer width={width} height={height} className={className} title={alt}>
 				<LogoText>
-					<span style={{ 
-						color: colors.american || '#0033A0', 
-						fontWeight: 700,
-						letterSpacing: '0.08em',
-						fontSize: '1.15em'
-					}}>
+					<span
+						style={{
+							color: colors.american || '#0033A0',
+							fontWeight: 700,
+							letterSpacing: '0.08em',
+							fontSize: '1.15em',
+						}}
+					>
 						AMERICAN
 					</span>
 				</LogoText>
@@ -104,12 +101,14 @@ const TextLogo: React.FC<TextLogoProps> = ({
 		return (
 			<LogoContainer width={width} height={height} className={className} title={alt}>
 				<LogoText>
-					<span style={{ 
-						color: colors.southwest || '#2E4BB1', 
-						fontWeight: 700,
-						letterSpacing: '0.05em',
-						fontSize: '1.1em'
-					}}>
+					<span
+						style={{
+							color: colors.southwest || '#2E4BB1',
+							fontWeight: 700,
+							letterSpacing: '0.05em',
+							fontSize: '1.1em',
+						}}
+					>
 						SOUTHWEST
 					</span>
 				</LogoText>
@@ -122,12 +121,14 @@ const TextLogo: React.FC<TextLogoProps> = ({
 		return (
 			<LogoContainer width={width} height={height} className={className} title={alt}>
 				<LogoText>
-					<span style={{ 
-						color: colors.united || '#0033A0', 
-						fontWeight: 700,
-						letterSpacing: '0.1em',
-						fontSize: '1.2em'
-					}}>
+					<span
+						style={{
+							color: colors.united || '#0033A0',
+							fontWeight: 700,
+							letterSpacing: '0.1em',
+							fontSize: '1.2em',
+						}}
+					>
 						UNITED
 					</span>
 				</LogoText>
@@ -152,12 +153,14 @@ const TextLogo: React.FC<TextLogoProps> = ({
 		return (
 			<LogoContainer width={width} height={height} className={className} title={alt}>
 				<LogoText>
-					<span style={{ 
-						color: colors?.bank || '#012169', 
-						fontWeight: 700,
-						letterSpacing: '0.02em',
-						fontSize: '1.0em'
-					}}>
+					<span
+						style={{
+							color: colors?.bank || '#012169',
+							fontWeight: 700,
+							letterSpacing: '0.02em',
+							fontSize: '1.0em',
+						}}
+					>
 						Bank of America
 					</span>
 				</LogoText>
@@ -169,9 +172,7 @@ const TextLogo: React.FC<TextLogoProps> = ({
 	return (
 		<LogoContainer width={width} height={height} className={className} title={alt}>
 			<LogoText>
-				<span style={{ color: colors ? colors[text.toLowerCase()] : 'inherit' }}>
-					{text}
-				</span>
+				<span style={{ color: colors ? colors[text.toLowerCase()] : 'inherit' }}>{text}</span>
 			</LogoText>
 		</LogoContainer>
 	);
