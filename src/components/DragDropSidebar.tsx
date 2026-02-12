@@ -572,21 +572,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 					},
 					{
-						id: 'user-cache-sync-v8',
-						path: '/production/user-cache-sync',
-						label: '🔄 User Cache Sync Utility',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiDatabase />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Production utility to sync user cache across environments">
-								UTILITY
-							</MigrationBadge>
-						),
-					},
-					{
 						id: 'protect-portal-app',
 						path: '/protect-portal',
 						label: 'Protect Portal App',
