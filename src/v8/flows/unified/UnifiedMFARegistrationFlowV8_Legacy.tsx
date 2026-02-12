@@ -46,6 +46,8 @@ import { useUserSearch } from '@/v8/hooks/useUserSearch';
 import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
+import { IndexedDBBackupServiceV8U } from '@/v8u/services/indexedDBBackupServiceV8U';
+import { UnifiedOAuthCredentialsServiceV8U } from '@/v8u/services/unifiedOAuthCredentialsServiceV8U';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { type MFAFeatureFlag, MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import MFAServiceV8_Legacy, { type RegisterDeviceParams } from '@/v8/services/mfaServiceV8_Legacy';
@@ -244,7 +246,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		setSearchQuery,
 	} = useUserSearch({
 		environmentId,
-		tokenValid: workerToken.tokenStatus.isValid,
+		tokenValid: workerToken.tokenStatus.isValid || environmentId.trim() !== '', // Allow search when env ID exists
 		maxPages: 100,
 		useCache: true,
 	});
@@ -338,24 +340,42 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		}
 	}, [defaultPolicy, selectedPolicy, selectPolicy]);
 
-	// Sync environment ID to global service and CredentialsServiceV8 when it changes
+	// Sync environment ID to global service and enhanced storage when it changes
 	useEffect(() => {
 		if (environmentId) {
 			globalEnvironmentService.setEnvironmentId(environmentId);
 			localStorage.setItem('mfa_environmentId', environmentId);
-			// Also save to CredentialsServiceV8 for MFAFlowBase to read
-			const currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
-				flowKey: 'mfa-flow-v8',
-				flowType: 'oidc',
-				includeClientSecret: false,
-				includeRedirectUri: false,
-				includeLogoutUri: false,
-				includeScopes: false,
-			});
-			CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
-				...currentCreds,
-				environmentId,
-			});
+			
+			// Save to enhanced storage with IndexedDB + SQLite backup
+			const saveEnhancedStorage = async () => {
+				try {
+					await UnifiedOAuthCredentialsServiceV8U.saveSharedCredentials({
+						environmentId,
+					}, {
+						environmentId,
+						enableBackup: !!environmentId,
+						backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
+					});
+					console.log('[UNIFIED-MFA] Environment ID saved to enhanced storage');
+				} catch (error) {
+					console.warn('[UNIFIED-MFA] Enhanced storage failed, using fallback', error);
+					// Fallback to CredentialsServiceV8
+					const currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+						flowKey: 'mfa-flow-v8',
+						flowType: 'oidc',
+						includeClientSecret: false,
+						includeEnvironmentId: true,
+						includeLogoutUri: false,
+						includeScopes: false,
+					});
+					CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
+						...currentCreds,
+						environmentId,
+					});
+				}
+			};
+			
+			saveEnhancedStorage();
 
 			// Dispatch credential update event for other components (like device management)
 			window.dispatchEvent(
@@ -366,25 +386,44 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		}
 	}, [environmentId]);
 
-	// Save username to localStorage and CredentialsServiceV8 when it changes
-	// This ensures MFAFlowBase can read the username from its expected storage location
+	// Save username to enhanced storage when it changes
+	// This ensures MFAFlowBase can read the username from enhanced storage
 	useEffect(() => {
 		if (username) {
 			localStorage.setItem('mfa_unified_username', username);
 			localStorage.setItem('mfa_username', username);
-			// Also save to CredentialsServiceV8 for MFAFlowBase to read
-			const currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
-				flowKey: 'mfa-flow-v8',
-				flowType: 'oidc',
-				includeClientSecret: false,
-				includeRedirectUri: false,
-				includeLogoutUri: false,
-				includeScopes: false,
-			});
-			CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
-				...currentCreds,
-				username,
-			});
+			
+			// Save to enhanced storage with IndexedDB + SQLite backup
+			const saveEnhancedStorage = async () => {
+				try {
+					await UnifiedOAuthCredentialsServiceV8U.saveSharedCredentials({
+						username,
+						environmentId,
+					}, {
+						environmentId,
+						enableBackup: !!environmentId,
+						backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
+					});
+					console.log('[UNIFIED-MFA] Username saved to enhanced storage');
+				} catch (error) {
+					console.warn('[UNIFIED-MFA] Enhanced storage failed, using fallback', error);
+					// Fallback to CredentialsServiceV8
+					const currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+						flowKey: 'mfa-flow-v8',
+						flowType: 'oidc',
+						includeClientSecret: false,
+						includeEnvironmentId: true,
+						includeLogoutUri: false,
+						includeScopes: false,
+					});
+					CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
+						...currentCreds,
+						username,
+					});
+				}
+			};
+			
+			saveEnhancedStorage();
 
 			// Dispatch credential update event for other components (like device management)
 			window.dispatchEvent(
@@ -1021,15 +1060,20 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							>
 								Username
 							</label>
-							{environmentId && tokenStatus.isValid ? (
+							{environmentId ? (
 								<SearchableDropdownV8
 									id="username"
 									value={username}
 									options={userOptions}
 									onChange={setUsername}
-									placeholder="Type to search across 16,000+ users..."
+									placeholder={tokenStatus.isValid ? "Type to search across 16,000+ users..." : "Enter username or configure worker token for search..."}
 									isLoading={isLoadingUsers}
 									onSearchChange={setSearchQuery}
+									disabled={!tokenStatus.isValid}
+									style={{
+										opacity: tokenStatus.isValid ? 1 : 0.6,
+										borderColor: tokenStatus.isValid ? '#d1d5db' : '#fbbf24',
+									}}
 								/>
 							) : (
 								<input
@@ -1843,6 +1887,54 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				<p style={{ margin: 0, fontSize: '15px', color: 'rgba(255, 255, 255, 0.9)' }}>
 					Select a device type to register for {username || 'the user'}
 				</p>
+			</div>
+
+			{/* Restart Flow Button - Centered */}
+			<div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+				<button
+					type="button"
+					onClick={() => {
+						const confirmed = window.confirm('Are you sure you want to restart the flow? All progress will be lost.');
+						if (confirmed) {
+							// Clear all storage
+							sessionStorage.removeItem('mfa-flow-v8');
+							sessionStorage.removeItem('mfa_oauth_callback_step');
+							sessionStorage.removeItem('mfa_oauth_callback_timestamp');
+							sessionStorage.removeItem('mfa_target_step_after_callback');
+							localStorage.removeItem('mfa-flow-v8');
+							
+							// Reload the page to ensure complete reset
+							window.location.reload();
+						}
+					}}
+					style={{
+						background: 'rgba(16, 185, 129, 0.1)',
+						border: '1px solid #10b981',
+						color: '#047857',
+						padding: '10px 20px',
+						borderRadius: '8px',
+						cursor: 'pointer',
+						fontSize: '14px',
+						fontWeight: '500',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '8px',
+						transition: 'all 0.2s ease',
+					}}
+					onMouseEnter={(e) => {
+						e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)';
+						e.currentTarget.style.borderColor = '#047857';
+						e.currentTarget.style.transform = 'translateY(-1px)';
+					}}
+					onMouseLeave={(e) => {
+						e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
+						e.currentTarget.style.borderColor = '#10b981';
+						e.currentTarget.style.transform = 'translateY(0)';
+					}}
+					title="Restart the flow from the beginning"
+				>
+					🔄 Restart Flow
+				</button>
 			</div>
 
 			{/* Device Type Cards */}
