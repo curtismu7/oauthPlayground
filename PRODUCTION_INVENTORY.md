@@ -219,7 +219,88 @@ grep "pingOneFetch" src/services/environmentServiceV8.ts && echo "✅ USING PROX
 
 ---
 
-### **�🚨 Menu Structure Prevention Commands**
+### **🚨 Automated Regression Prevention System**
+
+#### **🔧 Two-Layer Defense: Static + Dynamic**
+
+**Layer 1: Static Inventory Checks**
+- Scans code for known regression patterns
+- Validates inventory file consistency  
+- Prevents known issues from reoccurring
+- Runs in ~30 seconds
+
+**Layer 2: Dynamic Golden-Path Tests**
+- Tests actual user journeys in browser
+- Catches unknown regressions (UI breaks, flow issues)
+- Validates end-to-end functionality
+- Runs in ~2-3 minutes
+
+#### **🧪 Playwright Golden-Path Tests**
+
+**Coverage: 10 Critical Tests**
+1. **GP-01**: Application loads and navigation works
+2. **GP-02**: Production menu items accessible
+3. **GP-03**: Environment Management null safety
+4. **GP-04**: MFA flows accessible
+5. **GP-05**: OAuth flows accessible  
+6. **GP-06**: Token Monitoring functionality
+7. **GP-07**: API Status page works
+8. **GP-08**: No JavaScript console errors
+9. **GP-09**: Configuration forms safe
+10. **GP-10**: Mobile responsive design
+
+**Test Focus: USER-VISIBLE OUTCOMES**
+- ✅ Pages load without crashing
+- ✅ Navigation works correctly
+- ✅ Forms are safe to interact with
+- ✅ No JavaScript errors
+- ✅ Mobile experience works
+- ❌ Implementation details (not tested)
+
+#### **🚀 CI Integration**
+
+**Complete Pipeline:**
+```bash
+# 1. Static inventory checks (catch known regressions)
+./scripts/comprehensive-inventory-check.sh
+
+# 2. Dynamic golden-path tests (catch unknown regressions)  
+# Automatically runs after inventory checks
+npx playwright test e2e/tests/golden-path-flows.spec.ts
+
+# 3. Both must pass for PR to merge
+```
+
+**Exit Codes:**
+- `0`: All checks passed ✅
+- `1`: Static regression detected OR Dynamic regression detected ❌
+
+#### **🔍 Prevention Commands**
+
+**Playwright Test Verification:**
+```bash
+# Run golden-path tests locally
+npx playwright test e2e/tests/golden-path-flows.spec.ts
+
+# Check test coverage
+npx playwright test --list e2e/tests/golden-path-flows.spec.ts
+
+# Run with debugging
+npx playwright test e2e/tests/golden-path-flows.spec.ts --debug
+```
+
+**CI Pipeline Testing:**
+```bash
+# Test complete CI pipeline locally
+./scripts/comprehensive-inventory-check.sh
+
+# Verify Playwright integration
+grep -A 10 "PLAYWRIGHT GOLDEN-PATH TESTS" scripts/comprehensive-inventory-check.sh
+```
+
+---
+
+### **🚨 Menu Structure Prevention Commands**
 
 #### **🔍 Comprehensive Menu Verification**
 ```bash

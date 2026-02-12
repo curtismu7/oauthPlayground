@@ -1,8 +1,24 @@
 # Unified OAuth Inventory
 
-**Last Updated**: February 11, 2026  
+**Last Updated**: February 12, 2026  
 **Total Issues**: 6  
 **Purpose**: Track OAuth-specific issues, prevent regressions, and maintain SWE-15 compliance
+
+---
+
+## 🔎 Quick Links (Start here when testing a change)
+
+- **Issues Table** — Jump to all OAuth-specific issues and their status
+- **Issue OAUTH-001** — ID Token Local Validation CORS Issues (Critical)
+- **Issue OAUTH-002** — Unified OAuth Flow Architecture Inventory
+- **Issue OAUTH-003** — API Documentation Duplicate Calls
+- **Issue OAUTH-004** — Token Monitoring User Token Tracking
+- **Issue OAUTH-005** — OAuth App Login Hint UX Consistency
+- **Issue OAUTH-006** — OAuth Flow Body JSON Reader
+- **Enhanced Prevention Commands** — Copy/paste checks for OAuth regressions
+- **Automated Inventory Gate** — CI integration and verification
+
+> Tip: Use your editor's outline/sidebar view and search for the exact headings above.
 
 ---
 
@@ -572,7 +588,130 @@ echo "🎯 OAUTH CALLBACK DISPLAY CHECKS COMPLETE"
 
 ---
 
-## 🔧 Development Guidelines
+## � Enhanced Prevention Commands
+
+### 🔍 OAuth-Specific Regression Prevention
+
+```bash
+# === CRITICAL OAUTH PREVENTION COMMANDS ===
+
+# 1. Check for direct PingOne calls (CORS Issues - OAUTH-001)
+echo "=== Checking Direct PingOne Calls ==="
+grep -rn "auth\.pingone\.com" src/ --include="*.tsx" --include="*.ts" --include="*.js" && echo "❌ DIRECT PINGONE CALLS FOUND" || echo "✅ NO DIRECT CALLS"
+
+# 2. Verify JWKS proxy usage
+echo "=== Checking JWKS Proxy Usage ==="
+grep -rn "/api/jwks" src/ --include="*.tsx" --include="*.ts" | head -5
+grep -rn "\.well-known/jwks\.json" src/ --include="*.tsx" --include="*.ts" && echo "❌ DIRECT JWKS CALLS FOUND" || echo "✅ USING PROXY"
+
+# 3. Check OAuth callback handling
+echo "=== Checking OAuth Callback Handling ==="
+grep -rn "oauth.*callback\|callback.*handler" src/v8u/ --include="*.tsx" --include="*.ts" | head -5
+
+# 4. Verify token monitoring integration
+echo "=== Checking Token Monitoring Integration ==="
+grep -rn "TokenMonitoringService.*addOAuthTokens" src/v8u/ --include="*.tsx" --include="*.ts" && echo "✅ TOKEN MONITORING INTEGRATION FOUND" || echo "❌ MISSING TOKEN MONITORING"
+
+# 5. Check UserSearchDropdown usage for login hints
+echo "=== Checking UserSearchDropdown Usage ==="
+grep -rn "UserSearchDropdownV8" src/v8/ --include="*.tsx" --include="*.ts" | head -5
+grep -rn "loginHint.*input\|login.*hint.*text" src/v8/ --include="*.tsx" --include="*.ts" && echo "❌ TEXT INPUT LOGIN HINT FOUND" || echo "✅ USING DROPDOWN"
+
+# 6. Verify JSON reader usage for callback display
+echo "=== Checking JSON Reader Usage ==="
+grep -rn "JsonReaderV8\|JSON.*Reader" src/v8u/components/ --include="*.tsx" --include="*.ts" && echo "✅ JSON READER FOUND" || echo "❌ NO JSON READER FOUND"
+
+echo "🎯 OAUTH PREVENTION CHECKS COMPLETE"
+```
+
+### 🧪 Playwright Golden-Path OAuth Tests
+
+```bash
+# Run OAuth-specific golden-path tests
+npx playwright test e2e/tests/golden-path-flows.spec.ts --grep "GP-05.*OAuth"
+
+# Check OAuth flow accessibility
+npx playwright test e2e/tests/golden-path-flows.spec.ts --grep "GP-05"
+
+# Run all golden-path tests (includes OAuth coverage)
+npx playwright test e2e/tests/golden-path-flows.spec.ts
+```
+
+---
+
+## 🚀 Automated Inventory Gate
+
+### 🔧 CI Integration for OAuth Regression Prevention
+
+**When to Run:**
+- ✅ **Before every commit** (local development)
+- ✅ **In CI on every PR** (automated)
+- ✅ **Before releases** (quality gate)
+
+**What It Checks:**
+1. **Static Analysis**: OAuth-specific patterns and known issues
+2. **Dynamic Testing**: OAuth flow accessibility and functionality
+3. **Integration**: Token monitoring and callback handling
+
+**Exit Codes:**
+- `0`: All OAuth checks passed ✅
+- `1`: OAuth regression detected ❌
+
+### 📋 Automated Gate Commands
+
+```bash
+# === COMPLETE OAUTH REGRESSION PREVENTION ===
+
+# 1. Run full inventory gate (includes OAuth checks)
+./scripts/comprehensive-inventory-check.sh
+
+# 2. Run only OAuth-specific checks
+echo "=== OAUTH-SPECIFIC REGRESSION CHECKS ==="
+
+# Check for CORS issues (OAUTH-001)
+if grep -rn "auth\.pingone\.com" src/ --include="*.tsx" --include="*.ts" --include="*.js"; then
+  echo "❌ OAUTH-001: Direct PingOne calls detected (CORS issues)"
+  exit 1
+fi
+
+# Check JWKS proxy usage
+if ! grep -rn "/api/jwks" src/ --include="*.tsx" --include="*.ts" | head -1; then
+  echo "❌ OAUTH-001: JWKS proxy not being used"
+  exit 1
+fi
+
+# Check token monitoring integration
+if ! grep -rn "TokenMonitoringService.*addOAuthTokens" src/v8u/ --include="*.tsx" --include="*.ts" | head -1; then
+  echo "⚠️  OAUTH-004: Token monitoring integration missing"
+fi
+
+echo "✅ OAUTH STATIC CHECKS PASSED"
+
+# 3. Run OAuth golden-path tests
+npx playwright test e2e/tests/golden-path-flows.spec.ts --grep "GP-05.*OAuth" || {
+  echo "❌ OAUTH GOLDEN-PATH TESTS FAILED"
+  exit 1
+}
+
+echo "🎯 OAUTH REGRESSION PREVENTION COMPLETE"
+```
+
+### 🔍 Verification Commands
+
+```bash
+# Verify OAuth gate integration
+grep -A 10 "PLAYWRIGHT GOLDEN-PATH TESTS" scripts/comprehensive-inventory-check.sh
+
+# Check OAuth-specific test coverage
+npx playwright test --list e2e/tests/golden-path-flows.spec.ts | grep -i oauth
+
+# Verify OAuth issues are documented
+grep -c "OAUTH-[0-9]" UNIFIED_OAUTH_INVENTORY.md
+```
+
+---
+
+## �🔧 Development Guidelines
 
 ### OAuth Component Development Rules
 
@@ -581,6 +720,9 @@ echo "🎯 OAUTH CALLBACK DISPLAY CHECKS COMPLETE"
 3. **Test with Mocks**: Use mocked JWKS in unit tests, not real PingOne URLs
 4. **Error Handling**: Handle proxy errors gracefully, not CORS errors
 5. **Environment Variables**: Use environment-specific configurations, not hardcoded URLs
+6. **Token Monitoring**: Always add OAuth tokens to monitoring after successful exchange
+7. **UX Consistency**: Use UserSearchDropdownV8 for user selection, not text inputs
+8. **JSON Display**: Use JsonReaderV8 for callback data, not basic text displays
 6. **Use UserSearchDropdownV8**: Always use searchable dropdown for login hint fields, not text inputs
 7. **Use JSON Reader**: Always use structured JSON reader for callback data display, not basic text boxes
 
