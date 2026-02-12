@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext, useReducer } from 'react';
 
 // Types
 export interface ProtectPortalState {
@@ -65,7 +65,7 @@ const initialState: ProtectPortalState = {
 	version: '1.0.0',
 	isInitialized: false,
 	configuration: {
-		apiBaseUrl: process.env.REACT_APP_API_BASE_URL || 'https://api.pingone.com',
+		apiBaseUrl: process.env.REACT_APP_API_BASE_URL || '/api/pingone',
 		environmentId: process.env.REACT_APP_ENVIRONMENT_ID || '',
 		region: process.env.REACT_APP_REGION || 'us',
 		features: {
@@ -127,13 +127,13 @@ const protectPortalReducer = (
 		case 'REMOVE_NOTIFICATION':
 			return {
 				...state,
-				notifications: state.notifications.filter(n => n.id !== action.payload),
+				notifications: state.notifications.filter((n) => n.id !== action.payload),
 			};
 
 		case 'MARK_NOTIFICATION_READ':
 			return {
 				...state,
-				notifications: state.notifications.map(n =>
+				notifications: state.notifications.map((n) =>
 					n.id === action.payload ? { ...n, read: true } : n
 				),
 			};
@@ -150,7 +150,7 @@ const protectPortalReducer = (
 					global: Object.values({
 						...state.loading.components,
 						[action.payload.component]: action.payload.isLoading,
-					}).some(isLoading => isLoading),
+					}).some((isLoading) => isLoading),
 				},
 			};
 
@@ -203,11 +203,7 @@ export const ProtectPortalProvider: React.FC<{ children: ReactNode }> = ({ child
 		updateConfiguration,
 	};
 
-	return (
-		<ProtectPortalContext.Provider value={value}>
-			{children}
-		</ProtectPortalContext.Provider>
-	);
+	return <ProtectPortalContext.Provider value={value}>{children}</ProtectPortalContext.Provider>;
 };
 
 // Hook

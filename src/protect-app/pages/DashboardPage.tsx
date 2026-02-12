@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useTheme } from '../contexts/ThemeContext';
-import { useRisk } from '../contexts/RiskContext';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useEffect, useState } from 'react';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { QuickActions } from '../components/dashboard/QuickActions';
+import { RecentEvaluations } from '../components/dashboard/RecentEvaluations';
 import { RiskScoreCard } from '../components/dashboard/RiskScoreCard';
 import { RiskTrendsChart } from '../components/dashboard/RiskTrendsChart';
-import { RecentEvaluations } from '../components/dashboard/RecentEvaluations';
 import { SecurityAlerts } from '../components/dashboard/SecurityAlerts';
-import { QuickActions } from '../components/dashboard/QuickActions';
 import { SystemHealth } from '../components/dashboard/SystemHealth';
+import { useAuth } from '../contexts/AuthContext';
+import { useRisk } from '../contexts/RiskContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 /**
  * Dashboard Page
- * 
+ *
  * Main dashboard showing:
  * - Current risk score overview
  * - Risk trends and analytics
@@ -105,16 +105,10 @@ export const DashboardPage: React.FC = () => {
 			{/* Header */}
 			<div className="flex items-center justify-between">
 				<div>
-					<h1 
-						className="text-3xl font-bold"
-						style={{ color: currentTheme.colors.text }}
-					>
+					<h1 className="text-3xl font-bold" style={{ color: currentTheme.colors.text }}>
 						Security Dashboard
 					</h1>
-					<p 
-						className="text-lg mt-1"
-						style={{ color: currentTheme.colors.textSecondary }}
-					>
+					<p className="text-lg mt-1" style={{ color: currentTheme.colors.textSecondary }}>
 						Welcome back, {authState.user?.firstName || 'User'}! Here's your security overview.
 					</p>
 				</div>
@@ -140,9 +134,7 @@ export const DashboardPage: React.FC = () => {
 			</div>
 
 			{/* Risk Score Overview */}
-			{currentEvaluation && (
-				<RiskScoreCard evaluation={currentEvaluation} />
-			)}
+			{currentEvaluation && <RiskScoreCard evaluation={currentEvaluation} />}
 
 			{/* Main Dashboard Grid */}
 			<div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -168,10 +160,7 @@ export const DashboardPage: React.FC = () => {
 			{riskState.isLoading && !currentEvaluation && (
 				<div className="flex flex-col items-center justify-center py-12">
 					<LoadingSpinner size="lg" />
-					<p 
-						className="mt-4 text-lg"
-						style={{ color: currentTheme.colors.textSecondary }}
-					>
+					<p className="mt-4 text-lg" style={{ color: currentTheme.colors.textSecondary }}>
 						Loading security data...
 					</p>
 				</div>
@@ -179,7 +168,7 @@ export const DashboardPage: React.FC = () => {
 
 			{/* Error State */}
 			{riskState.error && (
-				<div 
+				<div
 					className="p-6 rounded-lg border"
 					style={{
 						backgroundColor: `${currentTheme.colors.error}10`,
@@ -189,16 +178,10 @@ export const DashboardPage: React.FC = () => {
 					<div className="flex items-center space-x-3">
 						<div className="text-2xl">🚨</div>
 						<div>
-							<h3 
-								className="font-semibold"
-								style={{ color: currentTheme.colors.error }}
-							>
+							<h3 className="font-semibold" style={{ color: currentTheme.colors.error }}>
 								Error Loading Data
 							</h3>
-							<p 
-								className="text-sm mt-1"
-								style={{ color: currentTheme.colors.textSecondary }}
-							>
+							<p className="text-sm mt-1" style={{ color: currentTheme.colors.textSecondary }}>
 								{riskState.error}
 							</p>
 						</div>

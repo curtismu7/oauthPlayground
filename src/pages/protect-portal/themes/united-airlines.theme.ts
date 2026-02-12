@@ -22,14 +22,14 @@ export const unitedAirlinesTheme: BrandTheme = {
 		text: 'UNITED',
 		colors: {
 			united: '#0033A0',
-			globe: '#FF6600'
-		}
+			globe: '#FF6600',
+		},
 	},
 	colors: {
 		primary: '#0033A0', // United Blue (official brand color)
 		secondary: '#FFFFFF', // White
 		accent: '#FF6600', // United Orange (official accent color)
-		background: 'linear-gradient(180deg, #0033A0 0%, #002880 30%, #FFFFFF 100%)',
+		background: '#FFFFFF', // Changed to solid white for Protect app
 		surface: '#FFFFFF',
 		text: '#1F2937',
 		textSecondary: '#6B7280',

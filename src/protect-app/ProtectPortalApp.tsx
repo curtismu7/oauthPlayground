@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { LoadingSpinner } from './components/common/LoadingSpinner';
+import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectPortalProvider } from './contexts/ProtectPortalContext';
 import { RiskProvider } from './contexts/RiskContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-
-import { ErrorBoundary } from './components/common/ErrorBoundary';
-import { LoadingSpinner } from './components/common/LoadingSpinner';
-import { ProtectedRoute } from './components/common/ProtectedRoute';
 
 import { AuthLayout } from './layouts/AuthLayout';
 import { MainLayout } from './layouts/MainLayout';
@@ -23,7 +21,7 @@ import { UserManagementPage } from './pages/UserManagementPage';
 
 /**
  * Main Protect Portal Application
- * 
+ *
  * Features:
  * - Advanced risk evaluation with PingOne Protect API
  * - Real-time security monitoring and alerting
@@ -43,7 +41,7 @@ export const ProtectPortalApp: React.FC = () => {
 				// Load application configuration
 				// Initialize services
 				// Check authentication status
-				await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate initialization
+				await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate initialization
 				setIsLoading(false);
 			} catch (error) {
 				console.error('Failed to initialize Protect Portal:', error);
@@ -73,7 +71,7 @@ export const ProtectPortalApp: React.FC = () => {
 					<div className="text-6xl mb-4">🚨</div>
 					<h1 className="text-2xl font-bold text-red-600 mb-2">Initialization Failed</h1>
 					<p className="text-gray-600 mb-4">Unable to start the Protect Portal application.</p>
-					<button 
+					<button
 						type="button"
 						onClick={() => window.location.reload()}
 						className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
@@ -93,18 +91,24 @@ export const ProtectPortalApp: React.FC = () => {
 						<ProtectPortalProvider>
 							<Routes>
 								{/* Public Routes */}
-								<Route path="/login" element={
-									<AuthLayout>
-										<LoginPage />
-									</AuthLayout>
-								} />
+								<Route
+									path="/login"
+									element={
+										<AuthLayout>
+											<LoginPage />
+										</AuthLayout>
+									}
+								/>
 
 								{/* Protected Routes */}
-								<Route path="/" element={
-									<ProtectedRoute>
-										<MainLayout />
-									</ProtectedRoute>
-								}>
+								<Route
+									path="/"
+									element={
+										<ProtectedRoute>
+											<MainLayout />
+										</ProtectedRoute>
+									}
+								>
 									<Route index element={<Navigate to="/dashboard" replace />} />
 									<Route path="dashboard" element={<DashboardPage />} />
 									<Route path="risk-evaluation" element={<RiskEvaluationPage />} />

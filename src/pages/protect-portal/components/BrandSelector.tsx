@@ -11,8 +11,8 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import { useBrandTheme } from '../themes/theme-provider';
 import type { BrandSelectorProps } from '../themes/brand-theme.interface';
+import { useBrandTheme } from '../themes/theme-provider';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -110,15 +110,12 @@ const BrandDescription = styled.span<{ compact?: boolean }>`
 // COMPONENT
 // ============================================================================
 
-export const BrandSelector: React.FC<BrandSelectorProps> = ({ 
-	onThemeChange, 
-	compact = false 
-}) => {
+export const BrandSelector: React.FC<BrandSelectorProps> = ({ onThemeChange, compact = false }) => {
 	const { activeTheme, switchTheme, availableThemes, isTransitioning } = useBrandTheme();
 
 	const handleThemeSelect = (themeName: string) => {
 		if (isTransitioning) return;
-		
+
 		const theme = availableThemes.find((t) => t.name === themeName);
 		if (theme) {
 			switchTheme(themeName);
@@ -129,7 +126,7 @@ export const BrandSelector: React.FC<BrandSelectorProps> = ({
 	return (
 		<SelectorContainer compact={compact}>
 			{!compact && <SelectorTitle>Select Corporate Brand</SelectorTitle>}
-			
+
 			<BrandGrid compact={compact}>
 				{availableThemes.map((theme) => (
 					<BrandOption

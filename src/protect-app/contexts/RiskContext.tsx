@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext, useReducer } from 'react';
 
 // Risk Evaluation Types
 export interface RiskScore {
@@ -187,11 +187,11 @@ const initialState: RiskState = {
 class RiskEvaluationService {
 	static async evaluateRisk(userId: string, context: EvaluationContext): Promise<RiskEvaluation> {
 		// Simulate API call
-		await new Promise(resolve => setTimeout(resolve, 1500));
+		await new Promise((resolve) => setTimeout(resolve, 1500));
 
 		// Generate mock risk evaluation
 		const randomScore = Math.floor(Math.random() * 100);
-		const level = this.getRiskLevel(randomScore);
+		const level = RiskEvaluationService.getRiskLevel(randomScore);
 
 		const evaluation: RiskEvaluation = {
 			id: `eval_${Date.now()}`,
@@ -201,11 +201,11 @@ class RiskEvaluationService {
 				value: randomScore,
 				level,
 				confidence: 85 + Math.floor(Math.random() * 15),
-				factors: this.generateRiskFactors(),
+				factors: RiskEvaluationService.generateRiskFactors(),
 				timestamp: new Date(),
 			},
-			signals: this.generateRiskSignals(context),
-			recommendations: this.generateRecommendations(level),
+			signals: RiskEvaluationService.generateRiskSignals(context),
+			recommendations: RiskEvaluationService.generateRecommendations(level),
 			evaluationContext: context,
 			createdAt: new Date(),
 			updatedAt: new Date(),
@@ -293,7 +293,9 @@ class RiskEvaluationService {
 		];
 	}
 
-	private static generateRecommendations(level: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'): Recommendation[] {
+	private static generateRecommendations(
+		level: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+	): Recommendation[] {
 		const baseRecommendations: Recommendation[] = [
 			{
 				id: 'monitor_session',
@@ -351,27 +353,29 @@ class RiskEvaluationService {
 
 	static async getEvaluationHistory(userId: string, limit: number = 50): Promise<RiskEvaluation[]> {
 		// Simulate API call
-		await new Promise(resolve => setTimeout(resolve, 500));
+		await new Promise((resolve) => setTimeout(resolve, 500));
 
 		// Generate mock history
 		const history: RiskEvaluation[] = [];
 		for (let i = 0; i < Math.min(limit, 20); i++) {
-			const timestamp = new Date(Date.now() - (i * 24 * 60 * 60 * 1000)); // Last 20 days
+			const timestamp = new Date(Date.now() - i * 24 * 60 * 60 * 1000); // Last 20 days
 			const score = Math.floor(Math.random() * 100);
-			
+
 			history.push({
 				id: `eval_${timestamp.getTime()}`,
 				userId,
 				sessionId: `session_${timestamp.getTime()}`,
 				score: {
 					value: score,
-					level: this.getRiskLevel(score),
+					level: RiskEvaluationService.getRiskLevel(score),
 					confidence: 85 + Math.floor(Math.random() * 15),
-					factors: this.generateRiskFactors(),
+					factors: RiskEvaluationService.generateRiskFactors(),
 					timestamp,
 				},
-				signals: this.generateRiskSignals({} as EvaluationContext),
-				recommendations: this.generateRecommendations(this.getRiskLevel(score)),
+				signals: RiskEvaluationService.generateRiskSignals({} as EvaluationContext),
+				recommendations: RiskEvaluationService.generateRecommendations(
+					RiskEvaluationService.getRiskLevel(score)
+				),
 				evaluationContext: {} as EvaluationContext,
 				createdAt: timestamp,
 				updatedAt: timestamp,
@@ -423,10 +427,10 @@ const riskReducer = (state: RiskState, action: RiskAction): RiskState => {
 		case 'UPDATE_EVALUATION':
 			return {
 				...state,
-				evaluations: state.evaluations.map(eval =>
-					eval.id === action.payload.id
-						? { ...eval, ...action.payload.updates, updatedAt: new Date() }
-						: eval
+				evaluations: state.evaluations.map((evaluation) =>
+					evaluation.id === action.payload.id
+						? { ...evaluation, ...action.payload.updates, updatedAt: new Date() }
+						: evaluation
 				),
 				currentEvaluation:
 					state.currentEvaluation?.id === action.payload.id
@@ -483,7 +487,10 @@ export const RiskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 	const [state, dispatch] = useReducer(riskReducer, initialState);
 
 	// Methods
-	const evaluateRisk = async (userId: string, context: EvaluationContext): Promise<RiskEvaluation> => {
+	const evaluateRisk = async (
+		userId: string,
+		context: EvaluationContext
+	): Promise<RiskEvaluation> => {
 		dispatch({ type: 'EVALUATE_RISK_START' });
 
 		try {
@@ -501,7 +508,10 @@ export const RiskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		return state.currentEvaluation;
 	};
 
-	const getEvaluationHistory = async (userId: string, limit?: number): Promise<RiskEvaluation[]> => {
+	const getEvaluationHistory = async (
+		userId: string,
+		limit?: number
+	): Promise<RiskEvaluation[]> => {
 		try {
 			const history = await RiskEvaluationService.getEvaluationHistory(userId, limit);
 			return history;
@@ -522,15 +532,17 @@ export const RiskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 	const exportEvaluationData = async (format: 'json' | 'csv' | 'pdf'): Promise<Blob> => {
 		// Mock export functionality
 		const data = JSON.stringify(state.evaluations, null, 2);
-		return new Blob([data], { type: 'application/json' });
+		const mimeType =
+			format === 'json' ? 'application/json' : format === 'csv' ? 'text/csv' : 'application/pdf';
+		return new Blob([data], { type: mimeType });
 	};
 
 	const getRiskInsights = (): RiskInsights => {
 		// Generate insights from evaluations
 		const factorFrequency = new Map<string, { count: number; totalImpact: number }>();
-		
-		state.evaluations.forEach(eval => {
-			eval.score.factors.forEach(factor => {
+
+		state.evaluations.forEach((evaluation) => {
+			evaluation.score.factors.forEach((factor) => {
 				const existing = factorFrequency.get(factor.id) || { count: 0, totalImpact: 0 };
 				factorFrequency.set(factor.id, {
 					count: existing.count + 1,
@@ -541,20 +553,22 @@ export const RiskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 		const topRiskFactors = Array.from(factorFrequency.entries())
 			.map(([factorId, data]) => {
-				const factor = state.evaluations[0]?.score.factors.find(f => f.id === factorId);
-				return factor ? {
-					factor,
-					frequency: data.count,
-					averageImpact: data.totalImpact / data.count,
-				} : null;
+				const factor = state.evaluations[0]?.score.factors.find((f) => f.id === factorId);
+				return factor
+					? {
+							factor,
+							frequency: data.count,
+							averageImpact: data.totalImpact / data.count,
+						}
+					: null;
 			})
 			.filter(Boolean)
 			.sort((a, b) => b!.frequency - a!.frequency)
 			.slice(0, 5) as Array<{
-				factor: RiskFactor;
-				frequency: number;
-				averageImpact: number;
-			}>;
+			factor: RiskFactor;
+			frequency: number;
+			averageImpact: number;
+		}>;
 
 		return {
 			topRiskFactors,

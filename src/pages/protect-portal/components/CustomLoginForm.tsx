@@ -10,45 +10,16 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-	FiAlertTriangle,
-	FiEye,
-	FiEyeOff,
-	FiLock as FiLockIcon,
-	FiUser,
-} from 'react-icons/fi';
+import { FiAlertTriangle, FiEye, FiEyeOff, FiLock as FiLockIcon, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
-import CompanyLogoHeader from './CompanyLogoHeader';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
+import PortalPageLayout, { PortalPageSection } from './PortalPageLayout';
 
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================
-
-const LoginFormContainer = styled.div`
-  width: 100%;
-  max-width: 500px;
-`;
-
-const FormTitle = styled.h2`
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: var(--brand-text);
-  margin: 0 0 1rem 0;
-  text-align: center;
-  font-family: var(--brand-heading-font);
-`;
-
-const FormDescription = styled.p`
-  font-size: 1rem;
-  color: var(--brand-text-secondary);
-  margin: 0 0 2rem 0;
-  text-align: center;
-  line-height: 1.6;
-  font-family: var(--brand-body-font);
-`;
 
 const LoginForm = styled.form`
   display: flex;
@@ -323,7 +294,9 @@ const CustomLoginForm: React.FC<CustomLoginFormProps> = ({
 					? PingOneLoginService.extractUserFromIdToken(id_token)
 					: {
 							id: formData.username,
-							email: formData.username.includes('@') ? formData.username : `${formData.username}@example.com`,
+							email: formData.username.includes('@')
+								? formData.username
+								: `${formData.username}@example.com`,
 							name: formData.username.charAt(0).toUpperCase() + formData.username.slice(1),
 							username: formData.username,
 							type: 'PING_ONE' as const,
@@ -395,14 +368,11 @@ const CustomLoginForm: React.FC<CustomLoginFormProps> = ({
 	// ============================================================================
 
 	return (
-		<>
-			<CompanyLogoHeader size="small" />
-			<LoginFormContainer>
-				<FormTitle>Secure Login</FormTitle>
-				<FormDescription>
-					Enter your credentials to begin the secure authentication process
-				</FormDescription>
-
+		<PortalPageLayout
+			title="Secure Login"
+			subtitle="Enter your credentials to begin the secure authentication process"
+		>
+			<PortalPageSection>
 				{error && (
 					<ErrorMessage>
 						<FiAlertTriangle />
@@ -410,92 +380,92 @@ const CustomLoginForm: React.FC<CustomLoginFormProps> = ({
 					</ErrorMessage>
 				)}
 
-			<LoginForm onSubmit={handleSubmit}>
-				<InputGroup>
-					<InputLabel htmlFor="username">Username or Email</InputLabel>
-					<InputWrapper>
-						<InputIcon>
-							<FiUser />
-						</InputIcon>
-						<StyledInput
-							id="username"
-							name="username"
-							type="text"
-							placeholder="Enter your username or email address"
-							value={formData.username}
-							onChange={handleInputChange}
-							hasIcon={true}
-							hasToggle={false}
-							required
-							disabled={isLoading}
-							autoComplete="username"
-						/>
-					</InputWrapper>
-				</InputGroup>
+				<LoginForm onSubmit={handleSubmit}>
+					<InputGroup>
+						<InputLabel htmlFor="username">Username or Email</InputLabel>
+						<InputWrapper>
+							<InputIcon>
+								<FiUser />
+							</InputIcon>
+							<StyledInput
+								id="username"
+								name="username"
+								type="text"
+								placeholder="Enter your username or email address"
+								value={formData.username}
+								onChange={handleInputChange}
+								hasIcon={true}
+								hasToggle={false}
+								required
+								disabled={isLoading}
+								autoComplete="username"
+							/>
+						</InputWrapper>
+					</InputGroup>
 
-				<InputGroup>
-					<InputLabel htmlFor="password">Password</InputLabel>
-					<InputWrapper>
-						<InputIcon>
-							<FiLockIcon />
-						</InputIcon>
-						<StyledInput
-							id="password"
-							name="password"
-							type={showPassword ? 'text' : 'password'}
-							placeholder="Enter your password"
-							value={formData.password}
-							onChange={handleInputChange}
-							hasIcon={true}
-							hasToggle={true}
-							required
-							disabled={isLoading}
-							autoComplete="current-password"
-						/>
-						<PasswordToggle
-							type="button"
-							onClick={handlePasswordToggle}
-							disabled={isLoading}
-							aria-label={showPassword ? 'Hide password' : 'Show password'}
-						>
-							{showPassword ? <FiEyeOff /> : <FiEye />}
-						</PasswordToggle>
-					</InputWrapper>
-				</InputGroup>
+					<InputGroup>
+						<InputLabel htmlFor="password">Password</InputLabel>
+						<InputWrapper>
+							<InputIcon>
+								<FiLockIcon />
+							</InputIcon>
+							<StyledInput
+								id="password"
+								name="password"
+								type={showPassword ? 'text' : 'password'}
+								placeholder="Enter your password"
+								value={formData.password}
+								onChange={handleInputChange}
+								hasIcon={true}
+								hasToggle={true}
+								required
+								disabled={isLoading}
+								autoComplete="current-password"
+							/>
+							<PasswordToggle
+								type="button"
+								onClick={handlePasswordToggle}
+								disabled={isLoading}
+								aria-label={showPassword ? 'Hide password' : 'Show password'}
+							>
+								{showPassword ? <FiEyeOff /> : <FiEye />}
+							</PasswordToggle>
+						</InputWrapper>
+					</InputGroup>
 
-				<ButtonSpinner
-					loading={isLoading}
-					loadingText="Authenticating..."
-					spinnerPosition="center"
-					spinnerSize={20}
-					disabled={!formData.username || !formData.password}
-					style={{
-						width: '100%',
-						padding: '0.875rem 1.5rem',
-						background: isLoading ? '#9ca3af' : '#1f2937',
-						color: 'white',
-						border: 'none',
-						borderRadius: '0.5rem',
-						fontSize: '1rem',
-						fontWeight: '600',
-						cursor: isLoading ? 'not-allowed' : 'pointer',
-						transition: 'all 0.2s ease',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						gap: '0.5rem',
-					}}
-				>
-					{!isLoading && (
-						<>
-							<FiLockIcon />
-							Sign In Securely
-						</>
-					)}
-				</ButtonSpinner>
-			</LoginForm>
-		</LoginFormContainer>
-		</>
+					<ButtonSpinner
+						loading={isLoading}
+						loadingText="Authenticating..."
+						spinnerPosition="center"
+						spinnerSize={20}
+						disabled={!formData.username || !formData.password}
+						style={{
+							width: '100%',
+							padding: '0.875rem 1.5rem',
+							background: isLoading ? '#9ca3af' : '#1f2937',
+							color: 'white',
+							border: 'none',
+							borderRadius: '0.5rem',
+							fontSize: '1rem',
+							fontWeight: '600',
+							cursor: isLoading ? 'not-allowed' : 'pointer',
+							transition: 'all 0.2s ease',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							gap: '0.5rem',
+						}}
+					>
+						{!isLoading && (
+							<>
+								<FiLockIcon />
+								Sign In Securely
+							</>
+						)}
+					</ButtonSpinner>
+				</LoginForm>
+			</PortalPageSection>
+		</PortalPageLayout>
 	);
 };
 

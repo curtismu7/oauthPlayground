@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { LoadingSpinner } from '../components/common/LoadingSpinner';
 
 /**
  * Login Page
- * 
+ *
  * Authentication page for user login.
  * Features email/password login with form validation.
  */
@@ -22,10 +22,10 @@ export const LoginPage: React.FC = () => {
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
-		setFormData(prev => ({ ...prev, [name]: value }));
+		setFormData((prev) => ({ ...prev, [name]: value }));
 		// Clear error when user starts typing
 		if (errors[name]) {
-			setErrors(prev => ({ ...prev, [name]: '' }));
+			setErrors((prev) => ({ ...prev, [name]: '' }));
 		}
 	};
 
@@ -50,7 +50,7 @@ export const LoginPage: React.FC = () => {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		
+
 		if (!validateForm()) return;
 
 		try {
@@ -62,20 +62,21 @@ export const LoginPage: React.FC = () => {
 			navigate('/dashboard');
 		} catch (error) {
 			console.error('Login failed:', error);
-			setErrors({ 
-				general: 'Login failed. Please check your credentials and try again.' 
+			setErrors({
+				general: 'Login failed. Please check your credentials and try again.',
 			});
 		}
 	};
 
 	return (
-		<div className="min-h-screen flex items-center justify-center"
+		<div
+			className="min-h-screen flex items-center justify-center"
 			style={{
 				background: `linear-gradient(135deg, ${currentTheme.colors.primary} 0%, ${currentTheme.colors.secondary} 100%)`,
 			}}
 		>
 			<div className="max-w-md w-full mx-4">
-				<div 
+				<div
 					className="bg-white rounded-xl shadow-2xl p-8"
 					style={{
 						boxShadow: currentTheme.shadows.xl,
@@ -83,13 +84,13 @@ export const LoginPage: React.FC = () => {
 				>
 					{/* Logo/Branding */}
 					<div className="text-center mb-8">
-						<div 
+						<div
 							className="inline-block p-4 rounded-full mb-4"
 							style={{
 								backgroundColor: `${currentTheme.colors.primary}10`,
 							}}
 						>
-							<div 
+							<div
 								className="text-3xl"
 								style={{
 									color: currentTheme.colors.primary,
@@ -98,7 +99,7 @@ export const LoginPage: React.FC = () => {
 								🛡️
 							</div>
 						</div>
-						<h2 
+						<h2
 							className="text-2xl font-bold"
 							style={{
 								color: currentTheme.colors.text,
@@ -106,7 +107,7 @@ export const LoginPage: React.FC = () => {
 						>
 							Sign In
 						</h2>
-						<p 
+						<p
 							className="text-sm mt-2"
 							style={{
 								color: currentTheme.colors.textSecondary,
@@ -120,7 +121,7 @@ export const LoginPage: React.FC = () => {
 					<form onSubmit={handleSubmit} className="space-y-6">
 						{/* Email Field */}
 						<div>
-							<label 
+							<label
 								htmlFor="email"
 								className="block text-sm font-medium mb-2"
 								style={{
@@ -145,7 +146,7 @@ export const LoginPage: React.FC = () => {
 								disabled={authState.isLoading}
 							/>
 							{errors.email && (
-								<p 
+								<p
 									className="mt-1 text-sm"
 									style={{
 										color: currentTheme.colors.error,
@@ -158,7 +159,7 @@ export const LoginPage: React.FC = () => {
 
 						{/* Password Field */}
 						<div>
-							<label 
+							<label
 								htmlFor="password"
 								className="block text-sm font-medium mb-2"
 								style={{
@@ -183,7 +184,7 @@ export const LoginPage: React.FC = () => {
 								disabled={authState.isLoading}
 							/>
 							{errors.password && (
-								<p 
+								<p
 									className="mt-1 text-sm"
 									style={{
 										color: currentTheme.colors.error,
@@ -196,7 +197,7 @@ export const LoginPage: React.FC = () => {
 
 						{/* General Error */}
 						{errors.general && (
-							<div 
+							<div
 								className="p-4 rounded-lg text-sm"
 								style={{
 									backgroundColor: `${currentTheme.colors.error}10`,
@@ -232,15 +233,15 @@ export const LoginPage: React.FC = () => {
 
 					{/* Footer Links */}
 					<div className="mt-6 text-center space-y-2">
-						<p 
+						<p
 							className="text-sm"
 							style={{
 								color: currentTheme.colors.textSecondary,
 							}}
 						>
 							Don't have an account?{' '}
-							<Link 
-								to="/register" 
+							<Link
+								to="/register"
 								className="font-medium hover:underline"
 								style={{
 									color: currentTheme.colors.primary,
@@ -249,14 +250,14 @@ export const LoginPage: React.FC = () => {
 								Sign up
 							</Link>
 						</p>
-						<p 
+						<p
 							className="text-sm"
 							style={{
 								color: currentTheme.colors.textSecondary,
 							}}
 						>
-							<Link 
-								to="/forgot-password" 
+							<Link
+								to="/forgot-password"
 								className="font-medium hover:underline"
 								style={{
 									color: currentTheme.colors.primary,

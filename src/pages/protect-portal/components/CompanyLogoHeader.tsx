@@ -69,59 +69,59 @@ const LogoImage = styled.img<{ width: string; height: string }>`
 // ============================================================================
 
 interface CompanyLogoHeaderProps {
-  className?: string;
-  showTagline?: boolean;
-  size?: 'small' | 'medium' | 'large';
+	className?: string;
+	showTagline?: boolean;
+	size?: 'small' | 'medium' | 'large';
 }
 
-const CompanyLogoHeader: React.FC<CompanyLogoHeaderProps> = ({ 
-  className,
-  showTagline = true,
-  size = 'medium'
+const CompanyLogoHeader: React.FC<CompanyLogoHeaderProps> = ({
+	className,
+	showTagline = true,
+	size = 'medium',
 }) => {
-  const { activeTheme } = useBrandTheme();
+	const { activeTheme } = useBrandTheme();
 
-  const getLogoSize = () => {
-    switch (size) {
-      case 'small':
-        return { width: '120px', height: '40px' };
-      case 'large':
-        return { width: '200px', height: '80px' };
-      default:
-        return { width: '160px', height: '60px' };
-    }
-  };
+	const getLogoSize = () => {
+		switch (size) {
+			case 'small':
+				return { width: '120px', height: '40px' };
+			case 'large':
+				return { width: '200px', height: '80px' };
+			default:
+				return { width: '160px', height: '60px' };
+		}
+	};
 
-  const logoSize = getLogoSize();
+	const logoSize = getLogoSize();
 
-  return (
-    <LogoHeaderContainer className={className}>
-      <LogoContent>
-        {activeTheme.logo.url ? (
-          <LogoImage 
-            src={activeTheme.logo.url}
-            alt={activeTheme.logo.alt}
-            width={logoSize.width}
-            height={logoSize.height}
-          />
-        ) : (
-          <TextLogo 
-            text={activeTheme.logo.text || activeTheme.displayName}
-            colors={activeTheme.logo.colors || {}}
-            width={logoSize.width}
-            height={logoSize.height}
-            alt={activeTheme.logo.alt}
-          />
-        )}
-        {showTagline && (
-          <LogoText>
-            <CompanyName>{activeTheme.displayName}</CompanyName>
-            <PortalTagline>Secure Employee Portal</PortalTagline>
-          </LogoText>
-        )}
-      </LogoContent>
-    </LogoHeaderContainer>
-  );
+	return (
+		<LogoHeaderContainer className={className}>
+			<LogoContent>
+				{activeTheme.logo.url ? (
+					<LogoImage
+						src={activeTheme.logo.url}
+						alt={activeTheme.logo.alt}
+						width={logoSize.width}
+						height={logoSize.height}
+					/>
+				) : (
+					<TextLogo
+						text={activeTheme.logo.text || activeTheme.displayName}
+						colors={activeTheme.logo.colors || {}}
+						width={logoSize.width}
+						height={logoSize.height}
+						alt={activeTheme.logo.alt}
+					/>
+				)}
+				{showTagline && (
+					<LogoText>
+						<CompanyName>{activeTheme.displayName}</CompanyName>
+						<PortalTagline>Secure Employee Portal</PortalTagline>
+					</LogoText>
+				)}
+			</LogoContent>
+		</LogoHeaderContainer>
+	);
 };
 
 export default CompanyLogoHeader;

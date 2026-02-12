@@ -250,7 +250,7 @@ export const MFADeviceList: React.FC<DeviceListProps> = ({
     const fetchDevices = async () => {
       try {
         const response = await fetch(
-          \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${userId}/devices\`,
+          \`/pingone-api/v1/environments/\${config.environmentId}/users/\${userId}/devices\`,
           {
             headers: {
               'Authorization': \`Bearer \${accessToken}\`,
@@ -341,7 +341,7 @@ export const MFAChallenge: React.FC<MFAChallengeProps> = ({
 
     try {
       const response = await fetch(
-        \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${userId}/devices/\${deviceId}/otp\`,
+        \`/pingone-api/v1/environments/\${config.environmentId}/users/\${userId}/devices/\${deviceId}/otp\`,
         {
           method: 'POST',
           headers: {
@@ -425,7 +425,7 @@ export const MFAVerification: React.FC<MFAVerificationProps> = ({
 
     try {
       const response = await fetch(
-        \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${userId}/devices/\${deviceId}/otp/verify\`,
+        \`/pingone-api/v1/environments/\${config.environmentId}/users/\${userId}/devices/\${deviceId}/otp/verify\`,
         {
           method: 'POST',
           headers: {
@@ -536,7 +536,7 @@ export const DeviceRegistration: React.FC<DeviceRegistrationProps> = ({
       }
 
       const response = await fetch(
-        \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${userId}/devices\`,
+        \`/pingone-api/v1/environments/\${config.environmentId}/users/\${userId}/devices\`,
         {
           method: 'POST',
           headers: {

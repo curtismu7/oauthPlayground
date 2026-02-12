@@ -29,7 +29,7 @@ export const fedexTheme: BrandTheme = {
 		primary: '#4D148C', // FedEx Purple (official brand color)
 		secondary: '#FFFFFF', // White
 		accent: '#FF6600', // FedEx Orange (official accent color)
-		background: 'linear-gradient(180deg, #4D148C 0%, #3E0F70 25%, #FFFFFF 100%)',
+		background: '#FFFFFF', // Changed to solid white for Protect app
 		surface: '#FFFFFF',
 		text: '#1F2937',
 		textSecondary: '#6B7280',

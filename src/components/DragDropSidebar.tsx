@@ -1894,10 +1894,83 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					},
 				],
 			},
+			{
+				id: 'tools-utilities',
+				label: 'Tools & Utilities',
+				icon: <FiSettings />,
+				isOpen: false,
+				items: [
+					{
+						id: 'sdk-examples',
+						path: '/sdk-examples',
+						label: 'SDK Examples',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiCode />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Comprehensive SDK examples for JWT, OIDC, and DaVinci">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'davinci-todo',
+						path: '/davinci-todo',
+						label: 'DaVinci Todo App',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiCheckCircle />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Production-ready DaVinci SDK integration with real PingOne APIs">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'environment-management',
+						path: '/environments',
+						label: 'Environment Management',
+						icon: (
+							<ColoredIcon $color="#3b82f6">
+								<FiServer />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Manage PingOne environments, create, delete, and promote to production">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'sdk-sample-app',
+						path: '/sdk-sample-app',
+						label: 'SDK Sample App',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiCode />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'ultimate-token-display-demo',
+						path: '/ultimate-token-display-demo',
+						label: 'Ultimate Token Display',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiDatabase />
+							</ColoredIcon>
+						),
+					},
+				],
+			},
 		];
 
 		// Menu structure version - increment when menu structure changes significantly
-		const MENU_VERSION = '2.3'; // Updated to add V8 Flows group at top
+		const MENU_VERSION = '2.4'; // Updated to add Tools & Utilities section with SDK examples
 		const savedVersion = localStorage.getItem('simpleDragDropSidebar.menuVersion');
 
 		// If version changed, clear old menu layout and use new structure

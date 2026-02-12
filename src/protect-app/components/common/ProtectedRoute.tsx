@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
 
 /**
  * Protected Route Component
- * 
+ *
  * Protects routes that require authentication and/or specific permissions/roles.
  * Redirects to login page if user is not authenticated.
  * Shows access denied message if user lacks required permissions/roles.
@@ -43,11 +43,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 				<div className="text-center p-8">
 					<div className="text-6xl mb-4">🚫</div>
 					<h1 className="text-2xl font-bold text-red-600 mb-2">Access Denied</h1>
-					<p className="text-gray-600 mb-4">
-						You don't have permission to access this resource.
-					</p>
+					<p className="text-gray-600 mb-4">You don't have permission to access this resource.</p>
 					<p className="text-sm text-gray-500">
-						Required permission: <code className="bg-gray-200 px-2 py-1 rounded">{requiredPermission}</code>
+						Required permission:{' '}
+						<code className="bg-gray-200 px-2 py-1 rounded">{requiredPermission}</code>
 					</p>
 				</div>
 			</div>
