@@ -17,7 +17,6 @@ import { ReportsPage } from './pages/ReportsPage';
 import { RiskEvaluationPage } from './pages/RiskEvaluationPage';
 import { SecurityInsightsPage } from './pages/SecurityInsightsPage';
 import { SettingsPage } from './pages/SettingsPage';
-import { UserManagementPage } from './pages/UserManagementPage';
 
 /**
  * Main Protect Portal Application
@@ -113,7 +112,6 @@ export const ProtectPortalApp: React.FC = () => {
 									<Route path="dashboard" element={<DashboardPage />} />
 									<Route path="risk-evaluation" element={<RiskEvaluationPage />} />
 									<Route path="security-insights" element={<SecurityInsightsPage />} />
-									<Route path="users" element={<UserManagementPage />} />
 									<Route path="reports" element={<ReportsPage />} />
 									<Route path="settings" element={<SettingsPage />} />
 								</Route>
