@@ -56,6 +56,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [clientId, setClientId] = useState('');
 	const [clientSecret, setClientSecret] = useState('');
 	const [username, setUsername] = useState('');
+	const [lastFileName, setLastFileName] = useState<string>('');
 	
 	// Auto-populate login_hint field with current user information
 	useEffect(() => {
@@ -1233,11 +1234,15 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			const url = URL.createObjectURL(blob);
 			const link = document.createElement('a');
 			link.href = url;
-			link.download = `user-login-config-${new Date().toISOString().split('T')[0]}.json`;
+			const fileName = `user-login-config-${new Date().toISOString().split('T')[0]}.json`;
+			link.download = fileName;
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link);
 			URL.revokeObjectURL(url);
+
+			// Set the last exported file name
+			setLastFileName(fileName);
 
 			toastV8.success('Configuration exported successfully!');
 		} catch (error) {
@@ -1274,6 +1279,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				if (config.redirectUri) setRedirectUri(config.redirectUri);
 				if (config.scopes) setScopes(config.scopes);
 				if (config.authMethod) setAuthMethod(config.authMethod);
+
+				// Set the last imported file name
+				setLastFileName(file.name);
 
 				toastV8.success('Configuration imported successfully!');
 			} catch (error) {
@@ -2575,6 +2583,25 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							)}
 						</button>
 					</div>
+
+					{/* Last File Display */}
+					{lastFileName && (
+						<div
+							style={{
+								marginTop: '8px',
+								padding: '6px 10px',
+								background: '#f0f9ff',
+								border: '1px solid #0ea5e9',
+								borderRadius: '4px',
+								fontSize: '11px',
+								color: '#0369a1',
+								textAlign: 'center',
+								wordBreak: 'break-all',
+							}}
+						>
+							<strong>Last file:</strong> {lastFileName}
+						</div>
+					)}
 
 					{/* Debug Section - Collapsible */}
 					{debugInfo && (

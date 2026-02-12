@@ -18947,6 +18947,91 @@ grep -rn "same.*environment\|environment.*validation" src/v8/services/tokenExcha
 
 # Check scope validation
 grep -rn "allowedScopes\|scope.*validation" src/v8/services/tokenExchangeServiceV8.ts
+```
+
+---
+
+### **📋 Issue 62: User Login Modal Missing File Name Display for Import/Export**
+
+**Problem**: Users cannot see the name of the last file that was imported or exported in the user login modal, making it difficult to track which configuration file was used.
+
+**Current State**:
+- ✅ Import/Export functionality exists in UserLoginModalV8
+- ✅ File operations work correctly
+- ❌ **MISSING** - No visual feedback of last file name
+
+**Enhancement Requirements**:
+| Requirement | Current Status | Implementation Needed |
+|---|---|---|
+| Last Export File Display | ❌ Missing | ✅ **IMPLEMENTED** |
+| Last Import File Display | ❌ Missing | ✅ **IMPLEMENTED** |
+| Visual File Name Indicator | ❌ Missing | ✅ **IMPLEMENTED** |
+| Persistent During Session | ❌ Missing | ✅ **IMPLEMENTED** |
+
+**Implementation Details**:
+1. **State Management**: Added `lastFileName` state to track file operations
+2. **Export Integration**: Set file name after successful export
+3. **Import Integration**: Set file name after successful import
+4. **Visual Display**: Blue info box showing "Last file: [filename]"
+5. **Conditional Rendering**: Only shows when file name is available
+
+**SWE-15 Compliance**:
+- **Single Responsibility**: File tracking is separate from import/export logic
+- **Open/Closed**: Enhanced without modifying existing import/export functions
+- **Interface Segregation**: Simple string state for file name tracking
+- **Dependency Inversion**: No new dependencies required
+
+**Files Modified**:
+- `src/v8/components/UserLoginModalV8.tsx` - Added file name tracking and display
+
+**Detection Commands**:
+```bash
+# Verify file name state exists
+grep -rn "lastFileName\|setLastFileName" src/v8/components/UserLoginModalV8.tsx
+
+# Check export function sets file name
+grep -A 5 -B 5 "setLastFileName(fileName)" src/v8/components/UserLoginModalV8.tsx
+
+# Check import function sets file name  
+grep -A 5 -B 5 "setLastFileName(file.name)" src/v8/components/UserLoginModalV8.tsx
+
+# Verify visual display component
+grep -A 10 "Last file:" src/v8/components/UserLoginModalV8.tsx
+
+# Check conditional rendering
+grep -A 15 "lastFileName &&" src/v8/components/UserLoginModalV8.tsx
+```
+
+**Prevention Commands**:
+```bash
+# Ensure file name tracking doesn't break import/export
+grep -rn "handleExportConfiguration\|handleImportConfiguration" src/v8/components/UserLoginModalV8.tsx | wc -l
+
+# Verify no console errors during file operations
+# (Manual testing required)
+
+# Check visual styling is consistent
+grep -A 10 "background: '#f0f9ff'" src/v8/components/UserLoginModalV8.tsx
+
+# Ensure file name display is responsive
+grep -A 5 "wordBreak.*break-all" src/v8/components/UserLoginModalV8.tsx
+```
+
+**User Experience Improvements**:
+- **Visual Feedback**: Users can immediately see which file was used
+- **Session Persistence**: File name remains visible during modal session
+- **Clear Labeling**: "Last file:" prefix makes purpose clear
+- **Responsive Design**: Word break prevents layout issues with long file names
+- **Color Coding**: Blue theme matches import/export button colors
+
+**Testing Requirements**:
+1. Export configuration and verify file name appears
+2. Import configuration and verify file name appears  
+3. Test with long file names (responsive behavior)
+4. Verify file name clears on modal close/reopen
+5. Test multiple operations in sequence
+
+**Priority**: MEDIUM - Quality of life improvement with no functional impact
 
 # Verify no refresh tokens in response
 grep -rn "refresh_token.*token.*exchange\|token.*exchange.*refresh" src/v8/
