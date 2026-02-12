@@ -6415,6 +6415,238 @@ grep -r "MFAConfigurationServiceV8.*loadConfiguration" src/v8/services/workerTok
 4. **Missing Dependencies**: Don't forget to include update functions in useCallback dependencies
 5. **Inconsistent Patterns**: Don't mix centralized and manual configuration approaches
 
+#### **📋 Issue 64: Admin Flow Worker Token Authentication Regression - CRITICAL FIX**
+
+**🎯 Problem Summary:**
+The admin flow authentication button was showing an incorrect error message: "Admin flow selected. Please use worker token for authentication." This is COMPLETELY WRONG because **worker tokens are NEVER used for authentication** - they are only used for API calls. This regression blocked admin flows from authenticating devices.
+
+**🔍 Root Cause Analysis:**
+1. **Primary Cause**: Incorrect error message blocking admin flow device authentication
+2. **Secondary Cause**: Misunderstanding of worker token purpose (API calls vs authentication)
+3. **Impact**: Admin flows could not authenticate devices, breaking core functionality
+4. **Severity**: CRITICAL - Completely blocks admin flow device authentication
+5. **Regression**: This was a regression from Issue 58 which was previously fixed
+
+**🔧 Technical Investigation Steps:**
+```bash
+# 1. Find the incorrect error message
+grep -r "Please use worker token for authentication" src/v8/flows/
+
+# 2. Check admin flow authentication logic
+grep -A 20 "Authentication Option" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# 3. Verify registrationFlowType handling
+grep -A 10 "registrationFlowType.*admin" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# 4. Check for Issue 58 regression
+grep -A 5 "Issue 58" UNIFIED_MFA_INVENTORY.md
+```
+
+**🛠️ Solution Implemented:**
+1. **Removed Blocking Error**: Deleted incorrect error message about worker token authentication
+2. **Correct Admin Flow Logic**: Admin flows can now authenticate devices directly
+3. **Proper Token Usage**: Worker token used for API calls, not authentication
+4. **Clear Comments**: Added comments explaining worker token vs authentication distinction
+5. **User Flow Preserved**: User flows still require user token for authentication
+
+**📊 Before vs After:**
+```typescript
+// ❌ BEFORE (BROKEN - REGRESSION):
+if (registrationFlowType?.startsWith('admin')) {
+    toastV8.error('🔐 Admin flow selected. Please use worker token for authentication.', {
+        duration: 5000,
+    });
+    return; // BLOCKS admin flow authentication completely!
+}
+
+// ✅ AFTER (FIXED):
+if (registrationFlowType?.startsWith('admin')) {
+    // Admin flow: Can authenticate devices directly with worker token
+    setFlowMode('authentication');
+    setShowDeviceSelectionModal(true);
+    toastV8.info('🔐 Admin Flow: Authenticating device using worker token for API calls.', {
+        duration: 4000,
+    });
+    return;
+}
+```
+
+**🎯 CRITICAL UNDERSTANDING:**
+```
+Worker Token Purpose:
+✅ Used for: API calls to PingOne (device registration, device authentication, etc.)
+❌ NOT used for: User authentication (that's what user tokens are for)
+
+Admin Flow:
+✅ Uses worker token for API calls
+✅ Can authenticate devices WITHOUT user login
+✅ No user authentication required for device operations
+
+User Flow:
+✅ Uses user token for both registration AND authentication
+✅ Requires user login before device operations
+✅ User authentication required for all device operations
+```
+
+**🔍 Prevention Strategy:**
+1. **Understand Token Types**: Worker tokens ≠ authentication tokens
+2. **Admin Flow Capabilities**: Admin flows can operate without user login
+3. **Check Issue History**: Review Issue 58 to prevent regressions
+4. **Test Both Flows**: Test admin and user flows separately
+5. **Clear Documentation**: Document token purposes clearly
+
+**🚨 Detection Commands for Future Prevention:**
+```bash
+# Check for incorrect worker token authentication messages
+grep -r "worker token.*authentication" src/v8/flows/
+grep -r "use worker token" src/v8/flows/
+
+# Verify admin flow can authenticate devices
+grep -A 15 "registrationFlowType.*admin" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx | grep -i "authentication"
+
+# Check for blocking errors in admin flow
+grep -A 5 "registrationFlowType.*startsWith.*admin" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx | grep "return"
+
+# Verify Issue 58 fix is still in place
+grep -A 10 "Issue 58" UNIFIED_MFA_INVENTORY.md
+```
+
+**📝 Implementation Guidelines:**
+1. **Worker Tokens**: Only for API calls, never for user authentication
+2. **Admin Flows**: Can authenticate devices without user login
+3. **User Flows**: Require user token for all operations
+4. **Error Messages**: Must be accurate and not block valid operations
+5. **Regression Testing**: Check Issue 58 when modifying admin flow logic
+
+**⚠️ Common Pitfalls to Avoid:**
+1. **Token Confusion**: Don't confuse worker tokens with authentication tokens
+2. **Blocking Admin Flows**: Don't block admin flow operations that should work
+3. **Incorrect Messages**: Don't show error messages for valid operations
+4. **Regression Risk**: Don't reintroduce Issue 58 fixes
+5. **Missing Tests**: Don't skip testing both admin and user flows
+
+**🎯 Files Modified:**
+- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Fixed admin flow authentication (lines 1320-1346)
+
+**✅ Verification:**
+```bash
+# Verify fix is applied
+grep -A 10 "Admin flow.*CAN authenticate" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check for removed incorrect message
+grep "Please use worker token for authentication" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx && echo "❌ STILL BROKEN" || echo "✅ FIXED"
+
+# Verify admin flow can proceed
+grep -A 5 "registrationFlowType.*startsWith.*admin" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx | grep "setFlowMode.*authentication" && echo "✅ ADMIN FLOW WORKS" || echo "❌ STILL BLOCKED"
+```
+
+**🔗 Related Issues:**
+- **Issue 58**: Admin Flow Making User Do User Login (original fix)
+- This is a REGRESSION of Issue 58 - the fix was partially undone
+
+---
+
+#### **📋 Issue 63: Redirect URI Step Extraction Broken - CRITICAL FIX**
+
+**🎯 Problem Summary:**
+The UserLoginModalV8 was using fragile string splitting (`split('step=')[1]`) to extract the step parameter from the URL, causing incorrect step values to be stored in the flow context. This resulted in users being redirected to the wrong page after OAuth authentication.
+
+**🔍 Root Cause Analysis:**
+1. **Primary Cause**: Fragile string splitting instead of proper URLSearchParams parsing
+2. **Secondary Cause**: String splitting fails when step parameter is not in expected position
+3. **Impact**: Flow context stores incorrect step, callback handler redirects to wrong page
+4. **Severity**: CRITICAL - Breaks core OAuth callback flow for all MFA operations
+
+**🔧 Technical Investigation Steps:**
+```bash
+# 1. Check step extraction logic in UserLoginModalV8
+grep -A 10 -B 5 "split('step=')" src/v8/components/UserLoginModalV8.tsx
+
+# 2. Verify flow context storage
+grep -A 10 "mfa_flow_callback_context" src/v8/components/UserLoginModalV8.tsx
+
+# 3. Check callback handler flow context consumption
+grep -A 20 "mfa_flow_callback_context" src/v8u/components/CallbackHandlerV8U.tsx
+
+# 4. Verify step parameter in URLs
+grep -r "step=" src/v8/flows/ | grep -i "unified"
+```
+
+**🛠️ Solution Implemented:**
+1. **Fixed Step Extraction**: Use `URLSearchParams` to properly parse step from query string
+2. **Proper Default**: Default to step 2 (device selection) when step parameter missing
+3. **Enhanced Logging**: Log parsed step and whether it came from search params
+4. **Clean Path Storage**: Store path without search params, let callback handler add step
+
+**📊 Before vs After:**
+```typescript
+// ❌ BEFORE (BROKEN):
+const step = parseInt(currentPath.split('step=')[1] || '2', 10);
+// Problem: Fails if 'step=' appears in path, not search params
+// Problem: Doesn't handle URL encoding or multiple params
+
+// ✅ AFTER (FIXED):
+const urlParams = new URLSearchParams(currentSearch);
+const stepParam = urlParams.get('step');
+const step = stepParam ? parseInt(stepParam, 10) : 2;
+// Solution: Properly parses query string parameters
+// Solution: Handles URL encoding and multiple params correctly
+```
+
+**🔍 Prevention Strategy:**
+1. **Always Use URLSearchParams**: Never use string splitting for URL parameters
+2. **Proper URL Parsing**: Use browser APIs designed for URL manipulation
+3. **Default Values**: Always provide sensible defaults for missing parameters
+4. **Enhanced Logging**: Log parsed values and their sources for debugging
+
+**🚨 Detection Commands for Future Prevention:**
+```bash
+# Check for fragile string splitting on URL parameters
+grep -r "split('step=')" src/v8/
+grep -r "split('?')" src/v8/ | grep -v "// OK"
+grep -r "split('&')" src/v8/ | grep -v "// OK"
+
+# Verify proper URLSearchParams usage
+grep -r "URLSearchParams" src/v8/components/UserLoginModalV8.tsx
+
+# Check flow context storage
+grep -A 5 "mfa_flow_callback_context" src/v8/components/UserLoginModalV8.tsx
+
+# Verify callback handler properly consumes flow context
+grep -A 20 "mfa_flow_callback_context" src/v8u/components/CallbackHandlerV8U.tsx
+```
+
+**📝 Implementation Guidelines:**
+1. **Use URLSearchParams**: Always use `new URLSearchParams(location.search)` for query params
+2. **Proper Parsing**: Use `.get('param')` method to retrieve parameter values
+3. **Type Safety**: Parse integers with proper error handling and defaults
+4. **Clean Paths**: Store paths without search params when callback handler will add them
+5. **Enhanced Logging**: Log parsed values and their sources
+
+**⚠️ Common Pitfalls to Avoid:**
+1. **String Splitting**: Don't use `split()` for URL parameter extraction
+2. **Assuming Position**: Don't assume parameter position in URL string
+3. **Missing Defaults**: Don't skip default values for missing parameters
+4. **Poor Logging**: Don't skip logging for parsed values and sources
+5. **Path Pollution**: Don't store full path with params when callback handler adds them
+
+**🎯 Files Modified:**
+- `src/v8/components/UserLoginModalV8.tsx` - Fixed step extraction logic (lines 1467-1492)
+
+**✅ Verification:**
+```bash
+# Verify fix is applied
+grep -A 5 "URLSearchParams(currentSearch)" src/v8/components/UserLoginModalV8.tsx
+
+# Check for any remaining string splitting on step parameter
+grep "split('step=')" src/v8/components/UserLoginModalV8.tsx && echo "❌ STILL BROKEN" || echo "✅ FIXED"
+
+# Verify proper default value
+grep "stepParam ? parseInt(stepParam, 10) : 2" src/v8/components/UserLoginModalV8.tsx && echo "✅ DEFAULT FOUND" || echo "❌ MISSING DEFAULT"
+```
+
+---
+
 #### **📋 Issue 55: Redirect URI Going to Wrong Page - DETAILED ANALYSIS**
 
 **🎯 Problem Summary:**
