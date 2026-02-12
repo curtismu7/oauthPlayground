@@ -955,6 +955,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		sessionInfo,
 		showSuccessPage,
 		isMfaFlow,
+		routeToCorrectStep,
+		validateRedirectURI,
 	]);
 
 	// Process callback even when modal is not open (for auto-processing on page load)
@@ -1103,7 +1105,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			checkCallback();
 		}
-	}, [isOpen, handleTokenReceived]);
+	}, [isOpen, handleTokenReceived, routeToCorrectStep, validateRedirectURI]);
 
 	// Handle redirect URI changes - update PingOne app if needed
 	const handleRedirectUriChange = useCallback(
