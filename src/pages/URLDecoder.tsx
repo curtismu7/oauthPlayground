@@ -141,7 +141,7 @@ const TextArea = styled.textarea`
   }
 `;
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | 'danger' }>`
+const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' | 'danger' }>`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -155,8 +155,8 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | '
   margin-right: 0.5rem;
   margin-bottom: 0.5rem;
   
-  ${({ variant = 'primary' }) => {
-		switch (variant) {
+  ${({ $variant = 'primary' }) => {
+		switch ($variant) {
 			case 'primary':
 				return `
           background: #3b82f6;
@@ -428,7 +428,7 @@ const URLDecoder: React.FC = () => {
 				</FormField>
 
 				<ButtonGroup>
-					<Button onClick={decodeUrl} disabled={isDecoding || !inputUrl.trim()} variant="primary">
+					<Button onClick={decodeUrl} disabled={isDecoding || !inputUrl.trim()} $variant="primary">
 						{isDecoding ? (
 							<FiRefreshCw style={{ animation: 'spin 1s linear infinite' }} />
 						) : (
@@ -437,12 +437,12 @@ const URLDecoder: React.FC = () => {
 						{isDecoding ? 'Decoding...' : 'Decode URL'}
 					</Button>
 
-					<Button onClick={loadSample} variant="secondary">
+					<Button onClick={loadSample} $variant="secondary">
 						<FiLink />
 						Load Sample
 					</Button>
 
-					<Button onClick={clearAll} variant="danger">
+					<Button onClick={clearAll} $variant="danger">
 						<FiRefreshCw />
 						Clear All
 					</Button>
@@ -470,7 +470,7 @@ const URLDecoder: React.FC = () => {
 					</ResultCard>
 
 					<ButtonGroup>
-						<Button onClick={copyResult} variant="success">
+						<Button onClick={copyResult} $variant="success">
 							<FiCopy />
 							Copy Result
 						</Button>

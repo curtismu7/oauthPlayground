@@ -48,11 +48,11 @@ import ModalPresentationService from './services/modalPresentationService';
 import { credentialManager } from './utils/credentialManager';
 // Import IndexedDB backup service to make it globally available
 import './v8u/services/indexedDBBackupServiceV8U';
-// Run MFA redirect URI migration on app startup
-import { migrateAllMFARedirectUris } from './v8/utils/mfaRedirectUriMigrationV8';
+// MFA redirect URI migration disabled - MFA hub is no longer used
+// import { migrateAllMFARedirectUris } from './v8/utils/mfaRedirectUriMigrationV8';
 
-// Run migration immediately on module load
-migrateAllMFARedirectUris();
+// Run migration immediately on module load - DISABLED
+// migrateAllMFARedirectUris();
 
 // Extend Window interface for global test utilities
 declare global {
@@ -147,10 +147,6 @@ import WorkerTokenFlowV7 from './pages/flows/WorkerTokenFlowV7';
 // import InteractiveTutorials from './pages/InteractiveTutorials'; // Removed - unused tutorial feature
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
 import ResponseModesLearnPage from './pages/learn/ResponseModesLearnPage';
-// SDK Examples imports
-import SDKExamplesHome from './pages/sdk-examples/SDKExamplesHome';
-import JWTExamples from './pages/sdk-examples/JWTExamples';
-import OIDCExamples from './pages/sdk-examples/OIDCExamples';
 import OAuth21 from './pages/OAuth21';
 import OAuthOIDCTraining from './pages/OAuthOIDCTraining';
 import OIDC from './pages/OIDC';
@@ -170,6 +166,10 @@ import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
 import { PostmanCollectionGenerator } from './pages/PostmanCollectionGenerator';
 import SDKSampleApp from './pages/SDKSampleApp';
 import ServiceTestRunner from './pages/ServiceTestRunner';
+import JWTExamples from './pages/sdk-examples/JWTExamples';
+import OIDCExamples from './pages/sdk-examples/OIDCExamples';
+// SDK Examples imports
+import SDKExamplesHome from './pages/sdk-examples/SDKExamplesHome';
 import HelioMartPasswordReset from './pages/security/HelioMartPasswordReset';
 import TestDemo from './pages/TestDemo';
 import TokenManagement from './pages/TokenManagement';
@@ -219,11 +219,13 @@ const WhatsAppFlowV8 = React.lazy(() =>
 	import('./v8/flows/types/WhatsAppFlowV8').then((module) => ({ default: module.WhatsAppFlowV8 }))
 );
 
+import EnvironmentManagementPageV8 from './pages/EnvironmentManagementPageV8';
+// Import Protect Portal
+import ProtectPortalWrapper from './pages/protect-portal/ProtectPortalWrapper';
+import DavinciTodoApp from './sdk-examples/davinci-todo-app/DavinciTodoApp';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
-import EnvironmentManagementPageV8 from './pages/EnvironmentManagementPageV8';
-import DavinciTodoApp from './sdk-examples/davinci-todo-app/DavinciTodoApp';
 import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
 import MFADeviceCreateDemoV8 from './v8/pages/MFADeviceCreateDemoV8';
 import { MFAFeatureFlagsAdminV8 } from './v8/pages/MFAFeatureFlagsAdminV8';
@@ -234,9 +236,6 @@ import { WhatsAppRegistrationDocsPageV8 } from './v8/pages/WhatsAppRegistrationD
 import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
 import UnifiedFlowErrorBoundary from './v8u/components/UnifiedFlowErrorBoundary';
-
-// Import Protect Portal
-import ProtectPortalWrapper from './pages/protect-portal/ProtectPortalWrapper';
 
 // Lazy load heavy V8U components for better performance
 const UnifiedFlowHelperPageV8U = lazy(() => import('./v8u/components/UnifiedFlowHelperPageV8U'));
