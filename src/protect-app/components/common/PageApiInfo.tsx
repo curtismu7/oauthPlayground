@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import ApiDisplayService from '../../services/ApiDisplayService';
+import { JsonDisplay } from './JsonDisplay';
 
 /**
  * PageApiInfo Component
@@ -66,14 +67,6 @@ export const PageApiInfo: React.FC<PageApiInfoProps> = ({
 
 	const toggleExpanded = (callId: string) => {
 		setExpandedCall(expandedCall === callId ? null : callId);
-	};
-
-	const formatJson = (obj: unknown) => {
-		try {
-			return JSON.stringify(obj, null, 2);
-		} catch {
-			return String(obj);
-		}
 	};
 
 	return (
@@ -192,68 +185,29 @@ export const PageApiInfo: React.FC<PageApiInfoProps> = ({
 							<div className="border-t" style={{ borderColor: currentTheme.colors.textSecondary }}>
 								{/* Headers */}
 								{call.headers && Object.keys(call.headers).length > 0 && (
-									<div className="p-3 border-b" style={{ borderColor: currentTheme.colors.textSecondary }}>
-										<h4 
-											className="text-xs font-semibold mb-2 uppercase tracking-wider"
-											style={{ color: currentTheme.colors.textSecondary }}
-										>
-											Headers
-										</h4>
-										<pre 
-											className="text-xs bg-gray-50 dark:bg-gray-800 p-2 rounded overflow-x-auto"
-											style={{ 
-												backgroundColor: `${currentTheme.colors.background}50`,
-												color: currentTheme.colors.text,
-												border: `1px solid ${currentTheme.colors.textSecondary}30`
-											}}
-										>
-											{formatJson(call.headers) as React.ReactNode}
-										</pre>
-									</div>
+									<JsonDisplay
+										data={call.headers}
+										title="Headers"
+										maxHeight="150px"
+									/>
 								)}
 
 								{/* Body */}
 								{call.body && (
-									<div className="p-3 border-b" style={{ borderColor: currentTheme.colors.textSecondary }}>
-										<h4 
-											className="text-xs font-semibold mb-2 uppercase tracking-wider"
-											style={{ color: currentTheme.colors.textSecondary }}
-										>
-											Request Body
-										</h4>
-										<pre 
-											className="text-xs bg-gray-50 dark:bg-gray-800 p-2 rounded overflow-x-auto max-h-40 overflow-y-auto"
-											style={{ 
-												backgroundColor: `${currentTheme.colors.background}50`,
-												color: currentTheme.colors.text,
-												border: `1px solid ${currentTheme.colors.textSecondary}30`
-											}}
-										>
-											{formatJson(call.body) as React.ReactNode}
-										</pre>
-									</div>
+									<JsonDisplay
+										data={call.body}
+										title="Request Body"
+										maxHeight="200px"
+									/>
 								)}
 
 								{/* Response */}
 								{call.response && (
-									<div className="p-3">
-										<h4 
-											className="text-xs font-semibold mb-2 uppercase tracking-wider"
-											style={{ color: currentTheme.colors.textSecondary }}
-										>
-											Response
-										</h4>
-										<pre 
-											className="text-xs bg-gray-50 dark:bg-gray-800 p-2 rounded overflow-x-auto max-h-40 overflow-y-auto"
-											style={{ 
-												backgroundColor: `${currentTheme.colors.background}50`,
-												color: currentTheme.colors.text,
-												border: `1px solid ${currentTheme.colors.textSecondary}30`
-											}}
-										>
-											{call.response.data ? formatJson(call.response.data) as React.ReactNode : 'No response data'}
-										</pre>
-									</div>
+									<JsonDisplay
+										data={call.response.data || 'No response data'}
+										title="Response"
+										maxHeight="200px"
+									/>
 								)}
 							</div>
 						)}
