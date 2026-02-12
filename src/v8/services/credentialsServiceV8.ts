@@ -88,7 +88,7 @@ const FLOW_FIELD_CONFIG: Record<string, CredentialsConfig> = {
 		includeLogoutUri: false,
 		includeScopes: true,
 		defaultScopes: 'openid profile email',
-		defaultRedirectUri: 'http://localhost:3000/callback',
+		defaultRedirectUri: 'https://localhost:3000/callback',
 	},
 	'implicit-flow-v8': {
 		flowKey: 'implicit-flow-v8',
@@ -98,7 +98,7 @@ const FLOW_FIELD_CONFIG: Record<string, CredentialsConfig> = {
 		includeLogoutUri: false,
 		includeScopes: true,
 		defaultScopes: 'openid profile email',
-		defaultRedirectUri: 'http://localhost:3000/implicit-callback',
+		defaultRedirectUri: 'https://localhost:3000/implicit-callback',
 	},
 	'client-credentials-v8': {
 		flowKey: 'client-credentials-v8',
@@ -135,8 +135,8 @@ const FLOW_FIELD_CONFIG: Record<string, CredentialsConfig> = {
 		includeLogoutUri: true,
 		includeScopes: true,
 		defaultScopes: 'openid profile email',
-		defaultRedirectUri: 'http://localhost:3000/callback',
-		defaultLogoutUri: 'http://localhost:3000/logout',
+		defaultRedirectUri: 'https://localhost:3000/callback',
+		defaultLogoutUri: 'https://localhost:3000/logout',
 	},
 	'pkce-v8': {
 		flowKey: 'pkce-v8',
@@ -146,7 +146,7 @@ const FLOW_FIELD_CONFIG: Record<string, CredentialsConfig> = {
 		includeLogoutUri: false,
 		includeScopes: true,
 		defaultScopes: 'openid profile email',
-		defaultRedirectUri: 'http://localhost:3000/callback',
+		defaultRedirectUri: 'https://localhost:3000/callback',
 	},
 };
 
