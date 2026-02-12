@@ -1883,7 +1883,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'tools-utilities',
 				label: 'Tools & Utilities',
 				icon: <FiSettings />,
-				isOpen: false,
+				isOpen: true,
 				items: [
 					{
 						id: 'sdk-examples',
