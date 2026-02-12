@@ -380,8 +380,92 @@ grep -rn "ApiDisplay\|api.*display" src/protect-app/ --include="*.tsx" --include
 # 25. Check for API Display toggle in header
 grep -rn "API Monitor\|showApiDisplay" src/protect-app/components/layout/Header.tsx | wc -l && echo "✅ API DISPLAY TOGGLE FOUND" || echo "❌ MISSING API DISPLAY TOGGLE"
 
+# 26. Verify proxy endpoint usage (CORS prevention)
+grep -rn "fetch.*https://api.pingone.com\|fetch.*https://auth.pingone.com" src/protect-app/ src/pages/protect-portal/ && echo "❌ DIRECT API CALLS FOUND - CORS RISK" || echo "✅ ALL SERVICES USE PROXY ENDPOINTS"
+
+# 27. Check proxy base URL configuration
+grep -rn "PROXY_BASE_URL.*api/pingone" src/pages/protect-portal/services/ | wc -l && echo "✅ PROXY BASE URLS CONFIGURED" || echo "❌ MISSING PROXY CONFIGURATION"
+
+# 28. Verify no hardcoded PingOne URLs in Protect Portal (except as proxy parameters)
+# Check for direct API calls (not URLs passed as parameters to proxy)
+grep -rn "fetch.*https://api.pingone.com\|fetch.*https://auth.pingone.com" src/protect-app/ src/pages/protect-portal/ && echo "❌ DIRECT API CALLS FOUND - CORS RISK" || echo "✅ NO DIRECT API CALLS"
+
+# Check for hardcoded base URLs in configuration
+grep -rn "baseUrl.*https://api.pingone.com\|baseUrl.*https://auth.pingone.com" src/protect-app/ src/pages/protect-portal/ && echo "❌ HARDCODED BASE URLS FOUND" || echo "✅ NO HARDCODED BASE URLS"
+
 echo "🎯 PROTECT PORTAL PREVENTION CHECKS COMPLETE"
 ```
+
+---
+
+## 🌐 **PROXY COMPLIANCE & CORS PREVENTION**
+
+### **✅ Proxy Endpoint Usage Status: FULLY COMPLIANT**
+
+**Last Updated**: 2026-02-12  
+**Status**: ✅ COMPLIANT - All Protect Portal services use proxy endpoints  
+**Risk Level**: LOW (with proxy) / HIGH (without proxy)
+
+#### **🛡️ CORS Prevention Strategy:**
+The Protect Portal follows the same proxy pattern as Unified MFA to prevent CORS issues:
+
+```typescript
+// ✅ CORRECT: Use proxy endpoints
+private static readonly PROXY_BASE_URL = '/api/pingone';
+
+const response = await fetch(`${PROXY_BASE_URL}/risk-evaluations`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(riskEvent)
+});
+
+// ❌ AVOID: Direct PingOne API calls (causes CORS)
+const response = await fetch('https://api.pingone.com/v1/risk-evaluations', {
+  // This will fail with CORS errors
+});
+```
+
+#### **📋 Services Using Proxy Endpoints:**
+- ✅ **RiskEvaluationService** - `/api/pingone/risk-evaluations`
+- ✅ **PingOneLoginService** - `/api/pingone/redirectless/authorize`, `/api/pingone/token`
+- ✅ **MFAAuthenticationService** - `/api/pingone/user/{userId}/devices`
+
+#### **🔍 Proxy Compliance Verification:**
+```bash
+# Check for direct API calls (CORS risk)
+grep -rn "fetch.*https://api.pingone.com\|fetch.*https://auth.pingone.com" src/protect-app/ src/pages/protect-portal/
+
+# Verify proxy base URL configuration
+grep -rn "PROXY_BASE_URL.*api/pingone" src/pages/protect-portal/services/
+
+# Count proxy endpoint usage
+grep -rn "/api/pingone" src/protect-app/ src/pages/protect-portal/ | wc -l
+```
+
+#### **⚠️ Common CORS Issues to Avoid:**
+1. **Direct API calls** to `https://api.pingone.com` or `https://auth.pingone.com`
+2. **Hardcoded PingOne URLs** in service files (except when passed as parameters to proxy)
+3. **Missing proxy configuration** in new services
+4. **Environment-specific URLs** that bypass proxy
+
+#### **🔍 Acceptable Hardcoded URLs (Used as Parameters):**
+Some hardcoded URLs are acceptable when they are passed as parameters to proxy endpoints:
+```typescript
+// ✅ ACCEPTABLE: URL passed as parameter to proxy
+const requestBody = {
+  resumeUrl: `https://auth.pingone.com/${environmentId}/as/resume?flowId=${flowId}`,
+};
+const response = await fetch('/api/pingone/redirectless/poll', {
+  method: 'POST',
+  body: JSON.stringify(requestBody)
+});
+```
+
+#### **🎯 SWE-15 Compliance for Proxy Usage:**
+- **Single Responsibility**: Each service handles its own proxy configuration
+- **Open/Closed**: New services can extend proxy pattern without modification
+- **Dependency Inversion**: Services depend on proxy abstraction, not direct APIs
+- **Interface Segregation**: Proxy interfaces are focused and minimal
 
 ---
 

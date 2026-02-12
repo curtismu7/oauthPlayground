@@ -99,7 +99,7 @@ export interface MfaChallengeRequest {
 }
 
 export class PingOneMfaService {
-	private static baseUrl = 'https://api.pingone.com/v1';
+	private static baseUrl = '/pingone-api/v1';
 
 	/**
 	 * Get registered MFA devices for a user with enhanced metadata

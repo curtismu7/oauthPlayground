@@ -21,7 +21,6 @@ import {
 	FiSmartphone,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import CompanyLogoHeader from './CompanyLogoHeader';
 import MFAAuthenticationService from '../services/mfaAuthenticationService';
 import type {
 	EducationalContent,
@@ -31,6 +30,7 @@ import type {
 	TokenSet,
 	UserContext,
 } from '../types/protectPortal.types';
+import CompanyLogoHeader from './CompanyLogoHeader';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -509,135 +509,137 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 					<WarningContent>
 						<WarningTitle>Medium Risk Detected</WarningTitle>
 						<WarningText>
-							Your login attempt shows some unusual patterns. For your security, we require additional
-							verification before proceeding.
+							Your login attempt shows some unusual patterns. For your security, we require
+							additional verification before proceeding.
 						</WarningText>
 					</WarningContent>
 				</RiskWarning>
 
-			{error && (
-				<ErrorMessage>
-					<FiAlertTriangle />
-					{error}
-				</ErrorMessage>
-			)}
+				{error && (
+					<ErrorMessage>
+						<FiAlertTriangle />
+						{error}
+					</ErrorMessage>
+				)}
 
-			{/* Loading State */}
-			{currentStep === 'loading' && (
-				<LoadingContainer>
-					<LoadingSpinner />
-					<LoadingText>Loading your authentication devices...</LoadingText>
-				</LoadingContainer>
-			)}
+				{/* Loading State */}
+				{currentStep === 'loading' && (
+					<LoadingContainer>
+						<LoadingSpinner />
+						<LoadingText>Loading your authentication devices...</LoadingText>
+					</LoadingContainer>
+				)}
 
-			{/* Device Selection */}
-			{currentStep === 'device-selection' && (
-				<DeviceSelectionContainer>
-					<DeviceSelectionTitle>Select Authentication Method</DeviceSelectionTitle>
+				{/* Device Selection */}
+				{currentStep === 'device-selection' && (
+					<DeviceSelectionContainer>
+						<DeviceSelectionTitle>Select Authentication Method</DeviceSelectionTitle>
 
-					{availableDevices.length > 0 ? (
-						<>
-							<DeviceGrid>
-								{availableDevices.map((device) => (
-									<DeviceCard
-										key={device.id}
-										selected={selectedDevice?.id === device.id}
-										onClick={() => handleDeviceSelect(device)}
-										disabled={isLoading}
-									>
-										<DeviceIcon deviceType={device.type}>{getDeviceIcon(device.type)}</DeviceIcon>
-										<DeviceName>{device.name}</DeviceName>
-										<DeviceStatus>
-											{device.type} • {device.status.toLowerCase()}
-										</DeviceStatus>
-									</DeviceCard>
-								))}
-							</DeviceGrid>
+						{availableDevices.length > 0 ? (
+							<>
+								<DeviceGrid>
+									{availableDevices.map((device) => (
+										<DeviceCard
+											key={device.id}
+											selected={selectedDevice?.id === device.id}
+											onClick={() => handleDeviceSelect(device)}
+											disabled={isLoading}
+										>
+											<DeviceIcon deviceType={device.type}>{getDeviceIcon(device.type)}</DeviceIcon>
+											<DeviceName>{device.name}</DeviceName>
+											<DeviceStatus>
+												{device.type} • {device.status.toLowerCase()}
+											</DeviceStatus>
+										</DeviceCard>
+									))}
+								</DeviceGrid>
 
-							<button
-								type="button"
-								onClick={handleAuthenticate}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										e.preventDefault();
-										handleAuthenticate();
-									}
-								}}
-								disabled={!selectedDevice || isLoading}
-								style={{
-									width: '100%',
-									maxWidth: '300px',
-									padding: '1rem 2rem',
-									background: isLoading ? '#9ca3af' : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-									color: 'white',
-									border: 'none',
-									borderRadius: '0.5rem',
-									fontSize: '1.125rem',
-									fontWeight: '600',
-									cursor: isLoading || !selectedDevice ? 'not-allowed' : 'pointer',
-									transition: 'all 0.2s ease',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									gap: '0.5rem',
-									margin: '0 auto',
-								}}
-							>
-								{isLoading ? (
-									<>
-										<LoadingSpinner />
-										Authenticating...
-									</>
-								) : (
-									<>
-										<FiShield />
-										Authenticate with {selectedDevice?.name || 'Selected Device'}
-									</>
-								)}
-							</button>
-						</>
-					) : (
-						<NoDevicesMessage>
-							<FiShield style={{ fontSize: '2rem', marginBottom: '1rem', color: '#9ca3af' }} />
-							<p>No authentication devices found</p>
-							<p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
-								Please register an MFA device first
-							</p>
-						</NoDevicesMessage>
-					)}
-				</DeviceSelectionContainer>
-			)}
+								<button
+									type="button"
+									onClick={handleAuthenticate}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											handleAuthenticate();
+										}
+									}}
+									disabled={!selectedDevice || isLoading}
+									style={{
+										width: '100%',
+										maxWidth: '300px',
+										padding: '1rem 2rem',
+										background: isLoading
+											? '#9ca3af'
+											: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+										color: 'white',
+										border: 'none',
+										borderRadius: '0.5rem',
+										fontSize: '1.125rem',
+										fontWeight: '600',
+										cursor: isLoading || !selectedDevice ? 'not-allowed' : 'pointer',
+										transition: 'all 0.2s ease',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										gap: '0.5rem',
+										margin: '0 auto',
+									}}
+								>
+									{isLoading ? (
+										<>
+											<LoadingSpinner />
+											Authenticating...
+										</>
+									) : (
+										<>
+											<FiShield />
+											Authenticate with {selectedDevice?.name || 'Selected Device'}
+										</>
+									)}
+								</button>
+							</>
+						) : (
+							<NoDevicesMessage>
+								<FiShield style={{ fontSize: '2rem', marginBottom: '1rem', color: '#9ca3af' }} />
+								<p>No authentication devices found</p>
+								<p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
+									Please register an MFA device first
+								</p>
+							</NoDevicesMessage>
+						)}
+					</DeviceSelectionContainer>
+				)}
 
-			{/* Authenticating State */}
-			{currentStep === 'authenticating' && (
-				<LoadingContainer>
-					<LoadingSpinner />
-					<LoadingText>Authenticating with {selectedDevice?.name}...</LoadingText>
-					<p style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.5rem' }}>
-						Please follow the instructions on your device
-					</p>
-				</LoadingContainer>
-			)}
+				{/* Authenticating State */}
+				{currentStep === 'authenticating' && (
+					<LoadingContainer>
+						<LoadingSpinner />
+						<LoadingText>Authenticating with {selectedDevice?.name}...</LoadingText>
+						<p style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.5rem' }}>
+							Please follow the instructions on your device
+						</p>
+					</LoadingContainer>
+				)}
 
-			{/* Educational Section */}
-			<EducationalSection>
-				<EducationalHeader>
-					<FiShield style={{ color: '#3b82f6' }} />
-					<EducationalTitle>{educationalContent.title}</EducationalTitle>
-				</EducationalHeader>
+				{/* Educational Section */}
+				<EducationalSection>
+					<EducationalHeader>
+						<FiShield style={{ color: '#3b82f6' }} />
+						<EducationalTitle>{educationalContent.title}</EducationalTitle>
+					</EducationalHeader>
 
-				<EducationalDescription>{educationalContent.description}</EducationalDescription>
+					<EducationalDescription>{educationalContent.description}</EducationalDescription>
 
-				<KeyPoints>
-					{educationalContent.keyPoints.map((point, index) => (
-						<KeyPoint key={index}>
-							<KeyPointIcon />
-							{point}
-						</KeyPoint>
-					))}
-				</KeyPoints>
-			</EducationalSection>
-		</MFAContainer>
+					<KeyPoints>
+						{educationalContent.keyPoints.map((point, index) => (
+							<KeyPoint key={index}>
+								<KeyPointIcon />
+								{point}
+							</KeyPoint>
+						))}
+					</KeyPoints>
+				</EducationalSection>
+			</MFAContainer>
 		</>
 	);
 };

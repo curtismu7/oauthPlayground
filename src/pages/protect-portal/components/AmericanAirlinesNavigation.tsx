@@ -10,11 +10,10 @@
  */
 
 import React, { useState } from 'react';
-import { FiMenu, FiX, FiSearch, FiUser, FiChevronDown } from 'react-icons/fi';
+import { FiChevronDown, FiMenu, FiSearch, FiUser, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
 import BrandDropdownSelector from './BrandDropdownSelector';
-import TextLogo from './TextLogo';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -164,61 +163,59 @@ const MobileNavLink = styled.a`
 // ============================================================================
 
 interface AmericanAirlinesNavigationProps {
-  className?: string;
+	className?: string;
 }
 
-const AmericanAirlinesNavigation: React.FC<AmericanAirlinesNavigationProps> = ({ 
-  className 
-}) => {
-  const { activeTheme } = useBrandTheme();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+const AmericanAirlinesNavigation: React.FC<AmericanAirlinesNavigationProps> = ({ className }) => {
+	const { activeTheme } = useBrandTheme();
+	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
+	const toggleMobileMenu = () => {
+		setMobileMenuOpen(!mobileMenuOpen);
+	};
 
-  return (
-    <NavigationContainer className={className}>
-      <NavigationContent>
-        <LogoSection>
-          <BrandDropdownSelector />
-        </LogoSection>
-        
-        <NavigationLinks>
-          <NavLink href="#book">Book</NavLink>
-          <NavLink href="#checkin">Check-in</NavLink>
-          <NavLink href="#mytrips">My Trips</NavLink>
-          <NavLink href="#aadvantage">AAdvantage</NavLink>
-        </NavigationLinks>
-        
-        <RightSection>
-          <SearchButton>
-            <FiSearch size={16} />
-          </SearchButton>
-          
-          <UserMenu>
-            <UserButton>
-              <FiUser size={16} />
-              <span>Sign In</span>
-              <FiChevronDown size={12} />
-            </UserButton>
-          </UserMenu>
-          
-          <MobileMenuButton onClick={toggleMobileMenu}>
-            {mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-          </MobileMenuButton>
-        </RightSection>
-      </NavigationContent>
-      
-      <MobileMenu $isOpen={mobileMenuOpen}>
-        <MobileNavLink href="#book">Book</MobileNavLink>
-        <MobileNavLink href="#checkin">Check-in</MobileNavLink>
-        <MobileNavLink href="#mytrips">My Trips</MobileNavLink>
-        <MobileNavLink href="#aadvantage">AAdvantage</MobileNavLink>
-        <MobileNavLink href="#signin">Sign In</MobileNavLink>
-      </MobileMenu>
-    </NavigationContainer>
-  );
+	return (
+		<NavigationContainer className={className}>
+			<NavigationContent>
+				<LogoSection>
+					<BrandDropdownSelector />
+				</LogoSection>
+
+				<NavigationLinks>
+					<NavLink href="#book">Book</NavLink>
+					<NavLink href="#checkin">Check-in</NavLink>
+					<NavLink href="#mytrips">My Trips</NavLink>
+					<NavLink href="#aadvantage">AAdvantage</NavLink>
+				</NavigationLinks>
+
+				<RightSection>
+					<SearchButton>
+						<FiSearch size={16} />
+					</SearchButton>
+
+					<UserMenu>
+						<UserButton>
+							<FiUser size={16} />
+							<span>Sign In</span>
+							<FiChevronDown size={12} />
+						</UserButton>
+					</UserMenu>
+
+					<MobileMenuButton onClick={toggleMobileMenu}>
+						{mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+					</MobileMenuButton>
+				</RightSection>
+			</NavigationContent>
+
+			<MobileMenu $isOpen={mobileMenuOpen}>
+				<MobileNavLink href="#book">Book</MobileNavLink>
+				<MobileNavLink href="#checkin">Check-in</MobileNavLink>
+				<MobileNavLink href="#mytrips">My Trips</MobileNavLink>
+				<MobileNavLink href="#aadvantage">AAdvantage</MobileNavLink>
+				<MobileNavLink href="#signin">Sign In</MobileNavLink>
+			</MobileMenu>
+		</NavigationContainer>
+	);
 };
 
 export default AmericanAirlinesNavigation;
