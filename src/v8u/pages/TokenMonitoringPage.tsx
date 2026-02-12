@@ -1,28 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import {
-	FiAlertTriangle,
+	FiChevronDown,
+	FiChevronUp,
+	FiCopy,
 	FiCheckCircle,
+	FiAlertTriangle,
 	FiClock,
 	FiDatabase,
-	FiDownload,
 	FiEye,
+	FiEyeOff,
 	FiInfo,
 	FiRefreshCw,
 	FiSettings,
 	FiShield,
 	FiTrash2,
-	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
+import TokenDisplayService from '../../services/tokenDisplayService';
 import {
 	type RevocationMethod,
 	type TokenInfo,
 	TokenMonitoringService,
 } from '../services/tokenMonitoringService';
-// Enhanced state management for token synchronization
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';
 
 const PageContainer = styled.div`
@@ -150,54 +152,51 @@ const TokenStatus = styled.span<{ $status: 'active' | 'expiring' | 'expired' | '
         `;
 			case 'expired':
 				return `
-          background: #fee2e2;
+          background: #fecaca;
           color: #991b1b;
         `;
 			case 'error':
 				return `
-          background: #fee2e2;
+          background: #fecaca;
           color: #991b1b;
         `;
 			default:
 				return `
-          background: #f3f4f6;
-          color: #4b5563;
+          background: #f1f5f9;
+          color: #64748b';
         `;
 		}
 	}}
 `;
 
+const TokenContent = styled.div`
+  margin-bottom: 1rem;
+`;
+
 const TokenValue = styled.div`
-  font-family: 'Courier New', monospace;
-  font-size: 0.875rem;
-  color: #374151;
+  font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+  font-size: 0.75rem;
   background: #f8fafc;
-  padding: 0.5rem;
-  border-radius: 4px;
-  margin: 0.5rem 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
   word-break: break-all;
+  color: #475569;
 `;
 
-const TokenInfoContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
-  margin: 1rem 0;
-`;
-
-const InfoItem = styled.div`
-  font-size: 0.875rem;
+const TokenMetadata = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.75rem;
   color: #64748b;
-  
-  strong {
-    color: #374151;
-  }
 `;
 
 const TokenActions = styled.div`
   display: flex;
   gap: 0.5rem;
-  margin-top: 1rem;
+  flex-wrap: wrap;
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
@@ -252,67 +251,107 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 	}}
 `;
 
-const TestButton = styled.button`
-  padding: 0.75rem 1.5rem;
+const DropdownContainer = styled.div`
+  position: relative;
+  margin-bottom: 1.5rem;
+`;
+
+const DropdownButton = styled.button`
+  background: white;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
+  padding: 0.75rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid #3b82f6;
-  background: #3b82f6;
-  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 200px;
+  color: #1e293b;
+  
+  &:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+`;
+
+const DropdownMenu = styled.div<{ $isOpen: boolean }>`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: ${(props) => (props.$isOpen ? 'block' : 'none')};
+`;
+
+const DropdownItem = styled.button`
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 0.875rem;
+  color: #1e293b;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   
   &:hover {
-    background: #2563eb;
-    border-color: #2563eb;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    background: #f8fafc;
   }
   
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  &:first-child {
+    border-radius: 8px 8px 0 0;
+  }
+  
+  &:last-child {
+    border-radius: 0 0 8px 8px;
   }
 `;
 
-const SectionContainer = styled.div`
+const TokenDecodedContent = styled.div`
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+  font-size: 0.75rem;
+  max-height: 300px;
+  overflow-y: auto;
+`;
+
+const DecodedSection = styled.div`
+  margin-bottom: 1rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const DecodedHeader = styled.div`
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+`;
+
+const DecodedJson = styled.pre`
   background: white;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-`;
-
-const SectionHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e2e8f0;
-`;
-
-const SectionTitle = styled.h2`
-  color: #1e293b;
-  font-size: 1.25rem;
-  font-weight: 600;
+  border-radius: 4px;
+  padding: 0.5rem;
   margin: 0;
-`;
-
-const SectionIcon = styled.div`
-  font-size: 1.25rem;
-  color: #3b82f6;
-`;
-
-const ActionButtons = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-top: 1rem;
+  overflow-x: auto;
+  color: #475569;
+  font-size: 0.7rem;
 `;
 
 const EmptyState = styled.div`
@@ -327,36 +366,63 @@ const EmptyState = styled.div`
   }
 `;
 
+const MessageContainer = styled.div<{ $type: 'success' | 'error' | 'info' }>`
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  
+  ${(props) => {
+		switch (props.$type) {
+			case 'success':
+				return `
+          background: #dcfce7;
+          border: 1px solid #bbf7d0;
+          color: #166534;
+        `;
+			case 'error':
+				return `
+          background: #fecaca;
+          border: 1px solid #fca5a5;
+          color: #991b1b;
+        `;
+			default:
+				return `
+          background: #dbeafe;
+          border: 1px solid #bfdbfe;
+          color: #1e40af;
+        `;
+		}
+	}}
+`;
+
 export const TokenMonitoringPage: React.FC = () => {
 	const [tokens, setTokens] = useState<TokenInfo[]>([]);
 	const [message, setMessage] = useState<string>('');
 	const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const [_revocationMethod, _setRevocationMethod] = useState<RevocationMethod>('oauth_revoke');
-	const [showRevocationOptions, setShowRevocationOptions] = useState<string | null>(null);
+	const [selectedTokenType, setSelectedTokenType] = useState<string>('all');
+	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+	const [decodedTokens, setDecodedTokens] = useState<Record<string, unknown>>({});
+	const [copiedTokenId, setCopiedTokenId] = useState<string | null>(null);
 
-	// Enhanced state management for token synchronization
 	const { actions: enhancedStateActions } = useUnifiedFlowState();
 
 	// Subscribe to token monitoring service
 	useEffect(() => {
-		// Reset service instance to ensure clean initialization on refresh
 		TokenMonitoringService.resetInstance();
-
-		// Get fresh instance
 		const freshService = TokenMonitoringService.getInstance();
 
-		// Get initial tokens immediately
 		const initialTokens = freshService.getAllTokens();
 		setTokens(initialTokens);
 		logger.debug(`[TokenMonitoringPage] Loaded ${initialTokens.length} initial tokens after reset`);
 
-		// Subscribe to future updates
 		const unsubscribe = freshService.subscribe((newTokens: TokenInfo[]) => {
 			setTokens(newTokens);
 			logger.debug(`[TokenMonitoringPage] Updated tokens: ${newTokens.length} tokens`);
 
-			// Update enhanced state management with new token counts
 			try {
 				const tokenCount = newTokens.length;
 				const featureCount = tokenCount > 0 ? 1 : 0;
@@ -372,10 +438,8 @@ export const TokenMonitoringPage: React.FC = () => {
 			}
 		});
 
-		// Also try to sync worker tokens if they exist
 		freshService.manualSyncWorkerToken();
 
-		// Add a delay and try again to ensure worker token is picked up
 		setTimeout(() => {
 			logger.debug('[TokenMonitoringPage] Attempting second worker token sync...');
 			freshService.manualSyncWorkerToken();
@@ -401,43 +465,9 @@ export const TokenMonitoringPage: React.FC = () => {
 	const handleRevokeToken = async (tokenId: string, method: RevocationMethod = 'oauth_revoke') => {
 		try {
 			const service = TokenMonitoringService.getInstance();
-			const options = { method };
-
-			// For session deletion, we need additional parameters
-			if (method === 'session_delete') {
-				// In a real implementation, you'd get these from user input or token introspection
-				const userId = prompt('Enter User ID for session deletion:');
-				const sessionId = prompt('Enter Session ID for session deletion:');
-
-				if (!userId || !sessionId) {
-					setMessage('User ID and Session ID required for session deletion');
-					setMessageType('error');
-					return;
-				}
-
-				(options as any).userId = userId;
-				(options as any).sessionId = sessionId;
-			}
-
-			// For ID token hint
-			if (method === 'sso_signoff') {
-				const token = tokens.find((t) => t.id === tokenId);
-				if (token?.type === 'id_token') {
-					(options as any).idTokenHint = token.value;
-				}
-			}
-
-			await service.revokeToken(tokenId, options);
-
-			const methodNames = {
-				oauth_revoke: 'OAuth token revocation',
-				sso_signoff: 'SSO sign-off',
-				session_delete: 'Session deletion',
-			};
-
-			setMessage(`Token revoked successfully via ${methodNames[method]}`);
+			await service.revokeToken(tokenId, { method });
+			setMessage('Token revoked successfully');
 			setMessageType('success');
-			setShowRevocationOptions(null);
 		} catch (error) {
 			logger.error('Failed to revoke token:', error);
 			setMessage('Failed to revoke token');
@@ -445,462 +475,233 @@ export const TokenMonitoringPage: React.FC = () => {
 		}
 	};
 
-	const handleIntrospectToken = async (tokenId: string) => {
+	const handleCopyToken = async (token: string, tokenId: string) => {
 		try {
-			const service = TokenMonitoringService.getInstance();
-			await service.introspectToken(tokenId);
-			setMessage('Token introspection completed');
-			setMessageType('success');
-		} catch (error) {
-			logger.error('Failed to introspect token:', error);
-			setMessage('Failed to introspect token');
-			setMessageType('error');
-		}
-	};
-
-	const handleToggleVisibility = (tokenId: string) => {
-		const token = tokens.find((t) => t.id === tokenId);
-		if (token) {
-			const service = TokenMonitoringService.getInstance();
-			service.updateToken(tokenId, { isVisible: !token.isVisible });
-		}
-	};
-
-	const handleExportTokens = () => {
-		const tokenData = tokens.map((token) => ({
-			type: token.type,
-			value: token.value,
-			expiresAt: token.expiresAt,
-			issuedAt: token.issuedAt,
-			scope: token.scope,
-			status: token.status,
-		}));
-
-		const blob = new Blob([JSON.stringify(tokenData, null, 2)], {
-			type: 'application/json',
-		});
-
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `tokens-${new Date().toISOString().split('T')[0]}.json`;
-		document.body.appendChild(a);
-		a.click();
-		document.body.removeChild(a);
-		URL.revokeObjectURL(url);
-
-		setMessage('Tokens exported successfully');
-		setMessageType('success');
-	};
-
-	const handleClearAllTokens = () => {
-		const service = TokenMonitoringService.getInstance();
-		service.clearAllTokens();
-		setMessage('All tokens cleared');
-		setMessageType('info');
-	};
-
-	const handleRefreshWorkerToken = async () => {
-		try {
-			logger.debug('🔧 [TokenMonitoringPage] Refreshing worker token with optimized service...');
-
-			// Use the optimized unified worker token service V2
-			const status = await unifiedWorkerTokenService.getStatus();
-			logger.debug('🔧 [TokenMonitoringPage] Current status:', status);
-
-			if (!status.hasCredentials) {
-				setMessage('No worker token credentials found. Please configure worker token first.');
-				setMessageType('error');
-				return;
+			const success = await TokenDisplayService.copyToClipboard(token);
+			if (success) {
+				setCopiedTokenId(tokenId);
+				setTimeout(() => setCopiedTokenId(null), 2000);
+				setMessage('Token copied to clipboard');
+				setMessageType('success');
 			}
+		} catch (error) {
+			logger.error('Failed to copy token:', error);
+			setMessage('Failed to copy token');
+			setMessageType('error');
+		}
+	};
 
-			// For now, we'll clear the token and let user re-authenticate
-			// The optimized service doesn't have a direct "refresh" method like the old manager
-			await unifiedWorkerTokenService.clearToken();
-
-			setMessage('Worker token cleared. Please re-authenticate to get a new token.');
+	const handleDecodeToken = (token: TokenInfo) => {
+		const decoded = TokenDisplayService.decodeJWT(token.value);
+		if (decoded) {
+			setDecodedTokens(prev => ({
+				...prev,
+				[token.id]: decoded
+			}));
+		} else {
+			setMessage('Token cannot be decoded (not a valid JWT)');
 			setMessageType('info');
-		} catch (error) {
-			logger.error('Failed to refresh worker token:', error);
-			setMessage('Failed to refresh worker token');
-			setMessageType('error');
 		}
 	};
 
-	const handleGetWorkerToken = async () => {
-		try {
-			logger.debug('🔧 [TokenMonitoringPage] Opening V8 worker token modal...');
+	const handleToggleDecoded = (tokenId: string) => {
+		setDecodedTokens(prev => {
+			const newState = { ...prev };
+			if (newState[tokenId]) {
+				delete newState[tokenId];
+			}
+			return newState;
+		});
+	};
 
-			// Open V8 worker token modal directly
-			setShowWorkerTokenModal(true);
+	// Filter tokens based on selected type
+	const filteredTokens = selectedTokenType === 'all' 
+		? tokens 
+		: tokens.filter(token => token.type === selectedTokenType);
 
-			setMessage('Opening V8 worker token configuration...');
-			setMessageType('info');
-		} catch (error) {
-			logger.error('❌ [TokenMonitoringPage] Failed to open worker token modal:', error);
-			setMessage('Failed to open worker token modal');
-			setMessageType('error');
+	// Calculate stats
+	const activeTokens = filteredTokens.filter(t => t.status === 'active').length;
+	const expiringTokens = filteredTokens.filter(t => t.status === 'expiring').length;
+	const expiredTokens = filteredTokens.filter(t => t.status === 'expired').length;
+
+	const getTokenTypeLabel = (type: string) => {
+		switch (type) {
+			case 'access_token': return 'Access Token';
+			case 'refresh_token': return 'Refresh Token';
+			case 'id_token': return 'ID Token';
+			case 'worker_token': return 'Worker Token';
+			default: return type;
 		}
 	};
 
-	const handleImplicitLogin = async () => {
-		try {
-			logger.debug('🔧 [TokenMonitoringPage] Starting unified implicit flow...');
-
-			// Navigate to unified implicit flow instead of old implicit flow
-			window.location.href = '/v8u/unified/implicit';
-		} catch (error) {
-			logger.error('❌ [TokenMonitoringPage] Failed to start implicit login:', error);
-			setMessage('Failed to start implicit login');
-			setMessageType('error');
-		}
+	const formatExpiry = (expiresAt: number | null) => {
+		if (!expiresAt) return 'No expiry';
+		const date = new Date(expiresAt);
+		return date.toLocaleString();
 	};
-
-	// Calculate statistics
-	const stats = {
-		total: tokens.length,
-		active: tokens.filter((t) => t.status === 'active').length,
-		expiring: tokens.filter((t) => t.status === 'expiring').length,
-		expired: tokens.filter((t) => t.status === 'expired').length,
-		error: tokens.filter((t) => t.status === 'error').length,
-	};
-
-	// Debug logging
-	logger.debug(`[TokenMonitoringPage] Render state:`, {
-		tokensCount: tokens.length,
-		tokens: tokens.map((t) => ({ id: t.id, type: t.type, status: t.status })),
-		stats,
-	});
 
 	return (
-		<>
-			<PageContainer>
-				<PageHeader>
-					<PageTitle>🔍 Token Monitoring Dashboard</PageTitle>
-					<PageSubtitle>
-						Real-time token monitoring with countdowns, introspection, and management
-					</PageSubtitle>
-				</PageHeader>
+		<PageContainer>
+			<PageHeader>
+				<PageTitle>🔐 Token Monitoring</PageTitle>
+				<PageSubtitle>Real-time monitoring and management of OAuth tokens</PageSubtitle>
+			</PageHeader>
 
-				{/* Debug Section */}
-				<div
-					style={{
-						background: '#f0f9ff',
-						border: '1px solid #0ea5e9',
-						borderRadius: '8px',
-						padding: '1rem',
-						marginBottom: '1rem',
-					}}
-				>
-					<h4 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e' }}>Debug Info</h4>
-					<p style={{ margin: '0', fontSize: '0.875rem', color: '#075985' }}>
-						Tokens: {tokens.length} | Active: {stats.active} | Expiring: {stats.expiring}
-					</p>
-					<div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-						<TestButton onClick={handleGetWorkerToken}>
-							<FiDatabase /> Get WorkerToken
-						</TestButton>
-						<TestButton onClick={handleImplicitLogin}>
-							<FiShield /> Implicit Login
-						</TestButton>
-					</div>
-				</div>
+			{message && (
+				<MessageContainer $type={messageType}>
+					{messageType === 'success' && <FiCheckCircle />}
+					{messageType === 'error' && <FiAlertTriangle />}
+					{messageType === 'info' && <FiInfo />}
+					{message}
+				</MessageContainer>
+			)}
 
-				{message && (
-					<div
-						style={{
-							marginBottom: '1rem',
-						}}
-					>
-						<div
-							style={{
-								padding: '1rem',
-								borderRadius: '8px',
-								background:
-									messageType === 'success'
-										? '#f0fdf4'
-										: messageType === 'error'
-											? '#fef2f2'
-											: '#eff6ff',
-								border: `1px solid ${messageType === 'success' ? '#86efac' : messageType === 'error' ? '#fecaca' : '#bfdbfe'}`,
-								color:
-									messageType === 'success'
-										? '#166534'
-										: messageType === 'error'
-											? '#991b1b'
-											: '#1e40af',
-								textAlign: 'center',
-							}}
-						>
-							{message}
-						</div>
-					</div>
-				)}
+			<StatsGrid>
+				<StatCard>
+					<StatIcon $color="#10b981">
+						<FiCheckCircle />
+					</StatIcon>
+					<StatValue>{activeTokens}</StatValue>
+					<StatLabel>Active Tokens</StatLabel>
+				</StatCard>
+				<StatCard>
+					<StatIcon $color="#f59e0b">
+						<FiClock />
+					</StatIcon>
+					<StatValue>{expiringTokens}</StatValue>
+					<StatLabel>Expiring Soon</StatLabel>
+				</StatCard>
+				<StatCard>
+					<StatIcon $color="#ef4444">
+						<FiAlertTriangle />
+					</StatIcon>
+					<StatValue>{expiredTokens}</StatValue>
+					<StatLabel>Expired</StatLabel>
+				</StatCard>
+				<StatCard>
+					<StatIcon $color="#3b82f6">
+						<FiDatabase />
+					</StatIcon>
+					<StatValue>{filteredTokens.length}</StatValue>
+					<StatLabel>Total Tokens</StatLabel>
+				</StatCard>
+			</StatsGrid>
 
-				{/* Statistics */}
-				<StatsGrid>
-					<StatCard>
-						<StatIcon $color="#3b82f6">
-							<FiDatabase />
-						</StatIcon>
-						<StatValue>{stats.total}</StatValue>
-						<StatLabel>Total Tokens</StatLabel>
-					</StatCard>
+			<DropdownContainer>
+				<DropdownButton onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+					<span>
+						{selectedTokenType === 'all' ? 'All Tokens' : getTokenTypeLabel(selectedTokenType)}
+					</span>
+					{isDropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
+				</DropdownButton>
+				<DropdownMenu $isOpen={isDropdownOpen}>
+					<DropdownItem onClick={() => { setSelectedTokenType('all'); setIsDropdownOpen(false); }}>
+						<FiDatabase /> All Tokens
+					</DropdownItem>
+					<DropdownItem onClick={() => { setSelectedTokenType('access_token'); setIsDropdownOpen(false); }}>
+						<FiShield /> Access Tokens
+					</DropdownItem>
+					<DropdownItem onClick={() => { setSelectedTokenType('refresh_token'); setIsDropdownOpen(false); }}>
+						<FiRefreshCw /> Refresh Tokens
+					</DropdownItem>
+					<DropdownItem onClick={() => { setSelectedTokenType('id_token'); setIsDropdownOpen(false); }}>
+						<FiInfo /> ID Tokens
+					</DropdownItem>
+					<DropdownItem onClick={() => { setSelectedTokenType('worker_token'); setIsDropdownOpen(false); }}>
+						<FiSettings /> Worker Tokens
+					</DropdownItem>
+				</DropdownMenu>
+			</DropdownContainer>
 
-					<StatCard>
-						<StatIcon $color="#10b981">
-							<FiCheckCircle />
-						</StatIcon>
-						<StatValue>{stats.active}</StatValue>
-						<StatLabel>Active</StatLabel>
-					</StatCard>
+			{filteredTokens.length === 0 ? (
+				<EmptyState>
+					<FiDatabase />
+					<h3>No tokens found</h3>
+					<p>Complete an OAuth flow to see tokens here</p>
+				</EmptyState>
+			) : (
+				<TokenGrid>
+					{filteredTokens.map((token) => (
+						<TokenCard key={token.id} $status={token.status}>
+							<TokenHeader>
+								<TokenType>{getTokenTypeLabel(token.type)}</TokenType>
+								<TokenStatus $status={token.status}>{token.status}</TokenStatus>
+							</TokenHeader>
 
-					<StatCard>
-						<StatIcon $color="#f59e0b">
-							<FiClock />
-						</StatIcon>
-						<StatValue>{stats.expiring}</StatValue>
-						<StatLabel>Expiring Soon</StatLabel>
-					</StatCard>
-
-					<StatCard>
-						<StatIcon $color="#ef4444">
-							<FiAlertTriangle />
-						</StatIcon>
-						<StatValue>{stats.expired}</StatValue>
-						<StatLabel>Expired</StatLabel>
-					</StatCard>
-				</StatsGrid>
-
-				{/* Token Management Actions */}
-				<SectionContainer>
-					<SectionHeader>
-						<SectionIcon>
-							<FiSettings />
-						</SectionIcon>
-						<SectionTitle>Token Management</SectionTitle>
-					</SectionHeader>
-
-					<ActionButtons>
-						<ActionButton onClick={handleExportTokens}>
-							<FiDownload /> Export Tokens
-						</ActionButton>
-						<ActionButton onClick={handleClearAllTokens} $variant="danger">
-							<FiTrash2 /> Clear All Tokens
-						</ActionButton>
-					</ActionButtons>
-				</SectionContainer>
-
-				{/* Tokens List */}
-				{tokens.length > 0 ? (
-					<TokenGrid>
-						{tokens.map((token) => (
-							<TokenCard key={token.id} $status={token.status}>
-								<TokenHeader>
-									<TokenType>{token.type.replace('_', ' ').toUpperCase()}</TokenType>
-									<TokenStatus $status={token.status}>
-										{token.status}
-										{token.source === 'worker_token' && (
-											<span style={{ marginLeft: '0.5rem', fontSize: '0.6rem' }}>🏭 WORKER</span>
-										)}
-									</TokenStatus>
-								</TokenHeader>
-
+							<TokenContent>
 								<TokenValue>
-									{token.isVisible
-										? token.value
-										: '••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••'}
+									{TokenDisplayService.maskToken(token.value)}
 								</TokenValue>
+								<TokenMetadata>
+									<span>ID: {token.id}</span>
+									{token.expiresAt && <span>Expires: {formatExpiry(token.expiresAt)}</span>}
+									{token.source && <span>Source: {token.source}</span>}
+								</TokenMetadata>
+							</TokenContent>
 
-								<TokenInfoContainer>
-									<InfoItem>
-										<strong>Expires:</strong>{' '}
-										{token.expiresAt ? new Date(token.expiresAt).toLocaleString() : 'Never'}
-									</InfoItem>
-									<InfoItem>
-										<strong>Issued:</strong>{' '}
-										{token.issuedAt ? new Date(token.issuedAt).toLocaleString() : 'Unknown'}
-									</InfoItem>
-									<InfoItem>
-										<strong>Scope:</strong> {token.scope.join(', ')}
-									</InfoItem>
-									<InfoItem>
-										<strong>ID:</strong> {token.id}
-									</InfoItem>
-								</TokenInfoContainer>
+							{decodedTokens[token.id] && (
+								<TokenDecodedContent>
+									<DecodedSection>
+										<DecodedHeader>Header</DecodedHeader>
+										<DecodedJson>
+											{JSON.stringify((decodedTokens[token.id] as { header: unknown }).header, null, 2)}
+										</DecodedJson>
+									</DecodedSection>
+									<DecodedSection>
+										<DecodedHeader>Payload</DecodedHeader>
+										<DecodedJson>
+											{JSON.stringify((decodedTokens[token.id] as { payload: unknown }).payload, null, 2)}
+										</DecodedJson>
+									</DecodedSection>
+								</TokenDecodedContent>
+							)}
 
-								<TokenActions>
-									<ActionButton onClick={() => handleToggleVisibility(token.id)}>
-										{token.isVisible ? <FiEye /> : <FiEye />} {token.isVisible ? 'Hide' : 'Show'}
+							<TokenActions>
+								<ActionButton
+									onClick={() => handleCopyToken(token.value, token.id)}
+									$variant="secondary"
+								>
+									{copiedTokenId === token.id ? <FiCheck /> : <FiCopy />}
+									{copiedTokenId === token.id ? 'Copied!' : 'Copy'}
+								</ActionButton>
+								
+								{TokenDisplayService.isJWT(token.value) && (
+									<ActionButton
+										onClick={() => decodedTokens[token.id] 
+											? handleToggleDecoded(token.id)
+											: handleDecodeToken(token)
+										}
+										$variant="secondary"
+									>
+										{decodedTokens[token.id] ? <FiEyeOff /> : <FiEye />}
+										{decodedTokens[token.id] ? 'Hide' : 'Decode'}
 									</ActionButton>
-									<ActionButton onClick={() => handleIntrospectToken(token.id)}>
-										<FiInfo /> Introspect
-									</ActionButton>
-									{(token.status === 'expired' || token.status === 'expiring') &&
-										token.type !== 'worker_token' && (
-											<ActionButton onClick={() => handleRefreshToken(token.id)}>
-												<FiRefreshCw /> Refresh
-											</ActionButton>
-										)}
-									{token.type !== 'worker_token' && (
-										<div style={{ position: 'relative' }}>
-											<ActionButton
-												onClick={() =>
-													setShowRevocationOptions(
-														showRevocationOptions === token.id ? null : token.id
-													)
-												}
-												$variant="danger"
-											>
-												<FiX /> Revoke
-											</ActionButton>
+								)}
+								
+								<ActionButton
+									onClick={() => handleRefreshToken(token.id)}
+									$variant="primary"
+								>
+									<FiRefreshCw />
+									Refresh
+								</ActionButton>
+								
+								<ActionButton
+									onClick={() => handleRevokeToken(token.id)}
+									$variant="danger"
+								>
+									<FiTrash2 />
+									Revoke
+								</ActionButton>
+							</TokenActions>
+						</TokenCard>
+					))}
+				</TokenGrid>
+			)}
 
-											{showRevocationOptions === token.id && (
-												<div
-													style={{
-														position: 'absolute',
-														top: '100%',
-														right: 0,
-														background: 'white',
-														border: '1px solid #e2e8f0',
-														borderRadius: '6px',
-														padding: '0.5rem',
-														marginTop: '0.25rem',
-														boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-														zIndex: 1000,
-														minWidth: '200px',
-													}}
-												>
-													<div
-														style={{
-															fontSize: '0.75rem',
-															fontWeight: '600',
-															marginBottom: '0.5rem',
-															color: '#374151',
-														}}
-													>
-														Revocation Method:
-													</div>
-													<button
-														style={{
-															display: 'block',
-															width: '100%',
-															padding: '0.25rem 0.5rem',
-															textAlign: 'left',
-															border: 'none',
-															background: 'transparent',
-															fontSize: '0.75rem',
-															cursor: 'pointer',
-															borderRadius: '4px',
-															marginBottom: '0.25rem',
-														}}
-														onClick={() => handleRevokeToken(token.id, 'oauth_revoke')}
-														onMouseEnter={(e) => (e.currentTarget.style.background = '#f3f4f6')}
-														onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-													>
-														🔄 OAuth Token Revocation
-													</button>
-													<button
-														style={{
-															display: 'block',
-															width: '100%',
-															padding: '0.25rem 0.5rem',
-															textAlign: 'left',
-															border: 'none',
-															background: 'transparent',
-															fontSize: '0.75rem',
-															cursor: 'pointer',
-															borderRadius: '4px',
-															marginBottom: '0.25rem',
-														}}
-														onClick={() => handleRevokeToken(token.id, 'sso_signoff')}
-														onMouseEnter={(e) => (e.currentTarget.style.background = '#f3f4f6')}
-														onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-													>
-														🚪 SSO Sign-off
-													</button>
-													<button
-														style={{
-															display: 'block',
-															width: '100%',
-															padding: '0.25rem 0.5rem',
-															textAlign: 'left',
-															border: 'none',
-															background: 'transparent',
-															fontSize: '0.75rem',
-															cursor: 'pointer',
-															borderRadius: '4px',
-														}}
-														onClick={() => handleRevokeToken(token.id, 'session_delete')}
-														onMouseEnter={(e) => (e.currentTarget.style.background = '#f3f4f6')}
-														onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-													>
-														👥 Delete Session
-													</button>
-												</div>
-											)}
-										</div>
-									)}
-									{token.type === 'worker_token' && (
-										<ActionButton onClick={() => handleRefreshWorkerToken()} $variant="primary">
-											<FiRefreshCw /> Refresh Worker Token
-										</ActionButton>
-									)}
-								</TokenActions>
-							</TokenCard>
-						))}
-					</TokenGrid>
-				) : (
-					<SectionContainer>
-						<EmptyState>
-							<FiDatabase />
-							<h3>No Tokens Found</h3>
-							<p>Start adding tokens to monitor their status and expiration</p>
-
-							{/* Test Buttons */}
-							<div
-								style={{
-									marginTop: '2rem',
-									display: 'flex',
-									gap: '1rem',
-									justifyContent: 'center',
-									flexWrap: 'wrap',
-								}}
-							>
-								<TestButton onClick={handleGetWorkerToken}>
-									<FiDatabase /> Get WorkerToken
-								</TestButton>
-								<TestButton onClick={handleImplicitLogin}>
-									<FiShield /> Implicit Login
-								</TestButton>
-							</div>
-						</EmptyState>
-					</SectionContainer>
-				)}
-			</PageContainer>
-
-			{/* V8 Worker Token Modal */}
-			<WorkerTokenModalV8
-				isOpen={showWorkerTokenModal}
-				onClose={() => {
-					logger.debug('[TokenMonitoringPage] V8 WorkerTokenModal closed');
-					setShowWorkerTokenModal(false);
-					// Force a sync to update the display
-					const service = TokenMonitoringService.getInstance();
-					service.manualSyncWorkerToken();
-				}}
-				onTokenGenerated={() => {
-					logger.debug('[TokenMonitoringPage] V8 WorkerTokenModal token generated');
-					setShowWorkerTokenModal(false);
-					// Force a sync to update the display
-					const service = TokenMonitoringService.getInstance();
-					service.manualSyncWorkerToken();
-				}}
-				flowType="token-monitoring"
-				environmentId=""
-			/>
-		</>
+			{showWorkerTokenModal && (
+				<WorkerTokenModalV8 onClose={() => setShowWorkerTokenModal(false)} />
+			)}
+		</PageContainer>
 	);
 };
-
-export default TokenMonitoringPage;
