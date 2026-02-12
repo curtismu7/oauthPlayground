@@ -32,6 +32,7 @@ import { useUserSearch } from '@/v8/hooks/useUserSearch';
 import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { useProductionSpinner } from '@/hooks/useProductionSpinner';
 
 const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
 
@@ -165,10 +166,15 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		}
 		return 'ALL';
 	});
-	const [isLoading, setIsLoading] = useState(false);
-	const [isDeleting, setIsDeleting] = useState(false);
 	const [policy, setPolicy] = useState<any>(null);
-	const [isLoadingPolicy, setIsLoadingPolicy] = useState(false);
+	
+	// Use CommonSpinnerService for loading states (Production menu group standard)
+	const loadingSpinner = useProductionSpinner('delete-all-devices-loading', {
+		message: 'Loading devices...',
+	});
+	const deletingSpinner = useProductionSpinner('delete-all-devices-deleting', {
+		message: 'Deleting devices...',
+	});
 	const [devices, setDevices] = useState<Array<Record<string, unknown>>>([]);
 	const [selectedDeviceIds, setSelectedDeviceIds] = useState<Set<string>>(new Set());
 	const [error, setError] = useState<string | null>(null);
@@ -325,7 +331,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			return;
 		}
 
-		setIsLoading(true);
+		loadingSpinner.showSpinner();
 		setError(null);
 		setDevices([]);
 		setDeletionResults(null);
@@ -360,7 +366,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			console.error(`${MODULE_TAG} Failed to load devices:`, error);
 			setError(error instanceof Error ? error.message : 'Failed to load devices');
 		} finally {
-			setIsLoading(false);
+			loadingSpinner.hideSpinner();
 		}
 	}, [environmentId, username, tokenStatus.isValid, selectedDeviceType, selectedDeviceStatus]); // Use tokenStatus.isValid instead of entire object
 
@@ -401,7 +407,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		const fetchPolicyInfo = async () => {
 			if (!environmentId || !username || !tokenStatus.isValid || devices.length === 0) return;
 			
-			setIsLoadingPolicy(true);
+			// Policy loading - no spinner needed for this quick operation
 			try {
 				// For now, we'll try to get a default policy. In a real implementation,
 				// you might need to determine which policy applies to this user
@@ -420,7 +426,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			} catch (error) {
 				console.warn(`${MODULE_TAG} Failed to fetch policy information:`, error);
 			} finally {
-				setIsLoadingPolicy(false);
+				// Policy loading complete
 			}
 		};
 		
@@ -492,7 +498,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			return;
 		}
 
-		setIsDeleting(true);
+		deletingSpinner.showSpinner();
 		setError(null);
 		setDeletionResults(null);
 
@@ -543,7 +549,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			setError(errorMessage);
 			toastV8.error(`Failed to delete devices: ${errorMessage}`);
 		} finally {
-			setIsDeleting(false);
+			deletingSpinner.hideSpinner();
 		}
 	}, [devices, selectedDeviceIds, environmentId, username, tokenStatus.isValid, handleLoadDevices]);
 
@@ -574,11 +580,20 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						📊 Device Usage Information
 					</h3>
 					
-					<div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
+					{/* Device Count and Limits */}
+					<div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '12px' }}>
 						<div>
 							<span style={{ color: '#6b7280', fontSize: '14px' }}>Current Devices:</span>
 							<span style={{ marginLeft: '8px', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
 								{devices.length}
+							</span>
+						</div>
+						
+						{/* PingOne Standard Limits */}
+						<div>
+							<span style={{ color: '#6b7280', fontSize: '14px' }}>Max Allowed:</span>
+							<span style={{ marginLeft: '8px', fontSize: '14px', fontWeight: '500', color: '#059669' }}>
+								50 devices
 							</span>
 						</div>
 						
@@ -590,14 +605,42 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 								</span>
 							</div>
 						)}
-						
-						{isLoadingPolicy && (
-							<div>
-								<span style={{ color: '#6b7280', fontSize: '14px' }}>Loading policy...</span>
-							</div>
-						)}
 					</div>
 					
+					{/* Device Usage Progress Bar */}
+					<div style={{ marginBottom: '12px' }}>
+						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+							<span style={{ fontSize: '12px', color: '#6b7280' }}>Device Usage</span>
+							<span style={{ fontSize: '12px', color: '#6b7280' }}>
+								{Math.round((devices.length / 50) * 100)}% (50 device limit)
+							</span>
+						</div>
+						<div style={{
+							width: '100%',
+							height: '8px',
+							background: '#e5e7eb',
+							borderRadius: '4px',
+							overflow: 'hidden'
+						}}>
+							<div style={{
+								width: `${Math.min((devices.length / 50) * 100, 100)}%`,
+								height: '100%',
+								background: devices.length > 40 ? '#ef4444' : devices.length > 25 ? '#f59e0b' : '#10b981',
+								transition: 'width 0.3s ease, background 0.3s ease'
+							}} />
+						</div>
+						<div style={{ marginTop: '4px', fontSize: '11px', color: '#6b7280' }}>
+							{devices.length > 40 ? (
+								<span style={{ color: '#dc2626' }}>⚠️ Approaching device limit</span>
+							) : devices.length > 25 ? (
+								<span style={{ color: '#d97706' }}>⚡ Moderate device usage</span>
+							) : (
+								<span style={{ color: '#059669' }}>✅ Healthy device usage</span>
+							)}
+						</div>
+					</div>
+					
+					{/* Policy Information */}
 					{policy && (
 						<div style={{ marginTop: '12px', fontSize: '12px', color: '#6b7280' }}>
 							{policy.pairingDisabled ? (
@@ -608,12 +651,17 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							{policy.promptForNicknameOnPairing && (
 								<span style={{ marginLeft: '16px' }}>• Users will be prompted for device nicknames</span>
 							)}
+							<span style={{ marginLeft: '16px' }}>• Max 20 valid pairing keys per user</span>
+							<span style={{ marginLeft: '16px' }}>• Devices in ACTIVATION_REQUIRED expire after 24 hours</span>
 						</div>
 					)}
 					
-					{!policy && !isLoadingPolicy && (
+					{!policy && (
 						<div style={{ marginTop: '8px', fontSize: '12px', color: '#6b7280' }}>
-							ℹ️ Policy information not available. Configure a default MFA policy to see device limits and settings.
+							<span style={{ color: '#059669' }}>✅ Using PingOne standard device limits</span>
+							<span style={{ marginLeft: '16px' }}>• Max 50 devices per user</span>
+							<span style={{ marginLeft: '16px' }}>• Max 20 valid pairing keys</span>
+							<span style={{ marginLeft: '16px' }}>• ACTIVATION_REQUIRED devices expire after 24 hours</span>
 						</div>
 					)}
 				</div>
@@ -880,21 +928,21 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						type="button"
 						onClick={handleLoadDevices}
 						disabled={
-							isLoading || !environmentId.trim() || !username.trim() || !tokenStatus.isValid
+							loadingSpinner.isLoading || !environmentId.trim() || !username.trim() || !tokenStatus.isValid
 						}
 						style={{
 							padding: '12px 24px',
 							border: 'none',
 							borderRadius: '6px',
 							background:
-								isLoading || !environmentId.trim() || !username.trim() || !tokenStatus.isValid
+								loadingSpinner.isLoading || !environmentId.trim() || !username.trim() || !tokenStatus.isValid
 									? '#9ca3af'
 									: '#3b82f6',
 							color: 'white',
 							fontSize: '16px',
 							fontWeight: '600',
 							cursor:
-								isLoading || !environmentId.trim() || !username.trim() || !tokenStatus.isValid
+								loadingSpinner.isLoading || !environmentId.trim() || !username.trim() || !tokenStatus.isValid
 									? 'not-allowed'
 									: 'pointer',
 							display: 'flex',
@@ -903,7 +951,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							gap: '8px',
 						}}
 					>
-						{isLoading ? (
+						{loadingSpinner.isLoading ? (
 							<>
 								<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
 								Loading Devices...
@@ -1009,20 +1057,20 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							<button
 								type="button"
 								onClick={handleDeleteAll}
-								disabled={isDeleting || devices.length === 0 || selectedCount === 0}
+								disabled={deletingSpinner.isLoading || devices.length === 0 || selectedCount === 0}
 								style={{
 									padding: '10px 20px',
 									border: 'none',
 									borderRadius: '6px',
 									background:
-										isDeleting || devices.length === 0 || selectedCount === 0
+										deletingSpinner.isLoading || devices.length === 0 || selectedCount === 0
 											? '#9ca3af'
 											: '#ef4444',
 									color: 'white',
 									fontSize: '16px',
 									fontWeight: '600',
 									cursor:
-										isDeleting || devices.length === 0 || selectedCount === 0
+										deletingSpinner.isLoading || devices.length === 0 || selectedCount === 0
 											? 'not-allowed'
 											: 'pointer',
 									display: 'flex',
@@ -1030,7 +1078,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 									gap: '8px',
 								}}
 							>
-								{isDeleting ? (
+								{deletingSpinner.isLoading ? (
 									<>
 										<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
 										Deleting...
