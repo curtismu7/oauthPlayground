@@ -213,6 +213,57 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		specification: 'OIDC Core 1.0, Section 3.3',
 	},
 
+	// V8 OAuth 2.0 Flows
+	{
+		flowType: 'oauth-authz-v8',
+		requiresRedirectUri: true,
+		callbackPath: 'callback',
+		description: 'V8 OAuth 2.0 Authorization Code Flow',
+		specification: 'RFC 6749, Section 4.1',
+	},
+	{
+		flowType: 'implicit-flow-v8',
+		requiresRedirectUri: true,
+		callbackPath: 'implicit-callback',
+		description: 'V8 OAuth 2.0 Implicit Flow',
+		specification: 'RFC 6749, Section 4.2',
+	},
+	{
+		flowType: 'client-credentials-v8',
+		requiresRedirectUri: false,
+		callbackPath: 'N/A',
+		description: 'V8 OAuth 2.0 Client Credentials Flow',
+		specification: 'RFC 6749, Section 4.4',
+	},
+	{
+		flowType: 'device-code-v8',
+		requiresRedirectUri: false,
+		callbackPath: 'device-code-status',
+		description: 'V8 OAuth 2.0 Device Code Flow',
+		specification: 'RFC 8628',
+	},
+	{
+		flowType: 'ropc-v8',
+		requiresRedirectUri: false,
+		callbackPath: 'N/A',
+		description: 'V8 OAuth 2.0 Resource Owner Password Credentials',
+		specification: 'RFC 6749, Section 4.3',
+	},
+	{
+		flowType: 'hybrid-v8',
+		requiresRedirectUri: true,
+		callbackPath: 'callback',
+		description: 'V8 OpenID Connect Hybrid Flow',
+		specification: 'OIDC Core 1.0, Section 3.3',
+	},
+	{
+		flowType: 'pkce-v8',
+		requiresRedirectUri: true,
+		callbackPath: 'callback',
+		description: 'V8 OAuth 2.0 Authorization Code Flow with PKCE',
+		specification: 'RFC 6749, Section 4.1 + RFC 7636',
+	},
+
 	// V8U Unified Flows
 	{
 		flowType: 'oauth-authz-v8u',
