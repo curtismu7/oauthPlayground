@@ -58,6 +58,13 @@ export interface DeviceAuthenticationPolicy {
 		deviceSelection?: string;
 		[key: string]: unknown;
 	};
+	// Device limits (according to PingOne documentation)
+	// Note: These are implicit limits enforced by PingOne, not explicit policy fields
+	_limits?: {
+		maxActivationRequiredDevices?: number; // Max 50 devices per user in ACTIVATION_REQUIRED status
+		maxValidPairingKeys?: number; // Max 20 valid pairing keys per user
+		[key: string]: unknown;
+	};
 	[key: string]: unknown;
 }
 
