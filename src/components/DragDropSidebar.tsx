@@ -589,6 +589,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</MigrationBadge>
 						),
 					},
+					{
+						id: 'environment-management',
+						path: '/environments',
+						label: 'Environment Management',
+						icon: (
+							<ColoredIcon $color="#3b82f6">
+								<FiServer />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Manage PingOne environments, create, delete, and promote to production">
+								NEW
+							</MigrationBadge>
+						),
+					},
 				],
 			},
 			{
@@ -1911,21 +1926,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 						badge: (
 							<MigrationBadge title="Production-ready DaVinci SDK integration with real PingOne APIs">
-								NEW
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'environment-management',
-						path: '/environments',
-						label: 'Environment Management',
-						icon: (
-							<ColoredIcon $color="#3b82f6">
-								<FiServer />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Manage PingOne environments, create, delete, and promote to production">
 								NEW
 							</MigrationBadge>
 						),

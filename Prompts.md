@@ -30,8 +30,8 @@ Please update this so it does not happen again /Users/cmuir/P1Import-apps/oauth-
 
 ----
 
-productiom
-PROTECT
+PRODUCTION
+
 
 Please follow the SWE-15 guide at /Users/cmuir/P1Import-apps/oauth-playground/SWE-15_PRODUCTION_INVENTORY.md and reference the inventory at /Users/cmuir/P1Import-apps/oauth-playground/PRODUCTION_INVENTORY.md. /Users/cmuir/P1Import-apps/oauth-playground/PROTECT_PORTAL_INVENTORY.md has things to look for so they do not happen again, check that after doing update, to make sure did not introduce it again.  You can update document to make it easier to find where these issues can arise, next time you test a change. 
 

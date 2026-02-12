@@ -487,12 +487,12 @@ const EnvironmentManagementPageV8: React.FC = () => {
         <div>
           <input
             type="checkbox"
-            checked={selectedEnvironments.length === environments.length && environments.length > 0}
+            checked={selectedEnvironments.length === (environments?.length || 0) && (environments?.length || 0) > 0}
             onChange={handleSelectAll}
             style={{ marginRight: '0.5rem' }}
             id="select-all-checkbox"
           />
-          <label htmlFor="select-all-checkbox">Select All ({environments.length} environments)</label>
+          <label htmlFor="select-all-checkbox">Select All ({environments?.length || 0} environments)</label>
         </div>
         <div>
           <Button variant="secondary">
