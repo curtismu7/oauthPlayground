@@ -224,7 +224,127 @@ const TokenMonitoringPage: React.FC = () => {
 
 ---
 
-### **✅ Issue PROD-004: JWT Token Decoding Security**
+### **✅ Issue PROD-005: React Controlled Input Warning in SilentApiConfigCheckboxV8**
+**Status**: ✅ RESOLVED  
+**Component**: SilentApiConfigCheckboxV8  
+**Severity**: Low (React Warning)
+**Last Updated**: 2026-02-12
+
+#### **Problem Summary:**
+React warning: "A component is changing an uncontrolled input to be controlled" caused by the checkbox value changing from undefined to a defined value during component initialization.
+
+#### **Root Cause Analysis:**
+- The `silentApiRetrieval` state was undefined initially
+- React detected the input changing from uncontrolled to controlled state
+- This happens when the checked prop starts as undefined then gets a boolean value
+
+#### **Required Fix:**
+Provide a default value for the controlled input to prevent the uncontrolled-to-controlled transition.
+
+#### **Files Affected:**
+- `src/v8/components/SilentApiConfigCheckboxV8.tsx` - Main component with controlled input
+
+#### **Prevention Commands:**
+```bash
+# Check for controlled input fixes
+grep -rn "checked.*??.*false" src/v8/components/SilentApiConfigCheckboxV8.tsx | wc -l && echo "✅ CONTROLLED INPUT FIXED" || echo "❌ CONTROLLED INPUT NOT FIXED"
+
+# Verify no undefined values in controlled inputs
+grep -rn "checked={.*undefined" src/v8/components/ --include="*.tsx" | wc -l && echo "⚠️ UNDEFINED CONTROLLED INPUTS FOUND" || echo "✅ NO UNDEFINED CONTROLLED INPUTS"
+```
+
+#### **SWE-15 Solution:**
+```typescript
+// ✅ SWE-15 COMPLIANT: Controlled input with default value
+<input
+  type="checkbox"
+  checked={silentApiRetrieval ?? false}  // Provide default value
+  onChange={handleChange}
+  disabled={disabled || loading}
+/>
+```
+
+---
+
+### **✅ Issue PROD-006: Environment Management Page Undefined Length Error**
+**Status**: ✅ RESOLVED  
+**Component**: EnvironmentManagementPageV8  
+**Severity**: High (Runtime Error)
+**Last Updated**: 2026-02-12
+
+#### **Problem Summary:**
+TypeError: "Cannot read properties of undefined (reading 'length')" at line 490 in EnvironmentManagementPageV8, caused by API failures leaving the environments array undefined.
+
+#### **Root Cause Analysis:**
+- API endpoint `/api/environments` returning 404 errors
+- Environments state remains undefined when API calls fail
+- Component tries to access `.length` on undefined array
+- Missing null checks in render logic
+
+#### **Required Actions:**
+1. **Add Null Safety**: Use optional chaining and default values
+2. **API Endpoint Fix**: Ensure `/api/environments` endpoint exists
+3. **Error Handling**: Graceful fallback when API fails
+4. **Loading States**: Proper loading indicators during API calls
+
+#### **Files Affected:**
+- `src/pages/EnvironmentManagementPageV8.tsx` - Main page component
+- Server-side API endpoints for environments
+
+#### **Prevention Commands:**
+```bash
+# Check for null safety in environments usage
+grep -rn "environments\.length\|environments\?" src/pages/EnvironmentManagementPageV8.tsx | wc -l && echo "✅ NULL SAFETY IMPLEMENTED" || echo "❌ MISSING NULL SAFETY"
+
+# Verify API endpoint exists
+grep -rn "/api/environments" server.js | wc -l && echo "✅ API ENDPOINT EXISTS" || echo "❌ MISSING API ENDPOINT"
+
+# Check for proper error handling
+grep -rn "catch.*err\|setError" src/pages/EnvironmentManagementPageV8.tsx | wc -l && echo "✅ ERROR HANDLING FOUND" || echo "❌ MISSING ERROR HANDLING"
+```
+
+#### **SWE-15 Solution:**
+```typescript
+// ✅ SWE-15 COMPLIANT: Null-safe array operations
+const checkedState = selectedEnvironments.length === (environments?.length || 0) && (environments?.length || 0) > 0;
+const environmentCount = environments?.length || 0;
+
+// In render:
+<input checked={checkedState} />
+<label>Select All ({environmentCount} environments)</label>
+```
+
+---
+
+### **✅ Issue PROD-007: Menu Organization - Environment Management Moved to Production**
+**Status**: ✅ RESOLVED  
+**Component**: DragDropSidebar  
+**Severity**: Low (Organization)
+**Last Updated**: 2026-02-12
+
+#### **Problem Summary:**
+Environment Management was incorrectly placed in the "Tools & Utilities" menu group instead of the "Production" group where it belongs with other production-related applications.
+
+#### **Required Changes:**
+1. **Remove from Tools & Utilities**: Remove environment-management entry from tools-utilities group
+2. **Add to Production Group**: Add environment-management entry to v8-flows-new (Production) group
+3. **Maintain Badge**: Keep the "NEW" badge to indicate recent addition
+
+#### **Files Affected:**
+- `src/components/DragDropSidebar.tsx` - Menu structure configuration
+
+#### **Prevention Commands:**
+```bash
+# Verify Environment Management is in Production group
+grep -A 5 -B 5 "environment-management" src/components/DragDropSidebar.tsx | grep -q "v8-flows-new" && echo "✅ ENVIRONMENT MANAGEMENT IN PRODUCTION" || echo "❌ ENVIRONMENT MANAGEMENT NOT IN PRODUCTION"
+
+# Verify it's not in Tools & Utilities
+grep -A 10 -B 10 "tools-utilities" src/components/DragDropSidebar.tsx | grep -q "environment-management" && echo "❌ ENVIRONMENT MANAGEMENT STILL IN TOOLS" || echo "✅ ENVIRONMENT MANAGEMENT REMOVED FROM TOOLS"
+```
+
+---
+
+### **✅ Issue PROD-008: JWT Token Decoding Security**
 **Status**: ✅ RESOLVED  
 **Component**: TokenDisplayService  
 **Severity**: High (Security)
