@@ -1815,7 +1815,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						type="button"
 						onClick={() => {
 							// Use the correct unified MFA callback URI instead of hardcoded V8U path
-							const protocol = window.location.hostname === 'localhost' ? 'http' : 'https';
+							const protocol = 'https'; // Always use HTTPS for security
 							const redirectUri = `${protocol}://${window.location.host}/mfa-unified-callback`;
 							window.open(
 								`/v8u/unified/oauth-authz/0?redirect_uri=${encodeURIComponent(redirectUri)}`,
