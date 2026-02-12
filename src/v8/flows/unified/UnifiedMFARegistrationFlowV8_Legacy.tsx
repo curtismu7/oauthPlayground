@@ -1318,17 +1318,25 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						<button
 							type="button"
 							onClick={() => {
-								// FIXED: Respect registrationFlowType - admin flows should not use user login
+								// CRITICAL FIX: Admin flows CAN authenticate devices without user login
+								// Worker tokens are for API calls, NOT for authentication
+								// Admin flow: Use worker token for API calls, no user auth needed for device authentication
+								// User flow: Requires user token for both registration AND authentication
+								
 								if (registrationFlowType?.startsWith('admin')) {
-									toastV8.error('🔐 Admin flow selected. Please use worker token for authentication.', {
-										duration: 5000,
+									// Admin flow: Can authenticate devices directly with worker token
+									setFlowMode('authentication');
+									setShowDeviceSelectionModal(true);
+									toastV8.info('🔐 Admin Flow: Authenticating device using worker token for API calls.', {
+										duration: 4000,
 									});
 									return;
 								}
 								
+								// User flow: Requires user token for authentication
 								if (!userToken) {
 									setShowAuthLoginModal(true);
-									toastV8.info('🔐 Please complete user login before device authentication.', {
+									toastV8.info('🔐 User Flow: Please complete user login before device authentication.', {
 										duration: 5000,
 									});
 									return;
