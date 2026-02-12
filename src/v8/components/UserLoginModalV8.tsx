@@ -1464,14 +1464,18 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			const fullPath = currentSearch ? `${currentPath}${currentSearch}` : currentPath;
 
 			if (currentPath.startsWith('/v8/mfa') || currentPath.startsWith('/v8/unified-mfa')) {
-				const step = parseInt(currentPath.split('step=')[1] || '2', 10);
+				// CRITICAL FIX: Properly parse step from URL search params instead of fragile string splitting
+				const urlParams = new URLSearchParams(currentSearch);
+				const stepParam = urlParams.get('step');
+				const step = stepParam ? parseInt(stepParam, 10) : 2; // Default to step 2 (device selection)
 				
 				// Determine flow type based on path
 				const flowType = currentPath.includes('authentication') ? 'authentication' : 'registration';
 				
 				// Store flow context for CallbackHandlerV8U to retrieve
+				// IMPORTANT: This context tells the callback handler where to return after OAuth
 				const flowContext = {
-					returnPath: fullPath,
+					returnPath: currentPath, // Use path without search params - step will be added by callback handler
 					returnStep: step,
 					flowType,
 					timestamp: Date.now(),
@@ -1480,9 +1484,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
 
 				console.log(`${MODULE_TAG} 🎯 Stored flow context for ${flowType}:`, {
-					path: fullPath,
-					step,
+					returnPath: currentPath,
+					returnStep: step,
 					flowType,
+					fullPath,
+					parsedFromSearch: !!stepParam,
 				});
 			} else {
 				console.warn(
