@@ -167,7 +167,10 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 	});
 	const [isLoading, setIsLoading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+	const [policy, setPolicy] = useState<any>(null);
+	const [isLoadingPolicy, setIsLoadingPolicy] = useState(false);
 	const [devices, setDevices] = useState<Array<Record<string, unknown>>>([]);
+	const [selectedDeviceIds, setSelectedDeviceIds] = useState<Set<string>>(new Set());
 	const [error, setError] = useState<string | null>(null);
 	const [deletionResults, setDeletionResults] = useState<{
 		successful: number;
@@ -178,7 +181,6 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 	// Track if devices have been loaded at least once to prevent infinite loops
 	const hasLoadedDevicesRef = useRef(false);
 
-	const [selectedDeviceIds, setSelectedDeviceIds] = useState<Set<string>>(new Set());
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// Worker Token Settings State
@@ -394,6 +396,37 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		}
 	}, [environmentId, username, tokenStatus.isValid, selectedDeviceType, selectedDeviceStatus]); // Use ref instead of devices.length to prevent infinite loop
 
+	// Fetch policy information when devices are loaded
+	useEffect(() => {
+		const fetchPolicyInfo = async () => {
+			if (!environmentId || !username || !tokenStatus.isValid || devices.length === 0) return;
+			
+			setIsLoadingPolicy(true);
+			try {
+				// For now, we'll try to get a default policy. In a real implementation,
+				// you might need to determine which policy applies to this user
+				const config = MFAConfigurationServiceV8.loadConfiguration();
+				
+				if (config.defaultMfaPolicyId) {
+					const policyData = await MFAServiceV8.readDeviceAuthenticationPolicy(
+						environmentId, 
+						config.defaultMfaPolicyId
+					);
+					setPolicy(policyData);
+					console.log(`${MODULE_TAG} ✅ Policy loaded:`, policyData.name);
+				} else {
+					console.log(`${MODULE_TAG} ℹ️ No default policy configured`);
+				}
+			} catch (error) {
+				console.warn(`${MODULE_TAG} Failed to fetch policy information:`, error);
+			} finally {
+				setIsLoadingPolicy(false);
+			}
+		};
+		
+		fetchPolicyInfo();
+	}, [environmentId, username, tokenStatus.isValid, devices.length]);
+
 	const handleToggleDeviceSelection = useCallback((deviceId: string) => {
 		setSelectedDeviceIds((prev) => {
 			const next = new Set(prev);
@@ -525,6 +558,66 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					Delete all MFA devices for a user, with optional filtering by device type and status
 				</p>
 			</div>
+
+			{/* Device Policy Information */}
+			{devices.length > 0 && (
+				<div
+					style={{
+						background: '#f8fafc',
+						border: '1px solid #e2e8f0',
+						borderRadius: '8px',
+						padding: '16px',
+						marginBottom: '24px',
+					}}
+				>
+					<h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+						📊 Device Usage Information
+					</h3>
+					
+					<div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
+						<div>
+							<span style={{ color: '#6b7280', fontSize: '14px' }}>Current Devices:</span>
+							<span style={{ marginLeft: '8px', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+								{devices.length}
+							</span>
+						</div>
+						
+						{policy && (
+							<div>
+								<span style={{ color: '#6b7280', fontSize: '14px' }}>Policy:</span>
+								<span style={{ marginLeft: '8px', fontSize: '14px', fontWeight: '500', color: '#059669' }}>
+									{policy.name}
+								</span>
+							</div>
+						)}
+						
+						{isLoadingPolicy && (
+							<div>
+								<span style={{ color: '#6b7280', fontSize: '14px' }}>Loading policy...</span>
+							</div>
+						)}
+					</div>
+					
+					{policy && (
+						<div style={{ marginTop: '12px', fontSize: '12px', color: '#6b7280' }}>
+							{policy.pairingDisabled ? (
+								<span style={{ color: '#dc2626' }}>⚠️ Device pairing is disabled in this policy</span>
+							) : (
+								<span style={{ color: '#059669' }}>✅ Device pairing is enabled</span>
+							)}
+							{policy.promptForNicknameOnPairing && (
+								<span style={{ marginLeft: '16px' }}>• Users will be prompted for device nicknames</span>
+							)}
+						</div>
+					)}
+					
+					{!policy && !isLoadingPolicy && (
+						<div style={{ marginTop: '8px', fontSize: '12px', color: '#6b7280' }}>
+							ℹ️ Policy information not available. Configure a default MFA policy to see device limits and settings.
+						</div>
+					)}
+				</div>
+			)}
 
 			{/* Configuration Section */}
 			<div

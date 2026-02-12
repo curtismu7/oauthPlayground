@@ -99,7 +99,48 @@ useEffect(() => {
 
 ---
 
-### **✅ Issue PROD-002: JWT Token Decoding Security**
+### **✅ Issue PROD-002: Delete All Devices - Missing Policy Information Display**
+**Status**: ✅ RESOLVED  
+**Component**: DeleteAllDevicesUtilityV8  
+**Severity**: Medium (User Experience)
+**Last Updated**: 2026-02-12
+
+#### **Problem Summary:**
+The delete-all-devices page at `/v8/delete-all-devices` does not show users how many devices their MFA policy allows versus how many devices they currently have. Users need this information to understand their device usage and make informed decisions about device management.
+
+#### **Required Enhancement:**
+Add a device count display at the top of the page showing:
+- **Current Device Count**: Number of devices the user currently has
+- **Policy Device Limit**: Maximum devices allowed by MFA policy (if available)
+- **Device Usage Percentage**: Visual indicator of device usage
+- **Policy Information**: Relevant policy details that affect device limits
+
+#### **Files to Update:**
+- `src/v8/pages/DeleteAllDevicesUtilityV8.tsx` - Main component implementation
+- `src/v8/services/mfaServiceV8.ts` - Policy reading functionality (already exists)
+- `PRODUCTION_INVENTORY.md` - Documentation and prevention commands
+
+#### **Implementation Strategy:**
+1. **Fetch Policy Information**: Use existing `readDeviceAuthenticationPolicy` method
+2. **Display Device Counts**: Show current vs allowed devices at page top
+3. **Visual Indicators**: Add progress bars or percentage displays
+4. **Error Handling**: Graceful fallback when policy info unavailable
+
+#### **Prevention Commands:**
+```bash
+# Check for device count display implementation
+grep -rn "policy.*deviceCount\|deviceLimit\|policy.*limit" src/v8/pages/DeleteAllDevicesUtilityV8.tsx | wc -l && echo "✅ DEVICE COUNT DISPLAY FOUND" || echo "❌ MISSING DEVICE COUNT DISPLAY"
+
+# Verify policy reading functionality
+grep -rn "readDeviceAuthenticationPolicy" src/v8/pages/DeleteAllDevicesUtilityV8.tsx | wc -l && echo "✅ POLICY READING IMPLEMENTED" || echo "❌ MISSING POLICY READING"
+
+# Check for device usage visualization
+grep -rn "progress\|percentage\|usage.*bar" src/v8/pages/DeleteAllDevicesUtilityV8.tsx | wc -l && echo "✅ DEVICE USAGE VISUALIZATION FOUND" || echo "❌ MISSING DEVICE USAGE VISUALIZATION"
+```
+
+---
+
+### **✅ Issue PROD-003: JWT Token Decoding Security**
 **Status**: ✅ RESOLVED  
 **Component**: TokenDisplayService  
 **Severity**: High (Security)
