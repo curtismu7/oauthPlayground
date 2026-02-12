@@ -12,7 +12,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { FiCheckCircle, FiCopy, FiEye, FiEyeOff, FiInfo, FiLogOut, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import CompanyLogoHeader from './CompanyLogoHeader';
 import TokenUtilityService, { type TokenValidationResult } from '../services/tokenUtilityService';
 import type {
 	EducationalContent,
@@ -20,6 +19,7 @@ import type {
 	TokenSet,
 	UserContext,
 } from '../types/protectPortal.types';
+import CompanyLogoHeader from './CompanyLogoHeader';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -168,7 +168,7 @@ const RiskTitle = styled.h4`
   font-family: var(--brand-heading-font);
 `;
 
-const RiskLevelBadge = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
+const _RiskLevelBadge = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
   padding: 0.25rem 0.75rem;
   border-radius: var(--brand-radius-sm);
   font-size: 0.75rem;
@@ -325,7 +325,7 @@ const TokenInfoItem = styled.div`
   text-align: left;
 `;
 
-const TokenLabel = styled.div`
+const _TokenLabel = styled.div`
   font-size: 0.75rem;
   color: var(--brand-text-secondary);
   margin-bottom: 0.25rem;
@@ -344,7 +344,7 @@ const ActionButtons = styled.div`
   flex-wrap: wrap;
 `;
 
-const ActionButton = styled.button`
+const _ActionButton = styled.button`
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: var(--brand-radius-md);
@@ -574,221 +574,223 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 							<UserName>{userContext.name || userContext.username}</UserName>
 							<UserEmail>{userContext.email}</UserEmail>
 						</UserDetails>
-				</UserInfoHeader>
+					</UserInfoHeader>
 
-				<UserInfoGrid>
-					<UserInfoItem>
-						<InfoLabel>User ID</InfoLabel>
-						<InfoValue>{userContext.id}</InfoValue>
-					</UserInfoItem>
-					<UserInfoItem>
-						<InfoLabel>Username</InfoLabel>
-						<InfoValue>{userContext.username}</InfoValue>
-					</UserInfoItem>
-					<UserInfoItem>
-						<InfoLabel>User Type</InfoLabel>
-						<InfoValue>{userContext.type}</InfoValue>
-					</UserInfoItem>
-					<UserInfoItem>
-						<InfoLabel>Login Time</InfoLabel>
-						<InfoValue>{new Date().toLocaleString()}</InfoValue>
-					</UserInfoItem>
-				</UserInfoGrid>
-			</UserInfoCard>
+					<UserInfoGrid>
+						<UserInfoItem>
+							<InfoLabel>User ID</InfoLabel>
+							<InfoValue>{userContext.id}</InfoValue>
+						</UserInfoItem>
+						<UserInfoItem>
+							<InfoLabel>Username</InfoLabel>
+							<InfoValue>{userContext.username}</InfoValue>
+						</UserInfoItem>
+						<UserInfoItem>
+							<InfoLabel>User Type</InfoLabel>
+							<InfoValue>{userContext.type}</InfoValue>
+						</UserInfoItem>
+						<UserInfoItem>
+							<InfoLabel>Login Time</InfoLabel>
+							<InfoValue>{new Date().toLocaleString()}</InfoValue>
+						</UserInfoItem>
+					</UserInfoGrid>
+				</UserInfoCard>
 
-			{/* Risk Summary */}
-			<RiskSummaryCard riskLevel={riskEvaluation.result.level}>
-				<RiskHeader riskLevel={riskEvaluation.result.level}>
-					<RiskTitle riskLevel={riskEvaluation.result.level}>
-						<FiShield />
-						Security Evaluation
-					</RiskTitle>
-					<RiskBadge riskLevel={riskEvaluation.result.level}>{riskInfo.title}</RiskBadge>
-				</RiskHeader>
+				{/* Risk Summary */}
+				<RiskSummaryCard riskLevel={riskEvaluation.result.level}>
+					<RiskHeader riskLevel={riskEvaluation.result.level}>
+						<RiskTitle riskLevel={riskEvaluation.result.level}>
+							<FiShield />
+							Security Evaluation
+						</RiskTitle>
+						<RiskBadge riskLevel={riskEvaluation.result.level}>{riskInfo.title}</RiskBadge>
+					</RiskHeader>
 
-				<RiskDescription>{riskInfo.description}</RiskDescription>
+					<RiskDescription>{riskInfo.description}</RiskDescription>
 
-				<UserInfoGrid>
-					<UserInfoItem>
-						<InfoLabel>Risk Level</InfoLabel>
-						<InfoValue>{riskEvaluation.result.level}</InfoValue>
-					</UserInfoItem>
-					<UserInfoItem>
-						<InfoLabel>Recommended Action</InfoLabel>
-						<InfoValue>{riskEvaluation.result.recommendedAction}</InfoValue>
-					</UserInfoItem>
-					<UserInfoItem>
-						<InfoLabel>Policy Used</InfoLabel>
-						<InfoValue>{riskEvaluation.riskPolicySet.name}</InfoValue>
-					</UserInfoItem>
-					<UserInfoItem>
-						<InfoLabel>Evaluated At</InfoLabel>
-						<InfoValue>{new Date(riskEvaluation.createdAt).toLocaleString()}</InfoValue>
-					</UserInfoItem>
-				</UserInfoGrid>
-			</RiskSummaryCard>
+					<UserInfoGrid>
+						<UserInfoItem>
+							<InfoLabel>Risk Level</InfoLabel>
+							<InfoValue>{riskEvaluation.result.level}</InfoValue>
+						</UserInfoItem>
+						<UserInfoItem>
+							<InfoLabel>Recommended Action</InfoLabel>
+							<InfoValue>{riskEvaluation.result.recommendedAction}</InfoValue>
+						</UserInfoItem>
+						<UserInfoItem>
+							<InfoLabel>Policy Used</InfoLabel>
+							<InfoValue>{riskEvaluation.riskPolicySet.name}</InfoValue>
+						</UserInfoItem>
+						<UserInfoItem>
+							<InfoLabel>Evaluated At</InfoLabel>
+							<InfoValue>{new Date(riskEvaluation.createdAt).toLocaleString()}</InfoValue>
+						</UserInfoItem>
+					</UserInfoGrid>
+				</RiskSummaryCard>
 
-			{/* Token Display */}
-			<TokenSection>
-				<TokenHeader>
-					<TokenTitle>
-						<FiInfo />
-						OAuth & OIDC Tokens
-					</TokenTitle>
-					<TokenToggle onClick={handleToggleTokens}>
-						{showFullTokens ? <FiEyeOff /> : <FiEye />}
-						{showFullTokens ? 'Hide Tokens' : 'Show Tokens'}
-					</TokenToggle>
-				</TokenHeader>
+				{/* Token Display */}
+				<TokenSection>
+					<TokenHeader>
+						<TokenTitle>
+							<FiInfo />
+							OAuth & OIDC Tokens
+						</TokenTitle>
+						<TokenToggle onClick={handleToggleTokens}>
+							{showFullTokens ? <FiEyeOff /> : <FiEye />}
+							{showFullTokens ? 'Hide Tokens' : 'Show Tokens'}
+						</TokenToggle>
+					</TokenHeader>
 
-				<TokenContent>
-					{/* Access Token */}
-					<TokenType>
-						<TypeName>Access Token</TypeName>
-						<TypeBadge>Bearer</TypeBadge>
-					</TokenType>
+					<TokenContent>
+						{/* Access Token */}
+						<TokenType>
+							<TypeName>Access Token</TypeName>
+							<TypeBadge>Bearer</TypeBadge>
+						</TokenType>
 
-					{showFullTokens ? (
-						<TokenFull>
-							{tokens.accessToken}
-							<CopyButton onClick={() => handleCopyToken('access', tokens.accessToken)}>
-								{copiedToken === 'access' ? 'Copied!' : <FiCopy />}
-							</CopyButton>
-						</TokenFull>
-					) : (
-						<TokenPreview>
-							{formatTokenPreview(tokens.accessToken)}
-							<CopyButton onClick={() => handleCopyToken('access', tokens.accessToken)}>
-								{copiedToken === 'access' ? 'Copied!' : <FiCopy />}
-							</CopyButton>
-						</TokenPreview>
-					)}
-
-					{/* ID Token */}
-					{tokens.idToken && (
-						<>
-							<TokenType style={{ marginTop: '1.5rem' }}>
-								<TypeName>ID Token</TypeName>
-								<TypeBadge>JWT</TypeBadge>
-							</TokenType>
-
-							{showFullTokens ? (
-								<TokenFull>
-									{tokens.idToken}
-									<CopyButton onClick={() => handleCopyToken('id', tokens.idToken)}>
-										{copiedToken === 'id' ? 'Copied!' : <FiCopy />}
-									</CopyButton>
-								</TokenFull>
-							) : (
-								<TokenPreview>
-									{formatTokenPreview(tokens.idToken)}
-									<CopyButton onClick={() => handleCopyToken('id', tokens.idToken)}>
-										{copiedToken === 'id' ? 'Copied!' : <FiCopy />}
-									</CopyButton>
-								</TokenPreview>
-							)}
-						</>
-					)}
-
-					{/* Token Information */}
-					<TokenInfo>
-						<TokenInfoItem>
-							<InfoLabelSmall>Token Type</InfoLabelSmall>
-							<InfoValueSmall>{tokens.tokenType}</InfoValueSmall>
-						</TokenInfoItem>
-						<TokenInfoItem>
-							<InfoLabelSmall>Expires In</InfoLabelSmall>
-							<InfoValueSmall>
-								{tokens.expiresIn}s ({getTokenExpiryTime(tokens.expiresIn)})
-							</InfoValueSmall>
-						</TokenInfoItem>
-						<TokenInfoItem>
-							<InfoLabelSmall>Scope</InfoLabelSmall>
-							<InfoValueSmall>{tokens.scope}</InfoValueSmall>
-						</TokenInfoItem>
-						{tokens.refreshToken && (
-							<TokenInfoItem>
-								<InfoLabelSmall>Refresh Token</InfoLabelSmall>
-								<InfoValueSmall>Available</InfoValueSmall>
-							</TokenInfoItem>
+						{showFullTokens ? (
+							<TokenFull>
+								{tokens.accessToken}
+								<CopyButton onClick={() => handleCopyToken('access', tokens.accessToken)}>
+									{copiedToken === 'access' ? 'Copied!' : <FiCopy />}
+								</CopyButton>
+							</TokenFull>
+						) : (
+							<TokenPreview>
+								{formatTokenPreview(tokens.accessToken)}
+								<CopyButton onClick={() => handleCopyToken('access', tokens.accessToken)}>
+									{copiedToken === 'access' ? 'Copied!' : <FiCopy />}
+								</CopyButton>
+							</TokenPreview>
 						)}
-					</TokenInfo>
 
-					{/* Token Validation */}
-					{tokenValidation && (
-						<TokenInfo
-							style={{ marginTop: '1.5rem', borderTop: '1px solid #e5e7eb', paddingTop: '1rem' }}
-						>
+						{/* ID Token */}
+						{tokens.idToken && (
+							<>
+								<TokenType style={{ marginTop: '1.5rem' }}>
+									<TypeName>ID Token</TypeName>
+									<TypeBadge>JWT</TypeBadge>
+								</TokenType>
+
+								{showFullTokens ? (
+									<TokenFull>
+										{tokens.idToken}
+										<CopyButton onClick={() => handleCopyToken('id', tokens.idToken)}>
+											{copiedToken === 'id' ? 'Copied!' : <FiCopy />}
+										</CopyButton>
+									</TokenFull>
+								) : (
+									<TokenPreview>
+										{formatTokenPreview(tokens.idToken)}
+										<CopyButton onClick={() => handleCopyToken('id', tokens.idToken)}>
+											{copiedToken === 'id' ? 'Copied!' : <FiCopy />}
+										</CopyButton>
+									</TokenPreview>
+								)}
+							</>
+						)}
+
+						{/* Token Information */}
+						<TokenInfo>
 							<TokenInfoItem>
-								<InfoLabelSmall>Validation Status</InfoLabelSmall>
-								<InfoValueSmall style={{ color: tokenValidation.isValid ? '#059669' : '#dc2626' }}>
-									{tokenValidation.isValid ? 'Valid' : 'Invalid'}
+								<InfoLabelSmall>Token Type</InfoLabelSmall>
+								<InfoValueSmall>{tokens.tokenType}</InfoValueSmall>
+							</TokenInfoItem>
+							<TokenInfoItem>
+								<InfoLabelSmall>Expires In</InfoLabelSmall>
+								<InfoValueSmall>
+									{tokens.expiresIn}s ({getTokenExpiryTime(tokens.expiresIn)})
 								</InfoValueSmall>
 							</TokenInfoItem>
-							{tokenValidation.tokenInfo.accessTokenExpiry && (
+							<TokenInfoItem>
+								<InfoLabelSmall>Scope</InfoLabelSmall>
+								<InfoValueSmall>{tokens.scope}</InfoValueSmall>
+							</TokenInfoItem>
+							{tokens.refreshToken && (
 								<TokenInfoItem>
-									<InfoLabelSmall>Access Token Expires</InfoLabelSmall>
-									<InfoValueSmall>
-										{tokenValidation.tokenInfo.accessTokenExpiry.toLocaleString()}
-									</InfoValueSmall>
-								</TokenInfoItem>
-							)}
-							{tokenValidation.tokenInfo.idTokenExpiry && (
-								<TokenInfoItem>
-									<InfoLabelSmall>ID Token Expires</InfoLabelSmall>
-									<InfoValueSmall>
-										{tokenValidation.tokenInfo.idTokenExpiry.toLocaleString()}
-									</InfoValueSmall>
-								</TokenInfoItem>
-							)}
-							{tokenValidation.warnings.length > 0 && (
-								<TokenInfoItem style={{ gridColumn: '1 / -1' }}>
-									<InfoLabelSmall>Warnings</InfoLabelSmall>
-									<InfoValueSmall style={{ fontSize: '0.75rem', color: '#d97706' }}>
-										{tokenValidation.warnings.join(', ')}
-									</InfoValueSmall>
-								</TokenInfoItem>
-							)}
-							{tokenValidation.errors.length > 0 && (
-								<TokenInfoItem style={{ gridColumn: '1 / -1' }}>
-									<InfoLabelSmall>Errors</InfoLabelSmall>
-									<InfoValueSmall style={{ fontSize: '0.75rem', color: '#dc2626' }}>
-										{tokenValidation.errors.join(', ')}
-									</InfoValueSmall>
+									<InfoLabelSmall>Refresh Token</InfoLabelSmall>
+									<InfoValueSmall>Available</InfoValueSmall>
 								</TokenInfoItem>
 							)}
 						</TokenInfo>
-					)}
-				</TokenContent>
-			</TokenSection>
 
-			{/* Action Buttons */}
-			<ActionButtons>
-				<Button onClick={onLogout}>
-					<FiLogOut />
-					Logout
-				</Button>
-			</ActionButtons>
+						{/* Token Validation */}
+						{tokenValidation && (
+							<TokenInfo
+								style={{ marginTop: '1.5rem', borderTop: '1px solid #e5e7eb', paddingTop: '1rem' }}
+							>
+								<TokenInfoItem>
+									<InfoLabelSmall>Validation Status</InfoLabelSmall>
+									<InfoValueSmall
+										style={{ color: tokenValidation.isValid ? '#059669' : '#dc2626' }}
+									>
+										{tokenValidation.isValid ? 'Valid' : 'Invalid'}
+									</InfoValueSmall>
+								</TokenInfoItem>
+								{tokenValidation.tokenInfo.accessTokenExpiry && (
+									<TokenInfoItem>
+										<InfoLabelSmall>Access Token Expires</InfoLabelSmall>
+										<InfoValueSmall>
+											{tokenValidation.tokenInfo.accessTokenExpiry.toLocaleString()}
+										</InfoValueSmall>
+									</TokenInfoItem>
+								)}
+								{tokenValidation.tokenInfo.idTokenExpiry && (
+									<TokenInfoItem>
+										<InfoLabelSmall>ID Token Expires</InfoLabelSmall>
+										<InfoValueSmall>
+											{tokenValidation.tokenInfo.idTokenExpiry.toLocaleString()}
+										</InfoValueSmall>
+									</TokenInfoItem>
+								)}
+								{tokenValidation.warnings.length > 0 && (
+									<TokenInfoItem style={{ gridColumn: '1 / -1' }}>
+										<InfoLabelSmall>Warnings</InfoLabelSmall>
+										<InfoValueSmall style={{ fontSize: '0.75rem', color: '#d97706' }}>
+											{tokenValidation.warnings.join(', ')}
+										</InfoValueSmall>
+									</TokenInfoItem>
+								)}
+								{tokenValidation.errors.length > 0 && (
+									<TokenInfoItem style={{ gridColumn: '1 / -1' }}>
+										<InfoLabelSmall>Errors</InfoLabelSmall>
+										<InfoValueSmall style={{ fontSize: '0.75rem', color: '#dc2626' }}>
+											{tokenValidation.errors.join(', ')}
+										</InfoValueSmall>
+									</TokenInfoItem>
+								)}
+							</TokenInfo>
+						)}
+					</TokenContent>
+				</TokenSection>
 
-			{/* Educational Section */}
-			<EducationalSection>
-				<EducationalHeader>
-					<FiInfo style={{ color: '#3b82f6' }} />
-					<EducationalTitle>{educationalContent.title}</EducationalTitle>
-				</EducationalHeader>
+				{/* Action Buttons */}
+				<ActionButtons>
+					<Button onClick={onLogout}>
+						<FiLogOut />
+						Logout
+					</Button>
+				</ActionButtons>
 
-				<EducationalDescription>{educationalContent.description}</EducationalDescription>
+				{/* Educational Section */}
+				<EducationalSection>
+					<EducationalHeader>
+						<FiInfo style={{ color: '#3b82f6' }} />
+						<EducationalTitle>{educationalContent.title}</EducationalTitle>
+					</EducationalHeader>
 
-				<KeyPoints>
-					{educationalContent.keyPoints.map((point, index) => (
-						<KeyPoint key={index}>
-							<KeyPointIcon />
-							{point}
-						</KeyPoint>
-					))}
-				</KeyPoints>
-			</EducationalSection>
-		</SuccessContainer>
+					<EducationalDescription>{educationalContent.description}</EducationalDescription>
+
+					<KeyPoints>
+						{educationalContent.keyPoints.map((point, index) => (
+							<KeyPoint key={index}>
+								<KeyPointIcon />
+								{point}
+							</KeyPoint>
+						))}
+					</KeyPoints>
+				</EducationalSection>
+			</SuccessContainer>
 		</>
 	);
 };

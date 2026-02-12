@@ -43,19 +43,13 @@ export class FileStorageUtil {
 	 *
 	 * @param options - Storage options (directory and filename)
 	 * @param data - Data to save
-	 * @returns Result indicating success/failure
+	 * @returns Result indicating success or failure
 	 */
-	static async save<T>(options: FileStorageOptions, data: T): Promise<FileStorageResult<void>> {
+	static async save<T>(options: FileStorageOptions, data: T): Promise<FileStorageResult> {
 		try {
-			// DISABLED: Backend file storage is optional and not critical
-			// The app works perfectly fine with just localStorage
-			// Uncomment below if you have a backend running on :3001
-
-			/*
-			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://localhost:3001';
-			
+			// Try backend API first for persistent storage
 			try {
-				const response = await fetch(`${backendUrl}/api/credentials/save`, {
+				const response = await fetch('/api/file-storage/save', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
@@ -67,30 +61,28 @@ export class FileStorageUtil {
 					}),
 				});
 
-				if (!response.ok) {
-					throw new Error(`Backend API returned ${response.status}: ${response.statusText}`);
-				}
-
 				const result = await response.json();
-				
+
 				if (result.success) {
-					console.log(`📁 [FileStorage] Saved to server file: ${options.directory}/${options.filename}`);
+					// Also save to localStorage as backup
+					const key = FileStorageUtil.getStorageKey(options);
+					const serialized = JSON.stringify(data);
+					localStorage.setItem(key, serialized);
+					
 					return { success: true };
 				} else {
 					throw new Error(result.error || 'Backend save failed');
 				}
 			} catch (apiError) {
-			*/
-			// Use localStorage as primary storage (backend is optional)
-			const key = FileStorageUtil.getStorageKey(options);
-			const serialized = JSON.stringify(data);
-			localStorage.setItem(key, serialized);
+				console.warn(`[FileStorage] Backend unavailable, using localStorage:`, apiError);
+				
+				// Use localStorage as fallback storage
+				const key = FileStorageUtil.getStorageKey(options);
+				const serialized = JSON.stringify(data);
+				localStorage.setItem(key, serialized);
 
-			// Silent success - backend is optional
-			return { success: true };
-			/*
+				return { success: true };
 			}
-			*/
 		} catch (error) {
 			console.error(`❌ [FileStorage] Failed to save:`, error);
 			return {
@@ -108,24 +100,53 @@ export class FileStorageUtil {
 	 */
 	static async load<T>(options: FileStorageOptions): Promise<FileStorageResult<T>> {
 		try {
-			// DISABLED: Backend file storage is optional and not critical
-			// The app works perfectly fine with just localStorage
-			// Use localStorage as primary storage (backend is optional)
-			const key = FileStorageUtil.getStorageKey(options);
-			const stored = localStorage.getItem(key);
+			// Try backend API first for persistent storage
+			try {
+				const response = await fetch('/api/file-storage/load', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						directory: options.directory,
+						filename: options.filename,
+					}),
+				});
 
-			if (!stored) {
+				const result = await response.json();
+
+				if (result.success && result.data) {
+					// Also update localStorage as backup
+					const key = FileStorageUtil.getStorageKey(options);
+					localStorage.setItem(key, JSON.stringify(result.data));
+					
+					return {
+						success: true,
+						data: result.data,
+					};
+				} else {
+					throw new Error(result.error || 'Backend load failed');
+				}
+			} catch (apiError) {
+				console.warn(`[FileStorage] Backend unavailable, using localStorage:`, apiError);
+				
+				// Use localStorage as fallback storage
+				const key = FileStorageUtil.getStorageKey(options);
+				const stored = localStorage.getItem(key);
+
+				if (!stored) {
+					return {
+						success: false,
+						error: 'File not found',
+					};
+				}
+
+				const data = JSON.parse(stored) as T;
 				return {
-					success: false,
-					error: 'File not found',
+					success: true,
+					data,
 				};
 			}
-
-			const data = JSON.parse(stored) as T;
-			return {
-				success: true,
-				data,
-			};
 		} catch (error) {
 			console.error(`❌ [FileStorage] Failed to load:`, error);
 			return {

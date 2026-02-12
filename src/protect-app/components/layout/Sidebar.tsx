@@ -4,7 +4,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 
 /**
  * Sidebar Component
- * 
+ *
  * Main navigation sidebar with menu items.
  */
 export const Sidebar: React.FC = () => {
@@ -21,7 +21,7 @@ export const Sidebar: React.FC = () => {
 	];
 
 	return (
-		<aside 
+		<aside
 			className="w-64 border-r"
 			style={{
 				backgroundColor: currentTheme.colors.surface,
@@ -35,12 +35,14 @@ export const Sidebar: React.FC = () => {
 						to={item.path}
 						className="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors"
 						style={{
-							backgroundColor: location.pathname === item.path 
-								? `${currentTheme.colors.primary}20` 
-								: 'transparent',
-							color: location.pathname === item.path 
-								? currentTheme.colors.primary 
-								: currentTheme.colors.text,
+							backgroundColor:
+								location.pathname === item.path
+									? `${currentTheme.colors.primary}20`
+									: 'transparent',
+							color:
+								location.pathname === item.path
+									? currentTheme.colors.primary
+									: currentTheme.colors.text,
 						}}
 					>
 						<span className="text-xl">{item.icon}</span>

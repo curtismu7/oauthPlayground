@@ -3,7 +3,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 
 /**
  * Quick Actions Component
- * 
+ *
  * Provides quick access to common actions.
  */
 export const QuickActions: React.FC = () => {
@@ -17,17 +17,14 @@ export const QuickActions: React.FC = () => {
 	];
 
 	return (
-		<div 
+		<div
 			className="p-6 rounded-xl"
 			style={{
 				backgroundColor: currentTheme.colors.surface,
 				boxShadow: currentTheme.shadows.lg,
 			}}
 		>
-			<h3 
-				className="text-lg font-semibold mb-4"
-				style={{ color: currentTheme.colors.text }}
-			>
+			<h3 className="text-lg font-semibold mb-4" style={{ color: currentTheme.colors.text }}>
 				Quick Actions
 			</h3>
 			<div className="grid grid-cols-2 gap-3">

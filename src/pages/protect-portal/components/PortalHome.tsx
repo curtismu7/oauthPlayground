@@ -10,385 +10,218 @@
  */
 
 import React from 'react';
-import { FiArrowRight, FiCheckCircle, FiInfo, FiLock, FiShield, FiUser } from 'react-icons/fi';
+import { FiArrowRight, FiCheckCircle, FiLock, FiShield, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
-import { useBrandTheme } from '../themes/theme-provider';
-import CompanySelector from './CompanySelector';
-
 import type { EducationalContent } from '../types/protectPortal.types';
+import CompanySelector from './CompanySelector';
+import PortalPageLayout, { PortalPageSection } from './PortalPageLayout';
 
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================
 
-const HomeContainer = styled.div`
-  width: 100%;
-  max-width: 800px;
-  text-align: center;
-`;
-
 const WelcomeSection = styled.div`
-  margin-bottom: 3rem;
+  text-align: center;
+  margin-bottom: 4rem;
 `;
 
-const WelcomeTitle = styled.h2`
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--brand-text);
-  margin: 0 0 1rem 0;
-  line-height: 1.2;
-  font-family: var(--brand-heading-font);
-`;
-
-const WelcomeSubtitle = styled.p`
-  font-size: 1.25rem;
-  color: var(--brand-text-secondary);
-  margin: 0 0 2rem 0;
-  line-height: 1.6;
-  font-family: var(--brand-body-font);
-`;
-
-const CompanyBranding = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
+const WelcomeIcon = styled.div`
+  font-size: 4rem;
+  color: var(--brand-primary);
   margin-bottom: 2rem;
 `;
 
-const CompanyLogo = styled.div`
-  width: 80px;
-  height: 80px;
-  background: var(--brand-primary);
-  border-radius: var(--brand-radius-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 2rem;
-  font-weight: 700;
+const FeaturesGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
 `;
 
-const CompanyName = styled.div`
-  text-align: left;
+const FeatureCard = styled.div`
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
 `;
 
-const CompanyTitle = styled.h3`
-  font-size: 1.5rem;
-  font-weight: 700;
+const FeatureIcon = styled.div`
+  font-size: 2.5rem;
+  color: var(--brand-primary);
+  margin-bottom: 1rem;
+`;
+
+const FeatureTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
   color: var(--brand-text);
-  margin: 0 0 0.25rem 0;
-  font-family: var(--brand-heading-font);
+  margin: 0 0 1rem 0;
 `;
 
-const CompanyTagline = styled.p`
-  font-size: 1rem;
+const FeatureDescription = styled.p`
   color: var(--brand-text-secondary);
+  line-height: 1.6;
   margin: 0;
-  font-family: var(--brand-body-font);
 `;
 
 const LoginSection = styled.div`
-  background: var(--brand-surface);
-  border: 1px solid var(--brand-text-secondary);
-  border-radius: var(--brand-radius-lg);
-  padding: 2rem;
-  margin-bottom: 3rem;
+  text-align: center;
+  padding: 3rem;
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-dark));
+  border-radius: 16px;
+  color: white;
 `;
 
 const LoginTitle = styled.h3`
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--brand-text);
   margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--brand-heading-font);
-  justify-content: center;
-  gap: 0.5rem;
 `;
 
 const LoginDescription = styled.p`
-  font-size: 1rem;
-  color: var(--brand-text-secondary);
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 2rem 0;
+  opacity: 0.9;
   line-height: 1.6;
-  font-family: var(--brand-body-font);
 `;
 
 const LoginButton = styled.button`
-  background: var(--brand-primary);
-  color: white;
-  border: none;
-  border-radius: var(--brand-radius-md);
-  padding: 1rem 2rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--brand-transition);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--brand-body-font);
-
-  &:hover {
-    background: var(--brand-accent);
-    transform: translateY(-2px);
-    box-shadow: var(--brand-shadow-md);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-`;
-
-const SecurityFeatures = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 3rem;
-`;
-
-const SecurityFeature = styled.div`
-  background: var(--brand-surface);
-  border: 1px solid var(--brand-text-secondary);
-  border-radius: var(--brand-radius-md);
-  padding: 1.5rem;
-  text-align: left;
-  transition: var(--brand-transition);
-
-  &:hover {
-    border-color: var(--brand-primary);
-    box-shadow: var(--brand-shadow-md);
-  }
-`;
-
-const FeatureIcon = styled.div<{ color: string }>`
-  width: 48px;
-  height: 48px;
-  background: ${(props) => props.color};
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
-`;
-
-const FeatureTitle = styled.h4`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--brand-text);
-  margin: 0 0 0.5rem 0;
-  font-family: var(--brand-heading-font);
-`;
-
-const FeatureDescription = styled.p`
-  font-size: 0.875rem;
-  color: var(--brand-text-secondary);
-  margin: 0;
-  line-height: 1.5;
-  font-family: var(--brand-body-font);
-`;
-
-const EducationalSection = styled.div`
-  background: var(--brand-surface);
-  border: 1px solid var(--brand-primary);
-  border-radius: var(--brand-radius-lg);
-  padding: 2rem;
-  text-align: left;
-`;
-
-const EducationalHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-`;
-
-const EducationalTitle = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--brand-primary);
-  margin: 0;
-  font-family: var(--brand-heading-font);
-`;
-
-const EducationalDescription = styled.p`
-  font-size: 1rem;
-  color: var(--brand-primary);
-  margin: 0 0 1.5rem 0;
-  line-height: 1.6;
-  font-family: var(--brand-body-font);
-`;
-
-const KeyPoints = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-`;
-
-const KeyPoint = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-  font-size: 0.875rem;
-  color: var(--brand-text);
-  line-height: 1.5;
-  font-family: var(--brand-body-font);
-`;
-
-const KeyPointIcon = styled(FiCheckCircle)`
-  color: var(--brand-success);
-  flex-shrink: 0;
-  margin-top: 0.125rem;
-`;
-
-const LearnMoreLink = styled.a`
-  color: var(--brand-primary);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.875rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: var(--brand-transition);
+  gap: 0.75rem;
+  background: white;
+  color: var(--brand-primary);
+  border: none;
+  border-radius: 8px;
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 
   &:hover {
-    color: var(--brand-accent);
-    text-decoration: underline;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   }
+`;
+
+const CompanySection = styled.div`
+  margin-top: 2rem;
 `;
 
 // ============================================================================
-// PROPS INTERFACE
+// TYPES
 // ============================================================================
 
 interface PortalHomeProps {
-	onLoginStart: () => void;
 	educationalContent: EducationalContent;
+	onLogin: () => void;
+	onCompanySelect: (company: string) => void;
 }
 
 // ============================================================================
 // COMPONENT
 // ============================================================================
 
-const PortalHome: React.FC<PortalHomeProps> = ({ onLoginStart, educationalContent }) => {
-	const { activeTheme } = useBrandTheme();
-	
-	// Debug logging
-	console.log('[🚀 PORTAL-HOME] Component rendering:', {
-		activeTheme: activeTheme.name,
-		onLoginStart: typeof onLoginStart,
-		educationalContent: !!educationalContent,
-	});
-	
+const PortalHome: React.FC<PortalHomeProps> = ({
+	educationalContent,
+	onLogin,
+	onCompanySelect,
+}) => {
 	return (
-		<HomeContainer>
-			{/* Company Selection */}
-			<CompanySelector 
-				onCompanyChange={(company) => {
-					console.log('[🚀 PROTECT-PORTAL] Company selected:', company.name);
-				}}
-				selectedCompany={activeTheme.name}
-			/>
-
-			{/* Welcome Section */}
-			<WelcomeSection>
-				<CompanyBranding>
-					<CompanyLogo>
-						{activeTheme.brandSpecific.logo}
-					</CompanyLogo>
-					<CompanyName>
-						<CompanyTitle>{activeTheme.displayName}</CompanyTitle>
-						<CompanyTagline>{activeTheme.brandSpecific.messaging.welcome}</CompanyTagline>
-					</CompanyName>
-				</CompanyBranding>
-				
-				<WelcomeTitle>{activeTheme.brandSpecific.messaging.welcome}</WelcomeTitle>
-				<WelcomeSubtitle>{activeTheme.brandSpecific.messaging.security}</WelcomeSubtitle>
-			</WelcomeSection>
-
-			{/* Login Section */}
-			<LoginSection>
-				<LoginTitle>
-					<FiUser />
-					Secure Login
-				</LoginTitle>
-				<LoginDescription>
-					Click below to begin your secure login journey. We'll evaluate your login attempt in
-					real-time to provide the appropriate level of security.
-				</LoginDescription>
-				<LoginButton onClick={onLoginStart}>
-					<FiLock />
-					Begin Secure Login
-					<FiArrowRight />
-				</LoginButton>
-			</LoginSection>
-
-			{/* Security Features */}
-			<SecurityFeatures>
-				<SecurityFeature>
-					<FeatureIcon color="var(--brand-success)">
+		<PortalPageLayout
+			title="Welcome to the Protect Portal"
+			subtitle="Experience next-generation security with intelligent risk-based authentication"
+		>
+			<PortalPageSection>
+				<WelcomeSection>
+					<WelcomeIcon>
 						<FiShield />
-					</FeatureIcon>
-					<FeatureTitle>Risk-Based Authentication</FeatureTitle>
-					<FeatureDescription>
-						Intelligent risk evaluation analyzes your login patterns, device information, and
-						location to determine the appropriate security level.
-					</FeatureDescription>
-				</SecurityFeature>
+					</WelcomeIcon>
+					<h2>Enterprise-Grade Security Made Simple</h2>
+					<p>
+						Our protect portal demonstrates advanced authentication flows that adapt to risk levels,
+						providing seamless security for your users while protecting your organization.
+					</p>
+				</WelcomeSection>
 
-				<SecurityFeature>
-					<FeatureIcon color="var(--brand-primary)">
-						<FiLock />
-					</FeatureIcon>
-					<FeatureTitle>Multi-Factor Security</FeatureTitle>
-					<FeatureDescription>
-						Advanced multi-factor authentication methods including device-based, biometric,
-						and time-based one-time passwords for enhanced security.
-					</FeatureDescription>
-				</SecurityFeature>
+				<FeaturesGrid>
+					<FeatureCard>
+						<FeatureIcon>
+							<FiShield />
+						</FeatureIcon>
+						<FeatureTitle>Intelligent Risk Assessment</FeatureTitle>
+						<FeatureDescription>
+							AI-powered risk evaluation analyzes user behavior, device characteristics, and
+							contextual factors to determine appropriate security measures.
+						</FeatureDescription>
+					</FeatureCard>
 
-				<SecurityFeature>
-					<FeatureIcon color="var(--brand-warning)">
-						<FiUser />
-					</FeatureIcon>
-					<FeatureTitle>Seamless User Experience</FeatureTitle>
-					<FeatureDescription>
-						Frictionless authentication experience with adaptive security that only
-						intervenes when necessary, maintaining user convenience.
-					</FeatureDescription>
-				</SecurityFeature>
-			</SecurityFeatures>
+					<FeatureCard>
+						<FeatureIcon>
+							<FiLock />
+						</FeatureIcon>
+						<FeatureTitle>Adaptive Authentication</FeatureTitle>
+						<FeatureDescription>
+							Dynamic authentication flows that scale security requirements based on real-time risk
+							scores, from simple access to multi-factor verification.
+						</FeatureDescription>
+					</FeatureCard>
 
-			{/* Educational Section */}
-			<EducationalSection>
-				<EducationalHeader>
-					<FiInfo style={{ color: 'var(--brand-primary)' }} />
-					<EducationalTitle>{educationalContent.title}</EducationalTitle>
-				</EducationalHeader>
-				<EducationalDescription>{educationalContent.description}</EducationalDescription>
-				
-				<KeyPoints>
+					<FeatureCard>
+						<FeatureIcon>
+							<FiUser />
+						</FeatureIcon>
+						<FeatureTitle>Seamless User Experience</FeatureTitle>
+						<FeatureDescription>
+							Frictionless authentication for trusted users while maintaining robust security for
+							potentially risky access attempts.
+						</FeatureDescription>
+					</FeatureCard>
+				</FeaturesGrid>
+			</PortalPageSection>
+
+			<PortalPageSection>
+				<LoginSection>
+					<LoginTitle>Ready to Experience Smart Security?</LoginTitle>
+					<LoginDescription>
+						Select your organization and begin your secure journey through our protect portal.
+						Experience how risk-based authentication adapts to your security needs.
+					</LoginDescription>
+					<LoginButton onClick={onLogin}>
+						<FiArrowRight />
+						Enter Secure Portal
+					</LoginButton>
+
+					<CompanySection>
+						<CompanySelector onCompanySelect={onCompanySelect} />
+					</CompanySection>
+				</LoginSection>
+			</PortalPageSection>
+
+			<PortalPageSection
+				title="Key Security Features"
+				description="Learn about the advanced security capabilities powering our protect portal"
+			>
+				<FeaturesGrid>
 					{educationalContent.keyPoints.map((point, index) => (
-						<KeyPoint key={index}>
-							<KeyPointIcon />
-							{point}
-						</KeyPoint>
+						<FeatureCard key={index}>
+							<FeatureIcon>
+								<FiCheckCircle />
+							</FeatureIcon>
+							<FeatureTitle>Security Feature {index + 1}</FeatureTitle>
+							<FeatureDescription>{point}</FeatureDescription>
+						</FeatureCard>
 					))}
-				</KeyPoints>
-				
-				<LearnMoreLink href={educationalContent.learnMore.url} target="_blank" rel="noopener noreferrer">
-					Learn More About {activeTheme.displayName} Security
-					<FiArrowRight />
-				</LearnMoreLink>
-			</EducationalSection>
-		</HomeContainer>
+				</FeaturesGrid>
+			</PortalPageSection>
+		</PortalPageLayout>
 	);
 };
 

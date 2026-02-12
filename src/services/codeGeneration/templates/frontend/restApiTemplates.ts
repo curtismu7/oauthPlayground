@@ -135,7 +135,7 @@ const config = {
 async function listMfaDevices() {
   try {
     const response = await fetch(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
       {
         method: 'GET',
         headers: {
@@ -186,7 +186,7 @@ const config = {
 async function sendMfaChallenge() {
   try {
     const response = await fetch(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${config.userId}/devices/\${config.deviceId}/otp\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${config.userId}/devices/\${config.deviceId}/otp\`,
       {
         method: 'POST',
         headers: {
@@ -233,7 +233,7 @@ const config = {
 async function verifyMfaCode() {
   try {
     const response = await fetch(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${config.userId}/devices/\${config.deviceId}/otp/verify\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${config.userId}/devices/\${config.deviceId}/otp/verify\`,
       {
         method: 'POST',
         headers: {
@@ -296,7 +296,7 @@ async function registerDevice(type: 'SMS' | 'EMAIL' | 'TOTP', details: any) {
     }
 
     const response = await fetch(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
       {
         method: 'POST',
         headers: {
@@ -471,7 +471,7 @@ const config = {
 async function listMfaDevices() {
   try {
     const response = await axios.get(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
       {
         headers: {
           'Authorization': \`Bearer \${config.accessToken}\`,
@@ -521,7 +521,7 @@ const config = {
 async function sendMfaChallenge() {
   try {
     const response = await axios.post(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${config.userId}/devices/\${config.deviceId}/otp\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${config.userId}/devices/\${config.deviceId}/otp\`,
       {},
       {
         headers: {
@@ -568,7 +568,7 @@ const config = {
 async function verifyMfaCode() {
   try {
     const response = await axios.post(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${config.userId}/devices/\${config.deviceId}/otp/verify\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${config.userId}/devices/\${config.deviceId}/otp/verify\`,
       {
         otp: config.otp,
       },
@@ -630,7 +630,7 @@ async function registerDevice(type: 'SMS' | 'EMAIL' | 'TOTP', details: any) {
     }
 
     const response = await axios.post(
-      \`https://api.pingone.com/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
+      \`/pingone-api/v1/environments/\${config.environmentId}/users/\${config.userId}/devices\`,
       payload,
       {
         headers: {

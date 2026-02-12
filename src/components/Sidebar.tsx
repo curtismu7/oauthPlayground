@@ -1369,6 +1369,36 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				isOpen: openMenusState['Tools & Utilities'] || false,
 				items: [
 					{
+						id: 'sdk-examples',
+						path: '/sdk-examples',
+						label: 'SDK Examples',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiCode />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Comprehensive SDK examples for JWT, OIDC, and DaVinci">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'davinci-todo',
+						path: '/davinci-todo',
+						label: 'DaVinci Todo App',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiCheckCircle />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Production-ready DaVinci SDK integration with real PingOne APIs">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
 						id: 'environment-management',
 						path: '/environments',
 						label: 'Environment Management',
