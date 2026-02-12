@@ -27,11 +27,14 @@ export const pingidentityTheme: BrandTheme = {
 		},
 	},
 	colors: {
-		primary: '#0066CC', // PingIdentity Blue (primary brand color)
-		secondary: '#FFFFFF', // White
-		accent: '#003366', // PingIdentity Dark Blue
-		background: '#FFFFFF', // Clean white background for enterprise
-		surface: '#FFFFFF',
+		primary: '#b03a2e', // Updated to match mockup primary
+		primaryDark: '#8e2f26', // Updated to match mockup primaryDark
+		secondary: '#111827', // Updated to match mockup secondary
+		accent: '#0066CC', // PingIdentity Blue (accent)
+		background: '#ffffff', // Updated to match mockup bg
+		surface: '#ffffff', // Updated to match mockup surface
+		muted: '#6b7280', // Updated to match mockup muted
+		border: '#d1d5db', // Updated to match mockup border
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#DC2626',
@@ -40,7 +43,6 @@ export const pingidentityTheme: BrandTheme = {
 		info: '#0066CC', // Use PingIdentity Blue for info
 		// Additional theme colors with PingIdentity palette
 		primaryLight: '#3385FF',
-		primaryDark: '#003366',
 		secondaryLight: '#F8F9FA',
 		secondaryDark: '#E9ECEF',
 		errorLight: '#FEE2E2',
