@@ -245,7 +245,7 @@ export class MFADeviceService {
   constructor(private http: HttpClient) {}
 
   listDevices(userId: string, accessToken: string): Observable<MFADevice[]> {
-    const url = \`https://api.pingone.com/v1/environments/\${this.config.environmentId}/users/\${userId}/devices\`;
+    const url = \`/pingone-api/v1/environments/\${this.config.environmentId}/users/\${userId}/devices\`;
     
     const headers = new HttpHeaders({
       'Authorization': \`Bearer \${accessToken}\`,
@@ -343,7 +343,7 @@ export class MFAChallengeService {
     deviceId: string,
     accessToken: string
   ): Observable<ChallengeResponse> {
-    const url = \`https://api.pingone.com/v1/environments/\${this.config.environmentId}/users/\${userId}/devices/\${deviceId}/otp\`;
+    const url = \`/pingone-api/v1/environments/\${this.config.environmentId}/users/\${userId}/devices/\${deviceId}/otp\`;
     
     const headers = new HttpHeaders({
       'Authorization': \`Bearer \${accessToken}\`,
@@ -444,7 +444,7 @@ export class MFAVerificationService {
     otp: string,
     accessToken: string
   ): Observable<boolean> {
-    const url = \`https://api.pingone.com/v1/environments/\${this.config.environmentId}/users/\${userId}/devices/\${deviceId}/otp/verify\`;
+    const url = \`/pingone-api/v1/environments/\${this.config.environmentId}/users/\${userId}/devices/\${deviceId}/otp/verify\`;
     
     const headers = new HttpHeaders({
       'Authorization': \`Bearer \${accessToken}\`,
@@ -575,7 +575,7 @@ export class DeviceRegistrationService {
     request: DeviceRegistrationRequest,
     accessToken: string
   ): Observable<any> {
-    const url = \`https://api.pingone.com/v1/environments/\${this.config.environmentId}/users/\${userId}/devices\`;
+    const url = \`/pingone-api/v1/environments/\${this.config.environmentId}/users/\${userId}/devices\`;
     
     const headers = new HttpHeaders({
       'Authorization': \`Bearer \${accessToken}\`,

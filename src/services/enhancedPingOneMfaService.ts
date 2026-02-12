@@ -59,7 +59,7 @@ export interface MfaPolicy {
 
 export class EnhancedPingOneMfaService {
 	private static readonly DEFAULT_RETRIES = 3;
-	private static readonly BASE_URL = 'https://api.pingone.com/v1';
+	private static readonly BASE_URL = '/pingone-api/v1';
 	private static readonly REQUEST_TIMEOUT = 10000; // 10 seconds
 
 	private static getBaseUrl(environmentId: string): string {

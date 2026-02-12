@@ -293,7 +293,7 @@ export const EDUCATIONAL_CONTENT = {
 export const API_CONFIG = {
 	// PingOne Protect API
 	protectApi: {
-		baseUrl: 'https://api.pingone.com',
+		baseUrl: '/api/pingone',
 		version: 'v1',
 		timeout: 30000, // 30 seconds
 		retryAttempts: 3,
@@ -302,8 +302,8 @@ export const API_CONFIG = {
 
 	// PingOne OAuth API
 	oauthApi: {
-		baseUrl: 'https://auth.pingone.com',
-		tokenEndpoint: '/oauth/token',
+		baseUrl: '/api/pingone',
+		tokenEndpoint: '/token',
 		authorizeEndpoint: '/oauth/authorize',
 		userInfoEndpoint: '/oauth/userinfo',
 		timeout: 30000,

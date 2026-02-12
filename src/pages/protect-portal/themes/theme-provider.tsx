@@ -14,11 +14,13 @@ import { americanAirlinesTheme } from './american-airlines.theme';
 import { bankOfAmericaTheme } from './bank-of-america.theme';
 import type { BrandTheme, BrandThemeContext } from './brand-theme.interface';
 import { fedexTheme } from './fedex.theme';
+import { pingidentityTheme } from './pingidentity.theme';
 import { southwestAirlinesTheme } from './southwest-airlines.theme';
 import { unitedAirlinesTheme } from './united-airlines.theme';
 
 // Available themes
 const availableThemes: BrandTheme[] = [
+	pingidentityTheme,
 	fedexTheme,
 	americanAirlinesTheme,
 	unitedAirlinesTheme,
@@ -31,7 +33,7 @@ const ThemeContext = createContext<BrandThemeContext | undefined>(undefined);
 
 // Theme Provider Component
 export const BrandThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const [activeTheme, setActiveTheme] = useState<BrandTheme>(fedexTheme);
+	const [activeTheme, setActiveTheme] = useState<BrandTheme>(pingidentityTheme);
 	const [isTransitioning, setIsTransitioning] = useState(false);
 
 	// Load saved theme from localStorage on mount
@@ -160,6 +162,7 @@ export const useBrandTheme = (): BrandThemeContext => {
 
 // Export themes for direct access
 export {
+	pingidentityTheme,
 	fedexTheme,
 	americanAirlinesTheme,
 	unitedAirlinesTheme,

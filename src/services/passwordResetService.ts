@@ -63,7 +63,7 @@ export async function sendRecoveryCode(
 			userId: `${request.userId?.substring(0, 20)}...`,
 		});
 
-		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${encodeURIComponent(request.environmentId)}/users/${encodeURIComponent(request.userId)}/password/recovery`;
+		const actualPingOneUrl = `/pingone-api/v1/environments/${encodeURIComponent(request.environmentId)}/users/${encodeURIComponent(request.userId)}/password/recovery`;
 
 		const response = await trackedFetch('/api/pingone/password/send-recovery-code', {
 			method: 'POST',
@@ -116,7 +116,7 @@ export async function recoverPassword(
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
+		const actualPingOneUrl = `/pingone-api/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
 
 		const response = await trackedFetch('/api/pingone/password/recover', {
 			method: 'POST',
@@ -175,7 +175,7 @@ export async function forcePasswordChange(
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
+		const actualPingOneUrl = `/pingone-api/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
 
 		const response = await trackedFetch('/api/pingone/password/force-change', {
 			method: 'POST',
@@ -234,7 +234,7 @@ export async function changePassword(
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
+		const actualPingOneUrl = `/pingone-api/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
 
 		const response = await trackedFetch('/api/pingone/password/change', {
 			method: 'POST',
@@ -294,7 +294,7 @@ export async function checkPassword(
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password/check`;
+		const actualPingOneUrl = `/pingone-api/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password/check`;
 
 		const response = await trackedFetch('/api/pingone/password/check', {
 			method: 'POST',
@@ -351,7 +351,7 @@ export async function unlockPassword(
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password/unlock`;
+		const actualPingOneUrl = `/pingone-api/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password/unlock`;
 
 		const response = await trackedFetch('/api/pingone/password/unlock', {
 			method: 'POST',
@@ -413,7 +413,7 @@ export async function readPasswordState(
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
+		const actualPingOneUrl = `/pingone-api/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
 
 		const response = await trackedFetch(
 			`/api/pingone/password/state?environmentId=${encodeURIComponent(environmentId)}&userId=${encodeURIComponent(userId)}&workerToken=${encodeURIComponent(workerToken)}`,
@@ -468,7 +468,7 @@ export async function setPasswordAdmin(
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
+		const actualPingOneUrl = `/pingone-api/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
 
 		const response = await trackedFetch('/api/pingone/password/admin-set', {
 			method: 'PUT',
@@ -530,7 +530,7 @@ export async function setPassword(
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
+		const actualPingOneUrl = `/pingone-api/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
 
 		const response = await trackedFetch('/api/pingone/password/set', {
 			method: 'PUT',
@@ -592,7 +592,7 @@ export async function setPasswordValue(
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
+		const actualPingOneUrl = `/pingone-api/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
 
 		const response = await trackedFetch('/api/pingone/password/set-value', {
 			method: 'PUT',
@@ -655,7 +655,7 @@ export async function setPasswordLdapGateway(
 			userId: `${userId?.substring(0, 20)}...`,
 		});
 
-		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
+		const actualPingOneUrl = `/pingone-api/v1/environments/${encodeURIComponent(environmentId)}/users/${encodeURIComponent(userId)}/password`;
 
 		const response = await trackedFetch('/api/pingone/password/ldap-gateway', {
 			method: 'PUT',

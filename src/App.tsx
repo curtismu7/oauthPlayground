@@ -147,6 +147,10 @@ import WorkerTokenFlowV7 from './pages/flows/WorkerTokenFlowV7';
 // import InteractiveTutorials from './pages/InteractiveTutorials'; // Removed - unused tutorial feature
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
 import ResponseModesLearnPage from './pages/learn/ResponseModesLearnPage';
+// SDK Examples imports
+import SDKExamplesHome from './pages/sdk-examples/SDKExamplesHome';
+import JWTExamples from './pages/sdk-examples/JWTExamples';
+import OIDCExamples from './pages/sdk-examples/OIDCExamples';
 import OAuth21 from './pages/OAuth21';
 import OAuthOIDCTraining from './pages/OAuthOIDCTraining';
 import OIDC from './pages/OIDC';
@@ -218,7 +222,8 @@ const WhatsAppFlowV8 = React.lazy(() =>
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
-import { EnvironmentManagementPageV8 } from './v8/pages/EnvironmentManagementPageV8';
+import EnvironmentManagementPageV8 from './pages/EnvironmentManagementPageV8';
+import DavinciTodoApp from './sdk-examples/davinci-todo-app/DavinciTodoApp';
 import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
 import MFADeviceCreateDemoV8 from './v8/pages/MFADeviceCreateDemoV8';
 import { MFAFeatureFlagsAdminV8 } from './v8/pages/MFAFeatureFlagsAdminV8';
@@ -578,8 +583,14 @@ const AppRoutes: React.FC = () => {
 							{/* Tools & Utilities Routes */}
 							<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
 							<Route path="/ultimate-token-display-demo" element={<UltimateTokenDisplayDemo />} />
+							{/* SDK Examples Routes */}
+							<Route path="/sdk-examples" element={<SDKExamplesHome />} />
+							<Route path="/sdk-examples/jwt-authentication" element={<JWTExamples />} />
+							<Route path="/sdk-examples/oidc-centralized-login" element={<OIDCExamples />} />
 							{/* Environment Management */}
 							<Route path="/environments" element={<EnvironmentManagementPageV8 />} />
+							{/* DaVinci Todo App */}
+							<Route path="/davinci-todo" element={<DavinciTodoApp />} />
 							{/* V7 OAuth/OIDC Flow Routes */}
 							<Route
 								path="/flows/oauth-authorization-code-v7"
