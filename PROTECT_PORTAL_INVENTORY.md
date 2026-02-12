@@ -619,8 +619,41 @@ grep -rn "onClick.*onLoginStart\|onClick.*handleLoginStart" src/pages/protect-po
 
 **Prevention Commands**:
 ```bash
-# 32. Check hero component padding is not excessive (prevent tall headers)
-grep -rn "padding.*4rem" src/pages/protect-portal/components/*Hero.tsx && echo "❌ EXCESSIVE HERO PADDING FOUND" || echo "✅ HERO PADDING IS APPROPRIATE"
+# 34. Check for excessive padding in hero components
+grep -rn "padding.*4rem" src/pages/protect-portal/components/*Hero.tsx && echo "⚠️ EXCESSIVE PADDING FOUND" || echo "✅ PADDING REASONABLE"
+
+# 35. Verify hero component padding is reasonable (2rem max)
+grep -rn "padding.*2rem" src/pages/protect-portal/components/*Hero.tsx | wc -l && echo "✅ HERO PADDING REASONABLE" || echo "❌ HERO PADDING TOO LARGE"
+```
+
+### **✅ Issue: PageApiInfo JSON Display Issues**
+
+**Problem**: PageApiInfo component has poor JSON display with no collapsible sections and type safety issues.
+
+**Root Cause**: Direct rendering of JSON in pre tags without proper formatting and collapsible functionality.
+
+**Solution**: Use dedicated JsonDisplay component with collapsible sections and proper type safety.
+
+**Files Affected**:
+- `src/protect-app/components/common/PageApiInfo.tsx` - Lines 190-258
+- `src/protect-app/components/common/JsonDisplay.tsx` - New component
+
+**Prevention Commands**:
+```bash
+# 36. Verify JsonDisplay component exists and is used
+ls src/protect-app/components/common/JsonDisplay.tsx && echo "✅ JSON DISPLAY COMPONENT EXISTS" || echo "❌ MISSING JSON DISPLAY COMPONENT"
+
+# 37. Check PageApiInfo uses JsonDisplay component
+grep -rn "import.*JsonDisplay" src/protect-app/components/common/PageApiInfo.tsx && echo "✅ JSON DISPLAY IMPORTED" || echo "❌ JSON DISPLAY NOT IMPORTED"
+
+# 38. Verify collapsible sections are implemented
+grep -rn "JsonDisplay" src/protect-app/components/common/PageApiInfo.tsx | wc -l && echo "✅ JSON DISPLAY USED" || echo "❌ JSON DISPLAY NOT USED"
+
+# 39. Check for proper TypeScript typing in JSON display
+grep -rn "as React.ReactNode" src/protect-app/components/common/PageApiInfo.tsx && echo "⚠️ UNSAFE TYPE CASTING FOUND" || echo "✅ TYPE SAFE JSON DISPLAY"
+
+# 40. Verify copy functionality is implemented
+grep -rn "handleCopy\|copy.*clipboard" src/protect-app/components/common/JsonDisplay.tsx && echo "✅ COPY FUNCTIONALITY IMPLEMENTED" || echo "❌ MISSING COPY FUNCTIONALITY"
 ```
 
 ### **🔍 Detection Patterns**
