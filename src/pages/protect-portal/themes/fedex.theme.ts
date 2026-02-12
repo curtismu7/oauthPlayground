@@ -26,20 +26,22 @@ export const fedexTheme: BrandTheme = {
 		},
 	},
 	colors: {
-		primary: '#4D148C', // FedEx Purple (official brand color)
-		secondary: '#FFFFFF', // White
-		accent: '#FF6600', // FedEx Orange (official accent color)
-		background: '#FFFFFF', // Changed to solid white for Protect app
-		surface: '#FFFFFF',
+		primary: '#4d148c', // Updated to match mockup primary
+		primaryDark: '#3c0f6d', // Updated to match mockup primaryDark
+		secondary: '#111827', // Updated to match mockup secondary
+		accent: '#ff6600', // Updated to match mockup accent
+		background: '#ffffff', // Updated to match mockup bg
+		surface: '#ffffff', // Updated to match mockup surface
+		muted: '#6b7280', // Updated to match mockup muted
+		border: '#d1d5db', // Updated to match mockup border
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#DC2626',
 		success: '#059669',
 		warning: '#FF6600', // Use FedEx Orange for warnings
-		info: '#4D148C', // Use FedEx Purple for info
+		info: '#4d148c', // Use FedEx Purple for info
 		// Additional theme colors with official FedEx palette
 		primaryLight: '#6B1E8E',
-		primaryDark: '#3E0F70',
 		secondaryLight: '#F8F9FA',
 		secondaryDark: '#E9ECEF',
 		errorLight: '#FEE2E2',
