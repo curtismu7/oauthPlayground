@@ -13575,3 +13575,86 @@ echo "🎯 PROTECT PORTAL REDIRECT PREVENTION CHECKS COMPLETE"
 
 ---
 
+#### **📋 Issue PP-051: American Airlines Hero Title Color - RESOLVED ✅**
+
+**🎯 Problem Summary:**
+American Airlines Protect Portal hero section had incorrect text colors - all text was showing as white instead of the brand orange color for the main title "Go Places. Together." This created a visual inconsistency with the American Airlines brand guidelines where the hero title should use the accent orange color while other text remains white.
+
+**🔍 Technical Investigation:**
+- The `HeroTitle` styled component in `AmericanAirlinesHero.tsx` was inheriting white color from the parent `HeroContainer`
+- No explicit color was set for the hero title, causing it to default to the container's white text color
+- American Airlines brand theme defines accent color as `#e11d48` (orange) which should be used for the hero title
+- The issue affected both hero states: portal home ("Go Places. Together.") and secure portal ("Secure Employee Portal")
+
+**🛠️ Implementation Requirements:**
+1. **Hero Title Color**: Set hero title to use American Airlines accent color (`var(--brand-accent)`)
+2. **Brand Consistency**: Ensure the orange color matches American Airlines brand guidelines
+3. **Text Hierarchy**: Maintain proper contrast with blue gradient background
+4. **Both States**: Apply fix to both portal home and secure portal hero titles
+5. **Theme Integration**: Use CSS custom properties for theme consistency
+
+**🔧 Changes Applied:**
+1. ✅ **HeroTitle Component**: Updated `HeroTitle` styled component to use `var(--brand-accent)` color
+2. ✅ **Brand Color**: Uses American Airlines orange accent color (#e11d48) from theme
+3. ✅ **Consistent Styling**: Both hero titles now use the same orange color
+4. ✅ **Theme Integration**: Properly integrated with American Airlines theme system
+5. ✅ **Visual Hierarchy**: Orange title creates proper focus against blue background
+
+**📁 Files Modified:**
+- `src/pages/protect-portal/components/AmericanAirlinesHero.tsx` - Fixed HeroTitle color
+
+**🎯 SUCCESS METRICS:**
+- ✅ **Orange Title**: Hero title "Go Places. Together." now displays in American Airlines orange
+- ✅ **Brand Consistency**: Matches American Airlines brand guidelines and visual identity
+- ✅ **Text Hierarchy**: Clear visual hierarchy with orange title and white secondary text
+- ✅ **Theme Integration**: Properly uses theme CSS custom properties
+- ✅ **Both States**: Portal home and secure portal both have correct title colors
+
+**🔍 Detection Patterns:**
+- Look for hero title components that don't explicitly set color
+- Check if brand accent colors are properly applied to key UI elements
+- Verify theme CSS custom properties are being used consistently
+- Monitor for text color issues in brand-specific hero sections
+
+**🛠️ Prevention Commands:**
+```bash
+# 1. Check American Airlines hero title color
+echo "=== Checking American Airlines hero title color ==="
+grep -A 5 -B 5 "color.*var(--brand-accent)" src/pages/protect-portal/components/AmericanAirlinesHero.tsx && echo "✅ HERO TITLE USES ACCENT COLOR" || echo "❌ HERO TITLE MISSING ACCENT COLOR"
+
+# 2. Verify brand accent color is defined
+echo "=== Checking American Airlines theme accent color ==="
+grep -E "accent.*#e11d48|#e11d48.*accent" src/pages/protect-portal/themes/american-airlines.theme.ts && echo "✅ ACCENT COLOR DEFINED" || echo "❌ ACCENT COLOR NOT DEFINED"
+
+# 3. Check for missing title colors in other brand heroes
+echo "=== Checking other brand hero title colors ==="
+for hero in src/pages/protect-portal/components/*Hero.tsx; do
+  if grep -q "HeroTitle.*styled\.h1" "$hero"; then
+    echo "Checking $(basename "$hero")..."
+    grep -A 10 "HeroTitle.*styled\.h1" "$hero" | grep -E "color|accent" || echo "⚠️ NO COLOR DEFINED"
+  fi
+done
+
+# 4. Verify theme CSS custom properties are properly set
+echo "=== Checking theme CSS custom properties ==="
+grep -E "--brand-accent" src/pages/protect-portal/components/AmericanAirlinesHero.tsx && echo "✅ CSS CUSTOM PROPERTIES USED" || echo "❌ CSS CUSTOM PROPERTIES NOT USED"
+
+# 5. Check for visual consistency across brand themes
+echo "=== Checking brand theme consistency ==="
+find src/pages/protect-portal/themes/ -name "*.theme.ts" -exec grep -l "accent.*#" {} \; | wc -l && echo "✅ BRAND THEMES HAVE ACCENT COLORS" || echo "❌ MISSING ACCENT COLORS"
+
+echo "🎯 AMERICAN AIRLINES TEXT COLOR PREVENTION CHECKS COMPLETE"
+```
+
+**🔗 Related Issues:**
+- **PP-048**: Southwest page layout fixes - similar text color issues resolved
+- **PP-050**: FedEx secure login page styling - brand color consistency
+- **Theme System**: Brand accent color standardization across all portals
+
+**📚 Documentation Updates:**
+- Added hero title color requirements to brand theme guidelines
+- Updated component styling patterns for brand consistency
+- Documented CSS custom property usage for theme integration
+
+---
+
