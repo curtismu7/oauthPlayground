@@ -283,7 +283,11 @@ export const ApiDisplay: React.FC<ApiDisplayProps> = ({ className = '', style = 
 													>
 														{typeof call.body === 'string'
 															? call.body
-															: (JSON.stringify(call.body, null, 2) as React.ReactNode)}
+															: (
+																<pre className="whitespace-pre-wrap break-words">
+																	{JSON.stringify(call.body, null, 2)}
+																</pre>
+															)}
 													</div>
 												</div>
 											)}
@@ -313,7 +317,9 @@ export const ApiDisplay: React.FC<ApiDisplayProps> = ({ className = '', style = 
 																	border: `1px solid ${currentTheme.colors.textSecondary}`,
 																}}
 															>
-																{JSON.stringify(call.response.data, null, 2) as React.ReactNode}
+																<pre className="whitespace-pre-wrap break-words">
+																	{JSON.stringify(call.response.data, null, 2)}
+																</pre>
 															</div>
 														)}
 													</div>
