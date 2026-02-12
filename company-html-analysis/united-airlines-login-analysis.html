@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>United Airlines Login Form - HTML Analysis</title>
+    <style>
+        /* United Airlines Theme Variables */
+        :root {
+            --brand-primary: #0033A0;
+            --brand-secondary: #FFFFFF;
+            --brand-accent: #FF6600;
+            --brand-background: #FFFFFF;
+            --brand-surface: #FFFFFF;
+            --brand-text: #1F2937;
+            --brand-text-secondary: #6B7280;
+            --brand-error: #DC2626;
+            --brand-success: #059669;
+            --brand-warning: #FF6600;
+            --brand-info: #0033A0;
+            --brand-primary-light: #0056B3;
+            --brand-primary-dark: #002880;
+            --brand-error-light: #FEE2E2;
+            --brand-warning-light: #FEF3C7;
+            --brand-success-light: #D1FAE5;
+            --brand-radius-sm: 0.25rem;
+            --brand-radius-md: 0.5rem;
+            --brand-radius-lg: 0.75rem;
+            --brand-radius-xl: 1rem;
+            --brand-radius-xs: 0.125rem;
+            --brand-shadow-sm: 0 1px 2px 0 rgba(0, 51, 160, 0.05);
+            --brand-shadow-md: 0 4px 6px -1px rgba(0, 51, 160, 0.1), 0 2px 4px -1px rgba(0, 51, 160, 0.06);
+            --brand-shadow-lg: 0 10px 15px -3px rgba(0, 51, 160, 0.1), 0 4px 6px -2px rgba(0, 51, 160, 0.05);
+            --brand-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --brand-heading-font: '"United", "Helvetica Neue", Arial, sans-serif';
+            --brand-body-font: '"Inter", system-ui, sans-serif';
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--brand-body-font);
+            background: var(--brand-background);
+            color: var(--brand-text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Analysis Header */
+        .analysis-header {
+            background: var(--brand-primary);
+            color: white;
+            padding: 2rem;
+            border-radius: var(--brand-radius-lg);
+            margin-bottom: 2rem;
+            box-shadow: var(--brand-shadow-lg);
+        }
+
+        .analysis-header h1 {
+            font-family: var(--brand-heading-font);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .analysis-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        /* Login Container Styles */
+        .login-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            background: var(--brand-surface);
+            border-radius: var(--brand-radius-lg);
+            padding: 2rem;
+            box-shadow: var(--brand-shadow-lg);
+            border: 1px solid #e5e7eb;
+        }
+
+        .company-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .company-logo img {
+            width: 160px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        .company-logo .fallback {
+            font-size: 3rem;
+            color: var(--brand-primary);
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .form-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--brand-text);
+            margin: 0 0 1rem 0;
+            text-align: center;
+            font-family: var(--brand-heading-font);
+        }
+
+        .form-description {
+            font-size: 1rem;
+            color: var(--brand-text-secondary);
+            margin: 0 0 2rem 0;
+            text-align: center;
+            line-height: 1.6;
+            font-family: var(--brand-body-font);
+        }
+
+        /* Step Indicator */
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--brand-text-secondary);
+            transition: var(--brand-transition);
+        }
+
+        .step-dot.active {
+            background: var(--brand-primary);
+        }
+
+        .step-dot.completed {
+            background: var(--brand-success);
+        }
+
+        .step-line {
+            width: 40px;
+            height: 2px;
+            background: var(--brand-text-secondary);
+            margin: 0 0.5rem;
+            transition: var(--brand-transition);
+        }
+
+        .step-line.completed {
+            background: var(--brand-success);
+        }
+
+        /* Form Styles */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--brand-text);
+            margin-bottom: 0.5rem;
+            font-family: var(--brand-body-font);
+        }
+
+        .styled-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 2px solid var(--brand-text-secondary);
+            border-radius: var(--brand-radius-md);
+            font-size: 1rem;
+            color: var(--brand-text);
+            transition: var(--brand-transition);
+            font-family: var(--brand-body-font);
+        }
+
+        .styled-input:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+            box-shadow: var(--brand-shadow-md);
+        }
+
+        .styled-input:invalid {
+            border-color: var(--brand-error);
+        }
+
+        .styled-input::placeholder {
+            color: var(--brand-text-secondary);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--brand-text-secondary);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: var(--brand-radius-xs);
+            transition: var(--brand-transition);
+        }
+
+        .password-toggle:hover {
+            color: var(--brand-text);
+        }
+
+        .password-toggle:focus {
+            outline: none;
+            color: var(--brand-primary);
+        }
+
+        .error-message {
+            background: var(--brand-error-light);
+            border: 1px solid var(--brand-error);
+            border-radius: var(--brand-radius-sm);
+            padding: 1rem;
+            color: var(--brand-error);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-family: var(--brand-body-font);
+        }
+
+        .submit-button {
+            background: var(--brand-primary);
+            color: white;
+            border: none;
+            border-radius: var(--brand-radius-md);
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--brand-transition);
+            font-family: var(--brand-body-font);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .submit-button:hover {
+            background: var(--brand-primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .submit-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--brand-primary-light);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .phone-button {
+            background: transparent;
+            border: 2px solid var(--brand-primary);
+            color: var(--brand-primary);
+            border-radius: var(--brand-radius-md);
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--brand-transition);
+            font-family: var(--brand-body-font);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .phone-button:hover {
+            background: var(--brand-primary);
+            color: white;
+        }
+
+        .phone-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--brand-primary-light);
+        }
+
+        /* Analysis Section */
+        .analysis-section {
+            background: var(--brand-surface);
+            border-radius: var(--brand-radius-lg);
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: var(--brand-shadow-md);
+            border: 1px solid #e5e7eb;
+        }
+
+        .analysis-section h2 {
+            color: var(--brand-primary);
+            font-family: var(--brand-heading-font);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .analysis-card {
+            background: var(--brand-background);
+            border: 1px solid #e5e7eb;
+            border-radius: var(--brand-radius-md);
+            padding: 1.5rem;
+        }
+
+        .analysis-card h3 {
+            color: var(--brand-primary);
+            margin-bottom: 0.5rem;
+            font-family: var(--brand-heading-font);
+        }
+
+        .analysis-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .analysis-card li {
+            padding: 0.25rem 0;
+            color: var(--brand-text);
+        }
+
+        .analysis-card li:before {
+            content: "✈️ ";
+            color: var(--brand-accent);
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .login-container {
+                padding: 1.5rem;
+            }
+
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Analysis Header -->
+        <div class="analysis-header">
+            <h1>✈️ United Airlines Login Form Analysis</h1>
+            <p>HTML representation of the United Airlines two-step authentication form for analysis and testing</p>
+        </div>
+
+        <!-- Login Form Container -->
+        <div class="login-container">
+            <!-- Company Logo -->
+            <div class="company-logo">
+                <img src="https://raw.githubusercontent.com/curtismu7/CDN/74b2535cf2ff57c98c702071ff3de3e9eda63929/United.svg" 
+                     alt="United Airlines Logo" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div class="fallback" style="display: none;">UNITED</div>
+            </div>
+
+            <!-- Form Title -->
+            <h2 class="form-title">Sign In to United</h2>
+            
+            <!-- Form Description -->
+            <p class="form-description">
+                Enter your email, MileagePlus number, or phone number to continue
+            </p>
+
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step-dot active"></div>
+                <div class="step-line"></div>
+                <div class="step-dot"></div>
+            </div>
+
+            <!-- Error Message (Hidden by default) -->
+            <div class="error-message" style="display: none;">
+                <span>⚠️</span>
+                <span>Please enter your email, MileagePlus number, or phone number</span>
+            </div>
+
+            <!-- Login Form -->
+            <form class="login-form">
+                <!-- Step 1: Identifier Input -->
+                <div class="step-1">
+                    <label class="input-label">Email or MileagePlus Number</label>
+                    <div class="input-group">
+                        <input type="text" 
+                               class="styled-input" 
+                               name="identifier" 
+                               placeholder="Enter email or MileagePlus number"
+                               autofocus
+                               required>
+                        <button type="button" class="phone-button">
+                            <span>📞</span>
+                            Use Phone
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="submit-button">
+                    <span>Next</span>
+                    <span>→</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Analysis Section -->
+        <div class="analysis-section">
+            <h2>📊 Form Analysis Details</h2>
+            
+            <div class="analysis-grid">
+                <!-- Theme Analysis -->
+                <div class="analysis-card">
+                    <h3>🎨 Theme Configuration</h3>
+                    <ul>
+                        <li>Primary Color: #0033A0 (United Blue)</li>
+                        <li>Accent Color: #FF6600 (United Orange)</li>
+                        <li>Typography: United font family</li>
+                        <li>Border Radius: 0.5rem (medium)</li>
+                        <li>Shadows: Blue-tinted for brand consistency</li>
+                        <li>Transitions: 0.3s cubic-bezier easing</li>
+                    </ul>
+                </div>
+
+                <!-- Form Structure -->
+                <div class="analysis-card">
+                    <h3>📝 Form Structure</h3>
+                    <ul>
+                        <li>Two-step authentication flow</li>
+                        <li>Step 1: Email/MileagePlus/Phone input</li>
+                        <li>Step 2: Password input</li>
+                        <li>Visual step indicator</li>
+                        <li>Error messaging system</li>
+                        <li>Phone mode toggle</li>
+                        <li>Password visibility toggle</li>
+                    </ul>
+                </div>
+
+                <!-- User Experience -->
+                <div class="analysis-card">
+                    <h3>👤 User Experience</h3>
+                    <ul>
+                        <li>Progressive disclosure</li>
+                        <li>Clear visual feedback</li>
+                        <li>Multiple login options</li>
+                        <li>Accessibility features</li>
+                        <li>Mobile responsive design</li>
+                        <li>Loading states</li>
+                        <li>Error recovery</li>
+                    </ul>
+                </div>
+
+                <!-- Security Features -->
+                <div class="analysis-card">
+                    <h3>🔒 Security Implementation</h3>
+                    <ul>
+                        <li>PingOne integration</li>
+                        <li>PKCE code flow</li>
+                        <li>OAuth 2.0 token exchange</li>
+                        <li>Embedded login flow</li>
+                        <li>Secure credential handling</li>
+                        <li>Session management</li>
+                        <li>Error handling</li>
+                    </ul>
+                </div>
+
+                <!-- Technical Details -->
+                <div class="analysis-card">
+                    <h3>⚙️ Technical Implementation</h3>
+                    <ul>
+                        <li>React functional component</li>
+                        <li>Styled Components</li>
+                        <li>TypeScript interfaces</li>
+                        <li>Custom hooks</li>
+                        <li>Service layer architecture</li>
+                        <li>Theme system integration</li>
+                        <li>Component composition</li>
+                    </ul>
+                </div>
+
+                <!-- Brand Compliance -->
+                <div class="analysis-card">
+                    <h3>✅ Brand Compliance</h3>
+                    <ul>
+                        <li>Official United colors</li>
+                        <li>Brand typography</li>
+                        <li>Logo usage guidelines</li>
+                        <li>Accessibility standards</li>
+                        <li>Mobile-first design</li>
+                        <li>Cross-browser compatibility</li>
+                        <li>Performance optimization</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Analysis Section -->
+        <div class="analysis-section">
+            <h2>🔍 Component Breakdown</h2>
+            
+            <div class="analysis-grid">
+                <!-- Component Props -->
+                <div class="analysis-card">
+                    <h3>📋 Component Interface</h3>
+                    <ul>
+                        <li>onLoginSuccess: Function callback</li>
+                        <li>onError: Error handler function</li>
+                        <li>environmentId: PingOne environment</li>
+                        <li>clientId: OAuth client ID</li>
+                        <li>clientSecret: OAuth client secret</li>
+                        <li>redirectUri: OAuth redirect URI</li>
+                    </ul>
+                </div>
+
+                <!-- State Management -->
+                <div class="analysis-card">
+                    <h3>🔄 State Management</h3>
+                    <ul>
+                        <li>currentStep: 1 | 2</li>
+                        <li>isLoading: boolean</li>
+                        <li>error: string | null</li>
+                        <li>showPassword: boolean</li>
+                        <li>usePhone: boolean</li>
+                        <li>flowId: string | null</li>
+                        <li>codeVerifier: string</li>
+                        <li>formData: identifier, password</li>
+                    </ul>
+                </div>
+
+                <!-- Event Handlers -->
+                <div class="analysis-card">
+                    <h3>🎯 Event Handlers</h3>
+                    <ul>
+                        <li>handleInputChange</li>
+                        <li>handleStep1Submit</li>
+                        <li>handleStep2Submit</li>
+                        <li>handleBack</li>
+                        <li>togglePasswordVisibility</li>
+                        <li>togglePhoneMode</li>
+                    </ul>
+                </div>
+
+                <!-- Service Integration -->
+                <div class="analysis-card">
+                    <h3>🔌 Service Integration</h3>
+                    <ul>
+                        <li>PingOneLoginService</li>
+                        <li>initializeEmbeddedLogin</li>
+                        <li>submitCredentials</li>
+                        <li>resumeFlow</li>
+                        <li>exchangeCodeForTokens</li>
+                        <li>PKCE helpers</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Basic form interaction for demonstration
+        document.querySelector('.login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const errorMessage = document.querySelector('.error-message');
+            const input = document.querySelector('.styled-input');
+            
+            if (!input.value.trim()) {
+                errorMessage.style.display = 'flex';
+                input.focus();
+            } else {
+                errorMessage.style.display = 'none';
+                // Simulate step progression
+                const step1 = document.querySelector('.step-1');
+                const title = document.querySelector('.form-title');
+                const description = document.querySelector('.form-description');
+                const submitBtn = document.querySelector('.submit-button');
+                
+                if (step1.style.display !== 'none') {
+                    // Move to step 2
+                    title.textContent = 'Enter Password';
+                    description.textContent = 'Enter your password to complete sign in';
+                    step1.innerHTML = `
+                        <label class="input-label">Password</label>
+                        <div class="input-group">
+                            <input type="password" 
+                                   class="styled-input" 
+                                   name="password" 
+                                   placeholder="Enter your password"
+                                   autofocus
+                                   required>
+                            <button type="button" class="password-toggle">
+                                <span>👁️</span>
+                            </button>
+                        </div>
+                        <button type="button" class="phone-button">
+                            ← Back
+                        </button>
+                    `;
+                    submitBtn.innerHTML = '<span>🔒</span><span>Sign In</span>';
+                    
+                    // Update step indicator
+                    document.querySelectorAll('.step-dot')[0].classList.add('completed');
+                    document.querySelectorAll('.step-dot')[0].classList.remove('active');
+                    document.querySelectorAll('.step-dot')[1].classList.add('active');
+                    document.querySelectorAll('.step-line')[0].classList.add('completed');
+                }
+            }
+        });
+
+        // Phone toggle functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.phone-button')) {
+                const button = e.target.closest('.phone-button');
+                const inputGroup = document.querySelector('.input-group');
+                const label = document.querySelector('.input-label');
+                const input = document.querySelector('.styled-input');
+                
+                if (button.textContent.includes('Phone')) {
+                    label.textContent = 'Phone Number';
+                    input.type = 'tel';
+                    input.placeholder = 'Enter phone number';
+                    button.innerHTML = '<span>👤</span><span>Use Email or MileagePlus</span>';
+                } else if (button.textContent.includes('Email')) {
+                    label.textContent = 'Email or MileagePlus Number';
+                    input.type = 'text';
+                    input.placeholder = 'Enter email or MileagePlus number';
+                    button.innerHTML = '<span>📞</span><span>Use Phone</span>';
+                } else if (button.textContent.includes('Back')) {
+                    // Reset to step 1
+                    location.reload();
+                }
+            }
+        });
+
+        // Password toggle functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.password-toggle')) {
+                const input = document.querySelector('input[name="password"]');
+                const toggle = e.target.closest('.password-toggle');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    toggle.innerHTML = '<span>👁️‍🗨️</span>';
+                } else {
+                    input.type = 'password';
+                    toggle.innerHTML = '<span>👁️</span>';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
