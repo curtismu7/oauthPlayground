@@ -1,10 +1,10 @@
 {
-	"name": "pingone-oauth-playground",
-	"version": "9.6.6",
-	"mfaV8Version": "9.6.6",
-	"unifiedV8uVersion": "9.6.6",
-	"protectPortalVersion": "9.6.6",
-	"description": "Interactive playground for PingOne OAuth 2.0 and OpenID Connect",
+	"name": "masterflow-api",
+	"version": "9.6.7",
+	"mfaV8Version": "9.6.7",
+	"unifiedV8uVersion": "9.6.7",
+	"protectPortalVersion": "9.6.7",
+	"description": "MasterFlow API - PingOne API integration and testing platform",
 	"main": "src/main.tsx",
 	"type": "module",
 	"scripts": {
