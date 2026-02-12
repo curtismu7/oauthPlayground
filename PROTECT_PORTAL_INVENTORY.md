@@ -654,28 +654,31 @@ grep -rn "as React.ReactNode" src/protect-app/components/common/PageApiInfo.tsx 
 
 # 40. Verify copy functionality is implemented
 grep -rn "handleCopy\|copy.*clipboard" src/protect-app/components/common/JsonDisplay.tsx && echo "✅ COPY FUNCTIONALITY IMPLEMENTED" || echo "❌ MISSING COPY FUNCTIONALITY"
-```
 
-### **🔍 Detection Patterns**
-
-**Common Locations for These Issues**:
-- `src/pages/protect-portal/ProtectPortalApp.tsx` - Hero component prop passing
-- `src/pages/protect-portal/components/*Hero.tsx` - Hero component styling and props
-- `src/pages/protect-portal/components/AmericanAirlinesHero.tsx` - Most frequently affected
 - `src/pages/protect-portal/components/SouthwestAirlinesHero.tsx` - Similar patterns
 - `src/pages/protect-portal/components/FedExAirlinesHero.tsx` - Similar patterns
+- `src/protect-app/ProtectPortalApp.tsx` - Main Protect Portal app (NEW)
+- `src/protect-app/layouts/` - Layout components (NEW)
+- `src/protect-app/contexts/` - Context providers (NEW)
+- `src/protect-app/pages/` - Page components (NEW)
 
 **Warning Signs**:
 - Hero components not responding to button clicks
 - Excessive vertical space in hero sections
 - Missing event handlers in hero props
 - Inconsistent padding across hero components
+- Theme switching not working properly
+- Company branding not displaying correctly
+- Login forms not styled according to brand guidelines
 
 **Testing Strategy**:
 1. Test all "Begin Secure Login" buttons functionality
 2. Verify hero component heights are consistent
 3. Check event handler prop passing in main app
 4. Validate responsive behavior of hero sections
+5. Test theme switching between different companies
+6. Verify company-specific styling is applied correctly
+7. Check login form styling matches brand guidelines
 
 ---
 
@@ -695,6 +698,42 @@ grep -rn "redirectless/authorize" src/pages/protect-portal/services/ --include="
 # MFA Direct Registration Protection
 echo "=== MFA Protection Check ==="
 grep -rn "registerDevice\|direct.*registration" src/v8/flows/unified/UnifiedConfigurationStep.modern.tsx | wc -l && echo "✅ MFA PROTECTION ACTIVE" || echo "❌ MFA PROTECTION MISSING"
+
+# NEW: Protect Portal App Structure (PP-012)
+echo "=== PP-012: Protect Portal App Structure Check ==="
+ls src/protect-app/ProtectPortalApp.tsx && echo "✅ PROTECT PORTAL APP EXISTS" || echo "❌ PROTECT PORTAL APP MISSING"
+
+# NEW: Theme Provider Integration (PP-013)
+echo "=== PP-013: Theme Provider Check ==="
+grep -rn "ThemeProvider\|BrandThemeProvider" src/protect-app/ --include="*.tsx" | wc -l && echo "✅ THEME PROVIDER INTEGRATED" || echo "❌ THEME PROVIDER NOT INTEGRATED"
+
+# NEW: Company Branding Implementation (PP-014)
+echo "=== PP-014: Company Branding Check ==="
+find src/protect-app -name "*Hero*" -o -name "*Company*" | wc -l && echo "✅ COMPANY BRANDING COMPONENTS FOUND" || echo "❌ COMPANY BRANDING COMPONENTS MISSING"
+
+# NEW: Login Form Styling (PP-015)
+echo "=== PP-015: Login Form Styling Check ==="
+grep -rn "LoginPage\|CustomLoginForm" src/protect-app/ --include="*.tsx" | wc -l && echo "✅ LOGIN FORM COMPONENTS FOUND" || echo "❌ LOGIN FORM COMPONENTS MISSING"
+
+# NEW: Layout Components (PP-016)
+echo "=== PP-016: Layout Components Check ==="
+ls src/protect-app/layouts/ && echo "✅ LAYOUT COMPONENTS DIRECTORY EXISTS" || echo "❌ LAYOUT COMPONENTS DIRECTORY MISSING"
+
+# NEW: Context Providers (PP-017)
+echo "=== PP-017: Context Providers Check ==="
+ls src/protect-app/contexts/ && echo "✅ CONTEXT PROVIDERS DIRECTORY EXISTS" || echo "❌ CONTEXT PROVIDERS DIRECTORY MISSING"
+
+# NEW: Theme Configuration Files (PP-018)
+echo "=== PP-018: Theme Configuration Check ==="
+find src -name "*.theme.ts" | grep protect && wc -l && echo "✅ PROTECT THEME CONFIGURATIONS FOUND" || echo "❌ PROTECT THEME CONFIGURATIONS MISSING"
+
+# NEW: Event Handler Prop Passing (PP-019)
+echo "=== PP-019: Event Handler Prop Passing Check ==="
+grep -rn "onLoginStart\|handleLoginStart" src/protect-app/ --include="*.tsx" | wc -l && echo "✅ EVENT HANDLER PROPS FOUND" || echo "❌ EVENT HANDLER PROPS MISSING"
+
+# NEW: CSS Custom Properties Usage (PP-020)
+echo "=== PP-020: CSS Custom Properties Check ==="
+grep -rn "var(--brand-" src/protect-app/ --include="*.tsx" | wc -l && echo "✅ CSS CUSTOM PROPERTIES USED" || echo "❌ CSS CUSTOM PROPERTIES NOT USED"
 ```
 
 ### **🎨 Theme System Regression Prevention**
