@@ -77,8 +77,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	
 	const [redirectUri, setRedirectUri] = useState(() => {
 		// Initialize with correct default redirect URI based on flow type
-		// Use HTTP in development to avoid SSL certificate issues
-		const protocol = window.location.hostname === 'localhost' ? 'http' : 'https';
+		// Always use HTTPS for security (even in development)
+		const protocol = 'https';
 		const isMfaFlow =
 			location.pathname.startsWith('/v8/mfa') || location.pathname.startsWith('/v8/unified-mfa');
 		const uri = isMfaFlow
@@ -206,10 +206,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		idTokenFormat?: 'OPAQUE' | 'JWT';
 	} | null>(null);
 	// Use different default redirect URI for MFA flows
-	// Use HTTP in development to avoid SSL certificate issues
+	// Always use HTTPS for security (even in development)
 	const defaultRedirectUri = isMfaFlow
-		? `http://${window.location.host}/mfa-unified-callback`
-		: `http://${window.location.host}/user-login-callback`;
+		? `https://${window.location.host}/mfa-unified-callback`
+		: `https://${window.location.host}/user-login-callback`;
 	const previousRedirectUriRef = useRef<string>(defaultRedirectUri);
 
 	// Pre-flight validation function

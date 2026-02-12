@@ -31,8 +31,8 @@ export class MFARedirectUriServiceV8 {
 
 		if (!redirectUri) {
 			console.error(`${MODULE_TAG} No redirect URI found for flow type: ${flowType}`);
-			// Use HTTP in development to avoid SSL certificate issues
-			const protocol = window.location.hostname === 'localhost' ? 'http' : 'https';
+			// Always use HTTPS for security (even in development)
+			const protocol = 'https';
 			return `${protocol}://${window.location.host}/mfa-unified-callback`;
 		}
 
