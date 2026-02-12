@@ -1,4 +1,5 @@
 import React from 'react';
+import { PageApiInfo } from '../components/common/PageApiInfo';
 import { useTheme } from '../contexts/ThemeContext';
 
 /**
@@ -39,6 +40,9 @@ export const SecurityInsightsPage: React.FC = () => {
 					</p>
 				</div>
 			</div>
+
+			{/* Page API Info */}
+			<PageApiInfo pageName="Security Insights" />
 		</div>
 	);
 };
