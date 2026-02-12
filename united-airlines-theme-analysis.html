@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>United Airlines Theme Configuration - HTML Analysis</title>
+    <style>
+        /* United Airlines Theme Variables */
+        :root {
+            --brand-primary: #0033A0;
+            --brand-secondary: #FFFFFF;
+            --brand-accent: #FF6600;
+            --brand-background: #FFFFFF;
+            --brand-surface: #FFFFFF;
+            --brand-text: #1F2937;
+            --brand-text-secondary: #6B7280;
+            --brand-error: #DC2626;
+            --brand-success: #059669;
+            --brand-warning: #FF6600;
+            --brand-info: #0033A0;
+            --brand-primary-light: #0056B3;
+            --brand-primary-dark: #002880;
+            --brand-secondary-light: #F8F9FA;
+            --brand-secondary-dark: #E9ECEF;
+            --brand-error-light: #FEE2E2;
+            --brand-warning-light: #FEF3C7;
+            --brand-success-light: #D1FAE5;
+            --brand-radius-sm: 0.25rem;
+            --brand-radius-md: 0.5rem;
+            --brand-radius-lg: 0.75rem;
+            --brand-radius-xl: 1rem;
+            --brand-radius-xs: 0.125rem;
+            --brand-shadow-sm: 0 1px 2px 0 rgba(0, 51, 160, 0.05);
+            --brand-shadow-md: 0 4px 6px -1px rgba(0, 51, 160, 0.1), 0 2px 4px -1px rgba(0, 51, 160, 0.06);
+            --brand-shadow-lg: 0 10px 15px -3px rgba(0, 51, 160, 0.1), 0 4px 6px -2px rgba(0, 51, 160, 0.05);
+            --brand-shadow-xl: 0 20px 25px -5px rgba(0, 51, 160, 0.1), 0 10px 10px -5px rgba(0, 51, 160, 0.04);
+            --brand-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --brand-heading-font: '"United", "Helvetica Neue", Arial, sans-serif';
+            --brand-body-font: '"Inter", system-ui, sans-serif';
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--brand-body-font);
+            background: var(--brand-background);
+            color: var(--brand-text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: var(--brand-primary);
+            color: white;
+            padding: 2rem;
+            border-radius: var(--brand-radius-lg);
+            margin-bottom: 2rem;
+            box-shadow: var(--brand-shadow-lg);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-family: var(--brand-heading-font);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 1.2rem;
+        }
+
+        /* Theme Showcase */
+        .theme-showcase {
+            background: var(--brand-surface);
+            border-radius: var(--brand-radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--brand-shadow-md);
+            border: 1px solid #e5e7eb;
+        }
+
+        .theme-showcase h2 {
+            color: var(--brand-primary);
+            font-family: var(--brand-heading-font);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        /* Logo Section */
+        .logo-section {
+            text-align: center;
+            padding: 2rem;
+            background: var(--brand-secondary-light);
+            border-radius: var(--brand-radius-md);
+            margin-bottom: 2rem;
+        }
+
+        .logo-display {
+            display: inline-block;
+            padding: 1rem;
+            background: white;
+            border-radius: var(--brand-radius-md);
+            box-shadow: var(--brand-shadow-sm);
+            margin: 1rem;
+        }
+
+        .logo-display img {
+            width: 160px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        .logo-display .fallback {
+            font-size: 2rem;
+            color: var(--brand-primary);
+            font-weight: bold;
+            letter-spacing: 2px;
+            padding: 1rem 2rem;
+        }
+
+        /* Color Palette */
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .color-swatch {
+            height: 100px;
+            border-radius: var(--brand-radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-swatch.light-text {
+            color: var(--brand-text);
+            text-shadow: none;
+        }
+
+        .color-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            text-align: center;
+        }
+
+        .color-swatch.light-text .color-info {
+            background: rgba(255,255,255,0.9);
+            color: var(--brand-text);
+        }
+
+        /* Typography Section */
+        .typography-section {
+            margin: 2rem 0;
+        }
+
+        .font-demo {
+            background: var(--brand-secondary-light);
+            padding: 1.5rem;
+            border-radius: var(--brand-radius-md);
+            margin: 1rem 0;
+        }
+
+        .font-demo h3 {
+            font-family: var(--brand-heading-font);
+            color: var(--brand-primary);
+            margin-bottom: 1rem;
+        }
+
+        .font-demo p {
+            font-family: var(--brand-body-font);
+            line-height: 1.6;
+        }
+
+        .font-samples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .font-sample {
+            padding: 1rem;
+            background: white;
+            border-radius: var(--brand-radius-md);
+            box-shadow: var(--brand-shadow-sm);
+        }
+
+        /* Component Examples */
+        .component-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .component-card {
+            background: var(--brand-secondary-light);
+            border-radius: var(--brand-radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--brand-shadow-sm);
+        }
+
+        .component-card h3 {
+            color: var(--brand-primary);
+            font-family: var(--brand-heading-font);
+            margin-bottom: 1rem;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--brand-radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--brand-transition);
+            font-family: var(--brand-body-font);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--brand-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--brand-primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--brand-secondary);
+            color: var(--brand-primary);
+            border: 2px solid var(--brand-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--brand-primary);
+            color: white;
+        }
+
+        .btn-accent {
+            background: var(--brand-accent);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            background: #E55500;
+            transform: translateY(-1px);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin: 1rem 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--brand-text);
+            margin-bottom: 0.5rem;
+            font-family: var(--brand-body-font);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 2px solid var(--brand-text-secondary);
+            border-radius: var(--brand-radius-md);
+            font-size: 1rem;
+            color: var(--brand-text);
+            transition: var(--brand-transition);
+            font-family: var(--brand-body-font);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+            box-shadow: var(--brand-shadow-md);
+        }
+
+        /* Analysis Grid */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .analysis-card {
+            background: var(--brand-surface);
+            border: 1px solid #e5e7eb;
+            border-radius: var(--brand-radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--brand-shadow-sm);
+        }
+
+        .analysis-card h3 {
+            color: var(--brand-primary);
+            font-family: var(--brand-heading-font);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .analysis-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .analysis-card li {
+            padding: 0.25rem 0;
+            color: var(--brand-text);
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .analysis-card li:last-child {
+            border-bottom: none;
+        }
+
+        .analysis-card li:before {
+            content: "✈️ ";
+            color: var(--brand-accent);
+            font-weight: bold;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 1.5rem;
+            border-radius: var(--brand-radius-md);
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block .keyword {
+            color: #60a5fa;
+        }
+
+        .code-block .string {
+            color: #86efac;
+        }
+
+        .code-block .number {
+            color: #fbbf24;
+        }
+
+        .code-block .comment {
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .color-palette {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .component-examples {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>✈️ United Airlines Theme Configuration</h1>
+            <p class="subtitle">Complete theme analysis and visual showcase for United Airlines brand implementation</p>
+        </div>
+
+        <!-- Theme Overview -->
+        <div class="theme-showcase">
+            <h2>🎨 Theme Overview</h2>
+            
+            <div class="logo-section">
+                <h3>Brand Identity</h3>
+                <div class="logo-display">
+                    <img src="https://raw.githubusercontent.com/curtismu7/CDN/74b2535cf2ff57c98c702071ff3de3e9eda63929/United.svg" 
+                         alt="United Airlines Logo" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="fallback" style="display: none;">UNITED</div>
+                </div>
+                <p><strong>Portal Name:</strong> United Airlines Employee Portal</p>
+                <p><strong>Brand Colors:</strong> United Blue (#0033A0) and United Orange (#FF6600)</p>
+            </div>
+
+            <!-- Color Palette -->
+            <h3>🎨 Color Palette</h3>
+            <div class="color-palette">
+                <div class="color-swatch" style="background: #0033A0;">
+                    <span>Primary</span>
+                    <div class="color-info">#0033A0</div>
+                </div>
+                <div class="color-swatch" style="background: #FFFFFF;" class="light-text">
+                    <span>Secondary</span>
+                    <div class="color-info">#FFFFFF</div>
+                </div>
+                <div class="color-swatch" style="background: #FF6600;">
+                    <span>Accent</span>
+                    <div class="color-info">#FF6600</div>
+                </div>
+                <div class="color-swatch" style="background: #1F2937;">
+                    <span>Text</span>
+                    <div class="color-info">#1F2937</div>
+                </div>
+                <div class="color-swatch" style="background: #6B7280;" class="light-text">
+                    <span>Text Secondary</span>
+                    <div class="color-info">#6B7280</div>
+                </div>
+                <div class="color-swatch" style="background: #DC2626;">
+                    <span>Error</span>
+                    <div class="color-info">#DC2626</div>
+                </div>
+                <div class="color-swatch" style="background: #059669;">
+                    <span>Success</span>
+                    <div class="color-info">#059669</div>
+                </div>
+                <div class="color-swatch" style="background: #0056B3;">
+                    <span>Primary Light</span>
+                    <div class="color-info">#0056B3</div>
+                </div>
+                <div class="color-swatch" style="background: #002880;">
+                    <span>Primary Dark</span>
+                    <div class="color-info">#002880</div>
+                </div>
+                <div class="color-swatch" style="background: #FEE2E2;" class="light-text">
+                    <span>Error Light</span>
+                    <div class="color-info">#FEE2E2</div>
+                </div>
+            </div>
+
+            <!-- Typography -->
+            <div class="typography-section">
+                <h3>📝 Typography System</h3>
+                <div class="font-samples">
+                    <div class="font-sample">
+                        <h4 style="font-family: var(--brand-heading-font);">Heading Font</h4>
+                        <p style="font-family: var(--brand-heading-font);">The quick brown fox jumps over the lazy dog</p>
+                        <small>Font: United, Helvetica Neue, Arial, sans-serif</small>
+                    </div>
+                    <div class="font-sample">
+                        <h4 style="font-family: var(--brand-body-font);">Body Font</h4>
+                        <p style="font-family: var(--brand-body-font);">The quick brown fox jumps over the lazy dog</p>
+                        <small>Font: Inter, system-ui, sans-serif</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Component Examples -->
+            <h3>🧩 Component Examples</h3>
+            <div class="component-examples">
+                <div class="component-card">
+                    <h3>Buttons</h3>
+                    <button class="btn btn-primary">Primary Button</button>
+                    <button class="btn btn-secondary">Secondary Button</button>
+                    <button class="btn btn-accent">Accent Button</button>
+                </div>
+
+                <div class="component-card">
+                    <h3>Form Elements</h3>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" placeholder="Enter your password">
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <h3>Messaging</h3>
+                    <div style="background: var(--brand-success-light); color: var(--brand-success); padding: 1rem; border-radius: var(--brand-radius-md); margin: 0.5rem 0;">
+                        ✅ Success message example
+                    </div>
+                    <div style="background: var(--brand-error-light); color: var(--brand-error); padding: 1rem; border-radius: var(--brand-radius-md); margin: 0.5rem 0;">
+                        ❌ Error message example
+                    </div>
+                    <div style="background: var(--brand-warning-light); color: var(--brand-warning); padding: 1rem; border-radius: var(--brand-radius-md); margin: 0.5rem 0;">
+                        ⚠️ Warning message example
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Analysis -->
+        <div class="theme-showcase">
+            <h2>⚙️ Technical Configuration</h2>
+            
+            <div class="analysis-grid">
+                <!-- Theme Structure -->
+                <div class="analysis-card">
+                    <h3>📋 Theme Structure</h3>
+                    <ul>
+                        <li>Name: united-airlines</li>
+                        <li>Display Name: United Airlines</li>
+                        <li>Portal Name: United Airlines Employee Portal</li>
+                        <li>Version: 9.6.5</li>
+                        <li>Last Updated: 2026-02-10</li>
+                        <li>Type: BrandTheme Interface</li>
+                    </ul>
+                </div>
+
+                <!-- Logo Configuration -->
+                <div class="analysis-card">
+                    <h3>🖼️ Logo Configuration</h3>
+                    <ul>
+                        <li>URL: GitHub CDN hosted</li>
+                        <li>Width: 160px</li>
+                        <li>Height: 60px</li>
+                        <li>Alt Text: United Airlines Logo</li>
+                        <li>Fallback: UNITED text</li>
+                        <li>Colors: United Blue, Globe Orange</li>
+                        <li>Favicon: united.com/favicon.ico</li>
+                    </ul>
+                </div>
+
+                <!-- Spacing System -->
+                <div class="analysis-card">
+                    <h3>📏 Spacing System</h3>
+                    <ul>
+                        <li>XS: 0.25rem (4px)</li>
+                        <li>SM: 0.5rem (8px)</li>
+                        <li>MD: 1rem (16px)</li>
+                        <li>LG: 1.5rem (24px)</li>
+                        <li>XL: 2rem (32px)</li>
+                        <li>XXL: 3rem (48px)</li>
+                    </ul>
+                </div>
+
+                <!-- Border Radius -->
+                <div class="analysis-card">
+                    <h3>🔲 Border Radius</h3>
+                    <ul>
+                        <li>XS: 0.25rem (4px)</li>
+                        <li>SM: 0.25rem (4px)</li>
+                        <li>MD: 0.5rem (8px)</li>
+                        <li>LG: 0.75rem (12px)</li>
+                        <li>XL: 1rem (16px)</li>
+                    </ul>
+                </div>
+
+                <!-- Shadow System -->
+                <div class="analysis-card">
+                    <h3>🌑 Shadow System</h3>
+                    <ul>
+                        <li>SM: Subtle blue-tinted shadow</li>
+                        <li>MD: Medium elevation shadow</li>
+                        <li>LG: Large elevation shadow</li>
+                        <li>XL: Extra large shadow</li>
+                        <li>All shadows use United Blue tint</li>
+                    </ul>
+                </div>
+
+                <!-- Typography Details -->
+                <div class="analysis-card">
+                    <h3>🔤 Typography Details</h3>
+                    <ul>
+                        <li>Heading Font: United family</li>
+                        <li>Body Font: Inter system font</li>
+                        <li>Light Weight: 300</li>
+                        <li>Normal Weight: 400</li>
+                        <li>Medium Weight: 500</li>
+                        <li>Bold Weight: 700</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Theme Configuration Code -->
+            <h3>💻 Theme Configuration (TypeScript)</h3>
+            <div class="code-block">
+<span class="keyword">export const</span> unitedAirlinesTheme: BrandTheme = {
+  <span class="string">name</span>: <span class="string">'united-airlines'</span>,
+  <span class="string">displayName</span>: <span class="string">'United Airlines'</span>,
+  <span class="string">portalName</span>: <span class="string">'United Airlines Employee Portal'</span>,
+  <span class="string">colors</span>: {
+    <span class="string">primary</span>: <span class="string">'#0033A0'</span>, <span class="comment">// United Blue</span>
+    <span class="string">secondary</span>: <span class="string">'#FFFFFF'</span>, <span class="comment">// White</span>
+    <span class="string">accent</span>: <span class="string">'#FF6600'</span>, <span class="comment">// United Orange</span>
+    <span class="string">background</span>: <span class="string">'#FFFFFF'</span>,
+    <span class="string">surface</span>: <span class="string">'#FFFFFF'</span>,
+    <span class="string">text</span>: <span class="string">'#1F2937'</span>,
+    <span class="string">textSecondary</span>: <span class="string">'#6B7280'</span>,
+    <span class="string">error</span>: <span class="string">'#DC2626'</span>,
+    <span class="string">success</span>: <span class="string">'#059669'</span>,
+    <span class="string">warning</span>: <span class="string">'#FF6600'</span>, <span class="comment">// United Orange</span>
+    <span class="string">info</span>: <span class="string">'#0033A0'</span>, <span class="comment">// United Blue</span>
+  },
+  <span class="string">typography</span>: {
+    <span class="string">fontFamily</span>: <span class="string">'"United", "Helvetica Neue", Arial, sans-serif'</span>,
+    <span class="string">headingFont</span>: <span class="string">'"United", "Helvetica Neue", Arial, sans-serif'</span>,
+    <span class="string">bodyFont</span>: <span class="string">'"Inter", system-ui, sans-serif'</span>,
+  },
+  <span class="string">brandSpecific</span>: {
+    <span class="string">logo</span>: <span class="string">'✈️'</span>,
+    <span class="string">iconSet</span>: [<span class="string">'✈️'</span>, <span class="string">'🌍'</span>, <span class="string">'🛫'</span>, <span class="string">'🎫'</span>, <span class="string">'🌐'</span>, <span class="string">'🏢'</span>],
+    <span class="string">messaging</span>: {
+      <span class="string">welcome</span>: <span class="string">'Welcome to United Airlines Secure Access'</span>,
+      <span class="string">security</span>: <span class="string">'Connecting the world safely and securely'</span>,
+      <span class="string">success</span>: <span class="string">'Your session has been established successfully'</span>,
+      <span class="string">error</span>: <span class="string">'Unable to authenticate. Please try again.'</span>,
+    }
+  }
+};
+            </div>
+        </div>
+
+        <!-- Brand Specific Features -->
+        <div class="theme-showcase">
+            <h2>🎯 Brand-Specific Features</h2>
+            
+            <div class="analysis-grid">
+                <!-- Messaging System -->
+                <div class="analysis-card">
+                    <h3>💬 Messaging System</h3>
+                    <ul>
+                        <li>Welcome: "Welcome to United Airlines Secure Access"</li>
+                        <li>Security: "Connecting the world safely and securely"</li>
+                        <li>Success: "Your session has been established successfully"</li>
+                        <li>Error: "Unable to authenticate. Please try again."</li>
+                    </ul>
+                </div>
+
+                <!-- Icon Set -->
+                <div class="analysis-card">
+                    <h3>🎨 Icon Set</h3>
+                    <ul>
+                        <li>✈️ Airplane (Primary logo)</li>
+                        <li>🌍 Globe (Global reach)</li>
+                        <li>🛫 Departure (Travel)</li>
+                        <li>🎫 Ticket (Booking)</li>
+                        <li>🌐 Network (Connectivity)</li>
+                        <li>🏢 Corporate (Business)</li>
+                    </ul>
+                </div>
+
+                <!-- Animations -->
+                <div class="analysis-card">
+                    <h3>🎬 Animations</h3>
+                    <ul>
+                        <li>Loading: spin 1s linear infinite</li>
+                        <li>Transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)</li>
+                        <li>Hover effects with translate transforms</li>
+                        <li>Focus states with blue glow</li>
+                        <li>Smooth color transitions</li>
+                    </ul>
+                </div>
+
+                <!-- Accessibility -->
+                <div class="analysis-card">
+                    <h3>♿ Accessibility Features</h3>
+                    <ul>
+                        <li>High contrast color combinations</li>
+                        <li>Focus indicators on interactive elements</li>
+                        <li>Screen reader friendly markup</li>
+                        <li>Keyboard navigation support</li>
+                        <li>ARIA labels and descriptions</li>
+                        <li>Semantic HTML structure</li>
+                    </ul>
+                </div>
+
+                <!-- Responsive Design -->
+                <div class="analysis-card">
+                    <h3>📱 Responsive Design</h3>
+                    <ul>
+                        <li>Mobile-first approach</li>
+                        <li>Flexible grid layouts</li>
+                        <li>Scalable typography</li>
+                        <li>Touch-friendly targets</li>
+                        <li>Optimized images</li>
+                        <li>Performance considerations</li>
+                    </ul>
+                </div>
+
+                <!-- Brand Compliance -->
+                <div class="analysis-card">
+                    <h3>✅ Brand Compliance</h3>
+                    <ul>
+                        <li>Official United Airlines colors</li>
+                        <li>Approved typography usage</li>
+                        <li>Proper logo implementation</li>
+                        <li>Brand voice consistency</li>
+                        <li>Visual hierarchy standards</li>
+                        <li>Corporate identity guidelines</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementation Notes -->
+        <div class="theme-showcase">
+            <h2>📝 Implementation Notes</h2>
+            
+            <div class="analysis-grid">
+                <!-- Integration Points -->
+                <div class="analysis-card">
+                    <h3>🔌 Integration Points</h3>
+                    <ul>
+                        <li>Protect Portal main application</li>
+                        <li>Theme provider system</li>
+                        <li>Component library integration</li>
+                        <li>Authentication flows</li>
+                        <li>Dashboard components</li>
+                        <li>Form validation system</li>
+                    </ul>
+                </div>
+
+                <!-- Performance -->
+                <div class="analysis-card">
+                    <h3>⚡ Performance Considerations</h3>
+                    <ul>
+                        <li>CSS custom properties for theming</li>
+                        <li>Optimized font loading</li>
+                        <li>Efficient shadow rendering</li>
+                        <li>Minimal reflows/repaints</li>
+                        <li>Lazy loading for images</li>
+                        <li>Bundle size optimization</li>
+                    </ul>
+                </div>
+
+                <!-- Browser Support -->
+                <div class="analysis-card">
+                    <h3>🌐 Browser Support</h3>
+                    <ul>
+                        <li>Modern browsers (Chrome, Firefox, Safari, Edge)</li>
+                        <li>CSS Grid and Flexbox support</li>
+                        <li>Custom properties support</li>
+                        <li>ES6+ JavaScript features</li>
+                        <li>Responsive viewport handling</li>
+                        <li>Progressive enhancement</li>
+                    </ul>
+                </div>
+
+                <!-- Maintenance -->
+                <div class="analysis-card">
+                    <h3>🔧 Maintenance Guidelines</h3>
+                    <ul>
+                        <li>Regular color palette updates</li>
+                        <li>Typography system reviews</li>
+                        <li>Component consistency checks</li>
+                        <li>Accessibility audits</li>
+                        <li>Performance monitoring</li>
+                        <li>Brand guideline compliance</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Interactive theme demonstration
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers to color swatches
+            const colorSwatches = document.querySelectorAll('.color-swatch');
+            colorSwatches.forEach(swatch => {
+                swatch.style.cursor = 'pointer';
+                swatch.addEventListener('click', function() {
+                    const color = this.querySelector('.color-info').textContent;
+                    navigator.clipboard.writeText(color).then(() => {
+                        const originalText = this.querySelector('.color-info').textContent;
+                        this.querySelector('.color-info').textContent = 'Copied!';
+                        setTimeout(() => {
+                            this.querySelector('.color-info').textContent = originalText;
+                        }, 1000);
+                    });
+                });
+            });
+
+            // Add hover effects to component cards
+            const componentCards = document.querySelectorAll('.component-card');
+            componentCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = 'var(--brand-shadow-lg)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'var(--brand-shadow-sm)';
+                });
+            });
+
+            // Button click demonstrations
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const ripple = document.createElement('span');
+                    ripple.style.position = 'absolute';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.background = 'rgba(255,255,255,0.5)';
+                    ripple.style.width = '20px';
+                    ripple.style.height = '20px';
+                    ripple.style.animation = 'ripple 0.6s ease-out';
+                    ripple.style.pointerEvents = 'none';
+                    
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    
+                    const rect = this.getBoundingClientRect();
+                    ripple.style.left = (e.clientX - rect.left - 10) + 'px';
+                    ripple.style.top = (e.clientY - rect.top - 10) + 'px';
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => ripple.remove(), 600);
+                });
+            });
+        });
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
