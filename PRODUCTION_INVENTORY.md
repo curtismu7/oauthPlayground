@@ -20,21 +20,110 @@ All three version fields must be updated together for every commit to maintain c
 
 ## 🎯 **PRODUCTION APPLICATIONS INVENTORY**
 
-### **Production Group Apps:**
+### **📋 Production Menu Structure Tracking**
 
-#### **🚀 V8 Flows (New)**
-- **MFA Feature Flags Admin**: `/v8/mfa-feature-flags` - Admin control for unified flow rollout
-- **API Status**: `/api-status` - Real-time API health monitoring
-- **Flow Comparison Tool**: `/v8u/flow-comparison` - Compare OAuth flows with metrics
-- **Resources API Tutorial**: `/v8/resources-api` - Learn PingOne Resources API
-- **SPIFFE/SPIRE Mock**: `/v8u/spiffe-spire` - Mock SPIFFE/SPIRE identity flow
-- **Postman Collection Generator**: `/postman-collection-generator` - Generate Postman collections
-- **New Unified MFA**: `/v8/unified-mfa` - Enhanced MFA flow with fixes
-- **Unified OAuth & OIDC**: `/v8u/unified` - Single UI for all OAuth flows
-- **Delete All Devices**: `/v8/delete-all-devices` - Device management utility
-- **Enhanced State Management**: `/v8u/enhanced-state-management` - Advanced state management
-- **Token Monitoring Dashboard**: `/v8u/token-monitoring` - Real-time token monitoring
-- **Protect Portal App**: `/protect-portal` - Risk-based authentication portal
+#### **🚀 Production Menu Group (v8-flows-new)**
+**Menu Version**: 2.6 (Current as of 2026-02-12)  
+**Status**: ✅ Active and Visible
+
+**Current Menu Items (Excluding Protect, Unified MFA, Unified OAuth):**
+
+| Item | Path | Badge | Color | Status | Description |
+|---|---|---|---|---|---|
+| **MFA Feature Flags** | `/v8/mfa-feature-flags` | ADMIN | 🟡 Amber | ✅ Active | Admin control for unified flow rollout |
+| **API Status** | `/api-status` | UTILITY | 🔵 Blue | ✅ Active | Real-time API health monitoring |
+| **Flow Comparison Tool** | `/v8u/flow-comparison` | EDUCATION | 🟢 Green | ✅ Active | Compare OAuth flows with metrics |
+| **Resources API Tutorial** | `/v8/resources-api` | EDUCATION | 🟢 Green | ✅ Active | Learn PingOne Resources API |
+| **SPIFFE/SPIRE Mock** | `/v8u/spiffe-spire` | EDUCATION | 🟢 Green | ✅ Active | Mock SPIFFE/SPIRE identity flow |
+| **Token Monitoring** | `/v8u/token-monitoring` | UTILITY | 🔵 Blue | ✅ Active | Real-time token monitoring dashboard |
+| **Environment Management** | `/environments` | NEW | 🟢 Green | ✅ Active | Manage PingOne environments |
+| **SDK Examples** | `/sdk-examples` | NEW | 🟢 Green | ✅ Active | Comprehensive SDK examples |
+
+**Excluded Items (Tracked Separately):**
+- **Protect Portal App** - Tracked in PROTECT_PORTAL_INVENTORY.md
+- **Unified MFA** - Tracked in UNIFIED_MFA_INVENTORY.md  
+- **Unified OAuth & OIDC** - Tracked in UNIFIED_OAUTH_INVENTORY.md
+
+#### **🔄 Production (Legacy) Menu Group (v8-flows)**
+**Status**: ✅ Active and Visible
+
+**Current Menu Items:**
+| Item | Path | Badge | Color | Status | Description |
+|---|---|---|---|---|---|
+| **Authorization Code (V8)** | `/flows/oauth-authorization-code-v8` | EDUCATION | 🟢 Green | ✅ Active | OAuth 2.0 Authorization Code flow |
+| **Implicit Flow (V8)** | `/flows/implicit-v8` | EDUCATION | 🟢 Green | ✅ Active | OAuth 2.0 Implicit flow |
+| **All Flows API Test Suite** | `/test/all-flows-api-test` | EDUCATION | 🟢 Green | ✅ Active | Comprehensive flow testing |
+
+---
+
+### **📊 Menu Change Tracking**
+
+#### **🔧 Recent Menu Updates**
+
+**📋 Issue PROD-008: SDK Examples Menu Location**
+**Date**: 2026-02-12  
+**Status**: ✅ COMPLETED  
+**Menu Version**: 2.5 → 2.6
+
+**Change Summary:**
+- **Moved**: SDK Examples from "Tools & Utilities" to "Production" menu group
+- **Position**: After Environment Management in Production section
+- **Reason**: Improve visibility and accessibility of SDK examples
+- **Impact**: All users will see SDK Examples in Production menu after localStorage refresh
+
+**Files Modified:**
+- `src/components/DragDropSidebar.tsx` - Menu structure reorganization
+
+**Prevention Commands:**
+```bash
+# Verify SDK Examples is in Production menu
+grep -A 10 -B 5 "sdk-examples" src/components/DragDropSidebar.tsx | grep -q "v8-flows-new" && echo "✅ SDK EXAMPLES IN PRODUCTION" || echo "❌ SDK EXAMPLES NOT IN PRODUCTION"
+
+# Check menu version is updated
+grep "MENU_VERSION.*2.6" src/components/DragDropSidebar.tsx && echo "✅ MENU VERSION UPDATED" || echo "❌ MENU VERSION NOT UPDATED"
+
+# Verify Tools & Utilities no longer contains SDK Examples
+grep -A 20 "tools-utilities" src/components/DragDropSidebar.tsx | grep -q "sdk-examples" && echo "❌ SDK EXAMPLES STILL IN TOOLS" || echo "✅ SDK EXAMPLES REMOVED FROM TOOLS"
+```
+
+---
+
+### **🚨 Menu Structure Prevention Commands**
+
+#### **🔍 Comprehensive Menu Verification**
+```bash
+# === PRODUCTION MENU VERIFICATION ===
+
+# 1. Check all Production menu items exist
+echo "🔍 Checking Production menu items..."
+grep -c "v8-flows-new" src/components/DragDropSidebar.tsx && echo "✅ PRODUCTION MENU GROUP FOUND"
+
+# 2. Verify specific menu items
+echo "🔍 Verifying specific menu items..."
+grep -q "mfa-feature-flags-admin-v8" src/components/DragDropSidebar.tsx && echo "✅ MFA FEATURE FLAGS FOUND" || echo "❌ MFA FEATURE FLAGS MISSING"
+grep -q "api-status-page" src/components/DragDropSidebar.tsx && echo "✅ API STATUS FOUND" || echo "❌ API STATUS MISSING"
+grep -q "flow-comparison-tool" src/components/DragDropSidebar.tsx && echo "✅ FLOW COMPARISON FOUND" || echo "❌ FLOW COMPARISON MISSING"
+grep -q "resources-api-tutorial" src/components/DragDropSidebar.tsx && echo "✅ RESOURCES API FOUND" || echo "❌ RESOURCES API MISSING"
+grep -q "spiffe-spire-mock" src/components/DragDropSidebar.tsx && echo "✅ SPIFFE/SPIRE FOUND" || echo "❌ SPIFFE/SPIRE MISSING"
+grep -q "token-monitoring" src/components/DragDropSidebar.tsx && echo "✅ TOKEN MONITORING FOUND" || echo "❌ TOKEN MONITORING MISSING"
+grep -q "environment-management" src/components/DragDropSidebar.tsx && echo "✅ ENVIRONMENT MANAGEMENT FOUND" || echo "❌ ENVIRONMENT MANAGEMENT MISSING"
+grep -q "sdk-examples" src/components/DragDropSidebar.tsx && echo "✅ SDK EXAMPLES FOUND" || echo "❌ SDK EXAMPLES MISSING"
+
+# 3. Check excluded items are not in Production menu
+echo "🔍 Verifying excluded items..."
+grep -A 50 "v8-flows-new" src/components/DragDropSidebar.tsx | grep -q "protect-portal-app" && echo "❌ PROTECT PORTAL IN PRODUCTION (SHOULD BE EXCLUDED)" || echo "✅ PROTECT PORTAL EXCLUDED"
+grep -A 50 "v8-flows-new" src/components/DragDropSidebar.tsx | grep -q "unified-mfa-v8" && echo "❌ UNIFIED MFA IN PRODUCTION (SHOULD BE EXCLUDED)" || echo "✅ UNIFIED MFA EXCLUDED"
+
+# 4. Verify menu version
+echo "🔍 Checking menu version..."
+grep "MENU_VERSION.*2.6" src/components/DragDropSidebar.tsx && echo "✅ MENU VERSION CURRENT" || echo "❌ MENU VERSION OUTDATED"
+
+echo "🎯 MENU VERIFICATION COMPLETE!"
+```
+
+---
+
+### **Production Group Apps:**
 
 #### **🔄 V8 Flows (Legacy)**
 - **New Unified MFA**: `/v8/unified-mfa` - Unified MFA flow (duplicate)
