@@ -15,7 +15,6 @@ export const Sidebar: React.FC = () => {
 		{ path: '/dashboard', label: 'Dashboard', icon: '📊' },
 		{ path: '/risk-evaluation', label: 'Risk Evaluation', icon: '🔍' },
 		{ path: '/security-insights', label: 'Security Insights', icon: '📈' },
-		{ path: '/users', label: 'User Management', icon: '👥' },
 		{ path: '/settings', label: 'Settings', icon: '⚙️' },
 		{ path: '/reports', label: 'Reports', icon: '📋' },
 	];
