@@ -604,6 +604,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</MigrationBadge>
 						),
 					},
+					{
+						id: 'sdk-examples',
+						path: '/sdk-examples',
+						label: 'SDK Examples',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiCode />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Comprehensive SDK examples for JWT, OIDC, and DaVinci">
+								NEW
+							</MigrationBadge>
+						),
+					},
 				],
 			},
 			{
@@ -1901,21 +1916,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				isOpen: true,
 				items: [
 					{
-						id: 'sdk-examples',
-						path: '/sdk-examples',
-						label: 'SDK Examples',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiCode />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Comprehensive SDK examples for JWT, OIDC, and DaVinci">
-								NEW
-							</MigrationBadge>
-						),
-					},
-					{
 						id: 'davinci-todo',
 						path: '/davinci-todo',
 						label: 'DaVinci Todo App',
@@ -1955,7 +1955,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 		];
 
 		// Menu structure version - increment when menu structure changes significantly
-		const MENU_VERSION = '2.5'; // Force refresh to ensure SDK Examples visibility
+		const MENU_VERSION = '2.6'; // Moved SDK Examples to Production menu group
 		const savedVersion = localStorage.getItem('simpleDragDropSidebar.menuVersion');
 
 		// If version changed, clear old menu layout and use new structure
