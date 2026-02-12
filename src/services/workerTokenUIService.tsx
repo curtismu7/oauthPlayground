@@ -100,6 +100,7 @@ export const renderWorkerTokenBanner = (
 ) => {
 	if (!workerToken) return null;
 
+	const tokenExpiryKey = 'worker_token_expiry';
 	const defaultMessage = workerTokenExpiresAt
 		? `Your existing worker token will be used automatically. Token expires at ${new Date(workerTokenExpiresAt).toLocaleString()}.`
 		: 'Your existing worker token will be used automatically. Worker token credentials below are only needed if the token expires.';
