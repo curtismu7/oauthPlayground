@@ -12,18 +12,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiLoader, FiShield, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { BrandThemeProvider, useBrandTheme } from './themes/theme-provider';
+import AmericanAirlinesHero from './components/AmericanAirlinesHero';
 import CompanyHeader from './components/CompanyHeader';
 import CustomLoginForm from './components/CustomLoginForm';
-import MFAAuthenticationFlow from './components/MFAAuthenticationFlow';
-// Import components (will be created next)
-import PortalHome from './components/PortalHome';
-import PortalSuccess from './components/PortalSuccess';
-import RiskEvaluationDisplay from './components/RiskEvaluationDisplay';
-import AmericanAirlinesNavigation from './components/AmericanAirlinesNavigation';
-import AmericanAirlinesHero from './components/AmericanAirlinesHero';
-import SouthwestAirlinesHero from './components/SouthwestAirlinesHero';
 import FedExAirlinesHero from './components/FedExAirlinesHero';
+import MFAAuthenticationFlow from './components/MFAAuthenticationFlow';
+import PortalHome from './components/PortalHome';
+import PortalStats from './components/PortalStats';
+import PortalSuccess from './components/PortalSuccess';
+import ProtectPage from './components/ProtectPage';
+import RiskEvaluationDisplay from './components/RiskEvaluationDisplay';
+import SouthwestAirlinesHero from './components/SouthwestAirlinesHero';
+import { BrandThemeProvider, useBrandTheme } from './themes/theme-provider';
 // Import types and config
 import type {
 	LoginContext,
@@ -46,7 +46,7 @@ const PortalContainer = styled.div`
   flex-direction: column;
   width: 100%;
   font-family: var(--brand-font-family);
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-start;
 `;
 
@@ -54,21 +54,21 @@ const PortalCard = styled.div`
   background: transparent;
   overflow: hidden;
   width: 100%;
-  max-width: 1200px;
+  max-width: none;
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-start;
 `;
 
 const PortalContent = styled.div`
   flex: 1;
-  padding: 2rem 1rem;
+  padding: 0;
   display: flex;
   flex-direction: column;
   width: 100%;
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-start;
 `;
 
@@ -272,8 +272,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 			},
 			tokenDisplay: {
 				title: 'OAuth 2.0 Tokens',
-				description:
-					'Secure tokens that authenticate your requests to protected resources.',
+				description: 'Secure tokens that authenticate your requests to protected resources.',
 				keyPoints: [
 					'Access tokens for API authorization',
 					'ID tokens containing user information',
@@ -282,8 +281,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 				],
 				learnMore: {
 					title: 'Learn About OAuth 2.0 Tokens',
-					description:
-						'Understand how OAuth 2.0 tokens work and how to use them securely.',
+					description: 'Understand how OAuth 2.0 tokens work and how to use them securely.',
 					url: 'https://docs.pingidentity.com/pingone/oauth2-tokens',
 				},
 			},
@@ -323,16 +321,19 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 			error: null,
 		}));
 
-		// Route based on risk level
+		// Route based on risk level according to requirements
 		switch (result.result.level) {
 			case 'LOW':
-				setPortalState((prev) => ({ ...prev, currentStep: 'risk-low-success' }));
+				// Low protect score: stats page and success page
+				setPortalState((prev) => ({ ...prev, currentStep: 'risk-low-stats' }));
 				break;
 			case 'MEDIUM':
+				// Medium protect score: P1MFA (OTP and FIDO) → protect page → success page
 				setPortalState((prev) => ({ ...prev, currentStep: 'risk-medium-mfa' }));
 				break;
 			case 'HIGH':
-				setPortalState((prev) => ({ ...prev, currentStep: 'risk-high-block' }));
+				// High protect score: protect page → blocked page
+				setPortalState((prev) => ({ ...prev, currentStep: 'risk-high-protect' }));
 				break;
 			default:
 				setPortalState((prev) => ({
@@ -401,7 +402,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 
 	const renderStep = () => {
 		const { currentStep, isLoading, error } = portalState;
-		
+
 		console.log('[🚀 PROTECT-PORTAL-APP] Rendering step:', currentStep);
 
 		if (isLoading) {
@@ -475,7 +476,32 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 					/>
 				);
 
+			case 'risk-low-stats':
+				// Low protect score: stats page
+				return (
+					<PortalStats
+						userContext={portalState.userContext!}
+						riskEvaluation={portalState.riskEvaluation!}
+						onSuccess={() => setPortalState((prev) => ({ ...prev, currentStep: 'risk-low-success' }))}
+						onError={handleError}
+						educationalContent={portalState.educationalContent.riskEvaluation}
+					/>
+				);
+
+			case 'risk-low-success':
+				// Low protect score: success page
+				return (
+					<PortalSuccess
+						userContext={portalState.userContext!}
+						riskEvaluation={portalState.riskEvaluation!}
+						tokens={portalState.tokens!}
+						onLogout={handleReset}
+						educationalContent={portalState.educationalContent.tokenDisplay}
+					/>
+				);
+
 			case 'risk-medium-mfa':
+				// Medium protect score: P1MFA (OTP and FIDO)
 				return (
 					<MFAAuthenticationFlow
 						userContext={portalState.userContext!}
@@ -492,8 +518,20 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 					/>
 				);
 
-			case 'risk-low-success':
-			case 'portal-success':
+			case 'risk-medium-protect':
+				// Medium protect score: protect page
+				return (
+					<ProtectPage
+						userContext={portalState.userContext!}
+						riskEvaluation={portalState.riskEvaluation!}
+						onSuccess={() => setPortalState((prev) => ({ ...prev, currentStep: 'risk-medium-success' }))}
+						onError={handleError}
+						educationalContent={portalState.educationalContent.riskEvaluation}
+					/>
+				);
+
+			case 'risk-medium-success':
+				// Medium protect score: success page
 				return (
 					<PortalSuccess
 						userContext={portalState.userContext!}
@@ -504,7 +542,20 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 					/>
 				);
 
+			case 'risk-high-protect':
+				// High protect score: protect page
+				return (
+					<ProtectPage
+						userContext={portalState.userContext!}
+						riskEvaluation={portalState.riskEvaluation!}
+						onSuccess={() => setPortalState((prev) => ({ ...prev, currentStep: 'risk-high-block' }))}
+						onError={handleError}
+						educationalContent={portalState.educationalContent.riskEvaluation}
+					/>
+				);
+
 			case 'risk-high-block':
+				// High protect score: blocked page
 				return (
 					<ErrorContainer>
 						<ErrorTitle>
@@ -522,6 +573,17 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 							</Button>
 						</ErrorActions>
 					</ErrorContainer>
+				);
+
+			case 'portal-success':
+				return (
+					<PortalSuccess
+						userContext={portalState.userContext!}
+						riskEvaluation={portalState.riskEvaluation!}
+						tokens={portalState.tokens!}
+						onLogout={handleReset}
+						educationalContent={portalState.educationalContent.tokenDisplay}
+					/>
 				);
 
 			default:
@@ -566,13 +628,18 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 		return (
 			<PortalContainer>
 				{activeTheme.name === 'american-airlines' && (
-					<>
-						<AmericanAirlinesNavigation />
-						<AmericanAirlinesHero currentStep={portalState.currentStep} />
-					</>
+					<AmericanAirlinesHero
+						currentStep={portalState.currentStep}
+						onLoginSuccess={handleLoginSuccess}
+						onError={handleError}
+						environmentId={environmentId}
+						clientId={clientId}
+						clientSecret={clientSecret}
+						redirectUri={redirectUri}
+					/>
 				)}
 				{activeTheme.name === 'southwest-airlines' && (
-					<SouthwestAirlinesHero 
+					<SouthwestAirlinesHero
 						currentStep={portalState.currentStep}
 						onLoginStart={handleLoginStart}
 						onLoginSuccess={handleLoginSuccess}
@@ -584,7 +651,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 					/>
 				)}
 				{activeTheme.name === 'fedex' && (
-					<FedExAirlinesHero 
+					<FedExAirlinesHero
 						currentStep={portalState.currentStep}
 						onLoginSuccess={handleLoginSuccess}
 						onError={handleError}
@@ -594,7 +661,9 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 						redirectUri={redirectUri}
 					/>
 				)}
-				{activeTheme.name !== 'american-airlines' && activeTheme.name !== 'southwest-airlines' && activeTheme.name !== 'fedex' && <CompanyHeader />}
+				{activeTheme.name !== 'american-airlines' &&
+					activeTheme.name !== 'southwest-airlines' &&
+					activeTheme.name !== 'fedex' && <CompanyHeader />}
 				<PortalCard>
 					<PortalContent>{renderStep()}</PortalContent>
 				</PortalCard>

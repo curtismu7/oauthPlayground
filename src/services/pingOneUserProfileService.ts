@@ -55,7 +55,7 @@ export const lookupPingOneUser = async ({
 	// Construct the actual PingOne API URL for display purposes
 	// The backend may make different calls (direct ID lookup or filter-based search),
 	// but we show the base users endpoint to represent the PingOne Users API
-	const actualPingOneUrl = `https://api.pingone.com/v1/environments/${encodeURIComponent(environmentId)}/users`;
+	const actualPingOneUrl = `/pingone-api/v1/environments/${encodeURIComponent(environmentId)}/users`;
 
 	console.log('[lookupPingOneUser] 📤 Sending user lookup request:', {
 		environmentId: `${environmentId.substring(0, 20)}...`,

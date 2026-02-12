@@ -151,11 +151,11 @@ const parseUrl = (
 	}
 
 	// Handle Postman variable format {{apiPath}}/v1/environments/{{envID}}/...
-	// {{apiPath}} = https://api.pingone.com (includes protocol and domain)
+	// {{apiPath}} = /pingone-api (proxy route for development)
 	if (cleanedUrl.includes('{{apiPath}}')) {
 		// Format: {{apiPath}}/v1/environments/{{envID}}/path
 		// For Postman, the raw URL should be: {{apiPath}}/v1/environments/{{envID}}/path
-		// Postman will substitute {{apiPath}} with its value (e.g., https://api.pingone.com)
+		// Postman will substitute {{apiPath}} with its value (e.g., /pingone-api)
 
 		// Extract query parameters if present
 		const query: Array<{ key: string; value: string }> = [];
@@ -940,7 +940,7 @@ export const generateMFAPostmanCollection = (
 	// Note: workerToken is NOT included - it's global and obtained separately outside of individual flows
 	const variables: Array<{ key: string; value: string; type?: string }> = [
 		{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
-		{ key: 'apiPath', value: 'https://api.pingone.com', type: 'string' },
+		{ key: 'apiPath', value: '/pingone-api', type: 'string' },
 		{
 			key: 'envID',
 			value: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
@@ -5349,7 +5349,7 @@ export const generateUseCasesPostmanCollection = (
 	// Build variables
 	const variables: Array<{ key: string; value: string; type?: string }> = [
 		{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
-		{ key: 'apiPath', value: 'https://api.pingone.com', type: 'string' },
+		{ key: 'apiPath', value: '/pingone-api', type: 'string' },
 		{
 			key: 'envID',
 			value: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
@@ -5561,7 +5561,7 @@ export const generateComprehensiveUnifiedPostmanCollection = (credentials?: {
 	variables.push({ key: 'flowId', value: '', type: 'string' });
 	variables.push({ key: 'interactionId', value: '', type: 'string' });
 	variables.push({ key: 'interactionToken', value: '', type: 'string' });
-	variables.push({ key: 'apiPath', value: 'https://api.pingone.com', type: 'string' });
+	variables.push({ key: 'apiPath', value: '/pingone-api', type: 'string' });
 	variables.push({ key: 'userId', value: '', type: 'string' });
 	variables.push({ key: 'current_password', value: '', type: 'string' });
 	variables.push({ key: 'new_password', value: '', type: 'string' });

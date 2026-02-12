@@ -12,18 +12,18 @@
 import React, { useCallback, useState } from 'react';
 import {
 	FiAlertTriangle,
+	FiArrowRight,
 	FiEye,
 	FiEyeOff,
 	FiLock as FiLockIcon,
-	FiUser,
 	FiPhone,
-	FiArrowRight,
+	FiUser,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
-import CompanyLogoHeader from './CompanyLogoHeader';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
+import CompanyLogoHeader from './CompanyLogoHeader';
 
 // ============================================================================
 // PKCE HELPER FUNCTIONS
@@ -35,7 +35,7 @@ const generateCodeVerifier = (): string => {
 	return Array.from(randomValues, (byte) => byte.toString(16).padStart(2, '0')).join('');
 };
 
-const generateCodeChallenge = async (verifier: string): Promise<string> => {
+const _generateCodeChallenge = async (verifier: string): Promise<string> => {
 	const encoder = new TextEncoder();
 	const data = encoder.encode(verifier);
 	const digest = await crypto.subtle.digest('SHA-256', data);
@@ -82,20 +82,20 @@ const StepDot = styled.div<{ $active: boolean; $completed: boolean }>`
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: ${({ $active, $completed }) => 
-    $active ? 'var(--brand-primary)' : 
-    $completed ? 'var(--brand-success)' : 
-    'var(--brand-text-secondary)'
-  };
+  background: ${({ $active, $completed }) =>
+		$active
+			? 'var(--brand-primary)'
+			: $completed
+				? 'var(--brand-success)'
+				: 'var(--brand-text-secondary)'};
   transition: var(--brand-transition);
 `;
 
 const StepLine = styled.div<{ $completed: boolean }>`
   width: 40px;
   height: 2px;
-  background: ${({ $completed }) => 
-    $completed ? 'var(--brand-success)' : 'var(--brand-text-secondary)'
-  };
+  background: ${({ $completed }) =>
+		$completed ? 'var(--brand-success)' : 'var(--brand-text-secondary)'};
   margin: 0 0.5rem;
   transition: var(--brand-transition);
 `;
@@ -280,162 +280,180 @@ const UnitedAirlinesLoginForm: React.FC<UnitedAirlinesLoginFormProps> = ({
 		password: '',
 	});
 
-	const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const { name, value } = e.target;
-		setFormData(prev => ({ ...prev, [name]: value }));
-		if (error) setError(null);
-	}, [error]);
+	const handleInputChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			const { name, value } = e.target;
+			setFormData((prev) => ({ ...prev, [name]: value }));
+			if (error) setError(null);
+		},
+		[error]
+	);
 
-	const handleStep1Submit = useCallback(async (e: React.FormEvent) => {
-		e.preventDefault();
-		setIsLoading(true);
-		setError(null);
+	const handleStep1Submit = useCallback(
+		async (e: React.FormEvent) => {
+			e.preventDefault();
+			setIsLoading(true);
+			setError(null);
 
-		try {
-			// Validate identifier
-			if (!formData.identifier.trim()) {
-				throw new Error('Please enter your email, MileagePlus number, or phone number');
+			try {
+				// Validate identifier
+				if (!formData.identifier.trim()) {
+					throw new Error('Please enter your email, MileagePlus number, or phone number');
+				}
+
+				// Generate PKCE code verifier
+				const verifier = generateCodeVerifier();
+				setCodeVerifier(verifier);
+
+				// Initialize PingOne embedded login
+				const loginResult = await PingOneLoginService.initializeEmbeddedLogin(
+					environmentId,
+					clientId,
+					redirectUri
+				);
+
+				if (loginResult.success && loginResult.data) {
+					setFlowId(loginResult.data.flowId);
+					setCurrentStep(2);
+				} else {
+					throw new Error(loginResult.error?.message || 'Failed to initialize login');
+				}
+			} catch (err) {
+				const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+				setError(errorMessage);
+				onError({
+					message: errorMessage,
+					code: 'VALIDATION_ERROR',
+					recoverable: true,
+					suggestedAction: 'Please check your input and try again.',
+				});
+			} finally {
+				setIsLoading(false);
 			}
+		},
+		[formData.identifier, environmentId, clientId, redirectUri, onError]
+	);
 
-			// Generate PKCE code verifier
-			const verifier = generateCodeVerifier();
-			setCodeVerifier(verifier);
+	const handleStep2Submit = useCallback(
+		async (e: React.FormEvent) => {
+			e.preventDefault();
+			setIsLoading(true);
+			setError(null);
 
-			// Initialize PingOne embedded login
-			const loginResult = await PingOneLoginService.initializeEmbeddedLogin(
-				environmentId,
-				clientId,
-				redirectUri
-			);
+			try {
+				// Validate password
+				if (!formData.password.trim()) {
+					throw new Error('Please enter your password');
+				}
 
-			if (loginResult.success && loginResult.data) {
-				setFlowId(loginResult.data.flowId);
-				setCurrentStep(2);
-			} else {
-				throw new Error(loginResult.error?.message || 'Failed to initialize login');
-			}
-		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-			setError(errorMessage);
-			onError({
-				message: errorMessage,
-				code: 'VALIDATION_ERROR',
-				recoverable: true,
-				suggestedAction: 'Please check your input and try again.',
-			});
-		} finally {
-			setIsLoading(false);
-		}
-	}, [formData.identifier, environmentId, clientId, redirectUri, onError]);
+				if (!flowId) {
+					throw new Error('Login session expired. Please start over.');
+				}
 
-	const handleStep2Submit = useCallback(async (e: React.FormEvent) => {
-		e.preventDefault();
-		setIsLoading(true);
-		setError(null);
+				// Submit credentials to PingOne
+				const submitResult = await PingOneLoginService.submitCredentials(
+					flowId,
+					formData.identifier,
+					formData.password
+				);
 
-		try {
-			// Validate password
-			if (!formData.password.trim()) {
-				throw new Error('Please enter your password');
-			}
+				if (submitResult.success && submitResult.data) {
+					// Resume flow to get authorization code
+					const resumeResult = await PingOneLoginService.resumeFlow(flowId);
 
-			if (!flowId) {
-				throw new Error('Login session expired. Please start over.');
-			}
+					if (resumeResult.success && resumeResult.data) {
+						// Exchange code for tokens
+						const tokenResult = await PingOneLoginService.exchangeCodeForTokens(
+							environmentId,
+							clientId,
+							clientSecret,
+							redirectUri,
+							resumeResult.data.authorizationCode,
+							codeVerifier
+						);
 
-			// Submit credentials to PingOne
-			const submitResult = await PingOneLoginService.submitCredentials(
-				flowId,
-				formData.identifier,
-				formData.password
-			);
+						if (tokenResult.success && tokenResult.data) {
+							// Create user context and login context
+							const userContext: UserContext = {
+								id: formData.identifier,
+								email: formData.identifier.includes('@')
+									? formData.identifier
+									: `${formData.identifier}@united.com`,
+								name: formData.identifier,
+								username: formData.identifier,
+								type: 'PING_ONE',
+							};
 
-			if (submitResult.success && submitResult.data) {
-				// Resume flow to get authorization code
-				const resumeResult = await PingOneLoginService.resumeFlow(flowId);
+							const loginContext: LoginContext = {
+								timestamp: new Date().toISOString(),
+								ipAddress: '127.0.0.1', // This would be populated from request
+								userAgent: navigator.userAgent,
+								origin: window.location.origin,
+								flowType: 'AUTHENTICATION',
+								flowSubtype: 'CUSTOM_LOGIN',
+							};
 
-				if (resumeResult.success && resumeResult.data) {
-					// Exchange code for tokens
-					const tokenResult = await PingOneLoginService.exchangeCodeForTokens(
-						environmentId,
-						clientId,
-						clientSecret,
-						redirectUri,
-						resumeResult.data.authorizationCode,
-						codeVerifier
-					);
-
-					if (tokenResult.success && tokenResult.data) {
-						// Create user context and login context
-						const userContext: UserContext = {
-							id: formData.identifier,
-							email: formData.identifier.includes('@') ? formData.identifier : `${formData.identifier}@united.com`,
-							name: formData.identifier,
-							username: formData.identifier,
-							type: 'PING_ONE',
-						};
-
-						const loginContext: LoginContext = {
-							timestamp: new Date().toISOString(),
-							ipAddress: '127.0.0.1', // This would be populated from request
-							userAgent: navigator.userAgent,
-							origin: window.location.origin,
-							flowType: 'AUTHENTICATION',
-							flowSubtype: 'CUSTOM_LOGIN',
-						};
-
-						onLoginSuccess(userContext, loginContext);
+							onLoginSuccess(userContext, loginContext);
+						} else {
+							throw new Error(tokenResult.error?.message || 'Failed to exchange tokens');
+						}
 					} else {
-						throw new Error(tokenResult.error?.message || 'Failed to exchange tokens');
+						throw new Error(resumeResult.error?.message || 'Failed to complete login');
 					}
 				} else {
-					throw new Error(resumeResult.error?.message || 'Failed to complete login');
+					throw new Error(submitResult.error?.message || 'Invalid credentials');
 				}
-			} else {
-				throw new Error(submitResult.error?.message || 'Invalid credentials');
+			} catch (err) {
+				const errorMessage = err instanceof Error ? err.message : 'Login failed';
+				setError(errorMessage);
+				onError({
+					message: errorMessage,
+					code: 'AUTHENTICATION_ERROR',
+					recoverable: true,
+					suggestedAction: 'Please check your credentials and try again.',
+				});
+			} finally {
+				setIsLoading(false);
 			}
-		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 'Login failed';
-			setError(errorMessage);
-			onError({
-				message: errorMessage,
-				code: 'AUTHENTICATION_ERROR',
-				recoverable: true,
-				suggestedAction: 'Please check your credentials and try again.',
-			});
-		} finally {
-			setIsLoading(false);
-		}
-	}, [formData, flowId, environmentId, clientId, clientSecret, onLoginSuccess, onError]);
+		},
+		[
+			formData,
+			flowId,
+			environmentId,
+			clientId,
+			clientSecret,
+			onLoginSuccess,
+			onError,
+			codeVerifier,
+			redirectUri,
+		]
+	);
 
 	const handleBack = useCallback(() => {
 		setCurrentStep(1);
-		setFormData(prev => ({ ...prev, password: '' }));
+		setFormData((prev) => ({ ...prev, password: '' }));
 		setError(null);
 	}, []);
 
 	const togglePasswordVisibility = useCallback(() => {
-		setShowPassword(prev => !prev);
+		setShowPassword((prev) => !prev);
 	}, []);
 
 	const togglePhoneMode = useCallback(() => {
-		setUsePhone(prev => !prev);
-		setFormData(prev => ({ ...prev, identifier: '' }));
+		setUsePhone((prev) => !prev);
+		setFormData((prev) => ({ ...prev, identifier: '' }));
 	}, []);
 
 	return (
 		<LoginContainer>
 			<CompanyLogoHeader size="large" showTagline={false} />
-			
-			<FormTitle>
-				{currentStep === 1 ? 'Sign In to United' : 'Enter Password'}
-			</FormTitle>
-			
+
+			<FormTitle>{currentStep === 1 ? 'Sign In to United' : 'Enter Password'}</FormTitle>
+
 			<FormDescription>
-				{currentStep === 1 
+				{currentStep === 1
 					? 'Enter your email, MileagePlus number, or phone number to continue'
-					: 'Enter your password to complete sign in'
-				}
+					: 'Enter your password to complete sign in'}
 			</FormDescription>
 
 			<StepIndicator>
@@ -454,9 +472,7 @@ const UnitedAirlinesLoginForm: React.FC<UnitedAirlinesLoginFormProps> = ({
 			<Form onSubmit={currentStep === 1 ? handleStep1Submit : handleStep2Submit}>
 				{currentStep === 1 ? (
 					<>
-						<InputLabel>
-							{usePhone ? 'Phone Number' : 'Email or MileagePlus Number'}
-						</InputLabel>
+						<InputLabel>{usePhone ? 'Phone Number' : 'Email or MileagePlus Number'}</InputLabel>
 						<InputGroup>
 							<StyledInput
 								type={usePhone ? 'tel' : 'text'}
@@ -469,23 +485,15 @@ const UnitedAirlinesLoginForm: React.FC<UnitedAirlinesLoginFormProps> = ({
 								disabled={isLoading}
 							/>
 							{!usePhone && (
-								<PhoneButton
-									type="button"
-									onClick={togglePhoneMode}
-									disabled={isLoading}
-								>
+								<PhoneButton type="button" onClick={togglePhoneMode} disabled={isLoading}>
 									<FiPhone size={16} />
 									Use Phone
 								</PhoneButton>
 							)}
 						</InputGroup>
-						
+
 						{usePhone && (
-							<PhoneButton
-								type="button"
-								onClick={togglePhoneMode}
-								disabled={isLoading}
-							>
+							<PhoneButton type="button" onClick={togglePhoneMode} disabled={isLoading}>
 								<FiUser size={16} />
 								Use Email or MileagePlus
 							</PhoneButton>
@@ -505,20 +513,12 @@ const UnitedAirlinesLoginForm: React.FC<UnitedAirlinesLoginFormProps> = ({
 								required
 								disabled={isLoading}
 							/>
-							<PasswordToggle
-								type="button"
-								onClick={togglePasswordVisibility}
-								disabled={isLoading}
-							>
+							<PasswordToggle type="button" onClick={togglePasswordVisibility} disabled={isLoading}>
 								{showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
 							</PasswordToggle>
 						</InputGroup>
-						
-						<PhoneButton
-							type="button"
-							onClick={handleBack}
-							disabled={isLoading}
-						>
+
+						<PhoneButton type="button" onClick={handleBack} disabled={isLoading}>
 							Back
 						</PhoneButton>
 					</>

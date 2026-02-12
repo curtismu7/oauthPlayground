@@ -22,6 +22,7 @@ import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { OAuthIntegrationServiceV8, type OAuthCredentials } from '@/v8/services/oauthIntegrationServiceV8';
+import { useRedirectURIRouting } from '@/v8/services/redirectURIRoutingServiceV8';
 import { safeGetUserInfo } from '@/utils/authUtils';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
@@ -169,6 +170,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		errors: string[];
 		warnings: string[];
 	} | null>(null);
+
+	// Redirect URI routing hook for table-based step routing
+	const { routeToCorrectStep, validateRedirectURI } = useRedirectURIRouting();
 	const [appConfig, setAppConfig] = useState<{
 		id: string;
 		name: string;
@@ -600,6 +604,53 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 				try {
 					let credentials = JSON.parse(storedCredentials);
+
+					// #region agent log
+					sendAnalyticsLog({
+						location: 'UserLoginModalV8.tsx:258',
+						message: 'Processing OAuth callback with stored credentials',
+						data: {
+							hasCredentials: !!credentials,
+							hasRedirectUri: !!credentials.redirectUri,
+							redirectUri: credentials.redirectUri,
+							hasCodeVerifier: !!storedCodeVerifier,
+						},
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						runId: 'run3',
+						hypothesisId: 'F',
+					});
+					// #endregion
+
+					// SWE-15 COMPLIANT: Use redirect URI routing to determine correct step
+					// Preserve original redirect URI from PingOne and consult routing tables
+					if (credentials.redirectUri) {
+						const routing = routeToCorrectStep(credentials.redirectUri);
+						
+						console.log(`${MODULE_TAG} 🎯 Redirect URI Routing Applied`, {
+							originalUri: routing.originalUri,
+							targetStep: routing.targetStep,
+							flowType: routing.flowType,
+							routeEntry: routing.routeEntry?.description,
+						});
+
+						// Store routing information for parent components to use
+						sessionStorage.setItem('oauth_callback_routing', JSON.stringify({
+							targetStep: routing.targetStep,
+							flowType: routing.flowType,
+							originalUri: routing.originalUri,
+							timestamp: Date.now()
+						}));
+
+						// Validate redirect URI against known tables
+						const isValidUri = validateRedirectURI(credentials.redirectUri);
+						if (!isValidUri) {
+							console.warn(`${MODULE_TAG} ⚠️ Redirect URI not found in routing tables`, {
+								redirectUri: credentials.redirectUri,
+								availableRoutes: routeToCorrectStep('/callback') // Show available routes for debugging
+							});
+						}
+					}
 
 					// #region agent log
 					sendAnalyticsLog({

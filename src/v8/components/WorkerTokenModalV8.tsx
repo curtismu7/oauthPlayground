@@ -283,9 +283,14 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				});
 
 				if (!oauthConfigResult.passed) {
-					// Show validation errors
-					const errorMessage = oauthConfigResult.errors.join('; ');
-					throw new Error(`Pre-flight validation failed: ${errorMessage}`);
+					// Check if this is an OIDC scope error and provide helpful guidance
+					const errorString = oauthConfigResult.errors.join('; ');
+					if (errorString.includes('Invalid OIDC Scopes') || errorString.includes('openid')) {
+						throw new Error(`Client Credentials Flow Error: You're using OIDC scopes (like "openid") with Client Credentials flow. Worker tokens need resource server scopes, not OIDC scopes. Please remove "openid", "profile", "email" etc. and use resource scopes like "ClaimScope" or API-specific scopes instead.`);
+					}
+					
+					// Show other validation errors
+					throw new Error(`Pre-flight validation failed: ${errorString}`);
 				}
 
 				// Show warnings if any

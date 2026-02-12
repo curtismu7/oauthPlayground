@@ -64,8 +64,9 @@ export interface PingOneSignalsResult {
 export class PingOneSignalsService {
 	private static readonly MODULE_TAG = '[🛡️ PINGONE-SIGNALS-SERVICE]';
 	private static readonly DEFAULT_TIMEOUT = 10000; // 10 seconds instead of 2.5
-	private static readonly SDK_URL = 'https://cdn.pingone.com/pingone-protect/sdks/web/v2/pingone-protect.min.js';
-	
+	private static readonly SDK_URL =
+		'https://cdn.pingone.com/pingone-protect/sdks/web/v2/pingone-protect.min.js';
+
 	private static isInitialized = false;
 	private static isReady = false;
 	private static config: PingOneSignalsConfig | null = null;
@@ -75,7 +76,7 @@ export class PingOneSignalsService {
 	 */
 	static async initialize(config: PingOneSignalsConfig): Promise<PingOneSignalsResult> {
 		const startTime = Date.now();
-		
+
 		try {
 			console.log(`${PingOneSignalsService.MODULE_TAG} Initializing PingOne Signals SDK`, config);
 
@@ -86,7 +87,7 @@ export class PingOneSignalsService {
 
 			// Initialize SDK with proper configuration
 			await PingOneSignalsService.initializeSdk(config);
-			
+
 			// Set up readiness event handling
 			PingOneSignalsService.setupReadinessHandling();
 
@@ -101,11 +102,10 @@ export class PingOneSignalsService {
 
 			console.log(`${PingOneSignalsService.MODULE_TAG} SDK initialized successfully`, result);
 			return result;
-
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			console.error(`${PingOneSignalsService.MODULE_TAG} SDK initialization failed`, error);
-			
+
 			return {
 				success: false,
 				error: errorMessage,
@@ -133,7 +133,7 @@ export class PingOneSignalsService {
 
 			// Get data from SDK
 			const data = await window._pingOneSignals.getData();
-			
+
 			const payload: DevicePayload = {
 				deviceId: data.deviceId,
 				deviceAttributes: data.deviceAttributes,
@@ -159,11 +159,10 @@ export class PingOneSignalsService {
 			});
 
 			return result;
-
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			console.error(`${PingOneSignalsService.MODULE_TAG} Failed to get device payload`, error);
-			
+
 			return {
 				success: false,
 				error: errorMessage,
@@ -218,17 +217,17 @@ export class PingOneSignalsService {
 			const script = document.createElement('script');
 			script.src = PingOneSignalsService.SDK_URL;
 			script.async = true;
-			
+
 			script.onload = () => {
 				console.log(`${PingOneSignalsService.MODULE_TAG} SDK script loaded`);
 				resolve();
 			};
-			
+
 			script.onerror = (error) => {
 				console.error(`${PingOneSignalsService.MODULE_TAG} Failed to load SDK script`, error);
 				reject(new Error('Failed to load PingOne Signals SDK'));
 			};
-			
+
 			// Add to head for early loading
 			document.head.appendChild(script);
 		});
@@ -253,10 +252,10 @@ export class PingOneSignalsService {
 		};
 
 		await window._pingOneSignals.start(initConfig);
-		
+
 		PingOneSignalsService.isInitialized = true;
 		PingOneSignalsService.config = config;
-		
+
 		console.log(`${PingOneSignalsService.MODULE_TAG} SDK initialized with config`, initConfig);
 	}
 
@@ -267,7 +266,7 @@ export class PingOneSignalsService {
 		// Dispatch custom readiness event after initialization
 		window.dispatchEvent(new Event('PingOneCollectionReady'));
 		PingOneSignalsService.isReady = true;
-		
+
 		console.log(`${PingOneSignalsService.MODULE_TAG} SDK ready for data collection`);
 	}
 
@@ -276,31 +275,31 @@ export class PingOneSignalsService {
 	 */
 	private static async waitForReadiness(timeout: number): Promise<void> {
 		const startTime = Date.now();
-		
+
 		return new Promise((resolve, reject) => {
 			const checkReadiness = () => {
 				if (PingOneSignalsService.isReady) {
 					resolve();
 					return;
 				}
-				
+
 				if (Date.now() - startTime > timeout) {
 					reject(new Error(`SDK readiness timeout after ${timeout}ms`));
 					return;
 				}
-				
+
 				// Check again in 100ms
 				setTimeout(checkReadiness, 100);
 			};
-			
+
 			// Listen for readiness event
 			const handleReadiness = () => {
 				window.removeEventListener('PingOneCollectionReady', handleReadiness);
 				resolve();
 			};
-			
+
 			window.addEventListener('PingOneCollectionReady', handleReadiness);
-			
+
 			// Start checking
 			checkReadiness();
 		});

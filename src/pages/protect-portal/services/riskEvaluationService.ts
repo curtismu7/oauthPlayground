@@ -10,7 +10,6 @@
  */
 
 import { getActiveRiskThresholds } from '../../../config/protect-portal/riskPolicies.config';
-import { PingOneSignalsService } from './pingOneSignalsService';
 import type {
 	LoginContext,
 	ProtectCredentials,
@@ -21,6 +20,7 @@ import type {
 	ServiceResponse,
 	UserContext,
 } from '../types/protectPortal.types';
+import { PingOneSignalsService } from './pingOneSignalsService';
 
 const MODULE_TAG = '[🛡️ RISK-EVALUATION-SERVICE]';
 
