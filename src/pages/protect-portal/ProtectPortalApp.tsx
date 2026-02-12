@@ -630,6 +630,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 				{activeTheme.name === 'american-airlines' && (
 					<AmericanAirlinesHero
 						currentStep={portalState.currentStep}
+						onLoginStart={handleLoginStart}
 						onLoginSuccess={handleLoginSuccess}
 						onError={handleError}
 						environmentId={environmentId}

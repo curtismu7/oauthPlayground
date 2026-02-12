@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sign in | United (Mock)</title>
+  <meta name="color-scheme" content="light" />
+  <style>
+    :root{
+      --ua-blue:#1b2dbf; /* close to screenshot */
+      --ua-blue-dark:#12208a;
+      --ua-white:#ffffff;
+      --ua-text:#111827;
+      --ua-muted:#6b7280;
+      --ua-border:#d1d5db;
+      --ua-link:#1b2dbf;
+      --ua-shadow:0 18px 40px rgba(17,24,39,.18);
+      --radius-lg:18px;
+      --radius-pill:9999px;
+      --container-w:520px;
+      --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--ua-text);
+      background:#0b1020;
+    }
+
+    /* Background similar to a travel hero */
+    .page{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px 14px;
+      background:
+        radial-gradient(1100px 600px at 30% 20%, rgba(255,255,255,.14), rgba(255,255,255,0) 60%),
+        radial-gradient(900px 520px at 70% 60%, rgba(27,45,191,.25), rgba(27,45,191,0) 55%),
+        linear-gradient(180deg, rgba(10,16,35,.60), rgba(10,16,35,.85)),
+        url("https://images.unsplash.com/photo-1529078155058-5d716f45d604?auto=format&fit=crop&w=1800&q=60");
+      background-size:cover;
+      background-position:center;
+    }
+
+    /* Dim overlay to match modal-on-page feel */
+    .scrim{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.45);
+      backdrop-filter:saturate(120%) blur(1px);
+    }
+
+    /* Modal */
+    .modal{
+      position:relative;
+      width:min(var(--container-w), 92vw);
+      border-radius:var(--radius-lg);
+      background:var(--ua-white);
+      box-shadow:var(--ua-shadow);
+      overflow:hidden;
+      z-index:1;
+    }
+
+    .modal__topbar{
+      height:76px;
+      background:var(--ua-blue);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 18px 0 16px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:#fff;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .brand svg{display:block}
+    .brand__text{
+      display:none; /* keep close to screenshot (logo only) */
+      font-size:18px;
+    }
+
+    .icon-btn{
+      appearance:none;
+      border:0;
+      background:transparent;
+      color:#fff;
+      width:44px;
+      height:44px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+    }
+    .icon-btn:focus{outline:3px solid rgba(255,255,255,.55); outline-offset:2px}
+    .icon-btn:hover{background:rgba(255,255,255,.12)}
+
+    .modal__body{
+      padding:22px 22px 18px;
+    }
+
+    h1{
+      margin:2px 0 14px;
+      font-size:34px;
+      line-height:1.15;
+      letter-spacing:-.02em;
+    }
+
+    label{
+      display:block;
+      font-size:14px;
+      font-weight:600;
+      margin:12px 0 6px;
+    }
+
+    .input{
+      width:100%;
+      height:44px;
+      border:1px solid var(--ua-border);
+      border-radius:10px;
+      padding:0 12px;
+      font-size:16px;
+      outline:none;
+      transition:border-color .15s ease, box-shadow .15s ease;
+    }
+    .input:focus{
+      border-color:var(--ua-blue);
+      box-shadow:0 0 0 3px rgba(27,45,191,.18);
+    }
+
+    a{
+      color:var(--ua-link);
+      text-decoration:none;
+    }
+    a:hover{text-decoration:underline}
+
+    .help{
+      display:inline-block;
+      margin:10px 0 14px;
+      font-size:14px;
+      font-weight:600;
+    }
+
+    .btn{
+      width:100%;
+      height:46px;
+      border-radius:var(--radius-pill);
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+      border:2px solid transparent;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      transition:transform .05s ease, background-color .15s ease, border-color .15s ease;
+      user-select:none;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{
+      background:var(--ua-blue);
+      color:#fff;
+    }
+    .btn-primary:hover{background:var(--ua-blue-dark)}
+    .btn-outline{
+      background:#fff;
+      border-color:var(--ua-blue);
+      color:var(--ua-blue);
+      margin-top:12px;
+    }
+    .btn-outline:hover{background:rgba(27,45,191,.06)}
+
+    .note{
+      margin:16px 0 10px;
+      font-size:14px;
+      color:var(--ua-text);
+    }
+
+    .divider{
+      border:0;
+      border-top:1px solid #e5e7eb;
+      margin:14px 0;
+    }
+
+    .links{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      padding-bottom:6px;
+    }
+    .links a{
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .promo{
+      margin-top:14px;
+      border-radius:12px;
+      overflow:hidden;
+      border:1px solid #e5e7eb;
+      background:#fff;
+    }
+    .promo__top{
+      padding:10px 12px;
+      font-size:12px;
+      color:var(--ua-muted);
+      background:#f9fafb;
+    }
+    .promo__img{
+      height:78px;
+      background:
+        linear-gradient(90deg, rgba(27,45,191,.14), rgba(255,255,255,0)),
+        linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.06));
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 12px;
+      gap:10px;
+    }
+    .promo__headline{
+      font-weight:900;
+      font-size:22px;
+      line-height:1.05;
+      letter-spacing:-.02em;
+    }
+    .promo__sub{
+      font-size:12px;
+      color:var(--ua-muted);
+      margin-top:4px;
+    }
+    .promo__cta{
+      height:28px;
+      padding:0 12px;
+      border-radius:999px;
+      background:var(--ua-blue);
+      color:#fff;
+      font-weight:800;
+      border:0;
+      cursor:pointer;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .promo__cta:hover{background:var(--ua-blue-dark)}
+
+    /* Small footer "Site Feedback" rail (optional) */
+    .rail{
+      position:fixed;
+      right:6px;
+      top:50%;
+      transform:translateY(-50%);
+      z-index:2;
+      writing-mode:vertical-rl;
+      text-orientation:mixed;
+      background:rgba(255,255,255,.9);
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:10px;
+      padding:10px 8px;
+      font-weight:700;
+      font-size:12px;
+      color:#111827;
+      text-decoration:none;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 420px){
+      .modal__body{padding:18px 16px 16px;}
+      h1{font-size:30px;}
+      .modal__topbar{height:70px;}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page" aria-hidden="true"></div>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <a class="rail" href="#" aria-label="Site feedback">Site Feedback</a>
+
+  <main class="modal" role="dialog" aria-modal="true" aria-labelledby="title">
+    <header class="modal__topbar">
+      <div class="brand" aria-label="United Airlines">
+        <!-- Simple globe mark (inline SVG) -->
+        <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true">
+          <circle cx="18" cy="18" r="16" fill="none" stroke="white" stroke-width="2.2"/>
+          <path d="M2 18h32" stroke="white" stroke-width="2" opacity=".95"/>
+          <path d="M18 2c4.5 4.5 7 10 7 16s-2.5 11.5-7 16c-4.5-4.5-7-10-7-16S13.5 6.5 18 2Z"
+                fill="none" stroke="white" stroke-width="2" opacity=".95"/>
+          <path d="M6 10c3.3 2.2 7.5 3.4 12 3.4S26.7 12.2 30 10"
+                fill="none" stroke="white" stroke-width="2" opacity=".75"/>
+          <path d="M6 26c3.3-2.2 7.5-3.4 12-3.4s8.7 1.2 12 3.4"
+                fill="none" stroke="white" stroke-width="2" opacity=".75"/>
+        </svg>
+        <span class="brand__text">UNITED</span>
+      </div>
+
+      <button class="icon-btn" type="button" aria-label="Close">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </header>
+
+    <section class="modal__body">
+      <h1 id="title">Sign in</h1>
+
+      <form action="#" method="post" autocomplete="on">
+        <label for="email">Email or MileagePlus<sup>®</sup> number</label>
+        <input class="input" id="email" name="email" type="text" inputmode="email" autocomplete="username" />
+
+        <a class="help" href="#">Need help signing in?</a>
+
+        <button class="btn btn-primary" type="submit">Continue</button>
+        <button class="btn btn-outline" type="button">Login with phone number</button>
+
+        <p class="note">Message and data rates may apply.</p>
+
+        <hr class="divider" />
+
+        <div class="links" aria-label="More options">
+          <a href="#">Create a MileagePlus account</a>
+          <a href="#">Learn more about MileagePlus security</a>
+        </div>
+
+        <div class="promo" aria-label="Promotion">
+          <div class="promo__top">Limited time</div>
+          <div class="promo__img">
+            <div>
+              <div class="promo__headline">Up to<br/>90,000</div>
+              <div class="promo__sub">bonus miles</div>
+            </div>
+            <button class="promo__cta" type="button">Learn more</button>
+          </div>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    // Lightweight behavior (optional)
+    (function () {
+      const closeBtn = document.querySelector('[aria-label="Close"]');
+      const dialog = document.querySelector('.modal');
+      const scrim = document.querySelector('.scrim');
+
+      function close() {
+        dialog.style.display = 'none';
+        scrim.style.display = 'none';
+      }
+
+      closeBtn?.addEventListener('click', close);
+      scrim?.addEventListener('click', close);
+
+      // ESC to close
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') close();
+      });
+    })();
+  </script>
+</body>
+</html>

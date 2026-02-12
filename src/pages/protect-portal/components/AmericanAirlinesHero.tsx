@@ -22,7 +22,7 @@ import CustomLoginForm from './CustomLoginForm';
 
 const HeroContainer = styled.section`
   background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-dark) 100%);
-  padding: 4rem 2rem;
+  padding: 2rem 2rem;
   text-align: center;
   color: white;
   position: relative;
