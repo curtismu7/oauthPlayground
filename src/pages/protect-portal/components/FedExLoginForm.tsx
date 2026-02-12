@@ -10,15 +10,9 @@
  */
 
 import React, { useCallback, useState } from 'react';
-import {
-	FiAlertTriangle,
-	FiEye,
-	FiEyeOff,
-	FiLock as FiLockIcon,
-} from 'react-icons/fi';
+import { FiAlertTriangle, FiEye, FiEyeOff, FiLock as FiLockIcon } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
-import CompanyLogoHeader from './CompanyLogoHeader';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 
@@ -247,8 +241,8 @@ const FedExLoginForm: React.FC<FedExLoginFormProps> = ({
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [showPassword, setShowPassword] = useState(false);
-	const [flowId, setFlowId] = useState<string | null>(null);
-	const [codeVerifier, setCodeVerifier] = useState<string>('');
+	const [_flowId, setFlowId] = useState<string | null>(null);
+	const [_codeVerifier, setCodeVerifier] = useState<string>('');
 
 	// Form state
 	const [formData, setFormData] = useState({
@@ -256,117 +250,125 @@ const FedExLoginForm: React.FC<FedExLoginFormProps> = ({
 		password: '',
 	});
 
-	const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const { name, value } = e.target;
-		setFormData(prev => ({ ...prev, [name]: value }));
-		if (error) setError(null);
-	}, [error]);
+	const handleInputChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			const { name, value } = e.target;
+			setFormData((prev) => ({ ...prev, [name]: value }));
+			if (error) setError(null);
+		},
+		[error]
+	);
 
-	const handleSubmit = useCallback(async (e: React.FormEvent) => {
-		e.preventDefault();
-		setIsLoading(true);
-		setError(null);
+	const handleSubmit = useCallback(
+		async (e: React.FormEvent) => {
+			e.preventDefault();
+			setIsLoading(true);
+			setError(null);
 
-		try {
-			// Validate form
-			if (!formData.username.trim()) {
-				throw new Error('Please enter your username or email');
-			}
+			try {
+				// Validate form
+				if (!formData.username.trim()) {
+					throw new Error('Please enter your username or email');
+				}
 
-			if (!formData.password.trim()) {
-				throw new Error('Please enter your password');
-			}
+				if (!formData.password.trim()) {
+					throw new Error('Please enter your password');
+				}
 
-			// Generate PKCE code verifier
-			const verifier = generateCodeVerifier();
-			setCodeVerifier(verifier);
+				// Generate PKCE code verifier
+				const verifier = generateCodeVerifier();
+				setCodeVerifier(verifier);
 
-			// Initialize PingOne embedded login
-			const loginResult = await PingOneLoginService.initializeEmbeddedLogin(
-				environmentId,
-				clientId,
-				redirectUri
-			);
-
-			if (loginResult.success && loginResult.data) {
-				setFlowId(loginResult.data.flowId);
-
-				// Submit credentials to PingOne
-				const submitResult = await PingOneLoginService.submitCredentials(
-					loginResult.data.flowId,
-					formData.username,
-					formData.password
+				// Initialize PingOne embedded login
+				const loginResult = await PingOneLoginService.initializeEmbeddedLogin(
+					environmentId,
+					clientId,
+					redirectUri
 				);
 
-				if (submitResult.success && submitResult.data) {
-					// Resume flow to get authorization code
-					const resumeResult = await PingOneLoginService.resumeFlow(loginResult.data.flowId);
+				if (loginResult.success && loginResult.data) {
+					setFlowId(loginResult.data.flowId);
 
-					if (resumeResult.success && resumeResult.data) {
-						// Exchange code for tokens
-						const tokenResult = await PingOneLoginService.exchangeCodeForTokens(
-							environmentId,
-							clientId,
-							clientSecret,
-							redirectUri,
-							resumeResult.data.authorizationCode,
-							verifier
-						);
+					// Submit credentials to PingOne
+					const submitResult = await PingOneLoginService.submitCredentials(
+						loginResult.data.flowId,
+						formData.username,
+						formData.password
+					);
 
-						if (tokenResult.success && tokenResult.data) {
-							// Create user context and login context
-							const userContext: UserContext = {
-								id: formData.username,
-								email: formData.username.includes('@') ? formData.username : `${formData.username}@fedex.com`,
-								name: formData.username,
-								username: formData.username,
-								type: 'PING_ONE',
-							};
+					if (submitResult.success && submitResult.data) {
+						// Resume flow to get authorization code
+						const resumeResult = await PingOneLoginService.resumeFlow(loginResult.data.flowId);
 
-							const loginContext: LoginContext = {
-								timestamp: new Date().toISOString(),
-								ipAddress: '127.0.0.1', // This would be populated from request
-								userAgent: navigator.userAgent,
-								origin: window.location.origin,
-								flowType: 'AUTHENTICATION',
-								flowSubtype: 'CUSTOM_LOGIN',
-							};
+						if (resumeResult.success && resumeResult.data) {
+							// Exchange code for tokens
+							const tokenResult = await PingOneLoginService.exchangeCodeForTokens(
+								environmentId,
+								clientId,
+								clientSecret,
+								redirectUri,
+								resumeResult.data.authorizationCode,
+								verifier
+							);
 
-							onLoginSuccess(userContext, loginContext);
+							if (tokenResult.success && tokenResult.data) {
+								// Create user context and login context
+								const userContext: UserContext = {
+									id: formData.username,
+									email: formData.username.includes('@')
+										? formData.username
+										: `${formData.username}@fedex.com`,
+									name: formData.username,
+									username: formData.username,
+									type: 'PING_ONE',
+								};
+
+								const loginContext: LoginContext = {
+									timestamp: new Date().toISOString(),
+									ipAddress: '127.0.0.1', // This would be populated from request
+									userAgent: navigator.userAgent,
+									origin: window.location.origin,
+									flowType: 'AUTHENTICATION',
+									flowSubtype: 'CUSTOM_LOGIN',
+								};
+
+								onLoginSuccess(userContext, loginContext);
+							} else {
+								throw new Error(tokenResult.error?.message || 'Failed to exchange tokens');
+							}
 						} else {
-							throw new Error(tokenResult.error?.message || 'Failed to exchange tokens');
+							throw new Error(resumeResult.error?.message || 'Failed to complete login');
 						}
 					} else {
-						throw new Error(resumeResult.error?.message || 'Failed to complete login');
+						throw new Error(submitResult.error?.message || 'Invalid credentials');
 					}
 				} else {
-					throw new Error(submitResult.error?.message || 'Invalid credentials');
+					throw new Error(loginResult.error?.message || 'Failed to initialize login');
 				}
-			} else {
-				throw new Error(loginResult.error?.message || 'Failed to initialize login');
+			} catch (err) {
+				const errorMessage = err instanceof Error ? err.message : 'Login failed';
+				setError(errorMessage);
+				onError({
+					message: errorMessage,
+					code: 'AUTHENTICATION_ERROR',
+					recoverable: true,
+					suggestedAction: 'Please check your credentials and try again.',
+				});
+			} finally {
+				setIsLoading(false);
 			}
-		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 'Login failed';
-			setError(errorMessage);
-			onError({
-				message: errorMessage,
-				code: 'AUTHENTICATION_ERROR',
-				recoverable: true,
-				suggestedAction: 'Please check your credentials and try again.',
-			});
-		} finally {
-			setIsLoading(false);
-		}
-	}, [formData, environmentId, clientId, clientSecret, redirectUri, onLoginSuccess, onError]);
+		},
+		[formData, environmentId, clientId, clientSecret, redirectUri, onLoginSuccess, onError]
+	);
 
 	const togglePasswordVisibility = useCallback(() => {
-		setShowPassword(prev => !prev);
+		setShowPassword((prev) => !prev);
 	}, []);
 
 	return (
 		<LoginContainer>
 			<FormTitle>Secure Employee Portal</FormTitle>
-			
+
 			<FormDescription>
 				Access your FedEx employee account with enhanced security features.
 			</FormDescription>
@@ -404,11 +406,7 @@ const FedExLoginForm: React.FC<FedExLoginFormProps> = ({
 						required
 						disabled={isLoading}
 					/>
-					<PasswordToggle
-						type="button"
-						onClick={togglePasswordVisibility}
-						disabled={isLoading}
-					>
+					<PasswordToggle type="button" onClick={togglePasswordVisibility} disabled={isLoading}>
 						{showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
 					</PasswordToggle>
 				</InputGroup>

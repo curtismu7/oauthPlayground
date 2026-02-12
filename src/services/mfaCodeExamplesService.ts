@@ -324,7 +324,7 @@ async function getMfaDevices(
   accessToken: string
 ): Promise<MfaDevice[]> {
   // Construct API endpoint
-  const url = \`https://api.pingone.com/v1/environments/\${environmentId}/users/\${userId}/devices\`;
+  const url = \`/pingone-api/v1/environments/\${environmentId}/users/\${userId}/devices\`;
   
   // Make API request
   const response = await fetch(url, {
@@ -472,7 +472,7 @@ async function sendMfaChallenge(
   accessToken: string
 ): Promise<ChallengeResponse> {
   // Construct API endpoint
-  const url = \`https://api.pingone.com/v1/environments/\${environmentId}/users/\${userId}/devices/\${deviceId}/otp\`;
+  const url = \`/pingone-api/v1/environments/\${environmentId}/users/\${userId}/devices/\${deviceId}/otp\`;
   
   // Send challenge request
   const response = await fetch(url, {
@@ -616,7 +616,7 @@ async function verifyMfaCode(
   accessToken: string
 ): Promise<boolean> {
   // Construct API endpoint
-  const url = \`https://api.pingone.com/v1/environments/\${environmentId}/users/\${userId}/devices/\${deviceId}/otp/\${challengeId}\`;
+  const url = \`/pingone-api/v1/environments/\${environmentId}/users/\${userId}/devices/\${deviceId}/otp/\${challengeId}\`;
   
   // Send verification request
   const response = await fetch(url, {
@@ -783,7 +783,7 @@ async function registerSmsDevice(
   phoneNumber: string,
   accessToken: string
 ): Promise<{ id: string }> {
-  const url = \`https://api.pingone.com/v1/environments/\${environmentId}/users/\${userId}/devices\`;
+  const url = \`/pingone-api/v1/environments/\${environmentId}/users/\${userId}/devices\`;
   
   const response = await fetch(url, {
     method: 'POST',

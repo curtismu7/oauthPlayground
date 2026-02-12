@@ -236,10 +236,10 @@ class EnvironmentService {
 
 		const region = this.getRegion();
 		const regionDomains: Record<string, string> = {
-			us: 'https://api.pingone.com',
-			eu: 'https://api.pingone.eu',
-			ap: 'https://api.pingone.asia',
-			ca: 'https://api.pingone.ca',
+			us: '/pingone-api',
+			eu: '/pingone-api',
+			ap: '/pingone-api',
+			ca: '/pingone-api',
 		};
 
 		return regionDomains[region] || regionDomains.us;

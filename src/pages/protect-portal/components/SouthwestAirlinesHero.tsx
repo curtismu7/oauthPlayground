@@ -21,7 +21,7 @@ import SouthwestAirlinesLoginForm from './SouthwestAirlinesLoginForm';
 
 const HeroContainer = styled.div`
   width: 100%;
-  background: white; /* Changed to mostly white background like real Southwest site */
+  background: white; /* Consistent white background for Protect app */
   position: relative;
   overflow: hidden;
 `;
@@ -32,8 +32,8 @@ const HeroBackground = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #2E4BB1 0%, #1E3A8A 50%, #E51D23 100%);
-  opacity: 0.05; /* Very subtle background, mostly white */
+  background: linear-gradient(135deg, rgba(46, 75, 177, 0.02) 0%, rgba(229, 29, 35, 0.01) 100%);
+  opacity: 1; /* Very subtle background texture, mostly white */
 `;
 
 const HeroContent = styled.div`
@@ -232,29 +232,6 @@ const QuickLink = styled.a`
   &:hover {
     color: #E51D23; /* Southwest heart red on hover */
   }
-`;
-
-const _TrustBadges = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 1px solid #E5E7EB;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: center;
-  }
-`;
-
-const _TrustBadge = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #6B7280; /* Medium gray */
-  font-size: 0.875rem;
 `;
 
 // ============================================================================

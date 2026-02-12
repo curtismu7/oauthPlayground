@@ -17,9 +17,13 @@ export type PortalStep =
 	| 'portal-home' // Initial landing page
 	| 'custom-login' // Embedded PingOne login
 	| 'risk-evaluation' // Risk assessment in progress
-	| 'risk-low-success' // Low risk → direct success
-	| 'risk-medium-mfa' // Medium risk → MFA required
-	| 'risk-high-block' // High risk → Access blocked
+	| 'risk-low-stats' // Low risk → stats page
+	| 'risk-low-success' // Low risk → success page
+	| 'risk-medium-mfa' // Medium risk → P1MFA (OTP and FIDO)
+	| 'risk-medium-protect' // Medium risk → protect page
+	| 'risk-medium-success' // Medium risk → success page
+	| 'risk-high-protect' // High risk → protect page
+	| 'risk-high-block' // High risk → blocked page
 	| 'device-selection' // Choose MFA device
 	| 'otp-authentication' // OTP validation
 	| 'fido2-authentication' // FIDO2 authentication

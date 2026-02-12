@@ -3,14 +3,14 @@ import { useTheme } from '../../contexts/ThemeContext';
 
 /**
  * Footer Component
- * 
+ *
  * Application footer with information and links.
  */
 export const Footer: React.FC = () => {
 	const { currentTheme } = useTheme();
 
 	return (
-		<footer 
+		<footer
 			className="border-t"
 			style={{
 				backgroundColor: currentTheme.colors.surface,
@@ -19,14 +19,11 @@ export const Footer: React.FC = () => {
 		>
 			<div className="px-6 py-4">
 				<div className="flex items-center justify-between">
-					<div 
-						className="text-sm"
-						style={{ color: currentTheme.colors.textSecondary }}
-					>
+					<div className="text-sm" style={{ color: currentTheme.colors.textSecondary }}>
 						© 2024 PingOne Protect. All rights reserved.
 					</div>
 					<div className="flex space-x-4">
-						<a 
+						<a
 							href="https://docs.pingidentity.com"
 							target="_blank"
 							rel="noopener noreferrer"
@@ -35,7 +32,7 @@ export const Footer: React.FC = () => {
 						>
 							Documentation
 						</a>
-						<a 
+						<a
 							href="https://support.pingidentity.com"
 							target="_blank"
 							rel="noopener noreferrer"
@@ -44,7 +41,7 @@ export const Footer: React.FC = () => {
 						>
 							Support
 						</a>
-						<a 
+						<a
 							href="https://www.pingidentity.com/en/privacy-policy.html"
 							target="_blank"
 							rel="noopener noreferrer"

@@ -24,14 +24,14 @@ export const bankOfAmericaTheme: BrandTheme = {
 		colors: {
 			bank: '#012169',
 			of: '#E31837',
-			america: '#012169'
-		}
+			america: '#012169',
+		},
 	},
 	colors: {
 		primary: '#012169', // Bank of America Blue (official brand color)
 		secondary: '#FFFFFF', // White
 		accent: '#E31837', // Bank of America Red (official accent color)
-		background: 'linear-gradient(180deg, #012169 0%, #001847 30%, #FFFFFF 100%)',
+		background: '#FFFFFF', // Changed to solid white for Protect app
 		surface: '#FFFFFF',
 		text: '#1F2937',
 		textSecondary: '#6B7280',

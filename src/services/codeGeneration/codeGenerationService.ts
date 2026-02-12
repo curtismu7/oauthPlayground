@@ -380,7 +380,7 @@ class DeviceManager {
     let userId = "${userConfig.userId}"
     
     func listDevices(accessToken: String, completion: @escaping (Result<[MFADevice], Error>) -> Void) {
-        let url = URL(string: "https://api.pingone.com/v1/environments/\\(environmentId)/users/\\(userId)/devices")!
+        let url = URL(string: "/pingone-api/v1/environments/\\(environmentId)/users/\\(userId)/devices")!
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -429,7 +429,7 @@ class MFAChallengeManager {
     let userId = "${userConfig.userId}"
     
     func sendChallenge(deviceId: String, accessToken: String, completion: @escaping (Result<String, Error>) -> Void) {
-        let url = URL(string: "https://api.pingone.com/v1/environments/\\(environmentId)/users/\\(userId)/devices/\\(deviceId)/otp")!
+        let url = URL(string: "/pingone-api/v1/environments/\\(environmentId)/users/\\(userId)/devices/\\(deviceId)/otp")!
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -468,7 +468,7 @@ class MFAVerificationManager {
     let userId = "${userConfig.userId}"
     
     func verifyCode(deviceId: String, otp: String, accessToken: String, completion: @escaping (Result<Bool, Error>) -> Void) {
-        let url = URL(string: "https://api.pingone.com/v1/environments/\\(environmentId)/users/\\(userId)/devices/\\(deviceId)/otp/check")!
+        let url = URL(string: "/pingone-api/v1/environments/\\(environmentId)/users/\\(userId)/devices/\\(deviceId)/otp/check")!
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -500,7 +500,7 @@ class DeviceRegistrationManager {
     let userId = "${userConfig.userId}"
     
     func registerDevice(type: String, phoneNumber: String?, email: String?, accessToken: String, completion: @escaping (Result<String, Error>) -> Void) {
-        let url = URL(string: "https://api.pingone.com/v1/environments/\\(environmentId)/users/\\(userId)/devices")!
+        let url = URL(string: "/pingone-api/v1/environments/\\(environmentId)/users/\\(userId)/devices")!
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -656,7 +656,7 @@ class DeviceManager {
     
     fun listDevices(accessToken: String, callback: (Result<List<MFADevice>>) -> Unit) {
         val client = OkHttpClient()
-        val url = "https://api.pingone.com/v1/environments/\${environmentId}/users/\${userId}/devices"
+        val url = "/pingone-api/v1/environments/\${environmentId}/users/\${userId}/devices"
         
         val request = Request.Builder()
             .url(url)
@@ -710,7 +710,7 @@ class MFAChallengeManager {
     
     fun sendChallenge(deviceId: String, accessToken: String, callback: (Result<String>) -> Unit) {
         val client = OkHttpClient()
-        val url = "https://api.pingone.com/v1/environments/\${environmentId}/users/\${userId}/devices/\${deviceId}/otp"
+        val url = "/pingone-api/v1/environments/\${environmentId}/users/\${userId}/devices/\${deviceId}/otp"
         
         val request = Request.Builder()
             .url(url)
@@ -748,7 +748,7 @@ class MFAVerificationManager {
     
     fun verifyCode(deviceId: String, otp: String, accessToken: String, callback: (Result<Boolean>) -> Unit) {
         val client = OkHttpClient()
-        val url = "https://api.pingone.com/v1/environments/\${environmentId}/users/\${userId}/devices/\${deviceId}/otp/check"
+        val url = "/pingone-api/v1/environments/\${environmentId}/users/\${userId}/devices/\${deviceId}/otp/check"
         
         val json = JSONObject().apply {
             put("otp", otp)
@@ -793,7 +793,7 @@ class DeviceRegistrationManager {
         callback: (Result<String>) -> Unit
     ) {
         val client = OkHttpClient()
-        val url = "https://api.pingone.com/v1/environments/\${environmentId}/users/\${userId}/devices"
+        val url = "/pingone-api/v1/environments/\${environmentId}/users/\${userId}/devices"
         
         val json = JSONObject().apply {
             put("type", type)

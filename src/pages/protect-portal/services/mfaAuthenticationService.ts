@@ -291,37 +291,6 @@ class MFAAuthenticationService {
 			};
 		}
 	}
-
-	/**
-	 * Map API device type to internal device type
-	 */
-	private static mapDeviceType(apiType: string): MFADeviceType {
-		const typeMap: Record<string, MFADeviceType> = {
-			otp: 'OTP',
-			push: 'PUSH',
-			fido2: 'FIDO2',
-			voice: 'VOICE',
-			sms: 'SMS',
-			email: 'EMAIL',
-		};
-
-		return typeMap[apiType] || 'UNKNOWN';
-	}
-
-	/**
-	 * Get error type from error
-	 */
-	private static getErrorType(error: unknown): string {
-		if (error instanceof Error) {
-			if (error.message.includes('401')) return 'AUTHENTICATION_ERROR';
-			if (error.message.includes('403')) return 'AUTHORIZATION_ERROR';
-			if (error.message.includes('404')) return 'NOT_FOUND_ERROR';
-			if (error.message.includes('429')) return 'RATE_LIMIT_ERROR';
-			if (error.message.includes('500')) return 'SERVICE_ERROR';
-			if (error.message.includes('network')) return 'NETWORK_ERROR';
-		}
-		return 'UNKNOWN_ERROR';
-	}
 }
 
 // ============================================================================

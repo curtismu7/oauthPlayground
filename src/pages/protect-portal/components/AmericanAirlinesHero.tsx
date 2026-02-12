@@ -10,8 +10,11 @@
  */
 
 import React from 'react';
-import { FiSearch, FiMapPin, FiCalendar, FiLock, FiArrowRight } from 'react-icons/fi';
+import { FiArrowRight, FiCalendar, FiLock, FiMapPin, FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
+import AmericanAirlinesNavigation from './AmericanAirlinesNavigation';
+import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
+import CustomLoginForm from './CustomLoginForm';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -67,67 +70,14 @@ const HeroSubtitle = styled.p`
   }
 `;
 
-const SearchContainer = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 1rem;
-  max-width: 600px;
-  margin: 0 auto 2rem;
-  backdrop-filter: blur(10px);
-`;
-
-const SearchForm = styled.form`
-  display: flex;
-  gap: 0.5rem;
-  align-items: stretch;
-`;
-
-const SearchInput = styled.input`
-  flex: 1;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  padding: 0.75rem 1rem;
-  color: #1f2937;
-  font-size: 1rem;
-  font-family: var(--brand-body-font);
-  
-  &::placeholder {
-    color: #6b7280;
-  }
-  
-  &:focus {
-    outline: none;
-    border-color: white;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
-  }
-`;
-
-const SearchButton = styled.button`
-  background: var(--brand-accent);
-  border: none;
-  border-radius: 4px;
-  padding: 0.75rem 1.5rem;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background 0.2s ease;
-  font-family: var(--brand-body-font);
-  
-  &:hover {
-    background: #cc1429;
-  }
-`;
-
 const QuickActions = styled.div`
   display: flex;
   justify-content: center;
   gap: 2rem;
-  margin-top: 2rem;
+  margin: 3rem 0;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
   
   @media (max-width: 768px) {
     flex-direction: column;
@@ -213,96 +163,100 @@ const LoginButton = styled.button`
 // ============================================================================
 
 interface AmericanAirlinesHeroProps {
-  className?: string;
-  currentStep?: string;
-  onLoginStart?: () => void;
+	className?: string;
+	currentStep?: string;
+	onLoginStart?: () => void;
+	onLoginSuccess: (userContext: UserContext, loginContext: LoginContext) => void;
+	onError: (error: PortalError) => void;
+	environmentId: string;
+	clientId: string;
+	clientSecret: string;
+	redirectUri: string;
 }
 
-const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({ 
-  className,
-  currentStep,
-  onLoginStart
+const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({
+	className,
+	currentStep,
+	onLoginStart,
+	onLoginSuccess,
+	onError,
+	environmentId,
+	clientId,
+	clientSecret,
+	redirectUri,
 }) => {
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle search functionality
-    console.log('Search submitted');
-  };
+	return (
+		<HeroContainer className={className}>
+			<HeroContent>
+				{currentStep === 'portal-home' ? (
+					<>
+						<HeroTitle>Go Places. Together.</HeroTitle>
+						<HeroSubtitle>
+							Book flights, check in, manage trips, and more with American Airlines
+						</HeroSubtitle>
 
-  return (
-    <HeroContainer className={className}>
-      <HeroContent>
-        {currentStep === 'portal-home' ? (
-          <>
-            <HeroTitle>
-              Go Places. Together.
-            </HeroTitle>
-            <HeroSubtitle>
-              Book flights, check in, manage trips, and more with American Airlines
-            </HeroSubtitle>
-            
-            <SearchContainer>
-              <SearchForm onSubmit={handleSearch}>
-                <SearchInput 
-                  type="text" 
-                  placeholder="Where to?" 
-                  aria-label="Search flights"
-                />
-                <SearchButton type="submit">
-                  <FiSearch size={16} />
-                  Search
-                </SearchButton>
-              </SearchForm>
-            </SearchContainer>
-            
-            <QuickActions>
-              <QuickAction>
-                <ActionIcon>
-                  <FiMapPin />
-                </ActionIcon>
-                <ActionLabel>Explore</ActionLabel>
-              </QuickAction>
-              
-              <QuickAction>
-                <ActionIcon>
-                  <FiCalendar />
-                </ActionIcon>
-                <ActionLabel>Trips</ActionLabel>
-              </QuickAction>
-              
-              <QuickAction>
-                <ActionIcon>
-                  <FiSearch />
-                </ActionIcon>
-                <ActionLabel>Check-in</ActionLabel>
-              </QuickAction>
-            </QuickActions>
-            
-            <LoginSection>
-              <LoginDescription>
-                Click below to begin your secure login journey. We'll evaluate your login attempt in
-                real-time to provide the appropriate level of security.
-              </LoginDescription>
-              <LoginButton onClick={onLoginStart}>
-                <FiLock />
-                Begin Secure Login
-                <FiArrowRight />
-              </LoginButton>
-            </LoginSection>
-          </>
-        ) : (
-          <>
-            <HeroTitle>
-              Secure Employee Portal
-            </HeroTitle>
-            <HeroSubtitle>
-              Access your American Airlines employee account with enhanced security
-            </HeroSubtitle>
-          </>
-        )}
-      </HeroContent>
-    </HeroContainer>
-  );
+						<QuickActions>
+							<QuickAction>
+								<ActionIcon>
+									<FiMapPin />
+								</ActionIcon>
+								<ActionLabel>Explore</ActionLabel>
+							</QuickAction>
+
+							<QuickAction>
+								<ActionIcon>
+									<FiCalendar />
+								</ActionIcon>
+								<ActionLabel>Trips</ActionLabel>
+							</QuickAction>
+
+							<QuickAction>
+								<ActionIcon>
+									<FiSearch />
+								</ActionIcon>
+								<ActionLabel>Check-in</ActionLabel>
+							</QuickAction>
+						</QuickActions>
+
+						<LoginSection>
+							<LoginDescription>
+								Click below to begin your secure login journey. We'll evaluate your login attempt in
+								real-time to provide the appropriate level of security.
+							</LoginDescription>
+							<LoginButton onClick={onLoginStart}>
+								<FiLock />
+								Begin Secure Login
+								<FiArrowRight />
+							</LoginButton>
+						</LoginSection>
+					</>
+				) : (
+					<>
+						<AmericanAirlinesNavigation />
+						<HeroTitle>Secure Employee Portal</HeroTitle>
+						<HeroSubtitle>
+							Access your American Airlines employee account with enhanced security
+						</HeroSubtitle>
+						
+						<LoginSection>
+							<LoginDescription>
+								Enter your credentials to access your secure employee portal. Multi-factor authentication
+								may be required based on your security profile.
+							</LoginDescription>
+							<CustomLoginForm
+								onLoginSuccess={onLoginSuccess}
+								onError={onError}
+								environmentId={environmentId}
+								clientId={clientId}
+								clientSecret={clientSecret}
+								redirectUri={redirectUri}
+							/>
+						</LoginSection>
+					</>
+				)}
+			</HeroContent>
+		</HeroContainer>
+	);
 };
 
 export default AmericanAirlinesHero;

@@ -3,7 +3,7 @@ import { useTheme } from '../contexts/ThemeContext';
 
 /**
  * User Management Page
- * 
+ *
  * Page for managing users and their permissions.
  */
 export const UserManagementPage: React.FC = () => {
@@ -12,21 +12,15 @@ export const UserManagementPage: React.FC = () => {
 	return (
 		<div className="space-y-6">
 			<div>
-				<h1 
-					className="text-3xl font-bold"
-					style={{ color: currentTheme.colors.text }}
-				>
+				<h1 className="text-3xl font-bold" style={{ color: currentTheme.colors.text }}>
 					User Management
 				</h1>
-				<p 
-					className="text-lg mt-1"
-					style={{ color: currentTheme.colors.textSecondary }}
-				>
+				<p className="text-lg mt-1" style={{ color: currentTheme.colors.textSecondary }}>
 					Manage users, roles, and permissions
 				</p>
 			</div>
 
-			<div 
+			<div
 				className="p-6 rounded-lg"
 				style={{
 					backgroundColor: currentTheme.colors.surface,
@@ -34,21 +28,13 @@ export const UserManagementPage: React.FC = () => {
 				}}
 			>
 				<div className="text-center">
-					<div 
-						className="text-6xl mb-4"
-						style={{ color: currentTheme.colors.textSecondary }}
-					>
+					<div className="text-6xl mb-4" style={{ color: currentTheme.colors.textSecondary }}>
 						👥
 					</div>
-					<h3 
-						className="text-xl font-semibold mb-2"
-						style={{ color: currentTheme.colors.text }}
-					>
+					<h3 className="text-xl font-semibold mb-2" style={{ color: currentTheme.colors.text }}>
 						User Management Coming Soon
 					</h3>
-					<p 
-						style={{ color: currentTheme.colors.textSecondary }}
-					>
+					<p style={{ color: currentTheme.colors.textSecondary }}>
 						User management features will be available here.
 					</p>
 				</div>

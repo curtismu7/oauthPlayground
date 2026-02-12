@@ -112,7 +112,7 @@ export class DeviceCodeIntegrationServiceV8 {
 				// Suggest default scopes if none provided
 				console.warn(
 					`${MODULE_TAG} No scopes provided. ` +
-						`For Device Authorization Flow with user authentication, consider using: 'openid profile email offline_access'. ` +
+						`For Device Authorization Flow with user authentication, consider using: 'openid profile email'. ` +
 						`These scopes allow the device to authenticate users and access their profile information.`
 				);
 			}
@@ -121,7 +121,7 @@ export class DeviceCodeIntegrationServiceV8 {
 			// RFC 8628 Section 3.1: Device authorization request includes client_id and optionally scope
 			// NOTE: Client credentials are NOT included in device authorization request
 			// Client authentication happens later at the token endpoint during polling
-			const requestBody: Record<string, string> = {
+			const requestBody: Record<string, any> = {
 				environment_id: credentials.environmentId,
 				client_id: credentials.clientId,
 			};
@@ -135,115 +135,65 @@ export class DeviceCodeIntegrationServiceV8 {
 				requestBody.scope = finalScopes;
 			}
 
-			// #region agent log - Debug instrumentation for 403 error
-			try {
-					method: 'POST',
-					headers: 'Content-Type': 'application/json' ,
-					body: JSON.stringify(
-						location: 'deviceCodeIntegrationServiceV8.ts:124',
-						message: 'Frontend building request body for device authorization',
-						data: 
-							environmentId: credentials.environmentId,
-							clientId: credentials.clientId
-								? `$credentials.clientId.substring(0, 10)...`
-								: 'MISSING',
-							hasScope: !!finalScopes,
-							scopeValue: finalScopes || 'NONE',
-							requestBodyKeys: Object.keys(requestBody),,
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'pre-fix',
-						hypothesisId: 'D',),
-				}).catch(() => );
-			} catch (_e) {}
-			// #endregion
-
-			// Track API call for display (with timeout to prevent hanging)
-			let _callId: string | undefined;
-			const _startTime = Date.now();
-			try {
-				// #region agent log - Debug instrumentation before dynamic import
-				try {
-						method: 'POST',
-						headers: 'Content-Type': 'application/json' ,
-						body: JSON.stringify(
-							location: 'deviceCodeIntegrationServiceV8.ts:163-BEFORE-IMPORT',
-							message: 'About to dynamically import apiCallTrackerService',
-							data: 
-								timestamp: Date.now(),,
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'request-hang',
-							hypothesisId: 'BEFORE-IMPORT',),
-					}).catch(() => );
-				} catch (_e) {}
-				// #endregion
-
-				// Add timeout to dynamic import (5 seconds max)
-				const importPromise = import('@/services/apiCallTrackerService');
-				const timeoutPromise = new Promise<never>((_, reject) => {
-					setTimeout(() => reject(new Error('Import timeout')), 5000);
-				});
-
-				const { apiCallTrackerService } = await Promise.race([importPromise, timeoutPromise]);
-
-				// #region agent log - Debug instrumentation after dynamic import
-				try {
-						method: 'POST',
-						headers: 'Content-Type': 'application/json' ,
-						body: JSON.stringify(
-							location: 'deviceCodeIntegrationServiceV8.ts:163-AFTER-IMPORT',
-							message: 'Dynamic import completed',
-							data: 
-								hasApiCallTrackerService: !!apiCallTrackerService,
-								timestamp: Date.now(),,
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'request-hang',
-							hypothesisId: 'AFTER-IMPORT',),
-					}).catch(() => );
-				} catch (_e) {}
-				// #endregion
-
-				startTime = Date.now();
-				callId = apiCallTrackerService.trackApiCall({
+			// Make the device authorization request
+			const response = await fetch(_deviceAuthEndpoint, {
 				method: 'POST',
-				url: deviceAuthEndpoint,
-					actualPingOneUrl: deviceAuthEndpoint,
-					isProxy: false,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				body: requestBody,
-				step: 'unified-device-authorization',
-					flowType: 'unified',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody),
 			});
-			} catch (importError) {
-				// If import fails or times out, continue without tracking (non-blocking)
-				console.warn(
-					`${MODULE_TAG} Failed to import apiCallTrackerService, continuing without tracking:`,
-					importError
-				);
+
+			if (!response.ok) {
+				const errorText = await response.text();
+				throw new Error(`Device authorization failed: ${response.status} ${errorText}`);
 			}
 
-			// #region agent log - Debug instrumentation before pingOneFetch
-			try {
-					method: 'POST',
-					headers: 'Content-Type': 'application/json' ,
-					body: JSON.stringify(
-						location: 'deviceCodeIntegrationServiceV8.ts:172-BEFORE-PINGONEFETCH',
-						message: 'About to call pingOneFetch for device authorization',
-						data: 
-							endpoint: deviceAuthEndpoint,
-							hasRequestBody: !!requestBody,
-							requestBodyKeys: Object.keys(requestBody),
-							environmentId: credentials.environmentId,
-							clientId: `$credentials.clientId?.substring(0, 10)...`,
-							timestamp: Date.now(),,
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'request-hang',
-						hypothesisId: 'BEFORE-PINGONEFETCH',),
+			const data = await response.json();
+
+			// Validate response structure
+			if (!data.device_code || !data.user_code) {
+				throw new Error('Invalid device authorization response: missing required fields');
+			}
+
+			return {
+				device_code: data.device_code,
+				user_code: data.user_code,
+				verification_uri: data.verification_uri,
+				expires_in: data.expires_in || 1800, // Default 30 minutes
+				interval: data.interval || 5, // Default 5 seconds
+			};
+
+		} catch (error) {
+			console.error('[❌ DEVICE-CODE-V8] Device authorization request failed:', error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Poll token endpoint with device code
+	 * @param credentials - OAuth credentials
+	 * @param deviceCode - Device code from authorization response
+	 * @param interval - Polling interval in seconds (from device authorization response, default: 5)
+	 *                   RFC 8628 Section 3.5: Client SHOULD wait at least this many seconds between polls
+	 * @param maxAttempts - Maximum polling attempts (default: calculated from expires_in if provided)
+	 * @returns Token response
+	 */
+	static async pollForTokens(
+		credentials: DeviceCodeCredentials,
+		deviceCode: string,
+		interval?: number, // Optional - from device authorization response
+		maxAttempts?: number // Optional - will be calculated from expires_in if not provided
+	): Promise<TokenResponse> {
+		try {
+			// Calculate polling interval (minimum 5 seconds per RFC 8628)
+			const pollInterval = Math.max(interval || 5, 5);
+
+			// Determine token endpoint
+			const tokenEndpoint =
+				process.env.NODE_ENV === 'production'
+					? 'https://oauth-playground.vercel.app/api/token'
+					: '/api/token';
 				}).catch(() => {});
 			} catch (_e) {}
 			// #endregion

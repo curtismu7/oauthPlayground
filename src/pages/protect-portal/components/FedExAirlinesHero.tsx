@@ -20,9 +20,30 @@ import FedExLoginForm from './FedExLoginForm';
 
 const HeroContainer = styled.div`
   width: 100%;
-  background: white; /* FedEx secure login uses white background */
+  background: white; /* Consistent white background for Protect app */
   position: relative;
   overflow: hidden;
+`;
+
+const FullWidthHeader = styled.div`
+  width: 100%;
+  background: white;
+  border-bottom: 1px solid #E5E7EB;
+`;
+
+const HeaderContent = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+`;
+
+const Navigation = styled.nav`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 0;
+  width: 100%;
+  background: white;
 `;
 
 const HeroBackground = styled.div`
@@ -31,8 +52,8 @@ const HeroBackground = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #4D148C 0%, #660066 50%, #FF6600 100%);
-  opacity: 0.02; /* Very subtle background, mostly white */
+  background: linear-gradient(135deg, rgba(77, 20, 140, 0.02) 0%, rgba(255, 102, 0, 0.01) 100%);
+  opacity: 1; /* Very subtle background texture, mostly white */
 `;
 
 const HeroContent = styled.div`
@@ -40,18 +61,7 @@ const HeroContent = styled.div`
   z-index: 2;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0;
-`;
-
-const Navigation = styled.nav`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid #E5E7EB;
-  margin-bottom: 2rem;
-  width: 100%;
-  background: white;
+  padding: 0 2rem;
 `;
 
 const LogoSection = styled.div`
@@ -286,17 +296,21 @@ const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 					</MainContent>
 				) : (
 					<>
-						<Navigation>
-							<LogoSection>
-								<LogoText>FedEx</LogoText>
-							</LogoSection>
-							<NavLinks>
-								<NavLink href="#">Ship</NavLink>
-								<NavLink href="#">Track</NavLink>
-								<NavLink href="#">Manage</NavLink>
-								<NavLink href="#">Support</NavLink>
-							</NavLinks>
-						</Navigation>
+						<FullWidthHeader>
+							<HeaderContent>
+								<Navigation>
+									<LogoSection>
+										<LogoText>FedEx</LogoText>
+									</LogoSection>
+									<NavLinks>
+										<NavLink href="#">Ship</NavLink>
+										<NavLink href="#">Track</NavLink>
+										<NavLink href="#">Manage</NavLink>
+										<NavLink href="#">Support</NavLink>
+									</NavLinks>
+								</Navigation>
+							</HeaderContent>
+						</FullWidthHeader>
 						<MainContent>
 							<LoginContainer>
 								<LoginSection>

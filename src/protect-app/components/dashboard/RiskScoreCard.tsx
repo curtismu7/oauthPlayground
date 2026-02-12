@@ -1,6 +1,6 @@
 import React from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
 import { RiskEvaluation } from '../../contexts/RiskContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface RiskScoreCardProps {
 	evaluation: RiskEvaluation;
@@ -8,7 +8,7 @@ interface RiskScoreCardProps {
 
 /**
  * Risk Score Card Component
- * 
+ *
  * Displays the current risk score with visual indicators.
  */
 export const RiskScoreCard: React.FC<RiskScoreCardProps> = ({ evaluation }) => {
@@ -27,7 +27,7 @@ export const RiskScoreCard: React.FC<RiskScoreCardProps> = ({ evaluation }) => {
 	};
 
 	return (
-		<div 
+		<div
 			className="p-6 rounded-xl"
 			style={{
 				backgroundColor: currentTheme.colors.surface,
@@ -36,37 +36,28 @@ export const RiskScoreCard: React.FC<RiskScoreCardProps> = ({ evaluation }) => {
 		>
 			<div className="flex items-center justify-between">
 				<div>
-					<h3 
-						className="text-lg font-semibold mb-2"
-						style={{ color: currentTheme.colors.text }}
-					>
+					<h3 className="text-lg font-semibold mb-2" style={{ color: currentTheme.colors.text }}>
 						Risk Score
 					</h3>
 					<div className="flex items-baseline space-x-2">
-						<div 
+						<div
 							className="text-4xl font-bold"
 							style={{ color: getRiskColor(evaluation.score.value) }}
 						>
 							{evaluation.score.value}
 						</div>
-						<div 
+						<div
 							className="text-sm font-medium"
 							style={{ color: getRiskColor(evaluation.score.value) }}
 						>
 							{getRiskLevel(evaluation.score.value)}
 						</div>
 					</div>
-					<p 
-						className="text-sm mt-2"
-						style={{ color: currentTheme.colors.textSecondary }}
-					>
+					<p className="text-sm mt-2" style={{ color: currentTheme.colors.textSecondary }}>
 						Confidence: {evaluation.score.confidence}%
 					</p>
 				</div>
-				<div 
-					className="text-6xl"
-					style={{ color: getRiskColor(evaluation.score.value) }}
-				>
+				<div className="text-6xl" style={{ color: getRiskColor(evaluation.score.value) }}>
 					🛡️
 				</div>
 			</div>

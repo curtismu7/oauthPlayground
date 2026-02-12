@@ -9,9 +9,9 @@
  * corporate brand themes in the Protect Portal with company logos.
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { FiCheck, FiChevronDown } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiChevronDown, FiCheck } from 'react-icons/fi';
 import { useBrandTheme } from '../themes/theme-provider';
 import TextLogo from './TextLogo';
 
@@ -82,7 +82,7 @@ const DropdownMenu = styled.div<{ $isOpen: boolean }>`
 `;
 
 const MenuItem = styled.button.withConfig({
-  shouldForwardProp: (prop) => prop !== 'isActive',
+	shouldForwardProp: (prop) => prop !== 'isActive',
 })<{ isActive: boolean }>`
   display: flex;
   align-items: center;
@@ -149,9 +149,9 @@ interface BrandDropdownSelectorProps {
 // COMPONENT
 // ============================================================================
 
-const BrandDropdownSelector: React.FC<BrandDropdownSelectorProps> = ({ 
-	className, 
-	disabled = false 
+const BrandDropdownSelector: React.FC<BrandDropdownSelectorProps> = ({
+	className,
+	disabled = false,
 }) => {
 	const { activeTheme, availableThemes, switchTheme } = useBrandTheme();
 	const [isOpen, setIsOpen] = useState(false);
@@ -196,7 +196,7 @@ const BrandDropdownSelector: React.FC<BrandDropdownSelectorProps> = ({
 				aria-haspopup="listbox"
 				aria-label="Select company theme"
 			>
-				<TextLogo 
+				<TextLogo
 					text={activeTheme.logo.text || activeTheme.displayName}
 					colors={activeTheme.logo.colors || {}}
 					width="24px"
@@ -216,7 +216,7 @@ const BrandDropdownSelector: React.FC<BrandDropdownSelectorProps> = ({
 						role="option"
 						aria-selected={theme.name === activeTheme.name}
 					>
-						<TextLogo 
+						<TextLogo
 							text={theme.logo.text || theme.displayName}
 							colors={theme.logo.colors || {}}
 							width="20px"

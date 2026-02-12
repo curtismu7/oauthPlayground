@@ -29,7 +29,7 @@ export const southwestAirlinesTheme: BrandTheme = {
 		primary: '#2E4BB1', // Southwest Blue (exact from their brand)
 		secondary: '#FFFFFF', // White
 		accent: '#F9B612', // Desert Gold
-		background: 'linear-gradient(180deg, #2E4BB1 0%, #1E3A8A 20%, #FFFFFF 100%)',
+		background: '#FFFFFF', // Changed to solid white for Protect app
 		surface: '#FFFFFF',
 		text: '#1F2937',
 		textSecondary: '#6B7280',

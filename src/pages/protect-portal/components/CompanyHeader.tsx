@@ -84,10 +84,7 @@ interface CompanyHeaderProps {
 // COMPONENT
 // ============================================================================
 
-const CompanyHeader: React.FC<CompanyHeaderProps> = ({ 
-	showBrandSelector = true, 
-	className 
-}) => {
+const CompanyHeader: React.FC<CompanyHeaderProps> = ({ showBrandSelector = true, className }) => {
 	const { activeTheme } = useBrandTheme();
 
 	return (
@@ -97,9 +94,9 @@ const CompanyHeader: React.FC<CompanyHeaderProps> = ({
 					<BrandDropdownSelector />
 				</BrandSelectorContainer>
 			)}
-			
+
 			<LogoContainer>
-				<TextLogo 
+				<TextLogo
 					text={activeTheme.logo.text || activeTheme.displayName}
 					colors={activeTheme.logo.colors || {}}
 					width={activeTheme.logo.width}
@@ -107,12 +104,12 @@ const CompanyHeader: React.FC<CompanyHeaderProps> = ({
 					alt={activeTheme.logo.alt}
 				/>
 			</LogoContainer>
-			
+
 			<PortalInfo>
 				<PortalTitle>{activeTheme.portalName}</PortalTitle>
 				<PortalSubtitle>Secure Employee Authentication Portal</PortalSubtitle>
 			</PortalInfo>
-			
+
 			<DecorativeLine />
 		</HeaderContainer>
 	);

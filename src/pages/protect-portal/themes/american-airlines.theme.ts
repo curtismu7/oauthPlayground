@@ -22,14 +22,14 @@ export const americanAirlinesTheme: BrandTheme = {
 		text: 'AMERICAN',
 		colors: {
 			american: '#0033A0',
-			airlines: '#E31937'
-		}
+			airlines: '#E31937',
+		},
 	},
 	colors: {
 		primary: '#0033A0', // American Blue (exact from their brand)
 		secondary: '#FFFFFF', // White
 		accent: '#E31937', // American Red
-		background: 'linear-gradient(180deg, #0033A0 0%, #002880 25%, #FFFFFF 100%)',
+		background: '#FFFFFF', // Changed to solid white for Protect app
 		surface: '#FFFFFF',
 		text: '#1F2937',
 		textSecondary: '#6B7280',
