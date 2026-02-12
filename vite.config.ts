@@ -116,12 +116,12 @@ export default defineConfig(({ mode }) => {
 		server: {
 			port: 3000,
 			open: true,
-			https: true, // Enable HTTPS in development to match PingOne redirect URI
+			https: false, // Temporarily disable HTTPS to fix callback 404 issue
 			// In production, Vercel will handle HTTPS
 			hmr: {
 				port: 3000,
 				host: 'localhost',
-				protocol: 'wss', // Use secure WebSocket for HTTPS
+				protocol: 'ws', // Use WebSocket for HTTP
 				clientPort: 3000,
 			},
 			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)
