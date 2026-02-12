@@ -47,13 +47,13 @@ export type FlowKey = (typeof FLOW_KEYS)[keyof typeof FLOW_KEYS];
  * These are used as smart defaults to minimize user input
  */
 export const DEFAULT_REDIRECT_URIS: Record<FlowKey, string> = {
-	[FLOW_KEYS.OAUTH_AUTHZ]: 'http://localhost:3000/callback',
-	[FLOW_KEYS.IMPLICIT]: 'http://localhost:3000/implicit-callback',
+	[FLOW_KEYS.OAUTH_AUTHZ]: 'https://localhost:3000/callback',
+	[FLOW_KEYS.IMPLICIT]: 'https://localhost:3000/implicit-callback',
 	[FLOW_KEYS.CLIENT_CREDENTIALS]: '',
 	[FLOW_KEYS.DEVICE_CODE]: '',
 	[FLOW_KEYS.ROPC]: '',
-	[FLOW_KEYS.HYBRID]: 'http://localhost:3000/callback',
-	[FLOW_KEYS.PKCE]: 'http://localhost:3000/callback',
+	[FLOW_KEYS.HYBRID]: 'https://localhost:3000/callback',
+	[FLOW_KEYS.PKCE]: 'https://localhost:3000/callback',
 } as const;
 
 /**
@@ -66,7 +66,7 @@ export const DEFAULT_LOGOUT_URIS: Record<FlowKey, string> = {
 	[FLOW_KEYS.CLIENT_CREDENTIALS]: '',
 	[FLOW_KEYS.DEVICE_CODE]: '',
 	[FLOW_KEYS.ROPC]: '',
-	[FLOW_KEYS.HYBRID]: 'http://localhost:3000/logout',
+	[FLOW_KEYS.HYBRID]: 'https://localhost:3000/logout',
 	[FLOW_KEYS.PKCE]: '',
 } as const;
 
