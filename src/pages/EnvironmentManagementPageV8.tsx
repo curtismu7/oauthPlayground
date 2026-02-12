@@ -315,10 +315,16 @@ const EnvironmentManagementPageV8: React.FC = () => {
       }
 
       const response = await EnvironmentServiceV8.getEnvironments(filters);
-      setEnvironments(response.environments);
-      setTotalPages(Math.ceil(response.totalCount / pageSize));
+      
+      // CRITICAL FIX: Ensure environments is always an array, never undefined
+      setEnvironments(response?.environments ?? []);
+      setTotalPages(Math.ceil((response?.totalCount ?? 0) / pageSize));
     } catch (err) {
+      console.error('[EnvironmentManagementPageV8] Failed to fetch environments:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch environments');
+      // CRITICAL: Set empty array on error to prevent undefined .map() crash
+      setEnvironments([]);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -369,6 +375,12 @@ const EnvironmentManagementPageV8: React.FC = () => {
   };
 
   const handleSelectAll = () => {
+    // CRITICAL FIX: Add null safety check for environments array
+    if (!environments || environments.length === 0) {
+      setSelectedEnvironments([]);
+      return;
+    }
+    
     if (selectedEnvironments.length === environments.length) {
       setSelectedEnvironments([]);
     } else {
@@ -507,7 +519,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
       </div>
 
       <EnvironmentGrid>
-        {environments.map((environment) => (
+        {/* CRITICAL FIX: Add null safety check to prevent undefined .map() crash */}
+        {(environments ?? []).map((environment) => (
           <EnvironmentCard key={environment.id}>
             <CardHeader>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
