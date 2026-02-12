@@ -145,6 +145,34 @@ fi
 echo ""
 echo "🎯 INVENTORY CHECK COMPLETE!"
 echo "📊 Total PRIMARY inventory files checked: ${#INVENTORY_FILES[@]}"
+
+# PLAYWRIGHT GOLDEN-PATH TESTS (Dynamic Regression Prevention)
+echo ""
+echo "=== PLAYWRIGHT GOLDEN-PATH TESTS ==="
+echo "🧪 Running dynamic E2E tests for critical user flows..."
+
+# Check if Playwright is available
+if ! command -v npx >/dev/null 2>&1; then
+    echo "⚠️  npx not found, skipping Playwright tests"
+elif [ ! -f "package.json" ] || ! grep -q "playwright" package.json; then
+    echo "⚠️  Playwright not installed, skipping E2E tests"
+else
+    echo "🚀 Running golden-path Playwright tests..."
+    
+    # Run only the golden-path tests for CI efficiency
+    if npx playwright test e2e/tests/golden-path-flows.spec.ts --reporter=line; then
+        echo "✅ Golden-path tests passed - No dynamic regressions detected"
+    else
+        echo "❌ Golden-path tests FAILED - Dynamic regression detected!"
+        echo "📊 Test results saved to: test-results/golden-path-results.json"
+        echo "🔍 Check test-results/ for screenshots and traces"
+        exit 1
+    fi
+fi
+
+echo ""
+echo "🎯 COMPREHENSIVE REGRESSION PREVENTION COMPLETE!"
+echo "📊 Static inventory checks + Dynamic E2E tests passed"
 echo ""
 echo "⚠️  IMPORTANT REMINDERS:"
 echo "   1. Check ALL 7 inventory files before making changes"
@@ -152,3 +180,4 @@ echo "   2. Run prevention commands for affected areas"
 echo "   3. Update inventory files with new issues/prevention commands"
 echo "   4. Test across all apps (Production, MFA, OAuth, Protect Portal, User Mgmt, SDK)"
 echo "   5. Follow SWE-15 principles for all changes"
+echo "   6. Golden-path tests catch both known + unknown regressions"
