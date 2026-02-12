@@ -399,6 +399,15 @@ grep -rn "PageApiInfo" src/protect-app/pages/ --include="*.tsx" | wc -l && echo 
 # 30. Check PageApiInfo imports are present on all pages
 grep -rn "import.*PageApiInfo" src/protect-app/pages/ --include="*.tsx" | wc -l && echo "✅ PAGE API INFO IMPORTS FOUND" || echo "❌ MISSING PAGE API INFO IMPORTS"
 
+# 31. Verify onLoginStart handlers are present in all hero components
+grep -rn "onLoginStart.*handleLoginStart" src/pages/protect-portal/ --include="*.tsx" | wc -l && echo "✅ ONLOGINSTART HANDLERS FOUND" || echo "❌ MISSING ONLOGINSTART HANDLERS"
+
+# 32. Check hero component padding is not excessive (prevent tall headers)
+grep -rn "padding.*4rem" src/pages/protect-portal/components/*Hero.tsx && echo "❌ EXCESSIVE HERO PADDING FOUND" || echo "✅ HERO PADDING IS APPROPRIATE"
+
+# 33. Verify all hero components have proper event handlers
+grep -rn "onClick.*onLoginStart\|onClick.*handleLoginStart" src/pages/protect-portal/components/*Hero.tsx | wc -l && echo "✅ HERO BUTTON HANDLERS FOUND" || echo "❌ MISSING HERO BUTTON HANDLERS"
+
 echo "🎯 PROTECT PORTAL PREVENTION CHECKS COMPLETE"
 ```
 
@@ -569,6 +578,71 @@ grep -rn "import.*PageApiInfo" src/protect-app/pages/ --include="*.tsx" | wc -l 
 2. **Incorrect page names** - Use descriptive page names for proper filtering
 3. **Accessibility issues** - Maintain keyboard navigation and ARIA support
 4. **Theme conflicts** - Ensure component follows current theme styling
+5. **Missing event handlers** - Ensure hero components have `onLoginStart` prop
+6. **Excessive padding** - Keep hero component padding reasonable (2rem max)
+
+---
+
+## 🚨 **COMMON PROTECT PORTAL ISSUES & PREVENTION**
+
+### **✅ Issue: Missing Event Handlers in Hero Components**
+
+**Problem**: Hero components missing `onLoginStart` prop causing "Begin Secure Login" buttons to not work.
+
+**Root Cause**: Inconsistent prop passing between hero components and main app.
+
+**Solution**: Ensure all hero components receive `onLoginStart` prop.
+
+**Files Affected**:
+- `src/pages/protect-portal/ProtectPortalApp.tsx` - Line 631-640
+- `src/pages/protect-portal/components/AmericanAirlinesHero.tsx` - Props interface
+
+**Prevention Commands**:
+```bash
+# 31. Verify onLoginStart handlers are present in all hero components
+grep -rn "onLoginStart.*handleLoginStart" src/pages/protect-portal/ --include="*.tsx" | wc -l && echo "✅ ONLOGINSTART HANDLERS FOUND" || echo "❌ MISSING ONLOGINSTART HANDLERS"
+
+# 33. Verify all hero components have proper event handlers
+grep -rn "onClick.*onLoginStart\|onClick.*handleLoginStart" src/pages/protect-portal/components/*Hero.tsx | wc -l && echo "✅ HERO BUTTON HANDLERS FOUND" || echo "❌ MISSING HERO BUTTON HANDLERS"
+```
+
+### **✅ Issue: Excessive Hero Component Padding**
+
+**Problem**: Hero components with excessive padding causing headers to be too tall.
+
+**Root Cause**: Over-generous padding values in hero container styles.
+
+**Solution**: Reduce padding from `4rem` to `2rem` for appropriate header height.
+
+**Files Affected**:
+- `src/pages/protect-portal/components/AmericanAirlinesHero.tsx` - Line 25
+
+**Prevention Commands**:
+```bash
+# 32. Check hero component padding is not excessive (prevent tall headers)
+grep -rn "padding.*4rem" src/pages/protect-portal/components/*Hero.tsx && echo "❌ EXCESSIVE HERO PADDING FOUND" || echo "✅ HERO PADDING IS APPROPRIATE"
+```
+
+### **🔍 Detection Patterns**
+
+**Common Locations for These Issues**:
+- `src/pages/protect-portal/ProtectPortalApp.tsx` - Hero component prop passing
+- `src/pages/protect-portal/components/*Hero.tsx` - Hero component styling and props
+- `src/pages/protect-portal/components/AmericanAirlinesHero.tsx` - Most frequently affected
+- `src/pages/protect-portal/components/SouthwestAirlinesHero.tsx` - Similar patterns
+- `src/pages/protect-portal/components/FedExAirlinesHero.tsx` - Similar patterns
+
+**Warning Signs**:
+- Hero components not responding to button clicks
+- Excessive vertical space in hero sections
+- Missing event handlers in hero props
+- Inconsistent padding across hero components
+
+**Testing Strategy**:
+1. Test all "Begin Secure Login" buttons functionality
+2. Verify hero component heights are consistent
+3. Check event handler prop passing in main app
+4. Validate responsive behavior of hero sections
 
 ---
 

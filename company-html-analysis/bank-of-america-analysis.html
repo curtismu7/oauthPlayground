@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank of America - Complete Analysis</title>
+    <style>
+        /* Bank of America Theme Variables */
+        :root {
+            --brand-primary: #012169;
+            --brand-secondary: #FFFFFF;
+            --brand-accent: #E31837;
+            --brand-background: #FFFFFF;
+            --brand-surface: #FFFFFF;
+            --brand-text: #1F2937;
+            --brand-text-secondary: #6B7280;
+            --brand-error: #E31837;
+            --brand-success: #059669;
+            --brand-warning: #F59E0B;
+            --brand-info: #012169;
+            --brand-primary-light: #1E3A8A;
+            --brand-primary-dark: #001847;
+            --brand-secondary-light: #F8F9FA;
+            --brand-secondary-dark: #E9ECEF;
+            --brand-error-light: #FEE2E2;
+            --brand-warning-light: #FEF3C7;
+            --brand-success-light: #D1FAE5;
+            --brand-radius-sm: 0.25rem;
+            --brand-radius-md: 0.5rem;
+            --brand-radius-lg: 0.75rem;
+            --brand-radius-xl: 1rem;
+            --brand-radius-xs: 0.125rem;
+            --brand-shadow-sm: 0 1px 2px 0 rgba(1, 33, 105, 0.05);
+            --brand-shadow-md: 0 4px 6px -1px rgba(1, 33, 105, 0.1), 0 2px 4px -1px rgba(1, 33, 105, 0.06);
+            --brand-shadow-lg: 0 10px 15px -3px rgba(1, 33, 105, 0.1), 0 4px 6px -2px rgba(1, 33, 105, 0.05);
+            --brand-shadow-xl: 0 20px 25px -5px rgba(1, 33, 105, 0.1), 0 10px 10px -5px rgba(1, 33, 105, 0.04);
+            --brand-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --brand-heading-font: '"Helvetica Neue", Arial, sans-serif';
+            --brand-body-font: '"Inter", system-ui, sans-serif';
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--brand-body-font);
+            background: var(--brand-background);
+            color: var(--brand-text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-dark) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: var(--brand-radius-lg);
+            margin-bottom: 2rem;
+            box-shadow: var(--brand-shadow-lg);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.2;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-family: var(--brand-heading-font);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 1.2rem;
+        }
+
+        /* Banking Hero Section */
+        .banking-hero {
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-accent) 100%);
+            color: white;
+            padding: 4rem 2rem;
+            border-radius: var(--brand-radius-lg);
+            margin-bottom: 2rem;
+            box-shadow: var(--brand-shadow-lg);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banking-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.2;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0 0 1rem 0;
+            line-height: 1.2;
+            font-family: var(--brand-heading-font);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            margin: 0 0 2rem 0;
+            line-height: 1.6;
+            opacity: 0.9;
+            font-family: var(--brand-body-font);
+        }
+
+        /* Banking Services */
+        .banking-services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .service-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--brand-radius-lg);
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .service-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-family: var(--brand-heading-font);
+        }
+
+        .service-description {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        /* Login Section */
+        .login-section {
+            background: var(--brand-surface);
+            border-radius: var(--brand-radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--brand-shadow-md);
+            border: 1px solid #e5e7eb;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--brand-primary);
+            margin: 0 0 1rem 0;
+            text-align: center;
+            font-family: var(--brand-heading-font);
+        }
+
+        .login-description {
+            font-size: 0.875rem;
+            color: var(--brand-text-secondary);
+            margin: 0 0 2rem 0;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin: 1.5rem 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--brand-text);
+            margin-bottom: 0.5rem;
+            font-family: var(--brand-body-font);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 2px solid var(--brand-text-secondary);
+            border-radius: var(--brand-radius-md);
+            font-size: 1rem;
+            color: var(--brand-text);
+            transition: var(--brand-transition);
+            font-family: var(--brand-body-font);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+            box-shadow: var(--brand-shadow-md);
+        }
+
+        .login-button {
+            background: var(--brand-primary);
+            color: white;
+            border: none;
+            border-radius: var(--brand-radius-md);
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s ease;
+            font-family: var(--brand-body-font);
+            margin: 2rem auto 0;
+        }
+
+        .login-button:hover {
+            background: var(--brand-primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Theme Showcase */
+        .theme-showcase {
+            background: var(--brand-surface);
+            border-radius: var(--brand-radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--brand-shadow-md);
+            border: 1px solid #e5e7eb;
+        }
+
+        .theme-showcase h2 {
+            color: var(--brand-primary);
+            font-family: var(--brand-heading-font);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        /* Logo Section */
+        .logo-section {
+            text-align: center;
+            padding: 2rem;
+            background: var(--brand-secondary-light);
+            border-radius: var(--brand-radius-md);
+            margin-bottom: 2rem;
+        }
+
+        .logo-display {
+            display: inline-block;
+            padding: 1rem;
+            background: white;
+            border-radius: var(--brand-radius-md);
+            box-shadow: var(--brand-shadow-sm);
+            margin: 1rem;
+        }
+
+        .logo-display img {
+            width: 180px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        .logo-display .fallback {
+            font-size: 1.5rem;
+            color: var(--brand-primary);
+            font-weight: bold;
+            padding: 1rem 2rem;
+        }
+
+        /* Color Palette */
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .color-swatch {
+            height: 100px;
+            border-radius: var(--brand-radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-swatch.light-text {
+            color: var(--brand-text);
+            text-shadow: none;
+        }
+
+        .color-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            text-align: center;
+        }
+
+        .color-swatch.light-text .color-info {
+            background: rgba(255,255,255,0.9);
+            color: var(--brand-text);
+        }
+
+        /* Analysis Grid */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .analysis-card {
+            background: var(--brand-surface);
+            border: 1px solid #e5e7eb;
+            border-radius: var(--brand-radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--brand-shadow-sm);
+        }
+
+        .analysis-card h3 {
+            color: var(--brand-primary);
+            font-family: var(--brand-heading-font);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .analysis-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .analysis-card li {
+            padding: 0.25rem 0;
+            color: var(--brand-text);
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .analysis-card li:last-child {
+            border-bottom: none;
+        }
+
+        .analysis-card li:before {
+            content: "🏦 ";
+            color: var(--brand-accent);
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .banking-services {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .color-palette {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <h1>🏦 Bank of America</h1>
+                <p class="subtitle">Complete Brand Analysis and Implementation Showcase</p>
+            </div>
+        </div>
+
+        <!-- Banking Hero Section -->
+        <div class="banking-hero">
+            <div class="hero-content">
+                <h1 class="hero-title">Better Banking Begins Here</h1>
+                <p class="hero-subtitle">
+                    Access your secure employee portal with advanced banking security and comprehensive financial services
+                </p>
+
+                <div class="banking-services">
+                    <div class="service-card">
+                        <div class="service-icon">💳</div>
+                        <div class="service-title">Banking Services</div>
+                        <div class="service-description">Manage accounts and transactions</div>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">🔒</div>
+                        <div class="service-title">Security Center</div>
+                        <div class="service-description">Advanced protection and monitoring</div>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">📊</div>
+                        <div class="service-title">Analytics</div>
+                        <div class="service-description">Financial insights and reporting</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Section -->
+        <div class="login-section">
+            <h2 class="login-title">Secure Employee Portal</h2>
+            <p class="login-description">
+                Enter your credentials to access your secure banking portal. Multi-factor authentication
+                is required for all employee accounts.
+            </p>
+
+            <form>
+                <div class="form-group">
+                    <label class="form-label">Employee ID or Username</label>
+                    <input type="text" class="form-input" placeholder="Enter your employee ID or username">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" placeholder="Enter your password">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Security Code (Optional)</label>
+                    <input type="text" class="form-input" placeholder="Enter security code if available">
+                </div>
+
+                <button type="submit" class="login-button">
+                    🔐 Secure Login →
+                </button>
+            </form>
+        </div>
+
+        <!-- Theme Showcase -->
+        <div class="theme-showcase">
+            <h2>🎨 Theme Configuration</h2>
+            
+            <div class="logo-section">
+                <h3>Brand Identity</h3>
+                <div class="logo-display">
+                    <img src="https://raw.githubusercontent.com/curtismu7/CDN/74b2535cf2ff57c98c702071ff3de3e9eda63929/bofa.svg" 
+                         alt="Bank of America Logo" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="fallback" style="display: none;">Bank of America</div>
+                </div>
+                <p><strong>Portal Name:</strong> Bank of America Employee Portal</p>
+                <p><strong>Brand Colors:</strong> Bank Blue (#012169) and Bank Red (#E31837)</p>
+            </div>
+
+            <!-- Color Palette -->
+            <h3>🎨 Color Palette</h3>
+            <div class="color-palette">
+                <div class="color-swatch" style="background: #012169;">
+                    <span>Primary</span>
+                    <div class="color-info">#012169</div>
+                </div>
+                <div class="color-swatch" style="background: #FFFFFF;" class="light-text">
+                    <span>Secondary</span>
+                    <div class="color-info">#FFFFFF</div>
+                </div>
+                <div class="color-swatch" style="background: #E31837;">
+                    <span>Accent</span>
+                    <div class="color-info">#E31837</div>
+                </div>
+                <div class="color-swatch" style="background: #1F2937;">
+                    <span>Text</span>
+                    <div class="color-info">#1F2937</div>
+                </div>
+                <div class="color-swatch" style="background: #6B7280;" class="light-text">
+                    <span>Text Secondary</span>
+                    <div class="color-info">#6B7280</div>
+                </div>
+                <div class="color-swatch" style="background: #F59E0B;">
+                    <span>Warning</span>
+                    <div class="color-info">#F59E0B</div>
+                </div>
+            </div>
+
+            <!-- Analysis Grid -->
+            <div class="analysis-grid">
+                <div class="analysis-card">
+                    <h3>📋 Theme Structure</h3>
+                    <ul>
+                        <li>Name: bank-of-america</li>
+                        <li>Display Name: Bank of America</li>
+                        <li>Portal Name: Bank of America Employee Portal</li>
+                        <li>Version: 9.6.5</li>
+                        <li>Primary: Bank Blue (#012169)</li>
+                        <li>Accent: Bank Red (#E31837)</li>
+                    </ul>
+                </div>
+
+                <div class="analysis-card">
+                    <h3>🖼️ Logo Configuration</h3>
+                    <ul>
+                        <li>URL: GitHub CDN hosted</li>
+                        <li>Width: 180px</li>
+                        <li>Height: 60px</li>
+                        <li>Alt Text: Bank of America Logo</li>
+                        <li>Fallback: Bank of America text</li>
+                        <li>Colors: Blue and Red</li>
+                        <li>Brand Icon: 🏦 Bank</li>
+                    </ul>
+                </div>
+
+                <div class="analysis-card">
+                    <h3>🔤 Typography</h3>
+                    <ul>
+                        <li>Heading: Helvetica Neue</li>
+                        <li>Body: Inter system font</li>
+                        <li>Light Weight: 300</li>
+                        <li>Normal Weight: 400</li>
+                        <li>Medium Weight: 500</li>
+                        <li>Bold Weight: 700</li>
+                    </ul>
+                </div>
+
+                <div class="analysis-card">
+                    <h3>🎯 Brand Features</h3>
+                    <ul>
+                        <li>Banking hero section</li>
+                        <li>Service cards grid</li>
+                        <li>Secure login flow</li>
+                        <li>Gradient backgrounds</li>
+                        <li>Professional banking aesthetics</li>
+                        <li>Mobile responsive design</li>
+                    </ul>
+                </div>
+
+                <div class="analysis-card">
+                    <h3>💼 Banking Services</h3>
+                    <ul>
+                        <li>Account management</li>
+                        <li>Transaction processing</li>
+                        <li>Security monitoring</li>
+                        <li>Financial analytics</li>
+                        <li>Employee portal access</li>
+                        <li>Multi-factor authentication</li>
+                    </ul>
+                </div>
+
+                <div class="analysis-card">
+                    <h3>⚙️ Technical Details</h3>
+                    <ul>
+                        <li>React functional component</li>
+                        <li>Styled Components</li>
+                        <li>TypeScript interfaces</li>
+                        <li>CSS custom properties</li>
+                        <li>Grid pattern overlay</li>
+                        <li>Professional banking theme</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers to color swatches
+            const colorSwatches = document.querySelectorAll('.color-swatch');
+            colorSwatches.forEach(swatch => {
+                swatch.style.cursor = 'pointer';
+                swatch.addEventListener('click', function() {
+                    const color = this.querySelector('.color-info').textContent;
+                    navigator.clipboard.writeText(color).then(() => {
+                        const originalText = this.querySelector('.color-info').textContent;
+                        this.querySelector('.color-info').textContent = 'Copied!';
+                        setTimeout(() => {
+                            this.querySelector('.color-info').textContent = originalText;
+                        }, 1000);
+                    });
+                });
+            });
+
+            // Add hover effects to service cards
+            const serviceCards = document.querySelectorAll('.service-card');
+            serviceCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-6px)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(-4px)';
+                });
+            });
+
+            // Form submission handler
+            document.querySelector('form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const button = document.querySelector('.login-button');
+                const originalText = button.innerHTML;
+                button.innerHTML = '🔄 Authenticating...';
+                button.disabled = true;
+                
+                setTimeout(() => {
+                    button.innerHTML = '✅ Login Successful!';
+                    button.style.background = '#059669';
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.style.background = '';
+                        button.disabled = false;
+                    }, 2000);
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
