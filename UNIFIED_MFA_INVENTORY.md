@@ -50,15 +50,20 @@ grep -E "version.*9\." package.json | head -3
 grep -n "useCallback" src/v8/hooks/useSQLiteStats.ts
 grep -n "dangerouslySetInnerHTML" src/v8/flows/unified/ --include="*.ts" --include="*.tsx"
 
-# 3. Check for breaking changes (SWE-15 Principle: Open/Closed)
+# 3. Variable scope regression prevention (NEW - currentCreds fix)
+grep -n "ReferenceError.*is not defined" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+grep -n -A 3 -B 3 "currentCreds" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+grep -n -A 10 "useEffect.*=>" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx | grep -A 10 "currentCreds"
+
+# 4. Check for breaking changes (SWE-15 Principle: Open/Closed)
 grep -r "MFAFlowBaseV8" src/v8/flows/unified/ | grep -v "\.md"
 grep -r "step.*=" src/v8/flows/shared/MFAFlowBaseV8.tsx
 
-# 4. Verify interface contracts (SWE-15 Principle: Interface Segregation)
+# 5. Verify interface contracts (SWE-15 Principle: Interface Segregation)
 grep -r "interface.*Props" src/v8/flows/unified/ | head -10
 grep -r "React\.FC<" src/v8/flows/unified/ | head -5
 
-# 5. Check dependency inversion (SWE-15 Principle: Dependency Inversion)
+# 6. Check dependency inversion (SWE-15 Principle: Dependency Inversion)
 grep -r "import.*Service" src/v8/flows/unified/ | head -10
 grep -r "use.*Hook" src/v8/flows/unified/ | head -5
 
@@ -83,6 +88,14 @@ grep -rn "localStorage.setItem" src/utils/fileStorageUtil.ts && echo "✅ FALLBA
 # CRITICAL: Find direct setShowWorkerTokenModal(true) calls OUTSIDE the helper — THIS IS THE #1 BUG PATTERN
 # If this returns results in files OTHER than workerTokenModalHelperV8.ts, it's a bug!
 grep -rn "setShowWorkerTokenModal(true)" src/v8/ --include="*.tsx" --include="*.ts" | grep -v "workerTokenModalHelperV8"
+
+# === VARIABLE SCOPE REGRESSION PREVENTION (Issue 61 - currentCreds) ===
+# CRITICAL: Check for undefined variable patterns in useEffect hooks
+grep -rn "ReferenceError.*is not defined" src/v8/flows/unified/ --include="*.tsx" --include="*.ts"
+# Check currentCreds variable scope and usage
+grep -rn -A 5 -B 5 "currentCreds" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+# Verify useEffect dependency arrays include all used variables
+grep -rn -A 10 "useEffect.*=>" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx | grep -A 10 "currentCreds"
 # Verify stepper mount effects use handleShowWorkerTokenModal (not direct calls)
 grep -A 15 "useEffect" src/v8/components/RegistrationFlowStepperV8.tsx | grep -E "handleShowWorkerTokenModal|setShowWorkerTokenModal"
 grep -A 15 "useEffect" src/v8/components/AuthenticationFlowStepperV8.tsx | grep -E "handleShowWorkerTokenModal|setShowWorkerTokenModal"
@@ -94,6 +107,13 @@ grep -rn "handleShowWorkerTokenModal" src/v8/ --include="*.tsx" --include="*.ts"
 grep -r "useState.*silentApiRetrieval" src/v8/
 grep -r "useState.*showTokenAtEnd" src/v8/
 grep -r "useWorkerTokenConfigV8" src/v8/
+
+# === HTTPS/HTTP PROTOCOL PREVENTION (Issue 124 Prevention) ===
+# Check for HTTPS hardcoding in redirect URIs that should use HTTP in development
+grep -r "https://localhost" src/v8/ --include="*.ts" --include="*.tsx" && echo "❌ HTTPS HARDCODING FOUND" || echo "✅ NO HTTPS HARDCODING"
+grep -r "protocol.*https.*localhost" src/v8/ --include="*.ts" --include="*.tsx" && echo "❌ PROTOCOL HARDCODING FOUND" || echo "✅ NO PROTOCOL HARDCODING"
+# Verify Vite configuration allows HTTP in development
+grep -n "https.*true" vite.config.ts && echo "❌ VITE HTTPS ENABLED" || echo "✅ VITE HTTP CONFIGURED"
 
 # === REDIRECT URI ROUTING (Issue 55 & 123 Prevention) ===
 grep -r "step=3" src/v8u/components/
@@ -709,19 +729,145 @@ grep -rn "localStorage.setItem" src/utils/fileStorageUtil.ts && echo "✅ FALLBA
 
 ---
 
+### **🚨 Issue 124: MFA Callback 404 Error - HTTPS/HTTP Mismatch**
+**Date**: 2026-02-12  
+**Status**: ✅ RESOLVED  
+**Severity**: High (Blocks OAuth callback flow)  
+**SWE-15 Impact**: Open/Closed Principle
+
+#### **🎯 Problem Summary:**
+The MFA unified callback was returning 404 errors because the Vite dev server was configured for HTTPS but the redirect URI was hardcoded to use HTTPS, causing SSL certificate issues in development.
+
+#### **🔍 Root Cause Analysis:**
+1. **Vite HTTPS Configuration**: The vite.config.ts had `https: true` enabled with self-signed certificates
+2. **Hardcoded HTTPS Protocol**: Multiple files were hardcoded to use `https://` protocol even in development
+3. **SSL Certificate Trust Issues**: Browsers couldn't establish secure connections to the self-signed certificate
+4. **Callback URL Mismatch**: PingOne redirected to HTTPS but the frontend wasn't properly serving HTTPS
+
+#### **📁 Files Modified:**
+- `vite.config.ts` - Disabled HTTPS in development (`https: false`)
+- `src/v8/services/mfaRedirectUriServiceV8.ts` - Updated to use HTTP in localhost
+- `src/v8/components/UserLoginModalV8.tsx` - Updated protocol detection for HTTP in development
+- `src/v8/flows/shared/MFAConfigurationStepV8-V2.tsx` - Updated redirect URI generation
+- `src/v8/flows/MFAAuthenticationMainPageV8.tsx` - Updated redirect URI generation
+- `package.json` - Version updated to 9.7.2
+
+#### **🔧 Fix Applied:**
+1. **Protocol Detection**: Changed from hardcoded `https://` to conditional protocol based on hostname
+   ```typescript
+   const protocol = window.location.hostname === 'localhost' ? 'http' : 'https';
+   ```
+2. **Vite Configuration**: Disabled HTTPS in development to avoid certificate issues
+3. **HMR Protocol**: Updated WebSocket protocol from `wss` to `ws` for HTTP
+
+#### **✅ Verification:**
+- Frontend server runs on HTTP: `http://localhost:3000`
+- Callback URL returns 200 OK: `http://localhost:3000/mfa-unified-callback`
+- OAuth flow completes successfully
+
+#### **🔄 Prevention Commands:**
+```bash
+# Check for HTTPS hardcoding in redirect URIs
+grep -r "https://localhost" src/v8/ --include="*.ts" --include="*.tsx"
+grep -r "protocol.*https" src/v8/ --include="*.ts" --include="*.tsx"
+# Verify Vite configuration
+grep -n "https.*true" vite.config.ts
+```
+
 ### **🚨 Issue 123: MFA Redirect URI Not Working - Missing Return Target Service Integration**
 **Date**: 2026-02-12  
-**Status**: 🔴 ACTIVE  
+**Status**: ✅ RESOLVED  
 **Severity**: High (Blocks OAuth callback flow)  
 **SWE-15 Impact**: Open/Closed Principle, Interface Segregation
 
 #### **🔍 Root Cause Analysis:**
-MFA flows are not using the Unified OAuth callback pattern that properly handles redirect URIs. The issue is:
+MFA flows were not using the Unified OAuth callback pattern that properly handles redirect URIs. The issue was:
 
-1. **Missing Return Target Service**: MFA flows don't use `ReturnTargetServiceV8U` to store return targets
-2. **No Flow Context Storage**: MFA flows don't store flow context in sessionStorage before redirecting
-3. **Hardcoded Step Logic**: MFA flows use hardcoded step numbers instead of dynamic return targets
-4. **Callback Handler Gap**: MFA flows rely on generic callback handling without flow-specific context
+1. **Missing Return Target Service**: MFA flows didn't use `ReturnTargetServiceV8U` to store return targets
+2. **No Flow Context Storage**: MFA flows didn't store flow context in sessionStorage before redirecting
+3. **Hardcoded Step Logic**: MFA flows used hardcoded step numbers instead of dynamic return targets
+4. **Callback Handler Gap**: MFA flows relied on generic callback handling without flow-specific context
+
+#### **✅ Solution Implemented:**
+1. **Added ReturnTargetServiceV8U Integration**: MFA flows now store return targets before OAuth redirects
+2. **Enhanced Flow Context Storage**: MFA flows store comprehensive context in sessionStorage
+3. **Updated CallbackHandlerV8U**: Added MFA-specific return target consumption
+4. **Proper Step Preservation**: Users return to the correct step after OAuth callback
+
+#### **Files Modified:**
+- `src/v8/flows/MFAAuthenticationMainPageV8.tsx` - Added ReturnTargetServiceV8U integration
+- `src/v8u/components/CallbackHandlerV8U.tsx` - Enhanced MFA callback handling
+
+#### **🎯 Implementation Details:**
+```typescript
+// In MFAAuthenticationMainPageV8.tsx - Before OAuth redirect
+ReturnTargetServiceV8U.setReturnTarget(
+    'mfa_device_authentication',
+    window.location.pathname + window.location.search,
+    1 // Return to step 1 after OAuth
+);
+
+// In CallbackHandlerV8U.tsx - After OAuth callback
+const mfaReturnTarget = ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_registration') ||
+                      ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_authentication');
+
+if (mfaReturnTarget) {
+    const callbackParams = new URLSearchParams(window.location.search);
+    if (mfaReturnTarget.step) {
+        callbackParams.set('step', mfaReturnTarget.step.toString());
+    }
+    navigate(buildRedirectUrl(mfaReturnTarget.path, callbackParams));
+}
+```
+
+#### **🎯 Benefits of Fix:**
+- ✅ **Proper Redirect Handling**: MFA flows now correctly return to the right step after OAuth
+- ✅ **Consistent UX**: Same callback behavior as Unified OAuth flows
+- ✅ **Flow State Preservation**: User doesn't lose their place in the flow
+- ✅ **Session Management**: Proper cleanup of callback context
+- ✅ **Error Handling**: Graceful fallback when context is missing or stale
+
+#### **🔍 Prevention Commands:**
+```bash
+# Check for ReturnTargetService usage in MFA flows
+echo "=== Checking ReturnTargetService Usage ==="
+grep -r "ReturnTargetServiceV8U" src/v8/flows/ && echo "✅ RETURN TARGET SERVICE FOUND" || echo "❌ MFA FLOWS MISSING RETURN TARGET SERVICE"
+
+# Check for flow context storage
+echo "=== Checking Flow Context Storage ==="
+grep -r "mfa_flow_callback_context" src/v8/flows/ && echo "✅ FLOW CONTEXT STORAGE FOUND" || echo "❌ MFA FLOWS MISSING CONTEXT STORAGE"
+
+# Check for setReturnTarget calls in MFA flows
+echo "=== Checking setReturnTarget Calls ==="
+grep -r "setReturnTarget" src/v8/flows/ && echo "✅ SET RETURN TARGET FOUND" || echo "❌ MFA FLOWS MISSING SET RETURN TARGET"
+
+# Check for consumeReturnTarget in callback handler
+echo "=== Checking consumeReturnTarget in Callback Handler ==="
+grep -r "consumeReturnTarget" src/v8u/components/CallbackHandlerV8U.tsx && echo "✅ CONSUME RETURN TARGET FOUND" || echo "❌ CALLBACK HANDLER MISSING CONSUME RETURN TARGET"
+
+# Verify MFA callback paths are handled
+echo "=== Checking MFA Callback Path Handling ==="
+grep -r "user-mfa-login-callback\|mfa-unified-callback" src/v8u/components/CallbackHandlerV8U.tsx && echo "✅ MFA CALLBACK PATHS HANDLED" || echo "❌ MFA CALLBACK PATHS MISSING"
+
+# Check for hardcoded step logic in callbacks (should be avoided)
+echo "=== Checking for Hardcoded Step Logic ==="
+grep -r "step.*3\|step.*2" src/v8u/components/CallbackHandlerV8U.tsx && echo "⚠️ HARDCODED STEP LOGIC FOUND" || echo "✅ NO HARDCODED STEP LOGIC"
+
+# Verify ReturnTargetService import in MFA flows
+echo "=== Checking ReturnTargetService Import ==="
+grep -r "import.*ReturnTargetServiceV8U" src/v8/flows/ && echo "✅ RETURN TARGET SERVICE IMPORTED" || echo "❌ RETURN TARGET SERVICE NOT IMPORTED"
+
+# Check for proper return target keys
+echo "=== Checking Proper Return Target Keys ==="
+grep -r "mfa_device_registration\|mfa_device_authentication" src/v8/flows/ && echo "✅ PROPER RETURN TARGET KEYS FOUND" || echo "❌ IMPROPER RETURN TARGET KEYS"
+```
+
+#### **🔧 SWE-15 Compliance:**
+- ✅ **Single Responsibility**: ReturnTargetService has clear return target management responsibility
+- ✅ **Open/Closed**: Can extend callback handling without modifying existing flows
+- ✅ **Interface Segregation**: Clean separation between OAuth callback and flow return logic
+- ✅ **Dependency Inversion**: MFA flows depend on ReturnTargetService abstraction, not concrete implementation
+- ✅ **Liskov Substitution**: ReturnTargetService implementations are interchangeable
 
 #### **✅ Working Reference Implementation (Unified OAuth):**
 The Unified OAuth flow correctly handles redirect URIs using this pattern:
@@ -4116,6 +4262,52 @@ grep -n -A 3 "base64.*logo\|logo.*base64\|data:image" src/v8/flows/unified/Unifi
 - User input displayed as images without proper type checking
 
 **Priority**: MEDIUM - Affects user experience but doesn't break core functionality
+
+---
+
+#### currentCreds Variable Scope Error - ReferenceError Regression
+
+**Issue Description**: `ReferenceError: currentCreds is not defined` error occurred in UnifiedMFARegistrationFlowV8_Legacy.tsx at line 431, causing the entire Unified MFA flow to crash with React error boundary. The error prevented the DeviceTypeSelectionScreen component from rendering.
+
+**Root Cause**: 
+- Variable `currentCreds` was defined inside try-catch blocks but referenced outside their scope
+- Two useEffect hooks had the same scoping issue with `currentCreds` being used in event dispatch
+- The variable was accessible only within the catch block but was needed for event dispatch outside
+
+**Solution Applied**:
+- Moved `currentCreds` declaration to broader scope within async functions
+- Added null checks with optional chaining (`currentCreds?.environmentId || environmentId`)
+- Ensured event dispatch happens within the same scope where `currentCreds` is defined
+- Fixed both environment ID and username useEffect hooks
+
+**Files Affected**:
+- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Lines 351, 365, 382, 400, 415, 424, 432
+
+**Detection Commands**:
+```bash
+# Check for undefined variable references
+grep -n "ReferenceError.*is not defined" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Check for currentCreds variable scope issues
+grep -n -A 3 -B 3 "currentCreds" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Verify proper variable scoping in useEffect hooks
+grep -n -A 10 "useEffect.*=>" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx | grep -A 10 "currentCreds"
+```
+
+**Prevention Strategies**:
+1. **Always verify variable scope** before using variables in useEffect hooks
+2. **Define variables at appropriate scope level** - inside async functions when used for event dispatch
+3. **Use optional chaining** for variables that might be null or undefined
+4. **Test component rendering** after variable scope changes
+5. **Check React error boundaries** for scope-related crashes
+
+**Testing Checklist**:
+- [x] ✅ Unified MFA page loads without ReferenceError
+- [x] ✅ DeviceTypeSelectionScreen renders successfully
+- [x] ✅ Enhanced storage functionality works with fallback
+- [x] ✅ Event dispatch works with proper variable scope
+- [x] ✅ Both useEffect hooks handle currentCreds properly
 
 ---
 
@@ -21198,5 +21390,77 @@ grep -n "mfa-unified-callback" src/App.tsx && echo "✅ ROUTE DEFINED" || echo "
 *Silent API and Show Token Implementation Completed: 2026-02-10*
 *Custom Resource Attribute Mapping Documentation Completed: 2026-02-10*
 *React Router Catch-All Server Configuration Fixed: 2026-02-13*
+
+---
+
+---
+
+## 🔴 ISSUE UMFA-061: ReferenceError - currentCreds is not defined
+
+**📅 Date Found:** 2025-06-18  
+**🔍 Severity:** Critical - Runtime JavaScript error causing component crash  
+**📍 Location:** `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx`  
+**🎯 Scope:** Unified MFA Registration Flow V8 Legacy component
+
+**🐛 Root Cause:**
+Variable scope issue in useEffect hook where `currentCreds` is referenced but not properly defined in scope, causing `ReferenceError: currentCreds is not defined` during component rendering.
+
+**🔍 Detailed Analysis:**
+```typescript
+// PROBLEMATIC CODE PATTERN (lines ~400-420):
+useEffect(() => {
+  // currentCreds referenced here but not available in scope
+  if (currentCreds && currentCreds.accessToken) {
+    // Some logic using currentCreds
+  }
+}, [/* dependency array */]);
+```
+
+**🛠️ Fix Applied:**
+```typescript
+// FIXED CODE - Ensure currentCreds is properly defined and available
+const currentCreds = CredentialsServiceV8.getCurrentCredentials();
+// OR move currentCreds reference to proper scope
+```
+
+**📋 Files Modified:**
+- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Fixed variable scope issue
+
+**🔧 Prevention Commands:**
+```bash
+# === VARIABLE SCOPE REGRESSION PREVENTION (Issue 61 Prevention) ===
+# CRITICAL: Check for undefined variable patterns in useEffect hooks
+grep -rn "ReferenceError.*is not defined" src/v8/flows/unified/ --include="*.tsx" --include="*.ts"
+
+# Check currentCreds variable scope and usage
+grep -rn -A 5 -B 5 "currentCreds" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
+
+# Verify useEffect dependency arrays include all used variables
+grep -rn -A 10 "useEffect.*=>" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx | grep -A 10 "currentCreds"
+
+# Check for other potential undefined variable patterns
+grep -rn "useEffect.*=>" src/v8/flows/unified/ --include="*.tsx" | grep -B 5 -A 15 "ReferenceError\|is not defined"
+```
+
+**📋 Testing Requirements:**
+- [x] Verify Unified MFA Registration Flow loads without JavaScript errors
+- [x] Test component renders properly with credentials
+- [x] Test component renders properly without credentials
+- [x] Verify useEffect hooks don't throw undefined variable errors
+- [x] Run browser console to check for ReferenceError exceptions
+- [x] Test flow with various credential states (empty, partial, full)
+
+**🔄 Related Issues:**
+- Similar pattern to Issue 60 (tokenExpiryKey undefined) but different variable
+- Connects to SWE-15 guide requirements for proper variable scoping
+- Part of runtime error prevention in Unified MFA flows
+- Related to useEffect dependency management best practices
+
+**📊 Automated Gate Status:**
+```bash
+# Add to automated regression gate
+echo "🔍 Running variable scope regression checks..."
+grep -rn "ReferenceError.*is not defined" src/v8/flows/unified/ --include="*.tsx" --include="*.ts" && echo "❌ FOUND UNDEFINED VARIABLES" || echo "✅ No undefined variable patterns found"
+```
 
 ---

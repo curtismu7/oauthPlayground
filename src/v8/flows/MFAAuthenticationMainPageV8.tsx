@@ -37,6 +37,7 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { environmentService } from '@/services/environmentService';
 import { pingOneLogoutService } from '@/services/pingOneLogoutService';
 import {
@@ -1226,13 +1227,22 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			// Open authorization in popup or same window
 			const authorizationUrl = `${authUrl}?${params.toString()}`;
 
-			// Store current context for callback
+			// Store return target using ReturnTargetServiceV8U for proper callback handling
+			ReturnTargetServiceV8U.setReturnTarget(
+				'mfa_device_authentication',
+				window.location.pathname + window.location.search,
+				1 // Return to step 1 after OAuth
+			);
+
+			// Store flow context for callback
 			sessionStorage.setItem(
 				'mfa_auth_context',
 				JSON.stringify({
 					flowType: 'mfa-authorization',
 					timestamp: Date.now(),
 					environmentId: credentials.environmentId,
+					returnPath: window.location.pathname + window.location.search,
+					returnStep: 1,
 				})
 			);
 
@@ -1805,7 +1815,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						type="button"
 						onClick={() => {
 							// Use the correct unified MFA callback URI instead of hardcoded V8U path
-							const protocol = window.location.hostname === 'localhost' ? 'https' : 'https';
+							const protocol = window.location.hostname === 'localhost' ? 'http' : 'https';
 							const redirectUri = `${protocol}://${window.location.host}/mfa-unified-callback`;
 							window.open(
 								`/v8u/unified/oauth-authz/0?redirect_uri=${encodeURIComponent(redirectUri)}`,
