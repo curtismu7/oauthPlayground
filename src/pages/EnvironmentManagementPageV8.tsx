@@ -7,6 +7,8 @@ import styled from 'styled-components';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
 import { useWorkerTokenState, WorkerTokenUI } from '../services/workerTokenUIService';
+import { IndexedDBBackupServiceV8U } from '../v8u/services/indexedDBBackupServiceV8U';
+import { UnifiedOAuthCredentialsServiceV8U } from '../v8u/services/unifiedOAuthCredentialsServiceV8U';
 
 const Container = styled.div`
   padding: 2rem;
@@ -288,6 +290,88 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	} = useWorkerTokenState();
 
 	const pageSize = 12;
+	const STORAGE_KEY = 'environment-management-settings';
+	const STORAGE_VERSION = 1;
+
+	// Load settings from enhanced storage on component mount
+	useEffect(() => {
+		const loadSettings = async () => {
+			try {
+				// Try enhanced storage first (IndexedDB + SQLite backup)
+				const enhancedSettings = await UnifiedOAuthCredentialsServiceV8U.loadCredentials(STORAGE_KEY, {
+					environmentId: 'global',
+					enableBackup: true,
+				});
+				
+				if (enhancedSettings) {
+					console.log('[ENV-MGMT] ✅ Loaded settings from enhanced storage');
+					setSelectedApiRegion(enhancedSettings.selectedApiRegion || 'na');
+					setTypeFilter(enhancedSettings.typeFilter || 'all');
+					setStatusFilter(enhancedSettings.statusFilter || 'all');
+					setRegionFilter(enhancedSettings.regionFilter || 'all');
+					setCurrentPage(enhancedSettings.currentPage || 1);
+					return;
+				}
+			} catch (error) {
+				console.warn('[ENV-MGMT] Enhanced storage failed, trying fallback', error);
+			}
+			
+			// Fallback to IndexedDB backup
+			try {
+				const backupSettings = await IndexedDBBackupServiceV8U.load(STORAGE_KEY);
+				if (backupSettings) {
+					console.log('[ENV-MGMT] ✅ Loaded settings from IndexedDB backup');
+					setSelectedApiRegion(backupSettings.selectedApiRegion || 'na');
+					setTypeFilter(backupSettings.typeFilter || 'all');
+					setStatusFilter(backupSettings.statusFilter || 'all');
+					setRegionFilter(backupSettings.regionFilter || 'all');
+					setCurrentPage(backupSettings.currentPage || 1);
+				}
+			} catch (error) {
+				console.warn('[ENV-MGMT] IndexedDB backup failed', error);
+			}
+		};
+		
+		loadSettings();
+	}, []);
+
+	// Save settings to enhanced storage when they change
+	useEffect(() => {
+		const saveSettings = async () => {
+			const settings = {
+				selectedApiRegion,
+				typeFilter,
+				statusFilter,
+				regionFilter,
+				currentPage,
+				timestamp: Date.now(),
+			};
+			
+			try {
+				// Save to enhanced storage (IndexedDB + SQLite backup)
+				await UnifiedOAuthCredentialsServiceV8U.saveCredentials(STORAGE_KEY, settings, {
+					environmentId: 'global',
+					enableBackup: true,
+					backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
+				});
+				console.log('[ENV-MGMT] ✅ Settings saved to enhanced storage');
+			} catch (error) {
+				console.warn('[ENV-MGMT] Enhanced storage failed, using fallback', error);
+				
+				// Fallback to IndexedDB backup
+				try {
+					await IndexedDBBackupServiceV8U.save(STORAGE_KEY, settings);
+					console.log('[ENV-MGMT] ✅ Settings saved to IndexedDB backup');
+				} catch (backupError) {
+					console.warn('[ENV-MGMT] IndexedDB backup failed', backupError);
+				}
+			}
+		};
+		
+		// Debounce saves to avoid excessive writes
+		const timeoutId = setTimeout(saveSettings, 500);
+		return () => clearTimeout(timeoutId);
+	}, [selectedApiRegion, typeFilter, statusFilter, regionFilter, currentPage]);
 
 	const fetchEnvironments = useCallback(async () => {
 		try {
