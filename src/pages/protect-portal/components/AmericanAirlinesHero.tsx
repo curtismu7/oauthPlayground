@@ -52,6 +52,7 @@ const HeroTitle = styled.h1`
   margin: 0 0 1rem 0;
   line-height: 1.2;
   font-family: var(--brand-heading-font);
+  color: var(--brand-accent); /* American Airlines orange accent color */
   
   @media (max-width: 768px) {
     font-size: 2rem;
