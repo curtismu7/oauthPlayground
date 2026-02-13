@@ -66,6 +66,7 @@ import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
 import {
@@ -1827,9 +1828,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					<button
 						type="button"
 						onClick={() => {
-							// Use the correct unified MFA callback URI instead of hardcoded V8U path
-							const protocol = 'https'; // Always use HTTPS for security
-							const redirectUri = `${protocol}://${window.location.host}/mfa-unified-callback`;
+							// Use the centralized redirect URI service for MFA flows
+							const redirectUri = MFARedirectUriServiceV8.getRedirectUri('unified-mfa-v8');
 							window.open(
 								`/v8u/unified/oauth-authz/0?redirect_uri=${encodeURIComponent(redirectUri)}`,
 								'_blank'

@@ -13,6 +13,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
+import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 // import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8'; // Removed
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
@@ -411,9 +412,8 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 									<button
 										type="button"
 										onClick={() => {
-											// Use the correct unified MFA callback URI instead of hardcoded V8U path
-											const protocol = 'https'; // Always use HTTPS for security
-											const redirectUri = `${protocol}://${window.location.host}/mfa-unified-callback`;
+											// Use the centralized redirect URI service for MFA flows
+											const redirectUri = MFARedirectUriServiceV8.getRedirectUri('unified-mfa-v8');
 											window.location.href = `/v8u/unified/oauth-authz/0?redirect_uri=${encodeURIComponent(redirectUri)}`;
 										}}
 										style={{
