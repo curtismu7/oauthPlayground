@@ -164,10 +164,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const [isGettingWorkerToken, setIsGettingWorkerToken] = useState(false);
 
 	// Action button hooks for consistent button state management
-	const _startMFAAction = useActionButton();
-	const _registerDeviceAction = useActionButton();
-	const _usernamelessFIDO2Action = useActionButton();
-	const _clearTokensAction = useActionButton();
+	// const _startMFAAction = useActionButton();
+	// const _registerDeviceAction = useActionButton();
+	// const _usernamelessFIDO2Action = useActionButton();
+	// const _clearTokensAction = useActionButton();
 
 	usePageScroll({ pageName: 'MFA Authentication', force: true });
 
@@ -467,7 +467,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 						// Use the same logic as attemptSilentTokenRetrieval
 						const region = credentials.region || 'us';
-						// const _apiBase = apiBase; // Unused - available if needed for debugging
+						const apiBase = // const _apiBase = apiBase; // Unused - available if needed for debugging
 							region === 'eu'
 								? 'https://auth.pingone.eu'
 								: region === 'ap'
@@ -667,7 +667,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		loadConfig();
 
 		// Listen for config updates
-		const handleConfigUpdate = (event: Event) => {
+		const handleConfigUpdate = (_event: Event) => {
 			// const _customEvent = event as CustomEvent<{
 			// 	workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean };
 			// }>; // Unused - available if needed for debugging
