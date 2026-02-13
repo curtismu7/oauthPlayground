@@ -170,7 +170,7 @@ import SDKSampleApp from './pages/SDKSampleApp';
 import ServiceTestRunner from './pages/ServiceTestRunner';
 import JWTExamples from './pages/sdk-examples/JWTExamples';
 import OIDCExamples from './pages/sdk-examples/OIDCExamples';
-// SDK Examples imports
+import SDKDocumentation from './pages/sdk-examples/SDKDocumentation';
 import SDKExamplesHome from './pages/sdk-examples/SDKExamplesHome';
 import HelioMartPasswordReset from './pages/security/HelioMartPasswordReset';
 import TestDemo from './pages/TestDemo';
@@ -598,6 +598,8 @@ const AppRoutes: React.FC = () => {
 								<Route path="/sdk-examples" element={<SDKExamplesHome />} />
 								<Route path="/sdk-examples/jwt-authentication" element={<JWTExamples />} />
 								<Route path="/sdk-examples/oidc-centralized-login" element={<OIDCExamples />} />
+								<Route path="/sdk-examples/documentation" element={<SDKDocumentation />} />
+								<Route path="/sdk-examples/davinci-todo-app" element={<DavinciTodoApp />} />
 								{/* Environment Management */}
 								<Route path="/environments" element={<EnvironmentManagementPageV8 />} />
 								{/* DaVinci Todo App */}
