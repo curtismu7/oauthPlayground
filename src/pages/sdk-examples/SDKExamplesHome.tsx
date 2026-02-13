@@ -281,11 +281,6 @@ const SDKExamplesHome: React.FC = () => {
   const [isLoadingEnvs, setIsLoadingEnvs] = useState(false);
   const [envError, setEnvError] = useState<string | null>(null);
 
-  // Load environments on component mount
-  useEffect(() => {
-    loadEnvironments();
-  }, [loadEnvironments]);
-
   const loadEnvironments = useCallback(async () => {
     setIsLoadingEnvs(true);
     setEnvError(null);
@@ -326,6 +321,11 @@ const SDKExamplesHome: React.FC = () => {
       setIsLoadingEnvs(false);
     }
   }, []);
+
+  // Load environments on component mount
+  useEffect(() => {
+    loadEnvironments();
+  }, [loadEnvironments]);
 
   return (
     <Container>
