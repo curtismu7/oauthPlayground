@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
@@ -284,9 +284,9 @@ const SDKExamplesHome: React.FC = () => {
   // Load environments on component mount
   useEffect(() => {
     loadEnvironments();
-  }, []);
+  }, [loadEnvironments]);
 
-  const loadEnvironments = async () => {
+  const loadEnvironments = useCallback(async () => {
     setIsLoadingEnvs(true);
     setEnvError(null);
     
@@ -325,7 +325,7 @@ const SDKExamplesHome: React.FC = () => {
     } finally {
       setIsLoadingEnvs(false);
     }
-  };
+  }, []);
 
   return (
     <Container>
