@@ -21,7 +21,6 @@ import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
-import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { IndexedDBBackupServiceV8U } from '../v8u/services/indexedDBBackupServiceV8U';
 
 const Container = styled.div`
