@@ -24,7 +24,7 @@ import {
 	PageHeaderV8,
 } from '@/v8/components/shared/PageHeaderV8';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
-import { isPopoutWindow, openDebugLogViewerPopout } from '@/v8/utils/debugLogViewerPopoutHelperV8';
+import { isPopoutWindow } from '@/v8/utils/debugLogViewerPopoutHelperV8';
 
 // Maximum string length to avoid browser crashes (approximately 50MB)
 const MAX_STRING_LENGTH = 50 * 1024 * 1024;
