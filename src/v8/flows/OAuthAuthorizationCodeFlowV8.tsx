@@ -65,15 +65,14 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 	});
 
 	const [credentials, setCredentials] = useState<Credentials>(() => {
-		return CredentialsServiceV8.loadCredentials('oauth-authz-v8', {
-			flowKey: 'oauth-authz-v8',
+		return CredentialsServiceV8.getStoredCredentials('oauth', {
 			flowType: 'oauth',
 			includeClientSecret: true,
 			includeRedirectUri: true,
 			includeLogoutUri: false,
 			includeScopes: true,
 			defaultScopes: 'openid profile email',
-			defaultRedirectUri: 'https://localhost:3000/callback',
+			defaultRedirectUri: 'https://localhost:3000/authz-callback',
 		});
 	});
 
@@ -369,11 +368,11 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 					</SecondaryButton>
 					<SecondaryButton
 						onClick={() => {
-							window.open(authState.authorizationUrl, '_blank');
+							window.location.href = authState.authorizationUrl;
 						}}
 						disabled={isActionInProgress}
 					>
-						Open in Browser
+						Open Authorization URL
 					</SecondaryButton>
 				</div>
 			)}
@@ -613,7 +612,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 							includeLogoutUri: false,
 							includeScopes: true,
 							defaultScopes: 'openid profile email',
-							defaultRedirectUri: 'https://localhost:3000/callback',
+							defaultRedirectUri: 'https://localhost:3000/authz-callback',
 						});
 						setCredentials(reloaded);
 						setAuthState({
@@ -650,7 +649,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 							includeLogoutUri: false,
 							includeScopes: true,
 							defaultScopes: 'openid profile email',
-							defaultRedirectUri: 'https://localhost:3000/callback',
+							defaultRedirectUri: 'https://localhost:3000/authz-callback',
 						});
 						setCredentials(reloaded);
 						nav.reset();
