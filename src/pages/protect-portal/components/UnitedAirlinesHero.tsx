@@ -224,12 +224,12 @@ const LoginButton = styled.button`
 interface UnitedAirlinesHeroProps {
 	currentStep?: string;
 	onLoginStart?: () => void;
-	onLoginSuccess?: (userContext: UserContext, loginContext: LoginContext) => void;
-	onError?: (error: PortalError) => void;
-	environmentId?: string;
-	clientId?: string;
-	clientSecret?: string;
-	redirectUri?: string;
+	_onLoginSuccess?: (userContext: UserContext, loginContext: LoginContext) => void;
+	_onError?: (error: PortalError) => void;
+	_environmentId?: string;
+	_clientId?: string;
+	_clientSecret?: string;
+	_redirectUri?: string;
 }
 
 // ============================================================================
@@ -239,12 +239,12 @@ interface UnitedAirlinesHeroProps {
 const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 	currentStep = 'portal-home',
 	onLoginStart,
-	onLoginSuccess,
-	onError,
-	environmentId,
-	clientId,
-	clientSecret,
-	redirectUri,
+	_onLoginSuccess,
+	_onError,
+	_environmentId,
+	_clientId,
+	_clientSecret,
+	_redirectUri,
 }) => {
 	return (
 		<HeroContainer>

@@ -177,12 +177,12 @@ const LoginButton = styled.button`
 interface BankOfAmericaHeroProps {
 	currentStep?: string;
 	onLoginStart?: () => void;
-	onLoginSuccess?: (userContext: UserContext, loginContext: LoginContext) => void;
-	onError?: (error: PortalError) => void;
-	environmentId?: string;
-	clientId?: string;
-	clientSecret?: string;
-	redirectUri?: string;
+	_onLoginSuccess?: (userContext: UserContext, loginContext: LoginContext) => void;
+	_onError?: (error: PortalError) => void;
+	_environmentId?: string;
+	_clientId?: string;
+	_clientSecret?: string;
+	_redirectUri?: string;
 }
 
 // ============================================================================
@@ -192,12 +192,12 @@ interface BankOfAmericaHeroProps {
 const BankOfAmericaHero: React.FC<BankOfAmericaHeroProps> = ({
 	currentStep = 'portal-home',
 	onLoginStart,
-	onLoginSuccess,
-	onError,
-	environmentId,
-	clientId,
-	clientSecret,
-	redirectUri,
+	_onLoginSuccess,
+	_onError,
+	_environmentId,
+	_clientId,
+	_clientSecret,
+	_redirectUri,
 }) => {
 	return (
 		<HeroContainer>

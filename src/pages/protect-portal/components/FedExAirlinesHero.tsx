@@ -228,14 +228,14 @@ const QuickLink = styled.a`
 // ============================================================================
 
 interface FedExAirlinesHeroProps {
-	className?: string;
 	currentStep?: string;
-	onLoginSuccess?: (userContext: UserContext, loginContext: LoginContext) => void;
-	onError?: (error: PortalError) => void;
-	environmentId: string;
-	clientId: string;
-	clientSecret: string;
-	redirectUri: string;
+	onLoginStart?: () => void;
+	_onLoginSuccess?: (userContext: UserContext, loginContext: LoginContext) => void;
+	_onError?: (error: PortalError) => void;
+	_environmentId?: string;
+	_clientId?: string;
+	_clientSecret?: string;
+	_redirectUri?: string;
 }
 
 // ============================================================================
@@ -243,17 +243,17 @@ interface FedExAirlinesHeroProps {
 // ============================================================================
 
 const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
-	className,
-	currentStep,
-	onLoginSuccess,
-	onError,
-	environmentId,
-	clientId,
-	clientSecret,
-	redirectUri,
+	currentStep = 'portal-home',
+	onLoginStart,
+	_onLoginSuccess,
+	_onError,
+	_environmentId,
+	_clientId,
+	_clientSecret,
+	_redirectUri,
 }) => {
 	return (
-		<HeroContainer className={className}>
+		<HeroContainer>
 			<HeroBackground />
 			<HeroContent>
 				{currentStep === 'portal-home' ? (

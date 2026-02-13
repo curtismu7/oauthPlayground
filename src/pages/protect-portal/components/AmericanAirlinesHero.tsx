@@ -163,30 +163,28 @@ const LoginButton = styled.button`
 // ============================================================================
 
 interface AmericanAirlinesHeroProps {
-	className?: string;
 	currentStep?: string;
 	onLoginStart?: () => void;
-	onLoginSuccess: (userContext: UserContext, loginContext: LoginContext) => void;
-	onError: (error: PortalError) => void;
-	environmentId: string;
-	clientId: string;
-	clientSecret: string;
-	redirectUri: string;
+	_onLoginSuccess?: (userContext: UserContext, loginContext: LoginContext) => void;
+	_onError?: (error: PortalError) => void;
+	_environmentId?: string;
+	_clientId?: string;
+	_clientSecret?: string;
+	_redirectUri?: string;
 }
 
 const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({
-	className,
-	currentStep,
+	currentStep = 'portal-home',
 	onLoginStart,
-	onLoginSuccess,
-	onError,
-	environmentId,
-	clientId,
-	clientSecret,
-	redirectUri,
+	_onLoginSuccess,
+	_onError,
+	_environmentId,
+	_clientId,
+	_clientSecret,
+	_redirectUri,
 }) => {
 	return (
-		<HeroContainer className={className}>
+		<HeroContainer>
 			<HeroContent>
 				{currentStep === 'portal-home' ? (
 					<>
