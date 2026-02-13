@@ -278,6 +278,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 
 							// Start redirectless flow
 							const flowResult = await RedirectlessServiceV8.completeFlow({
+								flowKey: FLOW_KEY,
 								credentials: {
 									environmentId: credentials.environmentId,
 									clientId: credentials.clientId,
