@@ -95,7 +95,9 @@
       const mfaOAuthCallbackReturn = sessionStorage.getItem('mfa_oauth_callback_return');
       
       if (code || error) {
-        // Log immediately to debug.log via fetch
+        // Analytics logging disabled - server not running
+        // Uncomment below if analytics server at 127.0.0.1:7242 is available
+        /*
         fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -118,6 +120,7 @@
             hypothesisId: 'F'
           })
         }).catch(() => {});
+        */
       }
     })();
   </script>
