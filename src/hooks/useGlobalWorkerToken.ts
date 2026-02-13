@@ -29,6 +29,14 @@ export const useGlobalWorkerToken = (): GlobalWorkerTokenStatus => {
 		try {
 			setStatus((prev) => ({ ...prev, isLoading: true, error: null }));
 
+			// Debug localStorage before attempting to get token
+			const storedToken = localStorage.getItem('unified_worker_token');
+			console.log('[useGlobalWorkerToken] 🔍 Debug - Stored token in localStorage:', {
+				hasToken: !!storedToken,
+				tokenLength: storedToken?.length || 0,
+				tokenPreview: storedToken ? storedToken.substring(0, 100) + '...' : 'none',
+			});
+
 			const token = await workerTokenManager.getWorkerToken();
 
 			console.log('[useGlobalWorkerToken] ✅ Token retrieved successfully:', {
