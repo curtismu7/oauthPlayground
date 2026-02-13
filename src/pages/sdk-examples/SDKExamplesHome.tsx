@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiEye, FiEyeOff, FiSettings } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { apiCallTrackerService } from '../services/apiCallTrackerService';
-import ApiCallList from '../components/ApiCallList';
-import { FiSettings, FiEye, FiEyeOff } from 'react-icons/fi';
+import ApiCallList from '../../components/ApiCallList';
+import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 
 const Container = styled.div`
   padding: 2rem;
@@ -270,186 +270,188 @@ const DocumentationItem = styled.li`
 `;
 
 interface Environment {
-  id: string;
-  name: string;
-  description?: string;
+	id: string;
+	name: string;
+	description?: string;
 }
 
 const SDKExamplesHome: React.FC = () => {
-  const [showAPIDisplay, setShowAPIDisplay] = useState(false);
-  const [environments, setEnvironments] = useState<Environment[]>([]);
-  const [isLoadingEnvs, setIsLoadingEnvs] = useState(false);
-  const [envError, setEnvError] = useState<string | null>(null);
+	const [showAPIDisplay, setShowAPIDisplay] = useState(false);
+	const [environments, setEnvironments] = useState<Environment[]>([]);
+	const [isLoadingEnvs, setIsLoadingEnvs] = useState(false);
+	const [envError, setEnvError] = useState<string | null>(null);
 
-  const loadEnvironments = useCallback(async () => {
-    setIsLoadingEnvs(true);
-    setEnvError(null);
-    
-    try {
-      // Track the API call
-      const callId = apiCallTrackerService.trackApiCall({
-        method: 'GET',
-        url: '/api/environments',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+	const loadEnvironments = useCallback(async () => {
+		setIsLoadingEnvs(true);
+		setEnvError(null);
 
-      const response = await fetch('/api/environments');
-      const data = await response.json();
-      
-      // Update the API call with response
-      apiCallTrackerService.updateApiCall(callId, {
-        response: {
-          status: response.status,
-          statusText: response.statusText,
-          data: data,
-        },
-      });
-      
-      if (response.ok) {
-        setEnvironments(data.environments || []);
-      } else {
-        throw new Error(data.error || 'Failed to load environments');
-      }
-    } catch (error) {
-      console.error('Failed to load environments:', error);
-      setEnvError(error instanceof Error ? error.message : 'Unknown error');
-      // Set empty array to prevent crashes
-      setEnvironments([]);
-    } finally {
-      setIsLoadingEnvs(false);
-    }
-  }, []);
+		try {
+			// Track the API call
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'GET',
+				url: '/api/environments',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
 
-  // Load environments on component mount
-  useEffect(() => {
-    loadEnvironments();
-  }, [loadEnvironments]);
+			const response = await fetch('/api/environments');
+			const data = await response.json();
 
-  return (
-    <Container>
-      <APIDisplayToggle>
-        <FiSettings size={18} />
-        <span>API Display</span>
-        <ToggleButton onClick={() => setShowAPIDisplay(!showAPIDisplay)}>
-          {showAPIDisplay ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-          {showAPIDisplay ? 'Hide' : 'Show'}
-        </ToggleButton>
-      </APIDisplayToggle>
+			// Update the API call with response
+			apiCallTrackerService.updateApiCall(callId, {
+				response: {
+					status: response.status,
+					statusText: response.statusText,
+					data: data,
+				},
+			});
 
-      <Header>SDK Examples</Header>
-      <Description>
-        Explore comprehensive SDK examples demonstrating PingOne integration patterns, including
-        DaVinci flows, OIDC centralized login, and JWT authentication. Each example follows best
-        practices and includes detailed documentation.
-      </Description>
+			if (response.ok) {
+				setEnvironments(data.environments || []);
+			} else {
+				throw new Error(data.error || 'Failed to load environments');
+			}
+		} catch (error) {
+			console.error('Failed to load environments:', error);
+			setEnvError(error instanceof Error ? error.message : 'Unknown error');
+			// Set empty array to prevent crashes
+			setEnvironments([]);
+		} finally {
+			setIsLoadingEnvs(false);
+		}
+	}, []);
 
-      <EnvironmentsSection>
-        <EnvironmentsHeader>
-          <EnvironmentsTitle>PingOne Environments</EnvironmentsTitle>
-          <RefreshButton onClick={loadEnvironments} disabled={isLoadingEnvs}>
-            {isLoadingEnvs ? 'Loading...' : 'Refresh'}
-          </RefreshButton>
-        </EnvironmentsHeader>
-        
-        {envError && <ErrorMessage>Error: {envError}</ErrorMessage>}
-        
-        {isLoadingEnvs ? (
-          <LoadingMessage>Loading environments...</LoadingMessage>
-        ) : environments.length === 0 ? (
-          <LoadingMessage>No environments found. Please configure your PingOne environments.</LoadingMessage>
-        ) : (
-          <EnvironmentList>
-            {environments.map((env) => (
-              <EnvironmentItem key={env.id}>
-                <div>
-                  <EnvironmentName>{env.name}</EnvironmentName>
-                  <EnvironmentId>ID: {env.id}</EnvironmentId>
-                </div>
-              </EnvironmentItem>
-            ))}
-          </EnvironmentList>
-        )}
-      </EnvironmentsSection>
+	// Load environments on component mount
+	useEffect(() => {
+		loadEnvironments();
+	}, [loadEnvironments]);
 
-      <ExamplesGrid>
-        <ExampleCard>
-          <StatusBadge status="implemented">Implemented</StatusBadge>
-          <ExampleTitle>JWT Authentication</ExampleTitle>
-          <ExampleDescription>
-            Complete JWT implementation with private key and client secret JWT generation, token
-            validation, and secure key management using the jose library.
-          </ExampleDescription>
-          <ExampleLink to="/sdk-examples/jwt-authentication">Explore JWT Examples</ExampleLink>
-        </ExampleCard>
+	return (
+		<Container>
+			<APIDisplayToggle>
+				<FiSettings size={18} />
+				<span>API Display</span>
+				<ToggleButton onClick={() => setShowAPIDisplay(!showAPIDisplay)}>
+					{showAPIDisplay ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+					{showAPIDisplay ? 'Hide' : 'Show'}
+				</ToggleButton>
+			</APIDisplayToggle>
 
-        <ExampleCard>
-          <StatusBadge status="implemented">Implemented</StatusBadge>
-          <ExampleTitle>OIDC Centralized Login</ExampleTitle>
-          <ExampleDescription>
-            Demonstrate server-side UI authentication using the PingOne OIDC SDK with redirect
-            flows, background token renewal, and secure session management.
-          </ExampleDescription>
-          <ExampleLink to="/sdk-examples/oidc-centralized-login">Explore OIDC Examples</ExampleLink>
-        </ExampleCard>
+			<Header>SDK Examples</Header>
+			<Description>
+				Explore comprehensive SDK examples demonstrating PingOne integration patterns, including
+				DaVinci flows, OIDC centralized login, and JWT authentication. Each example follows best
+				practices and includes detailed documentation.
+			</Description>
 
-        <ExampleCard>
-          <StatusBadge status="implemented">Implemented</StatusBadge>
-          <ExampleTitle>DaVinci Todo App</ExampleTitle>
-          <ExampleDescription>
-            Complete todo application showcasing DaVinci dynamic form rendering, flow management,
-            and integration with PingOne DaVinci services.
-          </ExampleDescription>
-          <ExampleLink to="/sdk-examples/davinci-todo-app">Explore Todo App</ExampleLink>
-        </ExampleCard>
+			<EnvironmentsSection>
+				<EnvironmentsHeader>
+					<EnvironmentsTitle>PingOne Environments</EnvironmentsTitle>
+					<RefreshButton onClick={loadEnvironments} disabled={isLoadingEnvs}>
+						{isLoadingEnvs ? 'Loading...' : 'Refresh'}
+					</RefreshButton>
+				</EnvironmentsHeader>
 
-        <ExampleCard>
-          <StatusBadge status="implemented">Implemented</StatusBadge>
-          <ExampleTitle>SDK Documentation</ExampleTitle>
-          <ExampleDescription>
-            Comprehensive documentation, usage guides, and best practices for implementing PingOne
-            SDKs in your applications.
-          </ExampleDescription>
-          <ExampleLink to="/sdk-examples/documentation">View Documentation</ExampleLink>
-        </ExampleCard>
-      </ExamplesGrid>
+				{envError && <ErrorMessage>Error: {envError}</ErrorMessage>}
 
-      <APIDisplayContainer isVisible={showAPIDisplay}>
-        <ApiCallList />
-      </APIDisplayContainer>
+				{isLoadingEnvs ? (
+					<LoadingMessage>Loading environments...</LoadingMessage>
+				) : environments.length === 0 ? (
+					<LoadingMessage>
+						No environments found. Please configure your PingOne environments.
+					</LoadingMessage>
+				) : (
+					<EnvironmentList>
+						{environments.map((env) => (
+							<EnvironmentItem key={env.id}>
+								<div>
+									<EnvironmentName>{env.name}</EnvironmentName>
+									<EnvironmentId>ID: {env.id}</EnvironmentId>
+								</div>
+							</EnvironmentItem>
+						))}
+					</EnvironmentList>
+				)}
+			</EnvironmentsSection>
 
-      <DocumentationSection>
-        <DocumentationTitle>SDK Documentation</DocumentationTitle>
-        <DocumentationList>
-          <DocumentationItem>
-            <a href="/SDK_EXAMPLES_INVENTORY.md" target="_blank" rel="noopener noreferrer">
-              SDK Examples Inventory - Complete tracking of all SDK implementations
-            </a>
-          </DocumentationItem>
-          <DocumentationItem>
-            <a href="/SDK_EXAMPLES_GUIDE.md" target="_blank" rel="noopener noreferrer">
-              SDK Usage Guide - Comprehensive usage examples and best practices
-            </a>
-          </DocumentationItem>
-          <DocumentationItem>
-            <a href="/SWE-15_UNIFIED_MFA_GUIDE.md" target="_blank" rel="noopener noreferrer">
-              SWE-15 Development Guide - Software engineering best practices
-            </a>
-          </DocumentationItem>
-          <DocumentationItem>
-            <a
-              href="https://docs.pingidentity.com/sdks/latest/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              PingOne SDK Documentation - Official PingOne SDK documentation
-            </a>
-          </DocumentationItem>
-        </DocumentationList>
-      </DocumentationSection>
-    </Container>
-  );
+			<ExamplesGrid>
+				<ExampleCard>
+					<StatusBadge status="implemented">Implemented</StatusBadge>
+					<ExampleTitle>JWT Authentication</ExampleTitle>
+					<ExampleDescription>
+						Complete JWT implementation with private key and client secret JWT generation, token
+						validation, and secure key management using the jose library.
+					</ExampleDescription>
+					<ExampleLink to="/sdk-examples/jwt-authentication">Explore JWT Examples</ExampleLink>
+				</ExampleCard>
+
+				<ExampleCard>
+					<StatusBadge status="implemented">Implemented</StatusBadge>
+					<ExampleTitle>OIDC Centralized Login</ExampleTitle>
+					<ExampleDescription>
+						Demonstrate server-side UI authentication using the PingOne OIDC SDK with redirect
+						flows, background token renewal, and secure session management.
+					</ExampleDescription>
+					<ExampleLink to="/sdk-examples/oidc-centralized-login">Explore OIDC Examples</ExampleLink>
+				</ExampleCard>
+
+				<ExampleCard>
+					<StatusBadge status="implemented">Implemented</StatusBadge>
+					<ExampleTitle>DaVinci Todo App</ExampleTitle>
+					<ExampleDescription>
+						Complete todo application showcasing DaVinci dynamic form rendering, flow management,
+						and integration with PingOne DaVinci services.
+					</ExampleDescription>
+					<ExampleLink to="/sdk-examples/davinci-todo-app">Explore Todo App</ExampleLink>
+				</ExampleCard>
+
+				<ExampleCard>
+					<StatusBadge status="implemented">Implemented</StatusBadge>
+					<ExampleTitle>SDK Documentation</ExampleTitle>
+					<ExampleDescription>
+						Comprehensive documentation, usage guides, and best practices for implementing PingOne
+						SDKs in your applications.
+					</ExampleDescription>
+					<ExampleLink to="/sdk-examples/documentation">View Documentation</ExampleLink>
+				</ExampleCard>
+			</ExamplesGrid>
+
+			<APIDisplayContainer isVisible={showAPIDisplay}>
+				<ApiCallList />
+			</APIDisplayContainer>
+
+			<DocumentationSection>
+				<DocumentationTitle>SDK Documentation</DocumentationTitle>
+				<DocumentationList>
+					<DocumentationItem>
+						<a href="/SDK_EXAMPLES_INVENTORY.md" target="_blank" rel="noopener noreferrer">
+							SDK Examples Inventory - Complete tracking of all SDK implementations
+						</a>
+					</DocumentationItem>
+					<DocumentationItem>
+						<a href="/SDK_EXAMPLES_GUIDE.md" target="_blank" rel="noopener noreferrer">
+							SDK Usage Guide - Comprehensive usage examples and best practices
+						</a>
+					</DocumentationItem>
+					<DocumentationItem>
+						<a href="/SWE-15_UNIFIED_MFA_GUIDE.md" target="_blank" rel="noopener noreferrer">
+							SWE-15 Development Guide - Software engineering best practices
+						</a>
+					</DocumentationItem>
+					<DocumentationItem>
+						<a
+							href="https://docs.pingidentity.com/sdks/latest/"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							PingOne SDK Documentation - Official PingOne SDK documentation
+						</a>
+					</DocumentationItem>
+				</DocumentationList>
+			</DocumentationSection>
+		</Container>
+	);
 };
 
 export default SDKExamplesHome;
