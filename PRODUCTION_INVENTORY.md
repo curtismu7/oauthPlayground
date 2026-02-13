@@ -3361,6 +3361,54 @@ The exportConfig method was using an outdated format structure that didn't align
 
 ---
 
+# PROD-024: Environments Page Worker Token Service Update
+
+**Date:** 2026-02-13
+**Status:** ✅ COMPLETED
+**Priority:** HIGH
+
+## Issue Description
+The environments page was using the WorkerTokenUI service instead of directly using unifiedWorkerTokenService like Unified MFA and other apps. This created inconsistency in worker token implementation across pages.
+
+## Solution Implemented
+
+### 1. Replaced WorkerTokenUI Service
+- Removed dependency on `workerTokenUIService.tsx`
+- Added direct imports for `unifiedWorkerTokenService.ts`
+- Added imports for `WorkerTokenModal` and `WorkerTokenDetectedBanner` components
+
+### 2. Direct State Management
+- Replaced `useWorkerTokenState` hook with direct state management
+- Added localStorage-based state synchronization
+- Added event listeners for worker token updates
+
+### 3. Component Updates
+- Replaced `WorkerTokenUI` component with `WorkerTokenDetectedBanner`
+- Added direct `WorkerTokenModal` usage
+- Maintained same UI/UX functionality
+
+## Files Modified
+- Modified: `src/pages/EnvironmentManagementPageV8.tsx` - Updated to use unifiedWorkerTokenService directly
+
+## Testing
+- Build successful with no errors
+- Worker token functionality preserved
+- Standardized export/import available through modal
+
+## Root Cause
+The environments page was using an intermediate service layer (WorkerTokenUI) instead of directly using the unified worker token service like other pages.
+
+## Enhanced Prevention Commands
+```bash
+# Check for direct usage of unifiedWorkerTokenService in pages
+grep -r "unifiedWorkerTokenService" src/pages/ --include="*.tsx" --include="*.ts"
+
+# Check for indirect usage through WorkerTokenUI (should be avoided)
+grep -r "WorkerTokenUI" src/pages/ --include="*.tsx" --include="*.ts"
+```
+
+---
+
 **🚀 Future Enhancements:**
 - **Real-time Sync**: WebSocket-based cross-device synchronization
 - **Compression**: Data compression for SQLite backup storage
