@@ -793,7 +793,7 @@ class UnifiedWorkerTokenService {
 		try {
 			// Import PingOneAPI dynamically to avoid circular dependencies
 			const { default: PingOneAPI } = await import('../api/pingone');
-			
+
 			// Authenticate if needed
 			if (PingOneAPI.isTokenExpired()) {
 				await PingOneAPI.authenticate(
@@ -817,9 +817,9 @@ class UnifiedWorkerTokenService {
 				nextRotationAt: app.keyRotationPolicy?.nextRotationAt,
 				daysUntilRotation: app.keyRotationPolicy?.nextRotationAt
 					? Math.ceil(
-						(new Date(app.keyRotationPolicy.nextRotationAt).getTime() - Date.now()) /
-							(1000 * 60 * 60 * 24)
-					)
+							(new Date(app.keyRotationPolicy.nextRotationAt).getTime() - Date.now()) /
+								(1000 * 60 * 60 * 24)
+						)
 					: undefined,
 				warningThreshold: 30, // Show warning 30 days before rotation
 			};
@@ -859,7 +859,7 @@ class UnifiedWorkerTokenService {
 		try {
 			// Import PingOneAPI dynamically
 			const { default: PingOneAPI } = await import('../api/pingone');
-			
+
 			// Authenticate if needed
 			if (PingOneAPI.isTokenExpired()) {
 				await PingOneAPI.authenticate(
@@ -893,7 +893,7 @@ class UnifiedWorkerTokenService {
 		try {
 			// Import PingOneAPI dynamically
 			const { default: PingOneAPI } = await import('../api/pingone');
-			
+
 			// Authenticate if needed
 			if (PingOneAPI.isTokenExpired()) {
 				await PingOneAPI.authenticate(
@@ -939,17 +939,18 @@ class UnifiedWorkerTokenService {
 		recommendation: string;
 	}> {
 		const krpStatus = await this.getKeyRotationStatus();
-		
+
 		// March 2, 2027 deadline
 		const deadline = new Date('2027-03-02T00:00:00Z');
 		const daysUntilDeadline = Math.ceil((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-		
+
 		if (krpStatus?.keyRotationEnabled) {
 			return {
 				compliant: true,
 				daysUntilDeadline,
 				warning: '',
-				recommendation: 'Application is using Key Rotation Policy - compliant with PingOne requirements',
+				recommendation:
+					'Application is using Key Rotation Policy - compliant with PingOne requirements',
 			};
 		}
 
@@ -964,7 +965,8 @@ class UnifiedWorkerTokenService {
 			compliant: false,
 			daysUntilDeadline,
 			warning,
-			recommendation: 'Configure Key Rotation Policy for this worker application before March 2, 2027',
+			recommendation:
+				'Configure Key Rotation Policy for this worker application before March 2, 2027',
 		};
 	}
 }

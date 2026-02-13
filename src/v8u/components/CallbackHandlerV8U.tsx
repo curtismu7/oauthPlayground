@@ -12,10 +12,13 @@
 
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { checkPingOneAuthentication, performDetailedAuthenticationCheck } from '@/v8/services/pingOneAuthenticationServiceV8';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
-import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
+import {
+	checkPingOneAuthentication,
+	performDetailedAuthenticationCheck,
+} from '@/v8/services/pingOneAuthenticationServiceV8';
 import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
+import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 
 const MODULE_TAG = '[🔄 CALLBACK-HANDLER-V8U]';
 const AUTHZ_REDIRECT_LOG_ENDPOINT = '/api/logs/authz-redirect';
@@ -89,7 +92,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 		// Check PingOne authentication status and show success message
 		const authResult = checkPingOneAuthentication();
 		console.log(`${MODULE_TAG} PingOne authentication result:`, authResult);
-		
+
 		// Perform detailed authentication check for debugging
 		const { result, diagnostics } = performDetailedAuthenticationCheck();
 		console.log(`${MODULE_TAG} Detailed authentication diagnostics:`, { result, diagnostics });
@@ -172,11 +175,15 @@ export const CallbackHandlerV8U: React.FC = () => {
 				callbackPath: currentPath,
 			});
 
-			MFARedirectUriServiceV8.logDebugEvent('CALLBACK_HANDLER', 'Detected MFA/user login callback path', {
-				currentPath,
-				hasCode: !!searchParams.get('code'),
-				hasState: !!searchParams.get('state'),
-			});
+			MFARedirectUriServiceV8.logDebugEvent(
+				'CALLBACK_HANDLER',
+				'Detected MFA/user login callback path',
+				{
+					currentPath,
+					hasCode: !!searchParams.get('code'),
+					hasState: !!searchParams.get('state'),
+				}
+			);
 
 			console.log(`${MODULE_TAG} ✅ User login callback detected - using URL-based detection`);
 
@@ -184,31 +191,36 @@ export const CallbackHandlerV8U: React.FC = () => {
 			// This is set by the flow before redirecting to PingOne for authentication
 			const flowContextKey = 'mfa_flow_callback_context';
 			const storedContext = sessionStorage.getItem(flowContextKey);
-			
+
 			console.log(`${MODULE_TAG} 🔍 Checking for stored flow context:`, {
 				hasContext: !!storedContext,
 				contextKey: flowContextKey,
 			});
 
 			// Try to consume return target first (preferred method)
-			const mfaReturnTarget = ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_registration') ||
-								  ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_authentication');
-			
+			const mfaReturnTarget =
+				ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_registration') ||
+				ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_authentication');
+
 			if (mfaReturnTarget) {
-				MFARedirectUriServiceV8.logDebugEvent('CALLBACK_HANDLER', 'Using return target from ReturnTargetService', {
-					kind: mfaReturnTarget.kind,
-					path: mfaReturnTarget.path,
-					step: mfaReturnTarget.step,
-				});
+				MFARedirectUriServiceV8.logDebugEvent(
+					'CALLBACK_HANDLER',
+					'Using return target from ReturnTargetService',
+					{
+						kind: mfaReturnTarget.kind,
+						path: mfaReturnTarget.path,
+						step: mfaReturnTarget.step,
+					}
+				);
 
 				console.log(`${MODULE_TAG} 🎯 Found MFA return target:`, mfaReturnTarget);
-				
+
 				// Preserve callback parameters
 				const callbackParams = new URLSearchParams(window.location.search);
 				if (mfaReturnTarget.step) {
 					callbackParams.set('step', mfaReturnTarget.step.toString());
 				}
-				
+
 				const redirectUrl = buildRedirectUrl(mfaReturnTarget.path, callbackParams);
 				const targetStep =
 					(mfaReturnTarget.step ? String(mfaReturnTarget.step) : null) ||
@@ -223,10 +235,14 @@ export const CallbackHandlerV8U: React.FC = () => {
 					returnTargetKind: mfaReturnTarget.kind,
 				});
 
-				MFARedirectUriServiceV8.logDebugEvent('CALLBACK_HANDLER', 'Navigating to return target URL', {
-					redirectUrl,
-				});
-				
+				MFARedirectUriServiceV8.logDebugEvent(
+					'CALLBACK_HANDLER',
+					'Navigating to return target URL',
+					{
+						redirectUrl,
+					}
+				);
+
 				console.log(`${MODULE_TAG} 🚀 Redirecting to MFA flow using return target: ${redirectUrl}`);
 				navigate(redirectUrl);
 				return;
@@ -255,7 +271,9 @@ export const CallbackHandlerV8U: React.FC = () => {
 							contextReturnStep: context.returnStep,
 							contextAgeMs: contextAge,
 						});
-						console.warn(`${MODULE_TAG} ⚠️ Flow context is stale (${Math.round(contextAge / 1000)}s old), removing and using fallback`);
+						console.warn(
+							`${MODULE_TAG} ⚠️ Flow context is stale (${Math.round(contextAge / 1000)}s old), removing and using fallback`
+						);
 						sessionStorage.removeItem(flowContextKey);
 					} else {
 						// Preserve callback parameters and add step parameter
@@ -276,14 +294,17 @@ export const CallbackHandlerV8U: React.FC = () => {
 						sessionStorage.removeItem(flowContextKey);
 
 						console.log(`${MODULE_TAG} 🚀 Redirecting to ${context.flowType} flow: ${redirectUrl}`);
-						
+
 						// Store callback data for the flow to process
-						sessionStorage.setItem('oauth_callback_data', JSON.stringify({
-							code: searchParams.get('code'),
-							state: searchParams.get('state'),
-							fullUrl: window.location.href,
-							timestamp: Date.now(),
-						}));
+						sessionStorage.setItem(
+							'oauth_callback_data',
+							JSON.stringify({
+								code: searchParams.get('code'),
+								state: searchParams.get('state'),
+								fullUrl: window.location.href,
+								timestamp: Date.now(),
+							})
+						);
 
 						window.location.replace(redirectUrl);
 						return;
@@ -297,22 +318,28 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 			// IMPROVED FALLBACK: Use path-based detection with better logic
 			console.log(`${MODULE_TAG} 🔍 No valid stored context, using path-based detection`);
-			
+
 			let fallbackPath = '/v8/unified-mfa?step=2'; // Default: return to device selection
 			let fallbackReason = 'default';
-			
+
 			// Check for MFA-specific callback paths first
-			if (currentPath.includes('mfa-unified-callback') || currentPath.includes('unified-mfa-callback')) {
+			if (
+				currentPath.includes('mfa-unified-callback') ||
+				currentPath.includes('unified-mfa-callback')
+			) {
 				fallbackPath = '/v8/unified-mfa?step=2'; // MFA flow: device selection step
 				fallbackReason = 'mfa-callback-path';
 			} else if (currentPath.includes('mfa-hub-callback')) {
 				fallbackPath = '/v8/mfa-hub?step=2'; // MFA hub: authentication flow
 				fallbackReason = 'mfa-hub-path';
-			} else if (currentPath.includes('user-login-callback') || currentPath.includes('user-mfa-login-callback')) {
+			} else if (
+				currentPath.includes('user-login-callback') ||
+				currentPath.includes('user-mfa-login-callback')
+			) {
 				// For user-login-callback, check if we have OAuth callback data that suggests MFA flow
 				const code = searchParams.get('code');
 				const state = searchParams.get('state');
-				
+
 				if (code && state) {
 					// This looks like an OAuth callback, likely from MFA flow
 					fallbackPath = '/v8/unified-mfa?step=2'; // Return to MFA flow
@@ -342,21 +369,28 @@ export const CallbackHandlerV8U: React.FC = () => {
 				reason: fallbackReason,
 			});
 
-			MFARedirectUriServiceV8.logDebugEvent('CALLBACK_HANDLER', 'Using fallback redirect path for MFA callback', {
-				fallbackPath,
-				fallbackReason,
-				redirectUrl,
-				hasCode: !!searchParams.get('code'),
-				hasState: !!searchParams.get('state'),
-			});
-			
+			MFARedirectUriServiceV8.logDebugEvent(
+				'CALLBACK_HANDLER',
+				'Using fallback redirect path for MFA callback',
+				{
+					fallbackPath,
+					fallbackReason,
+					redirectUrl,
+					hasCode: !!searchParams.get('code'),
+					hasState: !!searchParams.get('state'),
+				}
+			);
+
 			// Store callback data for the flow to process
-			sessionStorage.setItem('oauth_callback_data', JSON.stringify({
-				code: searchParams.get('code'),
-				state: searchParams.get('state'),
-				fullUrl: window.location.href,
-				timestamp: Date.now(),
-			}));
+			sessionStorage.setItem(
+				'oauth_callback_data',
+				JSON.stringify({
+					code: searchParams.get('code'),
+					state: searchParams.get('state'),
+					fullUrl: window.location.href,
+					timestamp: Date.now(),
+				})
+			);
 
 			window.location.replace(redirectUrl);
 			return;

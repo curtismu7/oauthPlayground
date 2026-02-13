@@ -89,12 +89,17 @@ const mockUsers: User[] = [
 		email: 'admin@company.com',
 		firstName: 'System',
 		lastName: 'Administrator',
-		role: { id: 'admin', name: 'Administrator', description: 'Full system access', permissions: ['*'] },
+		role: {
+			id: 'admin',
+			name: 'Administrator',
+			description: 'Full system access',
+			permissions: ['*'],
+		},
 		status: { id: 'active', name: 'Active', description: 'User is active', color: 'green' },
 		createdAt: '2024-01-01T00:00:00Z',
 		updatedAt: '2024-01-01T00:00:00Z',
 		lastLogin: '2024-02-12T10:30:00Z',
-		department: 'IT'
+		department: 'IT',
 	},
 	{
 		id: '2',
@@ -102,12 +107,17 @@ const mockUsers: User[] = [
 		email: 'jsmith@company.com',
 		firstName: 'John',
 		lastName: 'Smith',
-		role: { id: 'user', name: 'User', description: 'Standard user access', permissions: ['read', 'write'] },
+		role: {
+			id: 'user',
+			name: 'User',
+			description: 'Standard user access',
+			permissions: ['read', 'write'],
+		},
 		status: { id: 'active', name: 'Active', description: 'User is active', color: 'green' },
 		createdAt: '2024-01-15T00:00:00Z',
 		updatedAt: '2024-01-15T00:00:00Z',
 		lastLogin: '2024-02-11T15:45:00Z',
-		department: 'Sales'
+		department: 'Sales',
 	},
 	{
 		id: '3',
@@ -115,12 +125,17 @@ const mockUsers: User[] = [
 		email: 'mjones@company.com',
 		firstName: 'Mary',
 		lastName: 'Jones',
-		role: { id: 'manager', name: 'Manager', description: 'Team management access', permissions: ['read', 'write', 'manage'] },
+		role: {
+			id: 'manager',
+			name: 'Manager',
+			description: 'Team management access',
+			permissions: ['read', 'write', 'manage'],
+		},
 		status: { id: 'active', name: 'Active', description: 'User is active', color: 'green' },
 		createdAt: '2024-01-20T00:00:00Z',
 		updatedAt: '2024-01-20T00:00:00Z',
 		lastLogin: '2024-02-12T09:15:00Z',
-		department: 'Marketing'
+		department: 'Marketing',
 	},
 	{
 		id: '4',
@@ -128,32 +143,47 @@ const mockUsers: User[] = [
 		email: 'rbrown@company.com',
 		firstName: 'Robert',
 		lastName: 'Brown',
-		role: { id: 'user', name: 'User', description: 'Standard user access', permissions: ['read', 'write'] },
+		role: {
+			id: 'user',
+			name: 'User',
+			description: 'Standard user access',
+			permissions: ['read', 'write'],
+		},
 		status: { id: 'inactive', name: 'Inactive', description: 'User is inactive', color: 'red' },
 		createdAt: '2024-01-25T00:00:00Z',
 		updatedAt: '2024-02-01T00:00:00Z',
 		lastLogin: '2024-01-30T14:20:00Z',
-		department: 'Engineering'
-	}
+		department: 'Engineering',
+	},
 ];
 
 const mockRoles: UserRole[] = [
 	{ id: 'admin', name: 'Administrator', description: 'Full system access', permissions: ['*'] },
-	{ id: 'manager', name: 'Manager', description: 'Team management access', permissions: ['read', 'write', 'manage'] },
+	{
+		id: 'manager',
+		name: 'Manager',
+		description: 'Team management access',
+		permissions: ['read', 'write', 'manage'],
+	},
 	{ id: 'user', name: 'User', description: 'Standard user access', permissions: ['read', 'write'] },
-	{ id: 'viewer', name: 'Viewer', description: 'Read-only access', permissions: ['read'] }
+	{ id: 'viewer', name: 'Viewer', description: 'Read-only access', permissions: ['read'] },
 ];
 
 const mockStatuses: UserStatus[] = [
 	{ id: 'active', name: 'Active', description: 'User is active', color: 'green' },
 	{ id: 'inactive', name: 'Inactive', description: 'User is inactive', color: 'red' },
 	{ id: 'pending', name: 'Pending', description: 'User activation pending', color: 'yellow' },
-	{ id: 'suspended', name: 'Suspended', description: 'User is temporarily suspended', color: 'orange' }
+	{
+		id: 'suspended',
+		name: 'Suspended',
+		description: 'User is temporarily suspended',
+		color: 'orange',
+	},
 ];
 
 /**
  * User Service Class
- * 
+ *
  * Follows SWE-15 principles:
  * - Single Responsibility: Only handles user management operations
  * - Interface Segregation: Focused interfaces for different operations
@@ -177,11 +207,12 @@ class UserService {
 				status = '',
 				department = '',
 				limit = 10,
-				offset = 0
+				offset = 0,
 			} = request;
 
-			let filteredUsers = this.users.filter(user => {
-				const matchesSearch = !searchTerm || 
+			const filteredUsers = this.users.filter((user) => {
+				const matchesSearch =
+					!searchTerm ||
 					user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
 					user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
 					`${user.firstName} ${user.lastName}`.toLowerCase().includes(searchTerm.toLowerCase());
@@ -202,7 +233,7 @@ class UserService {
 				total,
 				hasMore,
 				offset,
-				limit
+				limit,
 			};
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error searching users:`, error);
@@ -216,7 +247,7 @@ class UserService {
 	async getUserById(id: string): Promise<User | null> {
 		console.log(`${MODULE_TAG} Getting user by ID: ${id}`);
 		try {
-			const user = this.users.find(u => u.id === id);
+			const user = this.users.find((u) => u.id === id);
 			return user || null;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error getting user by ID:`, error);
@@ -240,12 +271,12 @@ class UserService {
 				email: request.email,
 				firstName: request.firstName,
 				lastName: request.lastName,
-				role: this.roles.find(r => r.id === request.roleId) || this.roles[2], // Default to 'user' role
-				status: this.statuses.find(s => s.id === 'active') || this.statuses[0], // Default to 'active'
+				role: this.roles.find((r) => r.id === request.roleId) || this.roles[2], // Default to 'user' role
+				status: this.statuses.find((s) => s.id === 'active') || this.statuses[0], // Default to 'active'
 				createdAt: new Date().toISOString(),
 				updatedAt: new Date().toISOString(),
 				phone: request.phone,
-				department: request.department
+				department: request.department,
 			};
 
 			this.users.push(newUser);
@@ -263,7 +294,7 @@ class UserService {
 		console.log(`${MODULE_TAG} Updating user ${id}:`, request);
 
 		try {
-			const userIndex = this.users.findIndex(u => u.id === id);
+			const userIndex = this.users.findIndex((u) => u.id === id);
 			if (userIndex === -1) {
 				throw new Error('User not found');
 			}
@@ -273,8 +304,12 @@ class UserService {
 				...existingUser,
 				...request,
 				updatedAt: new Date().toISOString(),
-				role: request.roleId ? this.roles.find(r => r.id === request.roleId) || existingUser.role : existingUser.role,
-				status: request.statusId ? this.statuses.find(s => s.id === request.statusId) || existingUser.status : existingUser.status
+				role: request.roleId
+					? this.roles.find((r) => r.id === request.roleId) || existingUser.role
+					: existingUser.role,
+				status: request.statusId
+					? this.statuses.find((s) => s.id === request.statusId) || existingUser.status
+					: existingUser.status,
 			};
 
 			this.users[userIndex] = updatedUser;
@@ -290,9 +325,9 @@ class UserService {
 	 */
 	async deleteUser(id: string): Promise<void> {
 		console.log(`${MODULE_TAG} Deleting user: ${id}`);
-		
+
 		try {
-			const userIndex = this.users.findIndex(u => u.id === id);
+			const userIndex = this.users.findIndex((u) => u.id === id);
 			if (userIndex === -1) {
 				throw new Error('User not found');
 			}
@@ -359,12 +394,12 @@ class UserService {
 		}
 
 		// Check if username already exists
-		if (this.users.some(u => u.username === request.username)) {
+		if (this.users.some((u) => u.username === request.username)) {
 			throw new Error('Username already exists');
 		}
 
 		// Check if email already exists
-		if (this.users.some(u => u.email === request.email)) {
+		if (this.users.some((u) => u.email === request.email)) {
 			throw new Error('Email already exists');
 		}
 

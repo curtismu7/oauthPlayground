@@ -1,11 +1,12 @@
 // src/sdk-examples/davinci-todo-app/DavinciTodoApp.tsx
 // Main DaVinci Todo App component
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiLoader, FiLogOut, FiPlus, FiSettings, FiTrash2 } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiPlus, FiEdit2, FiTrash2, FiCheck, FiX, FiLoader, FiLogOut, FiSettings } from 'react-icons/fi';
 import { DavinciTodoProvider, useDavinciTodo } from './contexts/DavinciTodoContext';
-import DavinciTodoService, { DavinciCollector } from './services/davinciTodoService';
+import DavinciTodoService from './services/davinciTodoService';
 
 const Container = styled.div`
   max-width: 800px;
@@ -79,7 +80,9 @@ const TodoItem = styled.div<{ completed: boolean }>`
   gap: 1rem;
   transition: all 0.2s ease;
 
-  ${props => props.completed && `
+  ${(props) =>
+		props.completed &&
+		`
     opacity: 0.7;
     background: #f8f9fa;
   `}
@@ -98,7 +101,9 @@ const TodoCheckbox = styled.input`
 const TodoContent = styled.div<{ completed: boolean }>`
   flex: 1;
   
-  ${props => props.completed && `
+  ${(props) =>
+		props.completed &&
+		`
     text-decoration: line-through;
     color: #666;
   `}
@@ -142,14 +147,18 @@ const IconButton = styled.button`
 `;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
-  background: ${props => {
-    switch (props.variant) {
-      case 'primary': return '#007bff';
-      case 'secondary': return '#6c757d';
-      case 'danger': return '#dc3545';
-      default: return '#007bff';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.variant) {
+			case 'primary':
+				return '#007bff';
+			case 'secondary':
+				return '#6c757d';
+			case 'danger':
+				return '#dc3545';
+			default:
+				return '#007bff';
+		}
+	}};
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -162,14 +171,18 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
   transition: background-color 0.2s ease;
 
   &:hover {
-    background: ${props => {
-      switch (props.variant) {
-        case 'primary': return '#0056b3';
-        case 'secondary': return '#545b62';
-        case 'danger': return '#c82333';
-        default: return '#0056b3';
-      }
-    }};
+    background: ${(props) => {
+			switch (props.variant) {
+				case 'primary':
+					return '#0056b3';
+				case 'secondary':
+					return '#545b62';
+				case 'danger':
+					return '#c82333';
+				default:
+					return '#0056b3';
+			}
+		}};
   }
 
   &:disabled {
@@ -234,217 +247,229 @@ const TodoInput = styled.input`
   }
 `;
 
+const BackButton = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #6c757d;
+  color: #ffffff !important;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #545b62;
+    color: #ffffff !important;
+  }
+`;
+
 // Main App Component
 function DavinciTodoAppComponent() {
-  const {
-    user,
-    todos,
-    isLoading,
-    error,
-    isAuthenticated,
-    todoStats,
-    loadTodos,
-    createTodo,
-    updateTodoService,
-    deleteTodoService,
-    toggleTodo,
-    clearCurrentUser,
-    initializeClient,
-    getClientStatus,
-    getConfiguration,
-  } = useDavinciTodo();
+	const {
+		user,
+		todos,
+		isLoading,
+		error,
+		isAuthenticated,
+		todoStats,
+		loadTodos,
+		createTodo,
+		updateTodoService,
+		deleteTodoService,
+		toggleTodo,
+		clearCurrentUser,
+		initializeClient,
+		getClientStatus,
+		getConfiguration,
+	} = useDavinciTodo();
 
-  const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [isCreating, setIsCreating] = useState(false);
+	const [newTodoTitle, setNewTodoTitle] = useState('');
+	const [isCreating, setIsCreating] = useState(false);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadTodos();
-    }
-  }, [isAuthenticated, loadTodos]);
+	useEffect(() => {
+		if (isAuthenticated) {
+			loadTodos();
+		}
+	}, [isAuthenticated, loadTodos]);
 
-  const handleCreateTodo = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTodoTitle.trim()) return;
+	const handleCreateTodo = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!newTodoTitle.trim()) return;
 
-    setIsCreating(true);
-    try {
-      await createTodo(newTodoTitle.trim());
-      setNewTodoTitle('');
-    } catch (error) {
-      console.error('Failed to create todo:', error);
-    } finally {
-      setIsCreating(false);
-    }
-  };
+		setIsCreating(true);
+		try {
+			await createTodo(newTodoTitle.trim());
+			setNewTodoTitle('');
+		} catch (error) {
+			console.error('Failed to create todo:', error);
+		} finally {
+			setIsCreating(false);
+		}
+	};
 
-  const handleToggleTodo = async (id: string) => {
-    try {
-      toggleTodo(id);
-      const todo = todos.find(t => t.id === id);
-      if (todo) {
-        await updateTodoService(id, { completed: !todo.completed });
-      }
-    } catch (error) {
-      console.error('Failed to toggle todo:', error);
-    }
-  };
+	const handleToggleTodo = async (id: string) => {
+		try {
+			toggleTodo(id);
+			const todo = todos.find((t) => t.id === id);
+			if (todo) {
+				await updateTodoService(id, { completed: !todo.completed });
+			}
+		} catch (error) {
+			console.error('Failed to toggle todo:', error);
+		}
+	};
 
-  const handleDeleteTodo = async (id: string) => {
-    try {
-      await deleteTodoService(id);
-    } catch (error) {
-      console.error('Failed to delete todo:', error);
-    }
-  };
+	const handleDeleteTodo = async (id: string) => {
+		try {
+			await deleteTodoService(id);
+		} catch (error) {
+			console.error('Failed to delete todo:', error);
+		}
+	};
 
-  const handleLogout = () => {
-    clearCurrentUser();
-  };
+	const handleLogout = () => {
+		clearCurrentUser();
+	};
 
-  const handleInitialize = async () => {
-    try {
-      await initializeClient();
-      console.log('DaVinci client initialized successfully');
-      console.log('Configuration:', getConfiguration());
-    } catch (error) {
-      console.error('Failed to initialize client:', error);
-    }
-  };
+	const handleInitialize = async () => {
+		try {
+			await initializeClient();
+			console.log('DaVinci client initialized successfully');
+			console.log('Configuration:', getConfiguration());
+		} catch (error) {
+			console.error('Failed to initialize client:', error);
+		}
+	};
 
-  if (!isAuthenticated) {
-    return (
-      <Container>
-        <Header>
-          <Title>DaVinci Todo App</Title>
-          <Button onClick={handleInitialize} disabled={isLoading}>
-            {isLoading ? <FiLoader /> : <FiSettings />}
-            Initialize
-          </Button>
-        </Header>
-        
-        <div style={{ textAlign: 'center', padding: '3rem' }}>
-          <h2>Welcome to DaVinci Todo App</h2>
-          <p style={{ color: '#666', marginBottom: '2rem' }}>
-            This is a demonstration of the PingOne DaVinci SDK integration.
-            In a real implementation, this would authenticate you through a DaVinci flow.
-          </p>
-          <Button variant="primary" onClick={() => {
-            // Production authentication through DaVinci flow
-            DavinciTodoService.initializeClient().then(result => {
-              if (result.success) {
-                // Authentication successful, user will be redirected to DaVinci flow
-                window.location.href = '/davinci-todo/auth';
-              } else {
-                console.error('Authentication failed:', result.error);
-              }
-            });
-            window.location.reload();
-          }}>
-            Sign In (Demo)
-          </Button>
-        </div>
-      </Container>
-    );
-  }
+	if (!isAuthenticated) {
+		return (
+			<Container>
+				<Header>
+					<Title>DaVinci Todo App</Title>
+					<Button onClick={handleInitialize} disabled={isLoading}>
+						{isLoading ? <FiLoader /> : <FiSettings />}
+						Initialize
+					</Button>
+				</Header>
 
-  return (
-    <Container>
-      <Header>
-        <Title>DaVinci Todo App</Title>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <UserInfo>
-            Welcome, {user?.name}!
-          </UserInfo>
-          <Button variant="secondary" onClick={handleLogout}>
-            <FiLogOut />
-            Logout
-          </Button>
-        </div>
-      </Header>
+				<div style={{ textAlign: 'center', padding: '3rem' }}>
+					<h2>Welcome to DaVinci Todo App</h2>
+					<p style={{ color: '#666', marginBottom: '2rem' }}>
+						This is a demonstration of the PingOne DaVinci SDK integration. In a real
+						implementation, this would authenticate you through a DaVinci flow.
+					</p>
+					<Button
+						variant="primary"
+						onClick={() => {
+							// Production authentication through DaVinci flow
+							DavinciTodoService.initializeClient().then((result) => {
+								if (result.success) {
+									// Authentication successful, user will be redirected to DaVinci flow
+									window.location.href = '/davinci-todo/auth';
+								} else {
+									console.error('Authentication failed:', result.error);
+								}
+							});
+							window.location.reload();
+						}}
+					>
+						Sign In (Demo)
+					</Button>
+				</div>
+			</Container>
+		);
+	}
 
-      {error && (
-        <ErrorMessage>
-          Error: {error}
-        </ErrorMessage>
-      )}
+	return (
+		<Container>
+			<BackButton to="/sdk-examples">← Back to SDK Examples</BackButton>
+			<Header>
+				<Title>DaVinci Todo App</Title>
+				<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+					<UserInfo>Welcome, {user?.name}!</UserInfo>
+					<Button variant="secondary" onClick={handleLogout}>
+						<FiLogOut />
+						Logout
+					</Button>
+				</div>
+			</Header>
 
-      <StatsContainer>
-        <StatCard>
-          <StatNumber>{todoStats.total}</StatNumber>
-          <StatLabel>Total Todos</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatNumber>{todoStats.completed}</StatNumber>
-          <StatLabel>Completed</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatNumber>{todoStats.pending}</StatNumber>
-          <StatLabel>Pending</StatLabel>
-        </StatCard>
-      </StatsContainer>
+			{error && <ErrorMessage>Error: {error}</ErrorMessage>}
 
-      <AddTodoForm onSubmit={handleCreateTodo}>
-        <TodoInput
-          type="text"
-          placeholder="Add a new todo..."
-          value={newTodoTitle}
-          onChange={(e) => setNewTodoTitle(e.target.value)}
-          disabled={isCreating}
-        />
-        <Button type="submit" disabled={isCreating || !newTodoTitle.trim()}>
-          {isCreating ? <FiLoader /> : <FiPlus />}
-          Add Todo
-        </Button>
-      </AddTodoForm>
+			<StatsContainer>
+				<StatCard>
+					<StatNumber>{todoStats.total}</StatNumber>
+					<StatLabel>Total Todos</StatLabel>
+				</StatCard>
+				<StatCard>
+					<StatNumber>{todoStats.completed}</StatNumber>
+					<StatLabel>Completed</StatLabel>
+				</StatCard>
+				<StatCard>
+					<StatNumber>{todoStats.pending}</StatNumber>
+					<StatLabel>Pending</StatLabel>
+				</StatCard>
+			</StatsContainer>
 
-      {isLoading ? (
-        <LoadingMessage>
-          <FiLoader />
-          Loading todos...
-        </LoadingMessage>
-      ) : todos.length === 0 ? (
-        <EmptyState>
-          <EmptyStateIcon>📝</EmptyStateIcon>
-          <h3>No todos yet</h3>
-          <p>Add your first todo to get started!</p>
-        </EmptyState>
-      ) : (
-        <TodoList>
-          {todos.map((todo) => (
-            <TodoItem key={todo.id} completed={todo.completed}>
-              <TodoCheckbox
-                type="checkbox"
-                checked={todo.completed}
-                onChange={() => handleToggleTodo(todo.id)}
-              />
-              <TodoContent completed={todo.completed}>
-                <TodoTitle>{todo.title}</TodoTitle>
-                {todo.description && (
-                  <TodoDescription>{todo.description}</TodoDescription>
-                )}
-              </TodoContent>
-              <TodoActions>
-                <IconButton
-                  onClick={() => handleDeleteTodo(todo.id)}
-                  title="Delete todo"
-                >
-                  <FiTrash2 />
-                </IconButton>
-              </TodoActions>
-            </TodoItem>
-          ))}
-        </TodoList>
-      )}
-    </Container>
-  );
+			<AddTodoForm onSubmit={handleCreateTodo}>
+				<TodoInput
+					type="text"
+					placeholder="Add a new todo..."
+					value={newTodoTitle}
+					onChange={(e) => setNewTodoTitle(e.target.value)}
+					disabled={isCreating}
+				/>
+				<Button type="submit" disabled={isCreating || !newTodoTitle.trim()}>
+					{isCreating ? <FiLoader /> : <FiPlus />}
+					Add Todo
+				</Button>
+			</AddTodoForm>
+
+			{isLoading ? (
+				<LoadingMessage>
+					<FiLoader />
+					Loading todos...
+				</LoadingMessage>
+			) : todos.length === 0 ? (
+				<EmptyState>
+					<EmptyStateIcon>📝</EmptyStateIcon>
+					<h3>No todos yet</h3>
+					<p>Add your first todo to get started!</p>
+				</EmptyState>
+			) : (
+				<TodoList>
+					{todos.map((todo) => (
+						<TodoItem key={todo.id} completed={todo.completed}>
+							<TodoCheckbox
+								type="checkbox"
+								checked={todo.completed}
+								onChange={() => handleToggleTodo(todo.id)}
+							/>
+							<TodoContent completed={todo.completed}>
+								<TodoTitle>{todo.title}</TodoTitle>
+								{todo.description && <TodoDescription>{todo.description}</TodoDescription>}
+							</TodoContent>
+							<TodoActions>
+								<IconButton onClick={() => handleDeleteTodo(todo.id)} title="Delete todo">
+									<FiTrash2 />
+								</IconButton>
+							</TodoActions>
+						</TodoItem>
+					))}
+				</TodoList>
+			)}
+		</Container>
+	);
 }
 
 // Wrapper with Provider
 export default function DavinciTodoApp() {
-  return (
-    <DavinciTodoProvider>
-      <DavinciTodoAppComponent />
-    </DavinciTodoProvider>
-  );
+	return (
+		<DavinciTodoProvider>
+			<DavinciTodoAppComponent />
+		</DavinciTodoProvider>
+	);
 }

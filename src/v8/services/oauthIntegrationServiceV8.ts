@@ -202,7 +202,9 @@ export class OAuthIntegrationServiceV8 {
 					// Only add for OIDC flows (openid scope is present)
 					if (finalScopes.includes('openid')) {
 						(jarRequestParams as any).login_hint = credentials.username;
-						console.log(`${MODULE_TAG} 🔑 Added OIDC login_hint to JAR request: ${credentials.username}`);
+						console.log(
+							`${MODULE_TAG} 🔑 Added OIDC login_hint to JAR request: ${credentials.username}`
+						);
 					} else {
 						console.warn(
 							`${MODULE_TAG} WARNING: login_hint skipped in JAR - not an OIDC flow (missing openid scope)`
@@ -553,13 +555,18 @@ export class OAuthIntegrationServiceV8 {
 				isProxy: true,
 				headers: trackedHeaders,
 				body: new URLSearchParams(
-					Object.entries(bodyParams).reduce((acc, [key, value]) => {
-						if (value !== undefined && value !== null) {
-							acc[key] = value;
-						}
-						return acc;
-					}, {} as Record<string, string>)
-				).toString().replace(/code=[^&]+/, 'code=***REDACTED***')
+					Object.entries(bodyParams).reduce(
+						(acc, [key, value]) => {
+							if (value !== undefined && value !== null) {
+								acc[key] = value;
+							}
+							return acc;
+						},
+						{} as Record<string, string>
+					)
+				)
+					.toString()
+					.replace(/code=[^&]+/, 'code=***REDACTED***')
 					.replace(/code_verifier=[^&]+/, 'code_verifier=***REDACTED***')
 					.replace(/client_secret=[^&]+/, 'client_secret=***REDACTED***')
 					.replace(/client_assertion=[^&]+/, 'client_assertion=***REDACTED***'),

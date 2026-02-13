@@ -12,7 +12,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiChevronDown, FiChevronRight, FiCopy, FiCheck } from 'react-icons/fi';
+import { FiCheck, FiChevronDown, FiChevronRight, FiCopy } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface JsonDisplayProps {
@@ -33,7 +33,7 @@ export const JsonDisplay: React.FC<JsonDisplayProps> = ({
 	title,
 	showCopy = true,
 	maxHeight = '200px',
-	defaultExpanded = false
+	defaultExpanded = false,
 }) => {
 	const { currentTheme } = useTheme();
 	const [isExpanded, setIsExpanded] = useState(defaultExpanded);
@@ -80,35 +80,33 @@ export const JsonDisplay: React.FC<JsonDisplayProps> = ({
 						border: 'none',
 						color: currentTheme.colors.textSecondary,
 						cursor: 'pointer',
-						outline: 'none'
+						outline: 'none',
 					}}
 				>
 					<span className="text-xs">
 						{isExpanded ? <FiChevronDown size={12} /> : <FiChevronRight size={12} />}
 					</span>
-					<h4 
+					<h4
 						className="text-xs font-semibold uppercase tracking-wider"
 						style={{ color: currentTheme.colors.textSecondary }}
 					>
 						{title}
 					</h4>
 				</button>
-				
+
 				{showCopy && (
 					<button
 						type="button"
 						onClick={handleCopy}
 						className="flex items-center space-x-1 px-2 py-1 rounded text-xs transition-colors"
 						style={{
-							backgroundColor: copied 
-								? `${currentTheme.colors.success}20` 
+							backgroundColor: copied
+								? `${currentTheme.colors.success}20`
 								: `${currentTheme.colors.primary}20`,
-							color: copied 
-								? currentTheme.colors.success 
-								: currentTheme.colors.primary,
+							color: copied ? currentTheme.colors.success : currentTheme.colors.primary,
 							border: 'none',
 							cursor: 'pointer',
-							outline: 'none'
+							outline: 'none',
 						}}
 						onKeyDown={(e) => {
 							if (e.key === 'Enter' || e.key === ' ') {
@@ -126,9 +124,9 @@ export const JsonDisplay: React.FC<JsonDisplayProps> = ({
 			{/* Collapsible Content */}
 			{isExpanded && (
 				<div className="p-3">
-					<pre 
+					<pre
 						className="text-xs p-2 rounded overflow-x-auto"
-						style={{ 
+						style={{
 							backgroundColor: `${currentTheme.colors.background}50`,
 							color: currentTheme.colors.text,
 							border: `1px solid ${currentTheme.colors.textSecondary}30`,
@@ -137,7 +135,7 @@ export const JsonDisplay: React.FC<JsonDisplayProps> = ({
 							fontFamily: 'Monaco, Consolas, "Courier New", monospace',
 							lineHeight: '1.4',
 							whiteSpace: 'pre-wrap',
-							wordBreak: 'break-word'
+							wordBreak: 'break-word',
 						}}
 					>
 						{formatJson(data)}

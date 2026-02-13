@@ -28,7 +28,6 @@ import {
 } from '@/services/postmanCollectionGeneratorV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import {
 	type FlowType,
 	type SpecVersion,
