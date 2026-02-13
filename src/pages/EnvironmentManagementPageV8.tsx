@@ -388,20 +388,20 @@ const APIVerb = styled.span<{ method: 'GET' | 'POST' | 'PUT' | 'DELETE' }>`
 `;
 
 // API Display Section Styles
-const ApiDisplayModal = styled.div<{ isOpen: boolean }>`
+const ApiDisplayModal = styled.div<{ $isOpen: boolean }>`
   position: fixed;
   top: 0;
-  right: ${(props) => (props.isOpen ? '0' : '-600px')};
+  right: ${(props) => (props.$isOpen ? '0' : '-600px')};
   width: 600px;
   height: 100vh;
-  background: #ffffff;
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  background: white;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   transition: right 0.3s ease;
   overflow-y: auto;
 `;
 
-const ApiDisplayOverlay = styled.div<{ isOpen: boolean }>`
+const ApiDisplayOverlay = styled.div<{ $isOpen: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
@@ -409,7 +409,7 @@ const ApiDisplayOverlay = styled.div<{ isOpen: boolean }>`
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   z-index: 999;
-  display: ${(props) => (props.isOpen ? 'block' : 'none')};
+  display: ${(props) => (props.$isOpen ? 'block' : 'none')};
 `;
 
 const ApiDisplayHeader = styled.div`
@@ -1319,8 +1319,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			)}
 
 			{/* API Display Modal */}
-			<ApiDisplayOverlay isOpen={showApiDisplay} onClick={() => setShowApiDisplay(false)} />
-			<ApiDisplayModal isOpen={showApiDisplay}>
+			<ApiDisplayOverlay $isOpen={showApiDisplay} onClick={() => setShowApiDisplay(false)} />
+			<ApiDisplayModal $isOpen={showApiDisplay}>
 				<ApiDisplayHeader>
 					<ApiDisplayTitle>
 						<FiCode />
