@@ -244,6 +244,7 @@ export const DebugLogViewerV8: React.FC = () => {
 				// Silently fail if SQLite save fails
 			}
 		}
+		return;
 	}, [selectedFile]);
 
 	// Load logs when source or file changes
