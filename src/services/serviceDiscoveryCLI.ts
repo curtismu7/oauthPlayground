@@ -80,7 +80,7 @@ class ServiceDiscoveryCLI {
 
 	private static showHelp(): void {
 		console.log(`
-🔍 OAuth Playground Service Discovery CLI
+🔍 MasterFlow API Service Discovery CLI
 
 USAGE:
   npx service-discovery [options]

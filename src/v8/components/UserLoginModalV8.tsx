@@ -406,11 +406,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				setClientSecret(saved.clientSecret || '');
 				setAuthMethod(saved.authMethod || saved.tokenEndpointAuthMethod || 'client_secret_post');
 
-				// ALWAYS use the new unified callback for MFA flows, regardless of what's saved
-				// This forces migration from old /v8/mfa-unified-callback to new /mfa-unified-callback
-				const initialRedirectUri = isMfaFlow
-					? defaultRedirectUri // Use the correct defaultRedirectUri
-					: saved.redirectUri || defaultRedirectUri;
+				// Use saved redirect URI when present (matches PingOne app config),
+				// and only fall back to mapped default when missing.
+				const initialRedirectUri = saved.redirectUri || defaultRedirectUri;
 
 				// DEBUG: Log redirect URI values
 				console.log('🔍 [REDIRECT-URI-DEBUG] Credentials loading:', {
@@ -424,13 +422,13 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				// #region agent log
 				sendAnalyticsLog({
 					location: 'UserLoginModalV8.tsx:134',
-					message: 'Redirect URI loaded - FORCED migration from /v8/ to new URI for MFA flows',
+					message: 'Redirect URI loaded - using saved URI when present, fallback to default when empty',
 					data: {
 						savedRedirectUri: saved.redirectUri,
 						defaultRedirectUri,
 						initialRedirectUri,
 						isMfaFlow,
-						forcedMigration: isMfaFlow,
+						forcedMigration: false,
 						migrationNeeded: saved.redirectUri?.includes('/v8/mfa-unified-callback'),
 					},
 					timestamp: Date.now(),
@@ -1491,6 +1489,17 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					fullPath,
 					parsedFromSearch: !!stepParam,
 				});
+
+				MFARedirectUriServiceV8.logDebugEvent(
+					'USER_LOGIN',
+					'Stored MFA flow callback context before redirect',
+					{
+						returnPath: currentPath,
+						returnStep: step,
+						flowType,
+						redirectUri: finalRedirectUri,
+					}
+				);
 			} else {
 				console.warn(
 					`${MODULE_TAG} ⚠️ Not storing flow context - current path does not start with /v8/mfa:`,
@@ -1500,6 +1509,16 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			setIsRedirecting(true);
 			toastV8.info('Redirecting to PingOne for authentication...');
+
+			MFARedirectUriServiceV8.logDebugEvent(
+				'USER_LOGIN',
+				'Redirecting browser to PingOne authorize endpoint',
+				{
+					authorizationUrl,
+					redirectUri: finalRedirectUri,
+					isMfaFlow,
+				}
+			);
 
 			// Redirect to PingOne
 			window.location.href = authorizationUrl;

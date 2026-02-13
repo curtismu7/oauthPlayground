@@ -36,6 +36,8 @@ export interface UseStepNavigationV8Options {
 	onStepChange?: (step: number) => void;
 	/** Callback when validation errors change */
 	onValidationChange?: (errors: string[]) => void;
+	/** Minimum delay for step transitions to show loading state (default: 300ms) */
+	stepTransitionDelay?: number;
 }
 
 export interface UseStepNavigationV8Return {
@@ -51,6 +53,8 @@ export interface UseStepNavigationV8Return {
 	canGoNext: boolean;
 	/** Whether user can go to previous step */
 	canGoPrevious: boolean;
+	/** Whether a step transition is in progress (for loading states) */
+	isTransitioning: boolean;
 	/** Go to specific step */
 	goToStep: (step: number) => void;
 	/** Go to next step */
@@ -91,18 +95,19 @@ export const useStepNavigationV8 = (
 	totalSteps: number,
 	options: UseStepNavigationV8Options = {}
 ): UseStepNavigationV8Return => {
-	const { initialStep = 0, onStepChange, onValidationChange } = options;
+	const { initialStep = 0, onStepChange, onValidationChange, stepTransitionDelay = 300 } = options;
 
 	const [currentStep, setCurrentStep] = useState(initialStep);
 	const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 	const [validationErrors, setValidationErrorsState] = useState<string[]>([]);
 	const [validationWarnings, setValidationWarningsState] = useState<string[]>([]);
+	const [isTransitioning, setIsTransitioning] = useState(false);
 
 	// Can go to next step if no validation errors
-	const canGoNext = validationErrors.length === 0;
+	const canGoNext = validationErrors.length === 0 && !isTransitioning;
 
 	// Can go to previous step if not on first step
-	const canGoPrevious = currentStep > 0;
+	const canGoPrevious = currentStep > 0 && !isTransitioning;
 
 	// Go to specific step
 	const goToStep = useCallback(
@@ -112,18 +117,32 @@ export const useStepNavigationV8 = (
 				return;
 			}
 
-			// Mark current step as completed when leaving it
-			if (currentStep < step && !completedSteps.includes(currentStep)) {
-				setCompletedSteps((prev) => [...prev, currentStep]);
+			// Prevent navigation during transition
+			if (isTransitioning) {
+				console.warn(`${MODULE_TAG} Navigation blocked - transition in progress`);
+				return;
 			}
 
-			setCurrentStep(step);
-			setValidationErrorsState([]);
-			setValidationWarningsState([]);
+			// Start transition
+			setIsTransitioning(true);
 
-			onStepChange?.(step);
+			// Show loading state for minimum delay to ensure user sees transition
+			setTimeout(() => {
+				// Mark current step as completed when leaving it
+				if (currentStep < step && !completedSteps.includes(currentStep)) {
+					setCompletedSteps((prev) => [...prev, currentStep]);
+				}
+
+				setCurrentStep(step);
+				setValidationErrorsState([]);
+				setValidationWarningsState([]);
+
+				// End transition after step change
+				setIsTransitioning(false);
+				onStepChange?.(step);
+			}, stepTransitionDelay);
 		},
-		[currentStep, totalSteps, completedSteps, onStepChange]
+		[currentStep, totalSteps, completedSteps, onStepChange, isTransitioning, stepTransitionDelay]
 	);
 
 	// Go to next step
@@ -212,6 +231,7 @@ export const useStepNavigationV8 = (
 		validationWarnings,
 		canGoNext,
 		canGoPrevious,
+		isTransitioning,
 		goToStep,
 		goToNext,
 		goToPrevious,

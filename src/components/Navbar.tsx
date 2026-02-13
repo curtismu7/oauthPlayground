@@ -56,10 +56,9 @@ const Logo = styled.div`
   flex-direction: row;
   align-items: center;
   gap: 0.75rem;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
+  flex-shrink: 0;
+  margin-right: auto;
+  text-align: left;
   
   img {
     height: 40px;
@@ -70,12 +69,13 @@ const Logo = styled.div`
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
     image-rendering: optimize-quality;
+    flex-shrink: 0;
   }
   
   > div {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
   }
   
   .user-info {
@@ -84,12 +84,42 @@ const Logo = styled.div`
     opacity: 0.9;
     margin-top: 2px;
   }
+  
+  /* On smaller screens, adjust font sizes but keep everything visible */
+  @media (max-width: 768px) {
+    .user-info {
+      font-size: 0.75rem;
+    }
+    
+    > div span {
+      font-size: 1.0rem;
+    }
+    
+    gap: 0.5rem;
+  }
+  
+  /* On very small screens, make text smaller but keep visible */
+  @media (max-width: 480px) {
+    .user-info {
+      font-size: 0.7rem;
+    }
+    
+    > div span {
+      font-size: 0.9rem;
+    }
+    
+    gap: 0.4rem;
+    
+    img {
+      height: 32px;
+    }
+  }
 `;
 
 const NavItems = styled.div`
   display: flex;
   align-items: center;
-  margin-left: auto;
+  flex-shrink: 0;
   
   button, a {
     background: white;
@@ -118,6 +148,30 @@ const NavItems = styled.div`
       @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
         display: inline;
       }
+    }
+  }
+  
+  /* Hide less important buttons on smaller screens */
+  @media (max-width: 768px) {
+    /* Hide OIDC Discovery and App Generator on tablets */
+    a[href*="auto-discover"],
+    a[href*="client-generator"] {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    /* Hide Configuration and Dashboard on mobile */
+    a[href*="configuration"],
+    a[href*="dashboard"] {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    /* Hide Export All on very small screens */
+    button[title*="Export"] {
+      display: none;
     }
   }
 `;
@@ -353,7 +407,7 @@ const Navbar: React.FC<NavbarProps> = ({
 				<Logo>
 					<img src="/images/ping-identity-logo.png" alt="Ping Identity" />
 					<div>
-						<span>PingOne OAuth/OIDC Playground</span>
+						<span>MasterFlow API</span>
 						<div className="user-info" aria-live="polite">
 							Version {APP_VERSION}
 						</div>

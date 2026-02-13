@@ -220,6 +220,9 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 		timestamp,
 		deviceSelectionBehavior,
 		responseData,
+		registrationFlowType,
+		adminDeviceStatus,
+		tokenType,
 	} = data;
 
 	const deviceTypeDisplay = getDeviceTypeDisplay(deviceType);
@@ -519,6 +522,190 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 					</div>
 				)}
 			</div>
+
+			{/* Device Creation Explanation Section (for registration flows) */}
+			{flowType === 'registration' && (
+				<div
+					style={{
+						background: '#fef3c7',
+						border: '2px solid #f59e0b',
+						borderRadius: '12px',
+						padding: '24px',
+						marginBottom: '24px',
+						boxShadow: '0 2px 4px rgba(245, 158, 11, 0.1)',
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+						<div
+							style={{
+								width: '48px',
+								height: '48px',
+								borderRadius: '12px',
+								background: '#f59e0b',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+							}}
+						>
+							<FiInfo style={{ color: 'white', fontSize: '24px' }} />
+						</div>
+						<div>
+							<h3 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#92400e' }}>
+								How This Device Was Created
+							</h3>
+							<p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#b45309' }}>
+								Understanding the device registration process
+							</p>
+						</div>
+					</div>
+
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+						{/* Flow Type Explanation */}
+						<div
+							style={{
+								background: '#fffbeb',
+								border: '1px solid #fed7aa',
+								borderRadius: '8px',
+								padding: '16px',
+							}}
+						>
+							<div
+								style={{
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#92400e',
+									marginBottom: '8px',
+								}}
+							>
+								🔐 Registration Method
+							</div>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+								<FiShield size={16} color="#f59e0b" />
+								<span style={{ fontSize: '14px', color: '#78350f', fontWeight: '500' }}>
+									{registrationFlowType === 'admin' ? 'ADMIN FLOW' : 'USER FLOW'}
+								</span>
+							</div>
+							<div style={{ fontSize: '13px', color: '#92400e', lineHeight: '1.5' }}>
+								{registrationFlowType === 'admin' ? (
+									<>
+										<strong>Admin Registration:</strong> This device was created by an administrator using a worker token. 
+										The admin has full control over device registration and can set devices to{' '}
+										<code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px', fontSize: '12px' }}>
+											ACTIVE
+										</code>{' '}
+										or{' '}
+										<code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px', fontSize: '12px' }}>
+											ACTIVATION_REQUIRED
+										</code>{' '}
+										status. No user authentication was required for this registration.
+									</>
+								) : (
+									<>
+										<strong>User Registration:</strong> This device was created by a user through OAuth authentication. 
+										The user was redirected to PingOne for authentication and consent. Devices created through user flow 
+										always require activation before use and are tied to the user's account.
+									</>
+								)}
+							</div>
+						</div>
+
+						{/* Device Status Explanation */}
+						{adminDeviceStatus && (
+							<div
+								style={{
+									background: '#fffbeb',
+									border: '1px solid #fed7aa',
+									borderRadius: '8px',
+									padding: '16px',
+								}}
+							>
+								<div
+									style={{
+										fontSize: '14px',
+										fontWeight: '600',
+										color: '#92400e',
+										marginBottom: '8px',
+									}}
+								>
+									📱 Device Status
+								</div>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+									<div
+										style={{
+											width: '12px',
+											height: '12px',
+											borderRadius: '50%',
+											background: adminDeviceStatus === 'ACTIVE' ? '#10b981' : '#f59e0b',
+										}}
+									/>
+									<span style={{ fontSize: '14px', color: '#78350f', fontWeight: '500' }}>
+										{adminDeviceStatus}
+									</span>
+								</div>
+								<div style={{ fontSize: '13px', color: '#92400e', lineHeight: '1.5' }}>
+									{adminDeviceStatus === 'ACTIVE' ? (
+										<>
+											<strong>Active Status:</strong> This device is immediately ready for use. 
+											The admin has configured it to be fully functional without requiring additional activation steps.
+										</>
+									) : (
+										<>
+											<strong>Activation Required:</strong> This device needs user activation before it can be used. 
+											The user will need to complete an OTP verification process to activate the device.
+										</>
+									)}
+								</div>
+							</div>
+						)}
+
+						{/* Token Type Information */}
+						<div
+							style={{
+								background: '#fffbeb',
+								border: '1px solid #fed7aa',
+								borderRadius: '8px',
+								padding: '16px',
+							}}
+						>
+							<div
+								style={{
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#92400e',
+									marginBottom: '8px',
+								}}
+							>
+								🔑 Authentication Method
+							</div>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+								{tokenType === 'worker' ? (
+									<FiShield size={16} color="#f59e0b" />
+								) : (
+									<FiUser size={16} color="#f59e0b" />
+								)}
+								<span style={{ fontSize: '14px', color: '#78350f', fontWeight: '500' }}>
+									{tokenType === 'worker' ? 'Worker Token' : 'User Token'} Authentication
+								</span>
+							</div>
+							<div style={{ fontSize: '13px', color: '#92400e', lineHeight: '1.5' }}>
+								{tokenType === 'worker' ? (
+									<>
+										<strong>Worker Token:</strong> API calls were made using a worker token obtained from the 
+										PingOne Worker Token API. This method provides administrative access to device management 
+										functions without requiring user interaction.
+									</>
+								) : (
+									<>
+										<strong>User Token:</strong> API calls were made using a user token obtained through OAuth 
+										authentication. This method requires the user to authenticate and provides access limited to 
+										the user's scope and permissions.
+									</>
+								)}
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
 
 			{/* User Information Section (for authentication flows with access token) */}
 			{flowType === 'authentication' && completionResult?.accessToken && (
