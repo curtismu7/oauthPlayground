@@ -969,6 +969,86 @@ class UnifiedWorkerTokenService {
 				'Configure Key Rotation Policy for this worker application before March 2, 2027',
 		};
 	}
+
+	/**
+	 * Export worker token configuration as JSON
+	 */
+	exportConfig(): string {
+		try {
+			const tokenData = this.getWorkerTokenData();
+			if (!tokenData) {
+				throw new Error('No worker token configuration to export');
+			}
+
+			const exportData = {
+				version: '1.0.0',
+				exportedAt: new Date().toISOString(),
+				credentials: tokenData.credentials,
+				token: {
+					accessToken: tokenData.accessToken,
+					expiresAt: tokenData.expiresAt,
+					tokenType: tokenData.tokenType,
+				},
+			};
+
+			return JSON.stringify(exportData, null, 2);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to export config:`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Import worker token configuration from JSON
+	 */
+	async importConfig(configJson: string): Promise<void> {
+		try {
+			const importData = JSON.parse(configJson);
+
+			// Validate import data structure
+			if (!importData.credentials || !importData.token) {
+				throw new Error('Invalid configuration format');
+			}
+
+			// Validate required fields
+			const { credentials } = importData;
+			if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
+				throw new Error('Missing required credentials fields');
+			}
+
+			// Import the configuration
+			await this.setWorkerToken(credentials);
+
+			console.log(`${MODULE_TAG} Successfully imported worker token configuration`);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to import config:`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Download configuration as a file
+	 */
+	downloadConfig(): void {
+		try {
+			const config = this.exportConfig();
+			const blob = new Blob([config], { type: 'application/json' });
+			const url = URL.createObjectURL(blob);
+			
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `worker-token-config-${new Date().toISOString().split('T')[0]}.json`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			URL.revokeObjectURL(url);
+
+			console.log(`${MODULE_TAG} Configuration downloaded`);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to download config:`, error);
+			throw error;
+		}
+	}
 }
 
 // Export singleton instance
