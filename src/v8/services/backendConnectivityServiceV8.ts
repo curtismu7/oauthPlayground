@@ -29,25 +29,27 @@ class BackendConnectivityServiceV8 {
 	/**
 	 * Check if an error is a backend connectivity issue
 	 */
-	isBackendConnectivityError(error: any): boolean {
-		// Check for fetch network errors
-		if (error instanceof TypeError && error.message.includes('fetch')) {
+	isBackendConnectivityError(error: unknown): boolean {
+		const errorMsg =
+			typeof error === 'object' && error !== null && 'message' in error
+				? String((error as { message?: string }).message || '').toLowerCase()
+				: String(error).toLowerCase();
+
+		// Check for transport-level fetch failures (backend unreachable)
+		if (error instanceof TypeError && errorMsg.includes('fetch')) {
 			return true;
 		}
 
-		// Check for 500 errors from backend
-		if (error?.response?.status === 500) {
-			return true;
-		}
-
-		// Check for specific error messages
-		const errorMsg = error?.message || String(error);
+		// Check for specific connectivity signatures (not HTTP status failures)
 		if (
-			errorMsg.includes('Failed to fetch') ||
-			errorMsg.includes('NetworkError') ||
-			errorMsg.includes('Failed to load resource') ||
-			errorMsg.includes('500 (Internal Server Error)') ||
-			errorMsg.includes('Backend returned an empty response')
+			errorMsg.includes('failed to fetch') ||
+			errorMsg.includes('networkerror') ||
+			errorMsg.includes('network request failed') ||
+			errorMsg.includes('load failed') ||
+			errorMsg.includes('err_connection_refused') ||
+			errorMsg.includes('econnrefused') ||
+			errorMsg.includes('err_empty_response') ||
+			errorMsg.includes('backend returned an empty response')
 		) {
 			return true;
 		}

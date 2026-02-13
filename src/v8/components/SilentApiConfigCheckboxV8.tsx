@@ -62,7 +62,7 @@ export const SilentApiConfigCheckboxV8: React.FC<SilentApiConfigCheckboxV8Props>
 	if (!isReady) {
 		return (
 			<div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.6 }}>
-				<input type="checkbox" disabled={true} style={{ cursor: 'not-allowed' }} />
+				<input type="checkbox" checked={false} disabled={true} style={{ cursor: 'not-allowed' }} />
 				<span style={{ fontSize: '13px', color: '#6b7280' }}>Loading configuration...</span>
 			</div>
 		);
