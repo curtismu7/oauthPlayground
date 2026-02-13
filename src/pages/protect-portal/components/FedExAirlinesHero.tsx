@@ -12,7 +12,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
-import FedExLoginForm from './FedExLoginForm';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -314,20 +313,13 @@ const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 						<MainContent>
 							<LoginContainer>
 								<LoginSection>
-									<LoginTitle>Secure Employee Portal</LoginTitle>
+									<LoginTitle>Employee Sign In</LoginTitle>
 									<LoginSubtitle>
 										Access your FedEx employee account with enhanced security features.
 									</LoginSubtitle>
 								</LoginSection>
 
-								<FedExLoginForm
-									onLoginSuccess={onLoginSuccess || (() => {})}
-									onError={onError || (() => {})}
-									environmentId={environmentId}
-									clientId={clientId}
-									clientSecret={clientSecret}
-									redirectUri={redirectUri}
-								/>
+								<LoginButton onClick={onLoginStart}>Sign In to Employee Portal</LoginButton>
 
 								<QuickLinks>
 									<QuickLink href="#">Forgot Username?</QuickLink>
