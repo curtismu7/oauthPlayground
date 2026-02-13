@@ -5,12 +5,25 @@
  * @version 9.0.0
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { FiRefreshCw, FiTrash2, FiDownload, FiEye, FiEyeOff, FiFile, FiDatabase, FiExternalLink } from 'react-icons/fi';
-import { PageHeaderV8, PageHeaderGradients, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+	FiDatabase,
+	FiDownload,
+	FiExternalLink,
+	FiEye,
+	FiEyeOff,
+	FiFile,
+	FiRefreshCw,
+	FiTrash2,
+} from 'react-icons/fi';
+import { type LogFile, LogFileService } from '@/services/logFileService';
+import {
+	PageHeaderGradients,
+	PageHeaderTextColors,
+	PageHeaderV8,
+} from '@/v8/components/shared/PageHeaderV8';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
-import { LogFileService, type LogFile } from '@/services/logFileService';
-import { openDebugLogViewerPopout } from '@/v8/utils/debugLogViewerPopoutHelperV8';
+import { isPopoutWindow, openDebugLogViewerPopout } from '@/v8/utils/debugLogViewerPopoutHelperV8';
 
 // Maximum string length to avoid browser crashes (approximately 50MB)
 const MAX_STRING_LENGTH = 50 * 1024 * 1024;
@@ -28,25 +41,29 @@ type LogCategory = 'ALL' | 'REDIRECT_URI' | 'MIGRATION' | 'VALIDATION' | 'FLOW_M
 type LogSource = 'localStorage' | 'file';
 
 // Truncate file content to prevent browser crashes
-const truncateFileContent = (content: string, filename: string): { content: string; isTruncated: boolean; originalSize: number } => {
+const truncateFileContent = (
+	content: string,
+	filename: string
+): { content: string; isTruncated: boolean; originalSize: number } => {
 	const originalSize = content.length;
-	
+
 	if (content.length <= MAX_STRING_LENGTH) {
 		return { content, isTruncated: false, originalSize };
 	}
-	
+
 	// Truncate to safe length and add warning
 	const truncatedContent = content.substring(0, MAX_STRING_LENGTH);
-	const warning = `\n\n⚠️ WARNING: File content truncated due to size limit\n` +
+	const warning =
+		`\n\n⚠️ WARNING: File content truncated due to size limit\n` +
 		`Original size: ${(originalSize / 1024 / 1024).toFixed(2)} MB\n` +
 		`Displaying: ${(MAX_STRING_LENGTH / 1024 / 1024).toFixed(2)} MB\n` +
 		`File: ${filename}\n` +
 		`Use tail mode or reduce line count to see recent content.\n`;
-	
-	return { 
-		content: truncatedContent + warning, 
-		isTruncated: true, 
-		originalSize 
+
+	return {
+		content: truncatedContent + warning,
+		isTruncated: true,
+		originalSize,
 	};
 };
 
@@ -56,7 +73,7 @@ export const DebugLogViewerV8: React.FC = () => {
 	const [availableFiles, setAvailableFiles] = useState<LogFile[]>([]);
 	const [selectedFile, setSelectedFile] = useState<string>('authz-redirects.log');
 	const [lineCount, setLineCount] = useState<number>(100);
-	
+
 	// Log data
 	const [logs, setLogs] = useState<LogEntry[]>([]);
 	const [fileContent, setFileContent] = useState<string>('');
@@ -64,12 +81,12 @@ export const DebugLogViewerV8: React.FC = () => {
 	const [originalFileSize, setOriginalFileSize] = useState<number>(0);
 	const [selectedCategory, setSelectedCategory] = useState<LogCategory>('ALL');
 	const [expandedLogs, setExpandedLogs] = useState<Set<number>>(new Set());
-	
+
 	// Tail mode
 	const [tailMode, setTailMode] = useState(false);
 	const eventSourceRef = useRef<EventSource | null>(null);
 	const logContainerRef = useRef<HTMLDivElement | null>(null);
-	
+
 	// Loading states
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -83,7 +100,7 @@ export const DebugLogViewerV8: React.FC = () => {
 				category: 'REDIRECT_URI',
 				message: 'Failed to validate redirect URI - invalid format',
 				url: 'https://localhost:3000/mfa-unified-callback',
-				data: { error: 'Invalid URI format', expected: 'https://localhost:3000/*' }
+				data: { error: 'Invalid URI format', expected: 'https://localhost:3000/*' },
 			},
 			{
 				timestamp: new Date(Date.now() - 60000).toISOString(),
@@ -91,7 +108,7 @@ export const DebugLogViewerV8: React.FC = () => {
 				category: 'MIGRATION',
 				message: 'Deprecated configuration detected',
 				url: 'https://localhost:3000/v8/mfa',
-				data: { deprecatedField: 'oldConfig', replacement: 'newConfig' }
+				data: { deprecatedField: 'oldConfig', replacement: 'newConfig' },
 			},
 			{
 				timestamp: new Date(Date.now() - 120000).toISOString(),
@@ -99,7 +116,7 @@ export const DebugLogViewerV8: React.FC = () => {
 				category: 'VALIDATION',
 				message: 'Configuration validation completed successfully',
 				url: 'https://localhost:3000/v8/flows',
-				data: { validations: 5, passed: 5, failed: 0 }
+				data: { validations: 5, passed: 5, failed: 0 },
 			},
 			{
 				timestamp: new Date(Date.now() - 180000).toISOString(),
@@ -107,7 +124,7 @@ export const DebugLogViewerV8: React.FC = () => {
 				category: 'FLOW_MAPPING',
 				message: 'Flow mapping failed - missing required parameter',
 				url: 'https://localhost:3000/v8/flows/unified',
-				data: { missingParam: 'clientId', flowType: 'authorization_code' }
+				data: { missingParam: 'clientId', flowType: 'authorization_code' },
 			},
 			{
 				timestamp: new Date(Date.now() - 240000).toISOString(),
@@ -115,10 +132,10 @@ export const DebugLogViewerV8: React.FC = () => {
 				category: 'REDIRECT_URI',
 				message: 'Redirect URI validation passed',
 				url: 'https://localhost:3000/unified-callback',
-				data: { uri: 'https://localhost:3000/unified-callback', valid: true }
-			}
+				data: { uri: 'https://localhost:3000/unified-callback', valid: true },
+			},
 		];
-		
+
 		localStorage.setItem('mfa_redirect_debug_log', JSON.stringify(testLogs));
 		setLogs(testLogs);
 		setFileContent('');
@@ -131,7 +148,7 @@ export const DebugLogViewerV8: React.FC = () => {
 			if (stored) {
 				const parsed = JSON.parse(stored) as LogEntry[];
 				setLogs(parsed);
-			setFileContent('');
+				setFileContent('');
 			} else {
 				// Generate test logs if none exist
 				generateTestLogs();
@@ -145,21 +162,25 @@ export const DebugLogViewerV8: React.FC = () => {
 	// Load file-based logs
 	const loadFileLogs = useCallback(async () => {
 		if (!selectedFile) return;
-		
+
 		setIsLoading(true);
 		setError(null);
-		
+
 		try {
 			const result = await LogFileService.readLogFile(selectedFile, lineCount, true);
-			
+
 			// Truncate content to prevent browser crashes
-			const { content: safeContent, isTruncated, originalSize } = truncateFileContent(result.content, selectedFile);
-			
+			const {
+				content: safeContent,
+				isTruncated,
+				originalSize,
+			} = truncateFileContent(result.content, selectedFile);
+
 			setFileContent(safeContent);
 			setLogs([]);
 			setIsContentTruncated(isTruncated);
 			setOriginalFileSize(originalSize);
-			
+
 			if (isTruncated) {
 				// File was truncated
 			} else {
@@ -179,10 +200,10 @@ export const DebugLogViewerV8: React.FC = () => {
 			try {
 				const files = await LogFileService.listLogFiles();
 				setAvailableFiles(files);
-				
+
 				// Load last selected file from localStorage
 				const lastSelectedFile = localStorage.getItem('debugLogViewer_lastSelectedFile');
-				if (lastSelectedFile && files.some(f => f.name === lastSelectedFile)) {
+				if (lastSelectedFile && files.some((f) => f.name === lastSelectedFile)) {
 					setSelectedFile(lastSelectedFile);
 				} else if (files.length > 0) {
 					// Default to first available file if saved one doesn't exist
@@ -194,7 +215,7 @@ export const DebugLogViewerV8: React.FC = () => {
 						await fetch('/api/settings/debug-log-viewer', {
 							method: 'POST',
 							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({ lastSelectedFile: files[0].name })
+							body: JSON.stringify({ lastSelectedFile: files[0].name }),
 						});
 					} catch {
 						// Silently fail if SQLite save fails
@@ -204,7 +225,7 @@ export const DebugLogViewerV8: React.FC = () => {
 				// Silently handle error
 			}
 		};
-		
+
 		loadFiles();
 	}, []);
 
@@ -217,7 +238,7 @@ export const DebugLogViewerV8: React.FC = () => {
 				fetch('/api/settings/debug-log-viewer', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ lastSelectedFile: selectedFile })
+					body: JSON.stringify({ lastSelectedFile: selectedFile }),
 				});
 			} catch {
 				// Silently fail if SQLite save fails
@@ -237,16 +258,16 @@ export const DebugLogViewerV8: React.FC = () => {
 		if (logSource === 'file' && tailMode && selectedFile) {
 			const eventSource = LogFileService.createTailStream(selectedFile);
 			eventSourceRef.current = eventSource;
-			
+
 			eventSource.onmessage = (event) => {
 				try {
 					const data = JSON.parse(event.data);
-					
+
 					if (data.type === 'connected') {
 						// Connected
 					} else if (data.type === 'update' && data.lines) {
-						setFileContent(prev => `${prev}\n${data.lines.join('\n')}`);
-						
+						setFileContent((prev) => `${prev}\n${data.lines.join('\n')}`);
+
 						// Auto-scroll to bottom
 						if (logContainerRef.current) {
 							logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
@@ -258,11 +279,11 @@ export const DebugLogViewerV8: React.FC = () => {
 					// Silently handle parse errors
 				}
 			};
-			
+
 			eventSource.onerror = () => {
 				setTailMode(false);
 			};
-			
+
 			return () => {
 				eventSource.close();
 				eventSourceRef.current = null;
@@ -306,19 +327,29 @@ export const DebugLogViewerV8: React.FC = () => {
 		setExpandedLogs(newExpanded);
 	};
 
-	const filteredLogs = logs.filter(log => {
+	const filteredLogs = logs.filter((log) => {
 		if (selectedCategory === 'ALL') return true;
 		return log.category === selectedCategory;
 	});
 
-	const categories: LogCategory[] = ['ALL', 'REDIRECT_URI', 'MIGRATION', 'VALIDATION', 'FLOW_MAPPING'];
+	const categories: LogCategory[] = [
+		'ALL',
+		'REDIRECT_URI',
+		'MIGRATION',
+		'VALIDATION',
+		'FLOW_MAPPING',
+	];
 
 	const getLevelColor = (level: string) => {
 		switch (level) {
-			case 'ERROR': return '#ef4444';
-			case 'WARN': return '#f59e0b';
-			case 'INFO': return '#3b82f6';
-			default: return '#6b7280';
+			case 'ERROR':
+				return '#ef4444';
+			case 'WARN':
+				return '#f59e0b';
+			case 'INFO':
+				return '#3b82f6';
+			default:
+				return '#6b7280';
 		}
 	};
 
@@ -365,45 +396,36 @@ export const DebugLogViewerV8: React.FC = () => {
 							<span style={{ color: LOG_COLORS.timestamp }}>
 								[{new Date(parsed.timestamp).toLocaleString()}]
 							</span>
-						)}
-						{' '}
+						)}{' '}
 						{parsed.level && (
-							<span style={{ 
-								color: LOG_COLORS[parsed.level as keyof typeof LOG_COLORS] || LOG_COLORS.INFO,
-								fontWeight: 'bold'
-							}}>
+							<span
+								style={{
+									color: LOG_COLORS[parsed.level as keyof typeof LOG_COLORS] || LOG_COLORS.INFO,
+									fontWeight: 'bold',
+								}}
+							>
 								[{parsed.level}]
 							</span>
-						)}
-						{' '}
+						)}{' '}
 						{parsed.category && (
-							<span style={{ 
-								color: LOG_COLORS.module,
-								fontStyle: 'italic'
-							}}>
+							<span
+								style={{
+									color: LOG_COLORS.module,
+									fontStyle: 'italic',
+								}}
+							>
 								[{parsed.category}]
 							</span>
-						)}
-						{' '}
-						{parsed.event && (
-							<span style={{ color: LOG_COLORS.json }}>
-								Event: {parsed.event}
-							</span>
-						)}
+						)}{' '}
+						{parsed.event && <span style={{ color: LOG_COLORS.json }}>Event: {parsed.event}</span>}
 						{parsed.startedStep && (
-							<span style={{ color: LOG_COLORS.number }}>
-								{' '}Started: {parsed.startedStep}
-							</span>
+							<span style={{ color: LOG_COLORS.number }}> Started: {parsed.startedStep}</span>
 						)}
 						{parsed.targetStep && (
-							<span style={{ color: LOG_COLORS.number }}>
-								{' '}Target: {parsed.targetStep}
-							</span>
+							<span style={{ color: LOG_COLORS.number }}> Target: {parsed.targetStep}</span>
 						)}
 						{parsed.reason && (
-							<span style={{ color: LOG_COLORS.warning }}>
-								{' '}Reason: {parsed.reason}
-							</span>
+							<span style={{ color: LOG_COLORS.warning }}> Reason: {parsed.reason}</span>
 						)}
 						{parsed.currentUrl && (
 							<div>
@@ -417,13 +439,12 @@ export const DebugLogViewerV8: React.FC = () => {
 						)}
 						{parsed.sessionId && (
 							<span style={{ color: LOG_COLORS.ip }}>
-								{' '}Session: {parsed.sessionId.slice(0, 8)}...
+								{' '}
+								Session: {parsed.sessionId.slice(0, 8)}...
 							</span>
 						)}
 						{parsed.flowId && (
-							<span style={{ color: LOG_COLORS.ip }}>
-								{' '}Flow: {parsed.flowId.slice(0, 8)}...
-							</span>
+							<span style={{ color: LOG_COLORS.ip }}> Flow: {parsed.flowId.slice(0, 8)}...</span>
 						)}
 					</span>
 				);
@@ -455,10 +476,13 @@ export const DebugLogViewerV8: React.FC = () => {
 				const level = part.slice(1, -1).toUpperCase();
 				if (['ERROR', 'WARN', 'INFO', 'DEBUG'].includes(level)) {
 					result.push(
-						<span key={i} style={{ 
-							color: LOG_COLORS[level as keyof typeof LOG_COLORS] || LOG_COLORS.INFO,
-							fontWeight: 'bold'
-						}}>
+						<span
+							key={i}
+							style={{
+								color: LOG_COLORS[level as keyof typeof LOG_COLORS] || LOG_COLORS.INFO,
+								fontWeight: 'bold',
+							}}
+						>
 							{part}{' '}
 						</span>
 					);
@@ -468,10 +492,13 @@ export const DebugLogViewerV8: React.FC = () => {
 			// HTTP methods
 			else if (['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].includes(part)) {
 				result.push(
-					<span key={i} style={{ 
-						color: LOG_COLORS[part as keyof typeof LOG_COLORS],
-						fontWeight: 'bold'
-					}}>
+					<span
+						key={i}
+						style={{
+							color: LOG_COLORS[part as keyof typeof LOG_COLORS],
+							fontWeight: 'bold',
+						}}
+					>
 						{part}{' '}
 					</span>
 				);
@@ -484,7 +511,7 @@ export const DebugLogViewerV8: React.FC = () => {
 				if (code >= 200 && code < 300) color = LOG_COLORS.success;
 				else if (code >= 300 && code < 400) color = LOG_COLORS.warning;
 				else if (code >= 400) color = LOG_COLORS.error;
-				
+
 				result.push(
 					<span key={i} style={{ color, fontWeight: 'bold' }}>
 						{part}{' '}
@@ -530,7 +557,7 @@ export const DebugLogViewerV8: React.FC = () => {
 			}
 
 			if (!styled) {
-				result.push(<span key={i}>{part}{' '}</span>);
+				result.push(<span key={i}>{part} </span>);
 			}
 		}
 
@@ -539,22 +566,30 @@ export const DebugLogViewerV8: React.FC = () => {
 
 	const getCategoryColor = (category: string) => {
 		switch (category) {
-			case 'REDIRECT_URI': return '#8b5cf6';
-			case 'MIGRATION': return '#ec4899';
-			case 'VALIDATION': return '#f59e0b';
-			case 'FLOW_MAPPING': return '#10b981';
-			default: return '#6b7280';
+			case 'REDIRECT_URI':
+				return '#8b5cf6';
+			case 'MIGRATION':
+				return '#ec4899';
+			case 'VALIDATION':
+				return '#f59e0b';
+			case 'FLOW_MAPPING':
+				return '#10b981';
+			default:
+				return '#6b7280';
 		}
 	};
 
 	// Group files by category
-	const groupedFiles = availableFiles.reduce((acc, file) => {
-		if (!acc[file.category]) {
-			acc[file.category] = [];
-		}
-		acc[file.category].push(file);
-		return acc;
-	}, {} as Record<string, LogFile[]>);
+	const groupedFiles = availableFiles.reduce(
+		(acc, file) => {
+			if (!acc[file.category]) {
+				acc[file.category] = [];
+			}
+			acc[file.category].push(file);
+			return acc;
+		},
+		{} as Record<string, LogFile[]>
+	);
 
 	const categoryLabels: Record<string, string> = {
 		server: '📁 Server Logs',
@@ -562,7 +597,7 @@ export const DebugLogViewerV8: React.FC = () => {
 		frontend: '🎨 Frontend Logs',
 		mfa: '📱 MFA Device Logs',
 		oauth: '🔗 OAuth Logs',
-		other: '📄 Other Logs'
+		other: '📄 Other Logs',
 	};
 
 	return (
@@ -575,15 +610,19 @@ export const DebugLogViewerV8: React.FC = () => {
 			/>
 
 			{/* Source Selection */}
-			<div style={{
-				background: 'white',
-				borderRadius: '8px',
-				padding: '20px',
-				marginBottom: '20px',
-				boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-			}}>
+			<div
+				style={{
+					background: 'white',
+					borderRadius: '8px',
+					padding: '20px',
+					marginBottom: '20px',
+					boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+				}}
+			>
 				<div style={{ marginBottom: '15px' }}>
-					<span style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginRight: '12px' }}>
+					<span
+						style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginRight: '12px' }}
+					>
 						Log Source:
 					</span>
 					<button
@@ -631,8 +670,14 @@ export const DebugLogViewerV8: React.FC = () => {
 				{/* File Selection */}
 				{logSource === 'file' && (
 					<div style={{ marginBottom: '15px' }}>
-						<label 
-							style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}
+						<label
+							style={{
+								display: 'block',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '8px',
+							}}
 							htmlFor="log-file-select"
 						>
 							Select Log File:
@@ -653,7 +698,7 @@ export const DebugLogViewerV8: React.FC = () => {
 						>
 							{Object.entries(groupedFiles).map(([category, files]) => (
 								<optgroup key={category} label={categoryLabels[category] || category}>
-									{files.map(file => (
+									{files.map((file) => (
 										<option key={file.name} value={file.name}>
 											{file.name} ({LogFileService.formatFileSize(file.size)})
 											{LogFileService.isLargeFile(file.size) && ' ⚠️ Large'}
@@ -668,14 +713,20 @@ export const DebugLogViewerV8: React.FC = () => {
 				{/* Line Count Selection */}
 				{logSource === 'file' && (
 					<div style={{ marginBottom: '15px' }}>
-						<label 
-							style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}
+						<label
+							style={{
+								display: 'block',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '8px',
+							}}
 							htmlFor="line-count-buttons"
 						>
 							Lines to show:
 						</label>
 						<div style={{ display: 'flex', gap: '8px' }} id="line-count-buttons">
-							{[100, 500, 1000].map(count => (
+							{[100, 500, 1000].map((count) => (
 								<button
 									key={count}
 									type="button"
@@ -699,15 +750,19 @@ export const DebugLogViewerV8: React.FC = () => {
 				)}
 
 				{/* Controls */}
-				<div style={{
-					display: 'flex',
-					gap: '15px',
-					flexWrap: 'wrap',
-					alignItems: 'center',
-				}}>
+				<div
+					style={{
+						display: 'flex',
+						gap: '15px',
+						flexWrap: 'wrap',
+						alignItems: 'center',
+					}}
+				>
 					<button
 						type="button"
-						onClick={() => logSource === 'localStorage' ? loadLocalStorageLogs() : void loadFileLogs()}
+						onClick={() =>
+							logSource === 'localStorage' ? loadLocalStorageLogs() : void loadFileLogs()
+						}
 						disabled={isLoading}
 						style={{
 							display: 'flex',
@@ -728,13 +783,15 @@ export const DebugLogViewerV8: React.FC = () => {
 					</button>
 
 					{logSource === 'file' && (
-						<label style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-							fontSize: '14px',
-							cursor: 'pointer',
-						}}>
+						<label
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								fontSize: '14px',
+								cursor: 'pointer',
+							}}
+						>
 							<input
 								type="checkbox"
 								checked={tailMode}
@@ -787,60 +844,68 @@ export const DebugLogViewerV8: React.FC = () => {
 						Export
 					</button>
 
-					<button
-						type="button"
-						onClick={openDebugLogViewerPopout}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-							padding: '10px 16px',
-							background: '#8b5cf6',
-							color: 'white',
-							border: 'none',
-							borderRadius: '6px',
-							fontSize: '14px',
-							fontWeight: '600',
-							cursor: 'pointer',
-						}}
-						title="Open in free-floating window that can be moved outside browser"
-					>
-						<FiExternalLink size={16} />
-						Popout
-					</button>
+					{!isPopoutWindow() && (
+						<button
+							type="button"
+							onClick={openDebugLogViewerPopout}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								padding: '10px 16px',
+								background: '#8b5cf6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: 'pointer',
+							}}
+							title="Open in free-floating window that can be moved outside browser"
+						>
+							<FiExternalLink size={16} />
+							Popout
+						</button>
+					)}
 
-					<div style={{
-						marginLeft: 'auto',
-						fontSize: '14px',
-						color: '#6b7280',
-						fontWeight: '600',
-					}}>
-						{logSource === 'localStorage' 
+					<div
+						style={{
+							marginLeft: 'auto',
+							fontSize: '14px',
+							color: '#6b7280',
+							fontWeight: '600',
+						}}
+					>
+						{logSource === 'localStorage'
 							? `${filteredLogs.length} ${filteredLogs.length === 1 ? 'entry' : 'entries'}`
-							: `${fileContent.split('\n').length} lines`
-						}
+							: `${fileContent.split('\n').length} lines`}
 					</div>
 				</div>
 
 				{/* Category Filter (localStorage only) */}
 				{logSource === 'localStorage' && (
-					<div style={{
-						display: 'flex',
-						gap: '8px',
-						flexWrap: 'wrap',
-						marginTop: '15px',
-					}}>
-						<span style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginRight: '8px' }}>
+					<div
+						style={{
+							display: 'flex',
+							gap: '8px',
+							flexWrap: 'wrap',
+							marginTop: '15px',
+						}}
+					>
+						<span
+							style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginRight: '8px' }}
+						>
 							Filter by category:
 						</span>
-						{categories.map(category => (
+						{categories.map((category) => (
 							<button
 								key={category}
 								type="button"
 								onClick={() => setSelectedCategory(category)}
 								style={{
 									padding: '6px 12px',
-									background: selectedCategory === category ? getCategoryColor(category) : '#f3f4f6',
+									background:
+										selectedCategory === category ? getCategoryColor(category) : '#f3f4f6',
 									color: selectedCategory === category ? 'white' : '#374151',
 									border: 'none',
 									borderRadius: '4px',
@@ -859,38 +924,42 @@ export const DebugLogViewerV8: React.FC = () => {
 
 			{/* Error Display */}
 			{error && (
-				<div style={{
-					background: '#fef2f2',
-					border: '1px solid #fecaca',
-					borderRadius: '8px',
-					padding: '16px',
-					marginBottom: '20px',
-					color: '#991b1b',
-					fontSize: '14px',
-				}}>
+				<div
+					style={{
+						background: '#fef2f2',
+						border: '1px solid #fecaca',
+						borderRadius: '8px',
+						padding: '16px',
+						marginBottom: '20px',
+						color: '#991b1b',
+						fontSize: '14px',
+					}}
+				>
 					<strong>Error:</strong> {error}
 				</div>
 			)}
 
 			{/* Log Content */}
-			<div style={{
-				background: 'white',
-				borderRadius: '8px',
-				padding: '20px',
-				boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-			}}>
+			<div
+				style={{
+					background: 'white',
+					borderRadius: '8px',
+					padding: '20px',
+					boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+				}}
+			>
 				{logSource === 'localStorage' ? (
 					// localStorage logs display
 					filteredLogs.length === 0 ? (
-						<div style={{
-							textAlign: 'center',
-							padding: '40px',
-							color: '#6b7280',
-						}}>
+						<div
+							style={{
+								textAlign: 'center',
+								padding: '40px',
+								color: '#6b7280',
+							}}
+						>
 							<p style={{ fontSize: '16px', marginBottom: '8px' }}>No debug logs found</p>
-							<p style={{ fontSize: '14px' }}>
-								Navigate through MFA flows to generate logs
-							</p>
+							<p style={{ fontSize: '14px' }}>Navigate through MFA flows to generate logs</p>
 						</div>
 					) : (
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -911,59 +980,71 @@ export const DebugLogViewerV8: React.FC = () => {
 											boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
 										}}
 									>
-										<div style={{
-											display: 'flex',
-											alignItems: 'flex-start',
-											gap: '12px',
-										}}>
-											<div style={{
-												padding: '4px 8px',
-												background: getLevelColor(log.level),
-												color: 'white',
-												borderRadius: '4px',
-												fontSize: '11px',
-												fontWeight: '700',
-												minWidth: '50px',
-												textAlign: 'center',
-											}}>
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'flex-start',
+												gap: '12px',
+											}}
+										>
+											<div
+												style={{
+													padding: '4px 8px',
+													background: getLevelColor(log.level),
+													color: 'white',
+													borderRadius: '4px',
+													fontSize: '11px',
+													fontWeight: '700',
+													minWidth: '50px',
+													textAlign: 'center',
+												}}
+											>
 												{log.level}
 											</div>
 
-											<div style={{
-												padding: '4px 8px',
-												background: getCategoryColor(log.category),
-												color: 'white',
-												borderRadius: '4px',
-												fontSize: '11px',
-												fontWeight: '600',
-												minWidth: '100px',
-												textAlign: 'center',
-											}}>
+											<div
+												style={{
+													padding: '4px 8px',
+													background: getCategoryColor(log.category),
+													color: 'white',
+													borderRadius: '4px',
+													fontSize: '11px',
+													fontWeight: '600',
+													minWidth: '100px',
+													textAlign: 'center',
+												}}
+											>
 												{log.category}
 											</div>
 
 											<div style={{ flex: 1 }}>
-												<div style={{
-													fontSize: '13px',
-													color: '#000000',
-													marginBottom: '4px',
-													fontWeight: '500',
-												}}>
+												<div
+													style={{
+														fontSize: '13px',
+														color: '#000000',
+														marginBottom: '4px',
+														fontWeight: '500',
+													}}
+												>
 													{log.message}
 												</div>
-												<div style={{
-													fontSize: '11px',
-													color: '#374151',
-												}}>
+												<div
+													style={{
+														fontSize: '11px',
+														color: '#374151',
+													}}
+												>
 													{new Date(log.timestamp).toLocaleString()}
 												</div>
 												{log.url && (
-													<div style={{
-														fontSize: '11px',
-														color: '#374151',
-														marginTop: '4px',
-														wordBreak: 'break-all',
-													}}>
+													<div
+														style={{
+															fontSize: '11px',
+															color: '#374151',
+															marginTop: '4px',
+															wordBreak: 'break-all',
+														}}
+													>
 														URL: {log.url}
 													</div>
 												)}
@@ -991,21 +1072,25 @@ export const DebugLogViewerV8: React.FC = () => {
 										</div>
 
 										{isExpanded && hasData && (
-											<div style={{
-												marginTop: '12px',
-												padding: '12px',
-												background: '#1f2937',
-												borderRadius: '4px',
-												overflow: 'auto',
-											}}>
-												<pre style={{
-													margin: 0,
-													fontSize: '11px',
-													color: '#d1d5db',
-													fontFamily: 'monospace',
-													whiteSpace: 'pre-wrap',
-													wordBreak: 'break-word',
-												}}>
+											<div
+												style={{
+													marginTop: '12px',
+													padding: '12px',
+													background: '#1f2937',
+													borderRadius: '4px',
+													overflow: 'auto',
+												}}
+											>
+												<pre
+													style={{
+														margin: 0,
+														fontSize: '11px',
+														color: '#d1d5db',
+														fontFamily: 'monospace',
+														whiteSpace: 'pre-wrap',
+														wordBreak: 'break-word',
+													}}
+												>
 													{JSON.stringify(log.data, null, 2)}
 												</pre>
 											</div>
@@ -1015,12 +1100,12 @@ export const DebugLogViewerV8: React.FC = () => {
 							})}
 						</div>
 					)
-				) : (
-					// File content display
-					fileContent ? (
-						<>
-							{isContentTruncated && (
-								<div style={{
+				) : // File content display
+				fileContent ? (
+					<>
+						{isContentTruncated && (
+							<div
+								style={{
 									background: '#fef3c7',
 									border: '1px solid #f59e0b',
 									borderRadius: '4px',
@@ -1029,29 +1114,31 @@ export const DebugLogViewerV8: React.FC = () => {
 									color: '#92400e',
 									fontSize: '13px',
 									fontWeight: '500',
-								}}>
-									⚠️ File content truncated due to size limit
-									<br />
-									Original size: {(originalFileSize / 1024 / 1024).toFixed(2)} MB
-									<br />
-									Displaying: {(MAX_STRING_LENGTH / 1024 / 1024).toFixed(2)} MB
-									<br />
-									File: {selectedFile}
-									<br />
-									Use tail mode or reduce line count to see recent content.
-								</div>
-							)}
-							<div
-								ref={logContainerRef}
-								style={{
-									background: '#1f2937',
-									borderRadius: '4px',
-									padding: '16px',
-									maxHeight: '600px',
-									overflow: 'auto',
 								}}
 							>
-								<pre style={{
+								⚠️ File content truncated due to size limit
+								<br />
+								Original size: {(originalFileSize / 1024 / 1024).toFixed(2)} MB
+								<br />
+								Displaying: {(MAX_STRING_LENGTH / 1024 / 1024).toFixed(2)} MB
+								<br />
+								File: {selectedFile}
+								<br />
+								Use tail mode or reduce line count to see recent content.
+							</div>
+						)}
+						<div
+							ref={logContainerRef}
+							style={{
+								background: '#1f2937',
+								borderRadius: '4px',
+								padding: '16px',
+								maxHeight: '600px',
+								overflow: 'auto',
+							}}
+						>
+							<pre
+								style={{
 									margin: 0,
 									fontSize: '12px',
 									color: '#000000',
@@ -1059,45 +1146,49 @@ export const DebugLogViewerV8: React.FC = () => {
 									whiteSpace: 'pre-wrap',
 									wordBreak: 'break-word',
 									lineHeight: '1.5',
-								}}>
+								}}
+							>
 								{fileContent.split('\n').map((line, index) => (
 									<React.Fragment key={index}>
 										{colorizeLogLine(line)}
 										{'\n'}
 									</React.Fragment>
 								))}
-								</pre>
-							</div>
-						</>
-					) : (
-						<div style={{
+							</pre>
+						</div>
+					</>
+				) : (
+					<div
+						style={{
 							textAlign: 'center',
 							padding: '40px',
 							color: '#374151',
-						}}>
-							<p style={{ fontSize: '16px', marginBottom: '8px' }}>No log content</p>
-							<p style={{ fontSize: '14px' }}>
-								Select a log file and click Refresh to view its contents
-							</p>
-						</div>
-					)
+						}}
+					>
+						<p style={{ fontSize: '16px', marginBottom: '8px' }}>No log content</p>
+						<p style={{ fontSize: '14px' }}>
+							Select a log file and click Refresh to view its contents
+						</p>
+					</div>
 				)}
 			</div>
 
 			{/* Info Box */}
-			<div style={{
-				marginTop: '20px',
-				padding: '16px',
-				background: '#eff6ff',
-				border: '1px solid #bfdbfe',
-				borderRadius: '8px',
-				fontSize: '13px',
-				color: '#1e40af',
-			}}>
-				<strong>💡 Tip:</strong> {logSource === 'localStorage' 
+			<div
+				style={{
+					marginTop: '20px',
+					padding: '16px',
+					background: '#eff6ff',
+					border: '1px solid #bfdbfe',
+					borderRadius: '8px',
+					fontSize: '13px',
+					color: '#1e40af',
+				}}
+			>
+				<strong>💡 Tip:</strong>{' '}
+				{logSource === 'localStorage'
 					? 'These logs persist across page redirects and refreshes. Check here after OAuth callbacks to see what happened during the redirect flow.'
-					: 'Enable Tail Mode to see new log entries in real-time as they are written to the file. Large files (>100MB) will automatically use streaming.'
-				}
+					: 'Enable Tail Mode to see new log entries in real-time as they are written to the file. Large files (>100MB) will automatically use streaming.'}
 			</div>
 		</div>
 	);
