@@ -1526,23 +1526,26 @@ app.get('/api/environments', async (req, res) => {
 		}
 		
 		// Transform PingOne environment data to match expected format
-		const transformedEnvironments = environments.map(env => ({
-			id: env.id,
-			name: env.name,
-			description: env.description || `PingOne Environment: ${env.name}`,
-			type: env.type || 'PRODUCTION', // PingOne may not have type, default to PRODUCTION
-			status: env.enabled ? 'ACTIVE' : 'INACTIVE',
-			region: determineRegionFromBaseUrl(env._links?.self?.href || baseUrl),
-			createdAt: env.createdAt || new Date().toISOString(),
-			updatedAt: env.updatedAt || new Date().toISOString(),
-			enabledServices: determineEnabledServices(env),
-			// Add PingOne-specific fields
-			pingOneId: env.id,
-			pingOneRegion: determineRegionFromBaseUrl(env._links?.self?.href || baseUrl),
-			pingOneType: env.type,
-			pingOneEnabled: env.enabled,
-			_links: env._links
-		}));
+		const transformedEnvironments = environments.map(env => {
+			console.log(`[DEBUG] Environment ${env.id}: enabled =`, env.enabled, typeof env.enabled);
+			return {
+				id: env.id,
+				name: env.name,
+				description: env.description || `PingOne Environment: ${env.name}`,
+				type: env.type || 'PRODUCTION', // PingOne may not have type, default to PRODUCTION
+				status: (env.enabled === true || env.enabled === 'true') ? 'ACTIVE' : 'INACTIVE',
+				region: determineRegionFromBaseUrl(env._links?.self?.href || baseUrl),
+				createdAt: env.createdAt || new Date().toISOString(),
+				updatedAt: env.updatedAt || new Date().toISOString(),
+				enabledServices: determineEnabledServices(env),
+				// Add PingOne-specific fields
+				pingOneId: env.id,
+				pingOneRegion: determineRegionFromBaseUrl(env._links?.self?.href || baseUrl),
+				pingOneType: env.type,
+				pingOneEnabled: env.enabled,
+				_links: env._links
+			};
+		});
 		
 		console.log(`[PingOne Environments API] Transformed ${transformedEnvironments.length} environments`);
 		
