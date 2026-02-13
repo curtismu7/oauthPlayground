@@ -501,18 +501,19 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 	}, []);
 
 	// Stop tail mode when file changes
-	useEffect(() => {
+	const stopTailMode = useCallback(() => {
 		if (isTailMode && eventSourceRef.current) {
 			eventSourceRef.current.close();
 			eventSourceRef.current = null;
 			setIsTailMode(false);
 		}
-	}, [selectedFile, isTailMode]);
+	}, [isTailMode]);
 
-	// Load log content when file changes
+	// Stop tail mode and load content when file changes
 	useEffect(() => {
+		stopTailMode();
 		loadLogContent();
-	}, [loadLogContent]);
+	}, [selectedFile, stopTailMode, loadLogContent]);
 
 	// Global mouse event listeners
 	useEffect(() => {
