@@ -427,6 +427,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	const [envError, setEnvError] = useState<string | null>(null);
 	const [totalPages, setTotalPages] = useState(1);
 	const [showApiDisplay, setShowApiDisplay] = useState(false);
+	const [isChangingRegion, setIsChangingRegion] = useState(false);
 	const [selectedEnvironmentId, setSelectedEnvironmentId] = useState<string>('');
 	const [selectedApiRegion, setSelectedApiRegion] = useState<string>('na');
 	const [typeFilter, setTypeFilter] = useState<string>('all');
@@ -666,6 +667,20 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 	const handleRefresh = () => {
 		fetchEnvironments();
+	};
+
+	const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const newRegion = e.target.value;
+		console.log('[EnvironmentManagementPageV8] 🌍 Region changing to:', newRegion);
+		setIsChangingRegion(true);
+		setSelectedApiRegion(newRegion);
+		// Reset to first page when changing region
+		setCurrentPage(1);
+		// Clear environments immediately for better UX
+		setEnvironments([]);
+		setEnvError(null);
+		// Reset loading state after a short delay to allow for smooth transition
+		setTimeout(() => setIsChangingRegion(false), 300);
 	};
 
 	const handleToggleApiDisplay = () => {
@@ -950,8 +965,9 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			<SearchContainer>
 				<FilterSelect
 					value={selectedApiRegion}
-					onChange={(e) => setSelectedApiRegion(e.target.value)}
-					style={{ minWidth: '150px' }}
+					onChange={handleRegionChange}
+					style={{ minWidth: '150px', opacity: isChangingRegion ? 0.6 : 1 }}
+					disabled={isChangingRegion}
 				>
 					<option value="na">North America</option>
 					<option value="ca">Canada</option>
