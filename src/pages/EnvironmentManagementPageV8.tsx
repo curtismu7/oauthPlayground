@@ -16,7 +16,6 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
-import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
 import { useWorkerTokenState, WorkerTokenUI } from '../services/workerTokenUIService';
 import { IndexedDBBackupServiceV8U } from '../v8u/services/indexedDBBackupServiceV8U';
@@ -513,19 +512,6 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				currentPage,
 			});
 
-			// Track the API call
-			const callId = apiCallTrackerService.trackApiCall({
-				method: 'GET',
-				url: `/api/environments?page=${currentPage}&pageSize=${pageSize}`,
-				headers: {
-					Authorization: `Bearer ${globalTokenStatus.token?.substring(0, 20)}...`,
-					'Content-Type': 'application/json',
-				},
-				queryParams: Object.fromEntries(
-					Object.entries(filters).filter(([_, v]) => v !== undefined && v !== 'all')
-				),
-			});
-
 			console.log(
 				'[EnvironmentManagementPageV8] 📡 Making API call to EnvironmentServiceV8.getEnvironments'
 			);
@@ -540,13 +526,6 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				response,
 				environmentsCount: response?.environments?.length,
 				totalCount: response?.totalCount,
-			});
-
-			// Update the API call with response
-			apiCallTrackerService.updateApiCallResponse(callId, {
-				status: 200,
-				statusText: 'OK',
-				data: response,
 			});
 
 			// CRITICAL FIX: Ensure environments is always an array, never undefined
