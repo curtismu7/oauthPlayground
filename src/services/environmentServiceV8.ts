@@ -169,6 +169,7 @@ class EnvironmentServiceV8 {
 				status: response.status,
 				statusText: response.statusText,
 				ok: response.ok,
+				headers: Object.fromEntries(response.headers.entries()),
 			});
 
 			const data = await response.json();
@@ -177,6 +178,10 @@ class EnvironmentServiceV8 {
 				hasEnvironments: !!data?.environments,
 				environmentsCount: data?.environments?.length || 0,
 				totalCount: data?.totalCount,
+				fullData: JSON.stringify(data, null, 2),
+				dataKeys: Object.keys(data || {}),
+				environmentsType: typeof data?.environments,
+				environmentsIsArray: Array.isArray(data?.environments),
 			});
 
 			console.log('[EnvironmentServiceV8] 📈 getEnvironments completed successfully');
