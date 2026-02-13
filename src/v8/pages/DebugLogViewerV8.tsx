@@ -583,7 +583,7 @@ export const DebugLogViewerV8: React.FC = () => {
 											<div style={{ flex: 1 }}>
 												<div style={{
 													fontSize: '13px',
-													color: '#1f2937',
+													color: '#000000',
 													marginBottom: '4px',
 													fontWeight: '500',
 												}}>
@@ -591,14 +591,14 @@ export const DebugLogViewerV8: React.FC = () => {
 												</div>
 												<div style={{
 													fontSize: '11px',
-													color: '#6b7280',
+													color: '#374151',
 												}}>
 													{new Date(log.timestamp).toLocaleString()}
 												</div>
 												{log.url && (
 													<div style={{
 														fontSize: '11px',
-														color: '#6b7280',
+														color: '#374151',
 														marginTop: '4px',
 														wordBreak: 'break-all',
 													}}>
@@ -669,7 +669,7 @@ export const DebugLogViewerV8: React.FC = () => {
 							<pre style={{
 								margin: 0,
 								fontSize: '12px',
-								color: '#d1d5db',
+								color: '#000000',
 								fontFamily: 'monospace',
 								whiteSpace: 'pre-wrap',
 								wordBreak: 'break-word',
@@ -682,7 +682,7 @@ export const DebugLogViewerV8: React.FC = () => {
 						<div style={{
 							textAlign: 'center',
 							padding: '40px',
-							color: '#6b7280',
+							color: '#374151',
 						}}>
 							<p style={{ fontSize: '16px', marginBottom: '8px' }}>No log content</p>
 							<p style={{ fontSize: '14px' }}>
