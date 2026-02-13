@@ -779,8 +779,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		return <LoadingMessage>Loading environments...</LoadingMessage>;
 	}
 
-	if (error) {
-		return <ErrorMessage>Error: {error}</ErrorMessage>;
+	if (envError) {
+		return <ErrorMessage>Error: {envError}</ErrorMessage>;
 	}
 
 	return (
