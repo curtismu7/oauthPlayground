@@ -299,25 +299,6 @@ const EducationalCardText = styled.div`
   color: #555;
 `;
 
-const APIEndpointsList = styled.div`
-  background: #f8f8f8;
-  border-radius: 6px;
-  padding: 1rem;
-  margin-top: 1rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  border: 1px solid #e0e0e0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-`;
-
-const APIEndpoint = styled.div`
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-`;
-
 // Full-width API endpoints section
 const APIEndpointsSection = styled.div`
   margin: 2rem 0;
@@ -340,6 +321,37 @@ const APIEndpointsHeader = styled.h3`
 const APIEndpointsDescription = styled.p`
   margin: 0 0 1rem 0;
   color: #6c757d;
+`;
+
+const APIEndpointsTable = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
+
+const APIEndpointCell = styled.a`
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  text-decoration: none;
+  color: inherit;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #e9ecef;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+`;
+
+const APIEndpointText = styled.span`
+  margin-left: 0.5rem;
 `;
 
 const APIVerb = styled.span<{ method: 'GET' | 'POST' | 'PUT' | 'DELETE' }>`
@@ -862,26 +874,56 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				<APIEndpointsDescription>
 					All environment management operations are supported and tracked:
 				</APIEndpointsDescription>
-				<APIEndpointsList>
-					<APIEndpoint>
-						<APIVerb method="GET">GET</APIVerb> /api/environments - List all environments
-					</APIEndpoint>
-					<APIEndpoint>
-						<APIVerb method="GET">GET</APIVerb> /api/environments/:id - Get single environment
-					</APIEndpoint>
-					<APIEndpoint>
-						<APIVerb method="POST">POST</APIVerb> /api/environments - Create new environment
-					</APIEndpoint>
-					<APIEndpoint>
-						<APIVerb method="PUT">PUT</APIVerb> /api/environments/:id - Update environment
-					</APIEndpoint>
-					<APIEndpoint>
-						<APIVerb method="PUT">PUT</APIVerb> /api/environments/:id/status - Update status
-					</APIEndpoint>
-					<APIEndpoint>
-						<APIVerb method="DELETE">DELETE</APIVerb> /api/environments/:id - Delete environment
-					</APIEndpoint>
-				</APIEndpointsList>
+				<APIEndpointsTable>
+					<APIEndpointCell
+						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#get-environments"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<APIVerb method="GET">GET</APIVerb>
+						<APIEndpointText>/api/environments - List all environments</APIEndpointText>
+					</APIEndpointCell>
+					<APIEndpointCell
+						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#get-environment"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<APIVerb method="GET">GET</APIVerb>
+						<APIEndpointText>/api/environments/:id - Get single environment</APIEndpointText>
+					</APIEndpointCell>
+					<APIEndpointCell
+						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#create-environment"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<APIVerb method="POST">POST</APIVerb>
+						<APIEndpointText>/api/environments - Create new environment</APIEndpointText>
+					</APIEndpointCell>
+					<APIEndpointCell
+						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#update-environment"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<APIVerb method="PUT">PUT</APIVerb>
+						<APIEndpointText>/api/environments/:id - Update environment</APIEndpointText>
+					</APIEndpointCell>
+					<APIEndpointCell
+						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#update-environment-status"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<APIVerb method="PUT">PUT</APIVerb>
+						<APIEndpointText>/api/environments/:id/status - Update status</APIEndpointText>
+					</APIEndpointCell>
+					<APIEndpointCell
+						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#delete-environment"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<APIVerb method="DELETE">DELETE</APIVerb>
+						<APIEndpointText>/api/environments/:id - Delete environment</APIEndpointText>
+					</APIEndpointCell>
+				</APIEndpointsTable>
 			</APIEndpointsSection>
 
 			<Header>
