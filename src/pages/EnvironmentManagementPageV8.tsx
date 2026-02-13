@@ -15,6 +15,8 @@ import {
 	FiUpload,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import ApiCallList from '../../components/ApiCallList';
+import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
 import { useWorkerTokenState, WorkerTokenUI } from '../services/workerTokenUIService';
@@ -334,6 +336,25 @@ const APIVerb = styled.span<{ method: 'GET' | 'POST' | 'PUT' | 'DELETE' }>`
 	}};
 `;
 
+// API Display Section Styles
+const ApiDisplaySection = styled.div`
+  margin-top: 3rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 2rem;
+  border: 1px solid #e9ecef;
+`;
+
+const ApiDisplayHeader = styled.h3`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1.5rem 0;
+  color: #495057;
+  font-size: 1.25rem;
+  font-weight: 600;
+`;
+
 const Pagination = styled.div`
   display: flex;
   justify-content: center;
@@ -512,6 +533,19 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				currentPage,
 			});
 
+			// Track the API call
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'GET',
+				url: `/api/environments?page=${currentPage}&pageSize=${pageSize}`,
+				headers: {
+					Authorization: `Bearer ${globalTokenStatus.token?.substring(0, 20)}...`,
+					'Content-Type': 'application/json',
+				},
+				queryParams: Object.fromEntries(
+					Object.entries(filters).filter(([_, v]) => v !== undefined && v !== 'all')
+				),
+			});
+
 			console.log(
 				'[EnvironmentManagementPageV8] 📡 Making API call to EnvironmentServiceV8.getEnvironments'
 			);
@@ -526,6 +560,13 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				response,
 				environmentsCount: response?.environments?.length,
 				totalCount: response?.totalCount,
+			});
+
+			// Update the API call with response
+			apiCallTrackerService.updateApiCallResponse(callId, {
+				status: 200,
+				statusText: 'OK',
+				data: response,
 			});
 
 			// CRITICAL FIX: Ensure environments is always an array, never undefined
@@ -1047,6 +1088,15 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					</PaginationButton>
 				</Pagination>
 			)}
+
+			{/* API Call Display Section */}
+			<ApiDisplaySection>
+				<ApiDisplayHeader>
+					<FiCode />
+					API Call History
+				</ApiDisplayHeader>
+				<ApiCallList />
+			</ApiDisplaySection>
 		</Container>
 	);
 };
