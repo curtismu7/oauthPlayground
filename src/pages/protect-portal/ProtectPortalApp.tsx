@@ -13,6 +13,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiLoader, FiShield, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import AmericanAirlinesHero from './components/AmericanAirlinesHero';
+import BankOfAmericaHero from './components/BankOfAmericaHero';
 import CompanyHeader from './components/CompanyHeader';
 import CustomLoginForm from './components/CustomLoginForm';
 import FedExAirlinesHero from './components/FedExAirlinesHero';
@@ -23,6 +24,7 @@ import PortalSuccess from './components/PortalSuccess';
 import ProtectPage from './components/ProtectPage';
 import RiskEvaluationDisplay from './components/RiskEvaluationDisplay';
 import SouthwestAirlinesHero from './components/SouthwestAirlinesHero';
+import UnitedAirlinesHero from './components/UnitedAirlinesHero';
 import { BrandThemeProvider, useBrandTheme } from './themes/theme-provider';
 // Import types and config
 import type {
@@ -668,9 +670,35 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 						redirectUri={redirectUri}
 					/>
 				)}
+				{activeTheme.name === 'bank-of-america' && (
+					<BankOfAmericaHero
+						currentStep={portalState.currentStep}
+						onLoginStart={handleLoginStart}
+						onLoginSuccess={handleLoginSuccess}
+						onError={handleError}
+						environmentId={environmentId}
+						clientId={clientId}
+						clientSecret={clientSecret}
+						redirectUri={redirectUri}
+					/>
+				)}
+				{activeTheme.name === 'united-airlines' && (
+					<UnitedAirlinesHero
+						currentStep={portalState.currentStep}
+						onLoginStart={handleLoginStart}
+						onLoginSuccess={handleLoginSuccess}
+						onError={handleError}
+						environmentId={environmentId}
+						clientId={clientId}
+						clientSecret={clientSecret}
+						redirectUri={redirectUri}
+					/>
+				)}
 				{activeTheme.name !== 'american-airlines' &&
 					activeTheme.name !== 'southwest-airlines' &&
-					activeTheme.name !== 'fedex' && <CompanyHeader />}
+					activeTheme.name !== 'fedex' &&
+					activeTheme.name !== 'bank-of-america' &&
+					activeTheme.name !== 'united-airlines' && <CompanyHeader />}
 				<PortalCard>
 					<PortalContent>{renderStep()}</PortalContent>
 				</PortalCard>
