@@ -57,7 +57,7 @@ const ExampleDescription = styled.p`
 const ExampleLink = styled(Link)`
   display: inline-block;
   background: #007bff;
-  color: #ffffff;
+  color: #ffffff !important;
   padding: 0.75rem 1.5rem;
   border-radius: 4px;
   text-decoration: none;
@@ -66,7 +66,7 @@ const ExampleLink = styled(Link)`
 
   &:hover {
     background: #0056b3;
-    color: #ffffff;
+    color: #ffffff !important;
   }
 `;
 
@@ -78,10 +78,13 @@ const StatusBadge = styled.span<{ status: 'implemented' | 'planned' }>`
   font-weight: 500;
   margin-bottom: 1rem;
   
-  ${props => props.status === 'implemented' ? `
+  ${(props) =>
+		props.status === 'implemented'
+			? `
     background: #d4edda;
     color: #155724;
-  ` : `
+  `
+			: `
     background: #fff3cd;
     color: #856404;
   `}
@@ -109,7 +112,7 @@ const DocumentationItem = styled.li`
   margin-bottom: 1rem;
   
   a {
-    color: #007bff;
+    color: #007bff !important;
     text-decoration: none;
     font-weight: 500;
     
@@ -120,92 +123,88 @@ const DocumentationItem = styled.li`
 `;
 
 const SDKExamplesHome: React.FC = () => {
-  return (
-    <Container>
-      <Header>SDK Examples</Header>
-      <Description>
-        Explore comprehensive SDK examples demonstrating PingOne integration patterns, 
-        including DaVinci flows, OIDC centralized login, and JWT authentication. 
-        Each example follows best practices and includes detailed documentation.
-      </Description>
+	return (
+		<Container>
+			<Header>SDK Examples</Header>
+			<Description>
+				Explore comprehensive SDK examples demonstrating PingOne integration patterns, including
+				DaVinci flows, OIDC centralized login, and JWT authentication. Each example follows best
+				practices and includes detailed documentation.
+			</Description>
 
-      <ExamplesGrid>
-        <ExampleCard>
-          <StatusBadge status="implemented">Implemented</StatusBadge>
-          <ExampleTitle>JWT Authentication</ExampleTitle>
-          <ExampleDescription>
-            Complete JWT implementation with private key and client secret JWT generation, 
-            token validation, and secure key management using the jose library.
-          </ExampleDescription>
-          <ExampleLink to="/sdk-examples/jwt-authentication">
-            Explore JWT Examples
-          </ExampleLink>
-        </ExampleCard>
+			<ExamplesGrid>
+				<ExampleCard>
+					<StatusBadge status="implemented">Implemented</StatusBadge>
+					<ExampleTitle>JWT Authentication</ExampleTitle>
+					<ExampleDescription>
+						Complete JWT implementation with private key and client secret JWT generation, token
+						validation, and secure key management using the jose library.
+					</ExampleDescription>
+					<ExampleLink to="/sdk-examples/jwt-authentication">Explore JWT Examples</ExampleLink>
+				</ExampleCard>
 
-        <ExampleCard>
-          <StatusBadge status="implemented">Implemented</StatusBadge>
-          <ExampleTitle>OIDC Centralized Login</ExampleTitle>
-          <ExampleDescription>
-            Demonstrate server-side UI authentication using the PingOne OIDC SDK with 
-            redirect flows, background token renewal, and secure session management.
-          </ExampleDescription>
-          <ExampleLink to="/sdk-examples/oidc-centralized-login">
-            Explore OIDC Examples
-          </ExampleLink>
-        </ExampleCard>
+				<ExampleCard>
+					<StatusBadge status="implemented">Implemented</StatusBadge>
+					<ExampleTitle>OIDC Centralized Login</ExampleTitle>
+					<ExampleDescription>
+						Demonstrate server-side UI authentication using the PingOne OIDC SDK with redirect
+						flows, background token renewal, and secure session management.
+					</ExampleDescription>
+					<ExampleLink to="/sdk-examples/oidc-centralized-login">Explore OIDC Examples</ExampleLink>
+				</ExampleCard>
 
-        <ExampleCard>
-          <StatusBadge status="planned">Planned</StatusBadge>
-          <ExampleTitle>DaVinci Todo App</ExampleTitle>
-          <ExampleDescription>
-            Complete todo application showcasing DaVinci dynamic form rendering, 
-            flow management, and integration with PingOne DaVinci services.
-          </ExampleDescription>
-          <ExampleLink to="/sdk-examples/davinci-todo-app">
-            Coming Soon
-          </ExampleLink>
-        </ExampleCard>
+				<ExampleCard>
+					<StatusBadge status="planned">Planned</StatusBadge>
+					<ExampleTitle>DaVinci Todo App</ExampleTitle>
+					<ExampleDescription>
+						Complete todo application showcasing DaVinci dynamic form rendering, flow management,
+						and integration with PingOne DaVinci services.
+					</ExampleDescription>
+					<ExampleLink to="/sdk-examples/davinci-todo-app">Coming Soon</ExampleLink>
+				</ExampleCard>
 
-        <ExampleCard>
-          <StatusBadge status="planned">Planned</StatusBadge>
-          <ExampleTitle>SDK Documentation</ExampleTitle>
-          <ExampleDescription>
-            Comprehensive documentation, usage guides, and best practices for 
-            implementing PingOne SDKs in your applications.
-          </ExampleDescription>
-          <ExampleLink to="/sdk-examples/documentation">
-            View Documentation
-          </ExampleLink>
-        </ExampleCard>
-      </ExamplesGrid>
+				<ExampleCard>
+					<StatusBadge status="planned">Planned</StatusBadge>
+					<ExampleTitle>SDK Documentation</ExampleTitle>
+					<ExampleDescription>
+						Comprehensive documentation, usage guides, and best practices for implementing PingOne
+						SDKs in your applications.
+					</ExampleDescription>
+					<ExampleLink to="/sdk-examples/documentation">View Documentation</ExampleLink>
+				</ExampleCard>
+			</ExamplesGrid>
 
-      <DocumentationSection>
-        <DocumentationTitle>SDK Documentation</DocumentationTitle>
-        <DocumentationList>
-          <DocumentationItem>
-            <a href="/SDK_EXAMPLES_INVENTORY.md" target="_blank" rel="noopener noreferrer">
-              SDK Examples Inventory - Complete tracking of all SDK implementations
-            </a>
-          </DocumentationItem>
-          <DocumentationItem>
-            <a href="/SDK_EXAMPLES_GUIDE.md" target="_blank" rel="noopener noreferrer">
-              SDK Usage Guide - Comprehensive usage examples and best practices
-            </a>
-          </DocumentationItem>
-          <DocumentationItem>
-            <a href="/SWE-15_UNIFIED_MFA_GUIDE.md" target="_blank" rel="noopener noreferrer">
-              SWE-15 Development Guide - Software engineering best practices
-            </a>
-          </DocumentationItem>
-          <DocumentationItem>
-            <a href="https://docs.pingidentity.com/sdks/latest/" target="_blank" rel="noopener noreferrer">
-              PingOne SDK Documentation - Official PingOne SDK documentation
-            </a>
-          </DocumentationItem>
-        </DocumentationList>
-      </DocumentationSection>
-    </Container>
-  );
+			<DocumentationSection>
+				<DocumentationTitle>SDK Documentation</DocumentationTitle>
+				<DocumentationList>
+					<DocumentationItem>
+						<a href="/SDK_EXAMPLES_INVENTORY.md" target="_blank" rel="noopener noreferrer">
+							SDK Examples Inventory - Complete tracking of all SDK implementations
+						</a>
+					</DocumentationItem>
+					<DocumentationItem>
+						<a href="/SDK_EXAMPLES_GUIDE.md" target="_blank" rel="noopener noreferrer">
+							SDK Usage Guide - Comprehensive usage examples and best practices
+						</a>
+					</DocumentationItem>
+					<DocumentationItem>
+						<a href="/SWE-15_UNIFIED_MFA_GUIDE.md" target="_blank" rel="noopener noreferrer">
+							SWE-15 Development Guide - Software engineering best practices
+						</a>
+					</DocumentationItem>
+					<DocumentationItem>
+						<a
+							href="https://docs.pingidentity.com/sdks/latest/"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							PingOne SDK Documentation - Official PingOne SDK documentation
+						</a>
+					</DocumentationItem>
+				</DocumentationList>
+			</DocumentationSection>
+		</Container>
+	);
 };
 
 export default SDKExamplesHome;
