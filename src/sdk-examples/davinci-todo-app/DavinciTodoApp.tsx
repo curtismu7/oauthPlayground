@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { FiLoader, FiLogOut, FiPlus, FiSettings, FiTrash2 } from 'react-icons/fi';
+import { FiLoader, FiLogOut, FiPlus, FiTrash2 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { DavinciTodoProvider, useDavinciTodo } from './contexts/DavinciTodoContext';
-import DavinciTodoService from './services/davinciTodoService';
 
 const Container = styled.div`
   max-width: 800px;
@@ -285,10 +284,10 @@ interface APILog {
 	method: string;
 	url: string;
 	requestHeaders?: Record<string, string>;
-	requestBody?: any;
+	requestBody?: unknown;
 	responseStatus?: number;
 	responseHeaders?: Record<string, string>;
-	responseBody?: any;
+	responseBody?: unknown;
 	error?: string;
 }
 
@@ -301,13 +300,9 @@ const DavinciTodoApp: React.FC = () => {
 		todoStats,
 		loadTodos,
 		createTodo,
-		updateTodoService,
 		deleteTodoService,
 		toggleTodo,
 		clearCurrentUser,
-		initializeClient,
-		getClientStatus,
-		getConfiguration,
 	} = useDavinciTodo();
 
 	const [newTodoTitle, setNewTodoTitle] = useState('');
@@ -357,7 +352,7 @@ const DavinciTodoApp: React.FC = () => {
 				url: '/api/davinci-todos',
 				responseStatus: 201,
 				responseBody: {
-					id: 'todo-' + Date.now(),
+					id: `todo-${Date.now()}`,
 					title: newTodoTitle,
 					completed: false,
 					createdAt: new Date().toISOString(),
