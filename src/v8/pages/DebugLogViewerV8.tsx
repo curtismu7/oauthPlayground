@@ -13,6 +13,9 @@ import { LogFileService, type LogFile } from '@/services/logFileService';
 
 const MODULE_TAG = '[🔍 DEBUG-LOG-VIEWER-V8]';
 
+// Maximum string length to avoid browser crashes (approximately 50MB)
+const MAX_STRING_LENGTH = 50 * 1024 * 1024;
+
 interface LogEntry {
 	timestamp: string;
 	level: 'INFO' | 'WARN' | 'ERROR';
@@ -25,6 +28,29 @@ interface LogEntry {
 type LogCategory = 'ALL' | 'REDIRECT_URI' | 'MIGRATION' | 'VALIDATION' | 'FLOW_MAPPING';
 type LogSource = 'localStorage' | 'file';
 
+// Truncate file content to prevent browser crashes
+const truncateFileContent = (content: string, filename: string): { content: string; isTruncated: boolean; originalSize: number } => {
+	const originalSize = content.length;
+	
+	if (content.length <= MAX_STRING_LENGTH) {
+		return { content, isTruncated: false, originalSize };
+	}
+	
+	// Truncate to safe length and add warning
+	const truncatedContent = content.substring(0, MAX_STRING_LENGTH);
+	const warning = `\n\n⚠️ WARNING: File content truncated due to size limit\n` +
+		`Original size: ${(originalSize / 1024 / 1024).toFixed(2)} MB\n` +
+		`Displaying: ${(MAX_STRING_LENGTH / 1024 / 1024).toFixed(2)} MB\n` +
+		`File: ${filename}\n` +
+		`Use tail mode or reduce line count to see recent content.\n`;
+	
+	return { 
+		content: truncatedContent + warning, 
+		isTruncated: true, 
+		originalSize 
+	};
+};
+
 export const DebugLogViewerV8: React.FC = () => {
 	// Source selection
 	const [logSource, setLogSource] = useState<LogSource>('file');
@@ -35,6 +61,8 @@ export const DebugLogViewerV8: React.FC = () => {
 	// Log data
 	const [logs, setLogs] = useState<LogEntry[]>([]);
 	const [fileContent, setFileContent] = useState<string>('');
+	const [isContentTruncated, setIsContentTruncated] = useState<boolean>(false);
+	const [originalFileSize, setOriginalFileSize] = useState<number>(0);
 	const [selectedCategory, setSelectedCategory] = useState<LogCategory>('ALL');
 	const [expandedLogs, setExpandedLogs] = useState<Set<number>>(new Set());
 	
@@ -74,9 +102,20 @@ export const DebugLogViewerV8: React.FC = () => {
 		
 		try {
 			const result = await LogFileService.readLogFile(selectedFile, lineCount, true);
-			setFileContent(result.content);
+			
+			// Truncate content to prevent browser crashes
+			const { content: safeContent, isTruncated, originalSize } = truncateFileContent(result.content, selectedFile);
+			
+			setFileContent(safeContent);
 			setLogs([]);
-			console.log(`${MODULE_TAG} Loaded ${result.totalLines} lines from ${selectedFile}`);
+			setIsContentTruncated(isTruncated);
+			setOriginalFileSize(originalSize);
+			
+			if (isTruncated) {
+				console.warn(`${MODULE_TAG} File content truncated for ${selectedFile}: ${(originalSize / 1024 / 1024).toFixed(2)} MB → ${(MAX_STRING_LENGTH / 1024 / 1024).toFixed(2)} MB`);
+			} else {
+				console.log(`${MODULE_TAG} Loaded ${result.totalLines} lines from ${selectedFile}`);
+			}
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Failed to load log file';
 			setError(errorMessage);
@@ -659,28 +698,52 @@ export const DebugLogViewerV8: React.FC = () => {
 				) : (
 					// File content display
 					fileContent ? (
-						<div
-							ref={logContainerRef}
-							style={{
-								background: '#1f2937',
-								borderRadius: '4px',
-								padding: '16px',
-								maxHeight: '600px',
-								overflow: 'auto',
-							}}
-						>
-							<pre style={{
-								margin: 0,
-								fontSize: '12px',
-								color: '#000000',
-								fontFamily: 'monospace',
-								whiteSpace: 'pre-wrap',
-								wordBreak: 'break-word',
-								lineHeight: '1.5',
-							}}>
-								{fileContent}
-							</pre>
-						</div>
+						<>
+							{isContentTruncated && (
+								<div style={{
+									background: '#fef3c7',
+									border: '1px solid #f59e0b',
+									borderRadius: '4px',
+									padding: '12px',
+									marginBottom: '16px',
+									color: '#92400e',
+									fontSize: '13px',
+									fontWeight: '500',
+								}}>
+									⚠️ File content truncated due to size limit
+									<br />
+									Original size: {(originalFileSize / 1024 / 1024).toFixed(2)} MB
+									<br />
+									Displaying: {(MAX_STRING_LENGTH / 1024 / 1024).toFixed(2)} MB
+									<br />
+									File: {selectedFile}
+									<br />
+									Use tail mode or reduce line count to see recent content.
+								</div>
+							)}
+							<div
+								ref={logContainerRef}
+								style={{
+									background: '#1f2937',
+									borderRadius: '4px',
+									padding: '16px',
+									maxHeight: '600px',
+									overflow: 'auto',
+								}}
+							>
+								<pre style={{
+									margin: 0,
+									fontSize: '12px',
+									color: '#000000',
+									fontFamily: 'monospace',
+									whiteSpace: 'pre-wrap',
+									wordBreak: 'break-word',
+									lineHeight: '1.5',
+								}}>
+									{fileContent}
+								</pre>
+							</div>
+						</>
 					) : (
 						<div style={{
 							textAlign: 'center',
