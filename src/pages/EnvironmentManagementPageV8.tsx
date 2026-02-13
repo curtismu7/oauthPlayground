@@ -307,13 +307,15 @@ const APIEndpointsList = styled.div`
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
   border: 1px solid #e0e0e0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 `;
 
 const APIEndpoint = styled.div`
-  margin-bottom: 0.5rem;
-  &:last-child {
-    margin-bottom: 0;
-  }
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
 `;
 
 const APIVerb = styled.span<{ method: 'GET' | 'POST' | 'PUT' | 'DELETE' }>`
