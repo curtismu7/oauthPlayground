@@ -17,7 +17,7 @@ import {
 import styled from 'styled-components';
 import ApiCallList from '../components/ApiCallList';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
+import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
@@ -520,14 +520,6 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		};
 	}, []);
 
-	const handleModalContinue = () => {
-		const token = localStorage.getItem('worker_token') || '';
-		const expiresAt = localStorage.getItem('worker_token_expires_at');
-		setWorkerToken(token);
-		// Note: workerTokenExpiresAt is managed by WorkerTokenDetectedBanner component
-		setShowWorkerTokenModal(false);
-	};
-
 	const pageSize = 12;
 	const STORAGE_KEY = 'environment-management-settings';
 
@@ -934,13 +926,13 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					</div>
 
 					{/* Worker Token Modal */}
-					<WorkerTokenModal
+					<WorkerTokenModalV8
 						isOpen={showWorkerTokenModal}
 						onClose={() => setShowWorkerTokenModal(false)}
-						onContinue={handleModalContinue}
-						flowType="environment-management"
-						tokenStorageKey="worker_token"
-						tokenExpiryKey="worker_token_expires_at"
+						onTokenGenerated={() => {
+							// Token generated, reload the page to show environments
+							window.location.reload();
+						}}
 					/>
 				</div>
 			</Container>
