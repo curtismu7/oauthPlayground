@@ -318,6 +318,30 @@ const APIEndpoint = styled.div`
   white-space: nowrap;
 `;
 
+// Full-width API endpoints section
+const APIEndpointsSection = styled.div`
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+`;
+
+const APIEndpointsHeader = styled.h3`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem 0;
+  color: #495057;
+  font-size: 1.25rem;
+  font-weight: 600;
+`;
+
+const APIEndpointsDescription = styled.p`
+  margin: 0 0 1rem 0;
+  color: #6c757d;
+`;
+
 const APIVerb = styled.span<{ method: 'GET' | 'POST' | 'PUT' | 'DELETE' }>`
   display: inline-block;
   width: 60px;
@@ -826,38 +850,39 @@ const EnvironmentManagementPageV8: React.FC = () => {
 							immediately. Cannot be restored once deleted.
 						</EducationalCardText>
 					</EducationalCard>
-					<EducationalCard>
-						<EducationalCardTitle>
-							<FiCode />
-							Supported API Endpoints
-						</EducationalCardTitle>
-						<EducationalCardText>
-							All environment management operations are supported and tracked:
-							<APIEndpointsList>
-								<APIEndpoint>
-									<APIVerb method="GET">GET</APIVerb> /api/environments - List all environments
-								</APIEndpoint>
-								<APIEndpoint>
-									<APIVerb method="GET">GET</APIVerb> /api/environments/:id - Get single environment
-								</APIEndpoint>
-								<APIEndpoint>
-									<APIVerb method="POST">POST</APIVerb> /api/environments - Create new environment
-								</APIEndpoint>
-								<APIEndpoint>
-									<APIVerb method="PUT">PUT</APIVerb> /api/environments/:id - Update environment
-								</APIEndpoint>
-								<APIEndpoint>
-									<APIVerb method="PUT">PUT</APIVerb> /api/environments/:id/status - Update status
-								</APIEndpoint>
-								<APIEndpoint>
-									<APIVerb method="DELETE">DELETE</APIVerb> /api/environments/:id - Delete
-									environment
-								</APIEndpoint>
-							</APIEndpointsList>
-						</EducationalCardText>
-					</EducationalCard>
 				</EducationalContent>
 			</EducationalSection>
+
+			{/* API Endpoints Section - Full Width */}
+			<APIEndpointsSection>
+				<APIEndpointsHeader>
+					<FiCode />
+					Supported API Endpoints
+				</APIEndpointsHeader>
+				<APIEndpointsDescription>
+					All environment management operations are supported and tracked:
+				</APIEndpointsDescription>
+				<APIEndpointsList>
+					<APIEndpoint>
+						<APIVerb method="GET">GET</APIVerb> /api/environments - List all environments
+					</APIEndpoint>
+					<APIEndpoint>
+						<APIVerb method="GET">GET</APIVerb> /api/environments/:id - Get single environment
+					</APIEndpoint>
+					<APIEndpoint>
+						<APIVerb method="POST">POST</APIVerb> /api/environments - Create new environment
+					</APIEndpoint>
+					<APIEndpoint>
+						<APIVerb method="PUT">PUT</APIVerb> /api/environments/:id - Update environment
+					</APIEndpoint>
+					<APIEndpoint>
+						<APIVerb method="PUT">PUT</APIVerb> /api/environments/:id/status - Update status
+					</APIEndpoint>
+					<APIEndpoint>
+						<APIVerb method="DELETE">DELETE</APIVerb> /api/environments/:id - Delete environment
+					</APIEndpoint>
+				</APIEndpointsList>
+			</APIEndpointsSection>
 
 			<Header>
 				<Title>PingOne Environment Management</Title>
