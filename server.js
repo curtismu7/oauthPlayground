@@ -1648,6 +1648,101 @@ app.get('/api/environments', async (req, res) => {
 	}
 });
 
+// Test endpoint to debug environment fetching
+app.get('/api/test-environments', async (req, res) => {
+	console.log('[TEST] Debug endpoint hit');
+	try {
+		const { accessToken, region = 'na' } = req.query;
+		
+		if (!accessToken) {
+			return res.status(401).json({ error: 'No access token' });
+		}
+		
+		console.log('[TEST] Token length:', accessToken?.length);
+		console.log('[TEST] Region:', region);
+		
+		// Test direct PingOne API call
+		const regionMap = {
+			us: 'https://api.pingone.com',
+			na: 'https://api.pingone.com',
+			eu: 'https://api.pingone.eu',
+			ca: 'https://api.pingone.ca',
+			ap: 'https://api.pingone.asia',
+			asia: 'https://api.pingone.asia',
+		};
+		
+		const baseUrl = regionMap[String(region).toLowerCase()] || regionMap.na;
+		
+		// Get organizations
+		const orgResponse = await fetch(`${baseUrl}/v1/organizations`, {
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+			}
+		});
+		
+		console.log('[TEST] Org response status:', orgResponse.status);
+		
+		if (!orgResponse.ok) {
+			return res.status(400).json({ error: 'Org fetch failed', status: orgResponse.status });
+		}
+		
+		const orgData = await orgResponse.json();
+		const organizations = orgData._embedded?.organizations || [];
+		
+		console.log('[TEST] Organizations count:', organizations.length);
+		
+		if (organizations.length === 0) {
+			return res.json({ error: 'No organizations found' });
+		}
+		
+		// Get environments
+		const envResponse = await fetch(
+			`${baseUrl}/v1/organizations/${organizations[0].id}/environments?limit=100`,
+			{
+				headers: {
+					'Authorization': `Bearer ${accessToken}`,
+				}
+			}
+		);
+		
+		console.log('[TEST] Env response status:', envResponse.status);
+		
+		if (!envResponse.ok) {
+			return res.status(400).json({ error: 'Env fetch failed', status: envResponse.status });
+		}
+		
+		const envData = await envResponse.json();
+		const environments = envData._embedded?.environments || [];
+		
+		console.log('[TEST] Raw environments count:', environments.length);
+		
+		// Show first environment details
+		if (environments.length > 0) {
+			console.log('[TEST] First environment:', {
+				id: environments[0].id,
+				name: environments[0].name,
+				enabled: environments[0].enabled,
+				type: environments[0].type
+			});
+		}
+		
+		res.json({
+			organizations: organizations.length,
+			environments: environments.length,
+			firstEnv: environments[0] ? {
+				id: environments[0].id,
+				name: environments[0].name,
+				enabled: environments[0].enabled,
+				type: environments[0].type
+			} : null
+		});
+		
+	} catch (error) {
+		console.error('[TEST] Error:', error);
+		res.status(500).json({ error: error.message });
+	}
+});
+
 // Debug endpoint to check server logs
 app.get('/api/debug', (req, res) => {
 	res.json({

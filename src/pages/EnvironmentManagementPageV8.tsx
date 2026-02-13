@@ -594,6 +594,24 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		return () => clearTimeout(timeoutId);
 	}, [selectedApiRegion, typeFilter, statusFilter, regionFilter, currentPage]);
 
+	// Test function to debug environment fetching
+	const testEnvironmentFetch = useCallback(async () => {
+		console.log('[TEST] Starting environment fetch test...');
+		try {
+			const token = unifiedWorkerTokenService.getTokenDataSync()?.token;
+			if (!token) {
+				console.error('[TEST] No token available');
+				return;
+			}
+			
+			const response = await fetch(`/api/test-environments?accessToken=${token}&region=na`);
+			const data = await response.json();
+			console.log('[TEST] Response:', data);
+		} catch (error) {
+			console.error('[TEST] Error:', error);
+		}
+	}, []);
+
 	const fetchEnvironments = useCallback(async () => {
 		console.log('[EnvironmentManagementPageV8] 🚀 Starting fetchEnvironments...');
 
@@ -917,13 +935,33 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						tokenExpiryKey="worker_token_expires_at"
 					/>
 
-					<div style={{ marginTop: '1rem' }}>
+					<div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+						<button
+							type="button"
+							onClick={testEnvironmentFetch}
+							style={{
+								padding: '0.75rem 1.5rem',
+								backgroundColor: '#f59e0b',
+								color: 'white',
+								border: 'none',
+								borderRadius: '0.5rem',
+								fontSize: '0.875rem',
+								fontWeight: '600',
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
+							🔍 Test Environment Fetch
+						</button>
+
 						<button
 							type="button"
 							onClick={() => setShowWorkerTokenModal(true)}
 							style={{
 								padding: '0.75rem 1.5rem',
-								background: '#3b82f6',
+								backgroundColor: '#3b82f6',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.5rem',
