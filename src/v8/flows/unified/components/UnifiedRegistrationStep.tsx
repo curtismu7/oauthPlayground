@@ -121,7 +121,7 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 	console.log(`${MODULE_TAG} Rendering registration step for:`, config.deviceType);
 
 	// State for registration result
-	const [registrationResult, setRegistrationResult] = useState<any>(null);
+	const [_registrationResult, setRegistrationResult] = useState<any>(null);
 	const [registrationError, setRegistrationError] = useState<string | null>(null);
 
 	// Check if form is valid for registration
@@ -129,7 +129,7 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 		// For user flows, don't require worker token - user token is sufficient
 		const tokenType = credentials.tokenType || 'worker';
 		const requiresWorkerToken = tokenType === 'worker';
-		
+
 		// Check token validity based on token type
 		if (requiresWorkerToken && !tokenStatus.isValid) {
 			console.log(`${MODULE_TAG} Worker token required but not valid for ${config.deviceType}`);
@@ -149,11 +149,11 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 			tokenValid: tokenStatus.isValid,
 			fieldsValid,
 			requiredFieldCount: requiredFields.length,
-			deviceFields
+			deviceFields,
 		});
 
 		return fieldsValid;
-	}, [tokenStatus.isValid, config.requiredFields, deviceFields, credentials]);
+	}, [tokenStatus.isValid, config.requiredFields, deviceFields, credentials, config.deviceType]);
 
 	// Handle device registration
 	const handleRegisterDevice = useCallback(async () => {

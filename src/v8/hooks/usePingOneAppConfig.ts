@@ -5,8 +5,7 @@
  * @version 1.0.0
  */
 
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PingOneAppConfig, PingOneAppConfigForm } from '../components/PingOneAppConfigForm';
 
 const STORAGE_KEY = 'pingone_app_config';
@@ -54,7 +53,7 @@ export const usePingOneAppConfig = () => {
 		config,
 		updateConfig,
 		resetConfig,
-		PingOneAppConfigForm: () => 
+		PingOneAppConfigForm: () =>
 			React.createElement(PingOneAppConfigForm, { config, onChange: updateConfig }),
 	};
 };

@@ -96,7 +96,9 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 							marginRight: '12px',
 						}}
 					/>
-					<h2 id="modal-title" style={{ margin: 0, color: '#1f2937', fontSize: '18px' }}>Device Limit Reached</h2>
+					<h2 id="modal-title" style={{ margin: 0, color: '#1f2937', fontSize: '18px' }}>
+						Device Limit Reached
+					</h2>
 				</div>
 
 				{/* Error Message */}

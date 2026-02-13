@@ -32,7 +32,6 @@ import {
 	FiEye,
 	FiFileText,
 	FiGitBranch,
-	FiHome,
 	FiKey,
 	FiLayers,
 	FiLock,
@@ -472,7 +471,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 					},
 					// ORIGINAL Entries
-										// UNIFIED Entries (sorted alphabetically)
+					// UNIFIED Entries (sorted alphabetically)
 					{
 						id: 'postman-collection-generator',
 						path: '/postman-collection-generator',
@@ -581,7 +580,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge 
+							<MigrationBadge
 								title="Complete risk-based authentication portal with MFA integration"
 								style={{ background: '#dc2626', color: 'white' }}
 							>
@@ -651,7 +650,11 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								<FiLayers />
 							</ColoredIcon>
 						),
-						badge: <MigrationBadge style={{ background: '#ef4444', color: 'white' }}>UNIFIED</MigrationBadge>,
+						badge: (
+							<MigrationBadge style={{ background: '#ef4444', color: 'white' }}>
+								UNIFIED
+							</MigrationBadge>
+						),
 					},
 					{
 						id: 'oauth-authorization-code-v8',

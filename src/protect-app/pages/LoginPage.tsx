@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { PageApiInfo } from '../components/common/PageApiInfo';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 
 /**
  * Login Page
@@ -22,7 +22,7 @@ export const LoginPage: React.FC = () => {
 		password: '',
 	});
 	const [errors, setErrors] = useState<Record<string, string>>({});
-	
+
 	// Get environment ID from credentials for UserSearchDropdown
 	const credentials = CredentialsServiceV8.loadCredentials('protect-portal', {
 		flowKey: 'protect-portal',
@@ -42,7 +42,7 @@ export const LoginPage: React.FC = () => {
 			setErrors((prev) => ({ ...prev, [name]: '' }));
 		}
 	};
-	
+
 	const handleUsernameChange = (username: string) => {
 		setFormData((prev) => ({ ...prev, email: username }));
 		// Clear error when user selects username

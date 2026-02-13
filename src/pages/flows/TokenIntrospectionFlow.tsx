@@ -10,7 +10,6 @@ import {
 	TokenManagementService,
 } from '../../services/tokenManagementService';
 import { logger } from '../../utils/logger';
-import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -306,9 +305,9 @@ const TokenIntrospectionFlow: React.FC<TokenIntrospectionFlowProps> = ({ credent
 				if (stored) {
 					const data = JSON.parse(stored);
 					if (data.credentials?.environmentId && !formData.environmentId) {
-						setFormData(prev => ({
+						setFormData((prev) => ({
 							...prev,
-							environmentId: data.credentials.environmentId
+							environmentId: data.credentials.environmentId,
 						}));
 					}
 				}

@@ -43,22 +43,25 @@ class SettingsDatabaseService {
 				}
 
 				// Create settings table
-				this.db.run(`
+				this.db.run(
+					`
 					CREATE TABLE IF NOT EXISTS settings (
 						key TEXT PRIMARY KEY,
 						value TEXT,
 						updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 					)
-				`, (err) => {
-					if (err) {
-						console.error('[SettingsDB] Failed to create table:', err);
-						reject(err);
-						return;
-					}
+				`,
+					(err) => {
+						if (err) {
+							console.error('[SettingsDB] Failed to create table:', err);
+							reject(err);
+							return;
+						}
 
-					this.initialized = true;
-					resolve();
-				});
+						this.initialized = true;
+						resolve();
+					}
+				);
 			});
 		});
 	}
@@ -70,17 +73,13 @@ class SettingsDatabaseService {
 		if (!this.initialized) await this.init();
 
 		return new Promise((resolve, reject) => {
-			this.db.get(
-				'SELECT value FROM settings WHERE key = ?',
-				[key],
-				(err, row) => {
-					if (err) {
-						reject(err);
-						return;
-					}
-					resolve(row ? row.value : null);
+			this.db.get('SELECT value FROM settings WHERE key = ?', [key], (err, row) => {
+				if (err) {
+					reject(err);
+					return;
 				}
-			);
+				resolve(row ? row.value : null);
+			});
 		});
 	}
 

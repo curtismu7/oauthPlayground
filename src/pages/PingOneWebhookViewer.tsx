@@ -26,7 +26,6 @@ import ApiCallList from '../components/ApiCallList';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
-import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { secureLog } from '../utils/secureLogging';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
@@ -458,14 +457,17 @@ const PingOneWebhookViewer: React.FC = () => {
 			if (stored) {
 				const data = JSON.parse(stored);
 				if (data.credentials?.environmentId) {
-					console.log('[Webhook Viewer] Loading Environment ID from unified worker token:', data.credentials.environmentId);
+					console.log(
+						'[Webhook Viewer] Loading Environment ID from unified worker token:',
+						data.credentials.environmentId
+					);
 					return data.credentials.environmentId;
 				}
 			}
 		} catch (error) {
 			console.log('Failed to load environment ID from unified worker token:', error);
 		}
-		
+
 		// Fallback to old environmentId storage
 		const fallbackEnvId = localStorage.getItem('environmentId') || '';
 		console.log('[Webhook Viewer] Loading Environment ID from fallback storage:', fallbackEnvId);

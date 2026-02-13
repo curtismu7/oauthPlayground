@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { FiAlertTriangle, FiInfo, FiKey, FiRefreshCw, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
+import { StepNavigationButtons } from '../components/StepNavigationButtons';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
@@ -19,7 +20,6 @@ import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
-import { StepNavigationButtons } from '../components/StepNavigationButtons';
 
 type CredentialsState = {
 	environmentId: string;

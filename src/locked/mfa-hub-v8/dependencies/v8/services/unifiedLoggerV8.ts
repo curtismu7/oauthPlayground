@@ -49,7 +49,6 @@ const BATCH_INTERVAL = 5000; // 5 seconds
 
 class UnifiedLoggerV8 {
 	private runId: string | null = null;
-	private transactionId: string | null = null;
 	private logQueue: UnifiedLogEntry[] = [];
 	private batchTimer: NodeJS.Timeout | null = null;
 	private isShipping = false;

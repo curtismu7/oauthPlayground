@@ -9,7 +9,7 @@
 import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
-interface DashboardPageProps {}
+type DashboardPageProps = {};
 
 export const DashboardPage: React.FC<DashboardPageProps> = () => {
 	const { currentTheme } = useTheme();
@@ -83,7 +83,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = () => {
 					Recent Activity
 				</h2>
 				<div className="space-y-3">
-					<div className="flex items-center justify-between p-3 rounded" style={{ backgroundColor: currentTheme.colors.primaryLight }}>
+					<div
+						className="flex items-center justify-between p-3 rounded"
+						style={{ backgroundColor: currentTheme.colors.primaryLight }}
+					>
 						<div className="flex items-center space-x-3">
 							<div className="w-2 h-2 bg-green-500 rounded-full"></div>
 							<div>
@@ -99,7 +102,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = () => {
 							2 hours ago
 						</div>
 					</div>
-					<div className="flex items-center justify-between p-3 rounded" style={{ backgroundColor: currentTheme.colors.warningLight }}>
+					<div
+						className="flex items-center justify-between p-3 rounded"
+						style={{ backgroundColor: currentTheme.colors.warningLight }}
+					>
 						<div className="flex items-center space-x-3">
 							<div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
 							<div>

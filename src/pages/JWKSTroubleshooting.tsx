@@ -10,8 +10,8 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const Container = styled.div`
   max-width: 1200px;

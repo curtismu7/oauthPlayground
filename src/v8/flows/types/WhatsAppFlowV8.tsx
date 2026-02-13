@@ -2540,10 +2540,10 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 										cursor: isLoading || !otpState.canResend ? 'not-allowed' : 'pointer',
 									}}
 								>
-									{isLoading 
-										? '🔄 Sending...' 
-										: otpState.canResend 
-											? '🔄 Resend OTP Code' 
+									{isLoading
+										? '🔄 Sending...'
+										: otpState.canResend
+											? '🔄 Resend OTP Code'
 											: `🔄 Resend in ${otpState.resendCooldown}s`}
 								</button>
 							</div>

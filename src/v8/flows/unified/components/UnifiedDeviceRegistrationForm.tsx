@@ -788,9 +788,12 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 											flowType: 'registration' as const,
 											timestamp: Date.now(),
 										};
-										
-										sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
-										
+
+										sessionStorage.setItem(
+											'mfa_flow_callback_context',
+											JSON.stringify(flowContext)
+										);
+
 										console.log('[UNIFIED-FLOW] 🎯 Stored flow context for registration fallback');
 
 										// Proceed with registration

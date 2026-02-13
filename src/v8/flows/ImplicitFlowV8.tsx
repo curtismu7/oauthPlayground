@@ -10,34 +10,33 @@ import React, { useEffect, useState } from 'react';
 import CredentialsFormV8 from '@/v8/components/CredentialsFormV8';
 import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
 import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
-import { useActionButton } from '@/v8/hooks/useActionButton';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
-import { usePingOneAppConfig } from '../hooks/usePingOneAppConfig';
-import { PingOneAppConfigForm } from '../components/PingOneAppConfigForm';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
 import { ImplicitFlowIntegrationServiceV8 } from '@/v8/services/implicitFlowIntegrationServiceV8';
 import { RedirectlessServiceV8 } from '@/v8/services/redirectlessServiceV8';
+import { PingOneAppConfigForm } from '../components/PingOneAppConfigForm';
+import { usePingOneAppConfig } from '../hooks/usePingOneAppConfig';
 import { ValidationServiceV8 } from '../services/validationServiceV8';
 
 const MODULE_TAG = '[🔓 IMPLICIT-FLOW-V8]';
 const FLOW_KEY = 'implicit-flow-v8';
 
 interface Credentials {
-  environmentId: string;
-  clientId: string;
-  redirectUri?: string;
-  postLogoutRedirectUri?: string;
-  logoutUri?: string;
-  scopes?: string;
-  loginHint?: string;
-  clientAuthMethod?:
-    | 'none'
-    | 'client_secret_basic'
-    | 'client_secret_post'
-    | 'client_secret_jwt'
-    | 'private_key_jwt';
-  [key: string]: unknown;
+	environmentId: string;
+	clientId: string;
+	redirectUri?: string;
+	postLogoutRedirectUri?: string;
+	logoutUri?: string;
+	scopes?: string;
+	loginHint?: string;
+	clientAuthMethod?:
+		| 'none'
+		| 'client_secret_basic'
+		| 'client_secret_post'
+		| 'client_secret_jwt'
+		| 'private_key_jwt';
+	[key: string]: unknown;
 	environmentId: string;
 	clientId: string;
 	redirectUri?: string;
