@@ -378,10 +378,19 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			setLoading(true);
 			setError(null);
 
+			console.log('[EnvironmentManagementPageV8] 📊 Fetching environments - Token status:', {
+				isLoading: globalTokenStatus.isLoading,
+				isValid: globalTokenStatus.isValid,
+				hasToken: !!globalTokenStatus.token,
+				tokenLength: globalTokenStatus.token?.length || 0,
+				error: globalTokenStatus.error,
+				message: globalTokenStatus.message
+			});
+
 			// Check if global worker token is still loading
 			if (globalTokenStatus.isLoading) {
 				console.log(
-					'[EnvironmentManagementPageV8] Global worker token is still loading, skipping fetch'
+					'[EnvironmentManagementPageV8] ⏳ Global worker token is still loading, skipping fetch'
 				);
 				return;
 			}
@@ -389,11 +398,18 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			// Check if global worker token is available and valid
 			if (!globalTokenStatus.isValid || !globalTokenStatus.token) {
 				console.log(
-					'[EnvironmentManagementPageV8] Global worker token not available, skipping fetch'
+					'[EnvironmentManagementPageV8] ❌ Global worker token not available, skipping fetch',
+					{
+						isValid: globalTokenStatus.isValid,
+						hasToken: !!globalTokenStatus.token,
+						error: globalTokenStatus.error
+					}
 				);
 				// Don't throw error - just return early to allow UI to show worker token prompt
 				return;
 			}
+
+			console.log('[EnvironmentManagementPageV8] ✅ Token is valid, proceeding with environment fetch');
 
 			const filters: {
 				type?: string[];
