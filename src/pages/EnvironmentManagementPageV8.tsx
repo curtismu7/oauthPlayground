@@ -543,7 +543,9 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					'Content-Type': 'application/json',
 				},
 				queryParams: Object.fromEntries(
-					Object.entries(filters).filter(([, v]) => v !== undefined && v !== 'all')
+					Object.entries(filters)
+						.filter(([, v]) => v !== undefined && v !== 'all')
+						.map(([k, v]) => [k, Array.isArray(v) ? v.join(',') : String(v)])
 				),
 			});
 
