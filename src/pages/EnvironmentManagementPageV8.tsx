@@ -64,16 +64,20 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 	}};
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
+  font-size: 0.875rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 
   &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     background: ${(props) => {
 			switch (props.variant) {
 				case 'primary':
@@ -88,9 +92,16 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 		}};
   }
 
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+
   &:disabled {
-    background: #6c757d;
+    opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `;
 
@@ -679,6 +690,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		// Clear environments immediately for better UX
 		setEnvironments([]);
 		setEnvError(null);
+		// Reset selected environment when region changes
+		setSelectedEnvironmentId('');
 		// Reset loading state after a short delay to allow for smooth transition
 		setTimeout(() => setIsChangingRegion(false), 300);
 	};
