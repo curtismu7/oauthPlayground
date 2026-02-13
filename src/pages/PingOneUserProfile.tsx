@@ -18,6 +18,7 @@ import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
+import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { lookupPingOneUser } from '../services/pingOneUserProfileService';
 import { credentialManager } from '../utils/credentialManager';
@@ -204,6 +205,8 @@ const isAffirmativeStatus = (status: string): boolean => {
 
 /**
  * Reads worker token status from localStorage so UI can guide the user.
+ * Note: This function is kept for backward compatibility but should eventually be removed
+ * in favor of using globalTokenStatus directly throughout the component.
  */
 const getWorkerTokenMeta = (): WorkerTokenMeta => {
 	try {
@@ -212,8 +215,8 @@ const getWorkerTokenMeta = (): WorkerTokenMeta => {
 		const expiresAtParsed = expiresRaw ? Number(expiresRaw) : null;
 		const hasToken = Boolean(token);
 		const hasExpiration = typeof expiresAtParsed === 'number' && Number.isFinite(expiresAtParsed);
-		const isExpired = hasExpiration ? expiresAtParsed <= Date.now() : false;
-		const { relative, absolute } = describeExpiry(hasExpiration ? expiresAtParsed : null);
+		const isExpired = hasExpiration && expiresAtParsed < Date.now();
+		const { relative, absolute } = describeExpiry(expiresAtParsed);
 
 		return {
 			hasToken,
@@ -784,9 +787,6 @@ const PingOneUserProfile: React.FC = () => {
 		
 		return '';
 	});
-	const [accessToken, setAccessToken] = useState(
-		searchParams.get('accessToken') || localStorage.getItem('worker_token') || ''
-	);
 	// Always show user selector initially - user must explicitly load the profile
 	const [showUserSelector, setShowUserSelector] = useState(true);
 
@@ -816,6 +816,14 @@ const PingOneUserProfile: React.FC = () => {
 		setComparisonError(null);
 		setIsComparisonLoading(false);
 	}, []);
+
+	// Use global worker token service instead of custom localStorage handling
+	// IMPORTANT: Must be declared before fetchUserBundle callback to avoid TDZ errors
+	const globalTokenStatus = useGlobalWorkerToken();
+
+	// Use global worker token instead of custom accessToken state
+	const accessToken = globalTokenStatus.token || '';
+
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showServerErrorModal, setShowServerErrorModal] = useState(false);
 	const [savedWorkerCredentials, setSavedWorkerCredentials] = useState(() =>
@@ -903,7 +911,7 @@ const PingOneUserProfile: React.FC = () => {
 							);
 							return payload;
 						}) as Promise<{
-						_embedded?: { groups?: PingOneUserGroup[]; items?: PingOneUserGroup[] };
+						_embedded?: { groups?: PingOneUserGroup[]; items?: PingOneUserGroup[]; memberOfGroups?: PingOneUserGroup[] };
 					}>,
 					fetch(
 						`http://localhost:3001/api/pingone/user/${encodeURIComponent(resolvedId)}/roles?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
@@ -1239,7 +1247,6 @@ const PingOneUserProfile: React.FC = () => {
 					);
 					localStorage.removeItem('worker_token');
 					localStorage.removeItem('worker_token_expires_at');
-					setAccessToken('');
 					setShowUserSelector(true);
 					return;
 				}
@@ -1263,7 +1270,7 @@ const PingOneUserProfile: React.FC = () => {
 		// If it's already a string with a name, no need to fetch
 		if (
 			typeof pop === 'string' &&
-			!pop.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
+			!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pop)
 		) {
 			setPopulationDetails(null);
 			return;
@@ -1451,7 +1458,7 @@ const PingOneUserProfile: React.FC = () => {
 			}
 		} catch (err) {
 			// Check if this is a server error (500)
-			if (err instanceof Error && (err as any).isServerError) {
+			if (err instanceof Error && 'isServerError' in err && err.isServerError) {
 				setShowServerErrorModal(true);
 				setIdentifierError('Backend server is not responding');
 			} else {
@@ -1529,7 +1536,7 @@ const PingOneUserProfile: React.FC = () => {
 			}
 		} catch (err) {
 			// Check if this is a server error (500)
-			if (err instanceof Error && (err as any).isServerError) {
+			if (err instanceof Error && 'isServerError' in err && err.isServerError) {
 				setShowServerErrorModal(true);
 				setComparisonError('Backend server is not responding');
 			} else {
@@ -1562,8 +1569,7 @@ const PingOneUserProfile: React.FC = () => {
 	useEffect(() => {
 		const handleStorageChange = (event: StorageEvent) => {
 			if (!event.key || event.key === 'worker_token' || event.key === 'worker_token_expires_at') {
-				const token = localStorage.getItem('worker_token') || '';
-				setAccessToken(token);
+				// Global token status will automatically update
 				setWorkerTokenMeta(getWorkerTokenMeta());
 			}
 			if (!event.key || event.key === 'pingone_permanent_credentials') {
@@ -1572,8 +1578,7 @@ const PingOneUserProfile: React.FC = () => {
 		};
 
 		const handleWorkerTokenUpdated = () => {
-			const token = localStorage.getItem('worker_token') || '';
-			setAccessToken(token);
+			// Global token status will automatically update
 			setWorkerTokenMeta(getWorkerTokenMeta());
 		};
 
@@ -1601,7 +1606,7 @@ const PingOneUserProfile: React.FC = () => {
 		v4ToastManager.showSuccess('Copied to clipboard!');
 	};
 
-	const getInitials = (nameInput: unknown) => {
+	const getInitials = (nameInput: unknown): string => {
 		if (typeof nameInput !== 'string') {
 			if (nameInput && typeof nameInput === 'object') {
 				const formatted = (nameInput as { formatted?: string }).formatted;
@@ -1651,6 +1656,7 @@ const PingOneUserProfile: React.FC = () => {
 					<FiAlertTriangle size={24} style={{ marginBottom: '1rem' }} />
 					<p>{error}</p>
 					<button
+						type="button"
 						onClick={() => fetchUserProfile()}
 						style={{
 							marginTop: '1rem',
@@ -1669,17 +1675,18 @@ const PingOneUserProfile: React.FC = () => {
 		);
 	}
 
-	const hasValidWorkerToken = workerTokenMeta.hasToken && !workerTokenMeta.isExpired;
+	// Use global worker token status instead of custom validation
+	const hasValidWorkerToken = globalTokenStatus.isValid && globalTokenStatus.token && !globalTokenStatus.isLoading;
 	const workerTokenStatusVariant: 'valid' | 'expired' | 'missing' = hasValidWorkerToken
 		? 'valid'
-		: workerTokenMeta.hasToken
+		: globalTokenStatus.token
 			? 'expired'
 			: 'missing';
 	const workerTokenStatusMessage = hasValidWorkerToken
-		? `Worker token active. ${workerTokenMeta.relativeDescription}.`
-		: workerTokenMeta.hasToken
-			? `${workerTokenMeta.relativeDescription}. Refresh before making new API calls.`
-			: workerTokenMeta.relativeDescription;
+		? `Worker token active. ${globalTokenStatus.message}.`
+		: globalTokenStatus.token
+			? `${globalTokenStatus.message}. Refresh before making new API calls.`
+			: globalTokenStatus.message;
 	const hasAbsoluteExpiration = workerTokenMeta.absoluteDescription !== 'Unknown expiration';
 	const workerTokenStatusDetail =
 		hasValidWorkerToken && hasAbsoluteExpiration
@@ -1731,8 +1738,9 @@ const PingOneUserProfile: React.FC = () => {
 						</AlertBanner>
 					)}
 					<InputField>
-						<label>Environment ID *</label>
+						<label htmlFor="environmentId">Environment ID *</label>
 						<input
+							id="environmentId"
 							type="text"
 							value={environmentId}
 							onChange={(e) => setEnvironmentId(e.target.value)}
@@ -1748,6 +1756,7 @@ const PingOneUserProfile: React.FC = () => {
 					)}
 					<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
 						<button
+							type="button"
 							onClick={() => {
 								if (hasValidWorkerToken) {
 									v4ToastManager.showInfo(
@@ -1763,11 +1772,14 @@ const PingOneUserProfile: React.FC = () => {
 							style={{
 								flex: '1 1 200px',
 								padding: '0.75rem',
-								background: hasValidWorkerToken
-									? '#10b981'
-									: workerTokenMeta.hasToken
-										? '#f59e0b'
-										: '#10b981',
+								background:
+									globalTokenStatus.isLoading
+										? '#6b7280'
+										: hasValidWorkerToken
+											? '#10b981'
+											: workerTokenMeta.hasToken
+												? '#f59e0b'
+												: '#3b82f6',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.375rem',
@@ -1777,18 +1789,20 @@ const PingOneUserProfile: React.FC = () => {
 								opacity: workerTokenMeta.hasToken && !hasValidWorkerToken ? 1 : 0.95,
 							}}
 						>
-							{hasValidWorkerToken
-								? 'Worker Token Ready'
-								: workerTokenMeta.hasToken
-									? 'Refresh Worker Token'
-									: 'Get Worker Token'}
+							{globalTokenStatus.isLoading
+								? 'Loading...'
+								: hasValidWorkerToken
+									? 'Worker Token Ready'
+									: workerTokenMeta.hasToken
+										? 'Refresh Worker Token'
+										: 'Get Worker Token'}
 						</button>
 						{accessToken && (
 							<button
+								type="button"
 								onClick={() => {
 									localStorage.removeItem('worker_token');
 									localStorage.removeItem('worker_token_expires_at');
-									setAccessToken('');
 									setWorkerTokenMeta(getWorkerTokenMeta());
 									v4ToastManager.showSuccess(
 										'Worker token cleared. Generate a new token to continue.'
@@ -1821,8 +1835,9 @@ const PingOneUserProfile: React.FC = () => {
 						{workerTokenMeta.relativeDescription}
 					</div>
 					<InputField>
-						<label>User Identifier *</label>
+						<label htmlFor="userIdentifier">User Identifier *</label>
 						<input
+							id="userIdentifier"
 							type="text"
 							value={userIdentifier}
 							onChange={(e) => {
@@ -1852,6 +1867,7 @@ const PingOneUserProfile: React.FC = () => {
 						)}
 					</InputField>
 					<button
+						type="button"
 						onClick={() => handleLoadUserProfile()}
 						disabled={
 							isResolvingUser ||
@@ -1890,8 +1906,7 @@ const PingOneUserProfile: React.FC = () => {
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
 					onContinue={() => {
-						const token = localStorage.getItem('worker_token') || '';
-						setAccessToken(token);
+						// Global token status will automatically update
 						setWorkerTokenMeta(getWorkerTokenMeta());
 						setShowWorkerTokenModal(false);
 						setSavedWorkerCredentials(credentialManager.getAllCredentials());
@@ -1920,6 +1935,7 @@ const PingOneUserProfile: React.FC = () => {
 						ID manually when prompted.
 					</p>
 					<button
+						type="button"
 						onClick={() => setShowUserSelector(true)}
 						style={{
 							marginTop: '1rem',
@@ -2226,24 +2242,7 @@ const PingOneUserProfile: React.FC = () => {
 		.filter((name): name is string => Boolean(name?.trim()))
 		.map((name) => name.trim());
 
-	const primaryRoleNames = userRoles
-		.map((role) =>
-			extractLabel(role, null, ['name', 'displayName', 'title', 'description', 'roleName'])
-		)
-		.filter((name): name is string => Boolean(name?.trim()))
-		.map((name) => name.trim());
-
-	const comparisonRoleNames = comparisonRoles
-		.map((role) =>
-			extractLabel(role, null, ['name', 'displayName', 'title', 'description', 'roleName'])
-		)
-		.filter((name): name is string => Boolean(name?.trim()))
-		.map((name) => name.trim());
-
 	const allGroupNames = Array.from(new Set([...primaryGroupNames, ...comparisonGroupNames])).sort(
-		(a, b) => a.localeCompare(b)
-	);
-	const _allRoleNames = Array.from(new Set([...primaryRoleNames, ...comparisonRoleNames])).sort(
 		(a, b) => a.localeCompare(b)
 	);
 	const allAuthMethods = Array.from(
@@ -2364,6 +2363,7 @@ const PingOneUserProfile: React.FC = () => {
 					</TokenStatus>
 				</UserInfo>
 				<button
+					type="button"
 					onClick={handleStartOver}
 					style={{
 						padding: '0.5rem 1rem',
@@ -2671,8 +2671,9 @@ const PingOneUserProfile: React.FC = () => {
 							</AlertBanner>
 						)}
 						<InputField>
-							<label>Comparison User Identifier *</label>
+							<label htmlFor="compareIdentifier">Comparison User Identifier *</label>
 							<input
+								id="compareIdentifier"
 								type="text"
 								value={compareIdentifier}
 								onChange={(e) => {
@@ -2694,6 +2695,7 @@ const PingOneUserProfile: React.FC = () => {
 							}}
 						>
 							<button
+								type="button"
 								onClick={() => handleLoadComparisonUser()}
 								disabled={
 									isComparisonLoading ||
@@ -2729,6 +2731,7 @@ const PingOneUserProfile: React.FC = () => {
 							</button>
 							{comparisonLoaded && (
 								<button
+									type="button"
 									onClick={() => handleClearComparison()}
 									style={{
 										flex: '0 0 auto',
@@ -2940,8 +2943,7 @@ const PingOneUserProfile: React.FC = () => {
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 				onContinue={() => {
-					const token = localStorage.getItem('worker_token') || '';
-					setAccessToken(token);
+					// Global token status will automatically update
 					setWorkerTokenMeta(getWorkerTokenMeta());
 					setShowWorkerTokenModal(false);
 					setSavedWorkerCredentials(credentialManager.getAllCredentials());

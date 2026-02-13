@@ -95,7 +95,7 @@ class OAuthMetadataService {
 				method: 'GET',
 				headers: {
 					Accept: 'application/json',
-					'User-Agent': 'OAuth Playground OAuth Metadata Service',
+					'User-Agent': 'MasterFlow API OAuth Metadata Service',
 				},
 				signal: controller.signal,
 			});

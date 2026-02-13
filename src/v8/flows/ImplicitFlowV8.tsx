@@ -12,16 +12,32 @@ import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
 import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
 import { useActionButton } from '@/v8/hooks/useActionButton';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
+import { usePingOneAppConfig } from '../hooks/usePingOneAppConfig';
+import { PingOneAppConfigForm } from '../components/PingOneAppConfigForm';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
 import { ImplicitFlowIntegrationServiceV8 } from '@/v8/services/implicitFlowIntegrationServiceV8';
 import { RedirectlessServiceV8 } from '@/v8/services/redirectlessServiceV8';
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
+import { ValidationServiceV8 } from '../services/validationServiceV8';
 
 const MODULE_TAG = '[🔓 IMPLICIT-FLOW-V8]';
 const FLOW_KEY = 'implicit-flow-v8';
 
 interface Credentials {
+  environmentId: string;
+  clientId: string;
+  redirectUri?: string;
+  postLogoutRedirectUri?: string;
+  logoutUri?: string;
+  scopes?: string;
+  loginHint?: string;
+  clientAuthMethod?:
+    | 'none'
+    | 'client_secret_basic'
+    | 'client_secret_post'
+    | 'client_secret_jwt'
+    | 'private_key_jwt';
+  [key: string]: unknown;
 	environmentId: string;
 	clientId: string;
 	redirectUri?: string;
@@ -91,17 +107,18 @@ export const ImplicitFlowV8: React.FC = () => {
 	});
 
 	// Action button hooks for button state management
-	const _generateUrlAction = useActionButton();
-	const _handleCallbackAction = useActionButton();
-	const _resetFlowAction = useActionButton();
+	const { config: appConfig } = usePingOneAppConfig();
 
 	useEffect(() => {
-		const result = ValidationServiceV8.validateCredentials(credentials, 'oauth');
+		const result = ValidationServiceV8.validateCredentials(credentials, 'oauth', {
+			allowRedirectUriPatterns: appConfig.allowRedirectUriPatterns,
+			oauthVersion: appConfig.oauthVersion,
+		});
 		nav.setValidationErrors(result.errors.map((e) => e.message));
 		nav.setValidationWarnings(result.warnings.map((w) => w.message));
 		CredentialsServiceV8.saveCredentials('implicit-flow-v8', credentials);
 		// biome-ignore lint/correctness/useExhaustiveDependencies: nav functions are stable from hook
-	}, [credentials, nav.setValidationErrors, nav.setValidationWarnings]);
+	}, [credentials, nav.setValidationErrors, nav.setValidationWarnings, appConfig]);
 
 	useEffect(() => {
 		sessionStorage.setItem(`${FLOW_KEY}_use_redirectless`, useRedirectless.toString());
@@ -141,6 +158,8 @@ export const ImplicitFlowV8: React.FC = () => {
 				title="OAuth 2.0 Configure App & Environment"
 				subtitle="ID token + Access token - Authentication + Authorization"
 			/>
+
+			<PingOneAppConfigForm />
 
 			<div className="redirectless-option">
 				<div className="checkbox-wrapper">
