@@ -1551,6 +1551,7 @@ app.get('/api/environments', async (req, res) => {
 			};
 			
 			console.log(`[PingOne Environments API] Mock response: ${response.environments.length} environments, page ${page} of ${response.totalPages}`);
+			console.log('[PingOne Environments API] Full mock response:', JSON.stringify(response, null, 2));
 			
 			return res.json(response);
 		}
