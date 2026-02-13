@@ -2,7 +2,7 @@
 // React component for displaying API calls with enhanced features
 
 import React, { useCallback, useState } from 'react';
-import { FiChevronDown, FiCode, FiCopy, FiExternalLink, FiInfo } from 'react-icons/fi';
+import { FiChevronDown, FiCode, FiCopy, FiExternalLink } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import {
@@ -266,85 +266,6 @@ const CodeBlock = styled.pre<{ $theme?: 'light' | 'dark' }>`
 	word-wrap: break-word;
 `;
 
-const InfoTooltip = styled.div<{ $show: boolean }>`
-	position: absolute;
-	top: 100%;
-	right: 0;
-	background: #1f2937;
-	color: white;
-	padding: 0.75rem 1rem;
-	border-radius: 6px;
-	font-size: 0.875rem;
-	line-height: 1.4;
-	z-index: 1000;
-	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-	white-space: nowrap;
-	opacity: ${({ $show }) => ($show ? 1 : 0)};
-	visibility: ${({ $show }) => ($show ? 'visible' : 'hidden')};
-	transform: ${({ $show }) => ($show ? 'translateY(0)' : 'translateY(-10px)')};
-	transition: all 0.2s ease;
-	max-width: 300px;
-	white-space: normal;
-
-	&::before {
-		content: '';
-		position: absolute;
-		top: -4px;
-		right: 20px;
-		width: 0;
-		height: 0;
-		border-left: 4px solid transparent;
-		border-right: 4px solid transparent;
-		border-bottom: 4px solid #1f2937;
-	}
-`;
-
-const URLDisplay = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
-	border-radius: 8px;
-	padding: 1rem;
-	margin: 1rem 0;
-	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-	font-size: 0.875rem;
-	line-height: 1.5;
-	word-break: break-all;
-	position: relative;
-`;
-
-const URLPart = styled.span<{
-	$isHighlighted?: boolean;
-	$color?: string;
-	$backgroundColor?: string;
-}>`
-	background: ${({ $isHighlighted, $backgroundColor }) =>
-		$isHighlighted ? ($backgroundColor || '#fef3c7') : 'transparent'};
-	color: ${({ $isHighlighted, $color }) => ($isHighlighted ? $color || '#92400e' : 'inherit')};
-	padding: ${({ $isHighlighted }) => ($isHighlighted ? '2px 4px' : '0')};
-	border-radius: ${({ $isHighlighted }) => ($isHighlighted ? '4px' : '0')};
-	font-weight: ${({ $isHighlighted }) => ($isHighlighted ? '600' : 'normal')};
-	border: ${({ $isHighlighted, $color }) =>
-		$isHighlighted ? `1px solid ${$color || '#f59e0b'}` : 'none'};
-`;
-
-const RARNote = styled.div`
-	background: #fef3c7;
-	border: 1px solid #f59e0b;
-	border-radius: 8px;
-	padding: 0.75rem 1rem;
-	margin: 0.5rem 0;
-	display: flex;
-	align-items: flex-start;
-	gap: 0.5rem;
-	font-size: 0.875rem;
-	color: #92400e;
-`;
-
-const RARIcon = styled.div`
-	color: #f59e0b;
-	margin-top: 2px;
-`;
-
 const ActionButtons = styled.div`
 	display: flex;
 	gap: 0.75rem;
@@ -483,7 +404,6 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 		initiallyCollapsed ? new Set() : new Set(['request', 'response']) // Request and Response expanded by default for better readability
 	);
 	const [isExecuting, setIsExecuting] = useState(false);
-	const [showInfoTooltip, setShowInfoTooltip] = useState(false);
 	const navigate = useNavigate();
 
 	const { theme = 'light', showEducationalNotes = true, showFlowContext = true } = options;
@@ -529,10 +449,6 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 		navigate(`/code-examples?flow=${flowType}&step=${stepName}`);
 	}, [navigate, apiCall.flowType, apiCall.stepName]);
 
-	const handleInfoClick = useCallback(() => {
-		setShowInfoTooltip(!showInfoTooltip);
-	}, [showInfoTooltip]);
-
 	const getStatus = (): 'success' | 'error' | 'pending' | 'info' => {
 		if (isExecuting) return 'pending';
 		if (apiCall.response) {
@@ -546,67 +462,6 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 	};
 
 	const curlCommand = EnhancedApiCallDisplayService.generateEnhancedCurlCommand(apiCall, options);
-
-	// Function to highlight URL based on service rules
-	const highlightURL = useCallback(
-		(url: string) => {
-			if (!url) return null;
-
-			// Get highlighting rules from service
-			const rules =
-				options.urlHighlightRules ||
-				EnhancedApiCallDisplayService.getDefaultHighlightRules(apiCall.flowType);
-
-			// Debug logging
-			console.log('[EnhancedApiCallDisplay] Debug info:', {
-				flowType: apiCall.flowType,
-				hasUrlHighlightRules: !!options.urlHighlightRules,
-				rulesType: Array.isArray(rules) ? 'array' : typeof rules,
-				rulesLength: Array.isArray(rules) ? rules.length : 'N/A',
-				rules: rules,
-			});
-
-			// Ensure rules is always an array
-			if (!Array.isArray(rules)) {
-				console.warn('[EnhancedApiCallDisplay] rules is not an array:', rules);
-				// Return empty array as fallback
-				return null;
-			}
-
-			if (rules.length === 0) return null;
-
-			// Use service to highlight URL
-			const highlightedParts = EnhancedApiCallDisplayService.highlightURL(url, rules);
-
-			// Check if any parts are highlighted
-			const hasHighlights = highlightedParts.some((part) => part.isHighlighted);
-			if (!hasHighlights) return null;
-
-			return highlightedParts.map((part, index) => {
-				const props: {
-					$isHighlighted: boolean;
-					$color?: string;
-					$backgroundColor?: string;
-					title?: string | undefined;
-				} = {
-					$isHighlighted: part.isHighlighted,
-				};
-
-				if (part.isHighlighted && part.label && part.description) {
-					props.title = `${part.label}: ${part.description}`;
-				}
-				if (part.color) props.$color = part.color;
-				if (part.backgroundColor) props.$backgroundColor = part.backgroundColor;
-
-				return (
-					<URLPart key={index} {...props}>
-						{part.content}
-					</URLPart>
-				);
-			});
-		},
-		[apiCall.flowType, options.urlHighlightRules]
-	);
 
 	return (
 		<Container $theme={theme} className={className}>
@@ -624,21 +479,9 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 					<div style={{ position: 'relative' }}>
 						<StatusBadge
 							$status={getStatus()}
-							$clickable={getStatus() === 'info'}
-							onClick={getStatus() === 'info' ? handleInfoClick : undefined}
-							title={getStatus() === 'info' ? 'Click for more information' : undefined}
 						>
 							{getStatus().toUpperCase()}
 						</StatusBadge>
-						{getStatus() === 'info' && (
-							<InfoTooltip $show={showInfoTooltip}>
-								<strong>API Call Ready</strong>
-								<br />
-								This API call is prepared but not yet executed. Click the "Open Authorization URL"
-								button above to test the authorization flow, or use the cURL command below to test the
-								API call directly.
-							</InfoTooltip>
-						)}
 					</div>
 				</div>
 			</Header>
@@ -680,7 +523,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 							URL
 						</h5>
 						<CodeBlock $theme={theme}>
-							{apiCall.method} {highlightedUrl}
+							{apiCall.method} {apiCall.url.split('?')[0]}
 						</CodeBlock>
 					</div>
 
