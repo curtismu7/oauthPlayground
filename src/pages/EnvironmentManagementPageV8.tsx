@@ -908,12 +908,33 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					</p>
 
 					<WorkerTokenDetectedBanner
-						workerToken={workerToken}
-						workerTokenExpiresAt={workerTokenExpiresAt || 0}
-						onRefresh={() => window.location.reload()}
-						onGetToken={() => setShowWorkerTokenModal(true)}
-						flowType="environment-management"
+						token={workerToken}
+						message="Generate a worker token to access PingOne environment management features."
+						tokenExpiryKey="worker_token_expires_at"
 					/>
+
+					<div style={{ marginTop: '1rem' }}>
+						<button
+							onClick={() => setShowWorkerTokenModal(true)}
+							style={{
+								padding: '0.75rem 1.5rem',
+								background: '#3b82f6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '0.5rem',
+								fontSize: '0.875rem',
+								fontWeight: '600',
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								margin: '0 auto',
+							}}
+						>
+							<FiRefreshCw size={16} />
+							Get Worker Token for Environments
+						</button>
+					</div>
 
 					{/* Worker Token Modal */}
 					<WorkerTokenModal
