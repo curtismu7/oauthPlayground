@@ -55,7 +55,7 @@ find_project_directory() {
     print_status "🔍 Locating OAuth Playground project directory..."
     
     # Check if we're already in the right directory
-    if [ -f "package.json" ] && [ -f "server.js" ] && grep -q "pingone-oauth-playground" package.json 2>/dev/null; then
+    if [ -f "package.json" ] && [ -f "server.js" ] && (grep -q "masterflow-api" package.json 2>/dev/null || grep -q "oauth-playground" package.json 2>/dev/null); then
         print_success "Already in OAuth Playground directory: $(pwd)"
         return 0
     fi
@@ -82,7 +82,7 @@ find_project_directory() {
         if [ -d "$expanded_path" ]; then
             cd "$expanded_path" 2>/dev/null || continue
             
-            if [ -f "package.json" ] && [ -f "server.js" ] && grep -q "pingone-oauth-playground" package.json 2>/dev/null; then
+            if [ -f "package.json" ] && [ -f "server.js" ] && (grep -q "masterflow-api" package.json 2>/dev/null || grep -q "oauth-playground" package.json 2>/dev/null); then
                 print_success "Found OAuth Playground at: $(pwd)"
                 return 0
             fi

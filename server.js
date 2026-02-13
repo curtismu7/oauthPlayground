@@ -16,6 +16,7 @@ import fetch from 'node-fetch';
 
 // Import user database service and API routes
 import { userDatabaseService } from './src/server/services/userDatabaseService.js';
+import { settingsDB } from './src/server/services/settingsDatabaseService.js';
 import { setupUserApiRoutes } from './src/server/routes/userApiRoutes.js';
 import { setupBackupApiRoutes } from './src/server/routes/backupApiRoutes.js';
 
@@ -35,6 +36,7 @@ if (!fs.existsSync(logsDir)) {
 
 // Consolidated log file for all PingOne API calls
 const pingOneApiLogFile = path.join(logsDir, 'pingone-api.log'); // All API calls (consolidated)
+const authzRedirectLogFile = path.join(logsDir, 'authz-redirects.log');
 
 // Log width constant - wider for better readability, no truncation
 const LOG_WIDTH = 150;
@@ -110,6 +112,7 @@ console.warn = (...args) => {
 console.log('🚀 Starting OAuth Playground Backend Server...'); // OAuth Playground Backend Server
 console.log(`📝 Server logs: ${logFile}`);
 console.log(`📝 PingOne API logs: ${pingOneApiLogFile}`);
+console.log(`📝 Authz redirect logs: ${authzRedirectLogFile}`);
 console.log(`📝 Real API logs (no proxy): ${pingOneApiLogFile} (consolidated)`);
 console.log(`📝 Client logs: ${clientLogFile}`);
 
@@ -804,6 +807,33 @@ setupBackupApiRoutes(app);
 // ============================================================================
 
 /**
+ * Persist callback redirect diagnostics for MFA/OAuth callback debugging
+ * POST /api/logs/authz-redirect
+ */
+app.post('/api/logs/authz-redirect', (req, res) => {
+	try {
+		const payload = req.body && typeof req.body === 'object' ? req.body : { value: req.body };
+		const logEntry = {
+			timestamp: new Date().toISOString(),
+			requestPath: req.path,
+			requestMethod: req.method,
+			clientIp: req.ip,
+			...payload,
+		};
+
+		fs.appendFileSync(authzRedirectLogFile, `${JSON.stringify(logEntry)}\n`, 'utf8');
+		return res.status(200).json({ success: true });
+	} catch (error) {
+		console.error('[AuthzRedirectLog] Failed to append authz redirect log:', error);
+		return res.status(500).json({
+			success: false,
+			error: 'failed_to_append_authz_redirect_log',
+			message: error instanceof Error ? error.message : 'Unknown error',
+		});
+	}
+});
+
+/**
  * List available log files
  * GET /api/logs/list
  */
@@ -1062,6 +1092,41 @@ app.post('/__client-log', async (req, res) => {
 	} catch (error) {
 		originalError('[Client Logging Error] Failed to process client log:', error);
 		res.status(500).json({ error: 'Failed to process client log', message: error.message });
+	}
+});
+
+// ============================================================================
+// SETTINGS API ENDPOINTS
+// ============================================================================
+
+/**
+ * Save or retrieve user settings
+ * POST /api/settings/debug-log-viewer - Save settings
+ * GET /api/settings/debug-log-viewer - Retrieve settings
+ */
+app.post('/api/settings/debug-log-viewer', async (req, res) => {
+	try {
+		const { lastSelectedFile } = req.body;
+		
+		if (!lastSelectedFile) {
+			return res.status(400).json({ error: 'Missing setting: lastSelectedFile' });
+		}
+		
+		await settingsDB.set('debugLogViewer_lastSelectedFile', lastSelectedFile);
+		res.status(200).json({ success: true });
+	} catch (error) {
+		console.error('[Settings] Failed to save setting:', error);
+		res.status(500).json({ error: 'Failed to save setting', message: error.message });
+	}
+});
+
+app.get('/api/settings/debug-log-viewer', async (req, res) => {
+	try {
+		const lastSelectedFile = await settingsDB.get('debugLogViewer_lastSelectedFile');
+		res.status(200).json({ lastSelectedFile });
+	} catch (error) {
+		console.error('[Settings] Failed to retrieve setting:', error);
+		res.status(500).json({ error: 'Failed to retrieve setting', message: error.message });
 	}
 });
 

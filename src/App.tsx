@@ -227,6 +227,7 @@ import ProtectPortalWrapper from './pages/protect-portal/ProtectPortalWrapper';
 import DavinciTodoApp from './sdk-examples/davinci-todo-app/DavinciTodoApp';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import { DebugLogViewerV8 } from './v8/pages/DebugLogViewerV8';
+import { DebugLogViewerPopoutV8 } from './v8/pages/DebugLogViewerPopoutV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
 import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
@@ -246,7 +247,6 @@ const SpiffeSpireFlowV8U = lazy(() => import('./v8u/flows/SpiffeSpireFlowV8U'));
 const UnifiedOAuthFlowV8U = lazy(() => import('./v8u/flows/UnifiedOAuthFlowV8U'));
 const SpiffeSpireTokenDisplayV8U = lazy(() => import('./v8u/pages/SpiffeSpireTokenDisplayV8U'));
 const EnhancedStateManagementPage = lazy(() => import('./v8u/pages/EnhancedStateManagementPage'));
-const _TokenMonitoringPage = lazy(() => import('./v8u/pages/TokenMonitoringPage'));
 const TokenApiDocumentationPage = lazy(() => import('./v8u/pages/TokenApiDocumentationPage'));
 const FlowComparisonPage = lazy(() => import('./v8u/pages/FlowComparisonPage'));
 
@@ -983,6 +983,7 @@ const AppRoutes: React.FC = () => {
 							{/* V8 Utilities */}
 							<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
 							<Route path="/v8/debug-logs" element={<DebugLogViewerV8 />} />
+							<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
 							{/* V8U SPIFFE/SPIRE Mock Flow and Token Viewer - multi-step lab */}
 							<Route
 								path="/v8u/spiffe-spire"
@@ -1486,6 +1487,8 @@ function App() {
 function AppContent() {
 	const { settings } = useUISettings();
 	const theme = useMemo(() => buildTheme(settings), [settings]);
+	const location = useLocation();
+	const isStandaloneLogViewerRoute = location.pathname === '/standalone/log-viewer';
 	const [urlValidationModalState, setUrlValidationModalState] = useState<{
 		isOpen: boolean;
 		validationResult:
@@ -1594,6 +1597,26 @@ function AppContent() {
 		};
 	}, []);
 
+	if (isStandaloneLogViewerRoute) {
+		const standaloneWidth = Math.max(900, window.innerWidth - 40);
+		const standaloneHeight = Math.max(500, window.innerHeight - 40);
+
+		return (
+			<ThemeProvider theme={theme}>
+				<GlobalStyle />
+				<FloatingLogViewer
+					isOpen
+					standaloneMode
+					onClose={() => window.close()}
+					initialWidth={standaloneWidth}
+					initialHeight={standaloneHeight}
+					initialX={20}
+					initialY={20}
+				/>
+			</ThemeProvider>
+		);
+	}
+
 	return (
 		<ThemeProvider theme={theme}>
 			<ErrorBoundary>
@@ -1656,17 +1679,21 @@ function AppContent() {
 			{/* Global Backend Connectivity Modal */}
 			<BackendDownModalV8 />
 
-			{/* Floating Log Viewer */}
-			<FloatingLogViewer
-				isOpen={isFloatingLogViewerOpen}
-				onClose={() => setIsFloatingLogViewerOpen(false)}
-			/>
+			{!isStandaloneLogViewerRoute && (
+				<>
+					{/* Floating Log Viewer */}
+					<FloatingLogViewer
+						isOpen={isFloatingLogViewerOpen}
+						onClose={() => setIsFloatingLogViewerOpen(false)}
+					/>
 
-			{/* Floating Log Toggle */}
-			<FloatingLogToggle
-				isOpen={isFloatingLogViewerOpen}
-				onClick={() => setIsFloatingLogViewerOpen(!isFloatingLogViewerOpen)}
-			/>
+					{/* Floating Log Toggle */}
+					<FloatingLogToggle
+						isOpen={isFloatingLogViewerOpen}
+						onClick={() => setIsFloatingLogViewerOpen(!isFloatingLogViewerOpen)}
+					/>
+				</>
+			)}
 		</ThemeProvider>
 	);
 }

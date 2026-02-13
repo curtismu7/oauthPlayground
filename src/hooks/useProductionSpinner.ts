@@ -5,7 +5,7 @@
  * @version 1.0.0
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { CommonSpinnerService } from '@/services/CommonSpinnerService';
 import type {
 	CommonSpinnerConfig,
@@ -21,8 +21,11 @@ export const useProductionSpinner = (
 	appId: string,
 	defaultConfig?: Partial<CommonSpinnerConfig>
 ): UseProductionSpinnerReturn => {
+	// Memoize defaultConfig to prevent infinite re-renders
+	const memoizedDefaultConfig = useMemo(() => defaultConfig || {}, [JSON.stringify(defaultConfig)]);
+
 	const [spinnerState, setSpinnerState] = useState<CommonSpinnerState>(() => {
-		const instance = CommonSpinnerService.getInstance(appId, defaultConfig);
+		const instance = CommonSpinnerService.getInstance(appId, memoizedDefaultConfig);
 		return { ...instance.state };
 	});
 
@@ -45,7 +48,7 @@ export const useProductionSpinner = (
 		});
 
 		// Initial state sync
-		const instance = CommonSpinnerService.getInstance(appId, defaultConfig);
+		const instance = CommonSpinnerService.getInstance(appId, memoizedDefaultConfig);
 		setSpinnerState({ ...instance.state });
 
 		return () => {
@@ -53,19 +56,19 @@ export const useProductionSpinner = (
 				window.removeEventListener(eventType, handleSpinnerEvent as EventListener);
 			});
 		};
-	}, [appId, defaultConfig]);
+	}, [appId, memoizedDefaultConfig]);
 
 	// Show spinner with optional configuration
 	const showSpinner = useCallback(
 		(message?: string, config?: Partial<CommonSpinnerConfig>) => {
-			const finalConfig = { ...defaultConfig, ...config };
+			const finalConfig = { ...memoizedDefaultConfig, ...config };
 			if (message) {
 				finalConfig.message = message;
 			}
 
 			CommonSpinnerService.showSpinner(appId, finalConfig);
 		},
-		[appId, defaultConfig]
+		[appId, memoizedDefaultConfig]
 	);
 
 	// Hide spinner

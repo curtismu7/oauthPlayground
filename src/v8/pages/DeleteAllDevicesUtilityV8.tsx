@@ -18,6 +18,7 @@ import { FiAlertCircle, FiKey, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdownV8';
+import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { SearchableDropdownV8 } from '@/v8/components/SearchableDropdownV8';
 import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
 import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
@@ -29,7 +30,6 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { useUserSearch } from '@/v8/hooks/useUserSearch';
-import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
@@ -166,7 +166,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		}
 		return 'ALL';
 	});
-	const [policy, setPolicy] = useState<any>(null);
+	const [policy, setPolicy] = useState<DeviceAuthenticationPolicy | null>(null);
 	
 	// Use CommonSpinnerService for loading states (Production menu group standard)
 	const loadingSpinner = useProductionSpinner('delete-all-devices-loading', {
@@ -208,14 +208,15 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 	});
 
 	// Get worker token status
-	const [tokenStatus, setTokenStatus] = useState<any>({
+	const [tokenStatus, setTokenStatus] = useState<{
+		isValid: boolean;
+		minutesRemaining: number;
+	}>({
 		isValid: false,
 		minutesRemaining: 0,
 	});
 
-	// Worker token for user search
-	const { tokenStatus: workerTokenStatus } = useWorkerToken();
-
+	
 	// User search functionality for username dropdown
 	const {
 		users,
