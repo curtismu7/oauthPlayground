@@ -136,7 +136,7 @@ class EnvironmentServiceV8 {
 		}
 		if (filters?.region?.length) {
 			filters.region.forEach((region) => {
-				params.append('region', region);
+				params.append('regionFilter', region); // Use regionFilter instead of region
 			});
 		}
 		if (filters?.search) {
