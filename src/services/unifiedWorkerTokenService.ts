@@ -543,21 +543,39 @@ class UnifiedWorkerTokenService {
 		const credentials = await this.loadCredentials();
 		const data = this.memoryCache || (await this.loadDataFromStorage());
 
-		return {
+		const status: UnifiedWorkerTokenStatus = {
 			hasCredentials: !!credentials,
 			hasToken: !!data?.token,
 			tokenValid: data ? this.isTokenValid(data) : false,
-			tokenExpiresIn: data ? this.getTokenExpiresIn(data) : undefined,
-			lastFetchedAt: data?.savedAt,
-			lastUsedAt: data?.lastUsedAt,
-			appInfo: credentials
-				? {
-						...(credentials.appId && { appId: credentials.appId }),
-						...(credentials.appName && { appName: credentials.appName }),
-						...(credentials.appVersion && { appVersion: credentials.appVersion }),
-					}
-				: undefined,
 		};
+
+		// Add optional properties only if they have values
+		if (data) {
+			const expiresIn = this.getTokenExpiresIn(data);
+			if (expiresIn !== undefined) {
+				status.tokenExpiresIn = expiresIn;
+			}
+			if (data.savedAt !== undefined) {
+				status.lastFetchedAt = data.savedAt;
+			}
+		}
+
+		if (data?.lastUsedAt !== undefined) {
+			status.lastUsedAt = data.lastUsedAt;
+		}
+
+		if (credentials) {
+			const appInfoObj: { appId?: string; appName?: string; appVersion?: string } = {};
+			if (credentials.appId) appInfoObj.appId = credentials.appId;
+			if (credentials.appName) appInfoObj.appName = credentials.appName;
+			if (credentials.appVersion) appInfoObj.appVersion = credentials.appVersion;
+			
+			if (Object.keys(appInfoObj).length > 0) {
+				status.appInfo = appInfoObj;
+			}
+		}
+
+		return status;
 	}
 
 	/**
