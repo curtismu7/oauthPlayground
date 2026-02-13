@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
+	FiAlertTriangle,
+	FiCheckCircle,
 	FiChevronDown,
 	FiChevronUp,
-	FiCopy,
-	FiCheckCircle,
-	FiAlertTriangle,
 	FiClock,
+	FiCopy,
 	FiDatabase,
 	FiEye,
 	FiEyeOff,
@@ -17,15 +17,14 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
-import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
-import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
 import TokenDisplayService from '../../services/tokenDisplayService';
+import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
+import { useUnifiedFlowState } from '../services/enhancedStateManagement';
 import {
 	type RevocationMethod,
 	type TokenInfo,
 	TokenMonitoringService,
 } from '../services/tokenMonitoringService';
-import { useUnifiedFlowState } from '../services/enhancedStateManagement';
 
 const PageContainer = styled.div`
   padding: 2rem;
@@ -426,15 +425,20 @@ export const TokenMonitoringPage: React.FC = () => {
 			try {
 				const tokenCount = newTokens.length;
 				const featureCount = tokenCount > 0 ? 1 : 0;
-				
+
 				enhancedStateActions.setTokenMetrics({
 					tokenCount,
 					featureCount,
 					lastApiCall: Date.now(),
 				});
-				logger.debug(`[TokenMonitoringPage] Enhanced state management updated: ${tokenCount} tokens`);
+				logger.debug(
+					`[TokenMonitoringPage] Enhanced state management updated: ${tokenCount} tokens`
+				);
 			} catch (enhancedErr) {
-				logger.warn('[TokenMonitoringPage] Failed to update enhanced state management', enhancedErr);
+				logger.warn(
+					'[TokenMonitoringPage] Failed to update enhanced state management',
+					enhancedErr
+				);
 			}
 		});
 
@@ -494,9 +498,9 @@ export const TokenMonitoringPage: React.FC = () => {
 	const handleDecodeToken = (token: TokenInfo) => {
 		const decoded = TokenDisplayService.decodeJWT(token.value);
 		if (decoded) {
-			setDecodedTokens(prev => ({
+			setDecodedTokens((prev) => ({
 				...prev,
-				[token.id]: decoded
+				[token.id]: decoded,
 			}));
 		} else {
 			setMessage('Token cannot be decoded (not a valid JWT)');
@@ -505,7 +509,7 @@ export const TokenMonitoringPage: React.FC = () => {
 	};
 
 	const handleToggleDecoded = (tokenId: string) => {
-		setDecodedTokens(prev => {
+		setDecodedTokens((prev) => {
 			const newState = { ...prev };
 			if (newState[tokenId]) {
 				delete newState[tokenId];
@@ -515,22 +519,28 @@ export const TokenMonitoringPage: React.FC = () => {
 	};
 
 	// Filter tokens based on selected type
-	const filteredTokens = selectedTokenType === 'all' 
-		? tokens 
-		: tokens.filter(token => token.type === selectedTokenType);
+	const filteredTokens =
+		selectedTokenType === 'all'
+			? tokens
+			: tokens.filter((token) => token.type === selectedTokenType);
 
 	// Calculate stats
-	const activeTokens = filteredTokens.filter(t => t.status === 'active').length;
-	const expiringTokens = filteredTokens.filter(t => t.status === 'expiring').length;
-	const expiredTokens = filteredTokens.filter(t => t.status === 'expired').length;
+	const activeTokens = filteredTokens.filter((t) => t.status === 'active').length;
+	const expiringTokens = filteredTokens.filter((t) => t.status === 'expiring').length;
+	const expiredTokens = filteredTokens.filter((t) => t.status === 'expired').length;
 
 	const getTokenTypeLabel = (type: string) => {
 		switch (type) {
-			case 'access_token': return 'Access Token';
-			case 'refresh_token': return 'Refresh Token';
-			case 'id_token': return 'ID Token';
-			case 'worker_token': return 'Worker Token';
-			default: return type;
+			case 'access_token':
+				return 'Access Token';
+			case 'refresh_token':
+				return 'Refresh Token';
+			case 'id_token':
+				return 'ID Token';
+			case 'worker_token':
+				return 'Worker Token';
+			default:
+				return type;
 		}
 	};
 
@@ -595,19 +605,44 @@ export const TokenMonitoringPage: React.FC = () => {
 					{isDropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
 				</DropdownButton>
 				<DropdownMenu $isOpen={isDropdownOpen}>
-					<DropdownItem onClick={() => { setSelectedTokenType('all'); setIsDropdownOpen(false); }}>
+					<DropdownItem
+						onClick={() => {
+							setSelectedTokenType('all');
+							setIsDropdownOpen(false);
+						}}
+					>
 						<FiDatabase /> All Tokens
 					</DropdownItem>
-					<DropdownItem onClick={() => { setSelectedTokenType('access_token'); setIsDropdownOpen(false); }}>
+					<DropdownItem
+						onClick={() => {
+							setSelectedTokenType('access_token');
+							setIsDropdownOpen(false);
+						}}
+					>
 						<FiShield /> Access Tokens
 					</DropdownItem>
-					<DropdownItem onClick={() => { setSelectedTokenType('refresh_token'); setIsDropdownOpen(false); }}>
+					<DropdownItem
+						onClick={() => {
+							setSelectedTokenType('refresh_token');
+							setIsDropdownOpen(false);
+						}}
+					>
 						<FiRefreshCw /> Refresh Tokens
 					</DropdownItem>
-					<DropdownItem onClick={() => { setSelectedTokenType('id_token'); setIsDropdownOpen(false); }}>
+					<DropdownItem
+						onClick={() => {
+							setSelectedTokenType('id_token');
+							setIsDropdownOpen(false);
+						}}
+					>
 						<FiInfo /> ID Tokens
 					</DropdownItem>
-					<DropdownItem onClick={() => { setSelectedTokenType('worker_token'); setIsDropdownOpen(false); }}>
+					<DropdownItem
+						onClick={() => {
+							setSelectedTokenType('worker_token');
+							setIsDropdownOpen(false);
+						}}
+					>
 						<FiSettings /> Worker Tokens
 					</DropdownItem>
 				</DropdownMenu>
@@ -629,9 +664,7 @@ export const TokenMonitoringPage: React.FC = () => {
 							</TokenHeader>
 
 							<TokenContent>
-								<TokenValue>
-									{TokenDisplayService.maskToken(token.value)}
-								</TokenValue>
+								<TokenValue>{TokenDisplayService.maskToken(token.value)}</TokenValue>
 								<TokenMetadata>
 									<span>ID: {token.id}</span>
 									{token.expiresAt && <span>Expires: {formatExpiry(token.expiresAt)}</span>}
@@ -644,13 +677,21 @@ export const TokenMonitoringPage: React.FC = () => {
 									<DecodedSection>
 										<DecodedHeader>Header</DecodedHeader>
 										<DecodedJson>
-											{JSON.stringify((decodedTokens[token.id] as { header: unknown }).header, null, 2)}
+											{JSON.stringify(
+												(decodedTokens[token.id] as { header: unknown }).header,
+												null,
+												2
+											)}
 										</DecodedJson>
 									</DecodedSection>
 									<DecodedSection>
 										<DecodedHeader>Payload</DecodedHeader>
 										<DecodedJson>
-											{JSON.stringify((decodedTokens[token.id] as { payload: unknown }).payload, null, 2)}
+											{JSON.stringify(
+												(decodedTokens[token.id] as { payload: unknown }).payload,
+												null,
+												2
+											)}
 										</DecodedJson>
 									</DecodedSection>
 								</TokenDecodedContent>
@@ -664,12 +705,13 @@ export const TokenMonitoringPage: React.FC = () => {
 									{copiedTokenId === token.id ? <FiCheck /> : <FiCopy />}
 									{copiedTokenId === token.id ? 'Copied!' : 'Copy'}
 								</ActionButton>
-								
+
 								{TokenDisplayService.isJWT(token.value) && (
 									<ActionButton
-										onClick={() => decodedTokens[token.id] 
-											? handleToggleDecoded(token.id)
-											: handleDecodeToken(token)
+										onClick={() =>
+											decodedTokens[token.id]
+												? handleToggleDecoded(token.id)
+												: handleDecodeToken(token)
 										}
 										$variant="secondary"
 									>
@@ -677,19 +719,13 @@ export const TokenMonitoringPage: React.FC = () => {
 										{decodedTokens[token.id] ? 'Hide' : 'Decode'}
 									</ActionButton>
 								)}
-								
-								<ActionButton
-									onClick={() => handleRefreshToken(token.id)}
-									$variant="primary"
-								>
+
+								<ActionButton onClick={() => handleRefreshToken(token.id)} $variant="primary">
 									<FiRefreshCw />
 									Refresh
 								</ActionButton>
-								
-								<ActionButton
-									onClick={() => handleRevokeToken(token.id)}
-									$variant="danger"
-								>
+
+								<ActionButton onClick={() => handleRevokeToken(token.id)} $variant="danger">
 									<FiTrash2 />
 									Revoke
 								</ActionButton>

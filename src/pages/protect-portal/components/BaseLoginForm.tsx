@@ -245,14 +245,18 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 					console.error('[🔐 BASE-LOGIN] Credential submission failed:', errorDetails);
 
 					if (credsResponse.error?.code === 'INVALID_CREDENTIALS') {
-						throw new Error('Invalid username or password. Please check your credentials and try again.');
+						throw new Error(
+							'Invalid username or password. Please check your credentials and try again.'
+						);
 					} else if (credsResponse.error?.code === 'ACCOUNT_LOCKED') {
 						throw new Error('Your account has been locked. Please contact your administrator.');
 					} else if (credsResponse.error?.code === 'MFA_REQUIRED') {
 						console.log('[🔐 BASE-LOGIN] MFA required, proceeding to MFA flow');
 					}
 
-					throw new Error(credsResponse.error?.message || 'Authentication failed. Please try again.');
+					throw new Error(
+						credsResponse.error?.message || 'Authentication failed. Please try again.'
+					);
 				}
 
 				// Step 3: Prepare user and login context from successful authentication
@@ -262,7 +266,9 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 				const userContext: UserContext = {
 					id: formData.username, // Use username as ID for now
 					username: formData.username,
-					email: formData.username.includes('@') ? formData.username : `${formData.username}@example.com`,
+					email: formData.username.includes('@')
+						? formData.username
+						: `${formData.username}@example.com`,
 					name: formData.username,
 					type: 'PING_ONE',
 				};

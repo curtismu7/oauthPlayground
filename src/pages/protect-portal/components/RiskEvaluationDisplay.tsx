@@ -355,15 +355,15 @@ const RiskScoreValue = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
   font-size: 1.25rem;
   font-weight: 700;
   color: ${(props) => {
-    switch (props.riskLevel) {
-      case 'LOW':
-        return '#10b981';
-      case 'MEDIUM':
-        return '#f59e0b';
-      case 'HIGH':
-        return '#ef4444';
-    }
-  }};
+		switch (props.riskLevel) {
+			case 'LOW':
+				return '#10b981';
+			case 'MEDIUM':
+				return '#f59e0b';
+			case 'HIGH':
+				return '#ef4444';
+		}
+	}};
   min-width: 60px;
 `;
 
@@ -379,15 +379,15 @@ const RiskScoreFill = styled.div<{ percentage: number; riskLevel: 'LOW' | 'MEDIU
   height: 100%;
   width: ${(props) => props.percentage}%;
   background: ${(props) => {
-    switch (props.riskLevel) {
-      case 'LOW':
-        return '#10b981';
-      case 'MEDIUM':
-        return '#f59e0b';
-      case 'HIGH':
-        return '#ef4444';
-    }
-  }};
+		switch (props.riskLevel) {
+			case 'LOW':
+				return '#10b981';
+			case 'MEDIUM':
+				return '#f59e0b';
+			case 'HIGH':
+				return '#ef4444';
+		}
+	}};
   transition: width 0.5s ease;
 `;
 
@@ -425,15 +425,15 @@ const RiskBadge = styled.span<{ riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' }>`
   font-weight: 600;
   color: white;
   background: ${(props) => {
-    switch (props.riskLevel) {
-      case 'LOW':
-        return '#10b981';
-      case 'MEDIUM':
-        return '#f59e0b';
-      case 'HIGH':
-        return '#ef4444';
-    }
-  }};
+		switch (props.riskLevel) {
+			case 'LOW':
+				return '#10b981';
+			case 'MEDIUM':
+				return '#f59e0b';
+			case 'HIGH':
+				return '#ef4444';
+		}
+	}};
 `;
 
 const NextStepsContainer = styled.div`
@@ -670,7 +670,8 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 		<EvaluationContainer>
 			<EvaluationTitle>🛡️ Security Risk Evaluation</EvaluationTitle>
 			<EvaluationDescription>
-				We're evaluating your login attempt using advanced security analysis to determine the appropriate protection level
+				We're evaluating your login attempt using advanced security analysis to determine the
+				appropriate protection level
 			</EvaluationDescription>
 
 			{error && (
@@ -729,12 +730,19 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 					<RiskScoreContainer>
 						<RiskScoreLabel>Risk Score:</RiskScoreLabel>
 						<RiskScoreValue riskLevel={result.result.level}>
-							{result.result.level === 'LOW' ? '25' : result.result.level === 'MEDIUM' ? '65' : '85'}/100
+							{result.result.level === 'LOW'
+								? '25'
+								: result.result.level === 'MEDIUM'
+									? '65'
+									: '85'}
+							/100
 						</RiskScoreValue>
 						<RiskScoreBar>
-							<RiskScoreFill 
-								percentage={result.result.level === 'LOW' ? 25 : result.result.level === 'MEDIUM' ? 65 : 85} 
-								riskLevel={result.result.level} 
+							<RiskScoreFill
+								percentage={
+									result.result.level === 'LOW' ? 25 : result.result.level === 'MEDIUM' ? 65 : 85
+								}
+								riskLevel={result.result.level}
 							/>
 						</RiskScoreBar>
 					</RiskScoreContainer>
@@ -766,9 +774,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 						<DetailRow>
 							<DetailLabel>Risk Level:</DetailLabel>
 							<DetailValue>
-								<RiskBadge riskLevel={result.result.level}>
-									{result.result.level}
-								</RiskBadge>
+								<RiskBadge riskLevel={result.result.level}>{result.result.level}</RiskBadge>
 							</DetailValue>
 						</DetailRow>
 						<DetailRow>
@@ -839,7 +845,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 					<EducationalTitle>{educationalContent.title}</EducationalTitle>
 				</EducationalHeader>
 				<EducationalDescription>{educationalContent.description}</EducationalDescription>
-				
+
 				<KeyPoints>
 					{educationalContent.keyPoints.map((point, index) => (
 						<KeyPoint key={index}>
@@ -848,9 +854,13 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 						</KeyPoint>
 					))}
 				</KeyPoints>
-				
+
 				{educationalContent.learnMore && (
-					<LearnMoreLink href={educationalContent.learnMore.url} target="_blank" rel="noopener noreferrer">
+					<LearnMoreLink
+						href={educationalContent.learnMore.url}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
 						Learn More About Risk-Based Authentication
 						<FiArrowRight />
 					</LearnMoreLink>

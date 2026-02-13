@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import ApiDisplayService from '../../services/ApiDisplayService';
 import { JsonDisplay } from './JsonDisplay';
 
 /**
  * PageApiInfo Component
- * 
+ *
  * Displays API call information (headers, body, response) at the bottom of pages
  * for easy visibility of what's happening on each page.
- * 
+ *
  * Follows SWE-15 principles:
  * - Single Responsibility: Only displays API info for the current page
  * - Interface Segregation: Minimal props, focused functionality
@@ -26,7 +26,7 @@ interface PageApiInfoProps {
 export const PageApiInfo: React.FC<PageApiInfoProps> = ({
 	pageName,
 	show = true,
-	maxCalls = 5
+	maxCalls = 5,
 }) => {
 	const { currentTheme } = useTheme();
 	const [apiCalls, setApiCalls] = useState(ApiDisplayService.getApiCalls());
@@ -43,19 +43,23 @@ export const PageApiInfo: React.FC<PageApiInfoProps> = ({
 
 	// Filter calls relevant to current page (simple heuristic based on URL patterns)
 	const pageRelevantCalls = apiCalls
-		.filter(call => {
+		.filter((call) => {
 			// Filter calls that might be relevant to this page
 			const callLower = call.url.toLowerCase();
 			const pageLower = pageName.toLowerCase();
-			
+
 			// Check if URL contains page-relevant keywords
 			if (pageLower.includes('dashboard') && callLower.includes('risk')) return true;
 			if (pageLower.includes('login') && callLower.includes('auth')) return true;
 			if (pageLower.includes('risk') && callLower.includes('risk')) return true;
-			if (pageLower.includes('security') && (callLower.includes('risk') || callLower.includes('signal'))) return true;
+			if (
+				pageLower.includes('security') &&
+				(callLower.includes('risk') || callLower.includes('signal'))
+			)
+				return true;
 			if (pageLower.includes('user') && callLower.includes('user')) return true;
 			if (pageLower.includes('setting') && callLower.includes('config')) return true;
-			
+
 			// Default: show recent calls for any page
 			return true;
 		})
@@ -72,17 +76,14 @@ export const PageApiInfo: React.FC<PageApiInfoProps> = ({
 	return (
 		<div className="mt-8 border-t pt-6">
 			<div className="flex items-center justify-between mb-4">
-				<h3 
-					className="text-lg font-semibold"
-					style={{ color: currentTheme.colors.text }}
-				>
+				<h3 className="text-lg font-semibold" style={{ color: currentTheme.colors.text }}>
 					📡 Recent API Activity
 				</h3>
-				<span 
+				<span
 					className="text-xs px-2 py-1 rounded"
-					style={{ 
+					style={{
 						backgroundColor: `${currentTheme.colors.primary}20`,
-						color: currentTheme.colors.primary 
+						color: currentTheme.colors.primary,
 					}}
 				>
 					{pageRelevantCalls.length} calls
@@ -101,9 +102,8 @@ export const PageApiInfo: React.FC<PageApiInfoProps> = ({
 							type="button"
 							className="w-full p-3 cursor-pointer hover:bg-opacity-50 transition-colors text-left"
 							style={{
-								backgroundColor: expandedCall === call.id 
-									? `${currentTheme.colors.primary}10` 
-									: 'transparent'
+								backgroundColor:
+									expandedCall === call.id ? `${currentTheme.colors.primary}10` : 'transparent',
 							}}
 							onClick={() => toggleExpanded(call.id)}
 							onKeyDown={(e) => {
@@ -118,33 +118,41 @@ export const PageApiInfo: React.FC<PageApiInfoProps> = ({
 									<span className="text-lg">{call.apiType.icon}</span>
 									<div>
 										<div className="flex items-center space-x-2">
-											<span 
+											<span
 												className="text-xs font-mono px-2 py-1 rounded"
 												style={{
-													backgroundColor: 
-														call.method === 'GET' ? '#10b98120' :
-														call.method === 'POST' ? '#3b82f620' :
-														call.method === 'PUT' ? '#f59e0b20' :
-														call.method === 'DELETE' ? '#ef444420' :
-														'#6b728020',
-													color: 
-														call.method === 'GET' ? '#10b981' :
-														call.method === 'POST' ? '#3b82f6' :
-														call.method === 'PUT' ? '#f59e0b' :
-														call.method === 'DELETE' ? '#ef4444' :
-														'#6b7280'
+													backgroundColor:
+														call.method === 'GET'
+															? '#10b98120'
+															: call.method === 'POST'
+																? '#3b82f620'
+																: call.method === 'PUT'
+																	? '#f59e0b20'
+																	: call.method === 'DELETE'
+																		? '#ef444420'
+																		: '#6b728020',
+													color:
+														call.method === 'GET'
+															? '#10b981'
+															: call.method === 'POST'
+																? '#3b82f6'
+																: call.method === 'PUT'
+																	? '#f59e0b'
+																	: call.method === 'DELETE'
+																		? '#ef4444'
+																		: '#6b7280',
 												}}
 											>
 												{call.method}
 											</span>
-											<span 
+											<span
 												className="text-sm font-medium"
 												style={{ color: currentTheme.colors.text }}
 											>
 												{call.apiType.label}
 											</span>
 										</div>
-										<div 
+										<div
 											className="text-xs font-mono mt-1"
 											style={{ color: currentTheme.colors.textSecondary }}
 										>
@@ -154,26 +162,27 @@ export const PageApiInfo: React.FC<PageApiInfoProps> = ({
 								</div>
 								<div className="flex items-center space-x-2">
 									{call.response && (
-										<span 
+										<span
 											className="text-xs px-2 py-1 rounded"
 											style={{
-												backgroundColor: 
-													call.response.status >= 200 && call.response.status < 300 ? '#10b98120' :
-													call.response.status >= 400 ? '#ef444420' :
-													'#f59e0b20',
-												color: 
-													call.response.status >= 200 && call.response.status < 300 ? '#10b981' :
-													call.response.status >= 400 ? '#ef4444' :
-													'#f59e0b'
+												backgroundColor:
+													call.response.status >= 200 && call.response.status < 300
+														? '#10b98120'
+														: call.response.status >= 400
+															? '#ef444420'
+															: '#f59e0b20',
+												color:
+													call.response.status >= 200 && call.response.status < 300
+														? '#10b981'
+														: call.response.status >= 400
+															? '#ef4444'
+															: '#f59e0b',
 											}}
 										>
 											{call.response.status}
 										</span>
 									)}
-									<span 
-										className="text-xs"
-										style={{ color: currentTheme.colors.textSecondary }}
-									>
+									<span className="text-xs" style={{ color: currentTheme.colors.textSecondary }}>
 										{new Date(call.timestamp).toLocaleTimeString()}
 									</span>
 								</div>
@@ -185,20 +194,12 @@ export const PageApiInfo: React.FC<PageApiInfoProps> = ({
 							<div className="border-t" style={{ borderColor: currentTheme.colors.textSecondary }}>
 								{/* Headers */}
 								{call.headers && Object.keys(call.headers).length > 0 && (
-									<JsonDisplay
-										data={call.headers}
-										title="Headers"
-										maxHeight="150px"
-									/>
+									<JsonDisplay data={call.headers} title="Headers" maxHeight="150px" />
 								)}
 
 								{/* Body */}
 								{call.body && (
-									<JsonDisplay
-										data={call.body}
-										title="Request Body"
-										maxHeight="200px"
-									/>
+									<JsonDisplay data={call.body} title="Request Body" maxHeight="200px" />
 								)}
 
 								{/* Response */}
@@ -216,7 +217,7 @@ export const PageApiInfo: React.FC<PageApiInfoProps> = ({
 			</div>
 
 			{pageRelevantCalls.length === 0 && (
-				<div 
+				<div
 					className="text-center py-8 text-sm"
 					style={{ color: currentTheme.colors.textSecondary }}
 				>

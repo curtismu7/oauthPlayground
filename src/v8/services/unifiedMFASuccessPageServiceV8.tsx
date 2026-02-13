@@ -432,9 +432,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						textAlign: 'center',
 					}}
 				>
-					{flowType === 'authentication'
-						? 'Authentication Successful!'
-						: 'Device Created!'}
+					{flowType === 'authentication' ? 'Authentication Successful!' : 'Device Created!'}
 				</h1>
 				<p
 					style={{
@@ -579,7 +577,9 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 							>
 								🔐 Registration Method
 							</div>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
+							>
 								<FiShield size={16} color="#f59e0b" />
 								<span style={{ fontSize: '14px', color: '#78350f', fontWeight: '500' }}>
 									{registrationFlowType === 'admin' ? 'ADMIN FLOW' : 'USER FLOW'}
@@ -588,22 +588,38 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 							<div style={{ fontSize: '13px', color: '#92400e', lineHeight: '1.5' }}>
 								{registrationFlowType === 'admin' ? (
 									<>
-										<strong>Admin Registration:</strong> This device was created by an administrator using a worker token. 
-										The admin has full control over device registration and can set devices to{' '}
-										<code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px', fontSize: '12px' }}>
+										<strong>Admin Registration:</strong> This device was created by an administrator
+										using a worker token. The admin has full control over device registration and
+										can set devices to{' '}
+										<code
+											style={{
+												background: '#f3f4f6',
+												padding: '2px 4px',
+												borderRadius: '3px',
+												fontSize: '12px',
+											}}
+										>
 											ACTIVE
 										</code>{' '}
 										or{' '}
-										<code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px', fontSize: '12px' }}>
+										<code
+											style={{
+												background: '#f3f4f6',
+												padding: '2px 4px',
+												borderRadius: '3px',
+												fontSize: '12px',
+											}}
+										>
 											ACTIVATION_REQUIRED
 										</code>{' '}
 										status. No user authentication was required for this registration.
 									</>
 								) : (
 									<>
-										<strong>User Registration:</strong> This device was created by a user through OAuth authentication. 
-										The user was redirected to PingOne for authentication and consent. Devices created through user flow 
-										always require activation before use and are tied to the user's account.
+										<strong>User Registration:</strong> This device was created by a user through
+										OAuth authentication. The user was redirected to PingOne for authentication and
+										consent. Devices created through user flow always require activation before use
+										and are tied to the user's account.
 									</>
 								)}
 							</div>
@@ -629,7 +645,9 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 								>
 									📱 Device Status
 								</div>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+								<div
+									style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
+								>
 									<div
 										style={{
 											width: '12px',
@@ -645,13 +663,15 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 								<div style={{ fontSize: '13px', color: '#92400e', lineHeight: '1.5' }}>
 									{adminDeviceStatus === 'ACTIVE' ? (
 										<>
-											<strong>Active Status:</strong> This device is immediately ready for use. 
-											The admin has configured it to be fully functional without requiring additional activation steps.
+											<strong>Active Status:</strong> This device is immediately ready for use. The
+											admin has configured it to be fully functional without requiring additional
+											activation steps.
 										</>
 									) : (
 										<>
-											<strong>Activation Required:</strong> This device needs user activation before it can be used. 
-											The user will need to complete an OTP verification process to activate the device.
+											<strong>Activation Required:</strong> This device needs user activation before
+											it can be used. The user will need to complete an OTP verification process to
+											activate the device.
 										</>
 									)}
 								</div>
@@ -677,7 +697,9 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 							>
 								🔑 Authentication Method
 							</div>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
+							>
 								{tokenType === 'worker' ? (
 									<FiShield size={16} color="#f59e0b" />
 								) : (
@@ -690,15 +712,15 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 							<div style={{ fontSize: '13px', color: '#92400e', lineHeight: '1.5' }}>
 								{tokenType === 'worker' ? (
 									<>
-										<strong>Worker Token:</strong> API calls were made using a worker token obtained from the 
-										PingOne Worker Token API. This method provides administrative access to device management 
-										functions without requiring user interaction.
+										<strong>Worker Token:</strong> API calls were made using a worker token obtained
+										from the PingOne Worker Token API. This method provides administrative access to
+										device management functions without requiring user interaction.
 									</>
 								) : (
 									<>
-										<strong>User Token:</strong> API calls were made using a user token obtained through OAuth 
-										authentication. This method requires the user to authenticate and provides access limited to 
-										the user's scope and permissions.
+										<strong>User Token:</strong> API calls were made using a user token obtained
+										through OAuth authentication. This method requires the user to authenticate and
+										provides access limited to the user's scope and permissions.
 									</>
 								)}
 							</div>

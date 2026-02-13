@@ -532,13 +532,18 @@ export class HybridFlowIntegrationServiceV8 {
 				isProxy: true,
 				headers: trackedHeaders,
 				body: new URLSearchParams(
-					Object.entries(bodyParams).reduce((acc, [key, value]) => {
-						if (value !== undefined && value !== null) {
-							acc[key] = value;
-						}
-						return acc;
-					}, {} as Record<string, string>)
-				).toString().replace(/code=[^&]+/, 'code=***REDACTED***')
+					Object.entries(bodyParams).reduce(
+						(acc, [key, value]) => {
+							if (value !== undefined && value !== null) {
+								acc[key] = value;
+							}
+							return acc;
+						},
+						{} as Record<string, string>
+					)
+				)
+					.toString()
+					.replace(/code=[^&]+/, 'code=***REDACTED***')
 					.replace(/code_verifier=[^&]+/, 'code_verifier=***REDACTED***')
 					.replace(/client_secret=[^&]+/, 'client_secret=***REDACTED***')
 					.replace(/client_assertion=[^&]+/, 'client_assertion=***REDACTED***'),
@@ -566,7 +571,7 @@ export class HybridFlowIntegrationServiceV8 {
 			let responseData: unknown;
 			try {
 				responseData = await responseClone.json();
-			} catch (parseError) {
+			} catch (_parseError) {
 				responseData = { error: 'Failed to parse response' };
 			}
 

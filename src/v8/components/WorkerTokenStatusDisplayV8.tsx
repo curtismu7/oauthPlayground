@@ -606,18 +606,21 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 				}
 
 				// Create tokenData structure from the unified service response
-				const tokenData = status.hasToken && credentials
-					? {
-							token: '***', // Masked token for security
-							credentials: credentials,
-							expiresAt: status.tokenExpiresIn ? Date.now() + (status.tokenExpiresIn * 1000) : Date.now() + 3600000, // Default to 1 hour from now
-							savedAt: status.lastFetchedAt || Date.now(),
-							lastUsedAt: status.lastUsedAt || Date.now(),
-							tokenType: 'Bearer',
-							expiresIn: status.tokenExpiresIn || 3600, // Default to 1 hour
-							scope: '', // Empty string instead of undefined
-						}
-					: null;
+				const tokenData =
+					status.hasToken && credentials
+						? {
+								token: '***', // Masked token for security
+								credentials: credentials,
+								expiresAt: status.tokenExpiresIn
+									? Date.now() + status.tokenExpiresIn * 1000
+									: Date.now() + 3600000, // Default to 1 hour from now
+								savedAt: status.lastFetchedAt || Date.now(),
+								lastUsedAt: status.lastUsedAt || Date.now(),
+								tokenType: 'Bearer',
+								expiresIn: status.tokenExpiresIn || 3600, // Default to 1 hour
+								scope: '', // Empty string instead of undefined
+							}
+						: null;
 				setFullTokenData(tokenData);
 				setTokenStatusInfo(status);
 			} catch (dataError) {

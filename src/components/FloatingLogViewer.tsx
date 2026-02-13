@@ -513,7 +513,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 	useEffect(() => {
 		stopTailMode();
 		loadLogContent();
-	}, [selectedFile, stopTailMode, loadLogContent]);
+	}, [stopTailMode, loadLogContent]);
 
 	// Global mouse event listeners
 	useEffect(() => {

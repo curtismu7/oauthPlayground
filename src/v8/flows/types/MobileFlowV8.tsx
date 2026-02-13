@@ -3278,7 +3278,13 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 									}}
 								>
 									<span>🔄</span>
-									<span>{isLoading ? 'Sending...' : otpState.canResend ? 'Resend OTP Code' : `Resend in ${otpState.resendCooldown}s`}</span>
+									<span>
+										{isLoading
+											? 'Sending...'
+											: otpState.canResend
+												? 'Resend OTP Code'
+												: `Resend in ${otpState.resendCooldown}s`}
+									</span>
 								</button>
 							</div>
 

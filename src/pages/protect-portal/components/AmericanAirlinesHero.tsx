@@ -12,8 +12,8 @@
 import React from 'react';
 import { FiArrowRight, FiCalendar, FiLock, FiMapPin, FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
-import AmericanAirlinesNavigation from './AmericanAirlinesNavigation';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
+import AmericanAirlinesNavigation from './AmericanAirlinesNavigation';
 import CustomLoginForm from './CustomLoginForm';
 
 // ============================================================================
@@ -238,11 +238,11 @@ const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({
 						<HeroSubtitle>
 							Access your American Airlines employee account with enhanced security
 						</HeroSubtitle>
-						
+
 						<LoginSection>
 							<LoginDescription>
-								Enter your credentials to access your secure employee portal. Multi-factor authentication
-								may be required based on your security profile.
+								Enter your credentials to access your secure employee portal. Multi-factor
+								authentication may be required based on your security profile.
 							</LoginDescription>
 							<CustomLoginForm
 								onLoginSuccess={onLoginSuccess}

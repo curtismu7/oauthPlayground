@@ -696,7 +696,10 @@ export const ValidationServiceV8 = {
 	 * @param appConfig - Optional PingOne application configuration
 	 * @returns Array of warnings
 	 */
-	validateRedirectUriSecurity(redirectUri: string, appConfig?: { allowRedirectUriPatterns: boolean; oauthVersion?: '2.0' | '2.1' }): ValidationWarning[] {
+	validateRedirectUriSecurity(
+		redirectUri: string,
+		appConfig?: { allowRedirectUriPatterns: boolean; oauthVersion?: '2.0' | '2.1' }
+	): ValidationWarning[] {
 		const warnings: ValidationWarning[] = [];
 
 		try {
@@ -708,7 +711,8 @@ export const ValidationServiceV8 = {
 				if (!appConfig?.allowRedirectUriPatterns) {
 					warnings.push({
 						field: 'redirectUri',
-						message: 'Wildcard domains in redirect URIs require "Allow Redirect URI Patterns" to be enabled in your PingOne application',
+						message:
+							'Wildcard domains in redirect URIs require "Allow Redirect URI Patterns" to be enabled in your PingOne application',
 						canProceed: false,
 						severity: 'high',
 					});
@@ -717,7 +721,8 @@ export const ValidationServiceV8 = {
 					if (appConfig?.oauthVersion === '2.1') {
 						warnings.push({
 							field: 'redirectUri',
-							message: 'Wildcard redirect URIs are not allowed in OAuth 2.1, even with "Allow Redirect URI Patterns" enabled',
+							message:
+								'Wildcard redirect URIs are not allowed in OAuth 2.1, even with "Allow Redirect URI Patterns" enabled',
 							canProceed: false,
 							severity: 'high',
 						});
@@ -725,7 +730,8 @@ export const ValidationServiceV8 = {
 						// OAuth 2.0 with patterns allowed - show warning but allow
 						warnings.push({
 							field: 'redirectUri',
-							message: '⚠️ Wildcard redirect URIs are allowed but not recommended for production. Use only in developer sandbox environments.',
+							message:
+								'⚠️ Wildcard redirect URIs are allowed but not recommended for production. Use only in developer sandbox environments.',
 							canProceed: true,
 							severity: 'high',
 						});
@@ -1145,12 +1151,10 @@ export const ValidationServiceV8 = {
 		includeBlocking: boolean = true
 	): ValidationError[] {
 		return errors.filter((error) =>
-			includeBlocking
-				? this.isBlockingError(error)
-				: !this.isBlockingError(error)
+			includeBlocking ? this.isBlockingError(error) : !this.isBlockingError(error)
 		);
-	}
-}
+	},
+};
 
 // ============================================================================
 // DEFAULT EXPORT

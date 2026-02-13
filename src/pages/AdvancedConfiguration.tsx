@@ -18,7 +18,6 @@ import JsonEditor from '../components/JsonEditor';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
-import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
 
 const _Container = styled.div`
@@ -323,7 +322,7 @@ const AdvancedConfiguration = () => {
 	const [environmentId, setEnvironmentId] = useState(() => {
 		// Use credentialManager as primary source
 		const credentialManagerEnvId = currentDefaults.environmentId || '';
-		
+
 		// Try worker token credentials as fallback
 		if (!credentialManagerEnvId) {
 			try {
@@ -338,7 +337,7 @@ const AdvancedConfiguration = () => {
 				console.log('Failed to load environment ID from worker token:', error);
 			}
 		}
-		
+
 		return credentialManagerEnvId;
 	});
 	const [redirectUri, setRedirectUri] = useState(

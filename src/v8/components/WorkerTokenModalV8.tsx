@@ -17,9 +17,9 @@ import {
 } from '@/services/credentialExportImportService';
 import { environmentService } from '@/services/environmentService';
 import { UnifiedTokenDisplayService } from '@/services/unifiedTokenDisplayService';
-import { 
-	unifiedWorkerTokenService,
+import {
 	type ApplicationKeyRotationStatus,
+	unifiedWorkerTokenService,
 } from '@/services/unifiedWorkerTokenService';
 import pingOneFetch from '@/utils/pingOneFetch';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
@@ -74,7 +74,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	const [saveCredentials, setSaveCredentials] = useState(true);
 	const [currentToken, setCurrentToken] = useState<string | null>(null);
 	const [showTokenDisplay, setShowTokenDisplay] = useState(false);
-	const [krpStatus, setKrpStatus] = useState<ApplicationKeyRotationStatus | null>(null);
+	const [_krpStatus, setKrpStatus] = useState<ApplicationKeyRotationStatus | null>(null);
 	const [krpCompliance, setKrpCompliance] = useState<{
 		compliant: boolean;
 		daysUntilDeadline: number;
@@ -94,7 +94,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						if (token) {
 							setCurrentToken(token);
 							setShowTokenDisplay(true);
-							
+
 							// Fetch KRP status
 							try {
 								const [krpStatusData, krpComplianceData] = await Promise.all([
@@ -286,9 +286,11 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					// Check if this is an OIDC scope error and provide helpful guidance
 					const errorString = oauthConfigResult.errors.join('; ');
 					if (errorString.includes('Invalid OIDC Scopes') || errorString.includes('openid')) {
-						throw new Error(`Client Credentials Flow Error: You're using OIDC scopes (like "openid") with Client Credentials flow. Worker tokens need resource server scopes, not OIDC scopes. Please remove "openid", "profile", "email" etc. and use resource scopes like "ClaimScope" or API-specific scopes instead.`);
+						throw new Error(
+							`Client Credentials Flow Error: You're using OIDC scopes (like "openid") with Client Credentials flow. Worker tokens need resource server scopes, not OIDC scopes. Please remove "openid", "profile", "email" etc. and use resource scopes like "ClaimScope" or API-specific scopes instead.`
+						);
 					}
-					
+
 					// Show other validation errors
 					throw new Error(`Pre-flight validation failed: ${errorString}`);
 				}
@@ -838,7 +840,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											true
 										)}
 									</div>
-									
+
 									{/* KRP Status Display */}
 									{krpCompliance && (
 										<div
@@ -851,13 +853,17 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												fontSize: '13px',
 											}}
 										>
-											<div style={{ fontWeight: '600', marginBottom: '4px', color: krpCompliance.compliant ? '#1e40af' : '#92400e' }}>
+											<div
+												style={{
+													fontWeight: '600',
+													marginBottom: '4px',
+													color: krpCompliance.compliant ? '#1e40af' : '#92400e',
+												}}
+											>
 												🔑 Key Rotation Policy (KRP)
 											</div>
 											{krpCompliance.compliant ? (
-												<div style={{ color: '#1e40af' }}>
-													✅ Compliant - Application uses KRP
-												</div>
+												<div style={{ color: '#1e40af' }}>✅ Compliant - Application uses KRP</div>
 											) : (
 												<div>
 													<div style={{ color: '#92400e', marginBottom: '4px' }}>
@@ -870,7 +876,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											)}
 										</div>
 									)}
-									
+
 									<div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
 										<button
 											type="button"

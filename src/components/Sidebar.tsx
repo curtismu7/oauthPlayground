@@ -1363,7 +1363,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge 
+							<MigrationBadge
 								title="Complete risk-based authentication portal with MFA integration"
 								style={{ background: '#dc2626', color: 'white' }}
 							>
@@ -1733,9 +1733,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			<ResizeHandle onMouseDown={handleMouseDown} />
 			<ProSidebar key={`sidebar-${renderTimestamp}`} width={`${sidebarWidth}px`}>
 				<SidebarHeader>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						MasterFlow API
-					</div>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>MasterFlow API</div>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 						<DragModeToggle
 							onClick={toggleDragDropMode}

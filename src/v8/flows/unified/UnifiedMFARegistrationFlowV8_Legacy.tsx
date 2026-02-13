@@ -46,8 +46,6 @@ import { useUserSearch } from '@/v8/hooks/useUserSearch';
 import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
-import { IndexedDBBackupServiceV8U } from '@/v8u/services/indexedDBBackupServiceV8U';
-import { UnifiedOAuthCredentialsServiceV8U } from '@/v8u/services/unifiedOAuthCredentialsServiceV8U';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { type MFAFeatureFlag, MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import MFAServiceV8_Legacy, { type RegisterDeviceParams } from '@/v8/services/mfaServiceV8_Legacy';
@@ -56,9 +54,13 @@ import {
 	shouldRedirectToPingOne,
 } from '@/v8/services/pingOneAuthenticationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { type TokenStatusInfo, WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusServiceV8,
+} from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { UnifiedOAuthCredentialsServiceV8U } from '@/v8u/services/unifiedOAuthCredentialsServiceV8U';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { DeviceAuthenticationPolicy, MFACredentials, MFAState } from '../shared/MFATypes';
 import { UnifiedActivationStep } from './components/UnifiedActivationStep';
@@ -345,19 +347,22 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		if (environmentId) {
 			globalEnvironmentService.setEnvironmentId(environmentId);
 			localStorage.setItem('mfa_environmentId', environmentId);
-			
+
 			// Save to enhanced storage with IndexedDB + SQLite backup
 			const saveEnhancedStorage = async () => {
 				let currentCreds = null;
-				
+
 				try {
-					await UnifiedOAuthCredentialsServiceV8U.saveSharedCredentials({
-						environmentId,
-					}, {
-						environmentId,
-						enableBackup: !!environmentId,
-						backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
-					});
+					await UnifiedOAuthCredentialsServiceV8U.saveSharedCredentials(
+						{
+							environmentId,
+						},
+						{
+							environmentId,
+							enableBackup: !!environmentId,
+							backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
+						}
+					);
 					console.log('[UNIFIED-MFA] Environment ID saved to enhanced storage');
 				} catch (error) {
 					console.warn('[UNIFIED-MFA] Enhanced storage failed, using fallback', error);
@@ -375,7 +380,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						environmentId,
 					});
 				}
-				
+
 				// Dispatch credential update event for other components (like device management)
 				window.dispatchEvent(
 					new CustomEvent('mfaCredentialsUpdated', {
@@ -383,7 +388,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					})
 				);
 			};
-			
+
 			saveEnhancedStorage();
 		}
 	}, [environmentId, username]);
@@ -394,20 +399,23 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		if (username) {
 			localStorage.setItem('mfa_unified_username', username);
 			localStorage.setItem('mfa_username', username);
-			
+
 			// Save to enhanced storage with IndexedDB + SQLite backup
 			const saveEnhancedStorage = async () => {
 				let currentCreds = null;
-				
+
 				try {
-					await UnifiedOAuthCredentialsServiceV8U.saveSharedCredentials({
-						username,
-						environmentId,
-					}, {
-						environmentId,
-						enableBackup: !!environmentId,
-						backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
-					});
+					await UnifiedOAuthCredentialsServiceV8U.saveSharedCredentials(
+						{
+							username,
+							environmentId,
+						},
+						{
+							environmentId,
+							enableBackup: !!environmentId,
+							backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
+						}
+					);
 					console.log('[UNIFIED-MFA] Username saved to enhanced storage');
 				} catch (error) {
 					console.warn('[UNIFIED-MFA] Enhanced storage failed, using fallback', error);
@@ -425,7 +433,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						username,
 					});
 				}
-				
+
 				// Dispatch credential update event for other components (like device management)
 				window.dispatchEvent(
 					new CustomEvent('mfaCredentialsUpdated', {
@@ -433,7 +441,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					})
 				);
 			};
-			
+
 			saveEnhancedStorage();
 		}
 	}, [username, environmentId]);
@@ -459,7 +467,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		// FIXED: Use registrationFlowType prop instead of incorrectly guessing based on userToken presence
 		// Admin flows should use worker tokens, not require user tokens
 		let flowType: 'admin' | 'user';
-		
+
 		if (registrationFlowType) {
 			// Use explicitly specified flow type
 			flowType = registrationFlowType.startsWith('admin') ? 'admin' : 'user';
@@ -467,7 +475,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			// Default to admin flow unless explicitly set to user
 			flowType = 'admin';
 		}
-		
+
 		const effectiveUserToken = flowType === 'user' ? userToken : undefined;
 
 		// For admin flow, check if we have a valid worker token before proceeding
@@ -1070,7 +1078,11 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 									value={username}
 									options={userOptions}
 									onChange={setUsername}
-									placeholder={tokenStatus.isValid ? "Type to search across 16,000+ users..." : "Enter username or configure worker token for search..."}
+									placeholder={
+										tokenStatus.isValid
+											? 'Type to search across 16,000+ users...'
+											: 'Enter username or configure worker token for search...'
+									}
 									isLoading={isLoadingUsers}
 									onSearchChange={setSearchQuery}
 									disabled={!tokenStatus.isValid}
@@ -1370,23 +1382,29 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 								// Worker tokens are for API calls, NOT for authentication
 								// Admin flow: Use worker token for API calls, no user auth needed for device authentication
 								// User flow: Requires user token for both registration AND authentication
-								
+
 								if (registrationFlowType?.startsWith('admin')) {
 									// Admin flow: Can authenticate devices directly with worker token
 									setFlowMode('authentication');
 									setShowDeviceSelectionModal(true);
-									toastV8.info('🔐 Admin Flow: Authenticating device using worker token for API calls.', {
-										duration: 4000,
-									});
+									toastV8.info(
+										'🔐 Admin Flow: Authenticating device using worker token for API calls.',
+										{
+											duration: 4000,
+										}
+									);
 									return;
 								}
-								
+
 								// User flow: Requires user token for authentication
 								if (!userToken) {
 									setShowAuthLoginModal(true);
-									toastV8.info('🔐 User Flow: Please complete user login before device authentication.', {
-										duration: 5000,
-									});
+									toastV8.info(
+										'🔐 User Flow: Please complete user login before device authentication.',
+										{
+											duration: 5000,
+										}
+									);
 									return;
 								}
 								setFlowMode('authentication');
@@ -1449,7 +1467,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 								setShowAuthLoginModal(false);
 								return;
 							}
-							
+
 							setUserToken(token);
 							setShowAuthLoginModal(false);
 							setFlowMode('authentication');
@@ -1898,7 +1916,9 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				<button
 					type="button"
 					onClick={() => {
-						const confirmed = window.confirm('Are you sure you want to restart the flow? All progress will be lost.');
+						const confirmed = window.confirm(
+							'Are you sure you want to restart the flow? All progress will be lost.'
+						);
 						if (confirmed) {
 							// Clear all storage
 							sessionStorage.removeItem('mfa-flow-v8');
@@ -1906,7 +1926,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							sessionStorage.removeItem('mfa_oauth_callback_timestamp');
 							sessionStorage.removeItem('mfa_target_step_after_callback');
 							localStorage.removeItem('mfa-flow-v8');
-							
+
 							// Reload the page to ensure complete reset
 							window.location.reload();
 						}
@@ -2131,18 +2151,24 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 		props.deviceType || (location.state as { deviceType?: DeviceConfigKey })?.deviceType;
 
 	// Get registration flow type from props, location state, or saved preference
-	const getInitialRegistrationFlowType = (): 'admin-active' | 'admin-activation' | 'user' | undefined => {
+	const getInitialRegistrationFlowType = ():
+		| 'admin-active'
+		| 'admin-activation'
+		| 'user'
+		| undefined => {
 		// Priority 1: Explicit prop
 		if (props.registrationFlowType) {
 			return props.registrationFlowType;
 		}
-		
+
 		// Priority 2: Location state (for navigation)
-		const locationState = location.state as { registrationFlowType?: 'admin-active' | 'admin-activation' | 'user' };
+		const locationState = location.state as {
+			registrationFlowType?: 'admin-active' | 'admin-activation' | 'user';
+		};
 		if (locationState?.registrationFlowType) {
 			return locationState.registrationFlowType;
 		}
-		
+
 		// Priority 3: Saved preference (for restart/reload)
 		try {
 			const saved = localStorage.getItem('unified_mfa_registration_flow_type');
@@ -2156,7 +2182,7 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 		} catch (error) {
 			console.warn('[UNIFIED-FLOW] Failed to load saved registration flow type:', error);
 		}
-		
+
 		// Priority 4: Default to undefined (will use admin flow by default)
 		return undefined;
 	};
@@ -2175,7 +2201,10 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 	useEffect(() => {
 		if (registrationFlowType) {
 			try {
-				localStorage.setItem('unified_mfa_registration_flow_type', JSON.stringify(registrationFlowType));
+				localStorage.setItem(
+					'unified_mfa_registration_flow_type',
+					JSON.stringify(registrationFlowType)
+				);
 				console.log('[UNIFIED-FLOW] Saved registration flow type:', registrationFlowType);
 			} catch (error) {
 				console.warn('[UNIFIED-FLOW] Failed to save registration flow type:', error);
@@ -2264,11 +2293,11 @@ interface UnifiedMFARegistrationFlowContentProps {
  * - deviceFlowConfigs (device-specific configuration)
  * - MFAFlowBaseV8 (5-step framework)
  */
-const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowContentProps> = ({ 
-	deviceType, 
-	onCancel, 
-	userToken, 
-	setUserToken 
+const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowContentProps> = ({
+	deviceType,
+	onCancel,
+	userToken,
+	setUserToken,
 }) => {
 	// ========================================================================
 	// CONFIGURATION
@@ -2300,7 +2329,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 	} | null>(null);
 
 	// Worker token state for validation in registration flow
-	const workerToken = useWorkerToken({
+	const _workerToken = useWorkerToken({
 		refreshInterval: 5000,
 		enableAutoRefresh: true,
 	});
@@ -2874,7 +2903,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 				userToken || undefined
 			);
 		},
-		[workerToken.tokenStatus.isValid, userToken, performRegistrationWithToken]
+		[userToken, performRegistrationWithToken]
 	);
 
 	/**
@@ -3000,7 +3029,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 			// FIXED: Prevent advancement to step 3 without valid worker token
 			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 			const tokenType = props.credentials.tokenType || 'worker';
-			
+
 			// For worker token flows: require valid token
 			// For user token flows: require valid user token
 			if (tokenType === 'worker' && !tokenStatus.isValid) {

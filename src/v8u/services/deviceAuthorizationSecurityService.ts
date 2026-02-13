@@ -4,7 +4,7 @@
  * @description Security service for device authorization flow
  * @version 8.0.0
  * @since 2026-02-10
- * 
+ *
  * This service provides security validation and rate limiting for the device authorization flow
  * to prevent abuse and ensure compliance with security best practices.
  */
@@ -27,7 +27,7 @@ interface ValidationResult {
 
 /**
  * Device Authorization Security Service
- * 
+ *
  * Provides security validation and rate limiting for device authorization requests
  * and polling attempts to prevent abuse and ensure compliance.
  */
@@ -53,7 +53,7 @@ export class DeviceAuthorizationSecurityService {
 
 	/**
 	 * Validate device authorization request
-	 * 
+	 *
 	 * @param credentials - The credentials to validate
 	 * @returns Validation result with security metrics
 	 */
@@ -63,10 +63,10 @@ export class DeviceAuthorizationSecurityService {
 		scopes?: string;
 	}): ValidationResult {
 		const now = Date.now();
-		const metrics = this.getSecurityMetrics();
+		const metrics = DeviceAuthorizationSecurityService.getSecurityMetrics();
 
 		// Check rate limits
-		if (!this.checkRateLimits(metrics, now)) {
+		if (!DeviceAuthorizationSecurityService.checkRateLimits(metrics, now)) {
 			return {
 				allowed: false,
 				reason: 'Rate limit exceeded. Please wait before making another request.',
@@ -100,7 +100,7 @@ export class DeviceAuthorizationSecurityService {
 		}
 
 		// Validate scopes
-		const scopeValidation = this.validateScopes(credentials.scopes);
+		const scopeValidation = DeviceAuthorizationSecurityService.validateScopes(credentials.scopes);
 		if (!scopeValidation.valid) {
 			return {
 				allowed: false,
@@ -110,26 +110,28 @@ export class DeviceAuthorizationSecurityService {
 		}
 
 		// Update metrics for successful validation
-		this.updateMetrics(metrics, now, 'request');
+		DeviceAuthorizationSecurityService.updateMetrics(metrics, now, 'request');
 
 		return {
 			allowed: true,
-			metrics: this.getSecurityMetrics(),
+			metrics: DeviceAuthorizationSecurityService.getSecurityMetrics(),
 		};
 	}
 
 	/**
 	 * Validate polling request
-	 * 
+	 *
 	 * @returns Validation result with security metrics
 	 */
 	static validatePollingRequest(): ValidationResult {
 		const now = Date.now();
-		const metrics = this.getSecurityMetrics();
+		const metrics = DeviceAuthorizationSecurityService.getSecurityMetrics();
 
 		// Check polling rate limits
-		if (metrics.pollingCount >= this.LIMITS.maxPollingPerHour && 
-			now - metrics.lastPollingTime < 3600000) {
+		if (
+			metrics.pollingCount >= DeviceAuthorizationSecurityService.LIMITS.maxPollingPerHour &&
+			now - metrics.lastPollingTime < 3600000
+		) {
 			return {
 				allowed: false,
 				reason: 'Polling rate limit exceeded. Please wait before polling again.',
@@ -138,35 +140,39 @@ export class DeviceAuthorizationSecurityService {
 		}
 
 		// Update metrics for successful validation
-		this.updateMetrics(metrics, now, 'polling');
+		DeviceAuthorizationSecurityService.updateMetrics(metrics, now, 'polling');
 
 		return {
 			allowed: true,
-			metrics: this.getSecurityMetrics(),
+			metrics: DeviceAuthorizationSecurityService.getSecurityMetrics(),
 		};
 	}
 
 	/**
 	 * Validate scope format and content
-	 * 
+	 *
 	 * @param scopes - Space-separated scopes string
 	 * @returns Validation result
 	 */
 	private static validateScopes(scopes: string): { valid: boolean; reason?: string } {
-		const scopeList = scopes.trim().split(/\s+/).filter(s => s.length > 0);
+		const scopeList = scopes
+			.trim()
+			.split(/\s+/)
+			.filter((s) => s.length > 0);
 
 		// Check number of scopes
-		if (scopeList.length > this.LIMITS.maxScopes) {
+		if (scopeList.length > DeviceAuthorizationSecurityService.LIMITS.maxScopes) {
 			return {
 				valid: false,
-				reason: `Too many scopes requested. Maximum ${this.LIMITS.maxScopes} scopes allowed.`,
+				reason: `Too many scopes requested. Maximum ${DeviceAuthorizationSecurityService.LIMITS.maxScopes} scopes allowed.`,
 			};
 		}
 
 		// Check each scope format
-		const invalidScopes = scopeList.filter(scope => 
-			!this.SCOPE_PATTERN.test(scope) || 
-			scope.length > this.LIMITS.maxScopeLength
+		const invalidScopes = scopeList.filter(
+			(scope) =>
+				!DeviceAuthorizationSecurityService.SCOPE_PATTERN.test(scope) ||
+				scope.length > DeviceAuthorizationSecurityService.LIMITS.maxScopeLength
 		);
 
 		if (invalidScopes.length > 0) {
@@ -181,19 +187,25 @@ export class DeviceAuthorizationSecurityService {
 
 	/**
 	 * Check rate limits against current metrics
-	 * 
+	 *
 	 * @param metrics - Current security metrics
 	 * @param now - Current timestamp
 	 * @returns Whether the request is allowed
 	 */
 	private static checkRateLimits(metrics: SecurityMetrics, now: number): boolean {
 		// Check per-minute limit
-		if (now - metrics.lastRequestTime < 60000 && metrics.requestCount >= this.LIMITS.maxRequestsPerMinute) {
+		if (
+			now - metrics.lastRequestTime < 60000 &&
+			metrics.requestCount >= DeviceAuthorizationSecurityService.LIMITS.maxRequestsPerMinute
+		) {
 			return false;
 		}
 
 		// Check per-hour limit
-		if (now - metrics.lastRequestTime < 3600000 && metrics.requestCount >= this.LIMITS.maxRequestsPerHour) {
+		if (
+			now - metrics.lastRequestTime < 3600000 &&
+			metrics.requestCount >= DeviceAuthorizationSecurityService.LIMITS.maxRequestsPerHour
+		) {
 			return false;
 		}
 
@@ -202,50 +214,84 @@ export class DeviceAuthorizationSecurityService {
 
 	/**
 	 * Get current security metrics from sessionStorage
-	 * 
+	 *
 	 * @returns Current security metrics
 	 */
 	private static getSecurityMetrics(): SecurityMetrics {
 		return {
-			requestCount: parseInt(sessionStorage.getItem(this.STORAGE_KEYS.requestCount) || '0'),
-			lastRequestTime: parseInt(sessionStorage.getItem(this.STORAGE_KEYS.lastRequestTime) || '0'),
-			pollingCount: parseInt(sessionStorage.getItem(this.STORAGE_KEYS.pollingCount) || '0'),
-			lastPollingTime: parseInt(sessionStorage.getItem(this.STORAGE_KEYS.lastPollingTime) || '0'),
-			blockedAttempts: parseInt(sessionStorage.getItem(this.STORAGE_KEYS.blockedAttempts) || '0'),
+			requestCount: parseInt(
+				sessionStorage.getItem(DeviceAuthorizationSecurityService.STORAGE_KEYS.requestCount) || '0',
+				10
+			),
+			lastRequestTime: parseInt(
+				sessionStorage.getItem(DeviceAuthorizationSecurityService.STORAGE_KEYS.lastRequestTime) ||
+					'0',
+				10
+			),
+			pollingCount: parseInt(
+				sessionStorage.getItem(DeviceAuthorizationSecurityService.STORAGE_KEYS.pollingCount) || '0',
+				10
+			),
+			lastPollingTime: parseInt(
+				sessionStorage.getItem(DeviceAuthorizationSecurityService.STORAGE_KEYS.lastPollingTime) ||
+					'0',
+				10
+			),
+			blockedAttempts: parseInt(
+				sessionStorage.getItem(DeviceAuthorizationSecurityService.STORAGE_KEYS.blockedAttempts) ||
+					'0',
+				10
+			),
 		};
 	}
 
 	/**
 	 * Update security metrics after a successful validation
-	 * 
+	 *
 	 * @param metrics - Current metrics
 	 * @param now - Current timestamp
 	 * @param type - Type of operation ('request' or 'polling')
 	 */
-	private static updateMetrics(metrics: SecurityMetrics, now: number, type: 'request' | 'polling'): void {
+	private static updateMetrics(
+		metrics: SecurityMetrics,
+		now: number,
+		type: 'request' | 'polling'
+	): void {
 		if (type === 'request') {
 			// Update request metrics
 			if (now - metrics.lastRequestTime < 60000) {
 				// Within the same minute
-				sessionStorage.setItem(this.STORAGE_KEYS.requestCount, (metrics.requestCount + 1).toString());
+				sessionStorage.setItem(
+					DeviceAuthorizationSecurityService.STORAGE_KEYS.requestCount,
+					(metrics.requestCount + 1).toString()
+				);
 			} else if (now - metrics.lastRequestTime < 3600000) {
 				// Within the same hour but different minute
-				sessionStorage.setItem(this.STORAGE_KEYS.requestCount, '1');
+				sessionStorage.setItem(DeviceAuthorizationSecurityService.STORAGE_KEYS.requestCount, '1');
 			} else {
 				// New hour
-				sessionStorage.setItem(this.STORAGE_KEYS.requestCount, '1');
+				sessionStorage.setItem(DeviceAuthorizationSecurityService.STORAGE_KEYS.requestCount, '1');
 			}
-			sessionStorage.setItem(this.STORAGE_KEYS.lastRequestTime, now.toString());
+			sessionStorage.setItem(
+				DeviceAuthorizationSecurityService.STORAGE_KEYS.lastRequestTime,
+				now.toString()
+			);
 		} else {
 			// Update polling metrics
 			if (now - metrics.lastPollingTime < 3600000) {
 				// Within the same hour
-				sessionStorage.setItem(this.STORAGE_KEYS.pollingCount, (metrics.pollingCount + 1).toString());
+				sessionStorage.setItem(
+					DeviceAuthorizationSecurityService.STORAGE_KEYS.pollingCount,
+					(metrics.pollingCount + 1).toString()
+				);
 			} else {
 				// New hour
-				sessionStorage.setItem(this.STORAGE_KEYS.pollingCount, '1');
+				sessionStorage.setItem(DeviceAuthorizationSecurityService.STORAGE_KEYS.pollingCount, '1');
 			}
-			sessionStorage.setItem(this.STORAGE_KEYS.lastPollingTime, now.toString());
+			sessionStorage.setItem(
+				DeviceAuthorizationSecurityService.STORAGE_KEYS.lastPollingTime,
+				now.toString()
+			);
 		}
 	}
 
@@ -253,17 +299,26 @@ export class DeviceAuthorizationSecurityService {
 	 * Record a blocked attempt
 	 */
 	static recordBlockedAttempt(): void {
-		const blockedAttempts = parseInt(sessionStorage.getItem(this.STORAGE_KEYS.blockedAttempts) || '0');
-		sessionStorage.setItem(this.STORAGE_KEYS.blockedAttempts, (blockedAttempts + 1).toString());
-		
-		console.warn(`${MODULE_TAG} Blocked attempt recorded. Total blocked attempts: ${blockedAttempts + 1}`);
+		const blockedAttempts = parseInt(
+			sessionStorage.getItem(DeviceAuthorizationSecurityService.STORAGE_KEYS.blockedAttempts) ||
+				'0',
+			10
+		);
+		sessionStorage.setItem(
+			DeviceAuthorizationSecurityService.STORAGE_KEYS.blockedAttempts,
+			(blockedAttempts + 1).toString()
+		);
+
+		console.warn(
+			`${MODULE_TAG} Blocked attempt recorded. Total blocked attempts: ${blockedAttempts + 1}`
+		);
 	}
 
 	/**
 	 * Clear security metrics (for testing or reset)
 	 */
 	static clearMetrics(): void {
-		Object.values(this.STORAGE_KEYS).forEach(key => {
+		Object.values(DeviceAuthorizationSecurityService.STORAGE_KEYS).forEach((key) => {
 			sessionStorage.removeItem(key);
 		});
 		console.log(`${MODULE_TAG} Security metrics cleared`);
@@ -271,7 +326,7 @@ export class DeviceAuthorizationSecurityService {
 
 	/**
 	 * Get security summary for monitoring
-	 * 
+	 *
 	 * @returns Security summary
 	 */
 	static getSecuritySummary(): {
@@ -279,7 +334,7 @@ export class DeviceAuthorizationSecurityService {
 		limits: typeof DeviceAuthorizationSecurityService.LIMITS;
 		status: 'healthy' | 'warning' | 'critical';
 	} {
-		const metrics = this.getSecurityMetrics();
+		const metrics = DeviceAuthorizationSecurityService.getSecurityMetrics();
 		const now = Date.now();
 
 		let status: 'healthy' | 'warning' | 'critical' = 'healthy';
@@ -290,9 +345,9 @@ export class DeviceAuthorizationSecurityService {
 		const pollingPerHour = now - metrics.lastPollingTime < 3600000 ? metrics.pollingCount : 0;
 
 		if (
-			requestsPerMinute >= this.LIMITS.maxRequestsPerMinute * 0.8 ||
-			requestsPerHour >= this.LIMITS.maxRequestsPerHour * 0.8 ||
-			pollingPerHour >= this.LIMITS.maxPollingPerHour * 0.8
+			requestsPerMinute >= DeviceAuthorizationSecurityService.LIMITS.maxRequestsPerMinute * 0.8 ||
+			requestsPerHour >= DeviceAuthorizationSecurityService.LIMITS.maxRequestsPerHour * 0.8 ||
+			pollingPerHour >= DeviceAuthorizationSecurityService.LIMITS.maxPollingPerHour * 0.8
 		) {
 			status = 'warning';
 		}
@@ -303,7 +358,7 @@ export class DeviceAuthorizationSecurityService {
 
 		return {
 			metrics,
-			limits: this.LIMITS,
+			limits: DeviceAuthorizationSecurityService.LIMITS,
 			status,
 		};
 	}

@@ -291,18 +291,21 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 	const pageSize = 12;
 	const STORAGE_KEY = 'environment-management-settings';
-	const STORAGE_VERSION = 1;
+	const _STORAGE_VERSION = 1;
 
 	// Load settings from enhanced storage on component mount
 	useEffect(() => {
 		const loadSettings = async () => {
 			try {
 				// Try enhanced storage first (IndexedDB + SQLite backup)
-				const enhancedSettings = await UnifiedOAuthCredentialsServiceV8U.loadCredentials(STORAGE_KEY, {
-					environmentId: 'global',
-					enableBackup: true,
-				});
-				
+				const enhancedSettings = await UnifiedOAuthCredentialsServiceV8U.loadCredentials(
+					STORAGE_KEY,
+					{
+						environmentId: 'global',
+						enableBackup: true,
+					}
+				);
+
 				if (enhancedSettings) {
 					console.log('[ENV-MGMT] ✅ Loaded settings from enhanced storage');
 					setSelectedApiRegion(enhancedSettings.selectedApiRegion || 'na');
@@ -315,7 +318,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			} catch (error) {
 				console.warn('[ENV-MGMT] Enhanced storage failed, trying fallback', error);
 			}
-			
+
 			// Fallback to IndexedDB backup
 			try {
 				const backupSettings = await IndexedDBBackupServiceV8U.load(STORAGE_KEY);
@@ -331,7 +334,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				console.warn('[ENV-MGMT] IndexedDB backup failed', error);
 			}
 		};
-		
+
 		loadSettings();
 	}, []);
 
@@ -346,7 +349,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				currentPage,
 				timestamp: Date.now(),
 			};
-			
+
 			try {
 				// Save to enhanced storage (IndexedDB + SQLite backup)
 				await UnifiedOAuthCredentialsServiceV8U.saveCredentials(STORAGE_KEY, settings, {
@@ -357,7 +360,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				console.log('[ENV-MGMT] ✅ Settings saved to enhanced storage');
 			} catch (error) {
 				console.warn('[ENV-MGMT] Enhanced storage failed, using fallback', error);
-				
+
 				// Fallback to IndexedDB backup
 				try {
 					await IndexedDBBackupServiceV8U.save(STORAGE_KEY, settings);
@@ -367,7 +370,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				}
 			}
 		};
-		
+
 		// Debounce saves to avoid excessive writes
 		const timeoutId = setTimeout(saveSettings, 500);
 		return () => clearTimeout(timeoutId);
@@ -384,7 +387,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				hasToken: !!globalTokenStatus.token,
 				tokenLength: globalTokenStatus.token?.length || 0,
 				error: globalTokenStatus.error,
-				message: globalTokenStatus.message
+				message: globalTokenStatus.message,
 			});
 
 			// Check if global worker token is still loading
@@ -402,14 +405,16 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					{
 						isValid: globalTokenStatus.isValid,
 						hasToken: !!globalTokenStatus.token,
-						error: globalTokenStatus.error
+						error: globalTokenStatus.error,
 					}
 				);
 				// Don't throw error - just return early to allow UI to show worker token prompt
 				return;
 			}
 
-			console.log('[EnvironmentManagementPageV8] ✅ Token is valid, proceeding with environment fetch');
+			console.log(
+				'[EnvironmentManagementPageV8] ✅ Token is valid, proceeding with environment fetch'
+			);
 
 			const filters: {
 				type?: string[];
@@ -461,6 +466,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		globalTokenStatus.isValid,
 		globalTokenStatus.token,
 		globalTokenStatus.isLoading,
+		globalTokenStatus.error,
+		globalTokenStatus.message,
 	]);
 
 	useEffect(() => {

@@ -40,9 +40,9 @@ export default function About() {
 				<div className="bg-white rounded-lg shadow-lg p-8">
 					<h2 className="text-2xl font-bold text-gray-800 mb-4">🎯 Overview</h2>
 					<p className="text-gray-700 mb-4">
-						The <strong>MasterFlow API</strong> is a comprehensive PingOne API integration and testing platform
-						designed to help developers learn, test, and master OAuth 2.0 and OpenID
-						Connect (OIDC) flows using PingOne as the identity provider.
+						The <strong>MasterFlow API</strong> is a comprehensive PingOne API integration and
+						testing platform designed to help developers learn, test, and master OAuth 2.0 and
+						OpenID Connect (OIDC) flows using PingOne as the identity provider.
 					</p>
 				</div>
 

@@ -294,7 +294,7 @@ export function useUnifiedOTPFlow(options: UseUnifiedOTPFlowOptions): UseUnified
 			}, 1000);
 			return () => clearTimeout(timer);
 		}
-		
+
 		if (otpState.resendCooldown === 0 && otpState.otpSent && !otpState.canResend) {
 			// Enable resend when cooldown reaches 0 and OTP has been sent
 			updateOtpState({ canResend: true });

@@ -21,6 +21,7 @@ import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { DeviceCreationSuccessModalV8 } from '../../components/DeviceCreationSuccessModalV8';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
@@ -29,7 +30,6 @@ import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBas
 import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
-import { DeviceCreationSuccessModalV8 } from '../../components/DeviceCreationSuccessModalV8';
 
 const _MODULE_TAG = '[📧 EMAIL-FLOW-V8]';
 
@@ -1333,11 +1333,11 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 							createdAt: new Date().toISOString(),
 							registrationFlowType,
 						};
-						
+
 						if (resultUserId !== undefined) {
 							deviceInfo.userId = resultUserId;
 						}
-						
+
 						setDeviceCreationSuccessInfo(deviceInfo);
 						setShowDeviceCreationSuccessModal(true);
 					} else if (deviceStatus === 'ACTIVE') {
@@ -1391,19 +1391,20 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 							deviceName: userEnteredDeviceName,
 							nickname: registrationCredentials.nickname,
 							username: registrationCredentials.username,
-							environmentId: resultWithExtras.environmentId || registrationCredentials.environmentId,
+							environmentId:
+								resultWithExtras.environmentId || registrationCredentials.environmentId,
 							email: registrationCredentials.email,
 							registrationFlowType,
 						};
-						
+
 						if (resultWithExtras.userId !== undefined) {
 							deviceInfo2.userId = resultWithExtras.userId;
 						}
-						
+
 						if (resultWithExtras.createdAt !== undefined) {
 							deviceInfo2.createdAt = resultWithExtras.createdAt;
 						}
-						
+
 						setDeviceCreationSuccessInfo(deviceInfo2);
 						setShowDeviceCreationSuccessModal(true);
 					} else {
@@ -1428,9 +1429,10 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					const formattedError = ValidationServiceV8.formatMFAError(
 						error instanceof Error ? error : errorMessage,
 						{
-						operation: 'register',
-						deviceType: 'EMAIL',
-					});
+							operation: 'register',
+							deviceType: 'EMAIL',
+						}
+					);
 
 					const isDeviceLimitError =
 						errorMessage.toLowerCase().includes('exceed') ||
@@ -2781,10 +2783,10 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 										cursor: isLoading || !otpState.canResend ? 'not-allowed' : 'pointer',
 									}}
 								>
-									{isLoading 
-										? '🔄 Sending...' 
-										: otpState.canResend 
-											? '🔄 Resend OTP Code' 
+									{isLoading
+										? '🔄 Sending...'
+										: otpState.canResend
+											? '🔄 Resend OTP Code'
 											: `🔄 Resend available in ${otpState.resendCooldown}s`}
 								</button>
 							</div>
@@ -2908,7 +2910,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				}}
 			/>
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
-			
+
 			{/* Device Creation Success Modal */}
 			{showDeviceCreationSuccessModal && deviceCreationSuccessInfo && (
 				<DeviceCreationSuccessModalV8

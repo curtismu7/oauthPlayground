@@ -6,7 +6,6 @@ import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { TokenManagementService } from '../../services/tokenManagementService';
 import { logger } from '../../utils/logger';
-import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -288,8 +287,7 @@ const TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }
 			environmentId: credentials?.environmentId || workerTokenEnvId || '',
 			tokenToRevoke: 'mock_access_token_to_revoke_example_12345',
 			tokenTypeHint: 'access_token' as 'access_token' | 'refresh_token',
-			bulkTokens:
-				'mock_access_token_1,mock_access_token_2,mock_refresh_token_1',
+			bulkTokens: 'mock_access_token_1,mock_access_token_2,mock_refresh_token_1',
 			revocationReason: '',
 		};
 	});
@@ -306,9 +304,9 @@ const TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }
 				if (stored) {
 					const data = JSON.parse(stored);
 					if (data.credentials?.environmentId && !formData.environmentId) {
-						setFormData(prev => ({
+						setFormData((prev) => ({
 							...prev,
-							environmentId: data.credentials.environmentId
+							environmentId: data.credentials.environmentId,
 						}));
 					}
 				}

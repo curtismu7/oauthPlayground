@@ -210,9 +210,9 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 				flowType: 'authentication' as const,
 				timestamp: Date.now(),
 			};
-			
+
 			sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
-			
+
 			console.log(`${MODULE_TAG} 🎯 Stored flow context for authentication`);
 
 			// Handle OAuth callback processing

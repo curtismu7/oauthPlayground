@@ -899,8 +899,10 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 		async (url: string): Promise<LoginResult> => {
 			try {
 				// Validate and parse the callback URL
-				const { params, code, state, error, errorDescription } =
-					validateAndParseCallbackUrl(url, 'NewAuthContext');
+				const { params, code, state, error, errorDescription } = validateAndParseCallbackUrl(
+					url,
+					'NewAuthContext'
+				);
 
 				// Check for OAuth error
 				if (error) {

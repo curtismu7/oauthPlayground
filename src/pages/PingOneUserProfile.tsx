@@ -22,7 +22,6 @@ import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { lookupPingOneUser } from '../services/pingOneUserProfileService';
 import { credentialManager } from '../utils/credentialManager';
-import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 interface WorkerTokenMeta {
@@ -768,10 +767,10 @@ const PingOneUserProfile: React.FC = () => {
 		// Try search params first, then localStorage, then worker token credentials
 		const searchParamEnvId = searchParams.get('environmentId');
 		const localStorageEnvId = localStorage.getItem('worker_environment_id');
-		
+
 		if (searchParamEnvId) return searchParamEnvId;
 		if (localStorageEnvId) return localStorageEnvId;
-		
+
 		// Try worker token credentials as fallback
 		try {
 			const stored = localStorage.getItem('unified_worker_token');
@@ -784,7 +783,7 @@ const PingOneUserProfile: React.FC = () => {
 		} catch (error) {
 			console.log('Failed to load environment ID from worker token:', error);
 		}
-		
+
 		return '';
 	});
 	// Always show user selector initially - user must explicitly load the profile
@@ -911,7 +910,11 @@ const PingOneUserProfile: React.FC = () => {
 							);
 							return payload;
 						}) as Promise<{
-						_embedded?: { groups?: PingOneUserGroup[]; items?: PingOneUserGroup[]; memberOfGroups?: PingOneUserGroup[] };
+						_embedded?: {
+							groups?: PingOneUserGroup[];
+							items?: PingOneUserGroup[];
+							memberOfGroups?: PingOneUserGroup[];
+						};
 					}>,
 					fetch(
 						`http://localhost:3001/api/pingone/user/${encodeURIComponent(resolvedId)}/roles?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
@@ -1676,7 +1679,8 @@ const PingOneUserProfile: React.FC = () => {
 	}
 
 	// Use global worker token status instead of custom validation
-	const hasValidWorkerToken = globalTokenStatus.isValid && globalTokenStatus.token && !globalTokenStatus.isLoading;
+	const hasValidWorkerToken =
+		globalTokenStatus.isValid && globalTokenStatus.token && !globalTokenStatus.isLoading;
 	const workerTokenStatusVariant: 'valid' | 'expired' | 'missing' = hasValidWorkerToken
 		? 'valid'
 		: globalTokenStatus.token
@@ -1772,14 +1776,13 @@ const PingOneUserProfile: React.FC = () => {
 							style={{
 								flex: '1 1 200px',
 								padding: '0.75rem',
-								background:
-									globalTokenStatus.isLoading
-										? '#6b7280'
-										: hasValidWorkerToken
-											? '#10b981'
-											: workerTokenMeta.hasToken
-												? '#f59e0b'
-												: '#3b82f6',
+								background: globalTokenStatus.isLoading
+									? '#6b7280'
+									: hasValidWorkerToken
+										? '#10b981'
+										: workerTokenMeta.hasToken
+											? '#f59e0b'
+											: '#3b82f6',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.375rem',

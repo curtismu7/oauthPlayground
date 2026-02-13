@@ -191,7 +191,7 @@ interface PingOneAppConfigFormProps {
 export const PingOneAppConfigForm: React.FC<PingOneAppConfigFormProps> = ({ config, onChange }) => {
 	const handleOAuthVersionChange = (oauthVersion: '2.0' | '2.1') => {
 		onChange({ ...config, oauthVersion });
-		
+
 		// If switching to OAuth 2.1, disable wildcard patterns
 		if (oauthVersion === '2.1' && config.allowRedirectUriPatterns) {
 			onChange({ ...config, oauthVersion, allowRedirectUriPatterns: false });
@@ -231,7 +231,7 @@ export const PingOneAppConfigForm: React.FC<PingOneAppConfigFormProps> = ({ conf
 						<option value="2.1">OAuth 2.1 (Draft)</option>
 					</Select>
 				</FormGroup>
-				
+
 				{config.oauthVersion === '2.1' && (
 					<Alert $type="info">
 						<AlertIcon>
@@ -240,7 +240,8 @@ export const PingOneAppConfigForm: React.FC<PingOneAppConfigFormProps> = ({ conf
 						<AlertContent>
 							<AlertTitle>OAuth 2.1 Restrictions</AlertTitle>
 							<AlertMessage>
-								OAuth 2.1 does not allow wildcard redirect URIs, even with "Allow Redirect URI Patterns" enabled.
+								OAuth 2.1 does not allow wildcard redirect URIs, even with "Allow Redirect URI
+								Patterns" enabled.
 							</AlertMessage>
 						</AlertContent>
 					</Alert>
@@ -261,7 +262,7 @@ export const PingOneAppConfigForm: React.FC<PingOneAppConfigFormProps> = ({ conf
 						style={{ opacity: config.oauthVersion === '2.1' ? 0.5 : 1 }}
 					/>
 				</ToggleContainer>
-				
+
 				{!config.allowRedirectUriPatterns && (
 					<Alert $type="error">
 						<AlertIcon>
@@ -270,18 +271,24 @@ export const PingOneAppConfigForm: React.FC<PingOneAppConfigFormProps> = ({ conf
 						<AlertContent>
 							<AlertTitle>Wildcard URIs Not Allowed</AlertTitle>
 							<AlertMessage>
-								Your PingOne application must have "Allow Redirect URI Patterns" enabled to use wildcard redirect URIs.
-								<br /><br />
-								To enable this setting:<br />
-								1. Go to your PingOne application<br />
-								2. Navigate to Configuration → OIDC<br />
-								3. Check "Allow Redirect URI Patterns"<br />
+								Your PingOne application must have "Allow Redirect URI Patterns" enabled to use
+								wildcard redirect URIs.
+								<br />
+								<br />
+								To enable this setting:
+								<br />
+								1. Go to your PingOne application
+								<br />
+								2. Navigate to Configuration → OIDC
+								<br />
+								3. Check "Allow Redirect URI Patterns"
+								<br />
 								4. Save your changes
 							</AlertMessage>
 						</AlertContent>
 					</Alert>
 				)}
-				
+
 				{config.allowRedirectUriPatterns && config.oauthVersion === '2.0' && (
 					<Alert $type="warning">
 						<AlertIcon>
@@ -290,8 +297,8 @@ export const PingOneAppConfigForm: React.FC<PingOneAppConfigFormProps> = ({ conf
 						<AlertContent>
 							<AlertTitle>Developer Sandbox Only</AlertTitle>
 							<AlertMessage>
-								Wildcard redirect URIs are allowed but should only be used in developer sandbox environments.
-								For production, use specific redirect URIs for better security.
+								Wildcard redirect URIs are allowed but should only be used in developer sandbox
+								environments. For production, use specific redirect URIs for better security.
 							</AlertMessage>
 						</AlertContent>
 					</Alert>

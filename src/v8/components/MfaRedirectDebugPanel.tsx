@@ -5,7 +5,7 @@
  * @version 8.0.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 
 interface DebugPanelProps {
@@ -24,7 +24,7 @@ export const MfaRedirectDebugPanel: React.FC<DebugPanelProps> = ({ visible, onCl
 		if (visible) {
 			refreshLogs();
 		}
-	}, [visible]);
+	}, [visible, refreshLogs]);
 
 	useEffect(() => {
 		let interval: NodeJS.Timeout;
@@ -34,7 +34,7 @@ export const MfaRedirectDebugPanel: React.FC<DebugPanelProps> = ({ visible, onCl
 		return () => {
 			if (interval) clearInterval(interval);
 		};
-	}, [visible, autoRefresh]);
+	}, [visible, autoRefresh, refreshLogs]);
 
 	const refreshLogs = () => {
 		setLogs(MFARedirectUriServiceV8.getDebugLogs());
@@ -52,31 +52,33 @@ export const MfaRedirectDebugPanel: React.FC<DebugPanelProps> = ({ visible, onCl
 	if (!visible) return null;
 
 	return (
-		<div style={{
-			position: 'fixed',
-			top: '50%',
-			left: '50%',
-			transform: 'translate(-50%, -50%)',
-			background: 'white',
-			border: '2px solid #333',
-			borderRadius: '8px',
-			padding: '20px',
-			maxWidth: '80vw',
-			maxHeight: '80vh',
-			zIndex: 10000,
-			boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-		}}>
-			<div style={{
-				display: 'flex',
-				justifyContent: 'space-between',
-				alignItems: 'center',
-				marginBottom: '15px',
-				paddingBottom: '10px',
-				borderBottom: '1px solid #ddd',
-			}}>
-				<h3 style={{ margin: 0, fontSize: '18px' }}>
-					🔗 MFA Redirect URI Debug Logs
-				</h3>
+		<div
+			style={{
+				position: 'fixed',
+				top: '50%',
+				left: '50%',
+				transform: 'translate(-50%, -50%)',
+				background: 'white',
+				border: '2px solid #333',
+				borderRadius: '8px',
+				padding: '20px',
+				maxWidth: '80vw',
+				maxHeight: '80vh',
+				zIndex: 10000,
+				boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+			}}
+		>
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					marginBottom: '15px',
+					paddingBottom: '10px',
+					borderBottom: '1px solid #ddd',
+				}}
+			>
+				<h3 style={{ margin: 0, fontSize: '18px' }}>🔗 MFA Redirect URI Debug Logs</h3>
 				<button
 					onClick={onClose}
 					style={{
@@ -93,12 +95,14 @@ export const MfaRedirectDebugPanel: React.FC<DebugPanelProps> = ({ visible, onCl
 				</button>
 			</div>
 
-			<div style={{
-				display: 'flex',
-				gap: '10px',
-				marginBottom: '15px',
-				flexWrap: 'wrap',
-			}}>
+			<div
+				style={{
+					display: 'flex',
+					gap: '10px',
+					marginBottom: '15px',
+					flexWrap: 'wrap',
+				}}
+			>
 				<button
 					onClick={refreshLogs}
 					style={{
@@ -113,7 +117,7 @@ export const MfaRedirectDebugPanel: React.FC<DebugPanelProps> = ({ visible, onCl
 				>
 					🔄 Refresh
 				</button>
-				
+
 				<label style={{ display: 'flex', alignItems: 'center', fontSize: '12px' }}>
 					<input
 						type="checkbox"
@@ -155,27 +159,32 @@ export const MfaRedirectDebugPanel: React.FC<DebugPanelProps> = ({ visible, onCl
 				</button>
 			</div>
 
-			<div style={{
-				background: '#f8f9fa',
-				border: '1px solid #dee2e6',
-				borderRadius: '4px',
-				padding: '10px',
-				fontFamily: 'monospace',
-				fontSize: '11px',
-				whiteSpace: 'pre-wrap',
-				overflow: 'auto',
-				maxHeight: '50vh',
-				minHeight: '200px',
-			}}>
+			<div
+				style={{
+					background: '#f8f9fa',
+					border: '1px solid #dee2e6',
+					borderRadius: '4px',
+					padding: '10px',
+					fontFamily: 'monospace',
+					fontSize: '11px',
+					whiteSpace: 'pre-wrap',
+					overflow: 'auto',
+					maxHeight: '50vh',
+					minHeight: '200px',
+				}}
+			>
 				{logs || 'No debug logs available. Navigate through MFA flows to generate logs.'}
 			</div>
 
-			<div style={{
-				marginTop: '10px',
-				fontSize: '11px',
-				color: '#666',
-			}}>
-				💡 Tip: Logs persist across redirects. Check here after OAuth callbacks to see what happened.
+			<div
+				style={{
+					marginTop: '10px',
+					fontSize: '11px',
+					color: '#666',
+				}}
+			>
+				💡 Tip: Logs persist across redirects. Check here after OAuth callbacks to see what
+				happened.
 			</div>
 		</div>
 	);

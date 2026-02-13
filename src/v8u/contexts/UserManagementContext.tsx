@@ -6,7 +6,7 @@
  * @since 2026-02-12
  */
 
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext } from 'react';
 
 interface UserManagementContextType {
 	users: any[];
@@ -21,11 +21,11 @@ interface UserManagementProviderProps {
 }
 
 export const UserManagementProvider: React.FC<UserManagementProviderProps> = ({ children }) => {
-	const [users, setUsers] = React.useState<any[]>([]);
+	const [users, _setUsers] = React.useState<any[]>([]);
 	const [loading, setLoading] = React.useState(false);
 
 	const refreshUsers = () => {
-	// Mock refresh logic
+		// Mock refresh logic
 		setLoading(true);
 		setTimeout(() => {
 			setLoading(false);

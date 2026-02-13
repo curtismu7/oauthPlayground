@@ -95,7 +95,7 @@ export class WorkerTokenRepository {
 			tokenLength: token?.length || 0,
 			tokenPrefix: token ? `${token.substring(0, 50)}...` : 'none',
 			isUrlParams: token?.includes('query_parameters=') || token?.includes('response_type='),
-			isValidAccessToken: token?.match(/^[A-Za-z0-9\-_]+$/) ? true : false
+			isValidAccessToken: !!token?.match(/^[A-Za-z0-9\-_]+$/),
 		});
 
 		const credentials = await this.loadCredentials();
@@ -149,8 +149,9 @@ export class WorkerTokenRepository {
 			hasToken: !!data.token,
 			tokenLength: data.token?.length || 0,
 			tokenPrefix: data.token ? `${data.token.substring(0, 50)}...` : 'none',
-			isUrlParams: data.token?.includes('query_parameters=') || data.token?.includes('response_type='),
-			expiresAt: data.expiresAt ? new Date(data.expiresAt).toISOString() : 'none'
+			isUrlParams:
+				data.token?.includes('query_parameters=') || data.token?.includes('response_type='),
+			expiresAt: data.expiresAt ? new Date(data.expiresAt).toISOString() : 'none',
 		});
 
 		// Check expiration

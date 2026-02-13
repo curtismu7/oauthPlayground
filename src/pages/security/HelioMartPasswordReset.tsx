@@ -81,7 +81,6 @@ interface PasswordState {
 const HELIOMART_ACCENT_START = '#F59E0B'; // Amber
 const HELIOMART_ACCENT_END = '#F97316'; // Orange
 
-
 // Login Page Styled Components
 const LoginTitle = styled.h1`
 	font-size: 2rem;
@@ -2100,7 +2099,7 @@ export { changePassword, handleChangePassword };`;
 								}}
 							/>
 						)} */}
-						
+
 						{/* Worker Token Button */}
 						{/* {renderWorkerTokenButton(
 							workerToken,
@@ -2110,7 +2109,7 @@ export { changePassword, handleChangePassword };`;
 							'Worker Token Ready',
 							'Refresh Worker Token'
 						)} */}
-						
+
 						{/* Temporary fallback button */}
 						<Button
 							$variant={workerToken ? 'success' : 'danger'}
@@ -2119,7 +2118,7 @@ export { changePassword, handleChangePassword };`;
 							<FiKey />
 							Configure Worker Token
 						</Button>
-						
+
 						{/* Auth Code Client Button */}
 						<Button
 							$variant={

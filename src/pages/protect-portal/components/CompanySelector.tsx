@@ -60,14 +60,18 @@ const SelectorIcon = styled.div`
   gap: 0.75rem;
 `;
 
-const DropdownIconContainer = styled.div.withConfig({ shouldForwardProp: (prop) => prop !== 'isOpen' })<{ isOpen: boolean }>`
+const DropdownIconContainer = styled.div.withConfig({
+	shouldForwardProp: (prop) => prop !== 'isOpen',
+})<{ isOpen: boolean }>`
 	transition: transform 0.2s ease;
 	transform: ${(props) => (props.isOpen ? 'rotate(180deg)' : 'rotate(0deg)')};
 	display: flex;
 	align-items: center;
 `;
 
-const DropdownMenu = styled.div.withConfig({ shouldForwardProp: (prop) => prop !== 'isOpen' })<{ isOpen: boolean }>`
+const DropdownMenu = styled.div.withConfig({ shouldForwardProp: (prop) => prop !== 'isOpen' })<{
+	isOpen: boolean;
+}>`
 	position: absolute;
 	top: 100%;
 	left: 0;
@@ -115,7 +119,9 @@ const DropdownItem = styled.button`
   }
 `;
 
-const CompanyLogo = styled.div.withConfig({ shouldForwardProp: (prop) => prop !== 'color' && prop !== 'bgColor' })<{ color: string; bgColor: string }>`
+const CompanyLogo = styled.div.withConfig({
+	shouldForwardProp: (prop) => prop !== 'color' && prop !== 'bgColor',
+})<{ color: string; bgColor: string }>`
 	width: 32px;
 	height: 32px;
 	background: ${(props) => props.bgColor};

@@ -6,11 +6,11 @@
  * @since 2026-02-12
  */
 
-import React, { useState, useEffect } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiUser, FiMail, FiPhone, FiCalendar, FiShield, FiX, FiAlertTriangle } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiAlertTriangle, FiEdit2, FiPlus, FiTrash2, FiUser, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { userService } from '../../protect-app/services/UserService';
 import { UserSearchDropdown } from '../../protect-app/components/UserSearchDropdown';
+import { userService } from '../../protect-app/services/UserService';
 import { useTheme } from '../contexts/ThemeContext';
 
 // ============================================================================
@@ -55,11 +55,10 @@ const ActionButton = styled.button<{ theme: any; variant?: 'primary' | 'secondar
 	transition: all 0.3s ease;
 
 	${({ variant = 'primary', theme }) => {
-		background: ${theme.colors.primary};
+		background: $theme.colors.primary;
 		color: white;
-		&:hover {
-			background: ${theme.colors.primaryDark || theme.colors.primary};
-		}
+		&:hover 
+			background: $theme.colors.primaryDark || theme.colors.primary;
 	}
 `;
 
@@ -272,7 +271,7 @@ interface UserFormData {
 	department: string;
 }
 
-interface UserManagementPageProps {}
+type UserManagementPageProps = {}
 
 // ============================================================================
 // COMPONENT
@@ -309,7 +308,7 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 		loadUsers();
 		loadRoles();
 		loadStatuses();
-	}, []);
+	}, [loadRoles, loadStatuses, loadUsers]);
 
 	const loadUsers = async () => {
 		setIsLoading(true);
@@ -379,7 +378,7 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 		}
 	};
 
-	const handleDeleteUser = async () => {
+	const _handleDeleteUser = async () => {
 		if (!selectedUser) return;
 		
 		try {

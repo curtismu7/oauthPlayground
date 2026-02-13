@@ -29,11 +29,11 @@ export class LogFileService {
 	 */
 	static async listLogFiles(): Promise<LogFile[]> {
 		try {
-			const response = await fetch(`${this.API_BASE}/list`);
+			const response = await fetch(`${LogFileService.API_BASE}/list`);
 			if (!response.ok) {
 				throw new Error(`Failed to list log files: ${response.statusText}`);
 			}
-			const files = await response.json() as Array<{
+			const files = (await response.json()) as Array<{
 				name: string;
 				size: number;
 				modified: string;
@@ -42,7 +42,7 @@ export class LogFileService {
 			return files.map((f) => ({
 				...f,
 				modified: new Date(f.modified),
-				category: f.category as LogFile['category']
+				category: f.category as LogFile['category'],
 			}));
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to list log files:`, error);
@@ -62,10 +62,10 @@ export class LogFileService {
 			const params = new URLSearchParams({
 				file,
 				lines: lines.toString(),
-				tail: tail.toString()
+				tail: tail.toString(),
 			});
 
-			const response = await fetch(`${this.API_BASE}/read?${params}`);
+			const response = await fetch(`${LogFileService.API_BASE}/read?${params}`);
 			if (!response.ok) {
 				const error = await response.json();
 				throw new Error(error.message || `Failed to read log file: ${response.statusText}`);
@@ -74,7 +74,7 @@ export class LogFileService {
 			const data = await response.json();
 			return {
 				...data,
-				modified: new Date(data.modified)
+				modified: new Date(data.modified),
 			};
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to read log file:`, error);
@@ -87,10 +87,10 @@ export class LogFileService {
 	 */
 	static createTailStream(file: string): EventSource {
 		const params = new URLSearchParams({ file });
-		const eventSource = new EventSource(`${this.API_BASE}/tail?${params}`);
-		
+		const eventSource = new EventSource(`${LogFileService.API_BASE}/tail?${params}`);
+
 		console.log(`${MODULE_TAG} Created tail stream for: ${file}`);
-		
+
 		return eventSource;
 	}
 
@@ -117,7 +117,9 @@ export class LogFileService {
 			return 'API Logs';
 		} else if (['client.log'].includes(filename)) {
 			return 'Frontend Logs';
-		} else if (['fido.log', 'sms.log', 'email.log', 'whatsapp.log', 'voice.log'].includes(filename)) {
+		} else if (
+			['fido.log', 'sms.log', 'email.log', 'whatsapp.log', 'voice.log'].includes(filename)
+		) {
 			return 'MFA Device Logs';
 		} else if (['authz-redirects.log'].includes(filename)) {
 			return 'OAuth Logs';
@@ -133,7 +135,7 @@ export class LogFileService {
 		const k = 1024;
 		const sizes = ['B', 'KB', 'MB', 'GB'];
 		const i = Math.floor(Math.log(bytes) / Math.log(k));
-		return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+		return `${(bytes / k ** i).toFixed(2)} ${sizes[i]}`;
 	}
 
 	/**

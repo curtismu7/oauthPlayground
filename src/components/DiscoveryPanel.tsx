@@ -14,10 +14,10 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { discoveryService, type OpenIDConfiguration } from '../services/discoveryService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import CopyIcon from './CopyIcon';
 
 interface DiscoveryPanelProps {

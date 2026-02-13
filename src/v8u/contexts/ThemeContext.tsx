@@ -6,7 +6,7 @@
  * @since 2026-02-12
  */
 
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext } from 'react';
 
 interface ThemeColors {
 	primary: string;
