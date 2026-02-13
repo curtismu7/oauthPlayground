@@ -14,6 +14,7 @@ import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
@@ -1212,6 +1213,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					const registrationCredentials = {
 						...credentials,
 						deviceName: userEnteredDeviceName,
+						nickname: userEnteredDeviceName,
 					};
 
 					// Determine device status based on selected flow type
@@ -1250,7 +1252,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					setMfaState({
 						...mfaState,
 						deviceId: result.deviceId,
-						deviceStatus: actualDeviceStatus,
+						deviceStatus: deviceStatus,
 						// Store device.activate URI per rightOTP.md
 						...(deviceActivateUri ? { deviceActivateUri } : {}),
 					});
@@ -1273,9 +1275,9 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					// → User must enter OTP to activate device (go directly to validation step)
 					// Note: Admin Flow uses Worker Token and can choose ACTIVE or ACTIVATION_REQUIRED. User Flow uses User Token and always uses ACTIVATION_REQUIRED.
 					const hasDeviceActivateUri = !!deviceActivateUri;
-					const _deviceIsActive = actualDeviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
+					const _deviceIsActive = deviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
 
-					if (actualDeviceStatus === 'ACTIVATION_REQUIRED') {
+					if (deviceStatus === 'ACTIVATION_REQUIRED') {
 						// Device requires activation - PingOne automatically sends OTP when status is ACTIVATION_REQUIRED
 						// No need to manually call sendOTP - PingOne handles it automatically
 
@@ -1306,21 +1308,39 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						toastV8.success('Email device registered! OTP has been sent automatically.');
 
 						// Show device creation success modal
-						setDeviceCreationSuccessInfo({
+						const resultUserId = (result as { userId?: string }).userId;
+						const deviceInfo: {
+							deviceId: string;
+							deviceType: 'EMAIL';
+							deviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+							deviceName: string;
+							nickname: string;
+							username: string;
+							environmentId: string;
+							email: string;
+							createdAt: string;
+							registrationFlowType: 'admin' | 'user';
+							userId?: string;
+						} = {
 							deviceId: result.deviceId,
 							deviceType: currentDeviceType,
 							deviceStatus: 'ACTIVATION_REQUIRED',
 							deviceName: userEnteredDeviceName,
 							nickname: registrationCredentials.nickname,
 							username: registrationCredentials.username,
-							userId: (result as { userId?: string }).userId,
 							environmentId: registrationCredentials.environmentId,
 							email: registrationCredentials.email,
 							createdAt: new Date().toISOString(),
 							registrationFlowType,
-						});
+						};
+						
+						if (resultUserId !== undefined) {
+							deviceInfo.userId = resultUserId;
+						}
+						
+						setDeviceCreationSuccessInfo(deviceInfo);
 						setShowDeviceCreationSuccessModal(true);
-					} else if (actualDeviceStatus === 'ACTIVE') {
+					} else if (deviceStatus === 'ACTIVE') {
 						// Admin flow: Device is ACTIVE, no OTP needed - show success screen
 						nav.markStepComplete();
 						// Store registration success state before closing modal
@@ -1336,7 +1356,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 							deviceId: resultWithExtras.deviceId,
 							deviceName: userEnteredDeviceName,
 							deviceType: currentDeviceType,
-							status: actualDeviceStatus,
+							status: deviceStatus,
 							username: registrationCredentials.username,
 							...(resultWithExtras.userId ? { userId: resultWithExtras.userId } : {}),
 							...(resultWithExtras.createdAt ? { createdAt: resultWithExtras.createdAt } : {}),
@@ -1352,19 +1372,39 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						);
 
 						// Show device creation success modal
-						setDeviceCreationSuccessInfo({
+						const deviceInfo2: {
+							deviceId: string;
+							deviceType: 'EMAIL';
+							deviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+							deviceName: string;
+							nickname: string;
+							username: string;
+							environmentId: string;
+							email: string;
+							registrationFlowType: 'admin' | 'user';
+							userId?: string;
+							createdAt?: string;
+						} = {
 							deviceId: resultWithExtras.deviceId,
 							deviceType: currentDeviceType,
 							deviceStatus: 'ACTIVE',
 							deviceName: userEnteredDeviceName,
 							nickname: registrationCredentials.nickname,
 							username: registrationCredentials.username,
-							userId: resultWithExtras.userId,
 							environmentId: resultWithExtras.environmentId || registrationCredentials.environmentId,
 							email: registrationCredentials.email,
-							createdAt: resultWithExtras.createdAt,
 							registrationFlowType,
-						});
+						};
+						
+						if (resultWithExtras.userId !== undefined) {
+							deviceInfo2.userId = resultWithExtras.userId;
+						}
+						
+						if (resultWithExtras.createdAt !== undefined) {
+							deviceInfo2.createdAt = resultWithExtras.createdAt;
+						}
+						
+						setDeviceCreationSuccessInfo(deviceInfo2);
 						setShowDeviceCreationSuccessModal(true);
 					} else {
 						// Unknown status - default behavior
@@ -1374,7 +1414,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 								flowType: 'mfa' as any,
 								deviceType: 'EMAIL',
 								operation: 'registerDevice',
-								actualDeviceStatus,
+								deviceStatus,
 							}
 						);
 						nav.markStepComplete();
@@ -1385,7 +1425,9 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
 					// Use ValidationServiceV8 for consistent error formatting
-					const formattedError = ValidationServiceV8.formatMFAError(error, {
+					const formattedError = ValidationServiceV8.formatMFAError(
+						error instanceof Error ? error : errorMessage,
+						{
 						operation: 'register',
 						deviceType: 'EMAIL',
 					});
@@ -2655,9 +2697,11 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 								{/* Resend OTP button - works for both registration and authentication flows */}
 								<button
 									type="button"
-									disabled={isLoading}
+									disabled={isLoading || !otpState.canResend}
 									onClick={async () => {
 										setIsLoading(true);
+										// Start cooldown timer (60 seconds)
+										updateOtpState({ canResend: false, resendCooldown: 60 });
 										try {
 											// For authentication flow (when authenticationId exists), use selectDeviceForAuthentication
 											if (mfaState.authenticationId && mfaState.deviceId) {
@@ -2719,18 +2763,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 												throw new Error('Device ID is required to resend OTP');
 											}
 										} catch (error) {
-											UnifiedFlowErrorHandler.handleError(
-												error,
-												{
-													flowType: 'mfa' as any,
-													deviceType: 'EMAIL',
-													operation: 'resendOTP',
-												},
-												{
-													showToast: true,
-													logError: true,
-												}
-											);
+											const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+											toastV8.error(`Failed to resend OTP: ${errorMessage}`);
 										} finally {
 											setIsLoading(false);
 										}
@@ -2744,10 +2778,14 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 										borderRadius: '8px',
 										fontSize: '14px',
 										fontWeight: '600',
-										cursor: isLoading ? 'not-allowed' : 'pointer',
+										cursor: isLoading || !otpState.canResend ? 'not-allowed' : 'pointer',
 									}}
 								>
-									{isLoading ? '🔄 Sending...' : '🔄 Resend OTP Code'}
+									{isLoading 
+										? '🔄 Sending...' 
+										: otpState.canResend 
+											? '🔄 Resend OTP Code' 
+											: `🔄 Resend available in ${otpState.resendCooldown}s`}
 								</button>
 							</div>
 

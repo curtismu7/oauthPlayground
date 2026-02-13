@@ -348,6 +348,8 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			
 			// Save to enhanced storage with IndexedDB + SQLite backup
 			const saveEnhancedStorage = async () => {
+				let currentCreds = null;
+				
 				try {
 					await UnifiedOAuthCredentialsServiceV8U.saveSharedCredentials({
 						environmentId,
@@ -360,7 +362,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				} catch (error) {
 					console.warn('[UNIFIED-MFA] Enhanced storage failed, using fallback', error);
 					// Fallback to CredentialsServiceV8
-					const currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+					currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
 						flowKey: 'mfa-flow-v8',
 						flowType: 'oidc',
 						includeClientSecret: false,
@@ -373,18 +375,18 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						environmentId,
 					});
 				}
+				
+				// Dispatch credential update event for other components (like device management)
+				window.dispatchEvent(
+					new CustomEvent('mfaCredentialsUpdated', {
+						detail: { environmentId, username: currentCreds?.username || username },
+					})
+				);
 			};
 			
 			saveEnhancedStorage();
-
-			// Dispatch credential update event for other components (like device management)
-			window.dispatchEvent(
-				new CustomEvent('mfaCredentialsUpdated', {
-					detail: { environmentId, username: currentCreds.username },
-				})
-			);
 		}
-	}, [environmentId]);
+	}, [environmentId, username]);
 
 	// Save username to enhanced storage when it changes
 	// This ensures MFAFlowBase can read the username from enhanced storage
@@ -395,6 +397,8 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			
 			// Save to enhanced storage with IndexedDB + SQLite backup
 			const saveEnhancedStorage = async () => {
+				let currentCreds = null;
+				
 				try {
 					await UnifiedOAuthCredentialsServiceV8U.saveSharedCredentials({
 						username,
@@ -408,7 +412,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				} catch (error) {
 					console.warn('[UNIFIED-MFA] Enhanced storage failed, using fallback', error);
 					// Fallback to CredentialsServiceV8
-					const currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+					currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
 						flowKey: 'mfa-flow-v8',
 						flowType: 'oidc',
 						includeClientSecret: false,
@@ -421,18 +425,18 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						username,
 					});
 				}
+				
+				// Dispatch credential update event for other components (like device management)
+				window.dispatchEvent(
+					new CustomEvent('mfaCredentialsUpdated', {
+						detail: { environmentId: currentCreds?.environmentId || environmentId, username },
+					})
+				);
 			};
 			
 			saveEnhancedStorage();
-
-			// Dispatch credential update event for other components (like device management)
-			window.dispatchEvent(
-				new CustomEvent('mfaCredentialsUpdated', {
-					detail: { environmentId: currentCreds.environmentId, username },
-				})
-			);
 		}
-	}, [username]);
+	}, [username, environmentId]);
 
 	// Handle device selection for authentication
 	const handleDeviceSelectForAuthentication = async (device: {
