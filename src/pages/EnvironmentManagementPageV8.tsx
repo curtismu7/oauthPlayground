@@ -420,7 +420,13 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		const loadSettings = async () => {
 			try {
 				// Load from IndexedDB backup
-				const backupSettings = await IndexedDBBackupServiceV8U.load(STORAGE_KEY);
+				const backupSettings = await IndexedDBBackupServiceV8U.load<{
+					selectedApiRegion?: string;
+					typeFilter?: string;
+					statusFilter?: string;
+					regionFilter?: string;
+					currentPage?: number;
+				}>(STORAGE_KEY);
 				if (backupSettings) {
 					console.log('[ENV-MGMT] ✅ Loaded settings from IndexedDB');
 					setSelectedApiRegion(backupSettings.selectedApiRegion || 'na');
