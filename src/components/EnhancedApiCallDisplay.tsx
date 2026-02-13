@@ -480,7 +480,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 	initiallyCollapsed = false,
 }) => {
 	const [expandedSections, setExpandedSections] = useState<Set<string>>(
-		initiallyCollapsed ? new Set() : new Set(['url', 'pingone']) // URL and PingOne section expanded by default to show new documentation links
+		initiallyCollapsed ? new Set() : new Set(['request', 'response']) // Request and Response expanded by default for better readability
 	);
 	const [isExecuting, setIsExecuting] = useState(false);
 	const [showInfoTooltip, setShowInfoTooltip] = useState(false);
@@ -615,24 +615,31 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 					{apiCall.method} {apiCall.url.split('?')[0]}
 					{apiCall.stepName && ` - ${apiCall.stepName}`}
 				</Title>
-				<div style={{ position: 'relative' }}>
-					<StatusBadge
-						$status={getStatus()}
-						$clickable={getStatus() === 'info'}
-						onClick={getStatus() === 'info' ? handleInfoClick : undefined}
-						title={getStatus() === 'info' ? 'Click for more information' : undefined}
-					>
-						{getStatus().toUpperCase()}
-					</StatusBadge>
-					{getStatus() === 'info' && (
-						<InfoTooltip $show={showInfoTooltip}>
-							<strong>API Call Ready</strong>
-							<br />
-							This API call is prepared but not yet executed. Click the "Open Authorization URL"
-							button above to test the authorization flow, or use the cURL command below to test the
-							API call directly.
-						</InfoTooltip>
+				<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+					{apiCall.duration && (
+						<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+							{apiCall.duration}ms
+						</span>
 					)}
+					<div style={{ position: 'relative' }}>
+						<StatusBadge
+							$status={getStatus()}
+							$clickable={getStatus() === 'info'}
+							onClick={getStatus() === 'info' ? handleInfoClick : undefined}
+							title={getStatus() === 'info' ? 'Click for more information' : undefined}
+						>
+							{getStatus().toUpperCase()}
+						</StatusBadge>
+						{getStatus() === 'info' && (
+							<InfoTooltip $show={showInfoTooltip}>
+								<strong>API Call Ready</strong>
+								<br />
+								This API call is prepared but not yet executed. Click the "Open Authorization URL"
+								button above to test the authorization flow, or use the cURL command below to test the
+								API call directly.
+							</InfoTooltip>
+						)}
+					</div>
 				</div>
 			</Header>
 
@@ -648,18 +655,36 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 				</FlowContext>
 			)}
 
-			{/* Request Details */}
+			{/* Request Section */}
 			<CollapsibleSection>
-				<SectionHeader $sectionType="details" onClick={() => toggleSection('details')}>
-					<SectionTitle>Request Details</SectionTitle>
+				<SectionHeader $sectionType="request" onClick={() => toggleSection('request')}>
+					<SectionTitle>📤 Request</SectionTitle>
 					<FiChevronDown
 						style={{
-							transform: expandedSections.has('details') ? 'rotate(0deg)' : 'rotate(-90deg)',
+							transform: expandedSections.has('request') ? 'rotate(0deg)' : 'rotate(-90deg)',
 							transition: 'transform 0.2s ease',
 						}}
 					/>
 				</SectionHeader>
-				<SectionContent $isExpanded={expandedSections.has('details')}>
+				<SectionContent $isExpanded={expandedSections.has('request')}>
+					{/* Request URL with highlighting */}
+					<div style={{ marginBottom: '1rem' }}>
+						<h5
+							style={{
+								margin: '0 0 0.5rem 0',
+								fontSize: '0.875rem',
+								fontWeight: 600,
+								color: '#374151',
+							}}
+						>
+							URL
+						</h5>
+						<CodeBlock $theme={theme}>
+							{apiCall.method} {highlightedUrl}
+						</CodeBlock>
+					</div>
+
+					{/* Query Parameters */}
 					{apiCall.queryParams && Object.keys(apiCall.queryParams).length > 0 && (
 						<div style={{ marginBottom: '1rem' }}>
 							<h5
@@ -685,6 +710,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 						</div>
 					)}
 
+					{/* Headers */}
 					{apiCall.headers && Object.keys(apiCall.headers).length > 0 && (
 						<div style={{ marginBottom: '1rem' }}>
 							<h5
@@ -710,6 +736,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 						</div>
 					)}
 
+					{/* Request Body */}
 					{apiCall.body && (
 						<div>
 							<h5
@@ -720,7 +747,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 									color: '#374151',
 								}}
 							>
-								Request Body
+								Body
 							</h5>
 							<CodeBlock $theme={theme}>
 								{typeof apiCall.body === 'string'
@@ -732,68 +759,153 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 				</SectionContent>
 			</CollapsibleSection>
 
-			{/* URL Display with Highlighting */}
-			{apiCall.url && highlightURL(apiCall.url) && (
+			{/* Response Section */}
+			{apiCall.response && (
 				<CollapsibleSection>
-					<SectionHeader onClick={() => toggleSection('url')}>
-						<SectionTitle>Authorization URL (Highlighted)</SectionTitle>
+					<SectionHeader $sectionType="response" onClick={() => toggleSection('response')}>
+						<SectionTitle>📥 Response</SectionTitle>
 						<FiChevronDown
 							style={{
-								transform: expandedSections.has('url') ? 'rotate(0deg)' : 'rotate(-90deg)',
+								transform: expandedSections.has('response') ? 'rotate(0deg)' : 'rotate(-90deg)',
 								transition: 'transform 0.2s ease',
 							}}
 						/>
 					</SectionHeader>
-					<SectionContent $isExpanded={expandedSections.has('url')}>
-						<URLDisplay>{highlightURL(apiCall.url)}</URLDisplay>
-						{apiCall.flowType && (
-							<RARNote>
-								<RARIcon>
-									<FiInfo size={16} />
-								</RARIcon>
-								<div>
-									<strong>{apiCall.flowType.toUpperCase()} Parameters:</strong>
-									<br />
-									The highlighted sections show important OAuth/OIDC parameters specific to this
-									flow type. Hover over highlighted sections to see detailed descriptions of each
-									parameter.
-								</div>
-							</RARNote>
+					<SectionContent $isExpanded={expandedSections.has('response')}>
+						{/* Response Status */}
+						{apiCall.response.status && (
+							<div style={{ marginBottom: '1rem' }}>
+								<h5
+									style={{
+										margin: '0 0 0.5rem 0',
+										fontSize: '0.875rem',
+										fontWeight: 600,
+										color: '#374151',
+									}}
+								>
+									Status
+								</h5>
+								<StatusBadge
+									$status={
+										apiCall.response.status >= 200 && apiCall.response.status < 300
+											? 'success'
+											: apiCall.response.status >= 400
+											? 'error'
+											: 'pending'
+									}
+								>
+									{apiCall.response.status} {apiCall.response.statusText}
+								</StatusBadge>
+							</div>
+						)}
+
+						{/* Response Headers */}
+						{apiCall.response.headers && Object.keys(apiCall.response.headers).length > 0 && (
+							<div style={{ marginBottom: '1rem' }}>
+								<h5
+									style={{
+										margin: '0 0 0.5rem 0',
+										fontSize: '0.875rem',
+										fontWeight: 600,
+										color: '#374151',
+									}}
+								>
+									Response Headers
+								</h5>
+								<ParameterList>
+									{Object.entries(apiCall.response.headers).map(([key, value]) => (
+										<ParameterItem key={key}>
+											<span>
+												<strong>{key}:</strong>
+											</span>
+											<ParameterValue>{value}</ParameterValue>
+										</ParameterItem>
+									))}
+								</ParameterList>
+							</div>
+						)}
+
+						{/* Response Body */}
+						{apiCall.response.data && (
+							<div>
+								<h5
+									style={{
+										margin: '0 0 0.5rem 0',
+										fontSize: '0.875rem',
+										fontWeight: 600,
+										color: '#374151',
+									}}
+								>
+									Body
+								</h5>
+								<CodeBlock $theme={theme}>
+									{typeof apiCall.response.data === 'string'
+										? apiCall.response.data
+										: JSON.stringify(apiCall.response.data, null, 2)}
+								</CodeBlock>
+							</div>
 						)}
 					</SectionContent>
 				</CollapsibleSection>
 			)}
 
-			{/* cURL Command */}
+			{/* Tools Section */}
 			<CollapsibleSection>
-				<SectionHeader $sectionType="curl" onClick={() => toggleSection('curl')}>
-					<SectionTitle>cURL Command</SectionTitle>
+				<SectionHeader $sectionType="tools" onClick={() => toggleSection('tools')}>
+					<SectionTitle>🛠️ Tools</SectionTitle>
 					<FiChevronDown
 						style={{
-							transform: expandedSections.has('curl') ? 'rotate(0deg)' : 'rotate(-90deg)',
+							transform: expandedSections.has('tools') ? 'rotate(0deg)' : 'rotate(-90deg)',
 							transition: 'transform 0.2s ease',
 						}}
 					/>
 				</SectionHeader>
-				<SectionContent $isExpanded={expandedSections.has('curl')}>
-					<CodeBlock $theme={theme}>{curlCommand}</CodeBlock>
-					<ActionButtons>
-						<ActionButton
-							$variant="primary"
-							onClick={() => handleCopy(curlCommand, 'cURL command')}
+				<SectionContent $isExpanded={expandedSections.has('tools')}>
+					{/* cURL Command */}
+					<div style={{ marginBottom: '1rem' }}>
+						<h5
+							style={{
+								margin: '0 0 0.5rem 0',
+								fontSize: '0.875rem',
+								fontWeight: 600,
+								color: '#374151',
+							}}
 						>
-							<FiCopy size={14} />
-							Copy cURL Command
-						</ActionButton>
-						<ActionButton $variant="secondary" onClick={() => window.open(apiCall.url, '_blank')}>
-							<FiExternalLink size={14} />
-							Open URL
-						</ActionButton>
+							cURL Command
+						</h5>
+						<CodeBlock $theme={theme}>{curlCommand}</CodeBlock>
+						<div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+							<ActionButton
+								$variant="primary"
+								onClick={() => handleCopy(curlCommand, 'cURL command')}
+							>
+								<FiCopy size={14} />
+								Copy cURL
+							</ActionButton>
+							<ActionButton $variant="secondary" onClick={() => window.open(apiCall.url, '_blank')}>
+								<FiExternalLink size={14} />
+								Open URL
+							</ActionButton>
+						</div>
+					</div>
+
+					{/* Code Examples */}
+					<div>
+						<h5
+							style={{
+								margin: '0 0 0.5rem 0',
+								fontSize: '0.875rem',
+								fontWeight: 600,
+								color: '#374151',
+							}}
+						>
+							Code Examples
+						</h5>
 						<ActionButton $variant="success" onClick={handleViewCodeExamples}>
 							<FiCode size={14} />
 							View Code Examples
 						</ActionButton>
-					</ActionButtons>
+					</div>
 				</SectionContent>
 			</CollapsibleSection>
 
