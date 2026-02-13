@@ -386,14 +386,15 @@ const PaginationButton = styled.button<{ active?: boolean }>`
 const EnvironmentManagementPageV8: React.FC = () => {
 	const [environments, setEnvironments] = useState<PingOneEnvironment[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+	const [envError, setEnvError] = useState<string | null>(null);
+	const [totalPages, setTotalPages] = useState(1);
+	const [showApiDisplay, setShowApiDisplay] = useState(false);
 	const [selectedEnvironmentId, setSelectedEnvironmentId] = useState<string>('');
 	const [selectedApiRegion, setSelectedApiRegion] = useState<string>('na');
 	const [typeFilter, setTypeFilter] = useState<string>('all');
 	const [statusFilter, setStatusFilter] = useState<string>('all');
 	const [regionFilter, setRegionFilter] = useState<string>('all');
 	const [currentPage, setCurrentPage] = useState(1);
-	const [totalPages, setTotalPages] = useState(1);
 	const [selectedEnvironments, setSelectedEnvironments] = useState<string[]>([]);
 	const [showBulkActions, setShowBulkActions] = useState(false);
 
@@ -619,6 +620,10 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 	const handleRefresh = () => {
 		fetchEnvironments();
+	};
+
+	const handleToggleApiDisplay = () => {
+		setShowApiDisplay(!showApiDisplay);
 	};
 
 	const handleCreateEnvironment = () => {
@@ -850,6 +855,13 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					<Button onClick={handleRefresh}>
 						<FiRefreshCw />
 						Refresh
+					</Button>
+					<Button
+						onClick={handleToggleApiDisplay}
+						variant={showApiDisplay ? 'primary' : 'secondary'}
+					>
+						<FiCode />
+						{showApiDisplay ? 'Hide API' : 'Show API'}
 					</Button>
 					<Button variant="primary" onClick={handleCreateEnvironment}>
 						<FiPlus />
@@ -1090,13 +1102,15 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			)}
 
 			{/* API Call Display Section */}
-			<ApiDisplaySection>
-				<ApiDisplayHeader>
-					<FiCode />
-					API Call History
-				</ApiDisplayHeader>
-				<ApiCallList />
-			</ApiDisplaySection>
+			{showApiDisplay && (
+				<ApiDisplaySection>
+					<ApiDisplayHeader>
+						<FiCode />
+						API Call History
+					</ApiDisplayHeader>
+					<ApiCallList />
+				</ApiDisplaySection>
+			)}
 		</Container>
 	);
 };
