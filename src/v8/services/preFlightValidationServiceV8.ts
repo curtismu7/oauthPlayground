@@ -465,12 +465,15 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 			}
 
 			// For client credentials flow, validate that it doesn't use OIDC scopes
+			// Exception: Worker tokens can use 'openid' scope
 			if (options.flowType === 'client-credentials') {
-				const oidcScopes = ['openid', 'profile', 'email', 'address', 'phone'];
+				const oidcScopes = ['profile', 'email', 'address', 'phone']; // Removed 'openid' as it's allowed for worker tokens
 				const foundOidcScopes = oidcScopes.filter((scope) => credentials.scopes?.includes(scope));
-				if (foundOidcScopes.length > 0) {
+				// Only check for non-openid OIDC scopes unless this is not a worker token
+				if (foundOidcScopes.length > 0 || (!options.workerToken && credentials.scopes?.includes('openid'))) {
+					const allInvalidScopes = foundOidcScopes.concat((!options.workerToken && credentials.scopes?.includes('openid')) ? ['openid'] : []);
 					errors.push(
-						`❌ Invalid OIDC Scopes: Client Credentials flow cannot use OIDC scopes (${foundOidcScopes.join(', ')}). Use resource server scopes like "ClaimScope", "my-api:read", or "my-api:write" instead.`
+						`❌ Invalid OIDC Scopes: Client Credentials flow cannot use OIDC scopes (${allInvalidScopes.join(', ')}). Use resource server scopes like "ClaimScope", "my-api:read", or "my-api:write" instead.`
 					);
 				}
 			}
