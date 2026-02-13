@@ -160,102 +160,6 @@ const getOAuthTokens = (): OAuthTokens | null => {
 	}
 };
 
-// Comprehensive token checker that looks for tokens from ALL flow types
-const getAllStoredTokens = (): OAuthTokens | null => {
-	try {
-		// List of all possible token storage keys for different flows
-		const tokenKeys = [
-			'pingone_secure_tokens', // Main secure storage
-			'pingone_tokens', // Legacy storage
-			'tokens', // Basic storage
-			'oauth_tokens', // OAuth specific
-			'oidc_tokens', // OIDC specific
-			'implicit_tokens', // Implicit flow tokens
-			'device_code_tokens', // Device code flow tokens
-			'client_credentials_tokens', // Client credentials tokens
-			'hybrid_tokens', // Hybrid flow tokens
-			'worker_token_tokens', // Worker token tokens
-			'authz_flow_tokens', // Authorization flow tokens
-			'oauth2_implicit_tokens', // OAuth 2.0 Implicit tokens
-			'oidc_implicit_tokens', // OIDC Implicit tokens
-			'oauth2_client_credentials_tokens', // OAuth 2.0 Client Credentials tokens
-			'oidc_client_credentials_tokens', // OIDC Client Credentials tokens
-			'device_code_oidc_tokens', // Device Code OIDC tokens
-			'worker_token_v3_tokens', // Worker Token V3 tokens
-		];
-
-		// Check each storage key for valid tokens
-		for (const key of tokenKeys) {
-			try {
-				// Check sessionStorage first
-				const sessionData = sessionStorage.getItem(key);
-				if (sessionData) {
-					try {
-						const parsedTokens = JSON.parse(sessionData);
-						if (parsedTokens?.access_token && isTokenValid(parsedTokens)) {
-							logger.info('NewAuthContext', `Found valid tokens in ${key}`, {
-								key,
-								hasAccessToken: !!parsedTokens.access_token,
-								hasIdToken: !!parsedTokens.id_token,
-								tokenType: parsedTokens.token_type,
-							});
-							return parsedTokens;
-						}
-					} catch (parseError) {
-						logger.warn('NewAuthContext', `Invalid JSON in sessionStorage ${key}, skipping`, {
-							key,
-							error: parseError instanceof Error ? parseError.message : 'Unknown error',
-							dataPreview: `${sessionData.substring(0, 50)}...`,
-						});
-						// Clear invalid data to prevent future errors
-						sessionStorage.removeItem(key);
-					}
-				}
-
-				// Check localStorage as well
-				const localData = localStorage.getItem(key);
-				if (localData) {
-					try {
-						const parsedTokens = JSON.parse(localData);
-						if (parsedTokens?.access_token && isTokenValid(parsedTokens)) {
-							logger.info('NewAuthContext', `Found valid tokens in localStorage ${key}`, {
-								key,
-								hasAccessToken: !!parsedTokens.access_token,
-								hasIdToken: !!parsedTokens.id_token,
-								tokenType: parsedTokens.token_type,
-							});
-							return parsedTokens;
-						}
-					} catch (parseError) {
-						logger.warn('NewAuthContext', `Invalid JSON in localStorage ${key}, skipping`, {
-							key,
-							error: parseError instanceof Error ? parseError.message : 'Unknown error',
-							dataPreview: `${localData.substring(0, 50)}...`,
-						});
-						// Clear invalid data to prevent future errors
-						localStorage.removeItem(key);
-					}
-				}
-			} catch (error) {
-				// Continue checking other keys if one fails
-				logger.debug('NewAuthContext', `Error checking ${key}`, error);
-			}
-		}
-
-		// Fallback to the original method
-		const tokens = oauthStorage.getTokens();
-		if (tokens && isTokenValid(tokens)) {
-			logger.info('NewAuthContext', 'Found valid tokens in oauthStorage');
-			return tokens;
-		}
-
-		return null;
-	} catch (error) {
-		logger.error('NewAuthContext', 'Error checking all token storage locations', error);
-		return null;
-	}
-};
-
 const getStoredUser = (): UserInfo | null => {
 	try {
 		const user = oauthStorage.getUserInfo();
@@ -995,7 +899,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 		async (url: string): Promise<LoginResult> => {
 			try {
 				// Validate and parse the callback URL
-				const { urlObj, params, code, state, error, errorDescription } =
+				const { params, code, state, error, errorDescription } =
 					validateAndParseCallbackUrl(url, 'NewAuthContext');
 
 				// Check for OAuth error

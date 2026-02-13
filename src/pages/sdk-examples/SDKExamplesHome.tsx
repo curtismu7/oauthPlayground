@@ -57,7 +57,7 @@ const ExampleDescription = styled.p`
 const ExampleLink = styled(Link)`
   display: inline-block;
   background: #007bff;
-  color: white;
+  color: #ffffff;
   padding: 0.75rem 1.5rem;
   border-radius: 4px;
   text-decoration: none;
@@ -66,6 +66,7 @@ const ExampleLink = styled(Link)`
 
   &:hover {
     background: #0056b3;
+    color: #ffffff;
   }
 `;
 

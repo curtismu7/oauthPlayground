@@ -125,21 +125,23 @@ const REQUIRED_FIELDS: Record<string, string[]> = {
 };
 
 // ============================================================================
-// VALIDATION SERVICE CLASS
+// VALIDATION SERVICE NAMESPACE
 // ============================================================================
 
-export class ValidationServiceV8 {
+export const ValidationServiceV8 = {
 	/**
 	 * Validate complete credentials object
 	 * @param credentials - Credentials to validate
 	 * @param flowType - Flow type ('oauth' | 'oidc')
+	 * @param appConfig - Optional PingOne application configuration
 	 * @returns Validation result with errors and warnings
 	 * @example
 	 * const result = ValidationServiceV8.validateCredentials(credentials, 'oidc');
 	 */
-	static validateCredentials(
+	validateCredentials(
 		credentials: Partial<Record<string, unknown>>,
-		flowType: 'oauth' | 'oidc'
+		flowType: 'oauth' | 'oidc',
+		appConfig?: { allowRedirectUriPatterns: boolean; oauthVersion?: '2.0' | '2.1' }
 	): ValidationResult {
 		console.log(`${MODULE_TAG} Validating credentials`, { flowType });
 
@@ -223,7 +225,8 @@ export class ValidationServiceV8 {
 		// Redirect URI warnings
 		if (credentials.redirectUri) {
 			const redirectWarnings = ValidationServiceV8.validateRedirectUriSecurity(
-				credentials.redirectUri as string
+				credentials.redirectUri as string,
+				appConfig
 			);
 			warnings.push(...redirectWarnings);
 		}
@@ -254,7 +257,7 @@ export class ValidationServiceV8 {
 			warnings,
 			canProceed,
 		};
-	}
+	},
 
 	/**
 	 * Validate scopes for OIDC flows
@@ -263,7 +266,7 @@ export class ValidationServiceV8 {
 	 * @example
 	 * const result = ValidationServiceV8.validateOIDCScopes('openid profile email');
 	 */
-	static validateOIDCScopes(scopes: string): ValidationResult {
+	validateOIDCScopes(scopes: string): ValidationResult {
 		const errors: ValidationError[] = [];
 		const warnings: ValidationWarning[] = [];
 
@@ -304,14 +307,14 @@ export class ValidationServiceV8 {
 			warnings,
 			canProceed: errors.length === 0,
 		};
-	}
+	},
 
 	/**
 	 * Validate OAuth scopes (less strict than OIDC)
 	 * @param scopes - Space-separated scope string
 	 * @returns Validation result
 	 */
-	static validateOAuthScopes(scopes: string): ValidationResult {
+	validateOAuthScopes(scopes: string): ValidationResult {
 		const errors: ValidationError[] = [];
 		const warnings: ValidationWarning[] = [];
 
@@ -329,7 +332,7 @@ export class ValidationServiceV8 {
 			warnings,
 			canProceed: errors.length === 0,
 		};
-	}
+	},
 
 	/**
 	 * Validate URL format
@@ -339,7 +342,7 @@ export class ValidationServiceV8 {
 	 * @example
 	 * const result = ValidationServiceV8.validateUrl('http://localhost:3000', 'redirect');
 	 */
-	static validateUrl(url: string, type: 'redirect' | 'issuer' | 'endpoint'): ValidationResult {
+	validateUrl(url: string, type: 'redirect' | 'issuer' | 'endpoint'): ValidationResult {
 		const errors: ValidationError[] = [];
 		const warnings: ValidationWarning[] = [];
 
@@ -401,7 +404,7 @@ export class ValidationServiceV8 {
 			warnings,
 			canProceed: errors.length === 0,
 		};
-	}
+	},
 
 	/**
 	 * Validate UUID format
@@ -411,7 +414,7 @@ export class ValidationServiceV8 {
 	 * @example
 	 * const result = ValidationServiceV8.validateUUID(environmentId, 'Environment ID');
 	 */
-	static validateUUID(value: string, field: string): ValidationResult {
+	validateUUID(value: string, field: string): ValidationResult {
 		const errors: ValidationError[] = [];
 		const warnings: ValidationWarning[] = [];
 
@@ -440,14 +443,14 @@ export class ValidationServiceV8 {
 			warnings,
 			canProceed: errors.length === 0,
 		};
-	}
+	},
 
 	/**
 	 * Validate authorization URL components
 	 * @param params - Authorization URL parameters
 	 * @returns Validation result
 	 */
-	static validateAuthorizationUrlParams(params: {
+	validateAuthorizationUrlParams(params: {
 		authorizationEndpoint?: string;
 		clientId?: string;
 		redirectUri?: string;
@@ -535,14 +538,14 @@ export class ValidationServiceV8 {
 			warnings,
 			canProceed: errors.length === 0,
 		};
-	}
+	},
 
 	/**
 	 * Validate callback URL parameters
 	 * @param params - Callback URL parameters
 	 * @returns Validation result
 	 */
-	static validateCallbackParams(
+	validateCallbackParams(
 		params: {
 			code?: string;
 			state?: string;
@@ -589,7 +592,7 @@ export class ValidationServiceV8 {
 			warnings,
 			canProceed: errors.length === 0,
 		};
-	}
+	},
 
 	/**
 	 * Validate token response
@@ -597,7 +600,7 @@ export class ValidationServiceV8 {
 	 * @param flowType - Flow type ('oauth' | 'oidc')
 	 * @returns Validation result
 	 */
-	static validateTokenResponse(
+	validateTokenResponse(
 		tokens: {
 			access_token?: string;
 			id_token?: string;
@@ -644,7 +647,7 @@ export class ValidationServiceV8 {
 			warnings,
 			canProceed: errors.length === 0,
 		};
-	}
+	},
 
 	/**
 	 * Get required fields for a flow type
@@ -653,16 +656,16 @@ export class ValidationServiceV8 {
 	 * @example
 	 * const fields = ValidationServiceV8.getRequiredFields('oidc');
 	 */
-	static getRequiredFields(flowType: string): string[] {
+	getRequiredFields(flowType: string): string[] {
 		return REQUIRED_FIELDS[flowType] || REQUIRED_FIELDS.oauth;
-	}
+	},
 
 	/**
 	 * Check if a value is empty
 	 * @param value - Value to check
 	 * @returns True if empty
 	 */
-	static isEmpty(value: unknown): boolean {
+	empty(value: unknown): boolean {
 		if (value === null || value === undefined) {
 			return true;
 		}
@@ -676,19 +679,50 @@ export class ValidationServiceV8 {
 			return Object.keys(value).length === 0;
 		}
 		return false;
-	}
+	},
 
 	/**
 	 * Validate redirect URI security
 	 * @param redirectUri - Redirect URI to validate
+	 * @param appConfig - Optional PingOne application configuration
 	 * @returns Array of warnings
 	 */
-	private static validateRedirectUriSecurity(redirectUri: string): ValidationWarning[] {
+	validateRedirectUriSecurity(redirectUri: string, appConfig?: { allowRedirectUriPatterns: boolean; oauthVersion?: '2.0' | '2.1' }): ValidationWarning[] {
 		const warnings: ValidationWarning[] = [];
 
 		try {
 			const url = new URL(redirectUri);
 
+			// Check for wildcard domains
+			if (url.hostname.includes('*')) {
+				// If app config doesn't allow patterns, show error
+				if (!appConfig?.allowRedirectUriPatterns) {
+					warnings.push({
+						field: 'redirectUri',
+						message: 'Wildcard domains in redirect URIs require "Allow Redirect URI Patterns" to be enabled in your PingOne application',
+						canProceed: false,
+						severity: 'error',
+					});
+				} else {
+					// Check OAuth version
+					if (appConfig?.oauthVersion === '2.1') {
+						warnings.push({
+							field: 'redirectUri',
+							message: 'Wildcard redirect URIs are not allowed in OAuth 2.1, even with "Allow Redirect URI Patterns" enabled',
+							canProceed: false,
+							severity: 'error',
+						});
+					} else {
+						// OAuth 2.0 with patterns allowed - show warning but allow
+						warnings.push({
+							field: 'redirectUri',
+							message: '⚠️ Wildcard redirect URIs are allowed but not recommended for production. Use only in developer sandbox environments.',
+							canProceed: true,
+							severity: 'high',
+						});
+					}
+				}
+			}
 			// Warn about HTTP for non-localhost
 			if (url.protocol === 'http:' && !url.hostname.match(/^(localhost|127\.0\.0\.1|::1)$/)) {
 				warnings.push({
@@ -698,39 +732,19 @@ export class ValidationServiceV8 {
 					severity: 'high',
 				});
 			}
-
-			// Warn about wildcard domains
-			if (url.hostname.includes('*')) {
-				warnings.push({
-					field: 'redirectUri',
-					message: 'Wildcard domains in redirect URIs are not recommended',
-					canProceed: true,
-					severity: 'high',
-				});
-			}
-
-			// Warn about IP addresses (except localhost)
-			if (url.hostname.match(/^\d+\.\d+\.\d+\.\d+$/) && !url.hostname.match(/^127\.0\.0\.1$/)) {
-				warnings.push({
-					field: 'redirectUri',
-					message: 'Using IP addresses in redirect URIs is not recommended',
-					canProceed: true,
-					severity: 'medium',
-				});
-			}
 		} catch {
 			// URL parsing failed, but this will be caught by validateUrl
 		}
 
 		return warnings;
-	}
+	},
 
 	/**
 	 * Format validation errors for display
 	 * @param errors - Array of validation errors
 	 * @returns Formatted error message
 	 */
-	static formatErrors(errors: ValidationError[]): string {
+	formatErrors(errors: ValidationError[]): string {
 		if (errors.length === 0) {
 			return '';
 		}
@@ -744,27 +758,27 @@ export class ValidationServiceV8 {
 				return message;
 			})
 			.join('\n');
-	}
+	},
 
 	/**
 	 * Format validation warnings for display
 	 * @param warnings - Array of validation warnings
 	 * @returns Formatted warning message
 	 */
-	static formatWarnings(warnings: ValidationWarning[]): string {
+	formatWarnings(warnings: ValidationWarning[]): string {
 		if (warnings.length === 0) {
 			return '';
 		}
 
 		return warnings.map((warning) => `• ${warning.message}`).join('\n');
-	}
+	},
 
 	/**
 	 * Validate phone number format
 	 * @param phoneNumber - Phone number to validate
 	 * @returns Whether phone number is valid
 	 */
-	static validatePhoneNumber(phoneNumber: string): boolean {
+	validatePhoneNumber(phoneNumber: string): boolean {
 		if (!phoneNumber || phoneNumber.trim().length === 0) {
 			return false;
 		}
@@ -775,18 +789,18 @@ export class ValidationServiceV8 {
 		// International format: + followed by 7-15 digits
 		const internationalPattern = /^\+\d{7,15}$/;
 
-		// US format: 10 digits
-		const usPattern = /^\d{10}$/;
+		// North American format: 10 digits with optional country code
+		const northAmericanPattern = /^(\+?1)?\d{10}$/;
 
-		return internationalPattern.test(cleanNumber) || usPattern.test(cleanNumber);
-	}
+		return internationalPattern.test(cleanNumber) || northAmericanPattern.test(cleanNumber);
+	},
 
 	/**
 	 * Validate email address format
 	 * @param email - Email address to validate
 	 * @returns Whether email address is valid
 	 */
-	static validateEmail(email: string): boolean {
+	validateEmail(email: string): boolean {
 		if (!email || email.trim().length === 0) {
 			return false;
 		}
@@ -798,11 +812,7 @@ export class ValidationServiceV8 {
 		const comprehensivePattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 		return comprehensivePattern.test(email) && emailPattern.test(email);
-	}
-
-	// ============================================================================
-	// MFA-SPECIFIC VALIDATION
-	// ============================================================================
+	},
 
 	/**
 	 * Validate MFA device registration parameters
@@ -810,7 +820,7 @@ export class ValidationServiceV8 {
 	 * @param deviceType - Type of MFA device
 	 * @returns Validation result
 	 */
-	static validateMFADeviceRegistration(
+	validateMFADeviceRegistration(
 		params: {
 			phoneNumber?: string;
 			emailAddress?: string;
@@ -895,7 +905,7 @@ export class ValidationServiceV8 {
 			warnings,
 			canProceed: errors.length === 0,
 		};
-	}
+	},
 
 	/**
 	 * Validate MFA authentication parameters
@@ -903,7 +913,7 @@ export class ValidationServiceV8 {
 	 * @param deviceType - Type of MFA device
 	 * @returns Validation result
 	 */
-	static validateMFAAuthentication(
+	validateMFAAuthentication(
 		params: {
 			otpCode?: string;
 			deviceId?: string;
@@ -949,7 +959,7 @@ export class ValidationServiceV8 {
 			warnings,
 			canProceed: errors.length === 0,
 		};
-	}
+	},
 
 	/**
 	 * Parse and format MFA error messages for user display
@@ -957,7 +967,7 @@ export class ValidationServiceV8 {
 	 * @param context - Context of the error (operation, device type, etc.)
 	 * @returns Formatted error message
 	 */
-	static formatMFAError(
+	formatMFAError(
 		error: Error | string,
 		context: {
 			operation: 'register' | 'authenticate' | 'send-otp' | 'validate-otp';
@@ -1067,7 +1077,7 @@ export class ValidationServiceV8 {
 					],
 				};
 		}
-	}
+	},
 
 	/**
 	 * Create standardized validation error for UI display
@@ -1077,7 +1087,7 @@ export class ValidationServiceV8 {
 	 * @param code - Optional error code
 	 * @returns Formatted validation error
 	 */
-	static createValidationError(
+	createValidationError(
 		field: string,
 		message: string,
 		suggestion?: string,
@@ -1089,31 +1099,31 @@ export class ValidationServiceV8 {
 			suggestion,
 			code,
 		};
-	}
+	},
 
 	/**
 	 * Create batch validation errors for multiple fields
 	 * @param fields - Object with field names as keys and error messages as values
 	 * @returns Array of validation errors
 	 */
-	static createBatchValidationErrors(
+	createBatchValidationErrors(
 		fields: Record<string, { message: string; suggestion?: string; code?: string }>
 	): ValidationError[] {
 		return Object.entries(fields).map(([field, error]) =>
 			ValidationServiceV8.createValidationError(field, error.message, error.suggestion, error.code)
 		);
-	}
+	},
 
 	/**
 	 * Check if validation error is blocking (prevents proceeding)
 	 * @param error - Validation error
 	 * @returns Whether error blocks proceeding
 	 */
-	static isBlockingError(error: ValidationError): boolean {
+	isBlockingError(error: ValidationError): boolean {
 		// Define non-blocking error codes
 		const nonBlockingCodes = ['WARNING', 'INFO', 'DEPRECATED'];
 		return !nonBlockingCodes.includes(error.code || '');
-	}
+	},
 
 	/**
 	 * Filter validation errors by severity
@@ -1121,14 +1131,14 @@ export class ValidationServiceV8 {
 	 * @param includeBlocking - Whether to include blocking errors
 	 * @returns Filtered array of errors
 	 */
-	static filterErrorsBySeverity(
+	filterErrorsByBlocking(
 		errors: ValidationError[],
 		includeBlocking: boolean = true
 	): ValidationError[] {
 		return errors.filter((error) =>
 			includeBlocking
-				? ValidationServiceV8.isBlockingError(error)
-				: !ValidationServiceV8.isBlockingError(error)
+				? this.isBlockingError(error)
+				: !this.isBlockingError(error)
 		);
 	}
 }

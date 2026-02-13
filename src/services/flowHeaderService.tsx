@@ -674,7 +674,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ flowId, flowType, custom
 			</HeaderBadge>
 			<HeaderTitle>{config.title}</HeaderTitle>
 			<HeaderSubtitle>{config.subtitle}</HeaderSubtitle>
-			<VersionDisplay>PingOne OAuth/OIDC Playground v{packageJson.version}</VersionDisplay>
+			<VersionDisplay>MasterFlow API v{packageJson.version}</VersionDisplay>
 		</HeaderContainer>
 	);
 };
