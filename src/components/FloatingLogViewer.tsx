@@ -5,25 +5,25 @@
  * @version 1.0.0
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-	FiX,
-	FiMinimize2,
-	FiMaximize2,
-	FiRefreshCw,
 	FiDownload,
 	FiExternalLink,
+	FiMaximize2,
+	FiMinimize2,
+	FiRefreshCw,
+	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { LogFileService, type LogFile } from '../services/logFileService';
+import { type LogFile, LogFileService } from '../services/logFileService';
 
 // Styled components
 const FloatingContainer = styled.div<{ width: number; height: number; x: number; y: number }>`
   position: fixed;
-  top: ${props => props.y}px;
-  left: ${props => props.x}px;
-  width: ${props => props.width}px;
-  height: ${props => props.height}px;
+  top: ${(props) => props.y}px;
+  left: ${(props) => props.x}px;
+  width: ${(props) => props.width}px;
+  height: ${(props) => props.height}px;
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -62,8 +62,8 @@ const Controls = styled.div`
 `;
 
 const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  background: ${props => props.$variant === 'primary' ? '#3b82f6' : '#f3f4f6'};
-  color: ${props => props.$variant === 'primary' ? 'white' : '#374151'};
+  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#f3f4f6')};
+  color: ${(props) => (props.$variant === 'primary' ? 'white' : '#374151')};
   border: none;
   border-radius: 4px;
   padding: 6px 8px;
@@ -75,7 +75,7 @@ const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   transition: all 0.2s;
 
   &:hover {
-    background: ${props => props.$variant === 'primary' ? '#2563eb' : '#e5e7eb'};
+    background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#e5e7eb')};
   }
 
   &:disabled {
@@ -120,7 +120,7 @@ const LogContent = styled.div<{ $isMinimized: boolean }>`
   white-space: pre-wrap;
   word-break: break-word;
   line-height: 1.4;
-  display: ${props => props.$isMinimized ? 'none' : 'block'};
+  display: ${(props) => (props.$isMinimized ? 'none' : 'block')};
   border: 1px solid #e5e7eb;
 `;
 
@@ -128,14 +128,18 @@ const StatusIndicator = styled.div<{ $status: 'connected' | 'disconnected' | 'lo
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${props => {
-    switch (props.$status) {
-      case 'connected': return '#10b981';
-      case 'loading': return '#f59e0b';
-      case 'disconnected': return '#ef4444';
-      default: return '#6b7280';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$status) {
+			case 'connected':
+				return '#10b981';
+			case 'loading':
+				return '#f59e0b';
+			case 'disconnected':
+				return '#ef4444';
+			default:
+				return '#6b7280';
+		}
+	}};
 `;
 
 const CheckboxContainer = styled.div`
@@ -179,480 +183,495 @@ const ResizeHandle = styled.div`
 `;
 
 interface FloatingLogViewerProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onPopOut?: () => void;
-  standaloneMode?: boolean;
-  initialWidth?: number;
-  initialHeight?: number;
-  initialX?: number;
-  initialY?: number;
+	isOpen: boolean;
+	onClose: () => void;
+	onPopOut?: () => void;
+	standaloneMode?: boolean;
+	initialWidth?: number;
+	initialHeight?: number;
+	initialX?: number;
+	initialY?: number;
 }
 
 export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
-  isOpen,
-  onClose,
-  onPopOut,
-  standaloneMode = false,
-  initialWidth = 600,
-  initialHeight = 400,
-  initialX = 100,
-  initialY = 100
+	isOpen,
+	onClose,
+	onPopOut,
+	standaloneMode = false,
+	initialWidth = 600,
+	initialHeight = 400,
+	initialX = 100,
+	initialY = 100,
 }) => {
-  // State
-  const [width, setWidth] = useState(initialWidth);
-  const [height, setHeight] = useState(initialHeight);
-  const [x, setX] = useState(initialX);
-  const [y, setY] = useState(initialY);
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [isMaximized, setIsMaximized] = useState(false);
-  const [availableFiles, setAvailableFiles] = useState<LogFile[]>([]);
-  const [selectedFile, setSelectedFile] = useState<string>('pingone-api.log');
-  const [logContent, setLogContent] = useState<string>('');
-  const [isTailMode, setIsTailMode] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isResizing, setIsResizing] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [resizeStart, setResizeStart] = useState({ width: 0, height: 0, x: 0, y: 0 });
+	// State
+	const [width, setWidth] = useState(initialWidth);
+	const [height, setHeight] = useState(initialHeight);
+	const [x, setX] = useState(initialX);
+	const [y, setY] = useState(initialY);
+	const [isMinimized, setIsMinimized] = useState(false);
+	const [isMaximized, setIsMaximized] = useState(false);
+	const [availableFiles, setAvailableFiles] = useState<LogFile[]>([]);
+	const [selectedFile, setSelectedFile] = useState<string>('pingone-api.log');
+	const [logContent, setLogContent] = useState<string>('');
+	const [isTailMode, setIsTailMode] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [isDragging, setIsDragging] = useState(false);
+	const [isResizing, setIsResizing] = useState(false);
+	const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+	const [resizeStart, setResizeStart] = useState({ width: 0, height: 0, x: 0, y: 0 });
 
-  // Render log entries with per-level color highlights and visual separation
-  const renderLogEntries = (content: string): React.ReactNode => {
-    if (!content) return content;
+	// Render log entries with per-level color highlights and visual separation
+	const renderLogEntries = (content: string): React.ReactNode => {
+		if (!content) return content;
 
-    const lines = content.split('\n');
+		const lines = content.split('\n');
 
-    return lines.map((line, index) => {
-      if (!line.trim()) {
-        return <div key={`empty-${index}`} style={{ height: '4px' }} />;
-      }
+		return lines.map((line, index) => {
+			if (!line.trim()) {
+				return <div key={`empty-${index}`} style={{ height: '4px' }} />;
+			}
 
-      let prefix = '📝';
-      let textColor = '#1f2937';
-      let background = '#f9fafb';
-      let borderLeft = '#d1d5db';
+			let prefix = '📝';
+			let textColor = '#1f2937';
+			let background = '#f9fafb';
+			let borderLeft = '#d1d5db';
 
-      if (line.includes('ERROR') || line.includes('error')) {
-        prefix = '🔴';
-        textColor = '#991b1b';
-        background = '#fef2f2';
-        borderLeft = '#ef4444';
-      } else if (line.includes('WARN') || line.includes('warn')) {
-        prefix = '🟡';
-        textColor = '#92400e';
-        background = '#fffbeb';
-        borderLeft = '#f59e0b';
-      } else if (line.includes('INFO') || line.includes('info')) {
-        prefix = '🔵';
-        textColor = '#1e3a8a';
-        background = '#eff6ff';
-        borderLeft = '#3b82f6';
-      } else if (line.includes('DEBUG') || line.includes('debug')) {
-        prefix = '🔍';
-        textColor = '#0f766e';
-        background = '#f0fdfa';
-        borderLeft = '#14b8a6';
-      }
+			if (line.includes('ERROR') || line.includes('error')) {
+				prefix = '🔴';
+				textColor = '#991b1b';
+				background = '#fef2f2';
+				borderLeft = '#ef4444';
+			} else if (line.includes('WARN') || line.includes('warn')) {
+				prefix = '🟡';
+				textColor = '#92400e';
+				background = '#fffbeb';
+				borderLeft = '#f59e0b';
+			} else if (line.includes('INFO') || line.includes('info')) {
+				prefix = '🔵';
+				textColor = '#1e3a8a';
+				background = '#eff6ff';
+				borderLeft = '#3b82f6';
+			} else if (line.includes('DEBUG') || line.includes('debug')) {
+				prefix = '🔍';
+				textColor = '#0f766e';
+				background = '#f0fdfa';
+				borderLeft = '#14b8a6';
+			}
 
-      return (
-        <div key={`line-${index}`}>
-          <div
-            style={{
-              color: textColor,
-              background,
-              borderLeft: `4px solid ${borderLeft}`,
-              padding: '4px 8px',
-              borderRadius: '4px',
-              whiteSpace: 'pre-wrap',
-            }}
-          >
-            {`${prefix} ${line}`}
-          </div>
-          {index < lines.length - 1 && (
-            <div
-              style={{
-                borderBottom: '1px dashed #d1d5db',
-                margin: '4px 0',
-              }}
-            />
-          )}
-        </div>
-      );
-    });
-  };
+			return (
+				<div key={`line-${index}`}>
+					<div
+						style={{
+							color: textColor,
+							background,
+							borderLeft: `4px solid ${borderLeft}`,
+							padding: '4px 8px',
+							borderRadius: '4px',
+							whiteSpace: 'pre-wrap',
+						}}
+					>
+						{`${prefix} ${line}`}
+					</div>
+					{index < lines.length - 1 && (
+						<div
+							style={{
+								borderBottom: '1px dashed #d1d5db',
+								margin: '4px 0',
+							}}
+						/>
+					)}
+				</div>
+			);
+		});
+	};
 
-  // Refs
-  const containerRef = useRef<HTMLDivElement>(null);
-  const eventSourceRef = useRef<EventSource | null>(null);
+	// Refs
+	const containerRef = useRef<HTMLDivElement>(null);
+	const eventSourceRef = useRef<EventSource | null>(null);
 
-  // Load available files
-  const loadFiles = useCallback(async () => {
-    try {
-      const files = await LogFileService.listLogFiles();
-      setAvailableFiles(files);
-    } catch (err) {
-      console.error('[FloatingLogViewer] Failed to load files:', err);
-      setError('Failed to load log files');
-    }
-  }, []);
+	// Load available files
+	const loadFiles = useCallback(async () => {
+		try {
+			const files = await LogFileService.listLogFiles();
+			setAvailableFiles(files);
+		} catch (err) {
+			console.error('[FloatingLogViewer] Failed to load files:', err);
+			setError('Failed to load log files');
+		}
+	}, []);
 
-  // Load log content
-  const loadLogContent = useCallback(async () => {
-    if (!selectedFile) return;
+	// Load log content
+	const loadLogContent = useCallback(async () => {
+		if (!selectedFile) return;
 
-    setIsLoading(true);
-    setError(null);
+		setIsLoading(true);
+		setError(null);
 
-    try {
-      const result = await LogFileService.readLogFile(selectedFile, 100, true);
-      setLogContent(result.content);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load log file';
-      setError(errorMessage);
-      setLogContent('');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [selectedFile]);
+		try {
+			const result = await LogFileService.readLogFile(selectedFile, 100, true);
+			setLogContent(result.content);
+		} catch (err) {
+			const errorMessage = err instanceof Error ? err.message : 'Failed to load log file';
+			setError(errorMessage);
+			setLogContent('');
+		} finally {
+			setIsLoading(false);
+		}
+	}, [selectedFile]);
 
-  // Toggle tail mode
-  const toggleTailMode = useCallback(() => {
-    if (isTailMode) {
-      // Stop tail mode
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
-      }
-      setIsTailMode(false);
-    } else {
-      // Start tail mode
-      if (selectedFile) {
-        try {
-          const eventSource = LogFileService.createTailStream(selectedFile);
-          eventSourceRef.current = eventSource;
+	// Toggle tail mode
+	const toggleTailMode = useCallback(() => {
+		if (isTailMode) {
+			// Stop tail mode
+			if (eventSourceRef.current) {
+				eventSourceRef.current.close();
+				eventSourceRef.current = null;
+			}
+			setIsTailMode(false);
+		} else {
+			// Start tail mode
+			if (selectedFile) {
+				try {
+					const eventSource = LogFileService.createTailStream(selectedFile);
+					eventSourceRef.current = eventSource;
 
-          eventSource.onmessage = (event) => {
-            try {
-              const data = JSON.parse(event.data);
-              if (data.type === 'log') {
-                setLogContent(prev => prev + data.content);
-              }
-            } catch (error) {
-              console.error('[FloatingLogViewer] Failed to parse tail data:', error);
-            }
-          };
+					eventSource.onmessage = (event) => {
+						try {
+							const data = JSON.parse(event.data);
+							if (data.type === 'log') {
+								setLogContent((prev) => prev + data.content);
+							}
+						} catch (error) {
+							console.error('[FloatingLogViewer] Failed to parse tail data:', error);
+						}
+					};
 
-          eventSource.onerror = () => {
-            console.error('[FloatingLogViewer] Tail stream error');
-            setIsTailMode(false);
-            eventSourceRef.current = null;
-          };
+					eventSource.onerror = () => {
+						console.error('[FloatingLogViewer] Tail stream error');
+						setIsTailMode(false);
+						eventSourceRef.current = null;
+					};
 
-          setIsTailMode(true);
-        } catch (error) {
-          console.error('[FloatingLogViewer] Failed to start tail mode:', error);
-          setError('Failed to start tail mode');
-        }
-      }
-    }
-  }, [isTailMode, selectedFile]);
+					setIsTailMode(true);
+				} catch (error) {
+					console.error('[FloatingLogViewer] Failed to start tail mode:', error);
+					setError('Failed to start tail mode');
+				}
+			}
+		}
+	}, [isTailMode, selectedFile]);
 
-  // Clear logs
-  const clearLogs = useCallback(() => {
-    setLogContent('');
-  }, []);
+	// Clear logs
+	const clearLogs = useCallback(() => {
+		setLogContent('');
+	}, []);
 
-  // Download logs
-  const downloadLogs = useCallback(() => {
-    if (!logContent) return;
+	// Download logs
+	const downloadLogs = useCallback(() => {
+		if (!logContent) return;
 
-    const blob = new Blob([logContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${selectedFile}-${new Date().toISOString().replace(/[:.]/g, '-')}.log`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, [logContent, selectedFile]);
+		const blob = new Blob([logContent], { type: 'text/plain' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `${selectedFile}-${new Date().toISOString().replace(/[:.]/g, '-')}.log`;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		URL.revokeObjectURL(url);
+	}, [logContent, selectedFile]);
 
-  const handlePopOut = useCallback(() => {
-    if (onPopOut) {
-      onPopOut();
-      return;
-    }
+	const handlePopOut = useCallback(() => {
+		if (onPopOut) {
+			onPopOut();
+			return;
+		}
 
-    const popup = window.open(
-      'about:blank',
-      'floating-log-viewer-detached',
-      'popup=yes,width=1400,height=900,left=80,top=60,resizable=yes,scrollbars=yes'
-    );
+		// Open the debug log viewer popout
+		const popup = window.open(
+			`${window.location.origin}/v8/debug-logs-popout`,
+			'debug-log-viewer-popout',
+			'popup=yes,width=1400,height=900,left=80,top=60,resizable=yes,scrollbars=yes'
+		);
 
-    if (!popup) {
-      setError('Popup blocked by browser. Allow popups for this site to open detached log viewer.');
-      return;
-    }
+		if (!popup) {
+			setError('Popup blocked by browser. Allow popups for this site to open detached log viewer.');
+			return;
+		}
 
-    popup.location.href = `${window.location.origin}/standalone/log-viewer`;
-    onClose();
-  }, [onPopOut, onClose]);
+		onClose();
+	}, [onPopOut, onClose]);
 
-  // Drag handlers
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.target === containerRef.current || (e.target as HTMLElement).closest('.header')) {
-      setIsDragging(true);
-      setDragStart({ x: e.clientX - x, y: e.clientY - y });
-    }
-  }, [x, y]);
+	// Drag handlers
+	const handleMouseDown = useCallback(
+		(e: React.MouseEvent) => {
+			if (e.target === containerRef.current || (e.target as HTMLElement).closest('.header')) {
+				setIsDragging(true);
+				setDragStart({ x: e.clientX - x, y: e.clientY - y });
+			}
+		},
+		[x, y]
+	);
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (isDragging && !isMaximized) {
-      const newX = e.clientX - dragStart.x;
-      const newY = e.clientY - dragStart.y;
-      
-      // Keep within viewport bounds
-      const maxX = window.innerWidth - width;
-      const maxY = window.innerHeight - height;
-      
-      setX(Math.max(0, Math.min(newX, maxX)));
-      setY(Math.max(0, Math.min(newY, maxY)));
-    }
-  }, [isDragging, isMaximized, width, height, dragStart]);
+	const handleMouseMove = useCallback(
+		(e: MouseEvent) => {
+			if (isDragging && !isMaximized) {
+				const newX = e.clientX - dragStart.x;
+				const newY = e.clientY - dragStart.y;
 
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
+				// Keep within viewport bounds
+				const maxX = window.innerWidth - width;
+				const maxY = window.innerHeight - height;
 
-  // Resize handlers
-  const handleResizeMouseDown = useCallback((e: React.MouseEvent) => {
-    setIsResizing(true);
-    setResizeStart({ width, height, x: e.clientX, y: e.clientY });
-  }, [width, height]);
+				setX(Math.max(0, Math.min(newX, maxX)));
+				setY(Math.max(0, Math.min(newY, maxY)));
+			}
+		},
+		[isDragging, isMaximized, width, height, dragStart]
+	);
 
-  const handleMouseMoveResize = useCallback((e: MouseEvent) => {
-    if (isResizing) {
-      const newWidth = Math.max(300, resizeStart.width + (e.clientX - resizeStart.x));
-      const newHeight = Math.max(200, resizeStart.height + (e.clientY - resizeStart.y));
-      
-      setWidth(newWidth);
-      setHeight(newHeight);
-    }
-  }, [isResizing, resizeStart]);
+	const handleMouseUp = useCallback(() => {
+		setIsDragging(false);
+	}, []);
 
-  const handleMouseUpResize = useCallback(() => {
-    setIsResizing(false);
-  }, []);
+	// Resize handlers
+	const handleResizeMouseDown = useCallback(
+		(e: React.MouseEvent) => {
+			setIsResizing(true);
+			setResizeStart({ width, height, x: e.clientX, y: e.clientY });
+		},
+		[width, height]
+	);
 
-  // Toggle maximize
-  const toggleMaximize = useCallback(() => {
-    if (isMaximized) {
-      // Restore previous size
-      setWidth(initialWidth);
-      setHeight(initialHeight);
-      setX(initialX);
-      setY(initialY);
-      setIsMaximized(false);
-    } else {
-      // Maximize to viewport
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-      setWidth(viewportWidth - 40);
-      setHeight(viewportHeight - 40);
-      setX(20);
-      setY(20);
-      setIsMaximized(true);
-    }
-  }, [isMaximized, initialWidth, initialHeight, initialX, initialY]);
+	const handleMouseMoveResize = useCallback(
+		(e: MouseEvent) => {
+			if (isResizing) {
+				const newWidth = Math.max(300, resizeStart.width + (e.clientX - resizeStart.x));
+				const newHeight = Math.max(200, resizeStart.height + (e.clientY - resizeStart.y));
 
-  // Effects
-  useEffect(() => {
-    if (isOpen) {
-      loadFiles();
-      loadLogContent();
-    }
-  }, [isOpen, loadFiles, loadLogContent]);
+				setWidth(newWidth);
+				setHeight(newHeight);
+			}
+		},
+		[isResizing, resizeStart]
+	);
 
-  useEffect(() => {
-    // Stop tail mode when component unmounts or file changes
-    return () => {
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
-      }
-    };
-  }, []);
+	const handleMouseUpResize = useCallback(() => {
+		setIsResizing(false);
+	}, []);
 
-  useEffect(() => {
-    // Stop tail mode when file changes
-    if (isTailMode && eventSourceRef.current) {
-      eventSourceRef.current.close();
-      eventSourceRef.current = null;
-      setIsTailMode(false);
-    }
-    loadLogContent();
-  }, [selectedFile, loadLogContent]);
+	// Toggle maximize
+	const toggleMaximize = useCallback(() => {
+		if (isMaximized) {
+			// Restore previous size
+			setWidth(initialWidth);
+			setHeight(initialHeight);
+			setX(initialX);
+			setY(initialY);
+			setIsMaximized(false);
+		} else {
+			// Maximize to viewport
+			const viewportWidth = window.innerWidth;
+			const viewportHeight = window.innerHeight;
+			setWidth(viewportWidth - 40);
+			setHeight(viewportHeight - 40);
+			setX(20);
+			setY(20);
+			setIsMaximized(true);
+		}
+	}, [isMaximized, initialWidth, initialHeight, initialX, initialY]);
 
-  // Global mouse event listeners
-  useEffect(() => {
-    const handleGlobalMouseMove = (e: MouseEvent) => {
-      handleMouseMove(e);
-      handleMouseMoveResize(e);
-    };
+	// Effects
+	useEffect(() => {
+		if (isOpen) {
+			loadFiles();
+			loadLogContent();
+		}
+	}, [isOpen, loadFiles, loadLogContent]);
 
-    const handleGlobalMouseUp = () => {
-      handleMouseUp();
-      handleMouseUpResize();
-    };
+	useEffect(() => {
+		// Stop tail mode when component unmounts or file changes
+		return () => {
+			if (eventSourceRef.current) {
+				eventSourceRef.current.close();
+				eventSourceRef.current = null;
+			}
+		};
+	}, []);
 
-    if (isDragging || isResizing) {
-      document.addEventListener('mousemove', handleGlobalMouseMove);
-      document.addEventListener('mouseup', handleGlobalMouseUp);
-      
-      return () => {
-        document.removeEventListener('mousemove', handleGlobalMouseMove);
-        document.removeEventListener('mouseup', handleGlobalMouseUp);
-      };
-    }
-  }, [isDragging, isResizing, handleMouseMove, handleMouseUpResize]);
+	useEffect(() => {
+		// Stop tail mode when file changes
+		if (isTailMode && eventSourceRef.current) {
+			eventSourceRef.current.close();
+			eventSourceRef.current = null;
+			setIsTailMode(false);
+		}
+		loadLogContent();
+	}, [selectedFile, loadLogContent]);
 
-  if (!isOpen) return null;
+	// Global mouse event listeners
+	useEffect(() => {
+		const handleGlobalMouseMove = (e: MouseEvent) => {
+			handleMouseMove(e);
+			handleMouseMoveResize(e);
+		};
 
-  return (
-    <FloatingContainer
-      ref={containerRef}
-      width={isMaximized ? window.innerWidth - 40 : width}
-      height={isMaximized ? window.innerHeight - 40 : (isMinimized ? 40 : height)}
-      x={isMaximized ? 20 : x}
-      y={isMaximized ? 20 : y}
-      onMouseDown={handleMouseDown}
-    >
-      <Header className="header">
-        <Title>
-          <StatusIndicator $status={isTailMode ? 'connected' : 'disconnected'} />
-          Log Viewer
-        </Title>
-        <Controls>
-          {!standaloneMode && (
-            <ControlButton
-              $variant="secondary"
-              onClick={handlePopOut}
-              title="Open log viewer in separate window"
-            >
-              <FiExternalLink />
-            </ControlButton>
-          )}
-          <ControlButton
-            $variant="secondary"
-            onClick={() => setIsMinimized(!isMinimized)}
-            title={isMinimized ? 'Expand' : 'Minimize'}
-          >
-            {isMinimized ? <FiMaximize2 /> : <FiMinimize2 />}
-          </ControlButton>
-          <ControlButton
-            $variant="secondary"
-            onClick={toggleMaximize}
-            title={isMaximized ? 'Restore' : 'Maximize'}
-          >
-            {isMaximized ? '🗗' : '🗖'}
-          </ControlButton>
-          <ControlButton
-            $variant="secondary"
-            onClick={onClose}
-            title="Close"
-          >
-            <FiX />
-          </ControlButton>
-        </Controls>
-      </Header>
+		const handleGlobalMouseUp = () => {
+			handleMouseUp();
+			handleMouseUpResize();
+		};
 
-      {!isMinimized && (
-        <Content>
-          <ControlsPanel>
-            <Select
-              value={selectedFile}
-              onChange={(e) => setSelectedFile(e.target.value)}
-              disabled={isLoading || isTailMode}
-            >
-              {availableFiles.map((file) => (
-                <option key={file.name} value={file.name}>
-                  {file.name} ({(file.size / 1024).toFixed(1)}KB)
-                </option>
-              ))}
-            </Select>
-            
-            <CheckboxContainer onClick={toggleTailMode} title={isTailMode ? 'Stop tailing - Disable real-time log updates' : 'Start tailing - Enable real-time log updates'}>
-              <CheckboxInput
-                type="checkbox"
-                checked={isTailMode}
-                onChange={toggleTailMode}
-                disabled={isLoading}
-              />
-              <CheckboxLabel>Tail Mode</CheckboxLabel>
-            </CheckboxContainer>
-            
-            <ControlButton
-              $variant="secondary"
-              onClick={loadLogContent}
-              disabled={isLoading || isTailMode}
-              title="Refresh log content from file"
-            >
-              <FiRefreshCw />
-            </ControlButton>
-            
-            <ControlButton
-              $variant="secondary"
-              onClick={clearLogs}
-              title="Clear all log content"
-            >
-              Clear
-            </ControlButton>
-            
-            <ControlButton
-              $variant="secondary"
-              onClick={downloadLogs}
-              disabled={!logContent}
-              title="Download log content as file"
-            >
-              <FiDownload />
-            </ControlButton>
-          </ControlsPanel>
+		if (isDragging || isResizing) {
+			document.addEventListener('mousemove', handleGlobalMouseMove);
+			document.addEventListener('mouseup', handleGlobalMouseUp);
 
-          {error && (
-            <div style={{
-              background: '#fef2f2',
-              border: '1px solid #fecaca',
-              borderRadius: '4px',
-              padding: '8px',
-              marginBottom: '8px',
-              color: '#991b1b',
-              fontSize: '12px',
-            }}>
-              Error: {error}
-            </div>
-          )}
+			return () => {
+				document.removeEventListener('mousemove', handleGlobalMouseMove);
+				document.removeEventListener('mouseup', handleGlobalMouseUp);
+			};
+		}
+	}, [isDragging, isResizing, handleMouseMove, handleMouseUpResize]);
 
-          {isLoading && (
-            <div style={{
-              textAlign: 'center',
-              padding: '20px',
-              color: '#6b7280',
-              fontSize: '12px',
-            }}>
-              Loading...
-            </div>
-          )}
+	if (!isOpen) return null;
 
-          <LogContent $isMinimized={isMinimized}>
-            {logContent ? renderLogEntries(logContent) : 'No log content. Select a file and click Refresh to view logs.'}
-          </LogContent>
-        </Content>
-      )}
+	return (
+		<FloatingContainer
+			ref={containerRef}
+			width={isMaximized ? window.innerWidth - 40 : width}
+			height={isMaximized ? window.innerHeight - 40 : isMinimized ? 40 : height}
+			x={isMaximized ? 20 : x}
+			y={isMaximized ? 20 : y}
+			onMouseDown={handleMouseDown}
+		>
+			<Header className="header">
+				<Title>
+					<StatusIndicator $status={isTailMode ? 'connected' : 'disconnected'} />
+					Log Viewer
+				</Title>
+				<Controls>
+					{!standaloneMode && (
+						<ControlButton
+							$variant="secondary"
+							onClick={handlePopOut}
+							title="Open Debug Log Viewer in separate window"
+						>
+							<FiExternalLink />
+						</ControlButton>
+					)}
+					<ControlButton
+						$variant="secondary"
+						onClick={() => setIsMinimized(!isMinimized)}
+						title={isMinimized ? 'Expand' : 'Minimize'}
+					>
+						{isMinimized ? <FiMaximize2 /> : <FiMinimize2 />}
+					</ControlButton>
+					<ControlButton
+						$variant="secondary"
+						onClick={toggleMaximize}
+						title={isMaximized ? 'Restore' : 'Maximize'}
+					>
+						{isMaximized ? '🗗' : '🗖'}
+					</ControlButton>
+					<ControlButton $variant="secondary" onClick={onClose} title="Close">
+						<FiX />
+					</ControlButton>
+				</Controls>
+			</Header>
 
-      {!isMaximized && !isMinimized && (
-        <ResizeHandle onMouseDown={handleResizeMouseDown} />
-      )}
-    </FloatingContainer>
-  );
+			{!isMinimized && (
+				<Content>
+					<ControlsPanel>
+						<Select
+							value={selectedFile}
+							onChange={(e) => setSelectedFile(e.target.value)}
+							disabled={isLoading || isTailMode}
+						>
+							{availableFiles.map((file) => (
+								<option key={file.name} value={file.name}>
+									{file.name} ({(file.size / 1024).toFixed(1)}KB)
+								</option>
+							))}
+						</Select>
+
+						<CheckboxContainer
+							onClick={toggleTailMode}
+							title={
+								isTailMode
+									? 'Stop tailing - Disable real-time log updates'
+									: 'Start tailing - Enable real-time log updates'
+							}
+						>
+							<CheckboxInput
+								type="checkbox"
+								checked={isTailMode}
+								onChange={toggleTailMode}
+								disabled={isLoading}
+							/>
+							<CheckboxLabel>Tail Mode</CheckboxLabel>
+						</CheckboxContainer>
+
+						<ControlButton
+							$variant="secondary"
+							onClick={loadLogContent}
+							disabled={isLoading || isTailMode}
+							title="Refresh log content from file"
+						>
+							<FiRefreshCw />
+						</ControlButton>
+
+						<ControlButton $variant="secondary" onClick={clearLogs} title="Clear all log content">
+							Clear
+						</ControlButton>
+
+						<ControlButton
+							$variant="secondary"
+							onClick={downloadLogs}
+							disabled={!logContent}
+							title="Download log content as file"
+						>
+							<FiDownload />
+						</ControlButton>
+					</ControlsPanel>
+
+					{error && (
+						<div
+							style={{
+								background: '#fef2f2',
+								border: '1px solid #fecaca',
+								borderRadius: '4px',
+								padding: '8px',
+								marginBottom: '8px',
+								color: '#991b1b',
+								fontSize: '12px',
+							}}
+						>
+							Error: {error}
+						</div>
+					)}
+
+					{isLoading && (
+						<div
+							style={{
+								textAlign: 'center',
+								padding: '20px',
+								color: '#6b7280',
+								fontSize: '12px',
+							}}
+						>
+							Loading...
+						</div>
+					)}
+
+					<LogContent $isMinimized={isMinimized}>
+						{logContent
+							? renderLogEntries(logContent)
+							: 'No log content. Select a file and click Refresh to view logs.'}
+					</LogContent>
+				</Content>
+			)}
+
+			{!isMaximized && !isMinimized && <ResizeHandle onMouseDown={handleResizeMouseDown} />}
+		</FloatingContainer>
+	);
 };
