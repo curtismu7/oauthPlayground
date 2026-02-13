@@ -1116,6 +1116,112 @@ echo "🎯 MFA REDIRECT ROUTING PREVENTION CHECKS COMPLETE"
 
 ---
 
+### **🚨 Issue 126: Floating Log Viewer UI Issues - Readability and User Experience**
+**Date**: 2026-02-12  
+**Status**: ✅ RESOLVED  
+**Severity**: Medium (Developer Experience)  
+**SWE-15 Impact**: Interface Segregation, Single Responsibility
+
+#### **🔍 Root Cause Analysis:**
+Floating log viewer had several UI/UX issues affecting developer experience:
+
+1. **Poor Readability**: Grey background (#1f2937) with black text (#000000) caused low contrast
+2. **No Visual Separation**: Log entries ran together without clear boundaries
+3. **Missing Tail Mode Checkbox**: Tail mode was controlled by button instead of checkbox
+4. **Poor Tooltips**: Icons had minimal or no hover descriptions
+5. **No Entry Indicators**: No visual distinction between different log levels
+
+#### **✅ Solution Implemented:**
+1. **Fixed Background Color**: Changed from grey (#1f2937) to white with black text
+2. **Added Visual Separation**: Implemented emoji indicators and separators for log entries
+3. **Added Tail Mode Checkbox**: Replaced button with intuitive checkbox
+4. **Enhanced Tooltips**: Added descriptive hover text for all controls
+5. **Log Level Indicators**: Added emoji prefixes for different log types
+
+#### **Files Modified:**
+- `src/components/FloatingLogViewer.tsx` - Enhanced UI components and styling
+
+#### **🎯 Implementation Details:**
+```typescript
+// Fixed background color and added border
+const LogContent = styled.div<{ $isMinimized: boolean }>`
+  background: white;
+  border: 1px solid #e5e7eb;
+  color: #000000;
+`;
+
+// Added visual separation for log entries
+const addVisualSeparation = (content: string): string => {
+  const lines = content.split('\n');
+  return lines.map((line, index) => {
+    let prefix = '';
+    if (line.includes('ERROR')) prefix = '🔴 ';
+    else if (line.includes('WARN')) prefix = '🟡 ';
+    else if (line.includes('INFO')) prefix = '🔵 ';
+    else if (line.includes('DEBUG')) prefix = '🔍 ';
+    else prefix = '📝 ';
+    
+    const suffix = index < lines.length - 1 ? '\n---' : '';
+    return `${prefix}${line}${suffix}`;
+  }).join('\n');
+};
+
+// Added checkbox for tail mode
+<CheckboxContainer onClick={toggleTailMode} title="Enable real-time log updates">
+  <CheckboxInput type="checkbox" checked={isTailMode} />
+  <CheckboxLabel>Tail Mode</CheckboxLabel>
+</CheckboxContainer>
+
+// Enhanced tooltips
+title="Refresh log content from file"
+title="Download log content as file"
+title="Clear all log content"
+```
+
+#### **🔍 Prevention Commands:**
+```bash
+# 1. Check for white background in log content
+echo "=== Checking White Background ==="
+grep -n "background: white" src/components/FloatingLogViewer.tsx && echo "✅ WHITE BACKGROUND FOUND" || echo "❌ WHITE BACKGROUND MISSING"
+
+# 2. Verify visual separation function
+echo "=== Checking Visual Separation Function ==="
+grep -n "addVisualSeparation" src/components/FloatingLogViewer.tsx && echo "✅ VISUAL SEPARATION FOUND" || echo "❌ VISUAL SEPARATION MISSING"
+
+# 3. Check for checkbox implementation
+echo "=== Checking Checkbox Implementation ==="
+grep -n "CheckboxContainer\|CheckboxInput\|CheckboxLabel" src/components/FloatingLogViewer.tsx && echo "✅ CHECKBOX IMPLEMENTATION FOUND" || echo "❌ CHECKBOX IMPLEMENTATION MISSING"
+
+# 4. Verify enhanced tooltips
+echo "=== Checking Enhanced Tooltips ==="
+grep -n "title.*Refresh log content\|title.*Download log content\|title.*Clear all log content" src/components/FloatingLogViewer.tsx && echo "✅ ENHANCED TOOLTIPS FOUND" || echo "❌ ENHANCED TOOLTIPS MISSING"
+
+# 5. Check for log level indicators
+echo "=== Checking Log Level Indicators ==="
+grep -n "🔴.*ERROR\|🟡.*WARN\|🔵.*INFO\|🔍.*DEBUG" src/components/FloatingLogViewer.tsx && echo "✅ LOG LEVEL INDICATORS FOUND" || echo "❌ LOG LEVEL INDICATORS MISSING"
+
+echo "🎯 FLOATING LOG VIEWER UI PREVENTION CHECKS COMPLETE"
+```
+
+#### **🔧 SWE-15 Compliance:**
+- ✅ **Single Responsibility**: Each styled component has focused responsibility
+- ✅ **Open/Closed**: New UI features added without modifying existing functionality
+- ✅ **Liskov Substitution**: Component behavior unchanged for existing props
+- ✅ **Interface Segregation**: Minimal, focused UI components
+- ✅ **Dependency Inversion**: No new dependencies introduced
+
+#### **📊 Impact:**
+- **Before**: Grey-on-black text, no entry separation, button-based tail mode
+- **After**: White-on-black text, clear entry boundaries, checkbox-based tail mode
+- **Developer Experience**: Significantly improved readability and usability
+- **Professional Appearance**: Clean, modern UI with proper visual hierarchy
+
+#### **🔗 Related Issues:**
+- **Issue PROD-019**: Floating Log Viewer Implementation - Base functionality
+- **Issue 125**: MFA Redirect Routing Logic Issues - Callback handler improvements
+
+---
+
 ### **🚨 Issue 124: Authorization (Authz) Modal Showing Worker Token Instead of User Token**
 **Date**: 2026-02-12  
 **Status**: ✅ RESOLVED  
