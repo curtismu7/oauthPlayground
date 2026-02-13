@@ -14,6 +14,7 @@ import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { checkPingOneAuthentication, performDetailedAuthenticationCheck } from '@/v8/services/pingOneAuthenticationServiceV8';
 import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
+import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 
 const MODULE_TAG = '[🔄 CALLBACK-HANDLER-V8U]';
 
@@ -114,6 +115,27 @@ export const CallbackHandlerV8U: React.FC = () => {
 				contextKey: flowContextKey,
 			});
 
+			// Try to consume return target first (preferred method)
+			const mfaReturnTarget = ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_registration') ||
+								  ReturnTargetServiceV8U.consumeReturnTarget('mfa_device_authentication');
+			
+			if (mfaReturnTarget) {
+				console.log(`${MODULE_TAG} 🎯 Found MFA return target:`, mfaReturnTarget);
+				
+				// Preserve callback parameters
+				const callbackParams = new URLSearchParams(window.location.search);
+				if (mfaReturnTarget.step) {
+					callbackParams.set('step', mfaReturnTarget.step.toString());
+				}
+				
+				const redirectUrl = buildRedirectUrl(mfaReturnTarget.path, callbackParams);
+				
+				console.log(`${MODULE_TAG} 🚀 Redirecting to MFA flow using return target: ${redirectUrl}`);
+				navigate(redirectUrl);
+				return;
+			}
+
+			// IMPROVED: Check for stored context with better error handling
 			if (storedContext) {
 				try {
 					const context = JSON.parse(storedContext) as {
@@ -130,7 +152,8 @@ export const CallbackHandlerV8U: React.FC = () => {
 					const maxAge = 10 * 60 * 1000; // 10 minutes
 
 					if (contextAge > maxAge) {
-						console.warn(`${MODULE_TAG} ⚠️ Flow context is stale (${Math.round(contextAge / 1000)}s old), using fallback`);
+						console.warn(`${MODULE_TAG} ⚠️ Flow context is stale (${Math.round(contextAge / 1000)}s old), removing and using fallback`);
+						sessionStorage.removeItem(flowContextKey);
 					} else {
 						// Preserve callback parameters and add step parameter
 						const callbackParams = new URLSearchParams(window.location.search);
@@ -155,15 +178,18 @@ export const CallbackHandlerV8U: React.FC = () => {
 					}
 				} catch (error) {
 					console.error(`${MODULE_TAG} ❌ Failed to parse flow context:`, error);
+					// Remove corrupted context
+					sessionStorage.removeItem(flowContextKey);
 				}
 			}
 
-			// FALLBACK: No stored context - use intelligent detection based on callback path
-			console.log(`${MODULE_TAG} 🔍 No stored context, using path-based detection`);
+			// IMPROVED FALLBACK: Use path-based detection with better logic
+			console.log(`${MODULE_TAG} 🔍 No valid stored context, using path-based detection`);
 			
 			let fallbackPath = '/v8/unified-mfa?step=2'; // Default: return to device selection
 			let fallbackReason = 'default';
 			
+			// Check for MFA-specific callback paths first
 			if (currentPath.includes('mfa-unified-callback') || currentPath.includes('unified-mfa-callback')) {
 				fallbackPath = '/v8/unified-mfa?step=2'; // MFA flow: device selection step
 				fallbackReason = 'mfa-callback-path';
@@ -171,13 +197,26 @@ export const CallbackHandlerV8U: React.FC = () => {
 				fallbackPath = '/v8/mfa-hub?step=2'; // MFA hub: authentication flow
 				fallbackReason = 'mfa-hub-path';
 			} else if (currentPath.includes('user-login-callback') || currentPath.includes('user-mfa-login-callback')) {
-				fallbackPath = '/v8/unified-mfa?step=2'; // User login: return to MFA flow
-				fallbackReason = 'user-login-path';
+				// For user-login-callback, check if we have OAuth callback data that suggests MFA flow
+				const code = searchParams.get('code');
+				const state = searchParams.get('state');
+				
+				if (code && state) {
+					// This looks like an OAuth callback, likely from MFA flow
+					fallbackPath = '/v8/unified-mfa?step=2'; // Return to MFA flow
+					fallbackReason = 'user-login-oauth-callback';
+				} else {
+					fallbackPath = '/v8/unified-mfa?step=2'; // Default to MFA flow
+					fallbackReason = 'user-login-default';
+				}
 			}
 
 			console.log(`${MODULE_TAG} 🔄 Using fallback redirect:`, {
 				path: fallbackPath,
 				reason: fallbackReason,
+				currentPath,
+				hasCode: !!searchParams.get('code'),
+				hasState: !!searchParams.get('state'),
 			});
 
 			const normalizedFallback = normalizeFallbackStep(fallbackPath);
@@ -191,10 +230,9 @@ export const CallbackHandlerV8U: React.FC = () => {
 				fullUrl: window.location.href,
 				timestamp: Date.now(),
 			}));
-			
-			console.log(`${MODULE_TAG} 🚀 Fallback redirect: ${redirectUrl}`);
+
 			window.location.replace(redirectUrl);
-			return; // CRITICAL: Exit early to prevent unified flow logic
+			return;
 		}
 
 		// If we reach here, this is NOT a user-login-callback, continue with unified flow logic
