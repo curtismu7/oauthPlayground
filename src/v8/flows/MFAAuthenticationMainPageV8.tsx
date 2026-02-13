@@ -313,7 +313,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	}, [tokenStatus.isValid]);
 
 	// Save credentials on initial load to ensure persistence across server restarts
+	const hasSavedInitialCredentials = useRef(false);
 	useEffect(() => {
+		// Only run once on mount
+		if (hasSavedInitialCredentials.current) return;
+		hasSavedInitialCredentials.current = true;
+		
 		// Only save if we have valid credentials to persist
 		if (credentials.environmentId || credentials.username) {
 			CredentialsServiceV8.saveCredentials(FLOW_KEY, {
@@ -323,7 +328,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				clientId: '', // Add empty clientId to satisfy Credentials interface
 			});
 		}
-	}, []); // Run once on mount
+	}, [credentials.environmentId, credentials.username, credentials.deviceAuthenticationPolicyId]);
 
 	// Modal state management - using unified service
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
@@ -462,7 +467,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 						// Use the same logic as attemptSilentTokenRetrieval
 						const region = credentials.region || 'us';
-						const _apiBase =
+						// const _apiBase = apiBase; // Unused - available if needed for debugging
 							region === 'eu'
 								? 'https://auth.pingone.eu'
 								: region === 'ap'
@@ -578,7 +583,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		return () => {
 			clearInterval(interval);
 		};
-	}, [setTokenStatus]);
+	}, []);
 
 	// Helper function to handle NO_USABLE_DEVICES errors
 	const handleDeviceFailureError = useCallback((error: unknown) => {
@@ -663,7 +668,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 		// Listen for config updates
 		const handleConfigUpdate = (event: Event) => {
-			const _customEvent = event as CustomEvent<{
+			// const _customEvent = customEvent; // Unused - available if needed for debugging as CustomEvent<{
 				workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean };
 			}>;
 			// Always reload fresh from config service when event fires (no cache)
@@ -698,7 +703,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			window.removeEventListener('storage', handleTokenUpdate);
 			clearInterval(interval);
 		};
-	}, [setTokenStatus]);
+	}, []);
 
 	// Poll Push authentication status
 	useEffect(() => {
@@ -3651,7 +3656,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												if (deviceType === 'FIDO2') {
 													// Verify we have either challengeId or publicKeyCredentialRequestOptions
 													const hasChallengeId = !!(response.challengeId as string);
-													const hasPublicKeyOptions = !!publicKeyOptions;
+													// const _hasPublicKeyOptions = hasPublicKeyOptions; // Unused - available if needed
 
 													if (!hasChallengeId && !hasPublicKeyOptions) {
 														console.error(
