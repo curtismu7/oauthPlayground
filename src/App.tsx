@@ -224,6 +224,7 @@ import EnvironmentManagementPageV8 from './pages/EnvironmentManagementPageV8';
 import ProtectPortalWrapper from './pages/protect-portal/ProtectPortalWrapper';
 import DavinciTodoApp from './sdk-examples/davinci-todo-app/DavinciTodoApp';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
+import { DebugLogViewerV8 } from './v8/pages/DebugLogViewerV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
 import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
@@ -979,6 +980,7 @@ const AppRoutes: React.FC = () => {
 							/>
 							{/* V8 Utilities */}
 							<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
+							<Route path="/v8/debug-logs" element={<DebugLogViewerV8 />} />
 							{/* V8U SPIFFE/SPIRE Mock Flow and Token Viewer - multi-step lab */}
 							<Route
 								path="/v8u/spiffe-spire"
