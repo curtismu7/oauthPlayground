@@ -619,6 +619,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</MigrationBadge>
 						),
 					},
+					{
+						id: 'debug-log-viewer',
+						path: '/v8/debug-logs',
+						label: 'Debug Log Viewer',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiCode />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="View persistent debug logs that survive redirects">
+								NEW
+							</MigrationBadge>
+						),
+					},
 				],
 			},
 			{
