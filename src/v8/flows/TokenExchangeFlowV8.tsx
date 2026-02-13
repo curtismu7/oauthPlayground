@@ -5,36 +5,22 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
-	FiArrowRight,
 	FiCheckCircle,
-	FiChevronDown,
-	FiCode,
 	FiCopy,
-	FiExternalLink,
-	FiGlobe,
-	FiInfo,
 	FiKey,
 	FiLock,
 	FiRefreshCw,
-	FiServer,
 	FiShield,
-	FiTerminal,
 	FiUsers,
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { TokenExchangeServiceV8 } from '../services/tokenExchangeServiceV8';
-import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';
 import { GlobalEnvironmentService } from '../services/globalEnvironmentService';
+import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';
+import { TokenExchangeServiceV8 } from '../services/tokenExchangeServiceV8';
+import type { TokenExchangeParams, TokenExchangeResponse } from '../types/tokenExchangeTypesV8';
+import { TokenExchangeError, TokenExchangeErrorType } from '../types/tokenExchangeTypesV8';
 import { toastV8 } from '../utils/toastNotificationsV8';
-import type {
-	TokenExchangeParams,
-	TokenExchangeResponse,
-} from '../types/tokenExchangeTypesV8';
-import {
-	TokenExchangeError,
-	TokenExchangeErrorType
-} from '../types/tokenExchangeTypesV8';
 
 type TokenExchangeScenario =
 	| 'delegation'
@@ -226,8 +212,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 				&:hover:not(:disabled) {
 					background: #e5e7eb;
 				}
-			`
-	}
+			`}
 `;
 
 const ResultSection = styled.div`
@@ -299,18 +284,25 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 }) => {
 	const [selectedScenario, setSelectedScenario] = useState<TokenExchangeScenario>('delegation');
 	const [subjectToken, setSubjectToken] = useState('');
-	const [subjectTokenType, setSubjectTokenType] = useState('urn:ietf:params:oauth:token-type:access_token');
-	const [requestedTokenType, setRequestedTokenType] = useState('urn:ietf:params:oauth:token-type:access_token');
+	const [subjectTokenType, setSubjectTokenType] = useState(
+		'urn:ietf:params:oauth:token-type:access_token'
+	);
+	const [requestedTokenType, setRequestedTokenType] = useState(
+		'urn:ietf:params:oauth:token-type:access_token'
+	);
 	const [scope, setScope] = useState('read');
 	const [actorToken, setActorToken] = useState('');
-	const [actorTokenType, setActorTokenType] = useState('urn:ietf:params:oauth:token-type:access_token');
+	const [actorTokenType, setActorTokenType] = useState(
+		'urn:ietf:params:oauth:token-type:access_token'
+	);
 	const [result, setResult] = useState<TokenExchangeResponse | null>(null);
 	const [error, setError] = useState<TokenExchangeError | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isAdminEnabled, setIsAdminEnabled] = useState(false);
 
 	// Get current environment ID
-	const currentEnvironmentId = environmentId || GlobalEnvironmentService.getInstance().getEnvironmentId() || '';
+	const currentEnvironmentId =
+		environmentId || GlobalEnvironmentService.getInstance().getEnvironmentId() || '';
 
 	// Check admin enablement on mount
 	useEffect(() => {
@@ -319,17 +311,21 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 				const enabled = await TokenExchangeConfigServiceV8.isEnabled(currentEnvironmentId);
 				setIsAdminEnabled(enabled);
 				if (!enabled) {
-					setError(new TokenExchangeError(
-						TokenExchangeErrorType.ADMIN_DISABLED,
-						'Token Exchange is not enabled for this environment. Please contact your administrator.'
-					));
+					setError(
+						new TokenExchangeError(
+							TokenExchangeErrorType.ADMIN_DISABLED,
+							'Token Exchange is not enabled for this environment. Please contact your administrator.'
+						)
+					);
 				}
 			} catch (err) {
 				console.error(`${MODULE_TAG} Error checking admin enablement:`, err);
-				setError(new TokenExchangeError(
-					TokenExchangeErrorType.SERVER_ERROR,
-					'Failed to check Token Exchange configuration'
-				));
+				setError(
+					new TokenExchangeError(
+						TokenExchangeErrorType.SERVER_ERROR,
+						'Failed to check Token Exchange configuration'
+					)
+				);
 			}
 		};
 
@@ -349,27 +345,30 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 		try {
 			const params: TokenExchangeParams = {
 				subject_token: subjectToken.trim(),
-				subject_token_type: subjectTokenType as 'urn:ietf:params:oauth:token-type:access_token' | 'urn:ietf:params:oauth:token-type:id_token',
+				subject_token_type: subjectTokenType as
+					| 'urn:ietf:params:oauth:token-type:access_token'
+					| 'urn:ietf:params:oauth:token-type:id_token',
 				requested_token_type: requestedTokenType as 'urn:ietf:params:oauth:token-type:access_token',
 				...(scope && { scope: scope.trim() }),
-				...(actorToken.trim() && { 
+				...(actorToken.trim() && {
 					actor_token: actorToken.trim(),
-					actor_token_type: actorTokenType as 'urn:ietf:params:oauth:token-type:access_token' | 'urn:ietf:params:oauth:token-type:id_token'
+					actor_token_type: actorTokenType as
+						| 'urn:ietf:params:oauth:token-type:access_token'
+						| 'urn:ietf:params:oauth:token-type:id_token',
 				}),
 			};
 
 			console.log(`${MODULE_TAG} Executing token exchange with params:`, {
 				...params,
 				subject_token: '[REDACTED]',
-				...(params.actor_token && { actor_token: '[REDACTED]' })
+				...(params.actor_token && { actor_token: '[REDACTED]' }),
 			});
 
 			const response = await TokenExchangeServiceV8.exchangeToken(params, currentEnvironmentId);
-			
+
 			setResult(response);
 			toastV8.success('Token exchange completed successfully!');
 			onTokenReceived?.(response);
-
 		} catch (err) {
 			const tokenError = err as TokenExchangeError;
 			setError(tokenError);
@@ -393,11 +392,14 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 
 	// Copy to clipboard
 	const copyToClipboard = useCallback((text: string) => {
-		navigator.clipboard.writeText(text).then(() => {
-			toastV8.success('Copied to clipboard!');
-		}).catch(() => {
-			toastV8.error('Failed to copy to clipboard');
-		});
+		navigator.clipboard
+			.writeText(text)
+			.then(() => {
+				toastV8.success('Copied to clipboard!');
+			})
+			.catch(() => {
+				toastV8.error('Failed to copy to clipboard');
+			});
 	}, []);
 
 	const scenarios = [
@@ -440,14 +442,22 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 					{/* Admin Enablement Status */}
 					{!isAdminEnabled && (
 						<ErrorSection>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.75rem',
+									marginBottom: '1rem',
+								}}
+							>
 								<FiAlertCircle style={{ color: '#dc2626', fontSize: '1.5rem' }} />
 								<h3 style={{ color: '#dc2626', margin: 0, fontSize: '1.125rem', fontWeight: 600 }}>
 									Token Exchange Disabled
 								</h3>
 							</div>
 							<p style={{ color: '#7f1d1d', margin: 0, lineHeight: 1.6 }}>
-								Token Exchange is not enabled for this environment. Please contact your administrator to enable this feature.
+								Token Exchange is not enabled for this environment. Please contact your
+								administrator to enable this feature.
 							</p>
 						</ErrorSection>
 					)}
@@ -471,7 +481,14 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 
 					{/* Token Exchange Form */}
 					<FormSection>
-						<h3 style={{ margin: '0 0 1.5rem 0', color: '#1f2937', fontSize: '1.25rem', fontWeight: 600 }}>
+						<h3
+							style={{
+								margin: '0 0 1.5rem 0',
+								color: '#1f2937',
+								fontSize: '1.25rem',
+								fontWeight: 600,
+							}}
+						>
 							Token Exchange Parameters
 						</h3>
 
@@ -505,7 +522,9 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 								onChange={(e) => setRequestedTokenType(e.target.value)}
 								disabled // Phase 1: only access_token supported
 							>
-								<option value="urn:ietf:params:oauth:token-type:access_token">Access Token (Phase 1 Only)</option>
+								<option value="urn:ietf:params:oauth:token-type:access_token">
+									Access Token (Phase 1 Only)
+								</option>
 							</Select>
 						</FormGroup>
 
@@ -575,9 +594,7 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 								<FiCheckCircle style={{ color: '#16a34a', fontSize: '1.5rem' }} />
 								<ResultTitle>Token Exchange Successful</ResultTitle>
 							</ResultHeader>
-							<ResultContent>
-{JSON.stringify(result, null, 2)}
-							</ResultContent>
+							<ResultContent>{JSON.stringify(result, null, 2)}</ResultContent>
 							<div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
 								<Button
 									$variant="secondary"
@@ -586,10 +603,7 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 									<FiCopy />
 									Copy JSON
 								</Button>
-								<Button
-									$variant="secondary"
-									onClick={() => copyToClipboard(result.access_token)}
-								>
+								<Button $variant="secondary" onClick={() => copyToClipboard(result.access_token)}>
 									<FiKey />
 									Copy Access Token
 								</Button>
@@ -600,29 +614,38 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 					{/* Errors */}
 					{error && (
 						<ErrorSection>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.75rem',
+									marginBottom: '1rem',
+								}}
+							>
 								<FiAlertCircle style={{ color: '#dc2626', fontSize: '1.5rem' }} />
 								<h3 style={{ color: '#dc2626', margin: 0, fontSize: '1.125rem', fontWeight: 600 }}>
 									Token Exchange Failed
 								</h3>
 							</div>
-							<div style={{ background: '#ffffff', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+							<div
+								style={{
+									background: '#ffffff',
+									padding: '1rem',
+									borderRadius: '0.5rem',
+									marginBottom: '1rem',
+								}}
+							>
 								<p style={{ margin: '0 0 0.5rem 0', fontWeight: 600, color: '#374151' }}>
 									Error Type: {error.type}
 								</p>
-								<p style={{ margin: '0 0 0.5rem 0', color: '#6b7280' }}>
-									{error.message}
-								</p>
+								<p style={{ margin: '0 0 0.5rem 0', color: '#6b7280' }}>{error.message}</p>
 								{error.details && (
 									<p style={{ margin: 0, color: '#6b7280', fontSize: '0.875rem' }}>
 										Details: {JSON.stringify(error.details, null, 2)}
 									</p>
 								)}
 							</div>
-							<Button
-								$variant="secondary"
-								onClick={() => setError(null)}
-							>
+							<Button $variant="secondary" onClick={() => setError(null)}>
 								<FiRefreshCw />
 								Try Again
 							</Button>

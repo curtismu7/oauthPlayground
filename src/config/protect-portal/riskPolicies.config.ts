@@ -105,20 +105,16 @@ export const HIGH_SECURITY_RISK_THRESHOLDS: RiskThresholds = {
  */
 export function getRiskThresholds(environment?: string): RiskThresholds {
 	const env = environment || process.env.NODE_ENV || 'development';
-	
+
 	switch (env.toLowerCase()) {
 		case 'production':
 		case 'prod':
 			return PRODUCTION_RISK_THRESHOLDS;
-		
+
 		case 'high-security':
 		case 'secure':
 		case 'restricted':
 			return HIGH_SECURITY_RISK_THRESHOLDS;
-		
-		case 'development':
-		case 'dev':
-		case 'test':
 		default:
 			return DEVELOPMENT_RISK_THRESHOLDS;
 	}
@@ -130,12 +126,12 @@ export function getRiskThresholds(environment?: string): RiskThresholds {
  */
 export function getEnvironmentRiskThresholds(): RiskThresholds | null {
 	const env = process.env;
-	
+
 	// Check if custom thresholds are configured
 	if (!env.RISK_LOW_MAX && !env.RISK_MEDIUM_MIN && !env.RISK_MEDIUM_MAX && !env.RISK_HIGH_MIN) {
 		return null;
 	}
-	
+
 	return {
 		low: {
 			maxScore: parseInt(env.RISK_LOW_MAX || '30', 10),
@@ -166,7 +162,7 @@ export function getActiveRiskThresholds(environment?: string): RiskThresholds {
 		console.log('[🔧 RISK-CONFIG] Using environment variable thresholds');
 		return envThresholds;
 	}
-	
+
 	// Fall back to environment-specific configuration
 	const configThresholds = getRiskThresholds(environment);
 	console.log(`[🔧 RISK-CONFIG] Using ${environment || 'default'} environment thresholds`);
@@ -186,41 +182,41 @@ export function validateRiskThresholds(thresholds: RiskThresholds): boolean {
 		if (!thresholds.low || !thresholds.medium || !thresholds.high) {
 			return false;
 		}
-		
+
 		// Check score ranges
 		if (thresholds.low.maxScore < 0 || thresholds.low.maxScore > 100) {
 			return false;
 		}
-		
+
 		if (thresholds.medium.minScore <= thresholds.low.maxScore) {
 			return false;
 		}
-		
+
 		if (thresholds.medium.maxScore <= thresholds.medium.minScore) {
 			return false;
 		}
-		
+
 		if (thresholds.high.minScore <= thresholds.medium.maxScore) {
 			return false;
 		}
-		
+
 		if (thresholds.high.minScore > 100) {
 			return false;
 		}
-		
+
 		// Check actions
 		if (thresholds.low.action !== 'ALLOW') {
 			return false;
 		}
-		
+
 		if (thresholds.medium.action !== 'CHALLENGE_MFA') {
 			return false;
 		}
-		
+
 		if (thresholds.high.action !== 'BLOCK') {
 			return false;
 		}
-		
+
 		return true;
 	} catch (error) {
 		console.error('[🔧 RISK-CONFIG] Threshold validation failed:', error);

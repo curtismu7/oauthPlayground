@@ -68,14 +68,14 @@ export class FileStorageUtil {
 					const key = FileStorageUtil.getStorageKey(options);
 					const serialized = JSON.stringify(data);
 					localStorage.setItem(key, serialized);
-					
+
 					return { success: true };
 				} else {
 					throw new Error(result.error || 'Backend save failed');
 				}
 			} catch (apiError) {
 				console.warn(`[FileStorage] Backend unavailable, using localStorage:`, apiError);
-				
+
 				// Use localStorage as fallback storage
 				const key = FileStorageUtil.getStorageKey(options);
 				const serialized = JSON.stringify(data);
@@ -119,7 +119,7 @@ export class FileStorageUtil {
 					// Also update localStorage as backup
 					const key = FileStorageUtil.getStorageKey(options);
 					localStorage.setItem(key, JSON.stringify(result.data));
-					
+
 					return {
 						success: true,
 						data: result.data,
@@ -129,7 +129,7 @@ export class FileStorageUtil {
 				}
 			} catch (apiError) {
 				console.warn(`[FileStorage] Backend unavailable, using localStorage:`, apiError);
-				
+
 				// Use localStorage as fallback storage
 				const key = FileStorageUtil.getStorageKey(options);
 				const stored = localStorage.getItem(key);

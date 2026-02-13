@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { useSearchParams, useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
   padding: 2rem;
@@ -72,6 +72,25 @@ const Button = styled.button`
   }
 `;
 
+const BackButton = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #6c757d;
+  color: #ffffff !important;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #545b62;
+    color: #ffffff !important;
+  }
+`;
+
 const ResultArea = styled.div`
   background: #f8f9fa;
   border: 1px solid #dee2e6;
@@ -90,19 +109,25 @@ const StatusMessage = styled.div<{ type: 'success' | 'error' | 'info' }>`
   border-radius: 4px;
   margin-bottom: 1rem;
   
-  ${props => props.type === 'success' && `
+  ${(props) =>
+		props.type === 'success' &&
+		`
     background: #d4edda;
     color: #155724;
     border: 1px solid #c3e6cb;
   `}
   
-  ${props => props.type === 'error' && `
+  ${(props) =>
+		props.type === 'error' &&
+		`
     background: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
   `}
   
-  ${props => props.type === 'info' && `
+  ${(props) =>
+		props.type === 'info' &&
+		`
     background: #d1ecf1;
     color: #0c5460;
     border: 1px solid #bee5eb;
@@ -121,120 +146,120 @@ const CodeBlock = styled.pre`
 `;
 
 const OIDCExamples: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [tokens, setTokens] = useState<{
-    access_token: string;
-    id_token: string;
-    refresh_token: string;
-    expires_in: number;
-    token_type: string;
-    scope: string;
-  } | null>(null);
+	const [searchParams] = useSearchParams();
+	const navigate = useNavigate();
+	const [status, setStatus] = useState<{
+		type: 'success' | 'error' | 'info';
+		message: string;
+	} | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
+	const [tokens, setTokens] = useState<{
+		access_token: string;
+		id_token: string;
+		refresh_token: string;
+		expires_in: number;
+		token_type: string;
+		scope: string;
+	} | null>(null);
 
-  const showStatus = (type: 'success' | 'error' | 'info', message: string) => {
-    setStatus({ type, message });
-    setTimeout(() => setStatus(null), 5000);
-  };
+	const showStatus = (type: 'success' | 'error' | 'info', message: string) => {
+		setStatus({ type, message });
+		setTimeout(() => setStatus(null), 5000);
+	};
 
-  const handleOAuthCallback = async (_code: string, _state: string) => {
-    setIsLoading(true);
-    try {
-      // In a real implementation, this would exchange the code for tokens
-      // For demo purposes, we'll simulate the token exchange
-      const mockTokens = {
-        access_token: `mock-access-token-${Date.now()}`,
-        id_token: `mock-id-token-${Date.now()}`,
-        refresh_token: `mock-refresh-token-${Date.now()}`,
-        expires_in: 3600,
-        token_type: 'Bearer',
-        scope: 'openid profile email'
-      };
+	const handleOAuthCallback = async (_code: string, _state: string) => {
+		setIsLoading(true);
+		try {
+			// In a real implementation, this would exchange the code for tokens
+			// For demo purposes, we'll simulate the token exchange
+			const mockTokens = {
+				access_token: `mock-access-token-${Date.now()}`,
+				id_token: `mock-id-token-${Date.now()}`,
+				refresh_token: `mock-refresh-token-${Date.now()}`,
+				expires_in: 3600,
+				token_type: 'Bearer',
+				scope: 'openid profile email',
+			};
 
-      setTokens(mockTokens);
-      showStatus('success', 'OAuth callback processed successfully!');
-    } catch (error) {
-      showStatus('error', `Failed to process OAuth callback: ${error}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+			setTokens(mockTokens);
+			showStatus('success', 'OAuth callback processed successfully!');
+		} catch (error) {
+			showStatus('error', `Failed to process OAuth callback: ${error}`);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-  // Check for OAuth callback parameters
-  useEffect(() => {
-    const code = searchParams.get('code');
-    const state = searchParams.get('state');
-    const error = searchParams.get('error');
+	// Check for OAuth callback parameters
+	useEffect(() => {
+		const code = searchParams.get('code');
+		const state = searchParams.get('state');
+		const error = searchParams.get('error');
 
-    if (error) {
-      showStatus('error', `OAuth Error: ${error}`);
-    } else if (code && state) {
-      handleOAuthCallback(code, state);
-    }
-  }, [searchParams]);
+		if (error) {
+			showStatus('error', `OAuth Error: ${error}`);
+		} else if (code && state) {
+			handleOAuthCallback(code, state);
+		}
+	}, [searchParams, handleOAuthCallback, showStatus]);
 
-  const initiateCentralizedLogin = () => {
-    showStatus('info', 'Initiating centralized login - redirecting to PingOne server UI...');
-    
-    // In a real implementation, this would use TokenManager.getTokens({ login: 'redirect' })
-    // For demo purposes, we'll simulate the redirect
-    setTimeout(() => {
-      // Simulate redirect with mock parameters
-      navigate('/sdk-examples/oidc-centralized-login?code=mock-auth-code&state=mock-state');
-    }, 2000);
-  };
+	const initiateCentralizedLogin = () => {
+		showStatus('info', 'Initiating centralized login - redirecting to PingOne server UI...');
 
-  const initiateBackgroundRenewal = () => {
-    showStatus('info', 'Attempting background token renewal...');
-    
-    // In a real implementation, this would use TokenManager.getTokens with skipBackgroundRequest: false
-    setTimeout(() => {
-      const renewedTokens = {
-        ...tokens,
-        access_token: 'renewed-access-token-' + Date.now(),
-        expires_in: 3600
-      };
-      
-      setTokens(renewedTokens);
-      showStatus('success', 'Background token renewal successful!');
-    }, 1500);
-  };
+		// In a real implementation, this would use TokenManager.getTokens({ login: 'redirect' })
+		// For demo purposes, we'll simulate the redirect
+		setTimeout(() => {
+			// Simulate redirect with mock parameters
+			navigate('/sdk-examples/oidc-centralized-login?code=mock-auth-code&state=mock-state');
+		}, 2000);
+	};
 
-  const clearTokens = () => {
-    setTokens(null);
-    showStatus('info', 'Tokens cleared');
-  };
+	const initiateBackgroundRenewal = () => {
+		showStatus('info', 'Attempting background token renewal...');
 
-  return (
-    <Container>
-      <Header>OIDC Centralized Login Examples</Header>
-      <Description>
-        Explore OpenID Connect centralized login implementation using the PingOne OIDC SDK. 
-        This demonstrates server-side UI authentication, token management, and background renewal 
-        patterns for secure user authentication.
-      </Description>
+		// In a real implementation, this would use TokenManager.getTokens with skipBackgroundRequest: false
+		setTimeout(() => {
+			const renewedTokens = {
+				...tokens,
+				access_token: `renewed-access-token-${Date.now()}`,
+				expires_in: 3600,
+			};
 
-      {status && (
-        <StatusMessage type={status.type}>
-          {status.message}
-        </StatusMessage>
-      )}
+			setTokens(renewedTokens);
+			showStatus('success', 'Background token renewal successful!');
+		}, 1500);
+	};
 
-      <ExamplesGrid>
-        <ExampleCard>
-          <ExampleTitle>Centralized Login Initiation</ExampleTitle>
-          <ExampleDescription>
-            Initiate OIDC centralized login by redirecting users to the PingOne server UI. 
-            The server handles authentication and redirects back with authorization code.
-          </ExampleDescription>
-          
-          <Button onClick={initiateCentralizedLogin} disabled={isLoading}>
-            {isLoading ? 'Redirecting...' : 'Start Centralized Login'}
-          </Button>
-          
-          <CodeBlock>{`// Implementation using TokenManager
+	const clearTokens = () => {
+		setTokens(null);
+		showStatus('info', 'Tokens cleared');
+	};
+
+	return (
+		<Container>
+			<BackButton to="/sdk-examples">← Back to SDK Examples</BackButton>
+			<Header>OIDC Centralized Login Examples</Header>
+			<Description>
+				Explore OpenID Connect centralized login implementation using the PingOne OIDC SDK. This
+				demonstrates server-side UI authentication, token management, and background renewal
+				patterns for secure user authentication.
+			</Description>
+
+			{status && <StatusMessage type={status.type}>{status.message}</StatusMessage>}
+
+			<ExamplesGrid>
+				<ExampleCard>
+					<ExampleTitle>Centralized Login Initiation</ExampleTitle>
+					<ExampleDescription>
+						Initiate OIDC centralized login by redirecting users to the PingOne server UI. The
+						server handles authentication and redirects back with authorization code.
+					</ExampleDescription>
+
+					<Button onClick={initiateCentralizedLogin} disabled={isLoading}>
+						{isLoading ? 'Redirecting...' : 'Start Centralized Login'}
+					</Button>
+
+					<CodeBlock>{`// Implementation using TokenManager
 import { TokenManager } from '@pingidentity-developers-experience/ping-oidc-client-sdk';
 
 const tokens = await TokenManager.getTokens({
@@ -242,26 +267,28 @@ const tokens = await TokenManager.getTokens({
   forceRenew: false,        // Use existing tokens if available
   skipBackgroundRequest: false // Allow background renewal
 });`}</CodeBlock>
-        </ExampleCard>
+				</ExampleCard>
 
-        <ExampleCard>
-          <ExampleTitle>OAuth Callback Handling</ExampleTitle>
-          <ExampleDescription>
-            Handle OAuth 2.0 callback with authorization code and state parameters. 
-            Exchange the code for access tokens and store them securely.
-          </ExampleDescription>
-          
-          {tokens ? (
-            <div>
-              <p><strong>Tokens Received:</strong></p>
-              <ResultArea>{JSON.stringify(tokens, null, 2)}</ResultArea>
-              <Button onClick={clearTokens}>Clear Tokens</Button>
-            </div>
-          ) : (
-            <p>No tokens available. Initiate login first.</p>
-          )}
-          
-          <CodeBlock>{`// Handle OAuth callback
+				<ExampleCard>
+					<ExampleTitle>OAuth Callback Handling</ExampleTitle>
+					<ExampleDescription>
+						Handle OAuth 2.0 callback with authorization code and state parameters. Exchange the
+						code for access tokens and store them securely.
+					</ExampleDescription>
+
+					{tokens ? (
+						<div>
+							<p>
+								<strong>Tokens Received:</strong>
+							</p>
+							<ResultArea>{JSON.stringify(tokens, null, 2)}</ResultArea>
+							<Button onClick={clearTokens}>Clear Tokens</Button>
+						</div>
+					) : (
+						<p>No tokens available. Initiate login first.</p>
+					)}
+
+					<CodeBlock>{`// Handle OAuth callback
 const urlParams = new URLSearchParams(window.location.search);
 const code = urlParams.get('code');
 const state = urlParams.get('state');
@@ -273,20 +300,20 @@ if (code && state) {
   // Store tokens securely
   localStorage.setItem('access_token', tokens.access_token);
 }`}</CodeBlock>
-        </ExampleCard>
+				</ExampleCard>
 
-        <ExampleCard>
-          <ExampleTitle>Background Token Renewal</ExampleTitle>
-          <ExampleDescription>
-            Implement silent token renewal in iframe to maintain user sessions 
-            without requiring re-authentication. Prevents session timeouts.
-          </ExampleDescription>
-          
-          <Button onClick={initiateBackgroundRenewal} disabled={!tokens}>
-            Renew Tokens in Background
-          </Button>
-          
-          <CodeBlock>{`// Background token renewal
+				<ExampleCard>
+					<ExampleTitle>Background Token Renewal</ExampleTitle>
+					<ExampleDescription>
+						Implement silent token renewal in iframe to maintain user sessions without requiring
+						re-authentication. Prevents session timeouts.
+					</ExampleDescription>
+
+					<Button onClick={initiateBackgroundRenewal} disabled={!tokens}>
+						Renew Tokens in Background
+					</Button>
+
+					<CodeBlock>{`// Background token renewal
 const renewTokensSilently = async () => {
   try {
     const tokens = await TokenManager.getTokens({
@@ -304,20 +331,20 @@ const renewTokensSilently = async () => {
     return false;
   }
 };`}</CodeBlock>
-        </ExampleCard>
+				</ExampleCard>
 
-        <ExampleCard>
-          <ExampleTitle>Token Management</ExampleTitle>
-          <ExampleDescription>
-            Comprehensive token management including storage, validation, 
-            expiration checking, and secure token handling.
-          </ExampleDescription>
-          
-          <Button onClick={() => tokens && showStatus('info', 'Token validation implemented')}>
-            Check Token Status
-          </Button>
-          
-          <CodeBlock>{`// Token management utilities
+				<ExampleCard>
+					<ExampleTitle>Token Management</ExampleTitle>
+					<ExampleDescription>
+						Comprehensive token management including storage, validation, expiration checking, and
+						secure token handling.
+					</ExampleDescription>
+
+					<Button onClick={() => tokens && showStatus('info', 'Token validation implemented')}>
+						Check Token Status
+					</Button>
+
+					<CodeBlock>{`// Token management utilities
 const isTokenExpired = (token: string) => {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
@@ -342,30 +369,51 @@ const secureStorage = {
   get: (key: string) => localStorage.getItem(key),
   remove: (key: string) => localStorage.removeItem(key)
 };`}</CodeBlock>
-        </ExampleCard>
-      </ExamplesGrid>
+				</ExampleCard>
+			</ExamplesGrid>
 
-      <div style={{ background: '#f8f9fa', padding: '2rem', borderRadius: '8px', marginTop: '3rem' }}>
-        <h2>Centralized Login Benefits</h2>
-        <ul style={{ color: '#666', lineHeight: '1.6' }}>
-          <li><strong>Consistent UI</strong>: All apps use the same server-side login interface</li>
-          <li><strong>Security</strong>: User credentials never handled by client applications</li>
-          <li><strong>Maintenance</strong>: Authentication journeys updated server-side, no client changes needed</li>
-          <li><strong>Compliance</strong>: Centralized audit logs and security monitoring</li>
-          <li><strong>SSO Support</strong>: Browser-based single sign-on across applications</li>
-        </ul>
-        
-        <h3>Implementation Requirements</h3>
-        <ul style={{ color: '#666', lineHeight: '1.6' }}>
-          <li>PingOne application with OIDC configuration</li>
-          <li>Redirect URI: <code>/sdk-examples/oidc-centralized-login</code></li>
-          <li>Response Type: <code>code</code></li>
-          <li>Grant Type: <code>authorization_code</code></li>
-          <li>Token Auth Method: <code>None</code> (for centralized login)</li>
-        </ul>
-      </div>
-    </Container>
-  );
+			<div
+				style={{ background: '#f8f9fa', padding: '2rem', borderRadius: '8px', marginTop: '3rem' }}
+			>
+				<h2>Centralized Login Benefits</h2>
+				<ul style={{ color: '#666', lineHeight: '1.6' }}>
+					<li>
+						<strong>Consistent UI</strong>: All apps use the same server-side login interface
+					</li>
+					<li>
+						<strong>Security</strong>: User credentials never handled by client applications
+					</li>
+					<li>
+						<strong>Maintenance</strong>: Authentication journeys updated server-side, no client
+						changes needed
+					</li>
+					<li>
+						<strong>Compliance</strong>: Centralized audit logs and security monitoring
+					</li>
+					<li>
+						<strong>SSO Support</strong>: Browser-based single sign-on across applications
+					</li>
+				</ul>
+
+				<h3>Implementation Requirements</h3>
+				<ul style={{ color: '#666', lineHeight: '1.6' }}>
+					<li>PingOne application with OIDC configuration</li>
+					<li>
+						Redirect URI: <code>/sdk-examples/oidc-centralized-login</code>
+					</li>
+					<li>
+						Response Type: <code>code</code>
+					</li>
+					<li>
+						Grant Type: <code>authorization_code</code>
+					</li>
+					<li>
+						Token Auth Method: <code>None</code> (for centralized login)
+					</li>
+				</ul>
+			</div>
+		</Container>
+	);
 };
 
 export default OIDCExamples;

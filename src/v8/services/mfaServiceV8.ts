@@ -3198,17 +3198,23 @@ export class MFAServiceV8 {
 
 				// Handle 401 Unauthorized errors (likely expired worker token)
 				if (response.status === 401) {
-					throw new Error('Worker token has expired. Please generate a new worker token using the "Manage Token" button and try again.');
+					throw new Error(
+						'Worker token has expired. Please generate a new worker token using the "Manage Token" button and try again.'
+					);
 				}
 
 				// Handle 403 Forbidden errors
 				if (response.status === 403) {
-					throw new Error('Access denied. Please check your worker token permissions and try again.');
+					throw new Error(
+						'Access denied. Please check your worker token permissions and try again.'
+					);
 				}
 
 				// Handle 404 Not Found errors (device not found)
 				if (response.status === 404) {
-					throw new Error('Device not found or not in activation state. Please check your device and try again.');
+					throw new Error(
+						'Device not found or not in activation state. Please check your device and try again.'
+					);
 				}
 
 				throw new Error(`Failed to resend pairing code: ${errorMessage}`);

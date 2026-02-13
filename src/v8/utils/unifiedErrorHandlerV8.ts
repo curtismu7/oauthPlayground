@@ -39,17 +39,8 @@ export const unifiedErrorHandlerV8 = {
 	/**
 	 * Handle an error with standardized logging and user feedback
 	 */
-	handle(
-		error: unknown,
-		context: ErrorContext,
-		options: ErrorHandlingOptions = {}
-	): string {
-		const {
-			showToast = true,
-			logError = true,
-			customMessage,
-			rethrow = false,
-		} = options;
+	handle(error: unknown, context: ErrorContext, options: ErrorHandlingOptions = {}): string {
+		const { showToast = true, logError = true, customMessage, rethrow = false } = options;
 
 		// Extract error message
 		const errorMessage = extractErrorMessage(error);
@@ -64,12 +55,14 @@ export const unifiedErrorHandlerV8 = {
 		// Show user feedback
 		if (showToast) {
 			// Import toast dynamically to avoid circular dependencies
-			import('@/v8/utils/toastNotificationsV8').then(({ toastV8 }) => {
-				toastV8.error(`${context.component}: ${finalMessage}`);
-			}).catch(() => {
-				// Fallback if toast import fails
-				console.error(`${MODULE_TAG} Failed to show toast for: ${contextMessage}`);
-			});
+			import('@/v8/utils/toastNotificationsV8')
+				.then(({ toastV8 }) => {
+					toastV8.error(`${context.component}: ${finalMessage}`);
+				})
+				.catch(() => {
+					// Fallback if toast import fails
+					console.error(`${MODULE_TAG} Failed to show toast for: ${contextMessage}`);
+				});
 		}
 
 		// Track error for analytics (if available)
@@ -86,7 +79,11 @@ export const unifiedErrorHandlerV8 = {
 	/**
 	 * Create a context object for error handling
 	 */
-	createContext(component: string, operation: string, additionalInfo?: Record<string, unknown>): ErrorContext {
+	createContext(
+		component: string,
+		operation: string,
+		additionalInfo?: Record<string, unknown>
+	): ErrorContext {
 		return {
 			component,
 			operation,
@@ -113,13 +110,9 @@ export const unifiedErrorHandlerV8 = {
 	/**
 	 * Handle validation errors specifically
 	 */
-	handleValidationError(
-		error: unknown,
-		context: ErrorContext,
-		validationErrors: string[]
-	): void {
+	handleValidationError(error: unknown, context: ErrorContext, validationErrors: string[]): void {
 		const errorMessage = extractErrorMessage(error);
-		
+
 		// Log validation error
 		console.error(`${MODULE_TAG} Validation error in ${context.component}:`, {
 			error,
@@ -128,11 +121,13 @@ export const unifiedErrorHandlerV8 = {
 		});
 
 		// Show validation feedback
-		import('@/v8/utils/toastNotificationsV8').then(({ toastV8 }) => {
-			toastV8.error(`Validation failed: ${errorMessage}`);
-		}).catch(() => {
-			console.error(`${MODULE_TAG} Failed to show validation toast`);
-		});
+		import('@/v8/utils/toastNotificationsV8')
+			.then(({ toastV8 }) => {
+				toastV8.error(`Validation failed: ${errorMessage}`);
+			})
+			.catch(() => {
+				console.error(`${MODULE_TAG} Failed to show validation toast`);
+			});
 	},
 
 	/**
@@ -144,13 +139,14 @@ export const unifiedErrorHandlerV8 = {
 		options: ErrorHandlingOptions = {}
 	): void {
 		const errorMessage = extractErrorMessage(error);
-		
+
 		// Check if it's a network error
-		const isNetworkError = errorMessage.includes('fetch') || 
-			errorMessage.includes('network') || 
+		const isNetworkError =
+			errorMessage.includes('fetch') ||
+			errorMessage.includes('network') ||
 			errorMessage.includes('connection');
 
-		const networkMessage = isNetworkError 
+		const networkMessage = isNetworkError
 			? 'Network connection failed. Please check your internet connection and try again.'
 			: errorMessage;
 

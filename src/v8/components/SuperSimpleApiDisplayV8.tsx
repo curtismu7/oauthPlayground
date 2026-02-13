@@ -24,24 +24,24 @@ const MODULE_TAG = '[⚡ SUPER-SIMPLE-API-V8]';
 
 // Debug gate + lightweight dedupe for console noise
 const getApiDisplayDebug = (): boolean => {
-  try {
-    return localStorage.getItem('debug.apiDisplay') === 'true';
-  } catch {
-    return false;
-  }
+	try {
+		return localStorage.getItem('debug.apiDisplay') === 'true';
+	} catch {
+		return false;
+	}
 };
 
 let __lastDebugKey: string | null = null;
 let __lastDebugTs = 0;
 const debugLog = (label: string, data?: Record<string, unknown>) => {
-  if (!getApiDisplayDebug()) return;
-  const key = `${label}|${data?.url ?? ''}|${data?.actualPingOneUrl ?? ''}`;
-  const now = Date.now();
-  // Skip duplicates within 2000ms
-  if (key === __lastDebugKey && now - __lastDebugTs < 2000) return;
-  __lastDebugKey = key;
-  __lastDebugTs = now;
-  console.log(label, data);
+	if (!getApiDisplayDebug()) return;
+	const key = `${label}|${data?.url ?? ''}|${data?.actualPingOneUrl ?? ''}`;
+	const now = Date.now();
+	// Skip duplicates within 2000ms
+	if (key === __lastDebugKey && now - __lastDebugTs < 2000) return;
+	__lastDebugKey = key;
+	__lastDebugTs = now;
+	console.log(label, data);
 };
 
 interface ApiCall {
@@ -1103,7 +1103,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 							step,
 							isPingOne: url.includes('auth.pingone') || actualPingOneUrl.includes('auth.pingone'),
 						});
-						
+
 						// Unified flow: exclude MFA calls, include redirectless, token, authorize, etc.
 						// Explicitly exclude MFA-specific endpoints
 						if (url.includes('/api/pingone/mfa/')) {
@@ -1128,14 +1128,14 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 							url.includes('/as/device') || // Direct device authorization endpoint
 							url.includes('/as/par') || // Direct PAR endpoint
 							step?.startsWith('unified-');
-						
+
 						console.log('🔍 UNIFIED FILTER: Result', {
 							isUnifiedFlow,
 							matchesAuthorize: url.includes('/as/authorize'),
 							matchesToken: url.includes('/as/token'),
 							matchesStep: step?.startsWith('unified-'),
 						});
-						
+
 						return isUnifiedFlow;
 					} else if (flowFilter === 'mfa') {
 						// MFA flow: only MFA calls (device management, challenges, etc.)

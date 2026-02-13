@@ -13,26 +13,26 @@
  * - Shows device count before deletion
  */
 
-import React, { useCallback, useEffect, useState, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiAlertCircle, FiKey, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
+import { useProductionSpinner } from '@/hooks/useProductionSpinner';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdownV8';
-import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { SearchableDropdownV8 } from '@/v8/components/SearchableDropdownV8';
-import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
 import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
-import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
+import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
+import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
+import { useUserSearch } from '@/v8/hooks/useUserSearch';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
-import { useUserSearch } from '@/v8/hooks/useUserSearch';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { useProductionSpinner } from '@/hooks/useProductionSpinner';
 
 const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
 
@@ -167,7 +167,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		return 'ALL';
 	});
 	const [policy, setPolicy] = useState<DeviceAuthenticationPolicy | null>(null);
-	
+
 	// Use CommonSpinnerService for loading states (Production menu group standard)
 	const loadingSpinner = useProductionSpinner('delete-all-devices-loading', {
 		message: 'Loading devices...',
@@ -216,7 +216,6 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		minutesRemaining: 0,
 	});
 
-	
 	// User search functionality for username dropdown
 	const {
 		users,
@@ -369,7 +368,15 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		} finally {
 			loadingSpinner.hideSpinner();
 		}
-	}, [environmentId, username, tokenStatus.isValid, selectedDeviceType, selectedDeviceStatus]); // Use tokenStatus.isValid instead of entire object
+	}, [
+		environmentId,
+		username,
+		tokenStatus.isValid,
+		selectedDeviceType,
+		selectedDeviceStatus,
+		loadingSpinner.hideSpinner,
+		loadingSpinner.showSpinner,
+	]); // Use tokenStatus.isValid instead of entire object
 
 	// Persist form state when it changes
 	useEffect(() => {
@@ -401,22 +408,22 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		if (hasLoadedDevices && hasRequiredFields) {
 			handleLoadDevices();
 		}
-	}, [environmentId, username, tokenStatus.isValid, selectedDeviceType, selectedDeviceStatus]); // Use ref instead of devices.length to prevent infinite loop
+	}, [environmentId, username, tokenStatus.isValid, handleLoadDevices]); // Use ref instead of devices.length to prevent infinite loop
 
 	// Fetch policy information when devices are loaded
 	useEffect(() => {
 		const fetchPolicyInfo = async () => {
 			if (!environmentId || !username || !tokenStatus.isValid || devices.length === 0) return;
-			
+
 			// Policy loading - no spinner needed for this quick operation
 			try {
 				// For now, we'll try to get a default policy. In a real implementation,
 				// you might need to determine which policy applies to this user
 				const config = MFAConfigurationServiceV8.loadConfiguration();
-				
+
 				if (config.defaultMfaPolicyId) {
 					const policyData = await MFAServiceV8.readDeviceAuthenticationPolicy(
-						environmentId, 
+						environmentId,
 						config.defaultMfaPolicyId
 					);
 					setPolicy(policyData);
@@ -430,7 +437,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				// Policy loading complete
 			}
 		};
-		
+
 		fetchPolicyInfo();
 	}, [environmentId, username, tokenStatus.isValid, devices.length]);
 
@@ -552,7 +559,16 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		} finally {
 			deletingSpinner.hideSpinner();
 		}
-	}, [devices, selectedDeviceIds, environmentId, username, tokenStatus.isValid, handleLoadDevices]);
+	}, [
+		devices,
+		selectedDeviceIds,
+		environmentId,
+		username,
+		tokenStatus.isValid,
+		handleLoadDevices,
+		deletingSpinner.hideSpinner,
+		deletingSpinner.showSpinner,
+	]);
 
 	return (
 		<div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto' }}>
@@ -577,58 +593,91 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						marginBottom: '24px',
 					}}
 				>
-					<h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+					<h3
+						style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}
+					>
 						📊 Device Usage Information
 					</h3>
-					
+
 					{/* Device Count and Limits */}
-					<div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '12px' }}>
+					<div
+						style={{
+							display: 'flex',
+							gap: '24px',
+							alignItems: 'center',
+							flexWrap: 'wrap',
+							marginBottom: '12px',
+						}}
+					>
 						<div>
 							<span style={{ color: '#6b7280', fontSize: '14px' }}>Current Devices:</span>
-							<span style={{ marginLeft: '8px', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+							<span
+								style={{ marginLeft: '8px', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}
+							>
 								{devices.length}
 							</span>
 						</div>
-						
+
 						{/* PingOne Standard Limits */}
 						<div>
 							<span style={{ color: '#6b7280', fontSize: '14px' }}>Max Allowed:</span>
-							<span style={{ marginLeft: '8px', fontSize: '14px', fontWeight: '500', color: '#059669' }}>
+							<span
+								style={{ marginLeft: '8px', fontSize: '14px', fontWeight: '500', color: '#059669' }}
+							>
 								50 devices
 							</span>
 						</div>
-						
+
 						{policy && (
 							<div>
 								<span style={{ color: '#6b7280', fontSize: '14px' }}>Policy:</span>
-								<span style={{ marginLeft: '8px', fontSize: '14px', fontWeight: '500', color: '#059669' }}>
+								<span
+									style={{
+										marginLeft: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+										color: '#059669',
+									}}
+								>
 									{policy.name}
 								</span>
 							</div>
 						)}
 					</div>
-					
+
 					{/* Device Usage Progress Bar */}
 					<div style={{ marginBottom: '12px' }}>
-						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+								marginBottom: '4px',
+							}}
+						>
 							<span style={{ fontSize: '12px', color: '#6b7280' }}>Device Usage</span>
 							<span style={{ fontSize: '12px', color: '#6b7280' }}>
 								{Math.round((devices.length / 50) * 100)}% (50 device limit)
 							</span>
 						</div>
-						<div style={{
-							width: '100%',
-							height: '8px',
-							background: '#e5e7eb',
-							borderRadius: '4px',
-							overflow: 'hidden'
-						}}>
-							<div style={{
-								width: `${Math.min((devices.length / 50) * 100, 100)}%`,
-								height: '100%',
-								background: devices.length > 40 ? '#ef4444' : devices.length > 25 ? '#f59e0b' : '#10b981',
-								transition: 'width 0.3s ease, background 0.3s ease'
-							}} />
+						<div
+							style={{
+								width: '100%',
+								height: '8px',
+								background: '#e5e7eb',
+								borderRadius: '4px',
+								overflow: 'hidden',
+							}}
+						>
+							<div
+								style={{
+									width: `${Math.min((devices.length / 50) * 100, 100)}%`,
+									height: '100%',
+									background:
+										devices.length > 40 ? '#ef4444' : devices.length > 25 ? '#f59e0b' : '#10b981',
+									transition: 'width 0.3s ease, background 0.3s ease',
+								}}
+							/>
 						</div>
 						<div style={{ marginTop: '4px', fontSize: '11px', color: '#6b7280' }}>
 							{devices.length > 40 ? (
@@ -640,29 +689,37 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							)}
 						</div>
 					</div>
-					
+
 					{/* Policy Information */}
 					{policy && (
 						<div style={{ marginTop: '12px', fontSize: '12px', color: '#6b7280' }}>
 							{policy.pairingDisabled ? (
-								<span style={{ color: '#dc2626' }}>⚠️ Device pairing is disabled in this policy</span>
+								<span style={{ color: '#dc2626' }}>
+									⚠️ Device pairing is disabled in this policy
+								</span>
 							) : (
 								<span style={{ color: '#059669' }}>✅ Device pairing is enabled</span>
 							)}
 							{policy.promptForNicknameOnPairing && (
-								<span style={{ marginLeft: '16px' }}>• Users will be prompted for device nicknames</span>
+								<span style={{ marginLeft: '16px' }}>
+									• Users will be prompted for device nicknames
+								</span>
 							)}
 							<span style={{ marginLeft: '16px' }}>• Max 20 valid pairing keys per user</span>
-							<span style={{ marginLeft: '16px' }}>• Devices in ACTIVATION_REQUIRED expire after 24 hours</span>
+							<span style={{ marginLeft: '16px' }}>
+								• Devices in ACTIVATION_REQUIRED expire after 24 hours
+							</span>
 						</div>
 					)}
-					
+
 					{!policy && (
 						<div style={{ marginTop: '8px', fontSize: '12px', color: '#6b7280' }}>
 							<span style={{ color: '#059669' }}>✅ Using PingOne standard device limits</span>
 							<span style={{ marginLeft: '16px' }}>• Max 50 devices per user</span>
 							<span style={{ marginLeft: '16px' }}>• Max 20 valid pairing keys</span>
-							<span style={{ marginLeft: '16px' }}>• ACTIVATION_REQUIRED devices expire after 24 hours</span>
+							<span style={{ marginLeft: '16px' }}>
+								• ACTIVATION_REQUIRED devices expire after 24 hours
+							</span>
 						</div>
 					)}
 				</div>
@@ -890,8 +947,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 								// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 								if (newValue) {
 									try {
-										const currentStatus =
-											await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 										if (!currentStatus.isValid) {
 											console.log(
 												'[DELETE-DEVICES-V8] Silent API retrieval enabled, attempting to fetch token now...'
@@ -919,7 +975,10 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						<ShowTokenConfigCheckboxV8
 							onChange={async (newValue) => {
 								// Additional logic can be added here if needed
-								console.log('[DELETE-DEVICES-V8] Show Token After Generation changed to:', newValue);
+								console.log(
+									'[DELETE-DEVICES-V8] Show Token After Generation changed to:',
+									newValue
+								);
 							}}
 						/>
 					</div>
@@ -929,21 +988,30 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						type="button"
 						onClick={handleLoadDevices}
 						disabled={
-							loadingSpinner.isLoading || !environmentId.trim() || !username.trim() || !tokenStatus.isValid
+							loadingSpinner.isLoading ||
+							!environmentId.trim() ||
+							!username.trim() ||
+							!tokenStatus.isValid
 						}
 						style={{
 							padding: '12px 24px',
 							border: 'none',
 							borderRadius: '6px',
 							background:
-								loadingSpinner.isLoading || !environmentId.trim() || !username.trim() || !tokenStatus.isValid
+								loadingSpinner.isLoading ||
+								!environmentId.trim() ||
+								!username.trim() ||
+								!tokenStatus.isValid
 									? '#9ca3af'
 									: '#3b82f6',
 							color: 'white',
 							fontSize: '16px',
 							fontWeight: '600',
 							cursor:
-								loadingSpinner.isLoading || !environmentId.trim() || !username.trim() || !tokenStatus.isValid
+								loadingSpinner.isLoading ||
+								!environmentId.trim() ||
+								!username.trim() ||
+								!tokenStatus.isValid
 									? 'not-allowed'
 									: 'pointer',
 							display: 'flex',

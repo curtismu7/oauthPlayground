@@ -482,7 +482,9 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 					<PortalStats
 						userContext={portalState.userContext!}
 						riskEvaluation={portalState.riskEvaluation!}
-						onSuccess={() => setPortalState((prev) => ({ ...prev, currentStep: 'risk-low-success' }))}
+						onSuccess={() =>
+							setPortalState((prev) => ({ ...prev, currentStep: 'risk-low-success' }))
+						}
 						onError={handleError}
 						educationalContent={portalState.educationalContent.riskEvaluation}
 					/>
@@ -524,7 +526,9 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 					<ProtectPage
 						userContext={portalState.userContext!}
 						riskEvaluation={portalState.riskEvaluation!}
-						onSuccess={() => setPortalState((prev) => ({ ...prev, currentStep: 'risk-medium-success' }))}
+						onSuccess={() =>
+							setPortalState((prev) => ({ ...prev, currentStep: 'risk-medium-success' }))
+						}
 						onError={handleError}
 						educationalContent={portalState.educationalContent.riskEvaluation}
 					/>
@@ -548,7 +552,9 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 					<ProtectPage
 						userContext={portalState.userContext!}
 						riskEvaluation={portalState.riskEvaluation!}
-						onSuccess={() => setPortalState((prev) => ({ ...prev, currentStep: 'risk-high-block' }))}
+						onSuccess={() =>
+							setPortalState((prev) => ({ ...prev, currentStep: 'risk-high-block' }))
+						}
 						onError={handleError}
 						educationalContent={portalState.educationalContent.riskEvaluation}
 					/>

@@ -180,21 +180,21 @@ export class DeviceCodeIntegrationServiceV8 {
 	 * @returns Token response
 	 */
 	static async pollForTokens(
-		credentials: DeviceCodeCredentials,
-		deviceCode: string,
+		_credentials: DeviceCodeCredentials,
+		_deviceCode: string,
 		interval?: number, // Optional - from device authorization response
-		maxAttempts?: number // Optional - will be calculated from expires_in if not provided
+		_maxAttempts?: number // Optional - will be calculated from expires_in if not provided
 	): Promise<TokenResponse> {
 		try {
 			// Calculate polling interval (minimum 5 seconds per RFC 8628)
-			const pollInterval = Math.max(interval || 5, 5);
+			const _pollInterval = Math.max(interval || 5, 5);
 
 			// Determine token endpoint
-			const tokenEndpoint =
+			const _tokenEndpoint =
 				process.env.NODE_ENV === 'production'
 					? 'https://oauth-playground.vercel.app/api/token'
 					: '/api/token';
-				}).catch(() => {});
+				}).catch(() => );
 			} catch (_e) {}
 			// #endregion
 
@@ -211,14 +211,14 @@ export class DeviceCodeIntegrationServiceV8 {
 					method: 'POST',
 					headers: 'Content-Type': 'application/json' ,
 					body: JSON.stringify(
-						location: 'deviceCodeIntegrationServiceV8.ts:172-AFTER-PINGONEFETCH',
-						message: 'pingOneFetch completed',
-						data: 
-							status: response.status,
-							statusText: response.statusText,
-							ok: response.ok,
-							hasBody: !!response.body,
-							timestamp: Date.now(),,
+						_location: 'deviceCodeIntegrationServiceV8.ts:172-AFTER-PINGONEFETCH',
+						_message: 'pingOneFetch completed',
+						_data: 
+							status: response._status,
+							_statusText: response.statusText,
+							_ok: response.ok,
+							_hasBody: !!_response._body,
+							_timestamp: Date.now(),,
 						timestamp: Date.now(),
 						sessionId: 'debug-session',
 						runId: 'request-hang',
