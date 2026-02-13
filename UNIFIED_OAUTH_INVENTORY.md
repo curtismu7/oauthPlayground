@@ -1,7 +1,7 @@
 # Unified OAuth Inventory
 
-**Last Updated**: February 12, 2026  
-**Total Issues**: 6  
+**Last Updated**: February 13, 2026  
+**Total Issues**: 7  
 **Purpose**: Track OAuth-specific issues, prevent regressions, and maintain SWE-15 compliance
 
 ---
@@ -15,6 +15,7 @@
 - **Issue OAUTH-004** — Token Monitoring User Token Tracking
 - **Issue OAUTH-005** — OAuth App Login Hint UX Consistency
 - **Issue OAUTH-006** — OAuth Flow Body JSON Reader
+- **Issue OAUTH-007** — Unified OAuth Backup Save 500 (Read-only SQLite)
 - **Enhanced Prevention Commands** — Copy/paste checks for OAuth regressions
 - **Automated Inventory Gate** — CI integration and verification
 
@@ -32,6 +33,7 @@
 | **OAUTH-004** | 🔴 ACTIVE | High | Token Monitoring | Token Monitoring Pages Not Tracking User Tokens | Both token monitoring page (/v8u/token-monitoring) and enhanced state management page (/v8u/enhanced-state-management) are not tracking user tokens (access, refresh, ID tokens) from unified OAuth flows | Add TokenMonitoringService.addOAuthTokens() calls after successful token exchange in unified flow integration |
 | **OAUTH-005** | 🔴 ACTIVE | Medium | UX/Consistency | OAuth App Login Hint Should Be User Dropdown Like Unified MFA | OAuth App login hint field is a plain text input instead of a searchable user dropdown like in Unified MFA flows, causing inconsistent user experience and requiring manual username entry | Replace login hint text input with UserSearchDropdownV8 component for consistent UX and improved usability |
 | **OAUTH-006** | 🔴 ACTIVE | Medium | UX/Readability | OAuth Flow Body Should Be JSON Reader Not Scroll Box | Unified OAuth flow callback step (https://localhost:3000/v8u/unified/oauth-authz/2) displays authorization code in basic scroll box instead of proper JSON reader, making it difficult to read and copy complex callback data | Callback body display using basic div with monospace font instead of structured JSON reader component with syntax highlighting and proper formatting |
+| **OAUTH-007** | 🟢 RESOLVED | High | Backup/Runtime | Unified OAuth backup save returns 500 on `/api/backup/save` | SQLite backup DB can become read-only (`SQLITE_READONLY`), and backup route treated optional backup persistence failures as fatal 500s | Treat read-only writes as non-fatal degraded responses + keep frontend backup flow non-blocking |
 
 ---
 
@@ -585,6 +587,77 @@ grep -rn -A 5 -B 5 "authorizationCode.*display\|callback.*display" src/v8u/compo
 
 echo "🎯 OAUTH CALLBACK DISPLAY CHECKS COMPLETE"
 ```
+
+---
+
+## 🔍 Issue OAUTH-007: Unified OAuth Backup Save 500 (Read-only SQLite)
+
+### 🎯 Problem Summary
+Unified OAuth flow autosave generated repeated errors:
+- `POST /api/backup/save 500 (Internal Server Error)`
+- `Backup save failed: Internal Server Error`
+
+The backup path is optional persistence and should not hard-fail the flow when SQLite is read-only.
+
+### 🔍 Root Cause Analysis
+1. **Primary Cause**: SQLite database writes failed with `SQLITE_READONLY` in backup route.
+2. **Secondary Cause**: `/api/backup/save` returned HTTP 500 for this condition, surfacing noisy frontend errors.
+3. **Impact**: Unified OAuth credentials save path produced repeated error logs despite local/IndexedDB still functioning.
+
+### ✅ Fix Implemented
+1. **Backend degraded-mode handling**
+   - File: `src/server/routes/backupApiRoutes.js`
+   - If `error.code === 'SQLITE_READONLY'`, return non-fatal JSON response:
+     - `{ success: false, nonFatal: true, code: 'SQLITE_READONLY' }`
+   - Avoid HTTP 500 for this optional backup write failure mode.
+
+2. **Frontend non-fatal response handling**
+   - File: `src/v8u/services/unifiedOAuthBackupServiceV8U.ts`
+   - Handle `result.nonFatal` without throwing; log warning and return `false`.
+
+### 📍 ISSUE LOCATION MAP
+This regression can arise in these hotspots:
+
+1. `src/server/routes/backupApiRoutes.js`
+   - Pattern: backup write errors always mapped to `res.status(500)`.
+2. `src/server/services/backupDatabaseService.js`
+   - Pattern: SQLite write path can throw `SQLITE_READONLY` in constrained environments.
+3. `src/v8u/services/unifiedOAuthBackupServiceV8U.ts`
+   - Pattern: non-fatal backend result not handled and escalated as failure.
+
+### 🛡️ Enhanced Prevention Commands
+```bash
+echo "=== OAUTH-007 BACKUP SAVE REGRESSION CHECKS ==="
+
+# 1) Ensure backend handles SQLITE_READONLY as non-fatal (not 500)
+grep -n "SQLITE_READONLY\|nonFatal\|Backup database is read-only" src/server/routes/backupApiRoutes.js \
+  && echo "✅ OAUTH-007 backend degraded-mode handling present" \
+  || { echo "❌ OAUTH-007 backend handling missing"; exit 1; }
+
+# 2) Ensure frontend handles nonFatal response path
+grep -n "result.nonFatal\|OAuth backup skipped \(non-fatal\)" src/v8u/services/unifiedOAuthBackupServiceV8U.ts \
+  && echo "✅ OAUTH-007 frontend non-fatal handling present" \
+  || { echo "❌ OAUTH-007 frontend non-fatal handling missing"; exit 1; }
+
+# 3) Verify route exists and is wired
+grep -n "app.post('/api/backup/save'" src/server/routes/backupApiRoutes.js \
+  && echo "✅ backup save route present" \
+  || { echo "❌ backup save route missing"; exit 1; }
+```
+
+### 🤖 Automated Gate Notes
+- Add OAUTH-007 grep checks to CI static gate and fail non-zero on missing checks.
+- Example CI snippet:
+```bash
+bash -c 'grep -n "SQLITE_READONLY" src/server/routes/backupApiRoutes.js >/dev/null'
+bash -c 'grep -n "result.nonFatal" src/v8u/services/unifiedOAuthBackupServiceV8U.ts >/dev/null'
+```
+
+### 🔎 How to Verify
+1. Open Unified OAuth flow and let autosave trigger.
+2. Confirm no frontend `500` spam from `/api/backup/save` for read-only mode.
+3. Confirm flow still saves in local storage paths and continues normally.
+4. Optional: check server log for degraded warning instead of fatal route error.
 
 ---
 
