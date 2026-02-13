@@ -162,7 +162,7 @@ export const ValidationServiceV8 = {
 			}
 
 			// Check if required field is empty
-			if (rules.required && ValidationServiceV8.isEmpty(value)) {
+			if (rules.required && ValidationServiceV8.empty(value)) {
 				errors.push(
 					ValidationServiceV8.createValidationError(
 						field,
@@ -174,7 +174,7 @@ export const ValidationServiceV8 = {
 			}
 
 			// Skip further validation if field is empty and not required
-			if (ValidationServiceV8.isEmpty(value)) {
+			if (ValidationServiceV8.empty(value)) {
 				return;
 			}
 
