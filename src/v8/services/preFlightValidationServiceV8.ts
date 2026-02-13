@@ -86,14 +86,14 @@ export interface PreFlightValidationResult {
  * Service for performing pre-flight validation checks before generating authorization URLs.
  * This helps catch configuration mismatches early and provides clear error messages.
  */
-export class PreFlightValidationServiceV8 {
+export const PreFlightValidationServiceV8 = {
 	/**
 	 * Validate redirect URI against PingOne configuration
 	 * @param credentials - User credentials
 	 * @param workerToken - Worker token for API access
 	 * @returns Validation result
 	 */
-	static async validateRedirectUri(
+	async validateRedirectUri(
 		credentials: UnifiedFlowCredentials,
 		workerToken?: string
 	): Promise<{
@@ -225,14 +225,14 @@ ${error instanceof Error ? error.message : String(error)}
 You can still proceed, but the authorization request may fail if there's a mismatch.`,
 			};
 		}
-	}
+	},
 
 	/**
 	 * Validate OAuth configuration against PingOne and spec requirements
 	 * @param options - Validation options
 	 * @returns Validation result
 	 */
-	static async validateOAuthConfig(options: PreFlightValidationOptions): Promise<{
+	async validateOAuthConfig(options: PreFlightValidationOptions): Promise<{
 		passed: boolean;
 		errors: string[];
 		warnings: string[];
@@ -438,9 +438,11 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 				// Make this fixable - auto-set correct response type for implicit flow
 				fixableErrors.push({
 					errorIndex: errors.length - 1,
-					error: errorMsg,
-					fix: 'Update response_type to "token id_token" (recommended for OIDC implicit flow)',
-					autoFix: {
+					errorType: 'response_type_invalid' as const,
+					errorMessage: errorMsg,
+					fixable: true,
+					fixDescription: 'Update response_type to "token id_token" (recommended for OIDC implicit flow)',
+					fixData: {
 						responseType: specVersion === 'oidc' ? 'token id_token' : 'token',
 					},
 				});
@@ -620,9 +622,9 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 			passed: errors.length === 0,
 			errors,
 			warnings,
-			fixableErrors: fixableErrors.length > 0 ? fixableErrors : undefined,
+			fixableErrors: fixableErrors.length > 0 ? fixableErrors : undefined as FixableError[] | undefined,
 		};
-	}
+	},
 
 	/**
 	 * Analyze errors and identify which ones can be auto-fixed
@@ -632,7 +634,7 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 	 * @param appConfig - Application configuration from PingOne
 	 * @returns Array of fixable errors with fix information
 	 */
-	static analyzeFixableErrors(
+	analyzeFixableErrors(
 		errors: string[],
 		options: PreFlightValidationOptions,
 		redirectUris?: string[],
@@ -721,7 +723,7 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 					fixable: true,
 					fixDescription: `Update auth method to match PingOne: ${appConfig.tokenEndpointAuthMethod} → ${normalizedMethod}`,
 					fixData: {
-						authMethod: normalizedMethod as any, // Normalized to lowercase with underscores
+						authMethod: normalizedMethod as 'client_secret_basic' | 'client_secret_post' | 'none', // Normalized to lowercase with underscores
 					},
 				});
 			}
@@ -782,14 +784,14 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 		});
 
 		return fixableErrors;
-	}
+	},
 
 	/**
 	 * Perform all pre-flight validations
 	 * @param options - Validation options
 	 * @returns Complete validation result
 	 */
-	static async validateBeforeAuthUrl(
+	async validateBeforeAuthUrl(
 		options: PreFlightValidationOptions
 	): Promise<PreFlightValidationResult> {
 		console.log(`${MODULE_TAG} Starting pre-flight validation`, {
@@ -886,13 +888,13 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 		});
 
 		return {
-			passed,
+			passed: errors.length === 0,
 			errors,
 			warnings,
-			redirectUriValidated: redirectUriResult.passed,
+			redirectUriValidated: redirectUriResult.redirectUris !== undefined,
 			oauthConfigValidated: oauthConfigResult.passed,
 			redirectUris: redirectUriResult.redirectUris || undefined,
-			fixableErrors: fixableErrors || undefined,
+			fixableErrors: fixableErrors || undefined as FixableError[] | undefined,
 			appConfig: appConfig || undefined,
 		};
 	}
