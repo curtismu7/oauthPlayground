@@ -201,7 +201,7 @@ const OIDCExamples: React.FC = () => {
 		} else if (code && state) {
 			handleOAuthCallback(code, state);
 		}
-	}, [searchParams, handleOAuthCallback, showStatus]);
+	}, [searchParams, showStatus]);
 
 	const initiateCentralizedLogin = () => {
 		showStatus('info', 'Initiating centralized login - redirecting to PingOne server UI...');
