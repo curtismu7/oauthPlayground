@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -243,7 +243,7 @@ const OIDCExamples: React.FC = () => {
 		setApiLogs((prev) => [newLog, ...prev].slice(0, 50)); // Keep last 50 logs
 	};
 
-	const handleOAuthCallback = async (code: string, state: string) => {
+	const handleOAuthCallback = useCallback(async (code: string, state: string) => {
 		setIsLoading(true);
 		
 		addAPILog({
@@ -296,7 +296,7 @@ const OIDCExamples: React.FC = () => {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [addAPILog]);
 
 	// Check for OAuth callback parameters
 	useEffect(() => {
@@ -310,7 +310,7 @@ const OIDCExamples: React.FC = () => {
 		} else if (code && state) {
 			handleOAuthCallback(code, state);
 		}
-	}, [searchParams]);
+	}, [searchParams, handleOAuthCallback]);
 
 	const initiateCentralizedLogin = () => {
 		showStatus('info', 'Initiating centralized login - redirecting to PingOne server UI...');
@@ -321,7 +321,7 @@ const OIDCExamples: React.FC = () => {
 			client_id: 'test-client-id',
 			redirect_uri: 'https://localhost:3000/sdk-examples/oidc-centralized-login',
 			scope: 'openid profile email',
-			state: 'mock-state-' + Date.now(),
+			state: `mock-state-${Date.now()}`,
 		});
 		
 		addAPILog({
@@ -336,7 +336,7 @@ const OIDCExamples: React.FC = () => {
 		// For demo purposes, we'll simulate the redirect
 		setTimeout(() => {
 			// Simulate redirect with mock parameters
-			navigate('/sdk-examples/oidc-centralized-login?code=mock-auth-code&state=mock-state');
+			navigate(`/sdk-examples/oidc-centralized-login?code=mock-auth-code&state=mock-state`);
 		}, 2000);
 	};
 
