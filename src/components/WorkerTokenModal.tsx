@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
+	FiDownload,
 	FiExternalLink,
 	FiEye,
 	FiEyeOff,
@@ -11,13 +12,14 @@ import {
 	FiKey,
 	FiRefreshCw,
 	FiSave,
+	FiUpload,
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { showTokenSuccessMessage } from '../services/tokenExpirationService';
 import { trackedFetch } from '../utils/trackedFetch';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { DraggableModal } from './DraggableModal';
 import { WorkerTokenRequestModal } from './WorkerTokenRequestModal';
 
@@ -593,11 +595,43 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		navigate('/client-generator');
 	};
 
+	const handleExportConfig = () => {
+		try {
+			unifiedWorkerTokenService.downloadConfig();
+			v4ToastManager.showSuccess('Configuration exported successfully');
+		} catch (error) {
+			v4ToastManager.showError('Failed to export configuration');
+			console.error('Export failed:', error);
+		}
+	};
+
+	const handleImportConfig = () => {
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = '.json';
+		input.onchange = async (e) => {
+			const file = (e.target as HTMLInputElement).files?.[0];
+			if (file) {
+				try {
+					const text = await file.text();
+					await unifiedWorkerTokenService.importConfig(text);
+					v4ToastManager.showSuccess('Configuration imported successfully');
+					// Reload the modal to show imported credentials
+					window.location.reload();
+				} catch (error) {
+					v4ToastManager.showError('Failed to import configuration');
+					console.error('Import failed:', error);
+				}
+			}
+		};
+		input.click();
+	};
+
 	// Reload credentials from storage when modal opens (prioritize saved credentials over prefillCredentials)
 	useEffect(() => {
 		if (isOpen) {
 			const loadCredentials = async () => {
-				const savedCredentials = await workerTokenServiceV8.loadCredentials();
+				const savedCredentials = await unifiedWorkerTokenService.getCredentials();
 				if (
 					savedCredentials?.environmentId &&
 					savedCredentials.clientId &&
@@ -726,7 +760,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 
 		// Save credentials using global service
 		try {
-			await workerTokenServiceV8.saveCredentials(credentialsToSave);
+			await unifiedWorkerTokenService.setWorkerToken(credentialsToSave);
 		} catch (error) {
 			console.error('[WorkerTokenModal] Failed to save credentials:', error);
 			v4ToastManager.showError('Failed to save credentials');
@@ -1675,6 +1709,22 @@ export const WorkerTokenModal: React.FC<Props> = ({
 									>
 										<FiSave />
 										Save Credentials
+									</ActionButton>
+									<ActionButton
+										$variant="secondary"
+										onClick={handleExportConfig}
+										disabled={isGenerating}
+									>
+										<FiDownload />
+										Export Config
+									</ActionButton>
+									<ActionButton
+										$variant="secondary"
+										onClick={handleImportConfig}
+										disabled={isGenerating}
+									>
+										<FiUpload />
+										Import Config
 									</ActionButton>
 									<ActionButton
 										$variant="secondary"
