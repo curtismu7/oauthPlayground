@@ -29,6 +29,22 @@ export function setupBackupApiRoutes(app) {
 
 			res.json({ success: true });
 		} catch (error) {
+			if (error?.code === 'SQLITE_READONLY') {
+				console.warn(`${MODULE_TAG} Save skipped (read-only database):`, {
+					code: error.code,
+					key: req.body?.key,
+					environmentId: req.body?.environmentId,
+					dataType: req.body?.dataType,
+				});
+
+				return res.json({
+					success: false,
+					nonFatal: true,
+					error: 'Backup database is read-only; skipped persistence',
+					code: error.code,
+				});
+			}
+
 			console.error(`${MODULE_TAG} Save error:`, error);
 			res.status(500).json({
 				error: 'Failed to save backup',
