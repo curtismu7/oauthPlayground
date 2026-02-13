@@ -631,7 +631,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 	useEffect(() => {
 		if (isOpen) {
 			const loadCredentials = async () => {
-				const savedCredentials = await unifiedWorkerTokenService.getCredentials();
+				const savedCredentials = await unifiedWorkerTokenService.loadCredentials();
 				if (
 					savedCredentials?.environmentId &&
 					savedCredentials.clientId &&
@@ -760,7 +760,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 
 		// Save credentials using global service
 		try {
-			await unifiedWorkerTokenService.setWorkerToken(credentialsToSave);
+			await unifiedWorkerTokenService.saveCredentials(credentialsToSave);
 		} catch (error) {
 			console.error('[WorkerTokenModal] Failed to save credentials:', error);
 			v4ToastManager.showError('Failed to save credentials');
