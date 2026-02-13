@@ -1387,7 +1387,7 @@ app.get('/api/environments', async (req, res) => {
 		// Parse query parameters
 		const typeFilters = params.getAll('type');
 		const statusFilters = params.getAll('status');
-		const regionFilters = params.getAll('region');
+		const regionFilters = params.getAll('regionFilter'); // Use regionFilter instead of region
 		const search = params.get('search');
 		const page = parseInt(params.get('page')) || 1;
 		const pageSize = parseInt(params.get('pageSize')) || 12;
@@ -1549,6 +1549,10 @@ app.get('/api/environments', async (req, res) => {
 					region: env.region
 				}))
 			);
+			
+			// Show all unique regions
+			const uniqueRegions = [...new Set(transformedEnvironments.map(env => env.region).filter(Boolean))];
+			console.log('[PingOne Environments API] All regions found:', uniqueRegions);
 		}
 		
 		// Apply filters
