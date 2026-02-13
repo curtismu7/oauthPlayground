@@ -248,12 +248,12 @@ const ErrorMessage = styled.div`
 
 // Educational Section Styles
 const EducationalSection = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f5f5f5;
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
-  color: white;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  color: #333;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 `;
 
 const EducationalHeader = styled.div`
@@ -276,11 +276,11 @@ const EducationalContent = styled.div`
 `;
 
 const EducationalCard = styled.div`
-  background: rgba(255, 255, 255, 0.1);
+  background: white;
   border-radius: 8px;
   padding: 1.5rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
 
 const EducationalCardTitle = styled.h3`
@@ -295,16 +295,17 @@ const EducationalCardTitle = styled.h3`
 const EducationalCardText = styled.div`
   margin: 0;
   line-height: 1.6;
-  opacity: 0.95;
+  color: #555;
 `;
 
 const APIEndpointsList = styled.div`
-  background: rgba(0, 0, 0, 0.2);
+  background: #f8f8f8;
   border-radius: 6px;
   padding: 1rem;
   margin-top: 1rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
+  border: 1px solid #e0e0e0;
 `;
 
 const APIEndpoint = styled.div`
