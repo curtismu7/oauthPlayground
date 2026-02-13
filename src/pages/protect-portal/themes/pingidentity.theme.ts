@@ -16,7 +16,7 @@ export const pingidentityTheme: BrandTheme = {
 	displayName: 'PingIdentity',
 	portalName: 'PingIdentity Secure Portal',
 	logo: {
-		url: 'https://www.pingidentity.com/favicon.ico',
+		url: 'https://www.pingidentity.com/content/dam/ping-identity/ping-logo-blue.svg',
 		alt: 'PingIdentity Logo',
 		width: '140px',
 		height: '60px',

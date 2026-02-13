@@ -305,15 +305,12 @@ export async function handleShowWorkerTokenModal(
 		// Check if failure was due to missing credentials
 		const credentialsCheck = await workerTokenServiceV8.loadCredentials();
 		if (!credentialsCheck) {
-			// FIXED: Do NOT show modal in silent mode even if credentials are missing
-			// The user explicitly chose silent mode - respect that choice
-			// Show a toast warning instead so they know credentials need to be configured
+			// ALWAYS show modal when credentials are missing, even in silent mode
+			// User needs to configure credentials to continue
 			console.warn(
-				`${MODULE_TAG} Silent retrieval failed: no credentials configured. Modal suppressed (silent mode ON).`
+				`${MODULE_TAG} No credentials configured. Showing modal for credential setup.`
 			);
-			toastV8.warning(
-				'Silent API requires saved credentials. Use "Get Worker Token" button to configure.'
-			);
+			setShowModal(true);
 			return;
 		}
 
