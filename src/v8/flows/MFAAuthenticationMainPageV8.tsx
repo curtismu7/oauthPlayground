@@ -1242,10 +1242,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			const authorizationUrl = `${authUrl}?${params.toString()}`;
 
 			// Store return target using ReturnTargetServiceV8U for proper callback handling
+			const currentStep = searchParams.get('step') || '2'; // Default to step 2 if not specified
 			ReturnTargetServiceV8U.setReturnTarget(
 				'mfa_device_authentication',
 				window.location.pathname + window.location.search,
-				1 // Return to step 1 after OAuth
+				parseInt(currentStep, 10) // Use the current step from URL
 			);
 
 			// Store flow context for callback
@@ -1256,7 +1257,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					timestamp: Date.now(),
 					environmentId: credentials.environmentId,
 					returnPath: window.location.pathname + window.location.search,
-					returnStep: 1,
+					returnStep: parseInt(currentStep, 10), // Use the current step from URL
 				})
 			);
 
