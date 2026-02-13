@@ -163,12 +163,13 @@ export const ValidationServiceV8 = {
 
 			// Check if required field is empty
 			if (rules.required && ValidationServiceV8.isEmpty(value)) {
-				errors.push({
-					field,
-					message: rules.message || `${field} is required`,
-					suggestion: rules.example ? `Example: ${rules.example}` : undefined,
-					code: 'REQUIRED_FIELD_MISSING',
-				});
+				errors.push(
+					ValidationServiceV8.createValidationError(
+						field,
+						rules.message || `${field} is required`,
+						rules.example ? `Example: ${rules.example}` : undefined
+					)
+				);
 				return;
 			}
 
@@ -178,31 +179,39 @@ export const ValidationServiceV8 = {
 			}
 
 			// Validate pattern
-			if (rules.pattern && !rules.pattern.test(value)) {
-				errors.push({
-					field,
-					message: rules.message || `${field} format is invalid`,
-					suggestion: rules.example ? `Example: ${rules.example}` : undefined,
-					code: 'INVALID_FORMAT',
-				});
+			if (rules.pattern && typeof value === 'string' && !rules.pattern.test(value)) {
+				errors.push(
+					ValidationServiceV8.createValidationError(
+						field,
+						rules.message || `${field} format is invalid`,
+						rules.example ? `Example: ${rules.example}` : undefined,
+						'INVALID_FORMAT'
+					)
+				);
 			}
 
 			// Validate min length
-			if (rules.minLength && value.length < rules.minLength) {
-				errors.push({
-					field,
-					message: `${field} must be at least ${rules.minLength} characters`,
-					code: 'MIN_LENGTH',
-				});
+			if (rules.minLength && typeof value === 'string' && value.length < rules.minLength) {
+				errors.push(
+					ValidationServiceV8.createValidationError(
+						field,
+						`${field} must be at least ${rules.minLength} characters`,
+						undefined,
+						'MIN_LENGTH'
+					)
+				);
 			}
 
 			// Validate max length
-			if (rules.maxLength && value.length > rules.maxLength) {
-				errors.push({
-					field,
-					message: `${field} must be at most ${rules.maxLength} characters`,
-					code: 'MAX_LENGTH',
-				});
+			if (rules.maxLength && typeof value === 'string' && value.length > rules.maxLength) {
+				errors.push(
+					ValidationServiceV8.createValidationError(
+						field,
+						`${field} must be at most ${rules.maxLength} characters`,
+						undefined,
+						'MAX_LENGTH'
+					)
+				);
 			}
 
 			// Custom validator
@@ -701,7 +710,7 @@ export const ValidationServiceV8 = {
 						field: 'redirectUri',
 						message: 'Wildcard domains in redirect URIs require "Allow Redirect URI Patterns" to be enabled in your PingOne application',
 						canProceed: false,
-						severity: 'error',
+						severity: 'high',
 					});
 				} else {
 					// Check OAuth version
@@ -710,7 +719,7 @@ export const ValidationServiceV8 = {
 							field: 'redirectUri',
 							message: 'Wildcard redirect URIs are not allowed in OAuth 2.1, even with "Allow Redirect URI Patterns" enabled',
 							canProceed: false,
-							severity: 'error',
+							severity: 'high',
 						});
 					} else {
 						// OAuth 2.0 with patterns allowed - show warning but allow
