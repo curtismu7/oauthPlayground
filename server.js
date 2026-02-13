@@ -1432,10 +1432,18 @@ app.get('/api/environments', async (req, res) => {
 		const regionMap = {
 			us: 'https://api.pingone.com',
 			na: 'https://api.pingone.com',
+			NA: 'https://api.pingone.com',
 			eu: 'https://api.pingone.eu',
+			EU: 'https://api.pingone.eu',
 			ca: 'https://api.pingone.ca',
+			CA: 'https://api.pingone.ca',
 			ap: 'https://api.pingone.asia',
-			asia: 'https://api.pingone.asia',
+			AP: 'https://api.pingone.asia',
+			au: 'https://api.pingone.com.au',
+			AU: 'https://api.pingone.com.au',
+			sg: 'https://api.pingone.sg',
+			SG: 'https://api.pingone.sg',
+			asia: 'https://api.pingone.asia'
 		};
 		
 		const baseUrl = regionMap[String(region).toLowerCase()] || regionMap.na;
@@ -1669,10 +1677,18 @@ app.get('/api/test-environments', async (req, res) => {
 		const regionMap = {
 			us: 'https://api.pingone.com',
 			na: 'https://api.pingone.com',
+			NA: 'https://api.pingone.com',
 			eu: 'https://api.pingone.eu',
+			EU: 'https://api.pingone.eu',
 			ca: 'https://api.pingone.ca',
+			CA: 'https://api.pingone.ca',
 			ap: 'https://api.pingone.asia',
-			asia: 'https://api.pingone.asia',
+			AP: 'https://api.pingone.asia',
+			au: 'https://api.pingone.com.au',
+			AU: 'https://api.pingone.com.au',
+			sg: 'https://api.pingone.sg',
+			SG: 'https://api.pingone.sg',
+			asia: 'https://api.pingone.asia'
 		};
 		
 		const baseUrl = regionMap[String(region).toLowerCase()] || regionMap.na;
@@ -2157,10 +2173,12 @@ app.put('/api/environments/:id/status', async (req, res) => {
 
 // Helper functions for PingOne environment transformation
 function determineRegionFromBaseUrl(url) {
-	if (url.includes('api.pingone.eu')) return 'eu';
-	if (url.includes('api.pingone.ca')) return 'ca';
-	if (url.includes('api.pingone.asia')) return 'ap';
-	return 'na'; // default for North America (.com)
+	if (url.includes('api.pingone.eu')) return 'EU';
+	if (url.includes('api.pingone.ca')) return 'CA';
+	if (url.includes('api.pingone.com.au')) return 'AU';
+	if (url.includes('api.pingone.sg')) return 'SG';
+	if (url.includes('api.pingone.asia')) return 'AP';
+	return 'NA'; // default for North America (.com)
 }
 
 function determineEnabledServices(env) {
