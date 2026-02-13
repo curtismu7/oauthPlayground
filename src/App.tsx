@@ -983,6 +983,7 @@ const AppRoutes: React.FC = () => {
 							{/* V8 Utilities */}
 							<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
 							<Route path="/v8/debug-logs" element={<DebugLogViewerV8 />} />
+							<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
 							{/* V8U SPIFFE/SPIRE Mock Flow and Token Viewer - multi-step lab */}
 							<Route
 								path="/v8u/spiffe-spire"
@@ -1352,11 +1353,6 @@ const AppRoutes: React.FC = () => {
 					</MainContent>
 				</ContentColumn>
 			</AppContainer>
-
-			{/* Popout windows - outside main layout */}
-			<Routes>
-				<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
-			</Routes>
 
 			<CredentialSetupModal
 				isOpen={showCredentialModal}
