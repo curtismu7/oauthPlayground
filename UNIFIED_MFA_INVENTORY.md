@@ -1015,6 +1015,107 @@ grep -r "user-mfa-login-callback\|mfa-unified-callback" src/v8u/components/Callb
 
 ---
 
+### **🚨 Issue 125: MFA Redirect Routing Logic Issues - CallbackHandlerV8U Enhancement**
+**Date**: 2026-02-12  
+**Status**: ✅ RESOLVED  
+**Severity**: High (Blocks OAuth callback flow)  
+**SWE-15 Impact**: Open/Closed Principle, Error Handling
+
+#### **🔍 Root Cause Analysis:**
+MFA redirect was going to wrong page due to callback handler logic issues:
+
+1. **Poor Error Handling**: Corrupted or stale flow context wasn't properly cleaned up
+2. **Weak Fallback Logic**: Path-based detection didn't properly identify OAuth callbacks
+3. **Missing OAuth Parameter Detection**: Fallback didn't check for `code` and `state` parameters
+4. **Inadequate Logging**: Insufficient debugging information for redirect issues
+
+#### **✅ Solution Implemented:**
+1. **Enhanced Context Validation**: Better error handling for corrupted/stale flow context with cleanup
+2. **Improved Fallback Detection**: Enhanced logic to detect OAuth callbacks correctly
+3. **OAuth Parameter Detection**: Check for `code` and `state` parameters in user-login-callback
+4. **Detailed Logging**: Added comprehensive logging for debugging redirect issues
+
+#### **Files Modified:**
+- `src/v8u/components/CallbackHandlerV8U.tsx` - Enhanced callback handling logic
+- `server.js` - Fixed reference to removed realApiLogFile
+
+#### **🎯 Implementation Details:**
+```typescript
+// Enhanced context validation with proper cleanup
+if (contextAge > maxAge) {
+    console.warn(`${MODULE_TAG} ⚠️ Flow context is stale, removing and using fallback`);
+    sessionStorage.removeItem(flowContextKey);
+} else {
+    // Process valid context
+}
+
+// Improved fallback detection for OAuth callbacks
+if (currentPath.includes('user-login-callback')) {
+    const code = searchParams.get('code');
+    const state = searchParams.get('state');
+    
+    if (code && state) {
+        // This looks like an OAuth callback, likely from MFA flow
+        fallbackPath = '/v8/unified-mfa?step=2';
+        fallbackReason = 'user-login-oauth-callback';
+    }
+}
+
+// Enhanced logging for debugging
+console.log(`${MODULE_TAG} 🔄 Using fallback redirect:`, {
+    path: fallbackPath,
+    reason: fallbackReason,
+    currentPath,
+    hasCode: !!searchParams.get('code'),
+    hasState: !!searchParams.get('state'),
+});
+```
+
+#### **🔍 Prevention Commands:**
+```bash
+# 1. Check for enhanced callback handling
+echo "=== Checking Enhanced Callback Handling ==="
+grep -n "IMPROVED.*Check for stored context" src/v8u/components/CallbackHandlerV8U.tsx && echo "✅ ENHANCED CONTEXT HANDLING FOUND" || echo "❌ ENHANCED CONTEXT HANDLING MISSING"
+
+# 2. Verify OAuth parameter detection
+echo "=== Checking OAuth Parameter Detection ==="
+grep -n "hasCode.*searchParams.get.*code" src/v8u/components/CallbackHandlerV8U.tsx && echo "✅ OAUTH PARAMETER DETECTION FOUND" || echo "❌ OAUTH PARAMETER DETECTION MISSING"
+
+# 3. Check for improved fallback logic
+echo "=== Checking Improved Fallback Logic ==="
+grep -n "IMPROVED FALLBACK.*path-based detection" src/v8u/components/CallbackHandlerV8U.tsx && echo "✅ IMPROVED FALLBACK LOGIC FOUND" || echo "❌ IMPROVED FALLBACK LOGIC MISSING"
+
+# 4. Verify enhanced logging
+echo "=== Checking Enhanced Logging ==="
+grep -A 5 -B 2 "Using fallback redirect.*reason.*currentPath" src/v8u/components/CallbackHandlerV8U.tsx && echo "✅ ENHANCED LOGGING FOUND" || echo "❌ ENHANCED LOGGING MISSING"
+
+# 5. Check for proper error handling
+echo "=== Checking Error Handling ==="
+grep -A 3 -B 1 "Failed to parse flow context.*Remove corrupted context" src/v8u/components/CallbackHandlerV8U.tsx && echo "✅ ERROR HANDLING FOUND" || echo "❌ ERROR HANDLING MISSING"
+
+echo "🎯 MFA REDIRECT ROUTING PREVENTION CHECKS COMPLETE"
+```
+
+#### **🔧 SWE-15 Compliance:**
+- ✅ **Single Responsibility**: Each function handles one aspect of callback processing
+- ✅ **Open/Closed**: Enhanced logic without breaking existing functionality
+- ✅ **Liskov Substitution**: Callback handler behavior unchanged for valid flows
+- ✅ **Interface Segregation**: Minimal changes to prevent crashes
+- ✅ **Dependency Inversion**: No new dependencies introduced
+
+#### **📊 Impact:**
+- **Before**: MFA redirects went to wrong page with poor debugging information
+- **After**: MFA redirects go to correct page with comprehensive logging
+- **Developer Experience**: Better debugging capabilities for redirect issues
+- **Reliability**: Robust error handling prevents callback failures
+
+#### **🔗 Related Issues:**
+- **Issue 123**: MFA Redirect URI Not Working - Return Target Service Integration
+- **Issue 124**: MFA Callback 404 Error - HTTPS/HTTP Mismatch
+- **Issue 55**: OAuth Redirect Flow Issue - Wrong page after login
+
+---
+
 ### **🚨 Issue 124: Authorization (Authz) Modal Showing Worker Token Instead of User Token**
 **Date**: 2026-02-12  
 **Status**: ✅ RESOLVED  
