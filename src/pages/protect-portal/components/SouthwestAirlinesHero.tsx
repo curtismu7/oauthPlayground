@@ -13,7 +13,6 @@ import React from 'react';
 import { FiCheckCircle, FiDollarSign, FiHeart, FiShield, FiSmile } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
-import SouthwestAirlinesLoginForm from './SouthwestAirlinesLoginForm';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -348,14 +347,10 @@ const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 									<LoginSubtitle>Access your Southwest Airlines employee account</LoginSubtitle>
 								</LoginSection>
 
-								<SouthwestAirlinesLoginForm
-									onLoginSuccess={onLoginSuccess}
-									onError={onError}
-									environmentId={environmentId}
-									clientId={clientId}
-									clientSecret={clientSecret}
-									redirectUri={redirectUri}
-								/>
+								<LoginButton onClick={onLoginStart}>
+									<FiShield />
+									Sign In to Employee Portal
+								</LoginButton>
 
 								<QuickLinks>
 									<QuickLink href="#">Forgot Username?</QuickLink>
