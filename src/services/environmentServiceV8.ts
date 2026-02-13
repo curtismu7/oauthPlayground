@@ -343,6 +343,8 @@ class EnvironmentServiceV8 {
 		environmentIds,
 		operation,
 		parameters = {},
+		accessToken,
+		region,
 	}: {
 		environmentIds: string[];
 		operation: 'delete' | 'status_update';
@@ -353,11 +355,11 @@ class EnvironmentServiceV8 {
 		const params = new URLSearchParams();
 
 		// Add authentication parameters for PingOne API proxy
-		if (parameters.accessToken) {
-			params.append('accessToken', parameters.accessToken);
+		if (accessToken) {
+			params.append('accessToken', accessToken);
 		}
-		if (parameters.region) {
-			params.append('region', parameters.region);
+		if (region) {
+			params.append('region', region);
 		}
 
 		const response = await pingOneFetch(
