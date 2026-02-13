@@ -87,6 +87,15 @@ export class UnifiedOAuthBackupServiceV8U {
 					dataType: options.dataType,
 				});
 				return true;
+			} else if (result.nonFatal) {
+				logger.warn(`${_MODULE_TAG} ⚠️ OAuth backup skipped (non-fatal)`, {
+					key,
+					environmentId: options.environmentId,
+					dataType: options.dataType,
+					reason: result.error,
+					code: result.code,
+				});
+				return false;
 			} else {
 				throw new Error(result.error || 'Unknown backup error');
 			}
