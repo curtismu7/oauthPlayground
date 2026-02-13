@@ -5,6 +5,7 @@
  * @version 1.0.0
  */
 
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { PingOneAppConfig, PingOneAppConfigForm } from '../components/PingOneAppConfigForm';
 
