@@ -28,8 +28,8 @@ export const bankOfAmericaTheme: BrandTheme = {
 		},
 	},
 	colors: {
-		primary: '#b91c1c', // Updated to match mockup primary
-		primaryDark: '#991b1b', // Updated to match mockup primaryDark
+		primary: '#012169', // Bank of America Blue (official primary color)
+		primaryDark: '#010E40', // Darker blue for hover states
 		secondary: '#111827', // Updated to match mockup secondary
 		accent: '#E31837', // Bank of America Red (official accent color)
 		background: '#f7fafc', // Updated to match mockup bg

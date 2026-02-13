@@ -18,14 +18,14 @@ import { pingidentityTheme } from './pingidentity.theme';
 import { southwestAirlinesTheme } from './southwest-airlines.theme';
 import { unitedAirlinesTheme } from './united-airlines.theme';
 
-// Available themes
+// Available themes - American Airlines first as requested
 const availableThemes: BrandTheme[] = [
-	pingidentityTheme,
-	fedexTheme,
 	americanAirlinesTheme,
+	fedexTheme,
 	unitedAirlinesTheme,
 	southwestAirlinesTheme,
 	bankOfAmericaTheme,
+	pingidentityTheme,
 ];
 
 // Create context
@@ -33,7 +33,7 @@ const ThemeContext = createContext<BrandThemeContext | undefined>(undefined);
 
 // Theme Provider Component
 export const BrandThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const [activeTheme, setActiveTheme] = useState<BrandTheme>(pingidentityTheme);
+	const [activeTheme, setActiveTheme] = useState<BrandTheme>(americanAirlinesTheme);
 	const [isTransitioning, setIsTransitioning] = useState(false);
 
 	// Load saved theme from localStorage on mount
@@ -67,9 +67,36 @@ export const BrandThemeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 			// Add transition class to body
 			document.body.classList.add('theme-transitioning');
 
+			// Show brief flash effect for theme change feedback
+			const flash = document.createElement('div');
+			flash.style.cssText = `
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: white;
+				opacity: 0;
+				pointer-events: none;
+				z-index: 9999;
+				transition: opacity 0.15s ease;
+			`;
+			document.body.appendChild(flash);
+
+			// Trigger flash effect
+			requestAnimationFrame(() => {
+				flash.style.opacity = '0.1';
+			});
+
 			// Switch theme after brief delay for smooth transition
 			setTimeout(() => {
 				setActiveTheme(newTheme);
+
+				// Remove flash effect
+				flash.style.opacity = '0';
+				setTimeout(() => {
+					document.body.removeChild(flash);
+				}, 150);
 
 				// Remove transition class after theme change
 				setTimeout(() => {

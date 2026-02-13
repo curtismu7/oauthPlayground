@@ -27,8 +27,8 @@ export const pingidentityTheme: BrandTheme = {
 		},
 	},
 	colors: {
-		primary: '#b03a2e', // Updated to match mockup primary
-		primaryDark: '#8e2f26', // Updated to match mockup primaryDark
+		primary: '#0066CC', // PingIdentity Blue (official primary color)
+		primaryDark: '#0052A3', // Darker blue for hover states
 		secondary: '#111827', // Updated to match mockup secondary
 		accent: '#0066CC', // PingIdentity Blue (accent)
 		background: '#ffffff', // Updated to match mockup bg
