@@ -16,6 +16,7 @@ import {
 	FiRefreshCw,
 	FiTrash2,
 } from 'react-icons/fi';
+import { DraggableModal } from '@/components/DraggableModal';
 import { type LogFile, LogFileService } from '@/services/logFileService';
 import {
 	PageHeaderGradients,
@@ -90,6 +91,9 @@ export const DebugLogViewerV8: React.FC = () => {
 	// Loading states
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	// Draggable modal state
+	const [showDraggableModal, setShowDraggableModal] = useState(false);
 
 	// Generate test localStorage logs for demo purposes
 	const generateTestLogs = useCallback(() => {
@@ -848,7 +852,7 @@ export const DebugLogViewerV8: React.FC = () => {
 					{!isPopoutWindow() && (
 						<button
 							type="button"
-							onClick={openDebugLogViewerPopout}
+							onClick={() => setShowDraggableModal(true)}
 							style={{
 								display: 'flex',
 								alignItems: 'center',
@@ -862,7 +866,7 @@ export const DebugLogViewerV8: React.FC = () => {
 								fontWeight: '600',
 								cursor: 'pointer',
 							}}
-							title="Open in free-floating window that can be moved outside browser"
+							title="Open in draggable window that can be moved outside browser"
 						>
 							<FiExternalLink size={16} />
 							Popout
@@ -1191,6 +1195,464 @@ export const DebugLogViewerV8: React.FC = () => {
 					? 'These logs persist across page redirects and refreshes. Check here after OAuth callbacks to see what happened during the redirect flow.'
 					: 'Enable Tail Mode to see new log entries in real-time as they are written to the file. Large files (>100MB) will automatically use streaming.'}
 			</div>
+
+			{/* Draggable Modal */}
+			<DraggableModal
+				isOpen={showDraggableModal}
+				onClose={() => setShowDraggableModal(false)}
+				title="Debug Log Viewer (Draggable)"
+				width="1400px"
+				maxHeight="900px"
+			>
+				<div
+					style={{
+						padding: '20px',
+						maxWidth: '1400px',
+						margin: '0 auto',
+						minHeight: '100vh',
+						background: '#f3f4f6',
+					}}
+				>
+					<PageHeaderV8
+						title="Debug Log Viewer (Draggable)"
+						subtitle="View persistent debug logs and server log files with live tail - Draggable window!"
+						gradient={PageHeaderGradients.unifiedOAuth}
+						textColor={PageHeaderTextColors.darkBlue}
+					/>
+
+					{/* Source Selection */}
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '8px',
+							padding: '20px',
+							marginBottom: '20px',
+							boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+						}}
+					>
+						<div style={{ marginBottom: '15px' }}>
+							<span
+								style={{
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#374151',
+									marginRight: '12px',
+								}}
+							>
+								Log Source:
+							</span>
+							<button
+								type="button"
+								onClick={() => setLogSource('localStorage')}
+								style={{
+									padding: '8px 16px',
+									background: logSource === 'localStorage' ? '#3b82f6' : '#f3f4f6',
+									color: logSource === 'localStorage' ? 'white' : '#374151',
+									border: 'none',
+									borderRadius: '6px 0 0 6px',
+									fontSize: '14px',
+									fontWeight: '600',
+									cursor: 'pointer',
+									display: 'inline-flex',
+									alignItems: 'center',
+									gap: '6px',
+								}}
+							>
+								<FiDatabase size={16} />
+								localStorage
+							</button>
+							<button
+								type="button"
+								onClick={() => setLogSource('file')}
+								style={{
+									padding: '8px 16px',
+									background: logSource === 'file' ? '#3b82f6' : '#f3f4f6',
+									color: logSource === 'file' ? 'white' : '#374151',
+									border: 'none',
+									borderRadius: '0 6px 6px 0',
+									fontSize: '14px',
+									fontWeight: '600',
+									cursor: 'pointer',
+									display: 'inline-flex',
+									alignItems: 'center',
+									gap: '6px',
+								}}
+							>
+								<FiFile size={16} />
+								Server Files
+							</button>
+						</div>
+
+						{/* File Selection */}
+						{logSource === 'file' && availableFiles.length > 0 && (
+							<div style={{ marginBottom: '15px' }}>
+								<label
+									style={{
+										display: 'block',
+										fontSize: '14px',
+										fontWeight: '600',
+										color: '#374151',
+										marginBottom: '8px',
+									}}
+									htmlFor="file-select-modal"
+								>
+									Log File:
+								</label>
+								<select
+									id="file-select-modal"
+									value={selectedFile}
+									onChange={(e) => setSelectedFile(e.target.value)}
+									style={{
+										width: '100%',
+										padding: '8px 12px',
+										border: '1px solid #d1d5db',
+										borderRadius: '6px',
+										fontSize: '14px',
+										background: 'white',
+									}}
+								>
+									{Object.entries(
+										availableFiles.reduce(
+											(acc, file) => {
+												if (!acc[file.category]) {
+													acc[file.category] = [];
+												}
+												acc[file.category].push(file);
+												return acc;
+											},
+											{} as Record<string, LogFile[]>
+										)
+									).map(([category, files]) => (
+										<optgroup key={category} label={category}>
+											{files.map((file) => (
+												<option key={file.path} value={file.path}>
+													{file.name}
+												</option>
+											))}
+										</optgroup>
+									))}
+								</select>
+							</div>
+						)}
+
+						{/* Controls */}
+						<div
+							style={{
+								display: 'flex',
+								gap: '15px',
+								flexWrap: 'wrap',
+								alignItems: 'center',
+							}}
+						>
+							<button
+								type="button"
+								onClick={() =>
+									logSource === 'localStorage' ? loadLocalStorageLogs() : void loadFileLogs()
+								}
+								disabled={isLoading}
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+									padding: '10px 16px',
+									background: isLoading ? '#9ca3af' : '#3b82f6',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '14px',
+									fontWeight: '600',
+									cursor: isLoading ? 'not-allowed' : 'pointer',
+								}}
+							>
+								<FiRefreshCw size={16} />
+								{isLoading ? 'Loading...' : 'Refresh'}
+							</button>
+
+							{logSource === 'file' && (
+								<label
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '8px',
+										fontSize: '14px',
+										cursor: 'pointer',
+									}}
+								>
+									<input
+										type="checkbox"
+										checked={tailMode}
+										onChange={(e) => setTailMode(e.target.checked)}
+										style={{ cursor: 'pointer' }}
+									/>
+									Tail Mode (Live - 1s refresh)
+								</label>
+							)}
+
+							<button
+								type="button"
+								onClick={clearLogs}
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+									padding: '10px 16px',
+									background: '#ef4444',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '14px',
+									fontWeight: '600',
+									cursor: 'pointer',
+								}}
+							>
+								<FiTrash2 size={16} />
+								Clear
+							</button>
+
+							<button
+								type="button"
+								onClick={exportLogs}
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+									padding: '10px 16px',
+									background: '#10b981',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '14px',
+									fontWeight: '600',
+									cursor: 'pointer',
+								}}
+							>
+								<FiDownload size={16} />
+								Export
+							</button>
+						</div>
+					</div>
+
+					{/* Error Display */}
+					{error && (
+						<div
+							style={{
+								background: '#fef2f2',
+								border: '1px solid #fecaca',
+								borderRadius: '8px',
+								padding: '16px',
+								marginBottom: '20px',
+								color: '#991b1b',
+								fontSize: '14px',
+							}}
+						>
+							<strong>Error:</strong> {error}
+						</div>
+					)}
+
+					{/* Log Content */}
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '8px',
+							padding: '20px',
+							boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+						}}
+					>
+						{logSource === 'localStorage' ? (
+							<>
+								{/* Category Filter */}
+								<div style={{ marginBottom: '15px' }}>
+									<label
+										style={{
+											display: 'block',
+											fontSize: '14px',
+											fontWeight: '600',
+											color: '#374151',
+											marginBottom: '8px',
+										}}
+										htmlFor="category-filter-modal"
+									>
+										Filter by Category:
+									</label>
+									<select
+										id="category-filter-modal"
+										value={selectedCategory}
+										onChange={(e) => setSelectedCategory(e.target.value as LogCategory)}
+										style={{
+											padding: '8px 12px',
+											border: '1px solid #d1d5db',
+											borderRadius: '6px',
+											fontSize: '14px',
+											background: 'white',
+										}}
+									>
+										<option value="ALL">All Categories</option>
+										<option value="REDIRECT_URI">Redirect URI</option>
+										<option value="MIGRATION">Migration</option>
+										<option value="VALIDATION">Validation</option>
+										<option value="FLOW_MAPPING">Flow Mapping</option>
+									</select>
+								</div>
+
+								{filteredLogs.length > 0 ? (
+									<div
+										style={{
+											fontFamily: 'monospace',
+											fontSize: '13px',
+											lineHeight: '1.5',
+											whiteSpace: 'pre-wrap',
+											wordBreak: 'break-word',
+											maxHeight: '600px',
+											overflowY: 'auto',
+											background: '#f9fafb',
+											padding: '16px',
+											borderRadius: '6px',
+											border: '1px solid #e5e7eb',
+										}}
+									>
+										{filteredLogs.map((log, index) => (
+											<div
+												key={index}
+												style={{
+													marginBottom: '12px',
+													paddingBottom: '12px',
+													borderBottom: '1px solid #e5e7eb',
+												}}
+											>
+												<div style={{ color: '#6b7280', fontSize: '12px', marginBottom: '4px' }}>
+													{log.timestamp}
+												</div>
+												<div
+													style={{
+														display: 'inline-block',
+														padding: '2px 8px',
+														borderRadius: '4px',
+														fontSize: '11px',
+														fontWeight: '600',
+														marginBottom: '4px',
+														background:
+															log.level === 'ERROR'
+																? '#fef2f2'
+																: log.level === 'WARN'
+																	? '#fffbeb'
+																	: log.level === 'INFO'
+																		? '#eff6ff'
+																		: '#f3f4f6',
+														color:
+															log.level === 'ERROR'
+																? '#991b1b'
+																: log.level === 'WARN'
+																	? '#92400e'
+																	: log.level === 'INFO'
+																		? '#1e40af'
+																		: '#374151',
+													}}
+												>
+													{log.level}
+												</div>
+												<div style={{ color: '#6b7280', fontSize: '12px', marginBottom: '4px' }}>
+													{log.category}
+												</div>
+												<div style={{ marginBottom: '4px' }}>{log.message}</div>
+												{log.url && (
+													<div
+														style={{ color: '#3b82f6', fontSize: '12px', wordBreak: 'break-all' }}
+													>
+														URL: {log.url}
+													</div>
+												)}
+												{log.data && (
+													<div
+														style={{
+															marginTop: '8px',
+															padding: '8px',
+															background: '#f9fafb',
+															borderRadius: '4px',
+															fontSize: '12px',
+														}}
+													>
+														<pre
+															style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+														>
+															{JSON.stringify(log.data, null, 2)}
+														</pre>
+													</div>
+												)}
+											</div>
+										))}
+									</div>
+								) : (
+									<div
+										style={{
+											textAlign: 'center',
+											padding: '40px',
+											color: '#6b7280',
+										}}
+									>
+										<p style={{ fontSize: '16px', marginBottom: '8px' }}>No logs found</p>
+										<p style={{ fontSize: '14px' }}>
+											{selectedCategory === 'ALL'
+												? 'No logs have been recorded yet. Perform some OAuth flows to see logs here.'
+												: `No logs found for category: ${selectedCategory}`}
+										</p>
+									</div>
+								)}
+							</>
+						) : (
+							<>
+								{fileContent ? (
+									<div
+										style={{
+											fontFamily: 'monospace',
+											fontSize: '13px',
+											lineHeight: '1.5',
+											whiteSpace: 'pre-wrap',
+											wordBreak: 'break-word',
+											maxHeight: '600px',
+											overflowY: 'auto',
+											background: '#f9fafb',
+											padding: '16px',
+											borderRadius: '6px',
+											border: '1px solid #e5e7eb',
+										}}
+									>
+										{fileContent}
+										{isContentTruncated && (
+											<div
+												style={{
+													marginTop: '16px',
+													padding: '12px',
+													background: '#fef3c7',
+													border: '1px solid #fcd34d',
+													borderRadius: '6px',
+													color: '#92400e',
+													fontSize: '12px',
+												}}
+											>
+												⚠️ File truncated: Showing {(MAX_STRING_LENGTH / 1024 / 1024).toFixed(2)} MB
+												of {(originalFileSize / 1024 / 1024).toFixed(2)} MB
+											</div>
+										)}
+									</div>
+								) : (
+									<div
+										style={{
+											textAlign: 'center',
+											padding: '40px',
+											color: '#6b7280',
+										}}
+									>
+										<p style={{ fontSize: '16px', marginBottom: '8px' }}>No log content</p>
+										<p style={{ fontSize: '14px' }}>
+											Select a log file and click Refresh to view its contents
+										</p>
+									</div>
+								)}
+							</>
+						)}
+					</div>
+				</div>
+			</DraggableModal>
 		</div>
 	);
 };
