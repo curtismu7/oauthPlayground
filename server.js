@@ -1584,10 +1584,24 @@ app.get('/api/environments', async (req, res) => {
 		
 		if (regionFilters.length > 0) {
 			const beforeCount = filteredEnvironments.length;
+			// Map API region codes to AWS region codes
+			const regionMapping = {
+				'na': 'us-east-1',
+				'us': 'us-east-1',
+				'eu': 'eu-west-1',
+				'ca': 'ca-central-1',
+				'ap': 'ap-southeast-2',
+				'asia': 'ap-southeast-2'
+			};
+			const mappedRegionFilters = regionFilters.map(r => regionMapping[r.toLowerCase()] || r);
 			filteredEnvironments = filteredEnvironments.filter(env => 
-				regionFilters.includes(env.region || '')
+				mappedRegionFilters.includes(env.region || '')
 			);
 			console.log(`[PingOne Environments API] Region filter: ${beforeCount} -> ${filteredEnvironments.length}`);
+			console.log(`[PingOne Environments API] Region mapping:`, { 
+				original: regionFilters, 
+				mapped: mappedRegionFilters 
+			});
 		}
 		
 		if (search) {
