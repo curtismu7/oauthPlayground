@@ -97,13 +97,13 @@ export interface BulkOperationResult {
 	totalCount: number;
 }
 
-class EnvironmentServiceV8 {
-	private static readonly BASE_PATH = '/api/environments';
+const EnvironmentServiceV8 = {
+	BASE_PATH: '/api/environments',
 
 	/**
 	 * Get all environments with filtering and pagination
 	 */
-	static async getEnvironments(
+	async getEnvironments(
 		filters?: {
 			type?: string[];
 			status?: string[];
@@ -195,12 +195,12 @@ class EnvironmentServiceV8 {
 			});
 			throw error;
 		}
-	}
+	},
 
 	/**
 	 * Get detailed environment information by ID
 	 */
-	static async getEnvironment(
+	async getEnvironment(
 		id: string,
 		accessToken?: string,
 		region?: string
@@ -220,12 +220,12 @@ class EnvironmentServiceV8 {
 		);
 
 		return response.json() as Promise<PingOneEnvironment>;
-	}
+	},
 
 	/**
 	 * Create a new environment
 	 */
-	static async createEnvironment(
+	async createEnvironment(
 		environmentData: CreateEnvironmentRequest,
 		accessToken?: string,
 		region?: string
@@ -249,12 +249,12 @@ class EnvironmentServiceV8 {
 		});
 
 		return response.json() as Promise<PingOneEnvironment>;
-	}
+	},
 
 	/**
 	 * Update an existing environment
 	 */
-	static async updateEnvironment(
+	async updateEnvironment(
 		id: string,
 		environmentData: UpdateEnvironmentRequest,
 		accessToken?: string,
@@ -282,12 +282,12 @@ class EnvironmentServiceV8 {
 		);
 
 		return response.json() as Promise<PingOneEnvironment>;
-	}
+	},
 
 	/**
 	 * Delete an environment
 	 */
-	static async deleteEnvironment(id: string, accessToken?: string, region?: string): Promise<void> {
+	async deleteEnvironment(id: string, accessToken?: string, region?: string): Promise<void> {
 		const params = new URLSearchParams();
 
 		// Add authentication parameters for PingOne API proxy
@@ -301,12 +301,12 @@ class EnvironmentServiceV8 {
 		await pingOneFetch(`${EnvironmentServiceV8.BASE_PATH}/${id}?${params.toString()}`, {
 			method: 'DELETE',
 		});
-	}
+	},
 
 	/**
 	 * Update environment status
 	 */
-	static async updateEnvironmentStatus(
+	async updateEnvironmentStatus(
 		id: string,
 		status: 'ACTIVE' | 'INACTIVE' | 'DELETE_PENDING',
 		accessToken?: string,
@@ -334,12 +334,12 @@ class EnvironmentServiceV8 {
 		);
 
 		return response.json() as Promise<PingOneEnvironment>;
-	}
+	},
 
 	/**
 	 * Perform bulk operations on multiple environments
 	 */
-	static async performBulkOperation({
+	async performBulkOperation({
 		environmentIds,
 		operation,
 		parameters = {},
@@ -378,12 +378,12 @@ class EnvironmentServiceV8 {
 		);
 
 		return response.json() as Promise<{ success: boolean; message: string; affectedCount: number }>;
-	}
+	},
 
 	/**
 	 * Get environment usage statistics
 	 */
-	static async getEnvironmentUsage(
+	async getEnvironmentUsage(
 		id: string,
 		accessToken?: string,
 		region?: string
@@ -403,12 +403,12 @@ class EnvironmentServiceV8 {
 		);
 
 		return response.json() as Promise<EnvironmentUsage>;
-	}
+	},
 
 	/**
 	 * Get environment capabilities and enabled services
 	 */
-	static async getEnvironmentCapabilities(
+	async getEnvironmentCapabilities(
 		id: string,
 		accessToken?: string,
 		region?: string
@@ -428,16 +428,20 @@ class EnvironmentServiceV8 {
 		);
 
 		return response.json() as Promise<EnvironmentCapabilities>;
-	}
+	},
 
 	/**
 	 * Perform bulk operations on multiple environments
 	 */
-	static async bulkOperation(
-		operation: BulkOperationRequest,
-		accessToken?: string,
-		region?: string
-	): Promise<BulkOperationResult> {
+	async bulkOperation({
+		operation,
+		accessToken,
+		region,
+	}: {
+		operation: BulkOperationRequest;
+		accessToken?: string;
+		region?: string;
+	}): Promise<BulkOperationResult> {
 		const params = new URLSearchParams();
 
 		// Add authentication parameters for PingOne API proxy
@@ -460,12 +464,12 @@ class EnvironmentServiceV8 {
 		);
 
 		return response.json() as Promise<BulkOperationResult>;
-	}
+	},
 
 	/**
 	 * Clone an environment
 	 */
-	static async cloneEnvironment(id: string, newName: string): Promise<PingOneEnvironment> {
+	async cloneEnvironment(id: string, newName: string): Promise<PingOneEnvironment> {
 		const response = await pingOneFetch(`${EnvironmentServiceV8.BASE_PATH}/${id}/clone`, {
 			method: 'POST',
 			headers: {
@@ -475,23 +479,23 @@ class EnvironmentServiceV8 {
 		});
 
 		return response.json() as Promise<PingOneEnvironment>;
-	}
+	},
 
 	/**
 	 * Get organization capabilities
 	 */
-	static async getOrganizationCapabilities(
+	async getOrganizationCapabilities(
 		organizationId: string
 	): Promise<EnvironmentCapabilities> {
 		const response = await pingOneFetch(`/organizations/${organizationId}/capabilities`);
 
 		return response.json() as Promise<EnvironmentCapabilities>;
-	}
+	},
 
 	/**
 	 * Validate environment deletion permissions
 	 */
-	static validateDeletionPermissions(environment: PingOneEnvironment): boolean {
+	validateDeletionPermissions(environment: PingOneEnvironment): boolean {
 		// Production environments cannot be deleted
 		if (environment.type === 'PRODUCTION') {
 			return false;
@@ -510,32 +514,32 @@ class EnvironmentServiceV8 {
 
 		// Sandbox and development environments can be deleted
 		return environment.type === 'SANDBOX' || environment.type === 'DEVELOPMENT';
-	}
+	},
 
 	/**
 	 * Validate environment promotion permissions
 	 */
-	static validatePromotionPermissions(environment: PingOneEnvironment): boolean {
+	validatePromotionPermissions(environment: PingOneEnvironment): boolean {
 		// Only sandbox and development environments can be promoted
 		return environment.type === 'SANDBOX' || environment.type === 'DEVELOPMENT';
-	}
+	},
 
 	/**
 	 * Get environment deletion waiting period
 	 */
-	static getDeletionWaitingPeriod(environment: PingOneEnvironment): number {
+	getDeletionWaitingPeriod(environment: PingOneEnvironment): number {
 		if (environment.type === 'PRODUCTION') {
 			return Infinity; // Cannot delete production environments
 		}
 
 		// 30 days for sandbox and development environments
 		return 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
-	}
+	},
 
 	/**
 	 * Format environment type for display
 	 */
-	static formatEnvironmentType(type: string): string {
+	formatEnvironmentType(type: string): string {
 		switch (type) {
 			case 'PRODUCTION':
 				return 'Production';
@@ -546,12 +550,12 @@ class EnvironmentServiceV8 {
 			default:
 				return type;
 		}
-	}
+	},
 
 	/**
 	 * Format environment status for display
 	 */
-	static formatEnvironmentStatus(status: string): string {
+	formatEnvironmentStatus(status: string): string {
 		switch (status) {
 			case 'ACTIVE':
 				return 'Active';
@@ -562,12 +566,12 @@ class EnvironmentServiceV8 {
 			default:
 				return status;
 		}
-	}
+	},
 
 	/**
 	 * Get status color for UI display
 	 */
-	static getStatusColor(status: string): string {
+	getStatusColor(status: string): string {
 		switch (status) {
 			case 'ACTIVE':
 				return '#22c55e'; // Green
@@ -578,12 +582,12 @@ class EnvironmentServiceV8 {
 			default:
 				return '#6b7280'; // Gray
 		}
-	}
+	},
 
 	/**
 	 * Get type color for UI display
 	 */
-	static getTypeColor(type: string): string {
+	getTypeColor(type: string): string {
 		switch (type) {
 			case 'PRODUCTION':
 				return '#dc2626'; // Red
@@ -594,28 +598,28 @@ class EnvironmentServiceV8 {
 			default:
 				return '#6b7280'; // Gray
 		}
-	}
+	},
 
 	/**
 	 * Check if environment can be edited
 	 */
-	static canEditEnvironment(environment: PingOneEnvironment): boolean {
+	canEditEnvironment(environment: PingOneEnvironment): boolean {
 		return environment.status !== 'DELETE_PENDING';
-	}
+	},
 
 	/**
 	 * Check if environment can be deleted
 	 */
-	static canDeleteEnvironment(environment: PingOneEnvironment): boolean {
-		return EnvironmentServiceV8.validateDeletionPermissions(environment);
-	}
+	canDeleteEnvironment(environment: PingOneEnvironment): boolean {
+		return this.validateDeletionPermissions(environment);
+	},
 
 	/**
 	 * Check if environment can be promoted
 	 */
-	static canPromoteEnvironment(environment: PingOneEnvironment): boolean {
-		return EnvironmentServiceV8.validatePromotionPermissions(environment);
+	canPromoteEnvironment(environment: PingOneEnvironment): boolean {
+		return this.validatePromotionPermissions(environment);
 	}
-}
+};
 
 export default EnvironmentServiceV8;
