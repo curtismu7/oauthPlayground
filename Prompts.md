@@ -87,7 +87,7 @@ MANDATORY PROCESS
 
 CLEAN RESTART (required when touching flows/services)
 3) Restart servers cleanly before verification:
-   - Run: ./run.sh -quick-quick
+   - Run: ./run.sh -quick
    - Confirm services are healthy (whatever health check/log indicator your guide uses).
 
 IMPLEMENTATION RULES
@@ -144,11 +144,11 @@ CLEAN RESTART POLICY (mandatory for portal/server-impacting changes)
    - update config that affects runtime behavior
 
 Restart command:
-   - ./run.sh -quick-quick
+   - ./run.sh -quick
 
 Restart timing:
-   - Run ./run.sh -quick-quick BEFORE reproducing the bug (clean baseline)
-   - Run ./run.sh -quick-quick AFTER implementing the fix (before final verification)
+   - Run ./run.sh -quick BEFORE reproducing the bug (clean baseline)
+   - Run ./run.sh -quick AFTER implementing the fix (before final verification)
 
 Also confirm services are healthy (per the guide’s health check/log indicator).
 
@@ -207,11 +207,11 @@ CLEAN RESTART POLICY (mandatory for production-impacting changes)
    - update config that affects runtime behavior
 
 Restart command:
-   - ./run.sh -quick-quick
+   - ./run.sh -quick
 
 Restart timing:
-   - Run ./run.sh -quick-quick BEFORE reproducing the bug (clean baseline)
-   - Run ./run.sh -quick-quick AFTER implementing the fix (before final verification)
+   - Run ./run.sh -quick BEFORE reproducing the bug (clean baseline)
+   - Run ./run.sh -quick AFTER implementing the fix (before final verification)
 
 Also confirm services are healthy (per the guide’s health check/log indicator).
 
