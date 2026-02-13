@@ -506,7 +506,6 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	useEffect(() => {
 		const handleTokenUpdate = () => {
 			const token = localStorage.getItem('worker_token') || '';
-			const expiresAt = localStorage.getItem('worker_token_expires_at');
 			setWorkerToken(token);
 			// Note: workerTokenExpiresAt is managed by WorkerTokenDetectedBanner component
 		};
