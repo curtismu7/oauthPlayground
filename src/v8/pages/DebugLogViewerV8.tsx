@@ -75,6 +75,57 @@ export const DebugLogViewerV8: React.FC = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
+	// Generate test localStorage logs for demo purposes
+	const generateTestLogs = useCallback(() => {
+		const testLogs: LogEntry[] = [
+			{
+				timestamp: new Date().toISOString(),
+				level: 'ERROR',
+				category: 'REDIRECT_URI',
+				message: 'Failed to validate redirect URI - invalid format',
+				url: 'https://localhost:3000/mfa-unified-callback',
+				data: { error: 'Invalid URI format', expected: 'https://localhost:3000/*' }
+			},
+			{
+				timestamp: new Date(Date.now() - 60000).toISOString(),
+				level: 'WARN',
+				category: 'MIGRATION',
+				message: 'Deprecated configuration detected',
+				url: 'https://localhost:3000/v8/mfa',
+				data: { deprecatedField: 'oldConfig', replacement: 'newConfig' }
+			},
+			{
+				timestamp: new Date(Date.now() - 120000).toISOString(),
+				level: 'INFO',
+				category: 'VALIDATION',
+				message: 'Configuration validation completed successfully',
+				url: 'https://localhost:3000/v8/flows',
+				data: { validations: 5, passed: 5, failed: 0 }
+			},
+			{
+				timestamp: new Date(Date.now() - 180000).toISOString(),
+				level: 'ERROR',
+				category: 'FLOW_MAPPING',
+				message: 'Flow mapping failed - missing required parameter',
+				url: 'https://localhost:3000/v8/flows/unified',
+				data: { missingParam: 'clientId', flowType: 'authorization_code' }
+			},
+			{
+				timestamp: new Date(Date.now() - 240000).toISOString(),
+				level: 'INFO',
+				category: 'REDIRECT_URI',
+				message: 'Redirect URI validation passed',
+				url: 'https://localhost:3000/unified-callback',
+				data: { uri: 'https://localhost:3000/unified-callback', valid: true }
+			}
+		];
+		
+		localStorage.setItem('mfa_redirect_debug_log', JSON.stringify(testLogs));
+		setLogs(testLogs);
+		setFileContent('');
+		console.log(`${MODULE_TAG} Generated ${testLogs.length} test log entries`);
+	}, []);
+
 	// Load localStorage logs
 	const loadLocalStorageLogs = useCallback(() => {
 		try {
@@ -85,13 +136,14 @@ export const DebugLogViewerV8: React.FC = () => {
 				setFileContent('');
 				console.log(`${MODULE_TAG} Loaded ${parsed.length} localStorage log entries`);
 			} else {
-				setLogs([]);
+				// Generate test logs if none exist
+				generateTestLogs();
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load localStorage logs:`, error);
 			setLogs([]);
 		}
-	}, []);
+	}, [generateTestLogs]);
 
 	// Load file-based logs
 	const loadFileLogs = useCallback(async () => {
