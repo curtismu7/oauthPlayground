@@ -34,7 +34,7 @@ export const useGlobalWorkerToken = (): GlobalWorkerTokenStatus => {
 			console.log('[useGlobalWorkerToken] 🔍 Debug - Stored token in localStorage:', {
 				hasToken: !!storedToken,
 				tokenLength: storedToken?.length || 0,
-				tokenPreview: storedToken ? storedToken.substring(0, 100) + '...' : 'none',
+				tokenPreview: storedToken ? `${storedToken.substring(0, 100)}...` : 'none',
 			});
 
 			const token = await workerTokenManager.getWorkerToken();
