@@ -488,7 +488,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 			loadFiles();
 			loadLogContent();
 		}
-	}, [isOpen, loadFiles, loadLogContent]);
+	}, [isOpen, loadFiles, loadLogContent, isTailMode]);
 
 	useEffect(() => {
 		// Stop tail mode when component unmounts or file changes
@@ -508,7 +508,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 			setIsTailMode(false);
 		}
 		loadLogContent();
-	}, [selectedFile, loadLogContent]);
+	}, [selectedFile, loadLogContent, isTailMode]);
 
 	// Global mouse event listeners
 	useEffect(() => {
@@ -531,7 +531,14 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 				document.removeEventListener('mouseup', handleGlobalMouseUp);
 			};
 		}
-	}, [isDragging, isResizing, handleMouseMove, handleMouseUpResize]);
+	}, [
+		isDragging,
+		isResizing,
+		handleMouseMove,
+		handleMouseUp,
+		handleMouseMoveResize,
+		handleMouseUpResize,
+	]);
 
 	if (!isOpen) return null;
 
