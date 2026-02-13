@@ -61,7 +61,7 @@ import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
-import { useActionButton } from '@/v8/hooks/useActionButton';
+// import { useActionButton } from '@/v8/hooks/useActionButton'; // Unused - available if needed
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
@@ -467,7 +467,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 						// Use the same logic as attemptSilentTokenRetrieval
 						const region = credentials.region || 'us';
-						const apiBase = // const _apiBase = apiBase; // Unused - available if needed for debugging
+						// const apiBase = // const _apiBase = apiBase; // Unused - available if needed for debugging
 							region === 'eu'
 								? 'https://auth.pingone.eu'
 								: region === 'ap'
