@@ -158,6 +158,105 @@ const LoginButton = styled.button`
   }
 `;
 
+const FlightSearchSection = styled.div`
+  margin-top: 3rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const FlightSearchTitle = styled.h3`
+  color: white;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+`;
+
+const FlightSearchForm = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+const TripType = styled.div`
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  
+  label {
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    
+    input[type="radio"] {
+      accent-color: var(--brand-accent);
+    }
+  }
+`;
+
+const SearchInputs = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+`;
+
+const FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const Label = styled.label`
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.875rem;
+  font-weight: 500;
+`;
+
+const Input = styled.input`
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: var(--brand-accent);
+    background: rgba(255, 255, 255, 0.15);
+  }
+`;
+
+const SearchButton = styled.button`
+  background: var(--brand-accent);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  margin: 0 auto;
+  
+  &:hover {
+    background: #c01830;
+    transform: translateY(-1px);
+  }
+`;
+
 // ============================================================================
 // COMPONENT
 // ============================================================================
@@ -247,6 +346,49 @@ const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({
 								<FiArrowRight />
 							</LoginButton>
 						</LoginSection>
+
+						{/* Flight Search Form for Visual Authenticity */}
+						<FlightSearchSection>
+							<FlightSearchTitle>Book Your Next Flight</FlightSearchTitle>
+							<FlightSearchForm>
+								<TripType>
+									<label>
+										<input type="radio" name="tripType" defaultChecked />
+										Round trip
+									</label>
+									<label>
+										<input type="radio" name="tripType" />
+										One way
+									</label>
+									<label>
+										<input type="radio" name="tripType" />
+										Multi-city
+									</label>
+								</TripType>
+								<SearchInputs>
+									<FormGroup>
+										<Label>From</Label>
+										<Input type="text" placeholder="City or airport" defaultValue="New York (JFK)" />
+									</FormGroup>
+									<FormGroup>
+										<Label>To</Label>
+										<Input type="text" placeholder="City or airport" defaultValue="Los Angeles (LAX)" />
+									</FormGroup>
+									<FormGroup>
+										<Label>Depart</Label>
+										<Input type="date" defaultValue="2026-03-15" />
+									</FormGroup>
+									<FormGroup>
+										<Label>Return</Label>
+										<Input type="date" defaultValue="2026-03-22" />
+									</FormGroup>
+								</SearchInputs>
+								<SearchButton type="button">
+									<FiSearch />
+									Search flights
+								</SearchButton>
+							</FlightSearchForm>
+						</FlightSearchSection>
 					</>
 				)}
 			</HeroContent>
