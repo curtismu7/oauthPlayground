@@ -501,7 +501,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	const [workerToken, setWorkerToken] = useState<string>(() => {
 		// Try to get token from unifiedWorkerTokenService first
 		try {
-			return unifiedWorkerTokenService.getToken() || '';
+			const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+			return tokenData?.token || '';
 		} catch {
 			return '';
 		}
@@ -513,7 +514,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		const handleTokenUpdate = async () => {
 			// Get token from unifiedWorkerTokenService
 			try {
-				const token = unifiedWorkerTokenService.getToken() || '';
+				const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+				const token = tokenData?.token || '';
 				setWorkerToken(token);
 				// Note: workerTokenExpiresAt is managed by WorkerTokenDetectedBanner component
 			} catch (error) {
