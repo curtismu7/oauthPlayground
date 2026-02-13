@@ -232,15 +232,20 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
 			const newX = e.clientX - dragOffset.x;
 			const newY = e.clientY - dragOffset.y;
 
-			// Keep modal within viewport bounds
+			// Allow modal to be dragged outside viewport bounds
+			// Only apply minimum constraints to prevent complete loss
 			const modalWidth = modalRef.current?.offsetWidth || 900;
 			const modalHeight = modalRef.current?.offsetHeight || 600;
-			const maxX = Math.max(0, window.innerWidth - modalWidth - 20);
-			const maxY = Math.max(20, window.innerHeight - modalHeight - 20);
+
+			// Allow dragging mostly off-screen but keep a small portion visible
+			const minX = -modalWidth + 100; // Keep 100px visible
+			const minY = -modalHeight + 50; // Keep 50px visible
+			const maxX = window.innerWidth - 100; // Keep 100px visible on right
+			const maxY = window.innerHeight - 50; // Keep 50px visible on bottom
 
 			setModalPosition({
-				x: Math.max(20, Math.min(newX, maxX)),
-				y: Math.max(20, Math.min(newY, maxY)),
+				x: Math.max(minX, Math.min(newX, maxX)),
+				y: Math.max(minY, Math.min(newY, maxY)),
 			});
 		},
 		[isDragging, dragOffset, isMinimized]
