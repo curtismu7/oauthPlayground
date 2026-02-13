@@ -386,22 +386,66 @@ const APIVerb = styled.span<{ method: 'GET' | 'POST' | 'PUT' | 'DELETE' }>`
 `;
 
 // API Display Section Styles
-const ApiDisplaySection = styled.div`
-  margin-top: 3rem;
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 2rem;
-  border: 1px solid #e9ecef;
+const ApiDisplayModal = styled.div<{ isOpen: boolean }>`
+  position: fixed;
+  top: 0;
+  right: ${(props) => (props.isOpen ? '0' : '-600px')};
+  width: 600px;
+  height: 100vh;
+  background: #ffffff;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  transition: right 0.3s ease;
+  overflow-y: auto;
 `;
 
-const ApiDisplayHeader = styled.h3`
+const ApiDisplayOverlay = styled.div<{ isOpen: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: ${(props) => (props.isOpen ? 'block' : 'none')};
+`;
+
+const ApiDisplayHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  background: #f8f9fa;
+`;
+
+const ApiDisplayTitle = styled.h3`
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #495057;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin: 0 0 1.5rem 0;
-  color: #495057;
-  font-size: 1.25rem;
-  font-weight: 600;
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6c757d;
+  padding: 0.5rem;
+  border-radius: 4px;
+  
+  &:hover {
+    background: #e9ecef;
+    color: #495057;
+  }
+`;
+
+const ApiDisplayContent = styled.div`
+  padding: 1.5rem;
 `;
 
 const Pagination = styled.div`
@@ -1211,16 +1255,22 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				</Pagination>
 			)}
 
-			{/* API Call Display Section */}
-			{showApiDisplay && (
-				<ApiDisplaySection>
-					<ApiDisplayHeader>
+			{/* API Display Modal */}
+			<ApiDisplayOverlay isOpen={showApiDisplay} onClick={() => setShowApiDisplay(false)} />
+			<ApiDisplayModal isOpen={showApiDisplay}>
+				<ApiDisplayHeader>
+					<ApiDisplayTitle>
 						<FiCode />
 						API Call History
-					</ApiDisplayHeader>
+					</ApiDisplayTitle>
+					<CloseButton onClick={() => setShowApiDisplay(false)}>
+						×
+					</CloseButton>
+				</ApiDisplayHeader>
+				<ApiDisplayContent>
 					<ApiCallList />
-				</ApiDisplaySection>
-			)}
+				</ApiDisplayContent>
+			</ApiDisplayModal>
 		</Container>
 	);
 };
