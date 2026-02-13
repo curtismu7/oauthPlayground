@@ -269,6 +269,7 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 			};
 
 			sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
+			localStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
 		}
 
 		onNavigateToTokenManagement();

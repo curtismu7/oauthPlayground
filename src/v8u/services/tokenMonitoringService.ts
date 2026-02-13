@@ -420,16 +420,16 @@ export class TokenMonitoringService {
 
 	private syncTokensFromFlowContext(): void {
 		try {
-			const flowContext =
-				typeof window !== 'undefined'
-					? window.sessionStorage.getItem('tokenManagementFlowContext')
-					: null;
+			const flowContext = this.getTokenManagementFlowContext();
 			if (flowContext) {
 				const context = JSON.parse(flowContext);
 				if (context.tokens) {
 					this.syncTokensFromOAuthFlow(context.tokens, context.flow || 'unknown');
 				}
+				return;
 			}
+
+			this.syncTokenFromLegacyStorage();
 		} catch (error) {
 			logger.warn('[TokenMonitoring] Failed to sync tokens from flow context:', error);
 		}
@@ -465,6 +465,7 @@ export class TokenMonitoringService {
 				expiresAt,
 				issuedAt: Date.now(),
 				scope: oauthTokens.scope ? oauthTokens.scope.split(' ') : [],
+				source: 'oauth_flow',
 			});
 		}
 
@@ -478,6 +479,7 @@ export class TokenMonitoringService {
 				expiresAt: refreshExpiresAt,
 				issuedAt: Date.now(),
 				scope: oauthTokens.scope ? oauthTokens.scope.split(' ') : [],
+				source: 'oauth_flow',
 			});
 		}
 
@@ -489,8 +491,62 @@ export class TokenMonitoringService {
 				expiresAt: null, // ID tokens typically don't have explicit expiry in the response
 				issuedAt: Date.now(),
 				scope: ['openid'],
+				source: 'oauth_flow',
 			});
 		}
+	}
+
+	private getTokenManagementFlowContext(): string | null {
+		if (typeof window === 'undefined') {
+			return null;
+		}
+
+		const fromCurrentTab = window.sessionStorage.getItem('tokenManagementFlowContext');
+		if (fromCurrentTab) {
+			return fromCurrentTab;
+		}
+
+		// Token Management is often opened in a new tab from a flow page.
+		// In that case the context lives in the opener tab's sessionStorage.
+		try {
+			const openerContext = window.opener?.sessionStorage?.getItem('tokenManagementFlowContext');
+			if (openerContext) {
+				window.sessionStorage.setItem('tokenManagementFlowContext', openerContext);
+				return openerContext;
+			}
+		} catch {
+			// Ignore cross-window access errors; fallback below.
+		}
+
+		return window.localStorage.getItem('tokenManagementFlowContext');
+	}
+
+	private syncTokenFromLegacyStorage(): void {
+		if (typeof window === 'undefined') {
+			return;
+		}
+
+		const tokenValue = window.localStorage.getItem('token_to_analyze');
+		if (!tokenValue) {
+			return;
+		}
+
+		const tokenType = (window.localStorage.getItem('token_type') || 'access').toLowerCase();
+		const mappedType: TokenInfo['type'] =
+			tokenType === 'refresh' ? 'refresh_token' : tokenType === 'id' ? 'id_token' : 'access_token';
+
+		this.addToken({
+			type: mappedType,
+			value: tokenValue,
+			expiresAt: mappedType === 'refresh_token' ? Date.now() + 7 * 24 * 60 * 60 * 1000 : null,
+			issuedAt: Date.now(),
+			scope: [],
+			source: 'oauth_flow',
+		});
+
+		logger.debug('[TokenMonitoring] Synced token from legacy localStorage fallback', {
+			type: mappedType,
+		});
 	}
 
 	private clearTokensByType(tokenType: string): void {
@@ -713,10 +769,7 @@ export class TokenMonitoringService {
 
 		try {
 			// Get credentials from flow context for introspection
-			const flowContext =
-				typeof window !== 'undefined'
-					? window.sessionStorage.getItem('tokenManagementFlowContext')
-					: null;
+			const flowContext = this.getTokenManagementFlowContext();
 			if (flowContext) {
 				const context = JSON.parse(flowContext);
 				const credentials = context.credentials;
@@ -901,10 +954,7 @@ export class TokenMonitoringService {
 
 	private async revokeTokenOAuth(token: TokenInfo): Promise<void> {
 		// Get credentials from flow context for revocation
-		const flowContext =
-			typeof window !== 'undefined'
-				? window.sessionStorage.getItem('tokenManagementFlowContext')
-				: null;
+		const flowContext = this.getTokenManagementFlowContext();
 		if (flowContext) {
 			const context = JSON.parse(flowContext);
 			const credentials = context.credentials;
@@ -947,10 +997,7 @@ export class TokenMonitoringService {
 		_token: TokenInfo,
 		options: RevocationOptions
 	): Promise<void> {
-		const flowContext =
-			typeof window !== 'undefined'
-				? window.sessionStorage.getItem('tokenManagementFlowContext')
-				: null;
+		const flowContext = this.getTokenManagementFlowContext();
 		if (flowContext) {
 			const context = JSON.parse(flowContext);
 			const credentials = context.credentials;
@@ -998,10 +1045,7 @@ export class TokenMonitoringService {
 		// Get worker token for Management API
 		try {
 			const workerToken = await unifiedWorkerTokenService.getToken();
-			const flowContext =
-				typeof window !== 'undefined'
-					? window.sessionStorage.getItem('tokenManagementFlowContext')
-					: null;
+			const flowContext = this.getTokenManagementFlowContext();
 
 			if (flowContext) {
 				const context = JSON.parse(flowContext);
