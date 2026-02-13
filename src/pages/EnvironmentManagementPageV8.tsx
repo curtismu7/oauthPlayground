@@ -16,10 +16,12 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import ApiCallList from '../components/ApiCallList';
+import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
+import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
-import { useWorkerTokenState, WorkerTokenUI } from '../services/workerTokenUIService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { IndexedDBBackupServiceV8U } from '../v8u/services/indexedDBBackupServiceV8U';
 
 const Container = styled.div`
@@ -495,14 +497,41 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	// Global worker token for authenticated API calls
 	const globalTokenStatus = useGlobalWorkerToken();
 
-	// Worker token UI state
-	const {
-		workerToken,
-		workerTokenExpiresAt,
-		showWorkerTokenModal,
-		setShowWorkerTokenModal,
-		handleModalContinue,
-	} = useWorkerTokenState();
+	// Worker token state
+	const [workerToken, setWorkerToken] = useState<string>(() => 
+		localStorage.getItem('worker_token') || ''
+	);
+	const [workerTokenExpiresAt, setWorkerTokenExpiresAt] = useState<number | undefined>(() => {
+		const expiresAt = localStorage.getItem('worker_token_expires_at');
+		return expiresAt ? parseInt(expiresAt, 10) : undefined;
+	});
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+
+	// Listen for token updates
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			const token = localStorage.getItem('worker_token') || '';
+			const expiresAt = localStorage.getItem('worker_token_expires_at');
+			setWorkerToken(token);
+			setWorkerTokenExpiresAt(expiresAt ? parseInt(expiresAt, 10) : undefined);
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		window.addEventListener('workerTokenMetricsUpdated', handleTokenUpdate);
+
+		return () => {
+			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+			window.removeEventListener('workerTokenMetricsUpdated', handleTokenUpdate);
+		};
+	}, []);
+
+	const handleModalContinue = () => {
+		const token = localStorage.getItem('worker_token') || '';
+		const expiresAt = localStorage.getItem('worker_token_expires_at');
+		setWorkerToken(token);
+		setWorkerTokenExpiresAt(expiresAt ? parseInt(expiresAt, 10) : undefined);
+		setShowWorkerTokenModal(false);
+	};
 
 	const pageSize = 12;
 	const STORAGE_KEY = 'environment-management-settings';
@@ -879,18 +908,22 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						generate a worker token to continue.
 					</p>
 
-					<WorkerTokenUI
+					<WorkerTokenDetectedBanner
 						workerToken={workerToken}
 						workerTokenExpiresAt={workerTokenExpiresAt || 0}
-						showModal={showWorkerTokenModal}
-						onShowModal={() => setShowWorkerTokenModal(true)}
-						onCloseModal={() => setShowWorkerTokenModal(false)}
-						onModalContinue={handleModalContinue}
+						onRefresh={() => window.location.reload()}
+						onGetToken={() => setShowWorkerTokenModal(true)}
 						flowType="environment-management"
-						generateButtonText="Get Worker Token for Environments"
-						readyButtonText="Worker Token Ready"
-						refreshButtonText="Refresh Worker Token"
-						bannerMessage="Generate a worker token to access PingOne environment management features."
+					/>
+
+					{/* Worker Token Modal */}
+					<WorkerTokenModal
+						isOpen={showWorkerTokenModal}
+						onClose={() => setShowWorkerTokenModal(false)}
+						onContinue={handleModalContinue}
+						flowType="environment-management"
+						tokenStorageKey="worker_token"
+						tokenExpiryKey="worker_token_expires_at"
 					/>
 				</div>
 			</Container>
