@@ -234,14 +234,14 @@ const OIDCExamples: React.FC = () => {
 		setTimeout(() => setStatus(null), 5000);
 	};
 
-	const addAPILog = (log: Omit<APILog, 'id' | 'timestamp'>) => {
+	const addAPILog = useCallback((log: Omit<APILog, 'id' | 'timestamp'>) => {
 		const newLog: APILog = {
 			...log,
 			id: Date.now().toString(),
 			timestamp: new Date(),
 		};
 		setApiLogs((prev) => [newLog, ...prev].slice(0, 50)); // Keep last 50 logs
-	};
+	}, []);
 
 	const handleOAuthCallback = useCallback(async (code: string, state: string) => {
 		setIsLoading(true);
@@ -277,7 +277,8 @@ const OIDCExamples: React.FC = () => {
 			console.log('OAuth callback received:', { code, state });
 
 			setTokens(mockTokens);
-			showStatus('success', 'OAuth callback processed successfully!');
+			setStatus({ type: 'success', message: 'OAuth callback processed successfully!' });
+			setTimeout(() => setStatus(null), 5000);
 			
 			addAPILog({
 				method: 'POST',
@@ -286,7 +287,8 @@ const OIDCExamples: React.FC = () => {
 				responseBody: mockTokens,
 			});
 		} catch (error) {
-			showStatus('error', `Failed to process OAuth callback: ${error}`);
+			setStatus({ type: 'error', message: `Failed to process OAuth callback: ${error}` });
+			setTimeout(() => setStatus(null), 5000);
 			addAPILog({
 				method: 'POST',
 				url: 'https://auth.pingone.com/oauth2/token',
@@ -326,7 +328,7 @@ const OIDCExamples: React.FC = () => {
 		
 		addAPILog({
 			method: 'GET',
-			url: authUrl + '?' + params.toString(),
+			url: `${authUrl}?${params.toString()}`,
 			requestHeaders: {
 				'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 			},
