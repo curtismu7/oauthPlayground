@@ -639,59 +639,60 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 					<AmericanAirlinesHero
 						currentStep={portalState.currentStep}
 						onLoginStart={handleLoginStart}
-						onLoginSuccess={handleLoginSuccess}
-						onError={handleError}
-						environmentId={environmentId}
-						clientId={clientId}
-						clientSecret={clientSecret}
-						redirectUri={redirectUri}
+						_onLoginSuccess={handleLoginSuccess}
+						_onError={handleError}
+						_environmentId={environmentId}
+						_clientId={clientId}
+						_clientSecret={clientSecret}
+						_redirectUri={redirectUri}
 					/>
 				)}
 				{activeTheme.name === 'southwest-airlines' && (
 					<SouthwestAirlinesHero
 						currentStep={portalState.currentStep}
 						onLoginStart={handleLoginStart}
-						onLoginSuccess={handleLoginSuccess}
-						onError={handleError}
-						environmentId={environmentId}
-						clientId={clientId}
-						clientSecret={clientSecret}
-						redirectUri={redirectUri}
+						_onLoginSuccess={handleLoginSuccess}
+						_onError={handleError}
+						_environmentId={environmentId}
+						_clientId={clientId}
+						_clientSecret={clientSecret}
+						_redirectUri={redirectUri}
 					/>
 				)}
 				{activeTheme.name === 'fedex' && (
 					<FedExAirlinesHero
 						currentStep={portalState.currentStep}
-						onLoginSuccess={handleLoginSuccess}
-						onError={handleError}
-						environmentId={environmentId}
-						clientId={clientId}
-						clientSecret={clientSecret}
-						redirectUri={redirectUri}
+						onLoginStart={handleLoginStart}
+						_onLoginSuccess={handleLoginSuccess}
+						_onError={handleError}
+						_environmentId={environmentId}
+						_clientId={clientId}
+						_clientSecret={clientSecret}
+						_redirectUri={redirectUri}
 					/>
 				)}
 				{activeTheme.name === 'bank-of-america' && (
 					<BankOfAmericaHero
 						currentStep={portalState.currentStep}
 						onLoginStart={handleLoginStart}
-						onLoginSuccess={handleLoginSuccess}
-						onError={handleError}
-						environmentId={environmentId}
-						clientId={clientId}
-						clientSecret={clientSecret}
-						redirectUri={redirectUri}
+						_onLoginSuccess={handleLoginSuccess}
+						_onError={handleError}
+						_environmentId={environmentId}
+						_clientId={clientId}
+						_clientSecret={clientSecret}
+						_redirectUri={redirectUri}
 					/>
 				)}
 				{activeTheme.name === 'united-airlines' && (
 					<UnitedAirlinesHero
 						currentStep={portalState.currentStep}
 						onLoginStart={handleLoginStart}
-						onLoginSuccess={handleLoginSuccess}
-						onError={handleError}
-						environmentId={environmentId}
-						clientId={clientId}
-						clientSecret={clientSecret}
-						redirectUri={redirectUri}
+						_onLoginSuccess={handleLoginSuccess}
+						_onError={handleError}
+						_environmentId={environmentId}
+						_clientId={clientId}
+						_clientSecret={clientSecret}
+						_redirectUri={redirectUri}
 					/>
 				)}
 				{activeTheme.name !== 'american-airlines' &&
