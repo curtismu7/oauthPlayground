@@ -13,7 +13,7 @@ const ModalBackdrop = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 999998;
   padding: 2rem;
   
   @media (max-width: 1024px) {
@@ -67,7 +67,7 @@ const ModalContent = styled.div<{
   left: ${(props) => props.$position.x}px;
   cursor: ${(props) => (props.$isDragging ? 'grabbing' : 'default')};
   transition: ${(props) => (props.$isDragging ? 'none' : 'all 0.2s ease')};
-  z-index: 1001;
+  z-index: 999999;
   
   /* Ensure modal stays within viewport */
   max-width: calc(100vw - 2rem);
