@@ -255,12 +255,15 @@ const CodeBlock = styled.pre<{ $theme?: 'light' | 'dark' }>`
 	border-radius: 6px;
 	padding: 1rem;
 	overflow-x: auto;
+	overflow-y: auto;
+	max-height: 400px;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	line-height: 1.5;
 	color: ${({ $theme }) => ($theme === 'dark' ? '#f9fafb' : '#374151')};
 	margin: 0;
 	white-space: pre-wrap;
+	word-wrap: break-word;
 `;
 
 const InfoTooltip = styled.div<{ $show: boolean }>`
