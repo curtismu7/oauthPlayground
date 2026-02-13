@@ -115,7 +115,7 @@ export class LogFileService {
 			return 'Server Logs';
 		} else if (['api-log.log', 'real-api.log', 'pingone-api.log'].includes(filename)) {
 			return 'API Logs';
-		} else if (['frontend.log', 'client.log'].includes(filename)) {
+		} else if (['client.log'].includes(filename)) {
 			return 'Frontend Logs';
 		} else if (['fido.log', 'sms.log', 'email.log', 'whatsapp.log', 'voice.log'].includes(filename)) {
 			return 'MFA Device Logs';
