@@ -822,7 +822,7 @@ app.get('/api/logs/list', (req, res) => {
 					category = 'server';
 				} else if (['pingone-api.log'].includes(f)) {
 					category = 'api';
-				} else if (['frontend.log', 'client.log'].includes(f)) {
+				} else if (['client.log'].includes(f)) {
 					category = 'frontend';
 				} else if (['fido.log', 'sms.log', 'email.log', 'whatsapp.log', 'voice.log'].includes(f)) {
 					category = 'mfa';
