@@ -119,7 +119,15 @@ export class UnifiedOAuthBackupServiceV8U {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify(payload),
+			}).catch((error) => {
+				// Suppress network errors in console (server may not be ready yet)
+				logger.debug(`${_MODULE_TAG} Backup API not available`, { error: error.message });
+				return null;
 			});
+
+			if (!response) {
+				return null;
+			}
 
 			if (!response.ok) {
 				if (response.status === 404) {
