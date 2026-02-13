@@ -6,12 +6,11 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { FiRefreshCw, FiTrash2, FiDownload, FiEye, FiEyeOff, FiFile, FiDatabase } from 'react-icons/fi';
+import { FiRefreshCw, FiTrash2, FiDownload, FiEye, FiEyeOff, FiFile, FiDatabase, FiExternalLink } from 'react-icons/fi';
 import { PageHeaderV8, PageHeaderGradients, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { LogFileService, type LogFile } from '@/services/logFileService';
-
-const MODULE_TAG = '[🔍 DEBUG-LOG-VIEWER-V8]';
+import { openDebugLogViewerPopout } from '@/v8/utils/debugLogViewerPopoutHelperV8';
 
 // Maximum string length to avoid browser crashes (approximately 50MB)
 const MAX_STRING_LENGTH = 50 * 1024 * 1024;
@@ -55,7 +54,7 @@ export const DebugLogViewerV8: React.FC = () => {
 	// Source selection
 	const [logSource, setLogSource] = useState<LogSource>('file');
 	const [availableFiles, setAvailableFiles] = useState<LogFile[]>([]);
-	const [selectedFile, setSelectedFile] = useState<string>('pingone-api.log');
+	const [selectedFile, setSelectedFile] = useState<string>('authz-redirects.log');
 	const [lineCount, setLineCount] = useState<number>(100);
 	
 	// Log data
@@ -123,7 +122,6 @@ export const DebugLogViewerV8: React.FC = () => {
 		localStorage.setItem('mfa_redirect_debug_log', JSON.stringify(testLogs));
 		setLogs(testLogs);
 		setFileContent('');
-		console.log(`${MODULE_TAG} Generated ${testLogs.length} test log entries`);
 	}, []);
 
 	// Load localStorage logs
@@ -133,14 +131,13 @@ export const DebugLogViewerV8: React.FC = () => {
 			if (stored) {
 				const parsed = JSON.parse(stored) as LogEntry[];
 				setLogs(parsed);
-				setFileContent('');
-				console.log(`${MODULE_TAG} Loaded ${parsed.length} localStorage log entries`);
+			setFileContent('');
 			} else {
 				// Generate test logs if none exist
 				generateTestLogs();
 			}
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load localStorage logs:`, error);
+		} catch {
+			// Silently handle error
 			setLogs([]);
 		}
 	}, [generateTestLogs]);
@@ -164,14 +161,13 @@ export const DebugLogViewerV8: React.FC = () => {
 			setOriginalFileSize(originalSize);
 			
 			if (isTruncated) {
-				console.warn(`${MODULE_TAG} File content truncated for ${selectedFile}: ${(originalSize / 1024 / 1024).toFixed(2)} MB → ${(MAX_STRING_LENGTH / 1024 / 1024).toFixed(2)} MB`);
+				// File was truncated
 			} else {
-				console.log(`${MODULE_TAG} Loaded ${result.totalLines} lines from ${selectedFile}`);
+				// File loaded successfully
 			}
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Failed to load log file';
 			setError(errorMessage);
-			console.error(`${MODULE_TAG} Error loading file:`, err);
 		} finally {
 			setIsLoading(false);
 		}
@@ -183,14 +179,51 @@ export const DebugLogViewerV8: React.FC = () => {
 			try {
 				const files = await LogFileService.listLogFiles();
 				setAvailableFiles(files);
-				console.log(`${MODULE_TAG} Found ${files.length} log files`);
-			} catch (err) {
-				console.error(`${MODULE_TAG} Failed to list log files:`, err);
+				
+				// Load last selected file from localStorage
+				const lastSelectedFile = localStorage.getItem('debugLogViewer_lastSelectedFile');
+				if (lastSelectedFile && files.some(f => f.name === lastSelectedFile)) {
+					setSelectedFile(lastSelectedFile);
+				} else if (files.length > 0) {
+					// Default to first available file if saved one doesn't exist
+					setSelectedFile(files[0].name);
+					// Save the default
+					localStorage.setItem('debugLogViewer_lastSelectedFile', files[0].name);
+					// Also save to SQLite via API
+					try {
+						await fetch('/api/settings/debug-log-viewer', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ lastSelectedFile: files[0].name })
+						});
+					} catch {
+						// Silently fail if SQLite save fails
+					}
+				}
+			} catch {
+				// Silently handle error
 			}
 		};
 		
 		loadFiles();
 	}, []);
+
+	// Save selected file to localStorage and SQLite when it changes
+	useEffect(() => {
+		if (selectedFile) {
+			localStorage.setItem('debugLogViewer_lastSelectedFile', selectedFile);
+			// Also save to SQLite via API
+			try {
+				fetch('/api/settings/debug-log-viewer', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ lastSelectedFile: selectedFile })
+				});
+			} catch {
+				// Silently fail if SQLite save fails
+			}
+		}
+	}, [selectedFile]);
 
 	// Load logs when source or file changes
 	useEffect(() => {
@@ -199,13 +232,9 @@ export const DebugLogViewerV8: React.FC = () => {
 		} else {
 			void loadFileLogs();
 		}
-	}, [logSource, selectedFile, lineCount, loadLocalStorageLogs, loadFileLogs]);
-
-	// Setup tail mode
+	}, [logSource, loadLocalStorageLogs, loadFileLogs]);
 	useEffect(() => {
 		if (logSource === 'file' && tailMode && selectedFile) {
-			console.log(`${MODULE_TAG} Starting tail mode for ${selectedFile}`);
-			
 			const eventSource = LogFileService.createTailStream(selectedFile);
 			eventSourceRef.current = eventSource;
 			
@@ -214,30 +243,27 @@ export const DebugLogViewerV8: React.FC = () => {
 					const data = JSON.parse(event.data);
 					
 					if (data.type === 'connected') {
-						console.log(`${MODULE_TAG} Tail stream connected`);
+						// Connected
 					} else if (data.type === 'update' && data.lines) {
-						setFileContent(prev => prev + '\n' + data.lines.join('\n'));
+						setFileContent(prev => `${prev}\n${data.lines.join('\n')}`);
 						
 						// Auto-scroll to bottom
 						if (logContainerRef.current) {
 							logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
 						}
 					} else if (data.type === 'error') {
-						console.error(`${MODULE_TAG} Tail stream error:`, data.message);
 						setError(data.message);
 					}
-				} catch (err) {
-					console.error(`${MODULE_TAG} Failed to parse tail event:`, err);
+				} catch {
+					// Silently handle parse errors
 				}
 			};
 			
 			eventSource.onerror = () => {
-				console.error(`${MODULE_TAG} Tail stream connection error`);
 				setTailMode(false);
 			};
 			
 			return () => {
-				console.log(`${MODULE_TAG} Closing tail stream`);
 				eventSource.close();
 				eventSourceRef.current = null;
 			};
@@ -248,7 +274,6 @@ export const DebugLogViewerV8: React.FC = () => {
 		if (logSource === 'localStorage') {
 			MFARedirectUriServiceV8.clearDebugLogs();
 			setLogs([]);
-			console.log(`${MODULE_TAG} Cleared localStorage logs`);
 		} else {
 			setFileContent('');
 		}
@@ -269,7 +294,6 @@ export const DebugLogViewerV8: React.FC = () => {
 			document.body.removeChild(a);
 			URL.revokeObjectURL(url);
 		}
-		console.log(`${MODULE_TAG} Exported logs`);
 	};
 
 	const toggleLogExpansion = (index: number) => {
@@ -296,6 +320,221 @@ export const DebugLogViewerV8: React.FC = () => {
 			case 'INFO': return '#3b82f6';
 			default: return '#6b7280';
 		}
+	};
+
+	// Color scheme for log highlighting
+	const LOG_COLORS = {
+		// Timestamp
+		timestamp: '#6b7280',
+		// Log levels
+		ERROR: '#ef4444',
+		WARN: '#f59e0b',
+		INFO: '#3b82f6',
+		DEBUG: '#8b5cf6',
+		// HTTP methods
+		GET: '#10b981',
+		POST: '#3b82f6',
+		PUT: '#f59e0b',
+		DELETE: '#ef4444',
+		PATCH: '#8b5cf6',
+		// Status codes
+		success: '#10b981',
+		warning: '#f59e0b',
+		error: '#ef4444',
+		// Special patterns
+		url: '#3b82f6',
+		json: '#ec4899',
+		number: '#10b981',
+		ip: '#8b5cf6',
+		module: '#f59e0b',
+		badge: '#6366f1',
+	};
+
+	// Function to parse and colorize log lines
+	const colorizeLogLine = (line: string): React.ReactNode => {
+		// Skip empty lines
+		if (!line.trim()) return line;
+
+		// Try to parse as JSON first (for authz-redirects.log)
+		if (line.startsWith('{') && line.endsWith('}')) {
+			try {
+				const parsed = JSON.parse(line);
+				return (
+					<span>
+						{parsed.timestamp && (
+							<span style={{ color: LOG_COLORS.timestamp }}>
+								[{new Date(parsed.timestamp).toLocaleString()}]
+							</span>
+						)}
+						{' '}
+						{parsed.level && (
+							<span style={{ 
+								color: LOG_COLORS[parsed.level as keyof typeof LOG_COLORS] || LOG_COLORS.INFO,
+								fontWeight: 'bold'
+							}}>
+								[{parsed.level}]
+							</span>
+						)}
+						{' '}
+						{parsed.category && (
+							<span style={{ 
+								color: LOG_COLORS.module,
+								fontStyle: 'italic'
+							}}>
+								[{parsed.category}]
+							</span>
+						)}
+						{' '}
+						{parsed.event && (
+							<span style={{ color: LOG_COLORS.json }}>
+								Event: {parsed.event}
+							</span>
+						)}
+						{parsed.startedStep && (
+							<span style={{ color: LOG_COLORS.number }}>
+								{' '}Started: {parsed.startedStep}
+							</span>
+						)}
+						{parsed.targetStep && (
+							<span style={{ color: LOG_COLORS.number }}>
+								{' '}Target: {parsed.targetStep}
+							</span>
+						)}
+						{parsed.reason && (
+							<span style={{ color: LOG_COLORS.warning }}>
+								{' '}Reason: {parsed.reason}
+							</span>
+						)}
+						{parsed.currentUrl && (
+							<div>
+								<span style={{ color: LOG_COLORS.url }}>Current URL: {parsed.currentUrl}</span>
+							</div>
+						)}
+						{parsed.targetUrl && (
+							<div>
+								<span style={{ color: LOG_COLORS.url }}>Target URL: {parsed.targetUrl}</span>
+							</div>
+						)}
+						{parsed.sessionId && (
+							<span style={{ color: LOG_COLORS.ip }}>
+								{' '}Session: {parsed.sessionId.slice(0, 8)}...
+							</span>
+						)}
+						{parsed.flowId && (
+							<span style={{ color: LOG_COLORS.ip }}>
+								{' '}Flow: {parsed.flowId.slice(0, 8)}...
+							</span>
+						)}
+					</span>
+				);
+			} catch {
+				// Not valid JSON, continue with normal parsing
+			}
+		}
+
+		// Split line into parts for processing
+		const parts = line.split(/\s+/);
+		const result: React.ReactNode[] = [];
+
+		// Process each part
+		for (let i = 0; i < parts.length; i++) {
+			const part = parts[i];
+			let styled = false;
+
+			// Timestamp pattern (e.g., 2025-01-13T10:30:45.123Z)
+			if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(part)) {
+				result.push(
+					<span key={i} style={{ color: LOG_COLORS.timestamp }}>
+						{part}{' '}
+					</span>
+				);
+				styled = true;
+			}
+			// Log levels in brackets
+			else if (part.startsWith('[') && part.endsWith(']')) {
+				const level = part.slice(1, -1).toUpperCase();
+				if (['ERROR', 'WARN', 'INFO', 'DEBUG'].includes(level)) {
+					result.push(
+						<span key={i} style={{ 
+							color: LOG_COLORS[level as keyof typeof LOG_COLORS] || LOG_COLORS.INFO,
+							fontWeight: 'bold'
+						}}>
+							{part}{' '}
+						</span>
+					);
+					styled = true;
+				}
+			}
+			// HTTP methods
+			else if (['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].includes(part)) {
+				result.push(
+					<span key={i} style={{ 
+						color: LOG_COLORS[part as keyof typeof LOG_COLORS],
+						fontWeight: 'bold'
+					}}>
+						{part}{' '}
+					</span>
+				);
+				styled = true;
+			}
+			// HTTP status codes
+			else if (/^\d{3}$/.test(part)) {
+				const code = parseInt(part);
+				let color = LOG_COLORS.info;
+				if (code >= 200 && code < 300) color = LOG_COLORS.success;
+				else if (code >= 300 && code < 400) color = LOG_COLORS.warning;
+				else if (code >= 400) color = LOG_COLORS.error;
+				
+				result.push(
+					<span key={i} style={{ color, fontWeight: 'bold' }}>
+						{part}{' '}
+					</span>
+				);
+				styled = true;
+			}
+			// URLs
+			else if (part.startsWith('http://') || part.startsWith('https://')) {
+				result.push(
+					<span key={i} style={{ color: LOG_COLORS.url, textDecoration: 'underline' }}>
+						{part}{' '}
+					</span>
+				);
+				styled = true;
+			}
+			// IP addresses
+			else if (/^\d+\.\d+\.\d+\.\d+/.test(part)) {
+				result.push(
+					<span key={i} style={{ color: LOG_COLORS.ip }}>
+						{part}{' '}
+					</span>
+				);
+				styled = true;
+			}
+			// Module tags (e.g., [🔗 MFA-REDIRECT-SERVICE-V8])
+			else if (part.startsWith('[') && part.includes(']') && part.includes('V8')) {
+				result.push(
+					<span key={i} style={{ color: LOG_COLORS.module, fontStyle: 'italic' }}>
+						{part}{' '}
+					</span>
+				);
+				styled = true;
+			}
+			// JSON-like values
+			else if (part.includes('=') && part.includes(':')) {
+				result.push(
+					<span key={i} style={{ color: LOG_COLORS.json }}>
+						{part}{' '}
+					</span>
+				);
+				styled = true;
+			}
+
+			if (!styled) {
+				result.push(<span key={i}>{part}{' '}</span>);
+			}
+		}
+
+		return result;
 	};
 
 	const getCategoryColor = (category: string) => {
@@ -392,10 +631,14 @@ export const DebugLogViewerV8: React.FC = () => {
 				{/* File Selection */}
 				{logSource === 'file' && (
 					<div style={{ marginBottom: '15px' }}>
-						<label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+						<label 
+							style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}
+							htmlFor="log-file-select"
+						>
 							Select Log File:
 						</label>
 						<select
+							id="log-file-select"
 							value={selectedFile}
 							onChange={(e) => setSelectedFile(e.target.value)}
 							style={{
@@ -425,10 +668,13 @@ export const DebugLogViewerV8: React.FC = () => {
 				{/* Line Count Selection */}
 				{logSource === 'file' && (
 					<div style={{ marginBottom: '15px' }}>
-						<label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+						<label 
+							style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}
+							htmlFor="line-count-buttons"
+						>
 							Lines to show:
 						</label>
-						<div style={{ display: 'flex', gap: '8px' }}>
+						<div style={{ display: 'flex', gap: '8px' }} id="line-count-buttons">
 							{[100, 500, 1000].map(count => (
 								<button
 									key={count}
@@ -539,6 +785,28 @@ export const DebugLogViewerV8: React.FC = () => {
 					>
 						<FiDownload size={16} />
 						Export
+					</button>
+
+					<button
+						type="button"
+						onClick={openDebugLogViewerPopout}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							padding: '10px 16px',
+							background: '#8b5cf6',
+							color: 'white',
+							border: 'none',
+							borderRadius: '6px',
+							fontSize: '14px',
+							fontWeight: '600',
+							cursor: 'pointer',
+						}}
+						title="Open in free-floating window that can be moved outside browser"
+					>
+						<FiExternalLink size={16} />
+						Popout
 					</button>
 
 					<div style={{
@@ -787,12 +1055,17 @@ export const DebugLogViewerV8: React.FC = () => {
 									margin: 0,
 									fontSize: '12px',
 									color: '#000000',
-									fontFamily: 'monospace',
+									fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
 									whiteSpace: 'pre-wrap',
 									wordBreak: 'break-word',
 									lineHeight: '1.5',
 								}}>
-									{fileContent}
+								{fileContent.split('\n').map((line, index) => (
+									<React.Fragment key={index}>
+										{colorizeLogLine(line)}
+										{'\n'}
+									</React.Fragment>
+								))}
 								</pre>
 							</div>
 						</>

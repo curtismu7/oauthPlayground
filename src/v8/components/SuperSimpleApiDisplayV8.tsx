@@ -22,6 +22,28 @@ import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 
 const MODULE_TAG = '[⚡ SUPER-SIMPLE-API-V8]';
 
+// Debug gate + lightweight dedupe for console noise
+const getApiDisplayDebug = (): boolean => {
+  try {
+    return localStorage.getItem('debug.apiDisplay') === 'true';
+  } catch {
+    return false;
+  }
+};
+
+let __lastDebugKey: string | null = null;
+let __lastDebugTs = 0;
+const debugLog = (label: string, data?: Record<string, unknown>) => {
+  if (!getApiDisplayDebug()) return;
+  const key = `${label}|${data?.url ?? ''}|${data?.actualPingOneUrl ?? ''}`;
+  const now = Date.now();
+  // Skip duplicates within 2000ms
+  if (key === __lastDebugKey && now - __lastDebugTs < 2000) return;
+  __lastDebugKey = key;
+  __lastDebugTs = now;
+  console.log(label, data);
+};
+
 interface ApiCall {
 	id: string;
 	method: string;
@@ -1045,7 +1067,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					const operationName = (call as { operationName?: string }).operationName;
 
 					// Debug: Log ALL calls being processed
-					console.log('🔍 API DISPLAY: Processing call', {
+					debugLog('🔍 API DISPLAY: Processing call', {
 						url,
 						actualPingOneUrl,
 						step,
@@ -1075,7 +1097,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					// Flow-specific filtering
 					if (flowFilter === 'unified') {
 						// Debug: Log all calls being considered for unified flow
-						console.log('🔍 UNIFIED FILTER: Checking call', {
+						debugLog('🔍 UNIFIED FILTER: Checking call', {
 							url,
 							actualPingOneUrl,
 							step,

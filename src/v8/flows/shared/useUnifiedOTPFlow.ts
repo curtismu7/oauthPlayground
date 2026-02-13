@@ -33,6 +33,8 @@ export type OTPState = {
 	otpSent: boolean;
 	sendError: string | null;
 	sendRetryCount: number;
+	canResend: boolean;
+	resendCooldown: number;
 };
 
 export type ValidationState = {
@@ -223,6 +225,8 @@ export function useUnifiedOTPFlow(options: UseUnifiedOTPFlowOptions): UseUnified
 		otpSent: false,
 		sendError: null,
 		sendRetryCount: 0,
+		canResend: false,
+		resendCooldown: 0,
 	});
 
 	// Track successful registration
@@ -281,6 +285,21 @@ export function useUnifiedOTPFlow(options: UseUnifiedOTPFlowOptions): UseUnified
 		},
 		[]
 	);
+
+	// Handle resend cooldown timer
+	useEffect(() => {
+		if (otpState.resendCooldown > 0) {
+			const timer = setTimeout(() => {
+				updateOtpState({ resendCooldown: otpState.resendCooldown - 1 });
+			}, 1000);
+			return () => clearTimeout(timer);
+		}
+		
+		if (otpState.resendCooldown === 0 && otpState.otpSent && !otpState.canResend) {
+			// Enable resend when cooldown reaches 0 and OTP has been sent
+			updateOtpState({ canResend: true });
+		}
+	}, [otpState.resendCooldown, otpState.otpSent, otpState.canResend, updateOtpState]);
 
 	// Track API display visibility and height for dynamic padding
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);

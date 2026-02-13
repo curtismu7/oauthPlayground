@@ -14,6 +14,7 @@ import { MFADeviceLimitModalV8 } from '@/v8/components/MFADeviceLimitModalV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { MFASettingsModalV8 } from '@/v8/components/MFASettingsModalV8';
 import { MFAUserDisplayV8 } from '@/v8/components/MFAUserDisplayV8';
+import { MFAWaitScreenV8 } from '@/v8/components/MFAWaitScreenV8';
 import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
 import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
@@ -142,6 +143,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			document.documentElement.scrollTop = 0;
 			document.body.scrollTop = 0;
 		},
+		stepTransitionDelay: 300,
 	});
 
 	// FOOLPROOF: Handle step advancement after OAuth callback
@@ -393,6 +395,34 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		}
 		return false; // Indicates no sync was needed or failed
 	}, [credentials.userToken, credentials.tokenType]);
+
+	/**
+	 * Handle restart flow functionality
+	 * Clears all state and resets the flow to the beginning
+	 */
+	const handleRestartFlow = useCallback(async () => {
+		const confirmed = await new Promise<boolean>((resolve) => {
+			const result = window.confirm('Are you sure you want to restart the flow? All progress will be lost.');
+			resolve(result);
+		});
+
+		if (confirmed) {
+			console.log(`${MODULE_TAG} Restarting flow - clearing all state`);
+			
+			// Clear all storage
+			sessionStorage.removeItem('mfa-flow-v8');
+			sessionStorage.removeItem('mfa_oauth_callback_step');
+			sessionStorage.removeItem('mfa_oauth_callback_timestamp');
+			sessionStorage.removeItem('mfa_target_step_after_callback');
+			localStorage.removeItem('mfa-flow-v8');
+			
+			// Reset to step 0
+			nav.goToStep(0);
+			
+			// Reload the page to ensure complete reset
+			window.location.reload();
+		}
+	}, [nav]);
 
 	// Sync user token from user-login-v8 if available (for user flow)
 	// This handles the case where user logs in after MFA flow has already loaded
@@ -915,6 +945,16 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 						</div>
 					</div>
 				</div>
+				<div className="restart-flow-container">
+					<button
+						type="button"
+						onClick={handleRestartFlow}
+						className="restart-flow-button"
+						title="Restart the flow from the beginning"
+					>
+						🔄 Restart Flow
+					</button>
+				</div>
 			</div>
 
 			{/* Navigation */}
@@ -938,7 +978,13 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				</div>
 
 				<div className="step-content-wrapper" style={{ paddingBottom: '12px' }}>
-					{renderStepContent()}
+					{nav.isTransitioning ? (
+						<MFAWaitScreenV8 
+							message={`Loading ${stepLabels[nav.currentStep] || 'next step'}...`}
+						/>
+					) : (
+						renderStepContent()
+					)}
 				</div>
 
 				<StepValidationFeedbackV8
@@ -1478,6 +1524,41 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					padding: 12px 20px;
 					margin-bottom: 0;
 					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+				}
+
+				.restart-flow-container {
+					display: flex;
+					justify-content: center;
+					margin-top: 12px;
+					padding: 0 20px;
+				}
+
+				.restart-flow-button {
+					background: rgba(255, 255, 255, 0.15);
+					border: 1px solid rgba(255, 255, 255, 0.3);
+					color: white;
+					padding: 8px 16px;
+					border-radius: 6px;
+					cursor: pointer;
+					font-size: 14px;
+					font-weight: 500;
+					display: flex;
+					align-items: center;
+					gap: 6px;
+					transition: all 0.2s ease;
+					backdrop-filter: blur(10px);
+				}
+
+				.restart-flow-button:hover {
+					background: rgba(255, 255, 255, 0.25);
+					border-color: rgba(255, 255, 255, 0.5);
+					transform: translateY(-1px);
+					box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+				}
+
+				.restart-flow-button:active {
+					transform: translateY(0);
+					box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 				}
 
 				.header-content {

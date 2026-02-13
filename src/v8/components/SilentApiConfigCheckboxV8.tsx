@@ -80,7 +80,7 @@ export const SilentApiConfigCheckboxV8: React.FC<SilentApiConfigCheckboxV8Props>
 		>
 			<input
 				type="checkbox"
-				checked={silentApiRetrieval ?? false}
+				checked={silentApiRetrieval === true}
 				onChange={handleChange}
 				disabled={disabled || loading}
 				style={{

@@ -221,6 +221,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 	const [showAppDiscoveryModal, setShowAppDiscoveryModal] = useState(false);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [tokenWasGenerated, setTokenWasGenerated] = useState(false);
+	const [effectiveEnvironmentId, setEffectiveEnvironmentId] = useState(environmentId);
 
 	// Use centralized worker token configuration hook
 	const {
@@ -265,6 +266,54 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 			window.removeEventListener('workerTokenCleared', handleStorageChange);
 		};
 	}, []);
+
+	// Update effective environment ID from various sources
+	useEffect(() => {
+		const updateEffectiveEnvironmentId = async () => {
+			let effectiveId = environmentId;
+
+			// If environment ID not provided, try to extract it from worker token
+			if (!effectiveId.trim()) {
+				try {
+					const { workerTokenServiceV8 } = await import('../services/workerTokenServiceV8');
+					const credentials = await workerTokenServiceV8.loadCredentials();
+
+					if (credentials?.environmentId) {
+						effectiveId = credentials.environmentId;
+						console.log('[WorkerTokenUIServiceV8] Extracted environment ID from worker token', {
+							environmentId: effectiveId,
+						});
+					} else {
+						// Fallback to sync method if async fails
+						const syncCredentials = workerTokenServiceV8.loadCredentialsSync();
+						if (syncCredentials?.environmentId) {
+							effectiveId = syncCredentials.environmentId;
+							console.log(
+								'[WorkerTokenUIServiceV8] Extracted environment ID from worker token (sync)',
+								{ environmentId: effectiveId }
+							);
+						} else {
+							// Final fallback: try global environment ID service
+							const { EnvironmentIdServiceV8 } = await import('./environmentIdServiceV8');
+							const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+							if (globalEnvId) {
+								effectiveId = globalEnvId;
+								console.log('[WorkerTokenUIServiceV8] Using globally stored environment ID', {
+									environmentId: effectiveId,
+								});
+							}
+						}
+					}
+				} catch (error) {
+					console.error('[WorkerTokenUIServiceV8] Error extracting environment ID:', error);
+				}
+			}
+
+			setEffectiveEnvironmentId(effectiveId);
+		};
+
+		updateEffectiveEnvironmentId();
+	}, [environmentId]);
 
 	// Listen for config updates
 	useEffect(() => {
@@ -463,7 +512,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 				<ButtonContainer>
 					<GetWorkerTokenButton
 						onClick={handleGetWorkerToken}
-						disabled={isGettingWorkerToken || !environmentId?.trim()}
+						disabled={isGettingWorkerToken || !effectiveEnvironmentId?.trim()}
 						$tokenStatus={tokenStatus}
 						$isLoading={isGettingWorkerToken}
 					>
@@ -515,7 +564,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 				<ButtonContainer>
 					<GetWorkerTokenButton
 						onClick={handleGetWorkerToken}
-						disabled={isGettingWorkerToken || !environmentId?.trim()}
+						disabled={isGettingWorkerToken || !effectiveEnvironmentId?.trim()}
 						$tokenStatus={tokenStatus}
 						$isLoading={isGettingWorkerToken}
 					>
@@ -527,7 +576,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 
 					<ClearTokensButton
 						onClick={handleClearTokens}
-						disabled={isGettingWorkerToken || !environmentId?.trim()}
+						disabled={isGettingWorkerToken || !effectiveEnvironmentId?.trim()}
 						$tokenStatus={tokenStatus}
 					>
 						<FiTrash2 style={{ fontSize: '14px', marginRight: '6px' }} />

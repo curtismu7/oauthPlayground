@@ -51,7 +51,7 @@ const ExampleDescription = styled.p`
 
 const Button = styled.button`
   background: #007bff;
-  color: white;
+  color: #ffffff;
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 4px;
@@ -63,10 +63,12 @@ const Button = styled.button`
 
   &:hover {
     background: #0056b3;
+    color: #ffffff;
   }
 
   &:disabled {
     background: #6c757d;
+    color: #ffffff;
     cursor: not-allowed;
   }
 `;
@@ -76,6 +78,7 @@ const SecondaryButton = styled(Button)`
 
   &:hover {
     background: #545b62;
+    color: #ffffff;
   }
 `;
 

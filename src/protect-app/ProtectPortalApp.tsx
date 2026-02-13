@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
+import ProtectPortalConfigModal, { ProtectPortalConfiguration } from './components/ProtectPortalConfigModal';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectPortalProvider } from './contexts/ProtectPortalContext';
 import { RiskProvider } from './contexts/RiskContext';
@@ -32,11 +33,21 @@ import { SettingsPage } from './pages/SettingsPage';
 export const ProtectPortalApp: React.FC = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasError, setHasError] = useState(false);
+	const [showConfigModal, setShowConfigModal] = useState(false);
 
 	useEffect(() => {
 		// Initialize application
 		const initializeApp = async () => {
 			try {
+				// Check if environment configuration is available
+				const hasEnvironmentConfig = !!(process.env.REACT_APP_ENVIRONMENT_ID || 
+					localStorage.getItem('protect_portal_config'));
+				
+				// Show configuration modal if no environment config is available
+				if (!hasEnvironmentConfig) {
+					setShowConfigModal(true);
+				}
+				
 				// Load application configuration
 				// Initialize services
 				// Check authentication status
@@ -51,6 +62,12 @@ export const ProtectPortalApp: React.FC = () => {
 
 		initializeApp();
 	}, []);
+
+	const handleConfigurationSaved = (config: ProtectPortalConfiguration) => {
+		console.log('Protect Portal configuration saved:', config);
+		// Optionally reload the app to apply new configuration
+		window.location.reload();
+	};
 
 	if (isLoading) {
 		return (
@@ -119,6 +136,13 @@ export const ProtectPortalApp: React.FC = () => {
 								{/* Fallback Route */}
 								<Route path="*" element={<Navigate to="/dashboard" replace />} />
 							</Routes>
+							
+							{/* Configuration Modal */}
+							<ProtectPortalConfigModal
+								isOpen={showConfigModal}
+								onClose={() => setShowConfigModal(false)}
+								onConfigurationSaved={handleConfigurationSaved}
+							/>
 						</ProtectPortalProvider>
 					</RiskProvider>
 				</AuthProvider>
