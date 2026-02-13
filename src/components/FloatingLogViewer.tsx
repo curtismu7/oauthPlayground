@@ -6,7 +6,13 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { FiX, FiMinimize2, FiMaximize2, FiRefreshCw, FiDownload, FiEye, FiEyeOff, FiFile, FiDatabase } from 'react-icons/fi';
+import {
+	FiX,
+	FiMinimize2,
+	FiMaximize2,
+	FiRefreshCw,
+	FiDownload,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { LogFileService, type LogFile } from '../services/logFileService';
 
@@ -103,7 +109,7 @@ const Select = styled.select`
 
 const LogContent = styled.div<{ $isMinimized: boolean }>`
   flex: 1;
-  background: #1f2937;
+  background: white;
   border-radius: 4px;
   padding: 12px;
   overflow: auto;
@@ -114,6 +120,7 @@ const LogContent = styled.div<{ $isMinimized: boolean }>`
   word-break: break-word;
   line-height: 1.4;
   display: ${props => props.$isMinimized ? 'none' : 'block'};
+  border: 1px solid #e5e7eb;
 `;
 
 const StatusIndicator = styled.div<{ status: 'connected' | 'disconnected' | 'loading' }>`
@@ -128,6 +135,35 @@ const StatusIndicator = styled.div<{ status: 'connected' | 'disconnected' | 'loa
       default: return '#6b7280';
     }
   }};
+`;
+
+const CheckboxContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+  }
+`;
+
+const CheckboxInput = styled.input`
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+`;
+
+const CheckboxLabel = styled.span`
+  font-size: 12px;
+  color: #374151;
+  user-select: none;
 `;
 
 const ResizeHandle = styled.div`
@@ -175,6 +211,39 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [resizeStart, setResizeStart] = useState({ width: 0, height: 0, x: 0, y: 0 });
+
+  // Function to add visual separation to log entries
+  const addVisualSeparation = (content: string): string => {
+    if (!content) return content;
+    
+    const lines = content.split('\n');
+    const processedLines = lines.map((line, index) => {
+      // Skip empty lines
+      if (!line.trim()) return line;
+      
+      // Add visual indicators for different log levels
+      let prefix = '';
+      
+      if (line.includes('ERROR') || line.includes('error')) {
+        prefix = '🔴 ';
+      } else if (line.includes('WARN') || line.includes('warn')) {
+        prefix = '🟡 ';
+      } else if (line.includes('INFO') || line.includes('info')) {
+        prefix = '🔵 ';
+      } else if (line.includes('DEBUG') || line.includes('debug')) {
+        prefix = '🔍 ';
+      } else {
+        prefix = '📝 ';
+      }
+      
+      // Add entry separator
+      const suffix = index < lines.length - 1 ? '\n---' : '';
+      
+      return `${prefix}${line}${suffix}`;
+    });
+    
+    return processedLines.join('\n');
+  };
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
@@ -446,20 +515,21 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
               ))}
             </Select>
             
-            <ControlButton
-              variant={isTailMode ? 'primary' : 'secondary'}
-              onClick={toggleTailMode}
-              disabled={isLoading}
-              title={isTailMode ? 'Stop tailing' : 'Start tailing'}
-            >
-              {isTailMode ? <FiEyeOff /> : <FiEye />}
-            </ControlButton>
+            <CheckboxContainer onClick={toggleTailMode} title={isTailMode ? 'Stop tailing - Disable real-time log updates' : 'Start tailing - Enable real-time log updates'}>
+              <CheckboxInput
+                type="checkbox"
+                checked={isTailMode}
+                onChange={toggleTailMode}
+                disabled={isLoading}
+              />
+              <CheckboxLabel>Tail Mode</CheckboxLabel>
+            </CheckboxContainer>
             
             <ControlButton
               variant="secondary"
               onClick={loadLogContent}
               disabled={isLoading || isTailMode}
-              title="Refresh"
+              title="Refresh log content from file"
             >
               <FiRefreshCw />
             </ControlButton>
@@ -467,7 +537,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
             <ControlButton
               variant="secondary"
               onClick={clearLogs}
-              title="Clear"
+              title="Clear all log content"
             >
               Clear
             </ControlButton>
@@ -476,7 +546,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
               variant="secondary"
               onClick={downloadLogs}
               disabled={!logContent}
-              title="Download"
+              title="Download log content as file"
             >
               <FiDownload />
             </ControlButton>
@@ -508,7 +578,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
           )}
 
           <LogContent $isMinimized={isMinimized}>
-            {logContent || 'No log content. Select a file and click Refresh to view logs.'}
+            {addVisualSeparation(logContent) || 'No log content. Select a file and click Refresh to view logs.'}
           </LogContent>
         </Content>
       )}
