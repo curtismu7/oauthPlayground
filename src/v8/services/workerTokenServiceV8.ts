@@ -148,6 +148,10 @@ class WorkerTokenServiceV8 {
 			const stored = localStorage.getItem('unified_worker_token');
 			if (stored) {
 				const data: UnifiedWorkerTokenData = JSON.parse(stored);
+				if (!data || !data.credentials) {
+					console.warn('[WorkerTokenServiceV8] No credentials found in stored data');
+					return null;
+				}
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const { appId, appName, appVersion, ...v8Credentials } = data.credentials;
 				return v8Credentials as WorkerTokenCredentials;
