@@ -1510,12 +1510,7 @@ app.get('/api/environments', async (req, res) => {
 				environments = directEnvData._embedded?.environments || [];
 				
 				console.log(`[PingOne Environments API] Fetched ${environments.length} environments from direct endpoint`);
-				
-			} catch (directError) {
-				console.error(`[PingOne Environments API] Both endpoints failed:`, directError.message);
-				throw directError;
-			}
-		}
+				console.log(`[PingOne Environments API] Fetched ${environments.length} environments from PingOne`);
 		
 		// Transform PingOne environment data to match expected format
 		const transformedEnvironments = environments.map(env => ({
@@ -1536,34 +1531,52 @@ app.get('/api/environments', async (req, res) => {
 			_links: env._links
 		}));
 		
+		console.log(`[PingOne Environments API] Transformed ${transformedEnvironments.length} environments`);
+		
 		// Apply filters
 		let filteredEnvironments = [...transformedEnvironments];
 		
+		console.log(`[PingOne Environments API] Applying filters:`, {
+			typeFilters,
+			statusFilters,
+			regionFilters,
+			search,
+			initialCount: filteredEnvironments.length
+		});
+		
 		if (typeFilters.length > 0) {
+			const beforeCount = filteredEnvironments.length;
 			filteredEnvironments = filteredEnvironments.filter(env => 
 				typeFilters.includes(env.type)
 			);
+			console.log(`[PingOne Environments API] Type filter: ${beforeCount} -> ${filteredEnvironments.length}`);
 		}
 		
 		if (statusFilters.length > 0) {
+			const beforeCount = filteredEnvironments.length;
 			filteredEnvironments = filteredEnvironments.filter(env => 
 				statusFilters.includes(env.status)
 			);
+			console.log(`[PingOne Environments API] Status filter: ${beforeCount} -> ${filteredEnvironments.length}`);
 		}
 		
 		if (regionFilters.length > 0) {
+			const beforeCount = filteredEnvironments.length;
 			filteredEnvironments = filteredEnvironments.filter(env => 
 				regionFilters.includes(env.region || '')
 			);
+			console.log(`[PingOne Environments API] Region filter: ${beforeCount} -> ${filteredEnvironments.length}`);
 		}
 		
 		if (search) {
+			const beforeCount = filteredEnvironments.length;
 			const searchLower = search.toLowerCase();
 			filteredEnvironments = filteredEnvironments.filter(env => 
 				env.name.toLowerCase().includes(searchLower) ||
 				env.description?.toLowerCase().includes(searchLower) ||
 				env.id.toLowerCase().includes(searchLower)
 			);
+			console.log(`[PingOne Environments API] Search filter: ${beforeCount} -> ${filteredEnvironments.length}`);
 		}
 		
 		// Sort by name
