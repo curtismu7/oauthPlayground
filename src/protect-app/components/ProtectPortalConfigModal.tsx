@@ -9,10 +9,10 @@
  * when environment variables are not available or need to be updated.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FiAlertTriangle, FiInfo, FiSave, FiX } from 'react-icons/fi';
-import { useTheme } from '../contexts/ThemeContext';
 import { useProtectPortal } from '../contexts/ProtectPortalContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface ProtectPortalConfigModalProps {
 	isOpen: boolean;
@@ -36,7 +36,7 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 }) => {
 	const { currentTheme } = useTheme();
 	const { updateConfiguration } = useProtectPortal();
-	
+
 	const [config, setConfig] = useState<ProtectPortalConfiguration>({
 		apiBaseUrl: '',
 		environmentId: '',
@@ -45,7 +45,7 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 		clientSecret: '',
 		redirectUri: 'https://localhost:3000/callback',
 	});
-	
+
 	const [isSaving, setIsSaving] = useState(false);
 	const [showAdvanced, setShowAdvanced] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -62,7 +62,7 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 				clientSecret: process.env.REACT_APP_CLIENT_SECRET || '',
 				redirectUri: process.env.REACT_APP_REDIRECT_URI || 'https://localhost:3000/callback',
 			};
-			
+
 			setConfig(envConfig);
 		}
 	}, [isOpen]);
@@ -74,7 +74,7 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 		}
 
 		setIsSaving(true);
-		
+
 		try {
 			// Update the Protect Portal configuration
 			updateConfiguration({
@@ -116,7 +116,7 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 			} else {
 				setError('❌ Connection failed. Please check your configuration.');
 			}
-		} catch (error) {
+		} catch (_error) {
 			setError('❌ Connection failed. Please check your API URL and network connectivity.');
 		}
 	};
@@ -280,27 +280,34 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 				{!process.env.REACT_APP_ENVIRONMENT_ID && (
 					<div style={warningBoxStyle}>
 						<FiAlertTriangle />
-						<div style={{ fontSize: '0.8125rem', color: currentTheme.colors.error, lineHeight: '1.5' }}>
-							<strong>No Environment Configuration Found</strong><br />
-							Environment variables are not configured. Please enter your PingOne 
-							environment details below to continue using the Protect Portal.
+						<div
+							style={{ fontSize: '0.8125rem', color: currentTheme.colors.error, lineHeight: '1.5' }}
+						>
+							<strong>No Environment Configuration Found</strong>
+							<br />
+							Environment variables are not configured. Please enter your PingOne environment
+							details below to continue using the Protect Portal.
 						</div>
 					</div>
 				)}
 
 				{error && (
-					<div style={{
-						backgroundColor: `${currentTheme.colors.error}15`,
-						border: `1px solid ${currentTheme.colors.error}`,
-						borderRadius: '6px',
-						padding: '12px',
-						marginBottom: '16px',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '8px'
-					}}>
+					<div
+						style={{
+							backgroundColor: `${currentTheme.colors.error}15`,
+							border: `1px solid ${currentTheme.colors.error}`,
+							borderRadius: '6px',
+							padding: '12px',
+							marginBottom: '16px',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+						}}
+					>
 						<FiAlertTriangle color={currentTheme.colors.error} />
-						<div style={{ fontSize: '0.8125rem', color: currentTheme.colors.error, lineHeight: '1.5' }}>
+						<div
+							style={{ fontSize: '0.8125rem', color: currentTheme.colors.error, lineHeight: '1.5' }}
+						>
 							{error}
 						</div>
 					</div>
@@ -308,16 +315,22 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 
 				<div style={infoBoxStyle}>
 					<FiInfo />
-					<div style={{ fontSize: '0.8125rem', color: currentTheme.colors.primary, lineHeight: '1.5' }}>
-						<strong>Required Fields:</strong> Environment ID is required for basic functionality.<br />
-						<strong>Optional Fields:</strong> Client credentials are needed for OAuth flows.<br />
+					<div
+						style={{ fontSize: '0.8125rem', color: currentTheme.colors.primary, lineHeight: '1.5' }}
+					>
+						<strong>Required Fields:</strong> Environment ID is required for basic functionality.
+						<br />
+						<strong>Optional Fields:</strong> Client credentials are needed for OAuth flows.
+						<br />
 						<strong>Note:</strong> Configuration will be saved locally for this session.
 					</div>
 				</div>
 
 				<div style={formSectionStyle}>
 					<div style={formFieldStyle}>
-						<label htmlFor="apiBaseUrl" style={formLabelStyle}>API Base URL</label>
+						<label htmlFor="apiBaseUrl" style={formLabelStyle}>
+							API Base URL
+						</label>
 						<input
 							id="apiBaseUrl"
 							style={inputStyle}
@@ -336,7 +349,9 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 					</div>
 
 					<div style={formFieldStyle}>
-						<label htmlFor="region" style={formLabelStyle}>Region</label>
+						<label htmlFor="region" style={formLabelStyle}>
+							Region
+						</label>
 						<select
 							id="region"
 							style={{ ...inputStyle, cursor: 'pointer' }}
@@ -379,7 +394,9 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 					{showAdvanced && (
 						<>
 							<div style={formFieldStyle}>
-								<label htmlFor="clientId" style={formLabelStyle}>Client ID</label>
+								<label htmlFor="clientId" style={formLabelStyle}>
+									Client ID
+								</label>
 								<input
 									id="clientId"
 									style={inputStyle}
@@ -398,7 +415,9 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 							</div>
 
 							<div style={formFieldStyle}>
-								<label htmlFor="clientSecret" style={formLabelStyle}>Client Secret</label>
+								<label htmlFor="clientSecret" style={formLabelStyle}>
+									Client Secret
+								</label>
 								<input
 									id="clientSecret"
 									style={inputStyle}
@@ -417,7 +436,9 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 							</div>
 
 							<div style={formFieldStyle}>
-								<label htmlFor="redirectUri" style={formLabelStyle}>Redirect URI</label>
+								<label htmlFor="redirectUri" style={formLabelStyle}>
+									Redirect URI
+								</label>
 								<input
 									id="redirectUri"
 									style={inputStyle}
@@ -470,8 +491,8 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 						type="submit"
 						style={{
 							...primaryButtonStyle,
-							opacity: (isSaving || !config.environmentId.trim()) ? 0.6 : 1,
-							cursor: (isSaving || !config.environmentId.trim()) ? 'not-allowed' : 'pointer',
+							opacity: isSaving || !config.environmentId.trim() ? 0.6 : 1,
+							cursor: isSaving || !config.environmentId.trim() ? 'not-allowed' : 'pointer',
 						}}
 						onClick={handleSave}
 						disabled={isSaving || !config.environmentId.trim()}
@@ -486,14 +507,16 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 					>
 						{isSaving ? (
 							<>
-								<div style={{
-									width: '16px',
-									height: '16px',
-									border: '2px solid white',
-									borderTop: '2px solid transparent',
-									borderRadius: '50%',
-									animation: 'spin 1s linear infinite',
-								}} />
+								<div
+									style={{
+										width: '16px',
+										height: '16px',
+										border: '2px solid white',
+										borderTop: '2px solid transparent',
+										borderRadius: '50%',
+										animation: 'spin 1s linear infinite',
+									}}
+								/>
 								Saving...
 							</>
 						) : (

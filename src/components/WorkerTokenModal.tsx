@@ -1424,11 +1424,14 @@ export const WorkerTokenModal: React.FC<Props> = ({
 									style={{ flexShrink: 0, color: '#10b981', marginTop: '0.125rem' }}
 								/>
 								<InfoContent>
-									<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem', color: '#10b981' }}>
+									<InfoTitle
+										style={{ fontSize: '0.875rem', marginBottom: '0.125rem', color: '#10b981' }}
+									>
 										✅ Worker Token Generated Successfully!
 									</InfoTitle>
 									<InfoText>
-										Your worker token has been generated and saved. You can continue with the current flow or generate another token if needed.
+										Your worker token has been generated and saved. You can continue with the
+										current flow or generate another token if needed.
 									</InfoText>
 								</InfoContent>
 							</InfoBox>
@@ -1441,7 +1444,11 @@ export const WorkerTokenModal: React.FC<Props> = ({
 									<FiRefreshCw />
 									Generate Another Token
 								</ActionButton>
-								<ActionButton $variant="secondary" onClick={handleGetWorkerToken} disabled={isNavigating}>
+								<ActionButton
+									$variant="secondary"
+									onClick={handleGetWorkerToken}
+									disabled={isNavigating}
+								>
 									<FiExternalLink />
 									Use Client Generator
 								</ActionButton>

@@ -3,7 +3,9 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
-import ProtectPortalConfigModal, { ProtectPortalConfiguration } from './components/ProtectPortalConfigModal';
+import ProtectPortalConfigModal, {
+	ProtectPortalConfiguration,
+} from './components/ProtectPortalConfigModal';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectPortalProvider } from './contexts/ProtectPortalContext';
 import { RiskProvider } from './contexts/RiskContext';
@@ -40,14 +42,15 @@ export const ProtectPortalApp: React.FC = () => {
 		const initializeApp = async () => {
 			try {
 				// Check if environment configuration is available
-				const hasEnvironmentConfig = !!(process.env.REACT_APP_ENVIRONMENT_ID || 
-					localStorage.getItem('protect_portal_config'));
-				
+				const hasEnvironmentConfig = !!(
+					process.env.REACT_APP_ENVIRONMENT_ID || localStorage.getItem('protect_portal_config')
+				);
+
 				// Show configuration modal if no environment config is available
 				if (!hasEnvironmentConfig) {
 					setShowConfigModal(true);
 				}
-				
+
 				// Load application configuration
 				// Initialize services
 				// Check authentication status
@@ -136,7 +139,7 @@ export const ProtectPortalApp: React.FC = () => {
 								{/* Fallback Route */}
 								<Route path="*" element={<Navigate to="/dashboard" replace />} />
 							</Routes>
-							
+
 							{/* Configuration Modal */}
 							<ProtectPortalConfigModal
 								isOpen={showConfigModal}

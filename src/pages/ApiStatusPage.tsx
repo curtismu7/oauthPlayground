@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiActivity, FiCpu, FiDatabase, FiGlobe, FiHardDrive, FiRefreshCw, FiServer, FiZap } from 'react-icons/fi';
+import { FiRefreshCw, FiServer } from 'react-icons/fi';
 import styled from 'styled-components';
 
 interface HealthData {
@@ -112,7 +112,7 @@ const CardTitle = styled.h3`
 `;
 
 const CardIcon = styled.div<{ color: string }>`
-	color: ${props => props.color};
+	color: ${(props) => props.color};
 	font-size: 1.25rem;
 `;
 
@@ -140,13 +140,18 @@ const StatValue = styled.span`
 `;
 
 const StatusBadge = styled.span<{ status: 'online' | 'offline' | 'warning' | 'checking' }>`
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.status) {
-			case 'online': return '#10b981';
-			case 'offline': return '#ef4444';
-			case 'warning': return '#f59e0b';
-			case 'checking': return '#f59e0b';
-			default: return '#6b7280';
+			case 'online':
+				return '#10b981';
+			case 'offline':
+				return '#ef4444';
+			case 'warning':
+				return '#f59e0b';
+			case 'checking':
+				return '#f59e0b';
+			default:
+				return '#6b7280';
 		}
 	}};
 	color: white;
@@ -179,7 +184,7 @@ const RefreshButton = styled.button`
 	}
 `;
 
-const ErrorMessage = styled.div`
+const _ErrorMessage = styled.div`
 	background: #fef2f2;
 	border: 1px solid #fecaca;
 	border-radius: 0.5rem;
@@ -193,14 +198,14 @@ const formatBytes = (bytes: number): string => {
 	const k = 1024;
 	const sizes = ['Bytes', 'KB', 'MB', 'GB'];
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
-	return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+	return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 };
 
 const formatUptime = (seconds: number): string => {
 	const days = Math.floor(seconds / 86400);
 	const hours = Math.floor((seconds % 86400) / 3600);
 	const minutes = Math.floor((seconds % 3600) / 60);
-	
+
 	if (days > 0) {
 		return `${days}d ${hours}h ${minutes}m`;
 	} else if (hours > 0) {
@@ -245,7 +250,7 @@ const ApiStatusPage: React.FC = () => {
 
 	const checkServerHealth = async (server: ServerStatus): Promise<ServerStatus> => {
 		const updatedServer = { ...server, status: 'checking' as const };
-		
+
 		try {
 			// Track the health check API call for display in API monitoring
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
@@ -255,18 +260,18 @@ const ApiStatusPage: React.FC = () => {
 				actualPingOneUrl: `${server.protocol.toLowerCase()}://localhost:${server.port}/api/health`,
 				isProxy: server.port !== 3000, // Frontend server doesn't use proxy
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 				},
 				body: null,
 				step: 'api-status-monitoring',
 				flowType: 'system',
 			});
-			
+
 			// For frontend server, we can't directly check its health endpoint
 			// Instead, we'll check if it's responding by making a request to the root
 			const url = server.port === 3000 ? '/' : '/api/health';
 			const response = await fetch(url);
-			
+
 			if (!response.ok) {
 				// Update with error response
 				apiCallTrackerService.updateApiCallResponse(callId, {
@@ -276,7 +281,7 @@ const ApiStatusPage: React.FC = () => {
 				});
 				throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 			}
-			
+
 			// Only backend servers have health endpoint data
 			let data: HealthData | null = null;
 			if (server.port !== 3000) {
@@ -297,17 +302,22 @@ const ApiStatusPage: React.FC = () => {
 					systemMemory: { total: 0, free: 0, used: 0 },
 					loadAverage: [0, 0, 0],
 					cpuUsage: { avg1mPercent: 0, avg5mPercent: 0, avg15mPercent: 0 },
-					requestStats: { totalRequests: 0, activeConnections: 0, avgResponseTime: 0, errorRate: 0 },
+					requestStats: {
+						totalRequests: 0,
+						activeConnections: 0,
+						avgResponseTime: 0,
+						errorRate: 0,
+					},
 				};
 			}
-			
+
 			// Update with successful response
 			apiCallTrackerService.updateApiCallResponse(callId, {
 				status: response.status,
 				statusText: response.statusText,
 				data: data,
 			});
-			
+
 			return {
 				...updatedServer,
 				status: 'online',
@@ -329,11 +339,11 @@ const ApiStatusPage: React.FC = () => {
 	const fetchHealthData = async () => {
 		try {
 			setLoading(true);
-			
+
 			// Check all servers in parallel
-			const serverPromises = servers.map(server => checkServerHealth(server));
+			const serverPromises = servers.map((server) => checkServerHealth(server));
 			const updatedServers = await Promise.all(serverPromises);
-			
+
 			setServers(updatedServers);
 			setLastRefresh(new Date());
 		} catch (err) {
@@ -346,9 +356,9 @@ const ApiStatusPage: React.FC = () => {
 	useEffect(() => {
 		fetchHealthData();
 		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount
-	}, []);
+	}, [fetchHealthData]);
 
-	if (loading && servers.every(s => s.status === 'checking')) {
+	if (loading && servers.every((s) => s.status === 'checking')) {
 		return (
 			<PageContainer>
 				<PageHeader>
@@ -387,26 +397,50 @@ const ApiStatusPage: React.FC = () => {
 				{servers.map((server) => (
 					<StatusCard key={server.name}>
 						<CardHeader>
-							<CardIcon color={server.status === 'online' ? '#10b981' : server.status === 'offline' ? '#ef4444' : '#f59e0b'}>
+							<CardIcon
+								color={
+									server.status === 'online'
+										? '#10b981'
+										: server.status === 'offline'
+											? '#ef4444'
+											: '#f59e0b'
+								}
+							>
 								<FiServer />
 							</CardIcon>
 							<CardTitle>{server.name}</CardTitle>
 							<StatusBadge status={server.status}>
-								{server.status === 'online' ? 'Online' : server.status === 'offline' ? 'Offline' : 'Checking'}
+								{server.status === 'online'
+									? 'Online'
+									: server.status === 'offline'
+										? 'Offline'
+										: 'Checking'}
 							</StatusBadge>
 						</CardHeader>
-						
+
 						{server.error && (
-							<div style={{ marginBottom: '1rem', padding: '0.5rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '0.25rem', color: '#991b1b', fontSize: '0.875rem' }}>
+							<div
+								style={{
+									marginBottom: '1rem',
+									padding: '0.5rem',
+									backgroundColor: '#fef2f2',
+									border: '1px solid #fecaca',
+									borderRadius: '0.25rem',
+									color: '#991b1b',
+									fontSize: '0.875rem',
+								}}
+							>
 								{server.error}
 							</div>
 						)}
-						
+
 						{server.healthData && (
 							<>
 								<StatRow>
 									<StatLabel>Port</StatLabel>
-									<StatValue>{server.port} ({server.protocol})</StatValue>
+									<StatValue>
+										{server.port} ({server.protocol})
+									</StatValue>
 								</StatRow>
 								<StatRow>
 									<StatLabel>Status</StatLabel>
@@ -438,7 +472,7 @@ const ApiStatusPage: React.FC = () => {
 										<StatValue>{server.lastChecked.toLocaleTimeString()}</StatValue>
 									</StatRow>
 								)}
-								
+
 								{/* Show additional details for backend servers */}
 								{server.port !== 3000 && (
 									<>
@@ -448,7 +482,10 @@ const ApiStatusPage: React.FC = () => {
 										</StatRow>
 										<StatRow>
 											<StatLabel>Memory Usage</StatLabel>
-											<StatValue>{formatBytes(server.healthData.memory.heapUsed)} / {formatBytes(server.healthData.memory.heapTotal)}</StatValue>
+											<StatValue>
+												{formatBytes(server.healthData.memory.heapUsed)} /{' '}
+												{formatBytes(server.healthData.memory.heapTotal)}
+											</StatValue>
 										</StatRow>
 										<StatRow>
 											<StatLabel>CPU Usage</StatLabel>
@@ -456,7 +493,13 @@ const ApiStatusPage: React.FC = () => {
 										</StatRow>
 										<StatRow>
 											<StatLabel>Requests</StatLabel>
-											<StatValue>{server.healthData.requestStats.totalRequests} ({server.healthData.requestStats.errorRate > 0 ? `${(server.healthData.requestStats.errorRate * 100).toFixed(1)}% errors` : 'no errors'})</StatValue>
+											<StatValue>
+												{server.healthData.requestStats.totalRequests} (
+												{server.healthData.requestStats.errorRate > 0
+													? `${(server.healthData.requestStats.errorRate * 100).toFixed(1)}% errors`
+													: 'no errors'}
+												)
+											</StatValue>
 										</StatRow>
 									</>
 								)}

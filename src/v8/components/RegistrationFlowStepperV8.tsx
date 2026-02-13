@@ -209,9 +209,9 @@ export const RegistrationFlowStepperV8: React.FC<RegistrationFlowStepperV8Props>
 				flowType: 'registration' as const,
 				timestamp: Date.now(),
 			};
-			
+
 			sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
-			
+
 			console.log(`${MODULE_TAG} 🎯 Stored flow context for registration`);
 
 			// Handle OAuth callback processing

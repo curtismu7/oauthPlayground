@@ -217,7 +217,7 @@ export class UserServiceV8 {
 	 * const users = await UserServiceV8.fetchAllUsers(envId);
 	 *
 	 * // Fetch up to 20 pages (4000 users) with progress tracking
-	 * const users = await UserServiceV8.fetchAllUsers(envId, { 
+	 * const users = await UserServiceV8.fetchAllUsers(envId, {
 	 *   maxPages: 20,
 	 *   onProgress: (count, pages, latest) => console.log(`Fetched ${count} users`)
 	 * });
@@ -229,7 +229,6 @@ export class UserServiceV8 {
 	): Promise<User[]> {
 		const { maxPages = 10, delayMs = 100, onProgress } = options;
 
-		
 		const allUsers: User[] = [];
 		let offset = 0;
 		const limit = 200; // PingOne max per request
@@ -272,7 +271,6 @@ export class UserServiceV8 {
 				`${MODULE_TAG} Finished fetching users. Total: ${allUsers.length} across ${fetchedPages} pages`
 			);
 
-			
 			return allUsers;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to fetch all users:`, error);

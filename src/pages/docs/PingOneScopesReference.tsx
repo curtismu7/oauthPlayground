@@ -487,8 +487,8 @@ const PingOneScopesReference: React.FC = () => {
 										<ScopeBadge>Read</ScopeBadge> <code>p1:read:device</code> – list MFA devices.
 									</li>
 									<li>
-										<ScopeBadge>Write</ScopeBadge> <code>p1:update:device</code> –
-										register, activate/deactivate devices.
+										<ScopeBadge>Write</ScopeBadge> <code>p1:update:device</code> – register,
+										activate/deactivate devices.
 									</li>
 								</ul>
 							</ScopeCategoryCard>

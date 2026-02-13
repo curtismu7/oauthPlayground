@@ -1,12 +1,11 @@
 // src/v8/flows/__tests__/TokenExchangeFlowV8.test.tsx
 // Token Exchange Phase 1B - V8 Flow Component Tests
 
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { TokenExchangeFlowV8 } from '../TokenExchangeFlowV8';
-import { TokenExchangeServiceV8 } from '../../services/tokenExchangeServiceV8';
-import { TokenExchangeConfigServiceV8 } from '../../services/tokenExchangeConfigServiceV8';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { GlobalEnvironmentService } from '../../services/globalEnvironmentService';
+import { TokenExchangeConfigServiceV8 } from '../../services/tokenExchangeConfigServiceV8';
+import { TokenExchangeServiceV8 } from '../../services/tokenExchangeServiceV8';
+import { TokenExchangeFlowV8 } from '../TokenExchangeFlowV8';
 
 // Mock the services
 jest.mock('../../services/tokenExchangeServiceV8');
@@ -14,17 +13,24 @@ jest.mock('../../services/tokenExchangeConfigServiceV8');
 jest.mock('../../services/globalEnvironmentService');
 jest.mock('../../utils/toastNotificationsV8');
 
-const mockTokenExchangeService = TokenExchangeServiceV8 as jest.Mocked<typeof TokenExchangeServiceV8>;
-const mockConfigService = TokenExchangeConfigServiceV8 as jest.Mocked<typeof TokenExchangeConfigServiceV8>;
-const mockGlobalEnvironmentService = GlobalEnvironmentService as jest.Mocked<typeof GlobalEnvironmentService>;
+const mockTokenExchangeService = TokenExchangeServiceV8 as jest.Mocked<
+	typeof TokenExchangeServiceV8
+>;
+const mockConfigService = TokenExchangeConfigServiceV8 as jest.Mocked<
+	typeof TokenExchangeConfigServiceV8
+>;
+const mockGlobalEnvironmentService = GlobalEnvironmentService as jest.Mocked<
+	typeof GlobalEnvironmentService
+>;
 
 describe('TokenExchangeFlowV8', () => {
 	const mockEnvironmentId = 'test-env-123';
-	const mockSubjectToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW52X2lkIjoidGVzdC1lbnYtMTIzIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjk5OTk5OTk5OTksInRlc3RfdG9rZW5fZXhjaGFuZ2UiOiJhY2Nlc3MifQ.mock-signature';
+	const mockSubjectToken =
+		'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW52X2lkIjoidGVzdC1lbnYtMTIzIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjk5OTk5OTk5OTksInRlc3RfdG9rZW5fZXhjaGFuZ2UiOiJhY2Nlc3MifQ.mock-signature';
 
 	beforeEach(() => {
 		jest.clearAllMocks();
-		
+
 		// Mock GlobalEnvironmentService
 		mockGlobalEnvironmentService.getInstance = jest.fn().mockReturnValue({
 			getEnvironmentId: () => mockEnvironmentId,
@@ -57,7 +63,9 @@ describe('TokenExchangeFlowV8', () => {
 
 		// Check that the form renders
 		expect(screen.getByText('Token Exchange')).toBeInTheDocument();
-		expect(screen.getByText('OAuth 2.0 Token Exchange Grant Type - Same Environment Only')).toBeInTheDocument();
+		expect(
+			screen.getByText('OAuth 2.0 Token Exchange Grant Type - Same Environment Only')
+		).toBeInTheDocument();
 		expect(screen.getByText('Phase 1 - RFC 8693')).toBeInTheDocument();
 
 		// Check scenario cards
@@ -86,7 +94,9 @@ describe('TokenExchangeFlowV8', () => {
 
 		// Check that disabled message is shown
 		expect(screen.getByText('Token Exchange Disabled')).toBeInTheDocument();
-		expect(screen.getByText('Token Exchange is not enabled for this environment')).toBeInTheDocument();
+		expect(
+			screen.getByText('Token Exchange is not enabled for this environment')
+		).toBeInTheDocument();
 
 		// Check that exchange button is disabled
 		const exchangeButton = screen.getByText('Exchange Token');
@@ -153,12 +163,7 @@ describe('TokenExchangeFlowV8', () => {
 
 		mockTokenExchangeService.exchangeToken = jest.fn().mockRejectedValue(mockError);
 
-		render(
-			<TokenExchangeFlowV8
-				environmentId={mockEnvironmentId}
-				onError={mockOnError}
-			/>
-		);
+		render(<TokenExchangeFlowV8 environmentId={mockEnvironmentId} onError={mockOnError} />);
 
 		// Fill in the form
 		const subjectTokenInput = screen.getByLabelText('Subject Token *');
@@ -222,9 +227,7 @@ describe('TokenExchangeFlowV8', () => {
 
 		// Test copy JSON
 		fireEvent.click(screen.getByText('Copy JSON'));
-		expect(mockWriteText).toHaveBeenCalledWith(
-			expect.stringContaining('new-access-token-mock')
-		);
+		expect(mockWriteText).toHaveBeenCalledWith(expect.stringContaining('new-access-token-mock'));
 
 		// Test copy access token
 		fireEvent.click(screen.getByText('Copy Access Token'));

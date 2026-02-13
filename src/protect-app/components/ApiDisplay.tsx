@@ -282,9 +282,7 @@ export const ApiDisplay: React.FC<ApiDisplayProps> = ({ className = '', style = 
 														}}
 													>
 														{typeof call.body === 'string' ? (
-															<pre className="whitespace-pre-wrap break-words">
-																{call.body}
-															</pre>
+															<pre className="whitespace-pre-wrap break-words">{call.body}</pre>
 														) : (
 															<pre className="whitespace-pre-wrap break-words">
 																{JSON.stringify(call.body, null, 2)}

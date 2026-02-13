@@ -6,7 +6,7 @@
  * @since 2026-02-12
  */
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 
 interface User {
 	id: string;
@@ -33,16 +33,16 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	const [user, setUser] = useState<User | null>(null);
 
-	const login = async (username: string, password: string): Promise<void> => {
-	// Mock login logic
-	// In a real app, this would make an API call
+	const login = async (username: string, _password: string): Promise<void> => {
+		// Mock login logic
+		// In a real app, this would make an API call
 		const mockUser: User = {
 			id: '1',
 			username,
 			email: `${username}@example.com`,
 			firstName: 'John',
 			lastName: 'Doe',
-			role: 'admin'
+			role: 'admin',
 		};
 		setUser(mockUser);
 	};

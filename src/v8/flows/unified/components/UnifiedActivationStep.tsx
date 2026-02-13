@@ -648,8 +648,8 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 						type="button"
 						onClick={() => {
 							// Show worker token modal for refresh
-							const event = new CustomEvent('showWorkerTokenModal', { 
-								detail: { reason: 'token_invalid' } 
+							const event = new CustomEvent('showWorkerTokenModal', {
+								detail: { reason: 'token_invalid' },
 							});
 							window.dispatchEvent(event);
 						}}

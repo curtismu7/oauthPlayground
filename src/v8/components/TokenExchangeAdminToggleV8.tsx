@@ -1,18 +1,18 @@
 // src/v8/components/TokenExchangeAdminToggleV8.tsx
 // Token Exchange Phase 1 - Admin-only toggle component
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-	FiToggleLeft,
-	FiToggleRight,
-	FiSettings,
-	FiShield,
 	FiAlertCircle,
 	FiCheckCircle,
+	FiSettings,
+	FiShield,
+	FiToggleLeft,
+	FiToggleRight,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';
 import { GlobalEnvironmentService } from '../services/globalEnvironmentService';
+import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';
 import { toastV8 } from '../utils/toastNotificationsV8';
 
 const MODULE_TAG = '[TokenExchangeAdminToggleV8]';
@@ -160,7 +160,8 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 	const [currentConfig, setCurrentConfig] = useState<Record<string, unknown> | null>(null);
 
 	// Get current environment ID
-	const currentEnvironmentId = environmentId || GlobalEnvironmentService.getInstance().getEnvironmentId() || '';
+	const currentEnvironmentId =
+		environmentId || GlobalEnvironmentService.getInstance().getEnvironmentId() || '';
 
 	// Load current configuration on mount
 	useEffect(() => {
@@ -169,7 +170,7 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 			try {
 				const enabled = await TokenExchangeConfigServiceV8.isEnabled(currentEnvironmentId);
 				const config = await TokenExchangeConfigServiceV8.getAdminConfig(currentEnvironmentId);
-				
+
 				setIsEnabled(enabled);
 				setCurrentConfig(config);
 				onConfigChange?.(enabled);
@@ -210,11 +211,10 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 			// Reload configuration
 			const config = await TokenExchangeConfigServiceV8.getAdminConfig(currentEnvironmentId);
 			setCurrentConfig(config);
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error toggling Token Exchange:`, error);
 			toastV8.error('Failed to update Token Exchange configuration');
-			} finally {
+		} finally {
 			setIsLoading(false);
 		}
 	};
@@ -242,42 +242,48 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 			</Header>
 
 			<Description>
-				Control whether Token Exchange is available in this environment. When enabled, 
-				applications can exchange tokens for access to custom resources following RFC 8693.
+				Control whether Token Exchange is available in this environment. When enabled, applications
+				can exchange tokens for access to custom resources following RFC 8693.
 			</Description>
 
 			{isEnabled ? (
 				<>
 					<FeatureList>
-						<FeatureItem>
-							Same-environment token exchange only (Phase 1 restriction)
-						</FeatureItem>
-						<FeatureItem>
-							Supports access token and ID token exchange
-						</FeatureItem>
-						<FeatureItem>
-							Returns access tokens for custom resources
-						</FeatureItem>
-						<FeatureItem>
-							No refresh tokens included in response
-						</FeatureItem>
-						<FeatureItem>
-							Configurable scope restrictions
-						</FeatureItem>
-						<FeatureItem>
-							Admin-controlled enablement
-						</FeatureItem>
+						<FeatureItem>Same-environment token exchange only (Phase 1 restriction)</FeatureItem>
+						<FeatureItem>Supports access token and ID token exchange</FeatureItem>
+						<FeatureItem>Returns access tokens for custom resources</FeatureItem>
+						<FeatureItem>No refresh tokens included in response</FeatureItem>
+						<FeatureItem>Configurable scope restrictions</FeatureItem>
+						<FeatureItem>Admin-controlled enablement</FeatureItem>
 					</FeatureList>
 
 					{currentConfig && (
-						<div style={{ marginTop: '1rem', padding: '1rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
-							<h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#374151' }}>
+						<div
+							style={{
+								marginTop: '1rem',
+								padding: '1rem',
+								background: '#f9fafb',
+								borderRadius: '0.5rem',
+							}}
+						>
+							<h4
+								style={{
+									margin: '0 0 0.5rem 0',
+									fontSize: '0.875rem',
+									fontWeight: 600,
+									color: '#374151',
+								}}
+							>
 								Current Configuration
 							</h4>
 							<div style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: 1.5 }}>
-								<div>Allowed Scopes: {currentConfig.allowedScopes?.join(', ') || 'read, write, admin'}</div>
+								<div>
+									Allowed Scopes: {currentConfig.allowedScopes?.join(', ') || 'read, write, admin'}
+								</div>
 								<div>Max Token Lifetime: {currentConfig.maxTokenLifetime || 3600} seconds</div>
-								<div>Require Same Environment: {currentConfig.requireSameEnvironment ? 'Yes' : 'No'}</div>
+								<div>
+									Require Same Environment: {currentConfig.requireSameEnvironment ? 'Yes' : 'No'}
+								</div>
 								<div>Last Updated: {new Date(currentConfig.lastUpdated).toLocaleString()}</div>
 							</div>
 						</div>
@@ -287,7 +293,9 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 				<WarningBox>
 					<FiAlertCircle style={{ color: '#d97706', fontSize: '1.25rem', marginTop: '0.125rem' }} />
 					<WarningText>
-						<strong>Token Exchange is currently disabled.</strong> Applications cannot perform token exchange operations in this environment. Enable this feature to allow token exchange according to RFC 8693 specifications.
+						<strong>Token Exchange is currently disabled.</strong> Applications cannot perform token
+						exchange operations in this environment. Enable this feature to allow token exchange
+						according to RFC 8693 specifications.
 					</WarningText>
 				</WarningBox>
 			)}
@@ -295,7 +303,9 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 			<WarningBox>
 				<FiSettings style={{ color: '#d97706', fontSize: '1.25rem', marginTop: '0.125rem' }} />
 				<WarningText>
-					<strong>Phase 1 Restrictions:</strong> Only same-environment token exchange is supported. Tokens must be issued by the same PingOne environment. Cross-environment and third-party token exchange will be available in future phases.
+					<strong>Phase 1 Restrictions:</strong> Only same-environment token exchange is supported.
+					Tokens must be issued by the same PingOne environment. Cross-environment and third-party
+					token exchange will be available in future phases.
 				</WarningText>
 			</WarningBox>
 		</Container>

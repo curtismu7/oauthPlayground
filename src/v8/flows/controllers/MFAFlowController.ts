@@ -8,9 +8,9 @@
 import type { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAServiceV8, type RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
+import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import type { DeviceType, MFACredentials, MFAState } from '../shared/MFATypes';
 
 const MODULE_TAG = '[🎮 MFA-CONTROLLER]';
@@ -84,9 +84,7 @@ export abstract class MFAFlowController {
 	 */
 	async loadExistingDevices(
 		credentials: MFACredentials,
-		mfaStateOrTokenStatus:
-			| MFAState
-			| TokenStatusInfo,
+		mfaStateOrTokenStatus: MFAState | TokenStatusInfo,
 		tokenStatus?: TokenStatusInfo,
 		_nav?: ReturnType<typeof useStepNavigationV8>
 	): Promise<Array<Record<string, unknown>>> {
@@ -94,9 +92,7 @@ export abstract class MFAFlowController {
 		// Legacy: (credentials, tokenStatus)
 		// Unified: (credentials, mfaState, tokenStatus, nav)
 		const actualTokenStatus =
-			tokenStatus !== undefined
-				? tokenStatus
-				: (mfaStateOrTokenStatus as TokenStatusInfo);
+			tokenStatus !== undefined ? tokenStatus : (mfaStateOrTokenStatus as TokenStatusInfo);
 
 		if (!credentials.environmentId || !credentials.username || !actualTokenStatus.isValid) {
 			return [];

@@ -603,16 +603,16 @@ export class UnifiedFlowIntegrationV8U {
 			console.log(`${_MODULE_TAG} 🔄 TRACKING: About to track authorization URL generation`);
 			console.log(`${_MODULE_TAG} 📍 TRACKING DEBUG:`, {
 				authorizationEndpoint,
-				authorizationUrl: authorizationUrl.substring(0, 100) + '...',
+				authorizationUrl: `${authorizationUrl.substring(0, 100)}...`,
 				step: 'unified-authorization-url',
 				flowType: 'unified',
 			});
-			
+
 			const startTime = Date.now();
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
-			
+
 			console.log(`${_MODULE_TAG} 🔄 TRACKING: apiCallTrackerService imported`);
-			
+
 			const apiCallId = apiCallTrackerService.trackApiCall({
 				method: 'GET',
 				url: authorizationEndpoint,
@@ -1257,18 +1257,18 @@ export class UnifiedFlowIntegrationV8U {
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const tokenEndpoint = `https://auth.pingone.com/${oauthCredentials.environmentId}/as/token`;
 			const startTime = Date.now();
-			
+
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: tokenEndpoint,
 				actualPingOneUrl: tokenEndpoint,
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
-					'Authorization': `Basic ${btoa(`${oauthCredentials.clientId}:${oauthCredentials.clientSecret || ''}`)}`,
+					Authorization: `Basic ${btoa(`${oauthCredentials.clientId}:${oauthCredentials.clientSecret || ''}`)}`,
 				},
 				body: new URLSearchParams({
 					grant_type: 'authorization_code',
-					code: code.substring(0, 20) + '...',
+					code: `${code.substring(0, 20)}...`,
 					redirect_uri: oauthCredentials.redirectUri || '',
 					...(codeVerifier && { code_verifier: '***REDACTED***' }),
 					client_id: oauthCredentials.clientId,
@@ -1367,18 +1367,18 @@ export class UnifiedFlowIntegrationV8U {
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const tokenEndpoint = `https://auth.pingone.com/${hybridCredentials.environmentId}/as/token`;
 			const startTime = Date.now();
-			
+
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: tokenEndpoint,
 				actualPingOneUrl: tokenEndpoint,
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
-					'Authorization': `Basic ${btoa(`${hybridCredentials.clientId}:${hybridCredentials.clientSecret || ''}`)}`,
+					Authorization: `Basic ${btoa(`${hybridCredentials.clientId}:${hybridCredentials.clientSecret || ''}`)}`,
 				},
 				body: new URLSearchParams({
 					grant_type: 'authorization_code',
-					code: code.substring(0, 20) + '...',
+					code: `${code.substring(0, 20)}...`,
 					redirect_uri: hybridCredentials.redirectUri || '',
 					...(codeVerifier && { code_verifier: '***REDACTED***' }),
 					client_id: hybridCredentials.clientId,

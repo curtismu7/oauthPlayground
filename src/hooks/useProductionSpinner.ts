@@ -5,7 +5,7 @@
  * @version 1.0.0
  */
 
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CommonSpinnerService } from '@/services/CommonSpinnerService';
 import type {
 	CommonSpinnerConfig,
@@ -22,7 +22,7 @@ export const useProductionSpinner = (
 	defaultConfig?: Partial<CommonSpinnerConfig>
 ): UseProductionSpinnerReturn => {
 	// Memoize defaultConfig to prevent infinite re-renders
-	const memoizedDefaultConfig = useMemo(() => defaultConfig || {}, [JSON.stringify(defaultConfig)]);
+	const memoizedDefaultConfig = useMemo(() => defaultConfig || {}, [defaultConfig]);
 
 	const [spinnerState, setSpinnerState] = useState<CommonSpinnerState>(() => {
 		const instance = CommonSpinnerService.getInstance(appId, memoizedDefaultConfig);
