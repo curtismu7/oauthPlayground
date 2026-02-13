@@ -315,11 +315,17 @@ interface FedExAirlinesHeroProps {
 const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 	currentStep = 'portal-home',
 	onLoginStart,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_onLoginSuccess,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_onError,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_environmentId,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_clientId,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_clientSecret,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_redirectUri,
 }) => {
 	return (
