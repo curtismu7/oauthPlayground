@@ -550,11 +550,11 @@ class UnifiedWorkerTokenService {
 			tokenExpiresIn: data ? this.getTokenExpiresIn(data) : undefined,
 			lastFetchedAt: data?.savedAt,
 			lastUsedAt: data?.lastUsedAt,
-			appInfo: credentials
+			appInfo: credentials && (credentials.appId || credentials.appName || credentials.appVersion)
 				? {
-						appId: credentials.appId,
-						appName: credentials.appName,
-						appVersion: credentials.appVersion,
+						appId: credentials.appId ?? undefined,
+						appName: credentials.appName ?? undefined,
+						appVersion: credentials.appVersion ?? undefined,
 					}
 				: undefined,
 		};
@@ -975,7 +975,7 @@ class UnifiedWorkerTokenService {
 	 */
 	exportConfig(): string {
 		try {
-			const tokenData = this.getWorkerTokenData();
+			const tokenData = this.getTokenDataSync();
 			if (!tokenData) {
 				throw new Error('No worker token configuration to export');
 			}
@@ -1017,7 +1017,7 @@ class UnifiedWorkerTokenService {
 			}
 
 			// Import the configuration
-			await this.setWorkerToken(credentials);
+			await this.saveCredentials(credentials);
 
 			console.log(`${MODULE_TAG} Successfully imported worker token configuration`);
 		} catch (error) {
