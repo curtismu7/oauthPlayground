@@ -66,6 +66,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 
 	const [credentials, setCredentials] = useState<Credentials>(() => {
 		return CredentialsServiceV8.loadCredentials('oauth', {
+			flowKey: 'oauth',
 			flowType: 'oauth',
 			includeClientSecret: true,
 			includeRedirectUri: true,
@@ -285,12 +286,11 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 									scopes: credentials.scopes || 'openid profile email',
 								},
 								flowType: 'authorization_code',
-								flowKey: FLOW_KEY,
 								codeChallenge: result.codeChallenge,
 								codeChallengeMethod: result.codeChallengeMethod,
 								username: redirectlessCredentials.username,
 								password: redirectlessCredentials.password,
-								onAuthCodeReceived: (code, _state) => {
+								onAuthCodeReceived: () => {
 									console.log(`${MODULE_TAG} Received authorization code via redirectless`);
 								},
 							});
