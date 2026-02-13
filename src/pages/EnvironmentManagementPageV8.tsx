@@ -500,10 +500,6 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	const [workerToken, setWorkerToken] = useState<string>(() => 
 		localStorage.getItem('worker_token') || ''
 	);
-	const [workerTokenExpiresAt, setWorkerTokenExpiresAt] = useState<number | undefined>(() => {
-		const expiresAt = localStorage.getItem('worker_token_expires_at');
-		return expiresAt ? parseInt(expiresAt, 10) : undefined;
-	});
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// Listen for token updates
@@ -512,7 +508,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			const token = localStorage.getItem('worker_token') || '';
 			const expiresAt = localStorage.getItem('worker_token_expires_at');
 			setWorkerToken(token);
-			setWorkerTokenExpiresAt(expiresAt ? parseInt(expiresAt, 10) : undefined);
+			// Note: workerTokenExpiresAt is managed by WorkerTokenDetectedBanner component
 		};
 
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
@@ -528,7 +524,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		const token = localStorage.getItem('worker_token') || '';
 		const expiresAt = localStorage.getItem('worker_token_expires_at');
 		setWorkerToken(token);
-		setWorkerTokenExpiresAt(expiresAt ? parseInt(expiresAt, 10) : undefined);
+		// Note: workerTokenExpiresAt is managed by WorkerTokenDetectedBanner component
 		setShowWorkerTokenModal(false);
 	};
 
@@ -915,6 +911,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 					<div style={{ marginTop: '1rem' }}>
 						<button
+							type="button"
 							onClick={() => setShowWorkerTokenModal(true)}
 							style={{
 								padding: '0.75rem 1.5rem',
