@@ -863,6 +863,7 @@ export class AuthzFlowTokenManagement {
 			timestamp: Date.now(),
 		};
 		sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
+		localStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
 
 		// Store token for analysis
 		if (tokens?.access_token) {
