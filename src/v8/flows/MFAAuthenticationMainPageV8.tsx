@@ -668,9 +668,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 		// Listen for config updates
 		const handleConfigUpdate = (event: Event) => {
-			// const _customEvent = customEvent; // Unused - available if needed for debugging as CustomEvent<{
-				workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean };
-			}>;
+			// const _customEvent = event as CustomEvent<{
+			// 	workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean };
+			// }>; // Unused - available if needed for debugging
 			// Always reload fresh from config service when event fires (no cache)
 			const config = MFAConfigurationServiceV8.loadConfiguration();
 			setSilentApiRetrieval(config.workerToken.silentApiRetrieval);
