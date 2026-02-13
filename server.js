@@ -1538,6 +1538,19 @@ app.get('/api/environments', async (req, res) => {
 		
 		console.log(`[PingOne Environments API] Transformed ${transformedEnvironments.length} environments`);
 		
+		// Debug: Show first few environments
+		if (transformedEnvironments.length > 0) {
+			console.log('[PingOne Environments API] Sample transformed environments:', 
+				transformedEnvironments.slice(0, 3).map(env => ({
+					id: env.id,
+					name: env.name,
+					type: env.type,
+					status: env.status,
+					region: env.region
+				}))
+			);
+		}
+		
 		// Apply filters
 		let filteredEnvironments = [...transformedEnvironments];
 		
@@ -1633,6 +1646,14 @@ app.get('/api/environments', async (req, res) => {
 			source: 'PingOne Platform API Proxy'
 		}));
 	}
+});
+
+// Debug endpoint to check server logs
+app.get('/api/debug', (req, res) => {
+	res.json({
+		message: 'Debug endpoint working',
+		timestamp: new Date().toISOString(),
+	});
 });
 
 // Get Single Environment API Proxy Endpoint
