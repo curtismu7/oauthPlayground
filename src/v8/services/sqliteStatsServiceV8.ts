@@ -168,9 +168,9 @@ export class SQLiteStatsServiceV8 {
 
 					// If we have retries left, wait with exponential backoff
 					if (attempt < MAX_RETRIES) {
-						const delay = RETRY_DELAY * Math.pow(2, attempt - 1);
+						const delay = RETRY_DELAY * 2 ** (attempt - 1);
 						console.log(`${MODULE_TAG} Retrying ${operation} in ${delay}ms...`);
-						await new Promise(resolve => setTimeout(resolve, delay));
+						await new Promise((resolve) => setTimeout(resolve, delay));
 					} else {
 						throw error;
 					}

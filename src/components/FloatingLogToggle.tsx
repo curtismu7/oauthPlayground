@@ -15,7 +15,7 @@ const ToggleButton = styled.button<{ $isOpen: boolean }>`
   right: 20px;
   width: 50px;
   height: 50px;
-  background: ${props => props.$isOpen ? '#ef4444' : '#3b82f6'};
+  background: ${(props) => (props.$isOpen ? '#ef4444' : '#3b82f6')};
   color: white;
   border: none;
   border-radius: 50%;
@@ -29,7 +29,7 @@ const ToggleButton = styled.button<{ $isOpen: boolean }>`
   font-size: 18px;
 
   &:hover {
-    background: ${props => props.$isOpen ? '#dc2626' : '#2563eb'};
+    background: ${(props) => (props.$isOpen ? '#dc2626' : '#2563eb')};
     transform: scale(1.05);
   }
 
@@ -55,28 +55,28 @@ const ToggleButton = styled.button<{ $isOpen: boolean }>`
 `;
 
 interface FloatingLogToggleProps {
-  isOpen: boolean;
-  onClick: () => void;
-  hasNewLogs?: boolean;
+	isOpen: boolean;
+	onClick: () => void;
+	hasNewLogs?: boolean;
 }
 
 export const FloatingLogToggle: React.FC<FloatingLogToggleProps> = ({
-  isOpen,
-  onClick,
-  hasNewLogs = false
+	isOpen,
+	onClick,
+	hasNewLogs = false,
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
+	const [_isHovered, setIsHovered] = useState(false);
 
-  return (
-    <ToggleButton
-      $isOpen={isOpen}
-      onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={hasNewLogs ? 'pulse' : ''}
-      title={isOpen ? 'Close Log Viewer' : 'Open Log Viewer'}
-    >
-      <FiTerminal />
-    </ToggleButton>
-  );
+	return (
+		<ToggleButton
+			$isOpen={isOpen}
+			onClick={onClick}
+			onMouseEnter={() => setIsHovered(true)}
+			onMouseLeave={() => setIsHovered(false)}
+			className={hasNewLogs ? 'pulse' : ''}
+			title={isOpen ? 'Close Log Viewer' : 'Open Log Viewer'}
+		>
+			<FiTerminal />
+		</ToggleButton>
+	);
 };

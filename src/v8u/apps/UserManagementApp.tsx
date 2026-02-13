@@ -18,17 +18,17 @@ import { ErrorBoundary } from '../components/common/ErrorBoundary';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { ProtectedRoute } from '../components/common/ProtectedRoute';
 import { AuthProvider } from '../contexts/AuthContext';
-import { UserManagementProvider } from '../contexts/UserManagementContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
+import { UserManagementProvider } from '../contexts/UserManagementContext';
 
 import { AuthLayout } from '../layouts/AuthLayout';
 import { MainLayout } from '../layouts/MainLayout';
 
 import { DashboardPage } from '../pages/DashboardPage';
 import { LoginPage } from '../pages/LoginPage';
-import { UserManagementPage } from '../pages/UserManagementPage';
-import { SettingsPage } from '../pages/SettingsPage';
 import { ReportsPage } from '../pages/ReportsPage';
+import { SettingsPage } from '../pages/SettingsPage';
+import { UserManagementPage } from '../pages/UserManagementPage';
 
 /**
  * User Management Application

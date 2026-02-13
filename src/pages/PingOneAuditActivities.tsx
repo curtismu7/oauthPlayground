@@ -29,7 +29,6 @@ import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBann
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { apiRequestModalService } from '../services/apiRequestModalService';
-import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 

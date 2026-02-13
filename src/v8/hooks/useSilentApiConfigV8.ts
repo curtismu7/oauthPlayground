@@ -79,7 +79,7 @@ export const useWorkerTokenConfigV8 = () => {
 
 		// Listen for MFA configuration updates
 		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate);
-		
+
 		// Listen for worker token config updates
 		window.addEventListener('workerTokenConfigUpdated', handleConfigUpdate);
 
@@ -95,7 +95,7 @@ export const useWorkerTokenConfigV8 = () => {
 			console.log(`${MODULE_TAG} Updating silentApiRetrieval to:`, value);
 
 			// Update local state immediately for responsive UI
-			setConfig(prev => ({ ...prev, silentApiRetrieval: value }));
+			setConfig((prev) => ({ ...prev, silentApiRetrieval: value }));
 
 			// Update centralized service
 			WorkerTokenConfigServiceV8.setSilentApiRetrieval(value);
@@ -120,11 +120,10 @@ export const useWorkerTokenConfigV8 = () => {
 
 			toastV8.info(`Silent API Token Retrieval set to: ${value}`);
 			console.log(`${MODULE_TAG} SilentApiRetrieval updated successfully`);
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to update silentApiRetrieval:`, error);
 			toastV8.error('Failed to update Silent API setting');
-			
+
 			// Revert local state on error
 			const serviceConfig = WorkerTokenConfigServiceV8.getConfigSync();
 			setConfig({
@@ -140,7 +139,7 @@ export const useWorkerTokenConfigV8 = () => {
 			console.log(`${MODULE_TAG} Updating showTokenAtEnd to:`, value);
 
 			// Update local state immediately for responsive UI
-			setConfig(prev => ({ ...prev, showTokenAtEnd: value }));
+			setConfig((prev) => ({ ...prev, showTokenAtEnd: value }));
 
 			// Update centralized service
 			WorkerTokenConfigServiceV8.setShowTokenAtEnd(value);
@@ -165,11 +164,10 @@ export const useWorkerTokenConfigV8 = () => {
 
 			toastV8.info(`Show Token After Generation set to: ${value}`);
 			console.log(`${MODULE_TAG} ShowTokenAtEnd updated successfully`);
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to update showTokenAtEnd:`, error);
 			toastV8.error('Failed to update token display setting');
-			
+
 			// Revert local state on error
 			const serviceConfig = WorkerTokenConfigServiceV8.getConfigSync();
 			setConfig({
@@ -184,14 +182,14 @@ export const useWorkerTokenConfigV8 = () => {
 		try {
 			// Force service to reinitialize by clearing internal state
 			// Note: WorkerTokenConfigServiceV8 doesn't have clearCache, so we reload directly
-			
+
 			// Reload from storage
 			const serviceConfig = WorkerTokenConfigServiceV8.getConfigSync();
 			setConfig({
 				silentApiRetrieval: serviceConfig.silentApiRetrieval,
 				showTokenAtEnd: serviceConfig.showTokenAtEnd,
 			});
-			
+
 			console.log(`${MODULE_TAG} Configuration refreshed:`, serviceConfig);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to refresh configuration:`, error);

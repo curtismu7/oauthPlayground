@@ -13,8 +13,8 @@
  * - Server.log integration with checksum verification
  */
 
-import { unifiedLoggerV8, type UnifiedLogEntry } from './unifiedLoggerV8';
 import { logger } from '../../utils/logger';
+import { type UnifiedLogEntry, unifiedLoggerV8 } from './unifiedLoggerV8';
 
 // Shipper configuration
 const SHIPPER_BATCH_SIZE = 50;
@@ -50,7 +50,6 @@ class UnifiedLogShipperV8 {
 	private isShipping = false;
 	private shipTimer: NodeJS.Timeout | null = null;
 	private circuitOpen = false;
-	private circuitOpenTime = 0;
 	private consecutiveFailures = 0;
 	private stats: ShipperStats = {
 		totalShipped: 0,
@@ -228,7 +227,7 @@ class UnifiedLogShipperV8 {
 			entries: batch,
 			attempts: 1,
 			lastAttempt: Date.now(),
-			nextRetry: Date.now() + RETRY_DELAY_BASE * Math.pow(2, 0), // Exponential backoff
+			nextRetry: Date.now() + RETRY_DELAY_BASE * 2 ** 0, // Exponential backoff
 			error,
 		};
 
@@ -283,7 +282,7 @@ class UnifiedLogShipperV8 {
 					// Update retry info
 					batch.attempts++;
 					batch.lastAttempt = now;
-					batch.nextRetry = now + RETRY_DELAY_BASE * Math.pow(2, batch.attempts - 1);
+					batch.nextRetry = now + RETRY_DELAY_BASE * 2 ** (batch.attempts - 1);
 					batch.error = error instanceof Error ? error.message : String(error);
 
 					await this.updateFailedBatch(batch);

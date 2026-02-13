@@ -509,7 +509,7 @@ export const DebugLogViewerV8: React.FC = () => {
 			}
 			// HTTP status codes
 			else if (/^\d{3}$/.test(part)) {
-				const code = parseInt(part);
+				const code = parseInt(part, 10);
 				let color = LOG_COLORS.INFO;
 				if (code >= 200 && code < 300) color = LOG_COLORS.success;
 				else if (code >= 300 && code < 400) color = LOG_COLORS.warning;

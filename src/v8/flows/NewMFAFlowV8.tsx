@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { WorkerTokenStatusServiceV8 } from '../services/workerTokenStatusServiceV8';
 import { DeviceConfigKey } from './config/deviceFlowConfigTypes';
 import { APIDocsStepV8 } from './shared/APIDocsStepV8';
 import type { MFAFlowBaseRenderProps } from './shared/MFAFlowBaseV8';
@@ -14,7 +15,6 @@ import { SuccessStepV8 } from './shared/SuccessStepV8';
 import { UserLoginStepV8 } from './shared/UserLoginStepV8';
 import { UnifiedActivationStep } from './unified/components/UnifiedActivationStep';
 import { UnifiedDeviceRegistrationForm } from './unified/components/UnifiedDeviceRegistrationForm';
-import { WorkerTokenStatusServiceV8 } from '../services/workerTokenStatusServiceV8';
 
 const MODULE_TAG = '[🎯 NEW-MFA-FLOW-V8]';
 
@@ -145,7 +145,7 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 			// FIXED: Prevent advancement from step 0 without valid worker token
 			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 			const tokenType = props.credentials.tokenType || 'worker';
-			
+
 			// For worker token flows: require valid token
 			// For user token flows: require valid user token
 			if (tokenType === 'worker' && !tokenStatus.isValid) {
@@ -154,7 +154,7 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 			if (tokenType === 'user' && !props.credentials.userToken?.trim()) {
 				return true; // Hide Next button - user token missing
 			}
-			
+
 			return true; // Hide Next button on configuration step, use form submit
 		}
 		if (props.nav.currentStep === 1) {
@@ -164,7 +164,7 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 			// FIXED: Prevent advancement to step 3 without valid worker token
 			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 			const tokenType = props.credentials.tokenType || 'worker';
-			
+
 			// For worker token flows: require valid token
 			// For user token flows: require valid user token
 			if (tokenType === 'worker' && !tokenStatus.isValid) {
@@ -181,9 +181,11 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 		// FIXED: Always do a FRESH check of worker token status
 		// The tokenStatus parameter from React state can be stale
 		const freshTokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
-		
+
 		if (!freshTokenStatus.isValid) {
-			console.warn(`${MODULE_TAG} Step 0 validation failed: Invalid or expired worker token (fresh check)`);
+			console.warn(
+				`${MODULE_TAG} Step 0 validation failed: Invalid or expired worker token (fresh check)`
+			);
 			return false;
 		}
 

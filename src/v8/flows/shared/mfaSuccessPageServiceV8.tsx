@@ -167,11 +167,13 @@ const convertToUnifiedData = (
 	// Default to 'registration' for device creation flows
 	// Use 'authentication' only for explicit authentication flows
 	let flowType: 'registration' | 'authentication' = 'registration';
-	
+
 	// Check if this is an authentication flow by looking for authentication-specific indicators
-	if (successData.adminDeviceStatus === 'ACTIVATION_REQUIRED' || 
+	if (
+		successData.adminDeviceStatus === 'ACTIVATION_REQUIRED' ||
 		(successData.deviceStatus === 'ACTIVE' && !successData.deviceId && credentials.deviceId) ||
-		(successData.verificationResult?.status === 'COMPLETED' && !successData.deviceId)) {
+		(successData.verificationResult?.status === 'COMPLETED' && !successData.deviceId)
+	) {
 		flowType = 'authentication';
 	}
 

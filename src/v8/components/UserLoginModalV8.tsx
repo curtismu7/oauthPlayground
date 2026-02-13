@@ -12,18 +12,24 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiDownload, FiEye, FiEyeOff, FiInfo, FiUpload } from 'react-icons/fi';
 import { useLocation, useSearchParams } from 'react-router-dom';
+import { safeGetUserInfo } from '@/utils/authUtils';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { RedirectUriValidatorV8 } from '@/v8/components/RedirectUriValidatorV8';
-import { AppDiscoveryServiceV8, type DiscoveredApplication } from '@/v8/services/appDiscoveryServiceV8';
+import {
+	AppDiscoveryServiceV8,
+	type DiscoveredApplication,
+} from '@/v8/services/appDiscoveryServiceV8';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
-import { OAuthIntegrationServiceV8, type OAuthCredentials } from '@/v8/services/oauthIntegrationServiceV8';
+import {
+	type OAuthCredentials,
+	OAuthIntegrationServiceV8,
+} from '@/v8/services/oauthIntegrationServiceV8';
 import { useRedirectURIRouting } from '@/v8/services/redirectURIRoutingServiceV8';
-import { safeGetUserInfo } from '@/utils/authUtils';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
@@ -57,7 +63,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [clientSecret, setClientSecret] = useState('');
 	const [username, setUsername] = useState('');
 	const [lastFileName, setLastFileName] = useState<string>('');
-	
+
 	// Auto-populate login_hint field with current user information
 	useEffect(() => {
 		try {
@@ -74,7 +80,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			console.warn(`${MODULE_TAG} Failed to auto-populate login_hint:`, error);
 		}
 	}, []); // Only run once on mount
-	
+
 	const [redirectUri, setRedirectUri] = useState(() => {
 		// Initialize with correct default redirect URI based on flow type
 		// Always use HTTPS for security (even in development)
@@ -422,7 +428,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				// #region agent log
 				sendAnalyticsLog({
 					location: 'UserLoginModalV8.tsx:134',
-					message: 'Redirect URI loaded - using saved URI when present, fallback to default when empty',
+					message:
+						'Redirect URI loaded - using saved URI when present, fallback to default when empty',
 					data: {
 						savedRedirectUri: saved.redirectUri,
 						defaultRedirectUri,
@@ -626,7 +633,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					// Preserve original redirect URI from PingOne and consult routing tables
 					if (credentials.redirectUri) {
 						const routing = routeToCorrectStep(credentials.redirectUri);
-						
+
 						console.log(`${MODULE_TAG} 🎯 Redirect URI Routing Applied`, {
 							originalUri: routing.originalUri,
 							targetStep: routing.targetStep,
@@ -635,19 +642,22 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						});
 
 						// Store routing information for parent components to use
-						sessionStorage.setItem('oauth_callback_routing', JSON.stringify({
-							targetStep: routing.targetStep,
-							flowType: routing.flowType,
-							originalUri: routing.originalUri,
-							timestamp: Date.now()
-						}));
+						sessionStorage.setItem(
+							'oauth_callback_routing',
+							JSON.stringify({
+								targetStep: routing.targetStep,
+								flowType: routing.flowType,
+								originalUri: routing.originalUri,
+								timestamp: Date.now(),
+							})
+						);
 
 						// Validate redirect URI against known tables
 						const isValidUri = validateRedirectURI(credentials.redirectUri);
 						if (!isValidUri) {
 							console.warn(`${MODULE_TAG} ⚠️ Redirect URI not found in routing tables`, {
 								redirectUri: credentials.redirectUri,
-								availableRoutes: routeToCorrectStep('/callback') // Show available routes for debugging
+								availableRoutes: routeToCorrectStep('/callback'), // Show available routes for debugging
 							});
 						}
 					}
@@ -756,14 +766,15 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					// CRITICAL: Save user token to credentials so MFA flows can find it
 					// This ensures credentials.userToken is set and all flows look in the same place
 					const FLOW_KEY = 'user-login-v8';
-					const currentCredentials = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-		flowKey: FLOW_KEY,
-		flowType: 'oauth',
-		includeClientSecret: false,
-		includeRedirectUri: false,
-		includeLogoutUri: false,
-		includeScopes: false,
-	}) || {};
+					const currentCredentials =
+						CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+							flowKey: FLOW_KEY,
+							flowType: 'oauth',
+							includeClientSecret: false,
+							includeRedirectUri: false,
+							includeLogoutUri: false,
+							includeScopes: false,
+						}) || {};
 					const updatedCredentials = {
 						...currentCredentials,
 						...credentials, // Preserve all original credentials
@@ -1075,14 +1086,15 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 						// CRITICAL: Save user token to credentials so MFA flows can find it
 						const FLOW_KEY = 'user-login-v8';
-						const currentCredentials = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-		flowKey: FLOW_KEY,
-		flowType: 'oauth',
-		includeClientSecret: false,
-		includeRedirectUri: false,
-		includeLogoutUri: false,
-		includeScopes: false,
-	}) || {};
+						const currentCredentials =
+							CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+								flowKey: FLOW_KEY,
+								flowType: 'oauth',
+								includeClientSecret: false,
+								includeRedirectUri: false,
+								includeLogoutUri: false,
+								includeScopes: false,
+							}) || {};
 						const updatedCredentials = {
 							...currentCredentials,
 							...credentials, // Preserve all original credentials
@@ -1104,7 +1116,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			checkCallback();
 		}
-	}, [isOpen, handleTokenReceived, routeToCorrectStep, validateRedirectURI]);
+	}, [isOpen, handleTokenReceived]);
 
 	// Handle redirect URI changes - update PingOne app if needed
 	const handleRedirectUriChange = useCallback(
@@ -1467,10 +1479,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				const urlParams = new URLSearchParams(currentSearch);
 				const stepParam = urlParams.get('step');
 				const step = stepParam ? parseInt(stepParam, 10) : 2; // Default to step 2 (device selection)
-				
+
 				// Determine flow type based on path
 				const flowType = currentPath.includes('authentication') ? 'authentication' : 'registration';
-				
+
 				// Store flow context for CallbackHandlerV8U to retrieve
 				// IMPORTANT: This context tells the callback handler where to return after OAuth
 				const flowContext = {
@@ -1479,7 +1491,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					flowType,
 					timestamp: Date.now(),
 				};
-				
+
 				sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
 
 				console.log(`${MODULE_TAG} 🎯 Stored flow context for ${flowType}:`, {

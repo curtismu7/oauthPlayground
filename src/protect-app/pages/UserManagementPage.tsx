@@ -12,13 +12,13 @@
  * - Open/Closed: Extensible for new user operations
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiUser, FiMail, FiPhone, FiCalendar, FiShield, FiX, FiCheck, FiAlertTriangle } from 'react-icons/fi';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiAlertTriangle, FiEdit2, FiPlus, FiTrash2, FiUser, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { userService, User, UserRole, UserStatus } from '../services/UserService';
+import { PageApiInfo } from '../components/common/PageApiInfo';
 import { UserSearchDropdown } from '../components/UserSearchDropdown';
 import { useTheme } from '../contexts/ThemeContext';
-import { PageApiInfo } from '../components/common/PageApiInfo';
+import { User, UserRole, UserStatus, userService } from '../services/UserService';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -422,7 +422,7 @@ interface UserFormData {
 	department: string;
 }
 
-interface UserManagementPageProps {}
+type UserManagementPageProps = {};
 
 // ============================================================================
 // COMPONENT
@@ -451,7 +451,7 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 		roleId: '',
 		statusId: '',
 		phone: '',
-		department: ''
+		department: '',
 	});
 
 	// Load initial data
@@ -459,7 +459,7 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 		loadUsers();
 		loadRoles();
 		loadStatuses();
-	}, []);
+	}, [loadRoles, loadStatuses, loadUsers]);
 
 	const loadUsers = useCallback(async () => {
 		setIsLoading(true);
@@ -469,7 +469,7 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 				role: selectedRole,
 				status: selectedStatus,
 				department: selectedDepartment,
-				limit: 50
+				limit: 50,
 			});
 			setUsers(result.users);
 		} catch (error) {
@@ -500,17 +500,17 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 	const handleCreateUser = useCallback(async () => {
 		try {
 			const newUser = await userService.createUser(formData);
-			setUsers(prev => [...prev, newUser]);
+			setUsers((prev) => [...prev, newUser]);
 			setShowCreateModal(false);
 			resetForm();
 		} catch (error) {
 			console.error('Error creating user:', error);
 		}
-	}, [formData]);
+	}, [formData, resetForm]);
 
 	const handleUpdateUser = useCallback(async () => {
 		if (!selectedUser) return;
-		
+
 		try {
 			const updatedUser = await userService.updateUser(selectedUser.id, {
 				email: formData.email,
@@ -519,22 +519,22 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 				roleId: formData.roleId,
 				statusId: formData.statusId,
 				phone: formData.phone,
-				department: formData.department
+				department: formData.department,
 			});
-			setUsers(prev => prev.map(u => u.id === selectedUser.id ? updatedUser : u));
+			setUsers((prev) => prev.map((u) => (u.id === selectedUser.id ? updatedUser : u)));
 			setShowEditModal(false);
 			resetForm();
 		} catch (error) {
 			console.error('Error updating user:', error);
 		}
-	}, [selectedUser, formData]);
+	}, [selectedUser, formData, resetForm]);
 
 	const handleDeleteUser = useCallback(async () => {
 		if (!selectedUser) return;
-		
+
 		try {
 			await userService.deleteUser(selectedUser.id);
-			setUsers(prev => prev.filter(u => u.id !== selectedUser.id));
+			setUsers((prev) => prev.filter((u) => u.id !== selectedUser.id));
 			setShowDeleteModal(false);
 			setSelectedUser(null);
 		} catch (error) {
@@ -553,7 +553,7 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 			roleId: user.role.id,
 			statusId: user.status.id,
 			phone: user.phone || '',
-			department: user.department || ''
+			department: user.department || '',
 		});
 		setShowEditModal(true);
 	}, []);
@@ -573,13 +573,13 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 			roleId: '',
 			statusId: '',
 			phone: '',
-			department: ''
+			department: '',
 		});
 		setSelectedUser(null);
 	}, []);
 
 	const handleFormChange = useCallback((field: keyof UserFormData, value: string) => {
-		setFormData(prev => ({ ...prev, [field]: value }));
+		setFormData((prev) => ({ ...prev, [field]: value }));
 	}, []);
 
 	const departments = ['IT', 'Sales', 'Marketing', 'Engineering', 'HR', 'Finance', 'Operations'];
@@ -593,7 +593,11 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 						Manage users, roles, and permissions
 					</PageDescription>
 				</div>
-				<ActionButton theme={currentTheme} variant="primary" onClick={() => setShowCreateModal(true)}>
+				<ActionButton
+					theme={currentTheme}
+					variant="primary"
+					onClick={() => setShowCreateModal(true)}
+				>
 					<FiPlus />
 					Create User
 				</ActionButton>
@@ -610,28 +614,46 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 				</SearchField>
 				<SearchField>
 					<SearchLabel theme={currentTheme}>Role</SearchLabel>
-					<SearchSelect theme={currentTheme} value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)}>
+					<SearchSelect
+						theme={currentTheme}
+						value={selectedRole}
+						onChange={(e) => setSelectedRole(e.target.value)}
+					>
 						<option value="">All Roles</option>
-						{roles.map(role => (
-							<option key={role.id} value={role.id}>{role.name}</option>
+						{roles.map((role) => (
+							<option key={role.id} value={role.id}>
+								{role.name}
+							</option>
 						))}
 					</SearchSelect>
 				</SearchField>
 				<SearchField>
 					<SearchLabel theme={currentTheme}>Status</SearchLabel>
-					<SearchSelect theme={currentTheme} value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
+					<SearchSelect
+						theme={currentTheme}
+						value={selectedStatus}
+						onChange={(e) => setSelectedStatus(e.target.value)}
+					>
 						<option value="">All Statuses</option>
-						{statuses.map(status => (
-							<option key={status.id} value={status.id}>{status.name}</option>
+						{statuses.map((status) => (
+							<option key={status.id} value={status.id}>
+								{status.name}
+							</option>
 						))}
 					</SearchSelect>
 				</SearchField>
 				<SearchField>
 					<SearchLabel theme={currentTheme}>Department</SearchLabel>
-					<SearchSelect theme={currentTheme} value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)}>
+					<SearchSelect
+						theme={currentTheme}
+						value={selectedDepartment}
+						onChange={(e) => setSelectedDepartment(e.target.value)}
+					>
 						<option value="">All Departments</option>
-						{departments.map(dept => (
-							<option key={dept} value={dept}>{dept}</option>
+						{departments.map((dept) => (
+							<option key={dept} value={dept}>
+								{dept}
+							</option>
 						))}
 					</SearchSelect>
 				</SearchField>
@@ -662,15 +684,14 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 						<TableRow key={user.id} theme={currentTheme}>
 							<UserCell theme={currentTheme}>
 								<UserAvatar theme={currentTheme}>
-									{user.firstName.charAt(0)}{user.lastName.charAt(0)}
+									{user.firstName.charAt(0)}
+									{user.lastName.charAt(0)}
 								</UserAvatar>
 								<UserInfo>
 									<UserName theme={currentTheme}>
 										{user.firstName} {user.lastName}
 									</UserName>
-									<UserEmail theme={currentTheme}>
-										{user.email}
-									</UserEmail>
+									<UserEmail theme={currentTheme}>{user.email}</UserEmail>
 								</UserInfo>
 							</UserCell>
 							<div>{user.role.name}</div>
@@ -680,10 +701,18 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 							<div>{user.department || '-'}</div>
 							<div>{user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}</div>
 							<ActionButtons>
-								<IconButton theme={currentTheme} variant="edit" onClick={() => handleEditUser(user)}>
+								<IconButton
+									theme={currentTheme}
+									variant="edit"
+									onClick={() => handleEditUser(user)}
+								>
 									<FiEdit2 size={16} />
 								</IconButton>
-								<IconButton theme={currentTheme} variant="delete" onClick={() => handleDeleteClick(user)}>
+								<IconButton
+									theme={currentTheme}
+									variant="delete"
+									onClick={() => handleDeleteClick(user)}
+								>
 									<FiTrash2 size={16} />
 								</IconButton>
 							</ActionButtons>
@@ -702,51 +731,105 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 								<FiX size={20} />
 							</ModalClose>
 						</ModalHeader>
-						<Form onSubmit={(e) => { e.preventDefault(); handleCreateUser(); }}>
+						<Form
+							onSubmit={(e) => {
+								e.preventDefault();
+								handleCreateUser();
+							}}
+						>
 							<FormField>
 								<FormLabel theme={currentTheme}>Username</FormLabel>
-								<FormInput theme={currentTheme} value={formData.username} onChange={(e) => handleFormChange('username', e.target.value)} required />
+								<FormInput
+									theme={currentTheme}
+									value={formData.username}
+									onChange={(e) => handleFormChange('username', e.target.value)}
+									required
+								/>
 							</FormField>
 							<FormField>
 								<FormLabel theme={currentTheme}>Email</FormLabel>
-								<FormInput theme={currentTheme} type="email" value={formData.email} onChange={(e) => handleFormChange('email', e.target.value)} required />
+								<FormInput
+									theme={currentTheme}
+									type="email"
+									value={formData.email}
+									onChange={(e) => handleFormChange('email', e.target.value)}
+									required
+								/>
 							</FormField>
 							<FormField>
 								<FormLabel theme={currentTheme}>First Name</FormLabel>
-								<FormInput theme={currentTheme} value={formData.firstName} onChange={(e) => handleFormChange('firstName', e.target.value)} required />
+								<FormInput
+									theme={currentTheme}
+									value={formData.firstName}
+									onChange={(e) => handleFormChange('firstName', e.target.value)}
+									required
+								/>
 							</FormField>
 							<FormField>
 								<FormLabel theme={currentTheme}>Last Name</FormLabel>
-								<FormInput theme={currentTheme} value={formData.lastName} onChange={(e) => handleFormChange('lastName', e.target.value)} required />
+								<FormInput
+									theme={currentTheme}
+									value={formData.lastName}
+									onChange={(e) => handleFormChange('lastName', e.target.value)}
+									required
+								/>
 							</FormField>
 							<FormField>
 								<FormLabel theme={currentTheme}>Password</FormLabel>
-								<FormInput theme={currentTheme} type="password" value={formData.password} onChange={(e) => handleFormChange('password', e.target.value)} required />
+								<FormInput
+									theme={currentTheme}
+									type="password"
+									value={formData.password}
+									onChange={(e) => handleFormChange('password', e.target.value)}
+									required
+								/>
 							</FormField>
 							<FormField>
 								<FormLabel theme={currentTheme}>Role</FormLabel>
-								<FormSelect theme={currentTheme} value={formData.roleId} onChange={(e) => handleFormChange('roleId', e.target.value)} required>
+								<FormSelect
+									theme={currentTheme}
+									value={formData.roleId}
+									onChange={(e) => handleFormChange('roleId', e.target.value)}
+									required
+								>
 									<option value="">Select a role</option>
-									{roles.map(role => (
-										<option key={role.id} value={role.id}>{role.name}</option>
+									{roles.map((role) => (
+										<option key={role.id} value={role.id}>
+											{role.name}
+										</option>
 									))}
 								</FormSelect>
 							</FormField>
 							<FormField>
 								<FormLabel theme={currentTheme}>Department</FormLabel>
-								<FormSelect theme={currentTheme} value={formData.department} onChange={(e) => handleFormChange('department', e.target.value)}>
+								<FormSelect
+									theme={currentTheme}
+									value={formData.department}
+									onChange={(e) => handleFormChange('department', e.target.value)}
+								>
 									<option value="">Select a department</option>
-									{departments.map(dept => (
-										<option key={dept} value={dept}>{dept}</option>
+									{departments.map((dept) => (
+										<option key={dept} value={dept}>
+											{dept}
+										</option>
 									))}
 								</FormSelect>
 							</FormField>
 							<FormField>
 								<FormLabel theme={currentTheme}>Phone</FormLabel>
-								<FormInput theme={currentTheme} value={formData.phone} onChange={(e) => handleFormChange('phone', e.target.value)} />
+								<FormInput
+									theme={currentTheme}
+									value={formData.phone}
+									onChange={(e) => handleFormChange('phone', e.target.value)}
+								/>
 							</FormField>
 							<FormActions>
-								<ActionButton theme={currentTheme} variant="secondary" type="button" onClick={() => setShowCreateModal(false)}>
+								<ActionButton
+									theme={currentTheme}
+									variant="secondary"
+									type="button"
+									onClick={() => setShowCreateModal(false)}
+								>
 									Cancel
 								</ActionButton>
 								<ActionButton theme={currentTheme} variant="primary" type="submit">
@@ -769,54 +852,104 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 								<FiX size={20} />
 							</ModalClose>
 						</ModalHeader>
-						<Form onSubmit={(e) => { e.preventDefault(); handleUpdateUser(); }}>
+						<Form
+							onSubmit={(e) => {
+								e.preventDefault();
+								handleUpdateUser();
+							}}
+						>
 							<FormField>
 								<FormLabel theme={currentTheme}>Username</FormLabel>
 								<FormInput theme={currentTheme} value={formData.username} disabled />
 							</FormField>
 							<FormField>
 								<FormLabel theme={currentTheme}>Email</FormLabel>
-								<FormInput theme={currentTheme} type="email" value={formData.email} onChange={(e) => handleFormChange('email', e.target.value)} required />
+								<FormInput
+									theme={currentTheme}
+									type="email"
+									value={formData.email}
+									onChange={(e) => handleFormChange('email', e.target.value)}
+									required
+								/>
 							</FormField>
 							<FormField>
 								<FormLabel theme={currentTheme}>First Name</FormLabel>
-								<FormInput theme={currentTheme} value={formData.firstName} onChange={(e) => handleFormChange('firstName', e.target.value)} required />
+								<FormInput
+									theme={currentTheme}
+									value={formData.firstName}
+									onChange={(e) => handleFormChange('firstName', e.target.value)}
+									required
+								/>
 							</FormField>
 							<FormField>
 								<FormLabel theme={currentTheme}>Last Name</FormLabel>
-								<FormInput theme={currentTheme} value={formData.lastName} onChange={(e) => handleFormChange('lastName', e.target.value)} required />
+								<FormInput
+									theme={currentTheme}
+									value={formData.lastName}
+									onChange={(e) => handleFormChange('lastName', e.target.value)}
+									required
+								/>
 							</FormField>
 							<FormField>
 								<FormLabel theme={currentTheme}>Role</FormLabel>
-								<FormSelect theme={currentTheme} value={formData.roleId} onChange={(e) => handleFormChange('roleId', e.target.value)} required>
-									{roles.map(role => (
-										<option key={role.id} value={role.id}>{role.name}</option>
+								<FormSelect
+									theme={currentTheme}
+									value={formData.roleId}
+									onChange={(e) => handleFormChange('roleId', e.target.value)}
+									required
+								>
+									{roles.map((role) => (
+										<option key={role.id} value={role.id}>
+											{role.name}
+										</option>
 									))}
 								</FormSelect>
 							</FormField>
 							<FormField>
 								<FormLabel theme={currentTheme}>Status</FormLabel>
-								<FormSelect theme={currentTheme} value={formData.statusId} onChange={(e) => handleFormChange('statusId', e.target.value)} required>
-									{statuses.map(status => (
-										<option key={status.id} value={status.id}>{status.name}</option>
+								<FormSelect
+									theme={currentTheme}
+									value={formData.statusId}
+									onChange={(e) => handleFormChange('statusId', e.target.value)}
+									required
+								>
+									{statuses.map((status) => (
+										<option key={status.id} value={status.id}>
+											{status.name}
+										</option>
 									))}
 								</FormSelect>
 							</FormField>
 							<FormField>
 								<FormLabel theme={currentTheme}>Department</FormLabel>
-								<FormSelect theme={currentTheme} value={formData.department} onChange={(e) => handleFormChange('department', e.target.value)}>
+								<FormSelect
+									theme={currentTheme}
+									value={formData.department}
+									onChange={(e) => handleFormChange('department', e.target.value)}
+								>
 									<option value="">Select a department</option>
-									{departments.map(dept => (
-										<option key={dept} value={dept}>{dept}</option>
+									{departments.map((dept) => (
+										<option key={dept} value={dept}>
+											{dept}
+										</option>
 									))}
 								</FormSelect>
 							</FormField>
 							<FormField>
 								<FormLabel theme={currentTheme}>Phone</FormLabel>
-								<FormInput theme={currentTheme} value={formData.phone} onChange={(e) => handleFormChange('phone', e.target.value)} />
+								<FormInput
+									theme={currentTheme}
+									value={formData.phone}
+									onChange={(e) => handleFormChange('phone', e.target.value)}
+								/>
 							</FormField>
 							<FormActions>
-								<ActionButton theme={currentTheme} variant="secondary" type="button" onClick={() => setShowEditModal(false)}>
+								<ActionButton
+									theme={currentTheme}
+									variant="secondary"
+									type="button"
+									onClick={() => setShowEditModal(false)}
+								>
 									Cancel
 								</ActionButton>
 								<ActionButton theme={currentTheme} variant="primary" type="submit">
@@ -843,21 +976,49 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 							<p style={{ color: currentTheme.colors.text, marginBottom: '1rem' }}>
 								Are you sure you want to delete this user?
 							</p>
-							<div style={{ padding: '1rem', background: currentTheme.colors.primaryLight, borderRadius: currentTheme.borderRadius.md }}>
-								<strong>{selectedUser.firstName} {selectedUser.lastName}</strong><br />
-								{selectedUser.email}<br />
+							<div
+								style={{
+									padding: '1rem',
+									background: currentTheme.colors.primaryLight,
+									borderRadius: currentTheme.borderRadius.md,
+								}}
+							>
+								<strong>
+									{selectedUser.firstName} {selectedUser.lastName}
+								</strong>
+								<br />
+								{selectedUser.email}
+								<br />
 								{selectedUser.username}
 							</div>
-							<p style={{ color: currentTheme.colors.error, marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+							<p
+								style={{
+									color: currentTheme.colors.error,
+									marginTop: '1rem',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiAlertTriangle />
 								This action cannot be undone.
 							</p>
 						</div>
 						<FormActions>
-							<ActionButton theme={currentTheme} variant="secondary" type="button" onClick={() => setShowDeleteModal(false)}>
+							<ActionButton
+								theme={currentTheme}
+								variant="secondary"
+								type="button"
+								onClick={() => setShowDeleteModal(false)}
+							>
 								Cancel
 							</ActionButton>
-							<ActionButton theme={currentTheme} variant="danger" type="button" onClick={handleDeleteUser}>
+							<ActionButton
+								theme={currentTheme}
+								variant="danger"
+								type="button"
+								onClick={handleDeleteUser}
+							>
 								<FiTrash2 />
 								Delete User
 							</ActionButton>

@@ -21,6 +21,8 @@ import {
 	generateComprehensiveUnifiedPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
+import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import {
 	PageHeaderGradients,
@@ -28,8 +30,6 @@ import {
 	PageHeaderV8,
 } from '@/v8/components/shared/PageHeaderV8';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
-import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
-import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';

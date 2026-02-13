@@ -903,7 +903,6 @@ const Configuration: React.FC = () => {
 				</Card>
 			</CollapsibleHeader>
 
-			
 			{/* Configuration URI Reference Table */}
 			<CollapsibleHeader
 				title="PingOne Redirect & Logout URIs"

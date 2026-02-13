@@ -115,11 +115,11 @@ const SectionDescription = styled.p`
 // ============================================================================
 
 interface PortalPageLayoutProps {
-  title: string;
-  subtitle?: string;
-  children: React.ReactNode;
-  showHeader?: boolean;
-  headerActions?: React.ReactNode;
+	title: string;
+	subtitle?: string;
+	children: React.ReactNode;
+	showHeader?: boolean;
+	headerActions?: React.ReactNode;
 }
 
 // ============================================================================
@@ -127,36 +127,34 @@ interface PortalPageLayoutProps {
 // ============================================================================
 
 const PortalPageLayout: React.FC<PortalPageLayoutProps> = ({
-  title,
-  subtitle,
-  children,
-  showHeader = true,
-  headerActions,
+	title,
+	subtitle,
+	children,
+	showHeader = true,
+	headerActions,
 }) => {
-  return (
-    <PageWrapper>
-      {showHeader && (
-        <PageHeader>
-          <HeaderContent>
-            <HeaderBrand>
-              <CompanyLogoHeader />
-            </HeaderBrand>
-            {headerActions && (
-              <HeaderActions>{headerActions}</HeaderActions>
-            )}
-          </HeaderContent>
-        </PageHeader>
-      )}
-      
-      <PageMain>
-        <PageContainer>
-          <PageTitle>{title}</PageTitle>
-          {subtitle && <PageSubtitle>{subtitle}</PageSubtitle>}
-          {children}
-        </PageContainer>
-      </PageMain>
-    </PageWrapper>
-  );
+	return (
+		<PageWrapper>
+			{showHeader && (
+				<PageHeader>
+					<HeaderContent>
+						<HeaderBrand>
+							<CompanyLogoHeader />
+						</HeaderBrand>
+						{headerActions && <HeaderActions>{headerActions}</HeaderActions>}
+					</HeaderContent>
+				</PageHeader>
+			)}
+
+			<PageMain>
+				<PageContainer>
+					<PageTitle>{title}</PageTitle>
+					{subtitle && <PageSubtitle>{subtitle}</PageSubtitle>}
+					{children}
+				</PageContainer>
+			</PageMain>
+		</PageWrapper>
+	);
 };
 
 export default PortalPageLayout;
@@ -166,15 +164,15 @@ export default PortalPageLayout;
 // ============================================================================
 
 export const PortalPageSection: React.FC<{
-  title?: string;
-  description?: string;
-  children: React.ReactNode;
+	title?: string;
+	description?: string;
+	children: React.ReactNode;
 }> = ({ title, description, children }) => {
-  return (
-    <PageSection>
-      {title && <SectionTitle>{title}</SectionTitle>}
-      {description && <SectionDescription>{description}</SectionDescription>}
-      {children}
-    </PageSection>
-  );
+	return (
+		<PageSection>
+			{title && <SectionTitle>{title}</SectionTitle>}
+			{description && <SectionDescription>{description}</SectionDescription>}
+			{children}
+		</PageSection>
+	);
 };

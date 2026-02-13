@@ -356,13 +356,15 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 						Custom Resource Attribute Mapping
 					</h2>
 					<p>
-						Understanding current limitations and best practices for mapping custom resource attributes to specific scopes in PingOne.
+						Understanding current limitations and best practices for mapping custom resource
+						attributes to specific scopes in PingOne.
 					</p>
 				</CardHeader>
 				<TopicList>
 					<TopicItem>
 						<FiCheckCircle size={16} />
-						<strong>Current Limitation:</strong> Requesting any custom scope returns ALL resource attributes
+						<strong>Current Limitation:</strong> Requesting any custom scope returns ALL resource
+						attributes
 					</TopicItem>
 					<TopicItem>
 						<FiCheckCircle size={16} />
@@ -381,8 +383,10 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 						<strong>Best Practice:</strong> Separate sensitive attributes into dedicated resources
 					</TopicItem>
 				</TopicList>
-				
-				<EducationCard style={{ marginTop: '1rem', backgroundColor: '#fef3c7', border: '1px solid #f59e0b' }}>
+
+				<EducationCard
+					style={{ marginTop: '1rem', backgroundColor: '#fef3c7', border: '1px solid #f59e0b' }}
+				>
 					<CardHeader>
 						<h3 style={{ color: '#92400e', fontSize: '1.125rem' }}>
 							<FiShield />
@@ -405,7 +409,9 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 					</TopicList>
 				</EducationCard>
 
-				<EducationCard style={{ marginTop: '1rem', backgroundColor: '#f0f9ff', border: '1px solid #0ea5e9' }}>
+				<EducationCard
+					style={{ marginTop: '1rem', backgroundColor: '#f0f9ff', border: '1px solid #0ea5e9' }}
+				>
 					<CardHeader>
 						<h3 style={{ color: '#075985', fontSize: '1.125rem' }}>
 							<FiBook />
@@ -432,7 +438,11 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 					</TopicList>
 				</EducationCard>
 
-				<ActionButton href="https://docs.pingidentity.com/pingone/p1_cloud__platform_main_landing_page.html" target="_blank" rel="noopener noreferrer">
+				<ActionButton
+					href="https://docs.pingidentity.com/pingone/p1_cloud__platform_main_landing_page.html"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
 					Learn More in PingOne Docs <FiArrowRight />
 				</ActionButton>
 			</EducationCard>
