@@ -2,7 +2,18 @@
 // V8 Environment Management Page - Main dashboard for PingOne environment management
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiDownload, FiEdit2, FiPlus, FiRefreshCw, FiTrash2, FiUpload } from 'react-icons/fi';
+import {
+	FiBook,
+	FiCode,
+	FiDownload,
+	FiEdit2,
+	FiInfo,
+	FiPlus,
+	FiRefreshCw,
+	FiShield,
+	FiTrash2,
+	FiUpload,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
@@ -233,6 +244,94 @@ const ErrorMessage = styled.div`
   padding: 2rem;
   color: #dc3545;
   font-size: 1.1rem;
+`;
+
+// Educational Section Styles
+const EducationalSection = styled.div`
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  color: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+`;
+
+const EducationalHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+`;
+
+const EducationalTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+`;
+
+const EducationalContent = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+`;
+
+const EducationalCard = styled.div`
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+`;
+
+const EducationalCardTitle = styled.h3`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+`;
+
+const EducationalCardText = styled.p`
+  margin: 0;
+  line-height: 1.6;
+  opacity: 0.95;
+`;
+
+const APIEndpointsList = styled.div`
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 1rem;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+`;
+
+const APIEndpoint = styled.div`
+  margin-bottom: 0.5rem;
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const APIVerb = styled.span<{ method: 'GET' | 'POST' | 'PUT' | 'DELETE' }>`
+  display: inline-block;
+  width: 60px;
+  font-weight: bold;
+  color: ${(props) => {
+		switch (props.method) {
+			case 'GET':
+				return '#61dafb';
+			case 'POST':
+				return '#4caf50';
+			case 'PUT':
+				return '#ff9800';
+			case 'DELETE':
+				return '#f44336';
+			default:
+				return 'white';
+		}
+	}};
 `;
 
 const Pagination = styled.div`
@@ -640,6 +739,70 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 	return (
 		<Container>
+			<EducationalSection>
+				<EducationalHeader>
+					<FiBook size={24} />
+					<EducationalTitle>PingOne Environments API</EducationalTitle>
+				</EducationalHeader>
+				<EducationalContent>
+					<EducationalCard>
+						<EducationalCardTitle>
+							<FiInfo />
+							What are Environments?
+						</EducationalCardTitle>
+						<EducationalCardText>
+							Every organization contains at least one environment resource. Environments are the
+							primary subdivision of an organization and contain the core resources on which all
+							identity services are built. They can be based on region or used to segregate
+							operations by functionality, staging, or configurations.
+						</EducationalCardText>
+					</EducationalCard>
+					<EducationalCard>
+						<EducationalCardTitle>
+							<FiShield />
+							Environment Types
+						</EducationalCardTitle>
+						<EducationalCardText>
+							<strong>PRODUCTION:</strong> Contains actual business identities. Requires non-Trial
+							license. Cannot be immediately deleted - must go through soft delete state.
+							<br />
+							<strong>SANDBOX:</strong> Temporary configurations for testing. Can be deleted
+							immediately. Cannot be restored once deleted.
+						</EducationalCardText>
+					</EducationalCard>
+					<EducationalCard>
+						<EducationalCardTitle>
+							<FiCode />
+							Supported API Endpoints
+						</EducationalCardTitle>
+						<EducationalCardText>
+							All environment management operations are supported and tracked:
+							<APIEndpointsList>
+								<APIEndpoint>
+									<APIVerb method="GET">GET</APIVerb> /api/environments - List all environments
+								</APIEndpoint>
+								<APIEndpoint>
+									<APIVerb method="GET">GET</APIVerb> /api/environments/:id - Get single environment
+								</APIEndpoint>
+								<APIEndpoint>
+									<APIVerb method="POST">POST</APIVerb> /api/environments - Create new environment
+								</APIEndpoint>
+								<APIEndpoint>
+									<APIVerb method="PUT">PUT</APIVerb> /api/environments/:id - Update environment
+								</APIEndpoint>
+								<APIEndpoint>
+									<APIVerb method="PUT">PUT</APIVerb> /api/environments/:id/status - Update status
+								</APIEndpoint>
+								<APIEndpoint>
+									<APIVerb method="DELETE">DELETE</APIVerb> /api/environments/:id - Delete
+									environment
+								</APIEndpoint>
+							</APIEndpointsList>
+						</EducationalCardText>
+					</EducationalCard>
+				</EducationalContent>
+			</EducationalSection>
+
 			<Header>
 				<Title>PingOne Environment Management</Title>
 				<Actions>

@@ -1411,6 +1411,18 @@ app.get('/api/environments', async (req, res) => {
 			});
 		}
 
+		// Log the API call
+		logPingOneApiCall(
+			'Get Environments',
+			`${req.protocol}://${req.get('host')}${req.originalUrl}`,
+			'GET',
+			{
+				Authorization: `Bearer ${accessToken.substring(0, 20)}...`,
+				'Content-Type': 'application/json'
+			},
+			{ typeFilters, statusFilters, regionFilters, search, page, pageSize }
+		);
+
 		// Check if this is a worker token (starts with "ey" and contains worker token patterns)
 		const isWorkerToken = accessToken.startsWith('ey') && accessToken.length > 100;
 		
@@ -1746,6 +1758,18 @@ app.get('/api/environments/:id', async (req, res) => {
 				message: 'Access token is required to fetch PingOne environment'
 			});
 		}
+
+		// Log the API call
+		logPingOneApiCall(
+			'Get Single Environment',
+			`${req.protocol}://${req.get('host')}${req.originalUrl}`,
+			'GET',
+			{
+				Authorization: `Bearer ${accessToken.substring(0, 20)}...`,
+				'Content-Type': 'application/json'
+			},
+			{ environmentId: id, region }
+		);
 		
 		const regionMap = {
 			us: 'https://api.pingone.com',
@@ -1829,6 +1853,18 @@ app.post('/api/environments', async (req, res) => {
 				message: 'Access token is required to create PingOne environment'
 			});
 		}
+
+		// Log the API call
+		logPingOneApiCall(
+			'Create Environment',
+			`${req.protocol}://${req.get('host')}${req.originalUrl}`,
+			'POST',
+			{
+				Authorization: `Bearer ${accessToken.substring(0, 20)}...`,
+				'Content-Type': 'application/json'
+			},
+			{ ...environmentData, region }
+		);
 		
 		const regionMap = {
 			us: 'https://api.pingone.com',
@@ -1893,6 +1929,18 @@ app.put('/api/environments/:id', async (req, res) => {
 				message: 'Access token is required to update PingOne environment'
 			});
 		}
+
+		// Log the API call
+		logPingOneApiCall(
+			'Update Environment',
+			`${req.protocol}://${req.get('host')}${req.originalUrl}`,
+			'PUT',
+			{
+				Authorization: `Bearer ${accessToken.substring(0, 20)}...`,
+				'Content-Type': 'application/json'
+			},
+			{ environmentId: id, ...environmentData, region }
+		);
 		
 		const regionMap = {
 			us: 'https://api.pingone.com',
@@ -1956,6 +2004,18 @@ app.delete('/api/environments/:id', async (req, res) => {
 				message: 'Access token is required to delete PingOne environment'
 			});
 		}
+
+		// Log the API call
+		logPingOneApiCall(
+			'Delete Environment',
+			`${req.protocol}://${req.get('host')}${req.originalUrl}`,
+			'DELETE',
+			{
+				Authorization: `Bearer ${accessToken.substring(0, 20)}...`,
+				'Content-Type': 'application/json'
+			},
+			{ environmentId: id, region }
+		);
 		
 		const regionMap = {
 			us: 'https://api.pingone.com',
@@ -2016,6 +2076,18 @@ app.put('/api/environments/:id/status', async (req, res) => {
 				message: 'Access token is required to update PingOne environment status'
 			});
 		}
+
+		// Log the API call
+		logPingOneApiCall(
+			'Update Environment Status',
+			`${req.protocol}://${req.get('host')}${req.originalUrl}`,
+			'PUT',
+			{
+				Authorization: `Bearer ${accessToken.substring(0, 20)}...`,
+				'Content-Type': 'application/json'
+			},
+			{ environmentId: id, status, region }
+		);
 		
 		if (!status || !['ACTIVE', 'DELETE_PENDING'].includes(status)) {
 			return res.status(400).json({
