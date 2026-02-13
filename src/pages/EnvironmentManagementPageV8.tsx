@@ -15,9 +15,9 @@ import {
 	FiUpload,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import ApiCallList from '../../components/ApiCallList';
-import { apiCallTrackerService } from '../../services/apiCallTrackerService';
+import ApiCallList from '../components/ApiCallList';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
+import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
 import { useWorkerTokenState, WorkerTokenUI } from '../services/workerTokenUIService';
 import { IndexedDBBackupServiceV8U } from '../v8u/services/indexedDBBackupServiceV8U';
@@ -450,7 +450,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 			try {
 				// Save to IndexedDB backup
-				await IndexedDBBackupServiceV8U.save(STORAGE_KEY, settings);
+				await IndexedDBBackupServiceV8U.save(STORAGE_KEY, settings, 'credentials');
 				console.log('[ENV-MGMT] ✅ Settings saved to IndexedDB');
 			} catch (error) {
 				console.warn('[ENV-MGMT] Failed to save settings to IndexedDB', error);
