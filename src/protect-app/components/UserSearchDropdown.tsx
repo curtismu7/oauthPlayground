@@ -12,10 +12,10 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FiChevronDown, FiSearch, FiX, FiUser } from 'react-icons/fi';
+import { FiChevronDown, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
-import { userService } from '../services/UserService';
 import { useTheme } from '../contexts/ThemeContext';
+import { userService } from '../services/UserService';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -218,7 +218,7 @@ export const UserSearchDropdown: React.FC<UserSearchDropdownProps> = ({
 	placeholder = 'Search for a user...',
 	disabled = false,
 	id,
-	className
+	className,
 }) => {
 	const { currentTheme } = useTheme();
 	const [isOpen, setIsOpen] = useState(false);
@@ -260,7 +260,7 @@ export const UserSearchDropdown: React.FC<UserSearchDropdownProps> = ({
 
 			return () => clearTimeout(timeoutId);
 		}
-	}, [searchTerm, isOpen]);
+	}, [searchTerm, isOpen, searchUsers]);
 
 	const searchUsers = useCallback(async (term: string, startOffset: number = 0) => {
 		setIsLoading(true);
@@ -268,13 +268,13 @@ export const UserSearchDropdown: React.FC<UserSearchDropdownProps> = ({
 			const result = await userService.searchUsers({
 				searchTerm: term,
 				limit: 10,
-				offset: startOffset
+				offset: startOffset,
 			});
 
 			if (startOffset === 0) {
 				setUsers(result.users);
 			} else {
-				setUsers(prev => [...prev, ...result.users]);
+				setUsers((prev) => [...prev, ...result.users]);
 			}
 
 			setHasMore(result.hasMore);
@@ -289,12 +289,15 @@ export const UserSearchDropdown: React.FC<UserSearchDropdownProps> = ({
 		}
 	}, []);
 
-	const handleSelectUser = useCallback((user: User) => {
-		setSelectedUser(user);
-		onChange(user.username);
-		setIsOpen(false);
-		setSearchTerm('');
-	}, [onChange]);
+	const handleSelectUser = useCallback(
+		(user: User) => {
+			setSelectedUser(user);
+			onChange(user.username);
+			setIsOpen(false);
+			setSearchTerm('');
+		},
+		[onChange]
+	);
 
 	const handleLoadMore = useCallback(() => {
 		searchUsers(searchTerm, offset);
@@ -312,7 +315,7 @@ export const UserSearchDropdown: React.FC<UserSearchDropdownProps> = ({
 		}
 	}, []);
 
-	const displayValue = selectedUser 
+	const displayValue = selectedUser
 		? `${selectedUser.firstName} ${selectedUser.lastName} (${selectedUser.username})`
 		: value;
 
@@ -351,9 +354,7 @@ export const UserSearchDropdown: React.FC<UserSearchDropdownProps> = ({
 								Searching...
 							</LoadingState>
 						) : users.length === 0 && !isLoading ? (
-							<EmptyState theme={currentTheme}>
-								No users found
-							</EmptyState>
+							<EmptyState theme={currentTheme}>No users found</EmptyState>
 						) : (
 							users.map((user) => (
 								<UserItem
@@ -363,15 +364,14 @@ export const UserSearchDropdown: React.FC<UserSearchDropdownProps> = ({
 									role="option"
 								>
 									<UserAvatar theme={currentTheme}>
-										{user.firstName.charAt(0)}{user.lastName.charAt(0)}
+										{user.firstName.charAt(0)}
+										{user.lastName.charAt(0)}
 									</UserAvatar>
 									<UserInfo>
 										<UserName theme={currentTheme}>
 											{user.firstName} {user.lastName}
 										</UserName>
-										<UserEmail theme={currentTheme}>
-											{user.email}
-										</UserEmail>
+										<UserEmail theme={currentTheme}>{user.email}</UserEmail>
 									</UserInfo>
 								</UserItem>
 							))
@@ -379,19 +379,12 @@ export const UserSearchDropdown: React.FC<UserSearchDropdownProps> = ({
 					</UserList>
 
 					{hasMore && !isLoading && (
-						<LoadMoreButton
-							onClick={handleLoadMore}
-							theme={currentTheme}
-						>
+						<LoadMoreButton onClick={handleLoadMore} theme={currentTheme}>
 							Load more...
 						</LoadMoreButton>
 					)}
 
-					{isLoading && offset > 0 && (
-						<LoadingState theme={currentTheme}>
-							Loading...
-						</LoadingState>
-					)}
+					{isLoading && offset > 0 && <LoadingState theme={currentTheme}>Loading...</LoadingState>}
 				</DropdownMenu>
 			)}
 		</DropdownContainer>

@@ -23,9 +23,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 				background: `linear-gradient(135deg, ${currentTheme.colors.primary} 0%, ${currentTheme.colors.secondary} 100%)`,
 			}}
 		>
-			<div className="w-full max-w-md mx-auto p-6">
-				{children}
-			</div>
+			<div className="w-full max-w-md mx-auto p-6">{children}</div>
 		</div>
 	);
 };

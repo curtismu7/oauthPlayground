@@ -87,7 +87,15 @@ export const SuccessStepV8: React.FC<SuccessStepV8Props> = ({ renderProps }) => 
 				>
 					<FiCheckCircle size={40} color="white" />
 				</div>
-				<h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1f2937', margin: '0 0 8px 0', textAlign: 'center' }}>
+				<h2
+					style={{
+						fontSize: '24px',
+						fontWeight: '700',
+						color: '#1f2937',
+						margin: '0 0 8px 0',
+						textAlign: 'center',
+					}}
+				>
 					{isSuccess ? 'Authentication Successful!' : 'Device Created!'}
 				</h2>
 				<p style={{ fontSize: '16px', color: '#6b7280', margin: '0 0 24px 0' }}>

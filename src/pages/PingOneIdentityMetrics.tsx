@@ -20,7 +20,6 @@ import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { apiRequestModalService } from '../services/apiRequestModalService';
-import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 
@@ -502,7 +501,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 		let environmentId = '';
 		let region = 'us';
 		const effectiveWorkerToken = getAnyWorkerToken() || '';
-		
+
 		try {
 			const stored = localStorage.getItem('unified_worker_token');
 			if (stored) {
@@ -579,7 +578,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 		// Load credentials from unified worker token service
 		let environmentId = '';
 		let region = 'us';
-		
+
 		try {
 			const stored = localStorage.getItem('unified_worker_token');
 			if (stored) {

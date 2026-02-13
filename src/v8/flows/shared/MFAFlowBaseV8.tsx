@@ -150,7 +150,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	useEffect(() => {
 		const targetStep = sessionStorage.getItem('mfa_target_step_after_callback');
 		if (targetStep) {
-			const stepNum = parseInt(targetStep);
+			const stepNum = parseInt(targetStep, 10);
 			if (stepNum >= 0 && stepNum < totalSteps) {
 				console.log(`${MODULE_TAG} 🔄 Advancing to step ${stepNum} after OAuth callback`);
 				nav.goToStep(stepNum);
@@ -402,23 +402,25 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	 */
 	const handleRestartFlow = useCallback(async () => {
 		const confirmed = await new Promise<boolean>((resolve) => {
-			const result = window.confirm('Are you sure you want to restart the flow? All progress will be lost.');
+			const result = window.confirm(
+				'Are you sure you want to restart the flow? All progress will be lost.'
+			);
 			resolve(result);
 		});
 
 		if (confirmed) {
 			console.log(`${MODULE_TAG} Restarting flow - clearing all state`);
-			
+
 			// Clear all storage
 			sessionStorage.removeItem('mfa-flow-v8');
 			sessionStorage.removeItem('mfa_oauth_callback_step');
 			sessionStorage.removeItem('mfa_oauth_callback_timestamp');
 			sessionStorage.removeItem('mfa_target_step_after_callback');
 			localStorage.removeItem('mfa-flow-v8');
-			
+
 			// Reset to step 0
 			nav.goToStep(0);
-			
+
 			// Reload the page to ensure complete reset
 			window.location.reload();
 		}
@@ -573,9 +575,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					flowType: 'authentication' as const,
 					timestamp: Date.now(),
 				};
-				
+
 				sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
-				
+
 				console.log(`${MODULE_TAG} 🎯 Stored flow context for authentication:`, {
 					path: fullPath,
 					step: nav.currentStep + 1,
@@ -979,9 +981,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 				<div className="step-content-wrapper" style={{ paddingBottom: '12px' }}>
 					{nav.isTransitioning ? (
-						<MFAWaitScreenV8 
-							message={`Loading ${stepLabels[nav.currentStep] || 'next step'}...`}
-						/>
+						<MFAWaitScreenV8 message={`Loading ${stepLabels[nav.currentStep] || 'next step'}...`} />
 					) : (
 						renderStepContent()
 					)}
@@ -1160,9 +1160,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 										flowType: 'authentication' as const,
 										timestamp: Date.now(),
 									};
-									
+
 									sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
-									
+
 									console.log(`${MODULE_TAG} 🎯 Stored flow context for authentication:`, {
 										path: fullPath,
 										step: nav.currentStep + 1,
@@ -1216,11 +1216,15 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							// If no device selected or new device selected, allow navigation
 							if (flowType === 'registration') {
 								// For registration flow, skip Step 2 (Device Selection) and go to Step 3 (Device Registration)
-								console.log(`${MODULE_TAG} Registration flow: Skipping Step 2, going to Step 3 (Device Registration)`);
+								console.log(
+									`${MODULE_TAG} Registration flow: Skipping Step 2, going to Step 3 (Device Registration)`
+								);
 								nav.goToStep(3);
 							} else {
 								// For device-auth flow, go to Step 2 (Device Selection)
-								console.log(`${MODULE_TAG} Device authentication flow: Going to Step 2 (Device Selection)`);
+								console.log(
+									`${MODULE_TAG} Device authentication flow: Going to Step 2 (Device Selection)`
+								);
 								nav.goToNext();
 							}
 						} else if (nav.currentStep === 3 && deviceType === 'TOTP') {

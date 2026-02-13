@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { jwtAuthServiceV8 } from '../../services/jwtAuthServiceV8';
 import { PingOneJWTService } from '../../services/pingOneJWTService';
@@ -82,6 +83,25 @@ const SecondaryButton = styled(Button)`
   }
 `;
 
+const BackButton = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #6c757d;
+  color: #ffffff !important;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #545b62;
+    color: #ffffff !important;
+  }
+`;
+
 const ResultArea = styled.div`
   background: #f8f9fa;
   border: 1px solid #dee2e6;
@@ -123,19 +143,25 @@ const StatusMessage = styled.div<{ type: 'success' | 'error' | 'info' }>`
   border-radius: 4px;
   margin-bottom: 1rem;
   
-  ${props => props.type === 'success' && `
+  ${(props) =>
+		props.type === 'success' &&
+		`
     background: #d4edda;
     color: #155724;
     border: 1px solid #c3e6cb;
   `}
   
-  ${props => props.type === 'error' && `
+  ${(props) =>
+		props.type === 'error' &&
+		`
     background: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
   `}
   
-  ${props => props.type === 'info' && `
+  ${(props) =>
+		props.type === 'info' &&
+		`
     background: #d1ecf1;
     color: #0c5460;
     border: 1px solid #bee5eb;
@@ -143,196 +169,188 @@ const StatusMessage = styled.div<{ type: 'success' | 'error' | 'info' }>`
 `;
 
 const JWTExamples: React.FC = () => {
-  const [privateKey, setPrivateKey] = useState('');
-  const [keyId, setKeyId] = useState('');
-  const [generatedJWT, setGeneratedJWT] = useState('');
-  const [keyPair, setKeyPair] = useState('');
-  const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+	const [privateKey, setPrivateKey] = useState('');
+	const [keyId, setKeyId] = useState('');
+	const [generatedJWT, setGeneratedJWT] = useState('');
+	const [keyPair, setKeyPair] = useState('');
+	const [status, setStatus] = useState<{
+		type: 'success' | 'error' | 'info';
+		message: string;
+	} | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
 
-  const showStatus = (type: 'success' | 'error' | 'info', message: string) => {
-    setStatus({ type, message });
-    setTimeout(() => setStatus(null), 5000);
-  };
+	const showStatus = (type: 'success' | 'error' | 'info', message: string) => {
+		setStatus({ type, message });
+		setTimeout(() => setStatus(null), 5000);
+	};
 
-  const handleGenerateKeyPair = async () => {
-    setIsLoading(true);
-    try {
-      const generatedKeyPair = await PingOneJWTService.generateRSAKeyPair(2048);
-      setKeyPair(JSON.stringify(generatedKeyPair, null, 2));
-      setPrivateKey(generatedKeyPair.privateKey || '');
-      setKeyId(generatedKeyPair.keyId || '');
-      showStatus('success', 'RSA key pair generated successfully!');
-    } catch (error) {
-      showStatus('error', `Failed to generate key pair: ${error}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+	const handleGenerateKeyPair = async () => {
+		setIsLoading(true);
+		try {
+			const generatedKeyPair = await PingOneJWTService.generateRSAKeyPair(2048);
+			setKeyPair(JSON.stringify(generatedKeyPair, null, 2));
+			setPrivateKey(generatedKeyPair.privateKey || '');
+			setKeyId(generatedKeyPair.keyId || '');
+			showStatus('success', 'RSA key pair generated successfully!');
+		} catch (error) {
+			showStatus('error', `Failed to generate key pair: ${error}`);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-  const handleGeneratePrivateKeyJWT = async () => {
-    if (!privateKey || !keyId) {
-      showStatus('error', 'Please generate a key pair first or enter private key and key ID');
-      return;
-    }
+	const handleGeneratePrivateKeyJWT = async () => {
+		if (!privateKey || !keyId) {
+			showStatus('error', 'Please generate a key pair first or enter private key and key ID');
+			return;
+		}
 
-    setIsLoading(true);
-    try {
-      const config = {
-        clientId: 'test-client-id',
-        tokenEndpoint: 'https://auth.pingone.com/oauth2/token',
-        privateKey,
-        keyId,
-      };
+		setIsLoading(true);
+		try {
+			const config = {
+				clientId: 'test-client-id',
+				tokenEndpoint: 'https://auth.pingone.com/oauth2/token',
+				privateKey,
+				keyId,
+			};
 
-      const result = await jwtAuthServiceV8.generatePrivateKeyJWT(config);
-      if (result.success && result.jwt) {
-        setGeneratedJWT(result.jwt);
-        showStatus('success', 'Private Key JWT generated successfully!');
-      } else {
-        showStatus('error', `Failed to generate JWT: ${result.error}`);
-      }
-    } catch (error) {
-      showStatus('error', `Error generating JWT: ${error}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+			const result = await jwtAuthServiceV8.generatePrivateKeyJWT(config);
+			if (result.success && result.jwt) {
+				setGeneratedJWT(result.jwt);
+				showStatus('success', 'Private Key JWT generated successfully!');
+			} else {
+				showStatus('error', `Failed to generate JWT: ${result.error}`);
+			}
+		} catch (error) {
+			showStatus('error', `Error generating JWT: ${error}`);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-  const handleValidatePrivateKey = () => {
-    const isValid = jwtAuthServiceV8.validatePrivateKey(privateKey);
-    showStatus(isValid ? 'success' : 'error', 
-      isValid ? 'Private key format is valid!' : 'Invalid private key format');
-  };
+	const handleValidatePrivateKey = () => {
+		const isValid = jwtAuthServiceV8.validatePrivateKey(privateKey);
+		showStatus(
+			isValid ? 'success' : 'error',
+			isValid ? 'Private key format is valid!' : 'Invalid private key format'
+		);
+	};
 
-  const handleDecodeToken = () => {
-    if (!generatedJWT) {
-      showStatus('error', 'Please generate a JWT first');
-      return;
-    }
+	const handleDecodeToken = () => {
+		if (!generatedJWT) {
+			showStatus('error', 'Please generate a JWT first');
+			return;
+		}
 
-    try {
-      // Since decode methods are private, we'll create a simple decoder
-      const parts = generatedJWT.split('.');
-      if (parts.length !== 3) {
-        showStatus('error', 'Invalid JWT format');
-        return;
-      }
+		try {
+			// Since decode methods are private, we'll create a simple decoder
+			const parts = generatedJWT.split('.');
+			if (parts.length !== 3) {
+				showStatus('error', 'Invalid JWT format');
+				return;
+			}
 
-      try {
-        const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-        const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
-        
-        const decoded = {
-          header,
-          payload,
-          decoded: true
-        };
-        
-        setGeneratedJWT(JSON.stringify(decoded, null, 2));
-        showStatus('success', 'Token decoded successfully!');
-      } catch (decodeError) {
-        showStatus('error', `Failed to decode token: ${decodeError}`);
-      }
-    } catch (error) {
-      showStatus('error', `Failed to decode token: ${error}`);
-    }
-  };
+			try {
+				const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+				const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
 
-  return (
-    <Container>
-      <Header>JWT Authentication Examples</Header>
-      <Description>
-        Explore comprehensive JWT implementation examples including private key JWT generation, 
-        client secret JWT, token validation, and secure key management using the jose library 
-        and custom PingOne JWT services.
-      </Description>
+				const decoded = {
+					header,
+					payload,
+					decoded: true,
+				};
 
-      {status && (
-        <StatusMessage type={status.type}>
-          {status.message}
-        </StatusMessage>
-      )}
+				setGeneratedJWT(JSON.stringify(decoded, null, 2));
+				showStatus('success', 'Token decoded successfully!');
+			} catch (decodeError) {
+				showStatus('error', `Failed to decode token: ${decodeError}`);
+			}
+		} catch (error) {
+			showStatus('error', `Failed to decode token: ${error}`);
+		}
+	};
 
-      <ExamplesGrid>
-        <ExampleCard>
-          <ExampleTitle>Key Pair Generation</ExampleTitle>
-          <ExampleDescription>
-            Generate RSA key pairs for private key JWT authentication. The keys are generated 
-            using the PingOne JWT service with proper key ID management.
-          </ExampleDescription>
-          
-          <Button onClick={handleGenerateKeyPair} disabled={isLoading}>
-            {isLoading ? 'Generating...' : 'Generate RSA Key Pair'}
-          </Button>
-          
-          {keyPair && (
-            <ResultArea>{keyPair}</ResultArea>
-          )}
-        </ExampleCard>
+	return (
+		<Container>
+			<BackButton to="/sdk-examples">← Back to SDK Examples</BackButton>
+			<Header>JWT Authentication Examples</Header>
+			<Description>
+				Explore comprehensive JWT implementation examples including private key JWT generation,
+				client secret JWT, token validation, and secure key management using the jose library and
+				custom PingOne JWT services.
+			</Description>
 
-        <ExampleCard>
-          <ExampleTitle>Private Key JWT Generation</ExampleTitle>
-          <ExampleDescription>
-            Generate JWT tokens using private key authentication for OAuth 2.0 client 
-            authentication. This follows the RFC 7523 standard for JWT-based client authentication.
-          </ExampleDescription>
-          
-          <InputGroup>
-            <Label>Private Key:</Label>
-            <Input
-              value={privateKey}
-              onChange={(e) => setPrivateKey(e.target.value)}
-              placeholder="Enter private key or generate one above"
-            />
-          </InputGroup>
-          
-          <InputGroup>
-            <Label>Key ID:</Label>
-            <Input
-              value={keyId}
-              onChange={(e) => setKeyId(e.target.value)}
-              placeholder="Enter key ID or generate one above"
-            />
-          </InputGroup>
-          
-          <Button onClick={handleGeneratePrivateKeyJWT} disabled={isLoading}>
-            {isLoading ? 'Generating...' : 'Generate Private Key JWT'}
-          </Button>
-          
-          {generatedJWT && (
-            <ResultArea>{generatedJWT}</ResultArea>
-          )}
-        </ExampleCard>
+			{status && <StatusMessage type={status.type}>{status.message}</StatusMessage>}
 
-        <ExampleCard>
-          <ExampleTitle>Token Validation</ExampleTitle>
-          <ExampleDescription>
-            Validate private key format and decode JWT tokens to inspect headers and payloads. 
-            This helps with debugging and understanding token structure.
-          </ExampleDescription>
-          
-          <Button onClick={handleValidatePrivateKey}>
-            Validate Private Key Format
-          </Button>
-          
-          <Button onClick={handleDecodeToken}>
-            Decode JWT Token
-          </Button>
-          
-          <SecondaryButton onClick={() => setGeneratedJWT('')}>
-            Clear Results
-          </SecondaryButton>
-        </ExampleCard>
+			<ExamplesGrid>
+				<ExampleCard>
+					<ExampleTitle>Key Pair Generation</ExampleTitle>
+					<ExampleDescription>
+						Generate RSA key pairs for private key JWT authentication. The keys are generated using
+						the PingOne JWT service with proper key ID management.
+					</ExampleDescription>
 
-        <ExampleCard>
-          <ExampleTitle>Usage Examples</ExampleTitle>
-          <ExampleDescription>
-            See how to use JWT authentication in real OAuth flows and API calls. 
-            These examples show integration patterns with PingOne services.
-          </ExampleDescription>
-          
-          <ResultArea>{`// Private Key JWT for Client Authentication
+					<Button onClick={handleGenerateKeyPair} disabled={isLoading}>
+						{isLoading ? 'Generating...' : 'Generate RSA Key Pair'}
+					</Button>
+
+					{keyPair && <ResultArea>{keyPair}</ResultArea>}
+				</ExampleCard>
+
+				<ExampleCard>
+					<ExampleTitle>Private Key JWT Generation</ExampleTitle>
+					<ExampleDescription>
+						Generate JWT tokens using private key authentication for OAuth 2.0 client
+						authentication. This follows the RFC 7523 standard for JWT-based client authentication.
+					</ExampleDescription>
+
+					<InputGroup>
+						<Label>Private Key:</Label>
+						<Input
+							value={privateKey}
+							onChange={(e) => setPrivateKey(e.target.value)}
+							placeholder="Enter private key or generate one above"
+						/>
+					</InputGroup>
+
+					<InputGroup>
+						<Label>Key ID:</Label>
+						<Input
+							value={keyId}
+							onChange={(e) => setKeyId(e.target.value)}
+							placeholder="Enter key ID or generate one above"
+						/>
+					</InputGroup>
+
+					<Button onClick={handleGeneratePrivateKeyJWT} disabled={isLoading}>
+						{isLoading ? 'Generating...' : 'Generate Private Key JWT'}
+					</Button>
+
+					{generatedJWT && <ResultArea>{generatedJWT}</ResultArea>}
+				</ExampleCard>
+
+				<ExampleCard>
+					<ExampleTitle>Token Validation</ExampleTitle>
+					<ExampleDescription>
+						Validate private key format and decode JWT tokens to inspect headers and payloads. This
+						helps with debugging and understanding token structure.
+					</ExampleDescription>
+
+					<Button onClick={handleValidatePrivateKey}>Validate Private Key Format</Button>
+
+					<Button onClick={handleDecodeToken}>Decode JWT Token</Button>
+
+					<SecondaryButton onClick={() => setGeneratedJWT('')}>Clear Results</SecondaryButton>
+				</ExampleCard>
+
+				<ExampleCard>
+					<ExampleTitle>Usage Examples</ExampleTitle>
+					<ExampleDescription>
+						See how to use JWT authentication in real OAuth flows and API calls. These examples show
+						integration patterns with PingOne services.
+					</ExampleDescription>
+
+					<ResultArea>{`// Private Key JWT for Client Authentication
 const authResult = await applyClientAuthentication({
   method: 'private_key_jwt',
   clientId: credentials.clientId,
@@ -353,22 +371,24 @@ const customJWT = await PingOneJWTService.createPrivateKeyJWT({
     purpose: 'api-access'
   }
 });`}</ResultArea>
-        </ExampleCard>
-      </ExamplesGrid>
+				</ExampleCard>
+			</ExamplesGrid>
 
-      <div style={{ background: '#f8f9fa', padding: '2rem', borderRadius: '8px', marginTop: '3rem' }}>
-        <h2>Security Best Practices</h2>
-        <ul style={{ color: '#666', lineHeight: '1.6' }}>
-          <li>Never log private keys or JWT tokens to console</li>
-          <li>Store private keys securely using environment variables or secure storage</li>
-          <li>Use appropriate key sizes (2048 bits minimum for RSA)</li>
-          <li>Validate all JWT tokens before using them</li>
-          <li>Implement proper token expiration and refresh mechanisms</li>
-          <li>Use HTTPS for all token exchanges</li>
-        </ul>
-      </div>
-    </Container>
-  );
+			<div
+				style={{ background: '#f8f9fa', padding: '2rem', borderRadius: '8px', marginTop: '3rem' }}
+			>
+				<h2>Security Best Practices</h2>
+				<ul style={{ color: '#666', lineHeight: '1.6' }}>
+					<li>Never log private keys or JWT tokens to console</li>
+					<li>Store private keys securely using environment variables or secure storage</li>
+					<li>Use appropriate key sizes (2048 bits minimum for RSA)</li>
+					<li>Validate all JWT tokens before using them</li>
+					<li>Implement proper token expiration and refresh mechanisms</li>
+					<li>Use HTTPS for all token exchanges</li>
+				</ul>
+			</div>
+		</Container>
+	);
 };
 
 export default JWTExamples;

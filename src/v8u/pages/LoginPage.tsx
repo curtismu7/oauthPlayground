@@ -8,10 +8,10 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 
-interface LoginPageProps {}
+type LoginPageProps = {};
 
 export const LoginPage: React.FC<LoginPageProps> = () => {
 	const { currentTheme } = useTheme();
@@ -26,11 +26,11 @@ export const LoginPage: React.FC<LoginPageProps> = () => {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError('');
-		
+
 		try {
 			await login(formData.username, formData.password);
 			navigate('/dashboard');
-		} catch (error) {
+		} catch (_error) {
 			setError('Invalid credentials');
 		}
 	};
@@ -49,11 +49,7 @@ export const LoginPage: React.FC<LoginPageProps> = () => {
 				</div>
 
 				<form onSubmit={handleSubmit} className="space-y-4">
-					{error && (
-						<div className="p-3 rounded-lg bg-red-100 text-red-700 text-sm">
-							{error}
-						</div>
-					)}
+					{error && <div className="p-3 rounded-lg bg-red-100 text-red-700 text-sm">{error}</div>}
 
 					<div>
 						<label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
