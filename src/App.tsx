@@ -13,12 +13,12 @@ import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all bu
 import { lazy, Suspense } from 'react';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
+import { FloatingLogToggle } from './components/FloatingLogToggle';
+import { FloatingLogViewer } from './components/FloatingLogViewer';
 import { WorkerTokenModal } from './components/WorkerTokenModal';
 import { BackendDownModalV8 } from './v8/components/BackendDownModalV8';
 import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
 import { PromptModalV8 } from './v8/components/PromptModalV8';
-import { FloatingLogViewer } from './components/FloatingLogViewer';
-import { FloatingLogToggle } from './components/FloatingLogToggle';
 
 const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
 
@@ -225,9 +225,9 @@ import EnvironmentManagementPageV8 from './pages/EnvironmentManagementPageV8';
 // Import Protect Portal
 import ProtectPortalWrapper from './pages/protect-portal/ProtectPortalWrapper';
 import DavinciTodoApp from './sdk-examples/davinci-todo-app/DavinciTodoApp';
-import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
-import { DebugLogViewerV8 } from './v8/pages/DebugLogViewerV8';
 import { DebugLogViewerPopoutV8 } from './v8/pages/DebugLogViewerPopoutV8';
+import { DebugLogViewerV8 } from './v8/pages/DebugLogViewerV8';
+import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
 import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
@@ -983,7 +983,6 @@ const AppRoutes: React.FC = () => {
 							{/* V8 Utilities */}
 							<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
 							<Route path="/v8/debug-logs" element={<DebugLogViewerV8 />} />
-							<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
 							{/* V8U SPIFFE/SPIRE Mock Flow and Token Viewer - multi-step lab */}
 							<Route
 								path="/v8u/spiffe-spire"
@@ -1353,6 +1352,11 @@ const AppRoutes: React.FC = () => {
 					</MainContent>
 				</ContentColumn>
 			</AppContainer>
+
+			{/* Popout windows - outside main layout */}
+			<Routes>
+				<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
+			</Routes>
 
 			<CredentialSetupModal
 				isOpen={showCredentialModal}
