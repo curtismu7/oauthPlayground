@@ -115,6 +115,13 @@ class EnvironmentServiceV8 {
 		accessToken?: string,
 		region?: string
 	): Promise<EnvironmentListResponse> {
+		console.log('[EnvironmentServiceV8] 🚀 getEnvironments called with:', {
+			filters,
+			hasAccessToken: !!accessToken,
+			tokenLength: accessToken?.length || 0,
+			region,
+		});
+
 		const params = new URLSearchParams();
 
 		if (filters?.type?.length) {
@@ -150,9 +157,37 @@ class EnvironmentServiceV8 {
 			params.append('region', region);
 		}
 
-		const response = await pingOneFetch(`${EnvironmentServiceV8.BASE_PATH}?${params.toString()}`);
+		const url = `${BASE_PATH}?${params.toString()}`;
+		console.log('[EnvironmentServiceV8] 📡 Making fetch request to:', {
+			url: url.replace(/accessToken=[^&]+/, 'accessToken=***REDACTED***'),
+			method: 'GET',
+		});
 
-		return response.json() as Promise<EnvironmentListResponse>;
+		try {
+			const response = await pingOneFetch(url);
+			console.log('[EnvironmentServiceV8] 📦 Received response:', {
+				status: response.status,
+				statusText: response.statusText,
+				ok: response.ok,
+			});
+
+			const data = await response.json();
+			console.log('[EnvironmentServiceV8] 📊 Parsed response data:', {
+				hasData: !!data,
+				hasEnvironments: !!data?.environments,
+				environmentsCount: data?.environments?.length || 0,
+				totalCount: data?.totalCount,
+			});
+
+			return data as EnvironmentListResponse;
+		} catch (error) {
+			console.error('[EnvironmentServiceV8] 💥 Error in getEnvironments:', {
+				error,
+				message: error instanceof Error ? error.message : 'Unknown error',
+				stack: error instanceof Error ? error.stack : undefined,
+			});
+			throw error;
+		}
 	}
 
 	/**
