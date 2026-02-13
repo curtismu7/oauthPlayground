@@ -177,14 +177,6 @@ const LoginSubtitle = styled.p`
   font-family: 'Benton Sans', 'Helvetica Neue', Arial, sans-serif;
 `;
 
-const LoginDescription = styled.p`
-  color: #6B7280;
-  font-size: 0.875rem;
-  margin-bottom: 1.5rem;
-  line-height: 1.4;
-  font-family: 'Benton Sans', Arial, sans-serif;
-`;
-
 const LoginButton = styled.button`
   display: flex;
   align-items: center;
@@ -257,11 +249,17 @@ const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 	className,
 	currentStep = 'portal-home',
 	onLoginStart,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_onLoginSuccess,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_onError,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_environmentId,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_clientId,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_clientSecret,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_redirectUri,
 }) => {
 	return (
