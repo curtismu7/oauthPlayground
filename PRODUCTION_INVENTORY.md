@@ -3409,6 +3409,49 @@ grep -r "WorkerTokenUI" src/pages/ --include="*.tsx" --include="*.ts"
 
 ---
 
+# PROD-025: Environments Page Real API Data Implementation
+
+**Date:** 2026-02-13
+**Status:** ✅ COMPLETED
+**Priority:** HIGH
+
+## Issue Description
+The environments page was returning mock data instead of real PingOne environments when using a worker token. The server was checking if the token was a worker token and returning hardcoded mock data.
+
+## Solution Implemented
+
+### 1. Removed Mock Data Logic
+- Removed the conditional check that returned mock data for worker tokens
+- Removed all mock environment data from the server endpoint
+- The API now always calls the real PingOne `/v1/organizations/{id}/environments` endpoint
+
+### 2. Unified API Behavior
+- Both worker tokens and user tokens now use the same real API path
+- Added logging to indicate whether worker token or user token is being used
+- Maintained all existing filtering and pagination logic
+
+## Files Modified
+- Modified: `server.js` - Removed mock data logic from `/api/environments` endpoint
+
+## Testing
+- Build successful with no errors
+- Environments page now fetches real data from PingOne API
+- Mock data completely removed
+
+## Root Cause
+The server had a conditional check that detected worker tokens and returned mock data instead of calling the real PingOne API.
+
+## Enhanced Prevention Commands
+```bash
+# Check for mock environments data in server
+grep -n "mockEnvironments\|env-00[123]" server.js && echo "❌ MOCK ENVIRONMENTS FOUND" || echo "✅ NO MOCK ENVIRONMENTS"
+
+# Verify real API call logic for environments
+grep -A 5 "Fetch real environments data" server.js && echo "✅ REAL API LOGIC FOUND" || echo "❌ MISSING REAL API LOGIC"
+```
+
+---
+
 **🚀 Future Enhancements:**
 - **Real-time Sync**: WebSocket-based cross-device synchronization
 - **Compression**: Data compression for SQLite backup storage
