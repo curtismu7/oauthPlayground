@@ -544,9 +544,12 @@ export const DebugLogViewerV8: React.FC = () => {
 										key={index}
 										style={{
 											border: '1px solid #e5e7eb',
+											borderTop: `3px solid ${getLevelColor(log.level)}`,
 											borderRadius: '6px',
 											padding: '12px',
-											background: '#f9fafb',
+											background: index % 2 === 0 ? '#f9fafb' : '#f3f4f6',
+											marginBottom: '8px',
+											boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
 										}}
 									>
 										<div style={{
