@@ -237,6 +237,7 @@ import { MobileRegistrationDocsPageV8 } from './v8/pages/MobileRegistrationDocsP
 import { SMSRegistrationDocsPageV8 } from './v8/pages/SMSRegistrationDocsPageV8';
 import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
 import { WhatsAppRegistrationDocsPageV8 } from './v8/pages/WhatsAppRegistrationDocsPageV8';
+import { isPopoutWindow } from './v8/utils/debugLogViewerPopoutHelperV8';
 import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
 import UnifiedFlowErrorBoundary from './v8u/components/UnifiedFlowErrorBoundary';
@@ -532,827 +533,850 @@ const AppRoutes: React.FC = () => {
 		<>
 			<GlobalErrorDisplay />
 			<RouteRestorer />
-			<AppContainer>
-				<Navbar toggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
-				<Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-				<ContentColumn>
-					<MainContent $sidebarWidth={sidebarWidth}>
-						<Routes>
-							<Route path="/login" element={<Login />} />
-							<Route path="/callback" element={<Callback />} />
-							{/* Per-flow callback routes */}
-							{/* V8U Unified Callback Handler - handles all V8U flows */}
-							<Route path="/unified-callback" element={<CallbackHandlerV8U />} />
-							<Route path="/authz-callback" element={<CallbackHandlerV8U />} />
-							{/* CRITICAL: MFA user login callback route - DO NOT REMOVE - Used by MFA flows for user authentication */}
-							<Route path="/user-login-callback" element={<CallbackHandlerV8U />} />
-							{/* CRITICAL: MFA-specific user login callback route - DO NOT REMOVE - Used by MFA flows for user authentication */}
-							<Route path="/user-mfa-login-callback" element={<CallbackHandlerV8U />} />
-							{/* CRITICAL: Unified MFA callback routes - DO NOT REMOVE - Used by unified MFA flows */}
-							<Route path="/mfa-unified-callback" element={<CallbackHandlerV8U />} />
-							<Route path="/mfa-hub-callback" element={<CallbackHandlerV8U />} />
-							{/* LEGACY: V8 Unified MFA callback routes - redirects to new routes for backward compatibility */}
-							<Route path="/v8/unified-mfa-callback" element={<CallbackHandlerV8U />} />
-							<Route path="/hybrid-callback" element={<HybridCallback />} />
-							<Route path="/implicit-callback" element={<ImplicitCallback />} />
-							<Route path="/oauth-implicit-callback" element={<ImplicitCallback />} />
-							<Route path="/oidc-implicit-callback" element={<ImplicitCallback />} />
-							<Route path="/worker-token-callback" element={<WorkerTokenCallback />} />
-							<Route path="/device-code-status" element={<DeviceCodeStatus />} />
-							<Route path="/logout-callback" element={<LogoutCallback />} />
-							<Route path="/authz-logout-callback" element={<LogoutCallback />} />
-							<Route path="/implicit-logout-callback" element={<LogoutCallback />} />
-							<Route path="/hybrid-logout-callback" element={<LogoutCallback />} />
-							<Route path="/device-logout-callback" element={<LogoutCallback />} />
-							<Route path="/worker-token-logout-callback" element={<LogoutCallback />} />
-							<Route path="/p1auth-logout-callback" element={<LogoutCallback />} />
-							<Route path="/dashboard-logout-callback" element={<LogoutCallback />} />
-							<Route path="/dashboard-callback" element={<DashboardCallback />} />
-							{/* Dynamic callback route - handles any redirect URI the user configures */}
-							<Route path="/oauth-callback" element={<AuthzCallback />} />
-							<Route path="/oidc-callback" element={<AuthzCallback />} />
-							<Route path="/mfa-callback" element={<AuthzCallback />} />
-							<Route path="/pingone-callback" element={<AuthzCallback />} />
-							{/* Catch-all callback route for any custom redirect URI */}
-							<Route path="/callback/*" element={<AuthzCallback />} />
-							<Route path="/" element={<Navigate to="/dashboard" replace />} />
-							<Route path="/dashboard" element={<Dashboard />} />
-							<Route path="/flows" element={<OAuthFlowsNew />}>
-								<Route path="compare" element={<FlowComparisonTool />} />
-								<Route path="diagrams" element={<InteractiveFlowDiagram />} />
-								<Route path="mfa" element={<MFAFlow />} />
-							</Route>
-							{/* Tools & Utilities Routes */}
-							<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
-							<Route path="/ultimate-token-display-demo" element={<UltimateTokenDisplayDemo />} />
-							{/* SDK Examples Routes */}
-							<Route path="/sdk-examples" element={<SDKExamplesHome />} />
-							<Route path="/sdk-examples/jwt-authentication" element={<JWTExamples />} />
-							<Route path="/sdk-examples/oidc-centralized-login" element={<OIDCExamples />} />
-							{/* Environment Management */}
-							<Route path="/environments" element={<EnvironmentManagementPageV8 />} />
-							{/* DaVinci Todo App */}
-							<Route path="/davinci-todo" element={<DavinciTodoApp />} />
-							{/* V7 OAuth/OIDC Flow Routes */}
-							<Route
-								path="/flows/oauth-authorization-code-v7"
-								element={<OAuthAuthorizationCodeFlowV7 />}
-							/>
-							<Route
-								path="/flows/oauth-authorization-code-v7-2"
-								element={<OAuthAuthorizationCodeFlowV7_2 />}
-							/>
-							<Route
-								path="/flows/oauth-authorization-code-v8"
-								element={<OAuthAuthorizationCodeFlowV8 />}
-							/>
-							<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
-							<Route
-								path="/v8/unified-mfa"
-								element={
-									<React.Suspense fallback={<div>Loading...</div>}>
-										<UnifiedMFARegistrationFlowV8_Legacy registrationFlowType="admin-active" />
-									</React.Suspense>
-								}
-							/>
-							<Route
-								path="/v8/unified-credentials-mockup"
-								element={
-									<React.Suspense fallback={<div>Loading...</div>}>
-										<UnifiedCredentialsMockupV8 />
-									</React.Suspense>
-								}
-							/>
-							{/* V8 Token Exchange Flow */}
-							<Route path="/v8/token-exchange" element={<TokenExchangeFlowV8 />} />
-							<Route path="/v8/mfa-hub" element={<MFAAuthenticationMainPageV8 />} />
-							<Route
-								path="/v8/mfa/authentication/success"
-								element={<MFAAuthenticationSuccessPage />}
-							/>
-							<Route path="/v8/mfa/register/sms" element={<SMSOTPConfigurationPageV8 />} />
-							<Route
-								path="/v8/mfa/register/sms/device"
-								element={
-									<React.Suspense fallback={<div>Loading...</div>}>
-										<SMSFlowV8 />
-									</React.Suspense>
-								}
-							/>
-							<Route path="/v8/mfa/register/sms/docs" element={<SMSRegistrationDocsPageV8 />} />
-							<Route path="/v8/mfa/register/email" element={<EmailOTPConfigurationPageV8 />} />
-							<Route
-								path="/v8/mfa/register/email/device"
-								element={
-									<React.Suspense fallback={<div>Loading...</div>}>
-										<EmailFlowV8 />
-									</React.Suspense>
-								}
-							/>
-							<Route path="/v8/mfa/register/email/docs" element={<EmailRegistrationDocsPageV8 />} />
-							<Route
-								path="/v8/mfa/register/whatsapp"
-								element={<WhatsAppOTPConfigurationPageV8 />}
-							/>
-							<Route
-								path="/v8/mfa/register/whatsapp/device"
-								element={
-									<React.Suspense fallback={<div>Loading...</div>}>
-										<WhatsAppFlowV8 />
-									</React.Suspense>
-								}
-							/>
-							<Route
-								path="/v8/mfa/register/whatsapp/docs"
-								element={<WhatsAppRegistrationDocsPageV8 />}
-							/>
-							<Route path="/v8/mfa/register/totp" element={<TOTPConfigurationPageV8 />} />
-							{/* TOTP uses unified flow architecture like SMS/Email */}
-							<Route
-								path="/v8/mfa/register/totp/device"
-								element={
-									<React.Suspense fallback={<div>Loading...</div>}>
-										<UnifiedMFARegistrationFlowV8_Legacy deviceType="TOTP" />
-									</React.Suspense>
-								}
-							/>
-							<Route path="/v8/mfa/register/fido2" element={<FIDO2ConfigurationPageV8 />} />
-							<Route
-								path="/v8/mfa/register/fido2/device"
-								element={
-									<React.Suspense fallback={<div>Loading...</div>}>
-										<FIDO2FlowV8 />
-									</React.Suspense>
-								}
-							/>
-							<Route path="/v8/mfa/register/fido2/docs" element={<FIDO2RegistrationDocsPageV8 />} />
-							{/* Platform and Security Key routes redirect to FIDO2 (they use the same flow) */}
-							<Route
-								path="/v8/mfa/register/platform"
-								element={<Navigate to="/v8/mfa/register/fido2" replace />}
-							/>
-							<Route
-								path="/v8/mfa/register/platform/device"
-								element={<Navigate to="/v8/mfa/register/fido2/device" replace />}
-							/>
-							<Route
-								path="/v8/mfa/register/security_key"
-								element={<Navigate to="/v8/mfa/register/fido2" replace />}
-							/>
-							<Route
-								path="/v8/mfa/register/security_key/device"
-								element={<Navigate to="/v8/mfa/register/fido2/device" replace />}
-							/>
-							{/* Voice routes redirect to SMS (Voice uses the same phone-based flow as SMS) */}
-							<Route
-								path="/v8/mfa/register/voice"
-								element={<Navigate to="/v8/mfa/register/sms" replace />}
-							/>
-							<Route
-								path="/v8/mfa/register/voice/device"
-								element={<Navigate to="/v8/mfa/register/sms/device" replace />}
-							/>
-							{/* Mobile routes - separate app from SMS */}
-							<Route path="/v8/mfa/register/mobile" element={<MobileOTPConfigurationPageV8 />} />
-							<Route
-								path="/v8/mfa/register/mobile/device"
-								element={
-									<React.Suspense fallback={<div>Loading...</div>}>
-										<MobileFlowV8 />
-									</React.Suspense>
-								}
-							/>
-							<Route
-								path="/v8/mfa/register/mobile/docs"
-								element={<MobileRegistrationDocsPageV8 />}
-							/>
-							<Route
-								path="/v8/mfa/configure/fido2"
-								element={<Navigate to="/v8/mfa/register/fido2" replace />}
-							/>
-							<Route path="/v8/mfa-config" element={<MFAConfigurationPageV8 />} />
-							<Route path="/v8/mfa-feature-flags" element={<MFAFeatureFlagsAdminV8 />} />
-							<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlowV8 />} />
-							<Route path="/v8/mfa-device-ordering" element={<MFADeviceOrderingFlowV8 />} />
-							<Route path="/v8/mfa-reporting" element={<MFAReportingFlowV8 />} />
-							<Route
-								path="/v8/mfa/device-authentication-details"
-								element={<DeviceAuthenticationDetailsV8 />}
-							/>
-							<Route path="/v8/mfa/create-device" element={<MFADeviceCreateDemoV8 />} />
-							<Route path="/v8/email-mfa-signon" element={<EmailMFASignOnFlowV8 />} />
-							<Route path="/v8/resources-api" element={<ResourcesAPIFlowV8 />} />
-							<Route path="/v8/protect" element={<PingOneProtectFlowV8 />} />
-							<Route
-								path="/flows/oauth-authorization-code-v7-condensed-mock"
-								element={<V7RMOAuthAuthorizationCodeFlow_Condensed />}
-							/>
-							<Route path="/flows/v7rm-condensed-mock" element={<V7RMCondensedMock />} />
-							{/* V7RM Mock Flows (Flows not supported by PingOne) */}
-							<Route path="/flows/v7rm-oidc-ropc" element={<V7RMOIDCResourceOwnerPasswordFlow />} />
-							{/* Token Management Flows */}
-							<Route path="/flows/token-revocation" element={<TokenRevocationFlow />} />
-							<Route path="/flows/token-introspection" element={<TokenIntrospectionFlow />} />
-							{/* V7M Mock Educational Flow Routes */}
-							<Route
-								path="/v7m/oauth/authorization-code"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<V7MOAuthAuthCode oidc={false} title="V7M OAuth Authorization Code" />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/v7m/oidc/authorization-code"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<V7MOAuthAuthCode oidc={true} title="V7M OIDC Authorization Code" />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/v7m/oauth/device-authorization"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<V7MDeviceAuthorization />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/v7m/oauth/client-credentials"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<V7MClientCredentials />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/v7m/oauth/implicit"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<V7MImplicitFlow oidc={false} title="V7M OAuth Implicit Flow" />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/v7m/oidc/implicit"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<V7MImplicitFlow oidc={true} title="V7M OIDC Implicit Flow" />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/v7m/oauth/ropc"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<V7MROPC oidc={false} title="V7M Resource Owner Password Credentials" />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/v7m/oidc/ropc"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<V7MROPC oidc={true} title="V7M OIDC Resource Owner Password Credentials" />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/v7m/settings"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<V7MSettings />
-									</Suspense>
-								}
-							/>
-							<Route path="/flows/userinfo" element={<UserInfoPostFlow />} />
-							<Route path="/flows/pingone-logout" element={<PingOneLogoutFlow />} />
-							{/* RFC 6749 Compliant OAuth 2.0 Authorization Code Flow */}
-							<Route
-								path="/flows/oauth2-compliant-authorization-code"
-								element={<OAuth2CompliantAuthorizationCodeFlow />}
-							/>
-							{/* OIDC Core 1.0 Compliant Authorization Code Flow */}
-							<Route
-								path="/flows/oidc-compliant-authorization-code"
-								element={<OIDCCompliantAuthorizationCodeFlow />}
-							/>
-							{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
-							<Route
-								path="/flows/oauth-authorization-code-v6"
-								element={<Navigate to="/flows/oauth-authorization-code-v7" replace />}
-							/>
-							<Route
-								path="/flows/oidc-authorization-code-v6"
-								element={<Navigate to="/flows/oauth-authorization-code-v7" replace />}
-							/>
-							{/* V7 Implicit Flow */}
-							<Route path="/flows/implicit-v7" element={<ImplicitFlowV7 />} />
-							{/* V8 Implicit Flow */}
-							<Route path="/flows/implicit-v8" element={<ImplicitFlowV8 />} />
-							{/* V8 Unified UI Mockup */}
-							<Route
-								path="/v8/unified-credentials-mockup"
-								element={<UnifiedCredentialsMockupV8 />}
-							/>
-							{/* V8U Unified Flow - Single UI for all flows with real PingOne APIs */}
-							<Route
-								path="/v8u/unified/oauth-authz/:step?"
-								element={
-									<Suspense
-										fallback={
-											<ComponentLoader
-												message="Loading Unified OAuth Flow..."
-												subtext="Preparing flow configuration"
-											/>
-										}
-									>
-										<UnifiedFlowErrorBoundary>
-											<UnifiedOAuthFlowV8U />
-										</UnifiedFlowErrorBoundary>
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/v8u/unified/:flowType?/:step?"
-								element={
-									<Suspense
-										fallback={
-											<ComponentLoader
-												message="Loading Unified OAuth Flow..."
-												subtext="Preparing flow configuration"
-											/>
-										}
-									>
-										<UnifiedFlowErrorBoundary>
-											<UnifiedOAuthFlowV8U />
-										</UnifiedFlowErrorBoundary>
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/v8u/unified/helper"
-								element={
-									<Suspense
-										fallback={
-											<ComponentLoader
-												message="Loading Flow Helper..."
-												subtext="Preparing guidance documentation"
-											/>
-										}
-									>
-										<UnifiedFlowErrorBoundary>
-											<UnifiedFlowHelperPageV8U />
-										</UnifiedFlowErrorBoundary>
-									</Suspense>
-								}
-							/>
-							{/* Enhanced State Management */}
-							<Route
-								path="/v8u/enhanced-state-management"
-								element={
-									<Suspense
-										fallback={
-											<ComponentLoader
-												message="Loading Enhanced State Management..."
-												subtext="Initializing state management system"
-											/>
-										}
-									>
-										<UnifiedFlowErrorBoundary>
-											<EnhancedStateManagementPage />
-										</UnifiedFlowErrorBoundary>
-									</Suspense>
-								}
-							/>
-							{/* Token Monitoring Dashboard */}
-							<Route
-								path="/v8u/token-monitoring"
-								element={
-									<Suspense
-										fallback={
-											<ComponentLoader
-												message="Loading Token Monitoring..."
-												subtext="Initializing token monitoring service"
-											/>
-										}
-									>
-										<UnifiedFlowErrorBoundary>
-											<TokenStatusPageV8U />
-										</UnifiedFlowErrorBoundary>
-									</Suspense>
-								}
-							/>
-							{/* Token API Documentation */}
-							<Route
-								path="/v8u/token-api-docs"
-								element={
-									<Suspense
-										fallback={
-											<ComponentLoader
-												message="Loading API Documentation..."
-												subtext="Preparing API call documentation"
-											/>
-										}
-									>
-										<UnifiedFlowErrorBoundary>
-											<TokenApiDocumentationPage />
-										</UnifiedFlowErrorBoundary>
-									</Suspense>
-								}
-							/>
-							{/* Flow Comparison Tool */}
-							<Route
-								path="/v8u/flow-comparison"
-								element={
-									<Suspense
-										fallback={
-											<ComponentLoader
-												message="Loading Flow Comparison..."
-												subtext="Preparing comparison analysis"
-											/>
-										}
-									>
-										<UnifiedFlowErrorBoundary>
-											<FlowComparisonPage />
-										</UnifiedFlowErrorBoundary>
-									</Suspense>
-								}
-							/>
-							{/* V8 Utilities */}
-							<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
-							<Route path="/v8/debug-logs" element={<DebugLogViewerV8 />} />
-							<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
-							{/* V8U SPIFFE/SPIRE Mock Flow and Token Viewer - multi-step lab */}
-							<Route
-								path="/v8u/spiffe-spire"
-								element={<Navigate to="/v8u/spiffe-spire/attest" replace />}
-							/>
-							<Route
-								path="/v8u/spiffe-spire/attest"
-								element={
-									<Suspense
-										fallback={
-											<ComponentLoader
-												message="Loading SPIFFE/SPIRE Flow..."
-												subtext="Preparing attestation workflow"
-											/>
-										}
-									>
-										<SpiffeSpireFlowV8U />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/v8u/spiffe-spire/svid"
-								element={
-									<Suspense
-										fallback={
-											<ComponentLoader
-												message="Loading SPIFFE/SPIRE Flow..."
-												subtext="Preparing SVID workflow"
-											/>
-										}
-									>
-										<SpiffeSpireFlowV8U />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/v8u/spiffe-spire/validate"
-								element={
-									<Suspense
-										fallback={
-											<ComponentLoader
-												message="Loading SPIFFE/SPIRE Flow..."
-												subtext="Preparing validation workflow"
-											/>
-										}
-									>
-										<SpiffeSpireFlowV8U />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/v8u/spiffe-spire/tokens"
-								element={
-									<Suspense
-										fallback={
-											<ComponentLoader
-												message="Loading Token Display..."
-												subtext="Preparing SPIFFE/SPIRE tokens"
-											/>
-										}
-									>
-										<SpiffeSpireTokenDisplayV8U />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/flows/oidc-implicit-v6"
-								element={<Navigate to="/flows/implicit-v7?variant=oidc" replace />}
-							/>
-							<Route
-								path="/flows/oauth-implicit-completion"
-								element={<OAuthImplicitFlowCompletion />}
-							/>
-							{/* V7 Device Authorization Flow */}
-							<Route
-								path="/flows/device-authorization-v7"
-								element={<DeviceAuthorizationFlowV7 />}
-							/>
-							{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
-							<Route
-								path="/flows/device-authorization-v6"
-								element={<Navigate to="/flows/device-authorization-v7" replace />}
-							/>
-							<Route
-								path="/flows/oidc-device-authorization-v6"
-								element={<Navigate to="/flows/device-authorization-v7" replace />}
-							/>
-							{/* V7 JWT Bearer Token Flow */}
-							<Route path="/flows/jwt-bearer-token-v7" element={<JWTBearerTokenFlowV7 />} />
-							{/* V8M Token Exchange Flow */}
-							<Route path="/flows/token-exchange-v7" element={<V8MTokenExchange />} />
-							{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
-							<Route
-								path="/flows/jwt-bearer-token-v6"
-								element={<Navigate to="/flows/jwt-bearer-token-v7" replace />}
-							/>
-							{/* V7 SAML Bearer Assertion Flow */}
-							<Route
-								path="/flows/saml-bearer-assertion-v7"
-								element={<SAMLBearerAssertionFlowV7 />}
-							/>
-							<Route path="/flows/saml-sp-dynamic-acs-v1" element={<SAMLServiceProviderFlowV1 />} />
-							{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
-							<Route
-								path="/flows/saml-bearer-assertion-v6"
-								element={<Navigate to="/flows/saml-bearer-assertion-v7" replace />}
-							/>
-							{/* V7 Worker Token Flow */}
-							<Route path="/flows/worker-token-v7" element={<WorkerTokenFlowV7 />} />
-							{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
-							<Route
-								path="/flows/worker-token-v6"
-								element={<Navigate to="/flows/worker-token-v7" replace />}
-							/>
-							{/* V7 Client Credentials Flow */}
-							<Route path="/flows/client-credentials-v7" element={<ClientCredentialsFlowV7 />} />
-							{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
-							<Route
-								path="/flows/client-credentials-v6"
-								element={<Navigate to="/flows/client-credentials-v7" replace />}
-							/>
-							{/* V7 OIDC Hybrid Flow */}
-							<Route path="/flows/oidc-hybrid-v7" element={<OIDCHybridFlowV7 />} />
-							{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
-							<Route
-								path="/flows/oidc-hybrid-v6"
-								element={<Navigate to="/flows/oidc-hybrid-v7" replace />}
-							/>
-							{/* V7 CIBA Flow */}
-							<Route path="/flows/ciba-v7" element={<CIBAFlowV7 />} />
-							{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
-							<Route path="/flows/ciba-v6" element={<Navigate to="/flows/ciba-v7" replace />} />
-							{/* Legacy Advanced Parameters V6 route - redirect to dashboard */}
-							<Route
-								path="/flows/advanced-parameters-v6/:flowType"
-								element={<Navigate to="/dashboard" replace />}
-							/>
-							{/* Advanced OAuth Parameters Demo (Mock Flow) */}
-							<Route
-								path="/flows/advanced-oauth-params-demo"
-								element={<AdvancedOAuthParametersDemoFlow />}
-							/>
-							{/* V7 Redirectless Flow */}
-							<Route path="/flows/redirectless-v7-real" element={<RedirectlessFlowV7Real />} />
-							{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
-							<Route
-								path="/flows/redirectless-v6"
-								element={<Navigate to="/flows/redirectless-v7-real" replace />}
-							/>
-							<Route
-								path="/flows/redirectless-v6-real"
-								element={<Navigate to="/flows/redirectless-v7-real" replace />}
-							/>
-							<Route path="/flows/par" element={<PARFlow />} />
-							<Route path="/flows-old/jwt-bearer" element={<JWTBearerFlow />} />
-							{/* Unsupported by PingOne flows */}
-							<Route
-								path="/oauth/resource-owner-password"
-								element={<Navigate to="/flows/oauth-ropc-v7" replace />}
-							/>
-							<Route
-								path="/oidc/resource-owner-password"
-								element={<Navigate to="/flows/oauth-ropc-v7" replace />}
-							/>
-							{/* V7 PingOne PAR Flow */}
-							<Route path="/flows/pingone-par-v7" element={<PingOnePARFlowV7 />} />
-							<Route path="/flows/par-v7" element={<PARFlowV7 />} />
-							{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
-							<Route
-								path="/flows/pingone-par-v6"
-								element={<Navigate to="/flows/pingone-par-v7" replace />}
-							/>
-							{/* V7 PingOne MFA Flow */}
-							<Route path="/flows/pingone-complete-mfa-v7" element={<PingOneCompleteMFAFlowV7 />} />
-							<Route
-								path="/flows/pingone-mfa-workflow-library-v7"
-								element={<PingOneMFAWorkflowLibraryV7 />}
-							/>
-							<Route path="/flows/kroger-grocery-store-mfa" element={<KrogerGroceryStoreMFA />} />
-							{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
-							<Route
-								path="/flows/pingone-mfa-v6"
-								element={<Navigate to="/flows/pingone-complete-mfa-v7" replace />}
-							/>
-							<Route path="/pingone-authentication" element={<PingOneAuthentication />} />
-							<Route
-								path="/pingone-authentication/result"
-								element={<PingOneAuthenticationResult />}
-							/>
-							<Route path="/pingone-mock-features" element={<PingOneMockFeatures />} />
-							<Route path="/pingone-identity-metrics" element={<PingOneIdentityMetrics />} />
-							<Route path="/pingone-audit-activities" element={<PingOneAuditActivities />} />
-							<Route path="/pingone-webhook-viewer" element={<PingOneWebhookViewer />} />
-							<Route path="/organization-licensing" element={<OrganizationLicensing />} />
-							<Route path="/p1-callback" element={<PingOneAuthenticationCallback />} />
-							<Route path="/p1auth-callback" element={<PingOneAuthenticationCallback />} />
-							{/* V7 RAR Flow */}
-							<Route path="/flows/rar-v7" element={<RARFlowV7 />} />
-							{/* DPoP Flow (Educational/Mock) */}
-							<Route path="/flows/dpop" element={<DPoPFlow />} />
-							{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
-							<Route path="/flows/rar-v6" element={<Navigate to="/flows/rar-v7" replace />} />
-							<Route
-								path="/flows/oauth2-resource-owner-password"
-								element={<OAuth2ResourceOwnerPasswordFlow />}
-							/>
-							<Route path="/flows/oauth-ropc-v7" element={<OAuthROPCFlowV7 />} />
-							{/* Test MFA Flow */}
-							<Route path="/mfa-test" element={<MFAFlow />} />
-							{/* Legacy /oidc routes - Keep utility pages and unsupported flows */}
-							<Route path="/oidc" element={<OIDC />}>
-								<Route path="userinfo" element={<UserInfoFlow />} />
-								<Route path="id-tokens" element={<IDTokensFlow />} />
+			{isPopoutWindow() ? (
+				// Popout window - render without layout
+				<Routes>
+					<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
+					<Route path="*" element={<Navigate to="/v8/debug-logs-popout" replace />} />
+				</Routes>
+			) : (
+				// Main app - render with full layout
+				<AppContainer>
+					<Navbar toggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
+					<Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+					<ContentColumn>
+						<MainContent $sidebarWidth={sidebarWidth}>
+							<Routes>
+								<Route path="/login" element={<Login />} />
+								<Route path="/callback" element={<Callback />} />
+								{/* Per-flow callback routes */}
+								{/* V8U Unified Callback Handler - handles all V8U flows */}
+								<Route path="/unified-callback" element={<CallbackHandlerV8U />} />
+								<Route path="/authz-callback" element={<CallbackHandlerV8U />} />
+								{/* CRITICAL: MFA user login callback route - DO NOT REMOVE - Used by MFA flows for user authentication */}
+								<Route path="/user-login-callback" element={<CallbackHandlerV8U />} />
+								{/* CRITICAL: MFA-specific user login callback route - DO NOT REMOVE - Used by MFA flows for user authentication */}
+								<Route path="/user-mfa-login-callback" element={<CallbackHandlerV8U />} />
+								{/* CRITICAL: Unified MFA callback routes - DO NOT REMOVE - Used by unified MFA flows */}
+								<Route path="/mfa-unified-callback" element={<CallbackHandlerV8U />} />
+								<Route path="/mfa-hub-callback" element={<CallbackHandlerV8U />} />
+								{/* LEGACY: V8 Unified MFA callback routes - redirects to new routes for backward compatibility */}
+								<Route path="/v8/unified-mfa-callback" element={<CallbackHandlerV8U />} />
+								<Route path="/hybrid-callback" element={<HybridCallback />} />
+								<Route path="/implicit-callback" element={<ImplicitCallback />} />
+								<Route path="/oauth-implicit-callback" element={<ImplicitCallback />} />
+								<Route path="/oidc-implicit-callback" element={<ImplicitCallback />} />
+								<Route path="/worker-token-callback" element={<WorkerTokenCallback />} />
+								<Route path="/device-code-status" element={<DeviceCodeStatus />} />
+								<Route path="/logout-callback" element={<LogoutCallback />} />
+								<Route path="/authz-logout-callback" element={<LogoutCallback />} />
+								<Route path="/implicit-logout-callback" element={<LogoutCallback />} />
+								<Route path="/hybrid-logout-callback" element={<LogoutCallback />} />
+								<Route path="/device-logout-callback" element={<LogoutCallback />} />
+								<Route path="/worker-token-logout-callback" element={<LogoutCallback />} />
+								<Route path="/p1auth-logout-callback" element={<LogoutCallback />} />
+								<Route path="/dashboard-logout-callback" element={<LogoutCallback />} />
+								<Route path="/dashboard-callback" element={<DashboardCallback />} />
+								{/* Dynamic callback route - handles any redirect URI the user configures */}
+								<Route path="/oauth-callback" element={<AuthzCallback />} />
+								<Route path="/oidc-callback" element={<AuthzCallback />} />
+								<Route path="/mfa-callback" element={<AuthzCallback />} />
+								<Route path="/pingone-callback" element={<AuthzCallback />} />
+								{/* Catch-all callback route for any custom redirect URI */}
+								<Route path="/callback/*" element={<AuthzCallback />} />
+								<Route path="/" element={<Navigate to="/dashboard" replace />} />
+								<Route path="/dashboard" element={<Dashboard />} />
+								<Route path="/flows" element={<OAuthFlowsNew />}>
+									<Route path="compare" element={<FlowComparisonTool />} />
+									<Route path="diagrams" element={<InteractiveFlowDiagram />} />
+									<Route path="mfa" element={<MFAFlow />} />
+								</Route>
+								{/* Tools & Utilities Routes */}
+								<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
+								<Route path="/ultimate-token-display-demo" element={<UltimateTokenDisplayDemo />} />
+								{/* SDK Examples Routes */}
+								<Route path="/sdk-examples" element={<SDKExamplesHome />} />
+								<Route path="/sdk-examples/jwt-authentication" element={<JWTExamples />} />
+								<Route path="/sdk-examples/oidc-centralized-login" element={<OIDCExamples />} />
+								{/* Environment Management */}
+								<Route path="/environments" element={<EnvironmentManagementPageV8 />} />
+								{/* DaVinci Todo App */}
+								<Route path="/davinci-todo" element={<DavinciTodoApp />} />
+								{/* V7 OAuth/OIDC Flow Routes */}
 								<Route
-									path="resource-owner-password"
+									path="/flows/oauth-authorization-code-v7"
+									element={<OAuthAuthorizationCodeFlowV7 />}
+								/>
+								<Route
+									path="/flows/oauth-authorization-code-v7-2"
+									element={<OAuthAuthorizationCodeFlowV7_2 />}
+								/>
+								<Route
+									path="/flows/oauth-authorization-code-v8"
+									element={<OAuthAuthorizationCodeFlowV8 />}
+								/>
+								<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
+								<Route
+									path="/v8/unified-mfa"
+									element={
+										<React.Suspense fallback={<div>Loading...</div>}>
+											<UnifiedMFARegistrationFlowV8_Legacy registrationFlowType="admin-active" />
+										</React.Suspense>
+									}
+								/>
+								<Route
+									path="/v8/unified-credentials-mockup"
+									element={
+										<React.Suspense fallback={<div>Loading...</div>}>
+											<UnifiedCredentialsMockupV8 />
+										</React.Suspense>
+									}
+								/>
+								{/* V8 Token Exchange Flow */}
+								<Route path="/v8/token-exchange" element={<TokenExchangeFlowV8 />} />
+								<Route path="/v8/mfa-hub" element={<MFAAuthenticationMainPageV8 />} />
+								<Route
+									path="/v8/mfa/authentication/success"
+									element={<MFAAuthenticationSuccessPage />}
+								/>
+								<Route path="/v8/mfa/register/sms" element={<SMSOTPConfigurationPageV8 />} />
+								<Route
+									path="/v8/mfa/register/sms/device"
+									element={
+										<React.Suspense fallback={<div>Loading...</div>}>
+											<SMSFlowV8 />
+										</React.Suspense>
+									}
+								/>
+								<Route path="/v8/mfa/register/sms/docs" element={<SMSRegistrationDocsPageV8 />} />
+								<Route path="/v8/mfa/register/email" element={<EmailOTPConfigurationPageV8 />} />
+								<Route
+									path="/v8/mfa/register/email/device"
+									element={
+										<React.Suspense fallback={<div>Loading...</div>}>
+											<EmailFlowV8 />
+										</React.Suspense>
+									}
+								/>
+								<Route
+									path="/v8/mfa/register/email/docs"
+									element={<EmailRegistrationDocsPageV8 />}
+								/>
+								<Route
+									path="/v8/mfa/register/whatsapp"
+									element={<WhatsAppOTPConfigurationPageV8 />}
+								/>
+								<Route
+									path="/v8/mfa/register/whatsapp/device"
+									element={
+										<React.Suspense fallback={<div>Loading...</div>}>
+											<WhatsAppFlowV8 />
+										</React.Suspense>
+									}
+								/>
+								<Route
+									path="/v8/mfa/register/whatsapp/docs"
+									element={<WhatsAppRegistrationDocsPageV8 />}
+								/>
+								<Route path="/v8/mfa/register/totp" element={<TOTPConfigurationPageV8 />} />
+								{/* TOTP uses unified flow architecture like SMS/Email */}
+								<Route
+									path="/v8/mfa/register/totp/device"
+									element={
+										<React.Suspense fallback={<div>Loading...</div>}>
+											<UnifiedMFARegistrationFlowV8_Legacy deviceType="TOTP" />
+										</React.Suspense>
+									}
+								/>
+								<Route path="/v8/mfa/register/fido2" element={<FIDO2ConfigurationPageV8 />} />
+								<Route
+									path="/v8/mfa/register/fido2/device"
+									element={
+										<React.Suspense fallback={<div>Loading...</div>}>
+											<FIDO2FlowV8 />
+										</React.Suspense>
+									}
+								/>
+								<Route
+									path="/v8/mfa/register/fido2/docs"
+									element={<FIDO2RegistrationDocsPageV8 />}
+								/>
+								{/* Platform and Security Key routes redirect to FIDO2 (they use the same flow) */}
+								<Route
+									path="/v8/mfa/register/platform"
+									element={<Navigate to="/v8/mfa/register/fido2" replace />}
+								/>
+								<Route
+									path="/v8/mfa/register/platform/device"
+									element={<Navigate to="/v8/mfa/register/fido2/device" replace />}
+								/>
+								<Route
+									path="/v8/mfa/register/security_key"
+									element={<Navigate to="/v8/mfa/register/fido2" replace />}
+								/>
+								<Route
+									path="/v8/mfa/register/security_key/device"
+									element={<Navigate to="/v8/mfa/register/fido2/device" replace />}
+								/>
+								{/* Voice routes redirect to SMS (Voice uses the same phone-based flow as SMS) */}
+								<Route
+									path="/v8/mfa/register/voice"
+									element={<Navigate to="/v8/mfa/register/sms" replace />}
+								/>
+								<Route
+									path="/v8/mfa/register/voice/device"
+									element={<Navigate to="/v8/mfa/register/sms/device" replace />}
+								/>
+								{/* Mobile routes - separate app from SMS */}
+								<Route path="/v8/mfa/register/mobile" element={<MobileOTPConfigurationPageV8 />} />
+								<Route
+									path="/v8/mfa/register/mobile/device"
+									element={
+										<React.Suspense fallback={<div>Loading...</div>}>
+											<MobileFlowV8 />
+										</React.Suspense>
+									}
+								/>
+								<Route
+									path="/v8/mfa/register/mobile/docs"
+									element={<MobileRegistrationDocsPageV8 />}
+								/>
+								<Route
+									path="/v8/mfa/configure/fido2"
+									element={<Navigate to="/v8/mfa/register/fido2" replace />}
+								/>
+								<Route path="/v8/mfa-config" element={<MFAConfigurationPageV8 />} />
+								<Route path="/v8/mfa-feature-flags" element={<MFAFeatureFlagsAdminV8 />} />
+								<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlowV8 />} />
+								<Route path="/v8/mfa-device-ordering" element={<MFADeviceOrderingFlowV8 />} />
+								<Route path="/v8/mfa-reporting" element={<MFAReportingFlowV8 />} />
+								<Route
+									path="/v8/mfa/device-authentication-details"
+									element={<DeviceAuthenticationDetailsV8 />}
+								/>
+								<Route path="/v8/mfa/create-device" element={<MFADeviceCreateDemoV8 />} />
+								<Route path="/v8/email-mfa-signon" element={<EmailMFASignOnFlowV8 />} />
+								<Route path="/v8/resources-api" element={<ResourcesAPIFlowV8 />} />
+								<Route path="/v8/protect" element={<PingOneProtectFlowV8 />} />
+								<Route
+									path="/flows/oauth-authorization-code-v7-condensed-mock"
+									element={<V7RMOAuthAuthorizationCodeFlow_Condensed />}
+								/>
+								<Route path="/flows/v7rm-condensed-mock" element={<V7RMCondensedMock />} />
+								{/* V7RM Mock Flows (Flows not supported by PingOne) */}
+								<Route
+									path="/flows/v7rm-oidc-ropc"
+									element={<V7RMOIDCResourceOwnerPasswordFlow />}
+								/>
+								{/* Token Management Flows */}
+								<Route path="/flows/token-revocation" element={<TokenRevocationFlow />} />
+								<Route path="/flows/token-introspection" element={<TokenIntrospectionFlow />} />
+								{/* V7M Mock Educational Flow Routes */}
+								<Route
+									path="/v7m/oauth/authorization-code"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MOAuthAuthCode oidc={false} title="V7M OAuth Authorization Code" />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/v7m/oidc/authorization-code"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MOAuthAuthCode oidc={true} title="V7M OIDC Authorization Code" />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/v7m/oauth/device-authorization"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MDeviceAuthorization />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/v7m/oauth/client-credentials"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MClientCredentials />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/v7m/oauth/implicit"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MImplicitFlow oidc={false} title="V7M OAuth Implicit Flow" />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/v7m/oidc/implicit"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MImplicitFlow oidc={true} title="V7M OIDC Implicit Flow" />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/v7m/oauth/ropc"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MROPC oidc={false} title="V7M Resource Owner Password Credentials" />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/v7m/oidc/ropc"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MROPC oidc={true} title="V7M OIDC Resource Owner Password Credentials" />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/v7m/settings"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MSettings />
+										</Suspense>
+									}
+								/>
+								<Route path="/flows/userinfo" element={<UserInfoPostFlow />} />
+								<Route path="/flows/pingone-logout" element={<PingOneLogoutFlow />} />
+								{/* RFC 6749 Compliant OAuth 2.0 Authorization Code Flow */}
+								<Route
+									path="/flows/oauth2-compliant-authorization-code"
+									element={<OAuth2CompliantAuthorizationCodeFlow />}
+								/>
+								{/* OIDC Core 1.0 Compliant Authorization Code Flow */}
+								<Route
+									path="/flows/oidc-compliant-authorization-code"
+									element={<OIDCCompliantAuthorizationCodeFlow />}
+								/>
+								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								<Route
+									path="/flows/oauth-authorization-code-v6"
+									element={<Navigate to="/flows/oauth-authorization-code-v7" replace />}
+								/>
+								<Route
+									path="/flows/oidc-authorization-code-v6"
+									element={<Navigate to="/flows/oauth-authorization-code-v7" replace />}
+								/>
+								{/* V7 Implicit Flow */}
+								<Route path="/flows/implicit-v7" element={<ImplicitFlowV7 />} />
+								{/* V8 Implicit Flow */}
+								<Route path="/flows/implicit-v8" element={<ImplicitFlowV8 />} />
+								{/* V8 Unified UI Mockup */}
+								<Route
+									path="/v8/unified-credentials-mockup"
+									element={<UnifiedCredentialsMockupV8 />}
+								/>
+								{/* V8U Unified Flow - Single UI for all flows with real PingOne APIs */}
+								<Route
+									path="/v8u/unified/oauth-authz/:step?"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading Unified OAuth Flow..."
+													subtext="Preparing flow configuration"
+												/>
+											}
+										>
+											<UnifiedFlowErrorBoundary>
+												<UnifiedOAuthFlowV8U />
+											</UnifiedFlowErrorBoundary>
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/v8u/unified/:flowType?/:step?"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading Unified OAuth Flow..."
+													subtext="Preparing flow configuration"
+												/>
+											}
+										>
+											<UnifiedFlowErrorBoundary>
+												<UnifiedOAuthFlowV8U />
+											</UnifiedFlowErrorBoundary>
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/v8u/unified/helper"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading Flow Helper..."
+													subtext="Preparing guidance documentation"
+												/>
+											}
+										>
+											<UnifiedFlowErrorBoundary>
+												<UnifiedFlowHelperPageV8U />
+											</UnifiedFlowErrorBoundary>
+										</Suspense>
+									}
+								/>
+								{/* Enhanced State Management */}
+								<Route
+									path="/v8u/enhanced-state-management"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading Enhanced State Management..."
+													subtext="Initializing state management system"
+												/>
+											}
+										>
+											<UnifiedFlowErrorBoundary>
+												<EnhancedStateManagementPage />
+											</UnifiedFlowErrorBoundary>
+										</Suspense>
+									}
+								/>
+								{/* Token Monitoring Dashboard */}
+								<Route
+									path="/v8u/token-monitoring"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading Token Monitoring..."
+													subtext="Initializing token monitoring service"
+												/>
+											}
+										>
+											<UnifiedFlowErrorBoundary>
+												<TokenStatusPageV8U />
+											</UnifiedFlowErrorBoundary>
+										</Suspense>
+									}
+								/>
+								{/* Token API Documentation */}
+								<Route
+									path="/v8u/token-api-docs"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading API Documentation..."
+													subtext="Preparing API call documentation"
+												/>
+											}
+										>
+											<UnifiedFlowErrorBoundary>
+												<TokenApiDocumentationPage />
+											</UnifiedFlowErrorBoundary>
+										</Suspense>
+									}
+								/>
+								{/* Flow Comparison Tool */}
+								<Route
+									path="/v8u/flow-comparison"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading Flow Comparison..."
+													subtext="Preparing comparison analysis"
+												/>
+											}
+										>
+											<UnifiedFlowErrorBoundary>
+												<FlowComparisonPage />
+											</UnifiedFlowErrorBoundary>
+										</Suspense>
+									}
+								/>
+								{/* V8 Utilities */}
+								<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
+								<Route path="/v8/debug-logs" element={<DebugLogViewerV8 />} />
+								{/* V8U SPIFFE/SPIRE Mock Flow and Token Viewer - multi-step lab */}
+								<Route
+									path="/v8u/spiffe-spire"
+									element={<Navigate to="/v8u/spiffe-spire/attest" replace />}
+								/>
+								<Route
+									path="/v8u/spiffe-spire/attest"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading SPIFFE/SPIRE Flow..."
+													subtext="Preparing attestation workflow"
+												/>
+											}
+										>
+											<SpiffeSpireFlowV8U />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/v8u/spiffe-spire/svid"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading SPIFFE/SPIRE Flow..."
+													subtext="Preparing SVID workflow"
+												/>
+											}
+										>
+											<SpiffeSpireFlowV8U />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/v8u/spiffe-spire/validate"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading SPIFFE/SPIRE Flow..."
+													subtext="Preparing validation workflow"
+												/>
+											}
+										>
+											<SpiffeSpireFlowV8U />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/v8u/spiffe-spire/tokens"
+									element={
+										<Suspense
+											fallback={
+												<ComponentLoader
+													message="Loading Token Display..."
+													subtext="Preparing SPIFFE/SPIRE tokens"
+												/>
+											}
+										>
+											<SpiffeSpireTokenDisplayV8U />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/flows/oidc-implicit-v6"
+									element={<Navigate to="/flows/implicit-v7?variant=oidc" replace />}
+								/>
+								<Route
+									path="/flows/oauth-implicit-completion"
+									element={<OAuthImplicitFlowCompletion />}
+								/>
+								{/* V7 Device Authorization Flow */}
+								<Route
+									path="/flows/device-authorization-v7"
+									element={<DeviceAuthorizationFlowV7 />}
+								/>
+								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								<Route
+									path="/flows/device-authorization-v6"
+									element={<Navigate to="/flows/device-authorization-v7" replace />}
+								/>
+								<Route
+									path="/flows/oidc-device-authorization-v6"
+									element={<Navigate to="/flows/device-authorization-v7" replace />}
+								/>
+								{/* V7 JWT Bearer Token Flow */}
+								<Route path="/flows/jwt-bearer-token-v7" element={<JWTBearerTokenFlowV7 />} />
+								{/* V8M Token Exchange Flow */}
+								<Route path="/flows/token-exchange-v7" element={<V8MTokenExchange />} />
+								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								<Route
+									path="/flows/jwt-bearer-token-v6"
+									element={<Navigate to="/flows/jwt-bearer-token-v7" replace />}
+								/>
+								{/* V7 SAML Bearer Assertion Flow */}
+								<Route
+									path="/flows/saml-bearer-assertion-v7"
+									element={<SAMLBearerAssertionFlowV7 />}
+								/>
+								<Route
+									path="/flows/saml-sp-dynamic-acs-v1"
+									element={<SAMLServiceProviderFlowV1 />}
+								/>
+								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								<Route
+									path="/flows/saml-bearer-assertion-v6"
+									element={<Navigate to="/flows/saml-bearer-assertion-v7" replace />}
+								/>
+								{/* V7 Worker Token Flow */}
+								<Route path="/flows/worker-token-v7" element={<WorkerTokenFlowV7 />} />
+								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								<Route
+									path="/flows/worker-token-v6"
+									element={<Navigate to="/flows/worker-token-v7" replace />}
+								/>
+								{/* V7 Client Credentials Flow */}
+								<Route path="/flows/client-credentials-v7" element={<ClientCredentialsFlowV7 />} />
+								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								<Route
+									path="/flows/client-credentials-v6"
+									element={<Navigate to="/flows/client-credentials-v7" replace />}
+								/>
+								{/* V7 OIDC Hybrid Flow */}
+								<Route path="/flows/oidc-hybrid-v7" element={<OIDCHybridFlowV7 />} />
+								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								<Route
+									path="/flows/oidc-hybrid-v6"
+									element={<Navigate to="/flows/oidc-hybrid-v7" replace />}
+								/>
+								{/* V7 CIBA Flow */}
+								<Route path="/flows/ciba-v7" element={<CIBAFlowV7 />} />
+								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								<Route path="/flows/ciba-v6" element={<Navigate to="/flows/ciba-v7" replace />} />
+								{/* Legacy Advanced Parameters V6 route - redirect to dashboard */}
+								<Route
+									path="/flows/advanced-parameters-v6/:flowType"
+									element={<Navigate to="/dashboard" replace />}
+								/>
+								{/* Advanced OAuth Parameters Demo (Mock Flow) */}
+								<Route
+									path="/flows/advanced-oauth-params-demo"
+									element={<AdvancedOAuthParametersDemoFlow />}
+								/>
+								{/* V7 Redirectless Flow */}
+								<Route path="/flows/redirectless-v7-real" element={<RedirectlessFlowV7Real />} />
+								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								<Route
+									path="/flows/redirectless-v6"
+									element={<Navigate to="/flows/redirectless-v7-real" replace />}
+								/>
+								<Route
+									path="/flows/redirectless-v6-real"
+									element={<Navigate to="/flows/redirectless-v7-real" replace />}
+								/>
+								<Route path="/flows/par" element={<PARFlow />} />
+								<Route path="/flows-old/jwt-bearer" element={<JWTBearerFlow />} />
+								{/* Unsupported by PingOne flows */}
+								<Route
+									path="/oauth/resource-owner-password"
 									element={<Navigate to="/flows/oauth-ropc-v7" replace />}
 								/>
-								<Route path="jwt-bearer" element={<JWTBearerFlow />} />
-							</Route>
-							{/* Backward-compatible redirect for older links */}
-							<Route path="/oidc/tokens" element={<Navigate to="/oidc/id-tokens" replace />} />
-							<Route path="/client-generator" element={<ClientGenerator />} />{' '}
-							<Route path="/application-generator" element={<ApplicationGenerator />} />
-							<Route path="/oauth-code-generator-hub" element={<OAuthCodeGeneratorHub />} />
-							<Route path="/configuration" element={<Configuration />} />
-							<Route path="/documentation" element={<Documentation />} />
-							<Route path="/ping-ai-resources" element={<PingAIResources />} />
-							<Route path="/pingone-user-profile" element={<PingOneUserProfile />} />
-							<Route path="/worker-token-tester" element={<WorkerTokenTester />} />
-							<Route path="/ai-identity-architectures" element={<AIIdentityArchitectures />} />
-							<Route path="/about" element={<About />} />
-							<Route path="/flow-header-demo" element={<FlowHeaderDemo />} />
-							<Route path="/test-demo" element={<TestDemo />} />
-							<Route path="/environment-id-demo" element={<EnvironmentIdInputDemo />} />
-							<Route path="/docs/oidc-specs" element={<OIDCSpecs />} />
-							<Route path="/docs/oauth-for-ai" element={<OAuthForAI />} />
-							<Route path="/docs/oidc-for-ai" element={<OIDCForAI />} />
-							<Route path="/docs/ping-view-on-ai" element={<PingViewOnAI />} />
-							<Route
-								path="/docs/oauth2-security-best-practices"
-								element={<OAuth2SecurityBestPractices />}
-							/>
-							<Route path="/docs/spiffe-spire-pingone" element={<SpiffeSpirePingOne />} />
-							<Route path="/auto-discover" element={<AutoDiscover />} />
-							<Route path="/token-management" element={<TokenManagement />} />
-							<Route
-								path="/postman-collection-generator"
-								element={<PostmanCollectionGenerator />}
-							/>
-							<Route path="/samples/p1mfa" element={<P1MFASamples />} />
-							<Route path="/samples/p1mfa/integrated" element={<IntegratedMFASample />} />
-							<Route path="/samples/p1mfa/fido2" element={<FIDO2SampleApp />} />
-							<Route path="/samples/p1mfa/sms" element={<SMSSampleApp />} />
-							<Route path="/oauth-2-1" element={<OAuth21 />} />
-							<Route path="/oidc-session-management" element={<OIDCSessionManagement />} />
-							<Route path="/par-vs-rar" element={<PARvsRAR />} />
-							<Route path="/ciba-vs-device-authz" element={<CIBAvsDeviceAuthz />} />
-							<Route path="/jwks-troubleshooting" element={<JWKSTroubleshooting />} />
-							<Route path="/url-decoder" element={<URLDecoder />} />
-							<Route path="/code-examples" element={<CodeExamplesDemo />} />
-							<Route path="/code-examples-demo" element={<CodeExamplesDemo />} />
-							<Route
-								path="/compact-app-picker-demo"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<CompactAppPickerDemo />
-									</Suspense>
-								}
-							/>
-							<Route path="/device-mock-flow" element={<DeviceMockFlow />} />
-							<Route path="/documentation/oidc-overview" element={<OIDCOverview />} />
-							<Route path="/ai-glossary" element={<AIGlossary />} />
-							<Route path="/ai-agent-overview" element={<AIAgentOverview />} />
-							<Route path="/competitive-analysis" element={<CompetitiveAnalysis />} />
-							<Route
-								path="/comprehensive-oauth-education"
-								element={<ComprehensiveOAuthEducation />}
-							/>
-							{/* Protect Portal Application */}
-							<Route path="/protect-portal" element={<ProtectPortalWrapper />} />
-							<Route path="/advanced-config" element={<AdvancedConfiguration />} />
-							<Route
-								path="/advanced-security-settings"
-								element={<AdvancedSecuritySettingsDemo />}
-							/>
-							<Route
-								path="/advanced-security-settings-comparison"
-								element={<AdvancedSecuritySettingsComparison />}
-							/>
-							<Route path="/security/password-reset" element={<HelioMartPasswordReset />} />
-							{/* <Route path="/tutorials" element={<InteractiveTutorials />} /> */}{' '}
-							{/* Removed - unused tutorial feature */}
-							<Route path="/oauth-oidc-training" element={<OAuthOIDCTraining />} />
-							<Route path="/learn/response-modes" element={<ResponseModesLearnPage />} />
-							<Route path="/service-test-runner" element={<ServiceTestRunner />} />
-							{/* Test Pages */}
-							<Route
-								path="/test/implicit-flow-test"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<ImplicitFlowTest />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/test/all-flows-api-test"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<AllFlowsApiTest />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/test/all-flows-api"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<AllFlowsApiTest />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/test/mfa-flows-api-test"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<MFAFlowsApiTest />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/test/par-test"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<PARTest />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/production/api-tests"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<TokenStatusPageV8U />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/api-status"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<ApiStatusPage />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/test-callback"
-								element={
-									<Suspense fallback={<div>Loading...</div>}>
-										<TestCallback />
-									</Suspense>
-								}
-							/>
-							<Route
-								path="/:customCallback(p1-callback)"
-								element={<PingOneAuthenticationCallback />}
-							/>
-							<Route path="*" element={<NotFoundRedirect />} />
-						</Routes>
-					</MainContent>
-				</ContentColumn>
-			</AppContainer>
+								<Route
+									path="/oidc/resource-owner-password"
+									element={<Navigate to="/flows/oauth-ropc-v7" replace />}
+								/>
+								{/* V7 PingOne PAR Flow */}
+								<Route path="/flows/pingone-par-v7" element={<PingOnePARFlowV7 />} />
+								<Route path="/flows/par-v7" element={<PARFlowV7 />} />
+								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								<Route
+									path="/flows/pingone-par-v6"
+									element={<Navigate to="/flows/pingone-par-v7" replace />}
+								/>
+								{/* V7 PingOne MFA Flow */}
+								<Route
+									path="/flows/pingone-complete-mfa-v7"
+									element={<PingOneCompleteMFAFlowV7 />}
+								/>
+								<Route
+									path="/flows/pingone-mfa-workflow-library-v7"
+									element={<PingOneMFAWorkflowLibraryV7 />}
+								/>
+								<Route path="/flows/kroger-grocery-store-mfa" element={<KrogerGroceryStoreMFA />} />
+								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								<Route
+									path="/flows/pingone-mfa-v6"
+									element={<Navigate to="/flows/pingone-complete-mfa-v7" replace />}
+								/>
+								<Route path="/pingone-authentication" element={<PingOneAuthentication />} />
+								<Route
+									path="/pingone-authentication/result"
+									element={<PingOneAuthenticationResult />}
+								/>
+								<Route path="/pingone-mock-features" element={<PingOneMockFeatures />} />
+								<Route path="/pingone-identity-metrics" element={<PingOneIdentityMetrics />} />
+								<Route path="/pingone-audit-activities" element={<PingOneAuditActivities />} />
+								<Route path="/pingone-webhook-viewer" element={<PingOneWebhookViewer />} />
+								<Route path="/organization-licensing" element={<OrganizationLicensing />} />
+								<Route path="/p1-callback" element={<PingOneAuthenticationCallback />} />
+								<Route path="/p1auth-callback" element={<PingOneAuthenticationCallback />} />
+								{/* V7 RAR Flow */}
+								<Route path="/flows/rar-v7" element={<RARFlowV7 />} />
+								{/* DPoP Flow (Educational/Mock) */}
+								<Route path="/flows/dpop" element={<DPoPFlow />} />
+								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								<Route path="/flows/rar-v6" element={<Navigate to="/flows/rar-v7" replace />} />
+								<Route
+									path="/flows/oauth2-resource-owner-password"
+									element={<OAuth2ResourceOwnerPasswordFlow />}
+								/>
+								<Route path="/flows/oauth-ropc-v7" element={<OAuthROPCFlowV7 />} />
+								{/* Test MFA Flow */}
+								<Route path="/mfa-test" element={<MFAFlow />} />
+								{/* Legacy /oidc routes - Keep utility pages and unsupported flows */}
+								<Route path="/oidc" element={<OIDC />}>
+									<Route path="userinfo" element={<UserInfoFlow />} />
+									<Route path="id-tokens" element={<IDTokensFlow />} />
+									<Route
+										path="resource-owner-password"
+										element={<Navigate to="/flows/oauth-ropc-v7" replace />}
+									/>
+									<Route path="jwt-bearer" element={<JWTBearerFlow />} />
+								</Route>
+								{/* Backward-compatible redirect for older links */}
+								<Route path="/oidc/tokens" element={<Navigate to="/oidc/id-tokens" replace />} />
+								<Route path="/client-generator" element={<ClientGenerator />} />{' '}
+								<Route path="/application-generator" element={<ApplicationGenerator />} />
+								<Route path="/oauth-code-generator-hub" element={<OAuthCodeGeneratorHub />} />
+								<Route path="/configuration" element={<Configuration />} />
+								<Route path="/documentation" element={<Documentation />} />
+								<Route path="/ping-ai-resources" element={<PingAIResources />} />
+								<Route path="/pingone-user-profile" element={<PingOneUserProfile />} />
+								<Route path="/worker-token-tester" element={<WorkerTokenTester />} />
+								<Route path="/ai-identity-architectures" element={<AIIdentityArchitectures />} />
+								<Route path="/about" element={<About />} />
+								<Route path="/flow-header-demo" element={<FlowHeaderDemo />} />
+								<Route path="/test-demo" element={<TestDemo />} />
+								<Route path="/environment-id-demo" element={<EnvironmentIdInputDemo />} />
+								<Route path="/docs/oidc-specs" element={<OIDCSpecs />} />
+								<Route path="/docs/oauth-for-ai" element={<OAuthForAI />} />
+								<Route path="/docs/oidc-for-ai" element={<OIDCForAI />} />
+								<Route path="/docs/ping-view-on-ai" element={<PingViewOnAI />} />
+								<Route
+									path="/docs/oauth2-security-best-practices"
+									element={<OAuth2SecurityBestPractices />}
+								/>
+								<Route path="/docs/spiffe-spire-pingone" element={<SpiffeSpirePingOne />} />
+								<Route path="/auto-discover" element={<AutoDiscover />} />
+								<Route path="/token-management" element={<TokenManagement />} />
+								<Route
+									path="/postman-collection-generator"
+									element={<PostmanCollectionGenerator />}
+								/>
+								<Route path="/samples/p1mfa" element={<P1MFASamples />} />
+								<Route path="/samples/p1mfa/integrated" element={<IntegratedMFASample />} />
+								<Route path="/samples/p1mfa/fido2" element={<FIDO2SampleApp />} />
+								<Route path="/samples/p1mfa/sms" element={<SMSSampleApp />} />
+								<Route path="/oauth-2-1" element={<OAuth21 />} />
+								<Route path="/oidc-session-management" element={<OIDCSessionManagement />} />
+								<Route path="/par-vs-rar" element={<PARvsRAR />} />
+								<Route path="/ciba-vs-device-authz" element={<CIBAvsDeviceAuthz />} />
+								<Route path="/jwks-troubleshooting" element={<JWKSTroubleshooting />} />
+								<Route path="/url-decoder" element={<URLDecoder />} />
+								<Route path="/code-examples" element={<CodeExamplesDemo />} />
+								<Route path="/code-examples-demo" element={<CodeExamplesDemo />} />
+								<Route
+									path="/compact-app-picker-demo"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<CompactAppPickerDemo />
+										</Suspense>
+									}
+								/>
+								<Route path="/device-mock-flow" element={<DeviceMockFlow />} />
+								<Route path="/documentation/oidc-overview" element={<OIDCOverview />} />
+								<Route path="/ai-glossary" element={<AIGlossary />} />
+								<Route path="/ai-agent-overview" element={<AIAgentOverview />} />
+								<Route path="/competitive-analysis" element={<CompetitiveAnalysis />} />
+								<Route
+									path="/comprehensive-oauth-education"
+									element={<ComprehensiveOAuthEducation />}
+								/>
+								{/* Protect Portal Application */}
+								<Route path="/protect-portal" element={<ProtectPortalWrapper />} />
+								<Route path="/advanced-config" element={<AdvancedConfiguration />} />
+								<Route
+									path="/advanced-security-settings"
+									element={<AdvancedSecuritySettingsDemo />}
+								/>
+								<Route
+									path="/advanced-security-settings-comparison"
+									element={<AdvancedSecuritySettingsComparison />}
+								/>
+								<Route path="/security/password-reset" element={<HelioMartPasswordReset />} />
+								{/* <Route path="/tutorials" element={<InteractiveTutorials />} /> */}{' '}
+								{/* Removed - unused tutorial feature */}
+								<Route path="/oauth-oidc-training" element={<OAuthOIDCTraining />} />
+								<Route path="/learn/response-modes" element={<ResponseModesLearnPage />} />
+								<Route path="/service-test-runner" element={<ServiceTestRunner />} />
+								{/* Test Pages */}
+								<Route
+									path="/test/implicit-flow-test"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<ImplicitFlowTest />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/test/all-flows-api-test"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<AllFlowsApiTest />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/test/all-flows-api"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<AllFlowsApiTest />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/test/mfa-flows-api-test"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<MFAFlowsApiTest />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/test/par-test"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<PARTest />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/production/api-tests"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<TokenStatusPageV8U />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/api-status"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<ApiStatusPage />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/test-callback"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<TestCallback />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/:customCallback(p1-callback)"
+									element={<PingOneAuthenticationCallback />}
+								/>
+								<Route path="*" element={<NotFoundRedirect />} />
+							</Routes>
+						</MainContent>
+					</ContentColumn>
+				</AppContainer>
+			)}
 
 			<CredentialSetupModal
 				isOpen={showCredentialModal}
