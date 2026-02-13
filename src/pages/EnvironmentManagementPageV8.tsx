@@ -619,6 +619,10 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				response,
 				environmentsCount: response?.environments?.length,
 				totalCount: response?.totalCount,
+				hasResponse: !!response,
+				hasEnvironments: !!response?.environments,
+				environmentsArray: response?.environments,
+				fullResponse: JSON.stringify(response, null, 2),
 			});
 
 			// Update the API call with response
