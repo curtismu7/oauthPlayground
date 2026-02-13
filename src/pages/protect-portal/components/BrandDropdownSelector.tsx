@@ -33,12 +33,12 @@ const DropdownButton = styled.button`
   border: 2px solid var(--brand-text-secondary);
   border-radius: var(--brand-radius-md);
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--brand-text);
   transition: var(--brand-transition);
   font-family: var(--brand-body-font);
-  min-width: 160px;
+  min-width: 180px;
 
   &:hover {
     border-color: var(--brand-primary);
@@ -86,13 +86,13 @@ const MenuItem = styled.button.withConfig({
 })<{ isActive: boolean }>`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   width: 100%;
-  padding: 0.5rem 0.75rem;
+  padding: 0.75rem 1rem;
   background: ${({ isActive }) => (isActive ? 'var(--brand-primary-light)' : 'transparent')};
   border: none;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 400;
   color: var(--brand-text);
   transition: var(--brand-transition);
@@ -123,11 +123,11 @@ const MenuItemText = styled.div`
 const MenuItemName = styled.div`
   font-weight: 500;
   margin-bottom: 0.125rem;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
 `;
 
 const MenuItemPortal = styled.div`
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   color: var(--brand-text-secondary);
 `;
 
