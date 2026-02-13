@@ -167,7 +167,7 @@ const OIDCExamples: React.FC = () => {
 		setTimeout(() => setStatus(null), 5000);
 	};
 
-	const handleOAuthCallback = async (_code: string, _state: string) => {
+	const handleOAuthCallback = async (code: string, state: string) => {
 		setIsLoading(true);
 		try {
 			// In a real implementation, this would exchange the code for tokens
@@ -180,6 +180,9 @@ const OIDCExamples: React.FC = () => {
 				token_type: 'Bearer',
 				scope: 'openid profile email',
 			};
+
+			// Log the received parameters for debugging
+			console.log('OAuth callback received:', { code, state });
 
 			setTokens(mockTokens);
 			showStatus('success', 'OAuth callback processed successfully!');
@@ -197,11 +200,12 @@ const OIDCExamples: React.FC = () => {
 		const error = searchParams.get('error');
 
 		if (error) {
-			showStatus('error', `OAuth Error: ${error}`);
+			setStatus({ type: 'error', message: `OAuth Error: ${error}` });
+			setTimeout(() => setStatus(null), 5000);
 		} else if (code && state) {
 			handleOAuthCallback(code, state);
 		}
-	}, [searchParams, showStatus]);
+	}, [searchParams]);
 
 	const initiateCentralizedLogin = () => {
 		showStatus('info', 'Initiating centralized login - redirecting to PingOne server UI...');
