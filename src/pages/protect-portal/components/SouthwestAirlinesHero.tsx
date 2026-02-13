@@ -241,12 +241,12 @@ interface SouthwestAirlinesHeroProps {
 	className?: string;
 	currentStep?: string;
 	onLoginStart?: () => void;
-	onLoginSuccess: (userContext: UserContext, loginContext: LoginContext) => void;
-	onError: (error: PortalError) => void;
-	environmentId: string;
-	clientId: string;
-	clientSecret: string;
-	redirectUri: string;
+	_onLoginSuccess?: (userContext: UserContext, loginContext: LoginContext) => void;
+	_onError?: (error: PortalError) => void;
+	_environmentId?: string;
+	_clientId?: string;
+	_clientSecret?: string;
+	_redirectUri?: string;
 }
 
 // ============================================================================
@@ -255,13 +255,14 @@ interface SouthwestAirlinesHeroProps {
 
 const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 	className,
-	currentStep,
-	onLoginSuccess,
-	onError,
-	environmentId,
-	clientId,
-	clientSecret,
-	redirectUri,
+	currentStep = 'portal-home',
+	onLoginStart,
+	_onLoginSuccess,
+	_onError,
+	_environmentId,
+	_clientId,
+	_clientSecret,
+	_redirectUri,
 }) => {
 	return (
 		<HeroContainer className={className}>
@@ -296,15 +297,25 @@ const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 									<span>Customer First</span>
 								</Feature>
 							</Features>
-
-							<LoginSection>
-								<LoginDescription>
-									Click below to begin your secure login journey. We'll evaluate your login attempt
-									in real-time to provide the appropriate level of security.
-								</LoginDescription>
-								<LoginButton onClick={() => {}}>🔒 Begin Secure Login →</LoginButton>
-							</LoginSection>
 						</LeftContent>
+
+						<RightContent>
+							<LoginSection>
+								<LoginTitle>Employee Sign In</LoginTitle>
+								<LoginSubtitle>Access your Southwest Airlines employee account</LoginSubtitle>
+							</LoginSection>
+
+							<LoginButton onClick={onLoginStart}>
+								<FiShield />
+								Sign In to Employee Portal
+							</LoginButton>
+
+							<QuickLinks>
+								<QuickLink href="#">Forgot Username?</QuickLink>
+								<QuickLink href="#">Forgot Password?</QuickLink>
+								<QuickLink href="#">Need Help?</QuickLink>
+							</QuickLinks>
+						</RightContent>
 					</MainContent>
 				) : (
 					<>
