@@ -542,7 +542,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					'Content-Type': 'application/json',
 				},
 				queryParams: Object.fromEntries(
-					Object.entries(filters).filter(([_, v]) => v !== undefined && v !== 'all')
+					Object.entries(filters).filter(([, v]) => v !== undefined && v !== 'all')
 				),
 			});
 
