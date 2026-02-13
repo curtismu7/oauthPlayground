@@ -74,7 +74,6 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	const [saveCredentials, setSaveCredentials] = useState(true);
 	const [currentToken, setCurrentToken] = useState<string | null>(null);
 	const [showTokenDisplay, setShowTokenDisplay] = useState(false);
-	const [_krpStatus, setKrpStatus] = useState<ApplicationKeyRotationStatus | null>(null);
 	const [krpCompliance, setKrpCompliance] = useState<{
 		compliant: boolean;
 		daysUntilDeadline: number;
@@ -152,7 +151,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			// Load from unifiedWorkerTokenService (the correct storage location)
 			unifiedWorkerTokenService
 				.loadCredentials()
-				.then((creds: any) => {
+				.then((creds: { environmentId?: string; clientId?: string; clientSecret?: string; scopes?: string[] } | null) => {
 					if (creds) {
 						setEnvironmentId(creds.environmentId || propEnvironmentId);
 						setClientId(creds.clientId || '');
@@ -602,7 +601,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	return (
 		<>
 			{/* Backdrop */}
-			<div
+			<button
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -614,12 +613,12 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'center',
+					border: 'none',
+					cursor: 'pointer',
 				}}
 				onClick={onClose}
 				onKeyUp={(e) => e.key === 'Enter' && onClose()}
 				onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
-				role="button"
-				tabIndex={0}
 				aria-label="Close modal"
 			/>
 
@@ -1595,9 +1594,6 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					setIsExecuting={setIsGenerating}
 					showTokenAtEnd={(() => {
 						try {
-							const {
-								MFAConfigurationServiceV8,
-							} = require('@/v8/services/mfaConfigurationServiceV8');
 							const config = MFAConfigurationServiceV8.loadConfiguration();
 							return config.workerToken.showTokenAtEnd;
 						} catch {
