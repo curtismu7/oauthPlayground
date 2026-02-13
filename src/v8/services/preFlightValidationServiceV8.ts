@@ -618,12 +618,22 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 			console.warn(`${MODULE_TAG} ⚠️ Pre-flight OAuth configuration validation failed:`, error);
 		}
 
-		return {
+		const result: {
+			passed: boolean;
+			errors: string[];
+			warnings: string[];
+			fixableErrors?: FixableError[];
+		} = {
 			passed: errors.length === 0,
 			errors,
 			warnings,
-			fixableErrors: fixableErrors.length > 0 ? fixableErrors : undefined as FixableError[] | undefined,
 		};
+		
+		if (fixableErrors.length > 0) {
+			result.fixableErrors = fixableErrors;
+		}
+		
+		return result;
 	},
 
 	/**
@@ -887,15 +897,26 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 			oauthConfigValidated: oauthConfigResult.passed,
 		});
 
-		return {
+		const result: PreFlightValidationResult = {
 			passed: errors.length === 0,
 			errors,
 			warnings,
 			redirectUriValidated: redirectUriResult.redirectUris !== undefined,
 			oauthConfigValidated: oauthConfigResult.passed,
-			redirectUris: redirectUriResult.redirectUris || undefined,
-			fixableErrors: fixableErrors || undefined as FixableError[] | undefined,
-			appConfig: appConfig || undefined,
 		};
+		
+		if (redirectUriResult.redirectUris) {
+			result.redirectUris = redirectUriResult.redirectUris;
+		}
+		
+		if (fixableErrors.length > 0) {
+			result.fixableErrors = fixableErrors;
+		}
+		
+		if (appConfig) {
+			result.appConfig = appConfig;
+		}
+		
+		return result;
 	}
 }
