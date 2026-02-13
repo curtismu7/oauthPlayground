@@ -299,12 +299,10 @@ const SDKExamplesHome: React.FC = () => {
 			const data = await response.json();
 
 			// Update the API call with response
-			apiCallTrackerService.updateApiCall(callId, {
-				response: {
-					status: response.status,
-					statusText: response.statusText,
-					data: data,
-				},
+			apiCallTrackerService.updateApiCallResponse(callId, {
+				status: response.status,
+				statusText: response.statusText,
+				data: data,
 			});
 
 			if (response.ok) {
