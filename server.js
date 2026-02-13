@@ -33,9 +33,8 @@ if (!fs.existsSync(logsDir)) {
 	fs.mkdirSync(logsDir, { recursive: true });
 }
 
-// Separate log file for PingOne API calls
-const pingOneApiLogFile = path.join(logsDir, 'pingone-api.log'); // All API calls (proxy and direct)
-const realApiLogFile = path.join(logsDir, 'real-api.log'); // Only direct PingOne API calls (no proxy)
+// Consolidated log file for all PingOne API calls
+const pingOneApiLogFile = path.join(logsDir, 'pingone-api.log'); // All API calls (consolidated)
 
 // Log width constant - wider for better readability, no truncation
 const LOG_WIDTH = 150;
@@ -725,7 +724,7 @@ function logPingOneApiCall(
 		}
 	}
 
-	// Write to pingone-api.log (all calls - proxy and direct)
+	// Write to pingone-api.log (consolidated all API calls - proxy and direct)
 	// Note: fs.appendFile will create the file if it doesn't exist
 	fs.appendFile(pingOneApiLogFile, logMessage, 'utf8', (err) => {
 		if (err) {
@@ -739,20 +738,8 @@ function logPingOneApiCall(
 		}
 	});
 
-	// Write to real-api.log (only direct PingOne API calls, no proxy calls)
-	if (!isProxyCall) {
-		fs.appendFile(realApiLogFile, logMessage, 'utf8', (err) => {
-			if (err) {
-				originalError('[PingOne API Logging Error] Failed to write to real-api.log:', {
-					error: err,
-					file: realApiLogFile,
-					message: err.message,
-					code: err.code,
-					stack: err.stack,
-				});
-			}
-		});
-	}
+	// Note: real-api.log and api-log.log have been consolidated into pingone-api.log
+	// All API calls now go to pingone-api.log for better organization
 }
 const requestStats = {
 	totalRequests: 0,
@@ -831,9 +818,9 @@ app.get('/api/logs/list', (req, res) => {
 				
 				// Categorize log files
 				let category = 'other';
-				if (['server.log', 'backend.log', 'server-error.log'].includes(f)) {
+				if (['server.log', 'server-error.log'].includes(f)) {
 					category = 'server';
-				} else if (['api-log.log', 'real-api.log', 'pingone-api.log'].includes(f)) {
+				} else if (['pingone-api.log'].includes(f)) {
 					category = 'api';
 				} else if (['frontend.log', 'client.log'].includes(f)) {
 					category = 'frontend';
