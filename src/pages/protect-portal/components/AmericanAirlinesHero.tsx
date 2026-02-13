@@ -275,12 +275,18 @@ interface AmericanAirlinesHeroProps {
 const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({
 	currentStep = 'portal-home',
 	onLoginStart,
-	_onLoginSuccess,
-	_onError,
-	_environmentId,
-	_clientId,
-	_clientSecret,
-	_redirectUri,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	__onLoginSuccess,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	__onError,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	__environmentId,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	__clientId,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	__clientSecret,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	__redirectUri,
 }) => {
 	return (
 		<HeroContainer>
