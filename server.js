@@ -1130,6 +1130,110 @@ app.get('/api/settings/debug-log-viewer', async (req, res) => {
 	}
 });
 
+// ============================================================================
+// FILE STORAGE API
+// ============================================================================
+
+/**
+ * POST /api/file-storage/save - Save data to file
+ * Body: { directory: string, filename: string, data: any }
+ */
+app.post('/api/file-storage/save', async (req, res) => {
+	try {
+		const { directory, filename, data } = req.body;
+		
+		if (!directory || !filename) {
+			return res.status(400).json({ error: 'Missing directory or filename' });
+		}
+		
+		const fs = await import('node:fs');
+		const path = await import('node:path');
+		const os = await import('node:os');
+		
+		// Create directory in user's home directory
+		const baseDir = path.join(os.homedir(), '.pingone-playground', directory);
+		const filePath = path.join(baseDir, filename);
+		
+		// Ensure directory exists
+		await fs.promises.mkdir(baseDir, { recursive: true });
+		
+		// Write data to file
+		await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2), 'utf8');
+		
+		res.status(200).json({ success: true });
+	} catch (error) {
+		console.error('[File Storage] Failed to save file:', error);
+		res.status(500).json({ error: 'Failed to save file', message: error.message });
+	}
+});
+
+/**
+ * POST /api/file-storage/load - Load data from file
+ * Body: { directory: string, filename: string }
+ */
+app.post('/api/file-storage/load', async (req, res) => {
+	try {
+		const { directory, filename } = req.body;
+		
+		if (!directory || !filename) {
+			return res.status(400).json({ error: 'Missing directory or filename' });
+		}
+		
+		const fs = await import('node:fs');
+		const path = await import('node:path');
+		const os = await import('node:os');
+		
+		const filePath = path.join(os.homedir(), '.pingone-playground', directory, filename);
+		
+		// Check if file exists
+		if (!fs.existsSync(filePath)) {
+			return res.status(404).json({ error: 'File not found' });
+		}
+		
+		// Read data from file
+		const data = await fs.promises.readFile(filePath, 'utf8');
+		const parsed = JSON.parse(data);
+		
+		res.status(200).json({ success: true, data: parsed });
+	} catch (error) {
+		console.error('[File Storage] Failed to load file:', error);
+		res.status(500).json({ error: 'Failed to load file', message: error.message });
+	}
+});
+
+/**
+ * DELETE /api/file-storage/delete - Delete file
+ * Body: { directory: string, filename: string }
+ */
+app.delete('/api/file-storage/delete', async (req, res) => {
+	try {
+		const { directory, filename } = req.body;
+		
+		if (!directory || !filename) {
+			return res.status(400).json({ error: 'Missing directory or filename' });
+		}
+		
+		const fs = await import('node:fs');
+		const path = await import('node:path');
+		const os = await import('node:os');
+		
+		const filePath = path.join(os.homedir(), '.pingone-playground', directory, filename);
+		
+		// Check if file exists
+		if (!fs.existsSync(filePath)) {
+			return res.status(404).json({ error: 'File not found' });
+		}
+		
+		// Delete file
+		await fs.promises.unlink(filePath);
+		
+		res.status(200).json({ success: true });
+	} catch (error) {
+		console.error('[File Storage] Failed to delete file:', error);
+		res.status(500).json({ error: 'Failed to delete file', message: error.message });
+	}
+});
+
 app.get('/api/pingone/calls/:id', (req, res) => {
 	const { id } = req.params;
 	if (!id) {
@@ -19550,6 +19654,9 @@ app.use((req, res, next) => {
 const certs = generateSelfSignedCert();
 let httpsServer;
 let httpServer;
+
+// Initialize settings database
+await settingsDB.init();
 
 // Start HTTP server for proxy
 httpServer = app.listen(PORT, '0.0.0.0', () => {
