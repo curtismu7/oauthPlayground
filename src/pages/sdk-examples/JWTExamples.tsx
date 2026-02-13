@@ -168,32 +168,131 @@ const StatusMessage = styled.div<{ type: 'success' | 'error' | 'info' }>`
   `}
 `;
 
+const FixedStatusPanel = styled.div`
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e0e0e0;
+  z-index: 1000;
+`;
+
+const StatusPanelHeader = styled.div`
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+  font-weight: 600;
+  color: #333;
+`;
+
+const StatusPanelContent = styled.div`
+  padding: 1rem;
+`;
+
+const APILogEntry = styled.div`
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.875rem;
+`;
+
+const APILogTitle = styled.div`
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+`;
+
+const APILogDetails = styled.div`
+  margin-bottom: 0.5rem;
+`;
+
+const APILogCode = styled.pre`
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 0.5rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+`;
+
+interface APILog {
+	id: string;
+	timestamp: Date;
+	method: string;
+	url: string;
+	requestHeaders?: Record<string, string>;
+	requestBody?: any;
+	responseStatus?: number;
+	responseHeaders?: Record<string, string>;
+	responseBody?: any;
+	error?: string;
+}
+
 const JWTExamples: React.FC = () => {
 	const [privateKey, setPrivateKey] = useState('');
 	const [keyId, setKeyId] = useState('');
 	const [generatedJWT, setGeneratedJWT] = useState('');
+	const [tokenToDecode, setTokenToDecode] = useState('');
 	const [keyPair, setKeyPair] = useState('');
-	const [status, setStatus] = useState<{
-		type: 'success' | 'error' | 'info';
-		message: string;
-	} | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
+	const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+	const [apiLogs, setApiLogs] = useState<APILog[]>([]);
 
 	const showStatus = (type: 'success' | 'error' | 'info', message: string) => {
 		setStatus({ type, message });
 		setTimeout(() => setStatus(null), 5000);
 	};
 
+	const addAPILog = (log: Omit<APILog, 'id' | 'timestamp'>) => {
+		const newLog: APILog = {
+			...log,
+			id: Date.now().toString(),
+			timestamp: new Date(),
+		};
+		setApiLogs((prev) => [newLog, ...prev].slice(0, 50)); // Keep last 50 logs
+	};
+
 	const handleGenerateKeyPair = async () => {
 		setIsLoading(true);
+		addAPILog({
+			method: 'POST',
+			url: '/api/jwt/generate-key-pair',
+			requestHeaders: {
+				'Content-Type': 'application/json',
+			},
+			requestBody: { keySize: 2048 },
+		});
+
 		try {
 			const generatedKeyPair = await PingOneJWTService.generateRSAKeyPair(2048);
 			setKeyPair(JSON.stringify(generatedKeyPair, null, 2));
 			setPrivateKey(generatedKeyPair.privateKey || '');
 			setKeyId(generatedKeyPair.keyId || '');
 			showStatus('success', 'RSA key pair generated successfully!');
+			
+			addAPILog({
+				method: 'POST',
+				url: '/api/jwt/generate-key-pair',
+				responseStatus: 200,
+				responseBody: generatedKeyPair,
+			});
 		} catch (error) {
 			showStatus('error', `Failed to generate key pair: ${error}`);
+			addAPILog({
+				method: 'POST',
+				url: '/api/jwt/generate-key-pair',
+				responseStatus: 500,
+				error: String(error),
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -206,23 +305,61 @@ const JWTExamples: React.FC = () => {
 		}
 
 		setIsLoading(true);
-		try {
-			const config = {
-				clientId: 'test-client-id',
-				tokenEndpoint: 'https://auth.pingone.com/oauth2/token',
-				privateKey,
-				keyId,
-			};
+		const config = {
+			clientId: 'test-client-id',
+			tokenEndpoint: 'https://auth.pingone.com/oauth2/token',
+			privateKey,
+			keyId,
+		};
 
+		addAPILog({
+			method: 'POST',
+			url: config.tokenEndpoint,
+			requestHeaders: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+				'Authorization': 'Basic ...', // Would be encoded in real implementation
+			},
+			requestBody: {
+				grant_type: 'client_credentials',
+				client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+				client_assertion: '[JWT will be generated]',
+			},
+		});
+
+		try {
 			const result = await jwtAuthServiceV8.generatePrivateKeyJWT(config);
 			if (result.success && result.jwt) {
 				setGeneratedJWT(result.jwt);
 				showStatus('success', 'Private Key JWT generated successfully!');
+				
+				addAPILog({
+					method: 'POST',
+					url: config.tokenEndpoint,
+					responseStatus: 200,
+					responseBody: {
+						access_token: 'mock-access-token',
+						token_type: 'Bearer',
+						expires_in: 3600,
+						generated_jwt: result.jwt.substring(0, 100) + '...',
+					},
+				});
 			} else {
 				showStatus('error', `Failed to generate JWT: ${result.error}`);
+				addAPILog({
+					method: 'POST',
+					url: config.tokenEndpoint,
+					responseStatus: 400,
+					responseBody: { error: result.error },
+				});
 			}
 		} catch (error) {
 			showStatus('error', `Error generating JWT: ${error}`);
+			addAPILog({
+				method: 'POST',
+				url: config.tokenEndpoint,
+				responseStatus: 500,
+				error: String(error),
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -281,6 +418,66 @@ const JWTExamples: React.FC = () => {
 			</Description>
 
 			{status && <StatusMessage type={status.type}>{status.message}</StatusMessage>}
+
+			<FixedStatusPanel>
+				<StatusPanelHeader>API Activity Log</StatusPanelHeader>
+				<StatusPanelContent>
+					{apiLogs.length === 0 ? (
+						<div style={{ color: '#666', textAlign: 'center', padding: '2rem 0' }}>
+							No API calls yet. Perform an action to see the logs.
+						</div>
+					) : (
+						apiLogs.map((log) => (
+							<APILogEntry key={log.id}>
+								<APILogTitle>
+									{log.method} {log.url}
+									{log.responseStatus && (
+										<span style={{
+											color: log.responseStatus < 400 ? '#28a745' : log.responseStatus < 500 ? '#ffc107' : '#dc3545',
+											marginLeft: '0.5rem',
+										}}>
+											[{log.responseStatus}]
+										</span>
+									)}
+								</APILogTitle>
+								<div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.5rem' }}>
+									{log.timestamp.toLocaleTimeString()}
+								</div>
+								{log.requestHeaders && (
+									<APILogDetails>
+										<strong>Request Headers:</strong>
+										<APILogCode>{JSON.stringify(log.requestHeaders, null, 2)}</APILogCode>
+									</APILogDetails>
+								)}
+								{log.requestBody && (
+									<APILogDetails>
+										<strong>Request Body:</strong>
+										<APILogCode>{JSON.stringify(log.requestBody, null, 2)}</APILogCode>
+									</APILogDetails>
+								)}
+								{log.responseHeaders && (
+									<APILogDetails>
+										<strong>Response Headers:</strong>
+										<APILogCode>{JSON.stringify(log.responseHeaders, null, 2)}</APILogCode>
+									</APILogDetails>
+								)}
+								{log.responseBody && (
+									<APILogDetails>
+										<strong>Response Body:</strong>
+										<APILogCode>{JSON.stringify(log.responseBody, null, 2)}</APILogCode>
+									</APILogDetails>
+								)}
+								{log.error && (
+									<APILogDetails>
+										<strong>Error:</strong>
+										<APILogCode style={{ color: '#dc3545' }}>{log.error}</APILogCode>
+									</APILogDetails>
+								)}
+							</APILogEntry>
+						))
+					)}
+				</StatusPanelContent>
+			</FixedStatusPanel>
 
 			<ExamplesGrid>
 				<ExampleCard>

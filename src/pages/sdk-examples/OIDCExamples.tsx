@@ -145,14 +145,80 @@ const CodeBlock = styled.pre`
   font-size: 0.875rem;
 `;
 
+const FixedStatusPanel = styled.div`
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e0e0e0;
+  z-index: 1000;
+`;
+
+const StatusPanelHeader = styled.div`
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+  font-weight: 600;
+  color: #333;
+`;
+
+const StatusPanelContent = styled.div`
+  padding: 1rem;
+`;
+
+const APILogEntry = styled.div`
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.875rem;
+`;
+
+const APILogTitle = styled.div`
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+`;
+
+const APILogDetails = styled.div`
+  margin-bottom: 0.5rem;
+`;
+
+const APILogCode = styled.pre`
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 0.5rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+`;
+
+interface APILog {
+	id: string;
+	timestamp: Date;
+	method: string;
+	url: string;
+	requestHeaders?: Record<string, string>;
+	requestBody?: any;
+	responseStatus?: number;
+	responseHeaders?: Record<string, string>;
+	responseBody?: any;
+	error?: string;
+}
+
 const OIDCExamples: React.FC = () => {
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
-	const [status, setStatus] = useState<{
-		type: 'success' | 'error' | 'info';
-		message: string;
-	} | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
+	const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 	const [tokens, setTokens] = useState<{
 		access_token: string;
 		id_token: string;
@@ -161,14 +227,40 @@ const OIDCExamples: React.FC = () => {
 		token_type: string;
 		scope: string;
 	} | null>(null);
+	const [apiLogs, setApiLogs] = useState<APILog[]>([]);
 
 	const showStatus = (type: 'success' | 'error' | 'info', message: string) => {
 		setStatus({ type, message });
 		setTimeout(() => setStatus(null), 5000);
 	};
 
+	const addAPILog = (log: Omit<APILog, 'id' | 'timestamp'>) => {
+		const newLog: APILog = {
+			...log,
+			id: Date.now().toString(),
+			timestamp: new Date(),
+		};
+		setApiLogs((prev) => [newLog, ...prev].slice(0, 50)); // Keep last 50 logs
+	};
+
 	const handleOAuthCallback = async (code: string, state: string) => {
 		setIsLoading(true);
+		
+		addAPILog({
+			method: 'POST',
+			url: 'https://auth.pingone.com/oauth2/token',
+			requestHeaders: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+				'Authorization': 'Basic ...', // Base64 encoded client credentials
+			},
+			requestBody: {
+				grant_type: 'authorization_code',
+				code: code,
+				redirect_uri: 'https://localhost:3000/sdk-examples/oidc-centralized-login',
+				state: state,
+			},
+		});
+		
 		try {
 			// In a real implementation, this would exchange the code for tokens
 			// For demo purposes, we'll simulate the token exchange
@@ -186,8 +278,21 @@ const OIDCExamples: React.FC = () => {
 
 			setTokens(mockTokens);
 			showStatus('success', 'OAuth callback processed successfully!');
+			
+			addAPILog({
+				method: 'POST',
+				url: 'https://auth.pingone.com/oauth2/token',
+				responseStatus: 200,
+				responseBody: mockTokens,
+			});
 		} catch (error) {
 			showStatus('error', `Failed to process OAuth callback: ${error}`);
+			addAPILog({
+				method: 'POST',
+				url: 'https://auth.pingone.com/oauth2/token',
+				responseStatus: 500,
+				error: String(error),
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -209,6 +314,23 @@ const OIDCExamples: React.FC = () => {
 
 	const initiateCentralizedLogin = () => {
 		showStatus('info', 'Initiating centralized login - redirecting to PingOne server UI...');
+		
+		const authUrl = 'https://auth.pingone.com/oauth2/authorize';
+		const params = new URLSearchParams({
+			response_type: 'code',
+			client_id: 'test-client-id',
+			redirect_uri: 'https://localhost:3000/sdk-examples/oidc-centralized-login',
+			scope: 'openid profile email',
+			state: 'mock-state-' + Date.now(),
+		});
+		
+		addAPILog({
+			method: 'GET',
+			url: authUrl + '?' + params.toString(),
+			requestHeaders: {
+				'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+			},
+		});
 
 		// In a real implementation, this would use TokenManager.getTokens({ login: 'redirect' })
 		// For demo purposes, we'll simulate the redirect
@@ -250,6 +372,66 @@ const OIDCExamples: React.FC = () => {
 			</Description>
 
 			{status && <StatusMessage type={status.type}>{status.message}</StatusMessage>}
+
+			<FixedStatusPanel>
+				<StatusPanelHeader>API Activity Log</StatusPanelHeader>
+				<StatusPanelContent>
+					{apiLogs.length === 0 ? (
+						<div style={{ color: '#666', textAlign: 'center', padding: '2rem 0' }}>
+							No API calls yet. Perform an action to see the logs.
+						</div>
+					) : (
+						apiLogs.map((log) => (
+							<APILogEntry key={log.id}>
+								<APILogTitle>
+									{log.method} {log.url}
+									{log.responseStatus && (
+										<span style={{
+											color: log.responseStatus < 400 ? '#28a745' : log.responseStatus < 500 ? '#ffc107' : '#dc3545',
+											marginLeft: '0.5rem',
+										}}>
+											[{log.responseStatus}]
+										</span>
+									)}
+								</APILogTitle>
+								<div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.5rem' }}>
+									{log.timestamp.toLocaleTimeString()}
+								</div>
+								{log.requestHeaders && (
+									<APILogDetails>
+										<strong>Request Headers:</strong>
+										<APILogCode>{JSON.stringify(log.requestHeaders, null, 2)}</APILogCode>
+									</APILogDetails>
+								)}
+								{log.requestBody && (
+									<APILogDetails>
+										<strong>Request Body:</strong>
+										<APILogCode>{JSON.stringify(log.requestBody, null, 2)}</APILogCode>
+									</APILogDetails>
+								)}
+								{log.responseHeaders && (
+									<APILogDetails>
+										<strong>Response Headers:</strong>
+										<APILogCode>{JSON.stringify(log.responseHeaders, null, 2)}</APILogCode>
+									</APILogDetails>
+								)}
+								{log.responseBody && (
+									<APILogDetails>
+										<strong>Response Body:</strong>
+										<APILogCode>{JSON.stringify(log.responseBody, null, 2)}</APILogCode>
+									</APILogDetails>
+								)}
+								{log.error && (
+									<APILogDetails>
+										<strong>Error:</strong>
+										<APILogCode style={{ color: '#dc3545' }}>{log.error}</APILogCode>
+									</APILogDetails>
+								)}
+							</APILogEntry>
+						))
+					)}
+				</StatusPanelContent>
+			</FixedStatusPanel>
 
 			<ExamplesGrid>
 				<ExampleCard>
