@@ -1510,7 +1510,12 @@ app.get('/api/environments', async (req, res) => {
 				environments = directEnvData._embedded?.environments || [];
 				
 				console.log(`[PingOne Environments API] Fetched ${environments.length} environments from direct endpoint`);
-				console.log(`[PingOne Environments API] Fetched ${environments.length} environments from PingOne`);
+				
+			} catch (directError) {
+				console.error(`[PingOne Environments API] Both endpoints failed:`, directError.message);
+				throw directError;
+			}
+		}
 		
 		// Transform PingOne environment data to match expected format
 		const transformedEnvironments = environments.map(env => ({
