@@ -230,10 +230,10 @@ interface APILog {
 	method: string;
 	url: string;
 	requestHeaders?: Record<string, string>;
-	requestBody?: any;
+	requestBody?: unknown;
 	responseStatus?: number;
 	responseHeaders?: Record<string, string>;
-	responseBody?: any;
+	responseBody?: unknown;
 	error?: string;
 }
 
@@ -241,7 +241,6 @@ const JWTExamples: React.FC = () => {
 	const [privateKey, setPrivateKey] = useState('');
 	const [keyId, setKeyId] = useState('');
 	const [generatedJWT, setGeneratedJWT] = useState('');
-	const [tokenToDecode, setTokenToDecode] = useState('');
 	const [keyPair, setKeyPair] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
@@ -340,7 +339,7 @@ const JWTExamples: React.FC = () => {
 						access_token: 'mock-access-token',
 						token_type: 'Bearer',
 						expires_in: 3600,
-						generated_jwt: result.jwt.substring(0, 100) + '...',
+						generated_jwt: `${result.jwt.substring(0, 100)}...`,
 					},
 				});
 			} else {
