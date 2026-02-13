@@ -467,7 +467,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 		try {
 			setLoading(true);
-			setError(null);
+			setEnvError(null);
 
 			console.log('[EnvironmentManagementPageV8] 📊 Fetching environments - Token status:', {
 				isLoading: globalTokenStatus.isLoading,
@@ -589,7 +589,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			});
 
 			const errorMessage = err instanceof Error ? err.message : 'Failed to fetch environments';
-			setError(errorMessage);
+			setEnvError(errorMessage);
 
 			// CRITICAL: Set empty array on error to prevent undefined .map() crash
 			setEnvironments([]);
@@ -645,14 +645,14 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			URL.revokeObjectURL(url);
 		} catch (error) {
 			console.error('Failed to export environments:', error);
-			setError('Failed to export environments');
+			setEnvError('Failed to export environments');
 		}
 	};
 
 	const handleImportEnvironments = () => {
 		// TODO: Implement import functionality
 		console.log('Import environments - Feature not yet implemented');
-		setError('Import functionality coming soon');
+		setEnvError('Import functionality coming soon');
 	};
 
 	const handleEditEnvironment = (id: string) => {
@@ -674,7 +674,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			await EnvironmentServiceV8.updateEnvironmentStatus(id, newStatus);
 			fetchEnvironments();
 		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Failed to update environment status');
+			setEnvError(err instanceof Error ? err.message : 'Failed to update environment status');
 		}
 	};
 
@@ -707,7 +707,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			setSelectedEnvironments([]);
 			fetchEnvironments();
 		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Failed to delete environments');
+			setEnvError(err instanceof Error ? err.message : 'Failed to delete environments');
 		}
 	};
 
@@ -721,7 +721,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			setSelectedEnvironments([]);
 			fetchEnvironments();
 		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Failed to update environments');
+			setEnvError(err instanceof Error ? err.message : 'Failed to update environments');
 		}
 	};
 
