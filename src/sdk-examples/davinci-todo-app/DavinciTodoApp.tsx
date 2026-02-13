@@ -1,6 +1,3 @@
-// src/sdk-examples/davinci-todo-app/DavinciTodoApp.tsx
-// Main DaVinci Todo App component
-
 import React, { useEffect, useState } from 'react';
 import { FiLoader, FiLogOut, FiPlus, FiSettings, FiTrash2 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
@@ -14,27 +11,57 @@ const Container = styled.div`
   padding: 2rem;
 `;
 
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #e0e0e0;
-`;
-
-const Title = styled.h1`
+const Header = styled.h1`
   color: #333;
-  font-size: 2rem;
-  font-weight: 600;
-  margin: 0;
+  margin-bottom: 1rem;
+  font-size: 2.5rem;
 `;
 
-const UserInfo = styled.div`
+const Description = styled.p`
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+`;
+
+const BackButton = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #007bff;
+  text-decoration: none;
+  margin-bottom: 2rem;
+  font-weight: 500;
+  
+  &:hover {
+    color: #0056b3;
+  }
+`;
+
+const ErrorMessage = styled.div`
+  background: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  border: 1px solid #f5c6cb;
+`;
+
+const LoadingMessage = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
   color: #666;
+  font-style: italic;
+  justify-content: center;
+  padding: 2rem;
+`;
+
+const EmptyState = styled.div`
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 2rem;
 `;
 
 const StatsContainer = styled.div`
@@ -45,8 +72,8 @@ const StatsContainer = styled.div`
 `;
 
 const StatCard = styled.div`
-  background: #f8f9fa;
-  padding: 1rem;
+  background: white;
+  padding: 1.5rem;
   border-radius: 8px;
   text-align: center;
   border: 1px solid #e0e0e0;
@@ -62,6 +89,62 @@ const StatLabel = styled.div`
   font-size: 0.875rem;
   color: #666;
   margin-top: 0.25rem;
+`;
+
+const FixedStatusPanel = styled.div`
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e0e0e0;
+  z-index: 1000;
+`;
+
+const StatusPanelHeader = styled.div`
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+  font-weight: 600;
+  color: #333;
+`;
+
+const StatusPanelContent = styled.div`
+  padding: 1rem;
+`;
+
+const APILogEntry = styled.div`
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.875rem;
+`;
+
+const APILogTitle = styled.div`
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+`;
+
+const APILogDetails = styled.div`
+  margin-bottom: 0.5rem;
+`;
+
+const APILogCode = styled.pre`
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 0.5rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
 `;
 
 const TodoList = styled.div`
@@ -98,9 +181,8 @@ const TodoCheckbox = styled.input`
   cursor: pointer;
 `;
 
-const TodoContent = styled.div<{ completed: boolean }>`
+const TodoText = styled.span<{ completed: boolean }>`
   flex: 1;
-  
   ${(props) =>
 		props.completed &&
 		`
@@ -109,35 +191,23 @@ const TodoContent = styled.div<{ completed: boolean }>`
   `}
 `;
 
-const TodoTitle = styled.div`
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-`;
-
-const TodoDescription = styled.div`
-  font-size: 0.875rem;
-  color: #666;
-`;
-
 const TodoActions = styled.div`
   display: flex;
   gap: 0.5rem;
 `;
 
-const IconButton = styled.button`
+const ActionButton = styled.button`
   background: none;
-  border: 1px solid #ddd;
+  border: none;
+  cursor: pointer;
+  color: #666;
   padding: 0.5rem;
   border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: all 0.2s ease;
 
   &:hover {
-    background: #f8f9fa;
-    border-color: #007bff;
+    background: #f0f0f0;
+    color: #333;
   }
 
   &:disabled {
@@ -146,97 +216,16 @@ const IconButton = styled.button`
   }
 `;
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
-  background: ${(props) => {
-		switch (props.variant) {
-			case 'primary':
-				return '#007bff';
-			case 'secondary':
-				return '#6c757d';
-			case 'danger':
-				return '#dc3545';
-			default:
-				return '#007bff';
-		}
-	}};
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background: ${(props) => {
-			switch (props.variant) {
-				case 'primary':
-					return '#0056b3';
-				case 'secondary':
-					return '#545b62';
-				case 'danger':
-					return '#c82333';
-				default:
-					return '#0056b3';
-			}
-		}};
-  }
-
-  &:disabled {
-    background: #6c757d;
-    cursor: not-allowed;
-  }
-`;
-
-const LoadingMessage = styled.div`
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-`;
-
-const ErrorMessage = styled.div`
-  text-align: center;
-  padding: 2rem;
-  color: #dc3545;
-  background: #f8d7da;
-  border: 1px solid #f5c6cb;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-`;
-
-const EmptyState = styled.div`
-  text-align: center;
-  padding: 3rem;
-  color: #666;
-`;
-
-const EmptyStateIcon = styled.div`
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  opacity: 0.5;
-`;
-
 const AddTodoForm = styled.form`
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
   display: flex;
   gap: 1rem;
+  margin-bottom: 2rem;
 `;
 
 const TodoInput = styled.input`
   flex: 1;
   padding: 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid #e0e0e0;
   border-radius: 4px;
   font-size: 1rem;
 
@@ -247,17 +236,41 @@ const TodoInput = styled.input`
   }
 `;
 
-const BackButton = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: #6c757d;
-  color: #ffffff !important;
+const Button = styled.button`
+  background: #007bff;
+  color: white;
+  border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 4px;
-  text-decoration: none;
-  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #0056b3;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+`;
+
+const LogoutButton = styled.button`
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 2rem;
+  font-weight: 500;
   transition: background-color 0.2s ease;
 
   &:hover {
@@ -266,10 +279,21 @@ const BackButton = styled(Link)`
   }
 `;
 
-// Main App Component
-function DavinciTodoAppComponent() {
+interface APILog {
+	id: string;
+	timestamp: Date;
+	method: string;
+	url: string;
+	requestHeaders?: Record<string, string>;
+	requestBody?: any;
+	responseStatus?: number;
+	responseHeaders?: Record<string, string>;
+	responseBody?: any;
+	error?: string;
+}
+
+const DavinciTodoApp: React.FC = () => {
 	const {
-		user,
 		todos,
 		isLoading,
 		error,
@@ -288,6 +312,16 @@ function DavinciTodoAppComponent() {
 
 	const [newTodoTitle, setNewTodoTitle] = useState('');
 	const [isCreating, setIsCreating] = useState(false);
+	const [apiLogs, setApiLogs] = useState<APILog[]>([]);
+
+	const addAPILog = (log: Omit<APILog, 'id' | 'timestamp'>) => {
+		const newLog: APILog = {
+			...log,
+			id: Date.now().toString(),
+			timestamp: new Date(),
+		};
+		setApiLogs((prev) => [newLog, ...prev].slice(0, 50)); // Keep last 50 logs
+	};
 
 	useEffect(() => {
 		if (isAuthenticated) {
@@ -300,85 +334,126 @@ function DavinciTodoAppComponent() {
 		if (!newTodoTitle.trim()) return;
 
 		setIsCreating(true);
+		
+		addAPILog({
+			method: 'POST',
+			url: '/api/davinci-todos',
+			requestHeaders: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ...',
+			},
+			requestBody: {
+				title: newTodoTitle,
+				description: '',
+			},
+		});
+
 		try {
-			await createTodo(newTodoTitle.trim());
+			await createTodo(newTodoTitle);
 			setNewTodoTitle('');
+			
+			addAPILog({
+				method: 'POST',
+				url: '/api/davinci-todos',
+				responseStatus: 201,
+				responseBody: {
+					id: 'todo-' + Date.now(),
+					title: newTodoTitle,
+					completed: false,
+					createdAt: new Date().toISOString(),
+				},
+			});
 		} catch (error) {
-			console.error('Failed to create todo:', error);
+			addAPILog({
+				method: 'POST',
+				url: '/api/davinci-todos',
+				responseStatus: 500,
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 		} finally {
 			setIsCreating(false);
 		}
 	};
 
-	const handleToggleTodo = async (id: string) => {
+	const handleToggle = async (id: string) => {
+		const todo = todos.find((t) => t.id === id);
+		if (!todo) return;
+		
+		addAPILog({
+			method: 'PATCH',
+			url: `/api/davinci-todos/${id}`,
+			requestHeaders: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ...',
+			},
+			requestBody: {
+				completed: !todo.completed,
+			},
+		});
+
 		try {
-			toggleTodo(id);
-			const todo = todos.find((t) => t.id === id);
-			if (todo) {
-				await updateTodoService(id, { completed: !todo.completed });
-			}
+			await toggleTodo(id);
+			
+			addAPILog({
+				method: 'PATCH',
+				url: `/api/davinci-todos/${id}`,
+				responseStatus: 200,
+				responseBody: {
+					id,
+					completed: !todo.completed,
+					updatedAt: new Date().toISOString(),
+				},
+			});
 		} catch (error) {
-			console.error('Failed to toggle todo:', error);
+			addAPILog({
+				method: 'PATCH',
+				url: `/api/davinci-todos/${id}`,
+				responseStatus: 500,
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 		}
 	};
 
-	const handleDeleteTodo = async (id: string) => {
+	const handleDelete = async (id: string) => {
+		addAPILog({
+			method: 'DELETE',
+			url: `/api/davinci-todos/${id}`,
+			requestHeaders: {
+				'Authorization': 'Bearer ...',
+			},
+		});
+
 		try {
 			await deleteTodoService(id);
+			
+			addAPILog({
+				method: 'DELETE',
+				url: `/api/davinci-todos/${id}`,
+				responseStatus: 204,
+			});
 		} catch (error) {
-			console.error('Failed to delete todo:', error);
-		}
-	};
-
-	const handleLogout = () => {
-		clearCurrentUser();
-	};
-
-	const handleInitialize = async () => {
-		try {
-			await initializeClient();
-			console.log('DaVinci client initialized successfully');
-			console.log('Configuration:', getConfiguration());
-		} catch (error) {
-			console.error('Failed to initialize client:', error);
+			addAPILog({
+				method: 'DELETE',
+				url: `/api/davinci-todos/${id}`,
+				responseStatus: 500,
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 		}
 	};
 
 	if (!isAuthenticated) {
 		return (
 			<Container>
-				<Header>
-					<Title>DaVinci Todo App</Title>
-					<Button onClick={handleInitialize} disabled={isLoading}>
-						{isLoading ? <FiLoader /> : <FiSettings />}
-						Initialize
-					</Button>
-				</Header>
-
-				<div style={{ textAlign: 'center', padding: '3rem' }}>
-					<h2>Welcome to DaVinci Todo App</h2>
-					<p style={{ color: '#666', marginBottom: '2rem' }}>
-						This is a demonstration of the PingOne DaVinci SDK integration. In a real
-						implementation, this would authenticate you through a DaVinci flow.
-					</p>
-					<Button
-						variant="primary"
-						onClick={() => {
-							// Production authentication through DaVinci flow
-							DavinciTodoService.initializeClient().then((result) => {
-								if (result.success) {
-									// Authentication successful, user will be redirected to DaVinci flow
-									window.location.href = '/davinci-todo/auth';
-								} else {
-									console.error('Authentication failed:', result.error);
-								}
-							});
-							window.location.reload();
-						}}
-					>
-						Sign In (Demo)
-					</Button>
-				</div>
+				<BackButton to="/sdk-examples">← Back to SDK Examples</BackButton>
+				<Header>DaVinci Todo App</Header>
+				<Description>
+					Complete todo application demonstrating PingOne DaVinci workflow integration with dynamic
+					form rendering and real-time updates.
+				</Description>
+				<LoadingMessage>
+					<FiLoader />
+					Initializing authentication...
+				</LoadingMessage>
 			</Container>
 		);
 	}
@@ -386,16 +461,76 @@ function DavinciTodoAppComponent() {
 	return (
 		<Container>
 			<BackButton to="/sdk-examples">← Back to SDK Examples</BackButton>
-			<Header>
-				<Title>DaVinci Todo App</Title>
-				<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-					<UserInfo>Welcome, {user?.name}!</UserInfo>
-					<Button variant="secondary" onClick={handleLogout}>
-						<FiLogOut />
-						Logout
-					</Button>
-				</div>
-			</Header>
+			<Header>DaVinci Todo App</Header>
+			<Description>
+				Complete todo application demonstrating PingOne DaVinci workflow integration with dynamic
+				form rendering and real-time updates.
+			</Description>
+
+			<FixedStatusPanel>
+				<StatusPanelHeader>API Activity Log</StatusPanelHeader>
+				<StatusPanelContent>
+					{apiLogs.length === 0 ? (
+						<div style={{ color: '#666', textAlign: 'center', padding: '2rem 0' }}>
+							No API calls yet. Perform an action to see the logs.
+						</div>
+					) : (
+						apiLogs.map((log) => (
+							<APILogEntry key={log.id}>
+								<APILogTitle>
+									{log.method} {log.url}
+									{log.responseStatus && (
+										<span style={{
+											color: log.responseStatus < 400 ? '#28a745' : log.responseStatus < 500 ? '#ffc107' : '#dc3545',
+											marginLeft: '0.5rem',
+										}}>
+											[{log.responseStatus}]
+										</span>
+									)}
+								</APILogTitle>
+								<div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.5rem' }}>
+									{log.timestamp.toLocaleTimeString()}
+								</div>
+								{log.requestHeaders && (
+									<APILogDetails>
+										<strong>Request Headers:</strong>
+										<APILogCode>{JSON.stringify(log.requestHeaders, null, 2)}</APILogCode>
+									</APILogDetails>
+								)}
+								{log.requestBody && (
+									<APILogDetails>
+										<strong>Request Body:</strong>
+										<APILogCode>{JSON.stringify(log.requestBody, null, 2)}</APILogCode>
+									</APILogDetails>
+								)}
+								{log.responseHeaders && (
+									<APILogDetails>
+										<strong>Response Headers:</strong>
+										<APILogCode>{JSON.stringify(log.responseHeaders, null, 2)}</APILogCode>
+									</APILogDetails>
+								)}
+								{log.responseBody && (
+									<APILogDetails>
+										<strong>Response Body:</strong>
+										<APILogCode>{JSON.stringify(log.responseBody, null, 2)}</APILogCode>
+									</APILogDetails>
+								)}
+								{log.error && (
+									<APILogDetails>
+										<strong>Error:</strong>
+										<APILogCode style={{ color: '#dc3545' }}>{log.error}</APILogCode>
+									</APILogDetails>
+								)}
+							</APILogEntry>
+						))
+					)}
+				</StatusPanelContent>
+			</FixedStatusPanel>
+
+			<LogoutButton onClick={clearCurrentUser}>
+				<FiLogOut />
+				Logout
+			</LogoutButton>
 
 			{error && <ErrorMessage>Error: {error}</ErrorMessage>}
 
@@ -434,11 +569,7 @@ function DavinciTodoAppComponent() {
 					Loading todos...
 				</LoadingMessage>
 			) : todos.length === 0 ? (
-				<EmptyState>
-					<EmptyStateIcon>📝</EmptyStateIcon>
-					<h3>No todos yet</h3>
-					<p>Add your first todo to get started!</p>
-				</EmptyState>
+				<EmptyState>No todos yet. Add one above to get started!</EmptyState>
 			) : (
 				<TodoList>
 					{todos.map((todo) => (
@@ -446,16 +577,13 @@ function DavinciTodoAppComponent() {
 							<TodoCheckbox
 								type="checkbox"
 								checked={todo.completed}
-								onChange={() => handleToggleTodo(todo.id)}
+								onChange={() => handleToggle(todo.id)}
 							/>
-							<TodoContent completed={todo.completed}>
-								<TodoTitle>{todo.title}</TodoTitle>
-								{todo.description && <TodoDescription>{todo.description}</TodoDescription>}
-							</TodoContent>
+							<TodoText completed={todo.completed}>{todo.title}</TodoText>
 							<TodoActions>
-								<IconButton onClick={() => handleDeleteTodo(todo.id)} title="Delete todo">
+								<ActionButton onClick={() => handleDelete(todo.id)}>
 									<FiTrash2 />
-								</IconButton>
+								</ActionButton>
 							</TodoActions>
 						</TodoItem>
 					))}
@@ -463,13 +591,12 @@ function DavinciTodoAppComponent() {
 			)}
 		</Container>
 	);
-}
+};
 
-// Wrapper with Provider
-export default function DavinciTodoApp() {
-	return (
-		<DavinciTodoProvider>
-			<DavinciTodoAppComponent />
-		</DavinciTodoProvider>
-	);
-}
+const AppWithProvider: React.FC = () => (
+	<DavinciTodoProvider>
+		<DavinciTodoApp />
+	</DavinciTodoProvider>
+);
+
+export default AppWithProvider;
