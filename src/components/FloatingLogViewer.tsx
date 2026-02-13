@@ -508,7 +508,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 			setIsTailMode(false);
 		}
 		loadLogContent();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: selectedFile is needed to stop tail mode when file changes
+		// biome-ignore lint: selectedFile is needed to stop tail mode when file changes
 	}, [selectedFile, loadLogContent, isTailMode]);
 
 	// Global mouse event listeners
