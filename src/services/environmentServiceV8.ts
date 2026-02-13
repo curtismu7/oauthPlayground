@@ -157,7 +157,7 @@ class EnvironmentServiceV8 {
 			params.append('region', region);
 		}
 
-		const url = `${BASE_PATH}?${params.toString()}`;
+		const url = `${EnvironmentServiceV8.BASE_PATH}?${params.toString()}`;
 		console.log('[EnvironmentServiceV8] 📡 Making fetch request to:', {
 			url: url.replace(/accessToken=[^&]+/, 'accessToken=***REDACTED***'),
 			method: 'GET',
@@ -178,6 +178,8 @@ class EnvironmentServiceV8 {
 				environmentsCount: data?.environments?.length || 0,
 				totalCount: data?.totalCount,
 			});
+
+			console.log('[EnvironmentServiceV8] 📈 getEnvironments completed successfully');
 
 			return data as EnvironmentListResponse;
 		} catch (error) {
