@@ -22,6 +22,10 @@ import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdow
 import { SearchableDropdownV8 } from '@/v8/components/SearchableDropdownV8';
 import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
+import {
+	ApiDisplayCheckbox,
+	SuperSimpleApiDisplayV8,
+} from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
@@ -1323,6 +1327,29 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				you have the appropriate permissions and that the worker token has the necessary scopes.
 				Deleted devices cannot be recovered.
 			</div>
+
+			{/* PingOne API Call Display */}
+			<div
+				style={{
+					marginTop: '24px',
+					padding: '16px',
+					background: '#f8fafc',
+					border: '1px solid #e2e8f0',
+					borderRadius: '8px',
+				}}
+			>
+				<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+					<div>
+						<strong style={{ color: '#1f2937' }}>PingOne API Calls</strong>
+						<div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+							Shows the live PingOne MFA API requests executed by this page.
+						</div>
+					</div>
+					<ApiDisplayCheckbox />
+				</div>
+			</div>
+
+			<SuperSimpleApiDisplayV8 flowFilter="mfa" reserveSpace={true} />
 
 			{/* Worker Token Modal */}
 			{showWorkerTokenModal && (
