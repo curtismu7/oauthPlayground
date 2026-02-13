@@ -172,13 +172,26 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 	});
 	const [policy, setPolicy] = useState<DeviceAuthenticationPolicy | null>(null);
 
+	const loadingSpinnerConfig = useMemo(
+		() => ({
+			message: 'Loading devices...',
+		}),
+		[]
+	);
+
+	const deletingSpinnerConfig = useMemo(
+		() => ({
+			message: 'Deleting devices...',
+		}),
+		[]
+	);
+
 	// Use CommonSpinnerService for loading states (Production menu group standard)
-	const loadingSpinner = useProductionSpinner('delete-all-devices-loading', {
-		message: 'Loading devices...',
-	});
-	const deletingSpinner = useProductionSpinner('delete-all-devices-deleting', {
-		message: 'Deleting devices...',
-	});
+	const loadingSpinner = useProductionSpinner('delete-all-devices-loading', loadingSpinnerConfig);
+	const deletingSpinner = useProductionSpinner(
+		'delete-all-devices-deleting',
+		deletingSpinnerConfig
+	);
 	const [devices, setDevices] = useState<Array<Record<string, unknown>>>([]);
 	const [selectedDeviceIds, setSelectedDeviceIds] = useState<Set<string>>(new Set());
 	const [error, setError] = useState<string | null>(null);
@@ -190,6 +203,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 
 	// Track if devices have been loaded at least once to prevent infinite loops
 	const hasLoadedDevicesRef = useRef(false);
+	const lastAutoReloadKeyRef = useRef<string>('');
 
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
@@ -365,6 +379,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			setDevices(filteredDevices);
 			setSelectedDeviceIds(new Set(filteredDevices.map((d) => d.id as string)));
 			hasLoadedDevicesRef.current = true; // Mark that devices have been loaded
+			lastAutoReloadKeyRef.current = `${environmentId.trim()}|${username.trim()}|${selectedDeviceType}|${selectedDeviceStatus}|${String(tokenStatus.isValid)}`;
 			console.log(`${MODULE_TAG} ✅ Loaded ${filteredDevices.length} devices`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load devices:`, error);
@@ -408,11 +423,24 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		// This prevents auto-loading on initial page load
 		const hasLoadedDevices = hasLoadedDevicesRef.current;
 		const hasRequiredFields = environmentId.trim() && username.trim() && tokenStatus.isValid;
+		const currentAutoReloadKey = `${environmentId.trim()}|${username.trim()}|${selectedDeviceType}|${selectedDeviceStatus}|${String(tokenStatus.isValid)}`;
 
-		if (hasLoadedDevices && hasRequiredFields) {
+		if (
+			hasLoadedDevices &&
+			hasRequiredFields &&
+			lastAutoReloadKeyRef.current !== currentAutoReloadKey
+		) {
+			lastAutoReloadKeyRef.current = currentAutoReloadKey;
 			handleLoadDevices();
 		}
-	}, [environmentId, username, tokenStatus.isValid, handleLoadDevices]); // Use ref instead of devices.length to prevent infinite loop
+	}, [
+		environmentId,
+		username,
+		tokenStatus.isValid,
+		selectedDeviceType,
+		selectedDeviceStatus,
+		handleLoadDevices,
+	]);
 
 	// Fetch policy information when devices are loaded
 	useEffect(() => {
