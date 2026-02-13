@@ -136,7 +136,7 @@ export class ServiceDiscoveryService {
 				{ name: 'credentialManager', purpose: 'Secure credential storage', required: true },
 			],
 			version: '6.1.0',
-			author: 'OAuth Playground Team',
+			author: 'MasterFlow API Team',
 			lastUpdated: '2025-10-11',
 			usageExamples: [
 				{
@@ -211,7 +211,7 @@ export class ServiceDiscoveryService {
 				{ name: 'CopyButtonService', purpose: 'Token copying functionality', required: false },
 			],
 			version: '6.1.0',
-			author: 'OAuth Playground Team',
+			author: 'MasterFlow API Team',
 			lastUpdated: '2025-10-11',
 			usageExamples: [
 				{
@@ -270,7 +270,7 @@ export class ServiceDiscoveryService {
 			],
 			dependencies: [],
 			version: '1.0.0',
-			author: 'OAuth Playground Team',
+			author: 'MasterFlow API Team',
 			lastUpdated: '2025-10-11',
 			usageExamples: [
 				{
@@ -346,7 +346,7 @@ errorResponse.recoveryOptions.forEach(option => {
 				{ name: 'CopyButtonService', purpose: 'Copy request/response data', required: false },
 			],
 			version: '6.1.0',
-			author: 'OAuth Playground Team',
+			author: 'MasterFlow API Team',
 			lastUpdated: '2025-10-11',
 			usageExamples: [
 				{

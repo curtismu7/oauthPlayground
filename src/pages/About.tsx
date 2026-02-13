@@ -12,9 +12,9 @@ export default function About() {
 				<div className="flex items-center gap-4 mb-4">
 					<div className="text-indigo-600 text-4xl">📚</div>
 					<div>
-						<h1 className="text-3xl font-bold text-gray-800">OAuth Playground Documentation</h1>
+						<h1 className="text-3xl font-bold text-gray-800">MasterFlow API Documentation</h1>
 						<p className="text-gray-600 mt-2">
-							Complete guide to what the OAuth Playground does and how to use it
+							Complete guide to what the MasterFlow API does and how to use it
 						</p>
 					</div>
 				</div>
@@ -40,8 +40,8 @@ export default function About() {
 				<div className="bg-white rounded-lg shadow-lg p-8">
 					<h2 className="text-2xl font-bold text-gray-800 mb-4">🎯 Overview</h2>
 					<p className="text-gray-700 mb-4">
-						The <strong>PingOne OAuth 2.0 & OpenID Connect Playground</strong> is an interactive web
-						application designed to help developers learn, test, and master OAuth 2.0 and OpenID
+						The <strong>MasterFlow API</strong> is a comprehensive PingOne API integration and testing platform
+						designed to help developers learn, test, and master OAuth 2.0 and OpenID
 						Connect (OIDC) flows using PingOne as the identity provider.
 					</p>
 				</div>
@@ -210,8 +210,8 @@ export default function About() {
 				<div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-8 text-white">
 					<h3 className="text-xl font-bold mb-4">📈 Impact & Reach</h3>
 					<p className="text-indigo-100 mb-6">
-						The OAuth Playground has helped thousands of developers master OAuth concepts through
-						interactive learning.
+						The MasterFlow API has helped thousands of developers master OAuth concepts through
+						interactive learning and comprehensive API testing.
 					</p>
 					<div className="grid md:grid-cols-4 gap-4">
 						<div className="text-center">

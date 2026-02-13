@@ -101,50 +101,16 @@ class EnvironmentServiceV8 {
 	 * Get all environments with optional filtering
 	 */
 	async getEnvironments(options?: EnvironmentListOptions): Promise<EnvironmentListResponse> {
-		const startTime = Date.now();
-		const apiCallId = apiCallTrackerService.trackApiCall({
-			method: 'GET',
-			url: this.buildUrl(options),
-			headers: {},
-			body: null,
-			queryParams: {},
-		});
-
 		try {
 			console.log(`${this.MODULE_TAG} Fetching environments with options:`, options);
-
-			// Build query parameters
-			const params = new URLSearchParams();
-			if (options?.type) params.append('type', options.type);
-			if (options?.status) params.append('status', options.status);
-			if (options?.region) params.append('region', options.region);
-			if (options?.page) params.append('page', options.page.toString());
-			if (options?.perPage) params.append('perPage', options.perPage.toString());
-			if (options?.search) params.append('search', options.search);
-
-			const url = `${this.BASE_PATH}${params.toString() ? `?${params.toString()}` : ''}`;
 			
 			// Mock implementation - replace with actual API call
 			const mockResponse = await this.mockGetEnvironments(options);
-			
-			// Update API call with response
-			apiCallTrackerService.updateApiCallResponse(apiCallId, {
-				status: 200,
-				statusText: 'OK',
-				data: mockResponse,
-			}, Date.now() - startTime);
 			
 			console.log(`${this.MODULE_TAG} ✅ Successfully fetched ${mockResponse.environments.length} environments`);
 			return mockResponse;
 
 		} catch (error) {
-			// Update API call with error
-			apiCallTrackerService.updateApiCallResponse(apiCallId, {
-				status: 500,
-				statusText: 'Error',
-				error: error instanceof Error ? error.message : 'Unknown error',
-			}, Date.now() - startTime);
-			
 			console.error(`${this.MODULE_TAG} ❌ Failed to fetch environments:`, error);
 			toastV8.error('Failed to fetch environments');
 			throw error;

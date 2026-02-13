@@ -370,10 +370,21 @@ export class MFARedirectUriServiceV8 {
 
 		return (
 			uri.includes('mfa-hub') ||
-			uri.includes('/user-mfa-login-callback') ||
-			uri.includes('implicit-callback') ||
-			uri.includes('authz-callback')
+			uri.includes('/v8/mfa-unified-callback') ||
+			uri.includes('/v8/unified-mfa-callback')
 		);
+	}
+
+	/**
+	 * Persist redirect-debug events in localStorage so logs survive full-page redirects.
+	 */
+	static logDebugEvent(
+		category: string,
+		message: string,
+		data?: unknown,
+		level: 'INFO' | 'WARN' | 'ERROR' = 'INFO'
+	): void {
+		PersistentLogger.log(level, category, message, data);
 	}
 
 	/**

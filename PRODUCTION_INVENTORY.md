@@ -3077,6 +3077,73 @@ echo "🎯 FLOATING LOG VIEWER PREVENTION CHECKS COMPLETE"
 - Documented real-time monitoring best practices
 - Updated debugging workflow recommendations
 
+### **🚨 Issue PROD-020: Floating Log Viewer Pop-Out Not Truly Standalone**
+**Date**: 2026-02-13  
+**Status**: ✅ FIXED  
+**Severity**: Medium (Developer tooling UX)
+
+#### **ISSUE LOCATION MAP**
+This regression can arise in these hotspots:
+
+1. `src/components/FloatingLogViewer.tsx`
+   - Pop-out trigger logic (`window.open`) and standalone mode controls.
+   - Risk pattern: floating viewer opens a new window but still renders as an in-page dependent panel.
+
+2. `src/App.tsx`
+   - Route-level standalone rendering for `/standalone/log-viewer`.
+   - Risk pattern: standalone route still includes main shell/UI wrappers or duplicate floating toggle/viewer.
+
+#### **✅ Root Cause Summary**
+- The log viewer existed as an in-page floating panel, but standalone behavior was incomplete.
+- Missing/partial route-aware rendering caused coupling to the main page shell.
+
+#### **✅ Fix Summary**
+- Added explicit standalone pop-out support in `FloatingLogViewer`:
+  - `standaloneMode?: boolean`
+  - `onPopOut?: () => void`
+  - Header pop-out button (`FiExternalLink`) to open `/standalone/log-viewer`.
+- Added route-aware standalone rendering in `App.tsx`:
+  - If `location.pathname === '/standalone/log-viewer'`, render only `FloatingLogViewer` in standalone mode.
+  - Suppress global floating toggle/viewer when on standalone route to avoid duplicates.
+
+#### **Enhanced Prevention Commands**
+```bash
+echo "=== PROD-020 Standalone Log Viewer Checks ==="
+
+# 1) Pop-out props + control in viewer component
+grep -n "standaloneMode\|onPopOut\|FiExternalLink\|/standalone/log-viewer\|about:blank\|floating-log-viewer-detached" src/components/FloatingLogViewer.tsx \
+  && echo "✅ FloatingLogViewer standalone hooks present" \
+  || { echo "❌ Missing standalone hooks in FloatingLogViewer"; exit 1; }
+
+# 2) Route-aware standalone render in App.tsx
+grep -n "isStandaloneLogViewerRoute\|/standalone/log-viewer\|standaloneMode" src/App.tsx \
+  && echo "✅ App standalone route handling present" \
+  || { echo "❌ Missing standalone route handling in App.tsx"; exit 1; }
+
+# 3) Ensure duplicate floating controls are suppressed on standalone route
+grep -n "!isStandaloneLogViewerRoute" src/App.tsx \
+  && echo "✅ Duplicate floating controls gated" \
+  || { echo "❌ Missing standalone duplicate-control gate"; exit 1; }
+
+# 4) Ensure color-highlighted log entry rendering is present
+grep -n "renderLogEntries\|borderLeft\|#fef2f2\|#fffbeb\|#eff6ff\|#f0fdfa" src/components/FloatingLogViewer.tsx \
+  && echo "✅ Color-highlighted log rendering present" \
+  || { echo "❌ Missing color-highlighted log rendering"; exit 1; }
+```
+
+#### **Automated Gate Notes**
+- Add PROD-020 checks to CI as a non-zero gate step.
+- Suggested CI step:
+```bash
+bash -c '
+  grep -q "standaloneMode" src/components/FloatingLogViewer.tsx &&
+  grep -q "/standalone/log-viewer" src/components/FloatingLogViewer.tsx &&
+  grep -q "isStandaloneLogViewerRoute" src/App.tsx &&
+  grep -q "renderLogEntries" src/components/FloatingLogViewer.tsx
+'
+```
+- If any grep fails, pipeline must fail (non-zero) to prevent regression.
+
 ---
 
 **🚀 Future Enhancements:**

@@ -183,7 +183,7 @@ export class BulletproofDiscoveryService {
 				method: 'GET',
 				headers: {
 					Accept: 'application/json',
-					'User-Agent': 'OAuth Playground',
+					'User-Agent': 'MasterFlow API',
 				},
 				signal: controller.signal,
 				mode: 'cors', // Explicitly set CORS mode

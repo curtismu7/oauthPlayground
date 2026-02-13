@@ -12,6 +12,7 @@ import {
 	FiMaximize2,
 	FiRefreshCw,
 	FiDownload,
+	FiExternalLink,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { LogFileService, type LogFile } from '../services/logFileService';
@@ -60,9 +61,9 @@ const Controls = styled.div`
   align-items: center;
 `;
 
-const ControlButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
-  background: ${props => props.variant === 'primary' ? '#3b82f6' : '#f3f4f6'};
-  color: ${props => props.variant === 'primary' ? 'white' : '#374151'};
+const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
+  background: ${props => props.$variant === 'primary' ? '#3b82f6' : '#f3f4f6'};
+  color: ${props => props.$variant === 'primary' ? 'white' : '#374151'};
   border: none;
   border-radius: 4px;
   padding: 6px 8px;
@@ -74,7 +75,7 @@ const ControlButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
   transition: all 0.2s;
 
   &:hover {
-    background: ${props => props.variant === 'primary' ? '#2563eb' : '#e5e7eb'};
+    background: ${props => props.$variant === 'primary' ? '#2563eb' : '#e5e7eb'};
   }
 
   &:disabled {
@@ -123,12 +124,12 @@ const LogContent = styled.div<{ $isMinimized: boolean }>`
   border: 1px solid #e5e7eb;
 `;
 
-const StatusIndicator = styled.div<{ status: 'connected' | 'disconnected' | 'loading' }>`
+const StatusIndicator = styled.div<{ $status: 'connected' | 'disconnected' | 'loading' }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: ${props => {
-    switch (props.status) {
+    switch (props.$status) {
       case 'connected': return '#10b981';
       case 'loading': return '#f59e0b';
       case 'disconnected': return '#ef4444';
@@ -180,6 +181,8 @@ const ResizeHandle = styled.div`
 interface FloatingLogViewerProps {
   isOpen: boolean;
   onClose: () => void;
+  onPopOut?: () => void;
+  standaloneMode?: boolean;
   initialWidth?: number;
   initialHeight?: number;
   initialX?: number;
@@ -189,6 +192,8 @@ interface FloatingLogViewerProps {
 export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
   isOpen,
   onClose,
+  onPopOut,
+  standaloneMode = false,
   initialWidth = 600,
   initialHeight = 400,
   initialX = 100,
@@ -212,37 +217,69 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [resizeStart, setResizeStart] = useState({ width: 0, height: 0, x: 0, y: 0 });
 
-  // Function to add visual separation to log entries
-  const addVisualSeparation = (content: string): string => {
+  // Render log entries with per-level color highlights and visual separation
+  const renderLogEntries = (content: string): React.ReactNode => {
     if (!content) return content;
-    
+
     const lines = content.split('\n');
-    const processedLines = lines.map((line, index) => {
-      // Skip empty lines
-      if (!line.trim()) return line;
-      
-      // Add visual indicators for different log levels
-      let prefix = '';
-      
-      if (line.includes('ERROR') || line.includes('error')) {
-        prefix = '🔴 ';
-      } else if (line.includes('WARN') || line.includes('warn')) {
-        prefix = '🟡 ';
-      } else if (line.includes('INFO') || line.includes('info')) {
-        prefix = '🔵 ';
-      } else if (line.includes('DEBUG') || line.includes('debug')) {
-        prefix = '🔍 ';
-      } else {
-        prefix = '📝 ';
+
+    return lines.map((line, index) => {
+      if (!line.trim()) {
+        return <div key={`empty-${index}`} style={{ height: '4px' }} />;
       }
-      
-      // Add entry separator
-      const suffix = index < lines.length - 1 ? '\n---' : '';
-      
-      return `${prefix}${line}${suffix}`;
+
+      let prefix = '📝';
+      let textColor = '#1f2937';
+      let background = '#f9fafb';
+      let borderLeft = '#d1d5db';
+
+      if (line.includes('ERROR') || line.includes('error')) {
+        prefix = '🔴';
+        textColor = '#991b1b';
+        background = '#fef2f2';
+        borderLeft = '#ef4444';
+      } else if (line.includes('WARN') || line.includes('warn')) {
+        prefix = '🟡';
+        textColor = '#92400e';
+        background = '#fffbeb';
+        borderLeft = '#f59e0b';
+      } else if (line.includes('INFO') || line.includes('info')) {
+        prefix = '🔵';
+        textColor = '#1e3a8a';
+        background = '#eff6ff';
+        borderLeft = '#3b82f6';
+      } else if (line.includes('DEBUG') || line.includes('debug')) {
+        prefix = '🔍';
+        textColor = '#0f766e';
+        background = '#f0fdfa';
+        borderLeft = '#14b8a6';
+      }
+
+      return (
+        <div key={`line-${index}`}>
+          <div
+            style={{
+              color: textColor,
+              background,
+              borderLeft: `4px solid ${borderLeft}`,
+              padding: '4px 8px',
+              borderRadius: '4px',
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            {`${prefix} ${line}`}
+          </div>
+          {index < lines.length - 1 && (
+            <div
+              style={{
+                borderBottom: '1px dashed #d1d5db',
+                margin: '4px 0',
+              }}
+            />
+          )}
+        </div>
+      );
     });
-    
-    return processedLines.join('\n');
   };
 
   // Refs
@@ -340,6 +377,27 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }, [logContent, selectedFile]);
+
+  const handlePopOut = useCallback(() => {
+    if (onPopOut) {
+      onPopOut();
+      return;
+    }
+
+    const popup = window.open(
+      'about:blank',
+      'floating-log-viewer-detached',
+      'popup=yes,width=1400,height=900,left=80,top=60,resizable=yes,scrollbars=yes'
+    );
+
+    if (!popup) {
+      setError('Popup blocked by browser. Allow popups for this site to open detached log viewer.');
+      return;
+    }
+
+    popup.location.href = `${window.location.origin}/standalone/log-viewer`;
+    onClose();
+  }, [onPopOut, onClose]);
 
   // Drag handlers
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -472,26 +530,35 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
     >
       <Header className="header">
         <Title>
-          <StatusIndicator status={isTailMode ? 'connected' : 'disconnected'} />
+          <StatusIndicator $status={isTailMode ? 'connected' : 'disconnected'} />
           Log Viewer
         </Title>
         <Controls>
+          {!standaloneMode && (
+            <ControlButton
+              $variant="secondary"
+              onClick={handlePopOut}
+              title="Open log viewer in separate window"
+            >
+              <FiExternalLink />
+            </ControlButton>
+          )}
           <ControlButton
-            variant="secondary"
+            $variant="secondary"
             onClick={() => setIsMinimized(!isMinimized)}
             title={isMinimized ? 'Expand' : 'Minimize'}
           >
             {isMinimized ? <FiMaximize2 /> : <FiMinimize2 />}
           </ControlButton>
           <ControlButton
-            variant="secondary"
+            $variant="secondary"
             onClick={toggleMaximize}
             title={isMaximized ? 'Restore' : 'Maximize'}
           >
             {isMaximized ? '🗗' : '🗖'}
           </ControlButton>
           <ControlButton
-            variant="secondary"
+            $variant="secondary"
             onClick={onClose}
             title="Close"
           >
@@ -526,7 +593,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
             </CheckboxContainer>
             
             <ControlButton
-              variant="secondary"
+              $variant="secondary"
               onClick={loadLogContent}
               disabled={isLoading || isTailMode}
               title="Refresh log content from file"
@@ -535,7 +602,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
             </ControlButton>
             
             <ControlButton
-              variant="secondary"
+              $variant="secondary"
               onClick={clearLogs}
               title="Clear all log content"
             >
@@ -543,7 +610,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
             </ControlButton>
             
             <ControlButton
-              variant="secondary"
+              $variant="secondary"
               onClick={downloadLogs}
               disabled={!logContent}
               title="Download log content as file"
@@ -578,7 +645,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
           )}
 
           <LogContent $isMinimized={isMinimized}>
-            {addVisualSeparation(logContent) || 'No log content. Select a file and click Refresh to view logs.'}
+            {logContent ? renderLogEntries(logContent) : 'No log content. Select a file and click Refresh to view logs.'}
           </LogContent>
         </Content>
       )}

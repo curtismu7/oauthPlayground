@@ -10,6 +10,7 @@ import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServi
 import { MFAServiceV8, type RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import type { DeviceType, MFACredentials, MFAState } from '../shared/MFATypes';
 
 const MODULE_TAG = '[🎮 MFA-CONTROLLER]';
@@ -65,7 +66,7 @@ export abstract class MFAFlowController {
 	 */
 	async loadExistingDevices(
 		credentials: MFACredentials,
-		tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>
+		tokenStatus: TokenStatusInfo
 	): Promise<Array<Record<string, unknown>>>;
 
 	/**
@@ -85,8 +86,8 @@ export abstract class MFAFlowController {
 		credentials: MFACredentials,
 		mfaStateOrTokenStatus:
 			| MFAState
-			| ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
-		tokenStatus?: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
+			| TokenStatusInfo,
+		tokenStatus?: TokenStatusInfo,
 		_nav?: ReturnType<typeof useStepNavigationV8>
 	): Promise<Array<Record<string, unknown>>> {
 		// Handle both signatures:
@@ -95,9 +96,7 @@ export abstract class MFAFlowController {
 		const actualTokenStatus =
 			tokenStatus !== undefined
 				? tokenStatus
-				: (mfaStateOrTokenStatus as ReturnType<
-						typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus
-					>);
+				: (mfaStateOrTokenStatus as TokenStatusInfo);
 
 		if (!credentials.environmentId || !credentials.username || !actualTokenStatus.isValid) {
 			return [];

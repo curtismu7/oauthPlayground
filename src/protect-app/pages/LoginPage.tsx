@@ -4,6 +4,8 @@ import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { PageApiInfo } from '../components/common/PageApiInfo';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 
 /**
  * Login Page
@@ -20,6 +22,17 @@ export const LoginPage: React.FC = () => {
 		password: '',
 	});
 	const [errors, setErrors] = useState<Record<string, string>>({});
+	
+	// Get environment ID from credentials for UserSearchDropdown
+	const credentials = CredentialsServiceV8.loadCredentials('protect-portal', {
+		flowKey: 'protect-portal',
+		flowType: 'oauth',
+		includeClientSecret: false,
+		includeRedirectUri: false,
+		includeScopes: false,
+		includeLogoutUri: false,
+	});
+	const environmentId = credentials?.environmentId || '';
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -27,6 +40,14 @@ export const LoginPage: React.FC = () => {
 		// Clear error when user starts typing
 		if (errors[name]) {
 			setErrors((prev) => ({ ...prev, [name]: '' }));
+		}
+	};
+	
+	const handleUsernameChange = (username: string) => {
+		setFormData((prev) => ({ ...prev, email: username }));
+		// Clear error when user selects username
+		if (errors.email) {
+			setErrors((prev) => ({ ...prev, email: '' }));
 		}
 	};
 
@@ -120,7 +141,7 @@ export const LoginPage: React.FC = () => {
 
 					{/* Login Form */}
 					<form onSubmit={handleSubmit} className="space-y-6">
-						{/* Email Field */}
+						{/* Username Field - Using UserSearchDropdownV8 for consistency */}
 						<div>
 							<label
 								htmlFor="email"
@@ -129,23 +150,34 @@ export const LoginPage: React.FC = () => {
 									color: currentTheme.colors.text,
 								}}
 							>
-								Email Address
+								Username
 							</label>
-							<input
-								id="email"
-								name="email"
-								type="email"
-								value={formData.email}
-								onChange={handleChange}
-								className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-								style={{
-									borderColor: errors.email ? currentTheme.colors.error : '#e5e7eb',
-									backgroundColor: currentTheme.colors.surface,
-									color: currentTheme.colors.text,
-								}}
-								placeholder="Enter your email"
-								disabled={authState.isLoading}
-							/>
+							{environmentId ? (
+								<UserSearchDropdownV8
+									id="email"
+									environmentId={environmentId}
+									value={formData.email}
+									onChange={handleUsernameChange}
+									placeholder="Search for a user..."
+									disabled={authState.isLoading}
+								/>
+							) : (
+								<input
+									id="email"
+									name="email"
+									type="email"
+									value={formData.email}
+									onChange={handleChange}
+									className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+									style={{
+										borderColor: errors.email ? currentTheme.colors.error : '#e5e7eb',
+										backgroundColor: currentTheme.colors.surface,
+										color: currentTheme.colors.text,
+									}}
+									placeholder="Enter your email"
+									disabled={authState.isLoading}
+								/>
+							)}
 							{errors.email && (
 								<p
 									className="mt-1 text-sm"

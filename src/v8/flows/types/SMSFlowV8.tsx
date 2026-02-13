@@ -2989,9 +2989,11 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 
 								<button
 									type="button"
-									disabled={isLoading}
+									disabled={isLoading || !otpState.canResend}
 									onClick={async () => {
 										setIsLoading(true);
+										// Start cooldown timer (60 seconds)
+										updateOtpState({ canResend: false, resendCooldown: 60 });
 										try {
 											// For authentication flow (when authenticationId exists), use selectDeviceForAuthentication
 											if (mfaState.authenticationId && mfaState.deviceId) {
@@ -3068,7 +3070,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 										borderRadius: '8px',
 										fontSize: '14px',
 										fontWeight: '600',
-										cursor: isLoading ? 'not-allowed' : 'pointer',
+										cursor: isLoading || !otpState.canResend ? 'not-allowed' : 'pointer',
 										display: 'flex',
 										alignItems: 'center',
 										justifyContent: 'center',
@@ -3076,7 +3078,11 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 									}}
 								>
 									<span>🔄</span>
-									<span>{isLoading ? 'Sending...' : 'Resend OTP Code'}</span>
+									<span>{isLoading 
+										? 'Sending...' 
+										: otpState.canResend 
+											? 'Resend OTP Code' 
+											: `Resend in ${otpState.resendCooldown}s`}</span>
 								</button>
 							</div>
 

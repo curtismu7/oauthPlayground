@@ -21,7 +21,7 @@ export interface EnvBackupData {
 }
 
 class CredentialBackupService {
-	private readonly BACKUP_KEY = 'oauth_playground_credential_backup';
+	private readonly BACKUP_KEY = 'masterflow_api_credential_backup';
 	private readonly MAX_BACKUP_SIZE = 50; // Maximum number of flows to backup
 
 	/**
@@ -138,7 +138,7 @@ class CredentialBackupService {
 		const backup = this.getCredentialBackup();
 		const envLines: string[] = [];
 
-		envLines.push('# OAuth Playground Credential Backup');
+		envLines.push('# MasterFlow API Credential Backup');
 		envLines.push('# Generated automatically - contains non-sensitive configuration only');
 		envLines.push('# DO NOT include client secrets or worker tokens in this file');
 		envLines.push('');
@@ -190,7 +190,7 @@ class CredentialBackupService {
 
 			const link = document.createElement('a');
 			link.href = url;
-			link.download = 'oauth-playground-credentials.env';
+			link.download = 'masterflow-api-credentials.env';
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link);
