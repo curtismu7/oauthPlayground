@@ -207,10 +207,10 @@ interface APILog {
 	method: string;
 	url: string;
 	requestHeaders?: Record<string, string>;
-	requestBody?: any;
+	requestBody?: unknown;
 	responseStatus?: number;
 	responseHeaders?: Record<string, string>;
-	responseBody?: any;
+	responseBody?: unknown;
 	error?: string;
 }
 
