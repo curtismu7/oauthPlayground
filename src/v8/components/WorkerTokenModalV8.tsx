@@ -18,7 +18,6 @@ import {
 import { environmentService } from '@/services/environmentService';
 import { UnifiedTokenDisplayService } from '@/services/unifiedTokenDisplayService';
 import {
-	type ApplicationKeyRotationStatus,
 	unifiedWorkerTokenService,
 } from '@/services/unifiedWorkerTokenService';
 import pingOneFetch from '@/utils/pingOneFetch';
@@ -96,11 +95,10 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 							// Fetch KRP status
 							try {
-								const [krpStatusData, krpComplianceData] = await Promise.all([
+								const [, krpComplianceData] = await Promise.all([
 									unifiedWorkerTokenService.getKeyRotationStatus(),
 									unifiedWorkerTokenService.checkKRPCompliance(),
 								]);
-								setKrpStatus(krpStatusData);
 								setKrpCompliance(krpComplianceData);
 							} catch (error) {
 								console.warn(`${MODULE_TAG} Failed to fetch KRP status:`, error);
@@ -114,7 +112,6 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			// Reset when modal closes
 			setCurrentToken(null);
 			setShowTokenDisplay(false);
-			setKrpStatus(null);
 			setKrpCompliance(null);
 		}
 	}, [isOpen, showTokenOnly]);
@@ -602,6 +599,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 		<>
 			{/* Backdrop */}
 			<button
+				type="button"
 				style={{
 					position: 'fixed',
 					top: 0,
