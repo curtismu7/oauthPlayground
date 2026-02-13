@@ -52,6 +52,17 @@ OVERALL_STATUS="unknown"
 
 # Function to find and change to the OAuth Playground directory
 find_project_directory() {
+    # If in quick mode, assume current directory is correct
+    if [ "$QUICK_MODE" = true ]; then
+        if [ -f "package.json" ] && [ -f "server.js" ]; then
+            print_success "Quick mode: Using current directory: $(pwd)"
+            return 0
+        else
+            print_error "Quick mode: Not in OAuth Playground directory (missing package.json or server.js)"
+            exit 1
+        fi
+    fi
+    
     print_status "🔍 Locating OAuth Playground project directory..."
     
     # Check if we're already in the right directory
@@ -89,65 +100,74 @@ find_project_directory() {
         fi
     done
     
-    # If not found, ask user
-    print_warning "OAuth Playground directory not found in common locations"
-    echo ""
-    echo -e "${YELLOW}Please provide the path to your OAuth Playground directory:${NC}"
-    echo -e "${CYAN}(The directory should contain package.json and server.js files)${NC}"
-    echo ""
-    
-    while true; do
-        echo -n "Enter directory path (or 'quit' to exit): "
-        read -r user_path
+    # If not found and not in quick mode, ask user for path
+    if [ "$QUICK_MODE" != true ]; then
+        print_warning "OAuth Playground directory not found in common locations."
+        echo ""
+        echo -e "${YELLOW}Please provide the path to your OAuth Playground directory:${NC}"
+        echo -e "${CYAN}(The directory should contain package.json and server.js files)${NC}"
+        echo ""
         
-        if [ "$user_path" = "quit" ] || [ "$user_path" = "q" ]; then
-            print_error "User cancelled directory selection"
-            exit 1
-        fi
-        
-        if [ -z "$user_path" ]; then
-            print_warning "Please enter a valid directory path"
-            continue
-        fi
-        
-        # Expand tilde and resolve path
-        expanded_path="${user_path/#\~/$HOME}"
-        expanded_path=$(realpath "$expanded_path" 2>/dev/null || echo "$expanded_path")
-        
-        if [ ! -d "$expanded_path" ]; then
-            print_error "Directory does not exist: $expanded_path"
-            continue
-        fi
-        
-        cd "$expanded_path" 2>/dev/null || {
-            print_error "Cannot access directory: $expanded_path"
-            continue
-        }
-        
-        if [ ! -f "package.json" ]; then
-            print_error "package.json not found in: $expanded_path"
-            print_info "This doesn't appear to be the OAuth Playground directory"
-            continue
-        fi
-        
-        if [ ! -f "server.js" ]; then
-            print_error "server.js not found in: $expanded_path"
-            print_info "This doesn't appear to be the OAuth Playground directory"
-            continue
-        fi
-        
-        if ! grep -q "pingone-oauth-playground" package.json 2>/dev/null; then
-            print_warning "This appears to be a different Node.js project"
-            echo -n "Continue anyway? (y/N): "
-            read -r confirm
-            if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+        while true; do
+            echo -n "Enter directory path (or 'quit' to exit): "
+            read -r user_path
+            
+            if [ "$user_path" = "quit" ] || [ "$user_path" = "q" ]; then
+                print_error "User cancelled directory selection"
+                exit 1
+            fi
+            
+            if [ -z "$user_path" ]; then
+                print_warning "Please enter a valid directory path"
                 continue
             fi
-        fi
-        
-        print_success "Using directory: $(pwd)"
-        return 0
-    done
+            
+            # Expand tilde and resolve path
+            expanded_path="${user_path/#\~/$HOME}"
+            expanded_path=$(realpath "$expanded_path" 2>/dev/null || echo "$expanded_path")
+            
+            if [ ! -d "$expanded_path" ]; then
+                print_error "Directory does not exist: $expanded_path"
+                continue
+            fi
+            
+            cd "$expanded_path" 2>/dev/null || {
+                print_error "Cannot access directory: $expanded_path"
+                continue
+            }
+            
+            if [ ! -f "package.json" ]; then
+                print_error "package.json not found in: $expanded_path"
+                print_info "This doesn't appear to be the OAuth Playground directory"
+                continue
+            fi
+            
+            if [ ! -f "server.js" ]; then
+                print_error "server.js not found in: $expanded_path"
+                print_info "This doesn't appear to be the OAuth Playground directory"
+                continue
+            fi
+            
+            if ! grep -q "pingone-oauth-playground" package.json 2>/dev/null; then
+                print_warning "This appears to be a different Node.js project"
+                if [ "$QUICK_MODE" = true ]; then
+                    print_info "Quick mode: Continuing anyway"
+                else
+                    echo -n "Continue anyway? (y/N): "
+                    read -r confirm
+                    if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+                        continue
+                    fi
+                fi
+            fi
+            
+            print_success "Using directory: $(pwd)"
+            return 0
+        done
+    else
+        print_error "Quick mode: OAuth Playground directory not found"
+        exit 1
+    fi
 }
 
 # Function to print colored output
@@ -1016,6 +1036,7 @@ show_final_summary() {
     echo -e "${banner_color}║${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}📋 Usage:${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}   ./run.sh - Restart servers (will prompt to tail logs)${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   ./run.sh -quick - Restart servers (no prompts)${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}   ./run.sh --help - Show help message${NC}"
     echo -e "${banner_color}║${NC}"
     echo -e "${banner_color}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
@@ -1040,6 +1061,12 @@ while [ $# -gt 0 ]; do
             echo "Options:"
             echo "  --help, -h"
             echo "      Show this help message and exit."
+            echo "  -quick, -quick-quick"
+            echo "      Quick mode: Skip all interactive prompts."
+            echo "      - Assumes current directory is the OAuth Playground."
+            echo "      - Skips directory selection prompts."
+            echo "      - Skips confirmation prompts."
+            echo "      - Skips log tail prompts."
             echo ""
             echo "Default behavior (no flags):"
             echo "  1) Locate the OAuth Playground directory:"
@@ -1082,6 +1109,14 @@ done
 
 # Main execution
 main() {
+    # Check for -quick flag
+    QUICK_MODE=false
+    if [ "$1" = "-quick" ] || [ "$1" = "-quick-quick" ]; then
+        QUICK_MODE=true
+        export QUICK_MODE
+        print_info "🚀 Quick mode enabled - skipping all prompts"
+    fi
+    
     show_banner
     
     # Step 0: Find and change to project directory
@@ -1119,6 +1154,11 @@ main() {
     
     # Step 9: Ask user if they want to tail a log file (interactive)
     if [ "$OVERALL_STATUS" = "success" ] || [ "$OVERALL_STATUS" = "partial" ]; then
+        if [ "$QUICK_MODE" = true ]; then
+            print_info "Quick mode: Skipping log tail (no prompts)"
+            return
+        fi
+        
         echo ""
         echo -n "Would you like to tail a log file? (Y/n): "
         read -r tail_log
