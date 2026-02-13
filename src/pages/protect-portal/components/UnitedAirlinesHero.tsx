@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { FiGlobe, FiLock, FiMapPin, FiPlane } from 'react-icons/fi';
+import { FiGlobe, FiLock, FiMapPin, FiSend } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 
@@ -265,7 +265,7 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 
 					<GlobalFeature>
 						<FeatureIcon>
-							<FiPlane />
+							<FiSend />
 						</FeatureIcon>
 						<FeatureTitle>Fleet Operations</FeatureTitle>
 						<FeatureDescription>Manage and monitor our aircraft fleet</FeatureDescription>
