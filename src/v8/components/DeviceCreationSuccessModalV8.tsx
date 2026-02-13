@@ -4,19 +4,19 @@
 import React from 'react';
 import {
 	FiCheckCircle,
+	FiKey,
 	FiMail,
+	FiMessageSquare,
 	FiPhone,
 	FiShield,
-	FiKey,
 	FiSmartphone,
-	FiMessageSquare,
 	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { getDeviceTypeDisplay } from '../flows/shared/mfaSuccessPageServiceV8';
 import type { DeviceType } from '../flows/shared/MFATypes';
+import { getDeviceTypeDisplay } from '../flows/shared/mfaSuccessPageServiceV8';
 
-const MODULE_TAG = '[DeviceCreationSuccessModalV8]';
+const _MODULE_TAG = '[DeviceCreationSuccessModalV8]';
 
 // V8 Styled Components
 const ModalOverlay = styled.div`
@@ -165,15 +165,9 @@ const StatusBadge = styled.span<{ $status: 'ACTIVE' | 'ACTIVATION_REQUIRED' }>`
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
-	background: ${({ $status }) => 
-		$status === 'ACTIVE' ? '#f0fdf4' : '#fef3c7'
-	};
-	color: ${({ $status }) => 
-		$status === 'ACTIVE' ? '#166534' : '#92400e'
-	};
-	border: 1px solid ${({ $status }) => 
-		$status === 'ACTIVE' ? '#bbf7d0' : '#fde68a'
-	};
+	background: ${({ $status }) => ($status === 'ACTIVE' ? '#f0fdf4' : '#fef3c7')};
+	color: ${({ $status }) => ($status === 'ACTIVE' ? '#166534' : '#92400e')};
+	border: 1px solid ${({ $status }) => ($status === 'ACTIVE' ? '#bbf7d0' : '#fde68a')};
 `;
 
 const NextSteps = styled.div`
@@ -380,9 +374,7 @@ export const DeviceCreationSuccessModalV8: React.FC<DeviceCreationSuccessModalV8
 						{deviceInfo.createdAt && (
 							<DeviceInfoRow>
 								<DeviceInfoLabel>Created:</DeviceInfoLabel>
-								<DeviceInfoValue>
-									{new Date(deviceInfo.createdAt).toLocaleString()}
-								</DeviceInfoValue>
+								<DeviceInfoValue>{new Date(deviceInfo.createdAt).toLocaleString()}</DeviceInfoValue>
 							</DeviceInfoRow>
 						)}
 

@@ -37,7 +37,6 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
-import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { environmentService } from '@/services/environmentService';
 import { pingOneLogoutService } from '@/services/pingOneLogoutService';
 import {
@@ -74,6 +73,7 @@ import {
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import {
 	MFADeviceSelectionInfoModal,
@@ -318,7 +318,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		// Only run once on mount
 		if (hasSavedInitialCredentials.current) return;
 		hasSavedInitialCredentials.current = true;
-		
+
 		// Only save if we have valid credentials to persist
 		if (credentials.environmentId || credentials.username) {
 			CredentialsServiceV8.saveCredentials(FLOW_KEY, {
@@ -582,7 +582,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		return () => {
 			clearInterval(interval);
 		};
-	}, []);
+	}, [setTokenStatus]);
 
 	// Helper function to handle NO_USABLE_DEVICES errors
 	const handleDeviceFailureError = useCallback((error: unknown) => {
@@ -702,7 +702,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			window.removeEventListener('storage', handleTokenUpdate);
 			clearInterval(interval);
 		};
-	}, []);
+	}, [setTokenStatus]);
 
 	// Poll Push authentication status
 	useEffect(() => {
@@ -1286,6 +1286,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		credentials.scopes,
 		credentials.usePKCE,
 		credentials.region,
+		searchParams.get,
 	]);
 
 	// Handle Start MFA (Username-based)
@@ -1326,7 +1327,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			return;
 		}
 
-		console.log(`${MODULE_TAG} ✅ All validations passed, proceeding with authentication initialization`);
+		console.log(
+			`${MODULE_TAG} ✅ All validations passed, proceeding with authentication initialization`
+		);
 
 		// Reset auth state to clear any previous authentication session
 		// This ensures we start fresh when restarting the flow
@@ -1523,7 +1526,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					deviceCount: authDevices.length,
 				});
 				toastV8.success('Authentication started successfully');
-				
+
 				// Fallback: If we have devices, show device selection. Otherwise, show success.
 				setTimeout(() => {
 					if (authDevices.length > 0) {
@@ -5742,23 +5745,25 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 								// Re-select the same device
 								if (resendResult.id && resendResult._links) {
-									const reselectResult = await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
-										{
-											environmentId: credentials.environmentId,
-											username: usernameInput.trim(),
-											userId,
-											authenticationId: resendResult.id,
-											deviceId: authState.selectedDeviceId,
-											region: credentials.region,
-											customDomain: credentials.customDomain,
-										},
-										{ stepName: 'mfa-Resend OTP Code (Re-init + Select)' }
-									);
+									const reselectResult =
+										await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
+											{
+												environmentId: credentials.environmentId,
+												username: usernameInput.trim(),
+												userId,
+												authenticationId: resendResult.id,
+												deviceId: authState.selectedDeviceId,
+												region: credentials.region,
+												customDomain: credentials.customDomain,
+											},
+											{ stepName: 'mfa-Resend OTP Code (Re-init + Select)' }
+										);
 
 									// Update auth state with new authentication session
 									const status = reselectResult.status || '';
 									const nextStep = reselectResult.nextStep || '';
-									const newLinks = (reselectResult._links as Record<string, { href: string }>) || {};
+									const newLinks =
+										(reselectResult._links as Record<string, { href: string }>) || {};
 
 									setAuthState((prev) => ({
 										...prev,
@@ -5769,7 +5774,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									}));
 
 									success = true;
-									console.log(`${MODULE_TAG} ✅ OTP resent successfully via cancel + re-initialize`);
+									console.log(
+										`${MODULE_TAG} ✅ OTP resent successfully via cancel + re-initialize`
+									);
 								}
 							} catch (cancelError) {
 								console.warn(`${MODULE_TAG} Cancel + re-initialize approach failed:`, cancelError);

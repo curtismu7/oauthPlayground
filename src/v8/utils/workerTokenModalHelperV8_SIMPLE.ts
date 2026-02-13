@@ -10,7 +10,7 @@ const MODULE_TAG = '[🔑 SIMPLE-WORKER-TOKEN-MODAL]';
  * 1. Check if credentials exist (browser storage or sqlite)
  * 2. If credentials exist → NO MODAL (let silent API work)
  * 3. If no credentials → SHOW MODAL (tell user they need to enter creds)
- * 
+ *
  * This bypasses all the complex silentApiRetrieval/showTokenAtEnd logic
  * and just focuses on the core issue: credentials vs no credentials.
  */
@@ -47,7 +47,6 @@ export async function handleShowWorkerTokenModalSimple(
 			setShowModal(true);
 			return;
 		}
-
 	} catch (error) {
 		console.error(`${MODULE_TAG} Error in simple modal logic:`, error);
 		// On error, show modal to be safe
@@ -62,7 +61,7 @@ export function hasCredentialsSync(): boolean {
 	try {
 		const stored = localStorage.getItem('unified_worker_token');
 		if (!stored) return false;
-		
+
 		const data = JSON.parse(stored);
 		const credentials = data.credentials || data.data?.credentials;
 		return credentials !== null && typeof credentials === 'object';

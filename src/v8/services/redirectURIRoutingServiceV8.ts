@@ -1,6 +1,6 @@
 /**
  * Redirect URI Routing Service
- * 
+ *
  * SWE-15 Compliant service for handling redirect URI preservation and table-based step routing.
  * Follows Single Responsibility Principle by separating URI preservation from routing logic.
  */
@@ -21,38 +21,38 @@ const REDIRECT_URI_ROUTING_TABLE: RedirectURIRouteEntry[] = [
 		redirectUri: '/mfa-unified-callback',
 		flowType: 'registration',
 		returnTarget: 3,
-		description: 'Unified MFA registration flow'
+		description: 'Unified MFA registration flow',
 	},
 	{
 		redirectUri: '/mfa-hub-callback',
 		flowType: 'hub',
 		returnTarget: 3,
-		description: 'MFA hub registration flow'
+		description: 'MFA hub registration flow',
 	},
 	{
 		redirectUri: '/unified-mfa-callback',
 		flowType: 'legacy',
 		returnTarget: 2,
-		description: 'Legacy unified MFA flow'
+		description: 'Legacy unified MFA flow',
 	},
 	{
 		redirectUri: '/callback',
 		flowType: 'oauth-authz',
 		returnTarget: 2,
-		description: 'Standard OAuth authorization code flow'
+		description: 'Standard OAuth authorization code flow',
 	},
 	{
 		redirectUri: '/user-login-callback',
 		flowType: 'oauth-authz',
 		returnTarget: 2,
-		description: 'User authentication flows'
+		description: 'User authentication flows',
 	},
 	{
 		redirectUri: '/authz-callback',
 		flowType: 'oauth-authz',
 		returnTarget: 2,
-		description: 'Standard OAuth flows'
-	}
+		description: 'Standard OAuth flows',
+	},
 ];
 
 export interface RedirectURIRoutingResult {
@@ -96,62 +96,64 @@ export const useRedirectURIRouting = () => {
 	const routeToCorrectStep = useCallback((redirectUri: string): RedirectURIRoutingResult => {
 		// Preserve original redirect URI from PingOne - DO NOT MODIFY
 		const originalUri = redirectUri;
-		
+
 		// Extract path from full URI if needed
-		const uriPath = originalUri.includes(window.location.host) 
-			? new URL(originalUri).pathname 
+		const uriPath = originalUri.includes(window.location.host)
+			? new URL(originalUri).pathname
 			: originalUri;
-		
+
 		// Consult redirect URI reference tables
-		const routeEntry = REDIRECT_URI_ROUTING_TABLE.find(entry => 
-			uriPath.includes(entry.redirectUri) || entry.redirectUri.includes(uriPath)
+		const routeEntry = REDIRECT_URI_ROUTING_TABLE.find(
+			(entry) => uriPath.includes(entry.redirectUri) || entry.redirectUri.includes(uriPath)
 		);
-		
+
 		if (routeEntry) {
 			console.log(`[RedirectURIRouting] ✅ Found route entry for ${uriPath}`, {
 				routeEntry: routeEntry.description,
 				targetStep: routeEntry.returnTarget,
-				flowType: routeEntry.flowType
+				flowType: routeEntry.flowType,
 			});
-			
+
 			return {
 				targetStep: routeEntry.returnTarget,
 				flowType: routeEntry.flowType,
 				originalUri: originalUri, // Preserve for debugging
-				routeEntry: routeEntry
+				routeEntry: routeEntry,
 			};
 		}
-		
+
 		// Fallback to default routing
 		const defaultStep = getDefaultStep(uriPath);
 		const defaultFlowType = determineFlowType(uriPath);
-		
+
 		console.warn(`[RedirectURIRouting] ⚠️ No route entry found for ${uriPath}, using default`, {
 			defaultStep,
-			flowType: defaultFlowType
+			flowType: defaultFlowType,
 		});
-		
+
 		return {
 			targetStep: defaultStep,
 			flowType: defaultFlowType,
-			originalUri: originalUri
+			originalUri: originalUri,
 		};
 	}, []);
 
 	/**
 	 * Validates redirect URI against known table entries
- * Interface Segregation: Focused validation interface
+	 * Interface Segregation: Focused validation interface
 	 */
 	const validateRedirectURI = useCallback((redirectUri: string): boolean => {
-		const uriPath = redirectUri.includes(window.location.host) 
-			? new URL(redirectUri).pathname 
+		const uriPath = redirectUri.includes(window.location.host)
+			? new URL(redirectUri).pathname
 			: redirectUri;
-		
-		const isValid = REDIRECT_URI_ROUTING_TABLE.some(entry => 
-			uriPath.includes(entry.redirectUri) || entry.redirectUri.includes(uriPath)
+
+		const isValid = REDIRECT_URI_ROUTING_TABLE.some(
+			(entry) => uriPath.includes(entry.redirectUri) || entry.redirectUri.includes(uriPath)
 		);
-		
-		console.log(`[RedirectURIRouting] Validation for ${uriPath}: ${isValid ? '✅ VALID' : '❌ INVALID'}`);
+
+		console.log(
+			`[RedirectURIRouting] Validation for ${uriPath}: ${isValid ? '✅ VALID' : '❌ INVALID'}`
+		);
 		return isValid;
 	}, []);
 
@@ -166,7 +168,7 @@ export const useRedirectURIRouting = () => {
 	return {
 		routeToCorrectStep,
 		validateRedirectURI,
-		getAllRoutes
+		getAllRoutes,
 	};
 };
 
@@ -179,14 +181,14 @@ export const RedirectURIRoutingService = {
 		const { routeToCorrectStep } = useRedirectURIRouting();
 		return routeToCorrectStep(redirectUri);
 	},
-	
+
 	validateRedirectURI: (redirectUri: string): boolean => {
 		const { validateRedirectURI } = useRedirectURIRouting();
 		return validateRedirectURI(redirectUri);
 	},
-	
+
 	getAllRoutes: (): RedirectURIRouteEntry[] => {
 		const { getAllRoutes } = useRedirectURIRouting();
 		return getAllRoutes();
-	}
+	},
 };

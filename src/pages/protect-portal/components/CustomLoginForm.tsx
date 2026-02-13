@@ -19,14 +19,14 @@ import PortalPageLayout, { PortalPageSection } from './PortalPageLayout';
 // ============================================================================
 
 interface CustomLoginFormProps {
-  environmentId: string;
-  clientId: string;
-  redirectUri: string;
-  buttonText?: string;
-  buttonStyle?: React.CSSProperties;
-  showIcons?: boolean;
-  onLoginSuccess: (userContext: UserContext, loginContext: LoginContext) => void;
-  onError: (error: PortalError) => void;
+	environmentId: string;
+	clientId: string;
+	redirectUri: string;
+	buttonText?: string;
+	buttonStyle?: React.CSSProperties;
+	showIcons?: boolean;
+	onLoginSuccess: (userContext: UserContext, loginContext: LoginContext) => void;
+	onError: (error: PortalError) => void;
 }
 
 // ============================================================================
@@ -34,35 +34,35 @@ interface CustomLoginFormProps {
 // ============================================================================
 
 const CustomLoginForm: React.FC<CustomLoginFormProps> = ({
-  environmentId,
-  clientId,
-  redirectUri,
-  buttonText = 'Sign In',
-  buttonStyle,
-  showIcons = true,
-  onLoginSuccess,
-  onError,
+	environmentId,
+	clientId,
+	redirectUri,
+	buttonText = 'Sign In',
+	buttonStyle,
+	showIcons = true,
+	onLoginSuccess,
+	onError,
 }) => {
-  // ============================================================================
-  // RENDER - Simple wrapper around BaseLoginForm
-  // ============================================================================
+	// ============================================================================
+	// RENDER - Simple wrapper around BaseLoginForm
+	// ============================================================================
 
-  return (
-    <PortalPageLayout title="Sign In">
-      <PortalPageSection>
-        <BaseLoginForm
-          environmentId={environmentId}
-          clientId={clientId}
-          redirectUri={redirectUri}
-          buttonText={buttonText}
-          {...(buttonStyle && { buttonStyle })}
-          showIcons={showIcons}
-          onLoginSuccess={onLoginSuccess}
-          onError={onError}
-        />
-      </PortalPageSection>
-    </PortalPageLayout>
-  );
+	return (
+		<PortalPageLayout title="Sign In">
+			<PortalPageSection>
+				<BaseLoginForm
+					environmentId={environmentId}
+					clientId={clientId}
+					redirectUri={redirectUri}
+					buttonText={buttonText}
+					{...(buttonStyle && { buttonStyle })}
+					showIcons={showIcons}
+					onLoginSuccess={onLoginSuccess}
+					onError={onError}
+				/>
+			</PortalPageSection>
+		</PortalPageLayout>
+	);
 };
 
 export default CustomLoginForm;
