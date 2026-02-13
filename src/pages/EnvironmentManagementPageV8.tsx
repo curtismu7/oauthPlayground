@@ -22,6 +22,7 @@ import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
 import { IndexedDBBackupServiceV8U } from '../v8u/services/indexedDBBackupServiceV8U';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 
 const Container = styled.div`
   padding: 2rem;
@@ -496,19 +497,33 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	// Global worker token for authenticated API calls
 	const globalTokenStatus = useGlobalWorkerToken();
 
-	// Worker token state
-	const [workerToken, setWorkerToken] = useState<string>(() => 
-		localStorage.getItem('worker_token') || ''
-	);
+	// Worker token state - using unifiedWorkerTokenService for consistency
+	const [workerToken, setWorkerToken] = useState<string>(() => {
+		// Try to get token from unifiedWorkerTokenService first
+		try {
+			return unifiedWorkerTokenService.getToken() || '';
+		} catch {
+			return '';
+		}
+	});
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// Listen for token updates
 	useEffect(() => {
-		const handleTokenUpdate = () => {
-			const token = localStorage.getItem('worker_token') || '';
-			setWorkerToken(token);
-			// Note: workerTokenExpiresAt is managed by WorkerTokenDetectedBanner component
+		const handleTokenUpdate = async () => {
+			// Get token from unifiedWorkerTokenService
+			try {
+				const token = unifiedWorkerTokenService.getToken() || '';
+				setWorkerToken(token);
+				// Note: workerTokenExpiresAt is managed by WorkerTokenDetectedBanner component
+			} catch (error) {
+				console.error('[EnvironmentManagementPageV8] Failed to get token from unifiedWorkerTokenService:', error);
+				setWorkerToken('');
+			}
 		};
+
+		// Initial load
+		handleTokenUpdate();
 
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 		window.addEventListener('workerTokenMetricsUpdated', handleTokenUpdate);
@@ -932,6 +947,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 							// Token generated, reload the page to show environments
 							window.location.reload();
 						}}
+						environmentId={selectedEnvironmentId}
 					/>
 				</div>
 			</Container>
@@ -1325,6 +1341,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					// Token generated, reload the page to show environments
 					window.location.reload();
 				}}
+				environmentId={selectedEnvironmentId}
 			/>
 		</Container>
 	);
