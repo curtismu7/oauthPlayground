@@ -1000,12 +1000,14 @@ class UnifiedWorkerTokenService {
 
 			const exportData = {
 				version: '1.0.0',
-				exportedAt: new Date().toISOString(),
-				credentials: tokenData.credentials,
-				token: {
-					accessToken: tokenData.token,
-					expiresAt: tokenData.expiresAt,
-					tokenType: tokenData.tokenType,
+				exportDate: new Date().toISOString(),
+				workerToken: {
+					environmentId: tokenData.credentials.environmentId,
+					clientId: tokenData.credentials.clientId,
+					clientSecret: tokenData.credentials.clientSecret,
+					scopes: tokenData.credentials.scopes || [],
+					region: tokenData.credentials.region || 'us',
+					authMethod: tokenData.credentials.tokenEndpointAuthMethod || 'client_secret_basic'
 				},
 			};
 
@@ -1023,13 +1025,26 @@ class UnifiedWorkerTokenService {
 		try {
 			const importData = JSON.parse(configJson);
 
-			// Validate import data structure
-			if (!importData.credentials || !importData.token) {
-				throw new Error('Invalid configuration format');
+			// Handle both old format (credentials) and new format (workerToken)
+			let credentials;
+			if (importData.workerToken) {
+				// New standardized format
+				credentials = {
+					environmentId: importData.workerToken.environmentId,
+					clientId: importData.workerToken.clientId,
+					clientSecret: importData.workerToken.clientSecret,
+					scopes: importData.workerToken.scopes || [],
+					region: importData.workerToken.region || 'us',
+					tokenEndpointAuthMethod: importData.workerToken.authMethod || 'client_secret_basic'
+				};
+			} else if (importData.credentials) {
+				// Old format - backward compatibility
+				credentials = importData.credentials;
+			} else {
+				throw new Error('Invalid configuration format: expected workerToken or credentials field');
 			}
 
 			// Validate required fields
-			const { credentials } = importData;
 			if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
 				throw new Error('Missing required credentials fields');
 			}
