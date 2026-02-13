@@ -1584,24 +1584,10 @@ app.get('/api/environments', async (req, res) => {
 		
 		if (regionFilters.length > 0) {
 			const beforeCount = filteredEnvironments.length;
-			// Map API region codes to AWS region codes
-			const regionMapping = {
-				'na': 'us-east-1',
-				'us': 'us-east-1',
-				'eu': 'eu-west-1',
-				'ca': 'ca-central-1',
-				'ap': 'ap-southeast-2',
-				'asia': 'ap-southeast-2'
-			};
-			const mappedRegionFilters = regionFilters.map(r => regionMapping[r.toLowerCase()] || r);
 			filteredEnvironments = filteredEnvironments.filter(env => 
-				mappedRegionFilters.includes(env.region || '')
+				regionFilters.includes(env.region || '')
 			);
 			console.log(`[PingOne Environments API] Region filter: ${beforeCount} -> ${filteredEnvironments.length}`);
-			console.log(`[PingOne Environments API] Region mapping:`, { 
-				original: regionFilters, 
-				mapped: mappedRegionFilters 
-			});
 		}
 		
 		if (search) {
@@ -2171,10 +2157,10 @@ app.put('/api/environments/:id/status', async (req, res) => {
 
 // Helper functions for PingOne environment transformation
 function determineRegionFromBaseUrl(url) {
-	if (url.includes('api.pingone.eu')) return 'eu-west-1';
-	if (url.includes('api.pingone.ca')) return 'ca-central-1';
-	if (url.includes('api.pingone.asia')) return 'ap-southeast-2';
-	return 'us-east-1'; // default
+	if (url.includes('api.pingone.eu')) return 'eu';
+	if (url.includes('api.pingone.ca')) return 'ca';
+	if (url.includes('api.pingone.asia')) return 'ap';
+	return 'na'; // default for North America (.com)
 }
 
 function determineEnabledServices(env) {
