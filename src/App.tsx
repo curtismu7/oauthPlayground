@@ -17,6 +17,8 @@ import { WorkerTokenModal } from './components/WorkerTokenModal';
 import { BackendDownModalV8 } from './v8/components/BackendDownModalV8';
 import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
 import { PromptModalV8 } from './v8/components/PromptModalV8';
+import { FloatingLogViewer } from './components/FloatingLogViewer';
+import { FloatingLogToggle } from './components/FloatingLogToggle';
 
 const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
 
@@ -1498,6 +1500,9 @@ function AppContent() {
 		url: '',
 	});
 
+	// Floating log viewer state
+	const [isFloatingLogViewerOpen, setIsFloatingLogViewerOpen] = useState(false);
+
 	// Initialize credential debugger for development
 	useEffect(() => {
 		if (process.env.NODE_ENV === 'development') {
@@ -1650,6 +1655,18 @@ function AppContent() {
 
 			{/* Global Backend Connectivity Modal */}
 			<BackendDownModalV8 />
+
+			{/* Floating Log Viewer */}
+			<FloatingLogViewer
+				isOpen={isFloatingLogViewerOpen}
+				onClose={() => setIsFloatingLogViewerOpen(false)}
+			/>
+
+			{/* Floating Log Toggle */}
+			<FloatingLogToggle
+				isOpen={isFloatingLogViewerOpen}
+				onClick={() => setIsFloatingLogViewerOpen(!isFloatingLogViewerOpen)}
+			/>
 		</ThemeProvider>
 	);
 }
