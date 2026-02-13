@@ -866,7 +866,7 @@ export const DebugLogViewerV8: React.FC = () => {
 								fontWeight: '600',
 								cursor: 'pointer',
 							}}
-							title="Open in draggable window that can be moved outside browser"
+							title="Open in draggable modal (stays on top within browser - cannot appear above other apps)"
 						>
 							<FiExternalLink size={16} />
 							Popout
@@ -1215,7 +1215,7 @@ export const DebugLogViewerV8: React.FC = () => {
 				>
 					<PageHeaderV8
 						title="Debug Log Viewer (Draggable)"
-						subtitle="View persistent debug logs and server log files with live tail - Draggable window!"
+						subtitle="View persistent debug logs and server log files with live tail - Draggable modal (stays on top within browser)"
 						gradient={PageHeaderGradients.unifiedOAuth}
 						textColor={PageHeaderTextColors.darkBlue}
 					/>
