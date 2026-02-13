@@ -405,6 +405,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 					timestamp: Date.now(),
 				};
 				sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
+				localStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
 
 				console.log(`${LOG_PREFIX} [INFO] Flow source and context saved for Token Management`);
 			} catch (e) {
