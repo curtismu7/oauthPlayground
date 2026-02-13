@@ -3563,8 +3563,22 @@ Token Monitoring needed explicit **ALL** options for both filter dropdowns (**Fl
 ### 4. Ensure decoded token data is visible in list
 - Added token-list-driven auto-decode pass for JWTs so decoded header/payload are available for display.
 
+### 5. Restore user-token visibility across tabs/routes
+- Added resilient flow-context lookup in token monitoring service:
+  - current tab `sessionStorage`
+  - opener tab `sessionStorage` (for `window.open` token-management launches)
+  - `localStorage` fallback
+- Added legacy fallback that ingests `token_to_analyze`/`token_type` into token monitoring when full context is unavailable.
+- Persisted `tokenManagementFlowContext` to `localStorage` in core flow context writers to prevent missing user tokens on fresh token-monitoring tabs.
+
 ## Files Modified
 - `src/v8u/pages/TokenMonitoringPage.tsx` - Added flow filter state/UI, combined filtering logic, and auto-decode behavior.
+- `src/v8u/services/tokenMonitoringService.ts` - Added robust flow-context retrieval + legacy localStorage token fallback for user-token visibility.
+- `src/services/authorizationCodeSharedService.ts` - Save token management flow context to localStorage.
+- `src/services/implicitFlowSharedService.ts` - Save token management flow context to localStorage.
+- `src/pages/flows/OAuthAuthorizationCodeFlowV7_1/authorizationCodeSharedService.ts` - Save token management flow context to localStorage.
+- `src/hooks/useClientCredentialsFlow.ts` - Save token management flow context to localStorage.
+- `src/components/UserInformationStep.tsx` - Save token management flow context to localStorage.
 
 #### **ISSUE LOCATION MAP**
 This regression can arise in these hotspots:
@@ -3573,8 +3587,11 @@ This regression can arise in these hotspots:
    - Risk pattern: Dropdown labels/options not matching filter logic (`all` behavior mismatch).
 2. `src/v8u/services/tokenMonitoringService.ts`
    - Risk pattern: Token source/type fields evolve but UI filter mapping is not updated.
+   - Risk pattern: Flow context lookup only checks one storage location, causing user tokens to disappear in new tabs.
 3. `src/services/tokenDisplayService.ts`
    - Risk pattern: Decode helper usage changes and UI no longer reflects decoded JWT content in token list.
+4. `src/services/authorizationCodeSharedService.ts`, `src/services/implicitFlowSharedService.ts`, `src/pages/flows/OAuthAuthorizationCodeFlowV7_1/authorizationCodeSharedService.ts`, `src/hooks/useClientCredentialsFlow.ts`, `src/components/UserInformationStep.tsx`
+   - Risk pattern: `tokenManagementFlowContext` written only to sessionStorage (not cross-tab resilient).
 
 #### **Enhanced Prevention Commands**
 ```bash
@@ -3599,6 +3616,21 @@ grep -n "tokenTypeMatches.*flowTypeMatches" src/v8u/pages/TokenMonitoringPage.ts
 grep -n "Auto-decode JWT tokens\|TokenDisplayService.decodeJWT\|setDecodedTokens" src/v8u/pages/TokenMonitoringPage.tsx \
   && echo "✅ Decoded token visibility path present" \
   || { echo "❌ Decoded token visibility path missing"; exit 1; }
+
+# Verify robust context lookup + legacy fallback for user tokens
+grep -n "getTokenManagementFlowContext\|window\.opener\?\.sessionStorage\|syncTokenFromLegacyStorage\|token_to_analyze" src/v8u/services/tokenMonitoringService.ts \
+  && echo "✅ User-token fallback/context lookup present" \
+  || { echo "❌ User-token fallback/context lookup missing"; exit 1; }
+
+# Verify flow writers persist context to localStorage
+grep -n "localStorage\.setItem('tokenManagementFlowContext'" \
+  src/services/authorizationCodeSharedService.ts \
+  src/services/implicitFlowSharedService.ts \
+  src/pages/flows/OAuthAuthorizationCodeFlowV7_1/authorizationCodeSharedService.ts \
+  src/hooks/useClientCredentialsFlow.ts \
+  src/components/UserInformationStep.tsx \
+  && echo "✅ Cross-tab context persistence present" \
+  || { echo "❌ Cross-tab context persistence missing"; exit 1; }
 ```
 
 #### **Automated Gate Notes**
@@ -3608,6 +3640,8 @@ grep -n "Auto-decode JWT tokens\|TokenDisplayService.decodeJWT\|setDecodedTokens
 bash -c 'grep -n "ALL Flows" src/v8u/pages/TokenMonitoringPage.tsx >/dev/null'
 bash -c 'grep -n "ALL Token Types" src/v8u/pages/TokenMonitoringPage.tsx >/dev/null'
 bash -c 'grep -n "tokenTypeMatches.*flowTypeMatches" src/v8u/pages/TokenMonitoringPage.tsx >/dev/null'
+bash -c 'grep -n "syncTokenFromLegacyStorage" src/v8u/services/tokenMonitoringService.ts >/dev/null'
+bash -c 'grep -n "localStorage.setItem('\''tokenManagementFlowContext'\''" src/services/authorizationCodeSharedService.ts >/dev/null'
 ```
 
 #### **How to Verify (Manual)**
@@ -3616,6 +3650,7 @@ bash -c 'grep -n "tokenTypeMatches.*flowTypeMatches" src/v8u/pages/TokenMonitori
 3. Confirm **Token Type** dropdown includes `ALL Token Types`.
 4. Set both to ALL and verify tokens list appears unfiltered.
 5. For JWT tokens, confirm decoded header/payload sections are visible from list actions.
+6. Run an OAuth/OIDC flow, open Token Monitoring in a new tab, and confirm user access/refresh/id tokens appear.
 
 ---
 
