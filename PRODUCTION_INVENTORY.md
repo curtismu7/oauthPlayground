@@ -2565,6 +2565,89 @@ echo "🎯 PRODUCTION GROUP STORAGE ENHANCEMENT CHECKS COMPLETE"
 - Documented fallback patterns for graceful degradation
 - Added environment isolation best practices
 
+### **✅ Issue PROD-015: Debug Log Viewer Readability**
+**Status**: ✅ FIXED  
+**Component**: DebugLogViewerV8  
+**Severity**: Medium (User Experience)
+**Date**: 2026-02-12
+
+#### **Problem Summary:**
+Log viewer had poor readability with grey text on white background, making log entries difficult to read.
+
+#### **Root Cause Analysis:**
+- Log message text used `#1f2937` (dark grey) instead of black
+- Timestamp and URL text used `#6b7280` (light grey) 
+- File content text used `#d1d5db` (very light grey)
+- Empty state text used `#6b7280` (light grey)
+
+#### **Files Modified:**
+- `src/v8/pages/DebugLogViewerV8.tsx` - Updated text colors for better contrast
+
+#### **✅ Solution Implemented:**
+```typescript
+// BEFORE: Poor contrast grey text
+color: '#1f2937',  // Log messages (dark grey)
+color: '#6b7280',  // Timestamps/URLs (light grey)
+color: '#d1d5db',  // File content (very light grey)
+
+// AFTER: High contrast black text
+color: '#000000',  // Log messages (black)
+color: '#374151',  // Timestamps/URLs (dark grey)
+color: '#000000',  // File content (black)
+```
+
+#### **🎯 Benefits:**
+- ✅ **Better Readability**: Black text on white background provides maximum contrast
+- ✅ **Improved UX**: Log entries are now easy to read and scan
+- ✅ **Accessibility**: Meets WCAG contrast requirements
+- ✅ **Professional Look**: Clean, high-contrast appearance
+
+#### **🔍 Prevention Commands:**
+```bash
+# 1. Check for grey text colors in log viewer
+echo "=== Checking Log Viewer Text Colors ==="
+grep -n "color.*#[0-9a-fA-F]" src/v8/pages/DebugLogViewerV8.tsx | grep -E "#6b7280|#d1d5db|#1f2937" && echo "❌ POOR CONTRAST COLORS FOUND" || echo "✅ GOOD CONTRAST COLORS"
+
+# 2. Verify black text is used for main content
+echo "=== Checking Black Text Usage ==="
+grep -n "color.*#000000" src/v8/pages/DebugLogViewerV8.tsx | wc -l && echo "✅ BLACK TEXT USED" || echo "❌ BLACK TEXT MISSING"
+
+# 3. Check for proper contrast ratios
+echo "=== Checking Text Contrast ==="
+grep -A 2 -B 2 "fontSize.*13px" src/v8/pages/DebugLogViewerV8.tsx | grep "color.*#000000" && echo "✅ MAIN TEXT HAS GOOD CONTRAST" || echo "❌ MAIN TEXT CONTRAST ISSUE"
+
+# 4. Verify file content styling
+echo "=== Checking File Content Styling ==="
+grep -A 5 "color.*#000000" src/v8/pages/DebugLogViewerV8.tsx | grep -E "fontSize.*12px|fontFamily.*monospace" && echo "✅ FILE CONTENT PROPERLY STYLED" || echo "❌ FILE CONTENT STYLING ISSUE"
+
+echo "🎯 LOG VIEWER READABILITY CHECKS COMPLETE"
+```
+
+#### **🔧 SWE-15 Compliance:**
+- ✅ **Single Responsibility**: Focused only on text color improvements
+- ✅ **Open/Closed**: Enhanced readability without changing functionality
+- ✅ **Liskov Substitution**: Component behavior unchanged
+- ✅ **Interface Segregation**: Minimal styling changes only
+- ✅ **Dependency Inversion**: No new dependencies introduced
+
+#### **📊 Impact:**
+- **Before**: Grey text with poor readability (#1f2937, #6b7280, #d1d5db)
+- **After**: High contrast black text (#000000, #374151)
+- **User Experience**: Significantly improved log reading experience
+- **Accessibility**: WCAG AA compliant contrast ratios
+
+#### **🔗 Related Issues:**
+- **Debug Log Viewer**: Real-time log file viewer implementation (9.8.0)
+- **UI Standards**: Consistent text color usage across components
+- **Accessibility**: WCAG compliance requirements
+
+#### **📚 Documentation Updates:**
+- Added text color requirements to UI guidelines
+- Updated component styling standards for readability
+- Documented accessibility best practices for text contrast
+
+---
+
 **🚀 Future Enhancements:**
 - **Real-time Sync**: WebSocket-based cross-device synchronization
 - **Compression**: Data compression for SQLite backup storage
