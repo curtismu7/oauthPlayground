@@ -64,10 +64,10 @@ export interface PingOneConfig {
 const typedWindow = window as WindowWithPingOne;
 
 export const appConfig = {
-	title: typedWindow.__PINGONE_APP_TITLE__ || 'PingOne OAuth/OIDC Playground',
+	title: typedWindow.__PINGONE_APP_TITLE__ || 'MasterFlow API',
 	description:
 		typedWindow.__PINGONE_APP_DESCRIPTION__ ||
-		'Interactive playground for OAuth 2.0 and OpenID Connect with PingOne',
+		'MasterFlow API - Interactive platform for OAuth 2.0 and OpenID Connect with PingOne',
 	version: typedWindow.__PINGONE_APP_VERSION__ || APP_VERSION,
 	defaultTheme: typedWindow.__PINGONE_APP_DEFAULT_THEME__ || 'light',
 	devServer: {

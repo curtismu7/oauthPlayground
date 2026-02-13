@@ -112,7 +112,7 @@ const DEFAULT_SETTINGS: UISettings = {
 };
 
 // Settings storage key
-const SETTINGS_STORAGE_KEY = 'oauth-playground-ui-settings';
+const SETTINGS_STORAGE_KEY = 'masterflow-api-ui-settings';
 
 // Hook for managing UI settings
 export const useUISettings = () => {

@@ -1005,6 +1005,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</MigrationBadge>
 						),
 					},
+					{
+						id: 'user-management-v8u',
+						path: '/v8u/user-management',
+						label: 'User Management App',
+						icon: (
+							<ColoredIcon $color="#3b82f6">
+								<FiUsers />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8U: User management operations and administration">
+								NEW
+							</MigrationBadge>
+						),
+					},
 				],
 			},
 			{
@@ -1719,7 +1734,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			<ProSidebar key={`sidebar-${renderTimestamp}`} width={`${sidebarWidth}px`}>
 				<SidebarHeader>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						PingOne OAuth Playground
+						MasterFlow API
 					</div>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 						<DragModeToggle
