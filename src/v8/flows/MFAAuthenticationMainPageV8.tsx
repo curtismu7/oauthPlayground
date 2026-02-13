@@ -467,14 +467,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 						// Use the same logic as attemptSilentTokenRetrieval
 						const region = credentials.region || 'us';
-						// const apiBase = // const _apiBase = apiBase; // Unused - available if needed for debugging
-							region === 'eu'
-								? 'https://auth.pingone.eu'
-								: region === 'ap'
-									? 'https://auth.pingone.asia'
-									: region === 'ca'
-										? 'https://auth.pingone.ca'
-										: 'https://auth.pingone.com';
+						// const apiBase = region === 'eu'
+						// 	? 'https://auth.pingone.eu'
+						// 	: region === 'ap'
+						// 		? 'https://auth.pingone.asia'
+						// 		: region === 'ca'
+						// 			? 'https://auth.pingone.ca'
+						// 			: 'https://auth.pingone.com'; // Unused - available if needed for debugging
 
 						const proxyEndpoint = '/api/pingone/token';
 						const defaultScopes = ['mfa:device:manage', 'mfa:device:read'];
