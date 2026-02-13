@@ -16,6 +16,7 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
+import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
 import { useWorkerTokenState, WorkerTokenUI } from '../services/workerTokenUIService';
 import { IndexedDBBackupServiceV8U } from '../v8u/services/indexedDBBackupServiceV8U';
@@ -441,6 +442,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	}, [selectedApiRegion, typeFilter, statusFilter, regionFilter, currentPage]);
 
 	const fetchEnvironments = useCallback(async () => {
+		console.log('[EnvironmentManagementPageV8] 🚀 Starting fetchEnvironments...');
+
 		try {
 			setLoading(true);
 			setError(null);
@@ -484,24 +487,48 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				type?: string[];
 				status?: string[];
 				region?: string[];
+				search?: string;
 				page?: number;
 				pageSize?: number;
-			} = {
-				page: currentPage,
-				pageSize,
-			};
+			} = {};
 
+			// Add filters if they're set
 			if (typeFilter !== 'all') {
 				filters.type = [typeFilter];
 			}
-
 			if (statusFilter !== 'all') {
 				filters.status = [statusFilter];
 			}
-
 			if (regionFilter !== 'all') {
 				filters.region = [regionFilter];
 			}
+
+			// Add pagination
+			filters.page = currentPage;
+			filters.pageSize = pageSize;
+
+			console.log('[EnvironmentManagementPageV8] 🔍 Fetching with filters:', {
+				filters,
+				selectedApiRegion,
+				currentPage,
+			});
+
+			// Track the API call
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'GET',
+				url: `/api/environments?page=${currentPage}&pageSize=${pageSize}`,
+				headers: {
+					Authorization: `Bearer ${globalTokenStatus.token?.substring(0, 20)}...`,
+					'Content-Type': 'application/json',
+				},
+				queryParams: Object.fromEntries(
+					Object.entries(filters).filter(([_, v]) => v !== undefined && v !== 'all')
+				),
+			});
+
+			console.log(
+				'[EnvironmentManagementPageV8] 📡 Making API call to EnvironmentServiceV8.getEnvironments'
+			);
 
 			const response = await EnvironmentServiceV8.getEnvironments(
 				filters,
@@ -509,16 +536,45 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				selectedApiRegion // Use selected API region
 			);
 
+			console.log('[EnvironmentManagementPageV8] 📦 Received response:', {
+				response,
+				environmentsCount: response?.environments?.length,
+				totalCount: response?.totalCount,
+			});
+
+			// Update the API call with response
+			apiCallTrackerService.updateApiCallResponse(callId, {
+				status: 200,
+				statusText: 'OK',
+				data: response,
+			});
+
 			// CRITICAL FIX: Ensure environments is always an array, never undefined
-			setEnvironments(response?.environments ?? []);
+			const envs = response?.environments ?? [];
+			console.log('[EnvironmentManagementPageV8] 📝 Setting environments:', {
+				count: envs.length,
+				firstEnv: envs[0] || 'No environments',
+			});
+
+			setEnvironments(envs);
 			setTotalPages(Math.ceil((response?.totalCount ?? 0) / pageSize));
+
+			console.log('[EnvironmentManagementPageV8] ✅ Successfully loaded environments');
 		} catch (err) {
-			console.error('[EnvironmentManagementPageV8] Failed to fetch environments:', err);
-			setError(err instanceof Error ? err.message : 'Failed to fetch environments');
+			console.error('[EnvironmentManagementPageV8] 💥 Failed to fetch environments:', {
+				error: err,
+				message: err instanceof Error ? err.message : 'Unknown error',
+				stack: err instanceof Error ? err.stack : undefined,
+			});
+
+			const errorMessage = err instanceof Error ? err.message : 'Failed to fetch environments';
+			setError(errorMessage);
+
 			// CRITICAL: Set empty array on error to prevent undefined .map() crash
 			setEnvironments([]);
 			setTotalPages(1);
 		} finally {
+			console.log('[EnvironmentManagementPageV8] 🏁 Fetch environments completed');
 			setLoading(false);
 		}
 	}, [
@@ -532,6 +588,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		globalTokenStatus.isLoading,
 		globalTokenStatus.error,
 		globalTokenStatus.message,
+		pageSize,
 	]);
 
 	useEffect(() => {
