@@ -89,6 +89,26 @@ const DocLink = styled.a`
   }
 `;
 
+const StatusBadge = styled.span<{ status: 'available' | 'coming-soon' }>`
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  
+  ${(props) =>
+		props.status === 'available'
+			? `
+    background: #d4edda;
+    color: #155724;
+  `
+			: `
+    background: #fff3cd;
+    color: #856404;
+  `}
+`;
+
 const Section = styled.section`
   margin-bottom: 3rem;
 `;
@@ -128,6 +148,7 @@ const SDKDocumentation: React.FC = () => {
         <SectionTitle>Core SDKs</SectionTitle>
         <DocumentationGrid>
           <DocCard>
+            <StatusBadge status="available">Available</StatusBadge>
             <DocTitle>PingOne Advanced Identity Cloud</DocTitle>
             <DocDescription>
               Complete SDK for user authentication, authorization, and identity management 
@@ -139,6 +160,7 @@ const SDKDocumentation: React.FC = () => {
           </DocCard>
 
           <DocCard>
+            <StatusBadge status="available">Available</StatusBadge>
             <DocTitle>PingOne Protect SDK</DocTitle>
             <DocDescription>
               Security and fraud detection SDK that provides risk assessment, 
@@ -150,6 +172,7 @@ const SDKDocumentation: React.FC = () => {
           </DocCard>
 
           <DocCard>
+            <StatusBadge status="available">Available</StatusBadge>
             <DocTitle>PingOne Verify SDK</DocTitle>
             <DocDescription>
               Identity verification SDK for document verification, biometric matching, 
@@ -161,6 +184,7 @@ const SDKDocumentation: React.FC = () => {
           </DocCard>
 
           <DocCard>
+            <StatusBadge status="available">Available</StatusBadge>
             <DocTitle>PingOne DaVinci SDK</DocTitle>
             <DocDescription>
               Workflow automation SDK for creating custom authentication flows, 
@@ -177,6 +201,7 @@ const SDKDocumentation: React.FC = () => {
         <SectionTitle>Quick Start Examples</SectionTitle>
         <DocumentationGrid>
           <DocCard>
+            <StatusBadge status="available">Available</StatusBadge>
             <DocTitle>JWT Authentication</DocTitle>
             <DocDescription>
               Learn how to implement JWT-based authentication with private key 
@@ -188,6 +213,7 @@ const SDKDocumentation: React.FC = () => {
           </DocCard>
 
           <DocCard>
+            <StatusBadge status="available">Available</StatusBadge>
             <DocTitle>OIDC Centralized Login</DocTitle>
             <DocDescription>
               Implement OpenID Connect centralized login with server-side UI 
@@ -199,6 +225,7 @@ const SDKDocumentation: React.FC = () => {
           </DocCard>
 
           <DocCard>
+            <StatusBadge status="available">Available</StatusBadge>
             <DocTitle>DaVinci Todo App</DocTitle>
             <DocDescription>
               Complete todo application demonstrating DaVinci workflow integration 
@@ -234,6 +261,7 @@ await sdk.initialize();`}</CodeBlock>
         <SectionTitle>Additional Resources</SectionTitle>
         <DocumentationGrid>
           <DocCard>
+            <StatusBadge status="available">Available</StatusBadge>
             <DocTitle>SDK Examples Inventory</DocTitle>
             <DocDescription>
               Complete tracking of all SDK implementations and examples in this playground.
@@ -244,6 +272,7 @@ await sdk.initialize();`}</CodeBlock>
           </DocCard>
 
           <DocCard>
+            <StatusBadge status="available">Available</StatusBadge>
             <DocTitle>SDK Usage Guide</DocTitle>
             <DocDescription>
               Comprehensive usage examples and best practices for PingOne SDKs.
@@ -254,6 +283,7 @@ await sdk.initialize();`}</CodeBlock>
           </DocCard>
 
           <DocCard>
+            <StatusBadge status="available">Available</StatusBadge>
             <DocTitle>SWE-15 Development Guide</DocTitle>
             <DocDescription>
               Software engineering best practices for development in this playground.
@@ -264,6 +294,7 @@ await sdk.initialize();`}</CodeBlock>
           </DocCard>
 
           <DocCard>
+            <StatusBadge status="available">Available</StatusBadge>
             <DocTitle>Official PingOne Documentation</DocTitle>
             <DocDescription>
               Official PingOne SDK documentation and API references.
