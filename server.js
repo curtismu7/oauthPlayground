@@ -110,7 +110,7 @@ console.warn = (...args) => {
 console.log('🚀 Starting OAuth Playground Backend Server...'); // OAuth Playground Backend Server
 console.log(`📝 Server logs: ${logFile}`);
 console.log(`📝 PingOne API logs: ${pingOneApiLogFile}`);
-console.log(`📝 Real API logs (no proxy): ${realApiLogFile}`);
+console.log(`📝 Real API logs (no proxy): ${pingOneApiLogFile} (consolidated)`);
 console.log(`📝 Client logs: ${clientLogFile}`);
 
 // Ensure fetch is available globally for server handlers that reference global.fetch
