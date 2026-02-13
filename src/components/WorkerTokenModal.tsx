@@ -4,7 +4,6 @@
 import React, { useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
-	FiDownload,
 	FiExternalLink,
 	FiEye,
 	FiEyeOff,
@@ -12,7 +11,6 @@ import {
 	FiKey,
 	FiRefreshCw,
 	FiSave,
-	FiUpload,
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -567,38 +565,6 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		setIsNavigating(true);
 		v4ToastManager.showInfo('Navigating to get worker token...');
 		navigate('/client-generator');
-	};
-
-	const handleExportConfig = () => {
-		try {
-			unifiedWorkerTokenService.downloadConfig();
-			v4ToastManager.showSuccess('Configuration exported successfully');
-		} catch (error) {
-			v4ToastManager.showError('Failed to export configuration');
-			console.error('Export failed:', error);
-		}
-	};
-
-	const handleImportConfig = () => {
-		const input = document.createElement('input');
-		input.type = 'file';
-		input.accept = '.json';
-		input.onchange = async (e) => {
-			const file = (e.target as HTMLInputElement).files?.[0];
-			if (file) {
-				try {
-					const text = await file.text();
-					await unifiedWorkerTokenService.importConfig(text);
-					v4ToastManager.showSuccess('Configuration imported successfully');
-					// Reload the modal to show imported credentials
-					window.location.reload();
-				} catch (error) {
-					v4ToastManager.showError('Failed to import configuration');
-					console.error('Import failed:', error);
-				}
-			}
-		};
-		input.click();
 	};
 
 	// Reload credentials from storage when modal opens (prioritize saved credentials over prefillCredentials)
