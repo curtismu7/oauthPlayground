@@ -55,7 +55,7 @@ export const DebugLogViewerV8: React.FC = () => {
 	// Source selection
 	const [logSource, setLogSource] = useState<LogSource>('file');
 	const [availableFiles, setAvailableFiles] = useState<LogFile[]>([]);
-	const [selectedFile, setSelectedFile] = useState<string>('server.log');
+	const [selectedFile, setSelectedFile] = useState<string>('pingone-api.log');
 	const [lineCount, setLineCount] = useState<number>(100);
 	
 	// Log data
