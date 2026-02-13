@@ -1405,6 +1405,8 @@ declare module 'styled-components' {
 			gray700: string;
 			gray800: string;
 			gray900: string;
+			white: string;
+			black: string;
 		};
 		fonts: {
 			body: string;
@@ -1415,28 +1417,12 @@ declare module 'styled-components' {
 			sm: string;
 			md: string;
 			lg: string;
-			xl: string;
 		};
 		breakpoints: {
-			xs: string;
 			sm: string;
 			md: string;
 			lg: string;
 			xl: string;
-		};
-		spacing: {
-			xs: string;
-			sm: string;
-			md: string;
-			lg: string;
-			xl: string;
-			xxl: string;
-		};
-		borderRadius: {
-			sm: string;
-			md: string;
-			lg: string;
-			full: string;
 		};
 	}
 }
