@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { DraggableModal } from './DraggableModal';
+import { StandardizedCredentialExportImport } from './StandardizedCredentialExportImport';
 import { WorkerTokenRequestModal } from './WorkerTokenRequestModal';
 import { showTokenSuccessMessage } from '../services/tokenExpirationService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
@@ -598,6 +599,80 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			}
 		};
 		input.click();
+	};
+
+	// Standardized export handlers
+	const handleStandardizedExport = async () => {
+		try {
+			const credentials = await unifiedWorkerTokenService.loadCredentials();
+			if (!credentials) {
+				v4ToastManager.showError('No credentials to export');
+				return;
+			}
+			
+			const exportData = {
+				version: "1.0.0",
+				exportDate: new Date().toISOString(),
+				appName: "Worker Token",
+				appType: "worker-token" as const,
+				credentials: {
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
+					clientSecret: credentials.clientSecret,
+					region: credentials.region || 'us',
+					tokenEndpointAuthMethod: credentials.tokenEndpointAuthMethod || 'client_secret_post',
+					scopes: credentials.scopes || []
+				},
+				metadata: {
+					description: "Worker Token credentials for PingOne API access",
+					workflow: 'worker-token'
+				}
+			};
+			
+			const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = `worker-token-credentials-${new Date().toISOString().split('T')[0]}.json`;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+			
+			v4ToastManager.showSuccess('Worker Token credentials exported successfully');
+		} catch (error) {
+			v4ToastManager.showError('Failed to export credentials');
+			console.error('Export failed:', error);
+		}
+	};
+
+	const handleStandardizedImport = async (file: File) => {
+		try {
+			const text = await file.text();
+			const importData = JSON.parse(text);
+			
+			// Validate standardized format
+			if (!importData.appType || importData.appType !== 'worker-token') {
+				throw new Error('Invalid credential format: expected worker-token credentials');
+			}
+			
+			// Extract credentials from standardized format
+			const { credentials } = importData;
+			await unifiedWorkerTokenService.saveCredentials({
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				region: credentials.region || 'us',
+				tokenEndpointAuthMethod: credentials.tokenEndpointAuthMethod || 'client_secret_post',
+				scopes: credentials.scopes || []
+			});
+			
+			v4ToastManager.showSuccess('Worker Token credentials imported successfully');
+			window.location.reload();
+		} catch (error) {
+			v4ToastManager.showError('Failed to import credentials');
+			console.error('Import failed:', error);
+		}
 	};
 
 	// Reload credentials from storage when modal opens (prioritize saved credentials over prefillCredentials)
@@ -1685,19 +1760,30 @@ export const WorkerTokenModal: React.FC<Props> = ({
 									</ActionButton>
 									<ActionButton
 										$variant="secondary"
-										onClick={handleExportConfig}
-										disabled={isGenerating}
+										onClick={handleStandardizedExport}
+										disabled={isGenerating || !workerCredentials.clientId || !workerCredentials.clientSecret}
 									>
 										<FiDownload />
-										Export Config
+										Export Credentials
 									</ActionButton>
 									<ActionButton
 										$variant="secondary"
-										onClick={handleImportConfig}
+										onClick={() => {
+											const input = document.createElement('input');
+											input.type = 'file';
+											input.accept = '.json';
+											input.onchange = async (e) => {
+												const file = (e.target as HTMLInputElement).files?.[0];
+												if (file) {
+													await handleStandardizedImport(file);
+												}
+											};
+											input.click();
+										}}
 										disabled={isGenerating}
 									>
 										<FiUpload />
-										Import Config
+										Import Credentials
 									</ActionButton>
 									<ActionButton
 										$variant="secondary"
