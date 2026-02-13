@@ -3529,6 +3529,96 @@ bash -c 'grep -n "SuperSimpleApiDisplayV8 flowFilter=\"mfa\" reserveSpace={true}
 
 ---
 
+# PROD-027: Token Monitoring Filter Coverage and Decoded Visibility
+
+**Date:** 2026-02-13  
+**Status:** ✅ COMPLETED  
+**Priority:** MEDIUM
+
+## Issue Description
+Token Monitoring needed explicit **ALL** options for both filter dropdowns (**Flow Type** and **Token Type**) and token list visibility needed to consistently show decoded JWT payloads when present.
+
+## Root Cause
+- The page behavior relied on token type filtering but lacked explicit flow filter parity for user discoverability.
+- Decoded token rendering behavior was not enforced from the current token list state on each update.
+
+## Solution Implemented
+
+### 1. Added Flow Type dropdown with explicit ALL option
+- Added `selectedFlowType` state and UI dropdown options:
+  - `ALL Flows`
+  - `OAuth Flow`
+  - `Worker Token Flow`
+
+### 2. Kept Token Type dropdown explicit with ALL option
+- Ensured token type dropdown displays and applies:
+  - `ALL Token Types`
+  - specific token-type options
+
+### 3. Unified filtering behavior
+- Updated list filtering to apply both filters together:
+  - `selectedFlowType === 'all'` means no flow filter
+  - `selectedTokenType === 'all'` means no token-type filter
+
+### 4. Ensure decoded token data is visible in list
+- Added token-list-driven auto-decode pass for JWTs so decoded header/payload are available for display.
+
+## Files Modified
+- `src/v8u/pages/TokenMonitoringPage.tsx` - Added flow filter state/UI, combined filtering logic, and auto-decode behavior.
+
+#### **ISSUE LOCATION MAP**
+This regression can arise in these hotspots:
+
+1. `src/v8u/pages/TokenMonitoringPage.tsx`
+   - Risk pattern: Dropdown labels/options not matching filter logic (`all` behavior mismatch).
+2. `src/v8u/services/tokenMonitoringService.ts`
+   - Risk pattern: Token source/type fields evolve but UI filter mapping is not updated.
+3. `src/services/tokenDisplayService.ts`
+   - Risk pattern: Decode helper usage changes and UI no longer reflects decoded JWT content in token list.
+
+#### **Enhanced Prevention Commands**
+```bash
+echo "=== PROD-027 Token Monitoring Filter/Decode Checks ==="
+
+# Verify Flow Type dropdown includes ALL option
+grep -n "ALL Flows\|selectedFlowType\|worker_token\|oauth_flow" src/v8u/pages/TokenMonitoringPage.tsx \
+  && echo "✅ Flow filter options present" \
+  || { echo "❌ Flow filter options missing"; exit 1; }
+
+# Verify Token Type dropdown includes ALL option
+grep -n "ALL Token Types\|selectedTokenType === 'all'" src/v8u/pages/TokenMonitoringPage.tsx \
+  && echo "✅ Token type ALL option present" \
+  || { echo "❌ Token type ALL option missing"; exit 1; }
+
+# Verify combined filter logic applies BOTH flow and token-type filters
+grep -n "tokenTypeMatches.*flowTypeMatches" src/v8u/pages/TokenMonitoringPage.tsx \
+  && echo "✅ Combined filter logic present" \
+  || { echo "❌ Combined filter logic missing"; exit 1; }
+
+# Verify auto-decode path for JWT token list rendering
+grep -n "Auto-decode JWT tokens\|TokenDisplayService.decodeJWT\|setDecodedTokens" src/v8u/pages/TokenMonitoringPage.tsx \
+  && echo "✅ Decoded token visibility path present" \
+  || { echo "❌ Decoded token visibility path missing"; exit 1; }
+```
+
+#### **Automated Gate Notes**
+- Add PROD-027 grep checks to CI as non-zero guards.
+- Suggested CI snippet:
+```bash
+bash -c 'grep -n "ALL Flows" src/v8u/pages/TokenMonitoringPage.tsx >/dev/null'
+bash -c 'grep -n "ALL Token Types" src/v8u/pages/TokenMonitoringPage.tsx >/dev/null'
+bash -c 'grep -n "tokenTypeMatches.*flowTypeMatches" src/v8u/pages/TokenMonitoringPage.tsx >/dev/null'
+```
+
+#### **How to Verify (Manual)**
+1. Open `/v8u/token-monitoring`.
+2. Confirm **Flow Type** dropdown includes `ALL Flows`.
+3. Confirm **Token Type** dropdown includes `ALL Token Types`.
+4. Set both to ALL and verify tokens list appears unfiltered.
+5. For JWT tokens, confirm decoded header/payload sections are visible from list actions.
+
+---
+
 **🚀 Future Enhancements:**
 - **Real-time Sync**: WebSocket-based cross-device synchronization
 - **Compression**: Data compression for SQLite backup storage

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
+	FiCheck,
 	FiCheckCircle,
 	FiChevronDown,
 	FiChevronUp,
@@ -402,8 +403,10 @@ export const TokenMonitoringPage: React.FC = () => {
 	const [message, setMessage] = useState<string>('');
 	const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [selectedFlowType, setSelectedFlowType] = useState<string>('all');
 	const [selectedTokenType, setSelectedTokenType] = useState<string>('all');
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+	const [isFlowDropdownOpen, setIsFlowDropdownOpen] = useState(false);
 	const [decodedTokens, setDecodedTokens] = useState<Record<string, unknown>>({});
 	const [copiedTokenId, setCopiedTokenId] = useState<string | null>(null);
 
@@ -435,10 +438,9 @@ export const TokenMonitoringPage: React.FC = () => {
 					`[TokenMonitoringPage] Enhanced state management updated: ${tokenCount} tokens`
 				);
 			} catch (enhancedErr) {
-				logger.warn(
-					'[TokenMonitoringPage] Failed to update enhanced state management',
-					enhancedErr
-				);
+				logger.warn('[TokenMonitoringPage] Failed to update enhanced state management', {
+					error: enhancedErr instanceof Error ? enhancedErr.message : String(enhancedErr),
+				});
 			}
 		});
 
@@ -452,6 +454,20 @@ export const TokenMonitoringPage: React.FC = () => {
 		return unsubscribe;
 	}, [enhancedStateActions]);
 
+	// Auto-decode JWT tokens so decoded content is visible in the token list
+	useEffect(() => {
+		const nextDecoded: Record<string, unknown> = {};
+		tokens.forEach((token) => {
+			if (TokenDisplayService.isJWT(token.value)) {
+				const decoded = TokenDisplayService.decodeJWT(token.value);
+				if (decoded) {
+					nextDecoded[token.id] = decoded;
+				}
+			}
+		});
+		setDecodedTokens(nextDecoded);
+	}, [tokens]);
+
 	// Token actions
 	const handleRefreshToken = async (tokenId: string) => {
 		try {
@@ -460,9 +476,22 @@ export const TokenMonitoringPage: React.FC = () => {
 			setMessage('Token refreshed successfully');
 			setMessageType('success');
 		} catch (error) {
-			logger.error('Failed to refresh token:', error);
+			logger.error('Failed to refresh token:', {
+				error: error instanceof Error ? error.message : String(error),
+			});
 			setMessage('Failed to refresh token');
 			setMessageType('error');
+		}
+	};
+
+	const getFlowTypeLabel = (type: string) => {
+		switch (type) {
+			case 'oauth_flow':
+				return 'OAuth Flow';
+			case 'worker_token':
+				return 'Worker Token Flow';
+			default:
+				return 'ALL Flows';
 		}
 	};
 
@@ -473,7 +502,9 @@ export const TokenMonitoringPage: React.FC = () => {
 			setMessage('Token revoked successfully');
 			setMessageType('success');
 		} catch (error) {
-			logger.error('Failed to revoke token:', error);
+			logger.error('Failed to revoke token:', {
+				error: error instanceof Error ? error.message : String(error),
+			});
 			setMessage('Failed to revoke token');
 			setMessageType('error');
 		}
@@ -489,7 +520,9 @@ export const TokenMonitoringPage: React.FC = () => {
 				setMessageType('success');
 			}
 		} catch (error) {
-			logger.error('Failed to copy token:', error);
+			logger.error('Failed to copy token:', {
+				error: error instanceof Error ? error.message : String(error),
+			});
 			setMessage('Failed to copy token');
 			setMessageType('error');
 		}
@@ -518,11 +551,12 @@ export const TokenMonitoringPage: React.FC = () => {
 		});
 	};
 
-	// Filter tokens based on selected type
-	const filteredTokens =
-		selectedTokenType === 'all'
-			? tokens
-			: tokens.filter((token) => token.type === selectedTokenType);
+	// Filter tokens based on selected flow type and token type
+	const filteredTokens = tokens.filter((token) => {
+		const tokenTypeMatches = selectedTokenType === 'all' || token.type === selectedTokenType;
+		const flowTypeMatches = selectedFlowType === 'all' || token.source === selectedFlowType;
+		return tokenTypeMatches && flowTypeMatches;
+	});
 
 	// Calculate stats
 	const activeTokens = filteredTokens.filter((t) => t.status === 'active').length;
@@ -597,56 +631,93 @@ export const TokenMonitoringPage: React.FC = () => {
 				</StatCard>
 			</StatsGrid>
 
-			<DropdownContainer>
-				<DropdownButton onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-					<span>
-						{selectedTokenType === 'all' ? 'All Tokens' : getTokenTypeLabel(selectedTokenType)}
-					</span>
-					{isDropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
-				</DropdownButton>
-				<DropdownMenu $isOpen={isDropdownOpen}>
-					<DropdownItem
-						onClick={() => {
-							setSelectedTokenType('all');
-							setIsDropdownOpen(false);
-						}}
-					>
-						<FiDatabase /> All Tokens
-					</DropdownItem>
-					<DropdownItem
-						onClick={() => {
-							setSelectedTokenType('access_token');
-							setIsDropdownOpen(false);
-						}}
-					>
-						<FiShield /> Access Tokens
-					</DropdownItem>
-					<DropdownItem
-						onClick={() => {
-							setSelectedTokenType('refresh_token');
-							setIsDropdownOpen(false);
-						}}
-					>
-						<FiRefreshCw /> Refresh Tokens
-					</DropdownItem>
-					<DropdownItem
-						onClick={() => {
-							setSelectedTokenType('id_token');
-							setIsDropdownOpen(false);
-						}}
-					>
-						<FiInfo /> ID Tokens
-					</DropdownItem>
-					<DropdownItem
-						onClick={() => {
-							setSelectedTokenType('worker_token');
-							setIsDropdownOpen(false);
-						}}
-					>
-						<FiSettings /> Worker Tokens
-					</DropdownItem>
-				</DropdownMenu>
-			</DropdownContainer>
+			<div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+				<DropdownContainer>
+					<DropdownButton onClick={() => setIsFlowDropdownOpen(!isFlowDropdownOpen)}>
+						<span>{getFlowTypeLabel(selectedFlowType)}</span>
+						{isFlowDropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
+					</DropdownButton>
+					<DropdownMenu $isOpen={isFlowDropdownOpen}>
+						<DropdownItem
+							onClick={() => {
+								setSelectedFlowType('all');
+								setIsFlowDropdownOpen(false);
+							}}
+						>
+							<FiDatabase /> ALL Flows
+						</DropdownItem>
+						<DropdownItem
+							onClick={() => {
+								setSelectedFlowType('oauth_flow');
+								setIsFlowDropdownOpen(false);
+							}}
+						>
+							<FiShield /> OAuth Flow
+						</DropdownItem>
+						<DropdownItem
+							onClick={() => {
+								setSelectedFlowType('worker_token');
+								setIsFlowDropdownOpen(false);
+							}}
+						>
+							<FiSettings /> Worker Token Flow
+						</DropdownItem>
+					</DropdownMenu>
+				</DropdownContainer>
+
+				<DropdownContainer>
+					<DropdownButton onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+						<span>
+							{selectedTokenType === 'all'
+								? 'ALL Token Types'
+								: getTokenTypeLabel(selectedTokenType)}
+						</span>
+						{isDropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
+					</DropdownButton>
+					<DropdownMenu $isOpen={isDropdownOpen}>
+						<DropdownItem
+							onClick={() => {
+								setSelectedTokenType('all');
+								setIsDropdownOpen(false);
+							}}
+						>
+							<FiDatabase /> ALL Token Types
+						</DropdownItem>
+						<DropdownItem
+							onClick={() => {
+								setSelectedTokenType('access_token');
+								setIsDropdownOpen(false);
+							}}
+						>
+							<FiShield /> Access Tokens
+						</DropdownItem>
+						<DropdownItem
+							onClick={() => {
+								setSelectedTokenType('refresh_token');
+								setIsDropdownOpen(false);
+							}}
+						>
+							<FiRefreshCw /> Refresh Tokens
+						</DropdownItem>
+						<DropdownItem
+							onClick={() => {
+								setSelectedTokenType('id_token');
+								setIsDropdownOpen(false);
+							}}
+						>
+							<FiInfo /> ID Tokens
+						</DropdownItem>
+						<DropdownItem
+							onClick={() => {
+								setSelectedTokenType('worker_token');
+								setIsDropdownOpen(false);
+							}}
+						>
+							<FiSettings /> Worker Tokens
+						</DropdownItem>
+					</DropdownMenu>
+				</DropdownContainer>
+			</div>
 
 			{filteredTokens.length === 0 ? (
 				<EmptyState>
@@ -672,7 +743,7 @@ export const TokenMonitoringPage: React.FC = () => {
 								</TokenMetadata>
 							</TokenContent>
 
-							{decodedTokens[token.id] && (
+							{Boolean(decodedTokens[token.id]) && (
 								<TokenDecodedContent>
 									<DecodedSection>
 										<DecodedHeader>Header</DecodedHeader>
@@ -736,7 +807,10 @@ export const TokenMonitoringPage: React.FC = () => {
 			)}
 
 			{showWorkerTokenModal && (
-				<WorkerTokenModalV8 onClose={() => setShowWorkerTokenModal(false)} />
+				<WorkerTokenModalV8
+					isOpen={showWorkerTokenModal}
+					onClose={() => setShowWorkerTokenModal(false)}
+				/>
 			)}
 		</PageContainer>
 	);
