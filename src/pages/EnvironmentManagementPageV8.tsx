@@ -390,7 +390,6 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 	const pageSize = 12;
 	const STORAGE_KEY = 'environment-management-settings';
-	const _STORAGE_VERSION = 1;
 
 	// Load settings from enhanced storage on component mount
 	useEffect(() => {
