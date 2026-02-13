@@ -567,7 +567,6 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		globalTokenStatus.isLoading,
 		globalTokenStatus.error,
 		globalTokenStatus.message,
-		pageSize,
 	]);
 
 	useEffect(() => {
