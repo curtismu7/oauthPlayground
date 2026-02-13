@@ -3298,6 +3298,69 @@ Users needed a standardized credential export/import format across all Productio
 
 ---
 
+# PROD-023: Worker Token Export/Import Standardization
+
+**Date:** 2026-02-13
+**Status:** ✅ COMPLETED
+**Priority:** HIGH
+
+## Issue Description
+The WorkerTokenModal was using an outdated export format that didn't match the standardized credential format. The export was producing:
+```json
+{
+  "version": "1.0.0",
+  "exportedAt": "2026-02-13T13:57:21.353Z",
+  "token": {}
+}
+```
+
+Instead of the expected standardized format with `workerToken` field.
+
+## Solution Implemented
+
+### 1. Fixed Export Format
+Updated `unifiedWorkerTokenService.exportConfig()` to use standardized format:
+```json
+{
+  "version": "1.0.0",
+  "exportDate": "2026-02-13T13:57:21.353Z",
+  "workerToken": {
+    "environmentId": "...",
+    "clientId": "...",
+    "clientSecret": "...",
+    "scopes": ["openid"],
+    "region": "us",
+    "authMethod": "client_secret_basic"
+  }
+}
+```
+
+### 2. Enhanced Import with Backward Compatibility
+Updated `unifiedWorkerTokenService.importConfig()` to:
+- Accept new standardized format with `workerToken` field
+- Maintain backward compatibility with old format using `credentials` field
+- Map `authMethod` to `tokenEndpointAuthMethod` internally
+
+### 3. Updated WorkerTokenModal
+- Added standardized export/import handlers
+- Updated button labels to "Export Credentials" and "Import Credentials"
+- Maintained existing UI flow
+
+## Files Modified
+- Modified: `src/services/unifiedWorkerTokenService.ts` - Fixed export/import format
+- Modified: `src/components/WorkerTokenModal.tsx` - Added standardized handlers
+
+## Testing
+- Build successful with no errors
+- Export now produces correct standardized format
+- Import handles both old and new formats
+- Backward compatibility maintained
+
+## Root Cause
+The exportConfig method was using an outdated format structure that didn't align with the standardized credential export format implemented in PROD-022.
+
+---
+
 **🚀 Future Enhancements:**
 - **Real-time Sync**: WebSocket-based cross-device synchronization
 - **Compression**: Data compression for SQLite backup storage
