@@ -65,6 +65,9 @@ import {
 	type UnifiedOAuthCredentials,
 	UnifiedOAuthCredentialsServiceV8U,
 } from '../services/unifiedOAuthCredentialsServiceV8U';
+import { 
+	StandardizedCredentialExportImport
+} from '@/components/StandardizedCredentialExportImport';
 
 const _MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
 
@@ -2364,6 +2367,41 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								}
 							}}
 						/>
+						
+						{/* Standardized Export/Import Buttons */}
+						<div style={{ 
+							marginTop: '20px', 
+							paddingTop: '20px', 
+							borderTop: '1px solid #e2e8f0' 
+						}}>
+							<StandardizedCredentialExportImport
+								appName="Unified OAuth & OIDC"
+								appType="oauth"
+								credentials={credentials}
+								metadata={{
+									flowType: effectiveFlowType,
+									specVersion: specVersion,
+									environment: credentials.environmentId
+								}}
+								onExport={() => {
+									logger.info('Credentials exported', { flowKey, flowType: effectiveFlowType });
+								}}
+								onImport={(imported) => {
+									logger.info('Credentials imported', { 
+										flowKey, 
+										importedApp: imported.appName,
+										importedType: imported.appType 
+									});
+									// Reload credentials after import
+									reloadCredentialsAfterReset(flowKey).then(creds => {
+										setCredentials(creds);
+									});
+								}}
+								onError={(error) => {
+									logger.error('Credential export/import failed', { error: error.message });
+								}}
+							/>
+						</div>
 					</div>
 				)}
 			</div>

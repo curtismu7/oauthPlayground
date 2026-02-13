@@ -3230,6 +3230,74 @@ bash -c '
 
 ---
 
+# PROD-022: Standardized Credential Export/Import Implementation
+
+**Date:** 2026-02-13
+**Status:** ✅ COMPLETED
+**Priority:** HIGH
+
+## Issue Description
+Users needed a standardized credential export/import format across all Production apps to avoid having multiple JSON files for different applications.
+
+## Solution Implemented
+
+### 1. Core Services Created
+- **`src/services/standardizedCredentialExportService.ts`** - Main export/import service with backward compatibility
+- **`src/components/StandardizedCredentialExportImport.tsx`** - Reusable React component for consistent UI
+- **`src/utils/productionAppCredentialHelper.ts`** - Helper utilities for all Production apps
+
+### 2. Standard Format
+```json
+{
+  "version": "1.0.0",
+  "exportDate": "2026-01-16T21:43:35.125Z",
+  "appName": "App Name",
+  "appType": "oauth|worker-token|mfa|protect-portal|token-monitoring|api-status",
+  "credentials": { ... },
+  "metadata": { ... }
+}
+```
+
+### 3. Apps Updated
+- ✅ **Unified OAuth & OIDC** - Added export/import buttons to credentials form
+- ✅ **Unified MFA** - Added export/import buttons to device registration form
+- ✅ **Worker Token Modal** - Already using correct format
+
+### 4. Key Features
+- Single JSON file format for all apps
+- Backward compatible with existing exports
+- Type-safe TypeScript implementation
+- Consistent UI across all Production apps
+- Metadata support for additional context
+
+## Files Modified
+- Created: `src/services/standardizedCredentialExportService.ts`
+- Created: `src/components/StandardizedCredentialExportImport.tsx`
+- Created: `src/utils/productionAppCredentialHelper.ts`
+- Created: `docs/standardized-credential-export-import.md`
+- Modified: `src/v8u/flows/UnifiedOAuthFlowV8U.tsx`
+- Modified: `src/v8/flows/unified/components/UnifiedDeviceRegistrationForm.tsx`
+- Fixed: `src/components/WorkerTokenModal.tsx` - Fixed async/await issues
+
+## Testing
+- Build successful with no errors
+- All lint errors resolved
+- Backward compatibility verified
+
+## Next Steps
+- Implement export/import in remaining Production apps:
+  - API Status
+  - Flow Comparison Tool
+  - Resources API Tutorial
+  - SPIFFE/SPIRE Mock
+  - Postman Collection Generator
+  - Delete All Devices
+  - Enhanced State Management
+  - Token Monitoring Dashboard
+  - Protect Portal App
+
+---
+
 **🚀 Future Enhancements:**
 - **Real-time Sync**: WebSocket-based cross-device synchronization
 - **Compression**: Data compression for SQLite backup storage

@@ -15,22 +15,24 @@ export const unitedAirlinesTheme: BrandTheme = {
 	displayName: 'United Airlines',
 	portalName: 'United Airlines Employee Portal',
 	logo: {
-		url: 'https://raw.githubusercontent.com/curtismu7/CDN/74b2535cf2ff57c98c702071ff3de3e9eda63929/United.svg',
+		url: 'https://www.united.com/content/dam/united/brand/united-logo.svg',
 		alt: 'United Airlines Logo',
-		width: '160px',
+		width: '140px',
 		height: '60px',
-		text: 'UNITED',
+		text: 'United',
 		colors: {
 			united: '#0033A0',
-			globe: '#FF6600',
 		},
 	},
 	colors: {
 		primary: '#0033A0', // United Blue (official brand color)
+		primaryDark: '#002880', // Darker blue for hover states
 		secondary: '#FFFFFF', // White
 		accent: '#FF6600', // United Orange (official accent color)
 		background: '#FFFFFF', // Changed to solid white for Protect app
 		surface: '#FFFFFF',
+		muted: '#6b7280', // Muted gray
+		border: '#d1d5db', // Border gray
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#DC2626',
@@ -39,7 +41,6 @@ export const unitedAirlinesTheme: BrandTheme = {
 		info: '#0033A0', // Use United Blue for info
 		// Additional theme colors with official United Airlines palette
 		primaryLight: '#0056B3',
-		primaryDark: '#002880',
 		secondaryLight: '#F8F9FA',
 		secondaryDark: '#E9ECEF',
 		errorLight: '#FEE2E2',

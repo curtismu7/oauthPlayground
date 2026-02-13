@@ -227,6 +227,76 @@ const QuickLink = styled.a`
 // PROPS INTERFACE
 // ============================================================================
 
+// Additional styled components for tracking form
+const TrackingSection = styled.div`
+  margin-top: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const TrackingTitle = styled.h3`
+  color: #4D148C;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  text-align: center;
+`;
+
+const TrackingForm = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+`;
+
+const TrackingInput = styled.input`
+  flex: 1;
+  padding: 0.75rem;
+  border: 2px solid #E5E7EB;
+  border-radius: 8px;
+  font-size: 1rem;
+  
+  &:focus {
+    outline: none;
+    border-color: #4D148C;
+  }
+`;
+
+const TrackButton = styled.button`
+  background: #FF6600;
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #E55A00;
+  }
+`;
+
+const TrackingOptions = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const TrackingOption = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4D148C;
+  font-size: 0.875rem;
+  cursor: pointer;
+  
+  input[type="radio"] {
+    accent-color: #4D148C;
+  }
+`;
+
 interface FedExAirlinesHeroProps {
 	currentStep?: string;
 	onLoginStart?: () => void;
@@ -320,6 +390,35 @@ const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 								</LoginSection>
 
 								<LoginButton onClick={onLoginStart}>Sign In to Employee Portal</LoginButton>
+
+								{/* Package Tracking Form for Visual Authenticity */}
+								<TrackingSection>
+									<TrackingTitle>Track Your Shipment</TrackingTitle>
+									<TrackingForm>
+										<TrackingInput
+											type="text"
+											placeholder="Enter tracking number"
+											defaultValue="123456789012"
+										/>
+										<TrackButton type="button">
+											Track
+										</TrackButton>
+									</TrackingForm>
+									<TrackingOptions>
+										<TrackingOption>
+											<input type="radio" name="trackType" id="track" defaultChecked />
+											<label htmlFor="track">Track by tracking number</label>
+										</TrackingOption>
+										<TrackingOption>
+											<input type="radio" name="trackType" id="reference" />
+											<label htmlFor="reference">Track by reference</label>
+										</TrackingOption>
+										<TrackingOption>
+											<input type="radio" name="trackType" id="tnot" />
+											<label htmlFor="tnot">Track by Transport Order / TNOT number</label>
+										</TrackingOption>
+									</TrackingOptions>
+								</TrackingSection>
 
 								<QuickLinks>
 									<QuickLink href="#">Forgot Username?</QuickLink>
