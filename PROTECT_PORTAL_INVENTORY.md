@@ -51,6 +51,33 @@ All four version fields must be updated together for every commit to maintain co
 
 ---
 
+## 🔗 **RELATED INVENTORIES**
+
+### For MFA Integration Patterns
+See: **UNIFIED_MFA_INVENTORY.md** → "🔐 SHARED MFA PATTERNS"
+- MFA Direct Registration Protection (migrated from this inventory)
+- Shared MFA component patterns
+- MFA authentication flows
+
+### For OAuth Integration Patterns  
+See: **UNIFIED_OAUTH_INVENTORY.md** → "🔗 SHARED OAUTH PATTERNS"
+- OAuth integration patterns (migrated from this inventory)
+- Proxy endpoint usage
+- PingOne login service patterns
+
+### For Global Application Issues
+See: **PRODUCTION_INVENTORY.md** → "🚨 GLOBAL APPLICATION ISSUES"
+- Console Error Suppression (migrated from PP-051 to PROD-016)
+- Global application patterns
+- Cross-app issues
+
+### For Version Tracking
+See: **PRODUCTION_INVENTORY.md** → "📊 CURRENT VERSION TRACKING"
+- Single source of truth for version information
+- Synchronized version tracking across all components
+
+---
+
 ## 🚨 **CRITICAL ISSUES - IMMEDIATE ATTENTION REQUIRED**
 
 ### **🔴 Issue PP-010: React DOM Props Warning**
@@ -13655,6 +13682,10 @@ echo "🎯 AMERICAN AIRLINES TEXT COLOR PREVENTION CHECKS COMPLETE"
 - Added hero title color requirements to brand theme guidelines
 - Updated component styling patterns for brand consistency
 - Documented CSS custom property usage for theme integration
+
+---
+
+> **Note**: Issue PP-051 (Console Error Suppression) has been migrated to **PRODUCTION_INVENTORY.md** as **Issue PROD-016**. See "🔗 RELATED INVENTORIES" section above for reference.
 
 ---
 
