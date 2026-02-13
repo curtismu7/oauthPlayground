@@ -1525,7 +1525,7 @@ app.get('/api/environments', async (req, res) => {
 			
 			if (regionFilters.length > 0) {
 				filteredEnvironments = filteredEnvironments.filter(env => 
-					regionFilters.includes(env.region || '')
+					regionFilters.some(filter => filter === env.region || filter.toUpperCase() === (env.region || '').toUpperCase())
 				);
 			}
 			
