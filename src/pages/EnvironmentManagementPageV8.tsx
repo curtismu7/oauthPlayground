@@ -1046,6 +1046,10 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			<Header>
 				<Title>PingOne Environment Management</Title>
 				<Actions>
+					<Button onClick={() => setShowWorkerTokenModal(true)} variant="secondary">
+						<FiRefreshCw />
+						Worker Token
+					</Button>
 					<Button onClick={handleRefresh}>
 						<FiRefreshCw />
 						Refresh
@@ -1312,6 +1316,16 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					<ApiCallList />
 				</ApiDisplayContent>
 			</ApiDisplayModal>
+
+			{/* Worker Token Modal - Always available */}
+			<WorkerTokenModalV8
+				isOpen={showWorkerTokenModal}
+				onClose={() => setShowWorkerTokenModal(false)}
+				onTokenGenerated={() => {
+					// Token generated, reload the page to show environments
+					window.location.reload();
+				}}
+			/>
 		</Container>
 	);
 };
