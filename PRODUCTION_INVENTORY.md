@@ -3452,6 +3452,83 @@ grep -A 5 "Fetch real environments data" server.js && echo "✅ REAL API LOGIC F
 
 ---
 
+# PROD-026: Delete All Devices Page Missing PingOne API Call Display
+
+**Date:** 2026-02-13  
+**Status:** ✅ COMPLETED  
+**Priority:** MEDIUM
+
+## Issue Description
+The Delete All Devices utility page (`/v8/delete-all-devices`) executed real PingOne MFA API calls but did not surface those calls in-page for learning/debugging. This created an education and observability gap versus other MFA pages that already expose live API request history.
+
+## Root Cause
+`DeleteAllDevicesUtilityV8.tsx` used `MFAServiceV8` operations that are tracked by `apiCallTrackerService`, but the page did not render the shared API display UI (`SuperSimpleApiDisplayV8` + toggle) at the bottom of the page.
+
+## Solution Implemented
+
+### 1. Added Shared API Display Components to Delete All Devices Page
+- Imported and reused:
+  - `ApiDisplayCheckbox`
+  - `SuperSimpleApiDisplayV8`
+- This follows existing MFA page patterns and avoids custom logging UI.
+
+### 2. Added Bottom-of-Page PingOne API Calls Section
+- Inserted a compact info/toggle section labeled **PingOne API Calls** near the bottom of the page.
+- Added helper text to clarify this shows live PingOne MFA requests performed by this page.
+
+### 3. Added Live API Display Panel
+- Rendered `SuperSimpleApiDisplayV8` with:
+  - `flowFilter="mfa"` (limits to relevant MFA calls)
+  - `reserveSpace={true}` (prevents bottom controls from being obscured)
+
+## Files Modified
+- `src/v8/pages/DeleteAllDevicesUtilityV8.tsx` - Added bottom API call display section and shared API display components.
+
+#### **ISSUE LOCATION MAP**
+This regression can arise in these hotspots:
+
+1. `src/v8/pages/DeleteAllDevicesUtilityV8.tsx`
+   - Risk pattern: Page performs tracked API calls but does not render shared API display.
+2. `src/v8/services/mfaServiceV8.ts`
+   - Risk pattern: Calls are tracked in service but not visible unless page wires in display UI.
+3. `src/v8/components/SuperSimpleApiDisplayV8.tsx`
+   - Risk pattern: Shared display exists but is omitted in new/updated MFA utility pages.
+
+#### **Enhanced Prevention Commands**
+```bash
+echo "=== PROD-026 Delete All Devices API Display Checks ==="
+
+# Verify Delete All Devices page includes API display imports
+grep -n "ApiDisplayCheckbox\|SuperSimpleApiDisplayV8" src/v8/pages/DeleteAllDevicesUtilityV8.tsx \
+  && echo "✅ API display imports present" \
+  || { echo "❌ Missing API display imports"; exit 1; }
+
+# Verify bottom page renders MFA-filtered API display
+grep -n "SuperSimpleApiDisplayV8 flowFilter=\"mfa\" reserveSpace={true}" src/v8/pages/DeleteAllDevicesUtilityV8.tsx \
+  && echo "✅ Bottom API display panel present" \
+  || { echo "❌ Missing bottom API display panel"; exit 1; }
+
+# Verify the page exposes API display toggle checkbox
+grep -n "<ApiDisplayCheckbox />" src/v8/pages/DeleteAllDevicesUtilityV8.tsx \
+  && echo "✅ API display toggle present" \
+  || { echo "❌ Missing API display toggle"; exit 1; }
+```
+
+#### **Automated Gate Notes**
+- Add PROD-026 grep checks to CI (non-zero on failure).
+- Suggested CI snippet:
+```bash
+bash -c 'grep -n "SuperSimpleApiDisplayV8 flowFilter=\"mfa\" reserveSpace={true}" src/v8/pages/DeleteAllDevicesUtilityV8.tsx >/dev/null'
+```
+
+#### **How to Verify (Manual)**
+1. Open `/v8/delete-all-devices`.
+2. Load devices and run delete operations.
+3. Scroll to bottom and confirm **PingOne API Calls** section is visible.
+4. Toggle display via checkbox and confirm requests (e.g., device delete endpoints) appear.
+
+---
+
 **🚀 Future Enhancements:**
 - **Real-time Sync**: WebSocket-based cross-device synchronization
 - **Compression**: Data compression for SQLite backup storage
