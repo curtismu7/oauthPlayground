@@ -89,6 +89,15 @@ export class WorkerTokenRepository {
 	async saveToken(token: string, metadata?: Partial<TokenMetadata>): Promise<void> {
 		console.log(`${MODULE_TAG} Saving token...`);
 
+		// DEBUG: Log the token being saved
+		console.log(`${MODULE_TAG} 🔍 DEBUG - Saving token:`, {
+			hasToken: !!token,
+			tokenLength: token?.length || 0,
+			tokenPrefix: token ? `${token.substring(0, 50)}...` : 'none',
+			isUrlParams: token?.includes('query_parameters=') || token?.includes('response_type='),
+			isValidAccessToken: token?.match(/^[A-Za-z0-9\-_]+$/) ? true : false
+		});
+
 		const credentials = await this.loadCredentials();
 		if (!credentials) {
 			throw new Error('No credentials found. Save credentials first.');
@@ -134,6 +143,15 @@ export class WorkerTokenRepository {
 		const data = await this.loadTokenData();
 
 		if (!data) return null;
+
+		// DEBUG: Log the actual token being retrieved
+		console.log(`${MODULE_TAG} 🔍 DEBUG - Retrieved token:`, {
+			hasToken: !!data.token,
+			tokenLength: data.token?.length || 0,
+			tokenPrefix: data.token ? `${data.token.substring(0, 50)}...` : 'none',
+			isUrlParams: data.token?.includes('query_parameters=') || data.token?.includes('response_type='),
+			expiresAt: data.expiresAt ? new Date(data.expiresAt).toISOString() : 'none'
+		});
 
 		// Check expiration
 		if (data.expiresAt && Date.now() > data.expiresAt) {
