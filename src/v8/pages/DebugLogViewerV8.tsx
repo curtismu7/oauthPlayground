@@ -259,6 +259,7 @@ export const DebugLogViewerV8: React.FC = () => {
 			void loadFileLogs();
 		}
 	}, [logSource, loadLocalStorageLogs, loadFileLogs]);
+
 	useEffect(() => {
 		if (logSource === 'file' && tailMode && selectedFile) {
 			const eventSource = LogFileService.createTailStream(selectedFile);
@@ -294,6 +295,7 @@ export const DebugLogViewerV8: React.FC = () => {
 				eventSourceRef.current = null;
 			};
 		}
+		return;
 	}, [logSource, tailMode, selectedFile]);
 
 	const clearLogs = () => {
@@ -512,7 +514,7 @@ export const DebugLogViewerV8: React.FC = () => {
 			// HTTP status codes
 			else if (/^\d{3}$/.test(part)) {
 				const code = parseInt(part);
-				let color = LOG_COLORS.info;
+				let color = LOG_COLORS.INFO;
 				if (code >= 200 && code < 300) color = LOG_COLORS.success;
 				else if (code >= 300 && code < 400) color = LOG_COLORS.warning;
 				else if (code >= 400) color = LOG_COLORS.error;
@@ -1325,7 +1327,7 @@ export const DebugLogViewerV8: React.FC = () => {
 									).map(([category, files]) => (
 										<optgroup key={category} label={category}>
 											{files.map((file) => (
-												<option key={file.path} value={file.path}>
+												<option key={file.name} value={file.name}>
 													{file.name}
 												</option>
 											))}
