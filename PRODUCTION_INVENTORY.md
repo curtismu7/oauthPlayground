@@ -3146,6 +3146,90 @@ bash -c '
 
 ---
 
+### **🚨 Issue PROD-021: OAuth Authorization Code Flow Not Logging to authz-redirects.log**
+**Date**: 2026-02-13  
+**Status**: ✅ FIXED  
+**Severity**: Medium (Debugging visibility)
+
+#### **🎯 Problem Summary:**
+The OAuth Authorization Code Flow V8 was not logging redirect callbacks to authz-redirects.log, making it difficult to debug authorization code flows. The flow was using `window.open` to open the authorization URL in a new window, which bypassed the callback handler that logs to authz-redirects.log.
+
+#### **🔍 Root Cause Analysis:**
+- OAuth flow was using `window.open(authState.authorizationUrl, '_blank')` instead of redirecting the current window
+- Default redirect URI was `/callback` instead of `/authz-callback`
+- The `/callback` route uses the `Callback` component which doesn't log to authz-redirects.log
+- The `/authz-callback` route uses `CallbackHandlerV8U` which properly logs to authz-redirects.log
+
+#### **📁 Files Modified:**
+- `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx` - Changed redirect method and default URI
+- `package.json` - Version update to 9.11.1
+
+#### **✅ Solution Implemented:**
+```typescript
+// BEFORE (window.open - no logging):
+window.open(authState.authorizationUrl, '_blank');
+
+// AFTER (window.location.href - triggers callback logging):
+window.location.href = authState.authorizationUrl;
+
+// BEFORE (wrong callback path):
+defaultRedirectUri: 'https://localhost:3000/callback'
+
+// AFTER (correct callback path):
+defaultRedirectUri: 'https://localhost:3000/authz-callback'
+```
+
+#### **ISSUE LOCATION MAP**
+This regression can arise in these hotspots:
+
+1. `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx`
+   - Redirect method and default URI configuration.
+   - Risk pattern: Using window.open or wrong callback path prevents logging.
+
+2. `src/v8/services/redirectUriServiceV8.ts`
+   - Flow-to-callback-path mappings.
+   - Risk pattern: Incorrect callbackPath for flows that need logging.
+
+#### **Enhanced Prevention Commands**
+```bash
+echo "=== PROD-021 OAuth Flow Logging Checks ==="
+
+# 1) Ensure OAuth flow uses window.location.href not window.open
+grep -n "window\.open.*authorizationUrl" src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx \
+  && echo "❌ OAuth flow still uses window.open (no logging)" \
+  || echo "✅ OAuth flow uses correct redirect method"
+
+# 2) Ensure default redirect URI points to authz-callback
+grep -n "defaultRedirectUri.*authz-callback" src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx \
+  && echo "✅ OAuth flow uses authz-callback" \
+  || { echo "❌ OAuth flow not using authz-callback"; exit 1; }
+
+# 3) Verify authz-callback route uses CallbackHandlerV8U
+grep -n "/authz-callback.*CallbackHandlerV8U" src/App.tsx \
+  && echo "✅ authz-callback route configured for logging" \
+  || { echo "❌ authz-callback route missing CallbackHandlerV8U"; exit 1; }
+
+# 4) Verify CallbackHandlerV8U posts to authz-redirect endpoint
+grep -n "/api/logs/authz-redirect" src/v8u/components/CallbackHandlerV8U.tsx \
+  && echo "✅ CallbackHandlerV8U configured to log" \
+  || { echo "❌ CallbackHandlerV8U not logging to authz-redirects"; exit 1; }
+```
+
+#### **Automated Gate Notes**
+- Add PROD-021 checks to CI as a non-zero gate step.
+- Suggested CI step:
+```bash
+bash -c '
+  ! grep -q "window\.open.*authorizationUrl" src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx &&
+  grep -q "defaultRedirectUri.*authz-callback" src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx &&
+  grep -q "/authz-callback.*CallbackHandlerV8U" src/App.tsx &&
+  grep -q "/api/logs/authz-redirect" src/v8u/components/CallbackHandlerV8U.tsx
+'
+```
+- If any grep fails, pipeline must fail (non-zero) to prevent regression.
+
+---
+
 **🚀 Future Enhancements:**
 - **Real-time Sync**: WebSocket-based cross-device synchronization
 - **Compression**: Data compression for SQLite backup storage
