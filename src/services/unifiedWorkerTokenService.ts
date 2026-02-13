@@ -1026,7 +1026,7 @@ class UnifiedWorkerTokenService {
 			const importData = JSON.parse(configJson);
 
 			// Handle both old format (credentials) and new format (workerToken)
-			let credentials;
+			let credentials: UnifiedWorkerTokenCredentials;
 			if (importData.workerToken) {
 				// New standardized format
 				credentials = {
