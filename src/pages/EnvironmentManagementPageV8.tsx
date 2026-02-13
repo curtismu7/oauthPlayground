@@ -458,17 +458,33 @@ const Pagination = styled.div`
   margin-top: 2rem;
 `;
 
-const PaginationButton = styled.button<{ active?: boolean }>`
+const DisplayAllButton = styled.button`
+  padding: 0.5rem 1rem;
+  border: 1px solid #28a745;
+  background: white;
+  color: #28a745;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+
+  &:hover {
+    background: #28a745;
+    color: white;
+  }
+`;
+
+const PaginationButton = styled.button<{ $active?: boolean }>`
   padding: 0.5rem 1rem;
   border: 1px solid #ddd;
-  background: ${(props) => (props.active ? '#007bff' : 'white')};
-  color: ${(props) => (props.active ? 'white' : '#333')};
+  background: ${(props) => (props.$active ? '#007bff' : 'white')};
+  color: ${(props) => (props.$active ? 'white' : '#333')};
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background: ${(props) => (props.active ? '#0056b3' : '#f8f9fa')};
+    background: ${(props) => (props.$active ? '#0056b3' : '#f8f9fa')};
     border-color: #007bff;
   }
 
@@ -538,6 +554,21 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 	const pageSize = 12;
 	const STORAGE_KEY = 'environment-management-settings';
+	const [displayAll, setDisplayAll] = useState(false);
+	const [showCreateModal, setShowCreateModal] = useState(false);
+	const [newEnvironment, setNewEnvironment] = useState({
+		name: '',
+		description: '',
+		type: 'SANDBOX'
+	});
+	const [searchTerm, setSearchTerm] = useState('');
+
+	// Filter environments based on search term
+	const filteredEnvironments = (environments ?? []).filter(env => 
+		env.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+		env.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+		env.id.toLowerCase().includes(searchTerm.toLowerCase())
+	);
 
 	// Load settings from IndexedDB backup on component mount
 	useEffect(() => {
@@ -675,8 +706,13 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			}
 
 			// Add pagination
-			filters.page = currentPage;
-			filters.pageSize = pageSize;
+			if (displayAll) {
+				filters.page = 1;
+				filters.pageSize = 1000; // Large number to get all environments
+			} else {
+				filters.page = currentPage;
+				filters.pageSize = pageSize;
+			}
 
 			console.log('[EnvironmentManagementPageV8] 🔍 Fetching with filters:', {
 				filters,
@@ -1117,6 +1153,14 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						<FiCode />
 						{showApiDisplay ? 'Hide API' : 'Show API'}
 					</Button>
+					<Button variant="secondary" onClick={handleExportEnvironments}>
+						<FiDownload />
+						Export
+					</Button>
+					<Button variant="secondary" onClick={handleImportEnvironments}>
+						<FiUpload />
+						Import
+					</Button>
 					<Button variant="primary" onClick={handleCreateEnvironment}>
 						<FiPlus />
 						Create Environment
@@ -1165,10 +1209,12 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					</FilterSelect>
 					<FilterSelect value={regionFilter} onChange={(e) => setRegionFilter(e.target.value)}>
 						<option value="all">All Regions</option>
-						<option value="us-east-1">US East</option>
-						<option value="us-west-2">US West</option>
-						<option value="eu-west-1">Europe West</option>
-						<option value="ap-southeast-2">Asia Pacific</option>
+						<option value="NA">North America (.com)</option>
+						<option value="EU">European Union (.eu)</option>
+						<option value="CA">Canada (.ca)</option>
+						<option value="AU">Australia (.com.au)</option>
+						<option value="SG">Singapore (.sg)</option>
+						<option value="AP">Asia Pacific (.asia)</option>
 					</FilterSelect>
 				</FilterContainer>
 			</SearchContainer>
@@ -1208,15 +1254,16 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					justifyContent: 'space-between',
 					alignItems: 'center',
 					marginBottom: '1rem',
+					padding: '1rem',
+					background: '#f8f9fa',
+					borderRadius: '4px',
 				}}
 			>
-				<div>
+				<div style={{ display: 'flex', alignItems: 'center' }}>
 					<input
 						type="checkbox"
-						checked={
-							selectedEnvironments.length === (environments?.length || 0) &&
-							(environments?.length || 0) > 0
-						}
+						checked={selectedEnvironments.length === environments?.length && environments?.length > 0}
+						{...(selectedEnvironments.length > 0 && selectedEnvironments.length < (environments?.length || 0) ? { indeterminate: true } : {})}
 						onChange={handleSelectAll}
 						style={{ marginRight: '0.5rem' }}
 						id="select-all-checkbox"
@@ -1225,21 +1272,25 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						Select All ({environments?.length || 0} environments)
 					</label>
 				</div>
-				<div>
-					<Button variant="secondary" onClick={handleExportEnvironments}>
-						<FiDownload />
-						Export
-					</Button>
-					<Button variant="secondary" onClick={handleImportEnvironments}>
-						<FiUpload />
-						Import
-					</Button>
+				<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+					<input
+						type="text"
+						placeholder="Search environments..."
+						value={searchTerm}
+						onChange={(e) => setSearchTerm(e.target.value)}
+						style={{
+							padding: '0.5rem',
+							border: '1px solid #ddd',
+							borderRadius: '4px',
+							minWidth: '200px',
+						}}
+					/>
 				</div>
 			</div>
 
 			<EnvironmentGrid>
 				{/* CRITICAL FIX: Add null safety check to prevent undefined .map() crash */}
-				{(environments ?? []).map((environment) => (
+				{filteredEnvironments.map((environment) => (
 					<EnvironmentCard key={environment.id}>
 						<CardHeader>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -1341,7 +1392,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						<PaginationButton
 							key={page}
 							onClick={() => setCurrentPage(page)}
-							active={page === currentPage}
+							$active={page === currentPage}
 						>
 							{page}
 						</PaginationButton>
