@@ -292,7 +292,7 @@ const EducationalCardTitle = styled.h3`
   margin: 0 0 0.75rem 0;
 `;
 
-const EducationalCardText = styled.p`
+const EducationalCardText = styled.div`
   margin: 0;
   line-height: 1.6;
   opacity: 0.95;
