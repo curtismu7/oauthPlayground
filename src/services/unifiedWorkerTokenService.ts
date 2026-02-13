@@ -550,11 +550,11 @@ class UnifiedWorkerTokenService {
 			tokenExpiresIn: data ? this.getTokenExpiresIn(data) : undefined,
 			lastFetchedAt: data?.savedAt,
 			lastUsedAt: data?.lastUsedAt,
-			appInfo: credentials && (credentials.appId || credentials.appName || credentials.appVersion)
+			appInfo: credentials
 				? {
-						appId: credentials.appId ?? undefined,
-						appName: credentials.appName ?? undefined,
-						appVersion: credentials.appVersion ?? undefined,
+						...(credentials.appId && { appId: credentials.appId }),
+						...(credentials.appName && { appName: credentials.appName }),
+						...(credentials.appVersion && { appVersion: credentials.appVersion }),
 					}
 				: undefined,
 		};
@@ -985,7 +985,7 @@ class UnifiedWorkerTokenService {
 				exportedAt: new Date().toISOString(),
 				credentials: tokenData.credentials,
 				token: {
-					accessToken: tokenData.accessToken,
+					accessToken: tokenData.token,
 					expiresAt: tokenData.expiresAt,
 					tokenType: tokenData.tokenType,
 				},
