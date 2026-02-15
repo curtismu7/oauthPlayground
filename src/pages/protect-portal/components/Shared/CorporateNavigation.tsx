@@ -97,26 +97,37 @@ const RightNav = styled.div`
 `;
 
 const SearchButton = styled.button`
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
   padding: 0.5rem;
   cursor: pointer;
-  border-radius: 4px;
-  transition: background 0.2s ease;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
   
   &:hover {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
   }
 `;
 
 const MobileMenuButton = styled.button`
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
   padding: 0.5rem;
   cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
   display: none;
+  backdrop-filter: blur(10px);
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
   
   @media (max-width: 768px) {
     display: block;
@@ -126,17 +137,25 @@ const MobileMenuButton = styled.button`
 const LoginButton = styled.button<{ $brandColor: string; $accentColor: string; $style: string }>`
   background: ${({ $accentColor }) => $accentColor};
   color: white;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: ${({ $style }) => $style === 'friendly' ? '20px' : '6px'};
-  padding: ${({ $style }) => $style === 'friendly' ? '0.5rem 1rem' : '0.5rem'};
+  padding: ${({ $style }) => $style === 'friendly' ? '0.6rem 1.2rem' : '0.6rem 1rem'};
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
   
   &:hover {
     background: ${({ $brandColor }) => $brandColor};
-    transform: ${({ $style }) => $style === 'friendly' ? 'translateY(-1px)' : 'none'};
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: ${({ $style }) => $style === 'friendly' ? 'translateY(-2px)' : 'translateY(-1px)'};
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  &:active {
+    transform: translateY(0);
   }
 `;
 
