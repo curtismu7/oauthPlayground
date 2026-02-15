@@ -42,7 +42,7 @@ export const pingidentityConfig: CorporatePortalConfig = {
   content: {
     customerTerminology: true,
     tone: 'corporate',
-    heroTitle: 'PingIdentity Customer Portal',
+    heroTitle: 'Customer Portal',
     heroSubtitle: 'Secure access to your identity and access management solutions',
     features: [
       {
