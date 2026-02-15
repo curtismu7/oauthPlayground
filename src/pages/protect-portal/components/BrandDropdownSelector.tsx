@@ -123,11 +123,11 @@ const MenuItemText = styled.div`
 const MenuItemName = styled.div`
   font-weight: 500;
   margin-bottom: 0.125rem;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 `;
 
 const MenuItemPortal = styled.div`
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--brand-text-secondary);
 `;
 
@@ -199,8 +199,8 @@ const BrandDropdownSelector: React.FC<BrandDropdownSelectorProps> = ({
 				<TextLogo
 					text={activeTheme.logo.text || activeTheme.displayName}
 					colors={activeTheme.logo.colors || {}}
-					width="24px"
-					height="24px"
+					width="16px"
+					height="16px"
 					alt={activeTheme.logo.alt}
 				/>
 				<span>{activeTheme.displayName}</span>
@@ -219,8 +219,8 @@ const BrandDropdownSelector: React.FC<BrandDropdownSelectorProps> = ({
 						<TextLogo
 							text={theme.logo.text || theme.displayName}
 							colors={theme.logo.colors || {}}
-							width="20px"
-							height="20px"
+							width="14px"
+							height="14px"
 							alt={theme.logo.alt}
 						/>
 						<MenuItemText>
