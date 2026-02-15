@@ -41,23 +41,23 @@ export const americanAirlinesConfig: CorporatePortalConfig = {
   content: {
     customerTerminology: true,
     tone: 'corporate',
-    heroTitle: 'American Airlines Customer Portal',
-    heroSubtitle: 'Book flights, manage reservations, and access your AAdvantage account',
+    heroTitle: 'Customer Portal',
+    heroSubtitle: 'Book flights, manage trips, and access your AAdvantage account',
     features: [
       {
-        title: 'Book a Trip',
+        title: 'Book a Flight',
         description: 'Search flights, compare prices, and book your next journey',
         icon: 'plane',
       },
       {
-        title: 'My Reservations',
+        title: 'My Trips',
         description: 'View upcoming flights, check in, and manage bookings',
-        icon: 'calendar',
+        icon: 'trips',
       },
       {
-        title: 'AAdvantage',
-        description: 'Earn miles, track rewards, and enjoy member benefits',
-        icon: 'mileageplus',
+        title: 'Flight Deals',
+        description: 'Find special offers and discounted fares for your travel',
+        icon: 'calendar',
       },
     ],
   },
