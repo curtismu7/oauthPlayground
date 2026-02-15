@@ -160,6 +160,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	const [environmentId, setEnvironmentId] = useState('');
 	const [username, setUsername] = useState('');
 	const [showDeviceSelectionModal, setShowDeviceSelectionModal] = useState(false);
+	const [shouldNavigateToRegistration, setShouldNavigateToRegistration] = useState(false);
 	const [showOTPModal, setShowOTPModal] = useState(false);
 	const [otpCode, setOtpCode] = useState('');
 	const [authenticationId, setAuthenticationId] = useState<string | null>(null);
@@ -1550,6 +1551,13 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						// Keep flowMode so user stays in auth flow; only clear if they click Back
 					}}
 					onDeviceSelect={handleDeviceSelectForAuthentication}
+					onRegisterDevice={() => {
+						console.log('[UNIFIED-FLOW] No devices found, switching to registration mode');
+						setFlowMode('registration');
+						setShowDeviceSelectionModal(false);
+						// Use the navigation from the render props
+						props.nav.goToStep(0);
+					}}
 					username={username}
 					environmentId={environmentId}
 				/>
@@ -2029,6 +2037,12 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					setFlowMode(null);
 				}}
 				onDeviceSelect={handleDeviceSelectForAuthentication}
+				onRegisterDevice={() => {
+					console.log('[UNIFIED-FLOW] No devices found, switching to registration mode');
+					setFlowMode('registration');
+					setShowDeviceSelectionModal(false);
+					setShouldNavigateToRegistration(true);
+				}}
 				username={username}
 				environmentId={environmentId}
 			/>
@@ -2319,6 +2333,17 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 	const [usernameFromToken, setUsernameFromToken] = useState<string>('');
 	const [showUsernameDropdown, setShowUsernameDropdown] = useState(false);
 	const envIdForModal = useMemo(() => globalEnvironmentService.getEnvironmentId() || '', []);
+
+	// Handle navigation to registration when triggered from device selection modal
+	useEffect(() => {
+		if (shouldNavigateToRegistration) {
+			console.log('[UNIFIED-FLOW] Navigating to registration step');
+			setShouldNavigateToRegistration(false);
+			// Use sessionStorage to trigger navigation in MFAFlowBaseV8
+			sessionStorage.setItem('mfa_target_step_after_callback', '0');
+			window.location.hash = '#step=0';
+		}
+	}, [shouldNavigateToRegistration]);
 
 	// Pending registration data while waiting for OAuth (use ref to avoid stale closure)
 	const pendingRegistrationRef = useRef<{

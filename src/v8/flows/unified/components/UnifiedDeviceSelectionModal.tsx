@@ -33,6 +33,7 @@ interface UnifiedDeviceSelectionModalProps {
 	isOpen: boolean;
 	onClose: () => void;
 	onDeviceSelect: (device: Device) => void;
+	onRegisterDevice?: () => void;
 	username: string;
 	environmentId: string;
 	loading?: boolean;
@@ -73,6 +74,7 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 	isOpen,
 	onClose,
 	onDeviceSelect,
+	onRegisterDevice,
 	username,
 	environmentId,
 	loading = false,
@@ -131,6 +133,20 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 
 	// Only show active devices for authentication
 	const availableDevices = filteredDevices.filter((device) => device.status === 'ACTIVE');
+
+	// Handle empty devices case - show modal and trigger device registration
+	useEffect(() => {
+		if (isOpen && !isLoading && !errorMsg && availableDevices.length === 0 && onRegisterDevice) {
+			// Show a brief message then automatically trigger device registration
+			const timer = setTimeout(() => {
+				console.log('[DEVICE-SELECTION] No devices found, triggering device registration');
+				onRegisterDevice();
+				onClose();
+			}, 2000); // 2 second delay to show the message
+
+			return () => clearTimeout(timer);
+		}
+	}, [isOpen, isLoading, errorMsg, availableDevices.length, onRegisterDevice, onClose]);
 
 	const handleDeviceSelect = (device: Device) => {
 		onDeviceSelect(device);
@@ -258,8 +274,13 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 						<div style={{ textAlign: 'center', padding: spacing[8] }}>
 							<div style={{ fontSize: '32px', marginBottom: spacing[4] }}>📱</div>
 							<p style={{ color: colors.gray[600] }}>
-								No active MFA devices found. Please register a device first.
+								No active MFA devices found.
 							</p>
+							{onRegisterDevice && (
+								<p style={{ color: colors.primary[600], fontSize: '14px', marginTop: spacing[2] }}>
+									Redirecting to device registration...
+								</p>
+							)}
 						</div>
 					) : (
 						<div style={{ display: 'grid', gap: spacing[4] }}>
