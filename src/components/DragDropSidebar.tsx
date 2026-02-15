@@ -657,6 +657,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 					},
 					{
+						id: 'dpop-authorization-code-v8',
+						path: '/flows/dpop-authorization-code-v8',
+						label: 'DPoP Authorization Code (V8)',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiShield />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: Demonstrating Proof of Possession (RFC 9449) with mock server">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
+					},
+					{
 						id: 'oauth-authorization-code-v8',
 						path: '/flows/oauth-authorization-code-v8',
 						label: 'Authorization Code (V8)',

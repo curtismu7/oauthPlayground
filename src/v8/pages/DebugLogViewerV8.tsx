@@ -270,10 +270,12 @@ export const DebugLogViewerV8: React.FC = () => {
 					} else if (data.type === 'update' && data.lines) {
 						setFileContent((prev) => `${prev}\n${data.lines.join('\n')}`);
 
-						// Auto-scroll to bottom
-						if (logContainerRef.current) {
-							logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
-						}
+						// Auto-scroll to bottom for new entries
+						setTimeout(() => {
+							if (logContainerRef.current) {
+								logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+							}
+						}, 100);
 					} else if (data.type === 'error') {
 						setError(data.message);
 					}
@@ -966,7 +968,7 @@ export const DebugLogViewerV8: React.FC = () => {
 						</div>
 					) : (
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-							{filteredLogs.map((log, index) => {
+							{[...filteredLogs].reverse().map((log, index) => {
 								const isExpanded = expandedLogs.has(index);
 								const hasData = log.data && Object.keys(log.data).length > 0;
 
@@ -1151,7 +1153,7 @@ export const DebugLogViewerV8: React.FC = () => {
 									lineHeight: '1.5',
 								}}
 							>
-								{fileContent.split('\n').map((line, index) => (
+								{fileContent.split('\n').reverse().map((line, index) => (
 									<React.Fragment key={index}>
 										{colorizeLogLine(line)}
 										{'\n'}

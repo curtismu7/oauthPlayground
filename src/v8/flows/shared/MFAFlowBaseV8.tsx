@@ -32,6 +32,7 @@ import {
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { UnifiedMFAResumeStepResolverV8 } from '@/v8/services/unifiedMFAResumeStepResolverV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';
 
@@ -146,18 +147,32 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		stepTransitionDelay: 300,
 	});
 
-	// FOOLPROOF: Handle step advancement after OAuth callback
+	// FOOLPROOF: Handle step advancement after OAuth callback with invariant enforcement
 	useEffect(() => {
-		const targetStep = sessionStorage.getItem('mfa_target_step_after_callback');
-		if (targetStep) {
-			const stepNum = parseInt(targetStep, 10);
-			if (stepNum >= 0 && stepNum < totalSteps) {
-				console.log(`${MODULE_TAG} 🔄 Advancing to step ${stepNum} after OAuth callback`);
-				nav.goToStep(stepNum);
-				// Clear the stored target step
-				sessionStorage.removeItem('mfa_target_step_after_callback');
-			}
+		// Only process if this is a redirect resume scenario
+		if (!UnifiedMFAResumeStepResolverV8.isRedirectResumeScenario()) {
+			return;
 		}
+
+		// Use the fool-proof step resolver
+		const resolutionResult = UnifiedMFAResumeStepResolverV8.resolveResumeStep();
+		
+		// ENFORCE INVARIANT: Step 0 is forbidden for redirect resumes
+		if (resolutionResult.step === 0) {
+			console.error(`${MODULE_TAG} 🚨 INVARIANT VIOLATION: Step resolver returned Step 0 for redirect resume`);
+			// Force fallback to Step 2
+			nav.goToStep(2);
+			return;
+		}
+
+		// Apply the resolved step
+		if (resolutionResult.step >= 0 && resolutionResult.step < totalSteps) {
+			console.log(`${MODULE_TAG} 🔄 FOOL-PROOF step advancement: ${resolutionResult.step} from ${resolutionResult.source} (${resolutionResult.correlationId})`);
+			nav.goToStep(resolutionResult.step);
+		}
+
+		// Clear any legacy target step to prevent conflicts
+		sessionStorage.removeItem('mfa_target_step_after_callback');
 	}, [nav, totalSteps]);
 
 	const [credentials, setCredentials] = useState<MFACredentials>(() => {
