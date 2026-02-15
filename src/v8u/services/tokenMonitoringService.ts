@@ -434,7 +434,7 @@ export class TokenMonitoringService {
 								headers: trackedCall.response?.headers || {},
 								body: trackedCall.response?.data
 									? JSON.stringify(trackedCall.response.data)
-									: undefined as string | undefined,
+									: undefined,
 							},
 							duration: trackedCall.duration || 0,
 							type: this.getApiCallType(trackedCall.url),
@@ -706,7 +706,7 @@ export class TokenMonitoringService {
 		} catch (error) {
 			logger.error('[TokenMonitoring] Failed to sync worker token:', { 
 				error: error instanceof Error ? error.message : String(error) 
-			});
+			} as Record<string, unknown>);
 		}
 	}
 
@@ -958,7 +958,7 @@ export class TokenMonitoringService {
 
 			return mockIntrospectionData;
 		} catch (error) {
-			logger.error('[TokenMonitoring] Token introspection failed:', error);
+			logger.error('[TokenMonitoring] Token introspection failed:', error as Record<string, unknown>);
 
 			// Log failed API call if we attempted one
 			if (response) {
@@ -1011,7 +1011,7 @@ export class TokenMonitoringService {
 
 			return newTokenId;
 		} catch (error) {
-			logger.error('Token refresh failed:', error);
+			logger.error('Token refresh failed:', error as Record<string, unknown>);
 			throw error;
 		}
 	}
@@ -1042,7 +1042,7 @@ export class TokenMonitoringService {
 			// Remove token from monitoring regardless of revocation method
 			this.removeToken(tokenId);
 		} catch (error) {
-			logger.error('[TokenMonitoring] Token revocation failed:', error);
+			logger.error('[TokenMonitoring] Token revocation failed:', error as Record<string, unknown>);
 
 			// Still remove the token from monitoring even if revocation failed
 			this.removeToken(tokenId);
@@ -1239,7 +1239,7 @@ export class TokenMonitoringService {
 		} catch (error) {
 			logger.error('Failed to import token data:', { 
 				error: error instanceof Error ? error.message : String(error) 
-			});
+			} as Record<string, unknown>);
 			throw error;
 		}
 	}

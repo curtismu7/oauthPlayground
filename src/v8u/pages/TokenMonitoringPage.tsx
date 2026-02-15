@@ -21,7 +21,6 @@ import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import TokenDisplayService from '../../services/tokenDisplayService';
 import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';
-import { UnifiedWorkerTokenBackupServiceV8 } from '../../services/unifiedWorkerTokenBackupServiceV8';
 import {
 	type RevocationMethod,
 	type TokenInfo,
@@ -813,13 +812,13 @@ export const TokenMonitoringPage: React.FC = () => {
 								</TokenMetadata>
 							</TokenContent>
 
-							{decodedTokens[token.id] && (
+							{decodedTokens[token.id] ? (
 		<TokenDecodedContent>
 			<DecodedSection>
 				<DecodedHeader>Header</DecodedHeader>
 				<DecodedJson>
 					{JSON.stringify(
-						(decodedTokens[token.id] as any).header || (decodedTokens[token.id] as any).header || {},
+						(decodedTokens[token.id] as { header: Record<string, unknown> }).header || {},
 						null,
 						2
 					)}
@@ -829,14 +828,14 @@ export const TokenMonitoringPage: React.FC = () => {
 				<DecodedHeader>Payload</DecodedHeader>
 				<DecodedJson>
 					{JSON.stringify(
-						(decodedTokens[token.id] as any).payload || (decodedTokens[token.id] as any).payload || {},
+						(decodedTokens[token.id] as { payload: Record<string, unknown> }).payload || {},
 						null,
 						2
 					)}
 				</DecodedJson>
 			</DecodedSection>
 		</TokenDecodedContent>
-	)}
+	) : null}
 
 							<TokenActions>
 								<ActionButton
