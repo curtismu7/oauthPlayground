@@ -42,21 +42,21 @@ export const unitedAirlinesConfig: CorporatePortalConfig = {
     customerTerminology: true,
     tone: 'corporate',
     heroTitle: 'United Airlines Customer Portal',
-    heroSubtitle: 'Connecting the world. Your gateway to global operations and customer resources',
+    heroSubtitle: 'Manage your travel, bookings, and MileagePlus account with secure access',
     features: [
       {
-        title: 'Book Travel',
-        description: 'Reserve flights and manage your travel itineraries',
-        icon: 'book',
+        title: 'Book Flights',
+        description: 'Search and book flights to destinations worldwide with exclusive deals',
+        icon: 'plane',
       },
       {
         title: 'My Trips',
-        description: 'View and manage your upcoming and past trips',
+        description: 'View upcoming flights, check in, and manage your travel itineraries',
         icon: 'trips',
       },
       {
         title: 'MileagePlus',
-        description: 'Access your frequent flyer account and rewards',
+        description: 'Track your miles, redeem rewards, and manage your elite status',
         icon: 'mileageplus',
       },
     ],
