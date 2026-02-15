@@ -8,7 +8,7 @@
  * Universal navigation component that adapts to different company styles.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { FiMenu, FiSearch, FiChevronDown } from 'react-icons/fi';
 import styled from 'styled-components';
 import BrandDropdownSelector from '../BrandDropdownSelector';
@@ -76,7 +76,7 @@ const NavLinks = styled.div<{ $style: string }>`
   `}
 `;
 
-const NavLink = styled.a<{ $brandColor: string }>`
+const NavLink = styled.a<{ $brandColor: string; $style: string }>`
   color: white;
   text-decoration: none;
   font-size: 0.9rem;
@@ -87,6 +87,74 @@ const NavLink = styled.a<{ $brandColor: string }>`
   
   &:hover {
     border-bottom-color: white;
+  }
+`;
+
+const DropdownContainer = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const DropdownTrigger = styled.button<{ $brandColor: string }>`
+  background: none;
+  border: none;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-bottom-color: white;
+  }
+`;
+
+const DropdownMenu = styled.div<{ $isOpen: boolean }>`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+  visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')};
+  transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '-10px')});
+  transition: all 0.2s ease;
+  z-index: 1000;
+  margin-top: 0.5rem;
+`;
+
+const DropdownItem = styled.a`
+  display: block;
+  padding: 0.75rem 1rem;
+  color: #374151;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f3f4f6;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:hover {
+    background-color: #f9fafb;
+    color: #1f2937;
+  }
+  
+  &:first-child {
+    border-radius: 8px 8px 0 0;
+  }
+  
+  &:last-child {
+    border-radius: 0 0 8px 8px;
   }
 `;
 
@@ -176,52 +244,65 @@ const CorporateNavigation: React.FC<CorporateNavigationProps> = ({
   config,
   onLoginClick,
 }) => {
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const brandColor = config.branding.colors.primary;
   const accentColor = config.branding.colors.accent;
   const navStyle = config.navigation.style;
 
-  // Generate navigation links based on industry
+  // Generate navigation links based on industry - matching real websites
   const getNavLinks = () => {
     switch (config.company.industry) {
       case 'aviation':
         return [
-          { text: 'Book', href: '#book' },
-          { text: 'Travel Info', href: '#travel-info' },
-          { text: 'My Trips', href: '#my-trips' },
-          { text: 'MileagePlus', href: '#mileageplus' },
+          { text: 'Book', href: '#book', hasDropdown: true, dropdownItems: ['Flights', 'Hotels', 'Cars', 'Vacations'] },
+          { text: 'My Trips', href: '#my-trips', hasDropdown: false },
+          { text: 'Check-in', href: '#checkin', hasDropdown: false },
+          { text: 'Flight Status', href: '#flight-status', hasDropdown: false },
+          { text: 'Travel Info', href: '#travel-info', hasDropdown: true, dropdownItems: ['Baggage', 'Check-in Options', 'Travel Requirements'] },
         ];
       case 'banking':
         return [
-          { text: 'Accounts', href: '#accounts' },
-          { text: 'Transfer', href: '#transfer' },
-          { text: 'Cards', href: '#cards' },
-          { text: 'Investments', href: '#investments' },
+          { text: 'Accounts', href: '#accounts', hasDropdown: true, dropdownItems: ['Checking', 'Savings', 'Credit Cards', 'Loans'] },
+          { text: 'Transfer', href: '#transfer', hasDropdown: false },
+          { text: 'Bill Pay', href: '#bill-pay', hasDropdown: false },
+          { text: 'Investing', href: '#investing', hasDropdown: true, dropdownItems: ['Merrill Edge', 'Automated Investing', 'Small Business'] },
+          { text: 'Customer Service', href: '#service', hasDropdown: true, dropdownItems: ['Contact Us', 'Help Center', 'Security Center'] },
         ];
       case 'logistics':
         return [
-          { text: 'Ship', href: '#ship' },
-          { text: 'Track', href: '#track' },
-          { text: 'Rates', href: '#rates' },
-          { text: 'Support', href: '#support' },
+          { text: 'Ship', href: '#ship', hasDropdown: true, dropdownItems: ['Create a Shipment', 'Schedule a Pickup', 'Get Rates'] },
+          { text: 'Track', href: '#track', hasDropdown: false },
+          { text: 'Rates & Transit Times', href: '#rates', hasDropdown: true, dropdownItems: ['Get Rates', 'Transit Times', 'Surcharges'] },
+          { text: 'International', href: '#international', hasDropdown: true, dropdownItems: ['International Services', 'Customs Clearance'] },
+          { text: 'Support', href: '#support', hasDropdown: false },
         ];
       case 'tech':
         return [
-          { text: 'Products', href: '#products' },
-          { text: 'Solutions', href: '#solutions' },
-          { text: 'Docs', href: '#docs' },
-          { text: 'Support', href: '#support' },
+          { text: 'Products', href: '#products', hasDropdown: true, dropdownItems: ['PingOne', 'PingFederate', 'PingDirectory'] },
+          { text: 'Solutions', href: '#solutions', hasDropdown: true, dropdownItems: ['Identity', 'Access', 'Security'] },
+          { text: 'Developers', href: '#developers', hasDropdown: true, dropdownItems: ['APIs', 'SDKs', 'Documentation'] },
+          { text: 'Resources', href: '#resources', hasDropdown: true, dropdownItems: ['Blog', 'Webinars', 'Case Studies'] },
+          { text: 'Company', href: '#company', hasDropdown: true, dropdownItems: ['About Us', 'Careers', 'Contact'] },
         ];
       default:
         return [
-          { text: 'Home', href: '#home' },
-          { text: 'Services', href: '#services' },
-          { text: 'About', href: '#about' },
-          { text: 'Contact', href: '#contact' },
+          { text: 'Home', href: '#home', hasDropdown: false },
+          { text: 'Services', href: '#services', hasDropdown: true, dropdownItems: ['Service 1', 'Service 2'] },
+          { text: 'About', href: '#about', hasDropdown: false },
+          { text: 'Contact', href: '#contact', hasDropdown: false },
         ];
     }
   };
 
   const navLinks = getNavLinks();
+
+  const handleDropdownToggle = (linkText: string) => {
+    setActiveDropdown(activeDropdown === linkText ? null : linkText);
+  };
+
+  const handleDropdownClose = () => {
+    setActiveDropdown(null);
+  };
 
   return (
     <Navigation $brandColor={brandColor} $style={navStyle}>
@@ -238,9 +319,28 @@ const CorporateNavigation: React.FC<CorporateNavigationProps> = ({
 
         <NavLinks $style={navStyle}>
           {navLinks.map((link, index) => (
-            <NavLink key={index} href={link.href} $brandColor={brandColor}>
-              {link.text}
-            </NavLink>
+            link.hasDropdown ? (
+              <DropdownContainer key={index}>
+                <DropdownTrigger 
+                  $brandColor={brandColor}
+                  onClick={() => handleDropdownToggle(link.text)}
+                >
+                  {link.text}
+                  <FiChevronDown size={14} />
+                </DropdownTrigger>
+                <DropdownMenu $isOpen={activeDropdown === link.text}>
+                  {link.dropdownItems?.map((item, itemIndex) => (
+                    <DropdownItem key={itemIndex} href="#">
+                      {item}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </DropdownContainer>
+            ) : (
+              <NavLink key={index} href={link.href} $brandColor={brandColor}>
+                {link.text}
+              </NavLink>
+            )
           ))}
         </NavLinks>
 
