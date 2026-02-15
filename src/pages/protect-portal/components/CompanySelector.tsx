@@ -207,6 +207,24 @@ const companies = [
 		logoBg: '#0033a0',
 		theme: 'united-airlines',
 	},
+	{
+		id: 'bank-of-america',
+		name: 'Bank of America',
+		description: 'Banking and finance security demo',
+		logo: 'BA',
+		logoColor: 'white',
+		logoBg: '#012169',
+		theme: 'bank-of-america',
+	},
+	{
+		id: 'pingidentity',
+		name: 'PingIdentity',
+		description: 'Identity and access management demo',
+		logo: 'PI',
+		logoColor: 'white',
+		logoBg: '#0066cc',
+		theme: 'pingidentity',
+	},
 ];
 
 // ============================================================================
@@ -224,12 +242,15 @@ interface CompanySelectorProps {
 
 const CompanySelector: React.FC<CompanySelectorProps> = ({
 	onCompanyChange,
-	selectedCompany = 'default',
+	selectedCompany,
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const { switchTheme, activeTheme } = useBrandTheme();
 
-	const currentCompany = companies.find((c) => c.id === selectedCompany) || companies[0];
+	// Use activeTheme to determine current company, fallback to selectedCompany prop
+	const currentCompany = companies.find((c) => c.theme === activeTheme.name) || 
+		companies.find((c) => c.id === selectedCompany) || 
+		companies[0];
 
 	// Debug logging
 	console.log('[🚀 COMPANY-SELECTOR] Component rendering:', {
