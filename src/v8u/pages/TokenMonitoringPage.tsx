@@ -515,6 +515,40 @@ export const TokenMonitoringPage: React.FC = () => {
 		}
 	};
 
+	const handleManualSync = async () => {
+		try {
+			const service = TokenMonitoringService.getInstance();
+			service.manualSyncWorkerToken();
+			setMessage('Manual token sync triggered');
+			setMessageType('info');
+			
+			// Also check localStorage directly
+			const accessToken = localStorage.getItem('token_to_analyze');
+			const tokenType = localStorage.getItem('token_type');
+			const flowSource = localStorage.getItem('flow_source');
+			
+			if (accessToken && tokenType) {
+				logger.info('Found token in localStorage:', {
+					tokenType,
+					flowSource,
+					tokenLength: accessToken.length,
+				});
+				setMessage(`Found ${tokenType} in localStorage`);
+				setMessageType('success');
+			} else {
+				logger.info('No tokens found in localStorage');
+				setMessage('No tokens found in localStorage');
+				setMessageType('info');
+			}
+		} catch (error) {
+			logger.error('Failed to sync tokens:', {
+				error: error instanceof Error ? error.message : String(error),
+			});
+			setMessage('Failed to sync tokens');
+			setMessageType('error');
+		}
+	};
+
 	const getFlowTypeLabel = (type: string) => {
 		switch (type) {
 			case 'oauth_flow':
@@ -663,6 +697,11 @@ export const TokenMonitoringPage: React.FC = () => {
 			</StatsGrid>
 
 			<div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+				<ActionButton onClick={handleManualSync} $variant="secondary">
+					<FiRefreshCw />
+					Manual Sync
+				</ActionButton>
+				
 				<DropdownContainer>
 					<DropdownButton onClick={() => setIsFlowDropdownOpen(!isFlowDropdownOpen)}>
 						<span>{getFlowTypeLabel(selectedFlowType)}</span>
