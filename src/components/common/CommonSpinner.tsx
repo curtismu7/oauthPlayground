@@ -26,7 +26,7 @@ const fadeOut = keyframes`
 `;
 
 // Theme configurations
-const themeConfig = {
+const themeConfig: Record<SpinnerTheme, { primary: string; secondary: string; text: string }> = {
 	blue: {
 		primary: '#3b82f6',
 		secondary: '#dbeafe',
@@ -77,8 +77,8 @@ const SpinnerContainer = styled.div<{
           display: inline-flex;
           padding: 8px 16px;
           border-radius: 6px;
-          background: ${({ $theme }) => themeConfig[$theme].secondary}20;
-          border: 1px solid ${({ $theme }) => themeConfig[$theme].primary}30;
+          background: ${({ $theme }) => themeConfig[$theme as SpinnerTheme].secondary}20;
+          border: 1px solid ${({ $theme }) => themeConfig[$theme as SpinnerTheme].primary}30;
         `;
 			case 'modal':
 				return `
@@ -87,7 +87,7 @@ const SpinnerContainer = styled.div<{
           border-radius: 12px;
           background: white;
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-          border: 1px solid ${({ $theme }) => themeConfig[$theme].primary}20;
+          border: 1px solid ${({ $theme }) => themeConfig[$theme as SpinnerTheme].primary}20;
           min-width: 280px;
           max-width: 400px;
         `;
