@@ -21671,3 +21671,161 @@ grep -rn "ReferenceError.*is not defined" src/v8/flows/unified/ --include="*.tsx
 ```
 
 ---
+
+### **🚨 Issue PROD-026: Unified MFA Redirect URI Regression - Step Reset to 0**
+**Date**: 2026-02-15  
+**Status**: ✅ FIXED  
+**Severity**: High (User Experience)
+
+#### **🎯 Problem Summary:**
+Unified MFA redirect URI handling was returning to Step 0 after OAuth redirects instead of resuming the correct step. This caused users to lose their progress and have to restart the MFA flow from the beginning.
+
+#### **🔍 Root Cause Analysis:**
+- **Missing Step Resolution Logic**: No authoritative step resolver for redirect resumes
+- **Implicit Step 0 Default**: Code defaulted to Step 0 when step couldn't be determined
+- **No Invariant Enforcement**: No protection against Step 0 fallback for redirect resumes
+- **Poor State Management**: Multiple conflicting sources of step information without precedence
+- **Missing Persistent Logging**: No structured logging for debugging step resolution decisions
+
+#### **📁 Files Modified:**
+- `src/v8/services/unifiedMFAResumeStepResolverV8.ts` - NEW: Fool-proof step resolver with invariant enforcement
+- `src/v8/flows/shared/MFAFlowBaseV8.tsx` - Updated to use step resolver with invariant protection
+
+#### **✅ Solution Implemented:**
+```typescript
+// NEW: Fool-proof step resolver with strict precedence
+export class UnifiedMFAResumeStepResolverV8 {
+  public static resolveResumeStep(currentUrl: string = window.location.href): StepResolutionResult {
+    // Try sources in precedence order:
+    // 1. Server session state (highest priority)
+    // 2. Signed state parameter in URL/sessionStorage
+    // 3. Client storage (persisted state)
+    // 4. Last known step
+    // 5. FOOL-PROOF: Step 2 fallback (never Step 0)
+    
+    // ENFORCE INVARIANT: Step 0 is forbidden for redirect resumes
+    if (result.step === 0) {
+      console.error('🚨 INVARIANT VIOLATION: Step resolver returned Step 0 for redirect resume');
+      return resolveFallbackStep2(context);
+    }
+  }
+}
+
+// UPDATED: MFAFlowBaseV8 with invariant enforcement
+useEffect(() => {
+  if (!UnifiedMFAResumeStepResolverV8.isRedirectResumeScenario()) {
+    return;
+  }
+
+  const resolutionResult = UnifiedMFAResumeStepResolverV8.resolveResumeStep();
+  
+  // ENFORCE INVARIANT: Step 0 is forbidden for redirect resumes
+  if (resolutionResult.step === 0) {
+    console.error('🚨 INVARIANT VIOLATION: Step resolver returned Step 0 for redirect resume');
+    nav.goToStep(2); // Force fallback to Step 2
+    return;
+  }
+
+  nav.goToStep(resolutionResult.step);
+}, [nav, totalSteps]);
+```
+
+#### **Step Resolution Precedence Table:**
+| Priority | Source | Description | Confidence |
+|----------|--------|-------------|------------|
+| 1 | Server Session | Server-side session state | High |
+| 2 | State Param | Signed state in URL/sessionStorage | High |
+| 3 | Client Storage | Persisted client state | High |
+| 4 | Last Known Step | Last-known step in state store | Low |
+| 5 | Fallback Step 2 | FOOL-PROOF: Never Step 0 | Low |
+
+#### **ISSUE LOCATION MAP**
+This regression can arise in these hotspots:
+
+1. **Step Resolution Logic**
+   - `src/v8/flows/shared/MFAFlowBaseV8.tsx` - Line 149 (OAuth callback handling)
+   - Risk pattern: Missing step resolver or implicit Step 0 default
+
+2. **State Management**
+   - `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Line 2347 (callback step advancement)
+   - Risk pattern: Direct sessionStorage access without validation
+
+3. **Step Navigation**
+   - `src/v8/hooks/useStepNavigationV8.ts` - Line 98 (initialStep default)
+   - Risk pattern: Default to Step 0 without redirect context
+
+#### **Enhanced Prevention Commands**
+```bash
+echo "=== PROD-026 Unified MFA Step 0 Regression Checks ==="
+
+# 1) Check for step resolver usage
+grep -n "UnifiedMFAResumeStepResolverV8" src/v8/flows/shared/MFAFlowBaseV8.tsx \
+  && echo "✅ Step resolver imported in MFAFlowBaseV8" \
+  || { echo "❌ Step resolver missing from MFAFlowBaseV8"; exit 1; }
+
+# 2) Check for invariant enforcement
+grep -n "INVARIANT VIOLATION.*Step 0" src/v8/flows/shared/MFAFlowBaseV8.tsx \
+  && echo "✅ Step 0 invariant enforcement present" \
+  || { echo "❌ Step 0 invariant enforcement missing"; exit 1; }
+
+# 3) Check for fallback to Step 2 (not Step 0)
+grep -n "nav.goToStep(2)" src/v8/flows/shared/MFAFlowBaseV8.tsx \
+  && echo "✅ Step 2 fallback implemented" \
+  || { echo "❌ Step 2 fallback missing"; exit 1; }
+
+# 4) Check for step resolver file existence
+test -f "src/v8/services/unifiedMFAResumeStepResolverV8.ts" \
+  && echo "✅ Step resolver service exists" \
+  || { echo "❌ Step resolver service missing"; exit 1; }
+
+# 5) Check for persistent logging
+grep -n "logDebugEvent.*STEP_RESOLVER" src/v8/services/unifiedMFAResumeStepResolverV8.ts \
+  && echo "✅ Persistent logging implemented" \
+  || { echo "❌ Persistent logging missing"; exit 1; }
+
+# 6) Verify build passes
+npm run build > /dev/null 2>&1 \
+  && echo "✅ Build successful" \
+  || { echo "❌ Build failed"; exit 1; }
+
+echo "🎯 UNIFIED MFA STEP 0 REGRESSION CHECKS COMPLETE"
+```
+
+#### **Automated Gate Notes**
+- All prevention commands return non-zero on failure
+- Can be integrated into CI/CD pipeline for step resolution validation
+- Includes both resolver implementation and invariant enforcement verification
+
+#### **How to Verify**
+1. Navigate to Unified MFA: `/v8/unified-mfa`
+2. Start MFA flow and progress to Step 2 or higher
+3. Trigger OAuth redirect (user login or other OAuth flow)
+4. **Expected**: Resume at correct step (never Step 0)
+5. **Before Fix**: Would reset to Step 0, losing progress
+6. Check persistent logs for structured step resolution decisions
+
+#### **Example Log Lines (Sanitized):**
+```json
+{
+  "correlationId": "mfa-resume-1739624123456-abc123",
+  "timestamp": "2026-02-15T12:34:56.789Z",
+  "event": "STEP_RESOLVE_DECISION",
+  "result": {
+    "step": 3,
+    "source": "state_param",
+    "confident": true,
+    "reason": "Step parameter in URL"
+  },
+  "rejectedSources": [
+    { "source": "server_session", "reason": "No valid data found" }
+  ],
+  "invariant": {
+    "stepNotZero": true,
+    "fallbackUsed": false
+  }
+}
+```
+
+---
+
+**🚀 Future Enhancements:**
