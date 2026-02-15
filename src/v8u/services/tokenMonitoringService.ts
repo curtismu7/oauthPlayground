@@ -2,6 +2,7 @@ import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import type { WorkerAccessToken } from '../../services/unifiedWorkerTokenTypes';
 import { logger } from './unifiedFlowLoggerServiceV8U';
+import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
 export interface TokenInfo {
 	id: string;
 	type: 'access_token' | 'refresh_token' | 'id_token' | 'worker_token';
@@ -480,6 +481,10 @@ export class TokenMonitoringService {
 
 	private syncTokensFromFlowContext(): void {
 		try {
+			// First try unified storage
+			this.syncFromUnifiedStorage();
+			
+			// Then try the standard flow context
 			const flowContext = this.getTokenManagementFlowContext();
 			if (flowContext) {
 				const context = JSON.parse(flowContext);
@@ -489,12 +494,78 @@ export class TokenMonitoringService {
 				return;
 			}
 
+			// Fallback: Check localStorage for tokens stored by authorization flows
+			this.syncTokensFromLocalStorage();
+			
+			// Final fallback: Check legacy storage
 			this.syncTokenFromLegacyStorage();
 		} catch (error) {
 			logger.warn('[TokenMonitoring] Failed to sync tokens from flow context:', { 
 				error: error instanceof Error ? error.message : String(error) 
-			});
+			} as Record<string, unknown>);
 		}
+	}
+
+	/**
+	 * Sync tokens from unified storage (IndexedDB + SQLite)
+	 */
+	private async syncFromUnifiedStorage(): Promise<void> {
+		try {
+			const result = await unifiedTokenStorage.getTokens();
+			if (result.success && result.data) {
+				logger.debug('[TokenMonitoring] Syncing from unified storage', {
+					tokenCount: result.data.length,
+					source: result.source,
+				});
+
+				// Clear existing tokens
+				this.tokens.clear();
+
+				// Add tokens from unified storage
+				result.data.forEach(unifiedToken => {
+					const tokenInfo: TokenInfo = {
+						id: unifiedToken.id,
+						type: unifiedToken.type,
+						value: unifiedToken.value,
+						expiresAt: unifiedToken.expiresAt,
+						issuedAt: unifiedToken.issuedAt,
+						scope: unifiedToken.scope,
+						status: this.getTokenStatus(unifiedToken),
+						introspectionData: null,
+						isVisible: true,
+						source: unifiedToken.source === 'manual' ? 'oauth_flow' : unifiedToken.source,
+					};
+					this.tokens.set(tokenInfo.id, tokenInfo);
+				});
+
+				this.notifyListeners();
+				logger.info('[TokenMonitoring] Synced from unified storage', {
+					tokenCount: result.data.length,
+					source: result.source,
+				});
+			}
+		} catch (error) {
+			logger.warn('[TokenMonitoring] Failed to sync from unified storage', {
+				error: error instanceof Error ? error.message : String(error),
+			} as Record<string, unknown>);
+		}
+	}
+
+	/**
+	 * Get token status based on unified token
+	 */
+	private getTokenStatus(unifiedToken: any): TokenInfo['status'] {
+		const now = Date.now();
+		if (!unifiedToken.expiresAt) {
+			return 'active';
+		}
+		if (unifiedToken.expiresAt <= now) {
+			return 'expired';
+		}
+		if (unifiedToken.expiresAt <= now + (5 * 60 * 1000)) { // 5 minutes
+			return 'expiring';
+		}
+		return 'active';
 	}
 
 	private syncTokensFromOAuthFlow(oauthTokens: OAuthTokenPayload, flowSource: string): void {
@@ -585,6 +656,46 @@ export class TokenMonitoringService {
 		}
 
 		return window.localStorage.getItem('tokenManagementFlowContext');
+	}
+
+	private syncTokensFromLocalStorage(): void {
+		if (typeof window === 'undefined') {
+			return;
+		}
+
+		try {
+			// Check for tokens stored by authorization flows
+			const accessToken = localStorage.getItem('token_to_analyze');
+			const tokenType = localStorage.getItem('token_type');
+			const flowSource = localStorage.getItem('flow_source');
+
+			if (accessToken && tokenType) {
+				logger.debug('[TokenMonitoring] Found token in localStorage:', {
+					tokenType,
+					flowSource,
+					tokenLength: accessToken.length,
+				});
+
+				// Clear existing tokens of the same type
+				this.clearTokensByType(tokenType as any);
+
+				// Add the token with appropriate metadata
+				this.addToken({
+					type: tokenType as 'access_token' | 'refresh_token' | 'id_token' | 'worker_token',
+					value: accessToken,
+					expiresAt: Date.now() + (60 * 60 * 1000), // 1 hour default
+					issuedAt: Date.now(),
+					scope: [],
+					source: 'oauth_flow',
+				});
+
+				logger.debug('[TokenMonitoring] Token synced from localStorage successfully');
+			}
+		} catch (error) {
+			logger.warn('[TokenMonitoring] Failed to sync tokens from localStorage:', {
+				error: error instanceof Error ? error.message : String(error),
+			} as Record<string, unknown>);
+		}
 	}
 
 	private syncTokenFromLegacyStorage(): void {
