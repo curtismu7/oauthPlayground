@@ -41,8 +41,8 @@ export const southwestAirlinesConfig: CorporatePortalConfig = {
   content: {
     customerTerminology: true,
     tone: 'friendly',
-    heroTitle: 'Southwest Airlines Customer Portal',
-    heroSubtitle: 'Book flights, check in, and manage your Rapid Rewards account',
+    heroTitle: 'Customer Portal',
+    heroSubtitle: 'Book flights, check in, and manage your travel with no change fees',
     features: [
       {
         title: 'Book a Flight',
@@ -51,13 +51,13 @@ export const southwestAirlinesConfig: CorporatePortalConfig = {
       },
       {
         title: 'My Trips',
-        description: 'Check in, change flights, and view your travel details',
+        description: 'Check in online, change flights, and view your travel details',
         icon: 'trips',
       },
       {
-        title: 'Rapid Rewards',
-        description: 'Earn points, track rewards, and enjoy member perks',
-        icon: 'mileageplus',
+        title: 'Low Fares',
+        description: 'Explore our competitive prices and special flight deals',
+        icon: 'calendar',
       },
     ],
   },
