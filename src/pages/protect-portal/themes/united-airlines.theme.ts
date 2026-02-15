@@ -41,18 +41,23 @@ export const unitedAirlinesConfig: CorporatePortalConfig = {
   content: {
     customerTerminology: true,
     tone: 'corporate',
-    heroTitle: 'Customer Portal',
-    heroSubtitle: 'Book flights, manage reservations, and access your travel account',
+    heroTitle: 'Good Leads The Way.',
+    heroSubtitle: 'Book flights, manage reservations, and access your MileagePlus account',
     features: [
       {
-        title: 'Book Flights',
+        title: 'Book Travel',
         description: 'Search and book flights to destinations worldwide with exclusive deals',
         icon: 'plane',
       },
       {
-        title: 'Manage Trips',
+        title: 'My Trips',
         description: 'View upcoming flights, check in online, and modify reservations',
         icon: 'trips',
+      },
+      {
+        title: 'MileagePlus®',
+        description: 'Manage your frequent flyer account and earn miles',
+        icon: 'star',
       },
       {
         title: 'Flight Status',
