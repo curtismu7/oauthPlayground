@@ -747,8 +747,8 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					{!policy && (
 						<div style={{ marginTop: '8px', fontSize: '12px', color: '#6b7280' }}>
 							<span style={{ color: '#059669' }}>✅ Using PingOne standard device limits</span>
-							<span style={{ marginLeft: '16px' }}>• Max 50 devices per user</span>
-							<span style={{ marginLeft: '16px' }}>• Max 20 valid pairing keys</span>
+							<span style={{ marginLeft: '16px' }}>• Max 20 devices per user (configurable in MFA Settings)</span>
+							<span style={{ marginLeft: '16px' }}>• Max 20 valid pairing keys per user</span>
 							<span style={{ marginLeft: '16px' }}>
 								• ACTIVATION_REQUIRED devices expire after 24 hours
 							</span>
