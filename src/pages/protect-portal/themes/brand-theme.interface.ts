@@ -9,6 +9,8 @@
  * the Protect Portal to switch between different corporate branding styles.
  */
 
+import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
+
 export interface BrandTheme {
 	name: string;
 	displayName: string;
@@ -111,6 +113,7 @@ export interface BrandTheme {
 			contentPadding?: string;
 		};
 	};
+	portalConfig?: CorporatePortalConfig;
 }
 
 export interface BrandThemeContext {
