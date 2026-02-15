@@ -71,6 +71,9 @@ const HeroSubtitle = styled.p<{ $tone: string }>`
   margin: 0 0 2rem 0;
   line-height: 1.6;
   opacity: 0.9;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
   
   @media (max-width: 768px) {
     font-size: 1rem;
@@ -163,9 +166,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         $pattern={getBackgroundPattern()}
       >
         <HeroContent>
-          <HeroTitle $tone={tone}>
-            Authentication in Progress
-          </HeroTitle>
           <HeroSubtitle $tone={tone}>
             Complete your secure authentication with {config.company.displayName}
           </HeroSubtitle>
@@ -181,10 +181,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       $pattern={getBackgroundPattern()}
     >
       <HeroContent>
-        <HeroTitle $tone={tone}>
-          {config.content.heroTitle}
-        </HeroTitle>
-        
         <HeroSubtitle $tone={tone}>
           {config.content.heroSubtitle}
         </HeroSubtitle>
