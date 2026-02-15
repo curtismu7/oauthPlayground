@@ -20,7 +20,7 @@ import type { LoginContext, PortalError, UserContext } from '../types/protectPor
 
 const HeroContainer = styled.section`
   background: linear-gradient(135deg, #0033A0 0%, #002880 100%);
-  padding: 1rem 2rem;
+  padding: 0.5rem 2rem;
   text-align: center;
   color: white;
   position: relative;
@@ -45,40 +45,40 @@ const HeroContent = styled.div`
 `;
 
 const HeroTitle = styled.h1`
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.25rem 0;
   line-height: 1.2;
   font-family: 'United', 'Helvetica Neue', Arial, sans-serif;
   color: white;
   
   @media (max-width: 768px) {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 `;
 
 const HeroSubtitle = styled.p`
-  font-size: 1rem;
-  margin: 0 0 1.5rem 0;
+  font-size: 0.875rem;
+  margin: 0 0 1rem 0;
   line-height: 1.6;
   opacity: 0.9;
   font-family: 'United', 'Helvetica Neue', Arial, sans-serif;
   
   @media (max-width: 768px) {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
   }
 `;
 
 const GlobalFeatures = styled.div`
   display: flex;
   justify-content: center;
-  gap: 2rem;
-  margin: 1.5rem 0;
+  gap: 1rem;
+  margin: 0.75rem 0;
   flex-wrap: wrap;
   
   @media (max-width: 768px) {
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
   }
 `;
 
@@ -163,8 +163,8 @@ const FeatureDescription = styled.p`
 const RoutesList = styled.div`
   display: flex;
   justify-content: center;
-  gap: 1.5rem;
-  margin: 1rem 0;
+  gap: 1rem;
+  margin: 0.5rem 0;
   flex-wrap: wrap;
 `;
 
@@ -177,14 +177,14 @@ const Route = styled.span`
 `;
 
 const LoginSection = styled.div`
-  margin-top: 1.5rem;
+  margin-top: 0.75rem;
   text-align: center;
 `;
 
 const LoginDescription = styled.p`
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   line-height: 1.6;
   max-width: 600px;
   margin-left: auto;
