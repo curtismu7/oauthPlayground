@@ -42,22 +42,22 @@ export const bankOfAmericaConfig: CorporatePortalConfig = {
   content: {
     customerTerminology: true,
     tone: 'corporate',
-    heroTitle: 'Bank of America Online Banking',
-    heroSubtitle: 'Manage your accounts, transfer funds, and access banking services securely',
+    heroTitle: 'Online Banking',
+    heroSubtitle: 'Open new accounts, manage your finances, and access banking services',
     features: [
       {
-        title: 'Account Overview',
-        description: 'View balances, transactions, and account details across all your accounts',
+        title: 'Open Checking Account',
+        description: 'Start your banking journey with our secure checking account options',
         icon: 'account',
       },
       {
-        title: 'Transfer Money',
-        description: 'Send money, pay bills, and transfer between accounts securely',
+        title: 'Open Savings Account',
+        description: 'Build your savings with competitive interest rates and flexible terms',
         icon: 'transfer',
       },
       {
-        title: 'Banking Services',
-        description: 'Access loans, credit cards, investments, and financial planning tools',
+        title: 'Open IRA Account',
+        description: 'Plan for retirement with our individual retirement account options',
         icon: 'cards',
       },
     ],
