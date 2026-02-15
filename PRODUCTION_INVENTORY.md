@@ -4165,3 +4165,90 @@ echo "🎯 LOG VIEWER NEW ENTRIES AT TOP CHECKS COMPLETE"
 - **Analytics**: Storage performance monitoring and optimization
 
 ---
+
+## 📋 **Issue PROD-032: Production Apps SQLite Backup Integration - IN PROGRESS 🔄**
+
+**🎯 Problem Summary:**
+Production menu group apps have inconsistent SQLite backup integration. While Unified MFA and Unified OAuth flows already use SQLite backup, other Production apps (Delete All Devices, Token Monitoring Dashboard, Enhanced State Management, Protect Portal) need SQLite backup integration for consistent data persistence across server restarts.
+
+**🔍 Technical Investigation:**
+- **Unified MFA Flow** (`/v8/unified-mfa`): ✅ Already using `UnifiedOAuthCredentialsServiceV8U` with SQLite backup
+- **Unified OAuth Flow** (`/v8u/unified`): ✅ Already using `UnifiedOAuthCredentialsServiceV8U` with SQLite backup
+- **Delete All Devices** (`/v8/delete-all-devices`): ❌ Uses basic worker token service, no SQLite backup
+- **Token Monitoring Dashboard** (`/v8u/token-monitoring`): ❌ Uses basic worker token service, no SQLite backup
+- **Enhanced State Management** (`/v8u/enhanced-state-management`): ❌ Uses basic storage, no SQLite backup
+- **Protect Portal App** (`/protect-portal`): ❌ Uses basic storage, no SQLite backup
+
+**🛠️ Implementation Requirements:**
+1. **SQLite Backup Integration**: All Production apps must use SQLite backup services
+2. **Worker Token Apps**: Use `UnifiedWorkerTokenBackupServiceV8` for worker token persistence
+3. **OAuth Apps**: Use `UnifiedOAuthCredentialsServiceV8U` for OAuth credential persistence
+4. **Enhanced Storage**: 4-layer storage: Memory → localStorage → IndexedDB → SQLite backup
+5. **Environment Isolation**: Data separated by environment ID
+6. **Fallback Strategy**: Graceful degradation to localStorage if SQLite backup fails
+
+**🔧 Changes Applied:**
+1. ✅ **Production App Helper V2**: Created enhanced helper utility with SQLite backup integration
+2. ✅ **Verification Script**: Created automated script to check SQLite backup integration status
+3. ✅ **Import Additions**: Added SQLite backup service imports to Production apps
+4. ✅ **Worker Token Backup**: Enhanced worker token service with SQLite backup (from previous issue)
+5. 🔄 **OAuth Apps**: Need to integrate `UnifiedOAuthCredentialsServiceV8U` usage
+6. 🔄 **State Management**: Need to integrate SQLite backup for enhanced state persistence
+
+**📁 Files Modified:**
+- `src/utils/productionAppCredentialHelperV2.ts` - Enhanced helper with SQLite backup integration
+- `src/services/unifiedWorkerTokenBackupServiceV8.ts` - SQLite backup service for worker tokens
+- `src/services/unifiedWorkerTokenService.ts` - Enhanced with SQLite backup integration
+- `scripts/verify-production-sqlite-backup.cjs` - Verification script for Production apps
+- `src/v8/pages/DeleteAllDevicesUtilityV8.tsx` - Added SQLite backup service import
+- `src/v8u/pages/TokenMonitoringPage.tsx` - Added SQLite backup service import
+- `package.json` - Version updated to 9.11.38
+
+**🎯 SUCCESS METRICS:**
+- ✅ **SQLite Backup Services**: Comprehensive backup infrastructure in place
+- ✅ **Worker Token Integration**: Worker token service enhanced with SQLite backup
+- ✅ **Verification Automation**: Script to check integration status across all apps
+- ✅ **Helper Utilities**: Enhanced production app credential management
+- 🔄 **OAuth App Integration**: 2 out of 4 OAuth apps have SQLite backup (50%)
+- 🔄 **Overall Coverage**: 2 out of 6 Production apps have SQLite backup (33%)
+
+**🔍 Detection Patterns:**
+```bash
+# Check Production apps SQLite backup integration
+node scripts/verify-production-sqlite-backup.cjs
+
+# Check for SQLite backup service usage in Production apps
+echo "=== Checking UnifiedOAuthCredentialsServiceV8U usage ==="
+grep -rn "UnifiedOAuthCredentialsServiceV8U" src/v8/pages/ src/v8u/pages/ src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | head -5
+
+echo "=== Checking UnifiedWorkerTokenBackupServiceV8 usage ==="
+grep -rn "UnifiedWorkerTokenBackupServiceV8" src/v8/pages/ src/v8u/pages/ --include="*.tsx" --include="*.ts" | head -5
+
+# Check for enhanced storage patterns
+echo "=== Checking enhanced storage patterns ==="
+grep -rn "enableBackup.*true" src/v8/pages/ src/v8u/pages/ src/pages/protect-portal/ --include="*.tsx" --include="*.ts" | head -5
+```
+
+**🔗 Related Issues:**
+- **PROD-015**: Production Group Storage Enhancement (RESOLVED) - Foundation for SQLite backup system
+- **PROD-031**: Worker Token Credentials Persistence (RESOLVED) - SQLite backup for worker tokens
+- **Debug Log Viewer**: Keyboard shortcuts enhancement (RESOLVED) - Improved UX for log navigation
+
+**📚 Documentation Updates:**
+- Added verification script for automated checking
+- Enhanced production app credential helper utilities
+- Updated SQLite backup integration patterns
+- Created comprehensive detection commands for CI/CD
+
+**🚀 Current Status:**
+- **Phase 1 Complete**: SQLite backup infrastructure and verification tools
+- **Phase 2 In Progress**: OAuth apps integration (Enhanced State Management, Protect Portal)
+- **Phase 3 Pending**: Final verification and testing
+
+**📈 Next Steps:**
+1. Complete OAuth apps SQLite backup integration
+2. Test cross-device data synchronization
+3. Update CI/CD pipeline with verification checks
+4. Document user-facing backup/restore features
+
+---
