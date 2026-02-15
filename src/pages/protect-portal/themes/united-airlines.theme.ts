@@ -15,11 +15,11 @@ export const unitedAirlinesTheme: BrandTheme = {
 	displayName: 'United Airlines',
 	portalName: 'United Airlines Employee Portal',
 	logo: {
-		url: 'https://www.united.com/content/dam/united/brand/united-logo.svg',
+		url: '', // Text-based logo only
 		alt: 'United Airlines Logo',
 		width: '120px',
 		height: '40px',
-		text: 'United',
+		text: 'UNITED',
 		colors: {
 			united: '#0033A0',
 		},

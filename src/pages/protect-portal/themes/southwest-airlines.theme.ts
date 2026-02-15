@@ -15,10 +15,10 @@ export const southwestAirlinesTheme: BrandTheme = {
 	displayName: 'Southwest Airlines',
 	portalName: 'Southwest Airlines Employee Portal',
 	logo: {
-		url: 'https://www.southwest.com/content/dam/southwest/images/logos/southwest-logo.svg',
+		url: '', // Text-based logo only
 		alt: 'Southwest Airlines Logo',
-		width: '140px',
-		height: '60px',
+		width: '120px',
+		height: '40px',
 		text: 'SOUTHWEST',
 		colors: {
 			southwest: '#304CB2',

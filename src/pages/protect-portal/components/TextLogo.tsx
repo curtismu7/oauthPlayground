@@ -98,6 +98,107 @@ const TextLogo: React.FC<TextLogoProps> = ({ text, colors, width, height, alt, c
 		);
 	}
 
+	// For FedEx "FedEx" with special styling
+	if (text === 'FedEx' && colors) {
+		return (
+			<LogoContainer width={width} height={height} className={className} title={alt}>
+				<LogoText>
+					<span
+						style={{
+							color: colors.fed || '#4D148C',
+							fontWeight: 700,
+							letterSpacing: '0.05em',
+							fontSize: '1.1em',
+						}}
+					>
+						Fed
+					</span>
+					<span
+						style={{
+							color: colors.ex || '#FF6600',
+							fontWeight: 700,
+							letterSpacing: '0.05em',
+							fontSize: '1.1em',
+						}}
+					>
+						Ex
+					</span>
+				</LogoText>
+			</LogoContainer>
+		);
+	}
+
+	// For Bank of America "BANK OF AMERICA" with special styling
+	if (text === 'BANK OF AMERICA' && colors) {
+		return (
+			<LogoContainer width={width} height={height} className={className} title={alt}>
+				<LogoText>
+					<span
+						style={{
+							color: colors.bank || '#012169',
+							fontWeight: 700,
+							letterSpacing: '0.02em',
+							fontSize: '0.9em',
+						}}
+					>
+						BANK
+					</span>
+					<span
+						style={{
+							color: colors.of || '#E31837',
+							fontWeight: 700,
+							letterSpacing: '0.02em',
+							fontSize: '0.9em',
+							margin: '0 0.2em',
+						}}
+					>
+						OF
+					</span>
+					<span
+						style={{
+							color: colors.america || '#012169',
+							fontWeight: 700,
+							letterSpacing: '0.02em',
+							fontSize: '0.9em',
+						}}
+					>
+						AMERICA
+					</span>
+				</LogoText>
+			</LogoContainer>
+		);
+	}
+
+	// For PingIdentity "PingIdentity" with special styling
+	if (text === 'PingIdentity' && colors) {
+		return (
+			<LogoContainer width={width} height={height} className={className} title={alt}>
+				<LogoText>
+					<span
+						style={{
+							color: colors.ping || '#0066CC',
+							fontWeight: 700,
+							letterSpacing: '0.02em',
+							fontSize: '1.0em',
+						}}
+					>
+						Ping
+					</span>
+					<span
+						style={{
+							color: colors.identity || '#003366',
+							fontWeight: 700,
+							letterSpacing: '0.02em',
+							fontSize: '1.0em',
+						}}
+					>
+						Identity
+					</span>
+				</LogoText>
+			</LogoContainer>
+		);
+	}
+
 	// For Southwest Airlines "SOUTHWEST" with special styling
 	if (text === 'SOUTHWEST' && colors) {
 		return (
