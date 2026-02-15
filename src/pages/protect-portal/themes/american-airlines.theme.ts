@@ -17,8 +17,8 @@ export const americanAirlinesTheme: BrandTheme = {
 	logo: {
 		url: 'https://www.aa.com/content/images/aa-logo.svg',
 		alt: 'American Airlines Logo',
-		width: '160px',
-		height: '60px',
+		width: '120px',
+		height: '40px',
 		text: 'American Airlines',
 		colors: {
 			american: '#0b4aa2', // Updated to match mockup
