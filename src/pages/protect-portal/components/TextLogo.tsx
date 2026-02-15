@@ -22,23 +22,23 @@ const LogoContainer = styled.div<{ width: string; height: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: 600;
   font-family: var(--brand-heading-font);
   border-radius: var(--brand-radius-sm);
   background: var(--brand-surface);
-  border: 1px solid var(--brand-text-secondary);
+  border: 1px solid var(--brand-border);
   box-shadow: var(--brand-shadow-sm);
   transition: var(--brand-transition);
 
   &:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
     box-shadow: var(--brand-shadow-md);
   }
 `;
 
 const LogoText = styled.span<{ colors?: Record<string, string> }>`
-  font-size: ${({ colors }) => (colors ? '1.5rem' : '1.25rem')};
-  letter-spacing: ${({ colors }) => (colors ? '-0.05em' : '0')};
+  font-size: ${({ colors }) => (colors ? '1.25rem' : '1.1rem')};
+  letter-spacing: ${({ colors }) => (colors ? '-0.025em' : '0')};
   
   ${({ colors }) => {
 		if (!colors) return '';
@@ -46,15 +46,17 @@ const LogoText = styled.span<{ colors?: Record<string, string> }>`
 		return Object.entries(colors)
 			.map(([part, color]) => {
 				if (part === 'fed') {
-					return `color: ${color}; font-weight: 800;`;
+					return `color: ${color}; font-weight: 700;`;
 				} else if (part === 'ex') {
-					return `color: ${color}; font-weight: 600;`;
-				} else if (part === 'aa' || part === 'ua' || part === 'sw') {
+					return `color: ${color}; font-weight: 700;`;
+				} else if (part === 'american') {
+					return `color: ${color}; font-weight: 700;`;
+				} else if (part === 'airlines') {
 					return `color: ${color}; font-weight: 700;`;
 				}
-				return `color: ${color};`;
+				return `color: ${color}; font-weight: 600;`;
 			})
-			.join('');
+			.join(' ');
 	}}
 `;
 

@@ -17,8 +17,8 @@ export const fedexTheme: BrandTheme = {
 	logo: {
 		url: 'https://www.fedex.com/content/dam/fedex-com/logos/fedex-logo.svg',
 		alt: 'FedEx Logo',
-		width: '140px',
-		height: '60px',
+		width: '110px',
+		height: '40px',
 		text: 'FedEx',
 		colors: {
 			fed: '#4D148C',
