@@ -10,11 +10,100 @@
  */
 
 import type { BrandTheme } from './brand-theme.interface';
+import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
+
+export const bankOfAmericaConfig: CorporatePortalConfig = {
+  company: {
+    name: 'bank-of-america',
+    displayName: 'Bank of America',
+    industry: 'banking',
+    logo: {
+      url: '',
+      alt: 'Bank of America Logo',
+      width: '140px',
+      height: '40px',
+      text: 'BANK OF AMERICA',
+      colors: {
+        primary: '#012169',
+        accent: '#E31837',
+      },
+    },
+  },
+  login: {
+    pattern: 'embedded',
+    position: 'hero',
+    animation: { type: 'fadeIn', duration: '0.4s' },
+  },
+  navigation: {
+    style: 'corporate',
+    showBrandSelector: true,
+    stickyHeader: true,
+  },
+  content: {
+    customerTerminology: true,
+    tone: 'corporate',
+    heroTitle: 'Bank of America Online Banking',
+    heroSubtitle: 'Manage your accounts, transfer funds, and access banking services securely',
+    features: [
+      {
+        title: 'Account Overview',
+        description: 'View balances, transactions, and account details across all your accounts',
+        icon: 'account',
+      },
+      {
+        title: 'Transfer Money',
+        description: 'Send money, pay bills, and transfer between accounts securely',
+        icon: 'transfer',
+      },
+      {
+        title: 'Banking Services',
+        description: 'Access loans, credit cards, investments, and financial planning tools',
+        icon: 'cards',
+      },
+    ],
+  },
+  branding: {
+    colors: {
+      primary: '#012169', // Bank of America blue
+      primaryDark: '#011a58',
+      secondary: '#FFFFFF',
+      accent: '#E31837', // Bank of America red
+      background: '#FFFFFF',
+      surface: '#FFFFFF',
+      muted: '#6b7280',
+      border: '#d1d5db',
+      text: '#1F2937',
+      textSecondary: '#6B7280',
+      error: '#E31837',
+      success: '#059669',
+      warning: '#D97706',
+      info: '#012169',
+      primaryLight: '#0033A0',
+      secondaryLight: '#F8F9FA',
+      secondaryDark: '#E9ECEF',
+      errorLight: '#FEE2E2',
+      warningLight: '#FEF3C7',
+      successLight: '#D1FAE5',
+    },
+    typography: {
+      heading: 'Arial, Helvetica Neue, sans-serif',
+      body: 'Arial, Helvetica Neue, sans-serif',
+    },
+    spacing: {
+      xs: '0.25rem',
+      sm: '0.5rem',
+      md: '1rem',
+      lg: '1.5rem',
+      xl: '2rem',
+      xxl: '3rem',
+    },
+  },
+};
 
 export const bankOfAmericaTheme: BrandTheme = {
 	name: 'bank-of-america',
 	displayName: 'Bank of America',
-	portalName: 'Bank of America Employee Portal',
+	portalName: 'Bank of America Online Banking',
 	logo: {
 		url: '', // Text-based logo only
 		alt: 'Bank of America Logo',
@@ -104,4 +193,5 @@ export const bankOfAmericaTheme: BrandTheme = {
 			transition: 'all 0.2s ease-in-out',
 		},
 	},
+	portalConfig: bankOfAmericaConfig,
 };
