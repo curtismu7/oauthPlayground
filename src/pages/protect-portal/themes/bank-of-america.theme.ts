@@ -16,11 +16,11 @@ export const bankOfAmericaTheme: BrandTheme = {
 	displayName: 'Bank of America',
 	portalName: 'Bank of America Employee Portal',
 	logo: {
-		url: 'https://www.bankofamerica.com/content/images/ContextualSiteGraphics/Logos/en_US/bofa-logo-blue.svg',
+		url: '', // Text-based logo only
 		alt: 'Bank of America Logo',
-		width: '180px',
-		height: '60px',
-		text: 'Bank of America',
+		width: '140px',
+		height: '40px',
+		text: 'BANK OF AMERICA',
 		colors: {
 			bank: '#012169',
 			of: '#E31837',
