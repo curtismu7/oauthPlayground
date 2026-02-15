@@ -468,7 +468,19 @@ export const TokenMonitoringPage: React.FC = () => {
 				const decoded = TokenDisplayService.decodeJWT(token.value);
 				if (decoded) {
 					nextDecoded[token.id] = decoded;
+					logger.debug(`[TokenMonitoringPage] Decoded JWT token ${token.id}`, {
+						tokenType: token.type,
+						tokenSource: token.source,
+						hasHeader: !!decoded.header,
+						hasPayload: !!decoded.payload,
+					});
 				}
+			} else {
+				logger.debug(`[TokenMonitoringPage] Token ${token.id} is not a JWT`, {
+					tokenType: token.type,
+					tokenSource: token.source,
+					tokenLength: token.value.length,
+				});
 			}
 		});
 		setDecodedTokens(nextDecoded);
@@ -762,30 +774,30 @@ export const TokenMonitoringPage: React.FC = () => {
 								</TokenMetadata>
 							</TokenContent>
 
-							{Boolean(decodedTokens[token.id]) && (
-								<TokenDecodedContent>
-									<DecodedSection>
-										<DecodedHeader>Header</DecodedHeader>
-										<DecodedJson>
-											{JSON.stringify(
-												(decodedTokens[token.id] as { header: unknown }).header,
-												null,
-												2
-											)}
-										</DecodedJson>
-									</DecodedSection>
-									<DecodedSection>
-										<DecodedHeader>Payload</DecodedHeader>
-										<DecodedJson>
-											{JSON.stringify(
-												(decodedTokens[token.id] as { payload: unknown }).payload,
-												null,
-												2
-											)}
-										</DecodedJson>
-									</DecodedSection>
-								</TokenDecodedContent>
-							)}
+							{decodedTokens[token.id] && (
+		<TokenDecodedContent>
+			<DecodedSection>
+				<DecodedHeader>Header</DecodedHeader>
+				<DecodedJson>
+					{JSON.stringify(
+						(decodedTokens[token.id] as any).header || (decodedTokens[token.id] as any).header || {},
+						null,
+						2
+					)}
+				</DecodedJson>
+			</DecodedSection>
+			<DecodedSection>
+				<DecodedHeader>Payload</DecodedHeader>
+				<DecodedJson>
+					{JSON.stringify(
+						(decodedTokens[token.id] as any).payload || (decodedTokens[token.id] as any).payload || {},
+						null,
+						2
+					)}
+				</DecodedJson>
+			</DecodedSection>
+		</TokenDecodedContent>
+	)}
 
 							<TokenActions>
 								<ActionButton
