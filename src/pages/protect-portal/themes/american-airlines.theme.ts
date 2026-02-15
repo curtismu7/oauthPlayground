@@ -19,9 +19,9 @@ export const americanAirlinesConfig: CorporatePortalConfig = {
     logo: {
       url: '',
       alt: 'American Airlines Logo',
-      width: '120px',
+      width: '140px',
       height: '40px',
-      text: 'AMERICAN',
+      text: 'American',
       colors: {
         primary: '#0b4aa2',
         accent: '#e11d48',
@@ -29,9 +29,9 @@ export const americanAirlinesConfig: CorporatePortalConfig = {
     },
   },
   login: {
-    pattern: 'new-page',
-    position: 'hero',
-    animation: { type: 'fadeIn', duration: '0.4s' },
+    pattern: 'right-popout',
+    position: 'right',
+    animation: { type: 'slideIn', duration: '0.3s' },
   },
   navigation: {
     style: 'corporate',
@@ -41,23 +41,28 @@ export const americanAirlinesConfig: CorporatePortalConfig = {
   content: {
     customerTerminology: true,
     tone: 'corporate',
-    heroTitle: 'Customer Portal',
-    heroSubtitle: 'Book flights, manage trips, and access your AAdvantage account',
+    heroTitle: 'Go Places. Together.',
+    heroSubtitle: 'Book flights, check in, manage trips, and more with American Airlines',
     features: [
       {
-        title: 'Book a Flight',
-        description: 'Search flights, compare prices, and book your next journey',
+        title: 'Book a Trip',
+        description: 'Search and book flights to hundreds of destinations worldwide',
         icon: 'plane',
       },
       {
         title: 'My Trips',
-        description: 'View upcoming flights, check in, and manage bookings',
+        description: 'View upcoming flights, check in online, and manage reservations',
         icon: 'trips',
       },
       {
-        title: 'Flight Deals',
-        description: 'Find special offers and discounted fares for your travel',
-        icon: 'calendar',
+        title: 'AAdvantage®',
+        description: 'Earn miles, manage your account, and enjoy member benefits',
+        icon: 'star',
+      },
+      {
+        title: 'Flight Status',
+        description: 'Track real-time flight status, delays, and gate information',
+        icon: 'clock',
       },
     ],
   },

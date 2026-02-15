@@ -128,11 +128,12 @@ const MobileMenuButton = styled.button`
 `;
 
 const HeroSection = styled.section`
-  background: linear-gradient(135deg, #0033A0 0%, #002880 100%);
+  background: linear-gradient(135deg, #0033A0 0%, #002880 50%, #001f60 100%);
   padding: 4rem 2rem;
   text-align: center;
   color: white;
   position: relative;
+  overflow: hidden;
   
   &::before {
     content: '';
@@ -141,8 +142,12 @@ const HeroSection = styled.section`
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
-    opacity: 0.3;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><defs><linearGradient id="unitedSky" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0.05)"/></linearGradient><path d="M0,200 Q400,100 800,200 T1200,200 L1200,600 L0,600 Z" fill="url(%23unitedSky)" opacity="0.3"/><circle cx="300" cy="80" r="60" fill="rgba(255,255,255,0.05)"/><circle cx="900" cy="120" r="40" fill="rgba(255,255,255,0.03)"/></svg>');
+    opacity: 0.4;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 3rem 1rem;
   }
 `;
 

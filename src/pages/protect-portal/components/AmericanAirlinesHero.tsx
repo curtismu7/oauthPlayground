@@ -20,11 +20,12 @@ import AmericanAirlinesNavigation from './AmericanAirlinesNavigation';
 // ============================================================================
 
 const HeroContainer = styled.section`
-  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-dark) 100%);
-  padding: 2rem 2rem;
+  background: linear-gradient(135deg, #0b4aa2 0%, #073a80 50%, #053070 100%);
+  padding: 4rem 2rem;
   text-align: center;
   color: white;
   position: relative;
+  overflow: hidden;
   
   &::before {
     content: '';
@@ -33,8 +34,12 @@ const HeroContainer = styled.section`
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-    opacity: 0.3;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><defs><linearGradient id="sky" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0.05)"/></linearGradient><path d="M0,300 Q300,200 600,300 T1200,300 L1200,600 L0,600 Z" fill="url(%23sky)" opacity="0.3"/><circle cx="200" cy="100" r="80" fill="rgba(255,255,255,0.05)"/><circle cx="1000" cy="150" r="60" fill="rgba(255,255,255,0.03)"/></svg>');
+    opacity: 0.4;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 3rem 1rem;
   }
 `;
 
@@ -264,29 +269,23 @@ const SearchButton = styled.button`
 interface AmericanAirlinesHeroProps {
 	currentStep?: string;
 	onLoginStart?: () => void;
-	_onLoginSuccess?: (userContext: UserContext, loginContext: LoginContext) => void;
-	_onError?: (error: PortalError) => void;
-	_environmentId?: string;
-	_clientId?: string;
-	_clientSecret?: string;
-	_redirectUri?: string;
+	onLoginSuccess?: (userContext: UserContext, loginContext: LoginContext) => void;
+	onError?: (error: PortalError) => void;
+	environmentId?: string;
+	clientId?: string;
+	clientSecret?: string;
+	redirectUri?: string;
 }
 
 const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({
 	currentStep = 'portal-home',
 	onLoginStart,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	__onLoginSuccess,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	__onError,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	__environmentId,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	__clientId,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	__clientSecret,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	__redirectUri,
+	onLoginSuccess,
+	onError,
+	environmentId,
+	clientId,
+	clientSecret,
+	redirectUri,
 }) => {
 	return (
 		<HeroContainer>
@@ -301,23 +300,30 @@ const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({
 						<QuickActions>
 							<QuickAction>
 								<ActionIcon>
-									<FiMapPin />
+									<FiSearch />
 								</ActionIcon>
-								<ActionLabel>Explore</ActionLabel>
+								<ActionLabel>Book a Trip</ActionLabel>
 							</QuickAction>
 
 							<QuickAction>
 								<ActionIcon>
 									<FiCalendar />
 								</ActionIcon>
-								<ActionLabel>Trips</ActionLabel>
+								<ActionLabel>My Trips</ActionLabel>
 							</QuickAction>
 
 							<QuickAction>
 								<ActionIcon>
-									<FiSearch />
+									<FiMapPin />
 								</ActionIcon>
-								<ActionLabel>Check-in</ActionLabel>
+								<ActionLabel>Check In</ActionLabel>
+							</QuickAction>
+
+							<QuickAction>
+								<ActionIcon>
+									<FiArrowRight />
+								</ActionIcon>
+								<ActionLabel>AAdvantage®</ActionLabel>
 							</QuickAction>
 						</QuickActions>
 
