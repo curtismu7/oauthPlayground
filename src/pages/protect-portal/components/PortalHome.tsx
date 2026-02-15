@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { FiCheckCircle, FiLock, FiShield, FiUser } from 'react-icons/fi';
+import { FiArrowRight, FiCheckCircle, FiLock, FiShield, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { EducationalContent } from '../types/protectPortal.types';
 import CompanySelector from './CompanySelector';
@@ -95,6 +95,34 @@ const CompanySection = styled.div`
   margin-top: 2rem;
 `;
 
+const GoToLoginButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--brand-primary);
+  color: white;
+  border: none;
+  border-radius: var(--brand-radius-md);
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--brand-transition);
+  font-family: var(--brand-body-font);
+  margin-top: 1.5rem;
+
+  &:hover {
+    background: var(--brand-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--brand-shadow-md);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--brand-primary-light);
+  }
+`;
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -102,6 +130,7 @@ const CompanySection = styled.div`
 interface PortalHomeProps {
 	educationalContent: EducationalContent;
 	onCompanySelect: (company: { id: string; name: string; description: string; logo: string; logoColor: string; logoBg: string; theme: string; }) => void;
+	onGoToLogin: () => void;
 }
 
 // ============================================================================
@@ -111,6 +140,7 @@ interface PortalHomeProps {
 const PortalHome: React.FC<PortalHomeProps> = ({
 	educationalContent,
 	onCompanySelect,
+	onGoToLogin,
 }) => {
 	return (
 		<PortalPageLayout
@@ -176,6 +206,11 @@ const PortalHome: React.FC<PortalHomeProps> = ({
 					<CompanySection>
 						<CompanySelector onCompanyChange={onCompanySelect} />
 					</CompanySection>
+
+					<GoToLoginButton onClick={onGoToLogin}>
+						<FiArrowRight />
+						Go to Login
+					</GoToLoginButton>
 				</LoginSection>
 			</PortalPageSection>
 
