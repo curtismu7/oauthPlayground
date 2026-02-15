@@ -226,7 +226,7 @@ const LoginDropdown = styled.div<{ $isOpen: boolean }>`
   background: white;
   border-bottom: 3px solid #0033A0;
   box-shadow: 0 4px 20px rgba(0, 51, 160, 0.15);
-  z-index: 1000;
+  z-index: 9999;
   opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
   visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')};
   transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '-100%')});
