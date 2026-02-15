@@ -9,11 +9,100 @@
  */
 
 import type { BrandTheme } from './brand-theme.interface';
+import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
+
+export const americanAirlinesConfig: CorporatePortalConfig = {
+  company: {
+    name: 'american-airlines',
+    displayName: 'American Airlines',
+    industry: 'aviation',
+    logo: {
+      url: '',
+      alt: 'American Airlines Logo',
+      width: '120px',
+      height: '40px',
+      text: 'AMERICAN',
+      colors: {
+        primary: '#0b4aa2',
+        accent: '#e11d48',
+      },
+    },
+  },
+  login: {
+    pattern: 'new-page',
+    position: 'hero',
+    animation: { type: 'fadeIn', duration: '0.4s' },
+  },
+  navigation: {
+    style: 'corporate',
+    showBrandSelector: true,
+    stickyHeader: true,
+  },
+  content: {
+    customerTerminology: true,
+    tone: 'corporate',
+    heroTitle: 'American Airlines Customer Portal',
+    heroSubtitle: 'Book flights, manage reservations, and access your AAdvantage account',
+    features: [
+      {
+        title: 'Book a Trip',
+        description: 'Search flights, compare prices, and book your next journey',
+        icon: 'plane',
+      },
+      {
+        title: 'My Reservations',
+        description: 'View upcoming flights, check in, and manage bookings',
+        icon: 'calendar',
+      },
+      {
+        title: 'AAdvantage',
+        description: 'Earn miles, track rewards, and enjoy member benefits',
+        icon: 'mileageplus',
+      },
+    ],
+  },
+  branding: {
+    colors: {
+      primary: '#0b4aa2', // American blue
+      primaryDark: '#073a80',
+      secondary: '#FFFFFF',
+      accent: '#e11d48', // American red
+      background: '#FFFFFF',
+      surface: '#FFFFFF',
+      muted: '#6b7280',
+      border: '#d1d5db',
+      text: '#1F2937',
+      textSecondary: '#6B7280',
+      error: '#E31937',
+      success: '#059669',
+      warning: '#D97706',
+      info: '#0b4aa2',
+      primaryLight: '#0056B3',
+      secondaryLight: '#F8F9FA',
+      secondaryDark: '#E9ECEF',
+      errorLight: '#FEE2E2',
+      warningLight: '#FEF3C7',
+      successLight: '#D1FAE5',
+    },
+    typography: {
+      heading: 'Arial, Helvetica Neue, sans-serif',
+      body: 'Arial, Helvetica Neue, sans-serif',
+    },
+    spacing: {
+      xs: '0.25rem',
+      sm: '0.5rem',
+      md: '1rem',
+      lg: '1.5rem',
+      xl: '2rem',
+      xxl: '3rem',
+    },
+  },
+};
 
 export const americanAirlinesTheme: BrandTheme = {
 	name: 'american-airlines',
 	displayName: 'American Airlines',
-	portalName: 'American Airlines Employee Portal',
+	portalName: 'American Airlines Customer Portal',
 	logo: {
 		url: '', // Text-based logo only
 		alt: 'American Airlines Logo',
@@ -115,4 +204,5 @@ export const americanAirlinesTheme: BrandTheme = {
 			contentPadding: '2rem',
 		},
 	},
+	portalConfig: americanAirlinesConfig,
 };
