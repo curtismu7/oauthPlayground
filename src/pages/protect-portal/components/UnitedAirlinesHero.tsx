@@ -9,8 +9,8 @@
  * that matches the actual United Airlines website design and functionality.
  */
 
-import React from 'react';
-import { FiGlobe, FiLock, FiMapPin, FiSend } from 'react-icons/fi';
+import React, { useState, useRef, useEffect } from 'react';
+import { FiGlobe, FiLock, FiMapPin, FiSend, FiX, FiMail, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 
@@ -217,6 +217,113 @@ const LoginButton = styled.button`
   }
 `;
 
+// Dropdown Login Components
+const LoginDropdown = styled.div<{ $isOpen: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-bottom: 3px solid #0033A0;
+  box-shadow: 0 4px 20px rgba(0, 51, 160, 0.15);
+  z-index: 1000;
+  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+  visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')};
+  transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '-100%')});
+  transition: all 0.3s ease;
+`;
+
+const DropdownHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background: #0033A0;
+  color: white;
+`;
+
+const DropdownTitle = styled.h2`
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const DropdownContent = styled.div`
+  padding: 2rem;
+  max-width: 400px;
+  margin: 0 auto;
+`;
+
+const LoginForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+const InputGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const InputLabel = styled.label`
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #333;
+`;
+
+const Input = styled.input`
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: #0033A0;
+  }
+`;
+
+const SubmitButton = styled.button`
+  background: #FF6600;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  
+  &:hover {
+    background: #E55A00;
+  }
+  
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+`;
+
 // ============================================================================
 // PROPS INTERFACE
 // ============================================================================
@@ -252,66 +359,142 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_redirectUri,
 }) => {
+	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
+	const dropdownRef = useRef<HTMLDivElement>(null);
+
+	// Close dropdown when clicking outside
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+				setIsDropdownOpen(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => document.removeEventListener('mousedown', handleClickOutside);
+	}, []);
+
+	const handleLoginClick = () => {
+		setIsDropdownOpen(true);
+	};
+
+	const handleCloseDropdown = () => {
+		setIsDropdownOpen(false);
+	};
+
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		// Call the original login start function
+		onLoginStart?.();
+		// Close dropdown
+		setIsDropdownOpen(false);
+	};
+
 	return (
-		<HeroContainer>
-			<HeroContent>
-				<HeroTitle>United Airlines Employee Portal</HeroTitle>
-				<HeroSubtitle>
-					Connecting the world. Your gateway to global operations and employee resources
-				</HeroSubtitle>
+		<>
+			<HeroContainer>
+				<HeroContent>
+					<HeroTitle>United Airlines Employee Portal</HeroTitle>
+					<HeroSubtitle>
+						Connecting the world. Your gateway to global operations and employee resources
+					</HeroSubtitle>
 
-				<GlobalFeatures>
-					<GlobalFeature>
-						<GlobeIcon>
-							<FiGlobe />
-						</GlobeIcon>
-						<FeatureTitle>Global Network</FeatureTitle>
-						<FeatureDescription>Access routes and operations worldwide</FeatureDescription>
-					</GlobalFeature>
+					<GlobalFeatures>
+						<GlobalFeature>
+							<GlobeIcon>
+								<FiGlobe />
+							</GlobeIcon>
+							<FeatureTitle>Global Network</FeatureTitle>
+							<FeatureDescription>Access routes and operations worldwide</FeatureDescription>
+						</GlobalFeature>
 
-					<GlobalFeature>
-						<FeatureIcon>
-							<FiSend />
-						</FeatureIcon>
-						<FeatureTitle>Fleet Operations</FeatureTitle>
-						<FeatureDescription>Manage and monitor our aircraft fleet</FeatureDescription>
-					</GlobalFeature>
+						<GlobalFeature>
+							<FeatureIcon>
+								<FiSend />
+							</FeatureIcon>
+							<FeatureTitle>Fleet Operations</FeatureTitle>
+							<FeatureDescription>Manage and monitor our aircraft fleet</FeatureDescription>
+						</GlobalFeature>
 
-					<GlobalFeature>
-						<FeatureIcon>
-							<FiMapPin />
-						</FeatureIcon>
-						<FeatureTitle>Route Planning</FeatureTitle>
-						<FeatureDescription>Optimize routes and schedules</FeatureDescription>
-					</GlobalFeature>
-				</GlobalFeatures>
+						<GlobalFeature>
+							<FeatureIcon>
+								<FiMapPin />
+							</FeatureIcon>
+							<FeatureTitle>Route Planning</FeatureTitle>
+							<FeatureDescription>Optimize routes and schedules</FeatureDescription>
+						</GlobalFeature>
+					</GlobalFeatures>
 
-				<RoutesList>
-					<Route>New York → London</Route>
-					<Route>San Francisco → Tokyo</Route>
-					<Route>Chicago → Hong Kong</Route>
-					<Route>Los Angeles → Sydney</Route>
-				</RoutesList>
+					<RoutesList>
+						<Route>New York → London</Route>
+						<Route>San Francisco → Tokyo</Route>
+						<Route>Chicago → Hong Kong</Route>
+						<Route>Los Angeles → Sydney</Route>
+					</RoutesList>
 
-				{currentStep === 'portal-home' ? (
-					<LoginSection>
-						<LoginDescription>
-							Sign in to access your United Airlines employee portal with secure authentication
-						</LoginDescription>
-						<LoginButton onClick={onLoginStart}>
-							<FiLock />
-							Sign In to Employee Portal
-						</LoginButton>
-					</LoginSection>
-				) : (
-					<LoginSection>
-						<LoginDescription>
-							Complete your authentication with United's secure employee system
-						</LoginDescription>
-					</LoginSection>
-				)}
-			</HeroContent>
-		</HeroContainer>
+					{currentStep === 'portal-home' ? (
+						<LoginSection>
+							<LoginDescription>
+								Sign in to access your United Airlines employee portal with secure authentication
+							</LoginDescription>
+							<LoginButton onClick={handleLoginClick}>
+								<FiLock />
+								Sign In to Employee Portal
+							</LoginButton>
+						</LoginSection>
+					) : (
+						<LoginSection>
+							<LoginDescription>
+								Complete your authentication with United's secure employee system
+							</LoginDescription>
+						</LoginSection>
+					)}
+				</HeroContent>
+			</HeroContainer>
+
+			<LoginDropdown $isOpen={isDropdownOpen} ref={dropdownRef}>
+				<DropdownHeader>
+					<DropdownTitle>
+						<FiLock />
+						United Airlines Employee Login
+					</DropdownTitle>
+					<CloseButton onClick={handleCloseDropdown}>
+						<FiX />
+					</CloseButton>
+				</DropdownHeader>
+				<DropdownContent>
+					<LoginForm onSubmit={handleSubmit}>
+						<InputGroup>
+							<InputLabel htmlFor="email">Employee Email</InputLabel>
+							<Input
+								id="email"
+								type="email"
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+								placeholder="employee@united.com"
+								required
+							/>
+						</InputGroup>
+						<InputGroup>
+							<InputLabel htmlFor="password">Password</InputLabel>
+							<Input
+								id="password"
+								type="password"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								placeholder="Enter your password"
+								required
+							/>
+						</InputGroup>
+						<SubmitButton type="submit">
+							Sign In
+						</SubmitButton>
+					</LoginForm>
+				</DropdownContent>
+			</LoginDropdown>
+		</>
 	);
 };
 
