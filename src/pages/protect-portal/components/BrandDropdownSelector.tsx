@@ -118,17 +118,8 @@ const MenuItem = styled.button.withConfig({
 const MenuItemText = styled.div`
   flex: 1;
   text-align: left;
-`;
-
-const MenuItemName = styled.div`
-  font-weight: 500;
-  margin-bottom: 0.125rem;
-  font-size: 0.75rem;
-`;
-
-const MenuItemPortal = styled.div`
-  font-size: 0.7rem;
-  color: var(--brand-text-secondary);
+  font-weight: 400;
+  font-size: 0.8rem;
 `;
 
 const CheckIcon = styled(FiCheck)`
@@ -203,7 +194,6 @@ const BrandDropdownSelector: React.FC<BrandDropdownSelectorProps> = ({
 					height="16px"
 					alt={activeTheme.logo.alt}
 				/>
-				<span>{activeTheme.displayName}</span>
 				<DropdownArrow $rotate={isOpen} />
 			</DropdownButton>
 
@@ -224,8 +214,7 @@ const BrandDropdownSelector: React.FC<BrandDropdownSelectorProps> = ({
 							alt={theme.logo.alt}
 						/>
 						<MenuItemText>
-							<MenuItemName>{theme.displayName}</MenuItemName>
-							<MenuItemPortal>{theme.portalName}</MenuItemPortal>
+							{theme.displayName}
 						</MenuItemText>
 						{theme.name === activeTheme.name && <CheckIcon />}
 					</MenuItem>
