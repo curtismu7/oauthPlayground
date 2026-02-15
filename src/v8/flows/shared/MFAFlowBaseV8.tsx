@@ -23,7 +23,6 @@ import { WorkerTokenPromptModalV8 } from '@/v8/components/WorkerTokenPromptModal
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { DualStorageServiceV8 } from '@/v8/services/dualStorageServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import {
@@ -359,17 +358,13 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		// Save to browser storage first (fast)
 		CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials);
 
-		// Also save to database via dual storage for persistence
-		DualStorageServiceV8.save(
-			{
-				directory: 'mfa',
-				filename: 'mfa-credentials.json',
-				browserStorageKey: FLOW_KEY,
-			},
-			credentials
-		).catch((error) => {
-			console.warn('[MFA-FLOW-BASE] Failed to save credentials to database:', error);
-		});
+		// Save to localStorage for persistence
+		try {
+			localStorage.setItem(FLOW_KEY, JSON.stringify(credentials));
+			console.log('[MFA-FLOW-BASE] Credentials saved to localStorage');
+		} catch (error) {
+			console.warn('[MFA-FLOW-BASE] Failed to save credentials to localStorage:', error);
+		}
 	}, [credentials]);
 
 	/**
