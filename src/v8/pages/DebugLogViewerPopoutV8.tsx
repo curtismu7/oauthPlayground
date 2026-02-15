@@ -89,6 +89,84 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
+	// Keyboard shortcuts
+	const scrollToTop = useCallback(() => {
+		if (logContainerRef.current) {
+			logContainerRef.current.scrollTop = 0;
+		}
+	}, []);
+
+	const scrollToBottom = useCallback(() => {
+		if (logContainerRef.current) {
+			logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+		}
+	}, []);
+
+	const refreshLogsShortcut = useCallback(() => {
+		if (logSource === 'file') {
+			// Trigger file reload by calling the existing load function
+			const loadButton = document.querySelector('button[onClick*="loadFileContent"]') as HTMLButtonElement;
+			if (loadButton) {
+				loadButton.click();
+			}
+		} else {
+			// Trigger localStorage reload
+			const loadButton = document.querySelector('button[onClick*="loadLocalStorageLogs"]') as HTMLButtonElement;
+			if (loadButton) {
+				loadButton.click();
+			}
+		}
+	}, [logSource]);
+
+	const clearLogsShortcut = useCallback(() => {
+		// Find and click the existing clear button
+		const clearButton = document.querySelector('button[onClick*="clearLogs"]') as HTMLButtonElement;
+		if (clearButton) {
+			clearButton.click();
+		}
+	}, []);
+
+	// Handle keyboard shortcuts
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			// Only handle shortcuts when not typing in input fields
+			if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement) {
+				return;
+			}
+
+			// Ctrl/Cmd + key combinations
+			if (event.ctrlKey || event.metaKey) {
+				switch (event.key) {
+					case 'Home':
+					case 'ArrowUp':
+						event.preventDefault();
+						scrollToTop();
+						break;
+					case 'End':
+					case 'ArrowDown':
+						event.preventDefault();
+						scrollToBottom();
+						break;
+					case 'r':
+					case 'R':
+						event.preventDefault();
+						refreshLogsShortcut();
+						break;
+					case 'Delete':
+					case 'Backspace':
+						event.preventDefault();
+						clearLogsShortcut();
+						break;
+				}
+			}
+		};
+
+		document.addEventListener('keydown', handleKeyDown);
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [scrollToTop, scrollToBottom, refreshLogsShortcut, clearLogsShortcut]);
+
 	// Generate test localStorage logs for demo purposes
 	const generateTestLogs = useCallback(() => {
 		const testLogs: LogEntry[] = [
@@ -601,6 +679,68 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 				textColor={PageHeaderTextColors.darkBlue}
 			/>
 
+			{/* Keyboard Shortcuts Help */}
+			<div
+				style={{
+					background: '#f0f9ff',
+					border: '1px solid #bae6fd',
+					borderRadius: '8px',
+					padding: '16px',
+					marginBottom: '20px',
+					boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+				}}
+			>
+				<div style={{ fontSize: '14px', fontWeight: '600', color: '#0369a1', marginBottom: '8px' }}>
+					⌨️ Keyboard Shortcuts (Ctrl/Cmd + Key):
+				</div>
+				<div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '13px' }}>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+						<kbd style={{ 
+							background: '#e2e8f0', 
+							border: '1px solid #cbd5e1', 
+							borderRadius: '4px', 
+							padding: '2px 6px', 
+							fontSize: '11px',
+							fontWeight: '600'
+						}}>Home/↑</kbd>
+						<span style={{ color: '#64748b' }}>Scroll to top</span>
+					</div>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+						<kbd style={{ 
+							background: '#e2e8f0', 
+							border: '1px solid #cbd5e1', 
+							borderRadius: '4px', 
+							padding: '2px 6px', 
+							fontSize: '11px',
+							fontWeight: '600'
+						}}>End/↓</kbd>
+						<span style={{ color: '#64748b' }}>Scroll to bottom</span>
+					</div>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+						<kbd style={{ 
+							background: '#e2e8f0', 
+							border: '1px solid #cbd5e1', 
+							borderRadius: '4px', 
+							padding: '2px 6px', 
+							fontSize: '11px',
+							fontWeight: '600'
+						}}>R</kbd>
+						<span style={{ color: '#64748b' }}>Refresh logs</span>
+					</div>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+						<kbd style={{ 
+							background: '#e2e8f0', 
+							border: '1px solid #cbd5e1', 
+							borderRadius: '4px', 
+							padding: '2px 6px', 
+							fontSize: '11px',
+							fontWeight: '600'
+						}}>Delete/Backspace</kbd>
+						<span style={{ color: '#64748b' }}>Clear logs</span>
+					</div>
+				</div>
+			</div>
+
 			{/* Source Selection */}
 			<div
 				style={{
@@ -909,11 +1049,14 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 
 			{/* Log Content */}
 			<div
+				ref={logContainerRef}
 				style={{
 					background: 'white',
 					borderRadius: '8px',
 					padding: '20px',
 					boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+					maxHeight: '70vh',
+					overflowY: 'auto',
 				}}
 			>
 				{logSource === 'localStorage' ? (
