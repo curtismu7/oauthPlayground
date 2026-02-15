@@ -1,9 +1,9 @@
 {
 	"name": "masterflow-api",
-	"version": "9.11.65",
-	"mfaV8Version": "9.11.65",
-	"unifiedV8uVersion": "9.11.65",
-	"protectPortalVersion": "9.11.65",
+	"version": "9.11.66",
+	"mfaV8Version": "9.11.66",
+	"unifiedV8uVersion": "9.11.66",
+	"protectPortalVersion": "9.11.66",
 	"description": "MasterFlow API - PingOne API integration and testing platform",
 	"main": "src/main.tsx",
 	"type": "module",
