@@ -88,6 +88,29 @@ require_zero "dangerouslySetInnerHTML in unified flows" "${c_danger}"
 c_ref_error="$(count_matches "ReferenceError patterns in Unified MFA flows" "ReferenceError.*is not defined" "src/v8/flows/unified/" --include="*.ts" --include="*.tsx" | tr -d ' ')"
 require_zero "ReferenceError patterns in Unified MFA flows" "${c_ref_error}"
 
+section "SQLite Backup Integration Check"
+# Check Production apps SQLite backup integration
+log "🔍 Checking Production apps SQLite backup integration..."
+if node scripts/verify-production-sqlite-backup.cjs > /dev/null 2>&1; then
+  pass "Production apps SQLite backup integration (100% coverage)"
+else
+  fail "Production apps SQLite backup integration failed"
+fi
+
+# Check SQLite backup services exist
+c_oauth_service="$(count_matches "UnifiedOAuthCredentialsServiceV8U service" "UnifiedOAuthCredentialsServiceV8U" "src/v8u/services/unifiedOAuthCredentialsServiceV8U.ts" | tr -d ' ')"
+require_at_least_one "UnifiedOAuthCredentialsServiceV8U service exists" "${c_oauth_service}"
+
+c_worker_service="$(count_matches "UnifiedWorkerTokenBackupServiceV8 service" "UnifiedWorkerTokenBackupServiceV8" "src/services/unifiedWorkerTokenBackupServiceV8.ts" | tr -d ' ')"
+require_at_least_one "UnifiedWorkerTokenBackupServiceV8 service exists" "${c_worker_service}"
+
+# Check for SQLite backup patterns in Production apps (simplified check)
+c_oauth_usage="$(find src/v8u/pages/EnhancedStateManagementPage.tsx src/pages/protect-portal/ProtectPortalApp.tsx -exec grep -l "UnifiedOAuthCredentialsServiceV8U" {} \; 2>/dev/null | wc -l | tr -d ' ')"
+require_at_least_one "SQLite backup usage in OAuth apps" "${c_oauth_usage}"
+
+c_worker_usage="$(find src/v8/pages/DeleteAllDevicesUtilityV8.tsx src/v8u/pages/TokenMonitoringPage.tsx -exec grep -l "UnifiedWorkerTokenBackupServiceV8" {} \; 2>/dev/null | wc -l | tr -d ' ')"
+require_at_least_one "SQLite backup usage in worker token apps" "${c_worker_usage}"
+
 section "Summary"
 if [[ "${failures}" -gt 0 ]]; then
   log "🚫 Inventory gate failed: ${failures} check(s) failed."
