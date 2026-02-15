@@ -41,8 +41,8 @@ export const southwestAirlinesConfig: CorporatePortalConfig = {
   content: {
     customerTerminology: true,
     tone: 'friendly',
-    heroTitle: 'Customer Portal',
-    heroSubtitle: 'Book flights, check in, and manage your travel with no change fees',
+    heroTitle: 'Welcome Aboard',
+    heroSubtitle: 'Book flights, check in, and manage your Rapid Rewards account',
     features: [
       {
         title: 'Book a Flight',
@@ -55,7 +55,12 @@ export const southwestAirlinesConfig: CorporatePortalConfig = {
         icon: 'trips',
       },
       {
-        title: 'Low Fares',
+        title: 'Rapid Rewards®',
+        description: 'Earn points, manage your account, and enjoy member benefits',
+        icon: 'star',
+      },
+      {
+        title: 'Low Fares Calendar',
         description: 'Explore our competitive prices and special flight deals',
         icon: 'calendar',
       },
