@@ -28,17 +28,17 @@ const DropdownButton = styled.button`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.375rem 0.75rem;
   background: var(--brand-surface);
-  border: 2px solid var(--brand-text-secondary);
-  border-radius: var(--brand-radius-md);
+  border: 1px solid var(--brand-text-secondary);
+  border-radius: var(--brand-radius-sm);
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--brand-text);
   transition: var(--brand-transition);
   font-family: var(--brand-body-font);
-  min-width: 180px;
+  min-width: 160px;
 
   &:hover {
     border-color: var(--brand-primary);
@@ -48,7 +48,7 @@ const DropdownButton = styled.button`
   &:focus {
     outline: none;
     border-color: var(--brand-primary);
-    box-shadow: 0 0 0 3px var(--brand-primary-light);
+    box-shadow: 0 0 0 2px var(--brand-primary-light);
   }
 
   &:disabled {
@@ -65,19 +65,19 @@ const DropdownArrow = styled(FiChevronDown)<{ $rotate: boolean }>`
 
 const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   position: absolute;
-  top: calc(100% + 0.5rem);
+  top: calc(100% + 0.25rem);
   left: 0;
   right: 0;
   background: var(--brand-surface);
-  border: 2px solid var(--brand-text-secondary);
-  border-radius: var(--brand-radius-lg);
-  box-shadow: var(--brand-shadow-lg);
+  border: 1px solid var(--brand-text-secondary);
+  border-radius: var(--brand-radius-md);
+  box-shadow: var(--brand-shadow-md);
   z-index: 1000;
   opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
   visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')};
-  transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '-10px')});
-  transition: all 0.2s ease;
-  max-height: 300px;
+  transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '-8px')});
+  transition: all 0.15s ease;
+  max-height: 250px;
   overflow-y: auto;
 `;
 
@@ -86,18 +86,18 @@ const MenuItem = styled.button.withConfig({
 })<{ isActive: boolean }>`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 0.75rem;
   background: ${({ isActive }) => (isActive ? 'var(--brand-primary-light)' : 'transparent')};
   border: none;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 400;
   color: var(--brand-text);
   transition: var(--brand-transition);
   font-family: var(--brand-body-font);
-  border-bottom: 1px solid var(--brand-text-secondary);
+  border-bottom: 1px solid var(--brand-border);
 
   &:last-child {
     border-bottom: none;
