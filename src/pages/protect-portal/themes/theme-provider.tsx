@@ -33,7 +33,7 @@ const ThemeContext = createContext<BrandThemeContext | undefined>(undefined);
 
 // Theme Provider Component
 export const BrandThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const [activeTheme, setActiveTheme] = useState<BrandTheme>(americanAirlinesTheme);
+	const [activeTheme, setActiveTheme] = useState<BrandTheme>(pingidentityTheme);
 	const [isTransitioning, setIsTransitioning] = useState(false);
 
 	// Load saved theme from localStorage on mount
