@@ -20,7 +20,7 @@ import type { LoginContext, PortalError, UserContext } from '../types/protectPor
 
 const HeroContainer = styled.section`
   background: linear-gradient(135deg, #0033A0 0%, #002880 100%);
-  padding: 3rem 2rem;
+  padding: 1.5rem 2rem;
   text-align: center;
   color: white;
   position: relative;
