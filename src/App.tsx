@@ -48,8 +48,8 @@ import {
 import FieldEditingService from './services/fieldEditingService';
 import ModalPresentationService from './services/modalPresentationService';
 import { credentialManager } from './utils/credentialManager';
-// Import IndexedDB backup service to make it globally available
-import './v8u/services/indexedDBBackupServiceV8U';
+// Import unified token storage service to make it globally available
+import './services/unifiedTokenStorageService';
 // MFA redirect URI migration disabled - MFA hub is no longer used
 // import { migrateAllMFARedirectUris } from './v8/utils/mfaRedirectUriMigrationV8';
 
