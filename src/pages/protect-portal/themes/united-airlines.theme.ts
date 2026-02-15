@@ -17,8 +17,8 @@ export const unitedAirlinesTheme: BrandTheme = {
 	logo: {
 		url: 'https://www.united.com/content/dam/united/brand/united-logo.svg',
 		alt: 'United Airlines Logo',
-		width: '140px',
-		height: '60px',
+		width: '120px',
+		height: '40px',
 		text: 'United',
 		colors: {
 			united: '#0033A0',
