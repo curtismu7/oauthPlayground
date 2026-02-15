@@ -9,6 +9,7 @@ import {
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { UnifiedOAuthCredentialsServiceV8U } from '@/v8u/services/unifiedOAuthCredentialsServiceV8U';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import { UnifiedWorkerTokenBackupServiceV8 } from '@/services/unifiedWorkerTokenBackupServiceV8';
 
 // App type mapping for Production apps
 export const PRODUCTION_APP_CONFIGS = {
@@ -73,6 +74,149 @@ export const PRODUCTION_APP_CONFIGS = {
 		flowKey: 'protect-portal-v8'
 	}
 };
+
+/**
+ * Get environment ID for SQLite backup
+ */
+function getEnvironmentId(): string {
+	return localStorage.getItem('environmentId') || 
+		   sessionStorage.getItem('environmentId') ||
+		   'default-environment';
+}
+
+/**
+ * Save credentials with SQLite backup for Production apps
+ */
+export async function saveProductionAppCredentials(appId: keyof typeof PRODUCTION_APP_CONFIGS, credentials: Record<string, unknown>): Promise<void> {
+	const config = PRODUCTION_APP_CONFIGS[appId];
+	if (!config) {
+		throw new Error(`Unknown app: ${appId}`);
+	}
+
+	const environmentId = getEnvironmentId();
+	
+	try {
+		switch (config.appType) {
+			case 'oauth': {
+				// Save to unified OAuth credentials service with SQLite backup
+				await UnifiedOAuthCredentialsServiceV8U.saveCredentials(config.flowKey, {
+					environmentId,
+					clientId: credentials.clientId as string,
+					clientSecret: credentials.clientSecret as string,
+					redirectUri: credentials.redirectUri as string,
+					scopes: credentials.scopes as string[],
+					responseType: credentials.responseType as string,
+					tokenEndpointAuthMethod: credentials.tokenEndpointAuthMethod as string,
+					grantType: credentials.grantType as string,
+					includeClientSecret: credentials.includeClientSecret as boolean,
+					includeLogoutUri: credentials.includeLogoutUri as boolean,
+					includeScopes: credentials.includeScopes as boolean,
+				}, {
+					environmentId,
+					enableBackup: true,
+					backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
+				});
+				break;
+			}
+			
+			case 'worker-token': {
+				// Save worker token credentials with SQLite backup
+				await UnifiedWorkerTokenBackupServiceV8.saveWorkerTokenBackup(credentials as any, {
+					environmentId,
+					enableBackup: true,
+					backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
+				});
+				break;
+			}
+			
+			case 'mfa': {
+				// Save MFA credentials to unified OAuth service for consistency
+				await UnifiedOAuthCredentialsServiceV8U.saveSharedCredentials({
+					environmentId,
+					...credentials,
+				}, {
+					environmentId,
+					enableBackup: true,
+					backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
+				});
+				break;
+			}
+			
+			default:
+				// Fallback to basic credentials service
+				CredentialsServiceV8.saveCredentials(config.flowKey, credentials);
+		}
+		
+		console.log(`✅ [PRODUCTION-APP] ${config.appName} credentials saved with SQLite backup`);
+	} catch (error) {
+		console.warn(`⚠️ [PRODUCTION-APP] SQLite backup failed for ${config.appName}, using fallback:`, error);
+		// Fallback to basic credentials service
+		CredentialsServiceV8.saveCredentials(config.flowKey, credentials);
+	}
+}
+
+/**
+ * Load credentials with SQLite backup for Production apps
+ */
+export async function loadProductionAppCredentials(appId: keyof typeof PRODUCTION_APP_CONFIGS): Promise<Record<string, unknown> | null> {
+	const config = PRODUCTION_APP_CONFIGS[appId];
+	if (!config) {
+		throw new Error(`Unknown app: ${appId}`);
+	}
+
+	const environmentId = getEnvironmentId();
+	
+	try {
+		switch (config.appType) {
+			case 'oauth': {
+				// Load from unified OAuth credentials service with SQLite backup
+				const credentials = await UnifiedOAuthCredentialsServiceV8U.loadCredentials(config.flowKey, {
+					environmentId,
+					enableBackup: true,
+				});
+				return credentials;
+			}
+			
+			case 'worker-token': {
+				// Load worker token credentials with SQLite backup
+				const credentials = await UnifiedWorkerTokenBackupServiceV8.loadWorkerTokenBackup({
+					environmentId,
+					enableBackup: true,
+				});
+				return credentials;
+			}
+			
+			case 'mfa': {
+				// Load MFA credentials from unified OAuth service
+				const credentials = await UnifiedOAuthCredentialsServiceV8U.loadSharedCredentials({
+					environmentId,
+					enableBackup: true,
+				});
+				return credentials;
+			}
+			
+			default:
+				// Fallback to basic credentials service
+				return CredentialsServiceV8.loadCredentials(config.flowKey);
+		}
+	} catch (error) {
+		console.warn(`⚠️ [PRODUCTION-APP] SQLite backup load failed for ${config.appName}, using fallback:`, error);
+		// Fallback to basic credentials service
+		return CredentialsServiceV8.loadCredentials(config.flowKey);
+	}
+}
+
+/**
+ * Check if Production app has credentials stored
+ */
+export async function hasProductionAppCredentials(appId: keyof typeof PRODUCTION_APP_CONFIGS): Promise<boolean> {
+	try {
+		const credentials = await loadProductionAppCredentials(appId);
+		return credentials !== null && Object.keys(credentials).length > 0;
+	} catch (error) {
+		return false;
+	}
+}
 
 /**
  * Export credentials for a Production app
