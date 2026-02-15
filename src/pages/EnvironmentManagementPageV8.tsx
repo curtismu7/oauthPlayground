@@ -21,7 +21,6 @@ import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
-import { IndexedDBBackupServiceV8U } from '../v8u/services/indexedDBBackupServiceV8U';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 
 const Container = styled.div`
@@ -574,16 +573,11 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	useEffect(() => {
 		const loadSettings = async () => {
 			try {
-				// Load from IndexedDB backup
-				const backupSettings = await IndexedDBBackupServiceV8U.load<{
-					selectedApiRegion?: string;
-					typeFilter?: string;
-					statusFilter?: string;
-					regionFilter?: string;
-					currentPage?: number;
-				}>(STORAGE_KEY);
-				if (backupSettings) {
-					console.log('[ENV-MGMT] ✅ Loaded settings from IndexedDB');
+				// Load from localStorage (fallback since unified storage is for tokens)
+				const storedSettings = localStorage.getItem(STORAGE_KEY);
+				if (storedSettings) {
+					const backupSettings = JSON.parse(storedSettings);
+					console.log('[ENV-MGMT] ✅ Loaded settings from localStorage');
 					setSelectedApiRegion(backupSettings.selectedApiRegion || 'na');
 					setTypeFilter(backupSettings.typeFilter || 'all');
 					setStatusFilter(backupSettings.statusFilter || 'all');
@@ -592,7 +586,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					return;
 				}
 			} catch (error) {
-				console.warn('[ENV-MGMT] Failed to load settings from IndexedDB', error);
+				console.warn('[ENV-MGMT] Failed to load settings from localStorage', error);
 			}
 		};
 
@@ -612,11 +606,11 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			};
 
 			try {
-				// Save to IndexedDB backup
-				await IndexedDBBackupServiceV8U.save(STORAGE_KEY, settings, 'credentials');
-				console.log('[ENV-MGMT] ✅ Settings saved to IndexedDB');
+				// Save to localStorage (fallback since unified storage is for tokens)
+				localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+				console.log('[ENV-MGMT] ✅ Settings saved to localStorage');
 			} catch (error) {
-				console.warn('[ENV-MGMT] Failed to save settings to IndexedDB', error);
+				console.warn('[ENV-MGMT] Failed to save settings to localStorage', error);
 			}
 		};
 

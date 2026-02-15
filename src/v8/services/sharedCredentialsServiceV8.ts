@@ -17,13 +17,10 @@
  * Uses dual storage: browser storage first, then disk fallback.
  */
 
-import { DualStorageServiceV8 } from './dualStorageServiceV8';
 
 const MODULE_TAG = '[🔗 SHARED-CREDENTIALS-V8]';
 
 const BROWSER_STORAGE_KEY = 'v8_shared_credentials';
-const DISK_DIRECTORY = 'v8';
-const DISK_FILENAME = 'shared-credentials.json';
 
 export interface SharedCredentials {
 	environmentId?: string;
@@ -44,20 +41,17 @@ export class SharedCredentialsServiceV8 {
 	 * @returns Shared credentials object
 	 */
 	static async loadSharedCredentials(): Promise<SharedCredentials> {
-		console.log(`${MODULE_TAG} Loading shared credentials from dual storage`);
+		console.log(`${MODULE_TAG} Loading shared credentials from localStorage`);
 
-		const result = await DualStorageServiceV8.load<SharedCredentials>({
-			directory: DISK_DIRECTORY,
-			filename: DISK_FILENAME,
-			browserStorageKey: BROWSER_STORAGE_KEY,
-		});
-
-		if (result.success && result.data) {
-			console.log(`${MODULE_TAG} Shared credentials loaded from ${result.source}`, {
-				hasEnvId: !!result.data.environmentId,
-				hasClientId: !!result.data.clientId,
-			});
-			return result.data;
+		try {
+			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
+			if (stored) {
+				const credentials = JSON.parse(stored) as SharedCredentials;
+				console.log(`${MODULE_TAG} Loaded shared credentials from localStorage`);
+				return credentials;
+			}
+		} catch (error) {
+			console.warn(`${MODULE_TAG} Failed to load from localStorage`, error);
 		}
 
 		console.log(`${MODULE_TAG} No shared credentials found`);
@@ -236,16 +230,12 @@ export class SharedCredentialsServiceV8 {
 	}
 
 	/**
-	 * Clear shared credentials from storage (both browser and disk)
+	 * Clear shared credentials from storage (localStorage)
 	 */
 	static async clearSharedCredentials(): Promise<void> {
-		console.log(`${MODULE_TAG} Clearing shared credentials from dual storage`);
+		console.log(`${MODULE_TAG} Clearing shared credentials from localStorage`);
 		try {
-			await DualStorageServiceV8.delete({
-				directory: DISK_DIRECTORY,
-				filename: DISK_FILENAME,
-				browserStorageKey: BROWSER_STORAGE_KEY,
-			});
+			localStorage.removeItem(BROWSER_STORAGE_KEY);
 			console.log(`${MODULE_TAG} Shared credentials cleared successfully`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error clearing shared credentials`, { error });

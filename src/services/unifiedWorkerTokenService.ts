@@ -18,7 +18,7 @@
  * - Token validation and expiration handling
  */
 
-import { DualStorageServiceV8 } from '../v8/services/dualStorageServiceV8';
+import { unifiedTokenStorage } from './unifiedTokenStorageService';
 
 const MODULE_TAG = '[🔑 UNIFIED-WORKER-TOKEN]';
 
@@ -265,19 +265,32 @@ class UnifiedWorkerTokenService {
 			// Don't throw - localStorage is primary
 		}
 
-		// Save to database via dual storage for persistence
+		// Save to unified storage for persistence
 		try {
-			await DualStorageServiceV8.save(
-				{
-					directory: 'worker_token',
-					filename: 'unified-credentials.json',
-					browserStorageKey: BROWSER_STORAGE_KEY,
-				},
-				credentials
-			);
-			console.log(`${MODULE_TAG} ✅ Worker token credentials backed up to database`);
+			// Get current worker token data to backup
+			const currentData = this.getTokenDataSync();
+			if (currentData && currentData.token) {
+				// Store worker token in unified storage
+				await unifiedTokenStorage.storeToken({
+					type: 'worker_token',
+					value: currentData.token,
+					expiresAt: currentData.expiresAt || null,
+					issuedAt: currentData.savedAt || Date.now(),
+					scope: [],
+					source: 'worker_token',
+					flowType: 'worker_token',
+					flowName: 'unified_worker_token',
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
+					metadata: {
+						credentials,
+						savedAt: currentData.savedAt,
+					},
+				});
+				console.log(`${MODULE_TAG} ✅ Worker token backed up to unified storage`);
+			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to backup to database`, error);
+			console.error(`${MODULE_TAG} Failed to backup to unified storage`, error);
 			// Don't throw - local storage is primary
 		}
 
@@ -354,37 +367,34 @@ class UnifiedWorkerTokenService {
 			console.error(`${MODULE_TAG} ❌ Failed to load from IndexedDB`, error);
 		}
 
-		// Try database backup via dual storage
+		// Try unified storage backup
 		try {
-			console.log(`${MODULE_TAG} 🔍 Trying database backup...`);
-			const result = await DualStorageServiceV8.load({
-				directory: 'worker_token',
-				filename: 'unified-credentials.json',
-				browserStorageKey: BROWSER_STORAGE_KEY,
+			console.log(`${MODULE_TAG} 🔍 Trying unified storage backup...`);
+			const result = await unifiedTokenStorage.getTokens({
+				type: 'worker_token',
+				source: 'worker_token',
 			});
 
-			if (result.success && result.data) {
-				const credentials = result.data as UnifiedWorkerTokenCredentials;
-				console.log(`${MODULE_TAG} ✅ Loaded worker token credentials from database`);
+			if (result.success && result.data && result.data.length > 0) {
+				const workerToken = result.data[0];
+				console.log(`${MODULE_TAG} ✅ Loaded worker token from unified storage`);
 
-				// Update memory cache and localStorage
-				const data: UnifiedWorkerTokenData = {
-					token: '', // Token will be fetched when needed
-					credentials,
-					savedAt: Date.now(),
-				};
-				this.memoryCache = data;
+				// Extract credentials from metadata if available
+				const credentials = workerToken.metadata?.credentials as UnifiedWorkerTokenCredentials;
+				if (credentials) {
+					// Update memory cache and localStorage
+					const data: UnifiedWorkerTokenData = {
+						token: workerToken.value,
+						credentials,
+						expiresAt: workerToken.expiresAt !== null ? workerToken.expiresAt : undefined,
+						savedAt: workerToken.issuedAt,
+					};
 
-				// Restore to localStorage
-				try {
+					this.memoryCache = data;
 					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
-				} catch (error) {
-					console.warn(`${MODULE_TAG} ⚠️ Failed to restore to localStorage`, error);
-				}
 
-				return credentials;
-			} else {
-				console.log(`${MODULE_TAG} ❌ No data found in database`);
+					return credentials;
+				}
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} ❌ Failed to load from database`, error);
