@@ -2334,17 +2334,6 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 	const [showUsernameDropdown, setShowUsernameDropdown] = useState(false);
 	const envIdForModal = useMemo(() => globalEnvironmentService.getEnvironmentId() || '', []);
 
-	// Handle navigation to registration when triggered from device selection modal
-	useEffect(() => {
-		if (shouldNavigateToRegistration) {
-			console.log('[UNIFIED-FLOW] Navigating to registration step');
-			setShouldNavigateToRegistration(false);
-			// Use sessionStorage to trigger navigation in MFAFlowBaseV8
-			sessionStorage.setItem('mfa_target_step_after_callback', '0');
-			window.location.hash = '#step=0';
-		}
-	}, [shouldNavigateToRegistration]);
-
 	// Pending registration data while waiting for OAuth (use ref to avoid stale closure)
 	const pendingRegistrationRef = useRef<{
 		deviceType: DeviceConfigKey;
@@ -2387,8 +2376,8 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 
 		// If we have OAuth callback params and stored state, re-open the modal to process callback
 		// But only if we don't already have a user token (to prevent reopening after silent auth)
-		if (code && hasStoredState && !showUserLoginModal && !userToken) {
-			console.log('[UNIFIED-FLOW] OAuth callback detected - re-opening modal to process');
+		if (code && hasStoredState && !userToken) {
+			console.log('[UNIFIED-FLOW] 🔄 OAuth callback detected, reopening modal...');
 			setShowUserLoginModal(true);
 		}
 	}, [showUserLoginModal, userToken]);
@@ -3066,6 +3055,17 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 		}
 		return false;
 	}, []);
+
+	// Handle navigation to registration when triggered from device selection modal
+	useEffect(() => {
+		if (shouldNavigateToRegistration) {
+			console.log('[UNIFIED-FLOW] Navigating to registration step');
+			setShouldNavigateToRegistration(false);
+			// Use sessionStorage to trigger navigation in MFAFlowBaseV8
+			sessionStorage.setItem('mfa_target_step_after_callback', '0');
+			window.location.hash = '#step=0';
+		}
+	}, [shouldNavigateToRegistration]);
 
 	return (
 		<>
