@@ -817,11 +817,16 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			// Save to local configuration
 			const newConfig = MFAConfigurationServiceV8.loadConfiguration();
 			if (!newConfig.oauth) {
-				newConfig.oauth = {};
+				newConfig.oauth = {
+					pkceEnabled: oauthConfig.pkceEnabled,
+					refreshTokenEnabled: oauthConfig.refreshTokenEnabled,
+					tokenStorage: oauthConfig.tokenStorage,
+				};
+			} else {
+				newConfig.oauth.pkceEnabled = oauthConfig.pkceEnabled;
+				newConfig.oauth.refreshTokenEnabled = oauthConfig.refreshTokenEnabled;
+				newConfig.oauth.tokenStorage = oauthConfig.tokenStorage;
 			}
-			newConfig.oauth.pkceEnabled = oauthConfig.pkceEnabled;
-			newConfig.oauth.refreshTokenEnabled = oauthConfig.refreshTokenEnabled;
-			newConfig.oauth.tokenStorage = oauthConfig.tokenStorage;
 			MFAConfigurationServiceV8.saveConfiguration(newConfig);
 
 			// If we have a worker token, try to sync with PingOne
