@@ -15,7 +15,7 @@ export const fedexTheme: BrandTheme = {
 	displayName: 'FedEx',
 	portalName: 'FedEx Employee Portal',
 	logo: {
-		url: 'https://www.fedex.com/content/dam/fedex-com/logos/fedex-logo.svg',
+		url: '', // Text-based logo only
 		alt: 'FedEx Logo',
 		width: '110px',
 		height: '40px',

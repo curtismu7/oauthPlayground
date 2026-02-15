@@ -15,11 +15,11 @@ export const americanAirlinesTheme: BrandTheme = {
 	displayName: 'American Airlines',
 	portalName: 'American Airlines Employee Portal',
 	logo: {
-		url: 'https://www.aa.com/content/images/aa-logo.svg',
+		url: '', // Text-based logo only
 		alt: 'American Airlines Logo',
 		width: '120px',
 		height: '40px',
-		text: 'American Airlines',
+		text: 'AMERICAN',
 		colors: {
 			american: '#0b4aa2', // Updated to match mockup
 			airlines: '#e11d48', // Updated to match mockup
