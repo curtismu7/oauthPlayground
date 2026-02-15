@@ -365,7 +365,7 @@ const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 									Click below to begin your secure login journey. We'll evaluate your login attempt
 									in real-time to provide the appropriate level of security.
 								</LoginDescription>
-								<LoginButton onClick={() => {}}>🔒 Begin Secure Login →</LoginButton>
+								<LoginButton onClick={onLoginStart}>🔒 Begin Secure Login →</LoginButton>
 							</LoginSection>
 						</LoginContainer>
 					</MainContent>
