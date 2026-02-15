@@ -26,7 +26,6 @@ import RiskEvaluationDisplay from './components/RiskEvaluationDisplay';
 import SouthwestAirlinesHero from './components/SouthwestAirlinesHero';
 import UnitedAirlinesHero from './components/UnitedAirlinesHero';
 import { BrandThemeProvider, useBrandTheme } from './themes/theme-provider';
-import { UnifiedOAuthCredentialsServiceV8U } from '../../v8u/services/unifiedOAuthCredentialsServiceV8U';
 // Import types and config
 import type {
 	LoginContext,
@@ -304,6 +303,13 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 		}));
 	}, []);
 
+	const handleCompanySelect = useCallback((company: { id: string; name: string; description: string; logo: string; logoColor: string; logoBg: string; theme: string; }) => {
+		console.log('[🚀 PROTECT-PORTAL] Company selected:', company.name);
+		// For now, just start login flow after company selection
+		// Theme switching could be added later if needed
+		handleLoginStart();
+	}, [handleLoginStart]);
+
 	const handleLoginSuccess = useCallback((userContext: UserContext, loginContext: LoginContext) => {
 		console.log('[🚀 PROTECT-PORTAL] Login successful, starting risk evaluation');
 		setPortalState((prev) => ({
@@ -450,7 +456,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 			case 'portal-home':
 				return (
 					<PortalHome
-						onLoginStart={handleLoginStart}
+						onCompanySelect={handleCompanySelect}
 						educationalContent={portalState.educationalContent.riskEvaluation}
 					/>
 				);
