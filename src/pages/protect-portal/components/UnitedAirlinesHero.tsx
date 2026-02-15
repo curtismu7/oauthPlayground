@@ -20,7 +20,7 @@ import type { LoginContext, PortalError, UserContext } from '../types/protectPor
 
 const HeroContainer = styled.section`
   background: linear-gradient(135deg, #0033A0 0%, #002880 100%);
-  padding: 1.5rem 2rem;
+  padding: 1rem 2rem;
   text-align: center;
   color: white;
   position: relative;
@@ -45,35 +45,35 @@ const HeroContent = styled.div`
 `;
 
 const HeroTitle = styled.h1`
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: 700;
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.5rem 0;
   line-height: 1.2;
   font-family: 'United', 'Helvetica Neue', Arial, sans-serif;
   color: white;
   
   @media (max-width: 768px) {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
 `;
 
 const HeroSubtitle = styled.p`
-  font-size: 1.25rem;
-  margin: 0 0 3rem 0;
+  font-size: 1rem;
+  margin: 0 0 1.5rem 0;
   line-height: 1.6;
   opacity: 0.9;
   font-family: 'United', 'Helvetica Neue', Arial, sans-serif;
   
   @media (max-width: 768px) {
-    font-size: 1rem;
+    font-size: 0.875rem;
   }
 `;
 
 const GlobalFeatures = styled.div`
   display: flex;
   justify-content: center;
-  gap: 3rem;
-  margin: 3rem 0;
+  gap: 2rem;
+  margin: 1.5rem 0;
   flex-wrap: wrap;
   
   @media (max-width: 768px) {
@@ -163,8 +163,8 @@ const FeatureDescription = styled.p`
 const RoutesList = styled.div`
   display: flex;
   justify-content: center;
-  gap: 2rem;
-  margin: 2rem 0;
+  gap: 1.5rem;
+  margin: 1rem 0;
   flex-wrap: wrap;
 `;
 
@@ -177,14 +177,14 @@ const Route = styled.span`
 `;
 
 const LoginSection = styled.div`
-  margin-top: 3rem;
+  margin-top: 1.5rem;
   text-align: center;
 `;
 
 const LoginDescription = styled.p`
-  font-size: 1.125rem;
+  font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   line-height: 1.6;
   max-width: 600px;
   margin-left: auto;
@@ -195,14 +195,14 @@ const LoginButton = styled.button`
   background: #FF6600;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 1rem 2rem;
-  font-size: 1.125rem;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   transition: all 0.2s ease;
   font-family: 'United', 'Helvetica Neue', Arial, sans-serif;
   
