@@ -545,9 +545,20 @@ export class CredentialsStorage {
 	 * @param flowId - The flow identifier
 	 * @param credentials - The credentials data
 	 */
-	static set(flowId: FlowId, credentials: CredentialsData): void {
-		localStorage.setItem(StorageKeys.credentials(flowId), JSON.stringify(credentials));
-		console.log(`💾 [FlowStorage] Saved credentials for ${flowId}`);
+	static async set(flowId: FlowId, credentials: CredentialsData): Promise<void> {
+		// Store in unified credentials service
+		try {
+			const { unifiedCredentialsService } = await import('./unifiedCredentialsService');
+			await unifiedCredentialsService.storeOAuthCredentials(credentials, {
+				flowName: flowId,
+			});
+			console.log(`💾 [FlowStorage] Saved credentials for ${flowId} to unified storage`);
+		} catch (error) {
+			console.warn(`[FlowStorage] Failed to save to unified storage, falling back to localStorage:`, error);
+			// Fallback to localStorage
+			localStorage.setItem(StorageKeys.credentials(flowId), JSON.stringify(credentials));
+			console.log(`💾 [FlowStorage] Saved credentials for ${flowId} to localStorage (fallback)`);
+		}
 	}
 
 	/**
@@ -555,14 +566,30 @@ export class CredentialsStorage {
 	 * @param flowId - The flow identifier
 	 * @returns The credentials or null if not found
 	 */
-	static get(flowId: FlowId): CredentialsData | null {
+	static async get(flowId: FlowId): Promise<CredentialsData | null> {
+		// Try unified credentials service first
+		try {
+			const { unifiedCredentialsService } = await import('./unifiedCredentialsService');
+			const credentials = await unifiedCredentialsService.getOAuthCredentials({
+				flowName: flowId,
+			});
+
+			if (credentials) {
+				console.log(`💾 [FlowStorage] Retrieved credentials for ${flowId} from unified storage`);
+				return credentials as CredentialsData;
+			}
+		} catch (error) {
+			console.warn(`[FlowStorage] Failed to load from unified storage, falling back to localStorage:`, error);
+		}
+
+		// Fallback to localStorage
 		const stored = localStorage.getItem(StorageKeys.credentials(flowId));
 		if (!stored) return null;
 
 		try {
 			return JSON.parse(stored) as CredentialsData;
 		} catch (e) {
-			console.warn(`[FlowStorage] Failed to parse credentials for ${flowId}`, e);
+			console.warn(`[FlowStorage] Failed to parse localStorage credentials for ${flowId}`, e);
 			return null;
 		}
 	}
