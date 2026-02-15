@@ -838,12 +838,12 @@ export class AuthzFlowTokenManagement {
 	/**
 	 * Navigate to token management page with flow context
 	 */
-	static navigateToTokenManagement(
+	static async navigateToTokenManagement(
 		variant: AuthzFlowVariant,
 		tokens: any,
 		credentials: StepCredentials,
 		currentStep: number
-	): void {
+	): Promise<void> {
 		const flowId =
 			variant === 'oauth' ? 'oauth-authorization-code-v5' : 'oidc-authorization-code-v5';
 		const flowType = variant === 'oauth' ? 'oauth' : 'oidc';
@@ -870,6 +870,79 @@ export class AuthzFlowTokenManagement {
 			localStorage.setItem('token_to_analyze', tokens.access_token);
 			localStorage.setItem('token_type', 'access');
 			localStorage.setItem('flow_source', flowId);
+			
+			// Also store in unified storage
+			try {
+				const { unifiedTokenStorage } = await import('../services/unifiedTokenStorageService');
+				await unifiedTokenStorage.storeToken({
+					type: 'access_token',
+					value: tokens.access_token,
+					expiresAt: tokens.expires_in ? Date.now() + (tokens.expires_in * 1000) : null,
+					issuedAt: Date.now(),
+					scope: tokens.scope ? tokens.scope.split(' ') : [],
+					source: 'oauth_flow',
+					flowType: 'authorization_code',
+					flowName: flowId,
+					environmentId: credentials?.environmentId,
+					clientId: credentials?.clientId,
+					metadata: {
+						flowId,
+						timestamp: Date.now(),
+					},
+				});
+			} catch (error) {
+				console.warn('Failed to store token in unified storage:', error);
+			}
+		}
+
+		// Store refresh token if available
+		if (tokens?.refresh_token) {
+			try {
+				const { unifiedTokenStorage } = await import('../services/unifiedTokenStorageService');
+				await unifiedTokenStorage.storeToken({
+					type: 'refresh_token',
+					value: tokens.refresh_token,
+					expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
+					issuedAt: Date.now(),
+					scope: tokens.scope ? tokens.scope.split(' ') : [],
+					source: 'oauth_flow',
+					flowType: 'authorization_code',
+					flowName: flowId,
+					environmentId: credentials?.environmentId,
+					clientId: credentials?.clientId,
+					metadata: {
+						flowId,
+						timestamp: Date.now(),
+					},
+				});
+			} catch (error) {
+				console.warn('Failed to store refresh token in unified storage:', error);
+			}
+		}
+
+		// Store ID token if available
+		if (tokens?.id_token) {
+			try {
+				const { unifiedTokenStorage } = await import('../services/unifiedTokenStorageService');
+				await unifiedTokenStorage.storeToken({
+					type: 'id_token',
+					value: tokens.id_token,
+					expiresAt: null, // ID tokens typically don't have explicit expiry
+					issuedAt: Date.now(),
+					scope: ['openid'],
+					source: 'oauth_flow',
+					flowType: 'authorization_code',
+					flowName: flowId,
+					environmentId: credentials?.environmentId,
+					clientId: credentials?.clientId,
+					metadata: {
+						flowId,
+						timestamp: Date.now(),
+					},
+				});
+			} catch (error) {
+				console.warn('Failed to store ID token in unified storage:', error);
+			}
 		}
 
 		// Open token management in new tab
