@@ -41,7 +41,7 @@ export const fedexConfig: CorporatePortalConfig = {
   content: {
     customerTerminology: true,
     tone: 'corporate',
-    heroTitle: 'FedEx Customer Portal',
+    heroTitle: 'Customer Portal',
     heroSubtitle: 'Track shipments, schedule pickups, and manage your shipping services',
     features: [
       {
