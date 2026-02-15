@@ -642,6 +642,9 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 
 		return (
 			<PortalContainer>
+				{/* Global Company Header - Always visible at the top */}
+				<CompanyHeader showBrandSelector={true} />
+				
 				{activeTheme.name === 'american-airlines' && (
 					<AmericanAirlinesHero
 						currentStep={portalState.currentStep}
@@ -702,11 +705,6 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 						_redirectUri={redirectUri}
 					/>
 				)}
-				{activeTheme.name !== 'american-airlines' &&
-					activeTheme.name !== 'southwest-airlines' &&
-					activeTheme.name !== 'fedex' &&
-					activeTheme.name !== 'bank-of-america' &&
-					activeTheme.name !== 'united-airlines' && <CompanyHeader />}
 				<PortalCard>
 					<PortalContent>{renderStep()}</PortalContent>
 				</PortalCard>
