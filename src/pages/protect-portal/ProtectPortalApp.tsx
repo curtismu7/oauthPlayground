@@ -457,6 +457,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 				return (
 					<PortalHome
 						onCompanySelect={handleCompanySelect}
+						onGoToLogin={handleLoginStart}
 						educationalContent={portalState.educationalContent.riskEvaluation}
 					/>
 				);
