@@ -171,6 +171,15 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		return 'ALL';
 	});
 	const [policy, setPolicy] = useState<DeviceAuthenticationPolicy | null>(null);
+	const [mfaSettings, setMfaSettings] = useState<{
+		maxAllowedDevices: number;
+		loading: boolean;
+		error: string | null;
+	}>({
+		maxAllowedDevices: 20, // Default fallback value
+		loading: false,
+		error: null,
+	});
 
 	const loadingSpinnerConfig = useMemo(
 		() => ({
@@ -473,6 +482,41 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		fetchPolicyInfo();
 	}, [environmentId, username, tokenStatus.isValid, devices.length]);
 
+	// Fetch MFA Settings when environment ID changes
+	useEffect(() => {
+		const fetchMfaSettings = async () => {
+			if (!environmentId || !tokenStatus.isValid) return;
+
+			setMfaSettings(prev => ({ ...prev, loading: true, error: null }));
+
+			try {
+				console.log(`${MODULE_TAG} Loading MFA settings for environment: ${environmentId}`);
+				const settings = await MFAServiceV8.getMFASettings(environmentId);
+				
+				const maxDevices = settings.pairing?.maxAllowedDevices || 20; // Default fallback
+				setMfaSettings({
+					maxAllowedDevices: maxDevices,
+					loading: false,
+					error: null,
+				});
+				
+				console.log(`${MODULE_TAG} ✅ MFA Settings loaded:`, {
+					maxAllowedDevices: maxDevices,
+					pairingKeyFormat: settings.pairing?.pairingKeyFormat,
+				});
+			} catch (error) {
+				console.warn(`${MODULE_TAG} Failed to fetch MFA settings:`, error);
+				setMfaSettings(prev => ({
+					...prev,
+					loading: false,
+					error: error instanceof Error ? error.message : 'Failed to load MFA settings',
+				}));
+			}
+		};
+
+		fetchMfaSettings();
+	}, [environmentId, tokenStatus.isValid]);
+
 	const handleToggleDeviceSelection = useCallback((deviceId: string) => {
 		setSelectedDeviceIds((prev) => {
 			const next = new Set(prev);
@@ -614,6 +658,53 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				</p>
 			</div>
 
+			{/* MFA Settings Information */}
+			{environmentId && (
+				<div
+					style={{
+						background: '#f0f9ff',
+						border: '1px solid #bae6fd',
+						borderRadius: '8px',
+						padding: '16px',
+						marginBottom: '24px',
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+						<span style={{ fontSize: '16px', fontWeight: '600', color: '#1e40af' }}>
+							📋 MFA Settings for Environment
+						</span>
+						<span style={{ fontSize: '14px', color: '#64748b', fontFamily: 'monospace' }}>
+							{environmentId}
+						</span>
+					</div>
+					
+					{mfaSettings.loading ? (
+						<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+							<div style={{ width: '16px', height: '16px', border: '2px solid #3b82f6', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+							<span style={{ color: '#64748b', fontSize: '14px' }}>Loading MFA settings...</span>
+						</div>
+					) : mfaSettings.error ? (
+						<div style={{ color: '#dc2626', fontSize: '14px' }}>
+							⚠️ Failed to load MFA settings: {mfaSettings.error}
+						</div>
+					) : (
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+								<span style={{ color: '#374151', fontSize: '14px' }}>
+									<strong>Max Allowed Devices:</strong>
+								</span>
+								<span style={{ fontSize: '16px', fontWeight: '600', color: '#059669' }}>
+									{mfaSettings.maxAllowedDevices}
+								</span>
+							</div>
+							<div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+								Source: PingOne MFA Settings API (GET /environments/{environmentId}/mfaSettings)
+							</div>
+						</div>
+					)}
+				</div>
+			)}
+
 			{/* Device Policy Information */}
 			{devices.length > 0 && (
 				<div
@@ -650,14 +741,30 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							</span>
 						</div>
 
-						{/* PingOne Standard Limits */}
+						{/* MFA Settings Limits */}
 						<div>
-							<span style={{ color: '#6b7280', fontSize: '14px' }}>Max Allowed:</span>
-							<span
-								style={{ marginLeft: '8px', fontSize: '14px', fontWeight: '500', color: '#059669' }}
-							>
-								50 devices
+							<span style={{ color: '#6b7280', fontSize: '14px' }}>
+								Max Allowed per MFA settings:
 							</span>
+							{mfaSettings.loading ? (
+								<span
+									style={{ marginLeft: '8px', fontSize: '14px', fontWeight: '500', color: '#6b7280' }}
+								>
+									Loading...
+								</span>
+							) : mfaSettings.error ? (
+								<span
+									style={{ marginLeft: '8px', fontSize: '14px', fontWeight: '500', color: '#dc2626' }}
+								>
+									Error
+								</span>
+							) : (
+								<span
+									style={{ marginLeft: '8px', fontSize: '14px', fontWeight: '500', color: '#059669' }}
+								>
+									{mfaSettings.maxAllowedDevices} devices
+								</span>
+							)}
 						</div>
 
 						{policy && (
