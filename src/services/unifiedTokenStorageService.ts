@@ -19,15 +19,17 @@ const INDEXEDDB_NAME = 'OAuthPlaygroundTokenStorage';
 const INDEXEDDB_VERSION = 1;
 const TOKEN_STORE_NAME = 'tokens';
 
-// Token interface for unified storage
-export interface UnifiedToken {
+// Unified storage interface for all data types
+export interface UnifiedStorageItem {
 	id: string;
-	type: 'access_token' | 'refresh_token' | 'id_token' | 'worker_token';
+	type: 'access_token' | 'refresh_token' | 'id_token' | 'worker_token' | 
+	      'oauth_credentials' | 'mfa_credentials' | 'environment_settings' | 
+	      'ui_preferences' | 'pkce_state' | 'flow_state';
 	value: string;
 	expiresAt: number | null;
 	issuedAt: number;
-	scope: string[];
-	source: 'oauth_flow' | 'worker_token' | 'manual';
+	scope?: string[];
+	source: 'oauth_flow' | 'worker_token' | 'manual' | 'system' | 'user_input';
 	flowType?: string;
 	flowName?: string;
 	environmentId?: string;
@@ -37,28 +39,39 @@ export interface UnifiedToken {
 	updatedAt: number;
 }
 
+// Legacy token interface for backward compatibility
+export interface UnifiedToken extends Omit<UnifiedStorageItem, 'type'> {
+	type: 'access_token' | 'refresh_token' | 'id_token' | 'worker_token';
+}
+
+export interface StorageQuery {
+	type?: UnifiedStorageItem['type'];
+	source?: UnifiedStorageItem['source'];
+	environmentId?: string;
+	clientId?: string;
+	flowType?: string;
+	flowName?: string;
+	expired?: boolean;
+}
+
+export interface TokenStorageResult<T = UnifiedStorageItem> {
+	success: boolean;
+	data?: T[];
+	error?: string;
+	source?: 'indexeddb' | 'sqlite' | 'cache';
+}
+
 export interface TokenStorageOptions {
 	environmentId?: string;
 	clientId?: string;
 	flowType?: string;
 	flowName?: string;
-	source?: UnifiedToken['source'];
+	source?: UnifiedStorageItem['source'];
 }
 
-export interface TokenQuery {
+// Legacy interfaces for backward compatibility
+export interface TokenQuery extends Omit<StorageQuery, 'type'> {
 	type?: UnifiedToken['type'];
-	source?: UnifiedToken['source'];
-	environmentId?: string;
-	clientId?: string;
-	activeOnly?: boolean;
-	expiredOnly?: boolean;
-}
-
-export interface TokenStorageResult<T> {
-	success: boolean;
-	data?: T;
-	error?: string;
-	source?: 'indexeddb' | 'sqlite' | 'cache' | 'none';
 }
 
 /**
@@ -671,6 +684,256 @@ export class UnifiedTokenStorageService {
 			logger.warn(MODULE_TAG, 'SQLite clear failed', undefined, error);
 			throw error;
 		}
+	}
+
+	// ============================================================================
+	// CREDENTIALS AND SETTINGS METHODS
+	// ============================================================================
+
+	/**
+	 * Store OAuth credentials
+	 */
+	async storeOAuthCredentials(
+		credentials: Record<string, unknown>,
+		options?: TokenStorageOptions
+	): Promise<void> {
+		await this.storeToken({
+			id: `oauth_${options?.environmentId || 'default'}_${options?.clientId || 'default'}`,
+			type: 'oauth_credentials',
+			value: JSON.stringify(credentials),
+			expiresAt: null,
+			issuedAt: Date.now(),
+			source: 'system',
+			environmentId: options?.environmentId,
+			clientId: options?.clientId,
+			flowType: options?.flowType,
+			flowName: options?.flowName,
+			metadata: { credentials },
+		});
+	}
+
+	/**
+	 * Get OAuth credentials
+	 */
+	async getOAuthCredentials(options?: TokenStorageOptions): Promise<Record<string, unknown> | null> {
+		const result = await this.getTokens({
+			type: 'oauth_credentials',
+			environmentId: options?.environmentId,
+			clientId: options?.clientId,
+		});
+
+		if (result.success && result.data && result.data.length > 0) {
+			try {
+				return JSON.parse(result.data[0].value) as Record<string, unknown>;
+			} catch (error) {
+				logger.warn(MODULE_TAG, 'Failed to parse OAuth credentials', undefined, error);
+				return null;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Store MFA credentials
+	 */
+	async storeMFACredentials(
+		credentials: Record<string, unknown>,
+		options?: TokenStorageOptions
+	): Promise<void> {
+		await this.storeToken({
+			id: `mfa_${options?.environmentId || 'default'}_${options?.clientId || 'default'}`,
+			type: 'mfa_credentials',
+			value: JSON.stringify(credentials),
+			expiresAt: null,
+			issuedAt: Date.now(),
+			source: 'system',
+			environmentId: options?.environmentId,
+			clientId: options?.clientId,
+			flowType: options?.flowType,
+			flowName: options?.flowName,
+			metadata: { credentials },
+		});
+	}
+
+	/**
+	 * Get MFA credentials
+	 */
+	async getMFACredentials(options?: TokenStorageOptions): Promise<Record<string, unknown> | null> {
+		const result = await this.getTokens({
+			type: 'mfa_credentials',
+			environmentId: options?.environmentId,
+			clientId: options?.clientId,
+		});
+
+		if (result.success && result.data && result.data.length > 0) {
+			try {
+				return JSON.parse(result.data[0].value) as Record<string, unknown>;
+			} catch (error) {
+				logger.warn(MODULE_TAG, 'Failed to parse MFA credentials', undefined, error);
+				return null;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Store environment settings
+	 */
+	async storeEnvironmentSettings(
+		settings: Record<string, unknown>,
+		options?: TokenStorageOptions
+	): Promise<void> {
+		await this.storeToken({
+			id: `env_settings_${options?.environmentId || 'default'}`,
+			type: 'environment_settings',
+			value: JSON.stringify(settings),
+			expiresAt: null,
+			issuedAt: Date.now(),
+			source: 'user_input',
+			environmentId: options?.environmentId,
+			metadata: { settings },
+		});
+	}
+
+	/**
+	 * Get environment settings
+	 */
+	async getEnvironmentSettings(environmentId?: string): Promise<Record<string, unknown> | null> {
+		const result = await this.getTokens({
+			type: 'environment_settings',
+			environmentId,
+		});
+
+		if (result.success && result.data && result.data.length > 0) {
+			try {
+				return JSON.parse(result.data[0].value) as Record<string, unknown>;
+			} catch (error) {
+				logger.warn(MODULE_TAG, 'Failed to parse environment settings', undefined, error);
+				return null;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Store UI preferences
+	 */
+	async storeUIPreferences(
+		preferences: Record<string, unknown>,
+		userId?: string
+	): Promise<void> {
+		await this.storeToken({
+			id: `ui_prefs_${userId || 'default'}`,
+			type: 'ui_preferences',
+			value: JSON.stringify(preferences),
+			expiresAt: null,
+			issuedAt: Date.now(),
+			source: 'user_input',
+			metadata: { preferences, userId },
+		});
+	}
+
+	/**
+	 * Get UI preferences
+	 */
+	async getUIPreferences(userId?: string): Promise<Record<string, unknown> | null> {
+		const result = await this.getTokens({
+			type: 'ui_preferences',
+		});
+
+		if (result.success && result.data && result.data.length > 0) {
+			try {
+				return JSON.parse(result.data[0].value) as Record<string, unknown>;
+			} catch (error) {
+				logger.warn(MODULE_TAG, 'Failed to parse UI preferences', undefined, error);
+				return null;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Store PKCE state
+	 */
+	async storePKCEState(
+		state: Record<string, unknown>,
+		flowId: string
+	): Promise<void> {
+		await this.storeToken({
+			id: `pkce_${flowId}`,
+			type: 'pkce_state',
+			value: JSON.stringify(state),
+			expiresAt: Date.now() + (10 * 60 * 1000), // 10 minutes
+			issuedAt: Date.now(),
+			source: 'system',
+			flowName: flowId,
+			metadata: { flowId },
+		});
+	}
+
+	/**
+	 * Get PKCE state
+	 */
+	async getPKCEState(flowId: string): Promise<Record<string, unknown> | null> {
+		const result = await this.getTokens({
+			type: 'pkce_state',
+			flowName: flowId,
+		});
+
+		if (result.success && result.data && result.data.length > 0) {
+			try {
+				return JSON.parse(result.data[0].value) as Record<string, unknown>;
+			} catch (error) {
+				logger.warn(MODULE_TAG, 'Failed to parse PKCE state', undefined, error);
+				return null;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Store flow state
+	 */
+	async storeFlowState(
+		state: Record<string, unknown>,
+		flowId: string
+	): Promise<void> {
+		await this.storeToken({
+			id: `flow_${flowId}`,
+			type: 'flow_state',
+			value: JSON.stringify(state),
+			expiresAt: Date.now() + (30 * 60 * 1000), // 30 minutes
+			issuedAt: Date.now(),
+			source: 'system',
+			flowName: flowId,
+			metadata: { flowId },
+		});
+	}
+
+	/**
+	 * Get flow state
+	 */
+	async getFlowState(flowId: string): Promise<Record<string, unknown> | null> {
+		const result = await this.getTokens({
+			type: 'flow_state',
+			flowName: flowId,
+		});
+
+		if (result.success && result.data && result.data.length > 0) {
+			try {
+				return JSON.parse(result.data[0].value) as Record<string, unknown>;
+			} catch (error) {
+				logger.warn(MODULE_TAG, 'Failed to parse flow state', undefined, error);
+				return null;
+			}
+		}
+
+		return null;
 	}
 }
 
