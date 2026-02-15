@@ -65,8 +65,21 @@ function checkServiceUsage(filePath, serviceName) {
 		}
 		
 		const content = fs.readFileSync(filePath, 'utf8');
-		const hasService = content.includes(serviceName);
-		return { exists: true, hasService };
+		
+		// Check for actual usage patterns, not just imports
+		const usagePatterns = [
+			`${serviceName}.saveCredentials`,
+			`${serviceName}.loadCredentials`,
+			`${serviceName}.saveSharedCredentials`,
+			`${serviceName}.loadSharedCredentials`,
+			`${serviceName}.saveWorkerTokenBackup`,
+			`${serviceName}.loadWorkerTokenBackup`,
+		];
+		
+		const hasUsage = usagePatterns.some(pattern => content.includes(pattern));
+		const hasImport = content.includes(serviceName);
+		
+		return { exists: true, hasService: hasUsage || hasImport };
 	} catch (error) {
 		return { exists: false, hasService: false, error: error.message };
 	}
