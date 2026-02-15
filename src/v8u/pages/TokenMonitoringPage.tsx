@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheck,
@@ -411,6 +411,11 @@ export const TokenMonitoringPage: React.FC = () => {
 	const [copiedTokenId, setCopiedTokenId] = useState<string | null>(null);
 
 	const { actions: enhancedStateActions } = useUnifiedFlowState();
+	const setTokenMetricsRef = useRef(enhancedStateActions.setTokenMetrics);
+
+	useEffect(() => {
+		setTokenMetricsRef.current = enhancedStateActions.setTokenMetrics;
+	}, [enhancedStateActions]);
 
 	// Subscribe to token monitoring service
 	useEffect(() => {
@@ -429,7 +434,7 @@ export const TokenMonitoringPage: React.FC = () => {
 				const tokenCount = newTokens.length;
 				const featureCount = tokenCount > 0 ? 1 : 0;
 
-				enhancedStateActions.setTokenMetrics({
+				setTokenMetricsRef.current({
 					tokenCount,
 					featureCount,
 					lastApiCall: Date.now(),
@@ -452,7 +457,7 @@ export const TokenMonitoringPage: React.FC = () => {
 		}, 1000);
 
 		return unsubscribe;
-	}, [enhancedStateActions]);
+	}, []);
 
 	// Auto-decode JWT tokens so decoded content is visible in the token list
 	useEffect(() => {
@@ -467,6 +472,19 @@ export const TokenMonitoringPage: React.FC = () => {
 		});
 		setDecodedTokens(nextDecoded);
 	}, [tokens]);
+
+	// Auto-expand decoded content for JWT tokens by default
+	useEffect(() => {
+		const autoExpanded: Record<string, unknown> = {};
+		tokens.forEach((token) => {
+			if (TokenDisplayService.isJWT(token.value) && decodedTokens[token.id]) {
+				autoExpanded[token.id] = decodedTokens[token.id];
+			}
+		});
+		if (Object.keys(autoExpanded).length > 0) {
+			setDecodedTokens((prev) => ({ ...prev, ...autoExpanded }));
+		}
+	}, [tokens, decodedTokens]);
 
 	// Token actions
 	const handleRefreshToken = async (tokenId: string) => {

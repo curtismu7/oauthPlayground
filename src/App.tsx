@@ -191,6 +191,7 @@ import { MFADeviceOrderingFlowV8 } from './v8/flows/MFADeviceOrderingFlowV8';
 import { MFAFlowV8 } from './v8/flows/MFAFlowV8';
 import MFAReportingFlowV8 from './v8/flows/MFAReportingFlowV8';
 import OAuthAuthorizationCodeFlowV8 from './v8/flows/OAuthAuthorizationCodeFlowV8';
+import DpopAuthorizationCodeFlowV8 from './pages/DpopAuthorizationCodeFlowV8';
 import PingOneProtectFlowV8 from './v8/flows/PingOneProtectFlowV8';
 import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
 import { TokenExchangeFlowV8 } from './v8/flows/TokenExchangeFlowV8';
@@ -616,6 +617,14 @@ const AppRoutes: React.FC = () => {
 								<Route
 									path="/flows/oauth-authorization-code-v8"
 									element={<OAuthAuthorizationCodeFlowV8 />}
+								/>
+								<Route
+									path="/flows/dpop-authorization-code-v8"
+									element={
+										<React.Suspense fallback={<div>Loading...</div>}>
+											<DpopAuthorizationCodeFlowV8 />
+										</React.Suspense>
+									}
 								/>
 								<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
 								<Route
