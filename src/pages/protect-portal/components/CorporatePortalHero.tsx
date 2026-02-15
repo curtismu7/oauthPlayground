@@ -45,6 +45,12 @@ const MainContent = styled.main`
   flex-direction: column;
 `;
 
+const EmbeddedLoginWrapper = styled.div`
+  max-width: 800px;
+  margin: 0 auto 3rem auto;
+  padding: 0 2rem;
+`;
+
 // ============================================================================
 // PROPS INTERFACE
 // ============================================================================
@@ -183,12 +189,21 @@ const CorporatePortalHero: React.FC<CorporatePortalHeroProps> = ({
           currentStep={currentStep}
         />
         
+        {portalConfig.login.pattern === 'embedded' && (
+          <EmbeddedLoginWrapper>
+            <EmbeddedLogin
+              onSubmit={handleLoginSubmit}
+              config={portalConfig}
+            />
+          </EmbeddedLoginWrapper>
+        )}
+        
         <FeaturesSection
           config={portalConfig}
         />
       </MainContent>
 
-      {renderLoginPattern()}
+      {portalConfig.login.pattern !== 'embedded' && renderLoginPattern()}
     </CorporateContainer>
   );
 };
