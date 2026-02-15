@@ -32,7 +32,7 @@ function createInstance(
 		theme: 'blue',
 		size: 'md',
 		allowDismiss: false,
-		startTime: undefined,
+		startTime: Date.now(),
 		...globalConfig,
 		...initialState,
 	};
@@ -72,7 +72,7 @@ function createInstance(
 
 			console.log(`${MODULE_TAG} [${appId}] Spinner hidden after ${duration}ms`);
 
-			state = { ...state, show: false, startTime: undefined };
+			state = { ...state, show: false };
 
 			// Dispatch custom event for global listeners
 			window.dispatchEvent(
