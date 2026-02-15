@@ -466,8 +466,8 @@ const createPopOutWindow = (
 								  '<strong>Headers</strong> ' +
 								  '<button class="copy-btn" data-copy-text="' +
 								  encodeCopyText(headersText) +
-								  '">Copy</button>' +
-								  '<div class="json-display"><pre>' +
+								  '" style="padding: 2px 6px; background: #e5e7eb; border: 1px solid #d1d5db; border-radius: 3px; cursor: pointer; font-size: 11px;">Copy</button>' +
+								  '<div class="json-display" style="background: white; border: 1px solid #e5e7eb; border-radius: 4px; padding: 8px; margin-top: 4px;"><pre style="margin: 0; font-family: monospace; font-size: 11px; white-space: pre-wrap; word-wrap: break-word;">' +
 								  escapeHtml(headersText) +
 								  '</pre></div>' +
 								  '</div>'
@@ -479,8 +479,8 @@ const createPopOutWindow = (
 								  '<strong>Body</strong> ' +
 								  '<button class="copy-btn" data-copy-text="' +
 								  encodeCopyText(bodyText) +
-								  '">Copy</button>' +
-								  '<div class="json-display"><pre>' +
+								  '" style="padding: 2px 6px; background: #e5e7eb; border: 1px solid #d1d5db; border-radius: 3px; cursor: pointer; font-size: 11px;">Copy</button>' +
+								  '<div class="json-display" style="background: white; border: 1px solid #e5e7eb; border-radius: 4px; padding: 8px; margin-top: 4px;"><pre style="margin: 0; font-family: monospace; font-size: 11px; white-space: pre-wrap; word-wrap: break-word;">' +
 								  escapeHtml(bodyText) +
 								  '</pre></div>' +
 								  '</div>'
@@ -492,8 +492,8 @@ const createPopOutWindow = (
 								  '<strong>Response</strong> ' +
 								  '<button class="copy-btn" data-copy-text="' +
 								  encodeCopyText(responseText) +
-								  '">Copy</button>' +
-								  '<div class="json-display"><pre>' +
+								  '" style="padding: 2px 6px; background: #e5e7eb; border: 1px solid #d1d5db; border-radius: 3px; cursor: pointer; font-size: 11px;">Copy</button>' +
+								  '<div class="json-display" style="background: white; border: 1px solid #e5e7eb; border-radius: 4px; padding: 8px; margin-top: 4px;"><pre style="margin: 0; font-family: monospace; font-size: 11px; white-space: pre-wrap; word-wrap: break-word;">' +
 								  escapeHtml(responseText) +
 								  '</pre></div>' +
 								  '</div>'
@@ -501,10 +501,12 @@ const createPopOutWindow = (
 
 						const expandedRow =
 							isExpanded
-								? '<tr class="expanded-row"><td colspan="4">' +
+								? '<tr class="expanded-row"><td colspan="4" style="padding: 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; margin: 4px 0;">' +
+								  '<div style="max-height: 400px; overflow-y: auto;">' +
 								  headerSection +
 								  bodySection +
 								  responseSection +
+								  '</div>' +
 								  '</td></tr>'
 								: '';
 

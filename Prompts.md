@@ -65,6 +65,9 @@ DELIVERABLES
    - The fix summary (what changed and why)
    - Verification evidence (steps + results)
    - Inventory diffs (what you added and where)
+12) pingone full Docs: https://developer.pingidentity.com/pingone-api/getting-started/introduction.html
+13) PIngOne MFA Docs: https://developer.pingidentity.com/pingone-api/mfa/introduction.html
+14) Pingone protect docs: https://developer.pingidentity.com/pingone-api/protect/introduction.html
 
 
 
@@ -111,13 +114,19 @@ INVENTORY UPDATE (so it doesn’t happen again)
      b) Enhanced Prevention Commands (add grep/test checks that detect this regression)
      c) Automated Gate Notes (if applicable): ensure the new checks are runnable in CI and fail non-zero
    - Make it easy to find next time: include the exact file paths, patterns, and a “how to verify” snippet.
+10) For Production work, treat the source of truth as:
+    /Users/cmuir/P1Import-apps/oauth-playground/PRODUCTION_INVENTORY.md
 
 DELIVERABLES
-10) Return:
+11) Return:
    - A short root-cause summary
    - The fix summary (what changed and why)
    - Verification evidence (steps + results)
-   - Inventory diffs (what you added and where)
+   - Inventory diffs (what you added and where)12) pingone full Docs: https://developer.pingidentity.com/pingone-api/getting-started/introduction.html
+13) PIngOne MFA Docs: https://developer.pingidentity.com/pingone-api/mfa/introduction.html
+14) Pingone protect docs: https://developer.pingidentity.com/pingone-api/protect/introduction.html
+
+
 
 
 
@@ -173,13 +182,18 @@ INVENTORY UPDATE (so it doesn’t happen again)
      b) Enhanced Prevention Commands (add grep/test checks that detect this regression)
      c) Automated Gate Notes (if applicable): ensure new checks are runnable in CI and fail non-zero
    - Make it easy to find next time: include exact file paths, patterns, and a “how to verify” snippet.
+ 10) For Production work, treat the source of truth as:
+    /Users/cmuir/P1Import-apps/oauth-playground/PRODUCTION_INVENTORY.md
 
 DELIVERABLES
-10) Return:
+11) Return:
    - A short root-cause summary
    - The fix summary (what changed and why)
    - Verification evidence (steps + results)
-   - Inventory diffs (what you added and where)
+   - Inventory diffs (what you added and where)12) pingone full Docs: https://developer.pingidentity.com/pingone-api/getting-started/introduction.html
+13) PIngOne MFA Docs: https://developer.pingidentity.com/pingone-api/mfa/introduction.html
+14) Pingone protect docs: https://developer.pingidentity.com/pingone-api/protect/introduction.html
+
 
 
 
@@ -237,8 +251,7 @@ INVENTORY UPDATE (so it doesn’t happen again)
      c) Automated Gate Notes (if applicable): ensure new checks are runnable in CI and fail non-zero
    - Make it easy to find next time: include exact file paths, patterns, and a “how to verify” snippet.
 
-10)
-    For Production work, treat the source of truth as:
+10) For Production work, treat the source of truth as:
     /Users/cmuir/P1Import-apps/oauth-playground/PRODUCTION_INVENTORY.md
 
 DELIVERABLES
@@ -246,5 +259,9 @@ DELIVERABLES
    - A short root-cause summary
    - The fix summary (what changed and why)
    - Verification evidence (steps + results)
-   - Inventory diffs (what you added and where)
+   - Inventory diffs (what you added and where)12) pingone full Docs: https://developer.pingidentity.com/pingone-api/getting-started/introduction.html
+13) PIngOne MFA Docs: https://developer.pingidentity.com/pingone-api/mfa/introduction.html
+14) Pingone protect docs: https://developer.pingidentity.com/pingone-api/protect/introduction.html
 
+
+https://www.rfc-editor.org/rfc/rfc9449.txt

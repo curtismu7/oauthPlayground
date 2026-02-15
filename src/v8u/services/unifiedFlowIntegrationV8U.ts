@@ -248,11 +248,13 @@ export class UnifiedFlowIntegrationV8U {
 				{
 					environmentId: credentials.environmentId,
 					clientId: credentials.clientId,
-					clientSecret: credentials.clientSecret,
-					privateKey: credentials.privateKey,
 					redirectUri: redirectUriToUse,
 					scopes: scopesToUse,
-					clientAuthMethod: credentials.clientAuthMethod,
+					...(credentials.clientSecret ? { clientSecret: credentials.clientSecret } : {}),
+					...(credentials.privateKey ? { privateKey: credentials.privateKey } : {}),
+					...(credentials.clientAuthMethod
+						? { clientAuthMethod: credentials.clientAuthMethod }
+						: {}),
 				},
 				appConfig
 			);
@@ -1070,7 +1072,9 @@ export class UnifiedFlowIntegrationV8U {
 			};
 			if (credentials.scopes) {
 				ccCredentials.scopes = credentials.scopes;
-				logger.debug(`Passing scopes to client credentials service:`, credentials.scopes);
+				logger.debug(`Passing scopes to client credentials service`, {
+					scopes: credentials.scopes,
+				});
 			} else {
 				logger.warn(`No scopes provided in credentials for client credentials flow`);
 			}
@@ -1169,7 +1173,7 @@ export class UnifiedFlowIntegrationV8U {
 		codeVerifier?: string
 	) {
 		logger.debug(`========== SERVICE LAYER: exchangeCodeForTokens ==========`);
-		logger.debug(`Flow Type:`, flowType);
+		logger.debug(`Flow Type`, { flowType });
 		logger.debug(`Credentials received:`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
@@ -1180,9 +1184,11 @@ export class UnifiedFlowIntegrationV8U {
 			scopes: credentials.scopes,
 			clientAuthMethod: credentials.clientAuthMethod,
 		});
-		logger.debug(`Code length:`, code?.length);
-		logger.debug(`Code verifier length:`, codeVerifier?.length);
-		logger.debug(`Has code verifier:`, !!codeVerifier);
+		logger.debug(`Code metadata`, {
+			codeLength: code?.length,
+			codeVerifierLength: codeVerifier?.length,
+			hasCodeVerifier: !!codeVerifier,
+		});
 
 		if (flowType === 'oauth-authz') {
 			logger.debug(`Processing OAuth Authorization Code flow`);
@@ -1293,6 +1299,11 @@ export class UnifiedFlowIntegrationV8U {
 					codeVerifier || ''
 				);
 
+				if (result.access_token || result.refresh_token || result.id_token) {
+					const { TokenMonitoringService } = await import('./tokenMonitoringService');
+					TokenMonitoringService.getInstance().addOAuthTokens(result, 'oauth_flow');
+				}
+
 				// Update API call with successful response
 				apiCallTrackerService.updateApiCallResponse(
 					callId,
@@ -1394,6 +1405,11 @@ export class UnifiedFlowIntegrationV8U {
 					code,
 					codeVerifier
 				);
+
+				if (result.access_token || result.refresh_token || result.id_token) {
+					const { TokenMonitoringService } = await import('./tokenMonitoringService');
+					TokenMonitoringService.getInstance().addOAuthTokens(result, 'oauth_flow');
+				}
 
 				// Update API call with successful response
 				apiCallTrackerService.updateApiCallResponse(
