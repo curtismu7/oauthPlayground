@@ -117,14 +117,6 @@ const LoginButton = styled.button<{ $brandColor: string; $accentColor: string; $
   }
 `;
 
-const EmbeddedLoginContainer = styled.div<{ $pattern: string }>`
-  margin-top: 3rem;
-  
-  ${({ $pattern }) => $pattern !== 'embedded' && `
-    display: none;
-  `}
-`;
-
 // ============================================================================
 // PROPS INTERFACE
 // ============================================================================
@@ -206,10 +198,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             <FiArrowRight />
           </LoginButton>
         </LoginAction>
-
-        <EmbeddedLoginContainer $pattern={loginPattern}>
-          {/* Embedded login will be rendered by the parent component */}
-        </EmbeddedLoginContainer>
       </HeroContent>
     </HeroSectionStyled>
   );
