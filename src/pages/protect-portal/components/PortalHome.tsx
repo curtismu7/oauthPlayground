@@ -5,12 +5,12 @@
  * @version 9.6.5
  * @since 2026-02-10
  *
- * This component displays the corporate portal landing page with login button
+ * This component displays the corporate portal landing page with company selector
  * and educational content about risk-based authentication.
  */
 
 import React from 'react';
-import { FiArrowRight, FiCheckCircle, FiLock, FiShield, FiUser } from 'react-icons/fi';
+import { FiCheckCircle, FiLock, FiShield, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { EducationalContent } from '../types/protectPortal.types';
 import CompanySelector from './CompanySelector';
@@ -91,26 +91,6 @@ const LoginDescription = styled.p`
   line-height: 1.6;
 `;
 
-const LoginButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: white;
-  color: var(--brand-primary);
-  border: none;
-  border-radius: 8px;
-  padding: 1rem 2rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  }
-`;
-
 const CompanySection = styled.div`
   margin-top: 2rem;
 `;
@@ -121,8 +101,7 @@ const CompanySection = styled.div`
 
 interface PortalHomeProps {
 	educationalContent: EducationalContent;
-	onLogin: () => void;
-	onCompanySelect: (company: string) => void;
+	onCompanySelect: (company: { id: string; name: string; description: string; logo: string; logoColor: string; logoBg: string; theme: string; }) => void;
 }
 
 // ============================================================================
@@ -131,7 +110,6 @@ interface PortalHomeProps {
 
 const PortalHome: React.FC<PortalHomeProps> = ({
 	educationalContent,
-	onLogin,
 	onCompanySelect,
 }) => {
 	return (
@@ -194,13 +172,9 @@ const PortalHome: React.FC<PortalHomeProps> = ({
 						Select your organization and begin your secure journey through our protect portal.
 						Experience how risk-based authentication adapts to your security needs.
 					</LoginDescription>
-					<LoginButton onClick={onLogin}>
-						<FiArrowRight />
-						Enter Secure Portal
-					</LoginButton>
 
 					<CompanySection>
-						<CompanySelector onCompanySelect={onCompanySelect} />
+						<CompanySelector onCompanyChange={onCompanySelect} />
 					</CompanySection>
 				</LoginSection>
 			</PortalPageSection>
