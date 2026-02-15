@@ -21,6 +21,7 @@ import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import TokenDisplayService from '../../services/tokenDisplayService';
 import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';
+import { UnifiedWorkerTokenBackupServiceV8 } from '../../services/unifiedWorkerTokenBackupServiceV8';
 import {
 	type RevocationMethod,
 	type TokenInfo,
