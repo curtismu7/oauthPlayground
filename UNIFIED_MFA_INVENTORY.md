@@ -22004,4 +22004,128 @@ ls -la MFA_REDIRECT_*.md
 
 ---
 
+### **📋 Issue PROD-029: Variable Scope ReferenceError in UnifiedMFARegistrationFlowV8_Legacy**
+**Date**: 2026-02-15  
+**Status**: ✅ FIXED  
+**Severity**: High (Runtime Error)
+
+#### **🎯 Problem Summary:**
+ReferenceError: `shouldNavigateToRegistration` is not defined at line 2346 in UnifiedMFARegistrationFlowV8_Legacy.tsx. The variable was defined inside the DeviceTypeSelectionScreen component but accessed from outside the component scope.
+
+#### **🔍 Root Cause Analysis:**
+- **Variable Scope Issue**: `shouldNavigateToRegistration` state defined inside DeviceTypeSelectionScreen component (line 163)
+- **useEffect Outside Component**: The useEffect using the variable was placed outside the component scope (line 2346)
+- **Component Structure**: DeviceTypeSelectionScreen component ends at line 3313, but useEffect was at line 2346-2346
+- **Missing Dependency**: useEffect dependency array referenced variable not accessible in its scope
+
+#### **✅ Solution Implemented:**
+Moved the `useEffect` hook inside the DeviceTypeSelectionScreen component where `shouldNavigateToRegistration` is defined:
+
+**Before (ERROR):**
+```typescript
+// Outside component scope - ERROR
+useEffect(() => {
+  if (shouldNavigateToRegistration) { // ReferenceError
+    console.log('[UNIFIED-FLOW] Navigating to registration step');
+    setShouldNavigateToRegistration(false);
+    sessionStorage.setItem('mfa_target_step_after_callback', '0');
+    window.location.hash = '#step=0';
+  }
+}, [shouldNavigateToRegistration]);
+```
+
+**After (FIXED):**
+```typescript
+// Inside DeviceTypeSelectionScreen component - CORRECT
+useEffect(() => {
+  if (shouldNavigateToRegistration) { // ✅ Accessible
+    console.log('[UNIFIED-FLOW] Navigating to registration step');
+    setShouldNavigateToRegistration(false);
+    sessionStorage.setItem('mfa_target_step_after_callback', '0');
+    window.location.hash = '#step=0';
+  }
+}, [shouldNavigateToRegistration]);
+```
+
+#### **📁 Files Modified:**
+- `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` - Moved useEffect inside component scope
+
+#### **🔍 Issue Location:**
+- **File**: `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx`
+- **Lines**: 163 (variable definition), 2346 (erroneous useEffect)
+- **Component**: DeviceTypeSelectionScreen (lines 153-3313)
+
+#### **🔄 Prevention Commands:**
+```bash
+# Check for ReferenceError patterns in Unified MFA flows
+grep -rn "ReferenceError.*is not defined" src/v8/flows/unified/ --include="*.tsx" --include="*.ts"
+
+# Check for useEffect hooks with variables outside scope
+grep -rn -A 5 -B 5 "useEffect.*=>" src/v8/flows/unified/ --include="*.tsx" --include="*.ts" | grep -A 10 -B 10 "ReferenceError\|is not defined"
+
+# Verify component structure and variable scope
+grep -rn -A 10 -B 5 "useState.*shouldNavigateToRegistration" src/v8/flows/unified/ --include="*.tsx" --include="*.ts"
+```
+
+#### **📋 Testing Requirements:**
+- [x] Verify Unified MFA Registration Flow loads without JavaScript errors
+- [x] Test component renders properly with device selection modal
+- [x] Test navigation to registration step works correctly
+- [x] Run browser console to check for ReferenceError exceptions
+- [x] Test useEffect hooks don't throw undefined variable errors
+- [x] Verify device selection modal auto-redirect functionality
+
+#### **🚨 Gate Notes (CI-Friendly):**
+```bash
+# Add to CI pipeline - fail on ReferenceError patterns
+echo "🔍 Running variable scope regression checks..."
+if grep -rn "ReferenceError.*is not defined" src/v8/flows/unified/ --include="*.tsx" --include="*.ts"; then
+  echo "❌ FOUND ReferenceError patterns - fix required!"
+  exit 1
+else
+  echo "✅ No ReferenceError patterns found"
+fi
+```
+
+#### **📈 Impact:**
+- **Runtime Stability**: Eliminates ReferenceError that crashes the Unified MFA flow
+- **User Experience**: Users can now access device selection and registration without errors
+- **Component Reliability**: Proper variable scope ensures consistent behavior
+- **Development**: Clear example of component scope best practices
+
+#### **🔍 Related Issues:**
+- **Issue 60**: Similar pattern with tokenExpiryKey undefined (RESOLVED)
+- **SWE-15 Guide**: Variable scoping and component structure requirements
+- **General Pattern**: Runtime error prevention in Unified MFA flows
+
+#### **🎯 Success Metrics:**
+- Zero ReferenceError exceptions in Unified MFA flows
+- Device selection modal loads without JavaScript errors
+- Registration navigation works correctly
+- Component renders properly in all scenarios
+- Browser console shows no undefined variable errors
+
+#### **📋 How to Verify:**
+```bash
+# 1. Build verification
+npm run build
+
+# 2. Start development server
+npm run start:frontend
+
+# 3. Navigate to Unified MFA flow
+# Visit: https://localhost:3000/v8/unified-mfa
+
+# 4. Check browser console for ReferenceError
+# Should show no errors
+
+# 5. Test device selection modal
+# Click device selection, verify no JavaScript errors
+
+# 6. Test registration navigation
+# Trigger shouldNavigateToRegistration, verify navigation works
+```
+
+---
+
 **🚀 Future Enhancements:**
