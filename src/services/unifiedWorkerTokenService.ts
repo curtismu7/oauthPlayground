@@ -430,6 +430,51 @@ class UnifiedWorkerTokenService {
 			console.warn(`${MODULE_TAG} SQLite backup load failed`, sqliteError);
 		}
 
+		// Try SQLite backup for server restart persistence (NEW - before legacy migration)
+		try {
+			const { EnvironmentIdServiceV8 } = await import('../v8/services/environmentIdServiceV8');
+			const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
+			
+			if (environmentId) {
+				console.log(`${MODULE_TAG} 🔍 Trying SQLite backup for server restart persistence...`);
+				const { UnifiedWorkerTokenBackupServiceV8 } = await import('./unifiedWorkerTokenBackupServiceV8');
+				const credentials = await UnifiedWorkerTokenBackupServiceV8.loadWorkerTokenBackup({
+					environmentId,
+					enableBackup: true,
+				});
+
+				if (credentials) {
+					console.log(`${MODULE_TAG} ✅ Loaded worker token credentials from SQLite backup`, { 
+						environmentId,
+						hasClientId: !!credentials.clientId,
+						hasClientSecret: !!credentials.clientSecret,
+						hasRegion: !!credentials.region
+					});
+
+					// Update memory cache and localStorage
+					const data: UnifiedWorkerTokenData = {
+						token: '', // Token will be fetched when needed
+						credentials,
+						savedAt: Date.now(),
+					};
+					this.memoryCache = data;
+
+					// Restore to localStorage for faster future access
+					try {
+						localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
+					} catch (restoreError) {
+						console.warn(`${MODULE_TAG} ⚠️ Failed to restore to localStorage`, restoreError);
+					}
+
+					return credentials;
+				} else {
+					console.log(`${MODULE_TAG} ❌ No SQLite backup found for environment: ${environmentId}`);
+				}
+			}
+		} catch (sqliteError) {
+			console.warn(`${MODULE_TAG} SQLite backup load failed`, sqliteError);
+		}
+
 		// Try legacy storage keys for migration
 		console.log(`${MODULE_TAG} 🔍 Trying legacy storage migration...`);
 		return await this.migrateLegacyCredentials();
