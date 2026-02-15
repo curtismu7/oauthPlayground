@@ -27,6 +27,7 @@ import TwoStepOTPLogin from './LoginPatterns/TwoStepOTPLogin';
 import CorporateNavigation from './Shared/CorporateNavigation';
 import HeroSection from './Shared/HeroSection';
 import FeaturesSection from './Shared/FeaturesSection';
+import CorporateFooter from './Shared/CorporateFooter';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -204,6 +205,8 @@ const CorporatePortalHero: React.FC<CorporatePortalHeroProps> = ({
       </MainContent>
 
       {portalConfig.login.pattern !== 'embedded' && renderLoginPattern()}
+      
+      <CorporateFooter config={portalConfig} />
     </CorporateContainer>
   );
 };
