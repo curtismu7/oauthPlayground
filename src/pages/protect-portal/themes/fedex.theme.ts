@@ -41,23 +41,28 @@ export const fedexConfig: CorporatePortalConfig = {
   content: {
     customerTerminology: true,
     tone: 'corporate',
-    heroTitle: 'Customer Portal',
-    heroSubtitle: 'Track shipments, schedule pickups, and manage your shipping services',
+    heroTitle: 'The World on Time',
+    heroSubtitle: 'Track shipments, schedule pickups, and manage your FedEx account',
     features: [
       {
-        title: 'Track Shipments',
-        description: 'Real-time tracking for all your packages and deliveries',
+        title: 'Track & Trace',
+        description: 'Real-time tracking for all your packages and deliveries worldwide',
         icon: 'tracking',
       },
       {
-        title: 'Schedule Pickup',
-        description: 'Request pickups and manage shipping schedules',
+        title: 'Schedule a Pickup',
+        description: 'Request pickups and manage shipping schedules from your location',
         icon: 'shipping',
       },
       {
         title: 'Shipping Services',
-        description: 'Access rates, labels, and shipping solutions',
+        description: 'Access FedEx Express, Ground, Freight and international shipping',
         icon: 'services',
+      },
+      {
+        title: 'My Account',
+        description: 'Manage your profile, preferences and shipping history',
+        icon: 'account',
       },
     ],
   },
