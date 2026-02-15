@@ -18,16 +18,16 @@ MANDATORY PROCESS
 CLEAN RESTART POLICY (mandatory for flow/server-impacting changes)
 3) Always run a clean restart whenever you:
    - change server-side behavior
-   - touch Unified MFA/auth flowsx
+   - touch Unified MFA/auth flows
    - modify shared services/components used by MFA flows
    - update config that affects runtime behavior
 
 Restart command:
-   - restart-servers.sh -quick
+   - ./restart-servers.sh -quick
 
 Restart timing:
-   - Run restart-servers.sh -quick BEFORE reproducing the bug (clean baseline)
-   - Run restart-servers.sh -quick AFTER implementing the fix (before final verification)
+   - Run ./restart-servers.sh -quick BEFORE reproducing the bug (clean baseline)
+   - Run ./restart-servers.sh -quick AFTER implementing the fix (before final verification)
 
 Also confirm services are healthy (per the guide’s health check/log indicator).
 
