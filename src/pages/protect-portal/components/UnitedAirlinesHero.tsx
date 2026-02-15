@@ -458,7 +458,7 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 				<DropdownHeader>
 					<DropdownTitle>
 						<FiLock />
-						United Airlines Employee Login
+						Employee Login
 					</DropdownTitle>
 					<CloseButton onClick={handleCloseDropdown}>
 						<FiX />
