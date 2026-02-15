@@ -19,7 +19,7 @@ import { userDatabaseService } from './src/server/services/userDatabaseService.j
 import { settingsDB } from './src/server/services/settingsDatabaseService.js';
 import { setupUserApiRoutes } from './src/server/routes/userApiRoutes.js';
 import { setupBackupApiRoutes } from './src/server/routes/backupApiRoutes.js';
-import { registerTokenStorageRoutes } from './src/server/tokenStorageApi.js';
+// import { registerTokenStorageRoutes } from './src/server/tokenStorageApi.js';
 
 dotenv.config();
 
@@ -803,8 +803,8 @@ setupUserApiRoutes(app);
 // Setup backup API routes
 setupBackupApiRoutes(app);
 
-// Setup token storage API routes
-registerTokenStorageRoutes(app);
+// Register token storage API routes
+// registerTokenStorageRoutes(app);
 
 // ============================================================================
 // LOG FILE VIEWER API ENDPOINTS

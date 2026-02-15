@@ -9,11 +9,12 @@
  * that matches the actual AA.com website design and functionality.
  */
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FiArrowRight, FiCalendar, FiLock, FiMapPin, FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 import AmericanAirlinesNavigation from './AmericanAirlinesNavigation';
+import CorporateFooter from './Shared/CorporateFooter';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -288,7 +289,8 @@ const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({
 	redirectUri,
 }) => {
 	return (
-		<HeroContainer>
+		<>
+			<HeroContainer>
 			<HeroContent>
 				{currentStep === 'portal-home' ? (
 					<>
@@ -405,6 +407,21 @@ const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({
 				)}
 			</HeroContent>
 		</HeroContainer>
+		
+		<CorporateFooter config={{
+			company: {
+				name: 'american-airlines',
+				displayName: 'American Airlines',
+				industry: 'aviation',
+			},
+			branding: {
+				colors: {
+					primary: '#0b4aa2',
+					secondary: '#FFFFFF',
+				},
+			},
+		} as any} />
+		</>
 	);
 };
 
