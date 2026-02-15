@@ -26,6 +26,7 @@ import RiskEvaluationDisplay from './components/RiskEvaluationDisplay';
 import SouthwestAirlinesHero from './components/SouthwestAirlinesHero';
 import UnitedAirlinesHero from './components/UnitedAirlinesHero';
 import { BrandThemeProvider, useBrandTheme } from './themes/theme-provider';
+import { UnifiedOAuthCredentialsServiceV8U } from '../../v8u/services/unifiedOAuthCredentialsServiceV8U';
 // Import types and config
 import type {
 	LoginContext,
