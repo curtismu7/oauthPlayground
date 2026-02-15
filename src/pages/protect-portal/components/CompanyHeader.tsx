@@ -21,19 +21,19 @@ import TextLogo from './TextLogo';
 
 const HeaderContainer = styled.header`
   background: var(--brand-surface);
-  border-bottom: 2px solid var(--brand-primary-light);
-  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--brand-text-secondary);
+  padding: 1rem 1.5rem;
   text-align: center;
   position: relative;
-  box-shadow: var(--brand-shadow-md);
+  box-shadow: var(--brand-shadow-sm);
 `;
 
 const LogoContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
-  margin-bottom: 1rem;
+  gap: 1.5rem;
+  margin-bottom: 0.5rem;
 `;
 
 const PortalInfo = styled.div`
@@ -41,12 +41,12 @@ const PortalInfo = styled.div`
 `;
 
 const PortalTitle = styled.h1`
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 600;
   color: var(--brand-primary);
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.25rem 0;
   font-family: var(--brand-heading-font);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  text-shadow: none;
 `;
 
 const PortalSubtitle = styled.p`
