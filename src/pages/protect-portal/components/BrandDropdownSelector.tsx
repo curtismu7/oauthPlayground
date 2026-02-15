@@ -28,27 +28,30 @@ const DropdownButton = styled.button`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.375rem 0.75rem;
-  background: var(--brand-surface);
-  border: 1px solid var(--brand-text-secondary);
-  border-radius: var(--brand-radius-sm);
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
   cursor: pointer;
   font-size: 0.8rem;
   font-weight: 500;
-  color: var(--brand-text);
-  transition: var(--brand-transition);
+  color: white;
+  transition: all 0.2s ease;
   font-family: var(--brand-body-font);
   min-width: 160px;
+  backdrop-filter: blur(10px);
 
   &:hover {
-    border-color: var(--brand-primary);
-    box-shadow: var(--brand-shadow-sm);
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
 
   &:focus {
     outline: none;
-    border-color: var(--brand-primary);
-    box-shadow: 0 0 0 2px var(--brand-primary-light);
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
   }
 
   &:disabled {
@@ -68,15 +71,16 @@ const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   top: calc(100% + 0.25rem);
   left: 0;
   right: 0;
-  background: var(--brand-surface);
-  border: 1px solid var(--brand-text-secondary);
-  border-radius: var(--brand-radius-md);
-  box-shadow: var(--brand-shadow-md);
-  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(20px);
   opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
   visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')};
-  transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '-8px')});
-  transition: all 0.15s ease;
+  transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '-10px')});
+  transition: all 0.2s ease;
+  z-index: 1000;
   max-height: 250px;
   overflow-y: auto;
 `;
@@ -88,30 +92,28 @@ const MenuItem = styled.button.withConfig({
   align-items: center;
   gap: 0.5rem;
   width: 100%;
-  padding: 0.5rem 0.75rem;
-  background: ${({ isActive }) => (isActive ? 'var(--brand-primary-light)' : 'transparent')};
+  padding: 0.75rem;
+  background: ${({ isActive }) => (isActive ? 'rgba(0, 102, 204, 0.1)' : 'transparent')};
   border: none;
   cursor: pointer;
   font-size: 0.8rem;
   font-weight: 400;
-  color: var(--brand-text);
-  transition: var(--brand-transition);
+  color: #333;
+  transition: all 0.2s ease;
   font-family: var(--brand-body-font);
-  border-bottom: 1px solid var(--brand-border);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
   &:last-child {
     border-bottom: none;
   }
 
   &:hover {
-    background: ${({ isActive }) => (isActive ? 'var(--brand-primary)' : 'var(--brand-surface)')};
-    color: ${({ isActive }) => (isActive ? 'white' : 'var(--brand-text)')};
+    background: ${({ isActive }) => (isActive ? 'rgba(0, 102, 204, 0.2)' : 'rgba(0, 0, 0, 0.05)')};
   }
 
   &:focus {
     outline: none;
-    background: ${({ isActive }) => (isActive ? 'var(--brand-primary)' : 'var(--brand-surface)')};
-    color: ${({ isActive }) => (isActive ? 'white' : 'var(--brand-text)')};
+    background: ${({ isActive }) => (isActive ? 'rgba(0, 102, 204, 0.2)' : 'rgba(0, 0, 0, 0.05)')};
   }
 `;
 
