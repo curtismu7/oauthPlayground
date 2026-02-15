@@ -85,6 +85,9 @@ c_danger="$(count_matches "dangerouslySetInnerHTML usage" "dangerouslySetInnerHT
 # This might be allowed in very specific cases; set threshold as needed.
 require_zero "dangerouslySetInnerHTML in unified flows" "${c_danger}"
 
+c_ref_error="$(count_matches "ReferenceError patterns in Unified MFA flows" "ReferenceError.*is not defined" "src/v8/flows/unified/" --include="*.ts" --include="*.tsx" | tr -d ' ')"
+require_zero "ReferenceError patterns in Unified MFA flows" "${c_ref_error}"
+
 section "Summary"
 if [[ "${failures}" -gt 0 ]]; then
   log "🚫 Inventory gate failed: ${failures} check(s) failed."
