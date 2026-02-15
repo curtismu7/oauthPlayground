@@ -1,16 +1,16 @@
 /**
  * @file UnitedAirlinesHero.tsx
  * @module protect-portal/components
- * @description United Airlines hero section matching united.com style
+ * @description United Airlines hero section matching authentic united.com style
  * @version 9.6.5
  * @since 2026-02-13
  *
- * This component provides a United Airlines-style hero section
- * that matches the actual United Airlines website design and functionality.
+ * This component provides an authentic United Airlines website experience
+ * with proper navigation, branding, and employee portal access.
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { FiGlobe, FiLock, FiMapPin, FiSend, FiX, FiMail, FiUser } from 'react-icons/fi';
+import { FiLock, FiX, FiMail, FiUser, FiMenu, FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 
@@ -18,9 +18,118 @@ import type { LoginContext, PortalError, UserContext } from '../types/protectPor
 // STYLED COMPONENTS
 // ============================================================================
 
-const HeroContainer = styled.section`
+const UnitedContainer = styled.div`
+  min-height: 100vh;
+  background: #ffffff;
+  font-family: 'United', 'Helvetica Neue', Arial, sans-serif;
+`;
+
+const Navigation = styled.nav`
+  background: #0033A0;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+`;
+
+const NavContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 60px;
+`;
+
+const Logo = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  
+  .logo-text {
+    color: white;
+    text-decoration: none;
+  }
+  
+  .logo-globe {
+    width: 24px;
+    height: 24px;
+    margin-right: 0.5rem;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: #0033A0;
+    font-weight: 700;
+  }
+`;
+
+const NavLinks = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const NavLink = styled.a`
+  color: white;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-bottom-color: white;
+  }
+`;
+
+const RightNav = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const SearchButton = styled.button`
+  background: none;
+  border: none;
+  color: white;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+  
+  &:hover {
+    background: rgba(255,255,255,0.1);
+  }
+`;
+
+const MobileMenuButton = styled.button`
+  background: none;
+  border: none;
+  color: white;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: none;
+  
+  @media (max-width: 768px) {
+    display: block;
+  }
+`;
+
+const HeroSection = styled.section`
   background: linear-gradient(135deg, #0033A0 0%, #002880 100%);
-  padding: 0.5rem 2rem;
+  padding: 4rem 2rem;
   text-align: center;
   color: white;
   position: relative;
@@ -38,157 +147,107 @@ const HeroContainer = styled.section`
 `;
 
 const HeroContent = styled.div`
-  max-width: 900px;
+  max-width: 800px;
   margin: 0 auto;
   position: relative;
   z-index: 1;
 `;
 
 const HeroTitle = styled.h1`
-  font-size: 1.5rem;
+  font-size: 3rem;
   font-weight: 700;
-  margin: 0 0 0.25rem 0;
+  margin: 0 0 1rem 0;
   line-height: 1.2;
-  font-family: 'United', 'Helvetica Neue', Arial, sans-serif;
-  color: white;
   
   @media (max-width: 768px) {
-    font-size: 1.25rem;
+    font-size: 2rem;
   }
 `;
 
 const HeroSubtitle = styled.p`
-  font-size: 0.875rem;
-  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  margin: 0 0 3rem 0;
   line-height: 1.6;
   opacity: 0.9;
-  font-family: 'United', 'Helvetica Neue', Arial, sans-serif;
   
   @media (max-width: 768px) {
-    font-size: 0.75rem;
+    font-size: 1rem;
   }
 `;
 
-const GlobalFeatures = styled.div`
+const EmployeePortalCard = styled.div`
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 500px;
+  margin: 0 auto;
+  box-shadow: 0 8px 32px rgba(0,51,160,0.15);
+  text-align: left;
+`;
+
+const CardHeader = styled.div`
   display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin: 0.75rem 0;
-  flex-wrap: wrap;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 1rem;
-  }
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
 `;
 
-const GlobalFeature = styled.div`
+const CardIcon = styled.div`
+  width: 48px;
+  height: 48px;
+  background: #0033A0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  color: white;
+  font-size: 1.2rem;
+`;
+
+const CardTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0033A0;
+  margin: 0;
+`;
+
+const CardDescription = styled.p`
+  color: #666;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+`;
+
+const LoginForm = styled.form`
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 1rem;
-  max-width: 200px;
 `;
 
-const GlobeIcon = styled.div`
-  width: 80px;
-  height: 80px;
-  background: rgba(255, 102, 0, 0.1);
-  border: 3px solid #FF6600;
-  border-radius: 50%;
+const InputGroup = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 2rem;
-  position: relative;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
-    border: 1px solid rgba(255, 102, 0, 0.3);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
-  
-  @keyframes pulse {
-    0% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    50% {
-      transform: scale(1.05);
-      opacity: 0.7;
-    }
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
+  flex-direction: column;
+  gap: 0.5rem;
 `;
 
-const FeatureIcon = styled.div`
-  width: 60px;
-  height: 60px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.5rem;
-`;
-
-const FeatureTitle = styled.h3`
-  font-size: 1.125rem;
+const InputLabel = styled.label`
+  font-size: 0.875rem;
   font-weight: 600;
-  margin: 0;
-  color: white;
-  text-align: center;
+  color: #333;
 `;
 
-const FeatureDescription = styled.p`
-  font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.8);
-  margin: 0;
-  text-align: center;
-  line-height: 1.4;
-`;
-
-const RoutesList = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin: 0.5rem 0;
-  flex-wrap: wrap;
-`;
-
-const Route = styled.span`
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  font-size: 0.875rem;
-  color: white;
-`;
-
-const LoginSection = styled.div`
-  margin-top: 0.75rem;
-  text-align: center;
-`;
-
-const LoginDescription = styled.p`
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 0.75rem;
-  line-height: 1.6;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+const Input = styled.input`
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: #0033A0;
+  }
 `;
 
 const LoginButton = styled.button`
@@ -196,28 +255,81 @@ const LoginButton = styled.button`
   color: white;
   border: none;
   border-radius: 6px;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.9rem;
+  padding: 1rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
-  font-family: 'United', 'Helvetica Neue', Arial, sans-serif;
+  transition: background 0.2s ease;
   
   &:hover {
     background: #E55A00;
-    transform: translateY(-1px);
   }
   
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.3);
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
   }
 `;
 
-// Dropdown Login Components
+const FeaturesSection = styled.section`
+  padding: 4rem 2rem;
+  background: #f8f9fa;
+`;
+
+const FeaturesContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+`;
+
+const FeaturesTitle = styled.h2`
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #0033A0;
+  margin: 0 0 3rem 0;
+`;
+
+const FeaturesGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+`;
+
+const FeatureCard = styled.div`
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+`;
+
+const FeatureIcon = styled.div`
+  width: 64px;
+  height: 64px;
+  background: #0033A0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  color: white;
+  font-size: 1.5rem;
+`;
+
+const FeatureTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0033A0;
+  margin: 0 0 1rem 0;
+`;
+
+const FeatureDescription = styled.p`
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+`;
+
+// Dropdown Login Components (for mobile/tablet)
 const LoginDropdown = styled.div<{ $isOpen: boolean }>`
   position: fixed;
   top: 0;
@@ -272,58 +384,6 @@ const DropdownContent = styled.div`
   margin: 0 auto;
 `;
 
-const LoginForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-`;
-
-const InputGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-const InputLabel = styled.label`
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #333;
-`;
-
-const Input = styled.input`
-  padding: 0.75rem 1rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: border-color 0.2s ease;
-  
-  &:focus {
-    outline: none;
-    border-color: #0033A0;
-  }
-`;
-
-const SubmitButton = styled.button`
-  background: #FF6600;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 1rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  
-  &:hover {
-    background: #E55A00;
-  }
-  
-  &:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-  }
-`;
-
 // ============================================================================
 // PROPS INTERFACE
 // ============================================================================
@@ -340,11 +400,11 @@ interface UnitedAirlinesHeroProps {
 }
 
 // ============================================================================
-// COMPONENT
+// MAIN COMPONENT
 // ============================================================================
 
 const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
-	currentStep = 'portal-home',
+	currentStep,
 	onLoginStart,
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_onLoginSuccess,
@@ -394,65 +454,129 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 
 	return (
 		<>
-			<HeroContainer>
-				<HeroContent>
-					<HeroTitle>United Airlines Employee Portal</HeroTitle>
-					<HeroSubtitle>
-						Connecting the world. Your gateway to global operations and employee resources
-					</HeroSubtitle>
+			<UnitedContainer>
+				<Navigation>
+					<NavContainer>
+						<Logo>
+							<div className="logo-globe">U</div>
+							<span className="logo-text">United Airlines</span>
+						</Logo>
+						<NavLinks>
+							<NavLink href="#book">Book</NavLink>
+							<NavLink href="#travel-info">Travel Info</NavLink>
+							<NavLink href="#my-trips">My Trips</NavLink>
+							<NavLink href="#mileageplus">MileagePlus</NavLink>
+							<NavLink href="#deals">Deals</NavLink>
+						</NavLinks>
+						<RightNav>
+							<SearchButton>
+								<FiSearch size={20} />
+							</SearchButton>
+							<MobileMenuButton>
+								<FiMenu size={20} />
+							</MobileMenuButton>
+						</RightNav>
+					</NavContainer>
+				</Navigation>
 
-					<GlobalFeatures>
-						<GlobalFeature>
-							<GlobeIcon>
-								<FiGlobe />
-							</GlobeIcon>
-							<FeatureTitle>Global Network</FeatureTitle>
-							<FeatureDescription>Access routes and operations worldwide</FeatureDescription>
-						</GlobalFeature>
+				<HeroSection>
+					<HeroContent>
+						<HeroTitle>United Airlines Employee Portal</HeroTitle>
+						<HeroSubtitle>
+							Connecting the world. Your gateway to global operations and employee resources
+						</HeroSubtitle>
 
-						<GlobalFeature>
-							<FeatureIcon>
-								<FiSend />
-							</FeatureIcon>
-							<FeatureTitle>Fleet Operations</FeatureTitle>
-							<FeatureDescription>Manage and monitor our aircraft fleet</FeatureDescription>
-						</GlobalFeature>
+						{currentStep === 'portal-home' ? (
+							<EmployeePortalCard>
+								<CardHeader>
+									<CardIcon>
+										<FiLock />
+									</CardIcon>
+									<CardTitle>Employee Login</CardTitle>
+								</CardHeader>
+								<CardDescription>
+									Access your United Airlines employee portal with secure authentication
+								</CardDescription>
+								<LoginForm onSubmit={handleSubmit}>
+									<InputGroup>
+										<InputLabel htmlFor="email">Employee Email</InputLabel>
+										<Input
+											id="email"
+											type="email"
+											value={email}
+											onChange={(e) => setEmail(e.target.value)}
+											placeholder="employee@united.com"
+											required
+										/>
+									</InputGroup>
+									<InputGroup>
+										<InputLabel htmlFor="password">Password</InputLabel>
+										<Input
+											id="password"
+											type="password"
+											value={password}
+											onChange={(e) => setPassword(e.target.value)}
+											placeholder="Enter your password"
+											required
+										/>
+									</InputGroup>
+									<LoginButton type="submit">
+										<FiLock />
+										Sign In to Employee Portal
+									</LoginButton>
+								</LoginForm>
+							</EmployeePortalCard>
+						) : (
+							<EmployeePortalCard>
+								<CardHeader>
+									<CardIcon>
+										<FiLock />
+									</CardIcon>
+									<CardTitle>Authentication in Progress</CardTitle>
+								</CardHeader>
+								<CardDescription>
+									Complete your authentication with United's secure employee system
+								</CardDescription>
+							</EmployeePortalCard>
+						)}
+					</HeroContent>
+				</HeroSection>
 
-						<GlobalFeature>
-							<FeatureIcon>
-								<FiMapPin />
-							</FeatureIcon>
-							<FeatureTitle>Route Planning</FeatureTitle>
-							<FeatureDescription>Optimize routes and schedules</FeatureDescription>
-						</GlobalFeature>
-					</GlobalFeatures>
-
-					<RoutesList>
-						<Route>New York → London</Route>
-						<Route>San Francisco → Tokyo</Route>
-						<Route>Chicago → Hong Kong</Route>
-						<Route>Los Angeles → Sydney</Route>
-					</RoutesList>
-
-					{currentStep === 'portal-home' ? (
-						<LoginSection>
-							<LoginDescription>
-								Sign in to access your United Airlines employee portal with secure authentication
-							</LoginDescription>
-							<LoginButton onClick={handleLoginClick}>
-								<FiLock />
-								Sign In to Employee Portal
-							</LoginButton>
-						</LoginSection>
-					) : (
-						<LoginSection>
-							<LoginDescription>
-								Complete your authentication with United's secure employee system
-							</LoginDescription>
-						</LoginSection>
-					)}
-				</HeroContent>
-			</HeroContainer>
+				<FeaturesSection>
+					<FeaturesContainer>
+						<FeaturesTitle>Employee Resources</FeaturesTitle>
+						<FeaturesGrid>
+							<FeatureCard>
+								<FeatureIcon>
+									<FiMail />
+								</FeatureIcon>
+								<FeatureTitle>Employee Communications</FeatureTitle>
+								<FeatureDescription>
+									Access company announcements, policies, and internal communications
+								</FeatureDescription>
+							</FeatureCard>
+							<FeatureCard>
+								<FeatureIcon>
+									<FiUser />
+								</FeatureIcon>
+								<FeatureTitle>HR Services</FeatureTitle>
+								<FeatureDescription>
+									Manage your benefits, schedule, and employee information
+								</FeatureDescription>
+							</FeatureCard>
+							<FeatureCard>
+								<FeatureIcon>
+									<FiLock />
+								</FeatureIcon>
+								<FeatureTitle>Secure Access</FeatureTitle>
+								<FeatureDescription>
+									Multi-factor authentication and advanced security features
+								</FeatureDescription>
+							</FeatureCard>
+						</FeaturesGrid>
+					</FeaturesContainer>
+				</FeaturesSection>
+			</UnitedContainer>
 
 			<LoginDropdown $isOpen={isDropdownOpen} ref={dropdownRef}>
 				<DropdownHeader>
@@ -467,9 +591,9 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 				<DropdownContent>
 					<LoginForm onSubmit={handleSubmit}>
 						<InputGroup>
-							<InputLabel htmlFor="email">Employee Email</InputLabel>
+							<InputLabel htmlFor="dropdown-email">Employee Email</InputLabel>
 							<Input
-								id="email"
+								id="dropdown-email"
 								type="email"
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
@@ -478,9 +602,9 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 							/>
 						</InputGroup>
 						<InputGroup>
-							<InputLabel htmlFor="password">Password</InputLabel>
+							<InputLabel htmlFor="dropdown-password">Password</InputLabel>
 							<Input
-								id="password"
+								id="dropdown-password"
 								type="password"
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
@@ -488,9 +612,9 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 								required
 							/>
 						</InputGroup>
-						<SubmitButton type="submit">
+						<LoginButton type="submit">
 							Sign In
-						</SubmitButton>
+						</LoginButton>
 					</LoginForm>
 				</DropdownContent>
 			</LoginDropdown>
