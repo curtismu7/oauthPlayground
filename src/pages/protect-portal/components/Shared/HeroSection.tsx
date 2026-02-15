@@ -55,25 +55,11 @@ const HeroContent = styled.div`
   z-index: 1;
 `;
 
-const HeroTitle = styled.h1<{ $tone: string }>`
-  font-size: ${({ $tone }) => $tone === 'friendly' ? '2.5rem' : '3rem'};
-  font-weight: 700;
-  margin: 0 0 1rem 0;
-  line-height: 1.2;
-  
-  @media (max-width: 768px) {
-    font-size: ${({ $tone }) => $tone === 'friendly' ? '2rem' : '2rem'};
-  }
-`;
-
 const HeroSubtitle = styled.p<{ $tone: string }>`
   font-size: ${({ $tone }) => $tone === 'friendly' ? '1.125rem' : '1.25rem'};
   margin: 0 0 2rem 0;
   line-height: 1.6;
   opacity: 0.9;
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
   
   @media (max-width: 768px) {
     font-size: 1rem;
