@@ -281,6 +281,25 @@ class UnifiedWorkerTokenService {
 			// Don't throw - local storage is primary
 		}
 
+		// Save to SQLite backup for server restart persistence
+		try {
+			const { EnvironmentIdServiceV8 } = await import('../v8/services/environmentIdServiceV8');
+			const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
+			
+			if (environmentId) {
+				const { UnifiedWorkerTokenBackupServiceV8 } = await import('./unifiedWorkerTokenBackupServiceV8');
+				await UnifiedWorkerTokenBackupServiceV8.saveWorkerTokenBackup(credentials, {
+					environmentId,
+					enableBackup: true,
+					backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
+				});
+				console.log(`${MODULE_TAG} ✅ Worker token credentials backed up to SQLite`);
+			}
+		} catch (sqliteError) {
+			console.warn(`${MODULE_TAG} SQLite backup failed, using fallback`, sqliteError);
+			// Don't throw - other storage methods should work
+		}
+
 		console.log(`${MODULE_TAG} ✅ Worker token credentials saved`);
 	}
 
@@ -369,6 +388,46 @@ class UnifiedWorkerTokenService {
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} ❌ Failed to load from database`, error);
+		}
+
+		// Try SQLite backup for server restart persistence
+		try {
+			const { EnvironmentIdServiceV8 } = await import('../v8/services/environmentIdServiceV8');
+			const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
+			
+			if (environmentId) {
+				console.log(`${MODULE_TAG} 🔍 Trying SQLite backup...`);
+				const { UnifiedWorkerTokenBackupServiceV8 } = await import('./unifiedWorkerTokenBackupServiceV8');
+				const credentials = await UnifiedWorkerTokenBackupServiceV8.loadWorkerTokenBackup({
+					environmentId,
+					enableBackup: true,
+				});
+
+				if (credentials) {
+					console.log(`${MODULE_TAG} ✅ Loaded worker token credentials from SQLite backup`);
+
+					// Update memory cache and localStorage
+					const data: UnifiedWorkerTokenData = {
+						token: '', // Token will be fetched when needed
+						credentials,
+						savedAt: Date.now(),
+					};
+					this.memoryCache = data;
+
+					// Restore to localStorage
+					try {
+						localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
+					} catch (error) {
+						console.warn(`${MODULE_TAG} ⚠️ Failed to restore to localStorage`, error);
+					}
+
+					return credentials;
+				} else {
+					console.log(`${MODULE_TAG} ❌ No data found in SQLite backup`);
+				}
+			}
+		} catch (sqliteError) {
+			console.warn(`${MODULE_TAG} SQLite backup load failed`, sqliteError);
 		}
 
 		// Try legacy storage keys for migration
