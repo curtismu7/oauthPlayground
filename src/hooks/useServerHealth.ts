@@ -24,7 +24,8 @@ export const useServerHealth = (checkInterval: number = 30000) => {
 			const controller = new AbortController();
 			const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-			const response = await fetch('/api/health', {
+			// Try HTTPS first since Vite dev server uses HTTPS
+			const response = await fetch('https://localhost:3000/api/health', {
 				method: 'GET',
 				headers: {
 					Accept: 'application/json',
