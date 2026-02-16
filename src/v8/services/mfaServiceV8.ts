@@ -106,6 +106,8 @@ export interface RegisterDeviceParams extends MFACredentials {
 
 export interface SendOTPParams extends MFACredentials {
 	deviceId: string;
+	region?: 'na' | 'us' | 'ca' | 'eu' | 'apac' | 'asia';
+	customDomain?: string;
 }
 
 export interface ActivateDeviceParams extends MFACredentials {
@@ -334,7 +336,7 @@ export class MFAServiceV8 {
 			const parsed = UnifiedFlowErrorHandler.handleError(
 				error,
 				{
-					flowType: 'mfa' as any,
+					flowType: 'mfa' as const,
 					operation: 'allowMfaBypass',
 				},
 				{
@@ -402,7 +404,7 @@ export class MFAServiceV8 {
 			const parsed = UnifiedFlowErrorHandler.handleError(
 				error,
 				{
-					flowType: 'mfa' as any,
+					flowType: 'mfa' as const,
 					operation: 'checkMfaBypassStatus',
 				},
 				{
@@ -648,7 +650,12 @@ export class MFAServiceV8 {
 	}> {
 		// Delegate to UserServiceV8
 		const { UserServiceV8 } = await import('./userServiceV8');
-		return UserServiceV8.listUsers(environmentId, { search, limit, offset });
+		// Build options object conditionally to avoid undefined properties
+		const options: { limit: number; offset: number; search?: string } = { limit, offset };
+		if (search) {
+			options.search = search;
+		}
+		return UserServiceV8.listUsers(environmentId, options);
 	}
 
 	/**
@@ -710,7 +717,17 @@ export class MFAServiceV8 {
 
 			// Registration uses Platform APIs only - NO MFA v1 APIs
 			// Build device registration payload
-			const devicePayload: Record<string, unknown> = {
+			const devicePayload: {
+				type: string;
+				phone?: string;
+				email?: string;
+				nickname?: string;
+				status?: string;
+				notification?: {
+					message?: string;
+					variant?: string;
+				};
+			} = {
 				type: params.type,
 			};
 
@@ -1161,7 +1178,7 @@ export class MFAServiceV8 {
 			const deviceActivateUri = dd._links?.['device.activate']?.href;
 
 			// FIDO2-specific: Log publicKeyCredentialCreationOptions for debugging
-			const _publicKeyOptionsLength = dd.publicKeyCredentialCreationOptions?.length || 0;
+			// const _publicKeyOptionsLength = dd.publicKeyCredentialCreationOptions?.length || 0;
 
 			// FIDO2-specific: Extract publicKeyCredentialCreationOptions from device response
 			// Per fido2-2.md: PingOne returns this as a JSON string in the device creation response
@@ -3507,7 +3524,7 @@ export class MFAServiceV8 {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Check token status before attempting activation
-			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const tokenStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 
 			if (!tokenStatus.isValid || tokenStatus.status === 'expired') {
 				const errorMessage =
@@ -3673,7 +3690,7 @@ export class MFAServiceV8 {
 						// Check token status before providing error
 						let tokenStatusMessage = '';
 						try {
-							const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+							const tokenStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 							if (tokenStatus.status === 'expired' || !tokenStatus.isValid) {
 								tokenStatusMessage = '\n\n🔑 Your worker token has expired or is invalid.';
 								tokenStatusMessage += '\n\nTo fix this:';
