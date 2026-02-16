@@ -27,37 +27,6 @@ import UserTokenStatusDisplayV8U from '@/v8u/components/UserTokenStatusDisplayV8
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 // Token monitoring interfaces
-interface TokenStatus {
-	id: string;
-	name: string;
-	description: string;
-	category: 'worker' | 'user' | 'session';
-	method: 'GET' | 'POST' | 'PUT' | 'DELETE';
-	endpoint: string;
-	headers?: Record<string, string> | undefined;
-	body?: Record<string, unknown> | undefined;
-	expectedStatus?: number;
-	dependencies?: string[];
-}
-
-interface TokenResult {
-	tokenId: string;
-	status: 'pending' | 'running' | 'success' | 'error';
-	duration?: number;
-	request?: {
-		method: string;
-		url: string;
-		headers: Record<string, string>;
-		body?: Record<string, unknown>;
-	};
-	response?: {
-		status: number;
-		statusText: string;
-		headers: Record<string, string>;
-		body: Record<string, unknown>;
-	};
-	error?: string;
-}
 
 // Styled components
 const PageContainer = styled.div`
@@ -141,30 +110,8 @@ const ActionButton = styled.button`
 	}
 `;
 
-// Token status data
-const _tokenStatuses: TokenStatus[] = [
-	{
-		id: 'worker-token-status',
-		name: 'Worker Token Status',
-		description: 'Monitor and manage worker tokens for API authentication',
-		category: 'worker',
-		method: 'GET',
-		endpoint: '/api/worker-token/status',
-		expectedStatus: 200,
-	},
-	{
-		id: 'user-token-status',
-		name: 'User Token Status',
-		description: 'Monitor user authentication tokens from OAuth flows',
-		category: 'user',
-		method: 'GET',
-		endpoint: '/api/user-tokens/status',
-		expectedStatus: 200,
-	},
-];
-
 const TokenStatusPageV8U: React.FC = () => {
-	const [_tokenStatus, setTokenStatus] = useState<TokenStatusInfo>({
+	const [, setTokenStatus] = useState<TokenStatusInfo>({
 		isValid: false,
 		status: 'missing',
 		message: 'Checking...',
@@ -181,8 +128,6 @@ const TokenStatusPageV8U: React.FC = () => {
 		const config = MFAConfigurationServiceV8.loadConfiguration();
 		return config.workerToken?.showTokenAtEnd || false;
 	});
-
-	const [_showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// Update token status on mount and set up interval
 	useEffect(() => {

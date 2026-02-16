@@ -484,9 +484,7 @@ const EnvironmentServiceV8 = {
 	/**
 	 * Get organization capabilities
 	 */
-	async getOrganizationCapabilities(
-		organizationId: string
-	): Promise<EnvironmentCapabilities> {
+	async getOrganizationCapabilities(organizationId: string): Promise<EnvironmentCapabilities> {
 		const response = await pingOneFetch(`/organizations/${organizationId}/capabilities`);
 
 		return response.json() as Promise<EnvironmentCapabilities>;
@@ -619,7 +617,7 @@ const EnvironmentServiceV8 = {
 	 */
 	canPromoteEnvironment(environment: PingOneEnvironment): boolean {
 		return this.validatePromotionPermissions(environment);
-	}
+	},
 };
 
 export default EnvironmentServiceV8;
