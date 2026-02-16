@@ -1142,9 +1142,10 @@ while [ $# -gt 0 ]; do
             echo "        • Ideal for automated scripts and CI/CD"
             echo ""
             echo "    -Background"
-            echo "        Background mode: Run servers in background"
-            echo "        • Starts servers and exits immediately"
-            echo "        • No log tailing or interactive prompts"
+            echo "        Background mode: Run servers in background with auto-log-tailing"
+            echo "        • Starts servers and auto-tails logs in background"
+            echo "        • No interactive prompts, but monitors logs automatically"
+            echo "        • Use standalone: ./run.sh -Background"
             echo "        • Use with -default: ./run.sh -default -Background"
             echo "        • Ideal for background processes and automation"
             echo ""
@@ -1208,7 +1209,8 @@ while [ $# -gt 0 ]; do
             echo "  • Help information:      ./run.sh --help, -h, or -help"
             echo "  • Automated scripts:     ./run.sh -quick"
             echo "  • CI/CD pipelines:       ./run.sh -default"
-            echo "  • Background processes:  ./run.sh -default -Background"
+            echo "  • Background processes:  ./run.sh -Background"
+            echo "  • Background monitoring: ./run.sh -default -Background"
             echo "  • Background monitoring: ./run.sh -default &"
             echo ""
             echo "🚨 EXIT CODES:"
@@ -1328,13 +1330,12 @@ main() {
             return
         fi
         
-        if [ "$BACKGROUND_MODE" = true ]; then
-            print_info "🌃 Background mode: Skipping log tail (servers running in background)"
-            return
-        fi
-        
-        if [ "$DEFAULT_MODE" = true ]; then
-            print_info "📋 Default mode: Auto-tailing pingone-api.log (default log) without prompting"
+        if [ "$DEFAULT_MODE" = true ] || [ "$BACKGROUND_MODE" = true ]; then
+            if [ "$BACKGROUND_MODE" = true ]; then
+                print_info "🌃 Background mode: Auto-tailing pingone-api.log in background"
+            else
+                print_info "📋 Default mode: Auto-tailing pingone-api.log (default log) without prompting"
+            fi
             LOG_FILE="logs/pingone-api.log"
             LOG_DESCRIPTION="PingOne API log (all calls)"
             
@@ -1350,19 +1351,30 @@ main() {
             else
                 print_warning "Log file not found: ${LOG_FILE}"
                 print_info "The file will be created when the first API call is made"
-                print_info "Press Ctrl+C to exit"
-                # Wait for file to be created, then tail it
-                while [ ! -f "$LOG_FILE" ]; do
-                    sleep 1
-                done
+                if [ "$BACKGROUND_MODE" = false ]; then
+                    print_info "Press Ctrl+C to exit"
+                    # Wait for file to be created, then tail it
+                    while [ ! -f "$LOG_FILE" ]; do
+                        sleep 1
+                    done
+                fi
             fi
             
             # Tail the log file
             echo ""
-            print_info "📋 Tailing ${LOG_DESCRIPTION} file (Ctrl+C to stop)..."
-            echo ""
-            tail -f "$LOG_FILE"
-            return
+            if [ "$BACKGROUND_MODE" = true ]; then
+                print_info "🌃 Starting background log tail (use 'ps aux | grep tail' to monitor)..."
+                echo ""
+                # Start tail in background and exit
+                nohup tail -f "$LOG_FILE" > /dev/null 2>&1 &
+                print_info "✅ Log tail started in background. Servers are running."
+                return
+            else
+                print_info "📋 Tailing ${LOG_DESCRIPTION} file (Ctrl+C to stop)..."
+                echo ""
+                tail -f "$LOG_FILE"
+                return
+            fi
         fi
         
         echo ""
