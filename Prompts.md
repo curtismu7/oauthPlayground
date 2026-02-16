@@ -23,11 +23,11 @@ CLEAN RESTART POLICY (mandatory for flow/server-impacting changes)
    - update config that affects runtime behavior
 
 Restart command:
-   - ./restart-servers.sh -quick
+   - ./run.sh -quick
 
 Restart timing:
-   - Run ./restart-servers.sh -quick BEFORE reproducing the bug (clean baseline)
-   - Run ./restart-servers.sh -quick AFTER implementing the fix (before final verification)
+   - Run ./run.sh -quick BEFORE reproducing the bug (clean baseline)
+   - Run ./run.sh -quick AFTER implementing the fix (before final verification)
 
 Also confirm services are healthy (per the guide’s health check/log indicator).
 

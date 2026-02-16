@@ -7,6 +7,21 @@
  */
 
 import type { V7FlowName } from './v7SharedService';
+import React from 'react';
+
+export interface EducationSectionData {
+	id: string;
+	title: string;
+	content: React.ReactNode;
+	oneLiner?: string;
+	icon?: React.ReactNode;
+}
+
+export interface MasterEducationContent {
+	id: string;
+	title: string;
+	sections: EducationSectionData[];
+}
 
 export interface V7EducationalContent {
 	flowName: V7FlowName;
@@ -485,5 +500,61 @@ export class V7EducationalContentService {
 	static getComplianceRules(flowName: V7FlowName) {
 		const content = V7EducationalContentService.getEducationalContent(flowName);
 		return content.complianceChecking;
+	}
+
+	/**
+	 * Get consolidated master education content for a flow
+	 * Converts the detailed educational content into a master section format
+	 */
+	static getMasterEducationContent(flowName: V7FlowName): MasterEducationContent {
+		const content = V7EducationalContentService.getEducationalContent(flowName);
+		
+		const sections: EducationSectionData[] = [
+			{
+				id: 'overview',
+				title: 'Overview',
+				content: `${content.overview.title}\n\n${content.overview.description}\n\nKey Concepts:\n${content.overview.keyConcepts.map(concept => `• ${concept}`).join('\n')}`,
+				oneLiner: `${content.overview.title}: ${content.overview.description.split('.')[0]}.`,
+			},
+			{
+				id: 'specification',
+				title: 'Specification',
+				content: `${content.specification.name}\n\nVersion: ${content.specification.version}\nDescription: ${content.specification.description}\nURL: ${content.specification.url}`,
+				oneLiner: `Based on ${content.specification.name} (${content.specification.version})`,
+			},
+			{
+				id: 'security',
+				title: 'Security Considerations',
+				content: `Security Considerations:\n${content.stepByStepGuide.securityConsiderations.map((consideration, index) => `${index + 1}. ${consideration}`).join('\n')}`,
+				oneLiner: `${content.stepByStepGuide.securityConsiderations.length} security considerations to keep in mind`,
+			},
+			{
+				id: 'common-mistakes',
+				title: 'Common Mistakes',
+				content: `Common Implementation Mistakes:\n${content.stepByStepGuide.commonMistakes.map((mistake, index) => `${index + 1}. ${mistake}`).join('\n')}`,
+				oneLiner: `Avoid ${content.stepByStepGuide.commonMistakes.length} common implementation mistakes`,
+			},
+		];
+
+		return {
+			id: `${flowName}-master-education`,
+			title: `${content.specification.name} Educational Content`,
+			sections,
+		};
+	}
+
+	/**
+	 * Get all master education content for all flows
+	 */
+	static getAllMasterEducationContent(): MasterEducationContent[] {
+		const flowNames: V7FlowName[] = [
+			'oauth-authorization-code-v7',
+			'oidc-authorization-code-v7',
+			'oauth-client-credentials-v7',
+		];
+
+		return flowNames.map((flowName) => 
+			V7EducationalContentService.getMasterEducationContent(flowName)
+		);
 	}
 }

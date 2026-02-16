@@ -6,12 +6,13 @@
  * @since 2026-02-13
  *
  * This component provides an authentic United Airlines website experience
- * with proper navigation, branding, and employee portal access.
+ * with proper navigation, branding, and customer portal access.
  */
 
 import React, { useState, useRef, useEffect } from 'react';
 import { FiLock, FiX, FiMail, FiUser, FiMenu, FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
+import { useBrandTheme } from '../themes/theme-provider';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 
 // ============================================================================
@@ -68,6 +69,19 @@ const Logo = styled.div`
     color: #0033A0;
     font-weight: 700;
   }
+`;
+
+const UpdateStamp = styled.div`
+  display: inline-block;
+  margin: -1.5rem 0 2rem 0;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 `;
 
 const NavLinks = styled.div`
@@ -161,6 +175,7 @@ const HeroContent = styled.div`
 const HeroTitle = styled.h1`
   font-size: 3rem;
   font-weight: 700;
+  color: #ff4d4f;
   margin: 0 0 1rem 0;
   line-height: 1.2;
   
@@ -171,6 +186,7 @@ const HeroTitle = styled.h1`
 
 const HeroSubtitle = styled.p`
   font-size: 1.25rem;
+  color: #ffb3b3;
   margin: 0 0 3rem 0;
   line-height: 1.6;
   opacity: 0.9;
@@ -362,6 +378,7 @@ const DropdownHeader = styled.div`
 const DropdownTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 600;
+  color: #ff4d4f;
   margin: 0;
   display: flex;
   align-items: center;
@@ -424,9 +441,12 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_redirectUri,
 }) => {
+	const { activeTheme } = useBrandTheme();
+	const isCustomer = activeTheme.content?.customerTerminology ?? true; // Default to customer terminology
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const uiLastUpdated = '2026-02-15 4:19 PM CT';
 	const dropdownRef = useRef<HTMLDivElement>(null);
 
 	// Close dropdown when clicking outside
@@ -486,10 +506,13 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 
 				<HeroSection>
 					<HeroContent>
-						<HeroTitle>United Airlines Employee Portal</HeroTitle>
+						<HeroTitle>{isCustomer ? 'United Airlines Customer Portal' : 'United Airlines Employee Portal'}</HeroTitle>
 						<HeroSubtitle>
-							Connecting the world. Your gateway to global operations and employee resources
+							{isCustomer 
+								? 'Connecting the world. Your gateway to global travel and customer services'
+								: 'Connecting the world. Your gateway to global operations and employee resources'}
 						</HeroSubtitle>
+						<UpdateStamp>Last UI update: {uiLastUpdated}</UpdateStamp>
 
 						{currentStep === 'portal-home' ? (
 							<EmployeePortalCard>
@@ -497,20 +520,22 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 									<CardIcon>
 										<FiLock />
 									</CardIcon>
-									<CardTitle>Employee Login</CardTitle>
+									<CardTitle>{isCustomer ? 'Customer Login' : 'Employee Login'}</CardTitle>
 								</CardHeader>
 								<CardDescription>
-									Access your United Airlines employee portal with secure authentication
+									{isCustomer 
+										? 'Access your United Airlines customer portal with secure authentication'
+										: 'Access your United Airlines employee portal with secure authentication'}
 								</CardDescription>
 								<LoginForm onSubmit={handleSubmit}>
 									<InputGroup>
-										<InputLabel htmlFor="email">Employee Email</InputLabel>
+										<InputLabel htmlFor="email">{isCustomer ? 'Customer Email' : 'Employee Email'}</InputLabel>
 										<Input
 											id="email"
 											type="email"
 											value={email}
 											onChange={(e) => setEmail(e.target.value)}
-											placeholder="employee@united.com"
+											placeholder={isCustomer ? 'customer@united.com' : 'employee@united.com'}
 											required
 										/>
 									</InputGroup>
@@ -527,7 +552,7 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 									</InputGroup>
 									<LoginButton type="submit">
 										<FiLock />
-										Sign In to Employee Portal
+										{isCustomer ? 'Sign In to Customer Portal' : 'Sign In to Employee Portal'}
 									</LoginButton>
 								</LoginForm>
 							</EmployeePortalCard>
@@ -540,7 +565,9 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 									<CardTitle>Authentication in Progress</CardTitle>
 								</CardHeader>
 								<CardDescription>
-									Complete your authentication with United's secure employee system
+									{isCustomer
+										? "Complete your authentication with United's secure customer system"
+										: "Complete your authentication with United's secure employee system"}
 								</CardDescription>
 							</EmployeePortalCard>
 						)}
@@ -549,24 +576,28 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 
 				<FeaturesSection>
 					<FeaturesContainer>
-						<FeaturesTitle>Employee Resources</FeaturesTitle>
+						<FeaturesTitle>{isCustomer ? 'Customer Resources' : 'Employee Resources'}</FeaturesTitle>
 						<FeaturesGrid>
 							<FeatureCard>
 								<FeatureIcon>
 									<FiMail />
 								</FeatureIcon>
-								<FeatureTitle>Employee Communications</FeatureTitle>
+								<FeatureTitle>{isCustomer ? 'Travel Communications' : 'Employee Communications'}</FeatureTitle>
 								<FeatureDescription>
-									Access company announcements, policies, and internal communications
+									{isCustomer
+										? 'Access travel alerts, itinerary updates, and account notifications'
+										: 'Access company announcements, policies, and internal communications'}
 								</FeatureDescription>
 							</FeatureCard>
 							<FeatureCard>
 								<FeatureIcon>
 									<FiUser />
 								</FeatureIcon>
-								<FeatureTitle>HR Services</FeatureTitle>
+								<FeatureTitle>{isCustomer ? 'Account Services' : 'HR Services'}</FeatureTitle>
 								<FeatureDescription>
-									Manage your benefits, schedule, and employee information
+									{isCustomer
+										? 'Manage your profile, preferences, and trip details securely'
+										: 'Manage your benefits, schedule, and employee information'}
 								</FeatureDescription>
 							</FeatureCard>
 							<FeatureCard>
@@ -587,7 +618,7 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 				<DropdownHeader>
 					<DropdownTitle>
 						<FiLock />
-						Employee Login
+						{isCustomer ? 'Customer Login' : 'Employee Login'}
 					</DropdownTitle>
 					<CloseButton onClick={handleCloseDropdown}>
 						<FiX />
@@ -596,13 +627,13 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 				<DropdownContent>
 					<LoginForm onSubmit={handleSubmit}>
 						<InputGroup>
-							<InputLabel htmlFor="dropdown-email">Employee Email</InputLabel>
+							<InputLabel htmlFor="dropdown-email">{isCustomer ? 'Customer Email' : 'Employee Email'}</InputLabel>
 							<Input
 								id="dropdown-email"
 								type="email"
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
-								placeholder="employee@united.com"
+								placeholder={isCustomer ? 'customer@united.com' : 'employee@united.com'}
 								required
 							/>
 						</InputGroup>
