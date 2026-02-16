@@ -300,7 +300,13 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 							if (flowResult.code || flowResult.tokens) {
 								// Store tokens in TokenMonitoringService if available from redirectless flow
 								if (flowResult.tokens) {
-									TokenMonitoringService.addOAuthTokens(flowResult.tokens);
+									// Map redirectless token format to OAuthTokenPayload format
+									const oauthTokenPayload = {
+										access_token: flowResult.tokens.accessToken,
+										id_token: flowResult.tokens.idToken,
+										refresh_token: '', // Redirectless flow doesn't provide refresh token
+									};
+									TokenMonitoringService.addOAuthTokens(oauthTokenPayload, 'oauth-authz-v8');
 									
 									// Set tokens directly in auth state if available
 									setAuthState({
