@@ -32,7 +32,7 @@ export interface AuthenticationCredentials {
 	username?: string; // Optional - can use userId instead
 	userId?: string; // Optional - can use username instead (will be looked up)
 	deviceAuthenticationPolicyId: string;
-	region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'; // PingOne region: us (North America), eu (Europe), ap (Asia Pacific), ca (Canada), na (alias for us)
+	region?: 'us' | 'eu' | 'ap' | 'ca' | 'na' | 'asia'; // PingOne region: us (North America), eu (Europe), ap (Asia Pacific), ca (Canada), na (alias for us), asia (Asia Pacific)
 	customDomain?: string; // Custom domain for PingOne API (e.g., auth.yourcompany.com). If provided, overrides region-based domain.
 }
 
@@ -71,7 +71,7 @@ export interface OTPValidationParams {
 	authenticationId: string;
 	otp: string;
 	otpCheckUrl?: string; // From _links.otp.check.href
-	region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'; // PingOne region: us (North America), eu (Europe), ap (Asia Pacific), ca (Canada), na (alias for us)
+	region?: 'us' | 'eu' | 'ap' | 'ca' | 'na' | 'asia'; // PingOne region: us (North America), eu (Europe), ap (Asia Pacific), ca (Canada), na (alias for us), asia (Asia Pacific)
 	customDomain?: string; // Custom domain for PingOne API (e.g., auth.yourcompany.com). If provided, overrides region-based domain.
 }
 
@@ -88,7 +88,7 @@ export interface DeviceSelectionParams {
 	userId?: string; // Optional - will be looked up if not provided
 	authenticationId: string;
 	deviceId: string;
-	region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'; // PingOne region: us (North America), eu (Europe), ap (Asia Pacific), ca (Canada), na (alias for us)
+	region?: 'us' | 'eu' | 'ap' | 'ca' | 'na' | 'asia'; // PingOne region: us (North America), eu (Europe), ap (Asia Pacific), ca (Canada), na (alias for us), asia (Asia Pacific)
 	customDomain?: string; // Custom domain for PingOne API (e.g., auth.yourcompany.com). If provided, overrides region-based domain.
 }
 
@@ -117,7 +117,7 @@ export class MfaAuthenticationServiceV8 {
 	 * Get PingOne auth base URL - uses custom domain if provided, otherwise uses region-based domain
 	 */
 	private static getAuthBaseUrl(
-		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na',
+		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na' | 'asia',
 		customDomain?: string
 	): string {
 		if (customDomain) {
@@ -126,7 +126,7 @@ export class MfaAuthenticationServiceV8 {
 		const tld =
 			region === 'eu'
 				? 'eu'
-				: region === 'ap' || (region as string) === 'asia'
+				: region === 'ap' || region === 'asia'
 					? 'asia'
 					: region === 'ca'
 						? 'ca'
@@ -620,7 +620,7 @@ export class MfaAuthenticationServiceV8 {
 		authenticationId: string,
 		options?: {
 			isUserId?: boolean;
-			region?: 'us' | 'eu' | 'ap' | 'ca' | 'na';
+			region?: 'us' | 'eu' | 'ap' | 'ca' | 'na' | 'asia';
 			customDomain?: string;
 		}
 	): Promise<DeviceAuthenticationResponse> {
@@ -871,7 +871,7 @@ export class MfaAuthenticationServiceV8 {
 				deviceAuthId: string;
 				deviceId: string;
 				workerToken: string;
-				region?: 'us' | 'eu' | 'ap' | 'ca' | 'na';
+				region?: 'us' | 'eu' | 'ap' | 'ca' | 'na' | 'asia';
 				customDomain?: string;
 			} = {
 				environmentId: params.environmentId,
@@ -1689,7 +1689,7 @@ export class MfaAuthenticationServiceV8 {
 		environmentId: string,
 		username: string,
 		authenticationId: string,
-		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na',
+		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na' | 'asia',
 		customDomain?: string
 	): Promise<{ status: string; [key: string]: unknown }> {
 		console.log(`${MODULE_TAG} Canceling device authentication`, { authenticationId });
@@ -1795,7 +1795,7 @@ export class MfaAuthenticationServiceV8 {
 			};
 		},
 		environmentId?: string,
-		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na',
+		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na' | 'asia',
 		customDomain?: string,
 		origin?: string
 	): Promise<{ status: string; nextStep?: string; [key: string]: unknown }> {
@@ -1910,7 +1910,7 @@ export class MfaAuthenticationServiceV8 {
 				deviceAuthId: string;
 				environmentId: string;
 				assertion: typeof assertionBody.assertion;
-				region?: 'us' | 'eu' | 'ap' | 'ca' | 'na';
+				region?: 'us' | 'eu' | 'ap' | 'ca' | 'na' | 'asia';
 				customDomain?: string;
 				origin?: string;
 			} = {
@@ -2096,7 +2096,7 @@ export class MfaAuthenticationServiceV8 {
 		userId?: string;
 		authenticationId: string;
 		deviceId: string;
-		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na';
+		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na' | 'asia';
 		customDomain?: string;
 	}): Promise<DeviceAuthenticationResponse> {
 		console.log(`${MODULE_TAG} Resending OTP for ACTIVE device`, {
