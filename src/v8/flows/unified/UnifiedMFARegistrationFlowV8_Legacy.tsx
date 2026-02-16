@@ -1260,7 +1260,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 											marginTop: '2px',
 											color:
 												selectedFlowType === 'user'
-													? PING_IDENTITY_COLORS.accent.blue[600]
+													? PING_IDENTITY_COLORS.primary[600]
 													: PING_IDENTITY_COLORS.neutral[500],
 										}}
 									>
