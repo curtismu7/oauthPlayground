@@ -114,6 +114,19 @@ export interface BrandTheme {
 		};
 	};
 	portalConfig?: CorporatePortalConfig;
+	// Add content property for customer terminology and other content settings
+	content?: {
+		customerTerminology: boolean;
+		tone: 'corporate' | 'friendly';
+		heroTitle?: string;
+		heroSubtitle?: string;
+		tagline?: string;
+		features?: Array<{
+			title: string;
+			description: string;
+			icon: string;
+		}>;
+	};
 }
 
 export interface BrandThemeContext {

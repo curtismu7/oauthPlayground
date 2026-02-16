@@ -49,5 +49,5 @@ export function openDebugLogViewerPopout(): void {
  * Check if we're running in the popout window
  */
 export function isPopoutWindow(): boolean {
-	return window.location.pathname.includes('/debug-logs-popout');
+	return window.location.pathname.includes('/v8/debug-logs-popout');
 }

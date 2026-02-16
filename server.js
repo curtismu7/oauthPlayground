@@ -19,6 +19,7 @@ import { userDatabaseService } from './src/server/services/userDatabaseService.j
 import { settingsDB } from './src/server/services/settingsDatabaseService.js';
 import { setupUserApiRoutes } from './src/server/routes/userApiRoutes.js';
 import { setupBackupApiRoutes } from './src/server/routes/backupApiRoutes.js';
+import { credentialsSqliteApi } from './src/api/credentialsSqliteApi.js';
 // import { registerTokenStorageRoutes } from './src/server/tokenStorageApi.js';
 
 dotenv.config();
@@ -803,6 +804,9 @@ setupUserApiRoutes(app);
 // Setup backup API routes
 setupBackupApiRoutes(app);
 
+// Setup enhanced credentials SQLite API
+credentialsSqliteApi(app);
+
 // Register token storage API routes
 // registerTokenStorageRoutes(app);
 
@@ -844,6 +848,11 @@ app.post('/api/logs/authz-redirect', (req, res) => {
 app.get('/api/logs/list', (req, res) => {
 	try {
 		const files = fs.readdirSync(logsDir);
+		const serverLogFiles = new Set(['server.log', 'server-error.log', 'backend.log']);
+		const apiLogFiles = new Set(['pingone-api.log', 'real-api.log', 'api-log.log']);
+		const frontendLogFiles = new Set(['client.log']);
+		const mfaLogFiles = new Set(['fido.log', 'sms.log', 'email.log', 'whatsapp.log', 'voice.log']);
+		const oauthLogFiles = new Set(['authz-redirects.log', 'oauth.log', 'oidc.log']);
 		const logFiles = files
 			.filter(f => f.endsWith('.log'))
 			.map(f => {
@@ -852,15 +861,15 @@ app.get('/api/logs/list', (req, res) => {
 				
 				// Categorize log files
 				let category = 'other';
-				if (['server.log', 'server-error.log'].includes(f)) {
+				if (serverLogFiles.has(f) || /^server(-|_).+\.log$/i.test(f)) {
 					category = 'server';
-				} else if (['pingone-api.log'].includes(f)) {
+				} else if (apiLogFiles.has(f) || /(api|pingone).+\.log$/i.test(f)) {
 					category = 'api';
-				} else if (['client.log'].includes(f)) {
+				} else if (frontendLogFiles.has(f) || /(client|frontend|browser).+\.log$/i.test(f)) {
 					category = 'frontend';
-				} else if (['fido.log', 'sms.log', 'email.log', 'whatsapp.log', 'voice.log'].includes(f)) {
+				} else if (mfaLogFiles.has(f) || /(fido|sms|email|whatsapp|voice|mfa).+\.log$/i.test(f)) {
 					category = 'mfa';
-				} else if (['authz-redirects.log'].includes(f)) {
+				} else if (oauthLogFiles.has(f) || /(authz|oauth|oidc|redirect).+\.log$/i.test(f)) {
 					category = 'oauth';
 				}
 				
@@ -932,12 +941,19 @@ app.get('/api/logs/read', (req, res) => {
 			content = allLines.slice(0, lineCount).join('\n');
 		}
 		
-		res.json({ 
-			content, 
-			totalLines: content.split('\n').length,
+		// Ensure content is a string and handle empty files
+		if (typeof content !== 'string') {
+			content = '';
+		}
+		
+		const response = {
+			content: content || '', // Ensure content is never undefined
+			totalLines: content ? content.split('\n').length : 0,
 			fileSize: stats.size,
 			modified: stats.mtime
-		});
+		};
+		
+		res.json(response);
 	} catch (error) {
 		console.error('[Log Viewer] Failed to read log file:', error);
 		res.status(500).json({ error: 'Failed to read log file', message: error.message });
@@ -16831,6 +16847,37 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 		res
 			.status(500)
 			.json({ error: 'Failed to initialize device authentication', message: error.message });
+	}
+});
+
+// ============================================================================
+// UNIFIED TOKEN STORAGE ENDPOINTS
+// ============================================================================
+
+/**
+ * Query tokens from unified storage
+ * GET /api/tokens/query?type=worker_token&source=worker_token
+ */
+app.get('/api/tokens/query', async (req, res) => {
+	try {
+		const { type, source } = req.query;
+		
+		console.log('[Token Query] Querying tokens:', { type, source });
+		
+		// For now, return empty response - this endpoint is used by unified token storage
+		// In a full implementation, this would query the SQLite database
+		res.json({
+			tokens: [],
+			count: 0,
+			type: type || 'all',
+			source: source || 'all'
+		});
+	} catch (error) {
+		console.error('[Token Query] Failed to query tokens:', error);
+		res.status(500).json({ 
+			error: 'Failed to query tokens', 
+			message: error.message 
+		});
 	}
 });
 

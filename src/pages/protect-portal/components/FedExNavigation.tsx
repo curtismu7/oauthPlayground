@@ -189,7 +189,7 @@ const MobileNavLink = styled.a`
 
 const FedExNavigation: React.FC = () => {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-	const theme = useBrandTheme();
+	const { activeTheme } = useBrandTheme();
 
 	const toggleMobileMenu = () => {
 		setMobileMenuOpen(!mobileMenuOpen);
@@ -200,18 +200,18 @@ const FedExNavigation: React.FC = () => {
 			<NavContainer>
 				<NavTop>
 					<NavTopContent>
-						<span>Employee Portal</span>
-						<span>Need help? Contact IT Support</span>
+						<span>{activeTheme.content?.customerTerminology ? 'Customer Portal' : 'Employee Portal'}</span>
+						<span>Need help? Contact {activeTheme.content?.customerTerminology ? 'Customer Support' : 'IT Support'}</span>
 					</NavTopContent>
 				</NavTop>
 				
 				<NavMain>
 					<NavMainContent>
 						<Logo>
-							{theme.logo?.url && (
-								<img src={theme.logo.url} alt={theme.logo.alt} />
+							{activeTheme.logo?.url && (
+								<img src={activeTheme.logo.url} alt={activeTheme.logo.alt} />
 							)}
-							{!theme.logo?.url && theme.logo?.text}
+							{!activeTheme.logo?.url && activeTheme.logo?.text}
 						</Logo>
 						
 						<NavLinks>
@@ -241,7 +241,7 @@ const FedExNavigation: React.FC = () => {
 			<MobileMenu isOpen={mobileMenuOpen}>
 				<MobileMenuHeader>
 					<Logo>
-						{theme.logo?.text}
+						{activeTheme.logo?.text}
 					</Logo>
 					<button type="button" onClick={toggleMobileMenu} style={{ background: 'none', border: 'none', color: 'white' }}>
 						<FiX size={24} />
