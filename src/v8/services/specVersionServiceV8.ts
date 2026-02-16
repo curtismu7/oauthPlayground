@@ -25,7 +25,8 @@ export type FlowType =
 	| 'client-credentials'
 	| 'ropc'
 	| 'device-code'
-	| 'hybrid';
+	| 'hybrid'
+	| 'mfa';
 
 export interface ComplianceRules {
 	requirePKCE: boolean;
@@ -154,7 +155,7 @@ export class SpecVersionServiceV8 {
 	static validateConfiguration(
 		specVersion: SpecVersion,
 		flowType: FlowType,
-		config: any
+		config: Record<string, unknown>
 	): ValidationResult {
 		console.log(`${MODULE_TAG} Validating configuration`, { specVersion, flowType });
 
