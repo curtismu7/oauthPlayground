@@ -222,6 +222,13 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		specification: 'RFC 6749, Section 4.1',
 	},
 	{
+		flowType: 'oidc-authz-v8',
+		requiresRedirectUri: true,
+		callbackPath: 'authz-callback',
+		description: 'V8 OpenID Connect Authorization Code Flow',
+		specification: 'OIDC Core 1.0, Section 3.1.2',
+	},
+	{
 		flowType: 'implicit-flow-v8',
 		requiresRedirectUri: true,
 		callbackPath: 'implicit-callback',

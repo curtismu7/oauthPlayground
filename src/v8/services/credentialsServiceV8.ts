@@ -148,6 +148,16 @@ const FLOW_FIELD_CONFIG: Record<string, CredentialsConfig> = {
 		defaultScopes: 'openid profile email',
 		defaultRedirectUri: 'https://localhost:3000/callback',
 	},
+	'mfa-flow-v8': {
+		flowKey: 'mfa-flow-v8',
+		flowType: 'oidc',
+		includeClientSecret: false,
+		includeRedirectUri: false,
+		includeLogoutUri: false,
+		includeScopes: false,
+		defaultScopes: 'openid profile email',
+		defaultRedirectUri: 'https://localhost:3000/mfa-callback',
+	},
 };
 
 export class CredentialsServiceV8 {
