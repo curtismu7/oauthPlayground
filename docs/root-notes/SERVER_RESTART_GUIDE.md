@@ -1,7 +1,7 @@
 # Server Restart Script Guide
 
 ## Overview
-The `restart-servers.sh` script provides a comprehensive solution for restarting your OAuth Playground servers with full error checking and status reporting.
+The `run.sh` script provides a comprehensive solution for restarting your OAuth Playground servers with full error checking and status reporting.
 
 **Fixed Ports:**
 - Frontend (Vite): **Port 3000** (https://localhost:3000)
@@ -11,7 +11,7 @@ The `restart-servers.sh` script provides a comprehensive solution for restarting
 
 ### Basic Usage
 ```bash
-./restart-servers.sh
+./run.sh
 ```
 
 ### What the Script Does
@@ -151,7 +151,7 @@ Enter directory path (or 'quit' to exit): ~/Projects/my-oauth-playground
 ║ 🔧 Backend API available at: https://localhost:3001
 ║
 ║ 📝 Log files: backend.log, frontend.log
-║ 🔄 To restart again: ./restart-servers.sh
+║ 🔄 To restart again: ./run.sh
 ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
@@ -176,7 +176,7 @@ Enter directory path (or 'quit' to exit): ~/Projects/my-oauth-playground
 ║ 🔍 Review logs for troubleshooting information
 ║
 ║ 📝 Log files: backend.log, frontend.log
-║ 🔄 To restart again: ./restart-servers.sh
+║ 🔄 To restart again: ./run.sh
 ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
@@ -201,7 +201,7 @@ Enter directory path (or 'quit' to exit): ~/Projects/my-oauth-playground
 ║ 🔍 Check backend.log and frontend.log for details
 ║
 ║ 📝 Log files: backend.log, frontend.log
-║ 🔄 To restart again: ./restart-servers.sh
+║ 🔄 To restart again: ./run.sh
 ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
@@ -215,7 +215,7 @@ Enter directory path (or 'quit' to exit): ~/Projects/my-oauth-playground
    - If issues persist, manually check: `lsof -i :3000` and `lsof -i :3001`
 
 2. **Permission Denied**
-   - Make sure the script is executable: `chmod +x restart-servers.sh`
+   - Make sure the script is executable: `chmod +x run.sh`
    - Check file permissions for package.json and server.js
 
 3. **Node.js/npm Not Found**
@@ -263,13 +263,13 @@ You can use this script in combination with other project scripts:
 
 ```bash
 # Restart and run tests
-./restart-servers.sh && npm test
+./run.sh && npm test
 
 # Restart and check status
-./restart-servers.sh && ./health-check.js
+./run.sh && ./health-check.js
 
 # Use in CI/CD pipelines
-if ./restart-servers.sh; then
+if ./run.sh; then
     echo "Servers started successfully"
     # Run your tests or deployment
 else

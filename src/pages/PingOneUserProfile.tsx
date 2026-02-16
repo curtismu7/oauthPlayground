@@ -2980,7 +2980,7 @@ const PingOneUserProfile: React.FC = () => {
 								<li>Open a new terminal window</li>
 								<li>Navigate to the project directory</li>
 								<li>
-									Run: <code>./restart-servers.sh</code>
+									Run: <code>./run.sh</code>
 								</li>
 								<li>Wait for the servers to start</li>
 								<li>Try your request again</li>

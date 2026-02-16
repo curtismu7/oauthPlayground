@@ -425,6 +425,19 @@ export const TokenMonitoringPage: React.FC = () => {
 		const initialTokens = freshService.getAllTokens();
 		setTokens(initialTokens);
 		logger.debug(`[TokenMonitoringPage] Loaded ${initialTokens.length} initial tokens after reset`);
+		
+		// Debug: Log token details
+		initialTokens.forEach((token, index) => {
+			logger.debug(`[TokenMonitoringPage] Token ${index + 1}:`, {
+				id: token.id,
+				type: token.type,
+				status: token.status,
+				hasValue: !!token.value,
+				valueLength: token.value?.length || 0,
+				expiresAt: token.expiresAt,
+				source: token.source,
+			});
+		});
 
 		const unsubscribe = freshService.subscribe((newTokens: TokenInfo[]) => {
 			setTokens(newTokens);
@@ -449,12 +462,37 @@ export const TokenMonitoringPage: React.FC = () => {
 			}
 		});
 
-		freshService.manualSyncWorkerToken();
+		freshService.manualSyncWorkerToken().catch((err) => {
+			logger.warn('[TokenMonitoringPage] Initial worker token sync failed', {
+				error: err instanceof Error ? err.message : String(err),
+			});
+		});
 
 		setTimeout(() => {
 			logger.debug('[TokenMonitoringPage] Attempting second worker token sync...');
-			freshService.manualSyncWorkerToken();
+			freshService.manualSyncWorkerToken().catch((err) => {
+				logger.warn('[TokenMonitoringPage] Second worker token sync failed', {
+					error: err instanceof Error ? err.message : String(err),
+				});
+			});
 		}, 1000);
+
+		// Debug: Check unified worker token service directly
+		setTimeout(async () => {
+			try {
+				const { unifiedWorkerTokenService } = await import('../../services/unifiedWorkerTokenService');
+				const status = await unifiedWorkerTokenService.getStatus();
+				logger.debug('[TokenMonitoringPage] Direct worker token status check:', status as unknown as Record<string, unknown>);
+				
+				const token = await unifiedWorkerTokenService.getToken();
+				logger.debug('[TokenMonitoringPage] Direct worker token get result:', {
+					hasToken: !!token,
+					tokenLength: token?.length || 0,
+				} as Record<string, unknown>);
+			} catch (err) {
+				logger.error('[TokenMonitoringPage] Direct worker token check failed:', err as Record<string, unknown>);
+			}
+		}, 2000);
 
 		return unsubscribe;
 	}, []);
@@ -517,7 +555,7 @@ export const TokenMonitoringPage: React.FC = () => {
 	const handleManualSync = async () => {
 		try {
 			const service = TokenMonitoringService.getInstance();
-			service.manualSyncWorkerToken();
+			await service.manualSyncWorkerToken();
 			setMessage('Manual token sync triggered');
 			setMessageType('info');
 			
@@ -626,6 +664,9 @@ export const TokenMonitoringPage: React.FC = () => {
 	const activeTokens = filteredTokens.filter((t) => t.status === 'active').length;
 	const expiringTokens = filteredTokens.filter((t) => t.status === 'expiring').length;
 	const expiredTokens = filteredTokens.filter((t) => t.status === 'expired').length;
+	
+	// Check if worker tokens exist
+	const hasWorkerTokens = tokens.some(t => t.type === 'worker_token');
 
 	const getTokenTypeLabel = (type: string) => {
 		switch (type) {
@@ -653,6 +694,32 @@ export const TokenMonitoringPage: React.FC = () => {
 			<PageHeader>
 				<PageTitle>🔐 Token Monitoring</PageTitle>
 				<PageSubtitle>Real-time monitoring and management of OAuth tokens</PageSubtitle>
+				<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1rem' }}>
+					{!hasWorkerTokens && (
+						<ActionButton
+							onClick={() => setShowWorkerTokenModal(true)}
+						>
+							<FiSettings />
+							Get Worker Token
+						</ActionButton>
+					)}
+					<ActionButton
+						onClick={() => {
+							logger.debug('[TokenMonitoringPage] Manual refresh triggered');
+							TokenMonitoringService.resetInstance();
+							const freshService = TokenMonitoringService.getInstance();
+							freshService.manualSyncWorkerToken().catch((err) => {
+								logger.warn('[TokenMonitoringPage] Manual refresh failed', {
+									error: err instanceof Error ? err.message : String(err),
+								});
+							});
+						}}
+						style={{ background: '#3b82f6' }}
+					>
+						<FiRefreshCw />
+						Refresh Tokens
+					</ActionButton>
+				</div>
 			</PageHeader>
 
 			{message && (
@@ -792,7 +859,16 @@ export const TokenMonitoringPage: React.FC = () => {
 				<EmptyState>
 					<FiDatabase />
 					<h3>No tokens found</h3>
-					<p>Complete an OAuth flow to see tokens here</p>
+					<p>No {selectedTokenType === 'all' ? 'tokens' : getTokenTypeLabel(selectedTokenType).toLowerCase()} found for {selectedFlowType === 'all' ? 'any flow' : getFlowTypeLabel(selectedFlowType)}</p>
+					{(selectedTokenType === 'all' || selectedTokenType === 'worker_token') && (
+						<ActionButton
+							onClick={() => setShowWorkerTokenModal(true)}
+							style={{ marginTop: '1rem' }}
+						>
+							<FiSettings />
+							Get Worker Token
+						</ActionButton>
+					)}
 				</EmptyState>
 			) : (
 				<TokenGrid>

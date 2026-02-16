@@ -18,7 +18,18 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiKey, FiShield, FiUnlock, FiRefreshCw, FiCheckCircle, FiAlertTriangle, FiActivity, FiCpu, FiBook, FiCode } from 'react-icons/fi';
+import {
+	FiActivity,
+	FiAlertTriangle,
+	FiBook,
+	FiCheckCircle,
+	FiCode,
+	FiCpu,
+	FiKey,
+	FiRefreshCw,
+	FiShield,
+	FiUnlock,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 
 // Styled components
@@ -114,20 +125,20 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
   font-size: 1rem;
 
   ${({ $variant = 'primary' }) => {
-    const colors = {
-      primary: { bg: '#3b82f6', hover: '#2563eb' },
-      secondary: { bg: '#6b7280', hover: '#4b5563' },
-      danger: { bg: '#ef4444', hover: '#dc2626' }
-    };
-    
-    return `
+		const colors = {
+			primary: { bg: '#3b82f6', hover: '#2563eb' },
+			secondary: { bg: '#6b7280', hover: '#4b5563' },
+			danger: { bg: '#ef4444', hover: '#dc2626' },
+		};
+
+		return `
       background: ${colors[$variant].bg};
       color: white;
       &:hover {
         background: ${colors[$variant].hover};
       }
     `;
-  }}
+	}}
 
   &:disabled {
     opacity: 0.5;
@@ -142,12 +153,10 @@ const StepIndicator = styled.div<{ $active?: boolean; $completed?: boolean }>`
   padding: 0.75rem;
   border-radius: 8px;
   margin-bottom: 1rem;
-  background: ${({ $active, $completed }) => 
-    $active ? '#dbeafe' : $completed ? '#d1fae5' : '#f3f4f6'
-  };
-  border: 1px solid ${({ $active, $completed }) => 
-    $active ? '#22c55e' : $completed ? '#16a34a' : '#d1d5db'
-  };
+  background: ${({ $active, $completed }) =>
+		$active ? '#dbeafe' : $completed ? '#d1fae5' : '#f3f4f6'};
+  border: 1px solid ${({ $active, $completed }) =>
+		$active ? '#22c55e' : $completed ? '#16a34a' : '#d1d5db'};
 `;
 
 const StepNumber = styled.div<{ $active?: boolean; $completed?: boolean }>`
@@ -159,12 +168,9 @@ const StepNumber = styled.div<{ $active?: boolean; $completed?: boolean }>`
   justify-content: center;
   font-size: 0.75rem;
   font-weight: 600;
-  color: ${({ $active, $completed }) => 
-    $active || $completed ? 'white' : '#6b7280'
-  };
-  background: ${({ $active, $completed }) => 
-    $active ? '#22c55e' : $completed ? '#16a34a' : '#d1d5db'
-  };
+  color: ${({ $active, $completed }) => ($active || $completed ? 'white' : '#6b7280')};
+  background: ${({ $active, $completed }) =>
+		$active ? '#22c55e' : $completed ? '#16a34a' : '#d1d5db'};
 `;
 
 const StepContent = styled.div`
@@ -218,724 +224,764 @@ const Column = styled.div``;
 
 // Types
 interface DpopProof {
-  typ: string;
-  alg: string;
-  jwk: {
-    kty: string;
-    crv: string;
-    e: string;
-    nbf?: string;
-    kid?: string;
-    k: string;
-    x5c?: string;
-    x5t?: string;
-  };
-  iat: string;
-  exp: number;
-  nbf?: string;
-  nonce?: string;
-  athm: string;
-  htu?: string;
-  htm: string;
+	typ: string;
+	alg: string;
+	jwk: {
+		kty: string;
+		crv: string;
+		e: string;
+		nbf?: string;
+		kid?: string;
+		k: string;
+		x5c?: string;
+		x5t?: string;
+	};
+	iat: string;
+	exp: number;
+	nbf?: string;
+	nonce?: string;
+	athm: string;
+	htu?: string;
+	htm: string;
 }
 
 interface TokenResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  scope: string;
-  dpop_jkt: string;
+	access_token: string;
+	token_type: string;
+	expires_in: number;
+	scope: string;
+	dpop_jkt: string;
 }
 
 interface MockServerState {
-  isRunning: boolean;
-  logs: string[];
-  issuedTokens: TokenResponse[];
-  currentProof: DpopProof | null;
+	isRunning: boolean;
+	logs: string[];
+	issuedTokens: TokenResponse[];
+	currentProof: DpopProof | null;
 }
 
 // Mock DPoP server implementation
 class MockDpopServer {
-  private state: MockServerState = {
-    isRunning: false,
-    logs: [],
-    issuedTokens: [],
-    currentProof: null,
-  };
+	private state: MockServerState = {
+		isRunning: false,
+		logs: [],
+		issuedTokens: [],
+		currentProof: null,
+	};
 
-  start() {
-    this.state.isRunning = true;
-    this.log('🚀 Mock DPoP Server Started');
-    this.log('📋 Server endpoints:');
-    this.log('   POST /dpop/auth - Authorization endpoint with DPoP');
-    this.log('   POST /dpop/token - Token endpoint with DPoP binding');
-    this.log('   GET /dpop/introspect - Token introspection with DPoP confirmation');
-    this.log('   GET /dpop/jwks - JSON Web Key Set endpoint');
-    this.log('   GET /dpop/nonce - Server-provided nonce endpoint');
-  }
+	start() {
+		this.state.isRunning = true;
+		this.log('🚀 Mock DPoP Server Started');
+		this.log('📋 Server endpoints:');
+		this.log('   POST /dpop/auth - Authorization endpoint with DPoP');
+		this.log('   POST /dpop/token - Token endpoint with DPoP binding');
+		this.log('   GET /dpop/introspect - Token introspection with DPoP confirmation');
+		this.log('   GET /dpop/jwks - JSON Web Key Set endpoint');
+		this.log('   GET /dpop/nonce - Server-provided nonce endpoint');
+	}
 
-  stop() {
-    this.state.isRunning = false;
-    this.log('🛑 Mock DPoP Server Stopped');
-  }
+	stop() {
+		this.state.isRunning = false;
+		this.log('🛑 Mock DPoP Server Stopped');
+	}
 
-  private log(message: string) {
-    const timestamp = new Date().toISOString();
-    this.state.logs.push(`[${timestamp}] ${message}`);
-  }
+	private log(message: string) {
+		const timestamp = new Date().toISOString();
+		this.state.logs.push(`[${timestamp}] ${message}`);
+	}
 
-  generateNonce(): string {
-    const nonce = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    this.log(`🔢 Generated nonce: ${nonce}`);
-    return nonce;
-  }
+	generateNonce(): string {
+		const nonce =
+			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+		this.log(`🔢 Generated nonce: ${nonce}`);
+		return nonce;
+	}
 
-  generateKeyPair(): { publicKey: string; privateKey: string } {
-    // Generate a simple mock key pair (in real implementation, use proper crypto)
-    const mockPublicKey = `mock-public-key-${Math.random().toString(36).substring(2, 15)}`;
-    const mockPrivateKey = `mock-private-key-${Math.random().toString(36).substring(2, 15)}`;
-    
-    this.log(`🔐 Generated mock key pair`);
-    this.log(`   Public: ${mockPublicKey}`);
-    this.log(`   Private: ${mockPrivateKey}`);
-    
-    return { publicKey: mockPublicKey, privateKey: mockPrivateKey };
-  }
+	generateKeyPair(): { publicKey: string; privateKey: string } {
+		// Generate a simple mock key pair (in real implementation, use proper crypto)
+		const mockPublicKey = `mock-public-key-${Math.random().toString(36).substring(2, 15)}`;
+		const mockPrivateKey = `mock-private-key-${Math.random().toString(36).substring(2, 15)}`;
 
-  createDpopProof(htm: string, privateKey: string, nonce?: string): DpopProof {
-    const now = Math.floor(Date.now() / 1000);
-    const exp = now + 60; // 1 minute expiry
-    
-    const proof: DpopProof = {
-      typ: 'dpop+jwt',
-      alg: 'RS256',
-      jwk: {
-        kty: 'RSA',
-        crv: 'RS256',
-        e: 'AQAB',
-        nbf: '1',
-        kid: `mock-key-id-${Math.random().toString(36).substring(2, 15)}`,
-        k: privateKey,
-      },
-      iat: now.toString(),
-      exp,
-      ...(nonce && { nbf: nonce }),
-      athm: 'POST',
-      ...(nonce && { nonce }),
-      htm,
-    };
+		this.log(`🔐 Generated mock key pair`);
+		this.log(`   Public: ${mockPublicKey}`);
+		this.log(`   Private: ${mockPrivateKey}`);
 
-    this.log(`📝 Created DPoP proof for ${htm}`);
-    this.state.currentProof = proof;
-    return proof;
-  }
+		return { publicKey: mockPublicKey, privateKey: mockPrivateKey };
+	}
 
-  validateDpopProof(proof: DpopProof): boolean {
-    try {
-      // Basic validation (in real implementation, verify signature)
-      const now = Math.floor(Date.now() / 1000);
-      
-      if (proof.exp < now) {
-        this.log('❌ DPoP proof expired');
-        return false;
-      }
+	createDpopProof(htm: string, privateKey: string, nonce?: string): DpopProof {
+		const now = Math.floor(Date.now() / 1000);
+		const exp = now + 60; // 1 minute expiry
 
-      if (proof.nbf && parseInt(proof.nbf, 10) > now) {
-        this.log('❌ DPoP proof not yet valid (nbf > current time)');
-        return false;
-      }
+		const proof: DpopProof = {
+			typ: 'dpop+jwt',
+			alg: 'RS256',
+			jwk: {
+				kty: 'RSA',
+				crv: 'RS256',
+				e: 'AQAB',
+				nbf: '1',
+				kid: `mock-key-id-${Math.random().toString(36).substring(2, 15)}`,
+				k: privateKey,
+			},
+			iat: now.toString(),
+			exp,
+			...(nonce && { nbf: nonce }),
+			athm: 'POST',
+			...(nonce && { nonce }),
+			htm,
+		};
 
-      if (proof.typ !== 'dpop+jwt') {
-        this.log('❌ Invalid DPoP proof type');
-        return false;
-      }
+		this.log(`📝 Created DPoP proof for ${htm}`);
+		this.state.currentProof = proof;
+		return proof;
+	}
 
-      this.log('✅ DPoP proof validation passed');
-      return true;
-    } catch (error) {
-      this.log(`❌ DPoP proof validation error: ${error}`);
-      return false;
-    }
-  }
+	validateDpopProof(proof: DpopProof): boolean {
+		try {
+			// Basic validation (in real implementation, verify signature)
+			const now = Math.floor(Date.now() / 1000);
 
-  issueAuthorizationCode(): string {
-    const code = `auth-code-${Math.random().toString(36).substring(2, 15)}`;
-    this.log(`🔑 Issued authorization code: ${code}`);
-    return code;
-  }
+			if (proof.exp < now) {
+				this.log('❌ DPoP proof expired');
+				return false;
+			}
 
-  exchangeCodeForToken(_code: string, dpopProof: DpopProof): TokenResponse {
-    if (!this.validateDpopProof(dpopProof)) {
-      throw new Error('Invalid DPoP proof');
-    }
+			if (proof.nbf && parseInt(proof.nbf, 10) > now) {
+				this.log('❌ DPoP proof not yet valid (nbf > current time)');
+				return false;
+			}
 
-    // Mock token issuance with DPoP binding
-    const token = `dpop-access-token-${Math.random().toString(36).substring(2, 15)}`;
-    const tokenResponse: TokenResponse = {
-      access_token: token,
-      token_type: 'DPoP',
-      expires_in: 3600,
-      scope: 'read write',
-      dpop_jkt: dpopProof.jwk.kid || 'default-jkt',
-    };
+			if (proof.typ !== 'dpop+jwt') {
+				this.log('❌ Invalid DPoP proof type');
+				return false;
+			}
 
-    this.state.issuedTokens.push(tokenResponse);
-    this.log(`🎫 Issued DPoP access token: ${token}`);
-    this.log(`   Token type: ${tokenResponse.token_type}`);
-    this.log(`   DPoP JKT: ${tokenResponse.dpop_jkt}`);
-    this.log(`   Expires in: ${tokenResponse.expires_in}s`);
+			this.log('✅ DPoP proof validation passed');
+			return true;
+		} catch (error) {
+			this.log(`❌ DPoP proof validation error: ${error}`);
+			return false;
+		}
+	}
 
-    return tokenResponse;
-  }
+	issueAuthorizationCode(): string {
+		const code = `auth-code-${Math.random().toString(36).substring(2, 15)}`;
+		this.log(`🔑 Issued authorization code: ${code}`);
+		return code;
+	}
 
-  introspectToken(token: string): { active: boolean; scope?: string; token_type?: string; exp?: number; iat?: number; cnf?: { jkt?: string } } {
-    const issuedToken = this.state.issuedTokens.find(t => t.access_token === token);
-    
-    if (!issuedToken) {
-      return { active: false };
-    }
+	exchangeCodeForToken(_code: string, dpopProof: DpopProof): TokenResponse {
+		if (!this.validateDpopProof(dpopProof)) {
+			throw new Error('Invalid DPoP proof');
+		}
 
-    const now = Math.floor(Date.now() / 1000);
-    const issuedAt = now - 1800; // Assume issued 30 minutes ago
-    const expiresAt = issuedAt + issuedToken.expires_in;
+		// Mock token issuance with DPoP binding
+		const token = `dpop-access-token-${Math.random().toString(36).substring(2, 15)}`;
+		const tokenResponse: TokenResponse = {
+			access_token: token,
+			token_type: 'DPoP',
+			expires_in: 3600,
+			scope: 'read write',
+			dpop_jkt: dpopProof.jwk.kid || 'default-jkt',
+		};
 
-    return {
-      active: expiresAt > now,
-      scope: issuedToken.scope,
-      token_type: issuedToken.token_type,
-      exp: expiresAt,
-      iat: issuedAt,
-      cnf: {
-        jkt: issuedToken.dpop_jkt,
-      },
-    };
-  }
+		this.state.issuedTokens.push(tokenResponse);
+		this.log(`🎫 Issued DPoP access token: ${token}`);
+		this.log(`   Token type: ${tokenResponse.token_type}`);
+		this.log(`   DPoP JKT: ${tokenResponse.dpop_jkt}`);
+		this.log(`   Expires in: ${tokenResponse.expires_in}s`);
 
-  getLogs(): string[] {
-    return [...this.state.logs];
-  }
+		return tokenResponse;
+	}
 
-  getState(): MockServerState {
-    return { ...this.state };
-  }
+	introspectToken(token: string): {
+		active: boolean;
+		scope?: string;
+		token_type?: string;
+		exp?: number;
+		iat?: number;
+		cnf?: { jkt?: string };
+	} {
+		const issuedToken = this.state.issuedTokens.find((t) => t.access_token === token);
+
+		if (!issuedToken) {
+			return { active: false };
+		}
+
+		const now = Math.floor(Date.now() / 1000);
+		const issuedAt = now - 1800; // Assume issued 30 minutes ago
+		const expiresAt = issuedAt + issuedToken.expires_in;
+
+		return {
+			active: expiresAt > now,
+			scope: issuedToken.scope,
+			token_type: issuedToken.token_type,
+			exp: expiresAt,
+			iat: issuedAt,
+			cnf: {
+				jkt: issuedToken.dpop_jkt,
+			},
+		};
+	}
+
+	getLogs(): string[] {
+		return [...this.state.logs];
+	}
+
+	getState(): MockServerState {
+		return { ...this.state };
+	}
 }
 
 // Main component
 const DpopAuthorizationCodeFlowV8: React.FC = () => {
-  const [mockServer] = useState(() => new MockDpopServer());
-  const [currentStep, setCurrentStep] = useState(0);
-  const [authorizationCode, setAuthorizationCode] = useState<string>('');
-  const [accessToken, setAccessToken] = useState<string>('');
-  const [dpopProof, setDpopProof] = useState<DpopProof | null>(null);
-  const [keyPair, setKeyPair] = useState<{ publicKey: string; privateKey: string } | null>(null);
-  const [error, setError] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
+	const [mockServer] = useState(() => new MockDpopServer());
+	const [currentStep, setCurrentStep] = useState(0);
+	const [authorizationCode, setAuthorizationCode] = useState<string>('');
+	const [accessToken, setAccessToken] = useState<string>('');
+	const [dpopProof, setDpopProof] = useState<DpopProof | null>(null);
+	const [keyPair, setKeyPair] = useState<{ publicKey: string; privateKey: string } | null>(null);
+	const [error, setError] = useState<string>('');
+	const [isLoading, setIsLoading] = useState(false);
 
-  // Initialize mock server
-  useEffect(() => {
-    mockServer.start();
-    return () => mockServer.stop();
-  }, [mockServer]);
+	// Initialize mock server
+	useEffect(() => {
+		mockServer.start();
+		return () => mockServer.stop();
+	}, [mockServer]);
 
-  // Step 1: Generate Key Pair
-  const generateKeyPair = useCallback(() => {
-    try {
-      const keys = mockServer.generateKeyPair();
-      setKeyPair(keys);
-      setError('');
-      setCurrentStep(1);
-    } catch (err) {
-      setError('Failed to generate key pair');
-      console.error('Key pair generation error:', err);
-    }
-  }, [mockServer]);
+	// Step 1: Generate Key Pair
+	const generateKeyPair = useCallback(() => {
+		try {
+			const keys = mockServer.generateKeyPair();
+			setKeyPair(keys);
+			setError('');
+			setCurrentStep(1);
+		} catch (err) {
+			setError('Failed to generate key pair');
+			console.error('Key pair generation error:', err);
+		}
+	}, [mockServer]);
 
-  // Step 2: Create DPoP Proof
-  const createDpopProof = useCallback(() => {
-    if (!keyPair) return;
+	// Step 2: Create DPoP Proof
+	const createDpopProof = useCallback(() => {
+		if (!keyPair) return;
 
-    try {
-      const nonce = mockServer.generateNonce();
-      const proof = mockServer.createDpopProof('POST /dpop/auth', keyPair.privateKey, nonce);
-      setDpopProof(proof);
-      setError('');
-      setCurrentStep(2);
-    } catch (err) {
-      setError('Failed to create DPoP proof');
-      console.error('DPoP proof creation error:', err);
-    }
-  }, [keyPair, mockServer]);
+		try {
+			const nonce = mockServer.generateNonce();
+			const proof = mockServer.createDpopProof('POST /dpop/auth', keyPair.privateKey, nonce);
+			setDpopProof(proof);
+			setError('');
+			setCurrentStep(2);
+		} catch (err) {
+			setError('Failed to create DPoP proof');
+			console.error('DPoP proof creation error:', err);
+		}
+	}, [keyPair, mockServer]);
 
-  // Step 3: Get Authorization Code
-  const getAuthorizationCode = useCallback(() => {
-    try {
-      const code = mockServer.issueAuthorizationCode();
-      setAuthorizationCode(code);
-      setError('');
-      setCurrentStep(3);
-    } catch (err) {
-      setError('Failed to get authorization code');
-      console.error('Authorization code error:', err);
-    }
-  }, [mockServer]);
+	// Step 3: Get Authorization Code
+	const getAuthorizationCode = useCallback(() => {
+		try {
+			const code = mockServer.issueAuthorizationCode();
+			setAuthorizationCode(code);
+			setError('');
+			setCurrentStep(3);
+		} catch (err) {
+			setError('Failed to get authorization code');
+			console.error('Authorization code error:', err);
+		}
+	}, [mockServer]);
 
-  // Step 4: Exchange Code for Token
-  const exchangeCodeForToken = useCallback(async () => {
-    if (!dpopProof || !authorizationCode) return;
+	// Step 4: Exchange Code for Token
+	const exchangeCodeForToken = useCallback(async () => {
+		if (!dpopProof || !authorizationCode) return;
 
-    setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const tokenResponse = mockServer.exchangeCodeForToken(authorizationCode, dpopProof);
-      setAccessToken(tokenResponse.access_token);
-      setError('');
-      setCurrentStep(4);
-    } catch (err) {
-      setError('Failed to exchange code for token');
-      console.error('Token exchange error:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [dpopProof, authorizationCode, mockServer]);
+		setIsLoading(true);
+		try {
+			// Simulate API call
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  // Step 5: Use Token with DPoP Proof
-  const useTokenWithProof = useCallback(async () => {
-    if (!accessToken || !dpopProof) return;
+			const tokenResponse = mockServer.exchangeCodeForToken(authorizationCode, dpopProof);
+			setAccessToken(tokenResponse.access_token);
+			setError('');
+			setCurrentStep(4);
+		} catch (err) {
+			setError('Failed to exchange code for token');
+			console.error('Token exchange error:', err);
+		} finally {
+			setIsLoading(false);
+		}
+	}, [dpopProof, authorizationCode, mockServer]);
 
-    setIsLoading(true);
-    try {
-      // Create new DPoP proof for resource access
-      const nonce = mockServer.generateNonce();
-      mockServer.createDpopProof('GET /api/resource', keyPair!.privateKey, nonce);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Introspect token
-      const introspection = mockServer.introspectToken(accessToken);
-      
-      if (introspection.active) {
-        setError('');
-        setCurrentStep(5);
-      } else {
-        setError('Token is not active or invalid');
-      }
-    } catch (err) {
-      setError('Failed to use token with DPoP proof');
-      console.error('Token usage error:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [accessToken, dpopProof, keyPair, mockServer]);
+	// Step 5: Use Token with DPoP Proof
+	const useTokenWithProof = useCallback(async () => {
+		if (!accessToken || !dpopProof) return;
 
-  // Reset flow
-  const resetFlow = useCallback(() => {
-    setCurrentStep(0);
-    setAuthorizationCode('');
-    setAccessToken('');
-    setDpopProof(null);
-    setKeyPair(null);
-    setError('');
-    setIsLoading(false);
-  }, []);
+		setIsLoading(true);
+		try {
+			// Create new DPoP proof for resource access
+			const nonce = mockServer.generateNonce();
+			mockServer.createDpopProof('GET /api/resource', keyPair!.privateKey, nonce);
 
-  const steps = [
-    {
-      title: 'Generate Key Pair',
-      description: 'Create a public/private key pair for DPoP proof generation',
-      icon: <FiKey />,
-    },
-    {
-      title: 'Create DPoP Proof',
-      description: 'Generate a DPoP proof JWT to demonstrate possession of the private key',
-      icon: <FiShield />,
-    },
-    {
-      title: 'Get Authorization Code',
-      description: 'Request authorization code from the mock DPoP server',
-      icon: <FiRefreshCw />,
-    },
-    {
-      title: 'Exchange Code for Token',
-      description: 'Exchange authorization code for DPoP-bound access token',
-      icon: <FiUnlock />,
-    },
-    {
-      title: 'Use Token with DPoP',
-      description: 'Access protected resource using DPoP-bound token with proof',
-      icon: <FiCheckCircle />,
-    },
-  ];
+			// Simulate API call
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  return (
-    <Container>
-      <Header>
-        <Title>🔐 DPoP Authorization Code Flow (V8)</Title>
-        <Subtitle>
-          Learn OAuth 2.0 Demonstrating Proof of Possession (DPoP) - RFC 9449. 
-          Since PingOne doesn't support DPoP natively, this implementation uses a mock server 
-          to demonstrate the concept and allow hands-on learning.
-        </Subtitle>
-      </Header>
+			// Introspect token
+			const introspection = mockServer.introspectToken(accessToken);
 
-      <Section>
-        <SectionTitle>
-          <FiShield />
-          About DPoP
-        </SectionTitle>
-        <InfoBox>
-          <strong>What is DPoP?</strong><br />
-          DPoP (Demonstrating Proof of Possession) is an OAuth 2.0 security enhancement that binds tokens 
-          to a cryptographic key pair. This prevents token theft and misuse by requiring the client 
-          to prove possession of the private key when presenting the token.
-        </InfoBox>
-        
-        <InfoBox>
-          <strong>Key Benefits:</strong><br />
-          • Prevents token replay attacks<br />
-          • Protects against token leakage<br />
-          • Enables sender-constrained tokens<br />
-          • Works with browser-based applications<br />
-          • Complements TLS security
-        </InfoBox>
+			if (introspection.active) {
+				setError('');
+				setCurrentStep(5);
+			} else {
+				setError('Token is not active or invalid');
+			}
+		} catch (err) {
+			setError('Failed to use token with DPoP proof');
+			console.error('Token usage error:', err);
+		} finally {
+			setIsLoading(false);
+		}
+	}, [accessToken, dpopProof, keyPair, mockServer]);
 
-        <WarningBox>
-          <strong>⚠️ Educational Implementation:</strong><br/>
-          This is a mock implementation for learning purposes. The "DPoP server" is simulated in the browser 
-          and does not provide real cryptographic security. In production, use a proper OAuth 2.0 
-          authorization server with DPoP support.
-        </WarningBox>
-      </Section>
+	// Reset flow
+	const resetFlow = useCallback(() => {
+		setCurrentStep(0);
+		setAuthorizationCode('');
+		setAccessToken('');
+		setDpopProof(null);
+		setKeyPair(null);
+		setError('');
+		setIsLoading(false);
+	}, []);
 
-      <Section>
-        <SectionTitle>
-          <FiActivity />
-          Flow Progress
-        </SectionTitle>
-        
-        {steps.map((step, index) => (
-          <StepIndicator key={index} $active={currentStep === index} $completed={currentStep > index}>
-            <StepNumber $active={currentStep === index} $completed={currentStep > index}>
-              {currentStep > index ? '✓' : index + 1}
-            </StepNumber>
-            <StepContent>
-              <StepTitle>{step.title}</StepTitle>
-              <StepDescription>{step.description}</StepDescription>
-            </StepContent>
-          </StepIndicator>
-        ))}
-      </Section>
+	const steps = [
+		{
+			title: 'Generate Key Pair',
+			description: 'Create a public/private key pair for DPoP proof generation',
+			icon: <FiKey />,
+		},
+		{
+			title: 'Create DPoP Proof',
+			description: 'Generate a DPoP proof JWT to demonstrate possession of the private key',
+			icon: <FiShield />,
+		},
+		{
+			title: 'Get Authorization Code',
+			description: 'Request authorization code from the mock DPoP server',
+			icon: <FiRefreshCw />,
+		},
+		{
+			title: 'Exchange Code for Token',
+			description: 'Exchange authorization code for DPoP-bound access token',
+			icon: <FiUnlock />,
+		},
+		{
+			title: 'Use Token with DPoP',
+			description: 'Access protected resource using DPoP-bound token with proof',
+			icon: <FiCheckCircle />,
+		},
+	];
 
-      <Section>
-        <SectionTitle>
-          <FiCpu />
-          Mock DPoP Server Status
-        </SectionTitle>
-        
-        <div style={{ marginBottom: '1rem' }}>
-          <strong>Status: </strong>
-          <span style={{ 
-            color: mockServer.getState().isRunning ? '#16a34a' : '#dc2626',
-            marginLeft: '0.5rem'
-          }}>
-            {mockServer.getState().isRunning ? '🟢 Running' : '🔴 Stopped'}
-          </span>
-        </div>
+	return (
+		<Container>
+			<Header>
+				<Title>🔐 DPoP Authorization Code Flow (V8)</Title>
+				<Subtitle>
+					Learn OAuth 2.0 Demonstrating Proof of Possession (DPoP) - RFC 9449. Since PingOne doesn't
+					support DPoP natively, this implementation uses a mock server to demonstrate the concept
+					and allow hands-on learning.
+				</Subtitle>
+			</Header>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <strong>Issued Tokens: </strong>
-          <span style={{ marginLeft: '0.5rem' }}>
-            {mockServer.getState().issuedTokens.length}
-          </span>
-        </div>
+			<Section>
+				<SectionTitle>
+					<FiShield />
+					About DPoP
+				</SectionTitle>
+				<InfoBox>
+					<strong>What is DPoP?</strong>
+					<br />
+					DPoP (Demonstrating Proof of Possession) is an OAuth 2.0 security enhancement that binds
+					tokens to a cryptographic key pair. This prevents token theft and misuse by requiring the
+					client to prove possession of the private key when presenting the token.
+				</InfoBox>
 
-        <Button 
-          onClick={() => mockServer.start()} 
-          disabled={mockServer.getState().isRunning}
-          $variant="secondary"
-        >
-          Start Server
-        </Button>
-        
-        <Button 
-          onClick={() => mockServer.stop()} 
-          disabled={!mockServer.getState().isRunning}
-          $variant="danger"
-          style={{ marginLeft: '1rem' }}
-        >
-          Stop Server
-        </Button>
-      </Section>
+				<InfoBox>
+					<strong>Key Benefits:</strong>
+					<br />• Prevents token replay attacks
+					<br />• Protects against token leakage
+					<br />• Enables sender-constrained tokens
+					<br />• Works with browser-based applications
+					<br />• Complements TLS security
+				</InfoBox>
 
-      {currentStep === 0 && (
-        <Section>
-          <SectionTitle>
-            <FiKey />
-            Step 1: Generate Key Pair
-          </SectionTitle>
-          <InfoBox>
-            First, generate a public/private key pair that will be used to create DPoP proofs. 
-            In a real implementation, this would use proper cryptographic libraries.
-          </InfoBox>
-          
-          <Button onClick={generateKeyPair} $variant="primary">
-            Generate Key Pair
-          </Button>
-          
-          {keyPair && (
-            <div>
-              <h4>Generated Key Pair:</h4>
-              <TokenDisplay>
-                <strong>Public Key:</strong><br />
-                {keyPair.publicKey}<br /><br />
-                <strong>Private Key:</strong><br />
-                {keyPair.privateKey}
-              </TokenDisplay>
-            </div>
-          )}
-        </Section>
-      )}
+				<WarningBox>
+					<strong>⚠️ Educational Implementation:</strong>
+					<br />
+					This is a mock implementation for learning purposes. The "DPoP server" is simulated in the
+					browser and does not provide real cryptographic security. In production, use a proper
+					OAuth 2.0 authorization server with DPoP support.
+				</WarningBox>
+			</Section>
 
-      {currentStep === 1 && (
-        <Section>
-          <SectionTitle>
-            <FiShield />
-            Step 2: Create DPoP Proof
-          </SectionTitle>
-          <InfoBox>
-            Create a DPoP proof JWT that demonstrates possession of the private key. 
-            The proof includes HTTP method, timestamp, nonce, and is signed with the private key.
-          </InfoBox>
-          
-          <Button onClick={createDpopProof} $variant="primary">
-            Create DPoP Proof
-          </Button>
-          
-          {dpopProof && (
-            <div>
-              <h4>DPoP Proof JWT:</h4>
-              <ProofDisplay>
-                {JSON.stringify(dpopProof, null, 2)}
-              </ProofDisplay>
-              
-              <Grid>
-                <Column>
-                  <strong>Header:</strong><br />
-                  {dpopProof.htm}
-                </Column>
-                <Column>
-                  <strong>Type:</strong><br />
-                  {dpopProof.typ}
-                </Column>
-                <Column>
-                  <strong>Algorithm:</strong><br />
-                  {dpopProof.alg}
-                </Column>
-                <Column>
-                  <strong>Expires:</strong><br />
-                  {new Date(dpopProof.exp * 1000).toLocaleString()}
-                </Column>
-                <Column>
-                  <strong>Nonce:</strong><br />
-                  {dpopProof.nonce || 'None'}
-                </Column>
-              </Grid>
-            </div>
-          )}
-        </Section>
-      )}
+			<Section>
+				<SectionTitle>
+					<FiActivity />
+					Flow Progress
+				</SectionTitle>
 
-      {currentStep === 2 && (
-        <Section>
-          <SectionTitle>
-            <FiRefreshCw />
-            Step 3: Get Authorization Code
-          </SectionTitle>
-          <InfoBox>
-            Request an authorization code from the mock DPoP server. 
-            In a real implementation, this would redirect the user to the authorization server.
-          </InfoBox>
-          
-          <Button onClick={getAuthorizationCode} $variant="primary">
-            Get Authorization Code
-          </Button>
-          
-          {authorizationCode && (
-            <div>
-              <h4>Authorization Code:</h4>
-              <TokenDisplay>
-                {authorizationCode}
-              </TokenDisplay>
-              
-              <InfoBox>
-                This code would normally be exchanged for an access token at the token endpoint.
-                In this demo, you'll exchange it in the next step.
-              </InfoBox>
-            </div>
-          )}
-        </Section>
-      )}
+				{steps.map((step, index) => (
+					<StepIndicator
+						key={index}
+						$active={currentStep === index}
+						$completed={currentStep > index}
+					>
+						<StepNumber $active={currentStep === index} $completed={currentStep > index}>
+							{currentStep > index ? '✓' : index + 1}
+						</StepNumber>
+						<StepContent>
+							<StepTitle>{step.title}</StepTitle>
+							<StepDescription>{step.description}</StepDescription>
+						</StepContent>
+					</StepIndicator>
+				))}
+			</Section>
 
-      {currentStep === 3 && (
-        <Section>
-          <SectionTitle>
-            <FiUnlock />
-            Step 4: Exchange Code for Token
-          </SectionTitle>
-          <InfoBox>
-            Exchange the authorization code for a DPoP-bound access token. 
-            The token will be bound to your public key via the DPoP proof.
-          </InfoBox>
-          
-          <Button 
-            onClick={exchangeCodeForToken} 
-            $variant="primary"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Exchanging...' : 'Exchange Code for Token'}
-          </Button>
-          
-          {accessToken && (
-            <div>
-              <h4>Access Token:</h4>
-              <TokenDisplay>
-                {accessToken}
-              </TokenDisplay>
-              
-              <Grid>
-                <Column>
-                  <strong>Type:</strong><br />
-                  {mockServer.getState().issuedTokens[mockServer.getState().issuedTokens.length - 1]?.token_type}
-                </Column>
-                <Column>
-                  <strong>Scope:</strong><br />
-                  {mockServer.getState().issuedTokens[mockServer.getState().issuedTokens.length - 1]?.scope}
-                </Column>
-                <Column>
-                  <strong>DPoP JKT:</strong><br />
-                  {mockServer.getState().issuedTokens[mockServer.getState().issuedTokens.length - 1]?.dpop_jkt}
-                </Column>
-              </Grid>
-              
-              <SuccessBox>
-                ✅ Token successfully bound to your public key! The token can only be used by someone 
-                who possesses the corresponding private key.
-              </SuccessBox>
-            </div>
-          )}
-        </Section>
-      )}
+			<Section>
+				<SectionTitle>
+					<FiCpu />
+					Mock DPoP Server Status
+				</SectionTitle>
 
-      {currentStep === 4 && (
-        <Section>
-          <SectionTitle>
-            <FiCheckCircle />
-            Step 5: Use Token with DPoP
-          </SectionTitle>
-          <InfoBox>
-            Access a protected resource using the DPoP-bound token. 
-            Each request must include a fresh DPoP proof to demonstrate possession of the private key.
-          </InfoBox>
-          
-          <Button 
-            onClick={useTokenWithProof} 
-            $variant="primary"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Accessing Resource...' : 'Access Protected Resource'}
-          </Button>
-          
-          {currentStep >= 5 && (
-            <div>
-              <h4>Resource Access Successful!</h4>
-              <SuccessBox>
-                ✅ You successfully demonstrated the complete DPoP flow:<br />
-                1. Generated key pair<br />
-                2. Created DPoP proof<br />
-                3. Obtained authorization code<br />
-                4. Exchanged for DPoP-bound token<br />
-                5. Accessed resource with DPoP proof
-              </SuccessBox>
-              
-              <Button onClick={resetFlow} $variant="secondary">
-                Start Over
-              </Button>
-            </div>
-          )}
-        </Section>
-      )}
+				<div style={{ marginBottom: '1rem' }}>
+					<strong>Status: </strong>
+					<span
+						style={{
+							color: mockServer.getState().isRunning ? '#16a34a' : '#dc2626',
+							marginLeft: '0.5rem',
+						}}
+					>
+						{mockServer.getState().isRunning ? '🟢 Running' : '🔴 Stopped'}
+					</span>
+				</div>
 
-      {error && (
-        <Section>
-          <SectionTitle>
-            <FiAlertTriangle />
-            Error
-          </SectionTitle>
-          <ErrorBox>
-            {error}
-          </ErrorBox>
-          <Button onClick={resetFlow} $variant="secondary">
-            Try Again
-          </Button>
-        </Section>
-      )}
+				<div style={{ marginBottom: '1rem' }}>
+					<strong>Issued Tokens: </strong>
+					<span style={{ marginLeft: '0.5rem' }}>{mockServer.getState().issuedTokens.length}</span>
+				</div>
 
-      <Section>
-        <SectionTitle>
-          <FiBook />
-          Server Logs
-        </SectionTitle>
-        <div style={{ 
-          background: '#1f2937', 
-          color: '#f3f4f6', 
-          borderRadius: '8px', 
-          padding: '1rem', 
-          maxHeight: '300px', 
-          overflowY: 'auto',
-          fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
-          fontSize: '0.75rem',
-          lineHeight: '1.4'
-        }}>
-          {mockServer.getLogs().map((log, index) => (
-            <div key={index} style={{ marginBottom: '0.5rem' }}>
-              {log}
-            </div>
-          ))}
-        </div>
-      </Section>
+				<Button
+					onClick={() => mockServer.start()}
+					disabled={mockServer.getState().isRunning}
+					$variant="secondary"
+				>
+					Start Server
+				</Button>
 
-      <Section>
-        <SectionTitle>
-          <FiCode />
-          Learn More About DPoP
-        </SectionTitle>
-        <InfoBox>
-          <strong>Official Resources:</strong><br />
-          • <a href="https://www.rfc-editor.org/rfc/rfc9449.html" target="_blank" rel="noopener noreferrer">RFC 9449 - OAuth 2.0 Demonstrating Proof of Possession (DPoP)</a><br />
-          • <a href="https://www.pingidentity.com/pingone/" target="_blank" rel="noopener noreferrer">PingOne Documentation</a>
-        </InfoBox>
-        
-        <InfoBox>
-          <strong>Key Concepts:</strong><br />
-          • <strong>DPoP Proof JWT:</strong> Signed JWT demonstrating key possession<br />
-          • <strong>Token Binding:</strong> Access tokens bound to public keys<br />
-          • <strong>Nonce:</strong> Server-provided value to prevent pre-computed proofs<br />
-          <strong>HTM:</strong> HTTP method and target URI<br />
-          • <strong>JKT:</strong> JSON Web Key Thumbprint for key identification
-        </InfoBox>
-        
-        <InfoBox>
-          <strong>Implementation Notes:</strong><br />
-          • This demo uses mock cryptography for educational purposes<br />
-          • Real implementations should use proper crypto libraries<br />
-          • DPoP complements but does not replace TLS security<br />
-          • PingOne does not currently support DPoP natively
-        </InfoBox>
-      </Section>
-    </Container>
-  );
+				<Button
+					onClick={() => mockServer.stop()}
+					disabled={!mockServer.getState().isRunning}
+					$variant="danger"
+					style={{ marginLeft: '1rem' }}
+				>
+					Stop Server
+				</Button>
+			</Section>
+
+			{currentStep === 0 && (
+				<Section>
+					<SectionTitle>
+						<FiKey />
+						Step 1: Generate Key Pair
+					</SectionTitle>
+					<InfoBox>
+						First, generate a public/private key pair that will be used to create DPoP proofs. In a
+						real implementation, this would use proper cryptographic libraries.
+					</InfoBox>
+
+					<Button onClick={generateKeyPair} $variant="primary">
+						Generate Key Pair
+					</Button>
+
+					{keyPair && (
+						<div>
+							<h4>Generated Key Pair:</h4>
+							<TokenDisplay>
+								<strong>Public Key:</strong>
+								<br />
+								{keyPair.publicKey}
+								<br />
+								<br />
+								<strong>Private Key:</strong>
+								<br />
+								{keyPair.privateKey}
+							</TokenDisplay>
+						</div>
+					)}
+				</Section>
+			)}
+
+			{currentStep === 1 && (
+				<Section>
+					<SectionTitle>
+						<FiShield />
+						Step 2: Create DPoP Proof
+					</SectionTitle>
+					<InfoBox>
+						Create a DPoP proof JWT that demonstrates possession of the private key. The proof
+						includes HTTP method, timestamp, nonce, and is signed with the private key.
+					</InfoBox>
+
+					<Button onClick={createDpopProof} $variant="primary">
+						Create DPoP Proof
+					</Button>
+
+					{dpopProof && (
+						<div>
+							<h4>DPoP Proof JWT:</h4>
+							<ProofDisplay>{JSON.stringify(dpopProof, null, 2)}</ProofDisplay>
+
+							<Grid>
+								<Column>
+									<strong>Header:</strong>
+									<br />
+									{dpopProof.htm}
+								</Column>
+								<Column>
+									<strong>Type:</strong>
+									<br />
+									{dpopProof.typ}
+								</Column>
+								<Column>
+									<strong>Algorithm:</strong>
+									<br />
+									{dpopProof.alg}
+								</Column>
+								<Column>
+									<strong>Expires:</strong>
+									<br />
+									{new Date(dpopProof.exp * 1000).toLocaleString()}
+								</Column>
+								<Column>
+									<strong>Nonce:</strong>
+									<br />
+									{dpopProof.nonce || 'None'}
+								</Column>
+							</Grid>
+						</div>
+					)}
+				</Section>
+			)}
+
+			{currentStep === 2 && (
+				<Section>
+					<SectionTitle>
+						<FiRefreshCw />
+						Step 3: Get Authorization Code
+					</SectionTitle>
+					<InfoBox>
+						Request an authorization code from the mock DPoP server. In a real implementation, this
+						would redirect the user to the authorization server.
+					</InfoBox>
+
+					<Button onClick={getAuthorizationCode} $variant="primary">
+						Get Authorization Code
+					</Button>
+
+					{authorizationCode && (
+						<div>
+							<h4>Authorization Code:</h4>
+							<TokenDisplay>{authorizationCode}</TokenDisplay>
+
+							<InfoBox>
+								This code would normally be exchanged for an access token at the token endpoint. In
+								this demo, you'll exchange it in the next step.
+							</InfoBox>
+						</div>
+					)}
+				</Section>
+			)}
+
+			{currentStep === 3 && (
+				<Section>
+					<SectionTitle>
+						<FiUnlock />
+						Step 4: Exchange Code for Token
+					</SectionTitle>
+					<InfoBox>
+						Exchange the authorization code for a DPoP-bound access token. The token will be bound
+						to your public key via the DPoP proof.
+					</InfoBox>
+
+					<Button onClick={exchangeCodeForToken} $variant="primary" disabled={isLoading}>
+						{isLoading ? 'Exchanging...' : 'Exchange Code for Token'}
+					</Button>
+
+					{accessToken && (
+						<div>
+							<h4>Access Token:</h4>
+							<TokenDisplay>{accessToken}</TokenDisplay>
+
+							<Grid>
+								<Column>
+									<strong>Type:</strong>
+									<br />
+									{
+										mockServer.getState().issuedTokens[
+											mockServer.getState().issuedTokens.length - 1
+										]?.token_type
+									}
+								</Column>
+								<Column>
+									<strong>Scope:</strong>
+									<br />
+									{
+										mockServer.getState().issuedTokens[
+											mockServer.getState().issuedTokens.length - 1
+										]?.scope
+									}
+								</Column>
+								<Column>
+									<strong>DPoP JKT:</strong>
+									<br />
+									{
+										mockServer.getState().issuedTokens[
+											mockServer.getState().issuedTokens.length - 1
+										]?.dpop_jkt
+									}
+								</Column>
+							</Grid>
+
+							<SuccessBox>
+								✅ Token successfully bound to your public key! The token can only be used by
+								someone who possesses the corresponding private key.
+							</SuccessBox>
+						</div>
+					)}
+				</Section>
+			)}
+
+			{currentStep === 4 && (
+				<Section>
+					<SectionTitle>
+						<FiCheckCircle />
+						Step 5: Use Token with DPoP
+					</SectionTitle>
+					<InfoBox>
+						Access a protected resource using the DPoP-bound token. Each request must include a
+						fresh DPoP proof to demonstrate possession of the private key.
+					</InfoBox>
+
+					<Button onClick={useTokenWithProof} $variant="primary" disabled={isLoading}>
+						{isLoading ? 'Accessing Resource...' : 'Access Protected Resource'}
+					</Button>
+
+					{currentStep >= 5 && (
+						<div>
+							<h4>Resource Access Successful!</h4>
+							<SuccessBox>
+								✅ You successfully demonstrated the complete DPoP flow:
+								<br />
+								1. Generated key pair
+								<br />
+								2. Created DPoP proof
+								<br />
+								3. Obtained authorization code
+								<br />
+								4. Exchanged for DPoP-bound token
+								<br />
+								5. Accessed resource with DPoP proof
+							</SuccessBox>
+
+							<Button onClick={resetFlow} $variant="secondary">
+								Start Over
+							</Button>
+						</div>
+					)}
+				</Section>
+			)}
+
+			{error && (
+				<Section>
+					<SectionTitle>
+						<FiAlertTriangle />
+						Error
+					</SectionTitle>
+					<ErrorBox>{error}</ErrorBox>
+					<Button onClick={resetFlow} $variant="secondary">
+						Try Again
+					</Button>
+				</Section>
+			)}
+
+			<Section>
+				<SectionTitle>
+					<FiBook />
+					Server Logs
+				</SectionTitle>
+				<div
+					style={{
+						background: '#1f2937',
+						color: '#f3f4f6',
+						borderRadius: '8px',
+						padding: '1rem',
+						maxHeight: '300px',
+						overflowY: 'auto',
+						fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+						fontSize: '0.75rem',
+						lineHeight: '1.4',
+					}}
+				>
+					{mockServer.getLogs().map((log, index) => (
+						<div key={index} style={{ marginBottom: '0.5rem' }}>
+							{log}
+						</div>
+					))}
+				</div>
+			</Section>
+
+			<Section>
+				<SectionTitle>
+					<FiCode />
+					Learn More About DPoP
+				</SectionTitle>
+				<InfoBox>
+					<strong>Official Resources:</strong>
+					<br />•{' '}
+					<a
+						href="https://www.rfc-editor.org/rfc/rfc9449.html"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						RFC 9449 - OAuth 2.0 Demonstrating Proof of Possession (DPoP)
+					</a>
+					<br />•{' '}
+					<a href="https://www.pingidentity.com/pingone/" target="_blank" rel="noopener noreferrer">
+						PingOne Documentation
+					</a>
+				</InfoBox>
+
+				<InfoBox>
+					<strong>Key Concepts:</strong>
+					<br />• <strong>DPoP Proof JWT:</strong> Signed JWT demonstrating key possession
+					<br />• <strong>Token Binding:</strong> Access tokens bound to public keys
+					<br />• <strong>Nonce:</strong> Server-provided value to prevent pre-computed proofs
+					<br />
+					<strong>HTM:</strong> HTTP method and target URI
+					<br />• <strong>JKT:</strong> JSON Web Key Thumbprint for key identification
+				</InfoBox>
+
+				<InfoBox>
+					<strong>Implementation Notes:</strong>
+					<br />• This demo uses mock cryptography for educational purposes
+					<br />• Real implementations should use proper crypto libraries
+					<br />• DPoP complements but does not replace TLS security
+					<br />• PingOne does not currently support DPoP natively
+				</InfoBox>
+			</Section>
+		</Container>
+	);
 };
 
 export default DpopAuthorizationCodeFlowV8;

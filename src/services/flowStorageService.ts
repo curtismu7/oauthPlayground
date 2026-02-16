@@ -146,6 +146,8 @@ export interface AdvancedParametersData {
  * Ensures consistent naming across the application
  */
 class StorageKeys {
+	private constructor() {}
+
 	/**
 	 * Generate key for authorization code
 	 */
@@ -253,6 +255,8 @@ class StorageKeys {
  * Manages authorization code storage
  */
 export class AuthCodeStorage {
+	private constructor() {}
+
 	/**
 	 * Store authorization code for a flow
 	 * @param flowId - The flow identifier
@@ -334,6 +338,8 @@ export class AuthCodeStorage {
  * Manages device code storage (for Device Authorization Flow)
  */
 export class DeviceCodeStorage {
+	private constructor() {}
+
 	/**
 	 * Store device code data
 	 * @param flowId - The flow identifier
@@ -396,6 +402,8 @@ export class DeviceCodeStorage {
  * Manages OAuth/OIDC state parameter storage
  */
 export class StateStorage {
+	private constructor() {}
+
 	/**
 	 * Store state parameter
 	 * @param flowId - The flow identifier
@@ -446,6 +454,8 @@ export class StateStorage {
  * Manages PKCE (Proof Key for Code Exchange) storage
  */
 export class PKCEStorage {
+	private constructor() {}
+
 	/**
 	 * Store PKCE data
 	 * @param flowId - The flow identifier
@@ -500,6 +510,8 @@ export class PKCEStorage {
  * Manages flow state (current step, etc.)
  */
 export class FlowStateStorage {
+	private constructor() {}
+
 	/**
 	 * Set current step for a flow
 	 * @param flowId - The flow identifier
@@ -540,6 +552,8 @@ export class FlowStateStorage {
  * Manages flow credentials (client ID, secret, etc.)
  */
 export class CredentialsStorage {
+	private constructor() {}
+
 	/**
 	 * Store credentials for a flow
 	 * @param flowId - The flow identifier
@@ -612,6 +626,8 @@ export class CredentialsStorage {
  * Manages secure token storage
  */
 export class TokenStorage {
+	private constructor() {}
+
 	/**
 	 * Store tokens securely
 	 * @param tokens - The token data
@@ -667,6 +683,8 @@ export class TokenStorage {
  * Manages flow navigation and context
  */
 export class NavigationStorage {
+	private constructor() {}
+
 	/**
 	 * Store flow context
 	 * @param context - The flow navigation data
@@ -737,6 +755,8 @@ export class NavigationStorage {
  * Storage cleanup utilities
  */
 export class StorageCleanup {
+	private constructor() {}
+
 	/**
 	 * Clear all session data for a flow (keeps credentials and tokens)
 	 * @param flowId - The flow identifier
@@ -797,6 +817,8 @@ export class StorageCleanup {
  * Used for audience, resources, display, prompt, claims, etc.
  */
 export class AdvancedParametersStorage {
+	private constructor() {}
+
 	/**
 	 * Save advanced parameters for a flow
 	 * @param flowId - The flow identifier

@@ -69,7 +69,7 @@ The `kill-servers.sh` script safely terminates all OAuth Playground servers with
 ✅ Both ports are now free
 ✅ Ready for restart or other applications
 
-🔄 To restart servers: ./restart-servers.sh
+🔄 To restart servers: ./run.sh
 🔍 To check what's using ports: lsof -i :3000 -i :3001
 ```
 
@@ -95,7 +95,7 @@ The `kill-servers.sh` script safely terminates all OAuth Playground servers with
 🔍 You may need to manually kill remaining processes
    Frontend still on port 3000 (PID: 12345)
 
-🔄 To restart servers: ./restart-servers.sh
+🔄 To restart servers: ./run.sh
 🔍 To check what's using ports: lsof -i :3000 -i :3001
 ```
 
@@ -132,7 +132,7 @@ pkill -f server.js
 - ✅ You're switching to a different project
 - ✅ You're debugging server startup issues
 
-#### Use `restart-servers.sh` when:
+#### Use `run.sh` when:
 - ✅ You want to stop AND restart servers
 - ✅ You want a full system restart
 - ✅ You want health checks and status reports
@@ -165,7 +165,7 @@ You can use this script in combination with other scripts:
 
 ```bash
 # Kill then restart
-./kill-servers.sh && ./restart-servers.sh
+./kill-servers.sh && ./run.sh
 
 # Kill and check status
 ./kill-servers.sh && echo "Servers killed, ports are free"

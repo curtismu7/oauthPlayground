@@ -7,7 +7,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiMenu, FiPlane, FiSearch, FiX } from 'react-icons/fi';
+import { FiMenu, FiSearch, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
 
@@ -174,7 +174,8 @@ const MobileNavLink = styled.a`
 
 const SouthwestNavigation: React.FC = () => {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-	const theme = useBrandTheme();
+	const { activeTheme } = useBrandTheme();
+	const isCustomer = activeTheme.content?.customerTerminology ?? true;
 
 	const toggleMobileMenu = () => {
 		setMobileMenuOpen(!mobileMenuOpen);
@@ -186,10 +187,10 @@ const SouthwestNavigation: React.FC = () => {
 				<NavMain>
 					<NavMainContent>
 						<Logo>
-							{theme.logo?.url && (
-								<img src={theme.logo.url} alt={theme.logo.alt} />
+							{activeTheme.logo?.url && (
+								<img src={activeTheme.logo.url} alt={activeTheme.logo.alt} />
 							)}
-							{!theme.logo?.url && theme.logo?.text}
+							{!activeTheme.logo?.url && activeTheme.logo?.text}
 						</Logo>
 						
 						<NavLinks>
@@ -197,7 +198,7 @@ const SouthwestNavigation: React.FC = () => {
 							<NavLink href="#checkin">Check-In</NavLink>
 							<NavLink href="#mytrips">My Trips</NavLink>
 							<NavLink href="#rapidrewards">Rapid Rewards</NavLink>
-							<NavLink href="#employee">Employee Portal</NavLink>
+							<NavLink href="#employee">{isCustomer ? 'Customer Portal' : 'Employee Portal'}</NavLink>
 						</NavLinks>
 						
 						<NavActions>
@@ -205,7 +206,6 @@ const SouthwestNavigation: React.FC = () => {
 								<FiSearch size={20} />
 							</SearchButton>
 							<BookButton>
-								<FiPlane size={16} />
 								Book Flight
 							</BookButton>
 							<MobileMenuButton onClick={toggleMobileMenu}>
@@ -219,7 +219,7 @@ const SouthwestNavigation: React.FC = () => {
 			<MobileMenu isOpen={mobileMenuOpen}>
 				<MobileMenuHeader>
 					<Logo>
-						{theme.logo?.text}
+						{activeTheme.logo?.text}
 					</Logo>
 					<button type="button" onClick={toggleMobileMenu} style={{ background: 'none', border: 'none', color: 'white' }}>
 						<FiX size={24} />
@@ -230,7 +230,7 @@ const SouthwestNavigation: React.FC = () => {
 					<MobileNavLink href="#checkin">Check-In</MobileNavLink>
 					<MobileNavLink href="#mytrips">My Trips</MobileNavLink>
 					<MobileNavLink href="#rapidrewards">Rapid Rewards</MobileNavLink>
-					<MobileNavLink href="#employee">Employee Portal</MobileNavLink>
+					<MobileNavLink href="#employee">{isCustomer ? 'Customer Portal' : 'Employee Portal'}</MobileNavLink>
 				</MobileMenuContent>
 			</MobileMenu>
 		</>

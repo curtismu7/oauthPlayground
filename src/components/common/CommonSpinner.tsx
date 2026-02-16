@@ -70,15 +70,15 @@ const SpinnerContainer = styled.div<{
   gap: ${({ $size }) => ($size === 'sm' ? '8px' : $size === 'md' ? '12px' : '16px')};
   
   /* Variant styles */
-  ${({ $variant }) => {
+  ${({ $variant, $theme }) => {
 		switch ($variant) {
 			case 'inline':
 				return `
           display: inline-flex;
           padding: 8px 16px;
           border-radius: 6px;
-          background: ${({ $theme }) => themeConfig[$theme as keyof typeof themeConfig].secondary}20;
-          border: 1px solid ${({ $theme }) => themeConfig[$theme as keyof typeof themeConfig].primary}30;
+          background: ${themeConfig[$theme].secondary}20;
+          border: 1px solid ${themeConfig[$theme].primary}30;
         `;
 			case 'modal':
 				return `
@@ -87,7 +87,7 @@ const SpinnerContainer = styled.div<{
           border-radius: 12px;
           background: white;
           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-          border: 1px solid ${({ $theme }) => themeConfig[$theme as keyof typeof themeConfig].primary}20;
+          border: 1px solid ${themeConfig[$theme].primary}20;
           min-width: 280px;
           max-width: 400px;
         `;

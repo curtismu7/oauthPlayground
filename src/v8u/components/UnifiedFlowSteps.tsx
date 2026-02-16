@@ -9410,7 +9410,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}
 
 					// Handle non-200 responses
-					let errorData;
+					let errorData: { error?: string; error_description?: string };
 					let responseText = '';
 					try {
 						responseText = await response.text();
@@ -13217,8 +13217,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						setShowPollingTimeoutModal(false);
 					}
 				}}
+				tabIndex={-1}
 			>
-				<div
+				<section
 					style={{
 						backgroundColor: 'white',
 						borderRadius: '12px',
@@ -13230,9 +13231,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}}
 					onClick={(e) => e.stopPropagation()}
 					onKeyDown={(e) => e.stopPropagation()}
+					role="document"
 				>
 					{/* Header */}
-					<div style={{ textAlign: 'center', marginBottom: '24px' }}>
+					<header style={{ textAlign: 'center', marginBottom: '24px' }}>
 						<div style={{ fontSize: '64px', marginBottom: '16px' }}>⏱️</div>
 						<h2
 							id="polling-timeout-title"
@@ -13245,7 +13247,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						>
 							Polling Timeout
 						</h2>
-					</div>
+					</header>
 
 					{/* Message */}
 					<div
@@ -13368,7 +13370,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							Request New Device Code
 						</button>
 					</div>
-				</div>
+				</section>
 			</div>
 		);
 	};
@@ -13402,7 +13404,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}
 				}}
 			>
-				<div
+				<section
 					style={{
 						backgroundColor: 'white',
 						borderRadius: '12px',
@@ -13414,6 +13416,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}}
 					onClick={(e) => e.stopPropagation()}
 					onKeyDown={(e) => e.stopPropagation()}
+					role="document"
 				>
 					{/* Header */}
 					<div style={{ textAlign: 'center', marginBottom: '24px' }}>
@@ -13509,7 +13512,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							Continue to Tokens
 						</button>
 					</div>
-				</div>
+				</section>
 			</div>
 		);
 	};
@@ -13545,7 +13548,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}
 				}}
 			>
-				<div
+				<section
 					style={{
 						backgroundColor: 'white',
 						borderRadius: '12px',
@@ -13559,6 +13562,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}}
 					onClick={(e) => e.stopPropagation()}
 					onKeyDown={(e) => e.stopPropagation()}
+					role="document"
 				>
 					{/* Header - Compact */}
 					<div style={{ marginBottom: '16px', textAlign: 'center', flexShrink: 0 }}>
@@ -13919,7 +13923,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					>
 						Close
 					</button>
-				</div>
+				</section>
 			</div>
 		);
 	};
@@ -14513,6 +14517,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			{/* PingOne Request Details Modal */}
 			{showPingOneRequestModal && pendingPingOneRequest && (
 				<div
+					role="dialog"
+					aria-modal="true"
+					aria-labelledby="pingone-request-title"
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -14526,18 +14533,27 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						zIndex: 10000,
 					}}
 					onClick={() => setShowPingOneRequestModal(false)}
+					onKeyDown={(e) => {
+						if (e.key === 'Escape') {
+							setShowPingOneRequestModal(false);
+						}
+					}}
+					tabIndex={-1}
 				>
-					<div
+					<section
 						style={{
 							backgroundColor: 'white',
 							borderRadius: '8px',
 							padding: '24px',
 							maxWidth: '800px',
+							width: '90%',
 							maxHeight: '90vh',
 							overflow: 'auto',
-							boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
 						}}
 						onClick={(e) => e.stopPropagation()}
+						onKeyDown={(e) => e.stopPropagation()}
+						role="document"
 					>
 						<div
 							style={{
@@ -14661,7 +14677,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								Proceed to PingOne
 							</button>
 						</div>
-					</div>
+					</section>
 				</div>
 			)}
 

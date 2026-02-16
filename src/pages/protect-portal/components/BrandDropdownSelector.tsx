@@ -22,23 +22,25 @@ import TextLogo from './TextLogo';
 const DropdownContainer = styled.div`
   position: relative;
   display: inline-block;
+  z-index: 12000;
 `;
 
 const DropdownButton = styled.button`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  justify-content: space-between;
+  padding: 0.55rem 0.85rem;
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 0.85rem;
+  font-weight: 600;
   color: white;
   transition: all 0.2s ease;
   font-family: var(--brand-body-font);
-  min-width: 160px;
+  min-width: 120px;
   backdrop-filter: blur(10px);
 
   &:hover {
@@ -60,10 +62,33 @@ const DropdownButton = styled.button`
   }
 `;
 
+const CurrentBrandText = styled.span`
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const BrandIdentity = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  flex: 1;
+`;
+
+const LogoWrapper = styled.div<{ $width: string }>`
+  flex-shrink: 0;
+  width: ${({ $width }) => $width};
+`;
+
 const DropdownArrow = styled(FiChevronDown)<{ $rotate: boolean }>`
   transition: transform 0.2s ease;
   transform: ${({ $rotate }) => ($rotate ? 'rotate(180deg)' : 'rotate(0deg)')};
-  margin-left: auto;
+  flex-shrink: 0;
 `;
 
 const DropdownMenu = styled.div<{ $isOpen: boolean }>`
@@ -80,7 +105,8 @@ const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')};
   transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '-10px')});
   transition: all 0.2s ease;
-  z-index: 1000;
+  z-index: 12001;
+  min-width: 360px;
   max-height: 250px;
   overflow-y: auto;
 `;
@@ -90,7 +116,8 @@ const MenuItem = styled.button.withConfig({
 })<{ isActive: boolean }>`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: space-between;
+  gap: 0.75rem;
   width: 100%;
   padding: 0.75rem;
   background: ${({ isActive }) => (isActive ? 'rgba(0, 102, 204, 0.1)' : 'transparent')};
@@ -118,10 +145,14 @@ const MenuItem = styled.button.withConfig({
 `;
 
 const MenuItemText = styled.div`
-  flex: 1;
+  flex: 1 1 auto;
   text-align: left;
-  font-weight: 400;
-  font-size: 0.8rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #111827;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const CheckIcon = styled(FiCheck)`
@@ -136,6 +167,11 @@ const CheckIcon = styled(FiCheck)`
 interface BrandDropdownSelectorProps {
 	className?: string;
 	disabled?: boolean;
+}
+
+interface LogoSize {
+	width: string;
+	height: string;
 }
 
 // ============================================================================
@@ -179,6 +215,44 @@ const BrandDropdownSelector: React.FC<BrandDropdownSelectorProps> = ({
 		}
 	};
 
+	const getBrandLogoSize = (themeName: string, context: 'closed' | 'menu'): LogoSize => {
+		switch (themeName) {
+			case 'southwest-airlines':
+				return context === 'closed'
+					? { width: '74px', height: '22px' }
+					: { width: '78px', height: '24px' };
+			case 'american-airlines':
+				return context === 'closed'
+					? { width: '70px', height: '22px' }
+					: { width: '74px', height: '24px' };
+			case 'bank-of-america':
+				return context === 'closed'
+					? { width: '76px', height: '22px' }
+					: { width: '82px', height: '24px' };
+			case 'pingidentity':
+				return context === 'closed'
+					? { width: '74px', height: '22px' }
+					: { width: '80px', height: '24px' };
+			case 'fedex':
+				return context === 'closed'
+					? { width: '66px', height: '22px' }
+					: { width: '70px', height: '24px' };
+			case 'united-airlines':
+			default:
+				return context === 'closed'
+					? { width: '68px', height: '22px' }
+					: { width: '72px', height: '24px' };
+		}
+	};
+
+	const orderedThemes = [...availableThemes].sort((a, b) => {
+		if (a.name === 'pingidentity') return -1;
+		if (b.name === 'pingidentity') return 1;
+		return 0;
+	});
+
+	const activeLogoSize = getBrandLogoSize(activeTheme.name, 'closed');
+
 	return (
 		<DropdownContainer className={className} ref={dropdownRef}>
 			<DropdownButton
@@ -189,38 +263,53 @@ const BrandDropdownSelector: React.FC<BrandDropdownSelectorProps> = ({
 				aria-haspopup="listbox"
 				aria-label="Select company theme"
 			>
-				<TextLogo
-					text={activeTheme.logo.text || activeTheme.displayName}
-					colors={activeTheme.logo.colors || {}}
-					width="16px"
-					height="16px"
-					alt={activeTheme.logo.alt}
-				/>
+				<BrandIdentity>
+					<LogoWrapper $width={activeLogoSize.width}>
+						<TextLogo
+							text={activeTheme.logo?.text || activeTheme.displayName}
+							colors={activeTheme.logo?.colors || {}}
+							width={activeLogoSize.width}
+							height={activeLogoSize.height}
+							alt={activeTheme.logo?.alt || `${activeTheme.displayName} Logo`}
+						/>
+					</LogoWrapper>
+					<CurrentBrandText style={{ display: 'none' }}>{activeTheme.displayName}</CurrentBrandText>
+				</BrandIdentity>
 				<DropdownArrow $rotate={isOpen} />
 			</DropdownButton>
 
 			<DropdownMenu $isOpen={isOpen} role="listbox">
-				{availableThemes.map((theme) => (
-					<MenuItem
-						key={theme.name}
-						isActive={theme.name === activeTheme.name}
-						onClick={() => handleSelect(theme.name)}
-						role="option"
-						aria-selected={theme.name === activeTheme.name}
-					>
-						<TextLogo
-							text={theme.logo.text || theme.displayName}
-							colors={theme.logo.colors || {}}
-							width="14px"
-							height="14px"
-							alt={theme.logo.alt}
-						/>
-						<MenuItemText>
-							{theme.displayName}
-						</MenuItemText>
-						{theme.name === activeTheme.name && <CheckIcon />}
-					</MenuItem>
-				))}
+				{orderedThemes.map((theme) => {
+					const menuLogoSize = getBrandLogoSize(theme.name, 'menu');
+
+					return (
+						<MenuItem
+							key={theme.name}
+							isActive={theme.name === activeTheme.name}
+							onClick={() => handleSelect(theme.name)}
+							role="option"
+							aria-selected={theme.name === activeTheme.name}
+						>
+							<BrandIdentity>
+								<LogoWrapper $width={menuLogoSize.width}>
+									<TextLogo
+										text={theme.logo?.text || theme.displayName}
+										colors={theme.logo?.colors || {}}
+										width={menuLogoSize.width}
+										height={menuLogoSize.height}
+										alt={theme.logo?.alt || `${theme.displayName} Logo`}
+									/>
+								</LogoWrapper>
+								<MenuItemText>
+									{theme.name === 'pingidentity'
+										? `${theme.displayName} (Default)`
+										: theme.displayName}
+								</MenuItemText>
+							</BrandIdentity>
+							{theme.name === activeTheme.name && <CheckIcon />}
+						</MenuItem>
+					);
+				})}
 			</DropdownMenu>
 		</DropdownContainer>
 	);

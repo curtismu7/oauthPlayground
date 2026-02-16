@@ -28,7 +28,7 @@ If you cannot meet the above, do not proceed—explain what’s blocking (missin
 - Propose the smallest safe fix. Call out any risky/broad changes explicitly.
 
 2) Clean Restart Policy (required for flow/server-impacting work)
-- From repo root run: ./restart-servers.sh -quick
+- From repo root run: ./run.sh -quick
   (Fallback only if missing: ./restart.sh -quick)
 - Run restart BEFORE repro (clean baseline) and AFTER fix (before final verification).
 - Confirm services healthy per the guide.

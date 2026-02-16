@@ -407,7 +407,7 @@ const Navbar: React.FC<NavbarProps> = ({
 				<Logo>
 					<img src="/images/ping-identity-logo.png" alt="Ping Identity" />
 					<div>
-						<span>MasterFlow API</span>
+						<span>PingOne MasterFlow API</span>
 						<div className="user-info" aria-live="polite">
 							Version {APP_VERSION}
 						</div>

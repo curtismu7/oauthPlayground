@@ -48,7 +48,7 @@ const CustomLoginForm: React.FC<CustomLoginFormProps> = ({
 	// ============================================================================
 
 	return (
-		<PortalPageLayout title="Sign In">
+		<PortalPageLayout title="Sign In" showHeader={false}>
 			<PortalPageSection>
 				<BaseLoginForm
 					environmentId={environmentId}

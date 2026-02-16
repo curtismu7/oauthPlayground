@@ -48,6 +48,10 @@ import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { AuthenticationModalService } from '../../services/authenticationModalService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+// Education components
+import { EducationModeToggle } from '../../components/education/EducationModeToggle';
+import { MasterEducationSection } from '../../components/education/MasterEducationSection';
+import { V7EducationalContentService } from '../../services/v7EducationalContentDataService';
 import { callbackUriService } from '../../services/callbackUriService';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
@@ -783,6 +787,13 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	// Scroll to top on page load
 	usePageScroll({ pageName: 'OAuth Authorization Code Flow V7 - Complete', force: true });
 
+	const manualAuthCodeId = useId();
+	const controller = useAuthorizationCodeFlowController({
+		flowKey: 'oauth-authorization-code-v7',
+		defaultFlowVariant: 'oauth', // V7 defaults to OAuth 2.0
+		enableDebugger: true,
+	});
+
 	// Check credentials on mount and show warning if missing
 	useEffect(() => {
 		checkCredentialsAndWarn(controller.credentials, {
@@ -791,13 +802,6 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			showToast: true,
 		});
 	}, [controller.credentials]); // Only run once on mount
-
-	const manualAuthCodeId = useId();
-	const controller = useAuthorizationCodeFlowController({
-		flowKey: 'oauth-authorization-code-v7',
-		defaultFlowVariant: 'oauth', // V7 defaults to OAuth 2.0
-		enableDebugger: true,
-	});
 
 	const resolvedClientAuthMethod = useMemo<ClientAuthMethod>(() => {
 		const method = controller.credentials.clientAuthMethod;
@@ -3963,6 +3967,14 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 
 				{/* Flow Tracking Display - Development Only */}
 				{process.env.NODE_ENV === 'development' && <FlowTrackingDisplay />}
+
+				{/* Education Mode Toggle */}
+				<EducationModeToggle variant="buttons" showDescription={true} />
+
+				{/* Master Education Section */}
+				<MasterEducationSection 
+					sections={V7EducationalContentService.getMasterEducationContent('oauth-authorization-code-v7').sections}
+				/>
 
 				<EnhancedFlowInfoCard
 					flowType={flowVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'}

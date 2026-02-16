@@ -56,7 +56,7 @@ export interface ActionRowProps {
 
 export interface ButtonProps {
 	children: React.ReactNode;
-	variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'outline';
+	$variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'outline';
 	size?: 'sm' | 'md' | 'lg';
 	disabled?: boolean;
 	loading?: boolean;
@@ -706,8 +706,8 @@ export class FlowUIService {
 			width: ${({ fullWidth }) => (fullWidth ? '100%' : 'auto')};
 			opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
 
-			${({ variant }) => {
-				switch (variant) {
+			${({ $variant }) => {
+				switch ($variant) {
 					case 'primary':
 						return `
 							background-color: #3b82f6;
@@ -1408,7 +1408,7 @@ const ButtonStyled = FlowUIService.getButton()!;
 
 export const Button: React.FC<ButtonProps> = ({
 	children,
-	variant = 'primary',
+	$variant = 'primary',
 	size = 'md',
 	disabled = false,
 	loading = false,
@@ -1418,7 +1418,7 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
 	return (
 		<ButtonStyled
-			variant={variant}
+			$variant={$variant}
 			size={size}
 			disabled={disabled || loading}
 			{...(onClick ? { onClick } : {})}

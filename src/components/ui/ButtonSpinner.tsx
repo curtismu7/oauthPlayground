@@ -10,6 +10,7 @@ interface ButtonSpinnerProps {
 	loadingText?: string;
 	className?: string;
 	style?: React.CSSProperties;
+	onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 export const ButtonSpinner: React.FC<ButtonSpinnerProps> = ({
@@ -21,6 +22,7 @@ export const ButtonSpinner: React.FC<ButtonSpinnerProps> = ({
 	loadingText,
 	className = '',
 	style,
+	onClick,
 	...buttonProps
 }) => {
 	const renderContent = () => {
@@ -49,16 +51,15 @@ export const ButtonSpinner: React.FC<ButtonSpinnerProps> = ({
 	};
 
 	return (
-		<div
+		<button
 			className={className}
 			style={style}
-			role="button"
-			tabIndex={disabled ? -1 : 0}
-			aria-disabled={disabled || loading}
+			disabled={disabled || loading}
+			onClick={onClick}
 			{...buttonProps}
 		>
 			{renderContent()}
-		</div>
+		</button>
 	);
 };
 

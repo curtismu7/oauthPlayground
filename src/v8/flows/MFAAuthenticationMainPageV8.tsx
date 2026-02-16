@@ -74,6 +74,8 @@ import {
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
+import { EducationModeToggle } from '@/components/education/EducationModeToggle';
+import { MasterEducationSection } from '@/components/education/MasterEducationSection';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import {
 	MFADeviceSelectionInfoModal,
@@ -1692,6 +1694,55 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				subtitle="Unified authentication flow for all MFA device types"
 				gradient={PageHeaderGradients.mfaAuth}
 				textColor={PageHeaderTextColors.white}
+			/>
+
+			{/* Education Mode Toggle */}
+			<EducationModeToggle variant="buttons" />
+
+			{/* Master Education Section */}
+			<MasterEducationSection
+				flowType="mfa_authentication"
+				title="📚 MFA Authentication Education"
+				sections={[
+					{
+						id: 'mfa-authentication-overview',
+						title: 'MFA Authentication Overview',
+						icon: <FiShield />,
+						summary: 'Authenticate users with registered MFA devices - supports all 6 device types',
+						content: (
+							<div>
+								<p><strong>MFA Authentication Flow</strong> validates user identity using registered devices:</p>
+								<ul>
+									<li><strong>Device Selection</strong> - Choose from user's registered devices</li>
+									<li><strong>Challenge Handling</strong> - OTP codes, push notifications, or FIDO2 challenges</li>
+									<li><strong>Policy Enforcement</strong> - Respects MFA policies and device restrictions</li>
+									<li><strong>Username-less FIDO2</strong> - Supports passwordless authentication</li>
+									<li><strong>Real-time Status</strong> - Live updates on authentication progress</li>
+								</ul>
+								<p>This page provides a complete authentication experience for all MFA device types.</p>
+							</div>
+						),
+					},
+					{
+						id: 'authentication-flow',
+						title: 'Authentication Flow Steps',
+						icon: <FiKey />,
+						summary: 'Select user → Choose device → Complete challenge → Authentication success',
+						content: (
+							<div>
+								<p><strong>Authentication Process:</strong></p>
+								<ul>
+									<li><strong>Step 1: User Selection</strong> - Search and select user to authenticate</li>
+									<li><strong>Step 2: Device Selection</strong> - View and choose from registered devices</li>
+									<li><strong>Step 3: Challenge</strong> - Complete device-specific challenge (OTP, Push, FIDO2)</li>
+									<li><strong>Step 4: Verification</strong> - System validates response</li>
+									<li><strong>Step 5: Success</strong> - Authentication complete, access granted</li>
+								</ul>
+								<p>Each device type has optimized challenge flows for best user experience and security.</p>
+							</div>
+						),
+					},
+				]}
 			/>
 
 			{/* Postman Collection Download Buttons */}

@@ -186,23 +186,31 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 	const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 	const [currentMode, setCurrentMode] = useState<EducationMode>(mode || EducationPreferenceService.getEducationMode());
 
-	// Listen for preference changes via storage events
+	// Listen for preference changes via storage events and custom events
 	useEffect(() => {
-		const handleStorageChange = (event: StorageEvent) => {
-			if (event.key === 'oauth_education_preference') {
-				const newMode = mode || EducationPreferenceService.getEducationMode();
-				console.log('[MasterEducationSection] Mode changed to:', newMode);
-				setCurrentMode(newMode);
-			}
+		const handleModeChange = () => {
+			const newMode = mode || EducationPreferenceService.getEducationMode();
+			console.log('[MasterEducationSection] Mode changed to:', newMode);
+			setCurrentMode(newMode);
 		};
 
-		// Listen for storage events
-		window.addEventListener('storage', handleStorageChange);
+		// Listen for storage events (from other tabs/windows)
+		window.addEventListener('storage', handleModeChange);
+		
+		// Also poll for changes (fallback for same-window updates)
+		const pollInterval = setInterval(() => {
+			const latestMode = mode || EducationPreferenceService.getEducationMode();
+			if (latestMode !== currentMode) {
+				console.log('[MasterEducationSection] Mode changed via polling:', latestMode);
+				setCurrentMode(latestMode);
+			}
+		}, 100); // Poll every 100ms
 
 		return () => {
-			window.removeEventListener('storage', handleStorageChange);
+			window.removeEventListener('storage', handleModeChange);
+			clearInterval(pollInterval);
 		};
-	}, [mode]);
+	}, [mode, currentMode]);
 
 	const toggleSection = useCallback(() => {
 		setIsExpanded(prev => !prev);

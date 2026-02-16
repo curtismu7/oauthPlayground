@@ -604,6 +604,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 					},
 					{
+						id: 'create-company',
+						path: '/admin/create-company',
+						label: '🏢 Create Company',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiSettings />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Create new company themes and configurations for Protect Portal">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
 						id: 'sdk-examples',
 						path: '/sdk-examples',
 						label: 'SDK Examples',
@@ -630,6 +645,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						badge: (
 							<MigrationBadge title="View persistent debug logs that survive redirects">
 								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'token-exchange-v7',
+						path: '/flows/token-exchange-v7',
+						label: 'Token Exchange (V8M)',
+						icon: (
+							<ColoredIcon $color="#7c3aed">
+								<FiRefreshCw />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="PingOne Token Exchange (RFC 8693) - New Feature Implementation">
+								<FiCheckCircle />
 							</MigrationBadge>
 						),
 					},
@@ -1046,21 +1076,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				),
 				isOpen: true,
 				items: [
-					{
-						id: 'token-exchange-v7',
-						path: '/flows/token-exchange-v7',
-						label: 'Token Exchange (V8M)',
-						icon: (
-							<ColoredIcon $color="#7c3aed">
-								<FiRefreshCw />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V8M: RFC 8693 Token Exchange">
-								<FiCheckCircle />
-							</MigrationBadge>
-						),
-					},
 					{
 						id: 'worker-token-v7',
 						path: '/flows/worker-token-v7',

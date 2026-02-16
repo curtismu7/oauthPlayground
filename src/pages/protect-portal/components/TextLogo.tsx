@@ -9,14 +9,14 @@
  * when image logos are not available or practical.
  */
 
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================
 
-const LogoContainer = styled.div<{ width: string; height: string }>`
+const LogoContainer = styled.div<{ width: string; height: string; $plain?: boolean }>`
   width: ${({ width }) => width};
   height: ${({ height }) => height};
   display: flex;
@@ -25,15 +25,22 @@ const LogoContainer = styled.div<{ width: string; height: string }>`
   font-weight: 600;
   font-family: var(--brand-heading-font);
   border-radius: var(--brand-radius-sm);
-  background: var(--brand-surface);
-  border: 1px solid var(--brand-border);
-  box-shadow: var(--brand-shadow-sm);
+  background: ${({ $plain }) => ($plain ? 'transparent' : 'var(--brand-surface)')};
+  border: ${({ $plain }) => ($plain ? 'none' : '1px solid var(--brand-border)')};
+  box-shadow: ${({ $plain }) => ($plain ? 'none' : 'var(--brand-shadow-sm)')};
   transition: var(--brand-transition);
 
   &:hover {
     transform: scale(1.02);
-    box-shadow: var(--brand-shadow-md);
+    box-shadow: ${({ $plain }) => ($plain ? 'none' : 'var(--brand-shadow-md)')};
   }
+`;
+
+const LogoImage = styled.img<{ width: string; height: string }>`
+  width: ${({ width }) => width};
+  height: ${({ height }) => height};
+  object-fit: contain;
+  display: block;
 `;
 
 const LogoText = styled.span<{ colors?: Record<string, string> }>`
@@ -78,6 +85,47 @@ interface TextLogoProps {
 // ============================================================================
 
 const TextLogo: React.FC<TextLogoProps> = ({ text, colors, width, height, alt, className }) => {
+	const [failedAsset, setFailedAsset] = useState<string | null>(null);
+
+	const logoAsset = useMemo(() => {
+		const normalized = `${text} ${alt || ''}`.toLowerCase();
+
+		if (normalized.includes('ping')) {
+			return '/brands/pingidentity.svg';
+		}
+		if (normalized.includes('southwest')) {
+			return '/brands/southwest.svg';
+		}
+		if (normalized.includes('fedex')) {
+			return '/brands/Fedex.svg';
+		}
+		if (normalized.includes('united')) {
+			return '/brands/United.svg';
+		}
+		if (normalized.includes('bank of america') || normalized.includes('bofa')) {
+			return '/brands/bofa.svg';
+		}
+		if (normalized.includes('american')) {
+			return '/brands/american.svg';
+		}
+
+		return null;
+	}, [text, alt]);
+
+	if (logoAsset && failedAsset !== logoAsset) {
+		return (
+			<LogoContainer width={width} height={height} className={className} title={alt} $plain>
+				<LogoImage
+					src={logoAsset}
+					alt={alt || text}
+					width={width}
+					height={height}
+					onError={() => setFailedAsset(logoAsset)}
+				/>
+			</LogoContainer>
+		);
+	}
+
 	// For American Airlines "AMERICAN" with special styling
 	if (text === 'AMERICAN' && colors) {
 		return (

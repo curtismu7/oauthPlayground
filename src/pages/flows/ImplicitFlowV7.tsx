@@ -35,6 +35,8 @@ import { CopyButtonService } from '../../services/copyButtonService';
 import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
 import { FlowCredentialService } from '../../services/flowCredentialService';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { EducationModeToggle } from '../../components/education/EducationModeToggle';
+import { MasterEducationSection } from '../../components/education/MasterEducationSection';
 // Import UI components from services
 import { FlowUIService } from '../../services/flowUIService';
 // Import shared services
@@ -1926,6 +1928,51 @@ const ImplicitFlowV7: React.FC = () => {
 		<Container>
 			<ContentWrapper>
 				<FlowHeader flowId="implicit-v7" />
+
+				{/* Education Mode Toggle */}
+				<EducationModeToggle variant="buttons" />
+
+				{/* Master Education Section */}
+				<MasterEducationSection
+					flowType="implicit"
+					title="📚 Implicit Flow Education"
+					sections={[
+						{
+							id: 'implicit-overview',
+							title: 'Implicit Flow Overview',
+							icon: <FiInfo />,
+							summary: 'Legacy OAuth flow - tokens returned directly in URL fragment (not recommended for new applications)',
+							content: (
+								<div>
+									<p><strong>The Implicit Flow</strong> is a legacy OAuth 2.0 flow where tokens are returned directly in the URL fragment:</p>
+									<ul>
+										<li><strong>No Backend Required</strong> - Designed for browser-only applications</li>
+										<li><strong>Tokens in URL</strong> - Access tokens returned in URL fragment (#)</li>
+										<li><strong>No Refresh Tokens</strong> - Cannot securely store refresh tokens</li>
+										<li><strong>Security Concerns</strong> - Tokens exposed in browser history and logs</li>
+									</ul>
+									<p><strong>⚠️ Not Recommended:</strong> OAuth 2.1 deprecates this flow. Use Authorization Code with PKCE instead.</p>
+								</div>
+							),
+						},
+						{
+							id: 'oauth-vs-oidc',
+							title: 'OAuth vs OIDC Variants',
+							icon: <FiShield />,
+							summary: 'OAuth returns access tokens, OIDC adds ID tokens for authentication',
+							content: (
+								<div>
+									<p><strong>Two Variants Available:</strong></p>
+									<ul>
+										<li><strong>OAuth Implicit</strong> - Returns access_token for API authorization</li>
+										<li><strong>OIDC Implicit</strong> - Returns id_token for user authentication</li>
+									</ul>
+									<p>Use the variant selector to switch between OAuth and OIDC modes.</p>
+								</div>
+							),
+						},
+					]}
+				/>
 
 				<EnhancedFlowInfoCard
 					flowType="implicit"

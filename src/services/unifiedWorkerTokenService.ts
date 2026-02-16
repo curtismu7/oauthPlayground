@@ -138,6 +138,13 @@ class UnifiedWorkerTokenService {
 	private static instance: UnifiedWorkerTokenService;
 	private memoryCache: UnifiedWorkerTokenData | null = null;
 	private dbPromise: Promise<IDBDatabase> | null = null;
+	private credentialsCache: UnifiedWorkerTokenCredentials | null = null;
+	private credentialsCacheTime: number = 0;
+	private credentialsCacheExpiry: number = 30000; // 30 seconds
+	private lastLoadAttempt: number = 0;
+	private loadRetryDelay: number = 5000; // 5 seconds between attempts
+	private lastSaveTime = 0;
+	private readonly SAVE_DEBOUNCE_MS = 1000; // 1 second debounce
 
 	private constructor() {}
 
@@ -175,6 +182,15 @@ class UnifiedWorkerTokenService {
 			return false;
 		}
 		return this.isTokenValid(data);
+	}
+
+	/**
+	 * Reset logging state (for debugging)
+	 */
+	static resetLoggingState(): void {
+		if (typeof window !== 'undefined') {
+			(window as any).__workerTokenSaved = false;
+		}
 	}
 
 	/**
@@ -226,7 +242,20 @@ class UnifiedWorkerTokenService {
 	 * Save worker token credentials
 	 */
 	async saveCredentials(credentials: UnifiedWorkerTokenCredentials): Promise<void> {
-		console.log(`${MODULE_TAG} Saving worker token credentials`);
+		// Debounce to prevent infinite loops
+		const now = Date.now();
+		if (now - this.lastSaveTime < this.SAVE_DEBOUNCE_MS) {
+			console.warn(`${MODULE_TAG} Save credentials called too frequently, skipping`);
+			return;
+		}
+		this.lastSaveTime = now;
+
+		// Only log if this is the first save or debug mode is enabled
+		const isFirstSave = !(window as any).__workerTokenSaved;
+		if (isFirstSave) {
+			console.log(`${MODULE_TAG} Saving worker token credentials`);
+			(window as any).__workerTokenSaved = true;
+		}
 
 		const data: UnifiedWorkerTokenData = {
 			token: '', // Token will be fetched when needed
@@ -320,8 +349,31 @@ class UnifiedWorkerTokenService {
 	 * Load worker token credentials
 	 */
 	async loadCredentials(): Promise<UnifiedWorkerTokenCredentials | null> {
+		// Check if we have cached credentials that haven't expired
+		const now = Date.now();
+		
+		// If we recently found nothing, return cached null silently
+		if (this.credentialsCache === null && (now - this.credentialsCacheTime) < this.credentialsCacheExpiry) {
+			return null;
+		}
+		
+		// If we have valid cached credentials, return them silently
+		if (this.credentialsCache && (now - this.credentialsCacheTime) < this.credentialsCacheExpiry) {
+			return this.credentialsCache;
+		}
+
+		// Prevent excessive retry attempts
+		if (this.lastLoadAttempt && (now - this.lastLoadAttempt) < this.loadRetryDelay) {
+			return this.credentialsCache; // Return cached even if expired/null
+		}
+
+		this.lastLoadAttempt = now;
+		// Only log when actually loading, not on cache hits
+
 		// Try memory cache first
 		if (this.memoryCache) {
+			this.credentialsCache = this.memoryCache.credentials;
+			this.credentialsCacheTime = now;
 			return this.memoryCache.credentials;
 		}
 
@@ -332,6 +384,8 @@ class UnifiedWorkerTokenService {
 			if (stored) {
 				const data: UnifiedWorkerTokenData = JSON.parse(stored);
 				this.memoryCache = data;
+				this.credentialsCache = data.credentials;
+				this.credentialsCacheTime = Date.now();
 				return data.credentials;
 			}
 		} catch (error) {
@@ -361,7 +415,7 @@ class UnifiedWorkerTokenService {
 				}
 				return data.credentials;
 			} else {
-				console.log(`${MODULE_TAG} ❌ No data found in IndexedDB`);
+				// No data in IndexedDB
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} ❌ Failed to load from IndexedDB`, error);
@@ -369,7 +423,6 @@ class UnifiedWorkerTokenService {
 
 		// Try unified storage backup
 		try {
-			console.log(`${MODULE_TAG} 🔍 Trying unified storage backup...`);
 			const result = await unifiedTokenStorage.getTokens({
 				type: 'worker_token',
 				source: 'worker_token',
@@ -377,7 +430,6 @@ class UnifiedWorkerTokenService {
 
 			if (result.success && result.data && result.data.length > 0) {
 				const workerToken = result.data[0];
-				console.log(`${MODULE_TAG} ✅ Loaded worker token from unified storage`);
 
 				// Extract credentials from metadata if available
 				const credentials = workerToken.metadata?.credentials as UnifiedWorkerTokenCredentials;
@@ -486,7 +538,6 @@ class UnifiedWorkerTokenService {
 		}
 
 		// Try legacy storage keys for migration
-		console.log(`${MODULE_TAG} 🔍 Trying legacy storage migration...`);
 		return await this.migrateLegacyCredentials();
 	}
 
@@ -501,20 +552,14 @@ class UnifiedWorkerTokenService {
 			'worker_credentials',
 		];
 
-		console.log(`${MODULE_TAG} 🔍 Checking ${legacyKeys.length} legacy keys...`);
+		// Check legacy keys silently
 
 		for (const key of legacyKeys) {
 			try {
 				const stored = localStorage.getItem(key);
-				console.log(`${MODULE_TAG} 🔍 Legacy key ${key}:`, { hasData: !!stored });
 
 				if (stored) {
 					const legacyData = JSON.parse(stored);
-					console.log(`${MODULE_TAG} 📦 Found legacy data in ${key}:`, {
-						hasEnvironmentId: !!legacyData.environmentId || !!legacyData.environment_id,
-						hasClientId: !!legacyData.clientId || !!legacyData.client_id,
-						hasClientSecret: !!legacyData.clientSecret || !!legacyData.client_secret,
-					});
 
 					// Convert to unified format
 					const unifiedCredentials: UnifiedWorkerTokenCredentials = {
@@ -535,26 +580,16 @@ class UnifiedWorkerTokenService {
 						!unifiedCredentials.clientId ||
 						!unifiedCredentials.clientSecret
 					) {
-						console.warn(`${MODULE_TAG} ⚠️ Legacy data missing required fields, skipping`, {
-							key,
-							hasEnvironmentId: !!unifiedCredentials.environmentId,
-							hasClientId: !!unifiedCredentials.clientId,
-							hasClientSecret: !!unifiedCredentials.clientSecret,
-						});
+						// Invalid credentials, continue to next key
 						continue;
 					}
 
 					// Save in unified format
 					await this.saveCredentials(unifiedCredentials);
 
-					console.log(
-						`${MODULE_TAG} 🔄 Successfully migrated credentials from legacy key: ${key}`,
-						{
-							environmentId: `${unifiedCredentials.environmentId?.substring(0, 8)}...`,
-							clientId: `${unifiedCredentials.clientId?.substring(0, 8)}...`,
-							hasClientSecret: !!unifiedCredentials.clientSecret,
-						}
-					);
+					// Update cache and return
+					this.credentialsCache = unifiedCredentials;
+					this.credentialsCacheTime = Date.now();
 					return unifiedCredentials;
 				}
 			} catch (error) {
@@ -562,7 +597,9 @@ class UnifiedWorkerTokenService {
 			}
 		}
 
-		console.log(`${MODULE_TAG} ❌ No valid legacy credentials found for migration`);
+		// No valid legacy credentials found
+		this.credentialsCache = null;
+		this.credentialsCacheTime = Date.now();
 		return null;
 	}
 
@@ -1213,6 +1250,12 @@ if (typeof window !== 'undefined') {
 	(
 		window as unknown as { unifiedWorkerTokenService: typeof unifiedWorkerTokenService }
 	).unifiedWorkerTokenService = unifiedWorkerTokenService;
+	
+	// Add debug helper for resetting logging state
+	(window as any).resetWorkerTokenLogging = () => {
+		UnifiedWorkerTokenService.resetLoggingState();
+		console.log(' Worker token logging state reset');
+	};
 }
 
 export default unifiedWorkerTokenService;

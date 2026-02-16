@@ -42,8 +42,9 @@ export const pingidentityConfig: CorporatePortalConfig = {
   content: {
     customerTerminology: true,
     tone: 'corporate',
-    heroTitle: 'Customer Portal',
-    heroSubtitle: 'Secure access to your identity and access management solutions',
+    heroTitle: 'Identity Security Platform',
+    heroSubtitle: 'Enterprise-grade identity and access management for modern applications',
+    tagline: 'Secure Digital Identity with Confidence',
     features: [
       {
         title: 'Identity Management',

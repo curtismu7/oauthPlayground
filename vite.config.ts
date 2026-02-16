@@ -128,11 +128,11 @@ export default defineConfig(({ mode }) => {
 			// Disable certificate verification for localhost development
 			proxy: {
 				'/api': {
-					target: 'http://localhost:3001', // Backend server (HTTP)
+					target: 'https://localhost:3002', // Backend server (HTTPS)
 					changeOrigin: true,
-					secure: false, // Allow self-signed certificates and HTTPS->HTTP proxy
-					timeout: 3000, // Shorter timeout for health checks
-					proxyTimeout: 3000,
+					secure: false, // Allow self-signed certificates and HTTPS->HTTPS proxy
+					timeout: 10000, // Increased timeout for health checks
+					proxyTimeout: 10000,
 					rewrite: (path) => {
 						// Map /api/token to /api/token-exchange
 						if (path === '/api/token') {
@@ -148,11 +148,11 @@ export default defineConfig(({ mode }) => {
 
 						// Add connection handling
 						proxy.on('proxyReq', (proxyReq) => {
-							proxyReq.setTimeout(3000);
+							proxyReq.setTimeout(10000);
 						});
 
 						proxy.on('proxyRes', (proxyRes) => {
-							proxyRes.setTimeout(3000);
+							proxyRes.setTimeout(10000);
 						});
 					},
 				},

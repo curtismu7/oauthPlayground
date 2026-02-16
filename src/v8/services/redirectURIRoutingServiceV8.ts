@@ -18,7 +18,7 @@ interface RedirectURIRouteEntry {
 // Redirect URI reference table from UNIFIED_MFA_INVENTORY.md lines 1705, 1720, 1735
 const REDIRECT_URI_ROUTING_TABLE: RedirectURIRouteEntry[] = [
 	{
-		redirectUri: '/mfa-unified-callback',
+		redirectUri: '/v8/unified-mfa-callback',
 		flowType: 'registration',
 		returnTarget: 3,
 		description: 'Unified MFA registration flow',

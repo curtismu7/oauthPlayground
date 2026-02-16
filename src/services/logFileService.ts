@@ -67,11 +67,30 @@ export class LogFileService {
 
 			const response = await fetch(`${LogFileService.API_BASE}/read?${params}`);
 			if (!response.ok) {
-				const error = await response.json();
-				throw new Error(error.message || `Failed to read log file: ${response.statusText}`);
+				// Try to get error message, but handle if it's not JSON
+				let errorMessage = `Failed to read log file: ${response.statusText}`;
+				try {
+					const errorData = await response.json();
+					errorMessage = errorData.message || errorMessage;
+				} catch {
+					// If response is not JSON, use status text
+				}
+				throw new Error(errorMessage);
 			}
 
-			const data = await response.json();
+			// Handle empty response
+			const text = await response.text();
+			if (!text) {
+				throw new Error('Empty response from server');
+			}
+
+			let data;
+			try {
+				data = JSON.parse(text);
+			} catch (parseError: unknown) {
+				const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown parsing error';
+				throw new Error(`Invalid JSON response: ${errorMessage}`);
+			}
 			return {
 				...data,
 				modified: new Date(data.modified),
@@ -111,17 +130,29 @@ export class LogFileService {
 	 * Categorize log file by name
 	 */
 	static categorizeLogFile(filename: string): string {
-		if (['server.log', 'backend.log', 'server-error.log'].includes(filename)) {
+		const lower = filename.toLowerCase();
+
+		if (
+			['server.log', 'backend.log', 'server-error.log'].includes(lower) ||
+			/^server(-|_).+\.log$/i.test(lower)
+		) {
 			return 'Server Logs';
-		} else if (['api-log.log', 'real-api.log', 'pingone-api.log'].includes(filename)) {
+		} else if (
+			['api-log.log', 'real-api.log', 'pingone-api.log'].includes(lower) ||
+			/(api|pingone).+\.log$/i.test(lower)
+		) {
 			return 'API Logs';
-		} else if (['client.log'].includes(filename)) {
+		} else if (['client.log'].includes(lower) || /(client|frontend|browser).+\.log$/i.test(lower)) {
 			return 'Frontend Logs';
 		} else if (
-			['fido.log', 'sms.log', 'email.log', 'whatsapp.log', 'voice.log'].includes(filename)
+			['fido.log', 'sms.log', 'email.log', 'whatsapp.log', 'voice.log'].includes(lower) ||
+			/(fido|sms|email|whatsapp|voice|mfa).+\.log$/i.test(lower)
 		) {
 			return 'MFA Device Logs';
-		} else if (['authz-redirects.log'].includes(filename)) {
+		} else if (
+			['authz-redirects.log', 'oauth.log', 'oidc.log'].includes(lower) ||
+			/(authz|oauth|oidc|redirect).+\.log$/i.test(lower)
+		) {
 			return 'OAuth Logs';
 		}
 		return 'Other Logs';

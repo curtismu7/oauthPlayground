@@ -1,17 +1,18 @@
 /**
  * @file BankOfAmericaHero.tsx
  * @module protect-portal/components
- * @description Bank of America hero section matching bankofamerica.com style
+ * @description Bank of America hero section with authentic banking portal styling
  * @version 9.6.5
- * @since 2026-02-13
+ * @since 2026-02-11
  *
- * This component provides a Bank of America-style hero section
- * that matches the actual Bank of America website design and functionality.
+ * This component provides a Bank of America-specific hero section that matches
+ * their actual online banking portal with proper branding and customer focus.
  */
 
 import React from 'react';
-import { FiDollarSign, FiLock, FiShield, FiUser } from 'react-icons/fi';
+import { FiLock, FiShield, FiCheckCircle, FiUser, FiDollarSign } from 'react-icons/fi';
 import styled from 'styled-components';
+import { useBrandTheme } from '../themes/theme-provider';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 
 // ============================================================================
@@ -199,12 +200,17 @@ const BankOfAmericaHero: React.FC<BankOfAmericaHeroProps> = ({
 	_clientSecret,
 	_redirectUri,
 }) => {
+	const { activeTheme } = useBrandTheme();
+	const isCustomer = activeTheme.content?.customerTerminology ?? true; // Default to customer terminology
+
 	return (
 		<HeroContainer>
 			<HeroContent>
 				<HeroTitle>Bank of America Secure Portal</HeroTitle>
 				<HeroSubtitle>
-					Access your employee account with industry-leading security features and 24/7 monitoring
+					{isCustomer 
+						? 'Access your account with industry-leading security features and 24/7 monitoring'
+						: 'Access your employee account with industry-leading security features and 24/7 monitoring'}
 				</HeroSubtitle>
 
 				<SecurityFeatures>
@@ -252,11 +258,13 @@ const BankOfAmericaHero: React.FC<BankOfAmericaHeroProps> = ({
 				{currentStep === 'portal-home' ? (
 					<LoginSection>
 						<LoginDescription>
-							Sign in to access your secure employee portal with enhanced security features
+							{isCustomer 
+								? 'Sign in to access your secure customer portal with enhanced security features'
+								: 'Sign in to access your secure employee portal with enhanced security features'}
 						</LoginDescription>
 						<LoginButton onClick={onLoginStart}>
 							<FiLock />
-							Sign In to Employee Portal
+							{isCustomer ? 'Sign In to Customer Portal' : 'Sign In to Employee Portal'}
 						</LoginButton>
 					</LoginSection>
 				) : (

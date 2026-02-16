@@ -502,14 +502,60 @@ export class MFAServiceV8 {
 		username: string
 	): Promise<UserLookupResult> {
 		try {
+			console.log(`${MODULE_TAG} lookupUserByUsername called with:`, {
+				environmentId: environmentId ? 'provided' : 'MISSING',
+				username: username ? 'provided' : 'MISSING',
+				environmentIdValue: environmentId,
+				usernameValue: username,
+			});
+
+			// Validate inputs before proceeding
+			if (!environmentId || !environmentId.trim()) {
+				console.error(`${MODULE_TAG} Invalid environmentId provided:`, {
+					environmentId,
+					type: typeof environmentId,
+					isEmpty: !environmentId,
+					isWhitespace: !environmentId?.trim(),
+				});
+				throw new Error('Environment ID is required and cannot be empty');
+			}
+			if (!username || !username.trim()) {
+				console.error(`${MODULE_TAG} Invalid username provided:`, {
+					username,
+					type: typeof username,
+					isEmpty: !username,
+					isWhitespace: !username?.trim(),
+				});
+				throw new Error('Username is required and cannot be empty');
+			}
+
+			// Additional validation for environment ID format
+			if (environmentId.length < 10) {
+				console.warn(`${MODULE_TAG} Environment ID seems too short:`, {
+					environmentId,
+					length: environmentId.length,
+				});
+			}
+
 			const accessToken = await MFAServiceV8.getWorkerToken();
+			console.log(`${MODULE_TAG} Worker token obtained:`, accessToken ? 'success' : 'FAILED');
+
+			if (!accessToken || !accessToken.trim()) {
+				throw new Error('Worker token is required and cannot be empty');
+			}
 
 			// Use backend proxy to avoid CORS
 			const requestBody = {
-				environmentId,
-				username,
-				workerToken: accessToken,
+				environmentId: environmentId.trim(),
+				username: username.trim(),
+				workerToken: accessToken.trim(),
 			};
+
+			console.log(`${MODULE_TAG} Request body validated:`, {
+				environmentId: requestBody.environmentId ? 'provided' : 'MISSING',
+				username: requestBody.username ? 'provided' : 'MISSING',
+				workerToken: requestBody.workerToken ? 'provided' : 'MISSING',
+			});
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({

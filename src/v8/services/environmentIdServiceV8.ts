@@ -21,13 +21,36 @@ export class EnvironmentIdServiceV8 {
 		try {
 			const stored = localStorage.getItem(STORAGE_KEY);
 			if (stored) {
-				console.log(`${MODULE_TAG} Retrieved stored environment ID`);
+				// Only log if debug mode is enabled or if this is the first call
+				if (typeof window !== 'undefined' && !(window as any).__envIdLogged) {
+					console.log(`${MODULE_TAG} Retrieved stored environment ID`);
+					(window as any).__envIdLogged = true;
+				}
 				return stored;
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to get environment ID`, error);
 		}
 		return '';
+	}
+
+	/**
+	 * Reset logging state (for debugging)
+	 */
+	static resetLoggingState(): void {
+		if (typeof window !== 'undefined') {
+			(window as any).__envIdLogged = false;
+		}
+	}
+
+	// Add debug helper to window object for easy access
+	static addDebugHelper(): void {
+		if (typeof window !== 'undefined') {
+			(window as any).resetEnvironmentIdLogging = () => {
+				EnvironmentIdServiceV8.resetLoggingState();
+				console.log('🔧 Environment ID logging state reset');
+			};
+		}
 	}
 
 	/**
@@ -241,5 +264,8 @@ export class EnvironmentIdServiceV8 {
 		}
 	}
 }
+
+// Initialize debug helper
+EnvironmentIdServiceV8.addDebugHelper();
 
 export default EnvironmentIdServiceV8;

@@ -284,7 +284,7 @@ show_final_status() {
     fi
     
     echo ""
-    echo -e "${CYAN}🔄 To restart servers: ./restart-servers.sh${NC}"
+    echo -e "${CYAN}🔄 To restart servers: ./run.sh${NC}"
     echo -e "${CYAN}🔍 To check what's using ports: lsof -i :3000 -i :3001${NC}"
     echo ""
 }
