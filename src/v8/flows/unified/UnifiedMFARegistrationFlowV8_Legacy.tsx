@@ -26,6 +26,8 @@ import * as React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
+import { EducationModeToggle } from '@/components/education/EducationModeToggle';
+import { MasterEducationSection } from '@/components/education/MasterEducationSection';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdownV8';
 import { SearchableDropdownV8 } from '@/v8/components/SearchableDropdownV8';
@@ -65,8 +67,6 @@ import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBas
 import type { DeviceAuthenticationPolicy, MFACredentials, MFAState } from '../shared/MFATypes';
 import { UnifiedActivationStep } from './components/UnifiedActivationStep';
 import { UnifiedDeviceSelectionModal } from './components/UnifiedDeviceSelectionModal';
-import { EducationModeToggle } from '@/components/education/EducationModeToggle';
-import { MasterEducationSection } from '@/components/education/MasterEducationSection';
 import './UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[🔄 UNIFIED-MFA-FLOW-V8]';
@@ -168,9 +168,11 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	const [showOTPModal, setShowOTPModal] = useState(false);
 	const [otpCode, setOtpCode] = useState('');
 	const [authenticationId, setAuthenticationId] = useState<string | null>(null);
-	
+
 	// State for flow type selection (Admin vs User)
-	const [selectedFlowType, setSelectedFlowType] = useState<'admin-active' | 'admin-activation' | 'user'>(
+	const [selectedFlowType, setSelectedFlowType] = useState<
+		'admin-active' | 'admin-activation' | 'user'
+	>(
 		registrationFlowType || 'admin-active' // Default to Admin Flow (Direct Registration)
 	);
 
@@ -1224,9 +1226,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 										}`,
 										borderRadius: '6px',
 										background:
-											selectedFlowType === 'user'
-												? PING_IDENTITY_COLORS.accent.blue[50]
-												: 'white',
+											selectedFlowType === 'user' ? PING_IDENTITY_COLORS.accent.blue[50] : 'white',
 										color:
 											selectedFlowType === 'user'
 												? PING_IDENTITY_COLORS.accent.blue[700]
@@ -1274,20 +1274,21 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 							>
 								{selectedFlowType === 'admin-active' && (
 									<>
-										<strong>Admin Flow (Direct Registration):</strong> Register devices directly using worker
-										tokens. Devices become active immediately without requiring OTP activation.
+										<strong>Admin Flow (Direct Registration):</strong> Register devices directly
+										using worker tokens. Devices become active immediately without requiring OTP
+										activation.
 									</>
 								)}
 								{selectedFlowType === 'admin-activation' && (
 									<>
-										<strong>Admin Flow (Activation Required):</strong> Register devices using worker tokens, but
-										require OTP activation for security.
+										<strong>Admin Flow (Activation Required):</strong> Register devices using worker
+										tokens, but require OTP activation for security.
 									</>
 								)}
 								{selectedFlowType === 'user' && (
 									<>
-										<strong>User Flow:</strong> Users register their own devices after OAuth authentication.
-										Requires user login and OTP activation.
+										<strong>User Flow:</strong> Users register their own devices after OAuth
+										authentication. Requires user login and OTP activation.
 									</>
 								)}
 							</div>
@@ -2516,9 +2517,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
  *
  * Wraps the content with MFACredentialProvider to provide global credential state
  */
-export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8Props> = (
-	props
-) => {
+const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8Props> = (props) => {
 	const location = useLocation();
 
 	// Get device type from props or location state (can be undefined)
@@ -2589,10 +2588,10 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 
 	// Flow mode state (registration vs authentication)
 	const [flowMode, _setFlowMode] = useState<FlowMode | null>(null);
-	
+
 	// Device selection modal state
 	const [showDeviceSelectionModal, setShowDeviceSelectionModal] = useState(false);
-	
+
 	// Username and environment ID state
 	const [username, setUsername] = useState('');
 	const [environmentId, setEnvironmentId] = useState('');
@@ -3349,21 +3348,18 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 	/**
 	 * Render Step 0: Configuration (environment, user, policy, flow type selection)
 	 */
-	const renderStep0 = useCallback(
-		() => {
-			return (
-				<DeviceTypeSelectionScreen
-					onSelectDeviceType={setSelectedDeviceType}
-					userToken={userToken}
-					setUserToken={setUserToken}
-					registrationFlowType={selectedFlowType}
-					username={username}
-					environmentId={environmentId}
-				/>
-			);
-		},
-		[userToken, setUserToken, selectedFlowType, username, environmentId, setSelectedDeviceType]
-	);
+	const renderStep0 = useCallback(() => {
+		return (
+			<DeviceTypeSelectionScreen
+				onSelectDeviceType={setSelectedDeviceType}
+				userToken={userToken}
+				setUserToken={setUserToken}
+				registrationFlowType={selectedFlowType}
+				username={username}
+				environmentId={environmentId}
+			/>
+		);
+	}, [userToken, setUserToken, selectedFlowType, username, environmentId, setSelectedDeviceType]);
 
 	/**
 	 * Render Step 1: User Login using Authorization Code Flow with PKCE
@@ -3516,18 +3512,38 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 						id: 'unified-mfa-overview',
 						title: 'Unified MFA Flow Overview',
 						icon: <FiChevronDown />,
-						summary: 'Single interface for all 6 MFA device types - SMS, Email, Mobile, WhatsApp, TOTP, FIDO2',
+						summary:
+							'Single interface for all 6 MFA device types - SMS, Email, Mobile, WhatsApp, TOTP, FIDO2',
 						content: (
 							<div>
-								<p><strong>The Unified MFA Flow</strong> consolidates all MFA device registration and authentication into one interface:</p>
+								<p>
+									<strong>The Unified MFA Flow</strong> consolidates all MFA device registration and
+									authentication into one interface:
+								</p>
 								<ul>
-									<li><strong>6 Device Types</strong> - SMS, Email, Mobile, WhatsApp, TOTP, FIDO2</li>
-									<li><strong>Configuration-Driven</strong> - Uses deviceFlowConfigs for device-specific behavior</li>
-									<li><strong>Admin & User Flows</strong> - Supports both admin-initiated and user self-service</li>
-									<li><strong>Feature Flags</strong> - Gradual rollout with per-device feature flags</li>
-									<li><strong>Real PingOne APIs</strong> - Direct integration with PingOne MFA services</li>
+									<li>
+										<strong>6 Device Types</strong> - SMS, Email, Mobile, WhatsApp, TOTP, FIDO2
+									</li>
+									<li>
+										<strong>Configuration-Driven</strong> - Uses deviceFlowConfigs for
+										device-specific behavior
+									</li>
+									<li>
+										<strong>Admin & User Flows</strong> - Supports both admin-initiated and user
+										self-service
+									</li>
+									<li>
+										<strong>Feature Flags</strong> - Gradual rollout with per-device feature flags
+									</li>
+									<li>
+										<strong>Real PingOne APIs</strong> - Direct integration with PingOne MFA
+										services
+									</li>
 								</ul>
-								<p>This unified approach replaces 6 separate device-specific components with a single configurable flow.</p>
+								<p>
+									This unified approach replaces 6 separate device-specific components with a single
+									configurable flow.
+								</p>
 							</div>
 						),
 					},
@@ -3535,19 +3551,37 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 						id: 'mfa-device-types',
 						title: 'MFA Device Types',
 						icon: <FiChevronUp />,
-						summary: 'Choose from SMS, Email, Mobile Push, WhatsApp, TOTP Authenticator, or FIDO2 Security Key',
+						summary:
+							'Choose from SMS, Email, Mobile Push, WhatsApp, TOTP Authenticator, or FIDO2 Security Key',
 						content: (
 							<div>
-								<p><strong>Supported Device Types:</strong></p>
+								<p>
+									<strong>Supported Device Types:</strong>
+								</p>
 								<ul>
-									<li><strong>SMS</strong> - One-time passcodes via text message</li>
-									<li><strong>Email</strong> - One-time passcodes via email</li>
-									<li><strong>Mobile</strong> - Push notifications to PingOne mobile app</li>
-									<li><strong>WhatsApp</strong> - One-time passcodes via WhatsApp</li>
-									<li><strong>TOTP</strong> - Time-based codes from authenticator apps</li>
-									<li><strong>FIDO2</strong> - Hardware security keys and biometrics</li>
+									<li>
+										<strong>SMS</strong> - One-time passcodes via text message
+									</li>
+									<li>
+										<strong>Email</strong> - One-time passcodes via email
+									</li>
+									<li>
+										<strong>Mobile</strong> - Push notifications to PingOne mobile app
+									</li>
+									<li>
+										<strong>WhatsApp</strong> - One-time passcodes via WhatsApp
+									</li>
+									<li>
+										<strong>TOTP</strong> - Time-based codes from authenticator apps
+									</li>
+									<li>
+										<strong>FIDO2</strong> - Hardware security keys and biometrics
+									</li>
 								</ul>
-								<p>Each device type has unique registration and authentication flows optimized for security and user experience.</p>
+								<p>
+									Each device type has unique registration and authentication flows optimized for
+									security and user experience.
+								</p>
 							</div>
 						),
 					},
