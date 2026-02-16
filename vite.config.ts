@@ -128,7 +128,7 @@ export default defineConfig(({ mode }) => {
 			// Disable certificate verification for localhost development
 			proxy: {
 				'/api': {
-					target: 'https://localhost:3002', // Backend server (HTTPS)
+					target: 'http://localhost:3001', // Backend server (HTTP)
 					changeOrigin: true,
 					secure: false, // Allow self-signed certificates and HTTPS->HTTPS proxy
 					timeout: 10000, // Increased timeout for health checks
