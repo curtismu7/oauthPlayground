@@ -18,14 +18,16 @@ import CompanyHeader from './components/CompanyHeader';
 import CustomLoginForm from './components/CustomLoginForm';
 import FedExAirlinesHero from './components/FedExAirlinesHero';
 import MFAAuthenticationFlow from './components/MFAAuthenticationFlow';
-import PortalHome from './components/PortalHome';
 import PortalStats from './components/PortalStats';
 import PortalSuccess from './components/PortalSuccess';
 import ProtectPage from './components/ProtectPage';
 import RiskEvaluationDisplay from './components/RiskEvaluationDisplay';
 import SouthwestAirlinesHero from './components/SouthwestAirlinesHero';
 import UnitedAirlinesHero from './components/UnitedAirlinesHero';
+import CorporateFooter from './components/Shared/CorporateFooter';
+import CorporatePortalHero from './components/CorporatePortalHero';
 import { BrandThemeProvider, useBrandTheme } from './themes/theme-provider';
+import type { CorporatePortalConfig } from './types/CorporatePortalConfig';
 // Import types and config
 import type {
 	LoginContext,
@@ -303,13 +305,6 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 		}));
 	}, []);
 
-	const handleCompanySelect = useCallback((company: { id: string; name: string; description: string; logo: string; logoColor: string; logoBg: string; theme: string; }) => {
-		console.log('[🚀 PROTECT-PORTAL] Company selected:', company.name);
-		// For now, just start login flow after company selection
-		// Theme switching could be added later if needed
-		handleLoginStart();
-	}, [handleLoginStart]);
-
 	const handleLoginSuccess = useCallback((userContext: UserContext, loginContext: LoginContext) => {
 		console.log('[🚀 PROTECT-PORTAL] Login successful, starting risk evaluation');
 		setPortalState((prev) => ({
@@ -454,13 +449,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 
 		switch (currentStep) {
 			case 'portal-home':
-				return (
-					<PortalHome
-						onCompanySelect={handleCompanySelect}
-						onGoToLogin={handleLoginStart}
-						educationalContent={portalState.educationalContent.riskEvaluation}
-					/>
-				);
+				return null;
 
 			case 'custom-login':
 				return (
@@ -469,7 +458,6 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 						onError={handleError}
 						environmentId={environmentId}
 						clientId={clientId}
-						clientSecret={clientSecret}
 						redirectUri={redirectUri}
 					/>
 				);
@@ -495,7 +483,14 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 						onSuccess={() =>
 							setPortalState((prev) => ({ ...prev, currentStep: 'risk-low-success' }))
 						}
-						onError={handleError}
+						onError={(error) =>
+							handleError({
+								code: 'PORTAL_STATS_ERROR',
+								message: error.message,
+								recoverable: error.recoverable ?? true,
+								suggestedAction: 'Please try again',
+							})
+						}
 						educationalContent={portalState.educationalContent.riskEvaluation}
 					/>
 				);
@@ -539,7 +534,14 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 						onSuccess={() =>
 							setPortalState((prev) => ({ ...prev, currentStep: 'risk-medium-success' }))
 						}
-						onError={handleError}
+						onError={(error) =>
+							handleError({
+								code: 'PROTECT_PAGE_ERROR',
+								message: error.message,
+								recoverable: error.recoverable ?? true,
+								suggestedAction: 'Please try again',
+							})
+						}
 						educationalContent={portalState.educationalContent.riskEvaluation}
 					/>
 				);
@@ -565,7 +567,14 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 						onSuccess={() =>
 							setPortalState((prev) => ({ ...prev, currentStep: 'risk-high-block' }))
 						}
-						onError={handleError}
+						onError={(error) =>
+							handleError({
+								code: 'PROTECT_PAGE_ERROR',
+								message: error.message,
+								recoverable: error.recoverable ?? true,
+								suggestedAction: 'Please try again',
+							})
+						}
 						educationalContent={portalState.educationalContent.riskEvaluation}
 					/>
 				);
@@ -634,81 +643,198 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 		});
 	}, [initialStep, environmentId, clientId, protectCredentials]);
 
+	useEffect(() => {
+		const handleThemeSwitched = () => {
+			setPortalState((prev) => ({
+				...prev,
+				currentStep: 'portal-home',
+				userContext: null,
+				loginContext: null,
+				riskEvaluation: null,
+				selectedDevice: null,
+				availableDevices: [],
+				tokens: null,
+				tokenDisplay: null,
+				error: null,
+				isLoading: false,
+			}));
+		};
+
+		window.addEventListener('protect-portal-theme-switched', handleThemeSwitched);
+		return () => window.removeEventListener('protect-portal-theme-switched', handleThemeSwitched);
+	}, []);
+
 	// ============================================================================
 	// RENDER
 	// ============================================================================
 
 	const ProtectPortalContent = () => {
 		const { activeTheme } = useBrandTheme();
+		const isPortalHome = portalState.currentStep === 'portal-home';
+		const showGlobalHeader = !isPortalHome || activeTheme.name !== 'fedex';
+		const footerConfig: CorporatePortalConfig =
+			activeTheme.portalConfig ??
+			({
+				company: {
+					name: activeTheme.name,
+					displayName: activeTheme.displayName,
+					industry: 'other',
+					logo: {
+						url: activeTheme.logo.url ?? '',
+						alt: activeTheme.logo.alt,
+						width: activeTheme.logo.width,
+						height: activeTheme.logo.height,
+						text: activeTheme.logo.text ?? activeTheme.displayName,
+						colors: activeTheme.logo.colors ?? {},
+					},
+				},
+				login: {
+					pattern: 'new-page',
+				},
+				navigation: {
+					style: 'corporate',
+					showBrandSelector: true,
+					stickyHeader: true,
+				},
+				content: {
+					customerTerminology: true,
+					tone: 'corporate',
+					heroTitle: activeTheme.portalName,
+					heroSubtitle: activeTheme.brandSpecific.messaging.welcome,
+					features: [],
+				},
+				branding: {
+					colors: {
+						primary: activeTheme.colors.primary,
+						primaryDark: activeTheme.colors.primaryDark,
+						secondary: activeTheme.colors.secondary,
+						accent: activeTheme.colors.accent,
+						background: activeTheme.colors.background,
+						surface: activeTheme.colors.surface,
+						muted: activeTheme.colors.muted,
+						border: activeTheme.colors.border,
+						text: activeTheme.colors.text,
+						textSecondary: activeTheme.colors.textSecondary,
+						error: activeTheme.colors.error,
+						success: activeTheme.colors.success,
+						warning: activeTheme.colors.warning,
+						info: activeTheme.colors.info,
+						primaryLight: activeTheme.colors.primaryLight,
+						secondaryLight: activeTheme.colors.secondaryLight,
+						secondaryDark: activeTheme.colors.secondaryDark,
+						errorLight: activeTheme.colors.errorLight,
+						warningLight: activeTheme.colors.warningLight,
+						successLight: activeTheme.colors.successLight,
+					},
+					typography: {
+						heading: activeTheme.typography.headingFont,
+						body: activeTheme.typography.bodyFont,
+					},
+					spacing: {
+						xs: activeTheme.spacing.xs,
+						sm: activeTheme.spacing.sm,
+						md: activeTheme.spacing.md,
+						lg: activeTheme.spacing.lg,
+						xl: activeTheme.spacing.xl,
+						xxl: activeTheme.spacing.xxl,
+					},
+				},
+			} satisfies CorporatePortalConfig);
 
 		return (
 			<PortalContainer>
-				{/* Global Company Header - Always visible at the top */}
-				<CompanyHeader showBrandSelector={true} />
+				{/* Global company header for non-home steps or PingIdentity default home */}
+				{showGlobalHeader && <CompanyHeader showBrandSelector={true} />}
 				
-				{activeTheme.name === 'american-airlines' && (
-					<AmericanAirlinesHero
-						currentStep={portalState.currentStep}
-						onLoginStart={handleLoginStart}
-						_onLoginSuccess={handleLoginSuccess}
-						_onError={handleError}
-						_environmentId={environmentId}
-						_clientId={clientId}
-						_clientSecret={clientSecret}
-						_redirectUri={redirectUri}
-					/>
-				)}
-				{activeTheme.name === 'southwest-airlines' && (
-					<SouthwestAirlinesHero
-						currentStep={portalState.currentStep}
-						onLoginStart={handleLoginStart}
-						_onLoginSuccess={handleLoginSuccess}
-						_onError={handleError}
-						_environmentId={environmentId}
-						_clientId={clientId}
-						_clientSecret={clientSecret}
-						_redirectUri={redirectUri}
-					/>
-				)}
-				{activeTheme.name === 'fedex' && (
-					<FedExAirlinesHero
-						currentStep={portalState.currentStep}
-						onLoginStart={handleLoginStart}
-						_onLoginSuccess={handleLoginSuccess}
-						_onError={handleError}
-						_environmentId={environmentId}
-						_clientId={clientId}
-						_clientSecret={clientSecret}
-						_redirectUri={redirectUri}
-					/>
-				)}
-				{activeTheme.name === 'bank-of-america' && (
-					<BankOfAmericaHero
-						currentStep={portalState.currentStep}
-						onLoginStart={handleLoginStart}
-						_onLoginSuccess={handleLoginSuccess}
-						_onError={handleError}
-						_environmentId={environmentId}
-						_clientId={clientId}
-						_clientSecret={clientSecret}
-						_redirectUri={redirectUri}
-					/>
-				)}
-				{activeTheme.name === 'united-airlines' && (
-					<UnitedAirlinesHero
-						currentStep={portalState.currentStep}
-						onLoginStart={handleLoginStart}
-						_onLoginSuccess={handleLoginSuccess}
-						_onError={handleError}
-						_environmentId={environmentId}
-						_clientId={clientId}
-						_clientSecret={clientSecret}
-						_redirectUri={redirectUri}
-					/>
-				)}
 				<PortalCard>
+					{isPortalHome && activeTheme.name === 'american-airlines' && (
+						<AmericanAirlinesHero
+							currentStep={portalState.currentStep}
+							onLoginStart={handleLoginStart}
+							onLoginSuccess={handleLoginSuccess}
+							onError={handleError}
+							environmentId={environmentId}
+							clientId={clientId}
+							clientSecret={clientSecret}
+							redirectUri={redirectUri}
+						/>
+					)}
+					{isPortalHome && activeTheme.name === 'southwest-airlines' && (
+						<SouthwestAirlinesHero
+							currentStep={portalState.currentStep}
+							onLoginStart={handleLoginStart}
+							_onLoginSuccess={handleLoginSuccess}
+							_onError={handleError}
+							_environmentId={environmentId}
+							_clientId={clientId}
+							_clientSecret={clientSecret}
+							_redirectUri={redirectUri}
+						/>
+					)}
+					{isPortalHome && activeTheme.name === 'fedex' && (
+						<FedExAirlinesHero
+							currentStep={portalState.currentStep}
+							onLoginStart={handleLoginStart}
+							_onLoginSuccess={handleLoginSuccess}
+							_onError={handleError}
+							_environmentId={environmentId}
+							_clientId={clientId}
+							_clientSecret={clientSecret}
+							_redirectUri={redirectUri}
+						/>
+					)}
+					{isPortalHome && activeTheme.name === 'bank-of-america' && (
+						<BankOfAmericaHero
+							currentStep={portalState.currentStep}
+							onLoginStart={handleLoginStart}
+							_onLoginSuccess={handleLoginSuccess}
+							_onError={handleError}
+							_environmentId={environmentId}
+							_clientId={clientId}
+							_clientSecret={clientSecret}
+							_redirectUri={redirectUri}
+						/>
+					)}
+					{isPortalHome && activeTheme.name === 'united-airlines' && (
+						<UnitedAirlinesHero
+							currentStep={portalState.currentStep}
+							onLoginStart={handleLoginStart}
+							_onLoginSuccess={handleLoginSuccess}
+							_onError={handleError}
+							_environmentId={environmentId}
+							_clientId={clientId}
+							_clientSecret={clientSecret}
+							_redirectUri={redirectUri}
+						/>
+					)}
+					{isPortalHome && activeTheme.name === 'pingidentity' && (
+						<CorporatePortalHero
+							currentStep={portalState.currentStep}
+							onLoginStart={handleLoginStart}
+							_onLoginSuccess={handleLoginSuccess}
+							_onError={handleError}
+							_environmentId={environmentId}
+							_clientId={clientId}
+							_clientSecret={clientSecret}
+							_redirectUri={redirectUri}
+						/>
+					)}
+					{isPortalHome && !['american-airlines', 'southwest-airlines', 'fedex', 'bank-of-america', 'united-airlines', 'pingidentity'].includes(activeTheme.name) && (
+						<CorporatePortalHero
+							currentStep={portalState.currentStep}
+							onLoginStart={handleLoginStart}
+							_onLoginSuccess={handleLoginSuccess}
+							_onError={handleError}
+							_environmentId={environmentId}
+							_clientId={clientId}
+							_clientSecret={clientSecret}
+							_redirectUri={redirectUri}
+						/>
+					)}
 					<PortalContent>{renderStep()}</PortalContent>
 				</PortalCard>
+
+				<CorporateFooter config={footerConfig} />
 			</PortalContainer>
 		);
 	};

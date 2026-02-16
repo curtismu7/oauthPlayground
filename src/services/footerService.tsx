@@ -31,7 +31,7 @@ const DisclaimerText = styled.div`
 export const PageFooter: React.FC = () => {
 	return (
 		<FooterContainer role="contentinfo" aria-label="Application footer">
-			<VersionText>MasterFlow API v{packageJson.version}</VersionText>
+			<VersionText>PingOne MasterFlow API v{packageJson.version}</VersionText>
 			<DisclaimerText>This is not supported. Use at your own risk.</DisclaimerText>
 		</FooterContainer>
 	);

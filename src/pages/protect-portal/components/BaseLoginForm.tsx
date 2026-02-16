@@ -29,6 +29,8 @@ const LoginForm = styled.form`
   flex-direction: column;
   gap: 1.5rem;
   width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
 `;
 
 const InputGroup = styled.div`
@@ -380,8 +382,18 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 					spinnerPosition="center"
 					spinnerSize={20}
 					disabled={!formData.username || !formData.password}
+					onClick={(e) => {
+						e.preventDefault();
+						const syntheticEvent = {
+							preventDefault: () => {},
+							target: e.target,
+						} as React.FormEvent;
+						handleSubmit(syntheticEvent);
+					}}
 					style={{
-						width: '100%',
+						width: '240px',
+						maxWidth: '100%',
+						alignSelf: 'center',
 						padding: '0.875rem 1.5rem',
 						background: isLoading ? '#9ca3af' : 'var(--brand-primary)',
 						color: 'white',

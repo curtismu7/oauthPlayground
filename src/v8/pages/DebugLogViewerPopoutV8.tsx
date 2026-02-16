@@ -35,8 +35,37 @@ interface LogEntry {
 	url: string;
 }
 
-type LogCategory = 'ALL' | 'REDIRECT_URI' | 'MIGRATION' | 'VALIDATION' | 'FLOW_MAPPING';
-type LogSource = 'localStorage' | 'file';
+type LogCategory = 'ALL' | 'REDIRECT_URI' | 'CALLBACK_DEBUG' | 'MIGRATION' | 'VALIDATION' | 'FLOW_MAPPING';
+type LogSource = 'localStorage' | 'indexedDB' | 'sqlite' | 'file' | 'callback-debug';
+
+interface SourceOption {
+	value: LogSource;
+	label: string;
+	icon: React.ReactNode;
+}
+
+interface IndexedDBTarget {
+	label: string;
+	dbName: string;
+	storeName: string;
+}
+
+interface SQLiteTarget {
+	label: string;
+	endpoint: string;
+}
+
+const INDEXED_DB_TARGETS: IndexedDBTarget[] = [
+	{ label: 'Enhanced Credentials (V8)', dbName: 'OAuthPlayground_Enhanced', storeName: 'enhanced_credentials' },
+	{ label: 'MFA Redirect Logs', dbName: 'OAuthPlayground_MFA', storeName: 'redirect_logs' },
+	{ label: 'Default Logs', dbName: 'OAuthPlayground', storeName: 'logs' },
+];
+
+const SQLITE_TARGETS: SQLiteTarget[] = [
+	{ label: 'Debug Log Viewer Settings', endpoint: '/api/settings/debug-log-viewer' },
+	{ label: 'SQLite Credentials Stats', endpoint: '/api/credentials/sqlite/stats' },
+	{ label: 'SQLite Credentials List', endpoint: '/api/credentials/sqlite/list' },
+];
 
 // Truncate file content to prevent browser crashes
 const truncateFileContent = (
@@ -70,6 +99,10 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 	const [logSource, setLogSource] = useState<LogSource>('file');
 	const [availableFiles, setAvailableFiles] = useState<LogFile[]>([]);
 	const [selectedFile, setSelectedFile] = useState<string>('authz-redirects.log');
+	const [availableLocalStorageLogs, setAvailableLocalStorageLogs] = useState<string[]>([]);
+	const [selectedLocalStorageLog, setSelectedLocalStorageLog] = useState<string>('mfa_redirect_debug_log');
+	const [selectedIndexedDBTarget, setSelectedIndexedDBTarget] = useState<string>('OAuthPlayground_Enhanced|enhanced_credentials');
+	const [selectedSQLiteTarget, setSelectedSQLiteTarget] = useState<string>('/api/settings/debug-log-viewer');
 	const [lineCount, setLineCount] = useState<number>(100);
 
 	// Log data
@@ -88,6 +121,86 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 	// Loading states
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	const sourceOptions: SourceOption[] = [
+		{ value: 'localStorage', label: 'localStorage', icon: <FiDatabase size={16} /> },
+		{ value: 'indexedDB', label: 'IndexedDB', icon: <FiDatabase size={16} /> },
+		{ value: 'sqlite', label: 'SQLite', icon: <FiDatabase size={16} /> },
+		{ value: 'file', label: 'File', icon: <FiFile size={16} /> },
+		{ value: 'callback-debug', label: 'Callback Debug', icon: <FiEye size={16} /> },
+	];
+
+	const normalizeToLogEntries = useCallback(
+		(payload: unknown, category = 'VALIDATION', sourceUrl = window.location.href): LogEntry[] => {
+			const toEntry = (item: unknown): LogEntry => {
+				if (typeof item === 'string') {
+					return {
+						timestamp: new Date().toISOString(),
+						level: 'INFO',
+						category,
+						message: item,
+						url: sourceUrl,
+					};
+				}
+
+				if (item && typeof item === 'object') {
+					const record = item as Record<string, unknown>;
+					const levelRaw = String(record.level ?? record.severity ?? 'INFO').toUpperCase();
+					const level: LogEntry['level'] =
+						levelRaw === 'ERROR' ? 'ERROR' : levelRaw === 'WARN' || levelRaw === 'WARNING' ? 'WARN' : 'INFO';
+
+					return {
+						timestamp:
+							typeof record.timestamp === 'string'
+								? record.timestamp
+								: new Date().toISOString(),
+						level,
+						category: typeof record.category === 'string' ? record.category : category,
+						message:
+							typeof record.message === 'string'
+								? record.message
+								: `Record loaded from ${category}`,
+						data: record,
+						url:
+							typeof record.url === 'string'
+								? record.url
+								: sourceUrl,
+					};
+				}
+
+				return {
+					timestamp: new Date().toISOString(),
+					level: 'INFO',
+					category,
+					message: String(item),
+					url: sourceUrl,
+				};
+			};
+
+			if (Array.isArray(payload)) {
+				return payload.map((item) => toEntry(item));
+			}
+
+			if (payload && typeof payload === 'object') {
+				const record = payload as Record<string, unknown>;
+
+				if (Array.isArray(record.logs)) {
+					return record.logs.map((item) => toEntry(item));
+				}
+				if (Array.isArray(record.entries)) {
+					return record.entries.map((item) => toEntry(item));
+				}
+				if (Array.isArray(record.data)) {
+					return record.data.map((item) => toEntry(item));
+				}
+
+				return [toEntry(record)];
+			}
+
+			return [toEntry(payload)];
+		},
+		[]
+	);
 
 	// Keyboard shortcuts
 	const scrollToTop = useCallback(() => {
@@ -134,19 +247,23 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 				return;
 			}
 
-			// Ctrl/Cmd + key combinations
+			// Arrow keys for navigation (no modifier needed)
+			switch (event.key) {
+				case 'ArrowUp':
+				case 'Home':
+					event.preventDefault();
+					scrollToTop();
+					break;
+				case 'ArrowDown':
+				case 'End':
+					event.preventDefault();
+					scrollToBottom();
+					break;
+			}
+
+			// Ctrl/Cmd + key combinations for actions
 			if (event.ctrlKey || event.metaKey) {
 				switch (event.key) {
-					case 'Home':
-					case 'ArrowUp':
-						event.preventDefault();
-						scrollToTop();
-						break;
-					case 'End':
-					case 'ArrowDown':
-						event.preventDefault();
-						scrollToBottom();
-						break;
 					case 'r':
 					case 'R':
 						event.preventDefault();
@@ -175,7 +292,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 				level: 'ERROR',
 				category: 'REDIRECT_URI',
 				message: 'Failed to validate redirect URI - invalid format',
-				url: 'https://localhost:3000/mfa-unified-callback',
+				url: 'https://localhost:3000/v8/unified-mfa-callback',
 				data: { error: 'Invalid URI format', expected: 'https://localhost:3000/*' },
 			},
 			{
@@ -204,10 +321,10 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 	// Load localStorage logs
 	const loadLocalStorageLogs = useCallback(() => {
 		try {
-			const stored = localStorage.getItem('mfa_redirect_debug_log');
+			const stored = localStorage.getItem(selectedLocalStorageLog);
 			if (stored) {
-				const parsed = JSON.parse(stored) as LogEntry[];
-				setLogs(parsed);
+				const parsed = JSON.parse(stored) as unknown;
+				setLogs(normalizeToLogEntries(parsed, 'REDIRECT_URI', window.location.href));
 				setFileContent('');
 			} else {
 				// Generate test logs if none exist
@@ -217,7 +334,84 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 			// Silently handle error
 			setLogs([]);
 		}
-	}, [generateTestLogs]);
+	}, [generateTestLogs, normalizeToLogEntries, selectedLocalStorageLog]);
+
+	const loadIndexedDBLogs = useCallback(async () => {
+		setIsLoading(true);
+		setError(null);
+
+		try {
+			const [dbName, storeName] = selectedIndexedDBTarget.split('|');
+			if (!dbName || !storeName) throw new Error('Invalid IndexedDB target selected');
+
+			const rows = await new Promise<unknown[]>((resolve, reject) => {
+				const request = indexedDB.open(dbName);
+				request.onerror = () => reject(request.error ?? new Error(`Failed to open IndexedDB: ${dbName}`));
+				request.onsuccess = () => {
+					try {
+						const db = request.result;
+						const availableStores = Array.from(db.objectStoreNames);
+						if (availableStores.length === 0) {
+							console.warn(`[IndexedDB] No object stores found in "${dbName}". Database may be empty.`);
+							db.close();
+							resolve([]); // Graceful fallback: empty result instead of hard error
+							return;
+						}
+
+						const resolvedStoreName = db.objectStoreNames.contains(storeName)
+							? storeName
+							: availableStores[0];
+
+						if (resolvedStoreName !== storeName) {
+							setSelectedIndexedDBTarget(`${dbName}|${resolvedStoreName}`);
+						}
+
+						const tx = db.transaction(resolvedStoreName, 'readonly');
+						const store = tx.objectStore(resolvedStoreName);
+						const getAll = store.getAll();
+						getAll.onerror = () => reject(getAll.error ?? new Error('Failed to read IndexedDB records'));
+						getAll.onsuccess = () => {
+							resolve((getAll.result as unknown[]) ?? []);
+							db.close();
+						};
+					} catch (e) {
+						reject(e);
+					}
+				};
+			});
+
+			setLogs(normalizeToLogEntries(rows, 'VALIDATION', `indexeddb://${dbName}/${storeName}`));
+			setFileContent('');
+		} catch (err) {
+			setLogs([]);
+			setError(err instanceof Error ? err.message : 'Failed to load IndexedDB logs');
+		} finally {
+			setIsLoading(false);
+		}
+	}, [normalizeToLogEntries, selectedIndexedDBTarget]);
+
+	const loadSQLiteLogs = useCallback(async () => {
+		setIsLoading(true);
+		setError(null);
+
+		try {
+			const response = await fetch(selectedSQLiteTarget, {
+				headers: { Accept: 'application/json' },
+			});
+			if (!response.ok) {
+				throw new Error(`SQLite endpoint failed (${response.status}): ${response.statusText}`);
+			}
+
+			const data = (await response.json()) as unknown;
+			setLogs(normalizeToLogEntries(data, 'MIGRATION', selectedSQLiteTarget));
+			setFileContent('');
+		} catch (err) {
+			setLogs([]);
+			setError(err instanceof Error ? err.message : 'Failed to load SQLite logs');
+		} finally {
+			setIsLoading(false);
+		}
+	}, [normalizeToLogEntries, selectedSQLiteTarget]);
 
 	// Load file-based logs
 	const loadFileLogs = useCallback(async () => {
@@ -254,6 +448,73 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 		}
 	}, [selectedFile, lineCount]);
 
+	// Load callback debug logs from API
+	const loadCallbackDebugLogs = useCallback(async () => {
+		setIsLoading(true);
+		setError(null);
+
+		try {
+			// Get today's callback debug log
+			const today = new Date().toISOString().split('T')[0];
+			const response = await fetch(`/api/logs/callback-debug-${today}.log`);
+			
+			if (!response.ok) {
+				if (response.status === 404) {
+					setError('No callback debug logs found for today. Try triggering an MFA callback first.');
+				} else {
+					throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+				}
+				return;
+			}
+
+			const content = await response.text();
+			
+			// Parse each line as JSON and convert to log entries
+			const lines = content.trim().split('\n').filter(line => line.trim());
+			const logEntries: LogEntry[] = [];
+
+			for (const line of lines) {
+				try {
+					const parsed = JSON.parse(line);
+					const entry: LogEntry = {
+						timestamp: parsed.timestamp || new Date().toISOString(),
+						level: 'INFO',
+						category: 'CALLBACK_DEBUG',
+						message: `${parsed.event}: ${parsed.data?.currentPath || 'Unknown path'}`,
+						data: parsed,
+						url: parsed.url || window.location.href,
+					};
+					logEntries.push(entry);
+				} catch {
+					// If line is not valid JSON, add it as a simple log entry
+					const entry: LogEntry = {
+						timestamp: new Date().toISOString(),
+						level: 'WARN',
+						category: 'CALLBACK_DEBUG',
+						message: `Invalid JSON: ${line.substring(0, 100)}...`,
+						data: { rawLine: line },
+						url: window.location.href,
+					};
+					logEntries.push(entry);
+				}
+			}
+
+			// Sort by timestamp (newest first)
+			logEntries.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+			setLogs(logEntries);
+			setFileContent(''); // Clear file content since we're using structured logs
+			setIsContentTruncated(false);
+			setOriginalFileSize(content.length);
+
+		} catch (err) {
+			const errorMessage = err instanceof Error ? err.message : 'Failed to load callback debug logs';
+			setError(errorMessage);
+		} finally {
+			setIsLoading(false);
+		}
+	}, []);
+
 	// Load available log files
 	useEffect(() => {
 		const loadFiles = async () => {
@@ -289,6 +550,17 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 		loadFiles();
 	}, []);
 
+	useEffect(() => {
+		const keys = Object.keys(localStorage).filter((k) => k.toLowerCase().includes('log'));
+		if (!keys.includes('mfa_redirect_debug_log')) {
+			keys.unshift('mfa_redirect_debug_log');
+		}
+		setAvailableLocalStorageLogs(keys);
+		if (keys.length > 0 && !keys.includes(selectedLocalStorageLog)) {
+			setSelectedLocalStorageLog(keys[0]);
+		}
+	}, [selectedLocalStorageLog]);
+
 	// Save selected file to localStorage and SQLite when it changes
 	useEffect(() => {
 		if (selectedFile) {
@@ -310,10 +582,16 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 	useEffect(() => {
 		if (logSource === 'localStorage') {
 			loadLocalStorageLogs();
+		} else if (logSource === 'indexedDB') {
+			void loadIndexedDBLogs();
+		} else if (logSource === 'sqlite') {
+			void loadSQLiteLogs();
+		} else if (logSource === 'callback-debug') {
+			void loadCallbackDebugLogs();
 		} else {
 			void loadFileLogs();
 		}
-	}, [logSource, loadLocalStorageLogs, loadFileLogs]);
+	}, [logSource, loadLocalStorageLogs, loadIndexedDBLogs, loadSQLiteLogs, loadFileLogs, loadCallbackDebugLogs]);
 
 	// Setup tail mode
 	useEffect(() => {
@@ -351,27 +629,76 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 				eventSourceRef.current = null;
 			};
 		}
+
+		return undefined;
 	}, [logSource, tailMode, selectedFile]);
 
 	const clearLogs = () => {
 		if (logSource === 'localStorage') {
 			MFARedirectUriServiceV8.clearDebugLogs();
 			setLogs([]);
-		} else {
+		} else if (logSource === 'file') {
 			setFileContent('');
+		} else {
+			setLogs([]);
 		}
+	};
+
+	const getTransactionStage = (text: string): 'START' | 'END' => {
+		const lower = text.toLowerCase();
+		if (
+			/(end|complete|completed|success|successful|done|fail|failed|error|finish|finished|closed|stop|stopped|response)/.test(
+				lower
+			)
+		) {
+			return 'END';
+		}
+
+		return 'START';
+	};
+
+	const getIsoTimestampFromLine = (line: string): string | null => {
+		const isoMatch = line.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?/);
+		if (isoMatch?.[0]) {
+			const parsed = new Date(isoMatch[0]);
+			if (!Number.isNaN(parsed.getTime())) {
+				return parsed.toISOString();
+			}
+		}
+
+		return null;
+	};
+
+	const buildTransactionMarker = (timestamp: string, description: string, source: string) => {
+		const safeTimestamp = new Date(timestamp);
+		const markerTime = Number.isNaN(safeTimestamp.getTime())
+			? new Date().toLocaleString()
+			: safeTimestamp.toLocaleString();
+		const stage = getTransactionStage(description);
+		const compactDescription = description.length > 140 ? `${description.slice(0, 137)}...` : description;
+		return `* ${markerTime} | ${stage} | ${source}: ${compactDescription}`;
 	};
 
 	const exportLogs = () => {
 		if (logSource === 'localStorage') {
 			MFARedirectUriServiceV8.exportDebugLogs();
-		} else {
+		} else if (logSource === 'file') {
 			// Export file content
 			const blob = new Blob([fileContent], { type: 'text/plain' });
 			const url = URL.createObjectURL(blob);
 			const a = document.createElement('a');
 			a.href = url;
 			a.download = `${selectedFile}-export-${new Date().toISOString().slice(0, 10)}.txt`;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+		} else {
+			const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = `${logSource}-logs-export-${new Date().toISOString().slice(0, 10)}.json`;
 			document.body.appendChild(a);
 			a.click();
 			document.body.removeChild(a);
@@ -569,7 +896,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 			// HTTP status codes
 			else if (/^\d{3}$/.test(part)) {
 				const code = parseInt(part, 10);
-				let color = LOG_COLORS.info;
+				let color = LOG_COLORS.INFO;
 				if (code >= 200 && code < 300) color = LOG_COLORS.success;
 				else if (code >= 300 && code < 400) color = LOG_COLORS.warning;
 				else if (code >= 400) color = LOG_COLORS.error;
@@ -666,10 +993,13 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 		<div
 			style={{
 				padding: '20px',
-				maxWidth: '1400px',
+				maxWidth: '1600px',
 				margin: '0 auto',
 				minHeight: '100vh',
+				height: '100vh',
 				background: '#f3f4f6',
+				display: 'flex',
+				flexDirection: 'column',
 			}}
 		>
 			<PageHeaderV8
@@ -691,7 +1021,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 				}}
 			>
 				<div style={{ fontSize: '14px', fontWeight: '600', color: '#0369a1', marginBottom: '8px' }}>
-					⌨️ Keyboard Shortcuts (Ctrl/Cmd + Key):
+					⌨️ Keyboard Shortcuts:
 				</div>
 				<div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '13px' }}>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -702,7 +1032,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 							padding: '2px 6px', 
 							fontSize: '11px',
 							fontWeight: '600'
-						}}>Home/↑</kbd>
+						}}>↑ Arrow</kbd>
 						<span style={{ color: '#64748b' }}>Scroll to top</span>
 					</div>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -713,7 +1043,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 							padding: '2px 6px', 
 							fontSize: '11px',
 							fontWeight: '600'
-						}}>End/↓</kbd>
+						}}>↓ Arrow</kbd>
 						<span style={{ color: '#64748b' }}>Scroll to bottom</span>
 					</div>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -735,9 +1065,12 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 							padding: '2px 6px', 
 							fontSize: '11px',
 							fontWeight: '600'
-						}}>Delete/Backspace</kbd>
+						}}>Delete</kbd>
 						<span style={{ color: '#64748b' }}>Clear logs</span>
 					</div>
+				</div>
+				<div style={{ fontSize: '12px', color: '#64748b', marginTop: '8px', fontStyle: 'italic' }}>
+					Note: Arrow keys work directly. R and Delete require Ctrl/Cmd modifier.
 				</div>
 			</div>
 
@@ -757,47 +1090,143 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 					>
 						Log Source:
 					</span>
-					<button
-						type="button"
-						onClick={() => setLogSource('localStorage')}
-						style={{
-							padding: '8px 16px',
-							background: logSource === 'localStorage' ? '#3b82f6' : '#f3f4f6',
-							color: logSource === 'localStorage' ? 'white' : '#374151',
-							border: 'none',
-							borderRadius: '6px 0 0 6px',
-							fontSize: '14px',
-							fontWeight: '600',
-							cursor: 'pointer',
-							display: 'inline-flex',
-							alignItems: 'center',
-							gap: '6px',
-						}}
-					>
-						<FiDatabase size={16} />
-						localStorage
-					</button>
-					<button
-						type="button"
-						onClick={() => setLogSource('file')}
-						style={{
-							padding: '8px 16px',
-							background: logSource === 'file' ? '#3b82f6' : '#f3f4f6',
-							color: logSource === 'file' ? 'white' : '#374151',
-							border: 'none',
-							borderRadius: '0 6px 6px 0',
-							fontSize: '14px',
-							fontWeight: '600',
-							cursor: 'pointer',
-							display: 'inline-flex',
-							alignItems: 'center',
-							gap: '6px',
-						}}
-					>
-						<FiFile size={16} />
-						File
-					</button>
+					{sourceOptions.map((option, index) => (
+						<button
+							key={option.value}
+							type="button"
+							onClick={() => setLogSource(option.value)}
+							style={{
+								padding: '8px 14px',
+								background: logSource === option.value ? '#3b82f6' : '#f3f4f6',
+								color: logSource === option.value ? 'white' : '#374151',
+								border: 'none',
+								borderRadius:
+									index === 0
+										? '6px 0 0 6px'
+										: index === sourceOptions.length - 1
+											? '0 6px 6px 0'
+											: '0',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								display: 'inline-flex',
+								alignItems: 'center',
+								gap: '6px',
+							}}
+						>
+							{option.icon}
+							{option.label}
+						</button>
+					))}
 				</div>
+
+				{logSource === 'localStorage' && (
+					<div style={{ marginBottom: '15px' }}>
+						<label
+							style={{
+								display: 'block',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '8px',
+							}}
+							htmlFor="localstorage-log-select"
+						>
+							Select localStorage log key:
+						</label>
+						<select
+							id="localstorage-log-select"
+							value={selectedLocalStorageLog}
+							onChange={(e) => setSelectedLocalStorageLog(e.target.value)}
+							style={{
+								width: '100%',
+								padding: '10px',
+								fontSize: '14px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								background: 'white',
+							}}
+						>
+							{availableLocalStorageLogs.map((key) => (
+								<option key={key} value={key}>
+									{key}
+								</option>
+							))}
+						</select>
+					</div>
+				)}
+
+				{logSource === 'indexedDB' && (
+					<div style={{ marginBottom: '15px' }}>
+						<label
+							style={{
+								display: 'block',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '8px',
+							}}
+							htmlFor="indexeddb-target-select"
+						>
+							Select IndexedDB target:
+						</label>
+						<select
+							id="indexeddb-target-select"
+							value={selectedIndexedDBTarget}
+							onChange={(e) => setSelectedIndexedDBTarget(e.target.value)}
+							style={{
+								width: '100%',
+								padding: '10px',
+								fontSize: '14px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								background: 'white',
+							}}
+						>
+							{INDEXED_DB_TARGETS.map((target) => (
+								<option key={`${target.dbName}|${target.storeName}`} value={`${target.dbName}|${target.storeName}`}>
+									{target.label} ({target.dbName}.{target.storeName})
+								</option>
+							))}
+						</select>
+					</div>
+				)}
+
+				{logSource === 'sqlite' && (
+					<div style={{ marginBottom: '15px' }}>
+						<label
+							style={{
+								display: 'block',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '8px',
+							}}
+							htmlFor="sqlite-target-select"
+						>
+							Select SQLite endpoint:
+						</label>
+						<select
+							id="sqlite-target-select"
+							value={selectedSQLiteTarget}
+							onChange={(e) => setSelectedSQLiteTarget(e.target.value)}
+							style={{
+								width: '100%',
+								padding: '10px',
+								fontSize: '14px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								background: 'white',
+							}}
+						>
+							{SQLITE_TARGETS.map((target) => (
+								<option key={target.endpoint} value={target.endpoint}>
+									{target.label} ({target.endpoint})
+								</option>
+							))}
+						</select>
+					</div>
+				)}
 
 				{/* File Selection */}
 				{logSource === 'file' && (
@@ -893,7 +1322,13 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 					<button
 						type="button"
 						onClick={() =>
-							logSource === 'localStorage' ? loadLocalStorageLogs() : void loadFileLogs()
+							logSource === 'localStorage'
+								? loadLocalStorageLogs()
+								: logSource === 'indexedDB'
+									? void loadIndexedDBLogs()
+									: logSource === 'sqlite'
+										? void loadSQLiteLogs()
+										: void loadFileLogs()
 						}
 						disabled={isLoading}
 						style={{
@@ -984,14 +1419,14 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 							fontWeight: '600',
 						}}
 					>
-						{logSource === 'localStorage'
+						{logSource !== 'file'
 							? `${filteredLogs.length} ${filteredLogs.length === 1 ? 'entry' : 'entries'}`
 							: `${fileContent.split('\n').length} lines`}
 					</div>
 				</div>
 
-				{/* Category Filter (localStorage only) */}
-				{logSource === 'localStorage' && (
+				{/* Category Filter (non-file sources) */}
+				{logSource !== 'file' && (
 					<div
 						style={{
 							display: 'flex',
@@ -1055,12 +1490,13 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 					borderRadius: '8px',
 					padding: '20px',
 					boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-					maxHeight: '70vh',
+					flex: 1,
 					overflowY: 'auto',
+					minHeight: 0,
 				}}
 			>
-				{logSource === 'localStorage' ? (
-					// localStorage logs display
+				{logSource !== 'file' ? (
+					// non-file logs display
 					filteredLogs.length === 0 ? (
 						<div
 							style={{
@@ -1084,13 +1520,27 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 										style={{
 											border: '1px solid #e5e7eb',
 											borderTop: `3px solid ${getLevelColor(log.level)}`,
+											borderLeft: `4px solid ${getCategoryColor(log.category)}`,
 											borderRadius: '6px',
 											padding: '12px',
 											background: index % 2 === 0 ? '#f9fafb' : '#f3f4f6',
 											marginBottom: '8px',
 											boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+											position: 'relative',
+											overflow: 'hidden',
 										}}
 									>
+										<div
+											style={{
+												fontSize: '11px',
+												color: '#6b7280',
+												fontWeight: '600',
+												marginBottom: '8px',
+												fontFamily: 'monospace',
+											}}
+										>
+											{buildTransactionMarker(log.timestamp, log.message, 'ENTRY')}
+										</div>
 										<div
 											style={{
 												display: 'flex',
@@ -1239,33 +1689,54 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 							</div>
 						)}
 						<div
-							ref={logContainerRef}
 							style={{
-								background: '#1f2937',
+								background: '#ffffff',
 								borderRadius: '4px',
-								padding: '16px',
+								padding: '8px',
 								maxHeight: '600px',
+								border: '1px solid #e5e7eb',
 								overflow: 'auto',
 							}}
 						>
-							<pre
+							<div
 								style={{
-									margin: 0,
 									fontSize: '12px',
-									color: '#000000',
+									color: '#111827',
 									fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-									whiteSpace: 'pre-wrap',
-									wordBreak: 'break-word',
-									lineHeight: '1.5',
+									lineHeight: '1.55',
 								}}
 							>
-								{fileContent.split('\n').map((line, index) => (
-									<React.Fragment key={index}>
+								{fileContent.split('\n').map((line, index) => {
+									const lineTimestamp = getIsoTimestampFromLine(line) ?? new Date().toISOString();
+									const marker = buildTransactionMarker(lineTimestamp, line || '(empty line)', 'FILE');
+
+									return (
+										<div
+											key={index}
+											style={{
+												padding: '8px 10px',
+												borderBottom: '1px solid #e5e7eb',
+												borderLeft: '3px solid #d1d5db',
+												background: index % 2 === 0 ? '#f9fafb' : '#ffffff',
+												whiteSpace: 'pre-wrap',
+												wordBreak: 'break-word',
+											}}
+										>
+										<div
+											style={{
+												fontSize: '11px',
+												color: '#6b7280',
+												marginBottom: '5px',
+												fontWeight: '600',
+											}}
+										>
+											{marker}
+										</div>
 										{colorizeLogLine(line)}
-										{'\n'}
-									</React.Fragment>
-								))}
-							</pre>
+									</div>
+									);
+								})}
+							</div>
 						</div>
 					</>
 				) : (
@@ -1298,8 +1769,12 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 			>
 				<strong>💡 Tip:</strong>{' '}
 				{logSource === 'localStorage'
-					? 'These logs persist across page redirects and refreshes. Check here after OAuth callbacks to see what happened during the redirect flow.'
-					: 'Enable Tail Mode to see new log entries in real-time as they are written to the file. Large files (>100MB) will automatically use streaming.'}
+					? 'These logs persist across page redirects and refreshes. Use the dropdown to switch between all detected localStorage log keys.'
+					: logSource === 'indexedDB'
+						? 'Use IndexedDB target dropdown to read records from known databases/stores. Reader normalizes arrays and objects into log entries.'
+						: logSource === 'sqlite'
+							? 'Use SQLite endpoint dropdown to read JSON responses. Reader handles object/array and common logs/data/entries wrappers.'
+							: 'Enable Tail Mode to see new log entries in real-time as they are written to the file. File entries now include clearer per-line separation.'}
 			</div>
 		</div>
 	);

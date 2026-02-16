@@ -18,6 +18,7 @@ import React, { useEffect, useState } from 'react';
 import { FiCode, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import {
 	type TokenStatusInfo,
@@ -129,6 +130,8 @@ const TokenStatusPageV8U: React.FC = () => {
 		return config.workerToken?.showTokenAtEnd || false;
 	});
 
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+
 	// Update token status on mount and set up interval
 	useEffect(() => {
 		const updateTokenStatus = async () => {
@@ -176,7 +179,16 @@ const TokenStatusPageV8U: React.FC = () => {
 
 	const handleShowWorkerTokenModal = async () => {
 		try {
+			console.log('[TOKEN-STATUS-V8U] Starting worker token modal with params:', {
+				silentApiRetrieval,
+				showTokenAtEnd,
+				hasSetShowWorkerTokenModal: typeof setShowWorkerTokenModal,
+				hasSetTokenStatus: typeof setTokenStatus,
+			});
+			
 			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+			console.log('[TOKEN-STATUS-V8U] Successfully imported handleShowWorkerTokenModal');
+			
 			await handleShowWorkerTokenModal(
 				setShowWorkerTokenModal,
 				setTokenStatus,
@@ -184,7 +196,15 @@ const TokenStatusPageV8U: React.FC = () => {
 				showTokenAtEnd,
 				false
 			);
+			
+			console.log('[TOKEN-STATUS-V8U] Worker token modal completed successfully');
 		} catch (error) {
+			console.error('[TOKEN-STATUS-V8U] Detailed error:', {
+				error,
+				message: error instanceof Error ? error.message : String(error),
+				stack: error instanceof Error ? error.stack : undefined,
+				name: error instanceof Error ? error.name : 'Unknown',
+			});
 			logger.error('[TOKEN-STATUS-V8U] Error showing worker token modal:', error);
 		}
 	};
@@ -374,6 +394,14 @@ const TokenStatusPageV8U: React.FC = () => {
 
 				<UserTokenStatusDisplayV8U showRefresh={true} refreshInterval={10} />
 			</TokenStatusCard>
+
+			{/* Worker Token Modal */}
+			{showWorkerTokenModal && (
+				<WorkerTokenModalV8
+					isOpen={showWorkerTokenModal}
+					onClose={() => setShowWorkerTokenModal(false)}
+				/>
+			)}
 		</PageContainer>
 	);
 };

@@ -1,7 +1,7 @@
 # Restart Script Port Configuration Changes
 
 ## Summary
-Updated `restart-servers.sh` to use **fixed ports** instead of environment variables to ensure consistency with OAuth Playground configuration.
+Updated `run.sh` to use **fixed ports** instead of environment variables to ensure consistency with OAuth Playground configuration.
 
 ## Changes Made
 
@@ -52,7 +52,7 @@ The script now **always** uses:
 - Frontend: `https://localhost:3000`
 - Backend: `https://localhost:3001`
 
-Run with: `./restart-servers.sh`
+Run with: `./run.sh`
 
 No environment variables needed or accepted for port configuration.
 

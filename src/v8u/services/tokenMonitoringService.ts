@@ -741,9 +741,9 @@ export class TokenMonitoringService {
 		logger.debug(`[TokenMonitoring] Cleared ${tokensToRemove.length} tokens of type: ${tokenType}`);
 	}
 
-	public manualSyncWorkerToken(): void {
+	public async manualSyncWorkerToken(): Promise<void> {
 		logger.debug('[TokenMonitoring] Manual worker token sync triggered');
-		this.syncWorkerToken();
+		await this.syncWorkerToken();
 	}
 
 	private async syncWorkerToken(): Promise<void> {

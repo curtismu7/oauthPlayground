@@ -154,10 +154,10 @@ const ButtonGroup = styled.div`
 `;
 
 const Button = styled.button<{
-	variant?: 'primary' | 'secondary' | 'success' | 'danger';
+	$variant?: 'primary' | 'secondary' | 'success' | 'danger';
 }>`
   background: ${(props) => {
-		switch (props.variant) {
+		switch (props.$variant) {
 			case 'primary':
 				return '#4299e1';
 			case 'success':
@@ -168,7 +168,7 @@ const Button = styled.button<{
 				return '#e2e8f0';
 		}
 	}};
-  color: ${(props) => (props.variant === 'secondary' ? '#4a5568' : 'white')};
+  color: ${(props) => (props.$variant === 'secondary' ? '#4a5568' : 'white')};
   border: none;
   border-radius: 0.375rem;
   padding: 0.5rem 1rem;
@@ -571,14 +571,14 @@ const JWKSTroubleshooting: React.FC = () => {
 								<CommandTitle>{req.title}</CommandTitle>
 								<ButtonGroup>
 									<Button
-										variant="primary"
+										$variant="primary"
 										onClick={() => executeRequest(fullUrl, req.description)}
 										disabled={!environmentId || runningCommands.has(fullUrl)}
 									>
 										<FiPlay />
 										{runningCommands.has(fullUrl) ? 'Loading...' : 'Execute'}
 									</Button>
-									<Button variant="secondary" onClick={() => copyToClipboard(fullUrl, 'URL')}>
+									<Button $variant="secondary" onClick={() => copyToClipboard(fullUrl, 'URL')}>
 										<FiCopy />
 										Copy URL
 									</Button>
@@ -641,7 +641,7 @@ const JWKSTroubleshooting: React.FC = () => {
 											</span>
 										</OutputTitle>
 										<Button
-											variant="secondary"
+											$variant="secondary"
 											onClick={(e) => {
 												e.stopPropagation();
 												copyToClipboard(result.output, 'Output');

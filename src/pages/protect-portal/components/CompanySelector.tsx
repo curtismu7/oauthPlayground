@@ -13,6 +13,7 @@ import React, { useState } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
+import { CompanyConfigService } from '../services/CompanyConfigService';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -246,6 +247,18 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const { switchTheme, activeTheme } = useBrandTheme();
+	const companyService = CompanyConfigService.getInstance();
+
+	// Debug: Check what companies are available
+	React.useEffect(() => {
+		const createdCompanies = companyService.getRegistry();
+		console.log('[🚀 COMPANY-SELECTOR] Available companies:', {
+			defaultCount: defaultCompanies.length,
+			createdCount: createdCompanies.length,
+			createdCompanyNames: createdCompanies.map(c => c.name),
+			defaultCompanyNames: defaultCompanies.map(c => c.name),
+		});
+	}, []);
 
 	// Use activeTheme to determine current company, fallback to selectedCompany prop
 	const currentCompany = companies.find((c) => c.theme === activeTheme.name) || 

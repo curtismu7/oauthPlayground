@@ -68,6 +68,11 @@ const STATUS_BADGES = {
 		bg: colors.warning[50],
 	},
 	DISABLED: { text: 'Disabled', color: colors.gray[600], bg: colors.gray[50] },
+	BLOCKED: { text: 'Blocked', color: colors.error[600], bg: colors.error[50] },
+	LOCKED: { text: 'Locked', color: colors.error[600], bg: colors.error[50] },
+	PENDING: { text: 'Pending', color: colors.warning[600], bg: colors.warning[50] },
+	SUSPENDED: { text: 'Suspended', color: colors.warning[600], bg: colors.warning[50] },
+	EXPIRED: { text: 'Expired', color: colors.gray[600], bg: colors.gray[50] },
 };
 
 export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalProps> = ({
@@ -77,49 +82,64 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 	onRegisterDevice,
 	username,
 	environmentId,
-	loading = false,
-	error = null,
+	loading,
+	error,
 }) => {
 	const [devices, setDevices] = useState<Device[]>([]);
 	const [searchQuery, setSearchQuery] = useState('');
-	const [isLoading, setIsLoading] = useState(false);
-	const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
 	// Fetch real devices from API
 	useEffect(() => {
 		if (isOpen && username && environmentId) {
 			const fetchDevices = async () => {
-				setIsLoading(true);
-				setErrorMsg(null);
 				try {
 					const allDevices = await MFAServiceV8.getAllDevices({
 						environmentId,
 						username,
 					});
 
-					// Filter out devices with ACTIVATION_REQUIRED status
-					// Only show ACTIVE devices for authentication
-					const activeDevices = allDevices
-						.filter((device: any) => device.status === 'ACTIVE')
-						.map((device: any) => ({
-							id: device.id,
-							type: device.type,
-							deviceName: device.name || device.phone?.number || device.email?.address,
-							nickname: device.nickname,
-							status: device.status,
-						}));
+					// Show all devices that can be used for authentication
+					// Include ACTIVE, ACTIVATION_REQUIRED, and PENDING devices
+					const availableDevices = allDevices
+						.filter(
+							(device) =>
+								device.status === 'ACTIVE' ||
+								device.status === 'ACTIVATION_REQUIRED' ||
+								device.status === 'PENDING'
+						)
+						.map(
+							(device) =>
+								({
+									id: device.id,
+									type: device.type as Device['type'],
+									deviceName:
+										device.name ||
+										(device.phone as { number?: string })?.number ||
+										(device.email as { address?: string })?.address ||
+										'Unknown Device',
+									nickname: device.nickname,
+									status: device.status,
+								}) as Device
+						);
 
-					console.log('[DEVICE-SELECTION] Loaded devices:', activeDevices.length, 'active devices');
-					setDevices(activeDevices);
+					console.log(
+						'[DEVICE-SELECTION] Loaded devices:',
+						availableDevices.length,
+						'available devices'
+					);
+					console.log(
+						'[DEVICE-SELECTION] Device statuses:',
+						allDevices.map((d) => ({ id: d.id, type: d.type, status: d.status }))
+					);
+					setDevices(availableDevices);
 				} catch (err) {
-					console.error('[DEVICE-SELECTION] Error loading devices:', err);
-					setErrorMsg(err instanceof Error ? err.message : 'Failed to load devices');
+					console.error('[DEVICE-SELECTION] Failed to fetch devices:', err);
 				} finally {
-					setIsLoading(false);
+					// Loading state managed by parent
 				}
 			};
 
-			fetchDevices();
+			void fetchDevices();
 		}
 	}, [isOpen, username, environmentId]);
 
@@ -131,22 +151,8 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 			device.type.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
-	// Only show active devices for authentication
-	const availableDevices = filteredDevices.filter((device) => device.status === 'ACTIVE');
-
-	// Handle empty devices case - show modal and trigger device registration
-	useEffect(() => {
-		if (isOpen && !isLoading && !errorMsg && availableDevices.length === 0 && onRegisterDevice) {
-			// Show a brief message then automatically trigger device registration
-			const timer = setTimeout(() => {
-				console.log('[DEVICE-SELECTION] No devices found, triggering device registration');
-				onRegisterDevice();
-				onClose();
-			}, 2000); // 2 second delay to show the message
-
-			return () => clearTimeout(timer);
-		}
-	}, [isOpen, isLoading, errorMsg, availableDevices.length, onRegisterDevice, onClose]);
+	// All devices are already filtered to show available ones in the fetch logic
+	const availableDevices = filteredDevices;
 
 	const handleDeviceSelect = (device: Device) => {
 		onDeviceSelect(device);
@@ -157,6 +163,7 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 
 	return (
 		<div
+			role="presentation"
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -169,16 +176,10 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 				justifyContent: 'center',
 				zIndex: 1000,
 			}}
-			onClick={onClose}
-			onKeyDown={(e) => {
-				if (e.key === 'Escape') {
-					onClose();
-				}
-			}}
-			role="dialog"
-			aria-modal="true"
 		>
 			<div
+				role="dialog"
+				aria-modal="true"
 				style={{
 					background: 'white',
 					borderRadius: '16px',
@@ -191,6 +192,11 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 					flexDirection: 'column',
 				}}
 				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
 			>
 				{/* Header */}
 				<div
@@ -258,35 +264,150 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 						overflowY: 'auto',
 					}}
 				>
-					{isLoading ? (
+					{loading ? (
 						<div style={{ textAlign: 'center', padding: spacing[8] }}>
 							<div style={{ fontSize: '32px', marginBottom: spacing[4] }}>⏳</div>
 							<p style={{ color: colors.gray[600] }}>Loading your devices...</p>
 						</div>
-					) : errorMsg ? (
+					) : error ? (
 						<div style={{ textAlign: 'center', padding: spacing[8] }}>
 							<div style={{ fontSize: '32px', marginBottom: spacing[4], color: colors.error[500] }}>
 								⚠️
 							</div>
-							<p style={{ color: colors.error[600] }}>{errorMsg}</p>
+							<p style={{ color: colors.error[600] }}>{error}</p>
 						</div>
 					) : availableDevices.length === 0 ? (
 						<div style={{ textAlign: 'center', padding: spacing[8] }}>
-							<div style={{ fontSize: '32px', marginBottom: spacing[4] }}>📱</div>
-							<p style={{ color: colors.gray[600] }}>
-								No active MFA devices found.
+							<div style={{ fontSize: '48px', marginBottom: spacing[4] }}>📱</div>
+							<h3 style={{ color: colors.gray[800], margin: `0 0 ${spacing[3]} 0` }}>
+								No MFA Devices Found
+							</h3>
+							<p style={{ color: colors.gray[600], margin: `0 0 ${spacing[6]} 0` }}>
+								You don't have any MFA devices registered yet. Please register a device to continue.
 							</p>
+
 							{onRegisterDevice && (
-								<p style={{ color: colors.primary[600], fontSize: '14px', marginTop: spacing[2] }}>
-									Redirecting to device registration...
-								</p>
+								<div
+									style={{
+										display: 'flex',
+										flexDirection: 'column',
+										gap: spacing[3],
+										alignItems: 'center',
+									}}
+								>
+									<div
+										style={{ fontSize: '14px', color: colors.gray[500], marginBottom: spacing[2] }}
+									>
+										Choose a registration method:
+									</div>
+
+									<div
+										style={{
+											display: 'flex',
+											gap: spacing[4],
+											flexWrap: 'wrap',
+											justifyContent: 'center',
+										}}
+									>
+										<button
+											type="button"
+											onClick={() => {
+												console.log('[DEVICE-SELECTION] User chose SMS registration');
+												onRegisterDevice();
+												onClose();
+											}}
+											onKeyDown={(e) => {
+												if (e.key === 'Enter' || e.key === ' ') {
+													e.preventDefault();
+													onRegisterDevice();
+													onClose();
+												}
+											}}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: spacing[2],
+												padding: `${spacing[3]} ${spacing[4]}`,
+												background: colors.primary[600],
+												color: 'white',
+												border: 'none',
+												borderRadius: '8px',
+												fontSize: '14px',
+												cursor: 'pointer',
+												transition: 'all 0.2s',
+											}}
+											onMouseOver={(e) => {
+												e.currentTarget.style.background = colors.primary[700];
+											}}
+											onFocus={(e) => {
+												e.currentTarget.style.background = colors.primary[700];
+											}}
+											onMouseOut={(e) => {
+												e.currentTarget.style.background = colors.primary[600];
+											}}
+											onBlur={(e) => {
+												e.currentTarget.style.background = colors.primary[600];
+											}}
+										>
+											📱 Register SMS
+										</button>
+
+										<button
+											type="button"
+											onClick={() => {
+												console.log('[DEVICE-SELECTION] User chose Email registration');
+												onRegisterDevice();
+												onClose();
+											}}
+											onKeyDown={(e) => {
+												if (e.key === 'Enter' || e.key === ' ') {
+													e.preventDefault();
+													onRegisterDevice();
+													onClose();
+												}
+											}}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: spacing[2],
+												padding: `${spacing[3]} ${spacing[4]}`,
+												background: colors.success[600],
+												color: 'white',
+												border: 'none',
+												borderRadius: '8px',
+												fontSize: '14px',
+												cursor: 'pointer',
+												transition: 'all 0.2s',
+											}}
+											onMouseOver={(e) => {
+												e.currentTarget.style.background = colors.success[700];
+											}}
+											onFocus={(e) => {
+												e.currentTarget.style.background = colors.success[700];
+											}}
+											onMouseOut={(e) => {
+												e.currentTarget.style.background = colors.success[600];
+											}}
+											onBlur={(e) => {
+												e.currentTarget.style.background = colors.success[600];
+											}}
+										>
+											✉️ Register Email
+										</button>
+									</div>
+
+									<div style={{ fontSize: '12px', color: colors.gray[400], marginTop: spacing[3] }}>
+										Or choose from other options in the registration form
+									</div>
+								</div>
 							)}
 						</div>
 					) : (
 						<div style={{ display: 'grid', gap: spacing[4] }}>
 							{availableDevices.map((device) => (
-								<div
+								<button
 									key={device.id}
+									type="button"
 									onClick={() => handleDeviceSelect(device)}
 									onKeyDown={(e) => {
 										if (e.key === 'Enter' || e.key === ' ') {
@@ -303,6 +424,8 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 										display: 'flex',
 										alignItems: 'center',
 										gap: spacing[4],
+										background: 'white',
+										width: '100%',
 									}}
 									onMouseEnter={(e) => {
 										e.currentTarget.style.borderColor = DEVICE_COLORS[device.type];
@@ -312,8 +435,6 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 										e.currentTarget.style.borderColor = colors.gray[200];
 										e.currentTarget.style.backgroundColor = 'white';
 									}}
-									role="button"
-									tabIndex={0}
 								>
 									{/* Device Icon */}
 									<div
@@ -370,7 +491,7 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 
 									{/* Arrow */}
 									<div style={{ color: colors.gray[400] }}>→</div>
-								</div>
+								</button>
 							))}
 						</div>
 					)}

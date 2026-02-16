@@ -143,7 +143,7 @@ export const FLOW_REDIRECT_URI_MAPPING_V8: FlowRedirectUriConfig[] = [
 	{
 		flowType: 'unified-mfa-v8',
 		requiresRedirectUri: true,
-		callbackPath: 'mfa-unified-callback',
+		callbackPath: 'v8/unified-mfa-callback',
 		description: 'V8 Unified MFA Registration Flow',
 		specification: 'PingOne MFA API',
 	},
