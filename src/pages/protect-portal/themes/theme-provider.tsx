@@ -10,9 +10,11 @@
  */
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { ThemeProvider as StyledThemeProvider } from 'styled-components';
 import { americanAirlinesTheme } from './american-airlines.theme';
 import { bankOfAmericaTheme } from './bank-of-america.theme';
 import type { BrandTheme, BrandThemeContext } from './brand-theme.interface';
+import { deltaTheme } from './delta.theme';
 import { fedexTheme } from './fedex.theme';
 import { pingidentityTheme } from './pingidentity.theme';
 import { southwestAirlinesTheme } from './southwest-airlines.theme';
@@ -26,6 +28,7 @@ const availableThemes: BrandTheme[] = [
 	southwestAirlinesTheme,
 	bankOfAmericaTheme,
 	pingidentityTheme,
+	deltaTheme,
 ];
 
 // Create context
@@ -91,6 +94,11 @@ export const BrandThemeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 			// Switch theme after brief delay for smooth transition
 			setTimeout(() => {
 				setActiveTheme(newTheme);
+				window.dispatchEvent(
+					new CustomEvent('protect-portal-theme-switched', {
+						detail: { themeName: newTheme.name },
+					})
+				);
 
 				// Remove flash effect
 				flash.style.opacity = '0';
@@ -175,7 +183,11 @@ export const BrandThemeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 		availableThemes,
 	};
 
-	return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;
+	return (
+		<StyledThemeProvider theme={activeTheme as any}>
+			<ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>
+		</StyledThemeProvider>
+	);
 };
 
 // Hook to use theme context

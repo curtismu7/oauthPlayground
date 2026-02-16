@@ -245,7 +245,7 @@ The Worker Token Flow V7 is **100% complete** and **fully operational**:
 
 ### **Start Servers**
 ```bash
-./restart-servers.sh
+./run.sh
 ```
 
 ### **Check Status**

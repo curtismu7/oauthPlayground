@@ -685,15 +685,15 @@ const CompetitiveAnalysis: React.FC = () => {
 
 							<ActionButtons>
 								<Button
-									variant="primary"
+									$variant="primary"
 									size="sm"
 									onClick={() => window.open(provider.website, '_blank')}
 								>
-									<FiExternalLink size={14} />
+									<FiExternalLink />
 									Visit Website
 								</Button>
 								<Button
-									variant="outline"
+									$variant="outline"
 									size="sm"
 									onClick={() => setSelectedProvider(provider.id)}
 								>

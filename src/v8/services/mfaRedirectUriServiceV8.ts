@@ -25,15 +25,15 @@ const MAX_LOG_ENTRIES = 50;
 /**
  * Persistent logging that survives redirects
  */
-class PersistentLogger {
+const PersistentLogger = {
 	/**
 	 * Add a log entry that persists across redirects
 	 */
-	static log(
+	log(
 		level: 'INFO' | 'WARN' | 'ERROR',
 		category: string,
 		message: string,
-		data?: any
+		data?: Record<string, unknown>
 	): void {
 		if (!DEBUG_MODE) return;
 
@@ -42,7 +42,7 @@ class PersistentLogger {
 			level,
 			category,
 			message,
-			data,
+			...(data && { data }),
 			url: window.location.href,
 		};
 
@@ -68,12 +68,19 @@ class PersistentLogger {
 		const consoleMethod =
 			level === 'ERROR' ? console.error : level === 'WARN' ? console.warn : console.log;
 		consoleMethod(`${DEBUG_PREFIX} [${category}] ${message}`, data || '');
-	}
+	},
 
 	/**
 	 * Get all stored logs
 	 */
-	static getLogs(): any[] {
+	getLogs(): Array<{
+		timestamp: string;
+		level: 'INFO' | 'WARN' | 'ERROR';
+		category: string;
+		message: string;
+		data?: Record<string, unknown>;
+		url: string;
+	}> {
 		try {
 			const stored = localStorage.getItem(PERSISTENT_LOG_KEY);
 			return stored ? JSON.parse(stored) : [];
@@ -81,19 +88,19 @@ class PersistentLogger {
 			console.warn('Failed to parse debug logs from localStorage:', error);
 			return [];
 		}
-	}
+	},
 
 	/**
 	 * Clear all stored logs
 	 */
-	static clearLogs(): void {
+	clearLogs(): void {
 		localStorage.removeItem(PERSISTENT_LOG_KEY);
-	}
+	},
 
 	/**
 	 * Get logs as formatted string for display
 	 */
-	static getFormattedLogs(): string {
+	getFormattedLogs(): string {
 		const logs = PersistentLogger.getLogs();
 		if (logs.length === 0) {
 			return 'No debug logs found';
@@ -107,16 +114,16 @@ class PersistentLogger {
 				}`;
 			})
 			.join('\n\n');
-	}
+	},
 
 	/**
 	 * Log redirect URI specific information
 	 */
-	static logRedirectUri(
+	logRedirectUri(
 		flowType: string,
 		redirectUri: string | null,
 		fallback?: string,
-		config?: any
+		config?: Record<string, unknown>
 	): void {
 		PersistentLogger.log('INFO', 'REDIRECT_URI', `Processing redirect URI for flow: ${flowType}`, {
 			redirectUri,
@@ -126,23 +133,23 @@ class PersistentLogger {
 			origin: window.location.origin,
 			host: window.location.host,
 		});
-	}
+	},
 
 	/**
 	 * Log migration events
 	 */
-	static logMigration(oldUri: string | undefined, newUri: string, flowType: string): void {
+	logMigration(oldUri: string | undefined, newUri: string, flowType: string): void {
 		PersistentLogger.log('INFO', 'MIGRATION', `URI migration for flow: ${flowType}`, {
 			oldUri,
 			newUri,
 			changed: oldUri !== newUri,
 		});
-	}
+	},
 
 	/**
 	 * Log validation issues
 	 */
-	static logValidation(flowType: string, uri: string, issues: string[]): void {
+	logValidation(flowType: string, uri: string, issues: string[]): void {
 		PersistentLogger.log(
 			issues.length > 0 ? 'WARN' : 'INFO',
 			'VALIDATION',
@@ -153,24 +160,24 @@ class PersistentLogger {
 				valid: issues.length === 0,
 			}
 		);
-	}
+	},
 
 	/**
 	 * Log flow mapping information
 	 */
-	static logFlowMappings(flowType: string, config: any): void {
+	logFlowMappings(flowType: string, config: Record<string, unknown>): void {
 		PersistentLogger.log('INFO', 'FLOW_MAPPING', `Flow configuration for: ${flowType}`, config);
-	}
-}
+	},
+};
 
 /**
  * Enhanced debugging utilities for MFA redirect URIs
  */
-class MFARedirectUriDebugger {
+const MFARedirectUriDebugger = {
 	/**
 	 * Validate a redirect URI and return any issues
 	 */
-	static validateUri(uri: string): string[] {
+	validateUri(uri: string): string[] {
 		const issues: string[] = [];
 
 		if (!uri) {
@@ -188,16 +195,12 @@ class MFARedirectUriDebugger {
 		}
 
 		return issues;
-	}
+	},
 
 	/**
 	 * Log detailed redirect URI information
 	 */
-	static logRedirectUriDetails(
-		flowType: string,
-		redirectUri: string | null,
-		fallback?: string
-	): void {
+	logRedirectUriDetails(flowType: string, redirectUri: string | null, fallback?: string): void {
 		if (!DEBUG_MODE) return;
 
 		console.group(`${DEBUG_PREFIX} Redirect URI Analysis for: ${flowType}`);
@@ -236,12 +239,12 @@ class MFARedirectUriDebugger {
 		}
 
 		console.groupEnd();
-	}
+	},
 
 	/**
 	 * Log migration information
 	 */
-	static logMigration(oldUri: string | undefined, newUri: string, flowType: string): void {
+	logMigration(oldUri: string | undefined, newUri: string, flowType: string): void {
 		if (!DEBUG_MODE) return;
 
 		console.group(`${DEBUG_PREFIX} URI Migration`);
@@ -250,12 +253,12 @@ class MFARedirectUriDebugger {
 		console.log('📥 New URI:', newUri);
 		console.log(`✅ Migration Status: ${oldUri !== newUri ? 'Changed' : 'No change needed'}`);
 		console.groupEnd();
-	}
+	},
 
 	/**
 	 * Log validation results
 	 */
-	static logValidation(flowType: string, uri: string): void {
+	logValidation(flowType: string, uri: string): void {
 		if (!DEBUG_MODE) return;
 
 		const issues: string[] = [];
@@ -288,12 +291,12 @@ class MFARedirectUriDebugger {
 		}
 
 		console.groupEnd();
-	}
+	},
 
 	/**
 	 * Log all available flow mappings
 	 */
-	static logAllFlowMappings(): void {
+	logAllFlowMappings(): void {
 		if (!DEBUG_MODE) return;
 
 		const allConfigs = getAllFlowRedirectUriConfigs();
@@ -310,8 +313,8 @@ class MFARedirectUriDebugger {
 		});
 
 		console.groupEnd();
-	}
-}
+	},
+};
 
 /**
  * MFA Redirect URI Service
@@ -319,7 +322,7 @@ class MFARedirectUriDebugger {
  * Provides the correct redirect URI for MFA flows based on flow type.
  * Uses the centralized flow mapping system to ensure each flow gets its unique URI.
  */
-export class MFARedirectUriServiceV8 {
+export const MFARedirectUriServiceV8 = {
 	/**
 	 * Get the redirect URI for a specific MFA flow type
 	 * This uses the centralized flow mapping to get the correct unique URI
@@ -327,24 +330,34 @@ export class MFARedirectUriServiceV8 {
 	 * @param flowType - The flow type (e.g., 'unified-mfa-v8', 'oauth-authz-v8u')
 	 * @returns The redirect URI for the specified flow
 	 */
-	static getRedirectUri(flowType: string): string {
+	getRedirectUri(flowType: string): string {
 		const redirectUri = generateRedirectUriForFlow(flowType);
 		const config = getFlowRedirectUriConfig(flowType);
 
 		if (!redirectUri) {
 			// Always use HTTPS for security (even in development)
 			const protocol = 'https';
-			const fallbackUri = `${protocol}://${window.location.host}/mfa-unified-callback`;
+			const fallbackUri = `${protocol}://${window.location.host}/v8/unified-mfa-callback`;
 
 			// Log to persistent storage
-			PersistentLogger.logRedirectUri(flowType, null, fallbackUri, config);
+			PersistentLogger.logRedirectUri(
+				flowType,
+				null,
+				fallbackUri,
+				config as unknown as Record<string, unknown>
+			);
 
 			console.error(`${MODULE_TAG} No redirect URI found for flow type: ${flowType}`);
 			return fallbackUri;
 		}
 
 		// Log successful URI generation
-		PersistentLogger.logRedirectUri(flowType, redirectUri, undefined, config);
+		PersistentLogger.logRedirectUri(
+			flowType,
+			redirectUri,
+			undefined,
+			config as unknown as Record<string, unknown>
+		);
 
 		// Validate the URI and log any issues
 		const issues = MFARedirectUriDebugger.validateUri(redirectUri);
@@ -354,34 +367,34 @@ export class MFARedirectUriServiceV8 {
 
 		console.log(`${MODULE_TAG} Providing redirect URI for ${flowType}: ${redirectUri}`);
 		return redirectUri;
-	}
+	},
 
 	/**
 	 * Get the redirect URI for unified MFA flow (backward compatibility)
 	 *
 	 * @returns The redirect URI for unified MFA flow
 	 */
-	static getUnifiedMFARedirectUri(): string {
+	getUnifiedMFARedirectUri(): string {
 		return MFARedirectUriServiceV8.getRedirectUri('unified-mfa-v8');
-	}
+	},
 
 	/**
 	 * Get the redirect URI for V8U OAuth flow
 	 *
 	 * @returns The redirect URI for V8U OAuth flow
 	 */
-	static getV8UOAuthRedirectUri(): string {
+	getV8UOAuthRedirectUri(): string {
 		return MFARedirectUriServiceV8.getRedirectUri('oauth-authz-v8u');
-	}
+	},
 
 	/**
 	 * Get the redirect URI for MFA Hub flow
 	 *
 	 * @returns The redirect URI for MFA Hub flow
 	 */
-	static getMFAHubRedirectUri(): string {
+	getMFAHubRedirectUri(): string {
 		return MFARedirectUriServiceV8.getRedirectUri('mfa-hub-v8');
-	}
+	},
 
 	/**
 	 * Check if a redirect URI is the old mfa-hub URI that needs migration
@@ -389,7 +402,7 @@ export class MFARedirectUriServiceV8 {
 	 * @param uri - The redirect URI to check
 	 * @returns True if the URI needs migration
 	 */
-	static needsMigration(uri: string | undefined): boolean {
+	needsMigration(uri: string | undefined): boolean {
 		if (!uri) return true;
 
 		return (
@@ -397,19 +410,19 @@ export class MFARedirectUriServiceV8 {
 			uri.includes('/v8/mfa-unified-callback') ||
 			uri.includes('/v8/unified-mfa-callback')
 		);
-	}
+	},
 
 	/**
 	 * Persist redirect-debug events in localStorage so logs survive full-page redirects.
 	 */
-	static logDebugEvent(
+	logDebugEvent(
 		category: string,
 		message: string,
-		data?: unknown,
+		data?: Record<string, unknown>,
 		level: 'INFO' | 'WARN' | 'ERROR' = 'INFO'
 	): void {
 		PersistentLogger.log(level, category, message, data);
-	}
+	},
 
 	/**
 	 * Migrate credentials to use the correct redirect URI for their flow type
@@ -419,10 +432,7 @@ export class MFARedirectUriServiceV8 {
 	 * @param flowType - The flow type to get the correct URI for
 	 * @returns The migrated credentials with correct redirect URI
 	 */
-	static migrateCredentials<T extends { redirectUri?: string }>(
-		credentials: T,
-		flowType: string
-	): T {
+	migrateCredentials<T extends { redirectUri?: string }>(credentials: T, flowType: string): T {
 		if (MFARedirectUriServiceV8.needsMigration(credentials.redirectUri)) {
 			const correctUri = MFARedirectUriServiceV8.getRedirectUri(flowType);
 
@@ -440,26 +450,26 @@ export class MFARedirectUriServiceV8 {
 		}
 
 		return credentials;
-	}
+	},
 
 	/**
 	 * Get all persistent debug logs
 	 */
-	static getDebugLogs(): string {
+	getDebugLogs(): string {
 		return PersistentLogger.getFormattedLogs();
-	}
+	},
 
 	/**
 	 * Clear all persistent debug logs
 	 */
-	static clearDebugLogs(): void {
+	clearDebugLogs(): void {
 		PersistentLogger.clearLogs();
-	}
+	},
 
 	/**
 	 * Export debug logs for analysis
 	 */
-	static exportDebugLogs(): void {
+	exportDebugLogs(): void {
 		const logs = PersistentLogger.getFormattedLogs();
 		const blob = new Blob([logs], { type: 'text/plain' });
 		const url = URL.createObjectURL(blob);
@@ -470,5 +480,5 @@ export class MFARedirectUriServiceV8 {
 		a.click();
 		document.body.removeChild(a);
 		URL.revokeObjectURL(url);
-	}
-}
+	},
+};

@@ -12,6 +12,7 @@
 import React from 'react';
 import { FiCheckCircle, FiDollarSign, FiHeart, FiShield, FiSmile } from 'react-icons/fi';
 import styled from 'styled-components';
+import { useBrandTheme } from '../themes/theme-provider';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 
 // ============================================================================
@@ -249,19 +250,16 @@ const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 	className,
 	currentStep = 'portal-home',
 	onLoginStart,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_onLoginSuccess,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_onError,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_environmentId,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_clientId,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_clientSecret,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	_redirectUri,
 }) => {
+	const { activeTheme } = useBrandTheme();
+	const isCustomer = activeTheme.content?.customerTerminology ?? true; // Default to customer terminology
+
 	return (
 		<HeroContainer className={className}>
 			<HeroBackground />
@@ -299,13 +297,17 @@ const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 
 						<RightContent>
 							<LoginSection>
-								<LoginTitle>Employee Sign In</LoginTitle>
-								<LoginSubtitle>Access your Southwest Airlines employee account</LoginSubtitle>
+								<LoginTitle>{isCustomer ? 'Customer Sign In' : 'Employee Sign In'}</LoginTitle>
+								<LoginSubtitle>
+									{isCustomer 
+										? 'Access your Southwest Airlines customer account' 
+										: 'Access your Southwest Airlines employee account'}
+								</LoginSubtitle>
 							</LoginSection>
 
 							<LoginButton onClick={onLoginStart}>
 								<FiShield />
-								Sign In to Employee Portal
+								{isCustomer ? 'Sign In to Customer Portal' : 'Sign In to Employee Portal'}
 							</LoginButton>
 
 							<QuickLinks>
@@ -330,35 +332,35 @@ const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 						</Navigation>
 						<MainContent>
 							<LeftContent>
-								<HeroTitle>Secure Employee Portal</HeroTitle>
+								<HeroTitle>{isCustomer ? 'Secure Customer Portal' : 'Secure Employee Portal'}</HeroTitle>
 								<HeroSubtitle>
-									Access your Southwest Airlines employee account with enhanced security features.
+									{isCustomer 
+										? 'Access your Southwest Airlines customer account with enhanced security features.'
+										: 'Access your Southwest Airlines employee account with enhanced security features.'}
 								</HeroSubtitle>
 								<Features>
 									<Feature>
 										<FeatureIcon>
-											<FiShield />
-										</FeatureIcon>
-										<span>Enhanced Security</span>
-									</Feature>
-									<Feature>
-										<FeatureIcon>
 											<FiCheckCircle />
 										</FeatureIcon>
-										<span>Quick Access</span>
+										<span>{isCustomer ? 'Customer First' : 'Employee First'}</span>
 									</Feature>
 								</Features>
 							</LeftContent>
 
 							<RightContent>
 								<LoginSection>
-									<LoginTitle>Employee Sign In</LoginTitle>
-									<LoginSubtitle>Access your Southwest Airlines employee account</LoginSubtitle>
+									<LoginTitle>{isCustomer ? 'Customer Sign In' : 'Employee Sign In'}</LoginTitle>
+									<LoginSubtitle>
+										{isCustomer 
+											? 'Access your Southwest Airlines customer account' 
+											: 'Access your Southwest Airlines employee account'}
+									</LoginSubtitle>
 								</LoginSection>
 
 								<LoginButton onClick={onLoginStart}>
 									<FiShield />
-									Sign In to Employee Portal
+									{isCustomer ? 'Sign In to Customer Portal' : 'Sign In to Employee Portal'}
 								</LoginButton>
 
 								<QuickLinks>
