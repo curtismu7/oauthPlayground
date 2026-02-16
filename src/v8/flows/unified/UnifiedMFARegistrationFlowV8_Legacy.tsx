@@ -1225,15 +1225,15 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 										padding: '8px 16px',
 										border: `2px solid ${
 											selectedFlowType === 'user'
-												? PING_IDENTITY_COLORS.accent.blue[500]
+												? PING_IDENTITY_COLORS.primary[500]
 												: PING_IDENTITY_COLORS.neutral[300]
 										}`,
 										borderRadius: '6px',
 										background:
-											selectedFlowType === 'user' ? PING_IDENTITY_COLORS.accent.blue[50] : 'white',
+											selectedFlowType === 'user' ? PING_IDENTITY_COLORS.primary[50] : 'white',
 										color:
 											selectedFlowType === 'user'
-												? PING_IDENTITY_COLORS.accent.blue[700]
+												? PING_IDENTITY_COLORS.primary[700]
 												: PING_IDENTITY_COLORS.neutral[700],
 										fontWeight: '600',
 										cursor: 'pointer',
@@ -1241,8 +1241,8 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 									}}
 									onMouseEnter={(e) => {
 										if (selectedFlowType !== 'user') {
-											e.currentTarget.style.borderColor = PING_IDENTITY_COLORS.accent.blue[400];
-											e.currentTarget.style.background = PING_IDENTITY_COLORS.accent.blue[50];
+											e.currentTarget.style.borderColor = PING_IDENTITY_COLORS.primary[400];
+											e.currentTarget.style.background = PING_IDENTITY_COLORS.primary[50];
 										}
 									}}
 									onMouseLeave={(e) => {
