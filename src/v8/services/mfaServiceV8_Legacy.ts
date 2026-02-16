@@ -334,7 +334,7 @@ export class MFAServiceV8 {
 			const parsed = UnifiedFlowErrorHandler.handleError(
 				error,
 				{
-					flowType: 'mfa' as any,
+					flowType: 'mfa' as const,
 					operation: 'allowMfaBypass',
 				},
 				{
@@ -402,7 +402,7 @@ export class MFAServiceV8 {
 			const parsed = UnifiedFlowErrorHandler.handleError(
 				error,
 				{
-					flowType: 'mfa' as any,
+					flowType: 'mfa' as const,
 					operation: 'checkMfaBypassStatus',
 				},
 				{
@@ -648,7 +648,12 @@ export class MFAServiceV8 {
 	}> {
 		// Delegate to UserServiceV8
 		const { UserServiceV8 } = await import('./userServiceV8');
-		return UserServiceV8.listUsers(environmentId, { search, limit, offset });
+		// Build options object conditionally to avoid undefined properties
+		const options: Record<string, unknown> = { limit, offset };
+		if (search) {
+			options.search = search;
+		}
+		return UserServiceV8.listUsers(environmentId, options as any);
 	}
 
 	/**
@@ -837,9 +842,13 @@ export class MFAServiceV8 {
 				// Include notification even if empty (only applicable when status is ACTIVATION_REQUIRED for SMS, Voice, Email)
 				// This shows users the complete data model structure
 				if (devicePayload.notification) {
+					const notification = devicePayload.notification as {
+						message?: string;
+						variant?: string;
+					};
 					requestBody.notification = {
-						message: devicePayload.notification.message || '',
-						variant: devicePayload.notification.variant || '',
+						message: notification.message || '',
+						variant: notification.variant || '',
 					};
 				} else if (requestBody.status === 'ACTIVATION_REQUIRED') {
 					// Include empty notification object for educational purposes when status is ACTIVATION_REQUIRED
@@ -1161,9 +1170,7 @@ export class MFAServiceV8 {
 			// If missing, device is ACTIVE (double-check with status)
 			const deviceActivateUri = dd._links?.['device.activate']?.href;
 
-			// FIDO2-specific: Log publicKeyCredentialCreationOptions for debugging
-			const _publicKeyOptionsLength = dd.publicKeyCredentialCreationOptions?.length || 0;
-
+			
 			// FIDO2-specific: Extract publicKeyCredentialCreationOptions from device response
 			// Per fido2-2.md: PingOne returns this as a JSON string in the device creation response
 			// This is required for WebAuthn registration ceremony
@@ -2933,15 +2940,9 @@ export class MFAServiceV8 {
 				userId: user.id,
 				deviceId: params.deviceId,
 				workerToken: cleanToken,
+				region: params.region,
+				customDomain: params.customDomain,
 			};
-
-			// Include region and customDomain if provided (backend needs these to construct correct PingOne URL)
-			if (params.region) {
-				initRequestBody.region = params.region;
-			}
-			if (params.customDomain) {
-				initRequestBody.customDomain = params.customDomain;
-			}
 
 			console.log(`${MODULE_TAG} Initializing device authentication`, {
 				environmentId: params.environmentId,
@@ -3106,14 +3107,29 @@ export class MFAServiceV8 {
 			// If the device is already activated, this will fail with a validation error
 			// CRITICAL: Must use the correct Content-Type header per PingOne API documentation
 			// Reference: https://developer.pingidentity.com/pingone-api/mfa/users/mfa-devices/resend_pairing_otp.html
-			const requestBody = {
+			interface ResendPairingRequestBody {
+				environmentId: string;
+				userId: string;
+				deviceId: string;
+				workerToken: string;
+				region?: string;
+				customDomain?: string;
+			}
+
+			const requestBody: ResendPairingRequestBody = {
 				environmentId: params.environmentId,
 				userId: user.id,
 				deviceId: params.deviceId,
 				workerToken: trimmedToken,
-				...(params.region && { region: params.region }),
-				...(params.customDomain && { customDomain: params.customDomain }),
 			};
+
+			// Add optional region and customDomain if provided
+			if ((params as any).region) {
+				requestBody.region = (params as any).region;
+			}
+			if ((params as any).customDomain) {
+				requestBody.customDomain = (params as any).customDomain;
+			}
 
 			// Track API call for display
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
@@ -3458,7 +3474,7 @@ export class MFAServiceV8 {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Check token status before attempting activation
-			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			const tokenStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 
 			if (!tokenStatus.isValid || tokenStatus.status === 'expired') {
 				const errorMessage =
@@ -3624,7 +3640,7 @@ export class MFAServiceV8 {
 						// Check token status before providing error
 						let tokenStatusMessage = '';
 						try {
-							const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+							const tokenStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 							if (tokenStatus.status === 'expired' || !tokenStatus.isValid) {
 								tokenStatusMessage = '\n\n🔑 Your worker token has expired or is invalid.';
 								tokenStatusMessage += '\n\nTo fix this:';
@@ -5679,7 +5695,7 @@ export class MFAServiceV8 {
 	 */
 	async uploadImage(file: File): Promise<{ imageUrl: string; fileId: string }> {
 		const startTime = Date.now();
-		const _callId = apiCallTrackerService.trackApiCall({
+		apiCallTrackerService.trackApiCall({
 			method: 'POST',
 			url: '/api/pingone/mfa/upload-image',
 			headers: {
