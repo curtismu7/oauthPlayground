@@ -3,7 +3,7 @@
 ###############################################################################
 # ⚠️ CRITICAL FILE - DO NOT DELETE OR MOVE ⚠️
 # 
-# This file is the primary entry point for starting the OAuth Playground application.
+# This file is the primary entry point for starting the PingOne MasterFlow API application.
 # It contains comprehensive startup logic including lockdown verification, health checks,
 # status reports, and log tailing.
 #
@@ -15,7 +15,7 @@
 #
 ###############################################################################
 
-# OAuth Playground - Server Restart Script
+# PingOne MasterFlow API - Server Restart Script
 # Kills all servers, restarts them, checks for errors, and reports status
 # Version: 1.0.0
 
@@ -30,7 +30,7 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# Configuration - Fixed ports for OAuth Playground
+# Configuration - Fixed ports for PingOne MasterFlow API
 # These ports are hardcoded to ensure consistency with OAuth redirect URIs
 # and API endpoint configurations. Do not change these values.
 FRONTEND_PORT=3000  # Vite dev server (HTTPS)
@@ -53,7 +53,7 @@ BACKEND_HTTPS_STATUS="unknown"
 BACKGROUND_MODE=false
 OVERALL_STATUS="unknown"
 
-# Function to find and change to the OAuth Playground directory
+# Function to find and change to the PingOne MasterFlow API directory
 find_project_directory() {
     # If in quick mode, assume current directory is correct
     if [ "$QUICK_MODE" = true ]; then
@@ -61,16 +61,16 @@ find_project_directory() {
             print_success "Quick mode: Using current directory: $(pwd)"
             return 0
         else
-            print_error "Quick mode: Not in OAuth Playground directory (missing package.json or server.js)"
+            print_error "Quick mode: Not in PingOne MasterFlow API directory (missing package.json or server.js)"
             exit 1
         fi
     fi
     
-    print_status "🔍 Locating OAuth Playground project directory..."
+    print_status "🔍 Locating PingOne MasterFlow API project directory..."
     
     # Check if we're already in the right directory
     if [ -f "package.json" ] && [ -f "server.js" ] && (grep -q "masterflow-api" package.json 2>/dev/null || grep -q "oauth-playground" package.json 2>/dev/null); then
-        print_success "Already in OAuth Playground directory: $(pwd)"
+        print_success "Already in PingOne MasterFlow API directory: $(pwd)"
         return 0
     fi
     
@@ -87,7 +87,7 @@ find_project_directory() {
         "~/Documents/oauth-playground"
     )
     
-    print_info "Searching common locations for OAuth Playground..."
+    print_info "Searching common locations for PingOne MasterFlow API..."
     
     for path in "${common_paths[@]}"; do
         # Expand tilde
@@ -97,7 +97,7 @@ find_project_directory() {
             cd "$expanded_path" 2>/dev/null || continue
             
             if [ -f "package.json" ] && [ -f "server.js" ] && (grep -q "masterflow-api" package.json 2>/dev/null || grep -q "oauth-playground" package.json 2>/dev/null); then
-                print_success "Found OAuth Playground at: $(pwd)"
+                print_success "Found PingOne MasterFlow API at: $(pwd)"
                 return 0
             fi
         fi
@@ -105,9 +105,9 @@ find_project_directory() {
     
     # If not found and not in quick mode, ask user for path
     if [ "$QUICK_MODE" != true ]; then
-        print_warning "OAuth Playground directory not found in common locations."
+        print_warning "PingOne MasterFlow API directory not found in common locations."
         echo ""
-        echo -e "${YELLOW}Please provide the path to your OAuth Playground directory:${NC}"
+        echo -e "${YELLOW}Please provide the path to your PingOne MasterFlow API directory:${NC}"
         echo -e "${CYAN}(The directory should contain package.json and server.js files)${NC}"
         echo ""
         
@@ -147,18 +147,28 @@ find_project_directory() {
             
             if [ ! -f "package.json" ]; then
                 print_error "package.json not found in: $expanded_path"
-                print_info "This doesn't appear to be the OAuth Playground directory"
-                continue
+                print_info "This doesn't appear to be the PingOne MasterFlow API directory"
             fi
             
             if [ ! -f "server.js" ]; then
                 print_error "server.js not found in: $expanded_path"
-                print_info "This doesn't appear to be the OAuth Playground directory"
+                print_info "This doesn't appear to be the PingOne MasterFlow API directory"
                 continue
             fi
             
             if ! grep -q "pingone-oauth-playground" package.json 2>/dev/null; then
                 print_warning "This appears to be a different Node.js project"
+            fi
+            
+            if [ "$QUICK_MODE" = true ]; then
+                print_info "Quick mode: Continuing anyway"
+            elif [ "$DEFAULT_MODE" = true ]; then
+                print_info "Default mode: Continuing anyway (auto-accept)"
+            else
+                echo -n "Continue anyway? (y/N): "
+                read -r confirm
+                if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+                    continue
                 if [ "$QUICK_MODE" = true ]; then
                     print_info "Quick mode: Continuing anyway"
                 elif [ "$DEFAULT_MODE" = true ]; then
@@ -176,7 +186,7 @@ find_project_directory() {
             return 0
         done
     else
-        print_error "Quick mode: OAuth Playground directory not found"
+        print_error "Quick mode: PingOne MasterFlow API directory not found"
         exit 1
     fi
 }
@@ -207,14 +217,14 @@ show_banner() {
     echo -e "${PURPLE}"
     echo "╔══════════════════════════════════════════════════════════════════════════════╗"
     echo "║                                                                              ║"
-    echo "║                    🔄 OAuth Playground Server Restart 🔄                    ║"
+    echo "║                    🔄 PingOne MasterFlow API Server Restart 🔄                    ║"
     echo "║                                                                              ║"
     echo "║  Frontend: https://localhost:3000 (Vite Dev Server)                        ║"
     echo "║  Backend:  http://localhost:3001 (Express API Server - HTTP)               ║"
     echo "║  Backend:  https://localhost:3002 (Express API Server - HTTPS)             ║"
     echo "║                                                                              ║"
     echo "║  This script will:                                                          ║"
-    echo "║  1. Find and change to OAuth Playground directory                          ║"
+    echo "║  1. Find and change to PingOne MasterFlow API directory                          ║"
     echo "║  2. Kill all existing servers                                               ║"
     echo "║  3. Clean up processes and ports 3000, 3001 & 3002                         ║"
     echo "║  4. Clear Vite cache and build artifacts                                    ║"
@@ -241,7 +251,7 @@ get_port_process() {
     lsof -Pi :$port -sTCP:LISTEN -t 2>/dev/null || echo ""
 }
 
-# Function to kill all OAuth playground related processes
+# Function to kill all PingOne MasterFlow API related processes
 kill_all_servers() {
     print_status "🛑 Killing all existing servers..."
     
@@ -296,7 +306,7 @@ kill_all_servers() {
     print_info "Cleaning up any remaining Node.js processes..."
     pkill -f "vite" 2>/dev/null || true
     pkill -f "server.js" 2>/dev/null || true
-    pkill -f "oauth-playground" 2>/dev/null || true
+    pkill -f "masterflow-api" 2>/dev/null || true
     
     # Clear Vite cache and node_modules to ensure clean restart
     print_info "Clearing Vite cache and dependencies..."
@@ -906,7 +916,7 @@ show_final_status() {
         OVERALL_STATUS="success"
         echo -e "${CYAN}║${NC} Overall Status: ${GREEN}🎉 ALL SERVERS RUNNING SUCCESSFULLY${NC}"
         echo -e "${CYAN}║${NC}"
-        echo -e "${CYAN}║${NC} ${GREEN}✅ OAuth Playground is ready to use!${NC}"
+        echo -e "${CYAN}║${NC} ${GREEN}✅ PingOne MasterFlow API is ready to use!${NC}"
         echo -e "${CYAN}║${NC} ${GREEN}✅ Open your browser and navigate to: $FRONTEND_URL${NC}"
     elif [ "$BACKEND_HTTP_STATUS" = "running" ] || [ "$BACKEND_HTTPS_STATUS" = "running" ] || [ "$FRONTEND_STATUS" = "running" ]; then
         OVERALL_STATUS="partial"
@@ -931,7 +941,7 @@ show_final_status() {
         OVERALL_STATUS="failure"
         echo -e "${CYAN}║${NC} Overall Status: ${RED}❌ ALL SERVERS FAILED${NC}"
         echo -e "${CYAN}║${NC}"
-        echo -e "${CYAN}║${NC} ${RED}❌ OAuth Playground is not accessible${NC}"
+        echo -e "${CYAN}║${NC} ${RED}❌ PingOne MasterFlow API is not accessible${NC}"
         echo -e "${CYAN}║${NC} ${RED}❌ Check the logs above for error details${NC}"
     fi
     
@@ -1006,7 +1016,7 @@ show_final_summary() {
     # Show the status banner
     echo -e "${banner_color}╔══════════════════════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${banner_color}║                                                                              ║${NC}"
-    echo -e "${banner_color}║                    ${status_icon} OAUTH PLAYGROUND STATUS ${status_icon}                    ║${NC}"
+    echo -e "${banner_color}║                    ${status_icon} PINGONE MASTERFLOW API STATUS ${status_icon}                    ║${NC}"
     echo -e "${banner_color}║                                                                              ║${NC}"
     echo -e "${banner_color}║                          ${status_text}                          ║${NC}"
     echo -e "${banner_color}║                                                                              ║${NC}"
@@ -1052,7 +1062,7 @@ show_final_summary() {
     # Final message based on overall status
     case "$OVERALL_STATUS" in
         "success")
-            echo -e "${banner_color}║${NC} ${GREEN}🎉 SUCCESS: OAuth Playground is fully operational!${NC}"
+            echo -e "${banner_color}║${NC} ${GREEN}🎉 SUCCESS: PingOne MasterFlow API is fully operational!${NC}"
             echo -e "${banner_color}║${NC} ${GREEN}🌐 Ready to use at: $FRONTEND_URL${NC}"
             echo -e "${banner_color}║${NC} ${GREEN}🔧 Backend HTTP API available at: $BACKEND_HTTP_URL${NC}"
             echo -e "${banner_color}║${NC} ${GREEN}🔐 Backend HTTPS API available at: $BACKEND_HTTPS_URL${NC}"
@@ -1094,12 +1104,12 @@ while [ $# -gt 0 ]; do
     case "$1" in
         --help|-h|-help)
             echo "╔══════════════════════════════════════════════════════════════════════════════╗"
-            echo "║                    🔄 OAuth Playground Server Restart 🔄                    ║"
+            echo "║                    🔄 PingOne MasterFlow API Server Restart 🔄                    ║"
             echo "║                      Comprehensive Development Server Manager                    ║"
             echo "╚══════════════════════════════════════════════════════════════════════════════╝"
             echo ""
             echo "📋 OVERVIEW:"
-            echo "  This is the primary server management script for the OAuth Playground application."
+            echo "  This is the primary server management script for the PingOne MasterFlow API application."
             echo "  It handles the complete lifecycle of development servers including startup, health"
             echo "  monitoring, and log management. The script ensures all services are properly"
             echo "  configured and running before allowing the development environment to be used."
@@ -1127,7 +1137,7 @@ while [ $# -gt 0 ]; do
             echo "  🚀 QUICK MODES:"
             echo "    -quick, -quick-quick"
             echo "        Quick mode: Skip ALL interactive prompts"
-            echo "        • Assumes current directory is the OAuth Playground"
+            echo "        • Assumes current directory is the PingOne MasterFlow API"
             echo "        • Skips directory selection prompts"
             echo "        • Skips confirmation prompts"
             echo "        • Skips log tail prompts"
@@ -1151,7 +1161,7 @@ while [ $# -gt 0 ]; do
             echo ""
             echo "🔧 DEFAULT BEHAVIOR (no flags):"
             echo "  1️⃣  DIRECTORY DISCOVERY:"
-            echo "      • Searches common OAuth Playground locations"
+            echo "      • Searches common PingOne MasterFlow API locations"
             echo "      • Falls back to interactive prompt if not found"
             echo "      • Validates directory contains required files"
             echo ""
@@ -1230,10 +1240,10 @@ while [ $# -gt 0 ]; do
             echo "  • Project README: ./README.md"
             echo "  • API Documentation: Available at http://localhost:${BACKEND_HTTP_PORT}/docs"
             echo "  • Protect Portal: http://localhost:${FRONTEND_PORT}/protect-portal"
-            echo "  • OAuth Playground: http://localhost:${FRONTEND_PORT}"
+            echo "  • PingOne MasterFlow API: http://localhost:${FRONTEND_PORT}"
             echo ""
             echo "🎮 QUICK START:"
-            echo "  1. Ensure you're in the OAuth Playground directory"
+            echo "  1. Ensure you're in the PingOne MasterFlow API directory"
             echo "  2. For help: ./run.sh -help"
             echo "  3. Run: ./run.sh"
             echo "  4. Wait for servers to start (watch the status report)"
@@ -1241,7 +1251,7 @@ while [ $# -gt 0 ]; do
             echo "  6. Start developing!"
             echo ""
             echo "╔══════════════════════════════════════════════════════════════════════════════╗"
-            echo "║                    Happy coding with OAuth Playground! 🚀                    ║"
+            echo "║                    Happy coding with PingOne MasterFlow API! 🚀                    ║"
             echo "╚══════════════════════════════════════════════════════════════════════════════╝"
             exit 0
             ;;
