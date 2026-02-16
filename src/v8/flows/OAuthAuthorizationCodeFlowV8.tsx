@@ -21,6 +21,7 @@ import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { RedirectlessServiceV8 } from '@/v8/services/redirectlessServiceV8';
 import { PKCEStorageServiceV8U } from '@/v8u/services/pkceStorageServiceV8U';
+import { TokenMonitoringService } from '@/v8u/services/tokenMonitoringService';
 
 const MODULE_TAG = '[🔐 OAUTH-AUTHZ-CODE-V8]';
 const FLOW_KEY = 'oauth-authz-v8';
@@ -296,20 +297,40 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 								},
 							});
 
-							if (flowResult.code) {
-								setAuthState({
-									...authState,
-									authorizationCode: flowResult.code,
-									state: flowResult.state,
-									codeChallenge: result.codeChallenge,
-									codeChallengeMethod: result.codeChallengeMethod,
-								});
+							if (flowResult.code || flowResult.tokens) {
+								// Store tokens in TokenMonitoringService if available from redirectless flow
+								if (flowResult.tokens) {
+									TokenMonitoringService.addOAuthTokens(flowResult.tokens);
+									
+									// Set tokens directly in auth state if available
+									setAuthState({
+										...authState,
+										tokens: {
+											accessToken: flowResult.tokens.accessToken,
+											idToken: flowResult.tokens.idToken,
+											refreshToken: '', // Redirectless flow doesn't provide refresh token
+											tokenType: flowResult.tokens.tokenType,
+											expiresIn: flowResult.tokens.expiresIn,
+										},
+									});
+								}
+								
+								if (flowResult.code) {
+									setAuthState({
+										...authState,
+										authorizationCode: flowResult.code,
+										state: flowResult.state,
+										codeChallenge: result.codeChallenge,
+										codeChallengeMethod: result.codeChallengeMethod,
+									});
+								}
+								
 								nav.markStepComplete();
 								// Auto-advance to next step
 								nav.goToNext();
 							} else {
 								nav.setValidationErrors([
-									'Failed to obtain authorization code via redirectless flow',
+									'Failed to obtain authorization code or tokens via redirectless flow',
 								]);
 							}
 						} else {
