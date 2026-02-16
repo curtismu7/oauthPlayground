@@ -13,6 +13,7 @@ import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
+import type { BrandTheme } from '../themes/brand-theme.interface';
 import type { CorporatePortalConfig, LoginPattern } from '../types/CorporatePortalConfig';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 
@@ -33,11 +34,11 @@ import CorporateFooter from './Shared/CorporateFooter';
 // STYLED COMPONENTS
 // ============================================================================
 
-const CorporateContainer = styled.div`
+const CorporateContainer = styled.div<{ theme: BrandTheme }>`
   min-height: 100vh;
-  background: ${({ theme }) => theme.colors.background};
-  font-family: ${({ theme }) => theme.typography.body};
-  color: ${({ theme }) => theme.colors.text};
+  background: ${({ theme }) => theme.colors.background || '#ffffff'};
+  font-family: ${({ theme }) => theme.typography?.bodyFont || 'Inter, sans-serif'};
+  color: ${({ theme }) => theme.colors.text || '#1F2937'};
 `;
 
 const MainContent = styled.main`
@@ -88,7 +89,8 @@ const CorporatePortalHero: React.FC<CorporatePortalHeroProps> = ({
   _redirectUri,
 }) => {
   const navigate = useNavigate();
-  const theme = useBrandTheme();
+  const themeContext = useBrandTheme();
+  const theme = themeContext.activeTheme;
   const [loginState, setLoginState] = useState({
     isOpen: false,
     step: 'username' as 'username' | 'otp',
@@ -97,6 +99,22 @@ const CorporatePortalHero: React.FC<CorporatePortalHeroProps> = ({
 
   // Get portal configuration from theme
   const portalConfig = theme.portalConfig as CorporatePortalConfig;
+
+  // Handle missing portal configuration gracefully
+  if (!portalConfig || !portalConfig.login) {
+    // Only log in development mode to reduce console noise in production
+    if (process.env.NODE_ENV === 'development') {
+      console.info('[CorporatePortalHero] No portal configuration found for theme:', theme.name);
+    }
+    return (
+      <CorporateContainer theme={theme}>
+        <div style={{ padding: '2rem', textAlign: 'center' }}>
+          <h2>Portal Configuration Loading...</h2>
+          <p>Please wait while the portal configuration loads.</p>
+        </div>
+      </CorporateContainer>
+    );
+  }
 
   // Handle login pattern navigation
   const handleLoginNavigation = useCallback(() => {
@@ -177,7 +195,7 @@ const CorporatePortalHero: React.FC<CorporatePortalHeroProps> = ({
   };
 
   return (
-    <CorporateContainer>
+    <CorporateContainer theme={theme}>
       <CorporateNavigation
         config={portalConfig}
         onLoginClick={handleLoginNavigation}

@@ -105,7 +105,7 @@ This starts both frontend and backend with comprehensive monitoring:
 ```bash
 npm start
 # or
-./restart-servers.sh
+./run.sh
 ```
 
 **Features:**
@@ -167,7 +167,7 @@ npm run start:backend
 
 | Script | Description |
 |--------|-------------|
-| `./restart-servers.sh` | **Main script** - Kills old processes, starts servers, health checks |
+| `./run.sh` | **Main script** - Kills old processes, starts servers, health checks |
 | `./start-full-stack.sh` | Full stack with comprehensive monitoring |
 | `./start-dev.sh` | Development mode startup |
 | `./start-simple.sh` | Minimal startup |
@@ -264,7 +264,7 @@ oauth-playground/
 ├── package.json       # Dependencies and scripts
 ├── vite.config.ts     # Vite configuration
 ├── .env.example       # Environment template
-└── restart-servers.sh # Main startup script
+└── run.sh # Main startup script
 ```
 
 ## 🔐 Security Notes

@@ -88,7 +88,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		const isMfaFlow =
 			location.pathname.startsWith('/v8/mfa') || location.pathname.startsWith('/v8/unified-mfa');
 		const uri = isMfaFlow
-			? `${protocol}://${window.location.host}/mfa-unified-callback`
+			? `${protocol}://${window.location.host}/v8/unified-mfa-callback`
 			: `${protocol}://${window.location.host}/user-login-callback`;
 
 		// DEBUG: Log initial state
@@ -214,7 +214,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	// Use different default redirect URI for MFA flows
 	// Always use HTTPS for security (even in development)
 	const defaultRedirectUri = isMfaFlow
-		? `https://${window.location.host}/mfa-unified-callback`
+		? `https://${window.location.host}/v8/unified-mfa-callback`
 		: `https://${window.location.host}/user-login-callback`;
 	const previousRedirectUriRef = useRef<string>(defaultRedirectUri);
 

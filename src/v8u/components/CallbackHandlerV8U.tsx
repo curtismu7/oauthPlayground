@@ -32,6 +32,38 @@ const extractStepFromPath = (path: string): string | null => {
 	}
 };
 
+// Enhanced logging function that saves to disk via API
+const logToDisk = (event: string, data: Record<string, unknown>) => {
+	try {
+		const logEntry = {
+			timestamp: new Date().toISOString(),
+			event,
+			data,
+			url: window.location.href,
+			userAgent: navigator.userAgent,
+			sessionId: sessionStorage.getItem('mfa_redirect_log_session_id') || 'unknown',
+		};
+
+		// Use sendBeacon for reliable logging even during redirect
+		const body = JSON.stringify(logEntry);
+		
+		if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+			const blob = new Blob([body], { type: 'application/json' });
+			navigator.sendBeacon('/api/logs/callback-debug', blob);
+		} else {
+			// Fallback for older browsers
+			void fetch('/api/logs/callback-debug', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body,
+				keepalive: true,
+			});
+		}
+	} catch (error) {
+		console.error('Failed to log to disk:', error);
+	}
+};
+
 const postAuthzRedirectLog = (payload: Record<string, unknown>) => {
 	try {
 		const body = JSON.stringify(payload);
@@ -127,10 +159,25 @@ export const CallbackHandlerV8U: React.FC = () => {
 			return;
 		}
 
-		console.log(`${MODULE_TAG} Checking callback path:`, {
+		console.log(`${MODULE_TAG} 🔍 CHECKING CALLBACK PATH:`, {
 			currentPath,
 			isUserLoginCallback,
 			searchParams: window.location.search,
+			hasCode: !!searchParams.get('code'),
+			hasState: !!searchParams.get('state'),
+			hasError: !!searchParams.get('error'),
+			errorDescription: searchParams.get('error_description'),
+		});
+
+		// Log to disk for persistent debugging
+		logToDisk('callback_path_check', {
+			currentPath,
+			isUserLoginCallback,
+			searchParams: Object.fromEntries(searchParams.entries()),
+			hasCode: !!searchParams.get('code'),
+			hasState: !!searchParams.get('state'),
+			hasError: !!searchParams.get('error'),
+			errorDescription: searchParams.get('error_description'),
 		});
 
 		// See UNIFIED_MFA_INVENTORY.md: Callback Step Fallback Table
@@ -361,6 +408,30 @@ export const CallbackHandlerV8U: React.FC = () => {
 			const normalizedFallback = normalizeFallbackStep(fallbackPath);
 			const callbackParams = new URLSearchParams(window.location.search);
 			const redirectUrl = buildRedirectUrl(normalizedFallback.path, callbackParams);
+
+			// Log redirect decision to disk
+			logToDisk('redirect_decision', {
+				fallbackPath,
+				fallbackReason,
+				redirectUrl,
+				hasCode: !!searchParams.get('code'),
+				hasState: !!searchParams.get('state'),
+				allSearchParams: Object.fromEntries(searchParams.entries()),
+				normalizedFallback,
+				callbackParams: Object.fromEntries(callbackParams.entries())
+			});
+
+			// Log redirect execution to disk
+			logToDisk('redirect_execution', {
+				redirectUrl,
+				currentUrl: window.location.href,
+				timestamp: Date.now(),
+				sessionStorageData: {
+					oauthCallbackData: sessionStorage.getItem('oauth_callback_data'),
+					mfaRedirectSession: sessionStorage.getItem('mfa_redirect_log_session_id')
+				}
+			});
+
 			logRedirectEvent('redirecting_to_fallback', {
 				startedStep: searchParams.get('step') || 'callback-entry',
 				targetStep: String(normalizedFallback.step),

@@ -5,7 +5,7 @@ import { APP_VERSION } from '../version';
 // Define the schema for environment variables
 const envSchema = z.object({
 	// Required environment variables
-	VITE_APP_TITLE: z.string().default('MasterFlow API'),
+	VITE_APP_TITLE: z.string().default('PingOne MasterFlow API'),
 	VITE_APP_DESCRIPTION: z.string().default('PingOne API integration and testing platform'),
 	VITE_APP_VERSION: z.string().default(APP_VERSION),
 	VITE_APP_DEFAULT_THEME: z.enum(['light', 'dark']).default('light'),
