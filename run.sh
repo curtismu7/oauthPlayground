@@ -169,16 +169,6 @@ find_project_directory() {
                 read -r confirm
                 if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
                     continue
-                if [ "$QUICK_MODE" = true ]; then
-                    print_info "Quick mode: Continuing anyway"
-                elif [ "$DEFAULT_MODE" = true ]; then
-                    print_info "Default mode: Continuing anyway (auto-accept)"
-                else
-                    echo -n "Continue anyway? (y/N): "
-                    read -r confirm
-                    if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
-                        continue
-                    fi
                 fi
             fi
             
