@@ -148,9 +148,11 @@ interface DeviceTypeSelectionScreenProps {
 	onSelectDeviceType: (deviceType: DeviceConfigKey) => void;
 	userToken?: string | null;
 	setUserToken: (token: string | null) => void;
-	registrationFlowType?: 'admin-active' | 'admin-activation' | 'user';
+	registrationFlowType?: 'admin-active' | 'admin-activation' | 'user' | undefined;
 	username?: string;
 	environmentId?: string;
+	flowMode?: 'registration' | 'authentication' | null;
+	setFlowMode?: (mode: 'registration' | 'authentication' | null) => void;
 }
 
 const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
@@ -160,8 +162,10 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	registrationFlowType,
 	username: propUsername = '',
 	environmentId: propEnvironmentId = '',
+	flowMode: propFlowMode = null,
+	setFlowMode: propSetFlowMode,
 }) => {
-	const [flowMode, setFlowMode] = useState<FlowMode | null>('registration');
+	const [flowMode, setFlowMode] = useState<FlowMode | null>(propFlowMode);
 	const [environmentId, setEnvironmentId] = useState(propEnvironmentId);
 	const [username, setUsername] = useState(propUsername);
 	const [showDeviceSelectionModal, setShowDeviceSelectionModal] = useState(false);
@@ -2678,9 +2682,11 @@ const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8Props> 
 							onSelectDeviceType={setSelectedDeviceType}
 							userToken={userToken}
 							setUserToken={setUserToken}
-							registrationFlowType={props.registrationFlowType || 'user'}
+							registrationFlowType={registrationFlowType}
 							username={username}
 							environmentId={environmentId}
+							flowMode={flowMode}
+							setFlowMode={_setFlowMode}
 						/>
 					</MFACredentialProvider>
 				</GlobalMFAProvider>
@@ -3391,9 +3397,11 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 				registrationFlowType={selectedFlowType}
 				username={username}
 				environmentId={environmentId}
+				flowMode={flowMode}
+				setFlowMode={setFlowMode}
 			/>
 		);
-	}, [userToken, setUserToken, selectedFlowType, username, environmentId, setSelectedDeviceType]);
+	}, [userToken, setUserToken, selectedFlowType, username, environmentId, setSelectedDeviceType, flowMode, setFlowMode]);
 
 	/**
 	 * Render Step 1: User Login using Authorization Code Flow with PKCE
