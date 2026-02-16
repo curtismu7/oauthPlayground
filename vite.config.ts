@@ -114,15 +114,15 @@ export default defineConfig(({ mode }) => {
 			}),
 		],
 		server: {
-			port: 3002,
+			port: 3000,
 			open: true,
 			https: true, // Enable HTTPS in development to match PingOne redirect URI
 			// In production, Vercel will handle HTTPS
 			hmr: {
-				port: 3002,
+				port: 3000,
 				host: 'localhost',
 				protocol: 'wss', // Use secure WebSocket for HTTPS
-				clientPort: 3002,
+				clientPort: 3000,
 			},
 			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)
 			// Disable certificate verification for localhost development
