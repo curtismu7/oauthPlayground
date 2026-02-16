@@ -17,6 +17,8 @@ import {
 import styled from 'styled-components';
 import { LearningTooltip } from '../../components/LearningTooltip';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { EducationModeToggle } from '../../components/education/EducationModeToggle';
+import { MasterEducationSection } from '../../components/education/MasterEducationSection';
 import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
 import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import { usePageScroll } from '../../hooks/usePageScroll';
@@ -1046,6 +1048,53 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 	return (
 		<Container>
 			<ContentWrapper>
+				{/* Education Mode Toggle */}
+				<EducationModeToggle variant="buttons" />
+
+				{/* Master Education Section */}
+				<MasterEducationSection
+					flowType="client_credentials"
+					title="📚 Client Credentials Flow Education"
+					sections={[
+						{
+							id: 'client-credentials-overview',
+							title: 'Client Credentials Flow Overview',
+							icon: <FiInfo />,
+							summary: 'Machine-to-machine authentication without user interaction',
+							content: (
+								<div>
+									<p><strong>The Client Credentials Flow</strong> is designed for server-to-server authentication:</p>
+									<ul>
+										<li><strong>No User Context</strong> - Application authenticates as itself</li>
+										<li><strong>Backend Only</strong> - Client secret must be kept secure on server</li>
+										<li><strong>Direct Token Request</strong> - Single API call to get access token</li>
+										<li><strong>Service Accounts</strong> - Perfect for microservices and APIs</li>
+									</ul>
+									<p>This flow is ideal for automated processes, background jobs, and service-to-service communication.</p>
+								</div>
+							),
+						},
+						{
+							id: 'security-considerations',
+							title: 'Security Considerations',
+							icon: <FiShield />,
+							summary: 'Client secret must be kept secure - never expose in frontend code',
+							content: (
+								<div>
+									<p><strong>Critical Security Requirements:</strong></p>
+									<ul>
+										<li><strong>Protect Client Secret</strong> - Store securely, never commit to version control</li>
+										<li><strong>Backend Only</strong> - Never use this flow in browser/mobile apps</li>
+										<li><strong>Rotate Secrets</strong> - Regularly rotate client secrets</li>
+										<li><strong>Limit Scope</strong> - Request only necessary permissions</li>
+										<li><strong>Monitor Usage</strong> - Track token usage and detect anomalies</li>
+									</ul>
+								</div>
+							),
+						},
+					]}
+				/>
+
 				<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>

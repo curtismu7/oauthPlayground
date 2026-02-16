@@ -225,9 +225,10 @@ const WhatsAppFlowV8 = React.lazy(() =>
 import EnvironmentManagementPageV8 from './pages/EnvironmentManagementPageV8';
 // Import Protect Portal
 import ProtectPortalWrapper from './pages/protect-portal/ProtectPortalWrapper';
+import { CreateCompanyPage } from './pages/protect-portal/pages/CreateCompanyPage';
 import DavinciTodoApp from './sdk-examples/davinci-todo-app/DavinciTodoApp';
 import { DebugLogViewerPopoutV8 } from './v8/pages/DebugLogViewerPopoutV8';
-import { DebugLogViewerV8 } from './v8/pages/DebugLogViewerV8';
+import DebugLogViewerV8 from './v8/pages/DebugLogViewerV8';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
@@ -293,8 +294,9 @@ const MainContent = styled.main<{ $sidebarWidth: number }>`
   flex: 1;
   padding: 1.5rem 2rem;
   padding-top: calc(80px + 1.5rem); /* Account for fixed navbar (80px) + normal top padding */
-  margin-left: ${({ $sidebarWidth }) => $sidebarWidth}px;
-  transition: margin-left 0.3s ease;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
   overflow-y: auto;
   background-color: ${({ theme }) => theme.colors.white};
   text-align: left;
@@ -401,7 +403,7 @@ function NotFoundRedirect() {
 }
 
 const AppRoutes: React.FC = () => {
-	const [sidebarOpen, setSidebarOpen] = useState(false);
+	const [sidebarOpen, setSidebarOpen] = useState(true);
 	const [sidebarWidth, setSidebarWidth] = useState(() => {
 		try {
 			const saved = localStorage.getItem('sidebar.width');
@@ -478,10 +480,21 @@ const AppRoutes: React.FC = () => {
 		}
 	}, [location.pathname]);
 
-	// Close sidebar on mount
+	// Initialize sidebar state (force open on mount, then respect localStorage)
 	useEffect(() => {
-		setSidebarOpen(false);
+		// Clear any stale localStorage state that might have sidebar closed
+		const savedSidebarState = localStorage.getItem('sidebar.open');
+		if (savedSidebarState === 'false') {
+			// Reset to open if it was previously closed
+			localStorage.setItem('sidebar.open', 'true');
+			setSidebarOpen(true);
+		}
 	}, []);
+
+	// Persist sidebar open state to localStorage
+	useEffect(() => {
+		localStorage.setItem('sidebar.open', sidebarOpen.toString());
+	}, [sidebarOpen]);
 
 	// Removed startup spinner - not needed
 
@@ -1012,6 +1025,7 @@ const AppRoutes: React.FC = () => {
 								{/* V8 Utilities */}
 								<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
 								<Route path="/v8/debug-logs" element={<DebugLogViewerV8 />} />
+								<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
 								{/* V8U SPIFFE/SPIRE Mock Flow and Token Viewer - multi-step lab */}
 								<Route
 									path="/v8u/spiffe-spire"
@@ -1298,6 +1312,15 @@ const AppRoutes: React.FC = () => {
 								/>
 								{/* Protect Portal Application */}
 								<Route path="/protect-portal" element={<ProtectPortalWrapper />} />
+								{/* Company Editor Utility */}
+								<Route 
+									path="/admin/create-company" 
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<CreateCompanyPage />
+										</Suspense>
+									} 
+								/>
 								<Route path="/advanced-config" element={<AdvancedConfiguration />} />
 								<Route
 									path="/advanced-security-settings"

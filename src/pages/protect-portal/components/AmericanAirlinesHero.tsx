@@ -14,17 +14,16 @@ import { FiArrowRight, FiCalendar, FiLock, FiMapPin, FiSearch } from 'react-icon
 import styled from 'styled-components';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 import AmericanAirlinesNavigation from './AmericanAirlinesNavigation';
-import CorporateFooter from './Shared/CorporateFooter';
 
 // ============================================================================
 // STYLED COMPONENTS
 // ============================================================================
 
 const HeroContainer = styled.section`
-  background: linear-gradient(135deg, #0b4aa2 0%, #073a80 50%, #053070 100%);
+  background: #ffffff;
   padding: 4rem 2rem;
   text-align: center;
-  color: white;
+  color: #0f2d5c;
   position: relative;
   overflow: hidden;
   
@@ -35,8 +34,8 @@ const HeroContainer = styled.section`
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><defs><linearGradient id="sky" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:rgba(255,255,255,0.1)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0.05)"/></linearGradient><path d="M0,300 Q300,200 600,300 T1200,300 L1200,600 L0,600 Z" fill="url(%23sky)" opacity="0.3"/><circle cx="200" cy="100" r="80" fill="rgba(255,255,255,0.05)"/><circle cx="1000" cy="150" r="60" fill="rgba(255,255,255,0.03)"/></svg>');
-    opacity: 0.4;
+    background: linear-gradient(180deg, rgba(11, 74, 162, 0.08) 0%, rgba(11, 74, 162, 0.02) 100%);
+    opacity: 1;
   }
   
   @media (max-width: 768px) {
@@ -57,7 +56,7 @@ const HeroTitle = styled.h1`
   margin: 0 0 1rem 0;
   line-height: 1.2;
   font-family: var(--brand-heading-font);
-  color: var(--brand-accent); /* American Airlines orange accent color */
+  color: #0b4aa2;
   
   @media (max-width: 768px) {
     font-size: 2rem;
@@ -68,7 +67,8 @@ const HeroSubtitle = styled.p`
   font-size: 1.25rem;
   margin: 0 0 2rem 0;
   line-height: 1.6;
-  opacity: 0.9;
+  color: #334155;
+  opacity: 1;
   font-family: var(--brand-body-font);
   
   @media (max-width: 768px) {
@@ -107,19 +107,19 @@ const QuickAction = styled.div`
 const ActionIcon = styled.div`
   width: 48px;
   height: 48px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #eaf2ff;
+  border: 1px solid #bfdbfe;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #0b4aa2;
   font-size: 1.25rem;
 `;
 
 const ActionLabel = styled.div`
   font-size: 0.875rem;
-  color: white;
+  color: #1e3a8a;
   font-weight: 500;
   margin-top: 0.5rem;
 `;
@@ -131,7 +131,7 @@ const LoginSection = styled.div`
 
 const LoginDescription = styled.p`
   font-size: 1.125rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: #334155;
   margin-bottom: 2rem;
   line-height: 1.6;
   max-width: 600px;
@@ -166,15 +166,15 @@ const LoginButton = styled.button`
 
 const FlightSearchSection = styled.div`
   margin-top: 3rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: #eff6ff;
   border-radius: 16px;
   padding: 2rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #c7dcff;
+  box-shadow: 0 10px 30px rgba(11, 74, 162, 0.08);
 `;
 
 const FlightSearchTitle = styled.h3`
-  color: white;
+  color: #0b4aa2;
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
   text-align: center;
@@ -192,7 +192,7 @@ const TripType = styled.div`
   justify-content: center;
   
   label {
-    color: white;
+    color: #1e3a8a;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -217,27 +217,28 @@ const FormGroup = styled.div`
 `;
 
 const Label = styled.label`
-  color: rgba(255, 255, 255, 0.9);
+  color: #1e3a8a;
   font-size: 0.875rem;
   font-weight: 500;
 `;
 
 const Input = styled.input`
   padding: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #bfdbfe;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: #ffffff;
+  color: #0f172a;
   font-size: 1rem;
   
   &::placeholder {
-    color: rgba(255, 255, 255, 0.6);
+    color: #64748b;
   }
   
   &:focus {
     outline: none;
-    border-color: var(--brand-accent);
-    background: rgba(255, 255, 255, 0.15);
+    border-color: #0b4aa2;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(11, 74, 162, 0.15);
   }
 `;
 
@@ -407,20 +408,6 @@ const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({
 				)}
 			</HeroContent>
 		</HeroContainer>
-		
-		<CorporateFooter config={{
-			company: {
-				name: 'american-airlines',
-				displayName: 'American Airlines',
-				industry: 'aviation',
-			},
-			branding: {
-				colors: {
-					primary: '#0b4aa2',
-					secondary: '#FFFFFF',
-				},
-			},
-		} as any} />
 		</>
 	);
 };
