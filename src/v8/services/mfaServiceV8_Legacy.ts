@@ -106,6 +106,8 @@ export interface RegisterDeviceParams extends MFACredentials {
 
 export interface SendOTPParams extends MFACredentials {
 	deviceId: string;
+	region?: 'na' | 'us' | 'ca' | 'eu' | 'apac' | 'asia';
+	customDomain?: string;
 }
 
 export interface ActivateDeviceParams extends MFACredentials {
@@ -217,7 +219,7 @@ export interface UserLookupResult {
  *
  * Service for PingOne MFA operations using WorkerTokenServiceV8
  *
- * biome-ignore lint: This class is intentionally designed with only static methods for:
+ * This class is intentionally designed with only static methods for:
  * 1. Clear namespacing and organization
  * 2. Consistent API with other V8 services
  * 3. Future extensibility to instance methods if needed
@@ -649,11 +651,11 @@ export class MFAServiceV8 {
 		// Delegate to UserServiceV8
 		const { UserServiceV8 } = await import('./userServiceV8');
 		// Build options object conditionally to avoid undefined properties
-		const options: Record<string, unknown> = { limit, offset };
+		const options: { limit: number; offset: number; search?: string } = { limit, offset };
 		if (search) {
 			options.search = search;
 		}
-		return UserServiceV8.listUsers(environmentId, options as any);
+		return UserServiceV8.listUsers(environmentId, options);
 	}
 
 	/**
@@ -3124,11 +3126,11 @@ export class MFAServiceV8 {
 			};
 
 			// Add optional region and customDomain if provided
-			if ((params as any).region) {
-				requestBody.region = (params as any).region;
+			if (params.region) {
+				requestBody.region = params.region;
 			}
-			if ((params as any).customDomain) {
-				requestBody.customDomain = (params as any).customDomain;
+			if (params.customDomain) {
+				requestBody.customDomain = params.customDomain;
 			}
 
 			// Track API call for display
@@ -4995,7 +4997,7 @@ export class MFAServiceV8 {
 
 			// Construct actual PingOne URL for display
 			const getAuthBaseUrl = (
-				region?: 'us' | 'eu' | 'ap' | 'ca' | 'na',
+				region?: 'us' | 'eu' | 'ap' | 'ca' | 'na' | 'asia',
 				customDomain?: string
 			): string => {
 				if (customDomain) {
