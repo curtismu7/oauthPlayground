@@ -937,6 +937,73 @@ useEffect(() => {
   });
   
   return unsubscribe;
+```
+
+---
+
+### **✅ Issue PROD-004: OAuth Tokens Not Showing in Token Monitoring**
+**Status**: ✅ RESOLVED  
+**Component**: OAuthAuthorizationCodeFlowV8  
+**Severity**: High (Data Visibility)
+**Last Updated**: 2026-02-16
+
+#### **Problem Summary:**
+OAuth flow tokens (access token, ID token, refresh token) obtained via redirectless authentication were not being stored in the TokenMonitoringService, causing them to not appear on the `/v8u/token-monitoring` dashboard.
+
+#### **Root Cause Analysis:**
+- RedirectlessServiceV8 was returning tokens but OAuth flow was not storing them in TokenMonitoringService
+- Token property format mismatch between redirectless flow (accessToken, idToken) and TokenMonitoringService (access_token, id_token)
+- Missing integration between OAuth flows and centralized token monitoring system
+- OAuth flows only handled authorization codes, not direct token responses
+
+#### **Files Modified:**
+- `src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx` - Added TokenMonitoringService integration
+
+#### **Prevention Commands:**
+```bash
+# Check TokenMonitoringService integration in OAuth flows
+grep -rn "TokenMonitoringService" src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx | wc -l && echo "✅ TOKEN MONITORING INTEGRATION FOUND" || echo "❌ MISSING TOKEN MONITORING INTEGRATION"
+
+# Verify addOAuthTokens calls with proper mapping
+grep -rn "addOAuthTokens" src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx | wc -l && echo "✅ TOKEN STORAGE CALLS FOUND" || echo "❌ MISSING TOKEN STORAGE CALLS"
+
+# Check for proper token property mapping
+grep -rn "access_token.*accessToken\|accessToken.*access_token" src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx | wc -l && echo "✅ TOKEN PROPERTY MAPPING FOUND" || echo "❌ MISSING TOKEN PROPERTY MAPPING"
+
+# Verify redirectless flow token handling
+grep -rn "flowResult\.tokens" src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx | wc -l && echo "✅ REDIRECTLESS TOKEN HANDLING FOUND" || echo "❌ MISSING REDIRECTLESS TOKEN HANDLING"
+```
+
+#### **SWE-15 Solution:**
+```typescript
+// ✅ SWE-15 COMPLIANT: OAuth flow token monitoring integration
+if (flowResult.tokens) {
+  // Map redirectless token format to OAuthTokenPayload format
+  const oauthTokenPayload = {
+    access_token: flowResult.tokens.accessToken,
+    id_token: flowResult.tokens.idToken,
+    refresh_token: '', // Redirectless flow doesn't provide refresh token
+  };
+  TokenMonitoringService.addOAuthTokens(oauthTokenPayload, 'oauth-authz-v8');
+  
+  // Set tokens directly in auth state for immediate UI display
+  setAuthState({
+    ...authState,
+    tokens: {
+      accessToken: flowResult.tokens.accessToken,
+      idToken: flowResult.tokens.idToken,
+      refreshToken: '',
+      tokenType: flowResult.tokens.tokenType,
+      expiresIn: flowResult.tokens.expiresIn,
+    },
+  });
+}
+```
+
+#### **Invariant That Must Never Break:**
+- **All OAuth flows must store tokens in TokenMonitoringService** - Any flow that obtains OAuth tokens (access, ID, refresh) must call `TokenMonitoringService.addOAuthTokens()` with proper property mapping
+- **Token property mapping must be consistent** - Redirectless flow uses camelCase, TokenMonitoringService expects snake_case - mapping is required
+- **Flow source identification** - All token storage calls must include the flow source for proper tracking and debugging
 }, [enhancedStateActions]);
 ```
 
@@ -1724,6 +1791,9 @@ find src/v8* -name "*ErrorBoundary*" -o -name "*.tsx" | wc -l && echo "✅ ERROR
 
 # 5. Production App Performance
 grep -rn "React\.memo\|useMemo\|useCallback" src/v8* -name "*.tsx" | wc -l && echo "✅ REACT OPTIMIZATION FOUND" || echo "❌ MISSING REACT OPTIMIZATION"
+
+# 6. OAuth Token Monitoring Integration
+grep -rn "TokenMonitoringService.*addOAuthTokens" src/v8/flows/OAuthAuthorizationCodeFlowV8.tsx | wc -l && echo "✅ OAUTH TOKEN MONITORING INTEGRATION FOUND" || echo "❌ MISSING OAUTH TOKEN MONITORING INTEGRATION"
 
 # 6. Enhanced State Management Integration
 find src/v8u -name "*.tsx" -exec grep -l "useUnifiedFlowState" {} \; | wc -l && echo "✅ STATE MANAGEMENT INTEGRATION FOUND" || echo "❌ STATE MANAGEMENT NOT INTEGRATED"
