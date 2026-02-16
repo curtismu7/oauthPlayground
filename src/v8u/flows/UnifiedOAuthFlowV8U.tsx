@@ -68,6 +68,8 @@ import {
 import { 
 	StandardizedCredentialExportImport
 } from '@/components/StandardizedCredentialExportImport';
+import { EducationModeToggle } from '@/components/education/EducationModeToggle';
+import { MasterEducationSection } from '@/components/education/MasterEducationSection';
 
 const _MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
 
@@ -1895,6 +1897,53 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					</button>
 				</div>
 			</PageHeaderV8>
+
+			{/* Education Mode Toggle */}
+			<EducationModeToggle variant="buttons" />
+
+			{/* Master Education Section */}
+			<MasterEducationSection
+				flowType="unified_oauth"
+				title="📚 OAuth & OIDC Education"
+				sections={[
+					{
+						id: 'unified-overview',
+						title: 'Unified Flow Overview',
+						icon: <FiBook />,
+						summary: 'Single UI for all OAuth 2.0, OAuth 2.1/OIDC 2.1, and OIDC Core 1.0 flows',
+						content: (
+							<div>
+								<p><strong>The Unified OAuth/OIDC Flow</strong> provides a single interface for all OAuth and OpenID Connect flows:</p>
+								<ul>
+									<li><strong>Authorization Code Flow</strong> - Most secure flow for web applications</li>
+									<li><strong>Client Credentials Flow</strong> - Machine-to-machine authentication</li>
+									<li><strong>Device Authorization Flow</strong> - For devices with limited input</li>
+									<li><strong>Implicit Flow</strong> - Legacy flow (not recommended)</li>
+									<li><strong>Hybrid Flow</strong> - OIDC combination flow</li>
+								</ul>
+								<p>Each flow adapts to the selected specification version (OAuth 2.0, OAuth 2.1/OIDC 2.1, or OIDC Core 1.0).</p>
+							</div>
+						),
+					},
+					{
+						id: 'spec-versions',
+						title: 'Specification Versions',
+						icon: <FiPackage />,
+						summary: 'Support for OAuth 2.0, OAuth 2.1/OIDC 2.1, and OIDC Core 1.0 specifications',
+						content: (
+							<div>
+								<p><strong>Specification Support:</strong></p>
+								<ul>
+									<li><strong>OAuth 2.0</strong> - Original OAuth 2.0 specification (RFC 6749)</li>
+									<li><strong>OAuth 2.1 / OIDC 2.1</strong> - Modern security best practices with PKCE required</li>
+									<li><strong>OIDC Core 1.0</strong> - OpenID Connect for identity and authentication</li>
+								</ul>
+								<p>The UI automatically adapts based on your selected specification version, showing only compatible flows and features.</p>
+							</div>
+						),
+					},
+				]}
+			/>
 
 			{/* Navigation Bar with API Display Toggle */}
 			<UnifiedNavigationV8U currentFlowType={effectiveFlowType} showBackToMain={true} />

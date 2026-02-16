@@ -54,7 +54,7 @@ class CallbackUriService {
 		deviceCodeCallback: '/device-code-status',
 		dashboardCallback: '/dashboard-callback',
 		p1authCallback: '/p1auth-callback',
-		unifiedMFACallback: '/mfa-unified-callback',
+		unifiedMFACallback: '/v8/unified-mfa-callback',
 		authzLogoutCallback: '/logout-callback',
 		implicitLogoutCallback: '/logout-callback-implicit',
 		hybridLogoutCallback: '/hybrid-logout-callback',
@@ -454,6 +454,7 @@ class CallbackUriService {
 			deviceCodeCallback: this.getCallbackUri('deviceCodeCallback'),
 			dashboardCallback: this.getCallbackUri('dashboardCallback'),
 			p1authCallback: this.getCallbackUri('p1authCallback'),
+			unifiedMFACallback: this.getCallbackUri('unifiedMFACallback'),
 			authzLogoutCallback: this.getCallbackUri('authzLogoutCallback'),
 			implicitLogoutCallback: this.getCallbackUri('implicitLogoutCallback'),
 			hybridLogoutCallback: this.getCallbackUri('hybridLogoutCallback'),
@@ -462,6 +463,7 @@ class CallbackUriService {
 			clientCredentialsLogoutCallback: this.getCallbackUri('clientCredentialsLogoutCallback'),
 			p1authLogoutCallback: this.getCallbackUri('p1authLogoutCallback'),
 			dashboardLogoutCallback: this.getCallbackUri('dashboardLogoutCallback'),
+			unifiedMFALogoutCallback: this.getCallbackUri('unifiedMFALogoutCallback'),
 		};
 	}
 }
