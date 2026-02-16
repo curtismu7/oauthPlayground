@@ -4,8 +4,6 @@ import {
 	FiAlertTriangle,
 	FiBarChart2,
 	FiBook,
-	FiCheckCircle,
-	FiCode,
 	FiCpu,
 	FiDatabase,
 	FiEye,
@@ -28,11 +26,23 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import { Sidebar as ProSidebar } from 'react-pro-sidebar';
-import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { VersionBadge } from './VersionBadge';
 import DragDropSidebar from './DragDropSidebar';
 import SidebarSearch from './SidebarSearch';
+
+// App version from package.json
+const APP_VERSION = '9.11.76';
+
+// Individual component versions
+const COMPONENT_VERSIONS = {
+	unifiedMFA: '8.0.0',
+	unifiedOAuth: '8.0.0',
+	oauthV7: '7.0.0',
+	v8u: '8.0.0',
+	production: '8.0.0',
+};
 
 // Colored icon wrapper component for sidebar menu
 const ColoredIcon = styled.span<{ $color?: string }>`
@@ -402,7 +412,6 @@ const ResizeHandle = styled.div`
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	ensureSidebarStateVersion();
 
-	const _location = useLocation();
 	// const _navigate = useNavigate(); // Unused - keeping for potential future use
 	const [sidebarWidth, setSidebarWidth] = useState(() => {
 		try {
@@ -469,163 +478,179 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	// 	};
 	// };
 
-	// Load persisted menu state from localStorage (must be before _menuGroups since it's referenced in the initializer)
-	const [_openMenus, _setOpenMenus] = useState<Record<string, boolean>>(() => {
-		try {
-			const saved = localStorage.getItem('nav.openSections');
-			if (saved) {
-				return JSON.parse(saved);
-			}
-		} catch (error) {
-			console.warn('Failed to load navigation state from localStorage:', error);
-		}
-		// Default state - only Core Overview and Production open by default
-		return {
-			'Core Overview': true,
-			Production: true,
-			'Production (Legacy)': false,
-			'OAuth 2.0 Flows': false,
-			'OpenID Connect': true,
-			PingOne: false,
-			'V7RM Mock Flows (Not Supported by PingOne)': false,
-			'Artificial Intelligence': false,
-			'Security & Management': false,
-			'Tools & Utilities': false,
-			Documentation: false,
-			Developers: false,
-		};
-	});
+	// Note: Menu structure is handled by DragDropSidebar component
 
-	// Initialize menu structure with drag and drop support
-	const [_menuGroups, _setMenuGroups] = useState<MenuGroup[]>(() => {
-		const savedOrder = localStorage.getItem('sidebar.menuOrder');
-		if (savedOrder) {
-			try {
-				return JSON.parse(savedOrder);
-			} catch (error) {
-				console.warn('Failed to parse saved menu order:', error);
-			}
-		}
+	// Handle drag and drop
+	// Orphaned menu section replaced with proper comment
+	// TODO: Remove or refactor this section
+	// {
+	// 	id: 'flow-comparison-tool',
+	// 	path: '/v8u/flow-comparison',
+	// 	label: '� Flow Comparison Tool',
+	// 	icon: (
+	// 		<ColoredIcon $color="#10b981">
+	// 			<FiBarChart2 />
+	// 		</ColoredIcon>
+	// 	),
+	// 	badge: (
+	// 		<MigrationBadge title="Compare OAuth flows with detailed metrics and recommendations">
+	// 			EDUCATION
+	// 		</MigrationBadge>
+	// 	),
+	// },
+	// {
+	// 	id: 'resources-api-v8',
+	// 	path: '/v8/resources-api',
+	// 	label: 'Resources API Tutorial',
+	// 	icon: (
+	// 		<ColoredIcon $color="#10b981">
+	// 			<FiBook />
+	// 		</ColoredIcon>
+	// 	),
+	// 	badge: (
+	// 		<MigrationBadge title="V8: Learn PingOne Resources API - OAuth 2.0 resources, scopes, and custom claims">
+	// 			EDUCATION
+	// 		</MigrationBadge>
+	// 	),
+	// },
+	// {
+	// 	id: 'spiffe-spire-flow-v8u',
+	// 	path: '/v8u/spiffe-spire',
+	// 	label: '� SPIFFE/SPIRE Mock',
+	// 	icon: (
+	// 		<ColoredIcon $color="#10b981">
+	// 			<FiShield />
+	// 		</ColoredIcon>
+	// 	),
+	// 	badge: (
+	// 		<MigrationBadge title="Mock flow demonstrating SPIFFE/SPIRE workload identity to PingOne token exchange">
+	// 			EDUCATIONAL
+	// 		</MigrationBadge>
+	// 	),
+	// },
+	// ORIGINAL Entries
+	// UNIFIED Entries (sorted alphabetically)
+	// [Large section of orphaned menu code removed - was causing syntax errors]
+	// TODO: Menu structure is handled by DragDropSidebar component
 
-		// Read openMenus state from localStorage for use in initializer
-		let openMenusState: Record<string, boolean> = {
-			'Core Overview': true,
-			Production: true,
-			'Production (Legacy)': false,
-			'OAuth 2.0 Flows': false,
-			'OpenID Connect': true,
-			PingOne: false,
-			'V7RM Mock Flows (Not Supported by PingOne)': false,
-			'Artificial Intelligence': false,
-			'Security & Management': false,
-			'Tools & Utilities': false,
-			Documentation: false,
-			Developers: false,
-			'Developer Tools': true,
-		};
-		try {
-			const saved = localStorage.getItem('nav.openSections');
-			if (saved) {
-				openMenusState = { ...openMenusState, ...JSON.parse(saved) };
-			}
-		} catch (error) {
-			console.warn('Failed to load navigation state from localStorage:', error);
-		}
-
-		// Default menu structure
-		return [
-			{
-				id: 'core-overview',
-				label: 'Core Overview',
-				icon: (
-					<ColoredIcon $color="#3b82f6">
-						<FiHome />
-					</ColoredIcon>
-				),
-				isOpen: openMenusState['Core Overview'] || true,
-				items: [
-					{
-						id: 'dashboard',
-						path: '/dashboard',
-						label: 'Dashboard',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiBarChart2 />
-							</ColoredIcon>
-						),
+	// Drag and drop mode toggle
 					},
-					{
-						id: 'api-status',
-						path: '/api-status',
-						label: 'API Status',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiServer />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Server health monitoring and status information">
-								UTILITY
-							</MigrationBadge>
-						),
-					},
-				],
-			},
-			{
-				id: 'v8-flows-new',
-				label: 'Production',
-				icon: (
-					<ColoredIcon $color="#3b82f6">
-						<FiZap />
-					</ColoredIcon>
-				),
-				isOpen: true, // Default to open, will be synced with openMenus state
-				items: [
-					// EDUCATION Entries (sorted alphabetically)
-					{
-						id: 'flow-comparison-tool',
-						path: '/v8u/flow-comparison',
-						label: '� Flow Comparison Tool',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiBarChart2 />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Compare OAuth flows with detailed metrics and recommendations">
-								EDUCATION
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'resources-api-v8',
-						path: '/v8/resources-api',
-						label: 'Resources API Tutorial',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiBook />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V8: Learn PingOne Resources API - OAuth 2.0 resources, scopes, and custom claims">
-								EDUCATION
-							</MigrationBadge>
-						),
-					},
-					{
-						id: 'spiffe-spire-flow-v8u',
-						path: '/v8u/spiffe-spire',
-						label: '� SPIFFE/SPIRE Mock',
-						icon: (
-							<ColoredIcon $color="#10b981">
-								<FiShield />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="Mock flow demonstrating SPIFFE/SPIRE workload identity to PingOne token exchange">
-								EDUCATIONAL
-							</MigrationBadge>
-						),
+	// UTILITY Entries (sorted alphabetically)
+	// {
+	// 	id: 'delete-all-devices-utility-v8',
+	// 	path: '/v8/delete-all-devices',
+	// 	label: '️ Delete All Devices',
+	// 	icon: (
+	// 		<ColoredIcon $color="#ef4444">
+	// 			<FiTrash2 />
+	// 		</ColoredIcon>
+	// 	),
+	// 	badge: (
+	// 		<MigrationBadge title="Utility to delete all MFA devices for a user with device type filtering">
+	// 			UTILITY
+	// 		</MigrationBadge>
+	// 	),
+	// },
+	// },
+	{
+		id: 'enhanced-state-management',
+		path: '/v8u/enhanced-state-management',
+		label: '� Enhanced State Management',
+		icon: (
+			<ColoredIcon $color="#10b981">
+				<FiDatabase />
+			</ColoredIcon>
+		),
+		// badge: (
+		// 	<MigrationBadge title="Advanced state management with undo/redo, offline capabilities, and persistence">
+		// 		UTILITY
+		// 	</MigrationBadge>
+		// ),
+	},
+	{
+		id: 'mfa-feature-flags-admin-v8',
+		path: '/v8/mfa-feature-flags',
+		label: '� MFA Feature Flags',
+		icon: (
+			<ColoredIcon $color="#10b981">
+				<FiSettings />
+			</ColoredIcon>
+		),
+		badge: (
+			<MigrationBadge title="Control unified flow rollout with per-device feature flags and percentage-based gradual deployment">
+				UTILITY
+			</MigrationBadge>
+		),
+	},
+	{
+		id: 'token-monitoring-dashboard',
+		path: '/v8u/token-monitoring',
+		label: '🔍 Token Monitoring Dashboard',
+		icon: (
+			<ColoredIcon $color="#10b981">
+				<FiEye />
+			</ColoredIcon>
+		),
+		badge: (
+			<MigrationBadge title="Real-time token monitoring with countdowns, introspection, and management">
+				UTILITY
+			</MigrationBadge>
+		),
+	},
+	// Unified MFA entry
+	{
+		id: 'unified-mfa-v8',
+		path: '/v8/unified-mfa',
+		label: 'Unified MFA - New',
+		icon: (
+			<ColoredIcon $color="#ef4444">
+				<FiZap />
+			</ColoredIcon>
+		),
+		badge: (
+			<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+				<MigrationBadge style={{ background: '#ef4444', color: 'white' }}>
+					UNIFIED
+				</MigrationBadge>
+				<VersionBadge version={COMPONENT_VERSIONS.unifiedMFA} variant="sidebar" />
+			</div>
+		),
+	},
+	// Other entries (non-green badges)
+	{
+		id: 'pingone-protect-v8',
+		path: '/v8/protect',
+		label: 'PingOne Protect',
+		icon: (
+			<ColoredIcon $color="#ef4444">
+				<FiAlertTriangle />
+			</ColoredIcon>
+		),
+		badge: (
+			<MigrationBadge title="V8: PingOne Protect risk evaluation and fraud detection">
+				NEW
+			</MigrationBadge>
+		),
+	},
+	// },
+	// {
+	// 	id: 'mfa-one-time-devices-v8',
+	// 	path: '/v8/mfa-one-time-devices',
+	// 					badge: (
+	// 						<MigrationBadge title="Compare OAuth flows with detailed metrics and recommendations">
+	// 							EDUCATION
+	// 						</MigrationBadge>
+	// 					),
+	// 				},
+	// 				{
+	// 					id: 'resources-api-v8',
+	// 					path: '/v8/resources-api',
+	// 					label: 'Resources API Tutorial',
+	// 					icon: (
+	// 						<ColoredIcon $color="#10b981">
+	// 							<FiBook />
+	// 						</ColoredIcon>
+	// 					),
 					},
 					// ORIGINAL Entries
 					// UNIFIED Entries (sorted alphabetically)
@@ -675,12 +700,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge
-								title="V8U: Single UI for all OAuth/OIDC flows with real PingOne APIs"
-								style={{ background: '#3b82f6', color: 'white' }}
-							>
-								UNIFIED
-							</MigrationBadge>
+							<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+								<MigrationBadge
+									title="V8U: Single UI for all OAuth/OIDC flows with real PingOne APIs"
+									style={{ background: '#3b82f6', color: 'white' }}
+								>
+									UNIFIED
+								</MigrationBadge>
+								<VersionBadge version={COMPONENT_VERSIONS.v8u} variant="sidebar" />
+							</div>
 						),
 					},
 					// UTILITY Entries (sorted alphabetically)
@@ -755,9 +783,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge style={{ background: '#ef4444', color: 'white' }}>
-								UNIFIED
-							</MigrationBadge>
+							<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+								<MigrationBadge style={{ background: '#ef4444', color: 'white' }}>
+									UNIFIED
+								</MigrationBadge>
+								<VersionBadge version={COMPONENT_VERSIONS.unifiedMFA} variant="sidebar" />
+							</div>
 						),
 					},
 					// Other entries (non-green badges)
@@ -810,13 +841,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						label: '🧪 Production API Tests',
 						icon: (
 							<ColoredIcon $color="#3b82f6">
-								<FiCode />
+								SDK
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="Comprehensive API testing for MFA and Unified flows with real PingOne APIs">
-								NEW
-							</MigrationBadge>
+							<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+								<MigrationBadge title="Comprehensive API testing for MFA and Unified flows with real PingOne APIs">
+									NEW
+								</MigrationBadge>
+								<VersionBadge version={COMPONENT_VERSIONS.production} variant="sidebar" />
+							</div>
 						),
 					},
 					{
@@ -844,9 +878,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="MFA testing: OTP, TOTP, FIDO2 registration and Admin Authentication">
-								NEW
-							</MigrationBadge>
+							<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+								<MigrationBadge title="MFA testing: OTP, TOTP, FIDO2 registration and Admin Authentication">
+									NEW
+								</MigrationBadge>
+								<VersionBadge version={COMPONENT_VERSIONS.unifiedMFA} variant="sidebar" />
+							</div>
 						),
 					},
 					{
@@ -859,9 +896,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V8: Inspect recent MFA device authentications and details">
-								NEW
-							</MigrationBadge>
+							<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+								<MigrationBadge title="V8: Inspect recent MFA device authentications and details">
+									NEW
+								</MigrationBadge>
+								<VersionBadge version={COMPONENT_VERSIONS.unifiedMFA} variant="sidebar" />
+							</div>
 						),
 					},
 					{
@@ -885,7 +925,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						label: '📦 P1MFA SDK Samples',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
-								<FiCode />
+								SDK
 							</ColoredIcon>
 						),
 						badge: (
@@ -956,7 +996,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 						badge: (
 							<MigrationBadge title="V8: Demonstrating Proof of Possession (RFC 9449) with mock server">
-								<FiCheckCircle />
+								V8
 							</MigrationBadge>
 						),
 					},
@@ -971,7 +1011,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 						badge: (
 							<MigrationBadge title="V8: Simplified UI with educational content in modals">
-								<FiCheckCircle />
+								V8
 							</MigrationBadge>
 						),
 					},
@@ -986,7 +1026,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 						badge: (
 							<MigrationBadge title="V8: Simplified UI with educational content in modals">
-								<FiCheckCircle />
+								V8
 							</MigrationBadge>
 						),
 					},
@@ -1001,7 +1041,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 						badge: (
 							<MigrationBadge title="V8: Spec-aware unified credentials form demo">
-								<FiCode />
+								SDK
 							</MigrationBadge>
 						),
 					},
@@ -1159,9 +1199,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V7: Unified OAuth/OIDC authorization code experience">
-								<FiCheckCircle />
-							</MigrationBadge>
+							<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+								<MigrationBadge title="V7: Unified OAuth/OIDC authorization code experience">
+									V7
+								</MigrationBadge>
+								<VersionBadge version={COMPONENT_VERSIONS.oauthV7} variant="sidebar" />
+							</div>
 						),
 					},
 					{
@@ -1175,7 +1218,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 						badge: (
 							<MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector">
-								<FiCheckCircle />
+								V7
 							</MigrationBadge>
 						),
 					},
@@ -1190,7 +1233,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 						badge: (
 							<MigrationBadge title="V7: Unified OAuth/OIDC device authorization for TVs, IoT devices, and CLI tools">
-								<FiCheckCircle />
+								V7
 							</MigrationBadge>
 						),
 					},
@@ -1205,7 +1248,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 						badge: (
 							<MigrationBadge title="V7: Enhanced client credentials with comprehensive auth methods">
-								<FiCheckCircle />
+								V7
 							</MigrationBadge>
 						),
 					},
@@ -1220,22 +1263,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						),
 						badge: (
 							<MigrationBadge title="V7: Resource Owner Password Credentials with enhanced security">
-								<FiCheckCircle />
+								V7
 							</MigrationBadge>
 						),
 					},
 					{
 						id: 'token-exchange-v7',
 						path: '/flows/token-exchange-v7',
-						label: 'Token Exchange (V8M)',
+						label: 'Token Exchange (V7M)',
 						icon: (
 							<ColoredIcon $color="#7c3aed">
 								<FiRefreshCw />
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V8M: RFC 8693 Token Exchange for A2A scenarios">
-								<FiCheckCircle />
+							<MigrationBadge title="V7M: RFC 8693 Token Exchange for A2A scenarios">
+								V7
 							</MigrationBadge>
 						),
 					},
@@ -1307,7 +1350,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						label: '📦 P1MFA SDK Samples',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
-								<FiCode />
+								SDK
 							</ColoredIcon>
 						),
 						badge: (
@@ -1404,7 +1447,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						label: 'SDK Examples',
 						icon: (
 							<ColoredIcon $color="#10b981">
-								<FiCode />
+								SDK
 							</ColoredIcon>
 						),
 						badge: (
@@ -1419,7 +1462,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						label: 'DaVinci Todo App',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
-								<FiCheckCircle />
+								V7
 							</ColoredIcon>
 						),
 						badge: (
@@ -1449,7 +1492,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						label: 'SDK Sample App',
 						icon: (
 							<ColoredIcon $color="#10b981">
-								<FiCode />
+								SDK
 							</ColoredIcon>
 						),
 					},
@@ -1497,9 +1540,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					},
 				],
 			},
-		];
-	});
-
+		
 	// Handle drag and drop
 	// const _handleDragEnd = (result: DropResult) => {
 	// 	const { destination, source, type } = result;
