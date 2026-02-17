@@ -74,6 +74,47 @@ export interface TokenQuery extends Omit<StorageQuery, 'type'> {
 	type?: UnifiedToken['type'];
 }
 
+// V8 Storage Compatibility Interfaces
+export interface V8FlowData {
+	flowType: string;
+	discovery?: V8DiscoveryData;
+	credentials?: V8CredentialsData;
+	advanced?: V8AdvancedData;
+	savedAt?: number;
+}
+
+export interface V8DiscoveryData {
+	issuerUrl?: string;
+	authorizationEndpoint?: string;
+	tokenEndpoint?: string;
+	userInfoEndpoint?: string;
+	jwksUrl?: string;
+	endSessionEndpoint?: string;
+	discoveryDocument?: any;
+	discoveredAt?: number;
+}
+
+export interface V8CredentialsData {
+	environmentId?: string;
+	region?: string;
+	clientId?: string;
+	clientSecret?: string;
+	redirectUri?: string;
+	postLogoutRedirectUri?: string;
+	scopes?: string | string[];
+	loginHint?: string;
+	clientAuthMethod?: string;
+}
+
+export interface V8AdvancedData {
+	privateKey?: string;
+	jwksUrl?: string;
+	issuer?: string;
+	subject?: string;
+	tokenEndpointAuthMethod?: string;
+	[key: string]: any;
+}
+
 /**
  * Unified Token Storage Service
  * 
@@ -934,6 +975,178 @@ export class UnifiedTokenStorageService {
 		}
 
 		return null;
+	}
+
+	// ===== V8 STORAGE COMPATIBILITY METHODS =====
+	// These methods provide backward compatibility with v8StorageService
+
+	/**
+	 * Save V8 flow data (compatibility method)
+	 */
+	async saveV8FlowData(flowType: string, data: V8FlowData): Promise<boolean> {
+		try {
+			const itemId = `v8_flow_${flowType}`;
+			
+			await this.storeToken({
+				id: itemId,
+				type: 'oauth_credentials' as any,
+				value: JSON.stringify(data),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'user_input',
+				flowType,
+				flowName: `V8 ${flowType}`,
+				environmentId: data.credentials?.environmentId,
+				clientId: data.credentials?.clientId,
+				metadata: {
+					version: 'v8',
+					sections: {
+						discovery: !!data.discovery,
+						credentials: !!data.credentials,
+						advanced: !!data.advanced
+					}
+				},
+				createdAt: Date.now(),
+				updatedAt: Date.now()
+			});
+			
+			return true;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save V8 flow data', error as Error);
+			return false;
+		}
+	}
+
+	/**
+	 * Load V8 flow data (compatibility method)
+	 */
+	async loadV8FlowData(flowType: string): Promise<V8FlowData | null> {
+		try {
+			const items = await this.getTokens({
+				type: 'oauth_credentials' as any,
+				flowType
+			});
+			
+			if (items.success && items.data && items.data.length > 0) {
+				const item = items.data[0];
+				return JSON.parse(item.value) as V8FlowData;
+			}
+			
+			return null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load V8 flow data', error as Error);
+			return null;
+		}
+	}
+
+	/**
+	 * Save V8 discovery data (compatibility method)
+	 */
+	async saveV8Discovery(flowType: string, data: V8DiscoveryData): Promise<boolean> {
+		try {
+			const existingData = await this.loadV8FlowData(flowType) || { flowType };
+			const updatedData = {
+				...existingData,
+				discovery: data,
+				savedAt: Date.now()
+			};
+			
+			return await this.saveV8FlowData(flowType, updatedData);
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save V8 discovery data', error as Error);
+			return false;
+		}
+	}
+
+	/**
+	 * Save V8 credentials data (compatibility method)
+	 */
+	async saveV8Credentials(flowType: string, data: V8CredentialsData): Promise<boolean> {
+		try {
+			const existingData = await this.loadV8FlowData(flowType) || { flowType };
+			const updatedData = {
+				...existingData,
+				credentials: data,
+				savedAt: Date.now()
+			};
+			
+			return await this.saveV8FlowData(flowType, updatedData);
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save V8 credentials data', error as Error);
+			return false;
+		}
+	}
+
+	/**
+	 * Save V8 advanced data (compatibility method)
+	 */
+	async saveV8Advanced(flowType: string, data: V8AdvancedData): Promise<boolean> {
+		try {
+			const existingData = await this.loadV8FlowData(flowType) || { flowType };
+			const updatedData = {
+				...existingData,
+				advanced: data,
+				savedAt: Date.now()
+			};
+			
+			return await this.saveV8FlowData(flowType, updatedData);
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save V8 advanced data', error as Error);
+			return false;
+		}
+	}
+
+	/**
+	 * Load V8 discovery data (compatibility method)
+	 */
+	async loadV8Discovery(flowType: string): Promise<V8DiscoveryData | null> {
+		try {
+			const flowData = await this.loadV8FlowData(flowType);
+			return flowData?.discovery || null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load V8 discovery data', error as Error);
+			return null;
+		}
+	}
+
+	/**
+	 * Load V8 credentials data (compatibility method)
+	 */
+	async loadV8Credentials(flowType: string): Promise<V8CredentialsData | null> {
+		try {
+			const flowData = await this.loadV8FlowData(flowType);
+			return flowData?.credentials || null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load V8 credentials data', error as Error);
+			return null;
+		}
+	}
+
+	/**
+	 * Load V8 advanced data (compatibility method)
+	 */
+	async loadV8Advanced(flowType: string): Promise<V8AdvancedData | null> {
+		try {
+			const flowData = await this.loadV8FlowData(flowType);
+			return flowData?.advanced || null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load V8 advanced data', error as Error);
+			return null;
+		}
+	}
+
+	/**
+	 * Clear V8 flow data (compatibility method)
+	 */
+	async clearV8FlowData(flowType: string): Promise<void> {
+		try {
+			await this.deleteTokens({
+				type: 'oauth_credentials' as any,
+				flowType
+			});
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear V8 flow data', error as Error);
+		}
 	}
 }
 

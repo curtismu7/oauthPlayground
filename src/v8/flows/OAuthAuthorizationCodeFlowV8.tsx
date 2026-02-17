@@ -307,6 +307,8 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 											access_token: flowResult.tokens.accessToken,
 											id_token: flowResult.tokens.idToken,
 											refresh_token: '', // Redirectless flow doesn't provide refresh token
+											tokenType: flowResult.tokens.tokenType,
+											expiresIn: flowResult.tokens.expiresIn,
 										};
 										TokenMonitoringService.addOAuthTokens(oauthTokenPayload, 'oauth-authz-v8');
 										
@@ -347,6 +349,8 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 								const result =
 									await OAuthIntegrationServiceV8.generateAuthorizationUrl(oauthCredentials);
 								codeVerifierRef.current = result.codeVerifier;
+
+								// Store PKCE codes
 								PKCEStorageServiceV8U.savePKCECodes(FLOW_KEY, {
 									codeVerifier: result.codeVerifier,
 									codeChallenge: result.codeChallenge,
@@ -361,9 +365,10 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 								});
 								nav.nextStep();
 							}
-						}
-						}, useRedirectless ? 'Processing redirectless flow...' : 'Generating authorization URL...');
-				}
+						},
+						useRedirectless ? 'Processing redirectless flow...' : 'Generating authorization URL...'
+					);
+				}}
 				isLoading={isActionInProgress}
 				disabled={isActionInProgress}
 			>
