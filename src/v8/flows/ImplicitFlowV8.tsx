@@ -19,6 +19,7 @@ import { PingOneAppConfigForm } from '../components/PingOneAppConfigForm';
 import { usePingOneAppConfig } from '../hooks/usePingOneAppConfig';
 import { ValidationServiceV8 } from '../services/validationServiceV8';
 import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 const MODULE_TAG = '[🔓 IMPLICIT-FLOW-V8]';
 const FLOW_KEY = 'implicit-flow-v8';
@@ -238,9 +239,8 @@ export const ImplicitFlowV8: React.FC = () => {
 					? 'Authenticate using PingOne redirectless flow to receive tokens directly.'
 					: 'Redirect user to authenticate and authorize'}
 			</p>
-			<button
-				type="button"
-				className="btn btn-next"
+			<ButtonSpinner
+				loading={redirectlessSpinner.isLoading || authUrlSpinner.isLoading}
 				onClick={async () => {
 					const spinner = useRedirectless ? redirectlessSpinner : authUrlSpinner;
 					
@@ -331,31 +331,41 @@ export const ImplicitFlowV8: React.FC = () => {
 						}
 					);
 				}}
+				spinnerSize={16}
+				spinnerPosition="left"
+				loadingText={useRedirectless ? 'Authenticating...' : 'Generating...'}
+				className="btn btn-next"
 			>
 				{useRedirectless ? 'Authenticate with PingOne' : 'Generate Authorization URL'}
-			</button>
+			</ButtonSpinner>
 			{!useRedirectless && flowState.authorizationUrl && (
 				<div className="code-block">
 					<pre>{flowState.authorizationUrl}</pre>
-					<button
-						type="button"
-						className="btn btn-secondary"
+					<ButtonSpinner
+						loading={false}
 						onClick={() => {
 							navigator.clipboard.writeText(flowState.authorizationUrl);
 							console.log(`${MODULE_TAG} URL copied to clipboard`);
 						}}
+						spinnerSize={12}
+						spinnerPosition="left"
+						loadingText="Copying..."
+						className="btn btn-secondary"
 					>
 						Copy URL
-					</button>
-					<button
-						type="button"
-						className="btn btn-secondary"
+					</ButtonSpinner>
+					<ButtonSpinner
+						loading={false}
 						onClick={() => {
 							window.open(flowState.authorizationUrl, '_blank');
 						}}
+						spinnerSize={12}
+						spinnerPosition="left"
+						loadingText="Opening..."
+						className="btn btn-secondary"
 					>
 						Open in Browser
-					</button>
+					</ButtonSpinner>
 				</div>
 			)}
 
@@ -386,9 +396,8 @@ export const ImplicitFlowV8: React.FC = () => {
 				<small>Paste the full callback URL here (tokens in fragment)</small>
 			</div>
 
-			<button
-				type="button"
-				className="btn btn-primary"
+			<ButtonSpinner
+				loading={false}
 				onClick={() => {
 					console.log(`${MODULE_TAG} Parsing callback URL`);
 					try {
@@ -398,15 +407,23 @@ export const ImplicitFlowV8: React.FC = () => {
 						}
 						const params = new URLSearchParams(fragment);
 						const accessToken = params.get('access_token');
+						const idToken = params.get('id_token');
+						const tokenType = params.get('token_type') || 'Bearer';
+						const expiresIn = params.get('expires_in');
+						const scope = params.get('scope');
+						const state = params.get('state');
+
 						if (!accessToken) {
-							throw new Error('No access token found in fragment');
+							throw new Error('Access token not found in URL');
 						}
+
 						setFlowState({
 							...flowState,
-							accessToken: accessToken,
-							idToken: params.get('id_token') || '',
-							tokenType: params.get('token_type') || 'Bearer',
-							expiresIn: params.get('expires_in') ? parseInt(params.get('expires_in')!, 10) : 3600,
+							accessToken,
+							idToken: idToken || undefined,
+							tokenType,
+							expiresIn: expiresIn ? parseInt(expiresIn) : 3600,
+							scope: scope || undefined,
 							state: params.get('state') || '',
 						});
 						nav.markStepComplete();
@@ -417,9 +434,13 @@ export const ImplicitFlowV8: React.FC = () => {
 						]);
 					}
 				}}
+				spinnerSize={16}
+				spinnerPosition="left"
+				loadingText="Parsing..."
+				className="btn btn-primary"
 			>
 				Parse Callback URL
-			</button>
+			</ButtonSpinner>
 		</div>
 	);
 
@@ -434,19 +455,21 @@ export const ImplicitFlowV8: React.FC = () => {
 						<h3>🎫 Access Token</h3>
 						<div className="code-block">
 							<pre>{flowState.accessToken}</pre>
-							<button
-								type="button"
-								className="btn btn-secondary"
+							<ButtonSpinner
+								loading={false}
 								onClick={() => {
 									navigator.clipboard.writeText(flowState.accessToken);
 									console.log(`${MODULE_TAG} Token copied to clipboard`);
 								}}
+								spinnerSize={12}
+								spinnerPosition="left"
+								loadingText="Copying..."
+								className="btn btn-secondary"
 							>
 								Copy
-							</button>
-							<button
-								type="button"
-								className="btn btn-secondary"
+							</ButtonSpinner>
+							<ButtonSpinner
+								loading={false}
 								onClick={() => {
 									try {
 										const decoded = ImplicitFlowIntegrationServiceV8.decodeToken(
@@ -460,9 +483,13 @@ export const ImplicitFlowV8: React.FC = () => {
 										);
 									}
 								}}
+								spinnerSize={12}
+								spinnerPosition="left"
+								loadingText="Decoding..."
+								className="btn btn-secondary"
 							>
 								Decode
-							</button>
+							</ButtonSpinner>
 						</div>
 						<small>
 							Type: {flowState.tokenType} | Expires: {flowState.expiresIn}s
@@ -474,19 +501,21 @@ export const ImplicitFlowV8: React.FC = () => {
 							<h3>🆔 ID Token</h3>
 							<div className="code-block">
 								<pre>{flowState.idToken}</pre>
-								<button
-									type="button"
-									className="btn btn-secondary"
+								<ButtonSpinner
+									loading={false}
 									onClick={() => {
 										navigator.clipboard.writeText(flowState.idToken || '');
 										console.log(`${MODULE_TAG} Token copied to clipboard`);
 									}}
+									spinnerSize={12}
+									spinnerPosition="left"
+									loadingText="Copying..."
+									className="btn btn-secondary"
 								>
 									Copy
-								</button>
-								<button
-									type="button"
-									className="btn btn-secondary"
+								</ButtonSpinner>
+								<ButtonSpinner
+									loading={false}
 									onClick={() => {
 										try {
 											const decoded = ImplicitFlowIntegrationServiceV8.decodeToken(
@@ -500,9 +529,13 @@ export const ImplicitFlowV8: React.FC = () => {
 											);
 										}
 									}}
+									spinnerSize={12}
+									spinnerPosition="left"
+									loadingText="Decoding..."
+									className="btn btn-secondary"
 								>
 									Decode
-								</button>
+								</ButtonSpinner>
 							</div>
 						</div>
 					)}
@@ -607,9 +640,8 @@ export const ImplicitFlowV8: React.FC = () => {
 					}}
 				/>
 
-				<button
-					type="button"
-					className="btn btn-reset"
+				<ButtonSpinner
+					loading={false}
 					onClick={() => {
 						console.log(`${MODULE_TAG} Resetting flow`);
 						FlowResetServiceV8.resetFlow('implicit-flow-v8');
@@ -627,10 +659,13 @@ export const ImplicitFlowV8: React.FC = () => {
 						setCredentials(reloaded);
 						nav.reset();
 					}}
-					title="Reset flow and clear all data"
+					spinnerSize={12}
+					spinnerPosition="left"
+					loadingText="Resetting..."
+					className="btn btn-reset"
 				>
 					Reset Flow
-				</button>
+				</ButtonSpinner>
 			</div>
 
 			<style>{`
