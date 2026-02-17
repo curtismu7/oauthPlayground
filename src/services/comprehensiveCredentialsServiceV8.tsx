@@ -7,22 +7,21 @@
 // 1. PURPOSE:
 //    - Compact UI for credential entry in V8 flows
 //    - Sections: OIDC Discovery, Basics, Advanced, Config Checker
-//    - Auto-saves credentials to v8StorageService (debounced 2s)
+//    - Auto-saves credentials to unifiedTokenStorageService (debounced 2s)
 //    - Loads saved credentials on mount
 //
 // 2. STORAGE ARCHITECTURE:
-//    - v8StorageService handles persistence:
-//      * Discovery: localStorage 'v8:{flowType}:discovery'
-//      * Credentials: localStorage 'v8:{flowType}:credentials'
-//      * Advanced: localStorage 'v8:{flowType}:advanced'
-//    - Auto-save: Debounced 2 seconds after credential changes
-//    - Manual save: Section-specific save buttons OR "Save All Sections"
+//    - unifiedTokenStorageService handles persistence:
+//      * Discovery: IndexedDB 'oauth_credentials' type
+//      * Credentials: IndexedDB 'oauth_credentials' type  
+//      * Advanced: IndexedDB 'oauth_credentials' type
+//      * Automatic SQLite backup for redundancy
 //
 // 3. DATA FLOW:
 //    - User input -> updateField() -> updates local state
 //    - onCredentialsChange() -> parent component (e.g., controller.setCredentials())
-//    - Auto-save useEffect -> v8StorageService.saveCredentials()
-//    - On mount: v8StorageService.loadFlowData() -> merge into state
+//    - Auto-save useEffect -> unifiedTokenStorageService.saveV8Credentials()
+//    - On mount: unifiedTokenStorageService.loadV8FlowData() -> merge into state
 //
 // 4. CREDENTIAL RESOLUTION:
 //    - resolved = useMemo(() => merge(credentials, props), [credentials, props])
@@ -87,7 +86,8 @@ import { pingOneAppCreationService } from '../services/pingOneAppCreationService
 import type { ClientAuthMethod } from '../utils/clientAuthentication';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { DiscoveryResult } from './comprehensiveDiscoveryService';
-import { v8StorageService } from './v8StorageService';
+import { unifiedTokenStorage } from './unifiedTokenStorageService';
+import type { V8FlowData, V8DiscoveryData, V8CredentialsData, V8AdvancedData } from './unifiedTokenStorageService';
 
 // Flow-specific authentication method configuration
 const getFlowAuthMethods = (flowType?: string): ClientAuthMethod[] => {
@@ -506,7 +506,7 @@ const ComprehensiveCredentialsServiceV8: React.FC<ComprehensiveCredentialsProps>
 
 	// DEBUG: Load Saved Credentials on Mount
 	// ======================================
-	// Loads from v8StorageService (localStorage)
+	// Loads from unifiedTokenStorageService (IndexedDB + SQLite backup)
 	// Merges discovery, credentials, and advanced sections
 	// Only updates if meaningful data found (has environmentId or clientId)
 	// Logs: "[ComprehensiveCredentialsServiceV8] Loading saved credentials..."
@@ -523,7 +523,7 @@ const ComprehensiveCredentialsServiceV8: React.FC<ComprehensiveCredentialsProps>
 				console.log(
 					`[ComprehensiveCredentialsServiceV8] Loading saved credentials for ${flowTypeFromProps}...`
 				);
-				const flowData = await v8StorageService.loadFlowData(flowTypeFromProps);
+				const flowData = await unifiedTokenStorage.loadV8FlowData(flowTypeFromProps);
 
 				if (flowData && (flowData.discovery || flowData.credentials || flowData.advanced)) {
 					console.log(
@@ -656,7 +656,7 @@ const ComprehensiveCredentialsServiceV8: React.FC<ComprehensiveCredentialsProps>
 	// Triggers when credentials or flowType changes
 	// Debounce: 2 seconds (prevents excessive saves during typing)
 	// Only saves if meaningful data exists (has environmentId or clientId)
-	// Storage: localStorage via v8StorageService.saveCredentials()
+	// Storage: IndexedDB + SQLite backup via unifiedTokenStorageService.saveV8Credentials()
 	// Logs: "[ComprehensiveCredentialsServiceV8] Auto-saving credentials..."
 	const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	useEffect(() => {
@@ -698,7 +698,7 @@ const ComprehensiveCredentialsServiceV8: React.FC<ComprehensiveCredentialsProps>
 				if (credentials.clientAuthMethod)
 					credentialsData.clientAuthMethod = credentials.clientAuthMethod;
 
-				await v8StorageService.saveCredentials(flowTypeFromProps, credentialsData as any);
+				await unifiedTokenStorage.saveV8Credentials(flowTypeFromProps, credentialsData as any);
 				console.log(
 					`[ComprehensiveCredentialsServiceV8] Auto-saved credentials for ${flowTypeFromProps}`
 				);
@@ -783,7 +783,7 @@ const ComprehensiveCredentialsServiceV8: React.FC<ComprehensiveCredentialsProps>
 				environmentId: resolved.environmentId,
 			};
 
-			const success = await v8StorageService.saveDiscovery(flowType, discoveryData);
+			const success = await unifiedTokenStorage.saveV8Discovery(flowType, discoveryData);
 			if (success) {
 				v4ToastManager.showSuccess('OIDC Discovery data saved successfully!');
 			} else {
@@ -812,7 +812,7 @@ const ComprehensiveCredentialsServiceV8: React.FC<ComprehensiveCredentialsProps>
 				loginHint: resolved.loginHint,
 			};
 
-			const success = await v8StorageService.saveCredentials(flowType, credentialsData);
+			const success = await unifiedTokenStorage.saveV8Credentials(flowType, credentialsData);
 			if (success) {
 				v4ToastManager.showSuccess('Credentials saved successfully!');
 			} else {
@@ -836,7 +836,7 @@ const ComprehensiveCredentialsServiceV8: React.FC<ComprehensiveCredentialsProps>
 				jwksUrl: resolved.jwksUrl,
 			};
 
-			const success = await v8StorageService.saveAdvanced(flowType, advancedData);
+			const success = await unifiedTokenStorage.saveV8Advanced(flowType, advancedData);
 			if (success) {
 				v4ToastManager.showSuccess('Advanced settings saved successfully!');
 			} else {
@@ -854,7 +854,8 @@ const ComprehensiveCredentialsServiceV8: React.FC<ComprehensiveCredentialsProps>
 		}
 
 		try {
-			const allData = {
+			const allData: V8FlowData = {
+				flowType,
 				discovery: {
 					issuerUrl: resolved.issuerUrl,
 					authorizationEndpoint: resolved.authorizationEndpoint,
@@ -879,7 +880,7 @@ const ComprehensiveCredentialsServiceV8: React.FC<ComprehensiveCredentialsProps>
 				},
 			};
 
-			const success = await v8StorageService.saveAll(flowType, allData);
+			const success = await unifiedTokenStorage.saveV8FlowData(flowType, allData);
 			if (success) {
 				v4ToastManager.showSuccess('All configuration saved successfully!');
 			} else {
