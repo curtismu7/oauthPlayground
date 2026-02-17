@@ -844,12 +844,14 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 										</select>
 									</div>
 									{filtersActive && (
-										<button
-											type="button"
+										<ButtonSpinner
+											loading={false}
 											onClick={() => {
 												setTypeFilter('all');
 												setStatusFilter('all');
 											}}
+											spinnerSize={12}
+											spinnerPosition="left"
 											style={{
 												padding: '6px 10px',
 												fontSize: '12px',
@@ -860,7 +862,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 											}}
 										>
 											Clear filters
-										</button>
+										</ButtonSpinner>
 									)}
 								</div>
 							)}
@@ -1007,13 +1009,15 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 																		paddingRight: '4px',
 																	}}
 																>
-																	<button
-																		type="button"
+																	<ButtonSpinner
+																		loading={false}
 																		onClick={(e) => {
 																			e.stopPropagation();
 																			handleMoveUp(device.id);
 																		}}
 																		disabled={isFirst}
+																		spinnerSize={8}
+																		spinnerPosition="left"
 																		style={{
 																			padding: '2px 6px',
 																			background: isFirst ? '#e5e7eb' : '#3b82f6',
@@ -1027,17 +1031,18 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 																			alignItems: 'center',
 																			justifyContent: 'center',
 																		}}
-																		title="Move up"
 																	>
 																		↑
-																	</button>
-																	<button
-																		type="button"
+																	</ButtonSpinner>
+																	<ButtonSpinner
+																		loading={false}
 																		onClick={(e) => {
 																			e.stopPropagation();
 																			handleMoveDown(device.id);
 																		}}
 																		disabled={isLast}
+																		spinnerSize={8}
+																		spinnerPosition="left"
 																		style={{
 																			padding: '2px 6px',
 																			background: isLast ? '#e5e7eb' : '#3b82f6',
@@ -1051,10 +1056,9 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 																			alignItems: 'center',
 																			justifyContent: 'center',
 																		}}
-																		title="Move down"
 																	>
 																		↓
-																	</button>
+																	</ButtonSpinner>
 																</div>
 																<div style={{ flex: 1 }}>
 																	<div
