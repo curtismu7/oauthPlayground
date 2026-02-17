@@ -15,6 +15,9 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { useProductionSpinner } from '../../hooks/useProductionSpinner';
+import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
+import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { GlobalEnvironmentService } from '../services/globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';
 import { TokenExchangeServiceV8 } from '../services/tokenExchangeServiceV8';
@@ -178,43 +181,6 @@ const Select = styled.select`
 	}
 `;
 
-const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-	padding: 0.75rem 1.5rem;
-	border-radius: 0.5rem;
-	font-weight: 600;
-	cursor: pointer;
-	transition: all 0.2s ease;
-	border: none;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-
-	${({ $variant = 'primary' }) =>
-		$variant === 'primary'
-			? `
-				background: #7c3aed;
-				color: white;
-				
-				&:hover:not(:disabled) {
-					background: #6d28d9;
-				}
-				
-				&:disabled {
-					opacity: 0.5;
-					cursor: not-allowed;
-				}
-			`
-			: `
-				background: #f3f4f6;
-				color: #374151;
-				border: 1px solid #d1d5db;
-				
-				&:hover:not(:disabled) {
-					background: #e5e7eb;
-				}
-			`}
-`;
-
 const ResultSection = styled.div`
 	background: #f0fdf4;
 	border: 1px solid #bbf7d0;
@@ -231,21 +197,20 @@ const ResultHeader = styled.div`
 `;
 
 const ResultTitle = styled.h3`
-	font-size: 1.125rem;
-	font-weight: 600;
-	color: #166534;
 	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #16a34a;
 `;
 
-const ResultContent = styled.div`
+const ResultContent = styled.pre`
 	background: #ffffff;
-	border: 1px solid #d1fae5;
+	border: 1px solid #e5e7eb;
 	border-radius: 0.5rem;
 	padding: 1rem;
-	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-family: 'Courier New', monospace;
 	font-size: 0.875rem;
-	white-space: pre-wrap;
-	word-break: break-all;
+	overflow-x: auto;
 `;
 
 const ErrorSection = styled.div`
@@ -254,21 +219,6 @@ const ErrorSection = styled.div`
 	border-radius: 0.75rem;
 	padding: 2rem;
 	margin: 2rem 0;
-`;
-
-const LoadingSpinner = styled.div`
-	display: inline-block;
-	width: 1rem;
-	height: 1rem;
-	border: 2px solid #e5e7eb;
-	border-top: 2px solid #7c3aed;
-	border-radius: 50%;
-	animation: spin 1s linear infinite;
-
-	@keyframes spin {
-		0% { transform: rotate(0deg); }
-		100% { transform: rotate(360deg); }
-	}
 `;
 
 interface TokenExchangeFlowV8Props {
@@ -297,8 +247,12 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 	);
 	const [result, setResult] = useState<TokenExchangeResponse | null>(null);
 	const [error, setError] = useState<TokenExchangeError | null>(null);
-	const [isLoading, setIsLoading] = useState(false);
+	const [isLoading, _setIsLoading] = useState(false);
 	const [isAdminEnabled, setIsAdminEnabled] = useState(false);
+
+	// Spinner hooks for async operations
+	const tokenExchangeSpinner = useProductionSpinner('token-exchange');
+	const adminCheckSpinner = useProductionSpinner('admin-check');
 
 	// Get current environment ID
 	const currentEnvironmentId =
@@ -307,30 +261,32 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 	// Check admin enablement on mount
 	useEffect(() => {
 		const checkAdminEnablement = async () => {
-			try {
-				const enabled = await TokenExchangeConfigServiceV8.isEnabled(currentEnvironmentId);
-				setIsAdminEnabled(enabled);
-				if (!enabled) {
+			await adminCheckSpinner.withSpinner(async () => {
+				try {
+					const enabled = await TokenExchangeConfigServiceV8.isEnabled(currentEnvironmentId);
+					setIsAdminEnabled(enabled);
+					if (!enabled) {
+						setError(
+							new TokenExchangeError(
+								TokenExchangeErrorType.ADMIN_DISABLED,
+								'Token Exchange is not enabled for this environment. Please contact your administrator.'
+							)
+						);
+					}
+				} catch (err) {
+					console.error(`${MODULE_TAG} Error checking admin enablement:`, err);
 					setError(
 						new TokenExchangeError(
-							TokenExchangeErrorType.ADMIN_DISABLED,
-							'Token Exchange is not enabled for this environment. Please contact your administrator.'
+							TokenExchangeErrorType.SERVER_ERROR,
+							'Failed to check Token Exchange configuration'
 						)
 					);
 				}
-			} catch (err) {
-				console.error(`${MODULE_TAG} Error checking admin enablement:`, err);
-				setError(
-					new TokenExchangeError(
-						TokenExchangeErrorType.SERVER_ERROR,
-						'Failed to check Token Exchange configuration'
-					)
-				);
-			}
+			}, 'Checking configuration...');
 		};
 
 		checkAdminEnablement();
-	}, [currentEnvironmentId]);
+	}, [currentEnvironmentId, adminCheckSpinner]);
 
 	// Handle token exchange
 	const handleTokenExchange = useCallback(async () => {
@@ -338,45 +294,45 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 			return;
 		}
 
-		setIsLoading(true);
-		setError(null);
-		setResult(null);
+		await tokenExchangeSpinner.withSpinner(async () => {
+			setError(null);
+			setResult(null);
 
-		try {
-			const params: TokenExchangeParams = {
-				subject_token: subjectToken.trim(),
-				subject_token_type: subjectTokenType as
-					| 'urn:ietf:params:oauth:token-type:access_token'
-					| 'urn:ietf:params:oauth:token-type:id_token',
-				requested_token_type: requestedTokenType as 'urn:ietf:params:oauth:token-type:access_token',
-				...(scope && { scope: scope.trim() }),
-				...(actorToken.trim() && {
-					actor_token: actorToken.trim(),
-					actor_token_type: actorTokenType as
+			try {
+				const params: TokenExchangeParams = {
+					subject_token: subjectToken.trim(),
+					subject_token_type: subjectTokenType as
 						| 'urn:ietf:params:oauth:token-type:access_token'
 						| 'urn:ietf:params:oauth:token-type:id_token',
-				}),
-			};
+					requested_token_type:
+						requestedTokenType as 'urn:ietf:params:oauth:token-type:access_token',
+					...(scope && { scope: scope.trim() }),
+					...(actorToken.trim() && {
+						actor_token: actorToken.trim(),
+						actor_token_type: actorTokenType as
+							| 'urn:ietf:params:oauth:token-type:access_token'
+							| 'urn:ietf:params:oauth:token-type:id_token',
+					}),
+				};
 
-			console.log(`${MODULE_TAG} Executing token exchange with params:`, {
-				...params,
-				subject_token: '[REDACTED]',
-				...(params.actor_token && { actor_token: '[REDACTED]' }),
-			});
+				console.log(`${MODULE_TAG} Executing token exchange with params:`, {
+					...params,
+					subject_token: '[REDACTED]',
+					...(params.actor_token && { actor_token: '[REDACTED]' }),
+				});
 
-			const response = await TokenExchangeServiceV8.exchangeToken(params, currentEnvironmentId);
+				const response = await TokenExchangeServiceV8.exchangeToken(params, currentEnvironmentId);
 
-			setResult(response);
-			toastV8.success('Token exchange completed successfully!');
-			onTokenReceived?.(response);
-		} catch (err) {
-			const tokenError = err as TokenExchangeError;
-			setError(tokenError);
-			toastV8.error(`Token exchange failed: ${tokenError.message}`);
-			onError?.(tokenError);
-		} finally {
-			setIsLoading(false);
-		}
+				setResult(response);
+				toastV8.success('Token exchange completed successfully!');
+				onTokenReceived?.(response);
+			} catch (err) {
+				const tokenError = err as TokenExchangeError;
+				setError(tokenError);
+				toastV8.error(`Token exchange failed: ${tokenError.message}`);
+				onError?.(tokenError);
+			}
+		}, 'Exchanging tokens...');
 	}, [
 		subjectToken,
 		subjectTokenType,
@@ -388,6 +344,7 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 		isAdminEnabled,
 		onTokenReceived,
 		onError,
+		tokenExchangeSpinner,
 	]);
 
 	// Copy to clipboard
@@ -562,17 +519,30 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 						</FormGroup>
 
 						<div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-							<Button
-								$variant="primary"
+							<ButtonSpinner
+								loading={isLoading}
 								onClick={handleTokenExchange}
-								disabled={!isAdminEnabled || !subjectToken.trim() || isLoading}
+								disabled={!isAdminEnabled || !subjectToken.trim()}
+								spinnerSize={16}
+								spinnerPosition="left"
+								loadingText="Exchanging..."
+								style={{
+									background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+									color: 'white',
+									border: 'none',
+									padding: '0.75rem 1.5rem',
+									borderRadius: '0.5rem',
+									fontWeight: '600',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+								}}
 							>
-								{isLoading ? <LoadingSpinner /> : <FiZap />}
-								{isLoading ? 'Exchanging...' : 'Exchange Token'}
-							</Button>
+								{isLoading ? '' : <FiZap />}
+								{isLoading ? '' : 'Exchange Token'}
+							</ButtonSpinner>
 
-							<Button
-								$variant="secondary"
+							<ButtonSpinner
+								loading={false}
 								onClick={() => {
 									setSubjectToken('');
 									setActorToken('');
@@ -580,10 +550,22 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 									setResult(null);
 									setError(null);
 								}}
+								spinnerSize={14}
+								spinnerPosition="left"
+								style={{
+									background: '#f8fafc',
+									color: '#475569',
+									border: '1px solid #e2e8f0',
+									padding: '0.75rem 1.5rem',
+									borderRadius: '0.5rem',
+									fontWeight: '600',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+								}}
 							>
 								<FiRefreshCw />
 								Clear Form
-							</Button>
+							</ButtonSpinner>
 						</div>
 					</FormSection>
 
@@ -596,17 +578,44 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 							</ResultHeader>
 							<ResultContent>{JSON.stringify(result, null, 2)}</ResultContent>
 							<div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
-								<Button
-									$variant="secondary"
+								<ButtonSpinner
+									loading={false}
 									onClick={() => copyToClipboard(JSON.stringify(result, null, 2))}
+									spinnerSize={12}
+									spinnerPosition="left"
+									style={{
+										background: '#f8fafc',
+										color: '#475569',
+										border: '1px solid #e2e8f0',
+										padding: '0.5rem 1rem',
+										borderRadius: '0.5rem',
+										fontWeight: '600',
+										cursor: 'pointer',
+										transition: 'all 0.2s ease',
+									}}
 								>
 									<FiCopy />
 									Copy JSON
-								</Button>
-								<Button $variant="secondary" onClick={() => copyToClipboard(result.access_token)}>
+								</ButtonSpinner>
+								<ButtonSpinner
+									loading={false}
+									onClick={() => copyToClipboard(result.access_token)}
+									spinnerSize={12}
+									spinnerPosition="left"
+									style={{
+										background: '#f8fafc',
+										color: '#475569',
+										border: '1px solid #e2e8f0',
+										padding: '0.5rem 1rem',
+										borderRadius: '0.5rem',
+										fontWeight: '600',
+										cursor: 'pointer',
+										transition: 'all 0.2s ease',
+									}}
+								>
 									<FiKey />
 									Copy Access Token
-								</Button>
+								</ButtonSpinner>
 							</div>
 						</ResultSection>
 					)}
@@ -645,14 +654,47 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 									</p>
 								)}
 							</div>
-							<Button $variant="secondary" onClick={() => setError(null)}>
+							<ButtonSpinner
+								loading={false}
+								onClick={() => setError(null)}
+								spinnerSize={14}
+								spinnerPosition="left"
+								style={{
+									background: '#f8fafc',
+									color: '#475569',
+									border: '1px solid #e2e8f0',
+									padding: '0.75rem 1.5rem',
+									borderRadius: '0.5rem',
+									fontWeight: '600',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+								}}
+							>
 								<FiRefreshCw />
 								Try Again
-							</Button>
+							</ButtonSpinner>
 						</ErrorSection>
 					)}
 				</ContentSection>
 			</MainCard>
+
+			{/* Spinner Modals */}
+			{tokenExchangeSpinner.isLoading && (
+				<CommonSpinner
+					message={tokenExchangeSpinner.spinnerState.message || 'Exchanging tokens...'}
+					theme="blue"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+			{adminCheckSpinner.isLoading && (
+				<CommonSpinner
+					message={adminCheckSpinner.spinnerState.message || 'Checking configuration...'}
+					theme="blue"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
 		</Container>
 	);
 };
