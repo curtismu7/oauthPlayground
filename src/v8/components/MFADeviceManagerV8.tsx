@@ -24,7 +24,7 @@ import { FiInfo } from 'react-icons/fi';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ButtonSpinner } from '../../components/ui';
-import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
+import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 
 const MODULE_TAG = '[🔧 DEVICE-MANAGER-V8]';
 

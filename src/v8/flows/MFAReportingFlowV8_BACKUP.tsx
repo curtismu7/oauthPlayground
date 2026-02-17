@@ -18,7 +18,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { FiPackage } from 'react-icons/fi';
-import { ButtonSpinner, } from '@/components/ui';
+import { ButtonSpinner } from '@/components/ui';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
@@ -36,18 +36,18 @@ import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 const MODULE_TAG = '[📊 MFA-REPORTING-FLOW-V8]';
 const FLOW_KEY = 'mfa-reporting-v8';
 
-type ReportType = 
-	| 'sms' 
-	| 'email' 
-	| 'voice' 
-	| 'totp' 
-	| 'fido2' 
-	| 'whatsapp' 
-	| 'mfa-enabled' 
-	| 'mfa-disabled' 
-	| 'all-devices' 
-	| 'active-devices' 
-	| 'blocked-devices' 
+type ReportType =
+	| 'sms'
+	| 'email'
+	| 'voice'
+	| 'totp'
+	| 'fido2'
+	| 'whatsapp'
+	| 'mfa-enabled'
+	| 'mfa-disabled'
+	| 'all-devices'
+	| 'active-devices'
+	| 'blocked-devices'
 	| 'compromised-devices'
 	| 'user-authentications'
 	| 'device-authentications';

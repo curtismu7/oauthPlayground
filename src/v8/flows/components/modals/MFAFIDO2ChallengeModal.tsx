@@ -1,7 +1,7 @@
 import React from 'react';
 import { FiKey, FiX } from 'react-icons/fi';
-import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
+import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
 
 export interface MFAFIDO2ChallengeModalProps {
 	show: boolean;

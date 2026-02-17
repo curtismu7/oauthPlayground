@@ -16,13 +16,13 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+	FiActivity,
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiClock,
 	FiDatabase,
 	FiHardDrive,
 	FiSave,
-	FiActivity,
-	FiClock,
-	FiCheckCircle,
-	FiAlertTriangle,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useEnhancedCredentialsTracking } from '../hooks/useEnhancedCredentialsTracking';

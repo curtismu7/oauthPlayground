@@ -18,15 +18,15 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-	CibaServiceV8,
-	type CibaCredentials,
-	type CibaAuthRequest,
-	type CibaPollingResult,
-	type CibaTokens,
-	type CibaStatus,
-} from '@/v8/services/cibaServiceV8';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
+import {
+	type CibaAuthRequest,
+	type CibaCredentials,
+	type CibaPollingResult,
+	CibaServiceV8,
+	type CibaStatus,
+	type CibaTokens,
+} from '@/v8/services/cibaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔐 CIBA-FLOW-V8]';
