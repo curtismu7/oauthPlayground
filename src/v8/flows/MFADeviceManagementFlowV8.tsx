@@ -19,6 +19,7 @@ import React, { useEffect, useState } from 'react';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { MFADeviceManagerV8 } from '@/v8/components/MFADeviceManagerV8';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -358,10 +359,11 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 							<div
 								style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}
 							>
-								<button
-									type="button"
+								<ButtonSpinner
+									loading={false}
 									onClick={handleManageWorkerToken}
-									className="token-button"
+									spinnerSize={14}
+									spinnerPosition="left"
 									style={{
 										padding: '10px 16px',
 										background: tokenStatus?.isValid ? '#10b981' : '#ef4444',
@@ -377,8 +379,8 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 									}}
 								>
 									<span>🔑</span>
-									<span>Get worker token</span>
-								</button>
+									Get worker token
+								</ButtonSpinner>
 
 								<div
 									style={{
