@@ -51,8 +51,14 @@ export class CredentialStorageManagerUnifiedMigration {
 
 		try {
 			// Get all credential storage keys from localStorage
-			const localStorageKeys = this.getCredentialStorageKeysFromStorage('localStorage');
-			const sessionStorageKeys = this.getCredentialStorageKeysFromStorage('sessionStorage');
+			const localStorageKeys =
+				CredentialStorageManagerUnifiedMigration.getCredentialStorageKeysFromStorage(
+					'localStorage'
+				);
+			const sessionStorageKeys =
+				CredentialStorageManagerUnifiedMigration.getCredentialStorageKeysFromStorage(
+					'sessionStorage'
+				);
 			const allKeys = [...new Set([...localStorageKeys, ...sessionStorageKeys])];
 
 			console.log(`${MODULE_TAG} Starting comprehensive credential storage migration`, {
@@ -136,7 +142,9 @@ export class CredentialStorageManagerUnifiedMigration {
 	/**
 	 * Get all credential storage keys from storage
 	 */
-	private static getCredentialStorageKeysFromStorage(storageType: 'localStorage' | 'sessionStorage'): string[] {
+	private static getCredentialStorageKeysFromStorage(
+		storageType: 'localStorage' | 'sessionStorage'
+	): string[] {
 		const keys: string[] = [];
 		const storage = storageType === 'localStorage' ? localStorage : sessionStorage;
 
@@ -169,8 +177,12 @@ export class CredentialStorageManagerUnifiedMigration {
 	 * Check if credential storage migration is needed
 	 */
 	static needsMigration(): boolean {
-		const localStorageKeys = CredentialStorageManagerUnifiedMigration.getCredentialStorageKeysFromStorage('localStorage');
-		const sessionStorageKeys = CredentialStorageManagerUnifiedMigration.getCredentialStorageKeysFromStorage('sessionStorage');
+		const localStorageKeys =
+			CredentialStorageManagerUnifiedMigration.getCredentialStorageKeysFromStorage('localStorage');
+		const sessionStorageKeys =
+			CredentialStorageManagerUnifiedMigration.getCredentialStorageKeysFromStorage(
+				'sessionStorage'
+			);
 		return localStorageKeys.length > 0 || sessionStorageKeys.length > 0;
 	}
 
@@ -182,8 +194,12 @@ export class CredentialStorageManagerUnifiedMigration {
 		sessionStorageKeys: number;
 		unifiedStorageKeys: number;
 	} {
-		const localStorageKeys = CredentialStorageManagerUnifiedMigration.getCredentialStorageKeysFromStorage('localStorage');
-		const sessionStorageKeys = CredentialStorageManagerUnifiedMigration.getCredentialStorageKeysFromStorage('sessionStorage');
+		const localStorageKeys =
+			CredentialStorageManagerUnifiedMigration.getCredentialStorageKeysFromStorage('localStorage');
+		const sessionStorageKeys =
+			CredentialStorageManagerUnifiedMigration.getCredentialStorageKeysFromStorage(
+				'sessionStorage'
+			);
 
 		return {
 			localStorageKeys: localStorageKeys.length,
@@ -201,9 +217,13 @@ export class UnifiedCredentialStorageManager {
 	/**
 	 * Load flow credentials with automatic migration
 	 */
-	static async loadFlowCredentials(
-		flowKey: string
-	): Promise<{ success: boolean; data: unknown; source: string; timestamp?: number; error?: string }> {
+	static async loadFlowCredentials(flowKey: string): Promise<{
+		success: boolean;
+		data: unknown;
+		source: string;
+		timestamp?: number;
+		error?: string;
+	}> {
 		await ensureMigration();
 		return await unifiedTokenStorage.loadFlowCredentials(flowKey);
 	}
@@ -240,7 +260,11 @@ export class UnifiedCredentialStorageManager {
 	 */
 	static async savePKCECodes(
 		flowKey: string,
-		pkceCodes: { codeVerifier: string; codeChallenge: string; codeChallengeMethod: 'S256' | 'plain' }
+		pkceCodes: {
+			codeVerifier: string;
+			codeChallenge: string;
+			codeChallengeMethod: 'S256' | 'plain';
+		}
 	): Promise<void> {
 		await ensureMigration();
 		await unifiedTokenStorage.savePKCECodes(flowKey, pkceCodes);
@@ -249,9 +273,11 @@ export class UnifiedCredentialStorageManager {
 	/**
 	 * Load PKCE codes
 	 */
-	static async loadPKCECodes(flowKey: string): Promise<
-		{ codeVerifier: string; codeChallenge: string; codeChallengeMethod: 'S256' | 'plain' } | null
-	> {
+	static async loadPKCECodes(flowKey: string): Promise<{
+		codeVerifier: string;
+		codeChallenge: string;
+		codeChallengeMethod: 'S256' | 'plain';
+	} | null> {
 		await ensureMigration();
 		return await unifiedTokenStorage.loadPKCECodes(flowKey);
 	}
@@ -291,9 +317,11 @@ export class UnifiedCredentialStorageManager {
 	/**
 	 * Save worker token
 	 */
-	static async saveWorkerToken(
-		data: { accessToken: string; expiresAt: number; environmentId: string }
-	): Promise<{ success: boolean; source: string; error?: string }> {
+	static async saveWorkerToken(data: {
+		accessToken: string;
+		expiresAt: number;
+		environmentId: string;
+	}): Promise<{ success: boolean; source: string; error?: string }> {
 		await ensureMigration();
 		return await unifiedTokenStorage.saveWorkerToken(data);
 	}
@@ -301,9 +329,11 @@ export class UnifiedCredentialStorageManager {
 	/**
 	 * Load worker token
 	 */
-	static async loadWorkerToken(): Promise<
-		{ accessToken: string; expiresAt: number; environmentId: string } | null
-	> {
+	static async loadWorkerToken(): Promise<{
+		accessToken: string;
+		expiresAt: number;
+		environmentId: string;
+	} | null> {
 		await ensureMigration();
 		return await unifiedTokenStorage.loadWorkerToken();
 	}
@@ -339,9 +369,13 @@ export class UnifiedCredentialStorageManager {
 		await ensureMigration();
 
 		// Get all credential tokens from unified storage
-		const credentialTokensResult = await unifiedTokenStorage.getTokens({ type: 'oauth_credentials' as any });
+		const credentialTokensResult = await unifiedTokenStorage.getTokens({
+			type: 'oauth_credentials' as any,
+		});
 		const pkceTokensResult = await unifiedTokenStorage.getTokens({ type: 'pkce_state' as any });
-		const flowStateTokensResult = await unifiedTokenStorage.getTokens({ type: 'flow_state' as any });
+		const flowStateTokensResult = await unifiedTokenStorage.getTokens({
+			type: 'flow_state' as any,
+		});
 		const workerTokensResult = await unifiedTokenStorage.getTokens({ type: 'worker_token' as any });
 
 		// Extract arrays from results
@@ -359,7 +393,9 @@ export class UnifiedCredentialStorageManager {
 				const flowKey = token.flowName || 'unknown';
 				data[`flow_credentials_${flowKey}`] = token.value;
 			} catch {
-				console.warn(`${MODULE_TAG} Failed to process credential token for export`, { id: token.id });
+				console.warn(`${MODULE_TAG} Failed to process credential token for export`, {
+					id: token.id,
+				});
 			}
 		}
 
@@ -381,7 +417,9 @@ export class UnifiedCredentialStorageManager {
 				const flowKey = token.flowName || 'unknown';
 				data[`flow_state_${flowKey}`] = JSON.parse(token.value as string);
 			} catch {
-				console.warn(`${MODULE_TAG} Failed to process flow state token for export`, { id: token.id });
+				console.warn(`${MODULE_TAG} Failed to process flow state token for export`, {
+					id: token.id,
+				});
 			}
 		}
 
@@ -448,11 +486,14 @@ export class UnifiedCredentialStorageManager {
 							}
 						}
 
-						await unifiedTokenStorage.savePKCECodes(flowKey, value as {
-							codeVerifier: string;
-							codeChallenge: string;
-							codeChallengeMethod: 'S256' | 'plain';
-						});
+						await unifiedTokenStorage.savePKCECodes(
+							flowKey,
+							value as {
+								codeVerifier: string;
+								codeChallenge: string;
+								codeChallengeMethod: 'S256' | 'plain';
+							}
+						);
 						imported++;
 					} else if (key.startsWith('flow_state_')) {
 						const flowKey = key.replace('flow_state_', '');
@@ -478,15 +519,20 @@ export class UnifiedCredentialStorageManager {
 							}
 						}
 
-						await unifiedTokenStorage.saveWorkerToken(value as {
-							accessToken: string;
-							expiresAt: number;
-							environmentId: string;
-						});
+						await unifiedTokenStorage.saveWorkerToken(
+							value as {
+								accessToken: string;
+								expiresAt: number;
+								environmentId: string;
+							}
+						);
 						imported++;
 					}
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to import credential storage data for key ${key}`, error);
+					console.error(
+						`${MODULE_TAG} Failed to import credential storage data for key ${key}`,
+						error
+					);
 				}
 			}
 
