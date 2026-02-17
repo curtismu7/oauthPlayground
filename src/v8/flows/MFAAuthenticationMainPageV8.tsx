@@ -48,6 +48,7 @@ import { oauthStorage } from '@/utils/storage';
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
 import { DeviceFailureModalV8, UnavailableDevice } from '@/v8/components/DeviceFailureModalV8';
 import { MFACooldownModalV8 } from '@/v8/components/MFACooldownModalV8';
+import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -164,6 +165,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const [isClearingTokens, setIsClearingTokens] = useState(false);
 	const [showClearTokensModal, setShowClearTokensModal] = useState(false);
 	const [isGettingWorkerToken, setIsGettingWorkerToken] = useState(false);
+
+	// Standardized spinner hooks for MFA authentication operations
+	const startMFASpinner = useStandardSpinner(6000); // Start MFA - 6 seconds (user lookup + init)
+	const fido2Spinner = useStandardSpinner(8000);    // FIDO2 auth - 8 seconds (complex auth)
+	const authApiSpinner = useStandardSpinner(4000);  // Authorization API - 4 seconds
+	const clearTokensSpinner = useStandardSpinner(3000); // Clear tokens - 3 seconds
+	const policySpinner = useStandardSpinner(2000);   // Policy selection - 2 seconds
+	const devicesSpinner = useStandardSpinner(3000);  // Load devices - 3 seconds
 
 	// Action button hooks for consistent button state management
 	// const _startMFAAction = useActionButton();
@@ -1673,9 +1682,42 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	})();
 
 	return (
-		<div
-			style={{
-				padding: '32px 20px',
+		<>
+			{/* Modal Spinners for MFA Authentication Operations */}
+			<StandardModalSpinner
+				show={startMFASpinner.isLoading}
+				message="Starting MFA authentication..."
+				theme="blue"
+			/>
+			<StandardModalSpinner
+				show={fido2Spinner.isLoading}
+				message="Authenticating with FIDO2..."
+				theme="green"
+			/>
+			<StandardModalSpinner
+				show={authApiSpinner.isLoading}
+				message="Authorizing API call..."
+				theme="purple"
+			/>
+			<StandardModalSpinner
+				show={clearTokensSpinner.isLoading}
+				message="Clearing tokens..."
+				theme="orange"
+			/>
+			<StandardModalSpinner
+				show={policySpinner.isLoading}
+				message="Updating policy..."
+				theme="blue"
+			/>
+			<StandardModalSpinner
+				show={devicesSpinner.isLoading}
+				message="Loading devices..."
+				theme="green"
+			/>
+			
+			<div
+				style={{
+					padding: '32px 20px',
 				paddingBottom: paddingBottom !== '0' ? paddingBottom : '32px',
 				maxWidth: '1400px',
 				margin: '0 auto',
@@ -6312,6 +6354,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				/>
 			)}
 		</div>
+		</>
 	);
 };
 
