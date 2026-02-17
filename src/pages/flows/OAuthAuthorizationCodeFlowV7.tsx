@@ -27,6 +27,9 @@ import CodeExamplesDisplay from '../../components/CodeExamplesDisplay';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedSecurityFeaturesDemo from '../../components/EnhancedSecurityFeaturesDemo';
+// Education components
+import { EducationModeToggle } from '../../components/education/EducationModeToggle';
+import { MasterEducationSection } from '../../components/education/MasterEducationSection';
 import FlowTrackingDisplay from '../../components/FlowTrackingDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { LearningTooltip } from '../../components/LearningTooltip';
@@ -48,10 +51,6 @@ import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { AuthenticationModalService } from '../../services/authenticationModalService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
-// Education components
-import { EducationModeToggle } from '../../components/education/EducationModeToggle';
-import { MasterEducationSection } from '../../components/education/MasterEducationSection';
-import { V7EducationalContentService } from '../../services/v7EducationalContentDataService';
 import { callbackUriService } from '../../services/callbackUriService';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
@@ -70,15 +69,16 @@ import {
 } from '../../services/oauthErrorHandlingService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { PKCEGenerationService } from '../../services/pkceGenerationService';
+import type { V7FlowName } from '../../services/sharedService';
+// Import V7 Shared Service for compliance features
+import { V7SharedService } from '../../services/sharedService';
 import { themeService } from '../../services/themeService';
 import {
 	IntrospectionApiCallData,
 	TokenIntrospectionService,
 } from '../../services/tokenIntrospectionService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import type { V7FlowName } from '../../services/sharedService';
-// Import V7 Shared Service for compliance features
-import { V7SharedService } from '../../services/sharedService';
+import { V7EducationalContentService } from '../../services/v7EducationalContentDataService';
 import type { ClientAuthMethod } from '../../utils/clientAuthentication';
 import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';

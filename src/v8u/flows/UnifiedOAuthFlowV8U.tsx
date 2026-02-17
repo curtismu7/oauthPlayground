@@ -14,6 +14,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiBook, FiChevronDown, FiPackage } from 'react-icons/fi';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { EducationModeToggle } from '@/components/education/EducationModeToggle';
+import { MasterEducationSection } from '@/components/education/MasterEducationSection';
+import { StandardizedCredentialExportImport } from '@/components/StandardizedCredentialExportImport';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import {
 	downloadPostmanCollectionWithEnvironment,
@@ -65,9 +68,6 @@ import {
 	type UnifiedOAuthCredentials,
 	UnifiedOAuthCredentialsServiceV8U,
 } from '../services/unifiedOAuthCredentialsServiceV8U';
-import { StandardizedCredentialExportImport } from '@/components/StandardizedCredentialExportImport';
-import { EducationModeToggle } from '@/components/education/EducationModeToggle';
-import { MasterEducationSection } from '@/components/education/MasterEducationSection';
 
 const _MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
 

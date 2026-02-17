@@ -3692,7 +3692,8 @@ res.json(data);
 })
 
 // Device UserInfo Endpoint (for OIDC Device Authorization flow)
-app.get('/api/device-userinfo', async (req, res) => {
+app.get('/api/device-userinfo', async (req, res) =>
+{
 	try {
 		const { access_token, environment_id } = req.query;
 
@@ -3758,7 +3759,8 @@ app.get('/api/device-userinfo', async (req, res) => {
 			details: error.message,
 		});
 	}
-});
+}
+)
 
 // PAR (Pushed Authorization Request) Endpoint (proxy to PingOne)
 app.post('/api/par', async (req, res) => {
@@ -10334,7 +10336,8 @@ res.json({
 
 // Send OTP
 // Block MFA Device
-app.post('/api/pingone/mfa/block-device', async (req, res) => {
+app.post('/api/pingone/mfa/block-device', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, deviceId, workerToken } = req.body;
 
@@ -10446,7 +10449,8 @@ app.post('/api/pingone/mfa/block-device', async (req, res) => {
 			message: error.message || 'Failed to block device',
 		});
 	}
-});
+}
+)
 
 // Unlock MFA Device
 app.post('/api/pingone/mfa/unlock-device', async (req, res) => {

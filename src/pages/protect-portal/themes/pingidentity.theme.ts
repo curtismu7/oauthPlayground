@@ -9,8 +9,8 @@
  * enterprise security styling, and modern tech company aesthetics.
  */
 
-import type { BrandTheme } from './brand-theme.interface';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
+import type { BrandTheme } from './brand-theme.interface';
 
 export const pingidentityConfig: CorporatePortalConfig = {
 	company: {

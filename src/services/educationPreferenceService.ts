@@ -62,7 +62,7 @@ export class EducationPreferenceService {
 	 * @param {EducationMode} mode - The education mode to set
 	 */
 	static setEducationMode(mode: EducationMode): void {
-		if (!this.isValidMode(mode)) {
+		if (!EducationPreferenceService.isValidMode(mode)) {
 			console.warn('[EducationPreferenceService] Invalid education mode:', mode);
 			return;
 		}
@@ -125,7 +125,7 @@ export class EducationPreferenceService {
 	 * @returns {boolean} True if in compact mode
 	 */
 	static isCompactMode(): boolean {
-		return this.getEducationMode() === 'compact';
+		return EducationPreferenceService.getEducationMode() === 'compact';
 	}
 
 	/**
@@ -133,7 +133,7 @@ export class EducationPreferenceService {
 	 * @returns {boolean} True if in hidden mode
 	 */
 	static isHiddenMode(): boolean {
-		return this.getEducationMode() === 'hidden';
+		return EducationPreferenceService.getEducationMode() === 'hidden';
 	}
 
 	/**
@@ -141,7 +141,7 @@ export class EducationPreferenceService {
 	 * @returns {boolean} True if in full mode
 	 */
 	static isFullMode(): boolean {
-		return this.getEducationMode() === 'full';
+		return EducationPreferenceService.getEducationMode() === 'full';
 	}
 
 	/**
@@ -149,7 +149,7 @@ export class EducationPreferenceService {
 	 * @returns {EducationMode} The new mode after toggling
 	 */
 	static toggleMode(): EducationMode {
-		const currentMode = this.getEducationMode();
+		const currentMode = EducationPreferenceService.getEducationMode();
 		let newMode: EducationMode;
 
 		switch (currentMode) {
@@ -166,7 +166,7 @@ export class EducationPreferenceService {
 				newMode = DEFAULT_MODE;
 		}
 
-		this.setEducationMode(newMode);
+		EducationPreferenceService.setEducationMode(newMode);
 		return newMode;
 	}
 
@@ -175,7 +175,7 @@ export class EducationPreferenceService {
 	 * @returns {string} Human-readable mode label
 	 */
 	static getModeLabel(): string {
-		const mode = this.getEducationMode();
+		const mode = EducationPreferenceService.getEducationMode();
 		switch (mode) {
 			case 'full':
 				return 'Full Education';
@@ -193,7 +193,7 @@ export class EducationPreferenceService {
 	 * @returns {string} Description of what the mode does
 	 */
 	static getModeDescription(): string {
-		const mode = this.getEducationMode();
+		const mode = EducationPreferenceService.getEducationMode();
 		switch (mode) {
 			case 'full':
 				return 'Show all educational content with detailed explanations';

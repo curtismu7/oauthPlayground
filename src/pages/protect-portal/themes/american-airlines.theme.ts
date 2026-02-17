@@ -8,8 +8,8 @@
  * American Airlines brand theme with patriotic colors and aviation styling.
  */
 
-import type { BrandTheme } from './brand-theme.interface';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
+import type { BrandTheme } from './brand-theme.interface';
 
 export const americanAirlinesConfig: CorporatePortalConfig = {
 	company: {

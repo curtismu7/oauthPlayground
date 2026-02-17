@@ -9,26 +9,24 @@
  * multiple login patterns and company customizations through configuration.
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { useBrandTheme } from '../themes/theme-provider';
 import type { BrandTheme } from '../themes/brand-theme.interface';
+import { useBrandTheme } from '../themes/theme-provider';
 import type { CorporatePortalConfig, LoginPattern } from '../types/CorporatePortalConfig';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
-
-// Import login pattern components
-import RightPopoutLogin from './LoginPatterns/RightPopoutLogin';
-import NewPageLogin from './LoginPatterns/NewPageLogin';
 import DropdownLogin from './LoginPatterns/DropdownLogin';
 import EmbeddedLogin from './LoginPatterns/EmbeddedLogin';
+import NewPageLogin from './LoginPatterns/NewPageLogin';
+// Import login pattern components
+import RightPopoutLogin from './LoginPatterns/RightPopoutLogin';
 import TwoStepOTPLogin from './LoginPatterns/TwoStepOTPLogin';
-
+import CorporateFooter from './Shared/CorporateFooter';
 // Import shared components
 import CorporateNavigation from './Shared/CorporateNavigation';
-import HeroSection from './Shared/HeroSection';
 import FeaturesSection from './Shared/FeaturesSection';
-import CorporateFooter from './Shared/CorporateFooter';
+import HeroSection from './Shared/HeroSection';
 
 // ============================================================================
 // STYLED COMPONENTS

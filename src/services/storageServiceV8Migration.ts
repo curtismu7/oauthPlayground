@@ -18,13 +18,13 @@ export class StorageServiceV8Migration {
 
 		try {
 			// Get all V8-prefixed keys from localStorage
-			const v8Keys = this.getV8LocalStorageKeys();
+			const v8Keys = StorageServiceV8Migration.getV8LocalStorageKeys();
 
 			console.log(`${MODULE_TAG} Starting migration`, { keyCount: v8Keys.length });
 
 			for (const key of v8Keys) {
 				try {
-					await this.migrateKey(key);
+					await StorageServiceV8Migration.migrateKey(key);
 					results.migrated++;
 				} catch (error) {
 					const errorMsg = `Failed to migrate key ${key}: ${error}`;
@@ -91,14 +91,14 @@ export class StorageServiceV8Migration {
 	 * Check if migration is needed
 	 */
 	static needsMigration(): boolean {
-		return this.getV8LocalStorageKeys().length > 0;
+		return StorageServiceV8Migration.getV8LocalStorageKeys().length > 0;
 	}
 
 	/**
 	 * Get migration statistics
 	 */
 	static getMigrationStats(): { localStorageKeys: number; unifiedStorageKeys: number } {
-		const localStorageKeys = this.getV8LocalStorageKeys().length;
+		const localStorageKeys = StorageServiceV8Migration.getV8LocalStorageKeys().length;
 
 		// We'll need to implement this method in unified storage
 		// For now, return a placeholder

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Storage Service Tests</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #555;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .test-pass {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-running {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .summary {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .summary.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .summary.failure {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #007bff;
+            transition: width 0.3s ease;
+        }
+        .details {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .error-details {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.8em;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Unified Storage Service Tests</h1>
+        
+        <div class="test-section">
+            <h3>Test Controls</h3>
+            <button id="runAllTests" onclick="runAllTests()">Run All Tests</button>
+            <button id="runBasicTests" onclick="runBasicTests()">Basic Tests</button>
+            <button id="runMigrationTests" onclick="runMigrationTests()">Migration Tests</button>
+            <button id="runPerformanceTests" onclick="runPerformanceTests()">Performance Tests</button>
+            <button id="clearResults" onclick="clearResults()">Clear Results</button>
+            
+            <div class="progress">
+                <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+            </div>
+            <div id="progressText">Ready to run tests</div>
+        </div>
+
+        <div id="results"></div>
+        
+        <div id="summary" class="summary" style="display: none;">
+            <div id="summaryText"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import the unified storage service
+        // Note: In a real implementation, this would import from the actual service
+        // For this demo, we'll mock the service to test the UI
+        
+        // Mock unified storage service for testing
+        const mockUnifiedStorage = {
+            async storeToken(token) {
+                await new Promise(resolve => setTimeout(resolve, 10));
+                localStorage.setItem(`token_${token.id}`, JSON.stringify(token));
+                return true;
+            },
+            
+            async getToken(id) {
+                await new Promise(resolve => setTimeout(resolve, 5));
+                const data = localStorage.getItem(`token_${id}`);
+                return data ? JSON.parse(data) : null;
+            },
+            
+            async getTokens(query = {}) {
+                await new Promise(resolve => setTimeout(resolve, 15));
+                const tokens = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('token_')) {
+                        const token = JSON.parse(localStorage.getItem(key));
+                        if (query.type && token.type !== query.type) continue;
+                        if (query.flowName && token.flowName !== query.flowName) continue;
+                        tokens.push(token);
+                    }
+                }
+                return tokens;
+            },
+            
+            async deleteToken(id) {
+                await new Promise(resolve => setTimeout(resolve, 5));
+                localStorage.removeItem(`token_${id}`);
+                return true;
+            },
+            
+            async saveFlowStorageData(storageType, flowId, dataType, data) {
+                await new Promise(resolve => setTimeout(resolve, 10));
+                const key = `${storageType}:${flowId}:${dataType}`;
+                localStorage.setItem(key, JSON.stringify(data));
+                return true;
+            },
+            
+            async loadFlowStorageData(storageType, flowId, dataType) {
+                await new Promise(resolve => setTimeout(resolve, 5));
+                const key = `${storageType}:${flowId}:${dataType}`;
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : null;
+            },
+            
+            async saveFlowCredentials(flowKey, credentials) {
+                await new Promise(resolve => setTimeout(resolve, 10));
+                localStorage.setItem(`flow_credentials_${flowKey}`, JSON.stringify(credentials));
+                return { success: true, source: 'unified' };
+            },
+            
+            async loadFlowCredentials(flowKey) {
+                await new Promise(resolve => setTimeout(resolve, 5));
+                const data = localStorage.getItem(`flow_credentials_${flowKey}`);
+                if (data) {
+                    return { success: true, data: JSON.parse(data), source: 'unified' };
+                }
+                return { success: false, data: null, source: 'none' };
+            },
+            
+            async savePKCECodes(flowKey, pkceCodes) {
+                await new Promise(resolve => setTimeout(resolve, 10));
+                localStorage.setItem(`flow_pkce_${flowKey}`, JSON.stringify(pkceCodes));
+                return true;
+            },
+            
+            async loadPKCECodes(flowKey) {
+                await new Promise(resolve => setTimeout(resolve, 5));
+                const data = localStorage.getItem(`flow_pkce_${flowKey}`);
+                return data ? JSON.parse(data) : null;
+            },
+            
+            async clearFlowCredentials(flowKey) {
+                await new Promise(resolve => setTimeout(resolve, 5));
+                localStorage.removeItem(`flow_credentials_${flowKey}`);
+                return true;
+            },
+            
+            async clearPKCECodes(flowKey) {
+                await new Promise(resolve => setTimeout(resolve, 5));
+                localStorage.removeItem(`flow_pkce_${flowKey}`);
+                return true;
+            }
+        };
+
+        // Test framework
+        class TestRunner {
+            constructor() {
+                this.results = [];
+                this.currentTest = 0;
+                this.totalTests = 0;
+            }
+
+            async runTest(name, testFn) {
+                const startTime = Date.now();
+                const result = {
+                    name,
+                    status: 'running',
+                    duration: 0,
+                    error: null
+                };
+
+                this.results.push(result);
+                this.updateProgress();
+
+                try {
+                    await testFn();
+                    result.status = 'pass';
+                    result.duration = Date.now() - startTime;
+                } catch (error) {
+                    result.status = 'fail';
+                    result.duration = Date.now() - startTime;
+                    result.error = error.message;
+                }
+
+                this.updateResults();
+                this.updateProgress();
+            }
+
+            updateProgress() {
+                const progress = ((this.currentTest + 1) / this.totalTests) * 100;
+                document.getElementById('progressBar').style.width = `${progress}%`;
+                document.getElementById('progressText').textContent = 
+                    `Running test ${this.currentTest + 1} of ${this.totalTests}`;
+                this.currentTest++;
+            }
+
+            updateResults() {
+                const resultsDiv = document.getElementById('results');
+                const latestResult = this.results[this.results.length - 1];
+                
+                if (!latestResult) return;
+
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `test-result test-${latestResult.status}`;
+                resultDiv.innerHTML = `
+                    <strong>${latestResult.name}</strong> - ${latestResult.status.toUpperCase()} (${latestResult.duration}ms)
+                    ${latestResult.error ? `<div class="error-details">${latestResult.error}</div>` : ''}
+                `;
+
+                resultsDiv.appendChild(resultDiv);
+                resultsDiv.scrollTop = resultsDiv.scrollHeight;
+            }
+
+            updateSummary() {
+                const summaryDiv = document.getElementById('summary');
+                const summaryText = document.getElementById('summaryText');
+                
+                const passed = this.results.filter(r => r.status === 'pass').length;
+                const total = this.results.length;
+                const failed = total - passed;
+
+                summaryDiv.style.display = 'block';
+                summaryDiv.className = `summary ${failed === 0 ? 'success' : 'failure'}`;
+                summaryText.innerHTML = `
+                    📊 Summary: ${passed}/${total} tests passed (${failed} failed)<br>
+                    ⏱️ Total time: ${this.results.reduce((sum, r) => sum + r.duration, 0)}ms
+                `;
+            }
+
+            clear() {
+                this.results = [];
+                this.currentTest = 0;
+                this.totalTests = 0;
+                document.getElementById('results').innerHTML = '';
+                document.getElementById('summary').style.display = 'none';
+                document.getElementById('progressBar').style.width = '0%';
+                document.getElementById('progressText').textContent = 'Ready to run tests';
+            }
+        }
+
+        const testRunner = new TestRunner();
+
+        // Mock data
+        const mockToken = {
+            id: 'test-token-1',
+            type: 'access_token',
+            value: 'mock-access-token-value',
+            expiresAt: Date.now() + 3600000,
+            issuedAt: Date.now(),
+            source: 'indexeddb',
+            flowName: 'test-flow',
+            metadata: { test: true }
+        };
+
+        const mockCredentials = {
+            environmentId: 'test-env-123',
+            clientId: 'test-client-456',
+            clientSecret: 'test-secret-789',
+            redirectUri: 'https://test.example.com/callback',
+            scopes: 'openid profile email'
+        };
+
+        const mockPKCECodes = {
+            codeVerifier: 'test-code-verifier-12345678901234567890',
+            codeChallenge: 'test-code-challenge-12345678901234567890',
+            codeChallengeMethod: 'S256'
+        };
+
+        // Test functions
+        async function testBasicTokenOperations() {
+            // Store token
+            await mockUnifiedStorage.storeToken(mockToken);
+            
+            // Get token
+            const retrieved = await mockUnifiedStorage.getToken(mockToken.id);
+            if (!retrieved || retrieved.value !== mockToken.value) {
+                throw new Error('Token retrieval failed - value mismatch');
+            }
+
+            // Query tokens
+            const tokens = await mockUnifiedStorage.getTokens({ type: 'access_token' });
+            if (!tokens || tokens.length === 0) {
+                throw new Error('Token query failed - no tokens found');
+            }
+
+            // Delete token
+            await mockUnifiedStorage.deleteToken(mockToken.id);
+            const deleted = await mockUnifiedStorage.getToken(mockToken.id);
+            if (deleted) {
+                throw new Error('Token deletion failed - token still exists');
+            }
+        }
+
+        async function testFlowStorageCompatibility() {
+            // Test flow storage operations
+            await mockUnifiedStorage.saveFlowStorageData('session', 'test-flow', 'auth-code', { 
+                code: 'test-code', 
+                timestamp: Date.now() 
+            });
+            
+            const loaded = await mockUnifiedStorage.loadFlowStorageData('session', 'test-flow', 'auth-code');
+            if (!loaded || loaded.code !== 'test-code') {
+                throw new Error('Flow storage data retrieval failed');
+            }
+        }
+
+        async function testCredentialStorageCompatibility() {
+            // Test credential operations
+            const saveResult = await mockUnifiedStorage.saveFlowCredentials('test-flow', mockCredentials);
+            if (!saveResult.success) {
+                throw new Error('Credential save failed');
+            }
+
+            const loadResult = await mockUnifiedStorage.loadFlowCredentials('test-flow');
+            if (!loadResult.success || !loadResult.data) {
+                throw new Error('Credential load failed');
+            }
+
+            if (loadResult.data.clientId !== mockCredentials.clientId) {
+                throw new Error('Credential data mismatch');
+            }
+
+            // Test PKCE operations
+            await mockUnifiedStorage.savePKCECodes('test-flow', mockPKCECodes);
+            const pkceData = await mockUnifiedStorage.loadPKCECodes('test-flow');
+            if (!pkceData || pkceData.codeVerifier !== mockPKCECodes.codeVerifier) {
+                throw new Error('PKCE data retrieval failed');
+            }
+
+            // Cleanup
+            await mockUnifiedStorage.clearFlowCredentials('test-flow');
+            await mockUnifiedStorage.clearPKCECodes('test-flow');
+        }
+
+        async function testMigrationSimulation() {
+            // Simulate localStorage data
+            const testData = { code: 'migrated-code', timestamp: Date.now() };
+            localStorage.setItem('session:test-flow:migration-test', JSON.stringify(testData));
+
+            // Test migration simulation
+            const migrated = await mockUnifiedStorage.loadFlowStorageData('session', 'test-flow', 'migration-test');
+            if (!migrated || migrated.code !== 'migrated-code') {
+                throw new Error('Migration simulation failed');
+            }
+
+            // Cleanup
+            localStorage.removeItem('session:test-flow:migration-test');
+            await mockUnifiedStorage.saveFlowStorageData('session', 'test-flow', 'migration-test', null);
+        }
+
+        async function testPerformance() {
+            const testCount = 50;
+            const tokens = Array.from({ length: testCount }, (_, i) => ({
+                ...mockToken,
+                id: `perf-test-${i}`,
+                flowName: `perf-flow-${i % 5}`
+            }));
+
+            // Test bulk insert performance
+            const insertStart = Date.now();
+            for (const token of tokens) {
+                await mockUnifiedStorage.storeToken(token);
+            }
+            const insertTime = Date.now() - insertStart;
+
+            // Test bulk query performance
+            const queryStart = Date.now();
+            const allTokens = await mockUnifiedStorage.getTokens({});
+            const queryTime = Date.now() - queryStart;
+
+            // Test bulk delete performance
+            const deleteStart = Date.now();
+            for (const token of tokens) {
+                await mockUnifiedStorage.deleteToken(token.id);
+            }
+            const deleteTime = Date.now() - deleteStart;
+
+            // Performance assertions
+            if (insertTime > 5000) {
+                throw new Error(`Insert performance too slow: ${insertTime}ms for ${testCount} tokens`);
+            }
+
+            if (queryTime > 2000) {
+                throw new Error(`Query performance too slow: ${queryTime}ms`);
+            }
+
+            if (deleteTime > 5000) {
+                throw new Error(`Delete performance too slow: ${deleteTime}ms for ${testCount} tokens`);
+            }
+
+            console.log(`Performance: Insert: ${insertTime}ms, Query: ${queryTime}ms, Delete: ${deleteTime}ms`);
+        }
+
+        // Test runners
+        window.runAllTests = async () => {
+            testRunner.clear();
+            testRunner.totalTests = 5;
+            
+            await testRunner.runTest('Basic Token Operations', testBasicTokenOperations);
+            await testRunner.runTest('FlowStorageService Compatibility', testFlowStorageCompatibility);
+            await testRunner.runTest('CredentialStorageManager Compatibility', testCredentialStorageCompatibility);
+            await testRunner.runTest('Migration Simulation', testMigrationSimulation);
+            await testRunner.runTest('Performance Tests', testPerformance);
+            
+            testRunner.updateSummary();
+        };
+
+        window.runBasicTests = async () => {
+            testRunner.clear();
+            testRunner.totalTests = 2;
+            
+            await testRunner.runTest('Basic Token Operations', testBasicTokenOperations);
+            await testRunner.runTest('FlowStorageService Compatibility', testFlowStorageCompatibility);
+            
+            testRunner.updateSummary();
+        };
+
+        window.runMigrationTests = async () => {
+            testRunner.clear();
+            testRunner.totalTests = 2;
+            
+            await testRunner.runTest('CredentialStorageManager Compatibility', testCredentialStorageCompatibility);
+            await testRunner.runTest('Migration Simulation', testMigrationSimulation);
+            
+            testRunner.updateSummary();
+        };
+
+        window.runPerformanceTests = async () => {
+            testRunner.clear();
+            testRunner.totalTests = 1;
+            
+            await testRunner.runTest('Performance Tests', testPerformance);
+            
+            testRunner.updateSummary();
+        };
+
+        window.clearResults = () => {
+            testRunner.clear();
+        };
+
+        // Initialize
+        document.getElementById('progressText').textContent = 'Ready to run tests';
+    </script>
+</body>
+</html>
