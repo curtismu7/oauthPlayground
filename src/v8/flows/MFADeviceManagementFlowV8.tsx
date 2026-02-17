@@ -95,6 +95,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 	const [tokenStatus, setTokenStatus] = useState<any>(null);
 	const [showTokenOnly, setShowTokenOnly] = useState(false);
 	const [isReady, setIsReady] = useState(false);
+	const [isLoadingDevices, setIsLoadingDevices] = useState(false);
 
 	// Load token status on mount
 	useEffect(() => {
@@ -589,17 +590,33 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 							</div>
 						</div>
 
-						<button
-							type="button"
-							className="btn btn-primary"
-							onClick={handleLoadDevices}
+						<ButtonSpinner
+							loading={isLoadingDevices}
+							onClick={async () => {
+								setIsLoadingDevices(true);
+								await handleLoadDevices();
+								setIsLoadingDevices(false);
+							}}
 							disabled={
-								!credentials.environmentId || !credentials.username || !tokenStatus?.isValid
+								!credentials.environmentId || !credentials.username || !tokenStatus?.isValid || isLoadingDevices
 							}
-							style={{ marginTop: '20px' }}
+							spinnerSize={16}
+							spinnerPosition="left"
+							loadingText="Loading..."
+							style={{
+								marginTop: '20px',
+								background: '#3b82f6',
+								color: 'white',
+								border: 'none',
+								padding: '0.75rem 1.5rem',
+								borderRadius: '0.5rem',
+								fontWeight: '600',
+								cursor: 'pointer',
+								transition: 'all 0.2s ease',
+							}}
 						>
-							Load Devices
-						</button>
+							{isLoadingDevices ? '' : 'Load Devices'}
+						</ButtonSpinner>
 					</div>
 				) : (
 					<>
@@ -612,9 +629,11 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 								border: '1px solid #e5e7eb',
 							}}
 						>
-							<button
-								type="button"
+							<ButtonSpinner
+								loading={false}
 								onClick={() => setIsReady(false)}
+								spinnerSize={12}
+								spinnerPosition="left"
 								style={{
 									padding: '6px 12px',
 									background: '#6b7280',
@@ -626,7 +645,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 								}}
 							>
 								← Back to Setup
-							</button>
+							</ButtonSpinner>
 						</div>
 						<MFADeviceManagerV8
 							environmentId={credentials.environmentId}
