@@ -1633,65 +1633,6 @@ export class UnifiedTokenStorageService {
 	// These methods provide backward compatibility with CredentialsServiceV8
 
 	/**
-	 * Save V8 credentials (CredentialsServiceV8 compatibility)
-	 */
-	async saveV8Credentials(flowKey: string, credentials: V8Credentials): Promise<void> {
-		try {
-			await this.storeToken({
-				id: `v8_credentials_${flowKey}`,
-				type: 'v8_credentials' as any,
-				value: JSON.stringify(credentials),
-				expiresAt: null,
-				issuedAt: Date.now(),
-				source: 'indexeddb',
-				flowName: flowKey,
-				metadata: {
-					flowKey,
-					environmentId: credentials.environmentId,
-					clientId: credentials.clientId,
-				},
-			});
-
-			logger.info(MODULE_TAG, 'V8 credentials saved', {
-				flowKey,
-				environmentId: credentials.environmentId,
-			});
-		} catch (error) {
-			logger.error(MODULE_TAG, 'Failed to save V8 credentials', error as Error);
-			throw error;
-		}
-	}
-
-	/**
-	 * Load V8 credentials (CredentialsServiceV8 compatibility)
-	 */
-	async loadV8Credentials(flowKey: string): Promise<V8Credentials | null> {
-		try {
-			const tokens = await this.getTokens({
-				type: 'v8_credentials' as any,
-				id: `v8_credentials_${flowKey}`,
-			});
-
-			if (tokens.length === 0) {
-				logger.info(MODULE_TAG, 'No V8 credentials found', { flowKey });
-				return null;
-			}
-
-			const token = tokens[0];
-			const credentials: V8Credentials = JSON.parse(token.value);
-
-			logger.info(MODULE_TAG, 'V8 credentials loaded', {
-				flowKey,
-				environmentId: credentials.environmentId,
-			});
-			return credentials;
-		} catch (error) {
-			logger.error(MODULE_TAG, 'Failed to load V8 credentials', error as Error);
-			return null;
-		}
-	}
-
-	/**
 	 * Load V8 credentials with backup fallback (CredentialsServiceV8 compatibility)
 	 */
 	async loadV8CredentialsWithBackup(flowKey: string): Promise<V8Credentials | null> {
@@ -2562,7 +2503,9 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Load flow credentials (CredentialStorageManager compatibility)
 	 */
-	async loadFlowCredentials(flowKey: string): Promise<{ success: boolean; data: any; source: string; timestamp?: number; error?: string }> {
+	async loadFlowCredentials(
+		flowKey: string
+	): Promise<{ success: boolean; data: any; source: string; timestamp?: number; error?: string }> {
 		try {
 			// Try unified storage first
 			const tokens = await this.getTokens({
@@ -2621,7 +2564,10 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Save flow credentials (CredentialStorageManager compatibility)
 	 */
-	async saveFlowCredentials(flowKey: string, credentials: any): Promise<{ success: boolean; source: string; error?: string }> {
+	async saveFlowCredentials(
+		flowKey: string,
+		credentials: any
+	): Promise<{ success: boolean; source: string; error?: string }> {
 		try {
 			// Add timestamp
 			const credentialsWithMetadata = {
@@ -2646,7 +2592,10 @@ export class UnifiedTokenStorageService {
 
 			// Also save to localStorage for immediate compatibility
 			try {
-				localStorage.setItem(`flow_credentials_${flowKey}`, JSON.stringify(credentialsWithMetadata));
+				localStorage.setItem(
+					`flow_credentials_${flowKey}`,
+					JSON.stringify(credentialsWithMetadata)
+				);
 			} catch {}
 
 			logger.info(MODULE_TAG, 'Flow credentials saved to unified storage', { flowKey });
@@ -2712,7 +2661,7 @@ export class UnifiedTokenStorageService {
 						keysToRemove.push(key);
 					}
 				}
-				keysToRemove.forEach(key => localStorage.removeItem(key));
+				keysToRemove.forEach((key) => localStorage.removeItem(key));
 			} catch {}
 
 			logger.info(MODULE_TAG, 'All credentials cleared');
@@ -2724,7 +2673,14 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Save PKCE codes (CredentialStorageManager compatibility)
 	 */
-	async savePKCECodes(flowKey: string, pkceCodes: { codeVerifier: string; codeChallenge: string; codeChallengeMethod: 'S256' | 'plain' }): Promise<void> {
+	async savePKCECodes(
+		flowKey: string,
+		pkceCodes: {
+			codeVerifier: string;
+			codeChallenge: string;
+			codeChallengeMethod: 'S256' | 'plain';
+		}
+	): Promise<void> {
 		try {
 			const key = `flow_pkce_${flowKey}`;
 			const data = {
@@ -2761,7 +2717,11 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Load PKCE codes (CredentialStorageManager compatibility)
 	 */
-	async loadPKCECodes(flowKey: string): Promise<{ codeVerifier: string; codeChallenge: string; codeChallengeMethod: 'S256' | 'plain' } | null> {
+	async loadPKCECodes(flowKey: string): Promise<{
+		codeVerifier: string;
+		codeChallenge: string;
+		codeChallengeMethod: 'S256' | 'plain';
+	} | null> {
 		try {
 			const key = `flow_pkce_${flowKey}`;
 
@@ -2895,7 +2855,10 @@ export class UnifiedTokenStorageService {
 					return data;
 				}
 			} catch (error) {
-				logger.error(MODULE_TAG, 'Failed to load flow state from sessionStorage', { flowKey, error });
+				logger.error(MODULE_TAG, 'Failed to load flow state from sessionStorage', {
+					flowKey,
+					error,
+				});
 			}
 
 			return null;
@@ -2932,7 +2895,11 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Save worker token (CredentialStorageManager compatibility)
 	 */
-	async saveWorkerToken(data: { accessToken: string; expiresAt: number; environmentId: string }): Promise<{ success: boolean; source: string; error?: string }> {
+	async saveWorkerToken(data: {
+		accessToken: string;
+		expiresAt: number;
+		environmentId: string;
+	}): Promise<{ success: boolean; source: string; error?: string }> {
 		try {
 			const flowKey = 'worker-token';
 			const tokenData = {
@@ -2960,7 +2927,9 @@ export class UnifiedTokenStorageService {
 				localStorage.setItem('worker_token', JSON.stringify(tokenData));
 			} catch {}
 
-			logger.info(MODULE_TAG, 'Worker token saved to unified storage', { environmentId: data.environmentId });
+			logger.info(MODULE_TAG, 'Worker token saved to unified storage', {
+				environmentId: data.environmentId,
+			});
 			return {
 				success: true,
 				source: 'unified',
@@ -2978,7 +2947,11 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Load worker token (CredentialStorageManager compatibility)
 	 */
-	async loadWorkerToken(): Promise<{ accessToken: string; expiresAt: number; environmentId: string } | null> {
+	async loadWorkerToken(): Promise<{
+		accessToken: string;
+		expiresAt: number;
+		environmentId: string;
+	} | null> {
 		try {
 			// Try unified storage first
 			const tokens = await this.getTokens({
@@ -2989,7 +2962,7 @@ export class UnifiedTokenStorageService {
 			if (tokens.length > 0) {
 				const token = tokens[0];
 				const data = JSON.parse(token.value);
-				
+
 				// Check if token is expired
 				if (data.expiresAt && data.expiresAt < Date.now()) {
 					logger.info(MODULE_TAG, 'Worker token expired, removing');
@@ -2999,8 +2972,10 @@ export class UnifiedTokenStorageService {
 					});
 					return null;
 				}
-				
-				logger.info(MODULE_TAG, 'Worker token loaded from unified storage', { environmentId: data.environmentId });
+
+				logger.info(MODULE_TAG, 'Worker token loaded from unified storage', {
+					environmentId: data.environmentId,
+				});
 				return data;
 			}
 
@@ -3009,18 +2984,20 @@ export class UnifiedTokenStorageService {
 				const stored = localStorage.getItem('worker_token');
 				if (stored) {
 					const data = JSON.parse(stored);
-					
+
 					// Check if token is expired
 					if (data.expiresAt && data.expiresAt < Date.now()) {
 						localStorage.removeItem('worker_token');
 						return null;
 					}
-					
+
 					// Migrate to unified storage
 					await this.saveWorkerToken(data);
 					// Remove from localStorage
 					localStorage.removeItem('worker_token');
-					logger.info(MODULE_TAG, 'Worker token migrated from localStorage', { environmentId: data.environmentId });
+					logger.info(MODULE_TAG, 'Worker token migrated from localStorage', {
+						environmentId: data.environmentId,
+					});
 					return data;
 				}
 			} catch (error) {

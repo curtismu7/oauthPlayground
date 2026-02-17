@@ -18,7 +18,10 @@ import {
 	FiPackage,
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { apiCallTrackerService, type ApiCall as TrackedApiCall } from '../../services/apiCallTrackerService.ts';
+import {
+	apiCallTrackerService,
+	type ApiCall as TrackedApiCall,
+} from '../../services/apiCallTrackerService.ts';
 import {
 	downloadPostmanCollectionWithEnvironment,
 	generatePostmanCollection,
@@ -61,7 +64,10 @@ export const convertTrackedCallsToDocumentation = (
 	return filteredCalls.map((call, index) => {
 		// Extract step name from call.step or generate one
 		const stepName = call.step
-			? call.step.replace(/^unified-/, '').replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+			? call.step
+					.replace(/^unified-/, '')
+					.replace(/-/g, ' ')
+					.replace(/\b\w/g, (l) => l.toUpperCase())
 			: `Step ${index + 1}`;
 
 		// Get endpoint (prefer actualPingOneUrl if available)
@@ -82,7 +88,7 @@ export const convertTrackedCallsToDocumentation = (
 		}
 
 		// Get response body
-		const responseBody = call.response?.data as Record<string, unknown> || {};
+		const responseBody = (call.response?.data as Record<string, unknown>) || {};
 
 		// Generate description based on step
 		let description = `${stepName} for ${flowType} flow`;
@@ -131,10 +137,10 @@ export const convertTrackedCallsToDocumentation = (
  */
 const getApiDocsUrlForFlow = (_flowType: FlowType): string => {
 	const _baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
-	
+
 	// #region agent log
-		method: 'POST',
-		headers: 'Content-Type': 'application/json' ,
+	method: 'POST', headers;
+	: 'Content-Type': 'application/json' ,
 		body: JSON.stringify(
 			location: 'UnifiedFlowDocumentationPageV8U.tsx:132',
 			message: 'Getting PingOne API docs URL for flow',
@@ -142,46 +148,60 @@ const getApiDocsUrlForFlow = (_flowType: FlowType): string => {
 			timestamp: Date.now(),
 			sessionId: 'debug-session',
 			hypothesisId: 'F',),
-	}).catch(() => {});
-	// #endregion
+};
+).catch(() =>
+{
+}
+)
+// #endregion
 
-	let url: string;
-	switch (flowType) {
-		case 'oauth-authz':
-			url = `${baseUrl}#authorization-and-authentication-apis-authorize-authorization-code`;
-			break;
-		case 'implicit':
-			url = `${baseUrl}#authorization-and-authentication-apis-authorize-implicit`;
-			break;
-		case 'client-credentials':
-			url = `${baseUrl}#authorization-and-authentication-apis-token-client-credentials`;
-			break;
-		case 'device-code':
-			url = `${baseUrl}#authorization-and-authentication-apis-device-authorization-request`;
-			break;
-		case 'hybrid':
-			url = `${baseUrl}#openid-connect`;
-			break;
-		default:
-			url = baseUrl;
-	}
-	
-	// #region agent log
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			location: 'UnifiedFlowDocumentationPageV8U.tsx:153',
-			message: 'Generated PingOne API docs URL',
+let url: string;
+switch (flowType) {
+	case 'oauth-authz':
+		url = `${baseUrl}#authorization-and-authentication-apis-authorize-authorization-code`;
+		break;
+	case 'implicit':
+		url = `${baseUrl}#authorization-and-authentication-apis-authorize-implicit`;
+		break;
+	case 'client-credentials':
+		url = `${baseUrl}#authorization-and-authentication-apis-token-client-credentials`;
+		break;
+	case 'device-code':
+		url = `${baseUrl}#authorization-and-authentication-apis-device-authorization-request`;
+		break;
+	case 'hybrid':
+		url = `${baseUrl}#openid-connect`;
+		break;
+	default:
+		url = baseUrl;
+}
+
+// #region agent log
+method: 'POST', headers;
+:
+{
+	('Content-Type');
+	: 'application/json'
+}
+,
+		body: JSON.stringify(
+{
+	location: 'UnifiedFlowDocumentationPageV8U.tsx:153', message;
+	: 'Generated PingOne API docs URL',
 			data: flowType, url, hasAnchor: url.includes('#'), anchor: url.includes('#') ? url.split('#')[1] : null ,
 			timestamp: Date.now(),
 			sessionId: 'debug-session',
 			hypothesisId: 'F',
-		}),
-	}).catch(() => {});
-	// #endregion
-	
-	return url;
-};
+}
+),
+	}).catch(() =>
+{
+}
+)
+// #endregion
+
+return url;
+}
 
 /**
  * Generate markdown documentation
@@ -264,15 +284,15 @@ export const generateUnifiedFlowMarkdown = (
 	});
 
 	_md += `## References\n\n`;
-	
+
 	// Get flow-specific specification links
 	const _flowSpecs = SpecUrlServiceV8.getFlowSpecInfo(flowType);
 	const _specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, flowType);
 	const _versionSpecs = SpecUrlServiceV8.getSpecUrls(specVersion);
-	
+
 	// #region agent log
-		method: 'POST',
-		headers: 'Content-Type': 'application/json' ,
+	method: 'POST', headers;
+	: 'Content-Type': 'application/json' ,
 		body: JSON.stringify(
 			location: 'UnifiedFlowDocumentationPageV8U.tsx:231',
 			message: 'Generating documentation references',
@@ -287,48 +307,62 @@ export const generateUnifiedFlowMarkdown = (
 			timestamp: Date.now(),
 			sessionId: 'debug-session',
 			hypothesisId: 'E',),
-	}).catch(() => {});
-	// #endregion
-	
-	// Add primary specification with section anchor if available
-	if (flowSpecs.relatedSpecs && flowSpecs.relatedSpecs.length > 0) {
-		flowSpecs.relatedSpecs.forEach((spec) => {
-			md += `- [${spec.label}](${spec.url})\n`;
-		});
-	} else {
-		// Fallback to primary spec
-		md += `- [${specUrls.primaryLabel}](${specUrls.primary})\n`;
-	}
-	
-	// Add version-specific related specs
-	versionSpecs.related.forEach((spec) => {
-		// Avoid duplicates
-		if (!flowSpecs.relatedSpecs?.some((s) => s.url === spec.url)) {
-			md += `- [${spec.label}](${spec.url})\n`;
-		}
+};
+).catch(() =>
+{
+}
+)
+// #endregion
+
+// Add primary specification with section anchor if available
+if (flowSpecs.relatedSpecs && flowSpecs.relatedSpecs.length > 0) {
+	flowSpecs.relatedSpecs.forEach((spec) => {
+		md += `- [${spec.label}](${spec.url})\n`;
 	});
-	
-	// Add PingOne API documentation with flow-specific anchor
-	const apiDocsUrl = getApiDocsUrlForFlow(flowType);
-	
-	// #region agent log
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			location: 'UnifiedFlowDocumentationPageV8U.tsx:257',
-			message: 'Adding PingOne API documentation link',
+} else {
+	// Fallback to primary spec
+	md += `- [${specUrls.primaryLabel}](${specUrls.primary})\n`;
+}
+
+// Add version-specific related specs
+versionSpecs.related.forEach((spec) => {
+	// Avoid duplicates
+	if (!flowSpecs.relatedSpecs?.some((s) => s.url === spec.url)) {
+		md += `- [${spec.label}](${spec.url})\n`;
+	}
+});
+
+// Add PingOne API documentation with flow-specific anchor
+const apiDocsUrl = getApiDocsUrlForFlow(flowType);
+
+// #region agent log
+method: 'POST', headers;
+:
+{
+	('Content-Type');
+	: 'application/json'
+}
+,
+		body: JSON.stringify(
+{
+	location: 'UnifiedFlowDocumentationPageV8U.tsx:257', message;
+	: 'Adding PingOne API documentation link',
 			data: flowType, apiDocsUrl, hasAnchor: apiDocsUrl.includes('#') ,
 			timestamp: Date.now(),
 			sessionId: 'debug-session',
 			hypothesisId: 'E',
-		}),
-	}).catch(() => {});
-	// #endregion
-	
-	md += `- [PingOne API Documentation - ${flowTypeLabels[flowType]} Flow](${apiDocsUrl})\n`;
+}
+),
+	}).catch(() =>
+{
+}
+)
+// #endregion
 
-	return md;
-};
+md += `- [PingOne API Documentation - ${flowTypeLabels[flowType]} Flow](${apiDocsUrl})\n`;
+
+return md;
+}
 
 export const downloadAsMarkdown = (content: string, filename: string): void => {
 	const blob = new Blob([content], { type: 'text/markdown' });
@@ -705,7 +739,9 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 			{/* API Calls */}
 			{apiCalls.length > 0 && (
 				<div style={{ marginBottom: '32px' }}>
-					<h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+					<h3
+						style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}
+					>
 						API Calls
 					</h3>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

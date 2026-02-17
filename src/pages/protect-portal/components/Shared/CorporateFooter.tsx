@@ -11,13 +11,13 @@
 import React from 'react';
 import {
 	FiFacebook,
-	FiTwitter,
-	FiLinkedin,
 	FiInstagram,
-	FiYoutube,
+	FiLinkedin,
 	FiMail,
-	FiPhone,
 	FiMapPin,
+	FiPhone,
+	FiTwitter,
+	FiYoutube,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';

@@ -6,21 +6,21 @@
  * @since 2026-02-15
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-	FiUpload,
-	FiSave,
-	FiPlus,
+	FiAlertCircle,
+	FiCheck,
 	FiEye,
 	FiImage,
-	FiCheck,
+	FiPlus,
+	FiSave,
+	FiUpload,
 	FiX,
-	FiAlertCircle,
 } from 'react-icons/fi';
-import { CompanyConfigService } from '../services/CompanyConfigService';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import { CompanyConfigService } from '../services/CompanyConfigService';
 import type { CompanyConfigDraft, CompanyEditorState, Industry } from '../types/CompanyConfig';
 import { DEFAULT_COMPANY_COLORS } from '../types/CompanyConfig';
 

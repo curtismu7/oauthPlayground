@@ -17,11 +17,11 @@ import {
 import styled from 'styled-components';
 import ApiCallList from '../components/ApiCallList';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
+import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
 
 const Container = styled.div`
   padding: 2rem;

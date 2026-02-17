@@ -328,7 +328,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 	const [selectedReport, setSelectedReport] = useState<ReportType>('all-devices');
 	const [reports, setReports] = useState<unknown[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+	const [_error, setError] = useState<string | null>(null);
 	const [username, setUsername] = useState('');
 	const [region, setRegion] = useState<'us' | 'eu' | 'ap' | 'ca' | 'na'>('us');
 	const [customDomain, setCustomDomain] = useState('');
@@ -338,7 +338,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 	const isDeviceReport = ['sms', 'email', 'voice', 'totp', 'fido2', 'whatsapp'].includes(
 		selectedReport
 	);
-	const isAsyncReport = REPORT_CONFIGS[selectedReport]?.isAsync;
+	const _isAsyncReport = REPORT_CONFIGS[selectedReport]?.isAsync;
 
 	// Get API display padding
 	const { paddingBottom } = useApiDisplayPadding();
@@ -410,7 +410,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 		toastV8.success('Worker token generated and saved!');
 	};
 
-	const loadReports = async () => {
+	const _loadReports = async () => {
 		if (!credentials.environmentId?.trim()) {
 			toastV8.error('Environment ID is required');
 			return;
@@ -503,7 +503,8 @@ export const MFAReportingFlowV8: React.FC = () => {
 		} finally {
 			setIsLoading(false);
 		}
-	});
+		});
+	};
 
 	// Get report title
 	const getReportTitle = () => {
@@ -788,7 +789,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 						<div style={{ display: 'flex', alignItems: 'flex-end' }}>
 							<ButtonSpinner
 								loading={isLoading}
-								onClick={loadReports}
+								onClick={_loadReports}
 								disabled={
 									!credentials.environmentId ||
 									!tokenStatus.isValid ||
@@ -887,7 +888,10 @@ export const MFAReportingFlowV8: React.FC = () => {
 					environmentId={credentials.environmentId}
 				/>
 			</div>
+
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 		</>
 	);
 };
+
+export default MFAReportingFlowV8;

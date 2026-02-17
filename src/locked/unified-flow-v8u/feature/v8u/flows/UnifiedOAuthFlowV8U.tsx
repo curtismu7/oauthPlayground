@@ -71,7 +71,6 @@ const MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
  * @returns {JSX.Element} The unified OAuth flow UI
  */
 export const UnifiedOAuthFlowV8U: React.FC = () => {
-
 	// Scroll to top on page load for better UX
 	usePageScroll({ pageName: 'Unified OAuth Flow V8U', force: true });
 
@@ -596,7 +595,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			lastLoadedFlowKeyRef.current = flowKey;
 
 			try {
-
 				const config = CredentialsServiceV8.getFlowConfig(flowKey) || {
 					flowKey,
 					flowType: 'oauth' as const,
@@ -609,14 +607,16 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				// Load flow-specific credentials (does not depend on worker token)
 				// Try sync first for immediate results, then async with IndexedDB backup fallback
 				const flowSpecificSync = CredentialsServiceV8.loadCredentials(flowKey, config);
-				const flowSpecific = await CredentialsServiceV8.loadCredentialsWithBackup(flowKey, config)
-					.catch((err) => {
-						console.warn(
-							`${MODULE_TAG} Error loading flow-specific credentials with backup (using sync result)`,
-							err
-						);
-						return flowSpecificSync; // Use sync result as fallback
-					});
+				const flowSpecific = await CredentialsServiceV8.loadCredentialsWithBackup(
+					flowKey,
+					config
+				).catch((err) => {
+					console.warn(
+						`${MODULE_TAG} Error loading flow-specific credentials with backup (using sync result)`,
+						err
+					);
+					return flowSpecificSync; // Use sync result as fallback
+				});
 
 				// Load shared credentials (environmentId, clientId, clientSecret, etc.) - independent of worker token
 				// Try sync first for immediate results, then async for disk fallback
@@ -687,7 +687,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						: {}),
 				};
 
-
 				// Update credentials from storage if we have any data
 				// Always use storage data if it exists, as it's the source of truth
 				setCredentials((prev) => {
@@ -737,7 +736,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						};
 					}
 				});
-
 			} catch (err) {
 				console.error(
 					`${MODULE_TAG} ❌ Error loading credentials (will preserve existing state):`,
@@ -1009,7 +1007,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	};
 
 	const handleSpecVersionChange = (newSpec: SpecVersion) => {
-
 		// Modal state removed - dropdown already filters flows
 
 		// Validate flow type is still available BEFORE changing spec version
@@ -1112,8 +1109,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const getApiDocsUrl = (flow: FlowType): string => {
 		const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
 		// #region agent log
-			method: 'POST',
-			headers: 'Content-Type': 'application/json' ,
+		method: 'POST', headers;
+		: 'Content-Type': 'application/json' ,
 			body: JSON.stringify(
 				location: 'UnifiedOAuthFlowV8U.tsx:1103',
 				message: 'Generating PingOne API documentation URL',
@@ -1121,33 +1118,34 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				timestamp: Date.now(),
 				sessionId: 'debug-session',
 				hypothesisId: 'A',),
-		}).catch(() => );
-		// #endregion
+	};
+	).catch(() => )
+	// #endregion
 
-		let url: string;
-		switch (flow) {
-			case 'oauth-authz':
-				url = `${baseUrl}#authorization-and-authentication-apis-authorize-authorization-code`;
-				break;
-			case 'implicit':
-				url = `${baseUrl}#authorization-and-authentication-apis-authorize-implicit`;
-				break;
-			case 'client-credentials':
-				url = `${baseUrl}#authorization-and-authentication-apis-token-client-credentials`;
-				break;
-			case 'device-code':
-				url = `${baseUrl}#authorization-and-authentication-apis-device-authorization-request`;
-				break;
-			case 'hybrid':
-				url = `${baseUrl}#openid-connect`;
-				break;
-			default:
-				url = baseUrl;
-		}
+	let url: string;
+	switch (flow) {
+		case 'oauth-authz':
+			url = `${baseUrl}#authorization-and-authentication-apis-authorize-authorization-code`;
+			break;
+		case 'implicit':
+			url = `${baseUrl}#authorization-and-authentication-apis-authorize-implicit`;
+			break;
+		case 'client-credentials':
+			url = `${baseUrl}#authorization-and-authentication-apis-token-client-credentials`;
+			break;
+		case 'device-code':
+			url = `${baseUrl}#authorization-and-authentication-apis-device-authorization-request`;
+			break;
+		case 'hybrid':
+			url = `${baseUrl}#openid-connect`;
+			break;
+		default:
+			url = baseUrl;
+	}
 
-		// #region agent log
-			method: 'POST',
-			headers: 'Content-Type': 'application/json' ,
+	// #region agent log
+	method: 'POST', headers;
+	: 'Content-Type': 'application/json' ,
 			body: JSON.stringify(
 				location: 'UnifiedOAuthFlowV8U.tsx:1125',
 				message: 'Generated PingOne API documentation URL',
@@ -1155,13 +1153,17 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				timestamp: Date.now(),
 				sessionId: 'debug-session',
 				hypothesisId: 'A',),
-		}).catch(() => {});
-		// #endregion
+};
+).catch(() =>
+{
+}
+)
+// #endregion
 
-		return url;
-	};
+return url;
+}
 
-	return (
+return (
 		<div
 			style={{
 				maxWidth: '1200px',
@@ -1747,6 +1749,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			<SuperSimpleApiDisplayV8 flowFilter="unified" />
 		</div>
 	);
-};
+}
 
 export default UnifiedOAuthFlowV8U;
