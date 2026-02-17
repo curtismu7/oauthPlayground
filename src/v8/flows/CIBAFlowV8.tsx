@@ -17,12 +17,15 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+
 import { FiActivity, FiAlertTriangle, FiCheckCircle, FiClock, FiCopy, FiInfo, FiShield, FiSmartphone, FiZap, FiX } from 'react-icons/fi';
+
+import { CommonSpinner } from '@/components/common/CommonSpinner';
+import { useProductionSpinner } from '@/hooks/useProductionSpinner';
 import { CibaServiceV8, type CibaCredentials } from '@/v8/services/cibaServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { useCibaFlowV8 } from '@/v8/hooks/useCibaFlowV8';
-import { useProductionSpinner } from '@/hooks/useProductionSpinner';
-import { CommonSpinner } from '@/components/common/CommonSpinner';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔐 CIBA-FLOW-V8]';
@@ -304,9 +307,6 @@ const CopyButton = styled.button`
 		background: #475569;
 	}
 `;
-
-// Import styled-components
-import styled from 'styled-components';
 
 /**
  * CIBA Flow V8 Component
