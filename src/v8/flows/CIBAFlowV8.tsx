@@ -499,7 +499,7 @@ const CIBAFlowV8: React.FC = () => {
 								id="environmentId"
 								type="text"
 								value={credentials.environmentId}
-								onChange={(e) => handleFieldChange('environmentId', e.target.value)}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('environmentId', e.target.value)}
 								placeholder="PingOne Environment ID"
 								disabled={cibaFlow.isActive}
 							/>
@@ -511,7 +511,7 @@ const CIBAFlowV8: React.FC = () => {
 								id="clientId"
 								type="text"
 								value={credentials.clientId}
-								onChange={(e) => handleFieldChange('clientId', e.target.value)}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('clientId', e.target.value)}
 								placeholder="Application Client ID"
 								disabled={cibaFlow.isActive}
 							/>
@@ -523,7 +523,7 @@ const CIBAFlowV8: React.FC = () => {
 								id="clientSecret"
 								type="password"
 								value={credentials.clientSecret}
-								onChange={(e) => handleFieldChange('clientSecret', e.target.value)}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('clientSecret', e.target.value)}
 								placeholder="Application Client Secret"
 								disabled={cibaFlow.isActive}
 							/>
@@ -535,7 +535,7 @@ const CIBAFlowV8: React.FC = () => {
 								id="loginHint"
 								type="text"
 								value={credentials.loginHint}
-								onChange={(e) => handleFieldChange('loginHint', e.target.value)}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('loginHint', e.target.value)}
 								placeholder="user@example.com or +1234567890"
 								disabled={cibaFlow.isActive}
 							/>
@@ -558,7 +558,7 @@ const CIBAFlowV8: React.FC = () => {
 							<Select
 								id="clientAuthMethod"
 								value={credentials.clientAuthMethod}
-								onChange={(e) => handleFieldChange('clientAuthMethod', e.target.value as any)}
+								onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleFieldChange('clientAuthMethod', e.target.value as 'client_secret_post' | 'client_secret_basic')}
 								disabled={cibaFlow.isActive}
 							>
 								<option value="client_secret_post">Client Secret Post</option>
@@ -573,7 +573,7 @@ const CIBAFlowV8: React.FC = () => {
 							id="bindingMessage"
 							type="text"
 							value={credentials.bindingMessage}
-							onChange={(e) => handleFieldChange('bindingMessage', e.target.value)}
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('bindingMessage', e.target.value)}
 							placeholder="Custom message shown to user"
 							disabled={cibaFlow.isActive}
 						/>
