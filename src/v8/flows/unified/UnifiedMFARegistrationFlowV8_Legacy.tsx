@@ -3114,9 +3114,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 					}, 1000);
 				}
 			},
-				onSuccess: () => {
-					// Success handled in main function
-				},
+				onSuccess: () => ,
 				onError: (error) => 
 		);
 	},

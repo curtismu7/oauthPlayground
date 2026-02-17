@@ -11,20 +11,20 @@
 import React from 'react';
 import {
 	FiArrowRight,
-	FiLock,
-	FiSearch,
-	FiMapPin,
-	FiCalendar,
-	FiCreditCard,
-	FiShield,
-	FiGlobe,
-	FiPackage,
-	FiCode,
-	FiUsers,
-	FiTrendingUp,
-	FiCheckCircle,
 	FiAward,
+	FiCalendar,
+	FiCheckCircle,
+	FiCode,
+	FiCreditCard,
+	FiGlobe,
+	FiLock,
+	FiMapPin,
+	FiPackage,
+	FiSearch,
+	FiShield,
 	FiStar,
+	FiTrendingUp,
+	FiUsers,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';

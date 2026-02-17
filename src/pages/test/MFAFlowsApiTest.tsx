@@ -6,8 +6,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FiKey, FiRefreshCw, FiSmartphone, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
-import { useWorkerToken } from '../../v8/hooks/useWorkerToken';
 import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
+import { useWorkerToken } from '../../v8/hooks/useWorkerToken';
 
 // Test Configuration for MFA flows
 interface MFATestConfig {
