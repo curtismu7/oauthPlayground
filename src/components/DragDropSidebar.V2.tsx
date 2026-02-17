@@ -2618,6 +2618,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						</div>
 						<div style={{ display: 'flex', gap: '0.5rem' }}>
 							<button
+								type="button"
 								onClick={handleManualSave}
 								disabled={saveButtonState === 'saving'}
 								style={{
@@ -2652,6 +2653,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 										: '💾 Save Layout'}
 							</button>
 							<button
+								type="button"
 								onClick={() => {
 									localStorage.removeItem('simpleDragDropSidebar.menuOrder');
 									window.location.reload();
@@ -2753,6 +2755,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							{group.label}
 						</span>
 						<button
+							type="button"
 							onClick={(e) => {
 								e.stopPropagation();
 								// No need to call toggleMenuGroup here since the parent div handles it
@@ -2956,9 +2959,17 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 																	: undefined
 															}
 															onClick={() => handleNavigation(item.path)}
+															onKeyDown={(e) => {
+																if (e.key === 'Enter' || e.key === ' ') {
+																	e.preventDefault();
+																	handleNavigation(item.path);
+																}
+															}}
 															className={
 																item.id.includes('implicit') ? 'implicit-flow-menu-item' : ''
 															}
+															tabIndex={0}
+															role="button"
 															style={{
 																display: 'flex',
 																alignItems: 'center',
@@ -3277,7 +3288,29 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 														}
 													: undefined
 											}
+											onKeyDown={
+												!dragMode
+													? (e) => {
+															if (e.key === 'Enter' || e.key === ' ') {
+																e.preventDefault();
+																e.stopPropagation();
+																// Handle context-aware navigation for OIDC section
+																if (group.id === 'oidc-flows') {
+																	// Pass OIDC context for unified V7 flows
+																	handleNavigation(item.path, {
+																		fromSection: 'oidc',
+																		protocol: 'oidc',
+																	});
+																} else {
+																	handleNavigation(item.path);
+																}
+															}
+														}
+													: undefined
+											}
 											className="menu-item"
+											tabIndex={!dragMode ? 0 : -1}
+											role="button"
 											style={{
 												display: 'flex',
 												alignItems: 'center',
