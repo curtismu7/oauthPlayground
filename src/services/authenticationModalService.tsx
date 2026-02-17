@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 import PARInputInterface from '../components/PARInputInterface';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 // Modern styled components with professional design
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
@@ -789,8 +790,8 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 												<span style={{ fontSize: '0.6875rem', color: '#6b7280', fontWeight: 500 }}>
 													Edit the URL below if needed:
 												</span>
-												<button
-													type="button"
+												<ButtonSpinner
+													loading={false}
 													onClick={() => {
 														if (isValidUrl(editedUrl)) {
 															navigator.clipboard.writeText(editedUrl);
@@ -798,6 +799,9 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 														}
 													}}
 													disabled={!isValidUrl(editedUrl)}
+													spinnerSize={10}
+													spinnerPosition="left"
+													loadingText="Copying..."
 													style={{
 														padding: '0.25rem 0.5rem',
 														fontSize: '0.6875rem',
@@ -813,7 +817,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 												>
 													<FiExternalLink size={11} />
 													Copy
-												</button>
+												</ButtonSpinner>
 											</div>
 											<EditableUrlTextarea
 												value={editedUrl}
@@ -871,11 +875,14 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 												Input a PAR request URI to generate the authorization URL
 											</div>
 										</div>
-										<button
-											type="button"
+										<ButtonSpinner
+											loading={false}
 											onClick={() => {
 												setShowPARInput(true);
 											}}
+											spinnerSize={10}
+											spinnerPosition="left"
+											loadingText="Opening..."
 											style={{
 												background: '#3b82f6',
 												color: 'white',
@@ -893,7 +900,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 										>
 											<FiShield size={12} />
 											Input PAR URI
-										</button>
+										</ButtonSpinner>
 									</div>
 								)}
 							</UrlSection>
