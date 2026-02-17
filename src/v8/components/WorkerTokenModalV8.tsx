@@ -28,6 +28,7 @@ import { workerTokenCacheServiceV8 } from '@/v8/services/workerTokenCacheService
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
+import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-V8]';
 
@@ -79,6 +80,13 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 		warning: string;
 		recommendation: string;
 	} | null>(null);
+
+	// Standardized spinner hooks for worker token operations
+	const generateSpinner = useStandardSpinner(8000); // Generate token - 8 seconds
+	const validateSpinner = useStandardSpinner(4000); // Validate config - 4 seconds
+	const executeSpinner = useStandardSpinner(6000);  // Execute request - 6 seconds
+	const importSpinner = useStandardSpinner(3000);  // Import credentials - 3 seconds
+	const exportSpinner = useStandardSpinner(2000);  // Export credentials - 2 seconds
 
 	// Check if we should display current token when modal opens
 	useEffect(() => {
@@ -200,195 +208,178 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	if (!isOpen) return null;
 
 	const handleGenerate = async () => {
-		if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim()) {
-			toastV8.error('Please fill in all required fields');
-			return;
-		}
+		await generateSpinner.executeWithSpinner(
+			async () => {
+				if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim()) {
+					toastV8.error('Please fill in all required fields');
+					throw new Error('Please fill in all required fields');
+				}
 
-		const normalizedScopes = scopeInput
-			.split(/\s+/)
-			.map((scope) => scope.trim())
-			.filter(Boolean);
+				const normalizedScopes = scopeInput
+					.split(/\s+/)
+					.map((scope) => scope.trim())
+					.filter(Boolean);
 
-		if (normalizedScopes.length === 0) {
-			toastV8.error('Please provide at least one scope for the worker token');
-			return;
-		}
+				if (normalizedScopes.length === 0) {
+					toastV8.error('Please provide at least one scope for the worker token');
+					throw new Error('Please provide at least one scope for the worker token');
+				}
 
-		setScopeInput(normalizedScopes.join(' '));
+				setScopeInput(normalizedScopes.join(' '));
 
-		setIsGenerating(true);
-		setLoadingMessage('🔍 Validating credentials...');
+				// Save credentials to unifiedWorkerTokenService
+				const credentials = {
+					environmentId: environmentId.trim(),
+					clientId: clientId.trim(),
+					clientSecret: clientSecret.trim(),
+					scopes: normalizedScopes,
+					redirectUri: '', // Not needed for worker tokens
+					postLogoutRedirectUri: '', // Not needed for worker tokens
+					scopes: normalizedScopes.join(' '), // Convert array to string
+					responseType: '', // Not needed for worker tokens
+					clientAuthMethod: authMethod,
+				};
 
-		try {
-			// Save credentials first
-			const credentials = {
-				environmentId: environmentId.trim(),
-				clientId: clientId.trim(),
-				clientSecret: clientSecret.trim(),
-				scopes: normalizedScopes,
-				region,
-				customDomain: customDomain.trim() || '',
-				tokenEndpointAuthMethod: authMethod,
-			};
+				await unifiedWorkerTokenService.saveCredentials(credentials);
 
-			await unifiedWorkerTokenService.saveCredentials(credentials);
-
-			// Run preflight validation
-			setLoadingMessage('✅ Validating configuration against PingOne...');
-
-			const { PreFlightValidationServiceV8 } = await import(
-				'@/v8/services/preFlightValidationServiceV8'
-			);
-
-			// Try to get worker token from current or cached source
-			const tokenValidation = await workerTokenCacheServiceV8.getWorkerTokenForValidation(
-				environmentId.trim(),
-				clientId.trim()
-			);
-
-			if (!tokenValidation.isValid || !tokenValidation.token) {
-				const errorMessage = tokenValidation.issues.join('; ');
-				console.warn(`${MODULE_TAG} Pre-flight validation error:`, errorMessage);
-
-				// Show a warning instead of throwing an error - allow user to proceed
-				toastV8.warning(
-					`Pre-flight validation skipped: ${errorMessage}. Proceeding with token generation...`
-				);
-				setLoadingMessage('🔑 Preparing token request...');
-			} else {
-				console.log(
-					`${MODULE_TAG} Using ${tokenValidation.source} token for pre-flight validation`
+				// Run preflight validation
+				const { PreFlightValidationServiceV8 } = await import(
+					'@/v8/services/preFlightValidationServiceV8'
 				);
 
-				// For worker token generation, we only need to validate OAuth config (no redirect URI)
-				const oauthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
-					specVersion: 'oauth2.0' as const, // Worker tokens use OAuth 2.0
-					flowType: 'client-credentials' as const, // Worker tokens use client credentials flow
-					credentials: {
-						environmentId: environmentId.trim(),
-						clientId: clientId.trim(),
-						clientSecret: clientSecret.trim(),
-						redirectUri: '', // Not needed for worker tokens
-						postLogoutRedirectUri: '', // Not needed for worker tokens
-						scopes: normalizedScopes.join(' '), // Convert array to string
-						responseType: '', // Not needed for worker tokens
-						clientAuthMethod: authMethod,
-					},
-					workerToken: tokenValidation.token,
-				});
+				// Try to get worker token from current or cached source
+				const tokenValidation = await workerTokenCacheServiceV8.getWorkerTokenForValidation(
+					environmentId.trim(),
+					clientId.trim()
+				);
 
-				if (!oauthConfigResult.passed) {
-					// Check if this is an OIDC scope error and provide helpful guidance
-					// But allow 'openid' scope for worker tokens
-					const errorString = oauthConfigResult.errors.join('; ');
-					if (errorString.includes('Invalid OIDC Scopes') && !errorString.includes('profile') && !errorString.includes('email') && !errorString.includes('address') && !errorString.includes('phone')) {
-						// If only 'openid' is mentioned, it might be a false positive for worker tokens
-						console.warn(`${MODULE_TAG} Possible false positive OIDC scope validation for worker token`);
+				// If we have a valid token, use it for validation
+				if (tokenValidation && tokenValidation.isValid) {
+					console.log(`${MODULE_TAG} 🔑 Using existing token for validation`);
+				} else {
+					console.log(`${MODULE_TAG} 🔑 No valid token found, proceeding with validation`);
+				}
+
+				// Validate OAuth configuration
+				if (tokenValidation && tokenValidation.isValid) {
+					// Use existing token for validation
+					const oauthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
+						specVersion: 'oauth2.0' as const, // Worker tokens use OAuth 2.0
+						flowType: 'client-credentials' as const, // Worker tokens use client credentials flow
+						credentials: {
+							environmentId: environmentId.trim(),
+							clientId: clientId.trim(),
+							clientSecret: clientSecret.trim(),
+							redirectUri: '', // Not needed for worker tokens
+							postLogoutRedirectUri: '', // Not needed for worker tokens
+							scopes: normalizedScopes.join(' '), // Convert array to string
+							responseType: '', // Not needed for worker tokens
+							clientAuthMethod: authMethod,
+						},
+						workerToken: tokenValidation.token,
+					});
+
+					if (!oauthConfigResult.passed) {
+						// Check if this is an OIDC scope error and provide helpful guidance
+						// But allow 'openid' scope for worker tokens
+						const errorString = oauthConfigResult.errors.join('; ');
+						if (errorString.includes('Invalid OIDC Scopes') && !errorString.includes('profile') && !errorString.includes('email') && !errorString.includes('address') && !errorString.includes('phone')) {
+							// If only 'openid' is mentioned, it might be a false positive for worker tokens
+							console.warn(`${MODULE_TAG} Possible false positive OIDC scope validation for worker token`);
+						}
+						
+						// Show other validation errors
+						throw new Error(`Pre-flight validation failed: ${errorString}`);
 					}
-					
-					// Show other validation errors
-					throw new Error(`Pre-flight validation failed: ${errorString}`);
+
+					// Show warnings if any
+					if (oauthConfigResult.warnings.length > 0) {
+						const warningMessage = oauthConfigResult.warnings.join('; ');
+						toastV8.warning(`Pre-flight warnings: ${warningMessage}`);
+					}
 				}
 
-				// Show warnings if any
-				if (oauthConfigResult.warnings.length > 0) {
-					const warningMessage = oauthConfigResult.warnings.join('; ');
-					toastV8.warning(`Pre-flight warnings: ${warningMessage}`);
-				}
-			}
+				// Determine the correct domain based on region
+				const domain = (() => {
+					const regionDomains = {
+						us: 'auth.pingone.com',
+						eu: 'auth.pingone.eu',
+						ap: 'auth.pingone.asia',
+						ca: 'auth.pingone.ca',
+					};
+					return regionDomains[region];
+				})();
+				const tokenEndpoint = `https://${domain}/${environmentId.trim()}/as/token`;
 
-			setLoadingMessage('🔑 Preparing token request...');
-
-			// Save credentials if checkbox is checked (already saved above, but keeping for consistency)
-			if (saveCredentials) {
-				console.log(`${MODULE_TAG} Credentials already saved to unifiedWorkerTokenService`);
-			}
-
-			// Build token endpoint - use custom domain if provided, otherwise use region-based domain
-			const domain = customDomain.trim()
-				? customDomain.trim()
-				: (() => {
-						const regionDomains = {
-							us: 'auth.pingone.com',
-							eu: 'auth.pingone.eu',
-							ap: 'auth.pingone.asia',
-							ca: 'auth.pingone.ca',
-						};
-						return regionDomains[region];
-					})();
-			const tokenEndpoint = `https://${domain}/${environmentId.trim()}/as/token`;
-
-			const params = new URLSearchParams({
-				grant_type: 'client_credentials',
-				client_id: clientId.trim(),
-				scope: normalizedScopes.join(' '),
-			});
-
-			const headers: Record<string, string> = {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			};
-
-			if (authMethod === 'client_secret_post') {
-				params.set('client_secret', clientSecret.trim());
-			} else if (authMethod === 'client_secret_basic') {
-				const basicAuth = btoa(`${clientId.trim()}:${clientSecret.trim()}`);
-				headers.Authorization = `Basic ${basicAuth}`;
-			}
-
-			const details = {
-				tokenEndpoint,
-				requestParams: {
+				const params = new URLSearchParams({
 					grant_type: 'client_credentials',
 					client_id: clientId.trim(),
-					client_secret: clientSecret.trim(),
 					scope: normalizedScopes.join(' '),
+				});
+
+				const headers: Record<string, string> = {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				};
+
+				if (authMethod === 'client_secret_post') {
+					params.set('client_secret', clientSecret.trim());
+				} else if (authMethod === 'client_secret_basic') {
+					const basicAuth = btoa(`${clientId.trim()}:${clientSecret.trim()}`);
+					headers.Authorization = `Basic ${basicAuth}`;
+				}
+
+				const details = {
+					tokenEndpoint,
+					requestParams: {
+						grant_type: 'client_credentials',
+						client_id: clientId.trim(),
+						client_secret: clientSecret.trim(),
+						scope: normalizedScopes.join(' '),
+					},
+					authMethod,
+					region,
+					resolvedHeaders: headers,
+					resolvedBody: params.toString(),
+				};
+
+				setRequestDetails(details);
+				setShowRequestModal(true);
+			},
+			{
+				onSuccess: () => {
+					// Success handled in main function
 				},
-				authMethod,
-				region,
-				resolvedHeaders: headers,
-				resolvedBody: params.toString(),
-			};
+				onError: (error) => {
+					console.error(`${MODULE_TAG} Pre-flight validation error:`, error);
 
-			setRequestDetails(details);
-			setShowRequestModal(true);
-		} catch (error) {
-			console.error(`${MODULE_TAG} Pre-flight validation error:`, error);
+					// Enhanced error handling for token-related issues
+					let errorMessage = 'Pre-flight validation failed';
+					let showWorkerTokenButton = false;
 
-			// Enhanced error handling for token-related issues
-			let errorMessage = 'Pre-flight validation failed';
-			let showWorkerTokenButton = false;
+					if (error instanceof Error) {
+						const errorStr = error.message.toLowerCase();
 
-			if (error instanceof Error) {
-				const errorStr = error.message.toLowerCase();
+						// Check for 401 Unauthorized or token-related errors
+						if (
+							errorStr.includes('401') ||
+							errorStr.includes('unauthorized') ||
+							errorStr.includes('invalid token') ||
+							errorStr.includes('expired token') ||
+							errorStr.includes('token required') ||
+							errorStr.includes('worker token')
+						) {
+							errorMessage = 'Worker token is invalid or expired. Please generate a new worker token.';
+							showWorkerTokenButton = true;
+						} else {
+							errorMessage = error.message;
+						}
+					}
 
-				// Check for 401 Unauthorized or token-related errors
-				if (
-					errorStr.includes('401') ||
-					errorStr.includes('unauthorized') ||
-					errorStr.includes('invalid token') ||
-					errorStr.includes('expired token') ||
-					errorStr.includes('token required') ||
-					errorStr.includes('worker token')
-				) {
-					errorMessage = 'Worker token is invalid or expired. Please generate a new worker token.';
-					showWorkerTokenButton = true;
-				} else {
-					errorMessage = error.message;
+					// Show error with appropriate recovery options
+					toastV8.error(errorMessage, { duration: 8000 });
 				}
 			}
-
-			// Show error with appropriate recovery options
-			if (showWorkerTokenButton) {
-				// Use toast for now, but this could be enhanced with UnifiedErrorDisplayV8
-				toastV8.error(errorMessage, { duration: 8000 });
-			} else {
-				toastV8.error(errorMessage);
-			}
-		} finally {
-			setIsGenerating(false);
-			setLoadingMessage('');
-		}
+		);
 	};
 
 	const handleExecuteRequest = async (): Promise<string | null> => {
@@ -597,6 +588,33 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 	return (
 		<>
+			{/* Modal Spinners for Worker Token Operations */}
+			<StandardModalSpinner
+				show={generateSpinner.isLoading}
+				message="Generating worker token..."
+				theme="blue"
+			/>
+			<StandardModalSpinner
+				show={validateSpinner.isLoading}
+				message="Validating configuration..."
+				theme="orange"
+			/>
+			<StandardModalSpinner
+				show={executeSpinner.isLoading}
+				message="Executing token request..."
+				theme="purple"
+			/>
+			<StandardModalSpinner
+				show={importSpinner.isLoading}
+				message="Importing credentials..."
+				theme="green"
+			/>
+			<StandardModalSpinner
+				show={exportSpinner.isLoading}
+				message="Exporting credentials..."
+				theme="blue"
+			/>
+			
 			{/* Backdrop */}
 			<button
 				type="button"
