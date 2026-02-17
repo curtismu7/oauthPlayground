@@ -135,6 +135,53 @@ export interface ExportData {
 	data: Record<string, StorageData>;
 }
 
+// CredentialsServiceV8 Compatibility Interfaces
+export interface V8Credentials {
+	environmentId: string;
+	clientId: string;
+	clientSecret?: string;
+	redirectUri?: string;
+	postLogoutRedirectUri?: string;
+	logoutUri?: string;
+	scopes?: string;
+	loginHint?: string;
+	responseType?: string;
+	issuerUrl?: string;
+	clientAuthMethod?:
+		| 'none'
+		| 'client_secret_basic'
+		| 'client_secret_post'
+		| 'client_secret_jwt'
+		| 'private_key_jwt';
+	// OAuth/OIDC advanced parameters
+	responseMode?: 'query' | 'fragment' | 'form_post' | 'pi.flow';
+	maxAge?: number;
+	display?: 'page' | 'popup' | 'touch' | 'wap';
+	prompt?: 'none' | 'login' | 'consent';
+	[key: string]: any;
+}
+
+export interface V8CredentialsConfig {
+	flowKey: string;
+	flowType: 'oauth' | 'oidc' | 'client-credentials' | 'device-code' | 'ropc' | 'hybrid' | 'pkce';
+	includeClientSecret: boolean;
+	includeRedirectUri: boolean;
+	includeLogoutUri: boolean;
+	includeScopes: boolean;
+	defaultScopes?: string;
+	defaultRedirectUri?: string;
+	defaultLogoutUri?: string;
+}
+
+export interface V8AppConfig {
+	clientId: string;
+	redirectUris: string[];
+	logoutUris?: string[];
+	grantTypes: string[];
+	scopes?: string[];
+	responseTypes?: string[];
+}
+
 /**
  * Unified Token Storage Service
  * 
@@ -1491,6 +1538,337 @@ export class UnifiedTokenStorageService {
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to cleanup expired V8 data', error as Error);
 			return 0;
+		}
+	}
+
+	// ===== CREDENTIALS SERVICE V8 COMPATIBILITY METHODS =====
+	// These methods provide backward compatibility with CredentialsServiceV8
+
+	/**
+	 * Save V8 credentials (CredentialsServiceV8 compatibility)
+	 */
+	async saveV8Credentials(flowKey: string, credentials: V8Credentials): Promise<void> {
+		try {
+			await this.storeToken({
+				id: `v8_credentials_${flowKey}`,
+				type: 'v8_credentials' as any,
+				value: JSON.stringify(credentials),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'indexeddb',
+				flowName: flowKey,
+				metadata: {
+					flowKey,
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
+				},
+			});
+
+			logger.info(MODULE_TAG, 'V8 credentials saved', { flowKey, environmentId: credentials.environmentId });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save V8 credentials', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Load V8 credentials (CredentialsServiceV8 compatibility)
+	 */
+	async loadV8Credentials(flowKey: string): Promise<V8Credentials | null> {
+		try {
+			const tokens = await this.getTokens({
+				type: 'v8_credentials' as any,
+				id: `v8_credentials_${flowKey}`,
+			});
+
+			if (tokens.length === 0) {
+				logger.info(MODULE_TAG, 'No V8 credentials found', { flowKey });
+				return null;
+			}
+
+			const token = tokens[0];
+			const credentials: V8Credentials = JSON.parse(token.value);
+
+			logger.info(MODULE_TAG, 'V8 credentials loaded', { flowKey, environmentId: credentials.environmentId });
+			return credentials;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load V8 credentials', error as Error);
+			return null;
+		}
+	}
+
+	/**
+	 * Load V8 credentials with backup fallback (CredentialsServiceV8 compatibility)
+	 */
+	async loadV8CredentialsWithBackup(flowKey: string): Promise<V8Credentials | null> {
+		// Try unified storage first
+		const credentials = await this.loadV8Credentials(flowKey);
+		if (credentials) {
+			return credentials;
+		}
+
+		// Fallback to localStorage migration
+		try {
+			const storageKey = `v8_credentials_${flowKey}`;
+			const stored = localStorage.getItem(storageKey);
+			if (stored) {
+				const parsed: V8Credentials = JSON.parse(stored);
+				// Migrate to unified storage
+				await this.saveV8Credentials(flowKey, parsed);
+				// Remove from localStorage
+				localStorage.removeItem(storageKey);
+				logger.info(MODULE_TAG, 'V8 credentials migrated from localStorage', { flowKey });
+				return parsed;
+			}
+		} catch (error) {
+			logger.warn(MODULE_TAG, 'Failed to migrate from localStorage', { flowKey, error });
+		}
+
+		return null;
+	}
+
+	/**
+	 * Clear V8 credentials (CredentialsServiceV8 compatibility)
+	 */
+	async clearV8Credentials(flowKey: string): Promise<void> {
+		try {
+			await this.deleteTokens({
+				type: 'v8_credentials' as any,
+				id: `v8_credentials_${flowKey}`,
+			});
+			logger.info(MODULE_TAG, 'V8 credentials cleared', { flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear V8 credentials', error as Error);
+		}
+	}
+
+	/**
+	 * Check if V8 credentials exist (CredentialsServiceV8 compatibility)
+	 */
+	async hasV8Credentials(flowKey: string): Promise<boolean> {
+		try {
+			const credentials = await this.loadV8Credentials(flowKey);
+			return credentials !== null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to check V8 credentials existence', error as Error);
+			return false;
+		}
+	}
+
+	/**
+	 * Get V8 credentials summary (CredentialsServiceV8 compatibility)
+	 */
+	async getV8CredentialsSummary(flowKey: string): Promise<string> {
+		try {
+			const credentials = await this.loadV8Credentials(flowKey);
+			if (!credentials) {
+				return 'No credentials';
+			}
+
+			const parts: string[] = [];
+
+			// Environment
+			if (credentials.environmentId) {
+				const shortEnv = credentials.environmentId.substring(0, 8);
+				parts.push(`Env: ${shortEnv}...`);
+			}
+
+			// Client
+			if (credentials.clientId) {
+				const shortClient = credentials.clientId.substring(0, 8);
+				parts.push(`Client: ${shortClient}...`);
+			}
+
+			// Auth method
+			if (credentials.clientAuthMethod) {
+				parts.push(`Auth: ${credentials.clientAuthMethod}`);
+			}
+
+			// Scopes
+			if (credentials.scopes) {
+				const scopeCount = credentials.scopes.split(' ').filter((s) => s.trim()).length;
+				parts.push(`Scopes: ${scopeCount}`);
+			}
+
+			// Secrets
+			if (credentials.clientSecret) {
+				parts.push('Has Secret');
+			}
+
+			return parts.join(', ') || 'Empty credentials';
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to get V8 credentials summary', error as Error);
+			return 'Error loading credentials';
+		}
+	}
+
+	/**
+	 * Sanitize V8 credentials for logging (CredentialsServiceV8 compatibility)
+	 */
+	sanitizeV8CredentialsForLogging(credentials: V8Credentials): Record<string, unknown> {
+		if (!credentials) {
+			return { error: 'No credentials provided' };
+		}
+
+		return {
+			environmentId: credentials.environmentId || '(empty)',
+			clientId: credentials.clientId || '(empty)',
+			// Secret indicators (never log actual values)
+			hasClientSecret: !!credentials.clientSecret,
+			clientSecretLength: credentials.clientSecret?.length || 0,
+			hasPrivateKey: !!(credentials as any).privateKey,
+			// Safe fields
+			redirectUri: credentials.redirectUri || '(empty)',
+			postLogoutRedirectUri: credentials.postLogoutRedirectUri || '(empty)',
+			scopes: credentials.scopes || '(empty)',
+			clientAuthMethod: credentials.clientAuthMethod || 'none',
+			responseMode: credentials.responseMode || 'query',
+			// Metadata
+			fieldCount: Object.keys(credentials).length,
+			timestamp: new Date().toISOString(),
+		};
+	}
+
+	/**
+	 * Compare V8 credentials for changes (CredentialsServiceV8 compatibility)
+	 */
+	hasV8CredentialsChanged(
+		oldCreds: V8Credentials,
+		newCreds: V8Credentials,
+		ignoreFields: string[] = []
+	): boolean {
+		if (!oldCreds || !newCreds) {
+			return true; // Consider it changed if either is missing
+		}
+
+		// Core fields to compare
+		const fieldsToCompare = [
+			'environmentId',
+			'clientId',
+			'clientSecret',
+			'redirectUri',
+			'postLogoutRedirectUri',
+			'logoutUri',
+			'scopes',
+			'clientAuthMethod',
+			'responseMode',
+			'maxAge',
+			'display',
+			'prompt',
+			'loginHint',
+			'responseType',
+			'issuerUrl',
+		];
+
+		// Check each field
+		for (const field of fieldsToCompare) {
+			if (ignoreFields.includes(field)) {
+				continue; // Skip ignored fields
+			}
+
+			const oldValue = oldCreds[field];
+			const newValue = newCreds[field];
+
+			// Normalize empty values (undefined, null, '') to empty string
+			const normalizedOld = oldValue ?? '';
+			const normalizedNew = newValue ?? '';
+
+			if (normalizedOld !== normalizedNew) {
+				logger.info(MODULE_TAG, 'V8 credentials field changed', {
+					field,
+					old: normalizedOld,
+					new: normalizedNew,
+				});
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get all V8 credentials keys
+	 */
+	async getAllV8CredentialsKeys(): Promise<string[]> {
+		try {
+			const tokens = await this.getTokens({
+				type: 'v8_credentials' as any,
+			});
+			return tokens.map(token => token.metadata?.flowKey || token.id.replace('v8_credentials_', ''));
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to get all V8 credentials keys', error as Error);
+			return [];
+		}
+	}
+
+	/**
+	 * Export all V8 credentials
+	 */
+	async exportAllV8Credentials(): Promise<string> {
+		try {
+			const tokens = await this.getTokens({
+				type: 'v8_credentials' as any,
+			});
+			const data: Record<string, V8Credentials> = {};
+
+			tokens.forEach((token) => {
+				try {
+					const credentials: V8Credentials = JSON.parse(token.value);
+					const flowKey = token.metadata?.flowKey || token.id.replace('v8_credentials_', '');
+					data[flowKey] = credentials;
+				} catch (error) {
+					logger.warn(MODULE_TAG, 'Failed to parse V8 credentials for export', { id: token.id });
+				}
+			});
+
+			const exported = JSON.stringify(data, null, 2);
+
+			logger.info(MODULE_TAG, 'V8 credentials exported', {
+				keyCount: tokens.length,
+				size: exported.length,
+			});
+
+			return exported;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to export V8 credentials', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Import V8 credentials
+	 */
+	async importAllV8Credentials(jsonData: string, overwrite = false): Promise<void> {
+		try {
+			const data: Record<string, V8Credentials> = JSON.parse(jsonData);
+
+			let imported = 0;
+			let skipped = 0;
+
+			for (const [flowKey, credentials] of Object.entries(data)) {
+				// Check if credentials already exist
+				if (!overwrite) {
+					const existing = await this.hasV8Credentials(flowKey);
+					if (existing) {
+						logger.info(MODULE_TAG, 'Skipping existing V8 credentials', { flowKey });
+						skipped++;
+						continue;
+					}
+				}
+
+				// Import credentials
+				await this.saveV8Credentials(flowKey, credentials);
+				imported++;
+			}
+
+			logger.info(MODULE_TAG, 'V8 credentials imported', {
+				imported,
+				skipped,
+				total: Object.keys(data).length,
+			});
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to import V8 credentials', error as Error);
+			throw error;
 		}
 	}
 }
