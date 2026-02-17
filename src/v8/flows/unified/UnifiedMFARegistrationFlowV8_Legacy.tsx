@@ -48,6 +48,7 @@ import { useUserSearch } from '@/v8/hooks/useUserSearch';
 import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
+import { useStandardSpinner, StandardModalSpinner } from '../../../components/ui/StandardSpinner';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { type MFAFeatureFlag, MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import MFAServiceV8_Legacy, { type RegisterDeviceParams } from '@/v8/services/mfaServiceV8_Legacy';
@@ -180,7 +181,20 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		registrationFlowType || 'admin-active' // Default to Admin Flow (Direct Registration)
 	);
 
+	// Standardized spinner hooks for MFA registration operations
+	const registerSpinner = useStandardSpinner(8000); // Register device - 8 seconds
+	const authSpinner = useStandardSpinner(6000);    // Authentication - 6 seconds
+	const otpSpinner = useStandardSpinner(4000);      // OTP verification - 4 seconds
+	const deviceSpinner = useStandardSpinner(5000);  // Device selection - 5 seconds
+	const resendSpinner = useStandardSpinner(3000);   // Resend code - 3 seconds
+
 	// Sync local state with props when they change
+	useEffect(() => {
+		if (propFlowMode !== undefined) {
+			setFlowMode(propFlowMode);
+		}
+	}, [propFlowMode]);
+
 	useEffect(() => {
 		if (propEnvironmentId !== environmentId) {
 			setEnvironmentId(propEnvironmentId);
@@ -2972,110 +2986,117 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 				} else {
 					baseParams = {
 						...baseParams,
-						tokenType: 'worker',
-					};
-				}
 
-				// Always include status for all device types
-				// FIDO2: Set to ACTIVE since WebAuthn verification proves device works
-				// Other devices: Set based on flow type (admin-active = ACTIVE, others = ACTIVATION_REQUIRED)
-				if (deviceStatus !== undefined) {
-					baseParams.status = deviceStatus;
-				}
+          console.log('[UNIFIED-FLOW] Registration base params:', {
+            environmentId: baseParams.environmentId,
+            username: baseParams.username,
+            type: baseParams.type,
+            tokenType: baseParams.tokenType,
+            status: baseParams.status,
+            flowType,
+          });
 
-				console.log('[UNIFIED-FLOW] Registration base params:', {
-					environmentId: baseParams.environmentId,
-					username: baseParams.username,
-					type: baseParams.type,
-					tokenType: baseParams.tokenType,
-					status: baseParams.status,
-					flowType,
-				});
+          // Map form field names to API field names
+          // Form uses 'deviceName' but API expects 'nickname' or 'name'
+          const mappedFields: Record<string, string> = { ...fields };
+          if (mappedFields.deviceName) {
+            mappedFields.nickname = mappedFields.deviceName;
+            mappedFields.name = mappedFields.deviceName;
+            delete mappedFields.deviceName;
+          }
 
-				// Map form field names to API field names
-				// Form uses 'deviceName' but API expects 'nickname' or 'name'
-				const mappedFields: Record<string, string> = { ...fields };
-				if (mappedFields.deviceName) {
-					mappedFields.nickname = mappedFields.deviceName;
-					mappedFields.name = mappedFields.deviceName;
-					delete mappedFields.deviceName;
-				}
+          // Format phone number for SMS/WhatsApp devices
+          // Form sends: { phoneNumber: '9725231586', countryCode: '+1' }
+          // API expects: { phone: '+1.9725231586' }
+          if (mappedFields.phoneNumber && mappedFields.countryCode) {
+            const countryCode = mappedFields.countryCode.replace('+', ''); // Remove + for formatting
+            const phoneNumber = mappedFields.phoneNumber.replace(/\D/g, ''); // Remove non-digits
+            mappedFields.phone = `+${countryCode}.${phoneNumber}`;
+            console.log('[UNIFIED-FLOW] Formatted phone:', mappedFields.phone);
+            delete mappedFields.phoneNumber;
+            delete mappedFields.countryCode;
+          }
 
-				// Format phone number for SMS/WhatsApp devices
-				// Form sends: { phoneNumber: '9725231586', countryCode: '+1' }
-				// API expects: { phone: '+1.9725231586' }
-				if (mappedFields.phoneNumber && mappedFields.countryCode) {
-					const countryCode = mappedFields.countryCode.replace('+', ''); // Remove + for formatting
-					const phoneNumber = mappedFields.phoneNumber.replace(/\D/g, ''); // Remove non-digits
-					mappedFields.phone = `+${countryCode}.${phoneNumber}`;
-					console.log('[UNIFIED-FLOW] Formatted phone:', mappedFields.phone);
-					delete mappedFields.phoneNumber;
-					delete mappedFields.countryCode;
-				}
+          // Include device-specific fields (phone, email, etc.)
+          const deviceParams: RegisterDeviceParamsWithToken = {
+            ...baseParams,
+            ...mappedFields,
+            // Include policy for TOTP devices (required for secret and keyUri to be returned)
+            // Note: deviceAuthenticationPolicyId should be passed via props if needed
+            // Temporarily disabled - TOTP devices will need policy configuration
+            // ...(selectedDeviceType === 'TOTP' && deviceAuthenticationPolicyId
+            //	? { policy: deviceAuthenticationPolicyId }
+            //	: {}),
+          };
 
-				// Include device-specific fields (phone, email, etc.)
-				const deviceParams: RegisterDeviceParamsWithToken = {
-					...baseParams,
-					...mappedFields,
-					// Include policy for TOTP devices (required for secret and keyUri to be returned)
-					// Note: deviceAuthenticationPolicyId should be passed via props if needed
-					// Temporarily disabled - TOTP devices will need policy configuration
-					// ...(selectedDeviceType === 'TOTP' && deviceAuthenticationPolicyId
-					//	? { policy: deviceAuthenticationPolicyId }
-					//	: {}),
-				};
+          console.log('[UNIFIED-FLOW] Registering device with params:', deviceParams);
 
-				console.log('[UNIFIED-FLOW] Registering device with params:', deviceParams);
+          const result = await MFAServiceV8_Legacy.registerDevice(deviceParams);
+          console.log('[UNIFIED-FLOW] Device registered:', result);
 
-				const result = await MFAServiceV8_Legacy.registerDevice(deviceParams);
-				console.log('[UNIFIED-FLOW] Device registered:', result);
+          // Update MFA state with device info
+          const registrationResult = result as unknown as Record<string, unknown>;
 
-				// Update MFA state with device info
-				const registrationResult = result as unknown as Record<string, unknown>;
+          // ========== DEBUG: TOTP QR CODE DATA ==========
+          if (selectedDeviceType === 'TOTP') {
+            console.log('🔍 [TOTP DEBUG] Registration result for TOTP:', {
+              deviceId: result.deviceId,
+              status: result.status,
+              qrCode: registrationResult.qrCode,
+              qrCodeUrl: registrationResult.qrCodeUrl,
+              secret: registrationResult.secret,
+              totpSecret: registrationResult.totpSecret,
+              fullResult: result,
+            });
+          }
+          // ===============================================
 
-				// ========== DEBUG: TOTP QR CODE DATA ==========
-				if (selectedDeviceType === 'TOTP') {
-					console.log('🔍 [TOTP DEBUG] Registration result for TOTP:', {
-						deviceId: result.deviceId,
-						status: result.status,
-						qrCode: registrationResult.qrCode,
-						qrCodeUrl: registrationResult.qrCodeUrl,
-						secret: registrationResult.secret,
-						totpSecret: registrationResult.totpSecret,
-						fullResult: result,
-					});
-				}
-				// ===============================================
+          // Clear stored registration data after successful use
+          localStorage.removeItem('mfa_registration_flow_type');
+          localStorage.removeItem('mfa_registration_fields');
+          localStorage.removeItem('mfa_registration_device_type');
 
-				// Clear stored registration data after successful use
-				localStorage.removeItem('mfa_registration_flow_type');
-				localStorage.removeItem('mfa_registration_fields');
-				localStorage.removeItem('mfa_registration_device_type');
+          props.setMfaState((prev) => {
+            // TOTP: QR code will be rendered by QRCodeSVG component in UnifiedActivationStep
+            // No need to generate QR code data URL here - just pass the keyUri
+            const newState: MFAState = {
+              ...prev,
+              deviceId: result.deviceId,
+              deviceStatus: result.status,
+              ...(registrationResult.deviceActivateUri
+                ? { deviceActivateUri: String(registrationResult.deviceActivateUri) }
+                : {}),
+              ...(selectedDeviceType === 'TOTP'
+                ? {
+                    totpSecret: String(registrationResult.secret || ''),
+                    keyUri: String(registrationResult.keyUri || ''),
+                    qrCodeUrl: String(registrationResult.keyUri || ''),
+                    showQr: !!(registrationResult.secret || registrationResult.keyUri),
+                  }
+                : {}),
+              ...(selectedDeviceType === 'FIDO2' &&
+              registrationResult.publicKeyCredentialCreationOptions
+                ? {
+                    publicKeyCredentialCreationOptions:
+                      registrationResult.publicKeyCredentialCreationOptions,
+                  }
+                : {}),
+              ...(selectedDeviceType === 'MOBILE' && registrationResult.pairingKey
+                ? { pairingKey: String(registrationResult.pairingKey) }
+                : {}),
+            };
 
-				props.setMfaState((prev) => {
-					// TOTP: QR code will be rendered by QRCodeSVG component in UnifiedActivationStep
-					// No need to generate QR code data URL here - just pass the keyUri
-					const newState: MFAState = {
-						...prev,
-						deviceId: result.deviceId,
-						deviceStatus: result.status,
-						...(registrationResult.deviceActivateUri
-							? { deviceActivateUri: String(registrationResult.deviceActivateUri) }
-							: {}),
-						...(selectedDeviceType === 'TOTP'
-							? {
-									totpSecret: String(registrationResult.secret || ''),
-									keyUri: String(registrationResult.keyUri || ''),
-									qrCodeUrl: String(registrationResult.keyUri || ''),
-									showQr: !!(registrationResult.secret || registrationResult.keyUri),
-								}
-							: {}),
-						...(selectedDeviceType === 'FIDO2' &&
-						registrationResult.publicKeyCredentialCreationOptions
-							? {
-									publicKeyCredentialCreationOptions:
-										registrationResult.publicKeyCredentialCreationOptions,
-								}
+            // ========== DEBUG: TOTP MFA STATE UPDATE ==========
+            if (selectedDeviceType === 'TOTP') {
+              console.log('🔍 [TOTP DEBUG] Updated mfaState:', {
+                qrCodeUrl: newState.qrCodeUrl,
+                totpSecret: newState.totpSecret,
+                showQr: newState.showQr,
+                deviceStatus: newState.deviceStatus,
+                fullState: newState,
+              });
+            }
+            // ================================================
 							: {}),
 						...(selectedDeviceType === 'MOBILE' && registrationResult.pairingKey
 							? { pairingKey: String(registrationResult.pairingKey) }
@@ -3099,112 +3120,36 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 
 				// FIDO2: Check if we already have credential data (from WebAuthn modal)
 				// If credentialId and publicKey are present, registration is complete
-				if (selectedDeviceType === 'FIDO2') {
-					if (fields.credentialId && fields.publicKey) {
-						// WebAuthn already completed via modal - device fully registered
 
-						// Admin Flow: Show QR but skip OTP validation - device ready immediately
-						// Admin ACTIVATION_REQUIRED & User Flow: Show QR and require OTP validation
-						if (
-							flowType === 'admin-active' ||
-							flowType === 'admin-activation' ||
-							result.status === 'ACTIVE'
-						) {
-							console.log(
-								'[UNIFIED-FLOW] Admin flow or ACTIVE status - proceeding to show QR without OTP requirement'
-							);
-							toastV8.success(
-								`${config.displayName} device registered successfully!${flowType === 'admin-active' || flowType === 'admin-activation' ? ' Device is ready to use.' : ''}`
-							);
-							// For Admin Flow, go to API docs page instead of OTP page
-							// For User Flow, go to User Login step (Step 1)
-							if (flowType === 'admin-active' || flowType === 'admin-activation') {
-								// Navigate to device-specific API docs page
-								const docsPath = `/v8/mfa/register/${config.deviceType}/docs`;
-								window.location.href = docsPath;
-							} else {
-								props.nav.goToNext(); // User Flow - go to User Login
-							}
-						} else if (result.status === 'ACTIVATION_REQUIRED') {
-							// Device requires activation - PingOne automatically sends OTP
-							// This applies to both admin_activation_required and user flow
-							toastV8.success(
-								`${config.displayName} device registered! OTP has been sent automatically.`
-							);
-							// FOOLPROOF: Auto-advance to Step 4 (OTP Activation) after successful registration
-							console.log(
-								`${MODULE_TAG} Device requires OTP activation - auto-advancing to Step 4 (OTP Activation)`
-							);
-							// Add small delay to ensure toast is visible before navigation
-							setTimeout(() => {
-								props.nav.goToStep(4); // Go directly to OTP Activation step
-							}, 1000);
-						} else {
-							// Unknown status, proceed with flow-specific navigation
-							if (flowType === 'admin-active' || flowType === 'admin-activation') {
-								// Navigate to device-specific API docs page
-								const docsPath = `/v8/mfa/register/${config.deviceType}/docs`;
-								window.location.href = docsPath;
-							} else {
-								props.nav.goToNext(); // User Flow - go to User Login
-							}
-						}
-					}
-				} // End of FIDO2 section
+      toastV8.success('✅ Authentication successful! Your user token is ready.', {
+        duration: 4000,
+      });
 
-				// FOOLPROOF: Auto-advance for all non-FIDO2 devices after successful registration
-				if (selectedDeviceType !== 'FIDO2') {
-					console.log(
-						`${MODULE_TAG} ${selectedDeviceType} device registered successfully - auto-advancing to next step`
-					);
+      // Close login modal and show success page
+      setShowUserLoginModal(false);
+      setShowUserTokenSuccess(true);
+    } else {
+      console.log('[UNIFIED-FLOW] WARNING: No pending registration found after OAuth!');
+    }
+  },
+  [setUserToken]
+);
 
-					// Determine next step based on device status and type
-					if (result.status === 'ACTIVATION_REQUIRED') {
-						// Device needs OTP activation - go to Step 4
-						setTimeout(() => {
-							props.nav.goToStep(4); // OTP Activation step
-						}, 1000);
-					} else if (selectedDeviceType === 'TOTP') {
-						// TOTP shows QR code - go to Step 4 for activation
-						setTimeout(() => {
-							props.nav.goToStep(4); // OTP Activation step (shows QR code)
-						}, 1000);
-					} else {
-						// Other devices (SMS, Email, etc.) - go to Step 4 for OTP or Step 5 for docs
-						setTimeout(() => {
-							if (result.status === 'ACTIVE') {
-								// Device is already active - go to API docs
-								props.nav.goToStep(5); // API Documentation
-							} else {
-								// Device needs activation - go to OTP step
-								props.nav.goToStep(4); // OTP Activation step
-							}
-						}, 1000);
-					}
-				}
-			} catch (error) {
-				console.error('[UNIFIED-FLOW] Registration failed:', error);
-				const errorMessage = error instanceof Error ? error.message : 'Device registration failed';
+/**
+ * Handle continue from user token success page
+ */
+const handleContinueAfterUserLogin = useCallback(() => {
+  console.log(
+    '[UNIFIED-FLOW] User clicked continue after login, proceeding with registration...'
+  );
 
-				// Check if error is due to too many devices
-				if (errorMessage.includes('Too many devices')) {
-					toastV8.error(
-						`${errorMessage}\n\nℹ️ You can manage your devices at:\nhttps://localhost:3000/v8/delete-all-devices`,
-						{ duration: 8000 }
-					);
-				} else {
-					toastV8.error(errorMessage);
-				}
-			} finally {
-				props.setIsLoading(false);
-			}
-		},
-		[config.displayName, config.deviceType]
-	);
+  const pending = pendingRegistrationRef.current;
+  if (pending && userToken) {
+    const { deviceType: pendingDeviceType, fields, flowType, props } = pending;
+    pendingRegistrationRef.current = null;
 
-	/**
-	 * Handle user token received from OAuth flow
-	 */
+    // Hide success page
+    setShowUserTokenSuccess(false);
 	const handleUserTokenReceived = useCallback(
 		(token: string) => {
 			console.log('[UNIFIED-FLOW] ===== USER TOKEN RECEIVED =====');
@@ -3542,6 +3487,33 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 
 	return (
 		<>
+			{/* Modal Spinners for MFA Registration Operations */}
+			<StandardModalSpinner
+				show={registerSpinner.isLoading}
+				message="Registering device..."
+				theme="blue"
+			/>
+			<StandardModalSpinner
+				show={authSpinner.isLoading}
+				message="Authenticating device..."
+				theme="purple"
+			/>
+			<StandardModalSpinner
+				show={otpSpinner.isLoading}
+				message="Verifying OTP..."
+				theme="green"
+			/>
+			<StandardModalSpinner
+				show={deviceSpinner.isLoading}
+				message="Loading devices..."
+				theme="orange"
+			/>
+			<StandardModalSpinner
+				show={resendSpinner.isLoading}
+				message="Resending verification code..."
+				theme="blue"
+			/>
+			
 			{/* Education Mode Toggle */}
 			<EducationModeToggle variant="buttons" />
 
