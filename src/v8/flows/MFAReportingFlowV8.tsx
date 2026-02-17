@@ -434,12 +434,15 @@ export const MFAReportingFlowV8: React.FC = () => {
 				let result: unknown[] = [];
 				
 				if (selectedReport === 'user-authentications') {
-					result = await MFAReportingServiceV8.getUserAuthenticationReports({
+					const params: any = {
 						environmentId: credentials.environmentId,
-						username: username.trim(),
 						region,
 						customDomain,
-					});
+					};
+					if (username.trim()) {
+						params.filter = `username eq "${username.trim()}"`;
+					}
+					result = await MFAReportingServiceV8.getUserAuthenticationReports(params);
 				} else if (selectedReport === 'device-authentications') {
 					result = await MFAReportingServiceV8.getDeviceAuthenticationReports({
 						environmentId: credentials.environmentId,
@@ -448,38 +451,45 @@ export const MFAReportingFlowV8: React.FC = () => {
 					});
 				} else if (isDeviceReport) {
 				// Handle device reports (SMS, Email, Voice, TOTP, FIDO2, WhatsApp)
-				const reportResult = await MFAReportingServiceV8.createMFADevicesReport({
+				const deviceParams: any = {
 					environmentId: credentials.environmentId,
-					filter: config.filter || undefined,
 					fields: config.fields || [],
 					region,
 					customDomain,
 					deviceType: selectedReport.toUpperCase(), // Convert to device type expected by API
-				});
+				};
+				if (config.filter) {
+					deviceParams.filter = config.filter;
+				}
+				const reportResult = await MFAReportingServiceV8.createMFADevicesReport(deviceParams);
 				// Extract entries from the report result
 				result = (reportResult as any)._embedded?.entries || [];
 			} else {
 				// Handle other reports (MFA enabled/disabled users)
 				if (selectedReport === 'mfa-enabled') {
-					const reportResult = await MFAReportingServiceV8.createMFAEnabledDevicesReport({
+					const mfaParams: any = {
 						environmentId: credentials.environmentId,
-						filter: config.filter || undefined,
 						fields: config.fields || [],
 						region,
 						customDomain,
-						mfaEnabled: true,
-					});
+					};
+					if (config.filter) {
+						mfaParams.filter = config.filter;
+					}
+					const reportResult = await MFAReportingServiceV8.createMFAEnabledDevicesReport(mfaParams);
 					// Extract entries from the report result
 					result = (reportResult as any)._embedded?.entries || [];
 				} else if (selectedReport === 'mfa-disabled') {
-					const reportResult = await MFAReportingServiceV8.createMFAEnabledDevicesReport({
+					const mfaParams: any = {
 						environmentId: credentials.environmentId,
-						filter: config.filter || undefined,
 						fields: config.fields || [],
 						region,
 						customDomain,
-						mfaEnabled: false,
-					});
+					};
+					if (config.filter) {
+						mfaParams.filter = config.filter;
+					}
+					const reportResult = await MFAReportingServiceV8.createMFAEnabledDevicesReport(mfaParams);
 					// Extract entries from the report result
 					result = (reportResult as any)._embedded?.entries || [];
 				}
