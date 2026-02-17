@@ -26,11 +26,15 @@ const Navigation = styled.nav<{ $brandColor: string; $style: string }>`
   z-index: 1000;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   
-  ${({ $style }) => $style === 'modern' && `
+  ${({ $style }) =>
+		$style === 'modern' &&
+		`
     background: linear-gradient(135deg, ${({ $brandColor }) => $brandColor} 0%, ${({ $brandColor }) => $brandColor}dd 100%);
   `}
   
-  ${({ $style }) => $style === 'friendly' && `
+  ${({ $style }) =>
+		$style === 'friendly' &&
+		`
     border-bottom: 2px solid ${({ $brandColor }) => $brandColor};
   `}
 `;
@@ -71,7 +75,9 @@ const NavLinks = styled.div<{ $style: string }>`
     display: none;
   }
   
-  ${({ $style }) => $style === 'friendly' && `
+  ${({ $style }) =>
+		$style === 'friendly' &&
+		`
     gap: 1.5rem;
   `}
 `;
@@ -206,8 +212,8 @@ const LoginButton = styled.button<{ $brandColor: string; $accentColor: string; $
   background: ${({ $accentColor }) => $accentColor};
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: ${({ $style }) => $style === 'friendly' ? '20px' : '6px'};
-  padding: ${({ $style }) => $style === 'friendly' ? '0.6rem 1.2rem' : '0.6rem 1rem'};
+  border-radius: ${({ $style }) => ($style === 'friendly' ? '20px' : '6px')};
+  padding: ${({ $style }) => ($style === 'friendly' ? '0.6rem 1.2rem' : '0.6rem 1rem')};
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -218,7 +224,7 @@ const LoginButton = styled.button<{ $brandColor: string; $accentColor: string; $
   &:hover {
     background: ${({ $brandColor }) => $brandColor};
     border-color: rgba(255, 255, 255, 0.4);
-    transform: ${({ $style }) => $style === 'friendly' ? 'translateY(-2px)' : 'translateY(-1px)'};
+    transform: ${({ $style }) => ($style === 'friendly' ? 'translateY(-2px)' : 'translateY(-1px)')};
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
   
@@ -232,143 +238,208 @@ const LoginButton = styled.button<{ $brandColor: string; $accentColor: string; $
 // ============================================================================
 
 interface CorporateNavigationProps {
-  config: CorporatePortalConfig;
-  onLoginClick: () => void;
+	config: CorporatePortalConfig;
+	onLoginClick: () => void;
 }
 
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
-const CorporateNavigation: React.FC<CorporateNavigationProps> = ({
-  config,
-  onLoginClick,
-}) => {
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const brandColor = config.branding.colors.primary;
-  const accentColor = config.branding.colors.accent;
-  const navStyle = config.navigation.style;
+const CorporateNavigation: React.FC<CorporateNavigationProps> = ({ config, onLoginClick }) => {
+	const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+	const brandColor = config.branding.colors.primary;
+	const accentColor = config.branding.colors.accent;
+	const navStyle = config.navigation.style;
 
-  // Generate navigation links based on industry - matching real websites
-  const getNavLinks = () => {
-    switch (config.company.industry) {
-      case 'aviation':
-        return [
-          { text: 'Book', href: '#book', hasDropdown: true, dropdownItems: ['Flights', 'Hotels', 'Cars', 'Vacations'] },
-          { text: 'My Trips', href: '#my-trips', hasDropdown: false },
-          { text: 'Check-in', href: '#checkin', hasDropdown: false },
-          { text: 'Flight Status', href: '#flight-status', hasDropdown: false },
-          { text: 'Travel Info', href: '#travel-info', hasDropdown: true, dropdownItems: ['Baggage', 'Check-in Options', 'Travel Requirements'] },
-        ];
-      case 'banking':
-        return [
-          { text: 'Accounts', href: '#accounts', hasDropdown: true, dropdownItems: ['Checking', 'Savings', 'Credit Cards', 'Loans'] },
-          { text: 'Transfer', href: '#transfer', hasDropdown: false },
-          { text: 'Bill Pay', href: '#bill-pay', hasDropdown: false },
-          { text: 'Investing', href: '#investing', hasDropdown: true, dropdownItems: ['Merrill Edge', 'Automated Investing', 'Small Business'] },
-          { text: 'Customer Service', href: '#service', hasDropdown: true, dropdownItems: ['Contact Us', 'Help Center', 'Security Center'] },
-        ];
-      case 'logistics':
-        return [
-          { text: 'Ship', href: '#ship', hasDropdown: true, dropdownItems: ['Create a Shipment', 'Schedule a Pickup', 'Get Rates'] },
-          { text: 'Track', href: '#track', hasDropdown: false },
-          { text: 'Rates & Transit Times', href: '#rates', hasDropdown: true, dropdownItems: ['Get Rates', 'Transit Times', 'Surcharges'] },
-          { text: 'International', href: '#international', hasDropdown: true, dropdownItems: ['International Services', 'Customs Clearance'] },
-          { text: 'Support', href: '#support', hasDropdown: false },
-        ];
-      case 'tech':
-        return [
-          { text: 'Products', href: '#products', hasDropdown: true, dropdownItems: ['PingOne', 'PingFederate', 'PingDirectory'] },
-          { text: 'Solutions', href: '#solutions', hasDropdown: true, dropdownItems: ['Identity', 'Access', 'Security'] },
-          { text: 'Developers', href: '#developers', hasDropdown: true, dropdownItems: ['APIs', 'SDKs', 'Documentation'] },
-          { text: 'Resources', href: '#resources', hasDropdown: true, dropdownItems: ['Blog', 'Webinars', 'Case Studies'] },
-          { text: 'Company', href: '#company', hasDropdown: true, dropdownItems: ['About Us', 'Careers', 'Contact'] },
-        ];
-      default:
-        return [
-          { text: 'Home', href: '#home', hasDropdown: false },
-          { text: 'Services', href: '#services', hasDropdown: true, dropdownItems: ['Service 1', 'Service 2'] },
-          { text: 'About', href: '#about', hasDropdown: false },
-          { text: 'Contact', href: '#contact', hasDropdown: false },
-        ];
-    }
-  };
+	// Generate navigation links based on industry - matching real websites
+	const getNavLinks = () => {
+		switch (config.company.industry) {
+			case 'aviation':
+				return [
+					{
+						text: 'Book',
+						href: '#book',
+						hasDropdown: true,
+						dropdownItems: ['Flights', 'Hotels', 'Cars', 'Vacations'],
+					},
+					{ text: 'My Trips', href: '#my-trips', hasDropdown: false },
+					{ text: 'Check-in', href: '#checkin', hasDropdown: false },
+					{ text: 'Flight Status', href: '#flight-status', hasDropdown: false },
+					{
+						text: 'Travel Info',
+						href: '#travel-info',
+						hasDropdown: true,
+						dropdownItems: ['Baggage', 'Check-in Options', 'Travel Requirements'],
+					},
+				];
+			case 'banking':
+				return [
+					{
+						text: 'Accounts',
+						href: '#accounts',
+						hasDropdown: true,
+						dropdownItems: ['Checking', 'Savings', 'Credit Cards', 'Loans'],
+					},
+					{ text: 'Transfer', href: '#transfer', hasDropdown: false },
+					{ text: 'Bill Pay', href: '#bill-pay', hasDropdown: false },
+					{
+						text: 'Investing',
+						href: '#investing',
+						hasDropdown: true,
+						dropdownItems: ['Merrill Edge', 'Automated Investing', 'Small Business'],
+					},
+					{
+						text: 'Customer Service',
+						href: '#service',
+						hasDropdown: true,
+						dropdownItems: ['Contact Us', 'Help Center', 'Security Center'],
+					},
+				];
+			case 'logistics':
+				return [
+					{
+						text: 'Ship',
+						href: '#ship',
+						hasDropdown: true,
+						dropdownItems: ['Create a Shipment', 'Schedule a Pickup', 'Get Rates'],
+					},
+					{ text: 'Track', href: '#track', hasDropdown: false },
+					{
+						text: 'Rates & Transit Times',
+						href: '#rates',
+						hasDropdown: true,
+						dropdownItems: ['Get Rates', 'Transit Times', 'Surcharges'],
+					},
+					{
+						text: 'International',
+						href: '#international',
+						hasDropdown: true,
+						dropdownItems: ['International Services', 'Customs Clearance'],
+					},
+					{ text: 'Support', href: '#support', hasDropdown: false },
+				];
+			case 'tech':
+				return [
+					{
+						text: 'Products',
+						href: '#products',
+						hasDropdown: true,
+						dropdownItems: ['PingOne', 'PingFederate', 'PingDirectory'],
+					},
+					{
+						text: 'Solutions',
+						href: '#solutions',
+						hasDropdown: true,
+						dropdownItems: ['Identity', 'Access', 'Security'],
+					},
+					{
+						text: 'Developers',
+						href: '#developers',
+						hasDropdown: true,
+						dropdownItems: ['APIs', 'SDKs', 'Documentation'],
+					},
+					{
+						text: 'Resources',
+						href: '#resources',
+						hasDropdown: true,
+						dropdownItems: ['Blog', 'Webinars', 'Case Studies'],
+					},
+					{
+						text: 'Company',
+						href: '#company',
+						hasDropdown: true,
+						dropdownItems: ['About Us', 'Careers', 'Contact'],
+					},
+				];
+			default:
+				return [
+					{ text: 'Home', href: '#home', hasDropdown: false },
+					{
+						text: 'Services',
+						href: '#services',
+						hasDropdown: true,
+						dropdownItems: ['Service 1', 'Service 2'],
+					},
+					{ text: 'About', href: '#about', hasDropdown: false },
+					{ text: 'Contact', href: '#contact', hasDropdown: false },
+				];
+		}
+	};
 
-  const navLinks = getNavLinks();
+	const navLinks = getNavLinks();
 
-  const handleDropdownToggle = (linkText: string) => {
-    setActiveDropdown(activeDropdown === linkText ? null : linkText);
-  };
+	const handleDropdownToggle = (linkText: string) => {
+		setActiveDropdown(activeDropdown === linkText ? null : linkText);
+	};
 
-  const handleDropdownClose = () => {
-    setActiveDropdown(null);
-  };
+	const handleDropdownClose = () => {
+		setActiveDropdown(null);
+	};
 
-  return (
-    <Navigation $brandColor={brandColor} $style={navStyle}>
-      <NavContainer>
-        <Logo $logoColors={config.company.logo.colors}>
-          <span className="logo-text">
-            {config.company.logo.text.split(' ').map((word, index) => (
-              <span key={index} className={index === 1 ? 'logo-accent' : ''}>
-                {word}{' '}
-              </span>
-            ))}
-          </span>
-        </Logo>
+	return (
+		<Navigation $brandColor={brandColor} $style={navStyle}>
+			<NavContainer>
+				<Logo $logoColors={config.company.logo.colors}>
+					<span className="logo-text">
+						{config.company.logo.text.split(' ').map((word, index) => (
+							<span key={index} className={index === 1 ? 'logo-accent' : ''}>
+								{word}{' '}
+							</span>
+						))}
+					</span>
+				</Logo>
 
-        <NavLinks $style={navStyle}>
-          {navLinks.map((link, index) => (
-            link.hasDropdown ? (
-              <DropdownContainer key={index}>
-                <DropdownTrigger 
-                  $brandColor={brandColor}
-                  onClick={() => handleDropdownToggle(link.text)}
-                >
-                  {link.text}
-                  <FiChevronDown size={14} />
-                </DropdownTrigger>
-                <DropdownMenu $isOpen={activeDropdown === link.text}>
-                  {link.dropdownItems?.map((item, itemIndex) => (
-                    <DropdownItem key={itemIndex} href="#">
-                      {item}
-                    </DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </DropdownContainer>
-            ) : (
-              <NavLink key={index} href={link.href} $brandColor={brandColor}>
-                {link.text}
-              </NavLink>
-            )
-          ))}
-        </NavLinks>
+				<NavLinks $style={navStyle}>
+					{navLinks.map((link, index) =>
+						link.hasDropdown ? (
+							<DropdownContainer key={index}>
+								<DropdownTrigger
+									$brandColor={brandColor}
+									onClick={() => handleDropdownToggle(link.text)}
+								>
+									{link.text}
+									<FiChevronDown size={14} />
+								</DropdownTrigger>
+								<DropdownMenu $isOpen={activeDropdown === link.text}>
+									{link.dropdownItems?.map((item, itemIndex) => (
+										<DropdownItem key={itemIndex} href="#">
+											{item}
+										</DropdownItem>
+									))}
+								</DropdownMenu>
+							</DropdownContainer>
+						) : (
+							<NavLink key={index} href={link.href} $brandColor={brandColor}>
+								{link.text}
+							</NavLink>
+						)
+					)}
+				</NavLinks>
 
-        <RightNav>
-          {config.navigation.showBrandSelector && (
-            <BrandDropdownSelector />
-          )}
-          
-          <SearchButton>
-            <FiSearch size={20} />
-          </SearchButton>
+				<RightNav>
+					{config.navigation.showBrandSelector && <BrandDropdownSelector />}
 
-          <LoginButton
-            onClick={onLoginClick}
-            $brandColor={brandColor}
-            $accentColor={accentColor}
-            $style={navStyle}
-          >
-            {config.content.customerTerminology ? 'Customer Login' : 'Employee Login'}
-          </LoginButton>
+					<SearchButton>
+						<FiSearch size={20} />
+					</SearchButton>
 
-          <MobileMenuButton>
-            <FiMenu size={20} />
-          </MobileMenuButton>
-        </RightNav>
-      </NavContainer>
-    </Navigation>
-  );
+					<LoginButton
+						onClick={onLoginClick}
+						$brandColor={brandColor}
+						$accentColor={accentColor}
+						$style={navStyle}
+					>
+						{config.content.customerTerminology ? 'Customer Login' : 'Employee Login'}
+					</LoginButton>
+
+					<MobileMenuButton>
+						<FiMenu size={20} />
+					</MobileMenuButton>
+				</RightNav>
+			</NavContainer>
+		</Navigation>
+	);
 };
 
 export default CorporateNavigation;

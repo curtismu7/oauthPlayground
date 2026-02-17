@@ -327,9 +327,11 @@ class UnifiedWorkerTokenService {
 		try {
 			const { EnvironmentIdServiceV8 } = await import('../v8/services/environmentIdServiceV8');
 			const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
-			
+
 			if (environmentId) {
-				const { UnifiedWorkerTokenBackupServiceV8 } = await import('./unifiedWorkerTokenBackupServiceV8');
+				const { UnifiedWorkerTokenBackupServiceV8 } = await import(
+					'./unifiedWorkerTokenBackupServiceV8'
+				);
 				await UnifiedWorkerTokenBackupServiceV8.saveWorkerTokenBackup(credentials, {
 					environmentId,
 					enableBackup: true,
@@ -351,19 +353,22 @@ class UnifiedWorkerTokenService {
 	async loadCredentials(): Promise<UnifiedWorkerTokenCredentials | null> {
 		// Check if we have cached credentials that haven't expired
 		const now = Date.now();
-		
+
 		// If we recently found nothing, return cached null silently
-		if (this.credentialsCache === null && (now - this.credentialsCacheTime) < this.credentialsCacheExpiry) {
+		if (
+			this.credentialsCache === null &&
+			now - this.credentialsCacheTime < this.credentialsCacheExpiry
+		) {
 			return null;
 		}
-		
+
 		// If we have valid cached credentials, return them silently
-		if (this.credentialsCache && (now - this.credentialsCacheTime) < this.credentialsCacheExpiry) {
+		if (this.credentialsCache && now - this.credentialsCacheTime < this.credentialsCacheExpiry) {
 			return this.credentialsCache;
 		}
 
 		// Prevent excessive retry attempts
-		if (this.lastLoadAttempt && (now - this.lastLoadAttempt) < this.loadRetryDelay) {
+		if (this.lastLoadAttempt && now - this.lastLoadAttempt < this.loadRetryDelay) {
 			return this.credentialsCache; // Return cached even if expired/null
 		}
 
@@ -456,10 +461,12 @@ class UnifiedWorkerTokenService {
 		try {
 			const { EnvironmentIdServiceV8 } = await import('../v8/services/environmentIdServiceV8');
 			const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
-			
+
 			if (environmentId) {
 				console.log(`${MODULE_TAG} 🔍 Trying SQLite backup...`);
-				const { UnifiedWorkerTokenBackupServiceV8 } = await import('./unifiedWorkerTokenBackupServiceV8');
+				const { UnifiedWorkerTokenBackupServiceV8 } = await import(
+					'./unifiedWorkerTokenBackupServiceV8'
+				);
 				const credentials = await UnifiedWorkerTokenBackupServiceV8.loadWorkerTokenBackup({
 					environmentId,
 					enableBackup: true,
@@ -496,21 +503,23 @@ class UnifiedWorkerTokenService {
 		try {
 			const { EnvironmentIdServiceV8 } = await import('../v8/services/environmentIdServiceV8');
 			const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
-			
+
 			if (environmentId) {
 				console.log(`${MODULE_TAG} 🔍 Trying SQLite backup for server restart persistence...`);
-				const { UnifiedWorkerTokenBackupServiceV8 } = await import('./unifiedWorkerTokenBackupServiceV8');
+				const { UnifiedWorkerTokenBackupServiceV8 } = await import(
+					'./unifiedWorkerTokenBackupServiceV8'
+				);
 				const credentials = await UnifiedWorkerTokenBackupServiceV8.loadWorkerTokenBackup({
 					environmentId,
 					enableBackup: true,
 				});
 
 				if (credentials) {
-					console.log(`${MODULE_TAG} ✅ Loaded worker token credentials from SQLite backup`, { 
+					console.log(`${MODULE_TAG} ✅ Loaded worker token credentials from SQLite backup`, {
 						environmentId,
 						hasClientId: !!credentials.clientId,
 						hasClientSecret: !!credentials.clientSecret,
-						hasRegion: !!credentials.region
+						hasRegion: !!credentials.region,
 					});
 
 					// Update memory cache and localStorage
@@ -720,7 +729,7 @@ class UnifiedWorkerTokenService {
 			if (credentials.appId) appInfoObj.appId = credentials.appId;
 			if (credentials.appName) appInfoObj.appName = credentials.appName;
 			if (credentials.appVersion) appInfoObj.appVersion = credentials.appVersion;
-			
+
 			if (Object.keys(appInfoObj).length > 0) {
 				status.appInfo = appInfoObj;
 			}
@@ -1158,7 +1167,7 @@ class UnifiedWorkerTokenService {
 					clientSecret: tokenData.credentials.clientSecret,
 					scopes: tokenData.credentials.scopes || [],
 					region: tokenData.credentials.region || 'us',
-					authMethod: tokenData.credentials.tokenEndpointAuthMethod || 'client_secret_basic'
+					authMethod: tokenData.credentials.tokenEndpointAuthMethod || 'client_secret_basic',
 				},
 			};
 
@@ -1186,7 +1195,7 @@ class UnifiedWorkerTokenService {
 					clientSecret: importData.workerToken.clientSecret,
 					scopes: importData.workerToken.scopes || [],
 					region: importData.workerToken.region || 'us',
-					tokenEndpointAuthMethod: importData.workerToken.authMethod || 'client_secret_basic'
+					tokenEndpointAuthMethod: importData.workerToken.authMethod || 'client_secret_basic',
 				};
 			} else if (importData.credentials) {
 				// Old format - backward compatibility
@@ -1218,7 +1227,7 @@ class UnifiedWorkerTokenService {
 			const config = this.exportConfig();
 			const blob = new Blob([config], { type: 'application/json' });
 			const url = URL.createObjectURL(blob);
-			
+
 			const link = document.createElement('a');
 			link.href = url;
 			link.download = `worker-token-config-${new Date().toISOString().split('T')[0]}.json`;
@@ -1250,7 +1259,7 @@ if (typeof window !== 'undefined') {
 	(
 		window as unknown as { unifiedWorkerTokenService: typeof unifiedWorkerTokenService }
 	).unifiedWorkerTokenService = unifiedWorkerTokenService;
-	
+
 	// Add debug helper for resetting logging state
 	(window as any).resetWorkerTokenLogging = () => {
 		UnifiedWorkerTokenService.resetLoggingState();

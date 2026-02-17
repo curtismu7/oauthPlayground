@@ -135,7 +135,7 @@ const TokenStatusPageV8U: React.FC = () => {
 
 	// Standardized spinner hooks for token status operations
 	const statusSpinner = useStandardSpinner(2000); // Token status check - 2 seconds
-	const modalSpinner = useStandardSpinner(4000);  // Worker token modal - 4 seconds
+	const modalSpinner = useStandardSpinner(4000); // Worker token modal - 4 seconds
 	const configSpinner = useStandardSpinner(1500); // Config update - 1.5 seconds
 
 	// Update token status on mount and set up interval
@@ -191,10 +191,10 @@ const TokenStatusPageV8U: React.FC = () => {
 				hasSetShowWorkerTokenModal: typeof setShowWorkerTokenModal,
 				hasSetTokenStatus: typeof setTokenStatus,
 			});
-			
+
 			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
 			console.log('[TOKEN-STATUS-V8U] Successfully imported handleShowWorkerTokenModal');
-			
+
 			await handleShowWorkerTokenModal(
 				setShowWorkerTokenModal,
 				setTokenStatus,
@@ -202,7 +202,7 @@ const TokenStatusPageV8U: React.FC = () => {
 				showTokenAtEnd,
 				false
 			);
-			
+
 			console.log('[TOKEN-STATUS-V8U] Worker token modal completed successfully');
 		} catch (error) {
 			console.error('[TOKEN-STATUS-V8U] Detailed error:', {
@@ -233,7 +233,7 @@ const TokenStatusPageV8U: React.FC = () => {
 				message="Updating configuration..."
 				theme="orange"
 			/>
-			
+
 			<PageHeader>
 				<PageTitle>Token Status Monitoring</PageTitle>
 				<PageDescription>

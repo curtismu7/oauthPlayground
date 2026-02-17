@@ -37,7 +37,7 @@ async function initializeDatabase() {
 
 		db = await open({
 			filename: DB_PATH,
-			driver: sqlite3.Database
+			driver: sqlite3.Database,
 		});
 
 		// Create tables if they don't exist
@@ -120,8 +120,8 @@ function credentialsSqliteApi(app) {
 			const { environmentId, credentials, timestamp } = req.body;
 
 			if (!environmentId || !credentials) {
-				return res.status(400).json({ 
-					error: 'Missing required fields: environmentId, credentials' 
+				return res.status(400).json({
+					error: 'Missing required fields: environmentId, credentials',
 				});
 			}
 
@@ -133,7 +133,8 @@ function credentialsSqliteApi(app) {
 
 			if (existing) {
 				// Update existing credentials
-				await db.run(`
+				await db.run(
+					`
 					UPDATE enhanced_credentials SET
 						client_id = ?,
 						client_secret = ?,
@@ -151,85 +152,92 @@ function credentialsSqliteApi(app) {
 						sync_status = ?,
 						version = version + 1
 					WHERE environment_id = ?
-				`, [
-					credentials.clientId || null,
-					credentials.clientSecret || null,
-					credentials.issuerUrl || null,
-					credentials.redirectUri || null,
-					credentials.postLogoutRedirectUri || null,
-					credentials.logoutUri || null,
-					credentials.scopes || null,
-					credentials.loginHint || null,
-					credentials.clientAuthMethod || null,
-					credentials.responseType || null,
-					JSON.stringify(credentials.interactionHistory || []),
-					timestamp || new Date().toISOString(),
-					JSON.stringify(credentials.metadata?.storageBackends || []),
-					credentials.metadata?.syncStatus || 'synced',
-					environmentId
-				]);
+				`,
+					[
+						credentials.clientId || null,
+						credentials.clientSecret || null,
+						credentials.issuerUrl || null,
+						credentials.redirectUri || null,
+						credentials.postLogoutRedirectUri || null,
+						credentials.logoutUri || null,
+						credentials.scopes || null,
+						credentials.loginHint || null,
+						credentials.clientAuthMethod || null,
+						credentials.responseType || null,
+						JSON.stringify(credentials.interactionHistory || []),
+						timestamp || new Date().toISOString(),
+						JSON.stringify(credentials.metadata?.storageBackends || []),
+						credentials.metadata?.syncStatus || 'synced',
+						environmentId,
+					]
+				);
 			} else {
 				// Insert new credentials
-				await db.run(`
+				await db.run(
+					`
 					INSERT INTO enhanced_credentials (
 						environment_id, client_id, client_secret, issuer_url, redirect_uri,
 						post_logout_redirect_uri, logout_uri, scopes, login_hint,
 						client_auth_method, response_type, interaction_history,
 						last_updated, created_at, storage_backends, sync_status, version
 					) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-				`, [
-					environmentId,
-					credentials.clientId || null,
-					credentials.clientSecret || null,
-					credentials.issuerUrl || null,
-					credentials.redirectUri || null,
-					credentials.postLogoutRedirectUri || null,
-					credentials.logoutUri || null,
-					credentials.scopes || null,
-					credentials.loginHint || null,
-					credentials.clientAuthMethod || null,
-					credentials.responseType || null,
-					JSON.stringify(credentials.interactionHistory || []),
-					timestamp || new Date().toISOString(),
-					credentials.metadata?.createdAt || new Date().toISOString(),
-					JSON.stringify(credentials.metadata?.storageBackends || []),
-					credentials.metadata?.syncStatus || 'synced',
-					credentials.metadata?.version || 1
-				]);
+				`,
+					[
+						environmentId,
+						credentials.clientId || null,
+						credentials.clientSecret || null,
+						credentials.issuerUrl || null,
+						credentials.redirectUri || null,
+						credentials.postLogoutRedirectUri || null,
+						credentials.logoutUri || null,
+						credentials.scopes || null,
+						credentials.loginHint || null,
+						credentials.clientAuthMethod || null,
+						credentials.responseType || null,
+						JSON.stringify(credentials.interactionHistory || []),
+						timestamp || new Date().toISOString(),
+						credentials.metadata?.createdAt || new Date().toISOString(),
+						JSON.stringify(credentials.metadata?.storageBackends || []),
+						credentials.metadata?.syncStatus || 'synced',
+						credentials.metadata?.version || 1,
+					]
+				);
 			}
 
 			// Store individual interactions for better querying
 			if (credentials.interactionHistory && Array.isArray(credentials.interactionHistory)) {
 				for (const interaction of credentials.interactionHistory) {
-					await db.run(`
+					await db.run(
+						`
 						INSERT OR REPLACE INTO user_interactions (
 							environment_id, timestamp, username, app_name, flow_type,
 							client_id, issuer_url, redirect_uri, scopes, client_auth_method,
 							response_type, selections, field_interactions, session_info, performance
 						) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-					`, [
-						environmentId,
-						interaction.timestamp,
-						interaction.username || null,
-						interaction.appName,
-						interaction.flowType,
-						interaction.clientId || null,
-						interaction.issuerUrl || null,
-						interaction.redirectUri || null,
-						interaction.scopes || null,
-						interaction.clientAuthMethod || null,
-						interaction.responseType || null,
-						JSON.stringify(interaction.selections || {}),
-						JSON.stringify(interaction.fieldInteractions || {}),
-						JSON.stringify(interaction.sessionInfo || {}),
-						JSON.stringify(interaction.performance || {})
-					]);
+					`,
+						[
+							environmentId,
+							interaction.timestamp,
+							interaction.username || null,
+							interaction.appName,
+							interaction.flowType,
+							interaction.clientId || null,
+							interaction.issuerUrl || null,
+							interaction.redirectUri || null,
+							interaction.scopes || null,
+							interaction.clientAuthMethod || null,
+							interaction.responseType || null,
+							JSON.stringify(interaction.selections || {}),
+							JSON.stringify(interaction.fieldInteractions || {}),
+							JSON.stringify(interaction.sessionInfo || {}),
+							JSON.stringify(interaction.performance || {}),
+						]
+					);
 				}
 			}
 
 			console.log(`${MODULE_TAG} Credentials saved: ${environmentId}`);
 			res.json({ success: true, environmentId });
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Save failed:`, error);
 			res.status(500).json({ error: 'Failed to save credentials' });
@@ -247,10 +255,9 @@ function credentialsSqliteApi(app) {
 				return res.status(400).json({ error: 'Missing environmentId parameter' });
 			}
 
-			const row = await db.get(
-				'SELECT * FROM enhanced_credentials WHERE environment_id = ?',
-				[environmentId]
-			);
+			const row = await db.get('SELECT * FROM enhanced_credentials WHERE environment_id = ?', [
+				environmentId,
+			]);
 
 			if (!row) {
 				return res.json({ credentials: null });
@@ -275,13 +282,12 @@ function credentialsSqliteApi(app) {
 					createdAt: row.created_at,
 					storageBackends: JSON.parse(row.storage_backends || '[]'),
 					syncStatus: row.sync_status,
-					version: row.version
-				}
+					version: row.version,
+				},
 			};
 
 			console.log(`${MODULE_TAG} Credentials loaded: ${environmentId}`);
 			res.json({ credentials });
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Load failed:`, error);
 			res.status(500).json({ error: 'Failed to load credentials' });
@@ -295,7 +301,7 @@ function credentialsSqliteApi(app) {
 
 			const rows = await db.all('SELECT * FROM enhanced_credentials ORDER BY last_updated DESC');
 
-			const credentials = rows.map(row => ({
+			const credentials = rows.map((row) => ({
 				environmentId: row.environment_id,
 				clientId: row.client_id,
 				clientSecret: row.client_secret,
@@ -313,13 +319,12 @@ function credentialsSqliteApi(app) {
 					createdAt: row.created_at,
 					storageBackends: JSON.parse(row.storage_backends || '[]'),
 					syncStatus: row.sync_status,
-					version: row.version
-				}
+					version: row.version,
+				},
 			}));
 
 			console.log(`${MODULE_TAG} Listed ${credentials.length} credentials`);
 			res.json({ credentials });
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} List failed:`, error);
 			res.status(500).json({ error: 'Failed to list credentials' });
@@ -343,7 +348,6 @@ function credentialsSqliteApi(app) {
 
 			console.log(`${MODULE_TAG} Credentials cleared: ${environmentId}`);
 			res.json({ success: true, environmentId });
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Clear failed:`, error);
 			res.status(500).json({ error: 'Failed to clear credentials' });
@@ -397,7 +401,6 @@ function credentialsSqliteApi(app) {
 
 			console.log(`${MODULE_TAG} Analytics retrieved: ${analytics.length} records`);
 			res.json({ analytics });
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Analytics failed:`, error);
 			res.status(500).json({ error: 'Failed to get analytics' });
@@ -432,12 +435,11 @@ function credentialsSqliteApi(app) {
 				...stats,
 				...interactionStats,
 				databasePath: DB_PATH,
-				databaseSize: fs.statSync(DB_PATH).size
+				databaseSize: fs.statSync(DB_PATH).size,
 			};
 
 			console.log(`${MODULE_TAG} Stats retrieved`);
 			res.json({ stats: combinedStats });
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Stats failed:`, error);
 			res.status(500).json({ error: 'Failed to get stats' });
