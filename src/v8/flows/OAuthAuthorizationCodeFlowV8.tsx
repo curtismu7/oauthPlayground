@@ -22,6 +22,7 @@ import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationService
 import { RedirectlessServiceV8 } from '@/v8/services/redirectlessServiceV8';
 import { PKCEStorageServiceV8U } from '@/v8u/services/pkceStorageServiceV8U';
 import { TokenMonitoringService } from '@/v8u/services/tokenMonitoringService';
+import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
 
 const MODULE_TAG = '[🔐 OAUTH-AUTHZ-CODE-V8]';
 const FLOW_KEY = 'oauth-authz-v8';
@@ -89,6 +90,11 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 	});
 
 	const [isActionInProgress, setIsActionInProgress] = useState<boolean>(false);
+
+	// Standardized spinner hooks for OAuth authorization operations
+	const authUrlSpinner = useStandardSpinner(4000); // Generate auth URL - 4 seconds
+	const redirectlessSpinner = useStandardSpinner(8000); // Redirectless flow - 8 seconds
+	const tokenExchangeSpinner = useStandardSpinner(5000); // Token exchange - 5 seconds
 
 	// Initialize auth state and restore PKCE codes from bulletproof storage if available
 	const [authState, setAuthState] = useState<AuthorizationState>(() => {
@@ -242,137 +248,128 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 
 			<PrimaryButton
 				onClick={async () => {
-					setIsActionInProgress(true);
-					console.log(
-						`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`
-					);
-					try {
-						if (!credentials.redirectUri) {
-							nav.setValidationErrors(['Redirect URI is required']);
-							return;
-						}
-
-						if (useRedirectless) {
-							// Validate redirectless credentials
-							if (!redirectlessCredentials.username || !redirectlessCredentials.password) {
-								nav.setValidationErrors([
-									'Username and password are required for redirectless authentication',
-								]);
-								return;
+					const spinner = useRedirectless ? redirectlessSpinner : authUrlSpinner;
+					
+					await spinner.executeWithSpinner(
+						async () => {
+							console.log(
+								`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`
+							);
+							
+							if (!credentials.redirectUri) {
+								nav.setValidationErrors(['Redirect URI is required']);
+								throw new Error('Redirect URI is required');
 							}
 
-							// Generate PKCE codes
-							const result = await OAuthIntegrationServiceV8.generateAuthorizationUrl({
-								environmentId: credentials.environmentId,
-								clientId: credentials.clientId,
-								redirectUri: credentials.redirectUri,
-								scopes: credentials.scopes || 'openid profile email',
-								...(credentials.clientSecret && { clientSecret: credentials.clientSecret }),
-							});
+							if (useRedirectless) {
+								// Validate redirectless credentials
+								if (!redirectlessCredentials.username || !redirectlessCredentials.password) {
+									nav.setValidationErrors([
+										'Username and password are required for redirectless authentication',
+									]);
+									throw new Error('Username and password are required for redirectless authentication');
+								}
 
-							codeVerifierRef.current = result.codeVerifier;
-							PKCEStorageServiceV8U.savePKCECodes(FLOW_KEY, {
-								codeVerifier: result.codeVerifier,
-								codeChallenge: result.codeChallenge,
-								codeChallengeMethod: result.codeChallengeMethod,
-							});
-
-							// Start redirectless flow
-							const flowResult = await RedirectlessServiceV8.completeFlow({
-								flowKey: FLOW_KEY,
-								credentials: {
+								// Generate PKCE codes
+								const result = await OAuthIntegrationServiceV8.generateAuthorizationUrl({
 									environmentId: credentials.environmentId,
 									clientId: credentials.clientId,
-									clientSecret: credentials.clientSecret || '',
 									redirectUri: credentials.redirectUri,
 									scopes: credentials.scopes || 'openid profile email',
-								},
-								flowType: 'authorization_code',
-								codeChallenge: result.codeChallenge,
-								codeChallengeMethod: result.codeChallengeMethod,
-								username: redirectlessCredentials.username,
-								password: redirectlessCredentials.password,
-								onAuthCodeReceived: () => {
-									console.log(`${MODULE_TAG} Received authorization code via redirectless`);
-								},
-							});
+								});
 
-							if (flowResult.code || flowResult.tokens) {
-								// Store tokens in TokenMonitoringService if available from redirectless flow
-								if (flowResult.tokens) {
-									// Map redirectless token format to OAuthTokenPayload format
-									const oauthTokenPayload = {
-										access_token: flowResult.tokens.accessToken,
-										id_token: flowResult.tokens.idToken,
-										refresh_token: '', // Redirectless flow doesn't provide refresh token
-									};
-									TokenMonitoringService.addOAuthTokens(oauthTokenPayload, 'oauth-authz-v8');
+								// Start redirectless flow
+								const flowResult = await RedirectlessServiceV8.completeFlow({
+									flowKey: FLOW_KEY,
+									credentials: {
+										environmentId: credentials.environmentId,
+										clientId: credentials.clientId,
+										clientSecret: credentials.clientSecret || '',
+										redirectUri: credentials.redirectUri,
+										scopes: credentials.scopes || 'openid profile email',
+									},
+									flowType: 'authorization_code',
+									codeChallenge: result.codeChallenge,
+									codeChallengeMethod: result.codeChallengeMethod,
+									username: redirectlessCredentials.username,
+									password: redirectlessCredentials.password,
+									onAuthCodeReceived: () => {
+										console.log(`${MODULE_TAG} Received authorization code via redirectless`);
+									},
+								});
+
+								if (flowResult.code || flowResult.tokens) {
+									// Store tokens in TokenMonitoringService if available from redirectless flow
+									if (flowResult.tokens) {
+										// Map redirectless token format to OAuthTokenPayload format
+										const oauthTokenPayload = {
+											access_token: flowResult.tokens.accessToken,
+											id_token: flowResult.tokens.idToken,
+											refresh_token: '', // Redirectless flow doesn't provide refresh token
+										};
+										TokenMonitoringService.addOAuthTokens(oauthTokenPayload, 'oauth-authz-v8');
+										
+										// Set tokens directly in auth state if available
+										setAuthState({
+											...authState,
+											tokens: {
+												accessToken: flowResult.tokens.accessToken,
+												idToken: flowResult.tokens.idToken,
+												refreshToken: '', // Redirectless flow doesn't provide refresh token
+												tokenType: flowResult.tokens.tokenType,
+												expiresIn: flowResult.tokens.expiresIn,
+											},
+										});
+									}
 									
-									// Set tokens directly in auth state if available
-									setAuthState({
-										...authState,
-										tokens: {
-											accessToken: flowResult.tokens.accessToken,
-											idToken: flowResult.tokens.idToken,
-											refreshToken: '', // Redirectless flow doesn't provide refresh token
-											tokenType: flowResult.tokens.tokenType,
-											expiresIn: flowResult.tokens.expiresIn,
-										},
-									});
+									if (flowResult.code) {
+										setAuthState({
+											...authState,
+											authorizationCode: flowResult.code,
+											state: flowResult.state,
+											codeChallenge: result.codeChallenge,
+											codeChallengeMethod: result.codeChallengeMethod,
+										});
+									}
+									
+									nav.nextStep();
 								}
-								
-								if (flowResult.code) {
-									setAuthState({
-										...authState,
-										authorizationCode: flowResult.code,
-										state: flowResult.state,
-										codeChallenge: result.codeChallenge,
-										codeChallengeMethod: result.codeChallengeMethod,
-									});
-								}
-								
-								nav.markStepComplete();
-								// Auto-advance to next step
-								nav.goToNext();
 							} else {
+								// Standard flow - generate authorization URL
+								const oauthCredentials = {
+									environmentId: credentials.environmentId,
+									clientId: credentials.clientId,
+									redirectUri: credentials.redirectUri,
+									scopes: credentials.scopes || 'openid profile email',
+									...(credentials.clientSecret && { clientSecret: credentials.clientSecret }),
+								};
+								const result =
+									await OAuthIntegrationServiceV8.generateAuthorizationUrl(oauthCredentials);
+								codeVerifierRef.current = result.codeVerifier;
+								PKCEStorageServiceV8U.savePKCECodes(FLOW_KEY, {
+									codeVerifier: result.codeVerifier,
+									codeChallenge: result.codeChallenge,
+									codeChallengeMethod: result.codeChallengeMethod,
+								});
+								setAuthState({
+									...authState,
+									authorizationUrl: result.authorizationUrl,
+									state: result.state,
+									codeChallenge: result.codeChallenge,
+									codeChallengeMethod: result.codeChallengeMethod,
+								});
+								nav.nextStep();
+							}
+						},
+						{
+							onError: (error) => {
+								console.error(`${MODULE_TAG} Error:`, error);
 								nav.setValidationErrors([
-									'Failed to obtain authorization code or tokens via redirectless flow',
+									error instanceof Error ? error.message : 'Failed to generate authorization URL',
 								]);
 							}
-						} else {
-							// Standard flow
-							const oauthCredentials = {
-								environmentId: credentials.environmentId,
-								clientId: credentials.clientId,
-								redirectUri: credentials.redirectUri,
-								scopes: credentials.scopes || 'openid profile email',
-								...(credentials.clientSecret && { clientSecret: credentials.clientSecret }),
-							};
-							const result =
-								await OAuthIntegrationServiceV8.generateAuthorizationUrl(oauthCredentials);
-							codeVerifierRef.current = result.codeVerifier;
-							PKCEStorageServiceV8U.savePKCECodes(FLOW_KEY, {
-								codeVerifier: result.codeVerifier,
-								codeChallenge: result.codeChallenge,
-								codeChallengeMethod: result.codeChallengeMethod,
-							});
-							setAuthState({
-								...authState,
-								authorizationUrl: result.authorizationUrl,
-								state: result.state,
-								codeChallenge: result.codeChallenge,
-								codeChallengeMethod: result.codeChallengeMethod,
-							});
-							nav.markStepComplete();
 						}
-					} catch (error) {
-						console.error(`${MODULE_TAG} Error in step 1`, error);
-						nav.setValidationErrors([
-							`Failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-						]);
-					} finally {
-						setIsActionInProgress(false);
-					}
+					);
 				}}
 				isLoading={isActionInProgress}
 				disabled={isActionInProgress}
@@ -576,9 +573,27 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 	};
 
 	return (
-		<div className="oauth-authz-code-flow-v8">
-			<div className="flow-header">
-				<div className="header-content">
+		<>
+			{/* Modal Spinners for OAuth Authorization Operations */}
+			<StandardModalSpinner
+				show={authUrlSpinner.isLoading}
+				message="Generating authorization URL..."
+				theme="blue"
+			/>
+			<StandardModalSpinner
+				show={redirectlessSpinner.isLoading}
+				message="Processing redirectless flow..."
+				theme="purple"
+			/>
+			<StandardModalSpinner
+				show={tokenExchangeSpinner.isLoading}
+				message="Exchanging authorization code..."
+				theme="green"
+			/>
+			
+			<div className="oauth-authz-code-flow-v8">
+				<div className="flow-header">
+					<div className="header-content">
 					<div className="header-left">
 						<span className="version-tag">V8</span>
 						<div className="header-text">
@@ -1087,6 +1102,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 				}
 			`}</style>
 		</div>
+		</>
 	);
 };
 
