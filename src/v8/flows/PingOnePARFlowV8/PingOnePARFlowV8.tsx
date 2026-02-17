@@ -38,6 +38,8 @@ import styled from 'styled-components';
 import { LearningTooltip } from '../../../components/LearningTooltip';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
+import { CommonSpinner } from '../../../components/common/CommonSpinner';
+import { useProductionSpinner } from '../../../hooks/useProductionSpinner';
 import { PAR_FLOW_CONSTANTS, STEP_METADATA } from './constants/parFlowConstants';
 import { usePARFlowState } from './hooks/usePARFlowState';
 import { usePAROperations } from './hooks/usePAROperations';
@@ -208,6 +210,11 @@ const Input = styled.input`
 export const PingOnePARFlowV8: React.FC = () => {
 	const state = usePARFlowState();
 	const operations = usePAROperations();
+
+	// Spinner hooks for visual feedback
+	const parRequestSpinner = useProductionSpinner('par-request');
+	const tokenExchangeSpinner = useProductionSpinner('par-token-exchange');
+	const userInfoSpinner = useProductionSpinner('par-user-info');
 
 	// Detect auth code from URL on mount only (prevent infinite loop)
 	useEffect(() => {
@@ -749,6 +756,32 @@ code_challenge_method=S256`}
 					/>
 				</div>
 			</MainCard>
+			
+			{/* Spinner Modals */}
+			{parRequestSpinner.isLoading && (
+				<CommonSpinner
+					message={parRequestSpinner.spinnerState.message || 'Pushing authorization request...'}
+					theme="blue"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+			{tokenExchangeSpinner.isLoading && (
+				<CommonSpinner
+					message={tokenExchangeSpinner.spinnerState.message || 'Exchanging authorization code for tokens...'}
+					theme="blue"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+			{userInfoSpinner.isLoading && (
+				<CommonSpinner
+					message={userInfoSpinner.spinnerState.message || 'Fetching user information...'}
+					theme="blue"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
 		</Container>
 	);
 };
