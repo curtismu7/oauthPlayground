@@ -1,7 +1,8 @@
 import React from 'react';
-import { FiLoader, FiX } from 'react-icons/fi';
+import { FiX } from 'react-icons/fi';
 import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
 import { MFAOTPInput } from '../MFAOTPInput';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 export interface MFAOTPInputModalProps {
 	show: boolean;
@@ -76,9 +77,12 @@ export const MFAOTPInputModal: React.FC<MFAOTPInputModalProps> = ({
 						position: 'relative',
 					}}
 				>
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={false}
 						onClick={handleClose}
+						spinnerSize={12}
+						spinnerPosition="left"
+						loadingText="Closing..."
 						style={{
 							position: 'absolute',
 							top: '16px',
@@ -93,10 +97,11 @@ export const MFAOTPInputModal: React.FC<MFAOTPInputModalProps> = ({
 							justifyContent: 'center',
 							cursor: 'pointer',
 							color: 'white',
+							padding: 0,
 						}}
 					>
 						<FiX size={18} />
-					</button>
+					</ButtonSpinner>
 					<PingIdentityLogo size={48} />
 					<h3
 						style={{
@@ -190,10 +195,13 @@ export const MFAOTPInputModal: React.FC<MFAOTPInputModalProps> = ({
 					</div>
 
 					<div style={{ display: 'flex', gap: '12px' }}>
-						<button
-							type="button"
+						<ButtonSpinner
+							loading={isValidatingOTP}
 							onClick={onVerifyCode}
 							disabled={isValidatingOTP || otpCode.length !== 6}
+							spinnerSize={16}
+							spinnerPosition="left"
+							loadingText="Validating..."
 							style={{
 								flex: 1,
 								padding: '10px 24px',
@@ -210,19 +218,15 @@ export const MFAOTPInputModal: React.FC<MFAOTPInputModalProps> = ({
 								gap: '8px',
 							}}
 						>
-							{isValidatingOTP ? (
-								<>
-									<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-									Validating...
-								</>
-							) : (
-								'Verify Code'
-							)}
-						</button>
-						<button
-							type="button"
+							{isValidatingOTP ? 'Validating...' : 'Verify Code'}
+						</ButtonSpinner>
+						<ButtonSpinner
+							loading={isValidatingOTP}
 							onClick={onResendCode}
 							disabled={isValidatingOTP}
+							spinnerSize={12}
+							spinnerPosition="left"
+							loadingText="Sending..."
 							style={{
 								padding: '10px 24px',
 								border: '1px solid #d1d5db',
@@ -238,18 +242,14 @@ export const MFAOTPInputModal: React.FC<MFAOTPInputModalProps> = ({
 								gap: '8px',
 							}}
 						>
-							{isValidatingOTP ? (
-								<>
-									<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-									Sending...
-								</>
-							) : (
-								<>🔄 Resend Code</>
-							)}
-						</button>
-						<button
-							type="button"
+							{isValidatingOTP ? 'Sending...' : '🔄 Resend Code'}
+						</ButtonSpinner>
+						<ButtonSpinner
+							loading={false}
 							onClick={handleClose}
+							spinnerSize={12}
+							spinnerPosition="left"
+							loadingText="Canceling..."
 							style={{
 								padding: '10px 24px',
 								border: '1px solid #d1d5db',
@@ -262,7 +262,7 @@ export const MFAOTPInputModal: React.FC<MFAOTPInputModalProps> = ({
 							}}
 						>
 							Cancel
-						</button>
+						</ButtonSpinner>
 					</div>
 				</div>
 			</div>

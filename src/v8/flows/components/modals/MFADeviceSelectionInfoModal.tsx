@@ -11,6 +11,7 @@
 
 import React from 'react';
 import { FiX } from 'react-icons/fi';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 export interface MFADeviceSelectionInfoModalProps {
 	show: boolean;
@@ -69,9 +70,12 @@ export const MFADeviceSelectionInfoModal: React.FC<MFADeviceSelectionInfoModalPr
 					<h2 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#1f2937' }}>
 						Device Selection Behavior
 					</h2>
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={false}
 						onClick={onClose}
+						spinnerSize={12}
+						spinnerPosition="left"
+						loadingText="Closing..."
 						style={{
 							background: 'rgba(0, 0, 0, 0.1)',
 							border: 'none',
@@ -83,10 +87,11 @@ export const MFADeviceSelectionInfoModal: React.FC<MFADeviceSelectionInfoModalPr
 							justifyContent: 'center',
 							cursor: 'pointer',
 							color: '#6b7280',
+							padding: 0,
 						}}
 					>
 						<FiX size={20} />
-					</button>
+					</ButtonSpinner>
 				</div>
 
 				{/* Content */}
