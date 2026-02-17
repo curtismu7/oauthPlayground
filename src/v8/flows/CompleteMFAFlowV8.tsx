@@ -11,28 +11,24 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { FiAlertTriangle, FiArrowLeft, FiArrowRight, FiCheckCircle } from 'react-icons/fi';
-
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
+import { MFAErrorBoundary } from '@/v8/components/MFAErrorBoundary';
 // V8 UI Components
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
-import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
-import { MFAErrorBoundary } from '@/v8/components/MFAErrorBoundary';
-
-// V8 Services
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
-import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+// Types
+import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
+import { GlobalMFAProvider } from '@/v8/contexts/GlobalMFAContext';
+// V8 Contexts
+import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
 
 // V8 Hooks
 import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
-
-// V8 Contexts
-import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
-import { GlobalMFAProvider } from '@/v8/contexts/GlobalMFAContext';
-
-// Types
-import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
+import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
+// V8 Services
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 // Extended credentials interface for the complete MFA flow
 interface CompleteMfaCredentials {
