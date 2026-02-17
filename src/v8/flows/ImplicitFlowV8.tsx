@@ -18,6 +18,7 @@ import { RedirectlessServiceV8 } from '@/v8/services/redirectlessServiceV8';
 import { PingOneAppConfigForm } from '../components/PingOneAppConfigForm';
 import { usePingOneAppConfig } from '../hooks/usePingOneAppConfig';
 import { ValidationServiceV8 } from '../services/validationServiceV8';
+import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
 
 const MODULE_TAG = '[🔓 IMPLICIT-FLOW-V8]';
 const FLOW_KEY = 'implicit-flow-v8';
@@ -104,6 +105,11 @@ export const ImplicitFlowV8: React.FC = () => {
 		username: '',
 		password: '',
 	});
+
+	// Standardized spinner hooks for implicit flow operations
+	const authUrlSpinner = useStandardSpinner(3000); // Generate auth URL - 3 seconds
+	const redirectlessSpinner = useStandardSpinner(7000); // Redirectless flow - 7 seconds
+	const tokenSpinner = useStandardSpinner(4000);     // Token processing - 4 seconds
 
 	// Action button hooks for button state management
 	const { config: appConfig } = usePingOneAppConfig();
@@ -232,92 +238,102 @@ export const ImplicitFlowV8: React.FC = () => {
 					? 'Authenticate using PingOne redirectless flow to receive tokens directly.'
 					: 'Redirect user to authenticate and authorize'}
 			</p>
-
 			<button
 				type="button"
 				className="btn btn-next"
 				onClick={async () => {
-					console.log(
-						`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`
-					);
-					try {
-						if (!credentials.redirectUri) {
-							nav.setValidationErrors(['Redirect URI is required']);
-							return;
-						}
-
-						if (useRedirectless) {
-							// Validate redirectless credentials
-							if (!redirectlessCredentials.username || !redirectlessCredentials.password) {
-								nav.setValidationErrors([
-									'Username and password are required for redirectless authentication',
-								]);
-								return;
+					const spinner = useRedirectless ? redirectlessSpinner : authUrlSpinner;
+					
+					await spinner.executeWithSpinner(
+						async () => {
+							console.log(
+								`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`
+							);
+							
+							if (!credentials.redirectUri) {
+								nav.setValidationErrors(['Redirect URI is required']);
+								throw new Error('Redirect URI is required');
 							}
 
-							// Start redirectless flow for implicit
-							const flowResult = await RedirectlessServiceV8.completeFlow({
-								credentials: {
+							if (useRedirectless) {
+								// Validate redirectless credentials
+								if (!redirectlessCredentials.username || !redirectlessCredentials.password) {
+									nav.setValidationErrors([
+										'Username and password are required for redirectless authentication',
+									]);
+									throw new Error('Username and password are required for redirectless authentication');
+								}
+
+								// Start redirectless flow for implicit
+								const flowResult = await RedirectlessServiceV8.completeFlow({
+									credentials: {
+										environmentId: credentials.environmentId,
+										clientId: credentials.clientId,
+										redirectUri: credentials.redirectUri,
+										scopes: credentials.scopes || 'openid profile email',
+									},
+									flowType: 'implicit',
+									flowKey: FLOW_KEY,
+									responseType: 'id_token token',
+									username: redirectlessCredentials.username,
+									password: redirectlessCredentials.password,
+									onTokensReceived: (tokens) => {
+										console.log(`${MODULE_TAG} Received tokens via redirectless`, {
+											accessToken: tokens.accessToken,
+											idToken: tokens.idToken,
+										});
+										setFlowState({
+											...flowState,
+											accessToken: tokens.accessToken,
+											idToken: tokens.idToken,
+											tokenType: tokens.tokenType,
+											expiresIn: tokens.expiresIn,
+											scope: tokens.scope,
+										});
+									},
+								});
+
+								if (flowResult.tokens) {
+									setFlowState({
+										...flowState,
+										accessToken: flowResult.tokens.accessToken,
+										idToken: flowResult.tokens.idToken,
+										tokenType: flowResult.tokens.tokenType,
+										expiresIn: flowResult.tokens.expiresIn,
+										scope: flowResult.tokens.scope,
+									});
+									nav.nextStep();
+								}
+							} else {
+								// Standard flow - generate authorization URL
+								const result = await ImplicitFlowIntegrationServiceV8.generateAuthorizationUrl({
 									environmentId: credentials.environmentId,
 									clientId: credentials.clientId,
 									redirectUri: credentials.redirectUri,
 									scopes: credentials.scopes || 'openid profile email',
-								},
-								flowType: 'implicit',
-								flowKey: FLOW_KEY,
-								responseType: 'id_token token',
-								username: redirectlessCredentials.username,
-								password: redirectlessCredentials.password,
-								onTokensReceived: (tokens) => {
-									console.log(`${MODULE_TAG} Received tokens via redirectless`, {
-										hasAccessToken: !!tokens.accessToken,
-										hasIdToken: !!tokens.idToken,
-									});
-								},
-							});
-
-							if (flowResult.tokens) {
+								});
 								setFlowState({
 									...flowState,
-									accessToken: flowResult.tokens.accessToken,
-									idToken: flowResult.tokens.idToken,
-									tokenType: flowResult.tokens.tokenType,
-									expiresIn: flowResult.tokens.expiresIn || 3600,
-									state: flowResult.state,
+									authorizationUrl: result.authorizationUrl,
+									state: result.state,
+									nonce: result.nonce,
 								});
 								nav.markStepComplete();
-								// Auto-advance to tokens step
-								nav.goToStep(3);
-							} else {
-								nav.setValidationErrors(['Failed to obtain tokens via redirectless flow']);
 							}
-						} else {
-							// Standard flow
-							const result = ImplicitFlowIntegrationServiceV8.generateAuthorizationUrl({
-								environmentId: credentials.environmentId,
-								clientId: credentials.clientId,
-								redirectUri: credentials.redirectUri,
-								scopes: credentials.scopes || 'openid profile email',
-							});
-							setFlowState({
-								...flowState,
-								authorizationUrl: result.authorizationUrl,
-								state: result.state,
-								nonce: result.nonce,
-							});
-							nav.markStepComplete();
+						},
+						{
+							onError: (error) => {
+								console.error(`${MODULE_TAG} Error in step 1`, error);
+								nav.setValidationErrors([
+									`Failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+								]);
+							}
 						}
-					} catch (error) {
-						console.error(`${MODULE_TAG} Error in step 1`, error);
-						nav.setValidationErrors([
-							`Failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-						]);
-					}
+					);
 				}}
 			>
 				{useRedirectless ? 'Authenticate with PingOne' : 'Generate Authorization URL'}
 			</button>
-
 			{!useRedirectless && flowState.authorizationUrl && (
 				<div className="code-block">
 					<pre>{flowState.authorizationUrl}</pre>
@@ -511,9 +527,27 @@ export const ImplicitFlowV8: React.FC = () => {
 	};
 
 	return (
-		<div className="implicit-flow-v8">
-			<div className="flow-header">
-				<div className="header-content">
+		<>
+			{/* Modal Spinners for Implicit Flow Operations */}
+			<StandardModalSpinner
+				show={authUrlSpinner.isLoading}
+				message="Generating authorization URL..."
+				theme="blue"
+			/>
+			<StandardModalSpinner
+				show={redirectlessSpinner.isLoading}
+				message="Processing redirectless flow..."
+				theme="purple"
+			/>
+			<StandardModalSpinner
+				show={tokenSpinner.isLoading}
+				message="Processing tokens..."
+				theme="green"
+			/>
+			
+			<div className="implicit-flow-v8">
+				<div className="flow-header">
+					<div className="header-content">
 					<div className="header-left">
 						<span className="version-tag">V8</span>
 						<div className="header-text">
@@ -1007,6 +1041,7 @@ export const ImplicitFlowV8: React.FC = () => {
 				}
 			`}</style>
 		</div>
+		</>
 	);
 };
 
