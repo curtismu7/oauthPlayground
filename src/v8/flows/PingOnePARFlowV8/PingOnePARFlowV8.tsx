@@ -37,6 +37,7 @@ import { FiCheckCircle, FiInfo, FiLock, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
 import { LearningTooltip } from '../../../components/LearningTooltip';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
+import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
 import { PAR_FLOW_CONSTANTS, STEP_METADATA } from './constants/parFlowConstants';
 import { usePARFlowState } from './hooks/usePARFlowState';
 import { usePAROperations } from './hooks/usePAROperations';
@@ -456,9 +457,26 @@ export const PingOnePARFlowV8: React.FC = () => {
 							</div>
 						</InfoBox>
 
-						<Button onClick={handleGeneratePKCE} disabled={operations.isLoading}>
-							{operations.isLoading ? 'Generating...' : 'Generate PKCE Parameters'}
-						</Button>
+						<ButtonSpinner
+							loading={operations.isLoading}
+							onClick={handleGeneratePKCE}
+							disabled={operations.isLoading}
+							spinnerSize={16}
+							spinnerPosition="left"
+							loadingText="Generating..."
+							style={{
+								background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+								color: 'white',
+								border: 'none',
+								padding: '0.75rem 1.5rem',
+								borderRadius: '0.5rem',
+								fontWeight: '600',
+								cursor: operations.isLoading ? 'not-allowed' : 'pointer',
+								transition: 'all 0.2s ease',
+							}}
+						>
+							{operations.isLoading ? '' : 'Generate PKCE Parameters'}
+						</ButtonSpinner>
 
 						{state.pkceCodes.codeVerifier && (
 							<InfoBox $type="success">
