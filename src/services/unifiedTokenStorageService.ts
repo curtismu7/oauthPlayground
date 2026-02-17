@@ -115,6 +115,26 @@ export interface V8AdvancedData {
 	[key: string]: any;
 }
 
+// StorageServiceV8 Compatibility Interfaces
+export interface StorageData<T = unknown> {
+	version: number;
+	data: T;
+	timestamp: number;
+	flowKey?: string;
+}
+
+export interface Migration {
+	fromVersion: number;
+	toVersion: number;
+	migrate: (data: unknown) => unknown;
+}
+
+export interface ExportData {
+	version: number;
+	exportedAt: string;
+	data: Record<string, StorageData>;
+}
+
 /**
  * Unified Token Storage Service
  * 
@@ -1146,6 +1166,331 @@ export class UnifiedTokenStorageService {
 			});
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to clear V8 flow data', error as Error);
+		}
+	}
+
+	// ===== STORAGE SERVICE V8 COMPATIBILITY METHODS =====
+	// These methods provide backward compatibility with StorageServiceV8
+
+	/**
+	 * Save data with versioning (StorageServiceV8 compatibility)
+	 */
+	async saveV8Versioned<T>(key: string, data: T, version: number, flowKey?: string): Promise<void> {
+		try {
+			const storageData: StorageData<T> = {
+				version,
+				data,
+				timestamp: Date.now(),
+				flowKey,
+			};
+
+			await this.storeToken({
+				id: key,
+				type: 'v8_storage' as any,
+				value: JSON.stringify(storageData),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'indexeddb',
+				flowName: flowKey || 'v8',
+				metadata: {
+					version,
+					flowKey,
+					key,
+				},
+			});
+
+			logger.info(MODULE_TAG, 'V8 versioned data saved', { key, version, flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save V8 versioned data', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Load data with migration support (StorageServiceV8 compatibility)
+	 */
+	async loadV8Versioned<T>(key: string, migrations?: Migration[]): Promise<T | null> {
+		try {
+			const tokens = await this.getTokens({
+				type: 'v8_storage' as any,
+				key,
+			});
+
+			if (tokens.length === 0) {
+				logger.info(MODULE_TAG, 'No V8 versioned data found', { key });
+				return null;
+			}
+
+			const token = tokens[0];
+			let storageData: StorageData<T> = JSON.parse(token.value);
+
+			// Apply migrations if needed
+			if (migrations && migrations.length > 0) {
+				const currentVersion = storageData.version;
+				const targetVersion = Math.max(...migrations.map((m) => m.toVersion));
+
+				if (currentVersion < targetVersion) {
+					logger.info(MODULE_TAG, 'Migrating V8 data', {
+						key,
+						from: currentVersion,
+						to: targetVersion,
+					});
+
+					storageData = this.applyV8Migrations(storageData, migrations);
+
+					// Save migrated data
+					await this.saveV8Versioned(key, storageData.data, storageData.version, storageData.flowKey);
+				}
+			}
+
+			logger.info(MODULE_TAG, 'V8 versioned data loaded', {
+				key,
+				version: storageData.version,
+				age: Date.now() - storageData.timestamp,
+			});
+
+			return storageData.data;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load V8 versioned data', error as Error);
+			return null;
+		}
+	}
+
+	/**
+	 * Apply migrations to V8 data
+	 */
+	private applyV8Migrations<T>(storageData: StorageData<T>, migrations: Migration[]): StorageData<T> {
+		let currentData = storageData.data;
+		let currentVersion = storageData.version;
+
+		// Sort migrations by version
+		const sortedMigrations = [...migrations].sort((a, b) => a.fromVersion - b.fromVersion);
+
+		for (const migration of sortedMigrations) {
+			if (currentVersion === migration.fromVersion) {
+				logger.info(MODULE_TAG, 'Applying V8 migration', {
+					from: migration.fromVersion,
+					to: migration.toVersion,
+				});
+
+				currentData = migration.migrate(currentData) as T;
+				currentVersion = migration.toVersion;
+			}
+		}
+
+		return {
+			...storageData,
+			version: currentVersion,
+			data: currentData,
+			timestamp: Date.now(),
+		};
+	}
+
+	/**
+	 * Clear specific V8 key
+	 */
+	async clearV8Key(key: string): Promise<void> {
+		try {
+			await this.deleteTokens({
+				type: 'v8_storage' as any,
+				key,
+			});
+			logger.info(MODULE_TAG, 'V8 key cleared', { key });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear V8 key', error as Error);
+		}
+	}
+
+	/**
+	 * Clear all V8 data
+	 */
+	async clearAllV8(): Promise<void> {
+		try {
+			await this.deleteTokens({
+				type: 'v8_storage' as any,
+			});
+			logger.info(MODULE_TAG, 'All V8 data cleared');
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear all V8 data', error as Error);
+		}
+	}
+
+	/**
+	 * Get all V8 storage keys
+	 */
+	async getAllV8Keys(): Promise<string[]> {
+		try {
+			const tokens = await this.getTokens({
+				type: 'v8_storage' as any,
+			});
+			return tokens.map(token => token.metadata?.key || token.id);
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to get all V8 keys', error as Error);
+			return [];
+		}
+	}
+
+	/**
+	 * Export all V8 data
+	 */
+	async exportAllV8(): Promise<string> {
+		try {
+			const tokens = await this.getTokens({
+				type: 'v8_storage' as any,
+			});
+			const data: Record<string, StorageData> = {};
+
+			tokens.forEach((token) => {
+				try {
+					const storageData: StorageData = JSON.parse(token.value);
+					const key = token.metadata?.key || token.id;
+					data[key] = storageData;
+				} catch (error) {
+					logger.warn(MODULE_TAG, 'Failed to parse V8 data for export', { key: token.id });
+				}
+			});
+
+			const exportData: ExportData = {
+				version: 1,
+				exportedAt: new Date().toISOString(),
+				data,
+			};
+
+			const exported = JSON.stringify(exportData, null, 2);
+
+			logger.info(MODULE_TAG, 'V8 data exported', {
+				keyCount: tokens.length,
+				size: exported.length,
+			});
+
+			return exported;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to export V8 data', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Import V8 data
+	 */
+	async importAllV8(jsonData: string, overwrite = false): Promise<void> {
+		try {
+			const exportData: ExportData = JSON.parse(jsonData);
+
+			if (!exportData.version || !exportData.data) {
+				throw new Error('Invalid export data format');
+			}
+
+			let imported = 0;
+			let skipped = 0;
+
+			for (const [key, storageData] of Object.entries(exportData.data)) {
+				// Check if key already exists
+				if (!overwrite) {
+					const existing = await this.getTokens({
+						type: 'v8_storage' as any,
+						key,
+					});
+					if (existing.length > 0) {
+						logger.info(MODULE_TAG, 'Skipping existing V8 key', { key });
+						skipped++;
+						continue;
+					}
+				}
+
+				// Import data
+				await this.saveV8Versioned(key, storageData.data, storageData.version, storageData.flowKey);
+				imported++;
+			}
+
+			logger.info(MODULE_TAG, 'V8 data imported', {
+				imported,
+				skipped,
+				total: Object.keys(exportData.data).length,
+			});
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to import V8 data', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Check if V8 key exists
+	 */
+	async hasV8Key(key: string): Promise<boolean> {
+		try {
+			const tokens = await this.getTokens({
+				type: 'v8_storage' as any,
+				key,
+			});
+			return tokens.length > 0;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to check V8 key existence', error as Error);
+			return false;
+		}
+	}
+
+	/**
+	 * Get V8 data age in milliseconds
+	 */
+	async getV8Age(key: string): Promise<number | null> {
+		try {
+			const tokens = await this.getTokens({
+				type: 'v8_storage' as any,
+				key,
+			});
+
+			if (tokens.length === 0) {
+				return null;
+			}
+
+			const token = tokens[0];
+			const storageData: StorageData = JSON.parse(token.value);
+			return Date.now() - storageData.timestamp;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to get V8 data age', error as Error);
+			return null;
+		}
+	}
+
+	/**
+	 * Check if V8 data is expired
+	 */
+	async isV8Expired(key: string, maxAge: number): Promise<boolean> {
+		const age = await this.getV8Age(key);
+		if (age === null) {
+			return true;
+		}
+		return age > maxAge;
+	}
+
+	/**
+	 * Clean up expired V8 data
+	 */
+	async cleanupExpiredV8(maxAge: number): Promise<number> {
+		try {
+			const tokens = await this.getTokens({
+				type: 'v8_storage' as any,
+			});
+			let cleaned = 0;
+
+			for (const token of tokens) {
+				const key = token.metadata?.key || token.id;
+				if (await this.isV8Expired(key, maxAge)) {
+					await this.clearV8Key(key);
+					cleaned++;
+				}
+			}
+
+			logger.info(MODULE_TAG, 'Expired V8 data cleaned up', {
+				cleaned,
+				maxAge,
+			});
+
+			return cleaned;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to cleanup expired V8 data', error as Error);
+			return 0;
 		}
 	}
 }
