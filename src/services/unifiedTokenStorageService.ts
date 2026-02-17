@@ -199,6 +199,73 @@ export interface V8UPKCECodes {
 	flowKey: string;
 }
 
+// FlowStorageService Compatibility Interfaces
+export interface FlowStorageAuthCodeData {
+	code: string;
+	timestamp: number;
+	expiresAt?: number;
+}
+
+export interface FlowStorageStateData {
+	state: string;
+	timestamp: number;
+}
+
+export interface FlowStoragePKCEData {
+	codeVerifier: string;
+	codeChallenge: string;
+	codeChallengeMethod: 'S256' | 'plain';
+}
+
+export interface FlowStorageTokenData {
+	access_token: string;
+	refresh_token?: string;
+	id_token?: string;
+	token_type: string;
+	expires_in: number;
+	scope?: string;
+	[key: string]: unknown;
+}
+
+export interface FlowStorageCredentialsData {
+	environmentId: string;
+	clientId: string;
+	clientSecret?: string;
+	redirectUri: string;
+	scopes: string;
+	[key: string]: unknown;
+}
+
+export interface FlowStorageNavigationData {
+	flowId: string;
+	currentStep: number;
+	returnPath?: string;
+	context?: Record<string, unknown>;
+}
+
+export interface FlowStorageDeviceCodeData {
+	device_code: string;
+	user_code: string;
+	verification_uri: string;
+	verification_uri_complete?: string;
+	expires_in: number;
+	interval: number;
+	timestamp: number;
+}
+
+export interface FlowStorageAdvancedParametersData {
+	audience?: string;
+	resources?: string[];
+	displayMode?: string;
+	promptValues?: string[];
+	claimsRequest?: Record<string, unknown> | null;
+	uiLocales?: string;
+	claimsLocales?: string;
+	loginHint?: string;
+	acrValues?: string[];
+	maxAge?: number;
+}
+
 /**
  * Unified Token Storage Service
  *
