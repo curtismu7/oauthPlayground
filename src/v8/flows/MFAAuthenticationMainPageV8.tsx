@@ -50,6 +50,7 @@ import { DeviceFailureModalV8, UnavailableDevice } from '@/v8/components/DeviceF
 import { MFACooldownModalV8 } from '@/v8/components/MFACooldownModalV8';
 import { useProductionSpinner } from '../../hooks/useProductionSpinner';
 import { CommonSpinner } from '../../components/common/CommonSpinner';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -2003,8 +2004,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 				<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
 					{/* Primary Button: Start MFA */}
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={authState.isLoading}
 						onClick={handleStartMFA}
 						disabled={
 							authState.isLoading ||
@@ -2012,6 +2013,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							!credentials.environmentId ||
 							!credentials.deviceAuthenticationPolicyId
 						}
+						spinnerSize={16}
+						spinnerPosition="left"
+						loadingText="Starting..."
 						style={{
 							padding: '10px 24px',
 							border: 'none',
@@ -2036,28 +2040,21 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							gap: '8px',
 						}}
 					>
-						{authState.isLoading ? (
-							<>
-								<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-								Starting...
-							</>
-						) : (
-							<>
-								<FiShield />
-								Start Authentication
-							</>
-						)}
-					</button>
+						<FiShield />
+						{authState.isLoading ? '' : 'Start Authentication'}
+					</ButtonSpinner>
 
 					{/* Registration Button */}
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={false}
 						onClick={() => setShowRegistrationModal(true)}
 						disabled={
 							!tokenStatus.isValid ||
 							!credentials.environmentId ||
 							!credentials.deviceAuthenticationPolicyId
 						}
+						spinnerSize={16}
+						spinnerPosition="left"
 						style={{
 							padding: '10px 24px',
 							border: 'none',
@@ -2084,13 +2081,16 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					>
 						<FiPlus />
 						Register Device
-					</button>
+					</ButtonSpinner>
 
 					{/* Secondary Button: Username-less FIDO2 */}
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={authState.isLoading}
 						onClick={handleUsernamelessFIDO2}
 						disabled={authState.isLoading || !tokenStatus.isValid || !credentials.environmentId}
+						spinnerSize={16}
+						spinnerPosition="left"
+						loadingText="Authenticating..."
 						style={{
 							padding: '10px 24px',
 							border: '2px solid #3b82f6',
@@ -2106,12 +2106,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						}}
 					>
 						<FiKey />
-						Use Passkey / FaceID (username-less)
-					</button>
+						{authState.isLoading ? '' : 'Use Passkey / FaceID (username-less)'}
+					</ButtonSpinner>
 
 					{/* Authorization API Button - Browser-based OAuth */}
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={isAuthorizing}
 						onClick={handleAuthorizationApi}
 						disabled={
 							isAuthorizing ||
@@ -2119,6 +2119,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							!credentials.environmentId ||
 							!credentials.clientId
 						}
+						spinnerSize={16}
+						spinnerPosition="left"
+						loadingText="Authorizing..."
 						style={{
 							padding: '10px 24px',
 							border: '2px solid #8b5cf6',
@@ -2138,26 +2141,19 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							alignItems: 'center',
 							gap: '8px',
 						}}
-						title="Authenticate directly in browser using OAuth authorization API (no QR codes)"
 					>
-						{isAuthorizing ? (
-							<>
-								<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-								Authorizing...
-							</>
-						) : (
-							<>
-								<FiCode />
-								Authorization API (Browser)
-							</>
-						)}
-					</button>
+						<FiCode />
+						{isAuthorizing ? '' : 'Authorization API (Browser)'}
+					</ButtonSpinner>
 
 					{/* Clear Tokens & Session Button */}
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={isClearingTokens}
 						onClick={() => setShowClearTokensModal(true)}
 						disabled={isClearingTokens}
+						spinnerSize={16}
+						spinnerPosition="left"
+						loadingText="Clearing..."
 						style={{
 							padding: '10px 24px',
 							border: 'none',
@@ -2174,18 +2170,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							transition: 'all 0.2s ease',
 						}}
 					>
-						{isClearingTokens ? (
-							<>
-								<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-								Clearing...
-							</>
-						) : (
-							<>
-								<FiTrash2 />
-								Clear Tokens & Session
-							</>
-						)}
-					</button>
+						<FiTrash2 />
+						{isClearingTokens ? '' : 'Clear Tokens & Session'}
+					</ButtonSpinner>
 				</div>
 			</div>
 
@@ -2272,8 +2259,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									alignItems: 'flex-start',
 								}}
 							>
-								<button
-									type="button"
+								<ButtonSpinner
+									loading={isGettingWorkerToken}
 									onClick={async () => {
 										setIsGettingWorkerToken(true);
 										try {
@@ -2295,6 +2282,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										}
 									}}
 									disabled={isGettingWorkerToken}
+									spinnerSize={14}
+									spinnerPosition="left"
+									loadingText="Getting Token..."
 									style={{
 										padding: '8px 16px',
 										border: 'none',
@@ -2316,16 +2306,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										opacity: isGettingWorkerToken ? 0.7 : 1,
 									}}
 								>
-									{isGettingWorkerToken && (
-										<FiLoader
-											style={{
-												animation: 'spin 1s linear infinite',
-												fontSize: '14px',
-											}}
-										/>
-									)}
-									{isGettingWorkerToken ? 'Getting Token...' : 'Get Worker Token'}
-								</button>
+									{isGettingWorkerToken ? '' : 'Get Worker Token'}
+								</ButtonSpinner>
 
 								{/* Worker Token Status Display */}
 								<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
