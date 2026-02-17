@@ -1,5 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { logger } from '../utils/logger';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 interface Props {
 	children: ReactNode;
@@ -43,9 +44,12 @@ class AuthErrorBoundary extends Component<Props, State> {
 					<p style={{ color: '#7f1d1d', marginBottom: '1rem' }}>
 						There was an error with the authentication system. Please refresh the page.
 					</p>
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={false}
 						onClick={() => window.location.reload()}
+						spinnerSize={10}
+						spinnerPosition="left"
+						loadingText="Refreshing..."
 						style={{
 							backgroundColor: '#dc2626',
 							color: 'white',
@@ -56,7 +60,7 @@ class AuthErrorBoundary extends Component<Props, State> {
 						}}
 					>
 						Refresh Page
-					</button>
+					</ButtonSpinner>
 				</div>
 			);
 		}
