@@ -29,6 +29,7 @@ import ComprehensiveCredentialsService from '../services/comprehensiveCredential
 import { FlowHeader } from '../services/flowHeaderService';
 import FlowUIService from '../services/flowUIService';
 import { oidcDiscoveryService } from '../services/oidcDiscoveryService';
+import { useStandardSpinner, StandardModalSpinner } from '../components/ui/StandardSpinner';
 
 import type { MfaCredentials, MfaDevice } from '../services/pingOneMfaService';
 
@@ -346,7 +347,17 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		deviceName: '',
 		verificationCode: '',
 	});
-	const [selectedCountryCode, setSelectedCountryCode] = useState('+1');
+
+	// Standardized spinner hooks for CompleteMFAFlowV7 operations
+	const workerTokenSpinner = useStandardSpinner(5000); // Worker token - 5 seconds
+	const authSpinner = useStandardSpinner(6000);         // Authentication - 6 seconds
+	const deviceSpinner = useStandardSpinner(4000);       // Device registration - 4 seconds
+	const mfaSpinner = useStandardSpinner(5000);          // MFA challenge - 5 seconds
+	const tokenSpinner = useStandardSpinner(4000);         // Token retrieval - 4 seconds
+	const saveSpinner = useStandardSpinner(2000);          // Save credentials - 2 seconds
+
+	// Password visibility states
+	const [showPassword, setShowPassword] = useState(false);
 
 	// Device Registration Modal state
 	const [showDeviceRegistrationModal, setShowDeviceRegistrationModal] = useState(false);
@@ -710,31 +721,18 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		// Add scroll prevention listeners
 		window.addEventListener('scroll', preventScroll, { passive: false });
 		window.addEventListener('wheel', preventScroll, { passive: false });
-		window.addEventListener('touchmove', preventScroll, { passive: false });
-
-		setIsLoading(true);
-		try {
-			console.log('🔑 [MFA Flow V7] Requesting worker token...');
-			console.log('🔍 [MFA Flow V7] Worker Token Credentials being used:', {
-				environmentId: workerTokenCredentials.environmentId,
-				clientId: workerTokenCredentials.clientId,
-				hasClientSecret: !!workerTokenCredentials.clientSecret,
-				clientSecretLength: workerTokenCredentials.clientSecret?.length || 0,
-				allCredentials: workerTokenCredentials,
-			});
-
-			// Prepare credentials for worker token request
 			const workerCredentials = {
 				environmentId: workerTokenCredentials.environmentId,
 				clientId: workerTokenCredentials.clientId,
 				clientSecret: workerTokenCredentials.clientSecret,
-				scope: 'p1:read:user p1:update:user p1:read:device p1:update:device',
-				tokenEndpoint: `https://auth.pingone.com/${workerTokenCredentials.environmentId}/as/token`,
+				region: workerTokenCredentials.region || 'us',
 			};
 
-			console.log('🔍 [MFA Flow V7] Worker credentials prepared:', {
-				...workerCredentials,
-				clientSecret: workerCredentials.clientSecret ? '[REDACTED]' : 'MISSING',
+			console.log('🔐 [MFA Flow V7] Worker credentials:', {
+				environmentId: workerCredentials.environmentId,
+				clientId: workerCredentials.clientId ? '***' : 'none',
+				clientSecret: workerCredentials.clientSecret ? '***' : 'none',
+				region: workerCredentials.region,
 			});
 
 			// Make real API call to get worker token
@@ -743,24 +741,14 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				'client_secret_post'
 			);
 
-			console.log('✅ [MFA Flow V7] Worker token received:', tokenData);
+			console.log('🔐 [MFA Flow V7] Worker token obtained:', {
+				access_token: tokenData.access_token ? '***' : 'none',
+				token_type: tokenData.token_type,
+				expires_in: tokenData.expires_in,
+			});
 
-			// Create API call data for display
-			const workerTokenCall = createApiCallData(
-				'workerToken',
-				'POST',
-				workerCredentials.tokenEndpoint,
-				{
-					'Content-Type': 'application/x-www-form-urlencoded',
-					Authorization: `Basic ${btoa(`${workerCredentials.clientId}:${workerCredentials.clientSecret}`)}`,
-				},
-				{
-					grant_type: 'client_credentials',
-					scope: 'p1:read:user p1:update:user p1:read:device p1:update:device',
-				},
-				{
-					status: 200,
-					statusText: 'OK',
+			// Store worker token in localStorage and state
+			localStorage.setItem('worker_token', tokenData.access_token);
 					data: tokenData as unknown as Record<string, unknown>,
 				},
 				[
@@ -4487,8 +4475,41 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 	};
 
 	return (
-		<Container>
-			{/* Network Status Bar */}
+		<>
+			{/* Modal Spinners for CompleteMFAFlowV7 Operations */}
+			<StandardModalSpinner
+				show={workerTokenSpinner.isLoading}
+				message="Obtaining worker token..."
+				theme="purple"
+			/>
+			<StandardModalSpinner
+				show={authSpinner.isLoading}
+				message="Authenticating user..."
+				theme="blue"
+			/>
+			<StandardModalSpinner
+				show={deviceSpinner.isLoading}
+				message="Registering device..."
+				theme="green"
+			/>
+			<StandardModalSpinner
+				show={mfaSpinner.isLoading}
+				message="Completing MFA challenge..."
+				theme="orange"
+			/>
+			<StandardModalSpinner
+				show={tokenSpinner.isLoading}
+				message="Retrieving tokens..."
+				theme="blue"
+			/>
+			<StandardModalSpinner
+				show={saveSpinner.isLoading}
+				message="Saving credentials..."
+				theme="green"
+			/>
+			
+			<Container>
+				{/* Network Status Bar */}
 
 			<ContentWrapper>
 				<FlowHeader flowId="pingone-complete-mfa-v7" />
@@ -4695,6 +4716,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				/>
 			)}
 		</Container>
+		</>
 	);
 };
 
