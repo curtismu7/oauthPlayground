@@ -432,7 +432,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 			try {
 				const config = REPORT_CONFIGS[selectedReport];
 				let result: unknown[] = [];
-				
+
 				if (selectedReport === 'user-authentications') {
 					const params: any = {
 						environmentId: credentials.environmentId,
@@ -450,59 +450,61 @@ export const MFAReportingFlowV8: React.FC = () => {
 						customDomain,
 					});
 				} else if (isDeviceReport) {
-				// Handle device reports (SMS, Email, Voice, TOTP, FIDO2, WhatsApp)
-				const deviceParams: any = {
-					environmentId: credentials.environmentId,
-					fields: config.fields || [],
-					region,
-					customDomain,
-					deviceType: selectedReport.toUpperCase(), // Convert to device type expected by API
-				};
-				if (config.filter) {
-					deviceParams.filter = config.filter;
-				}
-				const reportResult = await MFAReportingServiceV8.createMFADevicesReport(deviceParams);
-				// Extract entries from the report result
-				result = (reportResult as any)._embedded?.entries || [];
-			} else {
-				// Handle other reports (MFA enabled/disabled users)
-				if (selectedReport === 'mfa-enabled') {
-					const mfaParams: any = {
+					// Handle device reports (SMS, Email, Voice, TOTP, FIDO2, WhatsApp)
+					const deviceParams: any = {
 						environmentId: credentials.environmentId,
 						fields: config.fields || [],
 						region,
 						customDomain,
+						deviceType: selectedReport.toUpperCase(), // Convert to device type expected by API
 					};
 					if (config.filter) {
-						mfaParams.filter = config.filter;
+						deviceParams.filter = config.filter;
 					}
-					const reportResult = await MFAReportingServiceV8.createMFAEnabledDevicesReport(mfaParams);
+					const reportResult = await MFAReportingServiceV8.createMFADevicesReport(deviceParams);
 					// Extract entries from the report result
 					result = (reportResult as any)._embedded?.entries || [];
-				} else if (selectedReport === 'mfa-disabled') {
-					const mfaParams: any = {
-						environmentId: credentials.environmentId,
-						fields: config.fields || [],
-						region,
-						customDomain,
-					};
-					if (config.filter) {
-						mfaParams.filter = config.filter;
+				} else {
+					// Handle other reports (MFA enabled/disabled users)
+					if (selectedReport === 'mfa-enabled') {
+						const mfaParams: any = {
+							environmentId: credentials.environmentId,
+							fields: config.fields || [],
+							region,
+							customDomain,
+						};
+						if (config.filter) {
+							mfaParams.filter = config.filter;
+						}
+						const reportResult =
+							await MFAReportingServiceV8.createMFAEnabledDevicesReport(mfaParams);
+						// Extract entries from the report result
+						result = (reportResult as any)._embedded?.entries || [];
+					} else if (selectedReport === 'mfa-disabled') {
+						const mfaParams: any = {
+							environmentId: credentials.environmentId,
+							fields: config.fields || [],
+							region,
+							customDomain,
+						};
+						if (config.filter) {
+							mfaParams.filter = config.filter;
+						}
+						const reportResult =
+							await MFAReportingServiceV8.createMFAEnabledDevicesReport(mfaParams);
+						// Extract entries from the report result
+						result = (reportResult as any)._embedded?.entries || [];
 					}
-					const reportResult = await MFAReportingServiceV8.createMFAEnabledDevicesReport(mfaParams);
-					// Extract entries from the report result
-					result = (reportResult as any)._embedded?.entries || [];
 				}
-			}
 
-			setReports(result);
-			toastV8.success(`Loaded ${result.length} report records`);
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load reports`, error);
-			toastV8.error('Failed to load reports. Please check your credentials and try again.');
-		} finally {
-			setIsLoading(false);
-		}
+				setReports(result);
+				toastV8.success(`Loaded ${result.length} report records`);
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to load reports`, error);
+				toastV8.error('Failed to load reports. Please check your credentials and try again.');
+			} finally {
+				setIsLoading(false);
+			}
 		});
 	};
 

@@ -8,8 +8,8 @@
  * with comprehensive user interaction tracking in SQLite database.
  */
 
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { open } from 'sqlite';
 import sqlite3 from 'sqlite3';
 
@@ -102,7 +102,7 @@ async function initializeDatabase() {
  */
 function credentialsSqliteApi(app) {
 	// Health check endpoint
-	app.get('/api/credentials/sqlite/health', async (req, res) => {
+	app.get('/api/credentials/sqlite/health', async (_req, res) => {
 		try {
 			await initializeDatabase();
 			res.status(200).json({ status: 'healthy', database: DB_PATH });
@@ -295,7 +295,7 @@ function credentialsSqliteApi(app) {
 	});
 
 	// List all credentials
-	app.get('/api/credentials/sqlite/list', async (req, res) => {
+	app.get('/api/credentials/sqlite/list', async (_req, res) => {
 		try {
 			await initializeDatabase();
 
@@ -392,7 +392,7 @@ function credentialsSqliteApi(app) {
 			}
 
 			if (conditions.length > 0) {
-				query += ' WHERE ' + conditions.join(' AND ');
+				query += `WHERE ${conditions.join(' AND ')}`;
 			}
 
 			query += ' GROUP BY app_name, flow_type ORDER BY interaction_count DESC';
@@ -408,7 +408,7 @@ function credentialsSqliteApi(app) {
 	});
 
 	// Get storage usage statistics
-	app.get('/api/credentials/sqlite/stats', async (req, res) => {
+	app.get('/api/credentials/sqlite/stats', async (_req, res) => {
 		try {
 			await initializeDatabase();
 

@@ -219,7 +219,7 @@ const FIDO2FlowV8 = React.lazy(() =>
 const MobileFlowV8 = React.lazy(() =>
 	import('./v8/flows/types/MobileFlowV8').then((module) => ({ default: module.MobileFlowV8 }))
 );
-const SMSFlowV8 = React.lazy(() =>
+const _SMSFlowV8 = React.lazy(() =>
 	import('./v8/flows/types/SMSFlowV8').then((module) => ({ default: module.SMSFlowV8 }))
 );
 const WhatsAppFlowV8 = React.lazy(() =>
