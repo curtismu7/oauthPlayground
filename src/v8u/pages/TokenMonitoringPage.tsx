@@ -26,6 +26,7 @@ import {
 	type TokenInfo,
 	TokenMonitoringService,
 } from '../services/tokenMonitoringService';
+import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
 
 const PageContainer = styled.div`
   padding: 2rem;
@@ -413,6 +414,12 @@ export const TokenMonitoringPage: React.FC = () => {
 	const { actions: enhancedStateActions } = useUnifiedFlowState();
 	const setTokenMetricsRef = useRef(enhancedStateActions.setTokenMetrics);
 
+	// Standardized spinner hooks for different operation types
+	const refreshSpinner = useStandardSpinner(3000); // Token refresh - 3 seconds
+	const syncSpinner = useStandardSpinner(5000);    // Manual sync - 5 seconds  
+	const revokeSpinner = useStandardSpinner(4000);  // Token revoke - 4 seconds
+	const copySpinner = useStandardSpinner(1000);    // Copy operation - 1 second
+
 	useEffect(() => {
 		setTokenMetricsRef.current = enhancedStateActions.setTokenMetrics;
 	}, [enhancedStateActions]);
@@ -538,52 +545,66 @@ export const TokenMonitoringPage: React.FC = () => {
 
 	// Token actions
 	const handleRefreshToken = async (tokenId: string) => {
-		try {
-			const service = TokenMonitoringService.getInstance();
-			await service.refreshToken(tokenId);
-			setMessage('Token refreshed successfully');
-			setMessageType('success');
-		} catch (error) {
-			logger.error('Failed to refresh token:', {
-				error: error instanceof Error ? error.message : String(error),
-			});
-			setMessage('Failed to refresh token');
-			setMessageType('error');
-		}
+		await refreshSpinner.executeWithSpinner(
+			async () => {
+				const service = TokenMonitoringService.getInstance();
+				await service.refreshToken(tokenId);
+			},
+			{
+				onSuccess: () => {
+					setMessage('Token refreshed successfully');
+					setMessageType('success');
+				},
+				onError: (error) => {
+					logger.error('Failed to refresh token:', {
+						error: error instanceof Error ? error.message : String(error),
+					});
+					setMessage('Failed to refresh token');
+					setMessageType('error');
+				}
+			}
+		);
 	};
 
 	const handleManualSync = async () => {
-		try {
-			const service = TokenMonitoringService.getInstance();
-			await service.manualSyncWorkerToken();
-			setMessage('Manual token sync triggered');
-			setMessageType('info');
-			
-			// Also check localStorage directly
-			const accessToken = localStorage.getItem('token_to_analyze');
-			const tokenType = localStorage.getItem('token_type');
-			const flowSource = localStorage.getItem('flow_source');
-			
-			if (accessToken && tokenType) {
-				logger.info('Found token in localStorage:', {
-					tokenType,
-					flowSource,
-					tokenLength: accessToken.length,
-				});
-				setMessage(`Found ${tokenType} in localStorage`);
-				setMessageType('success');
-			} else {
-				logger.info('No tokens found in localStorage');
-				setMessage('No tokens found in localStorage');
-				setMessageType('info');
+		await syncSpinner.executeWithSpinner(
+			async () => {
+				const service = TokenMonitoringService.getInstance();
+				await service.manualSyncWorkerToken();
+				
+				// Also check localStorage directly
+				const accessToken = localStorage.getItem('token_to_analyze');
+				const tokenType = localStorage.getItem('token_type');
+				const flowSource = localStorage.getItem('flow_source');
+				
+				if (accessToken && tokenType) {
+					logger.info('Found token in localStorage:', {
+						tokenType,
+						flowSource,
+						tokenLength: accessToken.length,
+					});
+					setMessage(`Found ${tokenType} in localStorage`);
+					setMessageType('success');
+				} else {
+					logger.info('No tokens found in localStorage');
+					setMessage('No tokens found in localStorage');
+					setMessageType('info');
+				}
+			},
+			{
+				onSuccess: () => {
+					setMessage('Manual token sync triggered');
+					setMessageType('info');
+				},
+				onError: (error) => {
+					logger.error('Manual sync failed:', {
+						error: error instanceof Error ? error.message : String(error),
+					});
+					setMessage('Manual sync failed');
+					setMessageType('error');
+				}
 			}
-		} catch (error) {
-			logger.error('Failed to sync tokens:', {
-				error: error instanceof Error ? error.message : String(error),
-			});
-			setMessage('Failed to sync tokens');
-			setMessageType('error');
-		}
+		);
 	};
 
 	const getFlowTypeLabel = (type: string) => {
@@ -598,36 +619,51 @@ export const TokenMonitoringPage: React.FC = () => {
 	};
 
 	const handleRevokeToken = async (tokenId: string, method: RevocationMethod = 'oauth_revoke') => {
-		try {
-			const service = TokenMonitoringService.getInstance();
-			await service.revokeToken(tokenId, { method });
-			setMessage('Token revoked successfully');
-			setMessageType('success');
-		} catch (error) {
-			logger.error('Failed to revoke token:', {
-				error: error instanceof Error ? error.message : String(error),
-			});
-			setMessage('Failed to revoke token');
-			setMessageType('error');
-		}
+		await revokeSpinner.executeWithSpinner(
+			async () => {
+				const service = TokenMonitoringService.getInstance();
+				await service.revokeToken(tokenId, { method });
+			},
+			{
+				onSuccess: () => {
+					setMessage('Token revoked successfully');
+					setMessageType('success');
+				},
+				onError: (error) => {
+					logger.error('Failed to revoke token:', {
+						error: error instanceof Error ? error.message : String(error),
+					});
+					setMessage('Failed to revoke token');
+					setMessageType('error');
+				}
+			}
+		);
 	};
 
 	const handleCopyToken = async (token: string, tokenId: string) => {
-		try {
-			const success = await TokenDisplayService.copyToClipboard(token);
-			if (success) {
-				setCopiedTokenId(tokenId);
-				setTimeout(() => setCopiedTokenId(null), 2000);
-				setMessage('Token copied to clipboard');
-				setMessageType('success');
+		await copySpinner.executeWithSpinner(
+			async () => {
+				const success = await TokenDisplayService.copyToClipboard(token);
+				if (success) {
+					setCopiedTokenId(tokenId);
+					setTimeout(() => setCopiedTokenId(null), 2000);
+					setMessage('Token copied to clipboard');
+					setMessageType('success');
+				}
+			},
+			{
+				onSuccess: () => {
+					// Success handled in the main function
+				},
+				onError: (error) => {
+					logger.error('Failed to copy token:', {
+						error: error instanceof Error ? error.message : String(error),
+					});
+					setMessage('Failed to copy token');
+					setMessageType('error');
+				}
 			}
-		} catch (error) {
-			logger.error('Failed to copy token:', {
-				error: error instanceof Error ? error.message : String(error),
-			});
-			setMessage('Failed to copy token');
-			setMessageType('error');
-		}
+		);
 	};
 
 	const handleDecodeToken = (token: TokenInfo) => {
@@ -691,6 +727,23 @@ export const TokenMonitoringPage: React.FC = () => {
 
 	return (
 		<PageContainer>
+			{/* Modal Spinners for Long-Running Operations */}
+			<StandardModalSpinner
+				show={syncSpinner.isLoading}
+				message="Syncing tokens..."
+				theme="blue"
+			/>
+			<StandardModalSpinner
+				show={refreshSpinner.isLoading}
+				message="Refreshing token..."
+				theme="blue"
+			/>
+			<StandardModalSpinner
+				show={revokeSpinner.isLoading}
+				message="Revoking token..."
+				theme="orange"
+			/>
+			
 			<PageHeader>
 				<PageTitle>🔐 Token Monitoring</PageTitle>
 				<PageSubtitle>Real-time monitoring and management of OAuth tokens</PageSubtitle>
