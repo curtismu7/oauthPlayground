@@ -17,15 +17,25 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import {
+	FiActivity,
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiClock,
+	FiCopy,
+	FiInfo,
+	FiShield,
+	FiSmartphone,
+	FiX,
+	FiZap,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-
-import { FiActivity, FiAlertTriangle, FiCheckCircle, FiClock, FiCopy, FiInfo, FiShield, FiSmartphone, FiZap, FiX } from 'react-icons/fi';
 
 import { CommonSpinner } from '@/components/common/CommonSpinner';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
-import { CibaServiceV8, type CibaCredentials } from '@/v8/services/cibaServiceV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { useCibaFlowV8 } from '@/v8/hooks/useCibaFlowV8';
+import { type CibaCredentials, CibaServiceV8 } from '@/v8/services/cibaServiceV8';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔐 CIBA-FLOW-V8]';
@@ -92,7 +102,9 @@ const SectionTitle = styled.h2`
 	gap: 0.5rem;
 `;
 
-const StatusCard = styled.div<{ $status: 'pending' | 'approved' | 'completed' | 'failed' | 'error' | 'denied' | 'expired' }>`
+const StatusCard = styled.div<{
+	$status: 'pending' | 'approved' | 'completed' | 'failed' | 'error' | 'denied' | 'expired';
+}>`
 	padding: 1.5rem;
 	border-radius: 0.75rem;
 	border: 1px solid;
@@ -325,11 +337,15 @@ const CIBAFlowV8: React.FC = () => {
 		scope: CibaServiceV8.getDefaultScope(),
 		loginHint: '',
 		bindingMessage: '',
-		requestContext: JSON.stringify({
-			device: 'Smart TV',
-			location: 'Living Room',
-			ip: '192.168.1.1',
-		}, null, 2),
+		requestContext: JSON.stringify(
+			{
+				device: 'Smart TV',
+				location: 'Living Room',
+				ip: '192.168.1.1',
+			},
+			null,
+			2
+		),
 		clientAuthMethod: 'client_secret_post',
 	});
 
@@ -346,18 +362,26 @@ const CIBAFlowV8: React.FC = () => {
 					includeScopes: true,
 				});
 				if (savedCredentials) {
-					setCredentials(prev => ({
+					setCredentials((prev) => ({
 						...prev,
 						...savedCredentials,
 						// Preserve defaults for missing fields
 						scope: savedCredentials.scope || CibaServiceV8.getDefaultScope(),
 						bindingMessage: savedCredentials.bindingMessage || '',
-						requestContext: savedCredentials.requestContext || JSON.stringify({
-							device: 'Smart TV',
-							location: 'Living Room',
-							ip: '192.168.1.1',
-						}, null, 2),
-						clientAuthMethod: savedCredentials.clientAuthMethod as 'client_secret_post' | 'client_secret_basic',
+						requestContext:
+							savedCredentials.requestContext ||
+							JSON.stringify(
+								{
+									device: 'Smart TV',
+									location: 'Living Room',
+									ip: '192.168.1.1',
+								},
+								null,
+								2
+							),
+						clientAuthMethod: savedCredentials.clientAuthMethod as
+							| 'client_secret_post'
+							| 'client_secret_basic',
 					}));
 				}
 			} catch (error) {
@@ -370,7 +394,7 @@ const CIBAFlowV8: React.FC = () => {
 
 	// Handle form field changes
 	const handleFieldChange = (field: keyof CibaCredentials, value: string) => {
-		setCredentials(prev => ({ ...prev, [field]: value }));
+		setCredentials((prev) => ({ ...prev, [field]: value }));
 	};
 
 	// Save credentials
@@ -444,21 +468,13 @@ const CIBAFlowV8: React.FC = () => {
 				<StatusCard $status={cibaFlow.state.status}>
 					{getStatusIcon(cibaFlow.state.status)}
 					<div>
-						<div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>
-							{cibaFlow.statusMessage}
-						</div>
+						<div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{cibaFlow.statusMessage}</div>
 						<div style={{ fontSize: '0.875rem' }}>
 							{cibaFlow.state.status === 'pending' && (
-								<>
-									Waiting for user approval... ({cibaFlow.getRemainingTime()}s remaining)
-								</>
+								<>Waiting for user approval... ({cibaFlow.getRemainingTime()}s remaining)</>
 							)}
-							{cibaFlow.state.status === 'approved' && (
-								<>Authentication completed successfully!</>
-							)}
-							{cibaFlow.state.error && (
-								<>Error: {cibaFlow.state.error}</>
-							)}
+							{cibaFlow.state.status === 'approved' && <>Authentication completed successfully!</>}
+							{cibaFlow.state.error && <>Error: {cibaFlow.state.error}</>}
 						</div>
 					</div>
 				</StatusCard>
@@ -487,19 +503,28 @@ const CIBAFlowV8: React.FC = () => {
 					<InfoBox>
 						<InfoTitle>About CIBA</InfoTitle>
 						<InfoText>
-							CIBA allows authentication on a secondary device while the initiating client waits for the result.
-							The user will receive a notification on their device to approve or deny the authentication request.
+							CIBA allows authentication on a secondary device while the initiating client waits for
+							the result. The user will receive a notification on their device to approve or deny
+							the authentication request.
 						</InfoText>
 					</InfoBox>
 
-					<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+					<div
+						style={{
+							display: 'grid',
+							gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+							gap: '1rem',
+						}}
+					>
 						<FormGroup>
 							<Label htmlFor="environmentId">Environment ID *</Label>
 							<Input
 								id="environmentId"
 								type="text"
 								value={credentials.environmentId}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('environmentId', e.target.value)}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+									handleFieldChange('environmentId', e.target.value)
+								}
 								placeholder="PingOne Environment ID"
 								disabled={cibaFlow.isActive}
 							/>
@@ -511,7 +536,9 @@ const CIBAFlowV8: React.FC = () => {
 								id="clientId"
 								type="text"
 								value={credentials.clientId}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('clientId', e.target.value)}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+									handleFieldChange('clientId', e.target.value)
+								}
 								placeholder="Application Client ID"
 								disabled={cibaFlow.isActive}
 							/>
@@ -523,7 +550,9 @@ const CIBAFlowV8: React.FC = () => {
 								id="clientSecret"
 								type="password"
 								value={credentials.clientSecret}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('clientSecret', e.target.value)}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+									handleFieldChange('clientSecret', e.target.value)
+								}
 								placeholder="Application Client Secret"
 								disabled={cibaFlow.isActive}
 							/>
@@ -535,7 +564,9 @@ const CIBAFlowV8: React.FC = () => {
 								id="loginHint"
 								type="text"
 								value={credentials.loginHint}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('loginHint', e.target.value)}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+									handleFieldChange('loginHint', e.target.value)
+								}
 								placeholder="user@example.com or +1234567890"
 								disabled={cibaFlow.isActive}
 							/>
@@ -547,7 +578,9 @@ const CIBAFlowV8: React.FC = () => {
 								id="scope"
 								type="text"
 								value={credentials.scope}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('scope', e.target.value)}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+									handleFieldChange('scope', e.target.value)
+								}
 								placeholder="openid profile email"
 								disabled={cibaFlow.isActive}
 							/>
@@ -558,7 +591,12 @@ const CIBAFlowV8: React.FC = () => {
 							<Select
 								id="clientAuthMethod"
 								value={credentials.clientAuthMethod}
-								onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleFieldChange('clientAuthMethod', e.target.value as 'client_secret_post' | 'client_secret_basic')}
+								onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+									handleFieldChange(
+										'clientAuthMethod',
+										e.target.value as 'client_secret_post' | 'client_secret_basic'
+									)
+								}
 								disabled={cibaFlow.isActive}
 							>
 								<option value="client_secret_post">Client Secret Post</option>
@@ -573,7 +611,9 @@ const CIBAFlowV8: React.FC = () => {
 							id="bindingMessage"
 							type="text"
 							value={credentials.bindingMessage}
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('bindingMessage', e.target.value)}
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+								handleFieldChange('bindingMessage', e.target.value)
+							}
 							placeholder="Custom message shown to user"
 							disabled={cibaFlow.isActive}
 						/>
@@ -584,7 +624,9 @@ const CIBAFlowV8: React.FC = () => {
 						<TextArea
 							id="requestContext"
 							value={credentials.requestContext}
-							onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleFieldChange('requestContext', e.target.value)}
+							onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+								handleFieldChange('requestContext', e.target.value)
+							}
 							placeholder="JSON context for the authentication request"
 							disabled={cibaFlow.isActive}
 						/>
@@ -603,7 +645,13 @@ const CIBAFlowV8: React.FC = () => {
 							<Button
 								$variant="primary"
 								onClick={handleInitiateAuthentication}
-								disabled={cibaFlow.state.isInitiating || !credentials.environmentId || !credentials.clientId || !credentials.clientSecret || !credentials.loginHint}
+								disabled={
+									cibaFlow.state.isInitiating ||
+									!credentials.environmentId ||
+									!credentials.clientId ||
+									!credentials.clientSecret ||
+									!credentials.loginHint
+								}
 							>
 								<FiSmartphone />
 								{cibaFlow.state.isInitiating ? 'Initiating...' : 'Initiate CIBA Authentication'}
@@ -622,7 +670,9 @@ const CIBAFlowV8: React.FC = () => {
 								)}
 								<Button
 									$variant="secondary"
-									onClick={() => cibaFlow.startPolling(cibaFlow.state.authRequest!.auth_req_id, credentials)}
+									onClick={() =>
+										cibaFlow.startPolling(cibaFlow.state.authRequest!.auth_req_id, credentials)
+									}
 									disabled={cibaFlow.state.isPolling}
 								>
 									<FiClock />
@@ -636,10 +686,7 @@ const CIBAFlowV8: React.FC = () => {
 									<FiX />
 									Stop Polling
 								</Button>
-								<Button
-									$variant="secondary"
-									onClick={cibaFlow.reset}
-								>
+								<Button $variant="secondary" onClick={cibaFlow.reset}>
 									<FiX />
 									Reset Flow
 								</Button>
@@ -656,12 +703,22 @@ const CIBAFlowV8: React.FC = () => {
 							Authentication Request Details
 						</SectionTitle>
 
-						<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+								gap: '1rem',
+							}}
+						>
 							<div>
 								<strong>Request ID:</strong>
-								<div style={{ fontFamily: 'monospace', fontSize: '0.875rem', wordBreak: 'break-all' }}>
+								<div
+									style={{ fontFamily: 'monospace', fontSize: '0.875rem', wordBreak: 'break-all' }}
+								>
 									{cibaFlow.state.authRequest.auth_req_id}
-									<CopyButton onClick={() => copyToClipboard(cibaFlow.state.authRequest!.auth_req_id)}>
+									<CopyButton
+										onClick={() => copyToClipboard(cibaFlow.state.authRequest!.auth_req_id)}
+									>
 										<FiCopy /> Copy
 									</CopyButton>
 								</div>
@@ -709,7 +766,9 @@ const CIBAFlowV8: React.FC = () => {
 								<strong>Refresh Token:</strong>
 								<div style={{ marginTop: '0.5rem', wordBreak: 'break-all' }}>
 									{cibaFlow.state.tokens.refresh_token}
-									<CopyButton onClick={() => copyToClipboard(cibaFlow.state.tokens!.refresh_token!)}>
+									<CopyButton
+										onClick={() => copyToClipboard(cibaFlow.state.tokens!.refresh_token!)}
+									>
 										<FiCopy /> Copy
 									</CopyButton>
 								</div>
@@ -728,28 +787,49 @@ const CIBAFlowV8: React.FC = () => {
 							</TokenDisplay>
 						)}
 
-						<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
-							<div><strong>Token Type:</strong> {cibaFlow.state.tokens.token_type}</div>
-							<div><strong>Expires In:</strong> {cibaFlow.state.tokens.expires_in}s</div>
-							<div><strong>Scope:</strong> {cibaFlow.state.tokens.scope}</div>
-							{cibaFlow.state.tokens.sub && <div><strong>Subject:</strong> {cibaFlow.state.tokens.sub}</div>}
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+								gap: '1rem',
+								marginTop: '1rem',
+							}}
+						>
+							<div>
+								<strong>Token Type:</strong> {cibaFlow.state.tokens.token_type}
+							</div>
+							<div>
+								<strong>Expires In:</strong> {cibaFlow.state.tokens.expires_in}s
+							</div>
+							<div>
+								<strong>Scope:</strong> {cibaFlow.state.tokens.scope}
+							</div>
+							{cibaFlow.state.tokens.sub && (
+								<div>
+									<strong>Subject:</strong> {cibaFlow.state.tokens.sub}
+								</div>
+							)}
 						</div>
 					</Section>
 				)}
 			</MainCard>
 
-				{/* Spinner Modals */}
-		{spinner.spinnerState.show && (
-			<CommonSpinner
-				message={spinner.spinnerState.message}
-				variant={spinner.spinnerState.type}
-				theme={spinner.spinnerState.theme}
-				{...(spinner.spinnerState.size && { size: spinner.spinnerState.size })}
-				{...(spinner.spinnerState.progress !== undefined && { progress: spinner.spinnerState.progress })}
-				{...(spinner.spinnerState.allowDismiss !== undefined && { allowDismiss: spinner.spinnerState.allowDismiss })}
-				onDismiss={() => {}}
-			/>
-		)}
+			{/* Spinner Modals */}
+			{spinner.spinnerState.show && (
+				<CommonSpinner
+					message={spinner.spinnerState.message}
+					variant={spinner.spinnerState.type}
+					theme={spinner.spinnerState.theme}
+					{...(spinner.spinnerState.size && { size: spinner.spinnerState.size })}
+					{...(spinner.spinnerState.progress !== undefined && {
+						progress: spinner.spinnerState.progress,
+					})}
+					{...(spinner.spinnerState.allowDismiss !== undefined && {
+						allowDismiss: spinner.spinnerState.allowDismiss,
+					})}
+					onDismiss={() => {}}
+				/>
+			)}
 		</Container>
 	);
 };
