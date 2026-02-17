@@ -584,7 +584,7 @@ const CIBAFlowV8: React.FC = () => {
 						<TextArea
 							id="requestContext"
 							value={credentials.requestContext}
-							onChange={(e) => handleFieldChange('requestContext', e.target.value)}
+							onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleFieldChange('requestContext', e.target.value)}
 							placeholder="JSON context for the authentication request"
 							disabled={cibaFlow.isActive}
 						/>
