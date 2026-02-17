@@ -6,8 +6,8 @@
  */
 
 import React from 'react';
-import { ButtonSpinner } from './ButtonSpinner';
 import { LoadingSpinnerModalV8U } from '@/v8u/components/LoadingSpinnerModalV8U';
+import { ButtonSpinner } from './ButtonSpinner';
 
 // Standard spinner types
 export type SpinnerType = 'button' | 'modal';

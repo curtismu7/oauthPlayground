@@ -1,6 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { logger } from '../utils/logger';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
+import { logger } from '../utils/logger';
 
 interface Props {
 	children: ReactNode;

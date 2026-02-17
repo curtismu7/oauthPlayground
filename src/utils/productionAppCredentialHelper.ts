@@ -6,10 +6,10 @@ import {
 	importStandardizedCredentials,
 	type StandardizedCredentialExport,
 } from '@/services/standardizedCredentialExportService';
+import { UnifiedWorkerTokenBackupServiceV8 } from '@/services/unifiedWorkerTokenBackupServiceV8';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { UnifiedOAuthCredentialsServiceV8U } from '@/v8u/services/unifiedOAuthCredentialsServiceV8U';
-import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
-import { UnifiedWorkerTokenBackupServiceV8 } from '@/services/unifiedWorkerTokenBackupServiceV8';
 
 // App type mapping for Production apps
 export const PRODUCTION_APP_CONFIGS = {
@@ -255,7 +255,7 @@ export async function exportProductionAppCredentials(
 	}
 
 	let credentials: Record<string, unknown>;
-	let metadata: StandardizedCredentialExport['metadata'] = {};
+	const metadata: StandardizedCredentialExport['metadata'] = {};
 
 	try {
 		switch (config.appType) {
