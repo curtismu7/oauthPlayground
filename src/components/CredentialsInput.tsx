@@ -9,6 +9,7 @@ import {
 	FiSettings,
 } from 'react-icons/fi';
 import styled, { createGlobalStyle } from 'styled-components';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { callbackUriService } from '../services/callbackUriService';
 import { CopyButtonVariants } from '../services/copyButtonService';
 import type { DiscoveryResult } from '../services/oidcDiscoveryService';
@@ -1056,10 +1057,13 @@ export const CredentialsInput = ({
 								}}
 							>
 								<div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-									<button
-										type="button"
+									<ButtonSpinner
+										loading={isSaving}
 										onClick={handleSave}
 										disabled={isSaving}
+										spinnerSize={16}
+										spinnerPosition="left"
+										loadingText="Saving..."
 										style={{
 											display: 'flex',
 											alignItems: 'center',
@@ -1075,40 +1079,8 @@ export const CredentialsInput = ({
 											opacity: isSaving ? 0.7 : 1,
 											transition: 'all 0.2s ease',
 										}}
-										onMouseEnter={(e) => {
-											if (!isSaving) {
-												e.currentTarget.style.backgroundColor = '#059669';
-												e.currentTarget.style.borderColor = '#059669';
-											}
-										}}
-										onMouseLeave={(e) => {
-											if (!isSaving) {
-												e.currentTarget.style.backgroundColor = '#10b981';
-												e.currentTarget.style.borderColor = '#10b981';
-											}
-										}}
 									>
-										{isSaving ? (
-											<>
-												<div
-													style={{
-														width: '16px',
-														height: '16px',
-														border: '2px solid #ffffff',
-														borderTop: '2px solid transparent',
-														borderRadius: '50%',
-														animation: 'spin 1s linear infinite',
-													}}
-												/>
-												<style>{`
-										@keyframes spin {
-											0% { transform: rotate(0deg); }
-											100% { transform: rotate(360deg); }
-										}
-									`}</style>
-												Saving...
-											</>
-										) : (
+										{isSaving ? 'Saving...' : (
 											<>
 												<svg
 													width="16"
@@ -1125,7 +1097,7 @@ export const CredentialsInput = ({
 												{hasUnsavedChanges ? 'Save Changes' : 'Save Credentials'}
 											</>
 										)}
-									</button>
+									</ButtonSpinner>
 								</div>
 								{lastSavedTimestamp && (
 									<div
