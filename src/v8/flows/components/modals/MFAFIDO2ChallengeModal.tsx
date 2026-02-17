@@ -1,6 +1,7 @@
 import React from 'react';
-import { FiKey, FiLoader, FiX } from 'react-icons/fi';
+import { FiKey, FiX } from 'react-icons/fi';
 import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 export interface MFAFIDO2ChallengeModalProps {
 	show: boolean;
@@ -63,9 +64,12 @@ export const MFAFIDO2ChallengeModal: React.FC<MFAFIDO2ChallengeModalProps> = ({
 						position: 'relative',
 					}}
 				>
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={false}
 						onClick={onClose}
+						spinnerSize={12}
+						spinnerPosition="left"
+						loadingText="Closing..."
 						style={{
 							position: 'absolute',
 							top: '16px',
@@ -80,10 +84,11 @@ export const MFAFIDO2ChallengeModal: React.FC<MFAFIDO2ChallengeModalProps> = ({
 							justifyContent: 'center',
 							cursor: 'pointer',
 							color: 'white',
+							padding: 0,
 						}}
 					>
 						<FiX size={18} />
-					</button>
+					</ButtonSpinner>
 					<PingIdentityLogo size={48} />
 					<h3
 						style={{
@@ -145,19 +150,13 @@ export const MFAFIDO2ChallengeModal: React.FC<MFAFIDO2ChallengeModalProps> = ({
 					)}
 
 					<div style={{ display: 'flex', gap: '12px' }}>
-						<button
-							type="button"
+						<ButtonSpinner
+							loading={isAuthenticating}
 							onClick={onAuthenticate}
 							disabled={isAuthenticating || !isWebAuthnSupported || !hasChallengeData}
-							title={
-								!hasChallengeData
-									? 'WebAuthn challenge not found. Please try selecting the device again.'
-									: !isWebAuthnSupported
-										? 'WebAuthn is not supported in this browser'
-										: isAuthenticating
-											? 'Authenticating...'
-											: 'Click to authenticate with your Passkey or security key'
-							}
+							spinnerSize={16}
+							spinnerPosition="left"
+							loadingText="Authenticating..."
 							style={{
 								flex: 1,
 								padding: '10px 24px',
@@ -175,21 +174,19 @@ export const MFAFIDO2ChallengeModal: React.FC<MFAFIDO2ChallengeModalProps> = ({
 								transition: 'background 0.2s ease',
 							}}
 						>
-							{isAuthenticating ? (
-								<>
-									<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-									Authenticating...
-								</>
-							) : (
+							{isAuthenticating ? 'Authenticating...' : (
 								<>
 									<FiKey />
 									{isMac ? 'Authenticate with Passkey' : 'Authenticate with Security Key'}
 								</>
 							)}
-						</button>
-						<button
-							type="button"
+						</ButtonSpinner>
+						<ButtonSpinner
+							loading={false}
 							onClick={onClose}
+							spinnerSize={12}
+							spinnerPosition="left"
+							loadingText="Canceling..."
 							style={{
 								padding: '10px 24px',
 								border: '1px solid #d1d5db',
@@ -202,7 +199,7 @@ export const MFAFIDO2ChallengeModal: React.FC<MFAFIDO2ChallengeModalProps> = ({
 							}}
 						>
 							Cancel
-						</button>
+						</ButtonSpinner>
 					</div>
 				</div>
 			</div>
