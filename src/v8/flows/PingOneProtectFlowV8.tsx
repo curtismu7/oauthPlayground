@@ -27,6 +27,7 @@ import {
 	FiTrendingUp,
 	FiXCircle,
 } from 'react-icons/fi';
+import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
@@ -577,8 +578,8 @@ export const PingOneProtectFlowV8: React.FC = () => {
 							</span>
 						</div>
 					</div>
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={false}
 						onClick={async () => {
 							// Pass current checkbox values to override config (page checkboxes take precedence)
 							// forceShowModal=true because user explicitly clicked the button - always show modal
@@ -593,6 +594,8 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								true // Force show modal - user clicked button
 							);
 						}}
+						spinnerSize={14}
+						spinnerPosition="left"
 						style={{
 							padding: '12px 16px',
 							background: tokenStatus.isValid ? '#10b981' : '#3b82f6',
@@ -605,7 +608,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 						}}
 					>
 						Get worker token
-					</button>
+					</ButtonSpinner>
 				</div>
 
 				{/* Worker Token Settings Checkboxes */}
@@ -750,10 +753,13 @@ export const PingOneProtectFlowV8: React.FC = () => {
 			</h3>
 
 			<div style={{ marginBottom: '24px' }}>
-				<button
-					type="button"
+				<ButtonSpinner
+					loading={isLoading}
 					onClick={fetchRiskPolicies}
 					disabled={isLoading || !tokenStatus.isValid}
+					spinnerSize={16}
+					spinnerPosition="left"
+					loadingText="Loading..."
 					style={{
 						padding: '12px 24px',
 						background: '#3b82f6',
@@ -766,8 +772,8 @@ export const PingOneProtectFlowV8: React.FC = () => {
 						opacity: isLoading || !tokenStatus.isValid ? 0.5 : 1,
 					}}
 				>
-					{isLoading ? 'Loading...' : 'Fetch Risk Policies'}
-				</button>
+					{isLoading ? '' : 'Fetch Risk Policies'}
+				</ButtonSpinner>
 			</div>
 
 			{riskPolicies.length > 0 && (
@@ -1005,10 +1011,13 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				</div>
 
 				<div>
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={isLoading}
 						onClick={createRiskEvaluation}
 						disabled={isLoading || !tokenStatus.isValid}
+						spinnerSize={16}
+						spinnerPosition="left"
+						loadingText="Evaluating..."
 						style={{
 							padding: '12px 24px',
 							background: '#3b82f6',
@@ -1021,8 +1030,8 @@ export const PingOneProtectFlowV8: React.FC = () => {
 							opacity: isLoading || !tokenStatus.isValid ? 0.5 : 1,
 						}}
 					>
-						{isLoading ? 'Evaluating...' : 'Create Risk Evaluation'}
-					</button>
+						{isLoading ? '' : 'Create Risk Evaluation'}
+					</ButtonSpinner>
 				</div>
 
 				{riskEvaluation && (

@@ -8,6 +8,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiShield } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useProductionSpinner } from '../../../hooks/useProductionSpinner';
+import { CommonSpinner } from '../../../components/common/CommonSpinner';
 import { FIDO2Service } from '@/services/fido2Service';
 import { FIDODeviceExistsModalV8 } from '@/v8/components/FIDODeviceExistsModalV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
@@ -424,6 +426,13 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	const lastFetchedFido2EnvIdRef = useRef<string | null>(null);
 	const isFetchingFido2PoliciesRef = useRef(false);
 
+	// Spinner hooks for async operations
+	const policiesSpinner = useProductionSpinner('fido2-policies');
+	const deviceLoadSpinner = useProductionSpinner('fido2-device-load');
+	const deviceAuthSpinner = useProductionSpinner('fido2-device-auth');
+	const deviceRegisterSpinner = useProductionSpinner('fido2-device-register');
+	const webAuthnSpinner = useProductionSpinner('fido2-webauthn');
+
 	// Worker Token Settings - Load from config service
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
 		try {
@@ -615,12 +624,13 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			return;
 		}
 
-		isFetchingFido2PoliciesRef.current = true;
-		setIsLoadingFido2Policies(true);
-		setFido2PoliciesError(null);
+		return await policiesSpinner.withSpinner(async () => {
+			isFetchingFido2PoliciesRef.current = true;
+			setIsLoadingFido2Policies(true);
+			setFido2PoliciesError(null);
 
-		try {
-			const workerToken = await workerTokenServiceV8.getToken();
+			try {
+				const workerToken = await workerTokenServiceV8.getToken();
 			// #region agent log
 			// #endregion
 			if (!workerToken) {
@@ -697,7 +707,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			isFetchingFido2PoliciesRef.current = false;
 			setIsLoadingFido2Policies(false);
 		}
-	}, []);
+	}, 'Loading FIDO2 policies...');
+	}, [policiesSpinner]
+	);
 
 	// Fetch FIDO2 policies when environment and token are ready
 	useEffect(() => {
@@ -2838,16 +2850,59 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	}, [isApiDisplayVisible]);
 
 	return (
-		<div
-			style={{
-				minHeight: '100vh',
-				paddingBottom:
-					isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 60}px` : '0',
-				transition: 'padding-bottom 0.3s ease',
-				overflow: 'visible',
-			}}
-		>
-			<MFANavigationV8 currentPage="registration" showBackToMain={true} />
+		<>
+			{/* Modal Spinners for FIDO2 Operations */}
+			{policiesSpinner.isLoading && (
+				<CommonSpinner
+					message={policiesSpinner.spinnerState.message || 'Loading FIDO2 policies...'}
+					theme="blue"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+			{deviceLoadSpinner.isLoading && (
+				<CommonSpinner
+					message={deviceLoadSpinner.spinnerState.message || 'Loading FIDO2 devices...'}
+					theme="green"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+			{deviceAuthSpinner.isLoading && (
+				<CommonSpinner
+					message={deviceAuthSpinner.spinnerState.message || 'Authenticating FIDO2 device...'}
+					theme="purple"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+			{deviceRegisterSpinner.isLoading && (
+				<CommonSpinner
+					message={deviceRegisterSpinner.spinnerState.message || 'Registering FIDO2 device...'}
+					theme="orange"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+			{webAuthnSpinner.isLoading && (
+				<CommonSpinner
+					message={webAuthnSpinner.spinnerState.message || 'Performing WebAuthn authentication...'}
+					theme="blue"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+
+			<div
+				style={{
+					minHeight: '100vh',
+					paddingBottom:
+						isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 60}px` : '0',
+					transition: 'padding-bottom 0.3s ease',
+					overflow: 'visible',
+				}}
+			>
+				<MFANavigationV8 currentPage="registration" showBackToMain={true} />
 
 			<MFAFlowBaseV8
 				deviceType={deviceType as DeviceType}
@@ -2916,7 +2971,8 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				deviceId={existingFIDODevice?.id}
 				deviceNickname={existingFIDODevice?.nickname}
 			/>
-		</div>
+			</div>
+		</>
 	);
 };
 
