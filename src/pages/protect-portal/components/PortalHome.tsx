@@ -129,7 +129,15 @@ const GoToLoginButton = styled.button`
 
 interface PortalHomeProps {
 	educationalContent: EducationalContent;
-	onCompanySelect: (company: { id: string; name: string; description: string; logo: string; logoColor: string; logoBg: string; theme: string; }) => void;
+	onCompanySelect: (company: {
+		id: string;
+		name: string;
+		description: string;
+		logo: string;
+		logoColor: string;
+		logoBg: string;
+		theme: string;
+	}) => void;
 	onGoToLogin: () => void;
 }
 

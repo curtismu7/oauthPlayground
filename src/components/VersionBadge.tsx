@@ -40,5 +40,9 @@ const Badge = styled.span<{ flow?: string; variant?: string }>`
 
 export const VersionBadge: React.FC<VersionBadgeProps> = ({ version, flow, variant = 'flow' }) => {
 	console.log('[VersionBadge] Rendering:', { version, flow, variant });
-	return <Badge flow={flow} variant={variant}>{version}</Badge>;
+	return (
+		<Badge flow={flow} variant={variant}>
+			{version}
+		</Badge>
+	);
 };

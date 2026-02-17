@@ -9,7 +9,23 @@
  */
 
 import React from 'react';
-import { FiArrowRight, FiLock, FiSearch, FiMapPin, FiCalendar, FiCreditCard, FiShield, FiGlobe, FiPackage, FiCode, FiUsers, FiTrendingUp, FiCheckCircle, FiAward, FiStar } from 'react-icons/fi';
+import {
+	FiArrowRight,
+	FiLock,
+	FiSearch,
+	FiMapPin,
+	FiCalendar,
+	FiCreditCard,
+	FiShield,
+	FiGlobe,
+	FiPackage,
+	FiCode,
+	FiUsers,
+	FiTrendingUp,
+	FiCheckCircle,
+	FiAward,
+	FiStar,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 
@@ -17,19 +33,23 @@ import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 // STYLED COMPONENTS
 // ============================================================================
 
-const HeroSectionStyled = styled.section<{ $brandColor: string; $brandSecondary: string; $pattern: string }>`
+const HeroSectionStyled = styled.section<{
+	$brandColor: string;
+	$brandSecondary: string;
+	$pattern: string;
+}>`
   background: ${({ $pattern, $brandColor, $brandSecondary }) => {
-    switch ($pattern) {
-      case 'gradient-light':
-        return `linear-gradient(135deg, ${$brandColor}15 0%, ${$brandSecondary}10 100%)`;
-      case 'gradient-medium':
-        return `linear-gradient(135deg, ${$brandColor}25 0%, ${$brandSecondary}20 100%)`;
-      case 'gradient-dark':
-        return `linear-gradient(135deg, ${$brandColor}35 0%, ${$brandSecondary}30 100%)`;
-      default:
-        return `linear-gradient(135deg, ${$brandColor}25 0%, ${$brandSecondary}20 100%)`;
-    }
-  }};
+		switch ($pattern) {
+			case 'gradient-light':
+				return `linear-gradient(135deg, ${$brandColor}15 0%, ${$brandSecondary}10 100%)`;
+			case 'gradient-medium':
+				return `linear-gradient(135deg, ${$brandColor}25 0%, ${$brandSecondary}20 100%)`;
+			case 'gradient-dark':
+				return `linear-gradient(135deg, ${$brandColor}35 0%, ${$brandSecondary}30 100%)`;
+			default:
+				return `linear-gradient(135deg, ${$brandColor}25 0%, ${$brandSecondary}20 100%)`;
+		}
+	}};
   padding: 4rem 2rem;
   min-height: 500px;
   display: flex;
@@ -57,7 +77,7 @@ const HeroContent = styled.div`
 `;
 
 const HeroSubtitle = styled.p<{ $tone: string }>`
-  font-size: ${({ $tone }) => $tone === 'friendly' ? '1.125rem' : '1.25rem'};
+  font-size: ${({ $tone }) => ($tone === 'friendly' ? '1.125rem' : '1.25rem')};
   margin: 0 0 2rem 0;
   line-height: 1.6;
   opacity: 0.9;
@@ -70,7 +90,9 @@ const HeroSubtitle = styled.p<{ $tone: string }>`
 const LoginAction = styled.div<{ $pattern: string }>`
   margin-top: 2rem;
   
-  ${({ $pattern }) => $pattern === 'embedded' && `
+  ${({ $pattern }) =>
+		$pattern === 'embedded' &&
+		`
     display: none;
   `}
 `;
@@ -100,8 +122,8 @@ const LoginButton = styled.button<{ $brandColor: string; $accentColor: string; $
 `;
 
 const Tagline = styled.div<{ $tone: string }>`
-  font-size: ${({ $tone }) => $tone === 'friendly' ? '1rem' : '1.125rem'};
-  font-weight: ${({ $tone }) => $tone === 'friendly' ? '500' : '600'};
+  font-size: ${({ $tone }) => ($tone === 'friendly' ? '1rem' : '1.125rem')};
+  font-weight: ${({ $tone }) => ($tone === 'friendly' ? '500' : '600')};
   margin: 0 0 3rem 0;
   line-height: 1.5;
 `;
@@ -549,349 +571,366 @@ const TechVisual = styled.div<{ $brandColor: string }>`
 // ============================================================================
 
 interface HeroSectionProps {
-  config: CorporatePortalConfig;
-  onLoginClick: () => void;
-  currentStep?: string;
+	config: CorporatePortalConfig;
+	onLoginClick: () => void;
+	currentStep?: string;
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({
-  config,
-  onLoginClick,
-  currentStep = 'portal-home',
+	config,
+	onLoginClick,
+	currentStep = 'portal-home',
 }) => {
-  const brandColor = config.branding.colors.primary;
-  const accentColor = config.branding.colors.accent;
-  const brandSecondary = config.branding.colors.secondary || brandColor;
-  const loginPattern = config.login.pattern;
-  const tone = config.content.tone || 'corporate';
+	const brandColor = config.branding.colors.primary;
+	const accentColor = config.branding.colors.accent;
+	const brandSecondary = config.branding.colors.secondary || brandColor;
+	const loginPattern = config.login.pattern;
+	const tone = config.content.tone || 'corporate';
 
-  // Get background pattern based on login pattern
-  const getBackgroundPattern = () => {
-    switch (loginPattern) {
-      case 'embedded':
-        return 'gradient-light';
-      case 'dropdown':
-        return 'gradient-medium';
-      case 'right-popout':
-        return 'gradient-dark';
-      case 'new-page':
-        return 'gradient-medium';
-      case 'two-step-otp':
-        return 'gradient-dark';
-      default:
-        return 'gradient-medium';
-    }
-  };
+	// Get background pattern based on login pattern
+	const getBackgroundPattern = () => {
+		switch (loginPattern) {
+			case 'embedded':
+				return 'gradient-light';
+			case 'dropdown':
+				return 'gradient-medium';
+			case 'right-popout':
+				return 'gradient-dark';
+			case 'new-page':
+				return 'gradient-medium';
+			case 'two-step-otp':
+				return 'gradient-dark';
+			default:
+				return 'gradient-medium';
+		}
+	};
 
-  // Render industry-specific hero content
-  const renderIndustryHero = () => {
-    switch (config.company.industry) {
-      case 'banking':
-        return (
-          <BankingHero $brandColor={brandColor}>
-            <BankingContent>
-              <h1>Bank confidently with industry-standard security</h1>
-              <p>
-                Manage your accounts, pay bills, transfer money, and access powerful financial tools 
-                all in one secure place. Your information is protected with advanced encryption and 
-                multi-factor authentication.
-              </p>
-              <BankingFeatures>
-                <BankingFeature $brandColor={brandColor}>
-                  <div className="icon"><FiShield /></div>
-                  <div className="text">
-                    <h4>Advanced Security</h4>
-                    <p>Bank with confidence using our security features</p>
-                  </div>
-                </BankingFeature>
-                <BankingFeature $brandColor={brandColor}>
-                  <div className="icon"><FiCreditCard /></div>
-                  <div className="text">
-                    <h4>Digital Wallet</h4>
-                    <p>Manage cards and digital payment options</p>
-                  </div>
-                </BankingFeature>
-                <BankingFeature $brandColor={brandColor}>
-                  <div className="icon"><FiTrendingUp /></div>
-                  <div className="text">
-                    <h4>Investing Tools</h4>
-                    <p>Build wealth with automated investing options</p>
-                  </div>
-                </BankingFeature>
-                <BankingFeature $brandColor={brandColor}>
-                  <div className="icon"><FiCheckCircle /></div>
-                  <div className="text">
-                    <h4>Bill Pay</h4>
-                    <p>Pay bills easily and set up recurring payments</p>
-                  </div>
-                </BankingFeature>
-              </BankingFeatures>
-              <LoginAction $pattern={loginPattern}>
-                <LoginButton 
-                  onClick={onLoginClick}
-                  $brandColor={brandColor}
-                  $accentColor={accentColor}
-                  $tone={tone}
-                >
-                  <FiLock />
-                  {loginPattern === 'new-page' 
-                    ? `Go to ${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
-                    : `${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
-                  }
-                  <FiArrowRight />
-                </LoginButton>
-              </LoginAction>
-            </BankingContent>
-            <BankingVisual $brandColor={brandColor}>
-              <div className="visual-content">
-                <div className="icon"><FiShield /></div>
-                <h3>Online Banking</h3>
-                <p>Secure, convenient, and designed for you</p>
-              </div>
-            </BankingVisual>
-          </BankingHero>
-        );
+	// Render industry-specific hero content
+	const renderIndustryHero = () => {
+		switch (config.company.industry) {
+			case 'banking':
+				return (
+					<BankingHero $brandColor={brandColor}>
+						<BankingContent>
+							<h1>Bank confidently with industry-standard security</h1>
+							<p>
+								Manage your accounts, pay bills, transfer money, and access powerful financial tools
+								all in one secure place. Your information is protected with advanced encryption and
+								multi-factor authentication.
+							</p>
+							<BankingFeatures>
+								<BankingFeature $brandColor={brandColor}>
+									<div className="icon">
+										<FiShield />
+									</div>
+									<div className="text">
+										<h4>Advanced Security</h4>
+										<p>Bank with confidence using our security features</p>
+									</div>
+								</BankingFeature>
+								<BankingFeature $brandColor={brandColor}>
+									<div className="icon">
+										<FiCreditCard />
+									</div>
+									<div className="text">
+										<h4>Digital Wallet</h4>
+										<p>Manage cards and digital payment options</p>
+									</div>
+								</BankingFeature>
+								<BankingFeature $brandColor={brandColor}>
+									<div className="icon">
+										<FiTrendingUp />
+									</div>
+									<div className="text">
+										<h4>Investing Tools</h4>
+										<p>Build wealth with automated investing options</p>
+									</div>
+								</BankingFeature>
+								<BankingFeature $brandColor={brandColor}>
+									<div className="icon">
+										<FiCheckCircle />
+									</div>
+									<div className="text">
+										<h4>Bill Pay</h4>
+										<p>Pay bills easily and set up recurring payments</p>
+									</div>
+								</BankingFeature>
+							</BankingFeatures>
+							<LoginAction $pattern={loginPattern}>
+								<LoginButton
+									onClick={onLoginClick}
+									$brandColor={brandColor}
+									$accentColor={accentColor}
+									$tone={tone}
+								>
+									<FiLock />
+									{loginPattern === 'new-page'
+										? `Go to ${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
+										: `${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`}
+									<FiArrowRight />
+								</LoginButton>
+							</LoginAction>
+						</BankingContent>
+						<BankingVisual $brandColor={brandColor}>
+							<div className="visual-content">
+								<div className="icon">
+									<FiShield />
+								</div>
+								<h3>Online Banking</h3>
+								<p>Secure, convenient, and designed for you</p>
+							</div>
+						</BankingVisual>
+					</BankingHero>
+				);
 
-      case 'aviation':
-        return (
-          <AirlineHero $brandColor={brandColor}>
-            <AirlineContent>
-              <h1>Book your next adventure with confidence</h1>
-              <p>
-                Search flights, manage your trips, check in, and access your loyalty program all in one place. 
-                Enjoy exclusive deals and seamless travel planning.
-              </p>
-              <div className="features">
-                <div className="feature">
-                  <div className="icon"><FiAward /></div>
-                  <div className="text">Earn miles on every flight</div>
-                </div>
-                <div className="feature">
-                  <div className="icon"><FiMapPin /></div>
-                  <div className="text">Track flight status in real-time</div>
-                </div>
-                <div className="feature">
-                  <div className="icon"><FiCalendar /></div>
-                  <div className="text">Manage your travel calendar</div>
-                </div>
-                <div className="feature">
-                  <div className="icon"><FiStar /></div>
-                  <div className="text">Access premium benefits</div>
-                </div>
-              </div>
-              <LoginAction $pattern={loginPattern}>
-                <LoginButton 
-                  onClick={onLoginClick}
-                  $brandColor={brandColor}
-                  $accentColor={accentColor}
-                  $tone={tone}
-                >
-                  <FiLock />
-                  {loginPattern === 'new-page' 
-                    ? `Go to ${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
-                    : `${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
-                  }
-                  <FiArrowRight />
-                </LoginButton>
-              </LoginAction>
-            </AirlineContent>
-            <FlightSearch $brandColor={brandColor}>
-              <h2>Search Flights</h2>
-              <div className="search-form">
-                <div className="form-group">
-                  <label htmlFor="from">From</label>
-                  <input id="from" type="text" placeholder="Departure city" />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="to">To</label>
-                  <input id="to" type="text" placeholder="Destination city" />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="departure">Departure</label>
-                  <input id="departure" type="date" />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="return">Return</label>
-                  <input id="return" type="date" />
-                </div>
-                <button type="button" className="search-button">
-                  <FiSearch />
-                  Search Flights
-                </button>
-              </div>
-            </FlightSearch>
-          </AirlineHero>
-        );
+			case 'aviation':
+				return (
+					<AirlineHero $brandColor={brandColor}>
+						<AirlineContent>
+							<h1>Book your next adventure with confidence</h1>
+							<p>
+								Search flights, manage your trips, check in, and access your loyalty program all in
+								one place. Enjoy exclusive deals and seamless travel planning.
+							</p>
+							<div className="features">
+								<div className="feature">
+									<div className="icon">
+										<FiAward />
+									</div>
+									<div className="text">Earn miles on every flight</div>
+								</div>
+								<div className="feature">
+									<div className="icon">
+										<FiMapPin />
+									</div>
+									<div className="text">Track flight status in real-time</div>
+								</div>
+								<div className="feature">
+									<div className="icon">
+										<FiCalendar />
+									</div>
+									<div className="text">Manage your travel calendar</div>
+								</div>
+								<div className="feature">
+									<div className="icon">
+										<FiStar />
+									</div>
+									<div className="text">Access premium benefits</div>
+								</div>
+							</div>
+							<LoginAction $pattern={loginPattern}>
+								<LoginButton
+									onClick={onLoginClick}
+									$brandColor={brandColor}
+									$accentColor={accentColor}
+									$tone={tone}
+								>
+									<FiLock />
+									{loginPattern === 'new-page'
+										? `Go to ${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
+										: `${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`}
+									<FiArrowRight />
+								</LoginButton>
+							</LoginAction>
+						</AirlineContent>
+						<FlightSearch $brandColor={brandColor}>
+							<h2>Search Flights</h2>
+							<div className="search-form">
+								<div className="form-group">
+									<label htmlFor="from">From</label>
+									<input id="from" type="text" placeholder="Departure city" />
+								</div>
+								<div className="form-group">
+									<label htmlFor="to">To</label>
+									<input id="to" type="text" placeholder="Destination city" />
+								</div>
+								<div className="form-group">
+									<label htmlFor="departure">Departure</label>
+									<input id="departure" type="date" />
+								</div>
+								<div className="form-group">
+									<label htmlFor="return">Return</label>
+									<input id="return" type="date" />
+								</div>
+								<button type="button" className="search-button">
+									<FiSearch />
+									Search Flights
+								</button>
+							</div>
+						</FlightSearch>
+					</AirlineHero>
+				);
 
-      case 'logistics':
-        return (
-          <LogisticsHero $brandColor={brandColor}>
-            <div className="content">
-              <h1>Ship, manage, track, deliver</h1>
-              <p>
-                Whether you're shipping or receiving, you've got support. Create shipments, track packages, 
-                and manage your logistics with our comprehensive shipping tools.
-              </p>
-              <LoginAction $pattern={loginPattern}>
-                <LoginButton 
-                  onClick={onLoginClick}
-                  $brandColor={brandColor}
-                  $accentColor={accentColor}
-                  $tone={tone}
-                >
-                  <FiLock />
-                  {loginPattern === 'new-page' 
-                    ? `Go to ${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
-                    : `${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
-                  }
-                  <FiArrowRight />
-                </LoginButton>
-              </LoginAction>
-            </div>
-            <TrackingInterface $brandColor={brandColor}>
-              <h2>Track Your Package</h2>
-              <div className="tracking-form">
-                <div className="form-group">
-                  <label htmlFor="tracking">Tracking Number</label>
-                  <input id="tracking" type="text" placeholder="Enter tracking number" />
-                </div>
-                <div className="buttons">
-                  <button type="button">
-                    <FiSearch />
-                    Track
-                  </button>
-                  <button type="button" className="secondary">
-                    <FiPackage />
-                    Ship
-                  </button>
-                </div>
-              </div>
-            </TrackingInterface>
-          </LogisticsHero>
-        );
+			case 'logistics':
+				return (
+					<LogisticsHero $brandColor={brandColor}>
+						<div className="content">
+							<h1>Ship, manage, track, deliver</h1>
+							<p>
+								Whether you're shipping or receiving, you've got support. Create shipments, track
+								packages, and manage your logistics with our comprehensive shipping tools.
+							</p>
+							<LoginAction $pattern={loginPattern}>
+								<LoginButton
+									onClick={onLoginClick}
+									$brandColor={brandColor}
+									$accentColor={accentColor}
+									$tone={tone}
+								>
+									<FiLock />
+									{loginPattern === 'new-page'
+										? `Go to ${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
+										: `${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`}
+									<FiArrowRight />
+								</LoginButton>
+							</LoginAction>
+						</div>
+						<TrackingInterface $brandColor={brandColor}>
+							<h2>Track Your Package</h2>
+							<div className="tracking-form">
+								<div className="form-group">
+									<label htmlFor="tracking">Tracking Number</label>
+									<input id="tracking" type="text" placeholder="Enter tracking number" />
+								</div>
+								<div className="buttons">
+									<button type="button">
+										<FiSearch />
+										Track
+									</button>
+									<button type="button" className="secondary">
+										<FiPackage />
+										Ship
+									</button>
+								</div>
+							</div>
+						</TrackingInterface>
+					</LogisticsHero>
+				);
 
-      case 'tech':
-        return (
-          <TechHero $brandColor={brandColor}>
-            <TechContent>
-              <h1>Identity security for the digital enterprise</h1>
-              <p>
-                Protect your digital assets with enterprise-grade identity solutions. 
-                Secure access, streamline authentication, and ensure compliance across your organization.
-              </p>
-              <div className="tech-features">
-                <div className="feature">
-                  <div className="icon"><FiShield /></div>
-                  <div className="text">
-                    <h4>Advanced Security</h4>
-                    <p>Multi-factor authentication and threat protection</p>
-                  </div>
-                </div>
-                <div className="feature">
-                  <div className="icon"><FiCode /></div>
-                  <div className="text">
-                    <h4>Developer Tools</h4>
-                    <p>APIs and SDKs for seamless integration</p>
-                  </div>
-                </div>
-                <div className="feature">
-                  <div className="icon"><FiUsers /></div>
-                  <div className="text">
-                    <h4>User Management</h4>
-                    <p>Comprehensive identity and access management</p>
-                  </div>
-                </div>
-                <div className="feature">
-                  <div className="icon"><FiGlobe /></div>
-                  <div className="text">
-                    <h4>Global Scale</h4>
-                    <p>Worldwide coverage with localized support</p>
-                  </div>
-                </div>
-              </div>
-              <LoginAction $pattern={loginPattern}>
-                <LoginButton 
-                  onClick={onLoginClick}
-                  $brandColor={brandColor}
-                  $accentColor={accentColor}
-                  $tone={tone}
-                >
-                  <FiLock />
-                  {loginPattern === 'new-page' 
-                    ? `Go to ${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
-                    : `${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
-                  }
-                  <FiArrowRight />
-                </LoginButton>
-              </LoginAction>
-            </TechContent>
-            <TechVisual $brandColor={brandColor}>
-              <div className="icon"><FiShield /></div>
-              <h3>Enterprise Security</h3>
-              <p>Protect your digital identity with confidence</p>
-            </TechVisual>
-          </TechHero>
-        );
+			case 'tech':
+				return (
+					<TechHero $brandColor={brandColor}>
+						<TechContent>
+							<h1>Identity security for the digital enterprise</h1>
+							<p>
+								Protect your digital assets with enterprise-grade identity solutions. Secure access,
+								streamline authentication, and ensure compliance across your organization.
+							</p>
+							<div className="tech-features">
+								<div className="feature">
+									<div className="icon">
+										<FiShield />
+									</div>
+									<div className="text">
+										<h4>Advanced Security</h4>
+										<p>Multi-factor authentication and threat protection</p>
+									</div>
+								</div>
+								<div className="feature">
+									<div className="icon">
+										<FiCode />
+									</div>
+									<div className="text">
+										<h4>Developer Tools</h4>
+										<p>APIs and SDKs for seamless integration</p>
+									</div>
+								</div>
+								<div className="feature">
+									<div className="icon">
+										<FiUsers />
+									</div>
+									<div className="text">
+										<h4>User Management</h4>
+										<p>Comprehensive identity and access management</p>
+									</div>
+								</div>
+								<div className="feature">
+									<div className="icon">
+										<FiGlobe />
+									</div>
+									<div className="text">
+										<h4>Global Scale</h4>
+										<p>Worldwide coverage with localized support</p>
+									</div>
+								</div>
+							</div>
+							<LoginAction $pattern={loginPattern}>
+								<LoginButton
+									onClick={onLoginClick}
+									$brandColor={brandColor}
+									$accentColor={accentColor}
+									$tone={tone}
+								>
+									<FiLock />
+									{loginPattern === 'new-page'
+										? `Go to ${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
+										: `${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`}
+									<FiArrowRight />
+								</LoginButton>
+							</LoginAction>
+						</TechContent>
+						<TechVisual $brandColor={brandColor}>
+							<div className="icon">
+								<FiShield />
+							</div>
+							<h3>Enterprise Security</h3>
+							<p>Protect your digital identity with confidence</p>
+						</TechVisual>
+					</TechHero>
+				);
 
-      default:
-        return (
-          <HeroContent>
-            <HeroSubtitle $tone={tone}>
-              {config.content.heroSubtitle}
-            </HeroSubtitle>
+			default:
+				return (
+					<HeroContent>
+						<HeroSubtitle $tone={tone}>{config.content.heroSubtitle}</HeroSubtitle>
 
-            {config.content.tagline && (
-              <Tagline $tone={tone}>
-                {config.content.tagline}
-              </Tagline>
-            )}
+						{config.content.tagline && <Tagline $tone={tone}>{config.content.tagline}</Tagline>}
 
-            <LoginAction $pattern={loginPattern}>
-              <LoginButton 
-                onClick={onLoginClick}
-                $brandColor={brandColor}
-                $accentColor={accentColor}
-                $tone={tone}
-              >
-                <FiLock />
-                {loginPattern === 'new-page' 
-                  ? `Go to ${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
-                  : `${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
-                }
-                <FiArrowRight />
-              </LoginButton>
-            </LoginAction>
-          </HeroContent>
-        );
-    }
-  };
+						<LoginAction $pattern={loginPattern}>
+							<LoginButton
+								onClick={onLoginClick}
+								$brandColor={brandColor}
+								$accentColor={accentColor}
+								$tone={tone}
+							>
+								<FiLock />
+								{loginPattern === 'new-page'
+									? `Go to ${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`
+									: `${config.content.customerTerminology ? 'Customer' : 'Employee'} Login`}
+								<FiArrowRight />
+							</LoginButton>
+						</LoginAction>
+					</HeroContent>
+				);
+		}
+	};
 
-  // Show different content based on current step
-  if (currentStep !== 'portal-home') {
-    return (
-      <HeroSectionStyled 
-        $brandColor={brandColor} 
-        $brandSecondary={brandSecondary} 
-        $pattern={getBackgroundPattern()}
-      >
-        <HeroContent>
-          <HeroSubtitle $tone={tone}>
-            Complete your secure authentication with {config.company.displayName}
-          </HeroSubtitle>
-        </HeroContent>
-      </HeroSectionStyled>
-    );
-  }
+	// Show different content based on current step
+	if (currentStep !== 'portal-home') {
+		return (
+			<HeroSectionStyled
+				$brandColor={brandColor}
+				$brandSecondary={brandSecondary}
+				$pattern={getBackgroundPattern()}
+			>
+				<HeroContent>
+					<HeroSubtitle $tone={tone}>
+						Complete your secure authentication with {config.company.displayName}
+					</HeroSubtitle>
+				</HeroContent>
+			</HeroSectionStyled>
+		);
+	}
 
-  return (
-    <HeroSectionStyled 
-      $brandColor={brandColor} 
-      $brandSecondary={brandSecondary} 
-      $pattern={getBackgroundPattern()}
-    >
-      {renderIndustryHero()}
-    </HeroSectionStyled>
-  );
+	return (
+		<HeroSectionStyled
+			$brandColor={brandColor}
+			$brandSecondary={brandSecondary}
+			$pattern={getBackgroundPattern()}
+		>
+			{renderIndustryHero()}
+		</HeroSectionStyled>
+	);
 };
 
 export default HeroSection;

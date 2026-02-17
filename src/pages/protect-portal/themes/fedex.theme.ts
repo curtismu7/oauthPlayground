@@ -12,96 +12,96 @@ import type { BrandTheme } from './brand-theme.interface';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 
 export const fedexConfig: CorporatePortalConfig = {
-  company: {
-    name: 'fedex',
-    displayName: 'FedEx',
-    industry: 'logistics',
-    logo: {
-      url: '',
-      alt: 'FedEx Logo',
-      width: '110px',
-      height: '40px',
-      text: 'FedEx',
-      colors: {
-        primary: '#4D148C',
-        accent: '#FF6600',
-      },
-    },
-  },
-  login: {
-    pattern: 'new-page',
-    position: 'hero',
-    animation: { type: 'fadeIn', duration: '0.4s' },
-  },
-  navigation: {
-    style: 'corporate',
-    showBrandSelector: true,
-    stickyHeader: true,
-  },
-  content: {
-    customerTerminology: true,
-    tone: 'corporate',
-    heroTitle: 'The World on Time',
-    heroSubtitle: 'Track shipments, schedule pickups, and manage your FedEx account',
-    features: [
-      {
-        title: 'Track & Trace',
-        description: 'Real-time tracking for all your packages and deliveries worldwide',
-        icon: 'tracking',
-      },
-      {
-        title: 'Schedule a Pickup',
-        description: 'Request pickups and manage shipping schedules from your location',
-        icon: 'shipping',
-      },
-      {
-        title: 'Shipping Services',
-        description: 'Access FedEx Express, Ground, Freight and international shipping',
-        icon: 'services',
-      },
-      {
-        title: 'My Account',
-        description: 'Manage your profile, preferences and shipping history',
-        icon: 'account',
-      },
-    ],
-  },
-  branding: {
-    colors: {
-      primary: '#4D148C', // FedEx purple
-      primaryDark: '#3c0f6d',
-      secondary: '#FFFFFF',
-      accent: '#FF6600', // FedEx orange
-      background: '#FFFFFF',
-      surface: '#FFFFFF',
-      muted: '#6b7280',
-      border: '#d1d5db',
-      text: '#1F2937',
-      textSecondary: '#6B7280',
-      error: '#DC2626',
-      success: '#059669',
-      warning: '#FF6600',
-      info: '#4D148C',
-      primaryLight: '#6B3AA6',
-      secondaryLight: '#F8F9FA',
-      secondaryDark: '#E9ECEF',
-      errorLight: '#FEE2E2',
-      warningLight: '#FEF3C7',
-      successLight: '#D1FAE5',
-    },
-    typography: {
-      heading: 'Arial, Helvetica Neue, sans-serif',
-      body: 'Arial, Helvetica Neue, sans-serif',
-    },
-    spacing: {
-      xs: '0.25rem',
-      sm: '0.5rem',
-      md: '1rem',
-      lg: '1.5rem',
-      xl: '2rem',
-      xxl: '3rem',
-    },
-  },
+	company: {
+		name: 'fedex',
+		displayName: 'FedEx',
+		industry: 'logistics',
+		logo: {
+			url: '',
+			alt: 'FedEx Logo',
+			width: '110px',
+			height: '40px',
+			text: 'FedEx',
+			colors: {
+				primary: '#4D148C',
+				accent: '#FF6600',
+			},
+		},
+	},
+	login: {
+		pattern: 'new-page',
+		position: 'hero',
+		animation: { type: 'fadeIn', duration: '0.4s' },
+	},
+	navigation: {
+		style: 'corporate',
+		showBrandSelector: true,
+		stickyHeader: true,
+	},
+	content: {
+		customerTerminology: true,
+		tone: 'corporate',
+		heroTitle: 'The World on Time',
+		heroSubtitle: 'Track shipments, schedule pickups, and manage your FedEx account',
+		features: [
+			{
+				title: 'Track & Trace',
+				description: 'Real-time tracking for all your packages and deliveries worldwide',
+				icon: 'tracking',
+			},
+			{
+				title: 'Schedule a Pickup',
+				description: 'Request pickups and manage shipping schedules from your location',
+				icon: 'shipping',
+			},
+			{
+				title: 'Shipping Services',
+				description: 'Access FedEx Express, Ground, Freight and international shipping',
+				icon: 'services',
+			},
+			{
+				title: 'My Account',
+				description: 'Manage your profile, preferences and shipping history',
+				icon: 'account',
+			},
+		],
+	},
+	branding: {
+		colors: {
+			primary: '#4D148C', // FedEx purple
+			primaryDark: '#3c0f6d',
+			secondary: '#FFFFFF',
+			accent: '#FF6600', // FedEx orange
+			background: '#FFFFFF',
+			surface: '#FFFFFF',
+			muted: '#6b7280',
+			border: '#d1d5db',
+			text: '#1F2937',
+			textSecondary: '#6B7280',
+			error: '#DC2626',
+			success: '#059669',
+			warning: '#FF6600',
+			info: '#4D148C',
+			primaryLight: '#6B3AA6',
+			secondaryLight: '#F8F9FA',
+			secondaryDark: '#E9ECEF',
+			errorLight: '#FEE2E2',
+			warningLight: '#FEF3C7',
+			successLight: '#D1FAE5',
+		},
+		typography: {
+			heading: 'Arial, Helvetica Neue, sans-serif',
+			body: 'Arial, Helvetica Neue, sans-serif',
+		},
+		spacing: {
+			xs: '0.25rem',
+			sm: '0.5rem',
+			md: '1rem',
+			lg: '1.5rem',
+			xl: '2rem',
+			xxl: '3rem',
+		},
+	},
 };
 
 export const fedexTheme: BrandTheme = {

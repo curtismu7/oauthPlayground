@@ -67,7 +67,7 @@ export interface StepResolverContext {
 
 /**
  * Unified MFA Step Resume Resolver
- * 
+ *
  * Implements fool-proof step resolution with strict precedence and invariant:
  * "redirect-resume path must not route to Step 0"
  */
@@ -87,7 +87,7 @@ export class UnifiedMFAResumeStepResolverV8 {
 			const urlObj = new URL(url);
 			// Remove sensitive parameters
 			const sensitiveParams = ['code', 'state', 'token', 'session', 'auth'];
-			sensitiveParams.forEach(param => urlObj.searchParams.delete(param));
+			sensitiveParams.forEach((param) => urlObj.searchParams.delete(param));
 			return urlObj.toString();
 		} catch {
 			return '[INVALID_URL]';
@@ -100,7 +100,7 @@ export class UnifiedMFAResumeStepResolverV8 {
 	private static sanitizeRedirectParams(params: URLSearchParams): Record<string, string> {
 		const sanitized: Record<string, string> = {};
 		const sensitiveKeys = ['code', 'state', 'token', 'session', 'auth', 'client_secret'];
-		
+
 		params.forEach((value, key) => {
 			if (sensitiveKeys.includes(key)) {
 				sanitized[key] = '[REDACTED]';
@@ -108,14 +108,17 @@ export class UnifiedMFAResumeStepResolverV8 {
 				sanitized[key] = value;
 			}
 		});
-		
+
 		return sanitized;
 	}
 
 	/**
 	 * Extract storage data safely
 	 */
-	private static getStorageData(): { sessionStorage: Record<string, string>; localStorage: Record<string, string> } {
+	private static getStorageData(): {
+		sessionStorage: Record<string, string>;
+		localStorage: Record<string, string>;
+	} {
 		const sessionStorage: Record<string, string> = {};
 		const localStorage: Record<string, string> = {};
 
@@ -128,10 +131,10 @@ export class UnifiedMFAResumeStepResolverV8 {
 				'mfa_oauth_callback_timestamp',
 				'user_login_state_v8',
 				'mfa-flow-v8',
-				'unified-mfa-current-step'
+				'unified-mfa-current-step',
 			];
 
-			sessionKeys.forEach(key => {
+			sessionKeys.forEach((key) => {
 				const value = window.sessionStorage.getItem(key);
 				if (value !== null) {
 					sessionStorage[key] = value;
@@ -147,10 +150,10 @@ export class UnifiedMFAResumeStepResolverV8 {
 				'mfa-flow-v8',
 				'user-login-v8',
 				'unified-mfa-last-known-step',
-				'unified-mfa-flow-state'
+				'unified-mfa-flow-state',
 			];
 
-			localKeys.forEach(key => {
+			localKeys.forEach((key) => {
 				const value = window.localStorage.getItem(key);
 				if (value !== null) {
 					localStorage[key] = value;
@@ -231,9 +234,11 @@ export class UnifiedMFAResumeStepResolverV8 {
 	/**
 	 * Resolve step from server session (highest priority)
 	 */
-	private static resolveFromServerSession(context: StepResolverContext): StepResolutionResult | null {
+	private static resolveFromServerSession(
+		context: StepResolverContext
+	): StepResolutionResult | null {
 		const { sessionStorage } = context;
-		
+
 		// Check for server-side session state
 		const serverSessionStep = sessionStorage['mfa_server_session_step'];
 		if (serverSessionStep) {
@@ -260,7 +265,7 @@ export class UnifiedMFAResumeStepResolverV8 {
 	 */
 	private static resolveFromStateParam(context: StepResolverContext): StepResolutionResult | null {
 		const { searchParams, sessionStorage } = context;
-		
+
 		// Check for step in URL params
 		const urlStep = searchParams.get('step');
 		if (urlStep) {
@@ -309,9 +314,11 @@ export class UnifiedMFAResumeStepResolverV8 {
 	/**
 	 * Resolve step from client storage
 	 */
-	private static resolveFromClientStorage(context: StepResolverContext): StepResolutionResult | null {
+	private static resolveFromClientStorage(
+		context: StepResolverContext
+	): StepResolutionResult | null {
 		const { sessionStorage, localStorage } = context;
-		
+
 		// Check for target step after callback
 		const targetStep = sessionStorage['mfa_target_step_after_callback'];
 		if (targetStep) {
@@ -335,7 +342,11 @@ export class UnifiedMFAResumeStepResolverV8 {
 		if (flowState) {
 			try {
 				const parsed = JSON.parse(flowState);
-				if (parsed.currentStep && this.isValidStep(parsed.currentStep) && parsed.currentStep !== 0) {
+				if (
+					parsed.currentStep &&
+					this.isValidStep(parsed.currentStep) &&
+					parsed.currentStep !== 0
+				) {
 					return {
 						step: parsed.currentStep,
 						source: StepResolutionSource.CLIENT_STORAGE,
@@ -358,9 +369,11 @@ export class UnifiedMFAResumeStepResolverV8 {
 	/**
 	 * Resolve step from last known step
 	 */
-	private static resolveFromLastKnownStep(context: StepResolverContext): StepResolutionResult | null {
+	private static resolveFromLastKnownStep(
+		context: StepResolverContext
+	): StepResolutionResult | null {
 		const { localStorage } = context;
-		
+
 		// Check for last known step
 		const lastKnownStep = localStorage['unified-mfa-last-known-step'];
 		if (lastKnownStep) {
@@ -400,10 +413,10 @@ export class UnifiedMFAResumeStepResolverV8 {
 
 	/**
 	 * Resolve the correct step to resume after OAuth redirect
-	 * 
+	 *
 	 * This is the main entry point that implements the fool-proof step resolution
 	 * with strict precedence and invariant enforcement.
-	 * 
+	 *
 	 * @param currentUrl - Current page URL
 	 * @returns Step resolution result with full context
 	 */
@@ -440,9 +453,9 @@ export class UnifiedMFAResumeStepResolverV8 {
 				if (result) {
 					// ENFORCE INVARIANT: Step 0 is forbidden for redirect resumes
 					if (result.step === 0) {
-						rejectedSources.push({ 
-							source, 
-							reason: `Step 0 forbidden for redirect resumes (invariant violation)` 
+						rejectedSources.push({
+							source,
+							reason: `Step 0 forbidden for redirect resumes (invariant violation)`,
 						});
 						continue;
 					}
@@ -451,7 +464,9 @@ export class UnifiedMFAResumeStepResolverV8 {
 					this.logDecision(correlationId, context, result, rejectedSources);
 
 					const endTime = Date.now();
-					console.log(`${MODULE_TAG} ✅ Step resolved in ${endTime - startTime}ms: ${result.step} from ${result.source} (${correlationId})`);
+					console.log(
+						`${MODULE_TAG} ✅ Step resolved in ${endTime - startTime}ms: ${result.step} from ${result.source} (${correlationId})`
+					);
 
 					return result;
 				} else {
@@ -467,7 +482,9 @@ export class UnifiedMFAResumeStepResolverV8 {
 		this.logDecision(correlationId, context, fallbackResult, rejectedSources);
 
 		const endTime = Date.now();
-		console.log(`${MODULE_TAG} 🔒 FOOL-PROOF fallback in ${endTime - startTime}ms: Step 2 (${correlationId})`);
+		console.log(
+			`${MODULE_TAG} 🔒 FOOL-PROOF fallback in ${endTime - startTime}ms: Step 2 (${correlationId})`
+		);
 
 		return fallbackResult;
 	}

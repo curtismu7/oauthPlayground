@@ -6,8 +6,17 @@
  * @since 2026-02-15
  */
 
-import type { CompanyConfig, CompanyConfigDraft, CompanyConfigValidation, Industry } from '../types/CompanyConfig';
-import { COMPANY_CONFIG_STORAGE_KEY, COMPANY_REGISTRY_KEY, INDUSTRIES } from '../types/CompanyConfig';
+import type {
+	CompanyConfig,
+	CompanyConfigDraft,
+	CompanyConfigValidation,
+	Industry,
+} from '../types/CompanyConfig';
+import {
+	COMPANY_CONFIG_STORAGE_KEY,
+	COMPANY_REGISTRY_KEY,
+	INDUSTRIES,
+} from '../types/CompanyConfig';
 
 export class CompanyConfigService {
 	private static instance: CompanyConfigService;
@@ -49,7 +58,7 @@ export class CompanyConfigService {
 			};
 		} else {
 			const colorErrors = errors.colors || {};
-			
+
 			if (!this.isValidColor(config.colors.button)) {
 				colorErrors.button = 'Invalid button color format';
 			}
@@ -62,7 +71,7 @@ export class CompanyConfigService {
 			if (!this.isValidColor(config.colors.background)) {
 				colorErrors.background = 'Invalid background color format';
 			}
-			
+
 			if (Object.keys(colorErrors).length > 0) {
 				errors.colors = colorErrors;
 			}
@@ -93,7 +102,7 @@ export class CompanyConfigService {
 	 */
 	public async saveDraft(config: CompanyConfigDraft): Promise<void> {
 		try {
-			this.logEvent('company_config_save_attempt', { 
+			this.logEvent('company_config_save_attempt', {
 				companyName: config.name,
 				industry: config.industry,
 			});
@@ -101,7 +110,7 @@ export class CompanyConfigService {
 			const validation = this.validateConfig(config);
 			if (!validation.isValid) {
 				const errorMessage = `Validation failed: ${JSON.stringify(validation.errors)}`;
-				this.logEvent('company_config_save_failure', { 
+				this.logEvent('company_config_save_failure', {
 					companyName: config.name,
 					errors: validation.errors,
 				});
@@ -116,12 +125,12 @@ export class CompanyConfigService {
 
 			localStorage.setItem(draftKey, JSON.stringify(draftData));
 
-			this.logEvent('company_config_save_success', { 
+			this.logEvent('company_config_save_success', {
 				companyName: config.name,
 				draftKey,
 			});
 		} catch (error) {
-			this.logEvent('company_config_save_failure', { 
+			this.logEvent('company_config_save_failure', {
 				companyName: config.name,
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
@@ -134,7 +143,7 @@ export class CompanyConfigService {
 	 */
 	public async createCompany(config: CompanyConfigDraft): Promise<CompanyConfig> {
 		try {
-			this.logEvent('company_create_attempt', { 
+			this.logEvent('company_create_attempt', {
 				companyName: config.name,
 				industry: config.industry,
 			});
@@ -142,7 +151,7 @@ export class CompanyConfigService {
 			const validation = this.validateConfig(config);
 			if (!validation.isValid) {
 				const errorMessage = `Validation failed: ${JSON.stringify(validation.errors)}`;
-				this.logEvent('company_create_failure', { 
+				this.logEvent('company_create_failure', {
 					companyName: config.name,
 					errors: validation.errors,
 				});
@@ -151,13 +160,13 @@ export class CompanyConfigService {
 
 			// Check for name collision
 			const registry = this.getRegistry();
-			const existingCompany = registry.find(c => 
-				c.name.toLowerCase() === config.name.toLowerCase().trim()
+			const existingCompany = registry.find(
+				(c) => c.name.toLowerCase() === config.name.toLowerCase().trim()
 			);
 
 			if (existingCompany) {
 				const errorMessage = 'Company with this name already exists';
-				this.logEvent('company_create_failure', { 
+				this.logEvent('company_create_failure', {
 					companyName: config.name,
 					reason: 'name_collision',
 				});
@@ -183,7 +192,7 @@ export class CompanyConfigService {
 			const draftKey = `${COMPANY_CONFIG_STORAGE_KEY}:${slug}`;
 			localStorage.removeItem(draftKey);
 
-			this.logEvent('company_create_success', { 
+			this.logEvent('company_create_success', {
 				companyId: id,
 				companyName: config.name,
 				slug,
@@ -191,7 +200,7 @@ export class CompanyConfigService {
 
 			return newCompany;
 		} catch (error) {
-			this.logEvent('company_create_failure', { 
+			this.logEvent('company_create_failure', {
 				companyName: config.name,
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
@@ -207,7 +216,7 @@ export class CompanyConfigService {
 			const registryData = localStorage.getItem(COMPANY_REGISTRY_KEY);
 			return registryData ? JSON.parse(registryData) : [];
 		} catch (error) {
-			this.logEvent('company_registry_load_failure', { 
+			this.logEvent('company_registry_load_failure', {
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
 			return [];
@@ -219,7 +228,7 @@ export class CompanyConfigService {
 	 */
 	public getCompany(id: string): CompanyConfig | null {
 		const registry = this.getRegistry();
-		return registry.find(company => company.id === id) || null;
+		return registry.find((company) => company.id === id) || null;
 	}
 
 	/**
@@ -231,7 +240,7 @@ export class CompanyConfigService {
 			const draftData = localStorage.getItem(draftKey);
 			return draftData ? JSON.parse(draftData) : null;
 		} catch (error) {
-			this.logEvent('company_draft_load_failure', { 
+			this.logEvent('company_draft_load_failure', {
 				companyName: name,
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
@@ -265,7 +274,7 @@ export class CompanyConfigService {
 		const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
 		// RGB format: rgb(r, g, b)
 		const rgbRegex = /^rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)$/;
-		
+
 		return hexRegex.test(color) || rgbRegex.test(color);
 	}
 
@@ -278,7 +287,7 @@ export class CompanyConfigService {
 			if (url.startsWith('blob:')) {
 				return true; // Blob URLs are always valid images from file inputs
 			}
-			
+
 			// Handle regular URLs with file extensions
 			const urlObj = new URL(url);
 			return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(urlObj.pathname);

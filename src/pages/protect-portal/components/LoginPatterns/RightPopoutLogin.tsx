@@ -146,10 +146,10 @@ const LoginButton = styled.button<{ $brandColor: string; $accentColor: string }>
 // ============================================================================
 
 interface RightPopoutLoginProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (credentials: { username: string; password: string }) => void;
-  config: CorporatePortalConfig;
+	isOpen: boolean;
+	onClose: () => void;
+	onSubmit: (credentials: { username: string; password: string }) => void;
+	config: CorporatePortalConfig;
 }
 
 // ============================================================================
@@ -157,101 +157,101 @@ interface RightPopoutLoginProps {
 // ============================================================================
 
 const RightPopoutLogin: React.FC<RightPopoutLoginProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  config,
+	isOpen,
+	onClose,
+	onSubmit,
+	config,
 }) => {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-  });
+	const panelRef = useRef<HTMLDivElement>(null);
+	const [formData, setFormData] = useState({
+		username: '',
+		password: '',
+	});
 
-  // Close panel when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
+	// Close panel when clicking outside
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
+				onClose();
+			}
+		};
 
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+		if (isOpen) {
+			document.addEventListener('mousedown', handleClickOutside);
+		}
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen, onClose]);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [isOpen, onClose]);
 
-  // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
+	// Handle form submission
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		onSubmit(formData);
+	};
 
-  // Handle input changes
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+	// Handle input changes
+	const handleInputChange = (field: string, value: string) => {
+		setFormData((prev) => ({ ...prev, [field]: value }));
+	};
 
-  const brandColor = config.branding.colors.primary;
-  const accentColor = config.branding.colors.accent;
+	const brandColor = config.branding.colors.primary;
+	const accentColor = config.branding.colors.accent;
 
-  return (
-    <>
-      <LoginOverlay $isOpen={isOpen} onClick={onClose} />
-      <LoginPanel $isOpen={isOpen} ref={panelRef}>
-        <PanelHeader $brandColor={brandColor}>
-          <PanelTitle>
-            <FiLock />
-            {config.content.customerTerminology ? 'Customer Login' : 'Employee Login'}
-          </PanelTitle>
-          <CloseButton onClick={onClose}>
-            <FiX />
-          </CloseButton>
-        </PanelHeader>
+	return (
+		<>
+			<LoginOverlay $isOpen={isOpen} onClick={onClose} />
+			<LoginPanel $isOpen={isOpen} ref={panelRef}>
+				<PanelHeader $brandColor={brandColor}>
+					<PanelTitle>
+						<FiLock />
+						{config.content.customerTerminology ? 'Customer Login' : 'Employee Login'}
+					</PanelTitle>
+					<CloseButton onClick={onClose}>
+						<FiX />
+					</CloseButton>
+				</PanelHeader>
 
-        <PanelContent>
-          <LoginForm onSubmit={handleSubmit}>
-            <InputGroup>
-              <InputLabel htmlFor="username">
-                {config.content.customerTerminology ? 'Customer ID' : 'Employee ID'}
-              </InputLabel>
-              <Input
-                id="username"
-                type="text"
-                value={formData.username}
-                onChange={(e) => handleInputChange('username', e.target.value)}
-                placeholder={`Enter your ${config.content.customerTerminology ? 'customer' : 'employee'} ID`}
-                required
-                $brandColor={brandColor}
-              />
-            </InputGroup>
+				<PanelContent>
+					<LoginForm onSubmit={handleSubmit}>
+						<InputGroup>
+							<InputLabel htmlFor="username">
+								{config.content.customerTerminology ? 'Customer ID' : 'Employee ID'}
+							</InputLabel>
+							<Input
+								id="username"
+								type="text"
+								value={formData.username}
+								onChange={(e) => handleInputChange('username', e.target.value)}
+								placeholder={`Enter your ${config.content.customerTerminology ? 'customer' : 'employee'} ID`}
+								required
+								$brandColor={brandColor}
+							/>
+						</InputGroup>
 
-            <InputGroup>
-              <InputLabel htmlFor="password">Password</InputLabel>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
-                placeholder="Enter your password"
-                required
-                $brandColor={brandColor}
-              />
-            </InputGroup>
+						<InputGroup>
+							<InputLabel htmlFor="password">Password</InputLabel>
+							<Input
+								id="password"
+								type="password"
+								value={formData.password}
+								onChange={(e) => handleInputChange('password', e.target.value)}
+								placeholder="Enter your password"
+								required
+								$brandColor={brandColor}
+							/>
+						</InputGroup>
 
-            <LoginButton type="submit" $brandColor={brandColor} $accentColor={accentColor}>
-              <FiLock />
-              Sign In
-            </LoginButton>
-          </LoginForm>
-        </PanelContent>
-      </LoginPanel>
-    </>
-  );
+						<LoginButton type="submit" $brandColor={brandColor} $accentColor={accentColor}>
+							<FiLock />
+							Sign In
+						</LoginButton>
+					</LoginForm>
+				</PanelContent>
+			</LoginPanel>
+		</>
+	);
 };
 
 export default RightPopoutLogin;

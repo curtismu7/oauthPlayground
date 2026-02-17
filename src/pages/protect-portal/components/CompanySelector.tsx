@@ -241,10 +241,7 @@ interface CompanySelectorProps {
 // COMPONENT
 // ============================================================================
 
-const CompanySelector: React.FC<CompanySelectorProps> = ({
-	onCompanyChange,
-	selectedCompany,
-}) => {
+const CompanySelector: React.FC<CompanySelectorProps> = ({ onCompanyChange, selectedCompany }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const { switchTheme, activeTheme } = useBrandTheme();
 	const companyService = CompanyConfigService.getInstance();
@@ -255,14 +252,15 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({
 		console.log('[🚀 COMPANY-SELECTOR] Available companies:', {
 			defaultCount: defaultCompanies.length,
 			createdCount: createdCompanies.length,
-			createdCompanyNames: createdCompanies.map(c => c.name),
-			defaultCompanyNames: defaultCompanies.map(c => c.name),
+			createdCompanyNames: createdCompanies.map((c) => c.name),
+			defaultCompanyNames: defaultCompanies.map((c) => c.name),
 		});
 	}, []);
 
 	// Use activeTheme to determine current company, fallback to selectedCompany prop
-	const currentCompany = companies.find((c) => c.theme === activeTheme.name) || 
-		companies.find((c) => c.id === selectedCompany) || 
+	const currentCompany =
+		companies.find((c) => c.theme === activeTheme.name) ||
+		companies.find((c) => c.id === selectedCompany) ||
 		companies[0];
 
 	// Debug logging

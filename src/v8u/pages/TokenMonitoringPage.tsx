@@ -416,9 +416,9 @@ export const TokenMonitoringPage: React.FC = () => {
 
 	// Standardized spinner hooks for different operation types
 	const refreshSpinner = useStandardSpinner(3000); // Token refresh - 3 seconds
-	const syncSpinner = useStandardSpinner(5000);    // Manual sync - 5 seconds  
-	const revokeSpinner = useStandardSpinner(4000);  // Token revoke - 4 seconds
-	const copySpinner = useStandardSpinner(1000);    // Copy operation - 1 second
+	const syncSpinner = useStandardSpinner(5000); // Manual sync - 5 seconds
+	const revokeSpinner = useStandardSpinner(4000); // Token revoke - 4 seconds
+	const copySpinner = useStandardSpinner(1000); // Copy operation - 1 second
 
 	useEffect(() => {
 		setTokenMetricsRef.current = enhancedStateActions.setTokenMetrics;
@@ -432,7 +432,7 @@ export const TokenMonitoringPage: React.FC = () => {
 		const initialTokens = freshService.getAllTokens();
 		setTokens(initialTokens);
 		logger.debug(`[TokenMonitoringPage] Loaded ${initialTokens.length} initial tokens after reset`);
-		
+
 		// Debug: Log token details
 		initialTokens.forEach((token, index) => {
 			logger.debug(`[TokenMonitoringPage] Token ${index + 1}:`, {
@@ -487,17 +487,25 @@ export const TokenMonitoringPage: React.FC = () => {
 		// Debug: Check unified worker token service directly
 		setTimeout(async () => {
 			try {
-				const { unifiedWorkerTokenService } = await import('../../services/unifiedWorkerTokenService');
+				const { unifiedWorkerTokenService } = await import(
+					'../../services/unifiedWorkerTokenService'
+				);
 				const status = await unifiedWorkerTokenService.getStatus();
-				logger.debug('[TokenMonitoringPage] Direct worker token status check:', status as unknown as Record<string, unknown>);
-				
+				logger.debug(
+					'[TokenMonitoringPage] Direct worker token status check:',
+					status as unknown as Record<string, unknown>
+				);
+
 				const token = await unifiedWorkerTokenService.getToken();
 				logger.debug('[TokenMonitoringPage] Direct worker token get result:', {
 					hasToken: !!token,
 					tokenLength: token?.length || 0,
 				} as Record<string, unknown>);
 			} catch (err) {
-				logger.error('[TokenMonitoringPage] Direct worker token check failed:', err as Record<string, unknown>);
+				logger.error(
+					'[TokenMonitoringPage] Direct worker token check failed:',
+					err as Record<string, unknown>
+				);
 			}
 		}, 2000);
 
@@ -561,7 +569,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					});
 					setMessage('Failed to refresh token');
 					setMessageType('error');
-				}
+				},
 			}
 		);
 	};
@@ -571,12 +579,12 @@ export const TokenMonitoringPage: React.FC = () => {
 			async () => {
 				const service = TokenMonitoringService.getInstance();
 				await service.manualSyncWorkerToken();
-				
+
 				// Also check localStorage directly
 				const accessToken = localStorage.getItem('token_to_analyze');
 				const tokenType = localStorage.getItem('token_type');
 				const flowSource = localStorage.getItem('flow_source');
-				
+
 				if (accessToken && tokenType) {
 					logger.info('Found token in localStorage:', {
 						tokenType,
@@ -602,7 +610,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					});
 					setMessage('Manual sync failed');
 					setMessageType('error');
-				}
+				},
 			}
 		);
 	};
@@ -635,7 +643,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					});
 					setMessage('Failed to revoke token');
 					setMessageType('error');
-				}
+				},
 			}
 		);
 	};
@@ -661,7 +669,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					});
 					setMessage('Failed to copy token');
 					setMessageType('error');
-				}
+				},
 			}
 		);
 	};
@@ -700,9 +708,9 @@ export const TokenMonitoringPage: React.FC = () => {
 	const activeTokens = filteredTokens.filter((t) => t.status === 'active').length;
 	const expiringTokens = filteredTokens.filter((t) => t.status === 'expiring').length;
 	const expiredTokens = filteredTokens.filter((t) => t.status === 'expired').length;
-	
+
 	// Check if worker tokens exist
-	const hasWorkerTokens = tokens.some(t => t.type === 'worker_token');
+	const hasWorkerTokens = tokens.some((t) => t.type === 'worker_token');
 
 	const getTokenTypeLabel = (type: string) => {
 		switch (type) {
@@ -728,11 +736,7 @@ export const TokenMonitoringPage: React.FC = () => {
 	return (
 		<PageContainer>
 			{/* Modal Spinners for Long-Running Operations */}
-			<StandardModalSpinner
-				show={syncSpinner.isLoading}
-				message="Syncing tokens..."
-				theme="blue"
-			/>
+			<StandardModalSpinner show={syncSpinner.isLoading} message="Syncing tokens..." theme="blue" />
 			<StandardModalSpinner
 				show={refreshSpinner.isLoading}
 				message="Refreshing token..."
@@ -743,15 +747,13 @@ export const TokenMonitoringPage: React.FC = () => {
 				message="Revoking token..."
 				theme="orange"
 			/>
-			
+
 			<PageHeader>
 				<PageTitle>🔐 Token Monitoring</PageTitle>
 				<PageSubtitle>Real-time monitoring and management of OAuth tokens</PageSubtitle>
 				<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1rem' }}>
 					{!hasWorkerTokens && (
-						<ActionButton
-							onClick={() => setShowWorkerTokenModal(true)}
-						>
+						<ActionButton onClick={() => setShowWorkerTokenModal(true)}>
 							<FiSettings />
 							Get Worker Token
 						</ActionButton>
@@ -820,7 +822,7 @@ export const TokenMonitoringPage: React.FC = () => {
 					<FiRefreshCw />
 					Manual Sync
 				</ActionButton>
-				
+
 				<DropdownContainer>
 					<DropdownButton onClick={() => setIsFlowDropdownOpen(!isFlowDropdownOpen)}>
 						<span>{getFlowTypeLabel(selectedFlowType)}</span>
@@ -912,7 +914,13 @@ export const TokenMonitoringPage: React.FC = () => {
 				<EmptyState>
 					<FiDatabase />
 					<h3>No tokens found</h3>
-					<p>No {selectedTokenType === 'all' ? 'tokens' : getTokenTypeLabel(selectedTokenType).toLowerCase()} found for {selectedFlowType === 'all' ? 'any flow' : getFlowTypeLabel(selectedFlowType)}</p>
+					<p>
+						No{' '}
+						{selectedTokenType === 'all'
+							? 'tokens'
+							: getTokenTypeLabel(selectedTokenType).toLowerCase()}{' '}
+						found for {selectedFlowType === 'all' ? 'any flow' : getFlowTypeLabel(selectedFlowType)}
+					</p>
 					{(selectedTokenType === 'all' || selectedTokenType === 'worker_token') && (
 						<ActionButton
 							onClick={() => setShowWorkerTokenModal(true)}
@@ -942,29 +950,31 @@ export const TokenMonitoringPage: React.FC = () => {
 							</TokenContent>
 
 							{decodedTokens[token.id] ? (
-		<TokenDecodedContent>
-			<DecodedSection>
-				<DecodedHeader>Header</DecodedHeader>
-				<DecodedJson>
-					{JSON.stringify(
-						(decodedTokens[token.id] as { header: Record<string, unknown> }).header || {},
-						null,
-						2
-					)}
-				</DecodedJson>
-			</DecodedSection>
-			<DecodedSection>
-				<DecodedHeader>Payload</DecodedHeader>
-				<DecodedJson>
-					{JSON.stringify(
-						(decodedTokens[token.id] as { payload: Record<string, unknown> }).payload || {},
-						null,
-						2
-					)}
-				</DecodedJson>
-			</DecodedSection>
-		</TokenDecodedContent>
-	) : null}
+								<TokenDecodedContent>
+									<DecodedSection>
+										<DecodedHeader>Header</DecodedHeader>
+										<DecodedJson>
+											{JSON.stringify(
+												(decodedTokens[token.id] as { header: Record<string, unknown> }).header ||
+													{},
+												null,
+												2
+											)}
+										</DecodedJson>
+									</DecodedSection>
+									<DecodedSection>
+										<DecodedHeader>Payload</DecodedHeader>
+										<DecodedJson>
+											{JSON.stringify(
+												(decodedTokens[token.id] as { payload: Record<string, unknown> }).payload ||
+													{},
+												null,
+												2
+											)}
+										</DecodedJson>
+									</DecodedSection>
+								</TokenDecodedContent>
+							) : null}
 
 							<TokenActions>
 								<ActionButton

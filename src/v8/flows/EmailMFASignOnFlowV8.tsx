@@ -138,7 +138,6 @@ const Input = styled.input`
 	}
 `;
 
-
 const ResultBox = styled.div<{ $success?: boolean }>`
 	padding: 1rem;
 	background: ${(props) => (props.$success ? '#f0fdf4' : '#fef2f2')};

@@ -13,7 +13,7 @@
 // 2. STORAGE ARCHITECTURE:
 //    - unifiedTokenStorageService handles persistence:
 //      * Discovery: IndexedDB 'oauth_credentials' type
-//      * Credentials: IndexedDB 'oauth_credentials' type  
+//      * Credentials: IndexedDB 'oauth_credentials' type
 //      * Advanced: IndexedDB 'oauth_credentials' type
 //      * Automatic SQLite backup for redundancy
 //
@@ -87,7 +87,12 @@ import type { ClientAuthMethod } from '../utils/clientAuthentication';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { DiscoveryResult } from './comprehensiveDiscoveryService';
 import { unifiedTokenStorage } from './unifiedTokenStorageService';
-import type { V8FlowData, V8DiscoveryData, V8CredentialsData, V8AdvancedData } from './unifiedTokenStorageService';
+import type {
+	V8FlowData,
+	V8DiscoveryData,
+	V8CredentialsData,
+	V8AdvancedData,
+} from './unifiedTokenStorageService';
 
 // Flow-specific authentication method configuration
 const getFlowAuthMethods = (flowType?: string): ClientAuthMethod[] => {

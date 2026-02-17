@@ -506,9 +506,11 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 
 				<HeroSection>
 					<HeroContent>
-						<HeroTitle>{isCustomer ? 'United Airlines Customer Portal' : 'United Airlines Employee Portal'}</HeroTitle>
+						<HeroTitle>
+							{isCustomer ? 'United Airlines Customer Portal' : 'United Airlines Employee Portal'}
+						</HeroTitle>
 						<HeroSubtitle>
-							{isCustomer 
+							{isCustomer
 								? 'Connecting the world. Your gateway to global travel and customer services'
 								: 'Connecting the world. Your gateway to global operations and employee resources'}
 						</HeroSubtitle>
@@ -523,13 +525,15 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 									<CardTitle>{isCustomer ? 'Customer Login' : 'Employee Login'}</CardTitle>
 								</CardHeader>
 								<CardDescription>
-									{isCustomer 
+									{isCustomer
 										? 'Access your United Airlines customer portal with secure authentication'
 										: 'Access your United Airlines employee portal with secure authentication'}
 								</CardDescription>
 								<LoginForm onSubmit={handleSubmit}>
 									<InputGroup>
-										<InputLabel htmlFor="email">{isCustomer ? 'Customer Email' : 'Employee Email'}</InputLabel>
+										<InputLabel htmlFor="email">
+											{isCustomer ? 'Customer Email' : 'Employee Email'}
+										</InputLabel>
 										<Input
 											id="email"
 											type="email"
@@ -576,13 +580,17 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 
 				<FeaturesSection>
 					<FeaturesContainer>
-						<FeaturesTitle>{isCustomer ? 'Customer Resources' : 'Employee Resources'}</FeaturesTitle>
+						<FeaturesTitle>
+							{isCustomer ? 'Customer Resources' : 'Employee Resources'}
+						</FeaturesTitle>
 						<FeaturesGrid>
 							<FeatureCard>
 								<FeatureIcon>
 									<FiMail />
 								</FeatureIcon>
-								<FeatureTitle>{isCustomer ? 'Travel Communications' : 'Employee Communications'}</FeatureTitle>
+								<FeatureTitle>
+									{isCustomer ? 'Travel Communications' : 'Employee Communications'}
+								</FeatureTitle>
 								<FeatureDescription>
 									{isCustomer
 										? 'Access travel alerts, itinerary updates, and account notifications'
@@ -627,7 +635,9 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 				<DropdownContent>
 					<LoginForm onSubmit={handleSubmit}>
 						<InputGroup>
-							<InputLabel htmlFor="dropdown-email">{isCustomer ? 'Customer Email' : 'Employee Email'}</InputLabel>
+							<InputLabel htmlFor="dropdown-email">
+								{isCustomer ? 'Customer Email' : 'Employee Email'}
+							</InputLabel>
 							<Input
 								id="dropdown-email"
 								type="email"
@@ -648,9 +658,7 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 								required
 							/>
 						</InputGroup>
-						<LoginButton type="submit">
-							Sign In
-						</LoginButton>
+						<LoginButton type="submit">Sign In</LoginButton>
 					</LoginForm>
 				</DropdownContent>
 			</LoginDropdown>

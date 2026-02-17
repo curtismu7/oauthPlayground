@@ -434,92 +434,97 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				const loadSavedCredentials = async () => {
 					try {
 						const savedCredentials = await unifiedWorkerTokenService.loadCredentials();
-					if (savedCredentials) {
-						// Validate that environmentId is actually an environment ID (UUID format)
-						const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-						const savedEnvId = savedCredentials.environmentId?.trim() || '';
-						const isValidEnvId = savedEnvId && uuidRegex.test(savedEnvId);
+						if (savedCredentials) {
+							// Validate that environmentId is actually an environment ID (UUID format)
+							const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+							const savedEnvId = savedCredentials.environmentId?.trim() || '';
+							const isValidEnvId = savedEnvId && uuidRegex.test(savedEnvId);
 
-						console.log(
-							'[WorkerTokenModal] 🔄 Loading saved credentials from flow-specific storage:',
-							{
-								flowType,
-								savedEnvironmentId: savedEnvId ? `${savedEnvId.substring(0, 20)}...` : 'MISSING',
-								isValidEnvironmentId: isValidEnvId,
-								propEnvironmentId: environmentId ? `${environmentId.substring(0, 20)}...` : 'MISSING',
-								clientId: `${savedCredentials.clientId?.substring(0, 20)}...`,
-								hasClientSecret: !!savedCredentials.clientSecret,
-							}
-						);
-
-						if (!isValidEnvId) {
-							console.error(
-								'[WorkerTokenModal] ❌ Saved environment ID is invalid (not UUID format):',
-								savedEnvId
-							);
-							// Don't use invalid saved credentials
-							return;
-						}
-
-						// Use saved credentials ONLY - ignore environmentId prop completely
-						setWorkerCredentials({
-							environmentId: savedEnvId, // Use saved environment ID only
-							clientId: savedCredentials.clientId || '',
-							clientSecret: savedCredentials.clientSecret || '',
-							region: savedCredentials.region || 'us',
-							scopes: (() => {
-								// Worker tokens use roles, not scopes - we may need 1 scope for API compatibility
-								const savedScopes = Array.isArray(savedCredentials.scopes)
-									? savedCredentials.scopes.join(' ')
-									: savedCredentials.scopes || '';
-								// Use first scope only if provided (scopes aren't used for authorization)
-								if (savedScopes) {
-									const scopeArray = savedScopes.split(/\s+/).filter(Boolean);
-									return scopeArray.length > 0 ? scopeArray[0] : '';
+							console.log(
+								'[WorkerTokenModal] 🔄 Loading saved credentials from flow-specific storage:',
+								{
+									flowType,
+									savedEnvironmentId: savedEnvId ? `${savedEnvId.substring(0, 20)}...` : 'MISSING',
+									isValidEnvironmentId: isValidEnvId,
+									propEnvironmentId: environmentId
+										? `${environmentId.substring(0, 20)}...`
+										: 'MISSING',
+									clientId: `${savedCredentials.clientId?.substring(0, 20)}...`,
+									hasClientSecret: !!savedCredentials.clientSecret,
 								}
-								return ''; // Empty - scopes are optional for worker tokens
-							})(),
-							authMethod:
-								savedCredentials.tokenEndpointAuthMethod ||
-								('client_secret_post' as
-									| 'none'
-									| 'client_secret_basic'
-									| 'client_secret_post'
-									| 'client_secret_jwt'
-									| 'private_key_jwt'),
-						});
-
-						console.log(
-							'[WorkerTokenModal] ✅ Loaded credentials from flow-specific storage (ignoring environmentId prop)'
-						);
-					} else {
-						// No saved credentials - use defaults but validate environmentId prop if provided
-						const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-						const propEnvId = environmentId?.trim() || '';
-						const isValidPropEnvId = propEnvId && uuidRegex.test(propEnvId);
-
-						console.log('[WorkerTokenModal] ℹ️ No saved credentials found for flowType:', flowType);
-						console.log('[WorkerTokenModal] ℹ️ Environment ID prop validation:', {
-							propEnvironmentId: propEnvId ? `${propEnvId.substring(0, 20)}...` : 'MISSING',
-							isValid: isValidPropEnvId,
-						});
-
-						// Only use prop environmentId if it's valid UUID format
-						if (isValidPropEnvId) {
-							setWorkerCredentials((prev) => ({
-								...prev,
-								environmentId: propEnvId,
-							}));
-						} else if (propEnvId) {
-							console.warn(
-								'[WorkerTokenModal] ⚠️ Ignoring invalid environmentId prop (not UUID format):',
-								propEnvId
 							);
+
+							if (!isValidEnvId) {
+								console.error(
+									'[WorkerTokenModal] ❌ Saved environment ID is invalid (not UUID format):',
+									savedEnvId
+								);
+								// Don't use invalid saved credentials
+								return;
+							}
+
+							// Use saved credentials ONLY - ignore environmentId prop completely
+							setWorkerCredentials({
+								environmentId: savedEnvId, // Use saved environment ID only
+								clientId: savedCredentials.clientId || '',
+								clientSecret: savedCredentials.clientSecret || '',
+								region: savedCredentials.region || 'us',
+								scopes: (() => {
+									// Worker tokens use roles, not scopes - we may need 1 scope for API compatibility
+									const savedScopes = Array.isArray(savedCredentials.scopes)
+										? savedCredentials.scopes.join(' ')
+										: savedCredentials.scopes || '';
+									// Use first scope only if provided (scopes aren't used for authorization)
+									if (savedScopes) {
+										const scopeArray = savedScopes.split(/\s+/).filter(Boolean);
+										return scopeArray.length > 0 ? scopeArray[0] : '';
+									}
+									return ''; // Empty - scopes are optional for worker tokens
+								})(),
+								authMethod:
+									savedCredentials.tokenEndpointAuthMethod ||
+									('client_secret_post' as
+										| 'none'
+										| 'client_secret_basic'
+										| 'client_secret_post'
+										| 'client_secret_jwt'
+										| 'private_key_jwt'),
+							});
+
+							console.log(
+								'[WorkerTokenModal] ✅ Loaded credentials from flow-specific storage (ignoring environmentId prop)'
+							);
+						} else {
+							// No saved credentials - use defaults but validate environmentId prop if provided
+							const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+							const propEnvId = environmentId?.trim() || '';
+							const isValidPropEnvId = propEnvId && uuidRegex.test(propEnvId);
+
+							console.log(
+								'[WorkerTokenModal] ℹ️ No saved credentials found for flowType:',
+								flowType
+							);
+							console.log('[WorkerTokenModal] ℹ️ Environment ID prop validation:', {
+								propEnvironmentId: propEnvId ? `${propEnvId.substring(0, 20)}...` : 'MISSING',
+								isValid: isValidPropEnvId,
+							});
+
+							// Only use prop environmentId if it's valid UUID format
+							if (isValidPropEnvId) {
+								setWorkerCredentials((prev) => ({
+									...prev,
+									environmentId: propEnvId,
+								}));
+							} else if (propEnvId) {
+								console.warn(
+									'[WorkerTokenModal] ⚠️ Ignoring invalid environmentId prop (not UUID format):',
+									propEnvId
+								);
+							}
 						}
+					} catch (error) {
+						console.error('[WorkerTokenModal] Failed to load saved credentials:', error);
 					}
-				} catch (error) {
-					console.error('[WorkerTokenModal] Failed to load saved credentials:', error);
-				}
 				};
 				loadSavedCredentials();
 			}
@@ -1661,10 +1666,16 @@ export const WorkerTokenModal: React.FC<Props> = ({
 										Cancel
 									</ActionButton>
 								</ButtonGroup>
-								
+
 								{/* Standardized Export/Import */}
 								{workerCredentials.clientId && workerCredentials.clientSecret && (
-									<div style={{ marginTop: '1rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
+									<div
+										style={{
+											marginTop: '1rem',
+											borderTop: '1px solid #e2e8f0',
+											paddingTop: '1rem',
+										}}
+									>
 										<StandardizedCredentialExportImport
 											appName="Worker Token"
 											appType="worker-token"
@@ -1673,12 +1684,13 @@ export const WorkerTokenModal: React.FC<Props> = ({
 												clientId: workerCredentials.clientId,
 												clientSecret: workerCredentials.clientSecret,
 												region: workerCredentials.region || 'us',
-												tokenEndpointAuthMethod: workerCredentials.tokenEndpointAuthMethod || 'client_secret_basic',
-												scopes: workerCredentials.scopes || []
+												tokenEndpointAuthMethod:
+													workerCredentials.tokenEndpointAuthMethod || 'client_secret_basic',
+												scopes: workerCredentials.scopes || [],
 											}}
 											metadata={{
 												workflow: 'worker-token',
-												description: 'Worker Token credentials for PingOne API access'
+												description: 'Worker Token credentials for PingOne API access',
 											}}
 											onExport={() => {
 												console.log('WorkerTokenModal: Credentials exported');
