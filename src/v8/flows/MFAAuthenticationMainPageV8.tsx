@@ -35,6 +35,9 @@ import {
 	FiX,
 } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { EducationModeToggle } from '@/components/education/EducationModeToggle';
+import { MasterEducationSection } from '@/components/education/MasterEducationSection';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { environmentService } from '@/services/environmentService';
@@ -48,9 +51,6 @@ import { oauthStorage } from '@/utils/storage';
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
 import { DeviceFailureModalV8, UnavailableDevice } from '@/v8/components/DeviceFailureModalV8';
 import { MFACooldownModalV8 } from '@/v8/components/MFACooldownModalV8';
-import { useProductionSpinner } from '../../hooks/useProductionSpinner';
-import { CommonSpinner } from '../../components/common/CommonSpinner';
-import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -77,8 +77,8 @@ import {
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
-import { EducationModeToggle } from '@/components/education/EducationModeToggle';
-import { MasterEducationSection } from '@/components/education/MasterEducationSection';
+import { CommonSpinner } from '../../components/common/CommonSpinner';
+import { useProductionSpinner } from '../../hooks/useProductionSpinner';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import {
 	MFADeviceSelectionInfoModal,

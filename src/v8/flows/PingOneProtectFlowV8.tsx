@@ -27,16 +27,16 @@ import {
 	FiTrendingUp,
 	FiXCircle,
 } from 'react-icons/fi';
-import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { CredentialsServiceV8, type Credentials } from '@/v8/services/credentialsServiceV8';
+import { type Credentials, CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import uiNotificationServiceV8 from '@/v8/services/uiNotificationServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
+import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 
 // Types for PingOne Protect
 interface ProtectCredentials {
