@@ -22,6 +22,7 @@ import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { stateUtils, useUnifiedFlowState } from '../services/enhancedStateManagement';
 import { TokenMonitoringService } from '../services/tokenMonitoringService';
 import { UnifiedOAuthCredentialsServiceV8U } from '../services/unifiedOAuthCredentialsServiceV8U';
+import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
 
 const PageContainer = styled.div`
   padding: 2rem;
@@ -375,6 +376,11 @@ export const EnhancedStateManagementPage: React.FC = () => {
 	const [isExporting, setIsExporting] = useState(false);
 	const [isImporting, setIsImporting] = useState(false);
 
+	// Standardized spinner hooks for state management operations
+	const exportSpinner = useStandardSpinner(4000); // Export state - 4 seconds
+	const importSpinner = useStandardSpinner(3000); // Import state - 3 seconds
+	const resetSpinner = useStandardSpinner(2000);  // Reset state - 2 seconds
+
 	// Auto-update real metrics on mount
 	useEffect(() => {
 		actions.updateRealMetrics();
@@ -383,38 +389,41 @@ export const EnhancedStateManagementPage: React.FC = () => {
 	// Export state
 	const handleExport = async () => {
 		logger.debug('handleExport called');
-		try {
-			setIsExporting(true);
-			const stateData = stateUtils.exportAllState();
+		await exportSpinner.executeWithSpinner(
+			async () => {
+				const stateData = stateUtils.exportAllState();
 
-			if (!stateData) {
-				throw new Error('Failed to export state data');
+				if (!stateData) {
+					throw new Error('Failed to export state data');
+				}
+
+				const blob = new Blob([JSON.stringify(stateData, null, 2)], {
+					type: 'application/json',
+				});
+
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = `enhanced-state-management-${new Date().toISOString().split('T')[0]}.json`;
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			},
+			{
+				onSuccess: () => {
+					setMessage('State exported successfully!');
+					setMessageType('success');
+				},
+				onError: (error) => {
+					logger.error('Failed to export state:', error);
+					setMessage(
+						`Failed to export state: ${error instanceof Error ? error.message : 'Unknown error'}`
+					);
+					setMessageType('error');
+				}
 			}
-
-			const blob = new Blob([JSON.stringify(stateData, null, 2)], {
-				type: 'application/json',
-			});
-
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = `enhanced-state-management-${new Date().toISOString().split('T')[0]}.json`;
-			document.body.appendChild(a);
-			a.click();
-			document.body.removeChild(a);
-			URL.revokeObjectURL(url);
-
-			setMessage('State exported successfully!');
-			setMessageType('success');
-		} catch (error) {
-			logger.error('Failed to export state:', error);
-			setMessage(
-				`Failed to export state: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
-			setMessageType('error');
-		} finally {
-			setIsExporting(false);
-		}
+		);
 	};
 
 	// Import state
@@ -422,26 +431,32 @@ export const EnhancedStateManagementPage: React.FC = () => {
 		const file = event.target.files?.[0];
 		if (!file) return;
 
-		try {
-			setIsImporting(true);
-			const text = await file.text();
-			const importedState = JSON.parse(text);
+		await importSpinner.executeWithSpinner(
+			async () => {
+				const text = await file.text();
+				const importedState = JSON.parse(text);
 
-			if (importedState) {
-				stateUtils.importAllState(importedState);
-				setMessage('State imported successfully');
-				setMessageType('success');
+				if (importedState) {
+					stateUtils.importAllState(importedState);
+				}
+			},
+			{
+				onSuccess: () => {
+					setMessage('State imported successfully');
+					setMessageType('success');
+				},
+				onError: (_error) => {
+					setMessage('Failed to import state');
+					setMessageType('error');
+				},
+				onComplete: () => {
+					// Clear the file input
+					if (event.target) {
+						event.target.value = '';
+					}
+				}
 			}
-		} catch (_error) {
-			setMessage('Failed to import state');
-			setMessageType('error');
-		} finally {
-			setIsImporting(false);
-			// Clear the file input
-			if (event.target) {
-				event.target.value = '';
-			}
-		}
+		);
 	};
 
 	// Reset all state
@@ -468,6 +483,23 @@ export const EnhancedStateManagementPage: React.FC = () => {
 
 	return (
 		<PageContainer>
+			{/* Modal Spinners for State Management Operations */}
+			<StandardModalSpinner
+				show={exportSpinner.isLoading}
+				message="Exporting state..."
+				theme="blue"
+			/>
+			<StandardModalSpinner
+				show={importSpinner.isLoading}
+				message="Importing state..."
+				theme="green"
+			/>
+			<StandardModalSpinner
+				show={resetSpinner.isLoading}
+				message="Resetting state..."
+				theme="orange"
+			/>
+			
 			<PageHeader>
 				<PageTitle>🔧 Enhanced State Management</PageTitle>
 				<PageSubtitle>
