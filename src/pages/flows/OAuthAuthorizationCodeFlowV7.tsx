@@ -3972,8 +3972,11 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				<EducationModeToggle variant="buttons" showDescription={true} />
 
 				{/* Master Education Section */}
-				<MasterEducationSection 
-					sections={V7EducationalContentService.getMasterEducationContent('oauth-authorization-code-v7').sections}
+				<MasterEducationSection
+					sections={
+						V7EducationalContentService.getMasterEducationContent('oauth-authorization-code-v7')
+							.sections
+					}
 				/>
 
 				<EnhancedFlowInfoCard

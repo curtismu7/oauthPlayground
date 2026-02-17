@@ -441,7 +441,8 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 					errorType: 'response_type_invalid' as const,
 					errorMessage: errorMsg,
 					fixable: true,
-					fixDescription: 'Update response_type to "token id_token" (recommended for OIDC implicit flow)',
+					fixDescription:
+						'Update response_type to "token id_token" (recommended for OIDC implicit flow)',
 					fixData: {
 						responseType: specVersion === 'oidc' ? 'token id_token' : 'token',
 					},
@@ -472,8 +473,13 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 				const oidcScopes = ['profile', 'email', 'address', 'phone']; // Removed 'openid' as it's allowed for worker tokens
 				const foundOidcScopes = oidcScopes.filter((scope) => credentials.scopes?.includes(scope));
 				// Only check for non-openid OIDC scopes unless this is not a worker token
-				if (foundOidcScopes.length > 0 || (!options.workerToken && credentials.scopes?.includes('openid'))) {
-					const allInvalidScopes = foundOidcScopes.concat((!options.workerToken && credentials.scopes?.includes('openid')) ? ['openid'] : []);
+				if (
+					foundOidcScopes.length > 0 ||
+					(!options.workerToken && credentials.scopes?.includes('openid'))
+				) {
+					const allInvalidScopes = foundOidcScopes.concat(
+						!options.workerToken && credentials.scopes?.includes('openid') ? ['openid'] : []
+					);
 					errors.push(
 						`❌ Invalid OIDC Scopes: Client Credentials flow cannot use OIDC scopes (${allInvalidScopes.join(', ')}). Use resource server scopes like "ClaimScope", "my-api:read", or "my-api:write" instead.`
 					);
@@ -628,11 +634,11 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 			errors,
 			warnings,
 		};
-		
+
 		if (fixableErrors.length > 0) {
 			result.fixableErrors = fixableErrors;
 		}
-		
+
 		return result;
 	},
 
@@ -904,19 +910,19 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 			redirectUriValidated: redirectUriResult.redirectUris !== undefined,
 			oauthConfigValidated: oauthConfigResult.passed,
 		};
-		
+
 		if (redirectUriResult.redirectUris) {
 			result.redirectUris = redirectUriResult.redirectUris;
 		}
-		
+
 		if (fixableErrors.length > 0) {
 			result.fixableErrors = fixableErrors;
 		}
-		
+
 		if (appConfig) {
 			result.appConfig = appConfig;
 		}
-		
+
 		return result;
-	}
-}
+	},
+};

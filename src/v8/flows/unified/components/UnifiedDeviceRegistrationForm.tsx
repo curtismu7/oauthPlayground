@@ -24,9 +24,7 @@ import { colors, spacing } from '@/v8/styles/designTokens';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { APIComparisonModal } from './APIComparisonModal';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
-import { 
-	StandardizedCredentialExportImport 
-} from '@/components/StandardizedCredentialExportImport';
+import { StandardizedCredentialExportImport } from '@/components/StandardizedCredentialExportImport';
 import '../UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[📝 UNIFIED-DEVICE-REG-FORM]';
@@ -826,28 +824,30 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 							environmentId: environmentId,
 							username: username,
 							deviceType: selectedTab,
-							flowType: flowType
+							flowType: flowType,
 						}}
 						metadata={{
 							flowType: 'mfa_registration',
 							deviceType: selectedTab,
 							registrationFlow: flowType,
-							environment: environmentId
+							environment: environmentId,
 						}}
 						onExport={() => {
 							console.log(`${MODULE_TAG} MFA credentials exported`);
 							toastV8.success('MFA credentials exported successfully');
 						}}
 						onImport={(imported) => {
-							console.log(`${MODULE_TAG} MFA credentials imported`, { 
+							console.log(`${MODULE_TAG} MFA credentials imported`, {
 								importedApp: imported.appName,
-								importedType: imported.appType 
+								importedType: imported.appType,
 							});
 							toastV8.success('MFA credentials imported successfully');
 							// Note: Form will need to be refreshed to show imported credentials
 						}}
 						onError={(error) => {
-							console.error(`${MODULE_TAG} Credential export/import failed`, { error: error.message });
+							console.error(`${MODULE_TAG} Credential export/import failed`, {
+								error: error.message,
+							});
 							toastV8.error(`Failed to export/import credentials: ${error.message}`);
 						}}
 					/>

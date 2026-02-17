@@ -136,7 +136,10 @@ export class TokenMonitoringService {
 		}
 	}
 
-	public addOAuthTokens(oauthTokens: OAuthTokenPayload, flowSource: string = 'unified-oauth'): void {
+	public addOAuthTokens(
+		oauthTokens: OAuthTokenPayload,
+		flowSource: string = 'unified-oauth'
+	): void {
 		this.syncTokensFromOAuthFlow(oauthTokens, flowSource);
 	}
 
@@ -283,8 +286,8 @@ export class TokenMonitoringService {
 				}
 			}
 		} catch (error) {
-			logger.warn('[TokenMonitoring] Failed to load tokens from storage:', { 
-				error: error instanceof Error ? error.message : String(error) 
+			logger.warn('[TokenMonitoring] Failed to load tokens from storage:', {
+				error: error instanceof Error ? error.message : String(error),
 			});
 		}
 	}
@@ -296,8 +299,8 @@ export class TokenMonitoringService {
 				window.localStorage.setItem(this.STORAGE_KEY, JSON.stringify(tokenData));
 			}
 		} catch (error) {
-			logger.warn('[TokenMonitoring] Failed to save tokens to storage:', { 
-				error: error instanceof Error ? error.message : String(error) 
+			logger.warn('[TokenMonitoring] Failed to save tokens to storage:', {
+				error: error instanceof Error ? error.message : String(error),
 			});
 		}
 	}
@@ -314,8 +317,8 @@ export class TokenMonitoringService {
 				this.apiCalls = [];
 			}
 		} catch (error) {
-			logger.warn('[TokenMonitoring] Failed to load API calls from storage:', { 
-				error: error instanceof Error ? error.message : String(error) 
+			logger.warn('[TokenMonitoring] Failed to load API calls from storage:', {
+				error: error instanceof Error ? error.message : String(error),
 			});
 			this.apiCalls = [];
 		}
@@ -327,8 +330,8 @@ export class TokenMonitoringService {
 				window.localStorage.setItem(this.API_CALLS_KEY, JSON.stringify(this.apiCalls));
 			}
 		} catch (error) {
-			logger.warn('[TokenMonitoring] Failed to save API calls to storage:', { 
-				error: error instanceof Error ? error.message : String(error) 
+			logger.warn('[TokenMonitoring] Failed to save API calls to storage:', {
+				error: error instanceof Error ? error.message : String(error),
 			});
 		}
 	}
@@ -465,8 +468,8 @@ export class TokenMonitoringService {
 				});
 			});
 		} catch (error) {
-			logger.warn('[TokenMonitoring] Failed to setup API call tracker sync:', { 
-				error: error instanceof Error ? error.message : String(error) 
+			logger.warn('[TokenMonitoring] Failed to setup API call tracker sync:', {
+				error: error instanceof Error ? error.message : String(error),
 			});
 		}
 	}
@@ -483,7 +486,7 @@ export class TokenMonitoringService {
 		try {
 			// First try unified storage
 			this.syncFromUnifiedStorage();
-			
+
 			// Then try the standard flow context
 			const flowContext = this.getTokenManagementFlowContext();
 			if (flowContext) {
@@ -496,12 +499,12 @@ export class TokenMonitoringService {
 
 			// Fallback: Check localStorage for tokens stored by authorization flows
 			this.syncTokensFromLocalStorage();
-			
+
 			// Final fallback: Check legacy storage
 			this.syncTokenFromLegacyStorage();
 		} catch (error) {
-			logger.warn('[TokenMonitoring] Failed to sync tokens from flow context:', { 
-				error: error instanceof Error ? error.message : String(error) 
+			logger.warn('[TokenMonitoring] Failed to sync tokens from flow context:', {
+				error: error instanceof Error ? error.message : String(error),
 			} as Record<string, unknown>);
 		}
 	}
@@ -522,7 +525,7 @@ export class TokenMonitoringService {
 				this.tokens.clear();
 
 				// Add tokens from unified storage
-				result.data.forEach(unifiedToken => {
+				result.data.forEach((unifiedToken) => {
 					const tokenInfo: TokenInfo = {
 						id: unifiedToken.id,
 						type: unifiedToken.type,
@@ -562,7 +565,8 @@ export class TokenMonitoringService {
 		if (unifiedToken.expiresAt <= now) {
 			return 'expired';
 		}
-		if (unifiedToken.expiresAt <= now + (5 * 60 * 1000)) { // 5 minutes
+		if (unifiedToken.expiresAt <= now + 5 * 60 * 1000) {
+			// 5 minutes
 			return 'expiring';
 		}
 		return 'active';
@@ -683,7 +687,7 @@ export class TokenMonitoringService {
 				this.addToken({
 					type: tokenType as 'access_token' | 'refresh_token' | 'id_token' | 'worker_token',
 					value: accessToken,
-					expiresAt: Date.now() + (60 * 60 * 1000), // 1 hour default
+					expiresAt: Date.now() + 60 * 60 * 1000, // 1 hour default
 					issuedAt: Date.now(),
 					scope: [],
 					source: 'oauth_flow',
@@ -752,11 +756,11 @@ export class TokenMonitoringService {
 
 			// Get worker token status
 			const workerTokenStatus = await unifiedWorkerTokenService.getStatus();
-			logger.debug('[TokenMonitoring] Worker token status:', { 
+			logger.debug('[TokenMonitoring] Worker token status:', {
 				hasToken: workerTokenStatus.hasToken,
 				tokenValid: workerTokenStatus.tokenValid,
 				lastFetchedAt: workerTokenStatus.lastFetchedAt,
-				tokenExpiresIn: workerTokenStatus.tokenExpiresIn
+				tokenExpiresIn: workerTokenStatus.tokenExpiresIn,
 			});
 
 			if (!workerTokenStatus.hasToken || !workerTokenStatus.tokenValid) {
@@ -771,11 +775,11 @@ export class TokenMonitoringService {
 						scope: [],
 						source: 'worker_token',
 					});
-					logger.debug('[TokenMonitoring] Loaded worker token from legacy storage fallback', { 
-				tokenType: 'worker_token',
-				hasToken: !!legacyToken.token,
-				expiresAt: legacyToken.expiresAt
-			});
+					logger.debug('[TokenMonitoring] Loaded worker token from legacy storage fallback', {
+						tokenType: 'worker_token',
+						hasToken: !!legacyToken.token,
+						expiresAt: legacyToken.expiresAt,
+					});
 					return;
 				}
 
@@ -788,9 +792,9 @@ export class TokenMonitoringService {
 			// Get the actual worker token
 			const workerTokenString = await unifiedWorkerTokenService.getToken();
 			const tokenStatus = workerTokenString ? 'SUCCESS' : 'FAILED';
-			logger.debug('[TokenMonitoring] Got worker token string:', { 
+			logger.debug('[TokenMonitoring] Got worker token string:', {
 				status: tokenStatus,
-				tokenLength: workerTokenString?.length || 0 
+				tokenLength: workerTokenString?.length || 0,
 			});
 
 			if (workerTokenString) {
@@ -806,7 +810,9 @@ export class TokenMonitoringService {
 					value: workerTokenString,
 					expiresAt:
 						storedToken?.expiresAt ||
-						(workerTokenStatus.tokenExpiresIn ? Date.now() + workerTokenStatus.tokenExpiresIn * 1000 : null),
+						(workerTokenStatus.tokenExpiresIn
+							? Date.now() + workerTokenStatus.tokenExpiresIn * 1000
+							: null),
 					issuedAt: storedToken?.fetchedAt || workerTokenStatus.lastFetchedAt || Date.now(),
 					scope: storedToken?.scope ? storedToken.scope.split(' ') : [],
 					source: 'worker_token',
@@ -815,8 +821,8 @@ export class TokenMonitoringService {
 				logger.debug('[TokenMonitoring] Worker token added successfully');
 			}
 		} catch (error) {
-			logger.error('[TokenMonitoring] Failed to sync worker token:', { 
-				error: error instanceof Error ? error.message : String(error) 
+			logger.error('[TokenMonitoring] Failed to sync worker token:', {
+				error: error instanceof Error ? error.message : String(error),
 			} as Record<string, unknown>);
 		}
 	}
@@ -855,8 +861,8 @@ export class TokenMonitoringService {
 
 			return null;
 		} catch (error) {
-			logger.warn('[TokenMonitoring] Failed to get stored worker token:', { 
-				error: error instanceof Error ? error.message : String(error) 
+			logger.warn('[TokenMonitoring] Failed to get stored worker token:', {
+				error: error instanceof Error ? error.message : String(error),
 			});
 			return null;
 		}
@@ -1069,7 +1075,10 @@ export class TokenMonitoringService {
 
 			return mockIntrospectionData;
 		} catch (error) {
-			logger.error('[TokenMonitoring] Token introspection failed:', error as Record<string, unknown>);
+			logger.error(
+				'[TokenMonitoring] Token introspection failed:',
+				error as Record<string, unknown>
+			);
 
 			// Log failed API call if we attempted one
 			if (response) {
@@ -1338,9 +1347,7 @@ export class TokenMonitoringService {
 				this.addToken({
 					type: tokenType,
 					value: 'imported-token-placeholder',
-					expiresAt: tokenData.expiresAt
-						? new Date(String(tokenData.expiresAt)).getTime()
-						: null,
+					expiresAt: tokenData.expiresAt ? new Date(String(tokenData.expiresAt)).getTime() : null,
 					issuedAt: tokenData.issuedAt ? new Date(String(tokenData.issuedAt)).getTime() : null,
 					scope: Array.isArray(tokenData.scope)
 						? tokenData.scope.filter((s): s is string => typeof s === 'string')
@@ -1348,8 +1355,8 @@ export class TokenMonitoringService {
 				});
 			});
 		} catch (error) {
-			logger.error('Failed to import token data:', { 
-				error: error instanceof Error ? error.message : String(error) 
+			logger.error('Failed to import token data:', {
+				error: error instanceof Error ? error.message : String(error),
 			} as Record<string, unknown>);
 			throw error;
 		}

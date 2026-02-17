@@ -1172,7 +1172,6 @@ export class MFAServiceV8 {
 			// If missing, device is ACTIVE (double-check with status)
 			const deviceActivateUri = dd._links?.['device.activate']?.href;
 
-			
 			// FIDO2-specific: Extract publicKeyCredentialCreationOptions from device response
 			// Per fido2-2.md: PingOne returns this as a JSON string in the device creation response
 			// This is required for WebAuthn registration ceremony

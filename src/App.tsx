@@ -1271,13 +1271,13 @@ const AppRoutes: React.FC = () => {
 								{/* Protect Portal Application */}
 								<Route path="/protect-portal" element={<ProtectPortalWrapper />} />
 								{/* Company Editor Utility */}
-								<Route 
-									path="/admin/create-company" 
+								<Route
+									path="/admin/create-company"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
 											<CreateCompanyPage />
 										</Suspense>
-									} 
+									}
 								/>
 								<Route path="/advanced-config" element={<AdvancedConfiguration />} />
 								<Route

@@ -196,8 +196,7 @@ const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
 							background: 'transparent',
 						}}
 						aria-label="Close country selector"
-					>
-					</ButtonSpinner>
+					></ButtonSpinner>
 
 					{/* Dropdown */}
 					<div

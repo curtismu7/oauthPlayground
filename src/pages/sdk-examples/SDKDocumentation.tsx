@@ -132,120 +132,128 @@ const CodeBlock = styled.pre`
 `;
 
 const SDKDocumentation: React.FC = () => {
-  return (
-    <Container>
-      <BackButton to="/sdk-examples">
-        ← Back to SDK Examples
-      </BackButton>
-      
-      <Header>SDK Documentation</Header>
-      <Description>
-        Comprehensive documentation for PingOne SDKs, including usage guides, examples, 
-        and best practices for integrating PingOne services into your applications.
-      </Description>
+	return (
+		<Container>
+			<BackButton to="/sdk-examples">← Back to SDK Examples</BackButton>
 
-      <Section>
-        <SectionTitle>Core SDKs</SectionTitle>
-        <DocumentationGrid>
-          <DocCard>
-            <StatusBadge status="available">Available</StatusBadge>
-            <DocTitle>PingOne Advanced Identity Cloud</DocTitle>
-            <DocDescription>
-              Complete SDK for user authentication, authorization, and identity management 
-              with support for OAuth 2.0, OpenID Connect, and MFA.
-            </DocDescription>
-            <DocLink href="https://docs.pingidentity.com/pingone/aic/v1/api/" target="_blank" rel="noopener noreferrer">
-              View Documentation
-            </DocLink>
-          </DocCard>
+			<Header>SDK Documentation</Header>
+			<Description>
+				Comprehensive documentation for PingOne SDKs, including usage guides, examples, and best
+				practices for integrating PingOne services into your applications.
+			</Description>
 
-          <DocCard>
-            <StatusBadge status="available">Available</StatusBadge>
-            <DocTitle>PingOne Protect SDK</DocTitle>
-            <DocDescription>
-              Security and fraud detection SDK that provides risk assessment, 
-              behavioral biometrics, and adaptive authentication.
-            </DocDescription>
-            <DocLink href="https://docs.pingidentity.com/pingone/protect/v1/api/" target="_blank" rel="noopener noreferrer">
-              View Documentation
-            </DocLink>
-          </DocCard>
+			<Section>
+				<SectionTitle>Core SDKs</SectionTitle>
+				<DocumentationGrid>
+					<DocCard>
+						<StatusBadge status="available">Available</StatusBadge>
+						<DocTitle>PingOne Advanced Identity Cloud</DocTitle>
+						<DocDescription>
+							Complete SDK for user authentication, authorization, and identity management with
+							support for OAuth 2.0, OpenID Connect, and MFA.
+						</DocDescription>
+						<DocLink
+							href="https://docs.pingidentity.com/pingone/aic/v1/api/"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							View Documentation
+						</DocLink>
+					</DocCard>
 
-          <DocCard>
-            <StatusBadge status="available">Available</StatusBadge>
-            <DocTitle>PingOne Verify SDK</DocTitle>
-            <DocDescription>
-              Identity verification SDK for document verification, biometric matching, 
-              and KYC compliance workflows.
-            </DocDescription>
-            <DocLink href="https://docs.pingidentity.com/pingone/verify/v1/api/" target="_blank" rel="noopener noreferrer">
-              View Documentation
-            </DocLink>
-          </DocCard>
+					<DocCard>
+						<StatusBadge status="available">Available</StatusBadge>
+						<DocTitle>PingOne Protect SDK</DocTitle>
+						<DocDescription>
+							Security and fraud detection SDK that provides risk assessment, behavioral biometrics,
+							and adaptive authentication.
+						</DocDescription>
+						<DocLink
+							href="https://docs.pingidentity.com/pingone/protect/v1/api/"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							View Documentation
+						</DocLink>
+					</DocCard>
 
-          <DocCard>
-            <StatusBadge status="available">Available</StatusBadge>
-            <DocTitle>PingOne DaVinci SDK</DocTitle>
-            <DocDescription>
-              Workflow automation SDK for creating custom authentication flows, 
-              user journeys, and business processes.
-            </DocDescription>
-            <DocLink href="https://docs.pingidentity.com/pingone/davinci/v1/api/" target="_blank" rel="noopener noreferrer">
-              View Documentation
-            </DocLink>
-          </DocCard>
-        </DocumentationGrid>
-      </Section>
+					<DocCard>
+						<StatusBadge status="available">Available</StatusBadge>
+						<DocTitle>PingOne Verify SDK</DocTitle>
+						<DocDescription>
+							Identity verification SDK for document verification, biometric matching, and KYC
+							compliance workflows.
+						</DocDescription>
+						<DocLink
+							href="https://docs.pingidentity.com/pingone/verify/v1/api/"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							View Documentation
+						</DocLink>
+					</DocCard>
 
-      <Section>
-        <SectionTitle>Quick Start Examples</SectionTitle>
-        <DocumentationGrid>
-          <DocCard>
-            <StatusBadge status="available">Available</StatusBadge>
-            <DocTitle>JWT Authentication</DocTitle>
-            <DocDescription>
-              Learn how to implement JWT-based authentication with private key 
-              and client secret JWT generation.
-            </DocDescription>
-            <DocLink href="/sdk-examples/jwt-authentication">
-              Try Example
-            </DocLink>
-          </DocCard>
+					<DocCard>
+						<StatusBadge status="available">Available</StatusBadge>
+						<DocTitle>PingOne DaVinci SDK</DocTitle>
+						<DocDescription>
+							Workflow automation SDK for creating custom authentication flows, user journeys, and
+							business processes.
+						</DocDescription>
+						<DocLink
+							href="https://docs.pingidentity.com/pingone/davinci/v1/api/"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							View Documentation
+						</DocLink>
+					</DocCard>
+				</DocumentationGrid>
+			</Section>
 
-          <DocCard>
-            <StatusBadge status="available">Available</StatusBadge>
-            <DocTitle>OIDC Centralized Login</DocTitle>
-            <DocDescription>
-              Implement OpenID Connect centralized login with server-side UI 
-              authentication and token management.
-            </DocDescription>
-            <DocLink href="/sdk-examples/oidc-centralized-login">
-              Try Example
-            </DocLink>
-          </DocCard>
+			<Section>
+				<SectionTitle>Quick Start Examples</SectionTitle>
+				<DocumentationGrid>
+					<DocCard>
+						<StatusBadge status="available">Available</StatusBadge>
+						<DocTitle>JWT Authentication</DocTitle>
+						<DocDescription>
+							Learn how to implement JWT-based authentication with private key and client secret JWT
+							generation.
+						</DocDescription>
+						<DocLink href="/sdk-examples/jwt-authentication">Try Example</DocLink>
+					</DocCard>
 
-          <DocCard>
-            <StatusBadge status="available">Available</StatusBadge>
-            <DocTitle>DaVinci Todo App</DocTitle>
-            <DocDescription>
-              Complete todo application demonstrating DaVinci workflow integration 
-              with dynamic form rendering.
-            </DocDescription>
-            <DocLink href="/sdk-examples/davinci-todo-app">
-              Try Example
-            </DocLink>
-          </DocCard>
-        </DocumentationGrid>
-      </Section>
+					<DocCard>
+						<StatusBadge status="available">Available</StatusBadge>
+						<DocTitle>OIDC Centralized Login</DocTitle>
+						<DocDescription>
+							Implement OpenID Connect centralized login with server-side UI authentication and
+							token management.
+						</DocDescription>
+						<DocLink href="/sdk-examples/oidc-centralized-login">Try Example</DocLink>
+					</DocCard>
 
-      <Section>
-        <SectionTitle>Code Examples</SectionTitle>
-        <DocCard>
-          <DocTitle>Initialize PingOne SDK</DocTitle>
-          <DocDescription>
-            Basic initialization of the PingOne SDK with your application credentials.
-          </DocDescription>
-          <CodeBlock>{`import { PingOneSDK } from '@pingone/sdk';
+					<DocCard>
+						<StatusBadge status="available">Available</StatusBadge>
+						<DocTitle>DaVinci Todo App</DocTitle>
+						<DocDescription>
+							Complete todo application demonstrating DaVinci workflow integration with dynamic form
+							rendering.
+						</DocDescription>
+						<DocLink href="/sdk-examples/davinci-todo-app">Try Example</DocLink>
+					</DocCard>
+				</DocumentationGrid>
+			</Section>
+
+			<Section>
+				<SectionTitle>Code Examples</SectionTitle>
+				<DocCard>
+					<DocTitle>Initialize PingOne SDK</DocTitle>
+					<DocDescription>
+						Basic initialization of the PingOne SDK with your application credentials.
+					</DocDescription>
+					<CodeBlock>{`import { PingOneSDK } from '@pingone/sdk';
 
 const sdk = new PingOneSDK({
   environmentId: 'your-environment-id',
@@ -254,59 +262,61 @@ const sdk = new PingOneSDK({
 });
 
 await sdk.initialize();`}</CodeBlock>
-        </DocCard>
-      </Section>
+				</DocCard>
+			</Section>
 
-      <Section>
-        <SectionTitle>Additional Resources</SectionTitle>
-        <DocumentationGrid>
-          <DocCard>
-            <StatusBadge status="available">Available</StatusBadge>
-            <DocTitle>SDK Examples Inventory</DocTitle>
-            <DocDescription>
-              Complete tracking of all SDK implementations and examples in this playground.
-            </DocDescription>
-            <DocLink href="/SDK_EXAMPLES_INVENTORY.md" target="_blank" rel="noopener noreferrer">
-              View Inventory
-            </DocLink>
-          </DocCard>
+			<Section>
+				<SectionTitle>Additional Resources</SectionTitle>
+				<DocumentationGrid>
+					<DocCard>
+						<StatusBadge status="available">Available</StatusBadge>
+						<DocTitle>SDK Examples Inventory</DocTitle>
+						<DocDescription>
+							Complete tracking of all SDK implementations and examples in this playground.
+						</DocDescription>
+						<DocLink href="/SDK_EXAMPLES_INVENTORY.md" target="_blank" rel="noopener noreferrer">
+							View Inventory
+						</DocLink>
+					</DocCard>
 
-          <DocCard>
-            <StatusBadge status="available">Available</StatusBadge>
-            <DocTitle>SDK Usage Guide</DocTitle>
-            <DocDescription>
-              Comprehensive usage examples and best practices for PingOne SDKs.
-            </DocDescription>
-            <DocLink href="/SDK_EXAMPLES_GUIDE.md" target="_blank" rel="noopener noreferrer">
-              View Guide
-            </DocLink>
-          </DocCard>
+					<DocCard>
+						<StatusBadge status="available">Available</StatusBadge>
+						<DocTitle>SDK Usage Guide</DocTitle>
+						<DocDescription>
+							Comprehensive usage examples and best practices for PingOne SDKs.
+						</DocDescription>
+						<DocLink href="/SDK_EXAMPLES_GUIDE.md" target="_blank" rel="noopener noreferrer">
+							View Guide
+						</DocLink>
+					</DocCard>
 
-          <DocCard>
-            <StatusBadge status="available">Available</StatusBadge>
-            <DocTitle>SWE-15 Development Guide</DocTitle>
-            <DocDescription>
-              Software engineering best practices for development in this playground.
-            </DocDescription>
-            <DocLink href="/SWE-15_UNIFIED_MFA_GUIDE.md" target="_blank" rel="noopener noreferrer">
-              View Guide
-            </DocLink>
-          </DocCard>
+					<DocCard>
+						<StatusBadge status="available">Available</StatusBadge>
+						<DocTitle>SWE-15 Development Guide</DocTitle>
+						<DocDescription>
+							Software engineering best practices for development in this playground.
+						</DocDescription>
+						<DocLink href="/SWE-15_UNIFIED_MFA_GUIDE.md" target="_blank" rel="noopener noreferrer">
+							View Guide
+						</DocLink>
+					</DocCard>
 
-          <DocCard>
-            <StatusBadge status="available">Available</StatusBadge>
-            <DocTitle>Official PingOne Documentation</DocTitle>
-            <DocDescription>
-              Official PingOne SDK documentation and API references.
-            </DocDescription>
-            <DocLink href="https://docs.pingidentity.com/sdks/latest/" target="_blank" rel="noopener noreferrer">
-              Visit Docs Site
-            </DocLink>
-          </DocCard>
-        </DocumentationGrid>
-      </Section>
-    </Container>
-  );
+					<DocCard>
+						<StatusBadge status="available">Available</StatusBadge>
+						<DocTitle>Official PingOne Documentation</DocTitle>
+						<DocDescription>Official PingOne SDK documentation and API references.</DocDescription>
+						<DocLink
+							href="https://docs.pingidentity.com/sdks/latest/"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							Visit Docs Site
+						</DocLink>
+					</DocCard>
+				</DocumentationGrid>
+			</Section>
+		</Container>
+	);
 };
 
 export default SDKDocumentation;

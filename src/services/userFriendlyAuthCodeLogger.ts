@@ -98,8 +98,8 @@ class UserFriendlyAuthCodeLoggerImpl {
 			receivedState,
 			expectedState,
 			stateValid: isValidState,
-			userMessage: isValidState 
-				? '🎉 Authorization successful! Exchanging code for tokens...' 
+			userMessage: isValidState
+				? '🎉 Authorization successful! Exchanging code for tokens...'
 				: '⚠️ State mismatch - security check failed',
 		});
 
@@ -192,7 +192,9 @@ class UserFriendlyAuthCodeLoggerImpl {
 		// User-friendly console message
 		console.log(`\n🎉 [${this.context.app.toUpperCase()}] Token Exchange Successful!`);
 		console.log(`🔑 Access Token: ${tokenResponse.access_token.substring(0, 20)}...`);
-		console.log(`🔄 Refresh Token: ${tokenResponse.refresh_token ? '✅ Present' : '❌ Not provided'}`);
+		console.log(
+			`🔄 Refresh Token: ${tokenResponse.refresh_token ? '✅ Present' : '❌ Not provided'}`
+		);
 		console.log(`🆔 ID Token: ${tokenResponse.id_token ? '✅ Present' : '❌ Not provided'}`);
 		console.log(`⏰ Expires In: ${tokenResponse.expires_in} seconds`);
 		console.log(`🔑 Token Type: ${tokenResponse.token_type}`);

@@ -870,14 +870,14 @@ export class AuthzFlowTokenManagement {
 			localStorage.setItem('token_to_analyze', tokens.access_token);
 			localStorage.setItem('token_type', 'access');
 			localStorage.setItem('flow_source', flowId);
-			
+
 			// Also store in unified storage
 			try {
 				const { unifiedTokenStorage } = await import('../services/unifiedTokenStorageService');
 				await unifiedTokenStorage.storeToken({
 					type: 'access_token',
 					value: tokens.access_token,
-					expiresAt: tokens.expires_in ? Date.now() + (tokens.expires_in * 1000) : null,
+					expiresAt: tokens.expires_in ? Date.now() + tokens.expires_in * 1000 : null,
 					issuedAt: Date.now(),
 					scope: tokens.scope ? tokens.scope.split(' ') : [],
 					source: 'oauth_flow',
@@ -902,7 +902,7 @@ export class AuthzFlowTokenManagement {
 				await unifiedTokenStorage.storeToken({
 					type: 'refresh_token',
 					value: tokens.refresh_token,
-					expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
+					expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
 					issuedAt: Date.now(),
 					scope: tokens.scope ? tokens.scope.split(' ') : [],
 					source: 'oauth_flow',

@@ -35,7 +35,13 @@ interface LogEntry {
 	url: string;
 }
 
-type LogCategory = 'ALL' | 'REDIRECT_URI' | 'CALLBACK_DEBUG' | 'MIGRATION' | 'VALIDATION' | 'FLOW_MAPPING';
+type LogCategory =
+	| 'ALL'
+	| 'REDIRECT_URI'
+	| 'CALLBACK_DEBUG'
+	| 'MIGRATION'
+	| 'VALIDATION'
+	| 'FLOW_MAPPING';
 type LogSource = 'localStorage' | 'indexedDB' | 'sqlite' | 'file' | 'callback-debug';
 
 interface SourceOption {
@@ -56,7 +62,11 @@ interface SQLiteTarget {
 }
 
 const INDEXED_DB_TARGETS: IndexedDBTarget[] = [
-	{ label: 'Enhanced Credentials (V8)', dbName: 'OAuthPlayground_Enhanced', storeName: 'enhanced_credentials' },
+	{
+		label: 'Enhanced Credentials (V8)',
+		dbName: 'OAuthPlayground_Enhanced',
+		storeName: 'enhanced_credentials',
+	},
 	{ label: 'MFA Redirect Logs', dbName: 'OAuthPlayground_MFA', storeName: 'redirect_logs' },
 	{ label: 'Default Logs', dbName: 'OAuthPlayground', storeName: 'logs' },
 ];
@@ -100,9 +110,14 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 	const [availableFiles, setAvailableFiles] = useState<LogFile[]>([]);
 	const [selectedFile, setSelectedFile] = useState<string>('authz-redirects.log');
 	const [availableLocalStorageLogs, setAvailableLocalStorageLogs] = useState<string[]>([]);
-	const [selectedLocalStorageLog, setSelectedLocalStorageLog] = useState<string>('mfa_redirect_debug_log');
-	const [selectedIndexedDBTarget, setSelectedIndexedDBTarget] = useState<string>('OAuthPlayground_Enhanced|enhanced_credentials');
-	const [selectedSQLiteTarget, setSelectedSQLiteTarget] = useState<string>('/api/settings/debug-log-viewer');
+	const [selectedLocalStorageLog, setSelectedLocalStorageLog] =
+		useState<string>('mfa_redirect_debug_log');
+	const [selectedIndexedDBTarget, setSelectedIndexedDBTarget] = useState<string>(
+		'OAuthPlayground_Enhanced|enhanced_credentials'
+	);
+	const [selectedSQLiteTarget, setSelectedSQLiteTarget] = useState<string>(
+		'/api/settings/debug-log-viewer'
+	);
 	const [lineCount, setLineCount] = useState<number>(100);
 
 	// Log data
@@ -147,13 +162,15 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 					const record = item as Record<string, unknown>;
 					const levelRaw = String(record.level ?? record.severity ?? 'INFO').toUpperCase();
 					const level: LogEntry['level'] =
-						levelRaw === 'ERROR' ? 'ERROR' : levelRaw === 'WARN' || levelRaw === 'WARNING' ? 'WARN' : 'INFO';
+						levelRaw === 'ERROR'
+							? 'ERROR'
+							: levelRaw === 'WARN' || levelRaw === 'WARNING'
+								? 'WARN'
+								: 'INFO';
 
 					return {
 						timestamp:
-							typeof record.timestamp === 'string'
-								? record.timestamp
-								: new Date().toISOString(),
+							typeof record.timestamp === 'string' ? record.timestamp : new Date().toISOString(),
 						level,
 						category: typeof record.category === 'string' ? record.category : category,
 						message:
@@ -161,10 +178,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 								? record.message
 								: `Record loaded from ${category}`,
 						data: record,
-						url:
-							typeof record.url === 'string'
-								? record.url
-								: sourceUrl,
+						url: typeof record.url === 'string' ? record.url : sourceUrl,
 					};
 				}
 
@@ -218,13 +232,17 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 	const refreshLogsShortcut = useCallback(() => {
 		if (logSource === 'file') {
 			// Trigger file reload by calling the existing load function
-			const loadButton = document.querySelector('button[onClick*="loadFileContent"]') as HTMLButtonElement;
+			const loadButton = document.querySelector(
+				'button[onClick*="loadFileContent"]'
+			) as HTMLButtonElement;
 			if (loadButton) {
 				loadButton.click();
 			}
 		} else {
 			// Trigger localStorage reload
-			const loadButton = document.querySelector('button[onClick*="loadLocalStorageLogs"]') as HTMLButtonElement;
+			const loadButton = document.querySelector(
+				'button[onClick*="loadLocalStorageLogs"]'
+			) as HTMLButtonElement;
 			if (loadButton) {
 				loadButton.click();
 			}
@@ -243,7 +261,11 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
 			// Only handle shortcuts when not typing in input fields
-			if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement) {
+			if (
+				event.target instanceof HTMLInputElement ||
+				event.target instanceof HTMLTextAreaElement ||
+				event.target instanceof HTMLSelectElement
+			) {
 				return;
 			}
 
@@ -346,13 +368,16 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 
 			const rows = await new Promise<unknown[]>((resolve, reject) => {
 				const request = indexedDB.open(dbName);
-				request.onerror = () => reject(request.error ?? new Error(`Failed to open IndexedDB: ${dbName}`));
+				request.onerror = () =>
+					reject(request.error ?? new Error(`Failed to open IndexedDB: ${dbName}`));
 				request.onsuccess = () => {
 					try {
 						const db = request.result;
 						const availableStores = Array.from(db.objectStoreNames);
 						if (availableStores.length === 0) {
-							console.warn(`[IndexedDB] No object stores found in "${dbName}". Database may be empty.`);
+							console.warn(
+								`[IndexedDB] No object stores found in "${dbName}". Database may be empty.`
+							);
 							db.close();
 							resolve([]); // Graceful fallback: empty result instead of hard error
 							return;
@@ -369,7 +394,8 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 						const tx = db.transaction(resolvedStoreName, 'readonly');
 						const store = tx.objectStore(resolvedStoreName);
 						const getAll = store.getAll();
-						getAll.onerror = () => reject(getAll.error ?? new Error('Failed to read IndexedDB records'));
+						getAll.onerror = () =>
+							reject(getAll.error ?? new Error('Failed to read IndexedDB records'));
 						getAll.onsuccess = () => {
 							resolve((getAll.result as unknown[]) ?? []);
 							db.close();
@@ -457,7 +483,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 			// Get today's callback debug log
 			const today = new Date().toISOString().split('T')[0];
 			const response = await fetch(`/api/logs/callback-debug-${today}.log`);
-			
+
 			if (!response.ok) {
 				if (response.status === 404) {
 					setError('No callback debug logs found for today. Try triggering an MFA callback first.');
@@ -468,9 +494,12 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 			}
 
 			const content = await response.text();
-			
+
 			// Parse each line as JSON and convert to log entries
-			const lines = content.trim().split('\n').filter(line => line.trim());
+			const lines = content
+				.trim()
+				.split('\n')
+				.filter((line) => line.trim());
 			const logEntries: LogEntry[] = [];
 
 			for (const line of lines) {
@@ -506,9 +535,9 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 			setFileContent(''); // Clear file content since we're using structured logs
 			setIsContentTruncated(false);
 			setOriginalFileSize(content.length);
-
 		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 'Failed to load callback debug logs';
+			const errorMessage =
+				err instanceof Error ? err.message : 'Failed to load callback debug logs';
 			setError(errorMessage);
 		} finally {
 			setIsLoading(false);
@@ -591,7 +620,14 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 		} else {
 			void loadFileLogs();
 		}
-	}, [logSource, loadLocalStorageLogs, loadIndexedDBLogs, loadSQLiteLogs, loadFileLogs, loadCallbackDebugLogs]);
+	}, [
+		logSource,
+		loadLocalStorageLogs,
+		loadIndexedDBLogs,
+		loadSQLiteLogs,
+		loadFileLogs,
+		loadCallbackDebugLogs,
+	]);
 
 	// Setup tail mode
 	useEffect(() => {
@@ -675,7 +711,8 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 			? new Date().toLocaleString()
 			: safeTimestamp.toLocaleString();
 		const stage = getTransactionStage(description);
-		const compactDescription = description.length > 140 ? `${description.slice(0, 137)}...` : description;
+		const compactDescription =
+			description.length > 140 ? `${description.slice(0, 137)}...` : description;
 		return `* ${markerTime} | ${stage} | ${source}: ${compactDescription}`;
 	};
 
@@ -1025,47 +1062,63 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 				</div>
 				<div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '13px' }}>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-						<kbd style={{ 
-							background: '#e2e8f0', 
-							border: '1px solid #cbd5e1', 
-							borderRadius: '4px', 
-							padding: '2px 6px', 
-							fontSize: '11px',
-							fontWeight: '600'
-						}}>↑ Arrow</kbd>
+						<kbd
+							style={{
+								background: '#e2e8f0',
+								border: '1px solid #cbd5e1',
+								borderRadius: '4px',
+								padding: '2px 6px',
+								fontSize: '11px',
+								fontWeight: '600',
+							}}
+						>
+							↑ Arrow
+						</kbd>
 						<span style={{ color: '#64748b' }}>Scroll to top</span>
 					</div>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-						<kbd style={{ 
-							background: '#e2e8f0', 
-							border: '1px solid #cbd5e1', 
-							borderRadius: '4px', 
-							padding: '2px 6px', 
-							fontSize: '11px',
-							fontWeight: '600'
-						}}>↓ Arrow</kbd>
+						<kbd
+							style={{
+								background: '#e2e8f0',
+								border: '1px solid #cbd5e1',
+								borderRadius: '4px',
+								padding: '2px 6px',
+								fontSize: '11px',
+								fontWeight: '600',
+							}}
+						>
+							↓ Arrow
+						</kbd>
 						<span style={{ color: '#64748b' }}>Scroll to bottom</span>
 					</div>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-						<kbd style={{ 
-							background: '#e2e8f0', 
-							border: '1px solid #cbd5e1', 
-							borderRadius: '4px', 
-							padding: '2px 6px', 
-							fontSize: '11px',
-							fontWeight: '600'
-						}}>R</kbd>
+						<kbd
+							style={{
+								background: '#e2e8f0',
+								border: '1px solid #cbd5e1',
+								borderRadius: '4px',
+								padding: '2px 6px',
+								fontSize: '11px',
+								fontWeight: '600',
+							}}
+						>
+							R
+						</kbd>
 						<span style={{ color: '#64748b' }}>Refresh logs</span>
 					</div>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-						<kbd style={{ 
-							background: '#e2e8f0', 
-							border: '1px solid #cbd5e1', 
-							borderRadius: '4px', 
-							padding: '2px 6px', 
-							fontSize: '11px',
-							fontWeight: '600'
-						}}>Delete</kbd>
+						<kbd
+							style={{
+								background: '#e2e8f0',
+								border: '1px solid #cbd5e1',
+								borderRadius: '4px',
+								padding: '2px 6px',
+								fontSize: '11px',
+								fontWeight: '600',
+							}}
+						>
+							Delete
+						</kbd>
 						<span style={{ color: '#64748b' }}>Clear logs</span>
 					</div>
 				</div>
@@ -1184,7 +1237,10 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 							}}
 						>
 							{INDEXED_DB_TARGETS.map((target) => (
-								<option key={`${target.dbName}|${target.storeName}`} value={`${target.dbName}|${target.storeName}`}>
+								<option
+									key={`${target.dbName}|${target.storeName}`}
+									value={`${target.dbName}|${target.storeName}`}
+								>
 									{target.label} ({target.dbName}.{target.storeName})
 								</option>
 							))}
@@ -1708,7 +1764,11 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 							>
 								{fileContent.split('\n').map((line, index) => {
 									const lineTimestamp = getIsoTimestampFromLine(line) ?? new Date().toISOString();
-									const marker = buildTransactionMarker(lineTimestamp, line || '(empty line)', 'FILE');
+									const marker = buildTransactionMarker(
+										lineTimestamp,
+										line || '(empty line)',
+										'FILE'
+									);
 
 									return (
 										<div
@@ -1722,18 +1782,18 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 												wordBreak: 'break-word',
 											}}
 										>
-										<div
-											style={{
-												fontSize: '11px',
-												color: '#6b7280',
-												marginBottom: '5px',
-												fontWeight: '600',
-											}}
-										>
-											{marker}
+											<div
+												style={{
+													fontSize: '11px',
+													color: '#6b7280',
+													marginBottom: '5px',
+													fontWeight: '600',
+												}}
+											>
+												{marker}
+											</div>
+											{colorizeLogLine(line)}
 										</div>
-										{colorizeLogLine(line)}
-									</div>
 									);
 								})}
 							</div>

@@ -42,7 +42,7 @@ export interface StorageItem<T = unknown> {
 
 /**
  * Unified Credentials Service
- * 
+ *
  * Provides centralized storage for all non-token data with localStorage
  * as the underlying storage mechanism.
  */
@@ -84,13 +84,18 @@ export class UnifiedCredentialsService {
 		};
 
 		this.setItem(item);
-		logger.debug(MODULE_TAG, 'Stored OAuth credentials', { id, environmentId: options?.environmentId });
+		logger.debug(MODULE_TAG, 'Stored OAuth credentials', {
+			id,
+			environmentId: options?.environmentId,
+		});
 	}
 
 	/**
 	 * Get OAuth credentials
 	 */
-	async getOAuthCredentials(options?: CredentialStorageOptions): Promise<Record<string, unknown> | null> {
+	async getOAuthCredentials(
+		options?: CredentialStorageOptions
+	): Promise<Record<string, unknown> | null> {
 		const id = `${STORAGE_PREFIXES.oauth_credentials}${options?.environmentId || 'default'}_${options?.clientId || 'default'}`;
 		const item = this.getItem(id);
 
@@ -125,13 +130,18 @@ export class UnifiedCredentialsService {
 		};
 
 		this.setItem(item);
-		logger.debug(MODULE_TAG, 'Stored MFA credentials', { id, environmentId: options?.environmentId });
+		logger.debug(MODULE_TAG, 'Stored MFA credentials', {
+			id,
+			environmentId: options?.environmentId,
+		});
 	}
 
 	/**
 	 * Get MFA credentials
 	 */
-	async getMFACredentials(options?: CredentialStorageOptions): Promise<Record<string, unknown> | null> {
+	async getMFACredentials(
+		options?: CredentialStorageOptions
+	): Promise<Record<string, unknown> | null> {
 		const id = `${STORAGE_PREFIXES.mfa_credentials}${options?.environmentId || 'default'}_${options?.clientId || 'default'}`;
 		const item = this.getItem(id);
 
@@ -182,10 +192,7 @@ export class UnifiedCredentialsService {
 	/**
 	 * Store UI preferences
 	 */
-	async storeUIPreferences(
-		preferences: Record<string, unknown>,
-		userId?: string
-	): Promise<void> {
+	async storeUIPreferences(preferences: Record<string, unknown>, userId?: string): Promise<void> {
 		const id = `${STORAGE_PREFIXES.ui_preferences}${userId || 'default'}`;
 		const item: StorageItem = {
 			id,
@@ -218,16 +225,13 @@ export class UnifiedCredentialsService {
 	/**
 	 * Store PKCE state
 	 */
-	async storePKCEState(
-		state: Record<string, unknown>,
-		flowId: string
-	): Promise<void> {
+	async storePKCEState(state: Record<string, unknown>, flowId: string): Promise<void> {
 		const id = `${STORAGE_PREFIXES.pkce_state}${flowId}`;
 		const item: StorageItem = {
 			id,
 			type: 'pkce_state',
 			value: state,
-			expiresAt: Date.now() + (10 * 60 * 1000), // 10 minutes
+			expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
 			issuedAt: Date.now(),
 			metadata: { flowId },
 		};
@@ -254,16 +258,13 @@ export class UnifiedCredentialsService {
 	/**
 	 * Store flow state
 	 */
-	async storeFlowState(
-		state: Record<string, unknown>,
-		flowId: string
-	): Promise<void> {
+	async storeFlowState(state: Record<string, unknown>, flowId: string): Promise<void> {
 		const id = `${STORAGE_PREFIXES.flow_state}${flowId}`;
 		const item: StorageItem = {
 			id,
 			type: 'flow_state',
 			value: state,
-			expiresAt: Date.now() + (30 * 60 * 1000), // 30 minutes
+			expiresAt: Date.now() + 30 * 60 * 1000, // 30 minutes
 			issuedAt: Date.now(),
 			metadata: { flowId },
 		};

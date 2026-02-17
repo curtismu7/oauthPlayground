@@ -292,122 +292,130 @@ const AmericanAirlinesHero: React.FC<AmericanAirlinesHeroProps> = ({
 	return (
 		<>
 			<HeroContainer>
-			<HeroContent>
-				{currentStep === 'portal-home' ? (
-					<>
-						<HeroTitle>Go Places. Together.</HeroTitle>
-						<HeroSubtitle>
-							Book flights, check in, manage trips, and more with American Airlines
-						</HeroSubtitle>
+				<HeroContent>
+					{currentStep === 'portal-home' ? (
+						<>
+							<HeroTitle>Go Places. Together.</HeroTitle>
+							<HeroSubtitle>
+								Book flights, check in, manage trips, and more with American Airlines
+							</HeroSubtitle>
 
-						<QuickActions>
-							<QuickAction>
-								<ActionIcon>
-									<FiSearch />
-								</ActionIcon>
-								<ActionLabel>Book a Trip</ActionLabel>
-							</QuickAction>
+							<QuickActions>
+								<QuickAction>
+									<ActionIcon>
+										<FiSearch />
+									</ActionIcon>
+									<ActionLabel>Book a Trip</ActionLabel>
+								</QuickAction>
 
-							<QuickAction>
-								<ActionIcon>
-									<FiCalendar />
-								</ActionIcon>
-								<ActionLabel>My Trips</ActionLabel>
-							</QuickAction>
+								<QuickAction>
+									<ActionIcon>
+										<FiCalendar />
+									</ActionIcon>
+									<ActionLabel>My Trips</ActionLabel>
+								</QuickAction>
 
-							<QuickAction>
-								<ActionIcon>
-									<FiMapPin />
-								</ActionIcon>
-								<ActionLabel>Check In</ActionLabel>
-							</QuickAction>
+								<QuickAction>
+									<ActionIcon>
+										<FiMapPin />
+									</ActionIcon>
+									<ActionLabel>Check In</ActionLabel>
+								</QuickAction>
 
-							<QuickAction>
-								<ActionIcon>
+								<QuickAction>
+									<ActionIcon>
+										<FiArrowRight />
+									</ActionIcon>
+									<ActionLabel>AAdvantage®</ActionLabel>
+								</QuickAction>
+							</QuickActions>
+
+							<LoginSection>
+								<LoginDescription>
+									Click below to begin your secure login journey. We'll evaluate your login attempt
+									in real-time to provide the appropriate level of security.
+								</LoginDescription>
+								<LoginButton onClick={onLoginStart}>
+									<FiLock />
+									Begin Secure Login
 									<FiArrowRight />
-								</ActionIcon>
-								<ActionLabel>AAdvantage®</ActionLabel>
-							</QuickAction>
-						</QuickActions>
+								</LoginButton>
+							</LoginSection>
+						</>
+					) : (
+						<>
+							<AmericanAirlinesNavigation />
+							<HeroTitle>Secure Employee Portal</HeroTitle>
+							<HeroSubtitle>
+								Access your American Airlines employee account with enhanced security
+							</HeroSubtitle>
 
-						<LoginSection>
-							<LoginDescription>
-								Click below to begin your secure login journey. We'll evaluate your login attempt in
-								real-time to provide the appropriate level of security.
-							</LoginDescription>
-							<LoginButton onClick={onLoginStart}>
-								<FiLock />
-								Begin Secure Login
-								<FiArrowRight />
-							</LoginButton>
-						</LoginSection>
-					</>
-				) : (
-					<>
-						<AmericanAirlinesNavigation />
-						<HeroTitle>Secure Employee Portal</HeroTitle>
-						<HeroSubtitle>
-							Access your American Airlines employee account with enhanced security
-						</HeroSubtitle>
+							<LoginSection>
+								<LoginDescription>
+									Click below to access your secure employee portal. Multi-factor authentication may
+									be required based on your security profile.
+								</LoginDescription>
+								<LoginButton onClick={onLoginStart}>
+									<FiLock />
+									Sign In to Employee Portal
+									<FiArrowRight />
+								</LoginButton>
+							</LoginSection>
 
-						<LoginSection>
-							<LoginDescription>
-								Click below to access your secure employee portal. Multi-factor authentication may
-								be required based on your security profile.
-							</LoginDescription>
-							<LoginButton onClick={onLoginStart}>
-								<FiLock />
-								Sign In to Employee Portal
-								<FiArrowRight />
-							</LoginButton>
-						</LoginSection>
-
-						{/* Flight Search Form for Visual Authenticity */}
-						<FlightSearchSection>
-							<FlightSearchTitle>Book Your Next Flight</FlightSearchTitle>
-							<FlightSearchForm>
-								<TripType>
-									<label>
-										<input type="radio" name="tripType" defaultChecked />
-										Round trip
-									</label>
-									<label>
-										<input type="radio" name="tripType" />
-										One way
-									</label>
-									<label>
-										<input type="radio" name="tripType" />
-										Multi-city
-									</label>
-								</TripType>
-								<SearchInputs>
-									<FormGroup>
-										<Label>From</Label>
-										<Input type="text" placeholder="City or airport" defaultValue="New York (JFK)" />
-									</FormGroup>
-									<FormGroup>
-										<Label>To</Label>
-										<Input type="text" placeholder="City or airport" defaultValue="Los Angeles (LAX)" />
-									</FormGroup>
-									<FormGroup>
-										<Label>Depart</Label>
-										<Input type="date" defaultValue="2026-03-15" />
-									</FormGroup>
-									<FormGroup>
-										<Label>Return</Label>
-										<Input type="date" defaultValue="2026-03-22" />
-									</FormGroup>
-								</SearchInputs>
-								<SearchButton type="button">
-									<FiSearch />
-									Search flights
-								</SearchButton>
-							</FlightSearchForm>
-						</FlightSearchSection>
-					</>
-				)}
-			</HeroContent>
-		</HeroContainer>
+							{/* Flight Search Form for Visual Authenticity */}
+							<FlightSearchSection>
+								<FlightSearchTitle>Book Your Next Flight</FlightSearchTitle>
+								<FlightSearchForm>
+									<TripType>
+										<label>
+											<input type="radio" name="tripType" defaultChecked />
+											Round trip
+										</label>
+										<label>
+											<input type="radio" name="tripType" />
+											One way
+										</label>
+										<label>
+											<input type="radio" name="tripType" />
+											Multi-city
+										</label>
+									</TripType>
+									<SearchInputs>
+										<FormGroup>
+											<Label>From</Label>
+											<Input
+												type="text"
+												placeholder="City or airport"
+												defaultValue="New York (JFK)"
+											/>
+										</FormGroup>
+										<FormGroup>
+											<Label>To</Label>
+											<Input
+												type="text"
+												placeholder="City or airport"
+												defaultValue="Los Angeles (LAX)"
+											/>
+										</FormGroup>
+										<FormGroup>
+											<Label>Depart</Label>
+											<Input type="date" defaultValue="2026-03-15" />
+										</FormGroup>
+										<FormGroup>
+											<Label>Return</Label>
+											<Input type="date" defaultValue="2026-03-22" />
+										</FormGroup>
+									</SearchInputs>
+									<SearchButton type="button">
+										<FiSearch />
+										Search flights
+									</SearchButton>
+								</FlightSearchForm>
+							</FlightSearchSection>
+						</>
+					)}
+				</HeroContent>
+			</HeroContainer>
 		</>
 	);
 };

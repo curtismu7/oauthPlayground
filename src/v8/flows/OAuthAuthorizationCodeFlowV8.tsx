@@ -250,13 +250,13 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 			<PrimaryButton
 				onClick={async () => {
 					const spinner = useRedirectless ? redirectlessSpinner : authUrlSpinner;
-					
+
 					await spinner.withSpinner(
 						async () => {
 							console.log(
 								`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`
 							);
-							
+
 							if (!credentials.redirectUri) {
 								nav.setValidationErrors(['Redirect URI is required']);
 								throw new Error('Redirect URI is required');
@@ -268,7 +268,9 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 									nav.setValidationErrors([
 										'Username and password are required for redirectless authentication',
 									]);
-									throw new Error('Username and password are required for redirectless authentication');
+									throw new Error(
+										'Username and password are required for redirectless authentication'
+									);
 								}
 
 								// Generate PKCE codes
@@ -311,7 +313,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 											expiresIn: flowResult.tokens.expiresIn,
 										};
 										TokenMonitoringService.addOAuthTokens(oauthTokenPayload, 'oauth-authz-v8');
-										
+
 										// Set tokens directly in auth state if available
 										setAuthState({
 											...authState,
@@ -324,7 +326,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 											},
 										});
 									}
-									
+
 									if (flowResult.code) {
 										setAuthState({
 											...authState,
@@ -334,7 +336,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 											codeChallengeMethod: result.codeChallengeMethod,
 										});
 									}
-									
+
 									nav.nextStep();
 								}
 							} else {
@@ -597,119 +599,122 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 					allowDismiss={false}
 				/>
 			)}
-			
+
 			<div className="oauth-authz-code-flow-v8">
 				<div className="flow-header">
 					<div className="header-content">
-					<div className="header-left">
-						<span className="version-tag">V8</span>
-						<div className="header-text">
-							<h1>OAuth 2.0 Authorization Code Flow</h1>
-							<p>Complete OAuth 2.0 Authorization Code flow with PKCE support</p>
+						<div className="header-left">
+							<span className="version-tag">V8</span>
+							<div className="header-text">
+								<h1>OAuth 2.0 Authorization Code Flow</h1>
+								<p>Complete OAuth 2.0 Authorization Code flow with PKCE support</p>
+							</div>
 						</div>
-					</div>
-					<div className="header-right">
-						<div className="step-badge">
-							<span className="step-number">{nav.currentStep + 1}</span>
-							<span className="step-divider">of</span>
-							<span className="step-total">4</span>
+						<div className="header-right">
+							<div className="step-badge">
+								<span className="step-number">{nav.currentStep + 1}</span>
+								<span className="step-divider">of</span>
+								<span className="step-total">4</span>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
 
-			<div className="flow-container">
-				<div className="step-breadcrumb">
-					{['Configure', 'Auth URL', 'Callback', 'Tokens'].map((label, idx) => (
-						<div key={idx} className="breadcrumb-item">
-							<span
-								className={`breadcrumb-text ${idx === nav.currentStep ? 'active' : ''} ${nav.completedSteps.includes(idx) ? 'completed' : ''}`}
-							>
-								{label}
-							</span>
-							{idx < 3 && <span className="breadcrumb-arrow">→</span>}
-						</div>
-					))}
+				<div className="flow-container">
+					<div className="step-breadcrumb">
+						{['Configure', 'Auth URL', 'Callback', 'Tokens'].map((label, idx) => (
+							<div key={idx} className="breadcrumb-item">
+								<span
+									className={`breadcrumb-text ${idx === nav.currentStep ? 'active' : ''} ${nav.completedSteps.includes(idx) ? 'completed' : ''}`}
+								>
+									{label}
+								</span>
+								{idx < 3 && <span className="breadcrumb-arrow">→</span>}
+							</div>
+						))}
+					</div>
+
+					<div className="step-content-wrapper">{renderStepContent()}</div>
+
+					<StepValidationFeedbackV8
+						errors={nav.validationErrors}
+						warnings={nav.validationWarnings}
+					/>
+
+					<StepActionButtonsV8
+						currentStep={nav.currentStep}
+						totalSteps={4}
+						isNextDisabled={!nav.canGoNext}
+						nextDisabledReason={nav.getErrorMessage()}
+						onPrevious={nav.goToPrevious}
+						onNext={nav.goToNext}
+						onFinal={() => {
+							console.log(`${MODULE_TAG} Starting new flow`);
+							nav.reset();
+							// Clear PKCE codes from bulletproof storage
+							PKCEStorageServiceV8U.clearPKCECodes(FLOW_KEY).catch((err) => {
+								console.error(`${MODULE_TAG} Failed to clear PKCE codes`, err);
+							});
+							codeVerifierRef.current = '';
+							// Reload credentials from storage (preserves credentials)
+							const reloaded = CredentialsServiceV8.loadCredentials('oauth-authz-v8', {
+								flowKey: 'oauth-authz-v8',
+								flowType: 'oauth',
+								includeClientSecret: true,
+								includeRedirectUri: true,
+								includeLogoutUri: false,
+								includeScopes: true,
+								defaultScopes: 'openid profile email',
+								defaultRedirectUri: 'https://localhost:3000/authz-callback',
+							});
+							setCredentials(reloaded);
+							setAuthState({
+								authorizationUrl: '',
+								state: '',
+								codeChallenge: '',
+								codeChallengeMethod: 'S256',
+								authorizationCode: '',
+								tokens: {
+									accessToken: '',
+									idToken: '',
+									refreshToken: '',
+									expiresIn: 3600,
+								},
+							});
+						}}
+					/>
+
+					<DangerButton
+						onClick={() => {
+							console.log(`${MODULE_TAG} Resetting flow`);
+							FlowResetServiceV8.resetFlow('oauth-authz-v8');
+							// Clear PKCE codes from bulletproof storage
+							PKCEStorageServiceV8U.clearPKCECodes(FLOW_KEY).catch((err) => {
+								console.error(`${MODULE_TAG} Failed to clear PKCE codes`, err);
+							});
+							codeVerifierRef.current = '';
+							// Reload credentials from storage (preserves credentials)
+							const reloaded = CredentialsServiceV8.loadCredentials('oauth-authz-v8', {
+								flowKey: 'oauth-authz-v8',
+								flowType: 'oauth',
+								includeClientSecret: true,
+								includeRedirectUri: true,
+								includeLogoutUri: false,
+								includeScopes: true,
+								defaultScopes: 'openid profile email',
+								defaultRedirectUri: 'https://localhost:3000/authz-callback',
+							});
+							setCredentials(reloaded);
+							nav.reset();
+						}}
+						disabled={isActionInProgress}
+						title="Reset flow and clear all data"
+					>
+						Reset Flow
+					</DangerButton>
 				</div>
 
-				<div className="step-content-wrapper">{renderStepContent()}</div>
-
-				<StepValidationFeedbackV8 errors={nav.validationErrors} warnings={nav.validationWarnings} />
-
-				<StepActionButtonsV8
-					currentStep={nav.currentStep}
-					totalSteps={4}
-					isNextDisabled={!nav.canGoNext}
-					nextDisabledReason={nav.getErrorMessage()}
-					onPrevious={nav.goToPrevious}
-					onNext={nav.goToNext}
-					onFinal={() => {
-						console.log(`${MODULE_TAG} Starting new flow`);
-						nav.reset();
-						// Clear PKCE codes from bulletproof storage
-						PKCEStorageServiceV8U.clearPKCECodes(FLOW_KEY).catch((err) => {
-							console.error(`${MODULE_TAG} Failed to clear PKCE codes`, err);
-						});
-						codeVerifierRef.current = '';
-						// Reload credentials from storage (preserves credentials)
-						const reloaded = CredentialsServiceV8.loadCredentials('oauth-authz-v8', {
-							flowKey: 'oauth-authz-v8',
-							flowType: 'oauth',
-							includeClientSecret: true,
-							includeRedirectUri: true,
-							includeLogoutUri: false,
-							includeScopes: true,
-							defaultScopes: 'openid profile email',
-							defaultRedirectUri: 'https://localhost:3000/authz-callback',
-						});
-						setCredentials(reloaded);
-						setAuthState({
-							authorizationUrl: '',
-							state: '',
-							codeChallenge: '',
-							codeChallengeMethod: 'S256',
-							authorizationCode: '',
-							tokens: {
-								accessToken: '',
-								idToken: '',
-								refreshToken: '',
-								expiresIn: 3600,
-							},
-						});
-					}}
-				/>
-
-				<DangerButton
-					onClick={() => {
-						console.log(`${MODULE_TAG} Resetting flow`);
-						FlowResetServiceV8.resetFlow('oauth-authz-v8');
-						// Clear PKCE codes from bulletproof storage
-						PKCEStorageServiceV8U.clearPKCECodes(FLOW_KEY).catch((err) => {
-							console.error(`${MODULE_TAG} Failed to clear PKCE codes`, err);
-						});
-						codeVerifierRef.current = '';
-						// Reload credentials from storage (preserves credentials)
-						const reloaded = CredentialsServiceV8.loadCredentials('oauth-authz-v8', {
-							flowKey: 'oauth-authz-v8',
-							flowType: 'oauth',
-							includeClientSecret: true,
-							includeRedirectUri: true,
-							includeLogoutUri: false,
-							includeScopes: true,
-							defaultScopes: 'openid profile email',
-							defaultRedirectUri: 'https://localhost:3000/authz-callback',
-						});
-						setCredentials(reloaded);
-						nav.reset();
-					}}
-					disabled={isActionInProgress}
-					title="Reset flow and clear all data"
-				>
-					Reset Flow
-				</DangerButton>
-			</div>
-
-			<style>{`
+				<style>{`
 				.oauth-authz-code-flow-v8 {
 					max-width: 1000px;
 					margin: 0 auto;
@@ -1108,7 +1113,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 					}
 				}
 			`}</style>
-		</div>
+			</div>
 		</>
 	);
 };

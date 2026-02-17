@@ -62,17 +62,17 @@ const BADGE_STYLES = {
 	},
 };
 
-export const MenuVersionBadge: React.FC<VersionBadgeProps> = ({ 
-	version, 
-	type = 'production', 
-	label 
+export const MenuVersionBadge: React.FC<VersionBadgeProps> = ({
+	version,
+	type = 'production',
+	label,
 }) => {
 	const style = BADGE_STYLES[type];
 	const displayLabel = label || style.defaultLabel;
 
 	return (
-		<BadgeContainer 
-			$color={style.color} 
+		<BadgeContainer
+			$color={style.color}
 			$bgColor={style.bgColor}
 			title={`${displayLabel} ${version}`}
 		>

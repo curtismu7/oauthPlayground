@@ -13,92 +13,92 @@ import type { BrandTheme } from './brand-theme.interface';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 
 export const pingidentityConfig: CorporatePortalConfig = {
-  company: {
-    name: 'pingidentity',
-    displayName: 'PingIdentity',
-    industry: 'tech',
-    logo: {
-      url: '',
-      alt: 'PingIdentity Logo',
-      width: '130px',
-      height: '40px',
-      text: 'PingIdentity',
-      colors: {
-        primary: '#0066CC',
-        accent: '#003366',
-      },
-    },
-  },
-  login: {
-    pattern: 'two-step-otp',
-    position: 'hero',
-    animation: { type: 'fadeIn', duration: '0.4s' },
-  },
-  navigation: {
-    style: 'corporate',
-    showBrandSelector: true,
-    stickyHeader: true,
-  },
-  content: {
-    customerTerminology: true,
-    tone: 'corporate',
-    heroTitle: 'Identity Security Platform',
-    heroSubtitle: 'Enterprise-grade identity and access management for modern applications',
-    tagline: 'Secure Digital Identity with Confidence',
-    features: [
-      {
-        title: 'Identity Management',
-        description: 'Manage user identities, directories, and authentication services',
-        icon: 'shield',
-      },
-      {
-        title: 'API Access',
-        description: 'Access developer tools, APIs, and integration resources',
-        icon: 'api',
-      },
-      {
-        title: 'Support Center',
-        description: 'Get technical support, documentation, and training resources',
-        icon: 'support',
-      },
-    ],
-  },
-  branding: {
-    colors: {
-      primary: '#0066CC', // PingIdentity Blue
-      primaryDark: '#0052A3',
-      secondary: '#FFFFFF',
-      accent: '#003366', // PingIdentity Dark Blue
-      background: '#FFFFFF',
-      surface: '#FFFFFF',
-      muted: '#6b7280',
-      border: '#d1d5db',
-      text: '#1F2937',
-      textSecondary: '#6B7280',
-      error: '#DC2626',
-      success: '#059669',
-      warning: '#F59E0B',
-      info: '#0066CC',
-      primaryLight: '#3385FF',
-      secondaryLight: '#F8F9FA',
-      secondaryDark: '#E9ECEF',
-      errorLight: '#FEE2E2',
-      warningLight: '#FEF3C7',
-      successLight: '#D1FAE5',
-    },
-    typography: {
-      heading: 'Inter, system-ui, sans-serif',
-      body: 'Inter, system-ui, sans-serif',
-    },
-    spacing: {
-      xs: '0.25rem',
-      sm: '0.5rem',
-      md: '1rem',
-      lg: '1.5rem',
-      xl: '2rem',
-      xxl: '3rem',
-    },
-  },
+	company: {
+		name: 'pingidentity',
+		displayName: 'PingIdentity',
+		industry: 'tech',
+		logo: {
+			url: '',
+			alt: 'PingIdentity Logo',
+			width: '130px',
+			height: '40px',
+			text: 'PingIdentity',
+			colors: {
+				primary: '#0066CC',
+				accent: '#003366',
+			},
+		},
+	},
+	login: {
+		pattern: 'two-step-otp',
+		position: 'hero',
+		animation: { type: 'fadeIn', duration: '0.4s' },
+	},
+	navigation: {
+		style: 'corporate',
+		showBrandSelector: true,
+		stickyHeader: true,
+	},
+	content: {
+		customerTerminology: true,
+		tone: 'corporate',
+		heroTitle: 'Identity Security Platform',
+		heroSubtitle: 'Enterprise-grade identity and access management for modern applications',
+		tagline: 'Secure Digital Identity with Confidence',
+		features: [
+			{
+				title: 'Identity Management',
+				description: 'Manage user identities, directories, and authentication services',
+				icon: 'shield',
+			},
+			{
+				title: 'API Access',
+				description: 'Access developer tools, APIs, and integration resources',
+				icon: 'api',
+			},
+			{
+				title: 'Support Center',
+				description: 'Get technical support, documentation, and training resources',
+				icon: 'support',
+			},
+		],
+	},
+	branding: {
+		colors: {
+			primary: '#0066CC', // PingIdentity Blue
+			primaryDark: '#0052A3',
+			secondary: '#FFFFFF',
+			accent: '#003366', // PingIdentity Dark Blue
+			background: '#FFFFFF',
+			surface: '#FFFFFF',
+			muted: '#6b7280',
+			border: '#d1d5db',
+			text: '#1F2937',
+			textSecondary: '#6B7280',
+			error: '#DC2626',
+			success: '#059669',
+			warning: '#F59E0B',
+			info: '#0066CC',
+			primaryLight: '#3385FF',
+			secondaryLight: '#F8F9FA',
+			secondaryDark: '#E9ECEF',
+			errorLight: '#FEE2E2',
+			warningLight: '#FEF3C7',
+			successLight: '#D1FAE5',
+		},
+		typography: {
+			heading: 'Inter, system-ui, sans-serif',
+			body: 'Inter, system-ui, sans-serif',
+		},
+		spacing: {
+			xs: '0.25rem',
+			sm: '0.5rem',
+			md: '1rem',
+			lg: '1.5rem',
+			xl: '2rem',
+			xxl: '3rem',
+		},
+	},
 };
 
 export const pingidentityTheme: BrandTheme = {

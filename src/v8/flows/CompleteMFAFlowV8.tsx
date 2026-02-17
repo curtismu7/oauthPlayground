@@ -123,7 +123,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 				// Initialize environment ID
 				const environmentId = await EnvironmentIdServiceV8.getEnvironmentId();
 				if (environmentId) {
-					setFlowState(prev => ({
+					setFlowState((prev) => ({
 						...prev,
 						credentials: {
 							...prev.credentials,
@@ -137,13 +137,13 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 					await refreshTokenStatus();
 				}
 
-				setFlowState(prev => ({
+				setFlowState((prev) => ({
 					...prev,
 					networkStatus: 'online',
 				}));
 			} catch (error) {
 				console.error('Failed to initialize V8 services:', error);
-				setFlowState(prev => ({
+				setFlowState((prev) => ({
 					...prev,
 					networkStatus: 'offline',
 					error: error instanceof Error ? error.message : 'Initialization failed',
@@ -159,16 +159,19 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 	}, [flowState.currentStep, flowState.flowData, onStepChange]);
 
 	// Error handling
-	const handleError = useCallback((error: string, context?: Record<string, unknown>) => {
-		console.error('MFA Flow Error:', error, context);
-		setFlowState(prev => ({
-			...prev,
-			error,
-			isLoading: false,
-		}));
-		onFlowError?.(error, context);
-		toastV8.error(error);
-	}, [onFlowError]);
+	const handleError = useCallback(
+		(error: string, context?: Record<string, unknown>) => {
+			console.error('MFA Flow Error:', error, context);
+			setFlowState((prev) => ({
+				...prev,
+				error,
+				isLoading: false,
+			}));
+			onFlowError?.(error, context);
+			toastV8.error(error);
+		},
+		[onFlowError]
+	);
 
 	// MFA enrollment handler
 	const handleMFAEnrollment = useCallback(async () => {
@@ -177,19 +180,19 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 			return;
 		}
 
-		setFlowState(prev => ({ ...prev, isLoading: true, error: null }));
-		
+		setFlowState((prev) => ({ ...prev, isLoading: true, error: null }));
+
 		try {
 			// Use V8 MFA configuration service
 			const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 
-			setFlowState(prev => ({
+			setFlowState((prev) => ({
 				...prev,
 				flowData: { ...prev.flowData, mfaConfig },
 				isLoading: false,
 				currentStep: 'device_pairing',
 			}));
-			
+
 			toastV8.success('MFA configuration loaded');
 		} catch (error) {
 			handleError('Failed to load MFA configuration', { error });
@@ -198,14 +201,14 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 
 	// Device pairing handler
 	const handleDevicePairing = useCallback(async () => {
-		setFlowState(prev => ({ ...prev, isLoading: true, error: null }));
-		
+		setFlowState((prev) => ({ ...prev, isLoading: true, error: null }));
+
 		try {
 			// This would integrate with the specific device type flow
 			// For now, we'll simulate the pairing process
-			await new Promise(resolve => setTimeout(resolve, 2000));
-			
-			setFlowState(prev => ({
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+
+			setFlowState((prev) => ({
 				...prev,
 				flowData: {
 					...prev.flowData,
@@ -215,7 +218,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 				isLoading: false,
 				currentStep: 'mfa_challenge',
 			}));
-			
+
 			toastV8.success('Device paired successfully');
 		} catch (error) {
 			handleError('Failed to pair device', { error });
@@ -224,13 +227,13 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 
 	// MFA challenge handler
 	const handleMFAChallenge = useCallback(async () => {
-		setFlowState(prev => ({ ...prev, isLoading: true, error: null }));
-		
+		setFlowState((prev) => ({ ...prev, isLoading: true, error: null }));
+
 		try {
 			// Simulate MFA challenge
-			await new Promise(resolve => setTimeout(resolve, 3000));
-			
-			setFlowState(prev => ({
+			await new Promise((resolve) => setTimeout(resolve, 3000));
+
+			setFlowState((prev) => ({
 				...prev,
 				flowData: {
 					...prev.flowData,
@@ -239,7 +242,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 				isLoading: false,
 				currentStep: 'completion',
 			}));
-			
+
 			toastV8.success('MFA challenge completed');
 		} catch (error) {
 			handleError('MFA challenge failed', { error });
@@ -265,13 +268,13 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 	// Retry handler
 	const handleRetry = useCallback(() => {
 		if (flowState.retryCount < maxRetries) {
-			setFlowState(prev => ({
+			setFlowState((prev) => ({
 				...prev,
 				retryCount: prev.retryCount + 1,
 				error: null,
 				isLoading: false,
 			}));
-			
+
 			toastV8.info(`Retrying... Attempt ${flowState.retryCount + 1} of ${maxRetries}`);
 		} else {
 			handleError('Maximum retry attempts exceeded');
@@ -305,7 +308,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 							title="User Login"
 							description="Enter your credentials to begin the MFA flow"
 						/>
-						
+
 						<div style={{ marginBottom: '24px' }}>
 							<ButtonSpinner
 								loading={flowState.isLoading}
@@ -332,7 +335,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 								isOpen={showUserLoginModal}
 								onClose={() => setShowUserLoginModal(false)}
 								onCredentialsSaved={() => {
-									setFlowState(prev => ({
+									setFlowState((prev) => ({
 										...prev,
 										currentStep: 'mfa_enrollment',
 									}));
@@ -351,7 +354,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 							title="MFA Enrollment"
 							description="Setting up multi-factor authentication"
 						/>
-						
+
 						<div style={{ marginBottom: '24px' }}>
 							<ButtonSpinner
 								loading={flowState.isLoading}
@@ -375,15 +378,18 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 						</div>
 
 						{!tokenStatus.isValid && (
-							<div style={{
-								padding: '12px',
-								background: '#fef3c7',
-								borderRadius: '6px',
-								border: '1px solid #f59e0b',
-								marginTop: '16px',
-							}}>
+							<div
+								style={{
+									padding: '12px',
+									background: '#fef3c7',
+									borderRadius: '6px',
+									border: '1px solid #f59e0b',
+									marginTop: '16px',
+								}}
+							>
 								<p style={{ margin: 0, color: '#92400e' }}>
-									<strong>Worker token required:</strong> Please obtain a valid worker token to continue with MFA enrollment.
+									<strong>Worker token required:</strong> Please obtain a valid worker token to
+									continue with MFA enrollment.
 								</p>
 							</div>
 						)}
@@ -397,7 +403,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 							title="Device Pairing"
 							description={`Pair your ${deviceType} device for MFA`}
 						/>
-						
+
 						<div style={{ marginBottom: '24px' }}>
 							<ButtonSpinner
 								loading={flowState.isLoading}
@@ -428,7 +434,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 							title="MFA Challenge"
 							description="Complete the multi-factor authentication challenge"
 						/>
-						
+
 						<div style={{ marginBottom: '24px' }}>
 							<ButtonSpinner
 								loading={flowState.isLoading}
@@ -459,23 +465,28 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 							title="Setup Complete"
 							description="MFA has been successfully configured"
 						/>
-						
-						<div style={{
-							padding: '24px',
-							background: '#f0fdf4',
-							border: '1px solid #bbf7d0',
-							borderRadius: '8px',
-							marginBottom: '24px',
-						}}>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+
+						<div
+							style={{
+								padding: '24px',
+								background: '#f0fdf4',
+								border: '1px solid #bbf7d0',
+								borderRadius: '8px',
+								marginBottom: '24px',
+							}}
+						>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}
+							>
 								<FiCheckCircle color="#10b981" size={24} />
 								<h3 style={{ margin: 0, color: '#166534' }}>MFA Setup Successful!</h3>
 							</div>
 							<p style={{ margin: 0, color: '#15803d' }}>
-								Your device has been successfully registered and MFA is now enabled for your account.
+								Your device has been successfully registered and MFA is now enabled for your
+								account.
 							</p>
 						</div>
-						
+
 						<div style={{ marginBottom: '24px' }}>
 							<ButtonSpinner
 								loading={false}
@@ -501,27 +512,26 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 			case 'error':
 				return (
 					<div style={{ padding: '24px' }}>
-						<MFAHeaderV8
-							title="Error"
-							description="An error occurred during the MFA flow"
-						/>
-						
-						<div style={{
-							padding: '24px',
-							background: '#fef2f2',
-							border: '1px solid #fecaca',
-							borderRadius: '8px',
-							marginBottom: '24px',
-						}}>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+						<MFAHeaderV8 title="Error" description="An error occurred during the MFA flow" />
+
+						<div
+							style={{
+								padding: '24px',
+								background: '#fef2f2',
+								border: '1px solid #fecaca',
+								borderRadius: '8px',
+								marginBottom: '24px',
+							}}
+						>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}
+							>
 								<FiAlertTriangle color="#ef4444" size={24} />
 								<h3 style={{ margin: 0, color: '#991b1b' }}>Flow Error</h3>
 							</div>
-							<p style={{ margin: 0, color: '#dc2626' }}>
-								{flowState.error}
-							</p>
+							<p style={{ margin: 0, color: '#dc2626' }}>{flowState.error}</p>
 						</div>
-						
+
 						<div style={{ display: 'flex', gap: '12px' }}>
 							<ButtonSpinner
 								loading={false}
@@ -541,7 +551,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 							>
 								{flowState.retryCount >= maxRetries ? 'Max Retries Reached' : 'Retry'}
 							</ButtonSpinner>
-							
+
 							<ButtonSpinner
 								loading={false}
 								onClick={resetFlow}
@@ -579,20 +589,22 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 		};
 
 		return (
-			<div style={{
-				position: 'fixed',
-				top: '20px',
-				right: '20px',
-				padding: '8px 16px',
-				background: 'white',
-				border: `1px solid ${statusColors[flowState.networkStatus]}`,
-				borderRadius: '6px',
-				fontSize: '12px',
-				fontWeight: '600',
-				color: statusColors[flowState.networkStatus],
-				boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-				zIndex: 1000,
-			}}>
+			<div
+				style={{
+					position: 'fixed',
+					top: '20px',
+					right: '20px',
+					padding: '8px 16px',
+					background: 'white',
+					border: `1px solid ${statusColors[flowState.networkStatus]}`,
+					borderRadius: '6px',
+					fontSize: '12px',
+					fontWeight: '600',
+					color: statusColors[flowState.networkStatus],
+					boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+					zIndex: 1000,
+				}}
+			>
 				Network: {flowState.networkStatus.toUpperCase()}
 			</div>
 		);
@@ -605,23 +617,25 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 					<div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
 						{renderNetworkStatus()}
 						{renderCurrentStep()}
-						
+
 						{/* API Display */}
 						<SuperSimpleApiDisplayV8 />
-						
+
 						{/* Navigation buttons */}
-						<div style={{ 
-							display: 'flex', 
-							justifyContent: 'space-between', 
-							marginTop: '32px',
-							paddingTop: '20px',
-							borderTop: '1px solid #e5e7eb'
-						}}>
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'space-between',
+								marginTop: '32px',
+								paddingTop: '20px',
+								borderTop: '1px solid #e5e7eb',
+							}}
+						>
 							<ButtonSpinner
 								loading={false}
 								onClick={() => {
 									if (flowState.currentStep !== 'username_login') {
-										setFlowState(prev => ({
+										setFlowState((prev) => ({
 											...prev,
 											currentStep: 'username_login',
 										}));
@@ -643,7 +657,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 								<FiArrowLeft style={{ marginRight: '8px' }} />
 								Previous
 							</ButtonSpinner>
-							
+
 							<ButtonSpinner
 								loading={flowState.isLoading}
 								onClick={() => {
@@ -664,13 +678,19 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 								spinnerPosition="left"
 								loadingText="Processing..."
 								style={{
-									background: flowState.isLoading || flowState.currentStep === 'error' ? '#9ca3af' : '#3b82f6',
+									background:
+										flowState.isLoading || flowState.currentStep === 'error'
+											? '#9ca3af'
+											: '#3b82f6',
 									color: 'white',
 									border: 'none',
 									padding: '10px 20px',
 									borderRadius: '6px',
 									fontWeight: '600',
-									cursor: flowState.isLoading || flowState.currentStep === 'error' ? 'not-allowed' : 'pointer',
+									cursor:
+										flowState.isLoading || flowState.currentStep === 'error'
+											? 'not-allowed'
+											: 'pointer',
 								}}
 							>
 								{flowState.currentStep === 'completion' ? 'Complete' : 'Next'}

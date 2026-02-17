@@ -2009,14 +2009,16 @@ const PingOneAuthentication: React.FC = () => {
 				v4ToastManager.showSuccess(
 					'Redirectless authentication successful! Redirecting to MFA device selection...'
 				);
-				
+
 				// Store user info for MFA flow
 				localStorage.setItem('mfa_unified_username', creds.username);
 				localStorage.setItem('mfa_pingone_user_token', accessToken || '');
 				localStorage.setItem('mfa_environment_id', environmentId);
-				
+
 				// Navigate to MFA device selection instead of result page
-				navigate('/v8/mfa-registration?flow=authentication&username=' + encodeURIComponent(creds.username));
+				navigate(
+					'/v8/mfa-registration?flow=authentication&username=' + encodeURIComponent(creds.username)
+				);
 			} catch (error) {
 				console.error('[PingOneAuthentication] Redirectless login error:', error);
 				v4ToastManager.showError(

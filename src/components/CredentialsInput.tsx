@@ -1080,7 +1080,9 @@ export const CredentialsInput = ({
 											transition: 'all 0.2s ease',
 										}}
 									>
-										{isSaving ? 'Saving...' : (
+										{isSaving ? (
+											'Saving...'
+										) : (
 											<>
 												<svg
 													width="16"

@@ -127,109 +127,104 @@ const LoginButton = styled.button<{ $brandColor: string; $accentColor: string }>
 // ============================================================================
 
 interface DropdownLoginProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (credentials: { username: string; password: string }) => void;
-  config: CorporatePortalConfig;
+	isOpen: boolean;
+	onClose: () => void;
+	onSubmit: (credentials: { username: string; password: string }) => void;
+	config: CorporatePortalConfig;
 }
 
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
-const DropdownLogin: React.FC<DropdownLoginProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  config,
-}) => {
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-  });
+const DropdownLogin: React.FC<DropdownLoginProps> = ({ isOpen, onClose, onSubmit, config }) => {
+	const dropdownRef = useRef<HTMLDivElement>(null);
+	const [formData, setFormData] = useState({
+		username: '',
+		password: '',
+	});
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
+	// Close dropdown when clicking outside
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+				onClose();
+			}
+		};
 
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+		if (isOpen) {
+			document.addEventListener('mousedown', handleClickOutside);
+		}
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen, onClose]);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [isOpen, onClose]);
 
-  // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
+	// Handle form submission
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		onSubmit(formData);
+	};
 
-  // Handle input changes
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+	// Handle input changes
+	const handleInputChange = (field: string, value: string) => {
+		setFormData((prev) => ({ ...prev, [field]: value }));
+	};
 
-  const brandColor = config.branding.colors.primary;
-  const accentColor = config.branding.colors.accent;
+	const brandColor = config.branding.colors.primary;
+	const accentColor = config.branding.colors.accent;
 
-  return (
-    <LoginDropdown $isOpen={isOpen} ref={dropdownRef}>
-      <DropdownHeader $brandColor={brandColor}>
-        <DropdownTitle>
-          <FiLock />
-          {config.content.customerTerminology ? 'Customer Login' : 'Employee Login'}
-        </DropdownTitle>
-        <CloseButton onClick={onClose}>
-          <FiX />
-        </CloseButton>
-      </DropdownHeader>
+	return (
+		<LoginDropdown $isOpen={isOpen} ref={dropdownRef}>
+			<DropdownHeader $brandColor={brandColor}>
+				<DropdownTitle>
+					<FiLock />
+					{config.content.customerTerminology ? 'Customer Login' : 'Employee Login'}
+				</DropdownTitle>
+				<CloseButton onClick={onClose}>
+					<FiX />
+				</CloseButton>
+			</DropdownHeader>
 
-      <DropdownContent>
-        <LoginForm onSubmit={handleSubmit}>
-          <InputGroup>
-            <InputLabel htmlFor="username">
-              {config.content.customerTerminology ? 'Customer ID' : 'Employee ID'}
-            </InputLabel>
-            <Input
-              id="username"
-              type="text"
-              value={formData.username}
-              onChange={(e) => handleInputChange('username', e.target.value)}
-              placeholder={`Enter your ${config.content.customerTerminology ? 'customer' : 'employee'} ID`}
-              required
-              $brandColor={brandColor}
-            />
-          </InputGroup>
+			<DropdownContent>
+				<LoginForm onSubmit={handleSubmit}>
+					<InputGroup>
+						<InputLabel htmlFor="username">
+							{config.content.customerTerminology ? 'Customer ID' : 'Employee ID'}
+						</InputLabel>
+						<Input
+							id="username"
+							type="text"
+							value={formData.username}
+							onChange={(e) => handleInputChange('username', e.target.value)}
+							placeholder={`Enter your ${config.content.customerTerminology ? 'customer' : 'employee'} ID`}
+							required
+							$brandColor={brandColor}
+						/>
+					</InputGroup>
 
-          <InputGroup>
-            <InputLabel htmlFor="password">Password</InputLabel>
-            <Input
-              id="password"
-              type="password"
-              value={formData.password}
-              onChange={(e) => handleInputChange('password', e.target.value)}
-              placeholder="Enter your password"
-              required
-              $brandColor={brandColor}
-            />
-          </InputGroup>
+					<InputGroup>
+						<InputLabel htmlFor="password">Password</InputLabel>
+						<Input
+							id="password"
+							type="password"
+							value={formData.password}
+							onChange={(e) => handleInputChange('password', e.target.value)}
+							placeholder="Enter your password"
+							required
+							$brandColor={brandColor}
+						/>
+					</InputGroup>
 
-          <LoginButton type="submit" $brandColor={brandColor} $accentColor={accentColor}>
-            <FiLock />
-            Sign In
-          </LoginButton>
-        </LoginForm>
-      </DropdownContent>
-    </LoginDropdown>
-  );
+					<LoginButton type="submit" $brandColor={brandColor} $accentColor={accentColor}>
+						<FiLock />
+						Sign In
+					</LoginButton>
+				</LoginForm>
+			</DropdownContent>
+		</LoginDropdown>
+	);
 };
 
 export default DropdownLogin;

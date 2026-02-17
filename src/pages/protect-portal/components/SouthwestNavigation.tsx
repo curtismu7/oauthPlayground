@@ -134,7 +134,7 @@ const MobileMenu = styled.div<{ isOpen: boolean }>`
   bottom: 0;
   background: white;
   z-index: 2000;
-  transform: translateX(${props => props.isOpen ? '0' : '100%'});
+  transform: translateX(${(props) => (props.isOpen ? '0' : '100%')});
   transition: transform 0.3s ease;
   
   @media (min-width: 769px) {
@@ -192,22 +192,22 @@ const SouthwestNavigation: React.FC = () => {
 							)}
 							{!activeTheme.logo?.url && activeTheme.logo?.text}
 						</Logo>
-						
+
 						<NavLinks>
 							<NavLink href="#book">Book</NavLink>
 							<NavLink href="#checkin">Check-In</NavLink>
 							<NavLink href="#mytrips">My Trips</NavLink>
 							<NavLink href="#rapidrewards">Rapid Rewards</NavLink>
-							<NavLink href="#employee">{isCustomer ? 'Customer Portal' : 'Employee Portal'}</NavLink>
+							<NavLink href="#employee">
+								{isCustomer ? 'Customer Portal' : 'Employee Portal'}
+							</NavLink>
 						</NavLinks>
-						
+
 						<NavActions>
 							<SearchButton title="Search">
 								<FiSearch size={20} />
 							</SearchButton>
-							<BookButton>
-								Book Flight
-							</BookButton>
+							<BookButton>Book Flight</BookButton>
 							<MobileMenuButton onClick={toggleMobileMenu}>
 								<FiMenu size={24} />
 							</MobileMenuButton>
@@ -215,13 +215,15 @@ const SouthwestNavigation: React.FC = () => {
 					</NavMainContent>
 				</NavMain>
 			</NavContainer>
-			
+
 			<MobileMenu isOpen={mobileMenuOpen}>
 				<MobileMenuHeader>
-					<Logo>
-						{activeTheme.logo?.text}
-					</Logo>
-					<button type="button" onClick={toggleMobileMenu} style={{ background: 'none', border: 'none', color: 'white' }}>
+					<Logo>{activeTheme.logo?.text}</Logo>
+					<button
+						type="button"
+						onClick={toggleMobileMenu}
+						style={{ background: 'none', border: 'none', color: 'white' }}
+					>
 						<FiX size={24} />
 					</button>
 				</MobileMenuHeader>
@@ -230,7 +232,9 @@ const SouthwestNavigation: React.FC = () => {
 					<MobileNavLink href="#checkin">Check-In</MobileNavLink>
 					<MobileNavLink href="#mytrips">My Trips</MobileNavLink>
 					<MobileNavLink href="#rapidrewards">Rapid Rewards</MobileNavLink>
-					<MobileNavLink href="#employee">{isCustomer ? 'Customer Portal' : 'Employee Portal'}</MobileNavLink>
+					<MobileNavLink href="#employee">
+						{isCustomer ? 'Customer Portal' : 'Employee Portal'}
+					</MobileNavLink>
 				</MobileMenuContent>
 			</MobileMenu>
 		</>

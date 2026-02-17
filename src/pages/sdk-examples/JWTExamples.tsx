@@ -243,7 +243,10 @@ const JWTExamples: React.FC = () => {
 	const [generatedJWT, setGeneratedJWT] = useState('');
 	const [keyPair, setKeyPair] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+	const [status, setStatus] = useState<{
+		type: 'success' | 'error' | 'info';
+		message: string;
+	} | null>(null);
 	const [apiLogs, setApiLogs] = useState<APILog[]>([]);
 
 	const showStatus = (type: 'success' | 'error' | 'info', message: string) => {
@@ -277,7 +280,7 @@ const JWTExamples: React.FC = () => {
 			setPrivateKey(generatedKeyPair.privateKey || '');
 			setKeyId(generatedKeyPair.keyId || '');
 			showStatus('success', 'RSA key pair generated successfully!');
-			
+
 			addAPILog({
 				method: 'POST',
 				url: '/api/jwt/generate-key-pair',
@@ -316,7 +319,7 @@ const JWTExamples: React.FC = () => {
 			url: config.tokenEndpoint,
 			requestHeaders: {
 				'Content-Type': 'application/x-www-form-urlencoded',
-				'Authorization': 'Basic ...', // Would be encoded in real implementation
+				Authorization: 'Basic ...', // Would be encoded in real implementation
 			},
 			requestBody: {
 				grant_type: 'client_credentials',
@@ -330,7 +333,7 @@ const JWTExamples: React.FC = () => {
 			if (result.success && result.jwt) {
 				setGeneratedJWT(result.jwt);
 				showStatus('success', 'Private Key JWT generated successfully!');
-				
+
 				addAPILog({
 					method: 'POST',
 					url: config.tokenEndpoint,
@@ -431,10 +434,17 @@ const JWTExamples: React.FC = () => {
 								<APILogTitle>
 									{log.method} {log.url}
 									{log.responseStatus && (
-										<span style={{
-											color: log.responseStatus < 400 ? '#28a745' : log.responseStatus < 500 ? '#ffc107' : '#dc3545',
-											marginLeft: '0.5rem',
-										}}>
+										<span
+											style={{
+												color:
+													log.responseStatus < 400
+														? '#28a745'
+														: log.responseStatus < 500
+															? '#ffc107'
+															: '#dc3545',
+												marginLeft: '0.5rem',
+											}}
+										>
 											[{log.responseStatus}]
 										</span>
 									)}

@@ -488,26 +488,26 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		const fetchMfaSettings = async () => {
 			if (!environmentId || !tokenStatus.isValid) return;
 
-			setMfaSettings(prev => ({ ...prev, loading: true, error: null }));
+			setMfaSettings((prev) => ({ ...prev, loading: true, error: null }));
 
 			try {
 				console.log(`${MODULE_TAG} Loading MFA settings for environment: ${environmentId}`);
 				const settings = await MFAServiceV8.getMFASettings(environmentId);
-				
+
 				const maxDevices = settings.pairing?.maxAllowedDevices || 20; // Default fallback
 				setMfaSettings({
 					maxAllowedDevices: maxDevices,
 					loading: false,
 					error: null,
 				});
-				
+
 				console.log(`${MODULE_TAG} ✅ MFA Settings loaded:`, {
 					maxAllowedDevices: maxDevices,
 					pairingKeyFormat: settings.pairing?.pairingKeyFormat,
 				});
 			} catch (error) {
 				console.warn(`${MODULE_TAG} Failed to fetch MFA settings:`, error);
-				setMfaSettings(prev => ({
+				setMfaSettings((prev) => ({
 					...prev,
 					loading: false,
 					error: error instanceof Error ? error.message : 'Failed to load MFA settings',
@@ -678,10 +678,19 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							{environmentId}
 						</span>
 					</div>
-					
+
 					{mfaSettings.loading ? (
 						<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-							<div style={{ width: '16px', height: '16px', border: '2px solid #3b82f6', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+							<div
+								style={{
+									width: '16px',
+									height: '16px',
+									border: '2px solid #3b82f6',
+									borderTop: '2px solid transparent',
+									borderRadius: '50%',
+									animation: 'spin 1s linear infinite',
+								}}
+							></div>
 							<span style={{ color: '#64748b', fontSize: '14px' }}>Loading MFA settings...</span>
 						</div>
 					) : mfaSettings.error ? (
@@ -749,19 +758,34 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							</span>
 							{mfaSettings.loading ? (
 								<span
-									style={{ marginLeft: '8px', fontSize: '14px', fontWeight: '500', color: '#6b7280' }}
+									style={{
+										marginLeft: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+										color: '#6b7280',
+									}}
 								>
 									Loading...
 								</span>
 							) : mfaSettings.error ? (
 								<span
-									style={{ marginLeft: '8px', fontSize: '14px', fontWeight: '500', color: '#dc2626' }}
+									style={{
+										marginLeft: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+										color: '#dc2626',
+									}}
 								>
 									Error
 								</span>
 							) : (
 								<span
-									style={{ marginLeft: '8px', fontSize: '14px', fontWeight: '500', color: '#059669' }}
+									style={{
+										marginLeft: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+										color: '#059669',
+									}}
 								>
 									{mfaSettings.maxAllowedDevices} devices
 								</span>
@@ -855,7 +879,9 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					{!policy && (
 						<div style={{ marginTop: '8px', fontSize: '12px', color: '#6b7280' }}>
 							<span style={{ color: '#059669' }}>✅ Using PingOne standard device limits</span>
-							<span style={{ marginLeft: '16px' }}>• Max 20 devices per user (configurable in MFA Settings)</span>
+							<span style={{ marginLeft: '16px' }}>
+								• Max 20 devices per user (configurable in MFA Settings)
+							</span>
 							<span style={{ marginLeft: '16px' }}>• Max 20 valid pairing keys per user</span>
 							<span style={{ marginLeft: '16px' }}>
 								• ACTIVATION_REQUIRED devices expire after 24 hours

@@ -631,85 +631,85 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 			try {
 				const workerToken = await workerTokenServiceV8.getToken();
-			// #region agent log
-			// #endregion
-			if (!workerToken) {
-				throw new Error('Worker token not found');
-			}
-
-			const credentialsData = await workerTokenServiceV8.loadCredentials();
-			const region = credentialsData?.region || 'na';
-
-			const params = new URLSearchParams({
-				environmentId: envId,
-				workerToken: workerToken.trim(),
-				region,
-			});
-			const apiUrl = `/api/pingone/mfa/fido2-policies?${params.toString()}`;
-			// #region agent log
-			// #endregion
-
-			const response = await fetch(apiUrl, {
-				method: 'GET',
-				headers: { 'Content-Type': 'application/json' },
-			});
-
-			// #region agent log
-			// #endregion
-
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
 				// #region agent log
 				// #endregion
-				throw new Error(
-					errorData.message ||
-						errorData.error ||
-						`Failed to load FIDO2 policies: ${response.status}`
-				);
-			}
+				if (!workerToken) {
+					throw new Error('Worker token not found');
+				}
 
-			const data = await response.json();
-			// #region agent log
-			// #endregion
-			const policiesList = data._embedded?.fido2Policies || [];
-			// #region agent log
-			// #endregion
-			lastFetchedFido2EnvIdRef.current = envId;
-			setFido2Policies(policiesList);
+				const credentialsData = await workerTokenServiceV8.loadCredentials();
+				const region = credentialsData?.region || 'na';
 
-			// Auto-select default policy if no policy is set
-			if (policiesList.length > 0) {
-				const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
-					flowKey: 'mfa-flow-v8',
-					flowType: 'oidc',
-					includeClientSecret: false,
-					includeRedirectUri: false,
-					includeLogoutUri: false,
-					includeScopes: false,
+				const params = new URLSearchParams({
+					environmentId: envId,
+					workerToken: workerToken.trim(),
+					region,
 				});
-				const currentPolicyId = (stored as MFACredentials & { fido2PolicyId?: string })
-					.fido2PolicyId;
+				const apiUrl = `/api/pingone/mfa/fido2-policies?${params.toString()}`;
+				// #region agent log
+				// #endregion
 
-				if (!currentPolicyId) {
-					const defaultPolicy =
-						policiesList.find((p: { default?: boolean }) => p.default) || policiesList[0];
-					if (defaultPolicy.id) {
-						const updated = { ...stored, fido2PolicyId: defaultPolicy.id } as MFACredentials;
-						CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
+				const response = await fetch(apiUrl, {
+					method: 'GET',
+					headers: { 'Content-Type': 'application/json' },
+				});
+
+				// #region agent log
+				// #endregion
+
+				if (!response.ok) {
+					const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+					// #region agent log
+					// #endregion
+					throw new Error(
+						errorData.message ||
+							errorData.error ||
+							`Failed to load FIDO2 policies: ${response.status}`
+					);
+				}
+
+				const data = await response.json();
+				// #region agent log
+				// #endregion
+				const policiesList = data._embedded?.fido2Policies || [];
+				// #region agent log
+				// #endregion
+				lastFetchedFido2EnvIdRef.current = envId;
+				setFido2Policies(policiesList);
+
+				// Auto-select default policy if no policy is set
+				if (policiesList.length > 0) {
+					const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+						flowKey: 'mfa-flow-v8',
+						flowType: 'oidc',
+						includeClientSecret: false,
+						includeRedirectUri: false,
+						includeLogoutUri: false,
+						includeScopes: false,
+					});
+					const currentPolicyId = (stored as MFACredentials & { fido2PolicyId?: string })
+						.fido2PolicyId;
+
+					if (!currentPolicyId) {
+						const defaultPolicy =
+							policiesList.find((p: { default?: boolean }) => p.default) || policiesList[0];
+						if (defaultPolicy.id) {
+							const updated = { ...stored, fido2PolicyId: defaultPolicy.id } as MFACredentials;
+							CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
+						}
 					}
 				}
+			} catch (error) {
+				const errorMessage =
+					error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
+				setFido2PoliciesError(errorMessage);
+				console.error(`${MODULE_TAG} Failed to load FIDO2 policies:`, error);
+			} finally {
+				isFetchingFido2PoliciesRef.current = false;
+				setIsLoadingFido2Policies(false);
 			}
-		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
-			setFido2PoliciesError(errorMessage);
-			console.error(`${MODULE_TAG} Failed to load FIDO2 policies:`, error);
-		} finally {
-			isFetchingFido2PoliciesRef.current = false;
-			setIsLoadingFido2Policies(false);
-		}
-	}, 'Loading FIDO2 policies...');
-	}, [policiesSpinner]
-	);
+		}, 'Loading FIDO2 policies...');
+	}, [policiesSpinner]);
 
 	// Fetch FIDO2 policies when environment and token are ready
 	useEffect(() => {
@@ -2904,73 +2904,73 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			>
 				<MFANavigationV8 currentPage="registration" showBackToMain={true} />
 
-			<MFAFlowBaseV8
-				deviceType={deviceType as DeviceType}
-				renderStep0={renderStep0}
-				renderStep1={renderStep1WithSelection}
-				renderStep2={renderStep2}
-				renderStep3={renderStep3}
-				renderStep4={() => null}
-				validateStep0={validateStep0}
-				stepLabels={['Configure', 'Select/Register Device', 'Device Ready', 'Complete']}
-				shouldHideNextButton={(props) => {
-					// Hide Next button on step 1 when registration form is shown
-					// The "Register FIDO2 Device" button is the primary action
-					if (props.nav.currentStep === 1) {
-						return deviceSelection.showRegisterForm;
-					}
-					// Hide final button on success step (step 3) - we have our own "Start Again" button
-					if (props.nav.currentStep === 3) {
-						return true;
-					}
-					return false;
-				}}
-			/>
+				<MFAFlowBaseV8
+					deviceType={deviceType as DeviceType}
+					renderStep0={renderStep0}
+					renderStep1={renderStep1WithSelection}
+					renderStep2={renderStep2}
+					renderStep3={renderStep3}
+					renderStep4={() => null}
+					validateStep0={validateStep0}
+					stepLabels={['Configure', 'Select/Register Device', 'Device Ready', 'Complete']}
+					shouldHideNextButton={(props) => {
+						// Hide Next button on step 1 when registration form is shown
+						// The "Register FIDO2 Device" button is the primary action
+						if (props.nav.currentStep === 1) {
+							return deviceSelection.showRegisterForm;
+						}
+						// Hide final button on success step (step 3) - we have our own "Start Again" button
+						if (props.nav.currentStep === 3) {
+							return true;
+						}
+						return false;
+					}}
+				/>
 
-			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
+				<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 
-			<FIDODeviceExistsModalV8
-				isOpen={showFIDODeviceExistsModal}
-				onClose={() => {
-					setShowFIDODeviceExistsModal(false);
-					setExistingFIDODevice(null);
-				}}
-				onBackToSelection={() => {
-					setShowFIDODeviceExistsModal(false);
-					setExistingFIDODevice(null);
-					// Navigate back to device selection step
-					if (navRef.current) {
-						navRef.current.goToStep(1);
-						navRef.current.setValidationErrors([]);
-						navRef.current.setValidationWarnings([]);
-					}
-				}}
-				onBackToHub={() => {
-					setShowFIDODeviceExistsModal(false);
-					setExistingFIDODevice(null);
-					navigateToMfaHubWithCleanup(navigate);
-				}}
-				onDeviceDeleted={() => {
-					setShowFIDODeviceExistsModal(false);
-					setExistingFIDODevice(null);
-					// Refresh device list and allow registration
-					if (navRef.current) {
-						navRef.current.setValidationErrors([]);
-						navRef.current.setValidationWarnings([]);
-					}
-					// Trigger device reload by updating device selection state
-					setDeviceSelection((prev) => ({
-						...prev,
-						existingDevices: [],
-						selectedExistingDevice: 'new',
-						showRegisterForm: true,
-					}));
-				}}
-				environmentId={credentialsRef.current?.environmentId}
-				username={credentialsRef.current?.username}
-				deviceId={existingFIDODevice?.id}
-				deviceNickname={existingFIDODevice?.nickname}
-			/>
+				<FIDODeviceExistsModalV8
+					isOpen={showFIDODeviceExistsModal}
+					onClose={() => {
+						setShowFIDODeviceExistsModal(false);
+						setExistingFIDODevice(null);
+					}}
+					onBackToSelection={() => {
+						setShowFIDODeviceExistsModal(false);
+						setExistingFIDODevice(null);
+						// Navigate back to device selection step
+						if (navRef.current) {
+							navRef.current.goToStep(1);
+							navRef.current.setValidationErrors([]);
+							navRef.current.setValidationWarnings([]);
+						}
+					}}
+					onBackToHub={() => {
+						setShowFIDODeviceExistsModal(false);
+						setExistingFIDODevice(null);
+						navigateToMfaHubWithCleanup(navigate);
+					}}
+					onDeviceDeleted={() => {
+						setShowFIDODeviceExistsModal(false);
+						setExistingFIDODevice(null);
+						// Refresh device list and allow registration
+						if (navRef.current) {
+							navRef.current.setValidationErrors([]);
+							navRef.current.setValidationWarnings([]);
+						}
+						// Trigger device reload by updating device selection state
+						setDeviceSelection((prev) => ({
+							...prev,
+							existingDevices: [],
+							selectedExistingDevice: 'new',
+							showRegisterForm: true,
+						}));
+					}}
+					environmentId={credentialsRef.current?.environmentId}
+					username={credentialsRef.current?.username}
+					deviceId={existingFIDODevice?.id}
+					deviceNickname={existingFIDODevice?.nickname}
+				/>
 			</div>
 		</>
 	);

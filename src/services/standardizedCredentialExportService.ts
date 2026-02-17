@@ -4,10 +4,10 @@
 import { exportWorkerTokenCredentials } from './credentialExportImportService';
 
 // Re-export the standardized interfaces
-export type { 
-	AuthzCredentials, 
-	WorkerTokenCredentials, 
-	ExportedCredentials 
+export type {
+	AuthzCredentials,
+	WorkerTokenCredentials,
+	ExportedCredentials,
 } from './credentialExportImportService';
 
 // Standardized export format for all Production apps
@@ -49,7 +49,7 @@ export function exportStandardizedCredentials(
 			appName,
 			appType,
 			credentials,
-			metadata
+			metadata,
 		};
 
 		const json = JSON.stringify(exported, null, 2);
@@ -92,8 +92,8 @@ export async function importStandardizedCredentials(
 						appType: data.workerToken ? 'worker-token' : 'oauth',
 						credentials: data.workerToken || data.authz,
 						metadata: {
-							flowType: data.authz ? 'authorization_code' : undefined
-						}
+							flowType: data.authz ? 'authorization_code' : undefined,
+						},
 					};
 					resolve(converted);
 				}
@@ -127,11 +127,11 @@ export function createCredentialImport(
 	const input = document.createElement('input');
 	input.type = 'file';
 	input.accept = '.json';
-	
+
 	input.onchange = async (e) => {
 		const file = (e.target as HTMLInputElement).files?.[0];
 		if (!file) return;
-		
+
 		try {
 			const credentials = await importStandardizedCredentials(file);
 			onImport(credentials);
@@ -142,6 +142,6 @@ export function createCredentialImport(
 			}
 		}
 	};
-	
+
 	input.click();
 }

@@ -598,7 +598,10 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 								setIsLoadingDevices(false);
 							}}
 							disabled={
-								!credentials.environmentId || !credentials.username || !tokenStatus?.isValid || isLoadingDevices
+								!credentials.environmentId ||
+								!credentials.username ||
+								!tokenStatus?.isValid ||
+								isLoadingDevices
 							}
 							spinnerSize={16}
 							spinnerPosition="left"

@@ -16,13 +16,13 @@ export class CredentialsServiceV8Migration {
 	 */
 	static async migrateAll(): Promise<{ migrated: number; errors: string[] }> {
 		const results = { migrated: 0, errors: [] as string[] };
-		
+
 		try {
 			// Get all V8 credentials keys from localStorage
 			const v8Keys = this.getV8CredentialsKeys();
-			
+
 			console.log(`${MODULE_TAG} Starting credentials migration`, { keyCount: v8Keys.length });
-			
+
 			for (const key of v8Keys) {
 				try {
 					await this.migrateCredentialsKey(key);
@@ -33,7 +33,7 @@ export class CredentialsServiceV8Migration {
 					console.error(`${MODULE_TAG} ${errorMsg}`);
 				}
 			}
-			
+
 			console.log(`${MODULE_TAG} Credentials migration completed`, results);
 			return results;
 		} catch (error) {
@@ -43,7 +43,7 @@ export class CredentialsServiceV8Migration {
 			return results;
 		}
 	}
-	
+
 	/**
 	 * Migrate a single credentials key from localStorage to unified storage
 	 */
@@ -53,30 +53,33 @@ export class CredentialsServiceV8Migration {
 		if (!serialized) {
 			return;
 		}
-		
+
 		try {
 			// Parse the credentials data
 			const credentials: V8Credentials = JSON.parse(serialized);
-			
+
 			// Save to unified storage
 			await unifiedTokenStorage.saveV8Credentials(flowKey, credentials);
-			
+
 			// Remove from localStorage after successful migration
 			localStorage.removeItem(storageKey);
-			
-			console.log(`${MODULE_TAG} Migrated credentials key`, { flowKey, environmentId: credentials.environmentId });
+
+			console.log(`${MODULE_TAG} Migrated credentials key`, {
+				flowKey,
+				environmentId: credentials.environmentId,
+			});
 		} catch (error) {
 			throw new Error(`Failed to parse or migrate credentials for key ${flowKey}: ${error}`);
 		}
 	}
-	
+
 	/**
 	 * Get all V8 credentials keys from localStorage
 	 */
 	private static getV8CredentialsKeys(): string[] {
 		const keys: string[] = [];
 		const prefix = 'v8_credentials_';
-		
+
 		for (let i = 0; i < localStorage.length; i++) {
 			const key = localStorage.key(i);
 			if (key?.startsWith(prefix)) {
@@ -85,23 +88,23 @@ export class CredentialsServiceV8Migration {
 				keys.push(flowKey);
 			}
 		}
-		
+
 		return keys;
 	}
-	
+
 	/**
 	 * Check if credentials migration is needed
 	 */
 	static needsMigration(): boolean {
 		return this.getV8CredentialsKeys().length > 0;
 	}
-	
+
 	/**
 	 * Get migration statistics
 	 */
 	static getMigrationStats(): { localStorageKeys: number; unifiedStorageKeys: number } {
 		const localStorageKeys = this.getV8CredentialsKeys().length;
-		
+
 		// We'll need to implement this method in unified storage
 		// For now, return a placeholder
 		return {

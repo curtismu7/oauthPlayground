@@ -12,97 +12,97 @@ import type { BrandTheme } from './brand-theme.interface';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 
 export const unitedAirlinesConfig: CorporatePortalConfig = {
-  company: {
-    name: 'united-airlines',
-    displayName: 'United Airlines',
-    industry: 'aviation',
-    logo: {
-      url: '',
-      alt: 'United Airlines Logo',
-      width: '120px',
-      height: '40px',
-      text: 'UNITED',
-      colors: {
-        primary: '#0033A0',
-        accent: '#FF6600',
-      },
-    },
-  },
-  login: {
-    pattern: 'right-popout',
-    position: 'right',
-    animation: { type: 'slideIn', duration: '0.3s' },
-  },
-  navigation: {
-    style: 'corporate',
-    showBrandSelector: true,
-    stickyHeader: true,
-  },
-  content: {
-    customerTerminology: true,
-    tone: 'corporate',
-    heroTitle: 'Good Leads The Way.',
-    heroSubtitle: 'Book flights, manage reservations, and access your MileagePlus account',
-    features: [
-      {
-        title: 'Book Travel',
-        description: 'Search and book flights to destinations worldwide with exclusive deals',
-        icon: 'plane',
-      },
-      {
-        title: 'My Trips',
-        description: 'View upcoming flights, check in online, and modify reservations',
-        icon: 'trips',
-      },
-      {
-        title: 'MileagePlus®',
-        description: 'Manage your frequent flyer account and earn miles',
-        icon: 'star',
-      },
-      {
-        title: 'Flight Status',
-        description: 'Track flight status, delays, and gate information in real-time',
-        icon: 'calendar',
-      },
-    ],
-  },
-  branding: {
-    colors: {
-      primary: '#0033A0', // United Blue (official brand color)
-      primaryDark: '#002880', // Darker blue for hover states
-      secondary: '#FFFFFF', // White
-      accent: '#FF6600', // United Orange (official accent color)
-      background: '#FFFFFF', // Changed to solid white for Protect app
-      surface: '#FFFFFF',
-      muted: '#6b7280', // Muted gray
-      border: '#d1d5db', // Border gray
-      text: '#1F2937',
-      textSecondary: '#6B7280',
-      error: '#DC2626',
-      success: '#059669',
-      warning: '#FF6600', // Use United Orange for warnings
-      info: '#0033A0', // Use United Blue for info
-      // Additional theme colors with official United Airlines palette
-      primaryLight: '#0056B3',
-      secondaryLight: '#F8F9FA',
-      secondaryDark: '#E9ECEF',
-      errorLight: '#FEE2E2',
-      warningLight: '#FEF3C7',
-      successLight: '#D1FAE5',
-    },
-    typography: {
-      heading: 'United, Helvetica Neue, Arial, sans-serif',
-      body: 'United, Helvetica Neue, Arial, sans-serif',
-    },
-    spacing: {
-      xs: '0.25rem',
-      sm: '0.5rem',
-      md: '1rem',
-      lg: '1.5rem',
-      xl: '2rem',
-      xxl: '3rem',
-    },
-  },
+	company: {
+		name: 'united-airlines',
+		displayName: 'United Airlines',
+		industry: 'aviation',
+		logo: {
+			url: '',
+			alt: 'United Airlines Logo',
+			width: '120px',
+			height: '40px',
+			text: 'UNITED',
+			colors: {
+				primary: '#0033A0',
+				accent: '#FF6600',
+			},
+		},
+	},
+	login: {
+		pattern: 'right-popout',
+		position: 'right',
+		animation: { type: 'slideIn', duration: '0.3s' },
+	},
+	navigation: {
+		style: 'corporate',
+		showBrandSelector: true,
+		stickyHeader: true,
+	},
+	content: {
+		customerTerminology: true,
+		tone: 'corporate',
+		heroTitle: 'Good Leads The Way.',
+		heroSubtitle: 'Book flights, manage reservations, and access your MileagePlus account',
+		features: [
+			{
+				title: 'Book Travel',
+				description: 'Search and book flights to destinations worldwide with exclusive deals',
+				icon: 'plane',
+			},
+			{
+				title: 'My Trips',
+				description: 'View upcoming flights, check in online, and modify reservations',
+				icon: 'trips',
+			},
+			{
+				title: 'MileagePlus®',
+				description: 'Manage your frequent flyer account and earn miles',
+				icon: 'star',
+			},
+			{
+				title: 'Flight Status',
+				description: 'Track flight status, delays, and gate information in real-time',
+				icon: 'calendar',
+			},
+		],
+	},
+	branding: {
+		colors: {
+			primary: '#0033A0', // United Blue (official brand color)
+			primaryDark: '#002880', // Darker blue for hover states
+			secondary: '#FFFFFF', // White
+			accent: '#FF6600', // United Orange (official accent color)
+			background: '#FFFFFF', // Changed to solid white for Protect app
+			surface: '#FFFFFF',
+			muted: '#6b7280', // Muted gray
+			border: '#d1d5db', // Border gray
+			text: '#1F2937',
+			textSecondary: '#6B7280',
+			error: '#DC2626',
+			success: '#059669',
+			warning: '#FF6600', // Use United Orange for warnings
+			info: '#0033A0', // Use United Blue for info
+			// Additional theme colors with official United Airlines palette
+			primaryLight: '#0056B3',
+			secondaryLight: '#F8F9FA',
+			secondaryDark: '#E9ECEF',
+			errorLight: '#FEE2E2',
+			warningLight: '#FEF3C7',
+			successLight: '#D1FAE5',
+		},
+		typography: {
+			heading: 'United, Helvetica Neue, Arial, sans-serif',
+			body: 'United, Helvetica Neue, Arial, sans-serif',
+		},
+		spacing: {
+			xs: '0.25rem',
+			sm: '0.5rem',
+			md: '1rem',
+			lg: '1.5rem',
+			xl: '2rem',
+			xxl: '3rem',
+		},
+	},
 };
 
 export const unitedAirlinesTheme: BrandTheme = {

@@ -12,7 +12,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { FiChevronRight, FiInfo, FiBook, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { EducationPreferenceService, type EducationMode } from '../../services/educationPreferenceService';
+import {
+	EducationPreferenceService,
+	type EducationMode,
+} from '../../services/educationPreferenceService';
 
 const MasterSectionContainer = styled.div`
 	margin-bottom: 24px;
@@ -57,11 +60,11 @@ const ToggleIcon = styled.div<{ $isExpanded: boolean }>`
 	display: flex;
 	align-items: center;
 	transition: transform 0.2s ease;
-	transform: ${props => props.$isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'};
+	transform: ${(props) => (props.$isExpanded ? 'rotate(90deg)' : 'rotate(0deg)')};
 `;
 
 const CollapsibleContent = styled.div<{ $isExpanded: boolean }>`
-	max-height: ${props => props.$isExpanded ? '2000px' : '0'};
+	max-height: ${(props) => (props.$isExpanded ? '2000px' : '0')};
 	overflow: hidden;
 	transition: max-height 0.3s ease-in-out;
 `;
@@ -173,7 +176,7 @@ interface MasterEducationSectionProps {
 
 /**
  * MasterEducationSection Component
- * 
+ *
  * Consolidates all educational content into a single collapsible section
  * with support for different display modes.
  */
@@ -184,7 +187,9 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 }) => {
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
-	const [currentMode, setCurrentMode] = useState<EducationMode>(mode || EducationPreferenceService.getEducationMode());
+	const [currentMode, setCurrentMode] = useState<EducationMode>(
+		mode || EducationPreferenceService.getEducationMode()
+	);
 
 	// Listen for preference changes via storage events and custom events
 	useEffect(() => {
@@ -196,7 +201,7 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 
 		// Listen for storage events (from other tabs/windows)
 		window.addEventListener('storage', handleModeChange);
-		
+
 		// Also poll for changes (fallback for same-window updates)
 		const pollInterval = setInterval(() => {
 			const latestMode = mode || EducationPreferenceService.getEducationMode();
@@ -213,11 +218,11 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 	}, [mode, currentMode]);
 
 	const toggleSection = useCallback(() => {
-		setIsExpanded(prev => !prev);
+		setIsExpanded((prev) => !prev);
 	}, []);
 
 	const toggleCompactSection = useCallback((sectionId: string) => {
-		setExpandedSections(prev => {
+		setExpandedSections((prev) => {
 			const newSet = new Set(prev);
 			if (newSet.has(sectionId)) {
 				newSet.delete(sectionId);
@@ -230,12 +235,18 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 
 	const getIconForSection = (section: EducationSectionData) => {
 		if (section.icon) return section.icon;
-		
+
 		// Default icons based on section content
-		if (section.title.toLowerCase().includes('security') || section.title.toLowerCase().includes('consideration')) {
+		if (
+			section.title.toLowerCase().includes('security') ||
+			section.title.toLowerCase().includes('consideration')
+		) {
 			return <FiShield size={16} />;
 		}
-		if (section.title.toLowerCase().includes('overview') || section.title.toLowerCase().includes('introduction')) {
+		if (
+			section.title.toLowerCase().includes('overview') ||
+			section.title.toLowerCase().includes('introduction')
+		) {
 			return <FiInfo size={16} />;
 		}
 		return <FiBook size={16} />;
@@ -251,10 +262,7 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 		return (
 			<MasterSectionContainer className={className}>
 				{sections.map((section) => (
-					<CompactSection
-						key={section.id}
-						onClick={() => toggleCompactSection(section.id)}
-					>
+					<CompactSection key={section.id} onClick={() => toggleCompactSection(section.id)}>
 						<CompactTitle>
 							{getIconForSection(section)}
 							{section.title}
@@ -263,7 +271,9 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 							{section.oneLiner || 'Click to expand for more information'}
 						</CompactContent>
 						{expandedSections.has(section.id) && (
-							<div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e2e8f0' }}>
+							<div
+								style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e2e8f0' }}
+							>
 								<EducationContent>{section.content}</EducationContent>
 							</div>
 						)}

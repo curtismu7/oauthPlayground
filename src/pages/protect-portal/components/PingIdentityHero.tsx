@@ -10,7 +10,15 @@
  */
 
 import React from 'react';
-import { FiArrowRight, FiLock, FiShield, FiUsers, FiKey, FiDatabase, FiSettings } from 'react-icons/fi';
+import {
+	FiArrowRight,
+	FiLock,
+	FiShield,
+	FiUsers,
+	FiKey,
+	FiDatabase,
+	FiSettings,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 
 // ============================================================================
@@ -226,158 +234,162 @@ const FeatureDescription = styled.p`
 // ============================================================================
 
 interface PingIdentityHeroProps {
-  currentStep?: string;
-  onLoginStart?: () => void;
+	currentStep?: string;
+	onLoginStart?: () => void;
 }
 
 const PingIdentityHero: React.FC<PingIdentityHeroProps> = ({
-  currentStep = 'portal-home',
-  onLoginStart,
+	currentStep = 'portal-home',
+	onLoginStart,
 }) => {
-  return (
-    <>
-      <HeroContainer>
-        <HeroContent>
-          {currentStep === 'portal-home' ? (
-            <>
-              <HeroTitle>Secure Digital Identity</HeroTitle>
-              <HeroSubtitle>
-                Enterprise-grade identity and access management for modern applications
-              </HeroSubtitle>
+	return (
+		<>
+			<HeroContainer>
+				<HeroContent>
+					{currentStep === 'portal-home' ? (
+						<>
+							<HeroTitle>Secure Digital Identity</HeroTitle>
+							<HeroSubtitle>
+								Enterprise-grade identity and access management for modern applications
+							</HeroSubtitle>
 
-              <QuickActions>
-                <QuickAction>
-                  <ActionIcon>
-                    <FiShield />
-                  </ActionIcon>
-                  <ActionLabel>Security</ActionLabel>
-                </QuickAction>
+							<QuickActions>
+								<QuickAction>
+									<ActionIcon>
+										<FiShield />
+									</ActionIcon>
+									<ActionLabel>Security</ActionLabel>
+								</QuickAction>
 
-                <QuickAction>
-                  <ActionIcon>
-                    <FiUsers />
-                  </ActionIcon>
-                  <ActionLabel>Users</ActionLabel>
-                </QuickAction>
+								<QuickAction>
+									<ActionIcon>
+										<FiUsers />
+									</ActionIcon>
+									<ActionLabel>Users</ActionLabel>
+								</QuickAction>
 
-                <QuickAction>
-                  <ActionIcon>
-                    <FiKey />
-                  </ActionIcon>
-                  <ActionLabel>Access</ActionLabel>
-                </QuickAction>
+								<QuickAction>
+									<ActionIcon>
+										<FiKey />
+									</ActionIcon>
+									<ActionLabel>Access</ActionLabel>
+								</QuickAction>
 
-                <QuickAction>
-                  <ActionIcon>
-                    <FiDatabase />
-                  </ActionIcon>
-                  <ActionLabel>Directory</ActionLabel>
-                </QuickAction>
-              </QuickActions>
+								<QuickAction>
+									<ActionIcon>
+										<FiDatabase />
+									</ActionIcon>
+									<ActionLabel>Directory</ActionLabel>
+								</QuickAction>
+							</QuickActions>
 
-              <LoginSection>
-                <LoginDescription>
-                  Click below to begin your secure authentication journey. We'll evaluate your login attempt in
-                  real-time to provide the appropriate level of security based on risk assessment.
-                </LoginDescription>
-                <LoginButton onClick={onLoginStart}>
-                  <FiLock />
-                  Begin Secure Login
-                  <FiArrowRight />
-                </LoginButton>
-              </LoginSection>
-            </>
-          ) : (
-            <>
-              <HeroTitle>Secure Identity Portal</HeroTitle>
-              <HeroSubtitle>
-                Access your PingIdentity services with enterprise-grade security and multi-factor authentication
-              </HeroSubtitle>
+							<LoginSection>
+								<LoginDescription>
+									Click below to begin your secure authentication journey. We'll evaluate your login
+									attempt in real-time to provide the appropriate level of security based on risk
+									assessment.
+								</LoginDescription>
+								<LoginButton onClick={onLoginStart}>
+									<FiLock />
+									Begin Secure Login
+									<FiArrowRight />
+								</LoginButton>
+							</LoginSection>
+						</>
+					) : (
+						<>
+							<HeroTitle>Secure Identity Portal</HeroTitle>
+							<HeroSubtitle>
+								Access your PingIdentity services with enterprise-grade security and multi-factor
+								authentication
+							</HeroSubtitle>
 
-              <LoginSection>
-                <LoginDescription>
-                  Click below to access your secure identity portal. Multi-factor authentication may
-                  be required based on your security profile and access requirements.
-                </LoginDescription>
-                <LoginButton onClick={onLoginStart}>
-                  <FiLock />
-                  Sign In to Identity Portal
-                  <FiArrowRight />
-                </LoginButton>
-              </LoginSection>
-            </>
-          )}
-        </HeroContent>
-      </HeroContainer>
+							<LoginSection>
+								<LoginDescription>
+									Click below to access your secure identity portal. Multi-factor authentication may
+									be required based on your security profile and access requirements.
+								</LoginDescription>
+								<LoginButton onClick={onLoginStart}>
+									<FiLock />
+									Sign In to Identity Portal
+									<FiArrowRight />
+								</LoginButton>
+							</LoginSection>
+						</>
+					)}
+				</HeroContent>
+			</HeroContainer>
 
-      {currentStep === 'portal-home' && (
-        <FeaturesSection>
-          <FeaturesTitle>Enterprise Identity Solutions</FeaturesTitle>
-          <FeaturesGrid>
-            <FeatureCard>
-              <FeatureIcon>
-                <FiShield />
-              </FeatureIcon>
-              <FeatureTitle>Advanced Security</FeatureTitle>
-              <FeatureDescription>
-                Multi-factor authentication, risk-based access control, and adaptive security policies
-              </FeatureDescription>
-            </FeatureCard>
+			{currentStep === 'portal-home' && (
+				<FeaturesSection>
+					<FeaturesTitle>Enterprise Identity Solutions</FeaturesTitle>
+					<FeaturesGrid>
+						<FeatureCard>
+							<FeatureIcon>
+								<FiShield />
+							</FeatureIcon>
+							<FeatureTitle>Advanced Security</FeatureTitle>
+							<FeatureDescription>
+								Multi-factor authentication, risk-based access control, and adaptive security
+								policies
+							</FeatureDescription>
+						</FeatureCard>
 
-            <FeatureCard>
-              <FeatureIcon>
-                <FiUsers />
-              </FeatureIcon>
-              <FeatureTitle>User Management</FeatureTitle>
-              <FeatureDescription>
-                Centralized user directory, self-service password reset, and lifecycle management
-              </FeatureDescription>
-            </FeatureCard>
+						<FeatureCard>
+							<FeatureIcon>
+								<FiUsers />
+							</FeatureIcon>
+							<FeatureTitle>User Management</FeatureTitle>
+							<FeatureDescription>
+								Centralized user directory, self-service password reset, and lifecycle management
+							</FeatureDescription>
+						</FeatureCard>
 
-            <FeatureCard>
-              <FeatureIcon>
-                <FiKey />
-              </FeatureIcon>
-              <FeatureTitle>Single Sign-On</FeatureTitle>
-              <FeatureDescription>
-                Seamless access to all applications with one set of credentials across your enterprise
-              </FeatureDescription>
-            </FeatureCard>
+						<FeatureCard>
+							<FeatureIcon>
+								<FiKey />
+							</FeatureIcon>
+							<FeatureTitle>Single Sign-On</FeatureTitle>
+							<FeatureDescription>
+								Seamless access to all applications with one set of credentials across your
+								enterprise
+							</FeatureDescription>
+						</FeatureCard>
 
-            <FeatureCard>
-              <FeatureIcon>
-                <FiDatabase />
-              </FeatureIcon>
-              <FeatureTitle>Directory Integration</FeatureTitle>
-              <FeatureDescription>
-                Connect with existing directories and sync user data across your organization
-              </FeatureDescription>
-            </FeatureCard>
+						<FeatureCard>
+							<FeatureIcon>
+								<FiDatabase />
+							</FeatureIcon>
+							<FeatureTitle>Directory Integration</FeatureTitle>
+							<FeatureDescription>
+								Connect with existing directories and sync user data across your organization
+							</FeatureDescription>
+						</FeatureCard>
 
-            <FeatureCard>
-              <FeatureIcon>
-                <FiSettings />
-              </FeatureIcon>
-              <FeatureTitle>API Security</FeatureTitle>
-              <FeatureDescription>
-                OAuth 2.0, OpenID Connect, and API access management for modern applications
-              </FeatureDescription>
-            </FeatureCard>
+						<FeatureCard>
+							<FeatureIcon>
+								<FiSettings />
+							</FeatureIcon>
+							<FeatureTitle>API Security</FeatureTitle>
+							<FeatureDescription>
+								OAuth 2.0, OpenID Connect, and API access management for modern applications
+							</FeatureDescription>
+						</FeatureCard>
 
-            <FeatureCard>
-              <FeatureIcon>
-                <FiLock />
-              </FeatureIcon>
-              <FeatureTitle>Risk Assessment</FeatureTitle>
-              <FeatureDescription>
-                Real-time threat detection and behavioral analytics for enhanced security
-              </FeatureDescription>
-            </FeatureCard>
-          </FeaturesGrid>
-        </FeaturesSection>
-      )}
-    </>
-  );
+						<FeatureCard>
+							<FeatureIcon>
+								<FiLock />
+							</FeatureIcon>
+							<FeatureTitle>Risk Assessment</FeatureTitle>
+							<FeatureDescription>
+								Real-time threat detection and behavioral analytics for enhanced security
+							</FeatureDescription>
+						</FeatureCard>
+					</FeaturesGrid>
+				</FeaturesSection>
+			)}
+		</>
+	);
 };
 
 export default PingIdentityHero;

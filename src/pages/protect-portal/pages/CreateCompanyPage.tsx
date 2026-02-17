@@ -9,14 +9,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiUpload, FiSave, FiPlus, FiEye, FiImage, FiCheck, FiX, FiAlertCircle } from 'react-icons/fi';
+import {
+	FiUpload,
+	FiSave,
+	FiPlus,
+	FiEye,
+	FiImage,
+	FiCheck,
+	FiX,
+	FiAlertCircle,
+} from 'react-icons/fi';
 import { CompanyConfigService } from '../services/CompanyConfigService';
 import { v4ToastManager } from '../../../utils/v4ToastMessages';
-import type { 
-	CompanyConfigDraft, 
-	CompanyEditorState,
-	Industry
-} from '../types/CompanyConfig';
+import type { CompanyConfigDraft, CompanyEditorState, Industry } from '../types/CompanyConfig';
 import { DEFAULT_COMPANY_COLORS } from '../types/CompanyConfig';
 
 const PageContainer = styled.div`
@@ -343,7 +348,7 @@ export const CreateCompanyPage: React.FC = () => {
 	// Update validation when config changes
 	useEffect(() => {
 		const validation = companyService.validateConfig(state.config);
-		setState(prev => ({ ...prev, validation }));
+		setState((prev) => ({ ...prev, validation }));
 	}, [state.config]); // Remove companyService.validateConfig from dependencies
 
 	// Apply theme variables to preview
@@ -356,7 +361,7 @@ export const CreateCompanyPage: React.FC = () => {
 	}, [state.config.colors]);
 
 	const handleInputChange = useCallback((field: keyof CompanyConfigDraft, value: string) => {
-		setState(prev => {
+		setState((prev) => {
 			const newState = {
 				...prev,
 				config: {
@@ -366,79 +371,98 @@ export const CreateCompanyPage: React.FC = () => {
 			};
 			return newState;
 		});
-		
+
 		// Show subtle feedback for important fields
 		if (field === 'name' && value.length > 0) {
 			v4ToastManager.showInfo('Company name updated');
 		}
 	}, []);
 
-	const handleColorChange = useCallback((colorField: keyof CompanyConfigDraft['colors'], value: string) => {
-		setState(prev => ({
-			...prev,
-			config: {
-				...prev.config,
-				colors: {
-					...prev.config.colors,
-					[colorField]: value,
+	const handleColorChange = useCallback(
+		(colorField: keyof CompanyConfigDraft['colors'], value: string) => {
+			setState((prev) => ({
+				...prev,
+				config: {
+					...prev.config,
+					colors: {
+						...prev.config.colors,
+						[colorField]: value,
+					},
 				},
-			},
-		}));
-		
-		// Show feedback for color changes
-		const colorName = colorField.charAt(0).toUpperCase() + colorField.slice(1);
-		v4ToastManager.showInfo(`${colorName} color updated`);
-	}, []);
+			}));
 
-	const handleAssetChange = useCallback((assetField: keyof CompanyConfigDraft['assets'], value: string) => {
-		setState(prev => ({
-			...prev,
-			config: {
-				...prev.config,
-				assets: {
-					...prev.config.assets,
-					[assetField]: value,
+			// Show feedback for color changes
+			const colorName = colorField.charAt(0).toUpperCase() + colorField.slice(1);
+			v4ToastManager.showInfo(`${colorName} color updated`);
+		},
+		[]
+	);
+
+	const handleAssetChange = useCallback(
+		(assetField: keyof CompanyConfigDraft['assets'], value: string) => {
+			setState((prev) => ({
+				...prev,
+				config: {
+					...prev.config,
+					assets: {
+						...prev.config.assets,
+						[assetField]: value,
+					},
 				},
-			},
-		}));
-	}, []);
+			}));
+		},
+		[]
+	);
 
-	const handleFileUpload = useCallback((assetField: keyof CompanyConfigDraft['assets'], file: File) => {
-		// Validate file size (5MB limit)
-		if (file.size > 5 * 1024 * 1024) {
-			v4ToastManager.showError('File size must be less than 5MB');
-			return;
-		}
-		
-		// Validate file type
-		const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-		if (!allowedTypes.includes(file.type)) {
-			v4ToastManager.showError('Only JPG, PNG, GIF, WebP, and SVG files are allowed');
-			return;
-		}
-		
-		// Create blob URL and update state
-		const url = URL.createObjectURL(file);
-		handleAssetChange(assetField, url);
-		
-		// Show success message
-		const assetName = assetField === 'logoUrl' ? 'Logo' : 'Footer image';
-		v4ToastManager.showSuccess(`${assetName} uploaded successfully`);
-	}, [handleAssetChange]);
-
-	const handleFileUploadClick = useCallback((e: React.MouseEvent, assetField: keyof CompanyConfigDraft['assets']) => {
-		// Create a temporary file input and trigger click
-		const input = document.createElement('input');
-		input.type = 'file';
-		input.accept = 'image/*';
-		input.onchange = (event) => {
-			const file = (event.target as HTMLInputElement).files?.[0];
-			if (file) {
-				handleFileUpload(assetField, file);
+	const handleFileUpload = useCallback(
+		(assetField: keyof CompanyConfigDraft['assets'], file: File) => {
+			// Validate file size (5MB limit)
+			if (file.size > 5 * 1024 * 1024) {
+				v4ToastManager.showError('File size must be less than 5MB');
+				return;
 			}
-		};
-		input.click();
-	}, [handleFileUpload]);
+
+			// Validate file type
+			const allowedTypes = [
+				'image/jpeg',
+				'image/jpg',
+				'image/png',
+				'image/gif',
+				'image/webp',
+				'image/svg+xml',
+			];
+			if (!allowedTypes.includes(file.type)) {
+				v4ToastManager.showError('Only JPG, PNG, GIF, WebP, and SVG files are allowed');
+				return;
+			}
+
+			// Create blob URL and update state
+			const url = URL.createObjectURL(file);
+			handleAssetChange(assetField, url);
+
+			// Show success message
+			const assetName = assetField === 'logoUrl' ? 'Logo' : 'Footer image';
+			v4ToastManager.showSuccess(`${assetName} uploaded successfully`);
+		},
+		[handleAssetChange]
+	);
+
+	const handleFileUploadClick = useCallback(
+		(e: React.MouseEvent, assetField: keyof CompanyConfigDraft['assets']) => {
+			// Create a temporary file input and trigger click
+			const input = document.createElement('input');
+			input.type = 'file';
+			input.accept = 'image/*';
+			input.onchange = (event) => {
+				const file = (event.target as HTMLInputElement).files?.[0];
+				if (file) {
+					handleFileUpload(assetField, file);
+				}
+			};
+			input.click();
+		},
+		[handleFileUpload]
+	);
 
 	const handleSave = useCallback(async () => {
 		if (!state.validation.isValid) {
@@ -446,21 +470,21 @@ export const CreateCompanyPage: React.FC = () => {
 			return;
 		}
 
-		setState(prev => ({ ...prev, isSaving: true, saveStatus: 'idle' }));
+		setState((prev) => ({ ...prev, isSaving: true, saveStatus: 'idle' }));
 
 		try {
 			await companyService.saveDraft(state.config);
-			setState(prev => ({ ...prev, saveStatus: 'success' }));
+			setState((prev) => ({ ...prev, saveStatus: 'success' }));
 			v4ToastManager.showSuccess('Company configuration saved successfully!');
 		} catch (error) {
-			setState(prev => ({ 
-				...prev, 
+			setState((prev) => ({
+				...prev,
 				saveStatus: 'error',
-				lastError: error instanceof Error ? error.message : 'Unknown error'
+				lastError: error instanceof Error ? error.message : 'Unknown error',
 			}));
 			v4ToastManager.showError('Failed to save configuration. Please try again.');
 		} finally {
-			setState(prev => ({ ...prev, isSaving: false }));
+			setState((prev) => ({ ...prev, isSaving: false }));
 		}
 	}, [state.config, state.validation.isValid, companyService]);
 
@@ -470,57 +494,71 @@ export const CreateCompanyPage: React.FC = () => {
 			return;
 		}
 
-		setState(prev => ({ ...prev, isCreating: true, createStatus: 'idle' }));
+		setState((prev) => ({ ...prev, isCreating: true, createStatus: 'idle' }));
 
 		try {
 			const newCompany = await companyService.createCompany(state.config);
-			setState(prev => ({ ...prev, createStatus: 'success' }));
-			
+			setState((prev) => ({ ...prev, createStatus: 'success' }));
+
 			// Navigate to the Protect Portal with the new company
 			const companyTheme = newCompany.name.toLowerCase().replace(/\s+/g, '-');
 			console.log('Company created:', newCompany);
-			v4ToastManager.showSuccess(`Perfect! The delta theme has been successfully updated with all the required properties from the BrandTheme interface. Company "${state.config.name}" created successfully! Redirecting to portal...`);
-			
+			v4ToastManager.showSuccess(
+				`Perfect! The delta theme has been successfully updated with all the required properties from the BrandTheme interface. Company "${state.config.name}" created successfully! Redirecting to portal...`
+			);
+
 			// Dispatch custom event to notify other components
-			window.dispatchEvent(new CustomEvent('companyCreated', { 
-				detail: { company: newCompany, theme: companyTheme }
-			}));
-			
+			window.dispatchEvent(
+				new CustomEvent('companyCreated', {
+					detail: { company: newCompany, theme: companyTheme },
+				})
+			);
+
 			// Navigate to protect portal with the new company theme
 			setTimeout(() => {
 				navigate(`/protect-portal?company=${companyTheme}`);
 			}, 1500);
 		} catch (error) {
-			setState(prev => ({ 
-				...prev, 
+			setState((prev) => ({
+				...prev,
 				createStatus: 'error',
-				lastError: error instanceof Error ? error.message : 'Unknown error'
+				lastError: error instanceof Error ? error.message : 'Unknown error',
 			}));
 			v4ToastManager.showError('Failed to create company. Please try again.');
 		} finally {
-			setState(prev => ({ ...prev, isCreating: false }));
+			setState((prev) => ({ ...prev, isCreating: false }));
 		}
 	}, [state.config, state.validation.isValid, companyService]);
 
 	const renderError = (field: string) => {
 		const error = state.validation.errors[field as keyof typeof state.validation.errors];
 		if (!error) return null;
-		
+
 		if (typeof error === 'string') {
-			return <ErrorMessage><FiAlertCircle size={14} />{error}</ErrorMessage>;
+			return (
+				<ErrorMessage>
+					<FiAlertCircle size={14} />
+					{error}
+				</ErrorMessage>
+			);
 		}
-		
+
 		return null;
 	};
 
 	const renderColorError = (colorField: string) => {
 		const colorErrors = state.validation.errors.colors;
 		if (!colorErrors || typeof colorErrors !== 'object') return null;
-		
+
 		const error = (colorErrors as Record<string, string>)[colorField];
 		if (!error) return null;
-		
-		return <ErrorMessage><FiAlertCircle size={14} />{error}</ErrorMessage>;
+
+		return (
+			<ErrorMessage>
+				<FiAlertCircle size={14} />
+				{error}
+			</ErrorMessage>
+		);
 	};
 
 	return (
@@ -564,7 +602,7 @@ export const CreateCompanyPage: React.FC = () => {
 					{/* Company Info */}
 					<FormSection>
 						<SectionTitle>Company Information</SectionTitle>
-						
+
 						<FormGroup>
 							<Label htmlFor="companyName">Company Name *</Label>
 							<Input
@@ -587,7 +625,20 @@ export const CreateCompanyPage: React.FC = () => {
 								className={state.validation.errors.industry ? 'error' : ''}
 							>
 								<option value="">Select industry</option>
-								{(['aviation', 'banking', 'tech', 'healthcare', 'retail', 'manufacturing', 'consulting', 'education', 'government', 'other'] as Industry[]).map(industry => (
+								{(
+									[
+										'aviation',
+										'banking',
+										'tech',
+										'healthcare',
+										'retail',
+										'manufacturing',
+										'consulting',
+										'education',
+										'government',
+										'other',
+									] as Industry[]
+								).map((industry) => (
 									<option key={industry} value={industry}>
 										{industry.charAt(0).toUpperCase() + industry.slice(1)}
 									</option>
@@ -600,10 +651,10 @@ export const CreateCompanyPage: React.FC = () => {
 					{/* Branding */}
 					<FormSection>
 						<SectionTitle>Branding</SectionTitle>
-						
+
 						<FormGroup>
 							<Label>Company Logo *</Label>
-							<FileUploadWrapper 
+							<FileUploadWrapper
 								className={state.config.assets.logoUrl ? 'has-file' : ''}
 								onClick={(e) => handleFileUploadClick(e, 'logoUrl')}
 							>
@@ -617,10 +668,7 @@ export const CreateCompanyPage: React.FC = () => {
 								/>
 								{state.config.assets.logoUrl ? (
 									<ImagePreview>
-										<PreviewLogo 
-											src={state.config.assets.logoUrl} 
-											alt="Company Logo" 
-										/>
+										<PreviewLogo src={state.config.assets.logoUrl} alt="Company Logo" />
 										<div>
 											<FiImage size={24} />
 											<p>Logo uploaded</p>
@@ -639,7 +687,7 @@ export const CreateCompanyPage: React.FC = () => {
 
 						<FormGroup>
 							<Label>Footer Image (Optional)</Label>
-							<FileUploadWrapper 
+							<FileUploadWrapper
 								className={state.config.assets.footerUrl ? 'has-file' : ''}
 								onClick={(e) => handleFileUploadClick(e, 'footerUrl')}
 							>
@@ -653,10 +701,7 @@ export const CreateCompanyPage: React.FC = () => {
 								/>
 								{state.config.assets.footerUrl ? (
 									<ImagePreview>
-										<PreviewImage 
-											src={state.config.assets.footerUrl} 
-											alt="Footer Image" 
-										/>
+										<PreviewImage src={state.config.assets.footerUrl} alt="Footer Image" />
 										<div>
 											<FiImage size={24} />
 											<p>Footer image uploaded</p>
@@ -677,7 +722,7 @@ export const CreateCompanyPage: React.FC = () => {
 					{/* Theme Colors */}
 					<FormSection>
 						<SectionTitle>Theme Colors</SectionTitle>
-						
+
 						<ColorPickerGroup>
 							<div>
 								<Label htmlFor="buttonColor">Button Color</Label>
@@ -741,14 +786,16 @@ export const CreateCompanyPage: React.FC = () => {
 				{/* Right Column - Preview */}
 				<div>
 					<PreviewContainer>
-						<SectionTitle><FiEye size={16} /> Live Preview</SectionTitle>
-						
+						<SectionTitle>
+							<FiEye size={16} /> Live Preview
+						</SectionTitle>
+
 						<PreviewHeader>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
 								{state.config.assets.logoUrl && (
-									<PreviewLogo 
-										src={state.config.assets.logoUrl} 
-										alt="Company Logo" 
+									<PreviewLogo
+										src={state.config.assets.logoUrl}
+										alt="Company Logo"
 										style={{ maxHeight: '40px' }}
 									/>
 								)}
@@ -757,7 +804,11 @@ export const CreateCompanyPage: React.FC = () => {
 								</div>
 							</div>
 							<div>
-								<small>{state.config.industry ? `Industry: ${state.config.industry}` : 'Industry not set'}</small>
+								<small>
+									{state.config.industry
+										? `Industry: ${state.config.industry}`
+										: 'Industry not set'}
+								</small>
 							</div>
 						</PreviewHeader>
 
@@ -772,14 +823,14 @@ export const CreateCompanyPage: React.FC = () => {
 
 						{state.config.assets.footerUrl && (
 							<PreviewFooter>
-								<img 
-									src={state.config.assets.footerUrl} 
-									alt="Footer" 
-									style={{ 
-										maxHeight: '60px', 
+								<img
+									src={state.config.assets.footerUrl}
+									alt="Footer"
+									style={{
+										maxHeight: '60px',
 										objectFit: 'contain',
-										width: '100%'
-									}} 
+										width: '100%',
+									}}
 								/>
 							</PreviewFooter>
 						)}

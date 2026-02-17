@@ -46,7 +46,7 @@ const logToDisk = (event: string, data: Record<string, unknown>) => {
 
 		// Use sendBeacon for reliable logging even during redirect
 		const body = JSON.stringify(logEntry);
-		
+
 		if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
 			const blob = new Blob([body], { type: 'application/json' });
 			navigator.sendBeacon('/api/logs/callback-debug', blob);
@@ -418,7 +418,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 				hasState: !!searchParams.get('state'),
 				allSearchParams: Object.fromEntries(searchParams.entries()),
 				normalizedFallback,
-				callbackParams: Object.fromEntries(callbackParams.entries())
+				callbackParams: Object.fromEntries(callbackParams.entries()),
 			});
 
 			// Log redirect execution to disk
@@ -428,8 +428,8 @@ export const CallbackHandlerV8U: React.FC = () => {
 				timestamp: Date.now(),
 				sessionStorageData: {
 					oauthCallbackData: sessionStorage.getItem('oauth_callback_data'),
-					mfaRedirectSession: sessionStorage.getItem('mfa_redirect_log_session_id')
-				}
+					mfaRedirectSession: sessionStorage.getItem('mfa_redirect_log_session_id'),
+				},
 			});
 
 			logRedirectEvent('redirecting_to_fallback', {

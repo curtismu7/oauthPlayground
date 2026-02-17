@@ -1063,14 +1063,28 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 							summary: 'Machine-to-machine authentication without user interaction',
 							content: (
 								<div>
-									<p><strong>The Client Credentials Flow</strong> is designed for server-to-server authentication:</p>
+									<p>
+										<strong>The Client Credentials Flow</strong> is designed for server-to-server
+										authentication:
+									</p>
 									<ul>
-										<li><strong>No User Context</strong> - Application authenticates as itself</li>
-										<li><strong>Backend Only</strong> - Client secret must be kept secure on server</li>
-										<li><strong>Direct Token Request</strong> - Single API call to get access token</li>
-										<li><strong>Service Accounts</strong> - Perfect for microservices and APIs</li>
+										<li>
+											<strong>No User Context</strong> - Application authenticates as itself
+										</li>
+										<li>
+											<strong>Backend Only</strong> - Client secret must be kept secure on server
+										</li>
+										<li>
+											<strong>Direct Token Request</strong> - Single API call to get access token
+										</li>
+										<li>
+											<strong>Service Accounts</strong> - Perfect for microservices and APIs
+										</li>
 									</ul>
-									<p>This flow is ideal for automated processes, background jobs, and service-to-service communication.</p>
+									<p>
+										This flow is ideal for automated processes, background jobs, and
+										service-to-service communication.
+									</p>
 								</div>
 							),
 						},
@@ -1081,13 +1095,26 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 							summary: 'Client secret must be kept secure - never expose in frontend code',
 							content: (
 								<div>
-									<p><strong>Critical Security Requirements:</strong></p>
+									<p>
+										<strong>Critical Security Requirements:</strong>
+									</p>
 									<ul>
-										<li><strong>Protect Client Secret</strong> - Store securely, never commit to version control</li>
-										<li><strong>Backend Only</strong> - Never use this flow in browser/mobile apps</li>
-										<li><strong>Rotate Secrets</strong> - Regularly rotate client secrets</li>
-										<li><strong>Limit Scope</strong> - Request only necessary permissions</li>
-										<li><strong>Monitor Usage</strong> - Track token usage and detect anomalies</li>
+										<li>
+											<strong>Protect Client Secret</strong> - Store securely, never commit to
+											version control
+										</li>
+										<li>
+											<strong>Backend Only</strong> - Never use this flow in browser/mobile apps
+										</li>
+										<li>
+											<strong>Rotate Secrets</strong> - Regularly rotate client secrets
+										</li>
+										<li>
+											<strong>Limit Scope</strong> - Request only necessary permissions
+										</li>
+										<li>
+											<strong>Monitor Usage</strong> - Track token usage and detect anomalies
+										</li>
 									</ul>
 								</div>
 							),

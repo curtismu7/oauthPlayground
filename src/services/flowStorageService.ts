@@ -568,7 +568,10 @@ export class CredentialsStorage {
 			});
 			console.log(`💾 [FlowStorage] Saved credentials for ${flowId} to unified storage`);
 		} catch (error) {
-			console.warn(`[FlowStorage] Failed to save to unified storage, falling back to localStorage:`, error);
+			console.warn(
+				`[FlowStorage] Failed to save to unified storage, falling back to localStorage:`,
+				error
+			);
 			// Fallback to localStorage
 			localStorage.setItem(StorageKeys.credentials(flowId), JSON.stringify(credentials));
 			console.log(`💾 [FlowStorage] Saved credentials for ${flowId} to localStorage (fallback)`);
@@ -593,7 +596,10 @@ export class CredentialsStorage {
 				return credentials as CredentialsData;
 			}
 		} catch (error) {
-			console.warn(`[FlowStorage] Failed to load from unified storage, falling back to localStorage:`, error);
+			console.warn(
+				`[FlowStorage] Failed to load from unified storage, falling back to localStorage:`,
+				error
+			);
 		}
 
 		// Fallback to localStorage

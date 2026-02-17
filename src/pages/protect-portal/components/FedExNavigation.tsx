@@ -149,7 +149,7 @@ const MobileMenu = styled.div<{ isOpen: boolean }>`
   bottom: 0;
   background: white;
   z-index: 2000;
-  transform: translateX(${props => props.isOpen ? '0' : '100%'});
+  transform: translateX(${(props) => (props.isOpen ? '0' : '100%')});
   transition: transform 0.3s ease;
   
   @media (min-width: 769px) {
@@ -200,11 +200,16 @@ const FedExNavigation: React.FC = () => {
 			<NavContainer>
 				<NavTop>
 					<NavTopContent>
-						<span>{activeTheme.content?.customerTerminology ? 'Customer Portal' : 'Employee Portal'}</span>
-						<span>Need help? Contact {activeTheme.content?.customerTerminology ? 'Customer Support' : 'IT Support'}</span>
+						<span>
+							{activeTheme.content?.customerTerminology ? 'Customer Portal' : 'Employee Portal'}
+						</span>
+						<span>
+							Need help? Contact{' '}
+							{activeTheme.content?.customerTerminology ? 'Customer Support' : 'IT Support'}
+						</span>
 					</NavTopContent>
 				</NavTop>
-				
+
 				<NavMain>
 					<NavMainContent>
 						<Logo>
@@ -213,7 +218,7 @@ const FedExNavigation: React.FC = () => {
 							)}
 							{!activeTheme.logo?.url && activeTheme.logo?.text}
 						</Logo>
-						
+
 						<NavLinks>
 							<NavLink href="#shipping">Shipping</NavLink>
 							<NavLink href="#tracking">Tracking</NavLink>
@@ -221,7 +226,7 @@ const FedExNavigation: React.FC = () => {
 							<NavLink href="#support">Support</NavLink>
 							<NavLink href="#account">Account</NavLink>
 						</NavLinks>
-						
+
 						<NavActions>
 							<SearchButton title="Search">
 								<FiSearch size={20} />
@@ -237,13 +242,15 @@ const FedExNavigation: React.FC = () => {
 					</NavMainContent>
 				</NavMain>
 			</NavContainer>
-			
+
 			<MobileMenu isOpen={mobileMenuOpen}>
 				<MobileMenuHeader>
-					<Logo>
-						{activeTheme.logo?.text}
-					</Logo>
-					<button type="button" onClick={toggleMobileMenu} style={{ background: 'none', border: 'none', color: 'white' }}>
+					<Logo>{activeTheme.logo?.text}</Logo>
+					<button
+						type="button"
+						onClick={toggleMobileMenu}
+						style={{ background: 'none', border: 'none', color: 'white' }}
+					>
 						<FiX size={24} />
 					</button>
 				</MobileMenuHeader>

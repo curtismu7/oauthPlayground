@@ -1941,17 +1941,33 @@ const ImplicitFlowV7: React.FC = () => {
 							id: 'implicit-overview',
 							title: 'Implicit Flow Overview',
 							icon: <FiInfo />,
-							summary: 'Legacy OAuth flow - tokens returned directly in URL fragment (not recommended for new applications)',
+							summary:
+								'Legacy OAuth flow - tokens returned directly in URL fragment (not recommended for new applications)',
 							content: (
 								<div>
-									<p><strong>The Implicit Flow</strong> is a legacy OAuth 2.0 flow where tokens are returned directly in the URL fragment:</p>
+									<p>
+										<strong>The Implicit Flow</strong> is a legacy OAuth 2.0 flow where tokens are
+										returned directly in the URL fragment:
+									</p>
 									<ul>
-										<li><strong>No Backend Required</strong> - Designed for browser-only applications</li>
-										<li><strong>Tokens in URL</strong> - Access tokens returned in URL fragment (#)</li>
-										<li><strong>No Refresh Tokens</strong> - Cannot securely store refresh tokens</li>
-										<li><strong>Security Concerns</strong> - Tokens exposed in browser history and logs</li>
+										<li>
+											<strong>No Backend Required</strong> - Designed for browser-only applications
+										</li>
+										<li>
+											<strong>Tokens in URL</strong> - Access tokens returned in URL fragment (#)
+										</li>
+										<li>
+											<strong>No Refresh Tokens</strong> - Cannot securely store refresh tokens
+										</li>
+										<li>
+											<strong>Security Concerns</strong> - Tokens exposed in browser history and
+											logs
+										</li>
 									</ul>
-									<p><strong>⚠️ Not Recommended:</strong> OAuth 2.1 deprecates this flow. Use Authorization Code with PKCE instead.</p>
+									<p>
+										<strong>⚠️ Not Recommended:</strong> OAuth 2.1 deprecates this flow. Use
+										Authorization Code with PKCE instead.
+									</p>
 								</div>
 							),
 						},
@@ -1962,10 +1978,16 @@ const ImplicitFlowV7: React.FC = () => {
 							summary: 'OAuth returns access tokens, OIDC adds ID tokens for authentication',
 							content: (
 								<div>
-									<p><strong>Two Variants Available:</strong></p>
+									<p>
+										<strong>Two Variants Available:</strong>
+									</p>
 									<ul>
-										<li><strong>OAuth Implicit</strong> - Returns access_token for API authorization</li>
-										<li><strong>OIDC Implicit</strong> - Returns id_token for user authentication</li>
+										<li>
+											<strong>OAuth Implicit</strong> - Returns access_token for API authorization
+										</li>
+										<li>
+											<strong>OIDC Implicit</strong> - Returns id_token for user authentication
+										</li>
 									</ul>
 									<p>Use the variant selector to switch between OAuth and OIDC modes.</p>
 								</div>

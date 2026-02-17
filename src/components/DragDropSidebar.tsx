@@ -875,7 +875,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</MigrationBadge>
 						),
 					},
-									],
+				],
 			},
 			{
 				id: 'oidc-flows',
