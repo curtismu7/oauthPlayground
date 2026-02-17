@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { useProductionSpinner } from '../../../../hooks/useProductionSpinner';
 import type { Device } from '../../components/MFADeviceSelector';
 import type { DeviceAuthenticationPolicy } from '../../shared/MFATypes';
 
@@ -133,6 +134,10 @@ export const useMFAAuthentication = (
 	// Loading message state for spinner modal
 	const [loadingMessage, setLoadingMessage] = useState('');
 
+	// Spinner hooks for async operations
+	const authInitSpinner = useProductionSpinner('mfa-auth-init');
+	const deviceChallengeSpinner = useProductionSpinner('mfa-device-challenge');
+
 	// Modals
 	const [showOTPModal, setShowOTPModal] = useState(false);
 	const [showFIDO2Modal, setShowFIDO2Modal] = useState(false);
@@ -172,9 +177,10 @@ export const useMFAAuthentication = (
 				return;
 			}
 
+			return await authInitSpinner.withSpinner(async () => {
 			// Reset auth state to clear any previous authentication session
 			setAuthState({
-				isLoading: true,
+				isLoading: false,
 				authenticationId: null,
 				status: null,
 				nextStep: null,
@@ -187,7 +193,6 @@ export const useMFAAuthentication = (
 				_links: null,
 				completionResult: null,
 			});
-			setLoadingMessage('🔐 Starting MFA Authentication...');
 
 			try {
 				// 1. Lookup user
@@ -336,9 +341,10 @@ export const useMFAAuthentication = (
 				toastV8.error(error instanceof Error ? error.message : 'Failed to start authentication');
 				setAuthState((prev) => ({ ...prev, isLoading: false }));
 				setLoadingMessage('');
+				throw error; // Re-throw to let spinner handle it
 			}
-		},
-		[onDeviceFailureError]
+		}, 'Starting MFA Authentication...');
+	}, [authInitSpinner, onDeviceFailureError]
 	);
 
 	return {
