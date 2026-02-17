@@ -14,6 +14,7 @@
 
 import { useCallback, useState } from 'react';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { useProductionSpinner } from '../../../../hooks/useProductionSpinner';
 import type { UnavailableDevice } from './useMFADevices';
 
 const MODULE_TAG = '[🔐 useFIDO2Authentication]';
@@ -72,6 +73,10 @@ export const useFIDO2Authentication = (): FIDO2AuthenticationHookResult => {
 	const [showUsernameDecisionModal, setShowUsernameDecisionModal] = useState(false);
 	const [isPasskeyRegistrationMode, setIsPasskeyRegistrationMode] = useState(false);
 
+	// Spinner hooks for async operations
+	const fido2AuthSpinner = useProductionSpinner('fido2-auth');
+	const passkeyRegistrationSpinner = useProductionSpinner('passkey-registration');
+
 	/**
 	 * Handle Usernameless FIDO2 Authentication
 	 */
@@ -97,6 +102,7 @@ export const useFIDO2Authentication = (): FIDO2AuthenticationHookResult => {
 				return;
 			}
 
+			return await fido2AuthSpinner.withSpinner(async () => {
 			try {
 				// Import passkey service dynamically
 				const { PasskeyServiceV8 } = await import('@/v8/services/passkeyServiceV8');
@@ -143,9 +149,10 @@ export const useFIDO2Authentication = (): FIDO2AuthenticationHookResult => {
 				toastV8.error(
 					error instanceof Error ? error.message : 'Usernameless authentication failed'
 				);
+				throw error; // Re-throw to let spinner handle it
 			}
-		},
-		[]
+		}, 'Authenticating with FIDO2...');
+	}, [fido2AuthSpinner]
 	);
 
 	return {
