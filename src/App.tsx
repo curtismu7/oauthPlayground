@@ -129,6 +129,7 @@ import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompleti
 import OAuthROPCFlowV7 from './pages/flows/OAuthROPCFlowV7';
 import OIDCCompliantAuthorizationCodeFlow from './pages/flows/OIDCCompliantAuthorizationCodeFlow';
 import OIDCHybridFlowV7 from './pages/flows/OIDCHybridFlowV7';
+import OIDCHybridFlowV8 from './v8/flows/OIDCHybridFlowV8';
 import PARFlow from './pages/flows/PARFlow';
 import PARFlowV7 from './pages/flows/PARFlowV7';
 import PingOneCompleteMFAFlowV7 from './pages/flows/PingOneCompleteMFAFlowV7';
@@ -1105,6 +1106,8 @@ const AppRoutes: React.FC = () => {
 								/>
 								{/* V7 OIDC Hybrid Flow */}
 								<Route path="/flows/oidc-hybrid-v7" element={<OIDCHybridFlowV7 />} />
+								{/* V8 OIDC Hybrid Flow */}
+								<Route path="/flows/hybrid-v8" element={<OIDCHybridFlowV8 />} />
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
 								<Route
 									path="/flows/oidc-hybrid-v6"
