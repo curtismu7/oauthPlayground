@@ -34,7 +34,6 @@ import { useHybridFlowV8 } from '@/v8/hooks/useHybridFlowV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { HybridFlowCredentials } from '@/v8/services/hybridFlowIntegrationServiceV8';
 
-
 // V8 styled components (following V8 patterns)
 const Container = styled.div`
 	max-width: 1200px;
@@ -112,7 +111,7 @@ const StepNumber = styled.span`
 const StepIndicator = styled.div<{ active: boolean; completed: boolean }>`
 	width: 100%;
 	height: 4px;
-	background: ${props => {
+	background: ${(props) => {
 		if (props.completed) return '#10b981';
 		if (props.active) return '#3b82f6';
 		return '#e5e7eb';
@@ -181,14 +180,17 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
 	align-items: center;
 	gap: 0.5rem;
 
-	${props => props.variant === 'primary' ? `
+	${(props) =>
+		props.variant === 'primary'
+			? `
 		background: #3b82f6;
 		color: white;
 
 		&:hover:not(:disabled) {
 			background: #2563eb;
 		}
-	` : `
+	`
+			: `
 		background: #f3f4f6;
 		color: #374151;
 
@@ -217,7 +219,7 @@ const InfoBox = styled.div<{ variant: 'info' | 'warning' | 'success' }>`
 	align-items: start;
 	gap: 0.75rem;
 
-	${props => {
+	${(props) => {
 		switch (props.variant) {
 			case 'info':
 				return `
@@ -290,7 +292,7 @@ const VariantSelector = styled.div`
 
 const VariantCard = styled.div<{ selected: boolean }>`
 	padding: 1rem;
-	border: 2px solid ${props => props.selected ? '#3b82f6' : '#e5e7eb'};
+	border: 2px solid ${(props) => (props.selected ? '#3b82f6' : '#e5e7eb')};
 	border-radius: 0.5rem;
 	cursor: pointer;
 	transition: all 0.2s;
@@ -299,7 +301,9 @@ const VariantCard = styled.div<{ selected: boolean }>`
 		border-color: #3b82f6;
 	}
 
-	${props => props.selected && `
+	${(props) =>
+		props.selected &&
+		`
 		background: #eff6ff;
 	`}
 `;
@@ -324,7 +328,6 @@ const URLDisplay = styled.div`
 	word-break: break-all;
 `;
 
-
 /**
  * OIDC Hybrid Flow V8 Component
  */
@@ -344,7 +347,7 @@ const OIDCHybridFlowV8: React.FC = () => {
 
 	// Handle form field changes
 	const handleFieldChange = useCallback((field: keyof HybridFlowCredentials, value: string) => {
-		setFormData(prev => ({ ...prev, [field]: value }));
+		setFormData((prev) => ({ ...prev, [field]: value }));
 	}, []);
 
 	// Save credentials
@@ -361,7 +364,7 @@ const OIDCHybridFlowV8: React.FC = () => {
 			redirectUri: formData.redirectUri || `${window.location.origin}/flows/hybrid-v8/callback`,
 			scopes: formData.scopes || 'openid profile email',
 			responseType: hybridFlow.variant,
-			clientAuthMethod: formData.clientAuthMethod as any || 'client_secret_post',
+			clientAuthMethod: (formData.clientAuthMethod as any) || 'client_secret_post',
 		};
 
 		hybridFlow.saveCredentials(credentials);
@@ -383,7 +386,9 @@ const OIDCHybridFlowV8: React.FC = () => {
 				redirectUri: formData.redirectUri || `${window.location.origin}/flows/hybrid-v8/callback`,
 				scopes: formData.scopes || 'openid profile email',
 				responseType: hybridFlow.variant,
-				clientAuthMethod: formData.clientAuthMethod as 'client_secret_post' | 'client_secret_basic' | 'none' || 'client_secret_post',
+				clientAuthMethod:
+					(formData.clientAuthMethod as 'client_secret_post' | 'client_secret_basic' | 'none') ||
+					'client_secret_post',
 			};
 
 			await hybridFlow.generateAuthorizationUrl(credentials);
@@ -393,17 +398,23 @@ const OIDCHybridFlowV8: React.FC = () => {
 	}, [formData, hybridFlow]);
 
 	// Handle variant selection
-	const handleVariantSelect = useCallback((variant: HybridFlowState['variant']) => {
-		hybridFlow.setVariant(variant);
-	}, [hybridFlow]);
+	const handleVariantSelect = useCallback(
+		(variant: HybridFlowState['variant']) => {
+			hybridFlow.setVariant(variant);
+		},
+		[hybridFlow]
+	);
 
 	// Copy to clipboard
 	const copyToClipboard = useCallback((text: string) => {
-		navigator.clipboard.writeText(text).then(() => {
-			toastV8.success('Copied to clipboard');
-		}).catch(() => {
-			toastV8.error('Failed to copy');
-		});
+		navigator.clipboard
+			.writeText(text)
+			.then(() => {
+				toastV8.success('Copied to clipboard');
+			})
+			.catch(() => {
+				toastV8.error('Failed to copy');
+			});
 	}, []);
 
 	// Render credentials step
@@ -423,7 +434,9 @@ const OIDCHybridFlowV8: React.FC = () => {
 					id="environmentId"
 					type="text"
 					value={formData.environmentId || ''}
-					onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('environmentId', e.target.value)}
+					onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+						handleFieldChange('environmentId', e.target.value)
+					}
 					placeholder="PingOne Environment ID"
 					disabled={hybridFlow.isLoading}
 				/>
@@ -435,7 +448,9 @@ const OIDCHybridFlowV8: React.FC = () => {
 					id="clientId"
 					type="text"
 					value={formData.clientId || ''}
-					onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('clientId', e.target.value)}
+					onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+						handleFieldChange('clientId', e.target.value)
+					}
 					placeholder="Application Client ID"
 					disabled={hybridFlow.isLoading}
 				/>
@@ -447,7 +462,9 @@ const OIDCHybridFlowV8: React.FC = () => {
 					id="clientSecret"
 					type="password"
 					value={formData.clientSecret || ''}
-					onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('clientSecret', e.target.value)}
+					onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+						handleFieldChange('clientSecret', e.target.value)
+					}
 					placeholder="Application Client Secret"
 					disabled={hybridFlow.isLoading}
 				/>
@@ -459,7 +476,9 @@ const OIDCHybridFlowV8: React.FC = () => {
 					id="redirectUri"
 					type="text"
 					value={formData.redirectUri || ''}
-					onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('redirectUri', e.target.value)}
+					onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+						handleFieldChange('redirectUri', e.target.value)
+					}
 					placeholder="Redirect URI"
 					disabled={hybridFlow.isLoading}
 				/>
@@ -471,7 +490,9 @@ const OIDCHybridFlowV8: React.FC = () => {
 					id="scopes"
 					type="text"
 					value={formData.scopes || ''}
-					onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFieldChange('scopes', e.target.value)}
+					onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+						handleFieldChange('scopes', e.target.value)
+					}
 					placeholder="openid profile email"
 					disabled={hybridFlow.isLoading}
 				/>
@@ -482,7 +503,9 @@ const OIDCHybridFlowV8: React.FC = () => {
 				<Select
 					id="clientAuthMethod"
 					value={formData.clientAuthMethod || 'client_secret_post'}
-					onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleFieldChange('clientAuthMethod', e.target.value)}
+					onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+						handleFieldChange('clientAuthMethod', e.target.value)
+					}
 					disabled={hybridFlow.isLoading}
 				>
 					<option value="client_secret_post">client_secret_post</option>
@@ -536,9 +559,7 @@ const OIDCHybridFlowV8: React.FC = () => {
 					onClick={() => handleVariantSelect('code token id_token')}
 				>
 					<VariantTitle>Code + Token + ID Token</VariantTitle>
-					<VariantDescription>
-						All tokens returned immediately (not recommended)
-					</VariantDescription>
+					<VariantDescription>All tokens returned immediately (not recommended)</VariantDescription>
 				</VariantCard>
 			</VariantSelector>
 
@@ -637,9 +658,7 @@ const OIDCHybridFlowV8: React.FC = () => {
 					OIDC Hybrid Flow
 					<VersionBadge>V8</VersionBadge>
 				</Title>
-				<Subtitle>
-					Modern OpenID Connect Hybrid Flow with real-time token management
-				</Subtitle>
+				<Subtitle>Modern OpenID Connect Hybrid Flow with real-time token management</Subtitle>
 			</Header>
 
 			<MainCard>
@@ -685,8 +704,12 @@ const OIDCHybridFlowV8: React.FC = () => {
 					variant={spinner.spinnerState.type}
 					theme={spinner.spinnerState.theme}
 					{...(spinner.spinnerState.size && { size: spinner.spinnerState.size })}
-					{...(spinner.spinnerState.progress !== undefined && { progress: spinner.spinnerState.progress })}
-					{...(spinner.spinnerState.allowDismiss !== undefined && { allowDismiss: spinner.spinnerState.allowDismiss })}
+					{...(spinner.spinnerState.progress !== undefined && {
+						progress: spinner.spinnerState.progress,
+					})}
+					{...(spinner.spinnerState.allowDismiss !== undefined && {
+						allowDismiss: spinner.spinnerState.allowDismiss,
+					})}
 					onDismiss={() => {}}
 				/>
 			)}

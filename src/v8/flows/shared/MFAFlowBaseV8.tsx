@@ -155,10 +155,12 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 		// Use the fool-proof step resolver
 		const resolutionResult = UnifiedMFAResumeStepResolverV8.resolveResumeStep();
-		
+
 		// ENFORCE INVARIANT: Step 0 is forbidden for redirect resumes
 		if (resolutionResult.step === 0) {
-			console.error(`${MODULE_TAG} 🚨 INVARIANT VIOLATION: Step resolver returned Step 0 for redirect resume`);
+			console.error(
+				`${MODULE_TAG} 🚨 INVARIANT VIOLATION: Step resolver returned Step 0 for redirect resume`
+			);
 			// Force fallback to Step 2
 			nav.goToStep(2);
 			return;
@@ -166,7 +168,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 		// Apply the resolved step
 		if (resolutionResult.step >= 0 && resolutionResult.step < totalSteps) {
-			console.log(`${MODULE_TAG} 🔄 FOOL-PROOF step advancement: ${resolutionResult.step} from ${resolutionResult.source} (${resolutionResult.correlationId})`);
+			console.log(
+				`${MODULE_TAG} 🔄 FOOL-PROOF step advancement: ${resolutionResult.step} from ${resolutionResult.source} (${resolutionResult.correlationId})`
+			);
 			nav.goToStep(resolutionResult.step);
 		}
 

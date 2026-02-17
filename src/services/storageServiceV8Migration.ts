@@ -15,13 +15,13 @@ export class StorageServiceV8Migration {
 	 */
 	static async migrateAll(): Promise<{ migrated: number; errors: string[] }> {
 		const results = { migrated: 0, errors: [] as string[] };
-		
+
 		try {
 			// Get all V8-prefixed keys from localStorage
 			const v8Keys = this.getV8LocalStorageKeys();
-			
+
 			console.log(`${MODULE_TAG} Starting migration`, { keyCount: v8Keys.length });
-			
+
 			for (const key of v8Keys) {
 				try {
 					await this.migrateKey(key);
@@ -32,7 +32,7 @@ export class StorageServiceV8Migration {
 					console.error(`${MODULE_TAG} ${errorMsg}`);
 				}
 			}
-			
+
 			console.log(`${MODULE_TAG} Migration completed`, results);
 			return results;
 		} catch (error) {
@@ -42,7 +42,7 @@ export class StorageServiceV8Migration {
 			return results;
 		}
 	}
-	
+
 	/**
 	 * Migrate a single key from localStorage to unified storage
 	 */
@@ -51,55 +51,55 @@ export class StorageServiceV8Migration {
 		if (!serialized) {
 			return;
 		}
-		
+
 		try {
 			// Parse the storage data
 			const storageData = JSON.parse(serialized);
-			
+
 			// Extract version, data, timestamp, flowKey
 			const { version = 1, data, timestamp = Date.now(), flowKey } = storageData;
-			
+
 			// Save to unified storage
 			await unifiedTokenStorage.saveV8Versioned(key, data, version, flowKey);
-			
+
 			// Remove from localStorage after successful migration
 			localStorage.removeItem(key);
-			
+
 			console.log(`${MODULE_TAG} Migrated key`, { key, version, flowKey });
 		} catch (error) {
 			throw new Error(`Failed to parse or migrate data for key ${key}: ${error}`);
 		}
 	}
-	
+
 	/**
 	 * Get all V8-prefixed keys from localStorage
 	 */
 	private static getV8LocalStorageKeys(): string[] {
 		const keys: string[] = [];
-		
+
 		for (let i = 0; i < localStorage.length; i++) {
 			const key = localStorage.key(i);
 			if (key?.startsWith('v8:')) {
 				keys.push(key);
 			}
 		}
-		
+
 		return keys;
 	}
-	
+
 	/**
 	 * Check if migration is needed
 	 */
 	static needsMigration(): boolean {
 		return this.getV8LocalStorageKeys().length > 0;
 	}
-	
+
 	/**
 	 * Get migration statistics
 	 */
 	static getMigrationStats(): { localStorageKeys: number; unifiedStorageKeys: number } {
 		const localStorageKeys = this.getV8LocalStorageKeys().length;
-		
+
 		// We'll need to implement this method in unified storage
 		// For now, return a placeholder
 		return {

@@ -174,7 +174,9 @@ export const MFAFIDO2ChallengeModal: React.FC<MFAFIDO2ChallengeModalProps> = ({
 								transition: 'background 0.2s ease',
 							}}
 						>
-							{isAuthenticating ? 'Authenticating...' : (
+							{isAuthenticating ? (
+								'Authenticating...'
+							) : (
 								<>
 									<FiKey />
 									{isMac ? 'Authenticate with Passkey' : 'Authenticate with Security Key'}

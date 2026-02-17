@@ -17,9 +17,7 @@ import {
 } from '@/services/credentialExportImportService';
 import { environmentService } from '@/services/environmentService';
 import { UnifiedTokenDisplayService } from '@/services/unifiedTokenDisplayService';
-import {
-	unifiedWorkerTokenService,
-} from '@/services/unifiedWorkerTokenService';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import pingOneFetch from '@/utils/pingOneFetch';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
@@ -84,9 +82,9 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	// Standardized spinner hooks for worker token operations
 	const generateSpinner = useStandardSpinner(8000); // Generate token - 8 seconds
 	const validateSpinner = useStandardSpinner(4000); // Validate config - 4 seconds
-	const executeSpinner = useStandardSpinner(6000);  // Execute request - 6 seconds
-	const importSpinner = useStandardSpinner(3000);  // Import credentials - 3 seconds
-	const exportSpinner = useStandardSpinner(2000);  // Export credentials - 2 seconds
+	const executeSpinner = useStandardSpinner(6000); // Execute request - 6 seconds
+	const importSpinner = useStandardSpinner(3000); // Import credentials - 3 seconds
+	const exportSpinner = useStandardSpinner(2000); // Export credentials - 2 seconds
 
 	// Check if we should display current token when modal opens
 	useEffect(() => {
@@ -156,42 +154,51 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			// Load from unifiedWorkerTokenService (the correct storage location)
 			unifiedWorkerTokenService
 				.loadCredentials()
-				.then((creds: { environmentId?: string; clientId?: string; clientSecret?: string; scopes?: string[] } | null) => {
-					if (creds) {
-						setEnvironmentId(creds.environmentId || propEnvironmentId);
-						setClientId(creds.clientId || '');
-						setClientSecret(creds.clientSecret || '');
-						setScopeInput(
-							Array.isArray(creds.scopes) && creds.scopes.length ? creds.scopes.join(' ') : ''
-						);
-						setRegion(creds.region || 'us');
-						setCustomDomain(creds.customDomain || '');
-						setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');
-						console.log(`${MODULE_TAG} Loaded credentials from unifiedWorkerTokenService`);
-					} else {
-						// Fallback to old storage location for backwards compatibility
-						const saved = localStorage.getItem('worker_credentials_v8');
-						if (saved) {
-							try {
-								const parsed = JSON.parse(saved);
-								setEnvironmentId(parsed.environmentId || propEnvironmentId);
-								setClientId(parsed.clientId || '');
-								setClientSecret(parsed.clientSecret || '');
-								setScopeInput(
-									Array.isArray(parsed.scopes) && parsed.scopes.length
-										? parsed.scopes.join(' ')
-										: ''
-								);
-								setRegion('us'); // Always default to 'us' (.com)
-								setCustomDomain(parsed.customDomain || '');
-								setAuthMethod(parsed.authMethod || 'client_secret_basic');
-								console.log(`${MODULE_TAG} Loaded credentials from legacy storage location`);
-							} catch (e) {
-								console.error(`${MODULE_TAG} Failed to load saved credentials`, e);
+				.then(
+					(
+						creds: {
+							environmentId?: string;
+							clientId?: string;
+							clientSecret?: string;
+							scopes?: string[];
+						} | null
+					) => {
+						if (creds) {
+							setEnvironmentId(creds.environmentId || propEnvironmentId);
+							setClientId(creds.clientId || '');
+							setClientSecret(creds.clientSecret || '');
+							setScopeInput(
+								Array.isArray(creds.scopes) && creds.scopes.length ? creds.scopes.join(' ') : ''
+							);
+							setRegion(creds.region || 'us');
+							setCustomDomain(creds.customDomain || '');
+							setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');
+							console.log(`${MODULE_TAG} Loaded credentials from unifiedWorkerTokenService`);
+						} else {
+							// Fallback to old storage location for backwards compatibility
+							const saved = localStorage.getItem('worker_credentials_v8');
+							if (saved) {
+								try {
+									const parsed = JSON.parse(saved);
+									setEnvironmentId(parsed.environmentId || propEnvironmentId);
+									setClientId(parsed.clientId || '');
+									setClientSecret(parsed.clientSecret || '');
+									setScopeInput(
+										Array.isArray(parsed.scopes) && parsed.scopes.length
+											? parsed.scopes.join(' ')
+											: ''
+									);
+									setRegion('us'); // Always default to 'us' (.com)
+									setCustomDomain(parsed.customDomain || '');
+									setAuthMethod(parsed.authMethod || 'client_secret_basic');
+									console.log(`${MODULE_TAG} Loaded credentials from legacy storage location`);
+								} catch (e) {
+									console.error(`${MODULE_TAG} Failed to load saved credentials`, e);
+								}
 							}
 						}
 					}
-				})
+				)
 				.catch((error) => {
 					console.error(
 						`${MODULE_TAG} Failed to load credentials from unifiedWorkerTokenService:`,
@@ -283,11 +290,19 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						// Check if this is an OIDC scope error and provide helpful guidance
 						// But allow 'openid' scope for worker tokens
 						const errorString = oauthConfigResult.errors.join('; ');
-						if (errorString.includes('Invalid OIDC Scopes') && !errorString.includes('profile') && !errorString.includes('email') && !errorString.includes('address') && !errorString.includes('phone')) {
+						if (
+							errorString.includes('Invalid OIDC Scopes') &&
+							!errorString.includes('profile') &&
+							!errorString.includes('email') &&
+							!errorString.includes('address') &&
+							!errorString.includes('phone')
+						) {
 							// If only 'openid' is mentioned, it might be a false positive for worker tokens
-							console.warn(`${MODULE_TAG} Possible false positive OIDC scope validation for worker token`);
+							console.warn(
+								`${MODULE_TAG} Possible false positive OIDC scope validation for worker token`
+							);
 						}
-						
+
 						// Show other validation errors
 						throw new Error(`Pre-flight validation failed: ${errorString}`);
 					}
@@ -368,7 +383,8 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							errorStr.includes('token required') ||
 							errorStr.includes('worker token')
 						) {
-							errorMessage = 'Worker token is invalid or expired. Please generate a new worker token.';
+							errorMessage =
+								'Worker token is invalid or expired. Please generate a new worker token.';
 							showWorkerTokenButton = true;
 						} else {
 							errorMessage = error.message;
@@ -377,7 +393,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 					// Show error with appropriate recovery options
 					toastV8.error(errorMessage, { duration: 8000 });
-				}
+				},
 			}
 		);
 	};
@@ -614,7 +630,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				message="Exporting credentials..."
 				theme="blue"
 			/>
-			
+
 			{/* Backdrop */}
 			<button
 				type="button"

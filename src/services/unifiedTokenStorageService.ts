@@ -22,9 +22,17 @@ const TOKEN_STORE_NAME = 'tokens';
 // Unified storage interface for all data types
 export interface UnifiedStorageItem {
 	id: string;
-	type: 'access_token' | 'refresh_token' | 'id_token' | 'worker_token' | 
-	      'oauth_credentials' | 'mfa_credentials' | 'environment_settings' | 
-	      'ui_preferences' | 'pkce_state' | 'flow_state';
+	type:
+		| 'access_token'
+		| 'refresh_token'
+		| 'id_token'
+		| 'worker_token'
+		| 'oauth_credentials'
+		| 'mfa_credentials'
+		| 'environment_settings'
+		| 'ui_preferences'
+		| 'pkce_state'
+		| 'flow_state';
 	value: string;
 	expiresAt: number | null;
 	issuedAt: number;
@@ -182,9 +190,18 @@ export interface V8AppConfig {
 	responseTypes?: string[];
 }
 
+// PKCEStorageServiceV8U Compatibility Interfaces
+export interface V8UPKCECodes {
+	codeVerifier: string;
+	codeChallenge: string;
+	codeChallengeMethod: string;
+	savedAt: number;
+	flowKey: string;
+}
+
 /**
  * Unified Token Storage Service
- * 
+ *
  * Provides centralized token storage with IndexedDB primary storage
  * and SQLite backup via backend API.
  */
@@ -240,7 +257,7 @@ export class UnifiedTokenStorageService {
 				// Create tokens object store
 				if (!db.objectStoreNames.contains(TOKEN_STORE_NAME)) {
 					const store = db.createObjectStore(TOKEN_STORE_NAME, { keyPath: 'id' });
-					
+
 					// Create indexes for efficient querying
 					store.createIndex('type', 'type', { unique: false });
 					store.createIndex('source', 'source', { unique: false });
@@ -248,7 +265,7 @@ export class UnifiedTokenStorageService {
 					store.createIndex('clientId', 'clientId', { unique: false });
 					store.createIndex('expiresAt', 'expiresAt', { unique: false });
 					store.createIndex('issuedAt', 'issuedAt', { unique: false });
-					
+
 					logger.info(MODULE_TAG, 'IndexedDB schema created');
 				}
 			};
@@ -263,9 +280,9 @@ export class UnifiedTokenStorageService {
 			const cached = localStorage.getItem(this.CACHE_KEY);
 			if (cached) {
 				const tokens = JSON.parse(cached) as UnifiedToken[];
-				tokens.forEach(token => {
-				this.cache.set(token.id, token);
-			});
+				tokens.forEach((token) => {
+					this.cache.set(token.id, token);
+				});
 				logger.debug(MODULE_TAG, `Loaded ${tokens.length} tokens from cache`);
 			}
 		} catch (error) {
@@ -289,7 +306,10 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Store a token in all storage layers
 	 */
-	public async storeToken(token: Omit<UnifiedToken, 'id' | 'createdAt' | 'updatedAt'>, options?: TokenStorageOptions): Promise<TokenStorageResult<string>> {
+	public async storeToken(
+		token: Omit<UnifiedToken, 'id' | 'createdAt' | 'updatedAt'>,
+		options?: TokenStorageOptions
+	): Promise<TokenStorageResult<string>> {
 		try {
 			await this.initializeIndexedDB();
 
@@ -303,13 +323,13 @@ export class UnifiedTokenStorageService {
 
 			// Store in IndexedDB
 			await this.storeInIndexedDB(unifiedToken);
-			
+
 			// Store in cache
 			this.cache.set(unifiedToken.id, unifiedToken);
 			this.saveCache();
 
 			// Store in SQLite via backend (async, don't wait)
-			this.storeInSQLite(unifiedToken).catch(error => {
+			this.storeInSQLite(unifiedToken).catch((error) => {
 				logger.warn(MODULE_TAG, 'Failed to store token in SQLite', undefined, error);
 			});
 
@@ -395,7 +415,7 @@ export class UnifiedTokenStorageService {
 			const indexedDbTokens = await this.queryIndexedDB(query);
 			if (indexedDbTokens.length > 0) {
 				// Update cache
-				indexedDbTokens.forEach(token => this.cache.set(token.id, token));
+				indexedDbTokens.forEach((token) => this.cache.set(token.id, token));
 				this.saveCache();
 
 				return {
@@ -408,11 +428,11 @@ export class UnifiedTokenStorageService {
 			// Finally try SQLite as fallback
 			const sqliteTokens = await this.querySQLite(query);
 			if (sqliteTokens.length > 0) {
-			// Update cache and IndexedDB
-			for (const token of sqliteTokens) {
-				this.cache.set(token.id, token);
-				await this.storeInIndexedDB(token);
-			}
+				// Update cache and IndexedDB
+				for (const token of sqliteTokens) {
+					this.cache.set(token.id, token);
+					await this.storeInIndexedDB(token);
+				}
 				this.saveCache();
 
 				return {
@@ -484,7 +504,7 @@ export class UnifiedTokenStorageService {
 				throw new Error(`SQLite query failed: ${response.statusText}`);
 			}
 
-			const tokens = await response.json() as UnifiedToken[];
+			const tokens = (await response.json()) as UnifiedToken[];
 			return tokens;
 		} catch (error) {
 			logger.warn(MODULE_TAG, 'SQLite query failed', undefined, error);
@@ -498,12 +518,12 @@ export class UnifiedTokenStorageService {
 	private filterTokens(tokens: UnifiedToken[], query?: TokenQuery): UnifiedToken[] {
 		if (!query) return tokens;
 
-		return tokens.filter(token => {
+		return tokens.filter((token) => {
 			if (query.type && token.type !== query.type) return false;
 			if (query.source && token.source !== query.source) return false;
 			if (query.environmentId && token.environmentId !== query.environmentId) return false;
 			if (query.clientId && token.clientId !== query.clientId) return false;
-			
+
 			const now = Date.now();
 			if (query.activeOnly && (!token.expiresAt || token.expiresAt <= now)) return false;
 			if (query.expiredOnly && (!token.expiresAt || token.expiresAt > now)) return false;
@@ -593,7 +613,7 @@ export class UnifiedTokenStorageService {
 				throw new Error(`SQLite get failed: ${response.statusText}`);
 			}
 
-			const token = await response.json() as UnifiedToken;
+			const token = (await response.json()) as UnifiedToken;
 			return token;
 		} catch (error) {
 			logger.warn(MODULE_TAG, 'SQLite get failed', { tokenId }, error);
@@ -614,7 +634,7 @@ export class UnifiedTokenStorageService {
 			await this.deleteFromIndexedDB(tokenId);
 
 			// Remove from SQLite (async, don't wait)
-			this.deleteFromSQLite(tokenId).catch(error => {
+			this.deleteFromSQLite(tokenId).catch((error) => {
 				logger.warn(MODULE_TAG, 'Failed to delete token from SQLite', { tokenId }, error);
 			});
 
@@ -677,13 +697,13 @@ export class UnifiedTokenStorageService {
 		try {
 			const now = Date.now();
 			const allTokensResult = await this.getTokens();
-			
+
 			if (!allTokensResult.success || !allTokensResult.data) {
 				throw new Error('Failed to get tokens for cleanup');
 			}
 
-			const expiredTokens = allTokensResult.data.filter(token => 
-				token.expiresAt && token.expiresAt <= now
+			const expiredTokens = allTokensResult.data.filter(
+				(token) => token.expiresAt && token.expiresAt <= now
 			);
 
 			let deletedCount = 0;
@@ -738,7 +758,7 @@ export class UnifiedTokenStorageService {
 			await this.clearIndexedDB();
 
 			// Clear SQLite (async, don't wait)
-			this.clearSQLite().catch(error => {
+			this.clearSQLite().catch((error) => {
 				logger.warn(MODULE_TAG, 'Failed to clear SQLite', undefined, error);
 			});
 
@@ -823,7 +843,9 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Get OAuth credentials
 	 */
-	async getOAuthCredentials(options?: TokenStorageOptions): Promise<Record<string, unknown> | null> {
+	async getOAuthCredentials(
+		options?: TokenStorageOptions
+	): Promise<Record<string, unknown> | null> {
 		const result = await this.getTokens({
 			type: 'oauth_credentials',
 			environmentId: options?.environmentId,
@@ -929,10 +951,7 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Store UI preferences
 	 */
-	async storeUIPreferences(
-		preferences: Record<string, unknown>,
-		userId?: string
-	): Promise<void> {
+	async storeUIPreferences(preferences: Record<string, unknown>, userId?: string): Promise<void> {
 		await this.storeToken({
 			id: `ui_prefs_${userId || 'default'}`,
 			type: 'ui_preferences',
@@ -967,15 +986,12 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Store PKCE state
 	 */
-	async storePKCEState(
-		state: Record<string, unknown>,
-		flowId: string
-	): Promise<void> {
+	async storePKCEState(state: Record<string, unknown>, flowId: string): Promise<void> {
 		await this.storeToken({
 			id: `pkce_${flowId}`,
 			type: 'pkce_state',
 			value: JSON.stringify(state),
-			expiresAt: Date.now() + (10 * 60 * 1000), // 10 minutes
+			expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
 			issuedAt: Date.now(),
 			source: 'system',
 			flowName: flowId,
@@ -1007,15 +1023,12 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Store flow state
 	 */
-	async storeFlowState(
-		state: Record<string, unknown>,
-		flowId: string
-	): Promise<void> {
+	async storeFlowState(state: Record<string, unknown>, flowId: string): Promise<void> {
 		await this.storeToken({
 			id: `flow_${flowId}`,
 			type: 'flow_state',
 			value: JSON.stringify(state),
-			expiresAt: Date.now() + (30 * 60 * 1000), // 30 minutes
+			expiresAt: Date.now() + 30 * 60 * 1000, // 30 minutes
 			issuedAt: Date.now(),
 			source: 'system',
 			flowName: flowId,
@@ -1053,7 +1066,7 @@ export class UnifiedTokenStorageService {
 	async saveV8FlowData(flowType: string, data: V8FlowData): Promise<boolean> {
 		try {
 			const itemId = `v8_flow_${flowType}`;
-			
+
 			await this.storeToken({
 				id: itemId,
 				type: 'oauth_credentials' as any,
@@ -1070,13 +1083,13 @@ export class UnifiedTokenStorageService {
 					sections: {
 						discovery: !!data.discovery,
 						credentials: !!data.credentials,
-						advanced: !!data.advanced
-					}
+						advanced: !!data.advanced,
+					},
 				},
 				createdAt: Date.now(),
-				updatedAt: Date.now()
+				updatedAt: Date.now(),
 			});
-			
+
 			return true;
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to save V8 flow data', error as Error);
@@ -1091,14 +1104,14 @@ export class UnifiedTokenStorageService {
 		try {
 			const items = await this.getTokens({
 				type: 'oauth_credentials' as any,
-				flowType
+				flowType,
 			});
-			
+
 			if (items.success && items.data && items.data.length > 0) {
 				const item = items.data[0];
 				return JSON.parse(item.value) as V8FlowData;
 			}
-			
+
 			return null;
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to load V8 flow data', error as Error);
@@ -1111,13 +1124,13 @@ export class UnifiedTokenStorageService {
 	 */
 	async saveV8Discovery(flowType: string, data: V8DiscoveryData): Promise<boolean> {
 		try {
-			const existingData = await this.loadV8FlowData(flowType) || { flowType };
+			const existingData = (await this.loadV8FlowData(flowType)) || { flowType };
 			const updatedData = {
 				...existingData,
 				discovery: data,
-				savedAt: Date.now()
+				savedAt: Date.now(),
 			};
-			
+
 			return await this.saveV8FlowData(flowType, updatedData);
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to save V8 discovery data', error as Error);
@@ -1130,13 +1143,13 @@ export class UnifiedTokenStorageService {
 	 */
 	async saveV8Credentials(flowType: string, data: V8CredentialsData): Promise<boolean> {
 		try {
-			const existingData = await this.loadV8FlowData(flowType) || { flowType };
+			const existingData = (await this.loadV8FlowData(flowType)) || { flowType };
 			const updatedData = {
 				...existingData,
 				credentials: data,
-				savedAt: Date.now()
+				savedAt: Date.now(),
 			};
-			
+
 			return await this.saveV8FlowData(flowType, updatedData);
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to save V8 credentials data', error as Error);
@@ -1149,13 +1162,13 @@ export class UnifiedTokenStorageService {
 	 */
 	async saveV8Advanced(flowType: string, data: V8AdvancedData): Promise<boolean> {
 		try {
-			const existingData = await this.loadV8FlowData(flowType) || { flowType };
+			const existingData = (await this.loadV8FlowData(flowType)) || { flowType };
 			const updatedData = {
 				...existingData,
 				advanced: data,
-				savedAt: Date.now()
+				savedAt: Date.now(),
 			};
-			
+
 			return await this.saveV8FlowData(flowType, updatedData);
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to save V8 advanced data', error as Error);
@@ -1209,7 +1222,7 @@ export class UnifiedTokenStorageService {
 		try {
 			await this.deleteTokens({
 				type: 'oauth_credentials' as any,
-				flowType
+				flowType,
 			});
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to clear V8 flow data', error as Error);
@@ -1286,7 +1299,12 @@ export class UnifiedTokenStorageService {
 					storageData = this.applyV8Migrations(storageData, migrations);
 
 					// Save migrated data
-					await this.saveV8Versioned(key, storageData.data, storageData.version, storageData.flowKey);
+					await this.saveV8Versioned(
+						key,
+						storageData.data,
+						storageData.version,
+						storageData.flowKey
+					);
 				}
 			}
 
@@ -1306,7 +1324,10 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Apply migrations to V8 data
 	 */
-	private applyV8Migrations<T>(storageData: StorageData<T>, migrations: Migration[]): StorageData<T> {
+	private applyV8Migrations<T>(
+		storageData: StorageData<T>,
+		migrations: Migration[]
+	): StorageData<T> {
 		let currentData = storageData.data;
 		let currentVersion = storageData.version;
 
@@ -1370,7 +1391,7 @@ export class UnifiedTokenStorageService {
 			const tokens = await this.getTokens({
 				type: 'v8_storage' as any,
 			});
-			return tokens.map(token => token.metadata?.key || token.id);
+			return tokens.map((token) => token.metadata?.key || token.id);
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to get all V8 keys', error as Error);
 			return [];
@@ -1564,7 +1585,10 @@ export class UnifiedTokenStorageService {
 				},
 			});
 
-			logger.info(MODULE_TAG, 'V8 credentials saved', { flowKey, environmentId: credentials.environmentId });
+			logger.info(MODULE_TAG, 'V8 credentials saved', {
+				flowKey,
+				environmentId: credentials.environmentId,
+			});
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to save V8 credentials', error as Error);
 			throw error;
@@ -1589,7 +1613,10 @@ export class UnifiedTokenStorageService {
 			const token = tokens[0];
 			const credentials: V8Credentials = JSON.parse(token.value);
 
-			logger.info(MODULE_TAG, 'V8 credentials loaded', { flowKey, environmentId: credentials.environmentId });
+			logger.info(MODULE_TAG, 'V8 credentials loaded', {
+				flowKey,
+				environmentId: credentials.environmentId,
+			});
 			return credentials;
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to load V8 credentials', error as Error);
@@ -1794,7 +1821,9 @@ export class UnifiedTokenStorageService {
 			const tokens = await this.getTokens({
 				type: 'v8_credentials' as any,
 			});
-			return tokens.map(token => token.metadata?.flowKey || token.id.replace('v8_credentials_', ''));
+			return tokens.map(
+				(token) => token.metadata?.flowKey || token.id.replace('v8_credentials_', '')
+			);
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to get all V8 credentials keys', error as Error);
 			return [];
@@ -1868,6 +1897,260 @@ export class UnifiedTokenStorageService {
 			});
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to import V8 credentials', error as Error);
+			throw error;
+		}
+	}
+
+	// ===== PKCE STORAGE SERVICE V8U COMPATIBILITY METHODS =====
+	// These methods provide backward compatibility with PKCEStorageServiceV8U
+
+	/**
+	 * Save PKCE codes (PKCEStorageServiceV8U compatibility)
+	 */
+	async saveV8UPKCECodes(
+		flowKey: string,
+		codes: { codeVerifier: string; codeChallenge: string; codeChallengeMethod?: string }
+	): Promise<void> {
+		try {
+			const pkceData: V8UPKCECodes = {
+				codeVerifier: codes.codeVerifier,
+				codeChallenge: codes.codeChallenge,
+				codeChallengeMethod: codes.codeChallengeMethod || 'S256',
+				savedAt: Date.now(),
+				flowKey,
+			};
+
+			await this.storeToken({
+				id: `v8u_pkce_${flowKey}`,
+				type: 'v8u_pkce' as any,
+				value: JSON.stringify(pkceData),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'indexeddb',
+				flowName: flowKey,
+				metadata: {
+					flowKey,
+					savedAt: pkceData.savedAt,
+					challengeMethod: pkceData.codeChallengeMethod,
+				},
+			});
+
+			logger.info(MODULE_TAG, 'V8U PKCE codes saved', {
+				flowKey,
+				challengeMethod: pkceData.codeChallengeMethod,
+			});
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save V8U PKCE codes', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Load PKCE codes (PKCEStorageServiceV8U compatibility)
+	 */
+	async loadV8UPKCECodesAsync(flowKey: string): Promise<V8UPKCECodes | null> {
+		try {
+			const tokens = await this.getTokens({
+				type: 'v8u_pkce' as any,
+				id: `v8u_pkce_${flowKey}`,
+			});
+
+			if (tokens.length === 0) {
+				logger.info(MODULE_TAG, 'No V8U PKCE codes found', { flowKey });
+				return null;
+			}
+
+			const token = tokens[0];
+			const pkceCodes: V8UPKCECodes = JSON.parse(token.value);
+
+			logger.info(MODULE_TAG, 'V8U PKCE codes loaded', { flowKey });
+			return pkceCodes;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load V8U PKCE codes', error as Error);
+			return null;
+		}
+	}
+
+	/**
+	 * Load PKCE codes with fallback (PKCEStorageServiceV8U compatibility)
+	 */
+	async loadV8UPKCECodesWithFallback(flowKey: string): Promise<V8UPKCECodes | null> {
+		// Try unified storage first
+		const pkceCodes = await this.loadV8UPKCECodesAsync(flowKey);
+		if (pkceCodes) {
+			return pkceCodes;
+		}
+
+		// Fallback to localStorage migration
+		try {
+			const storageKey = `v8u_pkce_${flowKey}`;
+			const stored = localStorage.getItem(storageKey);
+			if (stored) {
+				const parsed: V8UPKCECodes = JSON.parse(stored);
+				// Migrate to unified storage
+				await this.saveV8UPKCECodes(flowKey, parsed);
+				// Remove from localStorage
+				localStorage.removeItem(storageKey);
+				logger.info(MODULE_TAG, 'V8U PKCE codes migrated from localStorage', { flowKey });
+				return parsed;
+			}
+		} catch (error) {
+			logger.warn(MODULE_TAG, 'Failed to migrate from localStorage', { flowKey, error });
+		}
+
+		return null;
+	}
+
+	/**
+	 * Load PKCE codes synchronously (PKCEStorageServiceV8U compatibility)
+	 */
+	loadV8UPKCECodes(flowKey: string): V8UPKCECodes | null {
+		// For sync compatibility, try sessionStorage first
+		try {
+			const sessionData = sessionStorage.getItem(`v8u_pkce_${flowKey}`);
+			if (sessionData) {
+				const parsed: V8UPKCECodes = JSON.parse(sessionData);
+				logger.info(MODULE_TAG, 'V8U PKCE codes loaded from sessionStorage', { flowKey });
+				return parsed;
+			}
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load from sessionStorage', { flowKey, error });
+		}
+
+		// Try localStorage
+		try {
+			const localData = localStorage.getItem(`v8u_pkce_${flowKey}`);
+			if (localData) {
+				const parsed: V8UPKCECodes = JSON.parse(localData);
+				logger.info(MODULE_TAG, 'V8U PKCE codes loaded from localStorage', { flowKey });
+				return parsed;
+			}
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load from localStorage', { flowKey, error });
+		}
+
+		logger.warn(MODULE_TAG, 'No V8U PKCE codes found in sync storage', { flowKey });
+		return null;
+	}
+
+	/**
+	 * Clear PKCE codes (PKCEStorageServiceV8U compatibility)
+	 */
+	async clearV8UPKCECodes(flowKey: string): Promise<void> {
+		try {
+			await this.deleteTokens({
+				type: 'v8u_pkce' as any,
+				id: `v8u_pkce_${flowKey}`,
+			});
+
+			// Also clear from localStorage/sessionStorage for compatibility
+			try {
+				localStorage.removeItem(`v8u_pkce_${flowKey}`);
+				sessionStorage.removeItem(`v8u_pkce_${flowKey}`);
+				sessionStorage.removeItem('v8u_pkce_codes');
+			} catch {}
+
+			logger.info(MODULE_TAG, 'V8U PKCE codes cleared', { flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear V8U PKCE codes', error as Error);
+		}
+	}
+
+	/**
+	 * Check if PKCE codes exist (PKCEStorageServiceV8U compatibility)
+	 */
+	async hasV8UPKCECodes(flowKey: string): Promise<boolean> {
+		try {
+			const pkceCodes = await this.loadV8UPKCECodesAsync(flowKey);
+			return pkceCodes !== null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to check V8U PKCE codes existence', error as Error);
+			return false;
+		}
+	}
+
+	/**
+	 * Get all V8U PKCE keys
+	 */
+	async getAllV8UPKCEKeys(): Promise<string[]> {
+		try {
+			const tokens = await this.getTokens({
+				type: 'v8u_pkce' as any,
+			});
+			return tokens.map((token) => token.metadata?.flowKey || token.id.replace('v8u_pkce_', ''));
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to get all V8U PKCE keys', error as Error);
+			return [];
+		}
+	}
+
+	/**
+	 * Export all V8U PKCE codes
+	 */
+	async exportAllV8UPKCECodes(): Promise<string> {
+		try {
+			const tokens = await this.getTokens({
+				type: 'v8u_pkce' as any,
+			});
+			const data: Record<string, V8UPKCECodes> = {};
+
+			tokens.forEach((token) => {
+				try {
+					const pkceCodes: V8UPKCECodes = JSON.parse(token.value);
+					const flowKey = token.metadata?.flowKey || token.id.replace('v8u_pkce_', '');
+					data[flowKey] = pkceCodes;
+				} catch (error) {
+					logger.warn(MODULE_TAG, 'Failed to parse V8U PKCE codes for export', { id: token.id });
+				}
+			});
+
+			const exported = JSON.stringify(data, null, 2);
+
+			logger.info(MODULE_TAG, 'V8U PKCE codes exported', {
+				keyCount: tokens.length,
+				size: exported.length,
+			});
+
+			return exported;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to export V8U PKCE codes', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Import V8U PKCE codes
+	 */
+	async importAllV8UPKCECodes(jsonData: string, overwrite = false): Promise<void> {
+		try {
+			const data: Record<string, V8UPKCECodes> = JSON.parse(jsonData);
+
+			let imported = 0;
+			let skipped = 0;
+
+			for (const [flowKey, pkceCodes] of Object.entries(data)) {
+				// Check if PKCE codes already exist
+				if (!overwrite) {
+					const existing = await this.hasV8UPKCECodes(flowKey);
+					if (existing) {
+						logger.info(MODULE_TAG, 'Skipping existing V8U PKCE codes', { flowKey });
+						skipped++;
+						continue;
+					}
+				}
+
+				// Import PKCE codes
+				await this.saveV8UPKCECodes(flowKey, pkceCodes);
+				imported++;
+			}
+
+			logger.info(MODULE_TAG, 'V8U PKCE codes imported', {
+				imported,
+				skipped,
+				total: Object.keys(data).length,
+			});
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to import V8U PKCE codes', error as Error);
 			throw error;
 		}
 	}
