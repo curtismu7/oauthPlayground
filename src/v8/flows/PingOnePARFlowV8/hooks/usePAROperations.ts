@@ -2,8 +2,8 @@
 // PAR Operations - Direct API calls without service layer
 
 import { useCallback, useState } from 'react';
-import { generateCodeChallenge, generateCodeVerifier } from '../../../../utils/oauth';
 import { useProductionSpinner } from '../../../../hooks/useProductionSpinner';
+import { generateCodeChallenge, generateCodeVerifier } from '../../../../utils/oauth';
 import type {
 	FlowCredentials,
 	PARRequest,

@@ -48,7 +48,6 @@ import { useUserSearch } from '@/v8/hooks/useUserSearch';
 import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
-import { useStandardSpinner, StandardModalSpinner } from '../../../components/ui/StandardSpinner';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { type MFAFeatureFlag, MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import MFAServiceV8_Legacy, { type RegisterDeviceParams } from '@/v8/services/mfaServiceV8_Legacy';
@@ -64,6 +63,7 @@ import {
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { UnifiedOAuthCredentialsServiceV8U } from '@/v8u/services/unifiedOAuthCredentialsServiceV8U';
+import { StandardModalSpinner, useStandardSpinner } from '../../../components/ui/StandardSpinner';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { DeviceAuthenticationPolicy, MFACredentials, MFAState } from '../shared/MFATypes';
 import { UnifiedActivationStep } from './components/UnifiedActivationStep';
@@ -183,10 +183,10 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 
 	// Standardized spinner hooks for MFA registration operations
 	const registerSpinner = useStandardSpinner(8000); // Register device - 8 seconds
-	const authSpinner = useStandardSpinner(6000);    // Authentication - 6 seconds
-	const otpSpinner = useStandardSpinner(4000);      // OTP verification - 4 seconds
-	const deviceSpinner = useStandardSpinner(5000);  // Device selection - 5 seconds
-	const resendSpinner = useStandardSpinner(3000);   // Resend code - 3 seconds
+	const authSpinner = useStandardSpinner(6000); // Authentication - 6 seconds
+	const otpSpinner = useStandardSpinner(4000); // OTP verification - 4 seconds
+	const deviceSpinner = useStandardSpinner(5000); // Device selection - 5 seconds
+	const resendSpinner = useStandardSpinner(3000); // Resend code - 3 seconds
 
 	// Sync local state with props when they change
 	useEffect(() => {
@@ -2612,10 +2612,7 @@ const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8Props> 
 	useEffect(() => {
 		if (selectedFlowType) {
 			try {
-				localStorage.setItem(
-					'unified_mfa_selected_flow_type',
-					JSON.stringify(selectedFlowType)
-				);
+				localStorage.setItem('unified_mfa_selected_flow_type', JSON.stringify(selectedFlowType));
 				console.log('[UNIFIED-FLOW] Saved selected flow type:', selectedFlowType);
 			} catch (error) {
 				console.warn('[UNIFIED-FLOW] Failed to save selected flow type:', error);
@@ -3117,14 +3114,10 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 					}, 1000);
 				}
 			},
-			{
 				onSuccess: () => {
 					// Success handled in main function
 				},
-				onError: (error) => {
-					// Error already handled in main function
-				}
-			}
+				onError: (error) => 
 		);
 	},
 	[registerSpinner]

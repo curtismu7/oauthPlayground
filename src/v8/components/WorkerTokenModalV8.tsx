@@ -25,8 +25,8 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { workerTokenCacheServiceV8 } from '@/v8/services/workerTokenCacheServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
-import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-V8]';
 

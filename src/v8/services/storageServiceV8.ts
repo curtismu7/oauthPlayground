@@ -25,9 +25,9 @@ const MODULE_TAG = '[💾 STORAGE-V8-MIGRATED]';
 // IMPORTS
 // ============================================================================
 
-import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
 import { StorageServiceV8Migration } from '../../services/storageServiceV8Migration';
-import type { StorageData, Migration, ExportData } from '../../services/unifiedTokenStorageService';
+import type { ExportData, Migration, StorageData } from '../../services/unifiedTokenStorageService';
+import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
 
 // ============================================================================
 // STORAGE KEYS (Preserved for compatibility)
@@ -242,7 +242,7 @@ export class StorageServiceV8 {
 	static async getSize(): Promise<number> {
 		try {
 			await ensureMigration();
-			const keys = await this.getAllKeys();
+			const keys = await StorageServiceV8.getAllKeys();
 			let totalSize = 0;
 
 			// Estimate size based on key lengths
@@ -399,11 +399,11 @@ export class StorageServiceV8 {
 	static async getFlowData(flowKey: string): Promise<Array<{ key: string; data: StorageData }>> {
 		try {
 			await ensureMigration();
-			const allKeys = await this.getAllKeys();
+			const allKeys = await StorageServiceV8.getAllKeys();
 			const flowData: Array<{ key: string; data: StorageData }> = [];
 
 			for (const key of allKeys) {
-				const data = await this.load<unknown>(key);
+				const data = await StorageServiceV8.load<unknown>(key);
 				if (data) {
 					// Create a mock StorageData object
 					flowData.push({
@@ -440,11 +440,11 @@ export class StorageServiceV8 {
 	 */
 	static async clearFlowData(flowKey: string): Promise<number> {
 		try {
-			const flowData = await this.getFlowData(flowKey);
+			const flowData = await StorageServiceV8.getFlowData(flowKey);
 			let cleared = 0;
 
 			for (const { key } of flowData) {
-				await this.clear(key);
+				await StorageServiceV8.clear(key);
 				cleared++;
 			}
 

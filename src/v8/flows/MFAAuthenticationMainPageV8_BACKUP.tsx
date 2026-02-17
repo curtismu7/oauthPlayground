@@ -33,7 +33,7 @@ import {
 	FiTrash2,
 	FiX,
 } from 'react-icons/fi';
-import { LoadingOverlay, } from '@/components/ui';
+import { LoadingOverlay } from '@/components/ui';
 import {
 	downloadPostmanCollectionWithEnvironment,
 	generateCompletePostmanCollection,
@@ -42,7 +42,11 @@ import {
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { PageHeaderGradients, PageHeaderTextColors, PageHeaderV8 } from '@/v8/components/shared/PageHeaderV8';
+import {
+	PageHeaderGradients,
+	PageHeaderTextColors,
+	PageHeaderV8,
+} from '@/v8/components/shared/PageHeaderV8';
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import type { DeviceType } from '@/v8/flows/shared/MFATypes';
@@ -1394,832 +1398,1584 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				transition: 'padding-bottom 0.3s ease',
 			}}
 		>
-			{/* Navigation Bar */}
-			<MFANavigationV8 currentPage="hub" showBackToMain={true} />
-
-			<LoadingSpinnerModalV8U
-				show={authState.isLoading && !!loadingMessage}
-				message={loadingMessage}
-				theme="blue"
+			{/* Navigation Bar */ }
+			<MFANavigationV8 currentPage="hub" showBackToMain=
+{
+	true;
+}
+/> < LoadingSpinnerModalV8U;
+show={authState.isLoading && !!loadingMessage}
+message = { loadingMessage };
+theme="blue"
 			/>
 
 			{/* Token Clearing Spinner */}
 			<LoadingSpinnerModalV8U
-				show={isClearingTokens}
-				message="Clearing tokens and ending session..."
-				theme="orange"
+show = { isClearingTokens };
+message = 'Clearing tokens and ending session...';
+theme="orange"
 			/>
 
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 
-			{/* Page Header */}
-			<PageHeaderV8
-				title="🔐 MFA Authentication"
-				subtitle="Unified authentication flow for all MFA device types"
-				gradient={PageHeaderGradients.mfaAuth}
-				textColor={PageHeaderTextColors.white}
-			/>
+{
+	/* Page Header */
+}
+<PageHeaderV8
+	title="🔐 MFA Authentication"
+	subtitle="Unified authentication flow for all MFA device types"
+	gradient={PageHeaderGradients.mfaAuth}
+	textColor={PageHeaderTextColors.white}
+/>;
 
-			{/* Postman Collection Download Buttons */}
-			<div
+{
+	/* Postman Collection Download Buttons */
+}
+<div
+	style={{
+		background: 'white',
+		borderRadius: '12px',
+		padding: '24px',
+		marginBottom: '24px',
+		boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+		border: '1px solid #e5e7eb',
+	}}
+>
+	<div
+		style={{
+			display: 'flex',
+			gap: '12px',
+			flexWrap: 'wrap',
+		}}
+	>
+		<button
+			type="button"
+			onClick={() => {
+				const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
+					flowKey: 'mfa-v8',
+					flowType: 'oauth' as const,
+					includeClientSecret: false,
+					includeScopes: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+				});
+				const collection = generateComprehensiveMFAPostmanCollection({
+					environmentId: credentials.environmentId,
+					username: mfaCreds?.username,
+				});
+				const date = new Date().toISOString().split('T')[0];
+				const filename = `pingone-mfa-flows-complete-${date}-collection.json`;
+				downloadPostmanCollectionWithEnvironment(
+					collection,
+					filename,
+					'PingOne MFA Flows Environment'
+				);
+				toastV8.success(
+					'Postman collection and environment downloaded! Import both into Postman to test all MFA flows.'
+				);
+			}}
+			style={{
+				display: 'flex',
+				alignItems: 'center',
+				gap: '8px',
+				padding: '12px 24px',
+				background: '#8b5cf6',
+				color: 'white',
+				border: 'none',
+				borderRadius: '8px',
+				fontSize: '15px',
+				fontWeight: '600',
+				cursor: 'pointer',
+				boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
+				transition: 'all 0.2s ease',
+			}}
+			onMouseEnter={(e) => {
+				e.currentTarget.style.background = '#7c3aed';
+				e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.4)';
+			}}
+			onMouseLeave={(e) => {
+				e.currentTarget.style.background = '#8b5cf6';
+				e.currentTarget.style.boxShadow = '0 2px 8px rgba(139, 92, 246, 0.3)';
+			}}
+			title="Download comprehensive Postman collection for all MFA device types (SMS, Email, OATH TOTP (RFC 6238), FIDO2, Mobile, WhatsApp) grouped by Registration and Authentication"
+		>
+			<FiPackage size={18} />
+			Download All MFA Flows Postman Collection
+		</button>
+		<button
+			type="button"
+			onClick={() => {
+				// Get Unified credentials for complete collection
+				const unifiedCreds = CredentialsServiceV8.loadCredentials('oauth-authz-v8u', {
+					flowKey: 'oauth-authz-v8u',
+					flowType: 'oauth-authz' as const,
+					includeClientSecret: true,
+					includeScopes: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+				});
+				const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
+					flowKey: 'mfa-v8',
+					flowType: 'oauth' as const,
+					includeClientSecret: false,
+					includeScopes: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+				});
+				const collection = generateCompletePostmanCollection({
+					environmentId: credentials.environmentId || unifiedCreds?.environmentId,
+					clientId: unifiedCreds?.clientId,
+					clientSecret: unifiedCreds?.clientSecret,
+					username: mfaCreds?.username,
+				});
+				const date = new Date().toISOString().split('T')[0];
+				const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
+				downloadPostmanCollectionWithEnvironment(
+					collection,
+					filename,
+					'PingOne Complete Collection Environment'
+				);
+				toastV8.success(
+					'Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.'
+				);
+			}}
+			style={{
+				display: 'flex',
+				alignItems: 'center',
+				gap: '8px',
+				padding: '12px 24px',
+				background: '#10b981',
+				color: 'white',
+				border: 'none',
+				borderRadius: '8px',
+				fontSize: '15px',
+				fontWeight: '600',
+				cursor: 'pointer',
+				boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+				transition: 'all 0.2s ease',
+			}}
+			onMouseEnter={(e) => {
+				e.currentTarget.style.background = '#059669';
+				e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
+			}}
+			onMouseLeave={(e) => {
+				e.currentTarget.style.background = '#10b981';
+				e.currentTarget.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
+			}}
+			title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
+		>
+			<FiPackage size={18} />
+			Download Complete Collection (Unified + MFA)
+		</button>
+	</div>
+</div>;
+
+{
+	/* 1. Authentication & Registration */
+}
+<div
+	style={{
+		background: 'white',
+		borderRadius: '12px',
+		padding: '32px',
+		marginBottom: '24px',
+		boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+		border: '1px solid #e5e7eb',
+	}}
+>
+	<h2 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+		Authentication & Registration
+	</h2>
+
+	<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+		{/* Primary Button: Start MFA */}
+		<button
+			type="button"
+			onClick={handleStartMFA}
+			disabled={
+				authState.isLoading ||
+				!tokenStatus.isValid ||
+				!credentials.environmentId ||
+				!credentials.deviceAuthenticationPolicyId
+			}
+			style={{
+				padding: '10px 24px',
+				border: 'none',
+				borderRadius: '6px',
+				background:
+					tokenStatus.isValid &&
+					credentials.environmentId &&
+					credentials.deviceAuthenticationPolicyId
+						? '#3b82f6'
+						: '#9ca3af',
+				color: 'white',
+				fontSize: '16px',
+				fontWeight: '600',
+				cursor:
+					tokenStatus.isValid &&
+					credentials.environmentId &&
+					credentials.deviceAuthenticationPolicyId
+						? 'pointer'
+						: 'not-allowed',
+				display: 'flex',
+				alignItems: 'center',
+				gap: '8px',
+			}}
+		>
+			{authState.isLoading ? (
+				<>
+					<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
+					Starting...
+				</>
+			) : (
+				<>
+					<FiShield />
+					Start Authentication
+				</>
+			)}
+		</button>
+
+		{/* Registration Button */}
+		<button
+			type="button"
+			onClick={() => setShowRegistrationModal(true)}
+			disabled={
+				!tokenStatus.isValid ||
+				!credentials.environmentId ||
+				!credentials.deviceAuthenticationPolicyId
+			}
+			style={{
+				padding: '10px 24px',
+				border: 'none',
+				borderRadius: '6px',
+				background:
+					tokenStatus.isValid &&
+					credentials.environmentId &&
+					credentials.deviceAuthenticationPolicyId
+						? '#10b981'
+						: '#9ca3af',
+				color: 'white',
+				fontSize: '16px',
+				fontWeight: '600',
+				cursor:
+					tokenStatus.isValid &&
+					credentials.environmentId &&
+					credentials.deviceAuthenticationPolicyId
+						? 'pointer'
+						: 'not-allowed',
+				display: 'flex',
+				alignItems: 'center',
+				gap: '8px',
+			}}
+		>
+			<FiPlus />
+			Register Device
+		</button>
+
+		{/* Secondary Button: Username-less FIDO2 */}
+		<button
+			type="button"
+			onClick={handleUsernamelessFIDO2}
+			disabled={authState.isLoading || !tokenStatus.isValid || !credentials.environmentId}
+			style={{
+				padding: '10px 24px',
+				border: '2px solid #3b82f6',
+				borderRadius: '6px',
+				background: 'white',
+				color: '#3b82f6',
+				fontSize: '16px',
+				fontWeight: '600',
+				cursor: tokenStatus.isValid && credentials.environmentId ? 'pointer' : 'not-allowed',
+				display: 'flex',
+				alignItems: 'center',
+				gap: '8px',
+			}}
+		>
+			<FiKey />
+			Use Passkey / FaceID (username-less)
+		</button>
+
+		{/* Clear Tokens & Session Button */}
+		<button
+			type="button"
+			onClick={() => setShowClearTokensModal(true)}
+			disabled={isClearingTokens}
+			style={{
+				padding: '10px 24px',
+				border: 'none',
+				borderRadius: '6px',
+				background: isClearingTokens ? '#9ca3af' : '#ef4444',
+				color: 'white',
+				fontSize: '16px',
+				fontWeight: '600',
+				cursor: isClearingTokens ? 'not-allowed' : 'pointer',
+				display: 'flex',
+				alignItems: 'center',
+				gap: '8px',
+				opacity: isClearingTokens ? 0.6 : 1,
+				transition: 'all 0.2s ease',
+			}}
+		>
+			{isClearingTokens ? (
+				<>
+					<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
+					Clearing...
+				</>
+			) : (
+				<>
+					<FiTrash2 />
+					Clear Tokens & Session
+				</>
+			)}
+		</button>
+	</div>
+</div>;
+
+{
+	/* Clear Tokens Confirmation Modal */
+}
+<ConfirmModalV8
+	isOpen={showClearTokensModal}
+	title="Clear Tokens & End PingOne Session"
+	message="Are you sure you want to clear all tokens and end your PingOne session?\n\nThis will:\n• Clear worker tokens\n• Clear user tokens (OAuth access tokens)\n• End your PingOne session (logout)\n• Clear all stored authentication data\n\nYou will need to log in again to continue."
+	confirmText="Clear & Logout"
+	cancelText="Cancel"
+	variant="danger"
+	onConfirm={handleClearTokens}
+	onCancel={() => setShowClearTokensModal(false)}
+/>;
+
+{
+	/* 2. Control Panel: Environment + Worker Token + MFA Policy */
+}
+<div
+	style={{
+		background: 'white',
+		borderRadius: '12px',
+		padding: '24px',
+		marginBottom: '24px',
+		boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+		border: '1px solid #e5e7eb',
+	}}
+>
+	<h2 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+		Control Panel
+	</h2>
+
+	{/* Worker Token - First Row (Top Priority) */}
+	<div style={{ marginBottom: '20px' }}>
+		<label
+			style={{
+				display: 'block',
+				marginBottom: '8px',
+				fontSize: '14px',
+				fontWeight: '500',
+				color: '#374151',
+			}}
+		>
+			Worker Token
+		</label>
+		<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+			<button
+				type="button"
+				onClick={async () => {
+					const { handleShowWorkerTokenModal } = await import(
+						'@/v8/utils/workerTokenModalHelperV8'
+					);
+					// Pass current checkbox values to override config (page checkboxes take precedence)
+					// forceShowModal=true because user explicitly clicked the button - always show modal
+					await handleShowWorkerTokenModal(
+						setShowWorkerTokenModal,
+						setTokenStatus,
+						silentApiRetrieval, // Page checkbox value takes precedence
+						showTokenAtEnd, // Page checkbox value takes precedence
+						true // Force show modal - user clicked button
+					);
+				}}
 				style={{
-					background: 'white',
-					borderRadius: '12px',
-					padding: '24px',
-					marginBottom: '24px',
-					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					border: '1px solid #e5e7eb',
+					padding: '8px 16px',
+					border: 'none',
+					borderRadius: '6px',
+					background:
+						tokenStatus.status === 'expiring-soon'
+							? '#f59e0b'
+							: tokenStatus.isValid
+								? '#10b981'
+								: '#dc2626',
+					color: 'white',
+					fontSize: '14px',
+					fontWeight: '500',
+					cursor: 'pointer',
+					whiteSpace: 'nowrap',
 				}}
 			>
-				<div
-					style={{
-						display: 'flex',
-						gap: '12px',
-						flexWrap: 'wrap',
-					}}
-				>
-					<button
-						type="button"
-						onClick={() => {
-							const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
-								flowKey: 'mfa-v8',
-								flowType: 'oauth' as const,
-								includeClientSecret: false,
-								includeScopes: false,
-								includeRedirectUri: false,
-								includeLogoutUri: false,
-							});
-							const collection = generateComprehensiveMFAPostmanCollection({
-								environmentId: credentials.environmentId,
-								username: mfaCreds?.username,
-							});
-							const date = new Date().toISOString().split('T')[0];
-							const filename = `pingone-mfa-flows-complete-${date}-collection.json`;
-							downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne MFA Flows Environment');
-							toastV8.success('Postman collection and environment downloaded! Import both into Postman to test all MFA flows.');
-						}}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-							padding: '12px 24px',
-							background: '#8b5cf6',
-							color: 'white',
-							border: 'none',
-							borderRadius: '8px',
-							fontSize: '15px',
-							fontWeight: '600',
-							cursor: 'pointer',
-							boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
-							transition: 'all 0.2s ease',
-						}}
-						onMouseEnter={(e) => {
-							e.currentTarget.style.background = '#7c3aed';
-							e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.4)';
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.background = '#8b5cf6';
-							e.currentTarget.style.boxShadow = '0 2px 8px rgba(139, 92, 246, 0.3)';
-						}}
-						title="Download comprehensive Postman collection for all MFA device types (SMS, Email, OATH TOTP (RFC 6238), FIDO2, Mobile, WhatsApp) grouped by Registration and Authentication"
-					>
-						<FiPackage size={18} />
-						Download All MFA Flows Postman Collection
-					</button>
-					<button
-						type="button"
-						onClick={() => {
-							// Get Unified credentials for complete collection
-							const unifiedCreds = CredentialsServiceV8.loadCredentials('oauth-authz-v8u', {
-								flowKey: 'oauth-authz-v8u',
-								flowType: 'oauth-authz' as const,
-								includeClientSecret: true,
-								includeScopes: false,
-								includeRedirectUri: false,
-								includeLogoutUri: false,
-							});
-							const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
-								flowKey: 'mfa-v8',
-								flowType: 'oauth' as const,
-								includeClientSecret: false,
-								includeScopes: false,
-								includeRedirectUri: false,
-								includeLogoutUri: false,
-							});
-							const collection = generateCompletePostmanCollection({
-								environmentId: credentials.environmentId || unifiedCreds?.environmentId,
-								clientId: unifiedCreds?.clientId,
-								clientSecret: unifiedCreds?.clientSecret,
-								username: mfaCreds?.username,
-							});
-							const date = new Date().toISOString().split('T')[0];
-							const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
-							downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Complete Collection Environment');
-							toastV8.success('Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.');
-						}}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-							padding: '12px 24px',
-							background: '#10b981',
-							color: 'white',
-							border: 'none',
-							borderRadius: '8px',
-							fontSize: '15px',
-							fontWeight: '600',
-							cursor: 'pointer',
-							boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-							transition: 'all 0.2s ease',
-						}}
-						onMouseEnter={(e) => {
-							e.currentTarget.style.background = '#059669';
-							e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.background = '#10b981';
-							e.currentTarget.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
-						}}
-						title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
-					>
-						<FiPackage size={18} />
-						Download Complete Collection (Unified + MFA)
-					</button>
-				</div>
-			</div>
-
-			{/* 1. Authentication & Registration */}
+				Get Worker Token
+			</button>
 			<div
 				style={{
-					background: 'white',
-					borderRadius: '12px',
-					padding: '32px',
-					marginBottom: '24px',
-					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					border: '1px solid #e5e7eb',
+					flex: 1,
+					padding: '8px 12px',
+					border: '1px solid #d1d5db',
+					borderRadius: '6px',
+					background: tokenStatus.isValid ? '#f0fdf4' : '#fef2f2',
+					display: 'flex',
+					alignItems: 'center',
+					gap: '8px',
+					fontSize: '14px',
 				}}
 			>
-				<h2 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-					Authentication & Registration
-				</h2>
-
-				<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-					{/* Primary Button: Start MFA */}
-					<button
-						type="button"
-						onClick={handleStartMFA}
-						disabled={
-							authState.isLoading ||
-							!tokenStatus.isValid ||
-							!credentials.environmentId ||
-							!credentials.deviceAuthenticationPolicyId
-						}
-						style={{
-							padding: '10px 24px',
-							border: 'none',
-							borderRadius: '6px',
-							background:
-								tokenStatus.isValid &&
-								credentials.environmentId &&
-								credentials.deviceAuthenticationPolicyId
-									? '#3b82f6'
-									: '#9ca3af',
-							color: 'white',
-							fontSize: '16px',
-							fontWeight: '600',
-							cursor:
-								tokenStatus.isValid &&
-								credentials.environmentId &&
-								credentials.deviceAuthenticationPolicyId
-									? 'pointer'
-									: 'not-allowed',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}
-					>
-						{authState.isLoading ? (
-							<>
-								<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-								Starting...
-							</>
+				{tokenStatus.isValid ? (
+					<>
+						{tokenStatus.status === 'expiring-soon' ? (
+							<FiAlertCircle color="#f59e0b" />
 						) : (
-							<>
-								<FiShield />
-								Start Authentication
-							</>
+							<FiCheck color="#10b981" />
 						)}
-					</button>
-
-					{/* Registration Button */}
-					<button
-						type="button"
-						onClick={() => setShowRegistrationModal(true)}
-						disabled={
-							!tokenStatus.isValid ||
-							!credentials.environmentId ||
-							!credentials.deviceAuthenticationPolicyId
-						}
-						style={{
-							padding: '10px 24px',
-							border: 'none',
-							borderRadius: '6px',
-							background:
-								tokenStatus.isValid &&
-								credentials.environmentId &&
-								credentials.deviceAuthenticationPolicyId
-									? '#10b981'
-									: '#9ca3af',
-							color: 'white',
-							fontSize: '16px',
-							fontWeight: '600',
-							cursor:
-								tokenStatus.isValid &&
-								credentials.environmentId &&
-								credentials.deviceAuthenticationPolicyId
-									? 'pointer'
-									: 'not-allowed',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}
-					>
-						<FiPlus />
-						Register Device
-					</button>
-
-					{/* Secondary Button: Username-less FIDO2 */}
-					<button
-						type="button"
-						onClick={handleUsernamelessFIDO2}
-						disabled={authState.isLoading || !tokenStatus.isValid || !credentials.environmentId}
-						style={{
-							padding: '10px 24px',
-							border: '2px solid #3b82f6',
-							borderRadius: '6px',
-							background: 'white',
-							color: '#3b82f6',
-							fontSize: '16px',
-							fontWeight: '600',
-							cursor: tokenStatus.isValid && credentials.environmentId ? 'pointer' : 'not-allowed',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}
-					>
-						<FiKey />
-						Use Passkey / FaceID (username-less)
-					</button>
-
-					{/* Clear Tokens & Session Button */}
-					<button
-						type="button"
-						onClick={() => setShowClearTokensModal(true)}
-						disabled={isClearingTokens}
-						style={{
-							padding: '10px 24px',
-							border: 'none',
-							borderRadius: '6px',
-							background: isClearingTokens ? '#9ca3af' : '#ef4444',
-							color: 'white',
-							fontSize: '16px',
-							fontWeight: '600',
-							cursor: isClearingTokens ? 'not-allowed' : 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-							opacity: isClearingTokens ? 0.6 : 1,
-							transition: 'all 0.2s ease',
-						}}
-					>
-						{isClearingTokens ? (
-							<>
-								<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-								Clearing...
-							</>
-						) : (
-							<>
-								<FiTrash2 />
-								Clear Tokens & Session
-							</>
-						)}
-					</button>
-				</div>
-			</div>
-
-			{/* Clear Tokens Confirmation Modal */}
-			<ConfirmModalV8
-				isOpen={showClearTokensModal}
-				title="Clear Tokens & End PingOne Session"
-				message="Are you sure you want to clear all tokens and end your PingOne session?\n\nThis will:\n• Clear worker tokens\n• Clear user tokens (OAuth access tokens)\n• End your PingOne session (logout)\n• Clear all stored authentication data\n\nYou will need to log in again to continue."
-				confirmText="Clear & Logout"
-				cancelText="Cancel"
-				variant="danger"
-				onConfirm={handleClearTokens}
-				onCancel={() => setShowClearTokensModal(false)}
-			/>
-
-			{/* 2. Control Panel: Environment + Worker Token + MFA Policy */}
-			<div
-				style={{
-					background: 'white',
-					borderRadius: '12px',
-					padding: '24px',
-					marginBottom: '24px',
-					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					border: '1px solid #e5e7eb',
-				}}
-			>
-				<h2 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-					Control Panel
-				</h2>
-
-				{/* Worker Token - First Row (Top Priority) */}
-				<div style={{ marginBottom: '20px' }}>
-					<label
-						style={{
-							display: 'block',
-							marginBottom: '8px',
-							fontSize: '14px',
-							fontWeight: '500',
-							color: '#374151',
-						}}
-					>
-						Worker Token
-					</label>
-					<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-						<button
-							type="button"
-							onClick={async () => {
-								const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-								// Pass current checkbox values to override config (page checkboxes take precedence)
-								// forceShowModal=true because user explicitly clicked the button - always show modal
-								await handleShowWorkerTokenModal(
-									setShowWorkerTokenModal, 
-									setTokenStatus,
-									silentApiRetrieval,  // Page checkbox value takes precedence
-									showTokenAtEnd,      // Page checkbox value takes precedence
-									true                  // Force show modal - user clicked button
-								);
-							}}
+						<span
 							style={{
-								padding: '8px 16px',
-								border: 'none',
-								borderRadius: '6px',
-								background:
-									tokenStatus.status === 'expiring-soon'
-										? '#f59e0b'
-										: tokenStatus.isValid
-											? '#10b981'
-											: '#dc2626',
-								color: 'white',
-								fontSize: '14px',
-								fontWeight: '500',
-								cursor: 'pointer',
-								whiteSpace: 'nowrap',
+								color: tokenStatus.status === 'expiring-soon' ? '#f59e0b' : '#059669',
 							}}
 						>
-							Get Worker Token
-						</button>
+							{tokenStatus.message || 'Worker token configured'}
+						</span>
+					</>
+				) : (
+					<>
+						<FiAlertCircle color="#dc2626" />
+						<span style={{ color: '#dc2626' }}>
+							{tokenStatus.message || 'Worker token missing'}
+						</span>
+					</>
+				)}
+			</div>
+		</div>
+
+		{/* Worker Token Settings Checkboxes */}
+		<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+			<label
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					gap: '12px',
+					cursor: 'pointer',
+					userSelect: 'none',
+					padding: '8px',
+					borderRadius: '6px',
+					transition: 'background-color 0.2s ease',
+				}}
+				onMouseEnter={(e) => {
+					e.currentTarget.style.backgroundColor = '#f3f4f6';
+				}}
+				onMouseLeave={(e) => {
+					e.currentTarget.style.backgroundColor = 'transparent';
+				}}
+			>
+				<input
+					type="checkbox"
+					checked={silentApiRetrieval}
+					onChange={async (e) => {
+						const newValue = e.target.checked;
+						setSilentApiRetrieval(newValue);
+						// Update config service immediately (no cache)
+						const config = MFAConfigurationServiceV8.loadConfiguration();
+						config.workerToken.silentApiRetrieval = newValue;
+						MFAConfigurationServiceV8.saveConfiguration(config);
+						// Dispatch event to notify other components
+						window.dispatchEvent(
+							new CustomEvent('mfaConfigurationUpdated', {
+								detail: { workerToken: config.workerToken },
+							})
+						);
+						toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
+
+						// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
+						if (newValue) {
+							const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+							if (!currentStatus.isValid) {
+								console.log(
+									'[MFA-AUTHN-MAIN-V8] Silent API retrieval enabled, attempting to fetch token now...'
+								);
+								const { handleShowWorkerTokenModal } = await import(
+									'@/v8/utils/workerTokenModalHelperV8'
+								);
+								await handleShowWorkerTokenModal(
+									setShowWorkerTokenModal,
+									setTokenStatus,
+									newValue, // Use new value
+									showTokenAtEnd,
+									false // Not forced - respect silent setting
+								);
+							}
+						}
+					}}
+					style={{
+						width: '20px',
+						height: '20px',
+						cursor: 'pointer',
+						accentColor: '#6366f1',
+						flexShrink: 0,
+					}}
+				/>
+				<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+					<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+						Silent API Token Retrieval
+					</span>
+					<span style={{ fontSize: '12px', color: '#6b7280' }}>
+						Automatically fetch worker token in the background without showing modals
+					</span>
+				</div>
+			</label>
+
+			<label
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					gap: '12px',
+					cursor: 'pointer',
+					userSelect: 'none',
+					padding: '8px',
+					borderRadius: '6px',
+					transition: 'background-color 0.2s ease',
+				}}
+				onMouseEnter={(e) => {
+					e.currentTarget.style.backgroundColor = '#f3f4f6';
+				}}
+				onMouseLeave={(e) => {
+					e.currentTarget.style.backgroundColor = 'transparent';
+				}}
+			>
+				<input
+					type="checkbox"
+					checked={showTokenAtEnd}
+					onChange={(e) => {
+						const newValue = e.target.checked;
+						setShowTokenAtEnd(newValue);
+						// Update config service immediately (no cache)
+						const config = MFAConfigurationServiceV8.loadConfiguration();
+						config.workerToken.showTokenAtEnd = newValue;
+						MFAConfigurationServiceV8.saveConfiguration(config);
+						// Dispatch event to notify other components
+						window.dispatchEvent(
+							new CustomEvent('mfaConfigurationUpdated', {
+								detail: { workerToken: config.workerToken },
+							})
+						);
+						toastV8.info(`Show Token After Generation set to: ${newValue}`);
+					}}
+					style={{
+						width: '20px',
+						height: '20px',
+						cursor: 'pointer',
+						accentColor: '#6366f1',
+						flexShrink: 0,
+					}}
+				/>
+				<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+					<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+						Show Token After Generation
+					</span>
+					<span style={{ fontSize: '12px', color: '#6b7280' }}>
+						Display the generated worker token in a modal after successful retrieval
+					</span>
+				</div>
+			</label>
+		</div>
+	</div>
+
+	<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+		{/* Environment ID */}
+		<div>
+			<label
+				style={{
+					display: 'block',
+					marginBottom: '8px',
+					fontSize: '14px',
+					fontWeight: '500',
+					color: '#374151',
+				}}
+			>
+				Environment ID
+			</label>
+			<input
+				type="text"
+				value={credentials.environmentId}
+				onChange={(e) => {
+					const updated = { ...credentials, environmentId: e.target.value };
+					setCredentials(updated);
+					const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+						flowKey: FLOW_KEY,
+						flowType: 'oidc',
+						includeClientSecret: false,
+						includeRedirectUri: false,
+						includeLogoutUri: false,
+						includeScopes: false,
+					});
+					CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+						...stored,
+						environmentId: e.target.value,
+					});
+				}}
+				placeholder="Enter environment ID"
+				style={{
+					width: '100%',
+					padding: '8px 12px',
+					border: '1px solid #d1d5db',
+					borderRadius: '6px',
+					fontSize: '14px',
+				}}
+			/>
+		</div>
+
+		{/* Username */}
+		<div>
+			<label
+				htmlFor={usernameInputId}
+				style={{
+					display: 'block',
+					marginBottom: '8px',
+					fontSize: '14px',
+					fontWeight: '500',
+					color: '#374151',
+				}}
+			>
+				Username
+			</label>
+			<input
+				id={usernameInputId}
+				type="text"
+				value={usernameInput}
+				onChange={(e) => {
+					const newUsername = e.target.value;
+					setUsernameInput(newUsername);
+					setCredentials((prev) => ({ ...prev, username: newUsername }));
+					const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+						flowKey: FLOW_KEY,
+						flowType: 'oidc',
+						includeClientSecret: false,
+						includeRedirectUri: false,
+						includeLogoutUri: false,
+						includeScopes: false,
+					});
+					CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+						...stored,
+						username: newUsername,
+					});
+				}}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter') {
+						handleStartMFA();
+					}
+				}}
+				placeholder="Enter username (e.g., user@example.com)"
+				style={{
+					width: '100%',
+					padding: '8px 12px',
+					border: '1px solid #d1d5db',
+					borderRadius: '6px',
+					fontSize: '14px',
+				}}
+			/>
+		</div>
+	</div>
+
+	{/* MFA Policy Selection - Second Row */}
+	<div style={{ marginTop: '20px' }}>
+		<label
+			htmlFor={policySelectId}
+			style={{
+				display: 'block',
+				marginBottom: '8px',
+				fontSize: '14px',
+				fontWeight: '500',
+				color: '#374151',
+			}}
+		>
+			Device Authentication Policy
+		</label>
+		{isLoadingPolicies ? (
+			<div style={{ padding: '8px 12px', color: '#6b7280', fontSize: '14px' }}>
+				<FiLoader style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }} />{' '}
+				Loading policies...
+			</div>
+		) : policiesError ? (
+			<div style={{ padding: '8px 12px', color: '#dc2626', fontSize: '14px' }}>
+				<FiAlertCircle /> {policiesError}
+			</div>
+		) : (
+			<select
+				id={policySelectId}
+				value={credentials.deviceAuthenticationPolicyId}
+				onChange={(e) => handlePolicySelect(e.target.value)}
+				disabled={!tokenStatus.isValid || deviceAuthPolicies.length === 0}
+				style={{
+					width: '100%',
+					padding: '8px 12px',
+					border: '1px solid #d1d5db',
+					borderRadius: '6px',
+					fontSize: '14px',
+					background: 'white',
+					cursor: tokenStatus.isValid && deviceAuthPolicies.length > 0 ? 'pointer' : 'not-allowed',
+					opacity: !tokenStatus.isValid || deviceAuthPolicies.length === 0 ? 0.6 : 1,
+				}}
+			>
+				<option value="">
+					{!tokenStatus.isValid
+						? 'Get Worker Token first to load policies'
+						: deviceAuthPolicies.length === 0
+							? 'No policies available'
+							: 'Choose a policy...'}
+				</option>
+				{deviceAuthPolicies.map((policy) => (
+					<option key={policy.id} value={policy.id}>
+						{policy.name} {policy.default ? '(DEFAULT)' : ''}
+					</option>
+				))}
+			</select>
+		)}
+	</div>
+</div>;
+
+{
+	/* 3. Dashboard Features (Merged) */
+}
+{
+	/* Policy Summary */
+}
+{
+	credentials.deviceAuthenticationPolicyId && deviceAuthPolicies.length > 0 && (
+		<div
+			style={{
+				background: 'white',
+				borderRadius: '12px',
+				padding: '24px',
+				marginBottom: '24px',
+				boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+				border: '1px solid #e5e7eb',
+			}}
+		>
+			<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+				<h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+					Active Device Authentication Policy
+				</h2>
+				<button
+					type="button"
+					onClick={() => setShowPolicyInfoModal(true)}
+					style={{
+						display: 'inline-flex',
+						alignItems: 'center',
+						gap: '4px',
+						padding: '4px 8px',
+						borderRadius: '4px',
+						background: '#eff6ff',
+						color: '#1e40af',
+						fontSize: '12px',
+						fontWeight: '500',
+						cursor: 'pointer',
+						transition: 'all 0.2s ease',
+						verticalAlign: 'middle',
+						marginLeft: '6px',
+					}}
+					onMouseEnter={(e) => {
+						e.currentTarget.style.background = '#dbeafe';
+					}}
+					onMouseLeave={(e) => {
+						e.currentTarget.style.background = '#eff6ff';
+					}}
+				>
+					<FiInfo size={14} />
+					<span>What is this?</span>
+				</button>
+			</div>
+			{(() => {
+				const selectedPolicy = deviceAuthPolicies.find(
+					(p) => p.id === credentials.deviceAuthenticationPolicyId
+				);
+				if (!selectedPolicy) return null;
+
+				const deviceSelection = selectedPolicy.authentication?.deviceSelection as
+					| string
+					| undefined;
+				const status = selectedPolicy.status as string | undefined;
+
+				return (
+					<div>
+						{/* Policy Name and Status */}
 						<div
 							style={{
-								flex: 1,
-								padding: '8px 12px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								background: tokenStatus.isValid ? '#f0fdf4' : '#fef2f2',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								fontSize: '14px',
-							}}
-						>
-							{tokenStatus.isValid ? (
-								<>
-									{tokenStatus.status === 'expiring-soon' ? (
-										<FiAlertCircle color="#f59e0b" />
-									) : (
-										<FiCheck color="#10b981" />
-									)}
-									<span
-										style={{
-											color: tokenStatus.status === 'expiring-soon' ? '#f59e0b' : '#059669',
-										}}
-									>
-										{tokenStatus.message || 'Worker token configured'}
-									</span>
-								</>
-							) : (
-								<>
-									<FiAlertCircle color="#dc2626" />
-									<span style={{ color: '#dc2626' }}>
-										{tokenStatus.message || 'Worker token missing'}
-									</span>
-								</>
-							)}
-						</div>
-					</div>
-					
-					{/* Worker Token Settings Checkboxes */}
-					<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-						<label
-							style={{
 								display: 'flex',
 								alignItems: 'center',
 								gap: '12px',
-								cursor: 'pointer',
-								userSelect: 'none',
-								padding: '8px',
-								borderRadius: '6px',
-								transition: 'background-color 0.2s ease',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.backgroundColor = '#f3f4f6';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.backgroundColor = 'transparent';
+								marginBottom: '16px',
+								flexWrap: 'wrap',
 							}}
 						>
-							<input
-								type="checkbox"
-								checked={silentApiRetrieval}
-								onChange={async (e) => {
-									const newValue = e.target.checked;
-									setSilentApiRetrieval(newValue);
-									// Update config service immediately (no cache)
-									const config = MFAConfigurationServiceV8.loadConfiguration();
-									config.workerToken.silentApiRetrieval = newValue;
-									MFAConfigurationServiceV8.saveConfiguration(config);
-									// Dispatch event to notify other components
-									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
-									toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
-									
-									// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
-									if (newValue) {
-										const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-										if (!currentStatus.isValid) {
-											console.log('[MFA-AUTHN-MAIN-V8] Silent API retrieval enabled, attempting to fetch token now...');
-											const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-											await handleShowWorkerTokenModal(
-												setShowWorkerTokenModal,
-												setTokenStatus,
-												newValue,  // Use new value
-												showTokenAtEnd,
-												false      // Not forced - respect silent setting
-											);
-										}
-									}
-								}}
+							<FiShield style={{ color: '#3b82f6', fontSize: '20px' }} />
+							<span
 								style={{
-									width: '20px',
-									height: '20px',
-									cursor: 'pointer',
-									accentColor: '#6366f1',
-									flexShrink: 0,
+									background: '#dcfce7',
+									color: '#166534',
+									padding: '4px 12px',
+									borderRadius: '20px',
+									fontSize: '14px',
+									fontWeight: '600',
 								}}
-							/>
-							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-								<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
-									Silent API Token Retrieval
-								</span>
-								<span style={{ fontSize: '12px', color: '#6b7280' }}>
-									Automatically fetch worker token in the background without showing modals
-								</span>
-							</div>
-						</label>
-
-						<label
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '12px',
-								cursor: 'pointer',
-								userSelect: 'none',
-								padding: '8px',
-								borderRadius: '6px',
-								transition: 'background-color 0.2s ease',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.backgroundColor = '#f3f4f6';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.backgroundColor = 'transparent';
-							}}
-						>
-							<input
-								type="checkbox"
-								checked={showTokenAtEnd}
-								onChange={(e) => {
-									const newValue = e.target.checked;
-									setShowTokenAtEnd(newValue);
-									// Update config service immediately (no cache)
-									const config = MFAConfigurationServiceV8.loadConfiguration();
-									config.workerToken.showTokenAtEnd = newValue;
-									MFAConfigurationServiceV8.saveConfiguration(config);
-									// Dispatch event to notify other components
-									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
-									toastV8.info(`Show Token After Generation set to: ${newValue}`);
-								}}
-								style={{
-									width: '20px',
-									height: '20px',
-									cursor: 'pointer',
-									accentColor: '#6366f1',
-									flexShrink: 0,
-								}}
-							/>
-							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-								<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
-									Show Token After Generation
-								</span>
-								<span style={{ fontSize: '12px', color: '#6b7280' }}>
-									Display the generated worker token in a modal after successful retrieval
-								</span>
-							</div>
-						</label>
-					</div>
-				</div>
-
-				<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-					{/* Environment ID */}
-					<div>
-						<label
-							style={{
-								display: 'block',
-								marginBottom: '8px',
-								fontSize: '14px',
-								fontWeight: '500',
-								color: '#374151',
-							}}
-						>
-							Environment ID
-						</label>
-						<input
-							type="text"
-							value={credentials.environmentId}
-							onChange={(e) => {
-								const updated = { ...credentials, environmentId: e.target.value };
-								setCredentials(updated);
-								const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-									flowKey: FLOW_KEY,
-									flowType: 'oidc',
-									includeClientSecret: false,
-									includeRedirectUri: false,
-									includeLogoutUri: false,
-									includeScopes: false,
-								});
-								CredentialsServiceV8.saveCredentials(FLOW_KEY, {
-									...stored,
-									environmentId: e.target.value,
-								});
-							}}
-							placeholder="Enter environment ID"
-							style={{
-								width: '100%',
-								padding: '8px 12px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '14px',
-							}}
-						/>
-					</div>
-
-					{/* Username */}
-					<div>
-						<label
-							htmlFor={usernameInputId}
-							style={{
-								display: 'block',
-								marginBottom: '8px',
-								fontSize: '14px',
-								fontWeight: '500',
-								color: '#374151',
-							}}
-						>
-							Username
-						</label>
-						<input
-							id={usernameInputId}
-							type="text"
-							value={usernameInput}
-							onChange={(e) => {
-								const newUsername = e.target.value;
-								setUsernameInput(newUsername);
-								setCredentials((prev) => ({ ...prev, username: newUsername }));
-								const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-									flowKey: FLOW_KEY,
-									flowType: 'oidc',
-									includeClientSecret: false,
-									includeRedirectUri: false,
-									includeLogoutUri: false,
-									includeScopes: false,
-								});
-								CredentialsServiceV8.saveCredentials(FLOW_KEY, {
-									...stored,
-									username: newUsername,
-								});
-							}}
-							onKeyDown={(e) => {
-								if (e.key === 'Enter') {
-									handleStartMFA();
-								}
-							}}
-							placeholder="Enter username (e.g., user@example.com)"
-							style={{
-								width: '100%',
-								padding: '8px 12px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '14px',
-							}}
-						/>
-					</div>
-				</div>
-
-				{/* MFA Policy Selection - Second Row */}
-				<div style={{ marginTop: '20px' }}>
-					<label
-						htmlFor={policySelectId}
-						style={{
-							display: 'block',
-							marginBottom: '8px',
-							fontSize: '14px',
-							fontWeight: '500',
-							color: '#374151',
-						}}
-					>
-						Device Authentication Policy
-					</label>
-					{isLoadingPolicies ? (
-						<div style={{ padding: '8px 12px', color: '#6b7280', fontSize: '14px' }}>
-							<FiLoader style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }} />{' '}
-							Loading policies...
-						</div>
-					) : policiesError ? (
-						<div style={{ padding: '8px 12px', color: '#dc2626', fontSize: '14px' }}>
-							<FiAlertCircle /> {policiesError}
-						</div>
-					) : (
-						<select
-							id={policySelectId}
-							value={credentials.deviceAuthenticationPolicyId}
-							onChange={(e) => handlePolicySelect(e.target.value)}
-							disabled={!tokenStatus.isValid || deviceAuthPolicies.length === 0}
-							style={{
-								width: '100%',
-								padding: '8px 12px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '14px',
-								background: 'white',
-								cursor:
-									tokenStatus.isValid && deviceAuthPolicies.length > 0 ? 'pointer' : 'not-allowed',
-								opacity: !tokenStatus.isValid || deviceAuthPolicies.length === 0 ? 0.6 : 1,
-							}}
-						>
-							<option value="">
-								{!tokenStatus.isValid
-									? 'Get Worker Token first to load policies'
-									: deviceAuthPolicies.length === 0
-										? 'No policies available'
-										: 'Choose a policy...'}
-							</option>
-							{deviceAuthPolicies.map((policy) => (
-								<option key={policy.id} value={policy.id}>
-									{policy.name} {policy.default ? '(DEFAULT)' : ''}
-								</option>
-							))}
-						</select>
-					)}
-				</div>
-			</div>
-
-			{/* 3. Dashboard Features (Merged) */}
-			{/* Policy Summary */}
-			{credentials.deviceAuthenticationPolicyId && deviceAuthPolicies.length > 0 && (
-				<div
-					style={{
-						background: 'white',
-						borderRadius: '12px',
-						padding: '24px',
-						marginBottom: '24px',
-						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-						border: '1px solid #e5e7eb',
-					}}
-				>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-						<h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-							Active Device Authentication Policy
-						</h2>
-						<button
-							type="button"
-							onClick={() => setShowPolicyInfoModal(true)}
-							style={{
-								display: 'inline-flex',
-								alignItems: 'center',
-								gap: '4px',
-								padding: '4px 8px',
-								borderRadius: '4px',
-								background: '#eff6ff',
-								color: '#1e40af',
-								fontSize: '12px',
-								fontWeight: '500',
-								cursor: 'pointer',
-								transition: 'all 0.2s ease',
-								verticalAlign: 'middle',
-								marginLeft: '6px',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.background = '#dbeafe';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.background = '#eff6ff';
-							}}
-						>
-							<FiInfo size={14} />
-							<span>What is this?</span>
-						</button>
-					</div>
-					{(() => {
-						const selectedPolicy = deviceAuthPolicies.find(
-							(p) => p.id === credentials.deviceAuthenticationPolicyId
-						);
-						if (!selectedPolicy) return null;
-
-						const deviceSelection = selectedPolicy.authentication?.deviceSelection as
-							| string
-							| undefined;
-						const status = selectedPolicy.status as string | undefined;
-
-						return (
-							<div>
-								{/* Policy Name and Status */}
-								<div
+							>
+								{selectedPolicy.name}
+							</span>
+							{status && (
+								<span
 									style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: '12px',
-										marginBottom: '16px',
-										flexWrap: 'wrap',
+										background: status === 'ACTIVE' ? '#dcfce7' : '#fef3c7',
+										color: status === 'ACTIVE' ? '#166534' : '#92400e',
+										padding: '4px 12px',
+										borderRadius: '20px',
+										fontSize: '12px',
+										fontWeight: '500',
 									}}
 								>
-									<FiShield style={{ color: '#3b82f6', fontSize: '20px' }} />
-									<span
+									{status}
+								</span>
+							)}
+						</div>
+
+						{/* Policy Description */}
+						{selectedPolicy.description && (
+							<p
+								style={{
+									margin: '0 0 20px 0',
+									fontSize: '14px',
+									color: '#6b7280',
+									lineHeight: '1.6',
+								}}
+							>
+								{selectedPolicy.description}
+							</p>
+						)}
+
+						{/* Policy Details Grid */}
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+								gap: '16px',
+								marginTop: '20px',
+								padding: '16px',
+								background: '#f9fafb',
+								borderRadius: '8px',
+								border: '1px solid #e5e7eb',
+							}}
+						>
+							{/* Policy ID */}
+							<div>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginBottom: '4px',
+										fontWeight: '500',
+									}}
+								>
+									Policy ID
+								</div>
+								<div
+									style={{
+										fontSize: '13px',
+										color: '#1f2937',
+										fontFamily: 'monospace',
+										wordBreak: 'break-all',
+									}}
+								>
+									{selectedPolicy.id}
+								</div>
+							</div>
+
+							{/* Device Selection Behavior */}
+							{deviceSelection && (
+								<div>
+									<div
 										style={{
-											background: '#dcfce7',
-											color: '#166534',
-											padding: '4px 12px',
-											borderRadius: '20px',
-											fontSize: '14px',
+											display: 'flex',
+											alignItems: 'center',
+											gap: '8px',
+											marginBottom: '4px',
+										}}
+									>
+										<div style={{ fontSize: '12px', color: '#6b7280', fontWeight: '500' }}>
+											Device Selection
+										</div>
+										<button
+											type="button"
+											onClick={() => setShowDeviceSelectionInfoModal(true)}
+											style={{
+												display: 'inline-flex',
+												alignItems: 'center',
+												gap: '4px',
+												padding: '4px 8px',
+												borderRadius: '4px',
+												background: '#eff6ff',
+												color: '#1e40af',
+												fontSize: '12px',
+												fontWeight: '500',
+												cursor: 'pointer',
+												transition: 'all 0.2s ease',
+												verticalAlign: 'middle',
+												marginLeft: '6px',
+											}}
+											onMouseEnter={(e) => {
+												e.currentTarget.style.background = '#dbeafe';
+											}}
+											onMouseLeave={(e) => {
+												e.currentTarget.style.background = '#eff6ff';
+											}}
+										>
+											<FiInfo size={14} />
+											<span>What is this?</span>
+										</button>
+									</div>
+									<div style={{ fontSize: '13px', color: '#1f2937', fontWeight: '500' }}>
+										{deviceSelection.replace(/_/g, ' ')}
+									</div>
+								</div>
+							)}
+
+							{/* Status */}
+							{status && (
+								<div>
+									<div
+										style={{
+											fontSize: '12px',
+											color: '#6b7280',
+											marginBottom: '4px',
+											fontWeight: '500',
+										}}
+									>
+										Status
+									</div>
+									<div style={{ fontSize: '13px', color: '#1f2937', fontWeight: '500' }}>
+										{status}
+									</div>
+								</div>
+							)}
+
+							{/* Important Policy Settings - Highlighted */}
+							{(selectedPolicy.skipUserLockVerification !== undefined ||
+								selectedPolicy.pairingDisabled !== undefined ||
+								selectedPolicy.promptForNicknameOnPairing !== undefined) && (
+								<div style={{ gridColumn: '1 / -1', marginTop: '8px' }}>
+									<div
+										style={{
+											fontSize: '13px',
+											color: '#1f2937',
+											marginBottom: '12px',
 											fontWeight: '600',
 										}}
 									>
-										{selectedPolicy.name}
-									</span>
-									{status && (
-										<span
+										Important Policy Settings
+									</div>
+									<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+										{/* Skip User Lock Verification */}
+										{selectedPolicy.skipUserLockVerification !== undefined && (
+											<div
+												style={{
+													background: selectedPolicy.skipUserLockVerification
+														? '#fef3c7'
+														: '#dcfce7',
+													border: `2px solid ${selectedPolicy.skipUserLockVerification ? '#f59e0b' : '#10b981'}`,
+													borderRadius: '8px',
+													padding: '16px',
+												}}
+											>
+												<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+													<div style={{ flex: 1 }}>
+														<div
+															style={{
+																display: 'flex',
+																alignItems: 'center',
+																gap: '8px',
+																marginBottom: '8px',
+															}}
+														>
+															<span
+																style={{
+																	fontSize: '14px',
+																	fontWeight: '600',
+																	color: '#1f2937',
+																}}
+															>
+																{selectedPolicy.skipUserLockVerification
+																	? '⚠️ Skip User Lock Verification'
+																	: '✓ User Lock Verification Enabled'}
+															</span>
+															<MFAInfoButtonV8
+																contentKey="policy.skipUserLockVerification"
+																displayMode="tooltip"
+															/>
+														</div>
+														<div
+															style={{
+																fontSize: '13px',
+																color: '#374151',
+																lineHeight: '1.5',
+																marginBottom: '8px',
+															}}
+														>
+															{selectedPolicy.skipUserLockVerification ? (
+																<>
+																	<strong style={{ color: '#92400e' }}>Action:</strong> We will{' '}
+																	<strong>skip</strong> checking if the user account is locked
+																	before authentication. Locked accounts may be able to
+																	authenticate.
+																</>
+															) : (
+																<>
+																	<strong style={{ color: '#166534' }}>Action:</strong> We will{' '}
+																	<strong>check</strong> the user's lock status before
+																	authentication. If the account is locked, authentication will be
+																	blocked.
+																</>
+															)}
+														</div>
+														<div
+															style={{
+																fontSize: '12px',
+																color: '#6b7280',
+																fontStyle: 'italic',
+															}}
+														>
+															Value:{' '}
+															{selectedPolicy.skipUserLockVerification
+																? 'true (enabled)'
+																: 'false (disabled)'}
+														</div>
+													</div>
+												</div>
+											</div>
+										)}
+
+										{/* Pairing Disabled */}
+										{selectedPolicy.pairingDisabled !== undefined && (
+											<div
+												style={{
+													background: selectedPolicy.pairingDisabled ? '#fee2e2' : '#dcfce7',
+													border: `2px solid ${selectedPolicy.pairingDisabled ? '#ef4444' : '#10b981'}`,
+													borderRadius: '8px',
+													padding: '16px',
+												}}
+											>
+												<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+													<div style={{ flex: 1 }}>
+														<div
+															style={{
+																display: 'flex',
+																alignItems: 'center',
+																gap: '8px',
+																marginBottom: '8px',
+															}}
+														>
+															<span
+																style={{
+																	fontSize: '14px',
+																	fontWeight: '600',
+																	color: '#1f2937',
+																}}
+															>
+																{selectedPolicy.pairingDisabled
+																	? '🚫 Device Pairing Disabled'
+																	: '✓ Device Pairing Enabled'}
+															</span>
+															<MFAInfoButtonV8
+																contentKey="policy.pairingDisabled"
+																displayMode="tooltip"
+															/>
+														</div>
+														<div
+															style={{
+																fontSize: '13px',
+																color: '#374151',
+																lineHeight: '1.5',
+																marginBottom: '8px',
+															}}
+														>
+															{selectedPolicy.pairingDisabled ? (
+																<>
+																	<strong style={{ color: '#991b1b' }}>Action:</strong> Device
+																	pairing/registration is <strong>disabled</strong>. Users cannot
+																	register new MFA devices with this policy.
+																</>
+															) : (
+																<>
+																	<strong style={{ color: '#166534' }}>Action:</strong> Device
+																	pairing/registration is <strong>enabled</strong>. Users can
+																	register new MFA devices.
+																</>
+															)}
+														</div>
+														<div
+															style={{
+																fontSize: '12px',
+																color: '#6b7280',
+																fontStyle: 'italic',
+															}}
+														>
+															Value:{' '}
+															{selectedPolicy.pairingDisabled
+																? 'true (disabled)'
+																: 'false (enabled)'}
+														</div>
+													</div>
+												</div>
+											</div>
+										)}
+
+										{/* Prompt for Nickname on Pairing */}
+										{selectedPolicy.promptForNicknameOnPairing !== undefined && (
+											<div
+												style={{
+													background: selectedPolicy.promptForNicknameOnPairing
+														? '#eff6ff'
+														: '#f3f4f6',
+													border: `2px solid ${selectedPolicy.promptForNicknameOnPairing ? '#3b82f6' : '#9ca3af'}`,
+													borderRadius: '8px',
+													padding: '16px',
+												}}
+											>
+												<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+													<div style={{ flex: 1 }}>
+														<div
+															style={{
+																display: 'flex',
+																alignItems: 'center',
+																gap: '8px',
+																marginBottom: '8px',
+															}}
+														>
+															<span
+																style={{
+																	fontSize: '14px',
+																	fontWeight: '600',
+																	color: '#1f2937',
+																}}
+															>
+																{selectedPolicy.promptForNicknameOnPairing
+																	? '✏️ Prompt for Nickname'
+																	: '✓ Auto Nickname'}
+															</span>
+															<MFAInfoButtonV8
+																contentKey="policy.promptForNicknameOnPairing"
+																displayMode="tooltip"
+															/>
+														</div>
+														<div
+															style={{
+																fontSize: '13px',
+																color: '#374151',
+																lineHeight: '1.5',
+																marginBottom: '8px',
+															}}
+														>
+															{selectedPolicy.promptForNicknameOnPairing ? (
+																<>
+																	<strong style={{ color: '#1e40af' }}>Action:</strong> After
+																	successful device pairing, we will{' '}
+																	<strong>prompt the user</strong> to enter a custom nickname for
+																	their device.
+																</>
+															) : (
+																<>
+																	<strong style={{ color: '#4b5563' }}>Action:</strong> Device
+																	nickname will be set <strong>automatically</strong> without
+																	prompting the user.
+																</>
+															)}
+														</div>
+														<div
+															style={{
+																fontSize: '12px',
+																color: '#6b7280',
+																fontStyle: 'italic',
+															}}
+														>
+															Value:{' '}
+															{selectedPolicy.promptForNicknameOnPairing
+																? 'true (prompt enabled)'
+																: 'false (auto nickname)'}
+														</div>
+													</div>
+												</div>
+											</div>
+										)}
+									</div>
+								</div>
+							)}
+
+							{/* Additional Policy Properties */}
+							{selectedPolicy.authentication &&
+								Object.keys(selectedPolicy.authentication).length > 0 && (
+									<div style={{ gridColumn: '1 / -1' }}>
+										<div
 											style={{
-												background: status === 'ACTIVE' ? '#dcfce7' : '#fef3c7',
-												color: status === 'ACTIVE' ? '#166534' : '#92400e',
-												padding: '4px 12px',
-												borderRadius: '20px',
 												fontSize: '12px',
+												color: '#6b7280',
+												marginBottom: '8px',
 												fontWeight: '500',
 											}}
 										>
-											{status}
-										</span>
-									)}
-								</div>
+											Authentication Settings
+										</div>
+										<div
+											style={{
+												background: 'white',
+												padding: '12px',
+												borderRadius: '6px',
+												border: '1px solid #e5e7eb',
+											}}
+										>
+											<pre
+												style={{
+													margin: 0,
+													fontSize: '12px',
+													color: '#1f2937',
+													fontFamily: 'monospace',
+													whiteSpace: 'pre-wrap',
+													wordBreak: 'break-word',
+												}}
+											>
+												{JSON.stringify(selectedPolicy.authentication, null, 2)}
+											</pre>
+										</div>
+									</div>
+								)}
+						</div>
+					</div>
+				);
+			})()}
+		</div>
+	);
+}
 
-								{/* Policy Description */}
-								{selectedPolicy.description && (
-									<p
+{
+	/* Authentication Session Details */
+}
+{
+	(authState.authenticationId || authState.userId || authState.selectedDeviceId) && (
+		<div
+			style={{
+				background: 'white',
+				borderRadius: '12px',
+				padding: '24px',
+				marginBottom: '24px',
+				boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+				border: '1px solid #e5e7eb',
+			}}
+		>
+			<h2 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+				Authentication Session Details
+			</h2>
+
+			<div
+				style={{
+					display: 'grid',
+					gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+					gap: '20px',
+				}}
+			>
+				{/* User ID */}
+				{authState.userId && (
+					<div>
+						<div
+							style={{
+								fontSize: '12px',
+								color: '#6b7280',
+								marginBottom: '6px',
+								fontWeight: '500',
+							}}
+						>
+							User ID
+						</div>
+						<div
+							style={{
+								fontSize: '14px',
+								color: '#1f2937',
+								fontFamily: 'monospace',
+								wordBreak: 'break-all',
+								padding: '8px 12px',
+								background: '#f9fafb',
+								borderRadius: '6px',
+								border: '1px solid #e5e7eb',
+							}}
+						>
+							{authState.userId}
+						</div>
+					</div>
+				)}
+
+				{/* Username */}
+				{usernameInput.trim() && (
+					<div>
+						<div
+							style={{
+								fontSize: '12px',
+								color: '#6b7280',
+								marginBottom: '6px',
+								fontWeight: '500',
+							}}
+						>
+							Username
+						</div>
+						<div
+							style={{
+								fontSize: '14px',
+								color: '#1f2937',
+								padding: '8px 12px',
+								background: '#f9fafb',
+								borderRadius: '6px',
+								border: '1px solid #e5e7eb',
+							}}
+						>
+							{usernameInput.trim()}
+						</div>
+					</div>
+				)}
+
+				{/* Authentication ID */}
+				{authState.authenticationId && (
+					<div>
+						<div
+							style={{
+								fontSize: '12px',
+								color: '#6b7280',
+								marginBottom: '6px',
+								fontWeight: '500',
+							}}
+						>
+							Authentication ID
+						</div>
+						<div
+							style={{
+								fontSize: '14px',
+								color: '#1f2937',
+								fontFamily: 'monospace',
+								wordBreak: 'break-all',
+								padding: '8px 12px',
+								background: '#f9fafb',
+								borderRadius: '6px',
+								border: '1px solid #e5e7eb',
+							}}
+						>
+							{authState.authenticationId}
+						</div>
+					</div>
+				)}
+
+				{/* Status */}
+				{authState.status && (
+					<div>
+						<div
+							style={{
+								fontSize: '12px',
+								color: '#6b7280',
+								marginBottom: '6px',
+								fontWeight: '500',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '6px',
+							}}
+						>
+							Status
+							{(() => {
+								// Map status to education content key
+								const statusKeyMap: Record<string, string> = {
+									OTP_REQUIRED: 'flow.otp_required',
+									DEVICE_SELECTION_REQUIRED: 'flow.device_selection_required',
+									ASSERTION_REQUIRED: 'flow.assertion_required',
+									PUSH_CONFIRMATION_REQUIRED: 'flow.push_confirmation_required',
+									PUSH_CONFIRMATION_TIMED_OUT: 'flow.push_confirmation_timed_out',
+								};
+								const contentKey = statusKeyMap[authState.status];
+								if (contentKey) {
+									return <MFAInfoButtonV8 contentKey={contentKey} displayMode="tooltip" />;
+								}
+								return null;
+							})()}
+						</div>
+						<div
+							style={{
+								fontSize: '14px',
+								color: '#1f2937',
+								padding: '8px 12px',
+								background: authState.status === 'COMPLETED' ? '#dcfce7' : '#fef3c7',
+								borderRadius: '6px',
+								border: `1px solid ${authState.status === 'COMPLETED' ? '#86efac' : '#fbbf24'}`,
+								fontWeight: '500',
+							}}
+						>
+							{authState.status.replace(/_/g, ' ')}
+						</div>
+					</div>
+				)}
+
+				{/* Next Step */}
+				{authState.nextStep && (
+					<div>
+						<div
+							style={{
+								fontSize: '12px',
+								color: '#6b7280',
+								marginBottom: '6px',
+								fontWeight: '500',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '6px',
+							}}
+						>
+							Next Step
+							{(() => {
+								// Map nextStep to education content key
+								const stepKeyMap: Record<string, string> = {
+									OTP_REQUIRED: 'flow.otp_required',
+									DEVICE_SELECTION_REQUIRED: 'flow.device_selection_required',
+									SELECTION_REQUIRED: 'flow.device_selection_required',
+									ASSERTION_REQUIRED: 'flow.assertion_required',
+									PUSH_CONFIRMATION_REQUIRED: 'flow.push_confirmation_required',
+									PUSH_CONFIRMATION_TIMED_OUT: 'flow.push_confirmation_timed_out',
+								};
+								const contentKey = stepKeyMap[authState.nextStep];
+								if (contentKey) {
+									return <MFAInfoButtonV8 contentKey={contentKey} displayMode="tooltip" />;
+								}
+								return null;
+							})()}
+						</div>
+						<div
+							style={{
+								fontSize: '14px',
+								color: '#1f2937',
+								padding: '8px 12px',
+								background: '#eff6ff',
+								borderRadius: '6px',
+								border: '1px solid #93c5fd',
+								fontWeight: '500',
+							}}
+						>
+							{authState.nextStep.replace(/_/g, ' ')}
+						</div>
+					</div>
+				)}
+
+				{/* Policy Used */}
+				{credentials.deviceAuthenticationPolicyId && (
+					<div>
+						<div
+							style={{
+								fontSize: '12px',
+								color: '#6b7280',
+								marginBottom: '6px',
+								fontWeight: '500',
+							}}
+						>
+							Policy Used
+						</div>
+						<div
+							style={{
+								fontSize: '14px',
+								color: '#1f2937',
+								padding: '8px 12px',
+								background: '#f9fafb',
+								borderRadius: '6px',
+								border: '1px solid #e5e7eb',
+							}}
+						>
+							{deviceAuthPolicies.find((p) => p.id === credentials.deviceAuthenticationPolicyId)
+								?.name || credentials.deviceAuthenticationPolicyId}
+						</div>
+					</div>
+				)}
+			</div>
+
+			{/* Selected Device Details */}
+			{authState.selectedDeviceId && authState.devices.length > 0 && (
+				<div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #e5e7eb' }}>
+					<h3
+						style={{
+							margin: '0 0 16px 0',
+							fontSize: '16px',
+							fontWeight: '600',
+							color: '#1f2937',
+						}}
+					>
+						Selected Device
+					</h3>
+					{(() => {
+						const selectedDevice = authState.devices.find(
+							(d) => d.id === authState.selectedDeviceId
+						);
+						if (!selectedDevice) return null;
+
+						return (
+							<div
+								style={{
+									display: 'grid',
+									gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+									gap: '16px',
+									padding: '16px',
+									background: '#f9fafb',
+									borderRadius: '8px',
+									border: '1px solid #e5e7eb',
+								}}
+							>
+								<div>
+									<div
 										style={{
-											margin: '0 0 20px 0',
-											fontSize: '14px',
+											fontSize: '12px',
 											color: '#6b7280',
-											lineHeight: '1.6',
+											marginBottom: '4px',
+											fontWeight: '500',
 										}}
 									>
-										{selectedPolicy.description}
-									</p>
-								)}
-
-								{/* Policy Details Grid */}
-								<div
-									style={{
-										display: 'grid',
-										gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-										gap: '16px',
-										marginTop: '20px',
-										padding: '16px',
-										background: '#f9fafb',
-										borderRadius: '8px',
-										border: '1px solid #e5e7eb',
-									}}
-								>
-									{/* Policy ID */}
+										Device ID
+									</div>
+									<div
+										style={{
+											fontSize: '13px',
+											color: '#1f2937',
+											fontFamily: 'monospace',
+											wordBreak: 'break-all',
+										}}
+									>
+										{selectedDevice.id}
+									</div>
+								</div>
+								<div>
+									<div
+										style={{
+											fontSize: '12px',
+											color: '#6b7280',
+											marginBottom: '4px',
+											fontWeight: '500',
+										}}
+									>
+										Device Type
+									</div>
+									<div style={{ fontSize: '13px', color: '#1f2937', fontWeight: '500' }}>
+										{selectedDevice.type}
+									</div>
+								</div>
+								<div>
+									<div
+										style={{
+											fontSize: '12px',
+											color: '#6b7280',
+											marginBottom: '4px',
+											fontWeight: '500',
+										}}
+									>
+										Device Name
+									</div>
+									<div style={{ fontSize: '13px', color: '#1f2937', fontWeight: '500' }}>
+										{selectedDevice.nickname || selectedDevice.name || 'Unnamed'}
+									</div>
+								</div>
+								{selectedDevice.phone && (
 									<div>
 										<div
 											style={{
@@ -2229,847 +2985,139 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												fontWeight: '500',
 											}}
 										>
-											Policy ID
+											Phone
+										</div>
+										<div style={{ fontSize: '13px', color: '#1f2937' }}>{selectedDevice.phone}</div>
+									</div>
+								)}
+								{selectedDevice.email && (
+									<div>
+										<div
+											style={{
+												fontSize: '12px',
+												color: '#6b7280',
+												marginBottom: '4px',
+												fontWeight: '500',
+											}}
+										>
+											Email
+										</div>
+										<div style={{ fontSize: '13px', color: '#1f2937' }}>{selectedDevice.email}</div>
+									</div>
+								)}
+								{selectedDevice.status && (
+									<div>
+										<div
+											style={{
+												fontSize: '12px',
+												color: '#6b7280',
+												marginBottom: '4px',
+												fontWeight: '500',
+											}}
+										>
+											Status
 										</div>
 										<div
 											style={{
 												fontSize: '13px',
-												color: '#1f2937',
-												fontFamily: 'monospace',
-												wordBreak: 'break-all',
+												color: selectedDevice.status === 'ACTIVE' ? '#166534' : '#92400e',
+												fontWeight: '500',
 											}}
 										>
-											{selectedPolicy.id}
+											{selectedDevice.status}
 										</div>
 									</div>
-
-									{/* Device Selection Behavior */}
-									{deviceSelection && (
-										<div>
-											<div
-												style={{
-													display: 'flex',
-													alignItems: 'center',
-													gap: '8px',
-													marginBottom: '4px',
-												}}
-											>
-												<div style={{ fontSize: '12px', color: '#6b7280', fontWeight: '500' }}>
-													Device Selection
-												</div>
-												<button
-													type="button"
-													onClick={() => setShowDeviceSelectionInfoModal(true)}
-													style={{
-														display: 'inline-flex',
-														alignItems: 'center',
-														gap: '4px',
-														padding: '4px 8px',
-														borderRadius: '4px',
-														background: '#eff6ff',
-														color: '#1e40af',
-														fontSize: '12px',
-														fontWeight: '500',
-														cursor: 'pointer',
-														transition: 'all 0.2s ease',
-														verticalAlign: 'middle',
-														marginLeft: '6px',
-													}}
-													onMouseEnter={(e) => {
-														e.currentTarget.style.background = '#dbeafe';
-													}}
-													onMouseLeave={(e) => {
-														e.currentTarget.style.background = '#eff6ff';
-													}}
-												>
-													<FiInfo size={14} />
-													<span>What is this?</span>
-												</button>
-											</div>
-											<div style={{ fontSize: '13px', color: '#1f2937', fontWeight: '500' }}>
-												{deviceSelection.replace(/_/g, ' ')}
-											</div>
-										</div>
-									)}
-
-									{/* Status */}
-									{status && (
-										<div>
-											<div
-												style={{
-													fontSize: '12px',
-													color: '#6b7280',
-													marginBottom: '4px',
-													fontWeight: '500',
-												}}
-											>
-												Status
-											</div>
-											<div style={{ fontSize: '13px', color: '#1f2937', fontWeight: '500' }}>
-												{status}
-											</div>
-										</div>
-									)}
-
-									{/* Important Policy Settings - Highlighted */}
-									{(selectedPolicy.skipUserLockVerification !== undefined ||
-										selectedPolicy.pairingDisabled !== undefined ||
-										selectedPolicy.promptForNicknameOnPairing !== undefined) && (
-										<div style={{ gridColumn: '1 / -1', marginTop: '8px' }}>
-											<div
-												style={{
-													fontSize: '13px',
-													color: '#1f2937',
-													marginBottom: '12px',
-													fontWeight: '600',
-												}}
-											>
-												Important Policy Settings
-											</div>
-											<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-												{/* Skip User Lock Verification */}
-												{selectedPolicy.skipUserLockVerification !== undefined && (
-													<div
-														style={{
-															background: selectedPolicy.skipUserLockVerification
-																? '#fef3c7'
-																: '#dcfce7',
-															border: `2px solid ${selectedPolicy.skipUserLockVerification ? '#f59e0b' : '#10b981'}`,
-															borderRadius: '8px',
-															padding: '16px',
-														}}
-													>
-														<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-															<div style={{ flex: 1 }}>
-																<div
-																	style={{
-																		display: 'flex',
-																		alignItems: 'center',
-																		gap: '8px',
-																		marginBottom: '8px',
-																	}}
-																>
-																	<span
-																		style={{
-																			fontSize: '14px',
-																			fontWeight: '600',
-																			color: '#1f2937',
-																		}}
-																	>
-																		{selectedPolicy.skipUserLockVerification
-																			? '⚠️ Skip User Lock Verification'
-																			: '✓ User Lock Verification Enabled'}
-																	</span>
-																	<MFAInfoButtonV8
-																		contentKey="policy.skipUserLockVerification"
-																		displayMode="tooltip"
-																	/>
-																</div>
-																<div
-																	style={{
-																		fontSize: '13px',
-																		color: '#374151',
-																		lineHeight: '1.5',
-																		marginBottom: '8px',
-																	}}
-																>
-																	{selectedPolicy.skipUserLockVerification ? (
-																		<>
-																			<strong style={{ color: '#92400e' }}>Action:</strong> We will{' '}
-																			<strong>skip</strong> checking if the user account is locked
-																			before authentication. Locked accounts may be able to
-																			authenticate.
-																		</>
-																	) : (
-																		<>
-																			<strong style={{ color: '#166534' }}>Action:</strong> We will{' '}
-																			<strong>check</strong> the user's lock status before
-																			authentication. If the account is locked, authentication will
-																			be blocked.
-																		</>
-																	)}
-																</div>
-																<div
-																	style={{
-																		fontSize: '12px',
-																		color: '#6b7280',
-																		fontStyle: 'italic',
-																	}}
-																>
-																	Value:{' '}
-																	{selectedPolicy.skipUserLockVerification
-																		? 'true (enabled)'
-																		: 'false (disabled)'}
-																</div>
-															</div>
-														</div>
-													</div>
-												)}
-
-												{/* Pairing Disabled */}
-												{selectedPolicy.pairingDisabled !== undefined && (
-													<div
-														style={{
-															background: selectedPolicy.pairingDisabled ? '#fee2e2' : '#dcfce7',
-															border: `2px solid ${selectedPolicy.pairingDisabled ? '#ef4444' : '#10b981'}`,
-															borderRadius: '8px',
-															padding: '16px',
-														}}
-													>
-														<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-															<div style={{ flex: 1 }}>
-																<div
-																	style={{
-																		display: 'flex',
-																		alignItems: 'center',
-																		gap: '8px',
-																		marginBottom: '8px',
-																	}}
-																>
-																	<span
-																		style={{
-																			fontSize: '14px',
-																			fontWeight: '600',
-																			color: '#1f2937',
-																		}}
-																	>
-																		{selectedPolicy.pairingDisabled
-																			? '🚫 Device Pairing Disabled'
-																			: '✓ Device Pairing Enabled'}
-																	</span>
-																	<MFAInfoButtonV8
-																		contentKey="policy.pairingDisabled"
-																		displayMode="tooltip"
-																	/>
-																</div>
-																<div
-																	style={{
-																		fontSize: '13px',
-																		color: '#374151',
-																		lineHeight: '1.5',
-																		marginBottom: '8px',
-																	}}
-																>
-																	{selectedPolicy.pairingDisabled ? (
-																		<>
-																			<strong style={{ color: '#991b1b' }}>Action:</strong> Device
-																			pairing/registration is <strong>disabled</strong>. Users
-																			cannot register new MFA devices with this policy.
-																		</>
-																	) : (
-																		<>
-																			<strong style={{ color: '#166534' }}>Action:</strong> Device
-																			pairing/registration is <strong>enabled</strong>. Users can
-																			register new MFA devices.
-																		</>
-																	)}
-																</div>
-																<div
-																	style={{
-																		fontSize: '12px',
-																		color: '#6b7280',
-																		fontStyle: 'italic',
-																	}}
-																>
-																	Value:{' '}
-																	{selectedPolicy.pairingDisabled
-																		? 'true (disabled)'
-																		: 'false (enabled)'}
-																</div>
-															</div>
-														</div>
-													</div>
-												)}
-
-												{/* Prompt for Nickname on Pairing */}
-												{selectedPolicy.promptForNicknameOnPairing !== undefined && (
-													<div
-														style={{
-															background: selectedPolicy.promptForNicknameOnPairing
-																? '#eff6ff'
-																: '#f3f4f6',
-															border: `2px solid ${selectedPolicy.promptForNicknameOnPairing ? '#3b82f6' : '#9ca3af'}`,
-															borderRadius: '8px',
-															padding: '16px',
-														}}
-													>
-														<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-															<div style={{ flex: 1 }}>
-																<div
-																	style={{
-																		display: 'flex',
-																		alignItems: 'center',
-																		gap: '8px',
-																		marginBottom: '8px',
-																	}}
-																>
-																	<span
-																		style={{
-																			fontSize: '14px',
-																			fontWeight: '600',
-																			color: '#1f2937',
-																		}}
-																	>
-																		{selectedPolicy.promptForNicknameOnPairing
-																			? '✏️ Prompt for Nickname'
-																			: '✓ Auto Nickname'}
-																	</span>
-																	<MFAInfoButtonV8
-																		contentKey="policy.promptForNicknameOnPairing"
-																		displayMode="tooltip"
-																	/>
-																</div>
-																<div
-																	style={{
-																		fontSize: '13px',
-																		color: '#374151',
-																		lineHeight: '1.5',
-																		marginBottom: '8px',
-																	}}
-																>
-																	{selectedPolicy.promptForNicknameOnPairing ? (
-																		<>
-																			<strong style={{ color: '#1e40af' }}>Action:</strong> After
-																			successful device pairing, we will{' '}
-																			<strong>prompt the user</strong> to enter a custom nickname
-																			for their device.
-																		</>
-																	) : (
-																		<>
-																			<strong style={{ color: '#4b5563' }}>Action:</strong> Device
-																			nickname will be set <strong>automatically</strong> without
-																			prompting the user.
-																		</>
-																	)}
-																</div>
-																<div
-																	style={{
-																		fontSize: '12px',
-																		color: '#6b7280',
-																		fontStyle: 'italic',
-																	}}
-																>
-																	Value:{' '}
-																	{selectedPolicy.promptForNicknameOnPairing
-																		? 'true (prompt enabled)'
-																		: 'false (auto nickname)'}
-																</div>
-															</div>
-														</div>
-													</div>
-												)}
-											</div>
-										</div>
-									)}
-
-									{/* Additional Policy Properties */}
-									{selectedPolicy.authentication &&
-										Object.keys(selectedPolicy.authentication).length > 0 && (
-											<div style={{ gridColumn: '1 / -1' }}>
-												<div
-													style={{
-														fontSize: '12px',
-														color: '#6b7280',
-														marginBottom: '8px',
-														fontWeight: '500',
-													}}
-												>
-													Authentication Settings
-												</div>
-												<div
-													style={{
-														background: 'white',
-														padding: '12px',
-														borderRadius: '6px',
-														border: '1px solid #e5e7eb',
-													}}
-												>
-													<pre
-														style={{
-															margin: 0,
-															fontSize: '12px',
-															color: '#1f2937',
-															fontFamily: 'monospace',
-															whiteSpace: 'pre-wrap',
-															wordBreak: 'break-word',
-														}}
-													>
-														{JSON.stringify(selectedPolicy.authentication, null, 2)}
-													</pre>
-												</div>
-											</div>
-										)}
-								</div>
+								)}
 							</div>
 						);
 					})()}
 				</div>
 			)}
 
-			{/* Authentication Session Details */}
-			{(authState.authenticationId || authState.userId || authState.selectedDeviceId) && (
-				<div
-					style={{
-						background: 'white',
-						borderRadius: '12px',
-						padding: '24px',
-						marginBottom: '24px',
-						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-						border: '1px solid #e5e7eb',
-					}}
-				>
-					<h2
-						style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}
-					>
-						Authentication Session Details
-					</h2>
-
+			{/* Challenge ID (if available) */}
+			{authState.challengeId && (
+				<div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
 					<div
 						style={{
-							display: 'grid',
-							gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-							gap: '20px',
+							fontSize: '12px',
+							color: '#6b7280',
+							marginBottom: '6px',
+							fontWeight: '500',
 						}}
 					>
-						{/* User ID */}
-						{authState.userId && (
-							<div>
-								<div
-									style={{
-										fontSize: '12px',
-										color: '#6b7280',
-										marginBottom: '6px',
-										fontWeight: '500',
-									}}
-								>
-									User ID
-								</div>
-								<div
-									style={{
-										fontSize: '14px',
-										color: '#1f2937',
-										fontFamily: 'monospace',
-										wordBreak: 'break-all',
-										padding: '8px 12px',
-										background: '#f9fafb',
-										borderRadius: '6px',
-										border: '1px solid #e5e7eb',
-									}}
-								>
-									{authState.userId}
-								</div>
-							</div>
-						)}
-
-						{/* Username */}
-						{usernameInput.trim() && (
-							<div>
-								<div
-									style={{
-										fontSize: '12px',
-										color: '#6b7280',
-										marginBottom: '6px',
-										fontWeight: '500',
-									}}
-								>
-									Username
-								</div>
-								<div
-									style={{
-										fontSize: '14px',
-										color: '#1f2937',
-										padding: '8px 12px',
-										background: '#f9fafb',
-										borderRadius: '6px',
-										border: '1px solid #e5e7eb',
-									}}
-								>
-									{usernameInput.trim()}
-								</div>
-							</div>
-						)}
-
-						{/* Authentication ID */}
-						{authState.authenticationId && (
-							<div>
-								<div
-									style={{
-										fontSize: '12px',
-										color: '#6b7280',
-										marginBottom: '6px',
-										fontWeight: '500',
-									}}
-								>
-									Authentication ID
-								</div>
-								<div
-									style={{
-										fontSize: '14px',
-										color: '#1f2937',
-										fontFamily: 'monospace',
-										wordBreak: 'break-all',
-										padding: '8px 12px',
-										background: '#f9fafb',
-										borderRadius: '6px',
-										border: '1px solid #e5e7eb',
-									}}
-								>
-									{authState.authenticationId}
-								</div>
-							</div>
-						)}
-
-						{/* Status */}
-						{authState.status && (
-							<div>
-								<div
-									style={{
-										fontSize: '12px',
-										color: '#6b7280',
-										marginBottom: '6px',
-										fontWeight: '500',
-										display: 'flex',
-										alignItems: 'center',
-										gap: '6px',
-									}}
-								>
-									Status
-									{(() => {
-										// Map status to education content key
-										const statusKeyMap: Record<string, string> = {
-											OTP_REQUIRED: 'flow.otp_required',
-											DEVICE_SELECTION_REQUIRED: 'flow.device_selection_required',
-											ASSERTION_REQUIRED: 'flow.assertion_required',
-											PUSH_CONFIRMATION_REQUIRED: 'flow.push_confirmation_required',
-											PUSH_CONFIRMATION_TIMED_OUT: 'flow.push_confirmation_timed_out',
-										};
-										const contentKey = statusKeyMap[authState.status];
-										if (contentKey) {
-											return <MFAInfoButtonV8 contentKey={contentKey} displayMode="tooltip" />;
-										}
-										return null;
-									})()}
-								</div>
-								<div
-									style={{
-										fontSize: '14px',
-										color: '#1f2937',
-										padding: '8px 12px',
-										background: authState.status === 'COMPLETED' ? '#dcfce7' : '#fef3c7',
-										borderRadius: '6px',
-										border: `1px solid ${authState.status === 'COMPLETED' ? '#86efac' : '#fbbf24'}`,
-										fontWeight: '500',
-									}}
-								>
-									{authState.status.replace(/_/g, ' ')}
-								</div>
-							</div>
-						)}
-
-						{/* Next Step */}
-						{authState.nextStep && (
-							<div>
-								<div
-									style={{
-										fontSize: '12px',
-										color: '#6b7280',
-										marginBottom: '6px',
-										fontWeight: '500',
-										display: 'flex',
-										alignItems: 'center',
-										gap: '6px',
-									}}
-								>
-									Next Step
-									{(() => {
-										// Map nextStep to education content key
-										const stepKeyMap: Record<string, string> = {
-											OTP_REQUIRED: 'flow.otp_required',
-											DEVICE_SELECTION_REQUIRED: 'flow.device_selection_required',
-											SELECTION_REQUIRED: 'flow.device_selection_required',
-											ASSERTION_REQUIRED: 'flow.assertion_required',
-											PUSH_CONFIRMATION_REQUIRED: 'flow.push_confirmation_required',
-											PUSH_CONFIRMATION_TIMED_OUT: 'flow.push_confirmation_timed_out',
-										};
-										const contentKey = stepKeyMap[authState.nextStep];
-										if (contentKey) {
-											return <MFAInfoButtonV8 contentKey={contentKey} displayMode="tooltip" />;
-										}
-										return null;
-									})()}
-								</div>
-								<div
-									style={{
-										fontSize: '14px',
-										color: '#1f2937',
-										padding: '8px 12px',
-										background: '#eff6ff',
-										borderRadius: '6px',
-										border: '1px solid #93c5fd',
-										fontWeight: '500',
-									}}
-								>
-									{authState.nextStep.replace(/_/g, ' ')}
-								</div>
-							</div>
-						)}
-
-						{/* Policy Used */}
-						{credentials.deviceAuthenticationPolicyId && (
-							<div>
-								<div
-									style={{
-										fontSize: '12px',
-										color: '#6b7280',
-										marginBottom: '6px',
-										fontWeight: '500',
-									}}
-								>
-									Policy Used
-								</div>
-								<div
-									style={{
-										fontSize: '14px',
-										color: '#1f2937',
-										padding: '8px 12px',
-										background: '#f9fafb',
-										borderRadius: '6px',
-										border: '1px solid #e5e7eb',
-									}}
-								>
-									{deviceAuthPolicies.find((p) => p.id === credentials.deviceAuthenticationPolicyId)
-										?.name || credentials.deviceAuthenticationPolicyId}
-								</div>
-							</div>
-						)}
+						Challenge ID
 					</div>
-
-					{/* Selected Device Details */}
-					{authState.selectedDeviceId && authState.devices.length > 0 && (
-						<div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #e5e7eb' }}>
-							<h3
-								style={{
-									margin: '0 0 16px 0',
-									fontSize: '16px',
-									fontWeight: '600',
-									color: '#1f2937',
-								}}
-							>
-								Selected Device
-							</h3>
-							{(() => {
-								const selectedDevice = authState.devices.find(
-									(d) => d.id === authState.selectedDeviceId
-								);
-								if (!selectedDevice) return null;
-
-								return (
-									<div
-										style={{
-											display: 'grid',
-											gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-											gap: '16px',
-											padding: '16px',
-											background: '#f9fafb',
-											borderRadius: '8px',
-											border: '1px solid #e5e7eb',
-										}}
-									>
-										<div>
-											<div
-												style={{
-													fontSize: '12px',
-													color: '#6b7280',
-													marginBottom: '4px',
-													fontWeight: '500',
-												}}
-											>
-												Device ID
-											</div>
-											<div
-												style={{
-													fontSize: '13px',
-													color: '#1f2937',
-													fontFamily: 'monospace',
-													wordBreak: 'break-all',
-												}}
-											>
-												{selectedDevice.id}
-											</div>
-										</div>
-										<div>
-											<div
-												style={{
-													fontSize: '12px',
-													color: '#6b7280',
-													marginBottom: '4px',
-													fontWeight: '500',
-												}}
-											>
-												Device Type
-											</div>
-											<div style={{ fontSize: '13px', color: '#1f2937', fontWeight: '500' }}>
-												{selectedDevice.type}
-											</div>
-										</div>
-										<div>
-											<div
-												style={{
-													fontSize: '12px',
-													color: '#6b7280',
-													marginBottom: '4px',
-													fontWeight: '500',
-												}}
-											>
-												Device Name
-											</div>
-											<div style={{ fontSize: '13px', color: '#1f2937', fontWeight: '500' }}>
-												{selectedDevice.nickname || selectedDevice.name || 'Unnamed'}
-											</div>
-										</div>
-										{selectedDevice.phone && (
-											<div>
-												<div
-													style={{
-														fontSize: '12px',
-														color: '#6b7280',
-														marginBottom: '4px',
-														fontWeight: '500',
-													}}
-												>
-													Phone
-												</div>
-												<div style={{ fontSize: '13px', color: '#1f2937' }}>
-													{selectedDevice.phone}
-												</div>
-											</div>
-										)}
-										{selectedDevice.email && (
-											<div>
-												<div
-													style={{
-														fontSize: '12px',
-														color: '#6b7280',
-														marginBottom: '4px',
-														fontWeight: '500',
-													}}
-												>
-													Email
-												</div>
-												<div style={{ fontSize: '13px', color: '#1f2937' }}>
-													{selectedDevice.email}
-												</div>
-											</div>
-										)}
-										{selectedDevice.status && (
-											<div>
-												<div
-													style={{
-														fontSize: '12px',
-														color: '#6b7280',
-														marginBottom: '4px',
-														fontWeight: '500',
-													}}
-												>
-													Status
-												</div>
-												<div
-													style={{
-														fontSize: '13px',
-														color: selectedDevice.status === 'ACTIVE' ? '#166534' : '#92400e',
-														fontWeight: '500',
-													}}
-												>
-													{selectedDevice.status}
-												</div>
-											</div>
-										)}
-									</div>
-								);
-							})()}
-						</div>
-					)}
-
-					{/* Challenge ID (if available) */}
-					{authState.challengeId && (
-						<div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
-							<div
-								style={{
-									fontSize: '12px',
-									color: '#6b7280',
-									marginBottom: '6px',
-									fontWeight: '500',
-								}}
-							>
-								Challenge ID
-							</div>
-							<div
-								style={{
-									fontSize: '13px',
-									color: '#1f2937',
-									fontFamily: 'monospace',
-									wordBreak: 'break-all',
-									padding: '8px 12px',
-									background: '#f9fafb',
-									borderRadius: '6px',
-									border: '1px solid #e5e7eb',
-								}}
-							>
-								{authState.challengeId}
-							</div>
-						</div>
-					)}
-				</div>
-			)}
-
-			{/* Device List */}
-			{usernameInput.trim() && credentials.environmentId && tokenStatus.isValid && (
-				<div
-					style={{
-						background: 'white',
-						borderRadius: '12px',
-						padding: '24px',
-						marginBottom: '24px',
-						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-						border: '1px solid #e5e7eb',
-					}}
-				>
 					<div
 						style={{
-							display: 'flex',
-							justifyContent: 'space-between',
-							alignItems: 'center',
-							background: 'white',
-							borderRadius: '12px',
-							padding: '24px',
-							marginBottom: '24px',
-							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+							fontSize: '13px',
+							color: '#1f2937',
+							fontFamily: 'monospace',
+							wordBreak: 'break-all',
+							padding: '8px 12px',
+							background: '#f9fafb',
+							borderRadius: '6px',
 							border: '1px solid #e5e7eb',
 						}}
 					>
+						{authState.challengeId}
+					</div>
+				</div>
+			)}
+		</div>
+	);
+}
+
+{
+	/* Device List */
+}
+{
+	usernameInput.trim() && credentials.environmentId && tokenStatus.isValid && (
+		<div
+			style={{
+				background: 'white',
+				borderRadius: '12px',
+				padding: '24px',
+				marginBottom: '24px',
+				boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+				border: '1px solid #e5e7eb',
+			}}
+		>
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					background: 'white',
+					borderRadius: '12px',
+					padding: '24px',
+					marginBottom: '24px',
+					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+					border: '1px solid #e5e7eb',
+				}}
+			>
+				<div
+					style={{
+						padding: '12px',
+						background: '#fef2f2',
+						border: '1px solid #fecaca',
+						borderRadius: '6px',
+						color: '#991b1b',
+						fontSize: '14px',
+						marginBottom: '16px',
+					}}
+				>
+					{devicesError}
+				</div>
+
+				<LoadingOverlay loading={isLoadingDevices} message="Loading devices...">
+					{userDevices.length > 0 ? (
 						<div
 							style={{
-								padding: '12px',
-								background: '#fef2f2',
-								border: '1px solid #fecaca',
-								borderRadius: '6px',
-								color: '#991b1b',
-								fontSize: '14px',
-								marginBottom: '16px',
+								display: 'grid',
+								gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+								gap: '16px',
 							}}
 						>
-							{devicesError}
-						</div>
-
-					<LoadingOverlay loading={isLoadingDevices} message="Loading devices...">
-						{userDevices.length > 0 ? (
-							<div
-								style={{
-									display: 'grid',
-									gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-									gap: '16px',
-								}}
-							>
 							{userDevices.map((device) => (
 								<button
 									key={device.id as string}
@@ -3278,8 +3326,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							<p>No devices found for this user</p>
 						</div>
 					)}
-					</LoadingOverlay>
-				</div>
+				</LoadingOverlay>
+			</div>
 
 			{/* Authentication Status */}
 			{authState.authenticationId && (
@@ -4415,20 +4463,27 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															}
 														} catch (error) {
 															console.error(`${MODULE_TAG} Failed to select device:`, error);
-															
+
 															// Check for LIMIT_EXCEEDED error (cooldown/lockout)
 															const errorWithCode = error as Error & {
 																errorCode?: string;
 																deliveryMethod?: string;
 																coolDownExpiresAt?: number;
 															};
-															
+
 															if (errorWithCode.errorCode === 'LIMIT_EXCEEDED') {
-																const errorMessage = error instanceof Error ? error.message : 'Authentication temporarily locked';
+																const errorMessage =
+																	error instanceof Error
+																		? error.message
+																		: 'Authentication temporarily locked';
 																setCooldownError({
 																	message: errorMessage,
-																	...(errorWithCode.deliveryMethod ? { deliveryMethod: errorWithCode.deliveryMethod } : {}),
-																	...(errorWithCode.coolDownExpiresAt ? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt } : {}),
+																	...(errorWithCode.deliveryMethod
+																		? { deliveryMethod: errorWithCode.deliveryMethod }
+																		: {}),
+																	...(errorWithCode.coolDownExpiresAt
+																		? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt }
+																		: {}),
 																});
 																toastV8.warning(errorMessage);
 															} else {
@@ -4907,15 +4962,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							let completionResult = null;
 							if (updatedLinks['complete']?.href) {
 								try {
-									completionResult =
-										await MfaAuthenticationServiceV8.completeAuthentication(
-											updatedLinks['complete'].href
-										);
-								} catch (completeError) {
-									console.warn(
-										`${MODULE_TAG} Failed to complete authentication:`,
-										completeError
+									completionResult = await MfaAuthenticationServiceV8.completeAuthentication(
+										updatedLinks['complete'].href
 									);
+								} catch (completeError) {
+									console.warn(`${MODULE_TAG} Failed to complete authentication:`, completeError);
 									// Continue even if completion fails - OTP was validated successfully
 								}
 							}
@@ -4932,8 +4983,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								(p) => p.id === credentials.deviceAuthenticationPolicyId
 							);
 							const policyName = selectedPolicy?.name;
-							const deviceSelectionBehavior = selectedPolicy?.authentication
-								?.deviceSelection as string | undefined;
+							const deviceSelectionBehavior = selectedPolicy?.authentication?.deviceSelection as
+								| string
+								| undefined;
 
 							// Navigate to success page with completion result
 							navigate('/v8/mfa/authentication/success', {
@@ -4968,16 +5020,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								},
 							});
 						} else {
-							setOtpError(
-								result.message || 'Invalid verification code. Please try again.'
-							);
+							setOtpError(result.message || 'Invalid verification code. Please try again.');
 							setOtpCode('');
 						}
 					} catch (error) {
 						console.error(`${MODULE_TAG} OTP validation failed:`, error);
-						setOtpError(
-							error instanceof Error ? error.message : 'Failed to validate code'
-						);
+						setOtpError(error instanceof Error ? error.message : 'Failed to validate code');
 						setOtpCode('');
 					} finally {
 						setIsValidatingOTP(false);
@@ -5048,30 +5096,32 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							_links: { ...prev._links, ...links },
 						}));
 
-						toastV8.success(
-							'New verification code has been sent. Please check your device.'
-						);
+						toastV8.success('New verification code has been sent. Please check your device.');
 					} catch (error) {
 						console.error(`${MODULE_TAG} Failed to resend OTP:`, error);
-						
+
 						// Check for LIMIT_EXCEEDED error (cooldown/lockout)
 						const errorWithCode = error as Error & {
 							errorCode?: string;
 							deliveryMethod?: string;
 							coolDownExpiresAt?: number;
 						};
-						
+
 						if (errorWithCode.errorCode === 'LIMIT_EXCEEDED') {
-							const errorMessage = error instanceof Error ? error.message : 'Authentication temporarily locked';
+							const errorMessage =
+								error instanceof Error ? error.message : 'Authentication temporarily locked';
 							setCooldownError({
 								message: errorMessage,
-								...(errorWithCode.deliveryMethod ? { deliveryMethod: errorWithCode.deliveryMethod } : {}),
-								...(errorWithCode.coolDownExpiresAt ? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt } : {}),
+								...(errorWithCode.deliveryMethod
+									? { deliveryMethod: errorWithCode.deliveryMethod }
+									: {}),
+								...(errorWithCode.coolDownExpiresAt
+									? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt }
+									: {}),
 							});
 							toastV8.warning(errorMessage);
 						} else {
-							const errorMessage =
-								error instanceof Error ? error.message : 'Failed to resend code';
+							const errorMessage = error instanceof Error ? error.message : 'Failed to resend code';
 							setOtpError(errorMessage);
 							toastV8.error(`Failed to resend code: ${errorMessage}`);
 						}
@@ -5081,9 +5131,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				}}
 				selectedDeviceInfo={(() => {
 					// Try to find device in authState.devices first, then fallback to userDevices
-					let selectedDevice = authState.devices.find(
-						(d) => d.id === authState.selectedDeviceId
-					);
+					let selectedDevice = authState.devices.find((d) => d.id === authState.selectedDeviceId);
 					if (!selectedDevice && authState.selectedDeviceId) {
 						selectedDevice = userDevices.find(
 							(d) => (d.id as string) === authState.selectedDeviceId
@@ -5099,10 +5147,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			/>
 
 			{/* Push Confirmation Modal */}
-			<MFAPushConfirmationModal
-				show={showPushModal}
-				onClose={() => setShowPushModal(false)}
-			/>
+			<MFAPushConfirmationModal show={showPushModal} onClose={() => setShowPushModal(false)} />
 
 			{/* FIDO2/Passkey Authentication Modal */}
 			<MFAFIDO2ChallengeModal
@@ -5128,16 +5173,19 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						if (typeof authState.publicKeyCredentialRequestOptions === 'string') {
 							// Parse JSON string to object
 							publicKeyOptions = JSON.parse(authState.publicKeyCredentialRequestOptions);
-						} else if (authState.publicKeyCredentialRequestOptions && typeof authState.publicKeyCredentialRequestOptions === 'object') {
+						} else if (
+							authState.publicKeyCredentialRequestOptions &&
+							typeof authState.publicKeyCredentialRequestOptions === 'object'
+						) {
 							// Already an object, use as-is
-							publicKeyOptions = authState.publicKeyCredentialRequestOptions as PublicKeyCredentialRequestOptions;
+							publicKeyOptions =
+								authState.publicKeyCredentialRequestOptions as PublicKeyCredentialRequestOptions;
 						} else {
 							throw new Error('Invalid publicKeyCredentialRequestOptions format');
 						}
 
-						const assertion = await WebAuthnAuthenticationServiceV8.getWebAuthnAssertion(
-							publicKeyOptions
-						);
+						const assertion =
+							await WebAuthnAuthenticationServiceV8.getWebAuthnAssertion(publicKeyOptions);
 
 						// Check assertion with PingOne
 						const assertionResult = await MfaAuthenticationServiceV8.checkFIDO2Assertion(
@@ -5191,15 +5239,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								(p) => p.id === credentials.deviceAuthenticationPolicyId
 							);
 							const policyName = selectedPolicy?.name;
-							const deviceSelectionBehavior = selectedPolicy?.authentication
-								?.deviceSelection as string | undefined;
+							const deviceSelectionBehavior = selectedPolicy?.authentication?.deviceSelection as
+								| string
+								| undefined;
 
 							// Navigate to success page with completion result
 							navigate('/v8/mfa/authentication/success', {
 								state: {
-									completionResult: completionResult
-										? { ...completionResult }
-										: null,
+									completionResult: completionResult ? { ...completionResult } : null,
 									username: usernameInput.trim(),
 									userId: authState.userId,
 									environmentId: credentials.environmentId,
@@ -5238,17 +5285,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								if (pollResult.status === 'COMPLETED') {
 									// Complete authentication to get access token if complete link is available
 									let pollCompletionResult = null;
-									const pollLinks =
-										(pollResult._links as Record<string, { href: string }>) || {};
-									if (
-										pollLinks['complete']?.href ||
-										authState._links?.['complete']?.href
-									) {
+									const pollLinks = (pollResult._links as Record<string, { href: string }>) || {};
+									if (pollLinks['complete']?.href || authState._links?.['complete']?.href) {
 										try {
 											pollCompletionResult =
 												await MfaAuthenticationServiceV8.completeAuthentication(
-													pollLinks['complete']?.href ||
-														authState._links!['complete']!.href
+													pollLinks['complete']?.href || authState._links!['complete']!.href
 												);
 										} catch (completeError) {
 											console.warn(
@@ -5269,15 +5311,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										(p) => p.id === credentials.deviceAuthenticationPolicyId
 									);
 									const policyName = selectedPolicy?.name;
-									const deviceSelectionBehavior = selectedPolicy?.authentication
-										?.deviceSelection as string | undefined;
+									const deviceSelectionBehavior = selectedPolicy?.authentication?.deviceSelection as
+										| string
+										| undefined;
 
 									// Navigate to success page
 									navigate('/v8/mfa/authentication/success', {
 										state: {
-											completionResult: pollCompletionResult
-												? { ...pollCompletionResult }
-												: null,
+											completionResult: pollCompletionResult ? { ...pollCompletionResult } : null,
 											username: usernameInput.trim(),
 											userId: authState.userId,
 											environmentId: credentials.environmentId,
@@ -5306,17 +5347,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									setFido2Error('Authentication is still pending. Please try again.');
 								}
 							} else {
-								setFido2Error(
-									'Authentication completed but status is unclear. Please try again.'
-								);
+								setFido2Error('Authentication completed but status is unclear. Please try again.');
 							}
 						}
 					} catch (error) {
 						console.error(`${MODULE_TAG} FIDO2 authentication failed:`, error);
 						setFido2Error(
-							error instanceof Error
-								? error.message
-								: 'Failed to complete WebAuthn authentication'
+							error instanceof Error ? error.message : 'Failed to complete WebAuthn authentication'
 						);
 					} finally {
 						setIsAuthenticatingFIDO2(false);
@@ -5329,7 +5366,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			/>
 		</div>
 	);
-};
+}
 
 export default MFAAuthenticationMainPageV8;
 */

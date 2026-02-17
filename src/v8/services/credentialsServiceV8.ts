@@ -29,9 +29,13 @@ const MODULE_TAG = '[💾 CREDENTIALS-SERVICE-V8-MIGRATED]';
 const ENABLE_CREDENTIALS_DEBUG_LOGGING = false;
 
 import { safeAnalyticsFetch } from '@/v8/utils/analyticsServerCheckV8';
-import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
 import { CredentialsServiceV8Migration } from '../../services/credentialsServiceV8Migration';
-import type { V8Credentials, V8CredentialsConfig, V8AppConfig } from '../../services/unifiedTokenStorageService';
+import type {
+	V8AppConfig,
+	V8Credentials,
+	V8CredentialsConfig,
+} from '../../services/unifiedTokenStorageService';
+import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
 
 const debugLog = (...args: unknown[]): void => {
 	if (!ENABLE_CREDENTIALS_DEBUG_LOGGING) return;
@@ -256,7 +260,10 @@ export class CredentialsServiceV8 {
 				return stored;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error loading credentials from unified storage`, { flowKey, error });
+			console.error(`${MODULE_TAG} Error loading credentials from unified storage`, {
+				flowKey,
+				error,
+			});
 		}
 
 		return CredentialsServiceV8.getDefaultCredentials(flowKey, config);
@@ -300,7 +307,7 @@ export class CredentialsServiceV8 {
 	static async saveCredentials(flowKey: string, credentials: Credentials): Promise<void> {
 		try {
 			await ensureMigration();
-			
+
 			// #region agent log - Use safe analytics fetch
 			(async () => {
 				try {
@@ -332,7 +339,10 @@ export class CredentialsServiceV8 {
 
 			debugLog(`${MODULE_TAG} ✅ Credentials saved to unified storage`, { flowKey });
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error saving credentials to unified storage`, { flowKey, error });
+			console.error(`${MODULE_TAG} Error saving credentials to unified storage`, {
+				flowKey,
+				error,
+			});
 		}
 	}
 
@@ -348,7 +358,10 @@ export class CredentialsServiceV8 {
 			await unifiedTokenStorage.clearV8Credentials(flowKey);
 			debugLog(`${MODULE_TAG} Credentials cleared from unified storage`, { flowKey });
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error clearing credentials from unified storage`, { flowKey, error });
+			console.error(`${MODULE_TAG} Error clearing credentials from unified storage`, {
+				flowKey,
+				error,
+			});
 		}
 	}
 

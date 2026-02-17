@@ -11,6 +11,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import FIDO2RegistrationModal from '@/components/FIDO2RegistrationModal';
+import { StandardizedCredentialExportImport } from '@/components/StandardizedCredentialExportImport';
 import { Button } from '@/v8/components/Button';
 import { PageTransition } from '@/v8/components/PageTransition';
 import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdownV8';
@@ -24,7 +25,6 @@ import { colors, spacing } from '@/v8/styles/designTokens';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { APIComparisonModal } from './APIComparisonModal';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
-import { StandardizedCredentialExportImport } from '@/components/StandardizedCredentialExportImport';
 import '../UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[📝 UNIFIED-DEVICE-REG-FORM]';
