@@ -34,6 +34,7 @@ import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import uiNotificationServiceV8 from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
 
 // Types for PingOne Protect
 interface ProtectCredentials {
@@ -161,6 +162,13 @@ export const PingOneProtectFlowV8: React.FC = () => {
 			return true;
 		}
 	});
+
+	// Standardized spinner hooks for PingOne Protect operations
+	const riskPoliciesSpinner = useStandardSpinner(3000); // Fetch risk policies - 3 seconds
+	const riskEvaluationSpinner = useStandardSpinner(5000); // Create risk evaluation - 5 seconds
+	const riskUpdateSpinner = useStandardSpinner(3000);   // Update risk evaluation - 3 seconds
+	const feedbackSpinner = useStandardSpinner(2000);      // Provide feedback - 2 seconds
+	const workerTokenSpinner = useStandardSpinner(4000);  // Worker token modal - 4 seconds
 
 	// Listen for config updates
 	useEffect(() => {
@@ -363,42 +371,58 @@ export const PingOneProtectFlowV8: React.FC = () => {
 
 	// API Methods
 	const fetchRiskPolicies = useCallback(async () => {
-		try {
-			const data = await makeApiCall('GET', '/risk-policies', undefined, 'Fetch Risk Policies');
-			const policies =
-				(data as { _embedded?: { riskPolicySets: RiskPolicy[] } })._embedded?.riskPolicySets || [];
-			setRiskPolicies(policies);
-			uiNotificationServiceV8.showSuccess(`Loaded ${policies.length} risk policies`);
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to fetch risk policies:`, error);
-			uiNotificationServiceV8.showError('Failed to fetch risk policies');
-		}
-	}, [makeApiCall]);
+		await riskPoliciesSpinner.executeWithSpinner(
+			async () => {
+				const data = await makeApiCall('GET', '/risk-policies', undefined, 'Fetch Risk Policies');
+				const policies =
+					(data as { _embedded?: { riskPolicySets: RiskPolicy[] } })._embedded?.riskPolicySets || [];
+				setRiskPolicies(policies);
+				uiNotificationServiceV8.showSuccess('Risk policies fetched successfully');
+			},
+			{
+				onSuccess: () => {
+					// Success handled in main function
+				},
+				onError: (error) => {
+					console.error('[PINGONE-PROTECT-FLOW-V8] Error fetching risk policies:', error);
+					uiNotificationServiceV8.showError('Failed to fetch risk policies');
+				}
+			}
+		);
+	}, [makeApiCall, riskPoliciesSpinner]);
 
 	const createRiskEvaluation = useCallback(async () => {
-		try {
-			if (!evaluationEvent.ip || !evaluationEvent.user?.id) {
-				uiNotificationServiceV8.showError(
-					'IP address and User ID are required for risk evaluation'
+		await riskEvaluationSpinner.executeWithSpinner(
+			async () => {
+				if (!evaluationEvent.ip || !evaluationEvent.user?.id) {
+					uiNotificationServiceV8.showError(
+						'IP address and User ID are required for risk evaluation'
+					);
+					throw new Error('IP address and User ID are required for risk evaluation');
+				}
+
+				const data = await makeApiCall(
+					'POST',
+					'/risk-evaluations',
+					{ event: evaluationEvent },
+					'Create Risk Evaluation'
 				);
-				return;
+				setRiskEvaluation(data as RiskEvaluationResult);
+
+				const riskLevel = (data as RiskEvaluationResult).result.level;
+				uiNotificationServiceV8.showSuccess(`Risk evaluation completed: ${riskLevel} risk`);
+			},
+			{
+				onSuccess: () => {
+					// Success handled in main function
+				},
+				onError: (error) => {
+					console.error(`${MODULE_TAG} Failed to create risk evaluation:`, error);
+					uiNotificationServiceV8.showError('Failed to create risk evaluation');
+				}
 			}
-
-			const data = await makeApiCall(
-				'POST',
-				'/risk-evaluations',
-				{ event: evaluationEvent },
-				'Create Risk Evaluation'
-			);
-			setRiskEvaluation(data as RiskEvaluationResult);
-
-			const riskLevel = (data as RiskEvaluationResult).result.level;
-			uiNotificationServiceV8.showSuccess(`Risk evaluation completed: ${riskLevel} risk`);
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to create risk evaluation:`, error);
-			uiNotificationServiceV8.showError('Failed to create risk evaluation');
-		}
-	}, [makeApiCall, evaluationEvent]);
+		);
+	}, [makeApiCall, evaluationEvent, riskEvaluationSpinner]);
 
 	const updateRiskEvaluation = useCallback(
 		async (evaluationId: string, completionStatus: 'SUCCESS' | 'FAILED') => {
@@ -1277,9 +1301,37 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}
 	};
 
 	return (
-		<div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-			{/* Header */}
-			<div style={{ marginBottom: '32px' }}>
+		<>
+			{/* Modal Spinners for PingOne Protect Operations */}
+			<StandardModalSpinner
+				show={riskPoliciesSpinner.isLoading}
+				message="Fetching risk policies..."
+				theme="blue"
+			/>
+			<StandardModalSpinner
+				show={riskEvaluationSpinner.isLoading}
+				message="Creating risk evaluation..."
+				theme="orange"
+			/>
+			<StandardModalSpinner
+				show={riskUpdateSpinner.isLoading}
+				message="Updating risk evaluation..."
+				theme="purple"
+			/>
+			<StandardModalSpinner
+				show={feedbackSpinner.isLoading}
+				message="Providing feedback..."
+				theme="green"
+			/>
+			<StandardModalSpinner
+				show={workerTokenSpinner.isLoading}
+				message="Loading worker token..."
+				theme="blue"
+			/>
+			
+			<div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+				{/* Header */}
+				<div style={{ marginBottom: '32px' }}>
 				<h1 style={{ fontSize: '28px', fontWeight: '700', color: '#1f2937', marginBottom: '8px' }}>
 					PingOne Protect API Integration
 				</h1>
@@ -1437,6 +1489,7 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}
 					}
 				})()}
 		</div>
+		</>
 	);
 };
 
