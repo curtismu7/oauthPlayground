@@ -303,6 +303,39 @@ test -f "src/components/StartupLoader.tsx" && echo "❌ STARTUPLOADER COMPONENT 
 |----------|-----------|---------|--------|
 | None | All spinner issues resolved | N/A | ✅ Active |
 
+### **🚀 Enhancement Initiative: ButtonSpinner by Default**
+
+**Objective:** Add ButtonSpinner to all async button operations across the application for consistent UX.
+
+**Current Status:**
+- **Files with async buttons:** 48 identified
+- **Files already using ButtonSpinner:** 43 implementations
+- **Target:** 91 total ButtonSpinner implementations
+
+**Implementation Strategy:**
+1. **✅ Infrastructure Created:**
+   - `useAsyncButton` hook for loading state management
+   - `AsyncButtonWrapper` component for safe button enhancement
+   - `find-async-buttons.js` script for systematic identification
+
+2. **📋 Migration Plan:**
+   - Phase 1: High-traffic user-facing components (V8U pages)
+   - Phase 2: Core authentication flows (V8 flows)
+   - Phase 3: Supporting components and utilities
+   - Phase 4: Legacy and experimental components
+
+**Prevention Commands:**
+```bash
+# Find all async buttons without ButtonSpinner
+node scripts/find-async-buttons.js
+
+# Verify ButtonSpinner usage
+grep -r "ButtonSpinner" src --include="*.tsx" --include="*.ts" | wc -l && echo "✅ BUTTONSPINNER IMPLEMENTATIONS FOUND" || echo "❌ MISSING BUTTONSPINNER IMPLEMENTATIONS"
+
+# Check for async operations without loading indicators
+grep -r "onClick.*async" src --include="*.tsx" | grep -v "ButtonSpinner" | wc -l && echo "⚠️ ASYNC BUTTONS WITHOUT SPINNER FOUND" || echo "✅ ALL ASYNC BUTTONS HAVE SPINNERS"
+```
+
 ---
 
 ## 🎯 **Future Enhancements**
