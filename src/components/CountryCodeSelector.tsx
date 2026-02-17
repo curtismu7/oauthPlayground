@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 interface CountryCode {
 	code: string;
@@ -127,10 +128,13 @@ const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
 
 	return (
 		<div style={{ position: 'relative', display: 'inline-block', minWidth: '200px' }}>
-			<button
-				type="button"
+			<ButtonSpinner
+				loading={false}
 				onClick={handleToggle}
 				disabled={disabled}
+				spinnerSize={10}
+				spinnerPosition="left"
+				loadingText="Loading..."
 				style={{
 					width: '100%',
 					padding: '0.75rem',
@@ -168,13 +172,17 @@ const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
 						transition: 'transform 0.2s ease',
 					}}
 				/>
-			</button>
+			</ButtonSpinner>
 
 			{isOpen && (
 				<>
 					{/* Backdrop */}
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={false}
+						onClick={() => setIsOpen(false)}
+						spinnerSize={10}
+						spinnerPosition="left"
+						loadingText="Closing..."
 						style={{
 							position: 'fixed',
 							top: 0,
@@ -187,15 +195,9 @@ const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
 							margin: 0,
 							background: 'transparent',
 						}}
-						onClick={() => setIsOpen(false)}
-						onKeyDown={(event) => {
-							if (event.key === 'Escape' || event.key === 'Enter' || event.key === ' ') {
-								event.preventDefault();
-								setIsOpen(false);
-							}
-						}}
 						aria-label="Close country selector"
-					/>
+					>
+					</ButtonSpinner>
 
 					{/* Dropdown */}
 					<div
@@ -215,10 +217,13 @@ const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
 						}}
 					>
 						{COUNTRY_CODES.map((country) => (
-							<button
+							<ButtonSpinner
 								key={country.code}
-								type="button"
+								loading={false}
 								onClick={() => handleCountrySelect(country)}
+								spinnerSize={10}
+								spinnerPosition="left"
+								loadingText="Selecting..."
 								style={{
 									width: '100%',
 									padding: '0.75rem',
@@ -265,7 +270,7 @@ const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
 								>
 									{country.code}
 								</span>
-							</button>
+							</ButtonSpinner>
 						))}
 					</div>
 				</>
