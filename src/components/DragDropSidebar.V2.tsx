@@ -51,10 +51,10 @@ import {
 	FiX,
 	FiZap,
 } from 'react-icons/fi';
-import MenuVersionBadge from './MenuVersionBadge';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import MenuVersionBadge from './MenuVersionBadge';
 
 const ColoredIcon = styled.div<{ $color: string }>`
 	color: ${(props) => props.$color};

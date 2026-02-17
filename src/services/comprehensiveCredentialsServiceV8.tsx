@@ -86,13 +86,13 @@ import { pingOneAppCreationService } from '../services/pingOneAppCreationService
 import type { ClientAuthMethod } from '../utils/clientAuthentication';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { DiscoveryResult } from './comprehensiveDiscoveryService';
-import { unifiedTokenStorage } from './unifiedTokenStorageService';
 import type {
-	V8FlowData,
-	V8DiscoveryData,
-	V8CredentialsData,
 	V8AdvancedData,
+	V8CredentialsData,
+	V8DiscoveryData,
+	V8FlowData,
 } from './unifiedTokenStorageService';
+import { unifiedTokenStorage } from './unifiedTokenStorageService';
 
 // Flow-specific authentication method configuration
 const getFlowAuthMethods = (flowType?: string): ClientAuthMethod[] => {

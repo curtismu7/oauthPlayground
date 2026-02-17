@@ -5,8 +5,8 @@
 import React, { useCallback, useState } from 'react';
 import { FiCheckCircle, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { CollapsibleHeader } from './collapsibleHeaderService';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
+import { CollapsibleHeader } from './collapsibleHeaderService';
 
 // PAR Configuration Types
 export interface PARConfiguration {

@@ -8,10 +8,10 @@
  * with comprehensive user interaction tracking in SQLite database.
  */
 
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
+import { open } from 'sqlite';
+import sqlite3 from 'sqlite3';
 
 const MODULE_TAG = '[🔐 CREDENTIALS-SQLITE-API]';
 

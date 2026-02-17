@@ -1,8 +1,8 @@
 // src/services/pkceStorageServiceV8UMigration.ts
 // Migration layer for PKCEStorageServiceV8U to unified storage
 
-import { unifiedTokenStorage } from './unifiedTokenStorageService';
 import type { V8UPKCECodes } from './unifiedTokenStorageService';
+import { unifiedTokenStorage } from './unifiedTokenStorageService';
 
 const MODULE_TAG = '[🔄 PKCE-STORAGE-V8U-MIGRATION]';
 
@@ -19,8 +19,10 @@ export class PKCEStorageServiceV8UMigration {
 
 		try {
 			// Get all V8U PKCE keys from localStorage and sessionStorage
-			const localStorageKeys = this.getV8UPKCEKeysFromStorage('localStorage');
-			const sessionStorageKeys = this.getV8UPKCEKeysFromStorage('sessionStorage');
+			const localStorageKeys =
+				PKCEStorageServiceV8UMigration.getV8UPKCEKeysFromStorage('localStorage');
+			const sessionStorageKeys =
+				PKCEStorageServiceV8UMigration.getV8UPKCEKeysFromStorage('sessionStorage');
 			const allKeys = [...new Set([...localStorageKeys, ...sessionStorageKeys])];
 
 			console.log(`${MODULE_TAG} Starting PKCE migration`, {
@@ -31,7 +33,7 @@ export class PKCEStorageServiceV8UMigration {
 
 			for (const flowKey of allKeys) {
 				try {
-					await this.migratePKCEKey(flowKey);
+					await PKCEStorageServiceV8UMigration.migratePKCEKey(flowKey);
 					results.migrated++;
 				} catch (error) {
 					const errorMsg = `Failed to migrate PKCE key ${flowKey}: ${error}`;
@@ -55,7 +57,7 @@ export class PKCEStorageServiceV8UMigration {
 	 */
 	private static async migratePKCEKey(flowKey: string): Promise<void> {
 		// Try localStorage first
-		let storageKey = `v8u_pkce_${flowKey}`;
+		const storageKey = `v8u_pkce_${flowKey}`;
 		let stored = localStorage.getItem(storageKey);
 		let source = 'localStorage';
 
@@ -120,8 +122,10 @@ export class PKCEStorageServiceV8UMigration {
 	 * Check if PKCE migration is needed
 	 */
 	static needsMigration(): boolean {
-		const localStorageKeys = this.getV8UPKCEKeysFromStorage('localStorage');
-		const sessionStorageKeys = this.getV8UPKCEKeysFromStorage('sessionStorage');
+		const localStorageKeys =
+			PKCEStorageServiceV8UMigration.getV8UPKCEKeysFromStorage('localStorage');
+		const sessionStorageKeys =
+			PKCEStorageServiceV8UMigration.getV8UPKCEKeysFromStorage('sessionStorage');
 		return localStorageKeys.length > 0 || sessionStorageKeys.length > 0;
 	}
 
@@ -133,8 +137,10 @@ export class PKCEStorageServiceV8UMigration {
 		sessionStorageKeys: number;
 		unifiedStorageKeys: number;
 	} {
-		const localStorageKeys = this.getV8UPKCEKeysFromStorage('localStorage');
-		const sessionStorageKeys = this.getV8UPKCEKeysFromStorage('sessionStorage');
+		const localStorageKeys =
+			PKCEStorageServiceV8UMigration.getV8UPKCEKeysFromStorage('localStorage');
+		const sessionStorageKeys =
+			PKCEStorageServiceV8UMigration.getV8UPKCEKeysFromStorage('sessionStorage');
 
 		// We'll need to implement this method in unified storage
 		// For now, return a placeholder

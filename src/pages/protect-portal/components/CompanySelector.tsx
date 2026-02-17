@@ -12,8 +12,8 @@
 import React, { useState } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import styled from 'styled-components';
-import { useBrandTheme } from '../themes/theme-provider';
 import { CompanyConfigService } from '../services/CompanyConfigService';
+import { useBrandTheme } from '../themes/theme-provider';
 
 // ============================================================================
 // STYLED COMPONENTS

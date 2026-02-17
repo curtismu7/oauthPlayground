@@ -6,8 +6,8 @@
  * with interactive learning components and compliance checking.
  */
 
-import type { V7FlowName } from './v7SharedService';
 import React from 'react';
+import type { V7FlowName } from './v7SharedService';
 
 export interface EducationSectionData {
 	id: string;

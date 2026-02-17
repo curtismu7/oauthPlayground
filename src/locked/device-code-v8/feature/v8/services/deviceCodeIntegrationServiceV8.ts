@@ -163,7 +163,6 @@ export class DeviceCodeIntegrationServiceV8 {
 				expires_in: data.expires_in || 1800, // Default 30 minutes
 				interval: data.interval || 5, // Default 5 seconds
 			};
-
 		} catch (error) {
 			console.error('[❌ DEVICE-CODE-V8] Device authorization request failed:', error);
 			throw error;
@@ -194,11 +193,14 @@ export class DeviceCodeIntegrationServiceV8 {
 				process.env.NODE_ENV === 'production'
 					? 'https://oauth-playground.vercel.app/api/token'
 					: '/api/token';
-				}).catch(() => );
-			} catch (_e) {}
-			// #endregion
+				}
+		).catch(() => )
+	}
+	catch(_e) {}
+	// #endregion
 
-			const response = await pingOneFetch(deviceAuthEndpoint, {
+	const;
+	response = await pingOneFetch(deviceAuthEndpoint, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -206,11 +208,15 @@ export class DeviceCodeIntegrationServiceV8 {
 				body: JSON.stringify(requestBody),
 			});
 
-			// #region agent log - Debug instrumentation after pingOneFetch
-			try {
-					method: 'POST',
-					headers: 'Content-Type': 'application/json' ,
-					body: JSON.stringify(
+	// #region agent log - Debug instrumentation after pingOneFetch
+	try;
+	{
+	method: 'POST';
+	,
+	headers: 'Content-Type';
+	: 'application/json' ,
+	body: JSON.stringify;
+	(
 						_location: 'deviceCodeIntegrationServiceV8.ts:172-AFTER-PINGONEFETCH',
 						_message: 'pingOneFetch completed',
 						_data: 
@@ -218,182 +224,195 @@ export class DeviceCodeIntegrationServiceV8 {
 							_statusText: response.statusText,
 							_ok: response.ok,
 							_hasBody: !!_response._body,
-							_timestamp: Date.now(),,
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'request-hang',
-						hypothesisId: 'AFTER-PINGONEFETCH',),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
+							_timestamp: Date.now()
+	,,
+	timestamp: Date.now;
+	()
+	,
+	sessionId: 'debug-session';
+	,
+	runId: 'request-hang';
+	,
+	hypothesisId: 'AFTER-PINGONEFETCH';
+	,),
+}
+).catch(() =>
+{
+}
+)
+} catch (_e)
+{
+}
+// #endregion
 
-			// Parse response once (clone first to avoid consuming the body)
-			const responseClone = response.clone();
-			let responseData: unknown;
-			try {
-				responseData = await responseClone.json();
-			} catch {
-				responseData = { error: 'Failed to parse response' };
+// Parse response once (clone first to avoid consuming the body)
+const responseClone = response.clone();
+let responseData: unknown;
+try {
+	responseData = await responseClone.json();
+} catch {
+	responseData = { error: 'Failed to parse response' };
+}
+
+// Update API call with response (only if tracking was successful)
+if (callId) {
+	try {
+		const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+		apiCallTrackerService.updateApiCallResponse(
+			callId,
+			{
+				status: response.status,
+				statusText: response.statusText,
+				data: responseData,
+			},
+			Date.now() - startTime
+		);
+	} catch (e) {
+		// Ignore tracking errors - non-blocking
+		console.warn(`${MODULE_TAG} Failed to update API call tracking:`, e);
+	}
+}
+
+if (!response.ok) {
+	// Use already parsed responseData instead of parsing again
+	const errorData = responseData as Record<string, unknown>;
+	const errorMessage = (errorData.error_description ||
+		errorData.error ||
+		errorData.message ||
+		'Unknown error') as string;
+	const errorCode = (errorData.error || 'unknown_error') as string;
+
+	// Extract correlation ID from error data or error message
+	// Check multiple possible field names and locations
+	let correlationId: string | undefined =
+		(errorData.correlation_id as string) ||
+		(errorData.correlationId as string) ||
+		(errorData['correlation-id'] as string) ||
+		(errorData['correlationId'] as string) ||
+		(errorData.correlationId_ as string);
+
+	// Also check response headers
+	if (!correlationId && response.headers) {
+		const headerCorrelationId =
+			response.headers.get('X-Correlation-ID') ||
+			response.headers.get('x-correlation-id') ||
+			response.headers.get('Correlation-ID') ||
+			response.headers.get('correlation-id');
+		if (headerCorrelationId) {
+			correlationId = headerCorrelationId;
+		}
+	}
+
+	// Extract from error message if still not found
+	if (!correlationId && typeof errorMessage === 'string') {
+		const correlationMatch = errorMessage.match(/\(Correlation ID:\s*([^)]+)\)/i);
+		if (correlationMatch) {
+			correlationId = correlationMatch[1].trim();
+		}
+		// Try alternative patterns
+		if (!correlationId) {
+			const altMatch = errorMessage.match(/correlation[_\s-]?id[:\s]+([a-f0-9-]+)/i);
+			if (altMatch) {
+				correlationId = altMatch[1].trim();
 			}
+		}
+	}
 
-			// Update API call with response (only if tracking was successful)
-			if (callId) {
-				try {
-					const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
-			apiCallTrackerService.updateApiCallResponse(
-				callId,
-				{
-					status: response.status,
-					statusText: response.statusText,
-					data: responseData,
-				},
-				Date.now() - startTime
-			);
-				} catch (e) {
-					// Ignore tracking errors - non-blocking
-					console.warn(`${MODULE_TAG} Failed to update API call tracking:`, e);
-				}
-			}
+	// Check if error indicates missing grant type
+	const isMissingGrantType =
+		errorMessage.toLowerCase().includes('missing required grant type') ||
+		(errorMessage.toLowerCase().includes('grant type') &&
+			errorMessage.toLowerCase().includes('device_code'));
 
-			if (!response.ok) {
-				// Use already parsed responseData instead of parsing again
-				const errorData = responseData as Record<string, unknown>;
-				const errorMessage = (errorData.error_description ||
-					errorData.error ||
-					errorData.message ||
-					'Unknown error') as string;
-				const errorCode = (errorData.error || 'unknown_error') as string;
+	// Check for 403 Forbidden - often means missing client authentication or grant type
+	if (response.status === 403) {
+		const hasClientSecret = !!credentials.clientSecret;
+		const authMethod =
+			credentials.clientAuthMethod || (hasClientSecret ? 'client_secret_basic' : 'none');
 
-				// Extract correlation ID from error data or error message
-				// Check multiple possible field names and locations
-				let correlationId: string | undefined = 
-					(errorData.correlation_id as string) || 
-					(errorData.correlationId as string) ||
-					(errorData['correlation-id'] as string) ||
-					(errorData['correlationId'] as string) ||
-					(errorData.correlationId_ as string);
+		console.error(`${MODULE_TAG} 403 Forbidden - Possible causes:`, {
+			errorCode,
+			errorMessage,
+			correlationId,
+			clientId: `${credentials.clientId?.substring(0, 8)}...`,
+			hasClientSecret,
+			authMethod,
+			possibleCauses: [
+				!hasClientSecret && authMethod !== 'none'
+					? 'Missing client secret (app may require authentication)'
+					: null,
+				'Device Code grant type not enabled in PingOne application',
+				'Invalid client credentials',
+				'Application configuration mismatch',
+			].filter(Boolean),
+		});
 
-				// Also check response headers
-				if (!correlationId && response.headers) {
-					const headerCorrelationId = 
-						response.headers.get('X-Correlation-ID') ||
-						response.headers.get('x-correlation-id') ||
-						response.headers.get('Correlation-ID') ||
-						response.headers.get('correlation-id');
-					if (headerCorrelationId) {
-						correlationId = headerCorrelationId;
-					}
-				}
+		let helpfulMessage = `403 Forbidden: ${errorMessage}\n\n`;
 
-				// Extract from error message if still not found
-				if (!correlationId && typeof errorMessage === 'string') {
-					const correlationMatch = errorMessage.match(/\(Correlation ID:\s*([^)]+)\)/i);
-					if (correlationMatch) {
-						correlationId = correlationMatch[1].trim();
-					}
-					// Try alternative patterns
-					if (!correlationId) {
-						const altMatch = errorMessage.match(/correlation[_\s-]?id[:\s]+([a-f0-9-]+)/i);
-						if (altMatch) {
-							correlationId = altMatch[1].trim();
-						}
-					}
-				}
+		if (!hasClientSecret && authMethod !== 'none') {
+			helpfulMessage += `🔐 Client Authentication Issue:\n`;
+			helpfulMessage += `Your PingOne application appears to require client authentication, but no client secret was provided.\n\n`;
+			helpfulMessage += `🔧 How to Fix:\n`;
+			helpfulMessage += `1. Check if your application requires client authentication\n`;
+			helpfulMessage += `2. If yes, enter your Client Secret in the configuration section above\n`;
+			helpfulMessage += `3. If your application is a public client, set Client Auth Method to "None"\n\n`;
+		}
 
-				// Check if error indicates missing grant type
-				const isMissingGrantType =
-					errorMessage.toLowerCase().includes('missing required grant type') ||
-					(errorMessage.toLowerCase().includes('grant type') &&
-						errorMessage.toLowerCase().includes('device_code'));
+		helpfulMessage += `📋 Grant Type Configuration:\n`;
+		helpfulMessage += `1. Go to PingOne Admin Console: https://admin.pingone.com\n`;
+		helpfulMessage += `2. Navigate to: Applications → Your Application (${credentials.clientId?.substring(0, 8)}...)\n`;
+		helpfulMessage += `3. Click the "Configuration" tab\n`;
+		helpfulMessage += `4. Under "Grant Types", ensure "Device Code" (or "DEVICE_CODE") is checked\n`;
+		helpfulMessage += `5. Under "Token Endpoint Authentication Method", verify it matches your selection\n`;
+		helpfulMessage += `6. Click "Save"\n`;
+		helpfulMessage += `7. Try the request again\n\n`;
+		helpfulMessage += `📚 Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/\n`;
+		helpfulMessage += `🔍 Correlation ID: ${correlationId || 'N/A'}`;
 
-				// Check for 403 Forbidden - often means missing client authentication or grant type
-				if (response.status === 403) {
-					const hasClientSecret = !!credentials.clientSecret;
-					const authMethod =
-						credentials.clientAuthMethod || (hasClientSecret ? 'client_secret_basic' : 'none');
+		throw new Error(helpfulMessage);
+	}
 
-					console.error(`${MODULE_TAG} 403 Forbidden - Possible causes:`, {
-						errorCode,
-						errorMessage,
-						correlationId,
-						clientId: `${credentials.clientId?.substring(0, 8)}...`,
-						hasClientSecret,
-						authMethod,
-						possibleCauses: [
-							!hasClientSecret && authMethod !== 'none'
-								? 'Missing client secret (app may require authentication)'
-								: null,
-							'Device Code grant type not enabled in PingOne application',
-							'Invalid client credentials',
-							'Application configuration mismatch',
-						].filter(Boolean),
-					});
+	if (errorCode === 'unauthorized_client' && isMissingGrantType) {
+		console.error(`${MODULE_TAG} Missing grant type error`, {
+			errorCode,
+			errorMessage,
+			correlationId,
+			clientId: credentials.clientId,
+		});
+		throw new Error(
+			`Grant Type Configuration Error: Your PingOne application is missing the DEVICE_CODE grant type.\n\n` +
+				`🔧 How to Fix:\n` +
+				`1. Go to PingOne Admin Console: https://admin.pingone.com\n` +
+				`2. Navigate to: Applications → Your Application (${credentials.clientId?.substring(0, 8)}...)\n` +
+				`3. Click the "Configuration" tab\n` +
+				`4. Under "Grant Types", check the box for "Device Code" (or "DEVICE_CODE")\n` +
+				`5. Click "Save"\n` +
+				`6. Try the request again\n\n` +
+				`📚 Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/\n` +
+				`🔍 Correlation ID: ${correlationId || 'N/A'}`
+		);
+	}
 
-					let helpfulMessage = `403 Forbidden: ${errorMessage}\n\n`;
+	console.error(`${MODULE_TAG} Device authorization failed`, {
+		status: response.status,
+		statusText: response.statusText,
+		errorCode,
+		errorMessage,
+		correlationId,
+	});
 
-					if (!hasClientSecret && authMethod !== 'none') {
-						helpfulMessage += `🔐 Client Authentication Issue:\n`;
-						helpfulMessage += `Your PingOne application appears to require client authentication, but no client secret was provided.\n\n`;
-						helpfulMessage += `🔧 How to Fix:\n`;
-						helpfulMessage += `1. Check if your application requires client authentication\n`;
-						helpfulMessage += `2. If yes, enter your Client Secret in the configuration section above\n`;
-						helpfulMessage += `3. If your application is a public client, set Client Auth Method to "None"\n\n`;
-					}
+	throw new Error(
+		`Device authorization failed: ${errorCode} - ${errorMessage}${correlationId ? ` (Correlation ID: ${correlationId})` : ''}`
+	);
+}
 
-					helpfulMessage += `📋 Grant Type Configuration:\n`;
-					helpfulMessage += `1. Go to PingOne Admin Console: https://admin.pingone.com\n`;
-					helpfulMessage += `2. Navigate to: Applications → Your Application (${credentials.clientId?.substring(0, 8)}...)\n`;
-					helpfulMessage += `3. Click the "Configuration" tab\n`;
-					helpfulMessage += `4. Under "Grant Types", ensure "Device Code" (or "DEVICE_CODE") is checked\n`;
-					helpfulMessage += `5. Under "Token Endpoint Authentication Method", verify it matches your selection\n`;
-					helpfulMessage += `6. Click "Save"\n`;
-					helpfulMessage += `7. Try the request again\n\n`;
-					helpfulMessage += `📚 Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/\n`;
-					helpfulMessage += `🔍 Correlation ID: ${correlationId || 'N/A'}`;
+const deviceAuth: DeviceAuthorizationResponse = await response.json();
 
-					throw new Error(helpfulMessage);
-				}
-
-				if (errorCode === 'unauthorized_client' && isMissingGrantType) {
-					console.error(`${MODULE_TAG} Missing grant type error`, {
-						errorCode,
-						errorMessage,
-						correlationId,
-						clientId: credentials.clientId,
-					});
-					throw new Error(
-						`Grant Type Configuration Error: Your PingOne application is missing the DEVICE_CODE grant type.\n\n` +
-							`🔧 How to Fix:\n` +
-							`1. Go to PingOne Admin Console: https://admin.pingone.com\n` +
-							`2. Navigate to: Applications → Your Application (${credentials.clientId?.substring(0, 8)}...)\n` +
-							`3. Click the "Configuration" tab\n` +
-							`4. Under "Grant Types", check the box for "Device Code" (or "DEVICE_CODE")\n` +
-							`5. Click "Save"\n` +
-							`6. Try the request again\n\n` +
-							`📚 Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/\n` +
-							`🔍 Correlation ID: ${correlationId || 'N/A'}`
-					);
-				}
-
-				console.error(`${MODULE_TAG} Device authorization failed`, {
-					status: response.status,
-					statusText: response.statusText,
-					errorCode,
-					errorMessage,
-					correlationId,
-				});
-
-				throw new Error(
-					`Device authorization failed: ${errorCode} - ${errorMessage}${correlationId ? ` (Correlation ID: ${correlationId})` : ''}`
-				);
-			}
-
-			const deviceAuth: DeviceAuthorizationResponse = await response.json();
-
-			return deviceAuth;
-		} catch (error) {
-			// #region agent log - Debug instrumentation for catch block
-			try {
+return deviceAuth;
+} catch (error)
+{
+	// #region agent log - Debug instrumentation for catch block
+	try {
 					method: 'POST',
 					headers: 'Content-Type': 'application/json' ,
 					body: JSON.stringify(
@@ -409,13 +428,17 @@ export class DeviceCodeIntegrationServiceV8 {
 						sessionId: 'debug-session',
 						runId: 'request-hang',
 						hypothesisId: 'CATCH',),
-				}).catch(() => );
-			} catch (_e) {}
-			// #endregion
+				}
+	).catch(() => )
+}
+catch (_e)
+{
+}
+// #endregion
 
-			console.error(`${MODULE_TAG} Error requesting device authorization`, { error });
-			throw error;
-		}
+console.error(`${MODULE_TAG} Error requesting device authorization`, { error });
+throw error;
+}
 	}
 
 	/**
@@ -432,26 +455,27 @@ export class DeviceCodeIntegrationServiceV8 {
 		deviceCode: string,
 		interval?: number, // Optional - from device authorization response
 		maxAttempts?: number // Optional - will be calculated from expires_in if not provided
-	): Promise<TokenResponse> {
-		// RFC 8628 Section 3.5: Default to 5 seconds minimum if interval not provided
-		const pollInterval = interval || 5;
-		// Use backend proxy to avoid CORS issues
-		// Use relative URL for development (same origin), absolute for production
-		const tokenEndpoint =
-			process.env.NODE_ENV === 'production'
-				? 'https://oauth-playground.vercel.app/api/token-exchange'
-				: '/api/token-exchange';
+	): Promise<TokenResponse>
+{
+	// RFC 8628 Section 3.5: Default to 5 seconds minimum if interval not provided
+	const pollInterval = interval || 5;
+	// Use backend proxy to avoid CORS issues
+	// Use relative URL for development (same origin), absolute for production
+	const tokenEndpoint =
+		process.env.NODE_ENV === 'production'
+			? 'https://oauth-playground.vercel.app/api/token-exchange'
+			: '/api/token-exchange';
 
-		// Track API call for display
-		const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+	// Track API call for display
+	const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 
-		// Calculate max attempts if not provided (default to 10 minutes / interval)
-		const calculatedMaxAttempts = maxAttempts || Math.ceil(600 / pollInterval); // 10 minutes default
+	// Calculate max attempts if not provided (default to 10 minutes / interval)
+	const calculatedMaxAttempts = maxAttempts || Math.ceil(600 / pollInterval); // 10 minutes default
 
-		let currentInterval = pollInterval; // Track current interval (may be adjusted by slow_down)
+	let currentInterval = pollInterval; // Track current interval (may be adjusted by slow_down)
 
-		for (let attempt = 0; attempt < calculatedMaxAttempts; attempt++) {
-			try {
+	for (let attempt = 0; attempt < calculatedMaxAttempts; attempt++) {
+		try {
 			// Build request body for backend proxy (JSON format)
 			// RFC 8628 Section 3.4: Token request includes grant_type, device_code, and client_id
 			// Client authentication happens at token endpoint (handled by backend)
@@ -477,196 +501,213 @@ export class DeviceCodeIntegrationServiceV8 {
 				requestBody.scope = credentials.scopes.trim();
 			}
 
-				// Track API call for display
-				const pollStartTime = Date.now();
-				const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
-				const pollCallId = apiCallTrackerService.trackApiCall({
-					method: 'POST',
-					url: tokenEndpoint,
-					actualPingOneUrl,
-					isProxy: true,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: {
-						...requestBody,
-						device_code: '***REDACTED***', // Don't expose device code in display
-						client_secret: requestBody.client_secret ? '***REDACTED***' : undefined,
-					},
-					step: 'unified-device-token-poll',
-					flowType: 'unified',
-				});
+			// Track API call for display
+			const pollStartTime = Date.now();
+			const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+			const pollCallId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: tokenEndpoint,
+				actualPingOneUrl,
+				isProxy: true,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: {
+					...requestBody,
+					device_code: '***REDACTED***', // Don't expose device code in display
+					client_secret: requestBody.client_secret ? '***REDACTED***' : undefined,
+				},
+				step: 'unified-device-token-poll',
+				flowType: 'unified',
+			});
 
-				const response = await pingOneFetch(tokenEndpoint, {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify(requestBody),
-				});
+			const response = await pingOneFetch(tokenEndpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody),
+			});
 
-				// Update API call with response
-				const responseClone = response.clone();
-				let pollResponseData: unknown;
-				try {
-					pollResponseData = await responseClone.json();
-				} catch {
-					pollResponseData = { error: 'Failed to parse response' };
-				}
+			// Update API call with response
+			const responseClone = response.clone();
+			let pollResponseData: unknown;
+			try {
+				pollResponseData = await responseClone.json();
+			} catch {
+				pollResponseData = { error: 'Failed to parse response' };
+			}
 
-				apiCallTrackerService.updateApiCallResponse(
-					pollCallId,
-					{
-						status: response.status,
-						statusText: response.statusText,
-						data: pollResponseData,
-					},
-					Date.now() - pollStartTime
-				);
+			apiCallTrackerService.updateApiCallResponse(
+				pollCallId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data: pollResponseData,
+				},
+				Date.now() - pollStartTime
+			);
 
-				if (response.ok) {
-					const tokens: TokenResponse = pollResponseData as TokenResponse;
-					return tokens;
-				}
+			if (response.ok) {
+				const tokens: TokenResponse = pollResponseData as TokenResponse;
+				return tokens;
+			}
 
-				const errorData = pollResponseData as Record<string, unknown>;
+			const errorData = pollResponseData as Record<string, unknown>;
 
-				// Check for authorization_pending (user hasn't approved yet) - RFC 8628 Section 3.5
-				if (errorData.error === 'authorization_pending') {
-					await DeviceCodeIntegrationServiceV8.sleep(currentInterval * 1000); // Use current interval
-					continue;
-				}
+			// Check for authorization_pending (user hasn't approved yet) - RFC 8628 Section 3.5
+			if (errorData.error === 'authorization_pending') {
+				await DeviceCodeIntegrationServiceV8.sleep(currentInterval * 1000); // Use current interval
+				continue;
+			}
 
-				// Check for slow_down (rate limiting) - RFC 8628 Section 3.5
-				// On slow_down, client MUST wait the new interval seconds (minimum increase recommended)
-				if (errorData.error === 'slow_down' && errorData.interval) {
-					const newInterval = Math.max(errorData.interval, currentInterval + 5); // RFC 8628: minimum increase
-					currentInterval = newInterval;
-					await DeviceCodeIntegrationServiceV8.sleep(currentInterval * 1000);
-					continue;
-				}
-
-				// Other errors (expired_token, access_denied, etc.)
-				throw new Error(
-					`Token polling failed: ${errorData.error} - ${errorData.error_description || ''}`
-				);
-			} catch (error) {
-				// If it's our own error (from the throw above), re-throw it
-				if (error instanceof Error && error.message.includes('Token polling failed')) {
-					throw error;
-				}
-
-				// Network or other errors - log and retry
-				console.warn(`${MODULE_TAG} Polling error (attempt ${attempt + 1}/${maxAttempts})`, {
-					error,
-				});
-
-				// On last attempt, throw the error
-				if (attempt === calculatedMaxAttempts - 1) {
-					throw error;
-				}
-
+			// Check for slow_down (rate limiting) - RFC 8628 Section 3.5
+			// On slow_down, client MUST wait the new interval seconds (minimum increase recommended)
+			if (errorData.error === 'slow_down' && errorData.interval) {
+				const newInterval = Math.max(errorData.interval, currentInterval + 5); // RFC 8628: minimum increase
+				currentInterval = newInterval;
 				await DeviceCodeIntegrationServiceV8.sleep(currentInterval * 1000);
-			}
-		}
-
-		throw new Error('Token polling timeout - user did not authorize within time limit');
-	}
-
-	/**
-	 * Decode JWT token (without verification)
-	 * @param token - JWT token to decode
-	 * @returns Decoded token with header, payload, and signature
-	 */
-	static decodeToken(token: string): DecodedToken {
-		try {
-			const parts = token.split('.');
-
-			if (parts.length !== 3) {
-				throw new Error('Invalid JWT format');
+				continue;
 			}
 
-			const header = JSON.parse(DeviceCodeIntegrationServiceV8.base64UrlDecode(parts[0]));
-			const payload = JSON.parse(DeviceCodeIntegrationServiceV8.base64UrlDecode(parts[1]));
-			const signature = parts[2];
-
-			return { header, payload, signature };
+			// Other errors (expired_token, access_denied, etc.)
+			throw new Error(
+				`Token polling failed: ${errorData.error} - ${errorData.error_description || ''}`
+			);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error decoding token`, { error });
-			throw error;
+			// If it's our own error (from the throw above), re-throw it
+			if (error instanceof Error && error.message.includes('Token polling failed')) {
+				throw error;
+			}
+
+			// Network or other errors - log and retry
+			console.warn(`${MODULE_TAG} Polling error (attempt ${attempt + 1}/${maxAttempts})`, {
+				error,
+			});
+
+			// On last attempt, throw the error
+			if (attempt === calculatedMaxAttempts - 1) {
+				throw error;
+			}
+
+			await DeviceCodeIntegrationServiceV8.sleep(currentInterval * 1000);
 		}
 	}
 
-	/**
-	 * Validate token expiry
-	 * @param token - JWT token
-	 * @returns True if token is not expired
-	 */
-	static isTokenValid(token: string): boolean {
-		try {
-			const decoded = DeviceCodeIntegrationServiceV8.decodeToken(token);
-			const payload = decoded.payload as { exp?: number };
+	throw new Error('Token polling timeout - user did not authorize within time limit');
+}
 
-			if (!payload.exp) {
-				return true; // No expiry claim
-			}
+/**
+ * Decode JWT token (without verification)
+ * @param token - JWT token to decode
+ * @returns Decoded token with header, payload, and signature
+ */
+static
+decodeToken(token: string)
+: DecodedToken
+{
+	try {
+		const parts = token.split('.');
 
-			const expiryTime = payload.exp * 1000; // Convert to milliseconds
-			const currentTime = Date.now();
-
-			return currentTime < expiryTime;
-		} catch {
-			return false;
+		if (parts.length !== 3) {
+			throw new Error('Invalid JWT format');
 		}
+
+		const header = JSON.parse(DeviceCodeIntegrationServiceV8.base64UrlDecode(parts[0]));
+		const payload = JSON.parse(DeviceCodeIntegrationServiceV8.base64UrlDecode(parts[1]));
+		const signature = parts[2];
+
+		return { header, payload, signature };
+	} catch (error) {
+		console.error(`${MODULE_TAG} Error decoding token`, { error });
+		throw error;
 	}
+}
 
-	/**
-	 * Get token expiry time
-	 * @param token - JWT token
-	 * @returns Expiry time in milliseconds from now, or null if no expiry
-	 */
-	static getTokenExpiryTime(token: string): number | null {
-		try {
-			const decoded = DeviceCodeIntegrationServiceV8.decodeToken(token);
-			const payload = decoded.payload as { exp?: number };
+/**
+ * Validate token expiry
+ * @param token - JWT token
+ * @returns True if token is not expired
+ */
+static
+isTokenValid(token: string)
+: boolean
+{
+	try {
+		const decoded = DeviceCodeIntegrationServiceV8.decodeToken(token);
+		const payload = decoded.payload as { exp?: number };
 
-			if (!payload.exp) {
-				return null;
-			}
+		if (!payload.exp) {
+			return true; // No expiry claim
+		}
 
-			const expiryTime = payload.exp * 1000;
-			const currentTime = Date.now();
+		const expiryTime = payload.exp * 1000; // Convert to milliseconds
+		const currentTime = Date.now();
 
-			return Math.max(0, expiryTime - currentTime);
-		} catch {
+		return currentTime < expiryTime;
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Get token expiry time
+ * @param token - JWT token
+ * @returns Expiry time in milliseconds from now, or null if no expiry
+ */
+static
+getTokenExpiryTime(token: string)
+: number | null
+{
+	try {
+		const decoded = DeviceCodeIntegrationServiceV8.decodeToken(token);
+		const payload = decoded.payload as { exp?: number };
+
+		if (!payload.exp) {
 			return null;
 		}
+
+		const expiryTime = payload.exp * 1000;
+		const currentTime = Date.now();
+
+		return Math.max(0, expiryTime - currentTime);
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Sleep utility for polling
+ * @param ms - Milliseconds to sleep
+ */
+private
+static
+sleep(ms: number)
+: Promise<void>
+{
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Base64 URL decode
+ * @param str - Base64 URL encoded string
+ * @returns Decoded string
+ */
+private
+static
+base64UrlDecode(str: string)
+: string
+{
+	let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+
+	// Add padding if needed
+	const padding = 4 - (base64.length % 4);
+	if (padding !== 4) {
+		base64 += '='.repeat(padding);
 	}
 
-	/**
-	 * Sleep utility for polling
-	 * @param ms - Milliseconds to sleep
-	 */
-	private static sleep(ms: number): Promise<void> {
-		return new Promise((resolve) => setTimeout(resolve, ms));
-	}
-
-	/**
-	 * Base64 URL decode
-	 * @param str - Base64 URL encoded string
-	 * @returns Decoded string
-	 */
-	private static base64UrlDecode(str: string): string {
-		let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
-
-		// Add padding if needed
-		const padding = 4 - (base64.length % 4);
-		if (padding !== 4) {
-			base64 += '='.repeat(padding);
-		}
-
-		return Buffer.from(base64, 'base64').toString('utf-8');
-	}
+	return Buffer.from(base64, 'base64').toString('utf-8');
+}
 }
 
 export default DeviceCodeIntegrationServiceV8;

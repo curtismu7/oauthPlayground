@@ -63,12 +63,12 @@ export const StepActionButtonsV8U: React.FC<StepActionButtonsProps> = ({
 	const handleNextClick = () => {
 		if (!isNextDisabled) {
 			logger.debug(Next button clicked`, { currentStep });
-			onNext();
-		}
+		onNext();
 	};
+};
 
-	const _handleFinalClick = () => {
-		logger.debug(Final button clicked`, { currentStep });
+const _handleFinalClick = () => {
+	logger.debug(Final button clicked`, { currentStep });
 		if (onFinal) {
 			onFinal();
 		}
@@ -147,176 +147,248 @@ export const StepActionButtonsV8U: React.FC<StepActionButtonsProps> = ({
 			<style>{`
 				.step-action-buttons-v8 {
 					display: flex;
-					gap: 12px;
-					justify-content: space-between;
-					align-items: center;
-					padding: 16px 0;
-					margin-top: 24px;
-				}
+	gap:
+	12px
+	justify - content;
+	: space-between
+	align - items;
+	: center
+	padding:
+	16px 0
+	margin - top;
+	: 24px
+};
 
-				.btn {
-					display: flex;
-					align-items: center;
-					gap: 8px;
-					padding: 10px 20px;
-					border: none;
-					border-radius: 6px;
-					font-size: 14px;
-					font-weight: 500;
-					cursor: pointer;
-					transition: all 0.2s ease;
-					outline: none;
-				}
+.btn
+{
+	display: flex;
+	align - items;
+	: center
+	gap:
+	8px
+	padding:
+	10px 20px
+	border: none;
+	border - radius;
+	: 6px
+	font - size;
+	: 14px
+	font - weight;
+	: 500
+	cursor: pointer;
+	transition: all;
+	0.2s ease
+	outline: none;
+}
 
-				.btn:focus-visible {
-					outline: 2px solid #2196f3;
-					outline-offset: 2px;
-				}
+.btn:focus-visible
+{
+	outline:
+	2px solid #2196f3
+	outline - offset;
+	: 2px
+}
 
-				/* Previous Button */
-				.btn-previous {
-					background: #f5f5f5;
-					color: #333;
-					border: 1px solid #ddd;
-				}
+/* Previous Button */
+.btn-previous
+{
+	background: #f5f5f5;
+	color: #
+	333;
+	border:
+	1px solid #ddd
+}
 
-				.btn-previous:hover:not(.disabled) {
-					background: #e8e8e8;
-					border-color: #bbb;
-				}
+.btn-previous:hover:not(.disabled)
+{
+	background: #e8e8e8;
+	border - color;
+	: #bbb
+}
 
-				.btn-previous:active:not(.disabled) {
-					transform: translateY(1px);
-				}
+.btn-previous:active:not(.disabled)
+{
+	transform: translateY(1px);
+}
 
-				.btn-previous.disabled {
-					background: #f5f5f5;
-					color: #999;
-					cursor: not-allowed;
-					opacity: 0.5;
-				}
+.btn-previous.disabled
+{
+	background: #f5f5f5;
+	color: #
+	999;
+	cursor: not - allowed;
+	opacity: 0.5;
+}
 
-				/* Next Button */
-				.next-button-wrapper {
-					position: relative;
-					flex: 1;
-					max-width: 200px;
-				}
+/* Next Button */
+.next-button-wrapper
+{
+	position: relative;
+	flex: 1;
+	max - width;
+	: 200px
+}
 
-				.btn-next {
-					width: 100%;
-					background: #10b981;
-					color: #ffffff;
-					border: none;
-					font-weight: 600;
-				}
+.btn-next
+{
+	width: 100%;
+	background: #
+	10b981
+	color: #ffffff;
+	border: none;
+	font - weight;
+	: 600
+}
 
-				.btn-next:hover:not(.disabled) {
-					background: #059669;
-					box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-					transform: translateY(-1px);
-				}
+.btn-next:hover:not(.disabled)
+{
+	background: #
+	059669;
+	box - shadow;
+	: 0 4px 12px rgba(16, 185, 129, 0.3)
+	transform: translateY(-1px);
+}
 
-				.btn-next:active:not(.disabled) {
-					transform: translateY(0);
-				}
+.btn-next:active:not(.disabled)
+{
+	transform: translateY(0);
+}
 
-				.btn-next.disabled {
-					background: #9ca3af;
-					color: #ffffff;
-					cursor: not-allowed;
-					opacity: 0.6;
-				}
+.btn-next.disabled
+{
+	background: #
+	9ca3af
+	color: #ffffff;
+	cursor: not - allowed;
+	opacity: 0.6;
+}
 
-				/* Final Button */
-				.btn-final {
-					background: #4caf50;
-					color: white;
-					border: none;
-					padding: 12px 20px;
-					font-size: 14px;
-					font-weight: 600;
-					border-radius: 6px;
-					cursor: pointer;
-					transition: all 0.2s ease;
-				}
+/* Final Button */
+.btn-final
+{
+	background: #
+	4caf50
+	color: white;
+	border: none;
+	padding:
+	12px 20px
+	font - size;
+	: 14px
+	font - weight;
+	: 600
+	border - radius;
+	: 6px
+	cursor: pointer;
+	transition: all;
+	0.2s ease
+}
 
-				.btn-final:hover {
-					background: #45a049;
-					box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
-					transform: translateY(-1px);
-				}
+.btn-final:hover
+{
+	background: #
+	45a049
+	box - shadow;
+	: 0 2px 8px rgba(76, 175, 80, 0.3)
+	transform: translateY(-1px);
+}
 
-				.btn-final:active {
-					transform: translateY(0);
-				}
+.btn-final:active
+{
+	transform: translateY(0);
+}
 
-				/* Tooltip */
-				.tooltip {
-					position: absolute;
-					bottom: 100%;
-					left: 50%;
-					transform: translateX(-50%);
-					margin-bottom: 8px;
-					padding: 8px 12px;
-					background: #333;
-					color: white;
-					font-size: 12px;
-					border-radius: 4px;
-					white-space: nowrap;
-					z-index: 1000;
-					pointer-events: none;
-					animation: slideUp 0.2s ease;
-				}
+/* Tooltip */
+.tooltip
+{
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	margin - bottom;
+	: 8px
+	padding:
+	8px 12px
+	background: #
+	333;
+	color: white;
+	font - size;
+	: 12px
+	border - radius;
+	: 4px
+	white - space;
+	: nowrap
+	z - index;
+	: 1000
+	pointer - events;
+	: none
+	animation: slideUp;
+	0.2s ease
+}
 
-				.tooltip::after {
-					content: '';
-					position: absolute;
-					top: 100%;
-					left: 50%;
-					transform: translateX(-50%);
-					border: 4px solid transparent;
-					border-top-color: #333;
-				}
+.tooltip::after
+{
+	content: '';
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	border:
+	4px solid transparent
+	border - top - color;
+	: #333
+}
 
-				@keyframes slideUp {
-					from 
-						opacity: 0;
-						transform: translateX(-50%) translateY(4px);
-					to 
-						opacity: 1;
-						transform: translateX(-50%) translateY(0);
-				}
+@keyframes
+slideUp;
+{
+	from;
+	opacity: 0;
+	transform: translateX(-50%)
+	translateY(4px);
+	to;
+	opacity: 1;
+	transform: translateX(-50%)
+	translateY(0);
+}
 
-				.btn-icon {
-					display: inline-block;
-					font-size: 12px;
-				}
+.btn-icon
+{
+	display: inline - block;
+	font - size;
+	: 12px
+}
 
-				.btn-text {
-					display: inline-block;
-				}
+.btn-text
+{
+	display: inline - block;
+}
 
-				/* Mobile responsive */
-				@media (max-width: 600px) {
-					.step-action-buttons-v8 
-						flex-direction: column;
-						gap: 8px;
+/* Mobile responsive */
+@media (max-width: 600px)
+{
+	.step-action-buttons-v8 
+						flex-direction: column
+	gap:
+	8px
 
-					.btn 
-						width: 100%;
-						justify-content: center;
-						padding: 12px 16px;
+	.btn 
+						width: 100%
+	justify - content;
+	: center
+	padding:
+	12px 16px
 
-					.next-button-wrapper 
-						width: 100%;
-						max-width: none;
+	.next-button-wrapper 
+						width: 100%
+	max - width;
+	: none
 
-					.tooltip 
-						white-space: normal;
-						max-width: 200px;
-				}
-			`}</style>
+	.tooltip 
+						white-space: normal
+	max - width;
+	: 200px
+}
+`}</style>
 		</div>
 	);
 };

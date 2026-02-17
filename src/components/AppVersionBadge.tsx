@@ -1,6 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
 import { FiBox, FiLayers, FiShield, FiZap } from 'react-icons/fi';
+import styled from 'styled-components';
 import packageJson from '../../package.json';
 
 interface AppVersionBadgeProps {

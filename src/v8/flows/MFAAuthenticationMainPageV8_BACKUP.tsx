@@ -1403,7 +1403,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 {
 	true;
 }
-/> < LoadingSpinnerModalV8U;
+/  8;<>LMSUVaaddegiilnnnoopr;
 show={authState.isLoading && !!loadingMessage}
 message = { loadingMessage };
 theme="blue"

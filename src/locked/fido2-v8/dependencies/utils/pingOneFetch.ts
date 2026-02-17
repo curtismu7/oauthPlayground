@@ -220,18 +220,20 @@ export async function pingOneFetch(
 					sessionId: 'debug-session',
 					runId: 'request-hang',
 					hypothesisId: 'BEFORE-FETCH',),
-			}).catch(() => );
-		} catch (_e) 
-		// #endregion
+			}
+		).catch(() => )
+	}
+	catch (_e)
+	// #endregion
 
+	try {
+		const _response = await fetch(input, {
+			...init,
+			headers,
+		});
+
+		// #region agent log - Debug instrumentation after fetch
 		try {
-			const _response = await fetch(input, {
-				...init,
-				headers,
-			});
-
-			// #region agent log - Debug instrumentation after fetch
-			try {
 					method: 'POST',
 					headers: 'Content-Type': 'application/json' ,
 					body: JSON.stringify(
@@ -247,39 +249,42 @@ export async function pingOneFetch(
 						sessionId: 'debug-session',
 						runId: 'request-hang',
 						hypothesisId: 'AFTER-FETCH',),
-				}).catch(() => );
-			} catch (_e) {}
-			// #endregion
-
-			if (!retryStatuses.has(response.status) || attempt === maxAttempts) {
-				await logBackendPingOneCalls(response);
-				return response;
-			}
-
-			const retryAfter = parseRetryAfter(response.headers.get('Retry-After'));
-			const waitTime = retryAfter ?? baseDelayMs * backoffFactor ** (attempt - 1);
-
-			if (response.body) {
-				try {
-					response.body.cancel();
-				} catch {
-					// ignore cancellation errors
 				}
-			}
+		).catch(() => )
+	} catch (_e) {}
+	// #endregion
 
-			await delay(waitTime);
-		} catch (error) {
-			lastError = error;
-			if (attempt >= maxAttempts) {
-				throw error;
-			}
+	if (!retryStatuses.has(response.status) || attempt === maxAttempts) {
+		await logBackendPingOneCalls(response);
+		return response;
+	}
 
-			const waitTime = baseDelayMs * backoffFactor ** (attempt - 1);
-			await delay(waitTime);
+	const retryAfter = parseRetryAfter(response.headers.get('Retry-After'));
+	const waitTime = retryAfter ?? baseDelayMs * backoffFactor ** (attempt - 1);
+
+	if (response.body) {
+		try {
+			response.body.cancel();
+		} catch {
+			// ignore cancellation errors
 		}
 	}
 
-	throw lastError instanceof Error ? lastError : new Error('PingOne request failed after retries.');
+	await delay(waitTime);
+}
+catch (error)
+{
+	lastError = error;
+	if (attempt >= maxAttempts) {
+		throw error;
+	}
+
+	const waitTime = baseDelayMs * backoffFactor ** (attempt - 1);
+	await delay(waitTime);
+}
+}
+
+throw lastError instanceof Error ? lastError : new Error('PingOne request failed after retries.');
 }
 
 export default pingOneFetch;

@@ -15,10 +15,10 @@ import {
 	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { LearningTooltip } from '../../components/LearningTooltip';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { EducationModeToggle } from '../../components/education/EducationModeToggle';
 import { MasterEducationSection } from '../../components/education/MasterEducationSection';
+import { LearningTooltip } from '../../components/LearningTooltip';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
 import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import { usePageScroll } from '../../hooks/usePageScroll';

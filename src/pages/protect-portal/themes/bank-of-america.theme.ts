@@ -9,8 +9,8 @@
  * their signature red and blue colors, maintaining professional banking aesthetics.
  */
 
-import type { BrandTheme } from './brand-theme.interface';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
+import type { BrandTheme } from './brand-theme.interface';
 
 export const bankOfAmericaConfig: CorporatePortalConfig = {
 	company: {

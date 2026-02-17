@@ -9,12 +9,12 @@
  * with support for different display modes (full, compact, hidden).
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { FiChevronRight, FiInfo, FiBook, FiShield } from 'react-icons/fi';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiBook, FiChevronRight, FiInfo, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 import {
-	EducationPreferenceService,
 	type EducationMode,
+	EducationPreferenceService,
 } from '../../services/educationPreferenceService';
 
 const MasterSectionContainer = styled.div`

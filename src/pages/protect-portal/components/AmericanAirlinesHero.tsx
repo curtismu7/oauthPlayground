@@ -9,7 +9,7 @@
  * that matches the actual AA.com website design and functionality.
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FiArrowRight, FiCalendar, FiLock, FiMapPin, FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';

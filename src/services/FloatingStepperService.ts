@@ -4,13 +4,13 @@
  * @description Reusable floating stepper service for multi-step flows
  * @version 1.0.0
  * @since 2026-02-16
- * 
+ *
  * This service provides a reusable floating stepper component that can be used
  * across different applications and flows. It combines the best features from the
  * OAuth Authorization Code Flow stepper and makes them configurable.
  */
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	FiArrowLeft,
 	FiArrowRight,
@@ -64,9 +64,8 @@ const FloatingStepperContainer = styled.div<{
 	position: fixed !important;
 	left: ${({ $position }) => $position.x}px !important;
 	top: ${({ $position }) => $position.y}px !important;
-	background: ${({ $theme }) => $theme === 'dark' 
-		? 'rgba(31, 41, 55, 0.98)' 
-		: 'rgba(255, 255, 255, 0.98)'} !important;
+	background: ${({ $theme }) =>
+		$theme === 'dark' ? 'rgba(31, 41, 55, 0.98)' : 'rgba(255, 255, 255, 0.98)'} !important;
 	backdrop-filter: blur(10px) !important;
 	padding: ${({ $compact }) => ($compact ? '0.75rem 1rem' : '1.25rem 2rem')} !important;
 	border-radius: ${({ $compact }) => ($compact ? '0.75rem' : '1rem')} !important;
@@ -235,7 +234,7 @@ const CompactToggle = styled.button`
 
 /**
  * FloatingStepper Component
- * 
+ *
  * A reusable floating stepper component that can be used across different applications.
  * Features draggable positioning, step indicators, and responsive design.
  */
@@ -268,37 +267,43 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 	const isLastStep = currentStep === totalSteps - 1;
 	const canNavigateNext = currentStep < totalSteps - 1;
 
-	const handleMouseDown = useCallback((e: React.MouseEvent) => {
-		if (!draggable) return;
+	const handleMouseDown = useCallback(
+		(e: React.MouseEvent) => {
+			if (!draggable) return;
 
-		const rect = dragRef.current?.getBoundingClientRect();
-		if (!rect) return;
+			const rect = dragRef.current?.getBoundingClientRect();
+			if (!rect) return;
 
-		dragOffset.current = {
-			x: e.clientX - rect.left,
-			y: e.clientY - rect.top,
-		};
+			dragOffset.current = {
+				x: e.clientX - rect.left,
+				y: e.clientY - rect.top,
+			};
 
-		setIsDragging(true);
-	}, [draggable]);
+			setIsDragging(true);
+		},
+		[draggable]
+	);
 
-	const handleMouseMove = useCallback((e: MouseEvent) => {
-		if (!isDragging || !draggable) return;
+	const handleMouseMove = useCallback(
+		(e: MouseEvent) => {
+			if (!isDragging || !draggable) return;
 
-		const newPosition = {
-			x: e.clientX - dragOffset.current.x,
-			y: e.clientY - dragOffset.current.y,
-		};
+			const newPosition = {
+				x: e.clientX - dragOffset.current.x,
+				y: e.clientY - dragOffset.current.y,
+			};
 
-		// Keep within viewport bounds
-		const maxX = window.innerWidth - 200; // Approximate width
-		const maxY = window.innerHeight - 100; // Approximate height
+			// Keep within viewport bounds
+			const maxX = window.innerWidth - 200; // Approximate width
+			const maxY = window.innerHeight - 100; // Approximate height
 
-		setCurrentPosition({
-			x: Math.max(0, Math.min(newPosition.x, maxX)),
-			y: Math.max(0, Math.min(newPosition.y, maxY)),
-		});
-	}, [isDragging, draggable]);
+			setCurrentPosition({
+				x: Math.max(0, Math.min(newPosition.x, maxX)),
+				y: Math.max(0, Math.min(newPosition.y, maxY)),
+			});
+		},
+		[isDragging, draggable]
+	);
 
 	const handleMouseUp = useCallback(() => {
 		setIsDragging(false);
@@ -315,11 +320,14 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 		}
 	}, [isDragging, handleMouseMove, handleMouseUp]);
 
-	const handleStepClick = useCallback((stepIndex: number) => {
-		if (onStepChange) {
-			onStepChange(stepIndex);
-		}
-	}, [onStepChange]);
+	const handleStepClick = useCallback(
+		(stepIndex: number) => {
+			if (onStepChange) {
+				onStepChange(stepIndex);
+			}
+		},
+		[onStepChange]
+	);
 
 	const handlePrevious = useCallback(() => {
 		if (onPrevious && !isFirstStep) {
@@ -342,28 +350,30 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 	}, [onReset]);
 
 	const toggleCompact = useCallback(() => {
-		setIsCompact(prev => !prev);
+		setIsCompact((prev) => !prev);
 	}, []);
 
 	return (
 		<FloatingStepperContainer
 			ref={dragRef}
-			$position={currentPosition}
-			$isDragging={isDragging}
-			$compact={isCompact}
-			$variant={variant}
-			$theme={theme}
-			onMouseDown={handleMouseDown}
-			className={className}
-			style={style}
+	$position = { currentPosition };
+	$isDragging = { isDragging };
+	$compact = { isCompact };
+	$variant = { variant };
+	$theme = { theme };
+	onMouseDown = { handleMouseDown };
+	className = { className };
+	style={style}
 		>
 			{draggable && (
 				<DragHandle>
 					<FiMove size={16} />
 				</DragHandle>
-			)}
+	)
+};
 
-			{showStepIndicator && !isCompact && (
+{
+	showStepIndicator && !isCompact && (
 				<StepIndicator>
 					{steps.slice(0, 3).map((step, index) => (
 						<StepDot
@@ -371,15 +381,24 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 							$active={index === currentStep}
 							$completed={step.completed || index < currentStep}
 						/>
-					))}
-					{totalSteps > 3 && <span>...</span>}
-					<StepDot
+					)
+	)
+}
+{
+	totalSteps > 3 && <span>
+	...</span>
+}
+<StepDot
 						$active={totalSteps - 1 === currentStep}
-						$completed={steps[totalSteps - 1]?.completed || totalSteps - 1 < currentStep}
+$completed={steps[totalSteps - 1]?.completed || totalSteps - 1 < currentStep}
 					/>
 					<StepInfo $compact={isCompact}>
 						<StepTitle>
-							{showStepNumbers && `${currentStep + 1}/${totalSteps} `}
+							{showStepNumbers && `${currentStep + 1}/$
+{
+	totalSteps;
+}
+`}
 							{steps[currentStep]?.title}
 						</StepTitle>
 						{steps[currentStep]?.description && (

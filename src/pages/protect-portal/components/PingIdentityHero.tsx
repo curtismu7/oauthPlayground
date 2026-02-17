@@ -12,12 +12,12 @@
 import React from 'react';
 import {
 	FiArrowRight,
+	FiDatabase,
+	FiKey,
 	FiLock,
+	FiSettings,
 	FiShield,
 	FiUsers,
-	FiKey,
-	FiDatabase,
-	FiSettings,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 

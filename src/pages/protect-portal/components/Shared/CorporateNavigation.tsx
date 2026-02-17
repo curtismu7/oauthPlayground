@@ -9,10 +9,10 @@
  */
 
 import React, { useState } from 'react';
-import { FiMenu, FiSearch, FiChevronDown } from 'react-icons/fi';
+import { FiChevronDown, FiMenu, FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
-import BrandDropdownSelector from '../BrandDropdownSelector';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
+import BrandDropdownSelector from '../BrandDropdownSelector';
 
 // ============================================================================
 // STYLED COMPONENTS

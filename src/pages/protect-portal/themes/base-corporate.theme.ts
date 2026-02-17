@@ -8,8 +8,8 @@
  * Base corporate theme that provides default configuration for all companies.
  */
 
-import type { BrandTheme } from './brand-theme.interface';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
+import type { BrandTheme } from './brand-theme.interface';
 
 export const baseCorporateConfig: Partial<CorporatePortalConfig> = {
 	company: {

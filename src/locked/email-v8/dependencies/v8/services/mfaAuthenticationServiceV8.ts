@@ -368,7 +368,7 @@ export class MfaAuthenticationServiceV8 {
 						if (limitExceededDetail) {
 							const deliveryMethod = limitExceededDetail.innerError.deliveryMethod.toUpperCase();
 							const expiresAt = limitExceededDetail.innerError?.coolDownExpiresAt;
-							
+
 							// Get device type display name
 							const getDeviceTypeName = (method: string): string => {
 								const methodMap: Record<string, string> = {
@@ -380,10 +380,10 @@ export class MfaAuthenticationServiceV8 {
 								};
 								return methodMap[method] || method;
 							};
-							
+
 							const deviceTypeName = getDeviceTypeName(deliveryMethod);
 							let friendlyMessage = `${deviceTypeName} authentication is temporarily locked due to too many recent attempts. Please wait a few minutes and try again.`;
-							
+
 							if (expiresAt && typeof expiresAt === 'number') {
 								try {
 									const lockUntil = new Date(expiresAt);
@@ -396,8 +396,8 @@ export class MfaAuthenticationServiceV8 {
 									// If date conversion fails, fall back to generic message
 								}
 							}
-							
-							const error = new Error(friendlyMessage) as Error & { 
+
+							const error = new Error(friendlyMessage) as Error & {
 								errorCode?: string;
 								deliveryMethod?: string;
 								coolDownExpiresAt?: number;
@@ -985,7 +985,7 @@ export class MfaAuthenticationServiceV8 {
 						if (limitExceededDetail) {
 							const deliveryMethod = limitExceededDetail.innerError.deliveryMethod.toUpperCase();
 							const expiresAt = limitExceededDetail.innerError?.coolDownExpiresAt;
-							
+
 							// Get device type display name
 							const getDeviceTypeName = (method: string): string => {
 								const methodMap: Record<string, string> = {
@@ -997,10 +997,10 @@ export class MfaAuthenticationServiceV8 {
 								};
 								return methodMap[method] || method;
 							};
-							
+
 							const deviceTypeName = getDeviceTypeName(deliveryMethod);
 							let friendlyMessage = `${deviceTypeName} authentication is temporarily locked due to too many recent attempts. Please wait a few minutes and try again.`;
-							
+
 							if (expiresAt && typeof expiresAt === 'number') {
 								try {
 									const lockUntil = new Date(expiresAt);
@@ -1013,8 +1013,8 @@ export class MfaAuthenticationServiceV8 {
 									// If date conversion fails, fall back to generic message
 								}
 							}
-							
-							const error = new Error(friendlyMessage) as Error & { 
+
+							const error = new Error(friendlyMessage) as Error & {
 								errorCode?: string;
 								deliveryMethod?: string;
 								coolDownExpiresAt?: number;
@@ -1862,47 +1862,48 @@ export class MfaAuthenticationServiceV8 {
 					sessionId: 'debug-session',
 					runId: 'run1',
 					hypothesisId: 'A',),
-			}).catch(() => );
-			// #endregion
-
-			// Build request body for backend proxy
-			// The backend will transform this into the PingOne API format
-			const backendRequestBody: {
-				deviceAuthId: string;
-				environmentId: string;
-				assertion: typeof assertionBody.assertion;
-				region?: 'us' | 'eu' | 'ap' | 'ca' | 'na';
-				customDomain?: string;
-				origin?: string;
-			} = {
-				deviceAuthId,
-				environmentId: finalEnvironmentId, // Include environment ID in request body
-				assertion: assertionBody.assertion, // Send as object to backend, backend will stringify for PingOne
-			};
-
-			// Include region, customDomain, and origin if provided (backend needs these to construct correct PingOne URL and request body)
-			if (region) {
-				backendRequestBody.region = region;
 			}
-			if (customDomain) {
-				backendRequestBody.customDomain = customDomain;
-			}
-			if (origin) {
-				backendRequestBody.origin = origin;
-			} else {
-				// Default to current window origin if not provided
-				backendRequestBody.origin = window.location.origin;
-			}
-			// Determine base URL - use custom domain if provided, otherwise use region-based domain
-			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(region, customDomain);
-			// PingOne API endpoint: POST {{authPath}}/{{envID}}/deviceAuthentications/{{deviceAuthID}}
-			// Content-Type: application/vnd.pingidentity.assertion.check+json
-			// Note: The Content-Type header indicates this is an assertion check, not the URL path
-			const _actualPingOneUrl = `${authPath}/${finalEnvironmentId}/deviceAuthentications/${deviceAuthId}`;
+		).catch(() => )
+		// #endregion
 
-			// #region agent log
-				method: 'POST',
-				headers: 'Content-Type': 'application/json' ,
+		// Build request body for backend proxy
+		// The backend will transform this into the PingOne API format
+		const backendRequestBody: {
+			deviceAuthId: string;
+			environmentId: string;
+			assertion: typeof assertionBody.assertion;
+			region?: 'us' | 'eu' | 'ap' | 'ca' | 'na';
+			customDomain?: string;
+			origin?: string;
+		} = {
+			deviceAuthId,
+			environmentId: finalEnvironmentId, // Include environment ID in request body
+			assertion: assertionBody.assertion, // Send as object to backend, backend will stringify for PingOne
+		};
+
+		// Include region, customDomain, and origin if provided (backend needs these to construct correct PingOne URL and request body)
+		if (region) {
+			backendRequestBody.region = region;
+		}
+		if (customDomain) {
+			backendRequestBody.customDomain = customDomain;
+		}
+		if (origin) {
+			backendRequestBody.origin = origin;
+		} else {
+			// Default to current window origin if not provided
+			backendRequestBody.origin = window.location.origin;
+		}
+		// Determine base URL - use custom domain if provided, otherwise use region-based domain
+		const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(region, customDomain);
+		// PingOne API endpoint: POST {{authPath}}/{{envID}}/deviceAuthentications/{{deviceAuthID}}
+		// Content-Type: application/vnd.pingidentity.assertion.check+json
+		// Note: The Content-Type header indicates this is an assertion check, not the URL path
+		const _actualPingOneUrl = `${authPath}/${finalEnvironmentId}/deviceAuthentications/${deviceAuthId}`;
+
+		// #region agent log
+		method: 'POST', headers;
+		: 'Content-Type': 'application/json' ,
 				body: JSON.stringify(
 					location: 'mfaAuthenticationServiceV8.ts:1774',
 					message: 'Request body before stringify',
@@ -1922,52 +1923,61 @@ export class MfaAuthenticationServiceV8 {
 					sessionId: 'debug-session',
 					runId: 'run1',
 					hypothesisId: 'B',),
-			}).catch(() => {});
-			// #endregion
+	}
+	).catch(() => {
+}
+)
+// #endregion
 
-			// Build the request body that will be sent to PingOne (via backend proxy)
-			// This matches the PingOne API spec: { origin, assertion (as JSON string), compatibility }
-			// The assertion should be a JSON string containing the WebAuthn assertion object
-			// with base64url-encoded values (clientDataJSON, authenticatorData, signature, etc.)
-			const assertionJsonString = JSON.stringify(assertionBody.assertion);
-			const pingOneRequestBody = {
-				origin: origin || window.location.origin,
-				assertion: assertionJsonString, // Assertion must be a JSON string for PingOne
-				compatibility: 'FULL', // Required by PingOne API
-			};
+// Build the request body that will be sent to PingOne (via backend proxy)
+// This matches the PingOne API spec: { origin, assertion (as JSON string), compatibility }
+// The assertion should be a JSON string containing the WebAuthn assertion object
+// with base64url-encoded values (clientDataJSON, authenticatorData, signature, etc.)
+const assertionJsonString = JSON.stringify(assertionBody.assertion);
+const pingOneRequestBody = {
+	origin: origin || window.location.origin,
+	assertion: assertionJsonString, // Assertion must be a JSON string for PingOne
+	compatibility: 'FULL', // Required by PingOne API
+};
 
-			// For API display, show the assertion as a parsed object so it displays correctly
-			// (not as an escaped string). The actual request to PingOne will have it as a string.
-			const displayRequestBody = {
-				origin: pingOneRequestBody.origin,
-				assertion: assertionBody.assertion, // Show as object for better readability
-				compatibility: pingOneRequestBody.compatibility,
-				// Add a note that assertion is sent as JSON string to PingOne
-				_note: 'The assertion field is sent to PingOne as a JSON string (stringified object)',
-			};
+// For API display, show the assertion as a parsed object so it displays correctly
+// (not as an escaped string). The actual request to PingOne will have it as a string.
+const displayRequestBody = {
+	origin: pingOneRequestBody.origin,
+	assertion: assertionBody.assertion, // Show as object for better readability
+	compatibility: pingOneRequestBody.compatibility,
+	// Add a note that assertion is sent as JSON string to PingOne
+	_note: 'The assertion field is sent to PingOne as a JSON string (stringified object)',
+};
 
-			const callId = apiCallTrackerService.trackApiCall({
-				method: 'POST',
-				url: '/api/pingone/mfa/check-fido2-assertion',
-				actualPingOneUrl,
-				isProxy: true,
-				headers: {
-					Authorization: `Bearer {{accessToken}}`, // Worker token required
-					'Content-Type': 'application/vnd.pingidentity.assertion.check+json',
-					Accept: 'application/json',
-				},
-				body: displayRequestBody, // Show assertion as object for better readability in API display
-				step: 'mfa-Check FIDO2 Assertion',
-				flowType: 'mfa',
-			});
+const callId = apiCallTrackerService.trackApiCall({
+	method: 'POST',
+	url: '/api/pingone/mfa/check-fido2-assertion',
+	actualPingOneUrl,
+	isProxy: true,
+	headers: {
+		Authorization: `Bearer {{accessToken}}`, // Worker token required
+		'Content-Type': 'application/vnd.pingidentity.assertion.check+json',
+		Accept: 'application/json',
+	},
+	body: displayRequestBody, // Show assertion as object for better readability in API display
+	step: 'mfa-Check FIDO2 Assertion',
+	flowType: 'mfa',
+});
 
-			// #region agent log
-			const stringifiedBody = JSON.stringify(backendRequestBody);
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'mfaAuthenticationServiceV8.ts:1802',
-					message: 'Request body after stringify',
+// #region agent log
+const stringifiedBody = JSON.stringify(backendRequestBody);
+method: 'POST', headers;
+:
+{
+	('Content-Type');
+	: 'application/json'
+}
+,
+				body: JSON.stringify(
+{
+	location: 'mfaAuthenticationServiceV8.ts:1802', message;
+	: 'Request body after stringify',
 					data: 
 						stringifiedLength: stringifiedBody.length,
 						stringifiedPreview: stringifiedBody.substring(0, 200),
@@ -1979,77 +1989,88 @@ export class MfaAuthenticationServiceV8 {
 					sessionId: 'debug-session',
 					runId: 'run1',
 					hypothesisId: 'C',
-				}),
-			}).catch(() => {});
-			// #endregion
+}
+),
+			}).catch(() =>
+{
+}
+)
+// #endregion
 
-			const response = await pingOneFetch('/api/pingone/mfa/check-fido2-assertion', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${cleanToken}`,
-				},
-				body: stringifiedBody, // Send backend request body (backend will transform to PingOne format)
-				retry: { maxAttempts: 3 },
-			});
+const response = await pingOneFetch('/api/pingone/mfa/check-fido2-assertion', {
+	method: 'POST',
+	headers: {
+		'Content-Type': 'application/json',
+		Authorization: `Bearer ${cleanToken}`,
+	},
+	body: stringifiedBody, // Send backend request body (backend will transform to PingOne format)
+	retry: { maxAttempts: 3 },
+});
 
-			// Parse response once (clone first to avoid consuming the body)
-			const responseClone = response.clone();
-			let responseData: unknown;
-			try {
-				responseData = await responseClone.json();
-			} catch {
-				responseData = { error: 'Failed to parse response' };
-			}
+// Parse response once (clone first to avoid consuming the body)
+const responseClone = response.clone();
+let responseData: unknown;
+try {
+	responseData = await responseClone.json();
+} catch {
+	responseData = { error: 'Failed to parse response' };
+}
 
-			// Update API call with response
-			apiCallTrackerService.updateApiCallResponse(
-				callId,
-				{
-					status: response.status,
-					statusText: response.statusText,
-					data: responseData,
-				},
-				Date.now() - startTime
-			);
+// Update API call with response
+apiCallTrackerService.updateApiCallResponse(
+	callId,
+	{
+		status: response.status,
+		statusText: response.statusText,
+		data: responseData,
+	},
+	Date.now() - startTime
+);
 
-			if (!response.ok) {
-				const errorText =
-					typeof responseData === 'object' && responseData !== null && 'message' in responseData
-						? String(responseData.message)
-						: response.statusText;
-				throw new Error(
-					`Failed to check FIDO2 assertion: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`
-				);
-			}
+if (!response.ok) {
+	const errorText =
+		typeof responseData === 'object' && responseData !== null && 'message' in responseData
+			? String(responseData.message)
+			: response.statusText;
+	throw new Error(
+		`Failed to check FIDO2 assertion: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`
+	);
+}
 
-			const data = responseData as { status: string; nextStep?: string; [key: string]: unknown };
-			console.log(`${MODULE_TAG} FIDO2 assertion checked`, {
-				status: data.status,
-				nextStep: data.nextStep,
-			});
+const data = responseData as { status: string; nextStep?: string; [key: string]: unknown };
+console.log(`${MODULE_TAG} FIDO2 assertion checked`, {
+	status: data.status,
+	nextStep: data.nextStep,
+});
 
-			return data;
-		} catch (error) {
-			console.error(`${MODULE_TAG} Error checking FIDO2 assertion`, error);
-			throw error;
-		}
-	}
+return data;
+} catch (error)
+{
+	console.error(`${MODULE_TAG} Error checking FIDO2 assertion`, error);
+	throw error;
+}
+}
 
 	/**
 	 * Extract _links from response and return available actions
 	 */
-	static extractAvailableLinks(response: { _links?: Record<string, { href: string }> }): {
-		otpCheck?: string;
-		challengePoll?: string;
-		deviceUpdate?: string;
-		complete?: string;
-		cancel?: string;
-		assertionCheck?: string;
-	} {
-		const links = response._links || {};
+	static extractAvailableLinks(response:
+{
+	_links?: Record<string, { href: string }>
+}
+):
+{
+	otpCheck?: string;
+	challengePoll?: string;
+	deviceUpdate?: string;
+	complete?: string;
+	cancel?: string;
+	assertionCheck?: string;
+}
+{
+	const links = response._links || {};
 
-		return {
+	return {
 			otpCheck: links['otp.check']?.href,
 			challengePoll: links['challenge.poll']?.href,
 			deviceUpdate: links['device.update']?.href,
@@ -2057,7 +2078,7 @@ export class MfaAuthenticationServiceV8 {
 			cancel: links.cancel?.href,
 			assertionCheck: links['assertion.check']?.href,
 		};
-	}
+}
 }
 
 export default MfaAuthenticationServiceV8;

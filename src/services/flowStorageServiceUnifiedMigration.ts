@@ -38,8 +38,10 @@ export class FlowStorageUnifiedMigration {
 
 		try {
 			// Get all flow storage keys from localStorage and sessionStorage
-			const localStorageKeys = this.getFlowStorageKeysFromStorage('localStorage');
-			const sessionStorageKeys = this.getFlowStorageKeysFromStorage('sessionStorage');
+			const localStorageKeys =
+				FlowStorageUnifiedMigration.getFlowStorageKeysFromStorage('localStorage');
+			const sessionStorageKeys =
+				FlowStorageUnifiedMigration.getFlowStorageKeysFromStorage('sessionStorage');
 			const allKeys = [...new Set([...localStorageKeys, ...sessionStorageKeys])];
 
 			console.log(`${MODULE_TAG} Starting comprehensive flow storage migration`, {
@@ -50,7 +52,7 @@ export class FlowStorageUnifiedMigration {
 
 			for (const key of allKeys) {
 				try {
-					await this.migrateFlowStorageKey(key);
+					await FlowStorageUnifiedMigration.migrateFlowStorageKey(key);
 					results.migrated++;
 				} catch (error) {
 					const errorMsg = `Failed to migrate flow storage key ${key}: ${error}`;
@@ -132,7 +134,7 @@ export class FlowStorageUnifiedMigration {
 
 		for (let i = 0; i < storage.length; i++) {
 			const key = storage.key(i);
-			if (key && this.isFlowStorageKey(key)) {
+			if (key && FlowStorageUnifiedMigration.isFlowStorageKey(key)) {
 				keys.push(key);
 			}
 		}
@@ -167,8 +169,10 @@ export class FlowStorageUnifiedMigration {
 	 * Check if flow storage migration is needed
 	 */
 	static needsMigration(): boolean {
-		const localStorageKeys = this.getFlowStorageKeysFromStorage('localStorage');
-		const sessionStorageKeys = this.getFlowStorageKeysFromStorage('sessionStorage');
+		const localStorageKeys =
+			FlowStorageUnifiedMigration.getFlowStorageKeysFromStorage('localStorage');
+		const sessionStorageKeys =
+			FlowStorageUnifiedMigration.getFlowStorageKeysFromStorage('sessionStorage');
 		return localStorageKeys.length > 0 || sessionStorageKeys.length > 0;
 	}
 
@@ -180,8 +184,10 @@ export class FlowStorageUnifiedMigration {
 		sessionStorageKeys: number;
 		unifiedStorageKeys: number;
 	} {
-		const localStorageKeys = this.getFlowStorageKeysFromStorage('localStorage');
-		const sessionStorageKeys = this.getFlowStorageKeysFromStorage('sessionStorage');
+		const localStorageKeys =
+			FlowStorageUnifiedMigration.getFlowStorageKeysFromStorage('localStorage');
+		const sessionStorageKeys =
+			FlowStorageUnifiedMigration.getFlowStorageKeysFromStorage('sessionStorage');
 
 		return {
 			localStorageKeys: localStorageKeys.length,
@@ -330,9 +336,7 @@ export class UnifiedPKCEStorage {
 		await UnifiedFlowStorageService.save('session', flowId, 'pkce', data);
 	}
 
-	static async load(
-		flowId: string
-	): Promise<{
+	static async load(flowId: string): Promise<{
 		codeVerifier: string;
 		codeChallenge: string;
 		codeChallengeMethod: 'S256' | 'plain';
@@ -373,9 +377,7 @@ export class UnifiedTokenStorage {
 		await UnifiedFlowStorageService.save('local', flowId, 'tokens', data);
 	}
 
-	static async load(
-		flowId: string
-	): Promise<{
+	static async load(flowId: string): Promise<{
 		access_token: string;
 		refresh_token?: string;
 		id_token?: string;
@@ -423,9 +425,7 @@ export class UnifiedCredentialsStorage {
 		await UnifiedFlowStorageService.save('local', flowId, 'credentials', data);
 	}
 
-	static async load(
-		flowId: string
-	): Promise<{
+	static async load(flowId: string): Promise<{
 		environmentId: string;
 		clientId: string;
 		clientSecret?: string;
@@ -469,9 +469,7 @@ export class UnifiedNavigationStorage {
 		await UnifiedFlowStorageService.save('session', flowId, 'navigation', data);
 	}
 
-	static async load(
-		flowId: string
-	): Promise<{
+	static async load(flowId: string): Promise<{
 		flowId: string;
 		currentStep: number;
 		returnPath?: string;
@@ -526,9 +524,7 @@ export class UnifiedDeviceCodeStorage {
 		await UnifiedFlowStorageService.save('session', flowId, 'device-code', data);
 	}
 
-	static async load(
-		flowId: string
-	): Promise<{
+	static async load(flowId: string): Promise<{
 		device_code: string;
 		user_code: string;
 		verification_uri: string;
@@ -580,9 +576,7 @@ export class UnifiedAdvancedParametersStorage {
 		await UnifiedFlowStorageService.save('local', flowId, 'advanced-parameters', data);
 	}
 
-	static async load(
-		flowId: string
-	): Promise<{
+	static async load(flowId: string): Promise<{
 		audience?: string;
 		resources?: string[];
 		displayMode?: string;

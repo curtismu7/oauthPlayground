@@ -18,8 +18,10 @@ export class FlowStorageServiceMigration {
 
 		try {
 			// Get all flow storage keys from localStorage and sessionStorage
-			const localStorageKeys = this.getFlowStorageKeysFromStorage('localStorage');
-			const sessionStorageKeys = this.getFlowStorageKeysFromStorage('sessionStorage');
+			const localStorageKeys =
+				FlowStorageServiceMigration.getFlowStorageKeysFromStorage('localStorage');
+			const sessionStorageKeys =
+				FlowStorageServiceMigration.getFlowStorageKeysFromStorage('sessionStorage');
 			const allKeys = [...new Set([...localStorageKeys, ...sessionStorageKeys])];
 
 			console.log(`${MODULE_TAG} Starting flow storage migration`, {
@@ -30,7 +32,7 @@ export class FlowStorageServiceMigration {
 
 			for (const key of allKeys) {
 				try {
-					await this.migrateFlowStorageKey(key);
+					await FlowStorageServiceMigration.migrateFlowStorageKey(key);
 					results.migrated++;
 				} catch (error) {
 					const errorMsg = `Failed to migrate flow storage key ${key}: ${error}`;
@@ -111,7 +113,7 @@ export class FlowStorageServiceMigration {
 
 		for (let i = 0; i < storage.length; i++) {
 			const key = storage.key(i);
-			if (key && this.isFlowStorageKey(key)) {
+			if (key && FlowStorageServiceMigration.isFlowStorageKey(key)) {
 				keys.push(key);
 			}
 		}
@@ -146,8 +148,10 @@ export class FlowStorageServiceMigration {
 	 * Check if flow storage migration is needed
 	 */
 	static needsMigration(): boolean {
-		const localStorageKeys = this.getFlowStorageKeysFromStorage('localStorage');
-		const sessionStorageKeys = this.getFlowStorageKeysFromStorage('sessionStorage');
+		const localStorageKeys =
+			FlowStorageServiceMigration.getFlowStorageKeysFromStorage('localStorage');
+		const sessionStorageKeys =
+			FlowStorageServiceMigration.getFlowStorageKeysFromStorage('sessionStorage');
 		return localStorageKeys.length > 0 || sessionStorageKeys.length > 0;
 	}
 
@@ -159,8 +163,10 @@ export class FlowStorageServiceMigration {
 		sessionStorageKeys: number;
 		unifiedStorageKeys: number;
 	} {
-		const localStorageKeys = this.getFlowStorageKeysFromStorage('localStorage');
-		const sessionStorageKeys = this.getFlowStorageKeysFromStorage('sessionStorage');
+		const localStorageKeys =
+			FlowStorageServiceMigration.getFlowStorageKeysFromStorage('localStorage');
+		const sessionStorageKeys =
+			FlowStorageServiceMigration.getFlowStorageKeysFromStorage('sessionStorage');
 
 		return {
 			localStorageKeys: localStorageKeys.length,

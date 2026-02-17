@@ -18,6 +18,8 @@ import styled from 'styled-components';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 // Import components
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import { EducationModeToggle } from '../../components/education/EducationModeToggle';
+import { MasterEducationSection } from '../../components/education/MasterEducationSection';
 import { LearningTooltip } from '../../components/LearningTooltip';
 import OAuthErrorDisplay from '../../components/OAuthErrorDisplay';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
@@ -35,8 +37,6 @@ import { CopyButtonService } from '../../services/copyButtonService';
 import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
 import { FlowCredentialService } from '../../services/flowCredentialService';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { EducationModeToggle } from '../../components/education/EducationModeToggle';
-import { MasterEducationSection } from '../../components/education/MasterEducationSection';
 // Import UI components from services
 import { FlowUIService } from '../../services/flowUIService';
 // Import shared services

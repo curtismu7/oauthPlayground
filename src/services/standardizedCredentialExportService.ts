@@ -6,8 +6,8 @@ import { exportWorkerTokenCredentials } from './credentialExportImportService';
 // Re-export the standardized interfaces
 export type {
 	AuthzCredentials,
-	WorkerTokenCredentials,
 	ExportedCredentials,
+	WorkerTokenCredentials,
 } from './credentialExportImportService';
 
 // Standardized export format for all Production apps
