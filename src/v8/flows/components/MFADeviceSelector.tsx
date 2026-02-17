@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import type { DeviceType } from '../shared/MFATypes';
 
 export interface Device {
@@ -119,14 +120,17 @@ export const MFADeviceSelector: React.FC<MFADeviceSelectorProps> = ({
 					</div>
 
 					{selectedDeviceId && selectedDeviceId !== 'new' && onUseSelected && (
-						<button
-							type="button"
-							className="btn btn-primary"
+						<ButtonSpinner
+							loading={false}
 							onClick={onUseSelected}
+							spinnerSize={12}
+							spinnerPosition="left"
+							loadingText="Using..."
+							className="btn btn-primary"
 							style={{ marginBottom: '10px' }}
 						>
 							Use Selected Device
-						</button>
+						</ButtonSpinner>
 					)}
 				</div>
 			)}

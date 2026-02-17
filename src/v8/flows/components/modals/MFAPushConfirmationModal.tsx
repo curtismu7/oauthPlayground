@@ -1,6 +1,7 @@
 import React from 'react';
 import { FiLoader, FiX } from 'react-icons/fi';
 import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 export interface MFAPushConfirmationModalProps {
 	show: boolean;
@@ -50,9 +51,12 @@ export const MFAPushConfirmationModal: React.FC<MFAPushConfirmationModalProps> =
 						position: 'relative',
 					}}
 				>
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={false}
 						onClick={onClose}
+						spinnerSize={12}
+						spinnerPosition="left"
+						loadingText="Closing..."
 						style={{
 							position: 'absolute',
 							top: '16px',
@@ -67,10 +71,11 @@ export const MFAPushConfirmationModal: React.FC<MFAPushConfirmationModalProps> =
 							justifyContent: 'center',
 							cursor: 'pointer',
 							color: 'white',
+							padding: 0,
 						}}
 					>
 						<FiX size={18} />
-					</button>
+					</ButtonSpinner>
 					<PingIdentityLogo size={48} />
 					<h3
 						style={{
@@ -137,9 +142,12 @@ export const MFAPushConfirmationModal: React.FC<MFAPushConfirmationModalProps> =
 						</p>
 					</div>
 
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={false}
 						onClick={onClose}
+						spinnerSize={16}
+						spinnerPosition="left"
+						loadingText="Canceling..."
 						style={{
 							width: '100%',
 							padding: '12px 24px',
@@ -153,7 +161,7 @@ export const MFAPushConfirmationModal: React.FC<MFAPushConfirmationModalProps> =
 						}}
 					>
 						Cancel
-					</button>
+					</ButtonSpinner>
 				</div>
 			</div>
 		</div>

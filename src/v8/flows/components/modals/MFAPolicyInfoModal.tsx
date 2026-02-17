@@ -11,6 +11,7 @@
 
 import React from 'react';
 import { FiX } from 'react-icons/fi';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 export interface MFAPolicyInfoModalProps {
 	show: boolean;
@@ -66,9 +67,12 @@ export const MFAPolicyInfoModal: React.FC<MFAPolicyInfoModalProps> = ({ show, on
 					<h2 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#1f2937' }}>
 						What is a Device Authentication Policy?
 					</h2>
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={false}
 						onClick={onClose}
+						spinnerSize={12}
+						spinnerPosition="left"
+						loadingText="Closing..."
 						style={{
 							background: 'rgba(0, 0, 0, 0.1)',
 							border: 'none',
@@ -80,10 +84,11 @@ export const MFAPolicyInfoModal: React.FC<MFAPolicyInfoModalProps> = ({ show, on
 							justifyContent: 'center',
 							cursor: 'pointer',
 							color: '#6b7280',
+							padding: 0,
 						}}
 					>
 						<FiX size={20} />
-					</button>
+					</ButtonSpinner>
 				</div>
 
 				{/* Content */}
@@ -171,9 +176,12 @@ export const MFAPolicyInfoModal: React.FC<MFAPolicyInfoModalProps> = ({ show, on
 					</div>
 
 					{/* Got It Button */}
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={false}
 						onClick={onClose}
+						spinnerSize={16}
+						spinnerPosition="left"
+						loadingText="Got it!"
 						style={{
 							width: '100%',
 							marginTop: '24px',
@@ -187,15 +195,9 @@ export const MFAPolicyInfoModal: React.FC<MFAPolicyInfoModalProps> = ({ show, on
 							cursor: 'pointer',
 							transition: 'background 0.2s',
 						}}
-						onMouseEnter={(e) => {
-							e.currentTarget.style.background = '#2563eb';
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.background = '#3b82f6';
-						}}
 					>
 						Got it!
-					</button>
+					</ButtonSpinner>
 				</div>
 			</div>
 		</div>
