@@ -2555,6 +2555,506 @@ export class UnifiedTokenStorageService {
 			throw error;
 		}
 	}
+
+	// ===== CREDENTIAL STORAGE MANAGER COMPATIBILITY METHODS =====
+	// These methods provide backward compatibility with CredentialStorageManager
+
+	/**
+	 * Load flow credentials (CredentialStorageManager compatibility)
+	 */
+	async loadFlowCredentials(flowKey: string): Promise<{ success: boolean; data: any; source: string; timestamp?: number; error?: string }> {
+		try {
+			// Try unified storage first
+			const tokens = await this.getTokens({
+				type: 'oauth_credentials' as any,
+				flowName: flowKey,
+			});
+
+			if (tokens.length > 0) {
+				const token = tokens[0];
+				logger.info(MODULE_TAG, 'Flow credentials loaded from unified storage', { flowKey });
+				return {
+					success: true,
+					data: token.value,
+					source: 'unified',
+					timestamp: token.issuedAt,
+				};
+			}
+
+			// Fallback to localStorage
+			try {
+				const stored = localStorage.getItem(`flow_credentials_${flowKey}`);
+				if (stored) {
+					const credentials = JSON.parse(stored);
+					// Migrate to unified storage
+					await this.saveFlowCredentials(flowKey, credentials);
+					// Remove from localStorage
+					localStorage.removeItem(`flow_credentials_${flowKey}`);
+					logger.info(MODULE_TAG, 'Flow credentials migrated from localStorage', { flowKey });
+					return {
+						success: true,
+						data: credentials,
+						source: 'localStorage',
+						timestamp: Date.now(),
+					};
+				}
+			} catch (error) {
+				logger.error(MODULE_TAG, 'Failed to load from localStorage', { flowKey, error });
+			}
+
+			return {
+				success: false,
+				data: null,
+				source: 'none',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load flow credentials', { flowKey, error });
+			return {
+				success: false,
+				data: null,
+				source: 'none',
+				error: error instanceof Error ? error.message : 'Unknown error',
+			};
+		}
+	}
+
+	/**
+	 * Save flow credentials (CredentialStorageManager compatibility)
+	 */
+	async saveFlowCredentials(flowKey: string, credentials: any): Promise<{ success: boolean; source: string; error?: string }> {
+		try {
+			// Add timestamp
+			const credentialsWithMetadata = {
+				...credentials,
+				savedAt: Date.now(),
+			};
+
+			// Save to unified storage
+			await this.storeToken({
+				id: `flow_credentials_${flowKey}`,
+				type: 'oauth_credentials' as any,
+				value: credentialsWithMetadata,
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'indexeddb',
+				flowName: flowKey,
+				metadata: {
+					originalKey: `flow_credentials_${flowKey}`,
+					savedAt: Date.now(),
+				},
+			});
+
+			// Also save to localStorage for immediate compatibility
+			try {
+				localStorage.setItem(`flow_credentials_${flowKey}`, JSON.stringify(credentialsWithMetadata));
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Flow credentials saved to unified storage', { flowKey });
+			return {
+				success: true,
+				source: 'unified',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save flow credentials', { flowKey, error });
+			return {
+				success: false,
+				source: 'none',
+				error: error instanceof Error ? error.message : 'Unknown error',
+			};
+		}
+	}
+
+	/**
+	 * Clear flow credentials (CredentialStorageManager compatibility)
+	 */
+	async clearFlowCredentials(flowKey: string): Promise<void> {
+		try {
+			// Remove from unified storage
+			await this.deleteTokens({
+				type: 'oauth_credentials' as any,
+				id: `flow_credentials_${flowKey}`,
+			});
+
+			// Remove from localStorage
+			try {
+				localStorage.removeItem(`flow_credentials_${flowKey}`);
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Flow credentials cleared', { flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear flow credentials', { flowKey, error });
+		}
+	}
+
+	/**
+	 * Clear all credentials (CredentialStorageManager compatibility)
+	 */
+	async clearAllCredentials(): Promise<void> {
+		try {
+			// Remove all credential tokens from unified storage
+			const tokens = await this.getTokens({
+				type: 'oauth_credentials' as any,
+			});
+
+			for (const token of tokens) {
+				await this.deleteTokens({
+					type: 'oauth_credentials' as any,
+					id: token.id,
+				});
+			}
+
+			// Clear localStorage
+			try {
+				const keysToRemove: string[] = [];
+				for (let i = 0; i < localStorage.length; i++) {
+					const key = localStorage.key(i);
+					if (key?.startsWith('flow_credentials_')) {
+						keysToRemove.push(key);
+					}
+				}
+				keysToRemove.forEach(key => localStorage.removeItem(key));
+			} catch {}
+
+			logger.info(MODULE_TAG, 'All credentials cleared');
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear all credentials', error);
+		}
+	}
+
+	/**
+	 * Save PKCE codes (CredentialStorageManager compatibility)
+	 */
+	async savePKCECodes(flowKey: string, pkceCodes: { codeVerifier: string; codeChallenge: string; codeChallengeMethod: 'S256' | 'plain' }): Promise<void> {
+		try {
+			const key = `flow_pkce_${flowKey}`;
+			const data = {
+				...pkceCodes,
+				savedAt: Date.now(),
+			};
+
+			// Save to unified storage
+			await this.storeToken({
+				id: key,
+				type: 'pkce_state' as any,
+				value: JSON.stringify(data),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'indexeddb',
+				flowName: flowKey,
+				metadata: {
+					originalKey: key,
+					savedAt: Date.now(),
+				},
+			});
+
+			// Also save to localStorage for immediate compatibility
+			try {
+				localStorage.setItem(key, JSON.stringify(data));
+			} catch {}
+
+			logger.info(MODULE_TAG, 'PKCE codes saved to unified storage', { flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save PKCE codes', { flowKey, error });
+		}
+	}
+
+	/**
+	 * Load PKCE codes (CredentialStorageManager compatibility)
+	 */
+	async loadPKCECodes(flowKey: string): Promise<{ codeVerifier: string; codeChallenge: string; codeChallengeMethod: 'S256' | 'plain' } | null> {
+		try {
+			const key = `flow_pkce_${flowKey}`;
+
+			// Try unified storage first
+			const tokens = await this.getTokens({
+				type: 'pkce_state' as any,
+				id: key,
+			});
+
+			if (tokens.length > 0) {
+				const token = tokens[0];
+				const data = JSON.parse(token.value);
+				logger.info(MODULE_TAG, 'PKCE codes loaded from unified storage', { flowKey });
+				return data;
+			}
+
+			// Fallback to localStorage
+			try {
+				const stored = localStorage.getItem(key);
+				if (stored) {
+					const data = JSON.parse(stored);
+					// Migrate to unified storage
+					await this.savePKCECodes(flowKey, data);
+					// Remove from localStorage
+					localStorage.removeItem(key);
+					logger.info(MODULE_TAG, 'PKCE codes migrated from localStorage', { flowKey });
+					return data;
+				}
+			} catch (error) {
+				logger.error(MODULE_TAG, 'Failed to load PKCE codes from localStorage', { flowKey, error });
+			}
+
+			return null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load PKCE codes', { flowKey, error });
+			return null;
+		}
+	}
+
+	/**
+	 * Clear PKCE codes (CredentialStorageManager compatibility)
+	 */
+	async clearPKCECodes(flowKey: string): Promise<void> {
+		try {
+			const key = `flow_pkce_${flowKey}`;
+
+			// Remove from unified storage
+			await this.deleteTokens({
+				type: 'pkce_state' as any,
+				id: key,
+			});
+
+			// Remove from localStorage
+			try {
+				localStorage.removeItem(key);
+			} catch {}
+
+			logger.info(MODULE_TAG, 'PKCE codes cleared', { flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear PKCE codes', { flowKey, error });
+		}
+	}
+
+	/**
+	 * Save flow state (CredentialStorageManager compatibility)
+	 */
+	async saveFlowState(flowKey: string, state: any): Promise<void> {
+		try {
+			const key = `flow_state_${flowKey}`;
+			const data = {
+				...state,
+				savedAt: Date.now(),
+			};
+
+			// Save to unified storage
+			await this.storeToken({
+				id: key,
+				type: 'flow_state' as any,
+				value: JSON.stringify(data),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'indexeddb',
+				flowName: flowKey,
+				metadata: {
+					originalKey: key,
+					savedAt: Date.now(),
+				},
+			});
+
+			// Also save to sessionStorage for immediate compatibility
+			try {
+				sessionStorage.setItem(key, JSON.stringify(data));
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Flow state saved to unified storage', { flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save flow state', { flowKey, error });
+		}
+	}
+
+	/**
+	 * Load flow state (CredentialStorageManager compatibility)
+	 */
+	async loadFlowState(flowKey: string): Promise<any | null> {
+		try {
+			const key = `flow_state_${flowKey}`;
+
+			// Try unified storage first
+			const tokens = await this.getTokens({
+				type: 'flow_state' as any,
+				id: key,
+			});
+
+			if (tokens.length > 0) {
+				const token = tokens[0];
+				const data = JSON.parse(token.value);
+				logger.info(MODULE_TAG, 'Flow state loaded from unified storage', { flowKey });
+				return data;
+			}
+
+			// Fallback to sessionStorage
+			try {
+				const stored = sessionStorage.getItem(key);
+				if (stored) {
+					const data = JSON.parse(stored);
+					// Migrate to unified storage
+					await this.saveFlowState(flowKey, data);
+					// Remove from sessionStorage
+					sessionStorage.removeItem(key);
+					logger.info(MODULE_TAG, 'Flow state migrated from sessionStorage', { flowKey });
+					return data;
+				}
+			} catch (error) {
+				logger.error(MODULE_TAG, 'Failed to load flow state from sessionStorage', { flowKey, error });
+			}
+
+			return null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load flow state', { flowKey, error });
+			return null;
+		}
+	}
+
+	/**
+	 * Clear flow state (CredentialStorageManager compatibility)
+	 */
+	async clearFlowState(flowKey: string): Promise<void> {
+		try {
+			const key = `flow_state_${flowKey}`;
+
+			// Remove from unified storage
+			await this.deleteTokens({
+				type: 'flow_state' as any,
+				id: key,
+			});
+
+			// Remove from sessionStorage
+			try {
+				sessionStorage.removeItem(key);
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Flow state cleared', { flowKey });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear flow state', { flowKey, error });
+		}
+	}
+
+	/**
+	 * Save worker token (CredentialStorageManager compatibility)
+	 */
+	async saveWorkerToken(data: { accessToken: string; expiresAt: number; environmentId: string }): Promise<{ success: boolean; source: string; error?: string }> {
+		try {
+			const flowKey = 'worker-token';
+			const tokenData = {
+				...data,
+				savedAt: Date.now(),
+			};
+
+			// Save to unified storage
+			await this.storeToken({
+				id: 'worker_token',
+				type: 'worker_token' as any,
+				value: JSON.stringify(tokenData),
+				expiresAt: data.expiresAt,
+				issuedAt: Date.now(),
+				source: 'indexeddb',
+				flowName: flowKey,
+				metadata: {
+					environmentId: data.environmentId,
+					savedAt: Date.now(),
+				},
+			});
+
+			// Also save to localStorage for immediate compatibility
+			try {
+				localStorage.setItem('worker_token', JSON.stringify(tokenData));
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Worker token saved to unified storage', { environmentId: data.environmentId });
+			return {
+				success: true,
+				source: 'unified',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save worker token', { data, error });
+			return {
+				success: false,
+				source: 'none',
+				error: error instanceof Error ? error.message : 'Unknown error',
+			};
+		}
+	}
+
+	/**
+	 * Load worker token (CredentialStorageManager compatibility)
+	 */
+	async loadWorkerToken(): Promise<{ accessToken: string; expiresAt: number; environmentId: string } | null> {
+		try {
+			// Try unified storage first
+			const tokens = await this.getTokens({
+				type: 'worker_token' as any,
+				id: 'worker_token',
+			});
+
+			if (tokens.length > 0) {
+				const token = tokens[0];
+				const data = JSON.parse(token.value);
+				
+				// Check if token is expired
+				if (data.expiresAt && data.expiresAt < Date.now()) {
+					logger.info(MODULE_TAG, 'Worker token expired, removing');
+					await this.deleteTokens({
+						type: 'worker_token' as any,
+						id: 'worker_token',
+					});
+					return null;
+				}
+				
+				logger.info(MODULE_TAG, 'Worker token loaded from unified storage', { environmentId: data.environmentId });
+				return data;
+			}
+
+			// Fallback to localStorage
+			try {
+				const stored = localStorage.getItem('worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					
+					// Check if token is expired
+					if (data.expiresAt && data.expiresAt < Date.now()) {
+						localStorage.removeItem('worker_token');
+						return null;
+					}
+					
+					// Migrate to unified storage
+					await this.saveWorkerToken(data);
+					// Remove from localStorage
+					localStorage.removeItem('worker_token');
+					logger.info(MODULE_TAG, 'Worker token migrated from localStorage', { environmentId: data.environmentId });
+					return data;
+				}
+			} catch (error) {
+				logger.error(MODULE_TAG, 'Failed to load worker token from localStorage', { error });
+			}
+
+			return null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load worker token', { error });
+			return null;
+		}
+	}
+
+	/**
+	 * Clear worker token (CredentialStorageManager compatibility)
+	 */
+	async clearWorkerToken(): Promise<void> {
+		try {
+			// Remove from unified storage
+			await this.deleteTokens({
+				type: 'worker_token' as any,
+				id: 'worker_token',
+			});
+
+			// Remove from localStorage
+			try {
+				localStorage.removeItem('worker_token');
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Worker token cleared');
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear worker token', { error });
+		}
+	}
 }
 
 // Export singleton instance
