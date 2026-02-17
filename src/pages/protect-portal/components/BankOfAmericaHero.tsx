@@ -208,7 +208,7 @@ const BankOfAmericaHero: React.FC<BankOfAmericaHeroProps> = ({
 			<HeroContent>
 				<HeroTitle>Bank of America Secure Portal</HeroTitle>
 				<HeroSubtitle>
-					{isCustomer 
+					{isCustomer
 						? 'Access your account with industry-leading security features and 24/7 monitoring'
 						: 'Access your employee account with industry-leading security features and 24/7 monitoring'}
 				</HeroSubtitle>
@@ -258,7 +258,7 @@ const BankOfAmericaHero: React.FC<BankOfAmericaHeroProps> = ({
 				{currentStep === 'portal-home' ? (
 					<LoginSection>
 						<LoginDescription>
-							{isCustomer 
+							{isCustomer
 								? 'Sign in to access your secure customer portal with enhanced security features'
 								: 'Sign in to access your secure employee portal with enhanced security features'}
 						</LoginDescription>

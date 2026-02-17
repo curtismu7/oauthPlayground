@@ -218,7 +218,10 @@ const OIDCExamples: React.FC = () => {
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
 	const [isLoading, setIsLoading] = useState(false);
-	const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+	const [status, setStatus] = useState<{
+		type: 'success' | 'error' | 'info';
+		message: string;
+	} | null>(null);
 	const [tokens, setTokens] = useState<{
 		access_token: string;
 		id_token: string;
@@ -243,62 +246,65 @@ const OIDCExamples: React.FC = () => {
 		setApiLogs((prev) => [newLog, ...prev].slice(0, 50)); // Keep last 50 logs
 	}, []);
 
-	const handleOAuthCallback = useCallback(async (code: string, state: string) => {
-		setIsLoading(true);
-		
-		addAPILog({
-			method: 'POST',
-			url: 'https://auth.pingone.com/oauth2/token',
-			requestHeaders: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-				'Authorization': 'Basic ...', // Base64 encoded client credentials
-			},
-			requestBody: {
-				grant_type: 'authorization_code',
-				code: code,
-				redirect_uri: 'https://localhost:3000/sdk-examples/oidc-centralized-login',
-				state: state,
-			},
-		});
-		
-		try {
-			// In a real implementation, this would exchange the code for tokens
-			// For demo purposes, we'll simulate the token exchange
-			const mockTokens = {
-				access_token: `mock-access-token-${Date.now()}`,
-				id_token: `mock-id-token-${Date.now()}`,
-				refresh_token: `mock-refresh-token-${Date.now()}`,
-				expires_in: 3600,
-				token_type: 'Bearer',
-				scope: 'openid profile email',
-			};
+	const handleOAuthCallback = useCallback(
+		async (code: string, state: string) => {
+			setIsLoading(true);
 
-			// Log the received parameters for debugging
-			console.log('OAuth callback received:', { code, state });
-
-			setTokens(mockTokens);
-			setStatus({ type: 'success', message: 'OAuth callback processed successfully!' });
-			setTimeout(() => setStatus(null), 5000);
-			
 			addAPILog({
 				method: 'POST',
 				url: 'https://auth.pingone.com/oauth2/token',
-				responseStatus: 200,
-				responseBody: mockTokens,
+				requestHeaders: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					Authorization: 'Basic ...', // Base64 encoded client credentials
+				},
+				requestBody: {
+					grant_type: 'authorization_code',
+					code: code,
+					redirect_uri: 'https://localhost:3000/sdk-examples/oidc-centralized-login',
+					state: state,
+				},
 			});
-		} catch (error) {
-			setStatus({ type: 'error', message: `Failed to process OAuth callback: ${error}` });
-			setTimeout(() => setStatus(null), 5000);
-			addAPILog({
-				method: 'POST',
-				url: 'https://auth.pingone.com/oauth2/token',
-				responseStatus: 500,
-				error: String(error),
-			});
-		} finally {
-			setIsLoading(false);
-		}
-	}, [addAPILog]);
+
+			try {
+				// In a real implementation, this would exchange the code for tokens
+				// For demo purposes, we'll simulate the token exchange
+				const mockTokens = {
+					access_token: `mock-access-token-${Date.now()}`,
+					id_token: `mock-id-token-${Date.now()}`,
+					refresh_token: `mock-refresh-token-${Date.now()}`,
+					expires_in: 3600,
+					token_type: 'Bearer',
+					scope: 'openid profile email',
+				};
+
+				// Log the received parameters for debugging
+				console.log('OAuth callback received:', { code, state });
+
+				setTokens(mockTokens);
+				setStatus({ type: 'success', message: 'OAuth callback processed successfully!' });
+				setTimeout(() => setStatus(null), 5000);
+
+				addAPILog({
+					method: 'POST',
+					url: 'https://auth.pingone.com/oauth2/token',
+					responseStatus: 200,
+					responseBody: mockTokens,
+				});
+			} catch (error) {
+				setStatus({ type: 'error', message: `Failed to process OAuth callback: ${error}` });
+				setTimeout(() => setStatus(null), 5000);
+				addAPILog({
+					method: 'POST',
+					url: 'https://auth.pingone.com/oauth2/token',
+					responseStatus: 500,
+					error: String(error),
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[addAPILog]
+	);
 
 	// Check for OAuth callback parameters
 	useEffect(() => {
@@ -316,7 +322,7 @@ const OIDCExamples: React.FC = () => {
 
 	const initiateCentralizedLogin = () => {
 		showStatus('info', 'Initiating centralized login - redirecting to PingOne server UI...');
-		
+
 		const authUrl = 'https://auth.pingone.com/oauth2/authorize';
 		const params = new URLSearchParams({
 			response_type: 'code',
@@ -325,12 +331,12 @@ const OIDCExamples: React.FC = () => {
 			scope: 'openid profile email',
 			state: `mock-state-${Date.now()}`,
 		});
-		
+
 		addAPILog({
 			method: 'GET',
 			url: `${authUrl}?${params.toString()}`,
 			requestHeaders: {
-				'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+				Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 			},
 		});
 
@@ -388,10 +394,17 @@ const OIDCExamples: React.FC = () => {
 								<APILogTitle>
 									{log.method} {log.url}
 									{log.responseStatus && (
-										<span style={{
-											color: log.responseStatus < 400 ? '#28a745' : log.responseStatus < 500 ? '#ffc107' : '#dc3545',
-											marginLeft: '0.5rem',
-										}}>
+										<span
+											style={{
+												color:
+													log.responseStatus < 400
+														? '#28a745'
+														: log.responseStatus < 500
+															? '#ffc107'
+															: '#dc3545',
+												marginLeft: '0.5rem',
+											}}
+										>
 											[{log.responseStatus}]
 										</span>
 									)}

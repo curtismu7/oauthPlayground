@@ -379,7 +379,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 	// Standardized spinner hooks for state management operations
 	const exportSpinner = useStandardSpinner(4000); // Export state - 4 seconds
 	const importSpinner = useStandardSpinner(3000); // Import state - 3 seconds
-	const resetSpinner = useStandardSpinner(2000);  // Reset state - 2 seconds
+	const resetSpinner = useStandardSpinner(2000); // Reset state - 2 seconds
 
 	// Auto-update real metrics on mount
 	useEffect(() => {
@@ -421,7 +421,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 						`Failed to export state: ${error instanceof Error ? error.message : 'Unknown error'}`
 					);
 					setMessageType('error');
-				}
+				},
 			}
 		);
 	};
@@ -454,7 +454,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 					if (event.target) {
 						event.target.value = '';
 					}
-				}
+				},
 			}
 		);
 	};
@@ -499,7 +499,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 				message="Resetting state..."
 				theme="orange"
 			/>
-			
+
 			<PageHeader>
 				<PageTitle>🔧 Enhanced State Management</PageTitle>
 				<PageSubtitle>

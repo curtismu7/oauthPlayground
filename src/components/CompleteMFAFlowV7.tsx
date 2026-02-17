@@ -4466,9 +4466,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									Try Again ({maxRetries - retryCount} attempts left)
 								</Button>
 							)}
-							<Button
-									type="button"
-									onClick={handleRetry}>Start Over</Button>
+							<Button type="button" onClick={handleRetry}>
+								Start Over
+							</Button>
 						</div>
 					</div>
 				);

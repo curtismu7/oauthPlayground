@@ -508,12 +508,12 @@ export class V7EducationalContentService {
 	 */
 	static getMasterEducationContent(flowName: V7FlowName): MasterEducationContent {
 		const content = V7EducationalContentService.getEducationalContent(flowName);
-		
+
 		const sections: EducationSectionData[] = [
 			{
 				id: 'overview',
 				title: 'Overview',
-				content: `${content.overview.title}\n\n${content.overview.description}\n\nKey Concepts:\n${content.overview.keyConcepts.map(concept => `• ${concept}`).join('\n')}`,
+				content: `${content.overview.title}\n\n${content.overview.description}\n\nKey Concepts:\n${content.overview.keyConcepts.map((concept) => `• ${concept}`).join('\n')}`,
 				oneLiner: `${content.overview.title}: ${content.overview.description.split('.')[0]}.`,
 			},
 			{
@@ -553,7 +553,7 @@ export class V7EducationalContentService {
 			'oauth-client-credentials-v7',
 		];
 
-		return flowNames.map((flowName) => 
+		return flowNames.map((flowName) =>
 			V7EducationalContentService.getMasterEducationContent(flowName)
 		);
 	}

@@ -21,7 +21,7 @@ const DEFAULT_MODE: EducationMode = 'full';
 
 /**
  * Education Preference Service
- * 
+ *
  * Manages user preferences for educational content display modes:
  * - full: Show all educational content (default)
  * - compact: Show one-liner summaries that can be expanded
@@ -74,13 +74,15 @@ export class EducationPreferenceService {
 			};
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(preference));
 			console.log('[EducationPreferenceService] Education mode updated to:', mode);
-			
+
 			// Dispatch storage event to notify other components
-			window.dispatchEvent(new StorageEvent('storage', {
-				key: STORAGE_KEY,
-				newValue: JSON.stringify(preference),
-				url: window.location.href,
-			}));
+			window.dispatchEvent(
+				new StorageEvent('storage', {
+					key: STORAGE_KEY,
+					newValue: JSON.stringify(preference),
+					url: window.location.href,
+				})
+			);
 		} catch (error) {
 			console.error('[EducationPreferenceService] Failed to save preference:', error);
 		}
@@ -149,7 +151,7 @@ export class EducationPreferenceService {
 	static toggleMode(): EducationMode {
 		const currentMode = this.getEducationMode();
 		let newMode: EducationMode;
-		
+
 		switch (currentMode) {
 			case 'full':
 				newMode = 'compact';
@@ -163,7 +165,7 @@ export class EducationPreferenceService {
 			default:
 				newMode = DEFAULT_MODE;
 		}
-		
+
 		this.setEducationMode(newMode);
 		return newMode;
 	}

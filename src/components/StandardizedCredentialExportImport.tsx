@@ -4,10 +4,10 @@
 import React from 'react';
 import { FiDownload, FiUpload } from 'react-icons/fi';
 import styled from 'styled-components';
-import { 
-	exportStandardizedCredentials, 
+import {
+	exportStandardizedCredentials,
 	importStandardizedCredentials,
-	type StandardizedCredentialExport 
+	type StandardizedCredentialExport,
 } from '@/services/standardizedCredentialExportService';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
@@ -77,16 +77,16 @@ interface StandardizedCredentialExportImportProps {
 	// App identification
 	appName: string;
 	appType: StandardizedCredentialExport['appType'];
-	
+
 	// Current credentials
 	credentials?: Record<string, unknown>;
 	metadata?: StandardizedCredentialExport['metadata'];
-	
+
 	// Callbacks
 	onExport?: () => void;
 	onImport?: (credentials: StandardizedCredentialExport) => void;
 	onError?: (error: Error) => void;
-	
+
 	// UI options
 	disabled?: boolean;
 	exportButtonText?: string;
@@ -97,11 +97,13 @@ interface StandardizedCredentialExportImportProps {
 
 /**
  * Standardized Credential Export/Import Component
- * 
+ *
  * This component provides a consistent export/import interface for all Production apps.
  * It uses the standardized credential format to ensure compatibility across apps.
  */
-export const StandardizedCredentialExportImport: React.FC<StandardizedCredentialExportImportProps> = ({
+export const StandardizedCredentialExportImport: React.FC<
+	StandardizedCredentialExportImportProps
+> = ({
 	appName,
 	appType,
 	credentials,
@@ -140,7 +142,7 @@ export const StandardizedCredentialExportImport: React.FC<StandardizedCredential
 
 		try {
 			const importedCredentials = await importStandardizedCredentials(file);
-			
+
 			// Validate that the imported credentials match the app type
 			if (importedCredentials.appType !== appType) {
 				// Allow OAuth apps to import worker tokens and vice versa for flexibility
@@ -149,7 +151,9 @@ export const StandardizedCredentialExportImport: React.FC<StandardizedCredential
 				} else if (appType === 'worker-token' && importedCredentials.appType === 'oauth') {
 					// Allow this cross-import
 				} else {
-					toastV8.error(`Invalid credential type. Expected ${appType}, got ${importedCredentials.appType}`);
+					toastV8.error(
+						`Invalid credential type. Expected ${appType}, got ${importedCredentials.appType}`
+					);
 					return;
 				}
 			}
@@ -252,7 +256,10 @@ export const useStandardizedCredentialExportImport = (
 	appName: string,
 	appType: StandardizedCredentialExport['appType']
 ) => {
-	const exportCredentials = (credentials: Record<string, unknown>, metadata?: StandardizedCredentialExport['metadata']) => {
+	const exportCredentials = (
+		credentials: Record<string, unknown>,
+		metadata?: StandardizedCredentialExport['metadata']
+	) => {
 		exportStandardizedCredentials(appName, appType, credentials, metadata);
 	};
 
@@ -263,12 +270,8 @@ export const useStandardizedCredentialExportImport = (
 	return {
 		exportCredentials,
 		importCredentials,
-		ExportImportComponent: (props: Omit<StandardizedCredentialExportImportProps, 'appName' | 'appType'>) => (
-			<StandardizedCredentialExportImport
-				appName={appName}
-				appType={appType}
-				{...props}
-			/>
-		)
+		ExportImportComponent: (
+			props: Omit<StandardizedCredentialExportImportProps, 'appName' | 'appType'>
+		) => <StandardizedCredentialExportImport appName={appName} appType={appType} {...props} />,
 	};
 };

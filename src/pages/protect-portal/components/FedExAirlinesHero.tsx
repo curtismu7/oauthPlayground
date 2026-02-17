@@ -395,103 +395,106 @@ const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 	_redirectUri,
 }) => {
 	return (
-			<HeroContainer>
-				<HeroBackground />
-				<HeroContent>
-					{currentStep === 'portal-home' ? (
-						<>
-							<FullWidthHeader>
-								<HeaderContent>
-									<Navigation>
-										<LogoSection>
-											<LogoText>FedEx</LogoText>
-										</LogoSection>
-										<NavLinks>
-											<NavLink href="#">Ship</NavLink>
-											<NavLink href="#">Track</NavLink>
-											<NavLink href="#">Manage</NavLink>
-											<NavLink href="#">Support</NavLink>
-										</NavLinks>
-										<HeaderActions>
-											<BrandDropdownSelector />
-										</HeaderActions>
-									</Navigation>
-								</HeaderContent>
-							</FullWidthHeader>
-							<MainContent>
+		<HeroContainer>
+			<HeroBackground />
+			<HeroContent>
+				{currentStep === 'portal-home' ? (
+					<>
+						<FullWidthHeader>
+							<HeaderContent>
+								<Navigation>
+									<LogoSection>
+										<LogoText>FedEx</LogoText>
+									</LogoSection>
+									<NavLinks>
+										<NavLink href="#">Ship</NavLink>
+										<NavLink href="#">Track</NavLink>
+										<NavLink href="#">Manage</NavLink>
+										<NavLink href="#">Support</NavLink>
+									</NavLinks>
+									<HeaderActions>
+										<BrandDropdownSelector />
+									</HeaderActions>
+								</Navigation>
+							</HeaderContent>
+						</FullWidthHeader>
+						<MainContent>
 							<LoginContainer>
 								<LoginSection>
 									<LoginTitle>The World on Time</LoginTitle>
-								<LoginSubtitle>
-									Ship, track, and manage your shipments with FedEx's reliable global logistics
-									network
-								</LoginSubtitle>
-							</LoginSection>
-							<StatusStrip>
-								<StatusBadge>On-Time Priority 97.8%</StatusBadge>
-								<StatusBadge>220+ Countries</StatusBadge>
-								<StatusBadge>Customs Tools Active</StatusBadge>
-								<StatusBadge>24/7 Shipment Visibility</StatusBadge>
-							</StatusStrip>
+									<LoginSubtitle>
+										Ship, track, and manage your shipments with FedEx's reliable global logistics
+										network
+									</LoginSubtitle>
+								</LoginSection>
+								<StatusStrip>
+									<StatusBadge>On-Time Priority 97.8%</StatusBadge>
+									<StatusBadge>220+ Countries</StatusBadge>
+									<StatusBadge>Customs Tools Active</StatusBadge>
+									<StatusBadge>24/7 Shipment Visibility</StatusBadge>
+								</StatusStrip>
 
-							<QuickActions>
-								<QuickAction>
-									<ActionIcon>📦</ActionIcon>
-									<ActionLabel>Ship</ActionLabel>
-									<ActionMeta>Create labels fast</ActionMeta>
-								</QuickAction>
+								<QuickActions>
+									<QuickAction>
+										<ActionIcon>📦</ActionIcon>
+										<ActionLabel>Ship</ActionLabel>
+										<ActionMeta>Create labels fast</ActionMeta>
+									</QuickAction>
 
-								<QuickAction>
-									<ActionIcon>🔍</ActionIcon>
-									<ActionLabel>Track</ActionLabel>
-									<ActionMeta>Live package timelines</ActionMeta>
-								</QuickAction>
+									<QuickAction>
+										<ActionIcon>🔍</ActionIcon>
+										<ActionLabel>Track</ActionLabel>
+										<ActionMeta>Live package timelines</ActionMeta>
+									</QuickAction>
 
-								<QuickAction>
-									<ActionIcon>📋</ActionIcon>
-									<ActionLabel>Manage</ActionLabel>
-									<ActionMeta>Billing and pickups</ActionMeta>
-								</QuickAction>
+									<QuickAction>
+										<ActionIcon>📋</ActionIcon>
+										<ActionLabel>Manage</ActionLabel>
+										<ActionMeta>Billing and pickups</ActionMeta>
+									</QuickAction>
 
-								<QuickAction>
-									<ActionIcon>↩️</ActionIcon>
-									<ActionLabel>Returns</ActionLabel>
-									<ActionMeta>Print return labels</ActionMeta>
-								</QuickAction>
-							</QuickActions>
+									<QuickAction>
+										<ActionIcon>↩️</ActionIcon>
+										<ActionLabel>Returns</ActionLabel>
+										<ActionMeta>Print return labels</ActionMeta>
+									</QuickAction>
+								</QuickActions>
 
-							<ServiceHighlightsGrid>
-								<HighlightCard>
-									<HighlightTitle>Global Network Snapshot</HighlightTitle>
-									<HighlightText>
-										Monitor regional lane performance and transit milestones across express and ground services.
-									</HighlightText>
-								</HighlightCard>
-								<HighlightCard>
-									<HighlightTitle>Smart Customs Workflow</HighlightTitle>
-									<HighlightText>
-										Pre-clearance and trade document readiness indicators for smoother international delivery.
-									</HighlightText>
-								</HighlightCard>
-								<HighlightCard>
-									<HighlightTitle>Delivery Management</HighlightTitle>
-									<HighlightText>
-										Route critical packages, set notifications, and coordinate destination instructions in one view.
-									</HighlightText>
-								</HighlightCard>
-							</ServiceHighlightsGrid>
+								<ServiceHighlightsGrid>
+									<HighlightCard>
+										<HighlightTitle>Global Network Snapshot</HighlightTitle>
+										<HighlightText>
+											Monitor regional lane performance and transit milestones across express and
+											ground services.
+										</HighlightText>
+									</HighlightCard>
+									<HighlightCard>
+										<HighlightTitle>Smart Customs Workflow</HighlightTitle>
+										<HighlightText>
+											Pre-clearance and trade document readiness indicators for smoother
+											international delivery.
+										</HighlightText>
+									</HighlightCard>
+									<HighlightCard>
+										<HighlightTitle>Delivery Management</HighlightTitle>
+										<HighlightText>
+											Route critical packages, set notifications, and coordinate destination
+											instructions in one view.
+										</HighlightText>
+									</HighlightCard>
+								</ServiceHighlightsGrid>
 
 								<LoginSection>
 									<LoginDescription>
-										Click below to begin your secure login journey. We'll evaluate your login attempt
-										in real-time to provide the appropriate level of security.
+										Click below to begin your secure login journey. We'll evaluate your login
+										attempt in real-time to provide the appropriate level of security.
 									</LoginDescription>
 									<LoginButton onClick={onLoginStart}>🔒 Begin Secure Login →</LoginButton>
 								</LoginSection>
 							</LoginContainer>
-							</MainContent>
-						</>
-					) : (
+						</MainContent>
+					</>
+				) : (
 					<>
 						<FullWidthHeader>
 							<HeaderContent>
@@ -531,9 +534,7 @@ const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 											placeholder="Enter tracking number"
 											defaultValue="123456789012"
 										/>
-										<TrackButton type="button">
-											Track
-										</TrackButton>
+										<TrackButton type="button">Track</TrackButton>
 									</TrackingForm>
 									<TrackingOptions>
 										<TrackingOption>

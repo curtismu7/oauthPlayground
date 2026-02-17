@@ -1,168 +1,115 @@
 /**
  * @file pkceStorageServiceV8U.ts
  * @module v8u/services
- * @description Bulletproof PKCE code storage with multiple redundancy layers
+ * @description Bulletproof PKCE code storage with multiple redundancy layers - MIGRATED TO UNIFIED STORAGE
  * @version 8.0.0
  * @since 2024-11-18
+ *
+ * This service now uses unifiedTokenStorageService for better performance and reliability.
+ * All existing API methods are preserved for backward compatibility.
  */
 
-const MODULE_TAG = '[🔐 PKCE-STORAGE-V8U]';
+const MODULE_TAG = '[🔐 PKCE-STORAGE-V8U-MIGRATED]';
 
-export interface PKCECodes {
-	codeVerifier: string;
-	codeChallenge: string;
-	codeChallengeMethod: string;
-	savedAt: number;
-	flowKey: string;
-}
+import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
+import { PKCEStorageServiceV8UMigration } from '../../services/pkceStorageServiceV8UMigration';
+import type { V8UPKCECodes } from '../../services/unifiedTokenStorageService';
+
+// Re-export type for backward compatibility
+export interface PKCECodes extends V8UPKCECodes {}
+
+// ============================================================================
+// MIGRATION STATE
+// ============================================================================
+
+let migrationCompleted = false;
+
+/**
+ * Ensure migration is completed before any PKCE operation
+ */
+const ensureMigration = async (): Promise<void> => {
+	if (!migrationCompleted) {
+		if (PKCEStorageServiceV8UMigration.needsMigration()) {
+			console.log(`${MODULE_TAG} Starting automatic PKCE migration...`);
+			const result = await PKCEStorageServiceV8UMigration.migrateAll();
+			console.log(`${MODULE_TAG} PKCE migration completed`, result);
+		}
+		migrationCompleted = true;
+	}
+};
+
+// ============================================================================
+// PKCE STORAGE SERVICE CLASS (Compatibility Layer)
+// ============================================================================
 
 /**
  * Bulletproof PKCE storage service
- * Stores codes in 4 places for maximum reliability:
- * 1. sessionStorage (survives page refresh)
- * 2. localStorage (survives browser restart)
- * 3. IndexedDB (survives cache clear)
- * 4. In-memory cache (fastest access)
+ * Now uses unified storage with automatic migration from legacy storage
+ * Maintains quadruple redundancy: unified storage + sessionStorage + localStorage + memory cache
  */
 export class PKCEStorageServiceV8U {
 	private static memoryCache: Map<string, PKCECodes> = new Map();
-	private static readonly DB_NAME = 'v8u_pkce_db';
-	private static readonly STORE_NAME = 'pkce_codes';
-	private static dbPromise: Promise<IDBDatabase> | null = null;
 
 	/**
-	 * Initialize IndexedDB
+	 * Save PKCE codes with enhanced redundancy (now uses unified storage)
 	 */
-	private static async initDB(): Promise<IDBDatabase> {
-		if (PKCEStorageServiceV8U.dbPromise) {
-			return PKCEStorageServiceV8U.dbPromise;
-		}
-
-		PKCEStorageServiceV8U.dbPromise = new Promise((resolve, reject) => {
-			const request = indexedDB.open(PKCEStorageServiceV8U.DB_NAME, 1);
-
-			request.onerror = () => {
-				console.error(`${MODULE_TAG} IndexedDB error:`, request.error);
-				reject(request.error);
-			};
-
-			request.onsuccess = () => {
-				console.log(`${MODULE_TAG} IndexedDB opened successfully`);
-				resolve(request.result);
-			};
-
-			request.onupgradeneeded = (event) => {
-				const db = (event.target as IDBOpenDBRequest).result;
-				if (!db.objectStoreNames.contains(PKCEStorageServiceV8U.STORE_NAME)) {
-					db.createObjectStore(PKCEStorageServiceV8U.STORE_NAME, { keyPath: 'flowKey' });
-					console.log(`${MODULE_TAG} IndexedDB object store created`);
-				}
-			};
-		});
-
-		return PKCEStorageServiceV8U.dbPromise;
-	}
-
-	/**
-	 * Save to IndexedDB
-	 */
-	private static async saveToIndexedDB(flowKey: string, data: PKCECodes): Promise<void> {
-		try {
-			const db = await PKCEStorageServiceV8U.initDB();
-			const transaction = db.transaction([PKCEStorageServiceV8U.STORE_NAME], 'readwrite');
-			const store = transaction.objectStore(PKCEStorageServiceV8U.STORE_NAME);
-			store.put(data);
-
-			await new Promise<void>((resolve, reject) => {
-				transaction.oncomplete = () => resolve();
-				transaction.onerror = () => reject(transaction.error);
-			});
-
-			console.log(`${MODULE_TAG} ✅ Saved to IndexedDB`, { flowKey });
-		} catch (err) {
-			console.error(`${MODULE_TAG} ❌ Failed to save to IndexedDB`, err);
-		}
-	}
-
-	/**
-	 * Load from IndexedDB
-	 */
-	private static async loadFromIndexedDB(flowKey: string): Promise<PKCECodes | null> {
-		try {
-			const db = await PKCEStorageServiceV8U.initDB();
-			const transaction = db.transaction([PKCEStorageServiceV8U.STORE_NAME], 'readonly');
-			const store = transaction.objectStore(PKCEStorageServiceV8U.STORE_NAME);
-			const request = store.get(flowKey);
-
-			return new Promise((resolve, reject) => {
-				request.onsuccess = () => {
-					resolve(request.result || null);
-				};
-				request.onerror = () => {
-					reject(request.error);
-				};
-			});
-		} catch (err) {
-			console.error(`${MODULE_TAG} ❌ Failed to load from IndexedDB`, err);
-			return null;
-		}
-	}
-
-	/**
-	 * Save PKCE codes with quadruple redundancy
-	 */
-	static savePKCECodes(
+	static async savePKCECodes(
 		flowKey: string,
 		codes: { codeVerifier: string; codeChallenge: string; codeChallengeMethod?: string }
-	): void {
-		const pkceData: PKCECodes = {
-			codeVerifier: codes.codeVerifier,
-			codeChallenge: codes.codeChallenge,
-			codeChallengeMethod: codes.codeChallengeMethod || 'S256',
-			savedAt: Date.now(),
-			flowKey,
-		};
-
-		const jsonData = JSON.stringify(pkceData);
-
-		// 1. Save to sessionStorage
+	): Promise<void> {
 		try {
-			sessionStorage.setItem(`v8u_pkce_${flowKey}`, jsonData);
-			sessionStorage.setItem('v8u_pkce_codes', jsonData); // Legacy key for compatibility
-			console.log(`${MODULE_TAG} ✅ Saved to sessionStorage`, { flowKey });
-		} catch (err) {
-			console.error(`${MODULE_TAG} ❌ Failed to save to sessionStorage`, err);
+			await ensureMigration();
+
+			const pkceData: PKCECodes = {
+				codeVerifier: codes.codeVerifier,
+				codeChallenge: codes.codeChallenge,
+				codeChallengeMethod: codes.codeChallengeMethod || 'S256',
+				savedAt: Date.now(),
+				flowKey,
+			};
+
+			// PRIMARY: Save to unified storage (IndexedDB + SQLite backup)
+			await unifiedTokenStorage.saveV8UPKCECodes(flowKey, pkceData);
+
+			// BACKUP 1: Save to sessionStorage for immediate access
+			try {
+				const jsonData = JSON.stringify(pkceData);
+				sessionStorage.setItem(`v8u_pkce_${flowKey}`, jsonData);
+				sessionStorage.setItem('v8u_pkce_codes', jsonData); // Legacy key for compatibility
+				console.log(`${MODULE_TAG} ✅ Saved to sessionStorage`, { flowKey });
+			} catch (err) {
+				console.error(`${MODULE_TAG} ❌ Failed to save to sessionStorage`, err);
+			}
+
+			// BACKUP 2: Save to localStorage (backup)
+			try {
+				const jsonData = JSON.stringify(pkceData);
+				localStorage.setItem(`v8u_pkce_${flowKey}`, jsonData);
+				console.log(`${MODULE_TAG} ✅ Saved to localStorage (backup)`, { flowKey });
+			} catch (err) {
+				console.error(`${MODULE_TAG} ❌ Failed to save to localStorage`, err);
+			}
+
+			// BACKUP 3: Save to memory cache (fastest access)
+			PKCEStorageServiceV8U.memoryCache.set(flowKey, pkceData);
+			console.log(`${MODULE_TAG} ✅ Saved to memory cache`, { flowKey });
+
+			console.log(`${MODULE_TAG} 🎯 PKCE codes saved with QUADRUPLE redundancy`, {
+				flowKey,
+				verifierLength: codes.codeVerifier.length,
+				challengeLength: codes.codeChallenge.length,
+				savedAt: new Date(pkceData.savedAt).toISOString(),
+				locations: ['unified storage', 'sessionStorage', 'localStorage', 'memory'],
+			});
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to save PKCE codes`, { flowKey, error });
+			throw error;
 		}
-
-		// 2. Save to localStorage (backup)
-		try {
-			localStorage.setItem(`v8u_pkce_${flowKey}`, jsonData);
-			console.log(`${MODULE_TAG} ✅ Saved to localStorage (backup)`, { flowKey });
-		} catch (err) {
-			console.error(`${MODULE_TAG} ❌ Failed to save to localStorage`, err);
-		}
-
-		// 3. Save to IndexedDB (async, most persistent)
-		PKCEStorageServiceV8U.saveToIndexedDB(flowKey, pkceData).catch((err) => {
-			console.error(`${MODULE_TAG} IndexedDB save failed (non-critical)`, err);
-		});
-
-		// 4. Save to memory cache
-		PKCEStorageServiceV8U.memoryCache.set(flowKey, pkceData);
-		console.log(`${MODULE_TAG} ✅ Saved to memory cache`, { flowKey });
-
-		console.log(`${MODULE_TAG} 🎯 PKCE codes saved with QUADRUPLE redundancy`, {
-			flowKey,
-			verifierLength: codes.codeVerifier.length,
-			challengeLength: codes.codeChallenge.length,
-			savedAt: new Date(pkceData.savedAt).toISOString(),
-			locations: ['sessionStorage', 'localStorage', 'IndexedDB', 'memory'],
-		});
 	}
 
 	/**
-	 * Load PKCE codes with fallback chain
-	 * Tries: memory → sessionStorage → localStorage → IndexedDB
+	 * Load PKCE codes with fallback chain (now uses unified storage)
+	 * Tries: memory → sessionStorage → localStorage → unified storage
 	 */
 	static async loadPKCECodesAsync(flowKey: string): Promise<PKCECodes | null> {
 		console.log(`${MODULE_TAG} 🔍 Loading PKCE codes (async)`, { flowKey });
@@ -204,22 +151,23 @@ export class PKCEStorageServiceV8U {
 			console.error(`${MODULE_TAG} ❌ Failed to load from localStorage`, err);
 		}
 
-		// 4. Try IndexedDB (last resort, most persistent)
+		// 4. Try unified storage (primary storage with fallback)
 		try {
-			const indexedData = await PKCEStorageServiceV8U.loadFromIndexedDB(flowKey);
-			if (indexedData) {
-				console.log(`${MODULE_TAG} ✅ Found in IndexedDB (ultimate backup)`, { flowKey });
+			await ensureMigration();
+			const unifiedData = await unifiedTokenStorage.loadV8UPKCECodesWithFallback(flowKey);
+			if (unifiedData) {
+				console.log(`${MODULE_TAG} ✅ Found in unified storage (ultimate backup)`, { flowKey });
 				// Restore to all other storages
-				PKCEStorageServiceV8U.memoryCache.set(flowKey, indexedData);
+				PKCEStorageServiceV8U.memoryCache.set(flowKey, unifiedData);
 				try {
-					const jsonData = JSON.stringify(indexedData);
+					const jsonData = JSON.stringify(unifiedData);
 					sessionStorage.setItem(`v8u_pkce_${flowKey}`, jsonData);
 					localStorage.setItem(`v8u_pkce_${flowKey}`, jsonData);
 				} catch {}
-				return indexedData;
+				return unifiedData;
 			}
 		} catch (err) {
-			console.error(`${MODULE_TAG} ❌ Failed to load from IndexedDB`, err);
+			console.error(`${MODULE_TAG} ❌ Failed to load from unified storage`, err);
 		}
 
 		console.warn(`${MODULE_TAG} ⚠️ No PKCE codes found in any storage`, { flowKey });
@@ -270,7 +218,7 @@ export class PKCEStorageServiceV8U {
 		}
 
 		console.warn(
-			`${MODULE_TAG} ⚠️ No PKCE codes found in sync storage (try async load for IndexedDB)`,
+			`${MODULE_TAG} ⚠️ No PKCE codes found in sync storage (try async load for unified storage)`,
 			{ flowKey }
 		);
 		return null;
@@ -294,15 +242,12 @@ export class PKCEStorageServiceV8U {
 			localStorage.removeItem(`v8u_pkce_${flowKey}`);
 		} catch {}
 
-		// Clear from IndexedDB
+		// Clear from unified storage
 		try {
-			const db = await PKCEStorageServiceV8U.initDB();
-			const transaction = db.transaction([PKCEStorageServiceV8U.STORE_NAME], 'readwrite');
-			const store = transaction.objectStore(PKCEStorageServiceV8U.STORE_NAME);
-			store.delete(flowKey);
-			console.log(`${MODULE_TAG} ✅ Cleared from IndexedDB`, { flowKey });
+			await ensureMigration();
+			await unifiedTokenStorage.clearV8UPKCECodes(flowKey);
 		} catch (err) {
-			console.error(`${MODULE_TAG} ❌ Failed to clear from IndexedDB`, err);
+			console.error(`${MODULE_TAG} ❌ Failed to clear from unified storage`, err);
 		}
 
 		console.log(`${MODULE_TAG} ✅ PKCE codes cleared from all 4 storage locations`, { flowKey });
@@ -311,7 +256,14 @@ export class PKCEStorageServiceV8U {
 	/**
 	 * Check if PKCE codes exist
 	 */
-	static hasPKCECodes(flowKey: string): boolean {
-		return PKCEStorageServiceV8U.loadPKCECodes(flowKey) !== null;
+	static async hasPKCECodes(flowKey: string): Promise<boolean> {
+		try {
+			await ensureMigration();
+			return await unifiedTokenStorage.hasV8UPKCECodes(flowKey);
+		} catch {
+			return false;
+		}
 	}
 }
+
+export default PKCEStorageServiceV8U;

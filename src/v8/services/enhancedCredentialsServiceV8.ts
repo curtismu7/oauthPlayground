@@ -207,17 +207,19 @@ class IndexedDBStorage {
 
 			request.onupgradeneeded = (event) => {
 				const db = (event.target as IDBOpenDBRequest).result;
-				
+
 				// Create credentials store with indexes
 				if (!db.objectStoreNames.contains(IndexedDBStorage.STORE_NAME)) {
-					const store = db.createObjectStore(IndexedDBStorage.STORE_NAME, { keyPath: 'environmentId' });
-					
+					const store = db.createObjectStore(IndexedDBStorage.STORE_NAME, {
+						keyPath: 'environmentId',
+					});
+
 					// Create indexes for common queries
 					store.createIndex('clientId', 'clientId', { unique: false });
 					store.createIndex('lastUpdated', 'metadata.lastUpdated', { unique: false });
 					store.createIndex('flowType', 'interactionHistory.appName', { unique: false });
 					store.createIndex('username', 'interactionHistory.username', { unique: false });
-					
+
 					console.log(`${MODULE_TAG} IndexedDB schema created`);
 				}
 			};
@@ -230,18 +232,18 @@ class IndexedDBStorage {
 	static async save(environmentId: string, credentials: EnhancedCredentials): Promise<boolean> {
 		try {
 			const db = await IndexedDBStorage.initDB();
-			
+
 			return new Promise((resolve, reject) => {
 				const transaction = db.transaction([IndexedDBStorage.STORE_NAME], 'readwrite');
 				const store = transaction.objectStore(IndexedDBStorage.STORE_NAME);
-				
+
 				const request = store.put(credentials);
-				
+
 				request.onsuccess = () => {
 					console.log(`${MODULE_TAG} Credentials saved to IndexedDB: ${environmentId}`);
 					resolve(true);
 				};
-				
+
 				request.onerror = () => {
 					console.error(`${MODULE_TAG} IndexedDB save failed:`, request.error);
 					reject(request.error);
@@ -259,13 +261,13 @@ class IndexedDBStorage {
 	static async load(environmentId: string): Promise<EnhancedCredentials | null> {
 		try {
 			const db = await IndexedDBStorage.initDB();
-			
+
 			return new Promise((resolve, reject) => {
 				const transaction = db.transaction([IndexedDBStorage.STORE_NAME], 'readonly');
 				const store = transaction.objectStore(IndexedDBStorage.STORE_NAME);
-				
+
 				const request = store.get(environmentId);
-				
+
 				request.onsuccess = () => {
 					const result = request.result as EnhancedCredentials | undefined;
 					if (result) {
@@ -276,7 +278,7 @@ class IndexedDBStorage {
 						resolve(null);
 					}
 				};
-				
+
 				request.onerror = () => {
 					console.error(`${MODULE_TAG} IndexedDB load failed:`, request.error);
 					reject(request.error);
@@ -294,23 +296,23 @@ class IndexedDBStorage {
 	static async list(): Promise<Array<{ environmentId: string; credentials: EnhancedCredentials }>> {
 		try {
 			const db = await IndexedDBStorage.initDB();
-			
+
 			return new Promise((resolve, reject) => {
 				const transaction = db.transaction([IndexedDBStorage.STORE_NAME], 'readonly');
 				const store = transaction.objectStore(IndexedDBStorage.STORE_NAME);
-				
+
 				const request = store.getAll();
-				
+
 				request.onsuccess = () => {
 					const results = request.result
 						.filter((item: EnhancedCredentials) => item.environmentId)
 						.map((item: EnhancedCredentials) => ({
 							environmentId: item.environmentId!,
-							credentials: item
+							credentials: item,
 						}));
 					resolve(results);
 				};
-				
+
 				request.onerror = () => {
 					console.error(`${MODULE_TAG} IndexedDB list failed:`, request.error);
 					reject(request.error);
@@ -328,18 +330,18 @@ class IndexedDBStorage {
 	static async clear(environmentId: string): Promise<boolean> {
 		try {
 			const db = await IndexedDBStorage.initDB();
-			
+
 			return new Promise((resolve, reject) => {
 				const transaction = db.transaction([IndexedDBStorage.STORE_NAME], 'readwrite');
 				const store = transaction.objectStore(IndexedDBStorage.STORE_NAME);
-				
+
 				const request = store.delete(environmentId);
-				
+
 				request.onsuccess = () => {
 					console.log(`${MODULE_TAG} Credentials cleared from IndexedDB: ${environmentId}`);
 					resolve(true);
 				};
-				
+
 				request.onerror = () => {
 					console.error(`${MODULE_TAG} IndexedDB clear failed:`, request.error);
 					reject(request.error);
@@ -380,8 +382,8 @@ class SQLiteStorage {
 				body: JSON.stringify({
 					environmentId,
 					credentials,
-					timestamp: new Date().toISOString()
-				})
+					timestamp: new Date().toISOString(),
+				}),
 			});
 
 			if (response.ok) {
@@ -402,7 +404,9 @@ class SQLiteStorage {
 	 */
 	static async load(environmentId: string): Promise<EnhancedCredentials | null> {
 		try {
-			const response = await fetch(`${SQLiteStorage.API_ENDPOINT}/load?environmentId=${encodeURIComponent(environmentId)}`);
+			const response = await fetch(
+				`${SQLiteStorage.API_ENDPOINT}/load?environmentId=${encodeURIComponent(environmentId)}`
+			);
 
 			if (response.ok) {
 				const data = await response.json();
@@ -448,7 +452,7 @@ class SQLiteStorage {
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ environmentId })
+				body: JSON.stringify({ environmentId }),
 			});
 
 			if (response.ok) {
@@ -467,9 +471,9 @@ class SQLiteStorage {
 	 */
 	static async isAvailable(): Promise<boolean> {
 		try {
-			const response = await fetch(`${SQLiteStorage.API_ENDPOINT}/health`, { 
+			const response = await fetch(`${SQLiteStorage.API_ENDPOINT}/health`, {
 				method: 'HEAD',
-				cache: 'no-cache'
+				cache: 'no-cache',
 			});
 			return response.ok;
 		} catch {
@@ -493,7 +497,7 @@ class LocalStorageFallback {
 		try {
 			const existing = LocalStorageFallback.loadAll();
 			existing[environmentId] = credentials;
-			
+
 			localStorage.setItem(LocalStorageFallback.STORAGE_KEY, JSON.stringify(existing));
 			console.log(`${MODULE_TAG} Credentials saved to localStorage: ${environmentId}`);
 			return true;
@@ -569,7 +573,7 @@ export class EnhancedCredentialsServiceV8 {
 		operations: { reads: 0, writes: 0, errors: 0, syncs: 0 },
 		performance: { avgReadTime: 0, avgWriteTime: 0, avgSyncTime: 0, cacheHitRate: 0 },
 		backendUsage: { indexeddb: 0, sqlite: 0, localStorage: 0 },
-		storageUsage: {}
+		storageUsage: {},
 	};
 
 	/**
@@ -586,8 +590,8 @@ export class EnhancedCredentialsServiceV8 {
 					indexing: true,
 					transactions: true,
 					persistent: true,
-					serverSide: false
-				}
+					serverSide: false,
+				},
 			},
 			{
 				name: 'sqlite',
@@ -598,8 +602,8 @@ export class EnhancedCredentialsServiceV8 {
 					indexing: true,
 					transactions: true,
 					persistent: true,
-					serverSide: true
-				}
+					serverSide: true,
+				},
 			},
 			{
 				name: 'localStorage',
@@ -610,12 +614,12 @@ export class EnhancedCredentialsServiceV8 {
 					indexing: false,
 					transactions: false,
 					persistent: true,
-					serverSide: false
-				}
-			}
+					serverSide: false,
+				},
+			},
 		];
 
-		return backends.filter(backend => backend.available).sort((a, b) => a.priority - b.priority);
+		return backends.filter((backend) => backend.available).sort((a, b) => a.priority - b.priority);
 	}
 
 	/**
@@ -627,11 +631,11 @@ export class EnhancedCredentialsServiceV8 {
 		interactionData?: Partial<UserInteractionData>
 	): Promise<{ success: boolean; backend: string; error?: string }> {
 		const startTime = performance.now();
-		
+
 		try {
 			// Load existing credentials
 			const existing = await EnhancedCredentialsServiceV8.load(environmentId);
-			
+
 			// Create enhanced credentials object
 			const enhanced: EnhancedCredentials = {
 				...existing,
@@ -641,38 +645,46 @@ export class EnhancedCredentialsServiceV8 {
 					createdAt: existing?.metadata?.createdAt || new Date().toISOString(),
 					storageBackends: existing?.metadata?.storageBackends || [],
 					syncStatus: 'pending',
-					version: 1
+					version: 1,
 				},
 				interactionHistory: [
 					...(existing?.interactionHistory || []),
-					...(interactionData ? [{
-						timestamp: new Date().toISOString(),
-						appName: interactionData.appName || 'unknown',
-						flowType: interactionData.flowType || 'unknown',
-						environmentId,
-						clientId: credentials.clientId || '',
-						issuerUrl: credentials.issuerUrl,
-						redirectUri: credentials.redirectUri,
-						scopes: credentials.scopes,
-						clientAuthMethod: credentials.clientAuthMethod,
-						responseType: credentials.responseType,
-						selections: interactionData.selections || {},
-						fieldInteractions: interactionData.fieldInteractions || { modifiedFields: [], validatedFields: [], errorFields: [] },
-						sessionInfo: {
-							sessionStart: new Date().toISOString(),
-							currentStep: interactionData.sessionInfo?.currentStep || 'credentials',
-							sessionDuration: 0,
-							userAgent: navigator.userAgent,
-							pageUrl: window.location.href
-						},
-						performance: {
-							loadTime: 0,
-							saveTime: performance.now() - startTime,
-							storageBackend: 'indexeddb' as const,
-							cacheHit: false
-						}
-					} as UserInteractionData] : [])
-				].slice(-50) // Keep last 50 interactions
+					...(interactionData
+						? [
+								{
+									timestamp: new Date().toISOString(),
+									appName: interactionData.appName || 'unknown',
+									flowType: interactionData.flowType || 'unknown',
+									environmentId,
+									clientId: credentials.clientId || '',
+									issuerUrl: credentials.issuerUrl,
+									redirectUri: credentials.redirectUri,
+									scopes: credentials.scopes,
+									clientAuthMethod: credentials.clientAuthMethod,
+									responseType: credentials.responseType,
+									selections: interactionData.selections || {},
+									fieldInteractions: interactionData.fieldInteractions || {
+										modifiedFields: [],
+										validatedFields: [],
+										errorFields: [],
+									},
+									sessionInfo: {
+										sessionStart: new Date().toISOString(),
+										currentStep: interactionData.sessionInfo?.currentStep || 'credentials',
+										sessionDuration: 0,
+										userAgent: navigator.userAgent,
+										pageUrl: window.location.href,
+									},
+									performance: {
+										loadTime: 0,
+										saveTime: performance.now() - startTime,
+										storageBackend: 'indexeddb' as const,
+										cacheHit: false,
+									},
+								} as UserInteractionData,
+							]
+						: []),
+				].slice(-50), // Keep last 50 interactions
 			};
 
 			// Try each available backend in priority order
@@ -701,13 +713,17 @@ export class EnhancedCredentialsServiceV8 {
 					if (success) {
 						// Update metrics
 						EnhancedCredentialsServiceV8.metrics.operations.writes++;
-						EnhancedCredentialsServiceV8.metrics.backendUsage[backend.name] = 
+						EnhancedCredentialsServiceV8.metrics.backendUsage[backend.name] =
 							(EnhancedCredentialsServiceV8.metrics.backendUsage[backend.name] || 0) + 1;
-						EnhancedCredentialsServiceV8.metrics.performance.avgWriteTime = 
-							(EnhancedCredentialsServiceV8.metrics.performance.avgWriteTime + (performance.now() - startTime)) / 2;
+						EnhancedCredentialsServiceV8.metrics.performance.avgWriteTime =
+							(EnhancedCredentialsServiceV8.metrics.performance.avgWriteTime +
+								(performance.now() - startTime)) /
+							2;
 
 						// Update metadata
-						enhanced.metadata.storageBackends = [...new Set([...enhanced.metadata.storageBackends, backend.name])];
+						enhanced.metadata.storageBackends = [
+							...new Set([...enhanced.metadata.storageBackends, backend.name]),
+						];
 						enhanced.metadata.syncStatus = 'synced';
 
 						console.log(`${MODULE_TAG} Credentials saved successfully using ${backend.name}`);
@@ -722,7 +738,6 @@ export class EnhancedCredentialsServiceV8 {
 			// All backends failed
 			EnhancedCredentialsServiceV8.metrics.operations.errors++;
 			return { success: false, backend: 'none', ...(lastError && { error: lastError }) };
-
 		} catch (error) {
 			EnhancedCredentialsServiceV8.metrics.operations.errors++;
 			const errorMessage = error instanceof Error ? error.message : String(error);
@@ -759,10 +774,12 @@ export class EnhancedCredentialsServiceV8 {
 					if (credentials) {
 						// Update metrics
 						EnhancedCredentialsServiceV8.metrics.operations.reads++;
-						EnhancedCredentialsServiceV8.metrics.backendUsage[backend.name] = 
+						EnhancedCredentialsServiceV8.metrics.backendUsage[backend.name] =
 							(EnhancedCredentialsServiceV8.metrics.backendUsage[backend.name] || 0) + 1;
-						EnhancedCredentialsServiceV8.metrics.performance.avgReadTime = 
-							(EnhancedCredentialsServiceV8.metrics.performance.avgReadTime + (performance.now() - startTime)) / 2;
+						EnhancedCredentialsServiceV8.metrics.performance.avgReadTime =
+							(EnhancedCredentialsServiceV8.metrics.performance.avgReadTime +
+								(performance.now() - startTime)) /
+							2;
 
 						console.log(`${MODULE_TAG} Credentials loaded from ${backend.name}: ${environmentId}`);
 						return credentials;
@@ -774,7 +791,6 @@ export class EnhancedCredentialsServiceV8 {
 
 			console.log(`${MODULE_TAG} No credentials found for ${environmentId}`);
 			return null;
-
 		} catch (error) {
 			EnhancedCredentialsServiceV8.metrics.operations.errors++;
 			console.error(`${MODULE_TAG} Load failed:`, error);
@@ -785,8 +801,14 @@ export class EnhancedCredentialsServiceV8 {
 	/**
 	 * List all credentials across backends
 	 */
-	static async list(): Promise<Array<{ environmentId: string; credentials: EnhancedCredentials; backend: string }>> {
-		const results: Array<{ environmentId: string; credentials: EnhancedCredentials; backend: string }> = [];
+	static async list(): Promise<
+		Array<{ environmentId: string; credentials: EnhancedCredentials; backend: string }>
+	> {
+		const results: Array<{
+			environmentId: string;
+			credentials: EnhancedCredentials;
+			backend: string;
+		}> = [];
 		const seen = new Set<string>();
 
 		try {
@@ -794,7 +816,8 @@ export class EnhancedCredentialsServiceV8 {
 
 			for (const backend of backends) {
 				try {
-					let backendResults: Array<{ environmentId: string; credentials: EnhancedCredentials }> = [];
+					let backendResults: Array<{ environmentId: string; credentials: EnhancedCredentials }> =
+						[];
 
 					switch (backend.name) {
 						case 'indexeddb': {
@@ -809,7 +832,7 @@ export class EnhancedCredentialsServiceV8 {
 							const all = LocalStorageFallback.loadAll();
 							backendResults = Object.entries(all).map(([envId, creds]) => ({
 								environmentId: envId,
-								credentials: creds
+								credentials: creds,
 							}));
 							break;
 						}
@@ -827,7 +850,6 @@ export class EnhancedCredentialsServiceV8 {
 			}
 
 			return results;
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} List failed:`, error);
 			return [];
@@ -837,7 +859,9 @@ export class EnhancedCredentialsServiceV8 {
 	/**
 	 * Clear credentials from all backends
 	 */
-	static async clear(environmentId: string): Promise<{ success: boolean; backends: string[]; errors?: string[] }> {
+	static async clear(
+		environmentId: string
+	): Promise<{ success: boolean; backends: string[]; errors?: string[] }> {
 		const successfulBackends: string[] = [];
 		const errors: string[] = [];
 
@@ -869,12 +893,11 @@ export class EnhancedCredentialsServiceV8 {
 				}
 			}
 
-			return { 
-				success: successfulBackends.length > 0, 
+			return {
+				success: successfulBackends.length > 0,
 				backends: successfulBackends,
-				...(errors.length > 0 && { errors })
+				...(errors.length > 0 && { errors }),
 			};
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Clear failed:`, error);
 			return { success: false, backends: [], errors: ['Unexpected error'] };
@@ -891,10 +914,7 @@ export class EnhancedCredentialsServiceV8 {
 	/**
 	 * Track user interaction
 	 */
-	static trackInteraction(
-		environmentId: string,
-		interaction: Partial<UserInteractionData>
-	): void {
+	static trackInteraction(environmentId: string, interaction: Partial<UserInteractionData>): void {
 		// This can be called frequently, so we'll batch updates
 		// Implementation would depend on specific tracking requirements
 		console.log(`${MODULE_TAG} Tracking interaction for ${environmentId}:`, interaction);
@@ -903,7 +923,9 @@ export class EnhancedCredentialsServiceV8 {
 	/**
 	 * Sync credentials across backends
 	 */
-	static async sync(environmentId: string): Promise<{ success: boolean; syncedBackends: string[]; errors?: string[] }> {
+	static async sync(
+		environmentId: string
+	): Promise<{ success: boolean; syncedBackends: string[]; errors?: string[] }> {
 		const startTime = performance.now();
 		const syncedBackends: string[] = [];
 		const errors: string[] = [];
@@ -945,15 +967,16 @@ export class EnhancedCredentialsServiceV8 {
 
 			// Update metrics
 			EnhancedCredentialsServiceV8.metrics.operations.syncs++;
-			EnhancedCredentialsServiceV8.metrics.performance.avgSyncTime = 
-				(EnhancedCredentialsServiceV8.metrics.performance.avgSyncTime + (performance.now() - startTime)) / 2;
+			EnhancedCredentialsServiceV8.metrics.performance.avgSyncTime =
+				(EnhancedCredentialsServiceV8.metrics.performance.avgSyncTime +
+					(performance.now() - startTime)) /
+				2;
 
-			return { 
-				success: syncedBackends.length > 1, 
+			return {
+				success: syncedBackends.length > 1,
 				syncedBackends,
-				...(errors.length > 0 && { errors })
+				...(errors.length > 0 && { errors }),
 			};
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Sync failed:`, error);
 			return { success: false, syncedBackends: [], errors: ['Sync failed'] };
@@ -970,7 +993,11 @@ export class EnhancedCredentialsServiceV8 {
 	/**
 	 * Migrate data from old storage format
 	 */
-	static async migrateFromOldFormat(): Promise<{ success: boolean; migrated: number; errors?: string[] }> {
+	static async migrateFromOldFormat(): Promise<{
+		success: boolean;
+		migrated: number;
+		errors?: string[];
+	}> {
 		const errors: string[] = [];
 		let migrated = 0;
 
@@ -982,7 +1009,7 @@ export class EnhancedCredentialsServiceV8 {
 			if (oldData) {
 				try {
 					const oldCredentials = JSON.parse(oldData);
-					
+
 					if (oldCredentials.environmentId) {
 						// Create enhanced credentials from old format
 						const enhanced: EnhancedCredentials = {
@@ -991,35 +1018,37 @@ export class EnhancedCredentialsServiceV8 {
 							clientSecret: oldCredentials.clientSecret,
 							issuerUrl: oldCredentials.issuerUrl,
 							clientAuthMethod: oldCredentials.clientAuthMethod,
-							interactionHistory: [{
-								timestamp: new Date().toISOString(),
-								appName: 'migration',
-								flowType: 'legacy',
-								environmentId: oldCredentials.environmentId,
-								clientId: oldCredentials.clientId || '',
-								selections: {},
-								fieldInteractions: { modifiedFields: [], validatedFields: [], errorFields: [] },
-								sessionInfo: {
-									sessionStart: new Date().toISOString(),
-									currentStep: 'migration',
-									sessionDuration: 0,
-									userAgent: navigator.userAgent,
-									pageUrl: window.location.href
+							interactionHistory: [
+								{
+									timestamp: new Date().toISOString(),
+									appName: 'migration',
+									flowType: 'legacy',
+									environmentId: oldCredentials.environmentId,
+									clientId: oldCredentials.clientId || '',
+									selections: {},
+									fieldInteractions: { modifiedFields: [], validatedFields: [], errorFields: [] },
+									sessionInfo: {
+										sessionStart: new Date().toISOString(),
+										currentStep: 'migration',
+										sessionDuration: 0,
+										userAgent: navigator.userAgent,
+										pageUrl: window.location.href,
+									},
+									performance: {
+										loadTime: 0,
+										saveTime: 0,
+										storageBackend: 'localStorage',
+										cacheHit: false,
+									},
 								},
-								performance: {
-									loadTime: 0,
-									saveTime: 0,
-									storageBackend: 'localStorage',
-									cacheHit: false
-								}
-							}],
+							],
 							metadata: {
 								lastUpdated: new Date().toISOString(),
 								createdAt: new Date().toISOString(),
 								storageBackends: ['localStorage'],
 								syncStatus: 'synced',
-								version: 1
-							}
+								version: 1,
+							},
 						};
 
 						const result = await EnhancedCredentialsServiceV8.save(
@@ -1041,7 +1070,6 @@ export class EnhancedCredentialsServiceV8 {
 			}
 
 			return { success: migrated > 0, migrated, ...(errors.length > 0 && { errors }) };
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Migration failed:`, error);
 			return { success: false, migrated: 0, errors: ['Migration failed'] };
