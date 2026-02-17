@@ -48,7 +48,8 @@ import { oauthStorage } from '@/utils/storage';
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
 import { DeviceFailureModalV8, UnavailableDevice } from '@/v8/components/DeviceFailureModalV8';
 import { MFACooldownModalV8 } from '@/v8/components/MFACooldownModalV8';
-import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
+import { useProductionSpinner } from '../../hooks/useProductionSpinner';
+import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -167,12 +168,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const [isGettingWorkerToken, setIsGettingWorkerToken] = useState(false);
 
 	// Standardized spinner hooks for MFA authentication operations
-	const startMFASpinner = useStandardSpinner(6000); // Start MFA - 6 seconds (user lookup + init)
-	const fido2Spinner = useStandardSpinner(8000);    // FIDO2 auth - 8 seconds (complex auth)
-	const authApiSpinner = useStandardSpinner(4000);  // Authorization API - 4 seconds
-	const clearTokensSpinner = useStandardSpinner(3000); // Clear tokens - 3 seconds
-	const policySpinner = useStandardSpinner(2000);   // Policy selection - 2 seconds
-	const devicesSpinner = useStandardSpinner(3000);  // Load devices - 3 seconds
+	const startMFASpinner = useProductionSpinner('mfa-start');      // Start MFA - user lookup + init
+	const fido2Spinner = useProductionSpinner('mfa-fido2');          // FIDO2 auth - complex auth
+	const authApiSpinner = useProductionSpinner('mfa-auth-api');     // Authorization API
+	const clearTokensSpinner = useProductionSpinner('mfa-clear-tokens'); // Clear tokens
+	const policySpinner = useProductionSpinner('mfa-policy');        // Policy selection
+	const devicesSpinner = useProductionSpinner('mfa-devices');       // Load devices
 
 	// Action button hooks for consistent button state management
 	// const _startMFAAction = useActionButton();
@@ -1684,36 +1685,54 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	return (
 		<>
 			{/* Modal Spinners for MFA Authentication Operations */}
-			<StandardModalSpinner
-				show={startMFASpinner.isLoading}
-				message="Starting MFA authentication..."
-				theme="blue"
-			/>
-			<StandardModalSpinner
-				show={fido2Spinner.isLoading}
-				message="Authenticating with FIDO2..."
-				theme="green"
-			/>
-			<StandardModalSpinner
-				show={authApiSpinner.isLoading}
-				message="Authorizing API call..."
-				theme="purple"
-			/>
-			<StandardModalSpinner
-				show={clearTokensSpinner.isLoading}
-				message="Clearing tokens..."
-				theme="orange"
-			/>
-			<StandardModalSpinner
-				show={policySpinner.isLoading}
-				message="Updating policy..."
-				theme="blue"
-			/>
-			<StandardModalSpinner
-				show={devicesSpinner.isLoading}
-				message="Loading devices..."
-				theme="green"
-			/>
+			{startMFASpinner.isLoading && (
+				<CommonSpinner
+					message={startMFASpinner.spinnerState.message || 'Starting MFA authentication...'}
+					theme="blue"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+			{fido2Spinner.isLoading && (
+				<CommonSpinner
+					message={fido2Spinner.spinnerState.message || 'Authenticating with FIDO2...'}
+					theme="green"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+			{authApiSpinner.isLoading && (
+				<CommonSpinner
+					message={authApiSpinner.spinnerState.message || 'Authorizing API call...'}
+					theme="purple"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+			{clearTokensSpinner.isLoading && (
+				<CommonSpinner
+					message={clearTokensSpinner.spinnerState.message || 'Clearing tokens...'}
+					theme="orange"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+			{policySpinner.isLoading && (
+				<CommonSpinner
+					message={policySpinner.spinnerState.message || 'Updating policy...'}
+					theme="blue"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+			{devicesSpinner.isLoading && (
+				<CommonSpinner
+					message={devicesSpinner.spinnerState.message || 'Loading devices...'}
+					theme="green"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
 			
 			<div
 				style={{
